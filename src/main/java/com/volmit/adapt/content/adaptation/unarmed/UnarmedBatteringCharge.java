@@ -57,7 +57,7 @@ public class UnarmedBatteringCharge extends SimpleAdaptation<UnarmedBatteringCha
         registerConfiguration(Config.class);
         setDescription(Localizer.dLocalize("unarmed.battering_charge.description"));
         setDisplayName(Localizer.dLocalize("unarmed.battering_charge.name"));
-        setIcon(Material.SHIELD);
+        setIcon(Material.BLAZE_ROD);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
@@ -71,7 +71,7 @@ public class UnarmedBatteringCharge extends SimpleAdaptation<UnarmedBatteringCha
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_unarmed_charge_300").goal(300).stat("unarmed.battering-charge.charges").reward(400).build());
+        registerMilestone("challenge_unarmed_charge_300", "unarmed.battering-charge.charges", 300, 400);
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.DIAMOND)
                 .key("challenge_unarmed_charge_kills_100")
@@ -80,7 +80,7 @@ public class UnarmedBatteringCharge extends SimpleAdaptation<UnarmedBatteringCha
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_unarmed_charge_kills_100").goal(100).stat("unarmed.battering-charge.charge-kills").reward(1000).build());
+        registerMilestone("challenge_unarmed_charge_kills_100", "unarmed.battering-charge.charge-kills", 100, 1000);
     }
 
     @Override
@@ -122,8 +122,12 @@ public class UnarmedBatteringCharge extends SimpleAdaptation<UnarmedBatteringCha
         SoundPlayer sp = SoundPlayer.of(p.getWorld());
         sp.play(p.getLocation(), Sound.ENTITY_PLAYER_ATTACK_KNOCKBACK, 1f, 0.95f);
         sp.play(target.getLocation(), Sound.ENTITY_ZOGLIN_ATTACK, 0.5f, 0.8f);
-        target.getWorld().spawnParticle(Particle.EXPLOSION, target.getLocation().add(0, 0.8, 0), 1, 0.06, 0.06, 0.06, 0.02);
-        target.getWorld().spawnParticle(Particle.CLOUD, target.getLocation().add(0, 0.6, 0), 14, 0.25, 0.25, 0.25, 0.05);
+        if (areParticlesEnabled()) {
+            target.getWorld().spawnParticle(Particle.EXPLOSION, target.getLocation().add(0, 0.8, 0), 1, 0.06, 0.06, 0.06, 0.02);
+        }
+        if (areParticlesEnabled()) {
+            target.getWorld().spawnParticle(Particle.CLOUD, target.getLocation().add(0, 0.6, 0), 14, 0.25, 0.25, 0.25, 0.05);
+        }
         primedState.put(p.getUniqueId(), false);
         xp(p, e.getDamage() * getConfig().xpPerDamage);
         getPlayer(p).getData().addStat("unarmed.battering-charge.charges", 1);
@@ -197,7 +201,8 @@ public class UnarmedBatteringCharge extends SimpleAdaptation<UnarmedBatteringCha
 
     @Override
     public void onTick() {
-        for (Player p : Bukkit.getOnlinePlayers()) {
+        for (com.volmit.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+            Player p = adaptPlayer.getPlayer();
             if (!hasAdaptation(p)) {
                 primedState.remove(p.getUniqueId());
                 continue;
@@ -207,10 +212,14 @@ public class UnarmedBatteringCharge extends SimpleAdaptation<UnarmedBatteringCha
             boolean wasPrimed = primedState.getOrDefault(p.getUniqueId(), false);
 
             if (primed) {
-                p.getWorld().spawnParticle(Particle.CLOUD, p.getLocation().add(0, 0.2, 0), 2, 0.2, 0.05, 0.2, 0.02);
+                if (areParticlesEnabled()) {
+                    p.getWorld().spawnParticle(Particle.CLOUD, p.getLocation().add(0, 0.2, 0), 2, 0.2, 0.05, 0.2, 0.02);
+                }
                 if (!wasPrimed) {
                     SoundPlayer.of(p.getWorld()).play(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASEDRUM, 0.55f, 1.15f);
-                    p.getWorld().spawnParticle(Particle.CRIT, p.getLocation().add(0, 1.0, 0), 8, 0.2, 0.3, 0.2, 0.1);
+                    if (areParticlesEnabled()) {
+                        p.getWorld().spawnParticle(Particle.CRIT, p.getLocation().add(0, 1.0, 0), 8, 0.2, 0.3, 0.2, 0.1);
+                    }
                 }
             }
 

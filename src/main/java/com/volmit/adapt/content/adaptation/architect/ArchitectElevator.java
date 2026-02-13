@@ -110,7 +110,7 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_architect_elevator_100").goal(100).stat("architect.elevator.trips").reward(300).build());
+        registerMilestone("challenge_architect_elevator_100", "architect.elevator.trips", 100, 300);
     }
 
     @Override
@@ -391,7 +391,9 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
     }
 
     private void playTeleportEffects(Player p) {
-        p.getWorld().spawnParticle(Particle.PORTAL, p.getLocation(), PARTICLE_COUNT);
+        if (areParticlesEnabled()) {
+            p.getWorld().spawnParticle(Particle.PORTAL, p.getLocation(), PARTICLE_COUNT);
+        }
     }
 
     @Override

@@ -58,7 +58,7 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_pickaxe_chisel_500").goal(500).stat("pickaxe.chisel.extra-ores").reward(400).build());
+        registerMilestone("challenge_pickaxe_chisel_500", "pickaxe.chisel.extra-ores", 500, 400);
     }
 
     @Override
@@ -111,7 +111,7 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
 
                 ItemStack is = getDropFor(b);
                 if (M.r(getDropChance(getLevelPercent(p)))) {
-                    if (getConfig().showParticles) {
+                    if (areParticlesEnabled()) {
                         e.getClickedBlock().getWorld().spawnParticle(Particles.ITEM_CRACK, c, 14, 0.10, 0.01, 0.01, 0.1, is);
                     }
                     spw.play(p.getLocation(), Sound.BLOCK_DEEPSLATE_PLACE, 1.25f, 0.787f);
@@ -119,7 +119,7 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
                     e.getClickedBlock().getWorld().dropItemNaturally(c.clone().subtract(p.getLocation().getDirection().clone().multiply(0.1)), is);
                     getPlayer(p).getData().addStat("pickaxe.chisel.extra-ores", 1);
                 } else {
-                    if (getConfig().showParticles) {
+                    if (areParticlesEnabled()) {
                         e.getClickedBlock().getWorld().spawnParticle(Particles.ITEM_CRACK, c, 3, 0.01, 0.01, 0.01, 0.1, is);
                         e.getClickedBlock().getWorld().spawnParticle(Particles.BLOCK_CRACK, c, 9, 0.1, 0.1, 0.1, e.getClickedBlock().getBlockData());
                     }

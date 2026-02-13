@@ -56,7 +56,7 @@ public class HunterResistance extends SimpleAdaptation<HunterResistance.Config> 
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_hunter_resistance_500").goal(500).stat("hunter.resistance.activations").reward(400).build());
+        registerMilestone("challenge_hunter_resistance_500", "hunter.resistance.activations", 500, 400);
     }
 
     @Override

@@ -85,7 +85,7 @@ public class BrewingHunger extends SimpleAdaptation<BrewingHunger.Config> {
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_brewing_hunger_25").goal(25).stat("brewing.hunger.potions-brewed").reward(300).build());
+        registerMilestone("challenge_brewing_hunger_25", "brewing.hunger.potions-brewed", 25, 300);
     }
 
     @Override

@@ -71,8 +71,8 @@ public class TamingBeastRecall extends SimpleAdaptation<TamingBeastRecall.Config
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_taming_recall_100").goal(100).stat("taming.beast-recall.recalls").reward(300).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_taming_recall_1k").goal(1000).stat("taming.beast-recall.recalls").reward(1000).build());
+        registerMilestone("challenge_taming_recall_100", "taming.beast-recall.recalls", 100, 300);
+        registerMilestone("challenge_taming_recall_1k", "taming.beast-recall.recalls", 1000, 1000);
     }
 
     @Override

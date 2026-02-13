@@ -23,6 +23,7 @@ import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
 import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.version.Version;
+import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.config.ConfigDescription;
@@ -37,6 +38,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Tameable;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config> {
@@ -62,7 +65,7 @@ public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_taming_health_boost_1728k").goal(1728000).stat("taming.health-boost.ticks-active").reward(400).build());
+        registerMilestone("challenge_taming_health_boost_1728k", "taming.health-boost.ticks-active", 1728000, 400);
     }
 
     @Override
@@ -76,18 +79,28 @@ public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config
 
     @Override
     public void onTick() {
+        Map<UUID, OwnerState> ownerStates = new HashMap<>();
+        for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+            Player owner = adaptPlayer.getPlayer();
+            ownerStates.put(owner.getUniqueId(), new OwnerState(adaptPlayer, getLevel(owner)));
+        }
+
         for (World world : Bukkit.getServer().getWorlds()) {
             Collection<Tameable> tameables = world.getEntitiesByClass(Tameable.class);
             for (Tameable tameable : tameables) {
                 if (tameable.isTamed() && tameable.getOwner() instanceof Player p) {
-                    int level = getLevel(p);
+                    OwnerState state = ownerStates.get(p.getUniqueId());
+                    int level = state == null ? 0 : state.level();
                     update(tameable, level);
-                    if (level > 0) {
-                        getPlayer(p).getData().addStat("taming.health-boost.ticks-active", 1);
+                    if (level > 0 && state != null) {
+                        state.owner().getData().addStat("taming.health-boost.ticks-active", 1);
                     }
                 }
             }
         }
+    }
+
+    private record OwnerState(AdaptPlayer owner, int level) {
     }
 
     private void update(Tameable j, int level) {

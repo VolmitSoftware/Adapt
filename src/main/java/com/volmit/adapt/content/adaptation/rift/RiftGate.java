@@ -78,8 +78,8 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_gate_100").goal(100).stat("rift.gate.teleports").reward(400).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_gate_50k_dist").goal(50000).stat("rift.gate.total-distance").reward(1500).build());
+        registerMilestone("challenge_rift_gate_100", "rift.gate.teleports", 100, 400);
+        registerMilestone("challenge_rift_gate_50k_dist", "rift.gate.total-distance", 50000, 1500);
     }
 
     @Override
@@ -165,7 +165,7 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
     }
 
     private void linkEye(Player p, Location location) {
-        if (getConfig().showParticles) {
+        if (areParticlesEnabled()) {
             vfxCuboidOutline(location.getBlock(), location.add(0, 1, 0).getBlock(), Particle.REVERSE_PORTAL);
         }
         SoundPlayer sp = SoundPlayer.of(p);

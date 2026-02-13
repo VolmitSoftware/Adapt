@@ -74,18 +74,8 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_agility_super_jump_100")
-                .goal(100)
-                .stat("agility.super-jump.jumps")
-                .reward(300)
-                .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_agility_super_jump_5k")
-                .goal(5000)
-                .stat("agility.super-jump.jumps")
-                .reward(1500)
-                .build());
+        registerMilestone("challenge_agility_super_jump_100", "agility.super-jump.jumps", 100, 300);
+        registerMilestone("challenge_agility_super_jump_5k", "agility.super-jump.jumps", 5000, 1500);
     }
 
     private double getJumpHeight(int level) {
@@ -151,7 +141,7 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
                     SoundPlayer spw = SoundPlayer.of(p.getWorld());
                     spw.play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 1.25f, 0.7f);
                     spw.play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 1.25f, 1.7f);
-                    if (getConfig().showParticles) {
+                    if (areParticlesEnabled()) {
                         p.getWorld().spawnParticle(Particles.BLOCK_CRACK, p.getLocation().clone().add(0, 0.3, 0), 15, 0.1, 0.8, 0.1, 0.1, p.getLocation().getBlock().getRelative(BlockFace.DOWN).getBlockData());
                     }
                     p.setVelocity(p.getVelocity().setY(getJumpHeight(getLevel(p))));

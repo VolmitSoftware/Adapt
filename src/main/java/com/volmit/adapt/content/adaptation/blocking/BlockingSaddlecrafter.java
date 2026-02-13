@@ -45,7 +45,7 @@ public class BlockingSaddlecrafter extends SimpleAdaptation<BlockingSaddlecrafte
         registerConfiguration(Config.class);
         setDescription(Localizer.dLocalize("blocking.saddle_crafter.description"));
         setDisplayName(Localizer.dLocalize("blocking.saddle_crafter.name"));
-        setIcon(Material.SADDLE);
+        setIcon(Material.LEATHER_HORSE_ARMOR);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInterval(17774);
@@ -67,12 +67,7 @@ public class BlockingSaddlecrafter extends SimpleAdaptation<BlockingSaddlecrafte
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_blocking_saddle_25")
-                .goal(25)
-                .stat("blocking.saddlecrafter.saddles-crafted")
-                .reward(400)
-                .build());
+        registerMilestone("challenge_blocking_saddle_25", "blocking.saddlecrafter.saddles-crafted", 25, 400);
     }
 
     @EventHandler

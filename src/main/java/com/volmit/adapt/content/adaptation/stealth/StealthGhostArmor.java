@@ -49,7 +49,7 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
         registerConfiguration(Config.class);
         setDescription(Localizer.dLocalize("stealth.ghost_armor.description"));
         setDisplayName(Localizer.dLocalize("stealth.ghost_armor.name"));
-        setIcon(Material.NETHERITE_CHESTPLATE);
+        setIcon(Material.CHAINMAIL_HELMET);
         setInterval(5353);
         setBaseCost(getConfig().baseCost);
         setInitialCost(getConfig().initialCost);
@@ -71,8 +71,8 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_stealth_ghost_100").goal(100).stat("stealth.ghost-armor.armor-consumed").reward(300).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_stealth_ghost_500").goal(500).stat("stealth.ghost-armor.armor-consumed").reward(1000).build());
+        registerMilestone("challenge_stealth_ghost_100", "stealth.ghost-armor.armor-consumed", 100, 300);
+        registerMilestone("challenge_stealth_ghost_500", "stealth.ghost-armor.armor-consumed", 500, 1000);
     }
 
     @Override
@@ -91,7 +91,8 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
 
     @Override
     public void onTick() {
-        for (Player p : Bukkit.getOnlinePlayers()) {
+        for (com.volmit.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+            Player p = adaptPlayer.getPlayer();
             var attribute = Version.get().getAttribute(p, Attributes.GENERIC_ARMOR);
 
             if (!hasAdaptation(p)) {

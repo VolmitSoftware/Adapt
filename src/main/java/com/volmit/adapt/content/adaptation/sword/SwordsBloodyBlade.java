@@ -73,7 +73,7 @@ public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_swords_bloody_500").goal(500).stat("swords.bloody-blade.bleed-damage").reward(400).build());
+        registerMilestone("challenge_swords_bloody_500", "swords.bloody-blade.bleed-damage", 500, 400);
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.DIAMOND_SWORD)
                 .key("challenge_swords_bloody_kills_100")
@@ -82,7 +82,7 @@ public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_swords_bloody_kills_100").goal(100).stat("swords.bloody-blade.bleed-kills").reward(1000).build());
+        registerMilestone("challenge_swords_bloody_kills_100", "swords.bloody-blade.bleed-kills", 100, 1000);
     }
 
     @Override
@@ -117,7 +117,7 @@ public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config
             } else {
                 if (!canPVE(p, victim.getLocation())) return;
             }
-            if (getConfig().showParticles) {
+            if (areParticlesEnabled()) {
                 BleedEffect blood = victim instanceof LivingEntity l ? new DamagingBleedEffect(Adapt.instance.adaptEffectManager, getConfig().damagePerBleedProc, l) : new BleedEffect(Adapt.instance.adaptEffectManager);
                 blood.setEntity(victim);
                 blood.material = Material.CRIMSON_ROOTS;

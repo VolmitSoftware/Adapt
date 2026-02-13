@@ -50,7 +50,7 @@ public class TragoulGlobe extends SimpleAdaptation<TragoulGlobe.Config> {
         registerConfiguration(TragoulGlobe.Config.class);
         setDescription(Localizer.dLocalize("tragoul.globe.description"));
         setDisplayName(Localizer.dLocalize("tragoul.globe.name"));
-        setIcon(Material.ENDER_PEARL);
+        setIcon(Material.CRYING_OBSIDIAN);
         setInterval(25000);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -65,7 +65,7 @@ public class TragoulGlobe extends SimpleAdaptation<TragoulGlobe.Config> {
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_tragoul_globe_1k").goal(1000).stat("tragoul.globe.mobs-shared-with").reward(400).build());
+        registerMilestone("challenge_tragoul_globe_1k", "tragoul.globe.mobs-shared-with", 1000, 400);
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.GLASS)
                 .key("challenge_tragoul_globe_5")
@@ -124,7 +124,7 @@ public class TragoulGlobe extends SimpleAdaptation<TragoulGlobe.Config> {
             getPlayer(p).getAdvancementHandler().grant("challenge_tragoul_globe_5");
         }
 
-        if (getConfig().showParticles) {
+        if (areParticlesEnabled()) {
             J.s(() -> vfxFastSphere(p.getLocation(), range, Color.BLACK, 400));
         }
     }
@@ -155,11 +155,11 @@ public class TragoulGlobe extends SimpleAdaptation<TragoulGlobe.Config> {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Tragoul Globe adaptation.", impact = "True enables this behavior and false disables it.")
         boolean showParticles = true;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-        int baseCost = 5;
+        int baseCost = 4;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
         int maxLevel = 5;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-        int initialCost = 5;
+        int initialCost = 4;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Cooldown for the Tragoul Globe adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double cooldown = 1;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Range Per Level for the Tragoul Globe adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -167,7 +167,7 @@ public class TragoulGlobe extends SimpleAdaptation<TragoulGlobe.Config> {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Inital Range for the Tragoul Globe adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double initalRange = 5.0;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-        double costFactor = 1.10;
+        double costFactor = 0.72;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Bonus Damage Per Level for the Tragoul Globe adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double bonusDamagePerLevel = 1;
     }

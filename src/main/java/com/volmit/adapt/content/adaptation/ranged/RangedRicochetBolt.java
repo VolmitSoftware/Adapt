@@ -38,9 +38,15 @@ import org.bukkit.Sound;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.Arrow;
+import org.bukkit.entity.Egg;
+import org.bukkit.entity.EnderPearl;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
+import org.bukkit.entity.Snowball;
 import org.bukkit.entity.SpectralArrow;
+import org.bukkit.entity.ThrownExpBottle;
+import org.bukkit.entity.ThrownPotion;
+import org.bukkit.entity.Trident;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -82,8 +88,8 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_ranged_ricochet_kills_50").goal(50).stat("ranged.ricochet-bolt.ricochet-kills").reward(500).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_ranged_ricochet_kills_500").goal(500).stat("ranged.ricochet-bolt.ricochet-kills").reward(2000).build());
+        registerMilestone("challenge_ranged_ricochet_kills_50", "ranged.ricochet-bolt.ricochet-kills", 50, 500);
+        registerMilestone("challenge_ranged_ricochet_kills_500", "ranged.ricochet-bolt.ricochet-kills", 500, 2000);
     }
 
     @Override
@@ -95,22 +101,22 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void on(ProjectileHitEvent e) {
-        if (!(e.getEntity() instanceof AbstractArrow arrow) || !(arrow.getShooter() instanceof Player p) || !hasAdaptation(p)) {
+        if (!(e.getEntity() instanceof Projectile projectile) || !(projectile.getShooter() instanceof Player p) || !hasAdaptation(p)) {
             return;
         }
 
-        if (e.getHitBlock() == null) {
+        if (e.getHitBlock() == null || !supportsRicochet(projectile)) {
             return;
         }
 
         int level = getLevel(p);
-        int ricochetCount = Math.max(0, getMetadataInt(arrow, RICOCHET_COUNT_META, 0));
-        int maxRicochets = Math.max(1, getMetadataInt(arrow, RICOCHET_MAX_META, getMaxRicochets(level)));
+        int ricochetCount = Math.max(0, getMetadataInt(projectile, RICOCHET_COUNT_META, 0));
+        int maxRicochets = Math.max(1, getMetadataInt(projectile, RICOCHET_MAX_META, getMaxRicochets(level)));
         if (ricochetCount >= maxRicochets) {
             return;
         }
 
-        Vector incoming = resolveIncomingVector(arrow);
+        Vector incoming = resolveIncomingVector(projectile);
         if (incoming.lengthSquared() < getConfig().minRicochetVelocitySquared) {
             return;
         }
@@ -133,12 +139,12 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
 
         Vector ricochetVelocity = reflectedDir.clone().multiply(nextSpeed);
         int nextRicochetCount = ricochetCount + 1;
-        double bonusDamage = getMetadataDouble(arrow, BONUS_DAMAGE_META, 0D) + getDamageBonusPerRicochet(level);
+        double bonusDamage = getMetadataDouble(projectile, BONUS_DAMAGE_META, 0D) + getDamageBonusPerRicochet(level);
 
-        Location bounceLocation = arrow.getLocation().clone()
+        Location bounceLocation = projectile.getLocation().clone()
                 .add(hitFace.getDirection().normalize().multiply(getConfig().spawnOffsetFromSurface))
                 .add(reflectedDir.clone().multiply(getConfig().spawnOffsetAlongDirection));
-        AbstractArrow ricochet = spawnRicochetArrow(arrow, bounceLocation, ricochetVelocity, p);
+        Projectile ricochet = spawnRicochetProjectile(projectile, bounceLocation, ricochetVelocity, p);
         if (ricochet == null) {
             return;
         }
@@ -148,16 +154,20 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
         ricochet.setMetadata(BONUS_DAMAGE_META, new FixedMetadataValue(Adapt.instance, bonusDamage));
 
         Location fx = e.getHitBlock().getLocation().add(0.5, 0.5, 0.5);
-        arrow.getWorld().spawnParticle(Particle.ELECTRIC_SPARK, fx, Math.max(1, getConfig().sparkParticleCount),
-                getConfig().sparkSpread, getConfig().sparkSpread, getConfig().sparkSpread, 0.02);
-        arrow.getWorld().spawnParticle(Particle.CRIT, fx, Math.max(1, getConfig().critParticleCount),
-                getConfig().critSpread, getConfig().critSpread, getConfig().critSpread, 0.08);
-        SoundPlayer sp = SoundPlayer.of(arrow.getWorld());
-        sp.play(fx, Sound.BLOCK_ANVIL_HIT, 0.85f, (float) Math.max(0.4, getConfig().bouncePitchBase - (nextRicochetCount * getConfig().bouncePitchDropPerRicochet)));
-        sp.play(fx, Sound.BLOCK_AMETHYST_BLOCK_HIT, 0.9f, (float) Math.min(2.0, getConfig().sparkPitchBase + (nextRicochetCount * getConfig().sparkPitchRaisePerRicochet)));
+        if (areParticlesEnabled()) {
+            projectile.getWorld().spawnParticle(Particle.ELECTRIC_SPARK, fx, Math.max(1, getConfig().sparkParticleCount),
+                    getConfig().sparkSpread, getConfig().sparkSpread, getConfig().sparkSpread, 0.02);
+            projectile.getWorld().spawnParticle(Particle.CRIT, fx, Math.max(1, getConfig().critParticleCount),
+                    getConfig().critSpread, getConfig().critSpread, getConfig().critSpread, 0.08);
+        }
+        if (areSoundsEnabled()) {
+            SoundPlayer sp = SoundPlayer.of(projectile.getWorld());
+            sp.play(fx, Sound.BLOCK_ANVIL_HIT, 0.85f, (float) Math.max(0.4, getConfig().bouncePitchBase - (nextRicochetCount * getConfig().bouncePitchDropPerRicochet)));
+            sp.play(fx, Sound.BLOCK_AMETHYST_BLOCK_HIT, 0.9f, (float) Math.min(2.0, getConfig().sparkPitchBase + (nextRicochetCount * getConfig().sparkPitchRaisePerRicochet)));
+        }
         xp(p, getConfig().xpPerRicochet + (nextRicochetCount * getConfig().xpPerRicochetStep));
         getPlayer(p).getData().addStat("ranged.ricochet-bolt.total-ricochets", 1);
-        arrow.remove();
+        projectile.remove();
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -175,7 +185,7 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
         }
 
         double bonusDamage = getMetadataDouble(projectile, BONUS_DAMAGE_META, 0D);
-        if (bonusDamage > 0) {
+        if (bonusDamage > 0 && e.getDamage() > 0) {
             e.setDamage(e.getDamage() + bonusDamage);
         }
     }
@@ -192,37 +202,80 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
         }
     }
 
-    private AbstractArrow spawnRicochetArrow(AbstractArrow original, Location spawnLocation, Vector velocity, Player shooter) {
+    private Projectile spawnRicochetProjectile(Projectile original, Location spawnLocation, Vector velocity, Player shooter) {
         Vector dir = velocity.clone().normalize();
         float speed = (float) Math.max(0.2, velocity.length());
-        if (original instanceof SpectralArrow sourceSpectral) {
+        if (original instanceof SpectralArrow sourceSpectral && sourceSpectral instanceof AbstractArrow sourceAbstract) {
             SpectralArrow spectral = original.getWorld().spawn(spawnLocation, SpectralArrow.class);
-            spectral.setVelocity(velocity);
-            spectral.setShooter(shooter);
+            copyArrowState(sourceAbstract, spectral, shooter, velocity);
             spectral.setGlowingTicks(sourceSpectral.getGlowingTicks());
-            spectral.setDamage(original.getDamage());
-            spectral.setPierceLevel(original.getPierceLevel());
-            spectral.setCritical(original.isCritical());
-            spectral.setKnockbackStrength(original.getKnockbackStrength());
-            spectral.setFireTicks(original.getFireTicks());
             return spectral;
         }
 
-        Arrow arrow = original.getWorld().spawnArrow(spawnLocation, dir, speed, 0f);
-        arrow.setShooter(shooter);
-        arrow.setDamage(original.getDamage());
-        arrow.setCritical(original.isCritical());
-        arrow.setKnockbackStrength(original.getKnockbackStrength());
-        arrow.setPierceLevel(original.getPierceLevel());
-        arrow.setPickupStatus(AbstractArrow.PickupStatus.CREATIVE_ONLY);
-        arrow.setFireTicks(original.getFireTicks());
-
-        if (original instanceof Arrow sourceArrow) {
-            arrow.setBasePotionType(sourceArrow.getBasePotionType());
-            sourceArrow.getCustomEffects().forEach(effect -> arrow.addCustomEffect(effect, true));
+        if (original instanceof Trident sourceTrident) {
+            Trident trident = original.getWorld().spawn(spawnLocation, Trident.class);
+            copyArrowState(sourceTrident, trident, shooter, velocity);
+            trident.setItem(sourceTrident.getItem());
+            return trident;
         }
 
-        return arrow;
+        if (original instanceof Arrow sourceArrow) {
+            Arrow arrow = original.getWorld().spawnArrow(spawnLocation, dir, speed, 0f);
+            copyArrowState(sourceArrow, arrow, shooter, velocity);
+            arrow.setBasePotionType(sourceArrow.getBasePotionType());
+            sourceArrow.getCustomEffects().forEach(effect -> arrow.addCustomEffect(effect, true));
+            return arrow;
+        }
+
+        if (original instanceof Snowball) {
+            Snowball snowball = original.getWorld().spawn(spawnLocation, Snowball.class);
+            copyProjectileState(original, snowball, shooter, velocity);
+            return snowball;
+        }
+
+        if (original instanceof Egg) {
+            Egg egg = original.getWorld().spawn(spawnLocation, Egg.class);
+            copyProjectileState(original, egg, shooter, velocity);
+            return egg;
+        }
+
+        if (original instanceof EnderPearl) {
+            EnderPearl pearl = original.getWorld().spawn(spawnLocation, EnderPearl.class);
+            copyProjectileState(original, pearl, shooter, velocity);
+            return pearl;
+        }
+
+        if (original instanceof ThrownPotion sourcePotion) {
+            ThrownPotion potion = original.getWorld().spawn(spawnLocation, ThrownPotion.class);
+            copyProjectileState(sourcePotion, potion, shooter, velocity);
+            potion.setItem(sourcePotion.getItem().clone());
+            return potion;
+        }
+
+        if (original instanceof ThrownExpBottle) {
+            ThrownExpBottle bottle = original.getWorld().spawn(spawnLocation, ThrownExpBottle.class);
+            copyProjectileState(original, bottle, shooter, velocity);
+            return bottle;
+        }
+
+        return null;
+    }
+
+    private void copyArrowState(AbstractArrow source, AbstractArrow target, Player shooter, Vector velocity) {
+        copyProjectileState(source, target, shooter, velocity);
+        target.setDamage(source.getDamage());
+        target.setCritical(source.isCritical());
+        target.setKnockbackStrength(source.getKnockbackStrength());
+        target.setPierceLevel(source.getPierceLevel());
+        target.setPickupStatus(AbstractArrow.PickupStatus.CREATIVE_ONLY);
+    }
+
+    private void copyProjectileState(Projectile source, Projectile target, Player shooter, Vector velocity) {
+        target.setShooter(shooter);
+        target.setVelocity(velocity);
+        target.setBounce(source.doesBounce());
+        target.setGravity(source.hasGravity());
+        target.setFireTicks(source.getFireTicks());
     }
 
     private Vector reflect(Vector incoming, BlockFace face) {
@@ -231,18 +284,31 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
         return incoming.clone().subtract(normal.multiply(2D * dot));
     }
 
-    private Vector resolveIncomingVector(AbstractArrow arrow) {
-        Vector liveVelocity = arrow.getVelocity().clone();
+    private Vector resolveIncomingVector(Projectile projectile) {
+        Vector liveVelocity = projectile.getVelocity().clone();
         if (liveVelocity.lengthSquared() >= getConfig().minimumLiveVelocitySquared) {
             return liveVelocity;
         }
 
-        Vector facing = arrow.getLocation().getDirection().clone();
+        Vector facing = projectile.getLocation().getDirection().clone();
         if (facing.lengthSquared() > 0.0000001) {
             return facing.normalize().multiply(Math.max(getConfig().minimumPostBounceSpeed, liveVelocity.length()));
         }
 
         return liveVelocity;
+    }
+
+    private boolean supportsRicochet(Projectile projectile) {
+        if (projectile instanceof AbstractArrow) {
+            return true;
+        }
+
+        return getConfig().applyToAllProjectiles
+                && (projectile instanceof Snowball
+                || projectile instanceof Egg
+                || projectile instanceof EnderPearl
+                || projectile instanceof ThrownPotion
+                || projectile instanceof ThrownExpBottle);
     }
 
     private BlockFace resolveHitFace(ProjectileHitEvent e, Vector incoming) {
@@ -375,5 +441,7 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
         double xpPerRicochet = 6;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Xp Per Ricochet Step for the Ranged Ricochet Bolt adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double xpPerRicochetStep = 2;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Allow ricochet behavior to apply to throwables (snowballs, eggs, pearls, potions, exp bottles) in addition to arrows/tridents.", impact = "True enables universal ricochet across most player-thrown projectiles.")
+        boolean applyToAllProjectiles = true;
     }
 }

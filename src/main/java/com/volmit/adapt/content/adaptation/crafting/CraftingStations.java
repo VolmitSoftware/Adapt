@@ -19,10 +19,7 @@
 package com.volmit.adapt.content.adaptation.crafting;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.api.advancement.AdaptAdvancement;
-import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
-import com.volmit.adapt.api.advancement.AdvancementVisibility;
-import com.volmit.adapt.api.world.AdaptStatTracker;
+import com.volmit.adapt.api.advancement.AdvancementSpec;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
@@ -53,24 +50,21 @@ public class CraftingStations extends SimpleAdaptation<CraftingStations.Config> 
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setInterval(9248);
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.CRAFTING_TABLE)
-                .key("challenge_crafting_stations_200")
-                .title(Localizer.dLocalize("advancement.challenge_crafting_stations_200.title"))
-                .description(Localizer.dLocalize("advancement.challenge_crafting_stations_200.description"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .child(AdaptAdvancement.builder()
-                        .icon(Material.SMITHING_TABLE)
-                        .key("challenge_crafting_stations_5k")
-                        .title(Localizer.dLocalize("advancement.challenge_crafting_stations_5k.title"))
-                        .description(Localizer.dLocalize("advancement.challenge_crafting_stations_5k.description"))
-                        .frame(AdaptAdvancementFrame.CHALLENGE)
-                        .visibility(AdvancementVisibility.PARENT_GRANTED)
-                        .build())
-                .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_crafting_stations_200").goal(200).stat("crafting.stations.portable-opens").reward(300).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_crafting_stations_5k").goal(5000).stat("crafting.stations.portable-opens").reward(1000).build());
+        AdvancementSpec stations5k = AdvancementSpec.challenge(
+                "challenge_crafting_stations_5k",
+                Material.SMITHING_TABLE,
+                Localizer.dLocalize("advancement.challenge_crafting_stations_5k.title"),
+                Localizer.dLocalize("advancement.challenge_crafting_stations_5k.description")
+        );
+        AdvancementSpec stations200 = AdvancementSpec.challenge(
+                "challenge_crafting_stations_200",
+                Material.CRAFTING_TABLE,
+                Localizer.dLocalize("advancement.challenge_crafting_stations_200.title"),
+                Localizer.dLocalize("advancement.challenge_crafting_stations_200.description")
+        ).withChild(stations5k);
+        registerAdvancementSpec(stations200);
+        registerStatTracker(stations200.statTracker("crafting.stations.portable-opens", 200, 300));
+        registerStatTracker(stations5k.statTracker("crafting.stations.portable-opens", 5000, 1000));
     }
 
     @Override

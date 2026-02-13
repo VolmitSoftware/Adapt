@@ -75,18 +75,8 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_agility_armor_up_30min")
-                .goal(36000)
-                .stat("agility.armor-up.ticks-armored")
-                .reward(500)
-                .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_agility_armor_up_5hr")
-                .goal(360000)
-                .stat("agility.armor-up.ticks-armored")
-                .reward(1500)
-                .build());
+        registerMilestone("challenge_agility_armor_up_30min", "agility.armor-up.ticks-armored", 36000, 500);
+        registerMilestone("challenge_agility_armor_up_5hr", "agility.armor-up.ticks-armored", 360000, 1500);
     }
 
     @Override
@@ -111,7 +101,8 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
 
     @Override
     public void onTick() {
-        for (Player p : Bukkit.getOnlinePlayers()) {
+        for (com.volmit.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+            Player p = adaptPlayer.getPlayer();
             var attribute = Version.get().getAttribute(p, Attributes.GENERIC_ARMOR);
             if (attribute == null) continue;
 
@@ -145,7 +136,7 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
                 double progress = Math.min(M.lerpInverse(0, ticksToMax, tr), 1);
                 double armorInc = M.lerp(0, getWindupArmor(factor), progress);
 
-                if (getConfig().showParticles) {
+                if (areParticlesEnabled()) {
                     if (M.r(0.2 * progress)) {
                         p.getWorld().spawnParticle(Particle.END_ROD, p.getLocation(), 1);
                     }

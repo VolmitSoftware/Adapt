@@ -85,7 +85,7 @@ public class BrewingSaturation extends SimpleAdaptation<BrewingSaturation.Config
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_brewing_saturation_25").goal(25).stat("brewing.saturation.potions-brewed").reward(300).build());
+        registerMilestone("challenge_brewing_saturation_25", "brewing.saturation.potions-brewed", 25, 300);
     }
 
     @Override

@@ -28,6 +28,9 @@ import java.util.Map;
 @Decree(name = "adapt", description = "Basic Command")
 public class CommandAdapt implements DecreeExecutor {
     private CommandDebug debug;
+    private CommandClear clear;
+    private CommandReset reset;
+    private CommandDefault defaults;
 
     @Decree(description = "Boost Target player Experience gain.")
     public void boost(

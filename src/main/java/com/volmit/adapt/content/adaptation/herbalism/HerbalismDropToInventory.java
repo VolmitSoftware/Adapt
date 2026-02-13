@@ -48,7 +48,7 @@ public class HerbalismDropToInventory extends SimpleAdaptation<HerbalismDropToIn
         registerConfiguration(HerbalismDropToInventory.Config.class);
         setDescription(Localizer.dLocalize("pickaxe.drop_to_inventory.description"));
         setDisplayName(Localizer.dLocalize("herbalism.drop_to_inventory.name"));
-        setIcon(Material.DIRT);
+        setIcon(Material.HOPPER);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
@@ -62,12 +62,7 @@ public class HerbalismDropToInventory extends SimpleAdaptation<HerbalismDropToIn
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_herbalism_dti_10k")
-                .goal(10000)
-                .stat("herbalism.drop-to-inv.items-caught")
-                .reward(500)
-                .build());
+        registerMilestone("challenge_herbalism_dti_10k", "herbalism.drop-to-inv.items-caught", 10000, 500);
     }
 
     @Override

@@ -48,7 +48,7 @@ public class DiscoveryBetterMending extends SimpleAdaptation<DiscoveryBetterMend
         registerConfiguration(Config.class);
         setDescription(Localizer.dLocalize("discovery.better_mending.description"));
         setDisplayName(Localizer.dLocalize("discovery.better_mending.name"));
-        setIcon(Material.EXPERIENCE_BOTTLE);
+        setIcon(Material.PHANTOM_MEMBRANE);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
@@ -70,18 +70,8 @@ public class DiscoveryBetterMending extends SimpleAdaptation<DiscoveryBetterMend
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_discovery_mending_10k")
-                .goal(10000)
-                .stat("discovery.better-mending.durability-restored")
-                .reward(400)
-                .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_discovery_mending_100k")
-                .goal(100000)
-                .stat("discovery.better-mending.durability-restored")
-                .reward(1500)
-                .build());
+        registerMilestone("challenge_discovery_mending_10k", "discovery.better-mending.durability-restored", 10000, 400);
+        registerMilestone("challenge_discovery_mending_100k", "discovery.better-mending.durability-restored", 100000, 1500);
     }
 
     @Override

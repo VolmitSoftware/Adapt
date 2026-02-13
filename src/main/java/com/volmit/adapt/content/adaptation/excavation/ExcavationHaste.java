@@ -64,8 +64,8 @@ public class ExcavationHaste extends SimpleAdaptation<ExcavationHaste.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_excavation_haste_5k").goal(5000).stat("excavation.haste.blocks-while-hasted").reward(400).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_excavation_haste_50k").goal(50000).stat("excavation.haste.blocks-while-hasted").reward(1500).build());
+        registerMilestone("challenge_excavation_haste_5k", "excavation.haste.blocks-while-hasted", 5000, 400);
+        registerMilestone("challenge_excavation_haste_50k", "excavation.haste.blocks-while-hasted", 50000, 1500);
     }
 
     @Override

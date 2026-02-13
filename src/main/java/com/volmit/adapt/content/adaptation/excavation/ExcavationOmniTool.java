@@ -83,8 +83,8 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_excavation_omni_1k").goal(1000).stat("excavation.omni-tool.auto-swaps").reward(400).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_excavation_omni_25k").goal(25000).stat("excavation.omni-tool.auto-swaps").reward(1500).build());
+        registerMilestone("challenge_excavation_omni_1k", "excavation.omni-tool.auto-swaps", 1000, 400);
+        registerMilestone("challenge_excavation_omni_25k", "excavation.omni-tool.auto-swaps", 25000, 1500);
     }
 
     @Override

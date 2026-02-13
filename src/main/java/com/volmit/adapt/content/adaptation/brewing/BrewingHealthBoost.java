@@ -85,7 +85,7 @@ public class BrewingHealthBoost extends SimpleAdaptation<BrewingHealthBoost.Conf
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_brewing_health_boost_25").goal(25).stat("brewing.health-boost.potions-brewed").reward(300).build());
+        registerMilestone("challenge_brewing_health_boost_25", "brewing.health-boost.potions-brewed", 25, 300);
     }
 
     @Override

@@ -68,8 +68,8 @@ public class RiftDescent extends SimpleAdaptation<RiftDescent.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_descent_100").goal(100).stat("rift.descent.levitation-cancelled").reward(300).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_descent_1k").goal(1000).stat("rift.descent.levitation-cancelled").reward(1000).build());
+        registerMilestone("challenge_rift_descent_100", "rift.descent.levitation-cancelled", 100, 300);
+        registerMilestone("challenge_rift_descent_1k", "rift.descent.levitation-cancelled", 1000, 1000);
     }
 
     @Override
@@ -137,7 +137,7 @@ public class RiftDescent extends SimpleAdaptation<RiftDescent.Config> {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
         int baseCost = 1;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-        double costFactor = 2;
+        double costFactor = 0.95;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
         int initialCost = 3;
     }

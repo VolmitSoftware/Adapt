@@ -76,8 +76,8 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_axe_chop_100").goal(100).stat("axe.chop.trees-felled").reward(400).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_axe_chop_2500").goal(2500).stat("axe.chop.trees-felled").reward(1500).build());
+        registerMilestone("challenge_axe_chop_100", "axe.chop.trees-felled", 100, 400);
+        registerMilestone("challenge_axe_chop_2500", "axe.chop.trees-felled", 2500, 1500);
     }
 
     @Override

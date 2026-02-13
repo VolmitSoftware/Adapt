@@ -27,7 +27,6 @@ import com.volmit.adapt.api.tick.TickedObject;
 import com.volmit.adapt.util.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.SneakyThrows;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -52,11 +51,16 @@ public class AdaptPlayer extends TickedObject {
     private Vector velocity;
     private Location lastpos;
     private long lastSeen;
+    private volatile boolean pendingDataDeletion;
 
     public AdaptPlayer(Player p) {
+        this(p, null);
+    }
+
+    public AdaptPlayer(Player p, PlayerData prefetchedData) {
         super("players", p.getUniqueId().toString(), 50);
         this.player = p;
-        data = loadPlayerData();
+        data = prefetchedData == null ? loadPlayerData(p.getUniqueId()) : prefetchedData;
         updatelatch = new ChronoLatch(1000);
         savelatch = new ChronoLatch(60000);
         not = new Notifier(this);
@@ -122,30 +126,31 @@ public class AdaptPlayer extends TickedObject {
         return getData().getSkillLine(l);
     }
 
-    @SneakyThrows
     private void save() {
         UUID uuid = player.getUniqueId();
-        String data = this.data.toJson(AdaptConfig.get().isUseSql());
+        File playerDataFile = getPlayerDataFile(uuid);
 
-        if (AdaptConfig.get().isUseSql()) {
-            Adapt.instance.getRedisSync().publish(uuid, data);
-            Adapt.instance.getSqlManager().updateData(uuid, data);
-        } else {
-            IO.writeAll(getPlayerDataFile(uuid), data);
+        if (pendingDataDeletion) {
+            queueDelete(uuid, playerDataFile);
+            return;
         }
-    }
 
-    @SneakyThrows
-    private void unSave() {
-        UUID uuid = player.getUniqueId();
-        String data = new PlayerData().toJson(AdaptConfig.get().isUseSql());
-        unregister();
+        String json = this.data.toJson(AdaptConfig.get().isUseSql());
+        PlayerDataPersistenceQueue queue = Adapt.instance.getPlayerDataPersistenceQueue();
+        if (queue != null) {
+            queue.queueSave(uuid, json, playerDataFile);
+            return;
+        }
 
         if (AdaptConfig.get().isUseSql()) {
-            Adapt.instance.getRedisSync().publish(uuid, data);
-            Adapt.instance.getSqlManager().updateData(uuid, data);
+            if (Adapt.instance.getRedisSync() != null) {
+                Adapt.instance.getRedisSync().publish(uuid, json);
+            }
+            if (Adapt.instance.getSqlManager() != null) {
+                Adapt.instance.getSqlManager().updateData(uuid, json);
+            }
         } else {
-            IO.writeAll(getPlayerDataFile(uuid), data);
+            J.attempt(() -> IO.writeAll(playerDataFile, json));
         }
     }
 
@@ -155,30 +160,18 @@ public class AdaptPlayer extends TickedObject {
         save();
     }
 
-    @SneakyThrows
     public void delete(UUID uuid) {
-        File local = getPlayerDataFile(player.getUniqueId());
+        pendingDataDeletion = true;
+        File local = getPlayerDataFile(uuid);
         Adapt.warn("Deleting Player Data: " + local.getAbsolutePath());
+        queueDelete(uuid, local);
+
         Player p = player;
-        J.s(() -> {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            p.kickPlayer("Your data has been deleted.");
-            if (local.exists()) {
-                local.delete();
-                unSave();
-                local.delete();
-                save();
-                local.delete();
-                unSave();
-            }
-            if (AdaptConfig.get().isUseSql()) {
-                Adapt.instance.getSqlManager().delete(uuid);
-            }
-        });
+        if (!p.isOnline()) {
+            return;
+        }
+
+        J.s(() -> p.kickPlayer("Your data has been deleted."), 20);
     }
 
     public boolean shouldUnload() {
@@ -190,32 +183,41 @@ public class AdaptPlayer extends TickedObject {
         return lastSeen + 60_000 < System.currentTimeMillis();
     }
 
-    private PlayerData loadPlayerData() {
+    public static PlayerData loadPlayerData(UUID uuid) {
         boolean upload = false;
         if (AdaptConfig.get().isUseSql()) {
-            var opt = Adapt.instance.getRedisSync().cachedData(player.getUniqueId());
-            if (opt.isPresent()) {
-                Adapt.verbose("Using cached data for player: " + player.getUniqueId());
-                return opt.get();
+            if (Adapt.instance.getRedisSync() != null) {
+                var opt = Adapt.instance.getRedisSync().cachedData(uuid);
+                if (opt.isPresent()) {
+                    Adapt.verbose("Using cached data for player: " + uuid);
+                    return opt.get();
+                }
             }
 
-            String sqlData = Adapt.instance.getSqlManager().fetchData(player.getUniqueId());
-            if (sqlData != null) {
-                return PlayerData.fromJson(sqlData);
+            if (Adapt.instance.getSqlManager() != null) {
+                String sqlData = Adapt.instance.getSqlManager().fetchData(uuid);
+                if (sqlData != null) {
+                    return PlayerData.fromJson(sqlData);
+                }
+                upload = true;
             }
-            upload = true;
         }
 
-        File f = getPlayerDataFile(player.getUniqueId());
+        File f = getPlayerDataFile(uuid);
         if (f.exists()) {
             try {
                 String text = IO.readAll(f);
                 if (upload) {
-                    Adapt.instance.getSqlManager().updateData(player.getUniqueId(), text);
+                    PlayerDataPersistenceQueue queue = Adapt.instance.getPlayerDataPersistenceQueue();
+                    if (queue != null) {
+                        queue.queueSave(uuid, text, f);
+                    } else if (Adapt.instance.getSqlManager() != null) {
+                        Adapt.instance.getSqlManager().updateData(uuid, text);
+                    }
                 }
                 return PlayerData.fromJson(text);
             } catch (Throwable ignored) {
-                Adapt.verbose("Failed to load player data for " + player.getName() + " (" + player.getUniqueId() + ")");
+                Adapt.verbose("Failed to load player data for " + uuid);
             }
         }
 
@@ -257,17 +259,27 @@ public class AdaptPlayer extends TickedObject {
     }
 
     public boolean hasAdaptation(String id) {
-        String skillLine = id.split("-")[0];
-        Adapt.verbose("Checking for adaptation " + id + " in skill line " + skillLine);
-        if (skillLine == null)
-            return false;
-        PlayerSkillLine line = getData().getSkillLine(skillLine);
-        Adapt.verbose("Found skill line " + line);
-        if (line.getAdaptation(id) == null || line.getAdaptation(id).getLevel() == 0) {
-            Adapt.verbose("Adaptation " + id + " not found or level 0");
+        if (id == null || id.isBlank()) {
             return false;
         }
-        return line.getAdaptation(id).getLevel() > 0;
+
+        int separator = id.indexOf('-');
+        if (separator <= 0) {
+            return false;
+        }
+
+        String skillLine = id.substring(0, separator);
+        if (skillLine.isBlank()) {
+            return false;
+        }
+
+        PlayerSkillLine line = getData().getSkillLine(skillLine);
+        if (line == null) {
+            return false;
+        }
+
+        PlayerAdaptation adaptation = line.getAdaptation(id);
+        return adaptation != null && adaptation.getLevel() > 0;
     }
 
     public void giveXPToRecents(AdaptPlayer p, double xpGained, int ms) {
@@ -317,10 +329,30 @@ public class AdaptPlayer extends TickedObject {
     }
 
     public boolean hasSkill(Skill s) {
-        return getData().getSkillLines().containsKey(s.getName()) && getData().getSkillLine(s.getId()).getXp() > 1;
+        if (s == null) {
+            return false;
+        }
+
+        PlayerSkillLine line = getData().getSkillLine(s.getName());
+        return line != null && line.getXp() > 1;
     }
 
-    private File getPlayerDataFile(UUID uuid) {
+    private static File getPlayerDataFile(UUID uuid) {
         return new File(Adapt.instance.getDataFolder("data", "players"), uuid.toString() + ".json");
+    }
+
+    private void queueDelete(UUID uuid, File localFile) {
+        PlayerDataPersistenceQueue queue = Adapt.instance.getPlayerDataPersistenceQueue();
+        if (queue != null) {
+            queue.queueDelete(uuid, localFile);
+            return;
+        }
+
+        if (localFile.exists() && !localFile.delete()) {
+            Adapt.verbose("Failed to delete local player data file " + localFile.getAbsolutePath());
+        }
+        if (AdaptConfig.get().isUseSql() && Adapt.instance.getSqlManager() != null) {
+            Adapt.instance.getSqlManager().delete(uuid);
+        }
     }
 }

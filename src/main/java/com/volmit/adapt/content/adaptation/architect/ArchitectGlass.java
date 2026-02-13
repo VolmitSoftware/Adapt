@@ -64,8 +64,8 @@ public class ArchitectGlass extends SimpleAdaptation<ArchitectGlass.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_architect_glass_200").goal(200).stat("architect.glass.blocks-recovered").reward(300).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_architect_glass_5k").goal(5000).stat("architect.glass.blocks-recovered").reward(1000).build());
+        registerMilestone("challenge_architect_glass_200", "architect.glass.blocks-recovered", 200, 300);
+        registerMilestone("challenge_architect_glass_5k", "architect.glass.blocks-recovered", 5000, 1000);
     }
 
     @Override
@@ -88,7 +88,7 @@ public class ArchitectGlass extends SimpleAdaptation<ArchitectGlass.Config> {
                 e.getBlock().getWorld().dropItemNaturally(e.getBlock().getLocation(), new ItemStack(e.getBlock().getType(), 1));
                 SoundPlayer spw = SoundPlayer.of(e.getBlock().getWorld());
                 spw.play(e.getBlock().getLocation(), Sound.BLOCK_LARGE_AMETHYST_BUD_BREAK, 1.0f, 1.0f);
-                if (getConfig().showParticles) {
+                if (areParticlesEnabled()) {
 
                     e.getBlock().getWorld().spawnParticle(Particle.SCRAPE, e.getBlock().getLocation(), 1);
                     vfxCuboidOutline(e.getBlock(), Particle.REVERSE_PORTAL);

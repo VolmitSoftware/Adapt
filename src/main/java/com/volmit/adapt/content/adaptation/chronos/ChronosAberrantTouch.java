@@ -76,12 +76,7 @@ public class ChronosAberrantTouch extends SimpleAdaptation<ChronosAberrantTouch.
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_chronos_aberrant_500")
-                .goal(500)
-                .stat("chronos.aberrant-touch.slowness-stacks-applied")
-                .reward(400)
-                .build());
+        registerMilestone("challenge_chronos_aberrant_500", "chronos.aberrant-touch.slowness-stacks-applied", 500, 400);
     }
 
     @Override

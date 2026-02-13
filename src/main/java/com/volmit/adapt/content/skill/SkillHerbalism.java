@@ -99,9 +99,9 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
                                 .build())
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_eat_100").goal(100).stat("food.eaten").reward(getConfig().challengeEat100Reward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_eat_1000").goal(1000).stat("food.eaten").reward(getConfig().challengeEat1kReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_eat_10000").goal(10000).stat("food.eaten").reward(getConfig().challengeEat1kReward).build());
+        registerMilestone("challenge_eat_100", "food.eaten", 100, getConfig().challengeEat100Reward);
+        registerMilestone("challenge_eat_1000", "food.eaten", 1000, getConfig().challengeEat1kReward);
+        registerMilestone("challenge_eat_10000", "food.eaten", 10000, getConfig().challengeEat1kReward);
 
 
         registerAdvancement(AdaptAdvancement.builder()
@@ -122,8 +122,8 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_harvest_100").goal(100).stat("harvest.blocks").reward(getConfig().challengeHarvest100Reward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_harvest_1000").goal(1000).stat("harvest.blocks").reward(getConfig().challengeHarvest1kReward).build());
+        registerMilestone("challenge_harvest_100", "harvest.blocks", 100, getConfig().challengeHarvest100Reward);
+        registerMilestone("challenge_harvest_1000", "harvest.blocks", 1000, getConfig().challengeHarvest1kReward);
 
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.WHEAT_SEEDS)
@@ -152,9 +152,9 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
                                 .build())
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_plant_100").goal(100).stat("harvest.planted").reward(getConfig().challengePlant100Reward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_plant_1k").goal(1000).stat("harvest.planted").reward(getConfig().challengePlant1kReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_plant_5k").goal(5000).stat("harvest.planted").reward(getConfig().challengePlant5kReward).build());
+        registerMilestone("challenge_plant_100", "harvest.planted", 100, getConfig().challengePlant100Reward);
+        registerMilestone("challenge_plant_1k", "harvest.planted", 1000, getConfig().challengePlant1kReward);
+        registerMilestone("challenge_plant_5k", "harvest.planted", 5000, getConfig().challengePlant5kReward);
 
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.COMPOSTER)
@@ -174,8 +174,8 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_compost_50").goal(50).stat("harvest.composted").reward(getConfig().challengeCompost50Reward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_compost_500").goal(500).stat("harvest.composted").reward(getConfig().challengeCompost500Reward).build());
+        registerMilestone("challenge_compost_50", "harvest.composted", 50, getConfig().challengeCompost50Reward);
+        registerMilestone("challenge_compost_500", "harvest.composted", 500, getConfig().challengeCompost500Reward);
 
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.SHEARS)
@@ -195,8 +195,8 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_shear_50").goal(50).stat("herbalism.sheared").reward(getConfig().challengeShear50Reward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_shear_250").goal(250).stat("herbalism.sheared").reward(getConfig().challengeShear250Reward).build());
+        registerMilestone("challenge_shear_50", "herbalism.sheared", 50, getConfig().challengeShear50Reward);
+        registerMilestone("challenge_shear_250", "herbalism.sheared", 250, getConfig().challengeShear250Reward);
     }
 
 
@@ -324,9 +324,7 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
 
     @Override
     public void onTick() {
-        for (Player i : Bukkit.getOnlinePlayers()) {
-            shouldReturnForPlayer(i, () -> checkStatTrackers(getPlayer(i)));
-        }
+        checkStatTrackersForOnlinePlayers();
     }
 
     @Override
@@ -341,13 +339,13 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Harvest Xp Cooldown for the Herbalism skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         public double harvestXpCooldown = 3500;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Food Consume XP for the Herbalism skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        public double foodConsumeXP = 20;
+        public double foodConsumeXP = 35;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Shear XP for the Herbalism skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        public double shearXP = 25;
+        public double shearXP = 35;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Harvest Per Age XP for the Herbalism skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        public double harvestPerAgeXP = 3.0;
+        public double harvestPerAgeXP = 5.0;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Plant Crop Seeds XP for the Herbalism skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        public double plantCropSeedsXP = 2.5;
+        public double plantCropSeedsXP = 4.0;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Composter Base XP for the Herbalism skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         public double composterBaseXP = 2.5;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Composter Level XPMultiplier for the Herbalism skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

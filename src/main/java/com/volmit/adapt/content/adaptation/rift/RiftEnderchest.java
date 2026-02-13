@@ -60,7 +60,7 @@ public class RiftEnderchest extends SimpleAdaptation<RiftEnderchest.Config> {
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_enderchest_200").goal(200).stat("rift.enderchest.opens").reward(300).build());
+        registerMilestone("challenge_rift_enderchest_200", "rift.enderchest.opens", 200, 300);
     }
 
     @Override

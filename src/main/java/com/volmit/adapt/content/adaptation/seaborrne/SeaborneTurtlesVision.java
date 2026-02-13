@@ -55,7 +55,7 @@ public class SeaborneTurtlesVision extends SimpleAdaptation<SeaborneTurtlesVisio
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_seaborne_vision_72k").goal(72000).stat("seaborne.turtles-vision.time-underwater").reward(400).build());
+        registerMilestone("challenge_seaborne_vision_72k", "seaborne.turtles-vision.time-underwater", 72000, 400);
     }
 
     @Override
@@ -66,7 +66,8 @@ public class SeaborneTurtlesVision extends SimpleAdaptation<SeaborneTurtlesVisio
 
     @Override
     public void onTick() {
-        for (Player player : Bukkit.getOnlinePlayers()) {
+        for (com.volmit.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+            Player player = adaptPlayer.getPlayer();
             if (player.isInWater() && hasAdaptation(player)) {
                 if (player.getLocation().getBlock().isLiquid()) {
                     player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 62, 0, false, false));

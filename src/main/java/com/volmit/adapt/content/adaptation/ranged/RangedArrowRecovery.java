@@ -55,8 +55,8 @@ public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Co
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_ranged_arrow_500").goal(500).stat("ranged.arrow-recovery.arrows-recovered").reward(300).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_ranged_arrow_10k").goal(10000).stat("ranged.arrow-recovery.arrows-recovered").reward(1000).build());
+        registerMilestone("challenge_ranged_arrow_500", "ranged.arrow-recovery.arrows-recovered", 500, 300);
+        registerMilestone("challenge_ranged_arrow_10k", "ranged.arrow-recovery.arrows-recovered", 10000, 1000);
     }
 
     @EventHandler
@@ -126,7 +126,7 @@ public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Co
         @com.volmit.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
         int initialCost = 5;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-        double costFactor = 1.10;
+        double costFactor = 0.78;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Hit Chance for the Ranged Arrow Recovery adaptation.", impact = "Add or remove entries to control which values are included.")
         double[] hitChance = {10, 20, 30, 40, 50, 60, 70, 80};
     }

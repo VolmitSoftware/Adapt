@@ -42,7 +42,7 @@ public class SwordsDualWield extends SimpleAdaptation<SwordsDualWield.Config> {
         registerConfiguration(Config.class);
         setDescription(Localizer.dLocalize("sword.dual_wield.description"));
         setDisplayName(Localizer.dLocalize("sword.dual_wield.name"));
-        setIcon(Material.NETHERITE_SWORD);
+        setIcon(Material.GOLDEN_SWORD);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
@@ -64,8 +64,8 @@ public class SwordsDualWield extends SimpleAdaptation<SwordsDualWield.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_swords_dual_1k").goal(1000).stat("swords.dual-wield.bonus-damage").reward(400).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_swords_dual_25k").goal(25000).stat("swords.dual-wield.bonus-damage").reward(1500).build());
+        registerMilestone("challenge_swords_dual_1k", "swords.dual-wield.bonus-damage", 1000, 400);
+        registerMilestone("challenge_swords_dual_25k", "swords.dual-wield.bonus-damage", 25000, 1500);
     }
 
     @Override

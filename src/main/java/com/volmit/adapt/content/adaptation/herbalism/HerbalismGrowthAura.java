@@ -38,12 +38,9 @@ import org.bukkit.block.data.Ageable;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Config> {
-    private final List<Integer> holds = new ArrayList<>();
-
     public HerbalismGrowthAura() {
         super("herbalism-growth-aura");
         registerConfiguration(Config.class);
@@ -71,18 +68,8 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_herbalism_growth_1k")
-                .goal(1000)
-                .stat("herbalism.growth-aura.blocks-grown")
-                .reward(300)
-                .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_herbalism_growth_25k")
-                .goal(25000)
-                .stat("herbalism.growth-aura.blocks-grown")
-                .reward(1000)
-                .build());
+        registerMilestone("challenge_herbalism_growth_1k", "herbalism.growth-aura.blocks-grown", 1000, 300);
+        registerMilestone("challenge_herbalism_growth_25k", "herbalism.growth-aura.blocks-grown", 25000, 1000);
     }
 
     @Override
@@ -107,17 +94,19 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
 
     @Override
     public void onTick() {
-        for (Player p : Bukkit.getOnlinePlayers()) {
+        for (com.volmit.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+            Player p = adaptPlayer.getPlayer();
             try {
                 if (hasAdaptation(p)) {
                     double rad = getRadius(getLevelPercent(p));
                     double strength = getStrength(getLevel(p));
-                    double angle = Math.toRadians(Math.random() * 360);
+                    ThreadLocalRandom random = ThreadLocalRandom.current();
+                    double angle = Math.toRadians(random.nextDouble(360D));
                     double foodCost = getFoodCost(getLevelPercent(p));
 
 
                     for (int i = 0; i < Math.min(Math.min(rad * rad, 256), 3); i++) {
-                        Location m = p.getLocation().clone().add(new Vector(Math.sin(angle), RNG.r.i(-1, 1), Math.cos(angle)).multiply(Math.random() * rad));
+                        Location m = p.getLocation().clone().add(new Vector(Math.sin(angle), RNG.r.i(-1, 1), Math.cos(angle)).multiply(random.nextDouble(rad)));
                         Block a = m.getBlock();
                         if (getConfig().surfaceOnly) {
                             int max = a.getWorld().getHighestBlockYAt(m);
@@ -147,7 +136,7 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
                                             a.setBlockData(aab, true);
                                             getPlayer(p).getData().addStat("herbalism.growth-aura.blocks-grown", 1);
                                             spw.play(a.getLocation(), Sound.BLOCK_CHORUS_FLOWER_DEATH, 0.25f, RNG.r.f(0.3f, 0.7f));
-                                            if (getConfig().showParticles) {
+                                            if (areParticlesEnabled()) {
                                                 p.spawnParticle(Particles.VILLAGER_HAPPY, a.getLocation().clone().add(0.5, 0.5, 0.5), 3, 0.3, 0.3, 0.3, 0.9);
                                             }
 //                                          xp(p, 1); // JESUS THIS IS FUCKING BUSTED

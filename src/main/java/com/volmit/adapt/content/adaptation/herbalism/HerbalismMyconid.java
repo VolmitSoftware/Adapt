@@ -64,12 +64,7 @@ public class HerbalismMyconid extends SimpleAdaptation<HerbalismMyconid.Config> 
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_herbalism_myconid_100")
-                .goal(100)
-                .stat("herbalism.myconid.mycelium-crafted")
-                .reward(300)
-                .build());
+        registerMilestone("challenge_herbalism_myconid_100", "herbalism.myconid.mycelium-crafted", 100, 300);
     }
 
     @Override

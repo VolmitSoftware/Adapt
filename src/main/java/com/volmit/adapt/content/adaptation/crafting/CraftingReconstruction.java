@@ -308,7 +308,7 @@ public class CraftingReconstruction extends SimpleAdaptation<CraftingReconstruct
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_crafting_recon_100").goal(100).stat("crafting.reconstruction.ores-reconstructed").reward(300).build());
+        registerMilestone("challenge_crafting_recon_100", "crafting.reconstruction.ores-reconstructed", 100, 300);
     }
 
     @Override

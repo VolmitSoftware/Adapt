@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 public final class ConfigDocumentation {
     private static final Map<String, String> SUMMARY_BY_KEY = Map.ofEntries(
@@ -53,6 +54,17 @@ public final class ConfigDocumentation {
             Map.entry("useSql", "Switching this changes where player data is loaded/saved."),
             Map.entry("useRedis", "Requires SQL support and Redis credentials to synchronize across servers.")
     );
+    private static final Set<String> ALWAYS_VISIBLE_KEYS = Set.of(
+            "enabled",
+            "permanent",
+            "baseCost",
+            "initialCost",
+            "costFactor",
+            "maxLevel",
+            "minXp",
+            "showParticles",
+            "showSounds"
+    );
 
     private ConfigDocumentation() {
     }
@@ -60,22 +72,80 @@ public final class ConfigDocumentation {
     public static List<String> buildFieldComments(String sourceTag, String path, Field field, Object value) {
         List<String> lines = new ArrayList<>();
         ConfigDoc annotation = field.getAnnotation(ConfigDoc.class);
+        String key = field.getName();
+        String summary;
+        String impact;
+
         if (annotation != null) {
-            lines.add(annotation.value().strip());
-            if (!annotation.impact().isBlank()) {
-                lines.add("Effect: " + annotation.impact().strip());
+            summary = annotation.value().strip();
+            impact = annotation.impact().strip();
+            if (isGenericSummary(summary)) {
+                summary = defaultSummary(sourceTag, path, field);
             }
-            return lines;
+            if (impact.isBlank() || isGenericImpact(impact)) {
+                impact = defaultImpact(field, value);
+            }
+        } else {
+            summary = SUMMARY_BY_KEY.getOrDefault(key, defaultSummary(sourceTag, path, field));
+            impact = IMPACT_BY_KEY.getOrDefault(key, defaultImpact(field, value));
         }
 
-        String key = field.getName();
-        String summary = SUMMARY_BY_KEY.getOrDefault(key, defaultSummary(sourceTag, path, field));
-        String impact = IMPACT_BY_KEY.getOrDefault(key, defaultImpact(field, value));
-        lines.add(summary);
+        if (summary != null && !summary.isBlank()) {
+            lines.add(summary);
+        }
         if (!impact.isBlank()) {
             lines.add("Effect: " + impact);
         }
         return lines;
+    }
+
+    public static boolean shouldExposeField(String sourceTag, String path, Field field, Object value) {
+        if (field == null) {
+            return false;
+        }
+        if (field.getAnnotation(ConfigAdvanced.class) != null) {
+            return false;
+        }
+
+        String key = field.getName();
+        if (ALWAYS_VISIBLE_KEYS.contains(key)) {
+            return true;
+        }
+
+        String lowered = key.toLowerCase(Locale.ROOT);
+        Class<?> type = field.getType();
+        boolean isBoolean = type == boolean.class || type == Boolean.class;
+
+        // Hide challenge reward tuning; these are rarely gameplay-critical knobs.
+        if (lowered.startsWith("challenge") && lowered.contains("reward")) {
+            return false;
+        }
+
+        // Internal update cadence knobs are advanced and should stay out of default configs.
+        if (lowered.equals("setinterval") || lowered.equals("statintervalms")) {
+            return false;
+        }
+
+        // Hide over-granular audiovisual tuning by default.
+        if (lowered.contains("pitch") || lowered.contains("volume")) {
+            return false;
+        }
+        if (lowered.contains("sound") && !isBoolean) {
+            return false;
+        }
+        if (lowered.contains("particlesize") || lowered.contains("particlecount") || lowered.contains("particleevery")) {
+            return false;
+        }
+        if (lowered.contains("xoffset") || lowered.contains("yoffset") || lowered.contains("zoffset")) {
+            return false;
+        }
+
+        // Hide fallback/anti-edge tuning that is mostly diagnostic.
+        if (lowered.contains("fallback") || lowered.contains("variance") || lowered.contains("curveexponent")) {
+            return false;
+        }
+
+        return true;
     }
 
     public static List<String> buildSectionComments(String sourceTag, String path) {
@@ -101,6 +171,34 @@ public final class ConfigDocumentation {
     }
 
     private static String defaultSummary(String sourceTag, String path, Field field) {
+        String key = field.getName();
+        String lower = key.toLowerCase(Locale.ROOT);
+        String subject = subject(sourceTag, path);
+        if (lower.contains("cooldown")) {
+            return "Cooldown between " + subject + " activations.";
+        }
+        if (lower.contains("chance")) {
+            return "Chance for " + subject + " to trigger.";
+        }
+        if (lower.contains("xp")) {
+            return "XP gain tuning for " + subject + ".";
+        }
+        if (lower.contains("multiplier") || lower.contains("factor") || lower.contains("scalar")) {
+            return "Scaling applied to " + subject + ".";
+        }
+        if (lower.contains("duration") || lower.contains("ticks") || lower.contains("millis") || lower.endsWith("ms")) {
+            return "Duration or timing used by " + subject + ".";
+        }
+        if (lower.contains("radius") || lower.contains("range") || lower.contains("distance")) {
+            return "Distance/area limit used by " + subject + ".";
+        }
+        if (lower.startsWith("min") || lower.contains("threshold")) {
+            return "Minimum threshold required for " + subject + ".";
+        }
+        if (lower.startsWith("max") || lower.contains("cap")) {
+            return "Maximum cap applied to " + subject + ".";
+        }
+
         String label = humanize(field.getName());
         if (sourceTag != null && sourceTag.startsWith("skill:")) {
             return "Controls " + label + " for the " + sourceTag.substring("skill:".length()) + " skill.";
@@ -116,11 +214,36 @@ public final class ConfigDocumentation {
 
     private static String defaultImpact(Field field, Object value) {
         Class<?> type = field.getType();
+        String lower = field.getName().toLowerCase(Locale.ROOT);
         if (type == boolean.class || type == Boolean.class) {
             return "True enables this behavior and false disables it.";
         }
+        if (lower.contains("chance")) {
+            return "Use values near 0.0-1.0; higher values trigger more often.";
+        }
+        if (lower.contains("cooldown")) {
+            return "Higher values increase time between activations; lower values allow more frequent triggers.";
+        }
+        if (lower.contains("xp")) {
+            return "Higher values grant more progression; lower values slow progression.";
+        }
+        if (lower.contains("multiplier") || lower.contains("factor") || lower.contains("scalar")) {
+            return "Higher values scale the effect more strongly; lower values scale it down.";
+        }
+        if (lower.contains("duration") || lower.contains("ticks") || lower.contains("millis") || lower.endsWith("ms")) {
+            return "Higher values make the effect last longer; lower values shorten it.";
+        }
+        if (lower.contains("radius") || lower.contains("range") || lower.contains("distance")) {
+            return "Higher values affect a wider area; lower values keep the effect tighter.";
+        }
+        if (lower.startsWith("min") || lower.contains("threshold")) {
+            return "Higher values make activation stricter; lower values make it easier to trigger.";
+        }
+        if (lower.startsWith("max") || lower.contains("cap")) {
+            return "Higher values raise the upper limit; lower values clamp the effect sooner.";
+        }
         if (Number.class.isAssignableFrom(type) || type.isPrimitive() && type != boolean.class && type != char.class) {
-            return "Higher values usually increase intensity, limits, or frequency; lower values reduce it.";
+            return "Higher values increase intensity or limits; lower values reduce them.";
         }
         if (type.isEnum()) {
             return "Changing this selects a different operating mode.";
@@ -135,6 +258,38 @@ public final class ConfigDocumentation {
             return "Edit entries to control per-key overrides for this feature.";
         }
         return "";
+    }
+
+    private static boolean isGenericSummary(String summary) {
+        if (summary == null || summary.isBlank()) {
+            return true;
+        }
+
+        String lower = summary.toLowerCase(Locale.ROOT).trim();
+        return lower.startsWith("controls ") || lower.equals("no description provided");
+    }
+
+    private static boolean isGenericImpact(String impact) {
+        if (impact == null || impact.isBlank()) {
+            return true;
+        }
+
+        String lower = impact.toLowerCase(Locale.ROOT);
+        return lower.contains("higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+                || lower.contains("true enables this behavior and false disables it.");
+    }
+
+    private static String subject(String sourceTag, String path) {
+        if (sourceTag != null && sourceTag.startsWith("skill:")) {
+            return "the " + sourceTag.substring("skill:".length()) + " skill";
+        }
+        if (sourceTag != null && sourceTag.startsWith("adaptation:")) {
+            return "the " + sourceTag.substring("adaptation:".length()) + " adaptation";
+        }
+        if (path != null && !path.isBlank()) {
+            return "the " + path + " section";
+        }
+        return "this feature";
     }
 
     private static String humanize(String key) {

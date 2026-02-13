@@ -55,7 +55,7 @@ public class UnarmedSuckerPunch extends SimpleAdaptation<UnarmedSuckerPunch.Conf
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_unarmed_sucker_500").goal(500).stat("unarmed.sucker-punch.sucker-punches").reward(400).build());
+        registerMilestone("challenge_unarmed_sucker_500", "unarmed.sucker-punch.sucker-punches", 500, 400);
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.DIAMOND)
                 .key("challenge_unarmed_knockout")
@@ -64,7 +64,7 @@ public class UnarmedSuckerPunch extends SimpleAdaptation<UnarmedSuckerPunch.Conf
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_unarmed_knockout").goal(50).stat("unarmed.sucker-punch.one-punch-kills").reward(1000).build());
+        registerMilestone("challenge_unarmed_knockout", "unarmed.sucker-punch.one-punch-kills", 50, 1000);
     }
 
 
@@ -111,11 +111,11 @@ public class UnarmedSuckerPunch extends SimpleAdaptation<UnarmedSuckerPunch.Conf
             SoundPlayer spw = SoundPlayer.of(e.getEntity().getWorld());
             spw.play(e.getEntity().getLocation(), Sound.ENTITY_PLAYER_ATTACK_STRONG, 1f, 1.8f);
             spw.play(e.getEntity().getLocation(), Sound.BLOCK_BASALT_BREAK, 1f, 0.6f);
-            getSkill().xp(p, 6.221 * e.getDamage());
+            xp(p, 6.221 * e.getDamage(), "sucker-punch");
             getPlayer(p).getData().addStat("unarmed.sucker-punch.sucker-punches", 1);
             if (e.getDamage() > 5) {
-                getSkill().xp(p, 0.42 * e.getDamage());
-                if (getConfig().showParticles) {
+                xp(p, 0.42 * e.getDamage(), "bonus-damage");
+                if (areParticlesEnabled()) {
                     e.getEntity().getWorld().spawnParticle(Particle.FLASH, e.getEntity().getLocation(), 1);
                 }
             }

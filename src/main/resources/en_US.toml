@@ -2548,7 +2548,7 @@
 
 [tragoul.blood_pact]
     name = "Blood Pact"
-    description = "Taking at least 5 hearts of damage can trigger random beneficial effects."
+    description = "Taking at least 2 hearts of damage can trigger random beneficial effects."
     lore1 = "Proc Chance"
     lore2 = "Buff Duration"
     lore3 = "Proc Cooldown"

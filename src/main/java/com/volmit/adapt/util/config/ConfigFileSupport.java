@@ -12,6 +12,9 @@ import java.nio.file.Files;
 import java.util.Locale;
 
 public final class ConfigFileSupport {
+    private static final long MAX_CONFIG_BYTES_DEFAULT = 2L * 1024L * 1024L;
+    private static final long MAX_CONFIG_BYTES_SKILL_OR_ADAPTATION = 256L * 1024L;
+
     private ConfigFileSupport() {
     }
 
@@ -24,24 +27,31 @@ public final class ConfigFileSupport {
             String sourceTag,
             String createdMessage
     ) throws IOException {
+        long maxConfigBytes = maxConfigBytesForSourceTag(sourceTag);
+        boolean canonicalizeExisting = shouldCanonicalizeExisting(sourceTag, overwriteOnReadFailure);
         if (canonicalFile != null && canonicalFile.exists()) {
             try {
+                if (canonicalFile.length() > maxConfigBytes) {
+                    throw new IOException("Config file is too large (" + canonicalFile.length() + " bytes)");
+                }
                 String raw = IO.readAll(canonicalFile);
                 T loaded = deserialize(raw, canonicalFile, type);
                 if (loaded == null) {
                     throw new IOException("Config parser returned null.");
                 }
 
-                String canonical = serialize(loaded, canonicalFile, sourceTag);
-                if (!normalize(canonical).equals(normalize(raw))) {
-                    ConfigRewriteReporter.reportRewrite(canonicalFile, sourceTag, raw, canonical);
-                    IO.writeAll(canonicalFile, canonical);
+                if (canonicalizeExisting) {
+                    String canonical = serialize(loaded, canonicalFile, sourceTag);
+                    if (!normalize(canonical).equals(normalize(raw))) {
+                        ConfigRewriteReporter.reportRewrite(canonicalFile, sourceTag, raw, canonical);
+                        IO.writeAll(canonicalFile, canonical);
+                    }
                 }
                 deleteLegacyFileIfMigrated(canonicalFile, legacyFile, sourceTag);
                 return loaded;
             } catch (Throwable e) {
                 if (overwriteOnReadFailure) {
-                    ConfigRewriteReporter.reportFallbackRewrite(canonicalFile, sourceTag, "invalid config");
+                    ConfigRewriteReporter.reportFallbackRewrite(canonicalFile, sourceTag, reason("invalid config", e));
                     IO.writeAll(canonicalFile, serialize(fallback, canonicalFile, sourceTag));
                     return fallback;
                 }
@@ -52,6 +62,9 @@ public final class ConfigFileSupport {
 
         if (legacyFile != null && legacyFile.exists()) {
             try {
+                if (legacyFile.length() > maxConfigBytes) {
+                    throw new IOException("Legacy config file is too large (" + legacyFile.length() + " bytes)");
+                }
                 String raw = IO.readAll(legacyFile);
                 T loaded = deserialize(raw, legacyFile, type);
                 if (loaded == null) {
@@ -64,7 +77,7 @@ public final class ConfigFileSupport {
                 return loaded;
             } catch (Throwable e) {
                 if (overwriteOnReadFailure) {
-                    ConfigRewriteReporter.reportFallbackRewrite(canonicalFile, sourceTag, "invalid legacy config");
+                    ConfigRewriteReporter.reportFallbackRewrite(canonicalFile, sourceTag, reason("invalid legacy config", e));
                     IO.writeAll(canonicalFile, serialize(fallback, canonicalFile, sourceTag));
                     return fallback;
                 }
@@ -208,6 +221,34 @@ public final class ConfigFileSupport {
             return TomlCodec.toToml(loaded, sourceTag);
         }
         return Json.toJson(loaded, true);
+    }
+
+    private static long maxConfigBytesForSourceTag(String sourceTag) {
+        if (sourceTag != null && (sourceTag.startsWith("skill:") || sourceTag.startsWith("adaptation:"))) {
+            return MAX_CONFIG_BYTES_SKILL_OR_ADAPTATION;
+        }
+        return MAX_CONFIG_BYTES_DEFAULT;
+    }
+
+    private static boolean shouldCanonicalizeExisting(String sourceTag, boolean overwriteOnReadFailure) {
+        if (sourceTag == null) {
+            return true;
+        }
+
+        // During initial startup of skill/adaptation content we prioritize fast parse/load.
+        // Canonical rewrites still occur via explicit canonicalization/hotload paths.
+        if (overwriteOnReadFailure && (sourceTag.startsWith("skill:") || sourceTag.startsWith("adaptation:"))) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private static String reason(String prefix, Throwable error) {
+        if (error == null || error.getMessage() == null || error.getMessage().isBlank()) {
+            return prefix;
+        }
+        return prefix + ": " + error.getMessage();
     }
 
     private static String legacyPath(File file) {

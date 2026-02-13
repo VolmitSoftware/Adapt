@@ -79,18 +79,8 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_herbalism_compost_1k")
-                .goal(1000)
-                .stat("herbalism.compost-cascade.items-composted")
-                .reward(300)
-                .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_herbalism_compost_25k")
-                .goal(25000)
-                .stat("herbalism.compost-cascade.items-composted")
-                .reward(1000)
-                .build());
+        registerMilestone("challenge_herbalism_compost_1k", "herbalism.compost-cascade.items-composted", 1000, 300);
+        registerMilestone("challenge_herbalism_compost_25k", "herbalism.compost-cascade.items-composted", 25000, 1000);
     }
 
     @Override

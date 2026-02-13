@@ -106,8 +106,8 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_stealth_decoy_100").goal(100).stat("stealth.shadow-decoy.decoys-spawned").reward(300).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_stealth_decoy_distract_500").goal(500).stat("stealth.shadow-decoy.mobs-distracted").reward(1000).build());
+        registerMilestone("challenge_stealth_decoy_100", "stealth.shadow-decoy.decoys-spawned", 100, 300);
+        registerMilestone("challenge_stealth_decoy_distract_500", "stealth.shadow-decoy.mobs-distracted", 500, 1000);
     }
 
     @Override
@@ -240,7 +240,9 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
         activeDecoys.put(owner.getUniqueId(), new DecoyState(anchor.getUniqueId(), packetDecoy, expiresAt, level));
 
         redirectAggro(owner, anchor, level);
-        anchor.getWorld().spawnParticle(Particle.SMOKE, anchor.getLocation().add(0, 1, 0), 18, 0.2, 0.4, 0.2, 0.03);
+        if (areParticlesEnabled()) {
+            anchor.getWorld().spawnParticle(Particle.SMOKE, anchor.getLocation().add(0, 1, 0), 18, 0.2, 0.4, 0.2, 0.03);
+        }
         SoundPlayer.of(owner.getWorld()).play(owner.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 0.6f, 1.7f);
     }
 
@@ -613,7 +615,7 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
 
         private void ensureViewerState() {
             Set<UUID> online = new HashSet<>();
-            for (Player viewer : new ArrayList<>(world.getPlayers())) {
+            for (Player viewer : world.getPlayers()) {
                 if (!viewer.isOnline()) {
                     continue;
                 }
@@ -656,7 +658,7 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
 
         private List<Player> spawnedViewerPlayers() {
             List<Player> viewers = new ArrayList<>();
-            for (Player viewer : new ArrayList<>(world.getPlayers())) {
+            for (Player viewer : world.getPlayers()) {
                 if (viewer.isOnline() && knownViewers.contains(viewer.getUniqueId())) {
                     viewers.add(viewer);
                 }

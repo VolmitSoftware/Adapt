@@ -70,18 +70,8 @@ public class HerbalismSeedSower extends SimpleAdaptation<HerbalismSeedSower.Conf
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_herbalism_seed_1k")
-                .goal(1000)
-                .stat("herbalism.seed-sower.seeds-planted")
-                .reward(300)
-                .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_herbalism_seed_25k")
-                .goal(25000)
-                .stat("herbalism.seed-sower.seeds-planted")
-                .reward(1000)
-                .build());
+        registerMilestone("challenge_herbalism_seed_1k", "herbalism.seed-sower.seeds-planted", 1000, 300);
+        registerMilestone("challenge_herbalism_seed_25k", "herbalism.seed-sower.seeds-planted", 25000, 1000);
     }
 
     @Override

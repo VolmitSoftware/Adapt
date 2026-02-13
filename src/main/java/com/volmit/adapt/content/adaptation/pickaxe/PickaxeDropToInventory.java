@@ -48,7 +48,7 @@ public class PickaxeDropToInventory extends SimpleAdaptation<PickaxeDropToInvent
         registerConfiguration(PickaxeDropToInventory.Config.class);
         setDescription(Localizer.dLocalize("pickaxe.drop_to_inventory.description"));
         setDisplayName(Localizer.dLocalize("pickaxe.drop_to_inventory.name"));
-        setIcon(Material.DIRT);
+        setIcon(Material.MINECART);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
@@ -62,7 +62,7 @@ public class PickaxeDropToInventory extends SimpleAdaptation<PickaxeDropToInvent
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_pickaxe_dti_25k").goal(25000).stat("pickaxe.drop-to-inv.items-caught").reward(500).build());
+        registerMilestone("challenge_pickaxe_dti_25k", "pickaxe.drop-to-inv.items-caught", 25000, 500);
     }
 
     @Override

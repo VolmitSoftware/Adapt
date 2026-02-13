@@ -41,7 +41,7 @@ public class SeaborneTurtlesMiningSpeed extends SimpleAdaptation<SeaborneTurtles
         registerConfiguration(Config.class);
         setDescription(Localizer.dLocalize("seaborn.haste.description"));
         setDisplayName(Localizer.dLocalize("seaborn.haste.name"));
-        setIcon(Material.GOLDEN_HORSE_ARMOR);
+        setIcon(Material.PRISMARINE_SHARD);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInterval(3000);
@@ -63,8 +63,8 @@ public class SeaborneTurtlesMiningSpeed extends SimpleAdaptation<SeaborneTurtles
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_seaborne_mining_2500").goal(2500).stat("seaborne.turtles-mining.blocks-underwater").reward(300).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_seaborne_mining_25k").goal(25000).stat("seaborne.turtles-mining.blocks-underwater").reward(1000).build());
+        registerMilestone("challenge_seaborne_mining_2500", "seaborne.turtles-mining.blocks-underwater", 2500, 300);
+        registerMilestone("challenge_seaborne_mining_25k", "seaborne.turtles-mining.blocks-underwater", 25000, 1000);
     }
 
     @Override
@@ -75,7 +75,8 @@ public class SeaborneTurtlesMiningSpeed extends SimpleAdaptation<SeaborneTurtles
 
     @Override
     public void onTick() {
-        for (Player player : Bukkit.getOnlinePlayers()) {
+        for (com.volmit.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+            Player player = adaptPlayer.getPlayer();
             if (player.isInWater() && hasAdaptation(player)) {
                 if (player.getLocation().getBlock().isLiquid()) {
                     player.addPotionEffect(new PotionEffect(PotionEffectTypes.FAST_DIGGING, 62, 1, false, false));

@@ -23,6 +23,7 @@ import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.skill.SimpleSkill;
+import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.chronos.ChronosAberrantTouch;
 import com.volmit.adapt.content.adaptation.chronos.ChronosInstantRecall;
@@ -124,9 +125,9 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
                                 .build())
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_chronos_1h").goal(60).stat("minutes.online").reward(getConfig().challengeChronosReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_chronos_24h").goal(1440).stat("minutes.online").reward(getConfig().challengeChronosReward * 2).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_chronos_168h").goal(10080).stat("minutes.online").reward(getConfig().challengeChronosReward * 5).build());
+        registerMilestone("challenge_chronos_1h", "minutes.online", 60, getConfig().challengeChronosReward);
+        registerMilestone("challenge_chronos_24h", "minutes.online", 1440, getConfig().challengeChronosReward * 2);
+        registerMilestone("challenge_chronos_168h", "minutes.online", 10080, getConfig().challengeChronosReward * 5);
 
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.COMPASS).key("challenge_active_dist_1k")
@@ -154,9 +155,9 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
                                 .build())
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_active_dist_1k").goal(1000).stat("chronos.active.distance").reward(getConfig().challengeChronosReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_active_dist_10k").goal(10000).stat("chronos.active.distance").reward(getConfig().challengeChronosReward * 2).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_active_dist_100k").goal(100000).stat("chronos.active.distance").reward(getConfig().challengeChronosReward * 5).build());
+        registerMilestone("challenge_active_dist_1k", "chronos.active.distance", 1000, getConfig().challengeChronosReward);
+        registerMilestone("challenge_active_dist_10k", "chronos.active.distance", 10000, getConfig().challengeChronosReward * 2);
+        registerMilestone("challenge_active_dist_100k", "chronos.active.distance", 100000, getConfig().challengeChronosReward * 5);
 
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.WHITE_BED).key("challenge_beds_10")
@@ -175,8 +176,8 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_beds_10").goal(10).stat("chronos.beds.used").reward(getConfig().challengeChronosReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_beds_100").goal(100).stat("chronos.beds.used").reward(getConfig().challengeChronosReward * 2).build());
+        registerMilestone("challenge_beds_10", "chronos.beds.used", 10, getConfig().challengeChronosReward);
+        registerMilestone("challenge_beds_100", "chronos.beds.used", 100, getConfig().challengeChronosReward * 2);
 
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.ENDER_PEARL).key("challenge_chronos_tp_50")
@@ -195,8 +196,8 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_chronos_tp_50").goal(50).stat("chronos.teleports").reward(getConfig().challengeChronosReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_chronos_tp_500").goal(500).stat("chronos.teleports").reward(getConfig().challengeChronosReward * 2).build());
+        registerMilestone("challenge_chronos_tp_50", "chronos.teleports", 50, getConfig().challengeChronosReward);
+        registerMilestone("challenge_chronos_tp_500", "chronos.teleports", 500, getConfig().challengeChronosReward * 2);
 
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.SKELETON_SKULL).key("challenge_chronos_deaths_10")
@@ -215,8 +216,8 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_chronos_deaths_10").goal(10).stat("chronos.deaths").reward(getConfig().challengeChronosReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_chronos_deaths_100").goal(100).stat("chronos.deaths").reward(getConfig().challengeChronosReward * 2).build());
+        registerMilestone("challenge_chronos_deaths_10", "chronos.deaths", 10, getConfig().challengeChronosReward);
+        registerMilestone("challenge_chronos_deaths_100", "chronos.deaths", 100, getConfig().challengeChronosReward * 2);
     }
 
     private void trackAction(UUID uuid, String actionType) {
@@ -276,7 +277,8 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
         }
         long now = System.currentTimeMillis();
 
-        for (Player p : Bukkit.getOnlinePlayers()) {
+        for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+            Player p = adaptPlayer.getPlayer();
             if (shouldReturnForPlayer(p)) {
                 continue;
             }
@@ -305,10 +307,10 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
 
             // Movement XP (existing behavior, now with AFK penalty)
             if (moved >= getConfig().minimumMovementForActiveCheck) {
-                getPlayer(p).getData().addStat("minutes.online", 10);
-                getPlayer(p).getData().addStat("chronos.active.distance", moved);
+                adaptPlayer.getData().addStat("minutes.online", 10);
+                adaptPlayer.getData().addStat("chronos.active.distance", moved);
                 double bonus = (moved / getConfig().distancePerBonusXP) * getConfig().activeMovementXP;
-                xpSilent(p, Math.min(getConfig().activeMovementXPCapPerTick, bonus) * afkMult);
+                xpSilent(p, Math.min(getConfig().activeMovementXPCapPerTick, bonus) * afkMult, "chronos:movement");
             }
 
             // Passive active-play XP
@@ -327,7 +329,7 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
                     passiveXP *= getConfig().activityBonusMultiplier;
                 }
 
-                xpSilent(p, passiveXP * afkMult);
+                xpSilent(p, passiveXP * afkMult, "chronos:passive");
             }
 
             // Survival streak XP
@@ -341,10 +343,10 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
                         aliveHours * getConfig().survivalStreakBonusPerHour,
                         getConfig().survivalStreakHourCap * getConfig().survivalStreakBonusPerHour
                 );
-                xpSilent(p, getConfig().survivalXPPerMinute * streakBonus * afkMult);
+                xpSilent(p, getConfig().survivalXPPerMinute * streakBonus * afkMult, "chronos:survival");
             }
 
-            checkStatTrackers(getPlayer(p));
+            checkStatTrackers(adaptPlayer);
             lastPositions.put(uuid, current.clone());
         }
     }
@@ -490,6 +492,9 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
             return;
         }
         Player p = e.getPlayer();
+        if (ChronosInstantRecall.isRecallTeleportSuppressed(p)) {
+            return;
+        }
         shouldReturnForPlayer(p, () -> {
             trackAction(p.getUniqueId(), "teleport");
             getPlayer(p).getData().addStat("chronos.teleports", 1);
@@ -557,7 +562,7 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Active Movement XP for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double activeMovementXP = 3.5;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Active Movement XPCap Per Tick for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double activeMovementXPCapPerTick = 22;
+        double activeMovementXPCapPerTick = 6;
 
         // Anti-AFK
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Position History Size for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -567,11 +572,11 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Afk Min Action Types for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int afkMinActionTypes = 3;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Afk Penalty Multiplier for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double afkPenaltyMultiplier = 0.1;
+        double afkPenaltyMultiplier = 0.03;
 
         // Passive active XP
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Passive Active XP for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double passiveActiveXP = 1.5;
+        double passiveActiveXP = 0.4;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Activity Window for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         long activityWindow = 15000;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Activity Types For Bonus for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

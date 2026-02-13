@@ -36,11 +36,9 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class NetherWitherResist extends SimpleAdaptation<NetherWitherResist.Config> {
-
-    private static final Random RANDOM = new Random();
 
     public NetherWitherResist() {
         super("nether-wither-resist");
@@ -69,8 +67,8 @@ public class NetherWitherResist extends SimpleAdaptation<NetherWitherResist.Conf
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_nether_wither_100").goal(100).stat("nether.wither-resist.negated").reward(300).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_nether_wither_1k").goal(1000).stat("nether.wither-resist.negated").reward(1000).build());
+        registerMilestone("challenge_nether_wither_100", "nether.wither-resist.negated", 100, 300);
+        registerMilestone("challenge_nether_wither_1k", "nether.wither-resist.negated", 1000, 1000);
     }
 
     @Override
@@ -89,7 +87,7 @@ public class NetherWitherResist extends SimpleAdaptation<NetherWitherResist.Conf
             if (!hasAdaptation(p))
                 return;
             double chance = getTotalChange(p);
-            if (RANDOM.nextInt(0, 101) <= chance) {
+            if (ThreadLocalRandom.current().nextInt(101) <= chance) {
                 e.setCancelled(true);
                 getPlayer(p).getData().addStat("nether.wither-resist.negated", 1);
             }

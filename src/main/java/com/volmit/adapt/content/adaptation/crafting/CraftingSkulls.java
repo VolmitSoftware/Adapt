@@ -19,12 +19,9 @@
 package com.volmit.adapt.content.adaptation.crafting;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.api.advancement.AdaptAdvancement;
-import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
-import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.advancement.AdvancementSpec;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.recipe.MaterialChar;
-import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
@@ -45,7 +42,7 @@ public class CraftingSkulls extends SimpleAdaptation<CraftingSkulls.Config> {
         registerConfiguration(Config.class);
         setDescription(Localizer.dLocalize("crafting.skulls.description"));
         setDisplayName(Localizer.dLocalize("crafting.skulls.name"));
-        setIcon(Material.WITHER_SKELETON_SKULL);
+        setIcon(Material.SKELETON_SKULL);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
         setMaxLevel(getConfig().maxLevel);
@@ -101,24 +98,21 @@ public class CraftingSkulls extends SimpleAdaptation<CraftingSkulls.Config> {
                         "III"))
                 .result(new ItemStack(Material.DRAGON_HEAD, 1))
                 .build());
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.SKELETON_SKULL)
-                .key("challenge_crafting_skulls_10")
-                .title(Localizer.dLocalize("advancement.challenge_crafting_skulls_10.title"))
-                .description(Localizer.dLocalize("advancement.challenge_crafting_skulls_10.description"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .child(AdaptAdvancement.builder()
-                        .icon(Material.WITHER_SKELETON_SKULL)
-                        .key("challenge_crafting_skulls_100")
-                        .title(Localizer.dLocalize("advancement.challenge_crafting_skulls_100.title"))
-                        .description(Localizer.dLocalize("advancement.challenge_crafting_skulls_100.description"))
-                        .frame(AdaptAdvancementFrame.CHALLENGE)
-                        .visibility(AdvancementVisibility.PARENT_GRANTED)
-                        .build())
-                .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_crafting_skulls_10").goal(10).stat("crafting.skulls.skulls-crafted").reward(300).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_crafting_skulls_100").goal(100).stat("crafting.skulls.skulls-crafted").reward(1000).build());
+        AdvancementSpec skulls100 = AdvancementSpec.challenge(
+                "challenge_crafting_skulls_100",
+                Material.WITHER_SKELETON_SKULL,
+                Localizer.dLocalize("advancement.challenge_crafting_skulls_100.title"),
+                Localizer.dLocalize("advancement.challenge_crafting_skulls_100.description")
+        );
+        AdvancementSpec skulls10 = AdvancementSpec.challenge(
+                "challenge_crafting_skulls_10",
+                Material.SKELETON_SKULL,
+                Localizer.dLocalize("advancement.challenge_crafting_skulls_10.title"),
+                Localizer.dLocalize("advancement.challenge_crafting_skulls_10.description")
+        ).withChild(skulls100);
+        registerAdvancementSpec(skulls10);
+        registerStatTracker(skulls10.statTracker("crafting.skulls.skulls-crafted", 10, 300));
+        registerStatTracker(skulls100.statTracker("crafting.skulls.skulls-crafted", 100, 1000));
     }
 
     @Override

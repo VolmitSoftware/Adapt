@@ -43,8 +43,8 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class DiscoveryVillagerAtt extends SimpleAdaptation<DiscoveryVillagerAtt.Config> {
     private final KMap<UUID, Integer> active = new KMap<>();
@@ -76,18 +76,8 @@ public class DiscoveryVillagerAtt extends SimpleAdaptation<DiscoveryVillagerAtt.
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_discovery_villager_100")
-                .goal(100)
-                .stat("discovery.villager-att.improved-trades")
-                .reward(300)
-                .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_discovery_villager_2500")
-                .goal(2500)
-                .stat("discovery.villager-att.improved-trades")
-                .reward(1000)
-                .build());
+        registerMilestone("challenge_discovery_villager_100", "discovery.villager-att.improved-trades", 100, 300);
+        registerMilestone("challenge_discovery_villager_2500", "discovery.villager-att.improved-trades", 2500, 1000);
     }
 
 
@@ -115,8 +105,7 @@ public class DiscoveryVillagerAtt extends SimpleAdaptation<DiscoveryVillagerAtt.
         Player p = e.getPlayer();
         SoundPlayer sp = SoundPlayer.of(p);
         if (e.getRightClicked() instanceof Villager v && hasAdaptation(p)) {
-            Random r = new Random();
-            if (r.nextDouble() <= getEffectiveness(getLevelPercent(getLevel(p)))) {
+            if (ThreadLocalRandom.current().nextDouble() <= getEffectiveness(getLevelPercent(getLevel(p)))) {
                 if (p.getLevel() - getXpTaken(getLevel(p)) > 0) {
                     BleedEffect blood = new BleedEffect(Adapt.instance.adaptEffectManager);  // Enemy gets blood
                     blood.material = Material.EMERALD;

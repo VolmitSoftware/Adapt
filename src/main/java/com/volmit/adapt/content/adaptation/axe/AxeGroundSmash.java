@@ -37,12 +37,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class AxeGroundSmash extends SimpleAdaptation<AxeGroundSmash.Config> {
-    private final List<Integer> holds = new ArrayList<>();
-
     public AxeGroundSmash() {
         super("axe-ground-smash");
         registerConfiguration(Config.class);
@@ -70,7 +65,7 @@ public class AxeGroundSmash extends SimpleAdaptation<AxeGroundSmash.Config> {
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_axe_ground_smash_500").goal(500).stat("axe.ground-smash.mobs-hit").reward(500).build());
+        registerMilestone("challenge_axe_ground_smash_500", "axe.ground-smash.mobs-hit", 500, 500);
     }
 
     @Override

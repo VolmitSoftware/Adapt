@@ -40,7 +40,7 @@ public class StealthEnderVeil extends SimpleAdaptation<StealthEnderVeil.Config> 
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_stealth_ender_veil_200").goal(200).stat("stealth.ender-veil.stares-survived").reward(300).build());
+        registerMilestone("challenge_stealth_ender_veil_200", "stealth.ender-veil.stares-survived", 200, 300);
     }
 
     @Override
@@ -107,6 +107,6 @@ public class StealthEnderVeil extends SimpleAdaptation<StealthEnderVeil.Config> 
         @com.volmit.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
         int initialCost = 4;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-        double costFactor = 2.325;
+        double costFactor = 1.0;
     }
 }

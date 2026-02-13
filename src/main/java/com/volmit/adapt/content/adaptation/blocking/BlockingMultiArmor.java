@@ -81,18 +81,8 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_blocking_multi_200")
-                .goal(200)
-                .stat("blocking.multi-armor.swaps")
-                .reward(400)
-                .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_blocking_multi_5k")
-                .goal(5000)
-                .stat("blocking.multi-armor.swaps")
-                .reward(1500)
-                .build());
+        registerMilestone("challenge_blocking_multi_200", "blocking.multi-armor.swaps", 200, 400);
+        registerMilestone("challenge_blocking_multi_5k", "blocking.multi-armor.swaps", 5000, 1500);
     }
 
     @Override

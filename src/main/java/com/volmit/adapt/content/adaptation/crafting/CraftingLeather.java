@@ -19,11 +19,8 @@
 package com.volmit.adapt.content.adaptation.crafting;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.api.advancement.AdaptAdvancement;
-import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
-import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.advancement.AdvancementSpec;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
-import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
@@ -54,15 +51,13 @@ public class CraftingLeather extends SimpleAdaptation<CraftingLeather.Config> {
                 .experience(1)
                 .result(new ItemStack(Material.LEATHER, 1))
                 .build());
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.LEATHER)
-                .key("challenge_crafting_leather_100")
-                .title(Localizer.dLocalize("advancement.challenge_crafting_leather_100.title"))
-                .description(Localizer.dLocalize("advancement.challenge_crafting_leather_100.description"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_crafting_leather_100").goal(100).stat("crafting.leather.leather-crafted").reward(300).build());
+        AdvancementSpec leatherCrafted = AdvancementSpec.challenge(
+                "challenge_crafting_leather_100",
+                Material.LEATHER,
+                Localizer.dLocalize("advancement.challenge_crafting_leather_100.title"),
+                Localizer.dLocalize("advancement.challenge_crafting_leather_100.description")
+        );
+        registerMilestone(leatherCrafted, "crafting.leather.leather-crafted", 100, 300);
     }
 
     @Override

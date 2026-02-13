@@ -66,7 +66,7 @@ public class SeabornePressureDiver extends SimpleAdaptation<SeabornePressureDive
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_seaborne_pressure_1k").goal(1000).stat("seaborne.pressure-diver.deep-blocks-mined").reward(400).build());
+        registerMilestone("challenge_seaborne_pressure_1k", "seaborne.pressure-diver.deep-blocks-mined", 1000, 400);
     }
 
     @Override
@@ -98,7 +98,8 @@ public class SeabornePressureDiver extends SimpleAdaptation<SeabornePressureDive
     @Override
     public void onTick() {
         long now = System.currentTimeMillis();
-        for (Player p : Bukkit.getOnlinePlayers()) {
+        for (com.volmit.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+            Player p = adaptPlayer.getPlayer();
             if (!hasAdaptation(p) || !p.isInWater()) {
                 continue;
             }

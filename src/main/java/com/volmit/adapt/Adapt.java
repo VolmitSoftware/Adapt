@@ -27,6 +27,7 @@ import com.volmit.adapt.api.tick.Ticker;
 import com.volmit.adapt.api.value.MaterialValue;
 import com.volmit.adapt.api.version.Version;
 import com.volmit.adapt.api.world.AdaptServer;
+import com.volmit.adapt.api.world.PlayerDataPersistenceQueue;
 import com.volmit.adapt.api.adaptation.Adaptation;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.skill.SimpleSkill;
@@ -57,6 +58,7 @@ import java.lang.annotation.Annotation;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.util.*;
+import java.util.function.Supplier;
 
 import static com.volmit.adapt.util.decree.context.AdaptationListingHandler.initializeAdaptationListings;
 
@@ -85,10 +87,13 @@ public class Adapt extends VolmitPlugin {
     private AdvancementManager manager;
     @Getter
     private RedisSync redisSync;
+    @Getter
+    private PlayerDataPersistenceQueue playerDataPersistenceQueue;
 
 
     private final KList<Runnable> postShutdown = new KList<>();
     private static VolmitSender sender;
+    private static final long STARTUP_SLOW_PHASE_MS = 1500L;
 
 
     public Adapt() {
@@ -116,14 +121,15 @@ public class Adapt extends VolmitPlugin {
 
     @Override
     public void start() {
-        ConfigMigrationManager.backupLegacyJsonConfigsOnce();
+        runStartupPhaseVoid("backup-legacy-configs", ConfigMigrationManager::backupLegacyJsonConfigsOnce);
         platform = PlatformUtils.createPlatform(this);
         audiences = platform.getAudienceProvider();
         services = new KMap<>();
-        initialize("com.volmit.adapt.service").forEach((i) -> services.put((Class<? extends AdaptService>) i.getClass(), (AdaptService) i));
+        runStartupPhaseVoid("discover-services", () -> initialize("com.volmit.adapt.service")
+                .forEach((i) -> services.put((Class<? extends AdaptService>) i.getClass(), (AdaptService) i)));
 
-        Localizer.updateLanguageFile();
-        if (!CustomModel.reloadFromDisk()) {
+        runStartupPhaseVoid("language-update", Localizer::updateLanguageFile);
+        if (!runStartupPhase("models-load", CustomModel::reloadFromDisk)) {
             Adapt.warn("Failed to load models config during startup migration.");
         }
         if (!AdaptConfig.get().isCustomModels()) {
@@ -135,11 +141,21 @@ public class Adapt extends VolmitPlugin {
         printInformation();
         sqlManager = new SQLManager();
         if (AdaptConfig.get().isUseSql()) {
-            sqlManager.establishConnection();
+            runStartupPhase("sql-connect", () -> {
+                sqlManager.establishConnection();
+                return null;
+            });
         }
         redisSync = new RedisSync();
-        startSim();
-        migrateAllSkillAndAdaptationConfigs();
+        playerDataPersistenceQueue = new PlayerDataPersistenceQueue();
+        runStartupPhase("start-sim", () -> {
+            startSim();
+            return null;
+        });
+        runStartupPhase("config-canonicalization", () -> {
+            migrateAllSkillAndAdaptationConfigs();
+            return null;
+        });
         CustomBlockData.registerListener(this);
         registerListener(new BrewingManager());
         registerListener(Version.get());
@@ -176,8 +192,40 @@ public class Adapt extends VolmitPlugin {
         services.values().forEach(this::registerListener);
     }
 
+    private static void runStartupPhaseVoid(String phase, Runnable action) {
+        runStartupPhase(phase, () -> {
+            action.run();
+            return null;
+        });
+    }
+
+    private static <T> T runStartupPhase(String phase, Supplier<T> action) {
+        if (phase == null || phase.isBlank()) {
+            return action.get();
+        }
+
+        info("Startup phase: " + phase);
+        long start = System.currentTimeMillis();
+        try {
+            return action.get();
+        } finally {
+            long elapsed = System.currentTimeMillis() - start;
+            if (elapsed >= STARTUP_SLOW_PHASE_MS) {
+                warn("Startup phase '" + phase + "' took " + elapsed + "ms.");
+            } else {
+                verbose("Startup phase '" + phase + "' took " + elapsed + "ms.");
+            }
+        }
+    }
+
     private void migrateAllSkillAndAdaptationConfigs() {
         if (adaptServer == null || adaptServer.getSkillRegistry() == null) {
+            return;
+        }
+
+        if (!ConfigMigrationManager.hasLegacySkillOrAdaptationJsonFiles()) {
+            int deletedLegacyJson = ConfigMigrationManager.deleteMigratedLegacyJsonFiles();
+            Adapt.info("Skipped skill/adaptation canonicalization (legacy json not found). deletedLegacyJson=" + deletedLegacyJson + ".");
             return;
         }
 
@@ -205,9 +253,22 @@ public class Adapt extends VolmitPlugin {
 
 
     public void startSim() {
+        long startTicker = System.currentTimeMillis();
         ticker = new Ticker();
+        verbose("start-sim detail: ticker init in " + (System.currentTimeMillis() - startTicker) + "ms");
+
+        long startServer = System.currentTimeMillis();
         adaptServer = new AdaptServer();
+        long serverMs = System.currentTimeMillis() - startServer;
+        if (serverMs >= STARTUP_SLOW_PHASE_MS) {
+            warn("start-sim detail: AdaptServer init took " + serverMs + "ms.");
+        } else {
+            verbose("start-sim detail: AdaptServer init in " + serverMs + "ms");
+        }
+
+        long startAdv = System.currentTimeMillis();
         manager.enable();
+        verbose("start-sim detail: advancement manager enable in " + (System.currentTimeMillis() - startAdv) + "ms");
     }
 
     public void postShutdown(Runnable r) {
@@ -236,10 +297,23 @@ public class Adapt extends VolmitPlugin {
         if (services != null) {
             services.values().forEach(AdaptService::onDisable);
         }
+        stopSim();
+        if (playerDataPersistenceQueue != null) {
+            playerDataPersistenceQueue.flushAndShutdown(30_000L);
+            playerDataPersistenceQueue = null;
+        }
+        if (redisSync != null) {
+            try {
+                redisSync.close();
+            } catch (Exception e) {
+                Adapt.verbose("Failed to close redis sync: " + e.getMessage());
+            } finally {
+                redisSync = null;
+            }
+        }
         if (sqlManager != null) {
             sqlManager.closeConnection();
         }
-        stopSim();
         if (glowingEntities != null) {
             glowingEntities.disable();
         }

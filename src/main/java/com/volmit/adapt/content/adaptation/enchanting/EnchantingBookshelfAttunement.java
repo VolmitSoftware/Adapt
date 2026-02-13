@@ -55,7 +55,7 @@ public class EnchantingBookshelfAttunement extends SimpleAdaptation<EnchantingBo
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_enchanting_bookshelf_100").goal(100).stat("enchanting.bookshelf-attunement.enchants-boosted").reward(400).build());
+        registerMilestone("challenge_enchanting_bookshelf_100", "enchanting.bookshelf-attunement.enchants-boosted", 100, 400);
     }
 
     @Override

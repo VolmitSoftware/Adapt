@@ -27,7 +27,6 @@ import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.excavation.ExcavationDropToInventory;
 import com.volmit.adapt.content.adaptation.excavation.ExcavationHaste;
 import com.volmit.adapt.content.adaptation.excavation.ExcavationOmniTool;
-import com.volmit.adapt.content.adaptation.excavation.ExcavationSeismicPing;
 import com.volmit.adapt.content.adaptation.excavation.ExcavationSpelunker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.CustomModel;
@@ -59,7 +58,6 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
         cooldowns = new HashMap<>();
         registerAdaptation(new ExcavationHaste());
         registerAdaptation(new ExcavationSpelunker());
-        registerAdaptation(new ExcavationSeismicPing());
         registerAdaptation(new ExcavationOmniTool());
         registerAdaptation(new ExcavationDropToInventory());
         registerAdvancement(AdaptAdvancement.builder()
@@ -102,11 +100,11 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
                                 .build())
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_excavate_1k").goal(1000).stat("excavation.blocks.broken").reward(getConfig().challengeExcavationReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_excavate_5k").goal(5000).stat("excavation.blocks.broken").reward(getConfig().challengeExcavationReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_excavate_50k").goal(50000).stat("excavation.blocks.broken").reward(getConfig().challengeExcavationReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_enchant_500k").goal(500000).stat("excavation.blocks.broken").reward(getConfig().challengeExcavationReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_excavate_5m").goal(5000000).stat("excavation.blocks.broken").reward(getConfig().challengeExcavationReward).build());
+        registerMilestone("challenge_excavate_1k", "excavation.blocks.broken", 1000, getConfig().challengeExcavationReward);
+        registerMilestone("challenge_excavate_5k", "excavation.blocks.broken", 5000, getConfig().challengeExcavationReward);
+        registerMilestone("challenge_excavate_50k", "excavation.blocks.broken", 50000, getConfig().challengeExcavationReward);
+        registerMilestone("challenge_enchant_500k", "excavation.blocks.broken", 500000, getConfig().challengeExcavationReward);
+        registerMilestone("challenge_excavate_5m", "excavation.blocks.broken", 5000000, getConfig().challengeExcavationReward);
 
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.WOODEN_SHOVEL).key("challenge_dig_swing_500")
@@ -125,8 +123,8 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_dig_swing_500").goal(500).stat("excavation.swings").reward(getConfig().challengeExcavationReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_dig_swing_5k").goal(5000).stat("excavation.swings").reward(getConfig().challengeExcavationReward * 2).build());
+        registerMilestone("challenge_dig_swing_500", "excavation.swings", 500, getConfig().challengeExcavationReward);
+        registerMilestone("challenge_dig_swing_5k", "excavation.swings", 5000, getConfig().challengeExcavationReward * 2);
 
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.GOLDEN_SHOVEL).key("challenge_dig_damage_1k")
@@ -145,8 +143,8 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_dig_damage_1k").goal(1000).stat("excavation.damage").reward(getConfig().challengeExcavationReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_dig_damage_10k").goal(10000).stat("excavation.damage").reward(getConfig().challengeExcavationReward * 2).build());
+        registerMilestone("challenge_dig_damage_1k", "excavation.damage", 1000, getConfig().challengeExcavationReward);
+        registerMilestone("challenge_dig_damage_10k", "excavation.damage", 10000, getConfig().challengeExcavationReward * 2);
 
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.CLAY_BALL).key("challenge_dig_value_5k")
@@ -165,8 +163,8 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_dig_value_5k").goal(5000).stat("excavation.blocks.value").reward(getConfig().challengeExcavationReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_dig_value_50k").goal(50000).stat("excavation.blocks.value").reward(getConfig().challengeExcavationReward * 2).build());
+        registerMilestone("challenge_dig_value_5k", "excavation.blocks.value", 5000, getConfig().challengeExcavationReward);
+        registerMilestone("challenge_dig_value_50k", "excavation.blocks.value", 50000, getConfig().challengeExcavationReward * 2);
 
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.GRAVEL).key("challenge_dig_gravel_500")
@@ -185,8 +183,8 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_dig_gravel_500").goal(500).stat("excavation.gravel").reward(getConfig().challengeExcavationReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_dig_gravel_5k").goal(5000).stat("excavation.gravel").reward(getConfig().challengeExcavationReward * 2).build());
+        registerMilestone("challenge_dig_gravel_500", "excavation.gravel", 500, getConfig().challengeExcavationReward);
+        registerMilestone("challenge_dig_gravel_5k", "excavation.gravel", 5000, getConfig().challengeExcavationReward * 2);
     }
 
 
@@ -260,9 +258,7 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
         if (!this.isEnabled()) {
             return;
         }
-        for (Player i : Bukkit.getOnlinePlayers()) {
-            shouldReturnForPlayer(i, () -> checkStatTrackers(getPlayer(i)));
-        }
+        checkStatTrackersForOnlinePlayers();
     }
 
     @Override

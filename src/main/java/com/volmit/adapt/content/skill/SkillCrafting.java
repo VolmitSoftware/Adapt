@@ -100,11 +100,11 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
                                 .build())
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_craft_1k").goal(1000).stat("crafted.items").reward(getConfig().challengeCraft1kReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_craft_5k").goal(5000).stat("crafted.items").reward(getConfig().challengeCraft1kReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_craft_50k").goal(50000).stat("crafted.items").reward(getConfig().challengeCraft1kReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_craft_500k").goal(500000).stat("crafted.items").reward(getConfig().challengeCraft1kReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_craft_5m").goal(5000000).stat("crafted.items").reward(getConfig().challengeCraft1kReward).build());
+        registerMilestone("challenge_craft_1k", "crafted.items", 1000, getConfig().challengeCraft1kReward);
+        registerMilestone("challenge_craft_5k", "crafted.items", 5000, getConfig().challengeCraft1kReward);
+        registerMilestone("challenge_craft_50k", "crafted.items", 50000, getConfig().challengeCraft1kReward);
+        registerMilestone("challenge_craft_500k", "crafted.items", 500000, getConfig().challengeCraft1kReward);
+        registerMilestone("challenge_craft_5m", "crafted.items", 5000000, getConfig().challengeCraft1kReward);
 
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.GOLD_INGOT).key("challenge_craft_value_10k")
@@ -123,8 +123,8 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_craft_value_10k").goal(10000).stat("crafted.value").reward(getConfig().challengeCraft1kReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_craft_value_100k").goal(100000).stat("crafted.value").reward(getConfig().challengeCraft1kReward * 2).build());
+        registerMilestone("challenge_craft_value_10k", "crafted.value", 10000, getConfig().challengeCraft1kReward);
+        registerMilestone("challenge_craft_value_100k", "crafted.value", 100000, getConfig().challengeCraft1kReward * 2);
 
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.IRON_PICKAXE).key("challenge_craft_tools_25")
@@ -143,8 +143,8 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_craft_tools_25").goal(25).stat("crafting.tools").reward(getConfig().challengeCraft1kReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_craft_tools_250").goal(250).stat("crafting.tools").reward(getConfig().challengeCraft1kReward * 2).build());
+        registerMilestone("challenge_craft_tools_25", "crafting.tools", 25, getConfig().challengeCraft1kReward);
+        registerMilestone("challenge_craft_tools_250", "crafting.tools", 250, getConfig().challengeCraft1kReward * 2);
 
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.IRON_CHESTPLATE).key("challenge_craft_armor_25")
@@ -163,8 +163,8 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_craft_armor_25").goal(25).stat("crafting.armor").reward(getConfig().challengeCraft1kReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_craft_armor_250").goal(250).stat("crafting.armor").reward(getConfig().challengeCraft1kReward * 2).build());
+        registerMilestone("challenge_craft_armor_25", "crafting.armor", 25, getConfig().challengeCraft1kReward);
+        registerMilestone("challenge_craft_armor_250", "crafting.armor", 250, getConfig().challengeCraft1kReward * 2);
 
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.HOPPER).key("challenge_craft_mass_25k")
@@ -183,8 +183,8 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_craft_mass_25k").goal(25000).stat("crafted.items").reward(getConfig().challengeCraft1kReward * 2).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_craft_mass_250k").goal(250000).stat("crafted.items").reward(getConfig().challengeCraft1kReward * 5).build());
+        registerMilestone("challenge_craft_mass_25k", "crafted.items", 25000, getConfig().challengeCraft1kReward * 2);
+        registerMilestone("challenge_craft_mass_250k", "crafted.items", 250000, getConfig().challengeCraft1kReward * 5);
 
         cooldowns = new HashMap<>();
     }
@@ -231,12 +231,7 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
 
     @Override
     public void onTick() {
-        for (Player i : Bukkit.getOnlinePlayers()) {
-            if (shouldReturnForPlayer(i)) {
-                continue;
-            }
-            checkStatTrackers(getPlayer(i));
-        }
+        checkStatTrackersForOnlinePlayers();
     }
 
 
@@ -329,19 +324,19 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
         boolean enabled = true;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Furnace Base XP for the Crafting skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double furnaceBaseXP = 18;
+        double furnaceBaseXP = 30;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Furnace Value XPMultiplier for the Crafting skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double furnaceValueXPMultiplier = 4;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Furnace XPRadius for the Crafting skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int furnaceXPRadius = 32;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Cooldown Delay for the Crafting skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        long cooldownDelay = 6000;
+        long cooldownDelay = 3000;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Furnace XPDuration for the Crafting skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         long furnaceXPDuration = 10000;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Crafting Value XPMultiplier for the Crafting skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double craftingValueXPMultiplier = 1;
+        double craftingValueXPMultiplier = 2.0;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Base Crafting XP for the Crafting skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double baseCraftingXP = 0.5;
+        double baseCraftingXP = 3.0;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Craft1k Reward for the Crafting skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double challengeCraft1kReward = 1200;
     }

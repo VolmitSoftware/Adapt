@@ -55,7 +55,7 @@ public class HunterInvis extends SimpleAdaptation<HunterInvis.Config> {
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_hunter_invis_200").goal(200).stat("hunter.invis.activations").reward(300).build());
+        registerMilestone("challenge_hunter_invis_200", "hunter.invis.activations", 200, 300);
     }
 
     @Override

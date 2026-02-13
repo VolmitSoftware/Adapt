@@ -56,7 +56,7 @@ public class RangedPinningShot extends SimpleAdaptation<RangedPinningShot.Config
         registerConfiguration(Config.class);
         setDescription(Localizer.dLocalize("ranged.pinning_shot.description"));
         setDisplayName(Localizer.dLocalize("ranged.pinning_shot.name"));
-        setIcon(Material.COBWEB);
+        setIcon(Material.TRIPWIRE_HOOK);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
@@ -70,7 +70,7 @@ public class RangedPinningShot extends SimpleAdaptation<RangedPinningShot.Config
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_ranged_pinning_300").goal(300).stat("ranged.pinning-shot.targets-pinned").reward(400).build());
+        registerMilestone("challenge_ranged_pinning_300", "ranged.pinning-shot.targets-pinned", 300, 400);
     }
 
     @Override
@@ -116,9 +116,15 @@ public class RangedPinningShot extends SimpleAdaptation<RangedPinningShot.Config
             target.setVelocity(new Vector(v.getX() * getConfig().horizontalVelocityFactor, v.getY(), v.getZ() * getConfig().horizontalVelocityFactor));
         }
 
-        target.getWorld().spawnParticle(Particle.CRIT, target.getLocation().add(0, 0.9, 0), 18, 0.3, 0.45, 0.3, 0.08);
-        target.getWorld().spawnParticle(Particle.ENCHANT, target.getLocation().add(0, 1.0, 0), 28, 0.35, 0.5, 0.35, 0.35);
+        if (areParticlesEnabled()) {
 
+            target.getWorld().spawnParticle(Particle.CRIT, target.getLocation().add(0, 0.9, 0), 18, 0.3, 0.45, 0.3, 0.08);
+
+        }
+        if (areParticlesEnabled()) {
+            target.getWorld().spawnParticle(Particle.ENCHANT, target.getLocation().add(0, 1.0, 0), 28, 0.35, 0.5, 0.35, 0.35);
+
+        }
         SoundPlayer sp = SoundPlayer.of(target.getWorld());
         sp.play(target.getLocation(), Sound.BLOCK_BELL_USE, 1.1f, 0.48f);
         sp.play(target.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 0.7f, 0.55f);

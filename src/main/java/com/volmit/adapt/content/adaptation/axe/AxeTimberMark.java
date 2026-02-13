@@ -77,7 +77,7 @@ public class AxeTimberMark extends SimpleAdaptation<AxeTimberMark.Config> {
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_axe_timber_200").goal(200).stat("axe.timber-mark.marks-felled").reward(400).build());
+        registerMilestone("challenge_axe_timber_200", "axe.timber-mark.marks-felled", 200, 400);
     }
 
     @Override

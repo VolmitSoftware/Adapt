@@ -42,10 +42,16 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
+    private final Map<Player, Long> cooldowns;
+
     public SkillUnarmed() {
         super("unarmed", Localizer.dLocalize("skill.unarmed.icon"));
         registerConfiguration(Config.class);
+        cooldowns = new HashMap<>();
         setColor(C.YELLOW);
         setDescription(Localizer.dLocalize("skill.unarmed.description"));
         setDisplayName(Localizer.dLocalize("skill.unarmed.name"));
@@ -83,9 +89,9 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
                                 .build())
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_unarmed_100").goal(100).stat("unarmed.hits").reward(getConfig().challengeUnarmedReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_unarmed_1k").goal(1000).stat("unarmed.hits").reward(getConfig().challengeUnarmedReward * 2).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_unarmed_10k").goal(10000).stat("unarmed.hits").reward(getConfig().challengeUnarmedReward * 5).build());
+        registerMilestone("challenge_unarmed_100", "unarmed.hits", 100, getConfig().challengeUnarmedReward);
+        registerMilestone("challenge_unarmed_1k", "unarmed.hits", 1000, getConfig().challengeUnarmedReward * 2);
+        registerMilestone("challenge_unarmed_10k", "unarmed.hits", 10000, getConfig().challengeUnarmedReward * 5);
 
         // Chain 2 - Unarmed Damage
         registerAdvancement(AdaptAdvancement.builder()
@@ -106,8 +112,8 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_unarmed_dmg_1k").goal(1000).stat("unarmed.damage").reward(getConfig().challengeUnarmedDmgReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_unarmed_dmg_10k").goal(10000).stat("unarmed.damage").reward(getConfig().challengeUnarmedDmgReward * 3).build());
+        registerMilestone("challenge_unarmed_dmg_1k", "unarmed.damage", 1000, getConfig().challengeUnarmedDmgReward);
+        registerMilestone("challenge_unarmed_dmg_10k", "unarmed.damage", 10000, getConfig().challengeUnarmedDmgReward * 3);
 
         // Chain 3 - Unarmed Kills
         registerAdvancement(AdaptAdvancement.builder()
@@ -128,8 +134,8 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_unarmed_kills_25").goal(25).stat("unarmed.kills").reward(getConfig().challengeUnarmedKillsReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_unarmed_kills_250").goal(250).stat("unarmed.kills").reward(getConfig().challengeUnarmedKillsReward * 3).build());
+        registerMilestone("challenge_unarmed_kills_25", "unarmed.kills", 25, getConfig().challengeUnarmedKillsReward);
+        registerMilestone("challenge_unarmed_kills_250", "unarmed.kills", 250, getConfig().challengeUnarmedKillsReward * 3);
 
         // Chain 4 - Unarmed Criticals
         registerAdvancement(AdaptAdvancement.builder()
@@ -150,8 +156,8 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_unarmed_crit_25").goal(25).stat("unarmed.critical").reward(getConfig().challengeUnarmedCritReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_unarmed_crit_250").goal(250).stat("unarmed.critical").reward(getConfig().challengeUnarmedCritReward * 3).build());
+        registerMilestone("challenge_unarmed_crit_25", "unarmed.critical", 25, getConfig().challengeUnarmedCritReward);
+        registerMilestone("challenge_unarmed_crit_250", "unarmed.critical", 250, getConfig().challengeUnarmedCritReward * 3);
 
         // Chain 5 - Unarmed Heavy Hits
         registerAdvancement(AdaptAdvancement.builder()
@@ -172,8 +178,8 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_unarmed_heavy_25").goal(25).stat("unarmed.heavy").reward(getConfig().challengeUnarmedHeavyReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_unarmed_heavy_250").goal(250).stat("unarmed.heavy").reward(getConfig().challengeUnarmedHeavyReward * 3).build());
+        registerMilestone("challenge_unarmed_heavy_25", "unarmed.heavy", 25, getConfig().challengeUnarmedHeavyReward);
+        registerMilestone("challenge_unarmed_heavy_250", "unarmed.heavy", 250, getConfig().challengeUnarmedHeavyReward * 3);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -208,6 +214,10 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
                 if (e.getDamage() > 6) {
                     a.getData().addStat("unarmed.heavy", 1);
                 }
+                Long cooldown = cooldowns.get(p);
+                if (cooldown != null && cooldown + getConfig().cooldownDelay > System.currentTimeMillis())
+                    return;
+                cooldowns.put(p, System.currentTimeMillis());
                 xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().damageXPMultiplier * e.getDamage());
             }
         });
@@ -235,9 +245,7 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
         if (!this.isEnabled()) {
             return;
         }
-        for (Player i : Bukkit.getOnlinePlayers()) {
-            shouldReturnForPlayer(i, () -> checkStatTrackers(getPlayer(i)));
-        }
+        checkStatTrackersForOnlinePlayers();
     }
 
     @Override
@@ -250,7 +258,9 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
         boolean enabled = true;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Damage XPMultiplier for the Unarmed skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double damageXPMultiplier = 5.5;
+        double damageXPMultiplier = 4.5;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Cooldown Delay for the Unarmed skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+        long cooldownDelay = 1250;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Unarmed Reward for the Unarmed skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double challengeUnarmedReward = 500;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Unarmed Damage Reward for the Unarmed skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

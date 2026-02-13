@@ -38,9 +38,11 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisReturn.Config> {
-    private final Map<Player, Long> cooldown = new HashMap<>();
+    private final Map<UUID, Long> cooldown = new HashMap<>();
 
     public EnchantingLapisReturn() {
         super("enchanting-lapis-return");
@@ -69,8 +71,8 @@ public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisRetur
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_enchanting_lapis_100").goal(100).stat("enchanting.lapis-return.lapis-saved").reward(300).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_enchanting_lapis_2500").goal(2500).stat("enchanting.lapis-return.lapis-saved").reward(1000).build());
+        registerMilestone("challenge_enchanting_lapis_100", "enchanting.lapis-return.lapis-saved", 100, 300);
+        registerMilestone("challenge_enchanting_lapis_2500", "enchanting.lapis-return.lapis-saved", 2500, 1000);
     }
 
     @Override
@@ -80,8 +82,7 @@ public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisRetur
 
     @EventHandler
     public void on(PlayerQuitEvent e) {
-        Player p = e.getPlayer();
-        cooldown.remove(p);
+        cooldown.remove(e.getPlayer().getUniqueId());
     }
 
 
@@ -97,13 +98,15 @@ public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisRetur
         }
 
 
-        if (Math.random() * 100 > 80) {
-            if (cooldown.containsKey(p) && cooldown.get(p) + 20000 < System.currentTimeMillis()) {
-                cooldown.remove(p);
-            } else if (cooldown.containsKey(p) && cooldown.get(p) + 20000 > System.currentTimeMillis()) {
+        if (ThreadLocalRandom.current().nextDouble(100D) > 80D) {
+            long now = System.currentTimeMillis();
+            UUID playerId = p.getUniqueId();
+            Long nextAllowedAt = cooldown.get(playerId);
+            if (nextAllowedAt != null && nextAllowedAt > now) {
                 return;
             }
-            cooldown.put(p, System.currentTimeMillis());
+
+            cooldown.put(playerId, now + 20000L);
             p.getWorld().dropItemNaturally(p.getLocation(), new ItemStack(Material.LAPIS_LAZULI, getLevel(p)));
             getPlayer(p).getData().addStat("enchanting.lapis-return.lapis-saved", getLevel(p));
         }
@@ -138,6 +141,6 @@ public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisRetur
         @com.volmit.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
         int initialCost = 2;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-        double costFactor = 2.25;
+        double costFactor = 0.9;
     }
 }

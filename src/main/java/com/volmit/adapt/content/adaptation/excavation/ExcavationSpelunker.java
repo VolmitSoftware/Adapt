@@ -78,8 +78,8 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_excavation_spelunker_1k").goal(1000).stat("excavation.spelunker.ores-revealed").reward(400).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_excavation_spelunker_25k").goal(25000).stat("excavation.spelunker.ores-revealed").reward(1500).build());
+        registerMilestone("challenge_excavation_spelunker_1k", "excavation.spelunker.ores-revealed", 1000, 400);
+        registerMilestone("challenge_excavation_spelunker_25k", "excavation.spelunker.ores-revealed", 25000, 1500);
     }
 
     @Override
@@ -145,7 +145,9 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
 
                             while (particleLocation.distance(blockLocation) > 0.5) {
                                 particleLocation.add(vector);
-                                p.spawnParticle(Particles.REDSTONE, particleLocation, 1, dustOptions);
+                                if (areParticlesEnabled()) {
+                                    p.spawnParticle(Particles.REDSTONE, particleLocation, 1, dustOptions);
+                                }
                             }
 
                             SoundPlayer spw = SoundPlayer.of(world);

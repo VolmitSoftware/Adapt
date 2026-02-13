@@ -55,7 +55,7 @@ public class UnarmedComboChain extends SimpleAdaptation<UnarmedComboChain.Config
         registerConfiguration(Config.class);
         setDescription(Localizer.dLocalize("unarmed.combo_chain.description"));
         setDisplayName(Localizer.dLocalize("unarmed.combo_chain.name"));
-        setIcon(Material.BLAZE_POWDER);
+        setIcon(Material.CHAINMAIL_BOOTS);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
@@ -69,7 +69,7 @@ public class UnarmedComboChain extends SimpleAdaptation<UnarmedComboChain.Config
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_unarmed_combo_5k").goal(5000).stat("unarmed.combo-chain.total-combo-hits").reward(400).build());
+        registerMilestone("challenge_unarmed_combo_5k", "unarmed.combo-chain.total-combo-hits", 5000, 400);
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.BLAZE_POWDER)
                 .key("challenge_unarmed_combo_10")
@@ -177,12 +177,16 @@ public class UnarmedComboChain extends SimpleAdaptation<UnarmedComboChain.Config
         float pitch = Math.min(2.0f, 0.85f + (stacks * 0.09f));
         if (stacks >= maxStacks) {
             SoundPlayer.of(p.getWorld()).play(hitLocation, Sound.BLOCK_ANVIL_PLACE, 0.55f, 1.7f);
-            p.spawnParticle(Particle.TOTEM_OF_UNDYING, hitLocation.clone().add(0, 1, 0), 5, 0.2, 0.4, 0.2, 0.05);
+            if (areParticlesEnabled()) {
+                p.spawnParticle(Particle.TOTEM_OF_UNDYING, hitLocation.clone().add(0, 1, 0), 5, 0.2, 0.4, 0.2, 0.05);
+            }
             return;
         }
 
         SoundPlayer.of(p.getWorld()).play(hitLocation, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.55f, pitch);
-        p.spawnParticle(Particle.CRIT, hitLocation.clone().add(0, 0.9, 0), 6 + Math.min(16, stacks * 2), 0.22, 0.34, 0.22, 0.1);
+        if (areParticlesEnabled()) {
+            p.spawnParticle(Particle.CRIT, hitLocation.clone().add(0, 0.9, 0), 6 + Math.min(16, stacks * 2), 0.22, 0.34, 0.22, 0.1);
+        }
     }
 
     @Override

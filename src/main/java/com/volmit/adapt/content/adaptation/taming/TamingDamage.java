@@ -23,6 +23,7 @@ import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
 import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.version.Version;
+import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.config.ConfigDescription;
@@ -41,6 +42,8 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
@@ -74,8 +77,8 @@ public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_taming_damage_500").goal(500).stat("taming.damage.pet-kills").reward(400).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_taming_damage_5k").goal(5000).stat("taming.damage.pet-kills").reward(1500).build());
+        registerMilestone("challenge_taming_damage_500", "taming.damage.pet-kills", 500, 400);
+        registerMilestone("challenge_taming_damage_5k", "taming.damage.pet-kills", 5000, 1500);
     }
 
     @Override
@@ -89,11 +92,17 @@ public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
 
     @Override
     public void onTick() {
+        Map<UUID, Integer> ownerLevels = new HashMap<>();
+        for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+            Player owner = adaptPlayer.getPlayer();
+            ownerLevels.put(owner.getUniqueId(), getLevel(owner));
+        }
+
         for (World world : Bukkit.getServer().getWorlds()) {
             Collection<Tameable> tameables = world.getEntitiesByClass(Tameable.class);
             for (Tameable tameable : tameables) {
                 if (tameable.isTamed() && tameable.getOwner() instanceof Player p) {
-                    update(tameable, getLevel(p));
+                    update(tameable, ownerLevels.getOrDefault(p.getUniqueId(), 0));
                 }
             }
         }

@@ -23,7 +23,6 @@ import com.volmit.adapt.api.version.Version;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -93,9 +92,6 @@ public class UIWindow implements Window, Listener {
 
         if (e.getClickedInventory().getType().equals(getResolution().getType())) {
             Element element = getElement(getLayoutPosition(e.getSlot()), getLayoutRow(e.getSlot()));
-            if (element != null) {
-                flashViewportSlot(e.getSlot());
-            }
 
             switch (e.getAction()) {
                 case CLONE_STACK:
@@ -514,7 +510,9 @@ public class UIWindow implements Window, Listener {
     }
 
     private static Inventory getCurrentInventory(UIWindow window, Holder holder) {
-        if (!Version.SET_TITLE || holder.getResolution() != window.getResolution()) {
+        boolean requiresResize = window.getResolution().getType().equals(InventoryType.CHEST)
+                && holder.inventory.getSize() != window.getViewportHeight() * window.getResolution().getWidth();
+        if (!Version.SET_TITLE || holder.getResolution() != window.getResolution() || requiresResize) {
             holder.window.close();
             return createInventory(window);
         }
@@ -525,27 +523,5 @@ public class UIWindow implements Window, Listener {
 
         openInventory.clear();
         return openInventory;
-    }
-
-    private void flashViewportSlot(int viewportSlot) {
-        if (inventory == null || viewportSlot < 0 || viewportSlot >= inventory.getSize()) {
-            return;
-        }
-
-        ItemStack flash = new UIElement("flash-" + viewportSlot)
-                .setMaterial(new MaterialBlock(Material.PAPER))
-                .setName(" ")
-                .computeItemStack();
-        if (flash == null) {
-            return;
-        }
-
-        inventory.setItem(viewportSlot, flash);
-        J.s(() -> {
-            if (!isVisible() || inventory == null || viewportSlot < 0 || viewportSlot >= inventory.getSize()) {
-                return;
-            }
-            inventory.setItem(viewportSlot, computeItemStack(viewportSlot));
-        }, 2);
     }
 }

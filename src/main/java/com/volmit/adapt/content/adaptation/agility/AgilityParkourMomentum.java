@@ -22,14 +22,14 @@ import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
 import com.volmit.adapt.api.advancement.AdvancementVisibility;
-import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.VelocitySpeed;
 import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -40,6 +40,7 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.Vector;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -48,6 +49,7 @@ import java.util.UUID;
 public class AgilityParkourMomentum extends SimpleAdaptation<AgilityParkourMomentum.Config> {
     private final Map<UUID, Integer> momentum = new HashMap<>();
     private final Map<UUID, Boolean> wasOnGround = new HashMap<>();
+    private final Map<UUID, Boolean> speedBoosting = new HashMap<>();
 
     public AgilityParkourMomentum() {
         super("agility-parkour-momentum");
@@ -68,12 +70,7 @@ public class AgilityParkourMomentum extends SimpleAdaptation<AgilityParkourMomen
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_agility_parkour_500")
-                .goal(500)
-                .stat("agility.parkour-momentum.ledge-landings")
-                .reward(400)
-                .build());
+        registerMilestone("challenge_agility_parkour_500", "agility.parkour-momentum.ledge-landings", 500, 400);
     }
 
     @Override
@@ -88,6 +85,7 @@ public class AgilityParkourMomentum extends SimpleAdaptation<AgilityParkourMomen
         UUID id = e.getPlayer().getUniqueId();
         momentum.remove(id);
         wasOnGround.remove(id);
+        speedBoosting.remove(id);
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -126,11 +124,13 @@ public class AgilityParkourMomentum extends SimpleAdaptation<AgilityParkourMomen
 
     @Override
     public void onTick() {
-        for (Player p : Bukkit.getOnlinePlayers()) {
+        for (com.volmit.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+            Player p = adaptPlayer.getPlayer();
             UUID id = p.getUniqueId();
             if (!hasAdaptation(p)) {
                 momentum.remove(id);
                 wasOnGround.remove(id);
+                invalidateMomentumSpeed(p, id, true);
                 continue;
             }
 
@@ -138,20 +138,34 @@ public class AgilityParkourMomentum extends SimpleAdaptation<AgilityParkourMomen
             int maxMomentum = getMaxMomentum(level);
             int current = momentum.getOrDefault(id, 0);
             if (current <= 0) {
+                invalidateMomentumSpeed(p, id, false);
                 continue;
             }
 
             if (p.isOnGround() && !isOnLedge(p)) {
                 current -= getConfig().offLedgeDecayPerTick;
                 momentum.put(id, clampMomentum(current, maxMomentum));
+                brakeMomentumSpeed(p, id);
                 continue;
             }
 
             int speedAmp = Math.max(0, Math.min(getMaxSpeedAmplifier(level), (int) Math.floor((current / (double) maxMomentum) * (getMaxSpeedAmplifier(level) + 1)) - 1));
             int jumpAmp = Math.max(0, Math.min(getMaxJumpAmplifier(level), (int) Math.floor((current / (double) maxMomentum) * (getMaxJumpAmplifier(level) + 1)) - 1));
 
-            p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 25, speedAmp, false, false));
             p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, 25, jumpAmp, false, false));
+
+            if (speedAmp <= 0) {
+                brakeMomentumSpeed(p, id);
+            } else if (!isVelocityEligible(p)) {
+                invalidateMomentumSpeed(p, id, true);
+            } else {
+                VelocitySpeed.InputSnapshot input = VelocitySpeed.readInput(p, getConfig().fallbackInputVelocityThresholdSquared());
+                if (!input.hasHorizontal()) {
+                    brakeMomentumSpeed(p, id);
+                } else {
+                    applyMomentumSpeed(p, id, input, speedAmp);
+                }
+            }
 
             if (p.isOnGround() && !p.isSprinting()) {
                 current -= getConfig().passiveGroundDecayPerTick;
@@ -159,6 +173,67 @@ public class AgilityParkourMomentum extends SimpleAdaptation<AgilityParkourMomen
 
             momentum.put(id, clampMomentum(current, maxMomentum));
         }
+    }
+
+    private void applyMomentumSpeed(Player p, UUID id, VelocitySpeed.InputSnapshot input, int speedAmp) {
+        Vector direction = VelocitySpeed.resolveHorizontalDirection(p, input);
+        if (direction.lengthSquared() <= VelocitySpeed.EPSILON) {
+            brakeMomentumSpeed(p, id);
+            return;
+        }
+
+        double targetSpeed = Math.min(getConfig().maxHorizontalSpeed,
+                Math.max(0, getConfig().baseHorizontalSpeed * VelocitySpeed.speedAmplifierScalar(speedAmp)));
+        Vector horizontal = VelocitySpeed.horizontalOnly(p.getVelocity());
+        Vector targetHorizontal = direction.multiply(targetSpeed);
+        Vector nextHorizontal = VelocitySpeed.moveTowards(horizontal, targetHorizontal, Math.max(0, getConfig().accelPerTick));
+        nextHorizontal = VelocitySpeed.clampHorizontal(nextHorizontal, getConfig().maxHorizontalSpeed);
+        VelocitySpeed.setHorizontalVelocity(p, nextHorizontal);
+        speedBoosting.put(id, true);
+    }
+
+    private void brakeMomentumSpeed(Player p, UUID id) {
+        if (!speedBoosting.getOrDefault(id, false)) {
+            return;
+        }
+
+        Vector horizontal = VelocitySpeed.horizontalOnly(p.getVelocity());
+        double stopThreshold = Math.max(0, getConfig().stopThreshold);
+        if (horizontal.lengthSquared() <= stopThreshold * stopThreshold) {
+            VelocitySpeed.hardStopHorizontal(p);
+            speedBoosting.put(id, false);
+            return;
+        }
+
+        Vector nextHorizontal = VelocitySpeed.moveTowards(horizontal, new Vector(), Math.max(0, getConfig().brakePerTick));
+        if (nextHorizontal.lengthSquared() <= stopThreshold * stopThreshold) {
+            VelocitySpeed.hardStopHorizontal(p);
+            speedBoosting.put(id, false);
+            return;
+        }
+
+        VelocitySpeed.setHorizontalVelocity(p, nextHorizontal);
+    }
+
+    private void invalidateMomentumSpeed(Player p, UUID id, boolean invalidState) {
+        if (!speedBoosting.getOrDefault(id, false)) {
+            return;
+        }
+
+        if (invalidState && getConfig().hardStopOnInvalidState) {
+            VelocitySpeed.hardStopHorizontal(p);
+        }
+
+        speedBoosting.put(id, false);
+    }
+
+    private boolean isVelocityEligible(Player p) {
+        GameMode mode = p.getGameMode();
+        if (mode != GameMode.SURVIVAL && mode != GameMode.ADVENTURE) {
+            return false;
+        }
+
+        return !p.isDead() && !p.isFlying() && !p.isGliding() && !p.isSwimming() && p.getVehicle() == null;
     }
 
     private boolean isMomentumLanding(Player p) {
@@ -253,5 +328,24 @@ public class AgilityParkourMomentum extends SimpleAdaptation<AgilityParkourMomen
         int offLedgeDecayPerTick = 2;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Minimum Move Squared for the Agility Parkour Momentum adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double minimumMoveSquared = 0.0025;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Base horizontal speed used for momentum velocity scaling.", impact = "Higher values increase movement speed when momentum speed is active.")
+        double baseHorizontalSpeed = 0.13;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Maximum horizontal speed this adaptation can force.", impact = "Acts as a hard cap to prevent excessive momentum carry.")
+        double maxHorizontalSpeed = 0.3;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "How fast velocity accelerates toward the momentum target per tick.", impact = "Higher values accelerate faster; lower values feel smoother.")
+        double accelPerTick = 0.04;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "How fast velocity decays when movement input is released.", impact = "Higher values stop faster and reduce carry momentum.")
+        double brakePerTick = 0.08;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Horizontal velocity threshold considered fully stopped.", impact = "Higher values stop sooner; lower values preserve tiny motion longer.")
+        double stopThreshold = 0.01;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "If true, speed velocity is force-cleared when entering invalid states.", impact = "Prevents retained boosts if state transitions skip expected checks.")
+        boolean hardStopOnInvalidState = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Fallback movement threshold used when direct input API is unavailable.", impact = "Only used on runtimes without Player input access.")
+        double fallbackInputVelocityThreshold = 0.0008;
+
+        double fallbackInputVelocityThresholdSquared() {
+            double threshold = Math.max(0, fallbackInputVelocityThreshold);
+            return threshold * threshold;
+        }
     }
 }

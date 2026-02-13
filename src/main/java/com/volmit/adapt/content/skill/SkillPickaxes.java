@@ -107,11 +107,11 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
                         .build())
                 .build());
 
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_pickaxe_1k").goal(100).stat("pickaxe.blocks.broken").reward(getConfig().emeraldBonus*2).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_pickaxe_5k").goal(500).stat("pickaxe.blocks.broken").reward(getConfig().emeraldBonus*5).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_pickaxe_50k").goal(5000).stat("pickaxe.blocks.broken").reward(getConfig().emeraldBonus*10).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_pickaxe_500k").goal(50000).stat("pickaxe.blocks.broken").reward(getConfig().emeraldBonus*10).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_pickaxe_5m").goal(500000).stat("pickaxe.blocks.broken").reward(getConfig().emeraldBonus*50).build());
+        registerMilestone("challenge_pickaxe_1k", "pickaxe.blocks.broken", 100, getConfig().emeraldBonus*2);
+        registerMilestone("challenge_pickaxe_5k", "pickaxe.blocks.broken", 500, getConfig().emeraldBonus*5);
+        registerMilestone("challenge_pickaxe_50k", "pickaxe.blocks.broken", 5000, getConfig().emeraldBonus*10);
+        registerMilestone("challenge_pickaxe_500k", "pickaxe.blocks.broken", 50000, getConfig().emeraldBonus*10);
+        registerMilestone("challenge_pickaxe_5m", "pickaxe.blocks.broken", 500000, getConfig().emeraldBonus*50);
 
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.WOODEN_PICKAXE).key("challenge_pick_swing_500")
@@ -130,8 +130,8 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_pick_swing_500").goal(500).stat("pickaxe.swings").reward(getConfig().emeraldBonus).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_pick_swing_5k").goal(5000).stat("pickaxe.swings").reward(getConfig().emeraldBonus * 2).build());
+        registerMilestone("challenge_pick_swing_500", "pickaxe.swings", 500, getConfig().emeraldBonus);
+        registerMilestone("challenge_pick_swing_5k", "pickaxe.swings", 5000, getConfig().emeraldBonus * 2);
 
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.GOLDEN_PICKAXE).key("challenge_pick_damage_1k")
@@ -150,8 +150,8 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_pick_damage_1k").goal(1000).stat("pickaxe.damage").reward(getConfig().emeraldBonus).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_pick_damage_10k").goal(10000).stat("pickaxe.damage").reward(getConfig().emeraldBonus * 2).build());
+        registerMilestone("challenge_pick_damage_1k", "pickaxe.damage", 1000, getConfig().emeraldBonus);
+        registerMilestone("challenge_pick_damage_10k", "pickaxe.damage", 10000, getConfig().emeraldBonus * 2);
 
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.RAW_IRON).key("challenge_pick_value_5k")
@@ -170,8 +170,8 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_pick_value_5k").goal(5000).stat("pickaxe.blocks.value").reward(getConfig().emeraldBonus).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_pick_value_50k").goal(50000).stat("pickaxe.blocks.value").reward(getConfig().emeraldBonus * 2).build());
+        registerMilestone("challenge_pick_value_5k", "pickaxe.blocks.value", 5000, getConfig().emeraldBonus);
+        registerMilestone("challenge_pick_value_50k", "pickaxe.blocks.value", 50000, getConfig().emeraldBonus * 2);
 
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.IRON_ORE).key("challenge_pick_ores_500")
@@ -190,8 +190,8 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_pick_ores_500").goal(500).stat("pickaxe.ores").reward(getConfig().emeraldBonus).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_pick_ores_5k").goal(5000).stat("pickaxe.ores").reward(getConfig().emeraldBonus * 2).build());
+        registerMilestone("challenge_pick_ores_500", "pickaxe.ores", 500, getConfig().emeraldBonus);
+        registerMilestone("challenge_pick_ores_5k", "pickaxe.ores", 5000, getConfig().emeraldBonus * 2);
 
     }
 
@@ -293,9 +293,7 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
 
     @Override
     public void onTick() {
-        for (Player i : Bukkit.getOnlinePlayers()) {
-            shouldReturnForPlayer(i, () -> checkStatTrackers(getPlayer(i)));
-        }
+        checkStatTrackersForOnlinePlayers();
     }
 
     @Override

@@ -42,7 +42,7 @@ public class SeaborneSpeed extends SimpleAdaptation<SeaborneSpeed.Config> {
         registerConfiguration(Config.class);
         setDescription(Localizer.dLocalize("seaborn.dolphin_grace.description"));
         setDisplayName(Localizer.dLocalize("seaborn.dolphin_grace.name"));
-        setIcon(Material.TRIDENT);
+        setIcon(Material.PRISMARINE_CRYSTALS);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInterval(1020);
@@ -64,8 +64,8 @@ public class SeaborneSpeed extends SimpleAdaptation<SeaborneSpeed.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_seaborne_speed_10k").goal(10000).stat("seaborne.speed.blocks-swum").reward(300).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_seaborne_speed_100k").goal(100000).stat("seaborne.speed.blocks-swum").reward(1500).build());
+        registerMilestone("challenge_seaborne_speed_10k", "seaborne.speed.blocks-swum", 10000, 300);
+        registerMilestone("challenge_seaborne_speed_100k", "seaborne.speed.blocks-swum", 100000, 1500);
     }
 
     @Override
@@ -76,7 +76,8 @@ public class SeaborneSpeed extends SimpleAdaptation<SeaborneSpeed.Config> {
 
     @Override
     public void onTick() {
-        for (Player player : Bukkit.getOnlinePlayers()) {
+        for (com.volmit.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+            Player player = adaptPlayer.getPlayer();
             if (player.isInWater() && hasAdaptation(player)) {
                 if (player.getLocation().getBlock().isLiquid()) {
                     if (player.getInventory().getBoots() != null && player.getInventory().getBoots().containsEnchantment(Enchantment.DEPTH_STRIDER)) {

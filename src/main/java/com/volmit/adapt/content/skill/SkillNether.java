@@ -22,6 +22,7 @@ import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.skill.SimpleSkill;
+import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.nether.NetherFireResist;
 import com.volmit.adapt.content.adaptation.nether.NetherBlazeLeech;
@@ -92,9 +93,9 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
                                 .build())
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_nether_50").goal(50).stat("nether.kills").reward(getConfig().getChallengeNetherReward()).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_nether_500").goal(500).stat("nether.kills").reward(getConfig().getChallengeNetherReward() * 2).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_nether_5k").goal(5000).stat("nether.kills").reward(getConfig().getChallengeNetherReward() * 5).build());
+        registerMilestone("challenge_nether_50", "nether.kills", 50, getConfig().getChallengeNetherReward());
+        registerMilestone("challenge_nether_500", "nether.kills", 500, getConfig().getChallengeNetherReward() * 2);
+        registerMilestone("challenge_nether_5k", "nether.kills", 5000, getConfig().getChallengeNetherReward() * 5);
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.WITHER_ROSE)
                 .key("challenge_wither_dmg_500")
@@ -113,8 +114,8 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_wither_dmg_500").goal(500).stat("nether.wither.damage").reward(getConfig().getChallengeWitherDmgReward()).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_wither_dmg_5k").goal(5000).stat("nether.wither.damage").reward(getConfig().getChallengeWitherDmgReward() * 2).build());
+        registerMilestone("challenge_wither_dmg_500", "nether.wither.damage", 500, getConfig().getChallengeWitherDmgReward());
+        registerMilestone("challenge_wither_dmg_5k", "nether.wither.damage", 5000, getConfig().getChallengeWitherDmgReward() * 2);
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.BONE)
                 .key("challenge_wither_skel_25")
@@ -133,8 +134,8 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_wither_skel_25").goal(25).stat("nether.skeleton.kills").reward(getConfig().getChallengeWitherSkelReward()).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_wither_skel_250").goal(250).stat("nether.skeleton.kills").reward(getConfig().getChallengeWitherSkelReward() * 2).build());
+        registerMilestone("challenge_wither_skel_25", "nether.skeleton.kills", 25, getConfig().getChallengeWitherSkelReward());
+        registerMilestone("challenge_wither_skel_250", "nether.skeleton.kills", 250, getConfig().getChallengeWitherSkelReward() * 2);
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.NETHER_STAR)
                 .key("challenge_wither_boss_1")
@@ -153,8 +154,8 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_wither_boss_1").goal(1).stat("nether.boss.kills").reward(getConfig().getChallengeWitherBossReward()).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_wither_boss_10").goal(10).stat("nether.boss.kills").reward(getConfig().getChallengeWitherBossReward() * 2).build());
+        registerMilestone("challenge_wither_boss_1", "nether.boss.kills", 1, getConfig().getChallengeWitherBossReward());
+        registerMilestone("challenge_wither_boss_10", "nether.boss.kills", 10, getConfig().getChallengeWitherBossReward() * 2);
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.WITHER_ROSE)
                 .key("challenge_roses_10")
@@ -173,8 +174,8 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_roses_10").goal(10).stat("nether.roses.broken").reward(getConfig().getChallengeRosesReward()).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_roses_100").goal(100).stat("nether.roses.broken").reward(getConfig().getChallengeRosesReward() * 2).build());
+        registerMilestone("challenge_roses_10", "nether.roses.broken", 10, getConfig().getChallengeRosesReward());
+        registerMilestone("challenge_roses_100", "nether.roses.broken", 100, getConfig().getChallengeRosesReward() * 2);
     }
 
     private boolean shouldReturnForEventWithCause(Player p, EntityDamageEvent.DamageCause cause) {
@@ -245,9 +246,10 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
         if (witherRoseCooldown > 0) {
             witherRoseCooldown--;
         }
-        for (Player i : Bukkit.getOnlinePlayers()) {
+        for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+            Player i = adaptPlayer.getPlayer();
             if (!shouldReturnForPlayer(i)) {
-                checkStatTrackers(getPlayer(i));
+                checkStatTrackers(adaptPlayer);
             }
         }
     }

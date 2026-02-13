@@ -73,7 +73,7 @@ public class BrewingDarkness extends SimpleAdaptation<BrewingDarkness.Config> {
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_brewing_darkness_25").goal(25).stat("brewing.darkness.potions-brewed").reward(300).build());
+        registerMilestone("challenge_brewing_darkness_25", "brewing.darkness.potions-brewed", 25, 300);
     }
 
     @Override

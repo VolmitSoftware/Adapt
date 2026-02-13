@@ -108,11 +108,11 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_move_1k").goal(1000).stat("move").reward(getConfig().challengeMove1kReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sprint_5k").goal(5000).stat("move").reward(getConfig().challengeSprint5kReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sprint_50k").goal(50000).stat("move").reward(getConfig().challengeSprint5kReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sprint_500k").goal(500000).stat("move").reward(getConfig().challengeSprint5kReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sprint_marathon").goal(42195).stat("move").reward(getConfig().challengeSprintMarathonReward).build());
+        registerMilestone("challenge_move_1k", "move", 1000, getConfig().challengeMove1kReward);
+        registerMilestone("challenge_sprint_5k", "move", 5000, getConfig().challengeSprint5kReward);
+        registerMilestone("challenge_sprint_50k", "move", 50000, getConfig().challengeSprint5kReward);
+        registerMilestone("challenge_sprint_500k", "move", 500000, getConfig().challengeSprint5kReward);
+        registerMilestone("challenge_sprint_marathon", "move", 42195, getConfig().challengeSprintMarathonReward);
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.GOLDEN_BOOTS).key("challenge_sprint_dist_5k")
                 .title(Localizer.dLocalize("advancement.challenge_sprint_dist_5k.title"))
@@ -130,8 +130,8 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sprint_dist_5k").goal(5000).stat("move.sprint").reward(getConfig().challengeSprint5kReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sprint_dist_50k").goal(50000).stat("move.sprint").reward(getConfig().challengeSprint5kReward * 2).build());
+        registerMilestone("challenge_sprint_dist_5k", "move.sprint", 5000, getConfig().challengeSprint5kReward);
+        registerMilestone("challenge_sprint_dist_50k", "move.sprint", 50000, getConfig().challengeSprint5kReward * 2);
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.LILY_PAD).key("challenge_agility_swim_1k")
                 .title(Localizer.dLocalize("advancement.challenge_agility_swim_1k.title"))
@@ -149,8 +149,8 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_agility_swim_1k").goal(1000).stat("move.swim").reward(getConfig().challengeSprint5kReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_agility_swim_10k").goal(10000).stat("move.swim").reward(getConfig().challengeSprint5kReward * 2).build());
+        registerMilestone("challenge_agility_swim_1k", "move.swim", 1000, getConfig().challengeSprint5kReward);
+        registerMilestone("challenge_agility_swim_10k", "move.swim", 10000, getConfig().challengeSprint5kReward * 2);
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.FEATHER).key("challenge_fly_1k")
                 .title(Localizer.dLocalize("advancement.challenge_fly_1k.title"))
@@ -168,8 +168,8 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_fly_1k").goal(1000).stat("move.fly").reward(getConfig().challengeSprint5kReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_fly_10k").goal(10000).stat("move.fly").reward(getConfig().challengeSprint5kReward * 2).build());
+        registerMilestone("challenge_fly_1k", "move.fly", 1000, getConfig().challengeSprint5kReward);
+        registerMilestone("challenge_fly_10k", "move.fly", 10000, getConfig().challengeSprint5kReward * 2);
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.LEATHER_LEGGINGS).key("challenge_agility_sneak_500")
                 .title(Localizer.dLocalize("advancement.challenge_agility_sneak_500.title"))
@@ -187,8 +187,8 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_agility_sneak_500").goal(500).stat("move.sneak").reward(getConfig().challengeSprint5kReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_agility_sneak_5k").goal(5000).stat("move.sneak").reward(getConfig().challengeSprint5kReward * 2).build());
+        registerMilestone("challenge_agility_sneak_500", "move.sneak", 500, getConfig().challengeSprint5kReward);
+        registerMilestone("challenge_agility_sneak_5k", "move.sneak", 5000, getConfig().challengeSprint5kReward * 2);
         lastLocations = new HashMap<>();
     }
 
@@ -215,7 +215,7 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
                 }
 
                 // Add XP for moving
-                xpSilent(p, getConfig().moveXpPassive * d);
+                xpSilent(p, getConfig().moveXpPassive * d, "agility:move");
             }
         });
     }
@@ -223,28 +223,29 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
 
     @Override
     public void onTick() {
-        for (Player i : Bukkit.getOnlinePlayers()) {
+        for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+            Player i = adaptPlayer.getPlayer();
             shouldReturnForPlayer(i, () -> {
-                checkStatTrackers(getPlayer(i));
+                checkStatTrackers(adaptPlayer);
 
                 // Check for sprinting
                 if (i.isSprinting() && !i.isFlying() && !i.isSwimming() && !i.isSneaking()) {
-                    xpSilent(i, getConfig().sprintXpPassive);
+                    xpSilent(i, getConfig().sprintXpPassive, "agility:sprint");
                 }
 
                 // Check for swimming
                 if (i.isSwimming() && !i.isFlying() && !i.isSprinting() && !i.isSneaking()) {
-                    xpSilent(i, getConfig().swimXpPassive);
+                    xpSilent(i, getConfig().swimXpPassive, "agility:swim");
                 }
 
                 // Check for jumping
                 if (i.getLocation().subtract(0, 1, 0).getBlock().getType().isAir() && !i.isFlying() && !i.isSneaking()) {
-                    xpSilent(i, getConfig().jumpXpPassive);
+                    xpSilent(i, getConfig().jumpXpPassive, "agility:jump");
                 }
 
                 // Check for climbing ladders
                 if (i.getLocation().getBlock().getType() == Material.LADDER && !i.isFlying() && !i.isSneaking()) {
-                    xpSilent(i, getConfig().climbXpPassive);
+                    xpSilent(i, getConfig().climbXpPassive, "agility:climb");
                 }
             });
         }
@@ -267,14 +268,14 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Sprint Marathon Reward for the Agility skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double challengeSprintMarathonReward = 6500;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Sprint Xp Passive for the Agility skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double sprintXpPassive = 1.0;
+        double sprintXpPassive = 0.35;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Swim Xp Passive for the Agility skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double swimXpPassive = 1.0;
+        double swimXpPassive = 0.4;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Jump Xp Passive for the Agility skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double jumpXpPassive = 0.2;
+        double jumpXpPassive = 0.15;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Climb Xp Passive for the Agility skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double climbXpPassive = 0.8;
+        double climbXpPassive = 0.4;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Move Xp Passive for the Agility skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double moveXpPassive = 0.1;
+        double moveXpPassive = 0.05;
     }
 }

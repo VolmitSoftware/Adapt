@@ -53,7 +53,7 @@ public class SeaborneOxygen extends SimpleAdaptation<SeaborneOxygen.Config> {
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_seaborne_oxygen_12k").goal(12000).stat("seaborne.oxygen.bonus-air-ticks").reward(300).build());
+        registerMilestone("challenge_seaborne_oxygen_12k", "seaborne.oxygen.bonus-air-ticks", 12000, 300);
     }
 
     @Override
@@ -67,7 +67,8 @@ public class SeaborneOxygen extends SimpleAdaptation<SeaborneOxygen.Config> {
 
     @Override
     public void onTick() {
-        for (Player i : Bukkit.getOnlinePlayers()) {
+        for (com.volmit.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+            Player i = adaptPlayer.getPlayer();
             if (i.getLocation().getBlock().getType() == Material.WATER && hasAdaptation(i)) {
                 int airTicks = getLevel(i) * getConfig().airPerLevelTics;
                 i.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, airTicks, getLevel(i)));

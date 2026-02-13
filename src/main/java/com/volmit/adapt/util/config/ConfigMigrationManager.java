@@ -99,6 +99,18 @@ public final class ConfigMigrationManager {
         }
     }
 
+    public static boolean hasLegacySkillOrAdaptationJsonFiles() {
+        synchronized (LOCK) {
+            File dataFolder = Adapt.instance == null ? null : Adapt.instance.getDataFolder();
+            if (dataFolder == null || !dataFolder.exists()) {
+                return false;
+            }
+
+            File adaptRoot = new File(dataFolder, "adapt");
+            return hasAnyJson(new File(adaptRoot, "skills")) || hasAnyJson(new File(adaptRoot, "adaptations"));
+        }
+    }
+
     private static List<File> collectLegacyJsonFiles(File dataFolder) {
         List<File> files = new ArrayList<>();
         addScopedJsonFiles(new File(dataFolder, "adapt"), files);
@@ -134,6 +146,37 @@ public final class ConfigMigrationManager {
                 }
             }
         }
+    }
+
+    private static boolean hasAnyJson(File root) {
+        if (root == null || !root.exists() || !root.isDirectory()) {
+            return false;
+        }
+
+        ArrayDeque<File> queue = new ArrayDeque<>();
+        queue.add(root);
+        while (!queue.isEmpty()) {
+            File next = queue.removeFirst();
+            File[] children = next.listFiles();
+            if (children == null || children.length == 0) {
+                continue;
+            }
+
+            for (File child : children) {
+                if (child == null) {
+                    continue;
+                }
+                if (child.isDirectory()) {
+                    queue.add(child);
+                    continue;
+                }
+                if (child.getName().toLowerCase(Locale.ROOT).endsWith(".json")) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     private static void zipLegacyFiles(File dataFolder, List<File> files, File zipFile) throws Exception {

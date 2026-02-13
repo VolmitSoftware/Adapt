@@ -89,7 +89,7 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_ranged_web_200").goal(200).stat("ranged.web-bomb.mobs-trapped").reward(300).build());
+        registerMilestone("challenge_ranged_web_200", "ranged.web-bomb.mobs-trapped", 200, 300);
     }
 
     @Override
@@ -168,7 +168,7 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
         });
         SoundPlayer spw = SoundPlayer.of(block.getWorld());
         spw.play(block.getLocation(), Sound.BLOCK_ROOTED_DIRT_PLACE, 1.0f, 1.0f);
-        if (getConfig().showParticles) {
+        if (areParticlesEnabled()) {
 
             vfxCuboidOutline(block, Particle.CLOUD);
             vfxCuboidOutline(block, Particle.WHITE_ASH);
@@ -187,7 +187,7 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
         });
         SoundPlayer spw = SoundPlayer.of(block.getWorld());
         spw.play(block.getLocation(), Sound.BLOCK_ROOTED_DIRT_BREAK, 1.0f, 1.0f);
-        if (getConfig().showParticles) {
+        if (areParticlesEnabled()) {
             vfxCuboidOutline(block, Particles.ENCHANTMENT_TABLE);
         }
     }
@@ -282,6 +282,6 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
         int initialCost = 1;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-        double costFactor = 1.5;
+        double costFactor = 0.9;
     }
 }

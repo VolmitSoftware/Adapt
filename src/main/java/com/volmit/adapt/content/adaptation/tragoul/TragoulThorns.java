@@ -50,7 +50,7 @@ public class TragoulThorns extends SimpleAdaptation<TragoulThorns.Config> {
         registerConfiguration(TragoulThorns.Config.class);
         setDescription(Localizer.dLocalize("tragoul.thorns.description"));
         setDisplayName(Localizer.dLocalize("tragoul.thorns.name"));
-        setIcon(Material.ECHO_SHARD);
+        setIcon(Material.CACTUS);
         setInterval(25000);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -73,8 +73,8 @@ public class TragoulThorns extends SimpleAdaptation<TragoulThorns.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_tragoul_thorns_500").goal(500).stat("tragoul.thorns.damage-reflected").reward(400).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_tragoul_thorns_5k").goal(5000).stat("tragoul.thorns.damage-reflected").reward(1500).build());
+        registerMilestone("challenge_tragoul_thorns_500", "tragoul.thorns.damage-reflected", 500, 400);
+        registerMilestone("challenge_tragoul_thorns_5k", "tragoul.thorns.damage-reflected", 5000, 1500);
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.CACTUS)
                 .key("challenge_tragoul_thorns_kill")
@@ -113,7 +113,7 @@ public class TragoulThorns extends SimpleAdaptation<TragoulThorns.Config> {
             }
 
             if (le != null) {
-                if (getConfig().showParticles) {
+                if (areParticlesEnabled()) {
                     BleedEffect blood = new BleedEffect(Adapt.instance.adaptEffectManager);  // Enemy gets blood
                     blood.setEntity(le);
                     blood.height = -1;
@@ -156,14 +156,14 @@ public class TragoulThorns extends SimpleAdaptation<TragoulThorns.Config> {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Tragoul Thorns adaptation.", impact = "True enables this behavior and false disables it.")
         boolean showParticles = true;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-        int baseCost = 5;
+        int baseCost = 4;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
         int maxLevel = 5;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-        int initialCost = 5;
+        int initialCost = 4;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Damage Multiplier Per Level for the Tragoul Thorns adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double damageMultiplierPerLevel = 1.0;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-        double costFactor = 1.10;
+        double costFactor = 0.72;
     }
 }

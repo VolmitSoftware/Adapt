@@ -85,7 +85,7 @@ public class BrewingFatigue extends SimpleAdaptation<BrewingFatigue.Config> {
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_brewing_fatigue_25").goal(25).stat("brewing.fatigue.potions-brewed").reward(300).build());
+        registerMilestone("challenge_brewing_fatigue_25", "brewing.fatigue.potions-brewed", 25, 300);
     }
 
     @Override

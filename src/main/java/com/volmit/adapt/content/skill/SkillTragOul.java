@@ -100,9 +100,9 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
                                 .build())
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_trag_1k").goal(1000).stat("trag.damage").reward(getConfig().challengeTragReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_trag_10k").goal(10000).stat("trag.damage").reward(getConfig().challengeTragReward * 2).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_trag_100k").goal(100000).stat("trag.damage").reward(getConfig().challengeTragReward * 5).build());
+        registerMilestone("challenge_trag_1k", "trag.damage", 1000, getConfig().challengeTragReward);
+        registerMilestone("challenge_trag_10k", "trag.damage", 10000, getConfig().challengeTragReward * 2);
+        registerMilestone("challenge_trag_100k", "trag.damage", 100000, getConfig().challengeTragReward * 5);
 
         // Chain 2 - Hits Received
         registerAdvancement(AdaptAdvancement.builder()
@@ -123,8 +123,8 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_trag_hits_500").goal(500).stat("trag.hitsrecieved").reward(getConfig().challengeTragReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_trag_hits_5k").goal(5000).stat("trag.hitsrecieved").reward(getConfig().challengeTragReward).build());
+        registerMilestone("challenge_trag_hits_500", "trag.hitsrecieved", 500, getConfig().challengeTragReward);
+        registerMilestone("challenge_trag_hits_5k", "trag.hitsrecieved", 5000, getConfig().challengeTragReward);
 
         // Chain 3 - Deaths
         registerAdvancement(AdaptAdvancement.builder()
@@ -145,8 +145,8 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_trag_deaths_10").goal(10).stat("trag.deaths").reward(getConfig().challengeTragReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_trag_deaths_100").goal(100).stat("trag.deaths").reward(getConfig().challengeTragReward).build());
+        registerMilestone("challenge_trag_deaths_10", "trag.deaths", 10, getConfig().challengeTragReward);
+        registerMilestone("challenge_trag_deaths_100", "trag.deaths", 100, getConfig().challengeTragReward);
 
         // Chain 4 - Fire Damage
         registerAdvancement(AdaptAdvancement.builder()
@@ -167,8 +167,8 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_trag_fire_500").goal(500).stat("trag.fire.damage").reward(getConfig().challengeTragReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_trag_fire_5k").goal(5000).stat("trag.fire.damage").reward(getConfig().challengeTragReward).build());
+        registerMilestone("challenge_trag_fire_500", "trag.fire.damage", 500, getConfig().challengeTragReward);
+        registerMilestone("challenge_trag_fire_5k", "trag.fire.damage", 5000, getConfig().challengeTragReward);
 
         // Chain 5 - Fall Damage
         registerAdvancement(AdaptAdvancement.builder()
@@ -189,8 +189,8 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_trag_fall_500").goal(500).stat("trag.fall.damage").reward(getConfig().challengeTragReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_trag_fall_5k").goal(5000).stat("trag.fall.damage").reward(getConfig().challengeTragReward).build());
+        registerMilestone("challenge_trag_fall_500", "trag.fall.damage", 500, getConfig().challengeTragReward);
+        registerMilestone("challenge_trag_fall_5k", "trag.fall.damage", 5000, getConfig().challengeTragReward);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -217,6 +217,9 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
                 return;
             cooldowns.put(p, System.currentTimeMillis());
             xp(a.getPlayer(), getConfig().damageReceivedXpMultiplier * e.getDamage());
+            if (p.getHealth() - e.getFinalDamage() > 0 && p.getHealth() - e.getFinalDamage() <= 8) {
+                xp(a.getPlayer(), getConfig().lowHealthSurvivalXP);
+            }
         });
     }
 
@@ -232,7 +235,7 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
                 return;
             }
             if (getConfig().takeAwaySkillsOnDeath) {
-                if (getConfig().showParticles) {
+                if (areParticlesEnabled()) {
                     CloudEffect ce = new CloudEffect(Adapt.instance.adaptEffectManager);
                     ce.mainParticle = Particle.ASH;
                     ce.cloudParticle = Particles.REDSTONE;
@@ -264,6 +267,7 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
                     }
 
                     recalcTotalExp(p);
+                    a.getData().pruneAdaptationsForPowerBudget();
                 }
             }
         });
@@ -294,12 +298,7 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
         if (!this.isEnabled()) {
             return;
         }
-        for (Player i : Bukkit.getOnlinePlayers()) {
-            shouldReturnForPlayer(i, () -> {
-                AdaptPlayer player = getPlayer(i);
-                checkStatTrackers(player);
-            });
-        }
+        checkStatTrackersForOnlinePlayers();
     }
 
 
@@ -311,7 +310,7 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
     @NoArgsConstructor
     protected static class Config {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Death Xp Loss for the Trag Oul skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        public double deathXpLoss = -750;
+        public double deathXpLoss = -250;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Take Away Skills On Death for the Trag Oul skill.", impact = "True enables this behavior and false disables it.")
         boolean takeAwaySkillsOnDeath = false;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
@@ -319,9 +318,11 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Trag Oul skill.", impact = "True enables this behavior and false disables it.")
         boolean showParticles = true;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Cooldown Delay for the Trag Oul skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        long cooldownDelay = 1000;
+        long cooldownDelay = 450;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Damage Received Xp Multiplier for the Trag Oul skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double damageReceivedXpMultiplier = 1.75;
+        double damageReceivedXpMultiplier = 4.8;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls XP bonus for surviving a hit below 4 hearts.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+        double lowHealthSurvivalXP = 28;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Trag Reward for the Trag Oul skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double challengeTragReward = 500;
     }

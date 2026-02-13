@@ -32,17 +32,15 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageEvent;
 
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class NetherFireResist extends SimpleAdaptation<NetherFireResist.Config> {
-    private final Random random = new Random();
-
     public NetherFireResist() {
         super("nether-fire-resist");
         registerConfiguration(Config.class);
         setDescription(Localizer.dLocalize("nether.fire_resist.description"));
         setDisplayName(Localizer.dLocalize("nether.fire_resist.name"));
-        setIcon(Material.BLAZE_POWDER);
+        setIcon(Material.FIRE_CHARGE);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
         setMaxLevel(getConfig().maxLevel);
@@ -64,8 +62,8 @@ public class NetherFireResist extends SimpleAdaptation<NetherFireResist.Config> 
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_nether_fire_200").goal(200).stat("nether.fire-resist.negated").reward(300).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_nether_fire_5k").goal(5000).stat("nether.fire-resist.negated").reward(1000).build());
+        registerMilestone("challenge_nether_fire_200", "nether.fire-resist.negated", 200, 300);
+        registerMilestone("challenge_nether_fire_5k", "nether.fire-resist.negated", 5000, 1000);
     }
 
     @Override
@@ -92,7 +90,7 @@ public class NetherFireResist extends SimpleAdaptation<NetherFireResist.Config> 
         }
 
 
-        if (random.nextDouble() < getFireResist(getLevel(p))) {
+        if (ThreadLocalRandom.current().nextDouble() < getFireResist(getLevel(p))) {
             e.setCancelled(true);
             getPlayer(p).getData().addStat("nether.fire-resist.negated", 1);
         }

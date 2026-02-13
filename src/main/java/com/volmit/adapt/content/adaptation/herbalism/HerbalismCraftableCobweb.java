@@ -46,7 +46,7 @@ public class HerbalismCraftableCobweb extends SimpleAdaptation<HerbalismCraftabl
         registerConfiguration(Config.class);
         setDescription(Localizer.dLocalize("herbalism.cobweb.description"));
         setDisplayName(Localizer.dLocalize("herbalism.cobweb.name"));
-        setIcon(Material.COBWEB);
+        setIcon(Material.STRING);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInterval(17771);
@@ -69,12 +69,7 @@ public class HerbalismCraftableCobweb extends SimpleAdaptation<HerbalismCraftabl
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_herbalism_cobweb_100")
-                .goal(100)
-                .stat("herbalism.cobweb.cobwebs-crafted")
-                .reward(300)
-                .build());
+        registerMilestone("challenge_herbalism_cobweb_100", "herbalism.cobweb.cobwebs-crafted", 100, 300);
     }
 
     @Override

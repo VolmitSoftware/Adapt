@@ -76,8 +76,8 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_architect_placement_1k").goal(1000).stat("architect.placement.blocks-placed").reward(300).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_architect_placement_25k").goal(25000).stat("architect.placement.blocks-placed").reward(1500).build());
+        registerMilestone("challenge_architect_placement_1k", "architect.placement.blocks-placed", 1000, 300);
+        registerMilestone("challenge_architect_placement_25k", "architect.placement.blocks-placed", 25000, 1500);
     }
 
     @Override
@@ -287,7 +287,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
                     }
                     BlockFace bf = blockRender.get(b); // Get that blockface
                     Block transposedBlock = b.getRelative(bf);
-                    if (getConfig().showParticles) {
+                    if (areParticlesEnabled()) {
                         vfxCuboidOutline(transposedBlock, Particle.REVERSE_PORTAL);
                     }
                 }

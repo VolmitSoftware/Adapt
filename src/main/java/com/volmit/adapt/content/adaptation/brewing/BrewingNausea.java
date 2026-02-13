@@ -85,7 +85,7 @@ public class BrewingNausea extends SimpleAdaptation<BrewingNausea.Config> {
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_brewing_nausea_25").goal(25).stat("brewing.nausea.potions-brewed").reward(300).build());
+        registerMilestone("challenge_brewing_nausea_25", "brewing.nausea.potions-brewed", 25, 300);
     }
 
     @Override

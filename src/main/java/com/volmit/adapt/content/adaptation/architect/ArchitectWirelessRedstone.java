@@ -92,8 +92,8 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_architect_wireless_100").goal(100).stat("architect.wireless-redstone.pulses").reward(300).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_architect_wireless_5k").goal(5000).stat("architect.wireless-redstone.pulses").reward(1000).build());
+        registerMilestone("challenge_architect_wireless_100", "architect.wireless-redstone.pulses", 100, 300);
+        registerMilestone("challenge_architect_wireless_5k", "architect.wireless-redstone.pulses", 5000, 1000);
     }
 
     @Override
@@ -218,7 +218,7 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
         if (!l.getBlock().getType().equals(Material.TARGET)) {
             return;
         }
-        if (getConfig().showParticles) {
+        if (areParticlesEnabled()) {
             vfxCuboidOutline(l.getBlock(), l.getBlock(), Color.RED, 1);
         }
         SoundPlayer spw = SoundPlayer.of(p.getWorld());
@@ -272,7 +272,8 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
 
     @Override
     public void onTick() {
-        for (Player p : Bukkit.getOnlinePlayers()) {
+        for (com.volmit.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+            Player p = adaptPlayer.getPlayer();
             ItemStack hand = p.getInventory().getItemInMainHand();
             ItemStack offhand = p.getInventory().getItemInOffHand();
             if ((isRedstoneTorch(hand) && BoundRedstoneTorch.hasItemData(hand)) || (

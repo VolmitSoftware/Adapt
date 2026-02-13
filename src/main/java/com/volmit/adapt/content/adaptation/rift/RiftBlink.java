@@ -49,6 +49,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.util.Vector;
@@ -92,8 +93,8 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_blink_500").goal(500).stat("rift.blink.blinks").reward(400).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_blink_5k").goal(5000).stat("rift.blink.distance-blinked").reward(1500).build());
+        registerMilestone("challenge_rift_blink_500", "rift.blink.blinks", 500, 400);
+        registerMilestone("challenge_rift_blink_5k", "rift.blink.distance-blinked", 5000, 1500);
     }
 
     private double getBlinkDistance(int level) {
@@ -256,7 +257,89 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
     @Override
     public void addStats(int level, Element v) {
         v.addLore(C.GREEN + "+ " + (getBlinkDistance(level)) + C.GRAY + " " + Localizer.dLocalize("rift.blink.lore1"));
-        v.addLore(C.ITALIC + Localizer.dLocalize("rift.blink.lore2") + C.DARK_PURPLE + Localizer.dLocalize("rift.blink.lore3"));
+        java.util.List<String> combos = getTriggerCombos();
+        if (combos.isEmpty()) {
+            v.addLore(C.AQUA + "* " + C.GRAY + "Trigger: " + C.WHITE + "none");
+            return;
+        }
+
+        for (String combo : combos) {
+            v.addLore(C.AQUA + "* " + C.GRAY + "Trigger: " + C.WHITE + combo);
+        }
+    }
+
+    @Override
+    public String getDescription() {
+        return "Short-ranged instant teleportation to safe ground. " + summarizeTriggerDescription();
+    }
+
+    private String summarizeTriggerDescription() {
+        java.util.List<String> combos = getTriggerCombos();
+        if (combos.isEmpty()) {
+            return "No active triggers are currently enabled.";
+        }
+
+        if (combos.size() == 1) {
+            return "Trigger: " + combos.get(0) + ".";
+        }
+
+        if (combos.size() == 2) {
+            return "Triggers: " + combos.get(0) + " or " + combos.get(1) + ".";
+        }
+
+        return "Triggers: " + combos.get(0) + ", " + combos.get(1) + ", +" + (combos.size() - 2) + " more.";
+    }
+
+    private java.util.List<String> getTriggerCombos() {
+        java.util.List<String> triggers = new java.util.ArrayList<>();
+        String clickSurface = getClickSurfaceLabel();
+        if (getConfig().enableDoubleJumpTrigger) {
+            triggers.add(getConfig().doubleJumpRequiresSprint ? "Double Jump + Sprint" : "Double Jump");
+        }
+
+        if (getConfig().enableSprintClickTrigger) {
+            appendClickCombos(triggers, "Sprint", getConfig().sprintClickLeftClick, getConfig().sprintClickRightClick, clickSurface);
+        }
+
+        if (getConfig().enableSingleSneakTrigger) {
+            triggers.add(getConfig().singleSneakRequiresSprint ? "Sprint + Sneak" : "Sneak");
+        }
+
+        if (getConfig().enableEnderPearlClickTrigger) {
+            appendClickCombos(triggers, "Ender Pearl", getConfig().enderPearlClickLeftClick, getConfig().enderPearlClickRightClick, clickSurface);
+        }
+
+        return triggers;
+    }
+
+    private void appendClickCombos(java.util.List<String> triggers, String prefix, boolean allowLeft, boolean allowRight, String clickSurface) {
+        if (clickSurface.isBlank()) {
+            return;
+        }
+
+        if (allowLeft) {
+            triggers.add(prefix + " + Left Click" + clickSurface);
+        }
+
+        if (allowRight) {
+            triggers.add(prefix + " + Right Click" + clickSurface);
+        }
+    }
+
+    private String getClickSurfaceLabel() {
+        if (getConfig().allowAirClicks && getConfig().allowBlockClicks) {
+            return " (air/block)";
+        }
+
+        if (getConfig().allowAirClicks) {
+            return " (air)";
+        }
+
+        if (getConfig().allowBlockClicks) {
+            return " (block)";
+        }
+
+        return "";
     }
 
     @EventHandler
@@ -304,6 +387,20 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
         if (shouldTriggerSprintClick(e)) {
             attemptBlink(p);
         }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void on(PlayerToggleSneakEvent e) {
+        Player p = e.getPlayer();
+        if (!e.isSneaking() || !isBlinkEligible(p) || !getConfig().enableSingleSneakTrigger) {
+            return;
+        }
+
+        if (getConfig().singleSneakRequiresSprint && !p.isSprinting()) {
+            return;
+        }
+
+        attemptBlink(p);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -371,7 +468,7 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
             RiftResist.riftResistStackAdd(p, 10, 5);
         }
 
-        if (getConfig().showParticles) {
+        if (areParticlesEnabled()) {
             vfxParticleLine(locOG, destinationGround, Particle.REVERSE_PORTAL, 50, 8, 0.1D, 1D, 0.1D, 0D, null, false, l -> l.getBlock().isPassable());
         }
 
@@ -441,6 +538,10 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
         double doubleJumpMinVerticalVelocity = 0.2;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Enables sprint + click activation for Rift Blink.", impact = "True allows clicking while sprinting to blink; false disables this trigger.")
         boolean enableSprintClickTrigger = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Enables single-sneak activation for Rift Blink.", impact = "True allows pressing sneak once to trigger blink.")
+        boolean enableSingleSneakTrigger = false;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Require sprinting for single-sneak trigger.", impact = "True requires sprint state when using single-sneak activation.")
+        boolean singleSneakRequiresSprint = false;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Allows left-click as a sprint-click trigger.", impact = "True allows left-click activation while sprinting; false disables left-click activation.")
         boolean sprintClickLeftClick = false;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Allows right-click as a sprint-click trigger.", impact = "True allows right-click activation while sprinting; false disables right-click activation.")

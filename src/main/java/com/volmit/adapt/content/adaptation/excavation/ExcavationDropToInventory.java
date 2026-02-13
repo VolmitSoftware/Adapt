@@ -48,7 +48,7 @@ public class ExcavationDropToInventory extends SimpleAdaptation<ExcavationDropTo
         registerConfiguration(ExcavationDropToInventory.Config.class);
         setDescription(Localizer.dLocalize("pickaxe.drop_to_inventory.description"));
         setDisplayName(Localizer.dLocalize("excavation.drop_to_inventory.name"));
-        setIcon(Material.DIRT);
+        setIcon(Material.CHEST);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
@@ -62,7 +62,7 @@ public class ExcavationDropToInventory extends SimpleAdaptation<ExcavationDropTo
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_excavation_dti_10k").goal(10000).stat("excavation.drop-to-inv.items-caught").reward(500).build());
+        registerMilestone("challenge_excavation_dti_10k", "excavation.drop-to-inv.items-caught", 10000, 500);
     }
 
     @Override

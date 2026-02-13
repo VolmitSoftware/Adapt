@@ -64,8 +64,8 @@ public class EnchantingAnvilSavant extends SimpleAdaptation<EnchantingAnvilSavan
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_enchanting_anvil_200").goal(200).stat("enchanting.anvil-savant.levels-saved").reward(400).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_enchanting_anvil_5k").goal(5000).stat("enchanting.anvil-savant.levels-saved").reward(1500).build());
+        registerMilestone("challenge_enchanting_anvil_200", "enchanting.anvil-savant.levels-saved", 200, 400);
+        registerMilestone("challenge_enchanting_anvil_5k", "enchanting.anvil-savant.levels-saved", 5000, 1500);
     }
 
     @Override

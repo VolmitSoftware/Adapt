@@ -22,6 +22,7 @@ import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
 import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -31,14 +32,16 @@ import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Tameable;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TamingPackLeaderAura extends SimpleAdaptation<TamingPackLeaderAura.Config> {
     public TamingPackLeaderAura() {
@@ -60,7 +63,7 @@ public class TamingPackLeaderAura extends SimpleAdaptation<TamingPackLeaderAura.
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_taming_pack_72k").goal(72000).stat("taming.pack-leader.buffed-ticks").reward(400).build());
+        registerMilestone("challenge_taming_pack_72k", "taming.pack-leader.buffed-ticks", 72000, 400);
     }
 
     @Override
@@ -76,37 +79,39 @@ public class TamingPackLeaderAura extends SimpleAdaptation<TamingPackLeaderAura.
             return;
         }
 
-        for (World world : Bukkit.getWorlds()) {
-            Collection<Tameable> tameables = world.getEntitiesByClass(Tameable.class);
-            for (Tameable tameable : tameables) {
-                if (!tameable.isTamed() || !(tameable.getOwner() instanceof Player owner)) {
+        List<OwnerAuraState> owners = new ArrayList<>();
+        for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+            Player owner = adaptPlayer.getPlayer();
+            int level = getActiveLevel(owner);
+            if (level <= 0) {
+                continue;
+            }
+
+            double radius = getRadius(level);
+            owners.add(new OwnerAuraState(adaptPlayer, owner, radius, radius * radius, getAmplifier(level)));
+        }
+
+        for (OwnerAuraState state : owners) {
+            Location ownerLocation = state.owner.getLocation();
+            for (Entity nearby : state.owner.getWorld().getNearbyEntities(ownerLocation, state.radius, state.radius, state.radius)) {
+                if (!(nearby instanceof Tameable tameable) || !tameable.isTamed()) {
+                    continue;
+                }
+                if (!(tameable.getOwner() instanceof Player owner) || !owner.getUniqueId().equals(state.owner.getUniqueId())) {
+                    continue;
+                }
+                if (ownerLocation.distanceSquared(tameable.getLocation()) > state.radiusSquared) {
                     continue;
                 }
 
-                if (!hasAdaptation(owner)) {
-                    continue;
-                }
-
-                int level = getLevel(owner);
-                if (level <= 0) {
-                    continue;
-                }
-
-                if (owner.getWorld() != tameable.getWorld()) {
-                    continue;
-                }
-
-                double radius = getRadius(level);
-                if (owner.getLocation().distanceSquared(tameable.getLocation()) > (radius * radius)) {
-                    continue;
-                }
-
-                int amplifier = getAmplifier(level);
-                tameable.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, getConfig().effectTicks, amplifier, false, false));
-                tameable.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, getConfig().effectTicks, amplifier, false, false));
-                getPlayer(owner).getData().addStat("taming.pack-leader.buffed-ticks", 1);
+                tameable.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, getConfig().effectTicks, state.amplifier, false, false));
+                tameable.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, getConfig().effectTicks, state.amplifier, false, false));
+                state.ownerData.getData().addStat("taming.pack-leader.buffed-ticks", 1);
             }
         }
+    }
+
+    private record OwnerAuraState(AdaptPlayer ownerData, Player owner, double radius, double radiusSquared, int amplifier) {
     }
 
     private double getRadius(int level) {

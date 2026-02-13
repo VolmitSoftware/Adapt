@@ -23,6 +23,7 @@ import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
 import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.skill.SimpleSkill;
+import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.api.world.Discovery;
 import com.volmit.adapt.content.adaptation.discovery.DiscoveryArmor;
@@ -93,8 +94,8 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_discover_items_50").goal(50).stat("discovery.items").reward(500).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_discover_items_250").goal(250).stat("discovery.items").reward(2500).build());
+        registerMilestone("challenge_discover_items_50", "discovery.items", 50, 500);
+        registerMilestone("challenge_discover_items_250", "discovery.items", 250, 2500);
 
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.GRASS_BLOCK).key("challenge_discover_blocks_50")
@@ -113,8 +114,8 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_discover_blocks_50").goal(50).stat("discovery.blocks").reward(500).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_discover_blocks_250").goal(250).stat("discovery.blocks").reward(2500).build());
+        registerMilestone("challenge_discover_blocks_50", "discovery.blocks", 50, 500);
+        registerMilestone("challenge_discover_blocks_250", "discovery.blocks", 250, 2500);
 
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.EGG).key("challenge_discover_mobs_25")
@@ -133,8 +134,8 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_discover_mobs_25").goal(25).stat("discovery.mobs").reward(500).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_discover_mobs_75").goal(75).stat("discovery.mobs").reward(2500).build());
+        registerMilestone("challenge_discover_mobs_25", "discovery.mobs", 25, 500);
+        registerMilestone("challenge_discover_mobs_75", "discovery.mobs", 75, 2500);
 
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.MAP).key("challenge_discover_biomes_10")
@@ -153,8 +154,8 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_discover_biomes_10").goal(10).stat("discovery.biomes").reward(500).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_discover_biomes_40").goal(40).stat("discovery.biomes").reward(2500).build());
+        registerMilestone("challenge_discover_biomes_10", "discovery.biomes", 10, 500);
+        registerMilestone("challenge_discover_biomes_40", "discovery.biomes", 40, 2500);
 
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.APPLE).key("challenge_discover_foods_10")
@@ -173,8 +174,8 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_discover_foods_10").goal(10).stat("discovery.foods").reward(500).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_discover_foods_30").goal(30).stat("discovery.foods").reward(2500).build());
+        registerMilestone("challenge_discover_foods_10", "discovery.foods", 10, 500);
+        registerMilestone("challenge_discover_foods_30", "discovery.foods", 30, 2500);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -259,7 +260,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
         if (d.isNewDiscovery(bd.getAsString())) {
             xp(p, getConfig().discoverBlockBaseXP + (getValue(bd) * getConfig().discoverBlockValueXPMultiplier));
             getPlayer(p).getData().addStat("discovery.blocks", 1);
-            if (getConfig().showParticles) {
+            if (areParticlesEnabled()) {
                 p.spawnParticle(Particles.TOTEM, l.clone().add(0.5, 0.5, 0.5), 9, 0, 0, 0, 0.3);
             }
         }
@@ -365,9 +366,10 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     @Override
     public void onTick() {
         if (!this.isEnabled()) return;
-        for (Player i : Bukkit.getOnlinePlayers()) {
+        for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+            Player i = adaptPlayer.getPlayer();
             if (shouldReturnForPlayer(i)) continue;
-            checkStatTrackers(getPlayer(i));
+            checkStatTrackers(adaptPlayer);
             seeTargetBlock(i);
         }
     }

@@ -51,7 +51,7 @@ public class HunterDropToInventory extends SimpleAdaptation<HunterDropToInventor
         registerConfiguration(HunterDropToInventory.Config.class);
         setDescription(Localizer.dLocalize("hunter.drop_to_inventory.description"));
         setDisplayName(Localizer.dLocalize("hunter.drop_to_inventory.name"));
-        setIcon(Material.DIRT);
+        setIcon(Material.TRAPPED_CHEST);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
@@ -65,7 +65,7 @@ public class HunterDropToInventory extends SimpleAdaptation<HunterDropToInventor
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_hunter_dti_10k").goal(10000).stat("hunter.drop-to-inv.items-caught").reward(500).build());
+        registerMilestone("challenge_hunter_dti_10k", "hunter.drop-to-inv.items-caught", 10000, 500);
     }
 
     @Override

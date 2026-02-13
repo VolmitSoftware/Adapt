@@ -107,8 +107,8 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_taglock_100").goal(100).stat("rift.ender-taglock.entities-tagged").reward(400).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_taglock_500").goal(500).stat("rift.ender-taglock.taglocked-teleports").reward(1000).build());
+        registerMilestone("challenge_rift_taglock_100", "rift.ender-taglock.entities-tagged", 100, 400);
+        registerMilestone("challenge_rift_taglock_500", "rift.ender-taglock.taglocked-teleports", 500, 1000);
     }
 
     @Override
@@ -159,7 +159,9 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
         e.setCancelled(true);
         tagIntoPearl(p, hand, target);
         SoundPlayer.of(p).play(p.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 0.55f, 1.4f);
-        p.getWorld().spawnParticle(Particle.PORTAL, target.getLocation().add(0, 1, 0), 14, 0.25, 0.4, 0.25, 0.04);
+        if (areParticlesEnabled()) {
+            p.getWorld().spawnParticle(Particle.PORTAL, target.getLocation().add(0, 1, 0), 14, 0.25, 0.4, 0.25, 0.04);
+        }
         getPlayer(p).getData().addStat("rift.ender-taglock.entities-tagged", 1);
         xp(p, getConfig().xpOnTag);
     }
@@ -258,10 +260,12 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
 
         destination.getChunk().load();
         target.teleport(destination);
-        target.getWorld().spawnParticle(Particle.REVERSE_PORTAL, destination.clone().add(0, 0.75, 0), 18, 0.3, 0.35, 0.3, 0.05);
+        if (areParticlesEnabled()) {
+            target.getWorld().spawnParticle(Particle.REVERSE_PORTAL, destination.clone().add(0, 0.75, 0), 18, 0.3, 0.35, 0.3, 0.05);
+        }
         SoundPlayer.of(target.getWorld()).play(destination, Sound.ENTITY_ENDERMAN_TELEPORT, 0.75f, 1.35f);
         SoundPlayer.of(target.getWorld()).play(destination, Sound.ENTITY_ELDER_GUARDIAN_CURSE, 0.5f, 1.9f);
-        if (target instanceof Player victim) {
+        if (target instanceof Player victim && areSoundsEnabled()) {
             victim.playSound(victim.getLocation(), Sound.ENTITY_ELDER_GUARDIAN_CURSE, 0.75f, 1.9f);
         }
         getPlayer(p).getData().addStat("rift.ender-taglock.taglocked-teleports", 1);

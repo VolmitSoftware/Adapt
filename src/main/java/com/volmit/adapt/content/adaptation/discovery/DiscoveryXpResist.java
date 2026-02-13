@@ -48,7 +48,7 @@ public class DiscoveryXpResist extends SimpleAdaptation<DiscoveryXpResist.Config
         registerConfiguration(Config.class);
         setDescription(Localizer.dLocalize("discovery.resist.description"));
         setDisplayName(Localizer.dLocalize("discovery.resist.name"));
-        setIcon(Material.EMERALD);
+        setIcon(Material.TOTEM_OF_UNDYING);
         setInterval(5215);
         setBaseCost(getConfig().baseCost);
         setInitialCost(getConfig().initialCost);
@@ -79,18 +79,8 @@ public class DiscoveryXpResist extends SimpleAdaptation<DiscoveryXpResist.Config
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_discovery_xp_resist_25")
-                .goal(25)
-                .stat("discovery.xp-resist.saves")
-                .reward(500)
-                .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_discovery_xp_resist_250")
-                .goal(250)
-                .stat("discovery.xp-resist.saves")
-                .reward(2000)
-                .build());
+        registerMilestone("challenge_discovery_xp_resist_25", "discovery.xp-resist.saves", 25, 500);
+        registerMilestone("challenge_discovery_xp_resist_250", "discovery.xp-resist.saves", 250, 2000);
     }
 
 

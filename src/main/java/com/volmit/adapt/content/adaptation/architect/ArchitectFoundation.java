@@ -89,8 +89,8 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_architect_foundation_1k").goal(1000).stat("architect.foundation.blocks-placed").reward(300).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_architect_foundation_10k").goal(10000).stat("architect.foundation.blocks-placed").reward(1000).build());
+        registerMilestone("challenge_architect_foundation_1k", "architect.foundation.blocks-placed", 1000, 300);
+        registerMilestone("challenge_architect_foundation_10k", "architect.foundation.blocks-placed", 10000, 1000);
     }
 
     @Override
@@ -251,7 +251,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
         });
         SoundPlayer spw = SoundPlayer.of(block.getWorld());
         spw.play(block.getLocation(), Sound.BLOCK_DEEPSLATE_PLACE, 1.0f, 1.0f);
-        if (getConfig().showParticles) {
+        if (areParticlesEnabled()) {
 
             vfxCuboidOutline(block, Particle.REVERSE_PORTAL);
             vfxCuboidOutline(block, Particle.ASH);
@@ -271,7 +271,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
             SoundPlayer spw = SoundPlayer.of(block.getWorld());
             spw.play(block.getLocation(), Sound.BLOCK_DEEPSLATE_BREAK, 1.0f, 1.0f);
         });
-        if (getConfig().showParticles) {
+        if (areParticlesEnabled()) {
             vfxCuboidOutline(block, Particles.ENCHANTMENT_TABLE);
         }
     }
@@ -282,7 +282,8 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
 
     @Override
     public void onTick() {
-        for (Player i : Bukkit.getOnlinePlayers()) {
+        for (com.volmit.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+            Player i = adaptPlayer.getPlayer();
             if (!hasAdaptation(i)) {
                 continue;
             }

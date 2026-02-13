@@ -55,7 +55,7 @@ public class HunterRegen extends SimpleAdaptation<HunterRegen.Config> {
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_hunter_regen_500").goal(500).stat("hunter.regen.health-regened").reward(400).build());
+        registerMilestone("challenge_hunter_regen_500", "hunter.regen.health-regened", 500, 400);
     }
 
     @Override

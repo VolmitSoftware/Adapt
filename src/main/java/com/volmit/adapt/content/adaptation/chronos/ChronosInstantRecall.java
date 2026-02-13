@@ -41,6 +41,8 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -50,6 +52,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -67,6 +70,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecall.
             Action.LEFT_CLICK_AIR,
             Action.LEFT_CLICK_BLOCK
     );
+    private static final Map<UUID, Long> TELEPORT_XP_SUPPRESS_UNTIL = new HashMap<>();
 
     private final Map<UUID, Deque<Snapshot>> snapshots;
     private final Map<UUID, Long> lastSnapshot;
@@ -122,18 +126,8 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecall.
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_chronos_recall_50")
-                .goal(50)
-                .stat("chronos.instant-recall.recalls")
-                .reward(300)
-                .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_chronos_recall_1k")
-                .goal(1000)
-                .stat("chronos.instant-recall.recalls")
-                .reward(1500)
-                .build());
+        registerMilestone("challenge_chronos_recall_50", "chronos.instant-recall.recalls", 50, 300);
+        registerMilestone("challenge_chronos_recall_1k", "chronos.instant-recall.recalls", 1000, 1500);
     }
 
     @Override
@@ -141,10 +135,46 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecall.
         v.addLore(C.GREEN + "+ " + Form.duration(getRewindDurationMillis(level), 1) + " " + Localizer.dLocalize("chronos.instant_recall.lore1"));
         v.addLore(C.RED + "* " + Form.duration(getCooldownMillis(level), 1) + " " + Localizer.dLocalize("chronos.instant_recall.lore2"));
         v.addLore(C.GRAY + "* " + Localizer.dLocalize("chronos.instant_recall.lore3"));
+        List<String> combos = getTriggerCombos();
+        if (combos.isEmpty()) {
+            v.addLore(C.AQUA + "* " + C.GRAY + "Trigger: " + C.WHITE + "none");
+            return;
+        }
+
+        for (String combo : combos) {
+            v.addLore(C.AQUA + "* " + C.GRAY + "Trigger: " + C.WHITE + combo);
+        }
+    }
+
+    @Override
+    public String getDescription() {
+        return "Rewind to a recent snapshot with health and hunger restored. " + summarizeTriggerDescription();
+    }
+
+    private String summarizeTriggerDescription() {
+        List<String> combos = getTriggerCombos();
+        if (combos.isEmpty()) {
+            return "No active triggers are currently enabled.";
+        }
+
+        if (combos.size() == 1) {
+            return "Trigger: " + combos.get(0) + ".";
+        }
+
+        if (combos.size() == 2) {
+            return "Triggers: " + combos.get(0) + " or " + combos.get(1) + ".";
+        }
+
+        return "Triggers: " + combos.get(0) + ", " + combos.get(1) + ", +" + (combos.size() - 2) + " more.";
     }
 
     private long getRewindDurationMillis(int level) {
-        return (long) ((getConfig().baseRewindSeconds + (level * getConfig().rewindSecondsPerLevel)) * 1000D);
+        return (long) (getRewindDurationSeconds(level) * 1000D);
+    }
+
+    private double getRewindDurationSeconds(int level) {
+        double raw = getConfig().baseRewindSeconds + (level * getConfig().rewindSecondsPerLevel);
+        return Math.max(0.25D, Math.min(getConfig().maxRewindSeconds, raw));
     }
 
     private long getCooldownMillis(int level) {
@@ -152,7 +182,114 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecall.
     }
 
     private long getMaximumHistoryMillis() {
-        return (long) ((getConfig().baseRewindSeconds + (getConfig().maxLevel * getConfig().rewindSecondsPerLevel) + getConfig().historyPaddingSeconds) * 1000D);
+        return (long) ((getRewindDurationSeconds(getConfig().maxLevel) + getConfig().historyPaddingSeconds) * 1000D);
+    }
+
+    private int getRewindAnimationTicks() {
+        int durationMillis = Math.max(100, getConfig().rewindAnimationDurationMillis);
+        int ticks = (int) Math.ceil(durationMillis / 50D);
+        if (ticks <= 1) {
+            ticks = Math.max(2, getConfig().rewindAnimationTicks);
+        }
+
+        return Math.max(2, ticks);
+    }
+
+    private boolean isSingleWorldPath(List<Snapshot> path) {
+        if (path.isEmpty()) {
+            return false;
+        }
+
+        String world = path.get(0).worldName();
+        for (Snapshot snapshot : path) {
+            if (!Objects.equals(world, snapshot.worldName())) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private ArmorStand spawnRecallCameraAnchor(Player p) {
+        Location location = p.getLocation().clone();
+        if (location.getWorld() == null) {
+            return null;
+        }
+
+        return location.getWorld().spawn(location, ArmorStand.class, stand -> {
+            stand.setInvisible(true);
+            stand.setMarker(false);
+            stand.setGravity(false);
+            stand.setSilent(true);
+            stand.setInvulnerable(true);
+            stand.setCollidable(false);
+            stand.setBasePlate(false);
+            stand.setSmall(true);
+            stand.setPersistent(false);
+        });
+    }
+
+    private List<String> getTriggerCombos() {
+        List<String> triggers = new ArrayList<>();
+        String clickSurface = getClickSurfaceLabel();
+        if (getConfig().enableClockClickTrigger) {
+            appendClickCombos(triggers, "Clock", getConfig().clockClickLeftClick, getConfig().clockClickRightClick, clickSurface);
+        }
+
+        if (getConfig().enableSprintClickTrigger) {
+            appendClickCombos(triggers, "Sprint + Clock", getConfig().sprintClickLeftClick, getConfig().sprintClickRightClick, clickSurface);
+        }
+
+        if (getConfig().enableSingleSneakTrigger) {
+            String combo = getConfig().singleSneakRequiresSprint ? "Sprint + Sneak" : "Sneak";
+            if (getConfig().singleSneakRequiresClockInHand) {
+                combo += " + Clock";
+            }
+            triggers.add(combo);
+        }
+
+        if (getConfig().enableDoubleJumpTrigger) {
+            String combo = "Double Jump";
+            if (getConfig().doubleJumpRequiresSprint) {
+                combo += " + Sprint";
+            }
+            if (getConfig().doubleJumpRequiresClockInHand) {
+                combo += " + Clock";
+            }
+            triggers.add(combo);
+        }
+
+        return triggers;
+    }
+
+    private void appendClickCombos(List<String> triggers, String prefix, boolean allowLeft, boolean allowRight, String clickSurface) {
+        if (clickSurface.isBlank()) {
+            return;
+        }
+
+        if (allowLeft) {
+            triggers.add(prefix + " + Left Click" + clickSurface);
+        }
+
+        if (allowRight) {
+            triggers.add(prefix + " + Right Click" + clickSurface);
+        }
+    }
+
+    private String getClickSurfaceLabel() {
+        if (getConfig().allowAirClicks && getConfig().allowBlockClicks) {
+            return " (air/block)";
+        }
+
+        if (getConfig().allowAirClicks) {
+            return " (air)";
+        }
+
+        if (getConfig().allowBlockClicks) {
+            return " (block)";
+        }
+
+        return "";
     }
 
     private RecallXPContext buildRecallXPContext(Snapshot from, Snapshot to) {
@@ -326,6 +463,73 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecall.
         return path;
     }
 
+    private List<Snapshot> buildAnimationPath(List<Snapshot> rawPath, int animationTicks) {
+        List<Snapshot> animationPath = new ArrayList<>();
+        if (rawPath.isEmpty()) {
+            return animationPath;
+        }
+
+        if (animationTicks <= 1 || rawPath.size() == 1) {
+            animationPath.add(rawPath.get(rawPath.size() - 1));
+            return animationPath;
+        }
+
+        for (int step = 0; step < animationTicks; step++) {
+            double progress = step / (double) (animationTicks - 1);
+            double scaled = progress * (rawPath.size() - 1);
+            int lower = (int) Math.floor(scaled);
+            int upper = Math.min(rawPath.size() - 1, lower + 1);
+            double alpha = scaled - lower;
+            Snapshot a = rawPath.get(lower);
+            Snapshot b = rawPath.get(upper);
+            animationPath.add(interpolateSnapshot(a, b, alpha));
+        }
+
+        Snapshot anchor = rawPath.get(rawPath.size() - 1);
+        animationPath.set(animationPath.size() - 1, anchor);
+        return animationPath;
+    }
+
+    private Snapshot interpolateSnapshot(Snapshot a, Snapshot b, double alpha) {
+        if (alpha <= 0D) {
+            return a;
+        }
+        if (alpha >= 1D) {
+            return b;
+        }
+
+        long timestamp = (long) Math.round(lerp(a.timestamp(), b.timestamp(), alpha));
+        String worldName = alpha < 0.5D ? a.worldName() : b.worldName();
+        double x = lerp(a.x(), b.x(), alpha);
+        double y = lerp(a.y(), b.y(), alpha);
+        double z = lerp(a.z(), b.z(), alpha);
+        float yaw = lerpAngle(a.yaw(), b.yaw(), alpha);
+        float pitch = (float) lerp(a.pitch(), b.pitch(), alpha);
+        double health = lerp(a.health(), b.health(), alpha);
+        int foodLevel = (int) Math.round(lerp(a.foodLevel(), b.foodLevel(), alpha));
+        float saturation = (float) lerp(a.saturation(), b.saturation(), alpha);
+        float exhaustion = (float) lerp(a.exhaustion(), b.exhaustion(), alpha);
+        int fireTicks = (int) Math.round(lerp(a.fireTicks(), b.fireTicks(), alpha));
+
+        return new Snapshot(timestamp, worldName, x, y, z, yaw, pitch, health, foodLevel, saturation, exhaustion, fireTicks);
+    }
+
+    private double lerp(double a, double b, double alpha) {
+        return a + ((b - a) * alpha);
+    }
+
+    private float lerpAngle(float from, float to, double alpha) {
+        float delta = to - from;
+        while (delta > 180F) {
+            delta -= 360F;
+        }
+        while (delta < -180F) {
+            delta += 360F;
+        }
+
+        return from + (float) (delta * alpha);
+    }
+
     private Location toLocation(Snapshot snapshot, World fallback) {
         World world = Bukkit.getWorld(snapshot.worldName());
         if (world == null) {
@@ -388,6 +592,24 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecall.
         if (armUntil > M.ms()) {
             attemptRecall(p);
         }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void on(PlayerToggleSneakEvent e) {
+        Player p = e.getPlayer();
+        if (!e.isSneaking() || !isRecallEligible(p) || !getConfig().enableSingleSneakTrigger) {
+            return;
+        }
+
+        if (getConfig().singleSneakRequiresSprint && !p.isSprinting()) {
+            return;
+        }
+
+        if (getConfig().singleSneakRequiresClockInHand && !hasRecallClockInEitherHand(p)) {
+            return;
+        }
+
+        attemptRecall(p);
     }
 
     private EquipmentSlot resolveRecallHand(Player p, EquipmentSlot eventHand) {
@@ -555,6 +777,29 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecall.
         recallXpStamps.remove(id);
         jumpArmUntil.remove(id);
         lastOnGround.remove(id);
+        TELEPORT_XP_SUPPRESS_UNTIL.remove(id);
+    }
+
+    private static void markRecallTeleportSuppressed(UUID id, long suppressUntilMillis) {
+        long current = TELEPORT_XP_SUPPRESS_UNTIL.getOrDefault(id, 0L);
+        if (suppressUntilMillis > current) {
+            TELEPORT_XP_SUPPRESS_UNTIL.put(id, suppressUntilMillis);
+        }
+    }
+
+    public static boolean isRecallTeleportSuppressed(Player p) {
+        if (p == null) {
+            return false;
+        }
+
+        UUID id = p.getUniqueId();
+        long until = TELEPORT_XP_SUPPRESS_UNTIL.getOrDefault(id, 0L);
+        if (until <= M.ms()) {
+            TELEPORT_XP_SUPPRESS_UNTIL.remove(id);
+            return false;
+        }
+
+        return true;
     }
 
     private boolean isRecallClock(ItemStack stack) {
@@ -593,38 +838,91 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecall.
             return;
         }
 
+        int animationTicks = getRewindAnimationTicks();
         List<Snapshot> path = buildRewindPath(p, rewindMillis, anchor);
-        RecallXPContext xpContext = buildRecallXPContext(path.get(0), anchor);
+        List<Snapshot> animationPath = buildAnimationPath(path, animationTicks);
+        if (animationPath.isEmpty()) {
+            if (getConfig().playClockSounds) {
+                ChronosSoundFX.playClockReject(p);
+            }
+            return;
+        }
+
+        Snapshot finalSnapshot = animationPath.get(animationPath.size() - 1);
+        RecallXPContext xpContext = buildRecallXPContext(animationPath.get(0), finalSnapshot);
         double healthBeforeRecall = p.getHealth();
-        double healthAfterRecall = anchor.health();
-        int animationTicks = Math.max(1, getConfig().rewindAnimationTicks);
+        double healthAfterRecall = finalSnapshot.health();
         long castAt = M.ms();
+        GameMode originalGameMode = p.getGameMode();
+        boolean temporarySpectator = getConfig().rewindUseTemporarySpectator && originalGameMode == GameMode.SURVIVAL;
+        boolean allowClientCamera = temporarySpectator
+                && getConfig().rewindUseClientCamera
+                && isSingleWorldPath(animationPath);
+        ArmorStand cameraAnchor = null;
+        if (temporarySpectator) {
+            p.setGameMode(GameMode.SPECTATOR);
+            p.setFlying(true);
+            if (allowClientCamera) {
+                cameraAnchor = spawnRecallCameraAnchor(p);
+                if (cameraAnchor != null && cameraAnchor.isValid()) {
+                    p.setSpectatorTarget(cameraAnchor);
+                } else {
+                    allowClientCamera = false;
+                }
+            }
+        }
 
         cooldowns.put(id, castAt + getCooldownMillis(level));
         cooldownReadyNotify.add(id);
         rewinding.add(id);
-        rewindProtection.put(id, castAt + ((long) (animationTicks + getConfig().rewindProtectionTicks) * 50L));
+        long protectionUntil = castAt + ((long) (animationTicks + getConfig().rewindProtectionTicks) * 50L);
+        rewindProtection.put(id, protectionUntil);
+        markRecallTeleportSuppressed(id, protectionUntil + ((long) Math.max(0, getConfig().rewindTeleportXpSuppressExtraTicks) * 50L));
         p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, animationTicks + getConfig().rewindProtectionTicks, 0, true, false, false), true);
 
         if (getConfig().playClockSounds) {
             ChronosSoundFX.playRewindStart(p);
+            ChronosSoundFX.playRewindFinish(p);
         }
 
+        final boolean initialClientCamera = allowClientCamera;
+        final ArmorStand initialCameraAnchor = cameraAnchor;
         new BukkitRunnable() {
             int step = 0;
             Location lastLoc = p.getLocation().clone();
+            final boolean[] clientCameraActive = new boolean[]{initialClientCamera};
+            final ArmorStand[] cameraRef = new ArmorStand[]{initialCameraAnchor};
+
+            private void cleanupVisualState(boolean restoreGameMode) {
+                if (cameraRef[0] != null) {
+                    Entity anchorEntity = cameraRef[0];
+                    cameraRef[0] = null;
+                    if (anchorEntity.isValid()) {
+                        anchorEntity.remove();
+                    }
+                }
+
+                if (temporarySpectator) {
+                    p.setSpectatorTarget(null);
+                    if (restoreGameMode && p.getGameMode() == GameMode.SPECTATOR) {
+                        p.setGameMode(originalGameMode);
+                        p.setFlying(false);
+                    }
+                }
+            }
 
             @Override
             public void run() {
                 if (!p.isOnline() || p.isDead()) {
                     rewinding.remove(id);
+                    cleanupVisualState(true);
                     cancel();
                     return;
                 }
 
                 float progress = animationTicks <= 1 ? 1f : (float) step / (float) (animationTicks - 1);
-                int index = Math.min(path.size() - 1, Math.round(progress * (path.size() - 1)));
-                Snapshot snapshot = path.get(index);
+                int index = Math.min(animationPath.size() - 1, step);
+                Snapshot snapshot = animationPath.get(index);
                 Location destination = toLocation(snapshot, p.getWorld());
 
                 if (getConfig().showRewindTraceParticles && lastLoc.getWorld() != null && lastLoc.getWorld().equals(destination.getWorld())) {
@@ -633,8 +931,32 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecall.
                             l -> l.getBlock().isPassable());
                 }
 
-                p.teleport(destination, PlayerTeleportEvent.TeleportCause.PLUGIN);
-                applySnapshotState(p, snapshot);
+                boolean movedClient = false;
+                if (clientCameraActive[0] && cameraRef[0] != null && cameraRef[0].isValid()) {
+                    Entity target = p.getSpectatorTarget();
+                    if (target == null || !target.getUniqueId().equals(cameraRef[0].getUniqueId())) {
+                        p.setSpectatorTarget(cameraRef[0]);
+                        target = p.getSpectatorTarget();
+                    }
+
+                    if (target != null
+                            && target.getUniqueId().equals(cameraRef[0].getUniqueId())
+                            && destination.getWorld() != null
+                            && destination.getWorld().equals(cameraRef[0].getWorld())) {
+                        cameraRef[0].teleport(destination, PlayerTeleportEvent.TeleportCause.PLUGIN);
+                        movedClient = true;
+                    } else {
+                        clientCameraActive[0] = false;
+                    }
+                }
+
+                if (!movedClient) {
+                    p.teleport(destination, PlayerTeleportEvent.TeleportCause.PLUGIN);
+                }
+
+                if (!temporarySpectator || step >= animationPath.size() - 1) {
+                    applySnapshotState(p, snapshot);
+                }
 
                 if (getConfig().playClockSounds) {
                     ChronosSoundFX.playRewindStep(p, progress);
@@ -644,8 +966,19 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecall.
                 step++;
 
                 if (step >= animationTicks) {
-                    p.getWorld().spawnParticle(Particle.TOTEM_OF_UNDYING, p.getLocation().add(0, 1, 0), 26, 0.25, 0.35, 0.25, 0.01);
-                    p.getWorld().spawnParticle(Particle.ITEM, p.getLocation().add(0, 1, 0), 18, 0.30, 0.30, 0.30, 0.01, new ItemStack(Material.CLOCK));
+                    cleanupVisualState(true);
+                    Location finalDestination = toLocation(finalSnapshot, p.getWorld());
+                    if (finalDestination.getWorld() != null) {
+                        p.teleport(finalDestination, PlayerTeleportEvent.TeleportCause.PLUGIN);
+                    }
+                    applySnapshotState(p, finalSnapshot);
+
+                    if (areParticlesEnabled()) {
+                        p.getWorld().spawnParticle(Particle.TOTEM_OF_UNDYING, p.getLocation().add(0, 1, 0), 26, 0.25, 0.35, 0.25, 0.01);
+                    }
+                    if (areParticlesEnabled()) {
+                        p.getWorld().spawnParticle(Particle.ITEM, p.getLocation().add(0, 1, 0), 18, 0.30, 0.30, 0.30, 0.01, new ItemStack(Material.CLOCK));
+                    }
                     if (getConfig().playClockSounds) {
                         ChronosSoundFX.playRewindFinish(p);
                     }
@@ -659,7 +992,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecall.
                     long awardAt = M.ms();
                     double xpGain = computeRecallXPGain(id, level, xpContext, awardAt);
                     if (xpGain > 0D) {
-                        xp(p, destination, xpGain);
+                        xp(p, p.getLocation(), xpGain);
                         recallXpStamps.put(id, new RecallXPFarmStamp(
                                 awardAt,
                                 xpContext.fromWorld(),
@@ -764,6 +1097,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecall.
 
         cooldowns.entrySet().removeIf(entry -> entry.getValue() <= now);
         rewindProtection.entrySet().removeIf(entry -> entry.getValue() <= now);
+        TELEPORT_XP_SUPPRESS_UNTIL.entrySet().removeIf(entry -> entry.getValue() <= now);
     }
 
     @Override
@@ -789,8 +1123,16 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecall.
         boolean showRewindTraceParticles = true;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Rewind Trace Points for the Chronos Instant Recall adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int rewindTracePoints = 18;
-        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Rewind Animation Ticks for the Chronos Instant Recall adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        int rewindAnimationTicks = 10;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Target rewind animation duration in milliseconds.", impact = "Higher values make recall rewind visuals slower/smoother; lower values make them faster.")
+        int rewindAnimationDurationMillis = 1000;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Legacy fallback rewind animation ticks used when duration is invalid.", impact = "Retained for backward compatibility with older configs.")
+        int rewindAnimationTicks = 18;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Temporarily switches to spectator during rewind animation for smoother camera movement through obstacles.", impact = "True improves rewind smoothness; false keeps player in survival during rewind.")
+        boolean rewindUseTemporarySpectator = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Uses a client-side spectator camera anchor during rewind so server position only updates at the end.", impact = "True reduces jitter and rubber-banding by avoiding per-tick player teleports.")
+        boolean rewindUseClientCamera = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Extra ticks to suppress teleport XP/stat tracking after recall rewinds.", impact = "Higher values make it safer against teleport-XP side effects from other skills.")
+        int rewindTeleportXpSuppressExtraTicks = 10;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Enables direct click-with-clock activation for instant recall.", impact = "True allows recall by clicking with a valid recall clock; false disables direct clock-click activation.")
         boolean enableClockClickTrigger = true;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Allows left-click to activate recall when clock-click trigger is enabled.", impact = "True allows left-click activation; false blocks left-click activation.")
@@ -807,6 +1149,12 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecall.
         boolean allowAirClicks = true;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Allows click-on-block interactions for recall click triggers.", impact = "True lets block-clicks activate enabled click modes; false blocks block-click activations.")
         boolean allowBlockClicks = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Enables single-sneak activation for instant recall.", impact = "True allows pressing sneak once to trigger recall.")
+        boolean enableSingleSneakTrigger = false;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Require sprinting for single-sneak instant recall trigger.", impact = "True requires sprint state when using single-sneak activation.")
+        boolean singleSneakRequiresSprint = false;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Require holding a valid recall clock in either hand for single-sneak trigger.", impact = "True keeps single-sneak recall tied to clock usage.")
+        boolean singleSneakRequiresClockInHand = true;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Enables double-tap jump activation for instant recall.", impact = "True allows jump-based recall trigger; false disables jump trigger.")
         boolean enableDoubleJumpTrigger = false;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Require sprinting while double-jumping to trigger recall.", impact = "True requires sprint state for double-jump trigger; false allows it without sprint.")
@@ -826,9 +1174,11 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecall.
         @com.volmit.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
         double costFactor = 0.45;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Base Rewind Seconds for the Chronos Instant Recall adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double baseRewindSeconds = 3;
+        double baseRewindSeconds = 3.5;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Rewind Seconds Per Level for the Chronos Instant Recall adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double rewindSecondsPerLevel = 1;
+        double rewindSecondsPerLevel = 0.35;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Hard cap for recall rewind duration in seconds.", impact = "Prevents high levels/config values from exceeding this rewind window.")
+        double maxRewindSeconds = 5;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Cooldown Padding Seconds for the Chronos Instant Recall adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int cooldownPaddingSeconds = 1;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Snapshot Interval Millis for the Chronos Instant Recall adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

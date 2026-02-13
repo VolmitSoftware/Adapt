@@ -18,6 +18,7 @@
 
 package com.volmit.adapt.content.adaptation.discovery;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
@@ -30,26 +31,37 @@ import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.SoundPlayer;
 import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.EventExecutor;
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DiscoveryArchaeologist extends SimpleAdaptation<DiscoveryArchaeologist.Config> {
+    private static final String BLOCK_BRUSH_EVENT_CLASS = "org.bukkit.event.block.BlockBrushEvent";
+    private static final long BRUSH_FALLBACK_WINDOW_MILLIS = 25000L;
     private final Map<UUID, Long> cooldowns = new HashMap<>();
+    private final Map<UUID, PendingBrush> pendingBrushes = new HashMap<>();
+    private final AtomicBoolean brushEventFailureWarned = new AtomicBoolean(false);
+    private final BrushEventBridge brushEventBridge;
 
     public DiscoveryArchaeologist() {
         super("discovery-archaeologist");
@@ -78,18 +90,10 @@ public class DiscoveryArchaeologist extends SimpleAdaptation<DiscoveryArchaeolog
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_discovery_archaeologist_50")
-                .goal(50)
-                .stat("discovery.archaeologist.bonus-finds")
-                .reward(300)
-                .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_discovery_archaeologist_500")
-                .goal(500)
-                .stat("discovery.archaeologist.bonus-finds")
-                .reward(1000)
-                .build());
+        registerMilestone("challenge_discovery_archaeologist_50", "discovery.archaeologist.bonus-finds", 50, 300);
+        registerMilestone("challenge_discovery_archaeologist_500", "discovery.archaeologist.bonus-finds", 500, 1000);
+        brushEventBridge = BrushEventBridge.create();
+        registerBrushEventBridge(brushEventBridge);
     }
 
     @Override
@@ -101,26 +105,84 @@ public class DiscoveryArchaeologist extends SimpleAdaptation<DiscoveryArchaeolog
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerQuitEvent e) {
-        cooldowns.remove(e.getPlayer().getUniqueId());
+        UUID id = e.getPlayer().getUniqueId();
+        cooldowns.remove(id);
+        pendingBrushes.remove(id);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void on(PlayerInteractEvent e) {
-        if (e.getHand() != EquipmentSlot.HAND || e.getAction() != Action.RIGHT_CLICK_BLOCK || e.getClickedBlock() == null) {
+        if (e.getAction() != Action.RIGHT_CLICK_BLOCK) {
             return;
         }
 
-        Player p = e.getPlayer();
-        if (!hasAdaptation(p)) {
+        ItemStack hand = e.getItem();
+        if (hand == null || hand.getType() != Material.BRUSH) {
             return;
         }
 
         Block block = e.getClickedBlock();
-        if (!isSuspiciousBlock(block.getType())) {
+        if (block == null || !isSuspiciousBlock(block.getType())) {
             return;
         }
 
-        if (p.getInventory().getItemInMainHand().getType() != Material.BRUSH) {
+        Player p = e.getPlayer();
+        if (!hasAdaptation(p) || !canBlockBreak(p, block.getLocation())) {
+            return;
+        }
+
+        pendingBrushes.put(p.getUniqueId(), PendingBrush.from(block, System.currentTimeMillis() + BRUSH_FALLBACK_WINDOW_MILLIS));
+    }
+
+    private void registerBrushEventBridge(BrushEventBridge bridge) {
+        if (bridge == null) {
+            Adapt.verbose("BlockBrushEvent not available; discovery-archaeologist will use interaction fallback tracking.");
+            return;
+        }
+
+        EventExecutor executor = (listener, event) -> onBrush(event, bridge);
+        Bukkit.getPluginManager().registerEvent(bridge.eventClass, this, EventPriority.HIGHEST, executor, Adapt.instance, true);
+    }
+
+    private void onBrush(Event event, BrushEventBridge bridge) {
+        try {
+            Player p = bridge.player(event);
+            Block block = bridge.block(event);
+            Material originalType = block == null ? null : block.getType();
+            if (p != null) {
+                PendingBrush pending = pendingBrushes.get(p.getUniqueId());
+                if (pending != null && isSuspiciousBlock(pending.originalType)) {
+                    originalType = pending.originalType;
+                }
+            }
+
+            Material newStateType = bridge.newStateType(event);
+            handleBrush(p, block, originalType, newStateType);
+            if (p != null && newStateType != null && !isSuspiciousBlock(newStateType)) {
+                pendingBrushes.remove(p.getUniqueId());
+            }
+        } catch (Throwable t) {
+            if (brushEventFailureWarned.compareAndSet(false, true)) {
+                Adapt.warn("DiscoveryArchaeologist brush event bridge failed once (" + t.getClass().getSimpleName() + ": " + t.getMessage() + ").");
+            }
+        }
+    }
+
+    private void handleBrush(Player p, Block block, Material originalType, Material newStateType) {
+        if (p == null || block == null) {
+            return;
+        }
+
+        if (!hasAdaptation(p)) {
+            return;
+        }
+
+        if (!isSuspiciousBlock(originalType)) {
+            return;
+        }
+
+        // Only award when brushing actually completes and the suspicious block resolves.
+        if (newStateType == null || isSuspiciousBlock(newStateType)) {
             return;
         }
 
@@ -144,14 +206,74 @@ public class DiscoveryArchaeologist extends SimpleAdaptation<DiscoveryArchaeolog
         Map<Integer, ItemStack> overflow = p.getInventory().addItem(reward);
         overflow.values().forEach(item -> p.getWorld().dropItemNaturally(p.getLocation(), item));
 
-        block.getWorld().spawnParticle(Particle.ENCHANT, block.getLocation().add(0.5, 0.65, 0.5), 18, 0.25, 0.2, 0.25, 0.2);
-        block.getWorld().spawnParticle(Particle.CRIT, block.getLocation().add(0.5, 0.65, 0.5), 12, 0.22, 0.22, 0.22, 0.02);
-
+        if (areParticlesEnabled()) {
+            block.getWorld().spawnParticle(Particle.ENCHANT, block.getLocation().add(0.5, 0.65, 0.5), 18, 0.25, 0.2, 0.25, 0.2);
+        }
+        if (areParticlesEnabled()) {
+            block.getWorld().spawnParticle(Particle.CRIT, block.getLocation().add(0.5, 0.65, 0.5), 12, 0.22, 0.22, 0.22, 0.02);
+        }
         SoundPlayer sp = SoundPlayer.of(block.getWorld());
         sp.play(block.getLocation().add(0.5, 0.5, 0.5), Sound.ITEM_BRUSH_BRUSHING_SAND_COMPLETE, 1f, 1.15f);
         sp.play(block.getLocation().add(0.5, 0.5, 0.5), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.7f, 1.55f);
         xp(p, getConfig().xpPerReward + (getValue(reward.getType()) * getConfig().rewardValueXpMultiplier));
         getPlayer(p).getData().addStat("discovery.archaeologist.bonus-finds", 1);
+    }
+
+    private static final class BrushEventBridge {
+        private final Class<? extends Event> eventClass;
+        private final Method getPlayer;
+        private final Method getBlock;
+        private final Method getNewState;
+        private final Method getBlockStateType;
+
+        private BrushEventBridge(Class<? extends Event> eventClass, Method getPlayer, Method getBlock, Method getNewState, Method getBlockStateType) {
+            this.eventClass = eventClass;
+            this.getPlayer = getPlayer;
+            this.getBlock = getBlock;
+            this.getNewState = getNewState;
+            this.getBlockStateType = getBlockStateType;
+        }
+
+        private static BrushEventBridge create() {
+            try {
+                Class<?> eventType = Class.forName(BLOCK_BRUSH_EVENT_CLASS);
+                if (!Event.class.isAssignableFrom(eventType)) {
+                    return null;
+                }
+
+                Method getPlayer = eventType.getMethod("getPlayer");
+                Method getBlock = eventType.getMethod("getBlock");
+                Method getNewState = eventType.getMethod("getNewState");
+                Class<?> blockStateType = Class.forName("org.bukkit.block.BlockState");
+                Method getBlockStateType = blockStateType.getMethod("getType");
+
+                @SuppressWarnings("unchecked")
+                Class<? extends Event> typedEvent = (Class<? extends Event>) eventType;
+                return new BrushEventBridge(typedEvent, getPlayer, getBlock, getNewState, getBlockStateType);
+            } catch (Throwable ignored) {
+                return null;
+            }
+        }
+
+        private Player player(Event event) throws ReflectiveOperationException {
+            Object value = getPlayer.invoke(event);
+            return value instanceof Player p ? p : null;
+        }
+
+        private Block block(Event event) throws ReflectiveOperationException {
+            Object value = getBlock.invoke(event);
+            return value instanceof Block b ? b : null;
+        }
+
+        private Material newStateType(Event event) throws ReflectiveOperationException {
+            Object newState = getNewState.invoke(event);
+            if (newState == null) {
+                return null;
+            }
+
+            Object material = getBlockStateType.invoke(newState);
+            return material instanceof Material m ? m : null;
+        }
     }
 
     private ItemStack rollReward(int level) {
@@ -195,7 +317,67 @@ public class DiscoveryArchaeologist extends SimpleAdaptation<DiscoveryArchaeolog
 
     @Override
     public void onTick() {
+        if (pendingBrushes.isEmpty()) {
+            return;
+        }
 
+        long now = System.currentTimeMillis();
+        Iterator<Map.Entry<UUID, PendingBrush>> iterator = pendingBrushes.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<UUID, PendingBrush> entry = iterator.next();
+            PendingBrush pending = entry.getValue();
+            if (pending.expiresAt <= now) {
+                iterator.remove();
+                continue;
+            }
+
+            Player p = Bukkit.getPlayer(entry.getKey());
+            if (p == null || !p.isOnline() || !hasAdaptation(p)) {
+                iterator.remove();
+                continue;
+            }
+
+            Block current = pending.resolveBlock();
+            if (current == null) {
+                iterator.remove();
+                continue;
+            }
+
+            Material currentType = current.getType();
+            if (isSuspiciousBlock(currentType)) {
+                continue;
+            }
+
+            handleBrush(p, current, pending.originalType, currentType);
+            iterator.remove();
+        }
+    }
+
+    private static final class PendingBrush {
+        private final UUID worldId;
+        private final int x;
+        private final int y;
+        private final int z;
+        private final Material originalType;
+        private final long expiresAt;
+
+        private PendingBrush(UUID worldId, int x, int y, int z, Material originalType, long expiresAt) {
+            this.worldId = worldId;
+            this.x = x;
+            this.y = y;
+            this.z = z;
+            this.originalType = originalType;
+            this.expiresAt = expiresAt;
+        }
+
+        private static PendingBrush from(Block block, long expiresAt) {
+            return new PendingBrush(block.getWorld().getUID(), block.getX(), block.getY(), block.getZ(), block.getType(), expiresAt);
+        }
+
+        private Block resolveBlock() {
+            World world = Bukkit.getWorld(worldId);
+            return world == null ? null : world.getBlockAt(x, y, z);
+        }
     }
 
     @Override

@@ -69,12 +69,7 @@ public class HerbalismBeeShepherd extends SimpleAdaptation<HerbalismBeeShepherd.
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_herbalism_bee_100")
-                .goal(100)
-                .stat("herbalism.bee-shepherd.bees-attracted")
-                .reward(300)
-                .build());
+        registerMilestone("challenge_herbalism_bee_100", "herbalism.bee-shepherd.bees-attracted", 100, 300);
     }
 
     @Override
@@ -87,7 +82,8 @@ public class HerbalismBeeShepherd extends SimpleAdaptation<HerbalismBeeShepherd.
     @Override
     public void onTick() {
         long now = System.currentTimeMillis();
-        for (Player p : Bukkit.getOnlinePlayers()) {
+        for (com.volmit.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+            Player p = adaptPlayer.getPlayer();
             if (!hasAdaptation(p) || !isHoldingFlower(p)) {
                 continue;
             }
@@ -113,7 +109,9 @@ public class HerbalismBeeShepherd extends SimpleAdaptation<HerbalismBeeShepherd.
             }
 
             p.setFoodLevel(Math.max(0, p.getFoodLevel() - foodCost));
-            p.spawnParticle(Particle.HAPPY_VILLAGER, p.getLocation().add(0, 1, 0), 12, 0.5, 0.4, 0.5, 0.1);
+            if (areParticlesEnabled()) {
+                p.spawnParticle(Particle.HAPPY_VILLAGER, p.getLocation().add(0, 1, 0), 12, 0.5, 0.4, 0.5, 0.1);
+            }
             SoundPlayer.of(p.getWorld()).play(p.getLocation(), Sound.ENTITY_BEE_POLLINATE, 0.85f, 1.25f);
             xp(p, grown * getConfig().xpPerGrowth);
         }
@@ -138,7 +136,9 @@ public class HerbalismBeeShepherd extends SimpleAdaptation<HerbalismBeeShepherd.
             block.setBlockData(ageable, true);
             grown++;
             if (getConfig().showGrowthParticles) {
-                p.getWorld().spawnParticle(Particle.COMPOSTER, block.getLocation().add(0.5, 0.5, 0.5), 3, 0.1, 0.1, 0.1, 0.01);
+                if (areParticlesEnabled()) {
+                    p.getWorld().spawnParticle(Particle.COMPOSTER, block.getLocation().add(0.5, 0.5, 0.5), 3, 0.1, 0.1, 0.1, 0.01);
+                }
             }
         }
 

@@ -43,6 +43,9 @@ permissions:
     default: false
     children:
       adapt.configurator: true
+  adapt.clear:
+    description: Allows clearing player progression data
+    default: op
   adapt.blacklist.agility:
     description: Blacklist the skill Agility
     default: false

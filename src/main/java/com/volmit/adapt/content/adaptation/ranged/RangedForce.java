@@ -43,7 +43,7 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
         registerConfiguration(Config.class);
         setDescription(Localizer.dLocalize("ranged.force_shot.description"));
         setDisplayName(Localizer.dLocalize("ranged.force_shot.name"));
-        setIcon(Material.ARROW);
+        setIcon(Material.TIPPED_ARROW);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInterval(4900);
@@ -65,7 +65,7 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_ranged_force_500").goal(500).stat("ranged.force.long-range-hits").reward(500).build());
+        registerMilestone("challenge_ranged_force_500", "ranged.force.long-range-hits", 500, 500);
     }
 
     @Override
@@ -92,7 +92,7 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
 
             if (distSq > 10 && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_force_30")) {
                 getPlayer(p).getAdvancementHandler().grant("challenge_force_30");
-                getSkill().xp(p, getConfig().challengeRewardLongShotReward);
+                xp(p, getConfig().challengeRewardLongShotReward, "challenge-long-shot");
             }
 
             if (distSq > 900) {

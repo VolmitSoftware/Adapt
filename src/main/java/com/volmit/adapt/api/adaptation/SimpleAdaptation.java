@@ -21,6 +21,7 @@ package com.volmit.adapt.api.adaptation;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdvancementSpec;
 import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.potion.BrewingRecipe;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
@@ -59,7 +60,7 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
     private List<BrewingRecipe> brewingRecipes;
     private KList<AdaptStatTracker> statTrackers;
     private Class<T> configType;
-    private T config;
+    private volatile T config;
 
     public SimpleAdaptation(String name) {
         super("adaptations", UUID.randomUUID() + "-" + name, 1000);
@@ -201,11 +202,30 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
     }
 
     @Override
-    public synchronized T getConfig() {
-        if (config == null) {
-            reloadConfigFromDisk(false);
+    public T getConfig() {
+        T local = config;
+        if (local != null) {
+            return local;
         }
-        return config;
+
+        synchronized (this) {
+            local = config;
+            if (local != null) {
+                return local;
+            }
+
+            boolean loaded = reloadConfigFromDisk(false);
+            local = config;
+            if (!loaded || local == null) {
+                local = createDefaultConfig();
+                applySharedConfigValues(local);
+                onConfigReload(null, local);
+                config = local;
+                Adapt.warn("Falling back to in-memory defaults for adaptation config " + getName() + ".");
+            }
+        }
+
+        return local;
     }
 
     public void registerRecipe(AdaptRecipe r) {
@@ -236,6 +256,32 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
 
     public void registerAdvancement(AdaptAdvancement a) {
         cachedAdvancements.add(a);
+    }
+
+    protected void registerAdvancementSpec(AdvancementSpec spec) {
+        if (spec == null) {
+            return;
+        }
+
+        registerAdvancement(spec.toAdvancement());
+    }
+
+    protected void registerMilestone(AdvancementSpec spec, String stat, double goal, double reward) {
+        if (spec == null) {
+            return;
+        }
+
+        registerAdvancementSpec(spec);
+        registerStatTracker(spec.statTracker(stat, goal, reward));
+    }
+
+    protected void registerMilestone(String advancementKey, String stat, double goal, double reward) {
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement(advancementKey)
+                .stat(stat)
+                .goal(goal)
+                .reward(reward)
+                .build());
     }
 
     @Override

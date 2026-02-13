@@ -86,7 +86,7 @@ public class BrewingAbsorption extends SimpleAdaptation<BrewingAbsorption.Config
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_brewing_absorption_25").goal(25).stat("brewing.absorption.potions-brewed").reward(300).build());
+        registerMilestone("challenge_brewing_absorption_25", "brewing.absorption.potions-brewed", 25, 300);
     }
 
     @Override

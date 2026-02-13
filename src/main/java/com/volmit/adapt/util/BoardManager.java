@@ -18,6 +18,7 @@
 
 package com.volmit.adapt.util;
 
+import com.volmit.adapt.Adapt;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -46,7 +47,9 @@ public class BoardManager {
         this.boardSettings = boardSettings;
         this.scoreboards = new ConcurrentHashMap<>();
         this.updateTask = new BoardUpdateTask(this).runTaskTimer(plugin, 2L, 2L);
-        plugin.getServer().getOnlinePlayers().forEach(this::setup);
+        for (Player player : onlinePlayers()) {
+            setup(player);
+        }
     }
 
     @DontObfuscate
@@ -68,7 +71,7 @@ public class BoardManager {
     @DontObfuscate
     public void setup(Player player) {
         Optional.ofNullable(scoreboards.remove(player.getUniqueId())).ifPresent(Board::resetScoreboard);
-        if (player.getScoreboard().equals(Bukkit.getScoreboardManager() != null && player.getScoreboard().equals(Bukkit.getScoreboardManager().getMainScoreboard()))) {
+        if (Bukkit.getScoreboardManager() != null && player.getScoreboard().equals(Bukkit.getScoreboardManager().getMainScoreboard())) {
             player.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
         }
         scoreboards.put(player.getUniqueId(), new Board(player, boardSettings));
@@ -87,7 +90,16 @@ public class BoardManager {
     @DontObfuscate
     public void onDisable() {
         updateTask.cancel();
-        plugin.getServer().getOnlinePlayers().forEach(this::remove);
+        for (Player player : onlinePlayers()) {
+            remove(player);
+        }
         scoreboards.clear();
+    }
+
+    private Iterable<? extends Player> onlinePlayers() {
+        if (Adapt.instance != null && Adapt.instance.getAdaptServer() != null) {
+            return Adapt.instance.getAdaptServer().getOnlinePlayerSnapshot();
+        }
+        return plugin.getServer().getOnlinePlayers();
     }
 }

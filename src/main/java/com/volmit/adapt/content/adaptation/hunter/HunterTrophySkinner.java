@@ -71,8 +71,8 @@ public class HunterTrophySkinner extends SimpleAdaptation<HunterTrophySkinner.Co
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_hunter_trophy_50").goal(50).stat("hunter.trophy-skinner.trophies-collected").reward(400).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_hunter_trophy_heads_100").goal(100).stat("hunter.trophy-skinner.heads-collected").reward(1000).build());
+        registerMilestone("challenge_hunter_trophy_50", "hunter.trophy-skinner.trophies-collected", 50, 400);
+        registerMilestone("challenge_hunter_trophy_heads_100", "hunter.trophy-skinner.heads-collected", 100, 1000);
     }
 
     @Override

@@ -24,7 +24,9 @@ import com.volmit.adapt.api.adaptation.Adaptation;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
+import com.volmit.adapt.api.runtime.AdaptationGate;
 import com.volmit.adapt.api.tick.TickedObject;
+import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.item.ItemListings;
 import com.volmit.adapt.util.*;
@@ -32,7 +34,6 @@ import com.volmit.adapt.util.config.ConfigFileSupport;
 import com.volmit.adapt.util.collection.KList;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.EntityType;
@@ -61,7 +62,7 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
     private String advancementBackground;
     private KList<AdaptRecipe> recipes;
     private Class<T> configType;
-    private T config;
+    private volatile T config;
 
     public SimpleSkill(String name, String emojiName) {
         super("skill", UUID.randomUUID() + "-skill-" + name, 50);
@@ -190,11 +191,29 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
     }
 
     @Override
-    public synchronized T getConfig() {
-        if (config == null) {
-            reloadConfigFromDisk(false);
+    public T getConfig() {
+        T local = config;
+        if (local != null) {
+            return local;
         }
-        return config;
+
+        synchronized (this) {
+            local = config;
+            if (local != null) {
+                return local;
+            }
+
+            boolean loaded = reloadConfigFromDisk(false);
+            local = config;
+            if (!loaded || local == null) {
+                local = createDefaultConfig();
+                onConfigReload(null, local);
+                config = local;
+                Adapt.warn("Falling back to in-memory defaults for skill config " + getName() + ".");
+            }
+        }
+
+        return local;
     }
 
     public void registerRecipe(AdaptRecipe r) {
@@ -217,11 +236,8 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
             if (p == null) {
                 return true;
             }
-            if (!p.getClass().getSimpleName().equals("CraftPlayer")) {
-                return true;
-            }
             Adapt.verbose("Checking " + p.getName() + " for " + getName());
-            return !this.isEnabled() || hasBlacklistPermission(p, this) || isWorldBlacklisted(p) || isInCreativeOrSpectator(p) || getPlayer(p) == null;
+            return AdaptationGate.shouldSkipPlayer(p, this, getPlayer(p) != null);
         } catch (Exception ignored) {
             return true;
         }
@@ -251,18 +267,18 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
 
     protected boolean shouldReturnForWorld(World world, Skill<?> skill) {
         try {
-            return !skill.isEnabled() || AdaptConfig.get().blacklistedWorlds.contains(world.getName());
+            return AdaptationGate.shouldSkipWorld(world, skill);
         } catch (Exception ignored) {
             return true;
         }
     }
 
     protected boolean isWorldBlacklisted(Player p) {
-        return AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName());
+        return AdaptationGate.isWorldBlacklisted(p);
     }
 
     protected boolean isInCreativeOrSpectator(Player p) {
-        return !AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR));
+        return AdaptationGate.isInCreativeOrSpectator(p);
     }
 
     @Override
@@ -298,6 +314,25 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
     @Override
     public void registerStatTracker(AdaptStatTracker tracker) {
         getStatTrackers().add(tracker);
+    }
+
+    protected void registerMilestone(String advancementKey, String stat, double goal, double reward) {
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement(advancementKey)
+                .stat(stat)
+                .goal(goal)
+                .reward(reward)
+                .build());
+    }
+
+    protected void checkStatTrackersForOnlinePlayers() {
+        for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+            Player player = adaptPlayer.getPlayer();
+            if (shouldReturnForPlayer(player)) {
+                continue;
+            }
+            checkStatTrackers(adaptPlayer);
+        }
     }
 
     @Override

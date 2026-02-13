@@ -74,8 +74,8 @@ public class SwordsCrimsonCyclone extends SimpleAdaptation<SwordsCrimsonCyclone.
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_swords_cyclone_500").goal(500).stat("swords.crimson-cyclone.mobs-hit").reward(400).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_swords_cyclone_5k").goal(5000).stat("swords.crimson-cyclone.mobs-hit").reward(1500).build());
+        registerMilestone("challenge_swords_cyclone_500", "swords.crimson-cyclone.mobs-hit", 500, 400);
+        registerMilestone("challenge_swords_cyclone_5k", "swords.crimson-cyclone.mobs-hit", 5000, 1500);
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.NETHERITE_SWORD)
                 .key("challenge_swords_cyclone_6")
@@ -134,7 +134,9 @@ public class SwordsCrimsonCyclone extends SimpleAdaptation<SwordsCrimsonCyclone.
 
         e.setDamage(e.getDamage() + damage);
         applyBleed(primaryTarget, level);
-        primaryTarget.getWorld().spawnParticle(Particle.CRIMSON_SPORE, primaryTarget.getLocation().add(0, 0.8, 0), 8, 0.2, 0.35, 0.2, 0.01);
+        if (areParticlesEnabled()) {
+            primaryTarget.getWorld().spawnParticle(Particle.CRIMSON_SPORE, primaryTarget.getLocation().add(0, 0.8, 0), 8, 0.2, 0.35, 0.2, 0.01);
+        }
         hits++;
 
         for (Entity entity : primaryTarget.getWorld().getNearbyEntities(primaryTarget.getLocation(), radius, radius, radius)) {
@@ -156,7 +158,9 @@ public class SwordsCrimsonCyclone extends SimpleAdaptation<SwordsCrimsonCyclone.
 
             target.damage(damage, p);
             applyBleed(target, level);
-            target.getWorld().spawnParticle(Particle.CRIMSON_SPORE, target.getLocation().add(0, 0.8, 0), 8, 0.2, 0.35, 0.2, 0.01);
+            if (areParticlesEnabled()) {
+                target.getWorld().spawnParticle(Particle.CRIMSON_SPORE, target.getLocation().add(0, 0.8, 0), 8, 0.2, 0.35, 0.2, 0.01);
+            }
             hits++;
         }
 
@@ -164,8 +168,14 @@ public class SwordsCrimsonCyclone extends SimpleAdaptation<SwordsCrimsonCyclone.
             return;
         }
 
-        p.getWorld().spawnParticle(Particle.SWEEP_ATTACK, primaryTarget.getLocation().add(0, 1, 0), 2, 0.4, 0.1, 0.4, 0.02);
-        p.getWorld().spawnParticle(Particle.CRIMSON_SPORE, primaryTarget.getLocation().add(0, 1, 0), 36, 0.8, 0.4, 0.8, 0.02);
+        if (areParticlesEnabled()) {
+
+            p.getWorld().spawnParticle(Particle.SWEEP_ATTACK, primaryTarget.getLocation().add(0, 1, 0), 2, 0.4, 0.1, 0.4, 0.02);
+
+        }
+        if (areParticlesEnabled()) {
+            p.getWorld().spawnParticle(Particle.CRIMSON_SPORE, primaryTarget.getLocation().add(0, 1, 0), 36, 0.8, 0.4, 0.8, 0.02);
+        }
         SoundPlayer sp = SoundPlayer.of(p.getWorld());
         sp.play(primaryTarget.getLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, 0.7f);
         sp.play(primaryTarget.getLocation(), Sound.ENTITY_WITHER_HURT, 0.65f, 1.45f);

@@ -46,7 +46,7 @@ public class HerbalismCraftableMushroomBlocks extends SimpleAdaptation<Herbalism
         registerConfiguration(Config.class);
         setDescription(Localizer.dLocalize("herbalism.mushroom_blocks.description"));
         setDisplayName(Localizer.dLocalize("herbalism.mushroom_blocks.name"));
-        setIcon(Material.CRIMSON_FUNGUS);
+        setIcon(Material.BROWN_MUSHROOM_BLOCK);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInterval(17772);
@@ -86,12 +86,7 @@ public class HerbalismCraftableMushroomBlocks extends SimpleAdaptation<Herbalism
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_herbalism_mushroom_100")
-                .goal(100)
-                .stat("herbalism.mushroom-blocks.crafted")
-                .reward(300)
-                .build());
+        registerMilestone("challenge_herbalism_mushroom_100", "herbalism.mushroom-blocks.crafted", 100, 300);
     }
 
     @Override

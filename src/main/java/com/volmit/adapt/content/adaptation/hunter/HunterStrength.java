@@ -56,7 +56,7 @@ public class HunterStrength extends SimpleAdaptation<HunterStrength.Config> {
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_hunter_strength_200").goal(200).stat("hunter.strength.activations").reward(300).build());
+        registerMilestone("challenge_hunter_strength_200", "hunter.strength.activations", 200, 300);
     }
 
     @Override

@@ -69,12 +69,7 @@ public class HerbalismTerralid extends SimpleAdaptation<HerbalismTerralid.Config
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_herbalism_terralid_200")
-                .goal(200)
-                .stat("herbalism.terralid.grass-crafted")
-                .reward(300)
-                .build());
+        registerMilestone("challenge_herbalism_terralid_200", "herbalism.terralid.grass-crafted", 200, 300);
     }
 
     @Override

@@ -92,8 +92,8 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_access_100").goal(100).stat("rift.access.remote-opens").reward(300).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_access_2500").goal(2500).stat("rift.access.remote-opens").reward(1000).build());
+        registerMilestone("challenge_rift_access_100", "rift.access.remote-opens", 100, 300);
+        registerMilestone("challenge_rift_access_2500", "rift.access.remote-opens", 2500, 1000);
     }
 
     @Override
@@ -164,7 +164,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
 
     private void linkPearl(Player p, Block block, PlayerInteractEvent event) {
         event.setCancelled(true);
-        if (getConfig().showParticles) {
+        if (areParticlesEnabled()) {
             vfxCuboidOutline(block, Particle.REVERSE_PORTAL);
         }
         ItemStack hand = p.getInventory().getItemInMainHand();

@@ -18,6 +18,7 @@
 
 package com.volmit.adapt.content.adaptation.pickaxe;
 
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
@@ -44,11 +45,9 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> {
-    private static final Random RANDOM = new Random();
-
     public PickaxeAutosmelt() {
         super("pickaxe-autosmelt");
         registerConfiguration(PickaxeAutosmelt.Config.class);
@@ -76,8 +75,8 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_pickaxe_autosmelt_1k").goal(1000).stat("pickaxe.autosmelt.ores-smelted").reward(400).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_pickaxe_autosmelt_25k").goal(25000).stat("pickaxe.autosmelt.ores-smelted").reward(1500).build());
+        registerMilestone("challenge_pickaxe_autosmelt_1k", "pickaxe.autosmelt.ores-smelted", 1000, 400);
+        registerMilestone("challenge_pickaxe_autosmelt_25k", "pickaxe.autosmelt.ores-smelted", 25000, 1500);
     }
 
     static void autosmeltBlockDTI(Block b, Player p) {
@@ -93,8 +92,12 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
                 b.setType(Material.AIR);
                 HashMap<Integer, ItemStack> excessItems = p.getInventory().addItem(new ItemStack(Material.IRON_INGOT, fortune));
                 excessItems.values().forEach(itemStack -> b.getLocation().getWorld().dropItemNaturally(b.getLocation(), itemStack));
-                spw.play(b.getLocation(), Sound.BLOCK_LAVA_POP, 1, 1);
-                b.getWorld().spawnParticle(Particle.LAVA, b.getLocation(), 3, 0.5, 0.5, 0.5);
+                if (soundsEnabled()) {
+                    spw.play(b.getLocation(), Sound.BLOCK_LAVA_POP, 1, 1);
+                }
+                if (particlesEnabled()) {
+                    b.getWorld().spawnParticle(Particle.LAVA, b.getLocation(), 3, 0.5, 0.5, 0.5);
+                }
             }
             case GOLD_ORE, DEEPSLATE_GOLD_ORE -> {
                 if (b.getLocation().getWorld() == null) {
@@ -104,8 +107,12 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
                 b.setType(Material.AIR);
                 HashMap<Integer, ItemStack> excessItems = p.getInventory().addItem(new ItemStack(Material.GOLD_INGOT, fortune));
                 excessItems.values().forEach(itemStack -> b.getLocation().getWorld().dropItemNaturally(b.getLocation(), itemStack));
-                spw.play(b.getLocation(), Sound.BLOCK_LAVA_POP, 1, 1);
-                b.getWorld().spawnParticle(Particle.LAVA, b.getLocation(), 3, 0.5, 0.5, 0.5);
+                if (soundsEnabled()) {
+                    spw.play(b.getLocation(), Sound.BLOCK_LAVA_POP, 1, 1);
+                }
+                if (particlesEnabled()) {
+                    b.getWorld().spawnParticle(Particle.LAVA, b.getLocation(), 3, 0.5, 0.5, 0.5);
+                }
             }
             case COPPER_ORE, DEEPSLATE_COPPER_ORE -> {
                 if (b.getLocation().getWorld() == null) {
@@ -114,8 +121,12 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
                 b.setType(Material.AIR);
                 HashMap<Integer, ItemStack> excessItems = p.getInventory().addItem(new ItemStack(Material.COPPER_INGOT, fortune));
                 excessItems.values().forEach(itemStack -> b.getLocation().getWorld().dropItemNaturally(b.getLocation(), itemStack));
-                spw.play(b.getLocation(), Sound.BLOCK_LAVA_POP, 1, 1);
-                b.getWorld().spawnParticle(Particle.LAVA, b.getLocation(), 3, 0.5, 0.5, 0.5);
+                if (soundsEnabled()) {
+                    spw.play(b.getLocation(), Sound.BLOCK_LAVA_POP, 1, 1);
+                }
+                if (particlesEnabled()) {
+                    b.getWorld().spawnParticle(Particle.LAVA, b.getLocation(), 3, 0.5, 0.5, 0.5);
+                }
             }
 
         }
@@ -134,8 +145,12 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
 
                 b.setType(Material.AIR);
                 b.getLocation().getWorld().dropItemNaturally(b.getLocation(), new ItemStack(Material.IRON_INGOT, fortune));
-                spw.play(b.getLocation(), Sound.BLOCK_LAVA_POP, 1, 1);
-                b.getWorld().spawnParticle(Particle.LAVA, b.getLocation(), 3, 0.5, 0.5, 0.5);
+                if (soundsEnabled()) {
+                    spw.play(b.getLocation(), Sound.BLOCK_LAVA_POP, 1, 1);
+                }
+                if (particlesEnabled()) {
+                    b.getWorld().spawnParticle(Particle.LAVA, b.getLocation(), 3, 0.5, 0.5, 0.5);
+                }
             }
             case GOLD_ORE, DEEPSLATE_GOLD_ORE -> {
                 if (b.getLocation().getWorld() == null) {
@@ -144,8 +159,12 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
 
                 b.setType(Material.AIR);
                 b.getLocation().getWorld().dropItemNaturally(b.getLocation(), new ItemStack(Material.GOLD_INGOT, fortune));
-                spw.play(b.getLocation(), Sound.BLOCK_LAVA_POP, 1, 1);
-                b.getWorld().spawnParticle(Particle.LAVA, b.getLocation(), 3, 0.5, 0.5, 0.5);
+                if (soundsEnabled()) {
+                    spw.play(b.getLocation(), Sound.BLOCK_LAVA_POP, 1, 1);
+                }
+                if (particlesEnabled()) {
+                    b.getWorld().spawnParticle(Particle.LAVA, b.getLocation(), 3, 0.5, 0.5, 0.5);
+                }
             }
             case COPPER_ORE, DEEPSLATE_COPPER_ORE -> {
                 if (b.getLocation().getWorld() == null) {
@@ -153,8 +172,12 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
                 }
                 b.setType(Material.AIR);
                 b.getLocation().getWorld().dropItemNaturally(b.getLocation(), new ItemStack(Material.COPPER_INGOT, fortune));
-                spw.play(b.getLocation(), Sound.BLOCK_LAVA_POP, 1, 1);
-                b.getWorld().spawnParticle(Particle.LAVA, b.getLocation(), 3, 0.5, 0.5, 0.5);
+                if (soundsEnabled()) {
+                    spw.play(b.getLocation(), Sound.BLOCK_LAVA_POP, 1, 1);
+                }
+                if (particlesEnabled()) {
+                    b.getWorld().spawnParticle(Particle.LAVA, b.getLocation(), 3, 0.5, 0.5, 0.5);
+                }
             }
 
         }
@@ -168,9 +191,19 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
         int sumOfBonusMultipliers = (fortuneLevel*(fortuneLevel+1))/2;
         double chancePerMultiplier = averageBonusMultiplier/sumOfBonusMultipliers;
 
-        int bonusMultiplier = ((int) (RANDOM.nextDouble()/chancePerMultiplier)) + 1;
+        int bonusMultiplier = ((int) (ThreadLocalRandom.current().nextDouble()/chancePerMultiplier)) + 1;
 
         return bonusMultiplier <= fortuneLevel ? bonusMultiplier+1 : 1;
+    }
+
+    private static boolean particlesEnabled() {
+        AdaptConfig.Effects effects = AdaptConfig.get().getEffects();
+        return effects == null || effects.isParticlesEnabled();
+    }
+
+    private static boolean soundsEnabled() {
+        AdaptConfig.Effects effects = AdaptConfig.get().getEffects();
+        return effects == null || effects.isSoundsEnabled();
     }
 
     @Override
@@ -204,7 +237,7 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
         if (adaptation != null && adaptation.getLevel() > 0) {
             PickaxeAutosmelt.autosmeltBlockDTI(e.getBlock(), p);
         } else {
-            autosmeltBlock(e.getBlock(), p);
+            PickaxeAutosmelt.autosmeltBlock(e.getBlock(), p);
         }
         getPlayer(p).getData().addStat("pickaxe.autosmelt.ores-smelted", 1);
     }
@@ -233,6 +266,6 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
         @com.volmit.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
         int initialCost = 4;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-        double costFactor = 2.325;
+        double costFactor = 0.95;
     }
 }

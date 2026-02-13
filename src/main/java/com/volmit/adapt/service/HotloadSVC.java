@@ -208,7 +208,7 @@ public class HotloadSVC implements AdaptService {
             return false;
         }
 
-        for (Skill<?> skill : Adapt.instance.getAdaptServer().getSkillRegistry().getSkills()) {
+        for (Skill<?> skill : Adapt.instance.getAdaptServer().getSkillRegistry().getAllSkills()) {
             for (Adaptation<?> adaptation : skill.getAdaptations()) {
                 if (!adaptation.getName().equalsIgnoreCase(adaptationName)) {
                     continue;
@@ -483,7 +483,7 @@ public class HotloadSVC implements AdaptService {
         }
 
         J.s(() -> {
-            for (Player player : Bukkit.getOnlinePlayers()) {
+            for (Player player : Adapt.instance.getAdaptServer().getOnlinePlayerSnapshot()) {
                 if (!player.isOp()) {
                     continue;
                 }

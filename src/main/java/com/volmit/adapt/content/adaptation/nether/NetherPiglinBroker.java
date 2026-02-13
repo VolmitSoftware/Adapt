@@ -32,6 +32,7 @@ import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Piglin;
 import org.bukkit.event.EventHandler;
@@ -70,8 +71,8 @@ public class NetherPiglinBroker extends SimpleAdaptation<NetherPiglinBroker.Conf
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_nether_piglin_100").goal(100).stat("nether.piglin-broker.improved-barters").reward(300).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_nether_piglin_2500").goal(2500).stat("nether.piglin-broker.improved-barters").reward(1000).build());
+        registerMilestone("challenge_nether_piglin_100", "nether.piglin-broker.improved-barters", 100, 300);
+        registerMilestone("challenge_nether_piglin_2500", "nether.piglin-broker.improved-barters", 2500, 1000);
     }
 
     @Override
@@ -121,12 +122,20 @@ public class NetherPiglinBroker extends SimpleAdaptation<NetherPiglinBroker.Conf
     private Player findBroker(Piglin piglin, double range) {
         Player best = null;
         double bestDist = Double.MAX_VALUE;
-        for (Player p : piglin.getWorld().getPlayers()) {
-            if (!hasAdaptation(p) || p.getLocation().distanceSquared(piglin.getLocation()) > (range * range)) {
+        double rangeSquared = range * range;
+        var piglinLocation = piglin.getLocation();
+        for (Entity nearby : piglin.getNearbyEntities(range, range, range)) {
+            if (!(nearby instanceof Player p)) {
+                continue;
+            }
+            if (!hasAdaptation(p)) {
                 continue;
             }
 
-            double d = p.getLocation().distanceSquared(piglin.getLocation());
+            double d = p.getLocation().distanceSquared(piglinLocation);
+            if (d > rangeSquared) {
+                continue;
+            }
             if (d < bestDist) {
                 best = p;
                 bestDist = d;

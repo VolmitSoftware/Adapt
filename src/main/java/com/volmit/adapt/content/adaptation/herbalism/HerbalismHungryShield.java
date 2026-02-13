@@ -64,18 +64,8 @@ public class HerbalismHungryShield extends SimpleAdaptation<HerbalismHungryShiel
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_herbalism_shield_500")
-                .goal(500)
-                .stat("herbalism.hungry-shield.damage-absorbed")
-                .reward(400)
-                .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_herbalism_shield_5k")
-                .goal(5000)
-                .stat("herbalism.hungry-shield.damage-absorbed")
-                .reward(1500)
-                .build());
+        registerMilestone("challenge_herbalism_shield_500", "herbalism.hungry-shield.damage-absorbed", 500, 400);
+        registerMilestone("challenge_herbalism_shield_5k", "herbalism.hungry-shield.damage-absorbed", 5000, 1500);
     }
 
     @Override
@@ -135,9 +125,9 @@ public class HerbalismHungryShield extends SimpleAdaptation<HerbalismHungryShiel
         @com.volmit.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
         int maxLevel = 5;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-        int initialCost = 14;
+        int initialCost = 10;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-        double costFactor = 0.925;
+        double costFactor = 0.78;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Effectiveness Base for the Herbalism Hungry Shield adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double effectivenessBase = 0.15;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Max Effectiveness for the Herbalism Hungry Shield adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

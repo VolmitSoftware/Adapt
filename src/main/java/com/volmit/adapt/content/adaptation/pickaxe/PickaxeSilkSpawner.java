@@ -53,8 +53,8 @@ public class PickaxeSilkSpawner extends SimpleAdaptation<PickaxeSilkSpawner.Conf
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_pickaxe_spawner_10").goal(10).stat("pickaxe.silk-spawner.spawners-collected").reward(500).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_pickaxe_spawner_50").goal(50).stat("pickaxe.silk-spawner.spawners-collected").reward(2000).build());
+        registerMilestone("challenge_pickaxe_spawner_10", "pickaxe.silk-spawner.spawners-collected", 10, 500);
+        registerMilestone("challenge_pickaxe_spawner_50", "pickaxe.silk-spawner.spawners-collected", 50, 2000);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -134,6 +134,6 @@ public class PickaxeSilkSpawner extends SimpleAdaptation<PickaxeSilkSpawner.Conf
         @com.volmit.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
         int initialCost = 4;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-        double costFactor = 2.325;
+        double costFactor = 0.95;
     }
 }

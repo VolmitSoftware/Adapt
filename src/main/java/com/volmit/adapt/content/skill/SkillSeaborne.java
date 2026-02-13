@@ -24,6 +24,7 @@ import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.version.Version;
+import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.seaborrne.*;
 import com.volmit.adapt.util.C;
@@ -89,9 +90,9 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
                                 .build())
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_swim_1nm").goal(1852).stat("move.swim").reward(getConfig().challengeSwim1nmReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_swim_5k").goal(5000).stat("move.swim").reward(getConfig().challengeSwim5kReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_swim_20k").goal(20000).stat("move.swim").reward(getConfig().challengeSwim20kReward).build());
+        registerMilestone("challenge_swim_1nm", "move.swim", 1852, getConfig().challengeSwim1nmReward);
+        registerMilestone("challenge_swim_5k", "move.swim", 5000, getConfig().challengeSwim5kReward);
+        registerMilestone("challenge_swim_20k", "move.swim", 20000, getConfig().challengeSwim20kReward);
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.FISHING_ROD)
                 .key("challenge_fish_25")
@@ -110,8 +111,8 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_fish_25").goal(25).stat("seaborne.fish.caught").reward(getConfig().challengeSwim1nmReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_fish_250").goal(250).stat("seaborne.fish.caught").reward(getConfig().challengeSwim1nmReward).build());
+        registerMilestone("challenge_fish_25", "seaborne.fish.caught", 25, getConfig().challengeSwim1nmReward);
+        registerMilestone("challenge_fish_250", "seaborne.fish.caught", 250, getConfig().challengeSwim1nmReward);
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.ROTTEN_FLESH)
                 .key("challenge_drowned_25")
@@ -130,8 +131,8 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_drowned_25").goal(25).stat("seaborne.drowned.kills").reward(getConfig().challengeSwim1nmReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_drowned_250").goal(250).stat("seaborne.drowned.kills").reward(getConfig().challengeSwim1nmReward).build());
+        registerMilestone("challenge_drowned_25", "seaborne.drowned.kills", 25, getConfig().challengeSwim1nmReward);
+        registerMilestone("challenge_drowned_250", "seaborne.drowned.kills", 250, getConfig().challengeSwim1nmReward);
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.PRISMARINE_SHARD)
                 .key("challenge_guardian_10")
@@ -150,8 +151,8 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_guardian_10").goal(10).stat("seaborne.guardian.kills").reward(getConfig().challengeSwim1nmReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_guardian_100").goal(100).stat("seaborne.guardian.kills").reward(getConfig().challengeSwim1nmReward).build());
+        registerMilestone("challenge_guardian_10", "seaborne.guardian.kills", 10, getConfig().challengeSwim1nmReward);
+        registerMilestone("challenge_guardian_100", "seaborne.guardian.kills", 100, getConfig().challengeSwim1nmReward);
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.PRISMARINE)
                 .key("challenge_underwater_blocks_100")
@@ -170,8 +171,8 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_underwater_blocks_100").goal(100).stat("seaborne.underwater.blocks").reward(getConfig().challengeSwim1nmReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_underwater_blocks_1k").goal(1000).stat("seaborne.underwater.blocks").reward(getConfig().challengeSwim1nmReward).build());
+        registerMilestone("challenge_underwater_blocks_100", "seaborne.underwater.blocks", 100, getConfig().challengeSwim1nmReward);
+        registerMilestone("challenge_underwater_blocks_1k", "seaborne.underwater.blocks", 1000, getConfig().challengeSwim1nmReward);
         cooldowns = new HashMap<>();
     }
 
@@ -189,12 +190,13 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
         if (!this.isEnabled()) {
             return;
         }
-        for (Player i : Bukkit.getOnlinePlayers()) {
+        for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+            Player i = adaptPlayer.getPlayer();
             shouldReturnForPlayer(i, () -> {
                 if (i.getWorld().getBlockAt(i.getLocation()).isLiquid() && i.isSwimming() && i.getPlayer() != null && i.getPlayer().getRemainingAir() < i.getMaximumAir()) {
                     Adapt.verbose("seaborne Tick");
-                    checkStatTrackers(getPlayer(i));
-                    xpSilent(i, getConfig().swimXP);
+                    checkStatTrackers(adaptPlayer);
+                    xpSilent(i, getConfig().swimXP, "seaborne:swim");
                 }
             });
 
@@ -210,7 +212,7 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
         shouldReturnForPlayer(e.getPlayer(), e, () -> {
             if (e.getState().equals(PlayerFishEvent.State.CAUGHT_FISH)) {
                 getPlayer(p).getData().addStat("seaborne.fish.caught", 1);
-                xp(p, 200);
+                xp(p, 250);
             } else if (e.getState().equals(PlayerFishEvent.State.CAUGHT_ENTITY)) {
                 xp(p, 10);
             }
@@ -232,9 +234,9 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
                 getPlayer(p).getData().addStat("seaborne.underwater.blocks", 1);
             }
             if (e.getBlock().getType().equals(Material.SEA_PICKLE) && p.isSwimming() && p.getRemainingAir() < p.getMaximumAir()) { // BECAUSE I LIKE PICKLES
-                xpSilent(p, 10);
+                xpSilent(p, 10, "seaborne:sea-pickle");
             } else {
-                xpSilent(p, 3);
+                xpSilent(p, 3, "seaborne:underwater-block");
             }
         });
     }
@@ -292,7 +294,7 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Sea Pickle Cooldown for the Seaborne skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         public long seaPickleCooldown = 60000;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Tridentxpmultiplier for the Seaborne skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        public double tridentxpmultiplier = 2.5;
+        public double tridentxpmultiplier = 4.0;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Damagedrownxpmultiplier for the Seaborne skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double damagedrownxpmultiplier = 3;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
@@ -304,6 +306,6 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Swim20k Reward for the Seaborne skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double challengeSwim20kReward = 3750;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Swim XP for the Seaborne skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double swimXP = 5.0;
+        double swimXP = 0.4;
     }
 }

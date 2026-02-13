@@ -40,12 +40,9 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
-    private final List<Integer> holds = new ArrayList<>();
-
     public SwordsMachete() {
         super("sword-machete");
         registerConfiguration(Config.class);
@@ -73,8 +70,8 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_swords_machete_2500").goal(2500).stat("swords.machete.foliage-cut").reward(300).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_swords_machete_25k").goal(25000).stat("swords.machete.foliage-cut").reward(1000).build());
+        registerMilestone("challenge_swords_machete_2500", "swords.machete.foliage-cut", 2500, 300);
+        registerMilestone("challenge_swords_machete_25k", "swords.machete.foliage-cut", 25000, 1000);
     }
 
     @Override
@@ -165,7 +162,7 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
                                     dmg += 1;
                                     J.s(() -> {
                                         i.breakNaturally();
-                                        spw.play(i.getLocation(), Sound.BLOCK_GRASS_BREAK, 0.4f, (float) Math.random() * 1.85f);
+                                        spw.play(i.getLocation(), Sound.BLOCK_GRASS_BREAK, 0.4f, (float) (ThreadLocalRandom.current().nextDouble() * 1.85D));
                                     }, RNG.r.i(0, (getMaxLevel() - lvl * 2) + 1));
                                 }
                             }
@@ -174,12 +171,12 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
 
                     if (dmg > 0) {
                         p.setCooldown(is.getType(), getCooldownTime(getLevelPercent(lvl)));
-//                        if (getConfig().showParticles) {
+//                        if (areParticlesEnabled()) {
 //                            ParticleEffect.SWEEP_ATTACK.display(p.getEyeLocation().clone().add(p.getLocation().getDirection().clone().multiply(1.25)).add(0, -0.5, 0), 0f, 0f, 0f, 0.1f, 1, null);
 //                        }
-                        spw.play(p.getEyeLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, (float) (Math.random() / 2) + 0.65f);
+                        spw.play(p.getEyeLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, (float) (ThreadLocalRandom.current().nextDouble() / 2D) + 0.65f);
                         damageHand(p, dmg * getDamagePerBlock(getLevelPercent(lvl)));
-                        getSkill().xp(p, dmg * 11.25);
+                        xp(p, dmg * 11.25, "foliage-cut");
                         getPlayer(p).getData().addStat("swords.machete.foliage-cut", dmg);
                     }
                 }

@@ -39,6 +39,7 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -70,6 +71,82 @@ public interface Skill<T> extends Ticked, Component {
     void registerStatTracker(AdaptStatTracker tracker);
 
     KList<AdaptStatTracker> getStatTrackers();
+
+    @Override
+    default boolean areParticlesEnabled() {
+        if (!Component.super.areParticlesEnabled()) {
+            return false;
+        }
+
+        AdaptConfig.Effects effects = AdaptConfig.get().getEffects();
+        if (effects != null && effects.getSkillParticleOverrides() != null && !effects.getSkillParticleOverrides().isEmpty()) {
+            String key = getName();
+            Boolean override = effects.getSkillParticleOverrides().get(key);
+            if (override == null && key != null) {
+                override = effects.getSkillParticleOverrides().get(key.toLowerCase(Locale.ROOT));
+            }
+            if (override != null && !override) {
+                return false;
+            }
+        }
+
+        Object config = getConfig();
+        if (config != null) {
+            Boolean directToggle = readBooleanField(config, "showParticles");
+            if (directToggle != null && !directToggle) {
+                return false;
+            }
+
+            Boolean genericToggle = readBooleanField(config, "showParticleEffects");
+            if (genericToggle != null && !genericToggle) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    @Override
+    default boolean areSoundsEnabled() {
+        if (!Component.super.areSoundsEnabled()) {
+            return false;
+        }
+
+        Object config = getConfig();
+        if (config != null) {
+            Boolean directToggle = readBooleanField(config, "showSounds");
+            if (directToggle != null && !directToggle) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static Boolean readBooleanField(Object source, String fieldName) {
+        if (source == null || fieldName == null || fieldName.isBlank()) {
+            return null;
+        }
+
+        Class<?> current = source.getClass();
+        while (current != null) {
+            try {
+                Field field = current.getDeclaredField(fieldName);
+                field.setAccessible(true);
+                Object value = field.get(source);
+                if (value instanceof Boolean bool) {
+                    return bool;
+                }
+                return null;
+            } catch (NoSuchFieldException ignored) {
+                current = current.getSuperclass();
+            } catch (Throwable ignored) {
+                return null;
+            }
+        }
+
+        return null;
+    }
 
     default void checkStatTrackers(AdaptPlayer player) {
         if (!this.isEnabled()) {
@@ -145,17 +222,25 @@ public interface Skill<T> extends Ticked, Component {
     }
 
     default void xp(Player p, double xp) {
+        xp(p, xp, null);
+    }
+
+    default void xp(Player p, double xp, String rewardKey) {
         if (!this.isEnabled()) {
             return;
         }
         if (!p.getClass().getSimpleName().equals("CraftPlayer")) {
             return;
         }
-        xp(p, p.getLocation(), xp);
+        xp(p, p.getLocation(), xp, rewardKey);
 
     }
 
     default void xp(Player p, Location at, double xp) {
+        xp(p, at, xp, null);
+    }
+
+    default void xp(Player p, Location at, double xp, String rewardKey) {
         if (!this.isEnabled()) {
             return;
         }
@@ -163,7 +248,7 @@ public interface Skill<T> extends Ticked, Component {
             return;
         }
         try {
-            XP.xp(p, this, xp);
+            XP.xp(p, this, xp, rewardKey);
             if (xp > 50) {
                 vfxXP(p, at, (int) xp);
             }
@@ -174,6 +259,10 @@ public interface Skill<T> extends Ticked, Component {
     }
 
     default void xpS(Player p, Location at, double xp) {
+        xpS(p, at, xp, null);
+    }
+
+    default void xpS(Player p, Location at, double xp, String rewardKey) {
         if (!this.isEnabled()) {
             return;
         }
@@ -181,7 +270,7 @@ public interface Skill<T> extends Ticked, Component {
             return;
         }
         try {
-            XP.xpSilent(p, this, xp);
+            XP.xpSilent(p, this, xp, rewardKey);
             if (xp > 50) {
                 vfxXP(p, at, (int) xp);
             }
@@ -192,6 +281,10 @@ public interface Skill<T> extends Ticked, Component {
     }
 
     default void xpSilent(Player p, double xp) {
+        xpSilent(p, xp, null);
+    }
+
+    default void xpSilent(Player p, double xp, String rewardKey) {
         if (!this.isEnabled()) {
             return;
         }
@@ -199,7 +292,7 @@ public interface Skill<T> extends Ticked, Component {
             return;
         }
         try {
-            XP.xpSilent(p, this, xp);
+            XP.xpSilent(p, this, xp, rewardKey);
         } catch (
                 Exception ignored) { // Player was Given XP (Likely Teleportation) before i can see it because some plugin has higher priority than me and moves a player. so im not going to throw an error, as i know why it's happening.
             Adapt.verbose("Player was Given XP (Likely Teleportation) before i can see it because some plugin has higher priority than me and moves a player. so im not going to throw an error, as i know why it's happening.");

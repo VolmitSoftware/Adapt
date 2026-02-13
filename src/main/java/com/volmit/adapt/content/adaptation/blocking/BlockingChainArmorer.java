@@ -93,12 +93,7 @@ public class BlockingChainArmorer extends SimpleAdaptation<BlockingChainArmorer.
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_blocking_chain_25")
-                .goal(25)
-                .stat("blocking.chain-armorer.pieces-crafted")
-                .reward(400)
-                .build());
+        registerMilestone("challenge_blocking_chain_25", "blocking.chain-armorer.pieces-crafted", 25, 400);
     }
 
     @EventHandler

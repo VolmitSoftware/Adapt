@@ -45,12 +45,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnchant.Config> {
-    private final List<Integer> holds = new ArrayList<>();
-
     public EnchantingQuickEnchant() {
         super("enchanting-quick-enchant");
         registerConfiguration(Config.class);
@@ -78,8 +73,8 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_enchanting_quick_100").goal(100).stat("enchanting.quick-enchant.books-applied").reward(300).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_enchanting_quick_1k").goal(1000).stat("enchanting.quick-enchant.books-applied").reward(1000).build());
+        registerMilestone("challenge_enchanting_quick_100", "enchanting.quick-enchant.books-applied", 100, 300);
+        registerMilestone("challenge_enchanting_quick_1k", "enchanting.quick-enchant.books-applied", 1000, 1000);
     }
 
     private int getTotalLevelCount(int level) {
@@ -165,7 +160,7 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
                 getPlayer(p).getData().addStat("enchanting.quick-enchant.books-applied", 1);
                 sp.play(p.getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 1f, 1.7f);
                 sp.play(p.getLocation(), Sound.BLOCK_DEEPSLATE_TILES_BREAK, 0.5f, 0.7f);
-                getSkill().xp(p, 320 * addEnchants.values().stream().mapToInt((i) -> i).sum());
+                xp(p, 320 * addEnchants.values().stream().mapToInt((i) -> i).sum(), "quick-apply");
 
                 if (bookEnchants.isEmpty()) {
                     e.setCursor(null);
@@ -208,7 +203,7 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
         @com.volmit.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
         int initialCost = 8;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-        double costFactor = 1.355;
+        double costFactor = 0.9;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Max Power Bonus Limit for the Enchanting Quick Enchant adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int maxPowerBonusLimit = 4;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Max Power Bonus1Per Levels for the Enchanting Quick Enchant adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

@@ -78,18 +78,8 @@ public class DiscoveryCartographerPulse extends SimpleAdaptation<DiscoveryCartog
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_discovery_cartographer_100")
-                .goal(100)
-                .stat("discovery.cartographer-pulse.pulses")
-                .reward(300)
-                .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_discovery_cartographer_1k")
-                .goal(1000)
-                .stat("discovery.cartographer-pulse.pulses")
-                .reward(1000)
-                .build());
+        registerMilestone("challenge_discovery_cartographer_100", "discovery.cartographer-pulse.pulses", 100, 300);
+        registerMilestone("challenge_discovery_cartographer_1k", "discovery.cartographer-pulse.pulses", 1000, 1000);
     }
 
     @Override

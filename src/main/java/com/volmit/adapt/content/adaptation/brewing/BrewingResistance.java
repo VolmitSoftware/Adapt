@@ -85,7 +85,7 @@ public class BrewingResistance extends SimpleAdaptation<BrewingResistance.Config
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_brewing_resistance_25").goal(25).stat("brewing.resistance.potions-brewed").reward(300).build());
+        registerMilestone("challenge_brewing_resistance_25", "brewing.resistance.potions-brewed", 25, 300);
     }
 
     @Override

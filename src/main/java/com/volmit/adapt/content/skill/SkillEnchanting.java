@@ -104,11 +104,11 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
                                 .build())
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_enchant_1k").goal(1000).stat("enchanted.items").reward(getConfig().challengeEnchantReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_enchant_5k").goal(5000).stat("enchanted.items").reward(getConfig().challengeEnchantReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_enchant_50k").goal(50000).stat("enchanted.items").reward(getConfig().challengeEnchantReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_enchant_500k").goal(500000).stat("enchanted.items").reward(getConfig().challengeEnchantReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_enchant_5m").goal(5000000).stat("enchanted.items").reward(getConfig().challengeEnchantReward).build());
+        registerMilestone("challenge_enchant_1k", "enchanted.items", 1000, getConfig().challengeEnchantReward);
+        registerMilestone("challenge_enchant_5k", "enchanted.items", 5000, getConfig().challengeEnchantReward);
+        registerMilestone("challenge_enchant_50k", "enchanted.items", 50000, getConfig().challengeEnchantReward);
+        registerMilestone("challenge_enchant_500k", "enchanted.items", 500000, getConfig().challengeEnchantReward);
+        registerMilestone("challenge_enchant_5m", "enchanted.items", 5000000, getConfig().challengeEnchantReward);
 
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.EXPERIENCE_BOTTLE)
@@ -128,8 +128,8 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_enchant_power_100").goal(100).stat("enchanted.power").reward(getConfig().challengeEnchantReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_enchant_power_1k").goal(1000).stat("enchanted.power").reward(getConfig().challengeEnchantReward * 2).build());
+        registerMilestone("challenge_enchant_power_100", "enchanted.power", 100, getConfig().challengeEnchantReward);
+        registerMilestone("challenge_enchant_power_1k", "enchanted.power", 1000, getConfig().challengeEnchantReward * 2);
 
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.LAPIS_LAZULI)
@@ -149,8 +149,8 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_enchant_levels_1k").goal(1000).stat("enchanted.levels.spent").reward(getConfig().challengeEnchantReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_enchant_levels_10k").goal(10000).stat("enchanted.levels.spent").reward(getConfig().challengeEnchantReward * 2).build());
+        registerMilestone("challenge_enchant_levels_1k", "enchanted.levels.spent", 1000, getConfig().challengeEnchantReward);
+        registerMilestone("challenge_enchant_levels_10k", "enchanted.levels.spent", 10000, getConfig().challengeEnchantReward * 2);
 
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.BOOKSHELF)
@@ -170,8 +170,8 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_enchant_high_25").goal(25).stat("enchanting.high.level").reward(getConfig().challengeEnchantReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_enchant_high_250").goal(250).stat("enchanting.high.level").reward(getConfig().challengeEnchantReward * 2).build());
+        registerMilestone("challenge_enchant_high_25", "enchanting.high.level", 25, getConfig().challengeEnchantReward);
+        registerMilestone("challenge_enchant_high_250", "enchanting.high.level", 250, getConfig().challengeEnchantReward * 2);
 
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.EXPERIENCE_BOTTLE)
@@ -191,8 +191,8 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_enchant_total_500").goal(500).stat("enchanting.total.levels").reward(getConfig().challengeEnchantReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_enchant_total_5k").goal(5000).stat("enchanting.total.levels").reward(getConfig().challengeEnchantReward * 2).build());
+        registerMilestone("challenge_enchant_total_500", "enchanting.total.levels", 500, getConfig().challengeEnchantReward);
+        registerMilestone("challenge_enchant_total_5k", "enchanting.total.levels", 5000, getConfig().challengeEnchantReward * 2);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -229,9 +229,7 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
         if (!this.isEnabled()) {
             return;
         }
-        for (Player i : Bukkit.getOnlinePlayers()) {
-            shouldReturnForPlayer(i, () -> checkStatTrackers(getPlayer(i)));
-        }
+        checkStatTrackersForOnlinePlayers();
     }
 
     @Override

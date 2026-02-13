@@ -59,7 +59,7 @@ public class ChronosTemporalEcho extends SimpleAdaptation<ChronosTemporalEcho.Co
         registerConfiguration(Config.class);
         setDescription(Localizer.dLocalize("chronos.temporal_echo.description"));
         setDisplayName(Localizer.dLocalize("chronos.temporal_echo.name"));
-        setIcon(Material.CLOCK);
+        setIcon(Material.AMETHYST_CLUSTER);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
@@ -73,12 +73,7 @@ public class ChronosTemporalEcho extends SimpleAdaptation<ChronosTemporalEcho.Co
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_chronos_echo_200")
-                .goal(200)
-                .stat("chronos.temporal-echo.echo-hits")
-                .reward(400)
-                .build());
+        registerMilestone("challenge_chronos_echo_200", "chronos.temporal-echo.echo-hits", 200, 400);
     }
 
     @Override

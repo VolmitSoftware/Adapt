@@ -53,7 +53,7 @@ public class SwordsRiposteWindow extends SimpleAdaptation<SwordsRiposteWindow.Co
         registerConfiguration(Config.class);
         setDescription(Localizer.dLocalize("sword.riposte_window.description"));
         setDisplayName(Localizer.dLocalize("sword.riposte_window.name"));
-        setIcon(Material.SHIELD);
+        setIcon(Material.GOLDEN_CHESTPLATE);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
@@ -75,8 +75,8 @@ public class SwordsRiposteWindow extends SimpleAdaptation<SwordsRiposteWindow.Co
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_swords_riposte_200").goal(200).stat("swords.riposte.ripostes-landed").reward(400).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_swords_riposte_2500").goal(2500).stat("swords.riposte.ripostes-landed").reward(1500).build());
+        registerMilestone("challenge_swords_riposte_200", "swords.riposte.ripostes-landed", 200, 400);
+        registerMilestone("challenge_swords_riposte_2500", "swords.riposte.ripostes-landed", 2500, 1500);
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.SHIELD)
                 .key("challenge_swords_riposte_3in5")
@@ -128,7 +128,9 @@ public class SwordsRiposteWindow extends SimpleAdaptation<SwordsRiposteWindow.Co
 
         e.setDamage(e.getDamage() * (1D + getDamageBonus(getLevel(attacker))));
         riposteUntil.remove(attacker.getUniqueId());
-        attacker.getWorld().spawnParticle(Particle.SWEEP_ATTACK, attacker.getLocation().add(0, 1, 0), 1, 0, 0, 0, 0);
+        if (areParticlesEnabled()) {
+            attacker.getWorld().spawnParticle(Particle.SWEEP_ATTACK, attacker.getLocation().add(0, 1, 0), 1, 0, 0, 0, 0);
+        }
         SoundPlayer sp = SoundPlayer.of(attacker.getWorld());
         sp.play(attacker.getLocation(), Sound.ITEM_SHIELD_BLOCK, 0.7f, 1.6f);
         sp.play(attacker.getLocation(), Sound.ENTITY_PLAYER_ATTACK_CRIT, 0.8f, 1.2f);

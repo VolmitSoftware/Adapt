@@ -38,6 +38,8 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 public class HerbalismLuck extends SimpleAdaptation<HerbalismLuck.Config> {
 
     public HerbalismLuck() {
@@ -67,18 +69,8 @@ public class HerbalismLuck extends SimpleAdaptation<HerbalismLuck.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_herbalism_luck_100")
-                .goal(100)
-                .stat("herbalism.luck.lucky-drops")
-                .reward(300)
-                .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_herbalism_luck_2500")
-                .goal(2500)
-                .stat("herbalism.luck.lucky-drops")
-                .reward(1000)
-                .build());
+        registerMilestone("challenge_herbalism_luck_100", "herbalism.luck.lucky-drops", 100, 300);
+        registerMilestone("challenge_herbalism_luck_2500", "herbalism.luck.lucky-drops", 2500, 1000);
     }
 
     @Override
@@ -104,7 +96,7 @@ public class HerbalismLuck extends SimpleAdaptation<HerbalismLuck.Config> {
 
         Block broken = e.getBlock();
         if (broken.getType() == Materials.GRASS || broken.getType() == Material.TALL_GRASS) {
-            var d = Math.random() * 100;
+            var d = ThreadLocalRandom.current().nextDouble(100D);
             Material m = ItemListings.getHerbalLuckSeeds().getRandom();
             if (d < getEffectiveness(getLevel(p))) {
                 xp(p, 100);
@@ -115,7 +107,7 @@ public class HerbalismLuck extends SimpleAdaptation<HerbalismLuck.Config> {
         }
 
         if (ItemListings.getFlowers().contains(broken.getType())) {
-            var d = Math.random() * 100;
+            var d = ThreadLocalRandom.current().nextDouble(100D);
             Material m = ItemListings.getHerbalLuckFood().getRandom();
             if (d < getEffectiveness(getLevel(p))) {
                 xp(p, 100);

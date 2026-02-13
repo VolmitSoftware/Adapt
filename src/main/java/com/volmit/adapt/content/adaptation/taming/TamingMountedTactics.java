@@ -22,14 +22,13 @@ import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
 import com.volmit.adapt.api.advancement.AdvancementVisibility;
-import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.VelocitySpeed;
 import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.AbstractHorse;
@@ -79,8 +78,8 @@ public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_taming_mounted_200").goal(200).stat("taming.mounted-tactics.mounted-kills").reward(400).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_taming_mounted_50k").goal(50000).stat("taming.mounted-tactics.distance").reward(1000).build());
+        registerMilestone("challenge_taming_mounted_200", "taming.mounted-tactics.mounted-kills", 200, 400);
+        registerMilestone("challenge_taming_mounted_50k", "taming.mounted-tactics.distance", 50000, 1000);
     }
 
     @Override
@@ -91,7 +90,8 @@ public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.
 
     @Override
     public void onTick() {
-        for (Player p : Bukkit.getOnlinePlayers()) {
+        for (com.volmit.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+            Player p = adaptPlayer.getPlayer();
             if (!hasAdaptation(p)) {
                 continue;
             }
@@ -112,14 +112,18 @@ public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.
                 lastMountedLocation.remove(p.getUniqueId());
             }
             if (vehicle instanceof AbstractHorse horse) {
-                p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 30, getHorseSpeedAmplifier(level), false, false, true), true);
+                if (hasForwardInput(p)) {
+                    applyMountForwardSpeed(horse, p, getHorseTargetSpeed(level));
+                }
                 if (p.isSprinting()) {
                     Vector push = p.getLocation().getDirection().clone().setY(0).normalize().multiply(getHorsePush(level));
                     horse.setVelocity(horse.getVelocity().multiply(0.8).add(push));
                 }
             } else if (vehicle instanceof Strider strider) {
                 p.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 40, 0, false, false, true), true);
-                p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 30, getStriderSpeedAmplifier(level), false, false, true), true);
+                if (hasForwardInput(p)) {
+                    applyMountForwardSpeed(strider, p, getStriderTargetSpeed(level));
+                }
                 if (strider.getLocation().getBlock().getType() == Material.LAVA || strider.getLocation().clone().subtract(0, 1, 0).getBlock().getType() == Material.LAVA) {
                     strider.setShivering(false);
                 }
@@ -131,6 +135,26 @@ public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.
                 }
             }
         }
+    }
+
+    private void applyMountForwardSpeed(Entity mount, Player rider, double targetSpeed) {
+        Vector direction = rider.getLocation().getDirection().setY(0);
+        if (direction.lengthSquared() <= VelocitySpeed.EPSILON) {
+            return;
+        }
+
+        direction.normalize();
+        Vector velocity = mount.getVelocity();
+        Vector horizontal = VelocitySpeed.horizontalOnly(velocity);
+        Vector targetHorizontal = direction.multiply(Math.max(0, targetSpeed));
+        Vector nextHorizontal = VelocitySpeed.moveTowards(horizontal, targetHorizontal, Math.max(0, getConfig().mountAccelPerTick));
+        nextHorizontal = VelocitySpeed.clampHorizontal(nextHorizontal, getConfig().mountMaxHorizontalSpeed);
+        mount.setVelocity(new Vector(nextHorizontal.getX(), velocity.getY(), nextHorizontal.getZ()));
+    }
+
+    private boolean hasForwardInput(Player p) {
+        VelocitySpeed.InputSnapshot input = VelocitySpeed.readInput(p, getConfig().fallbackInputVelocityThresholdSquared());
+        return input.forward() && !input.backward();
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -180,6 +204,18 @@ public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.
 
     private int getPigResistanceAmplifier(int level) {
         return Math.max(0, (int) Math.round(getConfig().pigResistanceAmplifierBase + (getLevelPercent(level) * getConfig().pigResistanceAmplifierFactor)));
+    }
+
+    private double getHorseTargetSpeed(int level) {
+        int amplifier = getHorseSpeedAmplifier(level);
+        double base = Math.max(0, getConfig().horseBaseHorizontalSpeed);
+        return Math.min(getConfig().mountMaxHorizontalSpeed, base * VelocitySpeed.speedAmplifierScalar(amplifier));
+    }
+
+    private double getStriderTargetSpeed(int level) {
+        int amplifier = getStriderSpeedAmplifier(level);
+        double base = Math.max(0, getConfig().striderBaseHorizontalSpeed);
+        return Math.min(getConfig().mountMaxHorizontalSpeed, base * VelocitySpeed.speedAmplifierScalar(amplifier));
     }
 
     private double getHorsePush(int level) {
@@ -239,6 +275,16 @@ public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.
         double pigResistanceAmplifierBase = 0;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Pig Resistance Amplifier Factor for the Taming Mounted Tactics adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double pigResistanceAmplifierFactor = 1;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Base horizontal speed target used for horse mounted speed scaling.", impact = "Higher values increase steady mounted horse acceleration when moving forward.")
+        double horseBaseHorizontalSpeed = 0.3;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Base horizontal speed target used for strider mounted speed scaling.", impact = "Higher values increase steady mounted strider acceleration when moving forward.")
+        double striderBaseHorizontalSpeed = 0.24;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Maximum horizontal speed this adaptation can force on mounts.", impact = "Acts as a hard cap to prevent runaway mounted momentum.")
+        double mountMaxHorizontalSpeed = 0.78;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "How fast mounts accelerate toward the target speed per tick.", impact = "Higher values accelerate faster; lower values feel smoother.")
+        double mountAccelPerTick = 0.065;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Fallback movement threshold used when direct input API is unavailable.", impact = "Only used on runtimes without Player input access.")
+        double fallbackInputVelocityThreshold = 0.0008;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Horse Push Base for the Taming Mounted Tactics adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double horsePushBase = 0.08;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Horse Push Factor for the Taming Mounted Tactics adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -249,5 +295,10 @@ public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.
         double pigPushFactor = 0.12;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Xp Per Mounted Damage for the Taming Mounted Tactics adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double xpPerMountedDamage = 1.5;
+
+        double fallbackInputVelocityThresholdSquared() {
+            double threshold = Math.max(0, fallbackInputVelocityThreshold);
+            return threshold * threshold;
+        }
     }
 }

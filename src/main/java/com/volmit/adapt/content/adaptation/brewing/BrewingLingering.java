@@ -69,7 +69,7 @@ public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> 
         registerConfiguration(Config.class);
         setDescription(Localizer.dLocalize("brewing.lingering.description"));
         setDisplayName(Localizer.dLocalize("brewing.lingering.name"));
-        setIcon(Material.CLOCK);
+        setIcon(Material.DRAGON_BREATH);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
         setMaxLevel(getConfig().maxLevel);
@@ -91,8 +91,8 @@ public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> 
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_brewing_lingering_200").goal(200).stat("brewing.lingering.potions-extended").reward(300).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_brewing_lingering_5k").goal(5000).stat("brewing.lingering.potions-extended").reward(1000).build());
+        registerMilestone("challenge_brewing_lingering_200", "brewing.lingering.potions-extended", 200, 300);
+        registerMilestone("challenge_brewing_lingering_5k", "brewing.lingering.potions-extended", 5000, 1000);
     }
 
     @Override

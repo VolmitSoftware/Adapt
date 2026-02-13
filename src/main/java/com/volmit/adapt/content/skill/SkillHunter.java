@@ -45,6 +45,7 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
@@ -180,26 +181,30 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
                         .build())
                 .build());
 
-        registerStatTracker(AdaptStatTracker.builder().advancement("horrible_person").goal(1).stat("killed.turtleeggs").reward(getConfig().turtleEggKillXP).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_turtle_egg_smasher").goal(100).stat("killed.turtleeggs").reward(getConfig().turtleEggKillXP*10).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_turtle_egg_annihilator").goal(1000).stat("killed.turtleeggs").reward(getConfig().turtleEggKillXP*10).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_novice_hunter").goal(100).stat("killed.monsters").reward(getConfig().turtleEggKillXP*3).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_intermediate_hunter").goal(1000).stat("killed.monsters").reward(getConfig().turtleEggKillXP*3).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_advanced_hunter").goal(10000).stat("killed.monsters").reward(getConfig().turtleEggKillXP*3).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_creeper_conqueror").goal(100).stat("killed.creepers").reward(getConfig().turtleEggKillXP*3).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_creeper_annihilator").goal(1000).stat("killed.creepers").reward(getConfig().turtleEggKillXP*3).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_kills_500").goal(500).stat("killed.kills").reward(getConfig().killsChallengeReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_kills_5k").goal(5000).stat("killed.kills").reward(getConfig().killsChallengeReward * 5).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_boss_1").goal(1).stat("hunter.boss.kills").reward(getConfig().bossKillReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_boss_10").goal(10).stat("hunter.boss.kills").reward(getConfig().bossKillReward * 5).build());
+        registerMilestone("horrible_person", "killed.turtleeggs", 1, getConfig().turtleEggKillXP);
+        registerMilestone("challenge_turtle_egg_smasher", "killed.turtleeggs", 100, getConfig().turtleEggKillXP*10);
+        registerMilestone("challenge_turtle_egg_annihilator", "killed.turtleeggs", 1000, getConfig().turtleEggKillXP*10);
+        registerMilestone("challenge_novice_hunter", "killed.monsters", 100, getConfig().turtleEggKillXP*3);
+        registerMilestone("challenge_intermediate_hunter", "killed.monsters", 1000, getConfig().turtleEggKillXP*3);
+        registerMilestone("challenge_advanced_hunter", "killed.monsters", 10000, getConfig().turtleEggKillXP*3);
+        registerMilestone("challenge_creeper_conqueror", "killed.creepers", 100, getConfig().turtleEggKillXP*3);
+        registerMilestone("challenge_creeper_annihilator", "killed.creepers", 1000, getConfig().turtleEggKillXP*3);
+        registerMilestone("challenge_kills_500", "killed.kills", 500, getConfig().killsChallengeReward);
+        registerMilestone("challenge_kills_5k", "killed.kills", 5000, getConfig().killsChallengeReward * 5);
+        registerMilestone("challenge_boss_1", "hunter.boss.kills", 1, getConfig().bossKillReward);
+        registerMilestone("challenge_boss_10", "hunter.boss.kills", 10, getConfig().bossKillReward * 5);
     }
 
     private void handleCooldownAndXp(Player p, double xpAmount) {
+        handleCooldownAndXp(p, xpAmount, null);
+    }
+
+    private void handleCooldownAndXp(Player p, double xpAmount, String rewardKey) {
         Long cooldown = cooldowns.get(p);
         if (cooldown != null && cooldown + getConfig().cooldownDelay > System.currentTimeMillis())
             return;
         cooldowns.put(p, System.currentTimeMillis());
-        xp(p, xpAmount);
+        xp(p, xpAmount, rewardKey);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -210,7 +215,7 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
         Player p = e.getPlayer();
         shouldReturnForPlayer(e.getPlayer(), e, () -> {
             if (e.getBlock().getType().equals(Material.TURTLE_EGG)) {
-                handleCooldownAndXp(p, getConfig().turtleEggKillXP);
+                handleCooldownAndXp(p, getConfig().turtleEggKillXP, "hunter:turtle-egg:break");
                 getPlayer(p).getData().addStat("killed.turtleeggs", 1);
             }
         });
@@ -224,7 +229,7 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
         Player p = e.getPlayer();
         shouldReturnForPlayer(e.getPlayer(), e, () -> {
             if (e.getAction().equals(Action.PHYSICAL) && e.getClickedBlock() != null && e.getClickedBlock().getType().equals(Material.TURTLE_EGG)) {
-                handleCooldownAndXp(p, getConfig().turtleEggKillXP);
+                handleCooldownAndXp(p, getConfig().turtleEggKillXP, "hunter:turtle-egg:step");
                 getPlayer(p).getData().addStat("killed.turtleeggs", 1);
             }
         });
@@ -250,7 +255,7 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
                     xpAmount *= getConfig().spawnerMobReductionXpMultiplier;
                 }
                 getPlayer(p).getData().addStat("killed.kills", 1);
-                handleCooldownAndXp(p,xpAmount);
+                handleCooldownAndXp(p, xpAmount, "hunter:kill:creeper");
             } else {
                 handleEntityKill(p, e.getEntity());
             }
@@ -281,7 +286,8 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
                 xpAmount *= getConfig().spawnerMobReductionXpMultiplier;
             }
             getPlayer(p).getData().addStat("killed.kills", 1);
-            handleCooldownAndXp(p, xpAmount);
+            String rewardKey = "hunter:kill:" + entity.getType().name().toLowerCase(Locale.ROOT);
+            handleCooldownAndXp(p, xpAmount, rewardKey);
         }
     }
 
@@ -291,9 +297,7 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
         if (!this.isEnabled()) {
             return;
         }
-        for (Player i : Bukkit.getOnlinePlayers()) {
-            shouldReturnForPlayer(i, () -> checkStatTrackers(getPlayer(i)));
-        }
+        checkStatTrackersForOnlinePlayers();
     }
 
     @Override

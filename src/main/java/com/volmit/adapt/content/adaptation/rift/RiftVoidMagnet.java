@@ -47,7 +47,7 @@ public class RiftVoidMagnet extends SimpleAdaptation<RiftVoidMagnet.Config> {
         registerConfiguration(Config.class);
         setDescription(Localizer.dLocalize("rift.void_magnet.description"));
         setDisplayName(Localizer.dLocalize("rift.void_magnet.name"));
-        setIcon(Material.ENDER_CHEST);
+        setIcon(Material.HOPPER_MINECART);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
@@ -69,8 +69,8 @@ public class RiftVoidMagnet extends SimpleAdaptation<RiftVoidMagnet.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_void_magnet_5k").goal(5000).stat("rift.void-magnet.items-pulled").reward(400).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_void_magnet_50k").goal(50000).stat("rift.void-magnet.items-pulled").reward(1500).build());
+        registerMilestone("challenge_rift_void_magnet_5k", "rift.void-magnet.items-pulled", 5000, 400);
+        registerMilestone("challenge_rift_void_magnet_50k", "rift.void-magnet.items-pulled", 50000, 1500);
     }
 
     @Override
@@ -82,7 +82,8 @@ public class RiftVoidMagnet extends SimpleAdaptation<RiftVoidMagnet.Config> {
 
     @Override
     public void onTick() {
-        for (Player p : Bukkit.getOnlinePlayers()) {
+        for (com.volmit.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+            Player p = adaptPlayer.getPlayer();
             if (!hasAdaptation(p) || !p.isSneaking() || p.getTicksLived() % getPulseTicks(getLevel(p)) != 0) {
                 continue;
             }
@@ -93,10 +94,14 @@ public class RiftVoidMagnet extends SimpleAdaptation<RiftVoidMagnet.Config> {
                 continue;
             }
 
-            p.spawnParticle(Particle.PORTAL, p.getLocation().add(0, 1, 0), 8, 0.3, 0.5, 0.3, 0.05);
+            if (areParticlesEnabled()) {
+
+                p.spawnParticle(Particle.PORTAL, p.getLocation().add(0, 1, 0), 8, 0.3, 0.5, 0.3, 0.05);
+
+            }
             SoundPlayer.of(p.getWorld()).play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 0.45f, 1.6f);
             getPlayer(p).getData().addStat("rift.void-magnet.items-pulled", moved);
-            xp(p, moved * getConfig().xpPerMovedItem);
+            xp(p, moved * getConfig().xpPerMovedItem, "rift:void-magnet:item-pull");
         }
     }
 

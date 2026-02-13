@@ -22,14 +22,20 @@ import com.volmit.adapt.Adapt;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.M;
 import org.bukkit.Bukkit;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
+import java.lang.reflect.Method;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 public abstract class TickedObject implements Ticked, Listener {
+    private static final Set<String> LISTENER_INTROSPECTION_WARNED = ConcurrentHashMap.newKeySet();
+
     private final AtomicLong lastTick;
     private final AtomicLong interval;
     private final AtomicInteger skip;
@@ -41,6 +47,7 @@ public abstract class TickedObject implements Ticked, Listener {
     private final long start;
     private final String group;
     private final String id;
+    private final boolean listenerRegistered;
 
     public TickedObject() {
         this("null");
@@ -70,8 +77,11 @@ public abstract class TickedObject implements Ticked, Listener {
         this.ticks = new AtomicLong(0);
         this.pendingSyncTick = new AtomicBoolean(false);
         this.start = M.ms();
+        this.listenerRegistered = shouldRegisterAsListener();
         Adapt.instance.getTicker().register(this);
-        Adapt.instance.registerListener(this);
+        if (listenerRegistered) {
+            Adapt.instance.registerListener(this);
+        }
     }
 
     public void dieAfter(int ticks) {
@@ -82,7 +92,9 @@ public abstract class TickedObject implements Ticked, Listener {
     @Override
     public void unregister() {
         Adapt.instance.getTicker().unregister(this);
-        Adapt.instance.unregisterListener(this);
+        if (listenerRegistered) {
+            Adapt.instance.unregisterListener(this);
+        }
     }
 
     @Override
@@ -134,6 +146,15 @@ public abstract class TickedObject implements Ticked, Listener {
     }
 
     public abstract void onTick();
+
+    protected boolean shouldRegisterAsListener() {
+        try {
+            return hasEventHandlerMethods(getClass());
+        } catch (Throwable e) {
+            warnListenerIntrospectionFailure(getClass(), e);
+            return false;
+        }
+    }
 
     @Override
     public String getGroup() {
@@ -193,5 +214,42 @@ public abstract class TickedObject implements Ticked, Listener {
         }
 
         skip.addAndGet(ticks);
+    }
+
+    private static boolean hasEventHandlerMethods(Class<?> type) {
+        Class<?> current = type;
+        while (current != null && current != Object.class) {
+            Method[] methods;
+            try {
+                methods = current.getDeclaredMethods();
+            } catch (Throwable e) {
+                warnListenerIntrospectionFailure(current, e);
+                return false;
+            }
+
+            for (Method method : methods) {
+                try {
+                    if (method.isAnnotationPresent(EventHandler.class)) {
+                        return true;
+                    }
+                } catch (Throwable e) {
+                    warnListenerIntrospectionFailure(current, e);
+                    return false;
+                }
+            }
+            current = current.getSuperclass();
+        }
+        return false;
+    }
+
+    private static void warnListenerIntrospectionFailure(Class<?> type, Throwable error) {
+        if (type == null) {
+            return;
+        }
+
+        String key = type.getName() + ":" + error.getClass().getName() + ":" + (error.getMessage() == null ? "" : error.getMessage());
+        if (LISTENER_INTROSPECTION_WARNED.add(key)) {
+            Adapt.warn("Skipping listener registration for " + type.getName() + " due to missing/incompatible event class: " + error.getClass().getSimpleName() + (error.getMessage() == null ? "" : " (" + error.getMessage() + ")"));
+        }
     }
 }

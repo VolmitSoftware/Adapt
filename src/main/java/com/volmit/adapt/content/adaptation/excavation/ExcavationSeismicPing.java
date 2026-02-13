@@ -58,7 +58,7 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
         registerConfiguration(Config.class);
         setDescription(Localizer.dLocalize("excavation.seismic_ping.description"));
         setDisplayName(Localizer.dLocalize("excavation.seismic_ping.name"));
-        setIcon(Material.ECHO_SHARD);
+        setIcon(Material.GOAT_HORN);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
@@ -72,7 +72,7 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_excavation_seismic_200").goal(200).stat("excavation.seismic-ping.pings-triggered").reward(400).build());
+        registerMilestone("challenge_excavation_seismic_200", "excavation.seismic-ping.pings-triggered", 200, 400);
     }
 
     @Override
@@ -133,10 +133,16 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
         Location at = origin.clone();
         for (int i = 0; i < segments; i++) {
             at = at.add(direction.clone().multiply(getConfig().segmentSpacing));
-            p.spawnParticle(Particle.DUST, at, Math.max(1, getConfig().segmentParticleCount), 0.05, 0.05, 0.05, 0, dust);
+            if (areParticlesEnabled()) {
+                p.spawnParticle(Particle.DUST, at, Math.max(1, getConfig().segmentParticleCount), 0.05, 0.05, 0.05, 0, dust);
+            }
         }
 
-        p.spawnParticle(Particle.ELECTRIC_SPARK, at, Math.max(1, getConfig().tipParticleCount), 0.1, 0.1, 0.1, 0.04);
+        if (areParticlesEnabled()) {
+
+            p.spawnParticle(Particle.ELECTRIC_SPARK, at, Math.max(1, getConfig().tipParticleCount), 0.1, 0.1, 0.1, 0.04);
+
+        }
     }
 
     private void playPingSound(Player p, double distance, int range) {

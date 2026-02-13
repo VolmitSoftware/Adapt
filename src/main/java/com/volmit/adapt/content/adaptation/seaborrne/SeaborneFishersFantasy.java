@@ -37,7 +37,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class SeaborneFishersFantasy extends SimpleAdaptation<SeaborneFishersFantasy.Config> {
 
@@ -68,8 +68,8 @@ public class SeaborneFishersFantasy extends SimpleAdaptation<SeaborneFishersFant
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_seaborne_fish_500").goal(500).stat("seaborne.fishers-fantasy.fish-caught").reward(300).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_seaborne_fish_5k").goal(5000).stat("seaborne.fishers-fantasy.fish-caught").reward(1000).build());
+        registerMilestone("challenge_seaborne_fish_500", "seaborne.fishers-fantasy.fish-caught", 500, 300);
+        registerMilestone("challenge_seaborne_fish_5k", "seaborne.fishers-fantasy.fish-caught", 5000, 1000);
     }
 
     @Override
@@ -88,14 +88,15 @@ public class SeaborneFishersFantasy extends SimpleAdaptation<SeaborneFishersFant
         }
         if (e.getState() == PlayerFishEvent.State.CAUGHT_FISH) {
             getPlayer(p).getData().addStat("seaborne.fishers-fantasy.fish-caught", 1);
-            Random random = new Random();
-            for (int i = 0; i < getLevel(p); i++) {
+            int level = getLevel(p);
+            ThreadLocalRandom random = ThreadLocalRandom.current();
+            for (int i = 0; i < level; i++) {
                 ItemStack item = new ItemStack(ItemListings.getFishingDrops().getRandom(), 1);
                 if (random.nextBoolean()) {
                     p.getWorld().dropItemNaturally(p.getLocation(), item);
                     p.getWorld().spawn(p.getLocation(), ExperienceOrb.class);
                     Adapt.verbose("Fishing Gift Donated!");
-                    xp(p, 15 * getLevel(p));
+                    xp(p, 15 * level);
                 }
             }
         }
@@ -130,6 +131,6 @@ public class SeaborneFishersFantasy extends SimpleAdaptation<SeaborneFishersFant
         @com.volmit.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
         int initialCost = 2;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-        double costFactor = 1.525;
+        double costFactor = 0.9;
     }
 }

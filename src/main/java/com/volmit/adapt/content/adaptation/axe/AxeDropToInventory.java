@@ -48,7 +48,7 @@ public class AxeDropToInventory extends SimpleAdaptation<AxeDropToInventory.Conf
         registerConfiguration(AxeDropToInventory.Config.class);
         setDescription(Localizer.dLocalize("pickaxe.drop_to_inventory.description"));
         setDisplayName(Localizer.dLocalize("axe.drop_to_inventory.name"));
-        setIcon(Material.DIRT);
+        setIcon(Material.BARREL);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
@@ -62,7 +62,7 @@ public class AxeDropToInventory extends SimpleAdaptation<AxeDropToInventory.Conf
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_axe_dti_5k").goal(5000).stat("axe.drop-to-inv.items-caught").reward(500).build());
+        registerMilestone("challenge_axe_dti_5k", "axe.drop-to-inv.items-caught", 5000, 500);
     }
 
     @Override

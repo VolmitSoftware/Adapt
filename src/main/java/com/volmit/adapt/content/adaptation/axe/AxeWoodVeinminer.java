@@ -75,7 +75,7 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_axe_wood_vein_2500").goal(2500).stat("axe.wood-veinminer.logs-veinmined").reward(500).build());
+        registerMilestone("challenge_axe_wood_vein_2500", "axe.wood-veinminer.logs-veinmined", 2500, 500);
     }
 
     @Override
@@ -168,11 +168,11 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
                     blocks.breakNaturally(p.getItemInUse());
                     SoundPlayer spw = SoundPlayer.of(blocks.getWorld());
                     spw.play(e.getBlock().getLocation(), Sound.BLOCK_FUNGUS_BREAK, 0.01f, 0.25f);
-                    if (getConfig().showParticles) {
+                    if (areParticlesEnabled()) {
                         blocks.getWorld().spawnParticle(Particle.ASH, blocks.getLocation().add(0.5, 0.5, 0.5), 25, 0.5, 0.5, 0.5, 0.1);
                     }
                 }
-                if (getConfig().showParticles) {
+                if (areParticlesEnabled()) {
                     this.vfxCuboidOutline(blocks, Particles.ENCHANTMENT_TABLE);
                 }
                 VEIN_MINED.remove(blocks);
@@ -213,7 +213,7 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
         @com.volmit.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
         int initialCost = 4;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-        double costFactor = 2.325;
+        double costFactor = 0.95;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Max Blocks for the Axe Wood Veinminer adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int maxBlocks = 20;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Base Range for the Axe Wood Veinminer adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

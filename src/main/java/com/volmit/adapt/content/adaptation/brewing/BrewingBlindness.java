@@ -85,7 +85,7 @@ public class BrewingBlindness extends SimpleAdaptation<BrewingBlindness.Config> 
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_brewing_blindness_25").goal(25).stat("brewing.blindness.potions-brewed").reward(300).build());
+        registerMilestone("challenge_brewing_blindness_25", "brewing.blindness.potions-brewed", 25, 300);
     }
 
     @Override

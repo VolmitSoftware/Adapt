@@ -93,9 +93,9 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
                                 .build())
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_ranged_100").goal(100).stat("ranged.shotsfired").reward(getConfig().challengeRangedReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_ranged_1k").goal(1000).stat("ranged.shotsfired").reward(getConfig().challengeRangedReward * 2).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_ranged_10k").goal(10000).stat("ranged.shotsfired").reward(getConfig().challengeRangedReward * 5).build());
+        registerMilestone("challenge_ranged_100", "ranged.shotsfired", 100, getConfig().challengeRangedReward);
+        registerMilestone("challenge_ranged_1k", "ranged.shotsfired", 1000, getConfig().challengeRangedReward * 2);
+        registerMilestone("challenge_ranged_10k", "ranged.shotsfired", 10000, getConfig().challengeRangedReward * 5);
 
         // Chain 2 - Ranged Damage
         registerAdvancement(AdaptAdvancement.builder()
@@ -116,8 +116,8 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_ranged_dmg_1k").goal(1000).stat("ranged.damage").reward(getConfig().challengeRangedDmgReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_ranged_dmg_10k").goal(10000).stat("ranged.damage").reward(getConfig().challengeRangedDmgReward * 3).build());
+        registerMilestone("challenge_ranged_dmg_1k", "ranged.damage", 1000, getConfig().challengeRangedDmgReward);
+        registerMilestone("challenge_ranged_dmg_10k", "ranged.damage", 10000, getConfig().challengeRangedDmgReward * 3);
 
         // Chain 3 - Ranged Distance
         registerAdvancement(AdaptAdvancement.builder()
@@ -138,8 +138,8 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_ranged_dist_5k").goal(5000).stat("ranged.distance").reward(getConfig().challengeRangedDistReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_ranged_dist_50k").goal(50000).stat("ranged.distance").reward(getConfig().challengeRangedDistReward * 3).build());
+        registerMilestone("challenge_ranged_dist_5k", "ranged.distance", 5000, getConfig().challengeRangedDistReward);
+        registerMilestone("challenge_ranged_dist_50k", "ranged.distance", 50000, getConfig().challengeRangedDistReward * 3);
 
         // Chain 4 - Ranged Kills
         registerAdvancement(AdaptAdvancement.builder()
@@ -160,8 +160,8 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_ranged_kills_50").goal(50).stat("ranged.kills").reward(getConfig().challengeRangedKillsReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_ranged_kills_500").goal(500).stat("ranged.kills").reward(getConfig().challengeRangedKillsReward * 3).build());
+        registerMilestone("challenge_ranged_kills_50", "ranged.kills", 50, getConfig().challengeRangedKillsReward);
+        registerMilestone("challenge_ranged_kills_500", "ranged.kills", 500, getConfig().challengeRangedKillsReward * 3);
 
         // Chain 5 - Longshots
         registerAdvancement(AdaptAdvancement.builder()
@@ -182,8 +182,8 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_longshot_25").goal(25).stat("ranged.longshots").reward(getConfig().challengeRangedLongshotReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_longshot_250").goal(250).stat("ranged.longshots").reward(getConfig().challengeRangedLongshotReward * 3).build());
+        registerMilestone("challenge_longshot_25", "ranged.longshots", 25, getConfig().challengeRangedLongshotReward);
+        registerMilestone("challenge_longshot_250", "ranged.longshots", 250, getConfig().challengeRangedLongshotReward * 3);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -260,9 +260,7 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
         if (!this.isEnabled()) {
             return;
         }
-        for (Player i : Bukkit.getOnlinePlayers()) {
-            shouldReturnForPlayer(i, () -> checkStatTrackers(getPlayer(i)));
-        }
+        checkStatTrackersForOnlinePlayers();
     }
 
     @Override

@@ -328,31 +328,27 @@ public class IO {
     }
 
     public static String readAll(File f) throws IOException {
-        BufferedReader bu = new BufferedReader(new FileReader(f));
-        String c = "";
-        String l = "";
-
-        while ((l = bu.readLine()) != null) {
-            c += l + "\n";
+        StringBuilder content = new StringBuilder();
+        try (BufferedReader bu = new BufferedReader(new FileReader(f))) {
+            String line;
+            while ((line = bu.readLine()) != null) {
+                content.append(line).append('\n');
+            }
         }
 
-        bu.close();
-
-        return c;
+        return content.toString();
     }
 
     public static String readAll(InputStream in) throws IOException {
-        BufferedReader bu = new BufferedReader(new InputStreamReader(in));
-        String c = "";
-        String l = "";
-
-        while ((l = bu.readLine()) != null) {
-            c += l + "\n";
+        StringBuilder content = new StringBuilder();
+        try (BufferedReader bu = new BufferedReader(new InputStreamReader(in))) {
+            String line;
+            while ((line = bu.readLine()) != null) {
+                content.append(line).append('\n');
+            }
         }
 
-        bu.close();
-
-        return c;
+        return content.toString();
     }
 
     /**

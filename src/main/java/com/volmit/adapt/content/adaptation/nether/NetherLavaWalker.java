@@ -67,8 +67,8 @@ public class NetherLavaWalker extends SimpleAdaptation<NetherLavaWalker.Config> 
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_nether_lava_1k").goal(1000).stat("nether.lava-walker.blocks-walked").reward(300).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_nether_lava_25k").goal(25000).stat("nether.lava-walker.blocks-walked").reward(1000).build());
+        registerMilestone("challenge_nether_lava_1k", "nether.lava-walker.blocks-walked", 1000, 300);
+        registerMilestone("challenge_nether_lava_25k", "nether.lava-walker.blocks-walked", 25000, 1000);
     }
 
     @Override

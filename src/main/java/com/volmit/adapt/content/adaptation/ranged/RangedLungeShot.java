@@ -35,18 +35,13 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class RangedLungeShot extends SimpleAdaptation<RangedLungeShot.Config> {
-    private final List<Integer> holds = new ArrayList<>();
-
     public RangedLungeShot() {
         super("ranged-lunge-shot");
         registerConfiguration(Config.class);
         setDescription(Localizer.dLocalize("ranged.lunge_shot.description"));
         setDisplayName(Localizer.dLocalize("ranged.lunge_shot.name"));
-        setIcon(Material.FEATHER);
+        setIcon(Material.RABBIT_HIDE);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInterval(4859);
@@ -68,8 +63,8 @@ public class RangedLungeShot extends SimpleAdaptation<RangedLungeShot.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_ranged_lunge_200").goal(200).stat("ranged.lunge-shot.lunges").reward(300).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_ranged_lunge_2500").goal(2500).stat("ranged.lunge-shot.lunges").reward(1000).build());
+        registerMilestone("challenge_ranged_lunge_200", "ranged.lunge-shot.lunges", 200, 300);
+        registerMilestone("challenge_ranged_lunge_2500", "ranged.lunge-shot.lunges", 2500, 1000);
     }
 
     private double getSpeed(double factor) {
@@ -99,7 +94,7 @@ public class RangedLungeShot extends SimpleAdaptation<RangedLungeShot.Config> {
 
                         for (int i = 0; i < 9; i++) {
                             Vector v = velocity.clone().add(Vector.getRandom().subtract(Vector.getRandom()).multiply(0.3)).normalize();
-                            if (getConfig().showParticles) {
+                            if (areParticlesEnabled()) {
 
                                 p.getWorld().spawnParticle(Particle.CLOUD, p.getLocation().clone().add(0, 1, 0), 0, v.getX(), v.getY(), v.getZ(), 0.2);
                             }

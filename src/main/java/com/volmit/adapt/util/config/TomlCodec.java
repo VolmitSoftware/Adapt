@@ -94,6 +94,9 @@ public final class TomlCodec {
                 if (value == null) {
                     continue;
                 }
+                if (!ConfigDocumentation.shouldExposeField(sourceTag, path, field, value)) {
+                    continue;
+                }
 
                 if (isInlineValue(value)) {
                     writeFieldComments(path, field, value);
@@ -106,6 +109,9 @@ public final class TomlCodec {
             for (Field field : deferred) {
                 Object value = getFieldValue(field, sectionObject);
                 if (value == null) {
+                    continue;
+                }
+                if (!ConfigDocumentation.shouldExposeField(sourceTag, path, field, value)) {
                     continue;
                 }
 

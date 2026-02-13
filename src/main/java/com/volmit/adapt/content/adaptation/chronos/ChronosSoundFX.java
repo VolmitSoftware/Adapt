@@ -18,6 +18,7 @@
 
 package com.volmit.adapt.content.adaptation.chronos;
 
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.util.J;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -31,6 +32,9 @@ public final class ChronosSoundFX {
 
     private static void play(Location location, Sound sound, float volume, float pitch) {
         if (location == null || location.getWorld() == null) {
+            return;
+        }
+        if (!areSoundsEnabled()) {
             return;
         }
 
@@ -53,9 +57,65 @@ public final class ChronosSoundFX {
         if (location == null || location.getWorld() == null) {
             return;
         }
+        if (!areSoundsEnabled()) {
+            return;
+        }
 
         Location at = location.clone();
         Runnable playTask = () -> {
+            World world = at.getWorld();
+            if (world != null) {
+                world.playSound(at, sound, volume, pitch);
+            }
+        };
+
+        if (delayTicks <= 0 && Bukkit.isPrimaryThread()) {
+            playTask.run();
+            return;
+        }
+
+        J.s(playTask, Math.max(0, delayTicks));
+    }
+
+    private static void playOnPlayer(Player player, Sound sound, float volume, float pitch) {
+        if (player == null || !player.isOnline()) {
+            return;
+        }
+        if (!areSoundsEnabled()) {
+            return;
+        }
+
+        Runnable playTask = () -> {
+            if (!player.isOnline()) {
+                return;
+            }
+            Location at = player.getLocation();
+            World world = at.getWorld();
+            if (world != null) {
+                world.playSound(at, sound, volume, pitch);
+            }
+        };
+
+        if (Bukkit.isPrimaryThread()) {
+            playTask.run();
+        } else {
+            J.s(playTask);
+        }
+    }
+
+    private static void playOnPlayerLater(Player player, Sound sound, float volume, float pitch, int delayTicks) {
+        if (player == null || !player.isOnline()) {
+            return;
+        }
+        if (!areSoundsEnabled()) {
+            return;
+        }
+
+        Runnable playTask = () -> {
+            if (!player.isOnline()) {
+                return;
+            }
+            Location at = player.getLocation();
             World world = at.getWorld();
             if (world != null) {
                 world.playSound(at, sound, volume, pitch);
@@ -104,9 +164,23 @@ public final class ChronosSoundFX {
     }
 
     public static void playRewindFinish(Player p) {
-        Location l = p.getLocation();
-        play(l, Sound.BLOCK_BELL_RESONATE, 0.38f, 1.35f);
-        playLater(l, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.45f, 1.92f, 2);
+        // Reverse wind-up + 3 tines with varied tone/volume, all following the caster.
+        playOnPlayer(p, Sound.ENTITY_ITEM_FRAME_ROTATE_ITEM, 0.68f, 0.9f);
+        playOnPlayerLater(p, Sound.ENTITY_ITEM_FRAME_ROTATE_ITEM, 0.76f, 1.16f, 1);
+        playOnPlayerLater(p, Sound.ENTITY_ITEM_FRAME_ROTATE_ITEM, 0.84f, 1.42f, 2);
+
+        // Low tine
+        playOnPlayerLater(p, Sound.BLOCK_BELL_RESONATE, 1.70f, 0.78f, 3);
+        playOnPlayerLater(p, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.88f, 1.28f, 4);
+
+        // Mid tine
+        playOnPlayerLater(p, Sound.BLOCK_BELL_RESONATE, 1.44f, 0.98f, 7);
+        playOnPlayerLater(p, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.80f, 1.5f, 8);
+
+        // High tine + trailing echo
+        playOnPlayerLater(p, Sound.BLOCK_BELL_RESONATE, 1.16f, 1.2f, 11);
+        playOnPlayerLater(p, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.72f, 1.74f, 12);
+        playOnPlayerLater(p, Sound.BLOCK_BELL_RESONATE, 0.56f, 1.34f, 15);
     }
 
     public static void playTouchProc(Player p, Location target) {
@@ -132,5 +206,10 @@ public final class ChronosSoundFX {
         play(center, Sound.BLOCK_NOTE_BLOCK_BASS, 0.14f, Math.max(0.3f, Math.min(2f, clamped * 0.78f)));
         play(center, Sound.BLOCK_LEVER_CLICK, 0.22f, clamped);
         play(center, Sound.ENTITY_ITEM_FRAME_ROTATE_ITEM, 0.15f, Math.min(2f, clamped + 0.18f));
+    }
+
+    private static boolean areSoundsEnabled() {
+        AdaptConfig.Effects effects = AdaptConfig.get().getEffects();
+        return effects == null || effects.isSoundsEnabled();
     }
 }

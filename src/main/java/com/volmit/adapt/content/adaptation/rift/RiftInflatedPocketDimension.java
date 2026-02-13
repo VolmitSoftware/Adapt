@@ -50,7 +50,7 @@ public class RiftInflatedPocketDimension extends SimpleAdaptation<RiftInflatedPo
         registerConfiguration(Config.class);
         setDescription(Localizer.dLocalize("rift.inflated_pocket_dimension.description"));
         setDisplayName(Localizer.dLocalize("rift.inflated_pocket_dimension.name"));
-        setIcon(Material.ENDER_CHEST);
+        setIcon(Material.ENDER_EYE);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
@@ -72,8 +72,8 @@ public class RiftInflatedPocketDimension extends SimpleAdaptation<RiftInflatedPo
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_pocket_5k").goal(5000).stat("rift.inflated-pocket.items-pulled").reward(400).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_pocket_store_10k").goal(10000).stat("rift.inflated-pocket.items-stored").reward(1000).build());
+        registerMilestone("challenge_rift_pocket_5k", "rift.inflated-pocket.items-pulled", 5000, 400);
+        registerMilestone("challenge_rift_pocket_store_10k", "rift.inflated-pocket.items-stored", 10000, 1000);
     }
 
     @Override
@@ -116,7 +116,7 @@ public class RiftInflatedPocketDimension extends SimpleAdaptation<RiftInflatedPo
         e.setCancelled(true);
         SoundPlayer.of(p).play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 0.4f, 1.7f);
         getPlayer(p).getData().addStat("rift.inflated-pocket.items-pulled", moved);
-        xp(p, moved * getConfig().xpPerTransferredItem);
+        xp(p, moved * getConfig().xpPerTransferredItem, "rift:inflated-pocket:pull");
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -151,7 +151,7 @@ public class RiftInflatedPocketDimension extends SimpleAdaptation<RiftInflatedPo
 
             SoundPlayer.of(p).play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 0.3f, 1.9f);
             getPlayer(p).getData().addStat("rift.inflated-pocket.items-pulled", moved);
-            xp(p, moved * getConfig().xpPerTransferredItem);
+            xp(p, moved * getConfig().xpPerTransferredItem, "rift:inflated-pocket:build-refill");
         }, 1);
     }
 
@@ -163,17 +163,19 @@ public class RiftInflatedPocketDimension extends SimpleAdaptation<RiftInflatedPo
         }
 
         ItemStack dropped = e.getItemDrop().getItemStack().clone();
-        e.setCancelled(true);
-        e.getItemDrop().remove();
-
-        Map<Integer, ItemStack> overflow = p.getEnderChest().addItem(dropped);
-        if (!overflow.isEmpty()) {
-            overflow.values().forEach(i -> p.getWorld().dropItemNaturally(p.getLocation(), i));
+        if (!canFullyFitInInventory(p.getEnderChest().getContents(), dropped, p.getEnderChest().getMaxStackSize())) {
+            e.setCancelled(true);
+            e.getItemDrop().remove();
+            SoundPlayer.of(p).play(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 0.8f, 0.8f);
+            return;
         }
 
+        e.getItemDrop().remove();
+        p.getEnderChest().addItem(dropped);
+
         SoundPlayer.of(p).play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_CLOSE, 0.5f, 1.4f);
-        getPlayer(p).getData().addStat("rift.inflated-pocket.items-stored", Math.max(1, dropped.getAmount()));
-        xp(p, Math.max(1, dropped.getAmount()) * getConfig().xpPerTransferredItem);
+        getPlayer(p).getData().addStat("rift.inflated-pocket.items-stored", dropped.getAmount());
+        xp(p, dropped.getAmount() * getConfig().xpPerTransferredItem, "rift:inflated-pocket:store");
     }
 
     private int moveFromEnderToPlayer(Player p, Material type, int amount, boolean preferMainHand) {
@@ -241,6 +243,37 @@ public class RiftInflatedPocketDimension extends SimpleAdaptation<RiftInflatedPo
         Map<Integer, ItemStack> overflow = p.getInventory().addItem(transfer);
         int remaining = overflow.values().stream().mapToInt(ItemStack::getAmount).sum();
         return Math.max(0, requested - remaining);
+    }
+
+    private boolean canFullyFitInInventory(ItemStack[] contents, ItemStack stack, int inventoryMaxStackSize) {
+        if (!isItem(stack)) {
+            return false;
+        }
+
+        int remaining = stack.getAmount();
+        int maxPerSlot = Math.min(stack.getMaxStackSize(), inventoryMaxStackSize);
+
+        for (ItemStack existing : contents) {
+            if (!isItem(existing) || !existing.isSimilar(stack)) {
+                continue;
+            }
+
+            remaining -= Math.max(0, maxPerSlot - existing.getAmount());
+            if (remaining <= 0) {
+                return true;
+            }
+        }
+
+        for (ItemStack existing : contents) {
+            if (existing == null || existing.getType().isAir()) {
+                remaining -= maxPerSlot;
+                if (remaining <= 0) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     @Override

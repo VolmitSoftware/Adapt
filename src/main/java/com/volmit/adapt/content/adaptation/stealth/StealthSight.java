@@ -61,7 +61,7 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_stealth_sight_72k").goal(72000).stat("stealth.sight.time-in-darkness").reward(400).build());
+        registerMilestone("challenge_stealth_sight_72k", "stealth.sight.time-in-darkness", 72000, 400);
     }
 
     @Override

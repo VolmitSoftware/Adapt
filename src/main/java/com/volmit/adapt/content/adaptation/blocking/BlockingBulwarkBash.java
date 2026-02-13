@@ -57,7 +57,7 @@ public class BlockingBulwarkBash extends SimpleAdaptation<BlockingBulwarkBash.Co
         registerConfiguration(Config.class);
         setDescription(Localizer.dLocalize("blocking.bulwark_bash.description"));
         setDisplayName(Localizer.dLocalize("blocking.bulwark_bash.name"));
-        setIcon(Material.SHIELD);
+        setIcon(Material.BELL);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
@@ -71,12 +71,7 @@ public class BlockingBulwarkBash extends SimpleAdaptation<BlockingBulwarkBash.Co
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_blocking_bulwark_500")
-                .goal(500)
-                .stat("blocking.bulwark-bash.mobs-bashed")
-                .reward(500)
-                .build());
+        registerMilestone("challenge_blocking_bulwark_500", "blocking.bulwark-bash.mobs-bashed", 500, 500);
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.SHIELD)
                 .key("challenge_blocking_bulwark_4")
@@ -154,8 +149,12 @@ public class BlockingBulwarkBash extends SimpleAdaptation<BlockingBulwarkBash.Co
 
         e.setDamage(e.getDamage() + getBaseDamage(level));
         p.setCooldown(Material.SHIELD, getCooldownTicks(level));
-        p.getWorld().spawnParticle(Particle.SWEEP_ATTACK, p.getLocation().add(0, 1, 0), 1, 0, 0, 0, 0);
-        p.getWorld().spawnParticle(Particle.CLOUD, p.getLocation().add(0, 0.3, 0), 18, 0.35, 0.1, 0.35, 0.06);
+        if (areParticlesEnabled()) {
+            p.getWorld().spawnParticle(Particle.SWEEP_ATTACK, p.getLocation().add(0, 1, 0), 1, 0, 0, 0, 0);
+        }
+        if (areParticlesEnabled()) {
+            p.getWorld().spawnParticle(Particle.CLOUD, p.getLocation().add(0, 0.3, 0), 18, 0.35, 0.1, 0.35, 0.06);
+        }
         SoundPlayer sp = SoundPlayer.of(p.getWorld());
         sp.play(p.getLocation(), Sound.ITEM_SHIELD_BLOCK, 1f, 0.85f);
         sp.play(p.getLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 0.9f, 0.7f);

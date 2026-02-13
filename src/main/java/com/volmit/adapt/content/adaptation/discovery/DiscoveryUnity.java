@@ -46,7 +46,7 @@ public class DiscoveryUnity extends SimpleAdaptation<DiscoveryUnity.Config> {
         registerConfiguration(Config.class);
         setDescription(Localizer.dLocalize("discovery.unity.description"));
         setDisplayName(Localizer.dLocalize("discovery.unity.name"));
-        setIcon(Material.REDSTONE);
+        setIcon(Material.END_CRYSTAL);
         setBaseCost(getConfig().baseCost);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
@@ -68,18 +68,8 @@ public class DiscoveryUnity extends SimpleAdaptation<DiscoveryUnity.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_discovery_unity_5k")
-                .goal(5000)
-                .stat("discovery.unity.orbs-distributed")
-                .reward(400)
-                .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_discovery_unity_50k")
-                .goal(50000)
-                .stat("discovery.unity.orbs-distributed")
-                .reward(1500)
-                .build());
+        registerMilestone("challenge_discovery_unity_5k", "discovery.unity.orbs-distributed", 5000, 400);
+        registerMilestone("challenge_discovery_unity_50k", "discovery.unity.orbs-distributed", 50000, 1500);
     }
 
     @Override

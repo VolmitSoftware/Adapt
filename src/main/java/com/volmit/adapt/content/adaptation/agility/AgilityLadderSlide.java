@@ -75,18 +75,8 @@ public class AgilityLadderSlide extends SimpleAdaptation<AgilityLadderSlide.Conf
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_agility_ladder_500")
-                .goal(500)
-                .stat("agility.ladder-slide.blocks-climbed")
-                .reward(300)
-                .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_agility_ladder_10k")
-                .goal(10000)
-                .stat("agility.ladder-slide.blocks-climbed")
-                .reward(1000)
-                .build());
+        registerMilestone("challenge_agility_ladder_500", "agility.ladder-slide.blocks-climbed", 500, 300);
+        registerMilestone("challenge_agility_ladder_10k", "agility.ladder-slide.blocks-climbed", 10000, 1000);
     }
 
     @Override

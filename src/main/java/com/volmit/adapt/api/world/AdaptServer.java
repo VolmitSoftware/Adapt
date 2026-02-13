@@ -18,6 +18,8 @@
 
 package com.volmit.adapt.api.world;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.Adaptation;
@@ -45,17 +47,27 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
+import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.io.File;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class AdaptServer extends TickedObject {
     private final ReentrantLock clearLock = new ReentrantLock();
     private final Map<UUID, AdaptPlayer> players = new ConcurrentHashMap<>();
+    private final Cache<UUID, PlayerData> prefetchedPlayerData = Caffeine.newBuilder()
+            .expireAfterWrite(2, TimeUnit.MINUTES)
+            .maximumSize(2048)
+            .build();
+    @Getter
+    private volatile List<Player> onlinePlayerSnapshot = List.of();
+    @Getter
+    private volatile List<AdaptPlayer> onlineAdaptPlayerSnapshot = List.of();
     @Getter
     private final List<SpatialXP> spatialTickets = new ArrayList<>();
     @Getter
@@ -68,51 +80,72 @@ public class AdaptServer extends TickedObject {
         load();
 
         Bukkit.getOnlinePlayers().forEach(this::join);
+        refreshOnlinePlayerSnapshots();
     }
 
     public void offer(SpatialXP xp) {
-        if (xp == null || xp.getSkill() == null || xp.getRadius() > 0 || xp.getMs() > 0 || xp.getLocation() == null) {
+        if (xp == null || xp.getSkill() == null || xp.getLocation() == null) {
             return;
         }
-        spatialTickets.add(xp);
+        if (xp.getRadius() <= 0 || xp.getXp() <= 0 || xp.getMs() <= M.ms()) {
+            return;
+        }
+        synchronized (spatialTickets) {
+            spatialTickets.add(xp);
+        }
     }
 
     public void takeSpatial(AdaptPlayer p) {
-        J.attempt(() -> {
-            Optional<SpatialXP> optX = spatialTickets.stream().findAny();
-            if (optX.isEmpty()) {
-                return;
+        try {
+            SpatialXP x;
+            synchronized (spatialTickets) {
+                int size = spatialTickets.size();
+                if (size == 0) {
+                    return;
+                }
+                x = spatialTickets.get(size - 1);
             }
-            SpatialXP x = optX.get();
+
             if (M.ms() > x.getMs()) {
-                spatialTickets.remove(x);
+                synchronized (spatialTickets) {
+                    spatialTickets.remove(x);
+                }
                 return;
             }
+
             if (!p.getPlayer().getClass().getSimpleName().equals("CraftPlayer")) {
-                spatialTickets.remove(x);
+                synchronized (spatialTickets) {
+                    spatialTickets.remove(x);
+                }
                 return;
             }
+
             if (p.getPlayer().getWorld().equals(x.getLocation().getWorld())) {
                 double c = p.getPlayer().getLocation().distanceSquared(x.getLocation());
                 if (c < x.getRadius() * x.getRadius()) {
                     double distl = M.lerpInverse(0, x.getRadius() * x.getRadius(), c);
                     double xp = x.getXp() / (1.5D * ((distl * 9) + 1));
-                    x.setXp(x.getXp() - xp);
+                    synchronized (spatialTickets) {
+                        x.setXp(x.getXp() - xp);
 
-                    if (x.getXp() < 10) {
-                        xp += x.getXp();
-                        spatialTickets.remove(x);
+                        if (x.getXp() < 10) {
+                            xp += x.getXp();
+                            spatialTickets.remove(x);
+                        }
                     }
 
                     XP.xp(p, x.getSkill(), xp);
                 }
             }
-        });
+        } catch (Throwable ignored) {
+        }
     }
 
     public void join(Player p) {
-        AdaptPlayer a = new AdaptPlayer(p);
+        PlayerData prefetched = takePrefetchedData(p.getUniqueId());
+        AdaptPlayer a = new AdaptPlayer(p, prefetched);
         players.put(p.getUniqueId(), a);
+        refreshOnlinePlayerSnapshots();
         a.loggedIn();
     }
 
@@ -121,11 +154,16 @@ public class AdaptServer extends TickedObject {
         if (a == null) return;
         a.unregister();
         players.remove(p);
+        prefetchedPlayerData.invalidate(p);
+        refreshOnlinePlayerSnapshots();
     }
 
     @Override
     public void unregister() {
         new HashSet<>(players.keySet()).forEach(this::quit);
+        prefetchedPlayerData.invalidateAll();
+        onlinePlayerSnapshot = List.of();
+        onlineAdaptPlayerSnapshot = List.of();
         skillRegistry.unregister();
         save();
         super.unregister();
@@ -176,6 +214,24 @@ public class AdaptServer extends TickedObject {
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
+    public void on(AsyncPlayerPreLoginEvent e) {
+        if (e.getLoginResult() != AsyncPlayerPreLoginEvent.Result.ALLOWED) {
+            return;
+        }
+
+        UUID uuid = e.getUniqueId();
+        if (players.containsKey(uuid) || prefetchedPlayerData.getIfPresent(uuid) != null) {
+            return;
+        }
+
+        try {
+            prefetchedPlayerData.put(uuid, AdaptPlayer.loadPlayerData(uuid));
+        } catch (Throwable ignored) {
+            Adapt.verbose("Failed to prefetch player data for " + uuid);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerQuitEvent e) {
         Player p = e.getPlayer();
         quit(p.getUniqueId());
@@ -184,21 +240,24 @@ public class AdaptServer extends TickedObject {
     @EventHandler
     public void on(CraftItemEvent e) {
         if (e.getWhoClicked() instanceof Player p) {
-            SoundPlayer sp = SoundPlayer.of(p);
-            for (Skill<?> i : getSkillRegistry().getSkills()) {
-                for (Adaptation<?> j : i.getAdaptations()) {
-                    if (j.isAdaptationRecipe(e.getRecipe()) && !j.hasAdaptation(p)) {
-                        Adapt.actionbar(p, C.RED + "Requires " + j.getDisplayName() + C.RED + " from " + i.getDisplayName());
-                        sp.play(p.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 0.5f, 1.8f);
-                        e.setCancelled(true);
-                    }
-                }
+            Adaptation<?> required = getSkillRegistry().getRequiredAdaptation(e.getRecipe());
+            if (required == null || required.hasAdaptation(p)) {
+                return;
             }
+
+            Skill<?> requiredSkill = required.getSkill();
+            String skillName = requiredSkill == null ? "Unknown Skill" : requiredSkill.getDisplayName();
+            SoundPlayer sp = SoundPlayer.of(p);
+            Adapt.actionbar(p, C.RED + "Requires " + required.getDisplayName() + C.RED + " from " + skillName);
+            sp.play(p.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 0.5f, 1.8f);
+            e.setCancelled(true);
         }
     }
 
     @Override
     public void onTick() {
+        data.getMultipliers().removeIf(multiplier -> multiplier == null || multiplier.isExpired());
+
         synchronized (spatialTickets) {
             spatialTickets.removeIf(ticket -> M.ms() > ticket.getMs());
         }
@@ -207,7 +266,11 @@ public class AdaptServer extends TickedObject {
             return;
 
         try {
+            int sizeBefore = players.size();
             players.values().removeIf(AdaptPlayer::shouldUnload);
+            if (players.size() != sizeBefore) {
+                refreshOnlinePlayerSnapshots();
+            }
         } finally {
             clearLock.unlock();
         }
@@ -244,11 +307,46 @@ public class AdaptServer extends TickedObject {
     }
 
     public AdaptPlayer getPlayer(Player p) {
-        return players.computeIfAbsent(p.getUniqueId(), player -> {
+        AdaptPlayer existing = players.get(p.getUniqueId());
+        if (existing != null) {
+            return existing;
+        }
+
+        AdaptPlayer created = players.computeIfAbsent(p.getUniqueId(), player -> {
             Adapt.warn("Failed to find AdaptPlayer for " + p.getName() + " (" + p.getUniqueId() + ")");
             Adapt.warn("Loading new AdaptPlayer...");
-            return new AdaptPlayer(p);
+            return new AdaptPlayer(p, takePrefetchedData(player));
         });
+        refreshOnlinePlayerSnapshots();
+        return created;
+    }
+
+    private PlayerData takePrefetchedData(UUID uuid) {
+        PlayerData prefetched = prefetchedPlayerData.getIfPresent(uuid);
+        if (prefetched != null) {
+            prefetchedPlayerData.invalidate(uuid);
+        }
+        return prefetched;
+    }
+
+    private void refreshOnlinePlayerSnapshots() {
+        ArrayList<AdaptPlayer> adaptPlayers = new ArrayList<>(players.size());
+        ArrayList<Player> playerSnapshot = new ArrayList<>(players.size());
+
+        for (AdaptPlayer adaptPlayer : players.values()) {
+            if (adaptPlayer == null) {
+                continue;
+            }
+            Player online = adaptPlayer.getPlayer();
+            if (online == null || !online.isOnline()) {
+                continue;
+            }
+            adaptPlayers.add(adaptPlayer);
+            playerSnapshot.add(online);
+        }
+
+        onlineAdaptPlayerSnapshot = Collections.unmodifiableList(adaptPlayers);
+        onlinePlayerSnapshot = Collections.unmodifiableList(playerSnapshot);
     }
 
     public void openSkillGUI(Skill<?> skill, Player p) {

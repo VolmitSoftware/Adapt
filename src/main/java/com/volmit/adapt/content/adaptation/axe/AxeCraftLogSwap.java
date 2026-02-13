@@ -1022,7 +1022,7 @@ public class AxeCraftLogSwap extends SimpleAdaptation<AxeCraftLogSwap.Config> {
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_axe_log_swap_500").goal(500).stat("axe.log-swap.conversions").reward(400).build());
+        registerMilestone("challenge_axe_log_swap_500", "axe.log-swap.conversions", 500, 400);
     }
 
     @Override

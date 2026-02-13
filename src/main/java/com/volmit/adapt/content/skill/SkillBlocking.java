@@ -108,11 +108,11 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
                                 .build())
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_block_1k").goal(1000).stat("blocked.hits").reward(getConfig().challengeBlock1kReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_block_5k").goal(5000).stat("blocked.hits").reward(getConfig().challengeBlock1kReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_block_50k").goal(50000).stat("blocked.hits").reward(getConfig().challengeBlock5kReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_block_500k").goal(500000).stat("blocked.hits").reward(getConfig().challengeBlock5kReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_block_5m").goal(5000000).stat("blocked.hits").reward(getConfig().challengeBlock5kReward).build());
+        registerMilestone("challenge_block_1k", "blocked.hits", 1000, getConfig().challengeBlock1kReward);
+        registerMilestone("challenge_block_5k", "blocked.hits", 5000, getConfig().challengeBlock1kReward);
+        registerMilestone("challenge_block_50k", "blocked.hits", 50000, getConfig().challengeBlock5kReward);
+        registerMilestone("challenge_block_500k", "blocked.hits", 500000, getConfig().challengeBlock5kReward);
+        registerMilestone("challenge_block_5m", "blocked.hits", 5000000, getConfig().challengeBlock5kReward);
 
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.IRON_CHESTPLATE).key("challenge_block_dmg_1k")
@@ -131,8 +131,8 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_block_dmg_1k").goal(1000).stat("blocked.damage").reward(getConfig().challengeBlock1kReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_block_dmg_10k").goal(10000).stat("blocked.damage").reward(getConfig().challengeBlock5kReward).build());
+        registerMilestone("challenge_block_dmg_1k", "blocked.damage", 1000, getConfig().challengeBlock1kReward);
+        registerMilestone("challenge_block_dmg_10k", "blocked.damage", 10000, getConfig().challengeBlock5kReward);
 
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.ARROW).key("challenge_block_proj_100")
@@ -151,8 +151,8 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_block_proj_100").goal(100).stat("blocked.projectiles").reward(getConfig().challengeBlock1kReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_block_proj_1k").goal(1000).stat("blocked.projectiles").reward(getConfig().challengeBlock5kReward).build());
+        registerMilestone("challenge_block_proj_100", "blocked.projectiles", 100, getConfig().challengeBlock1kReward);
+        registerMilestone("challenge_block_proj_1k", "blocked.projectiles", 1000, getConfig().challengeBlock5kReward);
 
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.IRON_SWORD).key("challenge_block_melee_500")
@@ -171,8 +171,8 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_block_melee_500").goal(500).stat("blocked.melee").reward(getConfig().challengeBlock1kReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_block_melee_5k").goal(5000).stat("blocked.melee").reward(getConfig().challengeBlock5kReward).build());
+        registerMilestone("challenge_block_melee_500", "blocked.melee", 500, getConfig().challengeBlock1kReward);
+        registerMilestone("challenge_block_melee_5k", "blocked.melee", 5000, getConfig().challengeBlock5kReward);
 
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.DIAMOND_CHESTPLATE).key("challenge_block_heavy_50")
@@ -191,8 +191,8 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_block_heavy_50").goal(50).stat("blocked.heavy").reward(getConfig().challengeBlock1kReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_block_heavy_500").goal(500).stat("blocked.heavy").reward(getConfig().challengeBlock5kReward).build());
+        registerMilestone("challenge_block_heavy_50", "blocked.heavy", 50, getConfig().challengeBlock1kReward);
+        registerMilestone("challenge_block_heavy_500", "blocked.heavy", 500, getConfig().challengeBlock5kReward);
 
         cooldowns = new HashMap<>();
     }
@@ -243,12 +243,12 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
             return;
         }
 
-        for (Player i : Bukkit.getOnlinePlayers()) {
-            AdaptPlayer adaptPlayer = getPlayer(i);
+        for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+            Player i = adaptPlayer.getPlayer();
             shouldReturnForPlayer(i, () -> {
                 checkStatTrackers(adaptPlayer);
-                if (i.getPlayer() != null && (i.getPlayer().getInventory().getItemInOffHand().getType().equals(Material.SHIELD) || i.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.SHIELD))) {
-                    xpSilent(i, getConfig().passiveXpForUsingShield);
+                if (getConfig().passiveXpForUsingShield > 0 && (i.getInventory().getItemInOffHand().getType().equals(Material.SHIELD) || i.getInventory().getItemInMainHand().getType().equals(Material.SHIELD))) {
+                    xpSilent(i, getConfig().passiveXpForUsingShield, "blocking:shield-hold");
                 }
             });
         }
@@ -265,14 +265,14 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
         boolean enabled = true;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Xp On Blocked Attack for the Blocking skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double xpOnBlockedAttack = 12;
+        double xpOnBlockedAttack = 25;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Block1k Reward for the Blocking skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double challengeBlock1kReward = 500;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Block5k Reward for the Blocking skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double challengeBlock5kReward = 2000;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Cooldown Delay for the Blocking skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        long cooldownDelay = 3000;
+        long cooldownDelay = 1500;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Passive Xp For Using Shield for the Blocking skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        long passiveXpForUsingShield = 1;
+        long passiveXpForUsingShield = 0;
     }
 }

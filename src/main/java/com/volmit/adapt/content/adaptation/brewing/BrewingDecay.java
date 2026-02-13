@@ -85,7 +85,7 @@ public class BrewingDecay extends SimpleAdaptation<BrewingDecay.Config> {
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_brewing_decay_25").goal(25).stat("brewing.decay.potions-brewed").reward(300).build());
+        registerMilestone("challenge_brewing_decay_25", "brewing.decay.potions-brewed", 25, 300);
     }
 
     @Override

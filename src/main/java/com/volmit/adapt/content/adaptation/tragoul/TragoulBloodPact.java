@@ -23,14 +23,15 @@ import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
 import com.volmit.adapt.api.advancement.AdvancementVisibility;
-import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.SoundPlayer;
+import com.volmit.adapt.util.VelocitySpeed;
 import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -40,9 +41,11 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -65,13 +68,14 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
 
     private final Map<UUID, Long> procCooldowns = new HashMap<>();
     private final Map<UUID, Boolean> lowHealthProcs = new HashMap<>();
+    private final Map<UUID, SpeedBurst> speedBursts = new HashMap<>();
 
     public TragoulBloodPact() {
         super("tragoul-blood-pact");
         registerConfiguration(Config.class);
         setDescription(Localizer.dLocalize("tragoul.blood_pact.description"));
         setDisplayName(Localizer.dLocalize("tragoul.blood_pact.name"));
-        setIcon(Material.REDSTONE);
+        setIcon(Material.NETHER_WART);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
@@ -93,8 +97,8 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_tragoul_pact_200").goal(200).stat("tragoul.blood-pact.health-sacrificed").reward(400).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_tragoul_pact_kills_500").goal(500).stat("tragoul.blood-pact.empowered-kills").reward(1000).build());
+        registerMilestone("challenge_tragoul_pact_200", "tragoul.blood-pact.health-sacrificed", 200, 400);
+        registerMilestone("challenge_tragoul_pact_kills_500", "tragoul.blood-pact.empowered-kills", 500, 1000);
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.REDSTONE)
                 .key("challenge_tragoul_pact_all_in")
@@ -116,6 +120,12 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
     public void on(PlayerQuitEvent e) {
         procCooldowns.remove(e.getPlayer().getUniqueId());
         lowHealthProcs.remove(e.getPlayer().getUniqueId());
+        speedBursts.remove(e.getPlayer().getUniqueId());
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void on(PlayerDeathEvent e) {
+        speedBursts.remove(e.getEntity().getUniqueId());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -145,7 +155,9 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
             lowHealthProcs.put(p.getUniqueId(), true);
         }
         applyRandomBuffs(p, level, e.getFinalDamage());
-        p.getWorld().spawnParticle(Particle.CRIMSON_SPORE, p.getLocation().add(0, 1.0, 0), 22, 0.28, 0.42, 0.28, 0.02);
+        if (areParticlesEnabled()) {
+            p.getWorld().spawnParticle(Particle.CRIMSON_SPORE, p.getLocation().add(0, 1.0, 0), 22, 0.28, 0.42, 0.28, 0.02);
+        }
         SoundPlayer.of(p.getWorld()).play(p.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 0.62f, 1.25f);
         xp(p, getConfig().xpPerProc);
     }
@@ -182,8 +194,30 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
             PotionEffectType type = pool.get(i);
             int amplifier = getEffectAmplifier(type, level);
             int d = type == PotionEffectType.ABSORPTION ? Math.max(40, duration - 20) : duration;
+            if (type == PotionEffectType.SPEED) {
+                grantSpeedBurst(p, amplifier, d);
+                continue;
+            }
             p.addPotionEffect(new PotionEffect(type, d, amplifier, false, true, true), true);
         }
+    }
+
+    private void grantSpeedBurst(Player p, int amplifier, int durationTicks) {
+        if (durationTicks <= 0) {
+            return;
+        }
+
+        UUID id = p.getUniqueId();
+        long now = System.currentTimeMillis();
+        long durationMs = Math.max(50L, durationTicks * 50L);
+        SpeedBurst burst = speedBursts.get(id);
+        if (burst != null && burst.expiresAt > now) {
+            burst.expiresAt += durationMs;
+            burst.amplifier = Math.max(burst.amplifier, amplifier);
+            return;
+        }
+
+        speedBursts.put(id, new SpeedBurst(now + durationMs, amplifier));
     }
 
     private double getProcChance(int level) {
@@ -223,6 +257,109 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
     public void onTick() {
         long now = System.currentTimeMillis();
         procCooldowns.entrySet().removeIf(i -> i.getValue() <= now);
+        applySpeedBursts(now);
+    }
+
+    private void applySpeedBursts(long now) {
+        for (com.volmit.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+            Player p = adaptPlayer.getPlayer();
+            UUID id = p.getUniqueId();
+            SpeedBurst burst = speedBursts.get(id);
+            if (burst == null) {
+                continue;
+            }
+
+            if (burst.expiresAt <= now) {
+                invalidateSpeedBurst(p, burst, false);
+                speedBursts.remove(id);
+                continue;
+            }
+
+            if (!isVelocityEligible(p)) {
+                invalidateSpeedBurst(p, burst, true);
+                continue;
+            }
+
+            VelocitySpeed.InputSnapshot input = VelocitySpeed.readInput(p, getConfig().fallbackInputVelocityThresholdSquared());
+            if (!input.hasHorizontal()) {
+                brakeSpeedBurst(p, burst);
+                continue;
+            }
+
+            applySpeedBurst(p, burst, input);
+        }
+    }
+
+    private void applySpeedBurst(Player p, SpeedBurst burst, VelocitySpeed.InputSnapshot input) {
+        Vector direction = VelocitySpeed.resolveHorizontalDirection(p, input);
+        if (direction.lengthSquared() <= VelocitySpeed.EPSILON) {
+            brakeSpeedBurst(p, burst);
+            return;
+        }
+
+        double targetSpeed = Math.min(getConfig().maxHorizontalSpeed,
+                Math.max(0, getConfig().baseHorizontalSpeed * VelocitySpeed.speedAmplifierScalar(burst.amplifier)));
+        Vector horizontal = VelocitySpeed.horizontalOnly(p.getVelocity());
+        Vector targetHorizontal = direction.multiply(targetSpeed);
+        Vector nextHorizontal = VelocitySpeed.moveTowards(horizontal, targetHorizontal, Math.max(0, getConfig().accelPerTick));
+        nextHorizontal = VelocitySpeed.clampHorizontal(nextHorizontal, getConfig().maxHorizontalSpeed);
+        VelocitySpeed.setHorizontalVelocity(p, nextHorizontal);
+        burst.boosting = true;
+    }
+
+    private void brakeSpeedBurst(Player p, SpeedBurst burst) {
+        if (!burst.boosting) {
+            return;
+        }
+
+        Vector horizontal = VelocitySpeed.horizontalOnly(p.getVelocity());
+        double stopThreshold = Math.max(0, getConfig().stopThreshold);
+        if (horizontal.lengthSquared() <= stopThreshold * stopThreshold) {
+            VelocitySpeed.hardStopHorizontal(p);
+            burst.boosting = false;
+            return;
+        }
+
+        Vector nextHorizontal = VelocitySpeed.moveTowards(horizontal, new Vector(), Math.max(0, getConfig().brakePerTick));
+        if (nextHorizontal.lengthSquared() <= stopThreshold * stopThreshold) {
+            VelocitySpeed.hardStopHorizontal(p);
+            burst.boosting = false;
+            return;
+        }
+
+        VelocitySpeed.setHorizontalVelocity(p, nextHorizontal);
+    }
+
+    private void invalidateSpeedBurst(Player p, SpeedBurst burst, boolean invalidState) {
+        if (!burst.boosting) {
+            return;
+        }
+
+        if (invalidState && getConfig().hardStopOnInvalidState) {
+            VelocitySpeed.hardStopHorizontal(p);
+        }
+
+        burst.boosting = false;
+    }
+
+    private boolean isVelocityEligible(Player p) {
+        GameMode mode = p.getGameMode();
+        if (mode != GameMode.SURVIVAL && mode != GameMode.ADVENTURE) {
+            return false;
+        }
+
+        return !p.isDead() && !p.isFlying() && !p.isGliding() && !p.isSwimming() && p.getVehicle() == null;
+    }
+
+    private static class SpeedBurst {
+        private long expiresAt;
+        private int amplifier;
+        private boolean boosting;
+
+        private SpeedBurst(long expiresAt, int amplifier) {
+            this.expiresAt = expiresAt;
+            this.amplifier = amplifier;
+        }
     }
 
     @Override
@@ -236,22 +373,22 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
     }
 
     @NoArgsConstructor
-    @ConfigDescription("Taking at least 5 hearts of damage can trigger temporary beneficial effects.")
+    @ConfigDescription("Taking at least 2 hearts of damage can trigger temporary beneficial effects.")
     protected static class Config {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
         boolean permanent = false;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
         boolean enabled = true;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-        int baseCost = 5;
+        int baseCost = 4;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
         int maxLevel = 5;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-        int initialCost = 5;
+        int initialCost = 4;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-        double costFactor = 0.78;
+        double costFactor = 0.62;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Min Damage Trigger Hearts for the Tragoul Blood Pact adaptation.", impact = "Minimum damage taken in hearts required before the proc roll happens.")
-        double minDamageTriggerHearts = 5.0;
+        double minDamageTriggerHearts = 2.0;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Proc Chance Base for the Tragoul Blood Pact adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double procChanceBase = 0.12;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Proc Chance Factor for the Tragoul Blood Pact adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -259,9 +396,9 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Max Proc Chance for the Tragoul Blood Pact adaptation.", impact = "Caps chance at the requested maximum.")
         double maxProcChance = 0.5;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Proc Cooldown Millis Base for the Tragoul Blood Pact adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double procCooldownMillisBase = 22000;
+        double procCooldownMillisBase = 18000;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Proc Cooldown Millis Factor for the Tragoul Blood Pact adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double procCooldownMillisFactor = 14000;
+        double procCooldownMillisFactor = 12000;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Effect Duration Ticks Base for the Tragoul Blood Pact adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double effectDurationTicksBase = 100;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Effect Duration Ticks Factor for the Tragoul Blood Pact adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -275,6 +412,25 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Bonus Buff Chance Factor for the Tragoul Blood Pact adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double bonusBuffChanceFactor = 0.34;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls XP Per Proc for the Tragoul Blood Pact adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double xpPerProc = 14;
+        double xpPerProc = 24;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Base horizontal speed used for blood pact speed bursts.", impact = "Higher values increase movement speed when a speed burst is active.")
+        double baseHorizontalSpeed = 0.13;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Maximum horizontal speed this adaptation can force.", impact = "Acts as a hard cap to prevent runaway momentum.")
+        double maxHorizontalSpeed = 0.33;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "How fast velocity accelerates toward the burst target per tick.", impact = "Higher values accelerate faster; lower values feel smoother.")
+        double accelPerTick = 0.045;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "How fast velocity decays when movement input is released.", impact = "Higher values reduce carry momentum more aggressively.")
+        double brakePerTick = 0.08;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Horizontal velocity threshold considered fully stopped.", impact = "Higher values stop sooner; lower values preserve tiny motion longer.")
+        double stopThreshold = 0.01;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "If true, burst velocity is force-cleared when entering invalid states.", impact = "Prevents retained speed from skipped state transitions.")
+        boolean hardStopOnInvalidState = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Fallback movement threshold used when direct input API is unavailable.", impact = "Only used on runtimes without Player input access.")
+        double fallbackInputVelocityThreshold = 0.0008;
+
+        double fallbackInputVelocityThresholdSquared() {
+            double threshold = Math.max(0, fallbackInputVelocityThreshold);
+            return threshold * threshold;
+        }
     }
 }

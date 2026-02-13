@@ -45,7 +45,7 @@ public class SwordsExecutionersEdge extends SimpleAdaptation<SwordsExecutionersE
         registerConfiguration(Config.class);
         setDescription(Localizer.dLocalize("sword.executioners_edge.description"));
         setDisplayName(Localizer.dLocalize("sword.executioners_edge.name"));
-        setIcon(Material.NETHERITE_AXE);
+        setIcon(Material.STONE_SWORD);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
@@ -67,8 +67,8 @@ public class SwordsExecutionersEdge extends SimpleAdaptation<SwordsExecutionersE
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_swords_execute_200").goal(200).stat("swords.executioners-edge.executions").reward(400).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_swords_execute_2500").goal(2500).stat("swords.executioners-edge.executions").reward(1500).build());
+        registerMilestone("challenge_swords_execute_200", "swords.executioners-edge.executions", 200, 400);
+        registerMilestone("challenge_swords_execute_2500", "swords.executioners-edge.executions", 2500, 1500);
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.NETHERITE_AXE)
                 .key("challenge_swords_execute_5in10")

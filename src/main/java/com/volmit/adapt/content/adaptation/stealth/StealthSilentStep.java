@@ -18,6 +18,7 @@
 
 package com.volmit.adapt.content.adaptation.stealth;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
@@ -29,10 +30,13 @@ import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.config.ConfigDescription;
+import fr.skytasul.glowingentities.GlowingEntities;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
@@ -49,12 +53,14 @@ import org.bukkit.util.Vector;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
 public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config> {
     private final Map<UUID, Boolean> dimmed = new HashMap<>();
     private final Map<UUID, List<Long>> recentBackstabs = new HashMap<>();
+    private final Map<UUID, Map<UUID, ThreatLevel>> threatGlows = new HashMap<>();
 
     public StealthSilentStep() {
         super("stealth-silent-step");
@@ -83,7 +89,7 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_stealth_silent_200").goal(200).stat("stealth.silent-step.backstabs").reward(400).build());
+        registerMilestone("challenge_stealth_silent_200", "stealth.silent-step.backstabs", 200, 400);
     }
 
     @Override
@@ -96,12 +102,13 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerQuitEvent e) {
         clearDimming(e.getPlayer());
+        clearThreatGlows(e.getPlayer());
         recentBackstabs.remove(e.getPlayer().getUniqueId());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void on(EntityTargetLivingEntityEvent e) {
-        if (!(e.getEntity() instanceof Mob) || !(e.getTarget() instanceof Player p)) {
+        if (!(e.getTarget() instanceof Player p)) {
             return;
         }
 
@@ -109,7 +116,14 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
             return;
         }
 
+        if (isTargetBlacklistType(e.getEntity().getType())) {
+            return;
+        }
+
         e.setCancelled(true);
+        if (e.getEntity() instanceof Mob mob && mob.getTarget() == p) {
+            mob.setTarget(null);
+        }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -126,6 +140,10 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
         double radius = getStealthRadius(getLevel(p));
         for (Entity entity : p.getWorld().getNearbyEntities(p.getLocation(), radius, radius, radius)) {
             if (!(entity instanceof Mob mob)) {
+                continue;
+            }
+
+            if (isTargetBlacklistType(mob.getType())) {
                 continue;
             }
 
@@ -178,51 +196,55 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
 
     @Override
     public void onTick() {
-        for (Player p : Bukkit.getOnlinePlayers()) {
+        for (com.volmit.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+            Player p = adaptPlayer.getPlayer();
             if (!hasAdaptation(p) || !p.isSneaking()) {
                 clearDimming(p);
+                clearThreatGlows(p);
                 continue;
             }
 
             int level = getLevel(p);
             p.setFallDistance(Math.min(p.getFallDistance(), getConfig().maxSilentFallDistance));
-            if (isUndetected(p, level)) {
+            ThreatSnapshot threatSnapshot = collectThreatSnapshot(p, level);
+            if (threatSnapshot.canDetect.isEmpty()) {
                 applyDimming(p, level);
             } else {
                 clearDimming(p);
             }
+            updateThreatGlows(p, threatSnapshot);
         }
     }
 
-    private boolean isUndetected(Player p, int level) {
+    private ThreatSnapshot collectThreatSnapshot(Player p, int level) {
+        ThreatSnapshot snapshot = new ThreatSnapshot();
+        double detectionLookDotThreshold = getDetectionLookDotThreshold();
         double mobRadius = getStealthRadius(level);
         for (Entity entity : p.getWorld().getNearbyEntities(p.getLocation(), mobRadius, mobRadius, mobRadius)) {
             if (!(entity instanceof Mob mob)) {
                 continue;
             }
 
-            if (mob.hasLineOfSight(p) && isLookingAt(mob, p)) {
-                return false;
+            if (!getConfig().allMobsAffectStealthVisibility && !isTargetBlacklistType(mob.getType())) {
+                continue;
             }
+
+            snapshot.add(mob, getThreatLevel(mob, p, detectionLookDotThreshold));
         }
 
         double playerRadius = getPlayerDetectionRadius(level);
-        double rs = playerRadius * playerRadius;
-        for (Player other : p.getWorld().getPlayers()) {
+        for (Entity nearby : p.getWorld().getNearbyEntities(p.getLocation(), playerRadius, playerRadius, playerRadius)) {
+            if (!(nearby instanceof Player other)) {
+                continue;
+            }
             if (other == p || other.isDead()) {
                 continue;
             }
 
-            if (other.getLocation().distanceSquared(p.getLocation()) > rs) {
-                continue;
-            }
-
-            if (other.hasLineOfSight(p) && isLookingAt(other, p)) {
-                return false;
-            }
+            snapshot.add(other, getThreatLevel(other, p, detectionLookDotThreshold));
         }
 
-        return true;
+        return snapshot;
     }
 
     private void applyDimming(Player p, int level) {
@@ -236,15 +258,160 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
         }
     }
 
+    private void updateThreatGlows(Player p, ThreatSnapshot snapshot) {
+        if (!getConfig().showThreatGlows) {
+            clearThreatGlows(p);
+            return;
+        }
+
+        GlowingEntities glowingEntities = Adapt.instance.getGlowingEntities();
+        if (glowingEntities == null) {
+            clearThreatGlows(p);
+            return;
+        }
+
+        UUID viewerId = p.getUniqueId();
+        Map<UUID, ThreatLevel> active = threatGlows.computeIfAbsent(viewerId, k -> new HashMap<>());
+
+        List<UUID> stale = new ArrayList<>();
+        for (UUID entityId : active.keySet()) {
+            if (!snapshot.threats.containsKey(entityId)) {
+                stale.add(entityId);
+            }
+        }
+
+        for (UUID entityId : stale) {
+            Entity entity = Bukkit.getEntity(entityId);
+            if (entity != null) {
+                try {
+                    glowingEntities.unsetGlowing(entity, p);
+                } catch (ReflectiveOperationException ignored) {
+                    // Ignore reflective failures and continue clearing other entities.
+                }
+            }
+            active.remove(entityId);
+        }
+
+        for (Map.Entry<UUID, ThreatLevel> entry : snapshot.threats.entrySet()) {
+            UUID entityId = entry.getKey();
+            ThreatLevel desired = entry.getValue();
+            ThreatLevel current = active.get(entityId);
+            if (desired == current) {
+                continue;
+            }
+
+            Entity entity = snapshot.entities.get(entityId);
+            if (entity == null) {
+                entity = Bukkit.getEntity(entityId);
+            }
+            if (entity == null || !entity.isValid()) {
+                continue;
+            }
+
+            try {
+                glowingEntities.setGlowing(entity, p, getThreatColor(desired));
+                active.put(entityId, desired);
+            } catch (ReflectiveOperationException ignored) {
+                // Ignore reflective failures and keep runtime behavior intact.
+            }
+        }
+
+        if (active.isEmpty()) {
+            threatGlows.remove(viewerId);
+        }
+    }
+
+    private void clearThreatGlows(Player p) {
+        Map<UUID, ThreatLevel> active = threatGlows.remove(p.getUniqueId());
+        if (active == null || active.isEmpty()) {
+            return;
+        }
+
+        GlowingEntities glowingEntities = Adapt.instance.getGlowingEntities();
+        if (glowingEntities == null) {
+            return;
+        }
+
+        for (UUID entityId : active.keySet()) {
+            Entity entity = Bukkit.getEntity(entityId);
+            if (entity == null) {
+                continue;
+            }
+
+            try {
+                glowingEntities.unsetGlowing(entity, p);
+            } catch (ReflectiveOperationException ignored) {
+                // Ignore reflective failures and continue clearing other entities.
+            }
+        }
+    }
+
+    private ThreatLevel getThreatLevel(LivingEntity observer, LivingEntity target, double detectThreshold) {
+        if (!observer.hasLineOfSight(target)) {
+            return ThreatLevel.NONE;
+        }
+
+        double lookDot = getLookDot(observer, target);
+        if (lookDot >= detectThreshold) {
+            return ThreatLevel.CAN_DETECT;
+        }
+
+        double almostThreshold = Math.max(-1, detectThreshold - Math.max(0, getConfig().almostLookDotMargin));
+        if (lookDot >= almostThreshold) {
+            return ThreatLevel.ALMOST_DETECT;
+        }
+
+        return ThreatLevel.NONE;
+    }
+
+    private double getDetectionLookDotThreshold() {
+        return Math.max(-1, Math.min(1, getConfig().detectionLookDotThreshold));
+    }
+
+    private ChatColor getThreatColor(ThreatLevel level) {
+        return switch (level) {
+            case CAN_DETECT -> ChatColor.RED;
+            case ALMOST_DETECT -> ChatColor.GRAY;
+            default -> ChatColor.WHITE;
+        };
+    }
+
     private boolean isLookingAt(LivingEntity observer, LivingEntity target) {
+        return getLookDot(observer, target) >= getConfig().lookDotThreshold;
+    }
+
+    private double getLookDot(LivingEntity observer, LivingEntity target) {
         Vector look = observer.getEyeLocation().getDirection().normalize();
         Vector toTarget = target.getEyeLocation().toVector().subtract(observer.getEyeLocation().toVector());
         if (toTarget.lengthSquared() <= 0.0001) {
-            return true;
+            return 1;
         }
 
         toTarget.normalize();
-        return look.dot(toTarget) >= getConfig().lookDotThreshold;
+        return look.dot(toTarget);
+    }
+
+    private boolean isTargetBlacklistType(EntityType type) {
+        if (type == null) {
+            return false;
+        }
+
+        for (String raw : getConfig().targetingBlacklistTypes) {
+            if (raw == null || raw.isBlank()) {
+                continue;
+            }
+
+            try {
+                EntityType configured = EntityType.valueOf(raw.trim().toUpperCase(Locale.ROOT));
+                if (configured == type) {
+                    return true;
+                }
+            } catch (IllegalArgumentException ignored) {
+                // Ignore invalid enum names in config.
+            }
+        }
+
+        return false;
     }
 
     private double getStealthRadius(int level) {
@@ -322,5 +489,44 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
         double xpPerBonusDamage = 3.0;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Max Silent Fall Distance for the Stealth Silent Step adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         float maxSilentFallDistance = 1.6f;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Shows nearby threats with per-player glowing while sneaking (red = can detect, gray = almost).", impact = "Enable to get visual awareness of entities that can or almost can spot you.")
+        boolean showThreatGlows = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Look-dot margin below the full detection threshold used for gray 'almost detect' glow.", impact = "Higher values make gray warnings appear earlier; lower values make warnings stricter.")
+        double almostLookDotMargin = 0.2;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Look-dot threshold for stealth visibility checks while sneaking.", impact = "Lower values make crossing an entity's view count as seen more easily; higher values require a more direct look.")
+        double detectionLookDotThreshold = 0.2;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "If true, all nearby mobs (including passive) can break hidden state when they have line-of-sight.", impact = "Enable to prevent stealth from feeling hidden in front of passive mobs like pigs.")
+        boolean allMobsAffectStealthVisibility = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Entity types that are NOT ignored by stealth targeting suppression.", impact = "Mobs listed here can still detect/target sneaking players with Silent Step.")
+        List<String> targetingBlacklistTypes = new ArrayList<>(List.of("WARDEN", "WITHER", "PHANTOM", "ENDER_DRAGON"));
+    }
+
+    private enum ThreatLevel {
+        NONE,
+        ALMOST_DETECT,
+        CAN_DETECT
+    }
+
+    private static class ThreatSnapshot {
+        private final Map<UUID, ThreatLevel> threats = new HashMap<>();
+        private final Map<UUID, Entity> entities = new HashMap<>();
+        private final Map<UUID, ThreatLevel> canDetect = new HashMap<>();
+
+        private void add(Entity entity, ThreatLevel level) {
+            if (entity == null || level == ThreatLevel.NONE) {
+                return;
+            }
+
+            UUID id = entity.getUniqueId();
+            entities.put(id, entity);
+            ThreatLevel existing = threats.get(id);
+            if (existing == null || level.ordinal() > existing.ordinal()) {
+                threats.put(id, level);
+            }
+
+            if (level == ThreatLevel.CAN_DETECT) {
+                canDetect.put(id, level);
+            }
+        }
     }
 }

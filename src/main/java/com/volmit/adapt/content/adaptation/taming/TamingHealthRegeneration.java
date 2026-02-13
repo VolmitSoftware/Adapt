@@ -66,7 +66,7 @@ public class TamingHealthRegeneration extends SimpleAdaptation<TamingHealthRegen
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_taming_regen_1k").goal(1000).stat("taming.health-regen.health-regened").reward(400).build());
+        registerMilestone("challenge_taming_regen_1k", "taming.health-regen.health-regened", 1000, 400);
     }
 
     @Override
@@ -96,7 +96,7 @@ public class TamingHealthRegeneration extends SimpleAdaptation<TamingHealthRegen
                     tam.addPotionEffect(PotionEffectType.REGENERATION.createEffect(25 * getLevel(p), 3));
                     getPlayer(p).getData().addStat("taming.health-regen.health-regened", 1);
 
-                    if (getConfig().showParticles) {
+                    if (areParticlesEnabled()) {
                         Adapt.verbose("Healing tamed entity " + tam.getUniqueId() + " with particles");
                         tam.getWorld().spawnParticle(HEART, tam.getLocation().add(0, 1, 0), 2 * p.getLevel());
                     } else {

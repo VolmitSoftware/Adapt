@@ -62,8 +62,8 @@ public class HunterAdrenaline extends SimpleAdaptation<HunterAdrenaline.Config> 
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_hunter_adrenaline_100").goal(100).stat("hunter.adrenaline.low-health-kills").reward(400).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_hunter_adrenaline_2500").goal(2500).stat("hunter.adrenaline.low-health-kills").reward(1500).build());
+        registerMilestone("challenge_hunter_adrenaline_100", "hunter.adrenaline.low-health-kills", 100, 400);
+        registerMilestone("challenge_hunter_adrenaline_2500", "hunter.adrenaline.low-health-kills", 2500, 1500);
     }
 
     @Override

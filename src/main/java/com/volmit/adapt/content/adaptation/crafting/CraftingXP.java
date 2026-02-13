@@ -19,10 +19,7 @@
 package com.volmit.adapt.content.adaptation.crafting;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.api.advancement.AdaptAdvancement;
-import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
-import com.volmit.adapt.api.advancement.AdvancementVisibility;
-import com.volmit.adapt.api.world.AdaptStatTracker;
+import com.volmit.adapt.api.advancement.AdvancementSpec;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
@@ -48,30 +45,27 @@ public class CraftingXP extends SimpleAdaptation<CraftingXP.Config> {
         registerConfiguration(CraftingXP.Config.class);
         setDisplayName(Localizer.dLocalize("crafting.xp.name"));
         setDescription(Localizer.dLocalize("crafting.xp.description"));
-        setIcon(Material.EXPERIENCE_BOTTLE);
+        setIcon(Material.ENCHANTED_BOOK);
         setInterval(5580);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.CRAFTING_TABLE)
-                .key("challenge_crafting_xp_1k")
-                .title(Localizer.dLocalize("advancement.challenge_crafting_xp_1k.title"))
-                .description(Localizer.dLocalize("advancement.challenge_crafting_xp_1k.description"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .child(AdaptAdvancement.builder()
-                        .icon(Material.EXPERIENCE_BOTTLE)
-                        .key("challenge_crafting_xp_25k")
-                        .title(Localizer.dLocalize("advancement.challenge_crafting_xp_25k.title"))
-                        .description(Localizer.dLocalize("advancement.challenge_crafting_xp_25k.description"))
-                        .frame(AdaptAdvancementFrame.CHALLENGE)
-                        .visibility(AdvancementVisibility.PARENT_GRANTED)
-                        .build())
-                .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_crafting_xp_1k").goal(1000).stat("crafting.xp.items-crafted").reward(300).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_crafting_xp_25k").goal(25000).stat("crafting.xp.items-crafted").reward(1500).build());
+        AdvancementSpec xp25k = AdvancementSpec.challenge(
+                "challenge_crafting_xp_25k",
+                Material.EXPERIENCE_BOTTLE,
+                Localizer.dLocalize("advancement.challenge_crafting_xp_25k.title"),
+                Localizer.dLocalize("advancement.challenge_crafting_xp_25k.description")
+        );
+        AdvancementSpec xp1k = AdvancementSpec.challenge(
+                "challenge_crafting_xp_1k",
+                Material.CRAFTING_TABLE,
+                Localizer.dLocalize("advancement.challenge_crafting_xp_1k.title"),
+                Localizer.dLocalize("advancement.challenge_crafting_xp_1k.description")
+        ).withChild(xp25k);
+        registerAdvancementSpec(xp1k);
+        registerStatTracker(xp1k.statTracker("crafting.xp.items-crafted", 1000, 300));
+        registerStatTracker(xp25k.statTracker("crafting.xp.items-crafted", 25000, 1500));
     }
 
     @Override

@@ -99,8 +99,8 @@ public class ArchitectSmartShape extends SimpleAdaptation<ArchitectSmartShape.Co
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_architect_smart_shape_200").goal(200).stat("architect.smart-shape.rotations").reward(300).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_architect_smart_shape_5k").goal(5000).stat("architect.smart-shape.rotations").reward(1000).build());
+        registerMilestone("challenge_architect_smart_shape_200", "architect.smart-shape.rotations", 200, 300);
+        registerMilestone("challenge_architect_smart_shape_5k", "architect.smart-shape.rotations", 5000, 1000);
     }
 
     @Override

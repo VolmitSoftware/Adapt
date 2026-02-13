@@ -74,7 +74,7 @@ public class SwordsPoisonedBlade extends SimpleAdaptation<SwordsPoisonedBlade.Co
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_swords_poison_500").goal(500).stat("swords.poisoned-blade.poison-applied").reward(400).build());
+        registerMilestone("challenge_swords_poison_500", "swords.poisoned-blade.poison-applied", 500, 400);
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.FERMENTED_SPIDER_EYE)
                 .key("challenge_swords_poison_kills_50")
@@ -83,7 +83,7 @@ public class SwordsPoisonedBlade extends SimpleAdaptation<SwordsPoisonedBlade.Co
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_swords_poison_kills_50").goal(50).stat("swords.poisoned-blade.poison-kills").reward(1000).build());
+        registerMilestone("challenge_swords_poison_kills_50", "swords.poisoned-blade.poison-kills", 50, 1000);
     }
 
     @Override

@@ -52,7 +52,7 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
         registerConfiguration(Config.class);
         setDescription(Localizer.dLocalize("agility.wall_jump.description"));
         setDisplayName(Localizer.dLocalize("agility.wall_jump.name"));
-        setIcon(Material.LADDER);
+        setIcon(Material.VINE);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
         setMaxLevel(getConfig().maxLevel);
@@ -77,12 +77,7 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.HIDDEN)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_agility_wall_jump_500")
-                .goal(500)
-                .stat("agility.wall-jump.air-jumps")
-                .reward(500)
-                .build());
+        registerMilestone("challenge_agility_wall_jump_500", "agility.wall-jump.air-jumps", 500, 500);
     }
 
     @Override
@@ -137,7 +132,8 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
 
     @Override
     public void onTick() {
-        for (Player p : Bukkit.getOnlinePlayers()) {
+        for (com.volmit.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+            Player p = adaptPlayer.getPlayer();
             int level = getLevel(p);
             if (level <= 0) {
                 continue;
@@ -182,7 +178,7 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
                             }
                         }
                         p.setVelocity(launch);
-                        if (getConfig().showParticles) {
+                        if (areParticlesEnabled()) {
                             p.getWorld().spawnParticle(Particles.BLOCK_CRACK, p.getLocation().clone().add(0, 0.3, 0), 15, 0.1, 0.8, 0.1, 0.1, stickBlock.getBlockData());
                         }
                         getPlayer(p).getData().addStat("agility.wall-jump.air-jumps", 1);
@@ -206,7 +202,7 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
                     SoundPlayer spw = SoundPlayer.of(p.getWorld());
                     spw.play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 1f, 0.89f);
                     spw.play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_CHAIN, 1f, 1.39f);
-                    if (getConfig().showParticles) {
+                    if (areParticlesEnabled()) {
                         p.getWorld().spawnParticle(Particles.BLOCK_CRACK, p.getLocation().clone().add(0, 0.3, 0), 15, 0.1, 0.2, 0.1, 0.1, stickBlock.getBlockData());
                     }
                 }

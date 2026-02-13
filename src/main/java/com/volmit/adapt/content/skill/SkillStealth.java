@@ -22,6 +22,7 @@ import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.skill.SimpleSkill;
+import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.stealth.*;
 import com.volmit.adapt.util.C;
@@ -88,9 +89,9 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
                                 .build())
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sneak_1k").goal(1000).stat("move.sneak").reward(getConfig().challengeSneak1kReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sneak_5k").goal(5000).stat("move.sneak").reward(getConfig().challengeSneak5kReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sneak_20k").goal(20000).stat("move.sneak").reward(getConfig().challengeSneak20kReward).build());
+        registerMilestone("challenge_sneak_1k", "move.sneak", 1000, getConfig().challengeSneak1kReward);
+        registerMilestone("challenge_sneak_5k", "move.sneak", 5000, getConfig().challengeSneak5kReward);
+        registerMilestone("challenge_sneak_20k", "move.sneak", 20000, getConfig().challengeSneak20kReward);
 
         // Chain 2 - Stealth Damage While Sneaking
         registerAdvancement(AdaptAdvancement.builder()
@@ -111,8 +112,8 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_stealth_dmg_500").goal(500).stat("stealth.damage.sneaking").reward(getConfig().challengeStealthDmg500Reward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_stealth_dmg_5k").goal(5000).stat("stealth.damage.sneaking").reward(getConfig().challengeStealthDmg5kReward).build());
+        registerMilestone("challenge_stealth_dmg_500", "stealth.damage.sneaking", 500, getConfig().challengeStealthDmg500Reward);
+        registerMilestone("challenge_stealth_dmg_5k", "stealth.damage.sneaking", 5000, getConfig().challengeStealthDmg5kReward);
 
         // Chain 3 - Stealth Kills While Sneaking
         registerAdvancement(AdaptAdvancement.builder()
@@ -133,8 +134,8 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_stealth_kills_10").goal(10).stat("stealth.kills.sneaking").reward(getConfig().challengeStealthKills10Reward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_stealth_kills_100").goal(100).stat("stealth.kills.sneaking").reward(getConfig().challengeStealthKills100Reward).build());
+        registerMilestone("challenge_stealth_kills_10", "stealth.kills.sneaking", 10, getConfig().challengeStealthKills10Reward);
+        registerMilestone("challenge_stealth_kills_100", "stealth.kills.sneaking", 100, getConfig().challengeStealthKills100Reward);
 
         // Chain 4 - Stealth Time Spent Sneaking
         registerAdvancement(AdaptAdvancement.builder()
@@ -155,8 +156,8 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_stealth_time_1h").goal(3600).stat("stealth.time").reward(getConfig().challengeStealthTime1hReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_stealth_time_10h").goal(36000).stat("stealth.time").reward(getConfig().challengeStealthTime10hReward).build());
+        registerMilestone("challenge_stealth_time_1h", "stealth.time", 3600, getConfig().challengeStealthTime1hReward);
+        registerMilestone("challenge_stealth_time_10h", "stealth.time", 36000, getConfig().challengeStealthTime10hReward);
 
         // Chain 5 - Stealth Arrows Fired While Sneaking
         registerAdvancement(AdaptAdvancement.builder()
@@ -177,8 +178,8 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_stealth_arrows_50").goal(50).stat("stealth.arrows.sneaking").reward(getConfig().challengeStealthArrows50Reward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_stealth_arrows_500").goal(500).stat("stealth.arrows.sneaking").reward(getConfig().challengeStealthArrows500Reward).build());
+        registerMilestone("challenge_stealth_arrows_50", "stealth.arrows.sneaking", 50, getConfig().challengeStealthArrows50Reward);
+        registerMilestone("challenge_stealth_arrows_500", "stealth.arrows.sneaking", 500, getConfig().challengeStealthArrows500Reward);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -189,6 +190,7 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
         if (e.getDamager() instanceof Player p && p.isSneaking()) {
             shouldReturnForPlayer(p, e, () -> {
                 getPlayer(p).getData().addStat("stealth.damage.sneaking", e.getDamage());
+                xp(p, e.getEntity().getLocation(), e.getDamage() * getConfig().sneakCombatXPMultiplier);
             });
         }
     }
@@ -202,6 +204,7 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
         if (p.isSneaking()) {
             shouldReturnForPlayer(p, () -> {
                 getPlayer(p).getData().addStat("stealth.kills.sneaking", 1);
+                xp(p, e.getEntity().getLocation(), getConfig().sneakKillXP);
             });
         }
     }
@@ -226,12 +229,13 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
         if (!this.isEnabled()) {
             return;
         }
-        for (Player i : Bukkit.getOnlinePlayers()) {
+        for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+            Player i = adaptPlayer.getPlayer();
             shouldReturnForPlayer(i, () -> {
-                checkStatTrackers(getPlayer(i));
+                checkStatTrackers(adaptPlayer);
                 if (i.isSneaking() && !i.isSwimming() && !i.isSprinting() && !i.isFlying() && !i.isGliding() && (i.getGameMode().equals(GameMode.SURVIVAL) || i.getGameMode().equals(GameMode.ADVENTURE))) {
-                    xpSilent(i, getConfig().sneakXP);
-                    getPlayer(i).getData().addStat("stealth.time", 1);
+                    xpSilent(i, getConfig().sneakXP, "stealth:sneak");
+                    adaptPlayer.getData().addStat("stealth.time", 1);
                 }
             });
 
@@ -254,7 +258,11 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Sneak20k Reward for the Stealth skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double challengeSneak20kReward = 8750;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Sneak XP for the Stealth skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double sneakXP = 3.0;
+        double sneakXP = 0.4;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls XP multiplier for dealing damage while sneaking.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+        double sneakCombatXPMultiplier = 3.0;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls XP awarded for killing while sneaking.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+        double sneakKillXP = 15;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Stealth Dmg 500 Reward for the Stealth skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double challengeStealthDmg500Reward = 1500;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Stealth Dmg 5k Reward for the Stealth skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

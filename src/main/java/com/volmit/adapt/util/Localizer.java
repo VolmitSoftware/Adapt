@@ -33,6 +33,11 @@ import java.nio.file.Files;
 import java.util.Objects;
 
 public class Localizer {
+    private static final Object LANGUAGE_CACHE_LOCK = new Object();
+    private static String cachedPrimaryLanguage;
+    private static JsonObject cachedPrimaryLanguageRoot;
+    private static String cachedFallbackLanguage;
+    private static JsonObject cachedFallbackLanguageRoot;
 
     @SneakyThrows
     public static void updateLanguageFile() {
@@ -59,6 +64,8 @@ public class Localizer {
             Adapt.error("Do not disable this unless you know what you are doing, and dont expect support.");
             migrateExistingLanguageFilesToToml();
         }
+
+        invalidateLanguageCache();
     }
 
 
@@ -72,21 +79,18 @@ public class Localizer {
         String cacheKey = key;
         if (!Adapt.wordKey.containsKey(cacheKey)) {
             File langFolder = new File(Adapt.instance.getDataFolder(), "languages");
-            File primaryFile = resolveLanguageFile(langFolder, AdaptConfig.get().getLanguage());
-            String resolved = readLocalizedValue(primaryFile, key);
+            String resolved = resolveLocalizedFromRoot(getPrimaryLanguageRoot(langFolder), key);
 
             if (resolved == null) {
                 updateLanguageFile();
-                primaryFile = resolveLanguageFile(langFolder, AdaptConfig.get().getLanguage());
-                resolved = readLocalizedValue(primaryFile, key);
+                resolved = resolveLocalizedFromRoot(getPrimaryLanguageRoot(langFolder), key);
             }
 
             if (resolved == null) {
                 Adapt.verbose("Your Language File is missing the following key: " + key);
                 Adapt.verbose("Loading English Language File FallBack");
 
-                File fallbackFile = resolveLanguageFile(langFolder, AdaptConfig.get().getFallbackLanguageDontChangeUnlessYouKnowWhatYouAreDoing());
-                resolved = readLocalizedValue(fallbackFile, key);
+                resolved = resolveLocalizedFromRoot(getFallbackLanguageRoot(langFolder), key);
             }
 
             if (resolved == null) {
@@ -155,7 +159,7 @@ public class Localizer {
         return new File(languageFolder, languageCode + ".json");
     }
 
-    private static String readLocalizedValue(File file, String key) {
+    private static JsonObject loadLanguageRoot(File file) {
         try {
             if (file == null || !file.exists() || !file.isFile()) {
                 return null;
@@ -167,10 +171,53 @@ public class Localizer {
                 return null;
             }
 
-            return resolveLocalizedElementValue(resolveLocalizedElement(root.getAsJsonObject(), key));
+            return root.getAsJsonObject();
         } catch (Throwable ignored) {
             return null;
         }
+    }
+
+    private static JsonObject getPrimaryLanguageRoot(File languageFolder) {
+        synchronized (LANGUAGE_CACHE_LOCK) {
+            String language = AdaptConfig.get().getLanguage();
+            if (Objects.equals(language, cachedPrimaryLanguage) && cachedPrimaryLanguageRoot != null) {
+                return cachedPrimaryLanguageRoot;
+            }
+
+            cachedPrimaryLanguage = language;
+            cachedPrimaryLanguageRoot = loadLanguageRoot(resolveLanguageFile(languageFolder, language));
+            return cachedPrimaryLanguageRoot;
+        }
+    }
+
+    private static JsonObject getFallbackLanguageRoot(File languageFolder) {
+        synchronized (LANGUAGE_CACHE_LOCK) {
+            String fallbackLanguage = AdaptConfig.get().getFallbackLanguageDontChangeUnlessYouKnowWhatYouAreDoing();
+            if (Objects.equals(fallbackLanguage, cachedFallbackLanguage) && cachedFallbackLanguageRoot != null) {
+                return cachedFallbackLanguageRoot;
+            }
+
+            cachedFallbackLanguage = fallbackLanguage;
+            cachedFallbackLanguageRoot = loadLanguageRoot(resolveLanguageFile(languageFolder, fallbackLanguage));
+            return cachedFallbackLanguageRoot;
+        }
+    }
+
+    private static String resolveLocalizedFromRoot(JsonObject root, String key) {
+        if (root == null) {
+            return null;
+        }
+        return resolveLocalizedElementValue(resolveLocalizedElement(root, key));
+    }
+
+    private static void invalidateLanguageCache() {
+        synchronized (LANGUAGE_CACHE_LOCK) {
+            cachedPrimaryLanguage = null;
+            cachedPrimaryLanguageRoot = null;
+            cachedFallbackLanguage = null;
+            cachedFallbackLanguageRoot = null;
+        }
+        Adapt.wordKey.clear();
     }
 
     private static JsonElement resolveLocalizedElement(JsonObject root, String key) {
@@ -272,6 +319,7 @@ public class Localizer {
                 Adapt.info("Migrated legacy language file [" + jsonFile.getName() + "] -> [" + tomlFile.getName() + "].");
                 Files.deleteIfExists(jsonFile.toPath());
             }
+            invalidateLanguageCache();
         } catch (Throwable e) {
             Adapt.warn("Failed to migrate legacy language json files: " + e.getMessage());
         }

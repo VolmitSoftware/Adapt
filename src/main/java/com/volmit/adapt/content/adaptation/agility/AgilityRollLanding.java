@@ -85,18 +85,8 @@ public class AgilityRollLanding extends SimpleAdaptation<AgilityRollLanding.Conf
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.HIDDEN)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_agility_roll_100")
-                .goal(100)
-                .stat("agility.roll-landing.damage-prevented")
-                .reward(300)
-                .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_agility_roll_1000")
-                .goal(1000)
-                .stat("agility.roll-landing.damage-prevented")
-                .reward(1000)
-                .build());
+        registerMilestone("challenge_agility_roll_100", "agility.roll-landing.damage-prevented", 100, 300);
+        registerMilestone("challenge_agility_roll_1000", "agility.roll-landing.damage-prevented", 1000, 1000);
     }
 
     @Override

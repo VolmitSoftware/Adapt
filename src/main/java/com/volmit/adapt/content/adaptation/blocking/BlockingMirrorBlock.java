@@ -56,7 +56,7 @@ public class BlockingMirrorBlock extends SimpleAdaptation<BlockingMirrorBlock.Co
         registerConfiguration(Config.class);
         setDescription(Localizer.dLocalize("blocking.mirror_block.description"));
         setDisplayName(Localizer.dLocalize("blocking.mirror_block.name"));
-        setIcon(Material.SHIELD);
+        setIcon(Material.LIGHT_WEIGHTED_PRESSURE_PLATE);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
@@ -70,12 +70,7 @@ public class BlockingMirrorBlock extends SimpleAdaptation<BlockingMirrorBlock.Co
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_blocking_mirror_100")
-                .goal(100)
-                .stat("blocking.mirror-block.projectiles-reflected")
-                .reward(500)
-                .build());
+        registerMilestone("challenge_blocking_mirror_100", "blocking.mirror-block.projectiles-reflected", 100, 500);
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.SHIELD)
                 .key("challenge_blocking_mirror_3in5")
@@ -123,7 +118,9 @@ public class BlockingMirrorBlock extends SimpleAdaptation<BlockingMirrorBlock.Co
         SoundPlayer sp = SoundPlayer.of(defender.getWorld());
         sp.play(defender.getLocation(), Sound.ITEM_SHIELD_BLOCK, 1f, 1.35f);
         sp.play(defender.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_HIT, 0.8f, 0.8f);
-        defender.spawnParticle(Particle.CRIT, defender.getLocation().add(0, 1, 0), 20, 0.35, 0.3, 0.35, 0.08);
+        if (areParticlesEnabled()) {
+            defender.spawnParticle(Particle.CRIT, defender.getLocation().add(0, 1, 0), 20, 0.35, 0.3, 0.35, 0.08);
+        }
         xp(defender, getConfig().xpOnReflect);
         getPlayer(defender).getData().addStat("blocking.mirror-block.projectiles-reflected", 1);
 

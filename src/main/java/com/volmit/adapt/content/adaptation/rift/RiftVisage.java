@@ -46,8 +46,8 @@ public class RiftVisage extends SimpleAdaptation<RiftVisage.Config> {
                     .visibility(AdvancementVisibility.PARENT_GRANTED)
                     .build())
             .build());
-    registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_visage_100").goal(100).stat("rift.visage.stares-survived").reward(300).build());
-    registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_visage_1k").goal(1000).stat("rift.visage.stares-survived").reward(1000).build());
+    registerMilestone("challenge_rift_visage_100", "rift.visage.stares-survived", 100, 300);
+    registerMilestone("challenge_rift_visage_1k", "rift.visage.stares-survived", 1000, 1000);
   }
 
   @Override

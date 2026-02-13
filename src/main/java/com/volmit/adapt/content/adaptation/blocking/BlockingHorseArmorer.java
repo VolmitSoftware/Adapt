@@ -99,12 +99,7 @@ public class BlockingHorseArmorer extends SimpleAdaptation<BlockingHorseArmorer.
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_blocking_horse_armor_10")
-                .goal(10)
-                .stat("blocking.horse-armorer.armor-crafted")
-                .reward(400)
-                .build());
+        registerMilestone("challenge_blocking_horse_armor_10", "blocking.horse-armorer.armor-crafted", 10, 400);
     }
 
     @EventHandler

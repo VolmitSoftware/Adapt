@@ -48,7 +48,7 @@ public class EnchantingOfferReroll extends SimpleAdaptation<EnchantingOfferRerol
         registerConfiguration(Config.class);
         setDescription(Localizer.dLocalize("enchanting.offer_reroll.description"));
         setDisplayName(Localizer.dLocalize("enchanting.offer_reroll.name"));
-        setIcon(Material.LAPIS_LAZULI);
+        setIcon(Material.ENCHANTING_TABLE);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
@@ -70,8 +70,8 @@ public class EnchantingOfferReroll extends SimpleAdaptation<EnchantingOfferRerol
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_enchanting_reroll_100").goal(100).stat("enchanting.offer-reroll.rerolls").reward(300).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_enchanting_reroll_1k").goal(1000).stat("enchanting.offer-reroll.rerolls").reward(1000).build());
+        registerMilestone("challenge_enchanting_reroll_100", "enchanting.offer-reroll.rerolls", 100, 300);
+        registerMilestone("challenge_enchanting_reroll_1k", "enchanting.offer-reroll.rerolls", 1000, 1000);
     }
 
     @Override

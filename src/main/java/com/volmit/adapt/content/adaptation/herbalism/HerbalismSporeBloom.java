@@ -37,13 +37,13 @@ import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -74,12 +74,7 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_herbalism_spore_500")
-                .goal(500)
-                .stat("herbalism.spore-bloom.blocks-spread")
-                .reward(300)
-                .build());
+        registerMilestone("challenge_herbalism_spore_500", "herbalism.spore-bloom.blocks-spread", 500, 300);
     }
 
     @Override
@@ -90,8 +85,8 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void on(PlayerInteractEvent e) {
-        if (e.getHand() != EquipmentSlot.HAND || e.getAction() != Action.RIGHT_CLICK_BLOCK || e.getClickedBlock() == null) {
+    public void on(BlockPlaceEvent e) {
+        if (e.getHand() != EquipmentSlot.HAND) {
             return;
         }
 
@@ -99,42 +94,22 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
             return;
         }
 
-        Block clicked = e.getClickedBlock();
-        if (!isBloomFloor(clicked.getType())) {
+        if (!isSporeItem(e.getItemInHand())) {
             return;
         }
 
-        ItemStack hand = e.getPlayer().getInventory().getItemInMainHand();
-        if (!isSporeItem(hand)) {
+        Block floor = e.getBlockPlaced().getRelative(0, -1, 0);
+        if (!isBloomFloor(floor.getType())) {
             return;
         }
 
-        int level = getLevel(e.getPlayer());
-        long now = System.currentTimeMillis();
-        long ready = cooldowns.getOrDefault(e.getPlayer().getUniqueId(), 0L);
-        if (now < ready) {
-            return;
-        }
-
-        if (e.getPlayer().getFoodLevel() < getFoodCost(level)) {
-            return;
-        }
-
-        if (!consumeOne(hand)) {
-            return;
-        }
-
+        // Place-trigger activation: sneak-place mushroom on valid floor to bloom.
         e.setCancelled(true);
-        e.getPlayer().setFoodLevel(Math.max(0, e.getPlayer().getFoodLevel() - getFoodCost(level)));
-        cooldowns.put(e.getPlayer().getUniqueId(), now + getCooldownMillis(level));
-
-        clicked.getWorld().spawnParticle(Particle.SPORE_BLOSSOM_AIR, clicked.getLocation().add(0.5, 1.0, 0.5), 30, 0.35, 0.15, 0.35, 0.01);
-        SoundPlayer.of(clicked.getWorld()).play(clicked.getLocation().add(0.5, 0.5, 0.5), Sound.ENTITY_ENDERMAN_AMBIENT, 0.45f, 0.55f);
-        startBloom(e.getPlayer(), clicked, hand.getType(), level);
+        attemptBloom(e.getPlayer(), floor, e.getItemInHand().getType());
     }
 
-    private void startBloom(org.bukkit.entity.Player player, Block center, Material catalyst, int level) {
-        List<Block> path = buildSpiderPath(center, getBloomRadius(level), getSpokes(level), getBloomAttempts(level));
+    private void startBloom(org.bukkit.entity.Player player, Block center, Material catalyst, Material spreadSurface, int level) {
+        List<Block> path = buildSpiderPath(center, getBloomRadius(level), getSpokes(level), getBloomAttempts(level), getGuaranteedReach(level));
         if (path.isEmpty()) {
             return;
         }
@@ -153,13 +128,17 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
                 int pulseChanged = 0;
                 int batch = getBlocksPerPulse(level);
                 for (int i = 0; i < batch && cursor < path.size(); i++) {
-                    pulseChanged += spreadAt(path.get(cursor++), catalyst);
+                    pulseChanged += spreadAt(path.get(cursor++), catalyst, spreadSurface);
                 }
 
                 if (pulseChanged > 0) {
                     totalChanged += pulseChanged;
-                    center.getWorld().spawnParticle(Particle.SPORE_BLOSSOM_AIR, center.getLocation().add(0.5, 1.0, 0.5), 8, 0.55, 0.2, 0.55, 0.02);
-                    center.getWorld().spawnParticle(Particle.CRIMSON_SPORE, center.getLocation().add(0.5, 1.0, 0.5), 8, 0.55, 0.2, 0.55, 0.01);
+                    if (areParticlesEnabled()) {
+                        center.getWorld().spawnParticle(Particle.SPORE_BLOSSOM_AIR, center.getLocation().add(0.5, 1.0, 0.5), 8, 0.55, 0.2, 0.55, 0.02);
+                    }
+                    if (areParticlesEnabled()) {
+                        center.getWorld().spawnParticle(Particle.CRIMSON_SPORE, center.getLocation().add(0.5, 1.0, 0.5), 8, 0.55, 0.2, 0.55, 0.01);
+                    }
                     SoundPlayer sp = SoundPlayer.of(center.getWorld());
                     sp.play(center.getLocation().add(0.5, 0.5, 0.5), Sound.BLOCK_FUNGUS_PLACE, 0.45f, 0.75f);
                     sp.play(center.getLocation().add(0.5, 0.5, 0.5), Sound.ENTITY_ENDERMAN_AMBIENT, 0.22f, 0.45f + ThreadLocalRandom.current().nextFloat() * 0.45f);
@@ -176,59 +155,121 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
         }.runTaskTimer(Adapt.instance, 0L, getSpreadIntervalTicks(level));
     }
 
-    private List<Block> buildSpiderPath(Block center, double radius, int spokes, int max) {
-        int r = Math.max(1, (int) Math.round(radius));
-        List<Block> out = new ArrayList<>();
+    private List<Block> buildSpiderPath(Block center, double radius, int spokes, int max, int guaranteedReach) {
+        int r = Math.max(1, (int) Math.ceil(radius));
+        int sectors = Math.max(8, Math.min(48, Math.max(1, spokes) * 3));
+        double maxDistance = radius + 0.35D;
+        double maxDistanceSq = maxDistance * maxDistance;
+        List<Block> out = new ArrayList<>(Math.max(8, max));
         Set<String> seen = new HashSet<>();
         out.add(center);
         seen.add(key(center));
 
+        if (out.size() >= max) {
+            return out;
+        }
+
         ThreadLocalRandom random = ThreadLocalRandom.current();
-        for (int arm = 0; arm < spokes; arm++) {
-            double angle = ((Math.PI * 2D) * arm / Math.max(1, spokes)) + (random.nextDouble() * 0.26);
-            double cos = Math.cos(angle);
-            double sin = Math.sin(angle);
+        double offset = random.nextDouble(Math.PI * 2D);
 
-            for (int step = 1; step <= r; step++) {
-                int dx = (int) Math.round(cos * step);
-                int dz = (int) Math.round(sin * step);
-                Block block = center.getRelative(dx, 0, dz);
-                if (seen.add(key(block))) {
-                    out.add(block);
-                }
-
-                if (random.nextDouble() <= getConfig().branchChance) {
-                    Block branch = block.getRelative(random.nextInt(-1, 2), 0, random.nextInt(-1, 2));
-                    if (seen.add(key(branch))) {
-                        out.add(branch);
-                    }
-                }
-
-                if (out.size() >= max) {
-                    return out;
-                }
+        int forcedReach = Math.max(0, Math.min(r, guaranteedReach));
+        for (int step = 1; step <= forcedReach; step++) {
+            addRingSamples(center, out, seen, step, sectors, offset, maxDistanceSq, max);
+            if (out.size() >= max) {
+                return out;
             }
         }
 
+        for (int step = 1; step <= r; step++) {
+            addRingSamples(center, out, seen, step, sectors, offset, maxDistanceSq, max);
+            if (out.size() >= max) {
+                return out;
+            }
+
+            // Offset pass fills sector rounding gaps so rings look uniform.
+            addRingSamples(center, out, seen, step, sectors, offset + (Math.PI / sectors), maxDistanceSq, max);
+            if (out.size() >= max) {
+                return out;
+            }
+        }
+
+        fillRemainingFromCircle(center, out, seen, r, offset, maxDistanceSq, max);
         return out;
     }
 
-    private int spreadAt(Block floor, Material catalyst) {
-        int changed = 0;
-        Block above = floor.getRelative(0, 1, 0);
+    private void addRingSamples(Block center, List<Block> out, Set<String> seen, int step, int sectors, double offset, double maxDistanceSq, int max) {
+        for (int i = 0; i < sectors && out.size() < max; i++) {
+            double angle = offset + ((Math.PI * 2D) * i / sectors);
+            int dx = (int) Math.round(Math.cos(angle) * step);
+            int dz = (int) Math.round(Math.sin(angle) * step);
+            if (dx == 0 && dz == 0) {
+                continue;
+            }
 
-        if (getConfig().convertWoodToHyphae && isWoodLike(floor.getType())) {
-            Material hyphae = getHyphaeForWood(floor.getType(), catalyst);
-            if (hyphae != null && floor.getType() != hyphae) {
-                floor.setType(hyphae, true);
-                changed++;
+            if ((dx * dx) + (dz * dz) > maxDistanceSq) {
+                continue;
+            }
+
+            Block block = center.getRelative(dx, 0, dz);
+            if (seen.add(key(block))) {
+                out.add(block);
+            }
+        }
+    }
+
+    private void fillRemainingFromCircle(Block center, List<Block> out, Set<String> seen, int r, double offset, double maxDistanceSq, int max) {
+        List<int[]> candidates = new ArrayList<>();
+        for (int dx = -r; dx <= r; dx++) {
+            for (int dz = -r; dz <= r; dz++) {
+                if (dx == 0 && dz == 0) {
+                    continue;
+                }
+
+                if ((dx * dx) + (dz * dz) > maxDistanceSq) {
+                    continue;
+                }
+
+                candidates.add(new int[]{dx, dz});
             }
         }
 
-        if (above.getType().isAir() || isReplaceablePlant(above.getType())) {
-            Material replacement = getRandomMushroom(catalyst);
+        candidates.sort(Comparator.<int[]>comparingInt(v -> (v[0] * v[0]) + (v[1] * v[1]))
+                .thenComparingDouble(v -> normalizeAngle(Math.atan2(v[1], v[0]) - offset)));
+
+        for (int[] c : candidates) {
+            if (out.size() >= max) {
+                return;
+            }
+
+            Block block = center.getRelative(c[0], 0, c[1]);
+            if (seen.add(key(block))) {
+                out.add(block);
+            }
+        }
+    }
+
+    private double normalizeAngle(double angle) {
+        double out = angle % (Math.PI * 2D);
+        return out < 0 ? out + (Math.PI * 2D) : out;
+    }
+
+    private int spreadAt(Block floor, Material catalyst, Material spreadSurface) {
+        int changed = 0;
+        Block ground = resolveTopSurfaceSoil(floor);
+        if (ground == null) {
+            return 0;
+        }
+        Block above = ground.getRelative(0, 1, 0);
+
+        if (spreadSurface != null && isConvertibleSoil(ground.getType()) && ground.getType() != spreadSurface) {
+            ground.setType(spreadSurface, false);
+            changed++;
+        }
+
+        if (getConfig().swapFlowersToMushrooms && isFlower(above.getType())) {
+            Material replacement = getFlowerReplacement(above.getType(), catalyst);
             if (replacement != null && above.getType() != replacement) {
-                above.setType(replacement, true);
+                above.setType(replacement, false);
                 changed++;
             }
         }
@@ -236,33 +277,25 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
         return changed;
     }
 
-    private Material getHyphaeForWood(Material floorType, Material catalyst) {
-        String name = floorType.name();
-        if (name.contains("WARPED")) {
-            return Material.WARPED_HYPHAE;
-        }
+    private Block resolveTopSurfaceSoil(Block sample) {
+        int x = sample.getX();
+        int z = sample.getZ();
+        int highestY = sample.getWorld().getHighestBlockYAt(x, z);
+        int minY = sample.getWorld().getMinHeight();
 
-        if (name.contains("CRIMSON") || name.contains("NETHER")) {
-            return Material.CRIMSON_HYPHAE;
-        }
+        for (int y = highestY; y >= minY; y--) {
+            Block block = sample.getWorld().getBlockAt(x, y, z);
+            if (!isConvertibleSoil(block.getType())) {
+                continue;
+            }
 
-        return catalyst == Material.BROWN_MUSHROOM ? Material.WARPED_HYPHAE : Material.CRIMSON_HYPHAE;
-    }
-
-    private Material getRandomMushroom(Material catalyst) {
-        List<Material> choices = new ArrayList<>();
-        for (String key : getConfig().mushroomChoices) {
-            Material m = Material.matchMaterial(key);
-            if (m != null) {
-                choices.add(m);
+            Block above = block.getRelative(0, 1, 0);
+            if (above.getType().isAir() || isReplaceablePlant(above.getType()) || isFlower(above.getType())) {
+                return block;
             }
         }
 
-        if (choices.isEmpty()) {
-            return catalyst == Material.BROWN_MUSHROOM ? Material.BROWN_MUSHROOM : Material.RED_MUSHROOM;
-        }
-
-        return choices.get(ThreadLocalRandom.current().nextInt(choices.size()));
+        return null;
     }
 
     private boolean isBloomFloor(Material type) {
@@ -280,6 +313,144 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
 
         hand.setAmount(hand.getAmount() - 1);
         return true;
+    }
+
+    private boolean attemptBloom(org.bukkit.entity.Player player, Block center, Material catalyst) {
+        Material spreadSurface = resolveSpreadSurface(center.getType());
+        if (spreadSurface == null) {
+            return false;
+        }
+
+        int level = getLevel(player);
+        long now = System.currentTimeMillis();
+        long ready = cooldowns.getOrDefault(player.getUniqueId(), 0L);
+        if (now < ready) {
+            SoundPlayer.of(center.getWorld()).play(center.getLocation().add(0.5, 0.5, 0.5), Sound.BLOCK_NOTE_BLOCK_BASS, 0.5f, 0.75f);
+            return false;
+        }
+
+        if (player.getFoodLevel() < getFoodCost(level)) {
+            SoundPlayer.of(center.getWorld()).play(center.getLocation().add(0.5, 0.5, 0.5), Sound.BLOCK_NOTE_BLOCK_BASS, 0.5f, 0.75f);
+            return false;
+        }
+
+        if (!consumeCatalystFromMainHandIfPresent(player, catalyst)) {
+            return false;
+        }
+
+        player.setFoodLevel(Math.max(0, player.getFoodLevel() - getFoodCost(level)));
+        cooldowns.put(player.getUniqueId(), now + getCooldownMillis(level));
+
+        if (areParticlesEnabled()) {
+            center.getWorld().spawnParticle(Particle.SPORE_BLOSSOM_AIR, center.getLocation().add(0.5, 1.0, 0.5), 30, 0.35, 0.15, 0.35, 0.01);
+        }
+        SoundPlayer.of(center.getWorld()).play(center.getLocation().add(0.5, 0.5, 0.5), Sound.ENTITY_ENDERMAN_AMBIENT, 0.45f, 0.55f);
+        startBloom(player, center, catalyst, spreadSurface, level);
+        return true;
+    }
+
+    private boolean consumeCatalystFromMainHandIfPresent(org.bukkit.entity.Player player, Material catalyst) {
+        ItemStack held = player.getInventory().getItemInMainHand();
+        if (!isItem(held)) {
+            // Some server flows decrement the placed stack before cancelled placement is finalized.
+            // In that case, allow activation without double-consuming.
+            return true;
+        }
+
+        if (held.getType() != catalyst) {
+            return true;
+        }
+
+        return consumeOne(held);
+    }
+
+    private Material resolveSpreadSurface(Material floorType) {
+        if (floorType == Material.MYCELIUM) {
+            return Material.MYCELIUM;
+        }
+
+        if (floorType == Material.PODZOL) {
+            return Material.PODZOL;
+        }
+
+        return null;
+    }
+
+    private int getGuaranteedReach(int level) {
+        return level >= 5 ? 6 : 0;
+    }
+
+    private boolean isConvertibleSoil(Material type) {
+        return type == Material.DIRT
+                || type == Material.GRASS_BLOCK
+                || type == Material.COARSE_DIRT
+                || type == Material.ROOTED_DIRT
+                || type == Material.MYCELIUM
+                || type == Material.PODZOL;
+    }
+
+    private boolean isFlower(Material type) {
+        String n = type.name();
+        return n.endsWith("_FLOWER")
+                || n.endsWith("_TULIP")
+                || type == Material.DANDELION
+                || type == Material.POPPY
+                || type == Material.BLUE_ORCHID
+                || type == Material.ALLIUM
+                || type == Material.AZURE_BLUET
+                || type == Material.OXEYE_DAISY
+                || type == Material.CORNFLOWER
+                || type == Material.LILY_OF_THE_VALLEY
+                || type == Material.WITHER_ROSE
+                || type == Material.SUNFLOWER
+                || type == Material.LILAC
+                || type == Material.ROSE_BUSH
+                || type == Material.PEONY
+                || type == Material.TORCHFLOWER
+                || type == Material.PINK_PETALS
+                || type == Material.SPORE_BLOSSOM;
+    }
+
+    private Material getFlowerReplacement(Material flower, Material catalyst) {
+        ThreadLocalRandom random = ThreadLocalRandom.current();
+        if (isWarmFlower(flower)) {
+            // Warm flowers lean red.
+            return random.nextDouble() <= 0.7 ? Material.RED_MUSHROOM : Material.BROWN_MUSHROOM;
+        }
+
+        if (isCoolFlower(flower)) {
+            // Cool flowers lean brown.
+            return random.nextDouble() <= 0.7 ? Material.BROWN_MUSHROOM : Material.RED_MUSHROOM;
+        }
+
+        // Fallback uses catalyst flavor.
+        return catalyst == Material.BROWN_MUSHROOM ? Material.BROWN_MUSHROOM : Material.RED_MUSHROOM;
+    }
+
+    private boolean isWarmFlower(Material flower) {
+        return flower == Material.DANDELION
+                || flower == Material.POPPY
+                || flower == Material.RED_TULIP
+                || flower == Material.ORANGE_TULIP
+                || flower == Material.PINK_TULIP
+                || flower == Material.SUNFLOWER
+                || flower == Material.ROSE_BUSH
+                || flower == Material.PEONY
+                || flower == Material.WITHER_ROSE
+                || flower == Material.TORCHFLOWER
+                || flower == Material.PINK_PETALS;
+    }
+
+    private boolean isCoolFlower(Material flower) {
+        return flower == Material.BLUE_ORCHID
+                || flower == Material.ALLIUM
+                || flower == Material.AZURE_BLUET
+                || flower == Material.WHITE_TULIP
+                || flower == Material.OXEYE_DAISY
+                || flower == Material.CORNFLOWER
+                || flower == Material.LILY_OF_THE_VALLEY
+                || flower == Material.LILAC
+                || flower == Material.SPORE_BLOSSOM;
     }
 
     private boolean isWoodLike(Material type) {
@@ -317,11 +488,17 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
     }
 
     private int getBloomAttempts(int level) {
-        return Math.max(1, (int) Math.round(getConfig().bloomAttemptsBase + (getLevelPercent(level) * getConfig().bloomAttemptsFactor)));
+        double scaled = getConfig().bloomAttemptsBase + (getLevelPercent(level) * getConfig().bloomAttemptsFactor);
+        double perLevel = Math.max(0, level - 1) * getConfig().bloomAttemptsPerLevel;
+        return Math.max(1, (int) Math.round(scaled + perLevel));
     }
 
     private double getBloomRadius(int level) {
-        return getConfig().bloomRadiusBase + (getLevelPercent(level) * getConfig().bloomRadiusFactor);
+        double radius = getConfig().bloomRadiusBase + (getLevelPercent(level) * getConfig().bloomRadiusFactor);
+        if (level >= 5) {
+            radius = Math.max(6D, radius);
+        }
+        return radius;
     }
 
     private int getSpokes(int level) {
@@ -368,6 +545,8 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
         boolean enabled = true;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Convert Wood To Hyphae for the Herbalism Spore Bloom adaptation.", impact = "True enables this behavior and false disables it.")
         boolean convertWoodToHyphae = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Allows flowers hit by the bloom to be replaced with mushrooms.", impact = "Disable this to keep flowers untouched while still converting soil into mushroom blocks.")
+        boolean swapFlowersToMushrooms = true;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Branch Chance for the Herbalism Spore Bloom adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double branchChance = 0.22;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Mushroom Choices for the Herbalism Spore Bloom adaptation.", impact = "Changing this alters the identifier or text used by the feature.")
@@ -384,6 +563,8 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
         double bloomAttemptsBase = 26;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Bloom Attempts Factor for the Herbalism Spore Bloom adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double bloomAttemptsFactor = 58;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Additional bloom attempts granted each adaptation level.", impact = "Higher values make each level spread across more total blocks.")
+        double bloomAttemptsPerLevel = 12;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Bloom Radius Base for the Herbalism Spore Bloom adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double bloomRadiusBase = 5;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Bloom Radius Factor for the Herbalism Spore Bloom adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

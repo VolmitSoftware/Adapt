@@ -116,11 +116,11 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
                                 .build())
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_brew_1k").goal(1000).stat("brewing.consumed").reward(getConfig().challengeBrew1k).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_brew_5k").goal(5000).stat("brewing.consumed").reward(getConfig().challengeBrew1k).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_brew_50k").goal(50000).stat("brewing.consumed").reward(getConfig().challengeBrew1k).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_brew_500k").goal(500000).stat("brewing.consumed").reward(getConfig().challengeBrew1k).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_brew_5m").goal(5000000).stat("brewing.consumed").reward(getConfig().challengeBrew1k).build());
+        registerMilestone("challenge_brew_1k", "brewing.consumed", 1000, getConfig().challengeBrew1k);
+        registerMilestone("challenge_brew_5k", "brewing.consumed", 5000, getConfig().challengeBrew1k);
+        registerMilestone("challenge_brew_50k", "brewing.consumed", 50000, getConfig().challengeBrew1k);
+        registerMilestone("challenge_brew_500k", "brewing.consumed", 500000, getConfig().challengeBrew1k);
+        registerMilestone("challenge_brew_5m", "brewing.consumed", 5000000, getConfig().challengeBrew1k);
 
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.SPLASH_POTION).key("challenge_brewsplash_1k")
@@ -162,11 +162,11 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
                                 .build())
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_brewsplash_1k").goal(1000).stat("brewing.splashes").reward(getConfig().challengeBrewSplash1k).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_brewsplash_5k").goal(5000).stat("brewing.splashes").reward(getConfig().challengeBrewSplash1k).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_brewsplash_50k").goal(50000).stat("brewing.splashes").reward(getConfig().challengeBrewSplash1k).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_brewsplash_500k").goal(500000).stat("brewing.splashes").reward(getConfig().challengeBrewSplash1k).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_brewsplash_5m").goal(5000000).stat("brewing.splashes").reward(getConfig().challengeBrewSplash1k).build());
+        registerMilestone("challenge_brewsplash_1k", "brewing.splashes", 1000, getConfig().challengeBrewSplash1k);
+        registerMilestone("challenge_brewsplash_5k", "brewing.splashes", 5000, getConfig().challengeBrewSplash1k);
+        registerMilestone("challenge_brewsplash_50k", "brewing.splashes", 50000, getConfig().challengeBrewSplash1k);
+        registerMilestone("challenge_brewsplash_500k", "brewing.splashes", 500000, getConfig().challengeBrewSplash1k);
+        registerMilestone("challenge_brewsplash_5m", "brewing.splashes", 5000000, getConfig().challengeBrewSplash1k);
 
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.BREWING_STAND).key("challenge_brew_stands_10")
@@ -185,8 +185,8 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_brew_stands_10").goal(10).stat("brewing.stands.placed").reward(getConfig().challengeBrew1k).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_brew_stands_50").goal(50).stat("brewing.stands.placed").reward(getConfig().challengeBrew1k * 2).build());
+        registerMilestone("challenge_brew_stands_10", "brewing.stands.placed", 10, getConfig().challengeBrew1k);
+        registerMilestone("challenge_brew_stands_50", "brewing.stands.placed", 50, getConfig().challengeBrew1k * 2);
 
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.GLOWSTONE_DUST).key("challenge_brew_strong_25")
@@ -205,8 +205,8 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_brew_strong_25").goal(25).stat("brewing.strong").reward(getConfig().challengeBrew1k).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_brew_strong_250").goal(250).stat("brewing.strong").reward(getConfig().challengeBrew1k * 2).build());
+        registerMilestone("challenge_brew_strong_25", "brewing.strong", 25, getConfig().challengeBrew1k);
+        registerMilestone("challenge_brew_strong_250", "brewing.strong", 250, getConfig().challengeBrew1k * 2);
 
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.SPLASH_POTION).key("challenge_brew_splash_hits_50")
@@ -225,8 +225,8 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_brew_splash_hits_50").goal(50).stat("brewing.splash.hits").reward(getConfig().challengeBrewSplash1k).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_brew_splash_hits_500").goal(500).stat("brewing.splash.hits").reward(getConfig().challengeBrewSplash1k * 2).build());
+        registerMilestone("challenge_brew_splash_hits_50", "brewing.splash.hits", 50, getConfig().challengeBrewSplash1k);
+        registerMilestone("challenge_brew_splash_hits_500", "brewing.splash.hits", 500, getConfig().challengeBrewSplash1k * 2);
 
         SpatialMatter.registerSliceType(new BrewingStandOwnerMatter());
     }
@@ -328,9 +328,7 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
 
     @Override
     public void onTick() {
-        for (Player i : Bukkit.getOnlinePlayers()) {
-            shouldReturnForPlayer(i, () -> checkStatTrackers(getPlayer(i)));
-        }
+        checkStatTrackersForOnlinePlayers();
     }
 
     @Override
@@ -347,10 +345,10 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Brew Splash1k for the Brewing skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double challengeBrewSplash1k = 1000;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Splash XP for the Brewing skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double splashXP = 65;
+        double splashXP = 100;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Cooldown Delay for the Brewing skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        long cooldownDelay = 3250;
+        long cooldownDelay = 2500;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Splash Multiplier for the Brewing skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double splashMultiplier = 0.25;
+        double splashMultiplier = 0.4;
     }
 }

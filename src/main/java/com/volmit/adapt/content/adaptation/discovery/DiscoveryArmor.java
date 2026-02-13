@@ -80,18 +80,8 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_discovery_armor_1hr")
-                .goal(72000)
-                .stat("discovery.armor.ticks-with-bonus")
-                .reward(400)
-                .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_discovery_armor_24hr")
-                .goal(1728000)
-                .stat("discovery.armor.ticks-with-bonus")
-                .reward(2000)
-                .build());
+        registerMilestone("challenge_discovery_armor_1hr", "discovery.armor.ticks-with-bonus", 72000, 400);
+        registerMilestone("challenge_discovery_armor_24hr", "discovery.armor.ticks-with-bonus", 1728000, 2000);
     }
 
     @Override
@@ -126,7 +116,7 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
 
             if (a > 2 && M.r(0.005 * a)) {
                 Vector v = VectorMath.directionNoNormal(l, b.getLocation().add(0.5, 0.5, 0.5));
-                if (getConfig().showParticles) {
+                if (areParticlesEnabled()) {
                     l.getWorld().spawnParticle(Particles.ENCHANTMENT_TABLE, l.clone().add(0, 1, 0), 0, v.getX(), v.getY(), v.getZ());
                 }
             }
@@ -147,8 +137,8 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
 
     @Override
     public void onTick() {
-        var players = Bukkit.getOnlinePlayers();
-        for (Player p : players) {
+        for (com.volmit.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+            Player p = adaptPlayer.getPlayer();
             if (p == null || !p.isOnline()) continue;
 
             long now = M.ms();
@@ -175,7 +165,7 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
                 lArmor = Double.isNaN(lArmor) ? 0 : lArmor;
                 attribute.setModifier(MODIFIER, MODIFIER_KEY, lArmor, AttributeModifier.Operation.ADD_NUMBER);
                 if (lArmor > 0) {
-                    getPlayer(p).getData().addStat("discovery.armor.ticks-with-bonus", 1);
+                    adaptPlayer.getData().addStat("discovery.armor.ticks-with-bonus", 1);
                 }
             }
         }

@@ -40,21 +40,158 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Recipe;
 
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public interface Adaptation<T> extends Ticked, Component {
     Map<String, Long> PERMANENT_LEARN_CONFIRMATIONS = new ConcurrentHashMap<>();
+    Map<String, Long> USAGE_BASELINE_XP_COOLDOWNS = new ConcurrentHashMap<>();
     long PERMANENT_LEARN_CONFIRM_WINDOW_MS = 6_000L;
 
     int getMaxLevel();
 
     default void xp(Player p, double amount) {
-        getSkill().xp(p, amount);
+        xp(p, amount, null);
+    }
+
+    default void xp(Player p, double amount, String rewardKey) {
+        getSkill().xp(p, amount, adaptationRewardKey(rewardKey));
     }
 
     default void xp(Player p, Location l, double amount) {
-        getSkill().xp(p, l, amount);
+        xp(p, l, amount, null);
+    }
+
+    default void xp(Player p, Location l, double amount, String rewardKey) {
+        getSkill().xp(p, l, amount, adaptationRewardKey(rewardKey));
+    }
+
+    default void xpSilent(Player p, double amount, String rewardKey) {
+        getSkill().xpSilent(p, amount, adaptationRewardKey(rewardKey));
+    }
+
+    default void xpSilent(Player p, double amount) {
+        xpSilent(p, amount, null);
+    }
+
+    default String adaptationRewardKey(String rewardKey) {
+        String suffix = rewardKey == null ? "" : rewardKey.trim();
+        if (suffix.isEmpty()) {
+            suffix = "use";
+        }
+        return "adaptation:" + getName() + ":" + suffix;
+    }
+
+    @Override
+    default boolean areParticlesEnabled() {
+        if (!Component.super.areParticlesEnabled()) {
+            return false;
+        }
+
+        AdaptConfig.Effects effects = AdaptConfig.get().getEffects();
+        if (effects != null && effects.getAdaptationParticleOverrides() != null && !effects.getAdaptationParticleOverrides().isEmpty()) {
+            String key = getName();
+            Boolean override = effects.getAdaptationParticleOverrides().get(key);
+            if (override == null && key != null) {
+                override = effects.getAdaptationParticleOverrides().get(key.toLowerCase(Locale.ROOT));
+            }
+            if (override != null && !override) {
+                return false;
+            }
+        }
+
+        Object config = getConfig();
+        if (config == null) {
+            return true;
+        }
+
+        Boolean directToggle = readBooleanField(config, "showParticles");
+        if (directToggle != null) {
+            return directToggle;
+        }
+
+        Boolean genericToggle = readBooleanField(config, "showParticleEffects");
+        if (genericToggle != null) {
+            return genericToggle;
+        }
+
+        return true;
+    }
+
+    @Override
+    default boolean areSoundsEnabled() {
+        if (!Component.super.areSoundsEnabled()) {
+            return false;
+        }
+
+        Object config = getConfig();
+        if (config == null) {
+            return true;
+        }
+
+        Boolean directToggle = readBooleanField(config, "showSounds");
+        if (directToggle != null) {
+            return directToggle;
+        }
+
+        return true;
+    }
+
+    private static Boolean readBooleanField(Object source, String fieldName) {
+        if (source == null || fieldName == null || fieldName.isBlank()) {
+            return null;
+        }
+
+        Class<?> current = source.getClass();
+        while (current != null) {
+            try {
+                Field field = current.getDeclaredField(fieldName);
+                field.setAccessible(true);
+                Object value = field.get(source);
+                if (value instanceof Boolean bool) {
+                    return bool;
+                }
+                return null;
+            } catch (NoSuchFieldException ignored) {
+                current = current.getSuperclass();
+            } catch (Throwable ignored) {
+                return null;
+            }
+        }
+
+        return null;
+    }
+
+    default void awardUsageBaselineXp(Player p, int level) {
+        if (p == null || level <= 0 || !p.getClass().getSimpleName().equals("CraftPlayer")) {
+            return;
+        }
+
+        AdaptConfig.AdaptationXp cfg = AdaptConfig.get().getAdaptationXp();
+        if (cfg == null || !cfg.isUsageBaselineEnabled()) {
+            return;
+        }
+
+        long now = M.ms();
+        long cooldown = Math.max(250L, cfg.getUsageBaselineCooldownMillis());
+        String key = p.getUniqueId() + "|" + getName();
+        Long next = USAGE_BASELINE_XP_COOLDOWNS.get(key);
+        if (next != null && next > now) {
+            return;
+        }
+
+        if (USAGE_BASELINE_XP_COOLDOWNS.size() > 6000) {
+            USAGE_BASELINE_XP_COOLDOWNS.entrySet().removeIf(i -> i.getValue() <= now);
+        }
+
+        double reward = cfg.getUsageBaselineXp() + ((Math.max(1, level) - 1) * cfg.getUsageBaselineXpPerLevel());
+        if (reward <= 0) {
+            return;
+        }
+
+        USAGE_BASELINE_XP_COOLDOWNS.put(key, now + cooldown);
+        xpSilent(p, reward, "baseline-use");
     }
 
     default <F> F getStorage(Player p, String key, F defaultValue) {
@@ -275,48 +412,44 @@ public interface Adaptation<T> extends Ticked, Component {
         return false;
     }
 
-    default boolean hasAdaptation(Player p) {
+    default int getActiveLevel(Player p) {
         try {
             if (p == null || p.isDead()) { // Check if player is not invalid
-                return false;
+                return 0;
             }
-            if (!this.isEnabled()) {
-                return false;
-            }
-            if (!this.getSkill().isEnabled()) {
-                Adapt.verbose("Skill " + this.getSkill().getName() + " is disabled. Skipping adaptation " + this.getName());
-                return false;
-            }
-            if (getLevel(p) > 0) {
-                if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-                    Adapt.verbose("Player " + p.getName() + " is in a blacklisted world. Skipping adaptation " + this.getName());
-                    return false;
-                }
-                if (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR)) {
-                    Adapt.verbose("Player " + p.getName() + " is in creative or spectator mode. Skipping adaptation " + this.getName());
-                    return false;
-                }
-                if (!checkRegion(p)) {
-                    Adapt.verbose("Player " + p.getName() + " don't have adaptation - " + this.getName() + " permission.");
-                    return false;
-                }
 
-                if (hasBlacklistPermission(p, this)) {
-                    Adapt.verbose("Player " + p.getName() + " has blacklist permission for adaptation " + this.getName());
-                    return false;
-                }
-                if (hasUsageConflict(p)) {
-                    return false;
-                }
-                if (!canUse(p)) {
-                    Adapt.verbose("Player " + p.getName() + " can't use adaptation, This is an API restriction" + this.getName());
-                    return false;
-                }
-                Adapt.verbose("Player " + p.getName() + " used adaptation " + this.getName());
-                return true;
-            } else {
-                return false;
+            int level = getLevel(p);
+            if (level <= 0) {
+                return 0;
             }
+
+            if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+                Adapt.verbose("Player " + p.getName() + " is in a blacklisted world. Skipping adaptation " + this.getName());
+                return 0;
+            }
+            if (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR)) {
+                Adapt.verbose("Player " + p.getName() + " is in creative or spectator mode. Skipping adaptation " + this.getName());
+                return 0;
+            }
+            if (!checkRegion(p)) {
+                Adapt.verbose("Player " + p.getName() + " don't have adaptation - " + this.getName() + " permission.");
+                return 0;
+            }
+
+            if (hasBlacklistPermission(p, this)) {
+                Adapt.verbose("Player " + p.getName() + " has blacklist permission for adaptation " + this.getName());
+                return 0;
+            }
+            if (hasUsageConflict(p)) {
+                return 0;
+            }
+            if (!canUse(p)) {
+                Adapt.verbose("Player " + p.getName() + " can't use adaptation, This is an API restriction" + this.getName());
+                return 0;
+            }
+            awardUsageBaselineXp(p, level);
+            Adapt.verbose("Player " + p.getName() + " used adaptation " + this.getName());
+            return level;
         } catch (Exception e) {
             if (e instanceof IndexOutOfBoundsException) { // This is that fucking bug with Citizens Spoofing Players. I hate it.
                 Adapt.verbose("Citizens/PacketSpoofing is Messing stuff up again. I hate it.");
@@ -324,8 +457,12 @@ public interface Adaptation<T> extends Ticked, Component {
             } else {
                 e.printStackTrace();
             }
-            return false;
+            return 0;
         }
+    }
+
+    default boolean hasAdaptation(Player p) {
+        return getActiveLevel(p) > 0;
     }
 
     default int getLevel(Player p) {
@@ -341,12 +478,13 @@ public interface Adaptation<T> extends Ticked, Component {
         }
         if (!this.getSkill().isEnabled()) {
             return 0;
-        } else {
-            PlayerSkillLine line = getPlayer(p).getData().getSkillLine(getSkill().getName());
-            if (line == null)
-                return 0;
-            return getPlayer(p).getData().getSkillLine(getSkill().getName()).getAdaptationLevel(getName());
         }
+        AdaptPlayer adaptPlayer = getPlayer(p);
+        PlayerSkillLine line = adaptPlayer.getData().getSkillLine(getSkill().getName());
+        if (line == null) {
+            return 0;
+        }
+        return line.getAdaptationLevel(getName());
     }
 
     default double getLevelPercent(Player p) {

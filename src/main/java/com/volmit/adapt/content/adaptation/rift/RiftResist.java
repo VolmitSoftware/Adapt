@@ -62,7 +62,7 @@ public class RiftResist extends SimpleAdaptation<RiftResist.Config> {
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_resist_200").goal(200).stat("rift.resist.activations").reward(300).build());
+        registerMilestone("challenge_rift_resist_200", "rift.resist.activations", 200, 300);
     }
 
     static void riftResistStackAdd(Player p, int duration, int amplifier) {

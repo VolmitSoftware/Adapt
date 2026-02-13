@@ -65,7 +65,7 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
         registerConfiguration(Config.class);
         setDescription(Localizer.dLocalize("pickaxe.quarry_sense.description"));
         setDisplayName(Localizer.dLocalize("pickaxe.quarry_sense.name"));
-        setIcon(Material.SPYGLASS);
+        setIcon(Material.MAP);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
@@ -79,7 +79,7 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_pickaxe_quarry_200").goal(200).stat("pickaxe.quarry-sense.scans").reward(300).build());
+        registerMilestone("challenge_pickaxe_quarry_200", "pickaxe.quarry-sense.scans", 200, 300);
     }
 
     @Override
@@ -115,19 +115,25 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
         }
 
         int level = getLevel(p);
-        p.spawnParticle(Particle.ENCHANT, p.getEyeLocation(), 14, 0.2, 0.25, 0.2, 0.15);
+        if (areParticlesEnabled()) {
+            p.spawnParticle(Particle.ENCHANT, p.getEyeLocation(), 14, 0.2, 0.25, 0.2, 0.15);
+        }
         SoundPlayer.of(p.getWorld()).play(p.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.8f, 1.35f);
 
         int durabilityCost = getDurabilityCost(hand, level);
         if (!applyPickaxeCost(p, hand, durabilityCost)) {
-            p.spawnParticle(Particle.SMOKE, p.getEyeLocation(), 8, 0.2, 0.2, 0.2, 0.03);
+            if (areParticlesEnabled()) {
+                p.spawnParticle(Particle.SMOKE, p.getEyeLocation(), 8, 0.2, 0.2, 0.2, 0.03);
+            }
             SoundPlayer.of(p.getWorld()).play(p.getLocation(), Sound.BLOCK_ANVIL_PLACE, 0.5f, 0.65f);
             return;
         }
 
         List<Block> ores = findNearbyOres(p.getLocation(), getScanRadius(level), getMaxHighlights(level));
         if (ores.isEmpty()) {
-            p.spawnParticle(Particle.SMOKE, p.getEyeLocation(), 12, 0.22, 0.22, 0.22, 0.02);
+            if (areParticlesEnabled()) {
+                p.spawnParticle(Particle.SMOKE, p.getEyeLocation(), 12, 0.22, 0.22, 0.22, 0.02);
+            }
             SoundPlayer.of(p.getWorld()).play(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 0.6f, 0.75f);
             p.setCooldown(hand.getType(), getCooldownTicks(level));
             e.setCancelled(true);
@@ -139,7 +145,9 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
         }
 
         p.setCooldown(hand.getType(), getCooldownTicks(level));
-        p.spawnParticle(Particle.GLOW, p.getEyeLocation(), 8, 0.15, 0.15, 0.15, 0.01);
+        if (areParticlesEnabled()) {
+            p.spawnParticle(Particle.GLOW, p.getEyeLocation(), 8, 0.15, 0.15, 0.15, 0.01);
+        }
         SoundPlayer.of(p.getWorld()).play(p.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 0.9f, 1.6f);
         xp(p, ores.size() * getConfig().xpPerFoundOre);
         getPlayer(p).getData().addStat("pickaxe.quarry-sense.scans", 1);
@@ -203,9 +211,15 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
             return;
         }
 
-        p.spawnParticle(Particle.GLOW, ore.getLocation().add(0.5, 0.5, 0.5), 20, 0.25, 0.25, 0.25, 0.001);
-        p.spawnParticle(Particle.END_ROD, ore.getLocation().add(0.5, 0.5, 0.5), 8, 0.15, 0.15, 0.15, 0.003);
+        if (areParticlesEnabled()) {
 
+            p.spawnParticle(Particle.GLOW, ore.getLocation().add(0.5, 0.5, 0.5), 20, 0.25, 0.25, 0.25, 0.001);
+
+        }
+        if (areParticlesEnabled()) {
+            p.spawnParticle(Particle.END_ROD, ore.getLocation().add(0.5, 0.5, 0.5), 8, 0.15, 0.15, 0.15, 0.003);
+
+        }
         J.s(() -> {
             try {
                 glowingEntities.unsetGlowing(slime, p);
@@ -223,8 +237,14 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
                     return;
                 }
 
-                p.spawnParticle(Particle.GLOW, loc, 14, 0.22, 0.22, 0.22, 0.001);
-                p.spawnParticle(Particle.END_ROD, loc, 4, 0.12, 0.12, 0.12, 0.001);
+                if (areParticlesEnabled()) {
+
+                    p.spawnParticle(Particle.GLOW, loc, 14, 0.22, 0.22, 0.22, 0.001);
+
+                }
+                if (areParticlesEnabled()) {
+                    p.spawnParticle(Particle.END_ROD, loc, 4, 0.12, 0.12, 0.12, 0.001);
+                }
             }, t);
         }
     }

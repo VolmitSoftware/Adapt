@@ -95,18 +95,8 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_chronos_bottle_1k")
-                .goal(1000)
-                .stat("chronos.time-bottle.charges-spent")
-                .reward(500)
-                .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_chronos_bottle_25k")
-                .goal(25000)
-                .stat("chronos.time-bottle.charges-spent")
-                .reward(2000)
-                .build());
+        registerMilestone("challenge_chronos_bottle_1k", "chronos.time-bottle.charges-spent", 1000, 500);
+        registerMilestone("challenge_chronos_bottle_25k", "chronos.time-bottle.charges-spent", 25000, 2000);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -377,7 +367,7 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
         if (getConfig().playClockSounds) {
             ChronosSoundFX.playBottleUse(p, clicked.getLocation().add(0.5, 1.0, 0.5), result.effectTicks());
         }
-        if (getConfig().showParticles) {
+        if (areParticlesEnabled()) {
             p.getWorld().spawnParticle(Particle.ENCHANT, clicked.getLocation().add(0.5, 1.0, 0.5), 32, 0.35, 0.3, 0.35, 0.08);
             p.getWorld().spawnParticle(Particle.END_ROD, clicked.getLocation().add(0.5, 1.0, 0.5), 8, 0.1, 0.2, 0.1, 0.01);
         }
@@ -428,7 +418,7 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
         if (getConfig().playClockSounds) {
             ChronosSoundFX.playBottleUse(p, ageable.getLocation().add(0, 1.0, 0), result.effectTicks());
         }
-        if (getConfig().showParticles) {
+        if (areParticlesEnabled()) {
             p.getWorld().spawnParticle(Particle.ENCHANT, ageable.getLocation().add(0, 1.0, 0), 24, 0.3, 0.4, 0.3, 0.05);
             p.getWorld().spawnParticle(Particle.END_ROD, ageable.getLocation().add(0, 1.0, 0), 7, 0.1, 0.25, 0.1, 0.01);
         }
@@ -648,7 +638,8 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
 
     @Override
     public void onTick() {
-        for (Player p : org.bukkit.Bukkit.getOnlinePlayers()) {
+        for (com.volmit.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+            Player p = adaptPlayer.getPlayer();
             if (!hasAdaptation(p)) {
                 continue;
             }

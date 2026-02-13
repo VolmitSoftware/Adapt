@@ -43,7 +43,7 @@ public class UnarmedGlassCannon extends SimpleAdaptation<UnarmedGlassCannon.Conf
         registerConfiguration(Config.class);
         setDescription(Localizer.dLocalize("unarmed.glass_cannon.description"));
         setDisplayName(Localizer.dLocalize("unarmed.glass_cannon.name"));
-        setIcon(Material.DISC_FRAGMENT_5);
+        setIcon(Material.POINTED_DRIPSTONE);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
@@ -65,8 +65,8 @@ public class UnarmedGlassCannon extends SimpleAdaptation<UnarmedGlassCannon.Conf
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_unarmed_glass_100").goal(100).stat("unarmed.glass-cannon.naked-kills").reward(300).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_unarmed_glass_500").goal(500).stat("unarmed.glass-cannon.naked-kills").reward(1000).build());
+        registerMilestone("challenge_unarmed_glass_100", "unarmed.glass-cannon.naked-kills", 100, 300);
+        registerMilestone("challenge_unarmed_glass_500", "unarmed.glass-cannon.naked-kills", 500, 1000);
     }
 
 

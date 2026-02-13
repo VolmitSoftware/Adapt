@@ -66,8 +66,8 @@ public class TamingSharedPain extends SimpleAdaptation<TamingSharedPain.Config> 
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_taming_shared_500").goal(500).stat("taming.shared-pain.damage-taken").reward(400).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_taming_shared_5k").goal(5000).stat("taming.shared-pain.damage-taken").reward(1500).build());
+        registerMilestone("challenge_taming_shared_500", "taming.shared-pain.damage-taken", 500, 400);
+        registerMilestone("challenge_taming_shared_5k", "taming.shared-pain.damage-taken", 5000, 1500);
     }
 
     @Override

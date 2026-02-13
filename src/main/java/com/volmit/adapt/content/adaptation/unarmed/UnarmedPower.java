@@ -43,7 +43,7 @@ public class UnarmedPower extends SimpleAdaptation<UnarmedPower.Config> {
         registerConfiguration(Config.class);
         setDescription(Localizer.dLocalize("unarmed.power.description"));
         setDisplayName(Localizer.dLocalize("unarmed.power.name"));
-        setIcon(Material.LEATHER_HELMET);
+        setIcon(Material.IRON_INGOT);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
@@ -65,8 +65,8 @@ public class UnarmedPower extends SimpleAdaptation<UnarmedPower.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_unarmed_power_500").goal(500).stat("unarmed.power.unarmed-kills").reward(400).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_unarmed_power_5k").goal(5000).stat("unarmed.power.unarmed-kills").reward(1500).build());
+        registerMilestone("challenge_unarmed_power_500", "unarmed.power.unarmed-kills", 500, 400);
+        registerMilestone("challenge_unarmed_power_5k", "unarmed.power.unarmed-kills", 5000, 1500);
     }
 
     @Override
@@ -93,7 +93,7 @@ public class UnarmedPower extends SimpleAdaptation<UnarmedPower.Config> {
                 return;
             }
             e.setDamage(e.getDamage() * (1 + getUnarmedDamage(getLevel(p))));
-            getSkill().xp(p, 0.321 * factor * e.getDamage());
+            xp(p, 0.321 * factor * e.getDamage(), "unarmed-hit");
 
         }
     }

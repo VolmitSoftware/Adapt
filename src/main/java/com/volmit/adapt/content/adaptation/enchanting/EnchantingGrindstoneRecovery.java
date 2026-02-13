@@ -74,8 +74,8 @@ public class EnchantingGrindstoneRecovery extends SimpleAdaptation<EnchantingGri
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_enchanting_grindstone_50").goal(50).stat("enchanting.grindstone-recovery.enchants-recovered").reward(300).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_enchanting_grindstone_500").goal(500).stat("enchanting.grindstone-recovery.enchants-recovered").reward(1000).build());
+        registerMilestone("challenge_enchanting_grindstone_50", "enchanting.grindstone-recovery.enchants-recovered", 50, 300);
+        registerMilestone("challenge_enchanting_grindstone_500", "enchanting.grindstone-recovery.enchants-recovered", 500, 1000);
     }
 
     @Override

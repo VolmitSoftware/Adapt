@@ -19,12 +19,9 @@
 package com.volmit.adapt.content.adaptation.crafting;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.api.advancement.AdaptAdvancement;
-import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
-import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.advancement.AdvancementSpec;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.recipe.MaterialChar;
-import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
@@ -63,15 +60,13 @@ public class CraftingBackpacks extends SimpleAdaptation<CraftingBackpacks.Config
                         "ICI"))
                 .result(new ItemStack(Material.BUNDLE, 1))
                 .build());
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.BUNDLE)
-                .key("challenge_crafting_backpack_25")
-                .title(Localizer.dLocalize("advancement.challenge_crafting_backpack_25.title"))
-                .description(Localizer.dLocalize("advancement.challenge_crafting_backpack_25.description"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_crafting_backpack_25").goal(25).stat("crafting.backpacks.bundles-crafted").reward(300).build());
+        AdvancementSpec backpacksCrafted = AdvancementSpec.challenge(
+                "challenge_crafting_backpack_25",
+                Material.BUNDLE,
+                Localizer.dLocalize("advancement.challenge_crafting_backpack_25.title"),
+                Localizer.dLocalize("advancement.challenge_crafting_backpack_25.description")
+        );
+        registerMilestone(backpacksCrafted, "crafting.backpacks.bundles-crafted", 25, 300);
     }
 
     @Override

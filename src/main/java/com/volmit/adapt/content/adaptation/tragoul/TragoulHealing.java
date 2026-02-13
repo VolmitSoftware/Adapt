@@ -51,7 +51,7 @@ public class TragoulHealing extends SimpleAdaptation<TragoulHealing.Config> {
         registerConfiguration(TragoulHealing.Config.class);
         setDescription(Localizer.dLocalize("tragoul.healing.description"));
         setDisplayName(Localizer.dLocalize("tragoul.healing.name"));
-        setIcon(Material.REDSTONE);
+        setIcon(Material.GLISTERING_MELON_SLICE);
         setInterval(25000);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -75,8 +75,8 @@ public class TragoulHealing extends SimpleAdaptation<TragoulHealing.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_tragoul_healing_500").goal(500).stat("tragoul.healing.health-stolen").reward(400).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_tragoul_healing_10k").goal(10000).stat("tragoul.healing.health-stolen").reward(1500).build());
+        registerMilestone("challenge_tragoul_healing_500", "tragoul.healing.health-stolen", 500, 400);
+        registerMilestone("challenge_tragoul_healing_10k", "tragoul.healing.health-stolen", 10000, 1500);
     }
 
     @Override
@@ -98,7 +98,7 @@ public class TragoulHealing extends SimpleAdaptation<TragoulHealing.Config> {
                 startHealingWindow(p);
             }
 
-            if (getConfig().showParticles) {
+            if (areParticlesEnabled()) {
                 vfxParticleLine(p.getLocation(), e.getEntity().getLocation(), 25, Particle.WHITE_ASH);
             }
 
@@ -150,13 +150,13 @@ public class TragoulHealing extends SimpleAdaptation<TragoulHealing.Config> {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Tragoul Healing adaptation.", impact = "True enables this behavior and false disables it.")
         boolean showParticles = true;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-        int baseCost = 5;
+        int baseCost = 4;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
         int maxLevel = 5;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-        int initialCost = 5;
+        int initialCost = 4;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-        double costFactor = 1.10;
+        double costFactor = 0.72;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Min Heal Percent for the Tragoul Healing adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double minHealPercent = 0.10; // 0.10%
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Max Heal Percent for the Tragoul Healing adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

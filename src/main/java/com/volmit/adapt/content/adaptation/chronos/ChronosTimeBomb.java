@@ -35,7 +35,6 @@ import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
-import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -43,16 +42,18 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
+import org.bukkit.entity.ThrownPotion;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.LingeringPotionSplashEvent;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
 import java.util.*;
@@ -61,14 +62,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
     private static final EnumSet<Action> SUPPORTED_ACTIONS = EnumSet.of(
             Action.RIGHT_CLICK_AIR,
-            Action.RIGHT_CLICK_BLOCK,
-            Action.LEFT_CLICK_AIR,
-            Action.LEFT_CLICK_BLOCK
+            Action.RIGHT_CLICK_BLOCK
     );
+    private static final long PROJECTILE_TRACK_TTL_MS = 15000L;
 
     private final Map<UUID, Long> cooldowns;
     private final Set<UUID> cooldownReadyNotify;
     private final List<TemporalField> fields;
+    private final Map<UUID, ArmedBombProjectile> activeBombProjectiles;
     private final Map<UUID, FrozenEntityState> frozenEntities;
     private final Map<UUID, FrozenPlayerState> frozenPlayers;
     private final AtomicBoolean syncTickQueued;
@@ -78,7 +79,7 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
         registerConfiguration(Config.class);
         setDescription(Localizer.dLocalize("chronos.time_bomb.description"));
         setDisplayName(Localizer.dLocalize("chronos.time_bomb.name"));
-        setIcon(Material.CLOCK);
+        setIcon(Material.TNT);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
@@ -97,6 +98,7 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
         cooldowns = new HashMap<>();
         cooldownReadyNotify = new HashSet<>();
         fields = new ArrayList<>();
+        activeBombProjectiles = new HashMap<>();
         frozenEntities = new HashMap<>();
         frozenPlayers = new HashMap<>();
         syncTickQueued = new AtomicBoolean(false);
@@ -116,12 +118,7 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_chronos_bomb_freeze_50")
-                .goal(50)
-                .stat("chronos.time-bomb.projectiles-frozen")
-                .reward(500)
-                .build());
+        registerMilestone("challenge_chronos_bomb_freeze_50", "chronos.time-bomb.projectiles-frozen", 50, 500);
     }
 
     @Override
@@ -150,6 +147,7 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
         cooldowns.remove(id);
         cooldownReadyNotify.remove(id);
         frozenPlayers.remove(id);
+        activeBombProjectiles.entrySet().removeIf(entry -> entry.getValue().owner().equals(id));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -165,10 +163,6 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
         }
 
         Player p = e.getPlayer();
-        if (!hasAdaptation(p)) {
-            return;
-        }
-
         if (handSlot == EquipmentSlot.OFF_HAND && ChronoTimeBombItem.isBindableItem(p.getInventory().getItemInMainHand())) {
             return;
         }
@@ -178,50 +172,18 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
             return;
         }
 
-        e.setCancelled(true);
+        if (!hasAdaptation(p)) {
+            e.setCancelled(true);
+            return;
+        }
 
         long now = M.ms();
         long cooldown = cooldowns.getOrDefault(p.getUniqueId(), 0L);
         if (cooldown > now) {
+            e.setCancelled(true);
             if (getConfig().playClockSounds) {
                 ChronosSoundFX.playClockReject(p);
             }
-            return;
-        }
-
-        int level = getLevel(p);
-        Location deployCenter;
-        boolean leftClick = action == Action.LEFT_CLICK_AIR || action == Action.LEFT_CLICK_BLOCK;
-        boolean rightClick = action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK;
-        boolean farDeploy = action == Action.LEFT_CLICK_BLOCK
-                || (leftClick && p.isSneaking())
-                || (rightClick && p.isSneaking());
-
-        if (farDeploy) {
-            Location rayCenter = resolveRaycastDeployCenter(p);
-            if (rayCenter != null) {
-                deployCenter = rayCenter;
-            } else {
-                if (getConfig().playClockSounds) {
-                    ChronosSoundFX.playClockReject(p);
-                }
-                return;
-            }
-        } else {
-            deployCenter = p.getLocation().clone().add(0, getConfig().fieldCenterYOffset, 0);
-        }
-
-        if (!canInteract(p, deployCenter)) {
-            return;
-        }
-
-        deployField(p.getUniqueId(), level, deployCenter);
-        cooldowns.put(p.getUniqueId(), now + getCooldownMillis());
-        cooldownReadyNotify.add(p.getUniqueId());
-        decrementItemstack(hand, p);
-
-        if (getConfig().playClockSounds) {
-            ChronosSoundFX.playTimeBombArm(p);
         }
     }
 
@@ -231,13 +193,72 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
                 : p.getInventory().getItemInMainHand();
     }
 
-    private Location resolveRaycastDeployCenter(Player p) {
-        RayTraceResult result = p.rayTraceBlocks(getConfig().targetDeployRange, FluidCollisionMode.NEVER);
-        if (result == null || result.getHitBlock() == null) {
-            return null;
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void on(ProjectileLaunchEvent e) {
+        if (!(e.getEntity() instanceof ThrownPotion potion)) {
+            return;
         }
 
-        return result.getHitBlock().getLocation().add(0.5, 0.5 + getConfig().fieldCenterYOffset, 0.5);
+        if (!(potion.getShooter() instanceof Player p)) {
+            return;
+        }
+
+        ItemStack item = potion.getItem();
+        if (!ChronoTimeBombItem.isBindableItem(item)) {
+            return;
+        }
+
+        if (!hasAdaptation(p)) {
+            e.setCancelled(true);
+            return;
+        }
+
+        long now = M.ms();
+        long cooldown = cooldowns.getOrDefault(p.getUniqueId(), 0L);
+        if (cooldown > now) {
+            e.setCancelled(true);
+            if (getConfig().playClockSounds) {
+                ChronosSoundFX.playClockReject(p);
+            }
+            return;
+        }
+
+        int level = getLevel(p);
+        cooldowns.put(p.getUniqueId(), now + getCooldownMillis());
+        cooldownReadyNotify.add(p.getUniqueId());
+        activeBombProjectiles.put(potion.getUniqueId(), new ArmedBombProjectile(p.getUniqueId(), level, now));
+
+        if (getConfig().playClockSounds) {
+            ChronosSoundFX.playTimeBombArm(p);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void on(LingeringPotionSplashEvent e) {
+        ThrownPotion potion = e.getEntity();
+        UUID projectileId = potion.getUniqueId();
+        ArmedBombProjectile armed = activeBombProjectiles.remove(projectileId);
+        boolean bindable = ChronoTimeBombItem.isBindableItem(potion.getItem());
+
+        if (!bindable && armed == null) {
+            return;
+        }
+
+        if (e.getAreaEffectCloud() != null) {
+            e.getAreaEffectCloud().remove();
+        }
+
+        if (armed == null) {
+            return;
+        }
+
+        Location deployCenter = potion.getLocation().clone().add(0, getConfig().fieldCenterYOffset, 0);
+        Player owner = Bukkit.getPlayer(armed.owner());
+        if (owner != null && !canInteract(owner, deployCenter)) {
+            return;
+        }
+
+        deployField(armed.owner(), armed.level(), deployCenter);
     }
 
     private void deployField(UUID ownerId, int level, Location center) {
@@ -255,7 +276,7 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
             ChronosSoundFX.playTimeBombDetonate(center);
         }
 
-        if (getConfig().showParticles && center.getWorld() != null) {
+        if (areParticlesEnabled() && center.getWorld() != null) {
             center.getWorld().spawnParticle(Particle.ENCHANT, center, 45, field.radius() * 0.4, 0.35, field.radius() * 0.4, 0.15);
             center.getWorld().spawnParticle(Particle.END_ROD, center, 20, field.radius() * 0.2, 0.2, field.radius() * 0.2, 0.02);
         }
@@ -449,7 +470,7 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
             getPlayer(owner).getAdvancementHandler().grant("challenge_chronos_bomb_crowd_8");
         }
 
-        if (getConfig().showParticles) {
+        if (areParticlesEnabled()) {
             spawnFieldSphere(field, now);
         }
 
@@ -506,6 +527,7 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
 
     private void onTickSync() {
         long now = M.ms();
+        cleanupBombProjectiles(now);
 
         Iterator<UUID> ready = cooldownReadyNotify.iterator();
         while (ready.hasNext()) {
@@ -566,6 +588,22 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
 
             unfreezeEntity(entry.getKey(), entry.getValue());
             frozenIterator.remove();
+        }
+    }
+
+    private void cleanupBombProjectiles(long now) {
+        Iterator<Map.Entry<UUID, ArmedBombProjectile>> iterator = activeBombProjectiles.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<UUID, ArmedBombProjectile> entry = iterator.next();
+            Entity entity = Bukkit.getEntity(entry.getKey());
+            if (entity == null || !entity.isValid() || entity.isDead()) {
+                iterator.remove();
+                continue;
+            }
+
+            if (now - entry.getValue().launchedAt() > PROJECTILE_TRACK_TTL_MS) {
+                iterator.remove();
+            }
         }
     }
 
@@ -780,5 +818,8 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
     }
 
     private record FrozenPlayerState(boolean allowFlight, boolean flying, boolean gravity) {
+    }
+
+    private record ArmedBombProjectile(UUID owner, int level, long launchedAt) {
     }
 }

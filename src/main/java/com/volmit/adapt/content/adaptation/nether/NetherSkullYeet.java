@@ -87,8 +87,8 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.HIDDEN)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_nether_skull_100").goal(100).stat("nether.skull-yeet.skulls-thrown").reward(300).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_nether_skull_kills_50").goal(50).stat("nether.skull-yeet.skull-kills").reward(500).build());
+        registerMilestone("challenge_nether_skull_100", "nether.skull-yeet.skulls-thrown", 100, 300);
+        registerMilestone("challenge_nether_skull_kills_50", "nether.skull-yeet.skull-kills", 50, 500);
     }
 
     @Override
@@ -211,7 +211,7 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
         private int baseCost = 10;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-        private double costFactor = 1.5;
+        private double costFactor = 0.92;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
         private int maxLevel = 3;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")

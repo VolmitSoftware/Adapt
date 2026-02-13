@@ -60,7 +60,7 @@ public class NetherGhastWard extends SimpleAdaptation<NetherGhastWard.Config> {
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_nether_ghast_500").goal(500).stat("nether.ghast-ward.damage-reduced").reward(400).build());
+        registerMilestone("challenge_nether_ghast_500", "nether.ghast-ward.damage-reduced", 500, 400);
     }
 
     @Override

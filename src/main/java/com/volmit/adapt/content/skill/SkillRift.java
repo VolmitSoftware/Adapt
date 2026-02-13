@@ -24,6 +24,7 @@ import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.version.Version;
 import com.volmit.adapt.api.world.AdaptStatTracker;
+import com.volmit.adapt.content.adaptation.chronos.ChronosInstantRecall;
 import com.volmit.adapt.content.adaptation.rift.*;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.CustomModel;
@@ -93,9 +94,9 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
                                 .build())
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_50").goal(50).stat("rift.teleports").reward(getConfig().challengeRiftReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_500").goal(500).stat("rift.teleports").reward(getConfig().challengeRiftReward * 2).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_5k").goal(5000).stat("rift.teleports").reward(getConfig().challengeRiftReward * 5).build());
+        registerMilestone("challenge_rift_50", "rift.teleports", 50, getConfig().challengeRiftReward);
+        registerMilestone("challenge_rift_500", "rift.teleports", 500, getConfig().challengeRiftReward * 2);
+        registerMilestone("challenge_rift_5k", "rift.teleports", 5000, getConfig().challengeRiftReward * 5);
 
         // Chain 2 - Ender Pearl Throws
         registerAdvancement(AdaptAdvancement.builder()
@@ -116,8 +117,8 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_pearls_50").goal(50).stat("rift.ender.pearls").reward(getConfig().challengeRiftReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_pearls_500").goal(500).stat("rift.ender.pearls").reward(getConfig().challengeRiftReward * 2).build());
+        registerMilestone("challenge_rift_pearls_50", "rift.ender.pearls", 50, getConfig().challengeRiftReward);
+        registerMilestone("challenge_rift_pearls_500", "rift.ender.pearls", 500, getConfig().challengeRiftReward * 2);
 
         // Chain 3 - Enderman Damage
         registerAdvancement(AdaptAdvancement.builder()
@@ -138,8 +139,8 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_enderman_50").goal(50).stat("rift.enderman.kills").reward(getConfig().challengeRiftReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_enderman_500").goal(500).stat("rift.enderman.kills").reward(getConfig().challengeRiftReward * 2).build());
+        registerMilestone("challenge_rift_enderman_50", "rift.enderman.kills", 50, getConfig().challengeRiftReward);
+        registerMilestone("challenge_rift_enderman_500", "rift.enderman.kills", 500, getConfig().challengeRiftReward * 2);
 
         // Chain 4 - Dragon Damage
         registerAdvancement(AdaptAdvancement.builder()
@@ -160,8 +161,8 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_dragon_500").goal(500).stat("rift.dragon.damage").reward(getConfig().challengeRiftReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_dragon_5k").goal(5000).stat("rift.dragon.damage").reward(getConfig().challengeRiftReward * 2).build());
+        registerMilestone("challenge_rift_dragon_500", "rift.dragon.damage", 500, getConfig().challengeRiftReward);
+        registerMilestone("challenge_rift_dragon_5k", "rift.dragon.damage", 5000, getConfig().challengeRiftReward * 2);
 
         // Chain 5 - End Crystal Destruction
         registerAdvancement(AdaptAdvancement.builder()
@@ -182,8 +183,8 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_crystal_10").goal(10).stat("rift.crystals.destroyed").reward(getConfig().challengeRiftReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_crystal_100").goal(100).stat("rift.crystals.destroyed").reward(getConfig().challengeRiftReward * 2).build());
+        registerMilestone("challenge_rift_crystal_10", "rift.crystals.destroyed", 10, getConfig().challengeRiftReward);
+        registerMilestone("challenge_rift_crystal_100", "rift.crystals.destroyed", 100, getConfig().challengeRiftReward * 2);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -192,10 +193,14 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
             return;
         }
         Player p = e.getPlayer();
+        if (ChronosInstantRecall.isRecallTeleportSuppressed(p)) {
+            return;
+        }
+
         shouldReturnForPlayer(e.getPlayer(), e, () -> {
             getPlayer(p).getData().addStat("rift.teleports", 1);
             if (!lasttp.containsKey(p)) {
-                xpSilent(p, getConfig().teleportXP);
+                xpSilent(p, getConfig().teleportXP, "rift:teleport");
                 lasttp.put(p, M.ms());
             }
         });
@@ -211,10 +216,10 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
         }
         shouldReturnForPlayer(p, e, () -> {
             if (e.getEntity() instanceof EnderPearl) {
-                xp(p, getConfig().throwEnderpearlXP);
+                xp(p, getConfig().throwEnderpearlXP, "rift:throw:ender-pearl");
                 getPlayer(p).getData().addStat("rift.ender.pearls", 1);
             } else if (e.getEntity() instanceof EnderSignal) {
-                xp(p, getConfig().throwEnderEyeXP);
+                xp(p, getConfig().throwEnderEyeXP, "rift:throw:ender-eye");
             }
         });
     }
@@ -230,14 +235,20 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
                 default -> 0;
             };
             double xp = multiplier * Math.min(damage, baseHealth);
-            if (xp > 0) xp(p, xp);
+            String rewardKey = switch (entity.getType()) {
+                case ENDERMAN -> "rift:damage:enderman";
+                case ENDERMITE -> "rift:damage:endermite";
+                case ENDER_DRAGON -> "rift:damage:ender-dragon";
+                default -> "rift:damage:other";
+            };
+            if (xp > 0) xp(p, xp, rewardKey);
             if (entity.getType() == EntityType.ENDERMAN) {
                 getPlayer(p).getData().addStat("rift.enderman.kills", 1);
             } else if (entity.getType() == EntityType.ENDER_DRAGON) {
                 getPlayer(p).getData().addStat("rift.dragon.damage", damage);
             }
         } else if (entity.getType() == EntityTypes.ENDER_CRYSTAL) {
-            xp(p, getConfig().damageEndCrystalXP);
+            xp(p, getConfig().damageEndCrystalXP, "rift:damage:end-crystal");
         }
     }
 
@@ -258,7 +269,7 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
         if (e.getEntity() instanceof EnderCrystal && e.getEntity().getKiller() != null) {
             Player p = e.getEntity().getKiller();
             shouldReturnForPlayer(p, () -> {
-                xp(e.getEntity().getKiller(), getConfig().destroyEndCrystalXP);
+                xp(e.getEntity().getKiller(), getConfig().destroyEndCrystalXP, "rift:kill:end-crystal");
                 getPlayer(p).getData().addStat("rift.crystals.destroyed", 1);
             });
         }
@@ -282,9 +293,7 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
                 }
             });
         }
-        for (Player i : Bukkit.getOnlinePlayers()) {
-            shouldReturnForPlayer(i, () -> checkStatTrackers(getPlayer(i)));
-        }
+        checkStatTrackersForOnlinePlayers();
     }
 
     @Override

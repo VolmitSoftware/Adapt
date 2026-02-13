@@ -23,30 +23,40 @@ import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
 import com.volmit.adapt.api.advancement.AdvancementVisibility;
-import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.VelocitySpeed;
 import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.Vector;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public class HunterSpeed extends SimpleAdaptation<HunterSpeed.Config> {
+    private final Map<UUID, SpeedBurst> speedBursts = new HashMap<>();
+
     public HunterSpeed() {
         super("hunter-speed");
         registerConfiguration(Config.class);
         setDescription(Localizer.dLocalize("hunter.speed.description"));
         setDisplayName(Localizer.dLocalize("hunter.speed.name"));
-        setIcon(Material.LAVA_BUCKET);
+        setIcon(Material.SUGAR);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
-        setInterval(9844);
+        setInterval(getConfig().setInterval);
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.SUGAR)
                 .key("challenge_hunter_speed_200")
@@ -55,7 +65,7 @@ public class HunterSpeed extends SimpleAdaptation<HunterSpeed.Config> {
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_hunter_speed_200").goal(200).stat("hunter.speed.activations").reward(300).build());
+        registerMilestone("challenge_hunter_speed_200", "hunter.speed.activations", 200, 300);
     }
 
     @Override
@@ -88,7 +98,7 @@ public class HunterSpeed extends SimpleAdaptation<HunterSpeed.Config> {
 
                 } else {
                     addPotionStacks(p, PotionEffectType.HUNGER, getConfig().baseHungerFromLevel - getLevel(p), getConfig().baseHungerDuration * getLevel(p), getConfig().stackHungerPenalty);
-                    addPotionStacks(p, PotionEffectType.SPEED, getLevel(p), getConfig().baseEffectbyLevel * getLevel(p), getConfig().stackBuff);
+                    grantSpeedBurst(p, getLevel(p), getConfig().baseEffectbyLevel * getLevel(p), getConfig().stackBuff);
                     getPlayer(p).getData().addStat("hunter.speed.activations", 1);
                 }
             } else {
@@ -96,7 +106,7 @@ public class HunterSpeed extends SimpleAdaptation<HunterSpeed.Config> {
                     Material mat = Material.getMaterial(getConfig().consumable);
                     if (mat != null && p.getInventory().contains(mat)) {
                         p.getInventory().removeItem(new ItemStack(mat, 1));
-                        addPotionStacks(p, PotionEffectType.SPEED, getLevel(p), getConfig().baseEffectbyLevel * getLevel(p), getConfig().stackBuff);
+                        grantSpeedBurst(p, getLevel(p), getConfig().baseEffectbyLevel * getLevel(p), getConfig().stackBuff);
                         getPlayer(p).getData().addStat("hunter.speed.activations", 1);
                     } else {
                         if (getConfig().poisonPenalty) {
@@ -108,8 +118,141 @@ public class HunterSpeed extends SimpleAdaptation<HunterSpeed.Config> {
         }
     }
 
+    @EventHandler
+    public void on(PlayerQuitEvent e) {
+        speedBursts.remove(e.getPlayer().getUniqueId());
+    }
+
+    @EventHandler
+    public void on(PlayerDeathEvent e) {
+        speedBursts.remove(e.getEntity().getUniqueId());
+    }
+
+    private void grantSpeedBurst(org.bukkit.entity.Player p, int amplifier, int durationTicks, boolean overlap) {
+        if (durationTicks <= 0) {
+            return;
+        }
+
+        UUID id = p.getUniqueId();
+        long now = System.currentTimeMillis();
+        long durationMs = Math.max(50L, durationTicks * 50L);
+        SpeedBurst current = speedBursts.get(id);
+        if (current != null && current.expiresAt > now) {
+            if (!overlap) {
+                return;
+            }
+
+            current.expiresAt += durationMs;
+            current.amplifier = Math.max(current.amplifier, amplifier);
+            return;
+        }
+
+        speedBursts.put(id, new SpeedBurst(now + durationMs, amplifier));
+    }
+
     @Override
     public void onTick() {
+        long now = System.currentTimeMillis();
+        for (com.volmit.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+            org.bukkit.entity.Player p = adaptPlayer.getPlayer();
+            SpeedBurst burst = speedBursts.get(p.getUniqueId());
+            if (burst == null) {
+                continue;
+            }
+
+            if (burst.expiresAt <= now) {
+                invalidateBurst(p, burst, false);
+                speedBursts.remove(p.getUniqueId());
+                continue;
+            }
+
+            if (!isVelocityEligible(p)) {
+                invalidateBurst(p, burst, true);
+                continue;
+            }
+
+            VelocitySpeed.InputSnapshot input = VelocitySpeed.readInput(p, getConfig().fallbackInputVelocityThresholdSquared());
+            if (!input.hasHorizontal()) {
+                brakeBurst(p, burst);
+                continue;
+            }
+
+            applyBurst(p, burst, input);
+        }
+    }
+
+    private void applyBurst(org.bukkit.entity.Player p, SpeedBurst burst, VelocitySpeed.InputSnapshot input) {
+        Vector desiredDirection = VelocitySpeed.resolveHorizontalDirection(p, input);
+        if (desiredDirection.lengthSquared() <= VelocitySpeed.EPSILON) {
+            brakeBurst(p, burst);
+            return;
+        }
+
+        double targetSpeed = Math.min(getConfig().maxHorizontalSpeed,
+                Math.max(0, getConfig().baseHorizontalSpeed * VelocitySpeed.speedAmplifierScalar(burst.amplifier)));
+        Vector velocity = p.getVelocity();
+        Vector currentHorizontal = VelocitySpeed.horizontalOnly(velocity);
+        Vector targetHorizontal = desiredDirection.multiply(targetSpeed);
+        Vector nextHorizontal = VelocitySpeed.moveTowards(currentHorizontal, targetHorizontal, Math.max(0, getConfig().accelPerTick));
+        nextHorizontal = VelocitySpeed.clampHorizontal(nextHorizontal, getConfig().maxHorizontalSpeed);
+        VelocitySpeed.setHorizontalVelocity(p, nextHorizontal);
+        burst.boosting = true;
+    }
+
+    private void invalidateBurst(org.bukkit.entity.Player p, SpeedBurst burst, boolean invalidState) {
+        if (!burst.boosting) {
+            return;
+        }
+
+        if (invalidState && getConfig().hardStopOnInvalidState) {
+            VelocitySpeed.hardStopHorizontal(p);
+        }
+
+        burst.boosting = false;
+    }
+
+    private void brakeBurst(org.bukkit.entity.Player p, SpeedBurst burst) {
+        if (!burst.boosting) {
+            return;
+        }
+
+        Vector velocity = p.getVelocity();
+        Vector currentHorizontal = VelocitySpeed.horizontalOnly(velocity);
+        double stopThreshold = Math.max(0, getConfig().stopThreshold);
+        if (currentHorizontal.lengthSquared() <= stopThreshold * stopThreshold) {
+            VelocitySpeed.hardStopHorizontal(p);
+            burst.boosting = false;
+            return;
+        }
+
+        Vector nextHorizontal = VelocitySpeed.moveTowards(currentHorizontal, new Vector(), Math.max(0, getConfig().brakePerTick));
+        if (nextHorizontal.lengthSquared() <= stopThreshold * stopThreshold) {
+            VelocitySpeed.hardStopHorizontal(p);
+            burst.boosting = false;
+            return;
+        }
+
+        VelocitySpeed.setHorizontalVelocity(p, nextHorizontal);
+    }
+
+    private boolean isVelocityEligible(org.bukkit.entity.Player p) {
+        GameMode mode = p.getGameMode();
+        if (mode != GameMode.SURVIVAL && mode != GameMode.ADVENTURE) {
+            return false;
+        }
+
+        return !p.isDead() && !p.isFlying() && !p.isGliding() && !p.isSwimming() && p.getVehicle() == null;
+    }
+
+    private static class SpeedBurst {
+        private long expiresAt;
+        private int amplifier;
+        private boolean boosting;
+
+        private SpeedBurst(long expiresAt, int amplifier) {
+            this.expiresAt = expiresAt;
+            this.amplifier = amplifier;
+        }
 
     }
 
@@ -130,6 +273,8 @@ public class HunterSpeed extends SimpleAdaptation<HunterSpeed.Config> {
         boolean permanent = false;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
         boolean enabled = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Tick interval (ms) used to update velocity speed bursts.", impact = "Lower values feel more responsive but run updates more frequently.")
+        long setInterval = 50;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Use Consumable for the Hunter Speed adaptation.", impact = "True enables this behavior and false disables it.")
         boolean useConsumable = false;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Poison Penalty for the Hunter Speed adaptation.", impact = "True enables this behavior and false disables it.")
@@ -148,6 +293,20 @@ public class HunterSpeed extends SimpleAdaptation<HunterSpeed.Config> {
         int baseHungerFromLevel = 10;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Base Poison From Level for the Hunter Speed adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int basePoisonFromLevel = 6;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Base horizontal speed used for hunter bursts before amplifier scaling.", impact = "Higher values increase movement speed while a burst is active.")
+        double baseHorizontalSpeed = 0.13;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Maximum horizontal speed this adaptation can force.", impact = "Acts as a hard cap to prevent runaway momentum.")
+        double maxHorizontalSpeed = 0.32;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "How fast velocity accelerates toward the burst target per tick.", impact = "Higher values accelerate faster; lower values feel smoother.")
+        double accelPerTick = 0.045;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "How fast velocity decays when movement input is released.", impact = "Higher values reduce carry momentum more aggressively.")
+        double brakePerTick = 0.08;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Horizontal velocity threshold considered fully stopped.", impact = "Higher values stop sooner; lower values preserve tiny momentum longer.")
+        double stopThreshold = 0.01;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "If true, burst velocity is force-cleared when entering invalid states.", impact = "Prevents retained speed when state changes skip expected flow.")
+        boolean hardStopOnInvalidState = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Fallback movement threshold used when direct input API is unavailable.", impact = "Only used on runtimes without Player input access.")
+        double fallbackInputVelocityThreshold = 0.0008;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Consumable for the Hunter Speed adaptation.", impact = "Changing this alters the identifier or text used by the feature.")
         String consumable = "ROTTEN_FLESH";
         @com.volmit.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
@@ -158,5 +317,10 @@ public class HunterSpeed extends SimpleAdaptation<HunterSpeed.Config> {
         int initialCost = 8;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
         double costFactor = 0.4;
+
+        double fallbackInputVelocityThresholdSquared() {
+            double threshold = Math.max(0, fallbackInputVelocityThreshold);
+            return threshold * threshold;
+        }
     }
 }

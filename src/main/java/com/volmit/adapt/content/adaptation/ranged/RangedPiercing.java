@@ -37,14 +37,11 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 public class RangedPiercing extends SimpleAdaptation<RangedPiercing.Config> {
-    private final List<Integer> holds = new ArrayList<>();
     private final Map<UUID, Integer> arrowHitCounts = new HashMap<>();
 
     public RangedPiercing() {
@@ -52,7 +49,7 @@ public class RangedPiercing extends SimpleAdaptation<RangedPiercing.Config> {
         registerConfiguration(Config.class);
         setDescription(Localizer.dLocalize("ranged.arrow_piercing.description"));
         setDisplayName(Localizer.dLocalize("ranged.arrow_piercing.name"));
-        setIcon(Material.SHEARS);
+        setIcon(Material.FLETCHING_TABLE);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInterval(4791);
@@ -74,7 +71,7 @@ public class RangedPiercing extends SimpleAdaptation<RangedPiercing.Config> {
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_ranged_piercing_500").goal(500).stat("ranged.piercing.extra-hits").reward(400).build());
+        registerMilestone("challenge_ranged_piercing_500", "ranged.piercing.extra-hits", 500, 400);
     }
 
     @Override

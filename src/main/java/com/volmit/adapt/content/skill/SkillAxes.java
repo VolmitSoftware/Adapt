@@ -100,11 +100,11 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
                                 .build())
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_chop_1k").goal(1000).stat("axes.blocks.broken").reward(getConfig().challengeChopReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_chop_5k").goal(5000).stat("axes.blocks.broken").reward(getConfig().challengeChopReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_chop_50k").goal(50000).stat("axes.blocks.broken").reward(getConfig().challengeChopReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_chop_500k").goal(500000).stat("axes.blocks.broken").reward(getConfig().challengeChopReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_chop_5m").goal(5000000).stat("axes.blocks.broken").reward(getConfig().challengeChopReward).build());
+        registerMilestone("challenge_chop_1k", "axes.blocks.broken", 1000, getConfig().challengeChopReward);
+        registerMilestone("challenge_chop_5k", "axes.blocks.broken", 5000, getConfig().challengeChopReward);
+        registerMilestone("challenge_chop_50k", "axes.blocks.broken", 50000, getConfig().challengeChopReward);
+        registerMilestone("challenge_chop_500k", "axes.blocks.broken", 500000, getConfig().challengeChopReward);
+        registerMilestone("challenge_chop_5m", "axes.blocks.broken", 5000000, getConfig().challengeChopReward);
 
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.WOODEN_AXE).key("challenge_axe_swing_500")
@@ -123,8 +123,8 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_axe_swing_500").goal(500).stat("axes.swings").reward(getConfig().challengeChopReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_axe_swing_5k").goal(5000).stat("axes.swings").reward(getConfig().challengeChopReward * 2).build());
+        registerMilestone("challenge_axe_swing_500", "axes.swings", 500, getConfig().challengeChopReward);
+        registerMilestone("challenge_axe_swing_5k", "axes.swings", 5000, getConfig().challengeChopReward * 2);
 
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.GOLDEN_AXE).key("challenge_axe_damage_1k")
@@ -143,8 +143,8 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_axe_damage_1k").goal(1000).stat("axes.damage").reward(getConfig().challengeChopReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_axe_damage_10k").goal(10000).stat("axes.damage").reward(getConfig().challengeChopReward * 2).build());
+        registerMilestone("challenge_axe_damage_1k", "axes.damage", 1000, getConfig().challengeChopReward);
+        registerMilestone("challenge_axe_damage_10k", "axes.damage", 10000, getConfig().challengeChopReward * 2);
 
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.OAK_LOG).key("challenge_axe_value_5k")
@@ -163,8 +163,8 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_axe_value_5k").goal(5000).stat("axes.blocks.value").reward(getConfig().challengeChopReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_axe_value_50k").goal(50000).stat("axes.blocks.value").reward(getConfig().challengeChopReward * 2).build());
+        registerMilestone("challenge_axe_value_5k", "axes.blocks.value", 5000, getConfig().challengeChopReward);
+        registerMilestone("challenge_axe_value_50k", "axes.blocks.value", 50000, getConfig().challengeChopReward * 2);
 
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.OAK_LEAVES).key("challenge_leaves_500")
@@ -183,8 +183,8 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_leaves_500").goal(500).stat("axes.leaves").reward(getConfig().challengeChopReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_leaves_5k").goal(5000).stat("axes.leaves").reward(getConfig().challengeChopReward * 2).build());
+        registerMilestone("challenge_leaves_500", "axes.leaves", 500, getConfig().challengeChopReward);
+        registerMilestone("challenge_leaves_5k", "axes.leaves", 5000, getConfig().challengeChopReward * 2);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -266,9 +266,7 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
 
     @Override
     public void onTick() {
-        for (Player i : Bukkit.getOnlinePlayers()) {
-            shouldReturnForPlayer(i, () -> checkStatTrackers(getPlayer(i)));
-        }
+        checkStatTrackersForOnlinePlayers();
     }
 
     @Override
@@ -294,7 +292,7 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Leaves Multiplier for the Axes skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double leavesMultiplier = 0.75;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Cooldown Delay for the Axes skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        long cooldownDelay = 2250;
+        long cooldownDelay = 1500;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Value XPMultiplier for the Axes skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double valueXPMultiplier = 0.175;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Axe Damage XPMultiplier for the Axes skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

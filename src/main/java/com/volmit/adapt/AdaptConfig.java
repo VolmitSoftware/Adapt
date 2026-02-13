@@ -73,6 +73,9 @@ public class AdaptConfig {
     private boolean actionbarNotifyXp = true;
     private boolean actionbarNotifyLevel = true;
     private boolean unlearnAllButton = false;
+    private Effects effects = new Effects();
+    private FarmPrevention farmPrevention = new FarmPrevention();
+    private AdaptationXp adaptationXp = new AdaptationXp();
     private RedisConfig redis = new RedisConfig();
     private SqlSettings sql = new SqlSettings();
     private Protector protectorSupport = new Protector();
@@ -179,6 +182,44 @@ public class AdaptConfig {
             f.put(Material.NETHER_QUARTZ_ORE.name(), 1.11D);
             return f;
         }
+    }
+
+    @Getter
+    public static class FarmPrevention {
+        private boolean enabled = true;
+        private boolean perActivityTracking = true;
+        private long skillRecoveryMillis = 180000;
+        private long activityRecoveryMillis = 300000;
+        private long activityStateTtlMillis = 1800000;
+        private double skillBasePressure = 1.0;
+        private double skillXpPressure = 0.02;
+        private double skillDecayCurve = 14.0;
+        private double skillFloorMultiplier = 0.08;
+        private double activityBasePressure = 1.0;
+        private double activityXpPressure = 0.03;
+        private double activityDecayCurve = 9.0;
+        private double activityFloorMultiplier = 0.12;
+        private double crossSkillRecoveryFactor = 0.9;
+    }
+
+    @Getter
+    public static class Effects {
+        private boolean particlesEnabled = true;
+        private boolean soundsEnabled = true;
+        private Map<String, Boolean> adaptationParticleOverrides = Map.of(
+                "adaptation-name", true
+        );
+        private Map<String, Boolean> skillParticleOverrides = Map.of(
+                "skill-name", true
+        );
+    }
+
+    @Getter
+    public static class AdaptationXp {
+        private boolean usageBaselineEnabled = true;
+        private double usageBaselineXp = 0.8;
+        private double usageBaselineXpPerLevel = 0.18;
+        private long usageBaselineCooldownMillis = 12000;
     }
 
     private static Map<String, List<String>> defaultAdaptationUsageConflicts() {

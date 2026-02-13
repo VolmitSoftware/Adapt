@@ -55,7 +55,7 @@ public class HunterLuck extends SimpleAdaptation<HunterLuck.Config> {
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_hunter_luck_200").goal(200).stat("hunter.luck.activations").reward(300).build());
+        registerMilestone("challenge_hunter_luck_200", "hunter.luck.activations", 200, 300);
     }
 
     @Override

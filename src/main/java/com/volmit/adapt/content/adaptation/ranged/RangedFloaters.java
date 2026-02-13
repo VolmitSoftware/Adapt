@@ -64,7 +64,7 @@ public class RangedFloaters extends SimpleAdaptation<RangedFloaters.Config> {
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_ranged_floaters_200").goal(200).stat("ranged.floaters.targets-levitated").reward(300).build());
+        registerMilestone("challenge_ranged_floaters_200", "ranged.floaters.targets-levitated", 200, 300);
     }
 
     @Override
@@ -107,7 +107,7 @@ public class RangedFloaters extends SimpleAdaptation<RangedFloaters.Config> {
         ), true);
         getPlayer(p).getData().addStat("ranged.floaters.targets-levitated", 1);
 
-        if (getConfig().showParticles) {
+        if (areParticlesEnabled()) {
             target.getWorld().spawnParticle(Particle.END_ROD, target.getLocation().add(0, 1, 0), 10, 0.2, 0.5, 0.2, 0.02);
         }
 

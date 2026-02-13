@@ -71,8 +71,8 @@ public class NetherBlazeLeech extends SimpleAdaptation<NetherBlazeLeech.Config> 
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_nether_blaze_200").goal(200).stat("nether.blaze-leech.health-from-fire").reward(300).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_nether_blaze_2500").goal(2500).stat("nether.blaze-leech.health-from-fire").reward(1000).build());
+        registerMilestone("challenge_nether_blaze_200", "nether.blaze-leech.health-from-fire", 200, 300);
+        registerMilestone("challenge_nether_blaze_2500", "nether.blaze-leech.health-from-fire", 2500, 1000);
     }
 
     @Override

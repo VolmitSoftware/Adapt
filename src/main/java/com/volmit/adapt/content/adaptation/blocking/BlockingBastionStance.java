@@ -65,12 +65,7 @@ public class BlockingBastionStance extends SimpleAdaptation<BlockingBastionStanc
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_blocking_bastion_500")
-                .goal(500)
-                .stat("blocking.bastion-stance.projectiles-softened")
-                .reward(500)
-                .build());
+        registerMilestone("challenge_blocking_bastion_500", "blocking.bastion-stance.projectiles-softened", 500, 500);
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.SHIELD)
                 .key("challenge_blocking_bastion_10")
@@ -157,7 +152,8 @@ public class BlockingBastionStance extends SimpleAdaptation<BlockingBastionStanc
 
     @Override
     public void onTick() {
-        for (Player p : Bukkit.getOnlinePlayers()) {
+        for (com.volmit.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+            Player p = adaptPlayer.getPlayer();
             if (hasAdaptation(p) && !isBastionStance(p)) {
                 setStorage(p, "bastionSessionCount", 0);
             }

@@ -47,7 +47,7 @@ public class BlockingCounterGuard extends SimpleAdaptation<BlockingCounterGuard.
         registerConfiguration(Config.class);
         setDescription(Localizer.dLocalize("blocking.counter_guard.description"));
         setDisplayName(Localizer.dLocalize("blocking.counter_guard.name"));
-        setIcon(Material.SHIELD);
+        setIcon(Material.IRON_BARS);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
@@ -61,12 +61,7 @@ public class BlockingCounterGuard extends SimpleAdaptation<BlockingCounterGuard.
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement("challenge_blocking_counter_500")
-                .goal(500)
-                .stat("blocking.counter-guard.damage-reflected")
-                .reward(500)
-                .build());
+        registerMilestone("challenge_blocking_counter_500", "blocking.counter-guard.damage-reflected", 500, 500);
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.SHIELD)
                 .key("challenge_blocking_counter_max")

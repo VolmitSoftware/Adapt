@@ -93,11 +93,11 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
                                 .build())
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_place_1k").goal(1000).stat("blocks.placed").reward(getConfig().challengePlace1kReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_place_5k").goal(5000).stat("blocks.placed").reward(getConfig().challengePlace1kReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_place_50k").goal(50000).stat("blocks.placed").reward(getConfig().challengePlace1kReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_place_500k").goal(500000).stat("blocks.placed").reward(getConfig().challengePlace1kReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_place_5m").goal(5000000).stat("blocks.placed").reward(getConfig().challengePlace1kReward).build());
+        registerMilestone("challenge_place_1k", "blocks.placed", 1000, getConfig().challengePlace1kReward);
+        registerMilestone("challenge_place_5k", "blocks.placed", 5000, getConfig().challengePlace1kReward);
+        registerMilestone("challenge_place_50k", "blocks.placed", 50000, getConfig().challengePlace1kReward);
+        registerMilestone("challenge_place_500k", "blocks.placed", 500000, getConfig().challengePlace1kReward);
+        registerMilestone("challenge_place_5m", "blocks.placed", 5000000, getConfig().challengePlace1kReward);
 
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.IRON_PICKAXE).key("challenge_demolish_500")
@@ -116,8 +116,8 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_demolish_500").goal(500).stat("blocks.broken").reward(getConfig().challengePlace1kReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_demolish_5k").goal(5000).stat("blocks.broken").reward(getConfig().challengePlace1kReward * 2).build());
+        registerMilestone("challenge_demolish_500", "blocks.broken", 500, getConfig().challengePlace1kReward);
+        registerMilestone("challenge_demolish_5k", "blocks.broken", 5000, getConfig().challengePlace1kReward * 2);
 
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.GOLD_INGOT).key("challenge_value_placed_10k")
@@ -136,8 +136,8 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_value_placed_10k").goal(10000).stat("blocks.placed.value").reward(getConfig().challengePlace1kReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_value_placed_100k").goal(100000).stat("blocks.placed.value").reward(getConfig().challengePlace1kReward * 2).build());
+        registerMilestone("challenge_value_placed_10k", "blocks.placed.value", 10000, getConfig().challengePlace1kReward);
+        registerMilestone("challenge_value_placed_100k", "blocks.placed.value", 100000, getConfig().challengePlace1kReward * 2);
 
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.TNT_MINECART).key("challenge_demolish_val_5k")
@@ -156,8 +156,8 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_demolish_val_5k").goal(5000).stat("architect.demolish.value").reward(getConfig().challengePlace1kReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_demolish_val_50k").goal(50000).stat("architect.demolish.value").reward(getConfig().challengePlace1kReward * 2).build());
+        registerMilestone("challenge_demolish_val_5k", "architect.demolish.value", 5000, getConfig().challengePlace1kReward);
+        registerMilestone("challenge_demolish_val_50k", "architect.demolish.value", 50000, getConfig().challengePlace1kReward * 2);
 
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.SCAFFOLDING).key("challenge_high_build_100")
@@ -176,8 +176,8 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_high_build_100").goal(100).stat("architect.builds.high").reward(getConfig().challengePlace1kReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_high_build_1k").goal(1000).stat("architect.builds.high").reward(getConfig().challengePlace1kReward * 2).build());
+        registerMilestone("challenge_high_build_100", "architect.builds.high", 100, getConfig().challengePlace1kReward);
+        registerMilestone("challenge_high_build_1k", "architect.builds.high", 1000, getConfig().challengePlace1kReward * 2);
 
         setIcon(Material.SMITHING_TABLE);
         registerAdaptation(new ArchitectGlass());
@@ -230,9 +230,7 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
 
     @Override
     public void onTick() {
-        for (Player i : Bukkit.getOnlinePlayers()) {
-            shouldReturnForPlayer(i, () -> checkStatTrackers(getPlayer(i)));
-        }
+        checkStatTrackersForOnlinePlayers();
     }
 
     private void handleBlockCooldown(Player p, Runnable action) {
@@ -256,10 +254,10 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Place1k Reward for the Architect skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double challengePlace1kReward = 1750;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Xp Value Multiplier for the Architect skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double xpValueMultiplier = 1;
+        double xpValueMultiplier = 1.5;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Cooldown Delay for the Architect skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        long cooldownDelay = 1250;
+        long cooldownDelay = 1000;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Xp Base for the Architect skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double xpBase = 1;
+        double xpBase = 3;
     }
 }

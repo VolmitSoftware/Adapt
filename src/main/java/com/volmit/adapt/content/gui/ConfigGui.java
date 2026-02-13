@@ -4,7 +4,6 @@ import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.Adaptation;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.service.ConfigInputSVC;
 import com.volmit.adapt.util.C;
@@ -1450,7 +1449,7 @@ public final class ConfigGui {
 
             String[] parts = payload.split("\\Q.\\E", 2);
             Skill<?> skill = resolveSkill(parts[0]);
-            if (skill == null || skill.getConfig() == null || !(skill instanceof SimpleSkill<?> simpleSkill)) {
+            if (skill == null || skill.getConfig() == null || Adapt.instance == null || Adapt.instance.getAdaptServer() == null || Adapt.instance.getAdaptServer().getSkillRegistry() == null) {
                 return null;
             }
 
@@ -1464,7 +1463,7 @@ public final class ConfigGui {
                     skill.getConfig(),
                     objectPath,
                     Adapt.instance.getDataFile("adapt", "skills", skill.getName() + ".toml"),
-                    () -> simpleSkill.reloadConfigFromDisk(false),
+                    () -> Adapt.instance.getAdaptServer().getSkillRegistry().hotReloadSkillConfig(skill.getName()),
                     () -> {
                     }
             );
@@ -1528,7 +1527,7 @@ public final class ConfigGui {
         if (Adapt.instance == null || Adapt.instance.getAdaptServer() == null || Adapt.instance.getAdaptServer().getSkillRegistry() == null) {
             return null;
         }
-        return Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(skillName);
+        return Adapt.instance.getAdaptServer().getSkillRegistry().getAnySkill(skillName);
     }
 
     private static Adaptation<?> resolveAdaptation(String adaptationName) {
@@ -1560,7 +1559,7 @@ public final class ConfigGui {
             return List.of();
         }
 
-        List<Skill<?>> skills = new ArrayList<>(Adapt.instance.getAdaptServer().getSkillRegistry().getSkills());
+        List<Skill<?>> skills = new ArrayList<>(Adapt.instance.getAdaptServer().getSkillRegistry().getAllSkills());
         skills.sort(Comparator.comparing(skill -> normalizeSortKey(C.stripColor(skill.getDisplayName()))));
         return skills;
     }

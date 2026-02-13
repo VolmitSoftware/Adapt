@@ -64,7 +64,7 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_axe_leaf_5k").goal(5000).stat("axe.leaf-veinminer.leaves-broken").reward(400).build());
+        registerMilestone("challenge_axe_leaf_5k", "axe.leaf-veinminer.leaves-broken", 5000, 400);
     }
 
     @Override
@@ -162,11 +162,11 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
                     b.breakNaturally(p.getItemInUse());
                     SoundPlayer spw = SoundPlayer.of(block.getWorld());
                     spw.play(b.getLocation(), Sound.BLOCK_FUNGUS_BREAK, 0.01f, 0.25f);
-                    if (getConfig().showParticles) {
+                    if (areParticlesEnabled()) {
                         b.getWorld().spawnParticle(Particle.ASH, b.getLocation().add(0.5, 0.5, 0.5), 25, 0.5, 0.5, 0.5, 0.1);
                     }
                 }
-                if (getConfig().showParticles) {
+                if (areParticlesEnabled()) {
                     this.vfxCuboidOutline(b, Particles.ENCHANTMENT_TABLE);
                 }
                 VEIN_MINED.remove(b);

@@ -81,8 +81,8 @@ public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Conf
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_brewing_super_heated_100").goal(100).stat("brewing.super-heated.brews-accelerated").reward(300).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_brewing_super_heated_2500").goal(2500).stat("brewing.super-heated.brews-accelerated").reward(1000).build());
+        registerMilestone("challenge_brewing_super_heated_100", "brewing.super-heated.brews-accelerated", 100, 300);
+        registerMilestone("challenge_brewing_super_heated_2500", "brewing.super-heated.brews-accelerated", 2500, 1000);
     }
 
     @Override

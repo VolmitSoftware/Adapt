@@ -36,13 +36,13 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
-    private final List<Integer> holds;
+    private final Set<Integer> holds;
 
     public StealthSnatch() {
         super("stealth-snatch");
@@ -55,7 +55,7 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
-        holds = new ArrayList<>();
+        holds = new HashSet<>();
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.CHEST)
                 .key("challenge_stealth_snatch_2500")
@@ -72,8 +72,8 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_stealth_snatch_2500").goal(2500).stat("stealth.snatch.items-snatched").reward(400).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_stealth_snatch_25k").goal(25000).stat("stealth.snatch.items-snatched").reward(1500).build());
+        registerMilestone("challenge_stealth_snatch_2500", "stealth.snatch.items-snatched", 2500, 400);
+        registerMilestone("challenge_stealth_snatch_25k", "stealth.snatch.items-snatched", 25000, 1500);
     }
 
     @Override
@@ -122,11 +122,11 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
                 if (dist < range * range) {
                     ItemStack is = droppedItemEntity.getItemStack().clone();
 
-                    if (Inventories.hasSpace(player.getInventory(), is)) {
-                        holds.add(droppedItemEntity.getEntityId());
-                        SoundPlayer spw = SoundPlayer.of(player.getWorld());
-                        spw.play(player.getLocation(), Sound.BLOCK_LAVA_POP, 1f, (float) (1.0 + (Math.random() / 3)));
-                        safeGiveItem(player, droppedItemEntity, is);
+                        if (Inventories.hasSpace(player.getInventory(), is)) {
+                            holds.add(droppedItemEntity.getEntityId());
+                            SoundPlayer spw = SoundPlayer.of(player.getWorld());
+                            spw.play(player.getLocation(), Sound.BLOCK_LAVA_POP, 1f, (float) (1.0 + (ThreadLocalRandom.current().nextDouble() / 3D)));
+                            safeGiveItem(player, droppedItemEntity, is);
                         getPlayer(player).getData().addStat("stealth.snatch.items-snatched", 1);
                         //sendCollected(player, droppedItemEntity);
                         int id = droppedItemEntity.getEntityId();
@@ -157,7 +157,8 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
 
     @Override
     public void onTick() {
-        for (Player i : Bukkit.getOnlinePlayers()) {
+        for (com.volmit.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+            Player i = adaptPlayer.getPlayer();
             if (i.isSneaking()) {
                 J.s(() -> snatch(i));
             }

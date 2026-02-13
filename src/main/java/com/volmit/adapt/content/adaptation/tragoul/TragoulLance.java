@@ -71,8 +71,8 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_tragoul_lance_200").goal(200).stat("tragoul.lance.lances-spawned").reward(400).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_tragoul_lance_kills_100").goal(100).stat("tragoul.lance.lance-kills").reward(1000).build());
+        registerMilestone("challenge_tragoul_lance_200", "tragoul.lance.lances-spawned", 200, 400);
+        registerMilestone("challenge_tragoul_lance_kills_100", "tragoul.lance.lance-kills", 100, 1000);
     }
 
 
@@ -165,15 +165,15 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
         boolean enabled = true;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-        int baseCost = 5;
+        int baseCost = 4;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
         int maxLevel = 5;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-        int initialCost = 5;
+        int initialCost = 4;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Seeker Delay for the Tragoul Lance adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int seekerDelay = 20;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-        double costFactor = 1.10;
+        double costFactor = 0.72;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Seeker Damage Multiplier for the Tragoul Lance adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double seekerDamageMultiplier = 0.5;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Self Damage Multiplier for the Tragoul Lance adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

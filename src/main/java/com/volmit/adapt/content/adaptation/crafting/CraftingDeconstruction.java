@@ -19,10 +19,7 @@
 package com.volmit.adapt.content.adaptation.crafting;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.api.advancement.AdaptAdvancement;
-import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
-import com.volmit.adapt.api.advancement.AdvancementVisibility;
-import com.volmit.adapt.api.world.AdaptStatTracker;
+import com.volmit.adapt.api.advancement.AdvancementSpec;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
@@ -46,8 +43,6 @@ import org.bukkit.util.RayTraceResult;
 import java.util.*;
 
 public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruction.Config> {
-    private final List<Integer> holds = new ArrayList<>();
-
     public CraftingDeconstruction() {
         super("crafting-deconstruction");
         registerConfiguration(Config.class);
@@ -59,24 +54,21 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
         setInterval(5590);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.SHEARS)
-                .key("challenge_crafting_decon_200")
-                .title(Localizer.dLocalize("advancement.challenge_crafting_decon_200.title"))
-                .description(Localizer.dLocalize("advancement.challenge_crafting_decon_200.description"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .child(AdaptAdvancement.builder()
-                        .icon(Material.IRON_INGOT)
-                        .key("challenge_crafting_decon_5k")
-                        .title(Localizer.dLocalize("advancement.challenge_crafting_decon_5k.title"))
-                        .description(Localizer.dLocalize("advancement.challenge_crafting_decon_5k.description"))
-                        .frame(AdaptAdvancementFrame.CHALLENGE)
-                        .visibility(AdvancementVisibility.PARENT_GRANTED)
-                        .build())
-                .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_crafting_decon_200").goal(200).stat("crafting.deconstruction.items-deconstructed").reward(300).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_crafting_decon_5k").goal(5000).stat("crafting.deconstruction.items-deconstructed").reward(1000).build());
+        AdvancementSpec deconstruction5k = AdvancementSpec.challenge(
+                "challenge_crafting_decon_5k",
+                Material.IRON_INGOT,
+                Localizer.dLocalize("advancement.challenge_crafting_decon_5k.title"),
+                Localizer.dLocalize("advancement.challenge_crafting_decon_5k.description")
+        );
+        AdvancementSpec deconstruction200 = AdvancementSpec.challenge(
+                "challenge_crafting_decon_200",
+                Material.SHEARS,
+                Localizer.dLocalize("advancement.challenge_crafting_decon_200.title"),
+                Localizer.dLocalize("advancement.challenge_crafting_decon_200.description")
+        ).withChild(deconstruction5k);
+        registerAdvancementSpec(deconstruction200);
+        registerStatTracker(deconstruction200.statTracker("crafting.deconstruction.items-deconstructed", 200, 300));
+        registerStatTracker(deconstruction5k.statTracker("crafting.deconstruction.items-deconstructed", 5000, 1000));
     }
 
     @Override
@@ -174,7 +166,7 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
             itemEntity.setItemStack(offering);
             spw.play(itemEntity.getLocation(), Sound.BLOCK_BASALT_BREAK, 1F, 0.2f);
             spw.play(itemEntity.getLocation(), Sound.BLOCK_BEEHIVE_SHEAR, 1F, 0.7f);
-            getSkill().xp(player, getValue(offering));
+            xp(player, getValue(offering), "deconstruct");
             getPlayer(player).getData().addStat("crafting.deconstruction.items-deconstructed", 1);
 
             // Damage the shears
@@ -219,6 +211,6 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
         @com.volmit.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
         int initialCost = 8;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-        double costFactor = 1.355;
+        double costFactor = 1.0;
     }
 }

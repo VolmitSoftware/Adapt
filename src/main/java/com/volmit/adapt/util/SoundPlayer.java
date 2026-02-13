@@ -1,5 +1,6 @@
 package com.volmit.adapt.util;
 
+import com.volmit.adapt.AdaptConfig;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Location;
@@ -39,13 +40,24 @@ public class SoundPlayer {
     }
 
     public void play(@NotNull Location location, @NotNull Sound sound, float volume, float pitch) {
+        if (!areSoundsEnabled()) {
+            return;
+        }
         players.forEach(player -> player.playSound(location, sound, volume, pitch));
         //J.s(() -> Objects.requireNonNull(location.getWorld()).playSound(location, sound, volume, pitch));
     }
 
     public void play(@NotNull Location location, @NotNull Sound sound, SoundCategory category, float volume, float pitch) {
+        if (!areSoundsEnabled()) {
+            return;
+        }
         players.forEach(player -> player.playSound(location, sound, category, volume, pitch));
         //J.s(() -> Objects.requireNonNull(location.getWorld()).playSound(location, sound, volume, pitch));
+    }
+
+    private boolean areSoundsEnabled() {
+        AdaptConfig.Effects effects = AdaptConfig.get().getEffects();
+        return effects == null || effects.isSoundsEnabled();
     }
 
 }

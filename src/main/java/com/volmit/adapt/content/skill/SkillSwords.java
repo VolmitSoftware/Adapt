@@ -93,9 +93,9 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
                                 .build())
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sword_100").goal(100).stat("sword.hits").reward(getConfig().challengeSwordReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sword_1k").goal(1000).stat("sword.hits").reward(getConfig().challengeSwordReward * 2).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sword_10k").goal(10000).stat("sword.hits").reward(getConfig().challengeSwordReward * 5).build());
+        registerMilestone("challenge_sword_100", "sword.hits", 100, getConfig().challengeSwordReward);
+        registerMilestone("challenge_sword_1k", "sword.hits", 1000, getConfig().challengeSwordReward * 2);
+        registerMilestone("challenge_sword_10k", "sword.hits", 10000, getConfig().challengeSwordReward * 5);
 
         // Chain 2 - sword.damage
         registerAdvancement(AdaptAdvancement.builder()
@@ -116,8 +116,8 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sword_dmg_1k").goal(1000).stat("sword.damage").reward(getConfig().challengeSwordDmgReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sword_dmg_10k").goal(10000).stat("sword.damage").reward(getConfig().challengeSwordDmgReward * 3).build());
+        registerMilestone("challenge_sword_dmg_1k", "sword.damage", 1000, getConfig().challengeSwordDmgReward);
+        registerMilestone("challenge_sword_dmg_10k", "sword.damage", 10000, getConfig().challengeSwordDmgReward * 3);
 
         // Chain 3 - sword.kills
         registerAdvancement(AdaptAdvancement.builder()
@@ -138,8 +138,8 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sword_kills_50").goal(50).stat("sword.kills").reward(getConfig().challengeSwordKillsReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sword_kills_500").goal(500).stat("sword.kills").reward(getConfig().challengeSwordKillsReward * 3).build());
+        registerMilestone("challenge_sword_kills_50", "sword.kills", 50, getConfig().challengeSwordKillsReward);
+        registerMilestone("challenge_sword_kills_500", "sword.kills", 500, getConfig().challengeSwordKillsReward * 3);
 
         // Chain 4 - sword.critical
         registerAdvancement(AdaptAdvancement.builder()
@@ -160,8 +160,8 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sword_crit_50").goal(50).stat("sword.critical").reward(getConfig().challengeSwordCritReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sword_crit_500").goal(500).stat("sword.critical").reward(getConfig().challengeSwordCritReward * 3).build());
+        registerMilestone("challenge_sword_crit_50", "sword.critical", 50, getConfig().challengeSwordCritReward);
+        registerMilestone("challenge_sword_crit_500", "sword.critical", 500, getConfig().challengeSwordCritReward * 3);
 
         // Chain 5 - sword.heavy.hits
         registerAdvancement(AdaptAdvancement.builder()
@@ -182,8 +182,8 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sword_heavy_25").goal(25).stat("sword.heavy.hits").reward(getConfig().challengeSwordHeavyReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sword_heavy_250").goal(250).stat("sword.heavy.hits").reward(getConfig().challengeSwordHeavyReward * 3).build());
+        registerMilestone("challenge_sword_heavy_25", "sword.heavy.hits", 25, getConfig().challengeSwordHeavyReward);
+        registerMilestone("challenge_sword_heavy_250", "sword.heavy.hits", 250, getConfig().challengeSwordHeavyReward * 3);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -242,9 +242,7 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
         if (!this.isEnabled()) {
             return;
         }
-        for (Player i : Bukkit.getOnlinePlayers()) {
-            shouldReturnForPlayer(i, () -> checkStatTrackers(getPlayer(i)));
-        }
+        checkStatTrackersForOnlinePlayers();
     }
 
     @Override
