@@ -1148,6 +1148,9 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
                 }
 
                 for (Player viewer : new ArrayList<>(owner.getWorld().getPlayers())) {
+                    if (viewer.getUniqueId().equals(owner.getUniqueId())) {
+                        continue;
+                    }
                     sendPacket(viewer, packet);
                 }
             } catch (Throwable ignored) {

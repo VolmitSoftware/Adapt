@@ -113,11 +113,8 @@ public class PlayerData {
             String lineId = entry.getKey();
             Skill<?> loadedSkill = Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(lineId);
             if (loadedSkill == null) {
-                if (Adapt.instance.getAdaptServer().getSkillRegistry().isKnownSkill(lineId)) {
-                    continue;
-                }
-                skillLines.remove(lineId, entry.getValue());
-                Adapt.warn("Removed unknown skill line '" + lineId + "' from " + p.getPlayer().getName());
+                // Never prune unknown lines automatically; missing skills can be transient
+                // during startup/reload or due temporary config disables.
                 continue;
             }
 

@@ -37,7 +37,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import java.io.File;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import art.arcane.adapt.util.common.format.C;
@@ -48,6 +50,8 @@ import art.arcane.adapt.util.common.scheduling.J;
 @EqualsAndHashCode(callSuper = false)
 @Data
 public class AdaptPlayer extends TickedObject {
+    private static final Set<UUID> LOAD_FAILURE_GUARD = ConcurrentHashMap.newKeySet();
+
     private final Player player;
     private final PlayerData data;
     private ChronoLatch savelatch;
@@ -136,6 +140,10 @@ public class AdaptPlayer extends TickedObject {
     }
 
     private void save() {
+        save(false);
+    }
+
+    private void save(boolean synchronous) {
         UUID uuid = player.getUniqueId();
         File playerDataFile = getPlayerDataFile(uuid);
 
@@ -144,7 +152,26 @@ public class AdaptPlayer extends TickedObject {
             return;
         }
 
+        if (LOAD_FAILURE_GUARD.contains(uuid)) {
+            Adapt.warn("Skipping save for " + uuid + " because player data failed to load earlier. Existing file is preserved.");
+            return;
+        }
+
         String json = this.data.toJson(AdaptConfig.get().isUseSql());
+        if (synchronous) {
+            if (AdaptConfig.get().isUseSql()) {
+                if (Adapt.instance.getRedisSync() != null) {
+                    Adapt.instance.getRedisSync().publish(uuid, json);
+                }
+                if (Adapt.instance.getSqlManager() != null) {
+                    Adapt.instance.getSqlManager().updateData(uuid, json);
+                }
+            } else {
+                J.attempt(() -> IO.writeAll(playerDataFile, json));
+            }
+            return;
+        }
+
         PlayerDataPersistenceQueue queue = Adapt.instance.getPlayerDataPersistenceQueue();
         if (queue != null) {
             queue.queueSave(uuid, json, playerDataFile);
@@ -166,7 +193,7 @@ public class AdaptPlayer extends TickedObject {
     @Override
     public void unregister() {
         super.unregister();
-        save();
+        save(true);
     }
 
     public void delete(UUID uuid) {
@@ -199,6 +226,7 @@ public class AdaptPlayer extends TickedObject {
                 var opt = Adapt.instance.getRedisSync().cachedData(uuid);
                 if (opt.isPresent()) {
                     Adapt.verbose("Using cached data for player: " + uuid);
+                    LOAD_FAILURE_GUARD.remove(uuid);
                     return opt.get();
                 }
             }
@@ -206,7 +234,14 @@ public class AdaptPlayer extends TickedObject {
             if (Adapt.instance.getSqlManager() != null) {
                 String sqlData = Adapt.instance.getSqlManager().fetchData(uuid);
                 if (sqlData != null) {
-                    return PlayerData.fromJson(sqlData);
+                    try {
+                        PlayerData parsed = PlayerData.fromJson(sqlData);
+                        LOAD_FAILURE_GUARD.remove(uuid);
+                        return parsed;
+                    } catch (Throwable e) {
+                        LOAD_FAILURE_GUARD.add(uuid);
+                        Adapt.warn("Failed to parse SQL player data for " + uuid + ": " + e.getClass().getSimpleName() + (e.getMessage() == null ? "" : " (" + e.getMessage() + ")"));
+                    }
                 }
                 upload = true;
             }
@@ -224,12 +259,16 @@ public class AdaptPlayer extends TickedObject {
                         Adapt.instance.getSqlManager().updateData(uuid, text);
                     }
                 }
-                return PlayerData.fromJson(text);
-            } catch (Throwable ignored) {
-                Adapt.verbose("Failed to load player data for " + uuid);
+                PlayerData parsed = PlayerData.fromJson(text);
+                LOAD_FAILURE_GUARD.remove(uuid);
+                return parsed;
+            } catch (Throwable e) {
+                LOAD_FAILURE_GUARD.add(uuid);
+                Adapt.warn("Failed to load player data for " + uuid + " from " + f.getAbsolutePath() + ": " + e.getClass().getSimpleName() + (e.getMessage() == null ? "" : " (" + e.getMessage() + ")"));
             }
         }
 
+        LOAD_FAILURE_GUARD.remove(uuid);
         return new PlayerData();
     }
 

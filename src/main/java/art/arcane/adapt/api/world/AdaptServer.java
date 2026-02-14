@@ -148,6 +148,17 @@ public class AdaptServer extends TickedObject {
     }
 
     public void join(Player p) {
+        AdaptPlayer existing = players.get(p.getUniqueId());
+        if (existing != null) {
+            if (existing.getPlayer() == p) {
+                existing.loggedIn();
+                refreshOnlinePlayerSnapshots();
+                return;
+            }
+
+            players.remove(p.getUniqueId());
+        }
+
         PlayerData prefetched = takePrefetchedData(p.getUniqueId());
         AdaptPlayer a = new AdaptPlayer(p, prefetched);
         players.put(p.getUniqueId(), a);
@@ -159,7 +170,8 @@ public class AdaptServer extends TickedObject {
         AdaptPlayer a = players.get(p);
         if (a == null) return;
         a.unregister();
-        players.remove(p);
+        // Keep the entry briefly after quit so late quit listeners/tasks do not
+        // re-create a new AdaptPlayer for an offline player.
         prefetchedPlayerData.invalidate(p);
         refreshOnlinePlayerSnapshots();
     }
@@ -273,7 +285,25 @@ public class AdaptServer extends TickedObject {
 
         try {
             int sizeBefore = players.size();
-            players.values().removeIf(AdaptPlayer::shouldUnload);
+            Iterator<Map.Entry<UUID, AdaptPlayer>> iterator = players.entrySet().iterator();
+            while (iterator.hasNext()) {
+                Map.Entry<UUID, AdaptPlayer> entry = iterator.next();
+                AdaptPlayer player = entry.getValue();
+                if (player == null) {
+                    iterator.remove();
+                    prefetchedPlayerData.invalidate(entry.getKey());
+                    continue;
+                }
+
+                if (!player.shouldUnload()) {
+                    continue;
+                }
+
+                player.unregister();
+                iterator.remove();
+                prefetchedPlayerData.invalidate(entry.getKey());
+            }
+
             if (players.size() != sizeBefore) {
                 refreshOnlinePlayerSnapshots();
             }

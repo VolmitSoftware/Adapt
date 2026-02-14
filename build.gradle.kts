@@ -201,7 +201,7 @@ slimJar {
     ))
 
     relocate("manifold", "$lib.manifold")
-    relocate("art.arcane", "$lib.arcane")
+    relocate("art.arcane.volmlib", "$lib.arcane.volmlib")
     relocate("Fukkit.extensions", "$lib.extensions")
     relocate("Amulet.extensions", "$lib.extensions")
     relocate("com.fren_gor.ultimateAdvancementAPI", "$lib.advancements")
