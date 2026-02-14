@@ -1,5 +1,5 @@
 name: ${name}
-main: com.volmit.adapt.Adapt
+main: art.arcane.adapt.Adapt
 version: ${version}
 authors:
   - NextdoorPsycho

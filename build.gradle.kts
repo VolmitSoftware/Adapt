@@ -21,6 +21,7 @@ import io.github.slimjar.resolver.data.Mirror
 import org.gradle.api.plugins.JavaPluginExtension
 import org.jetbrains.gradle.ext.settings
 import org.jetbrains.gradle.ext.taskTriggers
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import xyz.jpenilla.runpaper.task.RunServer
 import kotlin.system.exitProcess
 
@@ -32,11 +33,12 @@ plugins {
     alias(libs.plugins.runVelocity)
     alias(libs.plugins.idea)
     alias(libs.plugins.slimjar)
+    alias(libs.plugins.kotlin.jvm)
 }
 
 version = "1.18.0-1.20.2-1.21.11"
 val apiVersion = "1.20"
-val main = "com.volmit.adapt.Adapt"
+val main = "art.arcane.adapt.Adapt"
 
 // ADD YOURSELF AS A NEW LINE IF YOU WANT YOUR OWN BUILD TASK GENERATED
 // ======================== WINDOWS =============================
@@ -134,6 +136,16 @@ allprojects {
     }
 }
 
+sourceSets {
+    main {
+        java.srcDir("../VolmLib/shared/src/main/java")
+    }
+}
+
+kotlin.sourceSets.named("main") {
+    kotlin.srcDir("../VolmLib/shared/src/main/kotlin")
+}
+
 dependencies {
     implementation(project(":velocity"))
     implementation(slimjarHelper("spigot"))
@@ -149,6 +161,7 @@ dependencies {
     slimApi(libs.amulet)
     slimApi(libs.chrono)
     slimApi(libs.spatial)
+    implementation(libs.kotlin.coroutines)
 
     // Dynamically Loaded
     slimApi(libs.adventure.minimessage)
@@ -180,7 +193,7 @@ dependencies {
     compileOnlyApi(fileTree("libs") { include("*.jar") })
 }
 
-val lib = "com.volmit.adapt.util"
+val lib = "art.arcane.adapt.util"
 slimJar {
     mirrors = listOf(Mirror(
         uri("https://maven-central.storage-download.googleapis.com/maven2").toURL(),
@@ -230,6 +243,13 @@ if (!JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_21)) {
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+kotlin {
+    jvmToolchain(21)
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_21)
     }
 }
 

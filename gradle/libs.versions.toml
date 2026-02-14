@@ -5,6 +5,8 @@ shadow = "9.0.0-rc3"
 runTask = "2.3.1"
 idea = "1.2"
 slimjar = "2.1.7"
+kotlin = "2.2.0"
+kotlin-coroutines = "1.10.2"
 
 # Cancer
 fukkit = "23.6.1"
@@ -60,6 +62,7 @@ toml4j = { module = "com.moandjiezana.toml:toml4j", version.ref = "toml4j" }
 fastutil = { module = "it.unimi.dsi:fastutil", version.ref = "fastutil" }
 glowingentities = { module = "fr.skytasul:glowingentities", version.ref = "glowingentities" }
 caffeine = { module = "com.github.ben-manes.caffeine:caffeine", version.ref = "caffeine" }
+kotlin-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlin-coroutines" }
 
 [plugins]
 lombok = { id = "io.freefair.lombok", version.ref = "lombok" }
@@ -68,3 +71,4 @@ runPaper = { id = "xyz.jpenilla.run-paper", version.ref = "runTask" }
 runVelocity = { id = "xyz.jpenilla.run-velocity", version.ref = "runTask" }
 idea = { id = "org.jetbrains.gradle.plugin.idea-ext", version.ref = "idea" }
 slimjar = { id = "de.crazydev22.slimjar", version.ref = "slimjar" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

@@ -1,0 +1,163 @@
+/*------------------------------------------------------------------------------
+ -   Adapt is a Skill/Integration plugin  for Minecraft Bukkit Servers
+ -   Copyright (c) 2022 Arcane Arts (Volmit Software)
+ -
+ -   This program is free software: you can redistribute it and/or modify
+ -   it under the terms of the GNU General Public License as published by
+ -   the Free Software Foundation, either version 3 of the License, or
+ -   (at your option) any later version.
+ -
+ -   This program is distributed in the hope that it will be useful,
+ -   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ -   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ -   GNU General Public License for more details.
+ -
+ -   You should have received a copy of the GNU General Public License
+ -   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ -----------------------------------------------------------------------------*/
+
+package art.arcane.adapt.content.adaptation.hunter;
+
+import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.api.adaptation.SimpleAdaptation;
+import art.arcane.adapt.api.advancement.AdaptAdvancement;
+import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
+import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.world.AdaptStatTracker;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.inventorygui.Element;
+import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.reflect.registries.PotionEffectTypes;
+import art.arcane.adapt.util.config.ConfigDescription;
+import lombok.NoArgsConstructor;
+import org.bukkit.Material;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffectType;
+
+public class HunterResistance extends SimpleAdaptation<HunterResistance.Config> {
+    public HunterResistance() {
+        super("hunter-resistance");
+        registerConfiguration(Config.class);
+        setDescription(Localizer.dLocalize("hunter.resistance.description"));
+        setDisplayName(Localizer.dLocalize("hunter.resistance.name"));
+        setIcon(Material.POWDER_SNOW_BUCKET);
+        setBaseCost(getConfig().baseCost);
+        setMaxLevel(getConfig().maxLevel);
+        setInitialCost(getConfig().initialCost);
+        setCostFactor(getConfig().costFactor);
+        setInterval(9844);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.IRON_CHESTPLATE)
+                .key("challenge_hunter_resistance_500")
+                .title(Localizer.dLocalize("advancement.challenge_hunter_resistance_500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_hunter_resistance_500.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerMilestone("challenge_hunter_resistance_500", "hunter.resistance.activations", 500, 400);
+    }
+
+    @Override
+    public void addStats(int level, Element v) {
+        v.addLore(C.GRAY + Localizer.dLocalize("hunter.resistance.lore1"));
+        v.addLore(C.GREEN + "+ " + level + C.GRAY + Localizer.dLocalize("hunter.resistance.lore2"));
+        v.addLore(C.RED + "- " + (5 + level) + C.GRAY + Localizer.dLocalize("hunter.resistance.lore3"));
+        v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Localizer.dLocalize("hunter.resistance.lore4"));
+        v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Localizer.dLocalize("hunter.resistance.lore5"));
+        v.addLore(C.GRAY + "- " + level + C.RED + " " + Localizer.dLocalize("hunter.penalty.lore1"));
+
+    }
+
+
+    @EventHandler
+    public void on(EntityDamageEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
+        if (e.getEntity() instanceof org.bukkit.entity.Player p && isAdaptableDamageCause(e) && hasAdaptation(p)) {
+            if (AdaptConfig.get().isPreventHunterSkillsWhenHungerApplied() && p.hasPotionEffect(PotionEffectType.HUNGER)) {
+                return;
+            }
+
+            if (!getConfig().useConsumable) {
+                if (p.getFoodLevel() == 0) {
+                    if (getConfig().poisonPenalty) {
+                        addPotionStacks(p, PotionEffectType.POISON, getConfig().basePoisonFromLevel - getLevel(p), getConfig().baseHungerDuration, getConfig().stackPoisonPenalty);
+                    }
+
+                } else {
+                    addPotionStacks(p, PotionEffectType.HUNGER, getConfig().baseHungerFromLevel - getLevel(p), getConfig().baseHungerDuration * getLevel(p), getConfig().stackHungerPenalty);
+                    addPotionStacks(p, PotionEffectTypes.DAMAGE_RESISTANCE, getLevel(p), getConfig().baseEffectbyLevel * getLevel(p), getConfig().stackBuff);
+                    getPlayer(p).getData().addStat("hunter.resistance.activations", 1);
+                }
+            } else {
+                if (getConfig().consumable != null && Material.getMaterial(getConfig().consumable) != null) {
+                    Material mat = Material.getMaterial(getConfig().consumable);
+                    if (mat != null && p.getInventory().contains(mat)) {
+                        p.getInventory().removeItem(new ItemStack(mat, 1));
+                        addPotionStacks(p, PotionEffectTypes.DAMAGE_RESISTANCE, getLevel(p), getConfig().baseEffectbyLevel * getLevel(p), getConfig().stackBuff);
+                        getPlayer(p).getData().addStat("hunter.resistance.activations", 1);
+                    } else {
+                        if (getConfig().poisonPenalty) {
+                            addPotionStacks(p, PotionEffectType.POISON, getConfig().basePoisonFromLevel - getLevel(p), getConfig().baseHungerDuration, getConfig().stackPoisonPenalty);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onTick() {
+
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return getConfig().enabled;
+    }
+
+    @Override
+    public boolean isPermanent() {
+        return getConfig().permanent;
+    }
+
+    @NoArgsConstructor
+    @ConfigDescription("Gain resistance when struck, at the cost of hunger.")
+    protected static class Config {
+        @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
+        boolean permanent = false;
+        @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
+        boolean enabled = true;
+        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Use Consumable for the Hunter Resistance adaptation.", impact = "True enables this behavior and false disables it.")
+        boolean useConsumable = false;
+        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Poison Penalty for the Hunter Resistance adaptation.", impact = "True enables this behavior and false disables it.")
+        boolean poisonPenalty = true;
+        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Stack Hunger Penalty for the Hunter Resistance adaptation.", impact = "True enables this behavior and false disables it.")
+        boolean stackHungerPenalty = false;
+        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Stack Poison Penalty for the Hunter Resistance adaptation.", impact = "True enables this behavior and false disables it.")
+        boolean stackPoisonPenalty = false;
+        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Stack Buff for the Hunter Resistance adaptation.", impact = "True enables this behavior and false disables it.")
+        boolean stackBuff = false;
+        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Base Effectby Level for the Hunter Resistance adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+        int baseEffectbyLevel = 10;
+        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Base Hunger From Level for the Hunter Resistance adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+        int baseHungerFromLevel = 10;
+        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Base Hunger Duration for the Hunter Resistance adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+        int baseHungerDuration = 50;
+        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Base Poison From Level for the Hunter Resistance adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+        int basePoisonFromLevel = 6;
+        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Consumable for the Hunter Resistance adaptation.", impact = "Changing this alters the identifier or text used by the feature.")
+        String consumable = "ROTTEN_FLESH";
+        @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
+        int baseCost = 4;
+        @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
+        int maxLevel = 5;
+        @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
+        int initialCost = 8;
+        @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
+        double costFactor = 0.4;
+    }
+}

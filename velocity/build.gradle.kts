@@ -25,7 +25,7 @@ val generateTemplates = tasks.register<Copy>("generateTemplates") {
 
     from(templateSource)
     into(templateDest)
-    rename { "com/volmit/adapt/$it" }
+    rename { "art/arcane/adapt/$it" }
     expand(inputs.properties)
 }
 

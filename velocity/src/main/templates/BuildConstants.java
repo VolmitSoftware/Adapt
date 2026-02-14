@@ -1,4 +1,4 @@
-package com.volmit.adapt;
+package art.arcane.adapt;
 
 // The constants are replaced before compilation
 public class BuildConstants {

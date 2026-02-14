@@ -1,0 +1,212 @@
+/*------------------------------------------------------------------------------
+ -   Adapt is a Skill/Integration plugin  for Minecraft Bukkit Servers
+ -   Copyright (c) 2022 Arcane Arts (Volmit Software)
+ -
+ -   This program is free software: you can redistribute it and/or modify
+ -   it under the terms of the GNU General Public License as published by
+ -   the Free Software Foundation, either version 3 of the License, or
+ -   (at your option) any later version.
+ -
+ -   This program is distributed in the hope that it will be useful,
+ -   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ -   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ -   GNU General Public License for more details.
+ -
+ -   You should have received a copy of the GNU General Public License
+ -   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ -----------------------------------------------------------------------------*/
+
+package art.arcane.adapt.content.adaptation.enchanting;
+
+import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.adaptation.SimpleAdaptation;
+import art.arcane.adapt.api.advancement.AdaptAdvancement;
+import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
+import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.world.AdaptStatTracker;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.inventorygui.Element;
+import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.misc.SoundPlayer;
+import art.arcane.volmlib.util.collection.KMap;
+import art.arcane.adapt.util.config.ConfigDescription;
+import lombok.NoArgsConstructor;
+import org.bukkit.Material;
+import org.bukkit.Sound;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryAction;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
+import org.bukkit.inventory.meta.ItemMeta;
+
+public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnchant.Config> {
+    public EnchantingQuickEnchant() {
+        super("enchanting-quick-enchant");
+        registerConfiguration(Config.class);
+        setDescription(Localizer.dLocalize("enchanting.quick_enchant.description"));
+        setDisplayName(Localizer.dLocalize("enchanting.quick_enchant.name"));
+        setIcon(Material.WRITABLE_BOOK);
+        setBaseCost(getConfig().baseCost);
+        setMaxLevel(getConfig().maxLevel);
+        setInterval(15100);
+        setInitialCost(getConfig().initialCost);
+        setCostFactor(getConfig().costFactor);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.ENCHANTED_BOOK)
+                .key("challenge_enchanting_quick_100")
+                .title(Localizer.dLocalize("advancement.challenge_enchanting_quick_100.title"))
+                .description(Localizer.dLocalize("advancement.challenge_enchanting_quick_100.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.BOOKSHELF)
+                        .key("challenge_enchanting_quick_1k")
+                        .title(Localizer.dLocalize("advancement.challenge_enchanting_quick_1k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_enchanting_quick_1k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerMilestone("challenge_enchanting_quick_100", "enchanting.quick-enchant.books-applied", 100, 300);
+        registerMilestone("challenge_enchanting_quick_1k", "enchanting.quick-enchant.books-applied", 1000, 1000);
+    }
+
+    private int getTotalLevelCount(int level) {
+        return level + (level > getConfig().maxPowerBonusLimit ? level / getConfig().maxPowerBonus1PerLevels : 0);
+    }
+
+    @Override
+    public void addStats(int level, Element v) {
+        v.addLore(C.GREEN + "+ " + getTotalLevelCount(level) + C.GRAY + " " + Localizer.dLocalize("enchanting.quick_enchant.lore1"));
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void on(InventoryClickEvent e) {
+        if (e.getClickedInventory() == null || e.isCancelled()) {
+            return;
+        }
+        if (e.getWhoClicked() instanceof Player p
+                && hasAdaptation(p)
+                && e.getAction().equals(InventoryAction.SWAP_WITH_CURSOR)
+                && e.getClick().equals(ClickType.LEFT)
+                && (e.getSlotType().equals(InventoryType.SlotType.CONTAINER)
+                || e.getSlotType().equals(InventoryType.SlotType.ARMOR)
+                || e.getSlotType().equals(InventoryType.SlotType.QUICKBAR))
+                && e.getCursor() != null
+                && e.getCurrentItem() != null
+                && e.getCursor().getType().equals(Material.ENCHANTED_BOOK)
+                && !e.getCurrentItem().getType().equals(Material.BOOK)
+                && !e.getCurrentItem().getType().equals(Material.ENCHANTED_BOOK)
+                && e.getCursor().getItemMeta() != null
+                && e.getCursor().getItemMeta() instanceof EnchantmentStorageMeta eb
+                && e.getCurrentItem().getItemMeta() != null
+                && e.getCurrentItem().getAmount() == 1
+                && e.getCursor().getAmount() == 1) {
+            ItemStack item = e.getCurrentItem();
+            ItemStack book = e.getCursor();
+            KMap<Enchantment, Integer> itemEnchants = new KMap<>(item.getType().equals(Material.ENCHANTED_BOOK)
+                    ? ((EnchantmentStorageMeta) item.getItemMeta()).getStoredEnchants()
+                    : item.getEnchantments());
+            KMap<Enchantment, Integer> bookEnchants = new KMap<>(eb.getStoredEnchants());
+            KMap<Enchantment, Integer> newEnchants = itemEnchants.copy();
+            KMap<Enchantment, Integer> addEnchants = new KMap<>();
+            int power = itemEnchants.values().stream().mapToInt(i -> i).sum();
+
+            if (bookEnchants.isEmpty()) {
+                return;
+            }
+
+            for (Enchantment i : bookEnchants.k()) {
+                if (itemEnchants.containsKey(i)) {
+                    continue;
+                }
+
+                power += bookEnchants.get(i);
+                newEnchants.put(i, bookEnchants.get(i));
+                addEnchants.put(i, bookEnchants.get(i));
+                bookEnchants.remove(i);
+            }
+
+            SoundPlayer sp = SoundPlayer.of(p);
+            if (power > getTotalLevelCount(getLevel(p))) {
+                Adapt.actionbar(p, C.RED + Localizer.dLocalize("enchanting.quick_enchant.lore2") + getTotalLevelCount(getLevel(p)) + " " + Localizer.dLocalize("enchanting.quick_enchant.lore3"));
+                sp.play(p.getLocation(), Sound.BLOCK_CONDUIT_DEACTIVATE, 0.5f, 1.7f);
+                return;
+            }
+
+            if (!itemEnchants.equals(newEnchants)) {
+                ItemMeta im = item.getItemMeta();
+
+                if (im instanceof EnchantmentStorageMeta sm) {
+                    sm.getStoredEnchants().keySet().forEach(sm::removeStoredEnchant);
+                    newEnchants.forEach((ec, l) -> sm.addStoredEnchant(ec, l, true));
+                    Adapt.messagePlayer(p, "---");
+                    sm.getStoredEnchants().forEach((k, v) -> Adapt.messagePlayer(p, k.getKey().getKey() + " " + v));
+                } else {
+                    im.getEnchants().keySet().forEach(im::removeEnchant);
+                    newEnchants.forEach((ec, l) -> im.addEnchant(ec, l, true));
+                }
+
+                xp(p, 50);
+                item.setItemMeta(im);
+                e.setCurrentItem(item);
+                e.setCancelled(true);
+                getPlayer(p).getData().addStat("enchanting.quick-enchant.books-applied", 1);
+                sp.play(p.getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 1f, 1.7f);
+                sp.play(p.getLocation(), Sound.BLOCK_DEEPSLATE_TILES_BREAK, 0.5f, 0.7f);
+                xp(p, 320 * addEnchants.values().stream().mapToInt((i) -> i).sum(), "quick-apply");
+
+                if (bookEnchants.isEmpty()) {
+                    e.setCursor(null);
+                } else if (!eb.getStoredEnchants().equals(bookEnchants)) {
+                    eb.getStoredEnchants().keySet().forEach(eb::removeStoredEnchant);
+                    bookEnchants.forEach((ec, l) -> eb.addStoredEnchant(ec, l, true));
+                    book.setItemMeta(eb);
+                    e.setCursor(book);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onTick() {
+
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return getConfig().enabled;
+    }
+
+    @Override
+    public boolean isPermanent() {
+        return getConfig().permanent;
+    }
+
+    @NoArgsConstructor
+    @ConfigDescription("Enchant items by clicking enchant books directly on them.")
+    protected static class Config {
+        @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
+        boolean permanent = false;
+        @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
+        boolean enabled = true;
+        @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
+        int baseCost = 6;
+        @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
+        int maxLevel = 7;
+        @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
+        int initialCost = 8;
+        @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
+        double costFactor = 0.9;
+        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Power Bonus Limit for the Enchanting Quick Enchant adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+        int maxPowerBonusLimit = 4;
+        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Power Bonus1Per Levels for the Enchanting Quick Enchant adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+        int maxPowerBonus1PerLevels = 3;
+    }
+}
