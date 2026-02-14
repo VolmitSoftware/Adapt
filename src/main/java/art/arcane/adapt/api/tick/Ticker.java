@@ -86,6 +86,23 @@ public class Ticker {
         return Math.max(0, System.currentTimeMillis() - windowStartMs.get());
     }
 
+    public double getWindowLoadPercent() {
+        long windowMs = getMetricsWindowMs();
+        if (windowMs <= 0L) {
+            return 0D;
+        }
+
+        double totalMs = metrics.values().stream()
+                .mapToDouble(metric -> metric.totalNanos.get() / 1_000_000D)
+                .sum();
+        double percent = (totalMs / (double) windowMs) * 100D;
+        if (!Double.isFinite(percent)) {
+            return 0D;
+        }
+
+        return Math.max(0D, percent);
+    }
+
     public List<String> topMetrics(int limit) {
         int safeLimit = Math.max(1, limit);
         return metrics.entrySet().stream()
