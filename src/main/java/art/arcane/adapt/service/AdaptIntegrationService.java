@@ -1,6 +1,7 @@
 package art.arcane.adapt.service;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.protection.WorldPolicyLatencyTelemetry;
 import art.arcane.adapt.content.event.AdaptAdaptationUseEvent;
 import art.arcane.adapt.util.common.plugin.AdaptService;
 import art.arcane.volmlib.integration.IntegrationHandshakeRequest;
@@ -14,6 +15,7 @@ import art.arcane.volmlib.integration.IntegrationProtocolVersion;
 import art.arcane.volmlib.integration.IntegrationServiceContract;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.plugin.ServicePriority;
 
 import java.util.ArrayDeque;
@@ -35,7 +37,8 @@ public class AdaptIntegrationService implements AdaptService, IntegrationService
             "adapt-runtime-metrics"
     );
 
-    private final ArrayDeque<Long> abilityOps = new ArrayDeque<>();
+    private final ArrayDeque<Long> abilitySuccessfulOps = new ArrayDeque<>();
+    private final ArrayDeque<Long> abilityCheckOps = new ArrayDeque<>();
     private volatile IntegrationProtocolVersion negotiatedProtocol = new IntegrationProtocolVersion(1, 1);
 
     @Override
@@ -47,17 +50,27 @@ public class AdaptIntegrationService implements AdaptService, IntegrationService
     @Override
     public void onDisable() {
         Bukkit.getServicesManager().unregister(IntegrationServiceContract.class, this);
-        synchronized (abilityOps) {
-            abilityOps.clear();
+        synchronized (abilitySuccessfulOps) {
+            abilitySuccessfulOps.clear();
         }
+        synchronized (abilityCheckOps) {
+            abilityCheckOps.clear();
+        }
+        WorldPolicyLatencyTelemetry.clear();
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onAdaptationUse(AdaptAdaptationUseEvent event) {
         long now = System.currentTimeMillis();
-        synchronized (abilityOps) {
-            abilityOps.addLast(now);
-            trimAbilityOps(now);
+        synchronized (abilityCheckOps) {
+            abilityCheckOps.addLast(now);
+            trimAbilityOps(abilityCheckOps, now);
+        }
+        if (!event.isCancelled()) {
+            synchronized (abilitySuccessfulOps) {
+                abilitySuccessfulOps.addLast(now);
+                trimAbilityOps(abilitySuccessfulOps, now);
+            }
         }
     }
 
@@ -152,11 +165,8 @@ public class AdaptIntegrationService implements AdaptService, IntegrationService
             switch (key) {
                 case IntegrationMetricSchema.ADAPT_SESSION_LOAD -> out.put(key, sampleSessionLoad(now));
                 case IntegrationMetricSchema.ADAPT_ABILITY_OPS -> out.put(key, sampleAbilityOps(now));
-                case IntegrationMetricSchema.ADAPT_WORLD_POLICY_LATENCY -> out.put(key, IntegrationMetricSample.unavailable(
-                        IntegrationMetricSchema.descriptor(key),
-                        "world-policy-latency-not-instrumented",
-                        now
-                ));
+                case IntegrationMetricSchema.ADAPT_ABILITY_CHECK_OPS -> out.put(key, sampleAbilityCheckOps(now));
+                case IntegrationMetricSchema.ADAPT_WORLD_POLICY_LATENCY -> out.put(key, sampleWorldPolicyLatency(now));
                 default -> out.put(key, IntegrationMetricSample.unavailable(
                         IntegrationMetricSchema.descriptor(key),
                         "unsupported-key",
@@ -181,17 +191,34 @@ public class AdaptIntegrationService implements AdaptService, IntegrationService
     private IntegrationMetricSample sampleAbilityOps(long now) {
         IntegrationMetricDescriptor descriptor = IntegrationMetricSchema.descriptor(IntegrationMetricSchema.ADAPT_ABILITY_OPS);
         long count;
-        synchronized (abilityOps) {
-            trimAbilityOps(now);
-            count = abilityOps.size();
+        synchronized (abilitySuccessfulOps) {
+            trimAbilityOps(abilitySuccessfulOps, now);
+            count = abilitySuccessfulOps.size();
         }
 
         return IntegrationMetricSample.available(descriptor, count, now);
     }
 
-    private void trimAbilityOps(long now) {
-        while (!abilityOps.isEmpty() && (now - abilityOps.peekFirst()) > ABILITY_WINDOW_MS) {
-            abilityOps.removeFirst();
+    private IntegrationMetricSample sampleAbilityCheckOps(long now) {
+        IntegrationMetricDescriptor descriptor = IntegrationMetricSchema.descriptor(IntegrationMetricSchema.ADAPT_ABILITY_CHECK_OPS);
+        long count;
+        synchronized (abilityCheckOps) {
+            trimAbilityOps(abilityCheckOps, now);
+            count = abilityCheckOps.size();
+        }
+
+        return IntegrationMetricSample.available(descriptor, count, now);
+    }
+
+    private IntegrationMetricSample sampleWorldPolicyLatency(long now) {
+        IntegrationMetricDescriptor descriptor = IntegrationMetricSchema.descriptor(IntegrationMetricSchema.ADAPT_WORLD_POLICY_LATENCY);
+        double averageMs = WorldPolicyLatencyTelemetry.averageMillis(now);
+        return IntegrationMetricSample.available(descriptor, averageMs, now);
+    }
+
+    private void trimAbilityOps(ArrayDeque<Long> samples, long now) {
+        while (!samples.isEmpty() && (now - samples.peekFirst()) > ABILITY_WINDOW_MS) {
+            samples.removeFirst();
         }
     }
 }

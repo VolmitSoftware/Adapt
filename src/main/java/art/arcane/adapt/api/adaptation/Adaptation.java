@@ -26,6 +26,7 @@ import art.arcane.adapt.api.Component;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.potion.BrewingRecipe;
 import art.arcane.adapt.api.protection.Protector;
+import art.arcane.adapt.api.protection.WorldPolicyLatencyTelemetry;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.tick.Ticked;
@@ -45,6 +46,7 @@ import org.bukkit.inventory.Recipe;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
@@ -359,31 +361,40 @@ public interface Adaptation<T> extends Ticked, Component {
     }
 
     default boolean canBlockBreak(Player player, Location blockLocation) {
-        return getProtectors().stream().allMatch(protector -> protector.canBlockBreak(player, blockLocation, this));
+        return evaluateWorldPolicy(protector -> protector.canBlockBreak(player, blockLocation, this));
     }
 
     default boolean canBlockPlace(Player player, Location blockLocation) {
-        return getProtectors().stream().allMatch(protector -> protector.canBlockPlace(player, blockLocation, this));
+        return evaluateWorldPolicy(protector -> protector.canBlockPlace(player, blockLocation, this));
     }
 
     default boolean canPVP(Player player, Location victimLocation) {
-        return getProtectors().stream().allMatch(protector -> protector.canPVP(player, victimLocation, this));
+        return evaluateWorldPolicy(protector -> protector.canPVP(player, victimLocation, this));
     }
 
     default boolean canPVE(Player player, Location victimLocation) {
-        return getProtectors().stream().allMatch(protector -> protector.canPVE(player, victimLocation, this));
+        return evaluateWorldPolicy(protector -> protector.canPVE(player, victimLocation, this));
     }
 
     default boolean canInteract(Player player, Location targetLocation) {
-        return getProtectors().stream().allMatch(protector -> protector.canInteract(player, targetLocation, this));
+        return evaluateWorldPolicy(protector -> protector.canInteract(player, targetLocation, this));
     }
 
     default boolean canAccessChest(Player player, Location chestLocation) {
-        return getProtectors().stream().allMatch(protector -> protector.canAccessChest(player, chestLocation, this));
+        return evaluateWorldPolicy(protector -> protector.canAccessChest(player, chestLocation, this));
     }
 
     default boolean checkRegion(Player player) {
-        return getProtectors().stream().allMatch(protector -> protector.checkRegion(player, player.getLocation(), this));
+        return evaluateWorldPolicy(protector -> protector.checkRegion(player, player.getLocation(), this));
+    }
+
+    private boolean evaluateWorldPolicy(Predicate<Protector> evaluator) {
+        long start = System.nanoTime();
+        try {
+            return getProtectors().stream().allMatch(evaluator);
+        } finally {
+            WorldPolicyLatencyTelemetry.recordNanos(System.nanoTime() - start);
+        }
     }
 
     default boolean hasUsageConflict(Player p) {
