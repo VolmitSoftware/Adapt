@@ -40,6 +40,7 @@ import art.arcane.volmlib.util.math.M;
 import art.arcane.volmlib.util.collection.KList;
 import art.arcane.volmlib.util.collection.KMap;
 import art.arcane.adapt.util.config.ConfigMigrationManager;
+import art.arcane.adapt.util.config.ConfigFileSupport;
 import art.arcane.adapt.util.project.redis.RedisSync;
 import art.arcane.adapt.util.secret.SecretSplash;
 import de.crazydev22.platformutils.AudienceProvider;
@@ -107,15 +108,23 @@ public class Adapt extends VolmitPlugin {
     private final KList<Runnable> postShutdown = new KList<>();
     private static VolmitSender sender;
     private static final long STARTUP_SLOW_PHASE_MS = 1500L;
+    private static final boolean SLIMJAR_DEBUG = Boolean.getBoolean("adapt.debug-slimjar");
+    private static final boolean DISABLE_REMAPPER = Boolean.getBoolean("adapt.disable-remapper");
 
 
     public Adapt() {
         instance = this;
+        long libraryLoadStart = System.currentTimeMillis();
         getLogger().info("Loading Libraries...");
         new SpigotApplicationBuilder(this)
-                .remap(true)
+                .debug(SLIMJAR_DEBUG)
+                .remap(!DISABLE_REMAPPER)
                 .build();
-        getLogger().info("Libraries Loaded!");
+        long libraryLoadElapsed = System.currentTimeMillis() - libraryLoadStart;
+        if (DISABLE_REMAPPER) {
+            getLogger().warning("SlimJar remapper disabled via -Dadapt.disable-remapper=true.");
+        }
+        getLogger().info("Libraries Loaded! (" + libraryLoadElapsed + "ms)");
         adaptEffectManager = new EffectManager(this);
     }
 
@@ -203,6 +212,7 @@ public class Adapt extends VolmitPlugin {
         initializeAdaptationListings();
         services.values().forEach(AdaptService::onEnable);
         services.values().forEach(this::registerListener);
+        ConfigFileSupport.flushCreatedConfigSummary();
     }
 
     private static void runStartupPhaseVoid(String phase, Runnable action) {

@@ -1,8 +1,6 @@
 package art.arcane.adapt.service;
 
-import art.arcane.amulet.io.FolderWatcher;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
@@ -16,6 +14,7 @@ import art.arcane.adapt.util.common.plugin.AdaptService;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.project.config.ConfigRewriteReporter;
 import art.arcane.adapt.util.common.misc.CustomModel;
+import art.arcane.volmlib.util.hotload.ConfigHotloadEngine;
 import art.arcane.volmlib.util.io.IO;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.common.io.Json;
@@ -28,15 +27,11 @@ import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.nio.file.Files;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
 import java.util.UUID;
 
 import static art.arcane.adapt.util.decree.context.AdaptationListingHandler.initializeAdaptationListings;
@@ -44,33 +39,34 @@ import static art.arcane.adapt.util.decree.context.AdaptationListingHandler.init
 public class HotloadSVC implements AdaptService {
     private static final long WATCHER_POLL_MS = 500;
     private static final int MAX_DIFF_MESSAGES_PER_FILE = 12;
-    private static final String MISSING = "<missing>";
-    private static final String REMOVED = "<removed>";
 
-    private FolderWatcher configWatcher;
     private TickedObject configTicker;
-    private File adaptFolder;
     private File adaptConfigFile;
     private File adaptConfigLegacyFile;
     private File modelsFile;
     private File modelsLegacyFile;
     private File skillsFolder;
     private File adaptationsFolder;
-    private final Map<String, String> knownSignatures = new HashMap<>();
-    private final Map<String, String> knownContents = new HashMap<>();
+    private final ConfigHotloadEngine hotloadEngine = new ConfigHotloadEngine(
+            this::isManagedConfigFile,
+            this::listKnownConfigFiles,
+            this::readFileContent,
+            this::normalizeContent
+    );
 
     @Override
     public void onEnable() {
-        adaptFolder = Adapt.instance.getDataFolder("adapt");
         adaptConfigFile = Adapt.instance.getDataFile("adapt", "adapt.toml");
         adaptConfigLegacyFile = Adapt.instance.getDataFile("adapt", "adapt.json");
         modelsFile = Adapt.instance.getDataFile("adapt", "models.toml");
         modelsLegacyFile = Adapt.instance.getDataFile("adapt", "models.json");
         skillsFolder = Adapt.instance.getDataFolder("adapt", "skills");
         adaptationsFolder = Adapt.instance.getDataFolder("adapt", "adaptations");
-        configWatcher = new FolderWatcher(adaptFolder);
-        configWatcher.checkModified();
-        primeKnownSnapshots();
+        hotloadEngine.configure(
+                WATCHER_POLL_MS,
+                List.of(adaptConfigFile, adaptConfigLegacyFile, modelsFile, modelsLegacyFile),
+                List.of(skillsFolder, adaptationsFolder)
+        );
         Adapt.info("Config hotload watcher enabled for all /adapt/*.json and /adapt/*.toml files.");
 
         configTicker = new TickedObject("config", "config-hotload-service", WATCHER_POLL_MS) {
@@ -87,33 +83,17 @@ public class HotloadSVC implements AdaptService {
             configTicker.unregister();
             configTicker = null;
         }
-        configWatcher = null;
-        knownSignatures.clear();
-        knownContents.clear();
+        hotloadEngine.clear();
     }
 
     private void pollConfigChanges() {
-        if (configWatcher == null) {
-            return;
-        }
-
-        Set<File> touched = new HashSet<>();
-        if (configWatcher.checkModified()) {
-            touched.addAll(configWatcher.getCreated());
-            touched.addAll(configWatcher.getChanged());
-            touched.addAll(configWatcher.getDeleted());
-        }
-        touched.addAll(scanForMissedChanges());
+        var touched = hotloadEngine.pollTouchedFiles();
         if (touched.isEmpty()) {
             return;
         }
 
         boolean refreshedSomething = false;
         for (File file : touched) {
-            if (file == null || !ConfigFileSupport.isSupportedConfigFile(file)) {
-                continue;
-            }
-
             refreshedSomething = processConfigChange(file) || refreshedSomething;
         }
 
@@ -123,29 +103,13 @@ public class HotloadSVC implements AdaptService {
     }
 
     private boolean processConfigChange(File file) {
-        String path = file.getAbsolutePath();
-        String before = knownContents.get(path);
-        String nowRaw = readFileContent(file);
-        String now = normalizeContent(nowRaw);
+        return hotloadEngine.processFileChange(file, this::applyConfigChange, delta -> {
+            if (isModelsConfigFile(file)) {
+                return;
+            }
 
-        if (Objects.equals(before, now)) {
-            updateKnownSnapshot(file, now);
-            return false;
-        }
-
-        boolean applied = applyConfigChange(file);
-        String after = normalizeContent(readFileContent(file));
-        updateKnownSnapshot(file, after);
-        if (!applied) {
-            return false;
-        }
-
-        if (isModelsConfigFile(file)) {
-            return true;
-        }
-
-        notifyOps(file, before, after);
-        return true;
+            notifyOps(file, delta.before(), delta.after());
+        });
     }
 
     private boolean applyConfigChange(File file) {
@@ -292,6 +256,13 @@ public class HotloadSVC implements AdaptService {
         return isDirectChild(adaptationsFolder, file) && ConfigFileSupport.isSupportedConfigFile(file);
     }
 
+    private boolean isManagedConfigFile(File file) {
+        return isAdaptConfigFile(file)
+                || isModelsConfigFile(file)
+                || isSkillConfigFile(file)
+                || isAdaptationConfigFile(file);
+    }
+
     private boolean isDirectChild(File parent, File child) {
         if (parent == null || child == null) {
             return false;
@@ -327,99 +298,50 @@ public class HotloadSVC implements AdaptService {
         return ConfigFileSupport.configNameFromFileName(fileName);
     }
 
-    private void primeKnownSnapshots() {
-        knownSignatures.clear();
-        knownContents.clear();
-        for (File file : listKnownConfigFiles()) {
-            updateKnownSnapshot(file, normalizeContent(readFileContent(file)));
-        }
-    }
-
-    private Set<File> scanForMissedChanges() {
-        Set<File> changed = new HashSet<>();
-        Set<String> seenPaths = new HashSet<>();
-        for (File file : listKnownConfigFiles()) {
-            String path = file.getAbsolutePath();
-            seenPaths.add(path);
-            String now = signature(file);
-            String previous = knownSignatures.put(path, now);
-            if (previous != null && !previous.equals(now)) {
-                changed.add(file);
-            }
-        }
-
-        for (String path : new HashSet<>(knownSignatures.keySet())) {
-            if (seenPaths.contains(path)) {
-                continue;
-            }
-
-            String previous = knownSignatures.put(path, "missing");
-            if (previous != null && !"missing".equals(previous)) {
-                changed.add(new File(path));
-            }
-        }
-
-        return changed;
-    }
-
     private List<File> listKnownConfigFiles() {
         List<File> files = new ArrayList<>();
-        Set<String> added = new HashSet<>();
+        Map<String, File> added = new HashMap<>();
 
-        addIfConfig(files, added, adaptConfigFile);
-        addIfConfig(files, added, adaptConfigLegacyFile);
-        addIfConfig(files, added, modelsFile);
-        addIfConfig(files, added, modelsLegacyFile);
+        addIfManaged(files, added, adaptConfigFile);
+        addIfManaged(files, added, adaptConfigLegacyFile);
+        addIfManaged(files, added, modelsFile);
+        addIfManaged(files, added, modelsLegacyFile);
 
-        if (adaptFolder == null || !adaptFolder.exists() || !adaptFolder.isDirectory()) {
-            return files;
-        }
-
-        ArrayDeque<File> queue = new ArrayDeque<>();
-        queue.add(adaptFolder);
-        while (!queue.isEmpty()) {
-            File next = queue.removeFirst();
-            File[] children = next.listFiles();
-            if (children == null || children.length == 0) {
-                continue;
-            }
-
-            for (File child : children) {
-                if (child == null) {
-                    continue;
-                }
-
-                if (child.isDirectory()) {
-                    queue.add(child);
-                    continue;
-                }
-
-                addIfConfig(files, added, child);
-            }
-        }
+        addDirectChildren(skillsFolder, files, added);
+        addDirectChildren(adaptationsFolder, files, added);
 
         return files;
     }
 
-    private void addIfConfig(List<File> out, Set<String> added, File file) {
-        if (file == null || !ConfigFileSupport.isSupportedConfigFile(file)) {
+    private void addDirectChildren(File folder, List<File> out, Map<String, File> added) {
+        if (folder == null || !folder.exists() || !folder.isDirectory()) {
+            return;
+        }
+
+        File[] children = folder.listFiles();
+        if (children == null || children.length == 0) {
+            return;
+        }
+
+        for (File child : children) {
+            if (child == null || !child.isFile()) {
+                continue;
+            }
+            addIfManaged(out, added, child);
+        }
+    }
+
+    private void addIfManaged(List<File> out, Map<String, File> added, File file) {
+        if (file == null || !isManagedConfigFile(file)) {
             return;
         }
 
         String path = file.getAbsolutePath();
-        if (!added.add(path)) {
+        if (added.putIfAbsent(path, file) != null) {
             return;
         }
 
         out.add(file);
-    }
-
-    private String signature(File file) {
-        if (file == null || !file.exists()) {
-            return "missing";
-        }
-
-        return file.lastModified() + ":" + file.length();
     }
 
     private String readFileContent(File file) {
@@ -431,20 +353,6 @@ public class HotloadSVC implements AdaptService {
             return Files.readString(file.toPath());
         } catch (Throwable e) {
             return null;
-        }
-    }
-
-    private void updateKnownSnapshot(File file, String normalizedContent) {
-        if (file == null) {
-            return;
-        }
-
-        String path = file.getAbsolutePath();
-        knownSignatures.put(path, signature(file));
-        if (normalizedContent == null) {
-            knownContents.remove(path);
-        } else {
-            knownContents.put(path, normalizedContent);
         }
     }
 
@@ -464,7 +372,11 @@ public class HotloadSVC implements AdaptService {
     }
 
     private void notifyOps(File file, String before, String after) {
-        List<DiffEntry> diffs = computeDiff(before, after);
+        List<ConfigHotloadEngine.DiffEntry> diffs = ConfigHotloadEngine.computeStructuredDiff(
+                before,
+                after,
+                raw -> parseStructured(raw, null)
+        );
         if (diffs.isEmpty()) {
             return;
         }
@@ -473,8 +385,8 @@ public class HotloadSVC implements AdaptService {
         List<String> messages = new ArrayList<>();
         int shown = Math.min(MAX_DIFF_MESSAGES_PER_FILE, diffs.size());
         for (int i = 0; i < shown; i++) {
-            DiffEntry diff = diffs.get(i);
-            messages.add(formatHotloadMessage(relative, diff.key, diff.oldValue, diff.newValue));
+            ConfigHotloadEngine.DiffEntry diff = diffs.get(i);
+            messages.add(formatHotloadMessage(relative, diff.key(), diff.oldValue(), diff.newValue()));
         }
 
         if (diffs.size() > shown) {
@@ -494,79 +406,6 @@ public class HotloadSVC implements AdaptService {
         });
     }
 
-    private List<DiffEntry> computeDiff(String before, String after) {
-        Map<String, String> left = flattenForDiff(before);
-        Map<String, String> right = flattenForDiff(after);
-        Set<String> keys = new HashSet<>(left.keySet());
-        keys.addAll(right.keySet());
-
-        List<String> ordered = new ArrayList<>(keys);
-        ordered.sort(String::compareTo);
-
-        List<DiffEntry> changes = new ArrayList<>();
-        for (String key : ordered) {
-            boolean inLeft = left.containsKey(key);
-            boolean inRight = right.containsKey(key);
-            String oldValue = inLeft ? left.get(key) : MISSING;
-            String newValue = inRight ? right.get(key) : REMOVED;
-            if (Objects.equals(oldValue, newValue)) {
-                continue;
-            }
-            changes.add(new DiffEntry(key, oldValue, newValue));
-        }
-
-        return changes;
-    }
-
-    private Map<String, String> flattenForDiff(String raw) {
-        JsonElement element = parseStructured(raw, null);
-        if (element == null) {
-            Map<String, String> fallback = new HashMap<>();
-            if (raw != null && !raw.isBlank()) {
-                fallback.put("$", formatValue(raw));
-            }
-            return fallback;
-        }
-
-        Map<String, String> out = new HashMap<>();
-        flattenJson("$", element, out);
-        return out;
-    }
-
-    private void flattenJson(String path, JsonElement element, Map<String, String> out) {
-        if (element == null || element.isJsonNull()) {
-            out.put(path, "null");
-            return;
-        }
-
-        if (element.isJsonPrimitive()) {
-            out.put(path, element.toString());
-            return;
-        }
-
-        if (element.isJsonArray()) {
-            if (element.getAsJsonArray().size() == 0) {
-                out.put(path, "[]");
-                return;
-            }
-
-            for (int i = 0; i < element.getAsJsonArray().size(); i++) {
-                flattenJson(path + "[" + i + "]", element.getAsJsonArray().get(i), out);
-            }
-            return;
-        }
-
-        JsonObject object = element.getAsJsonObject();
-        if (object.entrySet().isEmpty()) {
-            out.put(path, "{}");
-            return;
-        }
-
-        for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
-            flattenJson(path + "." + entry.getKey(), entry.getValue(), out);
-        }
-    }
-
     private String formatHotloadMessage(String file, String key, String oldValue, String newValue) {
         return C.GRAY + "[" + C.DARK_RED + "Adapt" + C.GRAY + "]: "
                 + C.GREEN + "Adapt Hotloaded: "
@@ -576,15 +415,7 @@ public class HotloadSVC implements AdaptService {
     }
 
     private String formatValue(String value) {
-        if (value == null) {
-            return "null";
-        }
-
-        String compact = value.replace("\r", "\\r").replace("\n", "\\n");
-        if (compact.length() > 120) {
-            return compact.substring(0, 117) + "...";
-        }
-        return compact;
+        return ConfigHotloadEngine.compactValue(value, 120);
     }
 
     private String relativizeToDataFolder(File file) {
@@ -673,15 +504,4 @@ public class HotloadSVC implements AdaptService {
         skill.openGui(player);
     }
 
-    private static class DiffEntry {
-        private final String key;
-        private final String oldValue;
-        private final String newValue;
-
-        private DiffEntry(String key, String oldValue, String newValue) {
-            this.key = key;
-            this.oldValue = oldValue;
-            this.newValue = newValue;
-        }
-    }
 }

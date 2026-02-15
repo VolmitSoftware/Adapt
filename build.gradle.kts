@@ -36,7 +36,7 @@ plugins {
     alias(libs.plugins.kotlin.jvm)
 }
 
-version = "1.18.0-1.20.2-1.21.11"
+version = "2.0.0-1.20.2-1.21.11-Dev1"
 val apiVersion = "1.20"
 val main = "art.arcane.adapt.Adapt"
 
@@ -157,7 +157,9 @@ dependencies {
     compileOnly(libs.spigot)
 
     // Cancer
-    slimApi(libs.fukkit)
+    slimApi(libs.fukkit) {
+        exclude(group = "org.spigotmc", module = "spigot-api")
+    }
     slimApi(libs.amulet)
     slimApi(libs.chrono)
     slimApi(libs.spatial)

@@ -151,6 +151,12 @@ public record CustomModel(Material material, int model, NamespacedKey modelKey) 
             synchronized (lock) {
                 if (modelsFile.exists()) {
                     String raw = IO.readAll(modelsFile);
+                    if (raw == null || raw.isBlank()) {
+                        json = new JsonObject();
+                        ConfigFileSupport.deleteLegacyFileIfMigrated(modelsFile, legacyModelsFile, "models-config");
+                        return;
+                    }
+
                     JsonElement parsed = ConfigFileSupport.parseToJsonElement(raw, modelsFile);
                     if (parsed == null || !parsed.isJsonObject()) {
                         throw new IOException("Invalid models.toml");
@@ -176,7 +182,7 @@ public record CustomModel(Material material, int model, NamespacedKey modelKey) 
 
                 json = new JsonObject();
                 IO.writeAll(modelsFile, ConfigFileSupport.serializeJsonElementToToml(json));
-                Adapt.info("Created missing models config [adapt/models.toml] from defaults.");
+                ConfigFileSupport.recordMissingConfigCreated();
             }
         }
 
