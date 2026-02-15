@@ -2219,7 +2219,7 @@
 
 [ranged.ricochet_bolt]
     name = "Ricochet Bolt"
-    description = "Arrows ricochet off solid blocks with chained bounces."
+    description = "Projectiles ricochet off solid blocks with chained bounces."
     lore1 = "Max Ricochets"
     lore2 = "Speed Bonus Per Ricochet"
     lore3 = "Bonus Damage Per Ricochet"
@@ -3392,11 +3392,11 @@
 
 [advancement.challenge_ranged_ricochet_kills_50]
     title = "Trick Shot"
-    description = "Kill 50 mobs with ricocheted arrows"
+    description = "Kill 50 mobs with ricocheted projectiles"
 
 [advancement.challenge_ranged_ricochet_kills_500]
     title = "Pinball Wizard"
-    description = "Kill 500 mobs with ricocheted arrows"
+    description = "Kill 500 mobs with ricocheted projectiles"
 
 # --- RIFT ---
 

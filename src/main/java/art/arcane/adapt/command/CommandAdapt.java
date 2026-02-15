@@ -23,7 +23,9 @@ import art.arcane.adapt.util.decree.specialhandlers.NullablePlayerHandler;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 
 import art.arcane.adapt.util.common.plugin.Permission;
 import art.arcane.adapt.util.project.command.Command;
@@ -179,7 +181,7 @@ public class CommandAdapt implements DecreeExecutor {
 
         if (skillName.equals("[all]")) {
             Map<String, Double> experienceMap = new HashMap<>();
-            for (Skill<?> skill : SkillRegistry.skills.sortV()) {
+            for (Skill<?> skill : allSkillSnapshot()) {
                 experienceMap.put(skill.getName(), (double) amount);
             }
             targetPlayer.getInventory().addItem(ExperienceOrb.with(experienceMap));
@@ -188,12 +190,18 @@ public class CommandAdapt implements DecreeExecutor {
         }
 
         if (skillName.equals("[random]")) {
-            targetPlayer.getInventory().addItem(ExperienceOrb.with(SkillRegistry.skills.sortV().getRandom().getName(), amount));
+            List<Skill<?>> skills = allSkillSnapshot();
+            if (skills.isEmpty()) {
+                FConst.error("No skills are registered.").send(sender());
+                return;
+            }
+
+            targetPlayer.getInventory().addItem(ExperienceOrb.with(skills.get(ThreadLocalRandom.current().nextInt(skills.size())).getName(), amount));
             FConst.success("Giving random orb").send(sender());
             return;
         }
 
-        Skill<?> skill = Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(skillName.name());
+        Skill<?> skill = Adapt.instance.getAdaptServer().getSkillRegistry().getAnySkill(skillName.name());
         if (skill != null) {
             targetPlayer.getInventory().addItem(ExperienceOrb.with(skill.getName(), amount));
             FConst.success("Giving " + skill.getName() + " orb").send(sender());
@@ -226,7 +234,7 @@ public class CommandAdapt implements DecreeExecutor {
 
         if (skillName.equals("[all]")) {
             Map<String, Integer> knowledgeMap = new HashMap<>();
-            for (Skill<?> skill : SkillRegistry.skills.sortV()) {
+            for (Skill<?> skill : allSkillSnapshot()) {
                 knowledgeMap.put(skill.getName(), amount);
             }
             targetPlayer.getInventory().addItem(KnowledgeOrb.with(knowledgeMap));
@@ -235,12 +243,18 @@ public class CommandAdapt implements DecreeExecutor {
         }
 
         if (skillName.equals("[random]")){
-            targetPlayer.getInventory().addItem(KnowledgeOrb.with(SkillRegistry.skills.sortV().getRandom().getName(), amount));
+            List<Skill<?>> skills = allSkillSnapshot();
+            if (skills.isEmpty()) {
+                FConst.error("No skills are registered.").send(sender());
+                return;
+            }
+
+            targetPlayer.getInventory().addItem(KnowledgeOrb.with(skills.get(ThreadLocalRandom.current().nextInt(skills.size())).getName(), amount));
             FConst.success("Giving random orb").send(sender());
             return;
         }
 
-        Skill<?> skill = Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(skillName.name());
+        Skill<?> skill = Adapt.instance.getAdaptServer().getSkillRegistry().getAnySkill(skillName.name());
         if(skill != null){
             targetPlayer.getInventory().addItem(KnowledgeOrb.with(skill.getName(), amount));
             FConst.success("Giving " + skill.getName() + " orb").send(sender());
@@ -333,4 +347,13 @@ public class CommandAdapt implements DecreeExecutor {
         FConst.success("Canonicalized TOML configs. skills=" + migratedSkills + ", adaptations=" + migratedAdaptations + ", deletedLegacyJson=" + deletedLegacyJson).send(sender());
     }
 
+    private List<Skill<?>> allSkillSnapshot() {
+        if (Adapt.instance != null
+                && Adapt.instance.getAdaptServer() != null
+                && Adapt.instance.getAdaptServer().getSkillRegistry() != null) {
+            return Adapt.instance.getAdaptServer().getSkillRegistry().getAllSkills();
+        }
+
+        return SkillRegistry.skills.sortV();
+    }
 }

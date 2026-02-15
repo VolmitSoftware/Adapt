@@ -1,5 +1,6 @@
 package art.arcane.adapt.util.decree.context;
 
+import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.skill.SkillRegistry;
@@ -56,14 +57,24 @@ public class AdaptationListingHandler {
         adaptationSkillLists.add(t1);
         AdaptationSkillList t2 = new AdaptationSkillList("[random]");
         adaptationSkillLists.add(t2);
-        for (Skill<?> skill : SkillRegistry.skills.sortV()) {
-            if (!skill.isEnabled()) {
-                continue;
-            }
+
+        for (Skill<?> skill : allSkills()) {
             AdaptationSkillList t3 = new AdaptationSkillList(skill.getName());
             adaptationSkillLists.add(t3);
         }
+
+        adaptationSkillLists.removeDuplicates();
         return adaptationSkillLists;
+    }
+
+    private static KList<Skill<?>> allSkills() {
+        if (Adapt.instance != null
+                && Adapt.instance.getAdaptServer() != null
+                && Adapt.instance.getAdaptServer().getSkillRegistry() != null) {
+            return new KList<>(Adapt.instance.getAdaptServer().getSkillRegistry().getAllSkills());
+        }
+
+        return SkillRegistry.skills.sortV();
     }
 
     public static KList<AdaptationProvider> getAdaptationProviders() {
