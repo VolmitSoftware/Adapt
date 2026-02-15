@@ -327,13 +327,19 @@ public class PlayerSkillLine {
     }
 
     public void setAdaptation(Adaptation a, int level) {
-        if (level <= 1) {
+        if (a == null) {
+            return;
+        }
+
+        int clamped = Math.max(0, Math.min(level, a.getMaxLevel()));
+        if (clamped <= 0) {
             adaptations.remove(a.getName());
+            return;
         }
 
         PlayerAdaptation v = new PlayerAdaptation();
         v.setId(a.getName());
-        v.setLevel(Math.min(level, a.getMaxLevel()));
+        v.setLevel(clamped);
         adaptations.put(a.getName(), v);
     }
 

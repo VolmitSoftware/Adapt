@@ -29,7 +29,6 @@ import art.arcane.volmlib.util.math.RNG;
 import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Server;
 import org.bukkit.Sound;
@@ -49,6 +48,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.format.AdventureCompat;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.project.command.Command;
 import art.arcane.adapt.util.project.command.CommandDummy;
@@ -283,38 +283,38 @@ public class VolmitSender implements CommandSender {
 
     private Component createNoPrefixComponent(String message) {
         if (!canUseCustomColors(this)) {
-            String t = C.translateAlternateColorCodes('&', MiniMessage.miniMessage().stripTags(message));
-            return MiniMessage.miniMessage().deserialize(t);
+            String t = C.translateAlternateColorCodes('&', AdventureCompat.stripTags(message));
+            return AdventureCompat.deserialize(t);
         }
 
         String t = C.translateAlternateColorCodes('&', message);
         String a = C.aura(t, spinh, spins, spinb, 0.36);
-        return MiniMessage.miniMessage().deserialize(a);
+        return AdventureCompat.deserialize(a);
     }
 
     private Component createNoPrefixComponentNoProcessing(String message) {
-        return MiniMessage.builder().postProcessor(c -> c).build().deserialize(message);
+        return AdventureCompat.deserializeNoProcessing(message);
     }
 
     private Component createComponent(String message) {
         if (!canUseCustomColors(this)) {
-            String t = C.translateAlternateColorCodes('&', MiniMessage.miniMessage().stripTags(getTag() + message));
-            return MiniMessage.miniMessage().deserialize(t);
+            String t = C.translateAlternateColorCodes('&', AdventureCompat.stripTags(getTag() + message));
+            return AdventureCompat.deserialize(t);
         }
 
         String t = C.translateAlternateColorCodes('&', getTag() + message);
         String a = C.aura(t, spinh, spins, spinb);
-        return MiniMessage.miniMessage().deserialize(a);
+        return AdventureCompat.deserialize(a);
     }
 
     private Component createComponentRaw(String message) {
         if (!canUseCustomColors(this)) {
-            String t = C.translateAlternateColorCodes('&', MiniMessage.miniMessage().stripTags(getTag() + message));
-            return MiniMessage.miniMessage().deserialize(t);
+            String t = C.translateAlternateColorCodes('&', AdventureCompat.stripTags(getTag() + message));
+            return AdventureCompat.deserialize(t);
         }
 
         String t = C.translateAlternateColorCodes('&', getTag() + message);
-        return MiniMessage.miniMessage().deserialize(t);
+        return AdventureCompat.deserialize(t);
     }
 
     public <T> void showWaiting(String passive, CompletableFuture<T> f) {

@@ -25,8 +25,6 @@ import art.arcane.adapt.AdaptConfig;
 import art.arcane.volmlib.util.io.IO;
 import art.arcane.adapt.util.config.ConfigFileSupport;
 import lombok.SneakyThrows;
-import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 import java.io.File;
 import java.io.InputStream;
@@ -110,8 +108,7 @@ public class Localizer {
             s = C.aura(s, -20, 7, 8, 0.36);
         }
 
-        return LegacyComponentSerializer.legacySection()
-                .serialize(MiniMessage.miniMessage().deserialize(s));
+        return AdventureCompat.toLegacySection(s);
     }
 
     private static void syncLanguageResource(File langFolder, String languageCode) throws Exception {

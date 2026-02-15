@@ -230,7 +230,10 @@ public interface Skill<T> extends Ticked, Component {
         if (!this.isEnabled()) {
             return C.DARK_GRAY + Form.capitalize(getName());
         }
-        return getDisplayName() + C.RESET + " " + C.UNDERLINE + C.WHITE + level + C.RESET;
+        if (level > 0) {
+            return getDisplayName() + C.RESET + " " + C.UNDERLINE + C.WHITE + level + C.RESET;
+        }
+        return getDisplayName();
     }
 
     default CustomModel getModel() {
@@ -372,7 +375,10 @@ public interface Skill<T> extends Ticked, Component {
             }
             visibleAdaptations.add(adaptation);
         }
-        visibleAdaptations.sort(Comparator.comparing(adaptation -> normalizeSortKey(adaptation.getDisplayName())));
+        visibleAdaptations.sort(
+                Comparator.comparing((Adaptation<?> adaptation) -> normalizeSortKey(adaptation.getDisplayName()))
+                        .thenComparing(Adaptation::getName, String.CASE_INSENSITIVE_ORDER)
+        );
 
         boolean reserveNavigation = AdaptConfig.get().isGuiBackButton();
         GuiLayout.PagePlan plan = GuiLayout.plan(visibleAdaptations.size(), reserveNavigation);

@@ -24,8 +24,6 @@ import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.PlayerAdaptation;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.api.xp.XP;
-import art.arcane.volmlib.util.io.IO;
-import art.arcane.volmlib.util.math.M;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -68,27 +66,33 @@ public class SkillsGui {
         }
 
         List<SkillPageEntry> entries = new ArrayList<>();
-        for (PlayerSkillLine line : adaptPlayer.getData().getSkillLines().sortV()) {
-            Skill<?> skill = line.getRawSkill(adaptPlayer);
+        for (Skill<?> skill : adaptPlayer.getServer().getSkillRegistry().getSkills()) {
             if (skill == null) {
                 continue;
             }
             if (!skill.isEnabled()) {
                 continue;
             }
+            PlayerSkillLine line = adaptPlayer.getData().getSkillLineNullable(skill.getName());
+            if (line == null) {
+                continue;
+            }
             if (skill.hasBlacklistPermission(adaptPlayer.getPlayer(), skill) || line.getLevel() < 0) {
                 continue;
             }
 
-            int adaptationLevel = 0;
-            for (PlayerAdaptation adaptation : line.getAdaptations().sortV()) {
-                adaptationLevel += adaptation.getLevel();
+            int adaptationLevel = sumAdaptationLevels(line);
+            if (!hasVisibleProgress(line, adaptationLevel)) {
+                continue;
             }
 
             entries.add(new SkillPageEntry(skill, line, adaptationLevel));
         }
 
-        entries.sort(Comparator.comparing(entry -> normalizeSortKey(entry.skill().getDisplayName())));
+        entries.sort(
+                Comparator.comparing((SkillPageEntry entry) -> normalizeSortKey(entry.skill().getDisplayName()))
+                        .thenComparing(entry -> entry.skill().getName(), String.CASE_INSENSITIVE_ORDER)
+        );
 
         boolean reserveNavigation = false;
         GuiLayout.PagePlan plan = GuiLayout.plan(entries.size(), reserveNavigation);
@@ -146,6 +150,21 @@ public class SkillsGui {
     }
 
     private record SkillPageEntry(Skill<?> skill, PlayerSkillLine line, int adaptationLevel) {
+    }
+
+    private static int sumAdaptationLevels(PlayerSkillLine line) {
+        int total = 0;
+        for (PlayerAdaptation adaptation : line.getAdaptations().values()) {
+            if (adaptation == null) {
+                continue;
+            }
+            total += Math.max(0, adaptation.getLevel());
+        }
+        return total;
+    }
+
+    private static boolean hasVisibleProgress(PlayerSkillLine line, int adaptationLevel) {
+        return line.getXp() > 0D || line.getKnowledge() > 0L || adaptationLevel > 0;
     }
 
     private static String normalizeSortKey(String value) {
