@@ -174,8 +174,10 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
             if (value instanceof Number number) {
                 return number;
             }
-        } catch (Throwable ignored) {
-            Adapt.verbose("Failed reading config field '" + fieldName + "' for skill " + getName());
+        } catch (Throwable ex) {
+            Adapt.verbose("Failed reading config field '" + fieldName + "' for skill " + getName() + ": "
+                    + ex.getClass().getSimpleName()
+                    + (ex.getMessage() == null ? "" : " - " + ex.getMessage()));
         }
 
         return null;
@@ -186,7 +188,7 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
         while (current != null) {
             try {
                 return current.getDeclaredField(name);
-            } catch (NoSuchFieldException ignored) {
+            } catch (NoSuchFieldException ex) {
                 current = current.getSuperclass();
             }
         }
@@ -240,39 +242,74 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
             if (p == null) {
                 return true;
             }
+
+            if (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(p)) {
+                return true;
+            }
+
             Adapt.verbose("Checking " + p.getName() + " for " + getName());
             return AdaptationGate.shouldSkipPlayer(p, this, getPlayer(p) != null);
-        } catch (Exception ignored) {
+        } catch (Exception ex) {
+            Adapt.verbose("Failed shouldReturnForPlayer check for " + (p == null ? "null" : p.getName())
+                    + " in skill " + getName() + ": " + ex.getClass().getSimpleName()
+                    + (ex.getMessage() == null ? "" : " - " + ex.getMessage()));
             return true;
         }
     }
     protected void shouldReturnForPlayer(Player p, Runnable r) {
         try {
+            if (p == null || r == null) {
+                return;
+            }
+
+            if (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(p)) {
+                J.runEntity(p, () -> shouldReturnForPlayer(p, r));
+                return;
+            }
+
             if (shouldReturnForPlayer(p)) {
                 return;
             }
             r.run();
-        } catch (Exception ignored) {
+        } catch (Exception ex) {
+            Adapt.verbose("Failed guarded player runnable for skill " + getName() + ": "
+                    + ex.getClass().getSimpleName()
+                    + (ex.getMessage() == null ? "" : " - " + ex.getMessage()));
         }
     }
 
     protected void shouldReturnForPlayer(Player p, Cancellable c, Runnable r) {
         try {
+            if (p == null || c == null || r == null) {
+                return;
+            }
+
             if (c.isCancelled()) {
                 return;
             }
+
+            if (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(p)) {
+                return;
+            }
+
             if (shouldReturnForPlayer(p)) {
                 return;
             }
             r.run();
-        } catch (Exception ignored) {
+        } catch (Exception ex) {
+            Adapt.verbose("Failed guarded cancellable player runnable for skill " + getName() + ": "
+                    + ex.getClass().getSimpleName()
+                    + (ex.getMessage() == null ? "" : " - " + ex.getMessage()));
         }
     }
 
     protected boolean shouldReturnForWorld(World world, Skill<?> skill) {
         try {
             return AdaptationGate.shouldSkipWorld(world, skill);
-        } catch (Exception ignored) {
+        } catch (Exception ex) {
+            Adapt.verbose("Failed shouldReturnForWorld check for skill " + (skill == null ? "null" : skill.getName())
+                    + ": " + ex.getClass().getSimpleName()
+                    + (ex.getMessage() == null ? "" : " - " + ex.getMessage()));
             return true;
         }
     }

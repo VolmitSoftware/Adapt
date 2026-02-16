@@ -10,7 +10,6 @@ import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.*;
@@ -57,36 +56,35 @@ public class AdvancementManager {
             return;
         }
 
-        J.s(() -> {
-            Player target = player.getPlayer();
-            if (target == null || !target.isOnline()) {
+        J.runEntity(p, () -> {
+            if (!p.isOnline()) {
                 return;
             }
 
             try {
-                advancement.grant(target, true);
+                advancement.grant(p, true);
             } catch (Throwable t) {
                 if (isUserNotLoadedError(t)) {
-                    Adapt.verbose("Skipped advancement grant '" + key + "' because user data is not loaded yet for " + target.getName() + ".");
+                    Adapt.verbose("Skipped advancement grant '" + key + "' because user data is not loaded yet for " + p.getName() + ".");
                     return;
                 }
 
-                Adapt.warn("Failed to grant advancement '" + key + "' for " + target.getName() + ": " + t.getMessage());
+                Adapt.warn("Failed to grant advancement '" + key + "' for " + p.getName() + ": " + summarizeThrowable(t));
+            }
+
+            if (toast) {
+                try {
+                    advancement.displayToastToPlayer(p);
+                } catch (Throwable t) {
+                    if (isUserNotLoadedError(t)) {
+                        Adapt.verbose("Skipped advancement toast '" + key + "' because user data is not loaded yet for " + p.getName() + ".");
+                        return;
+                    }
+
+                    Adapt.warn("Failed to display advancement toast '" + key + "' for " + p.getName() + ": " + summarizeThrowable(t));
+                }
             }
         }, 5);
-
-        if (toast) {
-            try {
-                advancement.displayToastToPlayer(p);
-            } catch (Throwable t) {
-                if (isUserNotLoadedError(t)) {
-                    Adapt.verbose("Skipped advancement toast '" + key + "' because user data is not loaded yet for " + p.getName() + ".");
-                    return;
-                }
-
-                Adapt.warn("Failed to display advancement toast '" + key + "' for " + p.getName() + ": " + t.getMessage());
-            }
-        }
     }
 
     private boolean isUserNotLoadedError(Throwable throwable) {
@@ -102,9 +100,41 @@ public class AdvancementManager {
         return false;
     }
 
+    private String summarizeThrowable(Throwable throwable) {
+        if (throwable == null) {
+            return "unknown";
+        }
+
+        Throwable root = throwable;
+        while (root.getCause() != null && root.getCause() != root) {
+            root = root.getCause();
+        }
+
+        StringBuilder summary = new StringBuilder(throwable.getClass().getSimpleName());
+        appendMessage(summary, throwable.getMessage());
+
+        if (root != throwable) {
+            summary.append(" | cause=").append(root.getClass().getSimpleName());
+            appendMessage(summary, root.getMessage());
+        }
+
+        return summary.toString();
+    }
+
+    private void appendMessage(StringBuilder builder, String message) {
+        if (message != null && !message.isBlank()) {
+            builder.append(": ").append(message);
+        }
+    }
+
     public void unlockExisting(AdaptPlayer player) {
         if (!AdaptConfig.get().isAdvancements() || !enabled.get()) return;
-        J.s(() -> {
+        Player target = player.getPlayer();
+        if (target == null || !target.isOnline()) {
+            return;
+        }
+
+        J.runEntity(target, () -> {
             instance.getAdaptServer()
                     .getSkillRegistry()
                     .getSkills()

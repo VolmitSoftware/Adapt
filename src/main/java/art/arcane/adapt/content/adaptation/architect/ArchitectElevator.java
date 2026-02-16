@@ -34,6 +34,7 @@ import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.*;
@@ -385,7 +386,7 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
 
     private void teleportPlayer(Player p, Location l) {
         playTeleportEffects(p);
-        p.teleport(l);
+        J.teleport(p, l);
         SoundPlayer.of(p.getWorld()).play(p, Sound.ENTITY_ENDERMAN_TELEPORT, SOUND_VOLUME, SOUND_PITCH);
         playTeleportEffects(p);
     }

@@ -171,9 +171,12 @@ public interface Adaptation<T> extends Ticked, Component {
                     return bool;
                 }
                 return null;
-            } catch (NoSuchFieldException ignored) {
+            } catch (NoSuchFieldException ex) {
                 current = current.getSuperclass();
-            } catch (Throwable ignored) {
+            } catch (Throwable ex) {
+                Adapt.verbose("Failed reading boolean field '" + fieldName + "' from " + source.getClass().getName()
+                        + ": " + ex.getClass().getSimpleName()
+                        + (ex.getMessage() == null ? "" : " - " + ex.getMessage()));
                 return null;
             }
         }
@@ -445,6 +448,10 @@ public interface Adaptation<T> extends Ticked, Component {
                 return 0;
             }
 
+            if (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(p)) {
+                return 0;
+            }
+
             int level = getLevel(p);
             if (level <= 0) {
                 return 0;
@@ -494,6 +501,9 @@ public interface Adaptation<T> extends Ticked, Component {
 
     default int getLevel(Player p) {
         if (p == null) {
+            return 0;
+        }
+        if (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(p)) {
             return 0;
         }
         if (!p.getClass().getSimpleName().equals("CraftPlayer")) {
@@ -641,7 +651,7 @@ public interface Adaptation<T> extends Ticked, Component {
         if (!getSkill().isEnabled()) {
             return;
         }
-        if (!Bukkit.isPrimaryThread()) {
+        if (!J.isPrimaryThread()) {
             int targetPage = page;
             J.s(() -> openGui(player, targetPage));
             return;

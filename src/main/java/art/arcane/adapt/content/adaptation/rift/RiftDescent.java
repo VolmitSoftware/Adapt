@@ -105,12 +105,12 @@ public class RiftDescent extends SimpleAdaptation<RiftDescent.Config> {
             p.removePotionEffect(PotionEffectType.LEVITATION);
             getPlayer(p).getData().addStat("rift.descent.levitation-cancelled", 1);
             cooldown.add(p);
-            J.s(() -> {
+            J.runEntity(p, () -> {
                 sp.play(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f);
                 cooldown.remove(p);
             }, Math.max(1, (int) Math.round(getConfig().cooldown * 20D)));
 
-            J.s(() -> {
+            J.runEntity(p, () -> {
                 p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, (int) (20 * getConfig().cooldown), 0));
                 sp.play(p.getLocation(), Sound.ENTITY_ENDER_DRAGON_FLAP, 1f, 1f);
             });

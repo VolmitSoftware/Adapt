@@ -131,7 +131,7 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
                 if (isChestplate(chest)) {
                     return;
                 }
-                J.s(() -> p.getInventory().setChestplate(multiarmor.nextChestplate(chest)));
+                J.runEntity(p, () -> p.getInventory().setChestplate(multiarmor.nextChestplate(chest)));
                 cooldowns.put(p, System.currentTimeMillis());
                 spw.play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
                 spw.play(p.getLocation(), Sound.BLOCK_BEEHIVE_SHEAR, 0.5f, 0.77f);
@@ -141,7 +141,7 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
                 if (isElytra(chest)) {
                     return;
                 }
-                J.s(() -> p.getInventory().setChestplate(multiarmor.nextElytra(chest)));
+                J.runEntity(p, () -> p.getInventory().setChestplate(multiarmor.nextElytra(chest)));
                 cooldowns.put(p, System.currentTimeMillis());
                 spw.play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
                 spw.play(p.getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.5f, 0.77f);
@@ -184,7 +184,7 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
                     drops.set(drops.indexOf(i), i);
                 }
 
-                J.s(() -> {
+                J.runEntity(p, () -> {
                     sp.play(p.getLocation(), Sound.ENTITY_IRON_GOLEM_DEATH, 0.25f, 0.77f);
                     for (ItemStack i : drops) {
                         p.getWorld().dropItem(p.getLocation(), i);

@@ -169,11 +169,11 @@ public class DiscoveryVillagerAtt extends SimpleAdaptation<DiscoveryVillagerAtt.
 
     @Override
     public void onTick() {
-        J.s(() -> active.forEach((p, lvl) -> {
+        active.forEach((p, lvl) -> {
             var player = Bukkit.getPlayer(p);
             if (player == null) return;
-            player.addPotionEffect(new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, 60, lvl, true, true));
-        }));
+            J.runEntity(player, () -> player.addPotionEffect(new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, 60, lvl, true, true)));
+        });
     }
 
     @Override

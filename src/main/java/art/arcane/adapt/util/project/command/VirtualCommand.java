@@ -22,6 +22,7 @@ import art.arcane.adapt.Adapt;
 import art.arcane.volmlib.util.collection.KList;
 import art.arcane.volmlib.util.collection.KMap;
 import art.arcane.volmlib.util.reflect.V;
+import art.arcane.adapt.util.common.scheduling.J;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
@@ -174,7 +175,7 @@ public class VirtualCommand {
         for (String i : command.getRequiredPermissions()) {
             if (!sender.hasPermission(i)) {
                 failed = true;
-                Bukkit.getScheduler().scheduleSyncDelayedTask(Adapt.instance, () -> Adapt.messagePlayer(sender.getServer().getPlayer(sender.getName()), "- " + C.WHITE + i), 0);
+                J.s(() -> Adapt.messagePlayer(sender.getServer().getPlayer(sender.getName()), "- " + C.WHITE + i));
             }
         }
 

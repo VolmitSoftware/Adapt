@@ -159,7 +159,7 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
         }
 
         int logsVeinmined = blockMap.size();
-        J.s(() -> {
+        J.runEntity(p, () -> {
             for (Block blocks : blockMap) {
                 PlayerSkillLine line = getPlayer(p).getData().getSkillLineNullable("axes");
                 PlayerAdaptation adaptation = line != null ? line.getAdaptation("axe-drop-to-inventory") : null;

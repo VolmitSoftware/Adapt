@@ -177,7 +177,7 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
                                 throw new RuntimeException(e);
                             }
 
-                            J.s(() -> {
+                            J.runEntity(slime, () -> {
                                 try {
                                     glowingEntities.unsetGlowing(slime, p);
                                 } catch (ReflectiveOperationException e) {

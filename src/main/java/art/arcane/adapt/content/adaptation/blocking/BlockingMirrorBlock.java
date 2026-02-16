@@ -30,6 +30,7 @@ import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -166,7 +167,7 @@ public class BlockingMirrorBlock extends SimpleAdaptation<BlockingMirrorBlock.Co
             reflected = defender.getEyeLocation().getDirection().normalize().multiply(getConfig().fallbackReflectedSpeed);
         }
 
-        projectile.teleport(defender.getEyeLocation().add(defender.getEyeLocation().getDirection().multiply(0.55)));
+        J.teleport(projectile, defender.getEyeLocation().add(defender.getEyeLocation().getDirection().multiply(0.55)));
         projectile.setShooter(defender);
         projectile.setVelocity(reflected);
         projectile.setMetadata(REFLECTED_META, new FixedMetadataValue(Adapt.instance, true));

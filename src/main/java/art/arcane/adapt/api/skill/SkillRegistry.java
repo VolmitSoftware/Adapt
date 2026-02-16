@@ -30,6 +30,7 @@ import art.arcane.adapt.api.xp.XPMultiplier;
 import art.arcane.adapt.content.gui.SkillsGui;
 import art.arcane.adapt.content.skill.*;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.math.M;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
@@ -51,7 +52,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -72,8 +72,9 @@ public class SkillRegistry extends TickedObject {
     private final KMap<String, Class<? extends Skill<?>>> skillTypes = new KMap<>();
     private final Map<NamespacedKey, Adaptation<?>> adaptationRecipeIndex = new ConcurrentHashMap<>();
     private final Deque<Skill<?>> deferredBootstrapRecipeRegistration = new ArrayDeque<>();
-    private volatile BukkitTask deferredBootstrapRecipeTask;
+    private volatile boolean deferredBootstrapRecipeTaskScheduled;
     private volatile boolean bootstrapLoading = true;
+    private volatile boolean foliaRecipeRegistrationWaitWarned;
 
     public SkillRegistry() {
         super("registry", UUID.randomUUID() + "-sk", 1250);
@@ -394,6 +395,19 @@ public class SkillRegistry extends TickedObject {
     }
 
     private void registerRecipes(Skill<?> s) {
+        if (s == null) {
+            return;
+        }
+
+        if (shouldDelayRecipeRegistrationForFolia()) {
+            enqueueDeferredRecipeRegistration(s);
+            return;
+        }
+
+        registerRecipesNow(s);
+    }
+
+    private void registerRecipesNow(Skill<?> s) {
         if (!s.isEnabled()) {
             return;
         }
@@ -410,13 +424,27 @@ public class SkillRegistry extends TickedObject {
         });
     }
 
+    private boolean shouldDelayRecipeRegistrationForFolia() {
+        if (!J.isFoliaThreading()) {
+            return false;
+        }
+
+        return !Bukkit.getOnlinePlayers().isEmpty();
+    }
+
+    private synchronized void enqueueDeferredRecipeRegistration(Skill<?> skill) {
+        if (skill == null) {
+            return;
+        }
+
+        deferredBootstrapRecipeRegistration.remove(skill);
+        deferredBootstrapRecipeRegistration.addLast(skill);
+        scheduleDeferredBootstrapRecipeRegistration();
+    }
+
     @Override
     public void unregister() {
-        BukkitTask pendingTask = deferredBootstrapRecipeTask;
-        if (pendingTask != null) {
-            pendingTask.cancel();
-            deferredBootstrapRecipeTask = null;
-        }
+        deferredBootstrapRecipeTaskScheduled = false;
         deferredBootstrapRecipeRegistration.clear();
         for (Skill<?> i : knownSkills.v()) {
             i.unregister();
@@ -473,34 +501,66 @@ public class SkillRegistry extends TickedObject {
     }
 
     private synchronized void scheduleDeferredBootstrapRecipeRegistration() {
-        if (deferredBootstrapRecipeRegistration.isEmpty() || deferredBootstrapRecipeTask != null) {
+        if (deferredBootstrapRecipeRegistration.isEmpty() || deferredBootstrapRecipeTaskScheduled) {
             return;
         }
 
+        deferredBootstrapRecipeTaskScheduled = true;
         Adapt.info("Deferring recipe registration for " + deferredBootstrapRecipeRegistration.size() + " skills.");
-        deferredBootstrapRecipeTask = Bukkit.getScheduler().runTaskTimer(Adapt.instance, () -> {
+        J.s(this::runDeferredBootstrapRecipeRegistrationTick, 1);
+    }
+
+    private void runDeferredBootstrapRecipeRegistrationTick() {
+        if (shouldDelayRecipeRegistrationForFolia()) {
+            if (!foliaRecipeRegistrationWaitWarned) {
+                foliaRecipeRegistrationWaitWarned = true;
+                Adapt.warn("Delaying Adapt recipe registration on Folia while players are online to avoid unsafe recipe reload races. Recipes will register automatically when the server has no online players.");
+            }
+            J.s(this::runDeferredBootstrapRecipeRegistrationTick, 20);
+            return;
+        }
+
+        foliaRecipeRegistrationWaitWarned = false;
+        boolean complete;
+
+        synchronized (this) {
+            if (!deferredBootstrapRecipeTaskScheduled) {
+                return;
+            }
+
             int processed = 0;
             long started = System.currentTimeMillis();
             while (processed < DEFERRED_SKILLS_PER_TICK) {
+                if (shouldDelayRecipeRegistrationForFolia()) {
+                    break;
+                }
+
                 Skill<?> skill = deferredBootstrapRecipeRegistration.pollFirst();
                 if (skill == null) {
                     break;
                 }
-                registerRecipes(skill);
+                registerRecipesNow(skill);
                 processed++;
                 if (System.currentTimeMillis() - started > 8L) {
                     break;
                 }
             }
 
-            if (deferredBootstrapRecipeRegistration.isEmpty()) {
-                BukkitTask task = deferredBootstrapRecipeTask;
-                deferredBootstrapRecipeTask = null;
-                if (task != null) {
-                    task.cancel();
-                }
-                Adapt.info("Deferred recipe registration completed.");
+            complete = deferredBootstrapRecipeRegistration.isEmpty();
+            if (complete) {
+                deferredBootstrapRecipeTaskScheduled = false;
             }
-        }, 1L, 1L);
+        }
+
+        if (complete) {
+            Adapt.info("Deferred recipe registration completed.");
+            return;
+        }
+
+        if (shouldDelayRecipeRegistrationForFolia()) {
+            J.s(this::runDeferredBootstrapRecipeRegistrationTick, 20);
+        } else {
+            J.s(this::runDeferredBootstrapRecipeRegistrationTick, 1);
+        }
     }
 }

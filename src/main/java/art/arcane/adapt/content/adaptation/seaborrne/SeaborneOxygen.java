@@ -37,6 +37,7 @@ import org.bukkit.potion.PotionEffectType;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.inventorygui.Element;
+import art.arcane.adapt.util.common.scheduling.J;
 
 public class SeaborneOxygen extends SimpleAdaptation<SeaborneOxygen.Config> {
 
@@ -74,11 +75,38 @@ public class SeaborneOxygen extends SimpleAdaptation<SeaborneOxygen.Config> {
     @Override
     public void onTick() {
         for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
-            Player i = adaptPlayer.getPlayer();
-            if (i.getLocation().getBlock().getType() == Material.WATER && hasAdaptation(i)) {
-                int airTicks = getLevel(i) * getConfig().airPerLevelTics;
-                i.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, airTicks, getLevel(i)));
-                getPlayer(i).getData().addStat("seaborne.oxygen.bonus-air-ticks", airTicks);
+            Player player = adaptPlayer.getPlayer();
+            if (player == null || !player.isOnline()) {
+                continue;
+            }
+
+            Runnable applyOxygen = () -> {
+                if (!player.isOnline() || player.getWorld() == null) {
+                    return;
+                }
+
+                if (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(player)) {
+                    return;
+                }
+
+                if ((!player.isInWater() && !player.isSwimming()) || !hasAdaptation(player)) {
+                    return;
+                }
+
+                int level = getLevel(player);
+                if (level <= 0) {
+                    return;
+                }
+
+                int airTicks = level * getConfig().airPerLevelTics;
+                player.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, airTicks, level));
+                getPlayer(player).getData().addStat("seaborne.oxygen.bonus-air-ticks", airTicks);
+            };
+
+            if (J.isFoliaThreading()) {
+                J.runEntity(player, applyOxygen);
+            } else {
+                applyOxygen.run();
             }
         }
     }

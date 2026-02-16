@@ -223,7 +223,7 @@ public class SeaborneTidecaller extends SimpleAdaptation<SeaborneTidecaller.Conf
             if (target == null) {
                 return;
             }
-            p.teleport(target);
+            J.teleport(p, target);
             applyDashMomentum(p, origin, target);
         }
 
@@ -317,7 +317,7 @@ public class SeaborneTidecaller extends SimpleAdaptation<SeaborneTidecaller.Conf
         }
 
         p.setSwimming(true);
-        J.s(() -> {
+        J.runEntity(p, () -> {
             if (p.isOnline() && isInWaterDashState(p)) {
                 p.setSwimming(true);
             }

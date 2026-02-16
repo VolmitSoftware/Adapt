@@ -28,6 +28,7 @@ import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Location;
@@ -108,7 +109,7 @@ public class TamingBeastRecall extends SimpleAdaptation<TamingBeastRecall.Config
             return;
         }
 
-        tameable.teleport(safe);
+        J.teleport(tameable, safe);
         tameable.setFallDistance(0);
         p.setCooldown(Material.LEAD, getCooldownTicks(level));
         e.setCancelled(true);

@@ -193,7 +193,7 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
         for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
             Player i = adaptPlayer.getPlayer();
             shouldReturnForPlayer(i, () -> {
-                if (i.getWorld().getBlockAt(i.getLocation()).isLiquid() && i.isSwimming() && i.getPlayer() != null && i.getPlayer().getRemainingAir() < i.getMaximumAir()) {
+                if ((i.isInWater() || i.isSwimming()) && i.getRemainingAir() < i.getMaximumAir()) {
                     Adapt.verbose("seaborne Tick");
                     checkStatTrackers(adaptPlayer);
                     xpSilent(i, getConfig().swimXP, "seaborne:swim");

@@ -24,11 +24,12 @@ import org.bukkit.potion.PotionType;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class BrewingManager implements Listener {
 
     private static final Map<BrewingRecipe, List<String>> recipes = Maps.newHashMap();
-    private static final Map<Location, BrewingTask> activeTasks = Maps.newHashMap();
+    private static final Map<Location, BrewingTask> activeTasks = new ConcurrentHashMap<>();
 
     public static void registerRecipe(String adaptation, BrewingRecipe recipe) {
         recipes.putIfAbsent(recipe, Lists.newArrayList(adaptation));
@@ -56,35 +57,46 @@ public class BrewingManager implements Listener {
             Adapt.verbose("Brewing Stand Ingredient Clicked");
             e.setCancelled(true);
         }
-        J.s(() -> {
+        Player clicker = (Player) e.getWhoClicked();
+        J.runEntity(clicker, () -> {
             if (doTheThing) {
                 inv.setIngredient(e.getCursor());
                 e.setCursor(null);
             }
+
             BrewingStand stand = inv.getHolder();
-            AdaptPlayer p = Adapt.instance.getAdaptServer().getPlayer((Player) e.getWhoClicked());
-            Optional<BrewingRecipe> recipe = recipes.keySet().stream().filter(r -> BrewingTask.isValid(r, stand.getLocation())).findFirst();
+            if (stand == null) {
+                return;
+            }
+
+            Location standLocation = stand.getLocation();
+            AdaptPlayer p = Adapt.instance.getAdaptServer().getPlayer(clicker);
+            Optional<BrewingRecipe> recipe = recipes.keySet().stream().filter(r -> BrewingTask.isValid(r, standLocation)).findFirst();
             recipe.ifPresent(r -> {
-                if (activeTasks.containsKey(stand.getLocation())) {
-                    BrewingTask t = activeTasks.get(stand.getLocation());
-                    if (!t.getRecipe().getId().equals(r.getId())) {
-                        activeTasks.remove(stand.getLocation()).cancel();
+                BrewingTask active = activeTasks.get(standLocation);
+                if (active != null) {
+                    if (!active.getRecipe().getId().equals(r.getId())) {
+                        activeTasks.remove(standLocation).cancel();
                         if (recipes.get(r).stream().noneMatch(p::hasAdaptation)) {
                             return;
                         }
-                        activeTasks.put(stand.getLocation(), new BrewingTask(r, stand.getLocation()));
+                        activeTasks.put(standLocation, new BrewingTask(r, standLocation));
                     }
                 } else {
                     if (recipes.get(r).stream().noneMatch(p::hasAdaptation)) {
                         return;
                     }
-                    activeTasks.put(stand.getLocation(), new BrewingTask(r, stand.getLocation()));
+                    activeTasks.put(standLocation, new BrewingTask(r, standLocation));
                 }
             });
-            if (recipe.isEmpty() && activeTasks.containsKey(stand.getLocation())) {
-                activeTasks.remove(stand.getLocation()).cancel();
+
+            if (recipe.isEmpty()) {
+                BrewingTask removed = activeTasks.remove(standLocation);
+                if (removed != null) {
+                    removed.cancel();
+                }
             }
-        });
+        }, 1);
     }
 
     @EventHandler

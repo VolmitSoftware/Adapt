@@ -47,9 +47,8 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryType;
 
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 import art.arcane.adapt.util.common.format.C;
@@ -61,7 +60,7 @@ import art.arcane.adapt.util.common.scheduling.J;
 public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Config> {
 
     private static final int MAX_CHECKS_BEFORE_REMOVE = 20;
-    private final Map<Block, Integer> activeStands = new HashMap<>();
+    private final Map<Block, Integer> activeStands = new ConcurrentHashMap<>();
 
     public BrewingSuperHeated() {
         super("brewing-super-heated");
@@ -113,11 +112,11 @@ public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Conf
         if (e.isCancelled()) {
             return;
         }
-        J.s(() -> {
-            if (e.getDestination().getType().equals(InventoryType.BREWING)) {
-                activeStands.put(e.getDestination().getLocation().getBlock(), MAX_CHECKS_BEFORE_REMOVE);
-            }
-        });
+        if (!e.getDestination().getType().equals(InventoryType.BREWING) || e.getDestination().getLocation() == null) {
+            return;
+        }
+
+        activeStands.put(e.getDestination().getLocation().getBlock(), MAX_CHECKS_BEFORE_REMOVE);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -131,11 +130,9 @@ public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Conf
                 getServer().peekData(owner.getOwner()).addStat("brewing.super-heated.brews-accelerated", 1);
             }
         }
-        J.s(() -> {
-            if (((BrewingStand) e.getBlock().getState()).getBrewingTime() > 0) {
-                activeStands.put(e.getBlock(), MAX_CHECKS_BEFORE_REMOVE);
-            }
-        });
+        if (((BrewingStand) e.getBlock().getState()).getBrewingTime() > 0) {
+            activeStands.put(e.getBlock(), MAX_CHECKS_BEFORE_REMOVE);
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -155,49 +152,59 @@ public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Conf
             return;
         }
 
-        Iterator<Block> it = activeStands.keySet().iterator();
+        for (Block block : activeStands.keySet()) {
+            if (block == null) {
+                continue;
+            }
 
-        J.s(() -> {
-            while (it.hasNext()) {
-                BlockState s = it.next().getState();
+            J.runAt(block.getLocation(), () -> tickStand(block));
+        }
+    }
 
-                if (s instanceof BrewingStand b) {
-                    if (b.getBrewingTime() <= 0) {
-                        J.s(() -> {
-                            BrewingStand bb = (BrewingStand) s.getBlock().getState();
-                            if (bb.getBrewingTime() <= 0) {
-                                if (activeStands.get(b.getBlock()) == 0) {
-                                    activeStands.remove(b.getBlock());
-                                }
-                                if (activeStands.containsKey(b.getBlock())) {
-                                    activeStands.put(b.getBlock(), activeStands.get(b.getBlock()) - 1);
-                                }
-                            }
-                        });
-                        continue;
-                    }
+    private void tickStand(Block block) {
+        BlockState state = block.getState();
+        if (!(state instanceof BrewingStand brewingStand)) {
+            activeStands.remove(block);
+            return;
+        }
 
-                    BrewingStandOwner owner = WorldData.of(b.getWorld()).get(b.getBlock(), BrewingStandOwner.class);
+        if (brewingStand.getBrewingTime() <= 0) {
+            BrewingStand current = (BrewingStand) block.getState();
+            if (current.getBrewingTime() <= 0) {
+                Integer remainingChecks = activeStands.get(block);
+                if (remainingChecks == null) {
+                    return;
+                }
 
-                    if (owner == null) {
-                        it.remove();
-                        continue;
-                    }
-
-                    PlayerData p = getServer().peekData(owner.getOwner());
-
-                    PlayerSkillLine line = p.getSkillLineNullable(getSkill().getName());
-                    PlayerAdaptation adaptation = line != null ? line.getAdaptation(getName()) : null;
-                    if (adaptation != null && adaptation.getLevel() > 0) {
-                        updateHeat(b, getLevelPercent(adaptation.getLevel()));
-                    } else {
-                        it.remove();
-                    }
+                if (remainingChecks <= 0) {
+                    activeStands.remove(block);
                 } else {
-                    it.remove();
+                    activeStands.put(block, remainingChecks - 1);
                 }
             }
-        });
+            return;
+        }
+
+        BrewingStandOwner owner = WorldData.of(brewingStand.getWorld()).get(block, BrewingStandOwner.class);
+        if (owner == null) {
+            activeStands.remove(block);
+            return;
+        }
+
+        PlayerData playerData = getServer().peekData(owner.getOwner());
+        if (playerData == null) {
+            activeStands.remove(block);
+            return;
+        }
+
+        PlayerSkillLine line = playerData.getSkillLineNullable(getSkill().getName());
+        PlayerAdaptation adaptation = line != null ? line.getAdaptation(getName()) : null;
+        if (adaptation == null || adaptation.getLevel() <= 0) {
+            activeStands.remove(block);
+            return;
+        }
+
+        updateHeat(brewingStand, getLevelPercent(adaptation.getLevel()));
     }
 
     private void updateHeat(BrewingStand b, double factor) {

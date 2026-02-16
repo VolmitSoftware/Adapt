@@ -133,7 +133,7 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
             int damageXP = (int) Math.min(10, 2.5 * e.getDamage());
             xp(p,damageXP );
             getPlayer(p).getData().addStat("stealth.ghost-armor.armor-consumed", 1);
-            J.s(() -> {
+            J.runEntity(p, () -> {
                 var attribute = Version.get().getAttribute(p, Attributes.GENERIC_ARMOR);
                 if (attribute == null) return;
                 attribute.removeModifier(MODIFIER, MODIFIER_KEY);

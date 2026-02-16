@@ -53,7 +53,7 @@ public class SkillsGui {
     }
 
     public static void open(Player player, int page) {
-        if (!Bukkit.isPrimaryThread()) {
+        if (!J.isPrimaryThread()) {
             int targetPage = page;
             J.s(() -> open(player, targetPage));
             return;

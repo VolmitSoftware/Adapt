@@ -192,7 +192,7 @@ public class AgilityRollLanding extends SimpleAdaptation<AgilityRollLanding.Conf
         proneUntilMillis.put(id, until);
         p.setSwimming(true);
 
-        J.s(() -> {
+        J.runEntity(p, () -> {
             if (!p.isOnline() || p.isDead()) {
                 proneUntilMillis.remove(id);
                 return;

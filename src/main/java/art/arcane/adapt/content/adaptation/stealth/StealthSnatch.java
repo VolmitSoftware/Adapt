@@ -41,6 +41,7 @@ import org.bukkit.inventory.ItemStack;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 import art.arcane.adapt.util.common.format.C;
@@ -64,7 +65,7 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
-        holds = new HashSet<>();
+        holds = ConcurrentHashMap.newKeySet();
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.CHEST)
                 .key("challenge_stealth_snatch_2500")
@@ -139,7 +140,7 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
                         getPlayer(player).getData().addStat("stealth.snatch.items-snatched", 1);
                         //sendCollected(player, droppedItemEntity);
                         int id = droppedItemEntity.getEntityId();
-                        J.s(() -> holds.remove(Integer.valueOf(id)));
+                        J.runEntity(player, () -> holds.remove(Integer.valueOf(id)), 1);
                     }
                 }
             }
@@ -169,7 +170,7 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
         for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
             Player i = adaptPlayer.getPlayer();
             if (i.isSneaking()) {
-                J.s(() -> snatch(i));
+                J.runEntity(i, () -> snatch(i));
             }
         }
     }

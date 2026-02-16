@@ -205,7 +205,10 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
 
         try {
             glowingEntities.setGlowing(slime, p, ChatColor.AQUA);
-        } catch (ReflectiveOperationException ignored) {
+        } catch (ReflectiveOperationException ex) {
+            Adapt.verbose("Failed to enable glowing marker for QuarrySense: "
+                    + ex.getClass().getSimpleName()
+                    + (ex.getMessage() == null ? "" : " - " + ex.getMessage()));
             slime.remove();
             showFallbackMarker(p, ore, durationTicks);
             return;
@@ -220,10 +223,13 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
             p.spawnParticle(Particle.END_ROD, ore.getLocation().add(0.5, 0.5, 0.5), 8, 0.15, 0.15, 0.15, 0.003);
 
         }
-        J.s(() -> {
+        J.runEntity(slime, () -> {
             try {
                 glowingEntities.unsetGlowing(slime, p);
-            } catch (ReflectiveOperationException ignored) {
+            } catch (ReflectiveOperationException ex) {
+                Adapt.verbose("Failed to clear glowing marker for QuarrySense: "
+                        + ex.getClass().getSimpleName()
+                        + (ex.getMessage() == null ? "" : " - " + ex.getMessage()));
             }
             slime.remove();
         }, durationTicks);
@@ -232,7 +238,7 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
     private void showFallbackMarker(Player p, Block ore, int durationTicks) {
         Location loc = ore.getLocation().add(0.5, 0.5, 0.5);
         for (int t = 0; t <= durationTicks; t += 8) {
-            J.s(() -> {
+            J.runEntity(p, () -> {
                 if (!p.isOnline()) {
                     return;
                 }

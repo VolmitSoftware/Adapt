@@ -169,7 +169,7 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
             return;
         }
 
-        J.s(() -> {
+        J.runAt(block.getLocation(), () -> {
             block.setBlockData(BLOCK);
             activeBlocks.add(block);
         });
@@ -180,7 +180,7 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
             vfxCuboidOutline(block, Particle.CLOUD);
             vfxCuboidOutline(block, Particle.WHITE_ASH);
         }
-        J.s(() -> removeFoundation(block), seconds * 16);
+        J.runAt(block.getLocation(), () -> removeFoundation(block), seconds * 16);
     }
 
     public void removeFoundation(Block block) {
@@ -188,7 +188,7 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
             return;
         }
 
-        J.s(() -> {
+        J.runAt(block.getLocation(), () -> {
             block.setBlockData(AIR);
             activeBlocks.remove(block);
         });

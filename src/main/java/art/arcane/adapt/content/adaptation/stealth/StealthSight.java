@@ -103,7 +103,7 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
         for (Player p : sneaking) {
             if (hasAdaptation(p) && !p.isSneaking()) {
                 toRemove.add(p);
-                J.s(() -> p.removePotionEffect(PotionEffectType.NIGHT_VISION));
+                J.runEntity(p, () -> p.removePotionEffect(PotionEffectType.NIGHT_VISION));
             }
         }
         sneaking.removeAll(toRemove);

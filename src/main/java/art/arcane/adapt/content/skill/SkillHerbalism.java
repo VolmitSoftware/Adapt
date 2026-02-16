@@ -310,7 +310,7 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
         if (!(b.getBlockData() instanceof Levelled oldData))
             return;
         int ol = oldData.getLevel();
-        J.s(() -> {
+        J.runAt(b.getLocation(), () -> {
             if (!(b.getBlockData() instanceof Levelled newData))
                 return;
             int nl = newData.getLevel();

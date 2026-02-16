@@ -44,6 +44,7 @@ import art.arcane.adapt.util.project.command.IController;
 
 public abstract class VolmitPlugin extends JavaPlugin implements Listener {
     public static boolean bad = false;
+    private int controllerTickerTaskId = -1;
     private KMap<String, IController> controllers;
     private List<IController> cachedControllers;
     private KMap<Class<? extends IController>, IController> cachedClassControllers;
@@ -67,7 +68,7 @@ public abstract class VolmitPlugin extends JavaPlugin implements Listener {
     public void onEnable() {
         registerInstance();
         registerControllers();
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, this::tickControllers, 0, 0);
+        controllerTickerTaskId = J.sr(this::tickControllers, 1);
         J.a(this::outputInfo);
         registerListener(this);
         start();
@@ -89,9 +90,9 @@ public abstract class VolmitPlugin extends JavaPlugin implements Listener {
             IO.delete(getDataFolder("info"));
             getDataFolder("info").mkdirs();
             outputPluginInfo();
-        } catch (Throwable ignored) {
-            Adapt.verbose("Failed to output info");
-
+        } catch (Throwable ex) {
+            Adapt.verbose("Failed to output plugin info: " + ex.getClass().getSimpleName()
+                    + (ex.getMessage() == null ? "" : " - " + ex.getMessage()));
         }
     }
 
@@ -110,7 +111,11 @@ public abstract class VolmitPlugin extends JavaPlugin implements Listener {
     @Override
     public void onDisable() {
         stop();
-        Bukkit.getScheduler().cancelTasks(this);
+        if (controllerTickerTaskId != -1) {
+            J.csr(controllerTickerTaskId);
+            controllerTickerTaskId = -1;
+        }
+        J.cancelPluginTasks();
         unregisterListener(this);
         unregisterAll();
     }

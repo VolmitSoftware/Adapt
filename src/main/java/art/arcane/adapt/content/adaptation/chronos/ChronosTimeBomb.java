@@ -511,7 +511,7 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
 
     @Override
     public void onTick() {
-        if (Bukkit.isPrimaryThread()) {
+        if (J.isPrimaryThread()) {
             onTickSync();
             return;
         }

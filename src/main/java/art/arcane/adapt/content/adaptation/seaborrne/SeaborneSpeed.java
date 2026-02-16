@@ -26,9 +26,9 @@ import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -78,15 +78,35 @@ public class SeaborneSpeed extends SimpleAdaptation<SeaborneSpeed.Config> {
     public void onTick() {
         for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
             Player player = adaptPlayer.getPlayer();
-            if (player.isInWater() && hasAdaptation(player)) {
-                if (player.getLocation().getBlock().isLiquid()) {
-                    if (player.getInventory().getBoots() != null && player.getInventory().getBoots().containsEnchantment(Enchantment.DEPTH_STRIDER)) {
-                        continue;
-                    } else {
-                        player.addPotionEffect(new PotionEffect(PotionEffectType.DOLPHINS_GRACE, 62, getLevel(player)));
-                        getPlayer(player).getData().addStat("seaborne.speed.blocks-swum", 1);
-                    }
+            if (player == null || !player.isOnline()) {
+                continue;
+            }
+
+            Runnable apply = () -> {
+                if (!player.isOnline()) {
+                    return;
                 }
+
+                if (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(player)) {
+                    return;
+                }
+
+                if (!player.isInWater() || !hasAdaptation(player)) {
+                    return;
+                }
+
+                if (player.getInventory().getBoots() != null && player.getInventory().getBoots().containsEnchantment(Enchantment.DEPTH_STRIDER)) {
+                    return;
+                }
+
+                player.addPotionEffect(new PotionEffect(PotionEffectType.DOLPHINS_GRACE, 62, getLevel(player)));
+                getPlayer(player).getData().addStat("seaborne.speed.blocks-swum", 1);
+            };
+
+            if (J.isFoliaThreading()) {
+                J.runEntity(player, apply);
+            } else {
+                apply.run();
             }
         }
     }

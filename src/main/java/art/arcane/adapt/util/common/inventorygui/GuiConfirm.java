@@ -24,7 +24,7 @@ public final class GuiConfirm {
             return;
         }
 
-        if (!Bukkit.isPrimaryThread()) {
+        if (!J.isPrimaryThread()) {
             J.s(() -> open(player, title, message, onConfirm, onCancel));
             return;
         }

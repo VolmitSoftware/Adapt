@@ -148,7 +148,7 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
         }
 
         int leavesBroken = blockMap.size();
-        J.s(() -> {
+        J.runEntity(p, () -> {
             for (Location l : blockMap.keySet()) {
                 Block b = block.getWorld().getBlockAt(l);
                 PlayerSkillLine line = getPlayer(p).getData().getSkillLineNullable("axes");

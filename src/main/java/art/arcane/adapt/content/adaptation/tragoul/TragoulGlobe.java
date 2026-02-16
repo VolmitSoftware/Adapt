@@ -127,7 +127,7 @@ public class TragoulGlobe extends SimpleAdaptation<TragoulGlobe.Config> {
         }
 
         if (areParticlesEnabled()) {
-            J.s(() -> vfxFastSphere(p.getLocation(), range, Color.BLACK, 400));
+            J.runEntity(p, () -> vfxFastSphere(p.getLocation(), range, Color.BLACK, 400));
         }
     }
 

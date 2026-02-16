@@ -146,7 +146,7 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
             getPlayer(p).getAdvancementHandler().grant("challenge_pickaxe_veinminer_20");
         }
 
-        J.s(() -> {
+        J.runEntity(p, () -> {
             for (Location l : blockMap.keySet()) {
                 if (!canBlockBreak(p, l)) {
                     Adapt.verbose("Player " + p.getName() + " doesn't have permission.");

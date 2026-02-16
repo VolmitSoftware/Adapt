@@ -29,6 +29,7 @@ import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -40,7 +41,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -114,45 +114,45 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
             return;
         }
 
-        new BukkitRunnable() {
-            int cursor = 0;
-            int totalChanged = 0;
-
-            @Override
-            public void run() {
-                if (!player.isOnline() || center.getWorld() == null) {
-                    cancel();
-                    return;
-                }
-
-                int pulseChanged = 0;
-                int batch = getBlocksPerPulse(level);
-                for (int i = 0; i < batch && cursor < path.size(); i++) {
-                    pulseChanged += spreadAt(path.get(cursor++), catalyst, spreadSurface);
-                }
-
-                if (pulseChanged > 0) {
-                    totalChanged += pulseChanged;
-                    if (areParticlesEnabled()) {
-                        center.getWorld().spawnParticle(Particle.SPORE_BLOSSOM_AIR, center.getLocation().add(0.5, 1.0, 0.5), 8, 0.55, 0.2, 0.55, 0.02);
-                    }
-                    if (areParticlesEnabled()) {
-                        center.getWorld().spawnParticle(Particle.CRIMSON_SPORE, center.getLocation().add(0.5, 1.0, 0.5), 8, 0.55, 0.2, 0.55, 0.01);
-                    }
-                    SoundPlayer sp = SoundPlayer.of(center.getWorld());
-                    sp.play(center.getLocation().add(0.5, 0.5, 0.5), Sound.BLOCK_FUNGUS_PLACE, 0.45f, 0.75f);
-                    sp.play(center.getLocation().add(0.5, 0.5, 0.5), Sound.ENTITY_ENDERMAN_AMBIENT, 0.22f, 0.45f + ThreadLocalRandom.current().nextFloat() * 0.45f);
-                }
-
-                if (cursor >= path.size()) {
-                    if (totalChanged > 0) {
-                        getPlayer(player).getData().addStat("herbalism.spore-bloom.blocks-spread", totalChanged);
-                        xp(player, totalChanged * getConfig().xpPerMushroomPlaced);
-                    }
-                    cancel();
-                }
+        int intervalTicks = Math.max(1, getSpreadIntervalTicks(level));
+        int[] cursor = {0};
+        int[] totalChanged = {0};
+        Runnable[] bloomTask = new Runnable[1];
+        bloomTask[0] = () -> {
+            if (!player.isOnline() || center.getWorld() == null) {
+                return;
             }
-        }.runTaskTimer(Adapt.instance, 0L, getSpreadIntervalTicks(level));
+
+            int pulseChanged = 0;
+            int batch = getBlocksPerPulse(level);
+            for (int i = 0; i < batch && cursor[0] < path.size(); i++) {
+                pulseChanged += spreadAt(path.get(cursor[0]++), catalyst, spreadSurface);
+            }
+
+            if (pulseChanged > 0) {
+                totalChanged[0] += pulseChanged;
+                if (areParticlesEnabled()) {
+                    center.getWorld().spawnParticle(Particle.SPORE_BLOSSOM_AIR, center.getLocation().add(0.5, 1.0, 0.5), 8, 0.55, 0.2, 0.55, 0.02);
+                }
+                if (areParticlesEnabled()) {
+                    center.getWorld().spawnParticle(Particle.CRIMSON_SPORE, center.getLocation().add(0.5, 1.0, 0.5), 8, 0.55, 0.2, 0.55, 0.01);
+                }
+                SoundPlayer sp = SoundPlayer.of(center.getWorld());
+                sp.play(center.getLocation().add(0.5, 0.5, 0.5), Sound.BLOCK_FUNGUS_PLACE, 0.45f, 0.75f);
+                sp.play(center.getLocation().add(0.5, 0.5, 0.5), Sound.ENTITY_ENDERMAN_AMBIENT, 0.22f, 0.45f + ThreadLocalRandom.current().nextFloat() * 0.45f);
+            }
+
+            if (cursor[0] >= path.size()) {
+                if (totalChanged[0] > 0) {
+                    getPlayer(player).getData().addStat("herbalism.spore-bloom.blocks-spread", totalChanged[0]);
+                    xp(player, totalChanged[0] * getConfig().xpPerMushroomPlaced);
+                }
+                return;
+            }
+
+            J.runAt(center.getLocation(), bloomTask[0], intervalTicks);
+        };
+        J.runAt(center.getLocation(), bloomTask[0]);
     }
 
     private List<Block> buildSpiderPath(Block center, double radius, int spokes, int max, int guaranteedReach) {

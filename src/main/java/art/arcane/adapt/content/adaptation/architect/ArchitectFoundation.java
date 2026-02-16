@@ -252,7 +252,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
             return false;
 
 
-        J.s(() -> {
+        J.runAt(block.getLocation(), () -> {
             block.setBlockData(BLOCK);
             activeBlocks.add(block);
         });
@@ -263,7 +263,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
             vfxCuboidOutline(block, Particle.REVERSE_PORTAL);
             vfxCuboidOutline(block, Particle.ASH);
         }
-        J.s(() -> removeFoundation(block), 3 * 20);
+        J.runAt(block.getLocation(), () -> removeFoundation(block), 3 * 20);
         return true;
     }
 
@@ -272,7 +272,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
             return;
         }
 
-        J.s(() -> {
+        J.runAt(block.getLocation(), () -> {
             block.setBlockData(AIR);
             activeBlocks.remove(block);
             SoundPlayer spw = SoundPlayer.of(block.getWorld());

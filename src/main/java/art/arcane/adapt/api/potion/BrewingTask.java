@@ -1,7 +1,7 @@
 package art.arcane.adapt.api.potion;
 
-import art.arcane.adapt.Adapt;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
+import art.arcane.adapt.util.common.scheduling.J;
 import lombok.Getter;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -10,9 +10,8 @@ import org.bukkit.block.BrewingStand;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.BrewerInventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
 
-public class BrewingTask extends BukkitRunnable {
+public class BrewingTask implements Runnable {
 
     private static final int DEFAULT_BREW_TIME = 400;
 
@@ -21,6 +20,7 @@ public class BrewingTask extends BukkitRunnable {
 
     private final Location location;
     private int brewTime;
+    private volatile boolean cancelled;
 
     public BrewingTask(BrewingRecipe recipe, Location loc) {
         this.recipe = recipe;
@@ -39,7 +39,7 @@ public class BrewingTask extends BukkitRunnable {
         block.setBrewingTime(DEFAULT_BREW_TIME);
         block.update(true);
 
-        runTaskTimer(Adapt.instance, 0L, 1L);
+        J.runAt(location, this::run);
     }
 
     public static ItemStack decrease(ItemStack source, int amount) {
@@ -74,6 +74,10 @@ public class BrewingTask extends BukkitRunnable {
 
     @Override
     public void run() {
+        if (cancelled) {
+            return;
+        }
+
         BrewingStand block = (BrewingStand) this.location.getBlock().getState();
         BrewerInventory inventory = block.getInventory();
         if (brewTime <= 0) {
@@ -97,6 +101,11 @@ public class BrewingTask extends BukkitRunnable {
         brewTime--;
         block.setBrewingTime(getRemainingTime());
         block.update(true);
+        J.runAt(location, this::run, 1);
+    }
+
+    public void cancel() {
+        cancelled = true;
     }
 
     private int getRemainingTime() {

@@ -26,6 +26,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
 import java.lang.reflect.Method;
+import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,6 +36,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public abstract class TickedObject implements Ticked, Listener {
     private static final Set<String> LISTENER_INTROSPECTION_WARNED = ConcurrentHashMap.newKeySet();
+    private static final Set<String> FOLIA_TICK_VIOLATION_WARNED = ConcurrentHashMap.newKeySet();
 
     private final AtomicLong lastTick;
     private final AtomicLong interval;
@@ -118,7 +120,7 @@ public abstract class TickedObject implements Ticked, Listener {
 
     @Override
     public void tick() {
-        if (!Bukkit.isPrimaryThread()) {
+        if (!J.isPrimaryThread()) {
             if (pendingSyncTick.compareAndSet(false, true)) {
                 J.s(() -> {
                     try {
@@ -142,7 +144,21 @@ public abstract class TickedObject implements Ticked, Listener {
 
         lastTick.set(M.ms());
         burst.decrementAndGet();
-        onTick();
+        try {
+            onTick();
+        } catch (IllegalStateException ex) {
+            if (J.isFoliaThreading() && isFoliaThreadOwnershipViolation(ex)) {
+                warnFoliaTickViolation(ex);
+                return;
+            }
+            throw ex;
+        } catch (NullPointerException ex) {
+            if (J.isFoliaThreading() && isFoliaTransientWorldStateNpe(ex)) {
+                warnFoliaTickViolation(ex);
+                return;
+            }
+            throw ex;
+        }
     }
 
     public abstract void onTick();
@@ -250,6 +266,39 @@ public abstract class TickedObject implements Ticked, Listener {
         String key = type.getName() + ":" + error.getClass().getName() + ":" + (error.getMessage() == null ? "" : error.getMessage());
         if (LISTENER_INTROSPECTION_WARNED.add(key)) {
             Adapt.warn("Skipping listener registration for " + type.getName() + " due to missing/incompatible event class: " + error.getClass().getSimpleName() + (error.getMessage() == null ? "" : " (" + error.getMessage() + ")"));
+        }
+    }
+
+    private boolean isFoliaThreadOwnershipViolation(Throwable throwable) {
+        if (throwable == null) {
+            return false;
+        }
+
+        String message = throwable.getMessage();
+        if (message == null) {
+            return false;
+        }
+
+        String lower = message.toLowerCase(Locale.ROOT);
+        return lower.contains("thread failed main thread check")
+                || lower.contains("cannot read world asynchronously")
+                || lower.contains("accessing entity state off owning region");
+    }
+
+    private boolean isFoliaTransientWorldStateNpe(NullPointerException throwable) {
+        if (throwable == null || throwable.getMessage() == null) {
+            return false;
+        }
+
+        String lower = throwable.getMessage().toLowerCase(Locale.ROOT);
+        return lower.contains("getcurrentworlddata");
+    }
+
+    private void warnFoliaTickViolation(Throwable throwable) {
+        String message = throwable == null || throwable.getMessage() == null ? throwable.getClass().getSimpleName() : throwable.getMessage();
+        String key = getClass().getName() + ":" + throwable.getClass().getName() + ":" + message;
+        if (FOLIA_TICK_VIOLATION_WARNED.add(key)) {
+            Adapt.warn("Suppressed unsafe Folia tick execution in " + getClass().getName() + ": " + message);
         }
     }
 }

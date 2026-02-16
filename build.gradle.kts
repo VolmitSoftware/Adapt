@@ -173,6 +173,7 @@ dependencies {
     slimApi(libs.lettuce)
     slimApi(libs.particle)
     slimApi(libs.ultimateAdvancementApi)
+    implementation(libs.ultimateAdvancementApi)
     slimApi(libs.customBlockData)
     slimApi(libs.lur)
     slimApi(libs.lang3)

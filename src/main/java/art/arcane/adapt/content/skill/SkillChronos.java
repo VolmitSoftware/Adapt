@@ -33,6 +33,7 @@ import art.arcane.adapt.content.adaptation.chronos.ChronosTimeInABottle;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.scheduling.J;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -376,7 +377,7 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
             sleepCooldowns.put(uuid, now);
             getPlayer(p).getData().addStat("chronos.beds.used", 1);
 
-            Bukkit.getScheduler().runTaskLater(Adapt.instance, () -> {
+            J.runEntity(p, () -> {
                 if (!p.isOnline()) {
                     return;
                 }
@@ -387,7 +388,7 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
                 } else {
                     xp(p, p.getLocation(), getConfig().sleepAttemptXP);
                 }
-            }, 40L);
+            }, 40);
         });
     }
 

@@ -46,10 +46,10 @@ public final class ChronosSoundFX {
             }
         };
 
-        if (Bukkit.isPrimaryThread()) {
+        if (J.isPrimaryThread()) {
             playTask.run();
         } else {
-            J.s(playTask);
+            J.runAt(at, playTask);
         }
     }
 
@@ -69,12 +69,12 @@ public final class ChronosSoundFX {
             }
         };
 
-        if (delayTicks <= 0 && Bukkit.isPrimaryThread()) {
+        if (delayTicks <= 0 && J.isPrimaryThread()) {
             playTask.run();
             return;
         }
 
-        J.s(playTask, Math.max(0, delayTicks));
+        J.runAt(at, playTask, Math.max(0, delayTicks));
     }
 
     private static void playOnPlayer(Player player, Sound sound, float volume, float pitch) {
@@ -96,10 +96,10 @@ public final class ChronosSoundFX {
             }
         };
 
-        if (Bukkit.isPrimaryThread()) {
+        if (J.isPrimaryThread()) {
             playTask.run();
         } else {
-            J.s(playTask);
+            J.runEntity(player, playTask);
         }
     }
 
@@ -122,12 +122,12 @@ public final class ChronosSoundFX {
             }
         };
 
-        if (delayTicks <= 0 && Bukkit.isPrimaryThread()) {
+        if (delayTicks <= 0 && J.isPrimaryThread()) {
             playTask.run();
             return;
         }
 
-        J.s(playTask, Math.max(0, delayTicks));
+        J.runEntity(player, playTask, Math.max(0, delayTicks));
     }
 
     public static void playClockReject(Player p) {

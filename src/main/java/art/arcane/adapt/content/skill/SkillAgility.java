@@ -239,12 +239,12 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
                 }
 
                 // Check for jumping
-                if (i.getLocation().subtract(0, 1, 0).getBlock().getType().isAir() && !i.isFlying() && !i.isSneaking()) {
+                if (!i.isOnGround() && !i.isFlying() && !i.isSneaking()) {
                     xpSilent(i, getConfig().jumpXpPassive, "agility:jump");
                 }
 
                 // Check for climbing ladders
-                if (i.getLocation().getBlock().getType() == Material.LADDER && !i.isFlying() && !i.isSneaking()) {
+                if (i.isClimbing() && !i.isFlying() && !i.isSneaking()) {
                     xpSilent(i, getConfig().climbXpPassive, "agility:climb");
                 }
             });

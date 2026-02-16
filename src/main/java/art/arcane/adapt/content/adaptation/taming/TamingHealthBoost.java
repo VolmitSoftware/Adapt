@@ -29,6 +29,7 @@ import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.volmlib.util.io.IO;
 import art.arcane.volmlib.util.math.M;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.reflect.registries.Attributes;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
@@ -36,6 +37,7 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Tameable;
 
@@ -51,6 +53,7 @@ import art.arcane.adapt.util.common.inventorygui.Element;
 public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config> {
     private static final UUID MODIFIER = UUID.nameUUIDFromBytes("adapt-tame-health-boost".getBytes());
     private static final NamespacedKey MODIFIER_KEY = NamespacedKey.fromString( "adapt:tame-health-boost");
+    private static final double FOLIA_SCAN_RADIUS = 48D;
 
     public TamingHealthBoost() {
         super("tame-health");
@@ -85,10 +88,15 @@ public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config
 
     @Override
     public void onTick() {
+        if (J.isFoliaThreading()) {
+            onFoliaTick();
+            return;
+        }
+
         Map<UUID, OwnerState> ownerStates = new HashMap<>();
         for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
             Player owner = adaptPlayer.getPlayer();
-            ownerStates.put(owner.getUniqueId(), new OwnerState(adaptPlayer, getLevel(owner)));
+            ownerStates.put(owner.getUniqueId(), new OwnerState(adaptPlayer, owner, getLevel(owner)));
         }
 
         for (World world : Bukkit.getServer().getWorlds()) {
@@ -99,14 +107,43 @@ public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config
                     int level = state == null ? 0 : state.level();
                     update(tameable, level);
                     if (level > 0 && state != null) {
-                        state.owner().getData().addStat("taming.health-boost.ticks-active", 1);
+                        state.ownerData().getData().addStat("taming.health-boost.ticks-active", 1);
                     }
                 }
             }
         }
     }
 
-    private record OwnerState(AdaptPlayer owner, int level) {
+    private void onFoliaTick() {
+        for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+            Player owner = adaptPlayer.getPlayer();
+            OwnerState state = new OwnerState(adaptPlayer, owner, getLevel(owner));
+            J.runEntity(owner, () -> updateNearbyOwnedTameables(state));
+        }
+    }
+
+    private void updateNearbyOwnedTameables(OwnerState state) {
+        Player owner = state.owner();
+        if (owner == null || !owner.isOnline()) {
+            return;
+        }
+
+        for (Entity nearby : owner.getNearbyEntities(FOLIA_SCAN_RADIUS, FOLIA_SCAN_RADIUS, FOLIA_SCAN_RADIUS)) {
+            if (!(nearby instanceof Tameable tameable) || !tameable.isTamed()) {
+                continue;
+            }
+            if (!(tameable.getOwner() instanceof Player tameOwner) || !tameOwner.getUniqueId().equals(owner.getUniqueId())) {
+                continue;
+            }
+
+            update(tameable, state.level());
+            if (state.level() > 0) {
+                state.ownerData().getData().addStat("taming.health-boost.ticks-active", 1);
+            }
+        }
+    }
+
+    private record OwnerState(AdaptPlayer ownerData, Player owner, int level) {
     }
 
     private void update(Tameable j, int level) {

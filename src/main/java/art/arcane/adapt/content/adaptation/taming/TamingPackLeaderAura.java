@@ -31,7 +31,6 @@ import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
@@ -74,7 +73,26 @@ public class TamingPackLeaderAura extends SimpleAdaptation<TamingPackLeaderAura.
 
     @Override
     public void onTick() {
-        if (!Bukkit.isPrimaryThread()) {
+        if (J.isFoliaThreading()) {
+            List<OwnerAuraState> owners = new ArrayList<>();
+            for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+                Player owner = adaptPlayer.getPlayer();
+                int level = getActiveLevel(owner);
+                if (level <= 0) {
+                    continue;
+                }
+
+                double radius = getRadius(level);
+                owners.add(new OwnerAuraState(adaptPlayer, owner, radius, radius * radius, getAmplifier(level)));
+            }
+
+            for (OwnerAuraState state : owners) {
+                J.runEntity(state.owner(), () -> applyAura(state));
+            }
+            return;
+        }
+
+        if (!J.isPrimaryThread()) {
             J.s(this::onTick);
             return;
         }
@@ -92,22 +110,31 @@ public class TamingPackLeaderAura extends SimpleAdaptation<TamingPackLeaderAura.
         }
 
         for (OwnerAuraState state : owners) {
-            Location ownerLocation = state.owner.getLocation();
-            for (Entity nearby : state.owner.getWorld().getNearbyEntities(ownerLocation, state.radius, state.radius, state.radius)) {
-                if (!(nearby instanceof Tameable tameable) || !tameable.isTamed()) {
-                    continue;
-                }
-                if (!(tameable.getOwner() instanceof Player owner) || !owner.getUniqueId().equals(state.owner.getUniqueId())) {
-                    continue;
-                }
-                if (ownerLocation.distanceSquared(tameable.getLocation()) > state.radiusSquared) {
-                    continue;
-                }
+            applyAura(state);
+        }
+    }
 
-                tameable.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, getConfig().effectTicks, state.amplifier, false, false));
-                tameable.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, getConfig().effectTicks, state.amplifier, false, false));
-                state.ownerData.getData().addStat("taming.pack-leader.buffed-ticks", 1);
+    private void applyAura(OwnerAuraState state) {
+        Player owner = state.owner();
+        if (owner == null || !owner.isOnline()) {
+            return;
+        }
+
+        Location ownerLocation = owner.getLocation();
+        for (Entity nearby : owner.getNearbyEntities(state.radius(), state.radius(), state.radius())) {
+            if (!(nearby instanceof Tameable tameable) || !tameable.isTamed()) {
+                continue;
             }
+            if (!(tameable.getOwner() instanceof Player petOwner) || !petOwner.getUniqueId().equals(owner.getUniqueId())) {
+                continue;
+            }
+            if (ownerLocation.distanceSquared(tameable.getLocation()) > state.radiusSquared()) {
+                continue;
+            }
+
+            tameable.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, getConfig().effectTicks, state.amplifier(), false, false));
+            tameable.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, getConfig().effectTicks, state.amplifier(), false, false));
+            state.ownerData().getData().addStat("taming.pack-leader.buffed-ticks", 1);
         }
     }
 

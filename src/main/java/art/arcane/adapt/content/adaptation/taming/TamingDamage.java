@@ -29,6 +29,7 @@ import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.volmlib.util.io.IO;
 import art.arcane.volmlib.util.math.M;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.reflect.registries.Attributes;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
@@ -36,6 +37,7 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Tameable;
 import org.bukkit.event.EventHandler;
@@ -55,6 +57,7 @@ import art.arcane.adapt.util.common.inventorygui.Element;
 public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
     private static final UUID MODIFIER = UUID.nameUUIDFromBytes("adapt-tame-damage-boost".getBytes());
     private static final NamespacedKey MODIFIER_KEY = NamespacedKey.fromString( "adapt:tame-damage-boost");
+    private static final double FOLIA_SCAN_RADIUS = 48D;
 
     public TamingDamage() {
         super("tame-damage");
@@ -98,6 +101,11 @@ public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
 
     @Override
     public void onTick() {
+        if (J.isFoliaThreading()) {
+            onFoliaTick();
+            return;
+        }
+
         Map<UUID, Integer> ownerLevels = new HashMap<>();
         for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
             Player owner = adaptPlayer.getPlayer();
@@ -111,6 +119,31 @@ public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
                     update(tameable, ownerLevels.getOrDefault(p.getUniqueId(), 0));
                 }
             }
+        }
+    }
+
+    private void onFoliaTick() {
+        for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+            Player owner = adaptPlayer.getPlayer();
+            int level = getLevel(owner);
+            J.runEntity(owner, () -> updateNearbyOwnedTameables(owner, level));
+        }
+    }
+
+    private void updateNearbyOwnedTameables(Player owner, int level) {
+        if (owner == null || !owner.isOnline()) {
+            return;
+        }
+
+        for (Entity nearby : owner.getNearbyEntities(FOLIA_SCAN_RADIUS, FOLIA_SCAN_RADIUS, FOLIA_SCAN_RADIUS)) {
+            if (!(nearby instanceof Tameable tameable) || !tameable.isTamed()) {
+                continue;
+            }
+            if (!(tameable.getOwner() instanceof Player tameOwner) || !tameOwner.getUniqueId().equals(owner.getUniqueId())) {
+                continue;
+            }
+
+            update(tameable, level);
         }
     }
 

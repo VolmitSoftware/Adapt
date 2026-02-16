@@ -36,6 +36,6 @@ public class DamagingBleedEffect extends BleedEffect {
     @Override
     public void onRun() {
         super.onRun();
-        J.s(() -> target.damage(damage));
+        J.runEntity(target, () -> target.damage(damage));
     }
 }

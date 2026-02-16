@@ -174,7 +174,7 @@ public class TragoulBoneHarvest extends SimpleAdaptation<TragoulBoneHarvest.Conf
         }
 
         int life = getGlobeLifetimeTicks(level);
-        J.s(() -> {
+        J.runEntity(dropped, () -> {
             bloodGlobes.remove(dropped.getUniqueId());
             boneGlobes.remove(dropped.getUniqueId());
             if (dropped.isValid()) {

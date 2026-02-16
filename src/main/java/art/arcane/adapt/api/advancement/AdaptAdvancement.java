@@ -117,13 +117,25 @@ public class AdaptAdvancement {
         @Override
         public void grant(@NotNull Player player, boolean giveRewards) {
             super.grant(player, giveRewards);
-            getAdvancementTab().showTab(player);
+            try {
+                getAdvancementTab().showTab(player);
+            } catch (Throwable t) {
+                Adapt.verbose("Failed to show advancement tab '" + getKey() + "' for " + player.getName() + ": "
+                        + t.getClass().getSimpleName()
+                        + (t.getMessage() == null ? "" : " (" + t.getMessage() + ")"));
+            }
         }
 
         @Override
         public void revoke(@NotNull Player player) {
             super.revoke(player);
-            getAdvancementTab().hideTab(player);
+            try {
+                getAdvancementTab().hideTab(player);
+            } catch (Throwable t) {
+                Adapt.verbose("Failed to hide advancement tab '" + getKey() + "' for " + player.getName() + ": "
+                        + t.getClass().getSimpleName()
+                        + (t.getMessage() == null ? "" : " (" + t.getMessage() + ")"));
+            }
         }
     }
 

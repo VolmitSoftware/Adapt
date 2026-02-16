@@ -84,7 +84,7 @@ public final class ConfigGui {
             return;
         }
 
-        if (!Bukkit.isPrimaryThread()) {
+        if (!J.isPrimaryThread()) {
             String path = sectionPath;
             int targetPage = page;
             J.s(() -> open(player, path, targetPage));
@@ -1130,7 +1130,7 @@ public final class ConfigGui {
                 Field field = current.getDeclaredField(name);
                 field.setAccessible(true);
                 return field;
-            } catch (NoSuchFieldException ignored) {
+            } catch (NoSuchFieldException ex) {
                 current = current.getSuperclass();
             }
         }
@@ -1173,7 +1173,10 @@ public final class ConfigGui {
 
         try {
             return normalized.getDeclaredConstructor().newInstance();
-        } catch (Throwable ignored) {
+        } catch (Throwable ex) {
+            Adapt.verbose("Failed to instantiate config type " + normalized.getName() + ": "
+                    + ex.getClass().getSimpleName()
+                    + (ex.getMessage() == null ? "" : " - " + ex.getMessage()));
             return null;
         }
     }
@@ -1183,7 +1186,11 @@ public final class ConfigGui {
             field.setAccessible(true);
             field.set(target, value);
             return true;
-        } catch (Throwable ignored) {
+        } catch (Throwable ex) {
+            Adapt.verbose("Failed to set field '" + field.getName() + "' on "
+                    + (target == null ? "null" : target.getClass().getName()) + ": "
+                    + ex.getClass().getSimpleName()
+                    + (ex.getMessage() == null ? "" : " - " + ex.getMessage()));
             return false;
         }
     }
@@ -1192,7 +1199,11 @@ public final class ConfigGui {
         try {
             field.setAccessible(true);
             return field.get(target);
-        } catch (Throwable ignored) {
+        } catch (Throwable ex) {
+            Adapt.verbose("Failed to read field '" + field.getName() + "' on "
+                    + (target == null ? "null" : target.getClass().getName()) + ": "
+                    + ex.getClass().getSimpleName()
+                    + (ex.getMessage() == null ? "" : " - " + ex.getMessage()));
             return null;
         }
     }

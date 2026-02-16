@@ -25,9 +25,9 @@ import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
@@ -124,7 +124,7 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
             p.damage(selfDamage, p);
 
             LivingEntity finalNearest = nearest;
-            Bukkit.getScheduler().runTaskLater(Adapt.instance, () -> {
+            J.runEntity(finalNearest, () -> {
                 double remainingHealth = finalNearest.getHealth() - damage;
                 finalNearest.damage(damage, p);
                 if (remainingHealth <= 0) {

@@ -262,7 +262,7 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
         }
 
         destination.getChunk().load();
-        target.teleport(destination);
+        J.teleport(target, destination);
         if (areParticlesEnabled()) {
             target.getWorld().spawnParticle(Particle.REVERSE_PORTAL, destination.clone().add(0, 0.75, 0), 18, 0.3, 0.35, 0.3, 0.05);
         }
@@ -273,7 +273,7 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
         }
         getPlayer(p).getData().addStat("rift.ender-taglock.taglocked-teleports", 1);
         xp(p, getConfig().xpOnTeleport);
-        J.s(() -> suppressPearlTeleportUntil.remove(p.getUniqueId()), 2);
+        J.runEntity(p, () -> suppressPearlTeleportUntil.remove(p.getUniqueId()), 2);
     }
 
     private Location resolveDestination(ProjectileHitEvent e) {

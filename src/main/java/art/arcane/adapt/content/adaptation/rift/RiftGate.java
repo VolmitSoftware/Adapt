@@ -41,7 +41,6 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.scheduler.BukkitRunnable;
 
 
 import art.arcane.adapt.util.common.format.C;
@@ -217,39 +216,36 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
         sp.play(l, Sound.BLOCK_LODESTONE_PLACE, 1f, 0.1f);
         sp.play(l, Sound.BLOCK_BELL_RESONATE, 1f, 0.1f);
 
-        new BukkitRunnable() {
-            private long dur = 4000;
-            private double radius = 2.0;
-            private double adder = 0.0;
-            private final Color color = Color.fromBGR(0, 0, 0);
-            private boolean initialRingShown = false;
-
-            @Override
-            public void run() {
-                if (!p.isOnline()) {
-                    cancel();
-                    return;
-                }
-
-                if (!initialRingShown) {
-                    vfxFastRing(p.getLocation(), radius, color);
-                    initialRingShown = true;
-                }
-
-                dur -= 50;
-                if (dur <= 0) {
-                    cancel();
-                    return;
-                }
-
-                adder += 0.02;
-                radius *= 0.9;
-                vfxFastRing(p.getLocation().add(0, adder, 0), radius, color);
+        int[] remainingSteps = {80};
+        double[] radius = {2.0};
+        double[] adder = {0.0};
+        boolean[] initialRingShown = {false};
+        final Color color = Color.fromBGR(0, 0, 0);
+        Runnable[] ringTask = new Runnable[1];
+        ringTask[0] = () -> {
+            if (!p.isOnline()) {
+                return;
             }
-        }.runTaskTimer(Adapt.instance, 0L, 1L);
+
+            if (!initialRingShown[0]) {
+                vfxFastRing(p.getLocation(), radius[0], color);
+                initialRingShown[0] = true;
+            }
+
+            remainingSteps[0]--;
+            if (remainingSteps[0] <= 0) {
+                return;
+            }
+
+            adder[0] += 0.02;
+            radius[0] *= 0.9;
+            vfxFastRing(p.getLocation().add(0, adder[0], 0), radius[0], color);
+            J.runEntity(p, ringTask[0], 1);
+        };
+        J.runEntity(p, ringTask[0]);
         vfxLevelUp(p);
         sp.play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 5.35f, 0.1f);
-        J.s(() -> {
+        J.runEntity(p, () -> {
             AdaptAdaptationTeleportEvent event = new AdaptAdaptationTeleportEvent(!Bukkit.isPrimaryThread(), getPlayer(p), this, p.getLocation(), l);
             Bukkit.getPluginManager().callEvent(event);
             if (event.isCancelled()) {
@@ -259,7 +255,7 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
             getPlayer(p).getData().addStat("rift.teleports", 1);
             getPlayer(p).getData().addStat("rift.gate.teleports", 1);
             getPlayer(p).getData().addStat("rift.gate.total-distance", (int) p.getLocation().distance(l));
-            p.teleport(l, PlayerTeleportEvent.TeleportCause.PLUGIN);
+            J.teleport(p, l, PlayerTeleportEvent.TeleportCause.PLUGIN);
             vfxLevelUp(p);
             sp.play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 5.35f, 0.1f);
         }, 85);

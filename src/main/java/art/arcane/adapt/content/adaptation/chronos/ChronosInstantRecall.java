@@ -58,13 +58,14 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import art.arcane.adapt.util.common.inventorygui.Window;
 import art.arcane.adapt.util.reflect.registries.Particles;
 
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecall.Config> {
     private static final EnumSet<Action> RECALL_ACTIONS = EnumSet.of(
@@ -752,7 +753,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecall.
         int triggerWindowMillis = Math.max(150, getConfig().doubleJumpWindowMillis);
         jumpArmUntil.put(id, M.ms() + triggerWindowMillis);
         p.setAllowFlight(true);
-        J.s(() -> {
+        J.runEntity(p, () -> {
             if (!p.isOnline()) {
                 return;
             }
@@ -890,127 +891,136 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecall.
 
         final boolean initialClientCamera = allowClientCamera;
         final ArmorStand initialCameraAnchor = cameraAnchor;
-        new BukkitRunnable() {
-            int step = 0;
-            Location lastLoc = p.getLocation().clone();
-            final boolean[] clientCameraActive = new boolean[]{initialClientCamera};
-            final ArmorStand[] cameraRef = new ArmorStand[]{initialCameraAnchor};
+        int[] step = {0};
+        Location[] lastLoc = {p.getLocation().clone()};
+        boolean[] clientCameraActive = {initialClientCamera};
+        ArmorStand[] cameraRef = {initialCameraAnchor};
 
-            private void cleanupVisualState(boolean restoreGameMode) {
-                if (cameraRef[0] != null) {
-                    Entity anchorEntity = cameraRef[0];
-                    cameraRef[0] = null;
-                    if (anchorEntity.isValid()) {
-                        anchorEntity.remove();
-                    }
-                }
-
-                if (temporarySpectator) {
-                    p.setSpectatorTarget(null);
-                    if (restoreGameMode && p.getGameMode() == GameMode.SPECTATOR) {
-                        p.setGameMode(originalGameMode);
-                        p.setFlying(false);
-                    }
+        Consumer<Boolean> cleanupVisualState = restoreGameMode -> {
+            if (cameraRef[0] != null) {
+                Entity anchorEntity = cameraRef[0];
+                cameraRef[0] = null;
+                if (anchorEntity.isValid()) {
+                    anchorEntity.remove();
                 }
             }
 
-            @Override
-            public void run() {
-                if (!p.isOnline() || p.isDead()) {
-                    rewinding.remove(id);
-                    cleanupVisualState(true);
-                    cancel();
-                    return;
+            if (temporarySpectator) {
+                p.setSpectatorTarget(null);
+                if (restoreGameMode && p.getGameMode() == GameMode.SPECTATOR) {
+                    p.setGameMode(originalGameMode);
+                    p.setFlying(false);
+                }
+            }
+        };
+
+        Runnable[] rewindTask = new Runnable[1];
+        rewindTask[0] = () -> {
+            if (!p.isOnline() || p.isDead()) {
+                rewinding.remove(id);
+                cleanupVisualState.accept(true);
+                return;
+            }
+
+            float progress = animationTicks <= 1 ? 1f : (float) step[0] / (float) (animationTicks - 1);
+            int index = Math.min(animationPath.size() - 1, step[0]);
+            Snapshot snapshot = animationPath.get(index);
+            Location destination = toLocation(snapshot, p.getWorld());
+
+            if (getConfig().showRewindTraceParticles && lastLoc[0].getWorld() != null && lastLoc[0].getWorld().equals(destination.getWorld())) {
+                Predicate<Location> traceFilter = J.isFoliaThreading() ? null : l -> l.getBlock().isPassable();
+                vfxParticleLine(lastLoc[0].clone().add(0, 1, 0), destination.clone().add(0, 1, 0), Particle.REVERSE_PORTAL,
+                        Math.max(4, getConfig().rewindTracePoints), 1, 0.08D, 0.08D, 0.08D, 0D, null, true,
+                        traceFilter);
+            }
+
+            boolean movedClient = false;
+            if (clientCameraActive[0] && cameraRef[0] != null && cameraRef[0].isValid()) {
+                Entity target = p.getSpectatorTarget();
+                if (target == null || !target.getUniqueId().equals(cameraRef[0].getUniqueId())) {
+                    p.setSpectatorTarget(cameraRef[0]);
+                    target = p.getSpectatorTarget();
                 }
 
-                float progress = animationTicks <= 1 ? 1f : (float) step / (float) (animationTicks - 1);
-                int index = Math.min(animationPath.size() - 1, step);
-                Snapshot snapshot = animationPath.get(index);
-                Location destination = toLocation(snapshot, p.getWorld());
-
-                if (getConfig().showRewindTraceParticles && lastLoc.getWorld() != null && lastLoc.getWorld().equals(destination.getWorld())) {
-                    vfxParticleLine(lastLoc.clone().add(0, 1, 0), destination.clone().add(0, 1, 0), Particle.REVERSE_PORTAL,
-                            Math.max(4, getConfig().rewindTracePoints), 1, 0.08D, 0.08D, 0.08D, 0D, null, true,
-                            l -> l.getBlock().isPassable());
+                if (target != null
+                        && target.getUniqueId().equals(cameraRef[0].getUniqueId())
+                        && destination.getWorld() != null
+                        && destination.getWorld().equals(cameraRef[0].getWorld())) {
+                    J.teleport(cameraRef[0], destination, PlayerTeleportEvent.TeleportCause.PLUGIN);
+                    movedClient = true;
+                } else {
+                    clientCameraActive[0] = false;
                 }
+            }
 
-                boolean movedClient = false;
-                if (clientCameraActive[0] && cameraRef[0] != null && cameraRef[0].isValid()) {
-                    Entity target = p.getSpectatorTarget();
-                    if (target == null || !target.getUniqueId().equals(cameraRef[0].getUniqueId())) {
-                        p.setSpectatorTarget(cameraRef[0]);
-                        target = p.getSpectatorTarget();
-                    }
+            if (!movedClient) {
+                J.teleport(p, destination, PlayerTeleportEvent.TeleportCause.PLUGIN);
+            }
 
-                    if (target != null
-                            && target.getUniqueId().equals(cameraRef[0].getUniqueId())
-                            && destination.getWorld() != null
-                            && destination.getWorld().equals(cameraRef[0].getWorld())) {
-                        cameraRef[0].teleport(destination, PlayerTeleportEvent.TeleportCause.PLUGIN);
-                        movedClient = true;
-                    } else {
-                        clientCameraActive[0] = false;
-                    }
+            if (!temporarySpectator || step[0] >= animationPath.size() - 1) {
+                applySnapshotState(p, snapshot);
+            }
+
+            if (getConfig().playClockSounds) {
+                ChronosSoundFX.playRewindStep(p, progress);
+            }
+
+            lastLoc[0] = destination;
+            step[0]++;
+
+            if (step[0] >= animationTicks) {
+                cleanupVisualState.accept(true);
+                Location finalDestination = toLocation(finalSnapshot, p.getWorld());
+                if (finalDestination.getWorld() != null) {
+                    J.teleport(p, finalDestination, PlayerTeleportEvent.TeleportCause.PLUGIN);
                 }
+                applySnapshotState(p, finalSnapshot);
 
-                if (!movedClient) {
-                    p.teleport(destination, PlayerTeleportEvent.TeleportCause.PLUGIN);
+                if (areParticlesEnabled()) {
+                    p.getWorld().spawnParticle(Particle.TOTEM_OF_UNDYING, p.getLocation().add(0, 1, 0), 26, 0.25, 0.35, 0.25, 0.01);
                 }
-
-                if (!temporarySpectator || step >= animationPath.size() - 1) {
-                    applySnapshotState(p, snapshot);
+                if (areParticlesEnabled()) {
+                    p.getWorld().spawnParticle(Particle.ITEM, p.getLocation().add(0, 1, 0), 18, 0.30, 0.30, 0.30, 0.01, new ItemStack(Material.CLOCK));
                 }
-
                 if (getConfig().playClockSounds) {
-                    ChronosSoundFX.playRewindStep(p, progress);
+                    ChronosSoundFX.playRewindFinish(p);
                 }
-
-                lastLoc = destination;
-                step++;
-
-                if (step >= animationTicks) {
-                    cleanupVisualState(true);
-                    Location finalDestination = toLocation(finalSnapshot, p.getWorld());
-                    if (finalDestination.getWorld() != null) {
-                        p.teleport(finalDestination, PlayerTeleportEvent.TeleportCause.PLUGIN);
-                    }
-                    applySnapshotState(p, finalSnapshot);
-
-                    if (areParticlesEnabled()) {
-                        p.getWorld().spawnParticle(Particle.TOTEM_OF_UNDYING, p.getLocation().add(0, 1, 0), 26, 0.25, 0.35, 0.25, 0.01);
-                    }
-                    if (areParticlesEnabled()) {
-                        p.getWorld().spawnParticle(Particle.ITEM, p.getLocation().add(0, 1, 0), 18, 0.30, 0.30, 0.30, 0.01, new ItemStack(Material.CLOCK));
-                    }
-                    if (getConfig().playClockSounds) {
-                        ChronosSoundFX.playRewindFinish(p);
-                    }
-                    rewinding.remove(id);
-                    getPlayer(p).getData().addStat("chronos.instant-recall.recalls", 1);
-                    if (healthBeforeRecall <= 4 && healthAfterRecall >= 16
-                            && AdaptConfig.get().isAdvancements()
-                            && !getPlayer(p).getData().isGranted("challenge_chronos_recall_cheat_death")) {
-                        getPlayer(p).getAdvancementHandler().grant("challenge_chronos_recall_cheat_death");
-                    }
-                    long awardAt = M.ms();
-                    double xpGain = computeRecallXPGain(id, level, xpContext, awardAt);
-                    if (xpGain > 0D) {
-                        xp(p, p.getLocation(), xpGain);
-                        recallXpStamps.put(id, new RecallXPFarmStamp(
-                                awardAt,
-                                xpContext.fromWorld(),
-                                xpContext.fromX(),
-                                xpContext.fromY(),
-                                xpContext.fromZ(),
-                                xpContext.toWorld(),
-                                xpContext.toX(),
-                                xpContext.toY(),
-                                xpContext.toZ()));
-                    }
-                    cancel();
+                rewinding.remove(id);
+                getPlayer(p).getData().addStat("chronos.instant-recall.recalls", 1);
+                if (healthBeforeRecall <= 4 && healthAfterRecall >= 16
+                        && AdaptConfig.get().isAdvancements()
+                        && !getPlayer(p).getData().isGranted("challenge_chronos_recall_cheat_death")) {
+                    getPlayer(p).getAdvancementHandler().grant("challenge_chronos_recall_cheat_death");
                 }
+                long awardAt = M.ms();
+                double xpGain = computeRecallXPGain(id, level, xpContext, awardAt);
+                if (xpGain > 0D) {
+                    xp(p, p.getLocation(), xpGain);
+                    recallXpStamps.put(id, new RecallXPFarmStamp(
+                            awardAt,
+                            xpContext.fromWorld(),
+                            xpContext.fromX(),
+                            xpContext.fromY(),
+                            xpContext.fromZ(),
+                            xpContext.toWorld(),
+                            xpContext.toX(),
+                            xpContext.toY(),
+                            xpContext.toZ()));
+                }
+                return;
             }
-        }.runTaskTimer(Adapt.instance, 0, 1);
+
+            if (J.isFoliaThreading()) {
+                J.runEntity(p, rewindTask[0], 1);
+            } else {
+                J.s(rewindTask[0], 1);
+            }
+        };
+        if (J.isFoliaThreading()) {
+            J.runEntity(p, rewindTask[0]);
+        } else {
+            J.s(rewindTask[0]);
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)

@@ -133,7 +133,7 @@ public class RiftInflatedPocketDimension extends SimpleAdaptation<RiftInflatedPo
             return;
         }
 
-        J.s(() -> {
+        J.runEntity(p, () -> {
             ItemStack hand = p.getInventory().getItemInMainHand();
             int needed = 0;
             if (hand.getType().isAir()) {

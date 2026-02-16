@@ -27,9 +27,9 @@ import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.reflect.registries.PotionEffectTypes;
 import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
@@ -77,11 +77,31 @@ public class SeaborneTurtlesMiningSpeed extends SimpleAdaptation<SeaborneTurtles
     public void onTick() {
         for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
             Player player = adaptPlayer.getPlayer();
-            if (player.isInWater() && hasAdaptation(player)) {
-                if (player.getLocation().getBlock().isLiquid()) {
-                    player.addPotionEffect(new PotionEffect(PotionEffectTypes.FAST_DIGGING, 62, 1, false, false));
-                    getPlayer(player).getData().addStat("seaborne.turtles-mining.blocks-underwater", 1);
+            if (player == null || !player.isOnline()) {
+                continue;
+            }
+
+            Runnable apply = () -> {
+                if (!player.isOnline()) {
+                    return;
                 }
+
+                if (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(player)) {
+                    return;
+                }
+
+                if (!player.isInWater() || !hasAdaptation(player)) {
+                    return;
+                }
+
+                player.addPotionEffect(new PotionEffect(PotionEffectTypes.FAST_DIGGING, 62, 1, false, false));
+                getPlayer(player).getData().addStat("seaborne.turtles-mining.blocks-underwater", 1);
+            };
+
+            if (J.isFoliaThreading()) {
+                J.runEntity(player, apply);
+            } else {
+                apply.run();
             }
         }
     }

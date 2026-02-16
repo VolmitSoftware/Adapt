@@ -19,6 +19,7 @@
 package art.arcane.adapt.util.common.plugin;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.util.common.scheduling.J;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -79,8 +80,10 @@ public class Metrics {
                     .copyDefaults(true);
             try {
                 config.save(configFile);
-            } catch (IOException ignored) {
-                Adapt.verbose("Failed to save bStats config file.");
+            } catch (IOException ex) {
+                Adapt.verbose("Failed to save bStats config file: "
+                        + ex.getClass().getSimpleName()
+                        + (ex.getMessage() == null ? "" : " - " + ex.getMessage()));
             }
         }
         // Load the data
@@ -97,7 +100,7 @@ public class Metrics {
                         enabled,
                         this::appendPlatformData,
                         this::appendServiceData,
-                        submitDataTask -> Bukkit.getScheduler().runTask(plugin, submitDataTask),
+                        submitDataTask -> J.s(submitDataTask),
                         plugin::isEnabled,
                         (message, error) -> this.plugin.getLogger().log(Level.WARNING, message, error),
                         (message) -> this.plugin.getLogger().log(Level.INFO, message),

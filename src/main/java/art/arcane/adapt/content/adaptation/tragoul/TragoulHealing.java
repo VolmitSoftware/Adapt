@@ -28,10 +28,10 @@ import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Attributes;
 import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;
@@ -123,7 +123,7 @@ public class TragoulHealing extends SimpleAdaptation<TragoulHealing.Config> {
     private void startHealingWindow(Player p) {
         long currentTime = System.currentTimeMillis();
         healingWindow.put(p, currentTime + getConfig().windowDuration);
-        Bukkit.getScheduler().runTaskLater(Adapt.instance, () -> {
+        J.runEntity(p, () -> {
             healingWindow.remove(p);
             cooldowns.put(p, currentTime + getConfig().windowDuration + getConfig().cooldownDuration);
         }, getConfig().windowDuration / 50);

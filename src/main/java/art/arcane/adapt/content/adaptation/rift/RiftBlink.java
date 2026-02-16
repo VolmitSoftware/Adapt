@@ -131,7 +131,7 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
         long expires = M.ms() + triggerWindowMillis;
         jumpArmUntil.put(id, expires);
         p.setAllowFlight(true);
-        J.s(() -> {
+        J.runEntity(p, () -> {
             if (!p.isOnline()) {
                 return;
             }
@@ -475,16 +475,16 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
         }
 
         Vector v = p.getVelocity().clone();
-        loadChunkAsync(destinationGround, chunk -> J.s(() -> {
+        loadChunkAsync(destinationGround, chunk -> J.runEntity(p, () -> {
             Location toLoc = destinationGround.clone().add(0, 1, 0);
 
-            AdaptAdaptationTeleportEvent event = new AdaptAdaptationTeleportEvent(false, getPlayer(p), this, locOG, destinationGround.clone());
+            AdaptAdaptationTeleportEvent event = new AdaptAdaptationTeleportEvent(!Bukkit.isPrimaryThread(), getPlayer(p), this, locOG, destinationGround.clone());
             Bukkit.getPluginManager().callEvent(event);
             if (event.isCancelled()) {
                 return;
             }
 
-            p.teleport(toLoc, PlayerTeleportEvent.TeleportCause.PLUGIN);
+            J.teleport(p, toLoc, PlayerTeleportEvent.TeleportCause.PLUGIN);
             p.setVelocity(v.multiply(3));
         }));
 

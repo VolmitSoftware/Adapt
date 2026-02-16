@@ -143,7 +143,7 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
                 c = c.expand(Cuboid.CuboidDirection.West, Math.round(getRadius(lvl)));
 
                 for (Block i : c) {
-                    J.s(() -> hit(p, i), M.irand(1, 6));
+                    J.runEntity(p, () -> hit(p, i), M.irand(1, 6));
                 }
                 spw.play(p.getLocation(), Sound.ITEM_SHOVEL_FLATTEN, 1f, 0.66f);
                 spw.play(p.getLocation(), Sound.BLOCK_BAMBOO_SAPLING_BREAK, 1f, 0.66f);
@@ -177,14 +177,14 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
                     }
                 }
                 aa.setAge(0);
-                J.s(() -> b.setBlockData(aa, true));
+                J.runAt(b.getLocation(), () -> b.setBlockData(aa, true));
 
             } else {
                 p.breakBlock(b);
             }
 
             aa.setAge(0);
-            J.s(() -> b.setBlockData(aa, true));
+            J.runAt(b.getLocation(), () -> b.setBlockData(aa, true));
 
             getPlayer(p).getData().addStat("harvest.blocks", 1);
             getPlayer(p).getData().addStat("harvest.planted", 1);

@@ -214,8 +214,10 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
                 if (key != null) {
                     seeCraftedRecipe(p, key.toString());
                 }
-            } catch (Throwable ignored) {
-                Adapt.verbose("No recipe key found for " + e.getRecipe().getResult().getType().name());
+            } catch (Throwable ex) {
+                Adapt.verbose("No recipe key found for " + e.getRecipe().getResult().getType().name() + ": "
+                        + ex.getClass().getSimpleName()
+                        + (ex.getMessage() == null ? "" : " - " + ex.getMessage()));
             }
         });
     }
@@ -249,7 +251,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
 
     private void scheduleSeeWorld(Player p) {
         try {
-            J.s(() -> seeWorld(p, p.getWorld()), 15);
+            J.runEntity(p, () -> seeWorld(p, p.getWorld()), 15);
         } catch (Exception e) {
             Adapt.error("Failed to discover world " + p.getWorld().getName());
         }
@@ -381,8 +383,10 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
                 seeBlock(i, b.getBlockData(), b.getLocation());
                 seeBiome(i, b.getBiome());
             }
-        } catch (Throwable ignored) {
-            Adapt.verbose("Failed to get target block for " + i.getName());
+        } catch (Throwable ex) {
+            Adapt.verbose("Failed to get target block for " + i.getName() + ": "
+                    + ex.getClass().getSimpleName()
+                    + (ex.getMessage() == null ? "" : " - " + ex.getMessage()));
         }
     }
 

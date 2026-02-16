@@ -26,9 +26,9 @@ import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
@@ -68,11 +68,31 @@ public class SeaborneTurtlesVision extends SimpleAdaptation<SeaborneTurtlesVisio
     public void onTick() {
         for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
             Player player = adaptPlayer.getPlayer();
-            if (player.isInWater() && hasAdaptation(player)) {
-                if (player.getLocation().getBlock().isLiquid()) {
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 62, 0, false, false));
-                    getPlayer(player).getData().addStat("seaborne.turtles-vision.time-underwater", 1);
+            if (player == null || !player.isOnline()) {
+                continue;
+            }
+
+            Runnable apply = () -> {
+                if (!player.isOnline()) {
+                    return;
                 }
+
+                if (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(player)) {
+                    return;
+                }
+
+                if (!player.isInWater() || !hasAdaptation(player)) {
+                    return;
+                }
+
+                player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 62, 0, false, false));
+                getPlayer(player).getData().addStat("seaborne.turtles-vision.time-underwater", 1);
+            };
+
+            if (J.isFoliaThreading()) {
+                J.runEntity(player, apply);
+            } else {
+                apply.run();
             }
         }
     }

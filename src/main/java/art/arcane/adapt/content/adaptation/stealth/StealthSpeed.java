@@ -17,6 +17,7 @@
  -----------------------------------------------------------------------------*/
 
 package art.arcane.adapt.content.adaptation.stealth;
+import art.arcane.adapt.Adapt;
 import art.arcane.volmlib.util.format.Form;
 
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -46,6 +47,7 @@ import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.math.VelocitySpeed;
+import art.arcane.adapt.util.common.scheduling.J;
 
 public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
     private static final Sound DEFAULT_ACTIVATION_SOUND = Sound.PARTICLE_SOUL_ESCAPE;
@@ -249,8 +251,9 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
                         }
                     }
                 }
-            } catch (NoSuchMethodError ignored) {
+            } catch (NoSuchMethodError ex) {
                 // Runtime does not expose input API. Use velocity-based fallback.
+                Adapt.verbose("Player input API is unavailable on this runtime; using velocity fallback for stealth auto-step.");
             }
         }
 
@@ -279,7 +282,7 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
             return false;
         }
 
-        p.teleport(destination);
+        J.teleport(p, destination);
         return true;
     }
 
@@ -303,7 +306,7 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
             return false;
         }
 
-        p.teleport(destination);
+        J.teleport(p, destination);
         p.setFallDistance(0);
         return true;
     }

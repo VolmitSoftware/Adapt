@@ -134,7 +134,7 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
                                 AdaptPlayer player = getPlayer(p);
                                 if (ab.getMaximumAge() > ab.getAge() && player.canConsumeFood(foodCost, 10)) {
                                     while (add-- > 0) {
-                                        J.s(() -> {
+                                        J.runEntity(p, () -> {
                                             if (!p.isOnline()
                                                     || !player.consumeFood(foodCost, 10)
                                                     || !(a.getBlockData() instanceof Ageable aab)

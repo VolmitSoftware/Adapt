@@ -104,7 +104,7 @@ public class ChronosTemporalEcho extends SimpleAdaptation<ChronosTemporalEcho.Co
         Projectile original = e.getEntity();
         Vector originalVelocity = original.getVelocity().clone();
         int delay = getEchoDelayTicks(level);
-        J.s(() -> spawnEcho(p, echoType, originalVelocity, level), delay);
+        J.runEntity(p, () -> spawnEcho(p, echoType, originalVelocity, level), delay);
     }
 
     private void spawnEcho(Player p, EchoType type, Vector velocity, int level) {

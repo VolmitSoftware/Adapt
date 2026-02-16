@@ -6,6 +6,7 @@ authors:
   - Cyberpwn
   - Vatuu
 api-version: '${apiVersion}'
+folia-supported: true
 softdepend:
   - PlaceholderAPI
   - WorldGuard

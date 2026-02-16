@@ -154,9 +154,12 @@ public interface Skill<T> extends Ticked, Component {
                     return bool;
                 }
                 return null;
-            } catch (NoSuchFieldException ignored) {
+            } catch (NoSuchFieldException ex) {
                 current = current.getSuperclass();
-            } catch (Throwable ignored) {
+            } catch (Throwable ex) {
+                Adapt.verbose("Failed reading boolean field '" + fieldName + "' from " + source.getClass().getName()
+                        + ": " + ex.getClass().getSimpleName()
+                        + (ex.getMessage() == null ? "" : " - " + ex.getMessage()));
                 return null;
             }
         }
@@ -351,7 +354,7 @@ public interface Skill<T> extends Ticked, Component {
         if (!player.getClass().getSimpleName().equals("CraftPlayer")) {
             return;
         }
-        if (!Bukkit.isPrimaryThread()) {
+        if (!J.isPrimaryThread()) {
             int targetPage = page;
             J.s(() -> openGui(player, targetPage));
             return;

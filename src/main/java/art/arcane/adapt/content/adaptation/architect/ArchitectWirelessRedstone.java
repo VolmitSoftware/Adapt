@@ -247,7 +247,7 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
     private void triggerPulse(Player p, ItemStack item) {
         Location l = BoundRedstoneTorch.getLocation(item);
         if (isBound(item) && l != null) {
-            loadChunkAsync(l, chunk -> {
+            loadChunkAsync(l, chunk -> J.runAt(l, () -> {
                 Block b = l.getBlock();
                 BlockData data = b.getBlockData();
                 if (data instanceof AnaloguePowerable redBlock && b.getType().equals(Material.TARGET)) {
@@ -257,7 +257,7 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
                     vfxCuboidOutline(l.getBlock(), l.getBlock(), Color.RED, 1);
                     b.setBlockData(redBlock);
                     getPlayer(p).getData().addStat("architect.wireless-redstone.pulses", 1);
-                    J.s(() -> {
+                    J.runAt(l, () -> {
                         redBlock.setPower(0);
                         b.setBlockData(redBlock);
                     }, 2);
@@ -265,7 +265,7 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
                     SoundPlayer sp = SoundPlayer.of(p);
                     sp.play(p.getLocation(), Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 0.1f, 0.9f);
                 }
-            });
+            }));
         }
     }
 
@@ -287,9 +287,9 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
             ItemStack offhand = p.getInventory().getItemInOffHand();
             if ((isRedstoneTorch(hand) && BoundRedstoneTorch.hasItemData(hand)) || (
                 isRedstoneTorch(offhand) && BoundRedstoneTorch.hasItemData(offhand))) {
-                J.s(() -> updatePlayerCooldown(p, false));
+                J.runEntity(p, () -> updatePlayerCooldown(p, false));
             } else {
-                J.s(() -> updatePlayerCooldown(p, true));
+                J.runEntity(p, () -> updatePlayerCooldown(p, true));
             }
         }
     }
