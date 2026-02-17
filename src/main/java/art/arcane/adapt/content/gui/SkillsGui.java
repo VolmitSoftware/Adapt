@@ -26,9 +26,16 @@ import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.api.xp.XP;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.inventorygui.*;
-import art.arcane.adapt.util.common.math.MaterialBlock;
+import art.arcane.volmlib.util.inventorygui.UIElement;
+import art.arcane.volmlib.util.inventorygui.UIWindow;
+import art.arcane.adapt.util.common.inventorygui.GuiEffects;
+import art.arcane.adapt.util.common.inventorygui.GuiLayout;
+import art.arcane.adapt.util.common.inventorygui.GuiTheme;
+import art.arcane.volmlib.util.inventorygui.Element;
+import art.arcane.volmlib.util.inventorygui.Window;
+import art.arcane.volmlib.util.data.MaterialBlock;
 import art.arcane.adapt.util.common.scheduling.J;
+import art.arcane.volmlib.util.format.ColorFormatter;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
@@ -92,7 +99,7 @@ public class SkillsGui {
         int start = currentPage * plan.itemsPerPage();
         int end = Math.min(entries.size(), start + plan.itemsPerPage());
 
-        Window w = new UIWindow(player);
+        UIWindow w = new UIWindow(Adapt.instance, player);
         GuiTheme.apply(w, "/");
         w.setViewportHeight(plan.rows());
 
@@ -115,7 +122,7 @@ public class SkillsGui {
                     int pos = GuiLayout.centeredPosition(i, rowCount);
                     Element element = new UIElement("skill-" + entry.skill().getName())
                             .setMaterial(new MaterialBlock(entry.skill().getIcon()))
-                            .setModel(entry.skill().getModel())
+                            .setBaseItemStack(entry.skill().getModel().toItemStack())
                             .setName(entry.skill().getDisplayName(entry.line().getLevel()))
                             .setProgress(1D)
                             .addLore(C.ITALIC + "" + C.GRAY + entry.skill().getDescription())
@@ -164,7 +171,7 @@ public class SkillsGui {
             return "";
         }
 
-        String normalized = C.stripColor(value).toLowerCase(Locale.ROOT).trim();
+        String normalized = ColorFormatter.stripColor(value).toLowerCase(Locale.ROOT).trim();
         return normalized.replaceFirst("^[^\\p{L}\\p{N}]+", "");
     }
 

@@ -39,6 +39,9 @@ plugins {
 version = "2.0.0-1.20.2-1.21.11-Dev1"
 val apiVersion = "1.20"
 val main = "art.arcane.adapt.Adapt"
+val volmLibCoordinate: String = providers.gradleProperty("volmLibCoordinate")
+    .orElse("com.github.VolmitSoftware:VolmLib:master-SNAPSHOT")
+    .get()
 
 // ADD YOURSELF AS A NEW LINE IF YOU WANT YOUR OWN BUILD TASK GENERATED
 // ======================== WINDOWS =============================
@@ -136,18 +139,12 @@ allprojects {
     }
 }
 
-sourceSets {
-    main {
-        java.srcDir("../VolmLib/shared/src/main/java")
-    }
-}
-
-kotlin.sourceSets.named("main") {
-    kotlin.srcDir("../VolmLib/shared/src/main/kotlin")
-}
-
 dependencies {
     implementation(project(":velocity"))
+    implementation(volmLibCoordinate) {
+        isChanging = true
+        isTransitive = false
+    }
     implementation(slimjarHelper("spigot"))
     implementation(slimjarHelper("velocity"))
     implementation(libs.platformUtils) {
@@ -221,8 +218,8 @@ tasks.shadowJar {
 }
 
 configurations.configureEach {
-    resolutionStrategy.cacheChangingModulesFor(60, "minutes")
-    resolutionStrategy.cacheDynamicVersionsFor(60, "minutes")
+    resolutionStrategy.cacheChangingModulesFor(0, "seconds")
+    resolutionStrategy.cacheDynamicVersionsFor(0, "seconds")
 }
 
 if (!JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_21)) {

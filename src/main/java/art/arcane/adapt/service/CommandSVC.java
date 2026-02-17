@@ -26,15 +26,15 @@ import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.plugin.AdaptService;
 import art.arcane.adapt.util.common.plugin.VolmitSender;
 import art.arcane.adapt.util.common.scheduling.J;
-import art.arcane.adapt.util.decree.DecreeContext;
-import art.arcane.adapt.util.decree.DecreeContextHandler;
-import art.arcane.adapt.util.decree.DecreeSystem;
-import art.arcane.volmlib.util.director.compat.DirectorDecreeEngineFactory;
+import art.arcane.adapt.util.director.DirectorSystem;
+import art.arcane.volmlib.util.director.compat.BukkitDirectorContext;
+import art.arcane.volmlib.util.director.compat.DirectorEngineFactory;
 import art.arcane.volmlib.util.director.context.DirectorContextRegistry;
 import art.arcane.volmlib.util.director.runtime.*;
 import art.arcane.volmlib.util.director.visual.DirectorVisualCommand;
 import art.arcane.volmlib.util.math.RNG;
 import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -42,7 +42,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 public class CommandSVC implements AdaptService, CommandExecutor, TabCompleter, DirectorInvocationHook {
@@ -72,35 +71,27 @@ public class CommandSVC implements AdaptService, CommandExecutor, TabCompleter, 
     }
 
     public DirectorRuntimeEngine getDirector() {
-        return directorCache.aquireNastyPrint(() -> DirectorDecreeEngineFactory.create(
+        return directorCache.aquireNastyPrint(() -> DirectorEngineFactory.create(
                 new CommandAdapt(),
                 null,
                 buildDirectorContexts(),
                 this::dispatchDirector,
                 this,
-                DecreeSystem.handlers
+                DirectorSystem.handlers
         ));
     }
 
     private DirectorContextRegistry buildDirectorContexts() {
         DirectorContextRegistry contexts = new DirectorContextRegistry();
-
-        for (Map.Entry<Class<?>, DecreeContextHandler<?>> entry : DecreeContextHandler.contextHandlers.entrySet()) {
-            registerContextHandler(contexts, entry.getKey(), entry.getValue());
-        }
-
-        return contexts;
-    }
-
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    private void registerContextHandler(DirectorContextRegistry contexts, Class<?> type, DecreeContextHandler<?> handler) {
-        contexts.register((Class) type, (invocation, map) -> {
-            if (invocation.getSender() instanceof BukkitDirectorSender sender) {
-                return ((DecreeContextHandler) handler).handle(new VolmitSender(sender.sender()));
+        contexts.register(World.class, (invocation, map) -> {
+            if (invocation.getSender() instanceof BukkitDirectorSender sender && sender.sender() instanceof Player player) {
+                return player.getWorld();
             }
 
             return null;
         });
+
+        return contexts;
     }
 
     private void dispatchDirector(DirectorExecutionMode mode, Runnable runnable) {
@@ -114,13 +105,13 @@ public class CommandSVC implements AdaptService, CommandExecutor, TabCompleter, 
     @Override
     public void beforeInvoke(DirectorInvocation invocation, DirectorRuntimeNode node) {
         if (invocation.getSender() instanceof BukkitDirectorSender sender) {
-            DecreeContext.touch(new VolmitSender(sender.sender()));
+            BukkitDirectorContext.touch(sender.sender());
         }
     }
 
     @Override
     public void afterInvoke(DirectorInvocation invocation, DirectorRuntimeNode node) {
-        DecreeContext.remove();
+        BukkitDirectorContext.remove();
     }
 
     @Nullable
@@ -182,7 +173,7 @@ public class CommandSVC implements AdaptService, CommandExecutor, TabCompleter, 
         }
 
         VolmitSender volmitSender = new VolmitSender(sender);
-        volmitSender.sendDecreeHelp(request.get().command(), request.get().page());
+        volmitSender.sendDirectorHelp(request.get().command(), request.get().page());
         return true;
     }
 

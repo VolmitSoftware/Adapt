@@ -1,5 +1,8 @@
 package art.arcane.adapt.util.common.inventorygui;
 
+import art.arcane.volmlib.util.inventorygui.Element;
+import art.arcane.volmlib.util.inventorygui.Window;
+
 import java.util.List;
 
 public final class GuiEffects {

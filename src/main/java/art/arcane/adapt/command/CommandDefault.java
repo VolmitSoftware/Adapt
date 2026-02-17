@@ -7,11 +7,11 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.util.command.FConst;
-import art.arcane.adapt.util.decree.DecreeExecutor;
-import art.arcane.adapt.util.decree.context.AdaptationListingHandler;
-import art.arcane.volmlib.util.decree.DecreeOrigin;
-import art.arcane.volmlib.util.decree.annotations.Decree;
-import art.arcane.volmlib.util.decree.annotations.Param;
+import art.arcane.volmlib.util.director.compat.BukkitDirectorContext;
+import art.arcane.adapt.util.director.context.AdaptationListingHandler;
+import art.arcane.volmlib.util.director.DirectorOrigin;
+import art.arcane.volmlib.util.director.annotations.Director;
+import art.arcane.volmlib.util.director.annotations.Param;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,59 +20,59 @@ import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-@Decree(name = "default", origin = DecreeOrigin.BOTH, description = "Reset configs to defaults")
-public class CommandDefault implements DecreeExecutor {
+@Director(name = "default", origin = DirectorOrigin.BOTH, description = "Reset configs to defaults")
+public class CommandDefault {
 
-    @Decree(description = "Reset a skill config to defaults")
+    @Director(description = "Reset a skill config to defaults")
     public void skill(
         @Param(description = "skill to reset")
         AdaptationListingHandler.SkillProvider skillTarget
     ) {
-        if (!sender().isOp()) {
-            FConst.error("This command can only be run by server operators.").send(sender());
+        if (!BukkitDirectorContext.sender().isOp()) {
+            FConst.error("This command can only be run by server operators.").send(BukkitDirectorContext.sender());
             return;
         }
 
         Skill<?> skill = Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(skillTarget.name());
         if (skill == null) {
-            FConst.error("Unknown skill: " + skillTarget.name()).send(sender());
+            FConst.error("Unknown skill: " + skillTarget.name()).send(BukkitDirectorContext.sender());
             return;
         }
 
         if (!(skill instanceof SimpleSkill<?> simpleSkill)) {
-            FConst.error("Skill " + skill.getName() + " does not support config reset.").send(sender());
+            FConst.error("Skill " + skill.getName() + " does not support config reset.").send(BukkitDirectorContext.sender());
             return;
         }
 
         File configFile = Adapt.instance.getDataFile("adapt", "skills", skill.getName() + ".toml");
         if (configFile.exists() && !configFile.delete()) {
-            FConst.error("Failed to delete config file for " + skill.getName()).send(sender());
+            FConst.error("Failed to delete config file for " + skill.getName()).send(BukkitDirectorContext.sender());
             return;
         }
 
         simpleSkill.reloadConfigFromDisk(false);
-        FConst.success("Reset config for skill " + skill.getName() + " to defaults.").send(sender());
+        FConst.success("Reset config for skill " + skill.getName() + " to defaults.").send(BukkitDirectorContext.sender());
     }
 
-    @Decree(description = "Reset an adaptation config to defaults")
+    @Director(description = "Reset an adaptation config to defaults")
     public void adaptation(
         @Param(description = "adaptation to reset (skill:adaptation)")
         AdaptationListingHandler.AdaptationProvider adaptationTarget
     ) {
-        if (!sender().isOp()) {
-            FConst.error("This command can only be run by server operators.").send(sender());
+        if (!BukkitDirectorContext.sender().isOp()) {
+            FConst.error("This command can only be run by server operators.").send(BukkitDirectorContext.sender());
             return;
         }
 
         String[] split = adaptationTarget.name().split(":");
         if (split.length != 2) {
-            FConst.error("Invalid format. Use skill:adaptation").send(sender());
+            FConst.error("Invalid format. Use skill:adaptation").send(BukkitDirectorContext.sender());
             return;
         }
 
         Skill<?> skill = Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(split[0]);
         if (skill == null) {
-            FConst.error("Unknown skill: " + split[0]).send(sender());
+            FConst.error("Unknown skill: " + split[0]).send(BukkitDirectorContext.sender());
             return;
         }
 
@@ -85,29 +85,29 @@ public class CommandDefault implements DecreeExecutor {
         }
 
         if (adaptation == null) {
-            FConst.error("Unknown adaptation: " + split[1] + " in skill " + skill.getName()).send(sender());
+            FConst.error("Unknown adaptation: " + split[1] + " in skill " + skill.getName()).send(BukkitDirectorContext.sender());
             return;
         }
 
         if (!(adaptation instanceof SimpleAdaptation<?> simpleAdaptation)) {
-            FConst.error("Adaptation " + adaptation.getName() + " does not support config reset.").send(sender());
+            FConst.error("Adaptation " + adaptation.getName() + " does not support config reset.").send(BukkitDirectorContext.sender());
             return;
         }
 
         File configFile = Adapt.instance.getDataFile("adapt", "adaptations", adaptation.getName() + ".toml");
         if (configFile.exists() && !configFile.delete()) {
-            FConst.error("Failed to delete config file for " + adaptation.getName()).send(sender());
+            FConst.error("Failed to delete config file for " + adaptation.getName()).send(BukkitDirectorContext.sender());
             return;
         }
 
         simpleAdaptation.reloadConfigFromDisk(false);
-        FConst.success("Reset config for adaptation " + adaptation.getName() + " to defaults.").send(sender());
+        FConst.success("Reset config for adaptation " + adaptation.getName() + " to defaults.").send(BukkitDirectorContext.sender());
     }
 
-    @Decree(description = "Reset ALL configs to defaults and archive the old settings")
+    @Director(description = "Reset ALL configs to defaults and archive the old settings")
     public void all() {
-        if (!sender().isOp()) {
-            FConst.error("This command can only be run by server operators.").send(sender());
+        if (!BukkitDirectorContext.sender().isOp()) {
+            FConst.error("This command can only be run by server operators.").send(BukkitDirectorContext.sender());
             return;
         }
 
@@ -178,8 +178,8 @@ public class CommandDefault implements DecreeExecutor {
             }
         }
 
-        FConst.success("Archived " + archived + " config files to config-archive/" + timestamp + "/").send(sender());
-        FConst.success("Reset " + reset + " configs to defaults.").send(sender());
+        FConst.success("Archived " + archived + " config files to config-archive/" + timestamp + "/").send(BukkitDirectorContext.sender());
+        FConst.success("Reset " + reset + " configs to defaults.").send(BukkitDirectorContext.sender());
     }
 
     private boolean archiveFile(File source, File destination) {

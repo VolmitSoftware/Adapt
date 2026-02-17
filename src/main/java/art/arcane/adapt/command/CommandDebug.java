@@ -4,34 +4,34 @@ import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.util.command.FConst;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
-import art.arcane.adapt.util.decree.DecreeExecutor;
-import art.arcane.volmlib.util.decree.DecreeOrigin;
-import art.arcane.volmlib.util.decree.annotations.Decree;
-import art.arcane.volmlib.util.decree.annotations.Param;
+import art.arcane.volmlib.util.director.compat.BukkitDirectorContext;
+import art.arcane.volmlib.util.director.DirectorOrigin;
+import art.arcane.volmlib.util.director.annotations.Director;
+import art.arcane.volmlib.util.director.annotations.Param;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 import java.util.List;
 
-@Decree(name = "debug", origin = DecreeOrigin.BOTH, description = "Adapt Debug Command", aliases = {"dev"})
-public class CommandDebug implements DecreeExecutor {
+@Director(name = "debug", origin = DirectorOrigin.BOTH, description = "Adapt Debug Command", aliases = {"dev"})
+public class CommandDebug {
 
-    @Decree(description = "Toggle verbose mode")
+    @Director(description = "Toggle verbose mode")
     public void verbose() {
-        if (!sender().hasPermission("adapt.idontknowwhatimdoingiswear")) {
-            FConst.error("You lack the Permission 'adapt.idontknowwhatimdoingiswear'").send(sender());
+        if (!BukkitDirectorContext.hasPermission("adapt.idontknowwhatimdoingiswear")) {
+            FConst.error("You lack the Permission 'adapt.idontknowwhatimdoingiswear'").send(BukkitDirectorContext.sender());
             return;
         }
 
         AdaptConfig.get().setVerbose(!AdaptConfig.get().isVerbose());
-        FConst.success("Verbose is now " + (AdaptConfig.get().isVerbose() ? "enabled" : "disabled")).send(sender());
+        FConst.success("Verbose is now " + (AdaptConfig.get().isVerbose() ? "enabled" : "disabled")).send(BukkitDirectorContext.sender());
     }
 
-    @Decree(name = "pap", description = "Generate Perms for Adaptations!")
+    @Director(name = "pap", description = "Generate Perms for Adaptations!")
     public void pap() {
-        if (!sender().hasPermission("adapt.idontknowwhatimdoingiswear")) {
-            FConst.error("You lack the Permission 'adapt.idontknowwhatimdoingiswear'").send(sender());
+        if (!BukkitDirectorContext.hasPermission("adapt.idontknowwhatimdoingiswear")) {
+            FConst.error("You lack the Permission 'adapt.idontknowwhatimdoingiswear'").send(BukkitDirectorContext.sender());
             return;
         }
 
@@ -42,13 +42,13 @@ public class CommandDebug implements DecreeExecutor {
                         .replaceAll("-", ""))
                 .append("\n")));
         Adapt.info("Permissions: \n" + builder);
-        FConst.success("Permissions have been printed to console.").send(sender());
+        FConst.success("Permissions have been printed to console.").send(BukkitDirectorContext.sender());
     }
 
-    @Decree(name = "psp", description = "Generate Perms for Skills!")
+    @Director(name = "psp", description = "Generate Perms for Skills!")
     public void psp() {
-        if (!sender().hasPermission("adapt.idontknowwhatimdoingiswear")) {
-            FConst.error("You lack the Permission 'adapt.idontknowwhatimdoingiswear'").send(sender());
+        if (!BukkitDirectorContext.hasPermission("adapt.idontknowwhatimdoingiswear")) {
+            FConst.error("You lack the Permission 'adapt.idontknowwhatimdoingiswear'").send(BukkitDirectorContext.sender());
             return;
         }
 
@@ -59,55 +59,55 @@ public class CommandDebug implements DecreeExecutor {
                         .replaceAll("-", ""))
                 .append("\n"));
         Adapt.info("Permissions: \n" + builder);
-        FConst.success("Permissions have been printed to console.").send(sender());
+        FConst.success("Permissions have been printed to console.").send(BukkitDirectorContext.sender());
     }
 
-    @Decree(name = "particle", origin = DecreeOrigin.PLAYER, description = "Summon a particle in front of you for testing!")
+    @Director(name = "particle", origin = DirectorOrigin.PLAYER, description = "Summon a particle in front of you for testing!")
     public void particle(@Param Particle particle) {
-        if (!sender().hasPermission("adapt.idontknowwhatimdoingiswear")) {
-            FConst.error("You lack the Permission 'adapt.idontknowwhatimdoingiswear'").send(sender());
+        if (!BukkitDirectorContext.hasPermission("adapt.idontknowwhatimdoingiswear")) {
+            FConst.error("You lack the Permission 'adapt.idontknowwhatimdoingiswear'").send(BukkitDirectorContext.sender());
             return;
         }
 
-        Player player = player();
+        Player player = BukkitDirectorContext.player();
         player.spawnParticle(particle, player.getLocation(), 10, 10);
     }
 
-    @Decree(name = "particle", origin = DecreeOrigin.PLAYER, description = "Summon a particle in front of you for testing!")
+    @Director(name = "particle", origin = DirectorOrigin.PLAYER, description = "Summon a particle in front of you for testing!")
     public void particle(@Param Sound sound) {
-        if (!sender().hasPermission("adapt.idontknowwhatimdoingiswear")) {
-            FConst.error("You lack the Permission 'adapt.idontknowwhatimdoingiswear'").send(sender());
+        if (!BukkitDirectorContext.hasPermission("adapt.idontknowwhatimdoingiswear")) {
+            FConst.error("You lack the Permission 'adapt.idontknowwhatimdoingiswear'").send(BukkitDirectorContext.sender());
             return;
         }
 
-        SoundPlayer sp = SoundPlayer.of(player());
-        sp.play(player().getLocation(), sound, 1, 1);
+        SoundPlayer sp = SoundPlayer.of(BukkitDirectorContext.player());
+        sp.play(BukkitDirectorContext.player().getLocation(), sound, 1, 1);
     }
 
-    @Decree(description = "Show Adapt ticker hotspots")
+    @Director(description = "Show Adapt ticker hotspots")
     public void perf(
             @Param(description = "Top results to print", defaultValue = "12")
             int top,
             @Param(description = "Reset metrics after printing", defaultValue = "false")
             boolean reset
     ) {
-        if (!sender().hasPermission("adapt.idontknowwhatimdoingiswear")) {
-            FConst.error("You lack the Permission 'adapt.idontknowwhatimdoingiswear'").send(sender());
+        if (!BukkitDirectorContext.hasPermission("adapt.idontknowwhatimdoingiswear")) {
+            FConst.error("You lack the Permission 'adapt.idontknowwhatimdoingiswear'").send(BukkitDirectorContext.sender());
             return;
         }
 
         List<String> lines = Adapt.instance.getTicker().topMetrics(top);
         long windowMs = Adapt.instance.getTicker().getMetricsWindowMs();
-        FConst.success("Ticker window: " + windowMs + "ms").send(sender());
+        FConst.success("Ticker window: " + windowMs + "ms").send(BukkitDirectorContext.sender());
         if (lines.isEmpty()) {
-            FConst.success("No tick metrics collected yet.").send(sender());
+            FConst.success("No tick metrics collected yet.").send(BukkitDirectorContext.sender());
         } else {
-            lines.forEach(line -> FConst.info(line).send(sender()));
+            lines.forEach(line -> FConst.info(line).send(BukkitDirectorContext.sender()));
         }
 
         if (reset) {
             Adapt.instance.getTicker().resetMetrics();
-            FConst.success("Ticker metrics reset.").send(sender());
+            FConst.success("Ticker metrics reset.").send(BukkitDirectorContext.sender());
         }
     }
 }

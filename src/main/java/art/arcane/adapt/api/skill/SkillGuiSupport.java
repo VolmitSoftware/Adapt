@@ -26,16 +26,17 @@ import art.arcane.adapt.api.xp.XP;
 import art.arcane.adapt.content.gui.SkillsGui;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.inventorygui.Element;
+import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.adapt.util.common.inventorygui.GuiEffects;
 import art.arcane.adapt.util.common.inventorygui.GuiLayout;
 import art.arcane.adapt.util.common.inventorygui.GuiTheme;
-import art.arcane.adapt.util.common.inventorygui.UIElement;
-import art.arcane.adapt.util.common.inventorygui.UIWindow;
-import art.arcane.adapt.util.common.inventorygui.Window;
-import art.arcane.adapt.util.common.math.MaterialBlock;
+import art.arcane.volmlib.util.inventorygui.UIWindow;
+import art.arcane.volmlib.util.inventorygui.UIElement;
+import art.arcane.volmlib.util.inventorygui.Window;
+import art.arcane.volmlib.util.data.MaterialBlock;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
+import art.arcane.volmlib.util.format.ColorFormatter;
 import art.arcane.volmlib.util.format.Form;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -145,7 +146,7 @@ final class SkillGuiSupport {
         int start = currentPage * plan.itemsPerPage();
         int end = Math.min(visibleAdaptations.size(), start + plan.itemsPerPage());
 
-        Window window = new UIWindow(player);
+        UIWindow window = new UIWindow(Adapt.instance, player);
         GuiTheme.apply(window, "skill/" + skill.getName());
         window.setViewportHeight(plan.rows());
 
@@ -168,7 +169,7 @@ final class SkillGuiSupport {
                     int pos = GuiLayout.centeredPosition(i, rowCount);
                     Element element = new UIElement("ada-" + adaptation.getName())
                             .setMaterial(new MaterialBlock(adaptation.getIcon()))
-                            .setModel(adaptation.getModel())
+                            .setBaseItemStack(adaptation.getModel().toItemStack())
                             .setName(adaptation.getDisplayName(level))
                             .addLore(Form.wrapWordsPrefixed(adaptation.getDescription(), "" + C.GRAY, 45))
                             .addLore(level == 0 ? (C.DARK_GRAY + Localizer.dLocalize("snippets.gui.not_learned")) : (C.GRAY + Localizer.dLocalize("snippets.gui.level") + " " + C.WHITE + Form.toRoman(level)))
@@ -251,7 +252,7 @@ final class SkillGuiSupport {
             return "";
         }
 
-        String normalized = C.stripColor(value).toLowerCase(Locale.ROOT).trim();
+        String normalized = ColorFormatter.stripColor(value).toLowerCase(Locale.ROOT).trim();
         return normalized.replaceFirst("^[^\\p{L}\\p{N}]+", "");
     }
 

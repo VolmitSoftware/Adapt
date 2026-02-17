@@ -24,8 +24,14 @@ import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.inventorygui.*;
-import art.arcane.adapt.util.common.math.MaterialBlock;
+import art.arcane.volmlib.util.inventorygui.UIElement;
+import art.arcane.volmlib.util.inventorygui.UIWindow;
+import art.arcane.adapt.util.common.inventorygui.GuiEffects;
+import art.arcane.adapt.util.common.inventorygui.GuiLayout;
+import art.arcane.adapt.util.common.inventorygui.GuiTheme;
+import art.arcane.volmlib.util.inventorygui.Element;
+import art.arcane.volmlib.util.inventorygui.Window;
+import art.arcane.volmlib.util.data.MaterialBlock;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
@@ -199,7 +205,7 @@ final class AdaptationGuiSupport {
 
         long k = adaptation.getPlayer(player).getData().getSkillLine(adaptation.getSkill().getName()).getKnowledge();
 
-        Window w = new UIWindow(player);
+        UIWindow w = new UIWindow(Adapt.instance, player);
         GuiTheme.apply(w, "skill/" + adaptation.getSkill().getName() + "/" + adaptation.getName());
         w.setViewportHeight(plan.rows());
 
@@ -220,7 +226,7 @@ final class AdaptationGuiSupport {
                 boolean pendingPermanentConfirm = isPermanentLearnConfirmationPending(player, adaptation, lvl);
                 Element de = new UIElement("lp-" + lvl + "g")
                         .setMaterial(new MaterialBlock(adaptation.getIcon()))
-                        .setModel(adaptation.getModel(lvl))
+                        .setBaseItemStack(adaptation.getModel(lvl).toItemStack())
                         .setName(adaptation.getDisplayName(lvl))
                         .setEnchanted(mylevel >= lvl)
                         .setProgress(1D)

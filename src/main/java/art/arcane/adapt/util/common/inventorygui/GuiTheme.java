@@ -1,6 +1,10 @@
 package art.arcane.adapt.util.common.inventorygui;
 
-import art.arcane.adapt.util.common.math.MaterialBlock;
+import art.arcane.volmlib.util.data.MaterialBlock;
+import art.arcane.volmlib.util.inventorygui.UIElement;
+import art.arcane.volmlib.util.inventorygui.UIWindow;
+import art.arcane.volmlib.util.inventorygui.Window;
+import art.arcane.volmlib.util.inventorygui.WindowResolution;
 import org.bukkit.Material;
 
 public final class GuiTheme {

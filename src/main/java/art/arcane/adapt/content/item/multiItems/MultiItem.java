@@ -20,7 +20,7 @@ package art.arcane.adapt.content.item.multiItems;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.nms.NMS;
-import art.arcane.adapt.util.common.inventorygui.WindowResolution;
+import art.arcane.volmlib.util.inventorygui.WindowResolution;
 import art.arcane.adapt.util.common.io.BukkitGson;
 import art.arcane.volmlib.util.collection.KList;
 import lombok.*;

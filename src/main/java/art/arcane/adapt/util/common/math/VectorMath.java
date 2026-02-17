@@ -18,8 +18,8 @@
 
 package art.arcane.adapt.util.common.math;
 
-import art.arcane.adapt.util.common.collection.GListAdapter;
 import art.arcane.volmlib.util.format.Form;
+import art.arcane.volmlib.util.collection.GListAdapter;
 import art.arcane.volmlib.util.math.CDou;
 import org.bukkit.Axis;
 import org.bukkit.Bukkit;

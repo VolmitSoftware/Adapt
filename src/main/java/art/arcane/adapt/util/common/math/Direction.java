@@ -18,8 +18,8 @@
 
 package art.arcane.adapt.util.common.math;
 
-import art.arcane.adapt.util.common.collection.GBiset;
 import art.arcane.volmlib.util.data.Cuboid.CuboidDirection;
+import art.arcane.volmlib.util.collection.GBiset;
 import art.arcane.volmlib.util.math.DOP;
 import org.bukkit.Axis;
 import org.bukkit.block.BlockFace;

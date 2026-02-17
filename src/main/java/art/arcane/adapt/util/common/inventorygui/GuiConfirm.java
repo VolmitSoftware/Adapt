@@ -2,8 +2,11 @@ package art.arcane.adapt.util.common.inventorygui;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.math.MaterialBlock;
 import art.arcane.adapt.util.common.scheduling.J;
+import art.arcane.volmlib.util.data.MaterialBlock;
+import art.arcane.volmlib.util.inventorygui.UIElement;
+import art.arcane.volmlib.util.inventorygui.UIWindow;
+import art.arcane.volmlib.util.inventorygui.Window;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
@@ -27,7 +30,7 @@ public final class GuiConfirm {
             return;
         }
 
-        Window w = new UIWindow(player);
+        UIWindow w = new UIWindow(Adapt.instance, player);
         GuiTheme.apply(w, "confirm");
         w.setViewportHeight(3);
 

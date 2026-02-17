@@ -11,7 +11,7 @@ import art.arcane.adapt.content.gui.ConfigGui;
 import art.arcane.adapt.content.gui.SkillsGui;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.inventorygui.Window;
+import art.arcane.volmlib.util.inventorygui.UIWindow;
 import art.arcane.adapt.util.common.io.Json;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.plugin.AdaptService;
@@ -29,7 +29,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.util.*;
 
-import static art.arcane.adapt.util.decree.context.AdaptationListingHandler.initializeAdaptationListings;
+import static art.arcane.adapt.util.director.context.AdaptationListingHandler.initializeAdaptationListings;
 
 public class HotloadSVC implements AdaptService {
     private static final long WATCHER_POLL_MS = 500;
@@ -423,10 +423,10 @@ public class HotloadSVC implements AdaptService {
 
     private void refreshOpenAdaptGuis() {
         J.s(() -> {
-            Map<String, Window> open = new HashMap<>(Adapt.instance.getGuiLeftovers());
-            for (Map.Entry<String, Window> entry : open.entrySet()) {
+            Map<String, UIWindow> open = new HashMap<>(Adapt.instance.getGuiLeftovers());
+            for (Map.Entry<String, UIWindow> entry : open.entrySet()) {
                 String playerKey = entry.getKey();
-                Window window = entry.getValue();
+                UIWindow window = entry.getValue();
                 if (window == null) {
                     continue;
                 }

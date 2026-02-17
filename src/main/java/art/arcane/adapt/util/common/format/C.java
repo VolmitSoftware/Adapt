@@ -19,6 +19,7 @@
 package art.arcane.adapt.util.common.format;
 
 import art.arcane.adapt.util.common.plugin.VolmitSender;
+import art.arcane.volmlib.util.format.ColorFormatter;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.apache.commons.lang3.Validate;
@@ -29,7 +30,6 @@ import org.bukkit.DyeColor;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 /**
  * Colors
@@ -254,7 +254,6 @@ public enum C {
      */
     public static final char COLOR_CHAR = '\u00A7';
     public final static C[] COLORCYCLE = new C[]{C.GOLD, C.YELLOW, C.GREEN, C.AQUA, C.LIGHT_PURPLE, C.AQUA, C.GREEN, C.YELLOW, C.GOLD, C.RED};
-    private static final Pattern STRIP_COLOR_PATTERN = Pattern.compile("(?i)" + COLOR_CHAR + "[0-9A-FK-OR]");
     private final static C[] COLORS = new C[]{C.BLACK, C.DARK_BLUE, C.DARK_GREEN, C.DARK_AQUA, C.DARK_RED, C.DARK_PURPLE, C.GOLD, C.GRAY, C.DARK_GRAY, C.BLUE, C.GREEN, C.AQUA, C.RED, C.LIGHT_PURPLE, C.YELLOW, C.WHITE};
     @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     private final static Map<Integer, C> BY_ID = new HashMap<>();
@@ -463,11 +462,7 @@ public enum C {
      * @return A copy of the input string, without any coloring
      */
     public static String stripColor(final String input) {
-        if (input == null) {
-            return null;
-        }
-
-        return STRIP_COLOR_PATTERN.matcher(input).replaceAll("");
+        return ColorFormatter.stripColor(input);
     }
 
     /**
@@ -578,18 +573,7 @@ public enum C {
      * @return Text containing the ChatColor.COLOR_CODE color code character.
      */
     public static String translateAlternateColorCodes(char altColorChar, String textToTranslate) {
-        if (textToTranslate == null) {
-            return null;
-        }
-
-        char[] b = textToTranslate.toCharArray();
-        for (int i = 0; i < b.length - 1; i++) {
-            if (b[i] == altColorChar && "0123456789AaBbCcDdEeFfKkLlMmNnOoRr".indexOf(b[i + 1]) > -1) {
-                b[i] = C.COLOR_CHAR;
-                b[i + 1] = Character.toLowerCase(b[i + 1]);
-            }
-        }
-        return new String(b);
+        return ColorFormatter.translateAlternateColorCodes(altColorChar, textToTranslate);
     }
 
     public static C fromItemMeta(byte c) {
@@ -613,28 +597,7 @@ public enum C {
      * @return Any remaining ChatColors to pass onto the next line.
      */
     public static String getLastColors(String input) {
-        StringBuilder result = new StringBuilder();
-        int length = input.length();
-
-        // Search backwards from the end as it is faster
-        for (int index = length - 1; index > -1; index--) {
-            char section = input.charAt(index);
-            if (section == COLOR_CHAR && index < length - 1) {
-                char c = input.charAt(index + 1);
-                C color = getByChar(c);
-
-                if (color != null) {
-                    result.insert(0, color);
-
-                    // Once we find a color or reset we can stop searching
-                    if (color.isColor() || color.equals(RESET)) {
-                        break;
-                    }
-                }
-            }
-        }
-
-        return result.toString();
+        return ColorFormatter.getLastColors(input);
     }
 
     public net.md_5.bungee.api.ChatColor asBungee() {

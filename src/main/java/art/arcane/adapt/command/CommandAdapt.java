@@ -14,12 +14,12 @@ import art.arcane.adapt.content.item.ExperienceOrb;
 import art.arcane.adapt.content.item.KnowledgeOrb;
 import art.arcane.adapt.util.command.FConst;
 import art.arcane.adapt.util.config.ConfigMigrationManager;
-import art.arcane.adapt.util.decree.DecreeExecutor;
-import art.arcane.adapt.util.decree.context.AdaptationListingHandler;
-import art.arcane.adapt.util.decree.specialhandlers.NullablePlayerHandler;
-import art.arcane.volmlib.util.decree.DecreeOrigin;
-import art.arcane.volmlib.util.decree.annotations.Decree;
-import art.arcane.volmlib.util.decree.annotations.Param;
+import art.arcane.volmlib.util.director.compat.BukkitDirectorContext;
+import art.arcane.adapt.util.director.context.AdaptationListingHandler;
+import art.arcane.adapt.util.director.specialhandlers.NullablePlayerHandler;
+import art.arcane.volmlib.util.director.DirectorOrigin;
+import art.arcane.volmlib.util.director.annotations.Director;
+import art.arcane.volmlib.util.director.annotations.Param;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
@@ -27,14 +27,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
-@Decree(name = "adapt", description = "Basic Command")
-public class CommandAdapt implements DecreeExecutor {
+@Director(name = "adapt", description = "Basic Command")
+public class CommandAdapt {
     private CommandDebug debug;
     private CommandClear clear;
     private CommandReset reset;
     private CommandDefault defaults;
 
-    @Decree(description = "Boost Target player Experience gain.")
+    @Director(description = "Boost Target player Experience gain.")
     public void boost(
         @Param(aliases = "seconds", description = "Amount of seconds", defaultValue = "10")
         int seconds,
@@ -43,45 +43,45 @@ public class CommandAdapt implements DecreeExecutor {
         @Param(description = "player", defaultValue = "---", customHandler = NullablePlayerHandler.class)
         Player player
     ) {
-        if (!sender().hasPermission("adapt.boost")) {
-            FConst.error("You lack the Permission 'adapt.boost'").send(sender());
+        if (!BukkitDirectorContext.hasPermission("adapt.boost")) {
+            FConst.error("You lack the Permission 'adapt.boost'").send(BukkitDirectorContext.sender());
             return;
         }
 
         Player targetPlayer = player;
-        if (targetPlayer == null && sender().isConsole()) {
-            FConst.error("You must specify a player when using this command from console.").send(sender());
+        if (targetPlayer == null && BukkitDirectorContext.isConsole()) {
+            FConst.error("You must specify a player when using this command from console.").send(BukkitDirectorContext.sender());
             return;
         } else if (targetPlayer == null) {
-            targetPlayer = player();
+            targetPlayer = BukkitDirectorContext.player();
         }
 
         AdaptServer adaptServer = Adapt.instance.getAdaptServer();
         PlayerData playerData = adaptServer.getPlayer(targetPlayer).getData();
         playerData.globalXPMultiplier(multiplier, seconds * 1000);
 
-        FConst.success("Boosted XP by " + multiplier + " for " + seconds + " seconds").send(sender());
+        FConst.success("Boosted XP by " + multiplier + " for " + seconds + " seconds").send(BukkitDirectorContext.sender());
     }
 
-    @Decree(description = "Boost Global Experience gain.", name = "global-boost")
+    @Director(description = "Boost Global Experience gain.", name = "global-boost")
     public void globalBoost(
             @Param(aliases = "seconds", description = "Amount of seconds", defaultValue = "10")
             int seconds,
             @Param(aliases = "multiplier", description = "Strength of the boost ", defaultValue = "10")
             double multiplier
     ) {
-        if (!sender().hasPermission("adapt.boost.global")) {
-            FConst.error("You lack the Permission 'adapt.boost.global'").send(sender());
+        if (!BukkitDirectorContext.hasPermission("adapt.boost.global")) {
+            FConst.error("You lack the Permission 'adapt.boost.global'").send(BukkitDirectorContext.sender());
             return;
         }
 
         AdaptServer adaptServer = Adapt.instance.getAdaptServer();
         adaptServer.boostXP(multiplier, seconds * 1000);
 
-        FConst.success("Boosted XP by " + multiplier + " for " + seconds + " seconds").send(sender());
+        FConst.success("Boosted XP by " + multiplier + " for " + seconds + " seconds").send(BukkitDirectorContext.sender());
     }
 
-    @Decree(description = "Open the Adapt GUI")
+    @Director(description = "Open the Adapt GUI")
     public void gui(
         @Param(aliases = "target", defaultValue = "[Main]")
         AdaptationListingHandler.AdaptationList guiTarget,
@@ -90,17 +90,17 @@ public class CommandAdapt implements DecreeExecutor {
         @Param(aliases = "force", defaultValue = "false")
         boolean force
     ) {
-        if (!sender().hasPermission("adapt.gui")) {
-            FConst.error("You lack the Permission 'adapt.gui'").send(sender());
+        if (!BukkitDirectorContext.hasPermission("adapt.gui")) {
+            FConst.error("You lack the Permission 'adapt.gui'").send(BukkitDirectorContext.sender());
             return;
         }
 
         Player targetPlayer = player;
-        if (targetPlayer == null && sender().isConsole()) {
-            FConst.error("You must specify a player when using this command from console.").send(sender());
+        if (targetPlayer == null && BukkitDirectorContext.isConsole()) {
+            FConst.error("You must specify a player when using this command from console.").send(BukkitDirectorContext.sender());
             return;
         } else if (targetPlayer == null) {
-            targetPlayer = player();
+            targetPlayer = BukkitDirectorContext.player();
         }
 
         if (guiTarget.equals("[Main]")) {
@@ -112,9 +112,9 @@ public class CommandAdapt implements DecreeExecutor {
             for (Skill<?> skill : SkillRegistry.skills.sortV()) {
                 if (guiTarget.equals("[Skill]-" + skill.getName())) {
                     if (force || skill.openGui(targetPlayer, true)) {
-                        FConst.success("Opened GUI for " + skill.getName() + " for " + targetPlayer.getName()).send(sender());
+                        FConst.success("Opened GUI for " + skill.getName() + " for " + targetPlayer.getName()).send(BukkitDirectorContext.sender());
                     } else {
-                        FConst.error("Failed to open GUI for " + skill.getName() + " for " + targetPlayer.getName() + " - No Permission, remove from blacklist!").send(sender());
+                        FConst.error("Failed to open GUI for " + skill.getName() + " for " + targetPlayer.getName() + " - No Permission, remove from blacklist!").send(BukkitDirectorContext.sender());
                     }
                     return;
                 }
@@ -129,9 +129,9 @@ public class CommandAdapt implements DecreeExecutor {
                     }
                     if (guiTarget.equals("[Adaptation]-" + adaptation.getName())) {
                         if (force || adaptation.openGui(targetPlayer, true)) {
-                            FConst.success("Opened GUI for " + adaptation.getName() + " for " + targetPlayer.getName()).send(sender());
+                            FConst.success("Opened GUI for " + adaptation.getName() + " for " + targetPlayer.getName()).send(BukkitDirectorContext.sender());
                         } else {
-                            FConst.error("Failed to open GUI for " + adaptation.getName() + " for " + targetPlayer.getName() + " - No Permission, remove from blacklist!").send(sender());
+                            FConst.error("Failed to open GUI for " + adaptation.getName() + " for " + targetPlayer.getName() + " - No Permission, remove from blacklist!").send(BukkitDirectorContext.sender());
                         }
                         return;
                     }
@@ -140,17 +140,17 @@ public class CommandAdapt implements DecreeExecutor {
         }
     }
 
-    @Decree(name = "configure", aliases = {"config", "cfg"}, origin = DecreeOrigin.PLAYER, description = "Open the in-game Adapt config editor")
+    @Director(name = "configure", aliases = {"config", "cfg"}, origin = DirectorOrigin.PLAYER, description = "Open the in-game Adapt config editor")
     public void configure() {
-        if (!ConfigGui.canConfigure(player())) {
-            FConst.error("You need operator status or the permission 'adapt.configurator'").send(sender());
+        if (!ConfigGui.canConfigure(BukkitDirectorContext.player())) {
+            FConst.error("You need operator status or the permission 'adapt.configurator'").send(BukkitDirectorContext.sender());
             return;
         }
 
-        ConfigGui.open(player());
+        ConfigGui.open(BukkitDirectorContext.player());
     }
 
-    @Decree(description = "Give yourself an experience orb")
+    @Director(description = "Give yourself an experience orb")
     public void experience(
         @Param(aliases = "skill")
         AdaptationListingHandler.AdaptationSkillList skillName,
@@ -160,18 +160,18 @@ public class CommandAdapt implements DecreeExecutor {
         Player player
 
     ) {
-        if (!sender().hasPermission("adapt.cheatitem")) {
-            FConst.error("You lack the Permission 'adapt.cheatitem'").send(sender());
+        if (!BukkitDirectorContext.hasPermission("adapt.cheatitem")) {
+            FConst.error("You lack the Permission 'adapt.cheatitem'").send(BukkitDirectorContext.sender());
             return;
         }
 
         Player targetPlayer = player;
 
         if (targetPlayer == null) {
-            if (sender().isPlayer()) {
-                targetPlayer = player();
+            if (BukkitDirectorContext.isPlayer()) {
+                targetPlayer = BukkitDirectorContext.player();
             } else {
-                FConst.error("You must be a player to use this command, or Reference a player").send(sender());
+                FConst.error("You must be a player to use this command, or Reference a player").send(BukkitDirectorContext.sender());
                 return;
             }
         }
@@ -182,30 +182,30 @@ public class CommandAdapt implements DecreeExecutor {
                 experienceMap.put(skill.getName(), (double) amount);
             }
             targetPlayer.getInventory().addItem(ExperienceOrb.with(experienceMap));
-            FConst.success("Giving all orbs").send(sender());
+            FConst.success("Giving all orbs").send(BukkitDirectorContext.sender());
             return;
         }
 
         if (skillName.equals("[random]")) {
             List<Skill<?>> skills = allSkillSnapshot();
             if (skills.isEmpty()) {
-                FConst.error("No skills are registered.").send(sender());
+                FConst.error("No skills are registered.").send(BukkitDirectorContext.sender());
                 return;
             }
 
             targetPlayer.getInventory().addItem(ExperienceOrb.with(skills.get(ThreadLocalRandom.current().nextInt(skills.size())).getName(), amount));
-            FConst.success("Giving random orb").send(sender());
+            FConst.success("Giving random orb").send(BukkitDirectorContext.sender());
             return;
         }
 
         Skill<?> skill = Adapt.instance.getAdaptServer().getSkillRegistry().getAnySkill(skillName.name());
         if (skill != null) {
             targetPlayer.getInventory().addItem(ExperienceOrb.with(skill.getName(), amount));
-            FConst.success("Giving " + skill.getName() + " orb").send(sender());
+            FConst.success("Giving " + skill.getName() + " orb").send(BukkitDirectorContext.sender());
         }
     }
 
-    @Decree(description = "Give yourself a knowledge orb")
+    @Director(description = "Give yourself a knowledge orb")
     public void knowledge(
         @Param(aliases = "skill")
         AdaptationListingHandler.AdaptationSkillList skillName,
@@ -214,17 +214,17 @@ public class CommandAdapt implements DecreeExecutor {
         @Param(aliases = "player", defaultValue = "---", customHandler = NullablePlayerHandler.class)
         Player player
     ) {
-        if (!sender().hasPermission("adapt.cheatitem")) {
-            FConst.error("You lack the Permission 'adapt.cheatitem'").send(sender());
+        if (!BukkitDirectorContext.hasPermission("adapt.cheatitem")) {
+            FConst.error("You lack the Permission 'adapt.cheatitem'").send(BukkitDirectorContext.sender());
             return;
         }
         Player targetPlayer = player;
 
         if(targetPlayer == null){
-            if (sender().isPlayer()) {
-                targetPlayer = player();
+            if (BukkitDirectorContext.isPlayer()) {
+                targetPlayer = BukkitDirectorContext.player();
             } else {
-                FConst.error("You must be a player to use this command").send(sender());
+                FConst.error("You must be a player to use this command").send(BukkitDirectorContext.sender());
                 return;
             }
         }
@@ -235,30 +235,30 @@ public class CommandAdapt implements DecreeExecutor {
                 knowledgeMap.put(skill.getName(), amount);
             }
             targetPlayer.getInventory().addItem(KnowledgeOrb.with(knowledgeMap));
-            FConst.success("Giving all orbs").send(sender());
+            FConst.success("Giving all orbs").send(BukkitDirectorContext.sender());
             return;
         }
 
         if (skillName.equals("[random]")){
             List<Skill<?>> skills = allSkillSnapshot();
             if (skills.isEmpty()) {
-                FConst.error("No skills are registered.").send(sender());
+                FConst.error("No skills are registered.").send(BukkitDirectorContext.sender());
                 return;
             }
 
             targetPlayer.getInventory().addItem(KnowledgeOrb.with(skills.get(ThreadLocalRandom.current().nextInt(skills.size())).getName(), amount));
-            FConst.success("Giving random orb").send(sender());
+            FConst.success("Giving random orb").send(BukkitDirectorContext.sender());
             return;
         }
 
         Skill<?> skill = Adapt.instance.getAdaptServer().getSkillRegistry().getAnySkill(skillName.name());
         if(skill != null){
             targetPlayer.getInventory().addItem(KnowledgeOrb.with(skill.getName(), amount));
-            FConst.success("Giving " + skill.getName() + " orb").send(sender());
+            FConst.success("Giving " + skill.getName() + " orb").send(BukkitDirectorContext.sender());
         }
     }
 
-    @Decree(description = "Assign a skill, or UnAssign a skill as if you are learning / unlearning a skill.")
+    @Director(description = "Assign a skill, or UnAssign a skill as if you are learning / unlearning a skill.")
     public void determine(
         @Param(aliases = "adaptationTarget")
         AdaptationListingHandler.AdaptationProvider adaptationTarget,
@@ -272,16 +272,16 @@ public class CommandAdapt implements DecreeExecutor {
         Player player
 
     ) {
-        if (!sender().hasPermission("adapt.determine")) {
-            FConst.error("You lack the Permission 'adapt.determine'").send(sender());
+        if (!BukkitDirectorContext.hasPermission("adapt.determine")) {
+            FConst.error("You lack the Permission 'adapt.determine'").send(BukkitDirectorContext.sender());
             return;
         }
 
         Player targetPlayer = player;
-        if (targetPlayer == null && sender().isConsole()) {
-            FConst.error("You must specify a player when using this command from console.").send(sender());
+        if (targetPlayer == null && BukkitDirectorContext.isConsole()) {
+            FConst.error("You must specify a player when using this command from console.").send(BukkitDirectorContext.sender());
         } else if (targetPlayer == null) {
-            targetPlayer = player();
+            targetPlayer = BukkitDirectorContext.player();
         }
 
         //the format is skillname:adaptationname
@@ -300,7 +300,7 @@ public class CommandAdapt implements DecreeExecutor {
                                 adaptation.unlearn(player, level, force);
                             }
                         } else {
-                            FConst.error("You must specify a player when using this command from console.").send(sender());
+                            FConst.error("You must specify a player when using this command from console.").send(BukkitDirectorContext.sender());
                         }
                         return;
                     }
@@ -310,15 +310,15 @@ public class CommandAdapt implements DecreeExecutor {
         }
     }
 
-    @Decree(name = "migrate-configs", description = "Force migrate and rewrite all skill/adaptation configs to canonical TOML with comments.")
+    @Director(name = "migrate-configs", description = "Force migrate and rewrite all skill/adaptation configs to canonical TOML with comments.")
     public void migrateConfigs() {
-        if (!sender().hasPermission("adapt.debug")) {
-            FConst.error("You lack the Permission 'adapt.debug'").send(sender());
+        if (!BukkitDirectorContext.hasPermission("adapt.debug")) {
+            FConst.error("You lack the Permission 'adapt.debug'").send(BukkitDirectorContext.sender());
             return;
         }
 
         if (Adapt.instance.getAdaptServer() == null || Adapt.instance.getAdaptServer().getSkillRegistry() == null) {
-            FConst.error("Adapt server is not ready yet. Try again in a few seconds.").send(sender());
+            FConst.error("Adapt server is not ready yet. Try again in a few seconds.").send(BukkitDirectorContext.sender());
             return;
         }
 
@@ -341,7 +341,7 @@ public class CommandAdapt implements DecreeExecutor {
         }
 
         int deletedLegacyJson = ConfigMigrationManager.deleteMigratedLegacyJsonFiles();
-        FConst.success("Canonicalized TOML configs. skills=" + migratedSkills + ", adaptations=" + migratedAdaptations + ", deletedLegacyJson=" + deletedLegacyJson).send(sender());
+        FConst.success("Canonicalized TOML configs. skills=" + migratedSkills + ", adaptations=" + migratedAdaptations + ", deletedLegacyJson=" + deletedLegacyJson).send(BukkitDirectorContext.sender());
     }
 
     private List<Skill<?>> allSkillSnapshot() {

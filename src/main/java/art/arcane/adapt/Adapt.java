@@ -34,7 +34,7 @@ import art.arcane.adapt.api.world.PlayerDataPersistenceQueue;
 import art.arcane.adapt.content.protector.*;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.inventorygui.Window;
+import art.arcane.volmlib.util.inventorygui.UIWindow;
 import art.arcane.adapt.util.common.io.SQLManager;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.plugin.AdaptService;
@@ -71,7 +71,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.function.Supplier;
 
-import static art.arcane.adapt.util.decree.context.AdaptationListingHandler.initializeAdaptationListings;
+import static art.arcane.adapt.util.director.context.AdaptationListingHandler.initializeAdaptationListings;
 
 public class Adapt extends VolmitPlugin {
     public static Adapt instance;
@@ -92,7 +92,7 @@ public class Adapt extends VolmitPlugin {
     @Getter
     private ProtectorRegistry protectorRegistry;
     @Getter
-    private Map<String, Window> guiLeftovers = new HashMap<>();
+    private Map<String, UIWindow> guiLeftovers = new HashMap<>();
 
     @Getter
     private AdvancementManager manager;

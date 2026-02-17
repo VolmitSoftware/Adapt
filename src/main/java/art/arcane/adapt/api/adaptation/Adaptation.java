@@ -27,7 +27,7 @@ import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.tick.Ticked;
 import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.util.common.inventorygui.Element;
+import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.volmlib.util.math.M;
 import org.bukkit.Location;

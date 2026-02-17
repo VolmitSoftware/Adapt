@@ -26,7 +26,7 @@ import art.arcane.adapt.api.version.IAttribute;
 import art.arcane.adapt.api.version.Version;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.inventorygui.Element;
+import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.adapt.util.common.math.Sphere;
 import art.arcane.adapt.util.common.math.VectorMath;
 import art.arcane.adapt.util.config.ConfigDescription;

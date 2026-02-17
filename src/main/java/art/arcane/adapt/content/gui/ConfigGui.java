@@ -8,8 +8,14 @@ import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.service.ConfigInputSVC;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.inventorygui.*;
-import art.arcane.adapt.util.common.math.MaterialBlock;
+import art.arcane.volmlib.util.inventorygui.UIElement;
+import art.arcane.volmlib.util.inventorygui.UIWindow;
+import art.arcane.adapt.util.common.inventorygui.GuiEffects;
+import art.arcane.adapt.util.common.inventorygui.GuiLayout;
+import art.arcane.adapt.util.common.inventorygui.GuiTheme;
+import art.arcane.volmlib.util.data.MaterialBlock;
+import art.arcane.volmlib.util.inventorygui.Element;
+import art.arcane.volmlib.util.inventorygui.Window;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
@@ -17,6 +23,7 @@ import art.arcane.adapt.util.config.ConfigDocumentation;
 import art.arcane.adapt.util.config.TomlCodec;
 import art.arcane.volmlib.util.io.IO;
 import art.arcane.volmlib.util.math.M;
+import art.arcane.volmlib.util.format.ColorFormatter;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
@@ -337,7 +344,7 @@ public final class ConfigGui {
         return new ElementDescriptor(ElementKind.UNSUPPORTED, false);
     }
 
-    private static UIElement createElementForEntry(Player player, String sectionPath, int currentPage, FieldEntry entry) {
+    private static Element createElementForEntry(Player player, String sectionPath, int currentPage, FieldEntry entry) {
         Material material = materialFor(entry);
         String typePrefix = switch (entry.descriptor().kind()) {
             case BOOLEAN -> C.GREEN + "[Boolean] ";
@@ -352,7 +359,7 @@ public final class ConfigGui {
         String name = displayName(entry.field().getName());
         String value = summarizeValue(entry.value());
 
-        UIElement element = new UIElement("cfg-" + entry.path())
+        Element element = new UIElement("cfg-" + entry.path())
                 .setMaterial(new MaterialBlock(material))
                 .setName(typePrefix + C.WHITE + name);
         element.addLore(C.GRAY + "Value: " + C.AQUA + value);
@@ -555,7 +562,7 @@ public final class ConfigGui {
         int start = currentPage * plan.itemsPerPage();
         int end = Math.min(entries.size(), start + plan.itemsPerPage());
 
-        Window w = new UIWindow(player);
+        UIWindow w = new UIWindow(Adapt.instance, player);
         GuiTheme.apply(w, tagForSection(safePath));
         w.setViewportHeight(plan.rows());
 
@@ -663,7 +670,7 @@ public final class ConfigGui {
 
             entries.add(new SectionIndexEntry(
                     ROOT_SKILLS + "." + skill.getName(),
-                    C.stripColor(skill.getDisplayName()),
+                    ColorFormatter.stripColor(skill.getDisplayName()),
                     skill.getIcon(),
                     "Configure " + skill.getName()
             ));
@@ -694,7 +701,7 @@ public final class ConfigGui {
 
             entries.add(new SectionIndexEntry(
                     ROOT_ADAPTATIONS_SKILLS + "." + skill.getName(),
-                    C.stripColor(skill.getDisplayName()),
+                    ColorFormatter.stripColor(skill.getDisplayName()),
                     skill.getIcon(),
                     "Browse " + adaptationCount + " adaptation" + (adaptationCount == 1 ? "" : "s")
             ));
@@ -729,14 +736,14 @@ public final class ConfigGui {
             }
             entries.add(new SectionIndexEntry(
                     ROOT_ADAPTATIONS + "." + adaptation.getName(),
-                    C.stripColor(adaptation.getDisplayName()),
+                    ColorFormatter.stripColor(adaptation.getDisplayName()),
                     adaptation.getIcon(),
                     "Open " + adaptation.getName()
             ));
         }
 
         entries.sort(Comparator.comparing(e -> normalizeSortKey(e.displayName())));
-        openSectionIndex(player, ROOT_ADAPTATIONS_SKILLS + "." + skill.getName(), page, "Configure: " + C.stripColor(skill.getDisplayName()), entries);
+        openSectionIndex(player, ROOT_ADAPTATIONS_SKILLS + "." + skill.getName(), page, "Configure: " + ColorFormatter.stripColor(skill.getDisplayName()), entries);
     }
 
     private static void openAdaptationIndex(Player player, int page) {
@@ -748,7 +755,7 @@ public final class ConfigGui {
 
             entries.add(new SectionIndexEntry(
                     ROOT_ADAPTATIONS + "." + adaptation.getName(),
-                    C.stripColor(adaptation.getDisplayName()),
+                    ColorFormatter.stripColor(adaptation.getDisplayName()),
                     adaptation.getIcon(),
                     "Skill: " + adaptation.getSkill().getName()
             ));
@@ -765,7 +772,7 @@ public final class ConfigGui {
         int start = currentPage * plan.itemsPerPage();
         int end = Math.min(entries.size(), start + plan.itemsPerPage());
 
-        Window w = new UIWindow(player);
+        UIWindow w = new UIWindow(Adapt.instance, player);
         GuiTheme.apply(w, tagForSection(safePath));
         w.setViewportHeight(plan.rows());
 
@@ -1557,7 +1564,7 @@ public final class ConfigGui {
         }
 
         List<Skill<?>> skills = new ArrayList<>(Adapt.instance.getAdaptServer().getSkillRegistry().getAllSkills());
-        skills.sort(Comparator.comparing(skill -> normalizeSortKey(C.stripColor(skill.getDisplayName()))));
+        skills.sort(Comparator.comparing(skill -> normalizeSortKey(ColorFormatter.stripColor(skill.getDisplayName()))));
         return skills;
     }
 
@@ -1575,7 +1582,7 @@ public final class ConfigGui {
             }
         }
 
-        adaptations.sort(Comparator.comparing(adaptation -> normalizeSortKey(C.stripColor(adaptation.getDisplayName()))));
+        adaptations.sort(Comparator.comparing(adaptation -> normalizeSortKey(ColorFormatter.stripColor(adaptation.getDisplayName()))));
         return adaptations;
     }
 
@@ -1584,7 +1591,7 @@ public final class ConfigGui {
             return "";
         }
 
-        String normalized = C.stripColor(value).toLowerCase(Locale.ROOT).trim();
+        String normalized = ColorFormatter.stripColor(value).toLowerCase(Locale.ROOT).trim();
         return normalized.replaceFirst("^[^\\p{L}\\p{N}]+", "");
     }
 
