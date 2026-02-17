@@ -317,6 +317,7 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
     public static class Config {
         @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
         public boolean enabled = true;
+        String skillColor = "&a";
         @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Harvest Xp Cooldown for the Herbalism skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         public double harvestXpCooldown = 3500;
         @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Food Consume XP for the Herbalism skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

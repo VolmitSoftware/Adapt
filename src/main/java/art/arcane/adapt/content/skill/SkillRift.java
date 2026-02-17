@@ -303,6 +303,7 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
     protected static class Config {
         @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
         boolean enabled = true;
+        String skillColor = "&5";
         @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Destroy End Crystal XP for the Rift skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double destroyEndCrystalXP = 250;
         @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Damage End Crystal XP for the Rift skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

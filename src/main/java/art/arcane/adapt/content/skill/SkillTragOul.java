@@ -303,6 +303,7 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
         boolean takeAwaySkillsOnDeath = false;
         @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
         boolean enabled = true;
+        String skillColor = "&b";
         @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Trag Oul skill.", impact = "True enables this behavior and false disables it.")
         boolean showParticles = true;
         @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown Delay for the Trag Oul skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

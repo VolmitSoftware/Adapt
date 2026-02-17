@@ -42,6 +42,7 @@ import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Recipe;
 
 import java.lang.reflect.Field;
@@ -49,11 +50,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 final class AdaptationGuiSupport {
     private static final Map<String, Long> PERMANENT_LEARN_CONFIRMATIONS = new ConcurrentHashMap<>();
     private static final long PERMANENT_LEARN_CONFIRM_WINDOW_MS = 6_000L;
+    private static final long CLOSE_SUPPRESS_MS = 1200L;
+    private static final int CLOSE_SUPPRESS_CLEAR_TICKS = 4;
+    private static final Map<UUID, Long> CLOSE_SUPPRESS_UNTIL = new ConcurrentHashMap<>();
 
     private AdaptationGuiSupport() {
     }
@@ -156,7 +161,7 @@ final class AdaptationGuiSupport {
     }
 
     static CustomModel getModel(Adaptation<?> adaptation, int level) {
-        var model = CustomModel.get(adaptation.getIcon(), "adaptation", adaptation.getName(), "level-" + level);
+        CustomModel model = CustomModel.get(adaptation.getIcon(), "adaptation", adaptation.getName(), "level-" + level);
         if (model.material() == adaptation.getIcon() && model.model() == 0)
             model = CustomModel.get(Material.PAPER, "snippets", "gui", "level", String.valueOf(level));
         if (model.material() == Material.PAPER && model.model() == 0)
@@ -245,6 +250,7 @@ final class AdaptationGuiSupport {
                                 adaptation.unlearn(player, lvl, false);
                                 spw.play(player.getLocation(), Sound.BLOCK_NETHER_GOLD_ORE_PLACE, 0.7f, 1.355f);
                                 spw.play(player.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 0.4f, 0.755f);
+                                suppressClose(player);
                                 w.close();
                                 if (AdaptConfig.get().getLearnUnlearnButtonDelayTicks() != 0) {
                                     if (adaptation.isPermanent()) {
@@ -254,7 +260,7 @@ final class AdaptationGuiSupport {
                                         player.sendTitle(" ", C.GRAY + Localizer.dLocalize("snippets.adapt_menu.unlearned") + " " + adaptation.getDisplayName(mylevel), 1, 10, 11);
                                     }
                                 }
-                                J.s(() -> openGui(adaptation, player, currentPage), AdaptConfig.get().getLearnUnlearnButtonDelayTicks());
+                                J.s(() -> openAdaptationPage(adaptation, player, currentPage), AdaptConfig.get().getLearnUnlearnButtonDelayTicks());
                                 return;
                             }
 
@@ -262,7 +268,7 @@ final class AdaptationGuiSupport {
                                 if (adaptation.isPermanent() && !consumePermanentLearnConfirmation(player, adaptation, lvl)) {
                                     spw.play(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 0.7f, 0.85f);
                                     player.sendTitle(" ", C.GOLD + "" + C.BOLD + "Click again to confirm permanent learn", 1, 16, 8);
-                                    J.s(() -> openGui(adaptation, player, currentPage), 1);
+                                    J.s(() -> openAdaptationPage(adaptation, player, currentPage), 1);
                                     return;
                                 }
 
@@ -276,11 +282,12 @@ final class AdaptationGuiSupport {
                                         spw.play(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.7f, 1.355f);
                                         spw.play(player.getLocation(), Sound.ITEM_GOAT_HORN_SOUND_1, 0.7f, 1.355f);
                                     }
+                                    suppressClose(player);
                                     w.close();
                                     if (AdaptConfig.get().getLearnUnlearnButtonDelayTicks() != 0) {
                                         player.sendTitle(" ", C.GRAY + Localizer.dLocalize("snippets.adapt_menu.learned") + " " + adaptation.getDisplayName(lvl), 1, 5, 11);
                                     }
-                                    J.s(() -> openGui(adaptation, player, currentPage), AdaptConfig.get().getLearnUnlearnButtonDelayTicks());
+                                    J.s(() -> openAdaptationPage(adaptation, player, currentPage), AdaptConfig.get().getLearnUnlearnButtonDelayTicks());
                                 } else {
                                     spw.play(player.getLocation(), Sound.BLOCK_BAMBOO_HIT, 0.7f, 1.855f);
                                 }
@@ -305,24 +312,24 @@ final class AdaptationGuiSupport {
                         .setMaterial(new MaterialBlock(Material.ARROW))
                         .setName(C.WHITE + "Previous")
                         .addLore(C.GRAY + "Right click: jump -" + jumpPages + " pages")
-                        .onLeftClick((e) -> openGui(adaptation, player, currentPage - 1))
-                        .onRightClick((e) -> openGui(adaptation, player, jumpBack)));
+                        .onLeftClick((e) -> openAdaptationPage(adaptation, player, currentPage - 1))
+                        .onRightClick((e) -> openAdaptationPage(adaptation, player, jumpBack)));
                 w.setElement(-3, navRow, new UIElement("adapt-first")
                         .setMaterial(new MaterialBlock(Material.LECTERN))
                         .setName(C.GRAY + "First")
-                        .onLeftClick((e) -> openGui(adaptation, player, 0)));
+                        .onLeftClick((e) -> openAdaptationPage(adaptation, player, 0)));
             }
             if (currentPage < plan.pageCount() - 1) {
                 w.setElement(4, navRow, new UIElement("adapt-next")
                         .setMaterial(new MaterialBlock(Material.ARROW))
                         .setName(C.WHITE + "Next")
                         .addLore(C.GRAY + "Right click: jump +" + jumpPages + " pages")
-                        .onLeftClick((e) -> openGui(adaptation, player, currentPage + 1))
-                        .onRightClick((e) -> openGui(adaptation, player, jumpForward)));
+                        .onLeftClick((e) -> openAdaptationPage(adaptation, player, currentPage + 1))
+                        .onRightClick((e) -> openAdaptationPage(adaptation, player, jumpForward)));
                 w.setElement(3, navRow, new UIElement("adapt-last")
                         .setMaterial(new MaterialBlock(Material.LECTERN))
                         .setName(C.GRAY + "Last")
-                        .onLeftClick((e) -> openGui(adaptation, player, plan.pageCount() - 1)));
+                        .onLeftClick((e) -> openAdaptationPage(adaptation, player, plan.pageCount() - 1)));
             }
 
             int from = adaptation.getMaxLevel() <= 0 ? 0 : (start + 1);
@@ -337,7 +344,7 @@ final class AdaptationGuiSupport {
                 w.setElement(0, navRow, new UIElement("back")
                         .setMaterial(new MaterialBlock(Material.ARROW))
                         .setName("" + C.RESET + C.GRAY + Localizer.dLocalize("snippets.gui.back"))
-                        .onLeftClick((e) -> onGuiClose(adaptation, player, true)));
+                        .onLeftClick((e) -> navigateBack(adaptation, player)));
             }
 
         }
@@ -345,7 +352,7 @@ final class AdaptationGuiSupport {
         AdaptPlayer a = Adapt.instance.getAdaptServer().getPlayer(player);
         String pageSuffix = plan.pageCount() > 1 ? " [" + (currentPage + 1) + "/" + plan.pageCount() + "]" : "";
         w.setTitle(adaptation.getDisplayName() + " " + C.DARK_GRAY + " " + Form.f(a.getSkillLine(adaptation.getSkill().getName()).getKnowledge()) + " " + Localizer.dLocalize("snippets.adapt_menu.knowledge") + pageSuffix);
-        w.onClosed((vv) -> J.s(() -> onGuiClose(adaptation, player, !AdaptConfig.get().isEscClosesAllGuis())));
+        w.onClosed((vv) -> J.s(() -> onGuiClosed(adaptation, player, !AdaptConfig.get().isEscClosesAllGuis())));
         w.open();
         Adapt.instance.getGuiLeftovers().put(player.getUniqueId().toString(), w);
     }
@@ -445,16 +452,78 @@ final class AdaptationGuiSupport {
         return null;
     }
 
-    private static void onGuiClose(Adaptation<?> adaptation, Player player, boolean openPrevGui) {
+    private static void openAdaptationPage(Adaptation<?> adaptation, Player player, int page) {
+        suppressClose(player);
+        openGui(adaptation, player, page);
+    }
+
+    private static void navigateBack(Adaptation<?> adaptation, Player player) {
+        playCloseSound(player);
+        suppressClose(player);
+        adaptation.getSkill().openGui(player);
+    }
+
+    private static void onGuiClosed(Adaptation<?> adaptation, Player player, boolean openPrevGui) {
+        if (player == null) {
+            return;
+        }
+
+        if (consumeCloseSuppression(player)) {
+            return;
+        }
+
+        playCloseSound(player);
+        if (openPrevGui) {
+            J.s(() -> {
+                if (player.isOnline() && player.getOpenInventory().getTopInventory().getType() == InventoryType.CRAFTING) {
+                    adaptation.getSkill().openGui(player);
+                }
+            }, 1);
+        } else {
+            Adapt.instance.getGuiLeftovers().remove(player.getUniqueId().toString());
+        }
+    }
+
+    private static void playCloseSound(Player player) {
         SoundPlayer spw = SoundPlayer.of(player.getWorld());
         spw.play(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 1.255f);
         spw.play(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.7f, 0.655f);
         spw.play(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.3f, 0.855f);
-        if (openPrevGui) {
-            adaptation.getSkill().openGui(player);
-        } else {
-            Adapt.instance.getGuiLeftovers().remove(player.getUniqueId().toString());
+    }
+
+    private static void suppressClose(Player player) {
+        if (player == null) {
+            return;
         }
+
+        UUID playerId = player.getUniqueId();
+        long suppressUntil = System.currentTimeMillis() + CLOSE_SUPPRESS_MS;
+        CLOSE_SUPPRESS_UNTIL.put(playerId, suppressUntil);
+        J.s(() -> {
+            Long current = CLOSE_SUPPRESS_UNTIL.get(playerId);
+            if (current != null && current.longValue() == suppressUntil) {
+                CLOSE_SUPPRESS_UNTIL.remove(playerId);
+            }
+        }, CLOSE_SUPPRESS_CLEAR_TICKS);
+    }
+
+    private static boolean consumeCloseSuppression(Player player) {
+        if (player == null) {
+            return false;
+        }
+
+        Long until = CLOSE_SUPPRESS_UNTIL.get(player.getUniqueId());
+        if (until == null) {
+            return false;
+        }
+
+        if (until >= System.currentTimeMillis()) {
+            CLOSE_SUPPRESS_UNTIL.remove(player.getUniqueId());
+            return true;
+        }
+
+        CLOSE_SUPPRESS_UNTIL.remove(player.getUniqueId());
+        return false;
     }
 
     private static String permanentConfirmPrefix(Player player, Adaptation<?> adaptation) {

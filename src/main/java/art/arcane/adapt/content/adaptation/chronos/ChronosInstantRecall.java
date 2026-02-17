@@ -381,6 +381,39 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecall.
                 p.getFireTicks());
     }
 
+    private Snapshot snapshotFromLocation(Player p, Location location, long now) {
+        World world = location.getWorld();
+        if (world == null) {
+            world = p.getWorld();
+        }
+
+        return new Snapshot(now,
+                world.getName(),
+                location.getX(),
+                location.getY(),
+                location.getZ(),
+                location.getYaw(),
+                location.getPitch(),
+                p.getHealth(),
+                p.getFoodLevel(),
+                p.getSaturation(),
+                p.getExhaustion(),
+                p.getFireTicks());
+    }
+
+    private void resetSnapshotHistory(Player p, Location location) {
+        if (location == null) {
+            return;
+        }
+
+        long now = M.ms();
+        UUID id = p.getUniqueId();
+        Deque<Snapshot> queue = snapshots.computeIfAbsent(id, unused -> new ArrayDeque<>());
+        queue.clear();
+        queue.addLast(snapshotFromLocation(p, location, now));
+        lastSnapshot.put(id, now);
+    }
+
     private void captureSnapshot(Player p) {
         long now = M.ms();
         UUID id = p.getUniqueId();
@@ -542,6 +575,33 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecall.
     @EventHandler
     public void on(PlayerQuitEvent e) {
         clearPlayerState(e.getPlayer().getUniqueId());
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void on(PlayerTeleportEvent e) {
+        Player p = e.getPlayer();
+        UUID id = p.getUniqueId();
+        if (!isRecallEligible(p) || rewinding.contains(id)) {
+            return;
+        }
+
+        Location destination = e.getTo();
+        if (destination == null) {
+            return;
+        }
+
+        resetSnapshotHistory(p, destination);
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void on(PlayerChangedWorldEvent e) {
+        Player p = e.getPlayer();
+        UUID id = p.getUniqueId();
+        if (!isRecallEligible(p) || rewinding.contains(id)) {
+            return;
+        }
+
+        resetSnapshotHistory(p, p.getLocation());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

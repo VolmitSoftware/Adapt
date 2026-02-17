@@ -230,28 +230,62 @@ public interface Adaptation<T> extends Ticked, Component {
      * Typed storage convenience helper for integers.
      */
     default Integer getStorageInt(Player p, String key, Integer defaultValue) {
-        return getStorage(p, key, defaultValue);
+        Object value = getStorage(p, key, (Object) defaultValue);
+        if (value == null) {
+            return defaultValue;
+        }
+
+        if (value instanceof Number number) {
+            return number.intValue();
+        }
+
+        if (value instanceof String stringValue) {
+            try {
+                return Integer.parseInt(stringValue.trim());
+            } catch (NumberFormatException ignored) {
+                return defaultValue;
+            }
+        }
+
+        return defaultValue;
     }
 
     /**
      * Typed storage convenience helper for integers.
      */
     default Integer getStorageInt(Player p, String key) {
-        return getStorage(p, key);
+        return getStorageInt(p, key, null);
     }
 
     /**
      * Typed storage convenience helper for doubles.
      */
     default Double getStorageDouble(Player p, String key, Double defaultValue) {
-        return getStorage(p, key, defaultValue);
+        Object value = getStorage(p, key, (Object) defaultValue);
+        if (value == null) {
+            return defaultValue;
+        }
+
+        if (value instanceof Number number) {
+            return number.doubleValue();
+        }
+
+        if (value instanceof String stringValue) {
+            try {
+                return Double.parseDouble(stringValue.trim());
+            } catch (NumberFormatException ignored) {
+                return defaultValue;
+            }
+        }
+
+        return defaultValue;
     }
 
     /**
      * Typed storage convenience helper for doubles.
      */
     default Double getStorageDouble(Player p, String key) {
-        return getStorage(p, key);
+        return getStorageDouble(p, key, null);
     }
 
     /**
@@ -272,14 +306,31 @@ public interface Adaptation<T> extends Ticked, Component {
      * Typed storage convenience helper for longs.
      */
     default Long getStorageLong(Player p, String key, Long defaultValue) {
-        return getStorage(p, key, defaultValue);
+        Object value = getStorage(p, key, (Object) defaultValue);
+        if (value == null) {
+            return defaultValue;
+        }
+
+        if (value instanceof Number number) {
+            return number.longValue();
+        }
+
+        if (value instanceof String stringValue) {
+            try {
+                return Long.parseLong(stringValue.trim());
+            } catch (NumberFormatException ignored) {
+                return defaultValue;
+            }
+        }
+
+        return defaultValue;
     }
 
     /**
      * Typed storage convenience helper for longs.
      */
     default Long getStorageLong(Player p, String key) {
-        return getStorage(p, key);
+        return getStorageLong(p, key, null);
     }
 
     /**

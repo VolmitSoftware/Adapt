@@ -325,6 +325,7 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
     protected static class Config {
         @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
         boolean enabled = true;
+        String skillColor = "&d";
         @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Challenge Brew1k for the Brewing skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double challengeBrew1k = 1000;
         @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Challenge Brew Splash1k for the Brewing skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

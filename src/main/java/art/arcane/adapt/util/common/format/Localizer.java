@@ -37,6 +37,13 @@ public class Localizer {
     private static JsonObject cachedPrimaryLanguageRoot;
     private static String cachedFallbackLanguage;
     private static JsonObject cachedFallbackLanguageRoot;
+    private static final String LANGUAGE_COLOR_NOTE = String.join("\n",
+            "# Color Codes:",
+            "# - Legacy format: &0..&f, &k..&o, &r (example: \"&7Gray\")",
+            "# - Hex format: &#RRGGBB or &x&R&R&G&G&B&B (example: \"&#55FFAAMint\")",
+            "# - MiniMessage also works (example: \"<#55FFAA>Mint\")",
+            ""
+    );
 
     @SneakyThrows
     public static void updateLanguageFile() {
@@ -102,9 +109,9 @@ public class Localizer {
                 Adapt.verbose("Loaded Localization: " + resolved + " for key: " + key);
             }
         }
-        var s = applyParameters(Adapt.wordKey.get(cacheKey), params);
+        String s = applyParameters(Adapt.wordKey.get(cacheKey), params);
+        s = C.translateAlternateColorCodes('&', s);
         if (AdaptConfig.get().isAutomaticGradients()) {
-            s = C.translateAlternateColorCodes('&', s);
             s = C.aura(s, -20, 7, 8, 0.36);
         }
 
@@ -141,7 +148,8 @@ public class Localizer {
 
             File tomlTarget = new File(langFolder, languageCode + ".toml");
             Files.deleteIfExists(tomlTarget.toPath());
-            Files.writeString(tomlTarget.toPath(), ConfigFileSupport.serializeJsonElementToToml(parsed));
+            String toml = ConfigFileSupport.serializeJsonElementToToml(parsed);
+            Files.writeString(tomlTarget.toPath(), applyLanguageHeader(toml));
 
             File legacyJsonTarget = new File(langFolder, jsonResourcePath);
             Files.deleteIfExists(legacyJsonTarget.toPath());
@@ -313,7 +321,8 @@ public class Localizer {
                     continue;
                 }
 
-                Files.writeString(tomlFile.toPath(), ConfigFileSupport.serializeJsonElementToToml(parsed));
+                String toml = ConfigFileSupport.serializeJsonElementToToml(parsed);
+                Files.writeString(tomlFile.toPath(), applyLanguageHeader(toml));
                 Adapt.info("Migrated legacy language file [" + jsonFile.getName() + "] -> [" + tomlFile.getName() + "].");
                 Files.deleteIfExists(jsonFile.toPath());
             }
@@ -321,5 +330,14 @@ public class Localizer {
         } catch (Throwable e) {
             Adapt.warn("Failed to migrate legacy language json files: " + e.getMessage());
         }
+    }
+
+    private static String applyLanguageHeader(String body) {
+        String source = body == null ? "" : body;
+        String trimmed = source.stripLeading();
+        if (trimmed.startsWith("# Color Codes:")) {
+            return source;
+        }
+        return LANGUAGE_COLOR_NOTE + source;
     }
 }

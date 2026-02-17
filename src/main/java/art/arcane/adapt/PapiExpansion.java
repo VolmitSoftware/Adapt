@@ -1,93 +1,27 @@
 package art.arcane.adapt;
 
+import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.skill.Skill;
+import art.arcane.adapt.api.world.PlayerAdaptation;
 import art.arcane.adapt.api.world.PlayerData;
 import art.arcane.adapt.api.world.PlayerSkillLine;
+import art.arcane.adapt.api.xp.XP;
 import art.arcane.adapt.util.common.format.Localizer;
-import com.google.common.collect.Maps;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.Map;
-import java.util.function.BiFunction;
-import java.util.function.Function;
+import java.util.Locale;
 
 public class PapiExpansion extends PlaceholderExpansion {
-
-    private final Map<String, Function<PlayerSkillLine, String>> skillMap = Maps.newHashMap();
-    private final Map<String, Function<PlayerData, String>> playerMap = Maps.newHashMap();
-    private final Map<String, BiFunction<PlayerData, Adaptation<?>, String>> adaptationMap = Maps.newHashMap();
-
-    public PapiExpansion() {
-        // this should be %adapt_skill_level%, %adapt_skill_knowledge%, %adapt_skill_xp%, %adapt_skill_freshness%, %adapt_skill_multiplier%, %adapt_skill_name%
-        // where skill is the id of the skill eg: %adapt_herbalism_level%
-        skillMap.put("level", skill -> String.valueOf(skill.getLevel()).equals("-5000") ? "0" : String.valueOf(skill.getLevel()));
-        skillMap.put("knowledge", skill -> String.valueOf(skill.getKnowledge()).equals("-5000") ? "0" : String.valueOf(skill.getKnowledge()));
-        skillMap.put("xp", skill -> String.format("%.2f", skill.getXp()).equals("-5000.00") ? "0" : String.format("%.2f", skill.getXp()));
-        skillMap.put("freshness", skill -> String.valueOf(skill.getFreshness()).equals("-5000") ? "0" : String.valueOf(skill.getFreshness()));
-        skillMap.put("multiplier", skill -> String.valueOf(skill.getMultiplier()).equals("-5000") ? "0" : String.valueOf(skill.getMultiplier()));
-        skillMap.put("name", skill -> Localizer.dLocalize("skill." + skill.getLine() + ".name"));
-
-        // this should be %adapt_player_level%, %adapt_player_multiplier%, %adapt_player_availablepower%, %adapt_player_maxpower%, %adapt_player_usedpower%, %adapt_player_wisdom%, %adapt_player_masterxp%, %adapt_player_seenthings%
-        // the player is provided by the ingame context
-        playerMap.put("level", playerData -> String.valueOf(playerData.getMultiplier()).equals("-5000") ? "0" : String.valueOf(playerData.getLevel()));
-        playerMap.put("multiplier", playerData -> String.valueOf(playerData.getMultiplier()).equals("-5000") ? "0" : String.valueOf(playerData.getMultiplier()));
-        playerMap.put("availablepower", playerData -> String.valueOf(playerData.getAvailablePower()).equals("-5000") ? "0" : String.valueOf(playerData.getAvailablePower()));
-        playerMap.put("maxpower", playerData -> String.valueOf(playerData.getMaxPower()).equals("-5000") ? "0" : String.valueOf(playerData.getMaxPower()));
-        playerMap.put("usedpower", playerData -> String.valueOf(playerData.getUsedPower()).equals("-5000") ? "0" : String.valueOf(playerData.getUsedPower()));
-        playerMap.put("wisdom", playerData -> String.valueOf(playerData.getWisdom()).equals("-5000") ? "0" : String.valueOf(playerData.getWisdom()));
-        playerMap.put("masterxp", playerData -> String.valueOf(playerData.getMasterXp()).equals("-5000") ? "0" : String.valueOf(playerData.getMasterXp()));
-        playerMap.put("seenthings", playerData -> String.valueOf(playerData.getSeenBlocks().getSeen().size()
-                + playerData.getSeenBiomes().getSeen().size()
-                + playerData.getSeenEnchants().getSeen().size()
-                + playerData.getSeenEnvironments().getSeen().size()
-                + playerData.getSeenFoods().getSeen().size()
-                + playerData.getSeenItems().getSeen().size()
-                + playerData.getSeenMobs().getSeen().size()
-                + playerData.getSeenPeople().getSeen().size()
-                + playerData.getSeenPotionEffects().getSeen().size() + playerData.getSeenRecipes().getSeen().size()
-                + playerData.getSeenPotionEffects().getSeen().size() + playerData.getSeenWorlds().getSeen().size()));
-
-        // this should be %adapt_adaptation_<ID>_level%, %adapt_adaptation_<ID>_maxlevel%
-        // where adaptation is the adaptation id (e.g. %adapt_adaptation_stealth-ghost-armor_level%)
-        adaptationMap.put("maxlevel", (playerData, adaptation) -> String.valueOf(adaptation.getMaxLevel()));
-        adaptationMap.put("level", (playerData, adaptation) -> String.valueOf(getAdaptionLevel(adaptation, playerData)));
-        adaptationMap.put("name", (playerData, adaptation) -> String.valueOf(getAdaptionLocalizedName(adaptation)));
-    }
-
-    private Integer getAdaptionLevel(Adaptation<?> adaptation, PlayerData playerData) {
-        List<Skill<?>> skills = Adapt.instance.getAdaptServer().getSkillRegistry().getSkills();
-        for (Skill<?> skill : skills) {
-            List<Adaptation<?>> adaptations = skill.getAdaptations();
-            for (Adaptation<?> a : adaptations) {
-                if (a.equals(adaptation)) {
-                    return playerData.getSkillLine(skill.getName()).getAdaptationLevel(adaptation.getName());
-                }
-            }
-        }
-        return 0;
-    }
-
-    private String getAdaptionLocalizedName(Adaptation<?> adaptation) {
-        List<Skill<?>> skills = Adapt.instance.getAdaptServer().getSkillRegistry().getSkills();
-        for (Skill<?> skill : skills) {
-            List<Adaptation<?>> adaptations = skill.getAdaptations();
-            for (Adaptation<?> a : adaptations) {
-                if (a.equals(adaptation)) {
-                    return Localizer.dLocalize(skill.getId() + "." + adaptation.getDisplayName() + ".name");
-                }
-            }
-        }
-        return "Unknown";
-    }
+    private static final Locale LOCALE = Locale.ROOT;
 
     @Override
     public @NotNull String getIdentifier() {
-        return Adapt.instance.getDescription().getName().toLowerCase();
+        return Adapt.instance.getDescription().getName().toLowerCase(LOCALE);
     }
 
     @Override
@@ -107,56 +41,382 @@ public class PapiExpansion extends PlaceholderExpansion {
 
     @Override
     public @Nullable String onRequest(OfflinePlayer player, @NotNull String params) {
+        if (player == null || player.getUniqueId() == null || params == null || params.isBlank()) {
+            return "";
+        }
+        if (Adapt.instance == null || Adapt.instance.getAdaptServer() == null || Adapt.instance.getAdaptServer().getSkillRegistry() == null) {
+            return "";
+        }
+
+        PlayerData playerData = Adapt.instance.getAdaptServer().peekData(player.getUniqueId());
+        if (playerData == null) {
+            return "";
+        }
+
         String[] args = params.split("_");
-        PlayerData p = Adapt.instance.getAdaptServer().peekData(player.getUniqueId());
-        String key = args[0];
+        if (args.length == 0) {
+            return "";
+        }
 
-        // Handle player attributes
-        if (key.equals("player")) {
-            String playerAttr = args.length > 1 ? args[1] : "";
-            if (playerMap.containsKey(playerAttr)) {
-                return playerMap.get(playerAttr).apply(p);
+        String root = args[0].toLowerCase(LOCALE);
+        if ("player".equals(root)) {
+            String attr = args.length > 1 ? join(args, 1) : "";
+            return resolvePlayerAttribute(playerData, attr);
+        }
+
+        if ("skill".equals(root)) {
+            if (args.length < 3) {
+                return "0";
+            }
+            String skillId = args[1];
+            String attr = join(args, 2);
+            Skill<?> skill = resolveSkill(skillId);
+            if (skill == null) {
+                return "0";
+            }
+            PlayerSkillLine line = playerData.getSkillLineNullable(skill.getName());
+            return resolveSkillAttribute(playerData, skill, line, attr);
+        }
+
+        if ("adaptation".equals(root)) {
+            if (args.length < 3) {
+                return "0";
+            }
+            String adaptationId = args[1];
+            String attr = join(args, 2);
+            Adaptation<?> adaptation = resolveAdaptation(adaptationId);
+            if (adaptation == null) {
+                return "0";
+            }
+            return resolveAdaptationAttribute(playerData, adaptation, attr);
+        }
+
+        if ("skills".equals(root) && args.length > 1 && "count".equalsIgnoreCase(args[1])) {
+            return String.valueOf(countSkills());
+        }
+
+        if ("adaptations".equals(root) && args.length > 1 && "count".equalsIgnoreCase(args[1])) {
+            return String.valueOf(countAdaptations());
+        }
+
+        if (args.length >= 2) {
+            Skill<?> directSkill = resolveSkill(args[0]);
+            if (directSkill != null) {
+                String attr = join(args, 1);
+                PlayerSkillLine line = playerData.getSkillLineNullable(directSkill.getName());
+                return resolveSkillAttribute(playerData, directSkill, line, attr);
+            }
+
+            Adaptation<?> directAdaptation = resolveAdaptation(args[0]);
+            if (directAdaptation != null) {
+                String attr = join(args, 1);
+                return resolveAdaptationAttribute(playerData, directAdaptation, attr);
             }
         }
 
-        // Handle skill attributes
-        if (key.equals("skill")) {
-            String skillID = args.length > 1 ? args[1] : "";
-            PlayerSkillLine line = p.getSkillLine(skillID);
-            String skillAttr = args.length > 2 ? args[2] : "";
-            if (line != null && skillMap.containsKey(skillAttr)) {
-                return skillMap.get(skillAttr).apply(line);
+        return null;
+    }
+
+    private String resolvePlayerAttribute(PlayerData playerData, String rawAttr) {
+        String attr = rawAttr == null ? "" : rawAttr.toLowerCase(LOCALE);
+        return switch (attr) {
+            case "level" -> String.valueOf(playerData.getLevel());
+            case "multiplier" -> format2(playerData.getMultiplier());
+            case "availablepower" -> String.valueOf(playerData.getAvailablePower());
+            case "maxpower" -> String.valueOf(playerData.getMaxPower());
+            case "usedpower" -> String.valueOf(playerData.getUsedPower());
+            case "wisdom" -> String.valueOf(playerData.getWisdom());
+            case "masterxp" -> format2(playerData.getMasterXp());
+            case "seenthings" -> String.valueOf(countSeenThings(playerData));
+            case "skills", "skillcount" -> String.valueOf(countSkills());
+            case "knownskills" -> String.valueOf(countKnownSkills(playerData));
+            case "adaptations", "adaptationcount" -> String.valueOf(countAdaptations());
+            case "learnedadaptations" -> String.valueOf(countLearnedAdaptations(playerData));
+            default -> "0";
+        };
+    }
+
+    private String resolveSkillAttribute(PlayerData playerData, Skill<?> skill, PlayerSkillLine line, String rawAttr) {
+        String attr = rawAttr == null ? "" : rawAttr.toLowerCase(LOCALE);
+        int currentLevel = line == null ? 0 : line.getLevel();
+
+        if (attr.startsWith("can_claim_") || attr.startsWith("has_level_")) {
+            Integer targetLevel = parseTrailingInt(attr);
+            if (targetLevel == null) {
+                return "false";
             }
+            return String.valueOf(targetLevel >= 0 && targetLevel <= 100 && currentLevel >= targetLevel);
         }
 
-        // Handle adaptation attributes
-        if (key.equals("adaptation")) {
-            String adaptID = args.length > 1 ? args[1] : "";
-            String adaptAttr = args.length > 2 ? args[2] : "";
-            Adapt.verbose("Triggered adaptation Lookup: " + adaptID + " " + adaptAttr);
-            List<Skill<?>> skill = Adapt.instance.getAdaptServer().getSkillRegistry().getSkills();
-
-            for (Skill<?> s : skill) {
-                List<Adaptation<?>> adaptations = s.getAdaptations();
-                for (Adaptation<?> a : adaptations) {
-                    String adaptationIdWithoutUUID = a.getId().substring(37);
-                    Adapt.verbose(adaptID + " " + adaptationIdWithoutUUID);
-                    if (adaptationIdWithoutUUID.equals(adaptID)) {
-                        Adapt.verbose("Found adaptation: " + a.getId());
-                        if ("level".equalsIgnoreCase(adaptAttr)) {
-                            Adapt.verbose("Doing Level Lookup");
-                            return adaptationMap.get("level").apply(p, a);
-                        } else if ("maxlevel".equalsIgnoreCase(adaptAttr)) {
-                            Adapt.verbose("Doing MaxLevel Lookup");
-                            return adaptationMap.get("maxlevel").apply(p, a);
-                        } else if ("name".equalsIgnoreCase(adaptAttr)) {
-                            Adapt.verbose("Doing Name Lookup");
-                            return adaptationMap.get("name").apply(p, a);
-                        }
-                    }
+        int learnedAdaptations = 0;
+        if (line != null) {
+            for (PlayerAdaptation adaptation : line.getAdaptations().values()) {
+                if (adaptation != null && adaptation.getLevel() > 0) {
+                    learnedAdaptations++;
                 }
             }
         }
+
+        return switch (attr) {
+            case "id" -> skill.getName();
+            case "enabled" -> String.valueOf(skill.isEnabled());
+            case "name" -> Localizer.dLocalize("skill." + skill.getName() + ".name");
+            case "display_name", "displayname" -> skill.getDisplayName();
+            case "short_name", "shortname" -> skill.getShortName();
+            case "level" -> String.valueOf(currentLevel);
+            case "knowledge" -> String.valueOf(line == null ? 0 : line.getKnowledge());
+            case "xp" -> format2(line == null ? 0 : line.getXp());
+            case "freshness" -> format2(line == null ? 0 : line.getFreshness());
+            case "multiplier" -> format2(line == null ? 0 : line.getMultiplier());
+            case "absolute_level", "absolutelevel" -> format4(line == null ? 0 : line.getAbsoluteLevel());
+            case "progress" -> format4(line == null ? 0 : line.getLevelProgress());
+            case "progress_percent", "progresspercent" -> format2((line == null ? 0 : line.getLevelProgress()) * 100D);
+            case "xp_to_next", "xptonext", "xp_needed", "xpneeded" -> format2(line == null ? 0 : XP.getXpUntilLevelUp(line.getXp()));
+            case "current_level_xp", "currentlevelxp" -> format2(XP.getXpForLevel(currentLevel));
+            case "next_level_xp", "nextlevelxp" -> format2(XP.getXpForLevel(currentLevel + 1));
+            case "adaptation_count", "adaptationcount" -> String.valueOf(skill.getAdaptations().size());
+            case "learned_adaptations", "learnedadaptations" -> String.valueOf(learnedAdaptations);
+            case "can_use" -> String.valueOf(currentLevel > 0);
+            case "line" -> skill.getName();
+            case "maxlevel", "max_level" -> String.valueOf(AdaptConfig.get().experienceMaxLevel);
+            default -> "0";
+        };
+    }
+
+    private String resolveAdaptationAttribute(PlayerData playerData, Adaptation<?> adaptation, String rawAttr) {
+        String attr = rawAttr == null ? "" : rawAttr.toLowerCase(LOCALE);
+        PlayerSkillLine line = playerData.getSkillLineNullable(adaptation.getSkill().getName());
+        int currentLevel = line == null ? 0 : line.getAdaptationLevel(adaptation.getName());
+
+        if (attr.startsWith("can_claim_")) {
+            Integer target = parseTrailingInt(attr);
+            if (target == null) {
+                return "false";
+            }
+            int targetLevel = clampAdaptationTarget(adaptation, target);
+            return String.valueOf(canClaimTarget(playerData, line, adaptation, currentLevel, targetLevel));
+        }
+
+        if (attr.startsWith("cost_to_") || attr.startsWith("knowledge_to_")) {
+            Integer target = parseTrailingInt(attr);
+            if (target == null) {
+                return "0";
+            }
+            int targetLevel = clampAdaptationTarget(adaptation, target);
+            return String.valueOf(adaptation.getCostFor(targetLevel, currentLevel));
+        }
+
+        if (attr.startsWith("power_to_")) {
+            Integer target = parseTrailingInt(attr);
+            if (target == null) {
+                return "0";
+            }
+            int targetLevel = clampAdaptationTarget(adaptation, target);
+            int powerCost = adaptation.getPowerCostFor(targetLevel, currentLevel);
+            return String.valueOf(Math.max(0, powerCost));
+        }
+
+        if (attr.startsWith("refund_to_")) {
+            Integer target = parseTrailingInt(attr);
+            if (target == null) {
+                return "0";
+            }
+            int targetLevel = clampAdaptationTarget(adaptation, target);
+            return String.valueOf(adaptation.getRefundCostFor(targetLevel, currentLevel));
+        }
+
+        int nextLevel = Math.min(adaptation.getMaxLevel(), currentLevel + 1);
+        return switch (attr) {
+            case "id" -> adaptation.getName();
+            case "level" -> String.valueOf(currentLevel);
+            case "maxlevel", "max_level" -> String.valueOf(adaptation.getMaxLevel());
+            case "name", "display_name", "displayname" -> adaptation.getDisplayName();
+            case "raw_name", "rawname" -> adaptation.getName();
+            case "skill", "skill_id", "skillid" -> adaptation.getSkill().getName();
+            case "enabled" -> String.valueOf(adaptation.isEnabled());
+            case "learned" -> String.valueOf(currentLevel > 0);
+            case "can_use" -> String.valueOf(currentLevel > 0 && adaptation.isEnabled() && adaptation.getSkill().isEnabled());
+            case "cost_next", "costnext", "knowledge_next", "knowledgenext" -> String.valueOf(currentLevel >= adaptation.getMaxLevel() ? 0 : adaptation.getCostFor(nextLevel, currentLevel));
+            case "power_next", "powernext" -> String.valueOf(currentLevel >= adaptation.getMaxLevel() ? 0 : Math.max(0, adaptation.getPowerCostFor(nextLevel, currentLevel)));
+            case "refund_next", "refundnext" -> String.valueOf(currentLevel <= 0 ? 0 : adaptation.getRefundCostFor(Math.max(0, currentLevel - 1), currentLevel));
+            case "can_claim_next", "canclaimnext" -> String.valueOf(canClaimTarget(playerData, line, adaptation, currentLevel, nextLevel));
+            default -> "0";
+        };
+    }
+
+    private boolean canClaimTarget(PlayerData playerData, PlayerSkillLine line, Adaptation<?> adaptation, int currentLevel, int targetLevel) {
+        if (targetLevel == currentLevel) {
+            return true;
+        }
+
+        if (targetLevel > currentLevel) {
+            int powerCost = Math.max(0, adaptation.getPowerCostFor(targetLevel, currentLevel));
+            int knowledgeCost = adaptation.getCostFor(targetLevel, currentLevel);
+            if (!playerData.hasPowerAvailable(powerCost)) {
+                return false;
+            }
+            return line != null && line.getKnowledge() >= knowledgeCost;
+        }
+
+        if (adaptation.isPermanent()) {
+            return false;
+        }
+
+        return currentLevel > 0;
+    }
+
+    private int clampAdaptationTarget(Adaptation<?> adaptation, int requested) {
+        int clamped = Math.max(0, Math.min(requested, 100));
+        return Math.min(clamped, adaptation.getMaxLevel());
+    }
+
+    private Skill<?> resolveSkill(String rawSkillId) {
+        if (rawSkillId == null || rawSkillId.isBlank()) {
+            return null;
+        }
+
+        String skillId = rawSkillId.trim();
+        Skill<?> direct = Adapt.instance.getAdaptServer().getSkillRegistry().getAnySkill(skillId);
+        if (direct != null) {
+            return direct;
+        }
+
+        List<Skill<?>> allSkills = Adapt.instance.getAdaptServer().getSkillRegistry().getAllSkills();
+        for (Skill<?> skill : allSkills) {
+            if (skill.getName().equalsIgnoreCase(skillId)) {
+                return skill;
+            }
+        }
+
         return null;
+    }
+
+    private Adaptation<?> resolveAdaptation(String rawAdaptationId) {
+        if (rawAdaptationId == null || rawAdaptationId.isBlank()) {
+            return null;
+        }
+
+        String adaptationId = rawAdaptationId.trim().toLowerCase(LOCALE);
+        List<Skill<?>> allSkills = Adapt.instance.getAdaptServer().getSkillRegistry().getAllSkills();
+        for (Skill<?> skill : allSkills) {
+            for (Adaptation<?> adaptation : skill.getAdaptations()) {
+                if (matchesAdaptationIdentifier(adaptation, adaptationId)) {
+                    return adaptation;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private boolean matchesAdaptationIdentifier(Adaptation<?> adaptation, String normalizedTarget) {
+        String name = adaptation.getName();
+        if (name != null && name.equalsIgnoreCase(normalizedTarget)) {
+            return true;
+        }
+
+        String fullId = adaptation.getId();
+        if (fullId != null && fullId.equalsIgnoreCase(normalizedTarget)) {
+            return true;
+        }
+
+        if (fullId != null && fullId.length() > 37) {
+            String legacyId = fullId.substring(37);
+            if (legacyId.equalsIgnoreCase(normalizedTarget)) {
+                return true;
+            }
+        }
+
+        String scoped = adaptation.getSkill().getName() + ":" + adaptation.getName();
+        return scoped.equalsIgnoreCase(normalizedTarget);
+    }
+
+    private int countSeenThings(PlayerData playerData) {
+        int total = 0;
+        total += playerData.getSeenBlocks().getSeen().size();
+        total += playerData.getSeenBiomes().getSeen().size();
+        total += playerData.getSeenEnchants().getSeen().size();
+        total += playerData.getSeenEnvironments().getSeen().size();
+        total += playerData.getSeenFoods().getSeen().size();
+        total += playerData.getSeenItems().getSeen().size();
+        total += playerData.getSeenMobs().getSeen().size();
+        total += playerData.getSeenPeople().getSeen().size();
+        total += playerData.getSeenPotionEffects().getSeen().size();
+        total += playerData.getSeenRecipes().getSeen().size();
+        total += playerData.getSeenWorlds().getSeen().size();
+        return total;
+    }
+
+    private int countSkills() {
+        return Adapt.instance.getAdaptServer().getSkillRegistry().getAllSkills().size();
+    }
+
+    private int countKnownSkills(PlayerData playerData) {
+        int total = 0;
+        for (PlayerSkillLine line : playerData.getSkillLines().values()) {
+            if (line != null && line.getLevel() > 0) {
+                total++;
+            }
+        }
+        return total;
+    }
+
+    private int countAdaptations() {
+        int total = 0;
+        List<Skill<?>> skills = Adapt.instance.getAdaptServer().getSkillRegistry().getAllSkills();
+        for (Skill<?> skill : skills) {
+            total += skill.getAdaptations().size();
+        }
+        return total;
+    }
+
+    private int countLearnedAdaptations(PlayerData playerData) {
+        int total = 0;
+        for (PlayerSkillLine line : playerData.getSkillLines().values()) {
+            if (line == null) {
+                continue;
+            }
+            for (PlayerAdaptation adaptation : line.getAdaptations().values()) {
+                if (adaptation != null && adaptation.getLevel() > 0) {
+                    total++;
+                }
+            }
+        }
+        return total;
+    }
+
+    private Integer parseTrailingInt(String attr) {
+        int index = attr.lastIndexOf('_');
+        if (index == -1 || index >= attr.length() - 1) {
+            return null;
+        }
+
+        try {
+            return Integer.parseInt(attr.substring(index + 1));
+        } catch (NumberFormatException ignored) {
+            return null;
+        }
+    }
+
+    private String join(String[] args, int start) {
+        if (args == null || start >= args.length) {
+            return "";
+        }
+        StringBuilder builder = new StringBuilder();
+        for (int i = start; i < args.length; i++) {
+            if (builder.length() > 0) {
+                builder.append('_');
+            }
+            builder.append(args[i]);
+        }
+        return builder.toString();
+    }
+
+    private String format2(double value) {
+        return String.format(LOCALE, "%.2f", value);
+    }
+
+    private String format4(double value) {
+        return String.format(LOCALE, "%.4f", value);
     }
 }

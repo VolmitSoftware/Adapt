@@ -25,7 +25,6 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.volmlib.util.inventorygui.Element;
-import art.arcane.adapt.util.common.math.VelocitySpeed;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.events.api.ReflectiveHandler;
 import art.arcane.adapt.util.reflect.events.api.entity.EntityDismountEvent;
@@ -39,6 +38,7 @@ import org.bukkit.Particle;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.util.Vector;
 
@@ -48,7 +48,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
     private final Map<UUID, Integer> ticksRunning;
-    private final Map<UUID, Boolean> speedBoosting;
+    private final Map<UUID, RuntimeState> states;
 
     public AgilityWindUp() {
         super("agility-wind-up");
@@ -61,7 +61,7 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
         setInitialCost(getConfig().initialCost);
         setInterval(50);
         ticksRunning = new ConcurrentHashMap<>();
-        speedBoosting = new ConcurrentHashMap<>();
+        states = new ConcurrentHashMap<>();
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.POWERED_RAIL)
                 .key("challenge_agility_wind_up_10min")
@@ -90,9 +90,12 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
 
     @EventHandler
     public void on(PlayerQuitEvent e) {
-        UUID id = e.getPlayer().getUniqueId();
-        ticksRunning.remove(id);
-        speedBoosting.remove(id);
+        clearAndRemoveState(e.getPlayer());
+    }
+
+    @EventHandler
+    public void on(PlayerDeathEvent e) {
+        clearAndRemoveState(e.getEntity());
     }
 
     @ReflectiveHandler
@@ -104,7 +107,10 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
         Player p = (Player) event.getEntity();
         UUID id = p.getUniqueId();
         ticksRunning.remove(id);
-        invalidateWindupSpeed(p, id, true);
+        RuntimeState state = states.get(id);
+        if (state != null) {
+            clearBoost(p, state);
+        }
     }
 
     @ReflectiveHandler
@@ -114,7 +120,12 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
         }
 
         Player p = (Player) event.getEntity();
-        ticksRunning.remove(p.getUniqueId());
+        UUID id = p.getUniqueId();
+        ticksRunning.remove(id);
+        RuntimeState state = states.get(id);
+        if (state != null) {
+            clearBoost(p, state);
+        }
     }
 
     private double getWindupTicks(double factor) {
@@ -142,15 +153,17 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
         }
 
         UUID id = p.getUniqueId();
-        if (!hasActiveAdaptation(p) || !isVelocityEligible(p)) {
+        RuntimeState state = states.computeIfAbsent(id, key -> new RuntimeState());
+        if (!hasActiveAdaptation(p) || !isWindupEligible(p) || !p.isSprinting()) {
             ticksRunning.remove(id);
-            invalidateWindupSpeed(p, id, false);
+            clearBoost(p, state);
             return;
         }
 
-        if (!p.isSprinting()) {
+        double factor = getLevelPercent(p);
+        if (factor <= 0) {
             ticksRunning.remove(id);
-            invalidateWindupSpeed(p, id, false);
+            clearBoost(p, state);
             return;
         }
 
@@ -160,10 +173,10 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
             return;
         }
 
-        double factor = getLevelPercent(p);
-        double ticksToMax = getWindupTicks(factor);
+        double ticksToMax = Math.max(1D, getWindupTicks(factor));
         double progress = Math.min(M.lerpInverse(0, ticksToMax, tr), 1);
         double speedIncrease = M.lerp(0, getWindupSpeed(factor), progress);
+        applyBoost(p, state, speedIncrease);
 
         if (areParticlesEnabled()) {
             if (M.r(0.2 * progress)) {
@@ -175,48 +188,71 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
             }
         }
 
-        VelocitySpeed.InputSnapshot input = VelocitySpeed.readInput(p, getConfig().fallbackInputVelocityThresholdSquared());
-        if (!input.hasHorizontal()) {
-            speedBoosting.put(id, false);
-            return;
-        }
-        applyWindupSpeed(p, id, input, speedIncrease);
-
-        if (progress >= 1.0) {
+        if (progress >= 1.0 && isMovingHorizontally(p, getConfig().movementVelocityThreshold)) {
             getPlayer(p).getData().addStat("agility.wind-up.max-speed-ticks", 1);
         }
     }
 
-    private void applyWindupSpeed(Player p, UUID id, VelocitySpeed.InputSnapshot input, double speedIncrease) {
-        Vector direction = VelocitySpeed.resolveHorizontalDirection(p, input);
-        if (direction.lengthSquared() <= VelocitySpeed.EPSILON) {
-            speedBoosting.put(id, false);
+    private void applyBoost(Player p, RuntimeState state, double speedIncrease) {
+        if (!state.boosting) {
+            state.boosting = true;
+            state.originalWalkSpeed = p.getWalkSpeed();
+        }
+
+        float baseWalkSpeed = clampWalkSpeed(state.originalWalkSpeed);
+        double bonus = Math.max(0D, speedIncrease) * Math.max(0D, getConfig().walkSpeedBonusScalar);
+        float target = clampWalkSpeed((float) (baseWalkSpeed * (1D + bonus)));
+        float configuredMaxWalkSpeed = clampWalkSpeed((float) Math.max(0D, getConfig().maxWalkSpeed));
+        float maxWalkSpeed = Math.max(baseWalkSpeed, configuredMaxWalkSpeed);
+        if (target > maxWalkSpeed) {
+            target = maxWalkSpeed;
+        }
+
+        float smoothing = (float) Math.max(0D, Math.min(1D, getConfig().walkSpeedLerpPerTick));
+        float current = p.getWalkSpeed();
+        float next = current + ((target - current) * smoothing);
+        if (Math.abs(target - next) < 0.0005f) {
+            next = target;
+        }
+
+        if (Math.abs(current - next) > 0.0001f) {
+            p.setWalkSpeed(next);
+        }
+    }
+
+    private void clearBoost(Player p, RuntimeState state) {
+        if (!state.boosting) {
             return;
         }
 
-        Vector horizontal = VelocitySpeed.horizontalOnly(p.getVelocity());
-        double computedTargetSpeed = Math.max(0, getConfig().baseHorizontalSpeed * (1.0 + Math.max(0, speedIncrease)));
-        double targetSpeed = Math.min(getConfig().maxHorizontalSpeed, Math.max(horizontal.length(), computedTargetSpeed));
-        Vector targetHorizontal = direction.multiply(targetSpeed);
-        Vector nextHorizontal = VelocitySpeed.moveTowards(horizontal, targetHorizontal, Math.max(0, getConfig().accelPerTick));
-        nextHorizontal = VelocitySpeed.clampHorizontal(nextHorizontal, getConfig().maxHorizontalSpeed);
-        VelocitySpeed.setHorizontalVelocity(p, nextHorizontal);
-        speedBoosting.put(id, true);
+        state.boosting = false;
+        float restore = clampWalkSpeed(state.originalWalkSpeed);
+        float current = p.getWalkSpeed();
+        if (Math.abs(current - restore) > 0.0001f) {
+            p.setWalkSpeed(restore);
+        }
     }
 
-    private void invalidateWindupSpeed(Player p, UUID id, boolean invalidState) {
-        if (!speedBoosting.getOrDefault(id, false)) {
+    private void clearAndRemoveState(Player p) {
+        if (p == null) {
             return;
         }
 
-        if (invalidState && getConfig().hardStopOnInvalidState) {
-            VelocitySpeed.hardStopHorizontal(p);
+        UUID id = p.getUniqueId();
+        ticksRunning.remove(id);
+        RuntimeState state = states.remove(id);
+        if (state != null) {
+            clearBoost(p, state);
         }
-
-        speedBoosting.put(id, false);
     }
 
-    private boolean isVelocityEligible(Player p) {
+    private boolean isMovingHorizontally(Player p, double velocityThreshold) {
+        Vector movement = new Vector(p.getVelocity().getX(), 0, p.getVelocity().getZ());
+        double threshold = Math.max(0D, velocityThreshold);
+        return movement.lengthSquared() > (threshold * threshold);
+    }
+
+    private boolean isWindupEligible(Player p) {
         GameMode mode = p.getGameMode();
         if (mode != GameMode.SURVIVAL && mode != GameMode.ADVENTURE) {
             return false;
@@ -228,6 +264,16 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
                 && !p.isGliding()
                 && !p.isSneaking()
                 && p.getVehicle() == null;
+    }
+
+    private float clampWalkSpeed(float speed) {
+        if (speed < 0f) {
+            return 0f;
+        }
+        if (speed > 1f) {
+            return 1f;
+        }
+        return speed;
     }
 
     @Override
@@ -264,25 +310,19 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
         double windupSpeedBase = 0.22;
         @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Windup Speed Level Multiplier for the Agility Wind Up adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double windupSpeedLevelMultiplier = 0.225;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Base horizontal speed used for windup velocity scaling.", impact = "Higher values increase movement speed while windup is active.")
-        double baseHorizontalSpeed = 0.13;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum horizontal speed this adaptation can force.", impact = "Acts as a hard cap to prevent runaway momentum.")
-        double maxHorizontalSpeed = 0.31;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "How fast velocity accelerates toward the windup target per tick.", impact = "Higher values accelerate faster; lower values feel smoother.")
-        double accelPerTick = 0.045;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "How fast velocity decays when sprint movement is not applied.", impact = "Higher values stop faster and reduce carry momentum.")
-        double brakePerTick = 0.08;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Horizontal velocity threshold considered fully stopped.", impact = "Higher values stop sooner; lower values preserve tiny motion longer.")
-        double stopThreshold = 0.01;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "If true, windup velocity is force-cleared when entering invalid states.", impact = "Prevents retained speed from skipped state transitions.")
-        boolean hardStopOnInvalidState = false;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Fallback movement threshold used when direct input API is unavailable.", impact = "Only used on runtimes without Player input access.")
-        double fallbackInputVelocityThreshold = 0.0008;
+        @art.arcane.adapt.util.config.ConfigDoc(value = "Scales walk-speed gain from windup speed increase while sprinting.", impact = "Higher values produce stronger land-speed acceleration.")
+        double walkSpeedBonusScalar = 0.75;
+        @art.arcane.adapt.util.config.ConfigDoc(value = "Smooths walk-speed changes toward windup target each tick.", impact = "Higher values ramp faster; lower values feel softer.")
+        double walkSpeedLerpPerTick = 0.45;
+        @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum walk speed this adaptation can set while windup is active.", impact = "Higher values allow faster grounded sprinting before clamping.")
+        double maxWalkSpeed = 0.35;
+        @art.arcane.adapt.util.config.ConfigDoc(value = "Minimum horizontal movement speed required for max-speed stat credit.", impact = "Higher values require clearer movement before counting max-speed ticks.")
+        double movementVelocityThreshold = 0.015;
+    }
 
-        double fallbackInputVelocityThresholdSquared() {
-            double threshold = Math.max(0, fallbackInputVelocityThreshold);
-            return threshold * threshold;
-        }
+    private static class RuntimeState {
+        private boolean boosting;
+        private float originalWalkSpeed;
     }
 
 }

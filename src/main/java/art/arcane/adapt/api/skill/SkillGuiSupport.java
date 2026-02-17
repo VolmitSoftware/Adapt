@@ -41,14 +41,22 @@ import art.arcane.volmlib.util.format.Form;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryType;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 final class SkillGuiSupport {
+    private static final long CLOSE_SUPPRESS_MS = 1200L;
+    private static final int CLOSE_SUPPRESS_CLEAR_TICKS = 4;
+    private static final Map<UUID, Long> CLOSE_SUPPRESS_UNTIL = new ConcurrentHashMap<>();
+
     private SkillGuiSupport() {
     }
 
@@ -174,7 +182,7 @@ final class SkillGuiSupport {
                             .addLore(Form.wrapWordsPrefixed(adaptation.getDescription(), "" + C.GRAY, 45))
                             .addLore(level == 0 ? (C.DARK_GRAY + Localizer.dLocalize("snippets.gui.not_learned")) : (C.GRAY + Localizer.dLocalize("snippets.gui.level") + " " + C.WHITE + Form.toRoman(level)))
                             .setProgress(1D)
-                            .onLeftClick((e) -> adaptation.openGui(player));
+                            .onLeftClick((e) -> openAdaptation(adaptation, player));
                     reveal.add(new GuiEffects.Placement(pos, row, element));
                 }
             }
@@ -191,24 +199,24 @@ final class SkillGuiSupport {
                         .setMaterial(new MaterialBlock(Material.ARROW))
                         .setName(C.WHITE + "Previous")
                         .addLore(C.GRAY + "Right click: jump -" + jumpPages + " pages")
-                        .onLeftClick((e) -> openGui(skill, player, currentPage - 1))
-                        .onRightClick((e) -> openGui(skill, player, jumpBack)));
+                        .onLeftClick((e) -> openSkillPage(skill, player, currentPage - 1))
+                        .onRightClick((e) -> openSkillPage(skill, player, jumpBack)));
                 window.setElement(-3, navRow, new UIElement("skill-first")
                         .setMaterial(new MaterialBlock(Material.LECTERN))
                         .setName(C.GRAY + "First")
-                        .onLeftClick((e) -> openGui(skill, player, 0)));
+                        .onLeftClick((e) -> openSkillPage(skill, player, 0)));
             }
             if (currentPage < plan.pageCount() - 1) {
                 window.setElement(4, navRow, new UIElement("skill-next")
                         .setMaterial(new MaterialBlock(Material.ARROW))
                         .setName(C.WHITE + "Next")
                         .addLore(C.GRAY + "Right click: jump +" + jumpPages + " pages")
-                        .onLeftClick((e) -> openGui(skill, player, currentPage + 1))
-                        .onRightClick((e) -> openGui(skill, player, jumpForward)));
+                        .onLeftClick((e) -> openSkillPage(skill, player, currentPage + 1))
+                        .onRightClick((e) -> openSkillPage(skill, player, jumpForward)));
                 window.setElement(3, navRow, new UIElement("skill-last")
                         .setMaterial(new MaterialBlock(Material.LECTERN))
                         .setName(C.GRAY + "Last")
-                        .onLeftClick((e) -> openGui(skill, player, plan.pageCount() - 1)));
+                        .onLeftClick((e) -> openSkillPage(skill, player, plan.pageCount() - 1)));
             }
 
             int from = visibleAdaptations.isEmpty() ? 0 : (start + 1);
@@ -223,28 +231,95 @@ final class SkillGuiSupport {
                 window.setElement(0, navRow, new UIElement("back")
                         .setMaterial(new MaterialBlock(Material.ARROW))
                         .setName("" + C.RESET + C.GRAY + Localizer.dLocalize("snippets.gui.back"))
-                        .onLeftClick((e) -> onGuiClose(player, true)));
+                        .onLeftClick((e) -> navigateBack(player)));
             }
 
         }
 
         String pageSuffix = plan.pageCount() > 1 ? " [" + (currentPage + 1) + "/" + plan.pageCount() + "]" : "";
         window.setTitle(skill.getDisplayName(adaptPlayer.getSkillLine(skill.getName()).getLevel()) + " " + Form.pc(XP.getLevelProgress(adaptPlayer.getSkillLine(skill.getName()).getXp())) + " (" + Form.f((int) XP.getXpUntilLevelUp(adaptPlayer.getSkillLine(skill.getName()).getXp())) + Localizer.dLocalize("snippets.gui.xp") + " " + (adaptPlayer.getSkillLine(skill.getName()).getLevel() + 1) + ")" + pageSuffix);
-        window.onClosed((vv) -> J.s(() -> onGuiClose(player, !AdaptConfig.get().isEscClosesAllGuis())));
+        window.onClosed((vv) -> J.s(() -> onGuiClosed(player, !AdaptConfig.get().isEscClosesAllGuis())));
         window.open();
         Adapt.instance.getGuiLeftovers().put(player.getUniqueId().toString(), window);
     }
 
-    private static void onGuiClose(Player player, boolean openPrevGui) {
+    private static void openSkillPage(Skill<?> skill, Player player, int page) {
+        suppressClose(player);
+        openGui(skill, player, page);
+    }
+
+    private static void openAdaptation(Adaptation<?> adaptation, Player player) {
+        suppressClose(player);
+        adaptation.openGui(player);
+    }
+
+    private static void navigateBack(Player player) {
+        playCloseSound(player);
+        suppressClose(player);
+        SkillsGui.open(player);
+    }
+
+    private static void onGuiClosed(Player player, boolean openPrevGui) {
+        if (player == null) {
+            return;
+        }
+
+        if (consumeCloseSuppression(player)) {
+            return;
+        }
+
+        playCloseSound(player);
+        if (openPrevGui) {
+            J.s(() -> {
+                if (player.isOnline() && player.getOpenInventory().getTopInventory().getType() == InventoryType.CRAFTING) {
+                    SkillsGui.open(player);
+                }
+            }, 1);
+        } else {
+            Adapt.instance.getGuiLeftovers().remove(player.getUniqueId().toString());
+        }
+    }
+
+    private static void playCloseSound(Player player) {
         SoundPlayer spw = SoundPlayer.of(player.getWorld());
         spw.play(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 1.255f);
         spw.play(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.7f, 1.455f);
         spw.play(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.3f, 1.855f);
-        if (openPrevGui) {
-            SkillsGui.open(player);
-        } else {
-            Adapt.instance.getGuiLeftovers().remove(player.getUniqueId().toString());
+    }
+
+    private static void suppressClose(Player player) {
+        if (player == null) {
+            return;
         }
+
+        UUID playerId = player.getUniqueId();
+        long suppressUntil = System.currentTimeMillis() + CLOSE_SUPPRESS_MS;
+        CLOSE_SUPPRESS_UNTIL.put(playerId, suppressUntil);
+        J.s(() -> {
+            Long current = CLOSE_SUPPRESS_UNTIL.get(playerId);
+            if (current != null && current.longValue() == suppressUntil) {
+                CLOSE_SUPPRESS_UNTIL.remove(playerId);
+            }
+        }, CLOSE_SUPPRESS_CLEAR_TICKS);
+    }
+
+    private static boolean consumeCloseSuppression(Player player) {
+        if (player == null) {
+            return false;
+        }
+
+        Long until = CLOSE_SUPPRESS_UNTIL.get(player.getUniqueId());
+        if (until == null) {
+            return false;
+        }
+
+        if (until >= System.currentTimeMillis()) {
+            CLOSE_SUPPRESS_UNTIL.remove(player.getUniqueId());
+            return true;
+        }
+
+        CLOSE_SUPPRESS_UNTIL.remove(player.getUniqueId());
+        return false;
     }
 
     private static String normalizeSortKey(String value) {

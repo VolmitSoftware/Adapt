@@ -27,10 +27,12 @@ import art.arcane.adapt.api.tick.TickedObject;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.content.item.ItemListings;
+import art.arcane.adapt.util.common.format.AdventureCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigFileSupport;
 import art.arcane.volmlib.util.collection.KList;
+import art.arcane.volmlib.util.format.Form;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.bukkit.Material;
@@ -42,6 +44,7 @@ import org.bukkit.event.Cancellable;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.Locale;
 import java.util.UUID;
 
 @EqualsAndHashCode(callSuper = false)
@@ -50,6 +53,7 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
     private final String name;
     private final String emojiName;
     private C color;
+    private String colorPrefix;
     private double minXp;
     private String description;
     private String displayName;
@@ -143,6 +147,7 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
     }
 
     protected void onConfigReload(T previousConfig, T newConfig) {
+        applyColorField(newConfig);
         applyDoubleField(newConfig, "minXp", this::setMinXp);
         Number interval = getNumericField(newConfig, "setInterval");
         if (interval != null) {
@@ -157,6 +162,24 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
         }
     }
 
+    private void applyColorField(T source) {
+        String configuredColor = getStringField(source, "skillColor");
+        if (configuredColor == null || configuredColor.isBlank()) {
+            return;
+        }
+
+        String prefix = resolveColorPrefix(configuredColor);
+        if (prefix == null || prefix.isBlank()) {
+            return;
+        }
+
+        colorPrefix = prefix;
+        C resolvedColor = resolveLegacyColor(prefix);
+        if (resolvedColor != null) {
+            color = resolvedColor;
+        }
+    }
+
     private Number getNumericField(T source, String fieldName) {
         Field f = getField(source.getClass(), fieldName);
         if (f == null) {
@@ -168,6 +191,27 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
             Object value = f.get(source);
             if (value instanceof Number number) {
                 return number;
+            }
+        } catch (Throwable ex) {
+            Adapt.verbose("Failed reading config field '" + fieldName + "' for skill " + getName() + ": "
+                    + ex.getClass().getSimpleName()
+                    + (ex.getMessage() == null ? "" : " - " + ex.getMessage()));
+        }
+
+        return null;
+    }
+
+    private String getStringField(T source, String fieldName) {
+        Field f = getField(source.getClass(), fieldName);
+        if (f == null) {
+            return null;
+        }
+
+        try {
+            f.setAccessible(true);
+            Object value = f.get(source);
+            if (value instanceof String stringValue) {
+                return stringValue;
             }
         } catch (Throwable ex) {
             Adapt.verbose("Failed reading config field '" + fieldName + "' for skill " + getName() + ": "
@@ -256,9 +300,42 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
         return SkillRuntimeGuards.isInCreativeOrSpectator(p);
     }
 
+    public void setColor(C color) {
+        C resolved = color == null ? C.WHITE : color;
+        this.color = resolved;
+        this.colorPrefix = resolved.toString();
+    }
+
     @Override
     public String getDisplayName() {
-        return displayName == null ? Skill.super.getDisplayName() : (C.RESET + "" + C.BOLD + getColor().toString() + getEmojiName() + " " + displayName);
+        if (!this.isEnabled()) {
+            return C.DARK_GRAY + Form.capitalize(getName());
+        }
+
+        String shownName = displayName == null ? Form.capitalize(getName()) : displayName;
+        return C.RESET + "" + C.BOLD + colorPrefixValue() + getEmojiName() + " " + shownName;
+    }
+
+    @Override
+    public String getShortName() {
+        if (!this.isEnabled()) {
+            return C.DARK_GRAY + Form.capitalize(getName());
+        }
+
+        return C.RESET + "" + C.BOLD + colorPrefixValue() + getEmojiName();
+    }
+
+    @Override
+    public String getDisplayName(int level) {
+        if (!this.isEnabled()) {
+            return C.DARK_GRAY + Form.capitalize(getName());
+        }
+
+        if (level > 0) {
+            return getDisplayName() + C.RESET + " " + C.UNDERLINE + C.WHITE + level + C.RESET;
+        }
+
+        return getDisplayName();
     }
 
     @Override
@@ -322,6 +399,193 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
     public void unregister() {
         super.unregister();
         adaptations.forEach(Adaptation::unregister);
+    }
+
+    private String colorPrefixValue() {
+        if (colorPrefix == null || colorPrefix.isBlank()) {
+            return color == null ? C.WHITE.toString() : color.toString();
+        }
+        return colorPrefix;
+    }
+
+    private String resolveColorPrefix(String rawInput) {
+        String raw = rawInput == null ? "" : rawInput.trim();
+        if (raw.isBlank()) {
+            return null;
+        }
+
+        C named = parseNamedColor(raw);
+        if (named != null) {
+            return named.toString();
+        }
+
+        String normalizedHex = normalizeHex(raw);
+        if (normalizedHex != null) {
+            return C.translateAlternateColorCodes('&', "&#" + normalizedHex);
+        }
+
+        if (raw.indexOf(C.COLOR_CHAR) >= 0) {
+            return raw;
+        }
+
+        String legacy = C.translateAlternateColorCodes('&', raw);
+        if (legacy != null && legacy.indexOf(C.COLOR_CHAR) >= 0) {
+            return legacy;
+        }
+
+        String mini = AdventureCompat.toLegacySection(raw);
+        if (mini != null && mini.indexOf(C.COLOR_CHAR) >= 0) {
+            return mini;
+        }
+
+        return null;
+    }
+
+    private C parseNamedColor(String raw) {
+        String normalized = raw.trim().toUpperCase(Locale.ROOT)
+                .replace('-', '_')
+                .replace(' ', '_');
+        try {
+            C candidate = C.valueOf(normalized);
+            if (candidate.isColor()) {
+                return candidate;
+            }
+        } catch (IllegalArgumentException ignored) {
+        }
+
+        if (raw.length() == 1) {
+            char code = Character.toLowerCase(raw.charAt(0));
+            if (isLegacyColorChar(code)) {
+                return C.getByChar(code);
+            }
+        }
+
+        return null;
+    }
+
+    private String normalizeHex(String raw) {
+        String value = raw;
+        if (value.startsWith("#")) {
+            value = value.substring(1);
+        } else if (value.startsWith("0x") || value.startsWith("0X")) {
+            value = value.substring(2);
+        }
+
+        if (value.length() != 6) {
+            return null;
+        }
+
+        for (int i = 0; i < value.length(); i++) {
+            if (!isHexChar(value.charAt(i))) {
+                return null;
+            }
+        }
+
+        return value;
+    }
+
+    private boolean isHexChar(char c) {
+        return (c >= '0' && c <= '9')
+                || (c >= 'a' && c <= 'f')
+                || (c >= 'A' && c <= 'F');
+    }
+
+    private boolean isLegacyColorChar(char code) {
+        return (code >= '0' && code <= '9') || (code >= 'a' && code <= 'f');
+    }
+
+    private C resolveLegacyColor(String prefix) {
+        if (prefix == null || prefix.isBlank()) {
+            return color;
+        }
+
+        for (int i = 0; i < prefix.length() - 1; i++) {
+            if (prefix.charAt(i) != C.COLOR_CHAR) {
+                continue;
+            }
+
+            char code = Character.toLowerCase(prefix.charAt(i + 1));
+            if (isLegacyColorChar(code)) {
+                return C.getByChar(code);
+            }
+
+            if (code == 'x') {
+                String hex = parseSectionHex(prefix, i);
+                if (hex == null) {
+                    continue;
+                }
+
+                C nearest = nearestLegacyColor(hex);
+                if (nearest != null) {
+                    return nearest;
+                }
+            }
+        }
+
+        return color;
+    }
+
+    private String parseSectionHex(String prefix, int start) {
+        if (start + 13 >= prefix.length()) {
+            return null;
+        }
+
+        StringBuilder hex = new StringBuilder(6);
+        for (int i = 0; i < 6; i++) {
+            int colorTokenIndex = start + 2 + (i * 2);
+            int hexIndex = colorTokenIndex + 1;
+            if (colorTokenIndex >= prefix.length() || hexIndex >= prefix.length()) {
+                return null;
+            }
+            if (prefix.charAt(colorTokenIndex) != C.COLOR_CHAR) {
+                return null;
+            }
+            char hexChar = prefix.charAt(hexIndex);
+            if (!isHexChar(hexChar)) {
+                return null;
+            }
+            hex.append(hexChar);
+        }
+        return hex.toString();
+    }
+
+    private C nearestLegacyColor(String hex) {
+        try {
+            int rgb = Integer.parseInt(hex, 16);
+            int r = (rgb >> 16) & 0xFF;
+            int g = (rgb >> 8) & 0xFF;
+            int b = rgb & 0xFF;
+
+            C best = null;
+            long bestDistance = Long.MAX_VALUE;
+            for (C candidate : C.values()) {
+                if (!candidate.isColor()) {
+                    continue;
+                }
+
+                String candidateHex = candidate.hex();
+                if (candidateHex == null || candidateHex.length() != 7) {
+                    continue;
+                }
+
+                int candidateRgb = Integer.parseInt(candidateHex.substring(1), 16);
+                int cr = (candidateRgb >> 16) & 0xFF;
+                int cg = (candidateRgb >> 8) & 0xFF;
+                int cb = candidateRgb & 0xFF;
+
+                long distance = ((long) r - cr) * ((long) r - cr)
+                        + ((long) g - cg) * ((long) g - cg)
+                        + ((long) b - cb) * ((long) b - cb);
+                if (distance < bestDistance) {
+                    bestDistance = distance;
+                    best = candidate;
+                }
+            }
+
+            return best == null ? color : best;
+        } catch (Throwable ignored) {
+            return color;
+        }
     }
 
     @Override

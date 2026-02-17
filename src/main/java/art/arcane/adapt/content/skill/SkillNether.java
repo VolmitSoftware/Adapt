@@ -249,6 +249,7 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
     public static class Config {
         @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
         private boolean enabled = true;
+        String skillColor = "&8";
         @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Wither Damage Xp for the Nether skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         private double witherDamageXp = 26.0;
         @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Wither Attack Xp for the Nether skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

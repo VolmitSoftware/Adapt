@@ -253,6 +253,7 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
     protected static class Config {
         @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
         boolean enabled = true;
+        String skillColor = "&8";
         @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp On Blocked Attack for the Blocking skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double xpOnBlockedAttack = 25;
         @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Challenge Block1k Reward for the Blocking skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

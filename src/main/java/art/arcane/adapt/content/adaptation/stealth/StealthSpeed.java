@@ -75,12 +75,12 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
 
     @EventHandler
     public void on(PlayerQuitEvent e) {
-        states.remove(e.getPlayer().getUniqueId());
+        clearAndRemoveState(e.getPlayer());
     }
 
     @EventHandler
     public void on(PlayerDeathEvent e) {
-        states.remove(e.getEntity().getUniqueId());
+        clearAndRemoveState(e.getEntity());
     }
 
     @Override
@@ -152,6 +152,19 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
         if (Math.abs(current - restore) > 0.0001f) {
             p.setWalkSpeed(restore);
         }
+    }
+
+    private void clearAndRemoveState(Player p) {
+        if (p == null) {
+            return;
+        }
+
+        RuntimeState state = states.remove(p.getUniqueId());
+        if (state == null) {
+            return;
+        }
+
+        clearBoost(p, state);
     }
 
     private boolean isEligible(Player p) {

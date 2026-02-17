@@ -123,7 +123,10 @@ public class SkillRegistry extends TickedObject {
         boolean commonConditions = p.isSneaking() && e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && e.getClickedBlock() != null;
         boolean isLectern = commonConditions && e.getClickedBlock().getType().equals(Material.LECTERN);
         boolean isObserver = commonConditions && e.getClickedBlock().getType().equals(Material.OBSERVER);
-        boolean isAdaptActivator = !e.getBlockFace().equals(BlockFace.UP) && !e.getBlockFace().equals(BlockFace.DOWN) && !p.isSneaking() && e.getAction().equals(Action.RIGHT_CLICK_BLOCK)
+        boolean allowVerticalFaces = AdaptConfig.get().adaptActivatorAllowVerticalFaces;
+        boolean validActivatorFace = e.getBlockFace() != null
+                && (allowVerticalFaces || (!e.getBlockFace().equals(BlockFace.UP) && !e.getBlockFace().equals(BlockFace.DOWN)));
+        boolean isAdaptActivator = validActivatorFace && !p.isSneaking() && e.getAction().equals(Action.RIGHT_CLICK_BLOCK)
                 && e.getClickedBlock() != null
                 && canInteract(p, e.getClickedBlock().getLocation())
                 && e.getClickedBlock().getType().equals(Material.valueOf(AdaptConfig.get().adaptActivatorBlock)) && (p.getInventory().getItemInMainHand().getType().equals(Material.AIR)

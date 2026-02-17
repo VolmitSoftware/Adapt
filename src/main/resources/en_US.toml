@@ -1,3 +1,8 @@
+# Color Codes:
+# - Legacy format: &0..&f, &k..&o, &r (example: "&7Gray")
+# - Hex format: &#RRGGBB or &x&R&R&G&G&B&B (example: "&#55FFAAMint")
+# - MiniMessage also works (example: "<#55FFAA>Mint")
+#
 # advancement
 [advancement]
 

@@ -503,17 +503,14 @@ final class AdaptationRuntimeGuards {
                 return 0;
             }
 
-            AbilityCheckTelemetry.recordCheckAttempt();
             long tick = M.tick;
             String key = cacheKey(adaptation, p);
             ActiveLevelCacheEntry cached = ACTIVE_LEVEL_CACHE.get(key);
             if (cached != null && cached.tick() == tick) {
-                if (cached.level() > 0) {
-                    AbilityCheckTelemetry.recordSuccessfulCheck();
-                }
                 return cached.level();
             }
 
+            AbilityCheckTelemetry.recordCheckAttempt();
             int level = resolveActiveLevelUncached(adaptation, p);
             ACTIVE_LEVEL_CACHE.put(key, new ActiveLevelCacheEntry(tick, level));
             sweepActiveLevelCache(tick);

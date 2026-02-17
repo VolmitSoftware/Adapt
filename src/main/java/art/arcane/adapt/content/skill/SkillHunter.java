@@ -302,6 +302,7 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
     protected static class Config {
         @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
         boolean enabled = true;
+        String skillColor = "&c";
         @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Get Xp For Attacking With Tools for the Hunter skill.", impact = "True enables this behavior and false disables it.")
         boolean getXpForAttackingWithTools = true;
         @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Turtle Egg Kill XP for the Hunter skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

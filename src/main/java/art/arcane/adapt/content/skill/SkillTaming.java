@@ -254,6 +254,7 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
     protected static class Config {
         @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
         boolean enabled = true;
+        String skillColor = "&6";
         @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Tame Xp Base for the Taming skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double tameXpBase = 65;
         @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown Delay for the Taming skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

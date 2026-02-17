@@ -1,6 +1,7 @@
 package art.arcane.adapt.command;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.skill.SimpleSkill;
@@ -8,6 +9,8 @@ import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.skill.SkillRegistry;
 import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.adapt.api.world.PlayerData;
+import art.arcane.adapt.api.world.PlayerSkillLine;
+import art.arcane.adapt.api.xp.XP;
 import art.arcane.adapt.content.gui.ConfigGui;
 import art.arcane.adapt.content.gui.SkillsGui;
 import art.arcane.adapt.content.item.ExperienceOrb;
@@ -280,12 +283,17 @@ public class CommandAdapt {
         Player targetPlayer = player;
         if (targetPlayer == null && BukkitDirectorContext.isConsole()) {
             FConst.error("You must specify a player when using this command from console.").send(BukkitDirectorContext.sender());
+            return;
         } else if (targetPlayer == null) {
             targetPlayer = BukkitDirectorContext.player();
         }
 
         //the format is skillname:adaptationname
-        String[] split = adaptationTarget.name().split(":");
+        String[] split = adaptationTarget.name().split(":", 2);
+        if (split.length != 2) {
+            FConst.error("Invalid adaptation target format. Use skill:adaptation").send(BukkitDirectorContext.sender());
+            return;
+        }
         String skillname = split[0];
         String adaptationname = split[1];
 
@@ -295,9 +303,9 @@ public class CommandAdapt {
                     if (adaptation.getName().equalsIgnoreCase(adaptationname)) {
                         if (targetPlayer != null) {
                             if (assign) {
-                                adaptation.learn(player, level, force);
+                                adaptation.learn(targetPlayer, level, force);
                             } else {
-                                adaptation.unlearn(player, level, force);
+                                adaptation.unlearn(targetPlayer, level, force);
                             }
                         } else {
                             FConst.error("You must specify a player when using this command from console.").send(BukkitDirectorContext.sender());
@@ -308,6 +316,160 @@ public class CommandAdapt {
                 return;
             }
         }
+    }
+
+    @Director(name = "claim-skill", description = "Set a player's skill line level between 0 and 100 for custom UI integration.")
+    public void claimSkill(
+            @Param(aliases = "skill")
+            AdaptationListingHandler.SkillProvider skillTarget,
+            @Param(aliases = "level")
+            int level,
+            @Param(aliases = "player", defaultValue = "---", customHandler = NullablePlayerHandler.class)
+            Player player
+    ) {
+        if (!BukkitDirectorContext.hasPermission("adapt.determine")) {
+            FConst.error("You lack the Permission 'adapt.determine'").send(BukkitDirectorContext.sender());
+            return;
+        }
+
+        Player targetPlayer = resolveTargetPlayer(player);
+        if (targetPlayer == null) {
+            return;
+        }
+
+        if (level < 0 || level > 100) {
+            FConst.error("Skill claim level must be between 0 and 100.").send(BukkitDirectorContext.sender());
+            return;
+        }
+
+        Skill<?> skill = Adapt.instance.getAdaptServer().getSkillRegistry().getAnySkill(skillTarget.name());
+        if (skill == null) {
+            FConst.error("Unknown skill: " + skillTarget.name()).send(BukkitDirectorContext.sender());
+            return;
+        }
+
+        PlayerData playerData = Adapt.instance.getAdaptServer().getPlayer(targetPlayer).getData();
+        PlayerSkillLine skillLine = playerData.getSkillLine(skill.getName());
+        if (skillLine == null) {
+            FConst.error("Failed to resolve skill line for " + skill.getName() + ".").send(BukkitDirectorContext.sender());
+            return;
+        }
+
+        double targetXp = XP.getXpForLevel(level);
+        skillLine.setXp(targetXp);
+        if (skillLine.getLastXP() > targetXp) {
+            skillLine.setLastXP(targetXp);
+        }
+        if (skillLine.getLastLevel() > level) {
+            skillLine.setLastLevel(level);
+        }
+
+        FConst.success("Set " + targetPlayer.getName() + " " + skill.getName() + " level to " + level + ".").send(BukkitDirectorContext.sender());
+    }
+
+    @Director(name = "claim-adaptation", description = "Set an adaptation level between 0 and 100 if the player can afford it.")
+    public void claimAdaptation(
+            @Param(aliases = "adaptationTarget")
+            AdaptationListingHandler.AdaptationProvider adaptationTarget,
+            @Param(aliases = "level")
+            int level,
+            @Param(aliases = "force", defaultValue = "false")
+            boolean force,
+            @Param(aliases = "player", defaultValue = "---", customHandler = NullablePlayerHandler.class)
+            Player player
+    ) {
+        if (!BukkitDirectorContext.hasPermission("adapt.determine")) {
+            FConst.error("You lack the Permission 'adapt.determine'").send(BukkitDirectorContext.sender());
+            return;
+        }
+
+        Player targetPlayer = resolveTargetPlayer(player);
+        if (targetPlayer == null) {
+            return;
+        }
+
+        if (level < 0 || level > 100) {
+            FConst.error("Adaptation claim level must be between 0 and 100.").send(BukkitDirectorContext.sender());
+            return;
+        }
+
+        String[] split = adaptationTarget.name().split(":", 2);
+        if (split.length != 2) {
+            FConst.error("Invalid adaptation target format. Use skill:adaptation").send(BukkitDirectorContext.sender());
+            return;
+        }
+
+        Skill<?> skill = Adapt.instance.getAdaptServer().getSkillRegistry().getAnySkill(split[0]);
+        if (skill == null) {
+            FConst.error("Unknown skill: " + split[0]).send(BukkitDirectorContext.sender());
+            return;
+        }
+
+        Adaptation<?> adaptation = null;
+        for (Adaptation<?> candidate : skill.getAdaptations()) {
+            if (candidate.getName().equalsIgnoreCase(split[1])) {
+                adaptation = candidate;
+                break;
+            }
+        }
+
+        if (adaptation == null) {
+            FConst.error("Unknown adaptation: " + split[1] + " in skill " + skill.getName()).send(BukkitDirectorContext.sender());
+            return;
+        }
+
+        PlayerData playerData = Adapt.instance.getAdaptServer().getPlayer(targetPlayer).getData();
+        PlayerSkillLine skillLine = playerData.getSkillLine(skill.getName());
+        if (skillLine == null) {
+            FConst.error("Failed to resolve skill line for " + skill.getName() + ".").send(BukkitDirectorContext.sender());
+            return;
+        }
+
+        int currentLevel = skillLine.getAdaptationLevel(adaptation.getName());
+        int targetLevel = Math.max(0, Math.min(level, adaptation.getMaxLevel()));
+        if (targetLevel == currentLevel) {
+            FConst.success("No change: " + adaptation.getName() + " is already at level " + currentLevel + ".").send(BukkitDirectorContext.sender());
+            return;
+        }
+
+        if (targetLevel > currentLevel) {
+            int knowledgeCost = adaptation.getCostFor(targetLevel, currentLevel);
+            int powerCost = adaptation.getPowerCostFor(targetLevel, currentLevel);
+
+            if (!force) {
+                if (!playerData.hasPowerAvailable(powerCost)) {
+                    FConst.error("Not enough available power. Need " + powerCost + ", have " + playerData.getAvailablePower() + ".").send(BukkitDirectorContext.sender());
+                    return;
+                }
+
+                if (skillLine.getKnowledge() < knowledgeCost) {
+                    FConst.error("Not enough knowledge in " + skill.getName() + ". Need " + knowledgeCost + ", have " + skillLine.getKnowledge() + ".").send(BukkitDirectorContext.sender());
+                    return;
+                }
+
+                if (!skillLine.spendKnowledge(knowledgeCost)) {
+                    FConst.error("Failed to spend required knowledge (" + knowledgeCost + ").").send(BukkitDirectorContext.sender());
+                    return;
+                }
+            }
+
+            skillLine.setAdaptation(adaptation, targetLevel);
+            FConst.success("Set " + targetPlayer.getName() + " " + adaptation.getName() + " to level " + targetLevel + ".").send(BukkitDirectorContext.sender());
+            return;
+        }
+
+        if (adaptation.isPermanent() && !force) {
+            FConst.error(adaptation.getName() + " is permanent and cannot be lowered without force=true.").send(BukkitDirectorContext.sender());
+            return;
+        }
+
+        int refund = AdaptConfig.get().isHardcoreNoRefunds() ? 0 : adaptation.getRefundCostFor(targetLevel, currentLevel);
+        skillLine.setAdaptation(adaptation, targetLevel);
+        if (refund > 0) {
+            skillLine.giveKnowledge(refund);
+        }
+
+        FConst.success("Set " + targetPlayer.getName() + " " + adaptation.getName() + " to level " + targetLevel + ".").send(BukkitDirectorContext.sender());
     }
 
     @Director(name = "migrate-configs", description = "Force migrate and rewrite all skill/adaptation configs to canonical TOML with comments.")
@@ -352,5 +514,17 @@ public class CommandAdapt {
         }
 
         return SkillRegistry.skills.sortV();
+    }
+
+    private Player resolveTargetPlayer(Player player) {
+        Player targetPlayer = player;
+        if (targetPlayer == null && BukkitDirectorContext.isConsole()) {
+            FConst.error("You must specify a player when using this command from console.").send(BukkitDirectorContext.sender());
+            return null;
+        }
+        if (targetPlayer == null) {
+            targetPlayer = BukkitDirectorContext.player();
+        }
+        return targetPlayer;
     }
 }
