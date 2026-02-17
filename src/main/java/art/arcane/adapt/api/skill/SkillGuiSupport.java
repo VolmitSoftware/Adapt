@@ -236,8 +236,7 @@ final class SkillGuiSupport {
 
         }
 
-        String pageSuffix = plan.pageCount() > 1 ? " [" + (currentPage + 1) + "/" + plan.pageCount() + "]" : "";
-        window.setTitle(skill.getDisplayName(adaptPlayer.getSkillLine(skill.getName()).getLevel()) + " " + Form.pc(XP.getLevelProgress(adaptPlayer.getSkillLine(skill.getName()).getXp())) + " (" + Form.f((int) XP.getXpUntilLevelUp(adaptPlayer.getSkillLine(skill.getName()).getXp())) + Localizer.dLocalize("snippets.gui.xp") + " " + (adaptPlayer.getSkillLine(skill.getName()).getLevel() + 1) + ")" + pageSuffix);
+        window.setTitle(skill.getDisplayName(adaptPlayer.getSkillLine(skill.getName()).getLevel()) + " " + Form.pc(XP.getLevelProgress(adaptPlayer.getSkillLine(skill.getName()).getXp())) + " (" + Form.f((int) XP.getXpUntilLevelUp(adaptPlayer.getSkillLine(skill.getName()).getXp())) + Localizer.dLocalize("snippets.gui.xp") + " " + (adaptPlayer.getSkillLine(skill.getName()).getLevel() + 1) + ")");
         window.onClosed((vv) -> J.s(() -> onGuiClosed(player, !AdaptConfig.get().isEscClosesAllGuis())));
         window.open();
         Adapt.instance.getGuiLeftovers().put(player.getUniqueId().toString(), window);

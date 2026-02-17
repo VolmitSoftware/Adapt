@@ -21,7 +21,6 @@ package art.arcane.adapt.api.adaptation;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
-import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.volmlib.util.inventorygui.UIElement;
@@ -251,7 +250,6 @@ final class AdaptationGuiSupport {
                                 spw.play(player.getLocation(), Sound.BLOCK_NETHER_GOLD_ORE_PLACE, 0.7f, 1.355f);
                                 spw.play(player.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 0.4f, 0.755f);
                                 suppressClose(player);
-                                w.close();
                                 if (AdaptConfig.get().getLearnUnlearnButtonDelayTicks() != 0) {
                                     if (adaptation.isPermanent()) {
                                         spw.play(player.getLocation(), Sound.ENTITY_BLAZE_DEATH, 0.5f, 1.355f);
@@ -283,7 +281,6 @@ final class AdaptationGuiSupport {
                                         spw.play(player.getLocation(), Sound.ITEM_GOAT_HORN_SOUND_1, 0.7f, 1.355f);
                                     }
                                     suppressClose(player);
-                                    w.close();
                                     if (AdaptConfig.get().getLearnUnlearnButtonDelayTicks() != 0) {
                                         player.sendTitle(" ", C.GRAY + Localizer.dLocalize("snippets.adapt_menu.learned") + " " + adaptation.getDisplayName(lvl), 1, 5, 11);
                                     }
@@ -349,9 +346,7 @@ final class AdaptationGuiSupport {
 
         }
 
-        AdaptPlayer a = Adapt.instance.getAdaptServer().getPlayer(player);
-        String pageSuffix = plan.pageCount() > 1 ? " [" + (currentPage + 1) + "/" + plan.pageCount() + "]" : "";
-        w.setTitle(adaptation.getDisplayName() + " " + C.DARK_GRAY + " " + Form.f(a.getSkillLine(adaptation.getSkill().getName()).getKnowledge()) + " " + Localizer.dLocalize("snippets.adapt_menu.knowledge") + pageSuffix);
+        w.setTitle(adaptation.getDisplayName());
         w.onClosed((vv) -> J.s(() -> onGuiClosed(adaptation, player, !AdaptConfig.get().isEscClosesAllGuis())));
         w.open();
         Adapt.instance.getGuiLeftovers().put(player.getUniqueId().toString(), w);

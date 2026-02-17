@@ -28,6 +28,7 @@ import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.adapt.util.common.math.VelocitySpeed;
 import art.arcane.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -41,7 +42,9 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -89,7 +92,12 @@ public class AgilityParkourMomentum extends SimpleAdaptation<AgilityParkourMomen
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void on(PlayerMoveEvent e) {
-        if (e.getTo() == null || e.getFrom().distanceSquared(e.getTo()) < getConfig().minimumMoveSquared) {
+        if (e.getTo() == null) {
+            return;
+        }
+
+        if (e.getFrom().getWorld() == e.getTo().getWorld()
+                && e.getFrom().distanceSquared(e.getTo()) < getConfig().minimumMoveSquared) {
             return;
         }
 
@@ -126,14 +134,17 @@ public class AgilityParkourMomentum extends SimpleAdaptation<AgilityParkourMomen
 
     @Override
     public void onTick() {
-        for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
-            Player p = adaptPlayer.getPlayer();
+        Set<UUID> tracked = trackedPlayerIds();
+        for (UUID id : tracked) {
+            Player p = Bukkit.getPlayer(id);
             if (p == null || !p.isOnline()) {
+                momentum.remove(id);
+                wasOnGround.remove(id);
+                speedBoosting.remove(id);
                 continue;
             }
 
             withPlayerThread(p, () -> {
-                UUID id = p.getUniqueId();
                 int level = getActiveLevel(p);
                 if (level <= 0) {
                     momentum.remove(id);
@@ -181,6 +192,14 @@ public class AgilityParkourMomentum extends SimpleAdaptation<AgilityParkourMomen
                 momentum.put(id, clampMomentum(current, maxMomentum));
             });
         }
+    }
+
+    private Set<UUID> trackedPlayerIds() {
+        Set<UUID> tracked = new HashSet<>();
+        tracked.addAll(momentum.keySet());
+        tracked.addAll(wasOnGround.keySet());
+        tracked.addAll(speedBoosting.keySet());
+        return tracked;
     }
 
     private void applyMomentumSpeed(Player p, UUID id, VelocitySpeed.InputSnapshot input, int speedAmp) {

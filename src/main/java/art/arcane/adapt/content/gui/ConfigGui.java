@@ -607,8 +607,7 @@ public final class ConfigGui {
         if (titlePath.length() > 24) {
             titlePath = "..." + titlePath.substring(titlePath.length() - 21);
         }
-        String pageSuffix = plan.pageCount() > 1 ? " [" + (currentPage + 1) + "/" + plan.pageCount() + "]" : "";
-        w.setTitle(C.GRAY + "Configure: " + C.WHITE + titlePath + pageSuffix);
+        w.setTitle(C.GRAY + "Configure: " + C.WHITE + titlePath);
         w.onClosed((window) -> onGuiClosed(player, safePath));
         w.open();
         Adapt.instance.getGuiLeftovers().put(player.getUniqueId().toString(), w);
@@ -815,8 +814,7 @@ public final class ConfigGui {
         }
         addIndexOverview(w, navRow, safePath, entries.size(), currentPage, plan.pageCount(), title);
 
-        String pageSuffix = plan.pageCount() > 1 ? " [" + (currentPage + 1) + "/" + plan.pageCount() + "]" : "";
-        w.setTitle(C.GRAY + title + pageSuffix);
+        w.setTitle(C.GRAY + title);
         w.onClosed((window) -> onGuiClosed(player, safePath));
         w.open();
         Adapt.instance.getGuiLeftovers().put(player.getUniqueId().toString(), w);

@@ -45,21 +45,31 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemHeldEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerSwapHandItemsEvent;
+import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySight.Config> {
     private static final double EPSILON = 0.0000001D;
-    private final Map<UUID, Long> drawStartedMillis = new java.util.concurrent.ConcurrentHashMap<>();
-    private final Map<UUID, UUID> previewGlowTargets = new java.util.concurrent.ConcurrentHashMap<>();
+    private final Map<UUID, Long> drawStartedMillis = new ConcurrentHashMap<>();
+    private final Map<UUID, UUID> previewGlowTargets = new ConcurrentHashMap<>();
+    private final Set<UUID> previewCandidates = ConcurrentHashMap.newKeySet();
+    private final Map<UUID, PreviewState> previewState = new ConcurrentHashMap<>();
     private volatile RangedForce cachedRangedForce;
     private volatile RangedRicochetBolt cachedRicochetBolt;
+    private volatile long lastPreviewCandidateRefreshMs;
 
     public RangedTrajectorySight() {
         super("ranged-trajectory-sight");
@@ -71,7 +81,7 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
-        setInterval(2);
+        setInterval(20);
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.SPYGLASS)
                 .key("challenge_ranged_trajectory_100")
@@ -92,8 +102,7 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerQuitEvent e) {
         Player p = e.getPlayer();
-        drawStartedMillis.remove(p.getUniqueId());
-        clearPreviewGlow(p);
+        clearPreviewState(p);
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -118,16 +127,75 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
         }
 
         switch (e.getAction()) {
-            case RIGHT_CLICK_AIR, RIGHT_CLICK_BLOCK -> drawStartedMillis.put(p.getUniqueId(), System.currentTimeMillis());
+            case RIGHT_CLICK_AIR, RIGHT_CLICK_BLOCK -> {
+                drawStartedMillis.put(p.getUniqueId(), System.currentTimeMillis());
+                markPreviewCandidate(p);
+            }
             default -> {
             }
         }
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void on(PlayerItemHeldEvent e) {
+        Player p = e.getPlayer();
+        if (!hasActiveAdaptation(p)) {
+            return;
+        }
+
+        markPreviewCandidate(p);
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void on(PlayerSwapHandItemsEvent e) {
+        Player p = e.getPlayer();
+        if (!hasActiveAdaptation(p)) {
+            return;
+        }
+
+        markPreviewCandidate(p);
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void on(PlayerToggleSneakEvent e) {
+        Player p = e.getPlayer();
+        if (!hasActiveAdaptation(p)) {
+            return;
+        }
+
+        if (e.isSneaking()) {
+            markPreviewCandidate(p);
+            return;
+        }
+
+        if (resolvePreviewContext(p) == null) {
+            previewCandidates.remove(p.getUniqueId());
+            previewState.remove(p.getUniqueId());
+            clearPreviewGlow(p);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void on(PlayerMoveEvent e) {
+        Player p = e.getPlayer();
+        UUID id = p.getUniqueId();
+        boolean tracked = previewCandidates.contains(id);
+        if (!tracked && !p.isSneaking() && !p.isHandRaised()) {
+            return;
+        }
+
+        if (!hasActiveAdaptation(p)) {
+            return;
+        }
+
+        markPreviewCandidate(p);
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void on(EntityShootBowEvent e) {
         if (e.getEntity() instanceof Player p) {
             drawStartedMillis.remove(p.getUniqueId());
+            markPreviewCandidate(p);
         }
     }
 
@@ -144,18 +212,31 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
 
     @Override
     public void onTick() {
-        for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
-            Player p = adaptPlayer.getPlayer();
+        long now = System.currentTimeMillis();
+        refreshPreviewCandidates(now);
+        if (previewCandidates.isEmpty()) {
+            return;
+        }
+
+        Set<UUID> candidates = new HashSet<>(previewCandidates);
+        for (UUID id : candidates) {
+            Player p = Bukkit.getPlayer(id);
+            if (p == null || !p.isOnline()) {
+                clearPreviewState(id);
+                continue;
+            }
+
             int level = getActiveLevel(p);
             if (level <= 0) {
-                drawStartedMillis.remove(p.getUniqueId());
-                clearPreviewGlow(p);
+                clearPreviewState(p);
                 continue;
             }
 
             PreviewContext context = resolvePreviewContext(p);
             if (context == null) {
-                drawStartedMillis.remove(p.getUniqueId());
+                previewState.remove(id);
+                previewCandidates.remove(id);
+                drawStartedMillis.remove(id);
                 clearPreviewGlow(p);
                 continue;
             }
@@ -170,9 +251,124 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
                 continue;
             }
 
-            UUID predictedHit = renderTrajectory(p, getSegments(level), shot);
+            if (!shouldRenderPreview(p, level, context, now)) {
+                continue;
+            }
+
+            UUID predictedHit = renderTrajectory(p, getRenderSegments(level), shot);
             updatePreviewGlow(p, predictedHit);
+            previewState.put(id, PreviewState.capture(now, level, context, p.getEyeLocation()));
         }
+    }
+
+    private void refreshPreviewCandidates(long now) {
+        long refreshEvery = Math.max(250L, getConfig().previewCandidateRefreshMillis);
+        if (now - lastPreviewCandidateRefreshMs < refreshEvery) {
+            return;
+        }
+
+        lastPreviewCandidateRefreshMs = now;
+        for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+            Player p = adaptPlayer.getPlayer();
+            if (p == null || !p.isOnline()) {
+                continue;
+            }
+
+            int level = getActiveLevel(p);
+            if (level <= 0) {
+                continue;
+            }
+
+            if (resolvePreviewContext(p) != null) {
+                previewCandidates.add(p.getUniqueId());
+            }
+        }
+    }
+
+    private void markPreviewCandidate(Player p) {
+        if (p == null) {
+            return;
+        }
+
+        previewCandidates.add(p.getUniqueId());
+    }
+
+    private boolean shouldRenderPreview(Player p, int level, PreviewContext context, long now) {
+        PreviewState state = previewState.get(p.getUniqueId());
+        if (state == null) {
+            return true;
+        }
+
+        long refreshEvery = Math.max(10L, getConfig().previewRenderIntervalMillis);
+        if (now - state.renderedAtMs() >= refreshEvery) {
+            return true;
+        }
+
+        if (state.level() != level) {
+            return true;
+        }
+
+        Material material = context.item().getType();
+        if (state.material() != material || state.trigger() != context.trigger()) {
+            return true;
+        }
+
+        Location eye = p.getEyeLocation();
+        if (angleDelta(eye.getYaw(), state.yaw()) >= Math.max(0.01D, getConfig().previewYawDeltaDegrees)) {
+            return true;
+        }
+
+        if (angleDelta(eye.getPitch(), state.pitch()) >= Math.max(0.01D, getConfig().previewPitchDeltaDegrees)) {
+            return true;
+        }
+
+        double dx = eye.getX() - state.x();
+        double dy = eye.getY() - state.y();
+        double dz = eye.getZ() - state.z();
+        double movedSq = (dx * dx) + (dy * dy) + (dz * dz);
+        return movedSq >= Math.max(0D, getConfig().previewPositionDeltaSquared);
+    }
+
+    private double angleDelta(float from, float to) {
+        double delta = Math.abs((double) from - to) % 360D;
+        return delta > 180D ? 360D - delta : delta;
+    }
+
+    private int getRenderSegments(int level) {
+        int minSegments = Math.max(6, getConfig().minimumRenderedSegments);
+        int maxSegments = Math.max(minSegments, getConfig().maxRenderedSegments);
+        int segments = Math.max(minSegments, Math.min(getSegments(level), maxSegments));
+        if (Adapt.instance.getTicker() == null) {
+            return segments;
+        }
+
+        double load = Adapt.instance.getTicker().getWindowLoadPercent();
+        if (load < Math.max(0D, getConfig().previewHighLoadPercent)) {
+            return segments;
+        }
+
+        double scale = Math.max(0.2D, Math.min(1D, getConfig().previewHighLoadSegmentScale));
+        int scaled = (int) Math.round(segments * scale);
+        return Math.max(minSegments, Math.min(maxSegments, scaled));
+    }
+
+    private void clearPreviewState(Player p) {
+        if (p == null) {
+            return;
+        }
+
+        clearPreviewState(p.getUniqueId());
+        clearPreviewGlow(p);
+    }
+
+    private void clearPreviewState(UUID id) {
+        if (id == null) {
+            return;
+        }
+
+        drawStartedMillis.remove(id);
+        previewCandidates.remove(id);
+        previewState.remove(id);
     }
 
     private PreviewContext resolvePreviewContext(Player p) {
@@ -701,6 +897,32 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
         }
     }
 
+    private record PreviewState(
+            long renderedAtMs,
+            int level,
+            Material material,
+            PreviewTrigger trigger,
+            double x,
+            double y,
+            double z,
+            float yaw,
+            float pitch
+    ) {
+        private static PreviewState capture(long renderedAtMs, int level, PreviewContext context, Location eye) {
+            return new PreviewState(
+                    renderedAtMs,
+                    level,
+                    context.item().getType(),
+                    context.trigger(),
+                    eye.getX(),
+                    eye.getY(),
+                    eye.getZ(),
+                    eye.getYaw(),
+                    eye.getPitch()
+            );
+        }
+    }
+
     private int getSegments(int level) {
         return Math.max(10, (int) Math.round(getConfig().segmentsBase + (getLevelPercent(level) * getConfig().segmentsFactor)));
     }
@@ -790,5 +1012,23 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
         double previewStartOffset = 0.55;
         @art.arcane.adapt.util.config.ConfigDoc(value = "Highlights the predicted hit target entity with per-player glow.", impact = "Enable to glow whichever entity the preview would hit first.")
         boolean glowPredictedTarget = true;
+        @art.arcane.adapt.util.config.ConfigDoc(value = "Minimum milliseconds between preview renders for a player when aim and context have not changed.", impact = "Lower values make previews smoother but increase CPU and ray-trace load.")
+        int previewRenderIntervalMillis = 75;
+        @art.arcane.adapt.util.config.ConfigDoc(value = "Minimum milliseconds between full-candidate refresh scans.", impact = "Lower values discover eligible preview players faster but increase baseline scan cost.")
+        int previewCandidateRefreshMillis = 1000;
+        @art.arcane.adapt.util.config.ConfigDoc(value = "Yaw delta in degrees required to force a preview recompute before the normal render interval.", impact = "Lower values react to small camera turns; higher values reduce recompute frequency.")
+        double previewYawDeltaDegrees = 1.2;
+        @art.arcane.adapt.util.config.ConfigDoc(value = "Pitch delta in degrees required to force a preview recompute before the normal render interval.", impact = "Lower values react to small vertical aim changes; higher values reduce recompute frequency.")
+        double previewPitchDeltaDegrees = 1.2;
+        @art.arcane.adapt.util.config.ConfigDoc(value = "Movement distance squared required to force a preview recompute before the normal render interval.", impact = "Lower values recompute more while strafing; higher values reduce recomputes while moving.")
+        double previewPositionDeltaSquared = 0.0125;
+        @art.arcane.adapt.util.config.ConfigDoc(value = "Lowest number of simulation segments used when rendering a trajectory.", impact = "Higher values preserve long previews under load; lower values cut work more aggressively.")
+        int minimumRenderedSegments = 8;
+        @art.arcane.adapt.util.config.ConfigDoc(value = "Hard cap on simulation segments used for rendering.", impact = "Lower values reduce ray-trace workload; higher values produce longer and more precise previews.")
+        int maxRenderedSegments = 36;
+        @art.arcane.adapt.util.config.ConfigDoc(value = "Ticker load percentage at which trajectory segments are scaled down.", impact = "Lower values engage load-shedding sooner; higher values preserve preview fidelity longer.")
+        double previewHighLoadPercent = 42;
+        @art.arcane.adapt.util.config.ConfigDoc(value = "Segment scale applied once high-load shedding is active.", impact = "Lower values reduce trajectory compute cost more aggressively during load spikes.")
+        double previewHighLoadSegmentScale = 0.7;
     }
 }

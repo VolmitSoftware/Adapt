@@ -42,6 +42,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TamingPackLeaderAura extends SimpleAdaptation<TamingPackLeaderAura.Config> {
+    private int ownerCursor = 0;
+
     public TamingPackLeaderAura() {
         super("tame-pack-leader-aura");
         registerConfiguration(Config.class);
@@ -72,20 +74,14 @@ public class TamingPackLeaderAura extends SimpleAdaptation<TamingPackLeaderAura.
 
     @Override
     public void onTick() {
+        List<OwnerAuraState> owners = collectOwners();
+        if (owners.isEmpty()) {
+            return;
+        }
+
+        List<OwnerAuraState> batch = selectBatch(owners);
         if (J.isFoliaThreading()) {
-            List<OwnerAuraState> owners = new ArrayList<>();
-            for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
-                Player owner = adaptPlayer.getPlayer();
-                int level = getActiveLevel(owner);
-                if (level <= 0) {
-                    continue;
-                }
-
-                double radius = getRadius(level);
-                owners.add(new OwnerAuraState(adaptPlayer, owner, radius, radius * radius, getAmplifier(level)));
-            }
-
-            for (OwnerAuraState state : owners) {
+            for (OwnerAuraState state : batch) {
                 J.runEntity(state.owner(), () -> applyAura(state));
             }
             return;
@@ -96,6 +92,12 @@ public class TamingPackLeaderAura extends SimpleAdaptation<TamingPackLeaderAura.
             return;
         }
 
+        for (OwnerAuraState state : batch) {
+            applyAura(state);
+        }
+    }
+
+    private List<OwnerAuraState> collectOwners() {
         List<OwnerAuraState> owners = new ArrayList<>();
         for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
             Player owner = adaptPlayer.getPlayer();
@@ -108,9 +110,20 @@ public class TamingPackLeaderAura extends SimpleAdaptation<TamingPackLeaderAura.
             owners.add(new OwnerAuraState(adaptPlayer, owner, radius, radius * radius, getAmplifier(level)));
         }
 
-        for (OwnerAuraState state : owners) {
-            applyAura(state);
+        return owners;
+    }
+
+    private List<OwnerAuraState> selectBatch(List<OwnerAuraState> owners) {
+        int size = owners.size();
+        int limit = Math.max(1, Math.min(size, getConfig().maxOwnersPerPass));
+        int start = Math.floorMod(ownerCursor, size);
+        List<OwnerAuraState> batch = new ArrayList<>(limit);
+        for (int i = 0; i < limit; i++) {
+            int index = (start + i) % size;
+            batch.add(owners.get(index));
         }
+        ownerCursor = (start + limit) % size;
+        return batch;
     }
 
     private void applyAura(OwnerAuraState state) {
@@ -181,5 +194,7 @@ public class TamingPackLeaderAura extends SimpleAdaptation<TamingPackLeaderAura.
         double maxAmplifier = 2;
         @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Effect Ticks for the Taming Pack Leader Aura adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int effectTicks = 80;
+        @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum owners processed per aura pass.", impact = "Lower values reduce burst workload but spread updates across more passes.")
+        int maxOwnersPerPass = 120;
     }
 }

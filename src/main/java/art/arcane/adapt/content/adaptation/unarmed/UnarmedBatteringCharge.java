@@ -48,6 +48,7 @@ import java.util.UUID;
 
 public class UnarmedBatteringCharge extends SimpleAdaptation<UnarmedBatteringCharge.Config> {
     private final Map<UUID, Boolean> primedState = new java.util.concurrent.ConcurrentHashMap<>();
+    private final Map<UUID, Long> primedTrailNextAt = new java.util.concurrent.ConcurrentHashMap<>();
 
     public UnarmedBatteringCharge() {
         super("unarmed-battering-charge");
@@ -59,7 +60,7 @@ public class UnarmedBatteringCharge extends SimpleAdaptation<UnarmedBatteringCha
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
-        setInterval(8);
+        setInterval(50);
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.IRON_INGOT)
                 .key("challenge_unarmed_charge_300")
@@ -151,7 +152,9 @@ public class UnarmedBatteringCharge extends SimpleAdaptation<UnarmedBatteringCha
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerQuitEvent e) {
-        primedState.remove(e.getPlayer().getUniqueId());
+        UUID id = e.getPlayer().getUniqueId();
+        primedState.remove(id);
+        primedTrailNextAt.remove(id);
     }
 
     private boolean isChargeLoadout(Player p) {
@@ -204,20 +207,25 @@ public class UnarmedBatteringCharge extends SimpleAdaptation<UnarmedBatteringCha
 
     @Override
     public void onTick() {
+        long now = System.currentTimeMillis();
         for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
             Player p = adaptPlayer.getPlayer();
+            UUID id = p.getUniqueId();
             int level = getActiveLevel(p);
             if (level <= 0) {
-                primedState.remove(p.getUniqueId());
+                primedState.remove(id);
+                primedTrailNextAt.remove(id);
                 continue;
             }
 
             boolean primed = isChargeReady(p);
-            boolean wasPrimed = primedState.getOrDefault(p.getUniqueId(), false);
+            boolean wasPrimed = primedState.getOrDefault(id, false);
 
             if (primed) {
-                if (areParticlesEnabled()) {
+                long nextTrail = primedTrailNextAt.getOrDefault(id, 0L);
+                if (areParticlesEnabled() && now >= nextTrail) {
                     p.getWorld().spawnParticle(Particle.CLOUD, p.getLocation().add(0, 0.2, 0), 2, 0.2, 0.05, 0.2, 0.02);
+                    primedTrailNextAt.put(id, now + Math.max(25L, getConfig().primedTrailIntervalMillis));
                 }
                 if (!wasPrimed) {
                     SoundPlayer.of(p.getWorld()).play(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASEDRUM, 0.55f, 1.15f);
@@ -225,9 +233,11 @@ public class UnarmedBatteringCharge extends SimpleAdaptation<UnarmedBatteringCha
                         p.getWorld().spawnParticle(Particle.CRIT, p.getLocation().add(0, 1.0, 0), 8, 0.2, 0.3, 0.2, 0.1);
                     }
                 }
+            } else {
+                primedTrailNextAt.remove(id);
             }
 
-            primedState.put(p.getUniqueId(), primed);
+            primedState.put(id, primed);
         }
     }
 
@@ -272,5 +282,7 @@ public class UnarmedBatteringCharge extends SimpleAdaptation<UnarmedBatteringCha
         double minimumVelocitySquared = 0.18;
         @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Damage for the Unarmed Battering Charge adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double xpPerDamage = 3.3;
+        @art.arcane.adapt.util.config.ConfigDoc(value = "Milliseconds between primed trail particle pulses while charge is ready.", impact = "Lower values increase visual frequency and particle cost; higher values reduce trail spam.")
+        long primedTrailIntervalMillis = 120;
     }
 }

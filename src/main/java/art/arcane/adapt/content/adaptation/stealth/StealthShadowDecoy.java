@@ -59,6 +59,8 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
     private final Map<UUID, DecoyState> activeDecoys = new java.util.concurrent.ConcurrentHashMap<>();
     private final Map<UUID, UUID> anchorOwners = new java.util.concurrent.ConcurrentHashMap<>();
     private final Map<UUID, Long> ownerEquipmentMaskSync = new java.util.concurrent.ConcurrentHashMap<>();
+    private final Map<UUID, Long> ownerTrailNextAt = new java.util.concurrent.ConcurrentHashMap<>();
+    private final Map<UUID, Long> ownerAggroNextAt = new java.util.concurrent.ConcurrentHashMap<>();
 
     public StealthShadowDecoy() {
         super("stealth-shadow-decoy");
@@ -103,6 +105,8 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
         UUID id = e.getPlayer().getUniqueId();
         cooldowns.remove(id);
         ownerEquipmentMaskSync.remove(id);
+        ownerTrailNextAt.remove(id);
+        ownerAggroNextAt.remove(id);
         DecoyState state = activeDecoys.remove(id);
         if (state != null) {
             removeDecoy(state, null);
@@ -222,7 +226,10 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
         }
 
         long expiresAt = System.currentTimeMillis() + (getDecoyTicks(level) * 50L);
-        activeDecoys.put(owner.getUniqueId(), new DecoyState(anchor.getUniqueId(), packetDecoy, expiresAt, level));
+        UUID ownerId = owner.getUniqueId();
+        activeDecoys.put(ownerId, new DecoyState(ownerId, anchor.getUniqueId(), packetDecoy, expiresAt, level));
+        ownerTrailNextAt.put(ownerId, 0L);
+        ownerAggroNextAt.put(ownerId, 0L);
 
         redirectAggro(owner, anchor, level);
         if (areParticlesEnabled()) {
@@ -315,8 +322,14 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
 
             applyOwnerInvisibility(owner);
             syncOwnerEquipmentHidden(owner);
-            spawnOwnerTrail(owner);
-            redirectAggro(owner, anchor, state.level());
+            if (now >= ownerTrailNextAt.getOrDefault(ownerId, 0L)) {
+                spawnOwnerTrail(owner);
+                ownerTrailNextAt.put(ownerId, now + Math.max(25L, getConfig().ownerTrailIntervalMillis));
+            }
+            if (now >= ownerAggroNextAt.getOrDefault(ownerId, 0L)) {
+                redirectAggro(owner, anchor, state.level());
+                ownerAggroNextAt.put(ownerId, now + Math.max(25L, getConfig().aggroRedirectIntervalMillis));
+            }
         }
     }
 
@@ -369,6 +382,8 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
 
         Entity entity = Bukkit.getEntity(state.anchorId());
         anchorOwners.remove(state.anchorId());
+        ownerTrailNextAt.remove(state.ownerId());
+        ownerAggroNextAt.remove(state.ownerId());
         if (entity instanceof ArmorStand stand && stand.isValid()) {
             stand.remove();
         }
@@ -445,8 +460,12 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
         double ownerTrailYOffset = 0.1;
         @art.arcane.adapt.util.config.ConfigDoc(value = "Particle speed for owner smoke trail.", impact = "Higher values make trail movement more turbulent.")
         double ownerTrailSpeed = 0.01;
+        @art.arcane.adapt.util.config.ConfigDoc(value = "Milliseconds between owner trail particle bursts while decoy is active.", impact = "Lower values make the owner trail denser; higher values reduce particle cost.")
+        long ownerTrailIntervalMillis = 75;
         @art.arcane.adapt.util.config.ConfigDoc(value = "How often owner equipment-hide packets are resent while invisible, in milliseconds.", impact = "Lower values keep visuals tighter for joining viewers, higher values reduce packet traffic.")
         long ownerEquipmentHideResendMillis = 250;
+        @art.arcane.adapt.util.config.ConfigDoc(value = "Milliseconds between aggro redirect scans while a decoy is active.", impact = "Lower values pull mobs more aggressively; higher values reduce nearby-entity scan cost.")
+        long aggroRedirectIntervalMillis = 150;
         @art.arcane.adapt.util.config.ConfigDoc(value = "Horizontal knockback applied when the decoy is hit.", impact = "Higher values make the decoy react more dramatically when struck.")
         double decoyHitKnockback = 0.28;
         @art.arcane.adapt.util.config.ConfigDoc(value = "Vertical lift applied when the decoy is hit.", impact = "Higher values make impacts pop the decoy upward more.")
@@ -459,7 +478,7 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
         double xpOnDecoy = 18;
     }
 
-    private record DecoyState(UUID anchorId, PacketPlayerDecoy packetDecoy, long expiresAt, int level) {
+    private record DecoyState(UUID ownerId, UUID anchorId, PacketPlayerDecoy packetDecoy, long expiresAt, int level) {
     }
 
     private static final class PacketPlayerDecoy {

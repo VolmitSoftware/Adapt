@@ -41,6 +41,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
@@ -51,6 +52,8 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
     private final Map<UUID, Boolean> dimmed = new java.util.concurrent.ConcurrentHashMap<>();
     private final Map<UUID, List<Long>> recentBackstabs = new java.util.concurrent.ConcurrentHashMap<>();
     private final Map<UUID, Map<UUID, ThreatLevel>> threatGlows = new java.util.concurrent.ConcurrentHashMap<>();
+    private final Set<UUID> activeSneakers = java.util.concurrent.ConcurrentHashMap.newKeySet();
+    private final Map<UUID, Long> lastTargetDropScan = new java.util.concurrent.ConcurrentHashMap<>();
 
     public StealthSilentStep() {
         super("stealth-silent-step");
@@ -62,7 +65,7 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
-        setInterval(10);
+        setInterval(50);
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.IRON_SWORD)
                 .key("challenge_stealth_silent_200")
@@ -91,9 +94,28 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerQuitEvent e) {
-        clearDimming(e.getPlayer());
-        clearThreatGlows(e.getPlayer());
-        recentBackstabs.remove(e.getPlayer().getUniqueId());
+        Player player = e.getPlayer();
+        UUID id = player.getUniqueId();
+        clearDimming(player);
+        clearThreatGlows(player);
+        recentBackstabs.remove(id);
+        activeSneakers.remove(id);
+        lastTargetDropScan.remove(id);
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void on(PlayerToggleSneakEvent e) {
+        Player p = e.getPlayer();
+        UUID id = p.getUniqueId();
+        if (e.isSneaking()) {
+            activeSneakers.add(id);
+            return;
+        }
+
+        activeSneakers.remove(id);
+        lastTargetDropScan.remove(id);
+        clearDimming(p);
+        clearThreatGlows(p);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -118,12 +140,30 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerMoveEvent e) {
-
-        Player p = e.getPlayer();
-        int level = getActiveLevel(p, Player::isSneaking);
-        if (level <= 0) {
+        if (e.getTo() == null) {
             return;
         }
+
+        if (e.getFrom().getWorld() == e.getTo().getWorld()
+                && e.getFrom().distanceSquared(e.getTo()) < Math.max(0D, getConfig().minimumMoveSquared)) {
+            return;
+        }
+        Player p = e.getPlayer();
+        UUID id = p.getUniqueId();
+        int level = getActiveLevel(p, Player::isSneaking);
+        if (level <= 0) {
+            activeSneakers.remove(id);
+            lastTargetDropScan.remove(id);
+            return;
+        }
+
+        activeSneakers.add(id);
+        long now = System.currentTimeMillis();
+        long lastScan = lastTargetDropScan.getOrDefault(id, 0L);
+        if (now - lastScan < Math.max(20L, getConfig().targetDropScanIntervalMillis)) {
+            return;
+        }
+        lastTargetDropScan.put(id, now);
 
         double radius = getStealthRadius(level);
         for (Entity entity : p.getWorld().getNearbyEntities(p.getLocation(), radius, radius, radius)) {
@@ -175,12 +215,21 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
 
     @Override
     public void onTick() {
-        for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
-            Player p = adaptPlayer.getPlayer();
+        Set<UUID> tracked = new HashSet<>(activeSneakers);
+        for (UUID id : tracked) {
+            Player p = Bukkit.getPlayer(id);
+            if (p == null || !p.isOnline()) {
+                activeSneakers.remove(id);
+                lastTargetDropScan.remove(id);
+                continue;
+            }
+
             int level = getActiveLevel(p, Player::isSneaking);
             if (level <= 0) {
                 clearDimming(p);
                 clearThreatGlows(p);
+                activeSneakers.remove(id);
+                lastTargetDropScan.remove(id);
                 continue;
             }
 
@@ -478,6 +527,10 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
         boolean allMobsAffectStealthVisibility = true;
         @art.arcane.adapt.util.config.ConfigDoc(value = "Entity types that are NOT ignored by stealth targeting suppression.", impact = "Mobs listed here can still detect/target sneaking players with Silent Step.")
         List<String> targetingBlacklistTypes = new ArrayList<>(List.of("WARDEN", "WITHER", "PHANTOM", "ENDER_DRAGON"));
+        @art.arcane.adapt.util.config.ConfigDoc(value = "Minimum squared movement distance required before running target-drop scans.", impact = "Higher values skip tiny movement jitter and reduce move-event scan pressure.")
+        double minimumMoveSquared = 0.0025;
+        @art.arcane.adapt.util.config.ConfigDoc(value = "Milliseconds between mob target-drop scans while sneaking.", impact = "Lower values react faster but increase nearby-entity scan frequency.")
+        long targetDropScanIntervalMillis = 120;
     }
 
     private enum ThreatLevel {
