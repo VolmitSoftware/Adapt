@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.protector;
 
+import art.arcane.adapt.Adapt;
+import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.protection.Protector;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldguard.LocalPlayer;
 import com.sk89q.worldguard.WorldGuard;
@@ -28,10 +32,6 @@ import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.flags.registry.FlagRegistry;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
 import com.sk89q.worldguard.protection.regions.RegionQuery;
-import art.arcane.adapt.Adapt;
-import art.arcane.adapt.AdaptConfig;
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.protection.Protector;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 

@@ -23,9 +23,8 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.volmlib.util.format.Form;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.math.VelocitySpeed;
 import art.arcane.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
@@ -42,14 +41,14 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class AgilityParkourMomentum extends SimpleAdaptation<AgilityParkourMomentum.Config> {
-    private final Map<UUID, Integer> momentum = new HashMap<>();
-    private final Map<UUID, Boolean> wasOnGround = new HashMap<>();
-    private final Map<UUID, Boolean> speedBoosting = new HashMap<>();
+    private final Map<UUID, Integer> momentum = new ConcurrentHashMap<>();
+    private final Map<UUID, Boolean> wasOnGround = new ConcurrentHashMap<>();
+    private final Map<UUID, Boolean> speedBoosting = new ConcurrentHashMap<>();
 
     public AgilityParkourMomentum() {
         super("agility-parkour-momentum");
@@ -95,83 +94,92 @@ public class AgilityParkourMomentum extends SimpleAdaptation<AgilityParkourMomen
         }
 
         Player p = e.getPlayer();
-        UUID id = p.getUniqueId();
-        if (!hasAdaptation(p)) {
-            momentum.remove(id);
-            wasOnGround.remove(id);
-            return;
-        }
-
-        boolean onGroundNow = p.isOnGround();
-        boolean onGroundBefore = wasOnGround.getOrDefault(id, onGroundNow);
-        int current = momentum.getOrDefault(id, 0);
-
-        if (!onGroundBefore && onGroundNow) {
-            if (isMomentumLanding(p) && isOnLedge(p)) {
-                current += getConfig().landingGain;
-                getPlayer(p).getData().addStat("agility.parkour-momentum.ledge-landings", 1);
-            } else {
-                current -= getConfig().failedLandingPenalty;
+        withPlayerThread(p, e, () -> {
+            UUID id = p.getUniqueId();
+            int level = getActiveLevel(p);
+            if (level <= 0) {
+                momentum.remove(id);
+                wasOnGround.remove(id);
+                return;
             }
-        } else if (onGroundNow && !p.isSprinting()) {
-            current -= getConfig().groundDecayOnMove;
-        }
 
-        current = clampMomentum(current, getMaxMomentum(getLevel(p)));
-        momentum.put(id, current);
-        wasOnGround.put(id, onGroundNow);
+            boolean onGroundNow = p.isOnGround();
+            boolean onGroundBefore = wasOnGround.getOrDefault(id, onGroundNow);
+            int current = momentum.getOrDefault(id, 0);
+
+            if (!onGroundBefore && onGroundNow) {
+                if (isMomentumLanding(p) && isOnLedge(p)) {
+                    current += getConfig().landingGain;
+                    getPlayer(p).getData().addStat("agility.parkour-momentum.ledge-landings", 1);
+                } else {
+                    current -= getConfig().failedLandingPenalty;
+                }
+            } else if (onGroundNow && !p.isSprinting()) {
+                current -= getConfig().groundDecayOnMove;
+            }
+
+            current = clampMomentum(current, getMaxMomentum(level));
+            momentum.put(id, current);
+            wasOnGround.put(id, onGroundNow);
+        });
     }
 
     @Override
     public void onTick() {
         for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
             Player p = adaptPlayer.getPlayer();
-            UUID id = p.getUniqueId();
-            if (!hasAdaptation(p)) {
-                momentum.remove(id);
-                wasOnGround.remove(id);
-                invalidateMomentumSpeed(p, id, true);
+            if (p == null || !p.isOnline()) {
                 continue;
             }
 
-            int level = getLevel(p);
-            int maxMomentum = getMaxMomentum(level);
-            int current = momentum.getOrDefault(id, 0);
-            if (current <= 0) {
-                invalidateMomentumSpeed(p, id, false);
-                continue;
-            }
-
-            if (p.isOnGround() && !isOnLedge(p)) {
-                current -= getConfig().offLedgeDecayPerTick;
-                momentum.put(id, clampMomentum(current, maxMomentum));
-                brakeMomentumSpeed(p, id);
-                continue;
-            }
-
-            int speedAmp = Math.max(0, Math.min(getMaxSpeedAmplifier(level), (int) Math.floor((current / (double) maxMomentum) * (getMaxSpeedAmplifier(level) + 1)) - 1));
-            int jumpAmp = Math.max(0, Math.min(getMaxJumpAmplifier(level), (int) Math.floor((current / (double) maxMomentum) * (getMaxJumpAmplifier(level) + 1)) - 1));
-
-            p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, 25, jumpAmp, false, false));
-
-            if (speedAmp <= 0) {
-                brakeMomentumSpeed(p, id);
-            } else if (!isVelocityEligible(p)) {
-                invalidateMomentumSpeed(p, id, true);
-            } else {
-                VelocitySpeed.InputSnapshot input = VelocitySpeed.readInput(p, getConfig().fallbackInputVelocityThresholdSquared());
-                if (!input.hasHorizontal()) {
-                    brakeMomentumSpeed(p, id);
-                } else {
-                    applyMomentumSpeed(p, id, input, speedAmp);
+            withPlayerThread(p, () -> {
+                UUID id = p.getUniqueId();
+                int level = getActiveLevel(p);
+                if (level <= 0) {
+                    momentum.remove(id);
+                    wasOnGround.remove(id);
+                    invalidateMomentumSpeed(p, id, true);
+                    return;
                 }
-            }
 
-            if (p.isOnGround() && !p.isSprinting()) {
-                current -= getConfig().passiveGroundDecayPerTick;
-            }
+                int maxMomentum = getMaxMomentum(level);
+                int current = momentum.getOrDefault(id, 0);
+                if (current <= 0) {
+                    invalidateMomentumSpeed(p, id, false);
+                    return;
+                }
 
-            momentum.put(id, clampMomentum(current, maxMomentum));
+                if (p.isOnGround() && !isOnLedge(p)) {
+                    current -= getConfig().offLedgeDecayPerTick;
+                    momentum.put(id, clampMomentum(current, maxMomentum));
+                    brakeMomentumSpeed(p, id);
+                    return;
+                }
+
+                int speedAmp = Math.max(0, Math.min(getMaxSpeedAmplifier(level), (int) Math.floor((current / (double) maxMomentum) * (getMaxSpeedAmplifier(level) + 1)) - 1));
+                int jumpAmp = Math.max(0, Math.min(getMaxJumpAmplifier(level), (int) Math.floor((current / (double) maxMomentum) * (getMaxJumpAmplifier(level) + 1)) - 1));
+
+                p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, 25, jumpAmp, false, false));
+
+                if (speedAmp <= 0) {
+                    brakeMomentumSpeed(p, id);
+                } else if (!isVelocityEligible(p)) {
+                    invalidateMomentumSpeed(p, id, true);
+                } else {
+                    VelocitySpeed.InputSnapshot input = VelocitySpeed.readInput(p, getConfig().fallbackInputVelocityThresholdSquared());
+                    if (!input.hasHorizontal()) {
+                        brakeMomentumSpeed(p, id);
+                    } else {
+                        applyMomentumSpeed(p, id, input, speedAmp);
+                    }
+                }
+
+                if (p.isOnGround() && !p.isSprinting()) {
+                    current -= getConfig().passiveGroundDecayPerTick;
+                }
+
+                momentum.put(id, clampMomentum(current, maxMomentum));
+            });
         }
     }
 

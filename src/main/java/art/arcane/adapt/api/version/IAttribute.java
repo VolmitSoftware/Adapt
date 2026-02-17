@@ -1,7 +1,10 @@
 package art.arcane.adapt.api.version;
 
 import art.arcane.volmlib.util.collection.KList;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.AttributeModifier;
 

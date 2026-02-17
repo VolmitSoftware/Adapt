@@ -24,29 +24,28 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import de.slikey.effectlib.effect.BleedEffect;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
-
-import art.arcane.adapt.util.reflect.Reflect;
-import art.arcane.adapt.util.reflect.registries.Particles;
 
 public class TragoulThorns extends SimpleAdaptation<TragoulThorns.Config> {
-    private final Map<Player, Long> cooldowns;
+    private final Map<UUID, Long> cooldowns;
 
     public TragoulThorns() {
         super("tragoul-thorns");
@@ -59,7 +58,7 @@ public class TragoulThorns extends SimpleAdaptation<TragoulThorns.Config> {
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
-        cooldowns = new HashMap<>();
+        cooldowns = new ConcurrentHashMap<>();
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.CACTUS)
                 .key("challenge_tragoul_thorns_500")
@@ -97,40 +96,69 @@ public class TragoulThorns extends SimpleAdaptation<TragoulThorns.Config> {
 
     @EventHandler
     public void on(EntityDamageByEntityEvent e) {
-        if (e.isCancelled()) {
+        if (e.getEntity() instanceof Player p) {
+            withAdaptedPlayer(p, e, () -> {
+                int level = getActiveLevel(p);
+                if (level <= 0) {
+                    return;
+                }
+
+                UUID id = p.getUniqueId();
+                Long cooldown = cooldowns.get(id);
+                if (cooldown != null && cooldown + 1500 > System.currentTimeMillis()) {
+                    return;
+                }
+
+                cooldowns.put(id, System.currentTimeMillis());
+
+                LivingEntity le = null;
+
+                if (e.getDamager() instanceof LivingEntity) {
+                    le = (LivingEntity) e.getDamager();
+                } else if (e.getDamager() instanceof Projectile projectile && projectile.getShooter() instanceof LivingEntity) {
+                    le = (LivingEntity) projectile.getShooter();
+                }
+
+                if (le != null && canDamageTarget(p, le)) {
+                    if (areParticlesEnabled()) {
+                        playThornsParticles(le);
+                    }
+                    double reflectedDamage = getConfig().damageMultiplierPerLevel * level;
+                    double healthBefore = le.getHealth();
+                    le.damage(reflectedDamage, p);
+                    getPlayer(p).getData().addStat("tragoul.thorns.damage-reflected", (int) reflectedDamage);
+                    if (healthBefore <= reflectedDamage && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_tragoul_thorns_kill")) {
+                        getPlayer(p).getAdvancementHandler().grant("challenge_tragoul_thorns_kill");
+                    }
+                }
+            });
+        }
+    }
+
+    private void playThornsParticles(LivingEntity target) {
+        Runnable burst = () -> {
+            if (target == null || !target.isValid()) {
+                return;
+            }
+
+            target.getWorld().spawnParticle(Particle.DAMAGE_INDICATOR, target.getLocation().clone().add(0, 1, 0), 8, 0.35, 0.45, 0.35, 0.01);
+            target.getWorld().spawnParticle(Particle.CRIT, target.getLocation().clone().add(0, 1, 0), 10, 0.4, 0.5, 0.4, 0.06);
+        };
+
+        if (J.isFoliaThreading()) {
+            J.runEntity(target, burst);
             return;
         }
-        if (e.getEntity() instanceof Player p && hasAdaptation(p)) {
-            Long cooldown = cooldowns.get(p);
-            if (cooldown != null && cooldown + 1500 > System.currentTimeMillis())
-                return;
 
-            cooldowns.put(p, System.currentTimeMillis());
-
-            LivingEntity le = null;
-
-            if (e.getDamager() instanceof LivingEntity) {
-                le = (LivingEntity) e.getDamager();
-            } else if (e.getDamager() instanceof Projectile projectile && projectile.getShooter() instanceof LivingEntity) {
-                le = (LivingEntity) projectile.getShooter();
-            }
-
-            if (le != null) {
-                if (areParticlesEnabled()) {
-                    BleedEffect blood = new BleedEffect(Adapt.instance.adaptEffectManager);  // Enemy gets blood
-                    blood.setEntity(le);
-                    blood.height = -1;
-                    blood.iterations = 1;
-                    blood.start();
-                }
-                double reflectedDamage = getConfig().damageMultiplierPerLevel * getLevel(p);
-                double healthBefore = le.getHealth();
-                le.damage(reflectedDamage, p);
-                getPlayer(p).getData().addStat("tragoul.thorns.damage-reflected", (int) reflectedDamage);
-                if (healthBefore <= reflectedDamage && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_tragoul_thorns_kill")) {
-                    getPlayer(p).getAdvancementHandler().grant("challenge_tragoul_thorns_kill");
-                }
-            }
+        try {
+            BleedEffect blood = new BleedEffect(Adapt.instance.adaptEffectManager);
+            blood.setEntity(target);
+            blood.height = -1;
+            blood.iterations = 1;
+            blood.start();
+        } catch (UnsupportedOperationException | IllegalStateException ex) {
+            Adapt.verbose("Falling back to native thorns particles: " + ex.getMessage());
+            burst.run();
         }
     }
 

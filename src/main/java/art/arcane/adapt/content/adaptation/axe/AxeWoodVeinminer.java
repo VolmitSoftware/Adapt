@@ -24,13 +24,15 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.api.world.PlayerAdaptation;
 import art.arcane.adapt.api.world.PlayerSkillLine;
-import art.arcane.volmlib.util.io.IO;
-import art.arcane.volmlib.util.math.M;
-import art.arcane.adapt.util.reflect.registries.Particles;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
+import art.arcane.adapt.util.common.misc.SoundPlayer;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -45,12 +47,6 @@ import org.bukkit.inventory.ItemStack;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
-import art.arcane.adapt.util.common.scheduling.J;
 
 import static art.arcane.adapt.util.data.Metadata.VEIN_MINED;
 
@@ -102,15 +98,12 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockBreakEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         if (VEIN_MINED.get(e.getBlock())) {
             return;
         }
 
         Player p = e.getPlayer();
-        if (!hasAdaptation(p)) {
+        if (!hasActiveAdaptation(p)) {
             return;
         }
 

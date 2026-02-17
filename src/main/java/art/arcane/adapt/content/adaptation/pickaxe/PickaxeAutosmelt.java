@@ -23,16 +23,15 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.api.world.PlayerAdaptation;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.content.item.ItemListings;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
-import art.arcane.adapt.util.reflect.registries.Enchantments;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Enchantments;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -219,16 +218,10 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
     @EventHandler(priority = EventPriority.HIGH)
     public void on(BlockBreakEvent e) {
         Player p = e.getPlayer();
-        if (e.isCancelled()) {
-            return;
-        }
-        if (!hasAdaptation(p)) {
-            return;
-        }
         if (!e.getBlock().getBlockData().getMaterial().name().endsWith("_ORE") && !ItemListings.getSmeltOre().contains(e.getBlock().getType())) {
             return;
         }
-        if (!canBlockBreak(p, e.getBlock().getLocation())) {
+        if (resolveBlockBreakContext(p, e.getBlock().getLocation()) == null) {
             return;
         }
 

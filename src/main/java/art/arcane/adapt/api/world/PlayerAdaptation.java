@@ -21,9 +21,6 @@ package art.arcane.adapt.api.world;
 import art.arcane.volmlib.util.collection.KMap;
 import lombok.Data;
 
-import java.util.HashMap;
-import java.util.Map;
-
 @Data
 public class PlayerAdaptation {
     private String id;

@@ -18,12 +18,11 @@
 
 package art.arcane.adapt.util.common.io;
 
+import art.arcane.adapt.util.common.function.Consumer3;
 import art.arcane.amulet.io.FolderWatcher;
 
 import java.io.File;
 import java.util.List;
-
-import art.arcane.adapt.util.common.function.Consumer3;
 
 public class ReactiveFolder {
     private final File folder;

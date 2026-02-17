@@ -17,8 +17,9 @@
  -----------------------------------------------------------------------------*/
 
 package art.arcane.adapt.util.common.math;
-import art.arcane.volmlib.util.format.Form;
 
+import art.arcane.adapt.util.common.collection.GListAdapter;
+import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.math.CDou;
 import org.bukkit.Axis;
 import org.bukkit.Bukkit;
@@ -29,8 +30,6 @@ import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import art.arcane.adapt.util.common.collection.GListAdapter;
 
 /**
  * Vector utilities

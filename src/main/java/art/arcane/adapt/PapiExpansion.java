@@ -1,11 +1,11 @@
 package art.arcane.adapt;
 
-import com.google.common.collect.Maps;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.world.PlayerData;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.util.common.format.Localizer;
+import com.google.common.collect.Maps;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;

@@ -23,13 +23,15 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.content.item.ItemListings;
-import art.arcane.volmlib.util.io.IO;
-import art.arcane.volmlib.util.math.M;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
+import art.arcane.adapt.util.common.misc.SoundPlayer;
+import art.arcane.adapt.util.common.scheduling.J;
+import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import fr.skytasul.glowingentities.GlowingEntities;
-import art.arcane.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -45,17 +47,11 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
-import java.util.HashMap;
 import java.util.Map;
-
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
-import art.arcane.adapt.util.common.scheduling.J;
+import java.util.UUID;
 
 public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Config> {
-    private final Map<Player, Long> cooldowns;
+    private final Map<UUID, Long> cooldowns;
 
     public ExcavationSpelunker() {
         super("excavation-spelunker");
@@ -68,7 +64,7 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
-        cooldowns = new HashMap<>();
+        cooldowns = new java.util.concurrent.ConcurrentHashMap<>();
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.SPYGLASS)
                 .key("challenge_excavation_spelunker_1k")
@@ -100,18 +96,19 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
     public void on(PlayerToggleSneakEvent e) {
         Player p = e.getPlayer();
         SoundPlayer sp = SoundPlayer.of(p);
+        int level = getActiveLevel(p, Player::isSneaking);
         // Check if player is sneaking, has Glowberries in main hand, and an ore in offhand
-        if (p.isSneaking() && hasGlowberries(p) && hasOreInOffhand(p) && hasAdaptation(p)) {
+        if (level > 0 && hasGlowberries(p) && hasOreInOffhand(p)) {
             // Check if player is on cooldown
-            Long cooldown = cooldowns.get(p);
+            Long cooldown = cooldowns.get(p.getUniqueId());
             if (cooldown != null && cooldown > System.currentTimeMillis()) {
                 sp.play(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1, 1);
                 return;
             }
-            int radius = getConfig().rangeMultiplier * getLevel(p);
+            int radius = getConfig().rangeMultiplier * level;
             consumeGlowberry(p);
             searchForOres(p, radius);
-            cooldowns.put(p, (long) (System.currentTimeMillis() + (1000 * getConfig().cooldown)));
+            cooldowns.put(p.getUniqueId(), (long) (System.currentTimeMillis() + (1000 * getConfig().cooldown)));
         }
     }
 

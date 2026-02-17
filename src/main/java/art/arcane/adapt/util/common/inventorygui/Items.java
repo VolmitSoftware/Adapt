@@ -18,14 +18,12 @@
 
 package art.arcane.adapt.util.common.inventorygui;
 
+import art.arcane.adapt.util.common.math.MaterialBlock;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
-
-
-import art.arcane.adapt.util.common.math.MaterialBlock;
 
 /**
  * Itemstack utilities

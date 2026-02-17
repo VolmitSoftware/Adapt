@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.util.project.command;
 
+import art.arcane.adapt.util.common.format.C;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Server;
@@ -32,8 +33,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
 import java.util.UUID;
-
-import art.arcane.adapt.util.common.format.C;
 
 /**
  * Represents a volume sender. A command sender with extra crap in it

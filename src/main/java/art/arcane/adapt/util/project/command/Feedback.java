@@ -1,7 +1,6 @@
 package art.arcane.adapt.util.command;
 
 import art.arcane.adapt.Adapt;
-import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.plugin.VolmitSender;
 import lombok.Builder;
 import lombok.Data;

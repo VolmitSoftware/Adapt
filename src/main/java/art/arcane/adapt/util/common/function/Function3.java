@@ -19,9 +19,6 @@
 package art.arcane.adapt.util.common.function;
 
 
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.data.B;
-
 @SuppressWarnings("hiding")
 @FunctionalInterface
 public interface Function3<A, B, C, R> {

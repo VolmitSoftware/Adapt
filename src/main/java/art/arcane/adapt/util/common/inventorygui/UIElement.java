@@ -17,20 +17,19 @@
  -----------------------------------------------------------------------------*/
 
 package art.arcane.adapt.util.common.inventorygui;
-import art.arcane.volmlib.util.format.Form;
-
-import art.arcane.volmlib.util.collection.KList;
-import art.arcane.volmlib.util.scheduling.Callback;
-import art.arcane.adapt.util.reflect.registries.Enchantments;
-import art.arcane.adapt.util.reflect.registries.ItemFlags;
-import org.bukkit.Material;
-import org.bukkit.inventory.ItemFlag;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.math.MaterialBlock;
 import art.arcane.adapt.util.common.misc.CustomModel;
+import art.arcane.adapt.util.reflect.registries.Enchantments;
+import art.arcane.adapt.util.reflect.registries.ItemFlags;
+import art.arcane.volmlib.util.collection.KList;
+import art.arcane.volmlib.util.format.Form;
+import art.arcane.volmlib.util.scheduling.Callback;
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 public class UIElement implements Element {
     private final String id;

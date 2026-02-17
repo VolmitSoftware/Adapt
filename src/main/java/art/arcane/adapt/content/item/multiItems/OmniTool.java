@@ -26,8 +26,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.ArrayList;
 import java.util.List;
 
-import art.arcane.adapt.util.common.inventorygui.Items;
-
 public class OmniTool implements MultiItem {
     @Override
     public boolean supportsItem(ItemStack itemStack) {

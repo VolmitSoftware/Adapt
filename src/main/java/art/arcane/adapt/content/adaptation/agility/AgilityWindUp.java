@@ -17,19 +17,21 @@
  -----------------------------------------------------------------------------*/
 
 package art.arcane.adapt.content.adaptation.agility;
-import art.arcane.volmlib.util.format.Form;
 
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.volmlib.util.io.IO;
-import art.arcane.volmlib.util.math.M;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.math.VelocitySpeed;
+import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.events.api.ReflectiveHandler;
 import art.arcane.adapt.util.reflect.events.api.entity.EntityDismountEvent;
 import art.arcane.adapt.util.reflect.events.api.entity.EntityMountEvent;
-import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
+import art.arcane.volmlib.util.math.M;
 import lombok.NoArgsConstructor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -40,14 +42,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.util.Vector;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.adapt.util.reflect.registries.Particles;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
     private final Map<UUID, Integer> ticksRunning;
@@ -62,9 +59,9 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
         setInitialCost(getConfig().initialCost);
-        setInterval(120);
-        ticksRunning = new HashMap<>();
-        speedBoosting = new HashMap<>();
+        setInterval(50);
+        ticksRunning = new ConcurrentHashMap<>();
+        speedBoosting = new ConcurrentHashMap<>();
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.POWERED_RAIL)
                 .key("challenge_agility_wind_up_10min")
@@ -132,91 +129,79 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
     public void onTick() {
         for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
             Player p = adaptPlayer.getPlayer();
-            UUID id = p.getUniqueId();
-            if (!hasAdaptation(p) || !isVelocityEligible(p)) {
-                ticksRunning.remove(id);
-                invalidateWindupSpeed(p, id, true);
+            if (p == null || !p.isOnline()) {
                 continue;
             }
+            withPlayerThread(p, () -> updatePlayer(p));
+        }
+    }
 
-            if (!p.isSprinting()) {
-                ticksRunning.remove(id);
-                brakeWindupSpeed(p, id);
-                continue;
+    private void updatePlayer(Player p) {
+        if (p == null || !p.isOnline()) {
+            return;
+        }
+
+        UUID id = p.getUniqueId();
+        if (!hasActiveAdaptation(p) || !isVelocityEligible(p)) {
+            ticksRunning.remove(id);
+            invalidateWindupSpeed(p, id, false);
+            return;
+        }
+
+        if (!p.isSprinting()) {
+            ticksRunning.remove(id);
+            invalidateWindupSpeed(p, id, false);
+            return;
+        }
+
+        ticksRunning.compute(id, (k, v) -> v == null ? 1 : v + 1);
+        int tr = ticksRunning.getOrDefault(id, 0);
+        if (tr <= 0) {
+            return;
+        }
+
+        double factor = getLevelPercent(p);
+        double ticksToMax = getWindupTicks(factor);
+        double progress = Math.min(M.lerpInverse(0, ticksToMax, tr), 1);
+        double speedIncrease = M.lerp(0, getWindupSpeed(factor), progress);
+
+        if (areParticlesEnabled()) {
+            if (M.r(0.2 * progress)) {
+                p.getWorld().spawnParticle(Particle.LAVA, p.getLocation(), 1);
             }
 
-            ticksRunning.compute(id, (k, v) -> v == null ? 1 : v + 1);
-            int tr = ticksRunning.getOrDefault(id, 0);
-            if (tr <= 0) {
-                continue;
+            if (M.r(0.25 * progress)) {
+                p.getWorld().spawnParticle(Particle.FLAME, p.getLocation(), 1, 0, 0, 0, 0);
             }
+        }
 
-            double factor = getLevelPercent(p);
-            double ticksToMax = getWindupTicks(factor);
-            double progress = Math.min(M.lerpInverse(0, ticksToMax, tr), 1);
-            double speedIncrease = M.lerp(0, getWindupSpeed(factor), progress);
+        VelocitySpeed.InputSnapshot input = VelocitySpeed.readInput(p, getConfig().fallbackInputVelocityThresholdSquared());
+        if (!input.hasHorizontal()) {
+            speedBoosting.put(id, false);
+            return;
+        }
+        applyWindupSpeed(p, id, input, speedIncrease);
 
-            if (areParticlesEnabled()) {
-                if (M.r(0.2 * progress)) {
-                    p.getWorld().spawnParticle(Particle.LAVA, p.getLocation(), 1);
-                }
-
-                if (M.r(0.25 * progress)) {
-                    p.getWorld().spawnParticle(Particle.FLAME, p.getLocation(), 1, 0, 0, 0, 0);
-                }
-            }
-
-            VelocitySpeed.InputSnapshot input = VelocitySpeed.readInput(p, getConfig().fallbackInputVelocityThresholdSquared());
-            if (!input.hasHorizontal()) {
-                brakeWindupSpeed(p, id);
-            } else {
-                applyWindupSpeed(p, id, input, speedIncrease);
-            }
-
-            if (progress >= 1.0) {
-                getPlayer(p).getData().addStat("agility.wind-up.max-speed-ticks", 1);
-            }
+        if (progress >= 1.0) {
+            getPlayer(p).getData().addStat("agility.wind-up.max-speed-ticks", 1);
         }
     }
 
     private void applyWindupSpeed(Player p, UUID id, VelocitySpeed.InputSnapshot input, double speedIncrease) {
         Vector direction = VelocitySpeed.resolveHorizontalDirection(p, input);
         if (direction.lengthSquared() <= VelocitySpeed.EPSILON) {
-            brakeWindupSpeed(p, id);
+            speedBoosting.put(id, false);
             return;
         }
 
-        double targetSpeed = Math.min(getConfig().maxHorizontalSpeed,
-                Math.max(0, getConfig().baseHorizontalSpeed * (1.0 + Math.max(0, speedIncrease))));
         Vector horizontal = VelocitySpeed.horizontalOnly(p.getVelocity());
+        double computedTargetSpeed = Math.max(0, getConfig().baseHorizontalSpeed * (1.0 + Math.max(0, speedIncrease)));
+        double targetSpeed = Math.min(getConfig().maxHorizontalSpeed, Math.max(horizontal.length(), computedTargetSpeed));
         Vector targetHorizontal = direction.multiply(targetSpeed);
         Vector nextHorizontal = VelocitySpeed.moveTowards(horizontal, targetHorizontal, Math.max(0, getConfig().accelPerTick));
         nextHorizontal = VelocitySpeed.clampHorizontal(nextHorizontal, getConfig().maxHorizontalSpeed);
         VelocitySpeed.setHorizontalVelocity(p, nextHorizontal);
         speedBoosting.put(id, true);
-    }
-
-    private void brakeWindupSpeed(Player p, UUID id) {
-        if (!speedBoosting.getOrDefault(id, false)) {
-            return;
-        }
-
-        Vector horizontal = VelocitySpeed.horizontalOnly(p.getVelocity());
-        double stopThreshold = Math.max(0, getConfig().stopThreshold);
-        if (horizontal.lengthSquared() <= stopThreshold * stopThreshold) {
-            VelocitySpeed.hardStopHorizontal(p);
-            speedBoosting.put(id, false);
-            return;
-        }
-
-        Vector nextHorizontal = VelocitySpeed.moveTowards(horizontal, new Vector(), Math.max(0, getConfig().brakePerTick));
-        if (nextHorizontal.lengthSquared() <= stopThreshold * stopThreshold) {
-            VelocitySpeed.hardStopHorizontal(p);
-            speedBoosting.put(id, false);
-            return;
-        }
-
-        VelocitySpeed.setHorizontalVelocity(p, nextHorizontal);
     }
 
     private void invalidateWindupSpeed(Player p, UUID id, boolean invalidState) {
@@ -290,7 +275,7 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
         @art.arcane.adapt.util.config.ConfigDoc(value = "Horizontal velocity threshold considered fully stopped.", impact = "Higher values stop sooner; lower values preserve tiny motion longer.")
         double stopThreshold = 0.01;
         @art.arcane.adapt.util.config.ConfigDoc(value = "If true, windup velocity is force-cleared when entering invalid states.", impact = "Prevents retained speed from skipped state transitions.")
-        boolean hardStopOnInvalidState = true;
+        boolean hardStopOnInvalidState = false;
         @art.arcane.adapt.util.config.ConfigDoc(value = "Fallback movement threshold used when direct input API is unavailable.", impact = "Only used on runtimes without Player input access.")
         double fallbackInputVelocityThreshold = 0.0008;
 

@@ -56,6 +56,7 @@ public final class AdaptationGate {
         if (player == null) {
             return true;
         }
+
         return AdaptConfig.get().blacklistedWorlds.contains(player.getWorld().getName());
     }
 

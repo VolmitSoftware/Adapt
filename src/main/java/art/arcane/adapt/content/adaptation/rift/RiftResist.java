@@ -23,10 +23,9 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.PotionEffectTypes;
@@ -89,7 +88,7 @@ public class RiftResist extends SimpleAdaptation<RiftResist.Config> {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerInteractEvent e) {
         Player p = e.getPlayer();
-        if (!hasAdaptation(p)) {
+        if (!hasActiveAdaptation(p)) {
             return;
         }
         ItemStack hand = p.getInventory().getItemInMainHand();

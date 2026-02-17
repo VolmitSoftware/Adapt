@@ -4,13 +4,11 @@ import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.world.PlayerData;
 import art.arcane.adapt.util.command.FConst;
 import art.arcane.adapt.util.decree.DecreeExecutor;
+import art.arcane.adapt.util.decree.specialhandlers.NullablePlayerHandler;
 import art.arcane.volmlib.util.decree.DecreeOrigin;
 import art.arcane.volmlib.util.decree.annotations.Decree;
 import art.arcane.volmlib.util.decree.annotations.Param;
-import art.arcane.adapt.util.decree.specialhandlers.NullablePlayerHandler;
 import org.bukkit.entity.Player;
-
-import art.arcane.adapt.util.common.plugin.Permission;
 
 @Decree(name = "clear", origin = DecreeOrigin.BOTH, description = "Clear player progression data")
 public class CommandClear implements DecreeExecutor {

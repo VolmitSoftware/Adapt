@@ -17,18 +17,20 @@
  -----------------------------------------------------------------------------*/
 
 package art.arcane.adapt.content.adaptation.agility;
-import art.arcane.volmlib.util.format.Form;
 
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
-import art.arcane.volmlib.util.io.IO;
-import art.arcane.volmlib.util.math.M;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
+import art.arcane.adapt.util.common.misc.SoundPlayer;
+import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.adapt.util.reflect.registries.PotionEffectTypes;
-import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
+import art.arcane.volmlib.util.math.M;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -41,17 +43,12 @@ import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.util.Vector;
 
-import java.util.HashMap;
 import java.util.Map;
-
-
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> {
-    private final Map<Player, Long> lastJump;
+    private final Map<UUID, Long> lastJump;
 
     public AgilitySuperJump() {
         super("agility-super-jump");
@@ -64,7 +61,7 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setInterval(9999);
-        lastJump = new HashMap<>();
+        lastJump = new ConcurrentHashMap<>();
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.LEATHER_BOOTS)
                 .key("challenge_agility_super_jump_100")
@@ -98,37 +95,33 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
 
     @EventHandler
     public void on(PlayerToggleSneakEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         Player p = e.getPlayer();
-        if (!hasAdaptation(p)) {
-            return;
-        }
-
-        if (e.isSneaking() && p.isOnGround()) {
-            SoundPlayer sp = SoundPlayer.of(p);
-            sp.play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 0.3f, 0.35f);
-        }
+        withAdaptedPlayer(p, e, () -> {
+            if (e.isSneaking() && p.isOnGround()) {
+                SoundPlayer sp = SoundPlayer.of(p);
+                sp.play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 0.3f, 0.35f);
+            }
+        });
     }
 
     @EventHandler
     public void on(PlayerQuitEvent e) {
         Player p = e.getPlayer();
-        lastJump.remove(p);
+        lastJump.remove(p.getUniqueId());
     }
 
     @EventHandler
     public void on(PlayerMoveEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         Player p = e.getPlayer();
         if (p.isSwimming() || p.isFlying() || p.isGliding() || p.isSprinting()) {
             return;
         }
 
-        if (p.isSneaking() && hasAdaptation(p) && canUse(getPlayer(p))) {
+        withAdaptedPlayer(p, e, () -> {
+            if (!p.isSneaking() || !canUse(getPlayer(p))) {
+                return;
+            }
+
             Vector velocity = p.getVelocity();
 
             if (velocity.getY() > 0) {
@@ -139,10 +132,10 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
                     jumpVelocity += (double) ((float) jumpPotion.getAmplifier() + 1) * 0.1F;
                 }
 
-                if (lastJump.get(p) != null && M.ms() - lastJump.get(p) < 1000) {
+                if (lastJump.get(p.getUniqueId()) != null && M.ms() - lastJump.get(p.getUniqueId()) < 1000) {
                     return;
-                } else if (lastJump.get(p) != null && M.ms() - lastJump.get(p) > 1500) {
-                    lastJump.remove(p);
+                } else if (lastJump.get(p.getUniqueId()) != null && M.ms() - lastJump.get(p.getUniqueId()) > 1500) {
+                    lastJump.remove(p.getUniqueId());
                 }
                 if (p.getLocation().getBlock().getType() != Material.LADDER && velocity.getY() > jumpVelocity && p.isOnline()) {
                     SoundPlayer spw = SoundPlayer.of(p.getWorld());
@@ -152,11 +145,11 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
                         p.getWorld().spawnParticle(Particles.BLOCK_CRACK, p.getLocation().clone().add(0, 0.3, 0), 15, 0.1, 0.8, 0.1, 0.1, p.getLocation().getBlock().getRelative(BlockFace.DOWN).getBlockData());
                     }
                     p.setVelocity(p.getVelocity().setY(getJumpHeight(getLevel(p))));
-                    lastJump.put(p, M.ms());
+                    lastJump.put(p.getUniqueId(), M.ms());
                     getPlayer(p).getData().addStat("agility.super-jump.jumps", 1);
                 }
             }
-        }
+        });
     }
 
     @Override

@@ -20,10 +20,9 @@ package art.arcane.adapt.content.item;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.item.DataItem;
-import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.volmlib.util.format.Form;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.volmlib.util.format.Form;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.bukkit.Material;

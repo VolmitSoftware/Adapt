@@ -24,7 +24,11 @@ import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.PlayerAdaptation;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.api.xp.XP;
-import org.bukkit.Bukkit;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.*;
+import art.arcane.adapt.util.common.math.MaterialBlock;
+import art.arcane.adapt.util.common.scheduling.J;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
@@ -32,18 +36,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
-
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.adapt.util.common.inventorygui.GuiEffects;
-import art.arcane.adapt.util.common.inventorygui.GuiLayout;
-import art.arcane.adapt.util.common.inventorygui.GuiTheme;
-import art.arcane.adapt.util.common.inventorygui.UIElement;
-import art.arcane.adapt.util.common.inventorygui.UIWindow;
-import art.arcane.adapt.util.common.inventorygui.Window;
-import art.arcane.adapt.util.common.math.MaterialBlock;
-import art.arcane.adapt.util.common.scheduling.J;
 
 public class SkillsGui {
     private static final int PAGE_JUMP = 5;

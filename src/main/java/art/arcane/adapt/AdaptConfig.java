@@ -19,8 +19,8 @@
 package art.arcane.adapt;
 
 import art.arcane.adapt.api.xp.Curves;
-import art.arcane.adapt.util.project.redis.RedisConfig;
 import art.arcane.adapt.util.config.ConfigFileSupport;
+import art.arcane.adapt.util.project.redis.RedisConfig;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Material;

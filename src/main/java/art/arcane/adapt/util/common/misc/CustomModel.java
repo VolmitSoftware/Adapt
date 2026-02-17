@@ -1,21 +1,20 @@
 package art.arcane.adapt.util.common.misc;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.version.Version;
+import art.arcane.adapt.util.common.io.Json;
+import art.arcane.adapt.util.config.ConfigFileSupport;
 import art.arcane.volmlib.util.collection.KMap;
 import art.arcane.volmlib.util.io.IO;
-import art.arcane.adapt.util.config.ConfigFileSupport;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
 import java.io.IOException;
-
-import art.arcane.adapt.util.common.io.Json;
 
 import static art.arcane.adapt.Adapt.instance;
 

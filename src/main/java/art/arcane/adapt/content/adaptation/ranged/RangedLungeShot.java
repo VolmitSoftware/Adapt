@@ -17,16 +17,17 @@
  -----------------------------------------------------------------------------*/
 
 package art.arcane.adapt.content.adaptation.ranged;
-import art.arcane.volmlib.util.format.Form;
 
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
-import art.arcane.volmlib.util.io.IO;
-import art.arcane.volmlib.util.math.M;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
+import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -36,12 +37,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.util.Vector;
-
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
-import art.arcane.adapt.util.reflect.registries.Particles;
 
 public class RangedLungeShot extends SimpleAdaptation<RangedLungeShot.Config> {
     public RangedLungeShot() {
@@ -86,12 +81,9 @@ public class RangedLungeShot extends SimpleAdaptation<RangedLungeShot.Config> {
 
     @EventHandler
     public void on(ProjectileLaunchEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         if (e.getEntity().getShooter() instanceof Player p) {
             if (e.getEntity() instanceof AbstractArrow a) {
-                if (hasAdaptation(p)) {
+                if (hasActiveAdaptation(p)) {
                     if (!p.isOnGround()) {
                         Vector velocity = p.getPlayer().getLocation().getDirection().normalize().multiply(getSpeed(getLevelPercent(p)));
                         p.setVelocity(p.getVelocity().subtract(velocity));

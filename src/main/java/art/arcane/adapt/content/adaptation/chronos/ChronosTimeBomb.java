@@ -24,25 +24,16 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.content.item.ChronoTimeBombItem;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.scheduling.J;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.volmlib.util.math.M;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.math.M;
 import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
-import org.bukkit.Color;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
-import org.bukkit.entity.ThrownPotion;
+import org.bukkit.*;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
@@ -57,11 +48,9 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import art.arcane.adapt.util.common.math.Sphere;
-import art.arcane.adapt.util.common.misc.Impulse;
-import art.arcane.adapt.util.reflect.registries.Particles;
 
 public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
     private static final EnumSet<Action> SUPPORTED_ACTIONS = EnumSet.of(
@@ -99,12 +88,12 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
                 .result(ChronoTimeBombItem.withData())
                 .build());
 
-        cooldowns = new HashMap<>();
-        cooldownReadyNotify = new HashSet<>();
-        fields = new ArrayList<>();
-        activeBombProjectiles = new HashMap<>();
-        frozenEntities = new HashMap<>();
-        frozenPlayers = new HashMap<>();
+        cooldowns = new ConcurrentHashMap<>();
+        cooldownReadyNotify = ConcurrentHashMap.newKeySet();
+        fields = new CopyOnWriteArrayList<>();
+        activeBombProjectiles = new ConcurrentHashMap<>();
+        frozenEntities = new ConcurrentHashMap<>();
+        frozenPlayers = new ConcurrentHashMap<>();
         syncTickQueued = new AtomicBoolean(false);
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.ICE)
@@ -176,7 +165,7 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
             return;
         }
 
-        if (!hasAdaptation(p)) {
+        if (!hasActiveAdaptation(p)) {
             e.setCancelled(true);
             return;
         }
@@ -212,7 +201,8 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
             return;
         }
 
-        if (!hasAdaptation(p)) {
+        int level = getActiveLevel(p);
+        if (level <= 0) {
             e.setCancelled(true);
             return;
         }
@@ -227,7 +217,6 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
             return;
         }
 
-        int level = getLevel(p);
         cooldowns.put(p.getUniqueId(), now + getCooldownMillis());
         cooldownReadyNotify.add(p.getUniqueId());
         activeBombProjectiles.put(potion.getUniqueId(), new ArmedBombProjectile(p.getUniqueId(), level, now));
@@ -372,7 +361,7 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
             }
 
             Player owner = Bukkit.getPlayer(field.owner());
-            if (owner != null && !canPVP(owner, player.getLocation())) {
+            if (owner != null && !canDamageTarget(owner, player)) {
                 continue;
             }
 
@@ -450,14 +439,8 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
             }
 
             if (owner != null) {
-                if (living instanceof Player targetPlayer) {
-                    if (!canPVP(owner, targetPlayer.getLocation())) {
-                        continue;
-                    }
-                } else {
-                    if (!canPVE(owner, living.getLocation())) {
-                        continue;
-                    }
+                if (!canDamageTarget(owner, living)) {
+                    continue;
                 }
             }
 
@@ -533,12 +516,10 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
         long now = M.ms();
         cleanupBombProjectiles(now);
 
-        Iterator<UUID> ready = cooldownReadyNotify.iterator();
-        while (ready.hasNext()) {
-            UUID id = ready.next();
+        for (UUID id : new HashSet<>(cooldownReadyNotify)) {
             Player p = Bukkit.getPlayer(id);
             if (p == null) {
-                ready.remove();
+                cooldownReadyNotify.remove(id);
                 continue;
             }
 
@@ -547,7 +528,7 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
                 if (getConfig().playClockSounds) {
                     ChronosSoundFX.playCooldownReady(p);
                 }
-                ready.remove();
+                cooldownReadyNotify.remove(id);
             }
         }
 
@@ -558,12 +539,11 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
             applyField(field, now);
         }
 
-        Iterator<Map.Entry<UUID, FrozenPlayerState>> frozenPlayerIterator = frozenPlayers.entrySet().iterator();
-        while (frozenPlayerIterator.hasNext()) {
-            Map.Entry<UUID, FrozenPlayerState> entry = frozenPlayerIterator.next();
-            Player player = Bukkit.getPlayer(entry.getKey());
+        for (Map.Entry<UUID, FrozenPlayerState> entry : new ArrayList<>(frozenPlayers.entrySet())) {
+            UUID playerId = entry.getKey();
+            Player player = Bukkit.getPlayer(playerId);
             if (player == null || !player.isOnline() || player.isDead()) {
-                frozenPlayerIterator.remove();
+                frozenPlayers.remove(playerId);
                 continue;
             }
 
@@ -572,16 +552,15 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
                 continue;
             }
 
-            unfreezePlayer(entry.getKey(), entry.getValue());
-            frozenPlayerIterator.remove();
+            unfreezePlayer(playerId, entry.getValue());
+            frozenPlayers.remove(playerId);
         }
 
-        Iterator<Map.Entry<UUID, FrozenEntityState>> frozenIterator = frozenEntities.entrySet().iterator();
-        while (frozenIterator.hasNext()) {
-            Map.Entry<UUID, FrozenEntityState> entry = frozenIterator.next();
-            Entity entity = Bukkit.getEntity(entry.getKey());
+        for (Map.Entry<UUID, FrozenEntityState> entry : new ArrayList<>(frozenEntities.entrySet())) {
+            UUID entityId = entry.getKey();
+            Entity entity = Bukkit.getEntity(entityId);
             if (entity == null || entity.isDead() || !entity.isValid()) {
-                frozenIterator.remove();
+                frozenEntities.remove(entityId);
                 continue;
             }
 
@@ -590,23 +569,22 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
                 continue;
             }
 
-            unfreezeEntity(entry.getKey(), entry.getValue());
-            frozenIterator.remove();
+            unfreezeEntity(entityId, entry.getValue());
+            frozenEntities.remove(entityId);
         }
     }
 
     private void cleanupBombProjectiles(long now) {
-        Iterator<Map.Entry<UUID, ArmedBombProjectile>> iterator = activeBombProjectiles.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<UUID, ArmedBombProjectile> entry = iterator.next();
-            Entity entity = Bukkit.getEntity(entry.getKey());
+        for (Map.Entry<UUID, ArmedBombProjectile> entry : new ArrayList<>(activeBombProjectiles.entrySet())) {
+            UUID projectileId = entry.getKey();
+            Entity entity = Bukkit.getEntity(projectileId);
             if (entity == null || !entity.isValid() || entity.isDead()) {
-                iterator.remove();
+                activeBombProjectiles.remove(projectileId);
                 continue;
             }
 
             if (now - entry.getValue().launchedAt() > PROJECTILE_TRACK_TTL_MS) {
-                iterator.remove();
+                activeBombProjectiles.remove(projectileId);
             }
         }
     }

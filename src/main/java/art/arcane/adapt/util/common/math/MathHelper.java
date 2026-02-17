@@ -477,7 +477,6 @@ public class MathHelper {
         return var0 > 0.0 ? 1 : -1;
     }
 
-    @Deprecated
     public static float j(float var0, float var1, float var2) {
         float var3;
         for (var3 = var1 - var0; var3 < -180.0f; var3 += 360.0f) {

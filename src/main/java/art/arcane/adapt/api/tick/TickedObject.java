@@ -21,7 +21,6 @@ package art.arcane.adapt.api.tick;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.volmlib.util.math.M;
-import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 

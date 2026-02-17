@@ -18,26 +18,17 @@
 
 package art.arcane.adapt.content.skill;
 
-import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
+import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.api.world.AdaptStatTracker;
-import art.arcane.adapt.content.adaptation.blocking.BlockingChainArmorer;
-import art.arcane.adapt.content.adaptation.blocking.BlockingBastionStance;
-import art.arcane.adapt.content.adaptation.blocking.BlockingBulwarkBash;
-import art.arcane.adapt.content.adaptation.blocking.BlockingCounterGuard;
-import art.arcane.adapt.content.adaptation.blocking.BlockingHorseArmorer;
-import art.arcane.adapt.content.adaptation.blocking.BlockingMirrorBlock;
-import art.arcane.adapt.content.adaptation.blocking.BlockingMultiArmor;
-import art.arcane.adapt.content.adaptation.blocking.BlockingSaddlecrafter;
+import art.arcane.adapt.content.adaptation.blocking.*;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -48,9 +39,10 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
-    private final Map<Player, Long> cooldowns;
+    private final Map<UUID, Long> cooldowns;
 
     public SkillBlocking() {
         super("blocking", Localizer.dLocalize("skill.blocking.icon"));
@@ -198,19 +190,16 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
     }
 
     private void handleCooldown(Player p, Runnable runnable) {
-        Long cooldown = cooldowns.get(p);
+        Long cooldown = cooldowns.get(p.getUniqueId());
         if (cooldown != null && cooldown + getConfig().cooldownDelay > System.currentTimeMillis())
             return;
-        cooldowns.put(p, System.currentTimeMillis());
+        cooldowns.put(p.getUniqueId(), System.currentTimeMillis());
         runnable.run();
     }
 
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(EntityDamageByEntityEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         if (e.getEntity() instanceof Player p) {
             SoundPlayer sp = SoundPlayer.of(p);
             shouldReturnForPlayer(p, e, () -> {

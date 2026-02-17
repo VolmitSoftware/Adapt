@@ -22,15 +22,13 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.volmlib.util.format.Form;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
 import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -45,12 +43,11 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 public class UnarmedBatteringCharge extends SimpleAdaptation<UnarmedBatteringCharge.Config> {
-    private final Map<UUID, Boolean> primedState = new HashMap<>();
+    private final Map<UUID, Boolean> primedState = new java.util.concurrent.ConcurrentHashMap<>();
 
     public UnarmedBatteringCharge() {
         super("unarmed-battering-charge");
@@ -92,7 +89,13 @@ public class UnarmedBatteringCharge extends SimpleAdaptation<UnarmedBatteringCha
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
-        if (e.isCancelled() || !(e.getDamager() instanceof Player p) || !hasAdaptation(p) || p.isInsideVehicle()) {
+        var attack = resolveAttackContext(e);
+        if (attack == null) {
+            return;
+        }
+
+        Player p = attack.attacker();
+        if (p.isInsideVehicle()) {
             return;
         }
 
@@ -110,7 +113,7 @@ public class UnarmedBatteringCharge extends SimpleAdaptation<UnarmedBatteringCha
             return;
         }
 
-        int level = getLevel(p);
+        int level = attack.level();
         e.setDamage(e.getDamage() + getDamageBonus(level));
         Entity target = e.getEntity();
         target.setVelocity(target.getVelocity().add(p.getLocation().getDirection().normalize().multiply(getKnockback(level))));
@@ -140,7 +143,7 @@ public class UnarmedBatteringCharge extends SimpleAdaptation<UnarmedBatteringCha
         }
         if (victim.getLastDamageCause() instanceof EntityDamageByEntityEvent dmg
                 && dmg.getDamager() instanceof Player p
-                && hasAdaptation(p)
+                && hasActiveAdaptation(p)
                 && isChargeLoadout(p)) {
             getPlayer(p).getData().addStat("unarmed.battering-charge.charge-kills", 1);
         }
@@ -203,7 +206,8 @@ public class UnarmedBatteringCharge extends SimpleAdaptation<UnarmedBatteringCha
     public void onTick() {
         for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
             Player p = adaptPlayer.getPlayer();
-            if (!hasAdaptation(p)) {
+            int level = getActiveLevel(p);
+            if (level <= 0) {
                 primedState.remove(p.getUniqueId());
                 continue;
             }

@@ -22,8 +22,8 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdvancementSpec;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -68,7 +68,7 @@ public class CraftingLeather extends SimpleAdaptation<CraftingLeather.Config> {
     @EventHandler
     public void on(PlayerInteractEvent e) {
         if (e.getItem() != null && e.getItem().getType() == Material.ROTTEN_FLESH && e.getClickedBlock() != null && e.getClickedBlock().getType() == Material.CAMPFIRE) {
-            if (!hasAdaptation(e.getPlayer())) {
+            if (getActiveLevel(e.getPlayer()) <= 0) {
                 e.setCancelled(true);
             } else {
                 getPlayer(e.getPlayer()).getData().addStat("crafting.leather.leather-crafted", 1);

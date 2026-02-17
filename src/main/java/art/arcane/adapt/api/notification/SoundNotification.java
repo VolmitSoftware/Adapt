@@ -19,7 +19,6 @@
 package art.arcane.adapt.api.notification;
 
 import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import lombok.Builder;
 import lombok.Data;

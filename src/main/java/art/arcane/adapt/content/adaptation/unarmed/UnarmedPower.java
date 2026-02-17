@@ -22,12 +22,11 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.volmlib.util.format.Form;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.LivingEntity;
@@ -76,26 +75,23 @@ public class UnarmedPower extends SimpleAdaptation<UnarmedPower.Config> {
 
     @EventHandler
     public void on(EntityDamageByEntityEvent e) {
-        if (e.isCancelled()) {
+        var attack = resolveAttackContext(e);
+        if (attack == null) {
             return;
         }
-        if (e.getDamager() instanceof Player p) {
-            if (!hasAdaptation(p)) {
-                return;
-            }
 
-            if (isTool(p.getInventory().getItemInMainHand()) || isTool(p.getInventory().getItemInOffHand())) {
-                return;
-            }
-            double factor = getLevelPercent(p);
-
-            if (factor <= 0) {
-                return;
-            }
-            e.setDamage(e.getDamage() * (1 + getUnarmedDamage(getLevel(p))));
-            xp(p, 0.321 * factor * e.getDamage(), "unarmed-hit");
-
+        Player p = attack.attacker();
+        if (isTool(p.getInventory().getItemInMainHand()) || isTool(p.getInventory().getItemInOffHand())) {
+            return;
         }
+        double factor = getLevelPercent(attack.level());
+
+        if (factor <= 0) {
+            return;
+        }
+        e.setDamage(e.getDamage() * (1 + getUnarmedDamage(attack.level())));
+        xp(p, 0.321 * factor * e.getDamage(), "unarmed-hit");
+
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -105,7 +101,7 @@ public class UnarmedPower extends SimpleAdaptation<UnarmedPower.Config> {
         }
         if (victim.getLastDamageCause() instanceof EntityDamageByEntityEvent dmg
                 && dmg.getDamager() instanceof Player p
-                && hasAdaptation(p)
+                && hasActiveAdaptation(p)
                 && !isTool(p.getInventory().getItemInMainHand())
                 && !isTool(p.getInventory().getItemInOffHand())) {
             getPlayer(p).getData().addStat("unarmed.power.unarmed-kills", 1);

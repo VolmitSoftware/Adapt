@@ -22,6 +22,7 @@ import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.potion.BrewingManager;
+import art.arcane.adapt.api.protection.Protector;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.tick.TickedObject;
 import art.arcane.adapt.api.world.AdaptPlayer;
@@ -30,18 +31,13 @@ import art.arcane.adapt.api.xp.XPMultiplier;
 import art.arcane.adapt.content.gui.SkillsGui;
 import art.arcane.adapt.content.skill.*;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
+import art.arcane.adapt.util.reflect.registries.Particles;
+import art.arcane.volmlib.util.collection.KMap;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.math.M;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
-import art.arcane.volmlib.util.collection.KMap;
-import art.arcane.adapt.util.reflect.registries.Particles;
-import org.bukkit.Bukkit;
-import org.bukkit.Keyed;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -53,14 +49,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
 import java.lang.reflect.InvocationTargetException;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class SkillRegistry extends TickedObject {
@@ -113,7 +103,17 @@ public class SkillRegistry extends TickedObject {
     }
 
     private boolean canInteract(Player player, Location targetLocation) {
-        return Adapt.instance.getProtectorRegistry().getAllProtectors().stream().allMatch(protector -> protector.canInteract(player, targetLocation, null));
+        if (player == null || targetLocation == null) {
+            return false;
+        }
+
+        for (Protector protector : Adapt.instance.getProtectorRegistry().getAllProtectors()) {
+            if (!protector.canInteract(player, targetLocation, null)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     @EventHandler(priority = EventPriority.MONITOR)

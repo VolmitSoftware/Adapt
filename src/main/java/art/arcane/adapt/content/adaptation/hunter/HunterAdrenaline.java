@@ -22,12 +22,11 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.volmlib.util.format.Form;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -77,21 +76,22 @@ public class HunterAdrenaline extends SimpleAdaptation<HunterAdrenaline.Config> 
 
     @EventHandler
     public void on(EntityDamageByEntityEvent e) {
-        if (e.isCancelled()) {
+        var attack = resolveAttackContext(e);
+        if (attack == null) {
             return;
         }
-        if (e.getDamager() instanceof Player p && hasAdaptation(p) && getLevel((Player) e.getDamager()) > 0) {
-            double damageMax = getDamage(getLevel(p));
-            double hpp = ((Player) e.getDamager()).getHealth() / ((Player) e.getDamager()).getMaxHealth();
 
-            if (hpp >= 1) {
-                return;
-            }
+        Player p = attack.attacker();
+        double damageMax = getDamage(attack.level());
+        double hpp = p.getHealth() / p.getMaxHealth();
 
-            damageMax *= (1D - hpp);
-            e.setDamage(e.getDamage() * (damageMax + 1D));
-            getPlayer(p).getData().addStat("hunter.adrenaline.low-health-kills", 1);
+        if (hpp >= 1) {
+            return;
         }
+
+        damageMax *= (1D - hpp);
+        e.setDamage(e.getDamage() * (damageMax + 1D));
+        getPlayer(p).getData().addStat("hunter.adrenaline.low-health-kills", 1);
     }
 
     @Override

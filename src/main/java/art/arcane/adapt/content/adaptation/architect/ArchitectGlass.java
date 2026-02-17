@@ -22,9 +22,10 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
-import art.arcane.volmlib.util.io.IO;
-import art.arcane.volmlib.util.math.M;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
+import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -35,13 +36,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
-
-
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
-import art.arcane.adapt.util.reflect.registries.Particles;
 
 public class ArchitectGlass extends SimpleAdaptation<ArchitectGlass.Config> {
     public ArchitectGlass() {
@@ -83,27 +77,26 @@ public class ArchitectGlass extends SimpleAdaptation<ArchitectGlass.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockBreakEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         Player p = e.getPlayer();
-        if (hasAdaptation(p) && (p.getInventory().getItemInMainHand().getType() == Material.AIR || !isTool(p.getInventory().getItemInMainHand())) && !e.isCancelled()) {
-            if (!canBlockBreak(p, e.getBlock().getLocation())) {
-                return;
-            }
-            if (e.getBlock().getType().toString().contains("GLASS") && !e.getBlock().getType().toString().contains("TINTED_GLASS")) {
-                e.getBlock().getWorld().dropItemNaturally(e.getBlock().getLocation(), new ItemStack(e.getBlock().getType(), 1));
-                SoundPlayer spw = SoundPlayer.of(e.getBlock().getWorld());
-                spw.play(e.getBlock().getLocation(), Sound.BLOCK_LARGE_AMETHYST_BUD_BREAK, 1.0f, 1.0f);
-                if (areParticlesEnabled()) {
-
-                    e.getBlock().getWorld().spawnParticle(Particle.SCRAPE, e.getBlock().getLocation(), 1);
-                    vfxCuboidOutline(e.getBlock(), Particle.REVERSE_PORTAL);
+        withAdaptedPlayer(p, e, () -> {
+            if (p.getInventory().getItemInMainHand().getType() == Material.AIR || !isTool(p.getInventory().getItemInMainHand())) {
+                if (!canBlockBreak(p, e.getBlock().getLocation())) {
+                    return;
                 }
-                e.getBlock().breakNaturally();
-                getPlayer(p).getData().addStat("architect.glass.blocks-recovered", 1);
+                if (e.getBlock().getType().toString().contains("GLASS") && !e.getBlock().getType().toString().contains("TINTED_GLASS")) {
+                    e.getBlock().getWorld().dropItemNaturally(e.getBlock().getLocation(), new ItemStack(e.getBlock().getType(), 1));
+                    SoundPlayer spw = SoundPlayer.of(e.getBlock().getWorld());
+                    spw.play(e.getBlock().getLocation(), Sound.BLOCK_LARGE_AMETHYST_BUD_BREAK, 1.0f, 1.0f);
+                    if (areParticlesEnabled()) {
+
+                        e.getBlock().getWorld().spawnParticle(Particle.SCRAPE, e.getBlock().getLocation(), 1);
+                        vfxCuboidOutline(e.getBlock(), Particle.REVERSE_PORTAL);
+                    }
+                    e.getBlock().breakNaturally();
+                    getPlayer(p).getData().addStat("architect.glass.blocks-recovered", 1);
+                }
             }
-        }
+        });
     }
 
     @Override

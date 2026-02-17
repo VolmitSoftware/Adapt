@@ -1,13 +1,11 @@
 package art.arcane.adapt.util.common.inventorygui;
 
 import art.arcane.adapt.Adapt;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.entity.Player;
-
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.math.MaterialBlock;
 import art.arcane.adapt.util.common.scheduling.J;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
 
 public final class GuiConfirm {
     private GuiConfirm() {

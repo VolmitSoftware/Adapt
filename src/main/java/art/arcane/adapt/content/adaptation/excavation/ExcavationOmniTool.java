@@ -23,11 +23,13 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.content.item.ItemListings;
 import art.arcane.adapt.content.item.multiItems.OmniTool;
-import art.arcane.volmlib.util.io.IO;
-import art.arcane.volmlib.util.math.M;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
+import art.arcane.adapt.util.common.misc.SoundPlayer;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -52,13 +54,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.List;
 import java.util.Map;
-
-
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
-import art.arcane.adapt.util.common.scheduling.J;
 
 public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Config> {
     private static final OmniTool omniTool = new OmniTool();
@@ -124,18 +119,8 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
                 e.setCancelled(true);
                 return;
             }
-
-            if (e.isCancelled()) {
-                return;
-            }
-            if (!hasAdaptation(p) && validateTool(p.getInventory().getItemInMainHand())) {
+            if (!hasActiveAdaptation(p) && validateTool(p.getInventory().getItemInMainHand())) {
                 e.setCancelled(true);
-                return;
-            }
-            if (!hasAdaptation(p)) {
-                if (validateTool(p.getInventory().getItemInMainHand())) {
-                    e.setCancelled(true);
-                }
                 return;
             }
             ItemStack hand = p.getInventory().getItemInMainHand();
@@ -170,7 +155,7 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
 
 
             //deny if they dont have the adaptation
-            if (!hasAdaptation(p)) {
+            if (!hasActiveAdaptation(p)) {
                 e.setCancelled(true);
                 return;
             }
@@ -187,7 +172,7 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
                 return;
             }
 
-            if (!hasAdaptation(p)) {
+            if (!hasActiveAdaptation(p)) {
                 return;
             }
             if (e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
@@ -230,7 +215,7 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerDropItemEvent e) {
         Player p = e.getPlayer();
-        if (!hasAdaptation(p)) {
+        if (!hasActiveAdaptation(p)) {
             return;
         }
         if (p.isSneaking()) {
@@ -278,10 +263,7 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
         ItemStack hand = p.getInventory().getItemInMainHand();
 
         if (validateTool(hand)) {
-            if (e.isCancelled()) {
-                return;
-            }
-            if (!hasAdaptation(p)) {
+            if (!hasActiveAdaptation(p)) {
                 return;
             }
 
@@ -323,7 +305,9 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(InventoryClickEvent e) {
-        if (!hasAdaptation((Player) e.getWhoClicked())) {
+        Player player = (Player) e.getWhoClicked();
+        int level = getActiveLevel(player);
+        if (level <= 0) {
             return;
         }
         if (e.getClickedInventory() != null && e.getClick().equals(ClickType.SHIFT_LEFT) && e.getAction().equals(InventoryAction.MOVE_TO_OTHER_INVENTORY)) {
@@ -331,9 +315,9 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
             ItemStack clicked = e.getClickedInventory().getItem(e.getSlot()).clone();
 
             if (omniTool.explode(cursor).size() > 1 || omniTool.explode(clicked).size() > 1) {
-                if (omniTool.explode(cursor).size() >= getSlots(getLevel((Player) e.getWhoClicked())) || omniTool.explode(clicked).size() >= getSlots(getLevel((Player) e.getWhoClicked()))) {
+                if (omniTool.explode(cursor).size() >= getSlots(level) || omniTool.explode(clicked).size() >= getSlots(level)) {
                     e.setCancelled(true);
-                    SoundPlayer sp = SoundPlayer.of((Player) e.getWhoClicked());
+                    SoundPlayer sp = SoundPlayer.of(player);
                     sp.play(e.getWhoClicked().getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 1f, 0.77f);
                     return;
                 }

@@ -23,10 +23,9 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -39,7 +38,6 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -58,8 +56,8 @@ public class ChronosAberrantTouch extends SimpleAdaptation<ChronosAberrantTouch.
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(1000);
-        cooldowns = new HashMap<>();
-        targetStacks = new HashMap<>();
+        cooldowns = new java.util.concurrent.ConcurrentHashMap<>();
+        targetStacks = new java.util.concurrent.ConcurrentHashMap<>();
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.CLOCK)
                 .key("challenge_chronos_aberrant_500")
@@ -101,11 +99,7 @@ public class ChronosAberrantTouch extends SimpleAdaptation<ChronosAberrantTouch.
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void on(EntityDamageByEntityEvent e) {
-        if (!(e.getDamager() instanceof Player attacker) || !hasAdaptation(attacker)) {
-            return;
-        }
-
-        if (!(e.getEntity() instanceof LivingEntity target)) {
+        if (!(e.getDamager() instanceof Player attacker)) {
             return;
         }
 
@@ -115,21 +109,18 @@ public class ChronosAberrantTouch extends SimpleAdaptation<ChronosAberrantTouch.
             return;
         }
 
-        if (target instanceof Player playerTarget) {
-            if (!canPVP(attacker, playerTarget.getLocation())) {
-                return;
-            }
-        } else {
-            if (!canPVE(attacker, target.getLocation())) {
-                return;
-            }
+        var combat = resolveMeleeContext(e);
+        if (combat == null) {
+            return;
         }
 
+        attacker = combat.attacker();
+        LivingEntity target = combat.target();
         if (!getPlayer(attacker).consumeFood(getConfig().hungerCost, getConfig().minimumFoodLevel)) {
             return;
         }
 
-        int level = getLevel(attacker);
+        int level = combat.level();
         int amplifierCap = target instanceof Player ? getConfig().playerAmplifierCap : getPvEAmplifierCap(level);
         int durationCap = target instanceof Player ? getConfig().playerDurationCapTicks : getPvEDurationCapTicks(level);
 

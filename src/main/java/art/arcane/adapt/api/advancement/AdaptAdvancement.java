@@ -19,15 +19,15 @@
 package art.arcane.adapt.api.advancement;
 
 
+import art.arcane.adapt.Adapt;
+import art.arcane.adapt.util.common.misc.CustomModel;
+import art.arcane.volmlib.util.collection.KList;
 import com.fren_gor.ultimateAdvancementAPI.AdvancementTab;
 import com.fren_gor.ultimateAdvancementAPI.advancement.Advancement;
 import com.fren_gor.ultimateAdvancementAPI.advancement.BaseAdvancement;
 import com.fren_gor.ultimateAdvancementAPI.advancement.RootAdvancement;
 import com.fren_gor.ultimateAdvancementAPI.advancement.display.AdvancementDisplay;
 import com.fren_gor.ultimateAdvancementAPI.database.TeamProgression;
-import art.arcane.adapt.Adapt;
-import art.arcane.adapt.util.common.misc.CustomModel;
-import art.arcane.volmlib.util.collection.KList;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Singular;

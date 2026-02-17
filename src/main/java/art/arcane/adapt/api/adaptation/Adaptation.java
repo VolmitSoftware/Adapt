@@ -17,11 +17,7 @@
  -----------------------------------------------------------------------------*/
 
 package art.arcane.adapt.api.adaptation;
-import art.arcane.volmlib.util.format.Form;
 
-import com.google.common.collect.ImmutableSet;
-import art.arcane.adapt.Adapt;
-import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.Component;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.potion.BrewingRecipe;
@@ -31,362 +27,599 @@ import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.tick.Ticked;
 import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.api.world.PlayerAdaptation;
-import art.arcane.adapt.api.world.PlayerData;
-import art.arcane.adapt.api.world.PlayerSkillLine;
-import art.arcane.adapt.content.event.AdaptAdaptationUseEvent;
-import art.arcane.volmlib.util.io.IO;
+import art.arcane.adapt.util.common.inventorygui.Element;
+import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.volmlib.util.math.M;
-import org.bukkit.*;
-import org.bukkit.block.Block;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
+import org.bukkit.event.Cancellable;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 
-import java.lang.reflect.Field;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.IntConsumer;
 import java.util.function.Predicate;
 
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.adapt.util.common.inventorygui.GuiEffects;
-import art.arcane.adapt.util.common.inventorygui.GuiLayout;
-import art.arcane.adapt.util.common.inventorygui.GuiTheme;
-import art.arcane.adapt.util.common.inventorygui.UIElement;
-import art.arcane.adapt.util.common.inventorygui.UIWindow;
-import art.arcane.adapt.util.common.inventorygui.Window;
-import art.arcane.adapt.util.common.math.MaterialBlock;
-import art.arcane.adapt.util.common.misc.CustomModel;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
-import art.arcane.adapt.util.common.scheduling.J;
-
+/**
+ * Public API for one adaptation under a skill line.
+ */
 public interface Adaptation<T> extends Ticked, Component {
-    Map<String, Long> PERMANENT_LEARN_CONFIRMATIONS = new ConcurrentHashMap<>();
-    Map<String, Long> USAGE_BASELINE_XP_COOLDOWNS = new ConcurrentHashMap<>();
-    long PERMANENT_LEARN_CONFIRM_WINDOW_MS = 6_000L;
 
+    /**
+     * @return maximum unlockable level for this adaptation.
+     */
     int getMaxLevel();
 
+    /**
+     * Grants adaptation-attributed xp to a player.
+     */
     default void xp(Player p, double amount) {
         xp(p, amount, null);
     }
 
+    /**
+     * Grants adaptation-attributed xp to a player with an optional reward key suffix.
+     */
     default void xp(Player p, double amount, String rewardKey) {
         getSkill().xp(p, amount, adaptationRewardKey(rewardKey));
     }
 
+    /**
+     * Grants adaptation-attributed xp and renders it at a world location.
+     */
     default void xp(Player p, Location l, double amount) {
         xp(p, l, amount, null);
     }
 
+    /**
+     * Grants adaptation-attributed xp at a location with an optional reward key suffix.
+     */
     default void xp(Player p, Location l, double amount, String rewardKey) {
         getSkill().xp(p, l, amount, adaptationRewardKey(rewardKey));
     }
 
+    /**
+     * Grants silent adaptation-attributed xp with an optional reward key suffix.
+     */
     default void xpSilent(Player p, double amount, String rewardKey) {
         getSkill().xpSilent(p, amount, adaptationRewardKey(rewardKey));
     }
 
+    /**
+     * Grants silent adaptation-attributed xp.
+     */
     default void xpSilent(Player p, double amount) {
         xpSilent(p, amount, null);
     }
 
-    default String adaptationRewardKey(String rewardKey) {
-        String suffix = rewardKey == null ? "" : rewardKey.trim();
-        if (suffix.isEmpty()) {
-            suffix = "use";
-        }
-        return "adaptation:" + getName() + ":" + suffix;
+    /**
+     * Ensures this logic runs on the player's owned thread/region (Folia-safe).
+     */
+    default void withPlayerThread(Player p, Runnable runnable) {
+        AdaptationRuntimeGuards.withPlayerThread(this, p, runnable);
     }
 
+    /**
+     * Thread/region guard with optional cancellable event gating.
+     */
+    default void withPlayerThread(Player p, Cancellable cancellable, Runnable runnable) {
+        AdaptationRuntimeGuards.withPlayerThread(this, p, cancellable, runnable);
+    }
+
+    /**
+     * Runs only when player-thread-safe and the player owns this adaptation.
+     */
+    default void withAdaptedPlayer(Player p, Runnable runnable) {
+        AdaptationRuntimeGuards.withAdaptedPlayer(this, p, runnable);
+    }
+
+    /**
+     * Runs only when event is not cancelled, player is thread-safe, and adaptation is owned.
+     */
+    default void withAdaptedPlayer(Player p, Cancellable cancellable, Runnable runnable) {
+        AdaptationRuntimeGuards.withAdaptedPlayer(this, p, cancellable, runnable);
+    }
+
+    /**
+     * Resolves active runtime level and invokes consumer only when level > 0.
+     */
+    default void withActiveLevel(Player p, IntConsumer consumer) {
+        AdaptationRuntimeGuards.withActiveLevel(this, p, consumer);
+    }
+
+    /**
+     * Active-level helper with cancellable event gating.
+     */
+    default void withActiveLevel(Player p, Cancellable cancellable, IntConsumer consumer) {
+        AdaptationRuntimeGuards.withActiveLevel(this, p, cancellable, consumer);
+    }
+
+    /**
+     * Builds an adaptation-scoped reward key (`adaptation:<name>:<suffix>`).
+     */
+    default String adaptationRewardKey(String rewardKey) {
+        return AdaptationRuntimeGuards.adaptationRewardKey(this, rewardKey);
+    }
+
+    /**
+     * Adaptation-aware particle toggle check (global + skill + adaptation config aware).
+     */
     @Override
     default boolean areParticlesEnabled() {
-        if (!Component.super.areParticlesEnabled()) {
-            return false;
-        }
-
-        AdaptConfig.Effects effects = AdaptConfig.get().getEffects();
-        if (effects != null && effects.getAdaptationParticleOverrides() != null && !effects.getAdaptationParticleOverrides().isEmpty()) {
-            String key = getName();
-            Boolean override = effects.getAdaptationParticleOverrides().get(key);
-            if (override == null && key != null) {
-                override = effects.getAdaptationParticleOverrides().get(key.toLowerCase(Locale.ROOT));
-            }
-            if (override != null && !override) {
-                return false;
-            }
-        }
-
-        Object config = getConfig();
-        if (config == null) {
-            return true;
-        }
-
-        Boolean directToggle = readBooleanField(config, "showParticles");
-        if (directToggle != null) {
-            return directToggle;
-        }
-
-        Boolean genericToggle = readBooleanField(config, "showParticleEffects");
-        if (genericToggle != null) {
-            return genericToggle;
-        }
-
-        return true;
+        return AdaptationGuiSupport.areParticlesEnabled(this, Component.super.areParticlesEnabled());
     }
 
+    /**
+     * Adaptation-aware sound toggle check (global + skill + adaptation config aware).
+     */
     @Override
     default boolean areSoundsEnabled() {
-        if (!Component.super.areSoundsEnabled()) {
-            return false;
-        }
-
-        Object config = getConfig();
-        if (config == null) {
-            return true;
-        }
-
-        Boolean directToggle = readBooleanField(config, "showSounds");
-        if (directToggle != null) {
-            return directToggle;
-        }
-
-        return true;
+        return AdaptationGuiSupport.areSoundsEnabled(this, Component.super.areSoundsEnabled());
     }
 
-    private static Boolean readBooleanField(Object source, String fieldName) {
-        if (source == null || fieldName == null || fieldName.isBlank()) {
-            return null;
-        }
-
-        Class<?> current = source.getClass();
-        while (current != null) {
-            try {
-                Field field = current.getDeclaredField(fieldName);
-                field.setAccessible(true);
-                Object value = field.get(source);
-                if (value instanceof Boolean bool) {
-                    return bool;
-                }
-                return null;
-            } catch (NoSuchFieldException ex) {
-                current = current.getSuperclass();
-            } catch (Throwable ex) {
-                Adapt.verbose("Failed reading boolean field '" + fieldName + "' from " + source.getClass().getName()
-                        + ": " + ex.getClass().getSimpleName()
-                        + (ex.getMessage() == null ? "" : " - " + ex.getMessage()));
-                return null;
-            }
-        }
-
-        return null;
-    }
-
+    /**
+     * Grants small anti-abuse baseline xp for successful adaptation use.
+     */
     default void awardUsageBaselineXp(Player p, int level) {
-        if (p == null || level <= 0 || !p.getClass().getSimpleName().equals("CraftPlayer")) {
-            return;
-        }
-
-        AdaptConfig.AdaptationXp cfg = AdaptConfig.get().getAdaptationXp();
-        if (cfg == null || !cfg.isUsageBaselineEnabled()) {
-            return;
-        }
-
-        long now = M.ms();
-        long cooldown = Math.max(250L, cfg.getUsageBaselineCooldownMillis());
-        String key = p.getUniqueId() + "|" + getName();
-        Long next = USAGE_BASELINE_XP_COOLDOWNS.get(key);
-        if (next != null && next > now) {
-            return;
-        }
-
-        if (USAGE_BASELINE_XP_COOLDOWNS.size() > 6000) {
-            USAGE_BASELINE_XP_COOLDOWNS.entrySet().removeIf(i -> i.getValue() <= now);
-        }
-
-        double reward = cfg.getUsageBaselineXp() + ((Math.max(1, level) - 1) * cfg.getUsageBaselineXpPerLevel());
-        if (reward <= 0) {
-            return;
-        }
-
-        USAGE_BASELINE_XP_COOLDOWNS.put(key, now + cooldown);
-        xpSilent(p, reward, "baseline-use");
+        AdaptationRuntimeGuards.awardUsageBaselineXp(this, p, level);
     }
 
+    /**
+     * Reads adaptation-scoped per-player storage, falling back to default value.
+     */
     default <F> F getStorage(Player p, String key, F defaultValue) {
-        PlayerData data = getPlayer(p).getData();
-        PlayerSkillLine line = data.getSkillLineNullable(getSkill().getName());
-        if (line == null) return defaultValue;
-        PlayerAdaptation adaptation = line.getAdaptation(getName());
-        if (adaptation == null) return defaultValue;
-        Object o = adaptation.getStorage().get(key);
-        return o == null ? defaultValue : (F) o;
+        return AdaptationRuntimeGuards.getStorage(this, p, key, defaultValue);
     }
 
+    /**
+     * Reads adaptation-scoped per-player storage.
+     */
     default <F> F getStorage(Player p, String key) {
         return getStorage(p, key, null);
     }
 
+    /**
+     * Writes adaptation-scoped per-player storage.
+     */
     default boolean setStorage(Player p, String key, Object value) {
-        PlayerData data = getPlayer(p).getData();
-        PlayerSkillLine line = data.getSkillLineNullable(getSkill().getName());
-        if (line == null) return false;
-        PlayerAdaptation adaptation = line.getAdaptation(getName());
-        if (adaptation == null) return false;
-        if (value == null) {
-            adaptation.getStorage().remove(key);
-            return true;
-        }
-
-        adaptation.getStorage().put(key, value);
-        return true;
+        return AdaptationRuntimeGuards.setStorage(this, p, key, value);
     }
 
+    /**
+     * Fires use checks/events for this adaptation against an AdaptPlayer context.
+     */
     default boolean canUse(AdaptPlayer player) {
-        Adapt.verbose("Checking if " + player.getPlayer().getName() + " can use " + getName() + "...");
-        AdaptAdaptationUseEvent e = new AdaptAdaptationUseEvent(!Bukkit.isPrimaryThread(), player, this);
-        Bukkit.getServer().getPluginManager().callEvent(e);
-        return (!e.isCancelled());
+        return AdaptationRuntimeGuards.canUse(this, player);
     }
 
+    /**
+     * Fires use checks/events for this adaptation against a Bukkit player.
+     */
     default boolean canUse(Player player) {
-        return canUse(getPlayer(player));
+        return AdaptationRuntimeGuards.canUse(this, player);
     }
 
+    /**
+     * Returns true when this player is blacklisted from this adaptation via permission.
+     */
     default boolean hasBlacklistPermission(Player p, Adaptation a) {
-        if (p.isOp()) { // If the player is an operator, bypass the permission check
-            return false;
-        }
-        String blacklistPermission = "adapt.blacklist." + a.getName().replaceAll("-", "");
-        Adapt.verbose("Checking if player " + p.getName() + " has blacklist permission " + blacklistPermission);
-
-        return p.hasPermission(blacklistPermission);
+        return AdaptationRuntimeGuards.hasBlacklistPermission(this, p, a);
     }
 
+    /**
+     * Typed storage convenience helper for strings.
+     */
     default String getStorageString(Player p, String key, String defaultValue) {
         return getStorage(p, key, defaultValue);
     }
 
+    /**
+     * Typed storage convenience helper for strings.
+     */
     default String getStorageString(Player p, String key) {
         return getStorage(p, key);
     }
 
+    /**
+     * Typed storage convenience helper for integers.
+     */
     default Integer getStorageInt(Player p, String key, Integer defaultValue) {
         return getStorage(p, key, defaultValue);
     }
 
+    /**
+     * Typed storage convenience helper for integers.
+     */
     default Integer getStorageInt(Player p, String key) {
         return getStorage(p, key);
     }
 
+    /**
+     * Typed storage convenience helper for doubles.
+     */
     default Double getStorageDouble(Player p, String key, Double defaultValue) {
         return getStorage(p, key, defaultValue);
     }
 
+    /**
+     * Typed storage convenience helper for doubles.
+     */
     default Double getStorageDouble(Player p, String key) {
         return getStorage(p, key);
     }
 
+    /**
+     * Typed storage convenience helper for booleans.
+     */
     default Boolean getStorageBoolean(Player p, String key, Boolean defaultValue) {
         return getStorage(p, key, defaultValue);
     }
 
+    /**
+     * Typed storage convenience helper for booleans.
+     */
     default Boolean getStorageBoolean(Player p, String key) {
         return getStorage(p, key);
     }
 
+    /**
+     * Typed storage convenience helper for longs.
+     */
     default Long getStorageLong(Player p, String key, Long defaultValue) {
         return getStorage(p, key, defaultValue);
     }
 
+    /**
+     * Typed storage convenience helper for longs.
+     */
     default Long getStorageLong(Player p, String key) {
         return getStorage(p, key);
     }
 
+    /**
+     * Returns the concrete config class used by this adaptation.
+     */
     Class<T> getConfigurationClass();
 
+    /**
+     * Registers the config class used for load/reload of this adaptation.
+     */
     void registerConfiguration(Class<T> type);
 
+    /**
+     * @return true when this adaptation is runtime-enabled.
+     */
     boolean isEnabled();
 
+    /**
+     * @return true when this adaptation cannot be unlearned.
+     */
     boolean isPermanent();
 
+    /**
+     * Returns the live config instance for this adaptation.
+     */
     T getConfig();
 
+    /**
+     * Builds the advancement tree node for this adaptation.
+     */
     AdaptAdvancement buildAdvancements();
 
+    /**
+     * Adds per-level stat lines to GUI elements.
+     */
     void addStats(int level, Element v);
 
+    /**
+     * @return base upgrade cost.
+     */
     int getBaseCost();
 
+    /**
+     * @return localized adaptation description.
+     */
     String getDescription();
 
+    /**
+     * @return base icon for this adaptation.
+     */
     Material getIcon();
 
+    /**
+     * @return owning skill of this adaptation.
+     */
     Skill<?> getSkill();
 
+    /**
+     * Assigns the owning skill for this adaptation.
+     */
     void setSkill(Skill<?> skill);
 
+    /**
+     * @return internal adaptation key.
+     */
     String getName();
 
+    /**
+     * @return initial unlock/upgrade cost component.
+     */
     int getInitialCost();
 
+    /**
+     * @return per-level cost multiplier.
+     */
     double getCostFactor();
 
+    /**
+     * @return recipes registered by this adaptation.
+     */
     List<AdaptRecipe> getRecipes();
 
+    /**
+     * @return brewing recipes registered by this adaptation.
+     */
     List<BrewingRecipe> getBrewingRecipes();
 
+    /**
+     * Called while building advancement trees to append custom nodes.
+     */
     void onRegisterAdvancements(List<AdaptAdvancement> advancements);
 
+    /**
+     * Returns the active protector set after applying this adaptation's override config.
+     */
     default Set<Protector> getProtectors() {
-        Set<Protector> protectors = new HashSet<>(Adapt.instance.getProtectorRegistry().getDefaultProtectors());
-        Map<String, Boolean> overrides = AdaptConfig.get().getProtectionOverrides().getOrDefault(this.getName(), Collections.emptyMap());
-        overrides.forEach((protector, enabled) -> {
-            if (enabled) {
-                Protector p = Adapt.instance.getProtectorRegistry().getAllProtectors()
-                        .stream()
-                        .filter(pr -> pr.getName().equals(protector))
-                        .findFirst()
-                        .orElse(null);
-                if (p == null) {
-                    Adapt.error("Could not find protector " + protector + " for adaptation " + this.getName() + ". Skipping...");
-                } else {
-                    protectors.add(p);
-                }
-            } else {
-                protectors.removeIf(pr -> pr.getName().equals(protector));
-            }
-        });
-        return ImmutableSet.copyOf(protectors);
+        return AdaptationRuntimeGuards.getProtectors(this);
     }
 
+    /**
+     * World-policy check for breaking a block.
+     */
     default boolean canBlockBreak(Player player, Location blockLocation) {
         return evaluateWorldPolicy(protector -> protector.canBlockBreak(player, blockLocation, this));
     }
 
+    /**
+     * World-policy check for placing a block.
+     */
     default boolean canBlockPlace(Player player, Location blockLocation) {
         return evaluateWorldPolicy(protector -> protector.canBlockPlace(player, blockLocation, this));
     }
 
+    /**
+     * World-policy check for PVP damage.
+     */
     default boolean canPVP(Player player, Location victimLocation) {
         return evaluateWorldPolicy(protector -> protector.canPVP(player, victimLocation, this));
     }
 
+    /**
+     * World-policy check for PVE damage.
+     */
     default boolean canPVE(Player player, Location victimLocation) {
         return evaluateWorldPolicy(protector -> protector.canPVE(player, victimLocation, this));
     }
 
+    /**
+     * World-policy check for generic interaction.
+     */
     default boolean canInteract(Player player, Location targetLocation) {
         return evaluateWorldPolicy(protector -> protector.canInteract(player, targetLocation, this));
     }
 
+    /**
+     * Returns true when attacker can damage target under current world policies.
+     */
+    default boolean canDamageTarget(Player attacker, Entity target) {
+        return AdaptationRuntimeGuards.canDamageTarget(this, attacker, target);
+    }
+
+    /**
+     * Returns active level only when player is in survival.
+     */
+    default int getActiveSurvivalLevel(Player player) {
+        return AdaptationRuntimeGuards.getActiveSurvivalLevel(this, player);
+    }
+
+    /**
+     * Returns active level only when the player meets the supplied requirement.
+     */
+    default int getActiveLevel(Player player, Predicate<Player> requirement) {
+        return AdaptationRuntimeGuards.getActiveLevel(this, player, requirement);
+    }
+
+    /**
+     * Returns active-survival level only when the player meets the supplied requirement.
+     */
+    default int getActiveSurvivalLevel(Player player, Predicate<Player> requirement) {
+        return AdaptationRuntimeGuards.getActiveSurvivalLevel(this, player, requirement);
+    }
+
+    /**
+     * Returns active level gated by interaction permission at a location.
+     */
+    default int getActiveInteractLevel(Player player, Location location) {
+        return AdaptationRuntimeGuards.getActiveInteractLevel(this, player, location);
+    }
+
+    /**
+     * Returns active level gated by block-break permission at a location.
+     */
+    default int getActiveBlockBreakLevel(Player player, Location location) {
+        return AdaptationRuntimeGuards.getActiveBlockBreakLevel(this, player, location);
+    }
+
+    /**
+     * Returns active level gated by block-place permission at a location.
+     */
+    default int getActiveBlockPlaceLevel(Player player, Location location) {
+        return AdaptationRuntimeGuards.getActiveBlockPlaceLevel(this, player, location);
+    }
+
+    /**
+     * Returns active level gated by PVP/PVE policy for a specific target.
+     */
+    default int getActiveDamageLevel(Player attacker, Entity target) {
+        return AdaptationRuntimeGuards.getActiveDamageLevel(this, attacker, target);
+    }
+
+    /**
+     * Resolves a context only when adaptation is active and interact is allowed.
+     */
+    default BlockActionContext resolveInteractContext(Player player, Location location) {
+        return AdaptationRuntimeGuards.resolveInteractContext(this, player, location);
+    }
+
+    /**
+     * Resolves interact context and applies an additional player requirement.
+     */
+    default BlockActionContext resolveInteractContext(Player player, Location location, Predicate<Player> requirement) {
+        return AdaptationRuntimeGuards.resolveInteractContext(this, player, location, requirement);
+    }
+
+    /**
+     * Resolves interact context with optional requirement and survival-only gating.
+     */
+    default BlockActionContext resolveInteractContext(Player player, Location location, Predicate<Player> requirement, boolean survivalOnly) {
+        return AdaptationRuntimeGuards.resolveInteractContext(this, player, location, requirement, survivalOnly);
+    }
+
+    /**
+     * Resolves a context only when adaptation is active and block break is allowed.
+     */
+    default BlockActionContext resolveBlockBreakContext(Player player, Location location) {
+        return AdaptationRuntimeGuards.resolveBlockBreakContext(this, player, location);
+    }
+
+    /**
+     * Resolves block-break context and applies an additional player requirement.
+     */
+    default BlockActionContext resolveBlockBreakContext(Player player, Location location, Predicate<Player> requirement) {
+        return AdaptationRuntimeGuards.resolveBlockBreakContext(this, player, location, requirement);
+    }
+
+    /**
+     * Resolves block-break context with optional requirement and survival-only gating.
+     */
+    default BlockActionContext resolveBlockBreakContext(Player player, Location location, Predicate<Player> requirement, boolean survivalOnly) {
+        return AdaptationRuntimeGuards.resolveBlockBreakContext(this, player, location, requirement, survivalOnly);
+    }
+
+    /**
+     * Resolves a context only when adaptation is active and block place is allowed.
+     */
+    default BlockActionContext resolveBlockPlaceContext(Player player, Location location) {
+        return AdaptationRuntimeGuards.resolveBlockPlaceContext(this, player, location);
+    }
+
+    /**
+     * Resolves block-place context and applies an additional player requirement.
+     */
+    default BlockActionContext resolveBlockPlaceContext(Player player, Location location, Predicate<Player> requirement) {
+        return AdaptationRuntimeGuards.resolveBlockPlaceContext(this, player, location, requirement);
+    }
+
+    /**
+     * Resolves block-place context with optional requirement and survival-only gating.
+     */
+    default BlockActionContext resolveBlockPlaceContext(Player player, Location location, Predicate<Player> requirement, boolean survivalOnly) {
+        return AdaptationRuntimeGuards.resolveBlockPlaceContext(this, player, location, requirement, survivalOnly);
+    }
+
+    /**
+     * Resolves a context requiring both interact and block-break permission.
+     */
+    default BlockActionContext resolveInteractBreakContext(Player player, Location location) {
+        return AdaptationRuntimeGuards.resolveInteractBreakContext(this, player, location);
+    }
+
+    /**
+     * Resolves interact+break context and applies an additional player requirement.
+     */
+    default BlockActionContext resolveInteractBreakContext(Player player, Location location, Predicate<Player> requirement) {
+        return AdaptationRuntimeGuards.resolveInteractBreakContext(this, player, location, requirement);
+    }
+
+    /**
+     * Resolves interact+break context with optional requirement and survival-only gating.
+     */
+    default BlockActionContext resolveInteractBreakContext(Player player, Location location, Predicate<Player> requirement, boolean survivalOnly) {
+        return AdaptationRuntimeGuards.resolveInteractBreakContext(this, player, location, requirement, survivalOnly);
+    }
+
+    /**
+     * Returns a validated main-hand item when adaptation is active and requirement passes.
+     */
+    default ItemStack readyMainHand(Player player, Predicate<ItemStack> requirement) {
+        return AdaptationRuntimeGuards.readyMainHand(this, player, requirement);
+    }
+
+    /**
+     * Returns a validated active main-hand item without extra requirement checks.
+     */
+    default ItemStack readyMainHand(Player player) {
+        return readyMainHand(player, null);
+    }
+
+    /**
+     * Resolves melee combat context from an entity-damage event.
+     */
+    default MeleeContext resolveMeleeContext(EntityDamageByEntityEvent event, Predicate<ItemStack> mainHandRequirement) {
+        return AdaptationRuntimeGuards.resolveMeleeContext(this, event, mainHandRequirement);
+    }
+
+    /**
+     * Resolves melee combat context from an entity-damage event.
+     */
+    default MeleeContext resolveMeleeContext(EntityDamageByEntityEvent event) {
+        return resolveMeleeContext(event, null);
+    }
+
+    /**
+     * Resolves generic player attack context from an entity-damage event.
+     */
+    default AttackContext resolveAttackContext(EntityDamageByEntityEvent event, Predicate<ItemStack> mainHandRequirement) {
+        return AdaptationRuntimeGuards.resolveAttackContext(this, event, mainHandRequirement);
+    }
+
+    /**
+     * Resolves generic player attack context from an entity-damage event.
+     */
+    default AttackContext resolveAttackContext(EntityDamageByEntityEvent event) {
+        return resolveAttackContext(event, null);
+    }
+
+    /**
+     * Resolves projectile combat context from an entity-damage event.
+     */
+    default ProjectileContext resolveProjectileContext(EntityDamageByEntityEvent event, Predicate<Projectile> projectileRequirement) {
+        return AdaptationRuntimeGuards.resolveProjectileContext(this, event, projectileRequirement);
+    }
+
+    /**
+     * Resolves projectile combat context from an entity-damage event.
+     */
+    default ProjectileContext resolveProjectileContext(EntityDamageByEntityEvent event) {
+        return resolveProjectileContext(event, null);
+    }
+
+    /**
+     * World-policy check for chest access.
+     */
     default boolean canAccessChest(Player player, Location chestLocation) {
         return evaluateWorldPolicy(protector -> protector.canAccessChest(player, chestLocation, this));
     }
 
+    /**
+     * World-policy check for generic region access at the player's current location.
+     */
     default boolean checkRegion(Player player) {
         return evaluateWorldPolicy(protector -> protector.checkRegion(player, player.getLocation(), this));
     }
@@ -394,136 +627,79 @@ public interface Adaptation<T> extends Ticked, Component {
     private boolean evaluateWorldPolicy(Predicate<Protector> evaluator) {
         long start = System.nanoTime();
         try {
-            return getProtectors().stream().allMatch(evaluator);
+            for (Protector protector : getProtectors()) {
+                if (!evaluator.test(protector)) {
+                    return false;
+                }
+            }
+            return true;
         } finally {
             WorldPolicyLatencyTelemetry.recordNanos(System.nanoTime() - start);
         }
     }
 
+    /**
+     * Returns true when this adaptation currently conflicts with another active adaptation.
+     */
     default boolean hasUsageConflict(Player p) {
-        Map<String, List<String>> conflicts = AdaptConfig.get().getAdaptationUsageConflicts();
-        if (conflicts == null || conflicts.isEmpty()) {
-            return false;
-        }
-
-        String me = getName().toLowerCase(Locale.ROOT);
-        Set<String> denied = new HashSet<>();
-        for (Map.Entry<String, List<String>> entry : conflicts.entrySet()) {
-            if (entry.getKey() != null && entry.getValue() != null && entry.getKey().equalsIgnoreCase(me)) {
-                entry.getValue().stream()
-                        .filter(Objects::nonNull)
-                        .map(i -> i.toLowerCase(Locale.ROOT))
-                        .forEach(denied::add);
-            }
-        }
-
-        for (Map.Entry<String, List<String>> entry : conflicts.entrySet()) {
-            if (entry.getKey() == null || entry.getValue() == null) {
-                continue;
-            }
-
-            boolean containsThisAdaptation = entry.getValue().stream()
-                    .filter(Objects::nonNull)
-                    .map(i -> i.toLowerCase(Locale.ROOT))
-                    .anyMatch(me::equals);
-            if (containsThisAdaptation) {
-                denied.add(entry.getKey().toLowerCase(Locale.ROOT));
-            }
-        }
-
-        denied.remove(me);
-        for (String conflict : denied) {
-            if (getPlayer(p).hasAdaptation(conflict)) {
-                Adapt.verbose("Player " + p.getName() + " has conflicting adaptation " + conflict + " and cannot use " + getName());
-                return true;
-            }
-        }
-
-        return false;
+        return AdaptationRuntimeGuards.hasUsageConflict(this, p);
     }
 
+    /**
+     * Runtime-ready level check (ownership + enabled + world/protection/conflict checks).
+     */
     default int getActiveLevel(Player p) {
-        try {
-            if (p == null || p.isDead()) { // Check if player is not invalid
-                return 0;
-            }
-
-            if (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(p)) {
-                return 0;
-            }
-
-            int level = getLevel(p);
-            if (level <= 0) {
-                return 0;
-            }
-
-            if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-                Adapt.verbose("Player " + p.getName() + " is in a blacklisted world. Skipping adaptation " + this.getName());
-                return 0;
-            }
-            if (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR)) {
-                Adapt.verbose("Player " + p.getName() + " is in creative or spectator mode. Skipping adaptation " + this.getName());
-                return 0;
-            }
-            if (!checkRegion(p)) {
-                Adapt.verbose("Player " + p.getName() + " don't have adaptation - " + this.getName() + " permission.");
-                return 0;
-            }
-
-            if (hasBlacklistPermission(p, this)) {
-                Adapt.verbose("Player " + p.getName() + " has blacklist permission for adaptation " + this.getName());
-                return 0;
-            }
-            if (hasUsageConflict(p)) {
-                return 0;
-            }
-            if (!canUse(p)) {
-                Adapt.verbose("Player " + p.getName() + " can't use adaptation, This is an API restriction" + this.getName());
-                return 0;
-            }
-            awardUsageBaselineXp(p, level);
-            Adapt.verbose("Player " + p.getName() + " used adaptation " + this.getName());
-            return level;
-        } catch (Exception e) {
-            if (e instanceof IndexOutOfBoundsException) { // This is that fucking bug with Citizens Spoofing Players. I hate it.
-                Adapt.verbose("Citizens/PacketSpoofing is Messing stuff up again. I hate it.");
-                Adapt.verbose(e.getMessage());
-            } else {
-                e.printStackTrace();
-            }
-            return 0;
-        }
+        return AdaptationRuntimeGuards.getActiveLevel(this, p);
     }
 
+    /**
+     * Ownership check only (learned level > 0), without runtime gating.
+     */
     default boolean hasAdaptation(Player p) {
+        return getLevel(p) > 0;
+    }
+
+    /**
+     * Runtime-usable state (ownership + active world/permission/conflict checks).
+     */
+    default boolean hasActiveAdaptation(Player p) {
         return getActiveLevel(p) > 0;
     }
 
-    default int getLevel(Player p) {
-        if (p == null) {
-            return 0;
-        }
-        if (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(p)) {
-            return 0;
-        }
-        if (!p.getClass().getSimpleName().equals("CraftPlayer")) {
-            Adapt.verbose("Simple name: " + p.getClass().getSimpleName());
-            return 0;
-        }
-        if (!this.isEnabled()) {
-            return 0;
-        }
-        if (!this.getSkill().isEnabled()) {
-            return 0;
-        }
-        AdaptPlayer adaptPlayer = getPlayer(p);
-        PlayerSkillLine line = adaptPlayer.getData().getSkillLine(getSkill().getName());
-        if (line == null) {
-            return 0;
-        }
-        return line.getAdaptationLevel(getName());
+    /**
+     * Generic attack context payload.
+     */
+    record AttackContext(Player attacker, Entity target, ItemStack mainHand, int level) {
     }
 
+    /**
+     * Block-action context payload.
+     */
+    record BlockActionContext(Player player, Location location, int level) {
+    }
+
+    /**
+     * Melee-specific context payload.
+     */
+    record MeleeContext(Player attacker, LivingEntity target, ItemStack mainHand, int level) {
+    }
+
+    /**
+     * Projectile-specific context payload.
+     */
+    record ProjectileContext(Player attacker, LivingEntity target, Projectile projectile, int level) {
+    }
+
+    /**
+     * Raw learned level (ignores runtime gating such as world/protection/conflict).
+     */
+    default int getLevel(Player p) {
+        return AdaptationRuntimeGuards.getLevel(this, p);
+    }
+
+    /**
+     * Learned level normalized to 0..1.
+     */
     default double getLevelPercent(Player p) {
         if (!this.isEnabled()) {
             return 0;
@@ -537,18 +713,30 @@ public interface Adaptation<T> extends Ticked, Component {
         return Math.min(Math.max(0, M.lerpInverse(0, getMaxLevel(), getLevel(p))), 1);
     }
 
+    /**
+     * Level normalized to 0..1 using an explicit level value.
+     */
     default double getLevelPercent(int p) {
         return Math.min(Math.max(0, M.lerpInverse(0, getMaxLevel(), p)), 1);
     }
 
+    /**
+     * Cost for purchasing exactly this level step.
+     */
     default int getCostFor(int level) {
         return (int) (Math.max(1, getBaseCost() + (getBaseCost() * (level * getCostFactor())))) + (level == 1 ? getInitialCost() : 0);
     }
 
+    /**
+     * Power cost delta for level transitions.
+     */
     default int getPowerCostFor(int level, int myLevel) {
         return level - myLevel;
     }
 
+    /**
+     * Cumulative cost to move from current level to target level.
+     */
     default int getCostFor(int level, int myLevel) {
         if (myLevel >= level) {
             return 0;
@@ -564,6 +752,9 @@ public interface Adaptation<T> extends Ticked, Component {
         return c;
     }
 
+    /**
+     * Cumulative refund amount when reducing from current level to target level.
+     */
     default int getRefundCostFor(int level, int myLevel) {
         if (myLevel <= level) {
             return 0;
@@ -578,333 +769,101 @@ public interface Adaptation<T> extends Ticked, Component {
         return c;
     }
 
+    /**
+     * UI display name for this adaptation.
+     */
     default String getDisplayName() {
-        if (!this.isEnabled()) {
-            return C.DARK_GRAY + Form.capitalizeWords(getName().replaceAll("\\Q" + getSkill().getName() + "-\\E", "").replaceAll("\\Q-\\E", " "));
-        }
-        if (!this.getSkill().isEnabled()) {
-            return C.DARK_GRAY + Form.capitalizeWords(getName().replaceAll("\\Q" + getSkill().getName() + "-\\E", "").replaceAll("\\Q-\\E", " "));
-        }
-        return C.RESET + "" + C.BOLD + getSkill().getColor().toString() + Form.capitalizeWords(getName().replaceAll("\\Q" + getSkill().getName() + "-\\E", "").replaceAll("\\Q-\\E", " "));
+        return AdaptationGuiSupport.getDisplayName(this);
     }
 
+    /**
+     * UI display name with level suffix.
+     */
     default String getDisplayName(int level) {
-        if (!this.isEnabled()) {
-            return getDisplayName();
-        }
-        if (!this.getSkill().isEnabled()) {
-            return getDisplayName();
-        }
-        if (level >= 1) {
-            return getDisplayName() + C.RESET + " " + C.UNDERLINE + C.WHITE + Form.toRoman(level) + C.RESET;
-        }
-
-        return getDisplayName();
+        return AdaptationGuiSupport.getDisplayName(this, level);
     }
 
+    /**
+     * UI display name with numeric level but no roman formatting.
+     */
     default String getDisplayNameNoRoman(int level) {
-        if (level >= 1) {
-            return getDisplayName() + C.RESET + " " + C.UNDERLINE + C.WHITE + level + C.RESET;
-        }
-
-        return getDisplayName();
+        return AdaptationGuiSupport.getDisplayNameNoRoman(this, level);
     }
 
+    /**
+     * Returns targeted block face from player look direction.
+     */
     default BlockFace getBlockFace(Player player, int maxrange) {
-        List<Block> lastTwoTargetBlocks = player.getLastTwoTargetBlocks(null, maxrange);
-        if (lastTwoTargetBlocks.size() != 2 || !lastTwoTargetBlocks.get(1).getType().isOccluding()) return null;
-        Block targetBlock = lastTwoTargetBlocks.get(1);
-        Block adjacentBlock = lastTwoTargetBlocks.get(0);
-        return targetBlock.getFace(adjacentBlock);
+        return AdaptationGuiSupport.getBlockFace(player, maxrange);
     }
 
+    /**
+     * Returns generated custom model binding for this adaptation icon.
+     */
     default CustomModel getModel() {
-        return CustomModel.get(getIcon(), "adaptation", getName(), "icon");
+        return AdaptationGuiSupport.getModel(this);
     }
 
+    /**
+     * Returns generated custom model binding for a specific adaptation level.
+     */
     default CustomModel getModel(int level) {
-        var model = CustomModel.get(getIcon(), "adaptation", getName(), "level-" + level);
-        if (model.material() == getIcon() && model.model() == 0)
-            model = CustomModel.get(Material.PAPER, "snippets", "gui", "level", String.valueOf(level));
-        if (model.material() == Material.PAPER && model.model() == 0)
-            model = getModel();
-        return model;
+        return AdaptationGuiSupport.getModel(this, level);
     }
 
+    /**
+     * Opens adaptation GUI and optionally applies blacklist permission checks.
+     */
     default boolean openGui(Player player, boolean checkPermissions) {
-        if (hasBlacklistPermission(player, this)) {
-            return false;
-        } else {
-            openGui(player);
-            return true;
-        }
+        return AdaptationGuiSupport.openGui(this, player, checkPermissions);
     }
 
+    /**
+     * Opens page 0 of this adaptation GUI.
+     */
     default void openGui(Player player) {
-        openGui(player, 0);
+        AdaptationGuiSupport.openGui(this, player);
     }
 
+    /**
+     * Opens a specific page of this adaptation GUI.
+     */
     default void openGui(Player player, int page) {
-        if (!isEnabled()) {
-            return;
-        }
-        if (!getSkill().isEnabled()) {
-            return;
-        }
-        if (!J.isPrimaryThread()) {
-            int targetPage = page;
-            J.s(() -> openGui(player, targetPage));
-            return;
-        }
-
-        SoundPlayer spw = SoundPlayer.of(player.getWorld());
-        spw.play(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 1.255f);
-        spw.play(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.7f, 0.655f);
-        spw.play(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.3f, 0.855f);
-
-        boolean reserveNavigation = AdaptConfig.get().isGuiBackButton();
-        GuiLayout.PagePlan plan = GuiLayout.plan(getMaxLevel(), reserveNavigation);
-        int currentPage = GuiLayout.clampPage(page, plan.pageCount());
-        int start = currentPage * plan.itemsPerPage();
-        int end = Math.min(getMaxLevel(), start + plan.itemsPerPage());
-
-        int mylevel = getPlayer(player).getSkillLine(getSkill().getName()).getAdaptationLevel(getName());
-
-        long k = getPlayer(player).getData().getSkillLine(getSkill().getName()).getKnowledge();
-
-        Window w = new UIWindow(player);
-        GuiTheme.apply(w, "skill/" + getSkill().getName() + "/" + getName());
-        w.setViewportHeight(plan.rows());
-
-        List<GuiEffects.Placement> reveal = new ArrayList<>();
-        for (int row = 0; row < plan.contentRows(); row++) {
-            int rowStart = start + (row * GuiLayout.WIDTH);
-            if (rowStart >= end) {
-                break;
-            }
-
-            int rowCount = Math.min(GuiLayout.WIDTH, end - rowStart);
-            for (int i = 0; i < rowCount; i++) {
-                int lvl = rowStart + i + 1;
-                int pos = GuiLayout.centeredPosition(i, rowCount);
-                int c = getCostFor(lvl, mylevel);
-                int rc = getRefundCostFor(lvl - 1, mylevel);
-                int pc = getPowerCostFor(lvl, mylevel);
-                boolean pendingPermanentConfirm = isPermanentLearnConfirmationPending(player, lvl);
-                Element de = new UIElement("lp-" + lvl + "g")
-                        .setMaterial(new MaterialBlock(getIcon()))
-                        .setModel(getModel(lvl))
-                        .setName(getDisplayName(lvl))
-                        .setEnchanted(mylevel >= lvl)
-                        .setProgress(1D)
-                        .addLore(Form.wrapWordsPrefixed(getDescription(), "" + C.GRAY, 40))
-                        .addLore(mylevel >= lvl ? ("") : ("" + C.WHITE + c + C.GRAY + " " + Localizer.dLocalize("snippets.adapt_menu.knowledge_cost") + " " + (AdaptConfig.get().isHardcoreNoRefunds() ? C.DARK_RED + "" + C.BOLD + Localizer.dLocalize("snippets.adapt_menu.no_refunds") : "")))
-                        .addLore(mylevel >= lvl ? AdaptConfig.get().isHardcoreNoRefunds() ? (C.GREEN + Localizer.dLocalize("snippets.adapt_menu.already_learned") + " " + C.DARK_RED + "" + C.BOLD + Localizer.dLocalize("snippets.adapt_menu.no_refunds")) : (isPermanent() ? "" : (C.GREEN + Localizer.dLocalize("snippets.adapt_menu.already_learned") + " " + C.GRAY + Localizer.dLocalize("snippets.adapt_menu.unlearn_refund") + " " + C.GREEN + rc + " " + Localizer.dLocalize("snippets.adapt_menu.knowledge_cost"))) : (k >= c ? (C.BLUE + Localizer.dLocalize("snippets.adapt_menu.click_learn") + " " + getDisplayName(lvl)) : (k == 0 ? (C.RED + Localizer.dLocalize("snippets.adapt_menu.no_knowledge")) : (C.RED + "(" + Localizer.dLocalize("snippets.adapt_menu.you_only_have") + " " + C.WHITE + k + C.RED + " " + Localizer.dLocalize("snippets.adapt_menu.knowledge_available") + ")"))))
-                        .addLore(mylevel < lvl && getPlayer(player).getData().hasPowerAvailable(pc) ? C.GREEN + "" + lvl + " " + Localizer.dLocalize("snippets.adapt_menu.power_drain") : mylevel >= lvl ? C.GREEN + "" + lvl + " " + Localizer.dLocalize("snippets.adapt_menu.power_drain") : C.RED + Localizer.dLocalize("snippets.adapt_menu.not_enough_power") + "\n" + C.RED + Localizer.dLocalize("snippets.adapt_menu.how_to_level_up"))
-                        .addLore((isPermanent() ? C.RED + "" + C.BOLD + Localizer.dLocalize("snippets.adapt_menu.may_not_unlearn") : ""))
-                        .addLore(isPermanent() && mylevel < lvl
-                                ? (pendingPermanentConfirm
-                                ? C.GOLD + "" + C.BOLD + "Click again now to confirm permanent learn."
-                                : C.YELLOW + "Double-click required to confirm permanent learn.")
-                                : "")
-                        .onLeftClick((e) -> {
-                            if (mylevel >= lvl) {
-                                unlearn(player, lvl, false);
-                                spw.play(player.getLocation(), Sound.BLOCK_NETHER_GOLD_ORE_PLACE, 0.7f, 1.355f);
-                                spw.play(player.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 0.4f, 0.755f);
-                                w.close();
-                                if (AdaptConfig.get().getLearnUnlearnButtonDelayTicks() != 0) {
-                                    if (isPermanent()) {
-                                        spw.play(player.getLocation(), Sound.ENTITY_BLAZE_DEATH, 0.5f, 1.355f);
-                                        player.sendTitle(" ", C.RED + "" + C.BOLD + Localizer.dLocalize("snippets.adapt_menu.may_not_unlearn") + " " + getDisplayName(mylevel), 1, 10, 11);
-                                    } else {
-                                        player.sendTitle(" ", C.GRAY + Localizer.dLocalize("snippets.adapt_menu.unlearned") + " " + getDisplayName(mylevel), 1, 10, 11);
-                                    }
-                                }
-                                J.s(() -> openGui(player, currentPage), AdaptConfig.get().getLearnUnlearnButtonDelayTicks());
-                                return;
-                            }
-
-                            if (k >= c && getPlayer(player).getData().hasPowerAvailable(pc)) {
-                                if (isPermanent() && !consumePermanentLearnConfirmation(player, lvl)) {
-                                    spw.play(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 0.7f, 0.85f);
-                                    player.sendTitle(" ", C.GOLD + "" + C.BOLD + "Click again to confirm permanent learn", 1, 16, 8);
-                                    J.s(() -> openGui(player, currentPage), 1);
-                                    return;
-                                }
-
-                                if (getPlayer(player).getData().getSkillLine(getSkill().getName()).spendKnowledge(c)) {
-                                    getPlayer(player).getData().getSkillLine(getSkill().getName()).setAdaptation(this, lvl);
-                                    spw.play(player.getLocation(), Sound.BLOCK_NETHER_GOLD_ORE_PLACE, 0.9f, 1.355f);
-                                    spw.play(player.getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 1.7f, 0.355f);
-                                    spw.play(player.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, 0.4f, 0.155f);
-                                    spw.play(player.getLocation(), Sound.BLOCK_BEACON_ACTIVATE, 0.2f, 1.455f);
-                                    if (isPermanent()) {
-                                        spw.play(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.7f, 1.355f);
-                                        spw.play(player.getLocation(), Sound.ITEM_GOAT_HORN_SOUND_1, 0.7f, 1.355f);
-                                    }
-                                    w.close();
-                                    if (AdaptConfig.get().getLearnUnlearnButtonDelayTicks() != 0) {
-                                        player.sendTitle(" ", C.GRAY + Localizer.dLocalize("snippets.adapt_menu.learned") + " " + getDisplayName(lvl), 1, 5, 11);
-                                    }
-                                    J.s(() -> openGui(player, currentPage), AdaptConfig.get().getLearnUnlearnButtonDelayTicks());
-                                } else {
-                                    spw.play(player.getLocation(), Sound.BLOCK_BAMBOO_HIT, 0.7f, 1.855f);
-                                }
-                            } else {
-                                spw.play(player.getLocation(), Sound.BLOCK_BAMBOO_HIT, 0.7f, 1.855f);
-                            }
-                        });
-                de.addLore(" ");
-                addStats(lvl, de);
-                reveal.add(new GuiEffects.Placement(pos, row, de));
-            }
-        }
-        GuiEffects.applyReveal(w, reveal);
-
-        if (plan.hasNavigationRow()) {
-            int navRow = plan.rows() - 1;
-            int jumpPages = 5;
-            int jumpBack = Math.max(0, currentPage - jumpPages);
-            int jumpForward = Math.min(plan.pageCount() - 1, currentPage + jumpPages);
-            if (currentPage > 0) {
-                w.setElement(-4, navRow, new UIElement("adapt-prev")
-                        .setMaterial(new MaterialBlock(Material.ARROW))
-                        .setName(C.WHITE + "Previous")
-                        .addLore(C.GRAY + "Right click: jump -" + jumpPages + " pages")
-                        .onLeftClick((e) -> openGui(player, currentPage - 1))
-                        .onRightClick((e) -> openGui(player, jumpBack)));
-                w.setElement(-3, navRow, new UIElement("adapt-first")
-                        .setMaterial(new MaterialBlock(Material.LECTERN))
-                        .setName(C.GRAY + "First")
-                        .onLeftClick((e) -> openGui(player, 0)));
-            }
-            if (currentPage < plan.pageCount() - 1) {
-                w.setElement(4, navRow, new UIElement("adapt-next")
-                        .setMaterial(new MaterialBlock(Material.ARROW))
-                        .setName(C.WHITE + "Next")
-                        .addLore(C.GRAY + "Right click: jump +" + jumpPages + " pages")
-                        .onLeftClick((e) -> openGui(player, currentPage + 1))
-                        .onRightClick((e) -> openGui(player, jumpForward)));
-                w.setElement(3, navRow, new UIElement("adapt-last")
-                        .setMaterial(new MaterialBlock(Material.LECTERN))
-                        .setName(C.GRAY + "Last")
-                        .onLeftClick((e) -> openGui(player, plan.pageCount() - 1)));
-            }
-
-            int from = getMaxLevel() <= 0 ? 0 : (start + 1);
-            int to = getMaxLevel() <= 0 ? 0 : end;
-            w.setElement(-1, navRow, new UIElement("adapt-page-info")
-                    .setMaterial(new MaterialBlock(Material.PAPER))
-                    .setName(C.AQUA + "Page " + (currentPage + 1) + "/" + plan.pageCount())
-                    .addLore(C.GRAY + "Showing " + from + "-" + to + " of " + getMaxLevel())
-                    .setProgress(1D));
-
-            if (AdaptConfig.get().isGuiBackButton()) {
-                w.setElement(0, navRow, new UIElement("back")
-                        .setMaterial(new MaterialBlock(Material.ARROW))
-                        .setName("" + C.RESET + C.GRAY + Localizer.dLocalize("snippets.gui.back"))
-                        .onLeftClick((e) -> onGuiClose(player, true)));
-            }
-
-        }
-
-        AdaptPlayer a = Adapt.instance.getAdaptServer().getPlayer(player);
-        String pageSuffix = plan.pageCount() > 1 ? " [" + (currentPage + 1) + "/" + plan.pageCount() + "]" : "";
-        w.setTitle(getDisplayName() + " " + C.DARK_GRAY + " " + Form.f(a.getSkillLine(getSkill().getName()).getKnowledge()) + " " + Localizer.dLocalize("snippets.adapt_menu.knowledge") + pageSuffix);
-        w.onClosed((vv) -> J.s(() -> onGuiClose(player, !AdaptConfig.get().isEscClosesAllGuis())));
-        w.open();
-        Adapt.instance.getGuiLeftovers().put(player.getUniqueId().toString(), w);
+        AdaptationGuiSupport.openGui(this, player, page);
     }
 
-    private void onGuiClose(Player player, boolean openPrevGui) {
-        SoundPlayer spw = SoundPlayer.of(player.getWorld());
-        spw.play(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 1.255f);
-        spw.play(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.7f, 0.655f);
-        spw.play(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.3f, 0.855f);
-        if (openPrevGui) {
-            getSkill().openGui(player);
-        } else {
-            Adapt.instance.getGuiLeftovers().remove(player.getUniqueId().toString());
-        }
-    }
-
-    private static String permanentConfirmPrefix(Player player, Adaptation<?> adaptation) {
-        return player.getUniqueId() + "|" + adaptation.getName() + "|";
-    }
-
-    private static String permanentConfirmKey(Player player, Adaptation<?> adaptation, int level) {
-        return permanentConfirmPrefix(player, adaptation) + level;
-    }
-
-    private static boolean isPermanentLearnConfirmationPending(Player player, Adaptation<?> adaptation, int level) {
-        if (player == null || adaptation == null) {
-            return false;
-        }
-
-        Long until = PERMANENT_LEARN_CONFIRMATIONS.get(permanentConfirmKey(player, adaptation, level));
-        return until != null && until >= M.ms();
-    }
-
+    /**
+     * Checks whether permanent learn confirmation is pending for this player/level.
+     */
     default boolean isPermanentLearnConfirmationPending(Player player, int level) {
-        return isPermanentLearnConfirmationPending(player, this, level);
+        return AdaptationGuiSupport.isPermanentLearnConfirmationPending(player, this, level);
     }
 
+    /**
+     * Consumes pending permanent learn confirmation for this player/level.
+     */
     default boolean consumePermanentLearnConfirmation(Player player, int level) {
-        if (player == null) {
-            return false;
-        }
-
-        long now = M.ms();
-        PERMANENT_LEARN_CONFIRMATIONS.entrySet().removeIf(e -> e.getValue() < now);
-
-        String key = permanentConfirmKey(player, this, level);
-        Long until = PERMANENT_LEARN_CONFIRMATIONS.get(key);
-        if (until != null && until >= now) {
-            PERMANENT_LEARN_CONFIRMATIONS.remove(key);
-            return true;
-        }
-
-        String prefix = permanentConfirmPrefix(player, this);
-        PERMANENT_LEARN_CONFIRMATIONS.keySet().removeIf(existing -> existing.startsWith(prefix));
-        PERMANENT_LEARN_CONFIRMATIONS.put(key, now + PERMANENT_LEARN_CONFIRM_WINDOW_MS);
-        return false;
+        return AdaptationGuiSupport.consumePermanentLearnConfirmation(player, this, level);
     }
 
+    /**
+     * Unlearns levels from this adaptation.
+     */
     default void unlearn(Player player, int lvl, boolean force) {
-        if (isPermanent() && !force) {
-            return;
-        }
-        int myLevel = getPlayer(player).getSkillLine(getSkill().getName()).getAdaptationLevel(getName());
-        int rc = getRefundCostFor(lvl - 1, myLevel);
-        if (!AdaptConfig.get().isHardcoreNoRefunds()) {
-            getPlayer(player).getData().getSkillLine(getSkill().getName()).giveKnowledge(rc);
-        }
-        getPlayer(player).getData().getSkillLine(getSkill().getName()).setAdaptation(this, lvl - 1);
+        AdaptationGuiSupport.unlearn(this, player, lvl, force);
     }
 
+    /**
+     * Learns levels into this adaptation.
+     */
     default void learn(Player player, int lvl, boolean force) {
-        int myLevel = getPlayer(player).getSkillLine(getSkill().getName()).getAdaptationLevel(getName());
-        int c = getCostFor(lvl, myLevel);
-        if (getPlayer(player).getData().hasPowerAvailable(c) || force) {
-            if (getPlayer(player).getData().getSkillLine(getSkill().getName()).spendKnowledge(c) || force) {
-                getPlayer(player).getData().getSkillLine(getSkill().getName()).setAdaptation(this, lvl);
-            }
-        }
+        AdaptationGuiSupport.learn(this, player, lvl, force);
     }
 
+    /**
+     * Returns true when the provided recipe belongs to this adaptation.
+     */
     default boolean isAdaptationRecipe(Recipe recipe) {
-        if (!this.isEnabled()) {
-            return false;
-        }
-        if (!this.getSkill().isEnabled()) {
-            return false;
-        }
-        for (AdaptRecipe i : getRecipes()) {
-            if (i.is(recipe)) {
-                return true;
-            }
-        }
-        return false;
+        return AdaptationGuiSupport.isAdaptationRecipe(this, recipe);
     }
 }

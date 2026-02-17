@@ -1,6 +1,7 @@
 package art.arcane.adapt.util.common.parallel;
 
 import art.arcane.adapt.Adapt;
+
 import java.util.concurrent.ExecutorService;
 import java.util.function.IntSupplier;
 

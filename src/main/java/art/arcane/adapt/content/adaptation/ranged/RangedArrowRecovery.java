@@ -5,13 +5,13 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.reflect.registries.Enchantments;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Enchantments;
 import lombok.NoArgsConstructor;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
@@ -20,13 +20,14 @@ import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static xyz.xenondevs.particle.utils.MathUtils.RANDOM;
 
 public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Config> {
-    private final Map<Arrow, Player> shotArrows;
+    private final Map<UUID, UUID> shotArrows;
 
     public RangedArrowRecovery() {
         super("ranged-recovery");
@@ -38,7 +39,7 @@ public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Co
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
-        shotArrows = new HashMap<>();
+        shotArrows = new ConcurrentHashMap<>();
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.ARROW)
                 .key("challenge_ranged_arrow_500")
@@ -61,10 +62,10 @@ public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Co
 
     @EventHandler
     public void onEntityShootBow(EntityShootBowEvent event) {
-        if (event.getEntity() instanceof Player player && hasAdaptation(player)) {
+        if (event.getEntity() instanceof Player player && hasActiveAdaptation(player)) {
             if (!event.getBow().containsEnchantment(Enchantments.ARROW_INFINITE)) {
                 if (event.getProjectile() instanceof Arrow arrow) {
-                    shotArrows.put(arrow, player);
+                    shotArrows.put(arrow.getUniqueId(), player.getUniqueId());
                 }
             }
         }
@@ -73,9 +74,10 @@ public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Co
     @EventHandler
     public void onProjectileHit(ProjectileHitEvent event) {
         if (event.getEntity() instanceof Arrow arrow) {
-            Player shooter = shotArrows.get(arrow);
-            if (shooter != null && hasAdaptation(shooter)) {
-                int level = getLevel(shooter);
+            UUID shooterId = shotArrows.get(arrow.getUniqueId());
+            Player shooter = shooterId == null ? null : Bukkit.getPlayer(shooterId);
+            int level = shooter == null ? 0 : getActiveLevel(shooter);
+            if (level > 0) {
                 double chance = getConfig().hitChance[level - 1] / 100.0;
                 if (RANDOM.nextDouble() < chance) {
                     ItemStack arrowStack = new ItemStack(Material.ARROW, 1);
@@ -84,7 +86,7 @@ public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Co
                     Adapt.info("Arrow added to inventory.");
                 }
             }
-            shotArrows.remove(arrow);
+            shotArrows.remove(arrow.getUniqueId());
         }
     }
 

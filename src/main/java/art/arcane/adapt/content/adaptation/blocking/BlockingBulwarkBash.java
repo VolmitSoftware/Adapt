@@ -23,13 +23,12 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.volmlib.util.format.Form;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -45,14 +44,11 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import art.arcane.adapt.util.common.inventorygui.Window;
-
 public class BlockingBulwarkBash extends SimpleAdaptation<BlockingBulwarkBash.Config> {
-    private final Map<UUID, Long> lastSprintMillis = new HashMap<>();
+    private final Map<UUID, Long> lastSprintMillis = new java.util.concurrent.ConcurrentHashMap<>();
 
     public BlockingBulwarkBash() {
         super("blocking-bulwark-bash");
@@ -105,10 +101,13 @@ public class BlockingBulwarkBash extends SimpleAdaptation<BlockingBulwarkBash.Co
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void on(EntityDamageByEntityEvent e) {
-        if (!(e.getDamager() instanceof Player p) || !(e.getEntity() instanceof LivingEntity target) || !hasAdaptation(p)) {
+        var combat = resolveMeleeContext(e);
+        if (combat == null) {
             return;
         }
 
+        Player p = combat.attacker();
+        LivingEntity target = combat.target();
         if (p.getInventory().getItemInOffHand().getType() != Material.SHIELD || p.hasCooldown(Material.SHIELD)) {
             return;
         }
@@ -117,15 +116,7 @@ public class BlockingBulwarkBash extends SimpleAdaptation<BlockingBulwarkBash.Co
             return;
         }
 
-        if (target instanceof Player victim) {
-            if (!canPVP(p, victim.getLocation())) {
-                return;
-            }
-        } else if (!canPVE(p, target.getLocation())) {
-            return;
-        }
-
-        int level = getLevel(p);
+        int level = combat.level();
         int affected = 0;
         double radius = getRange(level);
         for (org.bukkit.entity.Entity nearby : target.getWorld().getNearbyEntities(target.getLocation(), radius, radius, radius)) {
@@ -133,11 +124,7 @@ public class BlockingBulwarkBash extends SimpleAdaptation<BlockingBulwarkBash.Co
                 continue;
             }
 
-            if (hit instanceof Player victim) {
-                if (!canPVP(p, victim.getLocation())) {
-                    continue;
-                }
-            } else if (!canPVE(p, hit.getLocation())) {
+            if (!canDamageTarget(p, hit)) {
                 continue;
             }
 

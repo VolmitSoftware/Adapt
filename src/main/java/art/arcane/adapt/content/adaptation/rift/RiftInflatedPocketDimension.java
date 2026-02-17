@@ -22,12 +22,11 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -43,8 +42,6 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Map;
-
-import art.arcane.adapt.util.common.math.Dimension;
 
 public class RiftInflatedPocketDimension extends SimpleAdaptation<RiftInflatedPocketDimension.Config> {
     public RiftInflatedPocketDimension() {
@@ -96,7 +93,7 @@ public class RiftInflatedPocketDimension extends SimpleAdaptation<RiftInflatedPo
         }
 
         Player p = e.getPlayer();
-        if (!hasAdaptation(p)) {
+        if (!hasActiveAdaptation(p)) {
             return;
         }
 
@@ -124,7 +121,7 @@ public class RiftInflatedPocketDimension extends SimpleAdaptation<RiftInflatedPo
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void on(BlockPlaceEvent e) {
         Player p = e.getPlayer();
-        if (!hasAdaptation(p)) {
+        if (!hasActiveAdaptation(p)) {
             return;
         }
 
@@ -160,7 +157,7 @@ public class RiftInflatedPocketDimension extends SimpleAdaptation<RiftInflatedPo
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void on(PlayerDropItemEvent e) {
         Player p = e.getPlayer();
-        if (!hasAdaptation(p) || !p.isSneaking()) {
+        if (getActiveLevel(p, Player::isSneaking) <= 0) {
             return;
         }
 

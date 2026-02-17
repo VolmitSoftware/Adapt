@@ -19,10 +19,15 @@
 package art.arcane.adapt.util.common.plugin;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.adaptation.AdaptationEventRegistrar;
+import art.arcane.adapt.api.skill.SkillEventRegistrar;
+import art.arcane.adapt.util.common.scheduling.J;
+import art.arcane.adapt.util.project.command.Control;
+import art.arcane.adapt.util.project.command.IController;
+import art.arcane.adapt.util.reflect.events.ReflectiveEvents;
 import art.arcane.volmlib.util.collection.KMap;
 import art.arcane.volmlib.util.io.IO;
 import art.arcane.volmlib.util.math.M;
-import art.arcane.adapt.util.reflect.events.ReflectiveEvents;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -36,11 +41,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.List;
-
-import art.arcane.adapt.util.common.scheduling.J;
-import art.arcane.adapt.util.project.command.Command;
-import art.arcane.adapt.util.project.command.Control;
-import art.arcane.adapt.util.project.command.IController;
 
 public abstract class VolmitPlugin extends JavaPlugin implements Listener {
     public static boolean bad = false;
@@ -249,7 +249,9 @@ public abstract class VolmitPlugin extends JavaPlugin implements Listener {
         if (bad) {
             return;
         }
-        Bukkit.getPluginManager().registerEvents(l, this);
+        if (!SkillEventRegistrar.register(this, l) && !AdaptationEventRegistrar.register(this, l)) {
+            Bukkit.getPluginManager().registerEvents(l, this);
+        }
         ReflectiveEvents.register(l);
     }
 

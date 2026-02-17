@@ -22,20 +22,14 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.volmlib.util.format.Form;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
 import lombok.NoArgsConstructor;
-import org.bukkit.Color;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -45,13 +39,12 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPing.Config> {
-    private final Map<UUID, Long> cooldowns = new HashMap<>();
+    private final Map<UUID, Long> cooldowns = new java.util.concurrent.ConcurrentHashMap<>();
 
     public ExcavationSeismicPing() {
         super("excavation-seismic-ping");
@@ -90,15 +83,16 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void on(BlockBreakEvent e) {
         Player p = e.getPlayer();
-        if (!hasAdaptation(p) || !isExcavationTool(p.getInventory().getItemInMainHand())) {
+        if (!isExcavationTool(p.getInventory().getItemInMainHand())) {
             return;
         }
 
-        if (!canBlockBreak(p, e.getBlock().getLocation())) {
+        var context = resolveBlockBreakContext(p, e.getBlock().getLocation());
+        if (context == null) {
             return;
         }
 
-        int level = getLevel(p);
+        int level = context.level();
         long now = System.currentTimeMillis();
         long nextReady = cooldowns.getOrDefault(p.getUniqueId(), 0L);
         if (now < nextReady) {

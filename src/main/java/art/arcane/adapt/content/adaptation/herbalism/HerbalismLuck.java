@@ -22,13 +22,12 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.content.item.ItemListings;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.reflect.registries.Materials;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Materials;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -86,11 +85,8 @@ public class HerbalismLuck extends SimpleAdaptation<HerbalismLuck.Config> {
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void on(BlockDropItemEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         Player p = e.getPlayer();
-        if (!hasAdaptation(p)) {
+        if (!hasActiveAdaptation(p)) {
             return;
         }
 

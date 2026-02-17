@@ -24,15 +24,17 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.version.IAttribute;
 import art.arcane.adapt.api.version.Version;
-import art.arcane.adapt.api.world.AdaptStatTracker;
-import art.arcane.volmlib.util.io.IO;
-import art.arcane.volmlib.util.math.M;
-import art.arcane.volmlib.util.collection.KMap;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
+import art.arcane.adapt.util.common.math.Sphere;
+import art.arcane.adapt.util.common.math.VectorMath;
+import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.adapt.util.reflect.registries.Particles;
-import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.collection.KMap;
+import art.arcane.volmlib.util.math.M;
 import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -45,12 +47,6 @@ import org.bukkit.util.Vector;
 
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.adapt.util.common.math.Sphere;
-import art.arcane.adapt.util.common.math.VectorMath;
 
 public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
     private static final UUID MODIFIER = UUID.nameUUIDFromBytes("adapt-discovery-armor".getBytes());
@@ -156,7 +152,7 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
             var attribute = Version.get().getAttribute(p, Attributes.GENERIC_ARMOR);
             if (attribute == null) continue;
 
-            if (!hasAdaptation(p)) {
+            if (!hasActiveAdaptation(p)) {
                 attribute.removeModifier(MODIFIER, MODIFIER_KEY);
             } else {
                 double oldArmor = attribute.getModifier(MODIFIER, MODIFIER_KEY)

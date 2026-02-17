@@ -23,16 +23,16 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.content.adaptation.sword.effects.DamagingBleedEffect;
 import art.arcane.adapt.content.item.ItemListings;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.volmlib.util.format.Form;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
 import de.slikey.effectlib.effect.BleedEffect;
 import lombok.NoArgsConstructor;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -42,18 +42,14 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import art.arcane.adapt.util.reflect.registries.Particles;
-
 public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config> {
-    private final Map<Player, Long> cooldowns;
-    private final Set<UUID> bleedingEntities = new HashSet<>();
-    private final Map<UUID, Player> bleedSource = new HashMap<>();
+    private final Map<UUID, Long> cooldowns;
+    private final Set<UUID> bleedingEntities = java.util.concurrent.ConcurrentHashMap.newKeySet();
+    private final Map<UUID, UUID> bleedSource = new java.util.concurrent.ConcurrentHashMap<>();
 
     public SwordsBloodyBlade() {
         super("sword-bloody-blade");
@@ -66,7 +62,7 @@ public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config
         setInterval(5534);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
-        cooldowns = new HashMap<>();
+        cooldowns = new java.util.concurrent.ConcurrentHashMap<>();
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.IRON_SWORD)
                 .key("challenge_swords_bloody_500")
@@ -105,20 +101,13 @@ public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
-        if (e.getDamager() instanceof Player p && hasAdaptation(p) && ItemListings.getToolSwords().contains(p.getInventory().getItemInMainHand().getType())) {
-            Long cooldown = cooldowns.get(p);
+        if (e.getDamager() instanceof Player p && hasActiveAdaptation(p) && ItemListings.getToolSwords().contains(p.getInventory().getItemInMainHand().getType())) {
+            Long cooldown = cooldowns.get(p.getUniqueId());
             if (cooldown != null && cooldown > System.currentTimeMillis())
                 return;
             Entity victim = e.getEntity();
-            cooldowns.put(p, System.currentTimeMillis() + getCooldown(getLevel(p)));
-            if (victim instanceof Player pvic) {
-                if (!canPVP(p, pvic.getLocation())) return;
-            } else {
-                if (!canPVE(p, victim.getLocation())) return;
-            }
+            cooldowns.put(p.getUniqueId(), System.currentTimeMillis() + getCooldown(getLevel(p)));
+            if (!canDamageTarget(p, victim)) return;
             if (areParticlesEnabled()) {
                 BleedEffect blood = victim instanceof LivingEntity l ? new DamagingBleedEffect(Adapt.instance.adaptEffectManager, getConfig().damagePerBleedProc, l) : new BleedEffect(Adapt.instance.adaptEffectManager);
                 blood.setEntity(victim);
@@ -143,7 +132,7 @@ public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config
                 blood.start();
             }
             bleedingEntities.add(victim.getUniqueId());
-            bleedSource.put(victim.getUniqueId(), p);
+            bleedSource.put(victim.getUniqueId(), p.getUniqueId());
             getPlayer(p).getData().addStat("swords.bloody-blade.bleed-damage", 1);
 
         }
@@ -153,7 +142,8 @@ public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config
     public void on(EntityDeathEvent e) {
         UUID victimId = e.getEntity().getUniqueId();
         if (bleedingEntities.remove(victimId)) {
-            Player source = bleedSource.remove(victimId);
+            UUID sourceId = bleedSource.remove(victimId);
+            Player source = sourceId == null ? null : Bukkit.getPlayer(sourceId);
             if (source != null && source.isOnline()) {
                 getPlayer(source).getData().addStat("swords.bloody-blade.bleed-kills", 1);
             }

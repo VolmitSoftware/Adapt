@@ -22,13 +22,11 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.volmlib.util.format.Form;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.scheduling.J;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -39,13 +37,13 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class SeabornePressureDiver extends SimpleAdaptation<SeabornePressureDiver.Config> {
-    private final Map<UUID, Long> xpCooldowns = new HashMap<>();
+    private final Map<UUID, Long> xpCooldowns = new ConcurrentHashMap<>();
 
     public SeabornePressureDiver() {
         super("seaborne-pressure-diver");
@@ -83,16 +81,26 @@ public class SeabornePressureDiver extends SimpleAdaptation<SeabornePressureDive
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void on(EntityDamageEvent e) {
-        if (!(e.getEntity() instanceof Player p) || !hasAdaptation(p) || !p.isInWater()) {
+        if (!(e.getEntity() instanceof Player p)) {
             return;
         }
 
-        int level = getLevel(p);
-        if (!isDeepEnough(p, level)) {
-            return;
-        }
+        withPlayerThread(p, e, () -> {
+            int level = getActiveLevel(p);
+            if (level <= 0) {
+                return;
+            }
 
-        e.setDamage(e.getDamage() * (1D - getDamageReduction(level)));
+            if (!p.isInWater()) {
+                return;
+            }
+
+            if (!isDeepEnough(p, level)) {
+                return;
+            }
+
+            e.setDamage(e.getDamage() * (1D - getDamageReduction(level)));
+        });
     }
 
     @Override
@@ -104,20 +112,16 @@ public class SeabornePressureDiver extends SimpleAdaptation<SeabornePressureDive
                 continue;
             }
 
-            Runnable apply = () -> {
+            withPlayerThread(p, () -> {
                 if (!p.isOnline()) {
                     return;
                 }
 
-                if (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(p)) {
+                int level = getActiveLevel(p);
+                if (level <= 0 || !p.isInWater()) {
                     return;
                 }
 
-                if (!hasAdaptation(p) || !p.isInWater()) {
-                    return;
-                }
-
-                int level = getLevel(p);
                 if (!isDeepEnough(p, level)) {
                     return;
                 }
@@ -125,13 +129,7 @@ public class SeabornePressureDiver extends SimpleAdaptation<SeabornePressureDive
                 applyDepthBuffs(p, level);
                 awardDepthXp(p, now);
                 getPlayer(p).getData().addStat("seaborne.pressure-diver.deep-blocks-mined", 1);
-            };
-
-            if (J.isFoliaThreading()) {
-                J.runEntity(p, apply);
-            } else {
-                apply.run();
-            }
+            });
         }
     }
 

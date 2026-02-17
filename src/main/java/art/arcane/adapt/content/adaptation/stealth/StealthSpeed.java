@@ -17,37 +17,30 @@
  -----------------------------------------------------------------------------*/
 
 package art.arcane.adapt.content.adaptation.stealth;
-import art.arcane.adapt.Adapt;
-import art.arcane.volmlib.util.format.Form;
 
+import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.volmlib.util.io.IO;
-import art.arcane.volmlib.util.math.M;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
+import art.arcane.adapt.util.common.math.VelocitySpeed;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
+import art.arcane.volmlib.util.math.M;
 import lombok.NoArgsConstructor;
-import org.bukkit.GameMode;
-import org.bukkit.Input;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.util.Vector;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.adapt.util.common.math.VelocitySpeed;
-import art.arcane.adapt.util.common.scheduling.J;
 
 public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
     private static final Sound DEFAULT_ACTIVATION_SOUND = Sound.PARTICLE_SOUL_ESCAPE;
@@ -63,7 +56,7 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
         setInterval(getConfig().setInterval);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
-        states = new HashMap<>();
+        states = new java.util.concurrent.ConcurrentHashMap<>();
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.LEATHER_BOOTS)
                 .key("challenge_stealth_speed_5k")
@@ -162,7 +155,7 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
     }
 
     private boolean isEligible(Player p) {
-        if (!hasAdaptation(p)) {
+        if (!hasActiveAdaptation(p)) {
             return false;
         }
 

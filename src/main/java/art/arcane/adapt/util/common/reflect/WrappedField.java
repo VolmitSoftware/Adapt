@@ -4,8 +4,6 @@ import art.arcane.adapt.Adapt;
 
 import java.lang.reflect.Field;
 
-import art.arcane.adapt.util.common.format.C;
-
 public class WrappedField<C, T> {
 
     private final Field field;

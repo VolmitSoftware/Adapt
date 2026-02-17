@@ -23,13 +23,13 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.volmlib.util.format.Form;
-import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.math.VelocitySpeed;
+import art.arcane.adapt.util.common.misc.SoundPlayer;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
 import lombok.NoArgsConstructor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -48,14 +48,8 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class TragoulBoneHarvest extends SimpleAdaptation<TragoulBoneHarvest.Config> {
@@ -69,9 +63,9 @@ public class TragoulBoneHarvest extends SimpleAdaptation<TragoulBoneHarvest.Conf
             PotionEffectType.NIGHT_VISION
     };
 
-    private final Set<UUID> bloodGlobes = new HashSet<>();
-    private final Set<UUID> boneGlobes = new HashSet<>();
-    private final Map<UUID, SpeedBurst> speedBursts = new HashMap<>();
+    private final Set<UUID> bloodGlobes = ConcurrentHashMap.newKeySet();
+    private final Set<UUID> boneGlobes = ConcurrentHashMap.newKeySet();
+    private final Map<UUID, SpeedBurst> speedBursts = new ConcurrentHashMap<>();
 
     public TragoulBoneHarvest() {
         super("tragoul-bone-harvest");
@@ -113,38 +107,46 @@ public class TragoulBoneHarvest extends SimpleAdaptation<TragoulBoneHarvest.Conf
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void on(EntityDeathEvent e) {
         Player killer = e.getEntity().getKiller();
-        if (killer == null || !hasAdaptation(killer) || !canPVE(killer, e.getEntity().getLocation())) {
+        if (killer == null) {
             return;
         }
 
-        int level = getLevel(killer);
-        ThreadLocalRandom random = ThreadLocalRandom.current();
-        if (random.nextDouble() > getGlobeChance(level)) {
-            return;
-        }
+        withAdaptedPlayer(killer, () -> {
+            if (!canDamageTarget(killer, e.getEntity())) {
+                return;
+            }
 
-        spawnGlobe(killer, e, random.nextBoolean(), level);
+            int level = getActiveLevel(killer);
+            ThreadLocalRandom random = ThreadLocalRandom.current();
+            if (random.nextDouble() > getGlobeChance(level)) {
+                return;
+            }
+
+            spawnGlobe(killer, e, random.nextBoolean(), level);
+        });
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void on(EntityPickupItemEvent e) {
-        if (!(e.getEntity() instanceof Player p) || !hasAdaptation(p)) {
+        if (!(e.getEntity() instanceof Player p)) {
             return;
         }
 
-        UUID id = e.getItem().getUniqueId();
-        boolean blood = bloodGlobes.contains(id);
-        boolean bone = boneGlobes.contains(id);
-        if (!blood && !bone) {
-            return;
-        }
+        withAdaptedPlayer(p, e, () -> {
+            UUID id = e.getItem().getUniqueId();
+            boolean blood = bloodGlobes.contains(id);
+            boolean bone = boneGlobes.contains(id);
+            if (!blood && !bone) {
+                return;
+            }
 
-        e.setCancelled(true);
-        e.getItem().remove();
-        bloodGlobes.remove(id);
-        boneGlobes.remove(id);
-        applyBuff(p, blood, getLevel(p));
-        getPlayer(p).getData().addStat("tragoul.bone-harvest.orbs-collected", 1);
+            e.setCancelled(true);
+            e.getItem().remove();
+            bloodGlobes.remove(id);
+            boneGlobes.remove(id);
+            applyBuff(p, blood, getLevel(p));
+            getPlayer(p).getData().addStat("tragoul.bone-harvest.orbs-collected", 1);
+        });
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -244,30 +246,36 @@ public class TragoulBoneHarvest extends SimpleAdaptation<TragoulBoneHarvest.Conf
         long now = System.currentTimeMillis();
         for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
             Player p = adaptPlayer.getPlayer();
-            UUID id = p.getUniqueId();
-            SpeedBurst burst = speedBursts.get(id);
-            if (burst == null) {
+            if (p == null || !p.isOnline()) {
                 continue;
             }
 
-            if (burst.expiresAt <= now) {
-                invalidateSpeedBurst(p, burst, false);
-                speedBursts.remove(id);
-                continue;
-            }
+            withPlayerThread(p, () -> {
+                UUID id = p.getUniqueId();
+                SpeedBurst burst = speedBursts.get(id);
+                if (burst == null) {
+                    return;
+                }
 
-            if (!isVelocityEligible(p)) {
-                invalidateSpeedBurst(p, burst, true);
-                continue;
-            }
+                if (burst.expiresAt <= now) {
+                    invalidateSpeedBurst(p, burst, false);
+                    speedBursts.remove(id);
+                    return;
+                }
 
-            VelocitySpeed.InputSnapshot input = VelocitySpeed.readInput(p, getConfig().fallbackInputVelocityThresholdSquared());
-            if (!input.hasHorizontal()) {
-                brakeSpeedBurst(p, burst);
-                continue;
-            }
+                if (!isVelocityEligible(p)) {
+                    invalidateSpeedBurst(p, burst, true);
+                    return;
+                }
 
-            applySpeedBurst(p, burst, input);
+                VelocitySpeed.InputSnapshot input = VelocitySpeed.readInput(p, getConfig().fallbackInputVelocityThresholdSquared());
+                if (!input.hasHorizontal()) {
+                    brakeSpeedBurst(p, burst);
+                    return;
+                }
+
+                applySpeedBurst(p, burst, input);
+            });
         }
     }
 

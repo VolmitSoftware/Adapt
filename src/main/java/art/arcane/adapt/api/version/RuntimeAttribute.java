@@ -7,8 +7,9 @@ import org.bukkit.attribute.AttributeModifier;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public record RuntimeAttribute(AttributeInstance instance) implements IAttribute {
     private static final Method GET_KEY_METHOD = findMethod("getKey");
@@ -42,27 +43,47 @@ public record RuntimeAttribute(AttributeInstance instance) implements IAttribute
 
     @Override
     public boolean hasModifier(UUID uuid, NamespacedKey key) {
-        return instance.getModifiers()
-                .stream()
-                .anyMatch(modifier -> matches(modifier, uuid, key));
+        for (AttributeModifier modifier : instance.getModifiers()) {
+            if (matches(modifier, uuid, key)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     @Override
     public void removeModifier(UUID uuid, NamespacedKey key) {
-        instance.getModifiers()
-                .stream()
-                .filter(modifier -> matches(modifier, uuid, key))
-                .toList()
-                .forEach(instance::removeModifier);
+        List<AttributeModifier> toRemove = null;
+        for (AttributeModifier modifier : instance.getModifiers()) {
+            if (!matches(modifier, uuid, key)) {
+                continue;
+            }
+
+            if (toRemove == null) {
+                toRemove = new ArrayList<>();
+            }
+            toRemove.add(modifier);
+        }
+
+        if (toRemove == null) {
+            return;
+        }
+
+        for (AttributeModifier modifier : toRemove) {
+            instance.removeModifier(modifier);
+        }
     }
 
     @Override
     public KList<Modifier> getModifier(UUID uuid, NamespacedKey key) {
-        return instance.getModifiers()
-                .stream()
-                .filter(modifier -> matches(modifier, uuid, key))
-                .map(RuntimeAttribute::wrap)
-                .collect(Collectors.toCollection(KList::new));
+        KList<Modifier> modifiers = new KList<>();
+        for (AttributeModifier modifier : instance.getModifiers()) {
+            if (matches(modifier, uuid, key)) {
+                modifiers.add(wrap(modifier));
+            }
+        }
+        return modifiers;
     }
 
     private static AttributeModifier createModifier(UUID uuid, NamespacedKey key, double amount, AttributeModifier.Operation operation) {

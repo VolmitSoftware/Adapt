@@ -22,13 +22,12 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.volmlib.util.format.Form;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
 import lombok.NoArgsConstructor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -44,12 +43,11 @@ import org.bukkit.inventory.EquipmentSlot;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 public class DiscoveryCartographerPulse extends SimpleAdaptation<DiscoveryCartographerPulse.Config> {
-    private final Map<UUID, Long> cooldowns = new HashMap<>();
+    private final Map<UUID, Long> cooldowns = new java.util.concurrent.ConcurrentHashMap<>();
 
     public DiscoveryCartographerPulse() {
         super("discovery-cartographer-pulse");
@@ -100,11 +98,11 @@ public class DiscoveryCartographerPulse extends SimpleAdaptation<DiscoveryCartog
         }
 
         Player p = e.getPlayer();
-        if (!hasAdaptation(p) || !p.isSneaking() || p.getInventory().getItemInMainHand().getType() != Material.COMPASS) {
+        int level = getActiveLevel(p, Player::isSneaking);
+        if (level <= 0 || p.getInventory().getItemInMainHand().getType() != Material.COMPASS) {
             return;
         }
 
-        int level = getLevel(p);
         long now = System.currentTimeMillis();
         if (now < cooldowns.getOrDefault(p.getUniqueId(), 0L)) {
             return;

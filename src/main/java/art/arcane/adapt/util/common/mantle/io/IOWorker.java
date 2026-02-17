@@ -1,14 +1,14 @@
 package art.arcane.adapt.util.mantle.io;
 
+import art.arcane.adapt.Adapt;
+import art.arcane.adapt.util.mantle.MantleChunk;
+import art.arcane.adapt.util.mantle.TectonicPlate;
 import art.arcane.spatial.mantle.MantleRegion;
 import art.arcane.spatial.matter.Matter;
 import art.arcane.spatial.matter.MatterSlice;
 import art.arcane.volmlib.util.mantle.io.IOWorkerCodecSupport;
 import art.arcane.volmlib.util.mantle.io.IOWorkerRuntimeSupport;
 import art.arcane.volmlib.util.mantle.io.IOWorkerSupport;
-import art.arcane.adapt.Adapt;
-import art.arcane.adapt.util.mantle.MantleChunk;
-import art.arcane.adapt.util.mantle.TectonicPlate;
 
 import java.io.File;
 import java.io.IOException;

@@ -17,7 +17,6 @@
  -----------------------------------------------------------------------------*/
 
 package art.arcane.adapt.content.adaptation.brewing;
-import art.arcane.volmlib.util.format.Form;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -25,15 +24,18 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.data.WorldData;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.api.world.PlayerAdaptation;
 import art.arcane.adapt.api.world.PlayerData;
 import art.arcane.adapt.content.matter.BrewingStandOwner;
-import art.arcane.volmlib.util.io.IO;
-import art.arcane.volmlib.util.math.M;
-import art.arcane.volmlib.util.collection.KList;
-import art.arcane.adapt.util.reflect.registries.ItemFlags;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.function.Function3;
+import art.arcane.adapt.util.common.inventorygui.Element;
+import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.ItemFlags;
+import art.arcane.volmlib.util.collection.KList;
+import art.arcane.volmlib.util.format.Form;
 import lombok.NoArgsConstructor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -59,12 +61,6 @@ import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
-
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.function.Function3;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 
 public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> {
     private static final Function<PotionEffectType, TextColor> getColor;
@@ -119,9 +115,6 @@ public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> 
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BrewEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         if (!e.getBlock().getType().equals(Material.BREWING_STAND)) {
             return;
         }

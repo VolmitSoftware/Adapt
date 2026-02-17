@@ -22,19 +22,18 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.volmlib.util.format.Form;
-import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
 import lombok.NoArgsConstructor;
+import org.bukkit.FluidCollisionMode;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.FluidCollisionMode;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -170,76 +169,78 @@ public class SeaborneTidecaller extends SimpleAdaptation<SeaborneTidecaller.Conf
     }
 
     private void tryDash(Player p, TriggerType triggerType) {
-        if (!hasAdaptation(p) || p.hasCooldown(Material.HEART_OF_THE_SEA)) {
-            return;
-        }
-
-        if (triggerType == TriggerType.SNEAK && !getConfig().enableSneakTrigger) {
-            return;
-        }
-
-        if (triggerType == TriggerType.ATTACK) {
-            if (!getConfig().enableAttackTrigger) {
+        withAdaptedPlayer(p, () -> {
+            if (p.hasCooldown(Material.HEART_OF_THE_SEA)) {
                 return;
             }
 
-            if (getConfig().attackTriggerRequiresSneak && !p.isSneaking()) {
+            if (triggerType == TriggerType.SNEAK && !getConfig().enableSneakTrigger) {
                 return;
             }
 
-            if (getConfig().attackTriggerWaterOnly && !isInWaterDashState(p)) {
+            if (triggerType == TriggerType.ATTACK) {
+                if (!getConfig().enableAttackTrigger) {
+                    return;
+                }
+
+                if (getConfig().attackTriggerRequiresSneak && !p.isSneaking()) {
+                    return;
+                }
+
+                if (getConfig().attackTriggerWaterOnly && !isInWaterDashState(p)) {
+                    return;
+                }
+            }
+
+            if (!isDashEnvironmentValid(p)) {
                 return;
             }
-        }
 
-        if (!isDashEnvironmentValid(p)) {
-            return;
-        }
-
-        int level = getLevel(p);
-        Vector direction = resolveDashDirection(p);
-        if (direction.lengthSquared() <= 0.000001) {
-            return;
-        }
-
-        if (isBlockedAhead(p, direction)) {
-            return;
-        }
-
-        boolean wasSwimming = p.isSwimming();
-        org.bukkit.Location target = null;
-        org.bukkit.Location origin = null;
-
-        if (areParticlesEnabled()) {
-            p.getWorld().spawnParticle(Particle.SPLASH, p.getLocation().add(0, 1, 0), 20, 0.25, 0.35, 0.25, 0.08);
-        }
-
-        if (getConfig().useVelocityDash) {
-            applyVelocityDash(p, direction, level);
-            target = p.getLocation().clone().add(direction.clone().multiply(Math.max(0.35, getDashDistance(level) * 0.35)));
-        } else {
-            origin = p.getLocation().clone();
-            target = findSafeDashTarget(p, getDashDistance(level));
-            if (target == null) {
+            int level = getActiveLevel(p);
+            Vector direction = resolveDashDirection(p);
+            if (direction.lengthSquared() <= 0.000001) {
                 return;
             }
-            J.teleport(p, target);
-            applyDashMomentum(p, origin, target);
-        }
 
-        preserveSwimStateAfterDash(p, wasSwimming);
-        if (areParticlesEnabled()) {
-            p.getWorld().spawnParticle(Particle.SPLASH, target.clone().add(0, 1, 0), 30, 0.35, 0.45, 0.35, 0.08);
-        }
-        if (areParticlesEnabled()) {
-            p.getWorld().spawnParticle(Particle.BUBBLE, target.clone().add(0, 0.9, 0), 18, 0.4, 0.35, 0.4, 0.05);
-        }
-        SoundPlayer sp = SoundPlayer.of(p.getWorld());
-        sp.play(p.getLocation(), Sound.ITEM_TRIDENT_RIPTIDE_2, 0.75f, 1.2f);
-        sp.play(target, Sound.ENTITY_DOLPHIN_SPLASH, 0.65f, 1.15f);
-        p.setCooldown(Material.HEART_OF_THE_SEA, getCooldownTicks(level));
-        xp(p, getConfig().xpPerBurst);
-        getPlayer(p).getData().addStat("seaborne.tidecaller.dashes", 1);
+            if (isBlockedAhead(p, direction)) {
+                return;
+            }
+
+            boolean wasSwimming = p.isSwimming();
+            org.bukkit.Location target;
+            org.bukkit.Location origin = null;
+
+            if (areParticlesEnabled()) {
+                p.getWorld().spawnParticle(Particle.SPLASH, p.getLocation().add(0, 1, 0), 20, 0.25, 0.35, 0.25, 0.08);
+            }
+
+            if (getConfig().useVelocityDash) {
+                applyVelocityDash(p, direction, level);
+                target = p.getLocation().clone().add(direction.clone().multiply(Math.max(0.35, getDashDistance(level) * 0.35)));
+            } else {
+                origin = p.getLocation().clone();
+                target = findSafeDashTarget(p, getDashDistance(level));
+                if (target == null) {
+                    return;
+                }
+                J.teleport(p, target);
+                applyDashMomentum(p, origin, target);
+            }
+
+            preserveSwimStateAfterDash(p, wasSwimming);
+            if (areParticlesEnabled()) {
+                p.getWorld().spawnParticle(Particle.SPLASH, target.clone().add(0, 1, 0), 30, 0.35, 0.45, 0.35, 0.08);
+            }
+            if (areParticlesEnabled()) {
+                p.getWorld().spawnParticle(Particle.BUBBLE, target.clone().add(0, 0.9, 0), 18, 0.4, 0.35, 0.4, 0.05);
+            }
+            SoundPlayer sp = SoundPlayer.of(p.getWorld());
+            sp.play(p.getLocation(), Sound.ITEM_TRIDENT_RIPTIDE_2, 0.75f, 1.2f);
+            sp.play(target, Sound.ENTITY_DOLPHIN_SPLASH, 0.65f, 1.15f);
+            p.setCooldown(Material.HEART_OF_THE_SEA, getCooldownTicks(level));
+            xp(p, getConfig().xpPerBurst);
+            getPlayer(p).getData().addStat("seaborne.tidecaller.dashes", 1);
+        });
     }
 
     private void applyVelocityDash(Player p, Vector direction, int level) {

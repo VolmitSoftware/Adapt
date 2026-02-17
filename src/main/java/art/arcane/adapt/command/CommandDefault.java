@@ -4,14 +4,14 @@ import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
-import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.skill.SimpleSkill;
+import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.util.command.FConst;
 import art.arcane.adapt.util.decree.DecreeExecutor;
+import art.arcane.adapt.util.decree.context.AdaptationListingHandler;
 import art.arcane.volmlib.util.decree.DecreeOrigin;
 import art.arcane.volmlib.util.decree.annotations.Decree;
 import art.arcane.volmlib.util.decree.annotations.Param;
-import art.arcane.adapt.util.decree.context.AdaptationListingHandler;
 
 import java.io.File;
 import java.io.IOException;

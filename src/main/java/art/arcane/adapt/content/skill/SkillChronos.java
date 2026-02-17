@@ -18,24 +18,17 @@
 
 package art.arcane.adapt.content.skill;
 
-import art.arcane.adapt.Adapt;
-import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
+import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.api.world.AdaptStatTracker;
-import art.arcane.adapt.content.adaptation.chronos.ChronosAberrantTouch;
-import art.arcane.adapt.content.adaptation.chronos.ChronosInstantRecall;
-import art.arcane.adapt.content.adaptation.chronos.ChronosTemporalEcho;
-import art.arcane.adapt.content.adaptation.chronos.ChronosTimeBomb;
-import art.arcane.adapt.content.adaptation.chronos.ChronosTimeInABottle;
+import art.arcane.adapt.content.adaptation.chronos.*;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.scheduling.J;
 import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.EnderPearl;
@@ -53,15 +46,8 @@ import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-
-import art.arcane.adapt.util.common.inventorygui.Window;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
     private final Map<UUID, Location> lastPositions;
@@ -90,17 +76,17 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
         registerAdaptation(new ChronosInstantRecall());
         registerAdaptation(new ChronosTimeBomb());
         registerAdaptation(new ChronosTemporalEcho());
-        lastPositions = new HashMap<>();
-        positionHistory = new HashMap<>();
-        recentActionTypes = new HashMap<>();
-        actionTypeResetTimestamps = new HashMap<>();
-        lastActivityTimestamps = new HashMap<>();
-        sleepCooldowns = new HashMap<>();
-        sleepEntryWorldTime = new HashMap<>();
-        speedPotionTrackers = new HashMap<>();
-        enderPearlCooldowns = new HashMap<>();
-        survivalStreakStart = new HashMap<>();
-        lastSurvivalCheck = new HashMap<>();
+        lastPositions = new ConcurrentHashMap<>();
+        positionHistory = new ConcurrentHashMap<>();
+        recentActionTypes = new ConcurrentHashMap<>();
+        actionTypeResetTimestamps = new ConcurrentHashMap<>();
+        lastActivityTimestamps = new ConcurrentHashMap<>();
+        sleepCooldowns = new ConcurrentHashMap<>();
+        sleepEntryWorldTime = new ConcurrentHashMap<>();
+        speedPotionTrackers = new ConcurrentHashMap<>();
+        enderPearlCooldowns = new ConcurrentHashMap<>();
+        survivalStreakStart = new ConcurrentHashMap<>();
+        lastSurvivalCheck = new ConcurrentHashMap<>();
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.CLOCK)
                 .key("challenge_chronos_1h")
@@ -229,10 +215,10 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
 
         Long resetTime = actionTypeResetTimestamps.get(uuid);
         if (resetTime == null || now - resetTime > getConfig().activityWindow) {
-            recentActionTypes.put(uuid, new HashSet<>());
+            recentActionTypes.put(uuid, ConcurrentHashMap.newKeySet());
             actionTypeResetTimestamps.put(uuid, now);
         }
-        recentActionTypes.computeIfAbsent(uuid, k -> new HashSet<>()).add(actionType);
+        recentActionTypes.computeIfAbsent(uuid, k -> ConcurrentHashMap.newKeySet()).add(actionType);
     }
 
     private boolean isAfk(UUID uuid) {
@@ -260,7 +246,7 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
         }
         variance /= count;
 
-        Set<String> actions = recentActionTypes.getOrDefault(uuid, new HashSet<>());
+        Set<String> actions = recentActionTypes.getOrDefault(uuid, Set.of());
         return variance < getConfig().afkVarianceThreshold && actions.size() < getConfig().afkMinActionTypes;
     }
 
@@ -282,75 +268,73 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
 
         for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
             Player p = adaptPlayer.getPlayer();
-            if (shouldReturnForPlayer(p)) {
-                continue;
-            }
+            shouldReturnForPlayer(p, () -> {
+                UUID uuid = p.getUniqueId();
+                Location current = p.getLocation();
+                Location last = lastPositions.get(uuid);
 
-            UUID uuid = p.getUniqueId();
-            Location current = p.getLocation();
-            Location last = lastPositions.get(uuid);
-
-            // Update position history
-            Deque<Location> history = positionHistory.computeIfAbsent(uuid, k -> new ArrayDeque<>());
-            history.addLast(current.clone());
-            while (history.size() > getConfig().positionHistorySize) {
-                history.removeFirst();
-            }
-
-            double moved = (last != null && last.getWorld() != null && last.getWorld().equals(current.getWorld()))
-                    ? last.distance(current)
-                    : 0;
-
-            // Track movement as an action type
-            if (moved >= getConfig().minimumMovementForActiveCheck) {
-                trackAction(uuid, "movement");
-            }
-
-            double afkMult = getAfkMultiplier(uuid);
-
-            // Movement XP (existing behavior, now with AFK penalty)
-            if (moved >= getConfig().minimumMovementForActiveCheck) {
-                adaptPlayer.getData().addStat("minutes.online", 10);
-                adaptPlayer.getData().addStat("chronos.active.distance", moved);
-                double bonus = (moved / getConfig().distancePerBonusXP) * getConfig().activeMovementXP;
-                xpSilent(p, Math.min(getConfig().activeMovementXPCapPerTick, bonus) * afkMult, "chronos:movement");
-            }
-
-            // Passive active-play XP
-            Long lastActivity = lastActivityTimestamps.get(uuid);
-            if (lastActivity != null && now - lastActivity < getConfig().activityWindow) {
-                double passiveXP = getConfig().passiveActiveXP;
-
-                // Night activity multiplier
-                if (isNight(p)) {
-                    passiveXP *= getConfig().nightActivityMultiplier;
+                // Update position history
+                Deque<Location> history = positionHistory.computeIfAbsent(uuid, k -> new ArrayDeque<>());
+                history.addLast(current.clone());
+                while (history.size() > getConfig().positionHistorySize) {
+                    history.removeFirst();
                 }
 
-                // Activity variety bonus
-                Set<String> actions = recentActionTypes.getOrDefault(uuid, new HashSet<>());
-                if (actions.size() >= getConfig().activityTypesForBonus) {
-                    passiveXP *= getConfig().activityBonusMultiplier;
+                double moved = (last != null && last.getWorld() != null && last.getWorld().equals(current.getWorld()))
+                        ? last.distance(current)
+                        : 0;
+
+                // Track movement as an action type
+                if (moved >= getConfig().minimumMovementForActiveCheck) {
+                    trackAction(uuid, "movement");
                 }
 
-                xpSilent(p, passiveXP * afkMult, "chronos:passive");
-            }
+                double afkMult = getAfkMultiplier(uuid);
 
-            // Survival streak XP
-            survivalStreakStart.putIfAbsent(uuid, now);
-            Long lastCheck = lastSurvivalCheck.get(uuid);
-            if (lastCheck == null || now - lastCheck >= 60000) {
-                lastSurvivalCheck.put(uuid, now);
-                long aliveMs = now - survivalStreakStart.getOrDefault(uuid, now);
-                double aliveHours = aliveMs / 3600000.0;
-                double streakBonus = 1.0 + Math.min(
-                        aliveHours * getConfig().survivalStreakBonusPerHour,
-                        getConfig().survivalStreakHourCap * getConfig().survivalStreakBonusPerHour
-                );
-                xpSilent(p, getConfig().survivalXPPerMinute * streakBonus * afkMult, "chronos:survival");
-            }
+                // Movement XP (existing behavior, now with AFK penalty)
+                if (moved >= getConfig().minimumMovementForActiveCheck) {
+                    adaptPlayer.getData().addStat("minutes.online", 10);
+                    adaptPlayer.getData().addStat("chronos.active.distance", moved);
+                    double bonus = (moved / getConfig().distancePerBonusXP) * getConfig().activeMovementXP;
+                    xpSilent(p, Math.min(getConfig().activeMovementXPCapPerTick, bonus) * afkMult, "chronos:movement");
+                }
 
-            checkStatTrackers(adaptPlayer);
-            lastPositions.put(uuid, current.clone());
+                // Passive active-play XP
+                Long lastActivity = lastActivityTimestamps.get(uuid);
+                if (lastActivity != null && now - lastActivity < getConfig().activityWindow) {
+                    double passiveXP = getConfig().passiveActiveXP;
+
+                    // Night activity multiplier
+                    if (isNight(p)) {
+                        passiveXP *= getConfig().nightActivityMultiplier;
+                    }
+
+                    // Activity variety bonus
+                    Set<String> actions = recentActionTypes.getOrDefault(uuid, Set.of());
+                    if (actions.size() >= getConfig().activityTypesForBonus) {
+                        passiveXP *= getConfig().activityBonusMultiplier;
+                    }
+
+                    xpSilent(p, passiveXP * afkMult, "chronos:passive");
+                }
+
+                // Survival streak XP
+                survivalStreakStart.putIfAbsent(uuid, now);
+                Long lastCheck = lastSurvivalCheck.get(uuid);
+                if (lastCheck == null || now - lastCheck >= 60000) {
+                    lastSurvivalCheck.put(uuid, now);
+                    long aliveMs = now - survivalStreakStart.getOrDefault(uuid, now);
+                    double aliveHours = aliveMs / 3600000.0;
+                    double streakBonus = 1.0 + Math.min(
+                            aliveHours * getConfig().survivalStreakBonusPerHour,
+                            getConfig().survivalStreakHourCap * getConfig().survivalStreakBonusPerHour
+                    );
+                    xpSilent(p, getConfig().survivalXPPerMinute * streakBonus * afkMult, "chronos:survival");
+                }
+
+                checkStatTrackers(adaptPlayer);
+                lastPositions.put(uuid, current.clone());
+            });
         }
     }
 
@@ -358,9 +342,6 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerBedEnterEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         Player p = e.getPlayer();
         shouldReturnForPlayer(p, () -> {
             UUID uuid = p.getUniqueId();
@@ -396,9 +377,6 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerItemConsumeEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         Player p = e.getPlayer();
         shouldReturnForPlayer(p, () -> {
             ItemStack item = e.getItem();
@@ -462,9 +440,6 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(ProjectileLaunchEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         if (!(e.getEntity() instanceof EnderPearl pearl)) {
             return;
         }
@@ -488,9 +463,6 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerTeleportEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         if (e.getCause() != PlayerTeleportEvent.TeleportCause.ENDER_PEARL) {
             return;
         }

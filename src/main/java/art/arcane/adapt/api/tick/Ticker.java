@@ -21,6 +21,7 @@ package art.arcane.adapt.api.tick;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.volmlib.util.collection.KList;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
@@ -92,9 +93,10 @@ public class Ticker {
             return 0D;
         }
 
-        double totalMs = metrics.values().stream()
-                .mapToDouble(metric -> metric.totalNanos.get() / 1_000_000D)
-                .sum();
+        double totalMs = 0D;
+        for (TickMetric metric : metrics.values()) {
+            totalMs += metric.totalNanos.get() / 1_000_000D;
+        }
         double percent = (totalMs / (double) windowMs) * 100D;
         if (!Double.isFinite(percent)) {
             return 0D;
@@ -105,11 +107,16 @@ public class Ticker {
 
     public List<String> topMetrics(int limit) {
         int safeLimit = Math.max(1, limit);
-        return metrics.entrySet().stream()
-                .sorted(Comparator.comparingLong((Map.Entry<String, TickMetric> e) -> e.getValue().totalNanos.get()).reversed())
-                .limit(safeLimit)
-                .map(entry -> formatMetric(entry.getKey(), entry.getValue()))
-                .toList();
+        ArrayList<Map.Entry<String, TickMetric>> entries = new ArrayList<>(metrics.entrySet());
+        entries.sort(Comparator.comparingLong((Map.Entry<String, TickMetric> e) -> e.getValue().totalNanos.get()).reversed());
+
+        int outputSize = Math.min(safeLimit, entries.size());
+        ArrayList<String> top = new ArrayList<>(outputSize);
+        for (int i = 0; i < outputSize; i++) {
+            Map.Entry<String, TickMetric> entry = entries.get(i);
+            top.add(formatMetric(entry.getKey(), entry.getValue()));
+        }
+        return top;
     }
 
     private void tick() {

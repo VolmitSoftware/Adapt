@@ -24,12 +24,12 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.volmlib.util.format.Form;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.math.VelocitySpeed;
+import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
 import lombok.NoArgsConstructor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -47,12 +47,8 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> {
@@ -66,9 +62,9 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
             PotionEffectType.NIGHT_VISION
     };
 
-    private final Map<UUID, Long> procCooldowns = new HashMap<>();
-    private final Map<UUID, Boolean> lowHealthProcs = new HashMap<>();
-    private final Map<UUID, SpeedBurst> speedBursts = new HashMap<>();
+    private final Map<UUID, Long> procCooldowns = new ConcurrentHashMap<>();
+    private final Map<UUID, Boolean> lowHealthProcs = new ConcurrentHashMap<>();
+    private final Map<UUID, SpeedBurst> speedBursts = new ConcurrentHashMap<>();
 
     public TragoulBloodPact() {
         super("tragoul-blood-pact");
@@ -130,48 +126,52 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void on(EntityDamageEvent e) {
-        if (!(e.getEntity() instanceof Player p) || !hasAdaptation(p)) {
+        if (!(e.getEntity() instanceof Player p)) {
             return;
         }
 
-        int level = getLevel(p);
-        if (level <= 0 || e.getFinalDamage() < getMinTriggerDamage()) {
-            return;
-        }
+        withAdaptedPlayer(p, e, () -> {
+            int level = getActiveLevel(p);
+            if (level <= 0 || e.getFinalDamage() < getMinTriggerDamage()) {
+                return;
+            }
 
-        long now = System.currentTimeMillis();
-        long until = procCooldowns.getOrDefault(p.getUniqueId(), 0L);
-        if (now < until) {
-            return;
-        }
+            long now = System.currentTimeMillis();
+            long until = procCooldowns.getOrDefault(p.getUniqueId(), 0L);
+            if (now < until) {
+                return;
+            }
 
-        if (ThreadLocalRandom.current().nextDouble() > getProcChance(level)) {
-            return;
-        }
+            if (ThreadLocalRandom.current().nextDouble() > getProcChance(level)) {
+                return;
+            }
 
-        procCooldowns.put(p.getUniqueId(), now + getProcCooldownMillis(level));
-        getPlayer(p).getData().addStat("tragoul.blood-pact.health-sacrificed", (int) e.getFinalDamage());
-        if (p.getHealth() - e.getFinalDamage() <= 6.0) {
-            lowHealthProcs.put(p.getUniqueId(), true);
-        }
-        applyRandomBuffs(p, level, e.getFinalDamage());
-        if (areParticlesEnabled()) {
-            p.getWorld().spawnParticle(Particle.CRIMSON_SPORE, p.getLocation().add(0, 1.0, 0), 22, 0.28, 0.42, 0.28, 0.02);
-        }
-        SoundPlayer.of(p.getWorld()).play(p.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 0.62f, 1.25f);
-        xp(p, getConfig().xpPerProc);
+            procCooldowns.put(p.getUniqueId(), now + getProcCooldownMillis(level));
+            getPlayer(p).getData().addStat("tragoul.blood-pact.health-sacrificed", (int) e.getFinalDamage());
+            if (p.getHealth() - e.getFinalDamage() <= 6.0) {
+                lowHealthProcs.put(p.getUniqueId(), true);
+            }
+            applyRandomBuffs(p, level, e.getFinalDamage());
+            if (areParticlesEnabled()) {
+                p.getWorld().spawnParticle(Particle.CRIMSON_SPORE, p.getLocation().add(0, 1.0, 0), 22, 0.28, 0.42, 0.28, 0.02);
+            }
+            SoundPlayer.of(p.getWorld()).play(p.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 0.62f, 1.25f);
+            xp(p, getConfig().xpPerProc);
+        });
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void on(EntityDeathEvent e) {
         if (e.getEntity().getLastDamageCause() instanceof EntityDamageByEntityEvent dmgEvent) {
-            if (dmgEvent.getDamager() instanceof Player p && hasAdaptation(p)) {
-                if (p.hasPotionEffect(PotionEffectType.ABSORPTION) || p.hasPotionEffect(PotionEffectType.RESISTANCE)) {
-                    getPlayer(p).getData().addStat("tragoul.blood-pact.empowered-kills", 1);
-                    if (lowHealthProcs.getOrDefault(p.getUniqueId(), false) && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_tragoul_pact_all_in")) {
-                        getPlayer(p).getAdvancementHandler().grant("challenge_tragoul_pact_all_in");
+            if (dmgEvent.getDamager() instanceof Player p) {
+                withAdaptedPlayer(p, () -> {
+                    if (p.hasPotionEffect(PotionEffectType.ABSORPTION) || p.hasPotionEffect(PotionEffectType.RESISTANCE)) {
+                        getPlayer(p).getData().addStat("tragoul.blood-pact.empowered-kills", 1);
+                        if (lowHealthProcs.getOrDefault(p.getUniqueId(), false) && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_tragoul_pact_all_in")) {
+                            getPlayer(p).getAdvancementHandler().grant("challenge_tragoul_pact_all_in");
+                        }
                     }
-                }
+                });
             }
         }
     }
@@ -263,30 +263,36 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
     private void applySpeedBursts(long now) {
         for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
             Player p = adaptPlayer.getPlayer();
-            UUID id = p.getUniqueId();
-            SpeedBurst burst = speedBursts.get(id);
-            if (burst == null) {
+            if (p == null || !p.isOnline()) {
                 continue;
             }
 
-            if (burst.expiresAt <= now) {
-                invalidateSpeedBurst(p, burst, false);
-                speedBursts.remove(id);
-                continue;
-            }
+            withPlayerThread(p, () -> {
+                UUID id = p.getUniqueId();
+                SpeedBurst burst = speedBursts.get(id);
+                if (burst == null) {
+                    return;
+                }
 
-            if (!isVelocityEligible(p)) {
-                invalidateSpeedBurst(p, burst, true);
-                continue;
-            }
+                if (burst.expiresAt <= now) {
+                    invalidateSpeedBurst(p, burst, false);
+                    speedBursts.remove(id);
+                    return;
+                }
 
-            VelocitySpeed.InputSnapshot input = VelocitySpeed.readInput(p, getConfig().fallbackInputVelocityThresholdSquared());
-            if (!input.hasHorizontal()) {
-                brakeSpeedBurst(p, burst);
-                continue;
-            }
+                if (!isVelocityEligible(p)) {
+                    invalidateSpeedBurst(p, burst, true);
+                    return;
+                }
 
-            applySpeedBurst(p, burst, input);
+                VelocitySpeed.InputSnapshot input = VelocitySpeed.readInput(p, getConfig().fallbackInputVelocityThresholdSquared());
+                if (!input.hasHorizontal()) {
+                    brakeSpeedBurst(p, burst);
+                    return;
+                }
+
+                applySpeedBurst(p, burst, input);
+            });
         }
     }
 

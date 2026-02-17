@@ -18,8 +18,6 @@
 
 package art.arcane.adapt.content.adaptation.architect;
 
-import static art.arcane.adapt.api.adaptation.chunk.ChunkLoading.loadChunkAsync;
-
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -27,21 +25,16 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.content.item.BoundRedstoneTorch;
-import art.arcane.volmlib.util.io.IO;
-import art.arcane.volmlib.util.math.M;
-
-import java.util.HashMap;
-import java.util.Map;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
+import art.arcane.adapt.util.common.misc.SoundPlayer;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.math.M;
 import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
-import org.bukkit.Color;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.AnaloguePowerable;
 import org.bukkit.block.data.BlockData;
@@ -54,17 +47,13 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Map;
+import java.util.UUID;
 
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
-import art.arcane.adapt.util.common.scheduling.J;
-import art.arcane.adapt.util.reflect.events.api.Event;
-import art.arcane.adapt.util.reflect.registries.Particles;
+import static art.arcane.adapt.api.adaptation.chunk.ChunkLoading.loadChunkAsync;
 
 public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWirelessRedstone.Config> {
-    private final Map<Player, Long> cooldowns;
+    private final Map<UUID, Long> cooldowns;
 
     public ArchitectWirelessRedstone() {
         super("architect-wireless-redstone");
@@ -84,7 +73,7 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
                 .ingredient(Material.ENDER_PEARL)
                 .result(BoundRedstoneTorch.io.withData(new BoundRedstoneTorch.Data(null)))
                 .build());
-        cooldowns = new HashMap<>();
+        cooldowns = new java.util.concurrent.ConcurrentHashMap<>();
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.REDSTONE)
                 .key("challenge_architect_wireless_100")
@@ -139,25 +128,22 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
         }
 
         Player player = event.getPlayer();
+        withPlayerThread(player, event, () -> {
+            if (resolveInteractContext(player, player.getLocation()) == null) {
+                return;
+            }
 
-        if (!hasAdaptation(player)) {
-            return;
-        }
+            boolean canUseInCreative = AdaptConfig.get().allowAdaptationsInCreative;
+            boolean inCreative = player.getGameMode() == GameMode.CREATIVE;
+            if (inCreative && !canUseInCreative) {
+                return;
+            }
 
-        boolean canUseInCreative = AdaptConfig.get().allowAdaptationsInCreative;
-        boolean inCreative = player.getGameMode() == GameMode.CREATIVE;
-        if (inCreative && !canUseInCreative) {
-            return;
-        }
-
-        if (!canInteract(event.getPlayer(), event.getPlayer().getLocation())) {
-            return;
-        }
-
-        switch (event.getAction()) {
-            case LEFT_CLICK_BLOCK -> handleLeftClickBlock(event, player);
-            case RIGHT_CLICK_AIR, RIGHT_CLICK_BLOCK -> handleRightClick(event, player);
-        }
+            switch (event.getAction()) {
+                case LEFT_CLICK_BLOCK -> handleLeftClickBlock(event, player);
+                case RIGHT_CLICK_AIR, RIGHT_CLICK_BLOCK -> handleRightClick(event, player);
+            }
+        });
     }
 
 
@@ -202,7 +188,7 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
             SoundPlayer sp = SoundPlayer.of(player);
             sp.play(player.getLocation(), Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 0.1f, 0.9f);
         } else {
-            cooldowns.put(player, System.currentTimeMillis() + getConfig().cooldown);
+            cooldowns.put(player.getUniqueId(), System.currentTimeMillis() + getConfig().cooldown);
             updatePlayerCooldown(player, false);
             triggerPulse(player, event.getItem());
         }
@@ -214,12 +200,12 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
 
 
     private boolean hasCooldown(Player i) {
-        if (cooldowns.containsKey(i)) {
-            if (M.ms() >= cooldowns.get(i)) {
-                cooldowns.remove(i);
+        if (cooldowns.containsKey(i.getUniqueId())) {
+            if (M.ms() >= cooldowns.get(i.getUniqueId())) {
+                cooldowns.remove(i.getUniqueId());
             }
         }
-        return cooldowns.containsKey(i);
+        return cooldowns.containsKey(i.getUniqueId());
     }
 
 
@@ -283,13 +269,16 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
     public void onTick() {
         for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
             Player p = adaptPlayer.getPlayer();
+            if (p == null || !p.isOnline()) {
+                continue;
+            }
             ItemStack hand = p.getInventory().getItemInMainHand();
             ItemStack offhand = p.getInventory().getItemInOffHand();
             if ((isRedstoneTorch(hand) && BoundRedstoneTorch.hasItemData(hand)) || (
                 isRedstoneTorch(offhand) && BoundRedstoneTorch.hasItemData(offhand))) {
-                J.runEntity(p, () -> updatePlayerCooldown(p, false));
+                withPlayerThread(p, () -> updatePlayerCooldown(p, false));
             } else {
-                J.runEntity(p, () -> updatePlayerCooldown(p, true));
+                withPlayerThread(p, () -> updatePlayerCooldown(p, true));
             }
         }
     }

@@ -19,10 +19,9 @@
 package art.arcane.adapt.util.common.misc;
 
 import art.arcane.adapt.Adapt;
-import org.bukkit.ChatColor;
-
 import art.arcane.adapt.util.common.format.HiddenStringUtils;
 import art.arcane.adapt.util.common.io.Json;
+import org.bukkit.ChatColor;
 
 public class DirtyString {
 

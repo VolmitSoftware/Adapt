@@ -1,7 +1,5 @@
 package art.arcane.adapt.util.project.redis;
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.world.PlayerData;
@@ -9,6 +7,8 @@ import art.arcane.adapt.util.project.redis.codec.Codec;
 import art.arcane.adapt.util.project.redis.codec.DataMessage;
 import art.arcane.adapt.util.project.redis.codec.DataRequest;
 import art.arcane.adapt.util.project.redis.codec.Message;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.pubsub.api.reactive.ChannelMessage;
 import io.lettuce.core.pubsub.api.reactive.RedisPubSubReactiveCommands;

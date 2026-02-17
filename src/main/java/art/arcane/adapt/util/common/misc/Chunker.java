@@ -18,8 +18,9 @@
 
 package art.arcane.adapt.util.common.misc;
 
-import art.arcane.volmlib.util.scheduling.ChronoLatch;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.volmlib.util.scheduling.Callback;
+import art.arcane.volmlib.util.scheduling.ChronoLatch;
 import art.arcane.volmlib.util.scheduling.Contained;
 
 import java.util.List;
@@ -27,8 +28,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-
-import art.arcane.adapt.util.common.scheduling.J;
 
 public class Chunker<T> {
     private final List<T> q;

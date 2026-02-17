@@ -17,17 +17,19 @@
  -----------------------------------------------------------------------------*/
 
 package art.arcane.adapt.content.adaptation.pickaxe;
-import art.arcane.volmlib.util.format.Form;
 
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
-import art.arcane.volmlib.util.io.IO;
-import art.arcane.volmlib.util.math.M;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
+import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
+import art.arcane.volmlib.util.format.Form;
+import art.arcane.volmlib.util.math.M;
 import lombok.NoArgsConstructor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -39,11 +41,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 
 public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
     public PickaxeChisel() {
@@ -95,7 +92,7 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
     public void on(PlayerInteractEvent e) {
         Player p = e.getPlayer();
 
-        if (e.getClickedBlock() != null && e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && isPickaxe(p.getInventory().getItemInMainHand()) && hasAdaptation(p)) {
+        if (e.getClickedBlock() != null && e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && isPickaxe(p.getInventory().getItemInMainHand()) && hasActiveAdaptation(p)) {
             if (p.getInventory().getItemInMainHand().getEnchantments().containsKey(Enchantment.SILK_TOUCH) || p.getInventory().getItemInMainHand().getEnchantments().containsKey(Enchantment.MENDING)) {
                 return;
             }

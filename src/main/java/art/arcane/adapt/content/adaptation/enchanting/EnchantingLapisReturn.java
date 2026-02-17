@@ -22,10 +22,9 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -36,13 +35,12 @@ import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisReturn.Config> {
-    private final Map<UUID, Long> cooldown = new HashMap<>();
+    private final Map<UUID, Long> cooldown = new java.util.concurrent.ConcurrentHashMap<>();
 
     public EnchantingLapisReturn() {
         super("enchanting-lapis-return");
@@ -88,12 +86,10 @@ public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisRetur
 
     @EventHandler(priority = EventPriority.HIGH)
     public void on(EnchantItemEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
 
         Player p = e.getEnchanter();
-        if (!hasAdaptation(p)) {
+        int level = getActiveLevel(p);
+        if (level <= 0) {
             return;
         }
 
@@ -107,8 +103,8 @@ public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisRetur
             }
 
             cooldown.put(playerId, now + 20000L);
-            p.getWorld().dropItemNaturally(p.getLocation(), new ItemStack(Material.LAPIS_LAZULI, getLevel(p)));
-            getPlayer(p).getData().addStat("enchanting.lapis-return.lapis-saved", getLevel(p));
+            p.getWorld().dropItemNaturally(p.getLocation(), new ItemStack(Material.LAPIS_LAZULI, level));
+            getPlayer(p).getData().addStat("enchanting.lapis-return.lapis-saved", level);
         }
     }
 

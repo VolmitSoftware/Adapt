@@ -22,13 +22,15 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.api.world.PlayerAdaptation;
 import art.arcane.adapt.api.world.PlayerSkillLine;
-import art.arcane.volmlib.util.io.IO;
-import art.arcane.volmlib.util.math.M;
-import art.arcane.adapt.util.reflect.registries.Particles;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
+import art.arcane.adapt.util.common.misc.SoundPlayer;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import lombok.NoArgsConstructor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -40,12 +42,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
-
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
-import art.arcane.adapt.util.common.scheduling.J;
 
 import java.util.*;
 
@@ -91,9 +87,6 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockBreakEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
 
         if (VEIN_MINED.get(e.getBlock())) {
             return;
@@ -101,7 +94,7 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
 
         Player p = e.getPlayer();
         SoundPlayer sp = SoundPlayer.of(p);
-        if (!hasAdaptation(p)) {
+        if (!hasActiveAdaptation(p)) {
             return;
         }
 
@@ -121,7 +114,7 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
         VEIN_MINED.add(e.getBlock());
 
         Block block = e.getBlock();
-        Map<Location, Block> blockMap = new HashMap<>();
+        Map<Location, Block> blockMap = new java.util.concurrent.ConcurrentHashMap<>();
         Deque<Block> stack = new LinkedList<>();
         stack.push(block);
         int radius = getRadius(getLevel(p));

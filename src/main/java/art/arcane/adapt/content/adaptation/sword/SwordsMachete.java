@@ -17,19 +17,22 @@
  -----------------------------------------------------------------------------*/
 
 package art.arcane.adapt.content.adaptation.sword;
-import art.arcane.volmlib.util.format.Form;
-import art.arcane.volmlib.util.math.RNG;
 
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
-import art.arcane.volmlib.util.data.Cuboid;
-import art.arcane.volmlib.util.io.IO;
-import art.arcane.volmlib.util.math.M;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
+import art.arcane.adapt.util.common.misc.SoundPlayer;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Materials;
+import art.arcane.volmlib.util.data.Cuboid;
+import art.arcane.volmlib.util.format.Form;
+import art.arcane.volmlib.util.math.M;
+import art.arcane.volmlib.util.math.RNG;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -45,13 +48,6 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.concurrent.ThreadLocalRandom;
-
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
-import art.arcane.adapt.util.common.scheduling.J;
-import art.arcane.adapt.util.reflect.registries.Particles;
 
 public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
     public SwordsMachete() {
@@ -104,7 +100,7 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
             int dmg = 0;
             ItemStack is = e.getItem();
             if (isSword(is)) {
-                if (is != null && !p.hasCooldown(is.getType()) && hasAdaptation(p)) {
+                if (is != null && !p.hasCooldown(is.getType()) && hasActiveAdaptation(p)) {
                     Location ctr = p.getEyeLocation().clone().add(p.getLocation().getDirection().clone().multiply(2.25)).add(0, -0.5, 0);
 
                     int lvl = getLevel(p);

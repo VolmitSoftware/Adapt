@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.util.common.math;
 
+import art.arcane.adapt.util.common.collection.GBiset;
 import art.arcane.volmlib.util.data.Cuboid.CuboidDirection;
 import art.arcane.volmlib.util.math.DOP;
 import org.bukkit.Axis;
@@ -28,8 +29,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import art.arcane.adapt.util.common.collection.GBiset;
 
 /**
  * Directions

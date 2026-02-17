@@ -24,14 +24,13 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.content.adaptation.sword.effects.DamagingBleedEffect;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.volmlib.util.format.Form;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
 import de.slikey.effectlib.effect.BleedEffect;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -45,8 +44,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
-
-import art.arcane.adapt.util.reflect.registries.Particles;
 
 public class SwordsCrimsonCyclone extends SimpleAdaptation<SwordsCrimsonCyclone.Config> {
     public SwordsCrimsonCyclone() {
@@ -97,28 +94,19 @@ public class SwordsCrimsonCyclone extends SimpleAdaptation<SwordsCrimsonCyclone.
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void on(EntityDamageByEntityEvent e) {
-        if (!(e.getDamager() instanceof Player p) || !(e.getEntity() instanceof LivingEntity primaryTarget)) {
+        var combat = resolveMeleeContext(e, this::isSword);
+        if (combat == null) {
             return;
         }
 
-        if (!hasAdaptation(p)) {
+        Player p = combat.attacker();
+        LivingEntity primaryTarget = combat.target();
+        ItemStack hand = combat.mainHand();
+        if (!isCritTrigger(p)) {
             return;
         }
 
-        ItemStack hand = p.getInventory().getItemInMainHand();
-        if (!isSword(hand) || p.hasCooldown(hand.getType()) || !isCritTrigger(p)) {
-            return;
-        }
-
-        if (primaryTarget instanceof Player victim) {
-            if (!canPVP(p, victim.getLocation())) {
-                return;
-            }
-        } else if (!canPVE(p, primaryTarget.getLocation())) {
-            return;
-        }
-
-        int level = getLevel(p);
+        int level = combat.level();
         int hungerCost = getHungerCost(level);
         if (p.getFoodLevel() < hungerCost) {
             return;
@@ -150,11 +138,7 @@ public class SwordsCrimsonCyclone extends SimpleAdaptation<SwordsCrimsonCyclone.
                 continue;
             }
 
-            if (target instanceof Player victim) {
-                if (!canPVP(p, victim.getLocation())) {
-                    continue;
-                }
-            } else if (!canPVE(p, target.getLocation())) {
+            if (!canDamageTarget(p, target)) {
                 continue;
             }
 

@@ -19,8 +19,6 @@
 package art.arcane.adapt.util.common.inventorygui;
 
 
-import art.arcane.adapt.util.reflect.events.api.Event;
-
 /**
  * Element Event.
  *

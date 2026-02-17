@@ -23,23 +23,18 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.volmlib.util.format.Form;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
 import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.Event;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -48,7 +43,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.EventExecutor;
 
 import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
@@ -58,8 +52,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class DiscoveryArchaeologist extends SimpleAdaptation<DiscoveryArchaeologist.Config> {
     private static final String BLOCK_BRUSH_EVENT_CLASS = "org.bukkit.event.block.BlockBrushEvent";
     private static final long BRUSH_FALLBACK_WINDOW_MILLIS = 25000L;
-    private final Map<UUID, Long> cooldowns = new HashMap<>();
-    private final Map<UUID, PendingBrush> pendingBrushes = new HashMap<>();
+    private final Map<UUID, Long> cooldowns = new java.util.concurrent.ConcurrentHashMap<>();
+    private final Map<UUID, PendingBrush> pendingBrushes = new java.util.concurrent.ConcurrentHashMap<>();
     private final AtomicBoolean brushEventFailureWarned = new AtomicBoolean(false);
     private final BrushEventBridge brushEventBridge;
 
@@ -127,7 +121,7 @@ public class DiscoveryArchaeologist extends SimpleAdaptation<DiscoveryArchaeolog
         }
 
         Player p = e.getPlayer();
-        if (!hasAdaptation(p) || !canBlockBreak(p, block.getLocation())) {
+        if (getActiveBlockBreakLevel(p, block.getLocation()) <= 0) {
             return;
         }
 
@@ -173,7 +167,8 @@ public class DiscoveryArchaeologist extends SimpleAdaptation<DiscoveryArchaeolog
             return;
         }
 
-        if (!hasAdaptation(p)) {
+        int level = getActiveLevel(p);
+        if (level <= 0) {
             return;
         }
 
@@ -190,7 +185,6 @@ public class DiscoveryArchaeologist extends SimpleAdaptation<DiscoveryArchaeolog
             return;
         }
 
-        int level = getLevel(p);
         long now = System.currentTimeMillis();
         long nextReady = cooldowns.getOrDefault(p.getUniqueId(), 0L);
         if (now < nextReady) {
@@ -332,7 +326,12 @@ public class DiscoveryArchaeologist extends SimpleAdaptation<DiscoveryArchaeolog
             }
 
             Player p = Bukkit.getPlayer(entry.getKey());
-            if (p == null || !p.isOnline() || !hasAdaptation(p)) {
+            if (p == null || !p.isOnline()) {
+                iterator.remove();
+                continue;
+            }
+
+            if (!hasActiveAdaptation(p)) {
                 iterator.remove();
                 continue;
             }

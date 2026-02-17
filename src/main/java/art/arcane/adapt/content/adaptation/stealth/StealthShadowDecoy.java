@@ -23,25 +23,15 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.volmlib.util.format.Form;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
 import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
-import org.bukkit.World;
-import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Mob;
-import org.bukkit.entity.Player;
+import org.bukkit.*;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -60,24 +50,15 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Config> {
     private static final PacketDecoyBridge PACKET_DECOY = PacketDecoyBridge.create();
 
-    private final Map<UUID, Long> cooldowns = new HashMap<>();
-    private final Map<UUID, DecoyState> activeDecoys = new HashMap<>();
-    private final Map<UUID, UUID> anchorOwners = new HashMap<>();
-    private final Map<UUID, Long> ownerEquipmentMaskSync = new HashMap<>();
+    private final Map<UUID, Long> cooldowns = new java.util.concurrent.ConcurrentHashMap<>();
+    private final Map<UUID, DecoyState> activeDecoys = new java.util.concurrent.ConcurrentHashMap<>();
+    private final Map<UUID, UUID> anchorOwners = new java.util.concurrent.ConcurrentHashMap<>();
+    private final Map<UUID, Long> ownerEquipmentMaskSync = new java.util.concurrent.ConcurrentHashMap<>();
 
     public StealthShadowDecoy() {
         super("stealth-shadow-decoy");
@@ -206,11 +187,15 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void on(PlayerToggleSneakEvent e) {
         Player p = e.getPlayer();
-        if (e.isSneaking() || !hasAdaptation(p)) {
+        if (e.isSneaking()) {
             return;
         }
 
-        int level = getLevel(p);
+        int level = getActiveLevel(p);
+        if (level <= 0) {
+            return;
+        }
+
         long now = System.currentTimeMillis();
         if (now < cooldowns.getOrDefault(p.getUniqueId(), 0L)) {
             return;
@@ -504,7 +489,7 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
             this.entityId = entityId;
             this.nmsEntity = nmsEntity;
             this.removeTabAt = System.currentTimeMillis() + Math.max(0, tabListRemoveDelayTicks) * 50L;
-            this.knownViewers = new HashSet<>();
+            this.knownViewers = java.util.concurrent.ConcurrentHashMap.newKeySet();
             this.removedFromTab = false;
             this.spawnPlayerInfoPacket = null;
             this.spawnAddEntityPacket = null;

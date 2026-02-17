@@ -18,9 +18,8 @@
 
 package art.arcane.adapt.util.common.inventorygui;
 
-import org.bukkit.Material;
-
 import art.arcane.adapt.util.common.math.MaterialBlock;
+import org.bukkit.Material;
 
 public class UIStaticDecorator implements WindowDecorator {
     private final Element element;

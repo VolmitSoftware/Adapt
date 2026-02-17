@@ -22,10 +22,9 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -35,11 +34,11 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class EnchantingXPReturn extends SimpleAdaptation<EnchantingXPReturn.Config> {
-    private final Map<Player, Long> cooldown = new HashMap<>();
+    private final Map<UUID, Long> cooldown = new java.util.concurrent.ConcurrentHashMap<>();
 
     public EnchantingXPReturn() {
         super("enchanting-xp-return");
@@ -72,27 +71,24 @@ public class EnchantingXPReturn extends SimpleAdaptation<EnchantingXPReturn.Conf
     @EventHandler
     public void on(PlayerQuitEvent e) {
         Player p = e.getPlayer();
-        cooldown.remove(p);
+        cooldown.remove(p.getUniqueId());
     }
 
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EnchantItemEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
-        int level = getLevel(e.getEnchanter());
         Player p = e.getEnchanter();
-        if (!hasAdaptation(p)) {
+        int level = getActiveLevel(p);
+        if (level <= 0) {
             return;
         }
 
-        if (cooldown.containsKey(p) && cooldown.get(p) + 20000 < System.currentTimeMillis()) {
-            cooldown.remove(p);
-        } else if (cooldown.containsKey(p) && cooldown.get(p) + 20000 > System.currentTimeMillis()) {
+        if (cooldown.containsKey(p.getUniqueId()) && cooldown.get(p.getUniqueId()) + 20000 < System.currentTimeMillis()) {
+            cooldown.remove(p.getUniqueId());
+        } else if (cooldown.containsKey(p.getUniqueId()) && cooldown.get(p.getUniqueId()) + 20000 > System.currentTimeMillis()) {
             return;
         }
-        cooldown.put(p, System.currentTimeMillis());
+        cooldown.put(p.getUniqueId(), System.currentTimeMillis());
         int xpAmount = getConfig().xpReturn * (level * level);
         p.getWorld().spawn(p.getLocation(), org.bukkit.entity.ExperienceOrb.class).setExperience(xpAmount);
         getPlayer(p).getData().addStat("enchanting.xp-return.levels-saved", xpAmount);

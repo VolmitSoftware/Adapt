@@ -18,21 +18,20 @@
 
 package art.arcane.adapt.content.skill;
 
-import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
+import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.version.Version;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.content.adaptation.chronos.ChronosInstantRecall;
 import art.arcane.adapt.content.adaptation.rift.*;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.volmlib.util.math.M;
-import art.arcane.volmlib.util.collection.KMap;
+import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.adapt.util.reflect.registries.EntityTypes;
+import art.arcane.volmlib.util.collection.KMap;
+import art.arcane.volmlib.util.math.M;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -45,8 +44,10 @@ import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
+import java.util.UUID;
+
 public class SkillRift extends SimpleSkill<SkillRift.Config> {
-    private final KMap<Player, Long> lasttp;
+    private final KMap<UUID, Long> lasttp;
 
     public SkillRift() {
         super("rift", Localizer.dLocalize("skill.rift.icon"));
@@ -189,9 +190,6 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerTeleportEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         Player p = e.getPlayer();
         if (ChronosInstantRecall.isRecallTeleportSuppressed(p)) {
             return;
@@ -199,18 +197,15 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
 
         shouldReturnForPlayer(e.getPlayer(), e, () -> {
             getPlayer(p).getData().addStat("rift.teleports", 1);
-            if (!lasttp.containsKey(p)) {
+            if (!lasttp.containsKey(p.getUniqueId())) {
                 xpSilent(p, getConfig().teleportXP, "rift:teleport");
-                lasttp.put(p, M.ms());
+                lasttp.put(p.getUniqueId(), M.ms());
             }
         });
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(ProjectileLaunchEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         if (!(e.getEntity().getShooter() instanceof Player p)) {
             return;
         }
@@ -254,9 +249,6 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(EntityDamageByEntityEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         if (e.getDamager() instanceof Player p) {
             shouldReturnForPlayer(p, e, () -> handleEntityDamageByEntity(e.getEntity(), p, e.getDamage()));
         } else if (e.getDamager() instanceof Projectile j && j.getShooter() instanceof Player p) {
@@ -278,7 +270,7 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerQuitEvent e) {
         Player p = e.getPlayer();
-        lasttp.remove(p);
+        lasttp.remove(p.getUniqueId());
     }
 
     @Override
@@ -286,10 +278,16 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
         if (!this.isEnabled()) {
             return;
         }
-        for (Player i : lasttp.k()) {
-            shouldReturnForPlayer(i, () -> {
-                if (M.ms() - lasttp.get(i) > getConfig().teleportXPCooldown) {
-                    lasttp.remove(i);
+        for (UUID playerId : lasttp.k()) {
+            Player player = Bukkit.getPlayer(playerId);
+            if (player == null || !player.isOnline()) {
+                lasttp.remove(playerId);
+                continue;
+            }
+
+            shouldReturnForPlayer(player, () -> {
+                if (M.ms() - lasttp.get(playerId) > getConfig().teleportXPCooldown) {
+                    lasttp.remove(playerId);
                 }
             });
         }

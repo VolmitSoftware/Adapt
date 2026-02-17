@@ -22,19 +22,14 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.volmlib.util.format.Form;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
-import org.bukkit.entity.AbstractArrow;
-import org.bukkit.entity.Fireball;
-import org.bukkit.entity.Ghast;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.WitherSkeleton;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -72,51 +67,63 @@ public class NetherGhastWard extends SimpleAdaptation<NetherGhastWard.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
-        if (e.isCancelled() || !(e.getEntity() instanceof Player p) || !hasAdaptation(p) || !isNether(p)) {
+        if (!(e.getEntity() instanceof Player p)) {
             return;
         }
 
-        int level = getLevel(p);
-        if (e.getDamager() instanceof Fireball fireball && fireball.getShooter() instanceof Ghast) {
-            double before = e.getDamage();
-            e.setDamage(Math.max(0, e.getDamage() * (1D - getGhastProjectileReduction(level))));
-            p.setFireTicks(Math.min(p.getFireTicks(), getMaxFireTicks(level)));
-            xp(p, e.getDamage() * getConfig().xpPerMitigatedDamage);
-            int reduced = (int) Math.round(before - e.getDamage());
-            if (reduced > 0) {
-                getPlayer(p).getData().addStat("nether.ghast-ward.damage-reduced", reduced);
+        withAdaptedPlayer(p, e, () -> {
+            if (!isNether(p)) {
+                return;
             }
-            return;
-        }
 
-        if (e.getDamager() instanceof AbstractArrow arrow && arrow.getShooter() instanceof WitherSkeleton) {
-            double before = e.getDamage();
-            e.setDamage(Math.max(0, e.getDamage() * (1D - getWitherSkeletonReduction(level))));
-            xp(p, e.getDamage() * getConfig().xpPerMitigatedDamage);
-            int reduced = (int) Math.round(before - e.getDamage());
-            if (reduced > 0) {
-                getPlayer(p).getData().addStat("nether.ghast-ward.damage-reduced", reduced);
+            int level = getActiveLevel(p);
+            if (e.getDamager() instanceof Fireball fireball && fireball.getShooter() instanceof Ghast) {
+                double before = e.getDamage();
+                e.setDamage(Math.max(0, e.getDamage() * (1D - getGhastProjectileReduction(level))));
+                p.setFireTicks(Math.min(p.getFireTicks(), getMaxFireTicks(level)));
+                xp(p, e.getDamage() * getConfig().xpPerMitigatedDamage);
+                int reduced = (int) Math.round(before - e.getDamage());
+                if (reduced > 0) {
+                    getPlayer(p).getData().addStat("nether.ghast-ward.damage-reduced", reduced);
+                }
+                return;
             }
-        }
+
+            if (e.getDamager() instanceof AbstractArrow arrow && arrow.getShooter() instanceof WitherSkeleton) {
+                double before = e.getDamage();
+                e.setDamage(Math.max(0, e.getDamage() * (1D - getWitherSkeletonReduction(level))));
+                xp(p, e.getDamage() * getConfig().xpPerMitigatedDamage);
+                int reduced = (int) Math.round(before - e.getDamage());
+                if (reduced > 0) {
+                    getPlayer(p).getData().addStat("nether.ghast-ward.damage-reduced", reduced);
+                }
+            }
+        });
     }
 
     @EventHandler(priority = EventPriority.HIGH)
     public void on(EntityDamageEvent e) {
-        if (e.isCancelled() || e instanceof EntityDamageByEntityEvent || !(e.getEntity() instanceof Player p) || !hasAdaptation(p) || !isNether(p)) {
+        if (e instanceof EntityDamageByEntityEvent || !(e.getEntity() instanceof Player p)) {
             return;
         }
 
-        if (e.getCause() != EntityDamageEvent.DamageCause.ENTITY_EXPLOSION && e.getCause() != EntityDamageEvent.DamageCause.BLOCK_EXPLOSION) {
-            return;
-        }
+        withAdaptedPlayer(p, e, () -> {
+            if (!isNether(p)) {
+                return;
+            }
 
-        double before = e.getDamage();
-        e.setDamage(Math.max(0, e.getDamage() * (1D - getExplosionReduction(getLevel(p)))));
-        xp(p, e.getDamage() * getConfig().xpPerMitigatedDamage);
-        int reduced = (int) Math.round(before - e.getDamage());
-        if (reduced > 0) {
-            getPlayer(p).getData().addStat("nether.ghast-ward.damage-reduced", reduced);
-        }
+            if (e.getCause() != EntityDamageEvent.DamageCause.ENTITY_EXPLOSION && e.getCause() != EntityDamageEvent.DamageCause.BLOCK_EXPLOSION) {
+                return;
+            }
+
+            double before = e.getDamage();
+            e.setDamage(Math.max(0, e.getDamage() * (1D - getExplosionReduction(getLevel(p)))));
+            xp(p, e.getDamage() * getConfig().xpPerMitigatedDamage);
+            int reduced = (int) Math.round(before - e.getDamage());
+            if (reduced > 0) {
+                getPlayer(p).getData().addStat("nether.ghast-ward.damage-reduced", reduced);
+            }
+        });
     }
 
     private boolean isNether(Player p) {

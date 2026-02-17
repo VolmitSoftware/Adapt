@@ -21,8 +21,8 @@ package art.arcane.adapt.content.adaptation.crafting;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdvancementSpec;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -32,12 +32,12 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 
 public class CraftingXP extends SimpleAdaptation<CraftingXP.Config> {
-    private final Map<Player, Long> cooldown = new HashMap<>();
+    private final Map<UUID, Long> cooldown = new java.util.concurrent.ConcurrentHashMap<>();
 
 
     public CraftingXP() {
@@ -76,26 +76,23 @@ public class CraftingXP extends SimpleAdaptation<CraftingXP.Config> {
     @EventHandler
     public void on(PlayerQuitEvent e) {
         Player p = e.getPlayer();
-        cooldown.remove(p);
+        cooldown.remove(p.getUniqueId());
     }
 
 
     @EventHandler(priority = EventPriority.LOW)
     public void on(CraftItemEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         Player p = (Player) e.getWhoClicked();
-        if (e.getInventory().getResult() != null && !e.isCancelled() && hasAdaptation(p) && e.getInventory().getResult().getAmount() > 0) {
+        if (e.getInventory().getResult() != null && hasActiveAdaptation(p) && e.getInventory().getResult().getAmount() > 0) {
             if (e.getInventory().getResult() != null && e.getCursor() != null && e.getCursor().getAmount() < 64) {
                 if (p.getInventory().addItem(e.getCurrentItem()).isEmpty()) {
                     p.getInventory().removeItem(e.getCurrentItem());
-                    if (cooldown.containsKey(p) && cooldown.get(p) + 20000 < System.currentTimeMillis()) {
-                        cooldown.remove(p);
-                    } else if (cooldown.containsKey(p) && cooldown.get(p) + 20000 > System.currentTimeMillis()) {
+                    if (cooldown.containsKey(p.getUniqueId()) && cooldown.get(p.getUniqueId()) + 20000 < System.currentTimeMillis()) {
+                        cooldown.remove(p.getUniqueId());
+                    } else if (cooldown.containsKey(p.getUniqueId()) && cooldown.get(p.getUniqueId()) + 20000 > System.currentTimeMillis()) {
                         return;
                     }
-                    cooldown.put(p, System.currentTimeMillis());
+                    cooldown.put(p.getUniqueId(), System.currentTimeMillis());
                     p.getWorld().spawn(p.getLocation(), org.bukkit.entity.ExperienceOrb.class).setExperience(getLevel(p) * 2);
                     getPlayer(p).getData().addStat("crafting.xp.items-crafted", 1);
                 }

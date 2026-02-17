@@ -19,18 +19,16 @@
 package art.arcane.adapt.api.skill;
 
 import art.arcane.adapt.Adapt;
-import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
-import art.arcane.adapt.api.runtime.AdaptationGate;
 import art.arcane.adapt.api.tick.TickedObject;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.content.item.ItemListings;
-import art.arcane.volmlib.util.io.IO;
-import art.arcane.volmlib.util.math.M;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigFileSupport;
 import art.arcane.volmlib.util.collection.KList;
 import lombok.Data;
@@ -45,9 +43,6 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.UUID;
-
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.scheduling.J;
 
 @EqualsAndHashCode(callSuper = false)
 @Data
@@ -238,88 +233,27 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
     }
 
     protected boolean shouldReturnForPlayer(Player p) {
-        try {
-            if (p == null) {
-                return true;
-            }
-
-            if (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(p)) {
-                return true;
-            }
-
-            Adapt.verbose("Checking " + p.getName() + " for " + getName());
-            return AdaptationGate.shouldSkipPlayer(p, this, getPlayer(p) != null);
-        } catch (Exception ex) {
-            Adapt.verbose("Failed shouldReturnForPlayer check for " + (p == null ? "null" : p.getName())
-                    + " in skill " + getName() + ": " + ex.getClass().getSimpleName()
-                    + (ex.getMessage() == null ? "" : " - " + ex.getMessage()));
-            return true;
-        }
+        return SkillRuntimeGuards.shouldSkipPlayer(this, p);
     }
+
     protected void shouldReturnForPlayer(Player p, Runnable r) {
-        try {
-            if (p == null || r == null) {
-                return;
-            }
-
-            if (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(p)) {
-                J.runEntity(p, () -> shouldReturnForPlayer(p, r));
-                return;
-            }
-
-            if (shouldReturnForPlayer(p)) {
-                return;
-            }
-            r.run();
-        } catch (Exception ex) {
-            Adapt.verbose("Failed guarded player runnable for skill " + getName() + ": "
-                    + ex.getClass().getSimpleName()
-                    + (ex.getMessage() == null ? "" : " - " + ex.getMessage()));
-        }
+        SkillRuntimeGuards.withPlayer(this, p, r);
     }
 
     protected void shouldReturnForPlayer(Player p, Cancellable c, Runnable r) {
-        try {
-            if (p == null || c == null || r == null) {
-                return;
-            }
-
-            if (c.isCancelled()) {
-                return;
-            }
-
-            if (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(p)) {
-                return;
-            }
-
-            if (shouldReturnForPlayer(p)) {
-                return;
-            }
-            r.run();
-        } catch (Exception ex) {
-            Adapt.verbose("Failed guarded cancellable player runnable for skill " + getName() + ": "
-                    + ex.getClass().getSimpleName()
-                    + (ex.getMessage() == null ? "" : " - " + ex.getMessage()));
-        }
+        SkillRuntimeGuards.withPlayer(this, p, c, r);
     }
 
     protected boolean shouldReturnForWorld(World world, Skill<?> skill) {
-        try {
-            return AdaptationGate.shouldSkipWorld(world, skill);
-        } catch (Exception ex) {
-            Adapt.verbose("Failed shouldReturnForWorld check for skill " + (skill == null ? "null" : skill.getName())
-                    + ": " + ex.getClass().getSimpleName()
-                    + (ex.getMessage() == null ? "" : " - " + ex.getMessage()));
-            return true;
-        }
+        return SkillRuntimeGuards.shouldSkipWorld(skill, world);
     }
 
     protected boolean isWorldBlacklisted(Player p) {
-        return AdaptationGate.isWorldBlacklisted(p);
+        return SkillRuntimeGuards.isWorldBlacklisted(p);
     }
 
     protected boolean isInCreativeOrSpectator(Player p) {
-        return AdaptationGate.isInCreativeOrSpectator(p);
+        return SkillRuntimeGuards.isInCreativeOrSpectator(p);
     }
 
     @Override
@@ -369,10 +303,7 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
     protected void checkStatTrackersForOnlinePlayers() {
         for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
             Player player = adaptPlayer.getPlayer();
-            if (shouldReturnForPlayer(player)) {
-                continue;
-            }
-            checkStatTrackers(adaptPlayer);
+            shouldReturnForPlayer(player, () -> checkStatTrackers(adaptPlayer));
         }
     }
 

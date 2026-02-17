@@ -19,8 +19,8 @@
 
 package art.arcane.adapt.util.decree;
 
-import art.arcane.volmlib.util.decree.DecreeExecutorBase;
 import art.arcane.adapt.util.common.plugin.VolmitSender;
+import art.arcane.volmlib.util.decree.DecreeExecutorBase;
 import org.bukkit.entity.Player;
 
 public interface DecreeExecutor extends DecreeExecutorBase {

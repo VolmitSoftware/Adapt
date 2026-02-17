@@ -2,8 +2,8 @@ package art.arcane.adapt.command;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.command.FConst;
+import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.decree.DecreeExecutor;
 import art.arcane.volmlib.util.decree.DecreeOrigin;
 import art.arcane.volmlib.util.decree.annotations.Decree;
@@ -13,9 +13,6 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 import java.util.List;
-
-import art.arcane.adapt.util.common.plugin.Permission;
-import art.arcane.adapt.util.project.command.Command;
 
 @Decree(name = "debug", origin = DecreeOrigin.BOTH, description = "Adapt Debug Command", aliases = {"dev"})
 public class CommandDebug implements DecreeExecutor {

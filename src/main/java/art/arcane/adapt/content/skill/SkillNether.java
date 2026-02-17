@@ -18,25 +18,17 @@
 
 package art.arcane.adapt.content.skill;
 
-import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
+import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.api.world.AdaptStatTracker;
-import art.arcane.adapt.content.adaptation.nether.NetherFireResist;
-import art.arcane.adapt.content.adaptation.nether.NetherBlazeLeech;
-import art.arcane.adapt.content.adaptation.nether.NetherGhastWard;
-import art.arcane.adapt.content.adaptation.nether.NetherLavaWalker;
-import art.arcane.adapt.content.adaptation.nether.NetherPiglinBroker;
-import art.arcane.adapt.content.adaptation.nether.NetherSkullYeet;
-import art.arcane.adapt.content.adaptation.nether.NetherWitherResist;
+import art.arcane.adapt.content.adaptation.nether.*;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.misc.CustomModel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -178,27 +170,23 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
         registerMilestone("challenge_roses_100", "nether.roses.broken", 100, getConfig().getChallengeRosesReward() * 2);
     }
 
-    private boolean shouldReturnForEventWithCause(Player p, EntityDamageEvent.DamageCause cause) {
-        return shouldReturnForPlayer(p) || cause != EntityDamageEvent.DamageCause.WITHER;
+    private boolean isWitherDamageCause(EntityDamageEvent.DamageCause cause) {
+        return cause == EntityDamageEvent.DamageCause.WITHER;
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(EntityDamageEvent e) {
-        if (e.isCancelled()) {
+        if (!this.isEnabled() || !(e.getEntity() instanceof Player p) || !isWitherDamageCause(e.getCause()) || e instanceof EntityDamageByBlockEvent) {
             return;
         }
-        if (!this.isEnabled() || e.isCancelled() || !(e.getEntity() instanceof Player p) || shouldReturnForEventWithCause(p, e.getCause()) || e instanceof EntityDamageByBlockEvent) {
-            return;
-        }
-        getPlayer(p).getData().addStat("nether.wither.damage", e.getDamage());
-        xp(p, getConfig().getWitherDamageXp());
+        shouldReturnForPlayer(p, e, () -> {
+            getPlayer(p).getData().addStat("nether.wither.damage", e.getDamage());
+            xp(p, getConfig().getWitherDamageXp());
+        });
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(BlockBreakEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         Player p = e.getPlayer();
         shouldReturnForPlayer(e.getPlayer(), e, () -> {
             if (e.getBlock().getType() == Material.WITHER_ROSE && witherRoseCooldown == 0) {
@@ -213,29 +201,28 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(EntityDeathEvent e) {
         Player p = e.getEntity().getKiller();
-        if (p == null || !p.getClass().getSimpleName().equals("CraftPlayer") || shouldReturnForPlayer(p)) {
+        if (p == null || !p.getClass().getSimpleName().equals("CraftPlayer")) {
             return;
         }
-        if (e.getEntityType() == EntityType.WITHER_SKELETON) {
-            getPlayer(p).getData().addStat("nether.kills", 1);
-            getPlayer(p).getData().addStat("nether.skeleton.kills", 1);
-            xp(p, getConfig().getWitherSkeletonKillXp());
-        } else if (e.getEntityType() == EntityType.WITHER) {
-            getPlayer(p).getData().addStat("nether.kills", 1);
-            getPlayer(p).getData().addStat("nether.boss.kills", 1);
-            xp(p, getConfig().getWitherKillXp());
-        }
+        shouldReturnForPlayer(p, () -> {
+            if (e.getEntityType() == EntityType.WITHER_SKELETON) {
+                getPlayer(p).getData().addStat("nether.kills", 1);
+                getPlayer(p).getData().addStat("nether.skeleton.kills", 1);
+                xp(p, getConfig().getWitherSkeletonKillXp());
+            } else if (e.getEntityType() == EntityType.WITHER) {
+                getPlayer(p).getData().addStat("nether.kills", 1);
+                getPlayer(p).getData().addStat("nether.boss.kills", 1);
+                xp(p, getConfig().getWitherKillXp());
+            }
+        });
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(EntityDamageByEntityEvent e) {
-        if (e.isCancelled()) {
+        if (!(e.getDamager() instanceof Player p) || !isWitherDamageCause(e.getCause())) {
             return;
         }
-        if (!(e.getDamager() instanceof Player p) || shouldReturnForEventWithCause(p, e.getCause())) {
-            return;
-        }
-        xp(p, getConfig().getWitherAttackXp());
+        shouldReturnForPlayer(p, e, () -> xp(p, getConfig().getWitherAttackXp()));
     }
 
     @Override
@@ -248,9 +235,7 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
         }
         for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
             Player i = adaptPlayer.getPlayer();
-            if (!shouldReturnForPlayer(i)) {
-                checkStatTrackers(adaptPlayer);
-            }
+            shouldReturnForPlayer(i, () -> checkStatTrackers(adaptPlayer));
         }
     }
 

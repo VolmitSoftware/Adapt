@@ -17,7 +17,6 @@
  -----------------------------------------------------------------------------*/
 
 package art.arcane.adapt.content.adaptation.taming;
-import art.arcane.volmlib.util.format.Form;
 
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -25,12 +24,13 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.version.Version;
 import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.api.world.AdaptStatTracker;
-import art.arcane.volmlib.util.io.IO;
-import art.arcane.volmlib.util.math.M;
-import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.scheduling.J;
+import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Attributes;
+import art.arcane.volmlib.util.format.Form;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -42,13 +42,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Tameable;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.inventorygui.Element;
 
 public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config> {
     private static final UUID MODIFIER = UUID.nameUUIDFromBytes("adapt-tame-health-boost".getBytes());
@@ -93,7 +88,7 @@ public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config
             return;
         }
 
-        Map<UUID, OwnerState> ownerStates = new HashMap<>();
+        Map<UUID, OwnerState> ownerStates = new java.util.concurrent.ConcurrentHashMap<>();
         for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
             Player owner = adaptPlayer.getPlayer();
             ownerStates.put(owner.getUniqueId(), new OwnerState(adaptPlayer, owner, getLevel(owner)));

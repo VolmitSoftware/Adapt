@@ -1,10 +1,10 @@
 package art.arcane.adapt.util.config;
 
-import com.google.gson.JsonElement;
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.util.common.io.Json;
 import art.arcane.adapt.util.project.config.ConfigRewriteReporter;
 import art.arcane.volmlib.util.io.IO;
-import art.arcane.adapt.util.common.io.Json;
+import com.google.gson.JsonElement;
 
 import java.io.File;
 import java.io.IOException;

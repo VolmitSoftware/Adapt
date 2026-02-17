@@ -18,22 +18,16 @@
 
 package art.arcane.adapt.content.skill;
 
-import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
+import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.api.world.AdaptStatTracker;
-import art.arcane.adapt.content.adaptation.unarmed.UnarmedGlassCannon;
-import art.arcane.adapt.content.adaptation.unarmed.UnarmedBatteringCharge;
-import art.arcane.adapt.content.adaptation.unarmed.UnarmedComboChain;
-import art.arcane.adapt.content.adaptation.unarmed.UnarmedPower;
-import art.arcane.adapt.content.adaptation.unarmed.UnarmedSuckerPunch;
+import art.arcane.adapt.content.adaptation.unarmed.*;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.misc.CustomModel;
 import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -44,9 +38,10 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
-    private final Map<Player, Long> cooldowns;
+    private final Map<UUID, Long> cooldowns;
 
     public SkillUnarmed() {
         super("unarmed", Localizer.dLocalize("skill.unarmed.icon"));
@@ -184,9 +179,6 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(EntityDamageByEntityEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         if (!(e.getDamager() instanceof Player p)) {
             return;
         }
@@ -214,10 +206,10 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
                 if (e.getDamage() > 6) {
                     a.getData().addStat("unarmed.heavy", 1);
                 }
-                Long cooldown = cooldowns.get(p);
+                Long cooldown = cooldowns.get(p.getUniqueId());
                 if (cooldown != null && cooldown + getConfig().cooldownDelay > System.currentTimeMillis())
                     return;
-                cooldowns.put(p, System.currentTimeMillis());
+                cooldowns.put(p.getUniqueId(), System.currentTimeMillis());
                 xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().damageXPMultiplier * e.getDamage());
             }
         });

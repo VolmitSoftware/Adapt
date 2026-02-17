@@ -18,17 +18,15 @@
 
 package art.arcane.adapt.content.skill;
 
-import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
+import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.skill.SimpleSkill;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.content.adaptation.crafting.*;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.misc.CustomModel;
 import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -41,9 +39,10 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
-    private final Map<Player, Long> cooldowns;
+    private final Map<UUID, Long> cooldowns;
 
     public SkillCrafting() {
         super("crafting", Localizer.dLocalize("skill.crafting.icon"));
@@ -192,16 +191,13 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(CraftItemEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         Player p = (Player) e.getWhoClicked();
         shouldReturnForPlayer(p, e, () -> {
             if (!isValidCraftEvent(e)) {
                 return;
             }
             int recipeAmount = calculateRecipeAmount(e);
-            if (recipeAmount > 0 && !e.isCancelled()) {
+            if (recipeAmount > 0) {
                 double v = recipeAmount * getValue(e.getRecipe().getResult()) * getConfig().craftingValueXPMultiplier;
                 getPlayer(p).getData().addStat("crafted.items", recipeAmount);
                 getPlayer(p).getData().addStat("crafted.value", v);
@@ -220,9 +216,6 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(FurnaceSmeltEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         if (shouldReturnForWorld(e.getBlock().getWorld(), this)) {
             return;
         }
@@ -238,10 +231,10 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
     private boolean isValidCraftEvent(CraftItemEvent e) {
         Player p = (Player) e.getWhoClicked();
 
-        Long cooldown = cooldowns.get(p);
+        Long cooldown = cooldowns.get(p.getUniqueId());
         if (cooldown != null && cooldown + getConfig().cooldownDelay > System.currentTimeMillis())
             return false;
-        cooldowns.put(p, System.currentTimeMillis());
+        cooldowns.put(p.getUniqueId(), System.currentTimeMillis());
 
         ItemStack result = e.getInventory().getResult();
         ItemStack cursor = e.getCursor();

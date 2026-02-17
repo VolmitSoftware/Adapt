@@ -22,12 +22,11 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.reflect.registries.PotionEffectTypes;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.PotionEffectTypes;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -76,17 +75,12 @@ public class ExcavationHaste extends SimpleAdaptation<ExcavationHaste.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockDamageEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         Player p = e.getPlayer();
-        if (!hasAdaptation(p)) {
+        var context = resolveInteractContext(p, e.getBlock().getLocation());
+        if (context == null) {
             return;
         }
-        if (!canInteract(p, e.getBlock().getLocation())) {
-            return;
-        }
-        p.addPotionEffect(new PotionEffect(PotionEffectTypes.FAST_DIGGING, 15, getLevel(p), false, false, true));
+        p.addPotionEffect(new PotionEffect(PotionEffectTypes.FAST_DIGGING, 15, context.level(), false, false, true));
         getPlayer(p).getData().addStat("excavation.haste.blocks-while-hasted", 1);
     }
 

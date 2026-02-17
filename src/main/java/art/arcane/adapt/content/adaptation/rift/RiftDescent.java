@@ -22,9 +22,11 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
-import art.arcane.volmlib.util.io.IO;
-import art.arcane.volmlib.util.math.M;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
+import art.arcane.adapt.util.common.misc.SoundPlayer;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -36,17 +38,12 @@ import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
-import art.arcane.adapt.util.common.scheduling.J;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class RiftDescent extends SimpleAdaptation<RiftDescent.Config> {
-    private final List<Player> cooldown = new ArrayList<>();
+    private final Set<UUID> cooldown = ConcurrentHashMap.newKeySet();
 
     public RiftDescent() {
         super("rift-descent");
@@ -92,10 +89,11 @@ public class RiftDescent extends SimpleAdaptation<RiftDescent.Config> {
         if (p.getPotionEffect(PotionEffectType.LEVITATION) == null) {
             return;
         }
-        if (!hasAdaptation(p)) {
+        if (!hasActiveAdaptation(p)) {
             return;
         }
-        if (cooldown.contains(p)) {
+        UUID playerId = p.getUniqueId();
+        if (cooldown.contains(playerId)) {
             return;
         }
 
@@ -104,10 +102,10 @@ public class RiftDescent extends SimpleAdaptation<RiftDescent.Config> {
         if (!e.isSneaking() && (levi != null)) {
             p.removePotionEffect(PotionEffectType.LEVITATION);
             getPlayer(p).getData().addStat("rift.descent.levitation-cancelled", 1);
-            cooldown.add(p);
+            cooldown.add(playerId);
             J.runEntity(p, () -> {
                 sp.play(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f);
-                cooldown.remove(p);
+                cooldown.remove(playerId);
             }, Math.max(1, (int) Math.round(getConfig().cooldown * 20D)));
 
             J.runEntity(p, () -> {

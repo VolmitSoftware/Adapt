@@ -23,26 +23,23 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 public class RangedPiercing extends SimpleAdaptation<RangedPiercing.Config> {
-    private final Map<UUID, Integer> arrowHitCounts = new HashMap<>();
+    private final Map<UUID, Integer> arrowHitCounts = new java.util.concurrent.ConcurrentHashMap<>();
 
     public RangedPiercing() {
         super("ranged-piercing");
@@ -81,14 +78,12 @@ public class RangedPiercing extends SimpleAdaptation<RangedPiercing.Config> {
 
     @EventHandler
     public void on(ProjectileLaunchEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         if (e.getEntity().getShooter() instanceof Player p) {
             if (e.getEntity() instanceof AbstractArrow a) {
                 xp(p, 5);
-                if (hasAdaptation(p)) {
-                    a.setPierceLevel(((AbstractArrow) e.getEntity()).getPierceLevel() + getLevel(p));
+                int level = getActiveLevel(p);
+                if (level > 0) {
+                    a.setPierceLevel(((AbstractArrow) e.getEntity()).getPierceLevel() + level);
                 }
             }
         }
@@ -96,20 +91,22 @@ public class RangedPiercing extends SimpleAdaptation<RangedPiercing.Config> {
 
     @EventHandler
     public void on(EntityDamageByEntityEvent e) {
-        if (e.isCancelled()) {
+        var combat = resolveProjectileContext(e, projectile -> projectile instanceof AbstractArrow);
+        if (combat == null) {
             return;
         }
-        if (e.getDamager() instanceof Projectile projectile && projectile instanceof AbstractArrow arrow && arrow.getShooter() instanceof Player p && hasAdaptation(p)) {
-            if (arrow.getPierceLevel() > 0) {
-                UUID arrowId = arrow.getUniqueId();
-                int hits = arrowHitCounts.getOrDefault(arrowId, 0) + 1;
-                arrowHitCounts.put(arrowId, hits);
-                if (hits > 1) {
-                    getPlayer(p).getData().addStat("ranged.piercing.extra-hits", 1);
-                }
-                if (hits >= 4 && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_ranged_piercing_4")) {
-                    getPlayer(p).getAdvancementHandler().grant("challenge_ranged_piercing_4");
-                }
+
+        AbstractArrow arrow = (AbstractArrow) combat.projectile();
+        if (arrow.getPierceLevel() > 0) {
+            UUID arrowId = arrow.getUniqueId();
+            int hits = arrowHitCounts.getOrDefault(arrowId, 0) + 1;
+            arrowHitCounts.put(arrowId, hits);
+            Player p = combat.attacker();
+            if (hits > 1) {
+                getPlayer(p).getData().addStat("ranged.piercing.extra-hits", 1);
+            }
+            if (hits >= 4 && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_ranged_piercing_4")) {
+                getPlayer(p).getAdvancementHandler().grant("challenge_ranged_piercing_4");
             }
         }
     }

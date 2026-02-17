@@ -22,15 +22,17 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
+import org.bukkit.Axis;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Directional;
 import org.bukkit.block.data.Orientable;
@@ -42,15 +44,8 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.Axis;
-import org.bukkit.Sound;
-import org.bukkit.block.BlockFace;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class ArchitectSmartShape extends SimpleAdaptation<ArchitectSmartShape.Config> {
     private static final List<BlockFace> ROTATION_ORDER = Arrays.asList(
@@ -120,31 +115,33 @@ public class ArchitectSmartShape extends SimpleAdaptation<ArchitectSmartShape.Co
         }
 
         Player p = e.getPlayer();
-        if (!hasAdaptation(p) || !p.isSneaking()) {
-            return;
-        }
+        withAdaptedPlayer(p, e, () -> {
+            if (!p.isSneaking()) {
+                return;
+            }
 
-        ItemStack hand = p.getInventory().getItemInMainHand();
-        if (isItem(hand) && hand.getType() != Material.AIR) {
-            return;
-        }
+            ItemStack hand = p.getInventory().getItemInMainHand();
+            if (isItem(hand) && hand.getType() != Material.AIR) {
+                return;
+            }
 
-        Block target = e.getClickedBlock();
-        if (!canBlockPlace(p, target.getLocation())) {
-            return;
-        }
+            Block target = e.getClickedBlock();
+            if (!canBlockPlace(p, target.getLocation())) {
+                return;
+            }
 
-        BlockData data = target.getBlockData().clone();
-        int options = rotateData(data);
-        if (options <= 0) {
-            return;
-        }
+            BlockData data = target.getBlockData().clone();
+            int options = rotateData(data);
+            if (options <= 0) {
+                return;
+            }
 
-        target.setBlockData(data, true);
-        e.setCancelled(true);
-        SoundPlayer.of(p.getWorld()).play(target.getLocation(), Sound.ITEM_AXE_STRIP, 0.45f, 1.8f);
-        xp(p, Math.max(getConfig().minXpPerRotate, options * getConfig().xpPerOrientationOption));
-        getPlayer(p).getData().addStat("architect.smart-shape.rotations", 1);
+            target.setBlockData(data, true);
+            e.setCancelled(true);
+            SoundPlayer.of(p.getWorld()).play(target.getLocation(), Sound.ITEM_AXE_STRIP, 0.45f, 1.8f);
+            xp(p, Math.max(getConfig().minXpPerRotate, options * getConfig().xpPerOrientationOption));
+            getPlayer(p).getData().addStat("architect.smart-shape.rotations", 1);
+        });
     }
 
     private int rotateData(BlockData data) {

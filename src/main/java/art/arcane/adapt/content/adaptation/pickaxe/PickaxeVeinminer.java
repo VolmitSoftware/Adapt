@@ -24,12 +24,14 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.api.world.PlayerAdaptation;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.content.item.ItemListings;
-import art.arcane.volmlib.util.io.IO;
-import art.arcane.volmlib.util.math.M;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
+import art.arcane.adapt.util.common.misc.SoundPlayer;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Location;
@@ -44,13 +46,6 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
-import art.arcane.adapt.util.common.scheduling.J;
-import art.arcane.adapt.util.reflect.registries.Particles;
 
 import static art.arcane.adapt.util.data.Metadata.VEIN_MINED;
 
@@ -97,18 +92,13 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
 
     @EventHandler
     public void on(BlockBreakEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         if (VEIN_MINED.get(e.getBlock())) {
             return;
         }
 
         Player p = e.getPlayer();
-        if (!hasAdaptation(p)) {
-            return;
-        }
-        if (!p.isSneaking()) {
+        int level = getActiveLevel(p, Player::isSneaking);
+        if (level <= 0) {
             return;
         }
 
@@ -120,10 +110,10 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
         VEIN_MINED.add(e.getBlock());
 
         Block block = e.getBlock();
-        Map<Location, Block> blockMap = new HashMap<>();
+        Map<Location, Block> blockMap = new java.util.concurrent.ConcurrentHashMap<>();
         blockMap.put(block.getLocation(), block);
 
-        int radius = getRadius(getLevel(p));
+        int radius = getRadius(level);
         for (int i = 0; i < radius; i++) {
             for (int x = -i; x <= i; x++) {
                 for (int y = -i; y <= i; y++) {

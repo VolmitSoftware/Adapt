@@ -17,204 +17,145 @@
  -----------------------------------------------------------------------------*/
 
 package art.arcane.adapt.api.skill;
-import art.arcane.volmlib.util.format.Form;
 
-import art.arcane.adapt.Adapt;
-import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.Component;
 import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.tick.Ticked;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.AdaptStatTracker;
-import art.arcane.adapt.api.world.PlayerData;
 import art.arcane.adapt.api.xp.XP;
-import art.arcane.adapt.content.gui.SkillsGui;
-import art.arcane.volmlib.util.io.IO;
-import art.arcane.volmlib.util.math.M;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.volmlib.util.collection.KList;
-import org.bukkit.Bukkit;
+import art.arcane.volmlib.util.format.Form;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
-
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.adapt.util.common.inventorygui.GuiEffects;
-import art.arcane.adapt.util.common.inventorygui.GuiLayout;
-import art.arcane.adapt.util.common.inventorygui.GuiTheme;
-import art.arcane.adapt.util.common.inventorygui.UIElement;
-import art.arcane.adapt.util.common.inventorygui.UIWindow;
-import art.arcane.adapt.util.common.inventorygui.Window;
-import art.arcane.adapt.util.common.math.MaterialBlock;
-import art.arcane.adapt.util.common.misc.CustomModel;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
-import art.arcane.adapt.util.common.scheduling.J;
-
+/**
+ * Public API for a skill line and its shared behavior.
+ */
 public interface Skill<T> extends Ticked, Component {
+    /**
+     * Builds the root advancement tree for this skill (including child adaptations).
+     */
     AdaptAdvancement buildAdvancements();
 
+    /**
+     * Returns the concrete config class used by this skill.
+     */
     Class<T> getConfigurationClass();
 
+    /**
+     * Registers the config class used for load/reload of this skill.
+     */
     void registerConfiguration(Class<T> type);
 
+    /**
+     * @return true when this skill is runtime-enabled.
+     */
     boolean isEnabled();
 
+    /**
+     * Returns the live config instance for this skill.
+     */
     T getConfig();
 
+    /**
+     * @return internal skill key (e.g. "swords").
+     */
     String getName();
 
+    /**
+     * @return icon glyph/emoji prefix used in UI.
+     */
     String getEmojiName();
 
+    /**
+     * @return base icon for this skill.
+     */
     Material getIcon();
 
+    /**
+     * @return localized skill description.
+     */
     String getDescription();
 
+    /**
+     * @return recipes registered by this skill.
+     */
     KList<AdaptRecipe> getRecipes();
 
+    /**
+     * Registers an adaptation under this skill.
+     */
     void registerAdaptation(Adaptation<?> a);
 
+    /**
+     * Registers a stat tracker/milestone for this skill.
+     */
     void registerStatTracker(AdaptStatTracker tracker);
 
+    /**
+     * @return all stat trackers for this skill.
+     */
     KList<AdaptStatTracker> getStatTrackers();
 
+    /**
+     * Skill-level particle toggle check (global + per-skill config aware).
+     */
     @Override
     default boolean areParticlesEnabled() {
-        if (!Component.super.areParticlesEnabled()) {
-            return false;
-        }
-
-        AdaptConfig.Effects effects = AdaptConfig.get().getEffects();
-        if (effects != null && effects.getSkillParticleOverrides() != null && !effects.getSkillParticleOverrides().isEmpty()) {
-            String key = getName();
-            Boolean override = effects.getSkillParticleOverrides().get(key);
-            if (override == null && key != null) {
-                override = effects.getSkillParticleOverrides().get(key.toLowerCase(Locale.ROOT));
-            }
-            if (override != null && !override) {
-                return false;
-            }
-        }
-
-        Object config = getConfig();
-        if (config != null) {
-            Boolean directToggle = readBooleanField(config, "showParticles");
-            if (directToggle != null && !directToggle) {
-                return false;
-            }
-
-            Boolean genericToggle = readBooleanField(config, "showParticleEffects");
-            if (genericToggle != null && !genericToggle) {
-                return false;
-            }
-        }
-
-        return true;
+        return SkillGuiSupport.areParticlesEnabled(this, Component.super.areParticlesEnabled());
     }
 
+    /**
+     * Skill-level sound toggle check (global + per-skill config aware).
+     */
     @Override
     default boolean areSoundsEnabled() {
-        if (!Component.super.areSoundsEnabled()) {
-            return false;
-        }
-
-        Object config = getConfig();
-        if (config != null) {
-            Boolean directToggle = readBooleanField(config, "showSounds");
-            if (directToggle != null && !directToggle) {
-                return false;
-            }
-        }
-
-        return true;
+        return SkillGuiSupport.areSoundsEnabled(this, Component.super.areSoundsEnabled());
     }
 
-    private static Boolean readBooleanField(Object source, String fieldName) {
-        if (source == null || fieldName == null || fieldName.isBlank()) {
-            return null;
-        }
-
-        Class<?> current = source.getClass();
-        while (current != null) {
-            try {
-                Field field = current.getDeclaredField(fieldName);
-                field.setAccessible(true);
-                Object value = field.get(source);
-                if (value instanceof Boolean bool) {
-                    return bool;
-                }
-                return null;
-            } catch (NoSuchFieldException ex) {
-                current = current.getSuperclass();
-            } catch (Throwable ex) {
-                Adapt.verbose("Failed reading boolean field '" + fieldName + "' from " + source.getClass().getName()
-                        + ": " + ex.getClass().getSimpleName()
-                        + (ex.getMessage() == null ? "" : " - " + ex.getMessage()));
-                return null;
-            }
-        }
-
-        return null;
-    }
-
+    /**
+     * Evaluates and grants eligible stat-tracker advancements for one player.
+     */
     default void checkStatTrackers(AdaptPlayer player) {
-        if (!this.isEnabled()) {
-            return;
-        }
-        if (!player.getPlayer().getClass().getSimpleName().equals("CraftPlayer")) {
-            return;
-        }
-        if (!AdaptConfig.get().isAdvancements()) {
-            return;
-        }
-        PlayerData d = player.getData();
-
-        for (AdaptStatTracker i : getStatTrackers()) {
-            if (!d.isGranted(i.getAdvancement()) && d.getStat(i.getStat()) >= i.getGoal()) {
-                player.getAdvancementHandler().grant(i.getAdvancement());
-                xp(player.getPlayer(), i.getReward());
-            }
-        }
-
-        for (Adaptation<?> adaptation : getAdaptations()) {
-            if (!(adaptation instanceof SimpleAdaptation<?> sa)) continue;
-            if (!adaptation.isEnabled()) continue;
-            for (AdaptStatTracker tracker : sa.getStatTrackers()) {
-                if (!d.isGranted(tracker.getAdvancement()) && d.getStat(tracker.getStat()) >= tracker.getGoal()) {
-                    player.getAdvancementHandler().grant(tracker.getAdvancement());
-                    xp(player.getPlayer(), tracker.getReward());
-                }
-            }
-        }
+        SkillRuntimeGuards.checkStatTrackers(this, player);
     }
 
+    /**
+     * @return all adaptations currently attached to this skill.
+     */
     KList<Adaptation<?>> getAdaptations();
 
+    /**
+     * @return primary chat/UI color for this skill.
+     */
     C getColor();
 
+    /**
+     * @return minimum xp tuning value used by this skill.
+     */
     double getMinXp();
 
+    /**
+     * Called while building advancement trees to append custom nodes.
+     */
     void onRegisterAdvancements(KList<AdaptAdvancement> advancements);
 
+    /**
+     * Returns true when this player is blacklisted from this skill via permission.
+     */
     default boolean hasBlacklistPermission(Player p, Skill<?> s) {
-        if (p.isOp()) { // If the player is an operator, bypass the permission check
-            return false;
-        }
-        String blacklistPermission = "adapt.blacklist." + s.getName().replaceAll("-", "");
-        Adapt.verbose("Checking if player " + p.getName() + " has blacklist permission " + blacklistPermission);
-        return p.hasPermission(blacklistPermission);
+        return SkillRuntimeGuards.hasBlacklistPermission(p, s);
     }
 
+    /**
+     * Formatted display name with color + emoji.
+     */
     default String getDisplayName() {
         if (!this.isEnabled()) {
             return C.DARK_GRAY + Form.capitalize(getName());
@@ -222,6 +163,9 @@ public interface Skill<T> extends Ticked, Component {
         return C.RESET + "" + C.BOLD + getColor().toString() + getEmojiName() + " " + Form.capitalize(getName());
     }
 
+    /**
+     * Compact formatted display name with color + emoji.
+     */
     default String getShortName() {
         if (!this.isEnabled()) {
             return C.DARK_GRAY + Form.capitalize(getName());
@@ -229,6 +173,9 @@ public interface Skill<T> extends Ticked, Component {
         return C.RESET + "" + C.BOLD + getColor().toString() + getEmojiName();
     }
 
+    /**
+     * Display name with optional level suffix.
+     */
     default String getDisplayName(int level) {
         if (!this.isEnabled()) {
             return C.DARK_GRAY + Form.capitalize(getName());
@@ -239,103 +186,90 @@ public interface Skill<T> extends Ticked, Component {
         return getDisplayName();
     }
 
+    /**
+     * Returns the generated custom model binding for this skill icon.
+     */
     default CustomModel getModel() {
         return CustomModel.get(getIcon(), "skill", getName());
     }
 
+    /**
+     * Grants visible xp at the player's location.
+     */
     default void xp(Player p, double xp) {
         xp(p, xp, null);
     }
 
+    /**
+     * Grants visible xp at the player's location using an optional reward key.
+     */
     default void xp(Player p, double xp, String rewardKey) {
-        if (!this.isEnabled()) {
-            return;
-        }
-        if (!p.getClass().getSimpleName().equals("CraftPlayer")) {
-            return;
-        }
-        xp(p, p.getLocation(), xp, rewardKey);
+        xp(p, p == null ? null : p.getLocation(), xp, rewardKey);
 
     }
 
+    /**
+     * Grants visible xp at a specific location.
+     */
     default void xp(Player p, Location at, double xp) {
         xp(p, at, xp, null);
     }
 
+    /**
+     * Grants visible xp at a specific location using an optional reward key.
+     */
     default void xp(Player p, Location at, double xp, String rewardKey) {
-        if (!this.isEnabled()) {
-            return;
-        }
-        if (!p.getClass().getSimpleName().equals("CraftPlayer")) {
-            return;
-        }
-        try {
-            XP.xp(p, this, xp, rewardKey);
-            if (xp > 50) {
-                vfxXP(p, at, (int) xp);
-            }
-            Adapt.verbose("Gave " + p.getName() + " " + xp + " xp in " + getName() + " " + this.getClass());
-        } catch (Exception e) {
-            Adapt.verbose("Failed to give xp to " + p.getName() + " for " + getName() + " (" + xp + ")");
-        }
+        SkillRuntimeGuards.grantXp(this, p, at, xp, rewardKey, false, true);
     }
 
+    /**
+     * Grants silent xp at a specific location (with optional burst visuals).
+     */
     default void xpS(Player p, Location at, double xp) {
         xpS(p, at, xp, null);
     }
 
+    /**
+     * Grants silent xp at a specific location using an optional reward key.
+     */
     default void xpS(Player p, Location at, double xp, String rewardKey) {
-        if (!this.isEnabled()) {
-            return;
-        }
-        if (!p.getClass().getSimpleName().equals("CraftPlayer")) {
-            return;
-        }
-        try {
-            XP.xpSilent(p, this, xp, rewardKey);
-            if (xp > 50) {
-                vfxXP(p, at, (int) xp);
-            }
-            Adapt.verbose("Gave " + p.getName() + " " + xp + " xp in " + getName() + " " + this.getClass());
-        } catch (Exception e) {
-            Adapt.verbose("Failed to give xp to " + p.getName() + " for " + getName() + " (" + xp + ")");
-        }
+        SkillRuntimeGuards.grantXp(this, p, at, xp, rewardKey, true, true);
     }
 
+    /**
+     * Grants silent xp without visuals.
+     */
     default void xpSilent(Player p, double xp) {
         xpSilent(p, xp, null);
     }
 
+    /**
+     * Grants silent xp without visuals using an optional reward key.
+     */
     default void xpSilent(Player p, double xp, String rewardKey) {
-        if (!this.isEnabled()) {
-            return;
-        }
-        if (!p.getClass().getSimpleName().equals("CraftPlayer")) {
-            return;
-        }
-        try {
-            XP.xpSilent(p, this, xp, rewardKey);
-        } catch (
-                Exception ignored) { // Player was Given XP (Likely Teleportation) before i can see it because some plugin has higher priority than me and moves a player. so im not going to throw an error, as i know why it's happening.
-            Adapt.verbose("Player was Given XP (Likely Teleportation) before i can see it because some plugin has higher priority than me and moves a player. so im not going to throw an error, as i know why it's happening.");
-        }
+        SkillRuntimeGuards.grantXpSilent(this, p, xp, rewardKey);
     }
 
-
+    /**
+     * Emits spatial xp pulses around a world location.
+     */
     default void xp(Location at, double xp, int rad, long duration) {
         XP.spatialXP(at, this, xp, rad, duration);
         vfxXP(at);
     }
 
+    /**
+     * Grants knowledge points for this skill.
+     */
     default void knowledge(Player p, long k) {
-        if (!this.isEnabled()) {
-            return;
-        }
-        XP.knowledge(p, this, k);
+        SkillRuntimeGuards.grantKnowledge(this, p, k);
     }
 
+    /**
+     * Opens the skill GUI and optionally enforces blacklist permission checks.
+     */
     default boolean openGui(Player player, boolean checkPermissions) {
-        if (hasBlacklistPermission(player, this)) {
+        if (checkPermissions && hasBlacklistPermission(player, this)) {
             return false;
         } else {
             openGui(player);
@@ -343,160 +277,17 @@ public interface Skill<T> extends Ticked, Component {
         }
     }
 
+    /**
+     * Opens page 0 of this skill GUI.
+     */
     default void openGui(Player player) {
         openGui(player, 0);
     }
 
+    /**
+     * Opens a specific page of this skill GUI.
+     */
     default void openGui(Player player, int page) {
-        if (!this.isEnabled()) {
-            return;
-        }
-        if (!player.getClass().getSimpleName().equals("CraftPlayer")) {
-            return;
-        }
-        if (!J.isPrimaryThread()) {
-            int targetPage = page;
-            J.s(() -> openGui(player, targetPage));
-            return;
-        }
-
-        SoundPlayer spw = SoundPlayer.of(player.getWorld());
-        spw.play(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 1.255f);
-        spw.play(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.7f, 1.455f);
-        spw.play(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.3f, 1.855f);
-
-        List<Adaptation<?>> visibleAdaptations = new ArrayList<>();
-        for (Adaptation<?> adaptation : getAdaptations()) {
-            if (!adaptation.isEnabled()) {
-                continue;
-            }
-            if (!adaptation.getSkill().isEnabled()) {
-                continue;
-            }
-            if (adaptation.hasBlacklistPermission(player, adaptation)) {
-                continue;
-            }
-            visibleAdaptations.add(adaptation);
-        }
-        visibleAdaptations.sort(
-                Comparator.comparing((Adaptation<?> adaptation) -> normalizeSortKey(adaptation.getDisplayName()))
-                        .thenComparing(Adaptation::getName, String.CASE_INSENSITIVE_ORDER)
-        );
-
-        boolean reserveNavigation = AdaptConfig.get().isGuiBackButton();
-        GuiLayout.PagePlan plan = GuiLayout.plan(visibleAdaptations.size(), reserveNavigation);
-        int currentPage = GuiLayout.clampPage(page, plan.pageCount());
-        int start = currentPage * plan.itemsPerPage();
-        int end = Math.min(visibleAdaptations.size(), start + plan.itemsPerPage());
-
-        Window w = new UIWindow(player);
-        GuiTheme.apply(w, "skill/" + getName());
-        w.setViewportHeight(plan.rows());
-
-        if (visibleAdaptations.isEmpty()) {
-            w.setElement(0, 0, new UIElement("ada-empty")
-                    .setMaterial(new MaterialBlock(Material.PAPER))
-                    .setName(C.GRAY + "No adaptations available"));
-        } else {
-            List<GuiEffects.Placement> reveal = new ArrayList<>();
-            for (int row = 0; row < plan.contentRows(); row++) {
-                int rowStart = start + (row * GuiLayout.WIDTH);
-                if (rowStart >= end) {
-                    break;
-                }
-
-                int rowCount = Math.min(GuiLayout.WIDTH, end - rowStart);
-                for (int i = 0; i < rowCount; i++) {
-                    Adaptation<?> adaptation = visibleAdaptations.get(rowStart + i);
-                    int lvl = getPlayer(player).getData().getSkillLine(getName()).getAdaptationLevel(adaptation.getName());
-                    int pos = GuiLayout.centeredPosition(i, rowCount);
-                    Element element = new UIElement("ada-" + adaptation.getName())
-                            .setMaterial(new MaterialBlock(adaptation.getIcon()))
-                            .setModel(adaptation.getModel())
-                            .setName(adaptation.getDisplayName(lvl))
-                            .addLore(Form.wrapWordsPrefixed(adaptation.getDescription(), "" + C.GRAY, 45))
-                            .addLore(lvl == 0 ? (C.DARK_GRAY + Localizer.dLocalize("snippets.gui.not_learned")) : (C.GRAY + Localizer.dLocalize("snippets.gui.level") + " " + C.WHITE + Form.toRoman(lvl)))
-                            .setProgress(1D)
-                            .onLeftClick((e) -> adaptation.openGui(player));
-                    reveal.add(new GuiEffects.Placement(pos, row, element));
-                }
-            }
-            GuiEffects.applyReveal(w, reveal);
-        }
-
-        if (plan.hasNavigationRow()) {
-            int navRow = plan.rows() - 1;
-            int jumpPages = 5;
-            int jumpBack = Math.max(0, currentPage - jumpPages);
-            int jumpForward = Math.min(plan.pageCount() - 1, currentPage + jumpPages);
-            if (currentPage > 0) {
-                w.setElement(-4, navRow, new UIElement("skill-prev")
-                        .setMaterial(new MaterialBlock(Material.ARROW))
-                        .setName(C.WHITE + "Previous")
-                        .addLore(C.GRAY + "Right click: jump -" + jumpPages + " pages")
-                        .onLeftClick((e) -> openGui(player, currentPage - 1))
-                        .onRightClick((e) -> openGui(player, jumpBack)));
-                w.setElement(-3, navRow, new UIElement("skill-first")
-                        .setMaterial(new MaterialBlock(Material.LECTERN))
-                        .setName(C.GRAY + "First")
-                        .onLeftClick((e) -> openGui(player, 0)));
-            }
-            if (currentPage < plan.pageCount() - 1) {
-                w.setElement(4, navRow, new UIElement("skill-next")
-                        .setMaterial(new MaterialBlock(Material.ARROW))
-                        .setName(C.WHITE + "Next")
-                        .addLore(C.GRAY + "Right click: jump +" + jumpPages + " pages")
-                        .onLeftClick((e) -> openGui(player, currentPage + 1))
-                        .onRightClick((e) -> openGui(player, jumpForward)));
-                w.setElement(3, navRow, new UIElement("skill-last")
-                        .setMaterial(new MaterialBlock(Material.LECTERN))
-                        .setName(C.GRAY + "Last")
-                        .onLeftClick((e) -> openGui(player, plan.pageCount() - 1)));
-            }
-
-            int from = visibleAdaptations.isEmpty() ? 0 : (start + 1);
-            int to = visibleAdaptations.isEmpty() ? 0 : end;
-            w.setElement(-1, navRow, new UIElement("skill-page-info")
-                    .setMaterial(new MaterialBlock(Material.PAPER))
-                    .setName(C.AQUA + "Page " + (currentPage + 1) + "/" + plan.pageCount())
-                    .addLore(C.GRAY + "Showing " + from + "-" + to + " of " + visibleAdaptations.size())
-                    .setProgress(1D));
-
-            if (AdaptConfig.get().isGuiBackButton()) {
-                w.setElement(0, navRow, new UIElement("back")
-                        .setMaterial(new MaterialBlock(Material.ARROW))
-                        .setName("" + C.RESET + C.GRAY + Localizer.dLocalize("snippets.gui.back"))
-                        .onLeftClick((e) -> onGuiClose(player, true)));
-            }
-
-        }
-
-        AdaptPlayer a = Adapt.instance.getAdaptServer().getPlayer(player);
-        String pageSuffix = plan.pageCount() > 1 ? " [" + (currentPage + 1) + "/" + plan.pageCount() + "]" : "";
-        w.setTitle(getDisplayName(a.getSkillLine(getName()).getLevel()) + " " + Form.pc(XP.getLevelProgress(a.getSkillLine(getName()).getXp())) + " (" + Form.f((int) XP.getXpUntilLevelUp(a.getSkillLine(getName()).getXp())) + Localizer.dLocalize("snippets.gui.xp") + " " + (a.getSkillLine(getName()).getLevel() + 1) + ")" + pageSuffix);
-        w.onClosed((vv) -> J.s(() -> onGuiClose(player, !AdaptConfig.get().isEscClosesAllGuis())));
-        w.open();
-        Adapt.instance.getGuiLeftovers().put(player.getUniqueId().toString(), w);
-    }
-
-    private void onGuiClose(Player player, boolean openPrevGui) {
-        SoundPlayer spw = SoundPlayer.of(player.getWorld());
-        spw.play(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 1.255f);
-        spw.play(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.7f, 1.455f);
-        spw.play(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.3f, 1.855f);
-        if (openPrevGui) {
-            SkillsGui.open(player);
-        } else {
-            Adapt.instance.getGuiLeftovers().remove(player.getUniqueId().toString());
-        }
-    }
-
-    private static String normalizeSortKey(String value) {
-        if (value == null) {
-            return "";
-        }
-
-        String normalized = C.stripColor(value).toLowerCase(Locale.ROOT).trim();
-        return normalized.replaceFirst("^[^\\p{L}\\p{N}]+", "");
+        SkillGuiSupport.openGui(this, player, page);
     }
 }

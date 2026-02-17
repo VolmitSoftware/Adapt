@@ -4,13 +4,12 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.volmlib.util.math.RNG;
-import art.arcane.volmlib.util.collection.KList;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.collection.KList;
+import art.arcane.volmlib.util.math.RNG;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -61,9 +60,10 @@ public class PickaxeSilkSpawner extends SimpleAdaptation<PickaxeSilkSpawner.Conf
     public void onBlockBreak(BlockBreakEvent event) {
         var player = event.getPlayer();
         var block = event.getBlock();
-        if (!event.isDropItems() || !hasAdaptation(player) || block.getType() != Material.SPAWNER || !canBlockBreak(player, event.getBlock().getLocation()))
+        var context = resolveBlockBreakContext(player, block.getLocation());
+        if (!event.isDropItems() || block.getType() != Material.SPAWNER || context == null)
             return;
-        var level = getLevel(player);
+        var level = context.level();
         if (level == 1 && !player.getInventory().getItemInMainHand().getEnchantments().containsKey(Enchantment.SILK_TOUCH)) {
             return;
         } else if (level > 1 && !player.isSneaking()) {

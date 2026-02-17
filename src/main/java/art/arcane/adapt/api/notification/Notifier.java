@@ -23,9 +23,9 @@ import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.tick.TickedObject;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.volmlib.util.collection.KMap;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.math.M;
-import art.arcane.volmlib.util.collection.KMap;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

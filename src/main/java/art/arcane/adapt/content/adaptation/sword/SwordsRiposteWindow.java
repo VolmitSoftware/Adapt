@@ -23,32 +23,27 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.volmlib.util.format.Form;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import art.arcane.adapt.util.common.inventorygui.Window;
-
 public class SwordsRiposteWindow extends SimpleAdaptation<SwordsRiposteWindow.Config> {
-    private final Map<UUID, Long> riposteUntil = new HashMap<>();
+    private final Map<UUID, Long> riposteUntil = new java.util.concurrent.ConcurrentHashMap<>();
 
     public SwordsRiposteWindow() {
         super("sword-riposte-window");
@@ -106,7 +101,7 @@ public class SwordsRiposteWindow extends SimpleAdaptation<SwordsRiposteWindow.Co
             armRiposte(defender);
         }
 
-        if (!(e.getDamager() instanceof Player attacker) || !hasAdaptation(attacker) || !isSword(attacker.getInventory().getItemInMainHand())) {
+        if (!(e.getDamager() instanceof Player attacker)) {
             return;
         }
 
@@ -116,19 +111,13 @@ public class SwordsRiposteWindow extends SimpleAdaptation<SwordsRiposteWindow.Co
             return;
         }
 
-        if (!(e.getEntity() instanceof LivingEntity target)) {
+        var combat = resolveMeleeContext(e, this::isSword);
+        if (combat == null) {
             return;
         }
 
-        if (target instanceof Player victim) {
-            if (!canPVP(attacker, victim.getLocation())) {
-                return;
-            }
-        } else if (!canPVE(attacker, target.getLocation())) {
-            return;
-        }
-
-        e.setDamage(e.getDamage() * (1D + getDamageBonus(getLevel(attacker))));
+        attacker = combat.attacker();
+        e.setDamage(e.getDamage() * (1D + getDamageBonus(combat.level())));
         riposteUntil.remove(attacker.getUniqueId());
         if (areParticlesEnabled()) {
             attacker.getWorld().spawnParticle(Particle.SWEEP_ATTACK, attacker.getLocation().add(0, 1, 0), 1, 0, 0, 0, 0);
@@ -158,11 +147,11 @@ public class SwordsRiposteWindow extends SimpleAdaptation<SwordsRiposteWindow.Co
     private void armRiposte(Player defender) {
         boolean hasShield = defender.getInventory().getItemInOffHand().getType() == Material.SHIELD
                 || defender.getInventory().getItemInMainHand().getType() == Material.SHIELD;
-        if (!hasAdaptation(defender) || !defender.isBlocking() || !hasShield) {
+        int level = getActiveLevel(defender);
+        if (level <= 0 || !defender.isBlocking() || !hasShield) {
             return;
         }
 
-        int level = getLevel(defender);
         riposteUntil.put(defender.getUniqueId(), System.currentTimeMillis() + getWindowMillis(level));
         SoundPlayer.of(defender.getWorld()).play(defender.getLocation(), Sound.ITEM_SHIELD_BLOCK, 0.6f, 0.9f);
     }

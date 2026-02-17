@@ -23,8 +23,8 @@ import art.arcane.adapt.api.advancement.AdvancementSpec;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.recipe.MaterialChar;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -128,9 +128,8 @@ public class CraftingSkulls extends SimpleAdaptation<CraftingSkulls.Config> {
 
     @EventHandler
     public void on(CraftItemEvent e) {
-        if (e.isCancelled()) return;
         Player p = (Player) e.getWhoClicked();
-        if (!hasAdaptation(p)) return;
+        if (!hasActiveAdaptation(p)) return;
         if (e.getRecipe() != null) {
             Material result = e.getRecipe().getResult().getType();
             if (result == Material.SKELETON_SKULL || result == Material.WITHER_SKELETON_SKULL

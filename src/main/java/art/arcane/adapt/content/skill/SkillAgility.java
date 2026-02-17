@@ -18,38 +18,23 @@
 
 package art.arcane.adapt.content.skill;
 
-import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
+import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.api.world.AdaptStatTracker;
-import art.arcane.adapt.content.adaptation.agility.AgilityArmorUp;
-import art.arcane.adapt.content.adaptation.agility.AgilityLadderSlide;
-import art.arcane.adapt.content.adaptation.agility.AgilityParkourMomentum;
-import art.arcane.adapt.content.adaptation.agility.AgilityRollLanding;
-import art.arcane.adapt.content.adaptation.agility.AgilitySuperJump;
-import art.arcane.adapt.content.adaptation.agility.AgilityWallJump;
-import art.arcane.adapt.content.adaptation.agility.AgilityWindUp;
+import art.arcane.adapt.content.adaptation.agility.*;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.misc.CustomModel;
 import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerMoveEvent;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
 public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
-    private Map<UUID, Location> lastLocations;
-
     public SkillAgility() {
         super("agility", Localizer.dLocalize("skill.agility.icon"));
         registerConfiguration(Config.class);
@@ -189,15 +174,11 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
                 .build());
         registerMilestone("challenge_agility_sneak_500", "move.sneak", 500, getConfig().challengeSprint5kReward);
         registerMilestone("challenge_agility_sneak_5k", "move.sneak", 5000, getConfig().challengeSprint5kReward * 2);
-        lastLocations = new HashMap<>();
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerMoveEvent e) {
         Player p = e.getPlayer();
-        if (e.isCancelled()) {
-            return;
-        }
         shouldReturnForPlayer(p, e, () -> {
             if (e.getFrom().getWorld() != null && e.getTo() != null && e.getFrom().getWorld().equals(e.getTo().getWorld())) {
                 double d = e.getFrom().distance(e.getTo());

@@ -17,27 +17,21 @@
  -----------------------------------------------------------------------------*/
 
 package art.arcane.adapt.content.adaptation.seaborrne;
-import art.arcane.volmlib.util.format.Form;
 
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
-import art.arcane.volmlib.util.io.IO;
-import art.arcane.volmlib.util.math.M;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
 import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.adapt.util.common.scheduling.J;
 
 public class SeaborneOxygen extends SimpleAdaptation<SeaborneOxygen.Config> {
 
@@ -80,34 +74,20 @@ public class SeaborneOxygen extends SimpleAdaptation<SeaborneOxygen.Config> {
                 continue;
             }
 
-            Runnable applyOxygen = () -> {
+            withPlayerThread(player, () -> {
                 if (!player.isOnline() || player.getWorld() == null) {
                     return;
                 }
 
-                if (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(player)) {
-                    return;
-                }
-
-                if ((!player.isInWater() && !player.isSwimming()) || !hasAdaptation(player)) {
-                    return;
-                }
-
-                int level = getLevel(player);
-                if (level <= 0) {
+                int level = getActiveLevel(player);
+                if (level <= 0 || (!player.isInWater() && !player.isSwimming())) {
                     return;
                 }
 
                 int airTicks = level * getConfig().airPerLevelTics;
                 player.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, airTicks, level));
                 getPlayer(player).getData().addStat("seaborne.oxygen.bonus-air-ticks", airTicks);
-            };
-
-            if (J.isFoliaThreading()) {
-                J.runEntity(player, applyOxygen);
-            } else {
-                applyOxygen.run();
-            }
+            });
         }
     }
 

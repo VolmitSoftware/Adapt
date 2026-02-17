@@ -20,9 +20,9 @@ package art.arcane.adapt.content.item;
 
 import art.arcane.adapt.api.item.DataItem;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.volmlib.util.format.Form;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.reflect.registries.ItemFlags;
+import art.arcane.volmlib.util.format.Form;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.bukkit.Color;

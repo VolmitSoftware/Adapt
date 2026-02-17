@@ -24,8 +24,8 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.math.VelocitySpeed;
 import art.arcane.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
@@ -39,12 +39,11 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 public class HunterSpeed extends SimpleAdaptation<HunterSpeed.Config> {
-    private final Map<UUID, SpeedBurst> speedBursts = new HashMap<>();
+    private final Map<UUID, SpeedBurst> speedBursts = new java.util.concurrent.ConcurrentHashMap<>();
 
     public HunterSpeed() {
         super("hunter-speed");
@@ -82,10 +81,7 @@ public class HunterSpeed extends SimpleAdaptation<HunterSpeed.Config> {
 
     @EventHandler
     public void on(EntityDamageEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
-        if (e.getEntity() instanceof org.bukkit.entity.Player p && isAdaptableDamageCause(e) && hasAdaptation(p)) {
+        if (e.getEntity() instanceof org.bukkit.entity.Player p && isAdaptableDamageCause(e) && hasActiveAdaptation(p)) {
             if (AdaptConfig.get().isPreventHunterSkillsWhenHungerApplied() && p.hasPotionEffect(PotionEffectType.HUNGER)) {
                 return;
             }

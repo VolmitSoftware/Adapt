@@ -20,8 +20,8 @@ package art.arcane.adapt.content.item;
 
 import art.arcane.adapt.api.version.Version;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.volmlib.util.collection.KList;
 import art.arcane.adapt.util.reflect.registries.Materials;
+import art.arcane.volmlib.util.collection.KList;
 import lombok.Getter;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;

@@ -16,16 +16,16 @@
  -   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
 package art.arcane.adapt.content.adaptation.nether;
-import art.arcane.volmlib.util.format.Form;
 
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
-import art.arcane.volmlib.util.io.IO;
-import art.arcane.volmlib.util.math.M;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -35,10 +35,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageEvent;
 
 import java.util.concurrent.ThreadLocalRandom;
-
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.inventorygui.Element;
 
 public class NetherFireResist extends SimpleAdaptation<NetherFireResist.Config> {
     public NetherFireResist() {
@@ -79,27 +75,22 @@ public class NetherFireResist extends SimpleAdaptation<NetherFireResist.Config> 
 
     @EventHandler(priority = EventPriority.HIGH)
     public void on(EntityDamageEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
 
         if (!(e.getEntity() instanceof Player p)) {
             return;
         }
 
-        if (!hasAdaptation(p)) {
-            return;
-        }
-
-        if (e.getCause() != EntityDamageEvent.DamageCause.FIRE && e.getCause() != EntityDamageEvent.DamageCause.FIRE_TICK) {
-            return;
-        }
+        withAdaptedPlayer(p, e, () -> {
+            if (e.getCause() != EntityDamageEvent.DamageCause.FIRE && e.getCause() != EntityDamageEvent.DamageCause.FIRE_TICK) {
+                return;
+            }
 
 
-        if (ThreadLocalRandom.current().nextDouble() < getFireResist(getLevel(p))) {
-            e.setCancelled(true);
-            getPlayer(p).getData().addStat("nether.fire-resist.negated", 1);
-        }
+            if (ThreadLocalRandom.current().nextDouble() < getFireResist(getLevel(p))) {
+                e.setCancelled(true);
+                getPlayer(p).getData().addStat("nether.fire-resist.negated", 1);
+            }
+        });
     }
 
     public double getFireResist(double level) {

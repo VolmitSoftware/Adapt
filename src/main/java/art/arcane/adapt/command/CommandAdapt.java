@@ -3,9 +3,9 @@ package art.arcane.adapt.command;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
+import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.skill.SkillRegistry;
-import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.adapt.api.world.PlayerData;
 import art.arcane.adapt.content.gui.ConfigGui;
@@ -15,20 +15,17 @@ import art.arcane.adapt.content.item.KnowledgeOrb;
 import art.arcane.adapt.util.command.FConst;
 import art.arcane.adapt.util.config.ConfigMigrationManager;
 import art.arcane.adapt.util.decree.DecreeExecutor;
+import art.arcane.adapt.util.decree.context.AdaptationListingHandler;
+import art.arcane.adapt.util.decree.specialhandlers.NullablePlayerHandler;
 import art.arcane.volmlib.util.decree.DecreeOrigin;
 import art.arcane.volmlib.util.decree.annotations.Decree;
 import art.arcane.volmlib.util.decree.annotations.Param;
-import art.arcane.adapt.util.decree.context.AdaptationListingHandler;
-import art.arcane.adapt.util.decree.specialhandlers.NullablePlayerHandler;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
-
-import art.arcane.adapt.util.common.plugin.Permission;
-import art.arcane.adapt.util.project.command.Command;
 
 @Decree(name = "adapt", description = "Basic Command")
 public class CommandAdapt implements DecreeExecutor {

@@ -4,10 +4,9 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.events.api.ReflectiveHandler;
 import art.arcane.adapt.util.reflect.events.api.entity.EndermanAttackPlayerEvent;
@@ -69,12 +68,16 @@ public class StealthEnderVeil extends SimpleAdaptation<StealthEnderVeil.Config> 
         if (target == null
                 || target.getType() != EntityType.PLAYER
                 || event.getEntityType() != EntityType.ENDERMAN
-                || !(event.getTarget() instanceof Player player)
-                || !hasAdaptation(player)) {
+                || !(event.getTarget() instanceof Player player)) {
             return;
         }
 
-        if (getLevel(player) > 1 || player.isSneaking()) {
+        int level = getActiveLevel(player);
+        if (level <= 0) {
+            return;
+        }
+
+        if (level > 1 || player.isSneaking()) {
             event.setCancelled(true);
             getPlayer(player).getData().addStat("stealth.ender-veil.stares-survived", 1);
         }
@@ -83,11 +86,12 @@ public class StealthEnderVeil extends SimpleAdaptation<StealthEnderVeil.Config> 
     @ReflectiveHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onTarget(EndermanAttackPlayerEvent event) {
         var player = event.getPlayer();
-        if (!hasAdaptation(player)) {
+        int level = getActiveLevel(player);
+        if (level <= 0) {
             return;
         }
 
-        if (getLevel(player) > 1 || player.isSneaking()) {
+        if (level > 1 || player.isSneaking()) {
             event.setCancelled(true);
             getPlayer(player).getData().addStat("stealth.ender-veil.stares-survived", 1);
         }

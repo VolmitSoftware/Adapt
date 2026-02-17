@@ -22,10 +22,6 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.scheduling.J;
-import art.arcane.adapt.util.data.B;
-
 class Dictionary {
     //!\"#$%&[]
     private static final Pattern wordsPattern = Pattern.compile("[A-Z][A-Z][A-Z][A-Z]*");

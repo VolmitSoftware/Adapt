@@ -17,13 +17,13 @@
  -----------------------------------------------------------------------------*/
 
 package art.arcane.adapt.api.value;
-import art.arcane.volmlib.util.format.Form;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
+import art.arcane.adapt.util.common.io.Json;
+import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.io.IO;
-import art.arcane.volmlib.util.math.M;
 import art.arcane.volmlib.util.scheduling.PrecisionStopwatch;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -32,8 +32,6 @@ import org.bukkit.inventory.*;
 
 import java.io.File;
 import java.io.IOException;
-import art.arcane.adapt.util.common.io.Json;
-
 import java.util.*;
 
 @Getter

@@ -18,6 +18,8 @@
 
 package art.arcane.adapt.util.project.command;
 
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.volmlib.util.collection.KList;
 import org.bukkit.Sound;
 
@@ -25,9 +27,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
-
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 
 /**
  * Represents a pawn command

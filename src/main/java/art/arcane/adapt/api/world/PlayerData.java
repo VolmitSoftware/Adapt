@@ -27,12 +27,12 @@ import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.xp.XP;
 import art.arcane.adapt.api.xp.XPMultiplier;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.volmlib.util.format.Form;
-import art.arcane.adapt.util.common.io.Json;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.io.Json;
 import art.arcane.volmlib.util.collection.KList;
 import art.arcane.volmlib.util.collection.KMap;
 import art.arcane.volmlib.util.collection.KSet;
+import art.arcane.volmlib.util.format.Form;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -218,7 +218,20 @@ public class PlayerData {
     }
 
     public int getUsedPower() {
-        return skillLines.values().stream().mapToInt(i -> i.getAdaptations().values().stream().mapToInt(PlayerAdaptation::getLevel).sum()).sum();
+        int usedPower = 0;
+        for (PlayerSkillLine line : skillLines.values()) {
+            if (line == null) {
+                continue;
+            }
+
+            for (PlayerAdaptation adaptation : line.getAdaptations().values()) {
+                if (adaptation == null) {
+                    continue;
+                }
+                usedPower += adaptation.getLevel();
+            }
+        }
+        return usedPower;
     }
 
     public int getLevel() {
@@ -316,7 +329,10 @@ public class PlayerData {
     }
 
     public void pruneAdaptationsForPowerBudget() {
-        while (getUsedPower() > getMaxPower()) {
+        int usedPower = getUsedPower();
+        int maxPower = getMaxPower();
+
+        while (usedPower > maxPower) {
             String worstSkill = null;
             String worstAdaptation = null;
             int worstLevel = Integer.MAX_VALUE;
@@ -339,8 +355,10 @@ public class PlayerData {
             PlayerAdaptation adapt = skillLines.get(worstSkill).getAdaptations().get(worstAdaptation);
             if (adapt.getLevel() <= 1) {
                 skillLines.get(worstSkill).getAdaptations().remove(worstAdaptation);
+                usedPower -= 1;
             } else {
                 adapt.setLevel(adapt.getLevel() - 1);
+                usedPower -= 1;
             }
         }
     }

@@ -2,8 +2,8 @@ package art.arcane.adapt.service;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.content.gui.ConfigGui;
-import art.arcane.adapt.util.common.plugin.AdaptService;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.plugin.AdaptService;
 import art.arcane.adapt.util.common.scheduling.J;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

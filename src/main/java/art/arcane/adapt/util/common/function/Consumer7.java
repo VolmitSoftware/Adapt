@@ -19,9 +19,6 @@
 package art.arcane.adapt.util.common.function;
 
 
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.data.B;
-
 @SuppressWarnings("hiding")
 @FunctionalInterface
 public interface Consumer7<A, B, C, D, E, F, G> {

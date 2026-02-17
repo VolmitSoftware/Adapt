@@ -1,7 +1,5 @@
 package art.arcane.adapt.api.potion;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
@@ -21,23 +19,21 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionType;
 
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class BrewingManager implements Listener {
 
-    private static final Map<BrewingRecipe, List<String>> recipes = Maps.newHashMap();
+    private static final Map<BrewingRecipe, Set<String>> recipes = new ConcurrentHashMap<>();
     private static final Map<Location, BrewingTask> activeTasks = new ConcurrentHashMap<>();
 
     public static void registerRecipe(String adaptation, BrewingRecipe recipe) {
-        recipes.putIfAbsent(recipe, Lists.newArrayList(adaptation));
-        recipes.computeIfPresent(recipe, (k, v) -> {
-            if (!v.contains(adaptation))
-                v.add(adaptation);
-            return v;
-        });
+        if (adaptation == null || adaptation.isBlank() || recipe == null) {
+            return;
+        }
+
+        recipes.computeIfAbsent(recipe, unused -> ConcurrentHashMap.newKeySet()).add(adaptation);
     }
 
     @EventHandler
@@ -71,37 +67,50 @@ public class BrewingManager implements Listener {
 
             Location standLocation = stand.getLocation();
             AdaptPlayer p = Adapt.instance.getAdaptServer().getPlayer(clicker);
-            Optional<BrewingRecipe> recipe = recipes.keySet().stream().filter(r -> BrewingTask.isValid(r, standLocation)).findFirst();
-            recipe.ifPresent(r -> {
-                BrewingTask active = activeTasks.get(standLocation);
-                if (active != null) {
-                    if (!active.getRecipe().getId().equals(r.getId())) {
-                        activeTasks.remove(standLocation).cancel();
-                        if (recipes.get(r).stream().noneMatch(p::hasAdaptation)) {
-                            return;
-                        }
-                        activeTasks.put(standLocation, new BrewingTask(r, standLocation));
-                    }
-                } else {
-                    if (recipes.get(r).stream().noneMatch(p::hasAdaptation)) {
-                        return;
-                    }
-                    activeTasks.put(standLocation, new BrewingTask(r, standLocation));
+            BrewingRecipe recipe = findMatchingRecipe(standLocation);
+            if (recipe == null) {
+                BrewingTask removed = activeTasks.remove(standLocation);
+                if (removed != null) {
+                    removed.cancel();
                 }
-            });
+                return;
+            }
 
-            if (recipe.isEmpty()) {
+            Set<String> requiredAdaptations = recipes.get(recipe);
+            BrewingTask active = activeTasks.get(standLocation);
+            if (!playerHasRequiredAdaptation(p, requiredAdaptations)) {
+                if (active != null && !active.getRecipe().getId().equals(recipe.getId())) {
+                    BrewingTask removed = activeTasks.remove(standLocation);
+                    if (removed != null) {
+                        removed.cancel();
+                    }
+                }
+                return;
+            }
+
+            if (active != null && active.getRecipe().getId().equals(recipe.getId())) {
+                return;
+            }
+
+            if (active != null) {
                 BrewingTask removed = activeTasks.remove(standLocation);
                 if (removed != null) {
                     removed.cancel();
                 }
             }
+
+            activeTasks.put(standLocation, new BrewingTask(recipe, standLocation));
         }, 1);
     }
 
     @EventHandler
     public void onBrew(BrewEvent e) {
-        Material m = e.getContents().getIngredient().getType();
+        ItemStack ingredient = e.getContents().getIngredient();
+        if (ingredient == null) {
+            return;
+        }
+
+        Material m = ingredient.getType();
         if (m != Material.GUNPOWDER && m != Material.DRAGON_BREATH) {
             return;
         }
@@ -128,5 +137,33 @@ public class BrewingManager implements Listener {
             }
             e.getResults().set(i, newStack);
         }
+    }
+
+    private BrewingRecipe findMatchingRecipe(Location standLocation) {
+        if (standLocation == null) {
+            return null;
+        }
+
+        for (BrewingRecipe recipe : recipes.keySet()) {
+            if (BrewingTask.isValid(recipe, standLocation)) {
+                return recipe;
+            }
+        }
+
+        return null;
+    }
+
+    private boolean playerHasRequiredAdaptation(AdaptPlayer player, Set<String> requiredAdaptations) {
+        if (player == null || requiredAdaptations == null || requiredAdaptations.isEmpty()) {
+            return false;
+        }
+
+        for (String adaptation : requiredAdaptations) {
+            if (player.hasAdaptation(adaptation)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

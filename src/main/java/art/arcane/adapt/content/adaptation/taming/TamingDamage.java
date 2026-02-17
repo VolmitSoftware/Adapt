@@ -17,7 +17,6 @@
  -----------------------------------------------------------------------------*/
 
 package art.arcane.adapt.content.adaptation.taming;
-import art.arcane.volmlib.util.format.Form;
 
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -25,12 +24,13 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.version.Version;
 import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.api.world.AdaptStatTracker;
-import art.arcane.volmlib.util.io.IO;
-import art.arcane.volmlib.util.math.M;
-import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.scheduling.J;
+import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Attributes;
+import art.arcane.volmlib.util.format.Form;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -46,13 +46,8 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.inventorygui.Element;
 
 public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
     private static final UUID MODIFIER = UUID.nameUUIDFromBytes("adapt-tame-damage-boost".getBytes());
@@ -106,10 +101,10 @@ public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
             return;
         }
 
-        Map<UUID, Integer> ownerLevels = new HashMap<>();
+        Map<UUID, Integer> ownerLevels = new java.util.concurrent.ConcurrentHashMap<>();
         for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
             Player owner = adaptPlayer.getPlayer();
-            ownerLevels.put(owner.getUniqueId(), getLevel(owner));
+            ownerLevels.put(owner.getUniqueId(), getActiveLevel(owner));
         }
 
         for (World world : Bukkit.getServer().getWorlds()) {
@@ -125,7 +120,7 @@ public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
     private void onFoliaTick() {
         for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
             Player owner = adaptPlayer.getPlayer();
-            int level = getLevel(owner);
+            int level = getActiveLevel(owner);
             J.runEntity(owner, () -> updateNearbyOwnedTameables(owner, level));
         }
     }
@@ -153,7 +148,7 @@ public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
                 && dmgEvent.getDamager() instanceof Tameable tam
                 && tam.isTamed()
                 && tam.getOwner() instanceof Player p
-                && hasAdaptation(p)) {
+                && hasActiveAdaptation(p)) {
             getPlayer(p).getData().addStat("taming.damage.pet-kills", 1);
         }
     }

@@ -23,10 +23,9 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -326,9 +325,8 @@ public class CraftingReconstruction extends SimpleAdaptation<CraftingReconstruct
 
     @EventHandler
     public void on(CraftItemEvent e) {
-        if (e.isCancelled()) return;
         Player p = (Player) e.getWhoClicked();
-        if (!hasAdaptation(p)) return;
+        if (!hasActiveAdaptation(p)) return;
         if (e.getRecipe() != null && (e.getRecipe().getResult().getType().name().contains("ORE") || e.getRecipe().getResult().getType() == Material.ANCIENT_DEBRIS)) {
             getPlayer(p).getData().addStat("crafting.reconstruction.ores-reconstructed", 1);
         }

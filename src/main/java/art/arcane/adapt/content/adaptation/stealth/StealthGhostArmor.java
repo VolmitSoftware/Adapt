@@ -17,7 +17,6 @@
  -----------------------------------------------------------------------------*/
 
 package art.arcane.adapt.content.adaptation.stealth;
-import art.arcane.volmlib.util.format.Form;
 
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -25,13 +24,15 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.version.IAttribute;
 import art.arcane.adapt.api.version.Version;
-import art.arcane.adapt.api.world.AdaptStatTracker;
-import art.arcane.volmlib.util.io.IO;
-import art.arcane.volmlib.util.math.M;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Attributes;
+import art.arcane.volmlib.util.format.Form;
+import art.arcane.volmlib.util.math.M;
 import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.AttributeModifier;
@@ -41,11 +42,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageEvent;
 
 import java.util.UUID;
-
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.adapt.util.common.scheduling.J;
 
 public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config> {
     private static final UUID MODIFIER = UUID.nameUUIDFromBytes("adapt-ghost-armor".getBytes());
@@ -102,7 +98,7 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
             Player p = adaptPlayer.getPlayer();
             var attribute = Version.get().getAttribute(p, Attributes.GENERIC_ARMOR);
 
-            if (!hasAdaptation(p)) {
+            if (!hasActiveAdaptation(p)) {
                 attribute.removeModifier(MODIFIER, MODIFIER_KEY);
                 continue;
             }
@@ -125,10 +121,7 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
-        if (e.getEntity() instanceof Player p && hasAdaptation(p) && !e.isCancelled() && e.getDamage() > 0) {
+        if (e.getEntity() instanceof Player p && hasActiveAdaptation(p) && e.getDamage() > 0) {
             // Check if 2.5 * e.getDamage() is greater than 10 if so just set it to 10 otherwise use the value of 2.5 * e.getDamage()
             int damageXP = (int) Math.min(10, 2.5 * e.getDamage());
             xp(p,damageXP );

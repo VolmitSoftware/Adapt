@@ -18,13 +18,13 @@
 
 package art.arcane.adapt.api.data;
 
-import art.arcane.adapt.util.mantle.Mantle;
-import art.arcane.spatial.matter.ClassReader;
-import art.arcane.spatial.matter.SpatialMatter;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.data.unit.Earnings;
 import art.arcane.adapt.api.tick.TickedObject;
 import art.arcane.adapt.util.common.scheduling.J;
+import art.arcane.adapt.util.mantle.Mantle;
+import art.arcane.spatial.matter.ClassReader;
+import art.arcane.spatial.matter.SpatialMatter;
 import art.arcane.volmlib.util.collection.KMap;
 import org.bukkit.World;
 import org.bukkit.block.Block;

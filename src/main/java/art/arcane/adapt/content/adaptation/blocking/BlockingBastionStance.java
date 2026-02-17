@@ -23,17 +23,15 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.volmlib.util.format.Form;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
@@ -85,7 +83,7 @@ public class BlockingBastionStance extends SimpleAdaptation<BlockingBastionStanc
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
-        if (e.isCancelled() || !(e.getEntity() instanceof Player defender) || !isBastionStance(defender)) {
+        if (!(e.getEntity() instanceof Player defender) || !isBastionStance(defender)) {
             return;
         }
 
@@ -93,7 +91,10 @@ public class BlockingBastionStance extends SimpleAdaptation<BlockingBastionStanc
             return;
         }
 
-        int level = getLevel(defender);
+        int level = getActiveLevel(defender);
+        if (level <= 0) {
+            return;
+        }
 
         // Track session counter for special achievement
         int sessionCount = getStorageInt(defender, "bastionSessionCount", 0) + 1;
@@ -119,17 +120,22 @@ public class BlockingBastionStance extends SimpleAdaptation<BlockingBastionStanc
     @EventHandler(priority = EventPriority.HIGH)
     public void on(PlayerVelocityEvent e) {
         Player p = e.getPlayer();
-        if (!isBastionStance(p)) {
+        int level = getActiveLevel(p);
+        if (!isBastionStance(p, level)) {
             return;
         }
 
-        double factor = 1D - getKnockbackReduction(getLevel(p));
+        double factor = 1D - getKnockbackReduction(level);
         Vector v = e.getVelocity();
         e.setVelocity(new Vector(v.getX() * factor, v.getY(), v.getZ() * factor));
     }
 
     private boolean isBastionStance(Player p) {
-        return hasAdaptation(p) && p.isBlocking() && p.isSneaking() && hasShield(p);
+        return isBastionStance(p, getActiveLevel(p));
+    }
+
+    private boolean isBastionStance(Player p, int level) {
+        return level > 0 && p.isBlocking() && p.isSneaking() && hasShield(p);
     }
 
     private boolean hasShield(Player p) {
@@ -154,7 +160,8 @@ public class BlockingBastionStance extends SimpleAdaptation<BlockingBastionStanc
     public void onTick() {
         for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
             Player p = adaptPlayer.getPlayer();
-            if (hasAdaptation(p) && !isBastionStance(p)) {
+            int level = getActiveLevel(p);
+            if (level > 0 && !isBastionStance(p, level)) {
                 setStorage(p, "bastionSessionCount", 0);
             }
         }

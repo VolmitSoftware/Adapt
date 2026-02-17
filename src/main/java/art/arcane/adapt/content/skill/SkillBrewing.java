@@ -18,20 +18,19 @@
 
 package art.arcane.adapt.content.skill;
 
-import art.arcane.spatial.matter.SpatialMatter;
-import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
+import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.data.WorldData;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.content.adaptation.brewing.*;
 import art.arcane.adapt.content.matter.BrewingStandOwner;
 import art.arcane.adapt.content.matter.BrewingStandOwnerMatter;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.misc.CustomModel;
+import art.arcane.spatial.matter.SpatialMatter;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -45,13 +44,12 @@ import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.BrewerInventory;
 import org.bukkit.inventory.meta.PotionMeta;
 
-import org.bukkit.Bukkit;
-
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
-    private final Map<Player, Long> cooldowns;
+    private final Map<UUID, Long> cooldowns;
 
     public SkillBrewing() {
         super("brewing", Localizer.dLocalize("skill.brewing.icon"));
@@ -232,19 +230,16 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
     }
 
     private void handleCooldown(Player p, Runnable runnable) {
-        Long cooldown = cooldowns.get(p);
+        Long cooldown = cooldowns.get(p.getUniqueId());
         if (cooldown != null && cooldown + getConfig().cooldownDelay > System.currentTimeMillis())
             return;
-        cooldowns.put(p, System.currentTimeMillis());
+        cooldowns.put(p.getUniqueId(), System.currentTimeMillis());
         runnable.run();
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerItemConsumeEvent e) {
         Player p = e.getPlayer();
-        if (e.isCancelled()) {
-            return;
-        }
         shouldReturnForPlayer(p, e, () -> {
             if (e.getItem().getItemMeta() instanceof PotionMeta o
                     && !e.getItem().toString().contains("potion-type=minecraft:water")
@@ -265,9 +260,6 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(PotionSplashEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         if (e.getPotion().getShooter() instanceof Player p) {
             shouldReturnForPlayer(p, e, () -> {
                 AdaptPlayer a = getPlayer(p);
@@ -281,9 +273,6 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(BlockPlaceEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         shouldReturnForPlayer(e.getPlayer(), e, () -> {
             if (e.getBlock().getType().equals(Material.BREWING_STAND)) {
                 WorldData.of(e.getBlock().getWorld()).set(e.getBlock(), new BrewingStandOwner(e.getPlayer().getUniqueId()));
@@ -294,8 +283,7 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(InventoryOpenEvent e) {
-        if (e.isCancelled()
-                || !(e.getPlayer() instanceof Player player)
+        if ( !(e.getPlayer() instanceof Player player)
                 || !(e.getInventory() instanceof BrewerInventory inv)) {
             return;
         }
@@ -315,9 +303,6 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(BlockBreakEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         shouldReturnForPlayer(e.getPlayer(), e, () -> {
             if (!e.getBlock().getType().equals(Material.BREWING_STAND)) {
                 return;

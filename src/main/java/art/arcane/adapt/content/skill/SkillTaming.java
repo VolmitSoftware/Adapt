@@ -18,23 +18,15 @@
 
 package art.arcane.adapt.content.skill;
 
-import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
+import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.skill.SimpleSkill;
-import art.arcane.adapt.api.world.AdaptStatTracker;
-import art.arcane.adapt.content.adaptation.taming.TamingDamage;
-import art.arcane.adapt.content.adaptation.taming.TamingBeastRecall;
-import art.arcane.adapt.content.adaptation.taming.TamingHealthBoost;
-import art.arcane.adapt.content.adaptation.taming.TamingHealthRegeneration;
-import art.arcane.adapt.content.adaptation.taming.TamingMountedTactics;
-import art.arcane.adapt.content.adaptation.taming.TamingPackLeaderAura;
-import art.arcane.adapt.content.adaptation.taming.TamingSharedPain;
+import art.arcane.adapt.content.adaptation.taming.*;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.misc.CustomModel;
 import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -48,9 +40,10 @@ import org.bukkit.event.entity.EntityTameEvent;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
-    private final Map<Player, Long> cooldowns;
+    private final Map<UUID, Long> cooldowns;
 
     public SkillTaming() {
         super("taming", Localizer.dLocalize("skill.taming.icon"));
@@ -182,9 +175,6 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(EntityBreedEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         for (Entity nearby : e.getEntity().getNearbyEntities(15, 15, 15)) {
             if (!(nearby instanceof Player p)) {
                 continue;
@@ -201,9 +191,6 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(EntityDamageByEntityEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         if (e.getDamager() instanceof Tameable tameable && tameable.isTamed() && tameable.getOwner() instanceof Player p) {
             shouldReturnForPlayer(p, e, () -> {
                 getPlayer(p).getData().addStat("taming.pet.damage", e.getDamage());
@@ -217,9 +204,6 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(EntityTameEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         if (e.getOwner() instanceof Player p) {
             shouldReturnForPlayer(p, e, () -> {
                 getPlayer(p).getData().addStat("taming.tamed", 1);
@@ -244,12 +228,12 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
     }
 
     private boolean isOnCooldown(Player p) {
-        Long cooldown = cooldowns.get(p);
+        Long cooldown = cooldowns.get(p.getUniqueId());
         return cooldown != null && cooldown + getConfig().cooldownDelay > System.currentTimeMillis();
     }
 
     private void setCooldown(Player p) {
-        cooldowns.put(p, System.currentTimeMillis());
+        cooldowns.put(p.getUniqueId(), System.currentTimeMillis());
     }
 
 

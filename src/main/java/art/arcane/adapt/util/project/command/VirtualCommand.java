@@ -19,21 +19,18 @@
 package art.arcane.adapt.util.project.command;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.misc.SoundPlayer;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.volmlib.util.collection.KList;
 import art.arcane.volmlib.util.collection.KMap;
 import art.arcane.volmlib.util.reflect.V;
-import art.arcane.adapt.util.common.scheduling.J;
-import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
 
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
-
-
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 
 /**
  * Represents a virtual command. A chain of iterative processing through

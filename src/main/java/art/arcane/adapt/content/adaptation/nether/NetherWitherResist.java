@@ -22,10 +22,9 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -80,17 +79,14 @@ public class NetherWitherResist extends SimpleAdaptation<NetherWitherResist.Conf
 
     @EventHandler
     public void onEntityDamage(EntityDamageEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         if (e.getCause() == EntityDamageEvent.DamageCause.WITHER && e.getEntity() instanceof Player p) {
-            if (!hasAdaptation(p))
-                return;
-            double chance = getTotalChange(p);
-            if (ThreadLocalRandom.current().nextInt(101) <= chance) {
-                e.setCancelled(true);
-                getPlayer(p).getData().addStat("nether.wither-resist.negated", 1);
-            }
+            withAdaptedPlayer(p, e, () -> {
+                double chance = getTotalChange(p);
+                if (ThreadLocalRandom.current().nextInt(101) <= chance) {
+                    e.setCancelled(true);
+                    getPlayer(p).getData().addStat("nether.wither-resist.negated", 1);
+                }
+            });
         }
     }
 

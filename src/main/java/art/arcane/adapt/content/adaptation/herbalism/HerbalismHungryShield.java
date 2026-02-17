@@ -22,12 +22,11 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.volmlib.util.format.Form;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -86,10 +85,7 @@ public class HerbalismHungryShield extends SimpleAdaptation<HerbalismHungryShiel
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
-        if (e.getEntity() instanceof Player p && hasAdaptation(p)) {
+        if (e.getEntity() instanceof Player p && hasActiveAdaptation(p)) {
             double f = getEffectiveness(getLevelPercent(p));
             double h = e.getDamage() * f;
             double d = e.getDamage() - h;

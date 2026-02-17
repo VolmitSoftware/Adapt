@@ -1,13 +1,13 @@
 package art.arcane.adapt.util.common.misc;
 
+import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import com.fren_gor.ultimateAdvancementAPI.UltimateAdvancementAPI;
 import com.fren_gor.ultimateAdvancementAPI.nms.wrappers.MinecraftKeyWrapper;
 import com.fren_gor.ultimateAdvancementAPI.nms.wrappers.advancement.AdvancementDisplayWrapper;
 import com.fren_gor.ultimateAdvancementAPI.nms.wrappers.advancement.AdvancementFrameTypeWrapper;
 import com.fren_gor.ultimateAdvancementAPI.nms.wrappers.advancement.AdvancementWrapper;
 import com.fren_gor.ultimateAdvancementAPI.nms.wrappers.packets.PacketPlayOutAdvancementsWrapper;
-import art.arcane.adapt.Adapt;
-import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import com.google.common.base.Preconditions;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;

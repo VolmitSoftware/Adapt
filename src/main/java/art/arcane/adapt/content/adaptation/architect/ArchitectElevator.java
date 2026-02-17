@@ -18,9 +18,6 @@
 
 package art.arcane.adapt.content.adaptation.architect;
 
-import com.jeff_media.customblockdata.CustomBlockData;
-import com.jeff_media.customblockdata.events.CustomBlockDataMoveEvent;
-import com.jeff_media.customblockdata.events.CustomBlockDataRemoveEvent;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -29,13 +26,15 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.recipe.MaterialChar;
-import art.arcane.adapt.api.world.AdaptStatTracker;
-import art.arcane.adapt.util.common.misc.CustomModel;
-import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
+import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import com.jeff_media.customblockdata.CustomBlockData;
+import com.jeff_media.customblockdata.events.CustomBlockDataMoveEvent;
+import com.jeff_media.customblockdata.events.CustomBlockDataRemoveEvent;
 import lombok.NoArgsConstructor;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -58,7 +57,6 @@ import org.bukkit.util.BoundingBox;
 import org.bukkit.util.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -72,7 +70,7 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
     private static final float SOUND_VOLUME = 1f;
     private static final float SOUND_PITCH = 1f;
 
-    private final Set<UUID> players = new HashSet<>();
+    private final Set<UUID> players = java.util.concurrent.ConcurrentHashMap.newKeySet();
 
     public ArchitectElevator() {
         super("architect-elevator");
@@ -197,7 +195,7 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
     }
 
     public int getMaxDistance(Player player) {
-        int level = getLevel(player);
+        int level = getActiveLevel(player);
         if (level == 0) return 0;
         Config config = getConfig();
         return config.baseDistance * (level * config.multiplier);

@@ -20,28 +20,21 @@ package art.arcane.adapt.content.skill;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
-import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
+import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.api.world.PlayerAdaptation;
 import art.arcane.adapt.api.world.PlayerSkillLine;
-import art.arcane.adapt.content.adaptation.tragoul.TragoulGlobe;
-import art.arcane.adapt.content.adaptation.tragoul.TragoulBloodPact;
-import art.arcane.adapt.content.adaptation.tragoul.TragoulBoneHarvest;
-import art.arcane.adapt.content.adaptation.tragoul.TragoulHealing;
-import art.arcane.adapt.content.adaptation.tragoul.TragoulLance;
-import art.arcane.adapt.content.adaptation.tragoul.TragoulThorns;
+import art.arcane.adapt.content.adaptation.tragoul.*;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import de.slikey.effectlib.effect.CloudEffect;
 import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -54,9 +47,10 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
-    private final Map<Player, Long> cooldowns;
+    private final Map<UUID, Long> cooldowns;
 
     public SkillTragOul() {
         super("tragoul", Localizer.dLocalize("skill.tragoul.icon"));
@@ -195,9 +189,6 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(EntityDamageByEntityEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         if (!(e.getEntity() instanceof Player p)) {
             return;
         }
@@ -212,10 +203,10 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
             AdaptPlayer a = getPlayer(p);
             a.getData().addStat("trag.hitsrecieved", 1);
             a.getData().addStat("trag.damage", e.getDamage());
-            Long cooldown = cooldowns.get(p);
+            Long cooldown = cooldowns.get(p.getUniqueId());
             if (cooldown != null && cooldown + getConfig().cooldownDelay > System.currentTimeMillis())
                 return;
-            cooldowns.put(p, System.currentTimeMillis());
+            cooldowns.put(p.getUniqueId(), System.currentTimeMillis());
             xp(a.getPlayer(), getConfig().damageReceivedXpMultiplier * e.getDamage());
             if (p.getHealth() - e.getFinalDamage() > 0 && p.getHealth() - e.getFinalDamage() <= 8) {
                 xp(a.getPlayer(), getConfig().lowHealthSurvivalXP);
@@ -275,9 +266,6 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(EntityDamageEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         if (!(e.getEntity() instanceof Player p)) {
             return;
         }

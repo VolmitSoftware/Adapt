@@ -6,8 +6,6 @@ import art.arcane.adapt.Adapt;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import art.arcane.adapt.util.common.format.C;
-
 public final class WrappedReturningMethod<C, R> {
 
     private final Method method;

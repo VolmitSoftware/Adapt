@@ -1,8 +1,8 @@
 package art.arcane.adapt.api.potion;
 
-import com.google.common.collect.Lists;
 import art.arcane.adapt.api.version.Version;
 import art.arcane.adapt.util.reflect.registries.PotionTypes;
+import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;

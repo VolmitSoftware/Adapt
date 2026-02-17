@@ -1,6 +1,5 @@
 package art.arcane.adapt.service;
 
-import com.google.gson.JsonElement;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
@@ -10,29 +9,25 @@ import art.arcane.adapt.api.skill.SkillRegistry;
 import art.arcane.adapt.api.tick.TickedObject;
 import art.arcane.adapt.content.gui.ConfigGui;
 import art.arcane.adapt.content.gui.SkillsGui;
-import art.arcane.adapt.util.common.plugin.AdaptService;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.project.config.ConfigRewriteReporter;
-import art.arcane.adapt.util.common.misc.CustomModel;
-import art.arcane.volmlib.util.hotload.ConfigHotloadEngine;
-import art.arcane.volmlib.util.io.IO;
-import art.arcane.adapt.util.common.scheduling.J;
-import art.arcane.adapt.util.common.io.Json;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.inventorygui.Window;
+import art.arcane.adapt.util.common.io.Json;
+import art.arcane.adapt.util.common.misc.CustomModel;
+import art.arcane.adapt.util.common.plugin.AdaptService;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigFileSupport;
+import art.arcane.adapt.util.project.config.ConfigRewriteReporter;
+import art.arcane.volmlib.util.hotload.ConfigHotloadEngine;
+import art.arcane.volmlib.util.io.IO;
+import com.google.gson.JsonElement;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static art.arcane.adapt.util.decree.context.AdaptationListingHandler.initializeAdaptationListings;
 

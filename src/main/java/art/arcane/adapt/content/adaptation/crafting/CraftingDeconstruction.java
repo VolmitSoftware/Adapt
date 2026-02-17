@@ -21,8 +21,8 @@ package art.arcane.adapt.content.adaptation.crafting;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdvancementSpec;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
@@ -40,7 +40,8 @@ import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.util.RayTraceResult;
 
-import java.util.*;
+import java.util.Map;
+import java.util.Objects;
 
 public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruction.Config> {
     public CraftingDeconstruction() {
@@ -113,7 +114,7 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
             }
         } else {
             ShapedRecipe r = (ShapedRecipe) selectedRecipe;
-            Map<Material, Integer> ings = new HashMap<>();
+            Map<Material, Integer> ings = new java.util.concurrent.ConcurrentHashMap<>();
             r.getIngredientMap().values().stream().filter(Objects::nonNull).forEach(i -> ings.merge(i.getType(), i.getAmount(), Integer::sum));
 
             for (Map.Entry<Material, Integer> entry : ings.entrySet()) {
@@ -142,7 +143,7 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
     public void on(PlayerInteractEvent e) {
         Player player = e.getPlayer();
         ItemStack mainHandItem = player.getInventory().getItemInMainHand();
-        if (!hasAdaptation(player)) {
+        if (!hasActiveAdaptation(player)) {
             return;
         }
 

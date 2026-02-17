@@ -17,7 +17,6 @@
  -----------------------------------------------------------------------------*/
 
 package art.arcane.adapt.content.adaptation.axe;
-import art.arcane.volmlib.util.format.Form;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
@@ -25,10 +24,12 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
-import art.arcane.volmlib.util.io.IO;
-import art.arcane.volmlib.util.math.M;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
+import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -40,11 +41,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 
 public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
 
@@ -101,7 +97,7 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
             return;
         }
 
-        if (e.getClickedBlock() != null && e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && isAxe(p.getInventory().getItemInMainHand()) && hasAdaptation(p)) {
+        if (e.getClickedBlock() != null && e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && isAxe(p.getInventory().getItemInMainHand()) && hasActiveAdaptation(p)) {
             if (!canBlockBreak(p, e.getClickedBlock().getLocation())) {
                 return;
             }

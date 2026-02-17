@@ -1,7 +1,7 @@
 package art.arcane.adapt.util.decree.handlers;
 
-import art.arcane.volmlib.util.collection.KList;
 import art.arcane.adapt.util.decree.DecreeParameterHandler;
+import art.arcane.volmlib.util.collection.KList;
 import art.arcane.volmlib.util.decree.exceptions.DecreeParsingException;
 import org.bukkit.Sound;
 

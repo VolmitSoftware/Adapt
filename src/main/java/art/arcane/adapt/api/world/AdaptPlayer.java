@@ -17,7 +17,6 @@
  -----------------------------------------------------------------------------*/
 
 package art.arcane.adapt.api.world;
-import art.arcane.volmlib.util.format.Form;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
@@ -25,6 +24,11 @@ import art.arcane.adapt.api.notification.AdvancementNotification;
 import art.arcane.adapt.api.notification.Notifier;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.tick.TickedObject;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.misc.CustomModel;
+import art.arcane.adapt.util.common.scheduling.J;
+import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.io.IO;
 import art.arcane.volmlib.util.math.M;
 import art.arcane.volmlib.util.math.RollingSequence;
@@ -41,11 +45,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.CustomModel;
-import art.arcane.adapt.util.common.scheduling.J;
 
 @EqualsAndHashCode(callSuper = false)
 @Data
@@ -65,6 +64,7 @@ public class AdaptPlayer extends TickedObject {
     private Location lastpos;
     private long lastSeen;
     private volatile boolean pendingDataDeletion;
+    private volatile boolean runtimeReady;
 
     public AdaptPlayer(Player p) {
         this(p, null);
@@ -83,6 +83,7 @@ public class AdaptPlayer extends TickedObject {
         lastloc = M.ms();
         lastSeen = M.ms();
         velocity = new Vector();
+        runtimeReady = true;
     }
 
     public boolean canConsumeFood(double cost, int minFood) {
@@ -274,6 +275,23 @@ public class AdaptPlayer extends TickedObject {
 
     @Override
     public void onTick() {
+        if (!runtimeReady) {
+            return;
+        }
+
+        if (updatelatch == null) {
+            updatelatch = new ChronoLatch(1000);
+        }
+        if (savelatch == null) {
+            savelatch = new ChronoLatch(60000);
+        }
+        if (speed == null) {
+            speed = new RollingSequence(7);
+        }
+        if (velocity == null) {
+            velocity = new Vector();
+        }
+
         if (updatelatch.flip()) {
             getData().update(this);
         }
@@ -303,6 +321,10 @@ public class AdaptPlayer extends TickedObject {
     }
 
     public double getSpeed() {
+        if (!runtimeReady || speed == null) {
+            return 0D;
+        }
+
         return speed.getAverage();
     }
 
@@ -321,7 +343,7 @@ public class AdaptPlayer extends TickedObject {
             return false;
         }
 
-        PlayerSkillLine line = getData().getSkillLine(skillLine);
+        PlayerSkillLine line = getData().getSkillLineNullable(skillLine);
         if (line == null) {
             return false;
         }

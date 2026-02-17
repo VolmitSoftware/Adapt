@@ -17,31 +17,26 @@
  -----------------------------------------------------------------------------*/
 
 package art.arcane.adapt.content.adaptation.ranged;
-import art.arcane.volmlib.util.format.Form;
 
-import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
+import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
-import art.arcane.volmlib.util.io.IO;
-import art.arcane.volmlib.util.math.M;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
+import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
 import lombok.NoArgsConstructor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
-
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 
 public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
 
@@ -86,36 +81,35 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
 
     @EventHandler
     public void on(EntityDamageByEntityEvent e) {
-        if (e.isCancelled()) {
+        var combat = resolveProjectileContext(e);
+        if (combat == null) {
             return;
         }
-        if (e.getDamager() instanceof Projectile r && r.getShooter() instanceof Player p && hasAdaptation(p)) {
-            Location a = e.getEntity().getLocation().clone();
-            Location b = p.getLocation().clone();
-            a.setY(0);
-            b.setY(0);
-            xp(p, 5);
-            double distSq = a.distanceSquared(b);
 
-            if (distSq > 10 && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_force_30")) {
-                getPlayer(p).getAdvancementHandler().grant("challenge_force_30");
-                xp(p, getConfig().challengeRewardLongShotReward, "challenge-long-shot");
-            }
+        Player p = combat.attacker();
+        Location a = e.getEntity().getLocation().clone();
+        Location b = p.getLocation().clone();
+        a.setY(0);
+        b.setY(0);
+        xp(p, 5);
+        double distSq = a.distanceSquared(b);
 
-            if (distSq > 900) {
-                getPlayer(p).getData().addStat("ranged.force.long-range-hits", 1);
-            }
+        if (distSq > 10 && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_force_30")) {
+            getPlayer(p).getAdvancementHandler().grant("challenge_force_30");
+            xp(p, getConfig().challengeRewardLongShotReward, "challenge-long-shot");
+        }
+
+        if (distSq > 900) {
+            getPlayer(p).getData().addStat("ranged.force.long-range-hits", 1);
         }
     }
 
     @EventHandler
     public void on(ProjectileLaunchEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         if (e.getEntity().getShooter() instanceof Player p) {
-            if (hasAdaptation(p)) {
-                double factor = getLevelPercent(p);
+            int level = getActiveLevel(p);
+            if (level > 0) {
+                double factor = getLevelPercent(level);
                 e.getEntity().setVelocity(e.getEntity().getVelocity().clone().multiply(1 + getSpeed(factor)));
                 SoundPlayer spw = SoundPlayer.of(e.getEntity().getWorld());
                 spw.play(e.getEntity().getLocation(), Sound.ENTITY_SNOWBALL_THROW, 0.5f + ((float) factor * 0.25f), 0.7f + (float) (factor / 2f));

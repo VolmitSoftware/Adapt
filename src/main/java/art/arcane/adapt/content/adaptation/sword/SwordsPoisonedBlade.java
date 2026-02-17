@@ -23,16 +23,16 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.content.adaptation.sword.effects.DamagingBleedEffect;
 import art.arcane.adapt.content.item.ItemListings;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.volmlib.util.format.Form;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
 import de.slikey.effectlib.effect.BleedEffect;
 import lombok.NoArgsConstructor;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -43,16 +43,14 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.potion.PotionEffectType;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 public class SwordsPoisonedBlade extends SimpleAdaptation<SwordsPoisonedBlade.Config> {
-    private final Map<Player, Long> cooldowns;
-    private final Set<UUID> poisonedEntities = new HashSet<>();
-    private final Map<UUID, Player> poisonSource = new HashMap<>();
+    private final Map<UUID, Long> cooldowns;
+    private final Set<UUID> poisonedEntities = java.util.concurrent.ConcurrentHashMap.newKeySet();
+    private final Map<UUID, UUID> poisonSource = new java.util.concurrent.ConcurrentHashMap<>();
 
     public SwordsPoisonedBlade() {
         super("sword-poison-blade");
@@ -65,7 +63,7 @@ public class SwordsPoisonedBlade extends SimpleAdaptation<SwordsPoisonedBlade.Co
         setInterval(4984);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
-        cooldowns = new HashMap<>();
+        cooldowns = new java.util.concurrent.ConcurrentHashMap<>();
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.SPIDER_EYE)
                 .key("challenge_swords_poison_500")
@@ -103,17 +101,14 @@ public class SwordsPoisonedBlade extends SimpleAdaptation<SwordsPoisonedBlade.Co
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
-        if (e.getDamager() instanceof Player p && hasAdaptation(p) && ItemListings.getToolSwords().contains(p.getInventory().getItemInMainHand().getType())) {
-            Long cooldown = cooldowns.get(p);
+        if (e.getDamager() instanceof Player p && hasActiveAdaptation(p) && ItemListings.getToolSwords().contains(p.getInventory().getItemInMainHand().getType())) {
+            Long cooldown = cooldowns.get(p.getUniqueId());
             if (cooldown != null && cooldown > System.currentTimeMillis())
                 return;
             Entity victim = e.getEntity();
-            cooldowns.put(p, System.currentTimeMillis() + getCooldown(getLevel(p)));
+            cooldowns.put(p.getUniqueId(), System.currentTimeMillis() + getCooldown(getLevel(p)));
+            if (!canDamageTarget(p, victim)) return;
             if (victim instanceof Player pvic) {
-                if (!canPVP(p, pvic.getLocation())) return;
                 BleedEffect blood = new BleedEffect(Adapt.instance.adaptEffectManager);
                 blood.setEntity(pvic);
                 blood.material = Material.LARGE_FERN;
@@ -124,7 +119,6 @@ public class SwordsPoisonedBlade extends SimpleAdaptation<SwordsPoisonedBlade.Co
                 blood.start();
                 addPotionStacks(pvic, PotionEffectType.POISON, 2, 50 * getLevel(p), true);
             } else {
-                if (!canPVE(p, victim.getLocation())) return;
                 BleedEffect blood = victim instanceof LivingEntity l ? new DamagingBleedEffect(Adapt.instance.adaptEffectManager, 1, l) : new BleedEffect(Adapt.instance.adaptEffectManager);
                 blood.setEntity(victim);
                 blood.material = Material.LARGE_FERN;
@@ -135,7 +129,7 @@ public class SwordsPoisonedBlade extends SimpleAdaptation<SwordsPoisonedBlade.Co
                 blood.start();
             }
             poisonedEntities.add(victim.getUniqueId());
-            poisonSource.put(victim.getUniqueId(), p);
+            poisonSource.put(victim.getUniqueId(), p.getUniqueId());
             getPlayer(p).getData().addStat("swords.poisoned-blade.poison-applied", 1);
 
         }
@@ -145,7 +139,8 @@ public class SwordsPoisonedBlade extends SimpleAdaptation<SwordsPoisonedBlade.Co
     public void on(EntityDeathEvent e) {
         UUID victimId = e.getEntity().getUniqueId();
         if (poisonedEntities.remove(victimId)) {
-            Player source = poisonSource.remove(victimId);
+            UUID sourceId = poisonSource.remove(victimId);
+            Player source = sourceId == null ? null : Bukkit.getPlayer(sourceId);
             if (source != null && source.isOnline()) {
                 getPlayer(source).getData().addStat("swords.poisoned-blade.poison-kills", 1);
             }
@@ -189,4 +184,3 @@ public class SwordsPoisonedBlade extends SimpleAdaptation<SwordsPoisonedBlade.Co
         double costFactor = 0.325;
     }
 }
-

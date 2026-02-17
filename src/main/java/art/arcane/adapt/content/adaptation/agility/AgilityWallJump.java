@@ -17,20 +17,21 @@
  -----------------------------------------------------------------------------*/
 
 package art.arcane.adapt.content.adaptation.agility;
-import art.arcane.volmlib.util.format.Form;
 
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
-import art.arcane.volmlib.util.io.IO;
-import art.arcane.volmlib.util.math.M;
-import art.arcane.adapt.util.reflect.registries.Particles;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
+import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
+import art.arcane.volmlib.util.format.Form;
+import art.arcane.volmlib.util.math.M;
 import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
@@ -39,21 +40,18 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.util.Vector;
 
-import java.util.HashMap;
 import java.util.Map;
-
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.adapt.util.common.inventorygui.Window;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
-    private final Map<Player, Double> airjumps;
-    private final Map<Player, Vector> horizontalIntent;
-    private final Map<Player, Long> horizontalIntentTime;
+    private final Map<UUID, Double> airjumps;
+    private final Map<UUID, Vector> horizontalIntent;
+    private final Map<UUID, Long> horizontalIntentTime;
+    private final Map<UUID, Boolean> sneakState;
 
     public AgilityWallJump() {
         super("agility-wall-jump");
@@ -66,9 +64,10 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setInterval(50);
-        airjumps = new HashMap<>();
-        horizontalIntent = new HashMap<>();
-        horizontalIntentTime = new HashMap<>();
+        airjumps = new ConcurrentHashMap<>();
+        horizontalIntent = new ConcurrentHashMap<>();
+        horizontalIntentTime = new ConcurrentHashMap<>();
+        sneakState = new ConcurrentHashMap<>();
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.LADDER)
                 .key("challenge_agility_wall_jump_500")
@@ -96,10 +95,17 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
 
     @EventHandler
     public void on(PlayerQuitEvent e) {
+        UUID id = e.getPlayer().getUniqueId();
+        airjumps.remove(id);
+        horizontalIntent.remove(id);
+        horizontalIntentTime.remove(id);
+        sneakState.remove(id);
+    }
+
+    @EventHandler
+    public void on(PlayerToggleSneakEvent e) {
         Player p = e.getPlayer();
-        airjumps.remove(p);
-        horizontalIntent.remove(p);
-        horizontalIntentTime.remove(p);
+        withPlayerThread(p, e, () -> sneakState.put(p.getUniqueId(), e.isSneaking()));
     }
 
     private int getMaxJumps(int level) {
@@ -112,16 +118,15 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
 
     @EventHandler
     public void on(PlayerMoveEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         Player p = e.getPlayer();
-        if (!canInteract(p, p.getLocation())) {
+        UUID id = p.getUniqueId();
+        sneakState.put(id, p.isSneaking());
+        if (resolveInteractContext(p, p.getLocation()) == null) {
             return;
         }
-        if (airjumps.containsKey(p)) {
+        if (airjumps.containsKey(id)) {
             if (p.isOnGround() && !p.getLocation().getBlock().getRelative(BlockFace.DOWN).getBlockData().getMaterial().isAir()) {
-                airjumps.remove(p);
+                airjumps.remove(id);
             }
         }
 
@@ -133,8 +138,8 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
         delta.setY(0);
         double movementThresholdSq = getConfig().inputMovementThreshold * getConfig().inputMovementThreshold;
         if (delta.lengthSquared() >= movementThresholdSq) {
-            horizontalIntent.put(p, delta.normalize());
-            horizontalIntentTime.put(p, M.ms());
+            horizontalIntent.put(id, delta.normalize());
+            horizontalIntentTime.put(id, M.ms());
         }
     }
 
@@ -142,98 +147,107 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
     public void onTick() {
         for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
             Player p = adaptPlayer.getPlayer();
-            int level = getLevel(p);
-            if (level <= 0) {
+            if (p == null || !p.isOnline()) {
                 continue;
             }
+            withPlayerThread(p, () -> updatePlayer(p));
+        }
+    }
 
-            Double j = airjumps.get(p);
+    private void updatePlayer(Player p) {
+        if (p == null || !p.isOnline()) {
+            return;
+        }
 
-            if (j != null && j - 0.25 >= getMaxJumps(level)) {
+        UUID id = p.getUniqueId();
+        int level = getActiveInteractLevel(p, p.getLocation());
+        if (level <= 0) {
+            return;
+        }
+
+        Double j = airjumps.get(id);
+
+        if (j != null && j - 0.25 >= getMaxJumps(level)) {
+            p.setGravity(true);
+            return;
+        }
+
+        if (p.isOnGround()) {
+            airjumps.remove(id);
+            if (!p.hasGravity()) {
                 p.setGravity(true);
-                continue;
             }
+            return;
+        }
 
-            if (p.isOnGround()) {
-                airjumps.remove(p);
-                if (!p.hasGravity()) {
-                    p.setGravity(true);
-                }
-                continue;
-            }
+        Block stickBlock = stickToWall(p);
+        if (p.isFlying() || !isSneaking(id, p)) {
+            boolean jumped = false;
 
-            if (!canInteract(p, p.getLocation())) {
-                continue;
-            }
+            if (!p.hasGravity() && p.getFallDistance() > 0.45 && stickBlock != null) {
+                j = j == null ? 0 : j;
+                j++;
 
-            Block stickBlock = stickToWall(p);
-            if (p.isFlying() || !p.isSneaking() || p.getFallDistance() < 0.3) {
-                boolean jumped = false;
-
-                if (!p.hasGravity() && p.getFallDistance() > 0.45 && stickBlock != null) {
-                    j = j == null ? 0 : j;
-                    j++;
-
-                    if (j - 0.25 <= getMaxJumps(level)) {
-                        jumped = true;
-                        Vector launch = p.getVelocity().clone().setY(getJumpHeight(level));
-                        if (isBackwardLaunch(p)) {
-                            Vector direction = p.getLocation().getDirection().clone().setY(0);
-                            if (direction.lengthSquared() > 0.000001) {
-                                direction.normalize().multiply(-getConfig().backwardPushSpeed);
-                                launch.setX(direction.getX());
-                                launch.setZ(direction.getZ());
-                            }
-                        }
-                        p.setVelocity(launch);
-                        if (areParticlesEnabled()) {
-                            p.getWorld().spawnParticle(Particles.BLOCK_CRACK, p.getLocation().clone().add(0, 0.3, 0), 15, 0.1, 0.8, 0.1, 0.1, stickBlock.getBlockData());
-                        }
-                        getPlayer(p).getData().addStat("agility.wall-jump.air-jumps", 1);
-                        if (j >= 5 && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_agility_parkour_master")) {
-                            getPlayer(p).getAdvancementHandler().grant("challenge_agility_parkour_master");
+                if (j - 0.25 <= getMaxJumps(level)) {
+                    jumped = true;
+                    Vector launch = p.getVelocity().clone().setY(getJumpHeight(level));
+                    if (isBackwardLaunch(p)) {
+                        Vector direction = p.getLocation().getDirection().clone().setY(0);
+                        if (direction.lengthSquared() > 0.000001) {
+                            direction.normalize().multiply(-getConfig().backwardPushSpeed);
+                            launch.setX(direction.getX());
+                            launch.setZ(direction.getZ());
                         }
                     }
-                    airjumps.put(p, j);
-                }
-
-                if (!jumped && !p.hasGravity()) {
-                    p.setGravity(true);
-                    SoundPlayer spw = SoundPlayer.of(p.getWorld());
-                    spw.play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 1f, 0.439f);
-                }
-                continue;
-            }
-
-            if (stickBlock != null) {
-                if (p.hasGravity()) {
-                    SoundPlayer spw = SoundPlayer.of(p.getWorld());
-                    spw.play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 1f, 0.89f);
-                    spw.play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_CHAIN, 1f, 1.39f);
+                    p.setVelocity(launch);
                     if (areParticlesEnabled()) {
-                        p.getWorld().spawnParticle(Particles.BLOCK_CRACK, p.getLocation().clone().add(0, 0.3, 0), 15, 0.1, 0.2, 0.1, 0.1, stickBlock.getBlockData());
+                        p.getWorld().spawnParticle(Particles.BLOCK_CRACK, p.getLocation().clone().add(0, 0.3, 0), 15, 0.1, 0.8, 0.1, 0.1, stickBlock.getBlockData());
+                    }
+                    getPlayer(p).getData().addStat("agility.wall-jump.air-jumps", 1);
+                    if (j >= 5 && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_agility_parkour_master")) {
+                        getPlayer(p).getAdvancementHandler().grant("challenge_agility_parkour_master");
                     }
                 }
-
-                applyWallStickForce(p, stickBlock);
-                p.setGravity(false);
-                Vector c = p.getVelocity();
-                p.setVelocity(p.getVelocity().setY((c.getY() * 0.35) - 0.0025));
-                Double vv = airjumps.get(p);
-                vv = vv == null ? 0 : vv;
-                vv += 0.0127;
-                airjumps.put(p, vv);
+                airjumps.put(id, j);
             }
 
-            if (stickBlock == null && !p.hasGravity()) {
+            if (!jumped && !p.hasGravity()) {
                 p.setGravity(true);
+                SoundPlayer spw = SoundPlayer.of(p.getWorld());
+                spw.play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 1f, 0.439f);
             }
+            return;
+        }
+
+        if (stickBlock != null) {
+            if (p.hasGravity()) {
+                SoundPlayer spw = SoundPlayer.of(p.getWorld());
+                spw.play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 1f, 0.89f);
+                spw.play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_CHAIN, 1f, 1.39f);
+                if (areParticlesEnabled()) {
+                    p.getWorld().spawnParticle(Particles.BLOCK_CRACK, p.getLocation().clone().add(0, 0.3, 0), 15, 0.1, 0.2, 0.1, 0.1, stickBlock.getBlockData());
+                }
+            }
+
+            applyWallStickForce(p, stickBlock);
+            p.setGravity(false);
+            Vector c = p.getVelocity();
+            p.setVelocity(p.getVelocity().setY((c.getY() * 0.35) - 0.0025));
+            Double vv = airjumps.get(id);
+            vv = vv == null ? 0 : vv;
+            vv += 0.0127;
+            airjumps.put(id, vv);
+        }
+
+        if (stickBlock == null && !p.hasGravity()) {
+            p.setGravity(true);
         }
     }
 
     private boolean isBackwardLaunch(Player p) {
-        Long at = horizontalIntentTime.get(p);
-        Vector intent = horizontalIntent.get(p);
+        UUID id = p.getUniqueId();
+        Long at = horizontalIntentTime.get(id);
+        Vector intent = horizontalIntent.get(id);
         if (at == null || intent == null || M.ms() - at > getConfig().inputWindowMs) {
             return false;
         }
@@ -245,6 +259,11 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
 
         facing.normalize();
         return intent.dot(facing) <= -Math.abs(getConfig().backwardIntentDotThreshold);
+    }
+
+    private boolean isSneaking(UUID id, Player p) {
+        Boolean cached = sneakState.get(id);
+        return cached != null ? cached : p.isSneaking();
     }
 
     private Block stickToWall(Player p) {

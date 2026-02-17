@@ -22,14 +22,13 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.volmlib.util.format.Form;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
 import lombok.NoArgsConstructor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -84,7 +83,7 @@ public class TamingBeastRecall extends SimpleAdaptation<TamingBeastRecall.Config
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerInteractEvent e) {
-        if (e.isCancelled() || e.getHand() != EquipmentSlot.HAND) {
+        if (e.getHand() != EquipmentSlot.HAND) {
             return;
         }
 
@@ -94,11 +93,11 @@ public class TamingBeastRecall extends SimpleAdaptation<TamingBeastRecall.Config
         }
 
         Player p = e.getPlayer();
-        if (!hasAdaptation(p) || !p.isSneaking() || p.getInventory().getItemInMainHand().getType() != Material.LEAD || p.hasCooldown(Material.LEAD)) {
+        int level = getActiveLevel(p, Player::isSneaking);
+        if (level <= 0 || p.getInventory().getItemInMainHand().getType() != Material.LEAD || p.hasCooldown(Material.LEAD)) {
             return;
         }
 
-        int level = getLevel(p);
         Tameable tameable = findNearestOwnedTameable(p, getSearchRadius(level));
         if (tameable == null) {
             return;

@@ -23,36 +23,29 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.volmlib.util.format.Form;
-import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.Arrow;
-import org.bukkit.entity.Egg;
-import org.bukkit.entity.EnderPearl;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
-import org.bukkit.entity.Snowball;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.util.Vector;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 public class ChronosTemporalEcho extends SimpleAdaptation<ChronosTemporalEcho.Config> {
     private static final String ECHO_META = "adapt-chronos-temporal-echo";
-    private final Map<UUID, Long> cooldowns = new HashMap<>();
+    private final Map<UUID, Long> cooldowns = new java.util.concurrent.ConcurrentHashMap<>();
 
     public ChronosTemporalEcho() {
         super("chronos-temporal-echo");
@@ -85,7 +78,7 @@ public class ChronosTemporalEcho extends SimpleAdaptation<ChronosTemporalEcho.Co
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void on(ProjectileLaunchEvent e) {
-        if (!(e.getEntity().getShooter() instanceof Player p) || !hasAdaptation(p) || e.getEntity().hasMetadata(ECHO_META)) {
+        if (!(e.getEntity().getShooter() instanceof Player p) || !hasActiveAdaptation(p) || e.getEntity().hasMetadata(ECHO_META)) {
             return;
         }
 
@@ -94,7 +87,7 @@ public class ChronosTemporalEcho extends SimpleAdaptation<ChronosTemporalEcho.Co
             return;
         }
 
-        int level = getLevel(p);
+        int level = getActiveLevel(p);
         long now = System.currentTimeMillis();
         if (now < cooldowns.getOrDefault(p.getUniqueId(), 0L)) {
             return;

@@ -18,11 +18,11 @@
 
 package art.arcane.adapt.content.protector;
 
-import com.griefdefender.api.GriefDefender;
-import com.griefdefender.api.claim.Claim;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.protection.Protector;
+import com.griefdefender.api.GriefDefender;
+import com.griefdefender.api.claim.Claim;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 

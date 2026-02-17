@@ -1,14 +1,14 @@
 package art.arcane.adapt.util.mantle;
 
-import art.arcane.spatial.matter.Matter;
-import art.arcane.spatial.matter.MatterSlice;
-import art.arcane.volmlib.util.function.Consumer4;
-import art.arcane.volmlib.util.parallel.HyperLockSupport;
 import art.arcane.adapt.Adapt;
-import art.arcane.volmlib.util.format.Form;
-import art.arcane.volmlib.util.io.IO;
 import art.arcane.adapt.util.common.parallel.MultiBurst;
 import art.arcane.adapt.util.mantle.io.IOWorker;
+import art.arcane.spatial.matter.Matter;
+import art.arcane.spatial.matter.MatterSlice;
+import art.arcane.volmlib.util.format.Form;
+import art.arcane.volmlib.util.function.Consumer4;
+import art.arcane.volmlib.util.io.IO;
+import art.arcane.volmlib.util.parallel.HyperLockSupport;
 
 import java.io.File;
 import java.io.IOException;

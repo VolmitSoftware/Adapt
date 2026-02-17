@@ -25,13 +25,12 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.data.WorldData;
 import art.arcane.adapt.api.potion.BrewingRecipe;
 import art.arcane.adapt.api.potion.PotionBuilder;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.content.matter.BrewingStandOwner;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.reflect.registries.PotionTypes;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.PotionTypes;
 import lombok.NoArgsConstructor;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -96,9 +95,6 @@ public class BrewingSaturation extends SimpleAdaptation<BrewingSaturation.Config
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(BrewEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         BrewingStandOwner owner = WorldData.of(e.getBlock().getWorld()).get(e.getBlock(), BrewingStandOwner.class);
         if (owner != null) {
             getServer().peekData(owner.getOwner()).addStat("brewing.saturation.potions-brewed", 1);

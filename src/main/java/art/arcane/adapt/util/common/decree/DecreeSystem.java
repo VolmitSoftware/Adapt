@@ -18,9 +18,10 @@
  */
 
 package art.arcane.adapt.util.decree;
-import art.arcane.volmlib.util.decree.DecreeSystemSupport;
+
 import art.arcane.adapt.Adapt;
 import art.arcane.volmlib.util.collection.KList;
+import art.arcane.volmlib.util.decree.DecreeSystemSupport;
 public final class DecreeSystem {
     public static final KList<DecreeParameterHandler<?>> handlers = Adapt.initialize("art.arcane.adapt.util.decree.handlers", null).convert((i) -> (DecreeParameterHandler<?>) i);
 

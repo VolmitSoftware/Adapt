@@ -4,10 +4,10 @@ import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.command.FConst;
 import art.arcane.adapt.util.decree.DecreeExecutor;
+import art.arcane.adapt.util.decree.specialhandlers.NullablePlayerHandler;
 import art.arcane.volmlib.util.decree.DecreeOrigin;
 import art.arcane.volmlib.util.decree.annotations.Decree;
 import art.arcane.volmlib.util.decree.annotations.Param;
-import art.arcane.adapt.util.decree.specialhandlers.NullablePlayerHandler;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;

@@ -18,23 +18,24 @@
 
 package art.arcane.adapt.content.skill;
 
-import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
+import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.version.Version;
 import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.content.adaptation.seaborrne.*;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.reflect.registries.Attributes;
 import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.entity.*;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Trident;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -44,9 +45,10 @@ import org.bukkit.event.player.PlayerFishEvent;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
-    private final Map<Player, Long> cooldowns;
+    private final Map<UUID, Long> cooldowns;
 
     public SkillSeaborne() {
         super("seaborne", Localizer.dLocalize("skill.seaborne.icon"));
@@ -177,12 +179,12 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
     }
 
     private boolean isOnCooldown(Player p, long cooldown) {
-        Long lastCooldown = cooldowns.get(p);
+        Long lastCooldown = cooldowns.get(p.getUniqueId());
         return lastCooldown != null && lastCooldown + cooldown > System.currentTimeMillis();
     }
 
     private void setCooldown(Player p) {
-        cooldowns.put(p, System.currentTimeMillis());
+        cooldowns.put(p.getUniqueId(), System.currentTimeMillis());
     }
 
     @Override
@@ -205,9 +207,6 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerFishEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         Player p = e.getPlayer();
         shouldReturnForPlayer(e.getPlayer(), e, () -> {
             if (e.getState().equals(PlayerFishEvent.State.CAUGHT_FISH)) {
@@ -221,9 +220,6 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(BlockBreakEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         Player p = e.getPlayer();
         shouldReturnForPlayer(e.getPlayer(), e, () -> {
             if (isOnCooldown(p, getConfig().seaPickleCooldown)) {
@@ -244,19 +240,21 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(EntityDeathEvent e) {
         Player p = e.getEntity().getKiller();
-        if (p == null || !p.getClass().getSimpleName().equals("CraftPlayer") || shouldReturnForPlayer(p)) {
+        if (p == null || !p.getClass().getSimpleName().equals("CraftPlayer")) {
             return;
         }
-        if (e.getEntityType() == EntityType.DROWNED) {
-            getPlayer(p).getData().addStat("seaborne.drowned.kills", 1);
-        } else if (e.getEntityType() == EntityType.GUARDIAN || e.getEntityType() == EntityType.ELDER_GUARDIAN) {
-            getPlayer(p).getData().addStat("seaborne.guardian.kills", 1);
-        }
+        shouldReturnForPlayer(p, () -> {
+            if (e.getEntityType() == EntityType.DROWNED) {
+                getPlayer(p).getData().addStat("seaborne.drowned.kills", 1);
+            } else if (e.getEntityType() == EntityType.GUARDIAN || e.getEntityType() == EntityType.ELDER_GUARDIAN) {
+                getPlayer(p).getData().addStat("seaborne.guardian.kills", 1);
+            }
+        });
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(EntityDamageByEntityEvent e) {
-        if (e.isCancelled() || !(e.getEntity() instanceof LivingEntity entity))
+        if (!(e.getEntity() instanceof LivingEntity entity))
             return;
 
         if (e.getEntity().getType() == EntityType.DROWNED && e.getDamager() instanceof Player p) {

@@ -18,19 +18,17 @@
 
 package art.arcane.adapt.content.skill;
 
-import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
+import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.version.Version;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.content.adaptation.hunter.*;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.reflect.registries.Attributes;
 import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -47,9 +45,10 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 
 public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
-    private final Map<Player, Long> cooldowns;
+    private final Map<UUID, Long> cooldowns;
 
     public SkillHunter() {
         super("hunter", Localizer.dLocalize("skill.hunter.icon"));
@@ -200,18 +199,15 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
     }
 
     private void handleCooldownAndXp(Player p, double xpAmount, String rewardKey) {
-        Long cooldown = cooldowns.get(p);
+        Long cooldown = cooldowns.get(p.getUniqueId());
         if (cooldown != null && cooldown + getConfig().cooldownDelay > System.currentTimeMillis())
             return;
-        cooldowns.put(p, System.currentTimeMillis());
+        cooldowns.put(p.getUniqueId(), System.currentTimeMillis());
         xp(p, xpAmount, rewardKey);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(BlockBreakEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         Player p = e.getPlayer();
         shouldReturnForPlayer(e.getPlayer(), e, () -> {
             if (e.getBlock().getType().equals(Material.TURTLE_EGG)) {
@@ -223,9 +219,6 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerInteractEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         Player p = e.getPlayer();
         shouldReturnForPlayer(e.getPlayer(), e, () -> {
             if (e.getAction().equals(Action.PHYSICAL) && e.getClickedBlock() != null && e.getClickedBlock().getType().equals(Material.TURTLE_EGG)) {
@@ -269,7 +262,7 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(CreatureSpawnEvent e) {
-        if (!isEnabled() || e.isCancelled()) {
+        if (!isEnabled()) {
             return;
         }
         if (e.getSpawnReason().equals(CreatureSpawnEvent.SpawnReason.SPAWNER)) {

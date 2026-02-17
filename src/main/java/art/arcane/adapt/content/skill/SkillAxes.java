@@ -18,18 +18,16 @@
 
 package art.arcane.adapt.content.skill;
 
-import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
+import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.content.adaptation.axe.*;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.misc.CustomModel;
 import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -40,9 +38,10 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
-    private final Map<Player, Long> cooldowns;
+    private final Map<UUID, Long> cooldowns;
 
     public SkillAxes() {
         super("axes", Localizer.dLocalize("skill.axes.icon"));
@@ -189,9 +188,6 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(EntityDamageByEntityEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         if (e.getDamager() instanceof Player p && checkValidEntity(e.getEntity().getType())) {
             if (!getConfig().getXpForAttackingWithTools) {
                 return;
@@ -216,9 +212,6 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(BlockBreakEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         Player p = e.getPlayer();
         shouldReturnForPlayer(p, () -> {
             if (isAxe(p.getInventory().getItemInMainHand())) {
@@ -237,10 +230,10 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
     }
 
     private void handleCooldown(Player p, Runnable action) {
-        Long cooldown = cooldowns.get(p);
+        Long cooldown = cooldowns.get(p.getUniqueId());
         if (cooldown != null && cooldown + getConfig().cooldownDelay > System.currentTimeMillis())
             return;
-        cooldowns.put(p, System.currentTimeMillis());
+        cooldowns.put(p.getUniqueId(), System.currentTimeMillis());
         action.run();
     }
 

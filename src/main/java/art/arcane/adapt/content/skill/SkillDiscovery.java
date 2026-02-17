@@ -24,21 +24,14 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.api.world.Discovery;
-import art.arcane.adapt.content.adaptation.discovery.DiscoveryArmor;
-import art.arcane.adapt.content.adaptation.discovery.DiscoveryArchaeologist;
-import art.arcane.adapt.content.adaptation.discovery.DiscoveryBetterMending;
-import art.arcane.adapt.content.adaptation.discovery.DiscoveryCartographerPulse;
-import art.arcane.adapt.content.adaptation.discovery.DiscoveryUnity;
-import art.arcane.adapt.content.adaptation.discovery.DiscoveryVillagerAtt;
-import art.arcane.adapt.content.adaptation.discovery.DiscoveryXpResist;
+import art.arcane.adapt.content.adaptation.discovery.*;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.misc.CustomModel;
-import art.arcane.volmlib.util.format.Form;
-import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.misc.CustomModel;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.reflect.registries.Particles;
+import art.arcane.volmlib.util.format.Form;
 import lombok.NoArgsConstructor;
 import org.bukkit.*;
 import org.bukkit.block.Biome;
@@ -185,17 +178,11 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerInteractAtEntityEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         shouldReturnForPlayer(e.getPlayer(), e, () -> seeEntity(e.getPlayer(), e.getRightClicked()));
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(EntityPickupItemEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         if (e.getEntity() instanceof Player p) {
             shouldReturnForPlayer(p, e, () -> seeItem(p, e.getItem().getItemStack()));
         }
@@ -204,9 +191,6 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(CraftItemEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         if (!(e.getWhoClicked() instanceof Player p)) return;
         shouldReturnForPlayer(p, e, () -> {
             try {
@@ -370,9 +354,10 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
         if (!this.isEnabled()) return;
         for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
             Player i = adaptPlayer.getPlayer();
-            if (shouldReturnForPlayer(i)) continue;
-            checkStatTrackers(adaptPlayer);
-            seeTargetBlock(i);
+            shouldReturnForPlayer(i, () -> {
+                checkStatTrackers(adaptPlayer);
+                seeTargetBlock(i);
+            });
         }
     }
 

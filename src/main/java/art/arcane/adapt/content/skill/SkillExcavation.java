@@ -18,21 +18,19 @@
 
 package art.arcane.adapt.content.skill;
 
-import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
+import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.content.adaptation.excavation.ExcavationDropToInventory;
 import art.arcane.adapt.content.adaptation.excavation.ExcavationHaste;
 import art.arcane.adapt.content.adaptation.excavation.ExcavationOmniTool;
 import art.arcane.adapt.content.adaptation.excavation.ExcavationSpelunker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.misc.CustomModel;
 import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -43,9 +41,10 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
-    private final Map<Player, Long> cooldowns;
+    private final Map<UUID, Long> cooldowns;
 
     public SkillExcavation() {
         super("excavation", Localizer.dLocalize("skill.excavation.icon"));
@@ -190,9 +189,6 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(EntityDamageByEntityEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         if (e.getDamager() instanceof Player p && checkValidEntity(e.getEntity().getType())) {
             if (!getConfig().getXpForAttackingWithTools) {
                 return;
@@ -205,10 +201,10 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
         AdaptPlayer a = getPlayer(p);
         ItemStack hand = a.getPlayer().getInventory().getItemInMainHand();
         if (isShovel(hand)) {
-            Long cooldown = cooldowns.get(p);
+            Long cooldown = cooldowns.get(p.getUniqueId());
             if (cooldown != null && cooldown + getConfig().cooldownDelay > System.currentTimeMillis())
                 return;
-            cooldowns.put(p, System.currentTimeMillis());
+            cooldowns.put(p.getUniqueId(), System.currentTimeMillis());
             getPlayer(p).getData().addStat("excavation.swings", 1);
             getPlayer(p).getData().addStat("excavation.damage", e.getDamage());
             xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().axeDamageXPMultiplier * e.getDamage());
@@ -217,9 +213,6 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(BlockBreakEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         Player p = e.getPlayer();
         shouldReturnForPlayer(p, e, () -> {
             if (isShovel(p.getInventory().getItemInMainHand())) {
@@ -237,10 +230,10 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
                 || blockType == Material.CLAY || blockType == Material.SOUL_SAND || blockType == Material.SOUL_SOIL) {
             getPlayer(p).getData().addStat("excavation.gravel", 1);
         }
-        Long cooldown = cooldowns.get(p);
+        Long cooldown = cooldowns.get(p.getUniqueId());
         if (cooldown != null && cooldown + getConfig().cooldownDelay > System.currentTimeMillis())
             return;
-        cooldowns.put(p, System.currentTimeMillis());
+        cooldowns.put(p.getUniqueId(), System.currentTimeMillis());
         double v = getValue(e.getBlock().getType());
         xp(p, e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), v));
     }

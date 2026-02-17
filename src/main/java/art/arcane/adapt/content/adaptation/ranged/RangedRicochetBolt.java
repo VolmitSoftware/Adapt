@@ -23,30 +23,19 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.volmlib.util.format.Form;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
 import lombok.NoArgsConstructor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.BlockFace;
-import org.bukkit.entity.AbstractArrow;
-import org.bukkit.entity.Arrow;
-import org.bukkit.entity.Egg;
-import org.bukkit.entity.EnderPearl;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
-import org.bukkit.entity.Snowball;
-import org.bukkit.entity.SpectralArrow;
-import org.bukkit.entity.ThrownExpBottle;
-import org.bukkit.entity.ThrownPotion;
-import org.bukkit.entity.Trident;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -55,8 +44,6 @@ import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.util.Vector;
-
-import art.arcane.adapt.util.common.math.Direction;
 
 public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Config> {
     private static final String RICOCHET_COUNT_META = "adapt-ricochet-count";
@@ -103,7 +90,12 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void on(ProjectileHitEvent e) {
-        if (!(e.getEntity() instanceof Projectile projectile) || !(projectile.getShooter() instanceof Player p) || !hasAdaptation(p)) {
+        if (!(e.getEntity() instanceof Projectile projectile) || !(projectile.getShooter() instanceof Player p)) {
+            return;
+        }
+
+        int level = getActiveLevel(p);
+        if (level <= 0) {
             return;
         }
 
@@ -111,7 +103,6 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
             return;
         }
 
-        int level = getLevel(p);
         int ricochetCount = Math.max(0, getMetadataInt(projectile, RICOCHET_COUNT_META, 0));
         int maxRicochets = Math.max(1, getMetadataInt(projectile, RICOCHET_MAX_META, getMaxRicochets(level)));
         if (ricochetCount >= maxRicochets) {
@@ -178,11 +169,7 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
             return;
         }
 
-        if (e.getEntity() instanceof Player victim) {
-            if (!canPVP(p, victim.getLocation())) {
-                return;
-            }
-        } else if (!canPVE(p, e.getEntity().getLocation())) {
+        if (!canDamageTarget(p, e.getEntity())) {
             return;
         }
 
@@ -194,7 +181,7 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
 
     @EventHandler
     public void on(EntityDeathEvent e) {
-        if (e.getEntity().getKiller() instanceof Player p && hasAdaptation(p)) {
+        if (e.getEntity().getKiller() instanceof Player p && hasActiveAdaptation(p)) {
             if (e.getEntity().getLastDamageCause() instanceof EntityDamageByEntityEvent dmg
                     && dmg.getDamager() instanceof Projectile projectile
                     && projectile.hasMetadata(RICOCHET_COUNT_META)

@@ -19,8 +19,8 @@
 
 package art.arcane.adapt.util.decree.handlers;
 
-import art.arcane.volmlib.util.decree.handlers.base.OptionalWorldHandlerBase;
 import art.arcane.adapt.util.decree.DecreeParameterHandler;
+import art.arcane.volmlib.util.decree.handlers.base.OptionalWorldHandlerBase;
 
 public class OptionalWorldHandler extends OptionalWorldHandlerBase implements DecreeParameterHandler<String> {
     @Override

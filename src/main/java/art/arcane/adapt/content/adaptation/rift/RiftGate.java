@@ -24,11 +24,13 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.content.event.AdaptAdaptationTeleportEvent;
 import art.arcane.adapt.content.item.BoundEyeOfEnder;
-import art.arcane.volmlib.util.io.IO;
-import art.arcane.volmlib.util.math.M;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
+import art.arcane.adapt.util.common.misc.SoundPlayer;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.*;
@@ -41,14 +43,6 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-
-
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
-import art.arcane.adapt.util.common.scheduling.J;
-import art.arcane.adapt.util.reflect.registries.Particles;
 
 public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
     public RiftGate() {
@@ -112,7 +106,7 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
 
         if (p.getInventory().getItemInMainHand().getType().equals(Material.ENDER_EYE)
                 && !p.hasCooldown(Material.ENDER_EYE)
-                && hasAdaptation(p)
+                && hasActiveAdaptation(p)
                 && BoundEyeOfEnder.isBindableItem(hand)) {
 
             e.setCancelled(true);

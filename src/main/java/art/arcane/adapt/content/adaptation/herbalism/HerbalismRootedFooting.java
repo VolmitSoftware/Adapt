@@ -22,12 +22,11 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.volmlib.util.format.Form;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -71,15 +70,12 @@ public class HerbalismRootedFooting extends SimpleAdaptation<HerbalismRootedFoot
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerInteractEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
 
         if (e.getAction() != Action.PHYSICAL || e.getClickedBlock() == null || !(e.getPlayer() instanceof Player p)) {
             return;
         }
 
-        if (!hasAdaptation(p)) {
+        if (!hasActiveAdaptation(p)) {
             return;
         }
 
@@ -91,15 +87,16 @@ public class HerbalismRootedFooting extends SimpleAdaptation<HerbalismRootedFoot
 
     @EventHandler(priority = EventPriority.HIGH)
     public void on(EntityDamageEvent e) {
-        if (e.isCancelled() || !(e.getEntity() instanceof Player p) || e.getCause() != EntityDamageEvent.DamageCause.FALL) {
+        if (!(e.getEntity() instanceof Player p) || e.getCause() != EntityDamageEvent.DamageCause.FALL) {
             return;
         }
 
-        if (!hasAdaptation(p) || !isNatureGround(p)) {
+        int level = getActiveLevel(p);
+        if (level <= 0 || !isNatureGround(p)) {
             return;
         }
 
-        double absorbCap = e.getDamage() * getFallAbsorb(getLevel(p));
+        double absorbCap = e.getDamage() * getFallAbsorb(level);
         int foodRequired = (int) Math.ceil(absorbCap * getConfig().foodPerDamage);
         if (foodRequired <= 0 || p.getFoodLevel() <= 0) {
             return;

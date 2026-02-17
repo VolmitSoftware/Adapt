@@ -17,7 +17,6 @@
  -----------------------------------------------------------------------------*/
 
 package art.arcane.adapt.content.adaptation.agility;
-import art.arcane.volmlib.util.format.Form;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -25,13 +24,14 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.version.Version;
-import art.arcane.adapt.api.world.AdaptStatTracker;
-import art.arcane.volmlib.util.io.IO;
-import art.arcane.volmlib.util.math.M;
-import art.arcane.adapt.util.reflect.registries.Attributes;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Attributes;
+import art.arcane.volmlib.util.format.Form;
+import art.arcane.volmlib.util.math.M;
 import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
@@ -40,19 +40,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.adapt.util.reflect.registries.Particles;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
     private static final UUID MODIFIER = UUID.nameUUIDFromBytes("adapt-armor-up".getBytes());
     private static final NamespacedKey MODIFIER_KEY = NamespacedKey.fromString( "adapt:armor-up");
-    private final Map<Player, Integer> ticksRunning;
+    private final Map<UUID, Integer> ticksRunning;
 
 
     public AgilityArmorUp() {
@@ -64,8 +59,8 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
         setInitialCost(getConfig().initialCost);
-        setInterval(350);
-        ticksRunning = new HashMap<>();
+        setInterval(50);
+        ticksRunning = new ConcurrentHashMap<>();
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.IRON_CHESTPLATE)
                 .key("challenge_agility_armor_up_30min")
@@ -94,8 +89,7 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
 
     @EventHandler
     public void on(PlayerQuitEvent e) {
-        Player p = e.getPlayer();
-        ticksRunning.remove(p);
+        ticksRunning.remove(e.getPlayer().getUniqueId());
     }
 
     private double getWindupTicks(double factor) {
@@ -110,54 +104,64 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
     public void onTick() {
         for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
             Player p = adaptPlayer.getPlayer();
-            var attribute = Version.get().getAttribute(p, Attributes.GENERIC_ARMOR);
-            if (attribute == null) continue;
-
-            try {
-                attribute.removeModifier(MODIFIER, MODIFIER_KEY);
-            } catch (Exception e) {
-                Adapt.verbose("Failed to remove windup modifier: " + e.getMessage());
-            }
-
-            if (p.isSwimming() || p.isFlying() || p.isGliding() || p.isSneaking()) {
-                ticksRunning.remove(p);
+            if (p == null || !p.isOnline()) {
                 continue;
             }
+            withPlayerThread(p, () -> updatePlayer(p));
+        }
+    }
 
-            if (p.isSprinting() && hasAdaptation(p)) {
-                ticksRunning.compute(p, (k, v) -> {
-                    if (v == null) {
-                        return 1;
-                    }
-                    return v + 1;
-                });
+    private void updatePlayer(Player p) {
+        if (p == null || !p.isOnline()) {
+            return;
+        }
 
-                Integer tr = ticksRunning.get(p);
+        UUID id = p.getUniqueId();
+        var attribute = Version.get().getAttribute(p, Attributes.GENERIC_ARMOR);
+        if (attribute == null) {
+            ticksRunning.remove(id);
+            return;
+        }
 
-                if (tr == null || tr <= 0) {
-                    continue;
-                }
+        try {
+            attribute.removeModifier(MODIFIER, MODIFIER_KEY);
+        } catch (Exception e) {
+            Adapt.verbose("Failed to remove windup modifier: " + e.getMessage());
+        }
 
-                double factor = getLevelPercent(p);
-                double ticksToMax = getWindupTicks(factor);
-                double progress = Math.min(M.lerpInverse(0, ticksToMax, tr), 1);
-                double armorInc = M.lerp(0, getWindupArmor(factor), progress);
+        if (!hasActiveAdaptation(p) || p.isSwimming() || p.isFlying() || p.isGliding() || p.isSneaking()) {
+            ticksRunning.remove(id);
+            return;
+        }
 
-                if (areParticlesEnabled()) {
-                    if (M.r(0.2 * progress)) {
-                        p.getWorld().spawnParticle(Particle.END_ROD, p.getLocation(), 1);
-                    }
+        if (!p.isSprinting()) {
+            ticksRunning.remove(id);
+            return;
+        }
 
-                    if (M.r(0.25 * progress)) {
-                        p.getWorld().spawnParticle(Particle.WAX_ON, p.getLocation(), 1, 0, 0, 0, 0);
-                    }
-                }
-                attribute.setModifier(MODIFIER, MODIFIER_KEY, armorInc * 10, AttributeModifier.Operation.MULTIPLY_SCALAR_1);
-                getPlayer(p).getData().addStat("agility.armor-up.ticks-armored", 1);
-            } else {
-                ticksRunning.remove(p);
+        ticksRunning.compute(id, (k, v) -> v == null ? 1 : v + 1);
+        int tr = ticksRunning.getOrDefault(id, 0);
+        if (tr <= 0) {
+            return;
+        }
+
+        double factor = getLevelPercent(p);
+        double ticksToMax = getWindupTicks(factor);
+        double progress = Math.min(M.lerpInverse(0, ticksToMax, tr), 1);
+        double armorInc = M.lerp(0, getWindupArmor(factor), progress);
+
+        if (areParticlesEnabled()) {
+            if (M.r(0.2 * progress)) {
+                p.getWorld().spawnParticle(Particle.END_ROD, p.getLocation(), 1);
+            }
+
+            if (M.r(0.25 * progress)) {
+                p.getWorld().spawnParticle(Particle.WAX_ON, p.getLocation(), 1, 0, 0, 0, 0);
             }
         }
+
+        attribute.setModifier(MODIFIER, MODIFIER_KEY, armorInc * 10, AttributeModifier.Operation.MULTIPLY_SCALAR_1);
+        getPlayer(p).getData().addStat("agility.armor-up.ticks-armored", 1);
     }
 
     @Override

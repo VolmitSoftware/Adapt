@@ -1,7 +1,7 @@
 package art.arcane.adapt.util.mantle;
 
-import art.arcane.volmlib.util.io.CountingDataInputStream;
 import art.arcane.adapt.Adapt;
+import art.arcane.volmlib.util.io.CountingDataInputStream;
 
 import java.io.DataOutputStream;
 import java.io.IOException;

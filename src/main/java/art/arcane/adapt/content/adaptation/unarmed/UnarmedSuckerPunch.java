@@ -17,16 +17,17 @@
  -----------------------------------------------------------------------------*/
 
 package art.arcane.adapt.content.adaptation.unarmed;
-import art.arcane.volmlib.util.format.Form;
 
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
-import art.arcane.volmlib.util.io.IO;
-import art.arcane.volmlib.util.math.M;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
+import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -37,12 +38,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
-
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
-import art.arcane.adapt.util.reflect.registries.Particles;
 
 public class UnarmedSuckerPunch extends SimpleAdaptation<UnarmedSuckerPunch.Config> {
     public UnarmedSuckerPunch() {
@@ -90,42 +85,39 @@ public class UnarmedSuckerPunch extends SimpleAdaptation<UnarmedSuckerPunch.Conf
 
     @EventHandler
     public void on(EntityDamageByEntityEvent e) {
-        if (e.isCancelled()) {
+        var attack = resolveAttackContext(e);
+        if (attack == null) {
             return;
         }
 
-        if (e.getDamager() instanceof Player p) {
-            if (!hasAdaptation(p)) {
-                return;
-            }
-            if (p.getInventory().getItemInMainHand().getType() != Material.AIR && p.getInventory().getItemInOffHand().getType() != Material.AIR) {
-                return;
-            }
-            double factor = getLevelPercent(p);
+        Player p = attack.attacker();
+        if (p.getInventory().getItemInMainHand().getType() != Material.AIR && p.getInventory().getItemInOffHand().getType() != Material.AIR) {
+            return;
+        }
+        double factor = getLevelPercent(attack.level());
 
-            if (!p.isSprinting()) {
-                return;
-            }
+        if (!p.isSprinting()) {
+            return;
+        }
 
-            if (factor <= 0) {
-                return;
-            }
+        if (factor <= 0) {
+            return;
+        }
 
-            if (isTool(p.getInventory().getItemInMainHand()) || isTool(p.getInventory().getItemInOffHand())) {
-                return;
-            }
+        if (isTool(p.getInventory().getItemInMainHand()) || isTool(p.getInventory().getItemInOffHand())) {
+            return;
+        }
 
-            e.setDamage(e.getDamage() * getDamage(factor));
-            SoundPlayer spw = SoundPlayer.of(e.getEntity().getWorld());
-            spw.play(e.getEntity().getLocation(), Sound.ENTITY_PLAYER_ATTACK_STRONG, 1f, 1.8f);
-            spw.play(e.getEntity().getLocation(), Sound.BLOCK_BASALT_BREAK, 1f, 0.6f);
-            xp(p, 6.221 * e.getDamage(), "sucker-punch");
-            getPlayer(p).getData().addStat("unarmed.sucker-punch.sucker-punches", 1);
-            if (e.getDamage() > 5) {
-                xp(p, 0.42 * e.getDamage(), "bonus-damage");
-                if (areParticlesEnabled()) {
-                    e.getEntity().getWorld().spawnParticle(Particle.FLASH, e.getEntity().getLocation(), 1);
-                }
+        e.setDamage(e.getDamage() * getDamage(factor));
+        SoundPlayer spw = SoundPlayer.of(e.getEntity().getWorld());
+        spw.play(e.getEntity().getLocation(), Sound.ENTITY_PLAYER_ATTACK_STRONG, 1f, 1.8f);
+        spw.play(e.getEntity().getLocation(), Sound.BLOCK_BASALT_BREAK, 1f, 0.6f);
+        xp(p, 6.221 * e.getDamage(), "sucker-punch");
+        getPlayer(p).getData().addStat("unarmed.sucker-punch.sucker-punches", 1);
+        if (e.getDamage() > 5) {
+            xp(p, 0.42 * e.getDamage(), "bonus-damage");
+            if (areParticlesEnabled()) {
+                e.getEntity().getWorld().spawnParticle(Particle.FLASH, e.getEntity().getLocation(), 1);
             }
         }
     }
@@ -137,7 +129,7 @@ public class UnarmedSuckerPunch extends SimpleAdaptation<UnarmedSuckerPunch.Conf
         }
         if (victim.getLastDamageCause() instanceof EntityDamageByEntityEvent dmg
                 && dmg.getDamager() instanceof Player p
-                && hasAdaptation(p)
+                && hasActiveAdaptation(p)
                 && p.isSprinting()
                 && !isTool(p.getInventory().getItemInMainHand())
                 && !isTool(p.getInventory().getItemInOffHand())) {

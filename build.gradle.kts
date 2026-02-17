@@ -172,7 +172,7 @@ dependencies {
     slimApi(libs.adventure.legacy)
     slimApi(libs.lettuce)
     slimApi(libs.particle)
-    slimApi(libs.ultimateAdvancementApi)
+    // Keep UAA in the main shaded jar so Folia patches in source overrides take precedence.
     implementation(libs.ultimateAdvancementApi)
     slimApi(libs.customBlockData)
     slimApi(libs.lur)

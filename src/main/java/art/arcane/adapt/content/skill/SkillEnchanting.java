@@ -18,24 +18,16 @@
 
 package art.arcane.adapt.content.skill;
 
-import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
+import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.api.world.AdaptStatTracker;
-import art.arcane.adapt.content.adaptation.enchanting.EnchantingLapisReturn;
-import art.arcane.adapt.content.adaptation.enchanting.EnchantingAnvilSavant;
-import art.arcane.adapt.content.adaptation.enchanting.EnchantingBookshelfAttunement;
-import art.arcane.adapt.content.adaptation.enchanting.EnchantingGrindstoneRecovery;
-import art.arcane.adapt.content.adaptation.enchanting.EnchantingOfferReroll;
-import art.arcane.adapt.content.adaptation.enchanting.EnchantingQuickEnchant;
-import art.arcane.adapt.content.adaptation.enchanting.EnchantingXPReturn;
+import art.arcane.adapt.content.adaptation.enchanting.*;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.misc.CustomModel;
 import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -44,9 +36,10 @@ import org.bukkit.event.enchantment.EnchantItemEvent;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
-    private final Map<Player, Long> cooldowns;
+    private final Map<UUID, Long> cooldowns;
 
     public SkillEnchanting() {
         super("enchanting", Localizer.dLocalize("skill.enchanting.icon"));
@@ -197,9 +190,6 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(EnchantItemEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         Player p = e.getEnchanter();
         shouldReturnForPlayer(p, e, () -> {
             handleEnchantItemEvent(p, e);
@@ -217,10 +207,10 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
         }
         adaptPlayer.getData().addStat("enchanting.total.levels", e.getExpLevelCost());
 
-        Long cooldown = cooldowns.get(p);
+        Long cooldown = cooldowns.get(p.getUniqueId());
         if (cooldown != null && cooldown + getConfig().cooldownDelay > System.currentTimeMillis())
             return;
-        cooldowns.put(p, System.currentTimeMillis());
+        cooldowns.put(p.getUniqueId(), System.currentTimeMillis());
         xp(p, getConfig().enchantPowerXPMultiplier * e.getEnchantsToAdd().values().stream().mapToInt((i) -> i).sum());
     }
 

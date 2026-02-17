@@ -22,12 +22,11 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.volmlib.util.format.Form;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -80,37 +79,39 @@ public class NetherLavaWalker extends SimpleAdaptation<NetherLavaWalker.Config> 
     @EventHandler(priority = EventPriority.HIGH)
     public void on(PlayerMoveEvent e) {
         Player p = e.getPlayer();
-        if (!hasAdaptation(p) || !p.getWorld().getEnvironment().name().contains("NETHER")) {
-            return;
-        }
+        withAdaptedPlayer(p, e, () -> {
+            if (!p.getWorld().getEnvironment().name().contains("NETHER")) {
+                return;
+            }
 
-        if (p.isFlying() || p.isGliding() || p.isInsideVehicle() || p.getFoodLevel() <= 0) {
-            return;
-        }
+            if (p.isFlying() || p.isGliding() || p.isInsideVehicle() || p.getFoodLevel() <= 0) {
+                return;
+            }
 
-        Block feet = p.getLocation().getBlock();
-        Block below = p.getLocation().clone().add(0, -1, 0).getBlock();
-        if (!(isLava(feet) || isLava(below))) {
-            return;
-        }
+            Block feet = p.getLocation().getBlock();
+            Block below = p.getLocation().clone().add(0, -1, 0).getBlock();
+            if (!(isLava(feet) || isLava(below))) {
+                return;
+            }
 
-        int level = getLevel(p);
-        if (getStorageLong(p, "lavaWalkerCooldown", 0L) > System.currentTimeMillis()) {
-            return;
-        }
+            int level = getActiveLevel(p);
+            if (getStorageLong(p, "lavaWalkerCooldown", 0L) > System.currentTimeMillis()) {
+                return;
+            }
 
-        Vector velocity = p.getVelocity();
-        Vector dir = p.getLocation().getDirection().setY(0).normalize().multiply(getStride(level));
-        p.setVelocity(new Vector(dir.getX(), Math.max(0.16, velocity.getY()), dir.getZ()));
-        p.setFallDistance(0);
-        p.setFireTicks(0);
-        p.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, getConfig().fireResistTicks, 0, false, false));
+            Vector velocity = p.getVelocity();
+            Vector dir = p.getLocation().getDirection().setY(0).normalize().multiply(getStride(level));
+            p.setVelocity(new Vector(dir.getX(), Math.max(0.16, velocity.getY()), dir.getZ()));
+            p.setFallDistance(0);
+            p.setFireTicks(0);
+            p.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, getConfig().fireResistTicks, 0, false, false));
 
-        int hungerCost = getHungerCost(level);
-        p.setFoodLevel(Math.max(0, p.getFoodLevel() - hungerCost));
-        setStorage(p, "lavaWalkerCooldown", System.currentTimeMillis() + getCooldownMillis(level));
-        xp(p, getConfig().xpPerStride);
-        getPlayer(p).getData().addStat("nether.lava-walker.blocks-walked", 1);
+            int hungerCost = getHungerCost(level);
+            p.setFoodLevel(Math.max(0, p.getFoodLevel() - hungerCost));
+            setStorage(p, "lavaWalkerCooldown", System.currentTimeMillis() + getCooldownMillis(level));
+            xp(p, getConfig().xpPerStride);
+            getPlayer(p).getData().addStat("nether.lava-walker.blocks-walked", 1);
+        });
     }
 
     private boolean isLava(Block b) {

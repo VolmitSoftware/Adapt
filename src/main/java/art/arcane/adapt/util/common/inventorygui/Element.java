@@ -18,13 +18,12 @@
 
 package art.arcane.adapt.util.common.inventorygui;
 
+import art.arcane.adapt.util.common.math.MaterialBlock;
+import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.volmlib.util.scheduling.Callback;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
-
-import art.arcane.adapt.util.common.math.MaterialBlock;
-import art.arcane.adapt.util.common.misc.CustomModel;
 
 public interface Element {
     MaterialBlock getMaterial();

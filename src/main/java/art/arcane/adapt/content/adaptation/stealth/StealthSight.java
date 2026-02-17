@@ -22,11 +22,14 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
-import art.arcane.volmlib.util.io.IO;
-import art.arcane.volmlib.util.math.M;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
+import art.arcane.adapt.util.common.misc.SoundPlayer;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -35,17 +38,13 @@ import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
-import art.arcane.adapt.util.common.scheduling.J;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
-    private final List<Player> sneaking;
+    private final Set<UUID> sneaking;
 
 
     public StealthSight() {
@@ -59,7 +58,7 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setMaxLevel(getConfig().maxLevel);
-        sneaking = new ArrayList<>();
+        sneaking = ConcurrentHashMap.newKeySet();
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.ENDER_EYE)
                 .key("challenge_stealth_sight_72k")
@@ -78,35 +77,53 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
 
     @EventHandler
     public void on(PlayerToggleSneakEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         Player p = e.getPlayer();
-        SoundPlayer sp = SoundPlayer.of(p);
-        if (!hasAdaptation(p)) {
-            return;
-        }
-        sneaking.add(p);
-        if (!p.isSneaking()) {
-            sp.play(p.getLocation(), Sound.BLOCK_FUNGUS_BREAK, 1, 0.99f);
-            p.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 1000, 0, false, false));
-            getPlayer(p).getData().addStat("stealth.sight.time-in-darkness", 1);
-        } else {
+        withPlayerThread(p, e, () -> {
+            UUID id = p.getUniqueId();
+            SoundPlayer sp = SoundPlayer.of(p);
+            if (!hasActiveAdaptation(p)) {
+                sneaking.remove(id);
+                p.removePotionEffect(PotionEffectType.NIGHT_VISION);
+                return;
+            }
+
+            if (e.isSneaking()) {
+                sneaking.add(id);
+                sp.play(p.getLocation(), Sound.BLOCK_FUNGUS_BREAK, 1, 0.99f);
+                p.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 1000, 0, false, false));
+                getPlayer(p).getData().addStat("stealth.sight.time-in-darkness", 1);
+                return;
+            }
+
+            sneaking.remove(id);
             p.removePotionEffect(PotionEffectType.NIGHT_VISION);
-        }
+        });
     }
 
 
     @Override
     public void onTick() {
-        List<Player> toRemove = new ArrayList<>();
-        for (Player p : sneaking) {
-            if (hasAdaptation(p) && !p.isSneaking()) {
-                toRemove.add(p);
-                J.runEntity(p, () -> p.removePotionEffect(PotionEffectType.NIGHT_VISION));
+        Set<UUID> snapshot = new HashSet<>(sneaking);
+        for (UUID id : snapshot) {
+            Player p = Bukkit.getPlayer(id);
+            if (p == null || !p.isOnline()) {
+                sneaking.remove(id);
+                continue;
+            }
+
+            Runnable check = () -> {
+                if (getActiveLevel(p, Player::isSneaking) <= 0) {
+                    sneaking.remove(id);
+                    J.runEntity(p, () -> p.removePotionEffect(PotionEffectType.NIGHT_VISION));
+                }
+            };
+
+            if (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(p)) {
+                J.runEntity(p, check);
+            } else {
+                check.run();
             }
         }
-        sneaking.removeAll(toRemove);
     }
 
 

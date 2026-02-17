@@ -23,11 +23,10 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.content.item.ItemListings;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -79,27 +78,23 @@ public class SeaborneFishersFantasy extends SimpleAdaptation<SeaborneFishersFant
 
     @EventHandler
     public void on(PlayerFishEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         Player p = e.getPlayer();
-        if (!hasAdaptation(p)) {
-            return;
-        }
-        if (e.getState() == PlayerFishEvent.State.CAUGHT_FISH) {
-            getPlayer(p).getData().addStat("seaborne.fishers-fantasy.fish-caught", 1);
-            int level = getLevel(p);
-            ThreadLocalRandom random = ThreadLocalRandom.current();
-            for (int i = 0; i < level; i++) {
-                ItemStack item = new ItemStack(ItemListings.getFishingDrops().getRandom(), 1);
-                if (random.nextBoolean()) {
-                    p.getWorld().dropItemNaturally(p.getLocation(), item);
-                    p.getWorld().spawn(p.getLocation(), ExperienceOrb.class);
-                    Adapt.verbose("Fishing Gift Donated!");
-                    xp(p, 15 * level);
+        withAdaptedPlayer(p, e, () -> {
+            if (e.getState() == PlayerFishEvent.State.CAUGHT_FISH) {
+                getPlayer(p).getData().addStat("seaborne.fishers-fantasy.fish-caught", 1);
+                int level = getActiveLevel(p);
+                ThreadLocalRandom random = ThreadLocalRandom.current();
+                for (int i = 0; i < level; i++) {
+                    ItemStack item = new ItemStack(ItemListings.getFishingDrops().getRandom(), 1);
+                    if (random.nextBoolean()) {
+                        p.getWorld().dropItemNaturally(p.getLocation(), item);
+                        p.getWorld().spawn(p.getLocation(), ExperienceOrb.class);
+                        Adapt.verbose("Fishing Gift Donated!");
+                        xp(p, 15 * level);
+                    }
                 }
             }
-        }
+        });
     }
 
     @Override

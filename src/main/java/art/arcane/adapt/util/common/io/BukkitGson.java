@@ -17,8 +17,8 @@
  -----------------------------------------------------------------------------*/
 
 package art.arcane.adapt.util.common.io;
-import art.arcane.volmlib.util.format.Form;
 
+import art.arcane.volmlib.util.format.Form;
 import com.google.gson.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;

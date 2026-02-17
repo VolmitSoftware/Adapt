@@ -18,19 +18,17 @@
 
 package art.arcane.adapt.content.skill;
 
-import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
+import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.content.adaptation.architect.*;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.misc.CustomModel;
 import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -40,9 +38,10 @@ import org.bukkit.event.block.BlockPlaceEvent;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
-    private final Map<Player, Long> cooldowns;
+    private final Map<UUID, Long> cooldowns;
 
     public SkillArchitect() {
         super("architect", Localizer.dLocalize("skill.architect.icon"));
@@ -191,9 +190,6 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(BlockPlaceEvent e) {
         Player p = e.getPlayer();
-        if (e.isCancelled()) {
-            return;
-        }
         shouldReturnForPlayer(p, e, () -> {
             if (!isStorage(e.getBlock().getType().createBlockData())) {
                 double v = getValue(e.getBlock()) * getConfig().xpValueMultiplier;
@@ -218,9 +214,6 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(BlockBreakEvent e) {
         Player p = e.getPlayer();
-        if (e.isCancelled()) {
-            return;
-        }
         shouldReturnForPlayer(p, e, () -> {
             AdaptPlayer adaptPlayer = getPlayer(p);
             adaptPlayer.getData().addStat("blocks.broken", 1);
@@ -234,10 +227,10 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
     }
 
     private void handleBlockCooldown(Player p, Runnable action) {
-        Long cooldown = cooldowns.get(p);
+        Long cooldown = cooldowns.get(p.getUniqueId());
         if (cooldown != null && cooldown + getConfig().cooldownDelay > System.currentTimeMillis())
             return;
-        cooldowns.put(p, System.currentTimeMillis());
+        cooldowns.put(p.getUniqueId(), System.currentTimeMillis());
         action.run();
     }
 

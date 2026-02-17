@@ -22,11 +22,13 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.content.item.ItemListings;
 import art.arcane.adapt.content.item.multiItems.MultiArmor;
-import art.arcane.volmlib.util.io.IO;
-import art.arcane.volmlib.util.math.M;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
+import art.arcane.adapt.util.common.misc.SoundPlayer;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -44,20 +46,13 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
-import art.arcane.adapt.util.common.scheduling.J;
+import java.util.UUID;
 
 public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Config> {
     private static final MultiArmor multiarmor = new MultiArmor();
-    private final Map<Player, Long> cooldowns;
+    private final Map<UUID, Long> cooldowns;
 
 
     public BlockingMultiArmor() {
@@ -71,7 +66,7 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
-        cooldowns = new HashMap<>();
+        cooldowns = new java.util.concurrent.ConcurrentHashMap<>();
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.ELYTRA)
                 .key("challenge_blocking_multi_200")
@@ -113,17 +108,14 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
 
     @EventHandler(priority = EventPriority.HIGH)
     public void on(PlayerMoveEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         Player p = e.getPlayer();
         ItemStack chest = p.getInventory().getChestplate();
-        if (chest != null && hasAdaptation(p) && validateArmor(chest)) {
-            Long cooldown = cooldowns.get(p);
+        if (chest != null && hasActiveAdaptation(p) && validateArmor(chest)) {
+            Long cooldown = cooldowns.get(p.getUniqueId());
             if (cooldown != null) {
                 if (cooldown + 3000 > System.currentTimeMillis())
                     return;
-                else cooldowns.remove(p);
+                else cooldowns.remove(p.getUniqueId());
             }
 
             SoundPlayer spw = SoundPlayer.of(p.getWorld());
@@ -132,7 +124,7 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
                     return;
                 }
                 J.runEntity(p, () -> p.getInventory().setChestplate(multiarmor.nextChestplate(chest)));
-                cooldowns.put(p, System.currentTimeMillis());
+                cooldowns.put(p.getUniqueId(), System.currentTimeMillis());
                 spw.play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
                 spw.play(p.getLocation(), Sound.BLOCK_BEEHIVE_SHEAR, 0.5f, 0.77f);
                 getPlayer(p).getData().addStat("blocking.multi-armor.swaps", 1);
@@ -142,7 +134,7 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
                     return;
                 }
                 J.runEntity(p, () -> p.getInventory().setChestplate(multiarmor.nextElytra(chest)));
-                cooldowns.put(p, System.currentTimeMillis());
+                cooldowns.put(p.getUniqueId(), System.currentTimeMillis());
                 spw.play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
                 spw.play(p.getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.5f, 0.77f);
                 getPlayer(p).getData().addStat("blocking.multi-armor.swaps", 1);
@@ -155,7 +147,7 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
     public void on(PlayerDropItemEvent e) {
         Player p = e.getPlayer();
         SoundPlayer sp = SoundPlayer.of(p);
-        if (!hasAdaptation(p)) {
+        if (!hasActiveAdaptation(p)) {
             return;
         }
         if (p.isSneaking()) {
@@ -198,7 +190,9 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(InventoryClickEvent e) {
-        if (!hasAdaptation((Player) e.getWhoClicked())) {
+        Player player = (Player) e.getWhoClicked();
+        int level = getActiveLevel(player);
+        if (level <= 0) {
             return;
         }
         if (e.getClickedInventory() != null
@@ -212,9 +206,9 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
 
                 if (multiarmor.explode(cursor).size() > 1 || multiarmor.explode(clicked).size() > 1) {
 
-                    if (multiarmor.explode(cursor).size() >= getSlots(getLevel((Player) e.getWhoClicked())) || multiarmor.explode(clicked).size() >= getSlots(getLevel((Player) e.getWhoClicked()))) {
+                    if (multiarmor.explode(cursor).size() >= getSlots(level) || multiarmor.explode(clicked).size() >= getSlots(level)) {
                         e.setCancelled(true);
-                        SoundPlayer sp = SoundPlayer.of((Player) e.getWhoClicked());
+                        SoundPlayer sp = SoundPlayer.of(player);
                         sp.play(e.getWhoClicked().getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 1f, 0.77f);
                         return;
                     }

@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.util.common.format;
 
+import art.arcane.adapt.util.common.plugin.VolmitSender;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.apache.commons.lang3.Validate;
@@ -29,8 +30,6 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
-
-import art.arcane.adapt.util.common.plugin.VolmitSender;
 
 /**
  * Colors

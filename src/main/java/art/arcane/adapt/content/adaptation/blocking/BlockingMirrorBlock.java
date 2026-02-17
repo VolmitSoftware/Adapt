@@ -24,14 +24,13 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.volmlib.util.format.Form;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -47,8 +46,6 @@ import org.bukkit.metadata.MetadataValue;
 import org.bukkit.util.Vector;
 
 import java.util.concurrent.ThreadLocalRandom;
-
-import art.arcane.adapt.util.reflect.Reflect;
 
 public class BlockingMirrorBlock extends SimpleAdaptation<BlockingMirrorBlock.Config> {
     private static final String REFLECTED_META = "adapt-mirror-reflected";
@@ -93,7 +90,7 @@ public class BlockingMirrorBlock extends SimpleAdaptation<BlockingMirrorBlock.Co
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
-        if (e.isCancelled() || !(e.getDamager() instanceof Projectile projectile)) {
+        if (!(e.getDamager() instanceof Projectile projectile)) {
             return;
         }
 
@@ -103,7 +100,7 @@ public class BlockingMirrorBlock extends SimpleAdaptation<BlockingMirrorBlock.Co
             return;
         }
 
-        int level = getLevel(defender);
+        int level = getActiveLevel(defender);
         long now = System.currentTimeMillis();
         long next = getStorageLong(defender, "mirrorBlockNext", 0L);
         if (next > now) {
@@ -148,11 +145,7 @@ public class BlockingMirrorBlock extends SimpleAdaptation<BlockingMirrorBlock.Co
             return;
         }
 
-        if (e.getEntity() instanceof Player victim) {
-            if (!canPVP(shooter, victim.getLocation())) {
-                return;
-            }
-        } else if (!canPVE(shooter, e.getEntity().getLocation())) {
+        if (!canDamageTarget(shooter, e.getEntity())) {
             return;
         }
 
@@ -175,7 +168,7 @@ public class BlockingMirrorBlock extends SimpleAdaptation<BlockingMirrorBlock.Co
     }
 
     private boolean isMirrorReady(Player p) {
-        return hasAdaptation(p) && p.isBlocking() && hasShield(p);
+        return hasActiveAdaptation(p) && p.isBlocking() && hasShield(p);
     }
 
     private boolean hasShield(Player p) {

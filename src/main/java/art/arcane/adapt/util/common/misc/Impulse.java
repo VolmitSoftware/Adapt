@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.util.common.misc;
 
+import art.arcane.adapt.util.common.math.VectorMath;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -25,8 +26,6 @@ import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import art.arcane.adapt.util.common.math.VectorMath;
 
 public class Impulse {
     private final List<Entity> ignore;

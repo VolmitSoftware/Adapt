@@ -21,8 +21,8 @@ package art.arcane.adapt.content.adaptation.crafting;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdvancementSpec;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
@@ -76,7 +76,7 @@ public class CraftingStations extends SimpleAdaptation<CraftingStations.Config> 
     @EventHandler
     public void on(PlayerInteractEvent e) {
         Player p = e.getPlayer();
-        if (!hasAdaptation(p)) {
+        if (!hasActiveAdaptation(p)) {
             return;
         }
 

@@ -1,9 +1,9 @@
 package art.arcane.adapt.util.decree;
 
-import art.arcane.volmlib.util.decree.context.DecreeContextHandlers;
-import art.arcane.volmlib.util.decree.context.DecreeContextHandlerType;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.util.common.plugin.VolmitSender;
+import art.arcane.volmlib.util.decree.context.DecreeContextHandlerType;
+import art.arcane.volmlib.util.decree.context.DecreeContextHandlers;
 
 import java.util.Map;
 

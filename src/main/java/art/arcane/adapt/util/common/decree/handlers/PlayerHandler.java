@@ -20,8 +20,8 @@
 package art.arcane.adapt.util.decree.handlers;
 
 import art.arcane.adapt.Adapt;
-import art.arcane.volmlib.util.decree.handlers.base.PlayerHandlerBase;
 import art.arcane.adapt.util.decree.DecreeParameterHandler;
+import art.arcane.volmlib.util.decree.handlers.base.PlayerHandlerBase;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 

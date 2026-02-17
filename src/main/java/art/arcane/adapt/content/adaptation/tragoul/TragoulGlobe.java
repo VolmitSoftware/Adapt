@@ -23,11 +23,10 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.scheduling.J;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Color;
@@ -39,13 +38,12 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-import java.util.HashMap;
 import java.util.Map;
-
-import art.arcane.adapt.util.reflect.registries.Particles;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class TragoulGlobe extends SimpleAdaptation<TragoulGlobe.Config> {
-    private final Map<Player, Long> cooldowns;
+    private final Map<UUID, Long> cooldowns;
 
     public TragoulGlobe() {
         super("tragoul-globe");
@@ -58,7 +56,7 @@ public class TragoulGlobe extends SimpleAdaptation<TragoulGlobe.Config> {
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
-        cooldowns = new HashMap<>();
+        cooldowns = new ConcurrentHashMap<>();
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.GLASS)
                 .key("challenge_tragoul_globe_1k")
@@ -87,48 +85,55 @@ public class TragoulGlobe extends SimpleAdaptation<TragoulGlobe.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
-        if (e.isCancelled() || !(e.getDamager() instanceof Player p) || !hasAdaptation(p)) {
+        if (!(e.getDamager() instanceof Player p)) {
             return;
         }
 
-        Long cooldownTime = cooldowns.get(p);
-        if (cooldownTime != null && cooldownTime + (1000 * getConfig().cooldown) > System.currentTimeMillis()) {
-            return;
-        }
-
-        cooldowns.put(p, System.currentTimeMillis());
-        double range = (getConfig().rangePerLevel * getLevel(p)) + getConfig().initalRange;
-
-        int entitiesCount = 0;
-        for (Entity entity : p.getNearbyEntities(range, range, range)) {
-            if (entity instanceof LivingEntity && !entity.equals(p)) {
-                entitiesCount++;
+        withAdaptedPlayer(p, e, () -> {
+            int level = getActiveLevel(p);
+            if (level <= 0 || !canDamageTarget(p, e.getEntity())) {
+                return;
             }
-        }
 
-        if (entitiesCount <= 1) {
-            return;
-        }
-
-        double damagePerEntity = e.getDamage() / entitiesCount + (getConfig().bonusDamagePerLevel * getLevel(p));
-        e.setDamage(damagePerEntity);
-
-        int mobsSharedWith = 0;
-        for (Entity entity : p.getNearbyEntities(range, range, range)) {
-            if (entity instanceof LivingEntity && !entity.equals(p)) {
-                ((LivingEntity) entity).damage(damagePerEntity, p);
-                mobsSharedWith++;
+            Long cooldownTime = cooldowns.get(p.getUniqueId());
+            if (cooldownTime != null && cooldownTime + (1000 * getConfig().cooldown) > System.currentTimeMillis()) {
+                return;
             }
-        }
 
-        getPlayer(p).getData().addStat("tragoul.globe.mobs-shared-with", mobsSharedWith);
-        if (mobsSharedWith >= 5 && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_tragoul_globe_5")) {
-            getPlayer(p).getAdvancementHandler().grant("challenge_tragoul_globe_5");
-        }
+            cooldowns.put(p.getUniqueId(), System.currentTimeMillis());
+            double range = (getConfig().rangePerLevel * level) + getConfig().initalRange;
 
-        if (areParticlesEnabled()) {
-            J.runEntity(p, () -> vfxFastSphere(p.getLocation(), range, Color.BLACK, 400));
-        }
+            int entitiesCount = 0;
+            for (Entity entity : p.getNearbyEntities(range, range, range)) {
+                if (entity instanceof LivingEntity && !entity.equals(p)) {
+                    entitiesCount++;
+                }
+            }
+
+            if (entitiesCount <= 1) {
+                return;
+            }
+
+            double damagePerEntity = e.getDamage() / entitiesCount + (getConfig().bonusDamagePerLevel * level);
+            e.setDamage(damagePerEntity);
+
+            int mobsSharedWith = 0;
+            for (Entity entity : p.getNearbyEntities(range, range, range)) {
+                if (entity instanceof LivingEntity && !entity.equals(p) && canDamageTarget(p, entity)) {
+                    ((LivingEntity) entity).damage(damagePerEntity, p);
+                    mobsSharedWith++;
+                }
+            }
+
+            getPlayer(p).getData().addStat("tragoul.globe.mobs-shared-with", mobsSharedWith);
+            if (mobsSharedWith >= 5 && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_tragoul_globe_5")) {
+                getPlayer(p).getAdvancementHandler().grant("challenge_tragoul_globe_5");
+            }
+
+            if (areParticlesEnabled()) {
+                J.runEntity(p, () -> vfxFastSphere(p.getLocation(), range, Color.BLACK, 400));
+            }
+        });
     }
 
 

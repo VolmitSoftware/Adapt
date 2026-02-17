@@ -1,10 +1,10 @@
 package art.arcane.adapt.util.data;
 
+import art.arcane.adapt.core.nms.container.BlockProperty;
+import art.arcane.adapt.util.reflect.registries.Materials;
 import art.arcane.volmlib.util.collection.KList;
 import art.arcane.volmlib.util.collection.KMap;
 import art.arcane.volmlib.util.data.BSupport;
-import art.arcane.adapt.core.nms.container.BlockProperty;
-import art.arcane.adapt.util.reflect.registries.Materials;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;

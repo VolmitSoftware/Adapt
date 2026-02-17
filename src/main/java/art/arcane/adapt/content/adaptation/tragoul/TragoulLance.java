@@ -21,10 +21,9 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
@@ -38,11 +37,12 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
-    private final Map<Player, Long> cooldowns;
+    private final Map<UUID, Long> cooldowns;
 
     public TragoulLance() {
         super("tragoul-lance");
@@ -54,7 +54,7 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
-        cooldowns = new HashMap<>();
+        cooldowns = new ConcurrentHashMap<>();
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.IRON_SWORD)
                 .key("challenge_tragoul_lance_200")
@@ -79,19 +79,26 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
     @EventHandler (priority = EventPriority.LOWEST)
     public void onEntityDeath(EntityDeathEvent event) {
         if (event.getEntity().getLastDamageCause() instanceof EntityDamageByEntityEvent e) {
-            if (e.getDamager() instanceof Player p && hasAdaptation(p)) {
-                Long cooldown = cooldowns.get(p);
-                if (cooldown != null && cooldown + 5000 > System.currentTimeMillis())
-                    return;
+            if (e.getDamager() instanceof Player p) {
+                withAdaptedPlayer(p, () -> {
+                    int level = getActiveLevel(p);
+                    if (level <= 0 || !canDamageTarget(p, event.getEntity())) {
+                        return;
+                    }
 
-                cooldowns.put(p, System.currentTimeMillis());
-                int level = getLevel(p);
-                double baseSeekerRange = 5 + 4 * level;
-                double damageDealt = e.getDamage();
-                double seekerDamage = getConfig().seekerDamageMultiplier * damageDealt;
+                    Long cooldown = cooldowns.get(p.getUniqueId());
+                    if (cooldown != null && cooldown + 5000 > System.currentTimeMillis()) {
+                        return;
+                    }
 
-                triggerSeeker(p, event.getEntity(), seekerDamage, level, baseSeekerRange);
-                getPlayer(p).getData().addStat("tragoul.lance.lance-kills", 1);
+                    cooldowns.put(p.getUniqueId(), System.currentTimeMillis());
+                    double baseSeekerRange = 5 + 4 * level;
+                    double damageDealt = e.getDamage();
+                    double seekerDamage = getConfig().seekerDamageMultiplier * damageDealt;
+
+                    triggerSeeker(p, event.getEntity(), seekerDamage, level, baseSeekerRange);
+                    getPlayer(p).getData().addStat("tragoul.lance.lance-kills", 1);
+                });
             }
         }
     }

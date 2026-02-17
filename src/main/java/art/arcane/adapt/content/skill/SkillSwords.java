@@ -18,24 +18,16 @@
 
 package art.arcane.adapt.content.skill;
 
-import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
+import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.api.world.AdaptStatTracker;
-import art.arcane.adapt.content.adaptation.sword.SwordsBloodyBlade;
-import art.arcane.adapt.content.adaptation.sword.SwordsDualWield;
-import art.arcane.adapt.content.adaptation.sword.SwordsCrimsonCyclone;
-import art.arcane.adapt.content.adaptation.sword.SwordsExecutionersEdge;
-import art.arcane.adapt.content.adaptation.sword.SwordsMachete;
-import art.arcane.adapt.content.adaptation.sword.SwordsPoisonedBlade;
-import art.arcane.adapt.content.adaptation.sword.SwordsRiposteWindow;
+import art.arcane.adapt.content.adaptation.sword.*;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.misc.CustomModel;
 import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -46,9 +38,10 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
-    private final Map<Player, Long> cooldowns;
+    private final Map<UUID, Long> cooldowns;
 
     public SkillSwords() {
         super("swords", Localizer.dLocalize("skill.swords.icon"));
@@ -188,9 +181,6 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(EntityDamageByEntityEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         if (e.getDamager() instanceof Player p && checkValidEntity(e.getEntity().getType())) {
             shouldReturnForPlayer(p, e, () -> {
                 AdaptPlayer a = getPlayer(p);
@@ -228,12 +218,12 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
     }
 
     private boolean isOnCooldown(Player p) {
-        Long cooldown = cooldowns.get(p);
+        Long cooldown = cooldowns.get(p.getUniqueId());
         return cooldown != null && cooldown + getConfig().cooldownDelay > System.currentTimeMillis();
     }
 
     private void setCooldown(Player p) {
-        cooldowns.put(p, System.currentTimeMillis());
+        cooldowns.put(p.getUniqueId(), System.currentTimeMillis());
     }
 
 

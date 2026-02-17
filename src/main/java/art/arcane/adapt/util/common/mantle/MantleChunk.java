@@ -1,11 +1,11 @@
 package art.arcane.adapt.util.mantle;
 
+import art.arcane.adapt.Adapt;
 import art.arcane.spatial.matter.Matter;
 import art.arcane.spatial.matter.MatterSlice;
 import art.arcane.spatial.matter.SpatialMatter;
 import art.arcane.volmlib.util.function.Consumer4;
 import art.arcane.volmlib.util.io.CountingDataInputStream;
-import art.arcane.adapt.Adapt;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.DataOutputStream;

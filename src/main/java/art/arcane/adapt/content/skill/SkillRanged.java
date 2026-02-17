@@ -18,17 +18,15 @@
 
 package art.arcane.adapt.content.skill;
 
-import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
+import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.skill.SimpleSkill;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.content.adaptation.ranged.*;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.misc.CustomModel;
 import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.FishHook;
 import org.bukkit.entity.Player;
@@ -44,9 +42,10 @@ import org.bukkit.inventory.ItemStack;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 
 public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
-    private final Map<Player, Long> cooldowns;
+    private final Map<UUID, Long> cooldowns;
 
     public SkillRanged() {
         super("ranged", Localizer.dLocalize("skill.ranged.icon"));
@@ -188,9 +187,6 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(ProjectileLaunchEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         if (!(e.getEntity().getShooter() instanceof Player p)) {
             return;
         }
@@ -201,19 +197,16 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
 
             getPlayer(p).getData().addStat("ranged.shotsfired", 1);
             getPlayer(p).getData().addStat("ranged.shotsfired." + e.getEntity().getType().name().toLowerCase(Locale.ROOT), 1);
-            Long cooldown = cooldowns.get(p);
+            Long cooldown = cooldowns.get(p.getUniqueId());
             if (cooldown != null && cooldown + getConfig().cooldownDelay > System.currentTimeMillis())
                 return;
-            cooldowns.put(p, System.currentTimeMillis());
+            cooldowns.put(p.getUniqueId(), System.currentTimeMillis());
             xp(p, getConfig().shootXP);
         });
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(EntityDamageByEntityEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         if (!(e.getDamager() instanceof Projectile) || !(((Projectile) e.getDamager()).getShooter() instanceof Player p) || !checkValidEntity(e.getEntity().getType())) {
             return;
         }
@@ -231,10 +224,10 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
             }
             getPlayer(p).getData().addStat("ranged.damage", e.getDamage());
             getPlayer(p).getData().addStat("ranged.damage." + e.getDamager().getType().name().toLowerCase(Locale.ROOT), e.getDamage());
-            Long cooldown = cooldowns.get(p);
+            Long cooldown = cooldowns.get(p.getUniqueId());
             if (cooldown != null && cooldown + getConfig().cooldownDelay > System.currentTimeMillis())
                 return;
-            cooldowns.put(p, System.currentTimeMillis());
+            cooldowns.put(p.getUniqueId(), System.currentTimeMillis());
             xp(p, e.getEntity().getLocation(), (getConfig().hitDamageXPMultiplier * e.getDamage()) + (e.getEntity().getLocation().distance(p.getLocation()) * getConfig().hitDistanceXPMultiplier));
 
         });

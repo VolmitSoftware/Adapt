@@ -1,11 +1,7 @@
 package art.arcane.adapt.util.config;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public final class ConfigDocumentation {
     private static final Map<String, String> SUMMARY_BY_KEY = Map.ofEntries(

@@ -21,8 +21,6 @@ package art.arcane.adapt.util.common.collection;
 
 import java.io.Serializable;
 
-import art.arcane.adapt.util.data.B;
-
 /**
  * A Biset
  *

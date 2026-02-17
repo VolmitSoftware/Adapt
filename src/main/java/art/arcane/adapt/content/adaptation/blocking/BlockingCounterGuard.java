@@ -23,13 +23,12 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.volmlib.util.format.Form;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.volmlib.util.math.M;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
+import art.arcane.volmlib.util.math.M;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
@@ -40,8 +39,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
-
-import art.arcane.adapt.util.reflect.Reflect;
 
 public class BlockingCounterGuard extends SimpleAdaptation<BlockingCounterGuard.Config> {
     public BlockingCounterGuard() {
@@ -83,15 +80,15 @@ public class BlockingCounterGuard extends SimpleAdaptation<BlockingCounterGuard.
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
-        if (e.isCancelled() || !(e.getEntity() instanceof Player defender)) {
+        if (!(e.getEntity() instanceof Player defender)) {
             return;
         }
 
-        if (!hasAdaptation(defender) || !hasShield(defender)) {
+        if (!hasActiveAdaptation(defender) || !hasShield(defender)) {
             return;
         }
 
-        int level = getLevel(defender);
+        int level = getActiveLevel(defender);
         int stacks = getStorageInt(defender, "counterStacks", 0);
 
         if (defender.isBlocking()) {
@@ -112,11 +109,7 @@ public class BlockingCounterGuard extends SimpleAdaptation<BlockingCounterGuard.
             return;
         }
 
-        if (attacker instanceof Player p && !canPVP(defender, p.getLocation())) {
-            return;
-        }
-
-        if (!(attacker instanceof Player) && !canPVE(defender, attacker.getLocation())) {
+        if (!canDamageTarget(defender, attacker)) {
             return;
         }
 

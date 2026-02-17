@@ -20,6 +20,7 @@ package art.arcane.adapt.util.common.inventorygui;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.version.Version;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.volmlib.util.scheduling.Callback;
 import lombok.Getter;
 import lombok.Setter;
@@ -40,8 +41,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import art.arcane.adapt.util.common.scheduling.J;
 
 public class UIWindow implements Window, Listener {
     private final Player viewer;

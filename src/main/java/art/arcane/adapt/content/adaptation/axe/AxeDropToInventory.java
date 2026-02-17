@@ -22,16 +22,14 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.content.item.ItemListings;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
-import art.arcane.volmlib.util.collection.KList;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.collection.KList;
 import lombok.NoArgsConstructor;
-import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Item;
@@ -76,20 +74,13 @@ public class AxeDropToInventory extends SimpleAdaptation<AxeDropToInventory.Conf
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockDropItemEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
+
         Player p = e.getPlayer();
+        if (resolveBlockBreakContext(p, e.getBlock().getLocation(), null, true) == null) {
+            return;
+        }
+
         SoundPlayer sp = SoundPlayer.of(p);
-        if (!hasAdaptation(p)) {
-            return;
-        }
-        if (p.getGameMode() != GameMode.SURVIVAL) {
-            return;
-        }
-        if (!canBlockBreak(p, e.getBlock().getLocation())) {
-            return;
-        }
         if (ItemListings.toolAxes.contains(p.getInventory().getItemInMainHand().getType())) {
             List<Item> items = new KList<>(e.getItems());
             e.getItems().clear();

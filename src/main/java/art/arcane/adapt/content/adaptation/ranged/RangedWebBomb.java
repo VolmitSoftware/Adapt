@@ -25,10 +25,12 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.recipe.MaterialChar;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.content.item.BoundSnowBall;
-import art.arcane.volmlib.util.io.IO;
-import art.arcane.volmlib.util.math.M;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
+import art.arcane.adapt.util.common.misc.SoundPlayer;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import lombok.NoArgsConstructor;
@@ -38,7 +40,6 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Snowball;
 import org.bukkit.event.EventHandler;
@@ -51,18 +52,13 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
-import art.arcane.adapt.util.common.scheduling.J;
-
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
     private static final BlockData AIR = Material.AIR.createBlockData();
     private static final BlockData BLOCK = Material.COBWEB.createBlockData();
-    private final Map<Entity, Player> activeSnowballs;
+    private final Map<UUID, UUID> activeSnowballs;
     private final Set<Block> activeBlocks;
 
     public RangedWebBomb() {
@@ -86,8 +82,8 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
                         "III"))
                 .result(BoundSnowBall.io.withData(new BoundSnowBall.Data(null)))
                 .build());
-        activeBlocks = new HashSet<>();
-        activeSnowballs = new HashMap<>();
+        activeBlocks = ConcurrentHashMap.newKeySet();
+        activeSnowballs = new ConcurrentHashMap<>();
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.COBWEB)
                 .key("challenge_ranged_web_200")
@@ -108,9 +104,23 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
 
     @EventHandler
     public void on(ProjectileHitEvent e) {
-        if (e.isCancelled()) {
+        if (!(e.getEntity() instanceof Snowball snowball)) {
             return;
         }
+        UUID shooterId = activeSnowballs.remove(snowball.getUniqueId());
+        if (shooterId == null) {
+            return;
+        }
+        Player p = Bukkit.getPlayer(shooterId);
+        if (p == null || !p.isOnline()) {
+            return;
+        }
+
+        int level = getActiveLevel(p);
+        if (level <= 0) {
+            return;
+        }
+
         Block block;
 
         if (e.getHitEntity() != null) {
@@ -121,43 +131,34 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
             block = e.getEntity().getLocation().add(0, 1, 0).getBlock();
         }
 
-        if (e.getEntity().getShooter() instanceof Player p && e.getEntity() instanceof Snowball snowball && hasAdaptation(p)) {
-            vfxCuboidOutline(block, Particle.REVERSE_PORTAL);
-            Adapt.verbose("Snowball Got: " + snowball.getEntityId() + " " + snowball.getUniqueId());
-            if (activeSnowballs.containsKey(Bukkit.getEntity(snowball.getUniqueId()))) {
-                Adapt.verbose("Detected snowball hit");
-                if (e.getHitEntity() != null) {
-                    getPlayer(p).getData().addStat("ranged.web-bomb.mobs-trapped", 1);
-                }
-                activeSnowballs.remove(snowball);
-                snowball.remove();
-                Set<Block> locs = new HashSet<>();
-                locs.add(block.getLocation().add(0, 1, 0).getBlock());
-                locs.add(block.getLocation().add(0, -1, 0).getBlock());
-                locs.add(block.getLocation().add(0, 0, 1).getBlock());
-                locs.add(block.getLocation().add(0, 0, -1).getBlock());
-                locs.add(block.getLocation().add(1, 0, 0).getBlock());
-                locs.add(block.getLocation().add(-1, 0, 0).getBlock());
+        vfxCuboidOutline(block, Particle.REVERSE_PORTAL);
+        Adapt.verbose("Snowball Got: " + snowball.getEntityId() + " " + snowball.getUniqueId());
+        Adapt.verbose("Detected snowball hit");
+        if (e.getHitEntity() != null) {
+            getPlayer(p).getData().addStat("ranged.web-bomb.mobs-trapped", 1);
+        }
+        snowball.remove();
+        Set<Block> locs = new HashSet<>();
+        locs.add(block.getLocation().add(0, 1, 0).getBlock());
+        locs.add(block.getLocation().add(0, -1, 0).getBlock());
+        locs.add(block.getLocation().add(0, 0, 1).getBlock());
+        locs.add(block.getLocation().add(0, 0, -1).getBlock());
+        locs.add(block.getLocation().add(1, 0, 0).getBlock());
+        locs.add(block.getLocation().add(-1, 0, 0).getBlock());
 
-                for (Block i : locs) {
-                    addWebFoundation(i, getLevel(p));
-                }
-
-            }
+        for (Block i : locs) {
+            addWebFoundation(i, level);
         }
     }
 
 
     @EventHandler
     public void on(ProjectileLaunchEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
-        if (e.getEntity().getShooter() instanceof Player p && e.getEntity() instanceof Snowball snowball && hasAdaptation(p)) {
+        if (e.getEntity().getShooter() instanceof Player p && e.getEntity() instanceof Snowball snowball && hasActiveAdaptation(p)) {
             Adapt.verbose("Snowball Launched: " + snowball.getEntityId() + " " + snowball.getUniqueId());
             if (BoundSnowBall.isBindableItem(snowball.getItem())) {
                 Adapt.verbose("Snowball is bound");
-                activeSnowballs.put(snowball, p);
+                activeSnowballs.put(snowball.getUniqueId(), p.getUniqueId());
             } else {
                 Adapt.verbose("Snowball is not bound");
             }
@@ -203,9 +204,6 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
     //prevent piston from moving blocks // Dupe fix
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockPistonExtendEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         e.getBlocks().forEach(b -> {
             if (activeBlocks.contains(b)) {
                 Adapt.verbose("Cancelled Piston Extend on Adaptation Foundation Block");
@@ -217,9 +215,6 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
     //prevent piston from pulling blocks // Dupe fix
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockPistonRetractEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         e.getBlocks().forEach(b -> {
             if (activeBlocks.contains(b)) {
                 Adapt.verbose("Cancelled Piston Retract on Adaptation Foundation Block");
@@ -231,9 +226,6 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
     //prevent TNT from destroying blocks // Dupe fix
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockExplodeEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         if (activeBlocks.contains(e.getBlock())) {
             Adapt.verbose("Cancelled Block Explosion on Adaptation Foundation Block");
             e.setCancelled(true);
@@ -251,9 +243,6 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
     //prevent Entities from destroying blocks // Dupe fix
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityExplodeEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         e.blockList().removeIf(activeBlocks::contains);
     }
 

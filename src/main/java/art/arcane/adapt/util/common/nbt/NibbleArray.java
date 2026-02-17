@@ -18,14 +18,14 @@
 
 package art.arcane.adapt.util.common.nbt;
 
+import art.arcane.adapt.util.common.math.Writable;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.StringJoiner;
-
-import art.arcane.adapt.util.common.math.Writable;
 
 public class NibbleArray implements Writable {
     private static final int[] MASKS = new int[8];

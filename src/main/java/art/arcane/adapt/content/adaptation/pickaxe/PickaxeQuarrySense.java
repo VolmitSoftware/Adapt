@@ -23,21 +23,16 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.volmlib.util.format.Form;
-import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
 import fr.skytasul.glowingentities.GlowingEntities;
 import lombok.NoArgsConstructor;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Slime;
@@ -91,9 +86,6 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerInteractEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
 
         Action action = e.getAction();
         if (action != Action.RIGHT_CLICK_BLOCK || e.getClickedBlock() == null) {
@@ -105,7 +97,8 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
         }
 
         Player p = e.getPlayer();
-        if (!hasAdaptation(p) || !p.isSneaking()) {
+        int level = getActiveLevel(p, Player::isSneaking);
+        if (level <= 0) {
             return;
         }
 
@@ -114,7 +107,6 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
             return;
         }
 
-        int level = getLevel(p);
         if (areParticlesEnabled()) {
             p.spawnParticle(Particle.ENCHANT, p.getEyeLocation(), 14, 0.2, 0.25, 0.2, 0.15);
         }

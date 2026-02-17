@@ -22,12 +22,11 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.volmlib.util.format.Form;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -75,7 +74,12 @@ public class EnchantingAnvilSavant extends SimpleAdaptation<EnchantingAnvilSavan
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PrepareAnvilEvent e) {
-        if (!(e.getView().getPlayer() instanceof Player p) || !hasAdaptation(p)) {
+        if (!(e.getView().getPlayer() instanceof Player p)) {
+            return;
+        }
+
+        int level = getActiveLevel(p);
+        if (level <= 0) {
             return;
         }
 
@@ -88,7 +92,7 @@ public class EnchantingAnvilSavant extends SimpleAdaptation<EnchantingAnvilSavan
             return;
         }
 
-        int reduced = Math.max(getConfig().minimumCost, (int) Math.ceil(current * (1D - getCostReduction(getLevel(p)))));
+        int reduced = Math.max(getConfig().minimumCost, (int) Math.ceil(current * (1D - getCostReduction(level))));
         writeRepairCost(inventory, reduced);
         int saved = current - reduced;
         if (saved > 0) {

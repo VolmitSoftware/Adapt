@@ -18,19 +18,17 @@
 
 package art.arcane.adapt.content.adaptation.herbalism;
 
-import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.volmlib.util.format.Form;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -42,18 +40,11 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Config> {
-    private final Map<UUID, Long> cooldowns = new HashMap<>();
+    private final Map<UUID, Long> cooldowns = new java.util.concurrent.ConcurrentHashMap<>();
 
     public HerbalismSporeBloom() {
         super("herbalism-spore-bloom");
@@ -90,7 +81,7 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
             return;
         }
 
-        if (!hasAdaptation(e.getPlayer()) || !e.getPlayer().isSneaking()) {
+        if (getActiveLevel(e.getPlayer()) <= 0 || !e.getPlayer().isSneaking()) {
             return;
         }
 
@@ -321,7 +312,7 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
             return false;
         }
 
-        int level = getLevel(player);
+        int level = getActiveLevel(player);
         long now = System.currentTimeMillis();
         long ready = cooldowns.getOrDefault(player.getUniqueId(), 0L);
         if (now < ready) {

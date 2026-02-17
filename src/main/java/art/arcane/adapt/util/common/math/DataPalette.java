@@ -18,13 +18,13 @@
 
 package art.arcane.adapt.util.common.math;
 
+import art.arcane.adapt.util.common.nbt.NibbleArray;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import art.arcane.adapt.util.common.nbt.NibbleArray;
 
 public abstract class DataPalette<T> implements Writable {
     private static final int DEFAULT_BITS_PER_BLOCK = 4;

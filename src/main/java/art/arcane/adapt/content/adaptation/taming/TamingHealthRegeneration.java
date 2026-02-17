@@ -17,7 +17,6 @@
  -----------------------------------------------------------------------------*/
 
 package art.arcane.adapt.content.adaptation.taming;
-import art.arcane.volmlib.util.format.Form;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -25,11 +24,13 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.version.Version;
-import art.arcane.adapt.api.world.AdaptStatTracker;
-import art.arcane.volmlib.util.io.IO;
-import art.arcane.volmlib.util.math.M;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Attributes;
+import art.arcane.volmlib.util.format.Form;
+import art.arcane.volmlib.util.math.M;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -40,19 +41,13 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.potion.PotionEffectType;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.adapt.util.reflect.registries.Particles;
 
 import static org.bukkit.Particle.HEART;
 
 public class TamingHealthRegeneration extends SimpleAdaptation<TamingHealthRegeneration.Config> {
-    private final Map<UUID, Long> lastDamage = new HashMap<>();
+    private final Map<UUID, Long> lastDamage = new java.util.concurrent.ConcurrentHashMap<>();
 
     public TamingHealthRegeneration() {
         super("tame-health-regeneration");
@@ -83,12 +78,13 @@ public class TamingHealthRegeneration extends SimpleAdaptation<TamingHealthRegen
 
     @EventHandler
     public void on(EntityDamageByEntityEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         if (e.getEntity() instanceof Tameable tam
-                && tam.getOwner() instanceof Player p
-                && hasAdaptation(p)) {
+                && tam.getOwner() instanceof Player p) {
+            int level = getActiveLevel(p);
+            if (level <= 0) {
+                return;
+            }
+
             if (lastDamage.containsKey(tam.getUniqueId())) {
                 Adapt.verbose("Tamed Entity " + tam.getUniqueId() + " last damaged " + (M.ms() - lastDamage.get(tam.getUniqueId())) + "ms ago");
                 return;
@@ -97,18 +93,15 @@ public class TamingHealthRegeneration extends SimpleAdaptation<TamingHealthRegen
             double mh = attribute == null ? tam.getHealth() : attribute.getValue();
             if (tam.isTamed() && tam.getOwner() instanceof Player && tam.getHealth() < mh) {
                 Adapt.verbose("Successfully healed tamed entity " + tam.getUniqueId());
-                int level = getLevel(p);
-                if (level > 0) {
-                    Adapt.verbose("[PRE] Current Health: " + tam.getHealth() + " Max Health: " + mh);
-                    tam.addPotionEffect(PotionEffectType.REGENERATION.createEffect(25 * getLevel(p), 3));
-                    getPlayer(p).getData().addStat("taming.health-regen.health-regened", 1);
+                Adapt.verbose("[PRE] Current Health: " + tam.getHealth() + " Max Health: " + mh);
+                tam.addPotionEffect(PotionEffectType.REGENERATION.createEffect(25 * level, 3));
+                getPlayer(p).getData().addStat("taming.health-regen.health-regened", 1);
 
-                    if (areParticlesEnabled()) {
-                        Adapt.verbose("Healing tamed entity " + tam.getUniqueId() + " with particles");
-                        tam.getWorld().spawnParticle(HEART, tam.getLocation().add(0, 1, 0), 2 * p.getLevel());
-                    } else {
-                        Adapt.verbose("Healing tamed entity " + tam.getUniqueId() + " without particles");
-                    }
+                if (areParticlesEnabled()) {
+                    Adapt.verbose("Healing tamed entity " + tam.getUniqueId() + " with particles");
+                    tam.getWorld().spawnParticle(HEART, tam.getLocation().add(0, 1, 0), 2 * p.getLevel());
+                } else {
+                    Adapt.verbose("Healing tamed entity " + tam.getUniqueId() + " without particles");
                 }
             }
             lastDamage.put(e.getEntity().getUniqueId(), M.ms());

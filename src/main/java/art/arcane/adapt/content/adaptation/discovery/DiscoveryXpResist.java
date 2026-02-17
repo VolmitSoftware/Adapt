@@ -17,17 +17,19 @@
  -----------------------------------------------------------------------------*/
 
 package art.arcane.adapt.content.adaptation.discovery;
-import art.arcane.volmlib.util.format.Form;
 
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
-import art.arcane.volmlib.util.io.IO;
-import art.arcane.volmlib.util.math.M;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
+import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
+import art.arcane.volmlib.util.math.M;
 import lombok.NoArgsConstructor;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -37,14 +39,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageEvent;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 
 public class DiscoveryXpResist extends SimpleAdaptation<DiscoveryXpResist.Config> {
     private static final long COOLDOWN_MILLIS = 15000L;
@@ -61,7 +57,7 @@ public class DiscoveryXpResist extends SimpleAdaptation<DiscoveryXpResist.Config
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setMaxLevel(getConfig().maxLevel);
-        cooldowns = new HashMap<>();
+        cooldowns = new java.util.concurrent.ConcurrentHashMap<>();
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.TOTEM_OF_UNDYING)
                 .key("challenge_discovery_xp_resist_25")
@@ -109,7 +105,12 @@ public class DiscoveryXpResist extends SimpleAdaptation<DiscoveryXpResist.Config
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageEvent e) {
-        if (!(e.getEntity() instanceof Player p) || !hasAdaptation(p)) {
+        if (!(e.getEntity() instanceof Player p)) {
+            return;
+        }
+
+        int level = getActiveLevel(p);
+        if (level <= 0) {
             return;
         }
 
@@ -118,7 +119,6 @@ public class DiscoveryXpResist extends SimpleAdaptation<DiscoveryXpResist.Config
         }
 
         SoundPlayer sp = SoundPlayer.of(p);
-        int level = getLevel(p);
         int xpCost = getXpTaken(level);
         if (p.getLevel() < xpCost) {
             vfxFastRing(p.getLocation().add(0, 0.05, 0), 1, Color.RED);

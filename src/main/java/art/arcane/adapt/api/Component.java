@@ -18,16 +18,16 @@
 
 package art.arcane.adapt.api;
 
-import com.francobm.magicosmetics.api.CosmeticType;
-import com.francobm.magicosmetics.api.MagicAPI;
-import com.google.common.collect.Lists;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.data.WorldData;
 import art.arcane.adapt.api.value.MaterialValue;
 import art.arcane.adapt.api.xp.XP;
-import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
+import art.arcane.adapt.util.common.scheduling.J;
+import com.francobm.magicosmetics.api.CosmeticType;
+import com.francobm.magicosmetics.api.MagicAPI;
+import com.google.common.collect.Lists;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;

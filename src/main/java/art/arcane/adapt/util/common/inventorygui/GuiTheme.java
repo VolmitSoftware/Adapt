@@ -1,8 +1,7 @@
 package art.arcane.adapt.util.common.inventorygui;
 
-import org.bukkit.Material;
-
 import art.arcane.adapt.util.common.math.MaterialBlock;
+import org.bukkit.Material;
 
 public final class GuiTheme {
     private GuiTheme() {

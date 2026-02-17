@@ -1,13 +1,13 @@
 package art.arcane.adapt.content.protector;
 
-import com.bekvon.bukkit.residence.Residence;
-import com.bekvon.bukkit.residence.containers.Flags;
-import com.bekvon.bukkit.residence.protection.ClaimedResidence;
-import com.bekvon.bukkit.residence.protection.FlagPermissions;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.protection.Protector;
 import art.arcane.adapt.util.common.scheduling.J;
+import com.bekvon.bukkit.residence.Residence;
+import com.bekvon.bukkit.residence.containers.Flags;
+import com.bekvon.bukkit.residence.protection.ClaimedResidence;
+import com.bekvon.bukkit.residence.protection.FlagPermissions;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 

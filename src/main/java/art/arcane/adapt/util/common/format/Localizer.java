@@ -18,12 +18,12 @@
 
 package art.arcane.adapt.util.common.format;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
-import art.arcane.volmlib.util.io.IO;
 import art.arcane.adapt.util.config.ConfigFileSupport;
+import art.arcane.volmlib.util.io.IO;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import lombok.SneakyThrows;
 
 import java.io.File;

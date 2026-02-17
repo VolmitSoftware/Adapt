@@ -24,22 +24,17 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.volmlib.util.format.Form;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
 import fr.skytasul.glowingentities.GlowingEntities;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Mob;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -50,17 +45,12 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config> {
-    private final Map<UUID, Boolean> dimmed = new HashMap<>();
-    private final Map<UUID, List<Long>> recentBackstabs = new HashMap<>();
-    private final Map<UUID, Map<UUID, ThreatLevel>> threatGlows = new HashMap<>();
+    private final Map<UUID, Boolean> dimmed = new java.util.concurrent.ConcurrentHashMap<>();
+    private final Map<UUID, List<Long>> recentBackstabs = new java.util.concurrent.ConcurrentHashMap<>();
+    private final Map<UUID, Map<UUID, ThreatLevel>> threatGlows = new java.util.concurrent.ConcurrentHashMap<>();
 
     public StealthSilentStep() {
         super("stealth-silent-step");
@@ -112,7 +102,7 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
             return;
         }
 
-        if (!hasAdaptation(p) || !p.isSneaking()) {
+        if (getActiveLevel(p, Player::isSneaking) <= 0) {
             return;
         }
 
@@ -128,16 +118,14 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerMoveEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
 
         Player p = e.getPlayer();
-        if (!hasAdaptation(p) || !p.isSneaking()) {
+        int level = getActiveLevel(p, Player::isSneaking);
+        if (level <= 0) {
             return;
         }
 
-        double radius = getStealthRadius(getLevel(p));
+        double radius = getStealthRadius(level);
         for (Entity entity : p.getWorld().getNearbyEntities(p.getLocation(), radius, radius, radius)) {
             if (!(entity instanceof Mob mob)) {
                 continue;
@@ -156,28 +144,19 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
-        if (e.isCancelled() || !(e.getDamager() instanceof Player attacker) || !hasAdaptation(attacker)) {
+        var combat = resolveMeleeContext(e);
+        if (combat == null) {
             return;
         }
 
-        if (!(e.getEntity() instanceof LivingEntity target)) {
-            return;
-        }
-
-        if (target instanceof Player victim) {
-            if (!canPVP(attacker, victim.getLocation())) {
-                return;
-            }
-        } else if (!canPVE(attacker, target.getLocation())) {
-            return;
-        }
-
+        Player attacker = combat.attacker();
+        LivingEntity target = combat.target();
         boolean unseen = attacker.hasPotionEffect(PotionEffectType.INVISIBILITY) || !isLookingAt(target, attacker);
         if (target == attacker || !unseen) {
             return;
         }
 
-        int level = getLevel(attacker);
+        int level = combat.level();
         double multiplier = (target instanceof Player) ? getPlayerBackstabMultiplier(level) : getMobBackstabMultiplier(level);
         e.setDamage(e.getDamage() * multiplier);
         xp(attacker, e.getDamage() * getConfig().xpPerBonusDamage);
@@ -198,13 +177,13 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
     public void onTick() {
         for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
             Player p = adaptPlayer.getPlayer();
-            if (!hasAdaptation(p) || !p.isSneaking()) {
+            int level = getActiveLevel(p, Player::isSneaking);
+            if (level <= 0) {
                 clearDimming(p);
                 clearThreatGlows(p);
                 continue;
             }
 
-            int level = getLevel(p);
             p.setFallDistance(Math.min(p.getFallDistance(), getConfig().maxSilentFallDistance));
             ThreatSnapshot threatSnapshot = collectThreatSnapshot(p, level);
             if (threatSnapshot.canDetect.isEmpty()) {
@@ -271,7 +250,7 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
         }
 
         UUID viewerId = p.getUniqueId();
-        Map<UUID, ThreatLevel> active = threatGlows.computeIfAbsent(viewerId, k -> new HashMap<>());
+        Map<UUID, ThreatLevel> active = threatGlows.computeIfAbsent(viewerId, k -> new java.util.concurrent.ConcurrentHashMap<>());
 
         List<UUID> stale = new ArrayList<>();
         for (UUID entityId : active.keySet()) {
@@ -508,9 +487,9 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
     }
 
     private static class ThreatSnapshot {
-        private final Map<UUID, ThreatLevel> threats = new HashMap<>();
-        private final Map<UUID, Entity> entities = new HashMap<>();
-        private final Map<UUID, ThreatLevel> canDetect = new HashMap<>();
+        private final Map<UUID, ThreatLevel> threats = new java.util.concurrent.ConcurrentHashMap<>();
+        private final Map<UUID, Entity> entities = new java.util.concurrent.ConcurrentHashMap<>();
+        private final Map<UUID, ThreatLevel> canDetect = new java.util.concurrent.ConcurrentHashMap<>();
 
         private void add(Entity entity, ThreatLevel level) {
             if (entity == null || level == ThreatLevel.NONE) {

@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.util.project.command;
 
+import art.arcane.adapt.util.common.plugin.Permission;
 import org.bukkit.command.CommandSender;
 
 import java.lang.reflect.Field;
@@ -25,8 +26,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
-
-import art.arcane.adapt.util.common.plugin.Permission;
 
 public abstract class MortarPermission {
     private MortarPermission parent;

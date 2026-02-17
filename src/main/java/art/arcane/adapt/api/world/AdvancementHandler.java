@@ -30,7 +30,8 @@ public class AdvancementHandler {
 
     public AdvancementHandler(AdaptPlayer player) {
         this.player = player;
-        instance.getManager().unlockExisting(player);
+        ready = false;
+        instance.getManager().unlockExisting(player, this);
     }
 
     public void grant(String key, boolean toast) {

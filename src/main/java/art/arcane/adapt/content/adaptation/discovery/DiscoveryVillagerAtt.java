@@ -17,19 +17,22 @@
  -----------------------------------------------------------------------------*/
 
 package art.arcane.adapt.content.adaptation.discovery;
-import art.arcane.volmlib.util.format.Form;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.adaptation.ReceiveCancelledEvents;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
-import art.arcane.volmlib.util.io.IO;
-import art.arcane.volmlib.util.math.M;
-import art.arcane.volmlib.util.collection.KMap;
-import de.slikey.effectlib.effect.BleedEffect;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
+import art.arcane.adapt.util.common.misc.SoundPlayer;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.collection.KMap;
+import art.arcane.volmlib.util.format.Form;
+import de.slikey.effectlib.effect.BleedEffect;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -47,12 +50,6 @@ import org.bukkit.potion.PotionEffectType;
 
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
-
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
-import art.arcane.adapt.util.common.scheduling.J;
 
 public class DiscoveryVillagerAtt extends SimpleAdaptation<DiscoveryVillagerAtt.Config> {
     private final KMap<UUID, Integer> active = new KMap<>();
@@ -107,21 +104,18 @@ public class DiscoveryVillagerAtt extends SimpleAdaptation<DiscoveryVillagerAtt.
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerInteractEntityEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         Player p = e.getPlayer();
         SoundPlayer sp = SoundPlayer.of(p);
-        if (e.getRightClicked() instanceof Villager v && hasAdaptation(p)) {
-            if (ThreadLocalRandom.current().nextDouble() <= getEffectiveness(getLevelPercent(getLevel(p)))) {
-                if (p.getLevel() - getXpTaken(getLevel(p)) > 0) {
+        int level = getActiveLevel(p);
+        if (e.getRightClicked() instanceof Villager v && level > 0) {
+            if (ThreadLocalRandom.current().nextDouble() <= getEffectiveness(getLevelPercent(level))) {
+                if (p.getLevel() - getXpTaken(level) > 0) {
                     BleedEffect blood = new BleedEffect(Adapt.instance.adaptEffectManager);  // Enemy gets blood
                     blood.material = Material.EMERALD;
                     blood.setEntity(v);
-                    p.setLevel((p.getLevel() - getXpTaken(getLevel(p))));
+                    p.setLevel((p.getLevel() - getXpTaken(level)));
                     sp.play(p.getLocation(), Sound.ENTITY_VILLAGER_CELEBRATE, 1f, 1f);
                     sp.play(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f);
-                    int level = getLevel(p);
                     active.put(p.getUniqueId(), level);
                     p.addPotionEffect(new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, 60, level, true, true));
                     getPlayer(p).getData().addStat("discovery.villager-att.improved-trades", 1);
@@ -137,6 +131,7 @@ public class DiscoveryVillagerAtt extends SimpleAdaptation<DiscoveryVillagerAtt.
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
+    @ReceiveCancelledEvents
     public void on(InventoryOpenEvent event) {
         if (!(event.getPlayer() instanceof Player p)) {
             return;

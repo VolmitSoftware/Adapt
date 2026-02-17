@@ -23,12 +23,11 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.volmlib.util.format.Form;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
@@ -87,17 +86,13 @@ public class SwordsExecutionersEdge extends SimpleAdaptation<SwordsExecutionersE
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
-        if (e.isCancelled() || !(e.getDamager() instanceof Player p) || !hasAdaptation(p) || !isSword(p.getInventory().getItemInMainHand()) || !(e.getEntity() instanceof LivingEntity target)) {
+        var combat = resolveMeleeContext(e, this::isSword);
+        if (combat == null) {
             return;
         }
 
-        if (target instanceof Player victim) {
-            if (!canPVP(p, victim.getLocation())) {
-                return;
-            }
-        } else if (!canPVE(p, target.getLocation())) {
-            return;
-        }
+        Player p = combat.attacker();
+        LivingEntity target = combat.target();
 
         double maxHealth = getMaxHealth(target);
         if (maxHealth <= 0) {
@@ -105,12 +100,12 @@ public class SwordsExecutionersEdge extends SimpleAdaptation<SwordsExecutionersE
         }
 
         double hpPercent = Math.max(0, target.getHealth() / maxHealth);
-        double threshold = getThreshold(getLevel(p));
+        double threshold = getThreshold(combat.level());
         if (hpPercent > threshold) {
             return;
         }
 
-        double multiplier = 1D + getBonusDamage(getLevel(p));
+        double multiplier = 1D + getBonusDamage(combat.level());
         e.setDamage(e.getDamage() * multiplier);
         xp(p, e.getDamage() * getConfig().xpPerBuffedDamage);
         getPlayer(p).getData().addStat("swords.executioners-edge.executions", 1);

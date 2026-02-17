@@ -19,28 +19,21 @@
 package art.arcane.adapt.content.adaptation.ranged;
 
 import art.arcane.adapt.Adapt;
-import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.skill.Skill;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.volmlib.util.format.Form;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
 import fr.skytasul.glowingentities.GlowingEntities;
 import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Color;
-import org.bukkit.FluidCollisionMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Particle;
+import org.bukkit.*;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -58,14 +51,13 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySight.Config> {
     private static final double EPSILON = 0.0000001D;
-    private final Map<UUID, Long> drawStartedMillis = new HashMap<>();
-    private final Map<UUID, UUID> previewGlowTargets = new HashMap<>();
+    private final Map<UUID, Long> drawStartedMillis = new java.util.concurrent.ConcurrentHashMap<>();
+    private final Map<UUID, UUID> previewGlowTargets = new java.util.concurrent.ConcurrentHashMap<>();
     private volatile RangedForce cachedRangedForce;
     private volatile RangedRicochetBolt cachedRicochetBolt;
 
@@ -111,7 +103,7 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
         }
 
         Player p = e.getPlayer();
-        if (!hasAdaptation(p)) {
+        if (!hasActiveAdaptation(p)) {
             return;
         }
 
@@ -141,7 +133,7 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
 
     @EventHandler
     public void on(EntityDeathEvent e) {
-        if (e.getEntity().getKiller() instanceof Player p && hasAdaptation(p)) {
+        if (e.getEntity().getKiller() instanceof Player p && hasActiveAdaptation(p)) {
             if (e.getEntity().getLastDamageCause() instanceof EntityDamageByEntityEvent dmg
                     && dmg.getDamager() instanceof Projectile projectile
                     && projectile.getShooter() instanceof Player) {
@@ -154,7 +146,8 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
     public void onTick() {
         for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
             Player p = adaptPlayer.getPlayer();
-            if (!hasAdaptation(p)) {
+            int level = getActiveLevel(p);
+            if (level <= 0) {
                 drawStartedMillis.remove(p.getUniqueId());
                 clearPreviewGlow(p);
                 continue;
@@ -177,7 +170,7 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
                 continue;
             }
 
-            UUID predictedHit = renderTrajectory(p, getSegments(getLevel(p)), shot);
+            UUID predictedHit = renderTrajectory(p, getSegments(level), shot);
             updatePreviewGlow(p, predictedHit);
         }
     }

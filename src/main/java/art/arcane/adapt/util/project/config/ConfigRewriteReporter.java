@@ -1,18 +1,12 @@
 package art.arcane.adapt.util.project.config;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.util.config.ConfigFileSupport;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 public class ConfigRewriteReporter {
     private static final int MAX_KEYS_PER_CATEGORY = 8;

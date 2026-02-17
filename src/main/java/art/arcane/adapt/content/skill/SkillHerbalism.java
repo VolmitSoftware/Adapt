@@ -18,18 +18,16 @@
 
 package art.arcane.adapt.content.skill;
 
-import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
+import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.skill.SimpleSkill;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.content.adaptation.herbalism.*;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.scheduling.J;
-import art.arcane.adapt.util.common.format.Localizer;
 import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Ageable;
@@ -46,9 +44,10 @@ import org.bukkit.inventory.meta.PotionMeta;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
-    private final Map<Player, Long> cooldown = new HashMap<>();
+    private final Map<UUID, Long> cooldown = new HashMap<>();
 
     public SkillHerbalism() {
         super("herbalism", Localizer.dLocalize("skill.herbalism.icon"));
@@ -203,14 +202,11 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerQuitEvent e) {
         Player p = e.getPlayer();
-        cooldown.remove(p);
+        cooldown.remove(p.getUniqueId());
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerItemConsumeEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         Player p = e.getPlayer();
         shouldReturnForPlayer(e.getPlayer(), e, () -> {
             if (e.getItem().getItemMeta() instanceof PotionMeta o) {
@@ -228,9 +224,6 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerShearEntityEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         Player p = e.getPlayer();
         shouldReturnForPlayer(e.getPlayer(), e, () -> {
             getPlayer(p).getData().addStat("herbalism.sheared", 1);
@@ -240,25 +233,16 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerHarvestBlockEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         shouldReturnForPlayer(e.getPlayer(), e, () -> handleEvent(e, e.getPlayer(), e.getHarvestedBlock(), "harvest.blocks"));
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(BlockPlaceEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         shouldReturnForPlayer(e.getPlayer(), e, () -> handleEvent(e, e.getPlayer(), e.getBlock(), "harvest.planted"));
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerInteractEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         Player p = e.getPlayer();
         shouldReturnForPlayer(e.getPlayer(), e, () -> {
             if (e.useItemInHand().equals(Event.Result.DENY)) {
@@ -276,22 +260,19 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(BlockBreakEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         shouldReturnForPlayer(e.getPlayer(), e, () -> handleEvent(e, e.getPlayer(), e.getBlock(), "harvest.blocks"));
     }
 
     private void handleHerbCooldown(Player p, Runnable action) {
-        if (cooldown.containsKey(p)) {
-            if (cooldown.get(p) + getConfig().harvestXpCooldown > System.currentTimeMillis()) {
+        if (cooldown.containsKey(p.getUniqueId())) {
+            if (cooldown.get(p.getUniqueId()) + getConfig().harvestXpCooldown > System.currentTimeMillis()) {
                 return;
             } else {
-                cooldown.remove(p);
+                cooldown.remove(p.getUniqueId());
             }
         }
 
-        cooldown.put(p, System.currentTimeMillis());
+        cooldown.put(p.getUniqueId(), System.currentTimeMillis());
         action.run();
     }
 

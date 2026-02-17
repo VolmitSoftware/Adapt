@@ -25,10 +25,11 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.content.item.BoundEnderPearl;
-import art.arcane.volmlib.util.io.IO;
-import art.arcane.volmlib.util.math.M;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
+import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -53,12 +54,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
-import art.arcane.adapt.util.reflect.registries.Particles;
 
 import static art.arcane.adapt.api.adaptation.chunk.ChunkLoading.loadChunkAsync;
 
@@ -130,7 +125,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
         // If the main hand is holding a bound enderpearl
         if (mainHandBound) {
             e.setCancelled(true);
-            if (hasAdaptation(p)) {
+            if (hasActiveAdaptation(p)) {
                 Adapt.verbose("Player using bound enderpearl.");
                 handleEnderPearlInteraction(e, p, block);
             }
@@ -250,13 +245,11 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(BlockBurnEvent event) {
-        if (event.isCancelled()) return;
         invClose(event.getBlock());
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(BlockPistonRetractEvent event) {
-        if (event.isCancelled()) return;
         for (Block b : event.getBlocks()) {
             invClose(b);
         }
@@ -264,7 +257,6 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(BlockPistonExtendEvent event) {
-        if (event.isCancelled()) return;
         for (Block b : event.getBlocks()) {
             invClose(b);
         }
@@ -272,7 +264,6 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(BlockExplodeEvent event) {
-        if (event.isCancelled()) return;
         for (Block b : event.blockList()) {
             invClose(b);
         }
@@ -280,7 +271,6 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(BlockBreakEvent event) {
-        if (event.isCancelled()) return;
         invClose(event.getBlock());
     }
 

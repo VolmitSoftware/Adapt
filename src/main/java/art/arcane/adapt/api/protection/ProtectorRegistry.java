@@ -18,35 +18,67 @@
 
 package art.arcane.adapt.api.protection;
 
-import com.google.common.collect.ImmutableList;
 import art.arcane.adapt.Adapt;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ProtectorRegistry {
     private final List<Protector> protectors = new ArrayList<>();
+    private volatile List<Protector> allProtectorsSnapshot = List.of();
+    private volatile List<Protector> defaultProtectorsSnapshot = List.of();
 
-    public void registerProtector(Protector protector) {
+    public synchronized void registerProtector(Protector protector) {
+        if (protector == null || protectors.contains(protector)) {
+            return;
+        }
+
         Adapt.verbose("Protector: \"" + protector.getName() + "\" registered.");
         protectors.add(protector);
+        rebuildSnapshots();
     }
 
-    public void unregisterProtector(Protector protector) {
+    public synchronized void unregisterProtector(Protector protector) {
+        if (protector == null) {
+            return;
+        }
+
         protector.unregister();
-        protectors.remove(protector);
+        if (protectors.remove(protector)) {
+            rebuildSnapshots();
+        }
     }
 
     public List<Protector> getDefaultProtectors() {
-        return protectors.stream().filter(Protector::isEnabledByDefault).collect(ImmutableList.toImmutableList());
+        return defaultProtectorsSnapshot;
     }
 
     public List<Protector> getAllProtectors() {
-        return ImmutableList.copyOf(protectors);
+        return allProtectorsSnapshot;
     }
 
-    public void unregisterAll() {
+    public synchronized void unregisterAll() {
         protectors.forEach(Protector::unregister);
         protectors.clear();
+        rebuildSnapshots();
+    }
+
+    private void rebuildSnapshots() {
+        List<Protector> all = new ArrayList<>(protectors.size());
+        List<Protector> defaults = new ArrayList<>(Math.max(1, protectors.size() / 2));
+
+        for (Protector protector : protectors) {
+            if (protector == null) {
+                continue;
+            }
+            all.add(protector);
+            if (protector.isEnabledByDefault()) {
+                defaults.add(protector);
+            }
+        }
+
+        allProtectorsSnapshot = Collections.unmodifiableList(all);
+        defaultProtectorsSnapshot = Collections.unmodifiableList(defaults);
     }
 }

@@ -23,10 +23,12 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
-import art.arcane.volmlib.util.io.IO;
-import art.arcane.volmlib.util.math.M;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
+import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.math.M;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bukkit.GameMode;
@@ -46,17 +48,13 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.util.Vector;
 
-import java.util.HashMap;
 import java.util.Map;
-
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
 
-    private final Map<Player, Long> lastJump = new HashMap<>();
+    private final Map<UUID, Long> lastJump = new ConcurrentHashMap<>();
 
     public NetherSkullYeet() {
         super("nether-skull-toss");
@@ -111,63 +109,62 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
     @EventHandler
     public void on(PlayerQuitEvent e) {
         Player p = e.getPlayer();
-        lastJump.remove(p);
+        lastJump.remove(p.getUniqueId());
     }
 
     @EventHandler
     public void onRightClick(PlayerInteractEvent e) {
-        if (!hasAdaptation(e.getPlayer())) {
-            return;
-        }
-        if (e.useItemInHand() == Event.Result.DENY) {
-            return;
-        }
-
-        if (e.getAction() != Action.LEFT_CLICK_AIR && e.getAction() != Action.LEFT_CLICK_BLOCK) {
-            return;
-        }
-        if (e.getHand() != EquipmentSlot.HAND || e.getItem() == null || e.getMaterial() != Material.WITHER_SKELETON_SKULL) {
-            return;
-        }
-
         Player p = e.getPlayer();
-        SoundPlayer sp = SoundPlayer.of(p);
+        withAdaptedPlayer(p, e, () -> {
+            if (e.useItemInHand() == Event.Result.DENY) {
+                return;
+            }
 
-        if (lastJump.get(p) != null && M.ms() - lastJump.get(p) <= getCooldownDuration(p)) {
-            sp.play(p, Sound.BLOCK_CONDUIT_DEACTIVATE, 1F, 1F);
-            return;
-        }
+            if (e.getAction() != Action.LEFT_CLICK_AIR && e.getAction() != Action.LEFT_CLICK_BLOCK) {
+                return;
+            }
+            if (e.getHand() != EquipmentSlot.HAND || e.getItem() == null || e.getMaterial() != Material.WITHER_SKELETON_SKULL) {
+                return;
+            }
 
-        if (lastJump.get(p) != null && M.ms() - lastJump.get(p) <= getCooldownDuration(p)) {
-            return;
-        }
+            SoundPlayer sp = SoundPlayer.of(p);
 
-        if (p.hasCooldown(p.getInventory().getItemInMainHand().getType())) {
-            e.setCancelled(true);
-            sp.play(p, Sound.BLOCK_CONDUIT_DEACTIVATE, 1F, 1F);
-            return;
-        } else {
-            p.setCooldown(Material.WITHER_SKELETON_SKULL, getCooldownDuration(p));
-        }
+            if (lastJump.get(p.getUniqueId()) != null && M.ms() - lastJump.get(p.getUniqueId()) <= getCooldownDuration(p)) {
+                sp.play(p, Sound.BLOCK_CONDUIT_DEACTIVATE, 1F, 1F);
+                return;
+            }
+
+            if (lastJump.get(p.getUniqueId()) != null && M.ms() - lastJump.get(p.getUniqueId()) <= getCooldownDuration(p)) {
+                return;
+            }
+
+            if (p.hasCooldown(p.getInventory().getItemInMainHand().getType())) {
+                e.setCancelled(true);
+                sp.play(p, Sound.BLOCK_CONDUIT_DEACTIVATE, 1F, 1F);
+                return;
+            } else {
+                p.setCooldown(Material.WITHER_SKELETON_SKULL, getCooldownDuration(p));
+            }
 
 
-        if (p.getGameMode() != GameMode.CREATIVE) {
-            e.getItem().setAmount(e.getItem().getAmount() - 1);
-            lastJump.put(p, M.ms());
-        }
+            if (p.getGameMode() != GameMode.CREATIVE) {
+                e.getItem().setAmount(e.getItem().getAmount() - 1);
+                lastJump.put(p.getUniqueId(), M.ms());
+            }
 
-        Vector dir = p.getEyeLocation().getDirection();
-        Location spawn = p.getEyeLocation().add(new Vector(.5, -.5, .5)).add(dir);
-        p.getWorld().spawn(spawn, WitherSkull.class, entity -> {
-            sp.play(entity, Sound.ENTITY_WITHER_SHOOT, 1, 1);
-            entity.setRotation(p.getEyeLocation().getYaw(), p.getEyeLocation().getPitch());
-            entity.setCharged(false);
-            entity.setBounce(false);
-            entity.setDirection(dir);
-            entity.setShooter(p);
-            xp(p, 100);
+            Vector dir = p.getEyeLocation().getDirection();
+            Location spawn = p.getEyeLocation().add(new Vector(.5, -.5, .5)).add(dir);
+            p.getWorld().spawn(spawn, WitherSkull.class, entity -> {
+                sp.play(entity, Sound.ENTITY_WITHER_SHOOT, 1, 1);
+                entity.setRotation(p.getEyeLocation().getYaw(), p.getEyeLocation().getPitch());
+                entity.setCharged(false);
+                entity.setBounce(false);
+                entity.setDirection(dir);
+                entity.setShooter(p);
+                xp(p, 100);
+            });
+            getPlayer(p).getData().addStat("nether.skull-yeet.skulls-thrown", 1);
         });
-        getPlayer(p).getData().addStat("nether.skull-yeet.skulls-thrown", 1);
     }
 
     @EventHandler
@@ -175,14 +172,15 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
         LivingEntity dead = e.getEntity();
         if (dead.getLastDamageCause() instanceof EntityDamageByEntityEvent dbe
                 && dbe.getDamager() instanceof WitherSkull skull
-                && skull.getShooter() instanceof Player p
-                && hasAdaptation(p)) {
-            getPlayer(p).getData().addStat("nether.skull-yeet.skull-kills", 1);
+                && skull.getShooter() instanceof Player p) {
+            withAdaptedPlayer(p, () -> {
+                getPlayer(p).getData().addStat("nether.skull-yeet.skull-kills", 1);
 
-            double distance = p.getLocation().distance(dead.getLocation());
-            if (distance >= 40 && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_nether_skull_long_bomb")) {
-                getPlayer(p).getAdvancementHandler().grant("challenge_nether_skull_long_bomb");
-            }
+                double distance = p.getLocation().distance(dead.getLocation());
+                if (distance >= 40 && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_nether_skull_long_bomb")) {
+                    getPlayer(p).getAdvancementHandler().grant("challenge_nether_skull_long_bomb");
+                }
+            });
         }
     }
 

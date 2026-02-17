@@ -23,10 +23,9 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -75,10 +74,7 @@ public class HerbalismMyconid extends SimpleAdaptation<HerbalismMyconid.Config> 
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(CraftItemEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
-        if (!(e.getWhoClicked() instanceof Player p) || !hasAdaptation(p)) {
+        if (!(e.getWhoClicked() instanceof Player p) || !hasActiveAdaptation(p)) {
             return;
         }
         if (e.getRecipe() instanceof org.bukkit.inventory.ShapelessRecipe recipe && recipe.getKey().getNamespace().equals("adapt") && recipe.getKey().getKey().equals("herbalism-dirt-myconid")) {

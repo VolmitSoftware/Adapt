@@ -18,28 +18,21 @@
 
 package art.arcane.adapt.content.adaptation.chronos;
 
-import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.content.item.ChronoTimeBombItem;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.volmlib.util.format.Form;
-import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.volmlib.util.math.M;
+import art.arcane.adapt.util.common.inventorygui.Element;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
+import art.arcane.volmlib.util.math.M;
 import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
@@ -48,22 +41,15 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.event.player.PlayerToggleSneakEvent;
-import org.bukkit.event.player.PlayerToggleFlightEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
-import art.arcane.adapt.util.common.inventorygui.Window;
-import art.arcane.adapt.util.reflect.registries.Particles;
-
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -74,7 +60,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecall.
             Action.LEFT_CLICK_AIR,
             Action.LEFT_CLICK_BLOCK
     );
-    private static final Map<UUID, Long> TELEPORT_XP_SUPPRESS_UNTIL = new HashMap<>();
+    private static final Map<UUID, Long> TELEPORT_XP_SUPPRESS_UNTIL = new ConcurrentHashMap<>();
 
     private final Map<UUID, Deque<Snapshot>> snapshots;
     private final Map<UUID, Long> lastSnapshot;
@@ -97,15 +83,15 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecall.
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(50);
-        snapshots = new HashMap<>();
-        lastSnapshot = new HashMap<>();
-        cooldowns = new HashMap<>();
-        cooldownReadyNotify = new HashSet<>();
-        rewindProtection = new HashMap<>();
-        rewinding = new HashSet<>();
-        recallXpStamps = new HashMap<>();
-        jumpArmUntil = new HashMap<>();
-        lastOnGround = new HashMap<>();
+        snapshots = new ConcurrentHashMap<>();
+        lastSnapshot = new ConcurrentHashMap<>();
+        cooldowns = new ConcurrentHashMap<>();
+        cooldownReadyNotify = ConcurrentHashMap.newKeySet();
+        rewindProtection = new ConcurrentHashMap<>();
+        rewinding = ConcurrentHashMap.newKeySet();
+        recallXpStamps = new ConcurrentHashMap<>();
+        jumpArmUntil = new ConcurrentHashMap<>();
+        lastOnGround = new ConcurrentHashMap<>();
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.CLOCK)
                 .key("challenge_chronos_recall_50")
@@ -648,7 +634,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecall.
     }
 
     private boolean isRecallEligible(Player p) {
-        return hasAdaptation(p) && p.getGameMode() == GameMode.SURVIVAL;
+        return hasActiveAdaptation(p) && p.getGameMode() == GameMode.SURVIVAL;
     }
 
     private boolean isLeftClick(Action action) {
@@ -832,7 +818,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecall.
             return;
         }
 
-        int level = getLevel(p);
+        int level = getActiveLevel(p);
         long rewindMillis = getRewindDurationMillis(level);
         Snapshot anchor = findSnapshot(p, rewindMillis);
         if (anchor == null) {
@@ -1090,12 +1076,10 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecall.
     public void onTick() {
         long now = M.ms();
 
-        Iterator<UUID> ready = cooldownReadyNotify.iterator();
-        while (ready.hasNext()) {
-            UUID id = ready.next();
+        for (UUID id : new HashSet<>(cooldownReadyNotify)) {
             Player p = Bukkit.getPlayer(id);
             if (p == null) {
-                ready.remove();
+                cooldownReadyNotify.remove(id);
                 continue;
             }
 
@@ -1104,7 +1088,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecall.
                 if (getConfig().playClockSounds) {
                     ChronosSoundFX.playCooldownReady(p);
                 }
-                ready.remove();
+                cooldownReadyNotify.remove(id);
             }
         }
 

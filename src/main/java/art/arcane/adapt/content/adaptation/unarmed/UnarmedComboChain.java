@@ -23,13 +23,12 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.volmlib.util.format.Form;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -43,14 +42,11 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import art.arcane.adapt.util.common.inventorygui.Window;
-
 public class UnarmedComboChain extends SimpleAdaptation<UnarmedComboChain.Config> {
-    private final Map<UUID, ComboState> combos = new HashMap<>();
+    private final Map<UUID, ComboState> combos = new java.util.concurrent.ConcurrentHashMap<>();
 
     public UnarmedComboChain() {
         super("unarmed-combo-chain");
@@ -99,10 +95,12 @@ public class UnarmedComboChain extends SimpleAdaptation<UnarmedComboChain.Config
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
-        if (e.isCancelled() || !(e.getDamager() instanceof Player p) || !hasAdaptation(p)) {
+        var attack = resolveAttackContext(e);
+        if (attack == null) {
             return;
         }
 
+        Player p = attack.attacker();
         ItemStack hand = p.getInventory().getItemInMainHand();
         if (isMelee(hand)) {
             combos.remove(p.getUniqueId());
@@ -110,7 +108,7 @@ public class UnarmedComboChain extends SimpleAdaptation<UnarmedComboChain.Config
         }
 
         long now = System.currentTimeMillis();
-        int level = getLevel(p);
+        int level = attack.level();
         ComboState state = combos.computeIfAbsent(p.getUniqueId(), id -> new ComboState());
 
         if (now - state.lastHitMillis > getComboWindowMillis(level)) {
@@ -143,7 +141,7 @@ public class UnarmedComboChain extends SimpleAdaptation<UnarmedComboChain.Config
         }
 
         Player p = e.getPlayer();
-        if (!hasAdaptation(p) || isMelee(p.getInventory().getItemInMainHand())) {
+        if (!hasActiveAdaptation(p) || isMelee(p.getInventory().getItemInMainHand())) {
             return;
         }
 

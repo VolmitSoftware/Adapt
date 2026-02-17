@@ -18,13 +18,17 @@
  */
 
 package art.arcane.adapt.util.common.plugin;
-import art.arcane.volmlib.util.format.Form;
-import static art.arcane.amulet.MagicalSugar.*;
+
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.util.common.format.AdventureCompat;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.scheduling.J;
+import art.arcane.adapt.util.project.command.CommandDummy;
 import art.arcane.volmlib.util.collection.KList;
 import art.arcane.volmlib.util.collection.KMap;
 import art.arcane.volmlib.util.director.visual.DirectorVisualCommand;
 import art.arcane.volmlib.util.director.visual.DirectorVisualCommand.DirectorVisualParameter;
+import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.math.RNG;
 import lombok.Getter;
 import lombok.Setter;
@@ -41,17 +45,14 @@ import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.plugin.Plugin;
 
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.AdventureCompat;
-import art.arcane.adapt.util.common.scheduling.J;
-import art.arcane.adapt.util.project.command.Command;
-import art.arcane.adapt.util.project.command.CommandDummy;
 
 /**
  * Represents a volume sender. A command sender with extra crap in its

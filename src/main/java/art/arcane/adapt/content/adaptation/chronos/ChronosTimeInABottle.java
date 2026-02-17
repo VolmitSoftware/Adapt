@@ -23,11 +23,10 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.content.item.ChronoTimeBottle;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Keyed;
@@ -47,8 +46,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.CraftItemEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -56,8 +55,6 @@ import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionType;
 
 import java.util.concurrent.ThreadLocalRandom;
-
-import art.arcane.adapt.util.reflect.registries.Particles;
 
 public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.Config> {
     private static final String RECIPE_KEY = "chronos-time-in-a-bottle";
@@ -342,16 +339,15 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
         // Chrono bottles are never drinkable; always deny vanilla potion use.
         e.setUseItemInHand(Event.Result.DENY);
 
-        if (!hasAdaptation(p) || action != Action.RIGHT_CLICK_BLOCK || e.getClickedBlock() == null) {
+        if (action != Action.RIGHT_CLICK_BLOCK || e.getClickedBlock() == null) {
             return;
         }
 
         Block clicked = e.getClickedBlock();
-        if (!canInteract(p, clicked.getLocation())) {
+        int level = getActiveInteractLevel(p, clicked.getLocation());
+        if (level <= 0) {
             return;
         }
-
-        int level = getLevel(p);
         double storedSeconds = ChronoTimeBottle.getStoredSeconds(hand);
         if (storedSeconds <= 0) {
             return;
@@ -385,7 +381,7 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
 
         Player p = e.getPlayer();
         ItemStack hand = p.getInventory().getItemInMainHand();
-        if (!ChronoTimeBottle.isBindableItem(hand) || !hasAdaptation(p)) {
+        if (!ChronoTimeBottle.isBindableItem(hand)) {
             return;
         }
 
@@ -393,7 +389,8 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
             return;
         }
 
-        if (!canInteract(p, e.getRightClicked().getLocation())) {
+        int level = getActiveInteractLevel(p, e.getRightClicked().getLocation());
+        if (level <= 0) {
             return;
         }
 
@@ -401,8 +398,6 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
         if (currentAge == 0) {
             return;
         }
-
-        int level = getLevel(p);
         double storedSeconds = ChronoTimeBottle.getStoredSeconds(hand);
         if (storedSeconds <= 0) {
             return;
@@ -642,11 +637,11 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
     public void onTick() {
         for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
             Player p = adaptPlayer.getPlayer();
-            if (!hasAdaptation(p)) {
+            int level = getActiveLevel(p);
+            if (level <= 0) {
                 continue;
             }
 
-            int level = getLevel(p);
             double chargePerSecond = getConfig().chargePerSecond + (level * getConfig().chargePerSecondPerLevel);
 
             for (ItemStack stack : p.getInventory().getContents()) {

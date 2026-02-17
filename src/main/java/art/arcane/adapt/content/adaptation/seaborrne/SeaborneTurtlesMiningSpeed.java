@@ -22,12 +22,10 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
-import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.reflect.registries.PotionEffectTypes;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -81,28 +79,19 @@ public class SeaborneTurtlesMiningSpeed extends SimpleAdaptation<SeaborneTurtles
                 continue;
             }
 
-            Runnable apply = () -> {
+            withPlayerThread(player, () -> {
                 if (!player.isOnline()) {
                     return;
                 }
 
-                if (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(player)) {
-                    return;
-                }
-
-                if (!player.isInWater() || !hasAdaptation(player)) {
+                int level = getActiveLevel(player);
+                if (level <= 0 || !player.isInWater()) {
                     return;
                 }
 
                 player.addPotionEffect(new PotionEffect(PotionEffectTypes.FAST_DIGGING, 62, 1, false, false));
                 getPlayer(player).getData().addStat("seaborne.turtles-mining.blocks-underwater", 1);
-            };
-
-            if (J.isFoliaThreading()) {
-                J.runEntity(player, apply);
-            } else {
-                apply.run();
-            }
+            });
         }
     }
 

@@ -22,13 +22,12 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.volmlib.util.format.Form;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -78,15 +77,15 @@ public class TamingSharedPain extends SimpleAdaptation<TamingSharedPain.Config> 
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void on(EntityDamageEvent e) {
-        if (!(e.getEntity() instanceof Tameable tameable) || !tameable.isTamed() || !(tameable.getOwner() instanceof Player owner) || !hasAdaptation(owner)) {
+        if (!(e.getEntity() instanceof Tameable tameable) || !tameable.isTamed() || !(tameable.getOwner() instanceof Player owner)) {
             return;
         }
 
-        if (!canPVE(owner, tameable.getLocation())) {
+        int level = getActiveDamageLevel(owner, tameable);
+        if (level <= 0) {
             return;
         }
 
-        int level = getLevel(owner);
         double redirect = e.getDamage() * getRedirectPercent(level);
         if (redirect <= 0) {
             return;

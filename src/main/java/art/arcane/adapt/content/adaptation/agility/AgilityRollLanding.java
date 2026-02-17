@@ -23,14 +23,13 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.volmlib.util.format.Form;
-import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -42,15 +41,13 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-
-import art.arcane.adapt.util.common.inventorygui.Window;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class AgilityRollLanding extends SimpleAdaptation<AgilityRollLanding.Config> {
-    private final Map<UUID, Long> rollInputs = new HashMap<>();
-    private final Map<UUID, Long> proneUntilMillis = new HashMap<>();
+    private final Map<UUID, Long> rollInputs = new ConcurrentHashMap<>();
+    private final Map<UUID, Long> proneUntilMillis = new ConcurrentHashMap<>();
 
     public AgilityRollLanding() {
         super("agility-roll-landing");
@@ -107,65 +104,70 @@ public class AgilityRollLanding extends SimpleAdaptation<AgilityRollLanding.Conf
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void on(PlayerToggleSneakEvent e) {
         Player p = e.getPlayer();
-        if (e.isSneaking()) {
-            recordRollInput(p, null, null);
-        }
+        withAdaptedPlayer(p, e, () -> {
+            if (e.isSneaking()) {
+                recordRollInput(p, null, null);
+            }
+        });
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void on(PlayerMoveEvent e) {
-        recordRollInput(e.getPlayer(), e.getFrom().getY(), e.getTo() == null ? null : e.getTo().getY());
+        Player p = e.getPlayer();
+        withAdaptedPlayer(p, e, () -> recordRollInput(p, e.getFrom().getY(), e.getTo() == null ? null : e.getTo().getY()));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageEvent e) {
-        if (e.isCancelled() || !(e.getEntity() instanceof Player p) || e.getCause() != EntityDamageEvent.DamageCause.FALL) {
+        if (!(e.getEntity() instanceof Player p) || e.getCause() != EntityDamageEvent.DamageCause.FALL) {
             return;
         }
 
-        if (!hasAdaptation(p) || p.hasCooldown(Material.HAY_BLOCK)) {
-            return;
-        }
+        withAdaptedPlayer(p, e, () -> {
+            if (p.hasCooldown(Material.HAY_BLOCK)) {
+                return;
+            }
 
-        long now = System.currentTimeMillis();
-        long input = rollInputs.getOrDefault(p.getUniqueId(), 0L);
-        int level = getLevel(p);
-        if (now - input > getInputWindowMillis(level)) {
-            return;
-        }
+            long now = System.currentTimeMillis();
+            long input = rollInputs.getOrDefault(p.getUniqueId(), 0L);
+            int level = getActiveLevel(p);
+            if (now - input > getInputWindowMillis(level)) {
+                return;
+            }
 
-        double absorbCap = e.getDamage() * getFallReduction(level);
-        int hungerNeeded = (int) Math.ceil(absorbCap * getHungerPerDamage(level));
-        if (hungerNeeded <= 0 || p.getFoodLevel() <= 0) {
-            return;
-        }
+            double absorbCap = e.getDamage() * getFallReduction(level);
+            int hungerNeeded = (int) Math.ceil(absorbCap * getHungerPerDamage(level));
+            if (hungerNeeded <= 0 || p.getFoodLevel() <= 0) {
+                return;
+            }
 
-        int usableFood = Math.min(p.getFoodLevel(), hungerNeeded);
-        double absorbed = usableFood / getHungerPerDamage(level);
-        if (absorbed <= 0) {
-            return;
-        }
+            int usableFood = Math.min(p.getFoodLevel(), hungerNeeded);
+            double absorbed = usableFood / getHungerPerDamage(level);
+            if (absorbed <= 0) {
+                return;
+            }
 
-        p.setFoodLevel(Math.max(0, p.getFoodLevel() - usableFood));
-        e.setDamage(Math.max(0, e.getDamage() - absorbed));
-        if (e.getDamage() <= 0.01) {
-            e.setCancelled(true);
-        }
+            p.setFoodLevel(Math.max(0, p.getFoodLevel() - usableFood));
+            e.setDamage(Math.max(0, e.getDamage() - absorbed));
+            if (e.getDamage() <= 0.01) {
+                e.setCancelled(true);
+            }
 
-        p.setCooldown(Material.HAY_BLOCK, getCooldownTicks(level));
-        triggerRollPose(p, level);
-        SoundPlayer.of(p.getWorld()).play(p.getLocation(), Sound.ENTITY_PLAYER_SMALL_FALL, 0.8f, 0.7f);
-        SoundPlayer.of(p.getWorld()).play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 1.0f, 0.89f);
-        SoundPlayer.of(p.getWorld()).play(p.getLocation(), Sound.BLOCK_WOOL_BREAK, 0.55f, 0.9f);
-        getPlayer(p).getData().addStat("agility.roll-landing.damage-prevented", absorbed);
-        if (p.getFallDistance() >= 30 && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_agility_fearless")) {
-            getPlayer(p).getAdvancementHandler().grant("challenge_agility_fearless");
-        }
-        xp(p, absorbed * getConfig().xpPerDamagePrevented);
+            p.setCooldown(Material.HAY_BLOCK, getCooldownTicks(level));
+            triggerRollPose(p, level);
+            SoundPlayer.of(p.getWorld()).play(p.getLocation(), Sound.ENTITY_PLAYER_SMALL_FALL, 0.8f, 0.7f);
+            SoundPlayer.of(p.getWorld()).play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 1.0f, 0.89f);
+            SoundPlayer.of(p.getWorld()).play(p.getLocation(), Sound.BLOCK_WOOL_BREAK, 0.55f, 0.9f);
+            getPlayer(p).getData().addStat("agility.roll-landing.damage-prevented", absorbed);
+            if (p.getFallDistance() >= 30 && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_agility_fearless")) {
+                getPlayer(p).getAdvancementHandler().grant("challenge_agility_fearless");
+            }
+            xp(p, absorbed * getConfig().xpPerDamagePrevented);
+        });
     }
 
     private void recordRollInput(Player p, Double fromY, Double toY) {
-        if (!hasAdaptation(p) || !p.isSneaking()) {
+        if (!p.isSneaking()) {
             return;
         }
 

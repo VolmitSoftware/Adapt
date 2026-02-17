@@ -22,13 +22,12 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.volmlib.util.format.Form;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -84,44 +83,46 @@ public class NetherBlazeLeech extends SimpleAdaptation<NetherBlazeLeech.Config> 
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageEvent e) {
-        if (e.isCancelled() || !(e.getEntity() instanceof Player p) || !hasAdaptation(p)) {
+        if (!(e.getEntity() instanceof Player p)) {
             return;
         }
 
-        if (!isFireCause(e.getCause()) || !isReady(p, getLevel(p))) {
-            return;
-        }
+        withAdaptedPlayer(p, e, () -> {
+            int level = getActiveLevel(p);
+            if (!isFireCause(e.getCause()) || !isReady(p, level)) {
+                return;
+            }
 
-        if (ThreadLocalRandom.current().nextDouble() > getTriggerChance(getLevel(p))) {
-            return;
-        }
+            if (ThreadLocalRandom.current().nextDouble() > getTriggerChance(level)) {
+                return;
+            }
 
-        applyLeech(p, getLevel(p), true);
+            applyLeech(p, level, true);
+        });
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
-        if (e.isCancelled() || !(e.getDamager() instanceof Player p) || !hasAdaptation(p) || !(e.getEntity() instanceof LivingEntity target)) {
+        if (!(e.getDamager() instanceof Player p) || !(e.getEntity() instanceof LivingEntity target)) {
             return;
         }
 
-        if (target instanceof Player victim) {
-            if (!canPVP(p, victim.getLocation())) {
+        withAdaptedPlayer(p, e, () -> {
+            if (!canDamageTarget(p, target)) {
                 return;
             }
-        } else if (!canPVE(p, target.getLocation())) {
-            return;
-        }
 
-        if (target.getFireTicks() <= 0 || !isReady(p, getLevel(p))) {
-            return;
-        }
+            int level = getActiveLevel(p);
+            if (target.getFireTicks() <= 0 || !isReady(p, level)) {
+                return;
+            }
 
-        if (ThreadLocalRandom.current().nextDouble() > getTriggerChance(getLevel(p))) {
-            return;
-        }
+            if (ThreadLocalRandom.current().nextDouble() > getTriggerChance(level)) {
+                return;
+            }
 
-        applyLeech(p, getLevel(p), false);
+            applyLeech(p, level, false);
+        });
     }
 
     private boolean isFireCause(EntityDamageEvent.DamageCause cause) {

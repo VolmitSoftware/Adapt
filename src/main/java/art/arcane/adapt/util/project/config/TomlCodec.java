@@ -1,18 +1,14 @@
 package art.arcane.adapt.util.config;
 
-import com.google.gson.JsonElement;
 import art.arcane.adapt.util.common.io.Json;
+import com.google.gson.JsonElement;
 import com.moandjiezana.toml.Toml;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public final class TomlCodec {
     private TomlCodec() {

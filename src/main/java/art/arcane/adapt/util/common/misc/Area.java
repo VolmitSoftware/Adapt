@@ -30,9 +30,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 
-
-import art.arcane.adapt.util.reflect.registries.Particles;
-
 /**
  * Used to Create an instance of a spherical area based on a central location
  * Great for efficiently checking if an entity is within a spherical area.

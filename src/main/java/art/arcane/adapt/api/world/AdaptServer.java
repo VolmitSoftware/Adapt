@@ -18,8 +18,6 @@
 
 package art.arcane.adapt.api.world;
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
@@ -34,8 +32,14 @@ import art.arcane.adapt.api.xp.XPMultiplier;
 import art.arcane.adapt.content.gui.SkillsGui;
 import art.arcane.adapt.content.item.ExperienceOrb;
 import art.arcane.adapt.content.item.KnowledgeOrb;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.io.Json;
+import art.arcane.adapt.util.common.misc.CustomModel;
+import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.volmlib.util.io.IO;
 import art.arcane.volmlib.util.math.M;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.SneakyThrows;
@@ -57,11 +61,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
-
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.io.Json;
-import art.arcane.adapt.util.common.misc.CustomModel;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 
 public class AdaptServer extends TickedObject {
     private final ReentrantLock clearLock = new ReentrantLock();

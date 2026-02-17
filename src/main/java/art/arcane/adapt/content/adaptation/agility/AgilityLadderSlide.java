@@ -22,12 +22,11 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.Element;
-import art.arcane.volmlib.util.format.Form;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
 import lombok.NoArgsConstructor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -40,9 +39,9 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.util.Vector;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class AgilityLadderSlide extends SimpleAdaptation<AgilityLadderSlide.Config> {
     private final Map<UUID, UpwardState> upwardStates;
@@ -58,7 +57,7 @@ public class AgilityLadderSlide extends SimpleAdaptation<AgilityLadderSlide.Conf
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setInterval(50);
-        upwardStates = new HashMap<>();
+        upwardStates = new ConcurrentHashMap<>();
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.LADDER)
                 .key("challenge_agility_ladder_500")
@@ -92,49 +91,48 @@ public class AgilityLadderSlide extends SimpleAdaptation<AgilityLadderSlide.Conf
         }
 
         Player p = e.getPlayer();
-        if (!hasAdaptation(p) || p.isFlying() || p.isGliding() || p.isSwimming()) {
-            clearUpwardState(p);
-            return;
-        }
+        withPlayerThread(p, e, () -> {
+            var context = resolveInteractContext(p, p.getLocation(), player -> !player.isFlying() && !player.isGliding() && !player.isSwimming());
+            if (context == null) {
+                clearUpwardState(p);
+                return;
+            }
 
-        Location location = p.getLocation();
-        if (!canInteract(p, location)) {
-            clearUpwardState(p);
-            return;
-        }
+            Location location = context.location();
 
-        Block activeLadder = getActiveLadderBlock(location);
-        if (activeLadder == null) {
-            clearUpwardState(p);
-            return;
-        }
+            Block activeLadder = getActiveLadderBlock(location);
+            if (activeLadder == null) {
+                clearUpwardState(p);
+                return;
+            }
 
-        double dy = e.getTo().getY() - e.getFrom().getY();
-        boolean lookingUp = p.getLocation().getPitch() <= -Math.abs(getConfig().lookUpPitchThreshold);
-        if (!lookingUp) {
-            clearUpwardState(p);
-            return;
-        }
+            double dy = e.getTo().getY() - e.getFrom().getY();
+            boolean lookingUp = p.getLocation().getPitch() <= -Math.abs(getConfig().lookUpPitchThreshold);
+            if (!lookingUp) {
+                clearUpwardState(p);
+                return;
+            }
 
-        double epsilon = Math.abs(getConfig().movementDirectionEpsilonUpward);
-        Vector velocity = p.getVelocity();
-        if (p.isSneaking()) {
-            clearUpwardState(p);
-            applyVerticalVelocity(p, velocity, 0);
-            return;
-        }
+            double epsilon = Math.abs(getConfig().movementDirectionEpsilonUpward);
+            Vector velocity = p.getVelocity();
+            if (p.isSneaking()) {
+                clearUpwardState(p);
+                applyVerticalVelocity(p, velocity, 0);
+                return;
+            }
 
-        boolean movingUp = dy > epsilon;
-        if (!movingUp) {
-            clearUpwardState(p);
-            return;
-        }
+            boolean movingUp = dy > epsilon;
+            if (!movingUp) {
+                clearUpwardState(p);
+                return;
+            }
 
-        double baseUp = Math.max(0, getConfig().normalUpwardLadderSpeed);
-        double targetUp = isNearLadderEnd(activeLadder, true) ? baseUp : getUpwardSpeed();
-        applySmoothUpwardVelocity(p, velocity, baseUp, targetUp);
-        p.setFallDistance(0);
-        getPlayer(p).getData().addStat("agility.ladder-slide.blocks-climbed", 1);
+            double baseUp = Math.max(0, getConfig().normalUpwardLadderSpeed);
+            double targetUp = isNearLadderEnd(activeLadder, true) ? baseUp : getUpwardSpeed();
+            applySmoothUpwardVelocity(p, velocity, baseUp, targetUp);
+            p.setFallDistance(0);
+            getPlayer(p).getData().addStat("agility.ladder-slide.blocks-climbed", 1);
+        });
     }
 
     @EventHandler
