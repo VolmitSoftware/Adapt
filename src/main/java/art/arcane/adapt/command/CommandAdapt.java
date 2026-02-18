@@ -117,7 +117,7 @@ public class CommandAdapt {
           if (force || skill.openGui(targetPlayer, true)) {
             FConst.success("Opened GUI for " + skill.getName() + " for " + targetPlayer.getName()).send(BukkitDirectorContext.sender());
           } else {
-            FConst.error("Failed to open GUI for " + skill.getName() + " for " + targetPlayer.getName() + " - No Permission, remove from blacklist!").send(BukkitDirectorContext.sender());
+            FConst.error("Failed to open GUI for " + skill.getName() + " for " + targetPlayer.getName() + " - Permission denied by adapt.use node.").send(BukkitDirectorContext.sender());
           }
           return;
         }
@@ -134,7 +134,7 @@ public class CommandAdapt {
             if (force || adaptation.openGui(targetPlayer, true)) {
               FConst.success("Opened GUI for " + adaptation.getName() + " for " + targetPlayer.getName()).send(BukkitDirectorContext.sender());
             } else {
-              FConst.error("Failed to open GUI for " + adaptation.getName() + " for " + targetPlayer.getName() + " - No Permission, remove from blacklist!").send(BukkitDirectorContext.sender());
+              FConst.error("Failed to open GUI for " + adaptation.getName() + " for " + targetPlayer.getName() + " - Permission denied by adapt.use node.").send(BukkitDirectorContext.sender());
             }
             return;
           }

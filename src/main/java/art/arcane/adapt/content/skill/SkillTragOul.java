@@ -236,7 +236,7 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
           ce.start();
         }
 
-        if (this.hasBlacklistPermission(p, this)) {
+        if (!this.hasUsePermission(p, this)) {
           return;
         }
 

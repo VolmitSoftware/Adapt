@@ -167,7 +167,7 @@ final class AdaptationGuiSupport {
   }
 
   static boolean openGui(Adaptation<?> adaptation, Player player, boolean checkPermissions) {
-    if (checkPermissions && adaptation.hasBlacklistPermission(player, adaptation)) {
+    if (checkPermissions && !adaptation.hasUsePermission(player, adaptation)) {
       return false;
     } else {
       openGui(adaptation, player);

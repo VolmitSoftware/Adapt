@@ -132,7 +132,7 @@ final class SkillGuiSupport {
       if (!adaptation.getSkill().isEnabled()) {
         continue;
       }
-      if (adaptation.hasBlacklistPermission(player, adaptation)) {
+      if (!adaptation.hasUsePermission(player, adaptation)) {
         continue;
       }
       visibleAdaptations.add(adaptation);

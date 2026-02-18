@@ -213,11 +213,11 @@ public interface Adaptation<T> extends Ticked, Component {
   }
 
   /**
-   * Returns true when this player is blacklisted from this adaptation via
+   * Returns true when this player has use permission for this adaptation via
    * permission.
    */
-  default boolean hasBlacklistPermission(Player p, Adaptation a) {
-    return AdaptationRuntimeGuards.hasBlacklistPermission(this, p, a);
+  default boolean hasUsePermission(Player p, Adaptation a) {
+    return AdaptationRuntimeGuards.hasUsePermission(this, p, a);
   }
 
   /**
@@ -875,7 +875,7 @@ public interface Adaptation<T> extends Ticked, Component {
   }
 
   /**
-   * Opens adaptation GUI and optionally applies blacklist permission checks.
+   * Opens adaptation GUI and optionally applies use permission checks.
    */
   default boolean openGui(Player player, boolean checkPermissions) {
     return AdaptationGuiSupport.openGui(this, player, checkPermissions);

@@ -39,7 +39,7 @@ public class CommandDebug {
 
     StringBuilder builder = new StringBuilder();
     Adapt.instance.getAdaptServer().getSkillRegistry().getSkills().forEach(skill -> skill.getAdaptations().forEach(adaptation -> builder
-        .append("adapt.blacklist.")
+        .append("adapt.use.")
         .append(adaptation.getName()
             .replaceAll("-", ""))
         .append("\n")));
@@ -56,7 +56,7 @@ public class CommandDebug {
 
     StringBuilder builder = new StringBuilder();
     Adapt.instance.getAdaptServer().getSkillRegistry().getSkills().forEach(skill -> builder
-        .append("adapt.blacklist.")
+        .append("adapt.use.")
         .append(skill.getName()
             .replaceAll("-", ""))
         .append("\n"));

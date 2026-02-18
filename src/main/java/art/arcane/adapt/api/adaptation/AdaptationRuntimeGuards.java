@@ -194,15 +194,26 @@ final class AdaptationRuntimeGuards {
     return canUse(adaptation, adaptation.getPlayer(player));
   }
 
-  static boolean hasBlacklistPermission(Adaptation<?> adaptation, Player p, Adaptation<?> targetAdaptation) {
-    if (p.isOp()) {
+  static boolean hasUsePermission(Adaptation<?> adaptation, Player p, Adaptation<?> targetAdaptation) {
+    if (p == null) {
       return false;
     }
+    if (p.isOp()) {
+      return true;
+    }
     Adaptation<?> target = targetAdaptation == null ? adaptation : targetAdaptation;
-    String blacklistPermission = "adapt.blacklist." + target.getName().replaceAll("-", "");
-    Adapt.verbose("Checking if player " + p.getName() + " has blacklist permission " + blacklistPermission);
-
-    return p.hasPermission(blacklistPermission);
+    if (target == null) {
+      return false;
+    }
+    String usePermission = "adapt.use." + target.getName().replaceAll("-", "");
+    boolean permissionSet = p.isPermissionSet(usePermission);
+    boolean permissionAllowed = p.hasPermission(usePermission);
+    Adapt.verbose("Checking use permission " + usePermission + " for " + p.getName()
+        + " (set=" + permissionSet + ", value=" + permissionAllowed + ")");
+    if (!permissionSet) {
+      return true;
+    }
+    return permissionAllowed;
   }
 
   static boolean canDamageTarget(Adaptation<?> adaptation, Player attacker, Entity target) {
@@ -662,8 +673,8 @@ final class AdaptationRuntimeGuards {
       return 0;
     }
 
-    if (adaptation.hasBlacklistPermission(p, adaptation)) {
-      Adapt.verbose("Player " + p.getName() + " has blacklist permission for adaptation " + adaptation.getName());
+    if (!adaptation.hasUsePermission(p, adaptation)) {
+      Adapt.verbose("Player " + p.getName() + " is blocked by use permission for adaptation " + adaptation.getName());
       return 0;
     }
     if (hasUsageConflict(adaptation, p)) {

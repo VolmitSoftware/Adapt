@@ -38,7 +38,7 @@ public final class AdaptationGate {
     }
 
     return !skill.isEnabled()
-        || skill.hasBlacklistPermission(player, skill)
+        || !skill.hasUsePermission(player, skill)
         || isWorldBlacklisted(player)
         || isInCreativeOrSpectator(player)
         || !hasAdaptPlayer;

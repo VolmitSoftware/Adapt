@@ -501,6 +501,7 @@ public class Adapt extends VolmitPlugin {
     if (!AdaptConfig.get().isSplashScreen()) {
       return;
     }
+    String supportedMcVersion = "1.21.11";
     Random r = new Random();
     int game = r.nextInt(100);
     if (game < 90) {
@@ -508,7 +509,7 @@ public class Adapt extends VolmitPlugin {
           C.DARK_GRAY + "██" + C.DARK_RED + "╔══" + C.DARK_GRAY + "██" + C.DARK_RED + "╗" + C.DARK_GRAY + "██" + C.DARK_RED + "╔══" + C.DARK_GRAY + "██" + C.DARK_RED + "╗" + C.DARK_GRAY + "██" + C.DARK_RED + "╔══" + C.DARK_GRAY + "██" + C.DARK_RED + "╗" + C.DARK_GRAY + "██" + C.DARK_RED + "╔══" + C.DARK_GRAY + "██" + C.DARK_RED + "╗╚══" + C.DARK_GRAY + "██" + C.DARK_RED + "╔══╝" + C.DARK_RED + "         Adapt, " + C.RED + "Abilities Refined" + C.RED + "[" + getReleaseTrain(instance.getDescription().getVersion()) + " RELEASE]\n" +
           C.DARK_GRAY + "███████" + C.DARK_RED + "║" + C.DARK_GRAY + "██" + C.DARK_RED + "║  " + C.DARK_GRAY + "██" + C.DARK_RED + "║" + C.DARK_GRAY + "███████" + C.DARK_RED + "║" + C.DARK_GRAY + "██████" + C.DARK_RED + "╔╝   " + C.DARK_GRAY + "██" + C.DARK_RED + "║" + C.WHITE + "            Version: " + C.DARK_RED + instance.getDescription().getVersion() + "     \n" +
           C.DARK_GRAY + "██" + C.DARK_RED + "╔══" + C.DARK_GRAY + "██" + C.DARK_RED + "║" + C.DARK_GRAY + "██" + C.DARK_RED + "║  " + C.DARK_GRAY + "██" + C.DARK_RED + "║" + C.DARK_GRAY + "██" + C.DARK_RED + "╔══" + C.DARK_GRAY + "██" + C.DARK_RED + "║" + C.DARK_GRAY + "██" + C.DARK_RED + "╔═══╝    " + C.DARK_GRAY + "██" + C.DARK_RED + "║" + C.WHITE + "            By: " + C.RED + "A" + C.GOLD + "r" + C.YELLOW + "c" + C.GREEN + "a" + C.DARK_GRAY + "n" + C.AQUA + "e " + C.AQUA + "A" + C.BLUE + "r" + C.DARK_BLUE + "t" + C.DARK_PURPLE + "s" + C.WHITE + " (Volmit Software)\n" +
-          C.DARK_GRAY + "██" + C.DARK_RED + "║  " + C.DARK_GRAY + "██" + C.DARK_RED + "║" + C.DARK_GRAY + "██████" + C.DARK_RED + "╔╝" + C.DARK_GRAY + "██" + C.DARK_RED + "║  " + C.DARK_GRAY + "██" + C.DARK_RED + "║" + C.DARK_GRAY + "██" + C.DARK_RED + "║        " + C.DARK_GRAY + "██" + C.DARK_RED + "║" + C.WHITE + "            Server: " + C.DARK_RED + getServerVersion() + "\n" +
+          C.DARK_GRAY + "██" + C.DARK_RED + "║  " + C.DARK_GRAY + "██" + C.DARK_RED + "║" + C.DARK_GRAY + "██████" + C.DARK_RED + "╔╝" + C.DARK_GRAY + "██" + C.DARK_RED + "║  " + C.DARK_GRAY + "██" + C.DARK_RED + "║" + C.DARK_GRAY + "██" + C.DARK_RED + "║        " + C.DARK_GRAY + "██" + C.DARK_RED + "║" + C.WHITE + "            Server: " + C.DARK_RED + getServerVersion() + C.WHITE + " | MC Support: " + C.DARK_RED + supportedMcVersion + "\n" +
           C.DARK_RED + "╚═╝  ╚═╝╚═════╝ ╚═╝  ╚═╝╚═╝        ╚═╝   " + C.WHITE + "            Java: " + C.DARK_RED + getJavaVersion() + C.WHITE + " | Date: " + C.DARK_RED + getStartupDate() + "\n");
     } else {
       info(SecretSplash.getSecretSplash().getRandom());

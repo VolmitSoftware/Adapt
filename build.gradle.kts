@@ -21,21 +21,18 @@ import io.github.slimjar.resolver.data.Mirror
 import org.gradle.api.plugins.JavaPluginExtension
 import org.jetbrains.gradle.ext.settings
 import org.jetbrains.gradle.ext.taskTriggers
-import xyz.jpenilla.runpaper.task.RunServer
 import kotlin.system.exitProcess
 
 plugins {
     `java-library`
     alias(libs.plugins.lombok)
     alias(libs.plugins.shadow)
-    alias(libs.plugins.runPaper)
-    alias(libs.plugins.runVelocity)
     alias(libs.plugins.idea)
     alias(libs.plugins.slimjar)
 }
 
-version = "2.0.0-1.20.2-1.21.11-Dev1"
-val apiVersion = "1.20"
+version = "2.0.0-1.21.11"
+val apiVersion = "1.21"
 val main = "art.arcane.adapt.Adapt"
 val volmLibCoordinate: String = providers.gradleProperty("volmLibCoordinate")
     .orElse("com.github.VolmitSoftware:VolmLib:master-SNAPSHOT")
@@ -55,38 +52,6 @@ registerCustomOutputTaskUnix("CyberpwnLT", "/Users/danielmills/development/serve
 registerCustomOutputTaskUnix("PsychoLT", "/Users/brianfopiano/Developer/RemoteGit/[Minecraft Server]/consumers/plugin-consumers/dropins/plugins")
 registerCustomOutputTaskUnix("the456gamer", "/home/the456gamer/projects/minecraft/adapt-testserver/plugins/update/", false)
 // ==============================================================
-
-val supported = listOf("1.20.2", "1.20.4", "1.20.6", "1.21.1", "1.21.3", "1.21.4", "1.21.5", "1.21.8", "1.21.10", "1.21.11")
-val jdk = listOf("1.20.2", "1.20.4")
-
-val MIN_HEAP_SIZE = "2G"
-val MAX_HEAP_SIZE = "8G"
-//Valid values are: none, truecolor, indexed256, indexed16, indexed8
-val COLOR = "truecolor"
-
-supported.forEach { version ->
-    tasks.register<RunServer>("runServer-$version") {
-        group = "servers"
-        minecraftVersion(version)
-        minHeapSize = MIN_HEAP_SIZE
-        maxHeapSize = MAX_HEAP_SIZE
-        systemProperty("disable.watchdog", "")
-        systemProperty("net.kyori.ansi.colorLevel", COLOR)
-        systemProperty("com.mojang.eula.agree", true)
-        pluginJars(tasks.shadowJar.flatMap { it.archiveFile} )
-        runDirectory.convention(layout.buildDirectory.dir("run/$version"))
-
-        if (!jdk.contains(version)) {
-            javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(21)}
-        }
-    }
-}
-
-tasks.runVelocity {
-    group = "servers"
-    velocityVersion(libs.versions.velocity.get())
-    runDirectory.convention(layout.buildDirectory.dir("run/velocity"))
-}
 
 /**
  * Expand properties into plugin yml

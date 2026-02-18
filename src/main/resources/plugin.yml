@@ -47,411 +47,411 @@ permissions:
   adapt.clear:
     description: Allows clearing player progression data
     default: op
-  adapt.blacklist.agility:
-    description: Blacklist the skill Agility
-    default: false
+  adapt.use.agility:
+    description: Allow use of the skill Agility
+    default: true
     children:
-      adapt.blacklist.agilityarmorup:
-        description: Blacklist the adaptation AgilityArmorUp
-        default: false
-      adapt.blacklist.agilitysuperjump:
-        description: Blacklist the adaptation AgilitySuperJump
-        default: false
-      adapt.blacklist.agilitywalljump:
-        description: Blacklist the adaptation AgilityWallJump
-        default: false
-      adapt.blacklist.agilitywindup:
-        description: Blacklist the adaptation AgilityWindUp
-        default: false
-  adapt.blacklist.architect:
-    description: Blacklist the skill Architect
-    default: false
+      adapt.use.agilityarmorup:
+        description: Allow use of the adaptation AgilityArmorUp
+        default: true
+      adapt.use.agilitysuperjump:
+        description: Allow use of the adaptation AgilitySuperJump
+        default: true
+      adapt.use.agilitywalljump:
+        description: Allow use of the adaptation AgilityWallJump
+        default: true
+      adapt.use.agilitywindup:
+        description: Allow use of the adaptation AgilityWindUp
+        default: true
+  adapt.use.architect:
+    description: Allow use of the skill Architect
+    default: true
     children:
-      adapt.blacklist.architectfoundation:
-        description: Blacklist the adaptation ArchitectFoundation
-        default: false
-      adapt.blacklist.architectglass:
-        description: Blacklist the adaptation ArchitectGlass
-        default: false
-      adapt.blacklist.architectplacement:
-        description: Blacklist the adaptation ArchitectPlacement
-        default: false
-      adapt.blacklist.architectwirelessredstone:
-        description: Blacklist the adaptation ArchitectWirelessRedstone
-        default: false
-  adapt.blacklist.axes:
-    description: Blacklist the skill Axes
-    default: false
+      adapt.use.architectfoundation:
+        description: Allow use of the adaptation ArchitectFoundation
+        default: true
+      adapt.use.architectglass:
+        description: Allow use of the adaptation ArchitectGlass
+        default: true
+      adapt.use.architectplacement:
+        description: Allow use of the adaptation ArchitectPlacement
+        default: true
+      adapt.use.architectwirelessredstone:
+        description: Allow use of the adaptation ArchitectWirelessRedstone
+        default: true
+  adapt.use.axes:
+    description: Allow use of the skill Axes
+    default: true
     children:
-      adapt.blacklist.axechop:
-        description: Blacklist the adaptation AxesChop
-        default: false
-      adapt.blacklist.axedroptoinventory:
-        description: Blacklist the adaptation AxesDropToInventory
-        default: false
-      adapt.blacklist.axegroundsmash:
-        description: Blacklist the adaptation AxesGroundSmash
-        default: false
-      adapt.blacklist.axeleafveinminer:
-        description: Blacklist the adaptation AxesLeafVeinMiner
-        default: false
-      adapt.blacklist.axelogswap:
-        description: Blacklist the adaptation AxesLogSwap
-        default: false
-      adapt.blacklist.axewoodveinminer:
-        description: Blacklist the adaptation AxesWoodVeinMiner
-        default: false
-  adapt.blacklist.blocking:
-    description: Blacklist the skill Blocking
-    default: false
+      adapt.use.axechop:
+        description: Allow use of the adaptation AxesChop
+        default: true
+      adapt.use.axedroptoinventory:
+        description: Allow use of the adaptation AxesDropToInventory
+        default: true
+      adapt.use.axegroundsmash:
+        description: Allow use of the adaptation AxesGroundSmash
+        default: true
+      adapt.use.axeleafveinminer:
+        description: Allow use of the adaptation AxesLeafVeinMiner
+        default: true
+      adapt.use.axelogswap:
+        description: Allow use of the adaptation AxesLogSwap
+        default: true
+      adapt.use.axewoodveinminer:
+        description: Allow use of the adaptation AxesWoodVeinMiner
+        default: true
+  adapt.use.blocking:
+    description: Allow use of the skill Blocking
+    default: true
     children:
-      adapt.blacklist.blockingchainarmorer:
-        description: Blacklist the adaptation BlockingChainArmorer
-        default: false
-      adapt.blacklist.blockinghorsearmorer:
-        description: Blacklist the adaptation BlockingHorseArmorer
-        default: false
-      adapt.blacklist.blockingmultiarmor:
-        description: Blacklist the adaptation BlockingMultiArmor
-        default: false
-      adapt.blacklist.blockingsaddlecrafter:
-        description: Blacklist the adaptation BlockingSaddleCrafter
-        default: false
-  adapt.blacklist.brewing:
-    description: Blacklist the skill Brewing
-    default: false
+      adapt.use.blockingchainarmorer:
+        description: Allow use of the adaptation BlockingChainArmorer
+        default: true
+      adapt.use.blockinghorsearmorer:
+        description: Allow use of the adaptation BlockingHorseArmorer
+        default: true
+      adapt.use.blockingmultiarmor:
+        description: Allow use of the adaptation BlockingMultiArmor
+        default: true
+      adapt.use.blockingsaddlecrafter:
+        description: Allow use of the adaptation BlockingSaddleCrafter
+        default: true
+  adapt.use.brewing:
+    description: Allow use of the skill Brewing
+    default: true
     children:
-      adapt.blacklist.brewingabsorption:
-        description: Blacklist the adaptation BrewingAbsorption
-        default: false
-      adapt.blacklist.brewingblindness:
-        description: Blacklist the adaptation BrewingBlindness
-        default: false
-      adapt.blacklist.brewingdarkness:
-        description: Blacklist the adaptation BrewingDarkness
-        default: false
-      adapt.blacklist.brewingdecay:
-        description: Blacklist the adaptation BrewingDecay
-        default: false
-      adapt.blacklist.brewingfatigue:
-        description: Blacklist the adaptation BrewingFatigue
-        default: false
-      adapt.blacklist.brewinghaste:
-        description: Blacklist the adaptation BrewingHaste
-        default: false
-      adapt.blacklist.brewinghealthboost:
-        description: Blacklist the adaptation BrewingHealthBoost
-        default: false
-      adapt.blacklist.brewinghunger:
-        description: Blacklist the adaptation BrewingHunger
-        default: false
-      adapt.blacklist.brewinglingering:
-        description: Blacklist the adaptation BrewingLingering
-        default: false
-      adapt.blacklist.brewingnausea:
-        description: Blacklist the adaptation BrewingNausea
-        default: false
-      adapt.blacklist.brewingresistance:
-        description: Blacklist the adaptation BrewingResistance
-        default: false
-      adapt.blacklist.brewingsaturation:
-        description: Blacklist the adaptation BrewingSaturation
-        default: false
-      adapt.blacklist.brewingsuperheated:
-        description: Blacklist the adaptation BrewingSuperheated
-        default: false
-  adapt.blacklist.crafting:
-    description: Blacklist the skill Crafting
-    default: false
+      adapt.use.brewingabsorption:
+        description: Allow use of the adaptation BrewingAbsorption
+        default: true
+      adapt.use.brewingblindness:
+        description: Allow use of the adaptation BrewingBlindness
+        default: true
+      adapt.use.brewingdarkness:
+        description: Allow use of the adaptation BrewingDarkness
+        default: true
+      adapt.use.brewingdecay:
+        description: Allow use of the adaptation BrewingDecay
+        default: true
+      adapt.use.brewingfatigue:
+        description: Allow use of the adaptation BrewingFatigue
+        default: true
+      adapt.use.brewinghaste:
+        description: Allow use of the adaptation BrewingHaste
+        default: true
+      adapt.use.brewinghealthboost:
+        description: Allow use of the adaptation BrewingHealthBoost
+        default: true
+      adapt.use.brewinghunger:
+        description: Allow use of the adaptation BrewingHunger
+        default: true
+      adapt.use.brewinglingering:
+        description: Allow use of the adaptation BrewingLingering
+        default: true
+      adapt.use.brewingnausea:
+        description: Allow use of the adaptation BrewingNausea
+        default: true
+      adapt.use.brewingresistance:
+        description: Allow use of the adaptation BrewingResistance
+        default: true
+      adapt.use.brewingsaturation:
+        description: Allow use of the adaptation BrewingSaturation
+        default: true
+      adapt.use.brewingsuperheated:
+        description: Allow use of the adaptation BrewingSuperheated
+        default: true
+  adapt.use.crafting:
+    description: Allow use of the skill Crafting
+    default: true
     children:
-      adapt.blacklist.craftingbackpacks:
-        description: Blacklist the adaptation CraftingBackpacks
-        default: false
-      adapt.blacklist.craftingdeconstruction:
-        description: Blacklist the adaptation CraftingDeconstruction
-        default: false
-      adapt.blacklist.craftingleather:
-        description: Blacklist the adaptation CraftingLeather
-        default: false
-      adapt.blacklist.craftingreconstruction:
-        description: Blacklist the adaptation CraftingReconstruction
-        default: false
-      adapt.blacklist.craftingskulls:
-        description: Blacklist the adaptation CraftingSkulls
-        default: false
-      adapt.blacklist.craftingstations:
-        description: Blacklist the adaptation CraftingStations
-        default: false
-      adapt.blacklist.craftingxp:
-        description: Blacklist the adaptation CraftingXP
-        default: false
-  adapt.blacklist.chronos:
-    description: Blacklist the skill Chronos
-    default: false
+      adapt.use.craftingbackpacks:
+        description: Allow use of the adaptation CraftingBackpacks
+        default: true
+      adapt.use.craftingdeconstruction:
+        description: Allow use of the adaptation CraftingDeconstruction
+        default: true
+      adapt.use.craftingleather:
+        description: Allow use of the adaptation CraftingLeather
+        default: true
+      adapt.use.craftingreconstruction:
+        description: Allow use of the adaptation CraftingReconstruction
+        default: true
+      adapt.use.craftingskulls:
+        description: Allow use of the adaptation CraftingSkulls
+        default: true
+      adapt.use.craftingstations:
+        description: Allow use of the adaptation CraftingStations
+        default: true
+      adapt.use.craftingxp:
+        description: Allow use of the adaptation CraftingXP
+        default: true
+  adapt.use.chronos:
+    description: Allow use of the skill Chronos
+    default: true
     children:
-      adapt.blacklist.chronostimebottle:
-        description: Blacklist the adaptation ChronosTimeInABottle
-        default: false
-      adapt.blacklist.chronosaberranttouch:
-        description: Blacklist the adaptation ChronosAberrantTouch
-        default: false
-      adapt.blacklist.chronosinstantrecall:
-        description: Blacklist the adaptation ChronosInstantRecall
-        default: false
-      adapt.blacklist.chronostimebomb:
-        description: Blacklist the adaptation ChronosTimeBomb
-        default: false
-  adapt.blacklist.discovery:
-    description: Blacklist the skill Discovery
-    default: false
+      adapt.use.chronostimebottle:
+        description: Allow use of the adaptation ChronosTimeInABottle
+        default: true
+      adapt.use.chronosaberranttouch:
+        description: Allow use of the adaptation ChronosAberrantTouch
+        default: true
+      adapt.use.chronosinstantrecall:
+        description: Allow use of the adaptation ChronosInstantRecall
+        default: true
+      adapt.use.chronostimebomb:
+        description: Allow use of the adaptation ChronosTimeBomb
+        default: true
+  adapt.use.discovery:
+    description: Allow use of the skill Discovery
+    default: true
     children:
-      adapt.blacklist.discoveryunity:
-        description: Blacklist the adaptation DiscoveryUnity
-        default: false
-      adapt.blacklist.discoveryvillageratt:
-        description: Blacklist the adaptation DiscoveryVillagerAtt
-        default: false
-      adapt.blacklist.discoveryworldarmor:
-        description: Blacklist the adaptation DiscoveryWorldArmor
-        default: false
-      adapt.blacklist.discoveryxpresist:
-        description: Blacklist the adaptation DiscoveryXpResist
-        default: false
-  adapt.blacklist.enchanting:
-    description: Blacklist the skill Enchanting
-    default: false
+      adapt.use.discoveryunity:
+        description: Allow use of the adaptation DiscoveryUnity
+        default: true
+      adapt.use.discoveryvillageratt:
+        description: Allow use of the adaptation DiscoveryVillagerAtt
+        default: true
+      adapt.use.discoveryworldarmor:
+        description: Allow use of the adaptation DiscoveryWorldArmor
+        default: true
+      adapt.use.discoveryxpresist:
+        description: Allow use of the adaptation DiscoveryXpResist
+        default: true
+  adapt.use.enchanting:
+    description: Allow use of the skill Enchanting
+    default: true
     children:
-      adapt.blacklist.enchantinglapisreturn:
-        description: Blacklist the adaptation EnchantingLapisReturn
-        default: false
-      adapt.blacklist.enchantingquickenchant:
-        description: Blacklist the adaptation EnchantingQuickEnchant
-        default: false
-      adapt.blacklist.enchantingxpreturn:
-        description: Blacklist the adaptation EnchantingXpReturn
-        default: false
-  adapt.blacklist.excavation:
-    description: Blacklist the skill Excavation
-    default: false
+      adapt.use.enchantinglapisreturn:
+        description: Allow use of the adaptation EnchantingLapisReturn
+        default: true
+      adapt.use.enchantingquickenchant:
+        description: Allow use of the adaptation EnchantingQuickEnchant
+        default: true
+      adapt.use.enchantingxpreturn:
+        description: Allow use of the adaptation EnchantingXpReturn
+        default: true
+  adapt.use.excavation:
+    description: Allow use of the skill Excavation
+    default: true
     children:
-      adapt.blacklist.excavationdroptoinventory:
-        description: Blacklist the adaptation ExcavationDropToInventory
-        default: false
-      adapt.blacklist.excavationhaste:
-        description: Blacklist the adaptation ExcavationHaste
-        default: false
-      adapt.blacklist.excavationomnitool:
-        description: Blacklist the adaptation ExcavationOmnitool
-        default: false
-      adapt.blacklist.excavationspelunker:
-        description: Blacklist the adaptation ExcavationSpelunker
-        default: false
-  adapt.blacklist.herbalism:
-    description: Blacklist the skill Herbalism
-    default: false
+      adapt.use.excavationdroptoinventory:
+        description: Allow use of the adaptation ExcavationDropToInventory
+        default: true
+      adapt.use.excavationhaste:
+        description: Allow use of the adaptation ExcavationHaste
+        default: true
+      adapt.use.excavationomnitool:
+        description: Allow use of the adaptation ExcavationOmnitool
+        default: true
+      adapt.use.excavationspelunker:
+        description: Allow use of the adaptation ExcavationSpelunker
+        default: true
+  adapt.use.herbalism:
+    description: Allow use of the skill Herbalism
+    default: true
     children:
-      adapt.blacklist.herbalismcobweb:
-        description: Blacklist the adaptation HerbalismCobweb
-        default: false
-      adapt.blacklist.herbalismdroptoinventory:
-        description: Blacklist the adaptation HerbalismDropToInventory
-        default: false
-      adapt.blacklist.herbalismgrowthaura:
-        description: Blacklist the adaptation HerbalismGrowthAura
-        default: false
-      adapt.blacklist.herbalismhippo:
-        description: Blacklist the adaptation HerbalismHippo
-        default: false
-      adapt.blacklist.herbalismluck:
-        description: Blacklist the adaptation HerbalismLuck
-        default: false
-      adapt.blacklist.herbalismmyconid:
-        description: Blacklist the adaptation HerbalismMyconid
-        default: false
-      adapt.blacklist.herbalismreplant:
-        description: Blacklist the adaptation HerbalismReplant
-        default: false
-      adapt.blacklist.herbalismterralid:
-        description: Blacklist the adaptation HerbalismTerralid
-        default: false
-      adapt.blacklist.herbalismhungryshield:
-        description: Blacklist the adaptation HerbalismHungryShield
-        default: false
-  adapt.blacklist.hunter:
-    description: Blacklist the skill Hunter
-    default: false
+      adapt.use.herbalismcobweb:
+        description: Allow use of the adaptation HerbalismCobweb
+        default: true
+      adapt.use.herbalismdroptoinventory:
+        description: Allow use of the adaptation HerbalismDropToInventory
+        default: true
+      adapt.use.herbalismgrowthaura:
+        description: Allow use of the adaptation HerbalismGrowthAura
+        default: true
+      adapt.use.herbalismhippo:
+        description: Allow use of the adaptation HerbalismHippo
+        default: true
+      adapt.use.herbalismluck:
+        description: Allow use of the adaptation HerbalismLuck
+        default: true
+      adapt.use.herbalismmyconid:
+        description: Allow use of the adaptation HerbalismMyconid
+        default: true
+      adapt.use.herbalismreplant:
+        description: Allow use of the adaptation HerbalismReplant
+        default: true
+      adapt.use.herbalismterralid:
+        description: Allow use of the adaptation HerbalismTerralid
+        default: true
+      adapt.use.herbalismhungryshield:
+        description: Allow use of the adaptation HerbalismHungryShield
+        default: true
+  adapt.use.hunter:
+    description: Allow use of the skill Hunter
+    default: true
     children:
-      adapt.blacklist.hunteradrenaline:
-        description: Blacklist the adaptation HunterAdrenaline
-        default: false
-      adapt.blacklist.hunterdroptoinventory:
-        description: Blacklist the adaptation HunterDropToInventory
-        default: false
-      adapt.blacklist.hunterinvis:
-        description: Blacklist the adaptation HunterInvis
-        default: false
-      adapt.blacklist.hunterjumpboost:
-        description: Blacklist the adaptation HunterJumpBoost
-        default: false
-      adapt.blacklist.hunterluck:
-        description: Blacklist the adaptation HunterLuck
-        default: false
-      adapt.blacklist.hunterspeed:
-        description: Blacklist the adaptation HunterSpeed
-        default: false
-      adapt.blacklist.hunterstrength:
-        description: Blacklist the adaptation HunterStrength
-        default: false
-      adapt.blacklist.hunterregen:
-        description: Blacklist the adaptation HunterRegen
-        default: false
-      adapt.blacklist.hunterresistance:
-        description: Blacklist the adaptation HunterResistance
-        default: false
-  adapt.blacklist.nether:
-    description: Blacklist the skill Nether
-    default: false
+      adapt.use.hunteradrenaline:
+        description: Allow use of the adaptation HunterAdrenaline
+        default: true
+      adapt.use.hunterdroptoinventory:
+        description: Allow use of the adaptation HunterDropToInventory
+        default: true
+      adapt.use.hunterinvis:
+        description: Allow use of the adaptation HunterInvis
+        default: true
+      adapt.use.hunterjumpboost:
+        description: Allow use of the adaptation HunterJumpBoost
+        default: true
+      adapt.use.hunterluck:
+        description: Allow use of the adaptation HunterLuck
+        default: true
+      adapt.use.hunterspeed:
+        description: Allow use of the adaptation HunterSpeed
+        default: true
+      adapt.use.hunterstrength:
+        description: Allow use of the adaptation HunterStrength
+        default: true
+      adapt.use.hunterregen:
+        description: Allow use of the adaptation HunterRegen
+        default: true
+      adapt.use.hunterresistance:
+        description: Allow use of the adaptation HunterResistance
+        default: true
+  adapt.use.nether:
+    description: Allow use of the skill Nether
+    default: true
     children:
-      adapt.blacklist.netherskulltoss:
-        description: Blacklist the adaptation NetherSkullToss
-        default: false
-      adapt.blacklist.netherwitherresist:
-        description: Blacklist the adaptation NetherWitherResist
-        default: false
-      adapt.blacklist.netherfireresist:
-        description: Blacklist the adaptation NetherFireResist
-        default: false
-  adapt.blacklist.pickaxe:
-    description: Blacklist the skill Pickaxe
-    default: false
+      adapt.use.netherskulltoss:
+        description: Allow use of the adaptation NetherSkullToss
+        default: true
+      adapt.use.netherwitherresist:
+        description: Allow use of the adaptation NetherWitherResist
+        default: true
+      adapt.use.netherfireresist:
+        description: Allow use of the adaptation NetherFireResist
+        default: true
+  adapt.use.pickaxe:
+    description: Allow use of the skill Pickaxe
+    default: true
     children:
-      adapt.blacklist.pickaxeautosmelt:
-        description: Blacklist the adaptation PickaxeAutoSmelt
-        default: false
-      adapt.blacklist.pickaxedroptoinventory:
-        description: Blacklist the adaptation PickaxeDropToInventory
-        default: false
-      adapt.blacklist.pickaxechisel:
-        description: Blacklist the adaptation PickaxeChisel
-        default: false
-      adapt.blacklist.pickaxeveinminer:
-        description: Blacklist the adaptation PickaxeVeinMiner
-        default: false
-  adapt.blacklist.ranged:
-    description: Blacklist the skill Ranged
-    default: false
+      adapt.use.pickaxeautosmelt:
+        description: Allow use of the adaptation PickaxeAutoSmelt
+        default: true
+      adapt.use.pickaxedroptoinventory:
+        description: Allow use of the adaptation PickaxeDropToInventory
+        default: true
+      adapt.use.pickaxechisel:
+        description: Allow use of the adaptation PickaxeChisel
+        default: true
+      adapt.use.pickaxeveinminer:
+        description: Allow use of the adaptation PickaxeVeinMiner
+        default: true
+  adapt.use.ranged:
+    description: Allow use of the skill Ranged
+    default: true
     children:
-      adapt.blacklist.rangedforce:
-        description: Blacklist the adaptation RangedForce
-        default: false
-      adapt.blacklist.rangedlungeshot:
-        description: Blacklist the adaptation RangedLungeShot
-        default: false
-      adapt.blacklist.rangedpiercing:
-        description: Blacklist the adaptation RangedPiercing
-        default: false
-      adapt.blacklist.rangedrecovery:
-        description: Blacklist the adaptation RangedRecovery
-        default: false
-      adapt.blacklist.rangedwebshot:
-        description: Blacklist the adaptation RangedWebShot
-        default: false
-  adapt.blacklist.rift:
-    description: Blacklist the skill Rift
-    default: false
+      adapt.use.rangedforce:
+        description: Allow use of the adaptation RangedForce
+        default: true
+      adapt.use.rangedlungeshot:
+        description: Allow use of the adaptation RangedLungeShot
+        default: true
+      adapt.use.rangedpiercing:
+        description: Allow use of the adaptation RangedPiercing
+        default: true
+      adapt.use.rangedrecovery:
+        description: Allow use of the adaptation RangedRecovery
+        default: true
+      adapt.use.rangedwebshot:
+        description: Allow use of the adaptation RangedWebShot
+        default: true
+  adapt.use.rift:
+    description: Allow use of the skill Rift
+    default: true
     children:
-      adapt.blacklist.riftaccess:
-        description: Blacklist the adaptation RiftAccess
-        default: false
-      adapt.blacklist.riftblink:
-        description: Blacklist the adaptation RiftBlink
-        default: false
-      adapt.blacklist.riftdescent:
-        description: Blacklist the adaptation RiftDescent
-        default: false
-      adapt.blacklist.riftenderchest:
-        description: Blacklist the adaptation RiftEnderChest
-        default: false
-      adapt.blacklist.riftgate:
-        description: Blacklist the adaptation RiftGate
-        default: false
-      adapt.blacklist.riftresist:
-        description: Blacklist the adaptation RiftResist
-        default: false
-      adapt.blacklist.riftvisage:
-        description: Blacklist the adaptation RiftVisage
-        default: false
-  adapt.blacklist.seaborne:
-    description: Blacklist the skill Seaborne
-    default: false
+      adapt.use.riftaccess:
+        description: Allow use of the adaptation RiftAccess
+        default: true
+      adapt.use.riftblink:
+        description: Allow use of the adaptation RiftBlink
+        default: true
+      adapt.use.riftdescent:
+        description: Allow use of the adaptation RiftDescent
+        default: true
+      adapt.use.riftenderchest:
+        description: Allow use of the adaptation RiftEnderChest
+        default: true
+      adapt.use.riftgate:
+        description: Allow use of the adaptation RiftGate
+        default: true
+      adapt.use.riftresist:
+        description: Allow use of the adaptation RiftResist
+        default: true
+      adapt.use.riftvisage:
+        description: Allow use of the adaptation RiftVisage
+        default: true
+  adapt.use.seaborne:
+    description: Allow use of the skill Seaborne
+    default: true
     children:
-      adapt.blacklist.seabornefishersfantasy:
-        description: Blacklist the adaptation SeaborneFishersFantasy
-        default: false
-      adapt.blacklist.seabornespeed:
-        description: Blacklist the adaptation SeaborneSpeed
-        default: false
-      adapt.blacklist.seaborneoxygen:
-        description: Blacklist the adaptation SeaborneOxygen
-        default: false
-      adapt.blacklist.seaborneturtlesminingspeed:
-        description: Blacklist the adaptation SeaborneTurtlesMiningSpeed
-        default: false
-      adapt.blacklist.seaborneturtlesvision:
-        description: Blacklist the adaptation SeaborneTurtlesVision
-        default: false
-  adapt.blacklist.swords:
-    description: Blacklist the skill Swords
-    default: false
+      adapt.use.seabornefishersfantasy:
+        description: Allow use of the adaptation SeaborneFishersFantasy
+        default: true
+      adapt.use.seabornespeed:
+        description: Allow use of the adaptation SeaborneSpeed
+        default: true
+      adapt.use.seaborneoxygen:
+        description: Allow use of the adaptation SeaborneOxygen
+        default: true
+      adapt.use.seaborneturtlesminingspeed:
+        description: Allow use of the adaptation SeaborneTurtlesMiningSpeed
+        default: true
+      adapt.use.seaborneturtlesvision:
+        description: Allow use of the adaptation SeaborneTurtlesVision
+        default: true
+  adapt.use.swords:
+    description: Allow use of the skill Swords
+    default: true
     children:
-      adapt.blacklist.swordbloodyblade:
-        description: Blacklist the adaptation SwordBloodyBlade
-        default: false
-      adapt.blacklist.swordmachete:
-        description: Blacklist the adaptation SwordMachete
-        default: false
-      adapt.blacklist.swordpoisonblade:
-        description: Blacklist the adaptation SwordPoisonBlade
-        default: false
-  adapt.blacklist.taming:
-    description: Blacklist the skill Taming
-    default: false
+      adapt.use.swordbloodyblade:
+        description: Allow use of the adaptation SwordBloodyBlade
+        default: true
+      adapt.use.swordmachete:
+        description: Allow use of the adaptation SwordMachete
+        default: true
+      adapt.use.swordpoisonblade:
+        description: Allow use of the adaptation SwordPoisonBlade
+        default: true
+  adapt.use.taming:
+    description: Allow use of the skill Taming
+    default: true
     children:
-      adapt.blacklist.tamehealth:
-        description: Blacklist the adaptation TameHealth
-        default: false
-      adapt.blacklist.tamedamage:
-        description: Blacklist the adaptation TameDamage
-        default: false
-      adapt.blacklist.tamehealthregeneration:
-        description: Blacklist the adaptation TameHealthRegeneration
-        default: false
-  adapt.blacklist.tragoul:
-    description: Blacklist the skill Tragoul
-    default: false
+      adapt.use.tamehealth:
+        description: Allow use of the adaptation TameHealth
+        default: true
+      adapt.use.tamedamage:
+        description: Allow use of the adaptation TameDamage
+        default: true
+      adapt.use.tamehealthregeneration:
+        description: Allow use of the adaptation TameHealthRegeneration
+        default: true
+  adapt.use.tragoul:
+    description: Allow use of the skill Tragoul
+    default: true
     children:
-      adapt.blacklist.tragoulglobe:
-        description: Blacklist the adaptation TragoulGlobe
-        default: false
-      adapt.blacklist.tragoulhealing:
-        description: Blacklist the adaptation TragoulHealing
-        default: false
-      adapt.blacklist.tragoullance:
-        description: Blacklist the adaptation TragoulLance
-        default: false
-      adapt.blacklist.tragoulthorns:
-        description: Blacklist the adaptation TragoulThorns
-        default: false
-  adapt.blacklist.unarmed:
-    description: Blacklist the skill Unarmed
-    default: false
+      adapt.use.tragoulglobe:
+        description: Allow use of the adaptation TragoulGlobe
+        default: true
+      adapt.use.tragoulhealing:
+        description: Allow use of the adaptation TragoulHealing
+        default: true
+      adapt.use.tragoullance:
+        description: Allow use of the adaptation TragoulLance
+        default: true
+      adapt.use.tragoulthorns:
+        description: Allow use of the adaptation TragoulThorns
+        default: true
+  adapt.use.unarmed:
+    description: Allow use of the skill Unarmed
+    default: true
     children:
-      adapt.blacklist.unarmedglasscannon:
-        description: Blacklist the adaptation UnarmedGlassCannon
-        default: false
-      adapt.blacklist.unarmedpower:
-        description: Blacklist the adaptation UnarmedPower
-        default: false
-      adapt.blacklist.unarmedsuckerpunch:
-        description: Blacklist the adaptation UnarmedSuckerPunch
-        default: false
+      adapt.use.unarmedglasscannon:
+        description: Allow use of the adaptation UnarmedGlassCannon
+        default: true
+      adapt.use.unarmedpower:
+        description: Allow use of the adaptation UnarmedPower
+        default: true
+      adapt.use.unarmedsuckerpunch:
+        description: Allow use of the adaptation UnarmedSuckerPunch
+        default: true

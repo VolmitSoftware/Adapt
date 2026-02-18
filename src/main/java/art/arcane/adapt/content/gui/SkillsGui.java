@@ -76,7 +76,7 @@ public class SkillsGui {
       if (line == null) {
         continue;
       }
-      if (skill.hasBlacklistPermission(adaptPlayer.getPlayer(), skill) || line.getLevel() < 0) {
+      if (!skill.hasUsePermission(adaptPlayer.getPlayer(), skill) || line.getLevel() < 0) {
         continue;
       }
 

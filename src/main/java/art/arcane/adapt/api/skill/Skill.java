@@ -148,11 +148,11 @@ public interface Skill<T> extends Ticked, Component {
   void onRegisterAdvancements(KList<AdaptAdvancement> advancements);
 
   /**
-   * Returns true when this player is blacklisted from this skill via
+   * Returns true when this player has use permission for this skill via
    * permission.
    */
-  default boolean hasBlacklistPermission(Player p, Skill<?> s) {
-    return SkillRuntimeGuards.hasBlacklistPermission(p, s);
+  default boolean hasUsePermission(Player p, Skill<?> s) {
+    return SkillRuntimeGuards.hasUsePermission(p, s);
   }
 
   /**
@@ -268,10 +268,10 @@ public interface Skill<T> extends Ticked, Component {
   }
 
   /**
-   * Opens the skill GUI and optionally enforces blacklist permission checks.
+   * Opens the skill GUI and optionally enforces use permission checks.
    */
   default boolean openGui(Player player, boolean checkPermissions) {
-    if (checkPermissions && hasBlacklistPermission(player, this)) {
+    if (checkPermissions && !hasUsePermission(player, this)) {
       return false;
     } else {
       openGui(player);

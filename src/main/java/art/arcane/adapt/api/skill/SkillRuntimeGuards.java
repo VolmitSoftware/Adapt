@@ -73,16 +73,22 @@ final class SkillRuntimeGuards {
     }
   }
 
-  static boolean hasBlacklistPermission(Player player, Skill<?> skill) {
+  static boolean hasUsePermission(Player player, Skill<?> skill) {
     if (player == null || skill == null) {
-      return true;
-    }
-    if (player.isOp()) {
       return false;
     }
-    String blacklistPermission = "adapt.blacklist." + skill.getName().replaceAll("-", "");
-    Adapt.verbose("Checking if player " + player.getName() + " has blacklist permission " + blacklistPermission);
-    return player.hasPermission(blacklistPermission);
+    if (player.isOp()) {
+      return true;
+    }
+    String usePermission = "adapt.use." + skill.getName().replaceAll("-", "");
+    boolean permissionSet = player.isPermissionSet(usePermission);
+    boolean permissionAllowed = player.hasPermission(usePermission);
+    Adapt.verbose("Checking use permission " + usePermission + " for " + player.getName()
+        + " (set=" + permissionSet + ", value=" + permissionAllowed + ")");
+    if (!permissionSet) {
+      return true;
+    }
+    return permissionAllowed;
   }
 
   static boolean shouldSkipPlayer(Skill<?> skill, Player player) {
