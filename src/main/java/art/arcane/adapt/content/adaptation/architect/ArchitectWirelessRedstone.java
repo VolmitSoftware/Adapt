@@ -28,10 +28,10 @@ import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.content.item.BoundRedstoneTorch;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
 import lombok.NoArgsConstructor;
 import org.bukkit.*;
@@ -53,259 +53,260 @@ import java.util.UUID;
 import static art.arcane.adapt.api.adaptation.chunk.ChunkLoading.loadChunkAsync;
 
 public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWirelessRedstone.Config> {
-    private final Map<UUID, Long> cooldowns;
+  private final Map<UUID, Long> cooldowns;
 
-    public ArchitectWirelessRedstone() {
-        super("architect-wireless-redstone");
-        registerConfiguration(ArchitectWirelessRedstone.Config.class);
-        setDescription(Localizer.dLocalize("architect.wireless_redstone.description"));
-        setDisplayName(Localizer.dLocalize("architect.wireless_redstone.name"));
-        setIcon(Material.REDSTONE_TORCH);
-        setInterval(100);
-        setBaseCost(getConfig().baseCost);
-        setMaxLevel(getConfig().maxLevel);
-        setInitialCost(getConfig().initialCost);
-        setCostFactor(getConfig().costFactor);
-        registerRecipe(AdaptRecipe.shapeless()
-                .key("remote-redstone-torch")
-                .ingredient(Material.REDSTONE_TORCH)
-                .ingredient(Material.TARGET)
-                .ingredient(Material.ENDER_PEARL)
-                .result(BoundRedstoneTorch.io.withData(new BoundRedstoneTorch.Data(null)))
-                .build());
-        cooldowns = new java.util.concurrent.ConcurrentHashMap<>();
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.REDSTONE)
-                .key("challenge_architect_wireless_100")
-                .title(Localizer.dLocalize("advancement.challenge_architect_wireless_100.title"))
-                .description(Localizer.dLocalize("advancement.challenge_architect_wireless_100.description"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .child(AdaptAdvancement.builder()
-                        .icon(Material.REDSTONE)
-                        .key("challenge_architect_wireless_5k")
-                        .title(Localizer.dLocalize("advancement.challenge_architect_wireless_5k.title"))
-                        .description(Localizer.dLocalize("advancement.challenge_architect_wireless_5k.description"))
-                        .frame(AdaptAdvancementFrame.CHALLENGE)
-                        .visibility(AdvancementVisibility.PARENT_GRANTED)
-                        .build())
-                .build());
-        registerMilestone("challenge_architect_wireless_100", "architect.wireless-redstone.pulses", 100, 300);
-        registerMilestone("challenge_architect_wireless_5k", "architect.wireless-redstone.pulses", 5000, 1000);
+  public ArchitectWirelessRedstone() {
+    super("architect-wireless-redstone");
+    registerConfiguration(ArchitectWirelessRedstone.Config.class);
+    setDescription(Localizer.dLocalize("architect.wireless_redstone.description"));
+    setDisplayName(Localizer.dLocalize("architect.wireless_redstone.name"));
+    setIcon(Material.REDSTONE_TORCH);
+    setInterval(100);
+    setBaseCost(getConfig().baseCost);
+    setMaxLevel(getConfig().maxLevel);
+    setInitialCost(getConfig().initialCost);
+    setCostFactor(getConfig().costFactor);
+    registerRecipe(AdaptRecipe.shapeless()
+        .key("remote-redstone-torch")
+        .ingredient(Material.REDSTONE_TORCH)
+        .ingredient(Material.TARGET)
+        .ingredient(Material.ENDER_PEARL)
+        .result(BoundRedstoneTorch.io.withData(new BoundRedstoneTorch.Data(null)))
+        .build());
+    cooldowns = new java.util.concurrent.ConcurrentHashMap<>();
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.REDSTONE)
+        .key("challenge_architect_wireless_100")
+        .title(Localizer.dLocalize("advancement.challenge_architect_wireless_100.title"))
+        .description(Localizer.dLocalize("advancement.challenge_architect_wireless_100.description"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .child(AdaptAdvancement.builder()
+            .icon(Material.REDSTONE)
+            .key("challenge_architect_wireless_5k")
+            .title(Localizer.dLocalize("advancement.challenge_architect_wireless_5k.title"))
+            .description(Localizer.dLocalize("advancement.challenge_architect_wireless_5k.description"))
+            .frame(AdaptAdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .build())
+        .build());
+    registerMilestone("challenge_architect_wireless_100", "architect.wireless-redstone.pulses", 100, 300);
+    registerMilestone("challenge_architect_wireless_5k", "architect.wireless-redstone.pulses", 5000, 1000);
+  }
+
+  @Override
+  public void addStats(int level, Element v) {
+    v.addLore(C.GREEN + Localizer.dLocalize("architect.wireless_redstone.lore1"));
+  }
+
+
+  @EventHandler
+  public void onPlaceBlock(BlockPlaceEvent event) {
+    ItemStack item = event.getItemInHand();
+    if (BoundRedstoneTorch.hasItemData(item) && isRedstoneTorch(item)) {
+      event.setBuild(false);
+      event.setCancelled(true);
+    }
+  }
+
+  @EventHandler
+  public void onPlayerInteract(PlayerInteractEvent event) {
+    if (event.getHand() != EquipmentSlot.HAND && event.getHand() != EquipmentSlot.OFF_HAND) {
+      return;
     }
 
-    @Override
-    public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + Localizer.dLocalize("architect.wireless_redstone.lore1"));
+    ItemStack itemInHand = event.getItem();
+
+    if (itemInHand == null) {
+      return;
     }
 
-
-    @EventHandler
-    public void onPlaceBlock(BlockPlaceEvent event) {
-        ItemStack item = event.getItemInHand();
-        if (BoundRedstoneTorch.hasItemData(item) && isRedstoneTorch(item)) {
-            event.setBuild(false);
-            event.setCancelled(true);
-        }
+    boolean specialItem =
+        isRedstoneTorch(itemInHand) && BoundRedstoneTorch.hasItemData(itemInHand);
+    if (!specialItem) {
+      return;
     }
 
-    @EventHandler
-    public void onPlayerInteract(PlayerInteractEvent event) {
-        if (event.getHand() != EquipmentSlot.HAND && event.getHand() != EquipmentSlot.OFF_HAND) {
-            return;
-        }
+    Player player = event.getPlayer();
+    withPlayerThread(player, event, () -> {
+      if (resolveInteractContext(player, player.getLocation()) == null) {
+        return;
+      }
 
-        ItemStack itemInHand = event.getItem();
+      boolean canUseInCreative = AdaptConfig.get().allowAdaptationsInCreative;
+      boolean inCreative = player.getGameMode() == GameMode.CREATIVE;
+      if (inCreative && !canUseInCreative) {
+        return;
+      }
 
-        if (itemInHand == null) {
-            return;
-        }
+      switch (event.getAction()) {
+        case LEFT_CLICK_BLOCK -> handleLeftClickBlock(event, player);
+        case RIGHT_CLICK_AIR, RIGHT_CLICK_BLOCK ->
+            handleRightClick(event, player);
+      }
+    });
+  }
 
-        boolean specialItem =
-            isRedstoneTorch(itemInHand) && BoundRedstoneTorch.hasItemData(itemInHand);
-        if (!specialItem) {
-            return;
-        }
 
-        Player player = event.getPlayer();
-        withPlayerThread(player, event, () -> {
-            if (resolveInteractContext(player, player.getLocation()) == null) {
-                return;
-            }
+  private boolean isRedstoneTorch(ItemStack item) {
+    return item.getType().equals(Material.REDSTONE_TORCH);
+  }
 
-            boolean canUseInCreative = AdaptConfig.get().allowAdaptationsInCreative;
-            boolean inCreative = player.getGameMode() == GameMode.CREATIVE;
-            if (inCreative && !canUseInCreative) {
-                return;
-            }
 
-            switch (event.getAction()) {
-                case LEFT_CLICK_BLOCK -> handleLeftClickBlock(event, player);
-                case RIGHT_CLICK_AIR, RIGHT_CLICK_BLOCK -> handleRightClick(event, player);
-            }
-        });
+  private void handleLeftClickBlock(PlayerInteractEvent event, Player player) {
+    Adapt.verbose("Player " + player.getName() + " is left clicking a block");
+    if (!player.isSneaking()) {
+      return;
     }
 
-
-    private boolean isRedstoneTorch(ItemStack item) {
-        return item.getType().equals(Material.REDSTONE_TORCH);
+    // main hand only
+    if (event.getHand() != EquipmentSlot.HAND) {
+      return;
     }
 
-
-    private void handleLeftClickBlock(PlayerInteractEvent event, Player player) {
-        Adapt.verbose("Player " + player.getName() + " is left clicking a block");
-        if (!player.isSneaking()) {
-            return;
-        }
-
-        // main hand only
-        if (event.getHand() != EquipmentSlot.HAND) {
-            return;
-        }
-
-        if (event.getClickedBlock() == null) {
-            SoundPlayer sp = SoundPlayer.of(player);
-            sp.play(player.getLocation(), Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 0.1f, 0.9f);
-            return;
-        }
-
-        // prevent breaking block
-        event.setUseItemInHand(Result.DENY);
-
-        Location location = new Location(event.getClickedBlock().getWorld(), event.getClickedBlock().getX(), event.getClickedBlock().getY(), event.getClickedBlock().getZ());
-        linkTorch(player, location);
+    if (event.getClickedBlock() == null) {
+      SoundPlayer sp = SoundPlayer.of(player);
+      sp.play(player.getLocation(), Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 0.1f, 0.9f);
+      return;
     }
 
-    private void handleRightClick(PlayerInteractEvent event, Player player) {
-        Adapt.verbose("Player " + player.getName() + " is right clicking");
+    // prevent breaking block
+    event.setUseItemInHand(Result.DENY);
 
-        if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-            event.setUseItemInHand(Result.DENY);
-            event.setUseInteractedBlock(Result.DENY);
-        }
+    Location location = new Location(event.getClickedBlock().getWorld(), event.getClickedBlock().getX(), event.getClickedBlock().getY(), event.getClickedBlock().getZ());
+    linkTorch(player, location);
+  }
 
-        if (hasCooldown(player)) {
-            SoundPlayer sp = SoundPlayer.of(player);
-            sp.play(player.getLocation(), Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 0.1f, 0.9f);
+  private void handleRightClick(PlayerInteractEvent event, Player player) {
+    Adapt.verbose("Player " + player.getName() + " is right clicking");
+
+    if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+      event.setUseItemInHand(Result.DENY);
+      event.setUseInteractedBlock(Result.DENY);
+    }
+
+    if (hasCooldown(player)) {
+      SoundPlayer sp = SoundPlayer.of(player);
+      sp.play(player.getLocation(), Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 0.1f, 0.9f);
+    } else {
+      cooldowns.put(player.getUniqueId(), System.currentTimeMillis() + getConfig().cooldown);
+      updatePlayerCooldown(player, false);
+      triggerPulse(player, event.getItem());
+    }
+  }
+
+  public void updatePlayerCooldown(Player player, boolean reset) {
+    player.setCooldown(Material.REDSTONE_TORCH, reset ? 0 : 5000);
+  }
+
+
+  private boolean hasCooldown(Player i) {
+    if (cooldowns.containsKey(i.getUniqueId())) {
+      if (M.ms() >= cooldowns.get(i.getUniqueId())) {
+        cooldowns.remove(i.getUniqueId());
+      }
+    }
+    return cooldowns.containsKey(i.getUniqueId());
+  }
+
+
+  private void linkTorch(Player p, Location l) {
+    if (!l.getBlock().getType().equals(Material.TARGET)) {
+      return;
+    }
+    if (areParticlesEnabled()) {
+      vfxCuboidOutline(l.getBlock(), l.getBlock(), Color.RED, 1);
+    }
+    SoundPlayer spw = SoundPlayer.of(p.getWorld());
+    spw.play(l, Sound.BLOCK_CHEST_OPEN, 0.1f, 9f);
+    spw.play(l, Sound.ENTITY_ENDER_EYE_DEATH, 0.2f, 0.48f);
+    ItemStack hand = p.getInventory().getItemInMainHand();
+    if (hand.getAmount() == 1) {
+      BoundRedstoneTorch.setData(hand, l);
+    } else {
+      hand.setAmount(hand.getAmount() - 1);
+      ItemStack torch = BoundRedstoneTorch.withData(l);
+      p.getInventory().addItem(torch).values().forEach(i -> p.getWorld().dropItemNaturally(p.getLocation(), i));
+    }
+  }
+
+
+  private void triggerPulse(Player p, ItemStack item) {
+    Location l = BoundRedstoneTorch.getLocation(item);
+    if (isBound(item) && l != null) {
+      loadChunkAsync(l, chunk -> J.runAt(l, () -> {
+        Block b = l.getBlock();
+        BlockData data = b.getBlockData();
+        if (data instanceof AnaloguePowerable redBlock && b.getType().equals(Material.TARGET)) {
+          SoundPlayer spw = SoundPlayer.of(p.getWorld());
+          spw.play(l, Sound.BLOCK_CHEST_OPEN, 0.1f, 9f);
+          redBlock.setPower(15);
+          vfxCuboidOutline(l.getBlock(), l.getBlock(), Color.RED, 1);
+          b.setBlockData(redBlock);
+          getPlayer(p).getData().addStat("architect.wireless-redstone.pulses", 1);
+          J.runAt(l, () -> {
+            redBlock.setPower(0);
+            b.setBlockData(redBlock);
+          }, 2);
         } else {
-            cooldowns.put(player.getUniqueId(), System.currentTimeMillis() + getConfig().cooldown);
-            updatePlayerCooldown(player, false);
-            triggerPulse(player, event.getItem());
+          SoundPlayer sp = SoundPlayer.of(p);
+          sp.play(p.getLocation(), Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 0.1f, 0.9f);
         }
+      }));
     }
+  }
 
-    public void updatePlayerCooldown(Player player, boolean reset) {
-        player.setCooldown(Material.REDSTONE_TORCH, reset ? 0 : 5000);
+  private boolean isBound(ItemStack stack) {
+    return (stack.getType().equals(Material.REDSTONE_TORCH) && BoundRedstoneTorch.getLocation(stack) != null);
+  }
+
+  @Override
+  public boolean isEnabled() {
+    return getConfig().enabled;
+  }
+
+
+  @Override
+  public void onTick() {
+    for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+      Player p = adaptPlayer.getPlayer();
+      if (p == null || !p.isOnline()) {
+        continue;
+      }
+      ItemStack hand = p.getInventory().getItemInMainHand();
+      ItemStack offhand = p.getInventory().getItemInOffHand();
+      if ((isRedstoneTorch(hand) && BoundRedstoneTorch.hasItemData(hand)) || (
+          isRedstoneTorch(offhand) && BoundRedstoneTorch.hasItemData(offhand))) {
+        withPlayerThread(p, () -> updatePlayerCooldown(p, false));
+      } else {
+        withPlayerThread(p, () -> updatePlayerCooldown(p, true));
+      }
     }
+  }
 
+  @Override
+  public boolean isPermanent() {
+    return getConfig().permanent;
+  }
 
-    private boolean hasCooldown(Player i) {
-        if (cooldowns.containsKey(i.getUniqueId())) {
-            if (M.ms() >= cooldowns.get(i.getUniqueId())) {
-                cooldowns.remove(i.getUniqueId());
-            }
-        }
-        return cooldowns.containsKey(i.getUniqueId());
-    }
-
-
-    private void linkTorch(Player p, Location l) {
-        if (!l.getBlock().getType().equals(Material.TARGET)) {
-            return;
-        }
-        if (areParticlesEnabled()) {
-            vfxCuboidOutline(l.getBlock(), l.getBlock(), Color.RED, 1);
-        }
-        SoundPlayer spw = SoundPlayer.of(p.getWorld());
-        spw.play(l, Sound.BLOCK_CHEST_OPEN, 0.1f, 9f);
-        spw.play(l, Sound.ENTITY_ENDER_EYE_DEATH, 0.2f, 0.48f);
-        ItemStack hand = p.getInventory().getItemInMainHand();
-        if (hand.getAmount() == 1) {
-            BoundRedstoneTorch.setData(hand, l);
-        } else {
-            hand.setAmount(hand.getAmount() - 1);
-            ItemStack torch = BoundRedstoneTorch.withData(l);
-            p.getInventory().addItem(torch).values().forEach(i -> p.getWorld().dropItemNaturally(p.getLocation(), i));
-        }
-    }
-
-
-    private void triggerPulse(Player p, ItemStack item) {
-        Location l = BoundRedstoneTorch.getLocation(item);
-        if (isBound(item) && l != null) {
-            loadChunkAsync(l, chunk -> J.runAt(l, () -> {
-                Block b = l.getBlock();
-                BlockData data = b.getBlockData();
-                if (data instanceof AnaloguePowerable redBlock && b.getType().equals(Material.TARGET)) {
-                    SoundPlayer spw = SoundPlayer.of(p.getWorld());
-                    spw.play(l, Sound.BLOCK_CHEST_OPEN, 0.1f, 9f);
-                    redBlock.setPower(15);
-                    vfxCuboidOutline(l.getBlock(), l.getBlock(), Color.RED, 1);
-                    b.setBlockData(redBlock);
-                    getPlayer(p).getData().addStat("architect.wireless-redstone.pulses", 1);
-                    J.runAt(l, () -> {
-                        redBlock.setPower(0);
-                        b.setBlockData(redBlock);
-                    }, 2);
-                } else {
-                    SoundPlayer sp = SoundPlayer.of(p);
-                    sp.play(p.getLocation(), Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 0.1f, 0.9f);
-                }
-            }));
-        }
-    }
-
-    private boolean isBound(ItemStack stack) {
-        return (stack.getType().equals(Material.REDSTONE_TORCH) && BoundRedstoneTorch.getLocation(stack) != null);
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return getConfig().enabled;
-    }
-
-
-    @Override
-    public void onTick() {
-        for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
-            Player p = adaptPlayer.getPlayer();
-            if (p == null || !p.isOnline()) {
-                continue;
-            }
-            ItemStack hand = p.getInventory().getItemInMainHand();
-            ItemStack offhand = p.getInventory().getItemInOffHand();
-            if ((isRedstoneTorch(hand) && BoundRedstoneTorch.hasItemData(hand)) || (
-                isRedstoneTorch(offhand) && BoundRedstoneTorch.hasItemData(offhand))) {
-                withPlayerThread(p, () -> updatePlayerCooldown(p, false));
-            } else {
-                withPlayerThread(p, () -> updatePlayerCooldown(p, true));
-            }
-        }
-    }
-
-    @Override
-    public boolean isPermanent() {
-        return getConfig().permanent;
-    }
-
-    @NoArgsConstructor
-    @ConfigDescription("Use a crafted redstone remote to toggle redstone at a distance.")
-    protected static class Config {
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown for the Architect Wireless Redstone adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        public int cooldown = 125;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-        boolean permanent = true;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-        boolean enabled = true;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Architect Wireless Redstone adaptation.", impact = "True enables this behavior and false disables it.")
-        boolean showParticles = true;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-        int baseCost = 5;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-        int maxLevel = 1;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-        int initialCost = 0;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-        double costFactor = 1;
-    }
+  @NoArgsConstructor
+  @ConfigDescription("Use a crafted redstone remote to toggle redstone at a distance.")
+  protected static class Config {
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown for the Architect Wireless Redstone adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    public int cooldown = 125;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
+    boolean permanent = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
+    boolean enabled = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Architect Wireless Redstone adaptation.", impact = "True enables this behavior and false disables it.")
+    boolean showParticles = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
+    int baseCost = 5;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
+    int maxLevel = 1;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
+    int initialCost = 0;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
+    double costFactor = 1;
+  }
 }

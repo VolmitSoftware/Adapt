@@ -21,7 +21,6 @@ import io.github.slimjar.resolver.data.Mirror
 import org.gradle.api.plugins.JavaPluginExtension
 import org.jetbrains.gradle.ext.settings
 import org.jetbrains.gradle.ext.taskTriggers
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import xyz.jpenilla.runpaper.task.RunServer
 import kotlin.system.exitProcess
 
@@ -33,7 +32,6 @@ plugins {
     alias(libs.plugins.runVelocity)
     alias(libs.plugins.idea)
     alias(libs.plugins.slimjar)
-    alias(libs.plugins.kotlin.jvm)
 }
 
 version = "2.0.0-1.20.2-1.21.11-Dev1"
@@ -54,7 +52,7 @@ registerCustomOutputTask("CrazyDev22", "C://Users/Julian/Desktop/server/plugins"
 registerCustomOutputTask("Pixel", "D://Iris Dimension Engine//1.20.4 - Development//plugins")
 // ========================== UNIX ==============================
 registerCustomOutputTaskUnix("CyberpwnLT", "/Users/danielmills/development/server/plugins")
-registerCustomOutputTaskUnix("PsychoLT", "/Users/brianfopiano/Developer/RemoteGit/[Minecraft Server]/plugin-jars")
+registerCustomOutputTaskUnix("PsychoLT", "/Users/brianfopiano/Developer/RemoteGit/[Minecraft Server]/consumers/plugin-consumers/dropins/plugins")
 registerCustomOutputTaskUnix("the456gamer", "/home/the456gamer/projects/minecraft/adapt-testserver/plugins/update/", false)
 // ==============================================================
 
@@ -135,6 +133,7 @@ allprojects {
     tasks.compileJava {
         options.compilerArgs.add("-parameters")
         options.encoding = "UTF-8"
+        options.debugOptions.debugLevel = "none"
         options.release.set(21)
     }
 }
@@ -147,7 +146,7 @@ dependencies {
     }
     implementation(slimjarHelper("spigot"))
     implementation(slimjarHelper("velocity"))
-    implementation(libs.platformUtils) {
+    slimApi(libs.platformUtils) {
         isTransitive = false
     }
 
@@ -160,7 +159,7 @@ dependencies {
     slimApi(libs.amulet)
     slimApi(libs.chrono)
     slimApi(libs.spatial)
-    implementation(libs.kotlin.coroutines)
+    slimApi(libs.kotlin.coroutines)
 
     // Dynamically Loaded
     slimApi(libs.adventure.minimessage)
@@ -170,7 +169,7 @@ dependencies {
     slimApi(libs.lettuce)
     slimApi(libs.particle)
     // Keep UAA in the main shaded jar so Folia patches in source overrides take precedence.
-    implementation(libs.ultimateAdvancementApi)
+    slimApi(libs.ultimateAdvancementApi)
     slimApi(libs.customBlockData)
     slimApi(libs.lur)
     slimApi(libs.lang3)
@@ -215,6 +214,8 @@ slimJar {
 tasks.shadowJar {
 //    minimize()
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    exclude("net/kyori/**")
+    exclude("com/google/gson/**")
 }
 
 configurations.configureEach {
@@ -243,13 +244,6 @@ if (!JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_21)) {
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
-    }
-}
-
-kotlin {
-    jvmToolchain(21)
-    compilerOptions {
-        jvmTarget.set(JvmTarget.JVM_21)
     }
 }
 

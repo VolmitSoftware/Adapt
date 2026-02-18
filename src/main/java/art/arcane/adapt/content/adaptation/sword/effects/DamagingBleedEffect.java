@@ -24,18 +24,18 @@ import de.slikey.effectlib.effect.BleedEffect;
 import org.bukkit.entity.LivingEntity;
 
 public class DamagingBleedEffect extends BleedEffect {
-    private final double damage;
-    private final LivingEntity target;
+  private final double damage;
+  private final LivingEntity target;
 
-    public DamagingBleedEffect(EffectManager effectManager, double damage, LivingEntity target) {
-        super(effectManager);
-        this.damage = damage;
-        this.target = target;
-    }
+  public DamagingBleedEffect(EffectManager effectManager, double damage, LivingEntity target) {
+    super(effectManager);
+    this.damage = damage;
+    this.target = target;
+  }
 
-    @Override
-    public void onRun() {
-        super.onRun();
-        J.runEntity(target, () -> target.damage(damage));
-    }
+  @Override
+  public void onRun() {
+    super.onRun();
+    J.runEntity(target, () -> target.damage(damage));
+  }
 }

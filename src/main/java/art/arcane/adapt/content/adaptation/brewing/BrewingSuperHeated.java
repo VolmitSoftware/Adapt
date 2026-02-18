@@ -29,11 +29,11 @@ import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.content.matter.BrewingStandOwner;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
+import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
 import art.arcane.volmlib.util.math.RNG;
 import lombok.NoArgsConstructor;
@@ -55,214 +55,214 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Config> {
 
-    private static final int MAX_CHECKS_BEFORE_REMOVE = 20;
-    private final Map<Block, Integer> activeStands = new ConcurrentHashMap<>();
+  private static final int MAX_CHECKS_BEFORE_REMOVE = 20;
+  private final Map<Block, Integer> activeStands = new ConcurrentHashMap<>();
 
-    public BrewingSuperHeated() {
-        super("brewing-super-heated");
-        registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("brewing.super_heated.description"));
-        setDisplayName(Localizer.dLocalize("brewing.super_heated.name"));
-        setIcon(Material.LAVA_BUCKET);
-        setBaseCost(getConfig().baseCost);
-        setCostFactor(getConfig().costFactor);
-        setMaxLevel(getConfig().maxLevel);
-        setInitialCost(getConfig().initialCost);
-        setInterval(253);
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.BLAZE_POWDER)
-                .key("challenge_brewing_super_heated_100")
-                .title(Localizer.dLocalize("advancement.challenge_brewing_super_heated_100.title"))
-                .description(Localizer.dLocalize("advancement.challenge_brewing_super_heated_100.description"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .child(AdaptAdvancement.builder()
-                        .icon(Material.MAGMA_CREAM)
-                        .key("challenge_brewing_super_heated_2500")
-                        .title(Localizer.dLocalize("advancement.challenge_brewing_super_heated_2500.title"))
-                        .description(Localizer.dLocalize("advancement.challenge_brewing_super_heated_2500.description"))
-                        .frame(AdaptAdvancementFrame.CHALLENGE)
-                        .visibility(AdvancementVisibility.PARENT_GRANTED)
-                        .build())
-                .build());
-        registerMilestone("challenge_brewing_super_heated_100", "brewing.super-heated.brews-accelerated", 100, 300);
-        registerMilestone("challenge_brewing_super_heated_2500", "brewing.super-heated.brews-accelerated", 2500, 1000);
+  public BrewingSuperHeated() {
+    super("brewing-super-heated");
+    registerConfiguration(Config.class);
+    setDescription(Localizer.dLocalize("brewing.super_heated.description"));
+    setDisplayName(Localizer.dLocalize("brewing.super_heated.name"));
+    setIcon(Material.LAVA_BUCKET);
+    setBaseCost(getConfig().baseCost);
+    setCostFactor(getConfig().costFactor);
+    setMaxLevel(getConfig().maxLevel);
+    setInitialCost(getConfig().initialCost);
+    setInterval(253);
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.BLAZE_POWDER)
+        .key("challenge_brewing_super_heated_100")
+        .title(Localizer.dLocalize("advancement.challenge_brewing_super_heated_100.title"))
+        .description(Localizer.dLocalize("advancement.challenge_brewing_super_heated_100.description"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .child(AdaptAdvancement.builder()
+            .icon(Material.MAGMA_CREAM)
+            .key("challenge_brewing_super_heated_2500")
+            .title(Localizer.dLocalize("advancement.challenge_brewing_super_heated_2500.title"))
+            .description(Localizer.dLocalize("advancement.challenge_brewing_super_heated_2500.description"))
+            .frame(AdaptAdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .build())
+        .build());
+    registerMilestone("challenge_brewing_super_heated_100", "brewing.super-heated.brews-accelerated", 100, 300);
+    registerMilestone("challenge_brewing_super_heated_2500", "brewing.super-heated.brews-accelerated", 2500, 1000);
+  }
+
+  @Override
+  public void addStats(int level, Element v) {
+    v.addLore(C.GREEN + "+ " + Form.pc(getFireBoost(getLevelPercent(level)), 0) + C.GRAY + " " + Localizer.dLocalize("brewing.super_heated.lore1"));
+    v.addLore(C.GREEN + "+ " + Form.pc(getLavaBoost(getLevelPercent(level)), 0) + C.GRAY + " " + Localizer.dLocalize("brewing.super_heated.lore2"));
+  }
+
+  public double getLavaBoost(double factor) {
+    return (getConfig().lavaMultiplier) * (getConfig().multiplierFactor * factor);
+  }
+
+  public double getFireBoost(double factor) {
+    return (getConfig().fireMultiplier) * (getConfig().multiplierFactor * factor);
+  }
+
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void on(InventoryMoveItemEvent e) {
+    if (!e.getDestination().getType().equals(InventoryType.BREWING) || e.getDestination().getLocation() == null) {
+      return;
     }
 
-    @Override
-    public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getFireBoost(getLevelPercent(level)), 0) + C.GRAY + " " + Localizer.dLocalize("brewing.super_heated.lore1"));
-        v.addLore(C.GREEN + "+ " + Form.pc(getLavaBoost(getLevelPercent(level)), 0) + C.GRAY + " " + Localizer.dLocalize("brewing.super_heated.lore2"));
+    activeStands.put(e.getDestination().getLocation().getBlock(), MAX_CHECKS_BEFORE_REMOVE);
+  }
+
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void on(BrewEvent e) {
+    if (activeStands.containsKey(e.getBlock())) {
+      BrewingStandOwner owner = WorldData.of(e.getBlock().getWorld()).get(e.getBlock(), BrewingStandOwner.class);
+      if (owner != null) {
+        getServer().peekData(owner.getOwner()).addStat("brewing.super-heated.brews-accelerated", 1);
+      }
+    }
+    if (((BrewingStand) e.getBlock().getState()).getBrewingTime() > 0) {
+      activeStands.put(e.getBlock(), MAX_CHECKS_BEFORE_REMOVE);
+    }
+  }
+
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void on(InventoryClickEvent e) {
+    if (e.getClickedInventory() == null) {
+      return;
+    }
+    if (e.getView().getTopInventory().getType().equals(InventoryType.BREWING)) {
+      activeStands.put(e.getView().getTopInventory().getLocation().getBlock(), MAX_CHECKS_BEFORE_REMOVE);
+    }
+  }
+
+
+  @Override
+  public void onTick() {
+    if (activeStands.isEmpty()) {
+      return;
     }
 
-    public double getLavaBoost(double factor) {
-        return (getConfig().lavaMultiplier) * (getConfig().multiplierFactor * factor);
+    for (Block block : activeStands.keySet()) {
+      if (block == null) {
+        continue;
+      }
+
+      J.runAt(block.getLocation(), () -> tickStand(block));
+    }
+  }
+
+  private void tickStand(Block block) {
+    BlockState state = block.getState();
+    if (!(state instanceof BrewingStand brewingStand)) {
+      activeStands.remove(block);
+      return;
     }
 
-    public double getFireBoost(double factor) {
-        return (getConfig().fireMultiplier) * (getConfig().multiplierFactor * factor);
+    if (brewingStand.getBrewingTime() <= 0) {
+      BrewingStand current = (BrewingStand) block.getState();
+      if (current.getBrewingTime() <= 0) {
+        Integer remainingChecks = activeStands.get(block);
+        if (remainingChecks == null) {
+          return;
+        }
+
+        if (remainingChecks <= 0) {
+          activeStands.remove(block);
+        } else {
+          activeStands.put(block, remainingChecks - 1);
+        }
+      }
+      return;
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void on(InventoryMoveItemEvent e) {
-        if (!e.getDestination().getType().equals(InventoryType.BREWING) || e.getDestination().getLocation() == null) {
-            return;
-        }
-
-        activeStands.put(e.getDestination().getLocation().getBlock(), MAX_CHECKS_BEFORE_REMOVE);
+    BrewingStandOwner owner = WorldData.of(brewingStand.getWorld()).get(block, BrewingStandOwner.class);
+    if (owner == null) {
+      activeStands.remove(block);
+      return;
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void on(BrewEvent e) {
-        if (activeStands.containsKey(e.getBlock())) {
-            BrewingStandOwner owner = WorldData.of(e.getBlock().getWorld()).get(e.getBlock(), BrewingStandOwner.class);
-            if (owner != null) {
-                getServer().peekData(owner.getOwner()).addStat("brewing.super-heated.brews-accelerated", 1);
-            }
-        }
-        if (((BrewingStand) e.getBlock().getState()).getBrewingTime() > 0) {
-            activeStands.put(e.getBlock(), MAX_CHECKS_BEFORE_REMOVE);
-        }
+    PlayerData playerData = getServer().peekData(owner.getOwner());
+    if (playerData == null) {
+      activeStands.remove(block);
+      return;
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void on(InventoryClickEvent e) {
-        if (e.getClickedInventory() == null) {
-            return;
-        }
-        if (e.getView().getTopInventory().getType().equals(InventoryType.BREWING)) {
-            activeStands.put(e.getView().getTopInventory().getLocation().getBlock(), MAX_CHECKS_BEFORE_REMOVE);
-        }
+    PlayerSkillLine line = playerData.getSkillLineNullable(getSkill().getName());
+    PlayerAdaptation adaptation = line != null ? line.getAdaptation(getName()) : null;
+    if (adaptation == null || adaptation.getLevel() <= 0) {
+      activeStands.remove(block);
+      return;
     }
 
+    updateHeat(brewingStand, getLevelPercent(adaptation.getLevel()));
+  }
 
-    @Override
-    public void onTick() {
-        if (activeStands.isEmpty()) {
-            return;
-        }
+  private void updateHeat(BrewingStand b, double factor) {
+    double l = 0;
+    double f = 0;
 
-        for (Block block : activeStands.keySet()) {
-            if (block == null) {
-                continue;
-            }
-
-            J.runAt(block.getLocation(), () -> tickStand(block));
-        }
+    switch (b.getBlock().getRelative(BlockFace.DOWN).getType()) {
+      case LAVA -> l = l + 1;
+      case FIRE -> f = f + 1;
+    }
+    switch (b.getBlock().getRelative(BlockFace.NORTH).getType()) {
+      case LAVA -> l = l + 1;
+      case FIRE -> f = f + 1;
+    }
+    switch (b.getBlock().getRelative(BlockFace.SOUTH).getType()) {
+      case LAVA -> l = l + 1;
+      case FIRE -> f = f + 1;
+    }
+    switch (b.getBlock().getRelative(BlockFace.EAST).getType()) {
+      case LAVA -> l = l + 1;
+      case FIRE -> f = f + 1;
+    }
+    switch (b.getBlock().getRelative(BlockFace.WEST).getType()) {
+      case LAVA -> l = l + 1;
+      case FIRE -> f = f + 1;
     }
 
-    private void tickStand(Block block) {
-        BlockState state = block.getState();
-        if (!(state instanceof BrewingStand brewingStand)) {
-            activeStands.remove(block);
-            return;
-        }
+    double pct = (getFireBoost(factor) * f) + (getLavaBoost(factor) * l) + 1;
+    int warp = (int) ((getInterval() / 50D) * pct);
+    b.setBrewingTime(Math.max(1, b.getBrewingTime() - warp));
+    b.update();
 
-        if (brewingStand.getBrewingTime() <= 0) {
-            BrewingStand current = (BrewingStand) block.getState();
-            if (current.getBrewingTime() <= 0) {
-                Integer remainingChecks = activeStands.get(block);
-                if (remainingChecks == null) {
-                    return;
-                }
-
-                if (remainingChecks <= 0) {
-                    activeStands.remove(block);
-                } else {
-                    activeStands.put(block, remainingChecks - 1);
-                }
-            }
-            return;
-        }
-
-        BrewingStandOwner owner = WorldData.of(brewingStand.getWorld()).get(block, BrewingStandOwner.class);
-        if (owner == null) {
-            activeStands.remove(block);
-            return;
-        }
-
-        PlayerData playerData = getServer().peekData(owner.getOwner());
-        if (playerData == null) {
-            activeStands.remove(block);
-            return;
-        }
-
-        PlayerSkillLine line = playerData.getSkillLineNullable(getSkill().getName());
-        PlayerAdaptation adaptation = line != null ? line.getAdaptation(getName()) : null;
-        if (adaptation == null || adaptation.getLevel() <= 0) {
-            activeStands.remove(block);
-            return;
-        }
-
-        updateHeat(brewingStand, getLevelPercent(adaptation.getLevel()));
+    if (M.r(1D / (333D / getInterval()))) {
+      SoundPlayer spw = SoundPlayer.of(b.getBlock().getWorld());
+      spw.play(b.getBlock().getLocation(), Sound.BLOCK_FIRE_AMBIENT, 1f, 1f + RNG.r.f(0.3f, 0.6f));
     }
+  }
 
-    private void updateHeat(BrewingStand b, double factor) {
-        double l = 0;
-        double f = 0;
+  @Override
+  public boolean isEnabled() {
+    return getConfig().enabled;
+  }
 
-        switch (b.getBlock().getRelative(BlockFace.DOWN).getType()) {
-            case LAVA -> l = l + 1;
-            case FIRE -> f = f + 1;
-        }
-        switch (b.getBlock().getRelative(BlockFace.NORTH).getType()) {
-            case LAVA -> l = l + 1;
-            case FIRE -> f = f + 1;
-        }
-        switch (b.getBlock().getRelative(BlockFace.SOUTH).getType()) {
-            case LAVA -> l = l + 1;
-            case FIRE -> f = f + 1;
-        }
-        switch (b.getBlock().getRelative(BlockFace.EAST).getType()) {
-            case LAVA -> l = l + 1;
-            case FIRE -> f = f + 1;
-        }
-        switch (b.getBlock().getRelative(BlockFace.WEST).getType()) {
-            case LAVA -> l = l + 1;
-            case FIRE -> f = f + 1;
-        }
+  @Override
+  public boolean isPermanent() {
+    return getConfig().permanent;
+  }
 
-        double pct = (getFireBoost(factor) * f) + (getLavaBoost(factor) * l) + 1;
-        int warp = (int) ((getInterval() / 50D) * pct);
-        b.setBrewingTime(Math.max(1, b.getBrewingTime() - warp));
-        b.update();
-
-        if (M.r(1D / (333D / getInterval()))) {
-            SoundPlayer spw = SoundPlayer.of(b.getBlock().getWorld());
-            spw.play(b.getBlock().getLocation(), Sound.BLOCK_FIRE_AMBIENT, 1f, 1f + RNG.r.f(0.3f, 0.6f));
-        }
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return getConfig().enabled;
-    }
-
-    @Override
-    public boolean isPermanent() {
-        return getConfig().permanent;
-    }
-
-    @NoArgsConstructor
-    @ConfigDescription("Brewing stands work faster when surrounded by fire or lava.")
-    protected static class Config {
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-        boolean permanent = false;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-        boolean enabled = true;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-        int baseCost = 3;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-        double costFactor = 0.75;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-        int maxLevel = 5;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-        int initialCost = 5;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Multiplier Factor for the Brewing Super Heated adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double multiplierFactor = 1.33;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Fire Multiplier for the Brewing Super Heated adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double fireMultiplier = 0.14;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Lava Multiplier for the Brewing Super Heated adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double lavaMultiplier = 0.69;
-    }
+  @NoArgsConstructor
+  @ConfigDescription("Brewing stands work faster when surrounded by fire or lava.")
+  protected static class Config {
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
+    boolean permanent = false;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
+    boolean enabled = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
+    int baseCost = 3;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
+    double costFactor = 0.75;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
+    int maxLevel = 5;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
+    int initialCost = 5;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Multiplier Factor for the Brewing Super Heated adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double multiplierFactor = 1.33;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Fire Multiplier for the Brewing Super Heated adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double fireMultiplier = 0.14;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Lava Multiplier for the Brewing Super Heated adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double lavaMultiplier = 0.69;
+  }
 }

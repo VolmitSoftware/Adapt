@@ -30,59 +30,59 @@ import java.util.ArrayList;
 import java.util.List;
 
 public interface DataItem<T> {
-    Material getMaterial();
+  Material getMaterial();
 
-    Class<T> getType();
+  Class<T> getType();
 
-    void applyLore(T data, List<String> lore);
+  void applyLore(T data, List<String> lore);
 
-    void applyMeta(T data, ItemMeta meta);
+  void applyMeta(T data, ItemMeta meta);
 
-    default ItemStack blank() {
-        return new ItemStack(getMaterial());
+  default ItemStack blank() {
+    return new ItemStack(getMaterial());
+  }
+
+  default T getData(ItemStack stack) {
+    if (stack != null
+        && stack.getType().equals(getMaterial())
+        && stack.getItemMeta() != null) {
+      String r = stack.getItemMeta().getPersistentDataContainer().get(new NamespacedKey(Adapt.instance, getType().getCanonicalName().hashCode() + ""), PersistentDataType.STRING);
+      if (r != null) {
+        return BukkitGson.gson.fromJson(r, getType());
+      }
     }
 
-    default T getData(ItemStack stack) {
-        if (stack != null
-                && stack.getType().equals(getMaterial())
-                && stack.getItemMeta() != null) {
-            String r = stack.getItemMeta().getPersistentDataContainer().get(new NamespacedKey(Adapt.instance, getType().getCanonicalName().hashCode() + ""), PersistentDataType.STRING);
-            if (r != null) {
-                return BukkitGson.gson.fromJson(r, getType());
-            }
-        }
+    return null;
+  }
 
-        return null;
+  default boolean hasData(ItemStack stack) {
+    if (stack != null
+        && stack.getType().equals(getMaterial())
+        && stack.getItemMeta() != null) {
+      return stack.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(Adapt.instance, getType().getCanonicalName().hashCode() + ""), PersistentDataType.STRING);
+    }
+    return false;
+  }
+
+
+  default void setData(ItemStack item, T t) {
+    item.setItemMeta(withData(t).getItemMeta());
+  }
+
+  default ItemStack withData(T t) {
+    ItemStack item = blank();
+    ItemMeta meta = item.getItemMeta();
+
+    if (meta == null) {
+      return null;
     }
 
-    default boolean hasData(ItemStack stack) {
-        if (stack != null
-                && stack.getType().equals(getMaterial())
-                && stack.getItemMeta() != null) {
-            return stack.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(Adapt.instance, getType().getCanonicalName().hashCode() + ""), PersistentDataType.STRING);
-        }
-        return false;
-    }
-
-
-    default void setData(ItemStack item, T t) {
-        item.setItemMeta(withData(t).getItemMeta());
-    }
-
-    default ItemStack withData(T t) {
-        ItemStack item = blank();
-        ItemMeta meta = item.getItemMeta();
-
-        if (meta == null) {
-            return null;
-        }
-
-        applyMeta(t, meta);
-        List<String> lore = new ArrayList<>();
-        applyLore(t, lore);
-        meta.setLore(lore);
-        meta.getPersistentDataContainer().set(new NamespacedKey(Adapt.instance, getType().getCanonicalName().hashCode() + ""), PersistentDataType.STRING, BukkitGson.gson.toJson(t));
-        item.setItemMeta(meta);
-        return item;
-    }
+    applyMeta(t, meta);
+    List<String> lore = new ArrayList<>();
+    applyLore(t, lore);
+    meta.setLore(lore);
+    meta.getPersistentDataContainer().set(new NamespacedKey(Adapt.instance, getType().getCanonicalName().hashCode() + ""), PersistentDataType.STRING, BukkitGson.gson.toJson(t));
+    item.setItemMeta(meta);
+    return item;
+  }
 }

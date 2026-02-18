@@ -27,5 +27,5 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 @Target({PARAMETER, TYPE, FIELD})
 public @interface Desc {
-    String value();
+  String value();
 }

@@ -8,143 +8,143 @@ import art.arcane.volmlib.util.collection.KList;
 
 public class AdaptationListingHandler {
 
-    private static KList<AdaptationList> adaptationLists;
-    private static KList<AdaptationSkillList> adaptationSkillLists;
-    private static KList<AdaptationProvider> adaptationProviders;
-    private static KList<SkillProvider> skillProviders;
+  private static KList<AdaptationList> adaptationLists;
+  private static KList<AdaptationSkillList> adaptationSkillLists;
+  private static KList<AdaptationProvider> adaptationProviders;
+  private static KList<SkillProvider> skillProviders;
 
 
-    public static void initializeAdaptationListings() {
-        adaptationLists = new KList<>();
-        adaptationSkillLists = new KList<>();
-        adaptationProviders = new KList<>();
-        skillProviders = new KList<>();
+  public static void initializeAdaptationListings() {
+    adaptationLists = new KList<>();
+    adaptationSkillLists = new KList<>();
+    adaptationProviders = new KList<>();
+    skillProviders = new KList<>();
 
-        getAdaptionListings();
-        getAdaptionSkillListings();
-        getAdaptationProviders();
-        getSkillProvider();
+    getAdaptionListings();
+    getAdaptionSkillListings();
+    getAdaptationProviders();
+    getSkillProvider();
+  }
+
+  public static KList<AdaptationList> getAdaptionListings() {
+    if (adaptationLists.isNotEmpty()) return adaptationLists;
+
+    AdaptationList main = new AdaptationList("[Main]");
+    adaptationLists.add(main);
+
+    for (Skill<?> skill : SkillRegistry.skills.sortV()) {
+      if (!skill.isEnabled()) {
+        continue;
+      }
+      AdaptationList skillList = new AdaptationList("[Skill]-" + skill.getName());
+      adaptationLists.add(skillList);
+
+      for (Adaptation<?> adaptation : skill.getAdaptations()) {
+        if (!adaptation.isEnabled()) {
+          continue;
+        }
+        AdaptationList adaptationList = new AdaptationList("[Adaptation]-" + adaptation.getName());
+        adaptationLists.add(adaptationList);
+      }
+    }
+    return adaptationLists;
+  }
+
+  public static KList<AdaptationSkillList> getAdaptionSkillListings() {
+    if (adaptationSkillLists.isNotEmpty()) return adaptationSkillLists;
+
+    AdaptationSkillList t1 = new AdaptationSkillList("[all]");
+    adaptationSkillLists.add(t1);
+    AdaptationSkillList t2 = new AdaptationSkillList("[random]");
+    adaptationSkillLists.add(t2);
+
+    for (Skill<?> skill : allSkills()) {
+      AdaptationSkillList t3 = new AdaptationSkillList(skill.getName());
+      adaptationSkillLists.add(t3);
     }
 
-    public static KList<AdaptationList> getAdaptionListings() {
-        if (adaptationLists.isNotEmpty()) return adaptationLists;
+    adaptationSkillLists.removeDuplicates();
+    return adaptationSkillLists;
+  }
 
-        AdaptationList main = new AdaptationList("[Main]");
-        adaptationLists.add(main);
-
-        for (Skill<?> skill : SkillRegistry.skills.sortV()) {
-            if (!skill.isEnabled()) {
-                continue;
-            }
-            AdaptationList skillList = new AdaptationList("[Skill]-" + skill.getName());
-            adaptationLists.add(skillList);
-
-            for (Adaptation<?> adaptation : skill.getAdaptations()) {
-                if (!adaptation.isEnabled()) {
-                    continue;
-                }
-                AdaptationList adaptationList = new AdaptationList("[Adaptation]-" + adaptation.getName());
-                adaptationLists.add(adaptationList);
-            }
-        }
-        return adaptationLists;
+  private static KList<Skill<?>> allSkills() {
+    if (Adapt.instance != null
+        && Adapt.instance.getAdaptServer() != null
+        && Adapt.instance.getAdaptServer().getSkillRegistry() != null) {
+      return new KList<>(Adapt.instance.getAdaptServer().getSkillRegistry().getAllSkills());
     }
 
-    public static KList<AdaptationSkillList> getAdaptionSkillListings() {
-        if (adaptationSkillLists.isNotEmpty()) return adaptationSkillLists;
+    return SkillRegistry.skills.sortV();
+  }
 
-        AdaptationSkillList t1 = new AdaptationSkillList("[all]");
-        adaptationSkillLists.add(t1);
-        AdaptationSkillList t2 = new AdaptationSkillList("[random]");
-        adaptationSkillLists.add(t2);
+  public static KList<AdaptationProvider> getAdaptationProviders() {
+    if (adaptationProviders.isNotEmpty()) return adaptationProviders;
 
-        for (Skill<?> skill : allSkills()) {
-            AdaptationSkillList t3 = new AdaptationSkillList(skill.getName());
-            adaptationSkillLists.add(t3);
+    for (Skill<?> skill : SkillRegistry.skills.sortV()) {
+      if (!skill.isEnabled()) {
+        continue;
+      }
+      for (Adaptation<?> adaptation : skill.getAdaptations()) {
+        if (!adaptation.isEnabled()) {
+          continue;
         }
+        AdaptationProvider suggestion = new AdaptationProvider(skill.getName() + ":" + adaptation.getName());
+        adaptationProviders.add(suggestion);
+      }
+    }
+    return adaptationProviders;
+  }
 
-        adaptationSkillLists.removeDuplicates();
-        return adaptationSkillLists;
+  public static KList<SkillProvider> getSkillProvider() {
+    if (skillProviders.isNotEmpty()) return skillProviders;
+
+    for (Skill<?> skill : SkillRegistry.skills.sortV()) {
+      if (!skill.isEnabled()) {
+        continue;
+      }
+      SkillProvider t1 = new SkillProvider(skill.getName());
+      skillProviders.add(t1);
+    }
+    return skillProviders;
+  }
+
+  public record AdaptationList(String name) {
+    public boolean startsWith(String prefix) {
+      return name.startsWith(prefix);
     }
 
-    private static KList<Skill<?>> allSkills() {
-        if (Adapt.instance != null
-                && Adapt.instance.getAdaptServer() != null
-                && Adapt.instance.getAdaptServer().getSkillRegistry() != null) {
-            return new KList<>(Adapt.instance.getAdaptServer().getSkillRegistry().getAllSkills());
-        }
+    public boolean equals(String prefix) {
+      return name.equalsIgnoreCase(prefix);
+    }
+  }
 
-        return SkillRegistry.skills.sortV();
+  public record AdaptationSkillList(String name) {
+    public boolean startsWith(String prefix) {
+      return name.startsWith(prefix);
     }
 
-    public static KList<AdaptationProvider> getAdaptationProviders() {
-        if (adaptationProviders.isNotEmpty()) return adaptationProviders;
+    public boolean equals(String prefix) {
+      return name.equalsIgnoreCase(prefix);
+    }
+  }
 
-        for (Skill<?> skill : SkillRegistry.skills.sortV()) {
-            if (!skill.isEnabled()) {
-                continue;
-            }
-            for (Adaptation<?> adaptation : skill.getAdaptations()) {
-                if (!adaptation.isEnabled()) {
-                    continue;
-                }
-                AdaptationProvider suggestion = new AdaptationProvider(skill.getName() + ":" +adaptation.getName());
-                adaptationProviders.add(suggestion);
-            }
-        }
-        return adaptationProviders;
+  public record AdaptationProvider(String name) {
+    public boolean startsWith(String prefix) {
+      return name.startsWith(prefix);
     }
 
-    public static KList<SkillProvider> getSkillProvider() {
-        if (skillProviders.isNotEmpty()) return skillProviders;
+    public boolean equals(String prefix) {
+      return name.equalsIgnoreCase(prefix);
+    }
+  }
 
-        for (Skill<?> skill : SkillRegistry.skills.sortV()) {
-            if (!skill.isEnabled()) {
-                continue;
-            }
-            SkillProvider t1 = new SkillProvider(skill.getName());
-            skillProviders.add(t1);
-        }
-        return skillProviders;
+  public record SkillProvider(String name) {
+    public boolean startsWith(String prefix) {
+      return name.startsWith(prefix);
     }
 
-    public record AdaptationList(String name) {
-        public boolean startsWith(String prefix) {
-            return name.startsWith(prefix);
-        }
-
-        public boolean equals(String prefix) {
-            return name.equalsIgnoreCase(prefix);
-        }
+    public boolean equals(String prefix) {
+      return name.equalsIgnoreCase(prefix);
     }
-
-    public record AdaptationSkillList(String name) {
-        public boolean startsWith(String prefix) {
-            return name.startsWith(prefix);
-        }
-
-        public boolean equals(String prefix) {
-            return name.equalsIgnoreCase(prefix);
-        }
-    }
-
-    public record AdaptationProvider(String name) {
-        public boolean startsWith(String prefix) {
-            return name.startsWith(prefix);
-        }
-
-        public boolean equals(String prefix) {
-            return name.equalsIgnoreCase(prefix);
-        }
-    }
-
-    public record SkillProvider(String name) {
-        public boolean startsWith(String prefix) {
-            return name.startsWith(prefix);
-        }
-
-        public boolean equals(String prefix) {
-            return name.equalsIgnoreCase(prefix);
-        }
-    }
+  }
 }

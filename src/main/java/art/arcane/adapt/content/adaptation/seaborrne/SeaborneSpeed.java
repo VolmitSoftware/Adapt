@@ -24,8 +24,8 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.inventorygui.Element;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -35,95 +35,95 @@ import org.bukkit.potion.PotionEffectType;
 
 public class SeaborneSpeed extends SimpleAdaptation<SeaborneSpeed.Config> {
 
-    public SeaborneSpeed() {
-        super("seaborne-speed");
-        registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("seaborn.dolphin_grace.description"));
-        setDisplayName(Localizer.dLocalize("seaborn.dolphin_grace.name"));
-        setIcon(Material.PRISMARINE_CRYSTALS);
-        setBaseCost(getConfig().baseCost);
-        setMaxLevel(getConfig().maxLevel);
-        setInterval(1020);
-        setInitialCost(getConfig().initialCost);
-        setCostFactor(getConfig().costFactor);
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.HEART_OF_THE_SEA)
-                .key("challenge_seaborne_speed_10k")
-                .title(Localizer.dLocalize("advancement.challenge_seaborne_speed_10k.title"))
-                .description(Localizer.dLocalize("advancement.challenge_seaborne_speed_10k.description"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .child(AdaptAdvancement.builder()
-                        .icon(Material.TRIDENT)
-                        .key("challenge_seaborne_speed_100k")
-                        .title(Localizer.dLocalize("advancement.challenge_seaborne_speed_100k.title"))
-                        .description(Localizer.dLocalize("advancement.challenge_seaborne_speed_100k.description"))
-                        .frame(AdaptAdvancementFrame.CHALLENGE)
-                        .visibility(AdvancementVisibility.PARENT_GRANTED)
-                        .build())
-                .build());
-        registerMilestone("challenge_seaborne_speed_10k", "seaborne.speed.blocks-swum", 10000, 300);
-        registerMilestone("challenge_seaborne_speed_100k", "seaborne.speed.blocks-swum", 100000, 1500);
-    }
+  public SeaborneSpeed() {
+    super("seaborne-speed");
+    registerConfiguration(Config.class);
+    setDescription(Localizer.dLocalize("seaborn.dolphin_grace.description"));
+    setDisplayName(Localizer.dLocalize("seaborn.dolphin_grace.name"));
+    setIcon(Material.PRISMARINE_CRYSTALS);
+    setBaseCost(getConfig().baseCost);
+    setMaxLevel(getConfig().maxLevel);
+    setInterval(1020);
+    setInitialCost(getConfig().initialCost);
+    setCostFactor(getConfig().costFactor);
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.HEART_OF_THE_SEA)
+        .key("challenge_seaborne_speed_10k")
+        .title(Localizer.dLocalize("advancement.challenge_seaborne_speed_10k.title"))
+        .description(Localizer.dLocalize("advancement.challenge_seaborne_speed_10k.description"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .child(AdaptAdvancement.builder()
+            .icon(Material.TRIDENT)
+            .key("challenge_seaborne_speed_100k")
+            .title(Localizer.dLocalize("advancement.challenge_seaborne_speed_100k.title"))
+            .description(Localizer.dLocalize("advancement.challenge_seaborne_speed_100k.description"))
+            .frame(AdaptAdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .build())
+        .build());
+    registerMilestone("challenge_seaborne_speed_10k", "seaborne.speed.blocks-swum", 10000, 300);
+    registerMilestone("challenge_seaborne_speed_100k", "seaborne.speed.blocks-swum", 100000, 1500);
+  }
 
-    @Override
-    public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Localizer.dLocalize("seaborn.dolphin_grace.lore1") + C.GREEN + (level) + C.GRAY + Localizer.dLocalize("seaborn.dolphin_grace.lore2"));
-        v.addLore(C.ITALIC + Localizer.dLocalize("seaborn.dolphin_grace.lore3"));
-    }
+  @Override
+  public void addStats(int level, Element v) {
+    v.addLore(C.GRAY + Localizer.dLocalize("seaborn.dolphin_grace.lore1") + C.GREEN + (level) + C.GRAY + Localizer.dLocalize("seaborn.dolphin_grace.lore2"));
+    v.addLore(C.ITALIC + Localizer.dLocalize("seaborn.dolphin_grace.lore3"));
+  }
 
-    @Override
-    public void onTick() {
-        for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
-            Player player = adaptPlayer.getPlayer();
-            if (player == null || !player.isOnline()) {
-                continue;
-            }
+  @Override
+  public void onTick() {
+    for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+      Player player = adaptPlayer.getPlayer();
+      if (player == null || !player.isOnline()) {
+        continue;
+      }
 
-            withPlayerThread(player, () -> {
-                if (!player.isOnline()) {
-                    return;
-                }
-
-                int level = getActiveLevel(player);
-                if (level <= 0 || !player.isInWater()) {
-                    return;
-                }
-
-                if (player.getInventory().getBoots() != null && player.getInventory().getBoots().containsEnchantment(Enchantment.DEPTH_STRIDER)) {
-                    return;
-                }
-
-                player.addPotionEffect(new PotionEffect(PotionEffectType.DOLPHINS_GRACE, 62, level));
-                getPlayer(player).getData().addStat("seaborne.speed.blocks-swum", 1);
-            });
+      withPlayerThread(player, () -> {
+        if (!player.isOnline()) {
+          return;
         }
-    }
 
-    @Override
-    public boolean isEnabled() {
-        return getConfig().enabled;
-    }
+        int level = getActiveLevel(player);
+        if (level <= 0 || !player.isInWater()) {
+          return;
+        }
 
-    @Override
-    public boolean isPermanent() {
-        return getConfig().permanent;
-    }
+        if (player.getInventory().getBoots() != null && player.getInventory().getBoots().containsEnchantment(Enchantment.DEPTH_STRIDER)) {
+          return;
+        }
 
-    @NoArgsConstructor
-    @ConfigDescription("Swim faster with dolphin-like grace.")
-    protected static class Config {
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-        boolean permanent = false;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-        boolean enabled = true;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-        int baseCost = 3;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-        int maxLevel = 7;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-        int initialCost = 2;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-        double costFactor = 0.525;
+        player.addPotionEffect(new PotionEffect(PotionEffectType.DOLPHINS_GRACE, 62, level));
+        getPlayer(player).getData().addStat("seaborne.speed.blocks-swum", 1);
+      });
     }
+  }
+
+  @Override
+  public boolean isEnabled() {
+    return getConfig().enabled;
+  }
+
+  @Override
+  public boolean isPermanent() {
+    return getConfig().permanent;
+  }
+
+  @NoArgsConstructor
+  @ConfigDescription("Swim faster with dolphin-like grace.")
+  protected static class Config {
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
+    boolean permanent = false;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
+    boolean enabled = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
+    int baseCost = 3;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
+    int maxLevel = 7;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
+    int initialCost = 2;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
+    double costFactor = 0.525;
+  }
 }

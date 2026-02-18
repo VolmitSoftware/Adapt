@@ -24,9 +24,9 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
+import art.arcane.volmlib.util.inventorygui.Element;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -36,132 +36,132 @@ import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.inventory.AnvilInventory;
 
 public class EnchantingAnvilSavant extends SimpleAdaptation<EnchantingAnvilSavant.Config> {
-    public EnchantingAnvilSavant() {
-        super("enchanting-anvil-savant");
-        registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("enchanting.anvil_savant.description"));
-        setDisplayName(Localizer.dLocalize("enchanting.anvil_savant.name"));
-        setIcon(Material.ANVIL);
-        setBaseCost(getConfig().baseCost);
-        setMaxLevel(getConfig().maxLevel);
-        setInitialCost(getConfig().initialCost);
-        setCostFactor(getConfig().costFactor);
-        setInterval(2200);
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.ANVIL)
-                .key("challenge_enchanting_anvil_200")
-                .title(Localizer.dLocalize("advancement.challenge_enchanting_anvil_200.title"))
-                .description(Localizer.dLocalize("advancement.challenge_enchanting_anvil_200.description"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .child(AdaptAdvancement.builder()
-                        .icon(Material.ANVIL)
-                        .key("challenge_enchanting_anvil_5k")
-                        .title(Localizer.dLocalize("advancement.challenge_enchanting_anvil_5k.title"))
-                        .description(Localizer.dLocalize("advancement.challenge_enchanting_anvil_5k.description"))
-                        .frame(AdaptAdvancementFrame.CHALLENGE)
-                        .visibility(AdvancementVisibility.PARENT_GRANTED)
-                        .build())
-                .build());
-        registerMilestone("challenge_enchanting_anvil_200", "enchanting.anvil-savant.levels-saved", 200, 400);
-        registerMilestone("challenge_enchanting_anvil_5k", "enchanting.anvil-savant.levels-saved", 5000, 1500);
+  public EnchantingAnvilSavant() {
+    super("enchanting-anvil-savant");
+    registerConfiguration(Config.class);
+    setDescription(Localizer.dLocalize("enchanting.anvil_savant.description"));
+    setDisplayName(Localizer.dLocalize("enchanting.anvil_savant.name"));
+    setIcon(Material.ANVIL);
+    setBaseCost(getConfig().baseCost);
+    setMaxLevel(getConfig().maxLevel);
+    setInitialCost(getConfig().initialCost);
+    setCostFactor(getConfig().costFactor);
+    setInterval(2200);
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.ANVIL)
+        .key("challenge_enchanting_anvil_200")
+        .title(Localizer.dLocalize("advancement.challenge_enchanting_anvil_200.title"))
+        .description(Localizer.dLocalize("advancement.challenge_enchanting_anvil_200.description"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .child(AdaptAdvancement.builder()
+            .icon(Material.ANVIL)
+            .key("challenge_enchanting_anvil_5k")
+            .title(Localizer.dLocalize("advancement.challenge_enchanting_anvil_5k.title"))
+            .description(Localizer.dLocalize("advancement.challenge_enchanting_anvil_5k.description"))
+            .frame(AdaptAdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .build())
+        .build());
+    registerMilestone("challenge_enchanting_anvil_200", "enchanting.anvil-savant.levels-saved", 200, 400);
+    registerMilestone("challenge_enchanting_anvil_5k", "enchanting.anvil-savant.levels-saved", 5000, 1500);
+  }
+
+  @Override
+  public void addStats(int level, Element v) {
+    v.addLore(C.GREEN + "+ " + Form.pc(getCostReduction(level), 0) + C.GRAY + " " + Localizer.dLocalize("enchanting.anvil_savant.lore1"));
+  }
+
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void on(PrepareAnvilEvent e) {
+    if (!(e.getView().getPlayer() instanceof Player p)) {
+      return;
     }
 
-    @Override
-    public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getCostReduction(level), 0) + C.GRAY + " " + Localizer.dLocalize("enchanting.anvil_savant.lore1"));
+    int level = getActiveLevel(p);
+    if (level <= 0) {
+      return;
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void on(PrepareAnvilEvent e) {
-        if (!(e.getView().getPlayer() instanceof Player p)) {
-            return;
-        }
-
-        int level = getActiveLevel(p);
-        if (level <= 0) {
-            return;
-        }
-
-        if (!(e.getInventory() instanceof AnvilInventory inventory)) {
-            return;
-        }
-
-        Integer current = readRepairCost(inventory);
-        if (current == null || current <= 0) {
-            return;
-        }
-
-        int reduced = Math.max(getConfig().minimumCost, (int) Math.ceil(current * (1D - getCostReduction(level))));
-        writeRepairCost(inventory, reduced);
-        int saved = current - reduced;
-        if (saved > 0) {
-            getPlayer(p).getData().addStat("enchanting.anvil-savant.levels-saved", saved);
-        }
+    if (!(e.getInventory() instanceof AnvilInventory inventory)) {
+      return;
     }
 
-    private Integer readRepairCost(AnvilInventory inventory) {
-        try {
-            Object value = inventory.getClass().getMethod("getRepairCost").invoke(inventory);
-            if (value instanceof Number number) {
-                return number.intValue();
-            }
-        } catch (Throwable ignored) {
-
-        }
-
-        return null;
+    Integer current = readRepairCost(inventory);
+    if (current == null || current <= 0) {
+      return;
     }
 
-    private void writeRepairCost(AnvilInventory inventory, int cost) {
-        try {
-            inventory.getClass().getMethod("setRepairCost", int.class).invoke(inventory, cost);
-        } catch (Throwable ignored) {
-
-        }
+    int reduced = Math.max(getConfig().minimumCost, (int) Math.ceil(current * (1D - getCostReduction(level))));
+    writeRepairCost(inventory, reduced);
+    int saved = current - reduced;
+    if (saved > 0) {
+      getPlayer(p).getData().addStat("enchanting.anvil-savant.levels-saved", saved);
     }
+  }
 
-    private double getCostReduction(int level) {
-        return Math.min(getConfig().maximumReduction, getConfig().reductionBase + (getLevelPercent(level) * getConfig().reductionFactor));
-    }
-
-    @Override
-    public void onTick() {
+  private Integer readRepairCost(AnvilInventory inventory) {
+    try {
+      Object value = inventory.getClass().getMethod("getRepairCost").invoke(inventory);
+      if (value instanceof Number number) {
+        return number.intValue();
+      }
+    } catch (Throwable ignored) {
 
     }
 
-    @Override
-    public boolean isEnabled() {
-        return getConfig().enabled;
-    }
+    return null;
+  }
 
-    @Override
-    public boolean isPermanent() {
-        return getConfig().permanent;
-    }
+  private void writeRepairCost(AnvilInventory inventory, int cost) {
+    try {
+      inventory.getClass().getMethod("setRepairCost", int.class).invoke(inventory, cost);
+    } catch (Throwable ignored) {
 
-    @NoArgsConstructor
-    @ConfigDescription("Reduce anvil XP cost when combining, repairing, and renaming.")
-    protected static class Config {
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-        boolean permanent = false;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-        boolean enabled = true;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-        int baseCost = 5;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-        int maxLevel = 4;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-        int initialCost = 5;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-        double costFactor = 0.8;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Reduction Base for the Enchanting Anvil Savant adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double reductionBase = 0.08;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Reduction Factor for the Enchanting Anvil Savant adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double reductionFactor = 0.37;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Maximum Reduction for the Enchanting Anvil Savant adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double maximumReduction = 0.65;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Minimum Cost for the Enchanting Anvil Savant adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        int minimumCost = 1;
     }
+  }
+
+  private double getCostReduction(int level) {
+    return Math.min(getConfig().maximumReduction, getConfig().reductionBase + (getLevelPercent(level) * getConfig().reductionFactor));
+  }
+
+  @Override
+  public void onTick() {
+
+  }
+
+  @Override
+  public boolean isEnabled() {
+    return getConfig().enabled;
+  }
+
+  @Override
+  public boolean isPermanent() {
+    return getConfig().permanent;
+  }
+
+  @NoArgsConstructor
+  @ConfigDescription("Reduce anvil XP cost when combining, repairing, and renaming.")
+  protected static class Config {
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
+    boolean permanent = false;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
+    boolean enabled = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
+    int baseCost = 5;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
+    int maxLevel = 4;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
+    int initialCost = 5;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
+    double costFactor = 0.8;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Reduction Base for the Enchanting Anvil Savant adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double reductionBase = 0.08;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Reduction Factor for the Enchanting Anvil Savant adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double reductionFactor = 0.37;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Maximum Reduction for the Enchanting Anvil Savant adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double maximumReduction = 0.65;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Minimum Cost for the Enchanting Anvil Savant adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    int minimumCost = 1;
+  }
 }

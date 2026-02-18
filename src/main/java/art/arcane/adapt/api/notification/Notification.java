@@ -21,13 +21,13 @@ package art.arcane.adapt.api.notification;
 import art.arcane.adapt.api.world.AdaptPlayer;
 
 public interface Notification {
-    String DEFAULT_GROUP = "default";
+  String DEFAULT_GROUP = "default";
 
-    long getTotalDuration();
+  long getTotalDuration();
 
-    void play(AdaptPlayer p);
+  void play(AdaptPlayer p);
 
-    default String getGroup() {
-        return DEFAULT_GROUP;
-    }
+  default String getGroup() {
+    return DEFAULT_GROUP;
+  }
 }

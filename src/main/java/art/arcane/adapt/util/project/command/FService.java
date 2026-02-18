@@ -1,7 +1,7 @@
 package art.arcane.adapt.util.command;
 
 public interface FService {
-    void start();
+  void start();
 
-    void stop();
+  void stop();
 }

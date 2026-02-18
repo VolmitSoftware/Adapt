@@ -19,5 +19,5 @@
 package art.arcane.adapt.util.common.function;
 
 public interface CallbackCV<T> {
-    void run(T t);
+  void run(T t);
 }

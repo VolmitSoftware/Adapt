@@ -50,544 +50,544 @@ import java.util.UUID;
 @EqualsAndHashCode(callSuper = false)
 @Data
 public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
-    private final String name;
-    private final String emojiName;
-    private C color;
-    private String colorPrefix;
-    private double minXp;
-    private String description;
-    private String displayName;
-    private Material icon;
-    @EqualsAndHashCode.Exclude
-    private KList<Adaptation<?>> adaptations;
-    private KList<AdaptStatTracker> statTrackers;
-    private KList<AdaptAdvancement> cachedAdvancements;
-    private String advancementBackground;
-    private KList<AdaptRecipe> recipes;
-    private Class<T> configType;
-    private volatile T config;
+  private final String name;
+  private final String emojiName;
+  private C color;
+  private String colorPrefix;
+  private double minXp;
+  private String description;
+  private String displayName;
+  private Material icon;
+  @EqualsAndHashCode.Exclude
+  private KList<Adaptation<?>> adaptations;
+  private KList<AdaptStatTracker> statTrackers;
+  private KList<AdaptAdvancement> cachedAdvancements;
+  private String advancementBackground;
+  private KList<AdaptRecipe> recipes;
+  private Class<T> configType;
+  private volatile T config;
 
-    public SimpleSkill(String name, String emojiName) {
-        super("skill", UUID.randomUUID() + "-skill-" + name, 50);
-        statTrackers = new KList<>();
-        recipes = new KList<>();
-        cachedAdvancements = new KList<>();
-        this.emojiName = emojiName;
-        adaptations = new KList<>();
-        setColor(C.WHITE);
-        this.name = name;
-        setIcon(Material.BOOK);
-        setDescription("No Description Provided");
-        setMinXp(100);
-        setAdvancementBackground("minecraft:textures/block/deepslate_tiles.png");
+  public SimpleSkill(String name, String emojiName) {
+    super("skill", UUID.randomUUID() + "-skill-" + name, 50);
+    statTrackers = new KList<>();
+    recipes = new KList<>();
+    cachedAdvancements = new KList<>();
+    this.emojiName = emojiName;
+    adaptations = new KList<>();
+    setColor(C.WHITE);
+    this.name = name;
+    setIcon(Material.BOOK);
+    setDescription("No Description Provided");
+    setMinXp(100);
+    setAdvancementBackground("minecraft:textures/block/deepslate_tiles.png");
 
-        J.a(() -> {
-            J.attempt(this::getConfig);
-            getAdaptations().forEach(i -> J.attempt(i::getConfig));
-        }, 1);
+    J.a(() -> {
+      J.attempt(this::getConfig);
+      getAdaptations().forEach(i -> J.attempt(i::getConfig));
+    }, 1);
+  }
+
+  @Override
+  public Class<T> getConfigurationClass() {
+    return configType;
+  }
+
+  @Override
+  public void registerConfiguration(Class<T> type) {
+    this.configType = type;
+  }
+
+  protected File getConfigFile() {
+    return Adapt.instance.getDataFile("adapt", "skills", getName() + ".toml");
+  }
+
+  protected File getLegacyConfigFile() {
+    return Adapt.instance.getDataFile("adapt", "skills", getName() + ".json");
+  }
+
+  protected T createDefaultConfig() {
+    try {
+      return getConfigurationClass().getConstructor().newInstance();
+    } catch (Throwable e) {
+      throw new IllegalStateException("Failed to create default config for skill " + getName(), e);
+    }
+  }
+
+  public synchronized boolean reloadConfigFromDisk(boolean announce) {
+    if (getConfigurationClass() == null) {
+      return false;
     }
 
-    @Override
-    public Class<T> getConfigurationClass() {
-        return configType;
+    T previous = config;
+    File file = getConfigFile();
+    try {
+      T loaded = loadConfig(file, previous == null ? createDefaultConfig() : previous, previous == null);
+      config = loaded;
+      onConfigReload(previous, loaded);
+      if (announce) {
+        Adapt.info("Hotloaded " + file.getPath());
+      }
+      return true;
+    } catch (Throwable e) {
+      Adapt.warn("Skipped hotload for " + file.getPath() + " due to invalid config: " + e.getMessage());
+      return false;
+    }
+  }
+
+  private T loadConfig(File file, T fallback, boolean overwriteOnReadFailure) throws IOException {
+    return ConfigFileSupport.load(
+        file,
+        getLegacyConfigFile(),
+        getConfigurationClass(),
+        fallback,
+        overwriteOnReadFailure,
+        "skill:" + getName(),
+        "Created missing skill config [adapt/skills/" + getName() + ".toml] from defaults."
+    );
+  }
+
+  protected void onConfigReload(T previousConfig, T newConfig) {
+    applyColorField(newConfig);
+    applyDoubleField(newConfig, "minXp", this::setMinXp);
+    Number interval = getNumericField(newConfig, "setInterval");
+    if (interval != null) {
+      setInterval(interval.longValue());
+    }
+  }
+
+  private void applyDoubleField(T source, String fieldName, java.util.function.DoubleConsumer consumer) {
+    Number number = getNumericField(source, fieldName);
+    if (number != null) {
+      consumer.accept(number.doubleValue());
+    }
+  }
+
+  private void applyColorField(T source) {
+    String configuredColor = getStringField(source, "skillColor");
+    if (configuredColor == null || configuredColor.isBlank()) {
+      return;
     }
 
-    @Override
-    public void registerConfiguration(Class<T> type) {
-        this.configType = type;
+    String prefix = resolveColorPrefix(configuredColor);
+    if (prefix == null || prefix.isBlank()) {
+      return;
     }
 
-    protected File getConfigFile() {
-        return Adapt.instance.getDataFile("adapt", "skills", getName() + ".toml");
+    colorPrefix = prefix;
+    C resolvedColor = resolveLegacyColor(prefix);
+    if (resolvedColor != null) {
+      color = resolvedColor;
+    }
+  }
+
+  private Number getNumericField(T source, String fieldName) {
+    Field f = getField(source.getClass(), fieldName);
+    if (f == null) {
+      return null;
     }
 
-    protected File getLegacyConfigFile() {
-        return Adapt.instance.getDataFile("adapt", "skills", getName() + ".json");
+    try {
+      f.setAccessible(true);
+      Object value = f.get(source);
+      if (value instanceof Number number) {
+        return number;
+      }
+    } catch (Throwable ex) {
+      Adapt.verbose("Failed reading config field '" + fieldName + "' for skill " + getName() + ": "
+          + ex.getClass().getSimpleName()
+          + (ex.getMessage() == null ? "" : " - " + ex.getMessage()));
     }
 
-    protected T createDefaultConfig() {
-        try {
-            return getConfigurationClass().getConstructor().newInstance();
-        } catch (Throwable e) {
-            throw new IllegalStateException("Failed to create default config for skill " + getName(), e);
-        }
+    return null;
+  }
+
+  private String getStringField(T source, String fieldName) {
+    Field f = getField(source.getClass(), fieldName);
+    if (f == null) {
+      return null;
     }
 
-    public synchronized boolean reloadConfigFromDisk(boolean announce) {
-        if (getConfigurationClass() == null) {
-            return false;
-        }
-
-        T previous = config;
-        File file = getConfigFile();
-        try {
-            T loaded = loadConfig(file, previous == null ? createDefaultConfig() : previous, previous == null);
-            config = loaded;
-            onConfigReload(previous, loaded);
-            if (announce) {
-                Adapt.info("Hotloaded " + file.getPath());
-            }
-            return true;
-        } catch (Throwable e) {
-            Adapt.warn("Skipped hotload for " + file.getPath() + " due to invalid config: " + e.getMessage());
-            return false;
-        }
+    try {
+      f.setAccessible(true);
+      Object value = f.get(source);
+      if (value instanceof String stringValue) {
+        return stringValue;
+      }
+    } catch (Throwable ex) {
+      Adapt.verbose("Failed reading config field '" + fieldName + "' for skill " + getName() + ": "
+          + ex.getClass().getSimpleName()
+          + (ex.getMessage() == null ? "" : " - " + ex.getMessage()));
     }
 
-    private T loadConfig(File file, T fallback, boolean overwriteOnReadFailure) throws IOException {
-        return ConfigFileSupport.load(
-                file,
-                getLegacyConfigFile(),
-                getConfigurationClass(),
-                fallback,
-                overwriteOnReadFailure,
-                "skill:" + getName(),
-                "Created missing skill config [adapt/skills/" + getName() + ".toml] from defaults."
-        );
+    return null;
+  }
+
+  private Field getField(Class<?> type, String name) {
+    Class<?> current = type;
+    while (current != null) {
+      try {
+        return current.getDeclaredField(name);
+      } catch (NoSuchFieldException ex) {
+        current = current.getSuperclass();
+      }
     }
 
-    protected void onConfigReload(T previousConfig, T newConfig) {
-        applyColorField(newConfig);
-        applyDoubleField(newConfig, "minXp", this::setMinXp);
-        Number interval = getNumericField(newConfig, "setInterval");
-        if (interval != null) {
-            setInterval(interval.longValue());
-        }
+    return null;
+  }
+
+  @Override
+  public T getConfig() {
+    T local = config;
+    if (local != null) {
+      return local;
     }
 
-    private void applyDoubleField(T source, String fieldName, java.util.function.DoubleConsumer consumer) {
-        Number number = getNumericField(source, fieldName);
-        if (number != null) {
-            consumer.accept(number.doubleValue());
-        }
-    }
-
-    private void applyColorField(T source) {
-        String configuredColor = getStringField(source, "skillColor");
-        if (configuredColor == null || configuredColor.isBlank()) {
-            return;
-        }
-
-        String prefix = resolveColorPrefix(configuredColor);
-        if (prefix == null || prefix.isBlank()) {
-            return;
-        }
-
-        colorPrefix = prefix;
-        C resolvedColor = resolveLegacyColor(prefix);
-        if (resolvedColor != null) {
-            color = resolvedColor;
-        }
-    }
-
-    private Number getNumericField(T source, String fieldName) {
-        Field f = getField(source.getClass(), fieldName);
-        if (f == null) {
-            return null;
-        }
-
-        try {
-            f.setAccessible(true);
-            Object value = f.get(source);
-            if (value instanceof Number number) {
-                return number;
-            }
-        } catch (Throwable ex) {
-            Adapt.verbose("Failed reading config field '" + fieldName + "' for skill " + getName() + ": "
-                    + ex.getClass().getSimpleName()
-                    + (ex.getMessage() == null ? "" : " - " + ex.getMessage()));
-        }
-
-        return null;
-    }
-
-    private String getStringField(T source, String fieldName) {
-        Field f = getField(source.getClass(), fieldName);
-        if (f == null) {
-            return null;
-        }
-
-        try {
-            f.setAccessible(true);
-            Object value = f.get(source);
-            if (value instanceof String stringValue) {
-                return stringValue;
-            }
-        } catch (Throwable ex) {
-            Adapt.verbose("Failed reading config field '" + fieldName + "' for skill " + getName() + ": "
-                    + ex.getClass().getSimpleName()
-                    + (ex.getMessage() == null ? "" : " - " + ex.getMessage()));
-        }
-
-        return null;
-    }
-
-    private Field getField(Class<?> type, String name) {
-        Class<?> current = type;
-        while (current != null) {
-            try {
-                return current.getDeclaredField(name);
-            } catch (NoSuchFieldException ex) {
-                current = current.getSuperclass();
-            }
-        }
-
-        return null;
-    }
-
-    @Override
-    public T getConfig() {
-        T local = config;
-        if (local != null) {
-            return local;
-        }
-
-        synchronized (this) {
-            local = config;
-            if (local != null) {
-                return local;
-            }
-
-            boolean loaded = reloadConfigFromDisk(false);
-            local = config;
-            if (!loaded || local == null) {
-                local = createDefaultConfig();
-                onConfigReload(null, local);
-                config = local;
-                Adapt.warn("Falling back to in-memory defaults for skill config " + getName() + ".");
-            }
-        }
-
+    synchronized (this) {
+      local = config;
+      if (local != null) {
         return local;
+      }
+
+      boolean loaded = reloadConfigFromDisk(false);
+      local = config;
+      if (!loaded || local == null) {
+        local = createDefaultConfig();
+        onConfigReload(null, local);
+        config = local;
+        Adapt.warn("Falling back to in-memory defaults for skill config " + getName() + ".");
+      }
     }
 
-    public void registerRecipe(AdaptRecipe r) {
-        recipes.add(r);
+    return local;
+  }
+
+  public void registerRecipe(AdaptRecipe r) {
+    recipes.add(r);
+  }
+
+  public void registerAdvancement(AdaptAdvancement a) {
+    cachedAdvancements.add(a);
+  }
+
+  public boolean checkValidEntity(EntityType e) {
+    if (!e.isAlive() || e.equals(EntityType.PARROT)) {
+      return false;
+    }
+    return !ItemListings.getInvalidDamageableEntities().contains(e);
+  }
+
+  protected boolean shouldReturnForPlayer(Player p) {
+    return SkillRuntimeGuards.shouldSkipPlayer(this, p);
+  }
+
+  protected void shouldReturnForPlayer(Player p, Runnable r) {
+    SkillRuntimeGuards.withPlayer(this, p, r);
+  }
+
+  protected void shouldReturnForPlayer(Player p, Cancellable c, Runnable r) {
+    SkillRuntimeGuards.withPlayer(this, p, c, r);
+  }
+
+  protected boolean shouldReturnForWorld(World world, Skill<?> skill) {
+    return SkillRuntimeGuards.shouldSkipWorld(skill, world);
+  }
+
+  protected boolean isWorldBlacklisted(Player p) {
+    return SkillRuntimeGuards.isWorldBlacklisted(p);
+  }
+
+  protected boolean isInCreativeOrSpectator(Player p) {
+    return SkillRuntimeGuards.isInCreativeOrSpectator(p);
+  }
+
+  public void setColor(C color) {
+    C resolved = color == null ? C.WHITE : color;
+    this.color = resolved;
+    this.colorPrefix = resolved.toString();
+  }
+
+  @Override
+  public String getDisplayName() {
+    if (!this.isEnabled()) {
+      return C.DARK_GRAY + Form.capitalize(getName());
     }
 
-    public void registerAdvancement(AdaptAdvancement a) {
-        cachedAdvancements.add(a);
+    String shownName = displayName == null ? Form.capitalize(getName()) : displayName;
+    return C.RESET + "" + C.BOLD + colorPrefixValue() + getEmojiName() + " " + shownName;
+  }
+
+  @Override
+  public String getShortName() {
+    if (!this.isEnabled()) {
+      return C.DARK_GRAY + Form.capitalize(getName());
     }
 
-    public boolean checkValidEntity(EntityType e) {
-        if (!e.isAlive() || e.equals(EntityType.PARROT)) {
-            return false;
-        }
-        return !ItemListings.getInvalidDamageableEntities().contains(e);
+    return C.RESET + "" + C.BOLD + colorPrefixValue() + getEmojiName();
+  }
+
+  @Override
+  public String getDisplayName(int level) {
+    if (!this.isEnabled()) {
+      return C.DARK_GRAY + Form.capitalize(getName());
     }
 
-    protected boolean shouldReturnForPlayer(Player p) {
-        return SkillRuntimeGuards.shouldSkipPlayer(this, p);
+    if (level > 0) {
+      return getDisplayName() + C.RESET + " " + C.UNDERLINE + C.WHITE + level + C.RESET;
     }
 
-    protected void shouldReturnForPlayer(Player p, Runnable r) {
-        SkillRuntimeGuards.withPlayer(this, p, r);
+    return getDisplayName();
+  }
+
+  @Override
+  public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
+    advancements.addAll(cachedAdvancements);
+  }
+
+  public AdaptAdvancement buildAdvancements() {
+    KList<AdaptAdvancement> a = new KList<>();
+    onRegisterAdvancements(a);
+
+    for (Adaptation<?> i : getAdaptations()) {
+      a.add(i.buildAdvancements());
     }
 
-    protected void shouldReturnForPlayer(Player p, Cancellable c, Runnable r) {
-        SkillRuntimeGuards.withPlayer(this, p, c, r);
+    return AdaptAdvancement.builder()
+        .background(getAdvancementBackground())
+        .key("skill_" + getName())
+        .title(displayName)
+        .description(getDescription())
+        .icon(getIcon())
+        .model(getModel())
+        .children(a)
+        .visibility(AdvancementVisibility.HIDDEN)
+        .build();
+  }
+
+  @Override
+  public void registerStatTracker(AdaptStatTracker tracker) {
+    getStatTrackers().add(tracker);
+  }
+
+  protected void registerMilestone(String advancementKey, String stat, double goal, double reward) {
+    registerStatTracker(AdaptStatTracker.builder()
+        .advancement(advancementKey)
+        .stat(stat)
+        .goal(goal)
+        .reward(reward)
+        .build());
+  }
+
+  protected void checkStatTrackersForOnlinePlayers() {
+    for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+      Player player = adaptPlayer.getPlayer();
+      shouldReturnForPlayer(player, () -> checkStatTrackers(adaptPlayer));
+    }
+  }
+
+  @Override
+  public KList<AdaptStatTracker> getStatTrackers() {
+    return statTrackers;
+  }
+
+  @Override
+  public void registerAdaptation(Adaptation<?> a) {
+    a.setSkill(this);
+    adaptations.add(a);
+  }
+
+  @Override
+  public void unregister() {
+    super.unregister();
+    adaptations.forEach(Adaptation::unregister);
+  }
+
+  private String colorPrefixValue() {
+    if (colorPrefix == null || colorPrefix.isBlank()) {
+      return color == null ? C.WHITE.toString() : color.toString();
+    }
+    return colorPrefix;
+  }
+
+  private String resolveColorPrefix(String rawInput) {
+    String raw = rawInput == null ? "" : rawInput.trim();
+    if (raw.isBlank()) {
+      return null;
     }
 
-    protected boolean shouldReturnForWorld(World world, Skill<?> skill) {
-        return SkillRuntimeGuards.shouldSkipWorld(skill, world);
+    C named = parseNamedColor(raw);
+    if (named != null) {
+      return named.toString();
     }
 
-    protected boolean isWorldBlacklisted(Player p) {
-        return SkillRuntimeGuards.isWorldBlacklisted(p);
+    String normalizedHex = normalizeHex(raw);
+    if (normalizedHex != null) {
+      return C.translateAlternateColorCodes('&', "&#" + normalizedHex);
     }
 
-    protected boolean isInCreativeOrSpectator(Player p) {
-        return SkillRuntimeGuards.isInCreativeOrSpectator(p);
+    if (raw.indexOf(C.COLOR_CHAR) >= 0) {
+      return raw;
     }
 
-    public void setColor(C color) {
-        C resolved = color == null ? C.WHITE : color;
-        this.color = resolved;
-        this.colorPrefix = resolved.toString();
+    String legacy = C.translateAlternateColorCodes('&', raw);
+    if (legacy != null && legacy.indexOf(C.COLOR_CHAR) >= 0) {
+      return legacy;
     }
 
-    @Override
-    public String getDisplayName() {
-        if (!this.isEnabled()) {
-            return C.DARK_GRAY + Form.capitalize(getName());
-        }
-
-        String shownName = displayName == null ? Form.capitalize(getName()) : displayName;
-        return C.RESET + "" + C.BOLD + colorPrefixValue() + getEmojiName() + " " + shownName;
+    String mini = AdventureCompat.toLegacySection(raw);
+    if (mini != null && mini.indexOf(C.COLOR_CHAR) >= 0) {
+      return mini;
     }
 
-    @Override
-    public String getShortName() {
-        if (!this.isEnabled()) {
-            return C.DARK_GRAY + Form.capitalize(getName());
-        }
+    return null;
+  }
 
-        return C.RESET + "" + C.BOLD + colorPrefixValue() + getEmojiName();
+  private C parseNamedColor(String raw) {
+    String normalized = raw.trim().toUpperCase(Locale.ROOT)
+        .replace('-', '_')
+        .replace(' ', '_');
+    try {
+      C candidate = C.valueOf(normalized);
+      if (candidate.isColor()) {
+        return candidate;
+      }
+    } catch (IllegalArgumentException ignored) {
     }
 
-    @Override
-    public String getDisplayName(int level) {
-        if (!this.isEnabled()) {
-            return C.DARK_GRAY + Form.capitalize(getName());
-        }
-
-        if (level > 0) {
-            return getDisplayName() + C.RESET + " " + C.UNDERLINE + C.WHITE + level + C.RESET;
-        }
-
-        return getDisplayName();
+    if (raw.length() == 1) {
+      char code = Character.toLowerCase(raw.charAt(0));
+      if (isLegacyColorChar(code)) {
+        return C.getByChar(code);
+      }
     }
 
-    @Override
-    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
-        advancements.addAll(cachedAdvancements);
+    return null;
+  }
+
+  private String normalizeHex(String raw) {
+    String value = raw;
+    if (value.startsWith("#")) {
+      value = value.substring(1);
+    } else if (value.startsWith("0x") || value.startsWith("0X")) {
+      value = value.substring(2);
     }
 
-    public AdaptAdvancement buildAdvancements() {
-        KList<AdaptAdvancement> a = new KList<>();
-        onRegisterAdvancements(a);
-
-        for (Adaptation<?> i : getAdaptations()) {
-            a.add(i.buildAdvancements());
-        }
-
-        return AdaptAdvancement.builder()
-                .background(getAdvancementBackground())
-                .key("skill_" + getName())
-                .title(displayName)
-                .description(getDescription())
-                .icon(getIcon())
-                .model(getModel())
-                .children(a)
-                .visibility(AdvancementVisibility.HIDDEN)
-                .build();
+    if (value.length() != 6) {
+      return null;
     }
 
-    @Override
-    public void registerStatTracker(AdaptStatTracker tracker) {
-        getStatTrackers().add(tracker);
-    }
-
-    protected void registerMilestone(String advancementKey, String stat, double goal, double reward) {
-        registerStatTracker(AdaptStatTracker.builder()
-                .advancement(advancementKey)
-                .stat(stat)
-                .goal(goal)
-                .reward(reward)
-                .build());
-    }
-
-    protected void checkStatTrackersForOnlinePlayers() {
-        for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
-            Player player = adaptPlayer.getPlayer();
-            shouldReturnForPlayer(player, () -> checkStatTrackers(adaptPlayer));
-        }
-    }
-
-    @Override
-    public KList<AdaptStatTracker> getStatTrackers() {
-        return statTrackers;
-    }
-
-    @Override
-    public void registerAdaptation(Adaptation<?> a) {
-        a.setSkill(this);
-        adaptations.add(a);
-    }
-
-    @Override
-    public void unregister() {
-        super.unregister();
-        adaptations.forEach(Adaptation::unregister);
-    }
-
-    private String colorPrefixValue() {
-        if (colorPrefix == null || colorPrefix.isBlank()) {
-            return color == null ? C.WHITE.toString() : color.toString();
-        }
-        return colorPrefix;
-    }
-
-    private String resolveColorPrefix(String rawInput) {
-        String raw = rawInput == null ? "" : rawInput.trim();
-        if (raw.isBlank()) {
-            return null;
-        }
-
-        C named = parseNamedColor(raw);
-        if (named != null) {
-            return named.toString();
-        }
-
-        String normalizedHex = normalizeHex(raw);
-        if (normalizedHex != null) {
-            return C.translateAlternateColorCodes('&', "&#" + normalizedHex);
-        }
-
-        if (raw.indexOf(C.COLOR_CHAR) >= 0) {
-            return raw;
-        }
-
-        String legacy = C.translateAlternateColorCodes('&', raw);
-        if (legacy != null && legacy.indexOf(C.COLOR_CHAR) >= 0) {
-            return legacy;
-        }
-
-        String mini = AdventureCompat.toLegacySection(raw);
-        if (mini != null && mini.indexOf(C.COLOR_CHAR) >= 0) {
-            return mini;
-        }
-
+    for (int i = 0; i < value.length(); i++) {
+      if (!isHexChar(value.charAt(i))) {
         return null;
+      }
     }
 
-    private C parseNamedColor(String raw) {
-        String normalized = raw.trim().toUpperCase(Locale.ROOT)
-                .replace('-', '_')
-                .replace(' ', '_');
-        try {
-            C candidate = C.valueOf(normalized);
-            if (candidate.isColor()) {
-                return candidate;
-            }
-        } catch (IllegalArgumentException ignored) {
+    return value;
+  }
+
+  private boolean isHexChar(char c) {
+    return (c >= '0' && c <= '9')
+        || (c >= 'a' && c <= 'f')
+        || (c >= 'A' && c <= 'F');
+  }
+
+  private boolean isLegacyColorChar(char code) {
+    return (code >= '0' && code <= '9') || (code >= 'a' && code <= 'f');
+  }
+
+  private C resolveLegacyColor(String prefix) {
+    if (prefix == null || prefix.isBlank()) {
+      return color;
+    }
+
+    for (int i = 0; i < prefix.length() - 1; i++) {
+      if (prefix.charAt(i) != C.COLOR_CHAR) {
+        continue;
+      }
+
+      char code = Character.toLowerCase(prefix.charAt(i + 1));
+      if (isLegacyColorChar(code)) {
+        return C.getByChar(code);
+      }
+
+      if (code == 'x') {
+        String hex = parseSectionHex(prefix, i);
+        if (hex == null) {
+          continue;
         }
 
-        if (raw.length() == 1) {
-            char code = Character.toLowerCase(raw.charAt(0));
-            if (isLegacyColorChar(code)) {
-                return C.getByChar(code);
-            }
+        C nearest = nearestLegacyColor(hex);
+        if (nearest != null) {
+          return nearest;
         }
+      }
+    }
 
+    return color;
+  }
+
+  private String parseSectionHex(String prefix, int start) {
+    if (start + 13 >= prefix.length()) {
+      return null;
+    }
+
+    StringBuilder hex = new StringBuilder(6);
+    for (int i = 0; i < 6; i++) {
+      int colorTokenIndex = start + 2 + (i * 2);
+      int hexIndex = colorTokenIndex + 1;
+      if (colorTokenIndex >= prefix.length() || hexIndex >= prefix.length()) {
         return null;
+      }
+      if (prefix.charAt(colorTokenIndex) != C.COLOR_CHAR) {
+        return null;
+      }
+      char hexChar = prefix.charAt(hexIndex);
+      if (!isHexChar(hexChar)) {
+        return null;
+      }
+      hex.append(hexChar);
     }
+    return hex.toString();
+  }
 
-    private String normalizeHex(String raw) {
-        String value = raw;
-        if (value.startsWith("#")) {
-            value = value.substring(1);
-        } else if (value.startsWith("0x") || value.startsWith("0X")) {
-            value = value.substring(2);
+  private C nearestLegacyColor(String hex) {
+    try {
+      int rgb = Integer.parseInt(hex, 16);
+      int r = (rgb >> 16) & 0xFF;
+      int g = (rgb >> 8) & 0xFF;
+      int b = rgb & 0xFF;
+
+      C best = null;
+      long bestDistance = Long.MAX_VALUE;
+      for (C candidate : C.values()) {
+        if (!candidate.isColor()) {
+          continue;
         }
 
-        if (value.length() != 6) {
-            return null;
+        String candidateHex = candidate.hex();
+        if (candidateHex == null || candidateHex.length() != 7) {
+          continue;
         }
 
-        for (int i = 0; i < value.length(); i++) {
-            if (!isHexChar(value.charAt(i))) {
-                return null;
-            }
-        }
+        int candidateRgb = Integer.parseInt(candidateHex.substring(1), 16);
+        int cr = (candidateRgb >> 16) & 0xFF;
+        int cg = (candidateRgb >> 8) & 0xFF;
+        int cb = candidateRgb & 0xFF;
 
-        return value;
+        long distance = ((long) r - cr) * ((long) r - cr)
+            + ((long) g - cg) * ((long) g - cg)
+            + ((long) b - cb) * ((long) b - cb);
+        if (distance < bestDistance) {
+          bestDistance = distance;
+          best = candidate;
+        }
+      }
+
+      return best == null ? color : best;
+    } catch (Throwable ignored) {
+      return color;
     }
+  }
 
-    private boolean isHexChar(char c) {
-        return (c >= '0' && c <= '9')
-                || (c >= 'a' && c <= 'f')
-                || (c >= 'A' && c <= 'F');
-    }
-
-    private boolean isLegacyColorChar(char code) {
-        return (code >= '0' && code <= '9') || (code >= 'a' && code <= 'f');
-    }
-
-    private C resolveLegacyColor(String prefix) {
-        if (prefix == null || prefix.isBlank()) {
-            return color;
-        }
-
-        for (int i = 0; i < prefix.length() - 1; i++) {
-            if (prefix.charAt(i) != C.COLOR_CHAR) {
-                continue;
-            }
-
-            char code = Character.toLowerCase(prefix.charAt(i + 1));
-            if (isLegacyColorChar(code)) {
-                return C.getByChar(code);
-            }
-
-            if (code == 'x') {
-                String hex = parseSectionHex(prefix, i);
-                if (hex == null) {
-                    continue;
-                }
-
-                C nearest = nearestLegacyColor(hex);
-                if (nearest != null) {
-                    return nearest;
-                }
-            }
-        }
-
-        return color;
-    }
-
-    private String parseSectionHex(String prefix, int start) {
-        if (start + 13 >= prefix.length()) {
-            return null;
-        }
-
-        StringBuilder hex = new StringBuilder(6);
-        for (int i = 0; i < 6; i++) {
-            int colorTokenIndex = start + 2 + (i * 2);
-            int hexIndex = colorTokenIndex + 1;
-            if (colorTokenIndex >= prefix.length() || hexIndex >= prefix.length()) {
-                return null;
-            }
-            if (prefix.charAt(colorTokenIndex) != C.COLOR_CHAR) {
-                return null;
-            }
-            char hexChar = prefix.charAt(hexIndex);
-            if (!isHexChar(hexChar)) {
-                return null;
-            }
-            hex.append(hexChar);
-        }
-        return hex.toString();
-    }
-
-    private C nearestLegacyColor(String hex) {
-        try {
-            int rgb = Integer.parseInt(hex, 16);
-            int r = (rgb >> 16) & 0xFF;
-            int g = (rgb >> 8) & 0xFF;
-            int b = rgb & 0xFF;
-
-            C best = null;
-            long bestDistance = Long.MAX_VALUE;
-            for (C candidate : C.values()) {
-                if (!candidate.isColor()) {
-                    continue;
-                }
-
-                String candidateHex = candidate.hex();
-                if (candidateHex == null || candidateHex.length() != 7) {
-                    continue;
-                }
-
-                int candidateRgb = Integer.parseInt(candidateHex.substring(1), 16);
-                int cr = (candidateRgb >> 16) & 0xFF;
-                int cg = (candidateRgb >> 8) & 0xFF;
-                int cb = candidateRgb & 0xFF;
-
-                long distance = ((long) r - cr) * ((long) r - cr)
-                        + ((long) g - cg) * ((long) g - cg)
-                        + ((long) b - cb) * ((long) b - cb);
-                if (distance < bestDistance) {
-                    bestDistance = distance;
-                    best = candidate;
-                }
-            }
-
-            return best == null ? color : best;
-        } catch (Throwable ignored) {
-            return color;
-        }
-    }
-
-    @Override
-    public abstract void onTick();
+  @Override
+  public abstract void onTick();
 }

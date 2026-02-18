@@ -36,68 +36,68 @@ import java.util.List;
 @AllArgsConstructor
 @Data
 public class BoundEnderPearl implements DataItem<BoundEnderPearl.Data> {
-    public static BoundEnderPearl io = new BoundEnderPearl();
+  public static BoundEnderPearl io = new BoundEnderPearl();
 
-    public static Block getBlock(ItemStack stack) {
-        if (io.getData(stack) != null) {
-            return io.getData(stack).getBlock();
+  public static Block getBlock(ItemStack stack) {
+    if (io.getData(stack) != null) {
+      return io.getData(stack).getBlock();
+    }
+
+    return null;
+  }
+
+  public static void setData(ItemStack item, Block t) {
+    io.setData(item, new Data(t));
+  }
+
+  public static ItemStack withData(Block t) {
+    return io.withData(new Data(t));
+  }
+
+  public static boolean isBindableItem(ItemStack t) {
+    if (t.getType().equals(Material.ENDER_PEARL)) {
+      if (t.getItemMeta() != null && t.getItemMeta().getLore() != null) {
+        if (t.getItemMeta().getLore().get(0).contains(Localizer.dLocalize("items.bound_ender_peral.name"))) {
+          Adapt.verbose("Enderpearl is bindable: " + t.getType().name());
+          return true;
         }
-
-        return null;
+      }
     }
+    return false;
+  }
 
-    public static void setData(ItemStack item, Block t) {
-        io.setData(item, new Data(t));
+  @Override
+  public Material getMaterial() {
+    return Material.ENDER_PEARL;
+  }
+
+  @Override
+  public Class<Data> getType() {
+    return BoundEnderPearl.Data.class;
+  }
+
+  @Override
+  public void applyLore(Data data, List<String> lore) {
+    lore.add(C.WHITE + Localizer.dLocalize("items.bound_ender_peral.name"));
+    lore.add(C.GRAY + Localizer.dLocalize("items.bound_ender_peral.usage1"));
+    lore.add(C.GRAY + Localizer.dLocalize("items.bound_ender_peral.usage2"));
+  }
+
+  @Override
+  public void applyMeta(Data data, ItemMeta meta) {
+    meta.addEnchant(Enchantment.BINDING_CURSE, 10, true);
+    meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
+    meta.setDisplayName(Localizer.dLocalize("items.bound_ender_peral.name"));
+
+  }
+
+  @AllArgsConstructor
+  @lombok.Data
+  public static class Data {
+    private Block block;
+
+    public static BoundEnderPearl.Data at(Block l) {
+      return new BoundEnderPearl.Data(l);
     }
-
-    public static ItemStack withData(Block t) {
-        return io.withData(new Data(t));
-    }
-
-    public static boolean isBindableItem(ItemStack t) {
-        if (t.getType().equals(Material.ENDER_PEARL)) {
-            if (t.getItemMeta() != null && t.getItemMeta().getLore() != null) {
-                if (t.getItemMeta().getLore().get(0).contains(Localizer.dLocalize("items.bound_ender_peral.name"))) {
-                    Adapt.verbose("Enderpearl is bindable: " + t.getType().name());
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    @Override
-    public Material getMaterial() {
-        return Material.ENDER_PEARL;
-    }
-
-    @Override
-    public Class<Data> getType() {
-        return BoundEnderPearl.Data.class;
-    }
-
-    @Override
-    public void applyLore(Data data, List<String> lore) {
-        lore.add(C.WHITE + Localizer.dLocalize("items.bound_ender_peral.name"));
-        lore.add(C.GRAY + Localizer.dLocalize("items.bound_ender_peral.usage1"));
-        lore.add(C.GRAY + Localizer.dLocalize("items.bound_ender_peral.usage2"));
-    }
-
-    @Override
-    public void applyMeta(Data data, ItemMeta meta) {
-        meta.addEnchant(Enchantment.BINDING_CURSE, 10, true);
-        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
-        meta.setDisplayName(Localizer.dLocalize("items.bound_ender_peral.name"));
-
-    }
-
-    @AllArgsConstructor
-    @lombok.Data
-    public static class Data {
-        private Block block;
-
-        public static BoundEnderPearl.Data at(Block l) {
-            return new BoundEnderPearl.Data(l);
-        }
-    }
+  }
 }

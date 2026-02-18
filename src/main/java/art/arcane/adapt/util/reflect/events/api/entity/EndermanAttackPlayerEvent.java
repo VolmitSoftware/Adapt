@@ -6,8 +6,9 @@ import org.bukkit.event.Cancellable;
 import org.jetbrains.annotations.NotNull;
 
 public interface EndermanAttackPlayerEvent extends EntityEvent, Cancellable {
-    @NotNull
-    Enderman getEntity();
-    @NotNull
-    Player getPlayer();
+  @NotNull
+  Enderman getEntity();
+
+  @NotNull
+  Player getPlayer();
 }

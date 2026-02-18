@@ -29,21 +29,21 @@ import java.util.stream.Collectors;
 
 public class EntityThings {
 
-    public static LivingEntity findNearestEntity(Entity referenceEntity, double range, Player player) {
-        Location location = referenceEntity.getLocation();
-        List<Entity> nearbyEntities = referenceEntity.getNearbyEntities(range, range, range);
+  public static LivingEntity findNearestEntity(Entity referenceEntity, double range, Player player) {
+    Location location = referenceEntity.getLocation();
+    List<Entity> nearbyEntities = referenceEntity.getNearbyEntities(range, range, range);
 
-        // Filter out non-living entities and the player
-        List<LivingEntity> livingEntities = nearbyEntities.stream()
-                .filter(entity -> entity instanceof LivingEntity && !entity.equals(player))
-                .map(entity -> (LivingEntity) entity)
-                .collect(Collectors.toList());
+    // Filter out non-living entities and the player
+    List<LivingEntity> livingEntities = nearbyEntities.stream()
+        .filter(entity -> entity instanceof LivingEntity && !entity.equals(player))
+        .map(entity -> (LivingEntity) entity)
+        .collect(Collectors.toList());
 
-        // Sort by distance to the reference entity
-        livingEntities.sort(Comparator.comparingDouble(entity -> entity.getLocation().distance(location)));
+    // Sort by distance to the reference entity
+    livingEntities.sort(Comparator.comparingDouble(entity -> entity.getLocation().distance(location)));
 
-        // Return the nearest living entity, or null if no valid entity is found
-        return livingEntities.isEmpty() ? null : livingEntities.get(0);
-    }
+    // Return the nearest living entity, or null if no valid entity is found
+    return livingEntities.isEmpty() ? null : livingEntities.get(0);
+  }
 }
 

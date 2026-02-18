@@ -11,239 +11,240 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public record RuntimeAttribute(AttributeInstance instance) implements IAttribute {
-    private static final Method GET_KEY_METHOD = findMethod("getKey");
-    private static final Method GET_UUID_METHOD = findMethod("getUniqueId");
-    private static final Method GET_NAME_METHOD = findMethod("getName");
+public record RuntimeAttribute(
+    AttributeInstance instance) implements IAttribute {
+  private static final Method GET_KEY_METHOD = findMethod("getKey");
+  private static final Method GET_UUID_METHOD = findMethod("getUniqueId");
+  private static final Method GET_NAME_METHOD = findMethod("getName");
 
-    @Override
-    public double getValue() {
-        return instance.getValue();
+  private static AttributeModifier createModifier(UUID uuid, NamespacedKey key, double amount, AttributeModifier.Operation operation) {
+    for (Constructor<?> constructor : AttributeModifier.class.getConstructors()) {
+      AttributeModifier modifier = tryCreateKeyed(constructor, key, amount, operation);
+      if (modifier != null) {
+        return modifier;
+      }
     }
 
-    @Override
-    public double getDefaultValue() {
-        return instance.getDefaultValue();
+    String legacyName = key.getNamespace() + "-" + key.getKey();
+    for (Constructor<?> constructor : AttributeModifier.class.getConstructors()) {
+      AttributeModifier modifier = tryCreateLegacy(constructor, uuid, legacyName, amount, operation);
+      if (modifier != null) {
+        return modifier;
+      }
     }
 
-    @Override
-    public double getBaseValue() {
-        return instance.getBaseValue();
+    throw new IllegalStateException("No compatible AttributeModifier constructor found");
+  }
+
+  private static AttributeModifier tryCreateKeyed(Constructor<?> constructor, NamespacedKey key, double amount, AttributeModifier.Operation operation) {
+    Class<?>[] params = constructor.getParameterTypes();
+    if (params.length < 3 || params.length > 4 || params[0] != NamespacedKey.class || params[1] != double.class || params[2] != AttributeModifier.Operation.class) {
+      return null;
     }
 
-    @Override
-    public void setBaseValue(double baseValue) {
-        instance.setBaseValue(baseValue);
+    Object[] args = new Object[params.length];
+    args[0] = key;
+    args[1] = amount;
+    args[2] = operation;
+    if (params.length == 4) {
+      Object slot = resolveEnum(params[3]);
+      if (slot == null) {
+        return null;
+      }
+      args[3] = slot;
     }
 
-    @Override
-    public void addModifier(UUID uuid, NamespacedKey key, double amount, AttributeModifier.Operation operation) {
-        instance.addModifier(createModifier(uuid, key, amount, operation));
+    try {
+      return (AttributeModifier) constructor.newInstance(args);
+    } catch (ReflectiveOperationException ignored) {
+      return null;
+    }
+  }
+
+  private static AttributeModifier tryCreateLegacy(Constructor<?> constructor, UUID uuid, String name, double amount, AttributeModifier.Operation operation) {
+    Class<?>[] params = constructor.getParameterTypes();
+    if (params.length < 4 || params.length > 5 || params[0] != UUID.class || params[1] != String.class || params[2] != double.class || params[3] != AttributeModifier.Operation.class) {
+      return null;
     }
 
-    @Override
-    public boolean hasModifier(UUID uuid, NamespacedKey key) {
-        for (AttributeModifier modifier : instance.getModifiers()) {
-            if (matches(modifier, uuid, key)) {
-                return true;
-            }
-        }
-
-        return false;
+    Object[] args = new Object[params.length];
+    args[0] = uuid;
+    args[1] = name;
+    args[2] = amount;
+    args[3] = operation;
+    if (params.length == 5) {
+      Object slot = resolveEnum(params[4]);
+      if (slot == null) {
+        return null;
+      }
+      args[4] = slot;
     }
 
-    @Override
-    public void removeModifier(UUID uuid, NamespacedKey key) {
-        List<AttributeModifier> toRemove = null;
-        for (AttributeModifier modifier : instance.getModifiers()) {
-            if (!matches(modifier, uuid, key)) {
-                continue;
-            }
+    try {
+      return (AttributeModifier) constructor.newInstance(args);
+    } catch (ReflectiveOperationException ignored) {
+      return null;
+    }
+  }
 
-            if (toRemove == null) {
-                toRemove = new ArrayList<>();
-            }
-            toRemove.add(modifier);
-        }
-
-        if (toRemove == null) {
-            return;
-        }
-
-        for (AttributeModifier modifier : toRemove) {
-            instance.removeModifier(modifier);
-        }
+  private static boolean matches(AttributeModifier modifier, UUID uuid, NamespacedKey key) {
+    NamespacedKey modifierKey = readKey(modifier);
+    if (modifierKey != null && modifierKey.equals(key)) {
+      return true;
     }
 
-    @Override
-    public KList<Modifier> getModifier(UUID uuid, NamespacedKey key) {
-        KList<Modifier> modifiers = new KList<>();
-        for (AttributeModifier modifier : instance.getModifiers()) {
-            if (matches(modifier, uuid, key)) {
-                modifiers.add(wrap(modifier));
-            }
-        }
-        return modifiers;
+    UUID modifierUuid = readUuid(modifier);
+    if (modifierUuid != null && modifierUuid.equals(uuid)) {
+      return true;
     }
 
-    private static AttributeModifier createModifier(UUID uuid, NamespacedKey key, double amount, AttributeModifier.Operation operation) {
-        for (Constructor<?> constructor : AttributeModifier.class.getConstructors()) {
-            AttributeModifier modifier = tryCreateKeyed(constructor, key, amount, operation);
-            if (modifier != null) {
-                return modifier;
-            }
-        }
+    String modifierName = readName(modifier);
+    return modifierName != null && modifierName.equals(key.getNamespace() + "-" + key.getKey());
+  }
 
-        String legacyName = key.getNamespace() + "-" + key.getKey();
-        for (Constructor<?> constructor : AttributeModifier.class.getConstructors()) {
-            AttributeModifier modifier = tryCreateLegacy(constructor, uuid, legacyName, amount, operation);
-            if (modifier != null) {
-                return modifier;
-            }
-        }
+  private static Modifier wrap(AttributeModifier modifier) {
+    return new Modifier(readUuid(modifier), readKey(modifier), modifier.getAmount(), modifier.getOperation());
+  }
 
-        throw new IllegalStateException("No compatible AttributeModifier constructor found");
+  private static NamespacedKey readKey(AttributeModifier modifier) {
+    if (GET_KEY_METHOD == null) {
+      return null;
     }
 
-    private static AttributeModifier tryCreateKeyed(Constructor<?> constructor, NamespacedKey key, double amount, AttributeModifier.Operation operation) {
-        Class<?>[] params = constructor.getParameterTypes();
-        if (params.length < 3 || params.length > 4 || params[0] != NamespacedKey.class || params[1] != double.class || params[2] != AttributeModifier.Operation.class) {
-            return null;
-        }
+    try {
+      return (NamespacedKey) GET_KEY_METHOD.invoke(modifier);
+    } catch (ReflectiveOperationException ignored) {
+      return null;
+    }
+  }
 
-        Object[] args = new Object[params.length];
-        args[0] = key;
-        args[1] = amount;
-        args[2] = operation;
-        if (params.length == 4) {
-            Object slot = resolveEnum(params[3]);
-            if (slot == null) {
-                return null;
-            }
-            args[3] = slot;
-        }
-
-        try {
-            return (AttributeModifier) constructor.newInstance(args);
-        } catch (ReflectiveOperationException ignored) {
-            return null;
-        }
+  private static UUID readUuid(AttributeModifier modifier) {
+    if (GET_UUID_METHOD == null) {
+      return null;
     }
 
-    private static AttributeModifier tryCreateLegacy(Constructor<?> constructor, UUID uuid, String name, double amount, AttributeModifier.Operation operation) {
-        Class<?>[] params = constructor.getParameterTypes();
-        if (params.length < 4 || params.length > 5 || params[0] != UUID.class || params[1] != String.class || params[2] != double.class || params[3] != AttributeModifier.Operation.class) {
-            return null;
-        }
+    try {
+      return (UUID) GET_UUID_METHOD.invoke(modifier);
+    } catch (ReflectiveOperationException ignored) {
+      return null;
+    }
+  }
 
-        Object[] args = new Object[params.length];
-        args[0] = uuid;
-        args[1] = name;
-        args[2] = amount;
-        args[3] = operation;
-        if (params.length == 5) {
-            Object slot = resolveEnum(params[4]);
-            if (slot == null) {
-                return null;
-            }
-            args[4] = slot;
-        }
-
-        try {
-            return (AttributeModifier) constructor.newInstance(args);
-        } catch (ReflectiveOperationException ignored) {
-            return null;
-        }
+  private static String readName(AttributeModifier modifier) {
+    if (GET_NAME_METHOD == null) {
+      return null;
     }
 
-    private static boolean matches(AttributeModifier modifier, UUID uuid, NamespacedKey key) {
-        NamespacedKey modifierKey = readKey(modifier);
-        if (modifierKey != null && modifierKey.equals(key)) {
-            return true;
-        }
+    try {
+      return (String) GET_NAME_METHOD.invoke(modifier);
+    } catch (ReflectiveOperationException ignored) {
+      return null;
+    }
+  }
 
-        UUID modifierUuid = readUuid(modifier);
-        if (modifierUuid != null && modifierUuid.equals(uuid)) {
-            return true;
-        }
+  private static Method findMethod(String methodName) {
+    try {
+      return AttributeModifier.class.getMethod(methodName);
+    } catch (NoSuchMethodException ignored) {
+      return null;
+    }
+  }
 
-        String modifierName = readName(modifier);
-        return modifierName != null && modifierName.equals(key.getNamespace() + "-" + key.getKey());
+  private static Object resolveEnum(Class<?> type) {
+    if (!type.isEnum()) {
+      return null;
     }
 
-    private static Modifier wrap(AttributeModifier modifier) {
-        return new Modifier(readUuid(modifier), readKey(modifier), modifier.getAmount(), modifier.getOperation());
+    Object any = enumConstant(type, "ANY");
+    if (any != null) {
+      return any;
     }
 
-    private static NamespacedKey readKey(AttributeModifier modifier) {
-        if (GET_KEY_METHOD == null) {
-            return null;
-        }
-
-        try {
-            return (NamespacedKey) GET_KEY_METHOD.invoke(modifier);
-        } catch (ReflectiveOperationException ignored) {
-            return null;
-        }
+    Object hand = enumConstant(type, "HAND");
+    if (hand != null) {
+      return hand;
     }
 
-    private static UUID readUuid(AttributeModifier modifier) {
-        if (GET_UUID_METHOD == null) {
-            return null;
-        }
+    Object[] constants = type.getEnumConstants();
+    return constants == null || constants.length == 0 ? null : constants[0];
+  }
 
-        try {
-            return (UUID) GET_UUID_METHOD.invoke(modifier);
-        } catch (ReflectiveOperationException ignored) {
-            return null;
-        }
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  private static Object enumConstant(Class<?> type, String name) {
+    try {
+      return Enum.valueOf((Class<? extends Enum>) type, name);
+    } catch (IllegalArgumentException ignored) {
+      return null;
+    }
+  }
+
+  @Override
+  public double getValue() {
+    return instance.getValue();
+  }
+
+  @Override
+  public double getDefaultValue() {
+    return instance.getDefaultValue();
+  }
+
+  @Override
+  public double getBaseValue() {
+    return instance.getBaseValue();
+  }
+
+  @Override
+  public void setBaseValue(double baseValue) {
+    instance.setBaseValue(baseValue);
+  }
+
+  @Override
+  public void addModifier(UUID uuid, NamespacedKey key, double amount, AttributeModifier.Operation operation) {
+    instance.addModifier(createModifier(uuid, key, amount, operation));
+  }
+
+  @Override
+  public boolean hasModifier(UUID uuid, NamespacedKey key) {
+    for (AttributeModifier modifier : instance.getModifiers()) {
+      if (matches(modifier, uuid, key)) {
+        return true;
+      }
     }
 
-    private static String readName(AttributeModifier modifier) {
-        if (GET_NAME_METHOD == null) {
-            return null;
-        }
+    return false;
+  }
 
-        try {
-            return (String) GET_NAME_METHOD.invoke(modifier);
-        } catch (ReflectiveOperationException ignored) {
-            return null;
-        }
+  @Override
+  public void removeModifier(UUID uuid, NamespacedKey key) {
+    List<AttributeModifier> toRemove = null;
+    for (AttributeModifier modifier : instance.getModifiers()) {
+      if (!matches(modifier, uuid, key)) {
+        continue;
+      }
+
+      if (toRemove == null) {
+        toRemove = new ArrayList<>();
+      }
+      toRemove.add(modifier);
     }
 
-    private static Method findMethod(String methodName) {
-        try {
-            return AttributeModifier.class.getMethod(methodName);
-        } catch (NoSuchMethodException ignored) {
-            return null;
-        }
+    if (toRemove == null) {
+      return;
     }
 
-    private static Object resolveEnum(Class<?> type) {
-        if (!type.isEnum()) {
-            return null;
-        }
-
-        Object any = enumConstant(type, "ANY");
-        if (any != null) {
-            return any;
-        }
-
-        Object hand = enumConstant(type, "HAND");
-        if (hand != null) {
-            return hand;
-        }
-
-        Object[] constants = type.getEnumConstants();
-        return constants == null || constants.length == 0 ? null : constants[0];
+    for (AttributeModifier modifier : toRemove) {
+      instance.removeModifier(modifier);
     }
+  }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    private static Object enumConstant(Class<?> type, String name) {
-        try {
-            return Enum.valueOf((Class<? extends Enum>) type, name);
-        } catch (IllegalArgumentException ignored) {
-            return null;
-        }
+  @Override
+  public KList<Modifier> getModifier(UUID uuid, NamespacedKey key) {
+    KList<Modifier> modifiers = new KList<>();
+    for (AttributeModifier modifier : instance.getModifiers()) {
+      if (matches(modifier, uuid, key)) {
+        modifiers.add(wrap(modifier));
+      }
     }
+    return modifiers;
+  }
 }

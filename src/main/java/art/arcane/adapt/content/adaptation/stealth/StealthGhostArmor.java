@@ -26,11 +26,11 @@ import art.arcane.adapt.api.version.IAttribute;
 import art.arcane.adapt.api.version.Version;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.volmlib.util.format.Form;
+import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -44,128 +44,132 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import java.util.UUID;
 
 public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config> {
-    private static final UUID MODIFIER = UUID.nameUUIDFromBytes("adapt-ghost-armor".getBytes());
-    private static final NamespacedKey MODIFIER_KEY = NamespacedKey.fromString( "adapt:ghost-armor");
+  private static final UUID MODIFIER = UUID.nameUUIDFromBytes("adapt-ghost-armor".getBytes());
+  private static final NamespacedKey MODIFIER_KEY = NamespacedKey.fromString("adapt:ghost-armor");
 
-    public StealthGhostArmor() {
-        super("stealth-ghost-armor");
-        registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("stealth.ghost_armor.description"));
-        setDisplayName(Localizer.dLocalize("stealth.ghost_armor.name"));
-        setIcon(Material.CHAINMAIL_HELMET);
-        setInterval(5353);
-        setBaseCost(getConfig().baseCost);
-        setInitialCost(getConfig().initialCost);
-        setCostFactor(getConfig().costFactor);
-        setMaxLevel(getConfig().maxLevel);
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.LEATHER_CHESTPLATE)
-                .key("challenge_stealth_ghost_100")
-                .title(Localizer.dLocalize("advancement.challenge_stealth_ghost_100.title"))
-                .description(Localizer.dLocalize("advancement.challenge_stealth_ghost_100.description"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .child(AdaptAdvancement.builder()
-                        .icon(Material.CHAINMAIL_CHESTPLATE)
-                        .key("challenge_stealth_ghost_500")
-                        .title(Localizer.dLocalize("advancement.challenge_stealth_ghost_500.title"))
-                        .description(Localizer.dLocalize("advancement.challenge_stealth_ghost_500.description"))
-                        .frame(AdaptAdvancementFrame.CHALLENGE)
-                        .visibility(AdvancementVisibility.PARENT_GRANTED)
-                        .build())
-                .build());
-        registerMilestone("challenge_stealth_ghost_100", "stealth.ghost-armor.armor-consumed", 100, 300);
-        registerMilestone("challenge_stealth_ghost_500", "stealth.ghost-armor.armor-consumed", 500, 1000);
-    }
+  public StealthGhostArmor() {
+    super("stealth-ghost-armor");
+    registerConfiguration(Config.class);
+    setDescription(Localizer.dLocalize("stealth.ghost_armor.description"));
+    setDisplayName(Localizer.dLocalize("stealth.ghost_armor.name"));
+    setIcon(Material.CHAINMAIL_HELMET);
+    setInterval(5353);
+    setBaseCost(getConfig().baseCost);
+    setInitialCost(getConfig().initialCost);
+    setCostFactor(getConfig().costFactor);
+    setMaxLevel(getConfig().maxLevel);
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.LEATHER_CHESTPLATE)
+        .key("challenge_stealth_ghost_100")
+        .title(Localizer.dLocalize("advancement.challenge_stealth_ghost_100.title"))
+        .description(Localizer.dLocalize("advancement.challenge_stealth_ghost_100.description"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .child(AdaptAdvancement.builder()
+            .icon(Material.CHAINMAIL_CHESTPLATE)
+            .key("challenge_stealth_ghost_500")
+            .title(Localizer.dLocalize("advancement.challenge_stealth_ghost_500.title"))
+            .description(Localizer.dLocalize("advancement.challenge_stealth_ghost_500.description"))
+            .frame(AdaptAdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .build())
+        .build());
+    registerMilestone("challenge_stealth_ghost_100", "stealth.ghost-armor.armor-consumed", 100, 300);
+    registerMilestone("challenge_stealth_ghost_500", "stealth.ghost-armor.armor-consumed", 500, 1000);
+  }
 
-    @Override
-    public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.f(getMaxArmorPoints(getLevelPercent(level)), 0) + C.GRAY + " " + Localizer.dLocalize("stealth.ghost_armor.lore1"));
-        v.addLore(C.GREEN + "+ " + Form.f(getMaxArmorPerTick(getLevelPercent(level)), 1) + C.GRAY + " " + Localizer.dLocalize("stealth.ghost_armor.lore2"));
-    }
+  @Override
+  public void addStats(int level, Element v) {
+    v.addLore(C.GREEN + "+ " + Form.f(getMaxArmorPoints(getLevelPercent(level)), 0) + C.GRAY + " " + Localizer.dLocalize("stealth.ghost_armor.lore1"));
+    v.addLore(C.GREEN + "+ " + Form.f(getMaxArmorPerTick(getLevelPercent(level)), 1) + C.GRAY + " " + Localizer.dLocalize("stealth.ghost_armor.lore2"));
+  }
 
-    public double getMaxArmorPoints(double factor) {
-        return M.lerp(getConfig().minArmor, getConfig().maxArmor, factor);
-    }
+  public double getMaxArmorPoints(double factor) {
+    return M.lerp(getConfig().minArmor, getConfig().maxArmor, factor);
+  }
 
-    public double getMaxArmorPerTick(double factor) {
-        return M.lerp(getConfig().minArmorPerTick, getConfig().maxArmorPerTick, factor);
-    }
+  public double getMaxArmorPerTick(double factor) {
+    return M.lerp(getConfig().minArmorPerTick, getConfig().maxArmorPerTick, factor);
+  }
 
-    @Override
-    public void onTick() {
-        for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
-            Player p = adaptPlayer.getPlayer();
-            var attribute = Version.get().getAttribute(p, Attributes.GENERIC_ARMOR);
+  @Override
+  public void onTick() {
+    for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+      Player p = adaptPlayer.getPlayer();
+      IAttribute attribute = Version.get().getAttribute(p, Attributes.GENERIC_ARMOR);
+      if (attribute == null) {
+        continue;
+      }
 
-            if (!hasActiveAdaptation(p)) {
-                attribute.removeModifier(MODIFIER, MODIFIER_KEY);
-                continue;
-            }
-            double oldArmor = attribute.getModifier(MODIFIER, MODIFIER_KEY)
-                            .stream()
-                            .mapToDouble(IAttribute.Modifier::getAmount)
-                            .filter(d -> !Double.isNaN(d))
-                            .max()
-                            .orElse(0);;
-            double armor = getMaxArmorPoints(getLevelPercent(p));
-            armor = Double.isNaN(armor) ? 0 : armor;
-
-            if (oldArmor < armor) {
-                attribute.setModifier(MODIFIER, MODIFIER_KEY, Math.min(armor, oldArmor + getMaxArmorPerTick(getLevelPercent(p))), AttributeModifier.Operation.ADD_NUMBER);
-            } else if (oldArmor > armor) {
-                attribute.setModifier(MODIFIER, MODIFIER_KEY, armor, AttributeModifier.Operation.ADD_NUMBER);
-            }
+      if (!hasActiveAdaptation(p)) {
+        attribute.removeModifier(MODIFIER, MODIFIER_KEY);
+        continue;
+      }
+      double oldArmor = 0;
+      for (IAttribute.Modifier modifier : attribute.getModifier(MODIFIER, MODIFIER_KEY)) {
+        double amount = modifier.getAmount();
+        if (!Double.isNaN(amount) && amount > oldArmor) {
+          oldArmor = amount;
         }
-    }
+      }
+      double armor = getMaxArmorPoints(getLevelPercent(p));
+      armor = Double.isNaN(armor) ? 0 : armor;
 
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void on(EntityDamageEvent e) {
-        if (e.getEntity() instanceof Player p && hasActiveAdaptation(p) && e.getDamage() > 0) {
-            // Check if 2.5 * e.getDamage() is greater than 10 if so just set it to 10 otherwise use the value of 2.5 * e.getDamage()
-            int damageXP = (int) Math.min(10, 2.5 * e.getDamage());
-            xp(p,damageXP );
-            getPlayer(p).getData().addStat("stealth.ghost-armor.armor-consumed", 1);
-            J.runEntity(p, () -> {
-                var attribute = Version.get().getAttribute(p, Attributes.GENERIC_ARMOR);
-                if (attribute == null) return;
-                attribute.removeModifier(MODIFIER, MODIFIER_KEY);
-            });
-        }
+      if (oldArmor < armor) {
+        attribute.setModifier(MODIFIER, MODIFIER_KEY, Math.min(armor, oldArmor + getMaxArmorPerTick(getLevelPercent(p))), AttributeModifier.Operation.ADD_NUMBER);
+      } else if (oldArmor > armor) {
+        attribute.setModifier(MODIFIER, MODIFIER_KEY, armor, AttributeModifier.Operation.ADD_NUMBER);
+      }
     }
+  }
 
-    @Override
-    public boolean isEnabled() {
-        return getConfig().enabled;
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void on(EntityDamageEvent e) {
+    if (e.getEntity() instanceof Player p && hasActiveAdaptation(p) && e.getDamage() > 0) {
+      // Check if 2.5 * e.getDamage() is greater than 10 if so just set it to 10 otherwise use the value of 2.5 * e.getDamage()
+      int damageXP = (int) Math.min(10, 2.5 * e.getDamage());
+      xp(p, damageXP);
+      getPlayer(p).getData().addStat("stealth.ghost-armor.armor-consumed", 1);
+      J.runEntity(p, () -> {
+        IAttribute attribute = Version.get().getAttribute(p, Attributes.GENERIC_ARMOR);
+        if (attribute == null) return;
+        attribute.removeModifier(MODIFIER, MODIFIER_KEY);
+      });
     }
+  }
 
-    @Override
-    public boolean isPermanent() {
-        return getConfig().permanent;
-    }
+  @Override
+  public boolean isEnabled() {
+    return getConfig().enabled;
+  }
 
-    @NoArgsConstructor
-    @ConfigDescription("Slowly build armor when not taking damage, consumed on the next hit.")
-    protected static class Config {
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-        boolean permanent = false;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-        boolean enabled = true;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-        int baseCost = 3;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Armor for the Stealth Ghost Armor adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        int maxArmor = 16;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Min Armor for the Stealth Ghost Armor adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        int minArmor = 2;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Armor Per Tick for the Stealth Ghost Armor adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        int maxArmorPerTick = 3;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Min Armor Per Tick for the Stealth Ghost Armor adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        int minArmorPerTick = 1;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-        int initialCost = 1;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-        double costFactor = 0.335;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-        int maxLevel = 7;
-    }
+  @Override
+  public boolean isPermanent() {
+    return getConfig().permanent;
+  }
+
+  @NoArgsConstructor
+  @ConfigDescription("Slowly build armor when not taking damage, consumed on the next hit.")
+  protected static class Config {
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
+    boolean permanent = false;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
+    boolean enabled = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
+    int baseCost = 3;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Armor for the Stealth Ghost Armor adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    int maxArmor = 16;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Min Armor for the Stealth Ghost Armor adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    int minArmor = 2;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Armor Per Tick for the Stealth Ghost Armor adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    int maxArmorPerTick = 3;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Min Armor Per Tick for the Stealth Ghost Armor adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    int minArmorPerTick = 1;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
+    int initialCost = 1;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
+    double costFactor = 0.335;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
+    int maxLevel = 7;
+  }
 }

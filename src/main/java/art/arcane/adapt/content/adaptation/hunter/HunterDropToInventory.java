@@ -25,10 +25,10 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.content.item.ItemListings;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.collection.KList;
+import art.arcane.volmlib.util.inventorygui.Element;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -44,108 +44,108 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import java.util.List;
 
 public class HunterDropToInventory extends SimpleAdaptation<HunterDropToInventory.Config> {
-    public HunterDropToInventory() {
-        super("hunter-drop-to-inventory");
-        registerConfiguration(HunterDropToInventory.Config.class);
-        setDescription(Localizer.dLocalize("hunter.drop_to_inventory.description"));
-        setDisplayName(Localizer.dLocalize("hunter.drop_to_inventory.name"));
-        setIcon(Material.TRAPPED_CHEST);
-        setBaseCost(getConfig().baseCost);
-        setMaxLevel(getConfig().maxLevel);
-        setInitialCost(getConfig().initialCost);
-        setCostFactor(getConfig().costFactor);
-        setInterval(18440);
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.CHEST)
-                .key("challenge_hunter_dti_10k")
-                .title(Localizer.dLocalize("advancement.challenge_hunter_dti_10k.title"))
-                .description(Localizer.dLocalize("advancement.challenge_hunter_dti_10k.description"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .build());
-        registerMilestone("challenge_hunter_dti_10k", "hunter.drop-to-inv.items-caught", 10000, 500);
+  public HunterDropToInventory() {
+    super("hunter-drop-to-inventory");
+    registerConfiguration(HunterDropToInventory.Config.class);
+    setDescription(Localizer.dLocalize("hunter.drop_to_inventory.description"));
+    setDisplayName(Localizer.dLocalize("hunter.drop_to_inventory.name"));
+    setIcon(Material.TRAPPED_CHEST);
+    setBaseCost(getConfig().baseCost);
+    setMaxLevel(getConfig().maxLevel);
+    setInitialCost(getConfig().initialCost);
+    setCostFactor(getConfig().costFactor);
+    setInterval(18440);
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.CHEST)
+        .key("challenge_hunter_dti_10k")
+        .title(Localizer.dLocalize("advancement.challenge_hunter_dti_10k.title"))
+        .description(Localizer.dLocalize("advancement.challenge_hunter_dti_10k.description"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .build());
+    registerMilestone("challenge_hunter_dti_10k", "hunter.drop-to-inv.items-caught", 10000, 500);
+  }
+
+  @Override
+  public boolean isEnabled() {
+    return getConfig().enabled;
+  }
+
+  public void addStats(int level, Element v) {
+    v.addLore(C.GRAY + Localizer.dLocalize("hunter.drop_to_inventory.lore1"));
+  }
+
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void on(BlockDropItemEvent e) {
+
+    Player p = e.getPlayer();
+    if (resolveInteractContext(p, e.getBlock().getLocation(), null, true) == null
+        || !canPVP(p, e.getBlock().getLocation())) {
+      return;
     }
 
-    @Override
-    public boolean isEnabled() {
-        return getConfig().enabled;
-    }
-
-    public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Localizer.dLocalize("hunter.drop_to_inventory.lore1"));
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void on(BlockDropItemEvent e) {
-
-        Player p = e.getPlayer();
-        if (resolveInteractContext(p, e.getBlock().getLocation(), null, true) == null
-                || !canPVP(p, e.getBlock().getLocation())) {
-            return;
+    SoundPlayer sp = SoundPlayer.of(p);
+    if (ItemListings.toolSwords.contains(p.getInventory().getItemInMainHand().getType())) {
+      List<Item> items = new KList<>(e.getItems());
+      e.getItems().clear();
+      sp.play(p.getLocation(), Sound.BLOCK_CALCITE_HIT, 0.05f, 0.01f);
+      for (Item i : items) {
+        if (!p.getInventory().addItem(i.getItemStack()).isEmpty()) {
+          p.getWorld().dropItem(p.getLocation(), i.getItemStack());
         }
+      }
+      getPlayer(p).getData().addStat("hunter.drop-to-inv.items-caught", items.size());
+    }
+  }
 
-        SoundPlayer sp = SoundPlayer.of(p);
-        if (ItemListings.toolSwords.contains(p.getInventory().getItemInMainHand().getType())) {
-            List<Item> items = new KList<>(e.getItems());
-            e.getItems().clear();
-            sp.play(p.getLocation(), Sound.BLOCK_CALCITE_HIT, 0.05f, 0.01f);
-            for (Item i : items) {
-                if (!p.getInventory().addItem(i.getItemStack()).isEmpty()) {
-                    p.getWorld().dropItem(p.getLocation(), i.getItemStack());
-                }
-            }
-            getPlayer(p).getData().addStat("hunter.drop-to-inv.items-caught", items.size());
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void on(EntityDeathEvent e) {
+    LivingEntity k = e.getEntity();
+    if (k.getKiller() == null || k.getKiller().getType() != EntityType.PLAYER) {
+      return;
+    }
+    Player p = k.getKiller();
+    if (e.getEntity() instanceof Player || getActiveDamageLevel(p, e.getEntity()) <= 0) {
+      return;
+    }
+    if (e.getEntity().getKiller() != null && e.getEntity().getKiller().getClass().getSimpleName().equals("CraftPlayer")) {
+      SoundPlayer sp = SoundPlayer.of(p);
+      sp.play(p.getLocation(), Sound.BLOCK_CALCITE_HIT, 0.05f, 0.01f);
+      int itemCount = e.getDrops().size();
+      e.getDrops().forEach(i -> {
+        if (!p.getInventory().addItem(i).isEmpty()) {
+          p.getWorld().dropItem(p.getLocation(), i);
         }
+      });
+      e.getDrops().clear();
+      getPlayer(p).getData().addStat("hunter.drop-to-inv.items-caught", itemCount);
     }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void on(EntityDeathEvent e) {
-        LivingEntity k = e.getEntity();
-        if (k.getKiller() == null || k.getKiller().getType() != EntityType.PLAYER) {
-            return;
-        }
-        Player p = k.getKiller();
-        if (e.getEntity() instanceof Player || getActiveDamageLevel(p, e.getEntity()) <= 0) {
-            return;
-        }
-        if (e.getEntity().getKiller() != null && e.getEntity().getKiller().getClass().getSimpleName().equals("CraftPlayer")) {
-            SoundPlayer sp = SoundPlayer.of(p);
-            sp.play(p.getLocation(), Sound.BLOCK_CALCITE_HIT, 0.05f, 0.01f);
-            int itemCount = e.getDrops().size();
-            e.getDrops().forEach(i -> {
-                if (!p.getInventory().addItem(i).isEmpty()) {
-                    p.getWorld().dropItem(p.getLocation(), i);
-                }
-            });
-            e.getDrops().clear();
-            getPlayer(p).getData().addStat("hunter.drop-to-inv.items-caught", itemCount);
-        }
-    }
+  }
 
 
-    @Override
-    public void onTick() {
-    }
+  @Override
+  public void onTick() {
+  }
 
-    @Override
-    public boolean isPermanent() {
-        return getConfig().permanent;
-    }
+  @Override
+  public boolean isPermanent() {
+    return getConfig().permanent;
+  }
 
-    @NoArgsConstructor
-    @ConfigDescription("Mob and block drops teleport directly into your inventory.")
-    protected static class Config {
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-        boolean permanent = false;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-        boolean enabled = true;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-        int baseCost = 1;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-        int maxLevel = 1;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-        int initialCost = 2;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-        double costFactor = 1;
-    }
+  @NoArgsConstructor
+  @ConfigDescription("Mob and block drops teleport directly into your inventory.")
+  protected static class Config {
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
+    boolean permanent = false;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
+    boolean enabled = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
+    int baseCost = 1;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
+    int maxLevel = 1;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
+    int initialCost = 2;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
+    double costFactor = 1;
+  }
 }

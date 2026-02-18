@@ -28,6 +28,6 @@ import java.util.List;
 @Builder
 @Data
 public class MaterialRecipe {
-    private List<MaterialCount> input;
-    private MaterialCount output;
+  private List<MaterialCount> input;
+  private MaterialCount output;
 }

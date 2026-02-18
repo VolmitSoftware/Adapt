@@ -26,10 +26,10 @@ import art.arcane.adapt.content.item.ItemListings;
 import art.arcane.adapt.content.item.multiItems.MultiArmor;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.inventorygui.Element;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -51,220 +51,220 @@ import java.util.Map;
 import java.util.UUID;
 
 public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Config> {
-    private static final MultiArmor multiarmor = new MultiArmor();
-    private final Map<UUID, Long> cooldowns;
+  private static final MultiArmor multiarmor = new MultiArmor();
+  private final Map<UUID, Long> cooldowns;
 
 
-    public BlockingMultiArmor() {
-        super("blocking-multiarmor");
-        registerConfiguration(BlockingMultiArmor.Config.class);
-        setDisplayName(Localizer.dLocalize("blocking.multi_armor.name"));
-        setDescription(Localizer.dLocalize("blocking.multi_armor.description"));
-        setIcon(Material.ELYTRA);
-        setInterval(20202);
-        setBaseCost(getConfig().baseCost);
-        setMaxLevel(getConfig().maxLevel);
-        setInitialCost(getConfig().initialCost);
-        setCostFactor(getConfig().costFactor);
-        cooldowns = new java.util.concurrent.ConcurrentHashMap<>();
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.ELYTRA)
-                .key("challenge_blocking_multi_200")
-                .title(Localizer.dLocalize("advancement.challenge_blocking_multi_200.title"))
-                .description(Localizer.dLocalize("advancement.challenge_blocking_multi_200.description"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .child(AdaptAdvancement.builder()
-                        .icon(Material.NETHERITE_CHESTPLATE)
-                        .key("challenge_blocking_multi_5k")
-                        .title(Localizer.dLocalize("advancement.challenge_blocking_multi_5k.title"))
-                        .description(Localizer.dLocalize("advancement.challenge_blocking_multi_5k.description"))
-                        .frame(AdaptAdvancementFrame.CHALLENGE)
-                        .visibility(AdvancementVisibility.PARENT_GRANTED)
-                        .build())
-                .build());
-        registerMilestone("challenge_blocking_multi_200", "blocking.multi-armor.swaps", 200, 400);
-        registerMilestone("challenge_blocking_multi_5k", "blocking.multi-armor.swaps", 5000, 1500);
-    }
+  public BlockingMultiArmor() {
+    super("blocking-multiarmor");
+    registerConfiguration(BlockingMultiArmor.Config.class);
+    setDisplayName(Localizer.dLocalize("blocking.multi_armor.name"));
+    setDescription(Localizer.dLocalize("blocking.multi_armor.description"));
+    setIcon(Material.ELYTRA);
+    setInterval(20202);
+    setBaseCost(getConfig().baseCost);
+    setMaxLevel(getConfig().maxLevel);
+    setInitialCost(getConfig().initialCost);
+    setCostFactor(getConfig().costFactor);
+    cooldowns = new java.util.concurrent.ConcurrentHashMap<>();
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.ELYTRA)
+        .key("challenge_blocking_multi_200")
+        .title(Localizer.dLocalize("advancement.challenge_blocking_multi_200.title"))
+        .description(Localizer.dLocalize("advancement.challenge_blocking_multi_200.description"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .child(AdaptAdvancement.builder()
+            .icon(Material.NETHERITE_CHESTPLATE)
+            .key("challenge_blocking_multi_5k")
+            .title(Localizer.dLocalize("advancement.challenge_blocking_multi_5k.title"))
+            .description(Localizer.dLocalize("advancement.challenge_blocking_multi_5k.description"))
+            .frame(AdaptAdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .build())
+        .build());
+    registerMilestone("challenge_blocking_multi_200", "blocking.multi-armor.swaps", 200, 400);
+    registerMilestone("challenge_blocking_multi_5k", "blocking.multi-armor.swaps", 5000, 1500);
+  }
 
-    @Override
-    public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Localizer.dLocalize("blocking.multi_armor.lore1"));
-        v.addLore(C.GRAY + "" + C.GRAY + Localizer.dLocalize("blocking.multi_armor.lore2"));
-        v.addLore(C.GREEN + Localizer.dLocalize("blocking.multi_armor.lore3"));
-        v.addLore(C.RED + Localizer.dLocalize("blocking.multi_armor.lore4"));
-        v.addLore(C.GRAY + Localizer.dLocalize("blocking.multi_armor.lore5"));
-        v.addLore(C.UNDERLINE + Localizer.dLocalize("blocking.multi_armor.lore6"));
-    }
+  @Override
+  public void addStats(int level, Element v) {
+    v.addLore(C.GRAY + Localizer.dLocalize("blocking.multi_armor.lore1"));
+    v.addLore(C.GRAY + "" + C.GRAY + Localizer.dLocalize("blocking.multi_armor.lore2"));
+    v.addLore(C.GREEN + Localizer.dLocalize("blocking.multi_armor.lore3"));
+    v.addLore(C.RED + Localizer.dLocalize("blocking.multi_armor.lore4"));
+    v.addLore(C.GRAY + Localizer.dLocalize("blocking.multi_armor.lore5"));
+    v.addLore(C.UNDERLINE + Localizer.dLocalize("blocking.multi_armor.lore6"));
+  }
 
-    @Override
-    public boolean isEnabled() {
-        return getConfig().enabled;
-    }
+  @Override
+  public boolean isEnabled() {
+    return getConfig().enabled;
+  }
 
-    @Override
-    public void onTick() {
-    }
+  @Override
+  public void onTick() {
+  }
 
-    @EventHandler(priority = EventPriority.HIGH)
-    public void on(PlayerMoveEvent e) {
-        Player p = e.getPlayer();
-        ItemStack chest = p.getInventory().getChestplate();
-        if (chest != null && hasActiveAdaptation(p) && validateArmor(chest)) {
-            Long cooldown = cooldowns.get(p.getUniqueId());
-            if (cooldown != null) {
-                if (cooldown + 3000 > System.currentTimeMillis())
-                    return;
-                else cooldowns.remove(p.getUniqueId());
-            }
+  @EventHandler(priority = EventPriority.HIGH)
+  public void on(PlayerMoveEvent e) {
+    Player p = e.getPlayer();
+    ItemStack chest = p.getInventory().getChestplate();
+    if (chest != null && hasActiveAdaptation(p) && validateArmor(chest)) {
+      Long cooldown = cooldowns.get(p.getUniqueId());
+      if (cooldown != null) {
+        if (cooldown + 3000 > System.currentTimeMillis())
+          return;
+        else cooldowns.remove(p.getUniqueId());
+      }
 
-            SoundPlayer spw = SoundPlayer.of(p.getWorld());
-            if (p.isOnGround() && !p.isFlying()) {
-                if (isChestplate(chest)) {
-                    return;
-                }
-                J.runEntity(p, () -> p.getInventory().setChestplate(multiarmor.nextChestplate(chest)));
-                cooldowns.put(p.getUniqueId(), System.currentTimeMillis());
-                spw.play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
-                spw.play(p.getLocation(), Sound.BLOCK_BEEHIVE_SHEAR, 0.5f, 0.77f);
-                getPlayer(p).getData().addStat("blocking.multi-armor.swaps", 1);
-
-            } else if (p.getFallDistance() > 4) {
-                if (isElytra(chest)) {
-                    return;
-                }
-                J.runEntity(p, () -> p.getInventory().setChestplate(multiarmor.nextElytra(chest)));
-                cooldowns.put(p.getUniqueId(), System.currentTimeMillis());
-                spw.play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
-                spw.play(p.getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.5f, 0.77f);
-                getPlayer(p).getData().addStat("blocking.multi-armor.swaps", 1);
-            }
+      SoundPlayer spw = SoundPlayer.of(p.getWorld());
+      if (p.isOnGround() && !p.isFlying()) {
+        if (isChestplate(chest)) {
+          return;
         }
+        J.runEntity(p, () -> p.getInventory().setChestplate(multiarmor.nextChestplate(chest)));
+        cooldowns.put(p.getUniqueId(), System.currentTimeMillis());
+        spw.play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
+        spw.play(p.getLocation(), Sound.BLOCK_BEEHIVE_SHEAR, 0.5f, 0.77f);
+        getPlayer(p).getData().addStat("blocking.multi-armor.swaps", 1);
+
+      } else if (p.getFallDistance() > 4) {
+        if (isElytra(chest)) {
+          return;
+        }
+        J.runEntity(p, () -> p.getInventory().setChestplate(multiarmor.nextElytra(chest)));
+        cooldowns.put(p.getUniqueId(), System.currentTimeMillis());
+        spw.play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
+        spw.play(p.getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.5f, 0.77f);
+        getPlayer(p).getData().addStat("blocking.multi-armor.swaps", 1);
+      }
     }
+  }
 
 
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void on(PlayerDropItemEvent e) {
-        Player p = e.getPlayer();
-        SoundPlayer sp = SoundPlayer.of(p);
-        if (!hasActiveAdaptation(p)) {
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void on(PlayerDropItemEvent e) {
+    Player p = e.getPlayer();
+    SoundPlayer sp = SoundPlayer.of(p);
+    if (!hasActiveAdaptation(p)) {
+      return;
+    }
+    if (p.isSneaking()) {
+      if (validateArmor(e.getItemDrop().getItemStack())) {
+        List<ItemStack> drops = multiarmor.explode(e.getItemDrop().getItemStack());
+        for (ItemStack i : drops) {
+          Damageable iDmgable = (Damageable) i.getItemMeta();
+          if (i.hasItemMeta()) {
+            ItemMeta im = i.getItemMeta().clone();
+            ItemMeta im2 = im;
+            if (im.hasDisplayName()) {
+              im2.setDisplayName(im.getDisplayName());
+            }
+            if (im.hasEnchants()) {
+              Map<Enchantment, Integer> enchants = im.getEnchants();
+              for (Enchantment enchant : enchants.keySet()) {
+                im2.addEnchant(enchant, enchants.get(enchant), true);
+              }
+            }
+            if (iDmgable != null && iDmgable.hasDamage()) {
+              ((Damageable) im2).setDamage(iDmgable.getDamage());
+            }
+            im2.setLore(null);
+            i.setItemMeta(im2);
+          }
+          drops.set(drops.indexOf(i), i);
+        }
+
+        J.runEntity(p, () -> {
+          sp.play(p.getLocation(), Sound.ENTITY_IRON_GOLEM_DEATH, 0.25f, 0.77f);
+          for (ItemStack i : drops) {
+            p.getWorld().dropItem(p.getLocation(), i);
+          }
+        });
+        e.getItemDrop().setItemStack(new ItemStack(Material.AIR));
+      }
+    }
+  }
+
+
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void on(InventoryClickEvent e) {
+    Player player = (Player) e.getWhoClicked();
+    int level = getActiveLevel(player);
+    if (level <= 0) {
+      return;
+    }
+    if (e.getClickedInventory() != null
+        && e.getClick().equals(ClickType.SHIFT_LEFT)
+        && e.getClickedInventory().getItem(e.getSlot()) != null
+        && e.getAction().equals(InventoryAction.MOVE_TO_OTHER_INVENTORY)) {
+      ItemStack cursor = e.getWhoClicked().getItemOnCursor().clone();
+      ItemStack clicked = e.getClickedInventory().getItem(e.getSlot()).clone();
+
+      if (cursor.getType().equals(Material.ELYTRA) || clicked.getType().equals(Material.ELYTRA)) { // One must be an ELYTRA
+
+        if (multiarmor.explode(cursor).size() > 1 || multiarmor.explode(clicked).size() > 1) {
+
+          if (multiarmor.explode(cursor).size() >= getSlots(level) || multiarmor.explode(clicked).size() >= getSlots(level)) {
+            e.setCancelled(true);
+            SoundPlayer sp = SoundPlayer.of(player);
+            sp.play(e.getWhoClicked().getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 1f, 0.77f);
             return;
+          }
         }
-        if (p.isSneaking()) {
-            if (validateArmor(e.getItemDrop().getItemStack())) {
-                List<ItemStack> drops = multiarmor.explode(e.getItemDrop().getItemStack());
-                for (ItemStack i : drops) {
-                    Damageable iDmgable = (Damageable) i.getItemMeta();
-                    if (i.hasItemMeta()) {
-                        ItemMeta im = i.getItemMeta().clone();
-                        ItemMeta im2 = im;
-                        if (im.hasDisplayName()) {
-                            im2.setDisplayName(im.getDisplayName());
-                        }
-                        if (im.hasEnchants()) {
-                            Map<Enchantment, Integer> enchants = im.getEnchants();
-                            for (Enchantment enchant : enchants.keySet()) {
-                                im2.addEnchant(enchant, enchants.get(enchant), true);
-                            }
-                        }
-                        if (iDmgable != null && iDmgable.hasDamage()) {
-                            ((Damageable) im2).setDamage(iDmgable.getDamage());
-                        }
-                        im2.setLore(null);
-                        i.setItemMeta(im2);
-                    }
-                    drops.set(drops.indexOf(i), i);
-                }
+        if (ItemListings.getMultiArmorable().contains(cursor.getType()) && ItemListings.getMultiArmorable().contains(clicked.getType())) { // Chest/Elytra Only
 
-                J.runEntity(p, () -> {
-                    sp.play(p.getLocation(), Sound.ENTITY_IRON_GOLEM_DEATH, 0.25f, 0.77f);
-                    for (ItemStack i : drops) {
-                        p.getWorld().dropItem(p.getLocation(), i);
-                    }
-                });
-                e.getItemDrop().setItemStack(new ItemStack(Material.AIR));
-            }
+          if (!cursor.getType().isAir() && !clicked.getType().isAir() && multiarmor.supportsItem(cursor) && multiarmor.supportsItem(clicked)) {
+            e.setCancelled(true);
+            e.getWhoClicked().setItemOnCursor(new ItemStack(Material.AIR));
+            e.getClickedInventory().setItem(e.getSlot(), multiarmor.build(cursor, clicked));
+            SoundPlayer spw = SoundPlayer.of(e.getWhoClicked().getWorld());
+            spw.play(e.getWhoClicked().getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
+          }
         }
+      }
     }
+  }
 
 
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void on(InventoryClickEvent e) {
-        Player player = (Player) e.getWhoClicked();
-        int level = getActiveLevel(player);
-        if (level <= 0) {
-            return;
+  private boolean validateArmor(ItemStack item) {
+    if (item.getItemMeta() != null && item.getItemMeta().getLore() != null) {
+      for (String lore : item.getItemMeta().getLore()) {
+        if (lore != null && lore.contains("MultiArmor")) {
+          return true;
         }
-        if (e.getClickedInventory() != null
-                && e.getClick().equals(ClickType.SHIFT_LEFT)
-                && e.getClickedInventory().getItem(e.getSlot()) != null
-                && e.getAction().equals(InventoryAction.MOVE_TO_OTHER_INVENTORY)) {
-            ItemStack cursor = e.getWhoClicked().getItemOnCursor().clone();
-            ItemStack clicked = e.getClickedInventory().getItem(e.getSlot()).clone();
-
-            if (cursor.getType().equals(Material.ELYTRA) || clicked.getType().equals(Material.ELYTRA)) { // One must be an ELYTRA
-
-                if (multiarmor.explode(cursor).size() > 1 || multiarmor.explode(clicked).size() > 1) {
-
-                    if (multiarmor.explode(cursor).size() >= getSlots(level) || multiarmor.explode(clicked).size() >= getSlots(level)) {
-                        e.setCancelled(true);
-                        SoundPlayer sp = SoundPlayer.of(player);
-                        sp.play(e.getWhoClicked().getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 1f, 0.77f);
-                        return;
-                    }
-                }
-                if (ItemListings.getMultiArmorable().contains(cursor.getType()) && ItemListings.getMultiArmorable().contains(clicked.getType())) { // Chest/Elytra Only
-
-                    if (!cursor.getType().isAir() && !clicked.getType().isAir() && multiarmor.supportsItem(cursor) && multiarmor.supportsItem(clicked)) {
-                        e.setCancelled(true);
-                        e.getWhoClicked().setItemOnCursor(new ItemStack(Material.AIR));
-                        e.getClickedInventory().setItem(e.getSlot(), multiarmor.build(cursor, clicked));
-                        SoundPlayer spw = SoundPlayer.of(e.getWhoClicked().getWorld());
-                        spw.play(e.getWhoClicked().getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
-                    }
-                }
-            }
-        }
+      }
     }
+    return false;
+  }
 
 
-    private boolean validateArmor(ItemStack item) {
-        if (item.getItemMeta() != null && item.getItemMeta().getLore() != null) {
-            for (String lore : item.getItemMeta().getLore()) {
-                if (lore != null && lore.contains("MultiArmor")) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
+  private double getSlots(double level) {
+    return getConfig().startingSlots + level;
+  }
 
+  @Override
+  public boolean isPermanent() {
+    return getConfig().permanent;
+  }
 
-    private double getSlots(double level) {
-        return getConfig().startingSlots + level;
-    }
-
-    @Override
-    public boolean isPermanent() {
-        return getConfig().permanent;
-    }
-
-    @NoArgsConstructor
-    @ConfigDescription("Bind Elytras to armor for dynamic merge and swap.")
-    protected static class Config {
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-        boolean permanent = false;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-        boolean enabled = true;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-        int baseCost = 1;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-        int initialCost = 3;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-        double costFactor = 1;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-        int maxLevel = 1;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Starting Slots for the Blocking Multi Armor adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        int startingSlots = 1;
-    }
+  @NoArgsConstructor
+  @ConfigDescription("Bind Elytras to armor for dynamic merge and swap.")
+  protected static class Config {
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
+    boolean permanent = false;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
+    boolean enabled = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
+    int baseCost = 1;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
+    int initialCost = 3;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
+    double costFactor = 1;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
+    int maxLevel = 1;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Starting Slots for the Blocking Multi Armor adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    int startingSlots = 1;
+  }
 }

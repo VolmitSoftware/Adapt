@@ -27,80 +27,80 @@ import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class AdventureCompat {
-    private static final AtomicBoolean FALLBACK_NOTIFIED = new AtomicBoolean(false);
-    private static volatile boolean miniMessageCompatible = true;
+  private static final AtomicBoolean FALLBACK_NOTIFIED = new AtomicBoolean(false);
+  private static volatile boolean miniMessageCompatible = true;
 
-    private AdventureCompat() {
+  private AdventureCompat() {
+  }
+
+  public static Component deserialize(String message) {
+    String source = normalize(message);
+    if (miniMessageCompatible) {
+      try {
+        return MiniMessage.miniMessage().deserialize(source);
+      } catch (Throwable e) {
+        markIncompatible(e);
+      }
     }
 
-    public static Component deserialize(String message) {
-        String source = normalize(message);
-        if (miniMessageCompatible) {
-            try {
-                return MiniMessage.miniMessage().deserialize(source);
-            } catch (Throwable e) {
-                markIncompatible(e);
-            }
-        }
+    return LegacyComponentSerializer.legacySection().deserialize(C.translateAlternateColorCodes('&', stripTagsFallback(source)));
+  }
 
-        return LegacyComponentSerializer.legacySection().deserialize(C.translateAlternateColorCodes('&', stripTagsFallback(source)));
+  public static Component deserializeNoProcessing(String message) {
+    String source = normalize(message);
+    if (miniMessageCompatible) {
+      try {
+        return MiniMessage.builder().postProcessor(c -> c).build().deserialize(source);
+      } catch (Throwable e) {
+        markIncompatible(e);
+      }
     }
 
-    public static Component deserializeNoProcessing(String message) {
-        String source = normalize(message);
-        if (miniMessageCompatible) {
-            try {
-                return MiniMessage.builder().postProcessor(c -> c).build().deserialize(source);
-            } catch (Throwable e) {
-                markIncompatible(e);
-            }
-        }
+    return LegacyComponentSerializer.legacySection().deserialize(C.translateAlternateColorCodes('&', stripTagsFallback(source)));
+  }
 
-        return LegacyComponentSerializer.legacySection().deserialize(C.translateAlternateColorCodes('&', stripTagsFallback(source)));
+  public static String stripTags(String message) {
+    String source = normalize(message);
+    if (miniMessageCompatible) {
+      try {
+        return MiniMessage.miniMessage().stripTags(source);
+      } catch (Throwable e) {
+        markIncompatible(e);
+      }
     }
 
-    public static String stripTags(String message) {
-        String source = normalize(message);
-        if (miniMessageCompatible) {
-            try {
-                return MiniMessage.miniMessage().stripTags(source);
-            } catch (Throwable e) {
-                markIncompatible(e);
-            }
-        }
+    return stripTagsFallback(source);
+  }
 
-        return stripTagsFallback(source);
+  public static String toLegacySection(String message) {
+    String source = normalize(message);
+    if (miniMessageCompatible) {
+      try {
+        return LegacyComponentSerializer.legacySection().serialize(MiniMessage.miniMessage().deserialize(source));
+      } catch (Throwable e) {
+        markIncompatible(e);
+      }
     }
 
-    public static String toLegacySection(String message) {
-        String source = normalize(message);
-        if (miniMessageCompatible) {
-            try {
-                return LegacyComponentSerializer.legacySection().serialize(MiniMessage.miniMessage().deserialize(source));
-            } catch (Throwable e) {
-                markIncompatible(e);
-            }
-        }
+    return C.translateAlternateColorCodes('&', stripTagsFallback(source));
+  }
 
-        return C.translateAlternateColorCodes('&', stripTagsFallback(source));
-    }
+  private static String normalize(String message) {
+    return message == null ? "" : message;
+  }
 
-    private static String normalize(String message) {
-        return message == null ? "" : message;
-    }
+  private static String stripTagsFallback(String message) {
+    return message.replaceAll("<[^>]+>", "");
+  }
 
-    private static String stripTagsFallback(String message) {
-        return message.replaceAll("<[^>]+>", "");
+  private static void markIncompatible(Throwable e) {
+    miniMessageCompatible = false;
+    if (FALLBACK_NOTIFIED.compareAndSet(false, true)) {
+      String reason = e == null ? "unknown" : e.getClass().getSimpleName();
+      Adapt.warn("MiniMessage compatibility fallback enabled (" + reason + ").");
+      if (e != null) {
+        Adapt.verbose("MiniMessage fallback reason: " + e.toString().toLowerCase(Locale.ROOT));
+      }
     }
-
-    private static void markIncompatible(Throwable e) {
-        miniMessageCompatible = false;
-        if (FALLBACK_NOTIFIED.compareAndSet(false, true)) {
-            String reason = e == null ? "unknown" : e.getClass().getSimpleName();
-            Adapt.warn("MiniMessage compatibility fallback enabled (" + reason + ").");
-            if (e != null) {
-                Adapt.verbose("MiniMessage fallback reason: " + e.toString().toLowerCase(Locale.ROOT));
-            }
-        }
-    }
+  }
 }

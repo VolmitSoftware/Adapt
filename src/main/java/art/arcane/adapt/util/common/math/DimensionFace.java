@@ -24,18 +24,18 @@ package art.arcane.adapt.util.common.math;
  * @author cyberpwn
  */
 public enum DimensionFace {
-    /**
-     * The X dimension (width)
-     */
-    X,
+  /**
+   * The X dimension (width)
+   */
+  X,
 
-    /**
-     * The Y dimension (height)
-     */
-    Y,
+  /**
+   * The Y dimension (height)
+   */
+  Y,
 
-    /**
-     * The Z dimension (depth)
-     */
-    Z
+  /**
+   * The Z dimension (depth)
+   */
+  Z
 }

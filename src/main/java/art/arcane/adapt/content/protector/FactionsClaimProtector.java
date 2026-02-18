@@ -27,32 +27,32 @@ import org.bukkit.entity.Player;
 
 public class FactionsClaimProtector implements Protector {
 
-    @Override
-    public boolean checkRegion(Player player, Location location, Adaptation<?> adaptation) {
-        Faction f = Board.getInstance().getFactionAt(new FLocation(player.getLocation()));
-        return checkPerm(player, f, adaptation) || f.isWilderness();
-    }
+  @Override
+  public boolean checkRegion(Player player, Location location, Adaptation<?> adaptation) {
+    Faction f = Board.getInstance().getFactionAt(new FLocation(player.getLocation()));
+    return checkPerm(player, f, adaptation) || f.isWilderness();
+  }
 
-    @Override
-    public boolean canPVP(Player player, Location victimLocation, Adaptation<?> adaptation) {
-        Faction f = Board.getInstance().getFactionAt(new FLocation(victimLocation));
-        return checkPerm(player, f, adaptation) || !f.noPvPInTerritory();
-    }
+  @Override
+  public boolean canPVP(Player player, Location victimLocation, Adaptation<?> adaptation) {
+    Faction f = Board.getInstance().getFactionAt(new FLocation(victimLocation));
+    return checkPerm(player, f, adaptation) || !f.noPvPInTerritory();
+  }
 
-    private boolean checkPerm(Player player, Faction f, Adaptation<?> adaptation) {
-        FPlayer fp = FPlayers.getInstance().getByPlayer(player);
-        return f == null
-                || fp.getFaction() == f
-                || fp.isAdminBypassing();
-    }
+  private boolean checkPerm(Player player, Faction f, Adaptation<?> adaptation) {
+    FPlayer fp = FPlayers.getInstance().getByPlayer(player);
+    return f == null
+        || fp.getFaction() == f
+        || fp.isAdminBypassing();
+  }
 
-    @Override
-    public String getName() {
-        return "Factions";
-    }
+  @Override
+  public String getName() {
+    return "Factions";
+  }
 
-    @Override
-    public boolean isEnabledByDefault() {
-        return AdaptConfig.get().getProtectorSupport().isFactionsClaim();
-    }
+  @Override
+  public boolean isEnabledByDefault() {
+    return AdaptConfig.get().getProtectorSupport().isFactionsClaim();
+  }
 }

@@ -36,67 +36,67 @@ import java.util.List;
 @AllArgsConstructor
 @Data
 public class BoundSnowBall implements DataItem<BoundSnowBall.Data> {
-    public static BoundSnowBall io = new BoundSnowBall();
+  public static BoundSnowBall io = new BoundSnowBall();
 
-    public static Player getPlayer(ItemStack stack) {
-        if (io.getData(stack) != null) {
-            return io.getData(stack).getPlayer();
+  public static Player getPlayer(ItemStack stack) {
+    if (io.getData(stack) != null) {
+      return io.getData(stack).getPlayer();
+    }
+
+    return null;
+  }
+
+  public static void setData(ItemStack item, Player t) {
+    io.setData(item, new Data(t));
+  }
+
+  public static ItemStack withData(Player t) {
+    return io.withData(new Data(t));
+  }
+
+  public static boolean isBindableItem(ItemStack t) {
+    if (t.getType().equals(Material.SNOWBALL)) {
+      if (t.getItemMeta() != null && t.getItemMeta().getLore() != null) {
+        if (t.getItemMeta().getLore().get(0).contains(Localizer.dLocalize("items.bound_snowball.name"))) {
+          Adapt.verbose("Snowball is bindable: " + t.getType().name());
+          return true;
         }
-
-        return null;
+      }
     }
+    return false;
+  }
 
-    public static void setData(ItemStack item, Player t) {
-        io.setData(item, new Data(t));
+
+  @Override
+  public Material getMaterial() {
+    return Material.SNOWBALL;
+  }
+
+  @Override
+  public Class<Data> getType() {
+    return BoundSnowBall.Data.class;
+  }
+
+  @Override
+  public void applyLore(Data data, List<String> lore) {
+    lore.add(C.WHITE + Localizer.dLocalize("items.bound_snowball.name"));
+    lore.add(C.GRAY + Localizer.dLocalize("items.bound_snowball.usage1"));
+  }
+
+  @Override
+  public void applyMeta(Data data, ItemMeta meta) {
+    meta.addEnchant(Enchantment.BINDING_CURSE, 10, true);
+    meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_DYE);
+    meta.setDisplayName(Localizer.dLocalize("items.bound_snowball.name"));
+  }
+
+  @AllArgsConstructor
+  @lombok.Data
+  public static class Data {
+    private Player player;
+
+    public static BoundSnowBall.Data at(Player p) {
+      return new BoundSnowBall.Data(p);
     }
-
-    public static ItemStack withData(Player t) {
-        return io.withData(new Data(t));
-    }
-
-    public static boolean isBindableItem(ItemStack t) {
-        if (t.getType().equals(Material.SNOWBALL)) {
-            if (t.getItemMeta() != null && t.getItemMeta().getLore() != null) {
-                if (t.getItemMeta().getLore().get(0).contains(Localizer.dLocalize("items.bound_snowball.name"))) {
-                    Adapt.verbose("Snowball is bindable: " + t.getType().name());
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-
-    @Override
-    public Material getMaterial() {
-        return Material.SNOWBALL;
-    }
-
-    @Override
-    public Class<Data> getType() {
-        return BoundSnowBall.Data.class;
-    }
-
-    @Override
-    public void applyLore(Data data, List<String> lore) {
-        lore.add(C.WHITE + Localizer.dLocalize("items.bound_snowball.name"));
-        lore.add(C.GRAY + Localizer.dLocalize("items.bound_snowball.usage1"));
-    }
-
-    @Override
-    public void applyMeta(Data data, ItemMeta meta) {
-        meta.addEnchant(Enchantment.BINDING_CURSE, 10, true);
-        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_DYE);
-        meta.setDisplayName(Localizer.dLocalize("items.bound_snowball.name"));
-    }
-
-    @AllArgsConstructor
-    @lombok.Data
-    public static class Data {
-        private Player player;
-
-        public static BoundSnowBall.Data at(Player p) {
-            return new BoundSnowBall.Data(p);
-        }
-    }
+  }
 }

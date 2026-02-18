@@ -29,11 +29,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PlayerHandler extends PlayerHandlerBase implements DirectorParameterHandler<Player> {
-    @Override
-    protected List<Player> playerOptions() {
-        if (Adapt.instance != null && Adapt.instance.getAdaptServer() != null) {
-            return new ArrayList<>(Adapt.instance.getAdaptServer().getOnlinePlayerSnapshot());
-        }
-        return new ArrayList<>(Bukkit.getOnlinePlayers());
+  @Override
+  protected List<Player> playerOptions() {
+    if (Adapt.instance != null && Adapt.instance.getAdaptServer() != null) {
+      return new ArrayList<>(Adapt.instance.getAdaptServer().getOnlinePlayerSnapshot());
     }
+    return new ArrayList<>(Bukkit.getOnlinePlayers());
+  }
 }

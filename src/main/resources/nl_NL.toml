@@ -2,2210 +2,2210 @@
 [advancement]
 
 [advancement.challenge_move_1k]
-    title = "Moet bewegen!"
-    description = "Loop meer dan 1 kilometer (1.000 blokken)"
+title = "Moet bewegen!"
+description = "Loop meer dan 1 kilometer (1.000 blokken)"
 
 [advancement.challenge_sprint_5k]
-    title = "Sprint een 5K!"
-    description = "Loop meer dan 5 kilometer (5.000 blokken)"
+title = "Sprint een 5K!"
+description = "Loop meer dan 5 kilometer (5.000 blokken)"
 
 [advancement.challenge_sprint_50k]
-    title = "Zoom een 50K!"
-    description = "Loop meer dan 50 kilometer (50.000 blokken)"
+title = "Zoom een 50K!"
+description = "Loop meer dan 50 kilometer (50.000 blokken)"
 
 [advancement.challenge_sprint_500k]
-    title = "Doorkruis het heelal!!"
-    description = "Loop meer dan 500 kilometer (500.000 blokken)"
+title = "Doorkruis het heelal!!"
+description = "Loop meer dan 500 kilometer (500.000 blokken)"
 
 [advancement.challenge_sprint_marathon]
-    title = "Sprint een (letterlijke) Marathon!"
-    description = "Sprint meer dan 42.195 blokken!"
+title = "Sprint een (letterlijke) Marathon!"
+description = "Sprint meer dan 42.195 blokken!"
 
 [advancement.challenge_place_1k]
-    title = "Beginnende Bouwer!"
-    description = "Plaats 1.000 blokken"
+title = "Beginnende Bouwer!"
+description = "Plaats 1.000 blokken"
 
 [advancement.challenge_place_5k]
-    title = "Gemiddelde Bouwer!"
-    description = "Plaats 5.000 blokken"
+title = "Gemiddelde Bouwer!"
+description = "Plaats 5.000 blokken"
 
 [advancement.challenge_place_50k]
-    title = "Gevorderde Bouwer!"
-    description = "Plaats 50.000 blokken"
+title = "Gevorderde Bouwer!"
+description = "Plaats 50.000 blokken"
 
 [advancement.challenge_place_500k]
-    title = "Meester Bouwer!"
-    description = "Plaats 500.000 blokken"
+title = "Meester Bouwer!"
+description = "Plaats 500.000 blokken"
 
 [advancement.challenge_place_5m]
-    title = "Acoliet van de Symmetrie!"
-    description = "DE WERKELIJKHEID IS JOUW SPEELTUIN! (5 miljoen blokken)"
+title = "Acoliet van de Symmetrie!"
+description = "DE WERKELIJKHEID IS JOUW SPEELTUIN! (5 miljoen blokken)"
 
 [advancement.challenge_chop_1k]
-    title = "Beginnende Houthakker!"
-    description = "Hak 1.000 blokken"
+title = "Beginnende Houthakker!"
+description = "Hak 1.000 blokken"
 
 [advancement.challenge_chop_5k]
-    title = "Gemiddelde Houthakker!"
-    description = "Hak 5.000 blokken"
+title = "Gemiddelde Houthakker!"
+description = "Hak 5.000 blokken"
 
 [advancement.challenge_chop_50k]
-    title = "Gevorderde Houthakker!"
-    description = "Hak 50.000 blokken"
+title = "Gevorderde Houthakker!"
+description = "Hak 50.000 blokken"
 
 [advancement.challenge_chop_500k]
-    title = "Meester Houthakker!"
-    description = "Hak 500.000 blokken"
+title = "Meester Houthakker!"
+description = "Hak 500.000 blokken"
 
 [advancement.challenge_chop_5m]
-    title = "Jackson de Hond"
-    description = "De allerbeste brave jongen! (5 miljoen blokken)"
+title = "Jackson de Hond"
+description = "De allerbeste brave jongen! (5 miljoen blokken)"
 
 [advancement.challenge_block_1k]
-    title = "Amper Geblokkeerd!"
-    description = "Blokkeer 1000 treffers"
+title = "Amper Geblokkeerd!"
+description = "Blokkeer 1000 treffers"
 
 [advancement.challenge_block_5k]
-    title = "Blokkeren is Leuk!"
-    description = "Blokkeer 5000 treffers"
+title = "Blokkeren is Leuk!"
+description = "Blokkeer 5000 treffers"
 
 [advancement.challenge_block_50k]
-    title = "Blokkeren is mijn Leven!"
-    description = "Blokkeer 50.000 treffers"
+title = "Blokkeren is mijn Leven!"
+description = "Blokkeer 50.000 treffers"
 
 [advancement.challenge_block_500k]
-    title = "Blokkeren is mijn Doel!"
-    description = "Blokkeer 500.000 treffers"
+title = "Blokkeren is mijn Doel!"
+description = "Blokkeer 500.000 treffers"
 
 [advancement.challenge_block_5m]
-    title = "Die Hand Die Verletzt"
-    description = "Blokkeer 5.000.000 treffers"
+title = "Die Hand Die Verletzt"
+description = "Blokkeer 5.000.000 treffers"
 
 [advancement.challenge_brew_1k]
-    title = "Beginnende Alchemist!"
-    description = "Consumeer 1000 drankjes"
+title = "Beginnende Alchemist!"
+description = "Consumeer 1000 drankjes"
 
 [advancement.challenge_brew_5k]
-    title = "Gemiddelde Alchemist!"
-    description = "Consumeer 5000 drankjes"
+title = "Gemiddelde Alchemist!"
+description = "Consumeer 5000 drankjes"
 
 [advancement.challenge_brew_50k]
-    title = "Gevorderde Alchemist!"
-    description = "Consumeer 50.000 drankjes"
+title = "Gevorderde Alchemist!"
+description = "Consumeer 50.000 drankjes"
 
 [advancement.challenge_brew_500k]
-    title = "Meester Alchemist!"
-    description = "Consumeer 500.000 drankjes"
+title = "Meester Alchemist!"
+description = "Consumeer 500.000 drankjes"
 
 [advancement.challenge_brew_5m]
-    title = "De Alchemist"
-    description = "Consumeer 5.000.000 drankjes"
+title = "De Alchemist"
+description = "Consumeer 5.000.000 drankjes"
 
 [advancement.challenge_brewsplash_1k]
-    title = "Beginnende Drankje-Gooier!"
-    description = "Gooi 1000 drankjes"
+title = "Beginnende Drankje-Gooier!"
+description = "Gooi 1000 drankjes"
 
 [advancement.challenge_brewsplash_5k]
-    title = "Gemiddelde Drankje-Gooier!"
-    description = "Gooi 5000 drankjes"
+title = "Gemiddelde Drankje-Gooier!"
+description = "Gooi 5000 drankjes"
 
 [advancement.challenge_brewsplash_50k]
-    title = "Gevorderde Drankje-Gooier!"
-    description = "Gooi 50.000 drankjes"
+title = "Gevorderde Drankje-Gooier!"
+description = "Gooi 50.000 drankjes"
 
 [advancement.challenge_brewsplash_500k]
-    title = "Meester Drankje-Gooier!"
-    description = "Gooi 500.000 drankjes"
+title = "Meester Drankje-Gooier!"
+description = "Gooi 500.000 drankjes"
 
 [advancement.challenge_brewsplash_5m]
-    title = "De Gooi-Meester"
-    description = "Gooi 5.000.000 drankjes"
+title = "De Gooi-Meester"
+description = "Gooi 5.000.000 drankjes"
 
 [advancement.challenge_craft_1k]
-    title = "Handige Knutselaar!"
-    description = "Maak 1000 voorwerpen"
+title = "Handige Knutselaar!"
+description = "Maak 1000 voorwerpen"
 
 [advancement.challenge_craft_5k]
-    title = "Chagrijnige Knutselaar!"
-    description = "Maak 5000 voorwerpen"
+title = "Chagrijnige Knutselaar!"
+description = "Maak 5000 voorwerpen"
 
 [advancement.challenge_craft_50k]
-    title = "Onderdanige Knutselaar!"
-    description = "Maak 50.000 voorwerpen"
+title = "Onderdanige Knutselaar!"
+description = "Maak 50.000 voorwerpen"
 
 [advancement.challenge_craft_500k]
-    title = "Kakofone Knutselaar!"
-    description = "Maak 500.000 voorwerpen"
+title = "Kakofone Knutselaar!"
+description = "Maak 500.000 voorwerpen"
 
 [advancement.challenge_craft_5m]
-    title = "Rampzalige McCraftface"
-    description = "Maak 5.000.000 voorwerpen"
+title = "Rampzalige McCraftface"
+description = "Maak 5.000.000 voorwerpen"
 
 [advancement.challenge_enchant_1k]
-    title = "Beginnende Betoveraar!"
-    description = "Betover 1000 voorwerpen"
+title = "Beginnende Betoveraar!"
+description = "Betover 1000 voorwerpen"
 
 [advancement.challenge_enchant_5k]
-    title = "Gemiddelde Betoveraar!"
-    description = "Betover 5000 voorwerpen"
+title = "Gemiddelde Betoveraar!"
+description = "Betover 5000 voorwerpen"
 
 [advancement.challenge_enchant_50k]
-    title = "Gevorderde Betoveraar!"
-    description = "Betover 50.000 voorwerpen"
+title = "Gevorderde Betoveraar!"
+description = "Betover 50.000 voorwerpen"
 
 [advancement.challenge_enchant_500k]
-    title = "Meester Betoveraar!"
-    description = "Betover 500.000 voorwerpen"
+title = "Meester Betoveraar!"
+description = "Betover 500.000 voorwerpen"
 
 [advancement.challenge_enchant_5m]
-    title = "Raadselachtige Betoveraar"
-    description = "Betover 5.000.000 voorwerpen"
+title = "Raadselachtige Betoveraar"
+description = "Betover 5.000.000 voorwerpen"
 
 [advancement.challenge_excavate_1k]
-    title = "Enthousiaste Graver!"
-    description = "Graaf 1000 blokken op"
+title = "Enthousiaste Graver!"
+description = "Graaf 1000 blokken op"
 
 [advancement.challenge_excavate_5k]
-    title = "Gemiddelde Graver!"
-    description = "Graaf 5000 blokken op"
+title = "Gemiddelde Graver!"
+description = "Graaf 5000 blokken op"
 
 [advancement.challenge_excavate_50k]
-    title = "Gevorderde Graver!"
-    description = "Graaf 50.000 blokken op"
+title = "Gevorderde Graver!"
+description = "Graaf 50.000 blokken op"
 
 [advancement.challenge_excavate_500k]
-    title = "Meester Graver!"
-    description = "Graaf 500.000 blokken op"
+title = "Meester Graver!"
+description = "Graaf 500.000 blokken op"
 
 [advancement.challenge_excavate_5m]
-    title = "Raadselachtige Graver"
-    description = "Graaf 5.000.000 blokken op"
+title = "Raadselachtige Graver"
+description = "Graaf 5.000.000 blokken op"
 
 [advancement.horrible_person]
-    title = "Je bent een verschrikkelijk persoon"
-    description = "Ondoorgrondelijk, echt waar"
+title = "Je bent een verschrikkelijk persoon"
+description = "Ondoorgrondelijk, echt waar"
 
 [advancement.challenge_turtle_egg_smasher]
-    title = "Schildpadei-Verbrijzelaar!"
-    description = "Breek 100 schildpadeieren"
+title = "Schildpadei-Verbrijzelaar!"
+description = "Breek 100 schildpadeieren"
 
 [advancement.challenge_turtle_egg_annihilator]
-    title = "Schildpadei-Vernietiger!"
-    description = "Breek 500 schildpadeieren"
+title = "Schildpadei-Vernietiger!"
+description = "Breek 500 schildpadeieren"
 
 [advancement.challenge_novice_hunter]
-    title = "Beginnende Jager!"
-    description = "Dood 100 entiteiten"
+title = "Beginnende Jager!"
+description = "Dood 100 entiteiten"
 
 [advancement.challenge_intermediate_hunter]
-    title = "Gemiddelde Jager!"
-    description = "Dood 500 entiteiten"
+title = "Gemiddelde Jager!"
+description = "Dood 500 entiteiten"
 
 [advancement.challenge_advanced_hunter]
-    title = "Gevorderde Jager!"
-    description = "Dood 5000 entiteiten"
+title = "Gevorderde Jager!"
+description = "Dood 5000 entiteiten"
 
 [advancement.challenge_creeper_conqueror]
-    title = "Creeper-Veroveraar!"
-    description = "Dood 50 creepers"
+title = "Creeper-Veroveraar!"
+description = "Dood 50 creepers"
 
 [advancement.challenge_creeper_annihilator]
-    title = "Creeper-Vernietiger!"
-    description = "Dood 200 creepers"
+title = "Creeper-Vernietiger!"
+description = "Dood 200 creepers"
 
 [advancement.challenge_pickaxe_1k]
-    title = "Beginnende Mijnwerker"
-    description = "Breek 1000 blokken"
+title = "Beginnende Mijnwerker"
+description = "Breek 1000 blokken"
 
 [advancement.challenge_pickaxe_5k]
-    title = "Bekwame Mijnwerker"
-    description = "Breek 5000 blokken"
+title = "Bekwame Mijnwerker"
+description = "Breek 5000 blokken"
 
 [advancement.challenge_pickaxe_50k]
-    title = "Deskundige Mijnwerker"
-    description = "Breek 50.000 blokken"
+title = "Deskundige Mijnwerker"
+description = "Breek 50.000 blokken"
 
 [advancement.challenge_pickaxe_500k]
-    title = "Meester Mijnwerker"
-    description = "Breek 500.000 blokken"
+title = "Meester Mijnwerker"
+description = "Breek 500.000 blokken"
 
 [advancement.challenge_pickaxe_5m]
-    title = "Legendarische Mijnwerker"
-    description = "Breek 5.000.000 blokken"
+title = "Legendarische Mijnwerker"
+description = "Breek 5.000.000 blokken"
 
 [advancement.challenge_eat_100]
-    title = "Zoveel te eten!"
-    description = "Eet meer dan 100 items!"
+title = "Zoveel te eten!"
+description = "Eet meer dan 100 items!"
 
 [advancement.challenge_eat_1000]
-    title = "Onlesbare Honger!"
-    description = "Eet meer dan 1.000 items!"
+title = "Onlesbare Honger!"
+description = "Eet meer dan 1.000 items!"
 
 [advancement.challenge_eat_10000]
-    title = "EEUWIGDURENDE HONGER!"
-    description = "Eet meer dan 10.000 items!"
+title = "EEUWIGDURENDE HONGER!"
+description = "Eet meer dan 10.000 items!"
 
 [advancement.challenge_harvest_100]
-    title = "Volledige Oogst"
-    description = "Oogst meer dan 100 gewassen!"
+title = "Volledige Oogst"
+description = "Oogst meer dan 100 gewassen!"
 
 [advancement.challenge_harvest_1000]
-    title = "Grote Oogst"
-    description = "Oogst meer dan 1.000 gewassen!"
+title = "Grote Oogst"
+description = "Oogst meer dan 1.000 gewassen!"
 
 [advancement.challenge_swim_1nm]
-    title = "Menselijke Onderzeeboot!"
-    description = "Zwem 1 zeemijl (1.852 blokken)"
+title = "Menselijke Onderzeeboot!"
+description = "Zwem 1 zeemijl (1.852 blokken)"
 
 [advancement.challenge_sneak_1k]
-    title = "Kniepijn"
-    description = "Sluip meer dan een kilometer (1.000 blokken)"
+title = "Kniepijn"
+description = "Sluip meer dan een kilometer (1.000 blokken)"
 
 [advancement.challenge_sneak_5k]
-    title = "Schaduwloper"
-    description = "Sluip meer dan 5.000 blokken"
+title = "Schaduwloper"
+description = "Sluip meer dan 5.000 blokken"
 
 [advancement.challenge_sneak_20k]
-    title = "Geest"
-    description = "Sluip meer dan 20.000 blokken"
+title = "Geest"
+description = "Sluip meer dan 20.000 blokken"
 
 [advancement.challenge_swim_5k]
-    title = "Diepzeeduiker"
-    description = "Zwem meer dan 5.000 blokken"
+title = "Diepzeeduiker"
+description = "Zwem meer dan 5.000 blokken"
 
 [advancement.challenge_swim_20k]
-    title = "Poseidons Uitverkorene"
-    description = "Zwem meer dan 20.000 blokken"
+title = "Poseidons Uitverkorene"
+description = "Zwem meer dan 20.000 blokken"
 
 [advancement.challenge_sword_100]
-    title = "Eerste Bloed"
-    description = "Land 100 slagen met een zwaard"
+title = "Eerste Bloed"
+description = "Land 100 slagen met een zwaard"
 
 [advancement.challenge_sword_1k]
-    title = "Zwaardendanser"
-    description = "Land 1.000 slagen met een zwaard"
+title = "Zwaardendanser"
+description = "Land 1.000 slagen met een zwaard"
 
 [advancement.challenge_sword_10k]
-    title = "Duizend Sneden"
-    description = "Land 10.000 slagen met een zwaard"
+title = "Duizend Sneden"
+description = "Land 10.000 slagen met een zwaard"
 
 [advancement.challenge_unarmed_100]
-    title = "Kroegvechter"
-    description = "Land 100 ongewapende slagen"
+title = "Kroegvechter"
+description = "Land 100 ongewapende slagen"
 
 [advancement.challenge_unarmed_1k]
-    title = "IJzeren Vuisten"
-    description = "Land 1.000 ongewapende slagen"
+title = "IJzeren Vuisten"
+description = "Land 1.000 ongewapende slagen"
 
 [advancement.challenge_unarmed_10k]
-    title = "Een Klap"
-    description = "Land 10.000 ongewapende slagen"
+title = "Een Klap"
+description = "Land 10.000 ongewapende slagen"
 
 [advancement.challenge_trag_1k]
-    title = "Bloedprijs"
-    description = "Ontvang 1.000 schade"
+title = "Bloedprijs"
+description = "Ontvang 1.000 schade"
 
 [advancement.challenge_trag_10k]
-    title = "Rode Vloed"
-    description = "Ontvang 10.000 schade"
+title = "Rode Vloed"
+description = "Ontvang 10.000 schade"
 
 [advancement.challenge_trag_100k]
-    title = "Avatar van Lijden"
-    description = "Ontvang 100.000 schade"
+title = "Avatar van Lijden"
+description = "Ontvang 100.000 schade"
 
 [advancement.challenge_ranged_100]
-    title = "Schietoefening"
-    description = "Vuur 100 projectielen af"
+title = "Schietoefening"
+description = "Vuur 100 projectielen af"
 
 [advancement.challenge_ranged_1k]
-    title = "Havikoog"
-    description = "Vuur 1.000 projectielen af"
+title = "Havikoog"
+description = "Vuur 1.000 projectielen af"
 
 [advancement.challenge_ranged_10k]
-    title = "Pijlenstorm"
-    description = "Vuur 10.000 projectielen af"
+title = "Pijlenstorm"
+description = "Vuur 10.000 projectielen af"
 
 [advancement.challenge_chronos_1h]
-    title = "Tik Tak"
-    description = "Breng 1 uur online door"
+title = "Tik Tak"
+description = "Breng 1 uur online door"
 
 [advancement.challenge_chronos_24h]
-    title = "Zand der Tijd"
-    description = "Breng 24 uur online door"
+title = "Zand der Tijd"
+description = "Breng 24 uur online door"
 
 [advancement.challenge_chronos_168h]
-    title = "Tijdloos"
-    description = "Breng 168 uur (1 week) online door"
+title = "Tijdloos"
+description = "Breng 168 uur (1 week) online door"
 
 [advancement.challenge_nether_50]
-    title = "Poortwachter van de Hel"
-    description = "Versla 50 netherwezens"
+title = "Poortwachter van de Hel"
+description = "Versla 50 netherwezens"
 
 [advancement.challenge_nether_500]
-    title = "Wachter van de Afgrond"
-    description = "Versla 500 netherwezens"
+title = "Wachter van de Afgrond"
+description = "Versla 500 netherwezens"
 
 [advancement.challenge_nether_5k]
-    title = "Heer van de Nether"
-    description = "Versla 5.000 netherwezens"
+title = "Heer van de Nether"
+description = "Versla 5.000 netherwezens"
 
 [advancement.challenge_rift_50]
-    title = "Ruimtelijke Afwijking"
-    description = "Teleporteer 50 keer"
+title = "Ruimtelijke Afwijking"
+description = "Teleporteer 50 keer"
 
 [advancement.challenge_rift_500]
-    title = "Leegtewandelaar"
-    description = "Teleporteer 500 keer"
+title = "Leegtewandelaar"
+description = "Teleporteer 500 keer"
 
 [advancement.challenge_rift_5k]
-    title = "Tussen Werelden"
-    description = "Teleporteer 5.000 keer"
+title = "Tussen Werelden"
+description = "Teleporteer 5.000 keer"
 
 [advancement.challenge_taming_10]
-    title = "Dierenfluisteraar"
-    description = "Fok 10 dieren"
+title = "Dierenfluisteraar"
+description = "Fok 10 dieren"
 
 [advancement.challenge_taming_50]
-    title = "Roedelleider"
-    description = "Fok 50 dieren"
+title = "Roedelleider"
+description = "Fok 50 dieren"
 
 [advancement.challenge_taming_500]
-    title = "Beestenmeester"
-    description = "Fok 500 dieren"
+title = "Beestenmeester"
+description = "Fok 500 dieren"
 
 # Agility - New Achievement Chains
 [advancement.challenge_sprint_dist_5k]
-    title = "Snelheidsdemon"
-    description = "Sprint meer dan 5 Kilometer (5,000 blokken)"
+title = "Snelheidsdemon"
+description = "Sprint meer dan 5 Kilometer (5,000 blokken)"
 
 [advancement.challenge_sprint_dist_50k]
-    title = "Bliksembenen"
-    description = "Sprint meer dan 50 Kilometer (50,000 blokken)"
+title = "Bliksembenen"
+description = "Sprint meer dan 50 Kilometer (50,000 blokken)"
 
 [advancement.challenge_agility_swim_1k]
-    title = "Waterloper"
-    description = "Zwem meer dan 1 Kilometer (1,000 blokken)"
+title = "Waterloper"
+description = "Zwem meer dan 1 Kilometer (1,000 blokken)"
 
 [advancement.challenge_agility_swim_10k]
-    title = "Aquatische Reiziger"
-    description = "Zwem meer dan 10 Kilometer (10,000 blokken)"
+title = "Aquatische Reiziger"
+description = "Zwem meer dan 10 Kilometer (10,000 blokken)"
 
 [advancement.challenge_fly_1k]
-    title = "Hemeldanser"
-    description = "Vlieg meer dan 1 Kilometer (1,000 blokken)"
+title = "Hemeldanser"
+description = "Vlieg meer dan 1 Kilometer (1,000 blokken)"
 
 [advancement.challenge_fly_10k]
-    title = "Windrijder"
-    description = "Vlieg meer dan 10 Kilometer (10,000 blokken)"
+title = "Windrijder"
+description = "Vlieg meer dan 10 Kilometer (10,000 blokken)"
 
 [advancement.challenge_agility_sneak_500]
-    title = "Stille Stappen"
-    description = "Sluip meer dan 500 blokken"
+title = "Stille Stappen"
+description = "Sluip meer dan 500 blokken"
 
 [advancement.challenge_agility_sneak_5k]
-    title = "Spookstappen"
-    description = "Sluip meer dan 5 Kilometer (5,000 blokken)"
+title = "Spookstappen"
+description = "Sluip meer dan 5 Kilometer (5,000 blokken)"
 
 # Architect - New Achievement Chains
 [advancement.challenge_demolish_500]
-    title = "Sloopploeg"
-    description = "Vernietig 500 blokken"
+title = "Sloopploeg"
+description = "Vernietig 500 blokken"
 
 [advancement.challenge_demolish_5k]
-    title = "Sloopkogel"
-    description = "Vernietig 5,000 blokken"
+title = "Sloopkogel"
+description = "Vernietig 5,000 blokken"
 
 [advancement.challenge_value_placed_10k]
-    title = "Waardevolle Bouwer"
-    description = "Plaats blokken ter waarde van 10,000"
+title = "Waardevolle Bouwer"
+description = "Plaats blokken ter waarde van 10,000"
 
 [advancement.challenge_value_placed_100k]
-    title = "Meester Architect"
-    description = "Plaats blokken ter waarde van 100,000"
+title = "Meester Architect"
+description = "Plaats blokken ter waarde van 100,000"
 
 [advancement.challenge_demolish_val_5k]
-    title = "Bergingsexpert"
-    description = "Berg 5,000 blokwaarde uit sloop"
+title = "Bergingsexpert"
+description = "Berg 5,000 blokwaarde uit sloop"
 
 [advancement.challenge_demolish_val_50k]
-    title = "Totale Afbraak"
-    description = "Berg 50,000 blokwaarde uit sloop"
+title = "Totale Afbraak"
+description = "Berg 50,000 blokwaarde uit sloop"
 
 [advancement.challenge_high_build_100]
-    title = "Hemelbouwer"
-    description = "Plaats 100 blokken boven Y=128"
+title = "Hemelbouwer"
+description = "Plaats 100 blokken boven Y=128"
 
 [advancement.challenge_high_build_1k]
-    title = "Wolkenarchitect"
-    description = "Plaats 1,000 blokken boven Y=128"
+title = "Wolkenarchitect"
+description = "Plaats 1,000 blokken boven Y=128"
 
 # Axes - New Achievement Chains
 [advancement.challenge_axe_swing_500]
-    title = "Bijlzwaaier"
-    description = "Zwaai je bijl 500 keer"
+title = "Bijlzwaaier"
+description = "Zwaai je bijl 500 keer"
 
 [advancement.challenge_axe_swing_5k]
-    title = "Berserker"
-    description = "Zwaai je bijl 5,000 keer"
+title = "Berserker"
+description = "Zwaai je bijl 5,000 keer"
 
 [advancement.challenge_axe_damage_1k]
-    title = "Kliever"
-    description = "Deel 1,000 schade uit met bijlen"
+title = "Kliever"
+description = "Deel 1,000 schade uit met bijlen"
 
 [advancement.challenge_axe_damage_10k]
-    title = "Beulsbijl"
-    description = "Deel 10,000 schade uit met bijlen"
+title = "Beulsbijl"
+description = "Deel 10,000 schade uit met bijlen"
 
 [advancement.challenge_axe_value_5k]
-    title = "Houthandelaar"
-    description = "Oogst 5,000 waarde aan hout"
+title = "Houthandelaar"
+description = "Oogst 5,000 waarde aan hout"
 
 [advancement.challenge_axe_value_50k]
-    title = "Houtbaron"
-    description = "Oogst 50,000 waarde aan hout"
+title = "Houtbaron"
+description = "Oogst 50,000 waarde aan hout"
 
 [advancement.challenge_leaves_500]
-    title = "Bladblazer"
-    description = "Verwijder 500 bladblokken met een bijl"
+title = "Bladblazer"
+description = "Verwijder 500 bladblokken met een bijl"
 
 [advancement.challenge_leaves_5k]
-    title = "Ontbladeraar"
-    description = "Verwijder 5,000 bladblokken met een bijl"
+title = "Ontbladeraar"
+description = "Verwijder 5,000 bladblokken met een bijl"
 
 # Blocking - New Achievement Chains
 [advancement.challenge_block_dmg_1k]
-    title = "Schadedemper"
-    description = "Blokkeer 1,000 schade met een schild"
+title = "Schadedemper"
+description = "Blokkeer 1,000 schade met een schild"
 
 [advancement.challenge_block_dmg_10k]
-    title = "Menselijk Schild"
-    description = "Blokkeer 10,000 schade met een schild"
+title = "Menselijk Schild"
+description = "Blokkeer 10,000 schade met een schild"
 
 [advancement.challenge_block_proj_100]
-    title = "Pijlafweerder"
-    description = "Blokkeer 100 projectielen met een schild"
+title = "Pijlafweerder"
+description = "Blokkeer 100 projectielen met een schild"
 
 [advancement.challenge_block_proj_1k]
-    title = "Projectielschild"
-    description = "Blokkeer 1,000 projectielen met een schild"
+title = "Projectielschild"
+description = "Blokkeer 1,000 projectielen met een schild"
 
 [advancement.challenge_block_melee_500]
-    title = "Pareermeester"
-    description = "Blokkeer 500 melee-aanvallen met een schild"
+title = "Pareermeester"
+description = "Blokkeer 500 melee-aanvallen met een schild"
 
 [advancement.challenge_block_melee_5k]
-    title = "IJzeren Vesting"
-    description = "Blokkeer 5,000 melee-aanvallen met een schild"
+title = "IJzeren Vesting"
+description = "Blokkeer 5,000 melee-aanvallen met een schild"
 
 [advancement.challenge_block_heavy_50]
-    title = "Tank"
-    description = "Blokkeer 50 zware aanvallen (meer dan 5 schade)"
+title = "Tank"
+description = "Blokkeer 50 zware aanvallen (meer dan 5 schade)"
 
 [advancement.challenge_block_heavy_500]
-    title = "Onbeweegbaar Object"
-    description = "Blokkeer 500 zware aanvallen (meer dan 5 schade)"
+title = "Onbeweegbaar Object"
+description = "Blokkeer 500 zware aanvallen (meer dan 5 schade)"
 
 # Brewing - New Achievement Chains
 [advancement.challenge_brew_stands_10]
-    title = "Brouwerij Opzet"
-    description = "Plaats 10 brouwerstandaarden"
+title = "Brouwerij Opzet"
+description = "Plaats 10 brouwerstandaarden"
 
 [advancement.challenge_brew_stands_50]
-    title = "Drankjesfabriek"
-    description = "Plaats 50 brouwerstandaarden"
+title = "Drankjesfabriek"
+description = "Plaats 50 brouwerstandaarden"
 
 [advancement.challenge_brew_strong_25]
-    title = "Sterk Brouwsel"
-    description = "Verbruik 25 verbeterde drankjes"
+title = "Sterk Brouwsel"
+description = "Verbruik 25 verbeterde drankjes"
 
 [advancement.challenge_brew_strong_250]
-    title = "Maximale Kracht"
-    description = "Verbruik 250 verbeterde drankjes"
+title = "Maximale Kracht"
+description = "Verbruik 250 verbeterde drankjes"
 
 [advancement.challenge_brew_splash_hits_50]
-    title = "Spatzone"
-    description = "Raak 50 entiteiten met spatdrankjes"
+title = "Spatzone"
+description = "Raak 50 entiteiten met spatdrankjes"
 
 [advancement.challenge_brew_splash_hits_500]
-    title = "Pestdokter"
-    description = "Raak 500 entiteiten met spatdrankjes"
+title = "Pestdokter"
+description = "Raak 500 entiteiten met spatdrankjes"
 
 # Chronos - New Achievement Chains
 [advancement.challenge_active_dist_1k]
-    title = "Rusteloze Ziel"
-    description = "Reis 1 Kilometer terwijl je actief bent"
+title = "Rusteloze Ziel"
+description = "Reis 1 Kilometer terwijl je actief bent"
 
 [advancement.challenge_active_dist_10k]
-    title = "Padvinder"
-    description = "Reis 10 Kilometer terwijl je actief bent"
+title = "Padvinder"
+description = "Reis 10 Kilometer terwijl je actief bent"
 
 [advancement.challenge_active_dist_100k]
-    title = "Eeuwige Beweging"
-    description = "Reis 100 Kilometer terwijl je actief bent"
+title = "Eeuwige Beweging"
+description = "Reis 100 Kilometer terwijl je actief bent"
 
 [advancement.challenge_beds_10]
-    title = "Vroege Vogel"
-    description = "Slaap 10 keer in een bed"
+title = "Vroege Vogel"
+description = "Slaap 10 keer in een bed"
 
 [advancement.challenge_beds_100]
-    title = "Tijdspringer"
-    description = "Slaap 100 keer in een bed"
+title = "Tijdspringer"
+description = "Slaap 100 keer in een bed"
 
 [advancement.challenge_chronos_tp_50]
-    title = "Tijdverschuiving"
-    description = "Teleporteer 50 keer"
+title = "Tijdverschuiving"
+description = "Teleporteer 50 keer"
 
 [advancement.challenge_chronos_tp_500]
-    title = "Tijdkronkel"
-    description = "Teleporteer 500 keer"
+title = "Tijdkronkel"
+description = "Teleporteer 500 keer"
 
 [advancement.challenge_chronos_deaths_10]
-    title = "Sterfelijk"
-    description = "Sterf 10 keer"
+title = "Sterfelijk"
+description = "Sterf 10 keer"
 
 [advancement.challenge_chronos_deaths_100]
-    title = "Doodstarter"
-    description = "Sterf 100 keer"
+title = "Doodstarter"
+description = "Sterf 100 keer"
 
 # Crafting - New Achievement Chains
 [advancement.challenge_craft_value_10k]
-    title = "Ambachtelijke Waarde"
-    description = "Maak items ter waarde van 10,000 totaal"
+title = "Ambachtelijke Waarde"
+description = "Maak items ter waarde van 10,000 totaal"
 
 [advancement.challenge_craft_value_100k]
-    title = "Ambachtsman"
-    description = "Maak items ter waarde van 100,000 totaal"
+title = "Ambachtsman"
+description = "Maak items ter waarde van 100,000 totaal"
 
 [advancement.challenge_craft_tools_25]
-    title = "Gereedschapmaker"
-    description = "Maak 25 gereedschappen"
+title = "Gereedschapmaker"
+description = "Maak 25 gereedschappen"
 
 [advancement.challenge_craft_tools_250]
-    title = "Meestersmid"
-    description = "Maak 250 gereedschappen"
+title = "Meestersmid"
+description = "Maak 250 gereedschappen"
 
 [advancement.challenge_craft_armor_25]
-    title = "Wapensmid"
-    description = "Maak 25 stukken wapenrusting"
+title = "Wapensmid"
+description = "Maak 25 stukken wapenrusting"
 
 [advancement.challenge_craft_armor_250]
-    title = "Meester Wapensmid"
-    description = "Maak 250 stukken wapenrusting"
+title = "Meester Wapensmid"
+description = "Maak 250 stukken wapenrusting"
 
 [advancement.challenge_craft_mass_25k]
-    title = "Massaproductie"
-    description = "Maak 25,000 items"
+title = "Massaproductie"
+description = "Maak 25,000 items"
 
 [advancement.challenge_craft_mass_250k]
-    title = "Industriele Revolutie"
-    description = "Maak 250,000 items"
+title = "Industriele Revolutie"
+description = "Maak 250,000 items"
 
 # Discovery - New Achievement Chains
 [advancement.challenge_discover_items_50]
-    title = "Verzamelaar"
-    description = "Ontdek 50 unieke items"
+title = "Verzamelaar"
+description = "Ontdek 50 unieke items"
 
 [advancement.challenge_discover_items_250]
-    title = "Catalogiseerder"
-    description = "Ontdek 250 unieke items"
+title = "Catalogiseerder"
+description = "Ontdek 250 unieke items"
 
 [advancement.challenge_discover_blocks_50]
-    title = "Landmeter"
-    description = "Ontdek 50 unieke blokken"
+title = "Landmeter"
+description = "Ontdek 50 unieke blokken"
 
 [advancement.challenge_discover_blocks_250]
-    title = "Geoloog"
-    description = "Ontdek 250 unieke blokken"
+title = "Geoloog"
+description = "Ontdek 250 unieke blokken"
 
 [advancement.challenge_discover_mobs_25]
-    title = "Waarnemer"
-    description = "Ontdek 25 unieke mobs"
+title = "Waarnemer"
+description = "Ontdek 25 unieke mobs"
 
 [advancement.challenge_discover_mobs_75]
-    title = "Naturalist"
-    description = "Ontdek 75 unieke mobs"
+title = "Naturalist"
+description = "Ontdek 75 unieke mobs"
 
 [advancement.challenge_discover_biomes_10]
-    title = "Zwerver"
-    description = "Ontdek 10 unieke biomen"
+title = "Zwerver"
+description = "Ontdek 10 unieke biomen"
 
 [advancement.challenge_discover_biomes_40]
-    title = "Wereldreiziger"
-    description = "Ontdek 40 unieke biomen"
+title = "Wereldreiziger"
+description = "Ontdek 40 unieke biomen"
 
 [advancement.challenge_discover_foods_10]
-    title = "Fijnproever"
-    description = "Ontdek 10 unieke voedselsoorten"
+title = "Fijnproever"
+description = "Ontdek 10 unieke voedselsoorten"
 
 [advancement.challenge_discover_foods_30]
-    title = "Culinair Meester"
-    description = "Ontdek 30 unieke voedselsoorten"
+title = "Culinair Meester"
+description = "Ontdek 30 unieke voedselsoorten"
 
 # Enchanting - New Achievement Chains
 [advancement.challenge_enchant_power_100]
-    title = "Krachtwever"
-    description = "Verzamel 100 betoveringskracht"
+title = "Krachtwever"
+description = "Verzamel 100 betoveringskracht"
 
 [advancement.challenge_enchant_power_1k]
-    title = "Arcane Meester"
-    description = "Verzamel 1,000 betoveringskracht"
+title = "Arcane Meester"
+description = "Verzamel 1,000 betoveringskracht"
 
 [advancement.challenge_enchant_levels_1k]
-    title = "Levelverbruiker"
-    description = "Besteed 1,000 ervaringsniveaus aan betoveringen"
+title = "Levelverbruiker"
+description = "Besteed 1,000 ervaringsniveaus aan betoveringen"
 
 [advancement.challenge_enchant_levels_10k]
-    title = "Ervaringsput"
-    description = "Besteed 10,000 ervaringsniveaus aan betoveringen"
+title = "Ervaringsput"
+description = "Besteed 10,000 ervaringsniveaus aan betoveringen"
 
 [advancement.challenge_enchant_high_25]
-    title = "Hoge Inzet"
-    description = "Voer 25 betoveringen op maximaal niveau uit"
+title = "Hoge Inzet"
+description = "Voer 25 betoveringen op maximaal niveau uit"
 
 [advancement.challenge_enchant_high_250]
-    title = "Legendarische Betoveraar"
-    description = "Voer 250 betoveringen op maximaal niveau uit"
+title = "Legendarische Betoveraar"
+description = "Voer 250 betoveringen op maximaal niveau uit"
 
 [advancement.challenge_enchant_total_500]
-    title = "Levelverbrander"
-    description = "Besteed 500 totale niveaus aan alle betoveringen"
+title = "Levelverbrander"
+description = "Besteed 500 totale niveaus aan alle betoveringen"
 
 [advancement.challenge_enchant_total_5k]
-    title = "Arcane Investering"
-    description = "Besteed 5,000 totale niveaus aan alle betoveringen"
+title = "Arcane Investering"
+description = "Besteed 5,000 totale niveaus aan alle betoveringen"
 
 # Excavation - New Achievement Chains
 [advancement.challenge_dig_swing_500]
-    title = "Graver"
-    description = "Zwaai je schop 500 keer"
+title = "Graver"
+description = "Zwaai je schop 500 keer"
 
 [advancement.challenge_dig_swing_5k]
-    title = "Graafmachine"
-    description = "Zwaai je schop 5,000 keer"
+title = "Graafmachine"
+description = "Zwaai je schop 5,000 keer"
 
 [advancement.challenge_dig_damage_1k]
-    title = "Schopridder"
-    description = "Deel 1,000 schade uit met een schop"
+title = "Schopridder"
+description = "Deel 1,000 schade uit met een schop"
 
 [advancement.challenge_dig_damage_10k]
-    title = "Schopmeester"
-    description = "Deel 10,000 schade uit met een schop"
+title = "Schopmeester"
+description = "Deel 10,000 schade uit met een schop"
 
 [advancement.challenge_dig_value_5k]
-    title = "Aardhandelaar"
-    description = "Graaf 5,000 waarde aan blokken op"
+title = "Aardhandelaar"
+description = "Graaf 5,000 waarde aan blokken op"
 
 [advancement.challenge_dig_value_50k]
-    title = "Aardbaron"
-    description = "Graaf 50,000 waarde aan blokken op"
+title = "Aardbaron"
+description = "Graaf 50,000 waarde aan blokken op"
 
 [advancement.challenge_dig_gravel_500]
-    title = "Grindmaler"
-    description = "Graaf 500 grind-, zand- of kleiblekken"
+title = "Grindmaler"
+description = "Graaf 500 grind-, zand- of kleiblekken"
 
 [advancement.challenge_dig_gravel_5k]
-    title = "Zandzifter"
-    description = "Graaf 5,000 grind-, zand- of kleiblekken"
+title = "Zandzifter"
+description = "Graaf 5,000 grind-, zand- of kleiblekken"
 
 # Herbalism - New Achievement Chains
 [advancement.challenge_plant_100]
-    title = "Zaadzaaier"
-    description = "Plant 100 gewassen"
+title = "Zaadzaaier"
+description = "Plant 100 gewassen"
 
 [advancement.challenge_plant_1k]
-    title = "Groene Vingers"
-    description = "Plant 1,000 gewassen"
+title = "Groene Vingers"
+description = "Plant 1,000 gewassen"
 
 [advancement.challenge_plant_5k]
-    title = "Landbouwbaron"
-    description = "Plant 5,000 gewassen"
+title = "Landbouwbaron"
+description = "Plant 5,000 gewassen"
 
 [advancement.challenge_compost_50]
-    title = "Recycler"
-    description = "Composteer 50 items"
+title = "Recycler"
+description = "Composteer 50 items"
 
 [advancement.challenge_compost_500]
-    title = "Bodemverrijker"
-    description = "Composteer 500 items"
+title = "Bodemverrijker"
+description = "Composteer 500 items"
 
 [advancement.challenge_shear_50]
-    title = "Schaapscheerder"
-    description = "Scheer 50 entiteiten"
+title = "Schaapscheerder"
+description = "Scheer 50 entiteiten"
 
 [advancement.challenge_shear_250]
-    title = "Kudde Meester"
-    description = "Scheer 250 entiteiten"
+title = "Kudde Meester"
+description = "Scheer 250 entiteiten"
 
 # Hunter - New Achievement Chains
 [advancement.challenge_kills_500]
-    title = "Jager"
-    description = "Versla 500 wezens"
+title = "Jager"
+description = "Versla 500 wezens"
 
 [advancement.challenge_kills_5k]
-    title = "Beul"
-    description = "Versla 5,000 wezens"
+title = "Beul"
+description = "Versla 5,000 wezens"
 
 [advancement.challenge_boss_1]
-    title = "Baasuitdager"
-    description = "Versla een baasmob"
+title = "Baasuitdager"
+description = "Versla een baasmob"
 
 [advancement.challenge_boss_10]
-    title = "Legendedoder"
-    description = "Versla 10 baasmobs"
+title = "Legendedoder"
+description = "Versla 10 baasmobs"
 
 # Nether - New Achievement Chains
 [advancement.challenge_wither_dmg_500]
-    title = "Verwelkt"
-    description = "Doorsta 500 witherschade"
+title = "Verwelkt"
+description = "Doorsta 500 witherschade"
 
 [advancement.challenge_wither_dmg_5k]
-    title = "Plaagoverlevende"
-    description = "Doorsta 5,000 witherschade"
+title = "Plaagoverlevende"
+description = "Doorsta 5,000 witherschade"
 
 [advancement.challenge_wither_skel_25]
-    title = "Bottenverzamelaar"
-    description = "Versla 25 witherskeletten"
+title = "Bottenverzamelaar"
+description = "Versla 25 witherskeletten"
 
 [advancement.challenge_wither_skel_250]
-    title = "Skeletvloek"
-    description = "Versla 250 witherskeletten"
+title = "Skeletvloek"
+description = "Versla 250 witherskeletten"
 
 [advancement.challenge_wither_boss_1]
-    title = "Withervernietiger"
-    description = "Versla de Wither"
+title = "Withervernietiger"
+description = "Versla de Wither"
 
 [advancement.challenge_wither_boss_10]
-    title = "Netherheerser"
-    description = "Versla de Wither 10 keer"
+title = "Netherheerser"
+description = "Versla de Wither 10 keer"
 
 [advancement.challenge_roses_10]
-    title = "Dodentuinier"
-    description = "Breek 10 witherrosen"
+title = "Dodentuinier"
+description = "Breek 10 witherrosen"
 
 [advancement.challenge_roses_100]
-    title = "Plaagverzamelaar"
-    description = "Breek 100 witherrosen"
+title = "Plaagverzamelaar"
+description = "Breek 100 witherrosen"
 
 # Pickaxes - New Achievement Chains
 [advancement.challenge_pick_swing_500]
-    title = "Mijnwerkersarm"
-    description = "Zwaai je houweel 500 keer"
+title = "Mijnwerkersarm"
+description = "Zwaai je houweel 500 keer"
 
 [advancement.challenge_pick_swing_5k]
-    title = "Tunnelgraver"
-    description = "Zwaai je houweel 5,000 keer"
+title = "Tunnelgraver"
+description = "Zwaai je houweel 5,000 keer"
 
 [advancement.challenge_pick_damage_1k]
-    title = "Houweelvechter"
-    description = "Deel 1,000 schade uit met een houweel"
+title = "Houweelvechter"
+description = "Deel 1,000 schade uit met een houweel"
 
 [advancement.challenge_pick_damage_10k]
-    title = "Oorlogshouweel"
-    description = "Deel 10,000 schade uit met een houweel"
+title = "Oorlogshouweel"
+description = "Deel 10,000 schade uit met een houweel"
 
 [advancement.challenge_pick_value_5k]
-    title = "Edelsteenvinder"
-    description = "Mijn 5,000 waarde aan blokken"
+title = "Edelsteenvinder"
+description = "Mijn 5,000 waarde aan blokken"
 
 [advancement.challenge_pick_value_50k]
-    title = "Ertsbaron"
-    description = "Mijn 50,000 waarde aan blokken"
+title = "Ertsbaron"
+description = "Mijn 50,000 waarde aan blokken"
 
 [advancement.challenge_pick_ores_500]
-    title = "Goudzoeker"
-    description = "Mijn 500 ertsblokken"
+title = "Goudzoeker"
+description = "Mijn 500 ertsblokken"
 
 [advancement.challenge_pick_ores_5k]
-    title = "Meestermijnwerker"
-    description = "Mijn 5,000 ertsblokken"
+title = "Meestermijnwerker"
+description = "Mijn 5,000 ertsblokken"
 
 # Ranged - New Achievement Chains
 [advancement.challenge_ranged_dmg_1k]
-    title = "Scherpschutter"
-    description = "Deel 1,000 afstandsschade uit"
+title = "Scherpschutter"
+description = "Deel 1,000 afstandsschade uit"
 
 [advancement.challenge_ranged_dmg_10k]
-    title = "Dodelijke Boogschutter"
-    description = "Deel 10,000 afstandsschade uit"
+title = "Dodelijke Boogschutter"
+description = "Deel 10,000 afstandsschade uit"
 
 [advancement.challenge_ranged_dist_5k]
-    title = "Lange Afstand"
-    description = "Schiet projectielen over een totale afstand van 5,000 blokken"
+title = "Lange Afstand"
+description = "Schiet projectielen over een totale afstand van 5,000 blokken"
 
 [advancement.challenge_ranged_dist_50k]
-    title = "Kilometerschutter"
-    description = "Schiet projectielen over een totale afstand van 50,000 blokken"
+title = "Kilometerschutter"
+description = "Schiet projectielen over een totale afstand van 50,000 blokken"
 
 [advancement.challenge_ranged_kills_50]
-    title = "Boogschutter"
-    description = "Dood 50 mobs met afstandswapens"
+title = "Boogschutter"
+description = "Dood 50 mobs met afstandswapens"
 
 [advancement.challenge_ranged_kills_500]
-    title = "Meesterboogschutter"
-    description = "Dood 500 mobs met afstandswapens"
+title = "Meesterboogschutter"
+description = "Dood 500 mobs met afstandswapens"
 
 [advancement.challenge_longshot_25]
-    title = "Sluipschutter"
-    description = "Land 25 langeafstandsschoten (meer dan 30 blokken)"
+title = "Sluipschutter"
+description = "Land 25 langeafstandsschoten (meer dan 30 blokken)"
 
 [advancement.challenge_longshot_250]
-    title = "Arendsoog"
-    description = "Land 250 langeafstandsschoten (meer dan 30 blokken)"
+title = "Arendsoog"
+description = "Land 250 langeafstandsschoten (meer dan 30 blokken)"
 
 # Rift - New Achievement Chains
 [advancement.challenge_rift_pearls_50]
-    title = "Parelgooier"
-    description = "Gooi 50 enderparels"
+title = "Parelgooier"
+description = "Gooi 50 enderparels"
 
 [advancement.challenge_rift_pearls_500]
-    title = "Teleportverslaafde"
-    description = "Gooi 500 enderparels"
+title = "Teleportverslaafde"
+description = "Gooi 500 enderparels"
 
 [advancement.challenge_rift_enderman_50]
-    title = "Endermanjager"
-    description = "Versla 50 endermannen"
+title = "Endermanjager"
+description = "Versla 50 endermannen"
 
 [advancement.challenge_rift_enderman_500]
-    title = "Leegtesluiper"
-    description = "Versla 500 endermannen"
+title = "Leegtesluiper"
+description = "Versla 500 endermannen"
 
 [advancement.challenge_rift_dragon_500]
-    title = "Drakenvechter"
-    description = "Deel 500 schade toe aan de Ender Draak"
+title = "Drakenvechter"
+description = "Deel 500 schade toe aan de Ender Draak"
 
 [advancement.challenge_rift_dragon_5k]
-    title = "Drakenvloek"
-    description = "Deel 5,000 schade toe aan de Ender Draak"
+title = "Drakenvloek"
+description = "Deel 5,000 schade toe aan de Ender Draak"
 
 [advancement.challenge_rift_crystal_10]
-    title = "Kristalbreker"
-    description = "Vernietig 10 endkristallen"
+title = "Kristalbreker"
+description = "Vernietig 10 endkristallen"
 
 [advancement.challenge_rift_crystal_100]
-    title = "Endvernietiger"
-    description = "Vernietig 100 endkristallen"
+title = "Endvernietiger"
+description = "Vernietig 100 endkristallen"
 
 # Seaborne - New Achievement Chains
 [advancement.challenge_fish_25]
-    title = "Hengelaar"
-    description = "Vang 25 vissen"
+title = "Hengelaar"
+description = "Vang 25 vissen"
 
 [advancement.challenge_fish_250]
-    title = "Meestervisser"
-    description = "Vang 250 vissen"
+title = "Meestervisser"
+description = "Vang 250 vissen"
 
 [advancement.challenge_drowned_25]
-    title = "Verdronkenjager"
-    description = "Versla 25 verdronkenen"
+title = "Verdronkenjager"
+description = "Versla 25 verdronkenen"
 
 [advancement.challenge_drowned_250]
-    title = "Oceaanreiniger"
-    description = "Versla 250 verdronkenen"
+title = "Oceaanreiniger"
+description = "Versla 250 verdronkenen"
 
 [advancement.challenge_guardian_10]
-    title = "Bewakerdoder"
-    description = "Versla 10 bewakers"
+title = "Bewakerdoder"
+description = "Versla 10 bewakers"
 
 [advancement.challenge_guardian_100]
-    title = "Tempelplunderaar"
-    description = "Versla 100 bewakers"
+title = "Tempelplunderaar"
+description = "Versla 100 bewakers"
 
 [advancement.challenge_underwater_blocks_100]
-    title = "Onderwatermijnwerker"
-    description = "Breek 100 blokken onder water"
+title = "Onderwatermijnwerker"
+description = "Breek 100 blokken onder water"
 
 [advancement.challenge_underwater_blocks_1k]
-    title = "Aquatisch Ingenieur"
-    description = "Breek 1,000 blokken onder water"
+title = "Aquatisch Ingenieur"
+description = "Breek 1,000 blokken onder water"
 
 # Stealth - New Achievement Chains
 [advancement.challenge_stealth_dmg_500]
-    title = "Rugsteker"
-    description = "Deel 500 schade uit terwijl je sluipt"
+title = "Rugsteker"
+description = "Deel 500 schade uit terwijl je sluipt"
 
 [advancement.challenge_stealth_dmg_5k]
-    title = "Stille Moordenaar"
-    description = "Deel 5,000 schade uit terwijl je sluipt"
+title = "Stille Moordenaar"
+description = "Deel 5,000 schade uit terwijl je sluipt"
 
 [advancement.challenge_stealth_kills_10]
-    title = "Sluipmoordenaar"
-    description = "Dood 10 mobs terwijl je sluipt"
+title = "Sluipmoordenaar"
+description = "Dood 10 mobs terwijl je sluipt"
 
 [advancement.challenge_stealth_kills_100]
-    title = "Schaduwmaaier"
-    description = "Dood 100 mobs terwijl je sluipt"
+title = "Schaduwmaaier"
+description = "Dood 100 mobs terwijl je sluipt"
 
 [advancement.challenge_stealth_time_1h]
-    title = "Geduldig"
-    description = "Breng 1 uur sluipend door (3,600 seconden)"
+title = "Geduldig"
+description = "Breng 1 uur sluipend door (3,600 seconden)"
 
 [advancement.challenge_stealth_time_10h]
-    title = "Meester der Schaduwen"
-    description = "Breng 10 uur sluipend door (36,000 seconden)"
+title = "Meester der Schaduwen"
+description = "Breng 10 uur sluipend door (36,000 seconden)"
 
 [advancement.challenge_stealth_arrows_50]
-    title = "Stille Boogschutter"
-    description = "Schiet 50 pijlen terwijl je sluipt"
+title = "Stille Boogschutter"
+description = "Schiet 50 pijlen terwijl je sluipt"
 
 [advancement.challenge_stealth_arrows_500]
-    title = "Spookboogschutter"
-    description = "Schiet 500 pijlen terwijl je sluipt"
+title = "Spookboogschutter"
+description = "Schiet 500 pijlen terwijl je sluipt"
 
 # Swords - New Achievement Chains
 [advancement.challenge_sword_dmg_1k]
-    title = "Zwaardleerling"
-    description = "Deel 1,000 schade uit met zwaarden"
+title = "Zwaardleerling"
+description = "Deel 1,000 schade uit met zwaarden"
 
 [advancement.challenge_sword_dmg_10k]
-    title = "Zwaardvechter"
-    description = "Deel 10,000 schade uit met zwaarden"
+title = "Zwaardvechter"
+description = "Deel 10,000 schade uit met zwaarden"
 
 [advancement.challenge_sword_kills_50]
-    title = "Duelleur"
-    description = "Dood 50 mobs met zwaarden"
+title = "Duelleur"
+description = "Dood 50 mobs met zwaarden"
 
 [advancement.challenge_sword_kills_500]
-    title = "Gladiator"
-    description = "Dood 500 mobs met zwaarden"
+title = "Gladiator"
+description = "Dood 500 mobs met zwaarden"
 
 [advancement.challenge_sword_crit_50]
-    title = "Kritieke Klap"
-    description = "Land 50 kritieke treffers met zwaarden"
+title = "Kritieke Klap"
+description = "Land 50 kritieke treffers met zwaarden"
 
 [advancement.challenge_sword_crit_500]
-    title = "Precisiemeester"
-    description = "Land 500 kritieke treffers met zwaarden"
+title = "Precisiemeester"
+description = "Land 500 kritieke treffers met zwaarden"
 
 [advancement.challenge_sword_heavy_25]
-    title = "Zware Klap"
-    description = "Land 25 zware treffers met zwaarden (meer dan 8 schade)"
+title = "Zware Klap"
+description = "Land 25 zware treffers met zwaarden (meer dan 8 schade)"
 
 [advancement.challenge_sword_heavy_250]
-    title = "Verwoestende Slag"
-    description = "Land 250 zware treffers met zwaarden (meer dan 8 schade)"
+title = "Verwoestende Slag"
+description = "Land 250 zware treffers met zwaarden (meer dan 8 schade)"
 
 # Taming - New Achievement Chains
 [advancement.challenge_pet_dmg_500]
-    title = "Beestentrainer"
-    description = "Je huisdieren delen 500 totale schade uit"
+title = "Beestentrainer"
+description = "Je huisdieren delen 500 totale schade uit"
 
 [advancement.challenge_pet_dmg_5k]
-    title = "Oorlogsmeester"
-    description = "Je huisdieren delen 5,000 totale schade uit"
+title = "Oorlogsmeester"
+description = "Je huisdieren delen 5,000 totale schade uit"
 
 [advancement.challenge_tamed_10]
-    title = "Dierenvriend"
-    description = "Tem 10 dieren"
+title = "Dierenvriend"
+description = "Tem 10 dieren"
 
 [advancement.challenge_tamed_100]
-    title = "Dierentuinverzorger"
-    description = "Tem 100 dieren"
+title = "Dierentuinverzorger"
+description = "Tem 100 dieren"
 
 [advancement.challenge_pet_kills_25]
-    title = "Roedeltactiek"
-    description = "Je huisdieren verslaan 25 wezens"
+title = "Roedeltactiek"
+description = "Je huisdieren verslaan 25 wezens"
 
 [advancement.challenge_pet_kills_250]
-    title = "Alfacommandant"
-    description = "Je huisdieren verslaan 250 wezens"
+title = "Alfacommandant"
+description = "Je huisdieren verslaan 250 wezens"
 
 [advancement.challenge_taming_2500]
-    title = "Fokexpert"
-    description = "Fok 2,500 dieren"
+title = "Fokexpert"
+description = "Fok 2,500 dieren"
 
 [advancement.challenge_taming_25k]
-    title = "Geneticameester"
-    description = "Fok 25,000 dieren"
+title = "Geneticameester"
+description = "Fok 25,000 dieren"
 
 # TragOul - New Achievement Chains
 [advancement.challenge_trag_hits_500]
-    title = "Bokszak"
-    description = "Ontvang 500 treffers"
+title = "Bokszak"
+description = "Ontvang 500 treffers"
 
 [advancement.challenge_trag_hits_5k]
-    title = "Gulzig voor Straf"
-    description = "Ontvang 5,000 treffers"
+title = "Gulzig voor Straf"
+description = "Ontvang 5,000 treffers"
 
 [advancement.challenge_trag_deaths_10]
-    title = "Negen Levens"
-    description = "Sterf 10 keer"
+title = "Negen Levens"
+description = "Sterf 10 keer"
 
 [advancement.challenge_trag_deaths_100]
-    title = "Terugkerende Nachtmerrie"
-    description = "Sterf 100 keer"
+title = "Terugkerende Nachtmerrie"
+description = "Sterf 100 keer"
 
 [advancement.challenge_trag_fire_500]
-    title = "Brandslachtoffer"
-    description = "Doorsta 500 vuurschade"
+title = "Brandslachtoffer"
+description = "Doorsta 500 vuurschade"
 
 [advancement.challenge_trag_fire_5k]
-    title = "Feniks"
-    description = "Doorsta 5,000 vuurschade"
+title = "Feniks"
+description = "Doorsta 5,000 vuurschade"
 
 [advancement.challenge_trag_fall_500]
-    title = "Zwaartekrachttest"
-    description = "Doorsta 500 valschade"
+title = "Zwaartekrachttest"
+description = "Doorsta 500 valschade"
 
 [advancement.challenge_trag_fall_5k]
-    title = "Eindsnelheid"
-    description = "Doorsta 5,000 valschade"
+title = "Eindsnelheid"
+description = "Doorsta 5,000 valschade"
 
 # Unarmed - New Achievement Chains
 [advancement.challenge_unarmed_dmg_1k]
-    title = "Vechtersbaas"
-    description = "Deel 1,000 schade uit met blote vuisten"
+title = "Vechtersbaas"
+description = "Deel 1,000 schade uit met blote vuisten"
 
 [advancement.challenge_unarmed_dmg_10k]
-    title = "Vechtsportmeester"
-    description = "Deel 10,000 schade uit met blote vuisten"
+title = "Vechtsportmeester"
+description = "Deel 10,000 schade uit met blote vuisten"
 
 [advancement.challenge_unarmed_kills_25]
-    title = "Blote Knokkel"
-    description = "Dood 25 mobs met blote vuisten"
+title = "Blote Knokkel"
+description = "Dood 25 mobs met blote vuisten"
 
 [advancement.challenge_unarmed_kills_250]
-    title = "Vuist der Legende"
-    description = "Dood 250 mobs met blote vuisten"
+title = "Vuist der Legende"
+description = "Dood 250 mobs met blote vuisten"
 
 [advancement.challenge_unarmed_crit_25]
-    title = "Kritieke Stomp"
-    description = "Land 25 kritieke treffers met blote vuisten"
+title = "Kritieke Stomp"
+description = "Land 25 kritieke treffers met blote vuisten"
 
 [advancement.challenge_unarmed_crit_250]
-    title = "Precisiepunch"
-    description = "Land 250 kritieke treffers met blote vuisten"
+title = "Precisiepunch"
+description = "Land 250 kritieke treffers met blote vuisten"
 
 [advancement.challenge_unarmed_heavy_25]
-    title = "Krachtstomp"
-    description = "Land 25 zware treffers met blote vuisten (meer dan 6 schade)"
+title = "Krachtstomp"
+description = "Land 25 zware treffers met blote vuisten (meer dan 6 schade)"
 
 [advancement.challenge_unarmed_heavy_250]
-    title = "Knockoutkoning"
-    description = "Land 250 zware treffers met blote vuisten (meer dan 6 schade)"
+title = "Knockoutkoning"
+description = "Land 250 zware treffers met blote vuisten (meer dan 6 schade)"
 
 # items
 [items]
 
 [items.bound_ender_peral]
-    name = "Reliekschrijn Portkey"
-    usage1 = "Shift + Linkerklik om te binden"
-    usage2 = "Rechtsklik om de gebonden inventaris te openen"
+name = "Reliekschrijn Portkey"
+usage1 = "Shift + Linkerklik om te binden"
+usage2 = "Rechtsklik om de gebonden inventaris te openen"
 
 [items.bound_eye_of_ender]
-    name = "Oculair Anker"
-    usage1 = "Rechtsklik om te consumeren en naar de gebonden locatie te teleporteren"
-    usage2 = "Shift + Linkerklik om aan een blok te binden"
+name = "Oculair Anker"
+usage1 = "Rechtsklik om te consumeren en naar de gebonden locatie te teleporteren"
+usage2 = "Shift + Linkerklik om aan een blok te binden"
 
 [items.bound_redstone_torch]
-    name = "Redstone-Afstandsbediening"
-    usage1 = "Rechtsklik om een 1-Tick Redstone-puls te maken"
-    usage2 = "Shift + Linkerklik op een 'Doel'-blok om te binden"
+name = "Redstone-Afstandsbediening"
+usage1 = "Rechtsklik om een 1-Tick Redstone-puls te maken"
+usage2 = "Shift + Linkerklik op een 'Doel'-blok om te binden"
 
 [items.bound_snowball]
-    name = "Webstrik!"
-    usage1 = "Gooi om een tijdelijke webval op de locatie te maken"
+name = "Webstrik!"
+usage1 = "Gooi om een tijdelijke webval op de locatie te maken"
 
 [items.chrono_time_bottle]
-    name = "Tijd in een Fles"
-    usage1 = "Slaat passief tijd op terwijl het in je inventaris zit"
-    usage2 = "Rechtsklik op getimede blokken of babydieren om opgeslagen tijd te besteden"
-    stored = "Opgeslagen Tijd"
+name = "Tijd in een Fles"
+usage1 = "Slaat passief tijd op terwijl het in je inventaris zit"
+usage2 = "Rechtsklik op getimede blokken of babydieren om opgeslagen tijd te besteden"
+stored = "Opgeslagen Tijd"
 
 [items.chrono_time_bomb]
-    name = "Tijdbom"
-    usage1 = "Rechtsklik om een chronobolt te lanceren die een temporeel veld creëert"
+name = "Tijdbom"
+usage1 = "Rechtsklik om een chronobolt te lanceren die een temporeel veld creëert"
 
 [items.elevator_block]
-    name = "Liftblok"
-    usage1 = "Spring om omhoog te teleporteren"
-    usage2 = "Shift om omlaag te teleporteren"
-    usage3 = "Minimaal 2 luchtblokken tussen de liften"
+name = "Liftblok"
+usage1 = "Spring om omhoog te teleporteren"
+usage2 = "Shift om omlaag te teleporteren"
+usage3 = "Minimaal 2 luchtblokken tussen de liften"
 
 # snippets
 [snippets]
 
 [snippets.gui]
-    level = "Niveau"
-    knowledge = "kennis"
-    power_used = "Kracht Gebruikt"
-    not_learned = "Niet Geleerd"
-    xp = "XP tot"
-    welcome = "Welkom!"
-    welcome_back = "Welkom terug!"
-    xp_bonus_for_time = "XP voor"
-    max_ability_power = "Maximale Vaardigheidskracht"
-    unlock_this_by_clicking = "Ontgrendel dit door Rechts te Klikken: "
-    back = "Terug"
-    unlearn_all = "Alles afleren"
-    unlearned_all = "Alles afgeleerd"
+level = "Niveau"
+knowledge = "kennis"
+power_used = "Kracht Gebruikt"
+not_learned = "Niet Geleerd"
+xp = "XP tot"
+welcome = "Welkom!"
+welcome_back = "Welkom terug!"
+xp_bonus_for_time = "XP voor"
+max_ability_power = "Maximale Vaardigheidskracht"
+unlock_this_by_clicking = "Ontgrendel dit door Rechts te Klikken: "
+back = "Terug"
+unlearn_all = "Alles afleren"
+unlearned_all = "Alles afgeleerd"
 
 [snippets.adapt_menu]
-    may_not_unlearn = "JE MAG NIET AFLEREN"
-    may_unlearn = "JE MAG LEREN/AFLEREN"
-    knowledge_cost = "Kenniskosten"
-    knowledge_available = "Kennis Beschikbaar"
-    already_learned = "Al Geleerd"
-    unlearn_refund = "Klik om Af te Leren en Terug te Krijgen"
-    no_refunds = "HARDCORE, TERUGBETALINGEN UITGESCHAKELD"
-    knowledge = "kennis"
-    click_learn = "Klik om te Leren"
-    no_knowledge = "(Je hebt geen kennis)"
-    you_only_have = "Je hebt slechts"
-    how_to_level_up = "Level vaardigheden omhoog om je maximale kracht te verhogen."
-    not_enough_power = "Niet genoeg kracht! Elk vaardigheidsniveau kost 1 kracht."
-    power = "kracht"
-    power_drain = "Krachtverbruik"
-    learned = "Geleerd "
-    unlearned = "Afgeleerd "
-    activator_block = "Boekenplank"
+may_not_unlearn = "JE MAG NIET AFLEREN"
+may_unlearn = "JE MAG LEREN/AFLEREN"
+knowledge_cost = "Kenniskosten"
+knowledge_available = "Kennis Beschikbaar"
+already_learned = "Al Geleerd"
+unlearn_refund = "Klik om Af te Leren en Terug te Krijgen"
+no_refunds = "HARDCORE, TERUGBETALINGEN UITGESCHAKELD"
+knowledge = "kennis"
+click_learn = "Klik om te Leren"
+no_knowledge = "(Je hebt geen kennis)"
+you_only_have = "Je hebt slechts"
+how_to_level_up = "Level vaardigheden omhoog om je maximale kracht te verhogen."
+not_enough_power = "Niet genoeg kracht! Elk vaardigheidsniveau kost 1 kracht."
+power = "kracht"
+power_drain = "Krachtverbruik"
+learned = "Geleerd "
+unlearned = "Afgeleerd "
+activator_block = "Boekenplank"
 
 [snippets.knowledge_orb]
-    contains = "bevat"
-    knowledge = "kennis"
-    rightclick = "Rechtsklik"
-    togainknowledge = "om deze kennis te verkrijgen"
-    knowledge_orb = "Kennisbol"
+contains = "bevat"
+knowledge = "kennis"
+rightclick = "Rechtsklik"
+togainknowledge = "om deze kennis te verkrijgen"
+knowledge_orb = "Kennisbol"
 
 [snippets.experience_orb]
-    contains = "bevat"
-    xp = "Ervaring"
-    rightclick = "Rechtsklik"
-    togainxp = "om deze ervaring te verkrijgen"
-    xporb = "Ervaringsbol"
+contains = "bevat"
+xp = "Ervaring"
+rightclick = "Rechtsklik"
+togainxp = "om deze ervaring te verkrijgen"
+xporb = "Ervaringsbol"
 
 # skill
 [skill]
 
 [skill.agility]
-    name = "Behendigheid"
-    icon = "⇉"
-    description = "Behendigheid is het vermogen om snel en soepel te bewegen ondanks obstakels."
+name = "Behendigheid"
+icon = "⇉"
+description = "Behendigheid is het vermogen om snel en soepel te bewegen ondanks obstakels."
 
 [skill.architect]
-    name = "Architect"
-    icon = "⬧"
-    description = "Structuren zijn de bouwstenen van de wereld. De werkelijkheid ligt in jouw handen, aan jou om te beheersen."
+name = "Architect"
+icon = "⬧"
+description = "Structuren zijn de bouwstenen van de wereld. De werkelijkheid ligt in jouw handen, aan jou om te beheersen."
 
 [skill.axes]
-    name = "Bijlen"
-    icon = "🪓"
-    description1 = "Waarom bomen hakken, als je ook "
-    description2 = "dingen"
-    description3 = "kunt hakken, zelfde resultaat!"
+name = "Bijlen"
+icon = "🪓"
+description1 = "Waarom bomen hakken, als je ook "
+description2 = "dingen"
+description3 = "kunt hakken, zelfde resultaat!"
 
 [skill.brewing]
-    name = "Brouwen"
-    icon = "❦"
-    description = "Dubbel Bubbel, Driedubbel Bubbel, Vierdubbel Bubbel - Ik kan dit drankje nog steeds niet in een ketel doen"
+name = "Brouwen"
+icon = "❦"
+description = "Dubbel Bubbel, Driedubbel Bubbel, Vierdubbel Bubbel - Ik kan dit drankje nog steeds niet in een ketel doen"
 
 [skill.blocking]
-    name = "Blokkeren"
-    icon = "🛡"
-    description = "Stokken en stenen zullen je botten niet breken, maar een schild wel."
+name = "Blokkeren"
+icon = "🛡"
+description = "Stokken en stenen zullen je botten niet breken, maar een schild wel."
 
 [skill.crafting]
-    name = "Knutselen"
-    icon = "⌂"
-    description = "Als er geen stukken meer zijn om te plaatsen, waarom niet gewoon een nieuwe maken?"
+name = "Knutselen"
+icon = "⌂"
+description = "Als er geen stukken meer zijn om te plaatsen, waarom niet gewoon een nieuwe maken?"
 
 [skill.discovery]
-    name = "Ontdekking"
-    icon = "⚛"
-    description = "Terwijl je waarneming zich uitbreidt, ontvouwt je geest zich om te ontdekken wat je niet wist."
+name = "Ontdekking"
+icon = "⚛"
+description = "Terwijl je waarneming zich uitbreidt, ontvouwt je geest zich om te ontdekken wat je niet wist."
 
 [skill.enchanting]
-    name = "Betoveren"
-    icon = "♰"
-    description = "Waar heb je het over? Profetieen, visioenen, bijgelovig gebrabbel?"
+name = "Betoveren"
+icon = "♰"
+description = "Waar heb je het over? Profetieen, visioenen, bijgelovig gebrabbel?"
 
 [skill.excavation]
-    name = "Graven"
-    icon = "ᛳ"
-    description = "Graaf graaf een gat..."
+name = "Graven"
+icon = "ᛳ"
+description = "Graaf graaf een gat..."
 
 [skill.herbalism]
-    name = "Kruidkunde"
-    icon = "⚘"
-    description = "Ik kan geen planten vinden, maar wel wat zaadjes en- is dat... wiet?"
+name = "Kruidkunde"
+icon = "⚘"
+description = "Ik kan geen planten vinden, maar wel wat zaadjes en- is dat... wiet?"
 
 [skill.hunter]
-    name = "Jager"
-    icon = "☠"
-    description = "Jagen gaat om de reis, niet het resultaat."
+name = "Jager"
+icon = "☠"
+description = "Jagen gaat om de reis, niet het resultaat."
 
 [skill.nether]
-    name = "Nether"
-    icon = "₪"
-    description = "Uit de diepten van de Nether zelf."
+name = "Nether"
+icon = "₪"
+description = "Uit de diepten van de Nether zelf."
 
 [skill.pickaxe]
-    name = "Pikhouweel"
-    icon = "⛏"
-    description = "Dwergen zijn de mijnwerkers, maar ik heb ook het een en ander geleerd in mijn tijd. IK BEN ZWEEDS"
+name = "Pikhouweel"
+icon = "⛏"
+description = "Dwergen zijn de mijnwerkers, maar ik heb ook het een en ander geleerd in mijn tijd. IK BEN ZWEEDS"
 
 [skill.ranged]
-    name = "Afstandswapens"
-    icon = "🏹"
-    description = "Afstand is de sleutel tot overwinning, en de sleutel tot overleven."
+name = "Afstandswapens"
+icon = "🏹"
+description = "Afstand is de sleutel tot overwinning, en de sleutel tot overleven."
 
 [skill.rift]
-    name = "Rift"
-    icon = "❍"
-    description = "De Rift is een bijtend harnas, maar jij hebt het harnas getemd."
+name = "Rift"
+icon = "❍"
+description = "De Rift is een bijtend harnas, maar jij hebt het harnas getemd."
 
 [skill.seaborne]
-    name = "Zeevaarder"
-    icon = "🎣"
-    description = "Met deze vaardigheid kun je de wonderen van het water beheersen."
+name = "Zeevaarder"
+icon = "🎣"
+description = "Met deze vaardigheid kun je de wonderen van het water beheersen."
 
 [skill.stealth]
-    name = "Stealth"
-    icon = "☯"
-    description = "De kunst van het ongeziene. Wandel in de schaduwen."
+name = "Stealth"
+icon = "☯"
+description = "De kunst van het ongeziene. Wandel in de schaduwen."
 
 [skill.swords]
-    name = "Zwaarden"
-    icon = "⚔"
-    description = "Bij de kracht van GreyStone!"
+name = "Zwaarden"
+icon = "⚔"
+description = "Bij de kracht van GreyStone!"
 
 [skill.taming]
-    name = "Temmen"
-    icon = "♥"
-    description = "De papegaaien en de bijen... en jij?"
+name = "Temmen"
+icon = "♥"
+description = "De papegaaien en de bijen... en jij?"
 
 [skill.tragoul]
-    name = "TragOul"
-    icon = "🗡"
-    description = "Bloed stroomt door de aderen van het universum. Samengeknepen door jouw handen."
+name = "TragOul"
+icon = "🗡"
+description = "Bloed stroomt door de aderen van het universum. Samengeknepen door jouw handen."
 
 [skill.chronos]
-    name = "Chronos"
-    icon = "🕒"
-    description = "Wind de klok van het universum op, ervaar de stroom. Breek de klok, word hem."
+name = "Chronos"
+icon = "🕒"
+description = "Wind de klok van het universum op, ervaar de stroom. Breek de klok, word hem."
 
 [skill.unarmed]
-    name = "Ongewapend"
-    icon = "»"
-    description = "Zonder wapen is niet zonder kracht."
+name = "Ongewapend"
+icon = "»"
+description = "Zonder wapen is niet zonder kracht."
 
 # agility
 [agility]
 
 [agility.armor_up]
-    name = "Pantser-Up"
-    description = "Krijg meer pantser hoe langer je sprint!"
-    lore1 = "Maximaal Pantser"
-    lore2 = "Pantser-Up Tijd"
-    lore = ["Maximaal Pantser", "Pantser-Up Tijd"]
+name = "Pantser-Up"
+description = "Krijg meer pantser hoe langer je sprint!"
+lore1 = "Maximaal Pantser"
+lore2 = "Pantser-Up Tijd"
+lore = ["Maximaal Pantser", "Pantser-Up Tijd"]
 
 [agility.ladder_slide]
-    name = "Ladderglijden"
-    description = "Klim en glijd veel sneller over ladders in beide richtingen."
-    lore1 = "Laddersnelheid vermenigvuldiger"
-    lore2 = "Snelle afdalingssnelheid"
-    lore = ["Laddersnelheid vermenigvuldiger", "Snelle afdalingssnelheid"]
+name = "Ladderglijden"
+description = "Klim en glijd veel sneller over ladders in beide richtingen."
+lore1 = "Laddersnelheid vermenigvuldiger"
+lore2 = "Snelle afdalingssnelheid"
+lore = ["Laddersnelheid vermenigvuldiger", "Snelle afdalingssnelheid"]
 
 [agility.super_jump]
-    name = "Super Sprong"
-    description = "Uitzonderlijk hoogtevoordeel."
-    lore1 = "Maximale Spronghoogte"
-    lore2 = "Sluip + Spring voor Super Sprong!"
-    lore = ["Maximale Spronghoogte", "Sluip + Spring voor Super Sprong!"]
+name = "Super Sprong"
+description = "Uitzonderlijk hoogtevoordeel."
+lore1 = "Maximale Spronghoogte"
+lore2 = "Sluip + Spring voor Super Sprong!"
+lore = ["Maximale Spronghoogte", "Sluip + Spring voor Super Sprong!"]
 
 [agility.wall_jump]
-    name = "Muursprong"
-    description = "Houd shift ingedrukt in de lucht tegen een muur om je vast te klampen en te springen!"
-    lore1 = "Max Sprongen"
-    lore2 = "Spronghoogte"
-    lore = ["Max Sprongen", "Spronghoogte"]
+name = "Muursprong"
+description = "Houd shift ingedrukt in de lucht tegen een muur om je vast te klampen en te springen!"
+lore1 = "Max Sprongen"
+lore2 = "Spronghoogte"
+lore = ["Max Sprongen", "Spronghoogte"]
 
 [agility.wind_up]
-    name = "Opwinden"
-    description = "Word sneller hoe langer je sprint!"
-    lore1 = "Max Snelheid"
-    lore2 = "Opwindtijd"
-    lore = ["Max Snelheid", "Opwindtijd"]
+name = "Opwinden"
+description = "Word sneller hoe langer je sprint!"
+lore1 = "Max Snelheid"
+lore2 = "Opwindtijd"
+lore = ["Max Snelheid", "Opwindtijd"]
 
 # architect
 [architect]
 
 [architect.elevator]
-    name = "Lift"
-    description = "Hiermee kun je een lift bouwen om snel verticaal te teleporteren!"
-    lore1 = "Ontgrendelt liftrecept: X=WOL, Y=ENDERPAREL"
-    lore2 = "XXX"
-    lore3 = "XYX"
-    lore4 = "XXX"
-    lore = ["Ontgrendelt liftrecept: X=WOL, Y=ENDERPAREL", "XXX", "XYX", "XXX"]
+name = "Lift"
+description = "Hiermee kun je een lift bouwen om snel verticaal te teleporteren!"
+lore1 = "Ontgrendelt liftrecept: X=WOL, Y=ENDERPAREL"
+lore2 = "XXX"
+lore3 = "XYX"
+lore4 = "XXX"
+lore = ["Ontgrendelt liftrecept: X=WOL, Y=ENDERPAREL", "XXX", "XYX", "XXX"]
 
 [architect.foundation]
-    name = "Magisch Fundament"
-    description = "Hiermee kun je sluipen en een tijdelijk fundament onder je plaatsen!"
-    lore1 = "Creeer magisch: "
-    lore2 = "Blokken onder je!"
-    lore = ["Creeer magisch: ", "Blokken onder je!"]
+name = "Magisch Fundament"
+description = "Hiermee kun je sluipen en een tijdelijk fundament onder je plaatsen!"
+lore1 = "Creeer magisch: "
+lore2 = "Blokken onder je!"
+lore = ["Creeer magisch: ", "Blokken onder je!"]
 
 [architect.glass]
-    name = "Silk-Touch Glas"
-    description = "Hiermee voorkom je het verlies van glasblokken wanneer je ze met een lege hand breekt!"
-    lore1 = "Je handen krijgen silk touch voor Glas"
-    lore = ["Je handen krijgen silk touch voor Glas"]
+name = "Silk-Touch Glas"
+description = "Hiermee voorkom je het verlies van glasblokken wanneer je ze met een lege hand breekt!"
+lore1 = "Je handen krijgen silk touch voor Glas"
+lore = ["Je handen krijgen silk touch voor Glas"]
 
 [architect.wireless_redstone]
-    name = "Redstone-Afstandsbediening"
-    description = "Hiermee kun je een redstonefakkel gebruiken om redstone op afstand te schakelen!"
-    lore1 = "Doelwit + Redstonefakkel + Enderparel = 1 Redstone-Afstandsbediening"
-    lore = ["Doelwit + Redstonefakkel + Enderparel = 1 Redstone-Afstandsbediening"]
+name = "Redstone-Afstandsbediening"
+description = "Hiermee kun je een redstonefakkel gebruiken om redstone op afstand te schakelen!"
+lore1 = "Doelwit + Redstonefakkel + Enderparel = 1 Redstone-Afstandsbediening"
+lore = ["Doelwit + Redstonefakkel + Enderparel = 1 Redstone-Afstandsbediening"]
 
 [architect.placement]
-    name = "Bouwerstaf"
-    description = "Hiermee kun je meerdere blokken tegelijk plaatsen. Sluip en houd een blok vast dat overeenkomt met het blok waar je naar kijkt en plaats! Mogelijk moet je even bewegen om de selectie te activeren!"
-    lore1 = "Je hebt"
-    lore2 = "blokken in je hand nodig om dit te plaatsen"
-    lore3 = "Een Materialen Bouwerstaf"
-    lore = ["Je hebt", "blokken in je hand nodig om dit te plaatsen", "Een Materialen Bouwerstaf"]
+name = "Bouwerstaf"
+description = "Hiermee kun je meerdere blokken tegelijk plaatsen. Sluip en houd een blok vast dat overeenkomt met het blok waar je naar kijkt en plaats! Mogelijk moet je even bewegen om de selectie te activeren!"
+lore1 = "Je hebt"
+lore2 = "blokken in je hand nodig om dit te plaatsen"
+lore3 = "Een Materialen Bouwerstaf"
+lore = ["Je hebt", "blokken in je hand nodig om dit te plaatsen", "Een Materialen Bouwerstaf"]
 
 # axe
 [axe]
 
 [axe.chop]
-    name = "Bijlhak"
-    description = "Hak bomen om door met rechts op het onderste stamblok te klikken!"
-    lore1 = "Blokken Per Hak"
-    lore2 = "Hak-Cooldown"
-    lore3 = "Gereedschapsslijtage"
-    lore = ["Blokken Per Hak", "Hak-Cooldown", "Gereedschapsslijtage"]
+name = "Bijlhak"
+description = "Hak bomen om door met rechts op het onderste stamblok te klikken!"
+lore1 = "Blokken Per Hak"
+lore2 = "Hak-Cooldown"
+lore3 = "Gereedschapsslijtage"
+lore = ["Blokken Per Hak", "Hak-Cooldown", "Gereedschapsslijtage"]
 
 [axe.log_swap]
-    name = "Lucy's Houtwisselaar"
-    description = "Verander het type houtblokken in een Werktafel!"
-    lore1 = "8 stammen van elk type + 1 boompje = 8 stammen van het type van het boompje"
-    lore = ["8 stammen van elk type + 1 boompje = 8 stammen van het type van het boompje"]
+name = "Lucy's Houtwisselaar"
+description = "Verander het type houtblokken in een Werktafel!"
+lore1 = "8 stammen van elk type + 1 boompje = 8 stammen van het type van het boompje"
+lore = ["8 stammen van elk type + 1 boompje = 8 stammen van het type van het boompje"]
 
 [axe.drop_to_inventory]
-    name = "Bijl Drop-naar-Inventaris"
+name = "Bijl Drop-naar-Inventaris"
 
 [axe.ground_smash]
-    name = "Bijl Grondinslag"
-    description = "Spring, sluip vervolgens en sla alle vijanden in de buurt."
-    lore1 = "Schade"
-    lore2 = "Blokken Radius"
-    lore3 = "Kracht"
-    lore4 = "Inslag-Cooldown"
-    lore = ["Schade", "Blokken Radius", "Kracht", "Inslag-Cooldown"]
+name = "Bijl Grondinslag"
+description = "Spring, sluip vervolgens en sla alle vijanden in de buurt."
+lore1 = "Schade"
+lore2 = "Blokken Radius"
+lore3 = "Kracht"
+lore4 = "Inslag-Cooldown"
+lore = ["Schade", "Blokken Radius", "Kracht", "Inslag-Cooldown"]
 
 [axe.leaf_miner]
-    name = "Bladmijnwerker"
-    description = "Hiermee kun je grote hoeveelheden bladeren tegelijk breken!"
-    lore1 = "Sluip en mijn BLADEREN"
-    lore2 = "bereik van bladmijnbouw"
-    lore3 = "Je krijgt geen drops van de bladeren (Exploit Preventie)"
-    lore = ["Sluip en mijn BLADEREN", "bereik van bladmijnbouw", "Je krijgt geen drops van de bladeren (Exploit Preventie)"]
+name = "Bladmijnwerker"
+description = "Hiermee kun je grote hoeveelheden bladeren tegelijk breken!"
+lore1 = "Sluip en mijn BLADEREN"
+lore2 = "bereik van bladmijnbouw"
+lore3 = "Je krijgt geen drops van de bladeren (Exploit Preventie)"
+lore = ["Sluip en mijn BLADEREN", "bereik van bladmijnbouw", "Je krijgt geen drops van de bladeren (Exploit Preventie)"]
 
 [axe.wood_miner]
-    name = "Houtmijnwerker"
-    description = "Hiermee kun je grote hoeveelheden hout tegelijk breken!"
-    lore1 = "Sluip en mijn HOUT/STAMMEN (geen planken)"
-    lore2 = "bereik van houtmijnbouw"
-    lore3 = "Werkt met Drop-naar-Inventaris"
-    lore = ["Sluip en mijn HOUT/STAMMEN (geen planken)", "bereik van houtmijnbouw", "Werkt met Drop-naar-Inventaris"]
+name = "Houtmijnwerker"
+description = "Hiermee kun je grote hoeveelheden hout tegelijk breken!"
+lore1 = "Sluip en mijn HOUT/STAMMEN (geen planken)"
+lore2 = "bereik van houtmijnbouw"
+lore3 = "Werkt met Drop-naar-Inventaris"
+lore = ["Sluip en mijn HOUT/STAMMEN (geen planken)", "bereik van houtmijnbouw", "Werkt met Drop-naar-Inventaris"]
 
 # brewing
 [brewing]
 
 [brewing.lingering]
-    name = "Aanhoudend Brouwsel"
-    description = "Gebrouwen drankjes duren langer!"
-    lore1 = "Duur"
-    lore2 = "Duur"
-    lore = ["Duur", "Duur"]
+name = "Aanhoudend Brouwsel"
+description = "Gebrouwen drankjes duren langer!"
+lore1 = "Duur"
+lore2 = "Duur"
+lore = ["Duur", "Duur"]
 
 [brewing.super_heated]
-    name = "Superverhit Brouwsel"
-    description = "Brouwstandaarden werken sneller hoe heter ze zijn."
-    lore1 = "Per aanrakend vuurblok"
-    lore2 = "Per aanrakend lavablok"
-    lore = ["Per aanrakend vuurblok", "Per aanrakend lavablok"]
+name = "Superverhit Brouwsel"
+description = "Brouwstandaarden werken sneller hoe heter ze zijn."
+lore1 = "Per aanrakend vuurblok"
+lore2 = "Per aanrakend lavablok"
+lore = ["Per aanrakend vuurblok", "Per aanrakend lavablok"]
 
 [brewing.darkness]
-    name = "Gebottelde Duisternis"
-    description = "Niet zeker waarom je dit nodig hebt, maar alsjeblieft!"
-    lore1 = "Nachtzichtdrankje + Zwart Beton = Duisternisdrankje (30 seconden)"
-    lore2 = "Let op: dit voorkomt dat de gebruiker kan sprinten!"
-    lore = ["Nachtzichtdrankje + Zwart Beton = Duisternisdrankje (30 seconden)", "Let op: dit voorkomt dat de gebruiker kan sprinten!"]
+name = "Gebottelde Duisternis"
+description = "Niet zeker waarom je dit nodig hebt, maar alsjeblieft!"
+lore1 = "Nachtzichtdrankje + Zwart Beton = Duisternisdrankje (30 seconden)"
+lore2 = "Let op: dit voorkomt dat de gebruiker kan sprinten!"
+lore = ["Nachtzichtdrankje + Zwart Beton = Duisternisdrankje (30 seconden)", "Let op: dit voorkomt dat de gebruiker kan sprinten!"]
 
 [brewing.haste]
-    name = "Gebottelde Haast"
-    description = "Wanneer efficientie niet genoeg is"
-    lore1 = "Snelheidsdrankje + Amethist Scherf = Haastdrankje (60 seconden)"
-    lore2 = "Snelheidsdrankje + Amethist Blok = Haastdrankje-2 (30 seconden)"
-    lore = ["Snelheidsdrankje + Amethist Scherf = Haastdrankje (60 seconden)", "Snelheidsdrankje + Amethist Blok = Haastdrankje-2 (30 seconden)"]
+name = "Gebottelde Haast"
+description = "Wanneer efficientie niet genoeg is"
+lore1 = "Snelheidsdrankje + Amethist Scherf = Haastdrankje (60 seconden)"
+lore2 = "Snelheidsdrankje + Amethist Blok = Haastdrankje-2 (30 seconden)"
+lore = ["Snelheidsdrankje + Amethist Scherf = Haastdrankje (60 seconden)", "Snelheidsdrankje + Amethist Blok = Haastdrankje-2 (30 seconden)"]
 
 [brewing.absorption]
-    name = "Gebottelde Absorptie"
-    description = "Verhard het lichaam!"
-    lore1 = "Directe Genezing + Kwarts = Absorptiedrankje (60 seconden)"
-    lore2 = "Directe Genezing + Kwartsblok = Absorptiedrankje-2 (30 seconden)"
-    lore = ["Directe Genezing + Kwarts = Absorptiedrankje (60 seconden)", "Directe Genezing + Kwartsblok = Absorptiedrankje-2 (30 seconden)"]
+name = "Gebottelde Absorptie"
+description = "Verhard het lichaam!"
+lore1 = "Directe Genezing + Kwarts = Absorptiedrankje (60 seconden)"
+lore2 = "Directe Genezing + Kwartsblok = Absorptiedrankje-2 (30 seconden)"
+lore = ["Directe Genezing + Kwarts = Absorptiedrankje (60 seconden)", "Directe Genezing + Kwartsblok = Absorptiedrankje-2 (30 seconden)"]
 
 [brewing.fatigue]
-    name = "Gebottelde Vermoeidheid"
-    description = "Verzwak het lichaam!"
-    lore1 = "Zwaktedrankje + Slijmbal = Vermoeidheidsdrankje (30 seconden)"
-    lore2 = "Zwaktedrankje + Slijmblok = Vermoeidheidsdrankje-2 (15 seconden)"
-    lore = ["Zwaktedrankje + Slijmbal = Vermoeidheidsdrankje (30 seconden)", "Zwaktedrankje + Slijmblok = Vermoeidheidsdrankje-2 (15 seconden)"]
+name = "Gebottelde Vermoeidheid"
+description = "Verzwak het lichaam!"
+lore1 = "Zwaktedrankje + Slijmbal = Vermoeidheidsdrankje (30 seconden)"
+lore2 = "Zwaktedrankje + Slijmblok = Vermoeidheidsdrankje-2 (15 seconden)"
+lore = ["Zwaktedrankje + Slijmbal = Vermoeidheidsdrankje (30 seconden)", "Zwaktedrankje + Slijmblok = Vermoeidheidsdrankje-2 (15 seconden)"]
 
 [brewing.hunger]
-    name = "Gebottelde Honger"
-    description = "Voed de onverzadigbare!"
-    lore1 = "Onhandig Drankje + Rottend Vlees = Hongerdrankje (30 seconden)"
-    lore2 = "Zwaktedrankje + Rottend Vlees = Hongerdrankje-3 (15 seconden)"
-    lore = ["Onhandig Drankje + Rottend Vlees = Hongerdrankje (30 seconden)", "Zwaktedrankje + Rottend Vlees = Hongerdrankje-3 (15 seconden)"]
+name = "Gebottelde Honger"
+description = "Voed de onverzadigbare!"
+lore1 = "Onhandig Drankje + Rottend Vlees = Hongerdrankje (30 seconden)"
+lore2 = "Zwaktedrankje + Rottend Vlees = Hongerdrankje-3 (15 seconden)"
+lore = ["Onhandig Drankje + Rottend Vlees = Hongerdrankje (30 seconden)", "Zwaktedrankje + Rottend Vlees = Hongerdrankje-3 (15 seconden)"]
 
 [brewing.nausea]
-    name = "Gebottelde Misselijkheid"
-    description = "Je maakt me misselijk!"
-    lore1 = "Onhandig Drankje + Bruine Paddenstoel = Misselijkheidsdrankje (16 seconden)"
-    lore2 = "Onhandig Drankje + Karmozijn Schimmel = Misselijkheidsdrankje-2 (8 seconden)"
-    lore = ["Onhandig Drankje + Bruine Paddenstoel = Misselijkheidsdrankje (16 seconden)", "Onhandig Drankje + Karmozijn Schimmel = Misselijkheidsdrankje-2 (8 seconden)"]
+name = "Gebottelde Misselijkheid"
+description = "Je maakt me misselijk!"
+lore1 = "Onhandig Drankje + Bruine Paddenstoel = Misselijkheidsdrankje (16 seconden)"
+lore2 = "Onhandig Drankje + Karmozijn Schimmel = Misselijkheidsdrankje-2 (8 seconden)"
+lore = ["Onhandig Drankje + Bruine Paddenstoel = Misselijkheidsdrankje (16 seconden)", "Onhandig Drankje + Karmozijn Schimmel = Misselijkheidsdrankje-2 (8 seconden)"]
 
 [brewing.blindness]
-    name = "Gebottelde Blindheid"
-    description = "Je bent een verschrikkelijk persoon..."
-    lore1 = "Onhandig Drankje + Inktzak = Blindheidsdrankje (30 seconden)"
-    lore2 = "Onhandig Drankje + Lichtgevende Inktzak = Blindheidsdrankje-2 (15 seconden)"
-    lore = ["Onhandig Drankje + Inktzak = Blindheidsdrankje (30 seconden)", "Onhandig Drankje + Lichtgevende Inktzak = Blindheidsdrankje-2 (15 seconden)"]
+name = "Gebottelde Blindheid"
+description = "Je bent een verschrikkelijk persoon..."
+lore1 = "Onhandig Drankje + Inktzak = Blindheidsdrankje (30 seconden)"
+lore2 = "Onhandig Drankje + Lichtgevende Inktzak = Blindheidsdrankje-2 (15 seconden)"
+lore = ["Onhandig Drankje + Inktzak = Blindheidsdrankje (30 seconden)", "Onhandig Drankje + Lichtgevende Inktzak = Blindheidsdrankje-2 (15 seconden)"]
 
 [brewing.resistance]
-    name = "Gebottelde Weerstand"
-    description = "Fortificatie op zijn best!"
-    lore1 = "Onhandig Drankje + IJzerstaaf = Weerstandsdrankje (60 seconden)"
-    lore2 = "Onhandig Drankje + IJzerblok = Weerstandsdrankje-2 (30 seconden)"
-    lore = ["Onhandig Drankje + IJzerstaaf = Weerstandsdrankje (60 seconden)", "Onhandig Drankje + IJzerblok = Weerstandsdrankje-2 (30 seconden)"]
+name = "Gebottelde Weerstand"
+description = "Fortificatie op zijn best!"
+lore1 = "Onhandig Drankje + IJzerstaaf = Weerstandsdrankje (60 seconden)"
+lore2 = "Onhandig Drankje + IJzerblok = Weerstandsdrankje-2 (30 seconden)"
+lore = ["Onhandig Drankje + IJzerstaaf = Weerstandsdrankje (60 seconden)", "Onhandig Drankje + IJzerblok = Weerstandsdrankje-2 (30 seconden)"]
 
 [brewing.health_boost]
-    name = "Gebotteld Leven"
-    description = "Wanneer maximale gezondheid niet genoeg is..."
-    lore1 = "Directe-Genezingsdrankje + Gouden Appel = Gezondheidsboostdrankje (120 seconden)"
-    lore2 = "Directe-Genezingsdrankje + Betoverde Gouden Appel = Gezondheidsboostdrankje-2 (120 seconden)"
-    lore = ["Directe-Genezingsdrankje + Gouden Appel = Gezondheidsboostdrankje (120 seconden)", "Directe-Genezingsdrankje + Betoverde Gouden Appel = Gezondheidsboostdrankje-2 (120 seconden)"]
+name = "Gebotteld Leven"
+description = "Wanneer maximale gezondheid niet genoeg is..."
+lore1 = "Directe-Genezingsdrankje + Gouden Appel = Gezondheidsboostdrankje (120 seconden)"
+lore2 = "Directe-Genezingsdrankje + Betoverde Gouden Appel = Gezondheidsboostdrankje-2 (120 seconden)"
+lore = ["Directe-Genezingsdrankje + Gouden Appel = Gezondheidsboostdrankje (120 seconden)", "Directe-Genezingsdrankje + Betoverde Gouden Appel = Gezondheidsboostdrankje-2 (120 seconden)"]
 
 [brewing.decay]
-    name = "Gebotteld Verval"
-    description = "Wie wist dat afval zo nuttig zou zijn?"
-    lore1 = "Zwaktedrankje + Giftige Aardappel = Witherdrankje (16 seconden)"
-    lore2 = "Zwaktedrankje + Karmozijn Wortels = Witherdrankje-2 (8 seconden)"
-    lore = ["Zwaktedrankje + Giftige Aardappel = Witherdrankje (16 seconden)", "Zwaktedrankje + Karmozijn Wortels = Witherdrankje-2 (8 seconden)"]
+name = "Gebotteld Verval"
+description = "Wie wist dat afval zo nuttig zou zijn?"
+lore1 = "Zwaktedrankje + Giftige Aardappel = Witherdrankje (16 seconden)"
+lore2 = "Zwaktedrankje + Karmozijn Wortels = Witherdrankje-2 (8 seconden)"
+lore = ["Zwaktedrankje + Giftige Aardappel = Witherdrankje (16 seconden)", "Zwaktedrankje + Karmozijn Wortels = Witherdrankje-2 (8 seconden)"]
 
 [brewing.saturation]
-    name = "Gebottelde Verzadiging"
-    description = "Weet je... ik heb niet eens honger..."
-    lore1 = "Regeneratiedrankje + Gebakken Aardappel = Verzadigingsdrankje"
-    lore2 = "Regeneratiedrankje + Hooibaal = Verzadigingsdrankje-2"
-    lore = ["Regeneratiedrankje + Gebakken Aardappel = Verzadigingsdrankje", "Regeneratiedrankje + Hooibaal = Verzadigingsdrankje-2"]
+name = "Gebottelde Verzadiging"
+description = "Weet je... ik heb niet eens honger..."
+lore1 = "Regeneratiedrankje + Gebakken Aardappel = Verzadigingsdrankje"
+lore2 = "Regeneratiedrankje + Hooibaal = Verzadigingsdrankje-2"
+lore = ["Regeneratiedrankje + Gebakken Aardappel = Verzadigingsdrankje", "Regeneratiedrankje + Hooibaal = Verzadigingsdrankje-2"]
 
 # blocking
 [blocking]
 
 [blocking.chain_armorer]
-    name = "Ketens van Mephistopheles"
-    description = "Hiermee kun je malienpantser maken"
-    lore1 = "Het receptis hetzelfde als elk ander, maar met ijzerklompjes in plaats van staafjes"
-    lore = ["Het receptis hetzelfde als elk ander, maar met ijzerklompjes in plaats van staafjes"]
+name = "Ketens van Mephistopheles"
+description = "Hiermee kun je malienpantser maken"
+lore1 = "Het receptis hetzelfde als elk ander, maar met ijzerklompjes in plaats van staafjes"
+lore = ["Het receptis hetzelfde als elk ander, maar met ijzerklompjes in plaats van staafjes"]
 
 [blocking.horse_armorer]
-    name = "Maakbaar Paardenharnas"
-    description = "Hiermee kun je paardenharnas maken"
-    lore1 = "Omring een zadel met het materiaal dat je wilt gebruiken om het harnas te maken"
-    lore = ["Omring een zadel met het materiaal dat je wilt gebruiken om het harnas te maken"]
+name = "Maakbaar Paardenharnas"
+description = "Hiermee kun je paardenharnas maken"
+lore1 = "Omring een zadel met het materiaal dat je wilt gebruiken om het harnas te maken"
+lore = ["Omring een zadel met het materiaal dat je wilt gebruiken om het harnas te maken"]
 
 [blocking.saddle_crafter]
-    name = "Maakbaar Zadel"
-    description = "Maak een zadel met leer"
-    lore1 = "Recept: 5 Leer:"
-    lore = ["Recept: 5 Leer:"]
+name = "Maakbaar Zadel"
+description = "Maak een zadel met leer"
+lore1 = "Recept: 5 Leer:"
+lore = ["Recept: 5 Leer:"]
 
 [blocking.multi_armor]
-    name = "Multi-Pantser"
-    description = "Bind Elytra's aan pantser"
-    lore1 = "Dit is een geweldige vaardigheid om te reizen."
-    lore2 = "Dynamisch samenvoegen en wisselen van Pantser/Elytra terwijl je vliegt!"
-    lore3 = "Om samen te voegen, shift-klik een item op een ander in je inventaris."
-    lore4 = "Om pantser los te koppelen, sluip en drop het item, en het wordt gedemonteerd."
-    lore5 = "Als je Multi-Pantser wordt vernietigd, verlies je alle items erin."
-    lore6 = "Ik heb geen pantser nodig, het stelt me teleur..."
-    lore = ["Dit is een geweldige vaardigheid om te reizen.", "Dynamisch samenvoegen en wisselen van Pantser/Elytra terwijl je vliegt!", "Om samen te voegen, shift-klik een item op een ander in je inventaris.", "Om pantser los te koppelen, sluip en drop het item, en het wordt gedemonteerd.", "Als je Multi-Pantser wordt vernietigd, verlies je alle items erin.", "Ik heb geen pantser nodig, het stelt me teleur..."]
+name = "Multi-Pantser"
+description = "Bind Elytra's aan pantser"
+lore1 = "Dit is een geweldige vaardigheid om te reizen."
+lore2 = "Dynamisch samenvoegen en wisselen van Pantser/Elytra terwijl je vliegt!"
+lore3 = "Om samen te voegen, shift-klik een item op een ander in je inventaris."
+lore4 = "Om pantser los te koppelen, sluip en drop het item, en het wordt gedemonteerd."
+lore5 = "Als je Multi-Pantser wordt vernietigd, verlies je alle items erin."
+lore6 = "Ik heb geen pantser nodig, het stelt me teleur..."
+lore = ["Dit is een geweldige vaardigheid om te reizen.", "Dynamisch samenvoegen en wisselen van Pantser/Elytra terwijl je vliegt!", "Om samen te voegen, shift-klik een item op een ander in je inventaris.", "Om pantser los te koppelen, sluip en drop het item, en het wordt gedemonteerd.", "Als je Multi-Pantser wordt vernietigd, verlies je alle items erin.", "Ik heb geen pantser nodig, het stelt me teleur..."]
 
 # crafting
 [crafting]
 
 [crafting.deconstruction]
-    name = "Deconstructie"
-    description = "Ontmantel blokken & items tot bruikbare basiscomponenten!"
-    lore1 = "Laat een voorwerp op de grond vallen."
-    lore2 = "Sluip vervolgens en rechtsklik met een schaar"
-    lore = ["Laat een voorwerp op de grond vallen.", "Sluip vervolgens en rechtsklik met een schaar"]
+name = "Deconstructie"
+description = "Ontmantel blokken & items tot bruikbare basiscomponenten!"
+lore1 = "Laat een voorwerp op de grond vallen."
+lore2 = "Sluip vervolgens en rechtsklik met een schaar"
+lore = ["Laat een voorwerp op de grond vallen.", "Sluip vervolgens en rechtsklik met een schaar"]
 
 [crafting.xp]
-    name = "Knutsel-XP"
-    description = "Verkrijg passieve XP bij het knutselen"
-    lore1 = "Verdien XP bij het knutselen"
-    lore = ["Verdien XP bij het knutselen"]
+name = "Knutsel-XP"
+description = "Verkrijg passieve XP bij het knutselen"
+lore1 = "Verdien XP bij het knutselen"
+lore = ["Verdien XP bij het knutselen"]
 
 [crafting.reconstruction]
-    name = "Erts Reconstructie"
-    description = "Maak ertsen opnieuw van hun basiscomponenten!"
-    lore1 = "8 van de drops en 1 gastheer = 1 erts (vormloos)"
-    lore2 = "Drops moeten gesmolten zijn (indien van toepassing)"
-    lore3 = "Exclusief: Schroot, Kwarts, en Smaragden etc..."
-    lore4 = "Gastheer = Omhulsel. bijv: Steen, Netherrack, Deepslate"
-    lore = ["8 van de drops en 1 gastheer = 1 erts (vormloos)", "Drops moeten gesmolten zijn (indien van toepassing)", "Exclusief: Schroot, Kwarts, en Smaragden etc...", "Gastheer = Omhulsel. bijv: Steen, Netherrack, Deepslate"]
+name = "Erts Reconstructie"
+description = "Maak ertsen opnieuw van hun basiscomponenten!"
+lore1 = "8 van de drops en 1 gastheer = 1 erts (vormloos)"
+lore2 = "Drops moeten gesmolten zijn (indien van toepassing)"
+lore3 = "Exclusief: Schroot, Kwarts, en Smaragden etc..."
+lore4 = "Gastheer = Omhulsel. bijv: Steen, Netherrack, Deepslate"
+lore = ["8 van de drops en 1 gastheer = 1 erts (vormloos)", "Drops moeten gesmolten zijn (indien van toepassing)", "Exclusief: Schroot, Kwarts, en Smaragden etc...", "Gastheer = Omhulsel. bijv: Steen, Netherrack, Deepslate"]
 
 [crafting.leather]
-    name = "Maakbaar Leer"
-    description = "Maak leer van rottend vlees"
-    lore1 = "Gooi het (rottend vlees) gewoon op het kampvuur!"
-    lore = ["Gooi het (rottend vlees) gewoon op het kampvuur!"]
+name = "Maakbaar Leer"
+description = "Maak leer van rottend vlees"
+lore1 = "Gooi het (rottend vlees) gewoon op het kampvuur!"
+lore = ["Gooi het (rottend vlees) gewoon op het kampvuur!"]
 
 [crafting.backpacks]
-    name = "De Rugzakken van een Boutilier!"
-    description = "Dit brengt gewoon de Mojang Bundel in het spel!"
-    lore1 = "Je moet in Survival zijn om dit te gebruiken"
-    lore2 = "XLX : Leer, Leidtouw, Leer"
-    lore3 = "XSX : Leer, Vat, Leer"
-    lore4 = "XCX : Leer, Kist, Leer"
-    lore = ["Je moet in Survival zijn om dit te gebruiken", "XLX : Leer, Leidtouw, Leer", "XSX : Leer, Vat, Leer", "XCX : Leer, Kist, Leer"]
+name = "De Rugzakken van een Boutilier!"
+description = "Dit brengt gewoon de Mojang Bundel in het spel!"
+lore1 = "Je moet in Survival zijn om dit te gebruiken"
+lore2 = "XLX : Leer, Leidtouw, Leer"
+lore3 = "XSX : Leer, Vat, Leer"
+lore4 = "XCX : Leer, Kist, Leer"
+lore = ["Je moet in Survival zijn om dit te gebruiken", "XLX : Leer, Leidtouw, Leer", "XSX : Leer, Vat, Leer", "XCX : Leer, Kist, Leer"]
 
 [crafting.stations]
-    name = "Draagbare Tafels!"
-    description = "Gebruik een werkstation in de palm van je hand!"
-    lore2 = "ALLE ITEMS DIE JE IN DE TAFEL VERGEET BIJ HET SLUITEN ZIJN VOOR ALTIJD VERLOREN!"
-    lore3 = "Geldige tafels: Aambeeld, Werktafel, Slijpsteen, Cartografietafel, Steenhouwer, Weefgetouw"
-    lore = ["ALLE ITEMS DIE JE IN DE TAFEL VERGEET BIJ HET SLUITEN ZIJN VOOR ALTIJD VERLOREN!", "Geldige tafels: Aambeeld, Werktafel, Slijpsteen, Cartografietafel, Steenhouwer, Weefgetouw"]
+name = "Draagbare Tafels!"
+description = "Gebruik een werkstation in de palm van je hand!"
+lore2 = "ALLE ITEMS DIE JE IN DE TAFEL VERGEET BIJ HET SLUITEN ZIJN VOOR ALTIJD VERLOREN!"
+lore3 = "Geldige tafels: Aambeeld, Werktafel, Slijpsteen, Cartografietafel, Steenhouwer, Weefgetouw"
+lore = ["ALLE ITEMS DIE JE IN DE TAFEL VERGEET BIJ HET SLUITEN ZIJN VOOR ALTIJD VERLOREN!", "Geldige tafels: Aambeeld, Werktafel, Slijpsteen, Cartografietafel, Steenhouwer, Weefgetouw"]
 
 [crafting.skulls]
-    name = "Maakbare Schedels!"
-    description = "Met materialen kun je mobschedels maken!"
-    lore1 = "Omring een botblok met het volgende om een schedel te krijgen:"
-    lore2 = "Zombie: Rottend Vlees"
-    lore3 = "Skelet: Bot"
-    lore4 = "Creeper: Buskruit"
-    lore5 = "Wither: Netherbaksteen"
-    lore6 = "Draak: Drakenadem"
-    lore = ["Omring een botblok met het volgende om een schedel te krijgen:", "Zombie: Rottend Vlees", "Skelet: Bot", "Creeper: Buskruit", "Wither: Netherbaksteen", "Draak: Drakenadem"]
+name = "Maakbare Schedels!"
+description = "Met materialen kun je mobschedels maken!"
+lore1 = "Omring een botblok met het volgende om een schedel te krijgen:"
+lore2 = "Zombie: Rottend Vlees"
+lore3 = "Skelet: Bot"
+lore4 = "Creeper: Buskruit"
+lore5 = "Wither: Netherbaksteen"
+lore6 = "Draak: Drakenadem"
+lore = ["Omring een botblok met het volgende om een schedel te krijgen:", "Zombie: Rottend Vlees", "Skelet: Bot", "Creeper: Buskruit", "Wither: Netherbaksteen", "Draak: Drakenadem"]
 
 # chronos
 [chronos]
 
 [chronos.time_in_a_bottle]
-    name = "Tijd in een Fles"
-    description = "Draag een temporele fles die tijd opslaat en besteed het om getimede blokken, groeibare gewassen en verouderbare entiteiten zoals babydieren te versnellen. Recept (Vormloos): Snelheidsdrankje + Klok + Glazen Fles."
-    lore1 = "Opgeslagen seconden opgeladen per tick"
-    lore2 = "Tijdversnelling per opgeslagen seconde"
-    lore3 = "Recept (Vormloos): Snelheidsdrankje + Klok + Glazen Fles"
-    lore = ["Opgeslagen seconden opgeladen per tick", "Tijdversnelling per opgeslagen seconde", "Recept (Vormloos): Snelheidsdrankje + Klok + Glazen Fles"]
+name = "Tijd in een Fles"
+description = "Draag een temporele fles die tijd opslaat en besteed het om getimede blokken, groeibare gewassen en verouderbare entiteiten zoals babydieren te versnellen. Recept (Vormloos): Snelheidsdrankje + Klok + Glazen Fles."
+lore1 = "Opgeslagen seconden opgeladen per tick"
+lore2 = "Tijdversnelling per opgeslagen seconde"
+lore3 = "Recept (Vormloos): Snelheidsdrankje + Klok + Glazen Fles"
+lore = ["Opgeslagen seconden opgeladen per tick", "Tijdversnelling per opgeslagen seconde", "Recept (Vormloos): Snelheidsdrankje + Klok + Glazen Fles"]
 
 [chronos.aberrant_touch]
-    name = "Afwijkende Aanraking"
-    description = "Melee-aanvallen geven stapelende traagheid ten koste van honger, met strikte PvP-limieten, en verankeren doelwitten bij 5 stapels."
-    lore1 = "Melee-aanvallen geven stapelende traagheid"
-    lore2 = "PvE traagheidsduur limiet"
-    lore3 = "PvP traagheidsversterker limiet"
-    lore = ["Melee-aanvallen geven stapelende traagheid", "PvE traagheidsduur limiet", "PvP traagheidsversterker limiet"]
+name = "Afwijkende Aanraking"
+description = "Melee-aanvallen geven stapelende traagheid ten koste van honger, met strikte PvP-limieten, en verankeren doelwitten bij 5 stapels."
+lore1 = "Melee-aanvallen geven stapelende traagheid"
+lore2 = "PvE traagheidsduur limiet"
+lore3 = "PvP traagheidsversterker limiet"
+lore = ["Melee-aanvallen geven stapelende traagheid", "PvE traagheidsduur limiet", "PvP traagheidsversterker limiet"]
 
 [chronos.instant_recall]
-    name = "Directe Terugroeping"
-    description = "Links- of rechtsklik met een klok in je hand om terug te spoelen naar een recent snapshot met herstelde gezondheid en honger."
-    lore1 = "Terugspoelduur"
-    lore2 = "Cooldown"
-    lore3 = "Geen inventaris-terugdraaiing"
-    lore = ["Terugspoelduur", "Cooldown", "Geen inventaris-terugdraaiing"]
+name = "Directe Terugroeping"
+description = "Links- of rechtsklik met een klok in je hand om terug te spoelen naar een recent snapshot met herstelde gezondheid en honger."
+lore1 = "Terugspoelduur"
+lore2 = "Cooldown"
+lore3 = "Geen inventaris-terugdraaiing"
+lore = ["Terugspoelduur", "Cooldown", "Geen inventaris-terugdraaiing"]
 
 [chronos.time_bomb]
-    name = "Tijdbom"
-    description = "Gooi een gemaakte chronobom die een temporeel veld creëert, entiteiten vertraagt en projectielen bevriest."
-    lore1 = "Temporeel veld radius"
-    lore2 = "Temporeel veld duur"
-    lore3 = "Bom-cooldown"
-    lore4 = "Recept (Vormloos): Klok + Sneeuwbal + Diamant + Zand"
-    lore = ["Temporeel veld radius", "Temporeel veld duur", "Bom-cooldown", "Recept (Vormloos): Klok + Sneeuwbal + Diamant + Zand"]
+name = "Tijdbom"
+description = "Gooi een gemaakte chronobom die een temporeel veld creëert, entiteiten vertraagt en projectielen bevriest."
+lore1 = "Temporeel veld radius"
+lore2 = "Temporeel veld duur"
+lore3 = "Bom-cooldown"
+lore4 = "Recept (Vormloos): Klok + Sneeuwbal + Diamant + Zand"
+lore = ["Temporeel veld radius", "Temporeel veld duur", "Bom-cooldown", "Recept (Vormloos): Klok + Sneeuwbal + Diamant + Zand"]
 
 # discovery
 [discovery]
 
 [discovery.armor]
-    name = "Wereldpantser"
-    description = "Passief pantser afhankelijk van de hardheid van nabije blokken."
-    lore1 = "Passief Pantser"
-    lore2 = "Gebaseerd op nabije blokhardheid"
-    lore3 = "Pantsersterkte:"
-    lore = ["Passief Pantser", "Gebaseerd op nabije blokhardheid", "Pantsersterkte:"]
+name = "Wereldpantser"
+description = "Passief pantser afhankelijk van de hardheid van nabije blokken."
+lore1 = "Passief Pantser"
+lore2 = "Gebaseerd op nabije blokhardheid"
+lore3 = "Pantsersterkte:"
+lore = ["Passief Pantser", "Gebaseerd op nabije blokhardheid", "Pantsersterkte:"]
 
 [discovery.unity]
-    name = "Experimentele Eenheid"
-    description = "Het verzamelen van ervaringsbollen voegt XP toe aan willekeurige vaardigheden."
-    lore1 = "XP "
-    lore2 = "Per Bol"
-    lore = ["XP ", "Per Bol"]
+name = "Experimentele Eenheid"
+description = "Het verzamelen van ervaringsbollen voegt XP toe aan willekeurige vaardigheden."
+lore1 = "XP "
+lore2 = "Per Bol"
+lore = ["XP ", "Per Bol"]
 
 [discovery.resist]
-    name = "Experimentele Weerstand"
-    description = "Verbruik ervaring om schade te verminderen alleen wanneer een treffer je onder 5 harten zou brengen of je zou doden."
-    lore0 = "Activeert alleen bij kritieke gezondheid (<= 5 harten) eens per 15 seconden"
-    lore1 = " Verminderde Schade"
-    lore2 = "ervaring verbruikt"
-    lore = ["Activeert alleen bij kritieke gezondheid (<= 5 harten) eens per 15 seconden", " Verminderde Schade", "ervaring verbruikt"]
+name = "Experimentele Weerstand"
+description = "Verbruik ervaring om schade te verminderen alleen wanneer een treffer je onder 5 harten zou brengen of je zou doden."
+lore0 = "Activeert alleen bij kritieke gezondheid (<= 5 harten) eens per 15 seconden"
+lore1 = " Verminderde Schade"
+lore2 = "ervaring verbruikt"
+lore = ["Activeert alleen bij kritieke gezondheid (<= 5 harten) eens per 15 seconden", " Verminderde Schade", "ervaring verbruikt"]
 
 [discovery.villager]
-    name = "Dorpelings Aantrekking"
-    description = "Hiermee kun je betere aanbiedingen bij dorpelingen krijgen!"
-    lore1 = "Dit verbruikt XP per interactie met dorpelingen"
-    lore2 = "Kans per interactie om XP te verbruiken en aanbiedingen te verbeteren"
-    lore3 = "vereiste XP-verbruik per interactie"
-    lore = ["Dit verbruikt XP per interactie met dorpelingen", "Kans per interactie om XP te verbruiken en aanbiedingen te verbeteren", "vereiste XP-verbruik per interactie"]
+name = "Dorpelings Aantrekking"
+description = "Hiermee kun je betere aanbiedingen bij dorpelingen krijgen!"
+lore1 = "Dit verbruikt XP per interactie met dorpelingen"
+lore2 = "Kans per interactie om XP te verbruiken en aanbiedingen te verbeteren"
+lore3 = "vereiste XP-verbruik per interactie"
+lore = ["Dit verbruikt XP per interactie met dorpelingen", "Kans per interactie om XP te verbruiken en aanbiedingen te verbeteren", "vereiste XP-verbruik per interactie"]
 
 # enchanting
 [enchanting]
 
 [enchanting.lapis_return]
-    name = "Lapis Teruggave"
-    description = "Ten koste van 1 extra level XP, met een kans om gratis lapis terug te krijgen"
-    lore1 = "Voor elk niveau verhoogt het de kosten van betoveren met 1, maar kan tot 3 Lapis teruggeven"
-    lore = ["Voor elk niveau verhoogt het de kosten van betoveren met 1, maar kan tot 3 Lapis teruggeven"]
+name = "Lapis Teruggave"
+description = "Ten koste van 1 extra level XP, met een kans om gratis lapis terug te krijgen"
+lore1 = "Voor elk niveau verhoogt het de kosten van betoveren met 1, maar kan tot 3 Lapis teruggeven"
+lore = ["Voor elk niveau verhoogt het de kosten van betoveren met 1, maar kan tot 3 Lapis teruggeven"]
 
 [enchanting.quick_enchant]
-    name = "Snelklik Betoveren"
-    description = "Betover items door met betoveringsboeken direct erop te klikken."
-    lore1 = "Max Gecombineerde Niveaus"
-    lore2 = "Kan een item niet betoveren met meer dan "
-    lore3 = "kracht"
-    lore = ["Max Gecombineerde Niveaus", "Kan een item niet betoveren met meer dan ", "kracht"]
+name = "Snelklik Betoveren"
+description = "Betover items door met betoveringsboeken direct erop te klikken."
+lore1 = "Max Gecombineerde Niveaus"
+lore2 = "Kan een item niet betoveren met meer dan "
+lore3 = "kracht"
+lore = ["Max Gecombineerde Niveaus", "Kan een item niet betoveren met meer dan ", "kracht"]
 
 [enchanting.return]
-    name = "XP Teruggave"
-    description = "Betover-XP wordt aan je teruggegeven wanneer je een item betoverT."
-    lore1 = "Uitgegeven ervaring heeft een kans om terugbetaald te worden wanneer je een item betoverT"
-    lore2 = "Ervaring per Betovering"
-    lore = ["Uitgegeven ervaring heeft een kans om terugbetaald te worden wanneer je een item betoverT", "Ervaring per Betovering"]
+name = "XP Teruggave"
+description = "Betover-XP wordt aan je teruggegeven wanneer je een item betoverT."
+lore1 = "Uitgegeven ervaring heeft een kans om terugbetaald te worden wanneer je een item betoverT"
+lore2 = "Ervaring per Betovering"
+lore = ["Uitgegeven ervaring heeft een kans om terugbetaald te worden wanneer je een item betoverT", "Ervaring per Betovering"]
 
 # excavation
 [excavation]
 
 [excavation.haste]
-    name = "Haastige Graver"
-    description = "Dit versnelt het graafproces, met HAAST!"
-    lore1 = "Verkrijg Haast tijdens het graven"
-    lore2 = "x niveaus haast wanneer je ELK blok begint te mijnen."
-    lore = ["Verkrijg Haast tijdens het graven", "x niveaus haast wanneer je ELK blok begint te mijnen."]
+name = "Haastige Graver"
+description = "Dit versnelt het graafproces, met HAAST!"
+lore1 = "Verkrijg Haast tijdens het graven"
+lore2 = "x niveaus haast wanneer je ELK blok begint te mijnen."
+lore = ["Verkrijg Haast tijdens het graven", "x niveaus haast wanneer je ELK blok begint te mijnen."]
 
 [excavation.spelunker]
-    name = "Superziende Spelunker!"
-    description = "Zie ertsen met je ogen, dwars door de grond!"
-    lore1 = "Erts in je nevenhand, Glowberries in je hoofdhand, en Sluip!"
-    lore2 = "Blok Bereik: "
-    lore3 = "Verbruikt Glowberry bij gebruik"
-    lore = ["Erts in je nevenhand, Glowberries in je hoofdhand, en Sluip!", "Blok Bereik: ", "Verbruikt Glowberry bij gebruik"]
+name = "Superziende Spelunker!"
+description = "Zie ertsen met je ogen, dwars door de grond!"
+lore1 = "Erts in je nevenhand, Glowberries in je hoofdhand, en Sluip!"
+lore2 = "Blok Bereik: "
+lore3 = "Verbruikt Glowberry bij gebruik"
+lore = ["Erts in je nevenhand, Glowberries in je hoofdhand, en Sluip!", "Blok Bereik: ", "Verbruikt Glowberry bij gebruik"]
 
 [excavation.drop_to_inventory]
-    name = "Schop Drop-naar-Inventaris"
+name = "Schop Drop-naar-Inventaris"
 
 [excavation.omni_tool]
-    name = "OMNI - T.O.O.L."
-    description = "Tackle's overontworpen weelderige zakmes"
-    lore1 = "Waarschijnlijk de krachtigste van velen, hiermee kun je"
-    lore2 = "dynamisch gereedschap samenvoegen en wisselen, op basis van je behoeften."
-    lore3 = "Om samen te voegen, shift-klik een item op een ander in je inventaris."
-    lore4 = "Om gereedschap los te koppelen, sluip en drop het item, en het wordt gedemonteerd."
-    lore5 = "Je kunt gereedschap in dit zakmes niet breken, maar kapot gereedschap kun je niet gebruiken"
-    lore6 = "totaal samen te voegen items."
-    lore7 = "Je kunt vijf of zes gereedschappen gebruiken, of gewoon een!"
-    lore = ["Waarschijnlijk de krachtigste van velen, hiermee kun je", "dynamisch gereedschap samenvoegen en wisselen, op basis van je behoeften.", "Om samen te voegen, shift-klik een item op een ander in je inventaris.", "Om gereedschap los te koppelen, sluip en drop het item, en het wordt gedemonteerd.", "Je kunt gereedschap in dit zakmes niet breken, maar kapot gereedschap kun je niet gebruiken", "totaal samen te voegen items.", "Je kunt vijf of zes gereedschappen gebruiken, of gewoon een!"]
+name = "OMNI - T.O.O.L."
+description = "Tackle's overontworpen weelderige zakmes"
+lore1 = "Waarschijnlijk de krachtigste van velen, hiermee kun je"
+lore2 = "dynamisch gereedschap samenvoegen en wisselen, op basis van je behoeften."
+lore3 = "Om samen te voegen, shift-klik een item op een ander in je inventaris."
+lore4 = "Om gereedschap los te koppelen, sluip en drop het item, en het wordt gedemonteerd."
+lore5 = "Je kunt gereedschap in dit zakmes niet breken, maar kapot gereedschap kun je niet gebruiken"
+lore6 = "totaal samen te voegen items."
+lore7 = "Je kunt vijf of zes gereedschappen gebruiken, of gewoon een!"
+lore = ["Waarschijnlijk de krachtigste van velen, hiermee kun je", "dynamisch gereedschap samenvoegen en wisselen, op basis van je behoeften.", "Om samen te voegen, shift-klik een item op een ander in je inventaris.", "Om gereedschap los te koppelen, sluip en drop het item, en het wordt gedemonteerd.", "Je kunt gereedschap in dit zakmes niet breken, maar kapot gereedschap kun je niet gebruiken", "totaal samen te voegen items.", "Je kunt vijf of zes gereedschappen gebruiken, of gewoon een!"]
 
 # herbalism
 [herbalism]
 
 [herbalism.growth_aura]
-    name = "Groeiaura"
-    description = "Laat de natuur om je heen groeien in een aura"
-    lore1 = "Blokken Radius"
-    lore2 = "Groeiaura Sterkte"
-    lore3 = "Voedselkosten"
-    lore = ["Blokken Radius", "Groeiaura Sterkte", "Voedselkosten"]
+name = "Groeiaura"
+description = "Laat de natuur om je heen groeien in een aura"
+lore1 = "Blokken Radius"
+lore2 = "Groeiaura Sterkte"
+lore3 = "Voedselkosten"
+lore = ["Blokken Radius", "Groeiaura Sterkte", "Voedselkosten"]
 
 [herbalism.hippo]
-    name = "Kruidkundige's Nijlpaard"
-    description = "Voedsel consumeren geeft je meer verzadiging"
-    lore1 = "Voedsel) extra verzadigingspunten bij consumptie"
-    lore = ["Voedsel) extra verzadigingspunten bij consumptie"]
+name = "Kruidkundige's Nijlpaard"
+description = "Voedsel consumeren geeft je meer verzadiging"
+lore1 = "Voedsel) extra verzadigingspunten bij consumptie"
+lore = ["Voedsel) extra verzadigingspunten bij consumptie"]
 
 [herbalism.myconid]
-    name = "Kruidkundige's Myconide"
-    description = "Geeft je de mogelijkheid om Mycelium te maken"
-    lore1 = "Elke aarde en een bruine & rode paddenstoel maken Mycelium."
-    lore = ["Elke aarde en een bruine & rode paddenstoel maken Mycelium."]
+name = "Kruidkundige's Myconide"
+description = "Geeft je de mogelijkheid om Mycelium te maken"
+lore1 = "Elke aarde en een bruine & rode paddenstoel maken Mycelium."
+lore = ["Elke aarde en een bruine & rode paddenstoel maken Mycelium."]
 
 [herbalism.terralid]
-    name = "Kruidkundige's Terralide"
-    description = "Geeft je de mogelijkheid om Grasblokken te maken"
-    lore1 = "Drie Zaden boven 3 Aarde maken 3 Grasblokken."
-    lore = ["Drie Zaden boven 3 Aarde maken 3 Grasblokken."]
+name = "Kruidkundige's Terralide"
+description = "Geeft je de mogelijkheid om Grasblokken te maken"
+lore1 = "Drie Zaden boven 3 Aarde maken 3 Grasblokken."
+lore = ["Drie Zaden boven 3 Aarde maken 3 Grasblokken."]
 
 [herbalism.cobweb]
-    name = "Webmaker"
-    description = "Geeft je de mogelijkheid om spinnenwebben te maken in een Werktafel"
-    lore1 = "Negen touw maakt een spinnenweb."
-    lore = ["Negen touw maakt een spinnenweb."]
+name = "Webmaker"
+description = "Geeft je de mogelijkheid om spinnenwebben te maken in een Werktafel"
+lore1 = "Negen touw maakt een spinnenweb."
+lore = ["Negen touw maakt een spinnenweb."]
 
 [herbalism.mushroom_blocks]
-    name = "Paddenstoelenmaker"
-    description = "Geeft je de mogelijkheid om paddenstoelenblokken te maken in een Werktafel"
-    lore1 = "Vier paddenstoelen om een blok te maken, of een blok om een stengel te maken."
-    lore = ["Vier paddenstoelen om een blok te maken, of een blok om een stengel te maken."]
+name = "Paddenstoelenmaker"
+description = "Geeft je de mogelijkheid om paddenstoelenblokken te maken in een Werktafel"
+lore1 = "Vier paddenstoelen om een blok te maken, of een blok om een stengel te maken."
+lore = ["Vier paddenstoelen om een blok te maken, of een blok om een stengel te maken."]
 
 [herbalism.drop_to_inventory]
-    name = "Schoffel Drop-naar-Inventaris"
+name = "Schoffel Drop-naar-Inventaris"
 
 [herbalism.hungry_shield]
-    name = "Hongerig Schild"
-    description = "Neem schade op je honger voordat je gezondheid wordt aangetast."
-    lore1 = "Weerstaan door Honger"
-    lore = ["Weerstaan door Honger"]
+name = "Hongerig Schild"
+description = "Neem schade op je honger voordat je gezondheid wordt aangetast."
+lore1 = "Weerstaan door Honger"
+lore = ["Weerstaan door Honger"]
 
 [herbalism.luck]
-    name = "Kruidkundige's Geluk"
-    description = "Wanneer je Gras/Bloemen breekt, heb je kans om een willekeurig item te krijgen"
-    lore0 = "Bloemen = Voedsel, en Gras = Zaden"
-    lore1 = "Kans om een item te krijgen door Bloemen te breken"
-    lore2 = "Kans om een item te krijgen door Gras te breken"
-    lore = ["Bloemen = Voedsel, en Gras = Zaden", "Kans om een item te krijgen door Bloemen te breken", "Kans om een item te krijgen door Gras te breken"]
+name = "Kruidkundige's Geluk"
+description = "Wanneer je Gras/Bloemen breekt, heb je kans om een willekeurig item te krijgen"
+lore0 = "Bloemen = Voedsel, en Gras = Zaden"
+lore1 = "Kans om een item te krijgen door Bloemen te breken"
+lore2 = "Kans om een item te krijgen door Gras te breken"
+lore = ["Bloemen = Voedsel, en Gras = Zaden", "Kans om een item te krijgen door Bloemen te breken", "Kans om een item te krijgen door Gras te breken"]
 
 [herbalism.replant]
-    name = "Oogsten & Herplanten"
-    description = "Rechtsklik op een gewas met een schoffel om te oogsten en herplanten."
-    lore1 = "Blokken Herplant Radius"
-    lore = ["Blokken Herplant Radius"]
+name = "Oogsten & Herplanten"
+description = "Rechtsklik op een gewas met een schoffel om te oogsten en herplanten."
+lore1 = "Blokken Herplant Radius"
+lore = ["Blokken Herplant Radius"]
 
 # hunter
 [hunter]
 
 [hunter.adrenaline]
-    name = "Adrenaline"
-    description = "Doe meer schade hoe lager je gezondheid is (melee)"
-    lore1 = "Max Schade"
-    lore = ["Max Schade"]
+name = "Adrenaline"
+description = "Doe meer schade hoe lager je gezondheid is (melee)"
+lore1 = "Max Schade"
+lore = ["Max Schade"]
 
 [hunter.penalty]
-    name = ""
-    description = ""
-    lore1 = "Je krijgt gifstapels als je honger opraakt"
-    lore = ["Je krijgt gifstapels als je honger opraakt"]
+name = ""
+description = ""
+lore1 = "Je krijgt gifstapels als je honger opraakt"
+lore = ["Je krijgt gifstapels als je honger opraakt"]
 
 [hunter.drop_to_inventory]
-    name = "Items Drop-naar-Inventaris"
-    description = "Wanneer je iets doodt / een blok breekt met een zwaard worden de drops naar je inventaris geteleporteerd"
-    lore1 = "Telkens wanneer een item door een mob/blok wordt gedropt dat je breekt, gaat het naar je inventaris als dat past."
-    lore = ["Telkens wanneer een item door een mob/blok wordt gedropt dat je breekt, gaat het naar je inventaris als dat past."]
+name = "Items Drop-naar-Inventaris"
+description = "Wanneer je iets doodt / een blok breekt met een zwaard worden de drops naar je inventaris geteleporteerd"
+lore1 = "Telkens wanneer een item door een mob/blok wordt gedropt dat je breekt, gaat het naar je inventaris als dat past."
+lore = ["Telkens wanneer een item door een mob/blok wordt gedropt dat je breekt, gaat het naar je inventaris als dat past."]
 
 [hunter.invisibility]
-    name = "Verdwijnende Stap"
-    description = "Wanneer je geraakt wordt krijg je onzichtbaarheid, ten koste van honger"
-    lore1 = "Verkrijg passieve onzichtbaarheid wanneer je geraakt wordt"
-    lore2 = "x Onzichtbaarheidsstapels voor 3 seconden bij treffer"
-    lore3 = "x Stapelende honger"
-    lore4 = "Honger stapelduur en vermenigvuldiger."
-    lore5 = "Onzichtbaarheidsduur"
-    lore = ["Verkrijg passieve onzichtbaarheid wanneer je geraakt wordt", "x Onzichtbaarheidsstapels voor 3 seconden bij treffer", "x Stapelende honger", "Honger stapelduur en vermenigvuldiger.", "Onzichtbaarheidsduur"]
+name = "Verdwijnende Stap"
+description = "Wanneer je geraakt wordt krijg je onzichtbaarheid, ten koste van honger"
+lore1 = "Verkrijg passieve onzichtbaarheid wanneer je geraakt wordt"
+lore2 = "x Onzichtbaarheidsstapels voor 3 seconden bij treffer"
+lore3 = "x Stapelende honger"
+lore4 = "Honger stapelduur en vermenigvuldiger."
+lore5 = "Onzichtbaarheidsduur"
+lore = ["Verkrijg passieve onzichtbaarheid wanneer je geraakt wordt", "x Onzichtbaarheidsstapels voor 3 seconden bij treffer", "x Stapelende honger", "Honger stapelduur en vermenigvuldiger.", "Onzichtbaarheidsduur"]
 
 [hunter.jump_boost]
-    name = "Jagershoogten"
-    description = "Wanneer je geraakt wordt krijg je springboost, ten koste van honger"
-    lore1 = "Verkrijg passieve springboost wanneer je geraakt wordt"
-    lore2 = "x Springbooststapels voor 3 seconden bij treffer"
-    lore3 = "x Stapelende honger"
-    lore4 = "Honger stapelduur en vermenigvuldiger."
-    lore5 = "Springboost stapelvermenigvuldiger, niet duur."
-    lore = ["Verkrijg passieve springboost wanneer je geraakt wordt", "x Springbooststapels voor 3 seconden bij treffer", "x Stapelende honger", "Honger stapelduur en vermenigvuldiger.", "Springboost stapelvermenigvuldiger, niet duur."]
+name = "Jagershoogten"
+description = "Wanneer je geraakt wordt krijg je springboost, ten koste van honger"
+lore1 = "Verkrijg passieve springboost wanneer je geraakt wordt"
+lore2 = "x Springbooststapels voor 3 seconden bij treffer"
+lore3 = "x Stapelende honger"
+lore4 = "Honger stapelduur en vermenigvuldiger."
+lore5 = "Springboost stapelvermenigvuldiger, niet duur."
+lore = ["Verkrijg passieve springboost wanneer je geraakt wordt", "x Springbooststapels voor 3 seconden bij treffer", "x Stapelende honger", "Honger stapelduur en vermenigvuldiger.", "Springboost stapelvermenigvuldiger, niet duur."]
 
 [hunter.luck]
-    name = "Jagersgeluk"
-    description = "Wanneer je geraakt wordt krijg je geluk, ten koste van honger"
-    lore1 = "Verkrijg passief geluk wanneer je geraakt wordt"
-    lore2 = "x Gelukstapels voor 3 seconden bij treffer"
-    lore3 = "x Stapelende honger"
-    lore4 = "Honger stapelduur en vermenigvuldiger."
-    lore5 = "Geluk stapelvermenigvuldiger, niet duur."
-    lore = ["Verkrijg passief geluk wanneer je geraakt wordt", "x Gelukstapels voor 3 seconden bij treffer", "x Stapelende honger", "Honger stapelduur en vermenigvuldiger.", "Geluk stapelvermenigvuldiger, niet duur."]
+name = "Jagersgeluk"
+description = "Wanneer je geraakt wordt krijg je geluk, ten koste van honger"
+lore1 = "Verkrijg passief geluk wanneer je geraakt wordt"
+lore2 = "x Gelukstapels voor 3 seconden bij treffer"
+lore3 = "x Stapelende honger"
+lore4 = "Honger stapelduur en vermenigvuldiger."
+lore5 = "Geluk stapelvermenigvuldiger, niet duur."
+lore = ["Verkrijg passief geluk wanneer je geraakt wordt", "x Gelukstapels voor 3 seconden bij treffer", "x Stapelende honger", "Honger stapelduur en vermenigvuldiger.", "Geluk stapelvermenigvuldiger, niet duur."]
 
 [hunter.regen]
-    name = "Jagersregeneratie"
-    description = "Wanneer je geraakt wordt krijg je regeneratie, ten koste van honger"
-    lore1 = "Verkrijg passieve regeneratie wanneer je geraakt wordt"
-    lore2 = "x Regeneratiestapels voor 3 seconden bij treffer"
-    lore3 = "x Stapelende honger"
-    lore4 = "Honger stapelduur en vermenigvuldiger."
-    lore5 = "Regeneratie stapelvermenigvuldiger, niet duur."
-    lore = ["Verkrijg passieve regeneratie wanneer je geraakt wordt", "x Regeneratiestapels voor 3 seconden bij treffer", "x Stapelende honger", "Honger stapelduur en vermenigvuldiger.", "Regeneratie stapelvermenigvuldiger, niet duur."]
+name = "Jagersregeneratie"
+description = "Wanneer je geraakt wordt krijg je regeneratie, ten koste van honger"
+lore1 = "Verkrijg passieve regeneratie wanneer je geraakt wordt"
+lore2 = "x Regeneratiestapels voor 3 seconden bij treffer"
+lore3 = "x Stapelende honger"
+lore4 = "Honger stapelduur en vermenigvuldiger."
+lore5 = "Regeneratie stapelvermenigvuldiger, niet duur."
+lore = ["Verkrijg passieve regeneratie wanneer je geraakt wordt", "x Regeneratiestapels voor 3 seconden bij treffer", "x Stapelende honger", "Honger stapelduur en vermenigvuldiger.", "Regeneratie stapelvermenigvuldiger, niet duur."]
 
 [hunter.resistance]
-    name = "Jagersweerstand"
-    description = "Wanneer je geraakt wordt krijg je weerstand, ten koste van honger"
-    lore1 = "Verkrijg passieve weerstand wanneer je geraakt wordt"
-    lore2 = "x Weerstandsstapels voor 3 seconden bij treffer"
-    lore3 = "x Stapelende honger"
-    lore4 = "Honger stapelduur en vermenigvuldiger."
-    lore5 = "Weerstand stapelvermenigvuldiger, niet duur."
-    lore = ["Verkrijg passieve weerstand wanneer je geraakt wordt", "x Weerstandsstapels voor 3 seconden bij treffer", "x Stapelende honger", "Honger stapelduur en vermenigvuldiger.", "Weerstand stapelvermenigvuldiger, niet duur."]
+name = "Jagersweerstand"
+description = "Wanneer je geraakt wordt krijg je weerstand, ten koste van honger"
+lore1 = "Verkrijg passieve weerstand wanneer je geraakt wordt"
+lore2 = "x Weerstandsstapels voor 3 seconden bij treffer"
+lore3 = "x Stapelende honger"
+lore4 = "Honger stapelduur en vermenigvuldiger."
+lore5 = "Weerstand stapelvermenigvuldiger, niet duur."
+lore = ["Verkrijg passieve weerstand wanneer je geraakt wordt", "x Weerstandsstapels voor 3 seconden bij treffer", "x Stapelende honger", "Honger stapelduur en vermenigvuldiger.", "Weerstand stapelvermenigvuldiger, niet duur."]
 
 [hunter.speed]
-    name = "Jagerssnelheid"
-    description = "Wanneer je geraakt wordt krijg je snelheid, ten koste van honger"
-    lore1 = "Verkrijg passieve snelheid wanneer je geraakt wordt"
-    lore2 = "x Snelheidsstapels voor 3 seconden bij treffer"
-    lore3 = "x Stapelende honger"
-    lore4 = "Honger stapelduur en vermenigvuldiger."
-    lore5 = "Snelheid stapelvermenigvuldiger, niet duur."
-    lore = ["Verkrijg passieve snelheid wanneer je geraakt wordt", "x Snelheidsstapels voor 3 seconden bij treffer", "x Stapelende honger", "Honger stapelduur en vermenigvuldiger.", "Snelheid stapelvermenigvuldiger, niet duur."]
+name = "Jagerssnelheid"
+description = "Wanneer je geraakt wordt krijg je snelheid, ten koste van honger"
+lore1 = "Verkrijg passieve snelheid wanneer je geraakt wordt"
+lore2 = "x Snelheidsstapels voor 3 seconden bij treffer"
+lore3 = "x Stapelende honger"
+lore4 = "Honger stapelduur en vermenigvuldiger."
+lore5 = "Snelheid stapelvermenigvuldiger, niet duur."
+lore = ["Verkrijg passieve snelheid wanneer je geraakt wordt", "x Snelheidsstapels voor 3 seconden bij treffer", "x Stapelende honger", "Honger stapelduur en vermenigvuldiger.", "Snelheid stapelvermenigvuldiger, niet duur."]
 
 [hunter.strength]
-    name = "Jagerskracht"
-    description = "Wanneer je geraakt wordt krijg je kracht, ten koste van honger"
-    lore1 = "Verkrijg passieve kracht wanneer je geraakt wordt"
-    lore2 = "x Krachtstapels voor 3 seconden bij treffer"
-    lore3 = "x Stapelende honger"
-    lore4 = "Honger stapelduur en vermenigvuldiger."
-    lore5 = "Kracht stapelvermenigvuldiger, niet duur."
-    lore = ["Verkrijg passieve kracht wanneer je geraakt wordt", "x Krachtstapels voor 3 seconden bij treffer", "x Stapelende honger", "Honger stapelduur en vermenigvuldiger.", "Kracht stapelvermenigvuldiger, niet duur."]
+name = "Jagerskracht"
+description = "Wanneer je geraakt wordt krijg je kracht, ten koste van honger"
+lore1 = "Verkrijg passieve kracht wanneer je geraakt wordt"
+lore2 = "x Krachtstapels voor 3 seconden bij treffer"
+lore3 = "x Stapelende honger"
+lore4 = "Honger stapelduur en vermenigvuldiger."
+lore5 = "Kracht stapelvermenigvuldiger, niet duur."
+lore = ["Verkrijg passieve kracht wanneer je geraakt wordt", "x Krachtstapels voor 3 seconden bij treffer", "x Stapelende honger", "Honger stapelduur en vermenigvuldiger.", "Kracht stapelvermenigvuldiger, niet duur."]
 
 # nether
 [nether]
 
 [nether.skull_toss]
-    name = "Witherschedel Worp"
-    description1 = "Laat je innerlijke Wither los door"
-    description2 = "iemands"
-    description3 = "hoofd te gebruiken."
-    lore1 = "Seconden cooldown tussen schedelworpen."
-    lore2 = "Witherschedel gebruiken: Gooi een "
-    lore3 = "Witherschedel"
-    lore4 = "die explodeert bij impact."
-    lore = ["Seconden cooldown tussen schedelworpen.", "Witherschedel gebruiken: Gooi een ", "Witherschedel", "die explodeert bij impact."]
+name = "Witherschedel Worp"
+description1 = "Laat je innerlijke Wither los door"
+description2 = "iemands"
+description3 = "hoofd te gebruiken."
+lore1 = "Seconden cooldown tussen schedelworpen."
+lore2 = "Witherschedel gebruiken: Gooi een "
+lore3 = "Witherschedel"
+lore4 = "die explodeert bij impact."
+lore = ["Seconden cooldown tussen schedelworpen.", "Witherschedel gebruiken: Gooi een ", "Witherschedel", "die explodeert bij impact."]
 
 [nether.wither_resist]
-    name = "Witherweerstand"
-    description = "Weerstaat withering door de kracht van Netherite."
-    lore1 = "kans om withering te negeren (per stuk)."
-    lore2 = "Passief: Het dragen van Netherite Pantser heeft een kans om "
-    lore3 = "withering te negeren."
-    lore = ["kans om withering te negeren (per stuk).", "Passief: Het dragen van Netherite Pantser heeft een kans om ", "withering te negeren."]
+name = "Witherweerstand"
+description = "Weerstaat withering door de kracht van Netherite."
+lore1 = "kans om withering te negeren (per stuk)."
+lore2 = "Passief: Het dragen van Netherite Pantser heeft een kans om "
+lore3 = "withering te negeren."
+lore = ["kans om withering te negeren (per stuk).", "Passief: Het dragen van Netherite Pantser heeft een kans om ", "withering te negeren."]
 
 [nether.fire_resist]
-    name = "Vuurweerstand"
-    description = "Weerstaat vuur door je huid te verharden."
-    lore1 = "kans om het brandeffect te negeren!"
-    lore = ["kans om het brandeffect te negeren!"]
+name = "Vuurweerstand"
+description = "Weerstaat vuur door je huid te verharden."
+lore1 = "kans om het brandeffect te negeren!"
+lore = ["kans om het brandeffect te negeren!"]
 
 # pickaxe
 [pickaxe]
 
 [pickaxe.auto_smelt]
-    name = "Automatisch Smelten"
-    description = "Hiermee kun je gedolven vanilla ertsen automatisch smelten"
-    lore1 = "Ertsen die gesmolten kunnen worden, worden automatisch gesmolten"
-    lore2 = "% kans op een extra"
-    lore = ["Ertsen die gesmolten kunnen worden, worden automatisch gesmolten", "% kans op een extra"]
+name = "Automatisch Smelten"
+description = "Hiermee kun je gedolven vanilla ertsen automatisch smelten"
+lore1 = "Ertsen die gesmolten kunnen worden, worden automatisch gesmolten"
+lore2 = "% kans op een extra"
+lore = ["Ertsen die gesmolten kunnen worden, worden automatisch gesmolten", "% kans op een extra"]
 
 [pickaxe.chisel]
-    name = "Ertsbeitel"
-    description = "Rechtsklik op ertsen om er meer erts uit te beitelen, tegen hoge duurzaamheidskosten."
-    lore1 = "Kans om te Droppen"
-    lore2 = "Gereedschapsslijtage"
-    lore = ["Kans om te Droppen", "Gereedschapsslijtage"]
+name = "Ertsbeitel"
+description = "Rechtsklik op ertsen om er meer erts uit te beitelen, tegen hoge duurzaamheidskosten."
+lore1 = "Kans om te Droppen"
+lore2 = "Gereedschapsslijtage"
+lore = ["Kans om te Droppen", "Gereedschapsslijtage"]
 
 [pickaxe.drop_to_inventory]
-    name = "Pikhouweel Drop-naar-Inventaris"
-    description = "Wanneer je een blok breekt wordt het item naar je inventaris geteleporteerd"
-    lore1 = "Telkens wanneer een item uit een gebroken blok valt, gaat het naar je inventaris als dat past."
-    lore = ["Telkens wanneer een item uit een gebroken blok valt, gaat het naar je inventaris als dat past."]
+name = "Pikhouweel Drop-naar-Inventaris"
+description = "Wanneer je een blok breekt wordt het item naar je inventaris geteleporteerd"
+lore1 = "Telkens wanneer een item uit een gebroken blok valt, gaat het naar je inventaris als dat past."
+lore = ["Telkens wanneer een item uit een gebroken blok valt, gaat het naar je inventaris als dat past."]
 
 [pickaxe.silk_spawner]
-    name = "Pikhouweel Silk-Spawner"
-    description = "Zorgt dat spawners droppen wanneer ze gebroken worden"
-    lore1 = "Maakt spawners breekbaar met silk touch."
-    lore2 = "Maakt spawners breekbaar terwijl je sluipt."
-    lore = ["Maakt spawners breekbaar met silk touch.", "Maakt spawners breekbaar terwijl je sluipt."]
+name = "Pikhouweel Silk-Spawner"
+description = "Zorgt dat spawners droppen wanneer ze gebroken worden"
+lore1 = "Maakt spawners breekbaar met silk touch."
+lore2 = "Maakt spawners breekbaar terwijl je sluipt."
+lore = ["Maakt spawners breekbaar met silk touch.", "Maakt spawners breekbaar terwijl je sluipt."]
 
 [pickaxe.vein_miner]
-    name = "Adermijnbouw"
-    description = "Hiermee kun je blokken breken in een ader/cluster van vanilla ertsen"
-    lore1 = "Sluip en mijn ERTSEN"
-    lore2 = "bereik van adermijnbouw"
-    lore3 = "Deze vaardigheid groepeert NIET alle drops bij elkaar!"
-    lore = ["Sluip en mijn ERTSEN", "bereik van adermijnbouw", "Deze vaardigheid groepeert NIET alle drops bij elkaar!"]
+name = "Adermijnbouw"
+description = "Hiermee kun je blokken breken in een ader/cluster van vanilla ertsen"
+lore1 = "Sluip en mijn ERTSEN"
+lore2 = "bereik van adermijnbouw"
+lore3 = "Deze vaardigheid groepeert NIET alle drops bij elkaar!"
+lore = ["Sluip en mijn ERTSEN", "bereik van adermijnbouw", "Deze vaardigheid groepeert NIET alle drops bij elkaar!"]
 
 # ranged
 [ranged]
 
 [ranged.arrow_recovery]
-    name = "Pijlherstel"
-    description = "Herstel pijlen nadat je een vijand hebt gedood."
-    lore1 = "Kans om pijlen te herstellen bij treffer/dood"
-    lore2 = "Kans: "
-    lore = ["Kans om pijlen te herstellen bij treffer/dood", "Kans: "]
+name = "Pijlherstel"
+description = "Herstel pijlen nadat je een vijand hebt gedood."
+lore1 = "Kans om pijlen te herstellen bij treffer/dood"
+lore2 = "Kans: "
+lore = ["Kans om pijlen te herstellen bij treffer/dood", "Kans: "]
 
 [ranged.web_shot]
-    name = "Webstrik"
-    description = "Omring je doelwit met spinnenwebben wanneer je ze raakt!"
-    lore1 = "8 spinnenwebben rond een sneeuwbal, en gooi!"
-    lore2 = "seconden in een kooi, ongeveer."
-    lore = ["8 spinnenwebben rond een sneeuwbal, en gooi!", "seconden in een kooi, ongeveer."]
+name = "Webstrik"
+description = "Omring je doelwit met spinnenwebben wanneer je ze raakt!"
+lore1 = "8 spinnenwebben rond een sneeuwbal, en gooi!"
+lore2 = "seconden in een kooi, ongeveer."
+lore = ["8 spinnenwebben rond een sneeuwbal, en gooi!", "seconden in een kooi, ongeveer."]
 
 [ranged.force_shot]
-    name = "Krachtschot"
-    description = "Schiet projectielen verder en sneller!"
-    advancementname = "Lange Afstandsschot"
-    advancementlore = "Land een schot van meer dan 30 blokken afstand!"
-    lore1 = "Projectielsnelheid"
-    lore = ["Projectielsnelheid"]
+name = "Krachtschot"
+description = "Schiet projectielen verder en sneller!"
+advancementname = "Lange Afstandsschot"
+advancementlore = "Land een schot van meer dan 30 blokken afstand!"
+lore1 = "Projectielsnelheid"
+lore = ["Projectielsnelheid"]
 
 [ranged.lunge_shot]
-    name = "Uitvalschot"
-    description = "Terwijl je valt gooien je pijlen je in een willekeurige richting"
-    lore1 = "Willekeurige Burst Snelheid"
-    lore = ["Willekeurige Burst Snelheid"]
+name = "Uitvalschot"
+description = "Terwijl je valt gooien je pijlen je in een willekeurige richting"
+lore1 = "Willekeurige Burst Snelheid"
+lore = ["Willekeurige Burst Snelheid"]
 
 [ranged.arrow_piercing]
-    name = "Pijl Doorboring"
-    description = "Voegt doorboring toe aan projectielen! Schiet dwars door dingen!"
-    lore1 = "Doorboorde Doelen"
-    lore = ["Doorboorde Doelen"]
+name = "Pijl Doorboring"
+description = "Voegt doorboring toe aan projectielen! Schiet dwars door dingen!"
+lore1 = "Doorboorde Doelen"
+lore = ["Doorboorde Doelen"]
 
 # rift
 [rift]
 
 [rift.remote_access]
-    name = "Toegang op Afstand"
-    description = "Trek vanuit de leegte en open een gemarkeerde container."
-    lore1 = "Enderparel + Kompas = Reliekschrijn Portkey"
-    lore2 = "Met dit item kun je containers op afstand openen"
-    lore3 = "Eenmaal gemaakt, bekijk het item om het gebruik te zien"
-    notcontainer = "Dat is geen container"
-    lore = ["Enderparel + Kompas = Reliekschrijn Portkey", "Met dit item kun je containers op afstand openen", "Eenmaal gemaakt, bekijk het item om het gebruik te zien"]
+name = "Toegang op Afstand"
+description = "Trek vanuit de leegte en open een gemarkeerde container."
+lore1 = "Enderparel + Kompas = Reliekschrijn Portkey"
+lore2 = "Met dit item kun je containers op afstand openen"
+lore3 = "Eenmaal gemaakt, bekijk het item om het gebruik te zien"
+notcontainer = "Dat is geen container"
+lore = ["Enderparel + Kompas = Reliekschrijn Portkey", "Met dit item kun je containers op afstand openen", "Eenmaal gemaakt, bekijk het item om het gebruik te zien"]
 
 [rift.blink]
-    name = "Rift Flits"
-    description = "Korte afstand directe teleportatie, slechts een oogwenk verwijderd!"
-    lore1 = "Blokken per flits (2x verticaal)"
-    lore2 = "Tijdens het sprinten: Dubbeltik op Springen om te "
-    lore3 = "Flitsen"
-    lore = ["Blokken per flits (2x verticaal)", "Tijdens het sprinten: Dubbeltik op Springen om te ", "Flitsen"]
+name = "Rift Flits"
+description = "Korte afstand directe teleportatie, slechts een oogwenk verwijderd!"
+lore1 = "Blokken per flits (2x verticaal)"
+lore2 = "Tijdens het sprinten: Dubbeltik op Springen om te "
+lore3 = "Flitsen"
+lore = ["Blokken per flits (2x verticaal)", "Tijdens het sprinten: Dubbeltik op Springen om te ", "Flitsen"]
 
 [rift.chest]
-    name = "Gemakkelijke Enderkist"
-    description = "Open een enderkist door er met links op te klikken in je hand."
-    lore1 = "Klik op een Enderkist in je hand om te openen (plaats hem gewoon niet)"
-    lore = ["Klik op een Enderkist in je hand om te openen (plaats hem gewoon niet)"]
+name = "Gemakkelijke Enderkist"
+description = "Open een enderkist door er met links op te klikken in je hand."
+lore1 = "Klik op een Enderkist in je hand om te openen (plaats hem gewoon niet)"
+lore = ["Klik op een Enderkist in je hand om te openen (plaats hem gewoon niet)"]
 
 [rift.descent]
-    name = "Anti-Levitatie"
-    description = "Ben je het zat om vast te zitten in de lucht? Dit is de vaardigheid voor jou!"
-    lore1 = "Sluip gewoon om af te dalen, en je valt langzamer dan normaal!"
-    lore2 = "Cooldown:"
-    lore = ["Sluip gewoon om af te dalen, en je valt langzamer dan normaal!", "Cooldown:"]
+name = "Anti-Levitatie"
+description = "Ben je het zat om vast te zitten in de lucht? Dit is de vaardigheid voor jou!"
+lore1 = "Sluip gewoon om af te dalen, en je valt langzamer dan normaal!"
+lore2 = "Cooldown:"
+lore = ["Sluip gewoon om af te dalen, en je valt langzamer dan normaal!", "Cooldown:"]
 
 [rift.gate]
-    name = "Rift Poort"
-    description = "Teleporteer naar een gemarkeerde locatie."
-    lore1 = "KNUTSELEN: Smaragd + Amethist Scherf + Enderparel"
-    lore2 = "Lees voor gebruik!"
-    lore3 = "5s vertraging, "
-    lore4 = "je kunt sterven tijdens deze animatie"
-    lore = ["KNUTSELEN: Smaragd + Amethist Scherf + Enderparel", "Lees voor gebruik!", "5s vertraging, ", "je kunt sterven tijdens deze animatie"]
+name = "Rift Poort"
+description = "Teleporteer naar een gemarkeerde locatie."
+lore1 = "KNUTSELEN: Smaragd + Amethist Scherf + Enderparel"
+lore2 = "Lees voor gebruik!"
+lore3 = "5s vertraging, "
+lore4 = "je kunt sterven tijdens deze animatie"
+lore = ["KNUTSELEN: Smaragd + Amethist Scherf + Enderparel", "Lees voor gebruik!", "5s vertraging, ", "je kunt sterven tijdens deze animatie"]
 
 [rift.resist]
-    name = "Rift Weerstand"
-    description = "Verkrijg weerstand bij het gebruik van Ender-items & vaardigheden"
-    lore1 = "+ Passief: Biedt weerstand wanneer je rift-vaardigheden of Ender-items gebruikt"
-    lore2 = "NIET inclusief draagbare Enderkist, alleen dingen die je kunt consumeren"
-    lore = ["+ Passief: Biedt weerstand wanneer je rift-vaardigheden of Ender-items gebruikt", "NIET inclusief draagbare Enderkist, alleen dingen die je kunt consumeren"]
+name = "Rift Weerstand"
+description = "Verkrijg weerstand bij het gebruik van Ender-items & vaardigheden"
+lore1 = "+ Passief: Biedt weerstand wanneer je rift-vaardigheden of Ender-items gebruikt"
+lore2 = "NIET inclusief draagbare Enderkist, alleen dingen die je kunt consumeren"
+lore = ["+ Passief: Biedt weerstand wanneer je rift-vaardigheden of Ender-items gebruikt", "NIET inclusief draagbare Enderkist, alleen dingen die je kunt consumeren"]
 
 [rift.visage]
-    name = "Rift Gelaat"
-    description = "Voorkomt dat Endermen agressief worden als je Enderparels in je inventaris hebt."
-    lore1 = "Endermen worden niet agressief als je Enderparels in je inventaris hebt."
-    lore = ["Endermen worden niet agressief als je Enderparels in je inventaris hebt."]
+name = "Rift Gelaat"
+description = "Voorkomt dat Endermen agressief worden als je Enderparels in je inventaris hebt."
+lore1 = "Endermen worden niet agressief als je Enderparels in je inventaris hebt."
+lore = ["Endermen worden niet agressief als je Enderparels in je inventaris hebt."]
 
 # seaborn
 [seaborn]
 
 [seaborn.oxygen]
-    name = "Organische Zuurstoftank"
-    description = "Houd meer zuurstof vast in je kleine longen!"
-    lore1 = "Zuurstofcapaciteit Verhoging"
-    lore = ["Zuurstofcapaciteit Verhoging"]
+name = "Organische Zuurstoftank"
+description = "Houd meer zuurstof vast in je kleine longen!"
+lore1 = "Zuurstofcapaciteit Verhoging"
+lore = ["Zuurstofcapaciteit Verhoging"]
 
 [seaborn.fishers_fantasy]
-    name = "Vissersfantasie"
-    description = "Verdien meer XP van vissen en vang meer vis!"
-    lore1 = "Voor elk niveau is er een kans om meer XP en vis te krijgen!"
-    lore = ["Voor elk niveau is er een kans om meer XP en vis te krijgen!"]
+name = "Vissersfantasie"
+description = "Verdien meer XP van vissen en vang meer vis!"
+lore1 = "Voor elk niveau is er een kans om meer XP en vis te krijgen!"
+lore = ["Voor elk niveau is er een kans om meer XP en vis te krijgen!"]
 
 [seaborn.haste]
-    name = "Schildpadmijnwerker"
-    description = "Tijdens het mijnen onder water krijg je haast!"
-    lore1 = "Haast 3 wordt onder water toegepast tijdens het mijnen (stapelt met AquaAffinity) nadat je waterademeffect is uitgewerkt!"
-    lore = ["Haast 3 wordt onder water toegepast tijdens het mijnen (stapelt met AquaAffinity) nadat je waterademeffect is uitgewerkt!"]
+name = "Schildpadmijnwerker"
+description = "Tijdens het mijnen onder water krijg je haast!"
+lore1 = "Haast 3 wordt onder water toegepast tijdens het mijnen (stapelt met AquaAffinity) nadat je waterademeffect is uitgewerkt!"
+lore = ["Haast 3 wordt onder water toegepast tijdens het mijnen (stapelt met AquaAffinity) nadat je waterademeffect is uitgewerkt!"]
 
 [seaborn.night_vision]
-    name = "Schildpadzicht"
-    description = "Onder water krijg je nachtzicht"
-    lore1 = "Verkrijg simpelweg nachtzicht terwijl je onder water bent nadat je waterademeffect is uitgewerkt!"
-    lore = ["Verkrijg simpelweg nachtzicht terwijl je onder water bent nadat je waterademeffect is uitgewerkt!"]
+name = "Schildpadzicht"
+description = "Onder water krijg je nachtzicht"
+lore1 = "Verkrijg simpelweg nachtzicht terwijl je onder water bent nadat je waterademeffect is uitgewerkt!"
+lore = ["Verkrijg simpelweg nachtzicht terwijl je onder water bent nadat je waterademeffect is uitgewerkt!"]
 
 [seaborn.dolphin_grace]
-    name = "Dolfijnengratie"
-    description = "Zwem als een dolfijn, zonder de dolfijnen"
-    lore1 = "+ Passief: verkrijg "
-    lore2 = "x snelheid (dolfijnengratie)"
-    lore3 = "Duitse precisie-ingenieur- wacht, dat klopt niet... Niet compatibel met Depth Strider"
-    lore = ["+ Passief: verkrijg ", "x snelheid (dolfijnengratie)", "Duitse precisie-ingenieur- wacht, dat klopt niet... Niet compatibel met Depth Strider"]
+name = "Dolfijnengratie"
+description = "Zwem als een dolfijn, zonder de dolfijnen"
+lore1 = "+ Passief: verkrijg "
+lore2 = "x snelheid (dolfijnengratie)"
+lore3 = "Duitse precisie-ingenieur- wacht, dat klopt niet... Niet compatibel met Depth Strider"
+lore = ["+ Passief: verkrijg ", "x snelheid (dolfijnengratie)", "Duitse precisie-ingenieur- wacht, dat klopt niet... Niet compatibel met Depth Strider"]
 
 # stealth
 [stealth]
 
 [stealth.ghost_armor]
-    name = "Geestenpantser"
-    description = "Langzaam opbouwend pantser wanneer je geen schade ontvangt, duurt 1 treffer"
-    lore1 = "Max Pantser"
-    lore2 = "Snelheid"
-    lore = ["Max Pantser", "Snelheid"]
+name = "Geestenpantser"
+description = "Langzaam opbouwend pantser wanneer je geen schade ontvangt, duurt 1 treffer"
+lore1 = "Max Pantser"
+lore2 = "Snelheid"
+lore = ["Max Pantser", "Snelheid"]
 
 [stealth.night_vision]
-    name = "Stealthzicht"
-    description = "Verkrijg nachtzicht terwijl je sluipt"
-    lore1 = "Verkrijg een burst van "
-    lore2 = "nachtzicht"
-    lore3 = "terwijl je sluipt"
-    lore = ["Verkrijg een burst van ", "nachtzicht", "terwijl je sluipt"]
+name = "Stealthzicht"
+description = "Verkrijg nachtzicht terwijl je sluipt"
+lore1 = "Verkrijg een burst van "
+lore2 = "nachtzicht"
+lore3 = "terwijl je sluipt"
+lore = ["Verkrijg een burst van ", "nachtzicht", "terwijl je sluipt"]
 
 [stealth.snatch]
-    name = "Voorwerp Grijpen"
-    description = "Grijp gevallen voorwerpen direct terwijl je sluipt!"
-    lore1 = "Grijpradius"
-    lore = ["Grijpradius"]
+name = "Voorwerp Grijpen"
+description = "Grijp gevallen voorwerpen direct terwijl je sluipt!"
+lore1 = "Grijpradius"
+lore = ["Grijpradius"]
 
 [stealth.speed]
-    name = "Sluipsnelheid"
-    description = "Verkrijg snelheid terwijl je sluipt"
-    lore1 = "Sluipsnelheid"
-    lore = ["Sluipsnelheid"]
+name = "Sluipsnelheid"
+description = "Verkrijg snelheid terwijl je sluipt"
+lore1 = "Sluipsnelheid"
+lore = ["Sluipsnelheid"]
 
 [stealth.ender_veil]
-    name = "Endersluier"
-    description = "Geen pompoenen meer nodig om Enderman-aanvallen te voorkomen"
-    lore1 = "Voorkom Enderman-aanvallen terwijl je sluipt"
-    lore2 = "Voorkom alle Enderman-aanvallen"
-    lore = ["Voorkom Enderman-aanvallen terwijl je sluipt", "Voorkom alle Enderman-aanvallen"]
+name = "Endersluier"
+description = "Geen pompoenen meer nodig om Enderman-aanvallen te voorkomen"
+lore1 = "Voorkom Enderman-aanvallen terwijl je sluipt"
+lore2 = "Voorkom alle Enderman-aanvallen"
+lore = ["Voorkom Enderman-aanvallen terwijl je sluipt", "Voorkom alle Enderman-aanvallen"]
 
 # sword
 [sword]
 
 [sword.machete]
-    name = "Machete"
-    description = "Snijd moeiteloos door gebladerte!"
-    lore1 = "Snijradius"
-    lore2 = "Hak-Cooldown"
-    lore3 = "Gereedschapsslijtage"
-    lore = ["Snijradius", "Hak-Cooldown", "Gereedschapsslijtage"]
+name = "Machete"
+description = "Snijd moeiteloos door gebladerte!"
+lore1 = "Snijradius"
+lore2 = "Hak-Cooldown"
+lore3 = "Gereedschapsslijtage"
+lore = ["Snijradius", "Hak-Cooldown", "Gereedschapsslijtage"]
 
 [sword.bloody_blade]
-    name = "Bloederig Zwaard"
-    description = "Slagen met je zwaard veroorzaken bloeding!"
-    lore1 = "Een levend wezen raken met je zwaard veroorzaakt bloeding"
-    lore2 = "Bloedingsduur"
-    lore3 = "Bloedings-Cooldown"
-    lore = ["Een levend wezen raken met je zwaard veroorzaakt bloeding", "Bloedingsduur", "Bloedings-Cooldown"]
+name = "Bloederig Zwaard"
+description = "Slagen met je zwaard veroorzaken bloeding!"
+lore1 = "Een levend wezen raken met je zwaard veroorzaakt bloeding"
+lore2 = "Bloedingsduur"
+lore3 = "Bloedings-Cooldown"
+lore = ["Een levend wezen raken met je zwaard veroorzaakt bloeding", "Bloedingsduur", "Bloedings-Cooldown"]
 
 [sword.poisoned_blade]
-    name = "Vergiftigd Zwaard"
-    description = "Slagen met je zwaard veroorzaken vergiftiging!"
-    lore1 = "Een levend wezen raken met je zwaard veroorzaakt vergiftiging"
-    lore2 = "Vergiftigingsduur"
-    lore3 = "Vergiftigings-Cooldown"
-    lore = ["Een levend wezen raken met je zwaard veroorzaakt vergiftiging", "Vergiftigingsduur", "Vergiftigings-Cooldown"]
+name = "Vergiftigd Zwaard"
+description = "Slagen met je zwaard veroorzaken vergiftiging!"
+lore1 = "Een levend wezen raken met je zwaard veroorzaakt vergiftiging"
+lore2 = "Vergiftigingsduur"
+lore3 = "Vergiftigings-Cooldown"
+lore = ["Een levend wezen raken met je zwaard veroorzaakt vergiftiging", "Vergiftigingsduur", "Vergiftigings-Cooldown"]
 
 # taming
 [taming]
 
 [taming.damage]
-    name = "Temschade"
-    description = "Verhoog de schade die je getemde dieren toebrengen."
-    lore1 = "Verhoogde Schade"
-    lore = ["Verhoogde Schade"]
+name = "Temschade"
+description = "Verhoog de schade die je getemde dieren toebrengen."
+lore1 = "Verhoogde Schade"
+lore = ["Verhoogde Schade"]
 
 [taming.health]
-    name = "Temgezondheid"
-    description = "Verhoog de gezondheid van je getemde dieren."
-    lore1 = "Verhoogde Gezondheid"
-    lore = ["Verhoogde Gezondheid"]
+name = "Temgezondheid"
+description = "Verhoog de gezondheid van je getemde dieren."
+lore1 = "Verhoogde Gezondheid"
+lore = ["Verhoogde Gezondheid"]
 
 [taming.regeneration]
-    name = "Temregeneratie"
-    description = "Verhoog de regeneratie van je getemde dieren."
-    lore1 = "HP/s"
-    lore = ["HP/s"]
+name = "Temregeneratie"
+description = "Verhoog de regeneratie van je getemde dieren."
+lore1 = "HP/s"
+lore = ["HP/s"]
 
 # tragoul
 [tragoul]
 
 [tragoul.thorns]
-    name = "Doornen"
-    description = "Weerkaats schade terug naar je aanvaller!"
-    lore1 = "Schade teruggeslagen bij treffer"
-    lore = ["Schade teruggeslagen bij treffer"]
+name = "Doornen"
+description = "Weerkaats schade terug naar je aanvaller!"
+lore1 = "Schade teruggeslagen bij treffer"
+lore = ["Schade teruggeslagen bij treffer"]
 
 [tragoul.globe]
-    name = "Bol van Pijn"
-    description = "Verdeel de schade die je toebrengt op basis van het aantal vijanden om je heen!"
-    lore1 = "Hoe meer vijanden om je heen, hoe minder schade je aan elk van hen toebrengt"
-    lore2 = "Bereik: "
-    lore3 = "Toegevoegde Schade aan alle Entiteiten: "
-    lore = ["Hoe meer vijanden om je heen, hoe minder schade je aan elk van hen toebrengt", "Bereik: ", "Toegevoegde Schade aan alle Entiteiten: "]
+name = "Bol van Pijn"
+description = "Verdeel de schade die je toebrengt op basis van het aantal vijanden om je heen!"
+lore1 = "Hoe meer vijanden om je heen, hoe minder schade je aan elk van hen toebrengt"
+lore2 = "Bereik: "
+lore3 = "Toegevoegde Schade aan alle Entiteiten: "
+lore = ["Hoe meer vijanden om je heen, hoe minder schade je aan elk van hen toebrengt", "Bereik: ", "Toegevoegde Schade aan alle Entiteiten: "]
 
 [tragoul.healing]
-    name = "Wil van Pijn"
-    description = "Krijg gezondheid terug op basis van de schade die je toebrengt!"
-    lore1 = "Dingen pijn doen heeft nog nooit zo goed gevoeld! Genees van toegebrachte schade"
-    lore2 = "Er is een schadevenster van 3 seconden voor genezing en een cooldown van 1 seconde "
-    lore3 = "Genezing Per Schadepercentage: "
-    lore = ["Dingen pijn doen heeft nog nooit zo goed gevoeld! Genees van toegebrachte schade", "Er is een schadevenster van 3 seconden voor genezing en een cooldown van 1 seconde ", "Genezing Per Schadepercentage: "]
+name = "Wil van Pijn"
+description = "Krijg gezondheid terug op basis van de schade die je toebrengt!"
+lore1 = "Dingen pijn doen heeft nog nooit zo goed gevoeld! Genees van toegebrachte schade"
+lore2 = "Er is een schadevenster van 3 seconden voor genezing en een cooldown van 1 seconde "
+lore3 = "Genezing Per Schadepercentage: "
+lore = ["Dingen pijn doen heeft nog nooit zo goed gevoeld! Genees van toegebrachte schade", "Er is een schadevenster van 3 seconden voor genezing en een cooldown van 1 seconde ", "Genezing Per Schadepercentage: "]
 
 [tragoul.lance]
-    name = "Lijklansen"
-    description = "Een vijand doden of een vaardigheid die een vijand doodt, spawnt een lans die schade toebrengt aan een nabije vijand!"
-    lore1 = "Lansen zoeken vanuit alles wat je doodt, EN als deze vaardigheid een vijand doodt."
-    lore2 = "Offer een deel van je leven om de lansen te maken (dit kan je doden)"
-    lore3 = "Max Lansen: 1 + "
-    lore = ["Lansen zoeken vanuit alles wat je doodt, EN als deze vaardigheid een vijand doodt.", "Offer een deel van je leven om de lansen te maken (dit kan je doden)", "Max Lansen: 1 + "]
+name = "Lijklansen"
+description = "Een vijand doden of een vaardigheid die een vijand doodt, spawnt een lans die schade toebrengt aan een nabije vijand!"
+lore1 = "Lansen zoeken vanuit alles wat je doodt, EN als deze vaardigheid een vijand doodt."
+lore2 = "Offer een deel van je leven om de lansen te maken (dit kan je doden)"
+lore3 = "Max Lansen: 1 + "
+lore = ["Lansen zoeken vanuit alles wat je doodt, EN als deze vaardigheid een vijand doodt.", "Offer een deel van je leven om de lansen te maken (dit kan je doden)", "Max Lansen: 1 + "]
 
 # unarmed
 [unarmed]
 
 [unarmed.glass_cannon]
-    name = "Glazen Kanon"
-    description = "Bonus ongewapende schade hoe lager je pantserwaarde is"
-    lore1 = "x Schade bij 0 pantser"
-    lore2 = "Bonusschade Per Niveau"
-    lore = ["x Schade bij 0 pantser", "Bonusschade Per Niveau"]
+name = "Glazen Kanon"
+description = "Bonus ongewapende schade hoe lager je pantserwaarde is"
+lore1 = "x Schade bij 0 pantser"
+lore2 = "Bonusschade Per Niveau"
+lore = ["x Schade bij 0 pantser", "Bonusschade Per Niveau"]
 
 [unarmed.power]
-    name = "Ongewapende Kracht"
-    description = "Verbeterde ongewapende schade"
-    lore1 = "Schade"
-    lore = ["Schade"]
+name = "Ongewapende Kracht"
+description = "Verbeterde ongewapende schade"
+lore1 = "Schade"
+lore = ["Schade"]
 
 [unarmed.sucker_punch]
-    name = "Sprintstoot"
-    description = "Sprintstoten, maar dodelijker."
-    lore1 = "Schade"
-    lore2 = "Schade neemt toe met je snelheid tijdens het stoten"
-    lore = ["Schade", "Schade neemt toe met je snelheid tijdens het stoten"]
+name = "Sprintstoot"
+description = "Sprintstoten, maar dodelijker."
+lore1 = "Schade"
+lore2 = "Schade neemt toe met je snelheid tijdens het stoten"
+lore = ["Schade", "Schade neemt toe met je snelheid tijdens het stoten"]

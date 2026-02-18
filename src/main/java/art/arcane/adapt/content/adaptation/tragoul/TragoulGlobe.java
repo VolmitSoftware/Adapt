@@ -25,9 +25,9 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.inventorygui.Element;
 import lombok.NoArgsConstructor;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -43,139 +43,139 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class TragoulGlobe extends SimpleAdaptation<TragoulGlobe.Config> {
-    private final Map<UUID, Long> cooldowns;
+  private final Map<UUID, Long> cooldowns;
 
-    public TragoulGlobe() {
-        super("tragoul-globe");
-        registerConfiguration(TragoulGlobe.Config.class);
-        setDescription(Localizer.dLocalize("tragoul.globe.description"));
-        setDisplayName(Localizer.dLocalize("tragoul.globe.name"));
-        setIcon(Material.CRYING_OBSIDIAN);
-        setInterval(25000);
-        setBaseCost(getConfig().baseCost);
-        setMaxLevel(getConfig().maxLevel);
-        setInitialCost(getConfig().initialCost);
-        setCostFactor(getConfig().costFactor);
-        cooldowns = new ConcurrentHashMap<>();
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.GLASS)
-                .key("challenge_tragoul_globe_1k")
-                .title(Localizer.dLocalize("advancement.challenge_tragoul_globe_1k.title"))
-                .description(Localizer.dLocalize("advancement.challenge_tragoul_globe_1k.description"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .build());
-        registerMilestone("challenge_tragoul_globe_1k", "tragoul.globe.mobs-shared-with", 1000, 400);
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.GLASS)
-                .key("challenge_tragoul_globe_5")
-                .title(Localizer.dLocalize("advancement.challenge_tragoul_globe_5.title"))
-                .description(Localizer.dLocalize("advancement.challenge_tragoul_globe_5.description"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .build());
+  public TragoulGlobe() {
+    super("tragoul-globe");
+    registerConfiguration(TragoulGlobe.Config.class);
+    setDescription(Localizer.dLocalize("tragoul.globe.description"));
+    setDisplayName(Localizer.dLocalize("tragoul.globe.name"));
+    setIcon(Material.CRYING_OBSIDIAN);
+    setInterval(25000);
+    setBaseCost(getConfig().baseCost);
+    setMaxLevel(getConfig().maxLevel);
+    setInitialCost(getConfig().initialCost);
+    setCostFactor(getConfig().costFactor);
+    cooldowns = new ConcurrentHashMap<>();
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.GLASS)
+        .key("challenge_tragoul_globe_1k")
+        .title(Localizer.dLocalize("advancement.challenge_tragoul_globe_1k.title"))
+        .description(Localizer.dLocalize("advancement.challenge_tragoul_globe_1k.description"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .build());
+    registerMilestone("challenge_tragoul_globe_1k", "tragoul.globe.mobs-shared-with", 1000, 400);
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.GLASS)
+        .key("challenge_tragoul_globe_5")
+        .title(Localizer.dLocalize("advancement.challenge_tragoul_globe_5.title"))
+        .description(Localizer.dLocalize("advancement.challenge_tragoul_globe_5.description"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .build());
+  }
+
+  @Override
+  public void addStats(int level, Element v) {
+    v.addLore(C.GREEN + Localizer.dLocalize("tragoul.globe.lore1"));
+    v.addLore(C.YELLOW + Localizer.dLocalize("tragoul.globe.lore2") + ((getConfig().rangePerLevel * level) + getConfig().initalRange));
+    v.addLore(C.YELLOW + Localizer.dLocalize("tragoul.globe.lore3") + (getConfig().bonusDamagePerLevel * level));
+  }
+
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void on(EntityDamageByEntityEvent e) {
+    if (!(e.getDamager() instanceof Player p)) {
+      return;
     }
 
-    @Override
-    public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + Localizer.dLocalize("tragoul.globe.lore1"));
-        v.addLore(C.YELLOW + Localizer.dLocalize("tragoul.globe.lore2") + ((getConfig().rangePerLevel * level) + getConfig().initalRange));
-        v.addLore(C.YELLOW + Localizer.dLocalize("tragoul.globe.lore3") + (getConfig().bonusDamagePerLevel * level));
-    }
+    withAdaptedPlayer(p, e, () -> {
+      int level = getActiveLevel(p);
+      if (level <= 0 || !canDamageTarget(p, e.getEntity())) {
+        return;
+      }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void on(EntityDamageByEntityEvent e) {
-        if (!(e.getDamager() instanceof Player p)) {
-            return;
+      Long cooldownTime = cooldowns.get(p.getUniqueId());
+      if (cooldownTime != null && cooldownTime + (1000 * getConfig().cooldown) > System.currentTimeMillis()) {
+        return;
+      }
+
+      cooldowns.put(p.getUniqueId(), System.currentTimeMillis());
+      double range = (getConfig().rangePerLevel * level) + getConfig().initalRange;
+
+      int entitiesCount = 0;
+      for (Entity entity : p.getNearbyEntities(range, range, range)) {
+        if (entity instanceof LivingEntity && !entity.equals(p)) {
+          entitiesCount++;
         }
+      }
 
-        withAdaptedPlayer(p, e, () -> {
-            int level = getActiveLevel(p);
-            if (level <= 0 || !canDamageTarget(p, e.getEntity())) {
-                return;
-            }
+      if (entitiesCount <= 1) {
+        return;
+      }
 
-            Long cooldownTime = cooldowns.get(p.getUniqueId());
-            if (cooldownTime != null && cooldownTime + (1000 * getConfig().cooldown) > System.currentTimeMillis()) {
-                return;
-            }
+      double damagePerEntity = e.getDamage() / entitiesCount + (getConfig().bonusDamagePerLevel * level);
+      e.setDamage(damagePerEntity);
 
-            cooldowns.put(p.getUniqueId(), System.currentTimeMillis());
-            double range = (getConfig().rangePerLevel * level) + getConfig().initalRange;
+      int mobsSharedWith = 0;
+      for (Entity entity : p.getNearbyEntities(range, range, range)) {
+        if (entity instanceof LivingEntity && !entity.equals(p) && canDamageTarget(p, entity)) {
+          ((LivingEntity) entity).damage(damagePerEntity, p);
+          mobsSharedWith++;
+        }
+      }
 
-            int entitiesCount = 0;
-            for (Entity entity : p.getNearbyEntities(range, range, range)) {
-                if (entity instanceof LivingEntity && !entity.equals(p)) {
-                    entitiesCount++;
-                }
-            }
+      getPlayer(p).getData().addStat("tragoul.globe.mobs-shared-with", mobsSharedWith);
+      if (mobsSharedWith >= 5 && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_tragoul_globe_5")) {
+        getPlayer(p).getAdvancementHandler().grant("challenge_tragoul_globe_5");
+      }
 
-            if (entitiesCount <= 1) {
-                return;
-            }
-
-            double damagePerEntity = e.getDamage() / entitiesCount + (getConfig().bonusDamagePerLevel * level);
-            e.setDamage(damagePerEntity);
-
-            int mobsSharedWith = 0;
-            for (Entity entity : p.getNearbyEntities(range, range, range)) {
-                if (entity instanceof LivingEntity && !entity.equals(p) && canDamageTarget(p, entity)) {
-                    ((LivingEntity) entity).damage(damagePerEntity, p);
-                    mobsSharedWith++;
-                }
-            }
-
-            getPlayer(p).getData().addStat("tragoul.globe.mobs-shared-with", mobsSharedWith);
-            if (mobsSharedWith >= 5 && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_tragoul_globe_5")) {
-                getPlayer(p).getAdvancementHandler().grant("challenge_tragoul_globe_5");
-            }
-
-            if (areParticlesEnabled()) {
-                J.runEntity(p, () -> vfxFastSphere(p.getLocation(), range, Color.BLACK, 400));
-            }
-        });
-    }
+      if (areParticlesEnabled()) {
+        J.runEntity(p, () -> vfxFastSphere(p.getLocation(), range, Color.BLACK, 400));
+      }
+    });
+  }
 
 
-    @Override
-    public boolean isEnabled() {
-        return getConfig().enabled;
-    }
+  @Override
+  public boolean isEnabled() {
+    return getConfig().enabled;
+  }
 
-    @Override
-    public void onTick() {
-    }
+  @Override
+  public void onTick() {
+  }
 
-    @Override
-    public boolean isPermanent() {
-        return getConfig().permanent;
-    }
+  @Override
+  public boolean isPermanent() {
+    return getConfig().permanent;
+  }
 
 
-    @NoArgsConstructor
-    @ConfigDescription("Spread your damage among all nearby enemies.")
-    protected static class Config {
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-        boolean permanent = false;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-        boolean enabled = true;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Tragoul Globe adaptation.", impact = "True enables this behavior and false disables it.")
-        boolean showParticles = true;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-        int baseCost = 4;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-        int maxLevel = 5;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-        int initialCost = 4;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown for the Tragoul Globe adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double cooldown = 1;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Range Per Level for the Tragoul Globe adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double rangePerLevel = 3.0;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Inital Range for the Tragoul Globe adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double initalRange = 5.0;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-        double costFactor = 0.72;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Bonus Damage Per Level for the Tragoul Globe adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double bonusDamagePerLevel = 1;
-    }
+  @NoArgsConstructor
+  @ConfigDescription("Spread your damage among all nearby enemies.")
+  protected static class Config {
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
+    boolean permanent = false;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
+    boolean enabled = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Tragoul Globe adaptation.", impact = "True enables this behavior and false disables it.")
+    boolean showParticles = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
+    int baseCost = 4;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
+    int maxLevel = 5;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
+    int initialCost = 4;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown for the Tragoul Globe adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double cooldown = 1;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Range Per Level for the Tragoul Globe adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double rangePerLevel = 3.0;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Inital Range for the Tragoul Globe adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double initalRange = 5.0;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
+    double costFactor = 0.72;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Bonus Damage Per Level for the Tragoul Globe adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double bonusDamagePerLevel = 1;
+  }
 }

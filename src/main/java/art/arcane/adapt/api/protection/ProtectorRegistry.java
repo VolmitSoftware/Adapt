@@ -25,60 +25,60 @@ import java.util.Collections;
 import java.util.List;
 
 public class ProtectorRegistry {
-    private final List<Protector> protectors = new ArrayList<>();
-    private volatile List<Protector> allProtectorsSnapshot = List.of();
-    private volatile List<Protector> defaultProtectorsSnapshot = List.of();
+  private final List<Protector> protectors = new ArrayList<>();
+  private volatile List<Protector> allProtectorsSnapshot = List.of();
+  private volatile List<Protector> defaultProtectorsSnapshot = List.of();
 
-    public synchronized void registerProtector(Protector protector) {
-        if (protector == null || protectors.contains(protector)) {
-            return;
-        }
-
-        Adapt.verbose("Protector: \"" + protector.getName() + "\" registered.");
-        protectors.add(protector);
-        rebuildSnapshots();
+  public synchronized void registerProtector(Protector protector) {
+    if (protector == null || protectors.contains(protector)) {
+      return;
     }
 
-    public synchronized void unregisterProtector(Protector protector) {
-        if (protector == null) {
-            return;
-        }
+    Adapt.verbose("Protector: \"" + protector.getName() + "\" registered.");
+    protectors.add(protector);
+    rebuildSnapshots();
+  }
 
-        protector.unregister();
-        if (protectors.remove(protector)) {
-            rebuildSnapshots();
-        }
+  public synchronized void unregisterProtector(Protector protector) {
+    if (protector == null) {
+      return;
     }
 
-    public List<Protector> getDefaultProtectors() {
-        return defaultProtectorsSnapshot;
+    protector.unregister();
+    if (protectors.remove(protector)) {
+      rebuildSnapshots();
+    }
+  }
+
+  public List<Protector> getDefaultProtectors() {
+    return defaultProtectorsSnapshot;
+  }
+
+  public List<Protector> getAllProtectors() {
+    return allProtectorsSnapshot;
+  }
+
+  public synchronized void unregisterAll() {
+    protectors.forEach(Protector::unregister);
+    protectors.clear();
+    rebuildSnapshots();
+  }
+
+  private void rebuildSnapshots() {
+    List<Protector> all = new ArrayList<>(protectors.size());
+    List<Protector> defaults = new ArrayList<>(Math.max(1, protectors.size() / 2));
+
+    for (Protector protector : protectors) {
+      if (protector == null) {
+        continue;
+      }
+      all.add(protector);
+      if (protector.isEnabledByDefault()) {
+        defaults.add(protector);
+      }
     }
 
-    public List<Protector> getAllProtectors() {
-        return allProtectorsSnapshot;
-    }
-
-    public synchronized void unregisterAll() {
-        protectors.forEach(Protector::unregister);
-        protectors.clear();
-        rebuildSnapshots();
-    }
-
-    private void rebuildSnapshots() {
-        List<Protector> all = new ArrayList<>(protectors.size());
-        List<Protector> defaults = new ArrayList<>(Math.max(1, protectors.size() / 2));
-
-        for (Protector protector : protectors) {
-            if (protector == null) {
-                continue;
-            }
-            all.add(protector);
-            if (protector.isEnabledByDefault()) {
-                defaults.add(protector);
-            }
-        }
-
-        allProtectorsSnapshot = Collections.unmodifiableList(all);
-        defaultProtectorsSnapshot = Collections.unmodifiableList(defaults);
-    }
+    allProtectorsSnapshot = Collections.unmodifiableList(all);
+    defaultProtectorsSnapshot = Collections.unmodifiableList(defaults);
+  }
 }

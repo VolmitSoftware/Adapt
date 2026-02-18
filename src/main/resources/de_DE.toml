@@ -2,2060 +2,2060 @@
 [advancement]
 
 [advancement.challenge_move_1k]
-    title = "Muss mich bewegen!"
-    description = "Laufe über 1 Kilometer (1.000 Blöcke)"
+title = "Muss mich bewegen!"
+description = "Laufe über 1 Kilometer (1.000 Blöcke)"
 
 [advancement.challenge_sprint_5k]
-    title = "Sprinte 5K!"
-    description = "Laufe über 5 Kilometer (5.000 Blöcke)"
+title = "Sprinte 5K!"
+description = "Laufe über 5 Kilometer (5.000 Blöcke)"
 
 [advancement.challenge_sprint_50k]
-    title = "Düse 50K!"
-    description = "Laufe über 50 Kilometer (50.000 Blöcke)"
+title = "Düse 50K!"
+description = "Laufe über 50 Kilometer (50.000 Blöcke)"
 
 [advancement.challenge_sprint_500k]
-    title = "Durchquere das Universum!!"
-    description = "Laufe über 500 Kilometer (500.000 Blöcke)"
+title = "Durchquere das Universum!!"
+description = "Laufe über 500 Kilometer (500.000 Blöcke)"
 
 [advancement.challenge_sprint_marathon]
-    title = "Sprinte einen (buchstäblichen) Marathon!"
-    description = "Sprinte über 42.195 Blöcke!"
+title = "Sprinte einen (buchstäblichen) Marathon!"
+description = "Sprinte über 42.195 Blöcke!"
 
 [advancement.challenge_place_1k]
-    title = "Bauanfänger!"
-    description = "Platziere 1.000 Blöcke"
+title = "Bauanfänger!"
+description = "Platziere 1.000 Blöcke"
 
 [advancement.challenge_place_5k]
-    title = "Fortgeschrittener Bauarbeiter!"
-    description = "Platziere 5.000 Blöcke"
+title = "Fortgeschrittener Bauarbeiter!"
+description = "Platziere 5.000 Blöcke"
 
 [advancement.challenge_place_50k]
-    title = "Erfahrener Baumeister!"
-    description = "Platziere 50.000 Blöcke"
+title = "Erfahrener Baumeister!"
+description = "Platziere 50.000 Blöcke"
 
 [advancement.challenge_place_500k]
-    title = "Meisterbaumeister!"
-    description = "Platziere 500.000 Blöcke"
+title = "Meisterbaumeister!"
+description = "Platziere 500.000 Blöcke"
 
 [advancement.challenge_place_5m]
-    title = "Akolyth der Symmetrie!"
-    description = "REALITÄT IST DEIN SPIELPLATZ! (5 Millionen Blöcke)"
+title = "Akolyth der Symmetrie!"
+description = "REALITÄT IST DEIN SPIELPLATZ! (5 Millionen Blöcke)"
 
 [advancement.challenge_chop_1k]
-    title = "Holzfäller-Anfänger!"
-    description = "Fälle 1.000 Blöcke"
+title = "Holzfäller-Anfänger!"
+description = "Fälle 1.000 Blöcke"
 
 [advancement.challenge_chop_5k]
-    title = "Fortgeschrittener Holzfäller!"
-    description = "Fälle 5.000 Blöcke"
+title = "Fortgeschrittener Holzfäller!"
+description = "Fälle 5.000 Blöcke"
 
 [advancement.challenge_chop_50k]
-    title = "Erfahrener Holzfäller!"
-    description = "Fälle 50.000 Blöcke"
+title = "Erfahrener Holzfäller!"
+description = "Fälle 50.000 Blöcke"
 
 [advancement.challenge_chop_500k]
-    title = "Meister-Holzfäller!"
-    description = "Fälle 500.000 Blöcke"
+title = "Meister-Holzfäller!"
+description = "Fälle 500.000 Blöcke"
 
 [advancement.challenge_chop_5m]
-    title = "Jackson the Dog"
-    description = "Der allerbeste brave Junge! (5 Millionen Blöcke)"
+title = "Jackson the Dog"
+description = "Der allerbeste brave Junge! (5 Millionen Blöcke)"
 
 [advancement.challenge_block_1k]
-    title = "Kaum geblockt!"
-    description = "Blockiere 1000 Treffer"
+title = "Kaum geblockt!"
+description = "Blockiere 1000 Treffer"
 
 [advancement.challenge_block_5k]
-    title = "Blocken macht Spaß!"
-    description = "Blockiere 5000 Treffer"
+title = "Blocken macht Spaß!"
+description = "Blockiere 5000 Treffer"
 
 [advancement.challenge_block_50k]
-    title = "Blocken ist mein Leben!"
-    description = "Blockiere 50.000 Treffer"
+title = "Blocken ist mein Leben!"
+description = "Blockiere 50.000 Treffer"
 
 [advancement.challenge_block_500k]
-    title = "Blocken ist meine Bestimmung!"
-    description = "Blockiere 500.000 Treffer"
+title = "Blocken ist meine Bestimmung!"
+description = "Blockiere 500.000 Treffer"
 
 [advancement.challenge_block_5m]
-    title = "Die Hand Die Verletzt"
-    description = "Blockiere 5.000.000 Treffer"
+title = "Die Hand Die Verletzt"
+description = "Blockiere 5.000.000 Treffer"
 
 [advancement.challenge_brew_1k]
-    title = "Alchemisten-Anfänger!"
-    description = "Konsumiere 1000 Tränke"
+title = "Alchemisten-Anfänger!"
+description = "Konsumiere 1000 Tränke"
 
 [advancement.challenge_brew_5k]
-    title = "Fortgeschrittener Alchemist!"
-    description = "Konsumiere 5000 Tränke"
+title = "Fortgeschrittener Alchemist!"
+description = "Konsumiere 5000 Tränke"
 
 [advancement.challenge_brew_50k]
-    title = "Erfahrener Alchemist!"
-    description = "Konsumiere 50.000 Tränke"
+title = "Erfahrener Alchemist!"
+description = "Konsumiere 50.000 Tränke"
 
 [advancement.challenge_brew_500k]
-    title = "Meister-Alchemist!"
-    description = "Konsumiere 500.000 Tränke"
+title = "Meister-Alchemist!"
+description = "Konsumiere 500.000 Tränke"
 
 [advancement.challenge_brew_5m]
-    title = "Der Alchemist"
-    description = "Konsumiere 5.000.000 Tränke"
+title = "Der Alchemist"
+description = "Konsumiere 5.000.000 Tränke"
 
 [advancement.challenge_brewsplash_1k]
-    title = "Wurftrank-Anfänger!"
-    description = "Wirf 1000 Tränke"
+title = "Wurftrank-Anfänger!"
+description = "Wirf 1000 Tränke"
 
 [advancement.challenge_brewsplash_5k]
-    title = "Fortgeschrittener Trankwerfer!"
-    description = "Wirf 5000 Tränke"
+title = "Fortgeschrittener Trankwerfer!"
+description = "Wirf 5000 Tränke"
 
 [advancement.challenge_brewsplash_50k]
-    title = "Erfahrener Trankwerfer!"
-    description = "Wirf 50.000 Tränke"
+title = "Erfahrener Trankwerfer!"
+description = "Wirf 50.000 Tränke"
 
 [advancement.challenge_brewsplash_500k]
-    title = "Meister-Trankwerfer!"
-    description = "Wirf 500.000 Tränke"
+title = "Meister-Trankwerfer!"
+description = "Wirf 500.000 Tränke"
 
 [advancement.challenge_brewsplash_5m]
-    title = "Der Splash-Meister"
-    description = "Wirf 5.000.000 Tränke"
+title = "Der Splash-Meister"
+description = "Wirf 5.000.000 Tränke"
 
 [advancement.challenge_craft_1k]
-    title = "Schlauer Handwerker!"
-    description = "Stelle 1000 Gegenstände her"
+title = "Schlauer Handwerker!"
+description = "Stelle 1000 Gegenstände her"
 
 [advancement.challenge_craft_5k]
-    title = "Mürrischer Handwerker!"
-    description = "Stelle 5000 Gegenstände her"
+title = "Mürrischer Handwerker!"
+description = "Stelle 5000 Gegenstände her"
 
 [advancement.challenge_craft_50k]
-    title = "Unterwürfiger Handwerker!"
-    description = "Stelle 50.000 Gegenstände her"
+title = "Unterwürfiger Handwerker!"
+description = "Stelle 50.000 Gegenstände her"
 
 [advancement.challenge_craft_500k]
-    title = "Kakophonischer Handwerker!"
-    description = "Stelle 500.000 Gegenstände her"
+title = "Kakophonischer Handwerker!"
+description = "Stelle 500.000 Gegenstände her"
 
 [advancement.challenge_craft_5m]
-    title = "Verhängnisvolles McCraftface"
-    description = "Stelle 5.000.000 Gegenstände her"
+title = "Verhängnisvolles McCraftface"
+description = "Stelle 5.000.000 Gegenstände her"
 
 [advancement.challenge_enchant_1k]
-    title = "Verzauberer-Anfänger!"
-    description = "Verzaubere 1000 Gegenstände"
+title = "Verzauberer-Anfänger!"
+description = "Verzaubere 1000 Gegenstände"
 
 [advancement.challenge_enchant_5k]
-    title = "Fortgeschrittener Verzauberer!"
-    description = "Verzaubere 5000 Gegenstände"
+title = "Fortgeschrittener Verzauberer!"
+description = "Verzaubere 5000 Gegenstände"
 
 [advancement.challenge_enchant_50k]
-    title = "Erfahrener Verzauberer!"
-    description = "Verzaubere 50.000 Gegenstände"
+title = "Erfahrener Verzauberer!"
+description = "Verzaubere 50.000 Gegenstände"
 
 [advancement.challenge_enchant_500k]
-    title = "Meister-Verzauberer!"
-    description = "Verzaubere 500.000 Gegenstände"
+title = "Meister-Verzauberer!"
+description = "Verzaubere 500.000 Gegenstände"
 
 [advancement.challenge_enchant_5m]
-    title = "Rätselhafter Verzauberer"
-    description = "Verzaubere 5.000.000 Gegenstände"
+title = "Rätselhafter Verzauberer"
+description = "Verzaubere 5.000.000 Gegenstände"
 
 [advancement.challenge_excavate_1k]
-    title = "Begeisterter Ausgräber!"
-    description = "Grabe 1000 Blöcke aus"
+title = "Begeisterter Ausgräber!"
+description = "Grabe 1000 Blöcke aus"
 
 [advancement.challenge_excavate_5k]
-    title = "Fortgeschrittener Ausgräber!"
-    description = "Grabe 5000 Blöcke aus"
+title = "Fortgeschrittener Ausgräber!"
+description = "Grabe 5000 Blöcke aus"
 
 [advancement.challenge_excavate_50k]
-    title = "Erfahrener Ausgräber!"
-    description = "Grabe 50.000 Blöcke aus"
+title = "Erfahrener Ausgräber!"
+description = "Grabe 50.000 Blöcke aus"
 
 [advancement.challenge_excavate_500k]
-    title = "Meister-Ausgräber!"
-    description = "Grabe 500.000 Blöcke aus"
+title = "Meister-Ausgräber!"
+description = "Grabe 500.000 Blöcke aus"
 
 [advancement.challenge_excavate_5m]
-    title = "Rätselhafter Ausgräber"
-    description = "Grabe 5.000.000 Blöcke aus"
+title = "Rätselhafter Ausgräber"
+description = "Grabe 5.000.000 Blöcke aus"
 
 [advancement.horrible_person]
-    title = "Du bist eine schreckliche Person"
-    description = "Unvorstellbar, wirklich"
+title = "Du bist eine schreckliche Person"
+description = "Unvorstellbar, wirklich"
 
 [advancement.challenge_turtle_egg_smasher]
-    title = "Schildkrötenei-Zertrümmerer!"
-    description = "Zerbrich 100 Schildkröteneier"
+title = "Schildkrötenei-Zertrümmerer!"
+description = "Zerbrich 100 Schildkröteneier"
 
 [advancement.challenge_turtle_egg_annihilator]
-    title = "Schildkrötenei-Vernichter!"
-    description = "Zerbrich 500 Schildkröteneier"
+title = "Schildkrötenei-Vernichter!"
+description = "Zerbrich 500 Schildkröteneier"
 
 [advancement.challenge_novice_hunter]
-    title = "Jäger-Anfänger!"
-    description = "Töte 100 Wesen"
+title = "Jäger-Anfänger!"
+description = "Töte 100 Wesen"
 
 [advancement.challenge_intermediate_hunter]
-    title = "Fortgeschrittener Jäger!"
-    description = "Töte 500 Wesen"
+title = "Fortgeschrittener Jäger!"
+description = "Töte 500 Wesen"
 
 [advancement.challenge_advanced_hunter]
-    title = "Erfahrener Jäger!"
-    description = "Töte 5000 Wesen"
+title = "Erfahrener Jäger!"
+description = "Töte 5000 Wesen"
 
 [advancement.challenge_creeper_conqueror]
-    title = "Creeper-Eroberer!"
-    description = "Töte 50 Creeper"
+title = "Creeper-Eroberer!"
+description = "Töte 50 Creeper"
 
 [advancement.challenge_creeper_annihilator]
-    title = "Creeper-Vernichter!"
-    description = "Töte 200 Creeper"
+title = "Creeper-Vernichter!"
+description = "Töte 200 Creeper"
 
 [advancement.challenge_pickaxe_1k]
-    title = "Bergmann-Anfänger"
-    description = "Zerbrich 1000 Blöcke"
+title = "Bergmann-Anfänger"
+description = "Zerbrich 1000 Blöcke"
 
 [advancement.challenge_pickaxe_5k]
-    title = "Geschickter Bergmann"
-    description = "Zerbrich 5000 Blöcke"
+title = "Geschickter Bergmann"
+description = "Zerbrich 5000 Blöcke"
 
 [advancement.challenge_pickaxe_50k]
-    title = "Erfahrener Bergmann"
-    description = "Zerbrich 50.000 Blöcke"
+title = "Erfahrener Bergmann"
+description = "Zerbrich 50.000 Blöcke"
 
 [advancement.challenge_pickaxe_500k]
-    title = "Meister-Bergmann"
-    description = "Zerbrich 500.000 Blöcke"
+title = "Meister-Bergmann"
+description = "Zerbrich 500.000 Blöcke"
 
 [advancement.challenge_pickaxe_5m]
-    title = "Legendärer Bergmann"
-    description = "Zerbrich 5.000.000 Blöcke"
+title = "Legendärer Bergmann"
+description = "Zerbrich 5.000.000 Blöcke"
 
 [advancement.challenge_eat_100]
-    title = "So viel zu essen!"
-    description = "Iss über 100 Gegenstände!"
+title = "So viel zu essen!"
+description = "Iss über 100 Gegenstände!"
 
 [advancement.challenge_eat_1000]
-    title = "Unstillbarer Hunger!"
-    description = "Iss über 1.000 Gegenstände!"
+title = "Unstillbarer Hunger!"
+description = "Iss über 1.000 Gegenstände!"
 
 [advancement.challenge_eat_10000]
-    title = "EWIGER HUNGER!"
-    description = "Iss über 10.000 Gegenstände!"
+title = "EWIGER HUNGER!"
+description = "Iss über 10.000 Gegenstände!"
 
 [advancement.challenge_harvest_100]
-    title = "Volle Ernte"
-    description = "Ernte über 100 Feldfrüchte!"
+title = "Volle Ernte"
+description = "Ernte über 100 Feldfrüchte!"
 
 [advancement.challenge_harvest_1000]
-    title = "Große Ernte"
-    description = "Ernte über 1.000 Feldfrüchte!"
+title = "Große Ernte"
+description = "Ernte über 1.000 Feldfrüchte!"
 
 [advancement.challenge_swim_1nm]
-    title = "Menschliches U-Boot!"
-    description = "Schwimme 1 Seemeile (1.852 Blöcke)"
+title = "Menschliches U-Boot!"
+description = "Schwimme 1 Seemeile (1.852 Blöcke)"
 
 [advancement.challenge_sneak_1k]
-    title = "Knieschmerzen"
-    description = "Schleiche über einen Kilometer (1.000 Blöcke)"
+title = "Knieschmerzen"
+description = "Schleiche über einen Kilometer (1.000 Blöcke)"
 
 [advancement.challenge_sneak_5k]
-    title = "Schattenwandler"
-    description = "Schleiche über 5.000 Blöcke"
+title = "Schattenwandler"
+description = "Schleiche über 5.000 Blöcke"
 
 [advancement.challenge_sneak_20k]
-    title = "Geist"
-    description = "Schleiche über 20.000 Blöcke"
+title = "Geist"
+description = "Schleiche über 20.000 Blöcke"
 
 [advancement.challenge_swim_5k]
-    title = "Tieftaucher"
-    description = "Schwimme über 5.000 Blöcke"
+title = "Tieftaucher"
+description = "Schwimme über 5.000 Blöcke"
 
 [advancement.challenge_swim_20k]
-    title = "Poseidons Auserwählter"
-    description = "Schwimme über 20.000 Blöcke"
+title = "Poseidons Auserwählter"
+description = "Schwimme über 20.000 Blöcke"
 
 [advancement.challenge_sword_100]
-    title = "Erstes Blut"
-    description = "Lande 100 Treffer mit einem Schwert"
+title = "Erstes Blut"
+description = "Lande 100 Treffer mit einem Schwert"
 
 [advancement.challenge_sword_1k]
-    title = "Klingentänzer"
-    description = "Lande 1.000 Treffer mit einem Schwert"
+title = "Klingentänzer"
+description = "Lande 1.000 Treffer mit einem Schwert"
 
 [advancement.challenge_sword_10k]
-    title = "Tausend Schnitte"
-    description = "Lande 10.000 Treffer mit einem Schwert"
+title = "Tausend Schnitte"
+description = "Lande 10.000 Treffer mit einem Schwert"
 
 [advancement.challenge_unarmed_100]
-    title = "Kneipenschläger"
-    description = "Lande 100 unbewaffnete Treffer"
+title = "Kneipenschläger"
+description = "Lande 100 unbewaffnete Treffer"
 
 [advancement.challenge_unarmed_1k]
-    title = "Eiserne Fäuste"
-    description = "Lande 1.000 unbewaffnete Treffer"
+title = "Eiserne Fäuste"
+description = "Lande 1.000 unbewaffnete Treffer"
 
 [advancement.challenge_unarmed_10k]
-    title = "One Punch"
-    description = "Lande 10.000 unbewaffnete Treffer"
+title = "One Punch"
+description = "Lande 10.000 unbewaffnete Treffer"
 
 [advancement.challenge_trag_1k]
-    title = "Blutpreis"
-    description = "Erleide 1.000 Schaden"
+title = "Blutpreis"
+description = "Erleide 1.000 Schaden"
 
 [advancement.challenge_trag_10k]
-    title = "Blutstrom"
-    description = "Erleide 10.000 Schaden"
+title = "Blutstrom"
+description = "Erleide 10.000 Schaden"
 
 [advancement.challenge_trag_100k]
-    title = "Avatar des Leidens"
-    description = "Erleide 100.000 Schaden"
+title = "Avatar des Leidens"
+description = "Erleide 100.000 Schaden"
 
 [advancement.challenge_ranged_100]
-    title = "Zielübung"
-    description = "Feuere 100 Projektile ab"
+title = "Zielübung"
+description = "Feuere 100 Projektile ab"
 
 [advancement.challenge_ranged_1k]
-    title = "Falkenauge"
-    description = "Feuere 1.000 Projektile ab"
+title = "Falkenauge"
+description = "Feuere 1.000 Projektile ab"
 
 [advancement.challenge_ranged_10k]
-    title = "Pfeilsturm"
-    description = "Feuere 10.000 Projektile ab"
+title = "Pfeilsturm"
+description = "Feuere 10.000 Projektile ab"
 
 [advancement.challenge_chronos_1h]
-    title = "Tick Tack"
-    description = "Verbringe 1 Stunde online"
+title = "Tick Tack"
+description = "Verbringe 1 Stunde online"
 
 [advancement.challenge_chronos_24h]
-    title = "Sand der Zeit"
-    description = "Verbringe 24 Stunden online"
+title = "Sand der Zeit"
+description = "Verbringe 24 Stunden online"
 
 [advancement.challenge_chronos_168h]
-    title = "Zeitlos"
-    description = "Verbringe 168 Stunden (1 Woche) online"
+title = "Zeitlos"
+description = "Verbringe 168 Stunden (1 Woche) online"
 
 [advancement.challenge_nether_50]
-    title = "Höllenpförtner"
-    description = "Erschlage 50 Netherwesen"
+title = "Höllenpförtner"
+description = "Erschlage 50 Netherwesen"
 
 [advancement.challenge_nether_500]
-    title = "Abgrundwächter"
-    description = "Erschlage 500 Netherwesen"
+title = "Abgrundwächter"
+description = "Erschlage 500 Netherwesen"
 
 [advancement.challenge_nether_5k]
-    title = "Herr des Nethers"
-    description = "Erschlage 5.000 Netherwesen"
+title = "Herr des Nethers"
+description = "Erschlage 5.000 Netherwesen"
 
 [advancement.challenge_rift_50]
-    title = "Raumanomalie"
-    description = "Teleportiere dich 50 Mal"
+title = "Raumanomalie"
+description = "Teleportiere dich 50 Mal"
 
 [advancement.challenge_rift_500]
-    title = "Leerenwandler"
-    description = "Teleportiere dich 500 Mal"
+title = "Leerenwandler"
+description = "Teleportiere dich 500 Mal"
 
 [advancement.challenge_rift_5k]
-    title = "Zwischen den Welten"
-    description = "Teleportiere dich 5.000 Mal"
+title = "Zwischen den Welten"
+description = "Teleportiere dich 5.000 Mal"
 
 [advancement.challenge_taming_10]
-    title = "Tierflüsterer"
-    description = "Züchte 10 Tiere"
+title = "Tierflüsterer"
+description = "Züchte 10 Tiere"
 
 [advancement.challenge_taming_50]
-    title = "Rudelführer"
-    description = "Züchte 50 Tiere"
+title = "Rudelführer"
+description = "Züchte 50 Tiere"
 
 [advancement.challenge_taming_500]
-    title = "Bestienmeister"
-    description = "Züchte 500 Tiere"
+title = "Bestienmeister"
+description = "Züchte 500 Tiere"
 
 # Agility
 [advancement.challenge_sprint_dist_5k]
-    title = "Geschwindigkeitsdaemon"
-    description = "Sprinte ueber 5 Kilometer (5.000 Bloecke)"
+title = "Geschwindigkeitsdaemon"
+description = "Sprinte ueber 5 Kilometer (5.000 Bloecke)"
 [advancement.challenge_sprint_dist_50k]
-    title = "Blitzbeine"
-    description = "Sprinte ueber 50 Kilometer (50.000 Bloecke)"
+title = "Blitzbeine"
+description = "Sprinte ueber 50 Kilometer (50.000 Bloecke)"
 [advancement.challenge_agility_swim_1k]
-    title = "Wasserlaeufer"
-    description = "Schwimme ueber 1 Kilometer (1.000 Bloecke)"
+title = "Wasserlaeufer"
+description = "Schwimme ueber 1 Kilometer (1.000 Bloecke)"
 [advancement.challenge_agility_swim_10k]
-    title = "Ozeanreisender"
-    description = "Schwimme ueber 10 Kilometer (10.000 Bloecke)"
+title = "Ozeanreisender"
+description = "Schwimme ueber 10 Kilometer (10.000 Bloecke)"
 [advancement.challenge_fly_1k]
-    title = "Himmelstaenzer"
-    description = "Fliege ueber 1 Kilometer (1.000 Bloecke)"
+title = "Himmelstaenzer"
+description = "Fliege ueber 1 Kilometer (1.000 Bloecke)"
 [advancement.challenge_fly_10k]
-    title = "Windreiter"
-    description = "Fliege ueber 10 Kilometer (10.000 Bloecke)"
+title = "Windreiter"
+description = "Fliege ueber 10 Kilometer (10.000 Bloecke)"
 [advancement.challenge_agility_sneak_500]
-    title = "Leise Schritte"
-    description = "Schleiche ueber 500 Bloecke"
+title = "Leise Schritte"
+description = "Schleiche ueber 500 Bloecke"
 [advancement.challenge_agility_sneak_5k]
-    title = "Phantomschritte"
-    description = "Schleiche ueber 5 Kilometer (5.000 Bloecke)"
+title = "Phantomschritte"
+description = "Schleiche ueber 5 Kilometer (5.000 Bloecke)"
 
 # Architect
 [advancement.challenge_demolish_500]
-    title = "Abrisstruppp"
-    description = "Baue 500 Bloecke ab"
+title = "Abrisstruppp"
+description = "Baue 500 Bloecke ab"
 [advancement.challenge_demolish_5k]
-    title = "Abrissbirne"
-    description = "Baue 5.000 Bloecke ab"
+title = "Abrissbirne"
+description = "Baue 5.000 Bloecke ab"
 [advancement.challenge_value_placed_10k]
-    title = "Wertvoller Baumeister"
-    description = "Platziere Bloecke im Wert von 10.000"
+title = "Wertvoller Baumeister"
+description = "Platziere Bloecke im Wert von 10.000"
 [advancement.challenge_value_placed_100k]
-    title = "Meisterarchitekt"
-    description = "Platziere Bloecke im Wert von 100.000"
+title = "Meisterarchitekt"
+description = "Platziere Bloecke im Wert von 100.000"
 [advancement.challenge_demolish_val_5k]
-    title = "Bergungsexperte"
-    description = "Berge 5.000 Blockwert durch Abriss"
+title = "Bergungsexperte"
+description = "Berge 5.000 Blockwert durch Abriss"
 [advancement.challenge_demolish_val_50k]
-    title = "Totaler Rueckbau"
-    description = "Berge 50.000 Blockwert durch Abriss"
+title = "Totaler Rueckbau"
+description = "Berge 50.000 Blockwert durch Abriss"
 [advancement.challenge_high_build_100]
-    title = "Himmelsbauer"
-    description = "Platziere 100 Bloecke ueber Y=128"
+title = "Himmelsbauer"
+description = "Platziere 100 Bloecke ueber Y=128"
 [advancement.challenge_high_build_1k]
-    title = "Wolkenarchitekt"
-    description = "Platziere 1.000 Bloecke ueber Y=128"
+title = "Wolkenarchitekt"
+description = "Platziere 1.000 Bloecke ueber Y=128"
 
 # Axes
 [advancement.challenge_axe_swing_500]
-    title = "Axtschwiniger"
-    description = "Schwinge deine Axt 500 Mal"
+title = "Axtschwiniger"
+description = "Schwinge deine Axt 500 Mal"
 [advancement.challenge_axe_swing_5k]
-    title = "Berserker"
-    description = "Schwinge deine Axt 5.000 Mal"
+title = "Berserker"
+description = "Schwinge deine Axt 5.000 Mal"
 [advancement.challenge_axe_damage_1k]
-    title = "Spalter"
-    description = "Verursache 1.000 Schaden mit Aexten"
+title = "Spalter"
+description = "Verursache 1.000 Schaden mit Aexten"
 [advancement.challenge_axe_damage_10k]
-    title = "Henkersbeil"
-    description = "Verursache 10.000 Schaden mit Aexten"
+title = "Henkersbeil"
+description = "Verursache 10.000 Schaden mit Aexten"
 [advancement.challenge_axe_value_5k]
-    title = "Holzhaendler"
-    description = "Ernte Holz im Wert von 5.000"
+title = "Holzhaendler"
+description = "Ernte Holz im Wert von 5.000"
 [advancement.challenge_axe_value_50k]
-    title = "Holzbaron"
-    description = "Ernte Holz im Wert von 50.000"
+title = "Holzbaron"
+description = "Ernte Holz im Wert von 50.000"
 [advancement.challenge_leaves_500]
-    title = "Laubblaeser"
-    description = "Entferne 500 Laubbloecke mit einer Axt"
+title = "Laubblaeser"
+description = "Entferne 500 Laubbloecke mit einer Axt"
 [advancement.challenge_leaves_5k]
-    title = "Entlauber"
-    description = "Entferne 5.000 Laubbloecke mit einer Axt"
+title = "Entlauber"
+description = "Entferne 5.000 Laubbloecke mit einer Axt"
 
 # Blocking
 [advancement.challenge_block_dmg_1k]
-    title = "Schadensabsorber"
-    description = "Blocke 1.000 Schaden mit einem Schild"
+title = "Schadensabsorber"
+description = "Blocke 1.000 Schaden mit einem Schild"
 [advancement.challenge_block_dmg_10k]
-    title = "Menschliches Schutzschild"
-    description = "Blocke 10.000 Schaden mit einem Schild"
+title = "Menschliches Schutzschild"
+description = "Blocke 10.000 Schaden mit einem Schild"
 [advancement.challenge_block_proj_100]
-    title = "Pfeilabwehrer"
-    description = "Blocke 100 Projektile mit einem Schild"
+title = "Pfeilabwehrer"
+description = "Blocke 100 Projektile mit einem Schild"
 [advancement.challenge_block_proj_1k]
-    title = "Projektilschild"
-    description = "Blocke 1.000 Projektile mit einem Schild"
+title = "Projektilschild"
+description = "Blocke 1.000 Projektile mit einem Schild"
 [advancement.challenge_block_melee_500]
-    title = "Pariermeister"
-    description = "Blocke 500 Nahkampfangriffe mit einem Schild"
+title = "Pariermeister"
+description = "Blocke 500 Nahkampfangriffe mit einem Schild"
 [advancement.challenge_block_melee_5k]
-    title = "Eiserne Festung"
-    description = "Blocke 5.000 Nahkampfangriffe mit einem Schild"
+title = "Eiserne Festung"
+description = "Blocke 5.000 Nahkampfangriffe mit einem Schild"
 [advancement.challenge_block_heavy_50]
-    title = "Panzer"
-    description = "Blocke 50 schwere Angriffe (ueber 5 Schaden)"
+title = "Panzer"
+description = "Blocke 50 schwere Angriffe (ueber 5 Schaden)"
 [advancement.challenge_block_heavy_500]
-    title = "Unbewegliches Objekt"
-    description = "Blocke 500 schwere Angriffe (ueber 5 Schaden)"
+title = "Unbewegliches Objekt"
+description = "Blocke 500 schwere Angriffe (ueber 5 Schaden)"
 
 # Brewing
 [advancement.challenge_brew_stands_10]
-    title = "Brauerei-Einrichtung"
-    description = "Platziere 10 Braustaende"
+title = "Brauerei-Einrichtung"
+description = "Platziere 10 Braustaende"
 [advancement.challenge_brew_stands_50]
-    title = "Trankfabrik"
-    description = "Platziere 50 Braustaende"
+title = "Trankfabrik"
+description = "Platziere 50 Braustaende"
 [advancement.challenge_brew_strong_25]
-    title = "Starkes Gebraeu"
-    description = "Trinke 25 verstaerkte Traenke"
+title = "Starkes Gebraeu"
+description = "Trinke 25 verstaerkte Traenke"
 [advancement.challenge_brew_strong_250]
-    title = "Maximale Wirkung"
-    description = "Trinke 250 verstaerkte Traenke"
+title = "Maximale Wirkung"
+description = "Trinke 250 verstaerkte Traenke"
 [advancement.challenge_brew_splash_hits_50]
-    title = "Spritzzone"
-    description = "Triff 50 Wesen mit Wurf-Traenken"
+title = "Spritzzone"
+description = "Triff 50 Wesen mit Wurf-Traenken"
 [advancement.challenge_brew_splash_hits_500]
-    title = "Pestdoktor"
-    description = "Triff 500 Wesen mit Wurf-Traenken"
+title = "Pestdoktor"
+description = "Triff 500 Wesen mit Wurf-Traenken"
 
 # Chronos
 [advancement.challenge_active_dist_1k]
-    title = "Rastlos"
-    description = "Reise 1 Kilometer waehrend du aktiv bist"
+title = "Rastlos"
+description = "Reise 1 Kilometer waehrend du aktiv bist"
 [advancement.challenge_active_dist_10k]
-    title = "Pfadfinder"
-    description = "Reise 10 Kilometer waehrend du aktiv bist"
+title = "Pfadfinder"
+description = "Reise 10 Kilometer waehrend du aktiv bist"
 [advancement.challenge_active_dist_100k]
-    title = "Ewige Bewegung"
-    description = "Reise 100 Kilometer waehrend du aktiv bist"
+title = "Ewige Bewegung"
+description = "Reise 100 Kilometer waehrend du aktiv bist"
 [advancement.challenge_beds_10]
-    title = "Fruehaufsteher"
-    description = "Schlafe 10 Mal in einem Bett"
+title = "Fruehaufsteher"
+description = "Schlafe 10 Mal in einem Bett"
 [advancement.challenge_beds_100]
-    title = "Zeitueberbruecker"
-    description = "Schlafe 100 Mal in einem Bett"
+title = "Zeitueberbruecker"
+description = "Schlafe 100 Mal in einem Bett"
 [advancement.challenge_chronos_tp_50]
-    title = "Zeitverschiebung"
-    description = "Teleportiere dich 50 Mal"
+title = "Zeitverschiebung"
+description = "Teleportiere dich 50 Mal"
 [advancement.challenge_chronos_tp_500]
-    title = "Zeitsprung"
-    description = "Teleportiere dich 500 Mal"
+title = "Zeitsprung"
+description = "Teleportiere dich 500 Mal"
 [advancement.challenge_chronos_deaths_10]
-    title = "Sterblich"
-    description = "Stirb 10 Mal"
+title = "Sterblich"
+description = "Stirb 10 Mal"
 [advancement.challenge_chronos_deaths_100]
-    title = "Todestrotzer"
-    description = "Stirb 100 Mal"
+title = "Todestrotzer"
+description = "Stirb 100 Mal"
 
 # Crafting
 [advancement.challenge_craft_value_10k]
-    title = "Handwerkswert"
-    description = "Stelle Gegenstaende im Wert von 10.000 her"
+title = "Handwerkswert"
+description = "Stelle Gegenstaende im Wert von 10.000 her"
 [advancement.challenge_craft_value_100k]
-    title = "Kunsthandwerker"
-    description = "Stelle Gegenstaende im Wert von 100.000 her"
+title = "Kunsthandwerker"
+description = "Stelle Gegenstaende im Wert von 100.000 her"
 [advancement.challenge_craft_tools_25]
-    title = "Werkzeugschmied"
-    description = "Stelle 25 Werkzeuge her"
+title = "Werkzeugschmied"
+description = "Stelle 25 Werkzeuge her"
 [advancement.challenge_craft_tools_250]
-    title = "Meisterschmied"
-    description = "Stelle 250 Werkzeuge her"
+title = "Meisterschmied"
+description = "Stelle 250 Werkzeuge her"
 [advancement.challenge_craft_armor_25]
-    title = "Ruestungsschmied"
-    description = "Stelle 25 Ruestungsteile her"
+title = "Ruestungsschmied"
+description = "Stelle 25 Ruestungsteile her"
 [advancement.challenge_craft_armor_250]
-    title = "Ruestungsmeister"
-    description = "Stelle 250 Ruestungsteile her"
+title = "Ruestungsmeister"
+description = "Stelle 250 Ruestungsteile her"
 [advancement.challenge_craft_mass_25k]
-    title = "Massenproduzent"
-    description = "Stelle 25.000 Gegenstaende her"
+title = "Massenproduzent"
+description = "Stelle 25.000 Gegenstaende her"
 [advancement.challenge_craft_mass_250k]
-    title = "Industrielle Revolution"
-    description = "Stelle 250.000 Gegenstaende her"
+title = "Industrielle Revolution"
+description = "Stelle 250.000 Gegenstaende her"
 
 # Discovery
 [advancement.challenge_discover_items_50]
-    title = "Sammler"
-    description = "Entdecke 50 einzigartige Gegenstaende"
+title = "Sammler"
+description = "Entdecke 50 einzigartige Gegenstaende"
 [advancement.challenge_discover_items_250]
-    title = "Katalogisierer"
-    description = "Entdecke 250 einzigartige Gegenstaende"
+title = "Katalogisierer"
+description = "Entdecke 250 einzigartige Gegenstaende"
 [advancement.challenge_discover_blocks_50]
-    title = "Vermesser"
-    description = "Entdecke 50 einzigartige Bloecke"
+title = "Vermesser"
+description = "Entdecke 50 einzigartige Bloecke"
 [advancement.challenge_discover_blocks_250]
-    title = "Geologe"
-    description = "Entdecke 250 einzigartige Bloecke"
+title = "Geologe"
+description = "Entdecke 250 einzigartige Bloecke"
 [advancement.challenge_discover_mobs_25]
-    title = "Beobachter"
-    description = "Entdecke 25 einzigartige Kreaturen"
+title = "Beobachter"
+description = "Entdecke 25 einzigartige Kreaturen"
 [advancement.challenge_discover_mobs_75]
-    title = "Naturforscher"
-    description = "Entdecke 75 einzigartige Kreaturen"
+title = "Naturforscher"
+description = "Entdecke 75 einzigartige Kreaturen"
 [advancement.challenge_discover_biomes_10]
-    title = "Wanderer"
-    description = "Entdecke 10 einzigartige Biome"
+title = "Wanderer"
+description = "Entdecke 10 einzigartige Biome"
 [advancement.challenge_discover_biomes_40]
-    title = "Weltreisender"
-    description = "Entdecke 40 einzigartige Biome"
+title = "Weltreisender"
+description = "Entdecke 40 einzigartige Biome"
 [advancement.challenge_discover_foods_10]
-    title = "Feinschmecker"
-    description = "Entdecke 10 einzigartige Nahrungsmittel"
+title = "Feinschmecker"
+description = "Entdecke 10 einzigartige Nahrungsmittel"
 [advancement.challenge_discover_foods_30]
-    title = "Kuechenmeister"
-    description = "Entdecke 30 einzigartige Nahrungsmittel"
+title = "Kuechenmeister"
+description = "Entdecke 30 einzigartige Nahrungsmittel"
 
 # Enchanting
 [advancement.challenge_enchant_power_100]
-    title = "Kraftweber"
-    description = "Sammle 100 Verzauberungskraft"
+title = "Kraftweber"
+description = "Sammle 100 Verzauberungskraft"
 [advancement.challenge_enchant_power_1k]
-    title = "Arkaner Meister"
-    description = "Sammle 1.000 Verzauberungskraft"
+title = "Arkaner Meister"
+description = "Sammle 1.000 Verzauberungskraft"
 [advancement.challenge_enchant_levels_1k]
-    title = "Stufenverschwender"
-    description = "Gib 1.000 Erfahrungsstufen fuer Verzauberungen aus"
+title = "Stufenverschwender"
+description = "Gib 1.000 Erfahrungsstufen fuer Verzauberungen aus"
 [advancement.challenge_enchant_levels_10k]
-    title = "EP-Verschlinger"
-    description = "Gib 10.000 Erfahrungsstufen fuer Verzauberungen aus"
+title = "EP-Verschlinger"
+description = "Gib 10.000 Erfahrungsstufen fuer Verzauberungen aus"
 [advancement.challenge_enchant_high_25]
-    title = "Hochstapler"
-    description = "Fuehre 25 Verzauberungen auf hoechster Stufe durch"
+title = "Hochstapler"
+description = "Fuehre 25 Verzauberungen auf hoechster Stufe durch"
 [advancement.challenge_enchant_high_250]
-    title = "Legendaerer Verzauberer"
-    description = "Fuehre 250 Verzauberungen auf hoechster Stufe durch"
+title = "Legendaerer Verzauberer"
+description = "Fuehre 250 Verzauberungen auf hoechster Stufe durch"
 [advancement.challenge_enchant_total_500]
-    title = "Stufenbrenner"
-    description = "Gib insgesamt 500 Stufen fuer Verzauberungen aus"
+title = "Stufenbrenner"
+description = "Gib insgesamt 500 Stufen fuer Verzauberungen aus"
 [advancement.challenge_enchant_total_5k]
-    title = "Arkane Investition"
-    description = "Gib insgesamt 5.000 Stufen fuer Verzauberungen aus"
+title = "Arkane Investition"
+description = "Gib insgesamt 5.000 Stufen fuer Verzauberungen aus"
 
 # Excavation
 [advancement.challenge_dig_swing_500]
-    title = "Graeber"
-    description = "Schwinge deine Schaufel 500 Mal"
+title = "Graeber"
+description = "Schwinge deine Schaufel 500 Mal"
 [advancement.challenge_dig_swing_5k]
-    title = "Baggerfahrer"
-    description = "Schwinge deine Schaufel 5.000 Mal"
+title = "Baggerfahrer"
+description = "Schwinge deine Schaufel 5.000 Mal"
 [advancement.challenge_dig_damage_1k]
-    title = "Schaufelritter"
-    description = "Verursache 1.000 Schaden mit einer Schaufel"
+title = "Schaufelritter"
+description = "Verursache 1.000 Schaden mit einer Schaufel"
 [advancement.challenge_dig_damage_10k]
-    title = "Schaufelmeister"
-    description = "Verursache 10.000 Schaden mit einer Schaufel"
+title = "Schaufelmeister"
+description = "Verursache 10.000 Schaden mit einer Schaufel"
 [advancement.challenge_dig_value_5k]
-    title = "Erdhaendler"
-    description = "Grabe Bloecke im Wert von 5.000 aus"
+title = "Erdhaendler"
+description = "Grabe Bloecke im Wert von 5.000 aus"
 [advancement.challenge_dig_value_50k]
-    title = "Erdbaron"
-    description = "Grabe Bloecke im Wert von 50.000 aus"
+title = "Erdbaron"
+description = "Grabe Bloecke im Wert von 50.000 aus"
 [advancement.challenge_dig_gravel_500]
-    title = "Kiesmalmer"
-    description = "Grabe 500 Kies-, Sand- oder Lehmbloecke"
+title = "Kiesmalmer"
+description = "Grabe 500 Kies-, Sand- oder Lehmbloecke"
 [advancement.challenge_dig_gravel_5k]
-    title = "Sandsieber"
-    description = "Grabe 5.000 Kies-, Sand- oder Lehmbloecke"
+title = "Sandsieber"
+description = "Grabe 5.000 Kies-, Sand- oder Lehmbloecke"
 
 # Herbalism
 [advancement.challenge_plant_100]
-    title = "Saemann"
-    description = "Pflanze 100 Feldfrueche"
+title = "Saemann"
+description = "Pflanze 100 Feldfrueche"
 [advancement.challenge_plant_1k]
-    title = "Gruener Daumen"
-    description = "Pflanze 1.000 Feldfrueche"
+title = "Gruener Daumen"
+description = "Pflanze 1.000 Feldfrueche"
 [advancement.challenge_plant_5k]
-    title = "Ackerbaron"
-    description = "Pflanze 5.000 Feldfrueche"
+title = "Ackerbaron"
+description = "Pflanze 5.000 Feldfrueche"
 [advancement.challenge_compost_50]
-    title = "Recycler"
-    description = "Kompostiere 50 Gegenstaende"
+title = "Recycler"
+description = "Kompostiere 50 Gegenstaende"
 [advancement.challenge_compost_500]
-    title = "Bodenveredler"
-    description = "Kompostiere 500 Gegenstaende"
+title = "Bodenveredler"
+description = "Kompostiere 500 Gegenstaende"
 [advancement.challenge_shear_50]
-    title = "Scherer"
-    description = "Schere 50 Wesen"
+title = "Scherer"
+description = "Schere 50 Wesen"
 [advancement.challenge_shear_250]
-    title = "Herdenmeister"
-    description = "Schere 250 Wesen"
+title = "Herdenmeister"
+description = "Schere 250 Wesen"
 
 # Hunter
 [advancement.challenge_kills_500]
-    title = "Toeter"
-    description = "Erschlage 500 Kreaturen"
+title = "Toeter"
+description = "Erschlage 500 Kreaturen"
 [advancement.challenge_kills_5k]
-    title = "Henker"
-    description = "Erschlage 5.000 Kreaturen"
+title = "Henker"
+description = "Erschlage 5.000 Kreaturen"
 [advancement.challenge_boss_1]
-    title = "Bossherausforderer"
-    description = "Besiege einen Boss"
+title = "Bossherausforderer"
+description = "Besiege einen Boss"
 [advancement.challenge_boss_10]
-    title = "Legendentoeter"
-    description = "Besiege 10 Bosse"
+title = "Legendentoeter"
+description = "Besiege 10 Bosse"
 
 # Nether
 [advancement.challenge_wither_dmg_500]
-    title = "Verwelkt"
-    description = "Ertrage 500 Wither-Schaden"
+title = "Verwelkt"
+description = "Ertrage 500 Wither-Schaden"
 [advancement.challenge_wither_dmg_5k]
-    title = "Seuchenueberlebender"
-    description = "Ertrage 5.000 Wither-Schaden"
+title = "Seuchenueberlebender"
+description = "Ertrage 5.000 Wither-Schaden"
 [advancement.challenge_wither_skel_25]
-    title = "Knochensammler"
-    description = "Erschlage 25 Witherskelette"
+title = "Knochensammler"
+description = "Erschlage 25 Witherskelette"
 [advancement.challenge_wither_skel_250]
-    title = "Skelettfluch"
-    description = "Erschlage 250 Witherskelette"
+title = "Skelettfluch"
+description = "Erschlage 250 Witherskelette"
 [advancement.challenge_wither_boss_1]
-    title = "Withertoeter"
-    description = "Besiege den Wither"
+title = "Withertoeter"
+description = "Besiege den Wither"
 [advancement.challenge_wither_boss_10]
-    title = "Netherbeherrscher"
-    description = "Besiege den Wither 10 Mal"
+title = "Netherbeherrscher"
+description = "Besiege den Wither 10 Mal"
 [advancement.challenge_roses_10]
-    title = "Todesqaertner"
-    description = "Zerstoere 10 Witherrosen"
+title = "Todesqaertner"
+description = "Zerstoere 10 Witherrosen"
 [advancement.challenge_roses_100]
-    title = "Seuchensammler"
-    description = "Zerstoere 100 Witherrosen"
+title = "Seuchensammler"
+description = "Zerstoere 100 Witherrosen"
 
 # Pickaxes
 [advancement.challenge_pick_swing_500]
-    title = "Bergmannsarm"
-    description = "Schwinge deine Spitzhacke 500 Mal"
+title = "Bergmannsarm"
+description = "Schwinge deine Spitzhacke 500 Mal"
 [advancement.challenge_pick_swing_5k]
-    title = "Tunnelgraber"
-    description = "Schwinge deine Spitzhacke 5.000 Mal"
+title = "Tunnelgraber"
+description = "Schwinge deine Spitzhacke 5.000 Mal"
 [advancement.challenge_pick_damage_1k]
-    title = "Hackenkaempfer"
-    description = "Verursache 1.000 Schaden mit einer Spitzhacke"
+title = "Hackenkaempfer"
+description = "Verursache 1.000 Schaden mit einer Spitzhacke"
 [advancement.challenge_pick_damage_10k]
-    title = "Kriegshacke"
-    description = "Verursache 10.000 Schaden mit einer Spitzhacke"
+title = "Kriegshacke"
+description = "Verursache 10.000 Schaden mit einer Spitzhacke"
 [advancement.challenge_pick_value_5k]
-    title = "Edelsteinfinder"
-    description = "Baue Bloecke im Wert von 5.000 ab"
+title = "Edelsteinfinder"
+description = "Baue Bloecke im Wert von 5.000 ab"
 [advancement.challenge_pick_value_50k]
-    title = "Erzbaron"
-    description = "Baue Bloecke im Wert von 50.000 ab"
+title = "Erzbaron"
+description = "Baue Bloecke im Wert von 50.000 ab"
 [advancement.challenge_pick_ores_500]
-    title = "Schuerfer"
-    description = "Baue 500 Erzbloecke ab"
+title = "Schuerfer"
+description = "Baue 500 Erzbloecke ab"
 [advancement.challenge_pick_ores_5k]
-    title = "Meisterbergmann"
-    description = "Baue 5.000 Erzbloecke ab"
+title = "Meisterbergmann"
+description = "Baue 5.000 Erzbloecke ab"
 
 # Ranged
 [advancement.challenge_ranged_dmg_1k]
-    title = "Scharfschuetze"
-    description = "Verursache 1.000 Fernkampfschaden"
+title = "Scharfschuetze"
+description = "Verursache 1.000 Fernkampfschaden"
 [advancement.challenge_ranged_dmg_10k]
-    title = "Toedlicher Schuetze"
-    description = "Verursache 10.000 Fernkampfschaden"
+title = "Toedlicher Schuetze"
+description = "Verursache 10.000 Fernkampfschaden"
 [advancement.challenge_ranged_dist_5k]
-    title = "Grosse Reichweite"
-    description = "Feuere Projektile ueber insgesamt 5.000 Bloecke Entfernung"
+title = "Grosse Reichweite"
+description = "Feuere Projektile ueber insgesamt 5.000 Bloecke Entfernung"
 [advancement.challenge_ranged_dist_50k]
-    title = "Meilenschuetze"
-    description = "Feuere Projektile ueber insgesamt 50.000 Bloecke Entfernung"
+title = "Meilenschuetze"
+description = "Feuere Projektile ueber insgesamt 50.000 Bloecke Entfernung"
 [advancement.challenge_ranged_kills_50]
-    title = "Bogenschuetze"
-    description = "Toete 50 Kreaturen mit Fernkampfwaffen"
+title = "Bogenschuetze"
+description = "Toete 50 Kreaturen mit Fernkampfwaffen"
 [advancement.challenge_ranged_kills_500]
-    title = "Meisterbogenschuetze"
-    description = "Toete 500 Kreaturen mit Fernkampfwaffen"
+title = "Meisterbogenschuetze"
+description = "Toete 500 Kreaturen mit Fernkampfwaffen"
 [advancement.challenge_longshot_25]
-    title = "Heckenschuetze"
-    description = "Lande 25 Weitschusstreffer (ueber 30 Bloecke)"
+title = "Heckenschuetze"
+description = "Lande 25 Weitschusstreffer (ueber 30 Bloecke)"
 [advancement.challenge_longshot_250]
-    title = "Adlerauge"
-    description = "Lande 250 Weitschusstreffer (ueber 30 Bloecke)"
+title = "Adlerauge"
+description = "Lande 250 Weitschusstreffer (ueber 30 Bloecke)"
 
 # Rift
 [advancement.challenge_rift_pearls_50]
-    title = "Perlenwerfer"
-    description = "Wirf 50 Enderperlen"
+title = "Perlenwerfer"
+description = "Wirf 50 Enderperlen"
 [advancement.challenge_rift_pearls_500]
-    title = "Teleportsuechtig"
-    description = "Wirf 500 Enderperlen"
+title = "Teleportsuechtig"
+description = "Wirf 500 Enderperlen"
 [advancement.challenge_rift_enderman_50]
-    title = "Enderman-Jaeger"
-    description = "Erschlage 50 Endermen"
+title = "Enderman-Jaeger"
+description = "Erschlage 50 Endermen"
 [advancement.challenge_rift_enderman_500]
-    title = "Leerenpirscher"
-    description = "Erschlage 500 Endermen"
+title = "Leerenpirscher"
+description = "Erschlage 500 Endermen"
 [advancement.challenge_rift_dragon_500]
-    title = "Drachenkaempfer"
-    description = "Verursache 500 Schaden am Enderdrachen"
+title = "Drachenkaempfer"
+description = "Verursache 500 Schaden am Enderdrachen"
 [advancement.challenge_rift_dragon_5k]
-    title = "Drachentoeter"
-    description = "Verursache 5.000 Schaden am Enderdrachen"
+title = "Drachentoeter"
+description = "Verursache 5.000 Schaden am Enderdrachen"
 [advancement.challenge_rift_crystal_10]
-    title = "Kristallbrecher"
-    description = "Zerstoere 10 Endkristalle"
+title = "Kristallbrecher"
+description = "Zerstoere 10 Endkristalle"
 [advancement.challenge_rift_crystal_100]
-    title = "Endzerstoerer"
-    description = "Zerstoere 100 Endkristalle"
+title = "Endzerstoerer"
+description = "Zerstoere 100 Endkristalle"
 
 # Seaborne
 [advancement.challenge_fish_25]
-    title = "Angler"
-    description = "Fange 25 Fische"
+title = "Angler"
+description = "Fange 25 Fische"
 [advancement.challenge_fish_250]
-    title = "Meisterfischer"
-    description = "Fange 250 Fische"
+title = "Meisterfischer"
+description = "Fange 250 Fische"
 [advancement.challenge_drowned_25]
-    title = "Ertrunkenen-Jaeger"
-    description = "Erschlage 25 Ertrunkene"
+title = "Ertrunkenen-Jaeger"
+description = "Erschlage 25 Ertrunkene"
 [advancement.challenge_drowned_250]
-    title = "Ozeanreiniger"
-    description = "Erschlage 250 Ertrunkene"
+title = "Ozeanreiniger"
+description = "Erschlage 250 Ertrunkene"
 [advancement.challenge_guardian_10]
-    title = "Waechtertoeter"
-    description = "Erschlage 10 Waechter"
+title = "Waechtertoeter"
+description = "Erschlage 10 Waechter"
 [advancement.challenge_guardian_100]
-    title = "Tempelraeuber"
-    description = "Erschlage 100 Waechter"
+title = "Tempelraeuber"
+description = "Erschlage 100 Waechter"
 [advancement.challenge_underwater_blocks_100]
-    title = "Unterwasserbergmann"
-    description = "Baue 100 Bloecke unter Wasser ab"
+title = "Unterwasserbergmann"
+description = "Baue 100 Bloecke unter Wasser ab"
 [advancement.challenge_underwater_blocks_1k]
-    title = "Unterwasseringenieur"
-    description = "Baue 1.000 Bloecke unter Wasser ab"
+title = "Unterwasseringenieur"
+description = "Baue 1.000 Bloecke unter Wasser ab"
 
 # Stealth
 [advancement.challenge_stealth_dmg_500]
-    title = "Meuchler"
-    description = "Verursache 500 Schaden waehrend du schleichst"
+title = "Meuchler"
+description = "Verursache 500 Schaden waehrend du schleichst"
 [advancement.challenge_stealth_dmg_5k]
-    title = "Lautloser Toeter"
-    description = "Verursache 5.000 Schaden waehrend du schleichst"
+title = "Lautloser Toeter"
+description = "Verursache 5.000 Schaden waehrend du schleichst"
 [advancement.challenge_stealth_kills_10]
-    title = "Assassine"
-    description = "Toete 10 Kreaturen waehrend du schleichst"
+title = "Assassine"
+description = "Toete 10 Kreaturen waehrend du schleichst"
 [advancement.challenge_stealth_kills_100]
-    title = "Schattensensenmann"
-    description = "Toete 100 Kreaturen waehrend du schleichst"
+title = "Schattensensenmann"
+description = "Toete 100 Kreaturen waehrend du schleichst"
 [advancement.challenge_stealth_time_1h]
-    title = "Geduldig"
-    description = "Verbringe 1 Stunde schleichend (3.600 Sekunden)"
+title = "Geduldig"
+description = "Verbringe 1 Stunde schleichend (3.600 Sekunden)"
 [advancement.challenge_stealth_time_10h]
-    title = "Meister der Schatten"
-    description = "Verbringe 10 Stunden schleichend (36.000 Sekunden)"
+title = "Meister der Schatten"
+description = "Verbringe 10 Stunden schleichend (36.000 Sekunden)"
 [advancement.challenge_stealth_arrows_50]
-    title = "Stiller Bogenschuetze"
-    description = "Feuere 50 Pfeile waehrend du schleichst"
+title = "Stiller Bogenschuetze"
+description = "Feuere 50 Pfeile waehrend du schleichst"
 [advancement.challenge_stealth_arrows_500]
-    title = "Phantombogenschuetze"
-    description = "Feuere 500 Pfeile waehrend du schleichst"
+title = "Phantombogenschuetze"
+description = "Feuere 500 Pfeile waehrend du schleichst"
 
 # Swords
 [advancement.challenge_sword_dmg_1k]
-    title = "Klingenlehrling"
-    description = "Verursache 1.000 Schaden mit Schwertern"
+title = "Klingenlehrling"
+description = "Verursache 1.000 Schaden mit Schwertern"
 [advancement.challenge_sword_dmg_10k]
-    title = "Schwertkaempfer"
-    description = "Verursache 10.000 Schaden mit Schwertern"
+title = "Schwertkaempfer"
+description = "Verursache 10.000 Schaden mit Schwertern"
 [advancement.challenge_sword_kills_50]
-    title = "Duellant"
-    description = "Toete 50 Kreaturen mit Schwertern"
+title = "Duellant"
+description = "Toete 50 Kreaturen mit Schwertern"
 [advancement.challenge_sword_kills_500]
-    title = "Gladiator"
-    description = "Toete 500 Kreaturen mit Schwertern"
+title = "Gladiator"
+description = "Toete 500 Kreaturen mit Schwertern"
 [advancement.challenge_sword_crit_50]
-    title = "Kritischer Treffer"
-    description = "Lande 50 kritische Treffer mit Schwertern"
+title = "Kritischer Treffer"
+description = "Lande 50 kritische Treffer mit Schwertern"
 [advancement.challenge_sword_crit_500]
-    title = "Praezisionsmeister"
-    description = "Lande 500 kritische Treffer mit Schwertern"
+title = "Praezisionsmeister"
+description = "Lande 500 kritische Treffer mit Schwertern"
 [advancement.challenge_sword_heavy_25]
-    title = "Schwerer Schlag"
-    description = "Lande 25 schwere Treffer mit Schwertern (ueber 8 Schaden)"
+title = "Schwerer Schlag"
+description = "Lande 25 schwere Treffer mit Schwertern (ueber 8 Schaden)"
 [advancement.challenge_sword_heavy_250]
-    title = "Verheerender Hieb"
-    description = "Lande 250 schwere Treffer mit Schwertern (ueber 8 Schaden)"
+title = "Verheerender Hieb"
+description = "Lande 250 schwere Treffer mit Schwertern (ueber 8 Schaden)"
 
 # Taming
 [advancement.challenge_pet_dmg_500]
-    title = "Tiertrainer"
-    description = "Deine Haustiere verursachen insgesamt 500 Schaden"
+title = "Tiertrainer"
+description = "Deine Haustiere verursachen insgesamt 500 Schaden"
 [advancement.challenge_pet_dmg_5k]
-    title = "Kriegsmeister"
-    description = "Deine Haustiere verursachen insgesamt 5.000 Schaden"
+title = "Kriegsmeister"
+description = "Deine Haustiere verursachen insgesamt 5.000 Schaden"
 [advancement.challenge_tamed_10]
-    title = "Tierfreund"
-    description = "Zaehme 10 Tiere"
+title = "Tierfreund"
+description = "Zaehme 10 Tiere"
 [advancement.challenge_tamed_100]
-    title = "Zoowaerter"
-    description = "Zaehme 100 Tiere"
+title = "Zoowaerter"
+description = "Zaehme 100 Tiere"
 [advancement.challenge_pet_kills_25]
-    title = "Rudeltaktik"
-    description = "Deine Haustiere erschlagen 25 Kreaturen"
+title = "Rudeltaktik"
+description = "Deine Haustiere erschlagen 25 Kreaturen"
 [advancement.challenge_pet_kills_250]
-    title = "Alphakommandant"
-    description = "Deine Haustiere erschlagen 250 Kreaturen"
+title = "Alphakommandant"
+description = "Deine Haustiere erschlagen 250 Kreaturen"
 [advancement.challenge_taming_2500]
-    title = "Zuchtexperte"
-    description = "Zuechte 2.500 Tiere"
+title = "Zuchtexperte"
+description = "Zuechte 2.500 Tiere"
 [advancement.challenge_taming_25k]
-    title = "Genetikmeister"
-    description = "Zuechte 25.000 Tiere"
+title = "Genetikmeister"
+description = "Zuechte 25.000 Tiere"
 
 # TragOul
 [advancement.challenge_trag_hits_500]
-    title = "Sandsack"
-    description = "Erhalte 500 Treffer"
+title = "Sandsack"
+description = "Erhalte 500 Treffer"
 [advancement.challenge_trag_hits_5k]
-    title = "Glutton fuer Strafe"
-    description = "Erhalte 5.000 Treffer"
+title = "Glutton fuer Strafe"
+description = "Erhalte 5.000 Treffer"
 [advancement.challenge_trag_deaths_10]
-    title = "Neun Leben"
-    description = "Stirb 10 Mal"
+title = "Neun Leben"
+description = "Stirb 10 Mal"
 [advancement.challenge_trag_deaths_100]
-    title = "Wiederkehrender Albtraum"
-    description = "Stirb 100 Mal"
+title = "Wiederkehrender Albtraum"
+description = "Stirb 100 Mal"
 [advancement.challenge_trag_fire_500]
-    title = "Brandopfer"
-    description = "Ertrage 500 Feuerschaden"
+title = "Brandopfer"
+description = "Ertrage 500 Feuerschaden"
 [advancement.challenge_trag_fire_5k]
-    title = "Phoeinx"
-    description = "Ertrage 5.000 Feuerschaden"
+title = "Phoeinx"
+description = "Ertrage 5.000 Feuerschaden"
 [advancement.challenge_trag_fall_500]
-    title = "Schwerkrafttest"
-    description = "Ertrage 500 Fallschaden"
+title = "Schwerkrafttest"
+description = "Ertrage 500 Fallschaden"
 [advancement.challenge_trag_fall_5k]
-    title = "Endgeschwindigkeit"
-    description = "Ertrage 5.000 Fallschaden"
+title = "Endgeschwindigkeit"
+description = "Ertrage 5.000 Fallschaden"
 
 # Unarmed
 [advancement.challenge_unarmed_dmg_1k]
-    title = "Raufbold"
-    description = "Verursache 1.000 Schaden mit blossen Faeusten"
+title = "Raufbold"
+description = "Verursache 1.000 Schaden mit blossen Faeusten"
 [advancement.challenge_unarmed_dmg_10k]
-    title = "Kampfkuenstler"
-    description = "Verursache 10.000 Schaden mit blossen Faeusten"
+title = "Kampfkuenstler"
+description = "Verursache 10.000 Schaden mit blossen Faeusten"
 [advancement.challenge_unarmed_kills_25]
-    title = "Faustkampf"
-    description = "Toete 25 Kreaturen mit blossen Faeusten"
+title = "Faustkampf"
+description = "Toete 25 Kreaturen mit blossen Faeusten"
 [advancement.challenge_unarmed_kills_250]
-    title = "Faust der Legende"
-    description = "Toete 250 Kreaturen mit blossen Faeusten"
+title = "Faust der Legende"
+description = "Toete 250 Kreaturen mit blossen Faeusten"
 [advancement.challenge_unarmed_crit_25]
-    title = "Kritischer Schlag"
-    description = "Lande 25 kritische Treffer mit blossen Faeusten"
+title = "Kritischer Schlag"
+description = "Lande 25 kritische Treffer mit blossen Faeusten"
 [advancement.challenge_unarmed_crit_250]
-    title = "Praezisionsfaust"
-    description = "Lande 250 kritische Treffer mit blossen Faeusten"
+title = "Praezisionsfaust"
+description = "Lande 250 kritische Treffer mit blossen Faeusten"
 [advancement.challenge_unarmed_heavy_25]
-    title = "Kraftschlag"
-    description = "Lande 25 schwere Treffer mit blossen Faeusten (ueber 6 Schaden)"
+title = "Kraftschlag"
+description = "Lande 25 schwere Treffer mit blossen Faeusten (ueber 6 Schaden)"
 [advancement.challenge_unarmed_heavy_250]
-    title = "Knockout-Koenig"
-    description = "Lande 250 schwere Treffer mit blossen Faeusten (ueber 6 Schaden)"
+title = "Knockout-Koenig"
+description = "Lande 250 schwere Treffer mit blossen Faeusten (ueber 6 Schaden)"
 
 # items
 [items]
 
 [items.bound_ender_peral]
-    name = "Reliquien-Portschlüssel"
-    usage1 = "Shift + Linksklick zum Binden"
-    usage2 = "Rechtsklick, um auf das gebundene Inventar zuzugreifen"
+name = "Reliquien-Portschlüssel"
+usage1 = "Shift + Linksklick zum Binden"
+usage2 = "Rechtsklick, um auf das gebundene Inventar zuzugreifen"
 
 [items.bound_eye_of_ender]
-    name = "Okularanker"
-    usage1 = "Rechtsklick zum Verbrauchen und Teleportieren zum gebundenen Ort"
-    usage2 = "Shift + Linksklick, um an einen Block zu binden"
+name = "Okularanker"
+usage1 = "Rechtsklick zum Verbrauchen und Teleportieren zum gebundenen Ort"
+usage2 = "Shift + Linksklick, um an einen Block zu binden"
 
 [items.bound_redstone_torch]
-    name = "Redstone-Fernsteuerung"
-    usage1 = "Rechtsklick, um einen 1-Tick-Redstone-Impuls zu erzeugen"
-    usage2 = "Shift + Linksklick auf einen 'Ziel'-Block zum Binden"
+name = "Redstone-Fernsteuerung"
+usage1 = "Rechtsklick, um einen 1-Tick-Redstone-Impuls zu erzeugen"
+usage2 = "Shift + Linksklick auf einen 'Ziel'-Block zum Binden"
 
 [items.bound_snowball]
-    name = "Netzfalle!"
-    usage1 = "Werfen, um eine vorübergehende Spinnennetzfalle am Auftreffpunkt zu erstellen"
+name = "Netzfalle!"
+usage1 = "Werfen, um eine vorübergehende Spinnennetzfalle am Auftreffpunkt zu erstellen"
 
 [items.chrono_time_bottle]
-    name = "Zeit in einer Flasche"
-    usage1 = "Speichert passiv Zeit, solange sie sich in deinem Inventar befindet"
-    usage2 = "Rechtsklick auf zeitbasierte Blöcke oder Tierbabys, um gespeicherte Zeit zu verbrauchen"
-    stored = "Gespeicherte Zeit"
+name = "Zeit in einer Flasche"
+usage1 = "Speichert passiv Zeit, solange sie sich in deinem Inventar befindet"
+usage2 = "Rechtsklick auf zeitbasierte Blöcke oder Tierbabys, um gespeicherte Zeit zu verbrauchen"
+stored = "Gespeicherte Zeit"
 
 [items.chrono_time_bomb]
-    name = "Zeitbombe"
-    usage1 = "Rechtsklick, um einen Chronobolzen zu werfen, der ein Zeitfeld erzeugt"
+name = "Zeitbombe"
+usage1 = "Rechtsklick, um einen Chronobolzen zu werfen, der ein Zeitfeld erzeugt"
 
 [items.elevator_block]
-    name = "Aufzugblock"
-    usage1 = "Springen, um nach oben zu teleportieren"
-    usage2 = "Schleichen, um nach unten zu teleportieren"
-    usage3 = "Mindestens 2 Luftblöcke zwischen den Aufzügen"
+name = "Aufzugblock"
+usage1 = "Springen, um nach oben zu teleportieren"
+usage2 = "Schleichen, um nach unten zu teleportieren"
+usage3 = "Mindestens 2 Luftblöcke zwischen den Aufzügen"
 
 # snippets
 [snippets]
 
 [snippets.gui]
-    level = "Stufe"
-    knowledge = "Wissen"
-    power_used = "Verbrauchte Energie"
-    not_learned = "Noch nicht gelernt"
-    xp = "XP bis"
-    welcome = "Willkommen!"
-    welcome_back = "Willkommen zurück!"
-    xp_bonus_for_time = "XP für"
-    max_ability_power = "Maximale Fähigkeitsenergie"
-    unlock_this_by_clicking = "Entsperre dies per Rechtsklick: "
-    back = "Zurück"
-    unlearn_all = "Alles verlernen"
-    unlearned_all = "Alles verlernt"
+level = "Stufe"
+knowledge = "Wissen"
+power_used = "Verbrauchte Energie"
+not_learned = "Noch nicht gelernt"
+xp = "XP bis"
+welcome = "Willkommen!"
+welcome_back = "Willkommen zurück!"
+xp_bonus_for_time = "XP für"
+max_ability_power = "Maximale Fähigkeitsenergie"
+unlock_this_by_clicking = "Entsperre dies per Rechtsklick: "
+back = "Zurück"
+unlearn_all = "Alles verlernen"
+unlearned_all = "Alles verlernt"
 
 [snippets.adapt_menu]
-    may_not_unlearn = "KANN NICHT VERLERNT WERDEN"
-    may_unlearn = "KANN GELERNT/VERLERNT WERDEN"
-    knowledge_cost = "Wissenskosten"
-    knowledge_available = "Verfügbares Wissen"
-    already_learned = "Bereits gelernt"
-    unlearn_refund = "Klicken zum Verlernen & Erstatten"
-    no_refunds = "HARDCORE, ERSTATTUNGEN DEAKTIVIERT"
-    knowledge = "Wissen"
-    click_learn = "Klicken zum Erlernen"
-    no_knowledge = "(Du hast kein Wissen)"
-    you_only_have = "Du hast nur"
-    how_to_level_up = "Verbessere deine Fähigkeiten, um deine maximale Energie zu erhöhen."
-    not_enough_power = "Nicht genug Energie! Jede Fähigkeitsstufe kostet 1 Energie."
-    power = "Energie"
-    power_drain = "Energieverbrauch"
-    learned = "Gelernt "
-    unlearned = "Verlernt "
-    activator_block = "Bücherregal"
+may_not_unlearn = "KANN NICHT VERLERNT WERDEN"
+may_unlearn = "KANN GELERNT/VERLERNT WERDEN"
+knowledge_cost = "Wissenskosten"
+knowledge_available = "Verfügbares Wissen"
+already_learned = "Bereits gelernt"
+unlearn_refund = "Klicken zum Verlernen & Erstatten"
+no_refunds = "HARDCORE, ERSTATTUNGEN DEAKTIVIERT"
+knowledge = "Wissen"
+click_learn = "Klicken zum Erlernen"
+no_knowledge = "(Du hast kein Wissen)"
+you_only_have = "Du hast nur"
+how_to_level_up = "Verbessere deine Fähigkeiten, um deine maximale Energie zu erhöhen."
+not_enough_power = "Nicht genug Energie! Jede Fähigkeitsstufe kostet 1 Energie."
+power = "Energie"
+power_drain = "Energieverbrauch"
+learned = "Gelernt "
+unlearned = "Verlernt "
+activator_block = "Bücherregal"
 
 [snippets.knowledge_orb]
-    contains = "enthält"
-    knowledge = "Wissen"
-    rightclick = "Rechtsklick"
-    togainknowledge = "um dieses Wissen zu erlangen"
-    knowledge_orb = "Wissenskugel"
+contains = "enthält"
+knowledge = "Wissen"
+rightclick = "Rechtsklick"
+togainknowledge = "um dieses Wissen zu erlangen"
+knowledge_orb = "Wissenskugel"
 
 [snippets.experience_orb]
-    contains = "enthält"
-    xp = "Erfahrung"
-    rightclick = "Rechtsklick"
-    togainxp = "um diese Erfahrung zu erlangen"
-    xporb = "Erfahrungskugel"
+contains = "enthält"
+xp = "Erfahrung"
+rightclick = "Rechtsklick"
+togainxp = "um diese Erfahrung zu erlangen"
+xporb = "Erfahrungskugel"
 
 # skill
 [skill]
 
 [skill.agility]
-    name = "Agilität"
-    icon = "⇉"
-    description = "Agilität ist die Fähigkeit, sich schnell und geschmeidig angesichts von Hindernissen zu bewegen."
+name = "Agilität"
+icon = "⇉"
+description = "Agilität ist die Fähigkeit, sich schnell und geschmeidig angesichts von Hindernissen zu bewegen."
 
 [skill.architect]
-    name = "Architekt"
-    icon = "⬧"
-    description = "Strukturen sind die Bausteine der Welt. Die Realität liegt in deinen Händen, du bestimmst sie."
+name = "Architekt"
+icon = "⬧"
+description = "Strukturen sind die Bausteine der Welt. Die Realität liegt in deinen Händen, du bestimmst sie."
 
 [skill.axes]
-    name = "Äxte"
-    icon = "🪓"
-    description1 = "Warum Bäume fällen, wenn man stattdessen "
-    description2 = "Dinge"
-    description3 = "fällen kann - gleiches Ergebnis!"
+name = "Äxte"
+icon = "🪓"
+description1 = "Warum Bäume fällen, wenn man stattdessen "
+description2 = "Dinge"
+description3 = "fällen kann - gleiches Ergebnis!"
 
 [skill.brewing]
-    name = "Brauen"
-    icon = "❦"
-    description = "Doppelte Blase, dreifache Blase, vierfache Blase - Ich kann diesen Trank immer noch nicht in einen Kessel füllen"
+name = "Brauen"
+icon = "❦"
+description = "Doppelte Blase, dreifache Blase, vierfache Blase - Ich kann diesen Trank immer noch nicht in einen Kessel füllen"
 
 [skill.blocking]
-    name = "Blocken"
-    icon = "🛡"
-    description = "Stöcke und Steine brechen dir nicht die Knochen, aber ein Schild schon."
+name = "Blocken"
+icon = "🛡"
+description = "Stöcke und Steine brechen dir nicht die Knochen, aber ein Schild schon."
 
 [skill.crafting]
-    name = "Handwerk"
-    icon = "⌂"
-    description = "Wenn keine Teile mehr zu platzieren sind, warum nicht einfach neue herstellen?"
+name = "Handwerk"
+icon = "⌂"
+description = "Wenn keine Teile mehr zu platzieren sind, warum nicht einfach neue herstellen?"
 
 [skill.discovery]
-    name = "Entdeckung"
-    icon = "⚛"
-    description = "Wenn sich deine Wahrnehmung erweitert, entfaltet sich dein Geist und entdeckt das, was dir verborgen blieb."
+name = "Entdeckung"
+icon = "⚛"
+description = "Wenn sich deine Wahrnehmung erweitert, entfaltet sich dein Geist und entdeckt das, was dir verborgen blieb."
 
 [skill.enchanting]
-    name = "Verzauberung"
-    icon = "♰"
-    description = "Wovon redest du eigentlich? Prophezeiungen, Visionen, abergläubisches Gefasel?"
+name = "Verzauberung"
+icon = "♰"
+description = "Wovon redest du eigentlich? Prophezeiungen, Visionen, abergläubisches Gefasel?"
 
 [skill.excavation]
-    name = "Ausgrabung"
-    icon = "ᛳ"
-    description = "Diggy Diggy Hole..."
+name = "Ausgrabung"
+icon = "ᛳ"
+description = "Diggy Diggy Hole..."
 
 [skill.herbalism]
-    name = "Kräuterkunde"
-    icon = "⚘"
-    description = "Ich kann keine Pflanzen finden, aber ein paar Samen und - ist das... Unkraut?"
+name = "Kräuterkunde"
+icon = "⚘"
+description = "Ich kann keine Pflanzen finden, aber ein paar Samen und - ist das... Unkraut?"
 
 [skill.hunter]
-    name = "Jäger"
-    icon = "☠"
-    description = "Bei der Jagd geht es um den Weg, nicht um das Ergebnis."
+name = "Jäger"
+icon = "☠"
+description = "Bei der Jagd geht es um den Weg, nicht um das Ergebnis."
 
 [skill.nether]
-    name = "Nether"
-    icon = "₪"
-    description = "Aus den Tiefen des Nethers selbst."
+name = "Nether"
+icon = "₪"
+description = "Aus den Tiefen des Nethers selbst."
 
 [skill.pickaxe]
-    name = "Spitzhacke"
-    icon = "⛏"
-    description = "Zwerge sind die Bergleute, aber ich habe in meiner Zeit auch einiges gelernt. ICH BIN SCHWEDE!"
+name = "Spitzhacke"
+icon = "⛏"
+description = "Zwerge sind die Bergleute, aber ich habe in meiner Zeit auch einiges gelernt. ICH BIN SCHWEDE!"
 
 [skill.ranged]
-    name = "Fernkampf"
-    icon = "🏹"
-    description = "Entfernung ist der Schlüssel zum Sieg und der Schlüssel zum Überleben."
+name = "Fernkampf"
+icon = "🏹"
+description = "Entfernung ist der Schlüssel zum Sieg und der Schlüssel zum Überleben."
 
 [skill.rift]
-    name = "Riss"
-    icon = "❍"
-    description = "Der Riss ist ein ätzendes Geschirr, aber du hast das Geschirr gemeistert."
+name = "Riss"
+icon = "❍"
+description = "Der Riss ist ein ätzendes Geschirr, aber du hast das Geschirr gemeistert."
 
 [skill.seaborne]
-    name = "Seefahrt"
-    icon = "🎣"
-    description = "Mit dieser Fähigkeit kannst du die Wunder des Wassers beherrschen."
+name = "Seefahrt"
+icon = "🎣"
+description = "Mit dieser Fähigkeit kannst du die Wunder des Wassers beherrschen."
 
 [skill.stealth]
-    name = "Heimlichkeit"
-    icon = "☯"
-    description = "Die Kunst des Unsichtbaren. Wandle in den Schatten."
+name = "Heimlichkeit"
+icon = "☯"
+description = "Die Kunst des Unsichtbaren. Wandle in den Schatten."
 
 [skill.swords]
-    name = "Schwerter"
-    icon = "⚔"
-    description = "Bei der Macht von GreyStone!"
+name = "Schwerter"
+icon = "⚔"
+description = "Bei der Macht von GreyStone!"
 
 [skill.taming]
-    name = "Zähmung"
-    icon = "♥"
-    description = "Die Papageien und die Bienen... und du?"
+name = "Zähmung"
+icon = "♥"
+description = "Die Papageien und die Bienen... und du?"
 
 [skill.tragoul]
-    name = "TragOul"
-    icon = "🗡"
-    description = "Blut fließt durch die Adern des Universums. Zusammengepresst von deinen Händen."
+name = "TragOul"
+icon = "🗡"
+description = "Blut fließt durch die Adern des Universums. Zusammengepresst von deinen Händen."
 
 [skill.chronos]
-    name = "Chronos"
-    icon = "🕒"
-    description = "Ziehe die Uhr des Universums auf, erlebe den Fluss. Zerbrich die Uhr, werde sie."
+name = "Chronos"
+icon = "🕒"
+description = "Ziehe die Uhr des Universums auf, erlebe den Fluss. Zerbrich die Uhr, werde sie."
 
 [skill.unarmed]
-    name = "Unbewaffnet"
-    icon = "»"
-    description = "Ohne Waffe heißt nicht ohne Stärke."
+name = "Unbewaffnet"
+icon = "»"
+description = "Ohne Waffe heißt nicht ohne Stärke."
 
 # agility
 [agility]
 
 [agility.armor_up]
-    name = "Aufrüstung"
-    description = "Erhalte mehr Rüstung, je länger du sprintest!"
-    lore1 = "Maximale Rüstung"
-    lore2 = "Aufrüstungszeit"
-    lore = ["Maximale Rüstung", "Aufrüstungszeit"]
+name = "Aufrüstung"
+description = "Erhalte mehr Rüstung, je länger du sprintest!"
+lore1 = "Maximale Rüstung"
+lore2 = "Aufrüstungszeit"
+lore = ["Maximale Rüstung", "Aufrüstungszeit"]
 
 [agility.ladder_slide]
-    name = "Leiterrutsche"
-    description = "Klettere und rutsche Leitern in beide Richtungen viel schneller."
-    lore1 = "Leitergeschwindigkeits-Multiplikator"
-    lore2 = "Schnelle Abstiegsgeschwindigkeit"
-    lore = ["Leitergeschwindigkeits-Multiplikator", "Schnelle Abstiegsgeschwindigkeit"]
+name = "Leiterrutsche"
+description = "Klettere und rutsche Leitern in beide Richtungen viel schneller."
+lore1 = "Leitergeschwindigkeits-Multiplikator"
+lore2 = "Schnelle Abstiegsgeschwindigkeit"
+lore = ["Leitergeschwindigkeits-Multiplikator", "Schnelle Abstiegsgeschwindigkeit"]
 
 [agility.super_jump]
-    name = "Supersprung"
-    description = "Außergewöhnlicher Höhenvorteil."
-    lore1 = "Maximale Sprunghöhe"
-    lore2 = "Schleichen + Springen für Supersprung!"
-    lore = ["Maximale Sprunghöhe", "Schleichen + Springen für Supersprung!"]
+name = "Supersprung"
+description = "Außergewöhnlicher Höhenvorteil."
+lore1 = "Maximale Sprunghöhe"
+lore2 = "Schleichen + Springen für Supersprung!"
+lore = ["Maximale Sprunghöhe", "Schleichen + Springen für Supersprung!"]
 
 [agility.wall_jump]
-    name = "Wandsprung"
-    description = "Halte Shift in der Luft an einer Wand, um dich festzuhalten und zu springen!"
-    lore1 = "Maximale Sprünge"
-    lore2 = "Sprunghöhe"
-    lore = ["Maximale Sprünge", "Sprunghöhe"]
+name = "Wandsprung"
+description = "Halte Shift in der Luft an einer Wand, um dich festzuhalten und zu springen!"
+lore1 = "Maximale Sprünge"
+lore2 = "Sprunghöhe"
+lore = ["Maximale Sprünge", "Sprunghöhe"]
 
 [agility.wind_up]
-    name = "Anlauf"
-    description = "Werde schneller, je länger du sprintest!"
-    lore1 = "Maximale Geschwindigkeit"
-    lore2 = "Anlaufzeit"
-    lore = ["Maximale Geschwindigkeit", "Anlaufzeit"]
+name = "Anlauf"
+description = "Werde schneller, je länger du sprintest!"
+lore1 = "Maximale Geschwindigkeit"
+lore2 = "Anlaufzeit"
+lore = ["Maximale Geschwindigkeit", "Anlaufzeit"]
 
 # architect
 [architect]
 
 [architect.elevator]
-    name = "Aufzug"
-    description = "Ermöglicht dir den Bau eines Aufzugs für schnelle vertikale Teleportation!"
-    lore1 = "Schaltet Aufzugrezept frei: X=WOLLE, Y=ENDERPERLE"
-    lore2 = "XXX"
-    lore3 = "XYX"
-    lore4 = "XXX"
-    lore = ["Schaltet Aufzugrezept frei: X=WOLLE, Y=ENDERPERLE", "XXX", "XYX", "XXX"]
+name = "Aufzug"
+description = "Ermöglicht dir den Bau eines Aufzugs für schnelle vertikale Teleportation!"
+lore1 = "Schaltet Aufzugrezept frei: X=WOLLE, Y=ENDERPERLE"
+lore2 = "XXX"
+lore3 = "XYX"
+lore4 = "XXX"
+lore = ["Schaltet Aufzugrezept frei: X=WOLLE, Y=ENDERPERLE", "XXX", "XYX", "XXX"]
 
 [architect.foundation]
-    name = "Magisches Fundament"
-    description = "Ermöglicht dir, beim Schleichen ein vorübergehendes Fundament unter dir zu erschaffen!"
-    lore1 = "Magisch erschaffen: "
-    lore2 = "Blöcke unter dir!"
-    lore = ["Magisch erschaffen: ", "Blöcke unter dir!"]
+name = "Magisches Fundament"
+description = "Ermöglicht dir, beim Schleichen ein vorübergehendes Fundament unter dir zu erschaffen!"
+lore1 = "Magisch erschaffen: "
+lore2 = "Blöcke unter dir!"
+lore = ["Magisch erschaffen: ", "Blöcke unter dir!"]
 
 [architect.glass]
-    name = "Behutsamkeits-Glas"
-    description = "Verhindert den Verlust von Glasblöcken, wenn du sie mit leeren Händen zerbrichst!"
-    lore1 = "Deine Hände erhalten Behutsamkeit für Glas"
-    lore = ["Deine Hände erhalten Behutsamkeit für Glas"]
+name = "Behutsamkeits-Glas"
+description = "Verhindert den Verlust von Glasblöcken, wenn du sie mit leeren Händen zerbrichst!"
+lore1 = "Deine Hände erhalten Behutsamkeit für Glas"
+lore = ["Deine Hände erhalten Behutsamkeit für Glas"]
 
 [architect.wireless_redstone]
-    name = "Redstone-Fernsteuerung"
-    description = "Ermöglicht dir, eine Redstone-Fackel zu verwenden, um Redstone aus der Ferne zu schalten!"
-    lore1 = "Ziel + Redstone-Fackel + Enderperle = 1 Redstone-Fernsteuerung"
-    lore = ["Ziel + Redstone-Fackel + Enderperle = 1 Redstone-Fernsteuerung"]
+name = "Redstone-Fernsteuerung"
+description = "Ermöglicht dir, eine Redstone-Fackel zu verwenden, um Redstone aus der Ferne zu schalten!"
+lore1 = "Ziel + Redstone-Fackel + Enderperle = 1 Redstone-Fernsteuerung"
+lore = ["Ziel + Redstone-Fackel + Enderperle = 1 Redstone-Fernsteuerung"]
 
 [architect.placement]
-    name = "Baustab"
-    description = "Ermöglicht dir, mehrere Blöcke auf einmal zu platzieren. Zum Aktivieren schleiche und halte einen Block, der dem anvisierten Block entspricht, und platziere! Beachte, dass du dich etwas bewegen musst, um die Begrenzung auszulösen!"
-    lore1 = "Du brauchst"
-    lore2 = "Blöcke in deiner Hand, um dies zu platzieren"
-    lore3 = "Ein Material-Baustab"
-    lore = ["Du brauchst", "Blöcke in deiner Hand, um dies zu platzieren", "Ein Material-Baustab"]
+name = "Baustab"
+description = "Ermöglicht dir, mehrere Blöcke auf einmal zu platzieren. Zum Aktivieren schleiche und halte einen Block, der dem anvisierten Block entspricht, und platziere! Beachte, dass du dich etwas bewegen musst, um die Begrenzung auszulösen!"
+lore1 = "Du brauchst"
+lore2 = "Blöcke in deiner Hand, um dies zu platzieren"
+lore3 = "Ein Material-Baustab"
+lore = ["Du brauchst", "Blöcke in deiner Hand, um dies zu platzieren", "Ein Material-Baustab"]
 
 # axe
 [axe]
 
 [axe.chop]
-    name = "Axtschlag"
-    description = "Fälle Bäume per Rechtsklick auf den Stamm!"
-    lore1 = "Blöcke pro Hieb"
-    lore2 = "Hieb-Abklingzeit"
-    lore3 = "Werkzeugverschleiß"
-    lore = ["Blöcke pro Hieb", "Hieb-Abklingzeit", "Werkzeugverschleiß"]
+name = "Axtschlag"
+description = "Fälle Bäume per Rechtsklick auf den Stamm!"
+lore1 = "Blöcke pro Hieb"
+lore2 = "Hieb-Abklingzeit"
+lore3 = "Werkzeugverschleiß"
+lore = ["Blöcke pro Hieb", "Hieb-Abklingzeit", "Werkzeugverschleiß"]
 
 [axe.log_swap]
-    name = "Lucys Stammtauscher"
-    description = "Ändere die Art von Holzstämmen in einer Werkbank!"
-    lore1 = "8 Stämme beliebiger Art + 1 Setzling = 8 Stämme der Art des Setzlings"
-    lore = ["8 Stämme beliebiger Art + 1 Setzling = 8 Stämme der Art des Setzlings"]
+name = "Lucys Stammtauscher"
+description = "Ändere die Art von Holzstämmen in einer Werkbank!"
+lore1 = "8 Stämme beliebiger Art + 1 Setzling = 8 Stämme der Art des Setzlings"
+lore = ["8 Stämme beliebiger Art + 1 Setzling = 8 Stämme der Art des Setzlings"]
 
 [axe.drop_to_inventory]
-    name = "Axt-Drop-ins-Inventar"
+name = "Axt-Drop-ins-Inventar"
 
 [axe.ground_smash]
-    name = "Axt-Bodenschlag"
-    description = "Springe, dann schleiche und zerschmettere alle Feinde in der Nähe."
-    lore1 = "Schaden"
-    lore2 = "Block-Radius"
-    lore3 = "Wucht"
-    lore4 = "Schlag-Abklingzeit"
-    lore = ["Schaden", "Block-Radius", "Wucht", "Schlag-Abklingzeit"]
+name = "Axt-Bodenschlag"
+description = "Springe, dann schleiche und zerschmettere alle Feinde in der Nähe."
+lore1 = "Schaden"
+lore2 = "Block-Radius"
+lore3 = "Wucht"
+lore4 = "Schlag-Abklingzeit"
+lore = ["Schaden", "Block-Radius", "Wucht", "Schlag-Abklingzeit"]
 
 [axe.leaf_miner]
-    name = "Blattfresser"
-    description = "Ermöglicht dir, große Mengen Blätter auf einmal abzubauen!"
-    lore1 = "Schleiche und baue BLÄTTER ab"
-    lore2 = "Reichweite des Blattabbaus"
-    lore3 = "Du erhältst keine Drops von den Blättern (Exploit-Schutz)"
-    lore = ["Schleiche und baue BLÄTTER ab", "Reichweite des Blattabbaus", "Du erhältst keine Drops von den Blättern (Exploit-Schutz)"]
+name = "Blattfresser"
+description = "Ermöglicht dir, große Mengen Blätter auf einmal abzubauen!"
+lore1 = "Schleiche und baue BLÄTTER ab"
+lore2 = "Reichweite des Blattabbaus"
+lore3 = "Du erhältst keine Drops von den Blättern (Exploit-Schutz)"
+lore = ["Schleiche und baue BLÄTTER ab", "Reichweite des Blattabbaus", "Du erhältst keine Drops von den Blättern (Exploit-Schutz)"]
 
 [axe.wood_miner]
-    name = "Holzfäller"
-    description = "Ermöglicht dir, große Mengen Holz auf einmal abzubauen!"
-    lore1 = "Schleiche und fälle HOLZ/STÄMME (keine Bretter)"
-    lore2 = "Reichweite des Holzabbaus"
-    lore3 = "Funktioniert mit Drop-ins-Inventar"
-    lore = ["Schleiche und fälle HOLZ/STÄMME (keine Bretter)", "Reichweite des Holzabbaus", "Funktioniert mit Drop-ins-Inventar"]
+name = "Holzfäller"
+description = "Ermöglicht dir, große Mengen Holz auf einmal abzubauen!"
+lore1 = "Schleiche und fälle HOLZ/STÄMME (keine Bretter)"
+lore2 = "Reichweite des Holzabbaus"
+lore3 = "Funktioniert mit Drop-ins-Inventar"
+lore = ["Schleiche und fälle HOLZ/STÄMME (keine Bretter)", "Reichweite des Holzabbaus", "Funktioniert mit Drop-ins-Inventar"]
 
 # brewing
 [brewing]
 
 [brewing.lingering]
-    name = "Verweilendes Gebräu"
-    description = "Gebraute Tränke wirken länger!"
-    lore1 = "Dauer"
-    lore2 = "Dauer"
-    lore = ["Dauer", "Dauer"]
+name = "Verweilendes Gebräu"
+description = "Gebraute Tränke wirken länger!"
+lore1 = "Dauer"
+lore2 = "Dauer"
+lore = ["Dauer", "Dauer"]
 
 [brewing.super_heated]
-    name = "Superheißes Gebräu"
-    description = "Braustände arbeiten schneller, je heißer sie sind."
-    lore1 = "Pro berührendem Feuerblock"
-    lore2 = "Pro berührendem Lavablock"
-    lore = ["Pro berührendem Feuerblock", "Pro berührendem Lavablock"]
+name = "Superheißes Gebräu"
+description = "Braustände arbeiten schneller, je heißer sie sind."
+lore1 = "Pro berührendem Feuerblock"
+lore2 = "Pro berührendem Lavablock"
+lore = ["Pro berührendem Feuerblock", "Pro berührendem Lavablock"]
 
 [brewing.darkness]
-    name = "Abgefüllte Dunkelheit"
-    description = "Nicht sicher, warum du das brauchst, aber bitte schön!"
-    lore1 = "Nachtsichttrank + Schwarzer Beton = Trank der Dunkelheit (30 Sekunden)"
-    lore2 = "Achtung: Dies hindert den Benutzer am Sprinten!"
-    lore = ["Nachtsichttrank + Schwarzer Beton = Trank der Dunkelheit (30 Sekunden)", "Achtung: Dies hindert den Benutzer am Sprinten!"]
+name = "Abgefüllte Dunkelheit"
+description = "Nicht sicher, warum du das brauchst, aber bitte schön!"
+lore1 = "Nachtsichttrank + Schwarzer Beton = Trank der Dunkelheit (30 Sekunden)"
+lore2 = "Achtung: Dies hindert den Benutzer am Sprinten!"
+lore = ["Nachtsichttrank + Schwarzer Beton = Trank der Dunkelheit (30 Sekunden)", "Achtung: Dies hindert den Benutzer am Sprinten!"]
 
 [brewing.haste]
-    name = "Abgefüllte Eile"
-    description = "Wenn Effizienz nicht ausreicht"
-    lore1 = "Schnelligkeitstrank + Amethystsplitter = Trank der Eile (60 Sekunden)"
-    lore2 = "Schnelligkeitstrank + Amethystblock = Trank der Eile-2 (30 Sekunden)"
-    lore = ["Schnelligkeitstrank + Amethystsplitter = Trank der Eile (60 Sekunden)", "Schnelligkeitstrank + Amethystblock = Trank der Eile-2 (30 Sekunden)"]
+name = "Abgefüllte Eile"
+description = "Wenn Effizienz nicht ausreicht"
+lore1 = "Schnelligkeitstrank + Amethystsplitter = Trank der Eile (60 Sekunden)"
+lore2 = "Schnelligkeitstrank + Amethystblock = Trank der Eile-2 (30 Sekunden)"
+lore = ["Schnelligkeitstrank + Amethystsplitter = Trank der Eile (60 Sekunden)", "Schnelligkeitstrank + Amethystblock = Trank der Eile-2 (30 Sekunden)"]
 
 [brewing.absorption]
-    name = "Abgefüllte Absorption"
-    description = "Härte den Körper!"
-    lore1 = "Sofortige Heilung + Quarz = Trank der Absorption (60 Sekunden)"
-    lore2 = "Sofortige Heilung + Quarzblock = Trank der Absorption-2 (30 Sekunden)"
-    lore = ["Sofortige Heilung + Quarz = Trank der Absorption (60 Sekunden)", "Sofortige Heilung + Quarzblock = Trank der Absorption-2 (30 Sekunden)"]
+name = "Abgefüllte Absorption"
+description = "Härte den Körper!"
+lore1 = "Sofortige Heilung + Quarz = Trank der Absorption (60 Sekunden)"
+lore2 = "Sofortige Heilung + Quarzblock = Trank der Absorption-2 (30 Sekunden)"
+lore = ["Sofortige Heilung + Quarz = Trank der Absorption (60 Sekunden)", "Sofortige Heilung + Quarzblock = Trank der Absorption-2 (30 Sekunden)"]
 
 [brewing.fatigue]
-    name = "Abgefüllte Müdigkeit"
-    description = "Schwäche den Körper!"
-    lore1 = "Schwächetrank + Schleimball = Trank der Müdigkeit (30 Sekunden)"
-    lore2 = "Schwächetrank + Schleimblock = Trank der Müdigkeit-2 (15 Sekunden)"
-    lore = ["Schwächetrank + Schleimball = Trank der Müdigkeit (30 Sekunden)", "Schwächetrank + Schleimblock = Trank der Müdigkeit-2 (15 Sekunden)"]
+name = "Abgefüllte Müdigkeit"
+description = "Schwäche den Körper!"
+lore1 = "Schwächetrank + Schleimball = Trank der Müdigkeit (30 Sekunden)"
+lore2 = "Schwächetrank + Schleimblock = Trank der Müdigkeit-2 (15 Sekunden)"
+lore = ["Schwächetrank + Schleimball = Trank der Müdigkeit (30 Sekunden)", "Schwächetrank + Schleimblock = Trank der Müdigkeit-2 (15 Sekunden)"]
 
 [brewing.hunger]
-    name = "Abgefüllter Hunger"
-    description = "Nähre die Unersättlichen!"
-    lore1 = "Seltsamer Trank + Verrottetes Fleisch = Trank des Hungers (30 Sekunden)"
-    lore2 = "Schwächetrank + Verrottetes Fleisch = Trank des Hungers-3 (15 Sekunden)"
-    lore = ["Seltsamer Trank + Verrottetes Fleisch = Trank des Hungers (30 Sekunden)", "Schwächetrank + Verrottetes Fleisch = Trank des Hungers-3 (15 Sekunden)"]
+name = "Abgefüllter Hunger"
+description = "Nähre die Unersättlichen!"
+lore1 = "Seltsamer Trank + Verrottetes Fleisch = Trank des Hungers (30 Sekunden)"
+lore2 = "Schwächetrank + Verrottetes Fleisch = Trank des Hungers-3 (15 Sekunden)"
+lore = ["Seltsamer Trank + Verrottetes Fleisch = Trank des Hungers (30 Sekunden)", "Schwächetrank + Verrottetes Fleisch = Trank des Hungers-3 (15 Sekunden)"]
 
 [brewing.nausea]
-    name = "Abgefüllte Übelkeit"
-    description = "Du machst mich krank!"
-    lore1 = "Seltsamer Trank + Brauner Pilz = Trank der Übelkeit (16 Sekunden)"
-    lore2 = "Seltsamer Trank + Karmesinpilz = Trank der Übelkeit-2 (8 Sekunden)"
-    lore = ["Seltsamer Trank + Brauner Pilz = Trank der Übelkeit (16 Sekunden)", "Seltsamer Trank + Karmesinpilz = Trank der Übelkeit-2 (8 Sekunden)"]
+name = "Abgefüllte Übelkeit"
+description = "Du machst mich krank!"
+lore1 = "Seltsamer Trank + Brauner Pilz = Trank der Übelkeit (16 Sekunden)"
+lore2 = "Seltsamer Trank + Karmesinpilz = Trank der Übelkeit-2 (8 Sekunden)"
+lore = ["Seltsamer Trank + Brauner Pilz = Trank der Übelkeit (16 Sekunden)", "Seltsamer Trank + Karmesinpilz = Trank der Übelkeit-2 (8 Sekunden)"]
 
 [brewing.blindness]
-    name = "Abgefüllte Blindheit"
-    description = "Du bist ein schrecklicher Mensch..."
-    lore1 = "Seltsamer Trank + Tintenbeutel = Trank der Blindheit (30 Sekunden)"
-    lore2 = "Seltsamer Trank + Leuchtender Tintenbeutel = Trank der Blindheit-2 (15 Sekunden)"
-    lore = ["Seltsamer Trank + Tintenbeutel = Trank der Blindheit (30 Sekunden)", "Seltsamer Trank + Leuchtender Tintenbeutel = Trank der Blindheit-2 (15 Sekunden)"]
+name = "Abgefüllte Blindheit"
+description = "Du bist ein schrecklicher Mensch..."
+lore1 = "Seltsamer Trank + Tintenbeutel = Trank der Blindheit (30 Sekunden)"
+lore2 = "Seltsamer Trank + Leuchtender Tintenbeutel = Trank der Blindheit-2 (15 Sekunden)"
+lore = ["Seltsamer Trank + Tintenbeutel = Trank der Blindheit (30 Sekunden)", "Seltsamer Trank + Leuchtender Tintenbeutel = Trank der Blindheit-2 (15 Sekunden)"]
 
 [brewing.resistance]
-    name = "Abgefüllter Widerstand"
-    description = "Befestigung in Vollendung!"
-    lore1 = "Seltsamer Trank + Eisenbarren = Trank des Widerstands (60 Sekunden)"
-    lore2 = "Seltsamer Trank + Eisenblock = Trank des Widerstands-2 (30 Sekunden)"
-    lore = ["Seltsamer Trank + Eisenbarren = Trank des Widerstands (60 Sekunden)", "Seltsamer Trank + Eisenblock = Trank des Widerstands-2 (30 Sekunden)"]
+name = "Abgefüllter Widerstand"
+description = "Befestigung in Vollendung!"
+lore1 = "Seltsamer Trank + Eisenbarren = Trank des Widerstands (60 Sekunden)"
+lore2 = "Seltsamer Trank + Eisenblock = Trank des Widerstands-2 (30 Sekunden)"
+lore = ["Seltsamer Trank + Eisenbarren = Trank des Widerstands (60 Sekunden)", "Seltsamer Trank + Eisenblock = Trank des Widerstands-2 (30 Sekunden)"]
 
 [brewing.health_boost]
-    name = "Abgefülltes Leben"
-    description = "Wenn maximale Gesundheit nicht ausreicht..."
-    lore1 = "Trank der Heilung + Goldener Apfel = Trank der Gesundheitssteigerung (120 Sekunden)"
-    lore2 = "Trank der Heilung + Verzauberter Goldener Apfel = Trank der Gesundheitssteigerung-2 (120 Sekunden)"
-    lore = ["Trank der Heilung + Goldener Apfel = Trank der Gesundheitssteigerung (120 Sekunden)", "Trank der Heilung + Verzauberter Goldener Apfel = Trank der Gesundheitssteigerung-2 (120 Sekunden)"]
+name = "Abgefülltes Leben"
+description = "Wenn maximale Gesundheit nicht ausreicht..."
+lore1 = "Trank der Heilung + Goldener Apfel = Trank der Gesundheitssteigerung (120 Sekunden)"
+lore2 = "Trank der Heilung + Verzauberter Goldener Apfel = Trank der Gesundheitssteigerung-2 (120 Sekunden)"
+lore = ["Trank der Heilung + Goldener Apfel = Trank der Gesundheitssteigerung (120 Sekunden)", "Trank der Heilung + Verzauberter Goldener Apfel = Trank der Gesundheitssteigerung-2 (120 Sekunden)"]
 
 [brewing.decay]
-    name = "Abgefüllter Verfall"
-    description = "Wer hätte gedacht, dass Detritus so nützlich sein würde?"
-    lore1 = "Schwächetrank + Giftige Kartoffel = Trank des Wither (16 Sekunden)"
-    lore2 = "Schwächetrank + Karmesinwurzeln = Trank des Wither-2 (8 Sekunden)"
-    lore = ["Schwächetrank + Giftige Kartoffel = Trank des Wither (16 Sekunden)", "Schwächetrank + Karmesinwurzeln = Trank des Wither-2 (8 Sekunden)"]
+name = "Abgefüllter Verfall"
+description = "Wer hätte gedacht, dass Detritus so nützlich sein würde?"
+lore1 = "Schwächetrank + Giftige Kartoffel = Trank des Wither (16 Sekunden)"
+lore2 = "Schwächetrank + Karmesinwurzeln = Trank des Wither-2 (8 Sekunden)"
+lore = ["Schwächetrank + Giftige Kartoffel = Trank des Wither (16 Sekunden)", "Schwächetrank + Karmesinwurzeln = Trank des Wither-2 (8 Sekunden)"]
 
 [brewing.saturation]
-    name = "Abgefüllte Sättigung"
-    description = "Weißt du was... Ich bin nicht mal hungrig..."
-    lore1 = "Regenerationstrank + Gebackene Kartoffel = Trank der Sättigung"
-    lore2 = "Regenerationstrank + Heuballen = Trank der Sättigung-2"
-    lore = ["Regenerationstrank + Gebackene Kartoffel = Trank der Sättigung", "Regenerationstrank + Heuballen = Trank der Sättigung-2"]
+name = "Abgefüllte Sättigung"
+description = "Weißt du was... Ich bin nicht mal hungrig..."
+lore1 = "Regenerationstrank + Gebackene Kartoffel = Trank der Sättigung"
+lore2 = "Regenerationstrank + Heuballen = Trank der Sättigung-2"
+lore = ["Regenerationstrank + Gebackene Kartoffel = Trank der Sättigung", "Regenerationstrank + Heuballen = Trank der Sättigung-2"]
 
 # blocking
 [blocking]
 
 [blocking.chain_armorer]
-    name = "Ketten des Mephistopheles"
-    description = "Ermöglicht dir die Herstellung von Kettenrüstung"
-    lore1 = "Das Rezept ist dasselbe wie bei jeder anderen Rüstung, aber mit Eisennuggets"
-    lore = ["Das Rezept ist dasselbe wie bei jeder anderen Rüstung, aber mit Eisennuggets"]
+name = "Ketten des Mephistopheles"
+description = "Ermöglicht dir die Herstellung von Kettenrüstung"
+lore1 = "Das Rezept ist dasselbe wie bei jeder anderen Rüstung, aber mit Eisennuggets"
+lore = ["Das Rezept ist dasselbe wie bei jeder anderen Rüstung, aber mit Eisennuggets"]
 
 [blocking.horse_armorer]
-    name = "Herstellbare Pferderüstung"
-    description = "Ermöglicht dir die Herstellung von Pferderüstung"
-    lore1 = "Umgib einen Sattel mit dem gewünschten Material, um die Rüstung herzustellen"
-    lore = ["Umgib einen Sattel mit dem gewünschten Material, um die Rüstung herzustellen"]
+name = "Herstellbare Pferderüstung"
+description = "Ermöglicht dir die Herstellung von Pferderüstung"
+lore1 = "Umgib einen Sattel mit dem gewünschten Material, um die Rüstung herzustellen"
+lore = ["Umgib einen Sattel mit dem gewünschten Material, um die Rüstung herzustellen"]
 
 [blocking.saddle_crafter]
-    name = "Herstellbarer Sattel"
-    description = "Stelle einen Sattel aus Leder her"
-    lore1 = "Rezept: 5 Leder:"
-    lore = ["Rezept: 5 Leder:"]
+name = "Herstellbarer Sattel"
+description = "Stelle einen Sattel aus Leder her"
+lore1 = "Rezept: 5 Leder:"
+lore = ["Rezept: 5 Leder:"]
 
 [blocking.multi_armor]
-    name = "Multi-Rüstung"
-    description = "Binde Elytren an Rüstung"
-    lore1 = "Eine erstaunliche Fähigkeit zum Reisen."
-    lore2 = "Dynamisches Zusammenführen und Wechseln von Rüstung/Elytra im Flug!"
-    lore3 = "Zum Zusammenführen: Shift-Klick auf einen Gegenstand über einem anderen im Inventar."
-    lore4 = "Zum Trennen: Schleiche und wirf den Gegenstand, um ihn zu zerlegen."
-    lore5 = "Wenn deine Multi-Rüstung zerstört wird, verlierst du alle darin enthaltenen Gegenstände."
-    lore6 = "Ich brauche keine Rüstung, sie enttäuscht mich..."
-    lore = ["Eine erstaunliche Fähigkeit zum Reisen.", "Dynamisches Zusammenführen und Wechseln von Rüstung/Elytra im Flug!", "Zum Zusammenführen: Shift-Klick auf einen Gegenstand über einem anderen im Inventar.", "Zum Trennen: Schleiche und wirf den Gegenstand, um ihn zu zerlegen.", "Wenn deine Multi-Rüstung zerstört wird, verlierst du alle darin enthaltenen Gegenstände.", "Ich brauche keine Rüstung, sie enttäuscht mich..."]
+name = "Multi-Rüstung"
+description = "Binde Elytren an Rüstung"
+lore1 = "Eine erstaunliche Fähigkeit zum Reisen."
+lore2 = "Dynamisches Zusammenführen und Wechseln von Rüstung/Elytra im Flug!"
+lore3 = "Zum Zusammenführen: Shift-Klick auf einen Gegenstand über einem anderen im Inventar."
+lore4 = "Zum Trennen: Schleiche und wirf den Gegenstand, um ihn zu zerlegen."
+lore5 = "Wenn deine Multi-Rüstung zerstört wird, verlierst du alle darin enthaltenen Gegenstände."
+lore6 = "Ich brauche keine Rüstung, sie enttäuscht mich..."
+lore = ["Eine erstaunliche Fähigkeit zum Reisen.", "Dynamisches Zusammenführen und Wechseln von Rüstung/Elytra im Flug!", "Zum Zusammenführen: Shift-Klick auf einen Gegenstand über einem anderen im Inventar.", "Zum Trennen: Schleiche und wirf den Gegenstand, um ihn zu zerlegen.", "Wenn deine Multi-Rüstung zerstört wird, verlierst du alle darin enthaltenen Gegenstände.", "Ich brauche keine Rüstung, sie enttäuscht mich..."]
 
 # crafting
 [crafting]
 
 [crafting.deconstruction]
-    name = "Dekonstruktion"
-    description = "Zerlege Blöcke & Gegenstände in wiederverwertbare Grundkomponenten!"
-    lore1 = "Wirf einen beliebigen Gegenstand auf den Boden."
-    lore2 = "Dann schleiche und Rechtsklick mit einer Schere"
-    lore = ["Wirf einen beliebigen Gegenstand auf den Boden.", "Dann schleiche und Rechtsklick mit einer Schere"]
+name = "Dekonstruktion"
+description = "Zerlege Blöcke & Gegenstände in wiederverwertbare Grundkomponenten!"
+lore1 = "Wirf einen beliebigen Gegenstand auf den Boden."
+lore2 = "Dann schleiche und Rechtsklick mit einer Schere"
+lore = ["Wirf einen beliebigen Gegenstand auf den Boden.", "Dann schleiche und Rechtsklick mit einer Schere"]
 
 [crafting.xp]
-    name = "Handwerkserfahrung"
-    description = "Erhalte passiv EP beim Herstellen"
-    lore1 = "Erhalte EP beim Herstellen"
-    lore = ["Erhalte EP beim Herstellen"]
+name = "Handwerkserfahrung"
+description = "Erhalte passiv EP beim Herstellen"
+lore1 = "Erhalte EP beim Herstellen"
+lore = ["Erhalte EP beim Herstellen"]
 
 [crafting.reconstruction]
-    name = "Erzrekonstruktion"
-    description = "Stelle Erze aus ihren Grundkomponenten wieder her!"
-    lore1 = "8 der Drops und 1 Wirtsblock = 1 Erz (formlos)"
-    lore2 = "Drops müssen geschmolzen werden (falls zutreffend)"
-    lore3 = "Ausgenommen: Schrott, Quarz und Smaragde usw..."
-    lore4 = "Wirtsblock = Ummantelung. z.B.: Stein, Netherrack, Tiefenschiefer"
-    lore = ["8 der Drops und 1 Wirtsblock = 1 Erz (formlos)", "Drops müssen geschmolzen werden (falls zutreffend)", "Ausgenommen: Schrott, Quarz und Smaragde usw...", "Wirtsblock = Ummantelung. z.B.: Stein, Netherrack, Tiefenschiefer"]
+name = "Erzrekonstruktion"
+description = "Stelle Erze aus ihren Grundkomponenten wieder her!"
+lore1 = "8 der Drops und 1 Wirtsblock = 1 Erz (formlos)"
+lore2 = "Drops müssen geschmolzen werden (falls zutreffend)"
+lore3 = "Ausgenommen: Schrott, Quarz und Smaragde usw..."
+lore4 = "Wirtsblock = Ummantelung. z.B.: Stein, Netherrack, Tiefenschiefer"
+lore = ["8 der Drops und 1 Wirtsblock = 1 Erz (formlos)", "Drops müssen geschmolzen werden (falls zutreffend)", "Ausgenommen: Schrott, Quarz und Smaragde usw...", "Wirtsblock = Ummantelung. z.B.: Stein, Netherrack, Tiefenschiefer"]
 
 [crafting.leather]
-    name = "Herstellbares Leder"
-    description = "Stelle Leder aus verrottetem Fleisch her"
-    lore1 = "Wirf es (verrottetes Fleisch) einfach aufs Lagerfeuer!"
-    lore = ["Wirf es (verrottetes Fleisch) einfach aufs Lagerfeuer!"]
+name = "Herstellbares Leder"
+description = "Stelle Leder aus verrottetem Fleisch her"
+lore1 = "Wirf es (verrottetes Fleisch) einfach aufs Lagerfeuer!"
+lore = ["Wirf es (verrottetes Fleisch) einfach aufs Lagerfeuer!"]
 
 [crafting.backpacks]
-    name = "Boutiliers Rucksäcke!"
-    description = "Das bringt das Mojang-Bündel ins Spiel!"
-    lore1 = "Du musst im Überlebensmodus sein, um dies zu nutzen"
-    lore2 = "XLX : Leder, Leine, Leder"
-    lore3 = "XSX : Leder, Fass, Leder"
-    lore4 = "XCX : Leder, Truhe, Leder"
-    lore = ["Du musst im Überlebensmodus sein, um dies zu nutzen", "XLX : Leder, Leine, Leder", "XSX : Leder, Fass, Leder", "XCX : Leder, Truhe, Leder"]
+name = "Boutiliers Rucksäcke!"
+description = "Das bringt das Mojang-Bündel ins Spiel!"
+lore1 = "Du musst im Überlebensmodus sein, um dies zu nutzen"
+lore2 = "XLX : Leder, Leine, Leder"
+lore3 = "XSX : Leder, Fass, Leder"
+lore4 = "XCX : Leder, Truhe, Leder"
+lore = ["Du musst im Überlebensmodus sein, um dies zu nutzen", "XLX : Leder, Leine, Leder", "XSX : Leder, Fass, Leder", "XCX : Leder, Truhe, Leder"]
 
 [crafting.stations]
-    name = "Tragbare Tische!"
-    description = "Benutze einen Tisch direkt aus deiner Hand!"
-    lore2 = "ALLE GEGENSTÄNDE, DIE DU IM TISCH BEIM SCHLIEßEN VERGISST, SIND FÜR IMMER VERLOREN!"
-    lore3 = "Gültige Tische: Amboss, Werkbank, Schleifstein, Kartentisch, Steinsäge, Webstuhl"
-    lore = ["ALLE GEGENSTÄNDE, DIE DU IM TISCH BEIM SCHLIEßEN VERGISST, SIND FÜR IMMER VERLOREN!", "Gültige Tische: Amboss, Werkbank, Schleifstein, Kartentisch, Steinsäge, Webstuhl"]
+name = "Tragbare Tische!"
+description = "Benutze einen Tisch direkt aus deiner Hand!"
+lore2 = "ALLE GEGENSTÄNDE, DIE DU IM TISCH BEIM SCHLIEßEN VERGISST, SIND FÜR IMMER VERLOREN!"
+lore3 = "Gültige Tische: Amboss, Werkbank, Schleifstein, Kartentisch, Steinsäge, Webstuhl"
+lore = ["ALLE GEGENSTÄNDE, DIE DU IM TISCH BEIM SCHLIEßEN VERGISST, SIND FÜR IMMER VERLOREN!", "Gültige Tische: Amboss, Werkbank, Schleifstein, Kartentisch, Steinsäge, Webstuhl"]
 
 [crafting.skulls]
-    name = "Herstellbare Schädel!"
-    description = "Mit Materialien kannst du Mob-Schädel herstellen!"
-    lore1 = "Umgib einen Knochenblock mit Folgendem, um einen Schädel zu erhalten:"
-    lore2 = "Zombie: Verrottetes Fleisch"
-    lore3 = "Skelett: Knochen"
-    lore4 = "Creeper: Schwarzpulver"
-    lore5 = "Wither: Netherziegel"
-    lore6 = "Drache: Drachenatem"
-    lore = ["Umgib einen Knochenblock mit Folgendem, um einen Schädel zu erhalten:", "Zombie: Verrottetes Fleisch", "Skelett: Knochen", "Creeper: Schwarzpulver", "Wither: Netherziegel", "Drache: Drachenatem"]
+name = "Herstellbare Schädel!"
+description = "Mit Materialien kannst du Mob-Schädel herstellen!"
+lore1 = "Umgib einen Knochenblock mit Folgendem, um einen Schädel zu erhalten:"
+lore2 = "Zombie: Verrottetes Fleisch"
+lore3 = "Skelett: Knochen"
+lore4 = "Creeper: Schwarzpulver"
+lore5 = "Wither: Netherziegel"
+lore6 = "Drache: Drachenatem"
+lore = ["Umgib einen Knochenblock mit Folgendem, um einen Schädel zu erhalten:", "Zombie: Verrottetes Fleisch", "Skelett: Knochen", "Creeper: Schwarzpulver", "Wither: Netherziegel", "Drache: Drachenatem"]
 
 # chronos
 [chronos]
 
 [chronos.time_in_a_bottle]
-    name = "Zeit in einer Flasche"
-    description = "Trage eine Zeitflasche, die Zeit speichert, und verbrauche sie, um zeitbasierte Blöcke, Gewächse und altersabhängige Wesen wie Tierbabys zu beschleunigen. Rezept (Formlos): Schnelligkeitstrank + Uhr + Glasflasche."
-    lore1 = "Gespeicherte Sekunden pro Tick aufgeladen"
-    lore2 = "Zeitbeschleunigung pro gespeicherter Sekunde"
-    lore3 = "Rezept (Formlos): Schnelligkeitstrank + Uhr + Glasflasche"
-    lore = ["Gespeicherte Sekunden pro Tick aufgeladen", "Zeitbeschleunigung pro gespeicherter Sekunde", "Rezept (Formlos): Schnelligkeitstrank + Uhr + Glasflasche"]
+name = "Zeit in einer Flasche"
+description = "Trage eine Zeitflasche, die Zeit speichert, und verbrauche sie, um zeitbasierte Blöcke, Gewächse und altersabhängige Wesen wie Tierbabys zu beschleunigen. Rezept (Formlos): Schnelligkeitstrank + Uhr + Glasflasche."
+lore1 = "Gespeicherte Sekunden pro Tick aufgeladen"
+lore2 = "Zeitbeschleunigung pro gespeicherter Sekunde"
+lore3 = "Rezept (Formlos): Schnelligkeitstrank + Uhr + Glasflasche"
+lore = ["Gespeicherte Sekunden pro Tick aufgeladen", "Zeitbeschleunigung pro gespeicherter Sekunde", "Rezept (Formlos): Schnelligkeitstrank + Uhr + Glasflasche"]
 
 [chronos.aberrant_touch]
-    name = "Abweichende Berührung"
-    description = "Nahkampfangriffe verursachen stapelbare Langsamkeit auf Kosten von Hunger, mit strikten PvP-Grenzen, und verankern Ziele bei 5 Stapeln."
-    lore1 = "Nahkampfangriffe verursachen stapelbare Langsamkeit"
-    lore2 = "PvE-Langsamkeitsdauer-Obergrenze"
-    lore3 = "PvP-Langsamkeitsverstärker-Obergrenze"
-    lore = ["Nahkampfangriffe verursachen stapelbare Langsamkeit", "PvE-Langsamkeitsdauer-Obergrenze", "PvP-Langsamkeitsverstärker-Obergrenze"]
+name = "Abweichende Berührung"
+description = "Nahkampfangriffe verursachen stapelbare Langsamkeit auf Kosten von Hunger, mit strikten PvP-Grenzen, und verankern Ziele bei 5 Stapeln."
+lore1 = "Nahkampfangriffe verursachen stapelbare Langsamkeit"
+lore2 = "PvE-Langsamkeitsdauer-Obergrenze"
+lore3 = "PvP-Langsamkeitsverstärker-Obergrenze"
+lore = ["Nahkampfangriffe verursachen stapelbare Langsamkeit", "PvE-Langsamkeitsdauer-Obergrenze", "PvP-Langsamkeitsverstärker-Obergrenze"]
 
 [chronos.instant_recall]
-    name = "Sofortige Rückkehr"
-    description = "Links- oder Rechtsklick mit einer Uhr in der Hand, um zu einem kürzlichen Zeitpunkt zurückzuspulen, mit wiederhergestellter Gesundheit und Sättigung."
-    lore1 = "Rückspuldauer"
-    lore2 = "Abklingzeit"
-    lore3 = "Kein Inventar-Rollback"
-    lore = ["Rückspuldauer", "Abklingzeit", "Kein Inventar-Rollback"]
+name = "Sofortige Rückkehr"
+description = "Links- oder Rechtsklick mit einer Uhr in der Hand, um zu einem kürzlichen Zeitpunkt zurückzuspulen, mit wiederhergestellter Gesundheit und Sättigung."
+lore1 = "Rückspuldauer"
+lore2 = "Abklingzeit"
+lore3 = "Kein Inventar-Rollback"
+lore = ["Rückspuldauer", "Abklingzeit", "Kein Inventar-Rollback"]
 
 [chronos.time_bomb]
-    name = "Zeitbombe"
-    description = "Wirf eine hergestellte Chronobombe, die ein Zeitfeld erzeugt, Wesen verlangsamt und Geschosse einfriert."
-    lore1 = "Zeitfeld-Radius"
-    lore2 = "Zeitfeld-Dauer"
-    lore3 = "Bomben-Abklingzeit"
-    lore4 = "Rezept (Formlos): Uhr + Schneeball + Diamant + Sand"
-    lore = ["Zeitfeld-Radius", "Zeitfeld-Dauer", "Bomben-Abklingzeit", "Rezept (Formlos): Uhr + Schneeball + Diamant + Sand"]
+name = "Zeitbombe"
+description = "Wirf eine hergestellte Chronobombe, die ein Zeitfeld erzeugt, Wesen verlangsamt und Geschosse einfriert."
+lore1 = "Zeitfeld-Radius"
+lore2 = "Zeitfeld-Dauer"
+lore3 = "Bomben-Abklingzeit"
+lore4 = "Rezept (Formlos): Uhr + Schneeball + Diamant + Sand"
+lore = ["Zeitfeld-Radius", "Zeitfeld-Dauer", "Bomben-Abklingzeit", "Rezept (Formlos): Uhr + Schneeball + Diamant + Sand"]
 
 # discovery
 [discovery]
 
 [discovery.armor]
-    name = "Weltrüstung"
-    description = "Passive Rüstung abhängig von der Härte nahegelegener Blöcke."
-    lore1 = "Passive Rüstung"
-    lore2 = "Basiert auf der Härte nahegelegener Blöcke"
-    lore3 = "Rüstungsstärke:"
-    lore = ["Passive Rüstung", "Basiert auf der Härte nahegelegener Blöcke", "Rüstungsstärke:"]
+name = "Weltrüstung"
+description = "Passive Rüstung abhängig von der Härte nahegelegener Blöcke."
+lore1 = "Passive Rüstung"
+lore2 = "Basiert auf der Härte nahegelegener Blöcke"
+lore3 = "Rüstungsstärke:"
+lore = ["Passive Rüstung", "Basiert auf der Härte nahegelegener Blöcke", "Rüstungsstärke:"]
 
 [discovery.unity]
-    name = "Experimentelle Einheit"
-    description = "Erfahrungskugeln sammeln fügt zufälligen Fähigkeiten EP hinzu."
-    lore1 = "EP "
-    lore2 = "Pro Kugel"
-    lore = ["EP ", "Pro Kugel"]
+name = "Experimentelle Einheit"
+description = "Erfahrungskugeln sammeln fügt zufälligen Fähigkeiten EP hinzu."
+lore1 = "EP "
+lore2 = "Pro Kugel"
+lore = ["EP ", "Pro Kugel"]
 
 [discovery.resist]
-    name = "Experimenteller Widerstand"
-    description = "Verbrauche Erfahrung, um Schaden abzudämpfen, nur wenn ein Treffer dich unter 5 Herzen fallen lassen oder töten würde."
-    lore0 = "Löst nur bei kritischer Gesundheit (<= 5 Herzen) einmal alle 15 Sekunden aus"
-    lore1 = " Reduzierter Schaden"
-    lore2 = "Erfahrung verbraucht"
-    lore = ["Löst nur bei kritischer Gesundheit (<= 5 Herzen) einmal alle 15 Sekunden aus", " Reduzierter Schaden", "Erfahrung verbraucht"]
+name = "Experimenteller Widerstand"
+description = "Verbrauche Erfahrung, um Schaden abzudämpfen, nur wenn ein Treffer dich unter 5 Herzen fallen lassen oder töten würde."
+lore0 = "Löst nur bei kritischer Gesundheit (<= 5 Herzen) einmal alle 15 Sekunden aus"
+lore1 = " Reduzierter Schaden"
+lore2 = "Erfahrung verbraucht"
+lore = ["Löst nur bei kritischer Gesundheit (<= 5 Herzen) einmal alle 15 Sekunden aus", " Reduzierter Schaden", "Erfahrung verbraucht"]
 
 [discovery.villager]
-    name = "Dorfbewohner-Anziehung"
-    description = "Ermöglicht dir bessere Handelsangebote bei Dorfbewohnern!"
-    lore1 = "Verbraucht EP pro Interaktion mit Dorfbewohnern"
-    lore2 = "Chance pro Interaktion, EP zu verbrauchen und Handelsangebote zu verbessern"
-    lore3 = "Erforderlicher EP-Verbrauch pro Interaktion"
-    lore = ["Verbraucht EP pro Interaktion mit Dorfbewohnern", "Chance pro Interaktion, EP zu verbrauchen und Handelsangebote zu verbessern", "Erforderlicher EP-Verbrauch pro Interaktion"]
+name = "Dorfbewohner-Anziehung"
+description = "Ermöglicht dir bessere Handelsangebote bei Dorfbewohnern!"
+lore1 = "Verbraucht EP pro Interaktion mit Dorfbewohnern"
+lore2 = "Chance pro Interaktion, EP zu verbrauchen und Handelsangebote zu verbessern"
+lore3 = "Erforderlicher EP-Verbrauch pro Interaktion"
+lore = ["Verbraucht EP pro Interaktion mit Dorfbewohnern", "Chance pro Interaktion, EP zu verbrauchen und Handelsangebote zu verbessern", "Erforderlicher EP-Verbrauch pro Interaktion"]
 
 # enchanting
 [enchanting]
 
 [enchanting.lapis_return]
-    name = "Lapislazuli-Rückgabe"
-    description = "Auf Kosten von 1 Stufe mehr EP, mit einer Chance, kostenlos Lapislazuli zurückzubekommen"
-    lore1 = "Für jede Stufe erhöhen sich die Verzauberungskosten um 1, können aber bis zu 3 Lapislazuli zurückgeben"
-    lore = ["Für jede Stufe erhöhen sich die Verzauberungskosten um 1, können aber bis zu 3 Lapislazuli zurückgeben"]
+name = "Lapislazuli-Rückgabe"
+description = "Auf Kosten von 1 Stufe mehr EP, mit einer Chance, kostenlos Lapislazuli zurückzubekommen"
+lore1 = "Für jede Stufe erhöhen sich die Verzauberungskosten um 1, können aber bis zu 3 Lapislazuli zurückgeben"
+lore = ["Für jede Stufe erhöhen sich die Verzauberungskosten um 1, können aber bis zu 3 Lapislazuli zurückgeben"]
 
 [enchanting.quick_enchant]
-    name = "Schnellklick-Verzauberung"
-    description = "Verzaubere Gegenstände, indem du Verzauberungsbücher direkt darauf klickst."
-    lore1 = "Maximale kombinierte Stufen"
-    lore2 = "Kann einen Gegenstand nicht mit mehr als "
-    lore3 = "Energie verzaubern"
-    lore = ["Maximale kombinierte Stufen", "Kann einen Gegenstand nicht mit mehr als ", "Energie verzaubern"]
+name = "Schnellklick-Verzauberung"
+description = "Verzaubere Gegenstände, indem du Verzauberungsbücher direkt darauf klickst."
+lore1 = "Maximale kombinierte Stufen"
+lore2 = "Kann einen Gegenstand nicht mit mehr als "
+lore3 = "Energie verzaubern"
+lore = ["Maximale kombinierte Stufen", "Kann einen Gegenstand nicht mit mehr als ", "Energie verzaubern"]
 
 [enchanting.return]
-    name = "EP-Rückgabe"
-    description = "Verzauberungs-EP werden dir beim Verzaubern eines Gegenstands zurückgegeben."
-    lore1 = "Ausgegebene Erfahrung hat eine Chance, beim Verzaubern erstattet zu werden"
-    lore2 = "Erfahrung pro Verzauberung"
-    lore = ["Ausgegebene Erfahrung hat eine Chance, beim Verzaubern erstattet zu werden", "Erfahrung pro Verzauberung"]
+name = "EP-Rückgabe"
+description = "Verzauberungs-EP werden dir beim Verzaubern eines Gegenstands zurückgegeben."
+lore1 = "Ausgegebene Erfahrung hat eine Chance, beim Verzaubern erstattet zu werden"
+lore2 = "Erfahrung pro Verzauberung"
+lore = ["Ausgegebene Erfahrung hat eine Chance, beim Verzaubern erstattet zu werden", "Erfahrung pro Verzauberung"]
 
 # excavation
 [excavation]
 
 [excavation.haste]
-    name = "Eiliger Ausgräber"
-    description = "Beschleunigt den Grabungsprozess mit EILE!"
-    lore1 = "Erhalte Eile beim Graben"
-    lore2 = "x Stufen Eile, wenn du anfängst, IRGENDWELCHE Blöcke abzubauen."
-    lore = ["Erhalte Eile beim Graben", "x Stufen Eile, wenn du anfängst, IRGENDWELCHE Blöcke abzubauen."]
+name = "Eiliger Ausgräber"
+description = "Beschleunigt den Grabungsprozess mit EILE!"
+lore1 = "Erhalte Eile beim Graben"
+lore2 = "x Stufen Eile, wenn du anfängst, IRGENDWELCHE Blöcke abzubauen."
+lore = ["Erhalte Eile beim Graben", "x Stufen Eile, wenn du anfängst, IRGENDWELCHE Blöcke abzubauen."]
 
 [excavation.spelunker]
-    name = "Supersehender Höhlenforscher!"
-    description = "Sieh Erze mit deinen Augen, aber durch den Boden!"
-    lore1 = "Erz in der Nebenhand, Leuchtbeeren in der Haupthand, und Schleichen!"
-    lore2 = "Blockreichweite: "
-    lore3 = "Verbraucht eine Leuchtbeere bei Benutzung"
-    lore = ["Erz in der Nebenhand, Leuchtbeeren in der Haupthand, und Schleichen!", "Blockreichweite: ", "Verbraucht eine Leuchtbeere bei Benutzung"]
+name = "Supersehender Höhlenforscher!"
+description = "Sieh Erze mit deinen Augen, aber durch den Boden!"
+lore1 = "Erz in der Nebenhand, Leuchtbeeren in der Haupthand, und Schleichen!"
+lore2 = "Blockreichweite: "
+lore3 = "Verbraucht eine Leuchtbeere bei Benutzung"
+lore = ["Erz in der Nebenhand, Leuchtbeeren in der Haupthand, und Schleichen!", "Blockreichweite: ", "Verbraucht eine Leuchtbeere bei Benutzung"]
 
 [excavation.drop_to_inventory]
-    name = "Schaufel-Drop-ins-Inventar"
+name = "Schaufel-Drop-ins-Inventar"
 
 [excavation.omni_tool]
-    name = "OMNI - W.E.R.K."
-    description = "Tackles überdesigntes opulentes Taschenmesser"
-    lore1 = "Wahrscheinlich das Mächtigste von vielen: ermöglicht es dir,"
-    lore2 = "Werkzeuge dynamisch zusammenzuführen und nach Bedarf zu wechseln."
-    lore3 = "Zum Zusammenführen: Shift-Klick auf einen Gegenstand über einem anderen im Inventar."
-    lore4 = "Zum Trennen: Schleiche und wirf den Gegenstand, um ihn zu zerlegen."
-    lore5 = "Werkzeuge in diesem Taschenmesser können nicht zerbrechen, aber zerbrochene können nicht benutzt werden"
-    lore6 = "Zusammenführbare Gegenstände insgesamt."
-    lore7 = "Warum fünf oder sechs Werkzeuge, wenn auch eins reicht!"
-    lore = ["Wahrscheinlich das Mächtigste von vielen: ermöglicht es dir,", "Werkzeuge dynamisch zusammenzuführen und nach Bedarf zu wechseln.", "Zum Zusammenführen: Shift-Klick auf einen Gegenstand über einem anderen im Inventar.", "Zum Trennen: Schleiche und wirf den Gegenstand, um ihn zu zerlegen.", "Werkzeuge in diesem Taschenmesser können nicht zerbrechen, aber zerbrochene können nicht benutzt werden", "Zusammenführbare Gegenstände insgesamt.", "Warum fünf oder sechs Werkzeuge, wenn auch eins reicht!"]
+name = "OMNI - W.E.R.K."
+description = "Tackles überdesigntes opulentes Taschenmesser"
+lore1 = "Wahrscheinlich das Mächtigste von vielen: ermöglicht es dir,"
+lore2 = "Werkzeuge dynamisch zusammenzuführen und nach Bedarf zu wechseln."
+lore3 = "Zum Zusammenführen: Shift-Klick auf einen Gegenstand über einem anderen im Inventar."
+lore4 = "Zum Trennen: Schleiche und wirf den Gegenstand, um ihn zu zerlegen."
+lore5 = "Werkzeuge in diesem Taschenmesser können nicht zerbrechen, aber zerbrochene können nicht benutzt werden"
+lore6 = "Zusammenführbare Gegenstände insgesamt."
+lore7 = "Warum fünf oder sechs Werkzeuge, wenn auch eins reicht!"
+lore = ["Wahrscheinlich das Mächtigste von vielen: ermöglicht es dir,", "Werkzeuge dynamisch zusammenzuführen und nach Bedarf zu wechseln.", "Zum Zusammenführen: Shift-Klick auf einen Gegenstand über einem anderen im Inventar.", "Zum Trennen: Schleiche und wirf den Gegenstand, um ihn zu zerlegen.", "Werkzeuge in diesem Taschenmesser können nicht zerbrechen, aber zerbrochene können nicht benutzt werden", "Zusammenführbare Gegenstände insgesamt.", "Warum fünf oder sechs Werkzeuge, wenn auch eins reicht!"]
 
 # herbalism
 [herbalism]
 
 [herbalism.growth_aura]
-    name = "Wachstumsaura"
-    description = "Lasse die Natur um dich herum in einer Aura wachsen"
-    lore1 = "Block-Radius"
-    lore2 = "Stärke der Wachstumsaura"
-    lore3 = "Nahrungskosten"
-    lore = ["Block-Radius", "Stärke der Wachstumsaura", "Nahrungskosten"]
+name = "Wachstumsaura"
+description = "Lasse die Natur um dich herum in einer Aura wachsen"
+lore1 = "Block-Radius"
+lore2 = "Stärke der Wachstumsaura"
+lore3 = "Nahrungskosten"
+lore = ["Block-Radius", "Stärke der Wachstumsaura", "Nahrungskosten"]
 
 [herbalism.hippo]
-    name = "Raupe Nimmersatt"
-    description = "Nahrungsaufnahme gibt dir mehr Sättigung"
-    lore1 = "Nahrung) zusätzliche Sättigungspunkte beim Verzehr"
-    lore = ["Nahrung) zusätzliche Sättigungspunkte beim Verzehr"]
+name = "Raupe Nimmersatt"
+description = "Nahrungsaufnahme gibt dir mehr Sättigung"
+lore1 = "Nahrung) zusätzliche Sättigungspunkte beim Verzehr"
+lore = ["Nahrung) zusätzliche Sättigungspunkte beim Verzehr"]
 
 [herbalism.myconid]
-    name = "Myzel des Kräuterkundlers"
-    description = "Verleiht dir die Fähigkeit, Myzel herzustellen"
-    lore1 = "Jede Erde, ein brauner und ein roter Pilz ergeben Myzel."
-    lore = ["Jede Erde, ein brauner und ein roter Pilz ergeben Myzel."]
+name = "Myzel des Kräuterkundlers"
+description = "Verleiht dir die Fähigkeit, Myzel herzustellen"
+lore1 = "Jede Erde, ein brauner und ein roter Pilz ergeben Myzel."
+lore = ["Jede Erde, ein brauner und ein roter Pilz ergeben Myzel."]
 
 [herbalism.terralid]
-    name = "Terrain des Kräuterkundlers"
-    description = "Verleiht dir die Fähigkeit, Grasblöcke herzustellen"
-    lore1 = "Drei Samen über 3 Erde ergeben 3 Grasblöcke."
-    lore = ["Drei Samen über 3 Erde ergeben 3 Grasblöcke."]
+name = "Terrain des Kräuterkundlers"
+description = "Verleiht dir die Fähigkeit, Grasblöcke herzustellen"
+lore1 = "Drei Samen über 3 Erde ergeben 3 Grasblöcke."
+lore = ["Drei Samen über 3 Erde ergeben 3 Grasblöcke."]
 
 [herbalism.cobweb]
-    name = "Spinnennetzweber"
-    description = "Verleiht dir die Fähigkeit, Spinnweben in einer Werkbank herzustellen"
-    lore1 = "Neun Fäden ergeben ein Spinnennetz."
-    lore = ["Neun Fäden ergeben ein Spinnennetz."]
+name = "Spinnennetzweber"
+description = "Verleiht dir die Fähigkeit, Spinnweben in einer Werkbank herzustellen"
+lore1 = "Neun Fäden ergeben ein Spinnennetz."
+lore = ["Neun Fäden ergeben ein Spinnennetz."]
 
 [herbalism.mushroom_blocks]
-    name = "Pilzblockmacher"
-    description = "Verleiht dir die Fähigkeit, Pilzblöcke in einer Werkbank herzustellen"
-    lore1 = "Vier Pilze für einen Block, oder ein Block für einen Stiel."
-    lore = ["Vier Pilze für einen Block, oder ein Block für einen Stiel."]
+name = "Pilzblockmacher"
+description = "Verleiht dir die Fähigkeit, Pilzblöcke in einer Werkbank herzustellen"
+lore1 = "Vier Pilze für einen Block, oder ein Block für einen Stiel."
+lore = ["Vier Pilze für einen Block, oder ein Block für einen Stiel."]
 
 [herbalism.drop_to_inventory]
-    name = "Hacke-Drop-ins-Inventar"
+name = "Hacke-Drop-ins-Inventar"
 
 [herbalism.hungry_shield]
-    name = "Hungriges Schild"
-    description = "Nimm Schaden an deinem Hunger vor deiner Gesundheit."
-    lore1 = "Durch Hunger abgewehrt"
-    lore = ["Durch Hunger abgewehrt"]
+name = "Hungriges Schild"
+description = "Nimm Schaden an deinem Hunger vor deiner Gesundheit."
+lore1 = "Durch Hunger abgewehrt"
+lore = ["Durch Hunger abgewehrt"]
 
 [herbalism.luck]
-    name = "Glück des Kräuterkundlers"
-    description = "Wenn du Gras/Blumen zerbrichst, hast du eine Chance, einen zufälligen Gegenstand zu erhalten"
-    lore0 = "Blumen = Nahrung, und Gras = Samen"
-    lore1 = "Chance, einen Gegenstand aus zerbrochenen Blumen zu erhalten"
-    lore2 = "Chance, einen Gegenstand aus zerbrochenem Gras zu erhalten"
-    lore = ["Blumen = Nahrung, und Gras = Samen", "Chance, einen Gegenstand aus zerbrochenen Blumen zu erhalten", "Chance, einen Gegenstand aus zerbrochenem Gras zu erhalten"]
+name = "Glück des Kräuterkundlers"
+description = "Wenn du Gras/Blumen zerbrichst, hast du eine Chance, einen zufälligen Gegenstand zu erhalten"
+lore0 = "Blumen = Nahrung, und Gras = Samen"
+lore1 = "Chance, einen Gegenstand aus zerbrochenen Blumen zu erhalten"
+lore2 = "Chance, einen Gegenstand aus zerbrochenem Gras zu erhalten"
+lore = ["Blumen = Nahrung, und Gras = Samen", "Chance, einen Gegenstand aus zerbrochenen Blumen zu erhalten", "Chance, einen Gegenstand aus zerbrochenem Gras zu erhalten"]
 
 [herbalism.replant]
-    name = "Ernten & Neupflanzen"
-    description = "Rechtsklick auf eine Pflanze mit einer Hacke, um sie zu ernten und neu zu pflanzen."
-    lore1 = "Blöcke Neupflanz-Radius"
-    lore = ["Blöcke Neupflanz-Radius"]
+name = "Ernten & Neupflanzen"
+description = "Rechtsklick auf eine Pflanze mit einer Hacke, um sie zu ernten und neu zu pflanzen."
+lore1 = "Blöcke Neupflanz-Radius"
+lore = ["Blöcke Neupflanz-Radius"]
 
 # hunter
 [hunter]
 
 [hunter.adrenaline]
-    name = "Adrenalin"
-    description = "Verursache mehr Schaden, je weniger Gesundheit du hast (Nahkampf)"
-    lore1 = "Maximaler Schaden"
-    lore = ["Maximaler Schaden"]
+name = "Adrenalin"
+description = "Verursache mehr Schaden, je weniger Gesundheit du hast (Nahkampf)"
+lore1 = "Maximaler Schaden"
+lore = ["Maximaler Schaden"]
 
 [hunter.penalty]
-    name = ""
-    description = ""
-    lore1 = "Du erhältst Giftstapel, wenn dir der Hunger ausgeht"
-    lore = ["Du erhältst Giftstapel, wenn dir der Hunger ausgeht"]
+name = ""
+description = ""
+lore1 = "Du erhältst Giftstapel, wenn dir der Hunger ausgeht"
+lore = ["Du erhältst Giftstapel, wenn dir der Hunger ausgeht"]
 
 [hunter.drop_to_inventory]
-    name = "Gegenstände-Drop-ins-Inventar"
-    description = "Wenn du etwas tötest / einen Block mit einem Schwert zerstörst, werden die Drops in dein Inventar teleportiert"
-    lore1 = "Immer wenn ein Gegenstand von einem Mob/Block droppt, den du zerstörst, landet er in deinem Inventar."
-    lore = ["Immer wenn ein Gegenstand von einem Mob/Block droppt, den du zerstörst, landet er in deinem Inventar."]
+name = "Gegenstände-Drop-ins-Inventar"
+description = "Wenn du etwas tötest / einen Block mit einem Schwert zerstörst, werden die Drops in dein Inventar teleportiert"
+lore1 = "Immer wenn ein Gegenstand von einem Mob/Block droppt, den du zerstörst, landet er in deinem Inventar."
+lore = ["Immer wenn ein Gegenstand von einem Mob/Block droppt, den du zerstörst, landet er in deinem Inventar."]
 
 [hunter.invisibility]
-    name = "Verschwindender Schritt"
-    description = "Wenn du getroffen wirst, erhältst du Unsichtbarkeit auf Kosten von Hunger"
-    lore1 = "Erhalte passive Unsichtbarkeit bei Treffern"
-    lore2 = "x Unsichtbarkeitsstapel für 3 Sekunden bei Treffer"
-    lore3 = "x Stapelbarer Hunger"
-    lore4 = "Hungerstapel Dauer und Multiplikator."
-    lore5 = "Unsichtbarkeitsdauer"
-    lore = ["Erhalte passive Unsichtbarkeit bei Treffern", "x Unsichtbarkeitsstapel für 3 Sekunden bei Treffer", "x Stapelbarer Hunger", "Hungerstapel Dauer und Multiplikator.", "Unsichtbarkeitsdauer"]
+name = "Verschwindender Schritt"
+description = "Wenn du getroffen wirst, erhältst du Unsichtbarkeit auf Kosten von Hunger"
+lore1 = "Erhalte passive Unsichtbarkeit bei Treffern"
+lore2 = "x Unsichtbarkeitsstapel für 3 Sekunden bei Treffer"
+lore3 = "x Stapelbarer Hunger"
+lore4 = "Hungerstapel Dauer und Multiplikator."
+lore5 = "Unsichtbarkeitsdauer"
+lore = ["Erhalte passive Unsichtbarkeit bei Treffern", "x Unsichtbarkeitsstapel für 3 Sekunden bei Treffer", "x Stapelbarer Hunger", "Hungerstapel Dauer und Multiplikator.", "Unsichtbarkeitsdauer"]
 
 [hunter.jump_boost]
-    name = "Jägers Höhen"
-    description = "Wenn du getroffen wirst, erhältst du Sprungverstärkung auf Kosten von Hunger"
-    lore1 = "Erhalte passiven Sprungboost bei Treffern"
-    lore2 = "x Sprungverstärkungsstapel für 3 Sekunden bei Treffer"
-    lore3 = "x Stapelbarer Hunger"
-    lore4 = "Hungerstapel Dauer und Multiplikator."
-    lore5 = "Sprungverstärkung-Stapelmultiplikator, nicht Dauer."
-    lore = ["Erhalte passiven Sprungboost bei Treffern", "x Sprungverstärkungsstapel für 3 Sekunden bei Treffer", "x Stapelbarer Hunger", "Hungerstapel Dauer und Multiplikator.", "Sprungverstärkung-Stapelmultiplikator, nicht Dauer."]
+name = "Jägers Höhen"
+description = "Wenn du getroffen wirst, erhältst du Sprungverstärkung auf Kosten von Hunger"
+lore1 = "Erhalte passiven Sprungboost bei Treffern"
+lore2 = "x Sprungverstärkungsstapel für 3 Sekunden bei Treffer"
+lore3 = "x Stapelbarer Hunger"
+lore4 = "Hungerstapel Dauer und Multiplikator."
+lore5 = "Sprungverstärkung-Stapelmultiplikator, nicht Dauer."
+lore = ["Erhalte passiven Sprungboost bei Treffern", "x Sprungverstärkungsstapel für 3 Sekunden bei Treffer", "x Stapelbarer Hunger", "Hungerstapel Dauer und Multiplikator.", "Sprungverstärkung-Stapelmultiplikator, nicht Dauer."]
 
 [hunter.luck]
-    name = "Jägers Glück"
-    description = "Wenn du getroffen wirst, erhältst du Glück auf Kosten von Hunger"
-    lore1 = "Erhalte passives Glück bei Treffern"
-    lore2 = "x Glücksstapel für 3 Sekunden bei Treffer"
-    lore3 = "x Stapelbarer Hunger"
-    lore4 = "Hungerstapel Dauer und Multiplikator."
-    lore5 = "Glück-Stapelmultiplikator, nicht Dauer."
-    lore = ["Erhalte passives Glück bei Treffern", "x Glücksstapel für 3 Sekunden bei Treffer", "x Stapelbarer Hunger", "Hungerstapel Dauer und Multiplikator.", "Glück-Stapelmultiplikator, nicht Dauer."]
+name = "Jägers Glück"
+description = "Wenn du getroffen wirst, erhältst du Glück auf Kosten von Hunger"
+lore1 = "Erhalte passives Glück bei Treffern"
+lore2 = "x Glücksstapel für 3 Sekunden bei Treffer"
+lore3 = "x Stapelbarer Hunger"
+lore4 = "Hungerstapel Dauer und Multiplikator."
+lore5 = "Glück-Stapelmultiplikator, nicht Dauer."
+lore = ["Erhalte passives Glück bei Treffern", "x Glücksstapel für 3 Sekunden bei Treffer", "x Stapelbarer Hunger", "Hungerstapel Dauer und Multiplikator.", "Glück-Stapelmultiplikator, nicht Dauer."]
 
 [hunter.regen]
-    name = "Jägers Regeneration"
-    description = "Wenn du getroffen wirst, erhältst du Regeneration auf Kosten von Hunger"
-    lore1 = "Erhalte passive Regeneration bei Treffern"
-    lore2 = "x Regenerationsstapel für 3 Sekunden bei Treffer"
-    lore3 = "x Stapelbarer Hunger"
-    lore4 = "Hungerstapel Dauer und Multiplikator."
-    lore5 = "Regeneration-Stapelmultiplikator, nicht Dauer."
-    lore = ["Erhalte passive Regeneration bei Treffern", "x Regenerationsstapel für 3 Sekunden bei Treffer", "x Stapelbarer Hunger", "Hungerstapel Dauer und Multiplikator.", "Regeneration-Stapelmultiplikator, nicht Dauer."]
+name = "Jägers Regeneration"
+description = "Wenn du getroffen wirst, erhältst du Regeneration auf Kosten von Hunger"
+lore1 = "Erhalte passive Regeneration bei Treffern"
+lore2 = "x Regenerationsstapel für 3 Sekunden bei Treffer"
+lore3 = "x Stapelbarer Hunger"
+lore4 = "Hungerstapel Dauer und Multiplikator."
+lore5 = "Regeneration-Stapelmultiplikator, nicht Dauer."
+lore = ["Erhalte passive Regeneration bei Treffern", "x Regenerationsstapel für 3 Sekunden bei Treffer", "x Stapelbarer Hunger", "Hungerstapel Dauer und Multiplikator.", "Regeneration-Stapelmultiplikator, nicht Dauer."]
 
 [hunter.resistance]
-    name = "Jägers Widerstand"
-    description = "Wenn du getroffen wirst, erhältst du Widerstand auf Kosten von Hunger"
-    lore1 = "Erhalte passiven Widerstand bei Treffern"
-    lore2 = "x Widerstandsstapel für 3 Sekunden bei Treffer"
-    lore3 = "x Stapelbarer Hunger"
-    lore4 = "Hungerstapel Dauer und Multiplikator."
-    lore5 = "Widerstands-Stapelmultiplikator, nicht Dauer."
-    lore = ["Erhalte passiven Widerstand bei Treffern", "x Widerstandsstapel für 3 Sekunden bei Treffer", "x Stapelbarer Hunger", "Hungerstapel Dauer und Multiplikator.", "Widerstands-Stapelmultiplikator, nicht Dauer."]
+name = "Jägers Widerstand"
+description = "Wenn du getroffen wirst, erhältst du Widerstand auf Kosten von Hunger"
+lore1 = "Erhalte passiven Widerstand bei Treffern"
+lore2 = "x Widerstandsstapel für 3 Sekunden bei Treffer"
+lore3 = "x Stapelbarer Hunger"
+lore4 = "Hungerstapel Dauer und Multiplikator."
+lore5 = "Widerstands-Stapelmultiplikator, nicht Dauer."
+lore = ["Erhalte passiven Widerstand bei Treffern", "x Widerstandsstapel für 3 Sekunden bei Treffer", "x Stapelbarer Hunger", "Hungerstapel Dauer und Multiplikator.", "Widerstands-Stapelmultiplikator, nicht Dauer."]
 
 [hunter.speed]
-    name = "Jägers Geschwindigkeit"
-    description = "Wenn du getroffen wirst, erhältst du Geschwindigkeit auf Kosten von Hunger"
-    lore1 = "Erhalte passive Geschwindigkeit bei Treffern"
-    lore2 = "x Geschwindigkeitsstapel für 3 Sekunden bei Treffer"
-    lore3 = "x Stapelbarer Hunger"
-    lore4 = "Hungerstapel Dauer und Multiplikator."
-    lore5 = "Geschwindigkeit-Stapelmultiplikator, nicht Dauer."
-    lore = ["Erhalte passive Geschwindigkeit bei Treffern", "x Geschwindigkeitsstapel für 3 Sekunden bei Treffer", "x Stapelbarer Hunger", "Hungerstapel Dauer und Multiplikator.", "Geschwindigkeit-Stapelmultiplikator, nicht Dauer."]
+name = "Jägers Geschwindigkeit"
+description = "Wenn du getroffen wirst, erhältst du Geschwindigkeit auf Kosten von Hunger"
+lore1 = "Erhalte passive Geschwindigkeit bei Treffern"
+lore2 = "x Geschwindigkeitsstapel für 3 Sekunden bei Treffer"
+lore3 = "x Stapelbarer Hunger"
+lore4 = "Hungerstapel Dauer und Multiplikator."
+lore5 = "Geschwindigkeit-Stapelmultiplikator, nicht Dauer."
+lore = ["Erhalte passive Geschwindigkeit bei Treffern", "x Geschwindigkeitsstapel für 3 Sekunden bei Treffer", "x Stapelbarer Hunger", "Hungerstapel Dauer und Multiplikator.", "Geschwindigkeit-Stapelmultiplikator, nicht Dauer."]
 
 [hunter.strength]
-    name = "Jägers Stärke"
-    description = "Wenn du getroffen wirst, erhältst du Stärke auf Kosten von Hunger"
-    lore1 = "Erhalte passive Stärke bei Treffern"
-    lore2 = "x Stärkestapel für 3 Sekunden bei Treffer"
-    lore3 = "x Stapelbarer Hunger"
-    lore4 = "Hungerstapel Dauer und Multiplikator."
-    lore5 = "Stärke-Stapelmultiplikator, nicht Dauer."
-    lore = ["Erhalte passive Stärke bei Treffern", "x Stärkestapel für 3 Sekunden bei Treffer", "x Stapelbarer Hunger", "Hungerstapel Dauer und Multiplikator.", "Stärke-Stapelmultiplikator, nicht Dauer."]
+name = "Jägers Stärke"
+description = "Wenn du getroffen wirst, erhältst du Stärke auf Kosten von Hunger"
+lore1 = "Erhalte passive Stärke bei Treffern"
+lore2 = "x Stärkestapel für 3 Sekunden bei Treffer"
+lore3 = "x Stapelbarer Hunger"
+lore4 = "Hungerstapel Dauer und Multiplikator."
+lore5 = "Stärke-Stapelmultiplikator, nicht Dauer."
+lore = ["Erhalte passive Stärke bei Treffern", "x Stärkestapel für 3 Sekunden bei Treffer", "x Stapelbarer Hunger", "Hungerstapel Dauer und Multiplikator.", "Stärke-Stapelmultiplikator, nicht Dauer."]
 
 # nether
 [nether]
 
 [nether.skull_toss]
-    name = "Witherschädel-Wurf"
-    description1 = "Entfessle deinen inneren Wither, indem du"
-    description2 = "jemandes"
-    description3 = "Kopf benutzt."
-    lore1 = "Sekunden Abklingzeit zwischen Schädelwürfen."
-    lore2 = "Witherschädel verwenden: Wirf einen "
-    lore3 = "Witherschädel"
-    lore4 = "der beim Aufprall explodiert."
-    lore = ["Sekunden Abklingzeit zwischen Schädelwürfen.", "Witherschädel verwenden: Wirf einen ", "Witherschädel", "der beim Aufprall explodiert."]
+name = "Witherschädel-Wurf"
+description1 = "Entfessle deinen inneren Wither, indem du"
+description2 = "jemandes"
+description3 = "Kopf benutzt."
+lore1 = "Sekunden Abklingzeit zwischen Schädelwürfen."
+lore2 = "Witherschädel verwenden: Wirf einen "
+lore3 = "Witherschädel"
+lore4 = "der beim Aufprall explodiert."
+lore = ["Sekunden Abklingzeit zwischen Schädelwürfen.", "Witherschädel verwenden: Wirf einen ", "Witherschädel", "der beim Aufprall explodiert."]
 
 [nether.wither_resist]
-    name = "Wither-Resistenz"
-    description = "Widersteht dem Wither durch die Kraft des Netherit."
-    lore1 = "Chance, Wither zu negieren (pro Rüstungsteil)."
-    lore2 = "Passiv: Netherit-Rüstung hat eine Chance, das "
-    lore3 = "Withern zu negieren."
-    lore = ["Chance, Wither zu negieren (pro Rüstungsteil).", "Passiv: Netherit-Rüstung hat eine Chance, das ", "Withern zu negieren."]
+name = "Wither-Resistenz"
+description = "Widersteht dem Wither durch die Kraft des Netherit."
+lore1 = "Chance, Wither zu negieren (pro Rüstungsteil)."
+lore2 = "Passiv: Netherit-Rüstung hat eine Chance, das "
+lore3 = "Withern zu negieren."
+lore = ["Chance, Wither zu negieren (pro Rüstungsteil).", "Passiv: Netherit-Rüstung hat eine Chance, das ", "Withern zu negieren."]
 
 [nether.fire_resist]
-    name = "Feuerresistenz"
-    description = "Widersteht Feuer durch Härtung deiner Haut."
-    lore1 = "Chance, den Brenneffekt zu negieren!"
-    lore = ["Chance, den Brenneffekt zu negieren!"]
+name = "Feuerresistenz"
+description = "Widersteht Feuer durch Härtung deiner Haut."
+lore1 = "Chance, den Brenneffekt zu negieren!"
+lore = ["Chance, den Brenneffekt zu negieren!"]
 
 # pickaxe
 [pickaxe]
 
 [pickaxe.auto_smelt]
-    name = "Automatisches Schmelzen"
-    description = "Ermöglicht das Schmelzen von abgebauten Vanilla-Erzen"
-    lore1 = "Erze, die geschmolzen werden können, werden automatisch geschmolzen"
-    lore2 = "% Chance auf ein Extra"
-    lore = ["Erze, die geschmolzen werden können, werden automatisch geschmolzen", "% Chance auf ein Extra"]
+name = "Automatisches Schmelzen"
+description = "Ermöglicht das Schmelzen von abgebauten Vanilla-Erzen"
+lore1 = "Erze, die geschmolzen werden können, werden automatisch geschmolzen"
+lore2 = "% Chance auf ein Extra"
+lore = ["Erze, die geschmolzen werden können, werden automatisch geschmolzen", "% Chance auf ein Extra"]
 
 [pickaxe.chisel]
-    name = "Erzmeißel"
-    description = "Rechtsklick auf Erze, um mehr Erz herauszumeißeln, auf Kosten starker Haltbarkeitsabnutzung."
-    lore1 = "Chance auf Drop"
-    lore2 = "Werkzeugverschleiß"
-    lore = ["Chance auf Drop", "Werkzeugverschleiß"]
+name = "Erzmeißel"
+description = "Rechtsklick auf Erze, um mehr Erz herauszumeißeln, auf Kosten starker Haltbarkeitsabnutzung."
+lore1 = "Chance auf Drop"
+lore2 = "Werkzeugverschleiß"
+lore = ["Chance auf Drop", "Werkzeugverschleiß"]
 
 [pickaxe.drop_to_inventory]
-    name = "Spitzhacke-Drop-ins-Inventar"
-    description = "Wenn du einen Block zerbrichst, wird der Gegenstand in dein Inventar teleportiert"
-    lore1 = "Immer wenn ein Gegenstand von einem zerbrochenen Block droppt, landet er in deinem Inventar."
-    lore = ["Immer wenn ein Gegenstand von einem zerbrochenen Block droppt, landet er in deinem Inventar."]
+name = "Spitzhacke-Drop-ins-Inventar"
+description = "Wenn du einen Block zerbrichst, wird der Gegenstand in dein Inventar teleportiert"
+lore1 = "Immer wenn ein Gegenstand von einem zerbrochenen Block droppt, landet er in deinem Inventar."
+lore = ["Immer wenn ein Gegenstand von einem zerbrochenen Block droppt, landet er in deinem Inventar."]
 
 [pickaxe.silk_spawner]
-    name = "Spitzhacke Behutsamkeits-Spawner"
-    description = "Spawner droppen beim Abbauen"
-    lore1 = "Spawner können mit Behutsamkeit abgebaut werden."
-    lore2 = "Spawner können im Schleichen abgebaut werden."
-    lore = ["Spawner können mit Behutsamkeit abgebaut werden.", "Spawner können im Schleichen abgebaut werden."]
+name = "Spitzhacke Behutsamkeits-Spawner"
+description = "Spawner droppen beim Abbauen"
+lore1 = "Spawner können mit Behutsamkeit abgebaut werden."
+lore2 = "Spawner können im Schleichen abgebaut werden."
+lore = ["Spawner können mit Behutsamkeit abgebaut werden.", "Spawner können im Schleichen abgebaut werden."]
 
 [pickaxe.vein_miner]
-    name = "Aderabbau"
-    description = "Ermöglicht das Abbauen von Blöcken in einer Ader/einem Cluster von Vanilla-Erzen"
-    lore1 = "Schleiche und baue ERZE ab"
-    lore2 = "Reichweite des Aderabbaus"
-    lore3 = "Diese Fähigkeit fasst NICHT alle Drops zusammen!"
-    lore = ["Schleiche und baue ERZE ab", "Reichweite des Aderabbaus", "Diese Fähigkeit fasst NICHT alle Drops zusammen!"]
+name = "Aderabbau"
+description = "Ermöglicht das Abbauen von Blöcken in einer Ader/einem Cluster von Vanilla-Erzen"
+lore1 = "Schleiche und baue ERZE ab"
+lore2 = "Reichweite des Aderabbaus"
+lore3 = "Diese Fähigkeit fasst NICHT alle Drops zusammen!"
+lore = ["Schleiche und baue ERZE ab", "Reichweite des Aderabbaus", "Diese Fähigkeit fasst NICHT alle Drops zusammen!"]
 
 # ranged
 [ranged]
 
 [ranged.arrow_recovery]
-    name = "Pfeilbergung"
-    description = "Stelle Pfeile wieder her, nachdem du einen Feind getötet hast."
-    lore1 = "Chance, Pfeile bei Treffer/Tötung zurückzubekommen"
-    lore2 = "Chance: "
-    lore = ["Chance, Pfeile bei Treffer/Tötung zurückzubekommen", "Chance: "]
+name = "Pfeilbergung"
+description = "Stelle Pfeile wieder her, nachdem du einen Feind getötet hast."
+lore1 = "Chance, Pfeile bei Treffer/Tötung zurückzubekommen"
+lore2 = "Chance: "
+lore = ["Chance, Pfeile bei Treffer/Tötung zurückzubekommen", "Chance: "]
 
 [ranged.web_shot]
-    name = "Netzfalle"
-    description = "Umhülle dein Ziel mit Spinnweben, wenn du es triffst!"
-    lore1 = "8 Spinnweben um einen Schneeball, und werfen!"
-    lore2 = "Sekunden eines Käfigs, ungefähr."
-    lore = ["8 Spinnweben um einen Schneeball, und werfen!", "Sekunden eines Käfigs, ungefähr."]
+name = "Netzfalle"
+description = "Umhülle dein Ziel mit Spinnweben, wenn du es triffst!"
+lore1 = "8 Spinnweben um einen Schneeball, und werfen!"
+lore2 = "Sekunden eines Käfigs, ungefähr."
+lore = ["8 Spinnweben um einen Schneeball, und werfen!", "Sekunden eines Käfigs, ungefähr."]
 
 [ranged.force_shot]
-    name = "Kraftschuss"
-    description = "Schieße Geschosse weiter und schneller!"
-    advancementname = "Weitschuss"
-    advancementlore = "Lande einen Schuss aus über 30 Blöcken Entfernung!"
-    lore1 = "Geschossgeschwindigkeit"
-    lore = ["Geschossgeschwindigkeit"]
+name = "Kraftschuss"
+description = "Schieße Geschosse weiter und schneller!"
+advancementname = "Weitschuss"
+advancementlore = "Lande einen Schuss aus über 30 Blöcken Entfernung!"
+lore1 = "Geschossgeschwindigkeit"
+lore = ["Geschossgeschwindigkeit"]
 
 [ranged.lunge_shot]
-    name = "Ausfallschuss"
-    description = "Während du fällst, schleudern dich deine Pfeile in eine zufällige Richtung"
-    lore1 = "Zufällige Schubgeschwindigkeit"
-    lore = ["Zufällige Schubgeschwindigkeit"]
+name = "Ausfallschuss"
+description = "Während du fällst, schleudern dich deine Pfeile in eine zufällige Richtung"
+lore1 = "Zufällige Schubgeschwindigkeit"
+lore = ["Zufällige Schubgeschwindigkeit"]
 
 [ranged.arrow_piercing]
-    name = "Pfeildurchbohrung"
-    description = "Fügt Geschossen Durchschlagskraft hinzu! Schieße durch Dinge hindurch!"
-    lore1 = "Ziele durchbohren"
-    lore = ["Ziele durchbohren"]
+name = "Pfeildurchbohrung"
+description = "Fügt Geschossen Durchschlagskraft hinzu! Schieße durch Dinge hindurch!"
+lore1 = "Ziele durchbohren"
+lore = ["Ziele durchbohren"]
 
 # rift
 [rift]
 
 [rift.remote_access]
-    name = "Fernzugriff"
-    description = "Greife in die Leere und gelange zu einem markierten Behälter."
-    lore1 = "Enderperle + Kompass = Reliquien-Portschlüssel"
-    lore2 = "Dieser Gegenstand ermöglicht dir den Fernzugriff auf Behälter"
-    lore3 = "Nach der Herstellung den Gegenstand ansehen für die Nutzung"
-    notcontainer = "Das ist kein Behälter"
-    lore = ["Enderperle + Kompass = Reliquien-Portschlüssel", "Dieser Gegenstand ermöglicht dir den Fernzugriff auf Behälter", "Nach der Herstellung den Gegenstand ansehen für die Nutzung"]
+name = "Fernzugriff"
+description = "Greife in die Leere und gelange zu einem markierten Behälter."
+lore1 = "Enderperle + Kompass = Reliquien-Portschlüssel"
+lore2 = "Dieser Gegenstand ermöglicht dir den Fernzugriff auf Behälter"
+lore3 = "Nach der Herstellung den Gegenstand ansehen für die Nutzung"
+notcontainer = "Das ist kein Behälter"
+lore = ["Enderperle + Kompass = Reliquien-Portschlüssel", "Dieser Gegenstand ermöglicht dir den Fernzugriff auf Behälter", "Nach der Herstellung den Gegenstand ansehen für die Nutzung"]
 
 [rift.blink]
-    name = "Riss-Blinzeln"
-    description = "Kurze sofortige Teleportation, nur ein Wimpernschlag entfernt!"
-    lore1 = "Blöcke beim Blinzeln (2x vertikal)"
-    lore2 = "Beim Sprinten: Doppeltippe Springen, um zu "
-    lore3 = "Blinzeln"
-    lore = ["Blöcke beim Blinzeln (2x vertikal)", "Beim Sprinten: Doppeltippe Springen, um zu ", "Blinzeln"]
+name = "Riss-Blinzeln"
+description = "Kurze sofortige Teleportation, nur ein Wimpernschlag entfernt!"
+lore1 = "Blöcke beim Blinzeln (2x vertikal)"
+lore2 = "Beim Sprinten: Doppeltippe Springen, um zu "
+lore3 = "Blinzeln"
+lore = ["Blöcke beim Blinzeln (2x vertikal)", "Beim Sprinten: Doppeltippe Springen, um zu ", "Blinzeln"]
 
 [rift.chest]
-    name = "Einfache Endertruhe"
-    description = "Öffne eine Endertruhe per Linksklick in deiner Hand."
-    lore1 = "Klicke auf eine Endertruhe in deiner Hand, um sie zu öffnen (nicht platzieren)"
-    lore = ["Klicke auf eine Endertruhe in deiner Hand, um sie zu öffnen (nicht platzieren)"]
+name = "Einfache Endertruhe"
+description = "Öffne eine Endertruhe per Linksklick in deiner Hand."
+lore1 = "Klicke auf eine Endertruhe in deiner Hand, um sie zu öffnen (nicht platzieren)"
+lore = ["Klicke auf eine Endertruhe in deiner Hand, um sie zu öffnen (nicht platzieren)"]
 
 [rift.descent]
-    name = "Anti-Levitation"
-    description = "Bist du es leid, in der Luft festzusitzen? Das ist die Fähigkeit für dich!"
-    lore1 = "Einfach schleichen zum Absteigen, und du fällst langsamer als normal!"
-    lore2 = "Abklingzeit:"
-    lore = ["Einfach schleichen zum Absteigen, und du fällst langsamer als normal!", "Abklingzeit:"]
+name = "Anti-Levitation"
+description = "Bist du es leid, in der Luft festzusitzen? Das ist die Fähigkeit für dich!"
+lore1 = "Einfach schleichen zum Absteigen, und du fällst langsamer als normal!"
+lore2 = "Abklingzeit:"
+lore = ["Einfach schleichen zum Absteigen, und du fällst langsamer als normal!", "Abklingzeit:"]
 
 [rift.gate]
-    name = "Risstor"
-    description = "Teleportiere dich zu einem markierten Ort."
-    lore1 = "HERSTELLUNG: Smaragd + Amethystsplitter + Enderperle"
-    lore2 = "Vor Gebrauch lesen!"
-    lore3 = "5s Verzögerung, "
-    lore4 = "du kannst während dieser Animation sterben"
-    lore = ["HERSTELLUNG: Smaragd + Amethystsplitter + Enderperle", "Vor Gebrauch lesen!", "5s Verzögerung, ", "du kannst während dieser Animation sterben"]
+name = "Risstor"
+description = "Teleportiere dich zu einem markierten Ort."
+lore1 = "HERSTELLUNG: Smaragd + Amethystsplitter + Enderperle"
+lore2 = "Vor Gebrauch lesen!"
+lore3 = "5s Verzögerung, "
+lore4 = "du kannst während dieser Animation sterben"
+lore = ["HERSTELLUNG: Smaragd + Amethystsplitter + Enderperle", "Vor Gebrauch lesen!", "5s Verzögerung, ", "du kannst während dieser Animation sterben"]
 
 [rift.resist]
-    name = "Riss-Widerstand"
-    description = "Erhalte Resistenz bei der Verwendung von Ender-Gegenständen & Fähigkeiten"
-    lore1 = "+ Passiv: Bietet Widerstand, wenn du Riss-Fähigkeiten oder Ender-Gegenstände verwendest"
-    lore2 = "NICHT die tragbare Endertruhe, nur Dinge, die du verbrauchen kannst"
-    lore = ["+ Passiv: Bietet Widerstand, wenn du Riss-Fähigkeiten oder Ender-Gegenstände verwendest", "NICHT die tragbare Endertruhe, nur Dinge, die du verbrauchen kannst"]
+name = "Riss-Widerstand"
+description = "Erhalte Resistenz bei der Verwendung von Ender-Gegenständen & Fähigkeiten"
+lore1 = "+ Passiv: Bietet Widerstand, wenn du Riss-Fähigkeiten oder Ender-Gegenstände verwendest"
+lore2 = "NICHT die tragbare Endertruhe, nur Dinge, die du verbrauchen kannst"
+lore = ["+ Passiv: Bietet Widerstand, wenn du Riss-Fähigkeiten oder Ender-Gegenstände verwendest", "NICHT die tragbare Endertruhe, nur Dinge, die du verbrauchen kannst"]
 
 [rift.visage]
-    name = "Riss-Antlitz"
-    description = "Verhindert, dass Endermen aggressiv werden, wenn du Enderperlen im Inventar hast."
-    lore1 = "Endermen werden nicht aggressiv, wenn du Enderperlen in deinem Inventar hast."
-    lore = ["Endermen werden nicht aggressiv, wenn du Enderperlen in deinem Inventar hast."]
+name = "Riss-Antlitz"
+description = "Verhindert, dass Endermen aggressiv werden, wenn du Enderperlen im Inventar hast."
+lore1 = "Endermen werden nicht aggressiv, wenn du Enderperlen in deinem Inventar hast."
+lore = ["Endermen werden nicht aggressiv, wenn du Enderperlen in deinem Inventar hast."]
 
 # seaborn
 [seaborn]
 
 [seaborn.oxygen]
-    name = "Organischer Sauerstofftank"
-    description = "Halte mehr Sauerstoff in deinen winzigen Lungen!"
-    lore1 = "Erhöhung der Sauerstoffkapazität"
-    lore = ["Erhöhung der Sauerstoffkapazität"]
+name = "Organischer Sauerstofftank"
+description = "Halte mehr Sauerstoff in deinen winzigen Lungen!"
+lore1 = "Erhöhung der Sauerstoffkapazität"
+lore = ["Erhöhung der Sauerstoffkapazität"]
 
 [seaborn.fishers_fantasy]
-    name = "Fischers Fantasie"
-    description = "Verdiene mehr EP beim Fischen und fange mehr Fische!"
-    lore1 = "Für jede Stufe gibt es eine Chance, mehr EP und Fisch zu erhalten!"
-    lore = ["Für jede Stufe gibt es eine Chance, mehr EP und Fisch zu erhalten!"]
+name = "Fischers Fantasie"
+description = "Verdiene mehr EP beim Fischen und fange mehr Fische!"
+lore1 = "Für jede Stufe gibt es eine Chance, mehr EP und Fisch zu erhalten!"
+lore = ["Für jede Stufe gibt es eine Chance, mehr EP und Fisch zu erhalten!"]
 
 [seaborn.haste]
-    name = "Schildkröten-Bergbau"
-    description = "Erhalte Eile beim Abbauen unter Wasser!"
-    lore1 = "Eile 3 wird unter Wasser beim Abbauen angewendet (stapelt sich mit Wasseraffinität), nachdem der Wasseratmungseffekt nachlässt!"
-    lore = ["Eile 3 wird unter Wasser beim Abbauen angewendet (stapelt sich mit Wasseraffinität), nachdem der Wasseratmungseffekt nachlässt!"]
+name = "Schildkröten-Bergbau"
+description = "Erhalte Eile beim Abbauen unter Wasser!"
+lore1 = "Eile 3 wird unter Wasser beim Abbauen angewendet (stapelt sich mit Wasseraffinität), nachdem der Wasseratmungseffekt nachlässt!"
+lore = ["Eile 3 wird unter Wasser beim Abbauen angewendet (stapelt sich mit Wasseraffinität), nachdem der Wasseratmungseffekt nachlässt!"]
 
 [seaborn.night_vision]
-    name = "Schildkröten-Sicht"
-    description = "Erhalte Nachtsicht, während du unter Wasser bist"
-    lore1 = "Erhalte einfach Nachtsicht unter Wasser, nachdem dein Wasseratmungseffekt nachlässt!"
-    lore = ["Erhalte einfach Nachtsicht unter Wasser, nachdem dein Wasseratmungseffekt nachlässt!"]
+name = "Schildkröten-Sicht"
+description = "Erhalte Nachtsicht, während du unter Wasser bist"
+lore1 = "Erhalte einfach Nachtsicht unter Wasser, nachdem dein Wasseratmungseffekt nachlässt!"
+lore = ["Erhalte einfach Nachtsicht unter Wasser, nachdem dein Wasseratmungseffekt nachlässt!"]
 
 [seaborn.dolphin_grace]
-    name = "Gunst des Delfins"
-    description = "Schwimme wie ein Delfin, ohne die Delfine"
-    lore1 = "+ Passiv: erhalte "
-    lore2 = "x Geschwindigkeit (Gunst des Delfins)"
-    lore3 = "Präzise deutsche Ingenieurskunst - Moment, das stimmt nicht... Nicht kompatibel mit Tiefenschreiter"
-    lore = ["+ Passiv: erhalte ", "x Geschwindigkeit (Gunst des Delfins)", "Präzise deutsche Ingenieurskunst - Moment, das stimmt nicht... Nicht kompatibel mit Tiefenschreiter"]
+name = "Gunst des Delfins"
+description = "Schwimme wie ein Delfin, ohne die Delfine"
+lore1 = "+ Passiv: erhalte "
+lore2 = "x Geschwindigkeit (Gunst des Delfins)"
+lore3 = "Präzise deutsche Ingenieurskunst - Moment, das stimmt nicht... Nicht kompatibel mit Tiefenschreiter"
+lore = ["+ Passiv: erhalte ", "x Geschwindigkeit (Gunst des Delfins)", "Präzise deutsche Ingenieurskunst - Moment, das stimmt nicht... Nicht kompatibel mit Tiefenschreiter"]
 
 # stealth
 [stealth]
 
 [stealth.ghost_armor]
-    name = "Geisterrüstung"
-    description = "Langsam aufbauende Rüstung, wenn kein Schaden erlitten wird, hält 1 Treffer"
-    lore1 = "Maximale Rüstung"
-    lore2 = "Geschwindigkeit"
-    lore = ["Maximale Rüstung", "Geschwindigkeit"]
+name = "Geisterrüstung"
+description = "Langsam aufbauende Rüstung, wenn kein Schaden erlitten wird, hält 1 Treffer"
+lore1 = "Maximale Rüstung"
+lore2 = "Geschwindigkeit"
+lore = ["Maximale Rüstung", "Geschwindigkeit"]
 
 [stealth.night_vision]
-    name = "Heimliche Sicht"
-    description = "Erhalte Nachtsicht beim Schleichen"
-    lore1 = "Erhalte einen Schub von "
-    lore2 = "Nachtsicht"
-    lore3 = "beim Schleichen"
-    lore = ["Erhalte einen Schub von ", "Nachtsicht", "beim Schleichen"]
+name = "Heimliche Sicht"
+description = "Erhalte Nachtsicht beim Schleichen"
+lore1 = "Erhalte einen Schub von "
+lore2 = "Nachtsicht"
+lore3 = "beim Schleichen"
+lore = ["Erhalte einen Schub von ", "Nachtsicht", "beim Schleichen"]
 
 [stealth.snatch]
-    name = "Gegenstand-Schnappen"
-    description = "Schnappe dir fallengelassene Gegenstände sofort beim Schleichen!"
-    lore1 = "Schnapp-Radius"
-    lore = ["Schnapp-Radius"]
+name = "Gegenstand-Schnappen"
+description = "Schnappe dir fallengelassene Gegenstände sofort beim Schleichen!"
+lore1 = "Schnapp-Radius"
+lore = ["Schnapp-Radius"]
 
 [stealth.speed]
-    name = "Schleichgeschwindigkeit"
-    description = "Erhalte Geschwindigkeit beim Schleichen"
-    lore1 = "Schleichgeschwindigkeit"
-    lore = ["Schleichgeschwindigkeit"]
+name = "Schleichgeschwindigkeit"
+description = "Erhalte Geschwindigkeit beim Schleichen"
+lore1 = "Schleichgeschwindigkeit"
+lore = ["Schleichgeschwindigkeit"]
 
 [stealth.ender_veil]
-    name = "Enderschleier"
-    description = "Keine Kürbisse mehr nötig, um Enderman-Angriffe zu verhindern"
-    lore1 = "Verhindere Enderman-Angriffe beim Schleichen"
-    lore2 = "Verhindere alle Enderman-Angriffe"
-    lore = ["Verhindere Enderman-Angriffe beim Schleichen", "Verhindere alle Enderman-Angriffe"]
+name = "Enderschleier"
+description = "Keine Kürbisse mehr nötig, um Enderman-Angriffe zu verhindern"
+lore1 = "Verhindere Enderman-Angriffe beim Schleichen"
+lore2 = "Verhindere alle Enderman-Angriffe"
+lore = ["Verhindere Enderman-Angriffe beim Schleichen", "Verhindere alle Enderman-Angriffe"]
 
 # sword
 [sword]
 
 [sword.machete]
-    name = "Machete"
-    description = "Schneide mit Leichtigkeit durchs Laub!"
-    lore1 = "Hieb-Radius"
-    lore2 = "Hieb-Abklingzeit"
-    lore3 = "Werkzeugverschleiß"
-    lore = ["Hieb-Radius", "Hieb-Abklingzeit", "Werkzeugverschleiß"]
+name = "Machete"
+description = "Schneide mit Leichtigkeit durchs Laub!"
+lore1 = "Hieb-Radius"
+lore2 = "Hieb-Abklingzeit"
+lore3 = "Werkzeugverschleiß"
+lore = ["Hieb-Radius", "Hieb-Abklingzeit", "Werkzeugverschleiß"]
 
 [sword.bloody_blade]
-    name = "Blutige Klinge"
-    description = "Schwertschläge verursachen Blutung!"
-    lore1 = "Das Treffen eines Lebewesens mit deinem Schwert verursacht Blutung"
-    lore2 = "Blutungsdauer"
-    lore3 = "Blutungs-Abklingzeit"
-    lore = ["Das Treffen eines Lebewesens mit deinem Schwert verursacht Blutung", "Blutungsdauer", "Blutungs-Abklingzeit"]
+name = "Blutige Klinge"
+description = "Schwertschläge verursachen Blutung!"
+lore1 = "Das Treffen eines Lebewesens mit deinem Schwert verursacht Blutung"
+lore2 = "Blutungsdauer"
+lore3 = "Blutungs-Abklingzeit"
+lore = ["Das Treffen eines Lebewesens mit deinem Schwert verursacht Blutung", "Blutungsdauer", "Blutungs-Abklingzeit"]
 
 [sword.poisoned_blade]
-    name = "Vergiftete Klinge"
-    description = "Schwertschläge verursachen Vergiftung!"
-    lore1 = "Das Treffen eines Lebewesens mit deinem Schwert verursacht Vergiftung"
-    lore2 = "Vergiftungsdauer"
-    lore3 = "Vergiftungs-Abklingzeit"
-    lore = ["Das Treffen eines Lebewesens mit deinem Schwert verursacht Vergiftung", "Vergiftungsdauer", "Vergiftungs-Abklingzeit"]
+name = "Vergiftete Klinge"
+description = "Schwertschläge verursachen Vergiftung!"
+lore1 = "Das Treffen eines Lebewesens mit deinem Schwert verursacht Vergiftung"
+lore2 = "Vergiftungsdauer"
+lore3 = "Vergiftungs-Abklingzeit"
+lore = ["Das Treffen eines Lebewesens mit deinem Schwert verursacht Vergiftung", "Vergiftungsdauer", "Vergiftungs-Abklingzeit"]
 
 # taming
 [taming]
 
 [taming.damage]
-    name = "Zähm-Schaden"
-    description = "Erhöhe den Schaden deiner gezähmten Tiere."
-    lore1 = "Erhöhter Schaden"
-    lore = ["Erhöhter Schaden"]
+name = "Zähm-Schaden"
+description = "Erhöhe den Schaden deiner gezähmten Tiere."
+lore1 = "Erhöhter Schaden"
+lore = ["Erhöhter Schaden"]
 
 [taming.health]
-    name = "Zähm-Gesundheit"
-    description = "Erhöhe die Gesundheit deiner gezähmten Tiere."
-    lore1 = "Erhöhte Gesundheit"
-    lore = ["Erhöhte Gesundheit"]
+name = "Zähm-Gesundheit"
+description = "Erhöhe die Gesundheit deiner gezähmten Tiere."
+lore1 = "Erhöhte Gesundheit"
+lore = ["Erhöhte Gesundheit"]
 
 [taming.regeneration]
-    name = "Zähm-Regeneration"
-    description = "Erhöhe die Regeneration deiner gezähmten Tiere."
-    lore1 = "HP/s"
-    lore = ["HP/s"]
+name = "Zähm-Regeneration"
+description = "Erhöhe die Regeneration deiner gezähmten Tiere."
+lore1 = "HP/s"
+lore = ["HP/s"]
 
 # tragoul
 [tragoul]
 
 [tragoul.thorns]
-    name = "Dornen"
-    description = "Reflektiere Schaden zurück an deinen Angreifer!"
-    lore1 = "Vergoltener Schaden bei Treffern"
-    lore = ["Vergoltener Schaden bei Treffern"]
+name = "Dornen"
+description = "Reflektiere Schaden zurück an deinen Angreifer!"
+lore1 = "Vergoltener Schaden bei Treffern"
+lore = ["Vergoltener Schaden bei Treffern"]
 
 [tragoul.globe]
-    name = "Globus des Schmerzes"
-    description = "Verteile den verursachten Schaden basierend auf der Anzahl der Feinde um dich herum!"
-    lore1 = "Je mehr Feinde um dich herum, desto weniger Schaden fügst du jedem einzelnen zu"
-    lore2 = "Reichweite: "
-    lore3 = "Zusätzlicher Schaden an alle Wesen: "
-    lore = ["Je mehr Feinde um dich herum, desto weniger Schaden fügst du jedem einzelnen zu", "Reichweite: ", "Zusätzlicher Schaden an alle Wesen: "]
+name = "Globus des Schmerzes"
+description = "Verteile den verursachten Schaden basierend auf der Anzahl der Feinde um dich herum!"
+lore1 = "Je mehr Feinde um dich herum, desto weniger Schaden fügst du jedem einzelnen zu"
+lore2 = "Reichweite: "
+lore3 = "Zusätzlicher Schaden an alle Wesen: "
+lore = ["Je mehr Feinde um dich herum, desto weniger Schaden fügst du jedem einzelnen zu", "Reichweite: ", "Zusätzlicher Schaden an alle Wesen: "]
 
 [tragoul.healing]
-    name = "Wille des Schmerzes"
-    description = "Gewinne Gesundheit basierend auf dem verursachten Schaden!"
-    lore1 = "Dinge zu verletzen hat sich noch nie so gut angefühlt! Heile durch verursachten Schaden"
-    lore2 = "Es gibt ein 3-Sekunden-Schadensfenster für Heilung und 1 Sekunde Abklingzeit "
-    lore3 = "Heilung pro Schadensprozentsatz: "
-    lore = ["Dinge zu verletzen hat sich noch nie so gut angefühlt! Heile durch verursachten Schaden", "Es gibt ein 3-Sekunden-Schadensfenster für Heilung und 1 Sekunde Abklingzeit ", "Heilung pro Schadensprozentsatz: "]
+name = "Wille des Schmerzes"
+description = "Gewinne Gesundheit basierend auf dem verursachten Schaden!"
+lore1 = "Dinge zu verletzen hat sich noch nie so gut angefühlt! Heile durch verursachten Schaden"
+lore2 = "Es gibt ein 3-Sekunden-Schadensfenster für Heilung und 1 Sekunde Abklingzeit "
+lore3 = "Heilung pro Schadensprozentsatz: "
+lore = ["Dinge zu verletzen hat sich noch nie so gut angefühlt! Heile durch verursachten Schaden", "Es gibt ein 3-Sekunden-Schadensfenster für Heilung und 1 Sekunde Abklingzeit ", "Heilung pro Schadensprozentsatz: "]
 
 [tragoul.lance]
-    name = "Leichenlanzen"
-    description = "Einen Feind zu töten oder eine Fähigkeit, die einen Feind tötet, erzeugt eine Lanze, die einem nahegelegenen Feind Schaden zufügt!"
-    lore1 = "Lanzen zielen auf alles, was du tötest, UND wenn diese Fähigkeit einen Feind tötet."
-    lore2 = "Opfere einen Teil deines Lebens, um die Lanzen zu erschaffen (das kann dich töten)"
-    lore3 = "Max. Lanzen: 1 + "
-    lore = ["Lanzen zielen auf alles, was du tötest, UND wenn diese Fähigkeit einen Feind tötet.", "Opfere einen Teil deines Lebens, um die Lanzen zu erschaffen (das kann dich töten)", "Max. Lanzen: 1 + "]
+name = "Leichenlanzen"
+description = "Einen Feind zu töten oder eine Fähigkeit, die einen Feind tötet, erzeugt eine Lanze, die einem nahegelegenen Feind Schaden zufügt!"
+lore1 = "Lanzen zielen auf alles, was du tötest, UND wenn diese Fähigkeit einen Feind tötet."
+lore2 = "Opfere einen Teil deines Lebens, um die Lanzen zu erschaffen (das kann dich töten)"
+lore3 = "Max. Lanzen: 1 + "
+lore = ["Lanzen zielen auf alles, was du tötest, UND wenn diese Fähigkeit einen Feind tötet.", "Opfere einen Teil deines Lebens, um die Lanzen zu erschaffen (das kann dich töten)", "Max. Lanzen: 1 + "]
 
 # unarmed
 [unarmed]
 
 [unarmed.glass_cannon]
-    name = "Glaskanone"
-    description = "Bonus auf unbewaffneten Schaden, je niedriger dein Rüstungswert"
-    lore1 = "x Schaden bei 0 Rüstung"
-    lore2 = "Bonus-Schaden pro Stufe"
-    lore = ["x Schaden bei 0 Rüstung", "Bonus-Schaden pro Stufe"]
+name = "Glaskanone"
+description = "Bonus auf unbewaffneten Schaden, je niedriger dein Rüstungswert"
+lore1 = "x Schaden bei 0 Rüstung"
+lore2 = "Bonus-Schaden pro Stufe"
+lore = ["x Schaden bei 0 Rüstung", "Bonus-Schaden pro Stufe"]
 
 [unarmed.power]
-    name = "Unbewaffnete Stärke"
-    description = "Verbesserter unbewaffneter Schaden"
-    lore1 = "Schaden"
-    lore = ["Schaden"]
+name = "Unbewaffnete Stärke"
+description = "Verbesserter unbewaffneter Schaden"
+lore1 = "Schaden"
+lore = ["Schaden"]
 
 [unarmed.sucker_punch]
-    name = "Fausthieb"
-    description = "Sprint-Schläge, aber tödlicher."
-    lore1 = "Schaden"
-    lore2 = "Schaden erhöht sich mit deiner Geschwindigkeit beim Schlagen"
-    lore = ["Schaden", "Schaden erhöht sich mit deiner Geschwindigkeit beim Schlagen"]
+name = "Fausthieb"
+description = "Sprint-Schläge, aber tödlicher."
+lore1 = "Schaden"
+lore2 = "Schaden erhöht sich mit deiner Geschwindigkeit beim Schlagen"
+lore = ["Schaden", "Schaden erhöht sich mit deiner Geschwindigkeit beim Schlagen"]

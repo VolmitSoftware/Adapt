@@ -21,56 +21,63 @@ package art.arcane.adapt.api.telemetry;
 import java.util.ArrayDeque;
 
 public final class AbilityCheckTelemetry {
-    private static final long WINDOW_MS = 60_000L;
-    private static final Object LOCK = new Object();
-    private static final ArrayDeque<Long> checkOps = new ArrayDeque<>();
-    private static final ArrayDeque<Long> successfulOps = new ArrayDeque<>();
+  private static final long WINDOW_MS = 60_000L;
+  private static final Object LOCK = new Object();
+  private static final ArrayDeque<Long> checkOps = new ArrayDeque<>();
+  private static final ArrayDeque<Long> successfulOps = new ArrayDeque<>();
 
-    private AbilityCheckTelemetry() {
-    }
+  private AbilityCheckTelemetry() {
+  }
 
-    public static void recordCheckAttempt() {
-        long now = System.currentTimeMillis();
-        synchronized (LOCK) {
-            checkOps.addLast(now);
-            trim(checkOps, now);
-            trim(successfulOps, now);
-        }
+  public static void recordCheckAttempt() {
+    long now = System.currentTimeMillis();
+    synchronized (LOCK) {
+      checkOps.addLast(now);
+      trim(checkOps, now);
+      trim(successfulOps, now);
     }
+  }
 
-    public static void recordSuccessfulCheck() {
-        long now = System.currentTimeMillis();
-        synchronized (LOCK) {
-            successfulOps.addLast(now);
-            trim(checkOps, now);
-            trim(successfulOps, now);
-        }
+  public static void recordSuccessfulCheck() {
+    long now = System.currentTimeMillis();
+    synchronized (LOCK) {
+      successfulOps.addLast(now);
+      trim(checkOps, now);
+      trim(successfulOps, now);
     }
+  }
 
-    public static long checksPerMinute(long now) {
-        synchronized (LOCK) {
-            trim(checkOps, now);
-            return checkOps.size();
-        }
+  public static long checksPerMinute(long now) {
+    synchronized (LOCK) {
+      trim(checkOps, now);
+      return checkOps.size();
     }
+  }
 
-    public static long successfulChecksPerMinute(long now) {
-        synchronized (LOCK) {
-            trim(successfulOps, now);
-            return successfulOps.size();
-        }
+  public static long successfulChecksPerMinute(long now) {
+    synchronized (LOCK) {
+      trim(successfulOps, now);
+      return successfulOps.size();
     }
+  }
 
-    public static void clear() {
-        synchronized (LOCK) {
-            checkOps.clear();
-            successfulOps.clear();
-        }
+  public static double checksPerTick(long now) {
+    synchronized (LOCK) {
+      trim(checkOps, now);
+      return checkOps.size() / 1200D;
     }
+  }
 
-    private static void trim(ArrayDeque<Long> samples, long now) {
-        while (!samples.isEmpty() && (now - samples.peekFirst()) > WINDOW_MS) {
-            samples.removeFirst();
-        }
+  public static void clear() {
+    synchronized (LOCK) {
+      checkOps.clear();
+      successfulOps.clear();
     }
+  }
+
+  private static void trim(ArrayDeque<Long> samples, long now) {
+    while (!samples.isEmpty() && (now - samples.peekFirst()) > WINDOW_MS) {
+      samples.removeFirst();
+    }
+  }
 }

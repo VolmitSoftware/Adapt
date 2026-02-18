@@ -20,5 +20,5 @@ package art.arcane.adapt.util.common.function;
 
 @FunctionalInterface
 public interface NoiseInjector {
-    double[] combine(double src, double value);
+  double[] combine(double src, double value);
 }

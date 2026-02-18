@@ -21,168 +21,164 @@ package art.arcane.adapt.api.tick;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.volmlib.util.collection.KList;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class Ticker {
-    private final KList<Ticked> ticklist;
-    private final KList<Ticked> newTicks;
-    private final KList<String> removeTicks;
-    private final Map<String, TickMetric> metrics;
-    private final AtomicLong windowStartMs;
-    private volatile boolean ticking;
+  private final KList<Ticked> ticklist;
+  private final KList<Ticked> newTicks;
+  private final KList<String> removeTicks;
+  private final Map<String, TickMetric> metrics;
+  private final AtomicLong windowStartMs;
+  private volatile boolean ticking;
 
-    public Ticker() {
-        this.ticklist = new KList<>(4096);
-        this.newTicks = new KList<>(128);
-        this.removeTicks = new KList<>(128);
-        this.metrics = new ConcurrentHashMap<>();
-        this.windowStartMs = new AtomicLong(System.currentTimeMillis());
-        ticking = false;
-        J.sr(() -> {
-            if (!ticking) {
-                tick();
-            }
-        }, 1);
+  public Ticker() {
+    this.ticklist = new KList<>(4096);
+    this.newTicks = new KList<>(128);
+    this.removeTicks = new KList<>(128);
+    this.metrics = new ConcurrentHashMap<>();
+    this.windowStartMs = new AtomicLong(System.currentTimeMillis());
+    ticking = false;
+    J.sr(() -> {
+      if (!ticking) {
+        tick();
+      }
+    }, 1);
+  }
+
+  public void register(Ticked ticked) {
+    synchronized (newTicks) {
+      newTicks.add(ticked);
+    }
+  }
+
+  public void unregister(Ticked ticked) {
+    synchronized (removeTicks) {
+      removeTicks.add(ticked.getId());
+    }
+  }
+
+  public void clear() {
+    synchronized (ticklist) {
+      ticklist.clear();
+    }
+    synchronized (removeTicks) {
+      removeTicks.clear();
+    }
+    synchronized (newTicks) {
+      newTicks.clear();
+    }
+    metrics.clear();
+    windowStartMs.set(System.currentTimeMillis());
+
+  }
+
+  public void resetMetrics() {
+    metrics.clear();
+    windowStartMs.set(System.currentTimeMillis());
+  }
+
+  public long getMetricsWindowMs() {
+    return Math.max(0, System.currentTimeMillis() - windowStartMs.get());
+  }
+
+  public double getWindowLoadPercent() {
+    long windowMs = getMetricsWindowMs();
+    if (windowMs <= 0L) {
+      return 0D;
     }
 
-    public void register(Ticked ticked) {
-        synchronized (newTicks) {
-            newTicks.add(ticked);
-        }
+    double totalMs = 0D;
+    for (TickMetric metric : metrics.values()) {
+      totalMs += metric.totalNanos.get() / 1_000_000D;
+    }
+    double percent = (totalMs / (double) windowMs) * 100D;
+    if (!Double.isFinite(percent)) {
+      return 0D;
     }
 
-    public void unregister(Ticked ticked) {
-        synchronized (removeTicks) {
-            removeTicks.add(ticked.getId());
+    return Math.max(0D, percent);
+  }
+
+  public List<String> topMetrics(int limit) {
+    int safeLimit = Math.max(1, limit);
+    ArrayList<Map.Entry<String, TickMetric>> entries = new ArrayList<>(metrics.entrySet());
+    entries.sort(Comparator.comparingLong((Map.Entry<String, TickMetric> e) -> e.getValue().totalNanos.get()).reversed());
+
+    int outputSize = Math.min(safeLimit, entries.size());
+    ArrayList<String> top = new ArrayList<>(outputSize);
+    for (int i = 0; i < outputSize; i++) {
+      Map.Entry<String, TickMetric> entry = entries.get(i);
+      top.add(formatMetric(entry.getKey(), entry.getValue()));
+    }
+    return top;
+  }
+
+  private void tick() {
+    ticking = true;
+    for (int i = 0; i < ticklist.size(); i++) {
+      Ticked t = ticklist.get(i);
+      if (t != null && t.shouldTick()) {
+        long start = System.nanoTime();
+        try {
+          t.tick();
+        } catch (Throwable exxx) {
+          exxx.printStackTrace();
+        } finally {
+          recordMetric(t, System.nanoTime() - start);
         }
+      }
     }
 
-    public void clear() {
-        synchronized (ticklist) {
-            ticklist.clear();
-        }
-        synchronized (removeTicks) {
-            removeTicks.clear();
-        }
-        synchronized (newTicks) {
-            newTicks.clear();
-        }
-        metrics.clear();
-        windowStartMs.set(System.currentTimeMillis());
-
+    synchronized (newTicks) {
+      while (newTicks.isNotEmpty()) {
+        ticklist.add(newTicks.popRandom());
+      }
     }
 
-    public void resetMetrics() {
-        metrics.clear();
-        windowStartMs.set(System.currentTimeMillis());
-    }
+    synchronized (removeTicks) {
+      while (removeTicks.isNotEmpty()) {
+        String id = removeTicks.popRandom();
 
-    public long getMetricsWindowMs() {
-        return Math.max(0, System.currentTimeMillis() - windowStartMs.get());
-    }
-
-    public double getWindowLoadPercent() {
-        long windowMs = getMetricsWindowMs();
-        if (windowMs <= 0L) {
-            return 0D;
-        }
-
-        double totalMs = 0D;
-        for (TickMetric metric : metrics.values()) {
-            totalMs += metric.totalNanos.get() / 1_000_000D;
-        }
-        double percent = (totalMs / (double) windowMs) * 100D;
-        if (!Double.isFinite(percent)) {
-            return 0D;
-        }
-
-        return Math.max(0D, percent);
-    }
-
-    public List<String> topMetrics(int limit) {
-        int safeLimit = Math.max(1, limit);
-        ArrayList<Map.Entry<String, TickMetric>> entries = new ArrayList<>(metrics.entrySet());
-        entries.sort(Comparator.comparingLong((Map.Entry<String, TickMetric> e) -> e.getValue().totalNanos.get()).reversed());
-
-        int outputSize = Math.min(safeLimit, entries.size());
-        ArrayList<String> top = new ArrayList<>(outputSize);
-        for (int i = 0; i < outputSize; i++) {
-            Map.Entry<String, TickMetric> entry = entries.get(i);
-            top.add(formatMetric(entry.getKey(), entry.getValue()));
-        }
-        return top;
-    }
-
-    private void tick() {
-        ticking = true;
         for (int i = 0; i < ticklist.size(); i++) {
-            Ticked t = ticklist.get(i);
-            if (t != null && t.shouldTick()) {
-                long start = System.nanoTime();
-                try {
-                    t.tick();
-                } catch (Throwable exxx) {
-                    exxx.printStackTrace();
-                } finally {
-                    recordMetric(t, System.nanoTime() - start);
-                }
-            }
+          if (ticklist.get(i).getId().equals(id)) {
+            ticklist.remove(i);
+            break;
+          }
         }
-
-        synchronized (newTicks) {
-            while (newTicks.isNotEmpty()) {
-                ticklist.add(newTicks.popRandom());
-            }
-        }
-
-        synchronized (removeTicks) {
-            while (removeTicks.isNotEmpty()) {
-                String id = removeTicks.popRandom();
-
-                for (int i = 0; i < ticklist.size(); i++) {
-                    if (ticklist.get(i).getId().equals(id)) {
-                        ticklist.remove(i);
-                        break;
-                    }
-                }
-            }
-        }
-
-        ticking = false;
+      }
     }
 
-    private void recordMetric(Ticked ticked, long durationNs) {
-        if (ticked == null || durationNs < 0) {
-            return;
-        }
+    ticking = false;
+  }
 
-        String key = ticked.getGroup() + ":" + ticked.getId();
-        TickMetric metric = metrics.computeIfAbsent(key, unused -> new TickMetric());
-        metric.calls.incrementAndGet();
-        metric.totalNanos.addAndGet(durationNs);
-        metric.maxNanos.updateAndGet(old -> Math.max(old, durationNs));
+  private void recordMetric(Ticked ticked, long durationNs) {
+    if (ticked == null || durationNs < 0) {
+      return;
     }
 
-    private String formatMetric(String key, TickMetric metric) {
-        long calls = Math.max(1, metric.calls.get());
-        double totalMs = metric.totalNanos.get() / 1_000_000D;
-        double avgMs = totalMs / (double) calls;
-        double maxMs = metric.maxNanos.get() / 1_000_000D;
-        return key + " total=" + String.format(Locale.US, "%.3fms", totalMs)
-                + " avg=" + String.format(Locale.US, "%.3fms", avgMs)
-                + " max=" + String.format(Locale.US, "%.3fms", maxMs)
-                + " calls=" + calls;
-    }
+    String key = ticked.getGroup() + ":" + ticked.getId();
+    TickMetric metric = metrics.computeIfAbsent(key, unused -> new TickMetric());
+    metric.calls.incrementAndGet();
+    metric.totalNanos.addAndGet(durationNs);
+    metric.maxNanos.updateAndGet(old -> Math.max(old, durationNs));
+  }
 
-    private static class TickMetric {
-        private final AtomicLong calls = new AtomicLong();
-        private final AtomicLong totalNanos = new AtomicLong();
-        private final AtomicLong maxNanos = new AtomicLong();
-    }
+  private String formatMetric(String key, TickMetric metric) {
+    long calls = Math.max(1, metric.calls.get());
+    double totalMs = metric.totalNanos.get() / 1_000_000D;
+    double avgMs = totalMs / (double) calls;
+    double maxMs = metric.maxNanos.get() / 1_000_000D;
+    return key + " total=" + String.format(Locale.US, "%.3fms", totalMs)
+        + " avg=" + String.format(Locale.US, "%.3fms", avgMs)
+        + " max=" + String.format(Locale.US, "%.3fms", maxMs)
+        + " calls=" + calls;
+  }
+
+  private static class TickMetric {
+    private final AtomicLong calls = new AtomicLong();
+    private final AtomicLong totalNanos = new AtomicLong();
+    private final AtomicLong maxNanos = new AtomicLong();
+  }
 }

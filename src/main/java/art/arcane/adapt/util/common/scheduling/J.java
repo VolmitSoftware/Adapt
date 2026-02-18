@@ -36,183 +36,183 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class J {
-    private static final SchedulerRuntime RUNTIME = new SchedulerRuntime(
-            () -> Adapt.instance,
-            J::a,
-            Adapt::verbose,
-            Adapt::warn,
-            Throwable::printStackTrace
-    );
+  private static final SchedulerRuntime RUNTIME = new SchedulerRuntime(
+      () -> Adapt.instance,
+      J::a,
+      Adapt::verbose,
+      Adapt::warn,
+      Throwable::printStackTrace
+  );
 
-    static {
-        SchedulerBridge.setSyncScheduler(J::s);
-        SchedulerBridge.setDelayedSyncScheduler(J::s);
-        SchedulerBridge.setAsyncScheduler(J::a);
-        SchedulerBridge.setDelayedAsyncScheduler(J::a);
-        SchedulerBridge.setSyncRepeatingScheduler(J::sr);
-        SchedulerBridge.setAsyncRepeatingScheduler(J::ar);
-        SchedulerBridge.setCancelScheduler(J::car);
-        SchedulerBridge.setErrorHandler(Throwable::printStackTrace);
-        SchedulerBridge.setInfoLogger(Adapt::info);
-    }
+  static {
+    SchedulerBridge.setSyncScheduler(J::s);
+    SchedulerBridge.setDelayedSyncScheduler(J::s);
+    SchedulerBridge.setAsyncScheduler(J::a);
+    SchedulerBridge.setDelayedAsyncScheduler(J::a);
+    SchedulerBridge.setSyncRepeatingScheduler(J::sr);
+    SchedulerBridge.setAsyncRepeatingScheduler(J::ar);
+    SchedulerBridge.setCancelScheduler(J::car);
+    SchedulerBridge.setErrorHandler(Throwable::printStackTrace);
+    SchedulerBridge.setInfoLogger(Adapt::info);
+  }
 
-    public static void dofor(int a, Function<Integer, Boolean> c, int ch, Consumer<Integer> d) {
-        JSupport.dofor(a, c, ch, d);
-    }
+  public static void dofor(int a, Function<Integer, Boolean> c, int ch, Consumer<Integer> d) {
+    JSupport.dofor(a, c, ch, d);
+  }
 
-    public static boolean doif(Supplier<Boolean> c, Runnable g) {
-        return JSupport.doif(c, g, null);
-    }
+  public static boolean doif(Supplier<Boolean> c, Runnable g) {
+    return JSupport.doif(c, g, null);
+  }
 
-    public static void a(Runnable a) {
-        MultiBurst.burst.lazy(a);
-    }
+  public static void a(Runnable a) {
+    MultiBurst.burst.lazy(a);
+  }
 
-    public static <T> Future<T> a(Callable<T> a) {
-        return MultiBurst.burst.getService().submit(a);
-    }
+  public static <T> Future<T> a(Callable<T> a) {
+    return MultiBurst.burst.getService().submit(a);
+  }
 
-    public static void attemptAsync(NastyRunnable r) {
-        JSupport.attemptAsync(r::run, J::a);
-    }
+  public static void attemptAsync(NastyRunnable r) {
+    JSupport.attemptAsync(r::run, J::a);
+  }
 
-    public static <R> R attemptResult(NastyFuture<R> r, R onError) {
-        return JSupport.attemptResult(r::run, onError, Throwable::printStackTrace);
-    }
+  public static <R> R attemptResult(NastyFuture<R> r, R onError) {
+    return JSupport.attemptResult(r::run, onError, Throwable::printStackTrace);
+  }
 
-    public static <T, R> R attemptFunction(NastyFunction<T, R> r, T param, R onError) {
-        return JSupport.attemptFunction(r::run, param, onError, e -> Adapt.verbose("Failed to run function: " + e.getMessage()));
-    }
+  public static <T, R> R attemptFunction(NastyFunction<T, R> r, T param, R onError) {
+    return JSupport.attemptFunction(r::run, param, onError, e -> Adapt.verbose("Failed to run function: " + e.getMessage()));
+  }
 
-    public static boolean sleep(long ms) {
-        return JSupport.sleep(ms);
-    }
+  public static boolean sleep(long ms) {
+    return JSupport.sleep(ms);
+  }
 
-    public static boolean attempt(NastyRunnable r) {
-        return JSupport.attempt(r::run);
-    }
+  public static boolean attempt(NastyRunnable r) {
+    return JSupport.attempt(r::run);
+  }
 
-    public static Throwable attemptCatch(NastyRunnable r) {
-        return JSupport.attemptCatch(r::run);
-    }
+  public static Throwable attemptCatch(NastyRunnable r) {
+    return JSupport.attemptCatch(r::run);
+  }
 
-    public static <T> T attempt(Supplier<T> t, T i) {
-        return JSupport.attempt(t::get, i, null);
-    }
+  public static <T> T attempt(Supplier<T> t, T i) {
+    return JSupport.attempt(t::get, i, null);
+  }
 
-    /**
-     * Dont call this unless you know what you are doing!
-     */
-    public static void executeAfterStartupQueue() {
-        RUNTIME.executeAfterStartupQueue(J::s);
-    }
+  /**
+   * Dont call this unless you know what you are doing!
+   */
+  public static void executeAfterStartupQueue() {
+    RUNTIME.executeAfterStartupQueue(J::s);
+  }
 
-    public static void ass(Runnable r) {
-        RUNTIME.enqueueAfterStartupSync(r, J::s);
-    }
+  public static void ass(Runnable r) {
+    RUNTIME.enqueueAfterStartupSync(r, J::s);
+  }
 
-    public static void asa(Runnable r) {
-        RUNTIME.enqueueAfterStartupAsync(r);
-    }
+  public static void asa(Runnable r) {
+    RUNTIME.enqueueAfterStartupAsync(r);
+  }
 
-    public static boolean isPrimaryThread() {
-        return FoliaScheduler.isPrimaryThread();
-    }
+  public static boolean isPrimaryThread() {
+    return FoliaScheduler.isPrimaryThread();
+  }
 
-    public static boolean isFoliaThreading() {
-        return RUNTIME.isFoliaThreading();
-    }
+  public static boolean isFoliaThreading() {
+    return RUNTIME.isFoliaThreading();
+  }
 
-    public static boolean isOwnedByCurrentRegion(Entity entity) {
-        return RUNTIME.isOwnedByCurrentRegion(entity);
-    }
+  public static boolean isOwnedByCurrentRegion(Entity entity) {
+    return RUNTIME.isOwnedByCurrentRegion(entity);
+  }
 
-    public static boolean runEntity(Entity entity, Runnable runnable) {
-        return RUNTIME.runEntity(entity, runnable);
-    }
+  public static boolean runEntity(Entity entity, Runnable runnable) {
+    return RUNTIME.runEntity(entity, runnable);
+  }
 
-    public static boolean runEntity(Entity entity, Runnable runnable, int delayTicks) {
-        return RUNTIME.runEntity(entity, runnable, delayTicks);
-    }
+  public static boolean runEntity(Entity entity, Runnable runnable, int delayTicks) {
+    return RUNTIME.runEntity(entity, runnable, delayTicks);
+  }
 
-    public static boolean teleport(Entity entity, Location location) {
-        return teleport(entity, location, null);
-    }
+  public static boolean teleport(Entity entity, Location location) {
+    return teleport(entity, location, null);
+  }
 
-    public static boolean teleport(Entity entity, Location location, PlayerTeleportEvent.TeleportCause cause) {
-        return RUNTIME.teleport(entity, location, cause);
-    }
+  public static boolean teleport(Entity entity, Location location, PlayerTeleportEvent.TeleportCause cause) {
+    return RUNTIME.teleport(entity, location, cause);
+  }
 
-    public static boolean runAt(Location location, Runnable runnable) {
-        return RUNTIME.runAt(location, runnable);
-    }
+  public static boolean runAt(Location location, Runnable runnable) {
+    return RUNTIME.runAt(location, runnable);
+  }
 
-    public static boolean runAt(Location location, Runnable runnable, int delayTicks) {
-        return RUNTIME.runAt(location, runnable, delayTicks);
-    }
+  public static boolean runAt(Location location, Runnable runnable, int delayTicks) {
+    return RUNTIME.runAt(location, runnable, delayTicks);
+  }
 
-    public static void cancelPluginTasks() {
-        RUNTIME.cancelPluginTasks();
-    }
+  public static void cancelPluginTasks() {
+    RUNTIME.cancelPluginTasks();
+  }
 
-    public static void s(Runnable r) {
-        RUNTIME.s(r);
-    }
+  public static void s(Runnable r) {
+    RUNTIME.s(r);
+  }
 
-    public static void s(Runnable r, int delay) {
-        RUNTIME.s(r, delay);
-    }
+  public static void s(Runnable r, int delay) {
+    RUNTIME.s(r, delay);
+  }
 
-    public static void csr(int id) {
-        RUNTIME.csr(id);
-    }
+  public static void csr(int id) {
+    RUNTIME.csr(id);
+  }
 
-    public static int sr(Runnable r, int interval) {
-        return RUNTIME.sr(r, interval);
-    }
+  public static int sr(Runnable r, int interval) {
+    return RUNTIME.sr(r, interval);
+  }
 
-    public static void sr(Runnable r, int interval, int intervals) {
-        FinalInteger fi = new FinalInteger(0);
+  public static void sr(Runnable r, int interval, int intervals) {
+    FinalInteger fi = new FinalInteger(0);
 
-        new SR(interval) {
-            @Override
-            public void run() {
-                fi.add(1);
-                r.run();
+    new SR(interval) {
+      @Override
+      public void run() {
+        fi.add(1);
+        r.run();
 
-                if (fi.get() >= intervals) {
-                    cancel();
-                }
-            }
-        };
-    }
+        if (fi.get() >= intervals) {
+          cancel();
+        }
+      }
+    };
+  }
 
-    public static void a(Runnable r, int delay) {
-        RUNTIME.a(r, delay);
-    }
+  public static void a(Runnable r, int delay) {
+    RUNTIME.a(r, delay);
+  }
 
-    public static void car(int id) {
-        RUNTIME.car(id);
-    }
+  public static void car(int id) {
+    RUNTIME.car(id);
+  }
 
-    public static int ar(Runnable r, int interval) {
-        return RUNTIME.ar(r, interval);
-    }
+  public static int ar(Runnable r, int interval) {
+    return RUNTIME.ar(r, interval);
+  }
 
-    public static void ar(Runnable r, int interval, int intervals) {
-        FinalInteger fi = new FinalInteger(0);
+  public static void ar(Runnable r, int interval, int intervals) {
+    FinalInteger fi = new FinalInteger(0);
 
-        new AR(interval) {
-            @Override
-            public void run() {
-                fi.add(1);
-                r.run();
+    new AR(interval) {
+      @Override
+      public void run() {
+        fi.add(1);
+        r.run();
 
-                if (fi.get() >= intervals) {
-                    cancel();
-                }
-            }
-        };
-    }
+        if (fi.get() >= intervals) {
+          cancel();
+        }
+      }
+    };
+  }
 
 }

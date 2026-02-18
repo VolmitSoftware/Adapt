@@ -10,13 +10,13 @@ import org.bukkit.entity.Player;
 @Data
 @Accessors(chain = true, fluent = true)
 public class SoundFeedback {
-    private Sound sound;
-    @Builder.Default
-    private float volume = 1f;
-    @Builder.Default
-    private float pitch = 1f;
+  private Sound sound;
+  @Builder.Default
+  private float volume = 1f;
+  @Builder.Default
+  private float pitch = 1f;
 
-    public void play(Player p) {
-        p.playSound(p.getLocation(), sound, volume, pitch);
-    }
+  public void play(Player p) {
+    p.playSound(p.getLocation(), sound, volume, pitch);
+  }
 }

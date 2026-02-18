@@ -28,9 +28,9 @@ import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.content.item.BoundEnderPearl;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.inventorygui.Element;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import manifold.rt.api.util.Pair;
@@ -58,296 +58,289 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static art.arcane.adapt.api.adaptation.chunk.ChunkLoading.loadChunkAsync;
 
 public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
-    private final Map<Pair<ChunkPos, Location>, List<InventoryView>> activeViewsMap = new ConcurrentHashMap<>();
-    private final Map<ChunkPos, AtomicInteger> tickets = new ConcurrentHashMap<>();
+  private final Map<Pair<ChunkPos, Location>, List<InventoryView>> activeViewsMap = new ConcurrentHashMap<>();
+  private final Map<ChunkPos, AtomicInteger> tickets = new ConcurrentHashMap<>();
 
-    public RiftAccess() {
-        super("rift-access");
-        registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("rift.remote_access.description"));
-        setDisplayName(Localizer.dLocalize("rift.remote_access.name"));
-        setMaxLevel(1);
-        setIcon(Material.NETHER_STAR);
-        setBaseCost(getConfig().baseCost);
-        setCostFactor(getConfig().costFactor);
-        setInitialCost(getConfig().initialCost);
-        setInterval(1000);
-        registerRecipe(AdaptRecipe.shapeless()
-                .key("rift-remote-access")
-                .ingredient(Material.ENDER_PEARL)
-                .ingredient(Material.COMPASS)
-                .result(BoundEnderPearl.io.withData(new BoundEnderPearl.Data(null)))
-                .build());
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.CHEST)
-                .key("challenge_rift_access_100")
-                .title(Localizer.dLocalize("advancement.challenge_rift_access_100.title"))
-                .description(Localizer.dLocalize("advancement.challenge_rift_access_100.description"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .child(AdaptAdvancement.builder()
-                        .icon(Material.ENDER_CHEST)
-                        .key("challenge_rift_access_2500")
-                        .title(Localizer.dLocalize("advancement.challenge_rift_access_2500.title"))
-                        .description(Localizer.dLocalize("advancement.challenge_rift_access_2500.description"))
-                        .frame(AdaptAdvancementFrame.CHALLENGE)
-                        .visibility(AdvancementVisibility.PARENT_GRANTED)
-                        .build())
-                .build());
-        registerMilestone("challenge_rift_access_100", "rift.access.remote-opens", 100, 300);
-        registerMilestone("challenge_rift_access_2500", "rift.access.remote-opens", 2500, 1000);
+  public RiftAccess() {
+    super("rift-access");
+    registerConfiguration(Config.class);
+    setDescription(Localizer.dLocalize("rift.remote_access.description"));
+    setDisplayName(Localizer.dLocalize("rift.remote_access.name"));
+    setMaxLevel(1);
+    setIcon(Material.NETHER_STAR);
+    setBaseCost(getConfig().baseCost);
+    setCostFactor(getConfig().costFactor);
+    setInitialCost(getConfig().initialCost);
+    setInterval(1000);
+    registerRecipe(AdaptRecipe.shapeless()
+        .key("rift-remote-access")
+        .ingredient(Material.ENDER_PEARL)
+        .ingredient(Material.COMPASS)
+        .result(BoundEnderPearl.io.withData(new BoundEnderPearl.Data(null)))
+        .build());
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.CHEST)
+        .key("challenge_rift_access_100")
+        .title(Localizer.dLocalize("advancement.challenge_rift_access_100.title"))
+        .description(Localizer.dLocalize("advancement.challenge_rift_access_100.description"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .child(AdaptAdvancement.builder()
+            .icon(Material.ENDER_CHEST)
+            .key("challenge_rift_access_2500")
+            .title(Localizer.dLocalize("advancement.challenge_rift_access_2500.title"))
+            .description(Localizer.dLocalize("advancement.challenge_rift_access_2500.description"))
+            .frame(AdaptAdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .build())
+        .build());
+    registerMilestone("challenge_rift_access_100", "rift.access.remote-opens", 100, 300);
+    registerMilestone("challenge_rift_access_2500", "rift.access.remote-opens", 2500, 1000);
+  }
+
+  @Override
+  public void addStats(int level, Element v) {
+    v.addLore(C.ITALIC + Localizer.dLocalize("rift.remote_access.lore1"));
+    v.addLore(C.ITALIC + Localizer.dLocalize("rift.remote_access.lore2"));
+    v.addLore(C.ITALIC + Localizer.dLocalize("rift.remote_access.lore3"));
+  }
+
+
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void on(PlayerInteractEvent e) {
+    Player p = e.getPlayer();
+    ItemStack mainHand = p.getInventory().getItemInMainHand();
+    ItemStack offHand = p.getInventory().getItemInOffHand();
+    Block block = e.getClickedBlock();
+
+    boolean mainHandBound = BoundEnderPearl.isBindableItem(mainHand);
+    boolean offHandBound = BoundEnderPearl.isBindableItem(offHand);
+
+    // Cancel event if the enderpearl is in the offhand
+    if (offHandBound && e.getHand() != null && e.getHand().equals(EquipmentSlot.OFF_HAND)) {
+      e.setCancelled(true);
+      return;
     }
 
-    @Override
-    public void addStats(int level, Element v) {
-        v.addLore(C.ITALIC + Localizer.dLocalize("rift.remote_access.lore1"));
-        v.addLore(C.ITALIC + Localizer.dLocalize("rift.remote_access.lore2"));
-        v.addLore(C.ITALIC + Localizer.dLocalize("rift.remote_access.lore3"));
+    // If the main hand is holding a bound enderpearl
+    if (mainHandBound) {
+      e.setCancelled(true);
+      if (hasActiveAdaptation(p)) {
+        Adapt.verbose("Player using bound enderpearl.");
+        handleEnderPearlInteraction(e, p, block);
+      }
+    }
+  }
+
+  private void handleEnderPearlInteraction(PlayerInteractEvent event, Player player, Block block) {
+    boolean canUseInCreative = AdaptConfig.get().allowAdaptationsInCreative;
+    boolean isCreative = player.getGameMode() == GameMode.CREATIVE;
+    boolean sneaking = player.isSneaking();
+    boolean allowed = canUseInCreative || !isCreative;
+
+
+    // Check if the player is allowed to use the bound item in creative
+    if (!allowed) {
+      Adapt.info("Player " + player.getName() + " tried to use the bound item in creative mode.");
+      return;
     }
 
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void on(PlayerInteractEvent e) {
-        Player p = e.getPlayer();
-        ItemStack mainHand = p.getInventory().getItemInMainHand();
-        ItemStack offHand = p.getInventory().getItemInOffHand();
-        Block block = e.getClickedBlock();
-
-        boolean mainHandBound = BoundEnderPearl.isBindableItem(mainHand);
-        boolean offHandBound = BoundEnderPearl.isBindableItem(offHand);
-
-        // Cancel event if the enderpearl is in the offhand
-        if (offHandBound && e.getHand() != null && e.getHand().equals(EquipmentSlot.OFF_HAND)) {
-            e.setCancelled(true);
-            return;
-        }
-
-        // If the main hand is holding a bound enderpearl
-        if (mainHandBound) {
-            e.setCancelled(true);
-            if (hasActiveAdaptation(p)) {
-                Adapt.verbose("Player using bound enderpearl.");
-                handleEnderPearlInteraction(e, p, block);
-            }
-        }
-    }
-
-    private void handleEnderPearlInteraction(PlayerInteractEvent event, Player player, Block block) {
-        boolean canUseInCreative = AdaptConfig.get().allowAdaptationsInCreative;
-        boolean isCreative = player.getGameMode() == GameMode.CREATIVE;
-        boolean sneaking = player.isSneaking();
-        boolean allowed = canUseInCreative || !isCreative;
-
-
-        // Check if the player is allowed to use the bound item in creative
-        if (!allowed) {
-            Adapt.info("Player " + player.getName() + " tried to use the bound item in creative mode.");
-            return;
-        }
-
-        switch (event.getAction()) {
-            case LEFT_CLICK_BLOCK -> {
-                // If player is sneaking and left-clicking a container
-                if (sneaking && isStorage(block.getBlockData())) {
-                    if (canAccessChest(player, block.getLocation())) {
-                        linkPearl(player, block, event);
-                    } else {
-                        Adapt.verbose("Player " + player.getName() + " doesn't have permission.");
-                    }
-                }
-            }
-            case RIGHT_CLICK_AIR, RIGHT_CLICK_BLOCK ->
-                // If player right-clicks on air or any block
-                    openPearl(player);
-            default -> {
-            }
-        }
-    }
-
-    private void linkPearl(Player p, Block block, PlayerInteractEvent event) {
-        event.setCancelled(true);
-        if (areParticlesEnabled()) {
-            vfxCuboidOutline(block, Particle.REVERSE_PORTAL);
-        }
-        ItemStack hand = p.getInventory().getItemInMainHand();
-        SoundPlayer sp = SoundPlayer.of(p);
-        sp.play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_CLOSE, 0.5f, 0.8f);
-
-        if (hand.getAmount() == 1) {
-            BoundEnderPearl.setData(hand, block);
+    Action action = event.getAction();
+    if (action == Action.LEFT_CLICK_BLOCK) {
+      if (sneaking && isStorage(block.getBlockData())) {
+        if (canAccessChest(player, block.getLocation())) {
+          linkPearl(player, block, event);
         } else {
-            hand.setAmount(hand.getAmount() - 1);
-            ItemStack pearl = BoundEnderPearl.withData(block);
-            p.getInventory().addItem(pearl).values().forEach(i -> p.getWorld().dropItemNaturally(p.getLocation(), i));
+          Adapt.verbose("Player " + player.getName() + " doesn't have permission.");
         }
+      }
+    } else if (action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK) {
+      openPearl(player);
+    }
+  }
+
+  private void linkPearl(Player p, Block block, PlayerInteractEvent event) {
+    event.setCancelled(true);
+    if (areParticlesEnabled()) {
+      vfxCuboidOutline(block, Particle.REVERSE_PORTAL);
+    }
+    ItemStack hand = p.getInventory().getItemInMainHand();
+    SoundPlayer sp = SoundPlayer.of(p);
+    sp.play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_CLOSE, 0.5f, 0.8f);
+
+    if (hand.getAmount() == 1) {
+      BoundEnderPearl.setData(hand, block);
+    } else {
+      hand.setAmount(hand.getAmount() - 1);
+      ItemStack pearl = BoundEnderPearl.withData(block);
+      p.getInventory().addItem(pearl).values().forEach(i -> p.getWorld().dropItemNaturally(p.getLocation(), i));
+    }
+  }
+
+  private void openPearl(Player p) {
+    SoundPlayer sp = SoundPlayer.of(p);
+    Block b = BoundEnderPearl.getBlock(p.getInventory().getItemInMainHand());
+    if (b == null || !canAccessChest(p, b.getLocation())) {
+      sp.play(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1f, 1f);
+      return;
+    }
+    loadChunkAsync(b.getLocation(), chunk -> {
+      if (Bukkit.getPluginManager().isPluginEnabled("AdvancedChests") &&
+          AdvancedChestsAPI.getChestManager().getAdvancedChest(b.getLocation()) != null) {
+        AdvancedChestsAPI.getChestManager().getAdvancedChest(b.getLocation()).openPage(p, 1);
+        Adapt.verbose("Opening AdvancedChests GUI");
+      } else if (b.getState() instanceof InventoryHolder holder) {
+        InventoryView view = p.openInventory(holder.getInventory());
+        if (view == null) return;
+        activeViewsMap.computeIfAbsent(Pair.make(new ChunkPos(chunk).add(), b.getLocation()), k -> new ArrayList<>()).add(view);
+      }
+      sp.play(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
+      sp.play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
+      getPlayer(p).getData().addStat("rift.access.remote-opens", 1);
+    });
+  }
+
+  @Override
+  public void onTick() {
+    checkActiveViews();
+  }
+
+  private void checkActiveViews() {
+    Iterator<Map.Entry<Pair<ChunkPos, Location>, List<InventoryView>>> mapIterator = activeViewsMap.entrySet().iterator();
+    while (mapIterator.hasNext()) {
+      Map.Entry<Pair<ChunkPos, Location>, List<InventoryView>> entry = mapIterator.next();
+      removeInvalidViews(entry);
+      removeEntryIfViewsEmpty(mapIterator, entry);
+    }
+  }
+
+  private void removeInvalidViews(Map.Entry<Pair<ChunkPos, Location>, List<InventoryView>> entry) {
+    List<InventoryView> views = entry.getValue();
+    for (int ii = views.size() - 1; ii >= 0; ii--) {
+      InventoryView i = views.get(ii);
+      if (shouldRemoveView(i)) {
+        views.remove(ii);
+      }
+    }
+  }
+
+  private boolean shouldRemoveView(InventoryView i) {
+    Location location = i.getTopInventory().getLocation();
+    return !i.getPlayer().getOpenInventory().equals(i) || (location == null || !isStorage(location.getBlock().getBlockData()));
+  }
+
+  private void removeEntryIfViewsEmpty(Iterator<Map.Entry<Pair<ChunkPos, Location>, List<InventoryView>>> mapIterator, Map.Entry<Pair<ChunkPos, Location>, List<InventoryView>> entry) {
+    List<InventoryView> views = entry.getValue();
+    if (views.isEmpty()) {
+      mapIterator.remove();
+      entry.getKey().getFirst().remove();
+    }
+  }
+
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(BlockBurnEvent event) {
+    invClose(event.getBlock());
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(BlockPistonRetractEvent event) {
+    for (Block b : event.getBlocks()) {
+      invClose(b);
+    }
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(BlockPistonExtendEvent event) {
+    for (Block b : event.getBlocks()) {
+      invClose(b);
+    }
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(BlockExplodeEvent event) {
+    for (Block b : event.blockList()) {
+      invClose(b);
+    }
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(BlockBreakEvent event) {
+    invClose(event.getBlock());
+  }
+
+
+  private void invClose(Block block) {
+    List<InventoryView> views = activeViewsMap.get(block.getLocation());
+    if (views != null) {
+      for (InventoryView view : views) {
+        view.getPlayer().closeInventory();
+      }
+      activeViewsMap.remove(block.getLocation());
+    }
+  }
+
+
+  @Override
+  public boolean isEnabled() {
+    return getConfig().enabled;
+  }
+
+  @Override
+  public boolean isPermanent() {
+    return getConfig().permanent;
+  }
+
+  @NoArgsConstructor
+  @ConfigDescription("Craft a Reliquary Portkey to access marked containers remotely.")
+  protected static class Config {
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
+    boolean permanent = false;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
+    boolean enabled = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Rift Access adaptation.", impact = "True enables this behavior and false disables it.")
+    boolean showParticles = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
+    int baseCost = 3;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
+    double costFactor = 0.2;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
+    int initialCost = 15;
+  }
+
+  @EqualsAndHashCode
+  private class ChunkPos {
+    @EqualsAndHashCode.Exclude
+    private final WeakReference<World> world;
+    private final String name;
+    private final int x, z;
+
+    private ChunkPos(Chunk chunk) {
+      this.world = new WeakReference<>(chunk.getWorld());
+      this.name = chunk.getWorld().getName();
+      this.x = chunk.getX();
+      this.z = chunk.getZ();
     }
 
-    private void openPearl(Player p) {
-        SoundPlayer sp = SoundPlayer.of(p);
-        Block b = BoundEnderPearl.getBlock(p.getInventory().getItemInMainHand());
-        if (b == null || !canAccessChest(p, b.getLocation())) {
-            sp.play(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1f, 1f);
-            return;
-        }
-        loadChunkAsync(b.getLocation(), chunk -> {
-            if (Bukkit.getPluginManager().isPluginEnabled("AdvancedChests") &&
-                    AdvancedChestsAPI.getChestManager().getAdvancedChest(b.getLocation()) != null) {
-                AdvancedChestsAPI.getChestManager().getAdvancedChest(b.getLocation()).openPage(p, 1);
-                Adapt.verbose("Opening AdvancedChests GUI");
-            } else if (b.getState() instanceof InventoryHolder holder) {
-                InventoryView view = p.openInventory(holder.getInventory());
-                if (view == null) return;
-                activeViewsMap.computeIfAbsent(Pair.make(new ChunkPos(chunk).add(), b.getLocation()), k -> new ArrayList<>()).add(view);
-            }
-            sp.play(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
-            sp.play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
-            getPlayer(p).getData().addStat("rift.access.remote-opens", 1);
-        });
+    public ChunkPos add() {
+      World world = this.world.get();
+      if (world == null) return this;
+      if (tickets.computeIfAbsent(this, k -> new AtomicInteger()).getAndIncrement() == 0)
+        world.addPluginChunkTicket(x, z, Adapt.instance);
+      return this;
     }
 
-    @Override
-    public void onTick() {
-        checkActiveViews();
+    public void remove() {
+      World world = this.world.get();
+      if (world == null) {
+        tickets.remove(this);
+        return;
+      }
+      if (tickets.computeIfAbsent(this, k -> new AtomicInteger()).decrementAndGet() <= 0) {
+        world.removePluginChunkTicket(x, z, Adapt.instance);
+        world.unloadChunkRequest(x, z);
+        tickets.remove(this);
+      }
     }
-
-    private void checkActiveViews() {
-        Iterator<Map.Entry<Pair<ChunkPos, Location>, List<InventoryView>>> mapIterator = activeViewsMap.entrySet().iterator();
-        while (mapIterator.hasNext()) {
-            Map.Entry<Pair<ChunkPos, Location>, List<InventoryView>> entry = mapIterator.next();
-            removeInvalidViews(entry);
-            removeEntryIfViewsEmpty(mapIterator, entry);
-        }
-    }
-
-    private void removeInvalidViews(Map.Entry<Pair<ChunkPos, Location>, List<InventoryView>> entry) {
-        List<InventoryView> views = entry.getValue();
-        for (int ii = views.size() - 1; ii >= 0; ii--) {
-            InventoryView i = views.get(ii);
-            if (shouldRemoveView(i)) {
-                views.remove(ii);
-            }
-        }
-    }
-
-    private boolean shouldRemoveView(InventoryView i) {
-        Location location = i.getTopInventory().getLocation();
-        return !i.getPlayer().getOpenInventory().equals(i) || (location == null || !isStorage(location.getBlock().getBlockData()));
-    }
-
-    private void removeEntryIfViewsEmpty(Iterator<Map.Entry<Pair<ChunkPos, Location>, List<InventoryView>>> mapIterator, Map.Entry<Pair<ChunkPos, Location>, List<InventoryView>> entry) {
-        List<InventoryView> views = entry.getValue();
-        if (views.isEmpty()) {
-            mapIterator.remove();
-            entry.getKey().getFirst().remove();
-        }
-    }
-
-
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void on(BlockBurnEvent event) {
-        invClose(event.getBlock());
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void on(BlockPistonRetractEvent event) {
-        for (Block b : event.getBlocks()) {
-            invClose(b);
-        }
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void on(BlockPistonExtendEvent event) {
-        for (Block b : event.getBlocks()) {
-            invClose(b);
-        }
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void on(BlockExplodeEvent event) {
-        for (Block b : event.blockList()) {
-            invClose(b);
-        }
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void on(BlockBreakEvent event) {
-        invClose(event.getBlock());
-    }
-
-
-    private void invClose(Block block) {
-        List<InventoryView> views = activeViewsMap.get(block.getLocation());
-        if (views != null) {
-            for (InventoryView view : views) {
-                view.getPlayer().closeInventory();
-            }
-            activeViewsMap.remove(block.getLocation());
-        }
-    }
-
-
-
-
-    @Override
-    public boolean isEnabled() {
-        return getConfig().enabled;
-    }
-
-    @Override
-    public boolean isPermanent() {
-        return getConfig().permanent;
-    }
-
-    @NoArgsConstructor
-    @ConfigDescription("Craft a Reliquary Portkey to access marked containers remotely.")
-    protected static class Config {
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-        boolean permanent = false;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-        boolean enabled = true;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Rift Access adaptation.", impact = "True enables this behavior and false disables it.")
-        boolean showParticles = true;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-        int baseCost = 3;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-        double costFactor = 0.2;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-        int initialCost = 15;
-    }
-
-    @EqualsAndHashCode
-    private class ChunkPos {
-        @EqualsAndHashCode.Exclude
-        private final WeakReference<World> world;
-        private final String name;
-        private final int x, z;
-
-        private ChunkPos(Chunk chunk) {
-            this.world = new WeakReference<>(chunk.getWorld());
-            this.name = chunk.getWorld().getName();
-            this.x = chunk.getX();
-            this.z = chunk.getZ();
-        }
-
-        public ChunkPos add() {
-            World world = this.world.get();
-            if (world == null) return this;
-            if (tickets.computeIfAbsent(this, k -> new AtomicInteger()).getAndIncrement() == 0)
-                world.addPluginChunkTicket(x, z, Adapt.instance);
-            return this;
-        }
-
-        public void remove() {
-            World world = this.world.get();
-            if (world == null) {
-                tickets.remove(this);
-                return;
-            }
-            if (tickets.computeIfAbsent(this, k -> new AtomicInteger()).decrementAndGet() <= 0) {
-                world.removePluginChunkTicket(x, z, Adapt.instance);
-                world.unloadChunkRequest(x, z);
-                tickets.remove(this);
-            }
-        }
-    }
+  }
 }

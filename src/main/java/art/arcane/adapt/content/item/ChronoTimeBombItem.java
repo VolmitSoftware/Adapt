@@ -40,64 +40,64 @@ import java.util.List;
 @AllArgsConstructor
 @Data
 public class ChronoTimeBombItem implements DataItem<ChronoTimeBombItem.Data> {
-    public static ChronoTimeBombItem io = new ChronoTimeBombItem();
+  public static ChronoTimeBombItem io = new ChronoTimeBombItem();
 
-    public static boolean isBindableItem(ItemStack stack) {
-        if (stack == null || stack.getItemMeta() == null) {
-            return false;
-        }
+  public static boolean isBindableItem(ItemStack stack) {
+    if (stack == null || stack.getItemMeta() == null) {
+      return false;
+    }
 
-        if (stack.getType() == Material.LINGERING_POTION) {
-            return io.hasData(stack);
-        }
+    if (stack.getType() == Material.LINGERING_POTION) {
+      return io.hasData(stack);
+    }
 
-        if (stack.getType() == Material.CLOCK) {
-            if (Adapt.instance == null) {
-                return false;
-            }
-
-            NamespacedKey key = new NamespacedKey(Adapt.instance, Data.class.getCanonicalName().hashCode() + "");
-            return stack.getItemMeta().getPersistentDataContainer().has(key, PersistentDataType.STRING);
-        }
-
+    if (stack.getType() == Material.CLOCK) {
+      if (Adapt.instance == null) {
         return false;
+      }
+
+      NamespacedKey key = new NamespacedKey(Adapt.instance, Data.class.getCanonicalName().hashCode() + "");
+      return stack.getItemMeta().getPersistentDataContainer().has(key, PersistentDataType.STRING);
     }
 
-    public static ItemStack withData() {
-        return io.withData(new Data(System.currentTimeMillis()));
+    return false;
+  }
+
+  public static ItemStack withData() {
+    return io.withData(new Data(System.currentTimeMillis()));
+  }
+
+  @Override
+  public Material getMaterial() {
+    return Material.LINGERING_POTION;
+  }
+
+  @Override
+  public Class<Data> getType() {
+    return Data.class;
+  }
+
+  @Override
+  public void applyLore(Data data, List<String> lore) {
+    lore.add(C.WHITE + Localizer.dLocalize("items.chrono_time_bomb.name"));
+    lore.add(C.GRAY + Localizer.dLocalize("items.chrono_time_bomb.usage1"));
+  }
+
+  @Override
+  public void applyMeta(Data data, ItemMeta meta) {
+    if (meta instanceof PotionMeta potionMeta) {
+      potionMeta.setBasePotionType(PotionType.WEAKNESS);
+      meta = potionMeta;
     }
 
-    @Override
-    public Material getMaterial() {
-        return Material.LINGERING_POTION;
-    }
+    meta.addEnchant(Enchantment.BINDING_CURSE, 1, true);
+    meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS, ItemFlags.HIDE_POTION_EFFECTS);
+    meta.setDisplayName(Localizer.dLocalize("items.chrono_time_bomb.name"));
+  }
 
-    @Override
-    public Class<Data> getType() {
-        return Data.class;
-    }
-
-    @Override
-    public void applyLore(Data data, List<String> lore) {
-        lore.add(C.WHITE + Localizer.dLocalize("items.chrono_time_bomb.name"));
-        lore.add(C.GRAY + Localizer.dLocalize("items.chrono_time_bomb.usage1"));
-    }
-
-    @Override
-    public void applyMeta(Data data, ItemMeta meta) {
-        if (meta instanceof PotionMeta potionMeta) {
-            potionMeta.setBasePotionType(PotionType.WEAKNESS);
-            meta = potionMeta;
-        }
-
-        meta.addEnchant(Enchantment.BINDING_CURSE, 1, true);
-        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS, ItemFlags.HIDE_POTION_EFFECTS);
-        meta.setDisplayName(Localizer.dLocalize("items.chrono_time_bomb.name"));
-    }
-
-    @AllArgsConstructor
-    @lombok.Data
-    public static class Data {
-        private long created;
-    }
+  @AllArgsConstructor
+  @lombok.Data
+  public static class Data {
+    private long created;
+  }
 }

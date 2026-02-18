@@ -25,10 +25,10 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
+import art.arcane.volmlib.util.inventorygui.Element;
 import lombok.NoArgsConstructor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -42,159 +42,161 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TamingPackLeaderAura extends SimpleAdaptation<TamingPackLeaderAura.Config> {
-    private int ownerCursor = 0;
+  private int ownerCursor = 0;
 
-    public TamingPackLeaderAura() {
-        super("tame-pack-leader-aura");
-        registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("taming.pack_leader_aura.description"));
-        setDisplayName(Localizer.dLocalize("taming.pack_leader_aura.name"));
-        setIcon(Material.BONE);
-        setBaseCost(getConfig().baseCost);
-        setMaxLevel(getConfig().maxLevel);
-        setInitialCost(getConfig().initialCost);
-        setCostFactor(getConfig().costFactor);
-        setInterval(30);
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.BONE)
-                .key("challenge_taming_pack_72k")
-                .title(Localizer.dLocalize("advancement.challenge_taming_pack_72k.title"))
-                .description(Localizer.dLocalize("advancement.challenge_taming_pack_72k.description"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .build());
-        registerMilestone("challenge_taming_pack_72k", "taming.pack-leader.buffed-ticks", 72000, 400);
+  public TamingPackLeaderAura() {
+    super("tame-pack-leader-aura");
+    registerConfiguration(Config.class);
+    setDescription(Localizer.dLocalize("taming.pack_leader_aura.description"));
+    setDisplayName(Localizer.dLocalize("taming.pack_leader_aura.name"));
+    setIcon(Material.BONE);
+    setBaseCost(getConfig().baseCost);
+    setMaxLevel(getConfig().maxLevel);
+    setInitialCost(getConfig().initialCost);
+    setCostFactor(getConfig().costFactor);
+    setInterval(30);
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.BONE)
+        .key("challenge_taming_pack_72k")
+        .title(Localizer.dLocalize("advancement.challenge_taming_pack_72k.title"))
+        .description(Localizer.dLocalize("advancement.challenge_taming_pack_72k.description"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .build());
+    registerMilestone("challenge_taming_pack_72k", "taming.pack-leader.buffed-ticks", 72000, 400);
+  }
+
+  @Override
+  public void addStats(int level, Element v) {
+    v.addLore(C.GREEN + "+ " + Form.f(getRadius(level)) + C.GRAY + " " + Localizer.dLocalize("taming.pack_leader_aura.lore1"));
+    v.addLore(C.GREEN + "+ " + (1 + getAmplifier(level)) + C.GRAY + " " + Localizer.dLocalize("taming.pack_leader_aura.lore2"));
+  }
+
+  @Override
+  public void onTick() {
+    List<OwnerAuraState> owners = collectOwners();
+    if (owners.isEmpty()) {
+      return;
     }
 
-    @Override
-    public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.f(getRadius(level)) + C.GRAY + " " + Localizer.dLocalize("taming.pack_leader_aura.lore1"));
-        v.addLore(C.GREEN + "+ " + (1 + getAmplifier(level)) + C.GRAY + " " + Localizer.dLocalize("taming.pack_leader_aura.lore2"));
+    List<OwnerAuraState> batch = selectBatch(owners);
+    if (J.isFoliaThreading()) {
+      for (OwnerAuraState state : batch) {
+        J.runEntity(state.owner(), () -> applyAura(state));
+      }
+      return;
     }
 
-    @Override
-    public void onTick() {
-        List<OwnerAuraState> owners = collectOwners();
-        if (owners.isEmpty()) {
-            return;
-        }
-
-        List<OwnerAuraState> batch = selectBatch(owners);
-        if (J.isFoliaThreading()) {
-            for (OwnerAuraState state : batch) {
-                J.runEntity(state.owner(), () -> applyAura(state));
-            }
-            return;
-        }
-
-        if (!J.isPrimaryThread()) {
-            J.s(this::onTick);
-            return;
-        }
-
-        for (OwnerAuraState state : batch) {
-            applyAura(state);
-        }
+    if (!J.isPrimaryThread()) {
+      J.s(this::onTick);
+      return;
     }
 
-    private List<OwnerAuraState> collectOwners() {
-        List<OwnerAuraState> owners = new ArrayList<>();
-        for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
-            Player owner = adaptPlayer.getPlayer();
-            int level = getActiveLevel(owner);
-            if (level <= 0) {
-                continue;
-            }
+    for (OwnerAuraState state : batch) {
+      applyAura(state);
+    }
+  }
 
-            double radius = getRadius(level);
-            owners.add(new OwnerAuraState(adaptPlayer, owner, radius, radius * radius, getAmplifier(level)));
-        }
+  private List<OwnerAuraState> collectOwners() {
+    List<OwnerAuraState> owners = new ArrayList<>();
+    for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+      Player owner = adaptPlayer.getPlayer();
+      int level = getActiveLevel(owner);
+      if (level <= 0) {
+        continue;
+      }
 
-        return owners;
+      double radius = getRadius(level);
+      owners.add(new OwnerAuraState(adaptPlayer, owner, radius, radius * radius, getAmplifier(level)));
     }
 
-    private List<OwnerAuraState> selectBatch(List<OwnerAuraState> owners) {
-        int size = owners.size();
-        int limit = Math.max(1, Math.min(size, getConfig().maxOwnersPerPass));
-        int start = Math.floorMod(ownerCursor, size);
-        List<OwnerAuraState> batch = new ArrayList<>(limit);
-        for (int i = 0; i < limit; i++) {
-            int index = (start + i) % size;
-            batch.add(owners.get(index));
-        }
-        ownerCursor = (start + limit) % size;
-        return batch;
+    return owners;
+  }
+
+  private List<OwnerAuraState> selectBatch(List<OwnerAuraState> owners) {
+    int size = owners.size();
+    int limit = Math.max(1, Math.min(size, getConfig().maxOwnersPerPass));
+    int start = Math.floorMod(ownerCursor, size);
+    List<OwnerAuraState> batch = new ArrayList<>(limit);
+    for (int i = 0; i < limit; i++) {
+      int index = (start + i) % size;
+      batch.add(owners.get(index));
+    }
+    ownerCursor = (start + limit) % size;
+    return batch;
+  }
+
+  private void applyAura(OwnerAuraState state) {
+    Player owner = state.owner();
+    if (owner == null || !owner.isOnline()) {
+      return;
     }
 
-    private void applyAura(OwnerAuraState state) {
-        Player owner = state.owner();
-        if (owner == null || !owner.isOnline()) {
-            return;
-        }
+    Location ownerLocation = owner.getLocation();
+    for (Entity nearby : owner.getNearbyEntities(state.radius(), state.radius(), state.radius())) {
+      if (!(nearby instanceof Tameable tameable) || !tameable.isTamed()) {
+        continue;
+      }
+      if (!(tameable.getOwner() instanceof Player petOwner) || !petOwner.getUniqueId().equals(owner.getUniqueId())) {
+        continue;
+      }
+      if (ownerLocation.distanceSquared(tameable.getLocation()) > state.radiusSquared()) {
+        continue;
+      }
 
-        Location ownerLocation = owner.getLocation();
-        for (Entity nearby : owner.getNearbyEntities(state.radius(), state.radius(), state.radius())) {
-            if (!(nearby instanceof Tameable tameable) || !tameable.isTamed()) {
-                continue;
-            }
-            if (!(tameable.getOwner() instanceof Player petOwner) || !petOwner.getUniqueId().equals(owner.getUniqueId())) {
-                continue;
-            }
-            if (ownerLocation.distanceSquared(tameable.getLocation()) > state.radiusSquared()) {
-                continue;
-            }
-
-            tameable.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, getConfig().effectTicks, state.amplifier(), false, false));
-            tameable.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, getConfig().effectTicks, state.amplifier(), false, false));
-            state.ownerData().getData().addStat("taming.pack-leader.buffed-ticks", 1);
-        }
+      tameable.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, getConfig().effectTicks, state.amplifier(), false, false));
+      tameable.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, getConfig().effectTicks, state.amplifier(), false, false));
+      state.ownerData().getData().addStat("taming.pack-leader.buffed-ticks", 1);
     }
+  }
 
-    private record OwnerAuraState(AdaptPlayer ownerData, Player owner, double radius, double radiusSquared, int amplifier) {
-    }
+  private double getRadius(int level) {
+    return getConfig().radiusBase + (getLevelPercent(level) * getConfig().radiusFactor);
+  }
 
-    private double getRadius(int level) {
-        return getConfig().radiusBase + (getLevelPercent(level) * getConfig().radiusFactor);
-    }
+  private int getAmplifier(int level) {
+    return Math.max(0, (int) Math.floor(getLevelPercent(level) * getConfig().maxAmplifier));
+  }
 
-    private int getAmplifier(int level) {
-        return Math.max(0, (int) Math.floor(getLevelPercent(level) * getConfig().maxAmplifier));
-    }
+  @Override
+  public boolean isEnabled() {
+    return getConfig().enabled;
+  }
 
-    @Override
-    public boolean isEnabled() {
-        return getConfig().enabled;
-    }
+  @Override
+  public boolean isPermanent() {
+    return getConfig().permanent;
+  }
 
-    @Override
-    public boolean isPermanent() {
-        return getConfig().permanent;
-    }
+  private record OwnerAuraState(AdaptPlayer ownerData, Player owner,
+                                double radius, double radiusSquared,
+                                int amplifier) {
+  }
 
-    @NoArgsConstructor
-    @ConfigDescription("Nearby tamed companions gain speed and regeneration near their owner.")
-    protected static class Config {
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-        boolean permanent = false;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-        boolean enabled = true;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-        int baseCost = 3;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-        int maxLevel = 5;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-        int initialCost = 3;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-        double costFactor = 0.65;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Radius Base for the Taming Pack Leader Aura adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double radiusBase = 8;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Radius Factor for the Taming Pack Leader Aura adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double radiusFactor = 14;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Amplifier for the Taming Pack Leader Aura adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double maxAmplifier = 2;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Effect Ticks for the Taming Pack Leader Aura adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        int effectTicks = 80;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum owners processed per aura pass.", impact = "Lower values reduce burst workload but spread updates across more passes.")
-        int maxOwnersPerPass = 120;
-    }
+  @NoArgsConstructor
+  @ConfigDescription("Nearby tamed companions gain speed and regeneration near their owner.")
+  protected static class Config {
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
+    boolean permanent = false;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
+    boolean enabled = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
+    int baseCost = 3;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
+    int maxLevel = 5;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
+    int initialCost = 3;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
+    double costFactor = 0.65;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Radius Base for the Taming Pack Leader Aura adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double radiusBase = 8;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Radius Factor for the Taming Pack Leader Aura adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double radiusFactor = 14;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Amplifier for the Taming Pack Leader Aura adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double maxAmplifier = 2;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Effect Ticks for the Taming Pack Leader Aura adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    int effectTicks = 80;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum owners processed per aura pass.", impact = "Lower values reduce burst workload but spread updates across more passes.")
+    int maxOwnersPerPass = 120;
+  }
 }

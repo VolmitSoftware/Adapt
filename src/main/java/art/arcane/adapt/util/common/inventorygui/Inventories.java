@@ -31,76 +31,76 @@ import java.util.List;
  * @author cyberpwn
  */
 public class Inventories {
-    /**
-     * Does the inventory have any space (empty slots)
-     *
-     * @param i the inventory
-     * @return true if it has at least one slot empty
-     */
-    public static boolean hasSpace(Inventory i) {
-        return new PhantomInventory(i).hasSpace();
+  /**
+   * Does the inventory have any space (empty slots)
+   *
+   * @param i the inventory
+   * @return true if it has at least one slot empty
+   */
+  public static boolean hasSpace(Inventory i) {
+    return new PhantomInventory(i).hasSpace();
+  }
+
+  /**
+   * Does the inventory have a given amount of empty space (or more)
+   *
+   * @param i     the inventory
+   * @param slots the slots needed empty
+   * @return true if it has more than or enough empty slots
+   */
+  public static boolean hasSpace(Inventory i, int slots) {
+    int ex = 0;
+
+    ItemStack[] vv = i.getContents();
+
+    for (ItemStack itemStack : vv) {
+      if (itemStack == null || itemStack.getType().equals(Material.AIR)) {
+        ex++;
+      }
     }
 
-    /**
-     * Does the inventory have a given amount of empty space (or more)
-     *
-     * @param i     the inventory
-     * @param slots the slots needed empty
-     * @return true if it has more than or enough empty slots
-     */
-    public static boolean hasSpace(Inventory i, int slots) {
-        int ex = 0;
+    return ex >= slots;
+  }
 
-        ItemStack[] vv = i.getContents();
+  /**
+   * Get the ACTUAL contents in this inventory. Meaning no elements in the list
+   * are null, or just plain air
+   *
+   * @param i the inventory
+   * @return the ACTUAL contents
+   */
+  public static List<ItemStack> getActualContents(Inventory i) {
+    List<ItemStack> actualItems = new ArrayList<>();
 
-        for (ItemStack itemStack : vv) {
-            if (itemStack == null || itemStack.getType().equals(Material.AIR)) {
-                ex++;
-            }
+    for (ItemStack j : i.getContents()) {
+      if (Items.is(j)) {
+        actualItems.add(j);
+      }
+    }
+
+    return actualItems;
+  }
+
+  /**
+   * Does the inventory have space for the given item
+   *
+   * @param i    the inventory
+   * @param item the item
+   * @return returns true if either there is enough empty slots to fill it (amt
+   * / maxStackSize) OR the item can be merged with an existing item, else
+   * false.
+   */
+  public static boolean hasSpace(Inventory i, ItemStack item) {
+    if (hasSpace(i, item.getAmount() / item.getMaxStackSize())) {
+      return true;
+    } else {
+      for (ItemStack j : getActualContents(i)) {
+        if (Items.isMergable(j, item)) {
+          return true;
         }
-
-        return ex >= slots;
+      }
     }
 
-    /**
-     * Get the ACTUAL contents in this inventory. Meaning no elements in the
-     * list are null, or just plain air
-     *
-     * @param i the inventory
-     * @return the ACTUAL contents
-     */
-    public static List<ItemStack> getActualContents(Inventory i) {
-        List<ItemStack> actualItems = new ArrayList<>();
-
-        for (ItemStack j : i.getContents()) {
-            if (Items.is(j)) {
-                actualItems.add(j);
-            }
-        }
-
-        return actualItems;
-    }
-
-    /**
-     * Does the inventory have space for the given item
-     *
-     * @param i    the inventory
-     * @param item the item
-     * @return returns true if either there is enough empty slots to fill it
-     * (amt / maxStackSize) OR the item can be merged with an existing
-     * item, else false.
-     */
-    public static boolean hasSpace(Inventory i, ItemStack item) {
-        if (hasSpace(i, item.getAmount() / item.getMaxStackSize())) {
-            return true;
-        } else {
-            for (ItemStack j : getActualContents(i)) {
-                if (Items.isMergable(j, item)) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
+    return false;
+  }
 }

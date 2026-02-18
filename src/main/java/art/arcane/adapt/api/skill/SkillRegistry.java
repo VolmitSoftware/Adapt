@@ -54,516 +54,516 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class SkillRegistry extends TickedObject {
-    private static final long SLOW_SKILL_REG_MS = 300L;
-    private static final int DEFERRED_SKILLS_PER_TICK = 2;
+  public static final KMap<String, Skill<?>> skills = new KMap<>();
+  private static final long SLOW_SKILL_REG_MS = 300L;
+  private static final int DEFERRED_SKILLS_PER_TICK = 2;
+  private final KMap<String, Skill<?>> knownSkills = new KMap<>();
+  private final KMap<String, Class<? extends Skill<?>>> skillTypes = new KMap<>();
+  private final Map<NamespacedKey, Adaptation<?>> adaptationRecipeIndex = new ConcurrentHashMap<>();
+  private final Deque<Skill<?>> deferredBootstrapRecipeRegistration = new ArrayDeque<>();
+  private volatile boolean deferredBootstrapRecipeTaskScheduled;
+  private volatile boolean bootstrapLoading = true;
+  private volatile boolean foliaRecipeRegistrationWaitWarned;
 
-    public static final KMap<String, Skill<?>> skills = new KMap<>();
-    private final KMap<String, Skill<?>> knownSkills = new KMap<>();
-    private final KMap<String, Class<? extends Skill<?>>> skillTypes = new KMap<>();
-    private final Map<NamespacedKey, Adaptation<?>> adaptationRecipeIndex = new ConcurrentHashMap<>();
-    private final Deque<Skill<?>> deferredBootstrapRecipeRegistration = new ArrayDeque<>();
-    private volatile boolean deferredBootstrapRecipeTaskScheduled;
-    private volatile boolean bootstrapLoading = true;
-    private volatile boolean foliaRecipeRegistrationWaitWarned;
+  public SkillRegistry() {
+    super("registry", UUID.randomUUID() + "-sk", 1250);
+    registerSkill(SkillAgility.class);
+    registerSkill(SkillArchitect.class);
+    registerSkill(SkillAxes.class);
+    registerSkill(SkillBlocking.class);
+    registerSkill(SkillChronos.class);
+    registerSkill(SkillCrafting.class);
+    registerSkill(SkillDiscovery.class);
+    registerSkill(SkillEnchanting.class);
+    registerSkill(SkillHerbalism.class);
+    registerSkill(SkillHunter.class);
+    registerSkill(SkillPickaxes.class);
+    registerSkill(SkillRanged.class);
+    registerSkill(SkillRift.class);
+    registerSkill(SkillSeaborne.class);
+    registerSkill(SkillStealth.class);
+    registerSkill(SkillSwords.class);
+    registerSkill(SkillTaming.class);
+    registerSkill(SkillTragOul.class);
+    registerSkill(SkillUnarmed.class);
+    registerSkill(SkillExcavation.class);
+    registerSkill(SkillBrewing.class);
+    registerSkill(SkillNether.class);
+    bootstrapLoading = false;
+    scheduleDeferredBootstrapRecipeRegistration();
+  }
 
-    public SkillRegistry() {
-        super("registry", UUID.randomUUID() + "-sk", 1250);
-        registerSkill(SkillAgility.class);
-        registerSkill(SkillArchitect.class);
-        registerSkill(SkillAxes.class);
-        registerSkill(SkillBlocking.class);
-        registerSkill(SkillChronos.class);
-        registerSkill(SkillCrafting.class);
-        registerSkill(SkillDiscovery.class);
-        registerSkill(SkillEnchanting.class);
-        registerSkill(SkillHerbalism.class);
-        registerSkill(SkillHunter.class);
-        registerSkill(SkillPickaxes.class);
-        registerSkill(SkillRanged.class);
-        registerSkill(SkillRift.class);
-        registerSkill(SkillSeaborne.class);
-        registerSkill(SkillStealth.class);
-        registerSkill(SkillSwords.class);
-        registerSkill(SkillTaming.class);
-        registerSkill(SkillTragOul.class);
-        registerSkill(SkillUnarmed.class);
-        registerSkill(SkillExcavation.class);
-        registerSkill(SkillBrewing.class);
-        registerSkill(SkillNether.class);
-        bootstrapLoading = false;
-        scheduleDeferredBootstrapRecipeRegistration();
+  @EventHandler
+  public void on(PlayerExpChangeEvent e) {
+    Player p = e.getPlayer();
+    if (e.getAmount() > 0) {
+      getPlayer(p).boostXPToRecents(0.03, 10000);
+    }
+  }
+
+  private boolean canInteract(Player player, Location targetLocation) {
+    if (player == null || targetLocation == null) {
+      return false;
     }
 
-    @EventHandler
-    public void on(PlayerExpChangeEvent e) {
-        Player p = e.getPlayer();
-        if (e.getAmount() > 0) {
-            getPlayer(p).boostXPToRecents(0.03, 10000);
-        }
+    for (Protector protector : Adapt.instance.getProtectorRegistry().getAllProtectors()) {
+      if (!protector.canInteract(player, targetLocation, null)) {
+        return false;
+      }
     }
 
-    private boolean canInteract(Player player, Location targetLocation) {
-        if (player == null || targetLocation == null) {
-            return false;
+    return true;
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(PlayerInteractEvent e) {
+    Player p = e.getPlayer();
+
+    boolean commonConditions = p.isSneaking() && e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && e.getClickedBlock() != null;
+    boolean isLectern = commonConditions && e.getClickedBlock().getType().equals(Material.LECTERN);
+    boolean isObserver = commonConditions && e.getClickedBlock().getType().equals(Material.OBSERVER);
+    boolean allowVerticalFaces = AdaptConfig.get().adaptActivatorAllowVerticalFaces;
+    boolean validActivatorFace = e.getBlockFace() != null
+        && (allowVerticalFaces || (!e.getBlockFace().equals(BlockFace.UP) && !e.getBlockFace().equals(BlockFace.DOWN)));
+    boolean isAdaptActivator = validActivatorFace && !p.isSneaking() && e.getAction().equals(Action.RIGHT_CLICK_BLOCK)
+        && e.getClickedBlock() != null
+        && canInteract(p, e.getClickedBlock().getLocation())
+        && e.getClickedBlock().getType().equals(Material.valueOf(AdaptConfig.get().adaptActivatorBlock)) && (p.getInventory().getItemInMainHand().getType().equals(Material.AIR)
+        || !p.getInventory().getItemInMainHand().getType().isBlock()) &&
+        (p.getInventory().getItemInOffHand().getType().equals(Material.AIR) || !p.getInventory().getItemInOffHand().getType().isBlock());
+
+    if (isAdaptActivator) {
+      SoundPlayer spw = SoundPlayer.of(e.getClickedBlock().getWorld());
+      spw.play(e.getClickedBlock().getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.5f, 0.72f);
+      spw.play(e.getClickedBlock().getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 0.35f, 0.755f);
+      SkillsGui.open(p);
+      e.setCancelled(true);
+      p.getWorld().spawnParticle(Particles.CRIT_MAGIC, e.getClickedBlock().getLocation().clone().add(0.5, 1, 0.5), 25, 0, 0, 0, 1.1);
+      p.getWorld().spawnParticle(Particles.ENCHANTMENT_TABLE, e.getClickedBlock().getLocation().clone().add(0.5, 1, 0.5), 12, 0, 0, 0, 1.1);
+    }
+
+    if (isLectern) {
+      ItemStack it = p.getInventory().getItemInMainHand();
+      if (it.getItemMeta() != null && !it.getItemMeta().getPersistentDataContainer().getKeys().isEmpty()) {
+        e.setCancelled(true);
+        playDebug(p);
+        it.getItemMeta().getPersistentDataContainer().getKeys().forEach(k -> Bukkit.getServer().getConsoleSender().sendMessage(k + " = " + it.getItemMeta().getPersistentDataContainer().getOrDefault(k, PersistentDataType.STRING, "Not a String")));
+      }
+    }
+
+    if (isObserver) {
+      ItemStack it = p.getInventory().getItemInMainHand();
+      if (it.getType().equals(Material.EXPERIENCE_BOTTLE)) {
+        e.setCancelled(true);
+        Bukkit.getServer().getConsoleSender().sendMessage("   ");
+        p.setCooldown(Material.ENCHANTED_BOOK, 3);
+        AdaptPlayer a = getPlayer(p);
+        playDebug(p);
+
+        String xv = a.getData().getMultiplier() - 1d > 0 ? "+" + Form.pc(a.getData().getMultiplier() - 1D) : Form.pc(a.getData().getMultiplier() - 1D);
+        Bukkit.getServer().getConsoleSender().sendMessage("Global" + C.GRAY + ": " + C.GREEN + xv);
+
+        for (XPMultiplier i : a.getData().getMultipliers()) {
+          String vv = i.getMultiplier() > 0 ? "+" + Form.pc(i.getMultiplier()) : Form.pc(i.getMultiplier());
+          Bukkit.getServer().getConsoleSender().sendMessage(C.GREEN + "* " + vv + C.GRAY + " for " + Form.duration(i.getGoodFor() - M.ms(), 0));
+        }
+        for (XPMultiplier i : Adapt.instance.getAdaptServer().getData().getMultipliers()) {
+          String vv = i.getMultiplier() > 0 ? "+" + Form.pc(i.getMultiplier()) : Form.pc(i.getMultiplier());
+          Bukkit.getServer().getConsoleSender().sendMessage(C.GREEN + "* " + vv + C.GRAY + " for " + Form.duration(i.getGoodFor() - M.ms(), 0));
         }
 
-        for (Protector protector : Adapt.instance.getProtectorRegistry().getAllProtectors()) {
-            if (!protector.canInteract(player, targetLocation, null)) {
-                return false;
-            }
+        for (PlayerSkillLine i : a.getData().getSkillLines().v()) {
+          Skill<?> s = i.getRawSkill(a);
+          if (s == null) {
+            continue;
+          }
+          String v = i.getMultiplier() - a.getData().getMultiplier() > 0 ? "+" + Form.pc(i.getMultiplier() - a.getData().getMultiplier()) : Form.pc(i.getMultiplier() - a.getData().getMultiplier());
+          Bukkit.getServer().getConsoleSender().sendMessage("  " + s.getDisplayName() + C.GRAY + ": " + s.getColor() + v);
+          for (XPMultiplier j : i.getMultipliers()) {
+            String vv = j.getMultiplier() > 0 ? "+" + Form.pc(j.getMultiplier()) : Form.pc(j.getMultiplier());
+            Bukkit.getServer().getConsoleSender().sendMessage("  " + s.getShortName() + C.GRAY + " " + vv + " for " + Form.duration(j.getGoodFor() - M.ms(), 0));
+          }
         }
+      }
+    }
+  }
 
+  private void playDebug(Player p) {
+    SoundPlayer sp = SoundPlayer.of(p);
+    sp.play(p.getLocation(), Sound.BLOCK_BELL_RESONATE, 1f, 0.6f);
+    sp.play(p.getLocation(), Sound.BLOCK_BEACON_ACTIVATE, 1f, 0.1f);
+    sp.play(p.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1f, 1.6f);
+    sp.play(p.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1f, 1.2f);
+
+  }
+
+  public Skill<?> getSkill(String i) {
+    if (i == null) {
+      return null;
+    }
+
+    Skill<?> direct = skills.get(i);
+    if (direct != null) {
+      return direct;
+    }
+
+    return skills.get(normalizeSkillName(i));
+  }
+
+  public Skill<?> getAnySkill(String i) {
+    if (i == null) {
+      return null;
+    }
+
+    Skill<?> direct = knownSkills.get(i);
+    if (direct != null) {
+      return direct;
+    }
+
+    return knownSkills.get(normalizeSkillName(i));
+  }
+
+  public List<Skill<?>> getSkills() {
+    return skills.v();
+  }
+
+  public List<Skill<?>> getAllSkills() {
+    return new ArrayList<>(knownSkills.v());
+  }
+
+  public synchronized void registerSkill(Class<? extends Skill<?>> skillType) {
+    long started = System.currentTimeMillis();
+    long instantiateStarted = started;
+    Skill<?> skill = instantiateSkill(skillType);
+    long instantiateMs = System.currentTimeMillis() - instantiateStarted;
+    if (skill == null) {
+      return;
+    }
+
+    String skillName = normalizeSkillName(skill.getName());
+    skillTypes.put(skillName, skillType);
+    Skill<?> previous = knownSkills.put(skillName, skill);
+    if (previous != null && previous != skill) {
+      unregisterRecipes(previous);
+      previous.unregister();
+    }
+
+    if (!skill.isEnabled()) {
+      skill.unregister();
+      skills.remove(skillName);
+      return;
+    }
+
+    skills.put(skillName, skill);
+    if (bootstrapLoading) {
+      deferredBootstrapRecipeRegistration.addLast(skill);
+    } else {
+      registerRecipes(skill);
+    }
+
+    long totalMs = System.currentTimeMillis() - started;
+    if (totalMs >= SLOW_SKILL_REG_MS || instantiateMs >= SLOW_SKILL_REG_MS) {
+      Adapt.warn("Skill registration slow-path [" + skillName + "] total=" + totalMs + "ms instantiate=" + instantiateMs + "ms bootstrap=" + bootstrapLoading + ".");
+    }
+  }
+
+  public synchronized boolean hotReloadSkillConfig(String skillName) {
+    String normalized = normalizeSkillName(skillName);
+    Skill<?> loaded = knownSkills.get(normalized);
+    if (loaded instanceof SimpleSkill<?> simpleSkill) {
+      boolean wasEnabled = loaded.isEnabled();
+      boolean ok = simpleSkill.reloadConfigFromDisk(false);
+      if (!ok) {
+        return false;
+      }
+
+      if (!loaded.isEnabled()) {
+        unregisterRecipes(loaded);
+        if (wasEnabled) {
+          loaded.unregister();
+        }
+        skills.remove(normalized);
         return true;
+      }
+
+      if (!wasEnabled) {
+        return replaceSkillInstance(normalized, inferSkillType(normalized, loaded), loaded);
+      }
+
+      skills.put(normalized, loaded);
+      unregisterRecipes(loaded);
+      registerRecipes(loaded);
+      return true;
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void on(PlayerInteractEvent e) {
-        Player p = e.getPlayer();
-
-        boolean commonConditions = p.isSneaking() && e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && e.getClickedBlock() != null;
-        boolean isLectern = commonConditions && e.getClickedBlock().getType().equals(Material.LECTERN);
-        boolean isObserver = commonConditions && e.getClickedBlock().getType().equals(Material.OBSERVER);
-        boolean allowVerticalFaces = AdaptConfig.get().adaptActivatorAllowVerticalFaces;
-        boolean validActivatorFace = e.getBlockFace() != null
-                && (allowVerticalFaces || (!e.getBlockFace().equals(BlockFace.UP) && !e.getBlockFace().equals(BlockFace.DOWN)));
-        boolean isAdaptActivator = validActivatorFace && !p.isSneaking() && e.getAction().equals(Action.RIGHT_CLICK_BLOCK)
-                && e.getClickedBlock() != null
-                && canInteract(p, e.getClickedBlock().getLocation())
-                && e.getClickedBlock().getType().equals(Material.valueOf(AdaptConfig.get().adaptActivatorBlock)) && (p.getInventory().getItemInMainHand().getType().equals(Material.AIR)
-                || !p.getInventory().getItemInMainHand().getType().isBlock()) &&
-                (p.getInventory().getItemInOffHand().getType().equals(Material.AIR) || !p.getInventory().getItemInOffHand().getType().isBlock());
-
-        if (isAdaptActivator) {
-            SoundPlayer spw = SoundPlayer.of(e.getClickedBlock().getWorld());
-            spw.play(e.getClickedBlock().getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.5f, 0.72f);
-            spw.play(e.getClickedBlock().getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 0.35f, 0.755f);
-            SkillsGui.open(p);
-            e.setCancelled(true);
-            p.getWorld().spawnParticle(Particles.CRIT_MAGIC, e.getClickedBlock().getLocation().clone().add(0.5, 1, 0.5), 25, 0, 0, 0, 1.1);
-            p.getWorld().spawnParticle(Particles.ENCHANTMENT_TABLE, e.getClickedBlock().getLocation().clone().add(0.5, 1, 0.5), 12, 0, 0, 0, 1.1);
-        }
-
-        if (isLectern) {
-            ItemStack it = p.getInventory().getItemInMainHand();
-            if (it.getItemMeta() != null && !it.getItemMeta().getPersistentDataContainer().getKeys().isEmpty()) {
-                e.setCancelled(true);
-                playDebug(p);
-                it.getItemMeta().getPersistentDataContainer().getKeys().forEach(k -> Bukkit.getServer().getConsoleSender().sendMessage(k + " = " + it.getItemMeta().getPersistentDataContainer().getOrDefault(k, PersistentDataType.STRING, "Not a String")));
-            }
-        }
-
-        if (isObserver) {
-            ItemStack it = p.getInventory().getItemInMainHand();
-            if (it.getType().equals(Material.EXPERIENCE_BOTTLE)) {
-                e.setCancelled(true);
-                Bukkit.getServer().getConsoleSender().sendMessage("   ");
-                p.setCooldown(Material.ENCHANTED_BOOK, 3);
-                AdaptPlayer a = getPlayer(p);
-                playDebug(p);
-
-                String xv = a.getData().getMultiplier() - 1d > 0 ? "+" + Form.pc(a.getData().getMultiplier() - 1D) : Form.pc(a.getData().getMultiplier() - 1D);
-                Bukkit.getServer().getConsoleSender().sendMessage("Global" + C.GRAY + ": " + C.GREEN + xv);
-
-                for (XPMultiplier i : a.getData().getMultipliers()) {
-                    String vv = i.getMultiplier() > 0 ? "+" + Form.pc(i.getMultiplier()) : Form.pc(i.getMultiplier());
-                    Bukkit.getServer().getConsoleSender().sendMessage(C.GREEN + "* " + vv + C.GRAY + " for " + Form.duration(i.getGoodFor() - M.ms(), 0));
-                }
-                for (XPMultiplier i : Adapt.instance.getAdaptServer().getData().getMultipliers()) {
-                    String vv = i.getMultiplier() > 0 ? "+" + Form.pc(i.getMultiplier()) : Form.pc(i.getMultiplier());
-                    Bukkit.getServer().getConsoleSender().sendMessage(C.GREEN + "* " + vv + C.GRAY + " for " + Form.duration(i.getGoodFor() - M.ms(), 0));
-                }
-
-                for (PlayerSkillLine i : a.getData().getSkillLines().v()) {
-                    Skill<?> s = i.getRawSkill(a);
-                    if (s == null) {
-                        continue;
-                    }
-                    String v = i.getMultiplier() - a.getData().getMultiplier() > 0 ? "+" + Form.pc(i.getMultiplier() - a.getData().getMultiplier()) : Form.pc(i.getMultiplier() - a.getData().getMultiplier());
-                    Bukkit.getServer().getConsoleSender().sendMessage("  " + s.getDisplayName() + C.GRAY + ": " + s.getColor() + v);
-                    for (XPMultiplier j : i.getMultipliers()) {
-                        String vv = j.getMultiplier() > 0 ? "+" + Form.pc(j.getMultiplier()) : Form.pc(j.getMultiplier());
-                        Bukkit.getServer().getConsoleSender().sendMessage("  " + s.getShortName() + C.GRAY + " " + vv + " for " + Form.duration(j.getGoodFor() - M.ms(), 0));
-                    }
-                }
-            }
-        }
+    Class<? extends Skill<?>> skillType = inferSkillType(normalized, loaded);
+    if (skillType == null) {
+      Adapt.verbose("No known skill type for config hotload: " + skillName);
+      return false;
     }
 
-    private void playDebug(Player p) {
-        SoundPlayer sp = SoundPlayer.of(p);
-        sp.play(p.getLocation(), Sound.BLOCK_BELL_RESONATE, 1f, 0.6f);
-        sp.play(p.getLocation(), Sound.BLOCK_BEACON_ACTIVATE, 1f, 0.1f);
-        sp.play(p.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1f, 1.6f);
-        sp.play(p.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1f, 1.2f);
+    return replaceSkillInstance(normalized, skillType, loaded);
+  }
 
+  @SuppressWarnings("unchecked")
+  private Class<? extends Skill<?>> inferSkillType(String normalizedSkillName, Skill<?> loaded) {
+    Class<? extends Skill<?>> skillType = skillTypes.get(normalizedSkillName);
+    if (skillType != null) {
+      return skillType;
     }
 
-    public Skill<?> getSkill(String i) {
-        if (i == null) {
-            return null;
-        }
-
-        Skill<?> direct = skills.get(i);
-        if (direct != null) {
-            return direct;
-        }
-
-        return skills.get(normalizeSkillName(i));
+    if (loaded != null && Skill.class.isAssignableFrom(loaded.getClass())) {
+      return (Class<? extends Skill<?>>) loaded.getClass();
     }
 
-    public Skill<?> getAnySkill(String i) {
-        if (i == null) {
-            return null;
-        }
+    return null;
+  }
 
-        Skill<?> direct = knownSkills.get(i);
-        if (direct != null) {
-            return direct;
-        }
-
-        return knownSkills.get(normalizeSkillName(i));
+  private boolean replaceSkillInstance(String normalizedName, Class<? extends Skill<?>> skillType, Skill<?> previousLoaded) {
+    Skill<?> replacement = instantiateSkill(skillType);
+    if (replacement == null) {
+      return false;
     }
 
-    public List<Skill<?>> getSkills() {
-        return skills.v();
+    Skill<?> previousKnown = knownSkills.put(normalizedName, replacement);
+    if (previousKnown != null && previousKnown != replacement) {
+      unregisterRecipes(previousKnown);
+      previousKnown.unregister();
+    } else if (previousLoaded != null && previousLoaded != replacement) {
+      unregisterRecipes(previousLoaded);
+      previousLoaded.unregister();
     }
 
-    public List<Skill<?>> getAllSkills() {
-        return new ArrayList<>(knownSkills.v());
+    if (!replacement.isEnabled()) {
+      replacement.unregister();
+      skills.remove(normalizedName);
+      return true;
     }
 
-    public synchronized void registerSkill(Class<? extends Skill<?>> skillType) {
-        long started = System.currentTimeMillis();
-        long instantiateStarted = started;
-        Skill<?> skill = instantiateSkill(skillType);
-        long instantiateMs = System.currentTimeMillis() - instantiateStarted;
-        if (skill == null) {
-            return;
-        }
-
-        String skillName = normalizeSkillName(skill.getName());
-        skillTypes.put(skillName, skillType);
-        Skill<?> previous = knownSkills.put(skillName, skill);
-        if (previous != null && previous != skill) {
-            unregisterRecipes(previous);
-            previous.unregister();
-        }
-
-        if (!skill.isEnabled()) {
-            skill.unregister();
-            skills.remove(skillName);
-            return;
-        }
-
-        skills.put(skillName, skill);
-        if (bootstrapLoading) {
-            deferredBootstrapRecipeRegistration.addLast(skill);
-        } else {
-            registerRecipes(skill);
-        }
-
-        long totalMs = System.currentTimeMillis() - started;
-        if (totalMs >= SLOW_SKILL_REG_MS || instantiateMs >= SLOW_SKILL_REG_MS) {
-            Adapt.warn("Skill registration slow-path [" + skillName + "] total=" + totalMs + "ms instantiate=" + instantiateMs + "ms bootstrap=" + bootstrapLoading + ".");
-        }
+    Skill<?> previous = skills.put(normalizedName, replacement);
+    if (previous != null && previous != replacement) {
+      unregisterRecipes(previous);
+      previous.unregister();
     }
 
-    public synchronized boolean hotReloadSkillConfig(String skillName) {
-        String normalized = normalizeSkillName(skillName);
-        Skill<?> loaded = knownSkills.get(normalized);
-        if (loaded instanceof SimpleSkill<?> simpleSkill) {
-            boolean wasEnabled = loaded.isEnabled();
-            boolean ok = simpleSkill.reloadConfigFromDisk(false);
-            if (!ok) {
-                return false;
-            }
+    registerRecipes(replacement);
+    return true;
+  }
 
-            if (!loaded.isEnabled()) {
-                unregisterRecipes(loaded);
-                if (wasEnabled) {
-                    loaded.unregister();
-                }
-                skills.remove(normalized);
-                return true;
-            }
-
-            if (!wasEnabled) {
-                return replaceSkillInstance(normalized, inferSkillType(normalized, loaded), loaded);
-            }
-
-            skills.put(normalized, loaded);
-            unregisterRecipes(loaded);
-            registerRecipes(loaded);
-            return true;
-        }
-
-        Class<? extends Skill<?>> skillType = inferSkillType(normalized, loaded);
-        if (skillType == null) {
-            Adapt.verbose("No known skill type for config hotload: " + skillName);
-            return false;
-        }
-
-        return replaceSkillInstance(normalized, skillType, loaded);
+  public synchronized void refreshRecipes(Skill<?> skill) {
+    if (skill == null) {
+      return;
     }
 
-    @SuppressWarnings("unchecked")
-    private Class<? extends Skill<?>> inferSkillType(String normalizedSkillName, Skill<?> loaded) {
-        Class<? extends Skill<?>> skillType = skillTypes.get(normalizedSkillName);
-        if (skillType != null) {
-            return skillType;
-        }
+    unregisterRecipes(skill);
+    if (skill.isEnabled()) {
+      registerRecipes(skill);
+    }
+  }
 
-        if (loaded != null && Skill.class.isAssignableFrom(loaded.getClass())) {
-            return (Class<? extends Skill<?>>) loaded.getClass();
-        }
-
-        return null;
+  public boolean isKnownSkill(String skillName) {
+    if (skillName == null) {
+      return false;
     }
 
-    private boolean replaceSkillInstance(String normalizedName, Class<? extends Skill<?>> skillType, Skill<?> previousLoaded) {
-        Skill<?> replacement = instantiateSkill(skillType);
-        if (replacement == null) {
-            return false;
-        }
+    return skillTypes.containsKey(normalizeSkillName(skillName));
+  }
 
-        Skill<?> previousKnown = knownSkills.put(normalizedName, replacement);
-        if (previousKnown != null && previousKnown != replacement) {
-            unregisterRecipes(previousKnown);
-            previousKnown.unregister();
-        } else if (previousLoaded != null && previousLoaded != replacement) {
-            unregisterRecipes(previousLoaded);
-            previousLoaded.unregister();
-        }
-
-        if (!replacement.isEnabled()) {
-            replacement.unregister();
-            skills.remove(normalizedName);
-            return true;
-        }
-
-        Skill<?> previous = skills.put(normalizedName, replacement);
-        if (previous != null && previous != replacement) {
-            unregisterRecipes(previous);
-            previous.unregister();
-        }
-
-        registerRecipes(replacement);
-        return true;
+  public Adaptation<?> getRequiredAdaptation(Recipe recipe) {
+    if (!(recipe instanceof Keyed keyed)) {
+      return null;
     }
 
-    public synchronized void refreshRecipes(Skill<?> skill) {
-        if (skill == null) {
-            return;
-        }
+    return adaptationRecipeIndex.get(keyed.getKey());
+  }
 
-        unregisterRecipes(skill);
-        if (skill.isEnabled()) {
-            registerRecipes(skill);
-        }
+  private Skill<?> instantiateSkill(Class<? extends Skill<?>> skillType) {
+    try {
+      return skillType.getConstructor().newInstance();
+    } catch (InstantiationException | IllegalAccessException |
+             InvocationTargetException | NoSuchMethodException e) {
+      e.printStackTrace();
+      return null;
+    }
+  }
+
+  private void unregisterRecipes(Skill<?> s) {
+    s.getRecipes().forEach(AdaptRecipe::unregister);
+    s.getAdaptations().forEach(adaptation -> {
+      adaptation.getRecipes().forEach(recipe -> {
+        removeAdaptationRecipeIndex(recipe, adaptation);
+        recipe.unregister();
+      });
+    });
+  }
+
+  private void registerRecipes(Skill<?> s) {
+    if (s == null) {
+      return;
     }
 
-    public boolean isKnownSkill(String skillName) {
-        if (skillName == null) {
-            return false;
-        }
-
-        return skillTypes.containsKey(normalizeSkillName(skillName));
+    if (shouldDelayRecipeRegistrationForFolia()) {
+      enqueueDeferredRecipeRegistration(s);
+      return;
     }
 
-    public Adaptation<?> getRequiredAdaptation(Recipe recipe) {
-        if (!(recipe instanceof Keyed keyed)) {
-            return null;
-        }
+    registerRecipesNow(s);
+  }
 
-        return adaptationRecipeIndex.get(keyed.getKey());
+  private void registerRecipesNow(Skill<?> s) {
+    if (!s.isEnabled()) {
+      return;
+    }
+    s.getRecipes().forEach(AdaptRecipe::register);
+    s.getAdaptations().forEach(adaptation -> {
+      if (!adaptation.isEnabled()) {
+        return;
+      }
+      adaptation.getRecipes().forEach(recipe -> {
+        recipe.register();
+        indexAdaptationRecipe(recipe, adaptation);
+      });
+      adaptation.getBrewingRecipes().forEach(r -> BrewingManager.registerRecipe(adaptation.getName(), r));
+    });
+  }
+
+  private boolean shouldDelayRecipeRegistrationForFolia() {
+    if (!J.isFoliaThreading()) {
+      return false;
     }
 
-    private Skill<?> instantiateSkill(Class<? extends Skill<?>> skillType) {
-        try {
-            return skillType.getConstructor().newInstance();
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            e.printStackTrace();
-            return null;
-        }
+    return !Bukkit.getOnlinePlayers().isEmpty();
+  }
+
+  private synchronized void enqueueDeferredRecipeRegistration(Skill<?> skill) {
+    if (skill == null) {
+      return;
     }
 
-    private void unregisterRecipes(Skill<?> s) {
-        s.getRecipes().forEach(AdaptRecipe::unregister);
-        s.getAdaptations().forEach(adaptation -> {
-            adaptation.getRecipes().forEach(recipe -> {
-                removeAdaptationRecipeIndex(recipe, adaptation);
-                recipe.unregister();
-            });
-        });
+    deferredBootstrapRecipeRegistration.remove(skill);
+    deferredBootstrapRecipeRegistration.addLast(skill);
+    scheduleDeferredBootstrapRecipeRegistration();
+  }
+
+  @Override
+  public void unregister() {
+    deferredBootstrapRecipeTaskScheduled = false;
+    deferredBootstrapRecipeRegistration.clear();
+    for (Skill<?> i : knownSkills.v()) {
+      i.unregister();
+      unregisterRecipes(i);
+    }
+    skills.clear();
+    knownSkills.clear();
+    skillTypes.clear();
+    adaptationRecipeIndex.clear();
+  }
+
+  @Override
+  public void onTick() {
+
+  }
+
+  private String normalizeSkillName(String raw) {
+    String normalized = raw.trim().toLowerCase(Locale.ROOT);
+    if (normalized.startsWith("[skill]-")) {
+      normalized = normalized.substring("[skill]-".length());
     }
 
-    private void registerRecipes(Skill<?> s) {
-        if (s == null) {
-            return;
-        }
+    if (normalized.equals("chrono")) {
+      normalized = "chronos";
+    }
 
+    return normalized;
+  }
+
+  private void indexAdaptationRecipe(AdaptRecipe recipe, Adaptation<?> adaptation) {
+    if (recipe == null || adaptation == null) {
+      return;
+    }
+
+    NamespacedKey key = recipe.getNSKey();
+    Adaptation<?> previous = adaptationRecipeIndex.put(key, adaptation);
+    if (previous != null && previous != adaptation) {
+      Adapt.warn("Recipe key conflict for " + key + ": " + previous.getName() + " replaced by " + adaptation.getName());
+    }
+  }
+
+  private void removeAdaptationRecipeIndex(AdaptRecipe recipe, Adaptation<?> adaptation) {
+    if (recipe == null) {
+      return;
+    }
+
+    NamespacedKey key = recipe.getNSKey();
+    if (adaptation == null) {
+      adaptationRecipeIndex.remove(key);
+      return;
+    }
+
+    adaptationRecipeIndex.computeIfPresent(key, (k, current) -> current == adaptation ? null : current);
+  }
+
+  private synchronized void scheduleDeferredBootstrapRecipeRegistration() {
+    if (deferredBootstrapRecipeRegistration.isEmpty() || deferredBootstrapRecipeTaskScheduled) {
+      return;
+    }
+
+    deferredBootstrapRecipeTaskScheduled = true;
+    Adapt.info("Deferring recipe registration for " + deferredBootstrapRecipeRegistration.size() + " skills.");
+    J.s(this::runDeferredBootstrapRecipeRegistrationTick, 1);
+  }
+
+  private void runDeferredBootstrapRecipeRegistrationTick() {
+    if (shouldDelayRecipeRegistrationForFolia()) {
+      if (!foliaRecipeRegistrationWaitWarned) {
+        foliaRecipeRegistrationWaitWarned = true;
+        Adapt.warn("Delaying Adapt recipe registration on Folia while players are online to avoid unsafe recipe reload races. Recipes will register automatically when the server has no online players.");
+      }
+      J.s(this::runDeferredBootstrapRecipeRegistrationTick, 20);
+      return;
+    }
+
+    foliaRecipeRegistrationWaitWarned = false;
+    boolean complete;
+
+    synchronized (this) {
+      if (!deferredBootstrapRecipeTaskScheduled) {
+        return;
+      }
+
+      int processed = 0;
+      long started = System.currentTimeMillis();
+      while (processed < DEFERRED_SKILLS_PER_TICK) {
         if (shouldDelayRecipeRegistrationForFolia()) {
-            enqueueDeferredRecipeRegistration(s);
-            return;
+          break;
         }
 
-        registerRecipesNow(s);
-    }
-
-    private void registerRecipesNow(Skill<?> s) {
-        if (!s.isEnabled()) {
-            return;
-        }
-        s.getRecipes().forEach(AdaptRecipe::register);
-        s.getAdaptations().forEach(adaptation -> {
-            if (!adaptation.isEnabled()) {
-                return;
-            }
-            adaptation.getRecipes().forEach(recipe -> {
-                recipe.register();
-                indexAdaptationRecipe(recipe, adaptation);
-            });
-            adaptation.getBrewingRecipes().forEach(r -> BrewingManager.registerRecipe(adaptation.getName(), r));
-        });
-    }
-
-    private boolean shouldDelayRecipeRegistrationForFolia() {
-        if (!J.isFoliaThreading()) {
-            return false;
-        }
-
-        return !Bukkit.getOnlinePlayers().isEmpty();
-    }
-
-    private synchronized void enqueueDeferredRecipeRegistration(Skill<?> skill) {
+        Skill<?> skill = deferredBootstrapRecipeRegistration.pollFirst();
         if (skill == null) {
-            return;
+          break;
         }
+        registerRecipesNow(skill);
+        processed++;
+        if (System.currentTimeMillis() - started > 8L) {
+          break;
+        }
+      }
 
-        deferredBootstrapRecipeRegistration.remove(skill);
-        deferredBootstrapRecipeRegistration.addLast(skill);
-        scheduleDeferredBootstrapRecipeRegistration();
-    }
-
-    @Override
-    public void unregister() {
+      complete = deferredBootstrapRecipeRegistration.isEmpty();
+      if (complete) {
         deferredBootstrapRecipeTaskScheduled = false;
-        deferredBootstrapRecipeRegistration.clear();
-        for (Skill<?> i : knownSkills.v()) {
-            i.unregister();
-            unregisterRecipes(i);
-        }
-        skills.clear();
-        knownSkills.clear();
-        skillTypes.clear();
-        adaptationRecipeIndex.clear();
+      }
     }
 
-    @Override
-    public void onTick() {
-
+    if (complete) {
+      Adapt.info("Deferred recipe registration completed.");
+      return;
     }
 
-    private String normalizeSkillName(String raw) {
-        String normalized = raw.trim().toLowerCase(Locale.ROOT);
-        if (normalized.startsWith("[skill]-")) {
-            normalized = normalized.substring("[skill]-".length());
-        }
-
-        if (normalized.equals("chrono")) {
-            normalized = "chronos";
-        }
-
-        return normalized;
+    if (shouldDelayRecipeRegistrationForFolia()) {
+      J.s(this::runDeferredBootstrapRecipeRegistrationTick, 20);
+    } else {
+      J.s(this::runDeferredBootstrapRecipeRegistrationTick, 1);
     }
-
-    private void indexAdaptationRecipe(AdaptRecipe recipe, Adaptation<?> adaptation) {
-        if (recipe == null || adaptation == null) {
-            return;
-        }
-
-        NamespacedKey key = recipe.getNSKey();
-        Adaptation<?> previous = adaptationRecipeIndex.put(key, adaptation);
-        if (previous != null && previous != adaptation) {
-            Adapt.warn("Recipe key conflict for " + key + ": " + previous.getName() + " replaced by " + adaptation.getName());
-        }
-    }
-
-    private void removeAdaptationRecipeIndex(AdaptRecipe recipe, Adaptation<?> adaptation) {
-        if (recipe == null) {
-            return;
-        }
-
-        NamespacedKey key = recipe.getNSKey();
-        if (adaptation == null) {
-            adaptationRecipeIndex.remove(key);
-            return;
-        }
-
-        adaptationRecipeIndex.computeIfPresent(key, (k, current) -> current == adaptation ? null : current);
-    }
-
-    private synchronized void scheduleDeferredBootstrapRecipeRegistration() {
-        if (deferredBootstrapRecipeRegistration.isEmpty() || deferredBootstrapRecipeTaskScheduled) {
-            return;
-        }
-
-        deferredBootstrapRecipeTaskScheduled = true;
-        Adapt.info("Deferring recipe registration for " + deferredBootstrapRecipeRegistration.size() + " skills.");
-        J.s(this::runDeferredBootstrapRecipeRegistrationTick, 1);
-    }
-
-    private void runDeferredBootstrapRecipeRegistrationTick() {
-        if (shouldDelayRecipeRegistrationForFolia()) {
-            if (!foliaRecipeRegistrationWaitWarned) {
-                foliaRecipeRegistrationWaitWarned = true;
-                Adapt.warn("Delaying Adapt recipe registration on Folia while players are online to avoid unsafe recipe reload races. Recipes will register automatically when the server has no online players.");
-            }
-            J.s(this::runDeferredBootstrapRecipeRegistrationTick, 20);
-            return;
-        }
-
-        foliaRecipeRegistrationWaitWarned = false;
-        boolean complete;
-
-        synchronized (this) {
-            if (!deferredBootstrapRecipeTaskScheduled) {
-                return;
-            }
-
-            int processed = 0;
-            long started = System.currentTimeMillis();
-            while (processed < DEFERRED_SKILLS_PER_TICK) {
-                if (shouldDelayRecipeRegistrationForFolia()) {
-                    break;
-                }
-
-                Skill<?> skill = deferredBootstrapRecipeRegistration.pollFirst();
-                if (skill == null) {
-                    break;
-                }
-                registerRecipesNow(skill);
-                processed++;
-                if (System.currentTimeMillis() - started > 8L) {
-                    break;
-                }
-            }
-
-            complete = deferredBootstrapRecipeRegistration.isEmpty();
-            if (complete) {
-                deferredBootstrapRecipeTaskScheduled = false;
-            }
-        }
-
-        if (complete) {
-            Adapt.info("Deferred recipe registration completed.");
-            return;
-        }
-
-        if (shouldDelayRecipeRegistrationForFolia()) {
-            J.s(this::runDeferredBootstrapRecipeRegistrationTick, 20);
-        } else {
-            J.s(this::runDeferredBootstrapRecipeRegistrationTick, 1);
-        }
-    }
+  }
 }

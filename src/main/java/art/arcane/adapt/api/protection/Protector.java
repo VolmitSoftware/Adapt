@@ -24,39 +24,39 @@ import org.bukkit.entity.Player;
 
 public interface Protector {
 
-    default boolean canBlockBreak(Player player, Location blockLocation, Adaptation<?> adaptation) {
-        return true;
-    }
+  default boolean canBlockBreak(Player player, Location blockLocation, Adaptation<?> adaptation) {
+    return true;
+  }
 
-    default boolean canBlockPlace(Player player, Location blockLocation, Adaptation<?> adaptation) {
-        return true;
-    }
+  default boolean canBlockPlace(Player player, Location blockLocation, Adaptation<?> adaptation) {
+    return true;
+  }
 
-    default boolean canPVP(Player player, Location victimLocation, Adaptation<?> adaptation) {
-        return true;
-    }
+  default boolean canPVP(Player player, Location victimLocation, Adaptation<?> adaptation) {
+    return true;
+  }
 
-    default boolean canPVE(Player player, Location victimLocation, Adaptation<?> adaptation) {
-        return true;
-    }
+  default boolean canPVE(Player player, Location victimLocation, Adaptation<?> adaptation) {
+    return true;
+  }
 
-    default boolean canInteract(Player player, Location targetLocation, Adaptation<?> adaptation) {
-        return true;
-    }
+  default boolean canInteract(Player player, Location targetLocation, Adaptation<?> adaptation) {
+    return true;
+  }
 
-    default boolean canAccessChest(Player player, Location chestLocation, Adaptation<?> adaptation) {
-        return true;
-    }
+  default boolean canAccessChest(Player player, Location chestLocation, Adaptation<?> adaptation) {
+    return true;
+  }
 
-    default boolean checkRegion(Player player, Location location, Adaptation<?> adaptation) {
-        return true;
-    }
+  default boolean checkRegion(Player player, Location location, Adaptation<?> adaptation) {
+    return true;
+  }
 
 
-    String getName();
+  String getName();
 
-    boolean isEnabledByDefault();
+  boolean isEnabledByDefault();
 
-    default void unregister() {
-    }
+  default void unregister() {
+  }
 }

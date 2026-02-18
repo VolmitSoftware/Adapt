@@ -27,36 +27,36 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MultiArmor implements MultiItem {
-    @Override
-    public boolean supportsItem(ItemStack itemStack) {
-        return true;
+  @Override
+  public boolean supportsItem(ItemStack itemStack) {
+    return true;
+  }
+
+  @Override
+  public String getKey() {
+    return "multiarmor";
+  }
+
+  @Override
+  public void onApplyMeta(ItemStack item, ItemMeta meta, List<ItemStack> otherItems) {
+    List<String> lore = new ArrayList<>();
+    lore.add("MultiArmor (" + (otherItems.size() + 1) + " Items)");
+    lore.add("-> " + Form.capitalizeWords(item.getType().name().toLowerCase().replaceAll("\\Q_\\E", " ")));
+
+    for (ItemStack i : otherItems) {
+      lore.add("-  " + Form.capitalizeWords(i.getType().name().toLowerCase().replaceAll("\\Q_\\E", " ")));
     }
 
-    @Override
-    public String getKey() {
-        return "multiarmor";
-    }
+    meta.setLore(lore);
+  }
 
-    @Override
-    public void onApplyMeta(ItemStack item, ItemMeta meta, List<ItemStack> otherItems) {
-        List<String> lore = new ArrayList<>();
-        lore.add("MultiArmor (" + (otherItems.size() + 1) + " Items)");
-        lore.add("-> " + Form.capitalizeWords(item.getType().name().toLowerCase().replaceAll("\\Q_\\E", " ")));
+  public ItemStack nextElytra(ItemStack item) {
+    return nextMatching(item, i -> i.getType().equals(Material.ELYTRA));
+  }
 
-        for (ItemStack i : otherItems) {
-            lore.add("-  " + Form.capitalizeWords(i.getType().name().toLowerCase().replaceAll("\\Q_\\E", " ")));
-        }
-
-        meta.setLore(lore);
-    }
-
-    public ItemStack nextElytra(ItemStack item) {
-        return nextMatching(item, i -> i.getType().equals(Material.ELYTRA));
-    }
-
-    public ItemStack nextChestplate(ItemStack item) {
-        return nextMatching(item, i -> i.getType().name().endsWith("_CHESTPLATE"));
-    }
+  public ItemStack nextChestplate(ItemStack item) {
+    return nextMatching(item, i -> i.getType().name().endsWith("_CHESTPLATE"));
+  }
 
 
 }

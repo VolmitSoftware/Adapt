@@ -45,192 +45,193 @@ import java.util.List;
 import java.util.Optional;
 
 public class CommandSVC implements AdaptService, CommandExecutor, TabCompleter, DirectorInvocationHook {
-    private static final String ROOT_COMMAND = "adapt";
-    private static final String ROOT_PERMISSION = "adapt.main";
+  private static final String ROOT_COMMAND = "adapt";
+  private static final String ROOT_PERMISSION = "adapt.main";
 
-    private final transient AtomicCache<DirectorRuntimeEngine> directorCache = new AtomicCache<>();
-    private final transient AtomicCache<DirectorVisualCommand> helpCache = new AtomicCache<>();
+  private final transient AtomicCache<DirectorRuntimeEngine> directorCache = new AtomicCache<>();
+  private final transient AtomicCache<DirectorVisualCommand> helpCache = new AtomicCache<>();
+
+  @Override
+  public void onEnable() {
+    Adapt.verbose("Initializing Commands...");
+    PluginCommand command = Adapt.instance.getCommand(ROOT_COMMAND);
+    if (command == null) {
+      Adapt.warn("Failed to find command '" + ROOT_COMMAND + "'");
+      return;
+    }
+
+    command.setExecutor(this);
+    command.setTabCompleter(this);
+    J.a(this::getDirector);
+  }
+
+  @Override
+  public void onDisable() {
+
+  }
+
+  public DirectorRuntimeEngine getDirector() {
+    return directorCache.aquireNastyPrint(() -> DirectorEngineFactory.create(
+        new CommandAdapt(),
+        null,
+        buildDirectorContexts(),
+        this::dispatchDirector,
+        this,
+        DirectorSystem.handlers
+    ));
+  }
+
+  private DirectorContextRegistry buildDirectorContexts() {
+    DirectorContextRegistry contexts = new DirectorContextRegistry();
+    contexts.register(World.class, (invocation, map) -> {
+      if (invocation.getSender() instanceof BukkitDirectorSender sender && sender.sender() instanceof Player player) {
+        return player.getWorld();
+      }
+
+      return null;
+    });
+
+    return contexts;
+  }
+
+  private void dispatchDirector(DirectorExecutionMode mode, Runnable runnable) {
+    if (mode == DirectorExecutionMode.SYNC) {
+      J.s(runnable);
+    } else {
+      runnable.run();
+    }
+  }
+
+  @Override
+  public void beforeInvoke(DirectorInvocation invocation, DirectorRuntimeNode node) {
+    if (invocation.getSender() instanceof BukkitDirectorSender sender) {
+      BukkitDirectorContext.touch(sender.sender());
+    }
+  }
+
+  @Override
+  public void afterInvoke(DirectorInvocation invocation, DirectorRuntimeNode node) {
+    BukkitDirectorContext.remove();
+  }
+
+  @Nullable
+  @Override
+  public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
+    if (!command.getName().equalsIgnoreCase(ROOT_COMMAND)) {
+      return List.of();
+    }
+
+    List<String> v = runDirectorTab(sender, alias, args);
+
+    if (sender instanceof Player p) {
+      SoundPlayer sp = SoundPlayer.of(p);
+      sp.play(p.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.25f, RNG.r.f(0.125f, 1.95f));
+    }
+
+    return v;
+  }
+
+  @Override
+  public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+    if (!command.getName().equalsIgnoreCase(ROOT_COMMAND)) {
+      return false;
+    }
+
+    Adapt.verbose("Received Command from %s: /%s".formatted(sender.getName(), label + String.join(" ", args)));
+    if (!sender.hasPermission(ROOT_PERMISSION)) {
+      sender.sendMessage("You lack the Permission '" + ROOT_PERMISSION + "'");
+      return true;
+    }
+
+    executeCommand(sender, label, args);
+    return true;
+  }
+
+  private void executeCommand(CommandSender sender, String label, String[] args) {
+    if (sendHelpIfRequested(sender, args)) {
+      playSuccessSound(sender);
+      return;
+    }
+
+    DirectorExecutionResult result = runDirector(sender, label, args);
+
+    if (result.isSuccess()) {
+      playSuccessSound(sender);
+      return;
+    }
+
+    playFailureSound(sender);
+    if (result.getMessage() == null || result.getMessage().trim().isEmpty()) {
+      sender.sendMessage(C.RED + "Unknown Adapt Command");
+    }
+  }
+
+  private boolean sendHelpIfRequested(CommandSender sender, String[] args) {
+    Optional<DirectorVisualCommand.HelpRequest> request = DirectorVisualCommand.resolveHelp(getHelpRoot(), Arrays.asList(args));
+    if (request.isEmpty()) {
+      return false;
+    }
+
+    VolmitSender volmitSender = new VolmitSender(sender);
+    volmitSender.sendDirectorHelp(request.get().command(), request.get().page());
+    return true;
+  }
+
+  private DirectorVisualCommand getHelpRoot() {
+    return helpCache.aquireNastyPrint(() -> DirectorVisualCommand.createRoot(getDirector()));
+  }
+
+  private DirectorExecutionResult runDirector(CommandSender sender, String label, String[] args) {
+    try {
+      return getDirector().execute(new DirectorInvocation(new BukkitDirectorSender(sender), label, Arrays.asList(args)));
+    } catch (Throwable e) {
+      Adapt.warn("Director command execution failed: " + e.getClass().getSimpleName() + " " + e.getMessage());
+      return DirectorExecutionResult.notHandled();
+    }
+  }
+
+  private List<String> runDirectorTab(CommandSender sender, String alias, String[] args) {
+    try {
+      return getDirector().tabComplete(new DirectorInvocation(new BukkitDirectorSender(sender), alias, Arrays.asList(args)));
+    } catch (Throwable e) {
+      Adapt.warn("Director tab completion failed: " + e.getClass().getSimpleName() + " " + e.getMessage());
+      return List.of();
+    }
+  }
+
+  private void playFailureSound(CommandSender sender) {
+    if (sender instanceof Player player) {
+      SoundPlayer sp = SoundPlayer.of(player);
+      sp.play(player.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_DEPLETE, 0.77f, 0.25f);
+      sp.play(player.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 0.2f, 0.45f);
+    }
+  }
+
+  private void playSuccessSound(CommandSender sender) {
+    if (sender instanceof Player player) {
+      SoundPlayer sp = SoundPlayer.of(player);
+      sp.play(player.getLocation(), Sound.BLOCK_AMETHYST_CLUSTER_BREAK, 0.77f, 1.65f);
+      sp.play(player.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 0.125f, 2.99f);
+    }
+  }
+
+  private record BukkitDirectorSender(
+      CommandSender sender) implements DirectorSender {
+    @Override
+    public String getName() {
+      return sender.getName();
+    }
 
     @Override
-    public void onEnable() {
-        Adapt.verbose("Initializing Commands...");
-        PluginCommand command = Adapt.instance.getCommand(ROOT_COMMAND);
-        if (command == null) {
-            Adapt.warn("Failed to find command '" + ROOT_COMMAND + "'");
-            return;
-        }
-
-        command.setExecutor(this);
-        command.setTabCompleter(this);
-        J.a(this::getDirector);
+    public boolean isPlayer() {
+      return sender instanceof Player;
     }
 
     @Override
-    public void onDisable() {
-
+    public void sendMessage(String message) {
+      if (message != null && !message.trim().isEmpty()) {
+        sender.sendMessage(message);
+      }
     }
-
-    public DirectorRuntimeEngine getDirector() {
-        return directorCache.aquireNastyPrint(() -> DirectorEngineFactory.create(
-                new CommandAdapt(),
-                null,
-                buildDirectorContexts(),
-                this::dispatchDirector,
-                this,
-                DirectorSystem.handlers
-        ));
-    }
-
-    private DirectorContextRegistry buildDirectorContexts() {
-        DirectorContextRegistry contexts = new DirectorContextRegistry();
-        contexts.register(World.class, (invocation, map) -> {
-            if (invocation.getSender() instanceof BukkitDirectorSender sender && sender.sender() instanceof Player player) {
-                return player.getWorld();
-            }
-
-            return null;
-        });
-
-        return contexts;
-    }
-
-    private void dispatchDirector(DirectorExecutionMode mode, Runnable runnable) {
-        if (mode == DirectorExecutionMode.SYNC) {
-            J.s(runnable);
-        } else {
-            runnable.run();
-        }
-    }
-
-    @Override
-    public void beforeInvoke(DirectorInvocation invocation, DirectorRuntimeNode node) {
-        if (invocation.getSender() instanceof BukkitDirectorSender sender) {
-            BukkitDirectorContext.touch(sender.sender());
-        }
-    }
-
-    @Override
-    public void afterInvoke(DirectorInvocation invocation, DirectorRuntimeNode node) {
-        BukkitDirectorContext.remove();
-    }
-
-    @Nullable
-    @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
-        if (!command.getName().equalsIgnoreCase(ROOT_COMMAND)) {
-            return List.of();
-        }
-
-        List<String> v = runDirectorTab(sender, alias, args);
-
-        if (sender instanceof Player p) {
-            SoundPlayer sp = SoundPlayer.of(p);
-            sp.play(p.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.25f, RNG.r.f(0.125f, 1.95f));
-        }
-
-        return v;
-    }
-
-    @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (!command.getName().equalsIgnoreCase(ROOT_COMMAND)) {
-            return false;
-        }
-
-        Adapt.verbose("Received Command from %s: /%s".formatted(sender.getName(), label + String.join(" ", args)));
-        if (!sender.hasPermission(ROOT_PERMISSION)) {
-            sender.sendMessage("You lack the Permission '" + ROOT_PERMISSION + "'");
-            return true;
-        }
-
-        executeCommand(sender, label, args);
-        return true;
-    }
-
-    private void executeCommand(CommandSender sender, String label, String[] args) {
-        if (sendHelpIfRequested(sender, args)) {
-            playSuccessSound(sender);
-            return;
-        }
-
-        DirectorExecutionResult result = runDirector(sender, label, args);
-
-        if (result.isSuccess()) {
-            playSuccessSound(sender);
-            return;
-        }
-
-        playFailureSound(sender);
-        if (result.getMessage() == null || result.getMessage().trim().isEmpty()) {
-            sender.sendMessage(C.RED + "Unknown Adapt Command");
-        }
-    }
-
-    private boolean sendHelpIfRequested(CommandSender sender, String[] args) {
-        Optional<DirectorVisualCommand.HelpRequest> request = DirectorVisualCommand.resolveHelp(getHelpRoot(), Arrays.asList(args));
-        if (request.isEmpty()) {
-            return false;
-        }
-
-        VolmitSender volmitSender = new VolmitSender(sender);
-        volmitSender.sendDirectorHelp(request.get().command(), request.get().page());
-        return true;
-    }
-
-    private DirectorVisualCommand getHelpRoot() {
-        return helpCache.aquireNastyPrint(() -> DirectorVisualCommand.createRoot(getDirector()));
-    }
-
-    private DirectorExecutionResult runDirector(CommandSender sender, String label, String[] args) {
-        try {
-            return getDirector().execute(new DirectorInvocation(new BukkitDirectorSender(sender), label, Arrays.asList(args)));
-        } catch (Throwable e) {
-            Adapt.warn("Director command execution failed: " + e.getClass().getSimpleName() + " " + e.getMessage());
-            return DirectorExecutionResult.notHandled();
-        }
-    }
-
-    private List<String> runDirectorTab(CommandSender sender, String alias, String[] args) {
-        try {
-            return getDirector().tabComplete(new DirectorInvocation(new BukkitDirectorSender(sender), alias, Arrays.asList(args)));
-        } catch (Throwable e) {
-            Adapt.warn("Director tab completion failed: " + e.getClass().getSimpleName() + " " + e.getMessage());
-            return List.of();
-        }
-    }
-
-    private void playFailureSound(CommandSender sender) {
-        if (sender instanceof Player player) {
-            SoundPlayer sp = SoundPlayer.of(player);
-            sp.play(player.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_DEPLETE, 0.77f, 0.25f);
-            sp.play(player.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 0.2f, 0.45f);
-        }
-    }
-
-    private void playSuccessSound(CommandSender sender) {
-        if (sender instanceof Player player) {
-            SoundPlayer sp = SoundPlayer.of(player);
-            sp.play(player.getLocation(), Sound.BLOCK_AMETHYST_CLUSTER_BREAK, 0.77f, 1.65f);
-            sp.play(player.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 0.125f, 2.99f);
-        }
-    }
-
-    private record BukkitDirectorSender(CommandSender sender) implements DirectorSender {
-        @Override
-        public String getName() {
-            return sender.getName();
-        }
-
-        @Override
-        public boolean isPlayer() {
-            return sender instanceof Player;
-        }
-
-        @Override
-        public void sendMessage(String message) {
-            if (message != null && !message.trim().isEmpty()) {
-                sender.sendMessage(message);
-            }
-        }
-    }
+  }
 }

@@ -38,91 +38,91 @@ import java.util.Map;
 @AllArgsConstructor
 @Data
 public class KnowledgeOrb implements DataItem<KnowledgeOrb.Data> {
-    public static KnowledgeOrb io = new KnowledgeOrb();
+  public static KnowledgeOrb io = new KnowledgeOrb();
 
-    public static Data get(ItemStack is) {
-        return io.getData(is);
+  public static Data get(ItemStack is) {
+    return io.getData(is);
+  }
+
+  public static String getSkill(ItemStack stack) {
+    if (io.getData(stack) != null) {
+      return io.getData(stack).getSkill();
     }
 
-    public static String getSkill(ItemStack stack) {
-        if (io.getData(stack) != null) {
-            return io.getData(stack).getSkill();
-        }
+    return null;
+  }
 
-        return null;
+  public static long getKnowledge(ItemStack stack) {
+    if (io.getData(stack) != null) {
+      return io.getData(stack).getKnowledge();
     }
 
-    public static long getKnowledge(ItemStack stack) {
-        if (io.getData(stack) != null) {
-            return io.getData(stack).getKnowledge();
-        }
+    return 0;
+  }
 
-        return 0;
+  public static void set(ItemStack item, String skill, int knowledge) {
+    io.setData(item, new Data(skill, knowledge));
+  }
+
+  public static ItemStack with(String skill, int knowledge) {
+    return io.withData(new Data(skill, knowledge));
+  }
+
+  public static ItemStack with(Map<String, Integer> knowledgeMap) {
+    return io.withData(new Data(knowledgeMap));
+  }
+
+  @Override
+  public Material getMaterial() {
+    return Material.SNOWBALL;
+  }
+
+  @Override
+  public Class<Data> getType() {
+    return KnowledgeOrb.Data.class;
+  }
+
+  @Override
+  public void applyLore(Data data, List<String> lore) {
+    for (Map.Entry<String, Integer> entry : data.getKnowledgeMap().entrySet()) {
+      String skill = entry.getKey();
+      int knowledge = entry.getValue();
+      lore.add(C.WHITE + Localizer.dLocalize("snippets.knowledge_orb.contains") + " " + C.UNDERLINE + C.WHITE + "" + knowledge + " " + Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(skill).getDisplayName() + " " + Localizer.dLocalize("snippets.knowledge_orb.knowledge"));
+    }
+    lore.add(C.LIGHT_PURPLE + Localizer.dLocalize("snippets.knowledge_orb.rightclick") + " " + C.GRAY + Localizer.dLocalize("snippets.knowledge_orb.togainknowledge"));
+  }
+
+  @Override
+  public void applyMeta(Data data, ItemMeta meta) {
+    meta.addEnchant(Enchantment.BINDING_CURSE, 10, true);
+    meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
+    meta.setDisplayName(Localizer.dLocalize("snippets.knowledge_orb.knowledge_orb"));
+  }
+
+  @AllArgsConstructor
+  @lombok.Data
+  public static class Data {
+    private Map<String, Integer> knowledgeMap;
+
+    public Data(String skill, int knowledge) {
+      this.knowledgeMap = new HashMap<>();
+      this.knowledgeMap.put(skill, knowledge);
     }
 
-    public static void set(ItemStack item, String skill, int knowledge) {
-        io.setData(item, new Data(skill, knowledge));
+    public String getSkill() {
+      return knowledgeMap.keySet().iterator().next();
     }
 
-    public static ItemStack with(String skill, int knowledge) {
-        return io.withData(new Data(skill, knowledge));
+    public int getKnowledge() {
+      return knowledgeMap.values().iterator().next();
     }
 
-    public static ItemStack with(Map<String, Integer> knowledgeMap) {
-        return io.withData(new Data(knowledgeMap));
+    public void apply(Player p) {
+      for (Map.Entry<String, Integer> entry : knowledgeMap.entrySet()) {
+        String skill = entry.getKey();
+        int knowledge = entry.getValue();
+        Adapt.instance.getAdaptServer().getPlayer(p).getSkillLine(skill).giveKnowledge(knowledge);
+      }
     }
-
-    @Override
-    public Material getMaterial() {
-        return Material.SNOWBALL;
-    }
-
-    @Override
-    public Class<Data> getType() {
-        return KnowledgeOrb.Data.class;
-    }
-
-    @Override
-    public void applyLore(Data data, List<String> lore) {
-        for (Map.Entry<String, Integer> entry : data.getKnowledgeMap().entrySet()) {
-            String skill = entry.getKey();
-            int knowledge = entry.getValue();
-            lore.add(C.WHITE + Localizer.dLocalize("snippets.knowledge_orb.contains") + " " + C.UNDERLINE + C.WHITE + "" + knowledge + " " + Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(skill).getDisplayName() + " " + Localizer.dLocalize("snippets.knowledge_orb.knowledge"));
-        }
-        lore.add(C.LIGHT_PURPLE + Localizer.dLocalize("snippets.knowledge_orb.rightclick") + " " + C.GRAY + Localizer.dLocalize("snippets.knowledge_orb.togainknowledge"));
-    }
-
-    @Override
-    public void applyMeta(Data data, ItemMeta meta) {
-        meta.addEnchant(Enchantment.BINDING_CURSE, 10, true);
-        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
-        meta.setDisplayName(Localizer.dLocalize("snippets.knowledge_orb.knowledge_orb"));
-    }
-
-    @AllArgsConstructor
-    @lombok.Data
-    public static class Data {
-        private Map<String, Integer> knowledgeMap;
-
-        public Data(String skill, int knowledge) {
-            this.knowledgeMap = new HashMap<>();
-            this.knowledgeMap.put(skill, knowledge);
-        }
-
-        public String getSkill() {
-            return knowledgeMap.keySet().iterator().next();
-        }
-
-        public int getKnowledge() {
-            return knowledgeMap.values().iterator().next();
-        }
-
-        public void apply(Player p) {
-            for (Map.Entry<String, Integer> entry : knowledgeMap.entrySet()) {
-                String skill = entry.getKey();
-                int knowledge = entry.getValue();
-                Adapt.instance.getAdaptServer().getPlayer(p).getSkillLine(skill).giveKnowledge(knowledge);
-            }
-        }
-    }
+  }
 }

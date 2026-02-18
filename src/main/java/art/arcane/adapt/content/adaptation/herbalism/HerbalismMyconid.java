@@ -25,8 +25,8 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.inventorygui.Element;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -37,79 +37,79 @@ import org.bukkit.inventory.ItemStack;
 
 public class HerbalismMyconid extends SimpleAdaptation<HerbalismMyconid.Config> {
 
-    public HerbalismMyconid() {
-        super("herbalism-myconid");
-        registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("herbalism.myconid.description"));
-        setDisplayName(Localizer.dLocalize("herbalism.myconid.name"));
-        setIcon(Material.MYCELIUM);
-        setBaseCost(getConfig().baseCost);
-        setMaxLevel(getConfig().maxLevel);
-        setInterval(17771);
-        setInitialCost(getConfig().initialCost);
-        setCostFactor(getConfig().costFactor);
-        registerRecipe(AdaptRecipe.shapeless()
-                .key("herbalism-dirt-myconid")
-                .ingredient(Material.DIRT)
-                .ingredient(Material.RED_MUSHROOM)
-                .ingredient(Material.BROWN_MUSHROOM)
-                .result(new ItemStack(Material.MYCELIUM, 1))
-                .build());
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.MYCELIUM)
-                .key("challenge_herbalism_myconid_100")
-                .title(Localizer.dLocalize("advancement.challenge_herbalism_myconid_100.title"))
-                .description(Localizer.dLocalize("advancement.challenge_herbalism_myconid_100.description"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .build());
-        registerMilestone("challenge_herbalism_myconid_100", "herbalism.myconid.mycelium-crafted", 100, 300);
-    }
+  public HerbalismMyconid() {
+    super("herbalism-myconid");
+    registerConfiguration(Config.class);
+    setDescription(Localizer.dLocalize("herbalism.myconid.description"));
+    setDisplayName(Localizer.dLocalize("herbalism.myconid.name"));
+    setIcon(Material.MYCELIUM);
+    setBaseCost(getConfig().baseCost);
+    setMaxLevel(getConfig().maxLevel);
+    setInterval(17771);
+    setInitialCost(getConfig().initialCost);
+    setCostFactor(getConfig().costFactor);
+    registerRecipe(AdaptRecipe.shapeless()
+        .key("herbalism-dirt-myconid")
+        .ingredient(Material.DIRT)
+        .ingredient(Material.RED_MUSHROOM)
+        .ingredient(Material.BROWN_MUSHROOM)
+        .result(new ItemStack(Material.MYCELIUM, 1))
+        .build());
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.MYCELIUM)
+        .key("challenge_herbalism_myconid_100")
+        .title(Localizer.dLocalize("advancement.challenge_herbalism_myconid_100.title"))
+        .description(Localizer.dLocalize("advancement.challenge_herbalism_myconid_100.description"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .build());
+    registerMilestone("challenge_herbalism_myconid_100", "herbalism.myconid.mycelium-crafted", 100, 300);
+  }
 
-    @Override
-    public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("herbalism.myconid.lore1"));
-    }
+  @Override
+  public void addStats(int level, Element v) {
+    v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("herbalism.myconid.lore1"));
+  }
 
 
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void on(CraftItemEvent e) {
-        if (!(e.getWhoClicked() instanceof Player p) || !hasActiveAdaptation(p)) {
-            return;
-        }
-        if (e.getRecipe() instanceof org.bukkit.inventory.ShapelessRecipe recipe && recipe.getKey().getNamespace().equals("adapt") && recipe.getKey().getKey().equals("herbalism-dirt-myconid")) {
-            getPlayer(p).getData().addStat("herbalism.myconid.mycelium-crafted", 1);
-        }
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(CraftItemEvent e) {
+    if (!(e.getWhoClicked() instanceof Player p) || !hasActiveAdaptation(p)) {
+      return;
     }
+    if (e.getRecipe() instanceof org.bukkit.inventory.ShapelessRecipe recipe && recipe.getKey().getNamespace().equals("adapt") && recipe.getKey().getKey().equals("herbalism-dirt-myconid")) {
+      getPlayer(p).getData().addStat("herbalism.myconid.mycelium-crafted", 1);
+    }
+  }
 
-    @Override
-    public void onTick() {
-    }
+  @Override
+  public void onTick() {
+  }
 
-    @Override
-    public boolean isEnabled() {
-        return getConfig().enabled;
-    }
+  @Override
+  public boolean isEnabled() {
+    return getConfig().enabled;
+  }
 
-    @Override
-    public boolean isPermanent() {
-        return getConfig().permanent;
-    }
+  @Override
+  public boolean isPermanent() {
+    return getConfig().permanent;
+  }
 
-    @NoArgsConstructor
-    @ConfigDescription("Craft Mycelium from Dirt and Mushrooms.")
-    protected static class Config {
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-        boolean permanent = true;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-        boolean enabled = true;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-        int baseCost = 4;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-        int maxLevel = 1;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-        int initialCost = 3;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-        double costFactor = 0.75;
-    }
+  @NoArgsConstructor
+  @ConfigDescription("Craft Mycelium from Dirt and Mushrooms.")
+  protected static class Config {
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
+    boolean permanent = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
+    boolean enabled = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
+    int baseCost = 4;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
+    int maxLevel = 1;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
+    int initialCost = 3;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
+    double costFactor = 0.75;
+  }
 }

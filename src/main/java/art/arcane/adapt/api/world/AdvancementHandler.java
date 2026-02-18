@@ -25,21 +25,21 @@ import static art.arcane.adapt.Adapt.instance;
 
 @Data
 public class AdvancementHandler {
-    private AdaptPlayer player;
-    private boolean ready;
+  private AdaptPlayer player;
+  private boolean ready;
 
-    public AdvancementHandler(AdaptPlayer player) {
-        this.player = player;
-        ready = false;
-        instance.getManager().unlockExisting(player, this);
-    }
+  public AdvancementHandler(AdaptPlayer player) {
+    this.player = player;
+    ready = false;
+    instance.getManager().unlockExisting(player, this);
+  }
 
-    public void grant(String key, boolean toast) {
-        if (!AdaptConfig.get().isAdvancements()) return;
-        instance.getManager().grant(getPlayer(), key, toast);
-    }
+  public void grant(String key, boolean toast) {
+    if (!AdaptConfig.get().isAdvancements()) return;
+    instance.getManager().grant(getPlayer(), key, toast);
+  }
 
-    public void grant(String key) {
-        grant(key, true);
-    }
+  public void grant(String key) {
+    grant(key, true);
+  }
 }

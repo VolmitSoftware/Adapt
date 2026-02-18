@@ -28,21 +28,21 @@ import org.bukkit.inventory.RecipeChoice;
 @AllArgsConstructor
 @Data
 public class MaterialChar {
-    private char character;
-    private RecipeChoice choice;
+  private char character;
+  private RecipeChoice choice;
 
-    public MaterialChar(char character, Tag<Material> tag) {
-        this.character = character;
-        this.choice = new RecipeChoice.MaterialChoice(tag);
-    }
+  public MaterialChar(char character, Tag<Material> tag) {
+    this.character = character;
+    this.choice = new RecipeChoice.MaterialChoice(tag);
+  }
 
-    public MaterialChar(char character, Material... material) {
-        this.character = character;
-        this.choice = new RecipeChoice.MaterialChoice(material);
-    }
+  public MaterialChar(char character, Material... material) {
+    this.character = character;
+    this.choice = new RecipeChoice.MaterialChoice(material);
+  }
 
-    public MaterialChar(char character, ItemStack... itemStack) {
-        this.character = character;
-        this.choice = new RecipeChoice.ExactChoice(itemStack);
-    }
+  public MaterialChar(char character, ItemStack... itemStack) {
+    this.character = character;
+    this.choice = new RecipeChoice.ExactChoice(itemStack);
+  }
 }

@@ -28,9 +28,9 @@ import art.arcane.adapt.api.potion.PotionBuilder;
 import art.arcane.adapt.content.matter.BrewingStandOwner;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.PotionTypes;
+import art.arcane.volmlib.util.inventorygui.Element;
 import lombok.NoArgsConstructor;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -41,95 +41,95 @@ import org.bukkit.potion.PotionEffectType;
 
 
 public class BrewingSaturation extends SimpleAdaptation<BrewingSaturation.Config> {
-    public BrewingSaturation() {
-        super("brewing-saturation");
-        registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("brewing.saturation.description"));
-        setDisplayName(Localizer.dLocalize("brewing.saturation.name"));
-        setIcon(Material.BAKED_POTATO);
-        setBaseCost(getConfig().baseCost);
-        setCostFactor(getConfig().costFactor);
-        setMaxLevel(getConfig().maxLevel);
-        setInitialCost(getConfig().initialCost);
-        setInterval(1334);
-        registerBrewingRecipe(BrewingRecipe.builder()
-                .id("brewing-saturation-1")
-                .brewingTime(320)
-                .fuelCost(16)
-                .ingredient(Material.BAKED_POTATO)
-                .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionTypes.REGEN))
-                .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
-                        .setName("Bottled Saturation")
-                        .setColor(Color.ORANGE)
-                        .addEffect(PotionEffectType.SATURATION, 1, 4, true, true, true)
-                        .build())
-                .build());
-        registerBrewingRecipe(BrewingRecipe.builder()
-                .id("brewing-saturation-2")
-                .brewingTime(320)
-                .fuelCost(32)
-                .ingredient(Material.HAY_BLOCK)
-                .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionTypes.REGEN))
-                .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
-                        .setName("Bottled Saturation 2")
-                        .setColor(Color.ORANGE)
-                        .addEffect(PotionEffectType.SATURATION, 1, 8, true, true, true)
-                        .build())
-                .build());
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.GOLDEN_CARROT)
-                .key("challenge_brewing_saturation_25")
-                .title(Localizer.dLocalize("advancement.challenge_brewing_saturation_25.title"))
-                .description(Localizer.dLocalize("advancement.challenge_brewing_saturation_25.description"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .build());
-        registerMilestone("challenge_brewing_saturation_25", "brewing.saturation.potions-brewed", 25, 300);
-    }
+  public BrewingSaturation() {
+    super("brewing-saturation");
+    registerConfiguration(Config.class);
+    setDescription(Localizer.dLocalize("brewing.saturation.description"));
+    setDisplayName(Localizer.dLocalize("brewing.saturation.name"));
+    setIcon(Material.BAKED_POTATO);
+    setBaseCost(getConfig().baseCost);
+    setCostFactor(getConfig().costFactor);
+    setMaxLevel(getConfig().maxLevel);
+    setInitialCost(getConfig().initialCost);
+    setInterval(1334);
+    registerBrewingRecipe(BrewingRecipe.builder()
+        .id("brewing-saturation-1")
+        .brewingTime(320)
+        .fuelCost(16)
+        .ingredient(Material.BAKED_POTATO)
+        .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionTypes.REGEN))
+        .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
+            .setName("Bottled Saturation")
+            .setColor(Color.ORANGE)
+            .addEffect(PotionEffectType.SATURATION, 1, 4, true, true, true)
+            .build())
+        .build());
+    registerBrewingRecipe(BrewingRecipe.builder()
+        .id("brewing-saturation-2")
+        .brewingTime(320)
+        .fuelCost(32)
+        .ingredient(Material.HAY_BLOCK)
+        .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionTypes.REGEN))
+        .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
+            .setName("Bottled Saturation 2")
+            .setColor(Color.ORANGE)
+            .addEffect(PotionEffectType.SATURATION, 1, 8, true, true, true)
+            .build())
+        .build());
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.GOLDEN_CARROT)
+        .key("challenge_brewing_saturation_25")
+        .title(Localizer.dLocalize("advancement.challenge_brewing_saturation_25.title"))
+        .description(Localizer.dLocalize("advancement.challenge_brewing_saturation_25.description"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .build());
+    registerMilestone("challenge_brewing_saturation_25", "brewing.saturation.potions-brewed", 25, 300);
+  }
 
-    @Override
-    public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing.saturation.lore1"));
-        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing.saturation.lore2"));
-    }
+  @Override
+  public void addStats(int level, Element v) {
+    v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing.saturation.lore1"));
+    v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing.saturation.lore2"));
+  }
 
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void on(BrewEvent e) {
-        BrewingStandOwner owner = WorldData.of(e.getBlock().getWorld()).get(e.getBlock(), BrewingStandOwner.class);
-        if (owner != null) {
-            getServer().peekData(owner.getOwner()).addStat("brewing.saturation.potions-brewed", 1);
-        }
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(BrewEvent e) {
+    BrewingStandOwner owner = WorldData.of(e.getBlock().getWorld()).get(e.getBlock(), BrewingStandOwner.class);
+    if (owner != null) {
+      getServer().peekData(owner.getOwner()).addStat("brewing.saturation.potions-brewed", 1);
     }
+  }
 
-    @Override
-    public void onTick() {
-    }
+  @Override
+  public void onTick() {
+  }
 
 
-    @Override
-    public boolean isEnabled() {
-        return getConfig().enabled;
-    }
+  @Override
+  public boolean isEnabled() {
+    return getConfig().enabled;
+  }
 
-    @Override
-    public boolean isPermanent() {
-        return getConfig().permanent;
-    }
+  @Override
+  public boolean isPermanent() {
+    return getConfig().permanent;
+  }
 
-    @NoArgsConstructor
-    @ConfigDescription("Brew a Potion of Saturation from Regen Potion and Baked Potato.")
-    protected static class Config {
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-        boolean permanent = true;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-        boolean enabled = true;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-        int baseCost = 3;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-        double costFactor = 1;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-        int maxLevel = 1;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-        int initialCost = 2;
-    }
+  @NoArgsConstructor
+  @ConfigDescription("Brew a Potion of Saturation from Regen Potion and Baked Potato.")
+  protected static class Config {
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
+    boolean permanent = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
+    boolean enabled = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
+    int baseCost = 3;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
+    double costFactor = 1;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
+    int maxLevel = 1;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
+    int initialCost = 2;
+  }
 }

@@ -25,9 +25,9 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.PotionEffectTypes;
+import art.arcane.volmlib.util.inventorygui.Element;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
@@ -36,124 +36,124 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 
 public class HunterJumpBoost extends SimpleAdaptation<HunterJumpBoost.Config> {
-    public HunterJumpBoost() {
-        super("hunter-jumpboost");
-        registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("hunter.jump_boost.description"));
-        setDisplayName(Localizer.dLocalize("hunter.jump_boost.name"));
-        setIcon(Material.PUFFERFISH_BUCKET);
-        setBaseCost(getConfig().baseCost);
-        setMaxLevel(getConfig().maxLevel);
-        setInitialCost(getConfig().initialCost);
-        setCostFactor(getConfig().costFactor);
-        setInterval(9544);
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.RABBIT_FOOT)
-                .key("challenge_hunter_jump_200")
-                .title(Localizer.dLocalize("advancement.challenge_hunter_jump_200.title"))
-                .description(Localizer.dLocalize("advancement.challenge_hunter_jump_200.description"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .build());
-        registerMilestone("challenge_hunter_jump_200", "hunter.jump-boost.activations", 200, 300);
-    }
+  public HunterJumpBoost() {
+    super("hunter-jumpboost");
+    registerConfiguration(Config.class);
+    setDescription(Localizer.dLocalize("hunter.jump_boost.description"));
+    setDisplayName(Localizer.dLocalize("hunter.jump_boost.name"));
+    setIcon(Material.PUFFERFISH_BUCKET);
+    setBaseCost(getConfig().baseCost);
+    setMaxLevel(getConfig().maxLevel);
+    setInitialCost(getConfig().initialCost);
+    setCostFactor(getConfig().costFactor);
+    setInterval(9544);
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.RABBIT_FOOT)
+        .key("challenge_hunter_jump_200")
+        .title(Localizer.dLocalize("advancement.challenge_hunter_jump_200.title"))
+        .description(Localizer.dLocalize("advancement.challenge_hunter_jump_200.description"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .build());
+    registerMilestone("challenge_hunter_jump_200", "hunter.jump-boost.activations", 200, 300);
+  }
 
-    @Override
-    public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Localizer.dLocalize("hunter.jump_boost.lore1"));
-        v.addLore(C.GREEN + "+ " + level + C.GRAY + Localizer.dLocalize("hunter.jump_boost.lore2"));
-        v.addLore(C.RED + "- " + (5 + level) + C.GRAY + Localizer.dLocalize("hunter.jump_boost.lore3"));
-        v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Localizer.dLocalize("hunter.jump_boost.lore4"));
-        v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Localizer.dLocalize("hunter.jump_boost.lore5"));
-        v.addLore(C.GRAY + "- " + level + C.RED + " " + Localizer.dLocalize("hunter.penalty.lore1"));
+  @Override
+  public void addStats(int level, Element v) {
+    v.addLore(C.GRAY + Localizer.dLocalize("hunter.jump_boost.lore1"));
+    v.addLore(C.GREEN + "+ " + level + C.GRAY + Localizer.dLocalize("hunter.jump_boost.lore2"));
+    v.addLore(C.RED + "- " + (5 + level) + C.GRAY + Localizer.dLocalize("hunter.jump_boost.lore3"));
+    v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Localizer.dLocalize("hunter.jump_boost.lore4"));
+    v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Localizer.dLocalize("hunter.jump_boost.lore5"));
+    v.addLore(C.GRAY + "- " + level + C.RED + " " + Localizer.dLocalize("hunter.penalty.lore1"));
 
-    }
+  }
 
 
-    @EventHandler
-    public void on(EntityDamageEvent e) {
-        if (e.getEntity() instanceof org.bukkit.entity.Player p && isAdaptableDamageCause(e) && hasActiveAdaptation(p)) {
-            if (AdaptConfig.get().isPreventHunterSkillsWhenHungerApplied() && p.hasPotionEffect(PotionEffectType.HUNGER)) {
-                return;
-            }
+  @EventHandler
+  public void on(EntityDamageEvent e) {
+    if (e.getEntity() instanceof org.bukkit.entity.Player p && isAdaptableDamageCause(e) && hasActiveAdaptation(p)) {
+      if (AdaptConfig.get().isPreventHunterSkillsWhenHungerApplied() && p.hasPotionEffect(PotionEffectType.HUNGER)) {
+        return;
+      }
 
-            if (!getConfig().useConsumable) {
-                if (p.getFoodLevel() == 0) {
-                    if (getConfig().poisonPenalty) {
-                        addPotionStacks(p, PotionEffectType.POISON, getConfig().basePoisonFromLevel - getLevel(p), getConfig().baseHungerDuration, getConfig().stackPoisonPenalty);
-                    }
+      if (!getConfig().useConsumable) {
+        if (p.getFoodLevel() == 0) {
+          if (getConfig().poisonPenalty) {
+            addPotionStacks(p, PotionEffectType.POISON, getConfig().basePoisonFromLevel - getLevel(p), getConfig().baseHungerDuration, getConfig().stackPoisonPenalty);
+          }
 
-                } else {
-                    addPotionStacks(p, PotionEffectType.HUNGER, getConfig().baseHungerFromLevel - getLevel(p), getConfig().baseHungerDuration * getLevel(p), getConfig().stackHungerPenalty);
-                    addPotionStacks(p, PotionEffectTypes.JUMP, getLevel(p), getConfig().baseEffectbyLevel * getLevel(p), getConfig().stackBuff);
-                    getPlayer(p).getData().addStat("hunter.jump-boost.activations", 1);
-                }
-            } else {
-                if (getConfig().consumable != null && Material.getMaterial(getConfig().consumable) != null) {
-                    Material mat = Material.getMaterial(getConfig().consumable);
-                    if (mat != null && p.getInventory().contains(mat)) {
-                        p.getInventory().removeItem(new ItemStack(mat, 1));
-                        addPotionStacks(p, PotionEffectTypes.JUMP, getLevel(p), getConfig().baseEffectbyLevel * getLevel(p), getConfig().stackBuff);
-                        getPlayer(p).getData().addStat("hunter.jump-boost.activations", 1);
-                    } else {
-                        if (getConfig().poisonPenalty) {
-                            addPotionStacks(p, PotionEffectType.POISON, getConfig().basePoisonFromLevel - getLevel(p), getConfig().baseHungerDuration, getConfig().stackPoisonPenalty);
-                        }
-                    }
-                }
-            }
+        } else {
+          addPotionStacks(p, PotionEffectType.HUNGER, getConfig().baseHungerFromLevel - getLevel(p), getConfig().baseHungerDuration * getLevel(p), getConfig().stackHungerPenalty);
+          addPotionStacks(p, PotionEffectTypes.JUMP, getLevel(p), getConfig().baseEffectbyLevel * getLevel(p), getConfig().stackBuff);
+          getPlayer(p).getData().addStat("hunter.jump-boost.activations", 1);
         }
+      } else {
+        if (getConfig().consumable != null && Material.getMaterial(getConfig().consumable) != null) {
+          Material mat = Material.getMaterial(getConfig().consumable);
+          if (mat != null && p.getInventory().contains(mat)) {
+            p.getInventory().removeItem(new ItemStack(mat, 1));
+            addPotionStacks(p, PotionEffectTypes.JUMP, getLevel(p), getConfig().baseEffectbyLevel * getLevel(p), getConfig().stackBuff);
+            getPlayer(p).getData().addStat("hunter.jump-boost.activations", 1);
+          } else {
+            if (getConfig().poisonPenalty) {
+              addPotionStacks(p, PotionEffectType.POISON, getConfig().basePoisonFromLevel - getLevel(p), getConfig().baseHungerDuration, getConfig().stackPoisonPenalty);
+            }
+          }
+        }
+      }
     }
+  }
 
-    @Override
-    public void onTick() {
+  @Override
+  public void onTick() {
 
-    }
+  }
 
-    @Override
-    public boolean isEnabled() {
-        return getConfig().enabled;
-    }
+  @Override
+  public boolean isEnabled() {
+    return getConfig().enabled;
+  }
 
-    @Override
-    public boolean isPermanent() {
-        return getConfig().permanent;
-    }
+  @Override
+  public boolean isPermanent() {
+    return getConfig().permanent;
+  }
 
-    @NoArgsConstructor
-    @ConfigDescription("Gain jump boost when struck, at the cost of hunger.")
-    protected static class Config {
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-        boolean permanent = false;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-        boolean enabled = true;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Use Consumable for the Hunter Jump Boost adaptation.", impact = "True enables this behavior and false disables it.")
-        boolean useConsumable = false;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Poison Penalty for the Hunter Jump Boost adaptation.", impact = "True enables this behavior and false disables it.")
-        boolean poisonPenalty = true;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Stack Hunger Penalty for the Hunter Jump Boost adaptation.", impact = "True enables this behavior and false disables it.")
-        boolean stackHungerPenalty = false;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Stack Poison Penalty for the Hunter Jump Boost adaptation.", impact = "True enables this behavior and false disables it.")
-        boolean stackPoisonPenalty = false;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Stack Buff for the Hunter Jump Boost adaptation.", impact = "True enables this behavior and false disables it.")
-        boolean stackBuff = false;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Base Effectby Level for the Hunter Jump Boost adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        int baseEffectbyLevel = 100;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Base Hunger From Level for the Hunter Jump Boost adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        int baseHungerFromLevel = 10;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Base Hunger Duration for the Hunter Jump Boost adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        int baseHungerDuration = 50;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Base Poison From Level for the Hunter Jump Boost adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        int basePoisonFromLevel = 6;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Consumable for the Hunter Jump Boost adaptation.", impact = "Changing this alters the identifier or text used by the feature.")
-        String consumable = "ROTTEN_FLESH";
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-        int baseCost = 4;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-        int maxLevel = 5;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-        int initialCost = 8;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-        double costFactor = 0.4;
-    }
+  @NoArgsConstructor
+  @ConfigDescription("Gain jump boost when struck, at the cost of hunger.")
+  protected static class Config {
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
+    boolean permanent = false;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
+    boolean enabled = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Use Consumable for the Hunter Jump Boost adaptation.", impact = "True enables this behavior and false disables it.")
+    boolean useConsumable = false;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Poison Penalty for the Hunter Jump Boost adaptation.", impact = "True enables this behavior and false disables it.")
+    boolean poisonPenalty = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Stack Hunger Penalty for the Hunter Jump Boost adaptation.", impact = "True enables this behavior and false disables it.")
+    boolean stackHungerPenalty = false;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Stack Poison Penalty for the Hunter Jump Boost adaptation.", impact = "True enables this behavior and false disables it.")
+    boolean stackPoisonPenalty = false;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Stack Buff for the Hunter Jump Boost adaptation.", impact = "True enables this behavior and false disables it.")
+    boolean stackBuff = false;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Base Effectby Level for the Hunter Jump Boost adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    int baseEffectbyLevel = 100;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Base Hunger From Level for the Hunter Jump Boost adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    int baseHungerFromLevel = 10;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Base Hunger Duration for the Hunter Jump Boost adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    int baseHungerDuration = 50;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Base Poison From Level for the Hunter Jump Boost adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    int basePoisonFromLevel = 6;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Consumable for the Hunter Jump Boost adaptation.", impact = "Changing this alters the identifier or text used by the feature.")
+    String consumable = "ROTTEN_FLESH";
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
+    int baseCost = 4;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
+    int maxLevel = 5;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
+    int initialCost = 8;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
+    double costFactor = 0.4;
+  }
 }

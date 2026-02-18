@@ -24,10 +24,10 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.inventorygui.Element;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -43,108 +43,108 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class RiftDescent extends SimpleAdaptation<RiftDescent.Config> {
-    private final Set<UUID> cooldown = ConcurrentHashMap.newKeySet();
+  private final Set<UUID> cooldown = ConcurrentHashMap.newKeySet();
 
-    public RiftDescent() {
-        super("rift-descent");
-        registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("rift.descent.description"));
-        setDisplayName(Localizer.dLocalize("rift.descent.name"));
-        setMaxLevel(1);
-        setIcon(Material.SHULKER_BOX);
-        setBaseCost(getConfig().baseCost);
-        setCostFactor(getConfig().costFactor);
-        setInitialCost(getConfig().initialCost);
-        setInterval(9544);
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.ENDER_PEARL)
-                .key("challenge_rift_descent_100")
-                .title(Localizer.dLocalize("advancement.challenge_rift_descent_100.title"))
-                .description(Localizer.dLocalize("advancement.challenge_rift_descent_100.description"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .child(AdaptAdvancement.builder()
-                        .icon(Material.SHULKER_SHELL)
-                        .key("challenge_rift_descent_1k")
-                        .title(Localizer.dLocalize("advancement.challenge_rift_descent_1k.title"))
-                        .description(Localizer.dLocalize("advancement.challenge_rift_descent_1k.description"))
-                        .frame(AdaptAdvancementFrame.CHALLENGE)
-                        .visibility(AdvancementVisibility.PARENT_GRANTED)
-                        .build())
-                .build());
-        registerMilestone("challenge_rift_descent_100", "rift.descent.levitation-cancelled", 100, 300);
-        registerMilestone("challenge_rift_descent_1k", "rift.descent.levitation-cancelled", 1000, 1000);
+  public RiftDescent() {
+    super("rift-descent");
+    registerConfiguration(Config.class);
+    setDescription(Localizer.dLocalize("rift.descent.description"));
+    setDisplayName(Localizer.dLocalize("rift.descent.name"));
+    setMaxLevel(1);
+    setIcon(Material.SHULKER_BOX);
+    setBaseCost(getConfig().baseCost);
+    setCostFactor(getConfig().costFactor);
+    setInitialCost(getConfig().initialCost);
+    setInterval(9544);
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.ENDER_PEARL)
+        .key("challenge_rift_descent_100")
+        .title(Localizer.dLocalize("advancement.challenge_rift_descent_100.title"))
+        .description(Localizer.dLocalize("advancement.challenge_rift_descent_100.description"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .child(AdaptAdvancement.builder()
+            .icon(Material.SHULKER_SHELL)
+            .key("challenge_rift_descent_1k")
+            .title(Localizer.dLocalize("advancement.challenge_rift_descent_1k.title"))
+            .description(Localizer.dLocalize("advancement.challenge_rift_descent_1k.description"))
+            .frame(AdaptAdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .build())
+        .build());
+    registerMilestone("challenge_rift_descent_100", "rift.descent.levitation-cancelled", 100, 300);
+    registerMilestone("challenge_rift_descent_1k", "rift.descent.levitation-cancelled", 1000, 1000);
+  }
+
+  @Override
+  public void addStats(int level, Element v) {
+    v.addLore(C.YELLOW + Localizer.dLocalize("rift.descent.lore1"));
+    v.addLore(C.GREEN + Localizer.dLocalize("rift.descent.lore2") + " " + C.WHITE + getConfig().cooldown + "s");
+  }
+
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void on(PlayerToggleSneakEvent e) {
+    Player p = e.getPlayer();
+    SoundPlayer sp = SoundPlayer.of(p);
+    if (p.getPotionEffect(PotionEffectType.LEVITATION) == null) {
+      return;
+    }
+    if (!hasActiveAdaptation(p)) {
+      return;
+    }
+    UUID playerId = p.getUniqueId();
+    if (cooldown.contains(playerId)) {
+      return;
     }
 
-    @Override
-    public void addStats(int level, Element v) {
-        v.addLore(C.YELLOW + Localizer.dLocalize("rift.descent.lore1"));
-        v.addLore(C.GREEN + Localizer.dLocalize("rift.descent.lore2") + " " + C.WHITE + getConfig().cooldown + "s");
+    PotionEffect levi = p.getPotionEffect(PotionEffectType.LEVITATION);
+
+    if (!e.isSneaking() && (levi != null)) {
+      p.removePotionEffect(PotionEffectType.LEVITATION);
+      getPlayer(p).getData().addStat("rift.descent.levitation-cancelled", 1);
+      cooldown.add(playerId);
+      J.runEntity(p, () -> {
+        sp.play(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f);
+        cooldown.remove(playerId);
+      }, Math.max(1, (int) Math.round(getConfig().cooldown * 20D)));
+
+      J.runEntity(p, () -> {
+        p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, (int) (20 * getConfig().cooldown), 0));
+        sp.play(p.getLocation(), Sound.ENTITY_ENDER_DRAGON_FLAP, 1f, 1f);
+      });
     }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void on(PlayerToggleSneakEvent e) {
-        Player p = e.getPlayer();
-        SoundPlayer sp = SoundPlayer.of(p);
-        if (p.getPotionEffect(PotionEffectType.LEVITATION) == null) {
-            return;
-        }
-        if (!hasActiveAdaptation(p)) {
-            return;
-        }
-        UUID playerId = p.getUniqueId();
-        if (cooldown.contains(playerId)) {
-            return;
-        }
-
-        PotionEffect levi = p.getPotionEffect(PotionEffectType.LEVITATION);
-
-        if (!e.isSneaking() && (levi != null)) {
-            p.removePotionEffect(PotionEffectType.LEVITATION);
-            getPlayer(p).getData().addStat("rift.descent.levitation-cancelled", 1);
-            cooldown.add(playerId);
-            J.runEntity(p, () -> {
-                sp.play(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f);
-                cooldown.remove(playerId);
-            }, Math.max(1, (int) Math.round(getConfig().cooldown * 20D)));
-
-            J.runEntity(p, () -> {
-                p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, (int) (20 * getConfig().cooldown), 0));
-                sp.play(p.getLocation(), Sound.ENTITY_ENDER_DRAGON_FLAP, 1f, 1f);
-            });
-        }
-    }
+  }
 
 
-    @Override
-    public void onTick() {
-    }
+  @Override
+  public void onTick() {
+  }
 
-    @Override
-    public boolean isEnabled() {
-        return getConfig().enabled;
-    }
+  @Override
+  public boolean isEnabled() {
+    return getConfig().enabled;
+  }
 
-    @Override
-    public boolean isPermanent() {
-        return getConfig().permanent;
-    }
+  @Override
+  public boolean isPermanent() {
+    return getConfig().permanent;
+  }
 
-    @NoArgsConstructor
-    @ConfigDescription("Sneak to descend and negate levitation effects.")
-    protected static class Config {
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-        boolean permanent = true;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-        boolean enabled = true;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown for the Rift Descent adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double cooldown = 5.0;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-        int baseCost = 1;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-        double costFactor = 0.95;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-        int initialCost = 3;
-    }
+  @NoArgsConstructor
+  @ConfigDescription("Sneak to descend and negate levitation effects.")
+  protected static class Config {
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
+    boolean permanent = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
+    boolean enabled = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown for the Rift Descent adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double cooldown = 5.0;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
+    int baseCost = 1;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
+    double costFactor = 0.95;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
+    int initialCost = 3;
+  }
 
 }

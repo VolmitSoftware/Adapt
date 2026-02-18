@@ -24,12 +24,12 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.adapt.util.common.inventorygui.Inventories;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
+import art.arcane.volmlib.util.inventorygui.Element;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -47,102 +47,103 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
-    private final Set<Integer> holds;
+  private final Set<Integer> holds;
 
-    public StealthSnatch() {
-        super("stealth-snatch");
-        registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("stealth.snatch.description"));
-        setDisplayName(Localizer.dLocalize("stealth.snatch.name"));
-        setIcon(Material.CHEST_MINECART);
-        setBaseCost(getConfig().baseCost);
-        setInterval(getConfig().snatchRate);
-        setMaxLevel(getConfig().maxLevel);
-        setInitialCost(getConfig().initialCost);
-        setCostFactor(getConfig().costFactor);
-        holds = ConcurrentHashMap.newKeySet();
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.CHEST)
-                .key("challenge_stealth_snatch_2500")
-                .title(Localizer.dLocalize("advancement.challenge_stealth_snatch_2500.title"))
-                .description(Localizer.dLocalize("advancement.challenge_stealth_snatch_2500.description"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .child(AdaptAdvancement.builder()
-                        .icon(Material.HOPPER)
-                        .key("challenge_stealth_snatch_25k")
-                        .title(Localizer.dLocalize("advancement.challenge_stealth_snatch_25k.title"))
-                        .description(Localizer.dLocalize("advancement.challenge_stealth_snatch_25k.description"))
-                        .frame(AdaptAdvancementFrame.CHALLENGE)
-                        .visibility(AdvancementVisibility.PARENT_GRANTED)
-                        .build())
-                .build());
-        registerMilestone("challenge_stealth_snatch_2500", "stealth.snatch.items-snatched", 2500, 400);
-        registerMilestone("challenge_stealth_snatch_25k", "stealth.snatch.items-snatched", 25000, 1500);
+  public StealthSnatch() {
+    super("stealth-snatch");
+    registerConfiguration(Config.class);
+    setDescription(Localizer.dLocalize("stealth.snatch.description"));
+    setDisplayName(Localizer.dLocalize("stealth.snatch.name"));
+    setIcon(Material.CHEST_MINECART);
+    setBaseCost(getConfig().baseCost);
+    setInterval(getConfig().snatchRate);
+    setMaxLevel(getConfig().maxLevel);
+    setInitialCost(getConfig().initialCost);
+    setCostFactor(getConfig().costFactor);
+    holds = ConcurrentHashMap.newKeySet();
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.CHEST)
+        .key("challenge_stealth_snatch_2500")
+        .title(Localizer.dLocalize("advancement.challenge_stealth_snatch_2500.title"))
+        .description(Localizer.dLocalize("advancement.challenge_stealth_snatch_2500.description"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .child(AdaptAdvancement.builder()
+            .icon(Material.HOPPER)
+            .key("challenge_stealth_snatch_25k")
+            .title(Localizer.dLocalize("advancement.challenge_stealth_snatch_25k.title"))
+            .description(Localizer.dLocalize("advancement.challenge_stealth_snatch_25k.description"))
+            .frame(AdaptAdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .build())
+        .build());
+    registerMilestone("challenge_stealth_snatch_2500", "stealth.snatch.items-snatched", 2500, 400);
+    registerMilestone("challenge_stealth_snatch_25k", "stealth.snatch.items-snatched", 25000, 1500);
+  }
+
+  @Override
+  public void addStats(int level, Element v) {
+    v.addLore(C.GREEN + "+ " + Form.f(getRange(getLevelPercent(level)), 1) + C.GRAY + " " + Localizer.dLocalize("stealth.snatch.lore1"));
+  }
+
+  @EventHandler
+  public void on(PlayerToggleSneakEvent e) {
+    Player p = e.getPlayer();
+    if (!hasActiveAdaptation(p)) {
+      return;
+    }
+    if (!canAccessChest(p, p.getLocation())) {
+      return;
+    }
+    if (e.isSneaking()) {
+      snatch(p);
+    }
+  }
+
+  private void snatch(Player player) {
+    double factor = getLevelPercent(player);
+
+    if (factor == 0) {
+      return;
     }
 
-    @Override
-    public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.f(getRange(getLevelPercent(level)), 1) + C.GRAY + " " + Localizer.dLocalize("stealth.snatch.lore1"));
+    double range = getRange(factor);
+    HashSet<Item> items = new HashSet<>();
+    for (Entity droppedItemEntity : player.getWorld().getNearbyEntities(player.getLocation(), range, range / 1.5, range)) {
+      if (droppedItemEntity instanceof Item droppedItem) {
+        if (droppedItem.getPickupDelay() <= 0 || droppedItem.getTicksLived() > 1) {
+          UUID owner = droppedItem.getOwner();
+          if (owner == null || owner.equals(player.getUniqueId()))
+            items.add(droppedItem);
+        }
+      }
     }
 
-    @EventHandler
-    public void on(PlayerToggleSneakEvent e) {
-        Player p = e.getPlayer();
-        if (!hasActiveAdaptation(p)) {
-            return;
+    for (Item droppedItemEntity : items) {
+      if (!holds.contains(droppedItemEntity.getEntityId())) {
+        double dist = droppedItemEntity.getLocation().distanceSquared(player.getLocation());
+        if (dist < range * range) {
+          ItemStack is = droppedItemEntity.getItemStack().clone();
+
+          if (Inventories.hasSpace(player.getInventory(), is)) {
+            holds.add(droppedItemEntity.getEntityId());
+            SoundPlayer spw = SoundPlayer.of(player.getWorld());
+            spw.play(player.getLocation(), Sound.BLOCK_LAVA_POP, 1f, (float) (1.0 + (ThreadLocalRandom.current().nextDouble() / 3D)));
+            safeGiveItem(player, droppedItemEntity, is);
+            getPlayer(player).getData().addStat("stealth.snatch.items-snatched", 1);
+            //sendCollected(player, droppedItemEntity);
+            int id = droppedItemEntity.getEntityId();
+            J.runEntity(player, () -> holds.remove(Integer.valueOf(id)), 1);
+          }
         }
-        if (!canAccessChest(p, p.getLocation())) {
-            return;
-        }
-        if (e.isSneaking()) {
-            snatch(p);
-        }
+      }
     }
 
-    private void snatch(Player player) {
-        double factor = getLevelPercent(player);
+  }
 
-        if (factor == 0) {
-            return;
-        }
-
-        double range = getRange(factor);
-        HashSet<Item> items = new HashSet<>();
-        for (Entity droppedItemEntity : player.getWorld().getNearbyEntities(player.getLocation(), range, range / 1.5, range)) {
-            if (droppedItemEntity instanceof Item droppedItem) {
-                if (droppedItem.getPickupDelay() <= 0 || droppedItem.getTicksLived() > 1) {
-                    UUID owner = droppedItem.getOwner();
-                    if (owner == null || owner.equals(player.getUniqueId())) items.add(droppedItem);
-                }
-            }
-        }
-
-        for (Item droppedItemEntity : items) {
-            if (!holds.contains(droppedItemEntity.getEntityId())) {
-                double dist = droppedItemEntity.getLocation().distanceSquared(player.getLocation());
-                if (dist < range * range) {
-                    ItemStack is = droppedItemEntity.getItemStack().clone();
-
-                        if (Inventories.hasSpace(player.getInventory(), is)) {
-                            holds.add(droppedItemEntity.getEntityId());
-                            SoundPlayer spw = SoundPlayer.of(player.getWorld());
-                            spw.play(player.getLocation(), Sound.BLOCK_LAVA_POP, 1f, (float) (1.0 + (ThreadLocalRandom.current().nextDouble() / 3D)));
-                            safeGiveItem(player, droppedItemEntity, is);
-                        getPlayer(player).getData().addStat("stealth.snatch.items-snatched", 1);
-                        //sendCollected(player, droppedItemEntity);
-                        int id = droppedItemEntity.getEntityId();
-                        J.runEntity(player, () -> holds.remove(Integer.valueOf(id)), 1);
-                    }
-                }
-            }
-        }
-
-    }
-
-    private double getRange(double factor) {
-        return (factor * getConfig().radiusFactor) + 1;
-    }
+  private double getRange(double factor) {
+    return (factor * getConfig().radiusFactor) + 1;
+  }
 
     /*
     public void sendCollected(Player p, Item item) {
@@ -157,50 +158,50 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
         }
     }*/
 
-    @Override
-    public void onTick() {
-        for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
-            Player i = adaptPlayer.getPlayer();
-            if (i.isSneaking()) {
-                J.runEntity(i, () -> snatch(i));
-            }
-        }
+  @Override
+  public void onTick() {
+    for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+      Player i = adaptPlayer.getPlayer();
+      if (i.isSneaking()) {
+        J.runEntity(i, () -> snatch(i));
+      }
     }
+  }
 
-    @Override
-    public boolean isEnabled() {
-        return getConfig().enabled;
-    }
+  @Override
+  public boolean isEnabled() {
+    return getConfig().enabled;
+  }
 
-    @Override
-    protected void onConfigReload(Config previousConfig, Config newConfig) {
-        super.onConfigReload(previousConfig, newConfig);
-        setInterval(newConfig.snatchRate);
-    }
+  @Override
+  protected void onConfigReload(Config previousConfig, Config newConfig) {
+    super.onConfigReload(previousConfig, newConfig);
+    setInterval(newConfig.snatchRate);
+  }
 
-    @Override
-    public boolean isPermanent() {
-        return getConfig().permanent;
-    }
+  @Override
+  public boolean isPermanent() {
+    return getConfig().permanent;
+  }
 
-    @NoArgsConstructor
-    @ConfigDescription("Snatch dropped items instantly while sneaking.")
-    protected static class Config {
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-        boolean permanent = false;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-        boolean enabled = true;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Snatch Rate for the Stealth Snatch adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        int snatchRate = 250;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-        int baseCost = 4;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-        int maxLevel = 3;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-        int initialCost = 12;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-        double costFactor = 0.125;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Radius Factor for the Stealth Snatch adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double radiusFactor = 5.55;
-    }
+  @NoArgsConstructor
+  @ConfigDescription("Snatch dropped items instantly while sneaking.")
+  protected static class Config {
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
+    boolean permanent = false;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
+    boolean enabled = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Snatch Rate for the Stealth Snatch adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    int snatchRate = 250;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
+    int baseCost = 4;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
+    int maxLevel = 3;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
+    int initialCost = 12;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
+    double costFactor = 0.125;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Radius Factor for the Stealth Snatch adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double radiusFactor = 5.55;
+  }
 }

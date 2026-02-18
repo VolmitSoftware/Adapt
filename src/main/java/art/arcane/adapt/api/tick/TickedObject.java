@@ -34,270 +34,270 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 public abstract class TickedObject implements Ticked, Listener {
-    private static final Set<String> LISTENER_INTROSPECTION_WARNED = ConcurrentHashMap.newKeySet();
-    private static final Set<String> FOLIA_TICK_VIOLATION_WARNED = ConcurrentHashMap.newKeySet();
+  private static final Set<String> LISTENER_INTROSPECTION_WARNED = ConcurrentHashMap.newKeySet();
+  private static final Set<String> FOLIA_TICK_VIOLATION_WARNED = ConcurrentHashMap.newKeySet();
 
-    private final AtomicLong lastTick;
-    private final AtomicLong interval;
-    private final AtomicInteger skip;
-    private final AtomicInteger burst;
-    private final AtomicLong ticks;
-    private final AtomicInteger dieIn;
-    private final AtomicBoolean die;
-    private final AtomicBoolean pendingSyncTick;
-    private final long start;
-    private final String group;
-    private final String id;
-    private final boolean listenerRegistered;
+  private final AtomicLong lastTick;
+  private final AtomicLong interval;
+  private final AtomicInteger skip;
+  private final AtomicInteger burst;
+  private final AtomicLong ticks;
+  private final AtomicInteger dieIn;
+  private final AtomicBoolean die;
+  private final AtomicBoolean pendingSyncTick;
+  private final long start;
+  private final String group;
+  private final String id;
+  private final boolean listenerRegistered;
 
-    public TickedObject() {
-        this("null");
+  public TickedObject() {
+    this("null");
+  }
+
+  public TickedObject(String group, String id) {
+    this(group, id, 1000);
+  }
+
+  public TickedObject(String group) {
+    this(group, UUID.randomUUID().toString(), 1000);
+  }
+
+  public TickedObject(String group, long interval) {
+    this(group, UUID.randomUUID().toString(), interval);
+  }
+
+  public TickedObject(String group, String id, long interval) {
+    this.group = group;
+    this.id = id;
+    this.die = new AtomicBoolean(false);
+    this.dieIn = new AtomicInteger(0);
+    this.interval = new AtomicLong(interval);
+    this.lastTick = new AtomicLong(M.ms());
+    this.burst = new AtomicInteger(0);
+    this.skip = new AtomicInteger(0);
+    this.ticks = new AtomicLong(0);
+    this.pendingSyncTick = new AtomicBoolean(false);
+    this.start = M.ms();
+    this.listenerRegistered = shouldRegisterAsListener();
+    Adapt.instance.getTicker().register(this);
+    if (listenerRegistered) {
+      Adapt.instance.registerListener(this);
     }
+  }
 
-    public TickedObject(String group, String id) {
-        this(group, id, 1000);
-    }
-
-    public TickedObject(String group) {
-        this(group, UUID.randomUUID().toString(), 1000);
-    }
-
-    public TickedObject(String group, long interval) {
-        this(group, UUID.randomUUID().toString(), interval);
-    }
-
-    public TickedObject(String group, String id, long interval) {
-        this.group = group;
-        this.id = id;
-        this.die = new AtomicBoolean(false);
-        this.dieIn = new AtomicInteger(0);
-        this.interval = new AtomicLong(interval);
-        this.lastTick = new AtomicLong(M.ms());
-        this.burst = new AtomicInteger(0);
-        this.skip = new AtomicInteger(0);
-        this.ticks = new AtomicLong(0);
-        this.pendingSyncTick = new AtomicBoolean(false);
-        this.start = M.ms();
-        this.listenerRegistered = shouldRegisterAsListener();
-        Adapt.instance.getTicker().register(this);
-        if (listenerRegistered) {
-            Adapt.instance.registerListener(this);
-        }
-    }
-
-    public void dieAfter(int ticks) {
-        dieIn.set(ticks);
-        die.set(true);
-    }
-
-    @Override
-    public void unregister() {
-        Adapt.instance.getTicker().unregister(this);
-        if (listenerRegistered) {
-            Adapt.instance.unregisterListener(this);
-        }
-    }
-
-    @Override
-    public long getLastTick() {
-        return lastTick.get();
-    }
-
-    @Override
-    public long getInterval() {
-        if (burst.get() > 0) {
-            return 0;
-        }
-
-        return interval.get();
-    }
-
-    @Override
-    public void setInterval(long ms) {
-        interval.set(ms);
-    }
-
-    @Override
-    public void tick() {
-        if (!J.isPrimaryThread()) {
-            if (pendingSyncTick.compareAndSet(false, true)) {
-                J.s(() -> {
-                    try {
-                        tick();
-                    } finally {
-                        pendingSyncTick.set(false);
-                    }
-                });
-            }
-            return;
-        }
-
-        if (skip.getAndDecrement() > 0) {
-            return;
-        }
-
-        if (die.get() && dieIn.decrementAndGet() <= 0) {
-            unregister();
-            return;
-        }
-
-        lastTick.set(M.ms());
-        burst.decrementAndGet();
-        try {
-            onTick();
-        } catch (IllegalStateException ex) {
-            if (J.isFoliaThreading() && isFoliaThreadOwnershipViolation(ex)) {
-                warnFoliaTickViolation(ex);
-                return;
-            }
-            throw ex;
-        } catch (NullPointerException ex) {
-            if (J.isFoliaThreading() && isFoliaTransientWorldStateNpe(ex)) {
-                warnFoliaTickViolation(ex);
-                return;
-            }
-            throw ex;
-        }
-    }
-
-    public abstract void onTick();
-
-    protected boolean shouldRegisterAsListener() {
-        try {
-            return hasEventHandlerMethods(getClass());
-        } catch (Throwable e) {
-            warnListenerIntrospectionFailure(getClass(), e);
-            return false;
-        }
-    }
-
-    @Override
-    public String getGroup() {
-        return group;
-    }
-
-    @Override
-    public String getId() {
-        return id;
-    }
-
-    @Override
-    public long getTickCount() {
-        return ticks.get();
-    }
-
-    @Override
-    public long getAge() {
-        return M.ms() - start;
-    }
-
-    @Override
-    public boolean isBursting() {
-        return burst.get() > 0;
-    }
-
-    @Override
-    public void burst(int ticks) {
-        if (burst.get() < 0) {
-            burst.set(ticks);
-            return;
-        }
-
-        burst.addAndGet(ticks);
-    }
-
-    @Override
-    public boolean isSkipping() {
-        return skip.get() > 0;
-    }
-
-    @Override
-    public void stopBursting() {
-        burst.set(0);
-    }
-
-    @Override
-    public void stopSkipping() {
-        skip.set(0);
-    }
-
-    @Override
-    public void skip(int ticks) {
-        if (skip.get() < 0) {
-            skip.set(ticks);
-            return;
-        }
-
-        skip.addAndGet(ticks);
-    }
-
-    private static boolean hasEventHandlerMethods(Class<?> type) {
-        Class<?> current = type;
-        while (current != null && current != Object.class) {
-            Method[] methods;
-            try {
-                methods = current.getDeclaredMethods();
-            } catch (Throwable e) {
-                warnListenerIntrospectionFailure(current, e);
-                return false;
-            }
-
-            for (Method method : methods) {
-                try {
-                    if (method.isAnnotationPresent(EventHandler.class)) {
-                        return true;
-                    }
-                } catch (Throwable e) {
-                    warnListenerIntrospectionFailure(current, e);
-                    return false;
-                }
-            }
-            current = current.getSuperclass();
-        }
+  private static boolean hasEventHandlerMethods(Class<?> type) {
+    Class<?> current = type;
+    while (current != null && current != Object.class) {
+      Method[] methods;
+      try {
+        methods = current.getDeclaredMethods();
+      } catch (Throwable e) {
+        warnListenerIntrospectionFailure(current, e);
         return false;
+      }
+
+      for (Method method : methods) {
+        try {
+          if (method.isAnnotationPresent(EventHandler.class)) {
+            return true;
+          }
+        } catch (Throwable e) {
+          warnListenerIntrospectionFailure(current, e);
+          return false;
+        }
+      }
+      current = current.getSuperclass();
+    }
+    return false;
+  }
+
+  private static void warnListenerIntrospectionFailure(Class<?> type, Throwable error) {
+    if (type == null) {
+      return;
     }
 
-    private static void warnListenerIntrospectionFailure(Class<?> type, Throwable error) {
-        if (type == null) {
-            return;
-        }
+    String key = type.getName() + ":" + error.getClass().getName() + ":" + (error.getMessage() == null ? "" : error.getMessage());
+    if (LISTENER_INTROSPECTION_WARNED.add(key)) {
+      Adapt.warn("Skipping listener registration for " + type.getName() + " due to missing/incompatible event class: " + error.getClass().getSimpleName() + (error.getMessage() == null ? "" : " (" + error.getMessage() + ")"));
+    }
+  }
 
-        String key = type.getName() + ":" + error.getClass().getName() + ":" + (error.getMessage() == null ? "" : error.getMessage());
-        if (LISTENER_INTROSPECTION_WARNED.add(key)) {
-            Adapt.warn("Skipping listener registration for " + type.getName() + " due to missing/incompatible event class: " + error.getClass().getSimpleName() + (error.getMessage() == null ? "" : " (" + error.getMessage() + ")"));
-        }
+  public void dieAfter(int ticks) {
+    dieIn.set(ticks);
+    die.set(true);
+  }
+
+  @Override
+  public void unregister() {
+    Adapt.instance.getTicker().unregister(this);
+    if (listenerRegistered) {
+      Adapt.instance.unregisterListener(this);
+    }
+  }
+
+  @Override
+  public long getLastTick() {
+    return lastTick.get();
+  }
+
+  @Override
+  public long getInterval() {
+    if (burst.get() > 0) {
+      return 0;
     }
 
-    private boolean isFoliaThreadOwnershipViolation(Throwable throwable) {
-        if (throwable == null) {
-            return false;
-        }
+    return interval.get();
+  }
 
-        String message = throwable.getMessage();
-        if (message == null) {
-            return false;
-        }
+  @Override
+  public void setInterval(long ms) {
+    interval.set(ms);
+  }
 
-        String lower = message.toLowerCase(Locale.ROOT);
-        return lower.contains("thread failed main thread check")
-                || lower.contains("cannot read world asynchronously")
-                || lower.contains("accessing entity state off owning region");
+  @Override
+  public void tick() {
+    if (!J.isPrimaryThread()) {
+      if (pendingSyncTick.compareAndSet(false, true)) {
+        J.s(() -> {
+          try {
+            tick();
+          } finally {
+            pendingSyncTick.set(false);
+          }
+        });
+      }
+      return;
     }
 
-    private boolean isFoliaTransientWorldStateNpe(NullPointerException throwable) {
-        if (throwable == null || throwable.getMessage() == null) {
-            return false;
-        }
-
-        String lower = throwable.getMessage().toLowerCase(Locale.ROOT);
-        return lower.contains("getcurrentworlddata");
+    if (skip.getAndDecrement() > 0) {
+      return;
     }
 
-    private void warnFoliaTickViolation(Throwable throwable) {
-        String message = throwable == null || throwable.getMessage() == null ? throwable.getClass().getSimpleName() : throwable.getMessage();
-        String key = getClass().getName() + ":" + throwable.getClass().getName() + ":" + message;
-        if (FOLIA_TICK_VIOLATION_WARNED.add(key)) {
-            Adapt.warn("Suppressed unsafe Folia tick execution in " + getClass().getName() + ": " + message);
-        }
+    if (die.get() && dieIn.decrementAndGet() <= 0) {
+      unregister();
+      return;
     }
+
+    lastTick.set(M.ms());
+    burst.decrementAndGet();
+    try {
+      onTick();
+    } catch (IllegalStateException ex) {
+      if (J.isFoliaThreading() && isFoliaThreadOwnershipViolation(ex)) {
+        warnFoliaTickViolation(ex);
+        return;
+      }
+      throw ex;
+    } catch (NullPointerException ex) {
+      if (J.isFoliaThreading() && isFoliaTransientWorldStateNpe(ex)) {
+        warnFoliaTickViolation(ex);
+        return;
+      }
+      throw ex;
+    }
+  }
+
+  public abstract void onTick();
+
+  protected boolean shouldRegisterAsListener() {
+    try {
+      return hasEventHandlerMethods(getClass());
+    } catch (Throwable e) {
+      warnListenerIntrospectionFailure(getClass(), e);
+      return false;
+    }
+  }
+
+  @Override
+  public String getGroup() {
+    return group;
+  }
+
+  @Override
+  public String getId() {
+    return id;
+  }
+
+  @Override
+  public long getTickCount() {
+    return ticks.get();
+  }
+
+  @Override
+  public long getAge() {
+    return M.ms() - start;
+  }
+
+  @Override
+  public boolean isBursting() {
+    return burst.get() > 0;
+  }
+
+  @Override
+  public void burst(int ticks) {
+    if (burst.get() < 0) {
+      burst.set(ticks);
+      return;
+    }
+
+    burst.addAndGet(ticks);
+  }
+
+  @Override
+  public boolean isSkipping() {
+    return skip.get() > 0;
+  }
+
+  @Override
+  public void stopBursting() {
+    burst.set(0);
+  }
+
+  @Override
+  public void stopSkipping() {
+    skip.set(0);
+  }
+
+  @Override
+  public void skip(int ticks) {
+    if (skip.get() < 0) {
+      skip.set(ticks);
+      return;
+    }
+
+    skip.addAndGet(ticks);
+  }
+
+  private boolean isFoliaThreadOwnershipViolation(Throwable throwable) {
+    if (throwable == null) {
+      return false;
+    }
+
+    String message = throwable.getMessage();
+    if (message == null) {
+      return false;
+    }
+
+    String lower = message.toLowerCase(Locale.ROOT);
+    return lower.contains("thread failed main thread check")
+        || lower.contains("cannot read world asynchronously")
+        || lower.contains("accessing entity state off owning region");
+  }
+
+  private boolean isFoliaTransientWorldStateNpe(NullPointerException throwable) {
+    if (throwable == null || throwable.getMessage() == null) {
+      return false;
+    }
+
+    String lower = throwable.getMessage().toLowerCase(Locale.ROOT);
+    return lower.contains("getcurrentworlddata");
+  }
+
+  private void warnFoliaTickViolation(Throwable throwable) {
+    String message = throwable == null || throwable.getMessage() == null ? throwable.getClass().getSimpleName() : throwable.getMessage();
+    String key = getClass().getName() + ":" + throwable.getClass().getName() + ":" + message;
+    if (FOLIA_TICK_VIOLATION_WARNED.add(key)) {
+      Adapt.warn("Suppressed unsafe Folia tick execution in " + getClass().getName() + ": " + message);
+    }
+  }
 }

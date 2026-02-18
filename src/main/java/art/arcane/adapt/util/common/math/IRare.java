@@ -19,9 +19,9 @@
 package art.arcane.adapt.util.common.math;
 
 public interface IRare {
-    static int get(Object v) {
-        return v instanceof IRare ? ((IRare) v).getRarity() : 1;
-    }
+  static int get(Object v) {
+    return v instanceof IRare ? ((IRare) v).getRarity() : 1;
+  }
 
-    int getRarity();
+  int getRarity();
 }

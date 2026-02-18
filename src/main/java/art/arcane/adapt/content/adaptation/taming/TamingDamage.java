@@ -22,15 +22,16 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.version.IAttribute;
 import art.arcane.adapt.api.version.Version;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.volmlib.util.format.Form;
+import art.arcane.volmlib.util.inventorygui.Element;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -45,152 +46,233 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
-    private static final UUID MODIFIER = UUID.nameUUIDFromBytes("adapt-tame-damage-boost".getBytes());
-    private static final NamespacedKey MODIFIER_KEY = NamespacedKey.fromString( "adapt:tame-damage-boost");
-    private static final double FOLIA_SCAN_RADIUS = 48D;
+  private static final UUID MODIFIER = UUID.nameUUIDFromBytes("adapt-tame-damage-boost".getBytes());
+  private static final NamespacedKey MODIFIER_KEY = NamespacedKey.fromString("adapt:tame-damage-boost");
+  private static final double FOLIA_SCAN_RADIUS = 48D;
+  private final Map<UUID, Integer> appliedLevels = new ConcurrentHashMap<>();
 
-    public TamingDamage() {
-        super("tame-damage");
-        registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("taming.damage.description"));
-        setDisplayName(Localizer.dLocalize("taming.damage.name"));
-        setIcon(Material.FLINT);
-        setBaseCost(getConfig().baseCost);
-        setMaxLevel(getConfig().maxLevel);
-        setInitialCost(getConfig().initialCost);
-        setInterval(6119);
-        setCostFactor(getConfig().costFactor);
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.BONE)
-                .key("challenge_taming_damage_500")
-                .title(Localizer.dLocalize("advancement.challenge_taming_damage_500.title"))
-                .description(Localizer.dLocalize("advancement.challenge_taming_damage_500.description"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .child(AdaptAdvancement.builder()
-                        .icon(Material.DIAMOND_SWORD)
-                        .key("challenge_taming_damage_5k")
-                        .title(Localizer.dLocalize("advancement.challenge_taming_damage_5k.title"))
-                        .description(Localizer.dLocalize("advancement.challenge_taming_damage_5k.description"))
-                        .frame(AdaptAdvancementFrame.CHALLENGE)
-                        .visibility(AdvancementVisibility.PARENT_GRANTED)
-                        .build())
-                .build());
-        registerMilestone("challenge_taming_damage_500", "taming.damage.pet-kills", 500, 400);
-        registerMilestone("challenge_taming_damage_5k", "taming.damage.pet-kills", 5000, 1500);
+  public TamingDamage() {
+    super("tame-damage");
+    registerConfiguration(Config.class);
+    setDescription(Localizer.dLocalize("taming.damage.description"));
+    setDisplayName(Localizer.dLocalize("taming.damage.name"));
+    setIcon(Material.FLINT);
+    setBaseCost(getConfig().baseCost);
+    setMaxLevel(getConfig().maxLevel);
+    setInitialCost(getConfig().initialCost);
+    setInterval(6119);
+    setCostFactor(getConfig().costFactor);
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.BONE)
+        .key("challenge_taming_damage_500")
+        .title(Localizer.dLocalize("advancement.challenge_taming_damage_500.title"))
+        .description(Localizer.dLocalize("advancement.challenge_taming_damage_500.description"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .child(AdaptAdvancement.builder()
+            .icon(Material.DIAMOND_SWORD)
+            .key("challenge_taming_damage_5k")
+            .title(Localizer.dLocalize("advancement.challenge_taming_damage_5k.title"))
+            .description(Localizer.dLocalize("advancement.challenge_taming_damage_5k.description"))
+            .frame(AdaptAdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .build())
+        .build());
+    registerMilestone("challenge_taming_damage_500", "taming.damage.pet-kills", 500, 400);
+    registerMilestone("challenge_taming_damage_5k", "taming.damage.pet-kills", 5000, 1500);
+  }
+
+  @Override
+  public void addStats(int level, Element v) {
+    v.addLore(C.GREEN + "+ " + Form.pc(getDamageBoost(level), 0) + C.GRAY + " " + Localizer.dLocalize("taming.damage.lore1"));
+  }
+
+  private double getDamageBoost(int level) {
+    return ((getLevelPercent(level) * getConfig().damageFactor) + getConfig().baseDamage);
+  }
+
+  @Override
+  public void onTick() {
+    if (J.isFoliaThreading()) {
+      onFoliaTick();
+      pruneInvalidAppliedLevels();
+      return;
     }
 
-    @Override
-    public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getDamageBoost(level), 0) + C.GRAY + " " + Localizer.dLocalize("taming.damage.lore1"));
+    Map<UUID, Integer> ownerLevels = new HashMap<>();
+    boolean hasActiveOwners = false;
+    for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+      Player owner = adaptPlayer.getPlayer();
+      int level = getActiveLevel(owner);
+      if (level > 0) {
+        ownerLevels.put(owner.getUniqueId(), level);
+        hasActiveOwners = true;
+      }
     }
 
-    private double getDamageBoost(int level) {
-        return ((getLevelPercent(level) * getConfig().damageFactor) + getConfig().baseDamage);
+    if (!hasActiveOwners) {
+      clearAppliedLevels();
+      return;
     }
 
-    @Override
-    public void onTick() {
-        if (J.isFoliaThreading()) {
-            onFoliaTick();
-            return;
+    Set<UUID> seen = new HashSet<>();
+    for (World world : Bukkit.getServer().getWorlds()) {
+      Collection<Tameable> tameables = world.getEntitiesByClass(Tameable.class);
+      for (Tameable tameable : tameables) {
+        if (tameable.isTamed() && tameable.getOwner() instanceof Player p) {
+          seen.add(tameable.getUniqueId());
+          update(tameable, ownerLevels.getOrDefault(p.getUniqueId(), 0));
         }
+      }
+    }
+    clearMissingAppliedLevels(seen);
+  }
 
-        Map<UUID, Integer> ownerLevels = new java.util.concurrent.ConcurrentHashMap<>();
-        for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
-            Player owner = adaptPlayer.getPlayer();
-            ownerLevels.put(owner.getUniqueId(), getActiveLevel(owner));
-        }
+  private void onFoliaTick() {
+    for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+      Player owner = adaptPlayer.getPlayer();
+      int level = getActiveLevel(owner);
+      J.runEntity(owner, () -> updateNearbyOwnedTameables(owner, level));
+    }
+  }
 
-        for (World world : Bukkit.getServer().getWorlds()) {
-            Collection<Tameable> tameables = world.getEntitiesByClass(Tameable.class);
-            for (Tameable tameable : tameables) {
-                if (tameable.isTamed() && tameable.getOwner() instanceof Player p) {
-                    update(tameable, ownerLevels.getOrDefault(p.getUniqueId(), 0));
-                }
-            }
-        }
+  private void updateNearbyOwnedTameables(Player owner, int level) {
+    if (owner == null || !owner.isOnline()) {
+      return;
     }
 
-    private void onFoliaTick() {
-        for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
-            Player owner = adaptPlayer.getPlayer();
-            int level = getActiveLevel(owner);
-            J.runEntity(owner, () -> updateNearbyOwnedTameables(owner, level));
-        }
+    for (Entity nearby : owner.getNearbyEntities(FOLIA_SCAN_RADIUS, FOLIA_SCAN_RADIUS, FOLIA_SCAN_RADIUS)) {
+      if (!(nearby instanceof Tameable tameable) || !tameable.isTamed()) {
+        continue;
+      }
+      if (!(tameable.getOwner() instanceof Player tameOwner) || !tameOwner.getUniqueId().equals(owner.getUniqueId())) {
+        continue;
+      }
+
+      update(tameable, level);
+    }
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(EntityDeathEvent e) {
+    if (e.getEntity().getLastDamageCause() instanceof EntityDamageByEntityEvent dmgEvent
+        && dmgEvent.getDamager() instanceof Tameable tam
+        && tam.isTamed()
+        && tam.getOwner() instanceof Player p
+        && hasActiveAdaptation(p)) {
+      getPlayer(p).getData().addStat("taming.damage.pet-kills", 1);
+    }
+    appliedLevels.remove(e.getEntity().getUniqueId());
+  }
+
+  private void update(Tameable j, int level) {
+    UUID tameableId = j.getUniqueId();
+    IAttribute attribute = Version.get().getAttribute(j, Attributes.GENERIC_ATTACK_DAMAGE);
+    if (attribute == null) {
+      appliedLevels.remove(tameableId);
+      return;
     }
 
-    private void updateNearbyOwnedTameables(Player owner, int level) {
-        if (owner == null || !owner.isOnline()) {
-            return;
-        }
-
-        for (Entity nearby : owner.getNearbyEntities(FOLIA_SCAN_RADIUS, FOLIA_SCAN_RADIUS, FOLIA_SCAN_RADIUS)) {
-            if (!(nearby instanceof Tameable tameable) || !tameable.isTamed()) {
-                continue;
-            }
-            if (!(tameable.getOwner() instanceof Player tameOwner) || !tameOwner.getUniqueId().equals(owner.getUniqueId())) {
-                continue;
-            }
-
-            update(tameable, level);
-        }
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void on(EntityDeathEvent e) {
-        if (e.getEntity().getLastDamageCause() instanceof EntityDamageByEntityEvent dmgEvent
-                && dmgEvent.getDamager() instanceof Tameable tam
-                && tam.isTamed()
-                && tam.getOwner() instanceof Player p
-                && hasActiveAdaptation(p)) {
-            getPlayer(p).getData().addStat("taming.damage.pet-kills", 1);
-        }
-    }
-
-    private void update(Tameable j, int level) {
-        var attribute = Version.get().getAttribute(j, Attributes.GENERIC_ATTACK_DAMAGE);
-        if (attribute == null) return;
+    Integer appliedLevel = appliedLevels.get(tameableId);
+    if (level <= 0) {
+      if (appliedLevel != null || attribute.hasModifier(MODIFIER, MODIFIER_KEY)) {
         attribute.removeModifier(MODIFIER, MODIFIER_KEY);
+      }
+      appliedLevels.remove(tameableId);
+      return;
+    }
 
-        if (level > 0) {
-            attribute.addModifier(MODIFIER, MODIFIER_KEY, getDamageBoost(level), AttributeModifier.Operation.ADD_SCALAR);
+    if (appliedLevel != null && appliedLevel == level) {
+      return;
+    }
+
+    attribute.setModifier(MODIFIER, MODIFIER_KEY, getDamageBoost(level), AttributeModifier.Operation.ADD_SCALAR);
+    appliedLevels.put(tameableId, level);
+  }
+
+  private void clearAppliedLevels() {
+    if (appliedLevels.isEmpty()) {
+      return;
+    }
+
+    for (UUID tameableId : new HashSet<>(appliedLevels.keySet())) {
+      Entity entity = Bukkit.getEntity(tameableId);
+      if (entity instanceof Tameable tameable) {
+        IAttribute attribute = Version.get().getAttribute(tameable, Attributes.GENERIC_ATTACK_DAMAGE);
+        if (attribute != null && attribute.hasModifier(MODIFIER, MODIFIER_KEY)) {
+          attribute.removeModifier(MODIFIER, MODIFIER_KEY);
         }
+      }
+      appliedLevels.remove(tameableId);
+    }
+  }
+
+  private void clearMissingAppliedLevels(Set<UUID> seen) {
+    if (appliedLevels.isEmpty()) {
+      return;
     }
 
-    @Override
-    public boolean isEnabled() {
-        return getConfig().enabled;
+    for (UUID tameableId : new HashSet<>(appliedLevels.keySet())) {
+      if (seen.contains(tameableId)) {
+        continue;
+      }
+
+      Entity entity = Bukkit.getEntity(tameableId);
+      if (entity instanceof Tameable tameable) {
+        IAttribute attribute = Version.get().getAttribute(tameable, Attributes.GENERIC_ATTACK_DAMAGE);
+        if (attribute != null && attribute.hasModifier(MODIFIER, MODIFIER_KEY)) {
+          attribute.removeModifier(MODIFIER, MODIFIER_KEY);
+        }
+      }
+      appliedLevels.remove(tameableId);
+    }
+  }
+
+  private void pruneInvalidAppliedLevels() {
+    if (appliedLevels.isEmpty()) {
+      return;
     }
 
-    @Override
-    public boolean isPermanent() {
-        return getConfig().permanent;
+    for (UUID tameableId : new HashSet<>(appliedLevels.keySet())) {
+      Entity entity = Bukkit.getEntity(tameableId);
+      if (!(entity instanceof Tameable tameable) || !tameable.isValid() || tameable.isDead()) {
+        appliedLevels.remove(tameableId);
+      }
     }
+  }
 
-    @NoArgsConstructor
-    @ConfigDescription("Increase your tamed animal damage dealt.")
-    protected static class Config {
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-        boolean permanent = false;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-        boolean enabled = true;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-        int baseCost = 6;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-        int maxLevel = 5;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-        int initialCost = 5;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-        double costFactor = 0.4;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Base Damage for the Taming Damage adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double baseDamage = 0.08;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Damage Factor for the Taming Damage adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double damageFactor = 0.65;
-    }
+  @Override
+  public boolean isEnabled() {
+    return getConfig().enabled;
+  }
+
+  @Override
+  public boolean isPermanent() {
+    return getConfig().permanent;
+  }
+
+  @NoArgsConstructor
+  @ConfigDescription("Increase your tamed animal damage dealt.")
+  protected static class Config {
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
+    boolean permanent = false;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
+    boolean enabled = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
+    int baseCost = 6;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
+    int maxLevel = 5;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
+    int initialCost = 5;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
+    double costFactor = 0.4;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Base Damage for the Taming Damage adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double baseDamage = 0.08;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Damage Factor for the Taming Damage adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double damageFactor = 0.65;
+  }
 }

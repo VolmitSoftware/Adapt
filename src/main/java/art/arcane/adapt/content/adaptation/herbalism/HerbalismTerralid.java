@@ -26,8 +26,8 @@ import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.recipe.MaterialChar;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.inventorygui.Element;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -40,81 +40,81 @@ import java.util.List;
 
 public class HerbalismTerralid extends SimpleAdaptation<HerbalismTerralid.Config> {
 
-    public HerbalismTerralid() {
-        super("herbalism-terralid");
-        registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("herbalism.terralid.description"));
-        setDisplayName(Localizer.dLocalize("herbalism.terralid.name"));
-        setIcon(Material.GRASS_BLOCK);
-        setBaseCost(getConfig().baseCost);
-        setMaxLevel(getConfig().maxLevel);
-        setInterval(17771);
-        setInitialCost(getConfig().initialCost);
-        setCostFactor(getConfig().costFactor);
-        registerRecipe(AdaptRecipe.shaped()
-                .key("herbalism-dirt-terralid")
-                .ingredient(new MaterialChar('S', Material.WHEAT_SEEDS))
-                .ingredient(new MaterialChar('D', Material.DIRT))
-                .shapes(List.of(
-                        "SSS",
-                        "DDD"))
-                .result(new ItemStack(Material.GRASS_BLOCK, 3))
-                .build());
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.GRASS_BLOCK)
-                .key("challenge_herbalism_terralid_200")
-                .title(Localizer.dLocalize("advancement.challenge_herbalism_terralid_200.title"))
-                .description(Localizer.dLocalize("advancement.challenge_herbalism_terralid_200.description"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .build());
-        registerMilestone("challenge_herbalism_terralid_200", "herbalism.terralid.grass-crafted", 200, 300);
-    }
+  public HerbalismTerralid() {
+    super("herbalism-terralid");
+    registerConfiguration(Config.class);
+    setDescription(Localizer.dLocalize("herbalism.terralid.description"));
+    setDisplayName(Localizer.dLocalize("herbalism.terralid.name"));
+    setIcon(Material.GRASS_BLOCK);
+    setBaseCost(getConfig().baseCost);
+    setMaxLevel(getConfig().maxLevel);
+    setInterval(17771);
+    setInitialCost(getConfig().initialCost);
+    setCostFactor(getConfig().costFactor);
+    registerRecipe(AdaptRecipe.shaped()
+        .key("herbalism-dirt-terralid")
+        .ingredient(new MaterialChar('S', Material.WHEAT_SEEDS))
+        .ingredient(new MaterialChar('D', Material.DIRT))
+        .shapes(List.of(
+            "SSS",
+            "DDD"))
+        .result(new ItemStack(Material.GRASS_BLOCK, 3))
+        .build());
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.GRASS_BLOCK)
+        .key("challenge_herbalism_terralid_200")
+        .title(Localizer.dLocalize("advancement.challenge_herbalism_terralid_200.title"))
+        .description(Localizer.dLocalize("advancement.challenge_herbalism_terralid_200.description"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .build());
+    registerMilestone("challenge_herbalism_terralid_200", "herbalism.terralid.grass-crafted", 200, 300);
+  }
 
-    @Override
-    public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("herbalism.terralid.lore1"));
-    }
+  @Override
+  public void addStats(int level, Element v) {
+    v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("herbalism.terralid.lore1"));
+  }
 
 
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void on(CraftItemEvent e) {
-        if (!(e.getWhoClicked() instanceof Player p) || !hasActiveAdaptation(p)) {
-            return;
-        }
-        if (e.getRecipe() instanceof org.bukkit.inventory.ShapedRecipe recipe && recipe.getKey().getNamespace().equals("adapt") && recipe.getKey().getKey().equals("herbalism-dirt-terralid")) {
-            getPlayer(p).getData().addStat("herbalism.terralid.grass-crafted", 1);
-        }
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(CraftItemEvent e) {
+    if (!(e.getWhoClicked() instanceof Player p) || !hasActiveAdaptation(p)) {
+      return;
     }
+    if (e.getRecipe() instanceof org.bukkit.inventory.ShapedRecipe recipe && recipe.getKey().getNamespace().equals("adapt") && recipe.getKey().getKey().equals("herbalism-dirt-terralid")) {
+      getPlayer(p).getData().addStat("herbalism.terralid.grass-crafted", 1);
+    }
+  }
 
-    @Override
-    public void onTick() {
-    }
+  @Override
+  public void onTick() {
+  }
 
-    @Override
-    public boolean isEnabled() {
-        return getConfig().enabled;
-    }
+  @Override
+  public boolean isEnabled() {
+    return getConfig().enabled;
+  }
 
-    @Override
-    public boolean isPermanent() {
-        return getConfig().permanent;
-    }
+  @Override
+  public boolean isPermanent() {
+    return getConfig().permanent;
+  }
 
-    @NoArgsConstructor
-    @ConfigDescription("Craft Grass Blocks from Seeds and Dirt.")
-    protected static class Config {
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-        boolean permanent = true;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-        boolean enabled = true;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-        int baseCost = 4;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-        int maxLevel = 1;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-        int initialCost = 3;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-        double costFactor = 0.75;
-    }
+  @NoArgsConstructor
+  @ConfigDescription("Craft Grass Blocks from Seeds and Dirt.")
+  protected static class Config {
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
+    boolean permanent = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
+    boolean enabled = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
+    int baseCost = 4;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
+    int maxLevel = 1;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
+    int initialCost = 3;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
+    double costFactor = 0.75;
+  }
 }

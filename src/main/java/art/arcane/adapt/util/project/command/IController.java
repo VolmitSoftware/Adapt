@@ -21,21 +21,21 @@ package art.arcane.adapt.util.project.command;
 import org.bukkit.event.Listener;
 
 public interface IController extends Listener {
-    String getName();
+  String getName();
 
-    void start();
+  void start();
 
-    void stop();
+  void stop();
 
-    void tick();
+  void tick();
 
-    int getTickInterval();
+  int getTickInterval();
 
-    void l(Object l);
+  void l(Object l);
 
-    void w(Object l);
+  void w(Object l);
 
-    void f(Object l);
+  void f(Object l);
 
-    void v(Object l);
+  void v(Object l);
 }

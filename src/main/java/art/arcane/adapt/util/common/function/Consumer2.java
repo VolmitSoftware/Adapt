@@ -22,5 +22,5 @@ package art.arcane.adapt.util.common.function;
 @SuppressWarnings("hiding")
 @FunctionalInterface
 public interface Consumer2<A, B> {
-    void accept(A a, B b);
+  void accept(A a, B b);
 }

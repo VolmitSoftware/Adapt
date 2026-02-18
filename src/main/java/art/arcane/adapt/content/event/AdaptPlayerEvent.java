@@ -21,14 +21,14 @@ package art.arcane.adapt.content.event;
 import art.arcane.adapt.api.world.AdaptPlayer;
 
 public class AdaptPlayerEvent extends AdaptEvent {
-    private final AdaptPlayer player;
+  private final AdaptPlayer player;
 
-    public AdaptPlayerEvent(boolean async, AdaptPlayer player) {
-        super(async);
-        this.player = player;
-    }
+  public AdaptPlayerEvent(boolean async, AdaptPlayer player) {
+    super(async);
+    this.player = player;
+  }
 
-    public AdaptPlayer getPlayer() {
-        return player;
-    }
+  public AdaptPlayer getPlayer() {
+    return player;
+  }
 }

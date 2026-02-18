@@ -5,6 +5,6 @@ import org.bukkit.event.Cancellable;
 import org.jetbrains.annotations.NotNull;
 
 public interface EntityDismountEvent extends EntityEvent, Cancellable {
-    @NotNull
-    Entity getDismounted();
+  @NotNull
+  Entity getDismounted();
 }

@@ -39,59 +39,59 @@ import java.util.List;
 @AllArgsConstructor
 @Data
 public class ChronoTimeBottle implements DataItem<ChronoTimeBottle.Data> {
-    public static ChronoTimeBottle io = new ChronoTimeBottle();
+  public static ChronoTimeBottle io = new ChronoTimeBottle();
 
-    public static boolean isBindableItem(ItemStack stack) {
-        return stack != null && stack.getType() == Material.POTION && io.hasData(stack);
+  public static boolean isBindableItem(ItemStack stack) {
+    return stack != null && stack.getType() == Material.POTION && io.hasData(stack);
+  }
+
+  public static double getStoredSeconds(ItemStack stack) {
+    Data data = io.getData(stack);
+    return data == null ? 0 : Math.max(0, data.getStoredSeconds());
+  }
+
+  public static void setStoredSeconds(ItemStack stack, double seconds) {
+    io.setData(stack, new Data(Math.max(0, seconds)));
+  }
+
+  public static ItemStack withStoredSeconds(double seconds) {
+    return io.withData(new Data(Math.max(0, seconds)));
+  }
+
+  @Override
+  public Material getMaterial() {
+    return Material.POTION;
+  }
+
+  @Override
+  public Class<Data> getType() {
+    return Data.class;
+  }
+
+  @Override
+  public void applyLore(Data data, List<String> lore) {
+    lore.add(C.WHITE + Localizer.dLocalize("items.chrono_time_bottle.name"));
+    lore.add(C.GRAY + Localizer.dLocalize("items.chrono_time_bottle.usage1"));
+    lore.add(C.GRAY + Localizer.dLocalize("items.chrono_time_bottle.usage2"));
+    lore.add(C.AQUA + Localizer.dLocalize("items.chrono_time_bottle.stored") + ": " + C.WHITE + Form.duration((long) (Math.max(0, data.getStoredSeconds()) * 1000D), 1));
+  }
+
+  @Override
+  public void applyMeta(Data data, ItemMeta meta) {
+    if (meta instanceof PotionMeta potionMeta) {
+      potionMeta.setBasePotionType(PotionType.WATER);
+      potionMeta.setColor(Color.fromRGB(235, 245, 255));
+      meta = potionMeta;
     }
 
-    public static double getStoredSeconds(ItemStack stack) {
-        Data data = io.getData(stack);
-        return data == null ? 0 : Math.max(0, data.getStoredSeconds());
-    }
+    meta.addEnchant(Enchantment.BINDING_CURSE, 1, true);
+    meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS, ItemFlags.HIDE_POTION_EFFECTS);
+    meta.setDisplayName(Localizer.dLocalize("items.chrono_time_bottle.name"));
+  }
 
-    public static void setStoredSeconds(ItemStack stack, double seconds) {
-        io.setData(stack, new Data(Math.max(0, seconds)));
-    }
-
-    public static ItemStack withStoredSeconds(double seconds) {
-        return io.withData(new Data(Math.max(0, seconds)));
-    }
-
-    @Override
-    public Material getMaterial() {
-        return Material.POTION;
-    }
-
-    @Override
-    public Class<Data> getType() {
-        return Data.class;
-    }
-
-    @Override
-    public void applyLore(Data data, List<String> lore) {
-        lore.add(C.WHITE + Localizer.dLocalize("items.chrono_time_bottle.name"));
-        lore.add(C.GRAY + Localizer.dLocalize("items.chrono_time_bottle.usage1"));
-        lore.add(C.GRAY + Localizer.dLocalize("items.chrono_time_bottle.usage2"));
-        lore.add(C.AQUA + Localizer.dLocalize("items.chrono_time_bottle.stored") + ": " + C.WHITE + Form.duration((long) (Math.max(0, data.getStoredSeconds()) * 1000D), 1));
-    }
-
-    @Override
-    public void applyMeta(Data data, ItemMeta meta) {
-        if (meta instanceof PotionMeta potionMeta) {
-            potionMeta.setBasePotionType(PotionType.WATER);
-            potionMeta.setColor(Color.fromRGB(235, 245, 255));
-            meta = potionMeta;
-        }
-
-        meta.addEnchant(Enchantment.BINDING_CURSE, 1, true);
-        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS, ItemFlags.HIDE_POTION_EFFECTS);
-        meta.setDisplayName(Localizer.dLocalize("items.chrono_time_bottle.name"));
-    }
-
-    @AllArgsConstructor
-    @lombok.Data
-    public static class Data {
-        private double storedSeconds;
-    }
+  @AllArgsConstructor
+  @lombok.Data
+  public static class Data {
+    private double storedSeconds;
+  }
 }

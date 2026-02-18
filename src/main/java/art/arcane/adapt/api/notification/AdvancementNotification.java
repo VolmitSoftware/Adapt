@@ -30,42 +30,42 @@ import org.bukkit.inventory.ItemStack;
 @Data
 @Builder
 public class AdvancementNotification implements Notification {
-    @Builder.Default
-    private final Material icon = Material.DIAMOND;
-    @Builder.Default
-    private final CustomModel model = null;
-    @Builder.Default
-    private final String title = " ";
-    @Builder.Default
-    private final String description = " ";
-    @Builder.Default
-    private final AdaptAdvancementFrame frameType = AdaptAdvancementFrame.TASK;
-    @Builder.Default
-    private final String group = "default";
+  @Builder.Default
+  private final Material icon = Material.DIAMOND;
+  @Builder.Default
+  private final CustomModel model = null;
+  @Builder.Default
+  private final String title = " ";
+  @Builder.Default
+  private final String description = " ";
+  @Builder.Default
+  private final AdaptAdvancementFrame frameType = AdaptAdvancementFrame.TASK;
+  @Builder.Default
+  private final String group = "default";
 
-    @Override
-    public long getTotalDuration() {
-        return 100; // TODO: Actually calculate
+  @Override
+  public long getTotalDuration() {
+    return 100; // TODO: Actually calculate
+  }
+
+  @Override
+  public String getGroup() {
+    return group;
+  }
+
+  @Override
+  public void play(AdaptPlayer p) {
+    if (p.getPlayer() != null) {
+      ItemStack icon = getModel() != null ? getModel().toItemStack() : new ItemStack(getIcon());
+      AdvancementUtils.displayToast(p.getPlayer(), icon, title, description, frameType);
+    }
+  }
+
+  public String buildTitle() {
+    if (description.trim().isEmpty()) {
+      return title;
     }
 
-    @Override
-    public String getGroup() {
-        return group;
-    }
-
-    @Override
-    public void play(AdaptPlayer p) {
-        if (p.getPlayer() != null) {
-            var icon = getModel() != null ? getModel().toItemStack() : new ItemStack(getIcon());
-            AdvancementUtils.displayToast(p.getPlayer(), icon, title, description, frameType);
-        }
-    }
-
-    public String buildTitle() {
-        if (description.trim().isEmpty()) {
-            return title;
-        }
-
-        return title + "\n" + description;
-    }
+    return title + "\n" + description;
+  }
 }

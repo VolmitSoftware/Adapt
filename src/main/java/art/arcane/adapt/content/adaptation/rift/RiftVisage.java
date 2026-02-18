@@ -6,8 +6,8 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.inventorygui.Element;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.Enderman;
@@ -30,21 +30,21 @@ public class RiftVisage extends SimpleAdaptation<RiftVisage.Config> {
     setInitialCost(getConfig().initialCost);
     setInterval(1000);
     registerAdvancement(AdaptAdvancement.builder()
-            .icon(Material.ENDER_EYE)
-            .key("challenge_rift_visage_100")
-            .title(Localizer.dLocalize("advancement.challenge_rift_visage_100.title"))
-            .description(Localizer.dLocalize("advancement.challenge_rift_visage_100.description"))
+        .icon(Material.ENDER_EYE)
+        .key("challenge_rift_visage_100")
+        .title(Localizer.dLocalize("advancement.challenge_rift_visage_100.title"))
+        .description(Localizer.dLocalize("advancement.challenge_rift_visage_100.description"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .child(AdaptAdvancement.builder()
+            .icon(Material.DRAGON_HEAD)
+            .key("challenge_rift_visage_1k")
+            .title(Localizer.dLocalize("advancement.challenge_rift_visage_1k.title"))
+            .description(Localizer.dLocalize("advancement.challenge_rift_visage_1k.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
-            .child(AdaptAdvancement.builder()
-                    .icon(Material.DRAGON_HEAD)
-                    .key("challenge_rift_visage_1k")
-                    .title(Localizer.dLocalize("advancement.challenge_rift_visage_1k.title"))
-                    .description(Localizer.dLocalize("advancement.challenge_rift_visage_1k.description"))
-                    .frame(AdaptAdvancementFrame.CHALLENGE)
-                    .visibility(AdvancementVisibility.PARENT_GRANTED)
-                    .build())
-            .build());
+            .build())
+        .build());
     registerMilestone("challenge_rift_visage_100", "rift.visage.stares-survived", 100, 300);
     registerMilestone("challenge_rift_visage_1k", "rift.visage.stares-survived", 1000, 1000);
   }

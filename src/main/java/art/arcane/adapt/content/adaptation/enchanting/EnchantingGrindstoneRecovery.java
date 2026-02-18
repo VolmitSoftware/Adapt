@@ -24,10 +24,10 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
+import art.arcane.volmlib.util.inventorygui.Element;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -46,180 +46,180 @@ import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class EnchantingGrindstoneRecovery extends SimpleAdaptation<EnchantingGrindstoneRecovery.Config> {
-    public EnchantingGrindstoneRecovery() {
-        super("enchanting-grindstone-recovery");
-        registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("enchanting.grindstone_recovery.description"));
-        setDisplayName(Localizer.dLocalize("enchanting.grindstone_recovery.name"));
-        setIcon(Material.GRINDSTONE);
-        setBaseCost(getConfig().baseCost);
-        setMaxLevel(getConfig().maxLevel);
-        setInitialCost(getConfig().initialCost);
-        setCostFactor(getConfig().costFactor);
-        setInterval(1700);
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.GRINDSTONE)
-                .key("challenge_enchanting_grindstone_50")
-                .title(Localizer.dLocalize("advancement.challenge_enchanting_grindstone_50.title"))
-                .description(Localizer.dLocalize("advancement.challenge_enchanting_grindstone_50.description"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .child(AdaptAdvancement.builder()
-                        .icon(Material.GRINDSTONE)
-                        .key("challenge_enchanting_grindstone_500")
-                        .title(Localizer.dLocalize("advancement.challenge_enchanting_grindstone_500.title"))
-                        .description(Localizer.dLocalize("advancement.challenge_enchanting_grindstone_500.description"))
-                        .frame(AdaptAdvancementFrame.CHALLENGE)
-                        .visibility(AdvancementVisibility.PARENT_GRANTED)
-                        .build())
-                .build());
-        registerMilestone("challenge_enchanting_grindstone_50", "enchanting.grindstone-recovery.enchants-recovered", 50, 300);
-        registerMilestone("challenge_enchanting_grindstone_500", "enchanting.grindstone-recovery.enchants-recovered", 500, 1000);
+  public EnchantingGrindstoneRecovery() {
+    super("enchanting-grindstone-recovery");
+    registerConfiguration(Config.class);
+    setDescription(Localizer.dLocalize("enchanting.grindstone_recovery.description"));
+    setDisplayName(Localizer.dLocalize("enchanting.grindstone_recovery.name"));
+    setIcon(Material.GRINDSTONE);
+    setBaseCost(getConfig().baseCost);
+    setMaxLevel(getConfig().maxLevel);
+    setInitialCost(getConfig().initialCost);
+    setCostFactor(getConfig().costFactor);
+    setInterval(1700);
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.GRINDSTONE)
+        .key("challenge_enchanting_grindstone_50")
+        .title(Localizer.dLocalize("advancement.challenge_enchanting_grindstone_50.title"))
+        .description(Localizer.dLocalize("advancement.challenge_enchanting_grindstone_50.description"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .child(AdaptAdvancement.builder()
+            .icon(Material.GRINDSTONE)
+            .key("challenge_enchanting_grindstone_500")
+            .title(Localizer.dLocalize("advancement.challenge_enchanting_grindstone_500.title"))
+            .description(Localizer.dLocalize("advancement.challenge_enchanting_grindstone_500.description"))
+            .frame(AdaptAdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .build())
+        .build());
+    registerMilestone("challenge_enchanting_grindstone_50", "enchanting.grindstone-recovery.enchants-recovered", 50, 300);
+    registerMilestone("challenge_enchanting_grindstone_500", "enchanting.grindstone-recovery.enchants-recovered", 500, 1000);
+  }
+
+  @Override
+  public void addStats(int level, Element v) {
+    v.addLore(C.GREEN + "+ " + Form.pc(getRecoverChance(level), 0) + C.GRAY + " " + Localizer.dLocalize("enchanting.grindstone_recovery.lore1"));
+    v.addLore(C.GREEN + "+ " + Form.f(getBonusXp(level), 1) + C.GRAY + " " + Localizer.dLocalize("enchanting.grindstone_recovery.lore2"));
+    v.addLore(C.YELLOW + "* " + Form.duration(getCooldownTicks(level) * 50D, 1) + C.GRAY + " " + Localizer.dLocalize("enchanting.grindstone_recovery.lore3"));
+  }
+
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+  public void on(InventoryClickEvent e) {
+    if (!(e.getWhoClicked() instanceof Player p)) {
+      return;
     }
 
-    @Override
-    public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getRecoverChance(level), 0) + C.GRAY + " " + Localizer.dLocalize("enchanting.grindstone_recovery.lore1"));
-        v.addLore(C.GREEN + "+ " + Form.f(getBonusXp(level), 1) + C.GRAY + " " + Localizer.dLocalize("enchanting.grindstone_recovery.lore2"));
-        v.addLore(C.YELLOW + "* " + Form.duration(getCooldownTicks(level) * 50D, 1) + C.GRAY + " " + Localizer.dLocalize("enchanting.grindstone_recovery.lore3"));
+    int level = getActiveLevel(p);
+    if (level <= 0) {
+      return;
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void on(InventoryClickEvent e) {
-        if (!(e.getWhoClicked() instanceof Player p)) {
-            return;
-        }
-
-        int level = getActiveLevel(p);
-        if (level <= 0) {
-            return;
-        }
-
-        if (e.getView().getTopInventory().getType() != InventoryType.GRINDSTONE || e.getRawSlot() != 2 || p.hasCooldown(Material.GRINDSTONE)) {
-            return;
-        }
-
-        ItemStack source = getEnchantedSource(e.getView().getTopInventory().getItem(0), e.getView().getTopInventory().getItem(1));
-        if (source == null) {
-            return;
-        }
-
-        if (ThreadLocalRandom.current().nextDouble() > getRecoverChance(level)) {
-            return;
-        }
-
-        ItemStack recovered = makeBook(source.getEnchantments());
-        if (recovered == null) {
-            return;
-        }
-
-        Map<Integer, ItemStack> overflow = p.getInventory().addItem(recovered);
-        overflow.values().forEach(item -> p.getWorld().dropItemNaturally(p.getLocation(), item));
-        int xp = Math.max(0, (int) Math.round(getBonusXp(level)));
-        if (xp > 0) {
-            p.giveExp(xp);
-        }
-
-        p.setCooldown(Material.GRINDSTONE, getCooldownTicks(level));
-        SoundPlayer sp = SoundPlayer.of(p.getWorld());
-        sp.play(p.getLocation(), Sound.BLOCK_GRINDSTONE_USE, 0.95f, 1.15f);
-        sp.play(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.8f, 1.45f);
-        xp(p, getConfig().skillXpOnRecovery);
-        getPlayer(p).getData().addStat("enchanting.grindstone-recovery.enchants-recovered", 1);
+    if (e.getView().getTopInventory().getType() != InventoryType.GRINDSTONE || e.getRawSlot() != 2 || p.hasCooldown(Material.GRINDSTONE)) {
+      return;
     }
 
-    private ItemStack getEnchantedSource(ItemStack a, ItemStack b) {
-        if (isEnchanted(a)) {
-            return a;
-        }
-
-        if (isEnchanted(b)) {
-            return b;
-        }
-
-        return null;
+    ItemStack source = getEnchantedSource(e.getView().getTopInventory().getItem(0), e.getView().getTopInventory().getItem(1));
+    if (source == null) {
+      return;
     }
 
-    private boolean isEnchanted(ItemStack item) {
-        return isItem(item) && !item.getEnchantments().isEmpty();
+    if (ThreadLocalRandom.current().nextDouble() > getRecoverChance(level)) {
+      return;
     }
 
-    private ItemStack makeBook(Map<Enchantment, Integer> source) {
-        if (source.isEmpty()) {
-            return null;
-        }
-
-        List<Map.Entry<Enchantment, Integer>> entries = new ArrayList<>(source.entrySet());
-        Map.Entry<Enchantment, Integer> picked = entries.get(ThreadLocalRandom.current().nextInt(entries.size()));
-        ItemStack book = new ItemStack(Material.ENCHANTED_BOOK);
-        EnchantmentStorageMeta meta = (EnchantmentStorageMeta) book.getItemMeta();
-        if (meta == null) {
-            return null;
-        }
-
-        int safeLevel = Math.max(1, Math.min(picked.getValue(), picked.getKey().getMaxLevel()));
-        meta.addStoredEnchant(picked.getKey(), safeLevel, true);
-        book.setItemMeta(meta);
-        return book;
+    ItemStack recovered = makeBook(source.getEnchantments());
+    if (recovered == null) {
+      return;
     }
 
-    private double getRecoverChance(int level) {
-        return Math.min(getConfig().maxRecoverChance, getConfig().recoverChanceBase + (getLevelPercent(level) * getConfig().recoverChanceFactor));
+    Map<Integer, ItemStack> overflow = p.getInventory().addItem(recovered);
+    overflow.values().forEach(item -> p.getWorld().dropItemNaturally(p.getLocation(), item));
+    int xp = Math.max(0, (int) Math.round(getBonusXp(level)));
+    if (xp > 0) {
+      p.giveExp(xp);
     }
 
-    private double getBonusXp(int level) {
-        return getConfig().bonusXpBase + (getLevelPercent(level) * getConfig().bonusXpFactor);
+    p.setCooldown(Material.GRINDSTONE, getCooldownTicks(level));
+    SoundPlayer sp = SoundPlayer.of(p.getWorld());
+    sp.play(p.getLocation(), Sound.BLOCK_GRINDSTONE_USE, 0.95f, 1.15f);
+    sp.play(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.8f, 1.45f);
+    xp(p, getConfig().skillXpOnRecovery);
+    getPlayer(p).getData().addStat("enchanting.grindstone-recovery.enchants-recovered", 1);
+  }
+
+  private ItemStack getEnchantedSource(ItemStack a, ItemStack b) {
+    if (isEnchanted(a)) {
+      return a;
     }
 
-    private int getCooldownTicks(int level) {
-        return Math.max(10, (int) Math.round(getConfig().cooldownTicksBase - (getLevelPercent(level) * getConfig().cooldownTicksFactor)));
+    if (isEnchanted(b)) {
+      return b;
     }
 
-    @Override
-    public void onTick() {
+    return null;
+  }
 
+  private boolean isEnchanted(ItemStack item) {
+    return isItem(item) && !item.getEnchantments().isEmpty();
+  }
+
+  private ItemStack makeBook(Map<Enchantment, Integer> source) {
+    if (source.isEmpty()) {
+      return null;
     }
 
-    @Override
-    public boolean isEnabled() {
-        return getConfig().enabled;
+    List<Map.Entry<Enchantment, Integer>> entries = new ArrayList<>(source.entrySet());
+    Map.Entry<Enchantment, Integer> picked = entries.get(ThreadLocalRandom.current().nextInt(entries.size()));
+    ItemStack book = new ItemStack(Material.ENCHANTED_BOOK);
+    EnchantmentStorageMeta meta = (EnchantmentStorageMeta) book.getItemMeta();
+    if (meta == null) {
+      return null;
     }
 
-    @Override
-    public boolean isPermanent() {
-        return getConfig().permanent;
-    }
+    int safeLevel = Math.max(1, Math.min(picked.getValue(), picked.getKey().getMaxLevel()));
+    meta.addStoredEnchant(picked.getKey(), safeLevel, true);
+    book.setItemMeta(meta);
+    return book;
+  }
 
-    @NoArgsConstructor
-    @ConfigDescription("Using a grindstone can recover one removed enchant on a book with bonus XP.")
-    protected static class Config {
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-        boolean permanent = false;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-        boolean enabled = true;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-        int baseCost = 4;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-        int maxLevel = 5;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-        int initialCost = 4;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-        double costFactor = 0.74;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Recover Chance Base for the Enchanting Grindstone Recovery adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double recoverChanceBase = 0.15;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Recover Chance Factor for the Enchanting Grindstone Recovery adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double recoverChanceFactor = 0.45;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Recover Chance for the Enchanting Grindstone Recovery adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double maxRecoverChance = 0.7;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Bonus Xp Base for the Enchanting Grindstone Recovery adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double bonusXpBase = 2;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Bonus Xp Factor for the Enchanting Grindstone Recovery adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double bonusXpFactor = 8;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown Ticks Base for the Enchanting Grindstone Recovery adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double cooldownTicksBase = 120;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown Ticks Factor for the Enchanting Grindstone Recovery adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double cooldownTicksFactor = 70;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Skill Xp On Recovery for the Enchanting Grindstone Recovery adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double skillXpOnRecovery = 13;
-    }
+  private double getRecoverChance(int level) {
+    return Math.min(getConfig().maxRecoverChance, getConfig().recoverChanceBase + (getLevelPercent(level) * getConfig().recoverChanceFactor));
+  }
+
+  private double getBonusXp(int level) {
+    return getConfig().bonusXpBase + (getLevelPercent(level) * getConfig().bonusXpFactor);
+  }
+
+  private int getCooldownTicks(int level) {
+    return Math.max(10, (int) Math.round(getConfig().cooldownTicksBase - (getLevelPercent(level) * getConfig().cooldownTicksFactor)));
+  }
+
+  @Override
+  public void onTick() {
+
+  }
+
+  @Override
+  public boolean isEnabled() {
+    return getConfig().enabled;
+  }
+
+  @Override
+  public boolean isPermanent() {
+    return getConfig().permanent;
+  }
+
+  @NoArgsConstructor
+  @ConfigDescription("Using a grindstone can recover one removed enchant on a book with bonus XP.")
+  protected static class Config {
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
+    boolean permanent = false;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
+    boolean enabled = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
+    int baseCost = 4;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
+    int maxLevel = 5;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
+    int initialCost = 4;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
+    double costFactor = 0.74;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Recover Chance Base for the Enchanting Grindstone Recovery adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double recoverChanceBase = 0.15;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Recover Chance Factor for the Enchanting Grindstone Recovery adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double recoverChanceFactor = 0.45;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Recover Chance for the Enchanting Grindstone Recovery adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double maxRecoverChance = 0.7;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Bonus Xp Base for the Enchanting Grindstone Recovery adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double bonusXpBase = 2;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Bonus Xp Factor for the Enchanting Grindstone Recovery adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double bonusXpFactor = 8;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown Ticks Base for the Enchanting Grindstone Recovery adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double cooldownTicksBase = 120;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown Ticks Factor for the Enchanting Grindstone Recovery adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double cooldownTicksFactor = 70;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Skill Xp On Recovery for the Enchanting Grindstone Recovery adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double skillXpOnRecovery = 13;
+  }
 }

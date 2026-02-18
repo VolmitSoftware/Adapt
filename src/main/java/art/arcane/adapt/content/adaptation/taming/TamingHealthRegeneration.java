@@ -26,10 +26,10 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.version.Version;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.volmlib.util.format.Form;
+import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -47,112 +47,112 @@ import java.util.UUID;
 import static org.bukkit.Particle.HEART;
 
 public class TamingHealthRegeneration extends SimpleAdaptation<TamingHealthRegeneration.Config> {
-    private final Map<UUID, Long> lastDamage = new java.util.concurrent.ConcurrentHashMap<>();
+  private final Map<UUID, Long> lastDamage = new java.util.concurrent.ConcurrentHashMap<>();
 
-    public TamingHealthRegeneration() {
-        super("tame-health-regeneration");
-        registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("taming.regeneration.description"));
-        setDisplayName(Localizer.dLocalize("taming.regeneration.name"));
-        setIcon(Material.GOLDEN_APPLE);
-        setBaseCost(getConfig().baseCost);
-        setMaxLevel(getConfig().maxLevel);
-        setInitialCost(getConfig().initialCost);
-        setInterval(1033);
-        setCostFactor(getConfig().costFactor);
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.GLISTERING_MELON_SLICE)
-                .key("challenge_taming_regen_1k")
-                .title(Localizer.dLocalize("advancement.challenge_taming_regen_1k.title"))
-                .description(Localizer.dLocalize("advancement.challenge_taming_regen_1k.description"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .build());
-        registerMilestone("challenge_taming_regen_1k", "taming.health-regen.health-regened", 1000, 400);
-    }
+  public TamingHealthRegeneration() {
+    super("tame-health-regeneration");
+    registerConfiguration(Config.class);
+    setDescription(Localizer.dLocalize("taming.regeneration.description"));
+    setDisplayName(Localizer.dLocalize("taming.regeneration.name"));
+    setIcon(Material.GOLDEN_APPLE);
+    setBaseCost(getConfig().baseCost);
+    setMaxLevel(getConfig().maxLevel);
+    setInitialCost(getConfig().initialCost);
+    setInterval(1033);
+    setCostFactor(getConfig().costFactor);
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.GLISTERING_MELON_SLICE)
+        .key("challenge_taming_regen_1k")
+        .title(Localizer.dLocalize("advancement.challenge_taming_regen_1k.title"))
+        .description(Localizer.dLocalize("advancement.challenge_taming_regen_1k.description"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .build());
+    registerMilestone("challenge_taming_regen_1k", "taming.health-regen.health-regened", 1000, 400);
+  }
 
-    @Override
-    public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.f(getRegenSpeed(level), 0) + C.GRAY + " " + Localizer.dLocalize("taming.regeneration.lore1"));
-    }
+  @Override
+  public void addStats(int level, Element v) {
+    v.addLore(C.GREEN + "+ " + Form.f(getRegenSpeed(level), 0) + C.GRAY + " " + Localizer.dLocalize("taming.regeneration.lore1"));
+  }
 
-    @EventHandler
-    public void on(EntityDamageByEntityEvent e) {
-        if (e.getEntity() instanceof Tameable tam
-                && tam.getOwner() instanceof Player p) {
-            int level = getActiveLevel(p);
-            if (level <= 0) {
-                return;
-            }
+  @EventHandler
+  public void on(EntityDamageByEntityEvent e) {
+    if (e.getEntity() instanceof Tameable tam
+        && tam.getOwner() instanceof Player p) {
+      int level = getActiveLevel(p);
+      if (level <= 0) {
+        return;
+      }
 
-            if (lastDamage.containsKey(tam.getUniqueId())) {
-                Adapt.verbose("Tamed Entity " + tam.getUniqueId() + " last damaged " + (M.ms() - lastDamage.get(tam.getUniqueId())) + "ms ago");
-                return;
-            }
-            var attribute = Version.get().getAttribute(tam, Attributes.GENERIC_MAX_HEALTH);
-            double mh = attribute == null ? tam.getHealth() : attribute.getValue();
-            if (tam.isTamed() && tam.getOwner() instanceof Player && tam.getHealth() < mh) {
-                Adapt.verbose("Successfully healed tamed entity " + tam.getUniqueId());
-                Adapt.verbose("[PRE] Current Health: " + tam.getHealth() + " Max Health: " + mh);
-                tam.addPotionEffect(PotionEffectType.REGENERATION.createEffect(25 * level, 3));
-                getPlayer(p).getData().addStat("taming.health-regen.health-regened", 1);
+      if (lastDamage.containsKey(tam.getUniqueId())) {
+        Adapt.verbose("Tamed Entity " + tam.getUniqueId() + " last damaged " + (M.ms() - lastDamage.get(tam.getUniqueId())) + "ms ago");
+        return;
+      }
+      art.arcane.adapt.api.version.IAttribute attribute = Version.get().getAttribute(tam, Attributes.GENERIC_MAX_HEALTH);
+      double mh = attribute == null ? tam.getHealth() : attribute.getValue();
+      if (tam.isTamed() && tam.getOwner() instanceof Player && tam.getHealth() < mh) {
+        Adapt.verbose("Successfully healed tamed entity " + tam.getUniqueId());
+        Adapt.verbose("[PRE] Current Health: " + tam.getHealth() + " Max Health: " + mh);
+        tam.addPotionEffect(PotionEffectType.REGENERATION.createEffect(25 * level, 3));
+        getPlayer(p).getData().addStat("taming.health-regen.health-regened", 1);
 
-                if (areParticlesEnabled()) {
-                    Adapt.verbose("Healing tamed entity " + tam.getUniqueId() + " with particles");
-                    tam.getWorld().spawnParticle(HEART, tam.getLocation().add(0, 1, 0), 2 * p.getLevel());
-                } else {
-                    Adapt.verbose("Healing tamed entity " + tam.getUniqueId() + " without particles");
-                }
-            }
-            lastDamage.put(e.getEntity().getUniqueId(), M.ms());
+        if (areParticlesEnabled()) {
+          Adapt.verbose("Healing tamed entity " + tam.getUniqueId() + " with particles");
+          tam.getWorld().spawnParticle(HEART, tam.getLocation().add(0, 1, 0), 2 * p.getLevel());
+        } else {
+          Adapt.verbose("Healing tamed entity " + tam.getUniqueId() + " without particles");
         }
+      }
+      lastDamage.put(e.getEntity().getUniqueId(), M.ms());
     }
+  }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void on(EntityDeathEvent e) {
-        lastDamage.remove(e.getEntity().getUniqueId());
-    }
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void on(EntityDeathEvent e) {
+    lastDamage.remove(e.getEntity().getUniqueId());
+  }
 
 
-    private double getRegenSpeed(int level) {
-        return ((getLevelPercent(level) * (getLevelPercent(level)) * getConfig().regenFactor) + getConfig().regenBase);
-    }
+  private double getRegenSpeed(int level) {
+    return ((getLevelPercent(level) * (getLevelPercent(level)) * getConfig().regenFactor) + getConfig().regenBase);
+  }
 
-    @Override
-    public void onTick() {
-        lastDamage.entrySet().removeIf(i -> M.ms() - i.getValue() > 8000);
-    }
+  @Override
+  public void onTick() {
+    lastDamage.entrySet().removeIf(i -> M.ms() - i.getValue() > 8000);
+  }
 
-    @Override
-    public boolean isEnabled() {
-        return getConfig().enabled;
-    }
+  @Override
+  public boolean isEnabled() {
+    return getConfig().enabled;
+  }
 
-    @Override
-    public boolean isPermanent() {
-        return getConfig().permanent;
-    }
+  @Override
+  public boolean isPermanent() {
+    return getConfig().permanent;
+  }
 
-    @NoArgsConstructor
-    @ConfigDescription("Increase your tamed animal regeneration rate.")
-    protected static class Config {
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-        boolean permanent = false;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-        boolean enabled = true;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Taming Health Regeneration adaptation.", impact = "True enables this behavior and false disables it.")
-        boolean showParticles = true;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-        int baseCost = 7;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-        int maxLevel = 3;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-        int initialCost = 8;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-        double costFactor = 0.4;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Regen Factor for the Taming Health Regeneration adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double regenFactor = 5;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Regen Base for the Taming Health Regeneration adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double regenBase = 1;
-    }
+  @NoArgsConstructor
+  @ConfigDescription("Increase your tamed animal regeneration rate.")
+  protected static class Config {
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
+    boolean permanent = false;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
+    boolean enabled = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Taming Health Regeneration adaptation.", impact = "True enables this behavior and false disables it.")
+    boolean showParticles = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
+    int baseCost = 7;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
+    int maxLevel = 3;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
+    int initialCost = 8;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
+    double costFactor = 0.4;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Regen Factor for the Taming Health Regeneration adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double regenFactor = 5;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Regen Base for the Taming Health Regeneration adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double regenBase = 1;
+  }
 }

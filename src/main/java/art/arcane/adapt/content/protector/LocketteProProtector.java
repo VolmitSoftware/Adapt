@@ -8,18 +8,18 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 public class LocketteProProtector implements Protector {
-    @Override
-    public boolean canAccessChest(Player player, Location chestlocation, Adaptation<?> adaptation) {
-        return LocketteProAPI.isOwner(chestlocation.getBlock(), player);
-    }
+  @Override
+  public boolean canAccessChest(Player player, Location chestlocation, Adaptation<?> adaptation) {
+    return LocketteProAPI.isOwner(chestlocation.getBlock(), player);
+  }
 
-    @Override
-    public String getName() {
-        return "LockettePro";
-    }
+  @Override
+  public String getName() {
+    return "LockettePro";
+  }
 
-    @Override
-    public boolean isEnabledByDefault() {
-        return AdaptConfig.get().getProtectorSupport().isLockettePro();
-    }
+  @Override
+  public boolean isEnabledByDefault() {
+    return AdaptConfig.get().getProtectorSupport().isLockettePro();
+  }
 }

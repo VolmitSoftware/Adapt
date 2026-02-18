@@ -32,88 +32,88 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public final class AdaptationEventRegistrar {
-    private AdaptationEventRegistrar() {
+  private AdaptationEventRegistrar() {
+  }
+
+  public static boolean register(Plugin plugin, Listener listener) {
+    if (!(listener instanceof Adaptation<?>)) {
+      return false;
     }
 
-    public static boolean register(Plugin plugin, Listener listener) {
-        if (!(listener instanceof Adaptation<?>)) {
-            return false;
+    boolean registeredAny = false;
+    for (Method method : collectHandlerMethods(listener.getClass()).values()) {
+      EventHandler annotation = method.getAnnotation(EventHandler.class);
+      if (annotation == null || method.getParameterCount() != 1 || Modifier.isStatic(method.getModifiers())) {
+        continue;
+      }
+
+      Class<?> parameterType = method.getParameterTypes()[0];
+      if (!Event.class.isAssignableFrom(parameterType)) {
+        continue;
+      }
+
+      @SuppressWarnings("unchecked")
+      Class<? extends Event> eventType = (Class<? extends Event>) parameterType;
+      try {
+        method.setAccessible(true);
+      } catch (Throwable ex) {
+        Adapt.warn("Failed enabling access to adaptation handler "
+            + listener.getClass().getName() + "#" + method.getName()
+            + ": " + ex.getClass().getSimpleName()
+            + (ex.getMessage() == null ? "" : " - " + ex.getMessage()));
+        continue;
+      }
+
+      EventExecutor executor = (target, event) -> {
+        if (!eventType.isAssignableFrom(event.getClass())) {
+          return;
         }
 
-        boolean registeredAny = false;
-        for (Method method : collectHandlerMethods(listener.getClass()).values()) {
-            EventHandler annotation = method.getAnnotation(EventHandler.class);
-            if (annotation == null || method.getParameterCount() != 1 || Modifier.isStatic(method.getModifiers())) {
-                continue;
-            }
-
-            Class<?> parameterType = method.getParameterTypes()[0];
-            if (!Event.class.isAssignableFrom(parameterType)) {
-                continue;
-            }
-
-            @SuppressWarnings("unchecked")
-            Class<? extends Event> eventType = (Class<? extends Event>) parameterType;
-            try {
-                method.setAccessible(true);
-            } catch (Throwable ex) {
-                Adapt.warn("Failed enabling access to adaptation handler "
-                        + listener.getClass().getName() + "#" + method.getName()
-                        + ": " + ex.getClass().getSimpleName()
-                        + (ex.getMessage() == null ? "" : " - " + ex.getMessage()));
-                continue;
-            }
-
-            EventExecutor executor = (target, event) -> {
-                if (!eventType.isAssignableFrom(event.getClass())) {
-                    return;
-                }
-
-                try {
-                    method.invoke(target, event);
-                } catch (InvocationTargetException ex) {
-                    throw new EventException(ex.getCause());
-                } catch (Throwable ex) {
-                    throw new EventException(ex);
-                }
-            };
-
-            boolean ignoreCancelled = shouldIgnoreCancelled(method, annotation, eventType);
-            Bukkit.getPluginManager().registerEvent(eventType, listener, annotation.priority(), executor, plugin, ignoreCancelled);
-            registeredAny = true;
+        try {
+          method.invoke(target, event);
+        } catch (InvocationTargetException ex) {
+          throw new EventException(ex.getCause());
+        } catch (Throwable ex) {
+          throw new EventException(ex);
         }
+      };
 
-        return registeredAny;
+      boolean ignoreCancelled = shouldIgnoreCancelled(method, annotation, eventType);
+      Bukkit.getPluginManager().registerEvent(eventType, listener, annotation.priority(), executor, plugin, ignoreCancelled);
+      registeredAny = true;
     }
 
-    private static Map<String, Method> collectHandlerMethods(Class<?> type) {
-        Map<String, Method> methods = new LinkedHashMap<>();
-        Class<?> current = type;
-        while (current != null && current != Object.class) {
-            for (Method method : current.getDeclaredMethods()) {
-                if (!method.isAnnotationPresent(EventHandler.class)) {
-                    continue;
-                }
-                methods.putIfAbsent(signature(method), method);
-            }
-            current = current.getSuperclass();
+    return registeredAny;
+  }
+
+  private static Map<String, Method> collectHandlerMethods(Class<?> type) {
+    Map<String, Method> methods = new LinkedHashMap<>();
+    Class<?> current = type;
+    while (current != null && current != Object.class) {
+      for (Method method : current.getDeclaredMethods()) {
+        if (!method.isAnnotationPresent(EventHandler.class)) {
+          continue;
         }
-        return methods;
+        methods.putIfAbsent(signature(method), method);
+      }
+      current = current.getSuperclass();
+    }
+    return methods;
+  }
+
+  private static String signature(Method method) {
+    return method.getName() + "|" + Arrays.toString(method.getParameterTypes());
+  }
+
+  private static boolean shouldIgnoreCancelled(Method method, EventHandler annotation, Class<? extends Event> eventType) {
+    if (!Cancellable.class.isAssignableFrom(eventType)) {
+      return annotation.ignoreCancelled();
     }
 
-    private static String signature(Method method) {
-        return method.getName() + "|" + Arrays.toString(method.getParameterTypes());
+    if (method.isAnnotationPresent(ReceiveCancelledEvents.class)) {
+      return false;
     }
 
-    private static boolean shouldIgnoreCancelled(Method method, EventHandler annotation, Class<? extends Event> eventType) {
-        if (!Cancellable.class.isAssignableFrom(eventType)) {
-            return annotation.ignoreCancelled();
-        }
-
-        if (method.isAnnotationPresent(ReceiveCancelledEvents.class)) {
-            return false;
-        }
-
-        return true;
-    }
+    return true;
+  }
 }

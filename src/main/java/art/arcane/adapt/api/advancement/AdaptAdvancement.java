@@ -42,117 +42,117 @@ import java.util.List;
 @Builder
 @Data
 public class AdaptAdvancement {
-    private String background;
-    @Builder.Default
-    private Material icon = Material.EMERALD;
-    @Builder.Default
-    private CustomModel model = null;
-    @Builder.Default
-    private String title = "MISSING TITLE";
-    @Builder.Default
-    private String description = "MISSING DESCRIPTION";
-    @Builder.Default
-    private AdaptAdvancementFrame frame = AdaptAdvancementFrame.TASK;
-    @Builder.Default
-    private boolean toast = false;
-    @Builder.Default
-    private boolean announce = false;
-    @Builder.Default
-    private AdvancementVisibility visibility = AdvancementVisibility.PARENT_GRANTED;
-    @Builder.Default
-    private String key = "root";
-    @Singular
-    private List<AdaptAdvancement> children;
+  private String background;
+  @Builder.Default
+  private Material icon = Material.EMERALD;
+  @Builder.Default
+  private CustomModel model = null;
+  @Builder.Default
+  private String title = "MISSING TITLE";
+  @Builder.Default
+  private String description = "MISSING DESCRIPTION";
+  @Builder.Default
+  private AdaptAdvancementFrame frame = AdaptAdvancementFrame.TASK;
+  @Builder.Default
+  private boolean toast = false;
+  @Builder.Default
+  private boolean announce = false;
+  @Builder.Default
+  private AdvancementVisibility visibility = AdvancementVisibility.PARENT_GRANTED;
+  @Builder.Default
+  private String key = "root";
+  @Singular
+  private List<AdaptAdvancement> children;
 
-    private Advancement toAdvancement(Advancement parent, int index, int depth) {
-        if (children == null) {
-            children = new ArrayList<>();
-        }
-
-        var icon = getModel() != null ?
-                getModel().toItemStack() :
-                new ItemStack(getIcon());
-        AdvancementDisplay d = new AdvancementDisplay.Builder(icon, getTitle())
-                .description(getDescription())
-                .frame(getFrame().toUaaFrame())
-                .showToast(toast)
-                .x(1f + depth)
-                .y(1f + index)
-                .build();
-
-        if (parent == null) {
-            if (background == null)
-                throw new IllegalArgumentException("Background cannot be null");
-
-            return new MainAdvancement(Adapt.instance.getManager().createAdvancementTab(getKey()), getKey(), d, background);
-        }
-
-        return new SubAdvancement(getKey(), d, parent, getVisibility());
+  private Advancement toAdvancement(Advancement parent, int index, int depth) {
+    if (children == null) {
+      children = new ArrayList<>();
     }
 
-    public KList<Advancement> toAdvancements() {
-        return toAdvancements(null, 0, 0);
+    ItemStack icon = getModel() != null ?
+        getModel().toItemStack() :
+        new ItemStack(getIcon());
+    AdvancementDisplay d = new AdvancementDisplay.Builder(icon, getTitle())
+        .description(getDescription())
+        .frame(getFrame().toUaaFrame())
+        .showToast(toast)
+        .x(1f + depth)
+        .y(1f + index)
+        .build();
+
+    if (parent == null) {
+      if (background == null)
+        throw new IllegalArgumentException("Background cannot be null");
+
+      return new MainAdvancement(Adapt.instance.getManager().createAdvancementTab(getKey()), getKey(), d, background);
     }
 
-    private KList<Advancement> toAdvancements(Advancement p, int index, int depth) {
-        KList<Advancement> aa = new KList<>();
-        Advancement a = toAdvancement(p, index, depth);
-        if (children != null && !children.isEmpty()) {
-            for (AdaptAdvancement i : children) {
-                aa.addAll(i.toAdvancements(a, aa.size(), depth + 1));
-            }
-        }
+    return new SubAdvancement(getKey(), d, parent, getVisibility());
+  }
 
-        aa.add(a);
+  public KList<Advancement> toAdvancements() {
+    return toAdvancements(null, 0, 0);
+  }
 
-        return aa;
+  private KList<Advancement> toAdvancements(Advancement p, int index, int depth) {
+    KList<Advancement> aa = new KList<>();
+    Advancement a = toAdvancement(p, index, depth);
+    if (children != null && !children.isEmpty()) {
+      for (AdaptAdvancement i : children) {
+        aa.addAll(i.toAdvancements(a, aa.size(), depth + 1));
+      }
     }
 
-    private static class MainAdvancement extends RootAdvancement {
+    aa.add(a);
 
-        public MainAdvancement(@NotNull AdvancementTab advancementTab, @NotNull String key, @NotNull AdvancementDisplay display, @NotNull String backgroundTexture) {
-            super(advancementTab, key, display, backgroundTexture);
-        }
+    return aa;
+  }
 
-        @Override
-        public void grant(@NotNull Player player, boolean giveRewards) {
-            super.grant(player, giveRewards);
-            try {
-                getAdvancementTab().showTab(player);
-            } catch (Throwable t) {
-                Adapt.verbose("Failed to show advancement tab '" + getKey() + "' for " + player.getName() + ": "
-                        + t.getClass().getSimpleName()
-                        + (t.getMessage() == null ? "" : " (" + t.getMessage() + ")"));
-            }
-        }
+  private static class MainAdvancement extends RootAdvancement {
 
-        @Override
-        public void revoke(@NotNull Player player) {
-            super.revoke(player);
-            try {
-                getAdvancementTab().hideTab(player);
-            } catch (Throwable t) {
-                Adapt.verbose("Failed to hide advancement tab '" + getKey() + "' for " + player.getName() + ": "
-                        + t.getClass().getSimpleName()
-                        + (t.getMessage() == null ? "" : " (" + t.getMessage() + ")"));
-            }
-        }
+    public MainAdvancement(@NotNull AdvancementTab advancementTab, @NotNull String key, @NotNull AdvancementDisplay display, @NotNull String backgroundTexture) {
+      super(advancementTab, key, display, backgroundTexture);
     }
 
-    private static class SubAdvancement extends BaseAdvancement {
-        private final AdvancementVisibility visibility;
-
-        public SubAdvancement(@NotNull String key,
-                              @NotNull AdvancementDisplay display,
-                              @NotNull Advancement parent,
-                              @NotNull AdvancementVisibility visibility) {
-            super(key, display, parent);
-            this.visibility = visibility;
-        }
-
-        @Override
-        public boolean isVisible(@NotNull TeamProgression progression) {
-            return visibility.isVisible(this, progression);
-        }
+    @Override
+    public void grant(@NotNull Player player, boolean giveRewards) {
+      super.grant(player, giveRewards);
+      try {
+        getAdvancementTab().showTab(player);
+      } catch (Throwable t) {
+        Adapt.verbose("Failed to show advancement tab '" + getKey() + "' for " + player.getName() + ": "
+            + t.getClass().getSimpleName()
+            + (t.getMessage() == null ? "" : " (" + t.getMessage() + ")"));
+      }
     }
+
+    @Override
+    public void revoke(@NotNull Player player) {
+      super.revoke(player);
+      try {
+        getAdvancementTab().hideTab(player);
+      } catch (Throwable t) {
+        Adapt.verbose("Failed to hide advancement tab '" + getKey() + "' for " + player.getName() + ": "
+            + t.getClass().getSimpleName()
+            + (t.getMessage() == null ? "" : " (" + t.getMessage() + ")"));
+      }
+    }
+  }
+
+  private static class SubAdvancement extends BaseAdvancement {
+    private final AdvancementVisibility visibility;
+
+    public SubAdvancement(@NotNull String key,
+                          @NotNull AdvancementDisplay display,
+                          @NotNull Advancement parent,
+                          @NotNull AdvancementVisibility visibility) {
+      super(key, display, parent);
+      this.visibility = visibility;
+    }
+
+    @Override
+    public boolean isVisible(@NotNull TeamProgression progression) {
+      return visibility.isVisible(this, progression);
+    }
+  }
 }

@@ -28,11 +28,11 @@ import art.arcane.adapt.api.recipe.MaterialChar;
 import art.arcane.adapt.content.item.BoundSnowBall;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
+import art.arcane.volmlib.util.inventorygui.Element;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -56,228 +56,228 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
-    private static final BlockData AIR = Material.AIR.createBlockData();
-    private static final BlockData BLOCK = Material.COBWEB.createBlockData();
-    private final Map<UUID, UUID> activeSnowballs;
-    private final Set<Block> activeBlocks;
+  private static final BlockData AIR = Material.AIR.createBlockData();
+  private static final BlockData BLOCK = Material.COBWEB.createBlockData();
+  private final Map<UUID, UUID> activeSnowballs;
+  private final Set<Block> activeBlocks;
 
-    public RangedWebBomb() {
-        super("ranged-webshot");
-        registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("ranged.web_shot.description"));
-        setDisplayName(Localizer.dLocalize("ranged.web_shot.name"));
-        setIcon(Material.COBWEB);
-        setBaseCost(getConfig().baseCost);
-        setMaxLevel(getConfig().maxLevel);
-        setInterval(4900);
-        setInitialCost(getConfig().initialCost);
-        setCostFactor(getConfig().costFactor);
-        registerRecipe(AdaptRecipe.shaped()
-                .key("ranged-web-bomb")
-                .ingredient(new MaterialChar('I', Material.COBWEB))
-                .ingredient(new MaterialChar('S', Material.SNOWBALL))
-                .shapes(List.of(
-                        "III",
-                        "ISI",
-                        "III"))
-                .result(BoundSnowBall.io.withData(new BoundSnowBall.Data(null)))
-                .build());
-        activeBlocks = ConcurrentHashMap.newKeySet();
-        activeSnowballs = new ConcurrentHashMap<>();
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.COBWEB)
-                .key("challenge_ranged_web_200")
-                .title(Localizer.dLocalize("advancement.challenge_ranged_web_200.title"))
-                .description(Localizer.dLocalize("advancement.challenge_ranged_web_200.description"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .build());
-        registerMilestone("challenge_ranged_web_200", "ranged.web-bomb.mobs-trapped", 200, 300);
+  public RangedWebBomb() {
+    super("ranged-webshot");
+    registerConfiguration(Config.class);
+    setDescription(Localizer.dLocalize("ranged.web_shot.description"));
+    setDisplayName(Localizer.dLocalize("ranged.web_shot.name"));
+    setIcon(Material.COBWEB);
+    setBaseCost(getConfig().baseCost);
+    setMaxLevel(getConfig().maxLevel);
+    setInterval(4900);
+    setInitialCost(getConfig().initialCost);
+    setCostFactor(getConfig().costFactor);
+    registerRecipe(AdaptRecipe.shaped()
+        .key("ranged-web-bomb")
+        .ingredient(new MaterialChar('I', Material.COBWEB))
+        .ingredient(new MaterialChar('S', Material.SNOWBALL))
+        .shapes(List.of(
+            "III",
+            "ISI",
+            "III"))
+        .result(BoundSnowBall.io.withData(new BoundSnowBall.Data(null)))
+        .build());
+    activeBlocks = ConcurrentHashMap.newKeySet();
+    activeSnowballs = new ConcurrentHashMap<>();
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.COBWEB)
+        .key("challenge_ranged_web_200")
+        .title(Localizer.dLocalize("advancement.challenge_ranged_web_200.title"))
+        .description(Localizer.dLocalize("advancement.challenge_ranged_web_200.description"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .build());
+    registerMilestone("challenge_ranged_web_200", "ranged.web-bomb.mobs-trapped", 200, 300);
+  }
+
+  @Override
+  public void addStats(int level, Element v) {
+    v.addLore(C.GREEN + "+ " + Localizer.dLocalize("ranged.web_shot.lore1"));
+    v.addLore(C.YELLOW + "+ " + level + C.GRAY + " " + Localizer.dLocalize("ranged.web_shot.lore2"));
+  }
+
+
+  @EventHandler
+  public void on(ProjectileHitEvent e) {
+    if (!(e.getEntity() instanceof Snowball snowball)) {
+      return;
+    }
+    UUID shooterId = activeSnowballs.remove(snowball.getUniqueId());
+    if (shooterId == null) {
+      return;
+    }
+    Player p = Bukkit.getPlayer(shooterId);
+    if (p == null || !p.isOnline()) {
+      return;
     }
 
-    @Override
-    public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("ranged.web_shot.lore1"));
-        v.addLore(C.YELLOW + "+ " + level + C.GRAY + " " + Localizer.dLocalize("ranged.web_shot.lore2"));
+    int level = getActiveLevel(p);
+    if (level <= 0) {
+      return;
     }
 
+    Block block;
 
-    @EventHandler
-    public void on(ProjectileHitEvent e) {
-        if (!(e.getEntity() instanceof Snowball snowball)) {
-            return;
-        }
-        UUID shooterId = activeSnowballs.remove(snowball.getUniqueId());
-        if (shooterId == null) {
-            return;
-        }
-        Player p = Bukkit.getPlayer(shooterId);
-        if (p == null || !p.isOnline()) {
-            return;
-        }
-
-        int level = getActiveLevel(p);
-        if (level <= 0) {
-            return;
-        }
-
-        Block block;
-
-        if (e.getHitEntity() != null) {
-            block = e.getHitEntity().getLocation().add(0, 1, 0).getBlock();
-        } else if (e.getHitBlock() != null) {
-            block = e.getHitBlock().getLocation().add(0, 1, 0).getBlock();
-        } else {
-            block = e.getEntity().getLocation().add(0, 1, 0).getBlock();
-        }
-
-        vfxCuboidOutline(block, Particle.REVERSE_PORTAL);
-        Adapt.verbose("Snowball Got: " + snowball.getEntityId() + " " + snowball.getUniqueId());
-        Adapt.verbose("Detected snowball hit");
-        if (e.getHitEntity() != null) {
-            getPlayer(p).getData().addStat("ranged.web-bomb.mobs-trapped", 1);
-        }
-        snowball.remove();
-        Set<Block> locs = new HashSet<>();
-        locs.add(block.getLocation().add(0, 1, 0).getBlock());
-        locs.add(block.getLocation().add(0, -1, 0).getBlock());
-        locs.add(block.getLocation().add(0, 0, 1).getBlock());
-        locs.add(block.getLocation().add(0, 0, -1).getBlock());
-        locs.add(block.getLocation().add(1, 0, 0).getBlock());
-        locs.add(block.getLocation().add(-1, 0, 0).getBlock());
-
-        for (Block i : locs) {
-            addWebFoundation(i, level);
-        }
+    if (e.getHitEntity() != null) {
+      block = e.getHitEntity().getLocation().add(0, 1, 0).getBlock();
+    } else if (e.getHitBlock() != null) {
+      block = e.getHitBlock().getLocation().add(0, 1, 0).getBlock();
+    } else {
+      block = e.getEntity().getLocation().add(0, 1, 0).getBlock();
     }
 
+    vfxCuboidOutline(block, Particle.REVERSE_PORTAL);
+    Adapt.verbose("Snowball Got: " + snowball.getEntityId() + " " + snowball.getUniqueId());
+    Adapt.verbose("Detected snowball hit");
+    if (e.getHitEntity() != null) {
+      getPlayer(p).getData().addStat("ranged.web-bomb.mobs-trapped", 1);
+    }
+    snowball.remove();
+    Set<Block> locs = new HashSet<>();
+    locs.add(block.getLocation().add(0, 1, 0).getBlock());
+    locs.add(block.getLocation().add(0, -1, 0).getBlock());
+    locs.add(block.getLocation().add(0, 0, 1).getBlock());
+    locs.add(block.getLocation().add(0, 0, -1).getBlock());
+    locs.add(block.getLocation().add(1, 0, 0).getBlock());
+    locs.add(block.getLocation().add(-1, 0, 0).getBlock());
 
-    @EventHandler
-    public void on(ProjectileLaunchEvent e) {
-        if (e.getEntity().getShooter() instanceof Player p && e.getEntity() instanceof Snowball snowball && hasActiveAdaptation(p)) {
-            Adapt.verbose("Snowball Launched: " + snowball.getEntityId() + " " + snowball.getUniqueId());
-            if (BoundSnowBall.isBindableItem(snowball.getItem())) {
-                Adapt.verbose("Snowball is bound");
-                activeSnowballs.put(snowball.getUniqueId(), p.getUniqueId());
-            } else {
-                Adapt.verbose("Snowball is not bound");
-            }
-        }
+    for (Block i : locs) {
+      addWebFoundation(i, level);
+    }
+  }
+
+
+  @EventHandler
+  public void on(ProjectileLaunchEvent e) {
+    if (e.getEntity().getShooter() instanceof Player p && e.getEntity() instanceof Snowball snowball && hasActiveAdaptation(p)) {
+      Adapt.verbose("Snowball Launched: " + snowball.getEntityId() + " " + snowball.getUniqueId());
+      if (BoundSnowBall.isBindableItem(snowball.getItem())) {
+        Adapt.verbose("Snowball is bound");
+        activeSnowballs.put(snowball.getUniqueId(), p.getUniqueId());
+      } else {
+        Adapt.verbose("Snowball is not bound");
+      }
+    }
+  }
+
+  public void addWebFoundation(Block block, int seconds) {
+    if (!block.getType().isAir()) {
+      return;
     }
 
-    public void addWebFoundation(Block block, int seconds) {
-        if (!block.getType().isAir()) {
-            return;
-        }
+    J.runAt(block.getLocation(), () -> {
+      block.setBlockData(BLOCK);
+      activeBlocks.add(block);
+    });
+    SoundPlayer spw = SoundPlayer.of(block.getWorld());
+    spw.play(block.getLocation(), Sound.BLOCK_ROOTED_DIRT_PLACE, 1.0f, 1.0f);
+    if (areParticlesEnabled()) {
 
-        J.runAt(block.getLocation(), () -> {
-            block.setBlockData(BLOCK);
-            activeBlocks.add(block);
-        });
-        SoundPlayer spw = SoundPlayer.of(block.getWorld());
-        spw.play(block.getLocation(), Sound.BLOCK_ROOTED_DIRT_PLACE, 1.0f, 1.0f);
-        if (areParticlesEnabled()) {
+      vfxCuboidOutline(block, Particle.CLOUD);
+      vfxCuboidOutline(block, Particle.WHITE_ASH);
+    }
+    J.runAt(block.getLocation(), () -> removeFoundation(block), seconds * 16);
+  }
 
-            vfxCuboidOutline(block, Particle.CLOUD);
-            vfxCuboidOutline(block, Particle.WHITE_ASH);
-        }
-        J.runAt(block.getLocation(), () -> removeFoundation(block), seconds * 16);
+  public void removeFoundation(Block block) {
+    if (!block.getBlockData().equals(BLOCK)) {
+      return;
     }
 
-    public void removeFoundation(Block block) {
-        if (!block.getBlockData().equals(BLOCK)) {
-            return;
-        }
-
-        J.runAt(block.getLocation(), () -> {
-            block.setBlockData(AIR);
-            activeBlocks.remove(block);
-        });
-        SoundPlayer spw = SoundPlayer.of(block.getWorld());
-        spw.play(block.getLocation(), Sound.BLOCK_ROOTED_DIRT_BREAK, 1.0f, 1.0f);
-        if (areParticlesEnabled()) {
-            vfxCuboidOutline(block, Particles.ENCHANTMENT_TABLE);
-        }
+    J.runAt(block.getLocation(), () -> {
+      block.setBlockData(AIR);
+      activeBlocks.remove(block);
+    });
+    SoundPlayer spw = SoundPlayer.of(block.getWorld());
+    spw.play(block.getLocation(), Sound.BLOCK_ROOTED_DIRT_BREAK, 1.0f, 1.0f);
+    if (areParticlesEnabled()) {
+      vfxCuboidOutline(block, Particles.ENCHANTMENT_TABLE);
     }
+  }
 
 
-    //prevent piston from moving blocks // Dupe fix
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void on(BlockPistonExtendEvent e) {
-        e.getBlocks().forEach(b -> {
-            if (activeBlocks.contains(b)) {
-                Adapt.verbose("Cancelled Piston Extend on Adaptation Foundation Block");
-                e.setCancelled(true);
-            }
-        });
+  //prevent piston from moving blocks // Dupe fix
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void on(BlockPistonExtendEvent e) {
+    e.getBlocks().forEach(b -> {
+      if (activeBlocks.contains(b)) {
+        Adapt.verbose("Cancelled Piston Extend on Adaptation Foundation Block");
+        e.setCancelled(true);
+      }
+    });
+  }
+
+  //prevent piston from pulling blocks // Dupe fix
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void on(BlockPistonRetractEvent e) {
+    e.getBlocks().forEach(b -> {
+      if (activeBlocks.contains(b)) {
+        Adapt.verbose("Cancelled Piston Retract on Adaptation Foundation Block");
+        e.setCancelled(true);
+      }
+    });
+  }
+
+  //prevent TNT from destroying blocks // Dupe fix
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void on(BlockExplodeEvent e) {
+    if (activeBlocks.contains(e.getBlock())) {
+      Adapt.verbose("Cancelled Block Explosion on Adaptation Foundation Block");
+      e.setCancelled(true);
     }
+  }
 
-    //prevent piston from pulling blocks // Dupe fix
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void on(BlockPistonRetractEvent e) {
-        e.getBlocks().forEach(b -> {
-            if (activeBlocks.contains(b)) {
-                Adapt.verbose("Cancelled Piston Retract on Adaptation Foundation Block");
-                e.setCancelled(true);
-            }
-        });
+  //prevent block from being destroyed // Dupe fix
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void on(BlockBreakEvent e) {
+    if (activeBlocks.contains(e.getBlock())) {
+      e.setCancelled(true);
     }
+  }
 
-    //prevent TNT from destroying blocks // Dupe fix
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void on(BlockExplodeEvent e) {
-        if (activeBlocks.contains(e.getBlock())) {
-            Adapt.verbose("Cancelled Block Explosion on Adaptation Foundation Block");
-            e.setCancelled(true);
-        }
-    }
-
-    //prevent block from being destroyed // Dupe fix
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void on(BlockBreakEvent e) {
-        if (activeBlocks.contains(e.getBlock())) {
-            e.setCancelled(true);
-        }
-    }
-
-    //prevent Entities from destroying blocks // Dupe fix
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void on(EntityExplodeEvent e) {
-        e.blockList().removeIf(activeBlocks::contains);
-    }
+  //prevent Entities from destroying blocks // Dupe fix
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void on(EntityExplodeEvent e) {
+    e.blockList().removeIf(activeBlocks::contains);
+  }
 
 
-    @Override
-    public void onTick() {
+  @Override
+  public void onTick() {
 
-    }
+  }
 
-    @Override
-    public boolean isEnabled() {
-        return getConfig().enabled;
-    }
+  @Override
+  public boolean isEnabled() {
+    return getConfig().enabled;
+  }
 
-    @Override
-    public boolean isPermanent() {
-        return getConfig().permanent;
-    }
+  @Override
+  public boolean isPermanent() {
+    return getConfig().permanent;
+  }
 
-    @NoArgsConstructor
-    @ConfigDescription("Throw a crafted web snare to trap targets in cobwebs.")
-    protected static class Config {
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-        boolean permanent = false;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-        boolean enabled = true;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Ranged Web Bomb adaptation.", impact = "True enables this behavior and false disables it.")
-        boolean showParticles = true;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-        int baseCost = 5;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-        int maxLevel = 5;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-        int initialCost = 1;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-        double costFactor = 0.9;
-    }
+  @NoArgsConstructor
+  @ConfigDescription("Throw a crafted web snare to trap targets in cobwebs.")
+  protected static class Config {
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
+    boolean permanent = false;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
+    boolean enabled = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Ranged Web Bomb adaptation.", impact = "True enables this behavior and false disables it.")
+    boolean showParticles = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
+    int baseCost = 5;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
+    int maxLevel = 5;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
+    int initialCost = 1;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
+    double costFactor = 0.9;
+  }
 }

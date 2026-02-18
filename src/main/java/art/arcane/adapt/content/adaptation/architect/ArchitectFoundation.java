@@ -25,11 +25,11 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
+import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
 import lombok.NoArgsConstructor;
 import org.bukkit.*;
@@ -56,309 +56,309 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Config> {
-    private static final BlockData AIR = Material.AIR.createBlockData();
-    private static final BlockData BLOCK = Material.TINTED_GLASS.createBlockData();
-    private final Map<UUID, Integer> blockPower;
-    private final Map<UUID, Long> cooldowns;
-    private final Set<UUID> active;
-    private final Set<Block> activeBlocks;
+  private static final BlockData AIR = Material.AIR.createBlockData();
+  private static final BlockData BLOCK = Material.TINTED_GLASS.createBlockData();
+  private final Map<UUID, Integer> blockPower;
+  private final Map<UUID, Long> cooldowns;
+  private final Set<UUID> active;
+  private final Set<Block> activeBlocks;
 
-    public ArchitectFoundation() {
-        super("architect-foundation");
-        registerConfiguration(ArchitectFoundation.Config.class);
-        setDescription(Localizer.dLocalize("architect.foundation.description"));
-        setDisplayName(Localizer.dLocalize("architect.foundation.name"));
-        setIcon(Material.TINTED_GLASS);
-        setInterval(988);
-        setBaseCost(getConfig().baseCost);
-        setMaxLevel(getConfig().maxLevel);
-        setInitialCost(getConfig().initialCost);
-        setCostFactor(getConfig().costFactor);
-        blockPower = new ConcurrentHashMap<>();
-        cooldowns = new ConcurrentHashMap<>();
-        active = ConcurrentHashMap.newKeySet();
-        activeBlocks = ConcurrentHashMap.newKeySet();
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.SCAFFOLDING)
-                .key("challenge_architect_foundation_1k")
-                .title(Localizer.dLocalize("advancement.challenge_architect_foundation_1k.title"))
-                .description(Localizer.dLocalize("advancement.challenge_architect_foundation_1k.description"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .child(AdaptAdvancement.builder()
-                        .icon(Material.SCAFFOLDING)
-                        .key("challenge_architect_foundation_10k")
-                        .title(Localizer.dLocalize("advancement.challenge_architect_foundation_10k.title"))
-                        .description(Localizer.dLocalize("advancement.challenge_architect_foundation_10k.description"))
-                        .frame(AdaptAdvancementFrame.CHALLENGE)
-                        .visibility(AdvancementVisibility.PARENT_GRANTED)
-                        .build())
-                .build());
-        registerMilestone("challenge_architect_foundation_1k", "architect.foundation.blocks-placed", 1000, 300);
-        registerMilestone("challenge_architect_foundation_10k", "architect.foundation.blocks-placed", 10000, 1000);
-    }
+  public ArchitectFoundation() {
+    super("architect-foundation");
+    registerConfiguration(ArchitectFoundation.Config.class);
+    setDescription(Localizer.dLocalize("architect.foundation.description"));
+    setDisplayName(Localizer.dLocalize("architect.foundation.name"));
+    setIcon(Material.TINTED_GLASS);
+    setInterval(988);
+    setBaseCost(getConfig().baseCost);
+    setMaxLevel(getConfig().maxLevel);
+    setInitialCost(getConfig().initialCost);
+    setCostFactor(getConfig().costFactor);
+    blockPower = new ConcurrentHashMap<>();
+    cooldowns = new ConcurrentHashMap<>();
+    active = ConcurrentHashMap.newKeySet();
+    activeBlocks = ConcurrentHashMap.newKeySet();
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.SCAFFOLDING)
+        .key("challenge_architect_foundation_1k")
+        .title(Localizer.dLocalize("advancement.challenge_architect_foundation_1k.title"))
+        .description(Localizer.dLocalize("advancement.challenge_architect_foundation_1k.description"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .child(AdaptAdvancement.builder()
+            .icon(Material.SCAFFOLDING)
+            .key("challenge_architect_foundation_10k")
+            .title(Localizer.dLocalize("advancement.challenge_architect_foundation_10k.title"))
+            .description(Localizer.dLocalize("advancement.challenge_architect_foundation_10k.description"))
+            .frame(AdaptAdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .build())
+        .build());
+    registerMilestone("challenge_architect_foundation_1k", "architect.foundation.blocks-placed", 1000, 300);
+    registerMilestone("challenge_architect_foundation_10k", "architect.foundation.blocks-placed", 10000, 1000);
+  }
 
-    @Override
-    public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + Localizer.dLocalize("architect.foundation.lore1")
-                + (getBlockPower(getLevelPercent(level))) + C.GRAY + " "
-                + Localizer.dLocalize("architect.foundation.lore2"));
-    }
+  @Override
+  public void addStats(int level, Element v) {
+    v.addLore(C.GREEN + Localizer.dLocalize("architect.foundation.lore1")
+        + (getBlockPower(getLevelPercent(level))) + C.GRAY + " "
+        + Localizer.dLocalize("architect.foundation.lore2"));
+  }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void on(PlayerMoveEvent e) {
-        Player p = e.getPlayer();
-        withPlayerThread(p, e, () -> {
-            UUID id = p.getUniqueId();
-            if (!p.isSneaking()) {
-                return;
-            }
-            if (getActiveBlockPlaceLevel(p, p.getLocation()) <= 0) {
-                return;
-            }
-            if (e.getTo() == null || !e.getFrom().getBlock().equals(e.getTo().getBlock())) {
-                return;
-            }
-            if (!this.active.contains(id)) {
-                return;
-            }
-            int power = blockPower.getOrDefault(id, 0);
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void on(PlayerMoveEvent e) {
+    Player p = e.getPlayer();
+    withPlayerThread(p, e, () -> {
+      UUID id = p.getUniqueId();
+      if (!p.isSneaking()) {
+        return;
+      }
+      if (getActiveBlockPlaceLevel(p, p.getLocation()) <= 0) {
+        return;
+      }
+      if (e.getTo() == null || !e.getFrom().getBlock().equals(e.getTo().getBlock())) {
+        return;
+      }
+      if (!this.active.contains(id)) {
+        return;
+      }
+      int power = blockPower.getOrDefault(id, 0);
 
-            if (power <= 0) {
-                return;
-            }
+      if (power <= 0) {
+        return;
+      }
 
-            Location l = e.getTo();
-            World world = l.getWorld();
-            Set<Block> locs = new HashSet<>();
-            locs.add(world.getBlockAt(l.clone().add(0.3, -1, -0.3)));
-            locs.add(world.getBlockAt(l.clone().add(-0.3, -1, -0.3)));
-            locs.add(world.getBlockAt(l.clone().add(0.3, -1, 0.3)));
-            locs.add(world.getBlockAt(l.clone().add(-0.3, -1, +0.3)));
+      Location l = e.getTo();
+      World world = l.getWorld();
+      Set<Block> locs = new HashSet<>();
+      locs.add(world.getBlockAt(l.clone().add(0.3, -1, -0.3)));
+      locs.add(world.getBlockAt(l.clone().add(-0.3, -1, -0.3)));
+      locs.add(world.getBlockAt(l.clone().add(0.3, -1, 0.3)));
+      locs.add(world.getBlockAt(l.clone().add(-0.3, -1, +0.3)));
 
-            for (Block b : locs) {
-                if (addFoundation(b)) {
-                    power--;
-                    getPlayer(p).getData().addStat("architect.foundation.blocks-placed", 1);
-                }
-
-                if (power <= 0) {
-                    break;
-                }
-            }
-
-            blockPower.put(id, power);
-        });
-    }
-
-    // prevent piston from moving blocks // Dupe fix
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void on(BlockPistonExtendEvent e) {
-        e.getBlocks().forEach(b -> {
-            if (activeBlocks.contains(b)) {
-                Adapt.verbose("Cancelled Piston Extend on Adaptation Foundation Block");
-                e.setCancelled(true);
-            }
-        });
-    }
-
-    // prevent piston from pulling blocks // Dupe fix
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void on(BlockPistonRetractEvent e) {
-        e.getBlocks().forEach(b -> {
-            if (activeBlocks.contains(b)) {
-                Adapt.verbose("Cancelled Piston Retract on Adaptation Foundation Block");
-                e.setCancelled(true);
-            }
-        });
-    }
-
-    // prevent TNT from destroying blocks // Dupe fix
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void on(BlockExplodeEvent e) {
-        if (activeBlocks.contains(e.getBlock())) {
-            Adapt.verbose("Cancelled Block Explosion on Adaptation Foundation Block");
-            e.setCancelled(true);
-        }
-    }
-
-    // prevent block from being destroyed // Dupe fix
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void on(BlockBreakEvent e) {
-        if (activeBlocks.contains(e.getBlock())) {
-            e.setCancelled(true);
-        }
-    }
-
-    // prevent Entities from destroying blocks // Dupe fix
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void on(EntityExplodeEvent e) {
-        e.blockList().removeIf(activeBlocks::contains);
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void on(PlayerToggleSneakEvent e) {
-        Player p = e.getPlayer();
-        withAdaptedPlayer(p, e, () -> {
-            if (p.getGameMode().equals(GameMode.CREATIVE)
-                    || p.getGameMode().equals(GameMode.SPECTATOR)) {
-                return;
-            }
-            UUID id = p.getUniqueId();
-
-            boolean ready = !hasCooldown(id);
-            boolean active = this.active.contains(id);
-
-            if (e.isSneaking() && ready && !active) {
-                this.active.add(id);
-                cooldowns.put(id, Long.MAX_VALUE);
-                // effect start placing
-            } else if (!e.isSneaking() && active) {
-                this.active.remove(id);
-                cooldowns.put(id, M.ms() + getConfig().cooldown);
-                SoundPlayer sp = SoundPlayer.of(p);
-                sp.play(p.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 1.0f, 10.0f);
-                sp.play(p.getLocation(), Sound.BLOCK_SCULK_CATALYST_BREAK, 1.0f, 0.81f);
-            }
-        });
-    }
-
-    public boolean addFoundation(Block block) {
-        if (!block.getType().isAir()) {
-            return false;
+      for (Block b : locs) {
+        if (addFoundation(b)) {
+          power--;
+          getPlayer(p).getData().addStat("architect.foundation.blocks-placed", 1);
         }
 
-        if(!block.getWorld()
-                .getNearbyEntities(block.getLocation()
-                        .add(.5, .5, .5), .5, .5, .5, entity ->
-                        entity instanceof ItemFrame || entity instanceof Painting).isEmpty())
-            return false;
-
-
-        J.runAt(block.getLocation(), () -> {
-            block.setBlockData(BLOCK);
-            activeBlocks.add(block);
-        });
-        SoundPlayer spw = SoundPlayer.of(block.getWorld());
-        spw.play(block.getLocation(), Sound.BLOCK_DEEPSLATE_PLACE, 1.0f, 1.0f);
-        if (areParticlesEnabled()) {
-
-            vfxCuboidOutline(block, Particle.REVERSE_PORTAL);
-            vfxCuboidOutline(block, Particle.ASH);
+        if (power <= 0) {
+          break;
         }
-        J.runAt(block.getLocation(), () -> removeFoundation(block), 3 * 20);
-        return true;
+      }
+
+      blockPower.put(id, power);
+    });
+  }
+
+  // prevent piston from moving blocks // Dupe fix
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void on(BlockPistonExtendEvent e) {
+    e.getBlocks().forEach(b -> {
+      if (activeBlocks.contains(b)) {
+        Adapt.verbose("Cancelled Piston Extend on Adaptation Foundation Block");
+        e.setCancelled(true);
+      }
+    });
+  }
+
+  // prevent piston from pulling blocks // Dupe fix
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void on(BlockPistonRetractEvent e) {
+    e.getBlocks().forEach(b -> {
+      if (activeBlocks.contains(b)) {
+        Adapt.verbose("Cancelled Piston Retract on Adaptation Foundation Block");
+        e.setCancelled(true);
+      }
+    });
+  }
+
+  // prevent TNT from destroying blocks // Dupe fix
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void on(BlockExplodeEvent e) {
+    if (activeBlocks.contains(e.getBlock())) {
+      Adapt.verbose("Cancelled Block Explosion on Adaptation Foundation Block");
+      e.setCancelled(true);
+    }
+  }
+
+  // prevent block from being destroyed // Dupe fix
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void on(BlockBreakEvent e) {
+    if (activeBlocks.contains(e.getBlock())) {
+      e.setCancelled(true);
+    }
+  }
+
+  // prevent Entities from destroying blocks // Dupe fix
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void on(EntityExplodeEvent e) {
+    e.blockList().removeIf(activeBlocks::contains);
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(PlayerToggleSneakEvent e) {
+    Player p = e.getPlayer();
+    withAdaptedPlayer(p, e, () -> {
+      if (p.getGameMode().equals(GameMode.CREATIVE)
+          || p.getGameMode().equals(GameMode.SPECTATOR)) {
+        return;
+      }
+      UUID id = p.getUniqueId();
+
+      boolean ready = !hasCooldown(id);
+      boolean active = this.active.contains(id);
+
+      if (e.isSneaking() && ready && !active) {
+        this.active.add(id);
+        cooldowns.put(id, Long.MAX_VALUE);
+        // effect start placing
+      } else if (!e.isSneaking() && active) {
+        this.active.remove(id);
+        cooldowns.put(id, M.ms() + getConfig().cooldown);
+        SoundPlayer sp = SoundPlayer.of(p);
+        sp.play(p.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 1.0f, 10.0f);
+        sp.play(p.getLocation(), Sound.BLOCK_SCULK_CATALYST_BREAK, 1.0f, 0.81f);
+      }
+    });
+  }
+
+  public boolean addFoundation(Block block) {
+    if (!block.getType().isAir()) {
+      return false;
     }
 
-    public void removeFoundation(Block block) {
-        if (!block.getBlockData().equals(BLOCK)) {
-            return;
-        }
+    if (!block.getWorld()
+        .getNearbyEntities(block.getLocation()
+            .add(.5, .5, .5), .5, .5, .5, entity ->
+            entity instanceof ItemFrame || entity instanceof Painting).isEmpty())
+      return false;
 
-        J.runAt(block.getLocation(), () -> {
-            block.setBlockData(AIR);
-            activeBlocks.remove(block);
-            SoundPlayer spw = SoundPlayer.of(block.getWorld());
-            spw.play(block.getLocation(), Sound.BLOCK_DEEPSLATE_BREAK, 1.0f, 1.0f);
-        });
-        if (areParticlesEnabled()) {
-            vfxCuboidOutline(block, Particles.ENCHANTMENT_TABLE);
-        }
+
+    J.runAt(block.getLocation(), () -> {
+      block.setBlockData(BLOCK);
+      activeBlocks.add(block);
+    });
+    SoundPlayer spw = SoundPlayer.of(block.getWorld());
+    spw.play(block.getLocation(), Sound.BLOCK_DEEPSLATE_PLACE, 1.0f, 1.0f);
+    if (areParticlesEnabled()) {
+
+      vfxCuboidOutline(block, Particle.REVERSE_PORTAL);
+      vfxCuboidOutline(block, Particle.ASH);
+    }
+    J.runAt(block.getLocation(), () -> removeFoundation(block), 3 * 20);
+    return true;
+  }
+
+  public void removeFoundation(Block block) {
+    if (!block.getBlockData().equals(BLOCK)) {
+      return;
     }
 
-    public int getBlockPower(double factor) {
-        return (int) Math.floor(M.lerp(getConfig().minBlocks, getConfig().maxBlocks, factor));
+    J.runAt(block.getLocation(), () -> {
+      block.setBlockData(AIR);
+      activeBlocks.remove(block);
+      SoundPlayer spw = SoundPlayer.of(block.getWorld());
+      spw.play(block.getLocation(), Sound.BLOCK_DEEPSLATE_BREAK, 1.0f, 1.0f);
+    });
+    if (areParticlesEnabled()) {
+      vfxCuboidOutline(block, Particles.ENCHANTMENT_TABLE);
+    }
+  }
+
+  public int getBlockPower(double factor) {
+    return (int) Math.floor(M.lerp(getConfig().minBlocks, getConfig().maxBlocks, factor));
+  }
+
+  @Override
+  public void onTick() {
+    for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+      Player i = adaptPlayer.getPlayer();
+      if (i == null || !i.isOnline()) {
+        continue;
+      }
+      withPlayerThread(i, () -> refreshPlayerPower(i));
+    }
+  }
+
+  private void refreshPlayerPower(Player i) {
+    UUID id = i.getUniqueId();
+    if (!hasActiveAdaptation(i)) {
+      active.remove(id);
+      blockPower.remove(id);
+      cooldowns.remove(id);
+      return;
     }
 
-    @Override
-    public void onTick() {
-        for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
-            Player i = adaptPlayer.getPlayer();
-            if (i == null || !i.isOnline()) {
-                continue;
-            }
-            withPlayerThread(i, () -> refreshPlayerPower(i));
-        }
+    boolean ready = !hasCooldown(id);
+    int availablePower = getBlockPower(getLevelPercent(i));
+    blockPower.compute(id, (k, v) -> {
+      if (v == null || (ready && v != availablePower)) {
+        final org.bukkit.World world = i.getWorld();
+        final org.bukkit.Location location = i.getLocation();
+
+        SoundPlayer spw = SoundPlayer.of(world);
+        spw.play(location, Sound.BLOCK_BEACON_ACTIVATE, 1.0f, 10.0f);
+        spw.play(location, Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 1.0f, 0.81f);
+
+        return availablePower;
+      }
+      return v;
+    });
+  }
+
+  private boolean hasCooldown(UUID id) {
+    Long cooldown = cooldowns.get(id);
+    if (cooldown != null && M.ms() >= cooldown) {
+      cooldowns.remove(id);
+      cooldown = null;
     }
 
-    private void refreshPlayerPower(Player i) {
-        UUID id = i.getUniqueId();
-        if (!hasActiveAdaptation(i)) {
-            active.remove(id);
-            blockPower.remove(id);
-            cooldowns.remove(id);
-            return;
-        }
+    return cooldown != null;
+  }
 
-        boolean ready = !hasCooldown(id);
-        int availablePower = getBlockPower(getLevelPercent(i));
-        blockPower.compute(id, (k, v) -> {
-            if (v == null || (ready && v != availablePower)) {
-                final var world = i.getWorld();
-                final var location = i.getLocation();
+  @EventHandler
+  public void on(PlayerQuitEvent e) {
+    UUID id = e.getPlayer().getUniqueId();
+    blockPower.remove(id);
+    cooldowns.remove(id);
+    active.remove(id);
+  }
 
-                SoundPlayer spw = SoundPlayer.of(world);
-                spw.play(location, Sound.BLOCK_BEACON_ACTIVATE, 1.0f, 10.0f);
-                spw.play(location, Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 1.0f, 0.81f);
+  @Override
+  public boolean isEnabled() {
+    return getConfig().enabled;
+  }
 
-                return availablePower;
-            }
-            return v;
-        });
-    }
+  @Override
+  public boolean isPermanent() {
+    return getConfig().permanent;
+  }
 
-    private boolean hasCooldown(UUID id) {
-        Long cooldown = cooldowns.get(id);
-        if (cooldown != null && M.ms() >= cooldown) {
-            cooldowns.remove(id);
-            cooldown = null;
-        }
-
-        return cooldown != null;
-    }
-
-    @EventHandler
-    public void on(PlayerQuitEvent e) {
-        UUID id = e.getPlayer().getUniqueId();
-        blockPower.remove(id);
-        cooldowns.remove(id);
-        active.remove(id);
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return getConfig().enabled;
-    }
-
-    @Override
-    public boolean isPermanent() {
-        return getConfig().permanent;
-    }
-
-    @NoArgsConstructor
-    @ConfigDescription("Sneak to place a temporary foundation beneath you.")
-    protected static class Config {
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Duration for the Architect Foundation adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        public long duration = 3000;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Min Blocks for the Architect Foundation adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        public int minBlocks = 9;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Blocks for the Architect Foundation adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        public int maxBlocks = 35;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown for the Architect Foundation adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        public int cooldown = 5000;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-        boolean permanent = false;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Architect Foundation adaptation.", impact = "True enables this behavior and false disables it.")
-        boolean showParticles = true;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-        boolean enabled = true;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-        int baseCost = 5;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-        int maxLevel = 5;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-        int initialCost = 1;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-        double costFactor = 0.40;
-    }
+  @NoArgsConstructor
+  @ConfigDescription("Sneak to place a temporary foundation beneath you.")
+  protected static class Config {
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Duration for the Architect Foundation adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    public long duration = 3000;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Min Blocks for the Architect Foundation adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    public int minBlocks = 9;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Blocks for the Architect Foundation adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    public int maxBlocks = 35;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown for the Architect Foundation adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    public int cooldown = 5000;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
+    boolean permanent = false;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Architect Foundation adaptation.", impact = "True enables this behavior and false disables it.")
+    boolean showParticles = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
+    boolean enabled = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
+    int baseCost = 5;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
+    int maxLevel = 5;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
+    int initialCost = 1;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
+    double costFactor = 0.40;
+  }
 }

@@ -22,11 +22,11 @@ import art.arcane.adapt.Adapt;
 import org.bukkit.event.Listener;
 
 public interface AdaptService extends Listener {
-    void onEnable();
+  void onEnable();
 
-    void onDisable();
+  void onDisable();
 
-    default void postShutdown(Runnable r) {
-        Adapt.instance.postShutdown(r);
-    }
+  default void postShutdown(Runnable r) {
+    Adapt.instance.postShutdown(r);
+  }
 }

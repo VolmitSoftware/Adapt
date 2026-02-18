@@ -25,35 +25,35 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
 public class AdaptEvent extends Event implements Cancellable {
-    private static final HandlerList HANDLERS = new HandlerList();
-    private boolean canceled;
+  private static final HandlerList HANDLERS = new HandlerList();
+  private boolean canceled;
 
 
-    public AdaptEvent(boolean async) {
-        super(async);
-        canceled = false;
-    }
+  public AdaptEvent(boolean async) {
+    super(async);
+    canceled = false;
+  }
 
-    public AdaptServer getServer() {
-        return Adapt.instance.getAdaptServer();
-    }
+  public static HandlerList getHandlerList() {
+    return HANDLERS;
+  }
 
-    @Override
-    public boolean isCancelled() {
-        return canceled;
-    }
+  public AdaptServer getServer() {
+    return Adapt.instance.getAdaptServer();
+  }
 
-    @Override
-    public void setCancelled(boolean b) {
-        canceled = b;
-    }
+  @Override
+  public boolean isCancelled() {
+    return canceled;
+  }
 
-    public static HandlerList getHandlerList() {
-        return HANDLERS;
-    }
+  @Override
+  public void setCancelled(boolean b) {
+    canceled = b;
+  }
 
-    @Override
-    public HandlerList getHandlers() {
-        return HANDLERS;
-    }
+  @Override
+  public HandlerList getHandlers() {
+    return HANDLERS;
+  }
 }

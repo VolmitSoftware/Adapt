@@ -15,7 +15,7 @@ softdepend:
   - Residence
 
 commands:
-  adapt: {}
+  adapt: { }
 
 permissions:
   adapt.idontknowwhatimdoingiswear:

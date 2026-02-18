@@ -43,269 +43,270 @@ import java.lang.reflect.Modifier;
 import java.util.List;
 
 public abstract class VolmitPlugin extends JavaPlugin implements Listener {
-    public static boolean bad = false;
-    private int controllerTickerTaskId = -1;
-    private KMap<String, IController> controllers;
-    private List<IController> cachedControllers;
-    private KMap<Class<? extends IController>, IController> cachedClassControllers;
+  public static boolean bad = false;
+  private int controllerTickerTaskId = -1;
+  private KMap<String, IController> controllers;
+  private List<IController> cachedControllers;
+  private KMap<Class<? extends IController>, IController> cachedClassControllers;
 
-    public void l(Object l) {
-        Adapt.info("[" + getName() + "]: " + l);
+  public void l(Object l) {
+    Adapt.info("[" + getName() + "]: " + l);
+  }
+
+  public void w(Object l) {
+    Adapt.warn("[" + getName() + "]: " + l);
+  }
+
+  public void f(Object l) {
+    Adapt.error("[" + getName() + "]: " + l);
+  }
+
+  public void v(Object l) {
+    Adapt.verbose("[" + getName() + "]: " + l);
+  }
+
+  public void onEnable() {
+    registerInstance();
+    registerControllers();
+    controllerTickerTaskId = J.sr(this::tickControllers, 1);
+    J.a(this::outputInfo);
+    registerListener(this);
+    start();
+  }
+
+  public void unregisterAll() {
+    try {
+      stopControllers();
+      unregisterListeners();
+      unregisterInstance();
+    } catch (Exception e) {
+      Adapt.error("Adapt: Failed to unregister all, You have a plugin that is not unloading properly. This is a bug in that plugin. Please report it to the developer. This is on shutdown however, so it's not a big deal.");
+      Adapt.error("Adapt: This is not a bug in Adapt. This is a bug in another plugin. Adapt is unloading ALL Command Nodes with Adapt ID's, If another plugin is unloading all or some of these nodes, it will cause this error.");
+    }
+  }
+
+  private void outputInfo() {
+    try {
+      IO.delete(getDataFolder("info"));
+      getDataFolder("info").mkdirs();
+      outputPluginInfo();
+    } catch (Throwable ex) {
+      Adapt.verbose("Failed to output plugin info: " + ex.getClass().getSimpleName()
+          + (ex.getMessage() == null ? "" : " - " + ex.getMessage()));
+    }
+  }
+
+
+  private void outputPluginInfo() throws IOException {
+    FileConfiguration fc = new YamlConfiguration();
+    fc.set("version", getDescription().getVersion());
+    fc.set("name", getDescription().getName());
+    fc.save(getDataFile("info", "plugin.yml"));
+  }
+
+
+  @Override
+  public void onDisable() {
+    stop();
+    if (controllerTickerTaskId != -1) {
+      J.csr(controllerTickerTaskId);
+      controllerTickerTaskId = -1;
+    }
+    J.cancelPluginTasks();
+    unregisterListener(this);
+    unregisterAll();
+  }
+
+  private void tickControllers() {
+    if (bad) {
+      return;
     }
 
-    public void w(Object l) {
-        Adapt.warn("[" + getName() + "]: " + l);
+    for (IController i : getControllers()) {
+      tickController(i);
+    }
+  }
+
+  private void tickController(IController i) {
+    if (bad) {
+      return;
     }
 
-    public void f(Object l) {
-        Adapt.error("[" + getName() + "]: " + l);
+    if (i.getTickInterval() < 0) {
+      return;
     }
 
-    public void v(Object l) {
-        Adapt.verbose("[" + getName() + "]: " + l);
+    M.tick++;
+    if (M.interval(i.getTickInterval())) {
+      try {
+        i.tick();
+      } catch (Throwable e) {
+        w("Failed to tick controller " + i.getName());
+        e.printStackTrace();
+      }
     }
+  }
 
-    public void onEnable() {
-        registerInstance();
-        registerControllers();
-        controllerTickerTaskId = J.sr(this::tickControllers, 1);
-        J.a(this::outputInfo);
-        registerListener(this);
-        start();
+  public List<IController> getControllers() {
+    return cachedControllers;
+  }
+
+  private void registerControllers() {
+    if (bad) {
+      return;
     }
+    controllers = new KMap<>();
+    cachedClassControllers = new KMap<>();
 
-    public void unregisterAll() {
+    for (Field i : getClass().getDeclaredFields()) {
+      if (i.isAnnotationPresent(Control.class)) {
         try {
-            stopControllers();
-            unregisterListeners();
-            unregisterInstance();
-        } catch (Exception e) {
-            Adapt.error("Adapt: Failed to unregister all, You have a plugin that is not unloading properly. This is a bug in that plugin. Please report it to the developer. This is on shutdown however, so it's not a big deal.");
-            Adapt.error("Adapt: This is not a bug in Adapt. This is a bug in another plugin. Adapt is unloading ALL Command Nodes with Adapt ID's, If another plugin is unloading all or some of these nodes, it will cause this error.");
+          i.setAccessible(true);
+          IController pc = (IController) i.getType().getConstructor().newInstance();
+          registerController(pc);
+          i.set(this, pc);
+          v("Registered " + pc.getName() + " (" + i.getName() + ")");
+        } catch (IllegalArgumentException | IllegalAccessException |
+                 InstantiationException |
+                 InvocationTargetException | NoSuchMethodException |
+                 SecurityException e) {
+          w("Failed to register controller (field " + i.getName() + ")");
+          e.printStackTrace();
         }
+      }
     }
 
-    private void outputInfo() {
+    cachedControllers = controllers.v();
+  }
+
+  public IController getController(Class<? extends IController> c) {
+    return cachedClassControllers.get(c);
+  }
+
+  private void registerController(IController pc) {
+    if (bad) {
+      return;
+    }
+    controllers.put(pc.getName(), pc);
+    cachedClassControllers.put(pc.getClass(), pc);
+    registerListener(pc);
+
+    try {
+      pc.start();
+      v("Started " + pc.getName());
+    } catch (Throwable e) {
+      w("Failed to start controller " + pc.getName());
+      e.printStackTrace();
+    }
+  }
+
+  private void registerInstance() {
+    if (bad) {
+      return;
+    }
+    for (Field i : getClass().getDeclaredFields()) {
+      if (i.isAnnotationPresent(Instance.class)) {
         try {
-            IO.delete(getDataFolder("info"));
-            getDataFolder("info").mkdirs();
-            outputPluginInfo();
-        } catch (Throwable ex) {
-            Adapt.verbose("Failed to output plugin info: " + ex.getClass().getSimpleName()
-                    + (ex.getMessage() == null ? "" : " - " + ex.getMessage()));
+          i.setAccessible(true);
+          i.set(Modifier.isStatic(i.getModifiers()) ? null : this, this);
+          v("Registered Instance " + i.getName());
+        } catch (IllegalArgumentException | IllegalAccessException |
+                 SecurityException e) {
+          w("Failed to register instance (field " + i.getName() + ")");
+          e.printStackTrace();
         }
+      }
     }
+  }
 
-
-
-
-    private void outputPluginInfo() throws IOException {
-        FileConfiguration fc = new YamlConfiguration();
-        fc.set("version", getDescription().getVersion());
-        fc.set("name", getDescription().getName());
-        fc.save(getDataFile("info", "plugin.yml"));
+  private void unregisterInstance() {
+    if (bad) {
+      return;
     }
-
-
-
-    @Override
-    public void onDisable() {
-        stop();
-        if (controllerTickerTaskId != -1) {
-            J.csr(controllerTickerTaskId);
-            controllerTickerTaskId = -1;
-        }
-        J.cancelPluginTasks();
-        unregisterListener(this);
-        unregisterAll();
-    }
-
-    private void tickControllers() {
-        if (bad) {
-            return;
-        }
-
-        for (IController i : getControllers()) {
-            tickController(i);
-        }
-    }
-
-    private void tickController(IController i) {
-        if (bad) {
-            return;
-        }
-
-        if (i.getTickInterval() < 0) {
-            return;
-        }
-
-        M.tick++;
-        if (M.interval(i.getTickInterval())) {
-            try {
-                i.tick();
-            } catch (Throwable e) {
-                w("Failed to tick controller " + i.getName());
-                e.printStackTrace();
-            }
-        }
-    }
-
-    public List<IController> getControllers() {
-        return cachedControllers;
-    }
-
-    private void registerControllers() {
-        if (bad) {
-            return;
-        }
-        controllers = new KMap<>();
-        cachedClassControllers = new KMap<>();
-
-        for (Field i : getClass().getDeclaredFields()) {
-            if (i.isAnnotationPresent(Control.class)) {
-                try {
-                    i.setAccessible(true);
-                    IController pc = (IController) i.getType().getConstructor().newInstance();
-                    registerController(pc);
-                    i.set(this, pc);
-                    v("Registered " + pc.getName() + " (" + i.getName() + ")");
-                } catch (IllegalArgumentException | IllegalAccessException | InstantiationException |
-                         InvocationTargetException | NoSuchMethodException | SecurityException e) {
-                    w("Failed to register controller (field " + i.getName() + ")");
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        cachedControllers = controllers.v();
-    }
-
-    public IController getController(Class<? extends IController> c) {
-        return cachedClassControllers.get(c);
-    }
-
-    private void registerController(IController pc) {
-        if (bad) {
-            return;
-        }
-        controllers.put(pc.getName(), pc);
-        cachedClassControllers.put(pc.getClass(), pc);
-        registerListener(pc);
-
+    for (Field i : getClass().getDeclaredFields()) {
+      if (i.isAnnotationPresent(Instance.class)) {
         try {
-            pc.start();
-            v("Started " + pc.getName());
-        } catch (Throwable e) {
-            w("Failed to start controller " + pc.getName());
-            e.printStackTrace();
+          i.setAccessible(true);
+          i.set(Modifier.isStatic(i.getModifiers()) ? null : this, null);
+          v("Unregistered Instance " + i.getName());
+        } catch (IllegalArgumentException | IllegalAccessException |
+                 SecurityException e) {
+          w("Failed to unregister instance (field " + i.getName() + ")");
+          e.printStackTrace();
         }
+      }
+    }
+  }
+
+
+  public String getTag() {
+    if (bad) {
+      return "";
+    }
+    return getTag("");
+  }
+
+  public void registerListener(Listener l) {
+    if (bad) {
+      return;
+    }
+    if (!SkillEventRegistrar.register(this, l) && !AdaptationEventRegistrar.register(this, l)) {
+      Bukkit.getPluginManager().registerEvents(l, this);
+    }
+    ReflectiveEvents.register(l);
+  }
+
+  public void unregisterListener(Listener l) {
+    if (bad) {
+      return;
+    }
+    HandlerList.unregisterAll(l);
+  }
+
+  public void unregisterListeners() {
+    if (bad) {
+      return;
+    }
+    HandlerList.unregisterAll((Listener) this);
+  }
+
+
+  private void stopControllers() {
+    if (bad) {
+      return;
+    }
+    for (IController i : controllers.v()) {
+      try {
+        unregisterListener(i);
+        i.stop();
+        v("Stopped " + i.getName());
+      } catch (Throwable e) {
+        w("Failed to stop controller " + i.getName());
+        e.printStackTrace();
+      }
+    }
+  }
+
+  public File getDataFile(String... strings) {
+    File f = new File(getDataFolder(), String.join(File.separator, strings));
+    f.getParentFile().mkdirs();
+    return f;
+  }
+
+  public File getDataFolder(String... strings) {
+    if (strings.length == 0) {
+      return super.getDataFolder();
     }
 
-    private void registerInstance() {
-        if (bad) {
-            return;
-        }
-        for (Field i : getClass().getDeclaredFields()) {
-            if (i.isAnnotationPresent(Instance.class)) {
-                try {
-                    i.setAccessible(true);
-                    i.set(Modifier.isStatic(i.getModifiers()) ? null : this, this);
-                    v("Registered Instance " + i.getName());
-                } catch (IllegalArgumentException | IllegalAccessException | SecurityException e) {
-                    w("Failed to register instance (field " + i.getName() + ")");
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
+    File f = new File(getDataFolder(), String.join(File.separator, strings));
+    f.mkdirs();
 
-    private void unregisterInstance() {
-        if (bad) {
-            return;
-        }
-        for (Field i : getClass().getDeclaredFields()) {
-            if (i.isAnnotationPresent(Instance.class)) {
-                try {
-                    i.setAccessible(true);
-                    i.set(Modifier.isStatic(i.getModifiers()) ? null : this, null);
-                    v("Unregistered Instance " + i.getName());
-                } catch (IllegalArgumentException | IllegalAccessException | SecurityException e) {
-                    w("Failed to unregister instance (field " + i.getName() + ")");
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
+    return f;
+  }
 
+  public abstract void start();
 
-    public String getTag() {
-        if (bad) {
-            return "";
-        }
-        return getTag("");
-    }
+  public abstract void stop();
 
-    public void registerListener(Listener l) {
-        if (bad) {
-            return;
-        }
-        if (!SkillEventRegistrar.register(this, l) && !AdaptationEventRegistrar.register(this, l)) {
-            Bukkit.getPluginManager().registerEvents(l, this);
-        }
-        ReflectiveEvents.register(l);
-    }
-
-    public void unregisterListener(Listener l) {
-        if (bad) {
-            return;
-        }
-        HandlerList.unregisterAll(l);
-    }
-
-    public void unregisterListeners() {
-        if (bad) {
-            return;
-        }
-        HandlerList.unregisterAll((Listener) this);
-    }
-
-
-    private void stopControllers() {
-        if (bad) {
-            return;
-        }
-        for (IController i : controllers.v()) {
-            try {
-                unregisterListener(i);
-                i.stop();
-                v("Stopped " + i.getName());
-            } catch (Throwable e) {
-                w("Failed to stop controller " + i.getName());
-                e.printStackTrace();
-            }
-        }
-    }
-
-    public File getDataFile(String... strings) {
-        File f = new File(getDataFolder(), String.join(File.separator, strings));
-        f.getParentFile().mkdirs();
-        return f;
-    }
-
-    public File getDataFolder(String... strings) {
-        if (strings.length == 0) {
-            return super.getDataFolder();
-        }
-
-        File f = new File(getDataFolder(), String.join(File.separator, strings));
-        f.mkdirs();
-
-        return f;
-    }
-
-    public abstract void start();
-
-    public abstract void stop();
-
-    public abstract String getTag(String subTag);
+  public abstract String getTag(String subTag);
 }

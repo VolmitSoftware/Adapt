@@ -20,5 +20,5 @@ package art.arcane.adapt.util.common.function;
 
 @FunctionalInterface
 public interface NoiseProvider {
-    double noise(double x, double z);
+  double noise(double x, double z);
 }

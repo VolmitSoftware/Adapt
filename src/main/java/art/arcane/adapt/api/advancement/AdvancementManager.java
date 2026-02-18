@@ -15,329 +15,333 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static art.arcane.adapt.Adapt.instance;
 
 public class AdvancementManager {
-    private final AdvancementMain main;
-    private final Map<String, Advancement> advancements;
-    private final AtomicBoolean loaded = new AtomicBoolean(false);
-    private final AtomicBoolean enabled = new AtomicBoolean(false);
-    private final AtomicBoolean runtimeSchedulerUnsupported = new AtomicBoolean(false);
+  private final AdvancementMain main;
+  private final Map<String, Advancement> advancements;
+  private final AtomicBoolean loaded = new AtomicBoolean(false);
+  private final AtomicBoolean enabled = new AtomicBoolean(false);
+  private final AtomicBoolean runtimeSchedulerUnsupported = new AtomicBoolean(false);
 
-    public AdvancementManager() {
-        AdvancementMain loadedMain = null;
-        try {
-            loadedMain = new AdvancementMain(instance);
-            loadedMain.load();
-            loaded.set(true);
-        } catch (Throwable e) {
-            loadedMain = null;
-            Adapt.warn("UltimateAdvancementAPI is unavailable: " + e.getMessage() + ". Advancements will be disabled.");
-        }
-
-        main = loadedMain;
-        advancements = new ConcurrentHashMap<>();
+  public AdvancementManager() {
+    AdvancementMain loadedMain = null;
+    try {
+      loadedMain = new AdvancementMain(instance);
+      loadedMain.load();
+      loaded.set(true);
+    } catch (Throwable e) {
+      loadedMain = null;
+      Adapt.warn("UltimateAdvancementAPI is unavailable: " + e.getMessage() + ". Advancements will be disabled.");
     }
 
-    AdvancementTab createAdvancementTab(String namespace) {
-        if (main == null) {
-            throw new IllegalStateException("UltimateAdvancementAPI is unavailable");
-        }
+    main = loadedMain;
+    advancements = new ConcurrentHashMap<>();
+  }
 
-        return main.createAdvancementTab(instance, "adapt_" + namespace);
+  AdvancementTab createAdvancementTab(String namespace) {
+    if (main == null) {
+      throw new IllegalStateException("UltimateAdvancementAPI is unavailable");
     }
 
-    public void grant(AdaptPlayer player, String key, boolean toast) {
-        player.getData().ensureGranted(key);
-        Player p = player.getPlayer();
-        if (!AdaptConfig.get().isAdvancements() || !enabled.get() || runtimeSchedulerUnsupported.get() || p == null || !p.isOnline()) return;
-        Advancement advancement = advancements.get(key);
-        if (advancement == null) {
-            Adapt.verbose("Advancement key '" + key + "' is not registered; skipping grant.");
-            return;
-        }
+    return main.createAdvancementTab(instance, "adapt_" + namespace);
+  }
 
-        J.runEntity(p, () -> {
-            if (!p.isOnline()) {
-                return;
-            }
-
-            attemptGrant(p, advancement, key, toast, true);
-        }, 5);
+  public void grant(AdaptPlayer player, String key, boolean toast) {
+    player.getData().ensureGranted(key);
+    Player p = player.getPlayer();
+    if (!AdaptConfig.get().isAdvancements() || !enabled.get() || runtimeSchedulerUnsupported.get() || p == null || !p.isOnline())
+      return;
+    Advancement advancement = advancements.get(key);
+    if (advancement == null) {
+      Adapt.verbose("Advancement key '" + key + "' is not registered; skipping grant.");
+      return;
     }
 
-    private void attemptGrant(Player player, Advancement advancement, String key, boolean toast, boolean allowRetryOnGlobal) {
-        if (player == null || !player.isOnline()) {
-            return;
-        }
+    J.runEntity(p, () -> {
+      if (!p.isOnline()) {
+        return;
+      }
 
-        try {
-            advancement.grant(player, true);
-        } catch (Throwable t) {
-            if (isUserNotLoadedError(t)) {
-                Adapt.verbose("Skipped advancement grant '" + key + "' because user data is not loaded yet for " + player.getName() + ".");
-                return;
-            }
+      attemptGrant(p, advancement, key, toast, true);
+    }, 5);
+  }
 
-            if (isSchedulerContextMismatch(t)) {
-                if (J.isFoliaThreading()) {
-                    markRuntimeSchedulerUnsupported(t);
-                    return;
-                }
-
-                if (allowRetryOnGlobal) {
-                    J.s(() -> attemptGrant(player, advancement, key, toast, false), 1);
-                    return;
-                }
-            }
-
-            Adapt.warn("Failed to grant advancement '" + key + "' for " + player.getName() + ": " + summarizeThrowable(t));
-            return;
-        }
-
-        if (!toast) {
-            return;
-        }
-
-        try {
-            advancement.displayToastToPlayer(player);
-        } catch (Throwable t) {
-            if (isUserNotLoadedError(t)) {
-                Adapt.verbose("Skipped advancement toast '" + key + "' because user data is not loaded yet for " + player.getName() + ".");
-                return;
-            }
-
-            if (isSchedulerContextMismatch(t)) {
-                if (J.isFoliaThreading()) {
-                    markRuntimeSchedulerUnsupported(t);
-                    return;
-                }
-
-                if (allowRetryOnGlobal) {
-                    J.s(() -> attemptToast(player, advancement, key, false), 1);
-                    return;
-                }
-            }
-
-            Adapt.warn("Failed to display advancement toast '" + key + "' for " + player.getName() + ": " + summarizeThrowable(t));
-        }
+  private void attemptGrant(Player player, Advancement advancement, String key, boolean toast, boolean allowRetryOnGlobal) {
+    if (player == null || !player.isOnline()) {
+      return;
     }
 
-    private void attemptToast(Player player, Advancement advancement, String key, boolean allowRetryOnGlobal) {
-        if (player == null || !player.isOnline()) {
-            return;
+    try {
+      advancement.grant(player, true);
+    } catch (Throwable t) {
+      if (isUserNotLoadedError(t)) {
+        Adapt.verbose("Skipped advancement grant '" + key + "' because user data is not loaded yet for " + player.getName() + ".");
+        return;
+      }
+
+      if (isSchedulerContextMismatch(t)) {
+        if (J.isFoliaThreading()) {
+          markRuntimeSchedulerUnsupported(t);
+          return;
         }
 
-        try {
-            advancement.displayToastToPlayer(player);
-        } catch (Throwable t) {
-            if (isUserNotLoadedError(t)) {
-                Adapt.verbose("Skipped advancement toast '" + key + "' because user data is not loaded yet for " + player.getName() + ".");
-                return;
-            }
-
-            if (isSchedulerContextMismatch(t)) {
-                if (J.isFoliaThreading()) {
-                    markRuntimeSchedulerUnsupported(t);
-                    return;
-                }
-
-                if (allowRetryOnGlobal) {
-                    J.s(() -> attemptToast(player, advancement, key, false), 1);
-                    return;
-                }
-            }
-
-            Adapt.warn("Failed to display advancement toast '" + key + "' for " + player.getName() + ": " + summarizeThrowable(t));
+        if (allowRetryOnGlobal) {
+          J.s(() -> attemptGrant(player, advancement, key, toast, false), 1);
+          return;
         }
+      }
+
+      Adapt.warn("Failed to grant advancement '" + key + "' for " + player.getName() + ": " + summarizeThrowable(t));
+      return;
     }
 
-    private void markRuntimeSchedulerUnsupported(Throwable throwable) {
-        if (!runtimeSchedulerUnsupported.compareAndSet(false, true)) {
-            return;
-        }
-
-        Adapt.info("UltimateAdvancementAPI live packet grants/toasts are unavailable on this Folia runtime; stored advancement grants will continue without live packets/toasts.");
-        if (throwable != null) {
-            Adapt.verbose("UltimateAdvancementAPI fallback cause: " + summarizeThrowable(throwable));
-        }
+    if (!toast) {
+      return;
     }
 
-    private boolean isUserNotLoadedError(Throwable throwable) {
-        Throwable current = throwable;
-        while (current != null) {
-            if ("UserNotLoadedException".equals(current.getClass().getSimpleName())) {
-                return true;
-            }
+    try {
+      advancement.displayToastToPlayer(player);
+    } catch (Throwable t) {
+      if (isUserNotLoadedError(t)) {
+        Adapt.verbose("Skipped advancement toast '" + key + "' because user data is not loaded yet for " + player.getName() + ".");
+        return;
+      }
 
-            current = current.getCause();
+      if (isSchedulerContextMismatch(t)) {
+        if (J.isFoliaThreading()) {
+          markRuntimeSchedulerUnsupported(t);
+          return;
         }
 
-        return false;
+        if (allowRetryOnGlobal) {
+          J.s(() -> attemptToast(player, advancement, key, false), 1);
+          return;
+        }
+      }
+
+      Adapt.warn("Failed to display advancement toast '" + key + "' for " + player.getName() + ": " + summarizeThrowable(t));
+    }
+  }
+
+  private void attemptToast(Player player, Advancement advancement, String key, boolean allowRetryOnGlobal) {
+    if (player == null || !player.isOnline()) {
+      return;
     }
 
-    private boolean isSchedulerContextMismatch(Throwable throwable) {
-        Throwable current = throwable;
-        while (current != null) {
-            if (current instanceof UnsupportedOperationException) {
-                return true;
-            }
+    try {
+      advancement.displayToastToPlayer(player);
+    } catch (Throwable t) {
+      if (isUserNotLoadedError(t)) {
+        Adapt.verbose("Skipped advancement toast '" + key + "' because user data is not loaded yet for " + player.getName() + ".");
+        return;
+      }
 
-            String message = current.getMessage();
-            if (message != null) {
-                String lower = message.toLowerCase(Locale.ROOT);
-                if (lower.contains("thread")
-                        || lower.contains("scheduler")
-                        || lower.contains("region")
-                        || lower.contains("primary thread")
-                        || lower.contains("asynchronously")) {
-                    return true;
-                }
-            }
-
-            current = current.getCause();
+      if (isSchedulerContextMismatch(t)) {
+        if (J.isFoliaThreading()) {
+          markRuntimeSchedulerUnsupported(t);
+          return;
         }
 
-        return false;
+        if (allowRetryOnGlobal) {
+          J.s(() -> attemptToast(player, advancement, key, false), 1);
+          return;
+        }
+      }
+
+      Adapt.warn("Failed to display advancement toast '" + key + "' for " + player.getName() + ": " + summarizeThrowable(t));
+    }
+  }
+
+  private void markRuntimeSchedulerUnsupported(Throwable throwable) {
+    if (!runtimeSchedulerUnsupported.compareAndSet(false, true)) {
+      return;
     }
 
-    private String summarizeThrowable(Throwable throwable) {
-        if (throwable == null) {
-            return "unknown";
-        }
+    Adapt.info("UltimateAdvancementAPI live packet grants/toasts are unavailable on this Folia runtime; stored advancement grants will continue without live packets/toasts.");
+    if (throwable != null) {
+      Adapt.verbose("UltimateAdvancementAPI fallback cause: " + summarizeThrowable(throwable));
+    }
+  }
 
-        Throwable root = throwable;
-        while (root.getCause() != null && root.getCause() != root) {
-            root = root.getCause();
-        }
+  private boolean isUserNotLoadedError(Throwable throwable) {
+    Throwable current = throwable;
+    while (current != null) {
+      if ("UserNotLoadedException".equals(current.getClass().getSimpleName())) {
+        return true;
+      }
 
-        StringBuilder summary = new StringBuilder(throwable.getClass().getSimpleName());
-        appendMessage(summary, throwable.getMessage());
-
-        if (root != throwable) {
-            summary.append(" | cause=").append(root.getClass().getSimpleName());
-            appendMessage(summary, root.getMessage());
-        }
-
-        return summary.toString();
+      current = current.getCause();
     }
 
-    private void appendMessage(StringBuilder builder, String message) {
-        if (message != null && !message.isBlank()) {
-            builder.append(": ").append(message);
+    return false;
+  }
+
+  private boolean isSchedulerContextMismatch(Throwable throwable) {
+    Throwable current = throwable;
+    while (current != null) {
+      if (current instanceof UnsupportedOperationException) {
+        return true;
+      }
+
+      String message = current.getMessage();
+      if (message != null) {
+        String lower = message.toLowerCase(Locale.ROOT);
+        if (lower.contains("thread")
+            || lower.contains("scheduler")
+            || lower.contains("region")
+            || lower.contains("primary thread")
+            || lower.contains("asynchronously")) {
+          return true;
         }
+      }
+
+      current = current.getCause();
     }
 
-    public void unlockExisting(AdaptPlayer player, AdvancementHandler handler) {
-        if (!AdaptConfig.get().isAdvancements() || !enabled.get()) return;
-        if (player == null || handler == null) {
-            return;
-        }
+    return false;
+  }
 
-        Player target = player.getPlayer();
-        if (target == null || !target.isOnline()) {
-            return;
-        }
-
-        if (runtimeSchedulerUnsupported.get()) {
-            handler.setReady(true);
-            return;
-        }
-
-        J.runEntity(target, () -> {
-            instance.getAdaptServer()
-                    .getSkillRegistry()
-                    .getSkills()
-                    .stream()
-                    .map(Skill::buildAdvancements)
-                    .forEach(aa -> unlockExisting(player, aa));
-
-            handler.setReady(true);
-        }, 20);
+  private String summarizeThrowable(Throwable throwable) {
+    if (throwable == null) {
+      return "unknown";
     }
 
-    private void unlockExisting(AdaptPlayer player, AdaptAdvancement aa) {
-        if (aa.getChildren() != null) {
-            for (AdaptAdvancement i : aa.getChildren()) {
-                unlockExisting(player, i);
-            }
-        }
-
-        if (player.getData().isGranted(aa.getKey())) {
-            grant(player, aa.getKey(), false);
-        }
+    Throwable root = throwable;
+    while (root.getCause() != null && root.getCause() != root) {
+      root = root.getCause();
     }
 
-    public void enable() {
-        if (main == null) {
-            return;
-        }
+    StringBuilder summary = new StringBuilder(throwable.getClass().getSimpleName());
+    appendMessage(summary, throwable.getMessage());
 
-        runtimeSchedulerUnsupported.set(false);
-
-        if (loaded.compareAndSet(false, true))
-            main.load();
-
-        if (!AdaptConfig.get().isAdvancements() || !enabled.compareAndSet(false, true))
-            return;
-        if (AdaptConfig.get().isUseSql()) {
-            AdaptConfig.SqlSettings sql = AdaptConfig.get().getSql();
-            main.enableMySQL(sql.getUsername(), sql.getPassword(), sql.getDatabase(), sql.getHost(), sql.getPort(), sql.getPoolSize(), sql.getConnectionTimeout());
-        } else {
-            main.enableSQLite(instance.getDataFile("data", "advancements.db"));
-        }
-
-        if (J.isFoliaThreading() && isLegacyAsyncSchedulerUnsupported()) {
-            markRuntimeSchedulerUnsupported(null);
-        }
-
-        for (Skill<?> i : instance.getAdaptServer().getSkillRegistry().getSkills()) {
-            AdaptAdvancement aa = i.buildAdvancements();
-            Set<BaseAdvancement> set = new HashSet<>();
-            RootAdvancement root = null;
-
-            for (var a : aa.toAdvancements().reverse()) {
-                advancements.put(a.getKey().getKey(), a);
-                if (a instanceof RootAdvancement r && root == null) root = r;
-                else if (a instanceof BaseAdvancement b) set.add(b);
-            }
-
-            if (root == null) {
-                Adapt.error("Root advancement not found for " + i.getId());
-                continue;
-            }
-            root.getAdvancementTab().registerAdvancements(root, set);
-        }
+    if (root != throwable) {
+      summary.append(" | cause=").append(root.getClass().getSimpleName());
+      appendMessage(summary, root.getMessage());
     }
 
-    public void disable() {
-        if (main == null) {
-            enabled.set(false);
-            loaded.set(false);
-            runtimeSchedulerUnsupported.set(false);
-            return;
-        }
+    return summary.toString();
+  }
 
-        main.disable();
-        enabled.set(false);
-        loaded.set(false);
-        runtimeSchedulerUnsupported.set(false);
+  private void appendMessage(StringBuilder builder, String message) {
+    if (message != null && !message.isBlank()) {
+      builder.append(": ").append(message);
+    }
+  }
+
+  public void unlockExisting(AdaptPlayer player, AdvancementHandler handler) {
+    if (!AdaptConfig.get().isAdvancements() || !enabled.get()) return;
+    if (player == null || handler == null) {
+      return;
     }
 
-    private boolean isLegacyAsyncSchedulerUnsupported() {
-        try {
-            BukkitTask probe = Bukkit.getScheduler().runTaskTimerAsynchronously(instance, () -> {
-            }, 1L, 1L);
-            probe.cancel();
-            return false;
-        } catch (UnsupportedOperationException ignored) {
-            return true;
-        } catch (Throwable ignored) {
-            return false;
-        }
+    Player target = player.getPlayer();
+    if (target == null || !target.isOnline()) {
+      return;
     }
+
+    if (runtimeSchedulerUnsupported.get()) {
+      handler.setReady(true);
+      return;
+    }
+
+    J.runEntity(target, () -> {
+      instance.getAdaptServer()
+          .getSkillRegistry()
+          .getSkills()
+          .stream()
+          .map(Skill::buildAdvancements)
+          .forEach(aa -> unlockExisting(player, aa));
+
+      handler.setReady(true);
+    }, 20);
+  }
+
+  private void unlockExisting(AdaptPlayer player, AdaptAdvancement aa) {
+    if (aa.getChildren() != null) {
+      for (AdaptAdvancement i : aa.getChildren()) {
+        unlockExisting(player, i);
+      }
+    }
+
+    if (player.getData().isGranted(aa.getKey())) {
+      grant(player, aa.getKey(), false);
+    }
+  }
+
+  public void enable() {
+    if (main == null) {
+      return;
+    }
+
+    runtimeSchedulerUnsupported.set(false);
+
+    if (loaded.compareAndSet(false, true))
+      main.load();
+
+    if (!AdaptConfig.get().isAdvancements() || !enabled.compareAndSet(false, true))
+      return;
+    if (AdaptConfig.get().isUseSql()) {
+      AdaptConfig.SqlSettings sql = AdaptConfig.get().getSql();
+      main.enableMySQL(sql.getUsername(), sql.getPassword(), sql.getDatabase(), sql.getHost(), sql.getPort(), sql.getPoolSize(), sql.getConnectionTimeout());
+    } else {
+      main.enableSQLite(instance.getDataFile("data", "advancements.db"));
+    }
+
+    if (J.isFoliaThreading() && isLegacyAsyncSchedulerUnsupported()) {
+      markRuntimeSchedulerUnsupported(null);
+    }
+
+    for (Skill<?> i : instance.getAdaptServer().getSkillRegistry().getSkills()) {
+      AdaptAdvancement aa = i.buildAdvancements();
+      Set<BaseAdvancement> set = new HashSet<>();
+      RootAdvancement root = null;
+
+      for (com.fren_gor.ultimateAdvancementAPI.advancement.Advancement a : aa.toAdvancements().reverse()) {
+        advancements.put(a.getKey().getKey(), a);
+        if (a instanceof RootAdvancement r && root == null) root = r;
+        else if (a instanceof BaseAdvancement b) set.add(b);
+      }
+
+      if (root == null) {
+        Adapt.error("Root advancement not found for " + i.getId());
+        continue;
+      }
+      root.getAdvancementTab().registerAdvancements(root, set);
+    }
+  }
+
+  public void disable() {
+    if (main == null) {
+      enabled.set(false);
+      loaded.set(false);
+      runtimeSchedulerUnsupported.set(false);
+      return;
+    }
+
+    main.disable();
+    enabled.set(false);
+    loaded.set(false);
+    runtimeSchedulerUnsupported.set(false);
+  }
+
+  private boolean isLegacyAsyncSchedulerUnsupported() {
+    try {
+      BukkitTask probe = Bukkit.getScheduler().runTaskTimerAsynchronously(instance, () -> {
+      }, 1L, 1L);
+      probe.cancel();
+      return false;
+    } catch (UnsupportedOperationException ignored) {
+      return true;
+    } catch (Throwable ignored) {
+      return false;
+    }
+  }
 }

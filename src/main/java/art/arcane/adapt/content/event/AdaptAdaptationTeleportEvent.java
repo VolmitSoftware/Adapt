@@ -24,12 +24,12 @@ import lombok.Getter;
 import org.bukkit.Location;
 
 public class AdaptAdaptationTeleportEvent extends AdaptAdaptationEvent {
-    @Getter
-    Location fromLocation, toLocation;
+  @Getter
+  Location fromLocation, toLocation;
 
-    public AdaptAdaptationTeleportEvent(boolean async, AdaptPlayer player, Adaptation<?> adaptation, Location fromLocation, Location toLocation) {
-        super(async, player, adaptation);
-        this.fromLocation = fromLocation;
-        this.toLocation = toLocation;
-    }
+  public AdaptAdaptationTeleportEvent(boolean async, AdaptPlayer player, Adaptation<?> adaptation, Location fromLocation, Location toLocation) {
+    super(async, player, adaptation);
+    this.fromLocation = fromLocation;
+    this.toLocation = toLocation;
+  }
 }

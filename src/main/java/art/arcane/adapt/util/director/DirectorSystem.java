@@ -23,25 +23,26 @@ import art.arcane.adapt.Adapt;
 import art.arcane.volmlib.util.collection.KList;
 import art.arcane.volmlib.util.director.DirectorParameterHandler;
 import art.arcane.volmlib.util.director.DirectorSystemSupport;
+
 public final class DirectorSystem {
-    public static final KList<DirectorParameterHandler<?>> handlers = Adapt.initialize("art.arcane.adapt.util.director.handlers", null).convert((i) -> (DirectorParameterHandler<?>) i);
+  public static final KList<DirectorParameterHandler<?>> handlers = Adapt.initialize("art.arcane.adapt.util.director.handlers", null).convert((i) -> (DirectorParameterHandler<?>) i);
 
-    private DirectorSystem() {
+  private DirectorSystem() {
+  }
+
+  /**
+   * Get the handler for the specified type
+   *
+   * @param type The type to handle
+   * @return The corresponding {@link DirectorParameterHandler}, or null
+   */
+  public static DirectorParameterHandler<?> getHandler(Class<?> type) {
+    DirectorParameterHandler<?> handler = DirectorSystemSupport.getHandler(handlers, type, (h, t) -> h.supports(t));
+    if (handler != null) {
+      return handler;
     }
 
-    /**
-     * Get the handler for the specified type
-     *
-     * @param type The type to handle
-     * @return The corresponding {@link DirectorParameterHandler}, or null
-     */
-    public static DirectorParameterHandler<?> getHandler(Class<?> type) {
-        DirectorParameterHandler<?> handler = DirectorSystemSupport.getHandler(handlers, type, (h, t) -> h.supports(t));
-        if (handler != null) {
-            return handler;
-        }
-
-        Adapt.error("Unhandled type in Director Parameter: " + type.getName() + ". This is bad!");
-        return null;
-    }
+    Adapt.error("Unhandled type in Director Parameter: " + type.getName() + ". This is bad!");
+    return null;
+  }
 }

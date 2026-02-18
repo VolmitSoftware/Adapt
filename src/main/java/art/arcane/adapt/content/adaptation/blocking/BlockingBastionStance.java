@@ -25,10 +25,10 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
+import art.arcane.volmlib.util.inventorygui.Element;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -44,175 +44,175 @@ import org.bukkit.util.Vector;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class BlockingBastionStance extends SimpleAdaptation<BlockingBastionStance.Config> {
-    public BlockingBastionStance() {
-        super("blocking-bastion-stance");
-        registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("blocking.bastion_stance.description"));
-        setDisplayName(Localizer.dLocalize("blocking.bastion_stance.name"));
-        setIcon(Material.SHIELD);
-        setBaseCost(getConfig().baseCost);
-        setMaxLevel(getConfig().maxLevel);
-        setInitialCost(getConfig().initialCost);
-        setCostFactor(getConfig().costFactor);
-        setInterval(2000);
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.SHIELD)
-                .key("challenge_blocking_bastion_500")
-                .title(Localizer.dLocalize("advancement.challenge_blocking_bastion_500.title"))
-                .description(Localizer.dLocalize("advancement.challenge_blocking_bastion_500.description"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .build());
-        registerMilestone("challenge_blocking_bastion_500", "blocking.bastion-stance.projectiles-softened", 500, 500);
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.SHIELD)
-                .key("challenge_blocking_bastion_10")
-                .title(Localizer.dLocalize("advancement.challenge_blocking_bastion_10.title"))
-                .description(Localizer.dLocalize("advancement.challenge_blocking_bastion_10.description"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .build());
+  public BlockingBastionStance() {
+    super("blocking-bastion-stance");
+    registerConfiguration(Config.class);
+    setDescription(Localizer.dLocalize("blocking.bastion_stance.description"));
+    setDisplayName(Localizer.dLocalize("blocking.bastion_stance.name"));
+    setIcon(Material.SHIELD);
+    setBaseCost(getConfig().baseCost);
+    setMaxLevel(getConfig().maxLevel);
+    setInitialCost(getConfig().initialCost);
+    setCostFactor(getConfig().costFactor);
+    setInterval(2000);
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.SHIELD)
+        .key("challenge_blocking_bastion_500")
+        .title(Localizer.dLocalize("advancement.challenge_blocking_bastion_500.title"))
+        .description(Localizer.dLocalize("advancement.challenge_blocking_bastion_500.description"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .build());
+    registerMilestone("challenge_blocking_bastion_500", "blocking.bastion-stance.projectiles-softened", 500, 500);
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.SHIELD)
+        .key("challenge_blocking_bastion_10")
+        .title(Localizer.dLocalize("advancement.challenge_blocking_bastion_10.title"))
+        .description(Localizer.dLocalize("advancement.challenge_blocking_bastion_10.description"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .build());
+  }
+
+  @Override
+  public void addStats(int level, Element v) {
+    v.addLore(C.GREEN + "+ " + Form.pc(getKnockbackReduction(level), 0) + C.GRAY + " " + Localizer.dLocalize("blocking.bastion_stance.lore1"));
+    v.addLore(C.GREEN + "+ " + Form.pc(getProjectileReduction(level), 0) + C.GRAY + " " + Localizer.dLocalize("blocking.bastion_stance.lore2"));
+    v.addLore(C.GREEN + "+ " + Form.pc(getProjectileNegateChance(level), 0) + C.GRAY + " " + Localizer.dLocalize("blocking.bastion_stance.lore3"));
+  }
+
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void on(EntityDamageByEntityEvent e) {
+    if (!(e.getEntity() instanceof Player defender) || !isBastionStance(defender)) {
+      return;
     }
 
-    @Override
-    public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getKnockbackReduction(level), 0) + C.GRAY + " " + Localizer.dLocalize("blocking.bastion_stance.lore1"));
-        v.addLore(C.GREEN + "+ " + Form.pc(getProjectileReduction(level), 0) + C.GRAY + " " + Localizer.dLocalize("blocking.bastion_stance.lore2"));
-        v.addLore(C.GREEN + "+ " + Form.pc(getProjectileNegateChance(level), 0) + C.GRAY + " " + Localizer.dLocalize("blocking.bastion_stance.lore3"));
+    if (!(e.getDamager() instanceof Projectile)) {
+      return;
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void on(EntityDamageByEntityEvent e) {
-        if (!(e.getEntity() instanceof Player defender) || !isBastionStance(defender)) {
-            return;
-        }
-
-        if (!(e.getDamager() instanceof Projectile)) {
-            return;
-        }
-
-        int level = getActiveLevel(defender);
-        if (level <= 0) {
-            return;
-        }
-
-        // Track session counter for special achievement
-        int sessionCount = getStorageInt(defender, "bastionSessionCount", 0) + 1;
-        setStorage(defender, "bastionSessionCount", sessionCount);
-        if (sessionCount >= 10 && AdaptConfig.get().isAdvancements() && !getPlayer(defender).getData().isGranted("challenge_blocking_bastion_10")) {
-            getPlayer(defender).getAdvancementHandler().grant("challenge_blocking_bastion_10");
-        }
-
-        if (ThreadLocalRandom.current().nextDouble() <= getProjectileNegateChance(level)) {
-            e.setCancelled(true);
-            SoundPlayer.of(defender.getWorld()).play(defender.getLocation(), Sound.ITEM_SHIELD_BLOCK, 1f, 0.9f);
-            xp(defender, getConfig().xpOnNegate);
-            getPlayer(defender).getData().addStat("blocking.bastion-stance.projectiles-softened", 1);
-            return;
-        }
-
-        e.setDamage(Math.max(0, e.getDamage() * (1D - getProjectileReduction(level))));
-        SoundPlayer.of(defender.getWorld()).play(defender.getLocation(), Sound.ITEM_SHIELD_BLOCK, 0.75f, 0.75f);
-        xp(defender, e.getDamage() * getConfig().xpPerMitigatedDamage);
-        getPlayer(defender).getData().addStat("blocking.bastion-stance.projectiles-softened", 1);
+    int level = getActiveLevel(defender);
+    if (level <= 0) {
+      return;
     }
 
-    @EventHandler(priority = EventPriority.HIGH)
-    public void on(PlayerVelocityEvent e) {
-        Player p = e.getPlayer();
-        int level = getActiveLevel(p);
-        if (!isBastionStance(p, level)) {
-            return;
-        }
-
-        double factor = 1D - getKnockbackReduction(level);
-        Vector v = e.getVelocity();
-        e.setVelocity(new Vector(v.getX() * factor, v.getY(), v.getZ() * factor));
+    // Track session counter for special achievement
+    int sessionCount = getStorageInt(defender, "bastionSessionCount", 0) + 1;
+    setStorage(defender, "bastionSessionCount", sessionCount);
+    if (sessionCount >= 10 && AdaptConfig.get().isAdvancements() && !getPlayer(defender).getData().isGranted("challenge_blocking_bastion_10")) {
+      getPlayer(defender).getAdvancementHandler().grant("challenge_blocking_bastion_10");
     }
 
-    private boolean isBastionStance(Player p) {
-        return isBastionStance(p, getActiveLevel(p));
+    if (ThreadLocalRandom.current().nextDouble() <= getProjectileNegateChance(level)) {
+      e.setCancelled(true);
+      SoundPlayer.of(defender.getWorld()).play(defender.getLocation(), Sound.ITEM_SHIELD_BLOCK, 1f, 0.9f);
+      xp(defender, getConfig().xpOnNegate);
+      getPlayer(defender).getData().addStat("blocking.bastion-stance.projectiles-softened", 1);
+      return;
     }
 
-    private boolean isBastionStance(Player p, int level) {
-        return level > 0 && p.isBlocking() && p.isSneaking() && hasShield(p);
+    e.setDamage(Math.max(0, e.getDamage() * (1D - getProjectileReduction(level))));
+    SoundPlayer.of(defender.getWorld()).play(defender.getLocation(), Sound.ITEM_SHIELD_BLOCK, 0.75f, 0.75f);
+    xp(defender, e.getDamage() * getConfig().xpPerMitigatedDamage);
+    getPlayer(defender).getData().addStat("blocking.bastion-stance.projectiles-softened", 1);
+  }
+
+  @EventHandler(priority = EventPriority.HIGH)
+  public void on(PlayerVelocityEvent e) {
+    Player p = e.getPlayer();
+    int level = getActiveLevel(p);
+    if (!isBastionStance(p, level)) {
+      return;
     }
 
-    private boolean hasShield(Player p) {
-        ItemStack main = p.getInventory().getItemInMainHand();
-        ItemStack off = p.getInventory().getItemInOffHand();
-        return (isItem(main) && main.getType() == Material.SHIELD) || (isItem(off) && off.getType() == Material.SHIELD);
-    }
+    double factor = 1D - getKnockbackReduction(level);
+    Vector v = e.getVelocity();
+    e.setVelocity(new Vector(v.getX() * factor, v.getY(), v.getZ() * factor));
+  }
 
-    private double getKnockbackReduction(int level) {
-        return Math.min(getConfig().maxKnockbackReduction, getConfig().knockbackReductionBase + (getLevelPercent(level) * getConfig().knockbackReductionFactor));
-    }
+  private boolean isBastionStance(Player p) {
+    return isBastionStance(p, getActiveLevel(p));
+  }
 
-    private double getProjectileReduction(int level) {
-        return Math.min(getConfig().maxProjectileReduction, getConfig().projectileReductionBase + (getLevelPercent(level) * getConfig().projectileReductionFactor));
-    }
+  private boolean isBastionStance(Player p, int level) {
+    return level > 0 && p.isBlocking() && p.isSneaking() && hasShield(p);
+  }
 
-    private double getProjectileNegateChance(int level) {
-        return Math.min(getConfig().maxProjectileNegateChance, getConfig().projectileNegateChanceBase + (getLevelPercent(level) * getConfig().projectileNegateChanceFactor));
-    }
+  private boolean hasShield(Player p) {
+    ItemStack main = p.getInventory().getItemInMainHand();
+    ItemStack off = p.getInventory().getItemInOffHand();
+    return (isItem(main) && main.getType() == Material.SHIELD) || (isItem(off) && off.getType() == Material.SHIELD);
+  }
 
-    @Override
-    public void onTick() {
-        for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
-            Player p = adaptPlayer.getPlayer();
-            int level = getActiveLevel(p);
-            if (level > 0 && !isBastionStance(p, level)) {
-                setStorage(p, "bastionSessionCount", 0);
-            }
-        }
-    }
+  private double getKnockbackReduction(int level) {
+    return Math.min(getConfig().maxKnockbackReduction, getConfig().knockbackReductionBase + (getLevelPercent(level) * getConfig().knockbackReductionFactor));
+  }
 
-    @Override
-    public boolean isEnabled() {
-        return getConfig().enabled;
-    }
+  private double getProjectileReduction(int level) {
+    return Math.min(getConfig().maxProjectileReduction, getConfig().projectileReductionBase + (getLevelPercent(level) * getConfig().projectileReductionFactor));
+  }
 
-    @Override
-    public boolean isPermanent() {
-        return getConfig().permanent;
-    }
+  private double getProjectileNegateChance(int level) {
+    return Math.min(getConfig().maxProjectileNegateChance, getConfig().projectileNegateChanceBase + (getLevelPercent(level) * getConfig().projectileNegateChanceFactor));
+  }
 
-    @NoArgsConstructor
-    @ConfigDescription("Sneak-block with a shield to brace against knockback and soften projectiles.")
-    protected static class Config {
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-        boolean permanent = false;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-        boolean enabled = true;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-        int baseCost = 4;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-        int maxLevel = 5;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-        int initialCost = 4;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-        double costFactor = 0.68;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Knockback Reduction Base for the Blocking Bastion Stance adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double knockbackReductionBase = 0.18;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Knockback Reduction Factor for the Blocking Bastion Stance adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double knockbackReductionFactor = 0.52;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Knockback Reduction for the Blocking Bastion Stance adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double maxKnockbackReduction = 0.75;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Projectile Reduction Base for the Blocking Bastion Stance adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double projectileReductionBase = 0.12;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Projectile Reduction Factor for the Blocking Bastion Stance adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double projectileReductionFactor = 0.5;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Projectile Reduction for the Blocking Bastion Stance adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double maxProjectileReduction = 0.7;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Projectile Negate Chance Base for the Blocking Bastion Stance adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double projectileNegateChanceBase = 0.05;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Projectile Negate Chance Factor for the Blocking Bastion Stance adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double projectileNegateChanceFactor = 0.22;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Projectile Negate Chance for the Blocking Bastion Stance adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double maxProjectileNegateChance = 0.35;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Mitigated Damage for the Blocking Bastion Stance adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double xpPerMitigatedDamage = 2.5;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp On Negate for the Blocking Bastion Stance adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double xpOnNegate = 8.0;
+  @Override
+  public void onTick() {
+    for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+      Player p = adaptPlayer.getPlayer();
+      int level = getActiveLevel(p);
+      if (level > 0 && !isBastionStance(p, level)) {
+        setStorage(p, "bastionSessionCount", 0);
+      }
     }
+  }
+
+  @Override
+  public boolean isEnabled() {
+    return getConfig().enabled;
+  }
+
+  @Override
+  public boolean isPermanent() {
+    return getConfig().permanent;
+  }
+
+  @NoArgsConstructor
+  @ConfigDescription("Sneak-block with a shield to brace against knockback and soften projectiles.")
+  protected static class Config {
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
+    boolean permanent = false;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
+    boolean enabled = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
+    int baseCost = 4;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
+    int maxLevel = 5;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
+    int initialCost = 4;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
+    double costFactor = 0.68;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Knockback Reduction Base for the Blocking Bastion Stance adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double knockbackReductionBase = 0.18;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Knockback Reduction Factor for the Blocking Bastion Stance adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double knockbackReductionFactor = 0.52;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Knockback Reduction for the Blocking Bastion Stance adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double maxKnockbackReduction = 0.75;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Projectile Reduction Base for the Blocking Bastion Stance adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double projectileReductionBase = 0.12;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Projectile Reduction Factor for the Blocking Bastion Stance adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double projectileReductionFactor = 0.5;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Projectile Reduction for the Blocking Bastion Stance adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double maxProjectileReduction = 0.7;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Projectile Negate Chance Base for the Blocking Bastion Stance adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double projectileNegateChanceBase = 0.05;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Projectile Negate Chance Factor for the Blocking Bastion Stance adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double projectileNegateChanceFactor = 0.22;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Projectile Negate Chance for the Blocking Bastion Stance adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double maxProjectileNegateChance = 0.35;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Mitigated Damage for the Blocking Bastion Stance adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double xpPerMitigatedDamage = 2.5;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp On Negate for the Blocking Bastion Stance adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double xpOnNegate = 8.0;
+  }
 }

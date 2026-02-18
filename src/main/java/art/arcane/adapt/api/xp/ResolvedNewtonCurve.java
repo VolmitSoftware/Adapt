@@ -19,9 +19,9 @@
 package art.arcane.adapt.api.xp;
 
 public interface ResolvedNewtonCurve extends NewtonCurve {
-    double getLevelForXP(double xp);
+  double getLevelForXP(double xp);
 
-    default double computeLevelForXP(double xp, double maxError) {
-        return getLevelForXP(xp);
-    }
+  default double computeLevelForXP(double xp, double maxError) {
+    return getLevelForXP(xp);
+  }
 }

@@ -27,25 +27,25 @@ import org.bukkit.potion.PotionEffectType;
 import java.util.List;
 
 public abstract class PotionItem implements DataItem<PotionItem.Data> {
-    @Override
-    public Class<Data> getType() {
-        return Data.class;
-    }
+  @Override
+  public Class<Data> getType() {
+    return Data.class;
+  }
 
-    @Override
-    public void applyLore(Data data, List<String> lore) {
-        lore.add(C.GREEN + "Grants " + data.getType().getName() + " " + Form.toRoman(data.getPower() + 1));
-    }
+  @Override
+  public void applyLore(Data data, List<String> lore) {
+    lore.add(C.GREEN + "Grants " + data.getType().getName() + " " + Form.toRoman(data.getPower() + 1));
+  }
 
-    @Override
-    public void applyMeta(Data data, ItemMeta meta) {
+  @Override
+  public void applyMeta(Data data, ItemMeta meta) {
 
-    }
+  }
 
-    @lombok.Data
-    @NoArgsConstructor
-    public static class Data {
-        private PotionEffectType type;
-        private int power;
-    }
+  @lombok.Data
+  @NoArgsConstructor
+  public static class Data {
+    private PotionEffectType type;
+    private int power;
+  }
 }

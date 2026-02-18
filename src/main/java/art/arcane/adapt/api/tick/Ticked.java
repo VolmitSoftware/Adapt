@@ -22,45 +22,45 @@ import art.arcane.adapt.api.world.AdaptComponent;
 import art.arcane.volmlib.util.math.M;
 
 public interface Ticked extends AdaptComponent {
-    default void retick() {
-        burst(1);
-    }
+  default void retick() {
+    burst(1);
+  }
 
-    default void skip() {
-        skip(1);
-    }
+  default void skip() {
+    skip(1);
+  }
 
-    void unregister();
+  void unregister();
 
-    boolean isBursting();
+  boolean isBursting();
 
-    boolean isSkipping();
+  boolean isSkipping();
 
-    void stopBursting();
+  void stopBursting();
 
-    void stopSkipping();
+  void stopSkipping();
 
-    long getTickCount();
+  long getTickCount();
 
-    long getAge();
+  long getAge();
 
-    void burst(int ticks);
+  void burst(int ticks);
 
-    void skip(int ticks);
+  void skip(int ticks);
 
-    long getLastTick();
+  long getLastTick();
 
-    long getInterval();
+  long getInterval();
 
-    void setInterval(long ms);
+  void setInterval(long ms);
 
-    void tick();
+  void tick();
 
-    String getGroup();
+  String getGroup();
 
-    String getId();
+  String getId();
 
-    default boolean shouldTick() {
-        return M.ms() - getLastTick() > getInterval();
-    }
+  default boolean shouldTick() {
+    return M.ms() - getLastTick() > getInterval();
+  }
 }

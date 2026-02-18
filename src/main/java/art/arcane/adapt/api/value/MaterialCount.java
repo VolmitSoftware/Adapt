@@ -25,6 +25,6 @@ import org.bukkit.Material;
 @AllArgsConstructor
 @Data
 public class MaterialCount {
-    private Material material;
-    private int amount;
+  private Material material;
+  private int amount;
 }

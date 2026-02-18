@@ -28,15 +28,16 @@ import art.arcane.adapt.content.event.AdaptAdaptationTeleportEvent;
 import art.arcane.adapt.content.item.BoundEyeOfEnder;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.inventorygui.Element;
 import lombok.NoArgsConstructor;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.EquipmentSlot;
@@ -45,241 +46,234 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
-    public RiftGate() {
-        super("rift-gate");
-        registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("rift.gate.description"));
-        setDisplayName(Localizer.dLocalize("rift.gate.name"));
-        setIcon(Material.RESPAWN_ANCHOR);
-        setBaseCost(0);
-        setCostFactor(0);
-        setMaxLevel(1);
-        setInitialCost(30);
-        setInterval(1322);
-        registerRecipe(AdaptRecipe.shapeless()
-                .key("rift-recall-gate")
-                .ingredient(Material.ENDER_PEARL)
-                .ingredient(Material.AMETHYST_SHARD)
-                .ingredient(Material.EMERALD)
-                .result(BoundEyeOfEnder.io.withData(new BoundEyeOfEnder.Data(null)))
-                .build());
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.ENDER_PEARL)
-                .key("challenge_rift_gate_100")
-                .title(Localizer.dLocalize("advancement.challenge_rift_gate_100.title"))
-                .description(Localizer.dLocalize("advancement.challenge_rift_gate_100.description"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .child(AdaptAdvancement.builder()
-                        .icon(Material.ENDER_EYE)
-                        .key("challenge_rift_gate_50k_dist")
-                        .title(Localizer.dLocalize("advancement.challenge_rift_gate_50k_dist.title"))
-                        .description(Localizer.dLocalize("advancement.challenge_rift_gate_50k_dist.description"))
-                        .frame(AdaptAdvancementFrame.CHALLENGE)
-                        .visibility(AdvancementVisibility.PARENT_GRANTED)
-                        .build())
-                .build());
-        registerMilestone("challenge_rift_gate_100", "rift.gate.teleports", 100, 400);
-        registerMilestone("challenge_rift_gate_50k_dist", "rift.gate.total-distance", 50000, 1500);
+  public RiftGate() {
+    super("rift-gate");
+    registerConfiguration(Config.class);
+    setDescription(Localizer.dLocalize("rift.gate.description"));
+    setDisplayName(Localizer.dLocalize("rift.gate.name"));
+    setIcon(Material.RESPAWN_ANCHOR);
+    setBaseCost(0);
+    setCostFactor(0);
+    setMaxLevel(1);
+    setInitialCost(30);
+    setInterval(1322);
+    registerRecipe(AdaptRecipe.shapeless()
+        .key("rift-recall-gate")
+        .ingredient(Material.ENDER_PEARL)
+        .ingredient(Material.AMETHYST_SHARD)
+        .ingredient(Material.EMERALD)
+        .result(BoundEyeOfEnder.io.withData(new BoundEyeOfEnder.Data(null)))
+        .build());
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.ENDER_PEARL)
+        .key("challenge_rift_gate_100")
+        .title(Localizer.dLocalize("advancement.challenge_rift_gate_100.title"))
+        .description(Localizer.dLocalize("advancement.challenge_rift_gate_100.description"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .child(AdaptAdvancement.builder()
+            .icon(Material.ENDER_EYE)
+            .key("challenge_rift_gate_50k_dist")
+            .title(Localizer.dLocalize("advancement.challenge_rift_gate_50k_dist.title"))
+            .description(Localizer.dLocalize("advancement.challenge_rift_gate_50k_dist.description"))
+            .frame(AdaptAdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .build())
+        .build());
+    registerMilestone("challenge_rift_gate_100", "rift.gate.teleports", 100, 400);
+    registerMilestone("challenge_rift_gate_50k_dist", "rift.gate.total-distance", 50000, 1500);
+  }
+
+  @Override
+  public void addStats(int level, Element v) {
+    v.addLore(C.YELLOW + Localizer.dLocalize("rift.gate.lore1"));
+    v.addLore(C.RED + Localizer.dLocalize("rift.gate.lore2"));
+    v.addLore(C.ITALIC + Localizer.dLocalize("rift.gate.lore3") + C.UNDERLINE + C.RED + Localizer.dLocalize("rift.gate.lore4"));
+  }
+
+
+  @EventHandler
+  public void on(PlayerInteractEvent e) {
+    Player p = e.getPlayer();
+    ItemStack hand = p.getInventory().getItemInMainHand();
+    ItemStack offHand = p.getInventory().getItemInOffHand();
+    Location location = e.getClickedBlock() == null ? p.getLocation() : e.getClickedBlock().getLocation();
+
+    // Deny usage if the offhand contains a bindable item
+    if (BoundEyeOfEnder.isBindableItem(offHand) && e.getHand() != null && e.getHand().equals(EquipmentSlot.OFF_HAND)) {
+      e.setCancelled(true);
+      return;
     }
 
-    @Override
-    public void addStats(int level, Element v) {
-        v.addLore(C.YELLOW + Localizer.dLocalize("rift.gate.lore1"));
-        v.addLore(C.RED + Localizer.dLocalize("rift.gate.lore2"));
-        v.addLore(C.ITALIC + Localizer.dLocalize("rift.gate.lore3") + C.UNDERLINE + C.RED + Localizer.dLocalize("rift.gate.lore4"));
-    }
+    if (p.getInventory().getItemInMainHand().getType().equals(Material.ENDER_EYE)
+        && !p.hasCooldown(Material.ENDER_EYE)
+        && hasActiveAdaptation(p)
+        && BoundEyeOfEnder.isBindableItem(hand)) {
 
-
-    @EventHandler
-    public void on(PlayerInteractEvent e) {
-        Player p = e.getPlayer();
-        ItemStack hand = p.getInventory().getItemInMainHand();
-        ItemStack offHand = p.getInventory().getItemInOffHand();
-        Location location = e.getClickedBlock() == null ? p.getLocation() : e.getClickedBlock().getLocation();
-
-        // Deny usage if the offhand contains a bindable item
-        if (BoundEyeOfEnder.isBindableItem(offHand) && e.getHand() != null && e.getHand().equals(EquipmentSlot.OFF_HAND)) {
-            e.setCancelled(true);
-            return;
+      e.setCancelled(true);
+      Adapt.verbose(" - Player Main hand: " + hand.getType());
+      Action action = e.getAction();
+      if (action == Action.LEFT_CLICK_BLOCK || action == Action.LEFT_CLICK_AIR) {
+        if (p.isSneaking()) {
+          Adapt.verbose("Linking eye");
+          linkEye(p, location);
         }
-
-        if (p.getInventory().getItemInMainHand().getType().equals(Material.ENDER_EYE)
-                && !p.hasCooldown(Material.ENDER_EYE)
-                && hasActiveAdaptation(p)
-                && BoundEyeOfEnder.isBindableItem(hand)) {
-
-            e.setCancelled(true);
-            Adapt.verbose(" - Player Main hand: " + hand.getType());
-            switch (e.getAction()) {
-                case LEFT_CLICK_BLOCK, LEFT_CLICK_AIR -> {
-                    if (p.isSneaking()) {
-                        Adapt.verbose("Linking eye");
-                        linkEye(p, location);
-                    }
-                }
-                case RIGHT_CLICK_AIR, RIGHT_CLICK_BLOCK -> // use
-                {
-                    if (isBound(hand)) {
-                        openEye(p);
-                    }
-                }
-            }
+      } else if (action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK) {
+        if (isBound(hand)) {
+          openEye(p);
         }
+      }
     }
+  }
 
 
-    private void handleEyeOfEnderInteraction(PlayerInteractEvent event, Player player, Block block) {
-        boolean sneaking = player.isSneaking();
-        ItemStack mainHand = player.getInventory().getItemInMainHand();
-        Location location = block == null ? player.getLocation() : block.getLocation();
+  private void handleEyeOfEnderInteraction(PlayerInteractEvent event, Player player, Block block) {
+    boolean sneaking = player.isSneaking();
+    ItemStack mainHand = player.getInventory().getItemInMainHand();
+    Location location = block == null ? player.getLocation() : block.getLocation();
 
-        switch (event.getAction()) {
-            case LEFT_CLICK_BLOCK, LEFT_CLICK_AIR -> {
-                if (sneaking) {
-                    if (isBound(mainHand)) {
-                        unlinkEye(player);
-                    } else {
-                        linkEye(player, location);
-                    }
-                }
-            }
-            case RIGHT_CLICK_AIR, RIGHT_CLICK_BLOCK -> {
-                if (isBound(mainHand)) {
-                    openEye(player);
-                }
-            }
-            default -> {
-            }
-        }
-    }
-
-    private boolean isBound(ItemStack stack) {
-        return stack.getType().equals(Material.ENDER_EYE) && BoundEyeOfEnder.getLocation(stack) != null;
-    }
-
-    private void unlinkEye(Player p) {
-        ItemStack hand = p.getInventory().getItemInMainHand();
-        decrementItemstack(hand, p);
-        ItemStack eye = new ItemStack(Material.ENDER_EYE);
-        p.getInventory().addItem(eye).values().forEach(i -> p.getWorld().dropItemNaturally(p.getLocation(), i));
-    }
-
-    private void linkEye(Player p, Location location) {
-        if (areParticlesEnabled()) {
-            vfxCuboidOutline(location.getBlock(), location.add(0, 1, 0).getBlock(), Particle.REVERSE_PORTAL);
-        }
-        SoundPlayer sp = SoundPlayer.of(p);
-        sp.play(p.getLocation(), Sound.ENTITY_ENDER_EYE_DEATH, 0.50f, 0.22f);
-        ItemStack hand = p.getInventory().getItemInMainHand();
-
-        if (hand.getAmount() == 1) {
-            BoundEyeOfEnder.setData(hand, location);
+    Action action = event.getAction();
+    if (action == Action.LEFT_CLICK_BLOCK || action == Action.LEFT_CLICK_AIR) {
+      if (sneaking) {
+        if (isBound(mainHand)) {
+          unlinkEye(player);
         } else {
-            hand.setAmount(hand.getAmount() - 1);
-            ItemStack eye = BoundEyeOfEnder.withData(location);
-            p.getInventory().addItem(eye).values().forEach(i -> p.getWorld().dropItemNaturally(p.getLocation(), i));
+          linkEye(player, location);
         }
+      }
+    } else if (action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK) {
+      if (isBound(mainHand)) {
+        openEye(player);
+      }
+    }
+  }
+
+  private boolean isBound(ItemStack stack) {
+    return stack.getType().equals(Material.ENDER_EYE) && BoundEyeOfEnder.getLocation(stack) != null;
+  }
+
+  private void unlinkEye(Player p) {
+    ItemStack hand = p.getInventory().getItemInMainHand();
+    decrementItemstack(hand, p);
+    ItemStack eye = new ItemStack(Material.ENDER_EYE);
+    p.getInventory().addItem(eye).values().forEach(i -> p.getWorld().dropItemNaturally(p.getLocation(), i));
+  }
+
+  private void linkEye(Player p, Location location) {
+    if (areParticlesEnabled()) {
+      vfxCuboidOutline(location.getBlock(), location.add(0, 1, 0).getBlock(), Particle.REVERSE_PORTAL);
+    }
+    SoundPlayer sp = SoundPlayer.of(p);
+    sp.play(p.getLocation(), Sound.ENTITY_ENDER_EYE_DEATH, 0.50f, 0.22f);
+    ItemStack hand = p.getInventory().getItemInMainHand();
+
+    if (hand.getAmount() == 1) {
+      BoundEyeOfEnder.setData(hand, location);
+    } else {
+      hand.setAmount(hand.getAmount() - 1);
+      ItemStack eye = BoundEyeOfEnder.withData(location);
+      p.getInventory().addItem(eye).values().forEach(i -> p.getWorld().dropItemNaturally(p.getLocation(), i));
+    }
+  }
+
+
+  private void openEye(Player p) {
+    Adapt.verbose("Using eye");
+    SoundPlayer sp = SoundPlayer.of(p);
+    Location l = BoundEyeOfEnder.getLocation(p.getInventory().getItemInMainHand());
+    ItemStack hand = p.getInventory().getItemInMainHand();
+
+    if (getConfig().consumeOnUse) {
+      xp(p, 75);
+      decrementItemstack(hand, p);
+    } else {
+      if (p.getCooldown(Material.ENDER_EYE) > 0) {
+        sp.play(p.getLocation(), Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 1, 1);
+        return;
+      }
+    }
+    p.setCooldown(Material.ENDER_EYE, 150);
+
+
+    if (RiftResist.hasRiftResistPerk(getPlayer(p))) {
+      RiftResist.riftResistStackAdd(p, 150, 3);
     }
 
+    p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 100, 10, true, false, false));
+    p.addPotionEffect(new PotionEffect(PotionEffectType.LEVITATION, 85, 0, true, false, false));
+    sp.play(l, Sound.BLOCK_LODESTONE_PLACE, 1f, 0.1f);
+    sp.play(l, Sound.BLOCK_BELL_RESONATE, 1f, 0.1f);
 
-    private void openEye(Player p) {
-        Adapt.verbose("Using eye");
-        SoundPlayer sp = SoundPlayer.of(p);
-        Location l = BoundEyeOfEnder.getLocation(p.getInventory().getItemInMainHand());
-        ItemStack hand = p.getInventory().getItemInMainHand();
+    int[] remainingSteps = {80};
+    double[] radius = {2.0};
+    double[] adder = {0.0};
+    boolean[] initialRingShown = {false};
+    final Color color = Color.fromBGR(0, 0, 0);
+    Runnable[] ringTask = new Runnable[1];
+    ringTask[0] = () -> {
+      if (!p.isOnline()) {
+        return;
+      }
 
-        if (getConfig().consumeOnUse) {
-            xp(p, 75);
-            decrementItemstack(hand, p);
-        } else {
-            if (p.getCooldown(Material.ENDER_EYE) > 0) {
-                sp.play(p.getLocation(), Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 1, 1);
-                return;
-            }
-        }
-        p.setCooldown(Material.ENDER_EYE, 150);
+      if (!initialRingShown[0]) {
+        vfxFastRing(p.getLocation(), radius[0], color);
+        initialRingShown[0] = true;
+      }
 
+      remainingSteps[0]--;
+      if (remainingSteps[0] <= 0) {
+        return;
+      }
 
-        if (RiftResist.hasRiftResistPerk(getPlayer(p))) {
-            RiftResist.riftResistStackAdd(p, 150, 3);
-        }
+      adder[0] += 0.02;
+      radius[0] *= 0.9;
+      vfxFastRing(p.getLocation().add(0, adder[0], 0), radius[0], color);
+      J.runEntity(p, ringTask[0], 1);
+    };
+    J.runEntity(p, ringTask[0]);
+    vfxLevelUp(p);
+    sp.play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 5.35f, 0.1f);
+    J.runEntity(p, () -> {
+      AdaptAdaptationTeleportEvent event = new AdaptAdaptationTeleportEvent(!Bukkit.isPrimaryThread(), getPlayer(p), this, p.getLocation(), l);
+      Bukkit.getPluginManager().callEvent(event);
+      if (event.isCancelled()) {
+        return;
+      }
 
-        p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 100, 10, true, false, false));
-        p.addPotionEffect(new PotionEffect(PotionEffectType.LEVITATION, 85, 0, true, false, false));
-        sp.play(l, Sound.BLOCK_LODESTONE_PLACE, 1f, 0.1f);
-        sp.play(l, Sound.BLOCK_BELL_RESONATE, 1f, 0.1f);
-
-        int[] remainingSteps = {80};
-        double[] radius = {2.0};
-        double[] adder = {0.0};
-        boolean[] initialRingShown = {false};
-        final Color color = Color.fromBGR(0, 0, 0);
-        Runnable[] ringTask = new Runnable[1];
-        ringTask[0] = () -> {
-            if (!p.isOnline()) {
-                return;
-            }
-
-            if (!initialRingShown[0]) {
-                vfxFastRing(p.getLocation(), radius[0], color);
-                initialRingShown[0] = true;
-            }
-
-            remainingSteps[0]--;
-            if (remainingSteps[0] <= 0) {
-                return;
-            }
-
-            adder[0] += 0.02;
-            radius[0] *= 0.9;
-            vfxFastRing(p.getLocation().add(0, adder[0], 0), radius[0], color);
-            J.runEntity(p, ringTask[0], 1);
-        };
-        J.runEntity(p, ringTask[0]);
-        vfxLevelUp(p);
-        sp.play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 5.35f, 0.1f);
-        J.runEntity(p, () -> {
-            AdaptAdaptationTeleportEvent event = new AdaptAdaptationTeleportEvent(!Bukkit.isPrimaryThread(), getPlayer(p), this, p.getLocation(), l);
-            Bukkit.getPluginManager().callEvent(event);
-            if (event.isCancelled()) {
-                return;
-            }
-
-            getPlayer(p).getData().addStat("rift.teleports", 1);
-            getPlayer(p).getData().addStat("rift.gate.teleports", 1);
-            getPlayer(p).getData().addStat("rift.gate.total-distance", (int) p.getLocation().distance(l));
-            J.teleport(p, l, PlayerTeleportEvent.TeleportCause.PLUGIN);
-            vfxLevelUp(p);
-            sp.play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 5.35f, 0.1f);
-        }, 85);
-    }
+      getPlayer(p).getData().addStat("rift.teleports", 1);
+      getPlayer(p).getData().addStat("rift.gate.teleports", 1);
+      getPlayer(p).getData().addStat("rift.gate.total-distance", (int) p.getLocation().distance(l));
+      J.teleport(p, l, PlayerTeleportEvent.TeleportCause.PLUGIN);
+      vfxLevelUp(p);
+      sp.play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 5.35f, 0.1f);
+    }, 85);
+  }
 
 
-    @Override
-    public void onTick() {
-    }
+  @Override
+  public void onTick() {
+  }
 
-    @Override
-    public boolean isEnabled() {
-        return getConfig().enabled;
-    }
+  @Override
+  public boolean isEnabled() {
+    return getConfig().enabled;
+  }
 
-    @Override
-    public boolean isPermanent() {
-        return getConfig().permanent;
-    }
+  @Override
+  public boolean isPermanent() {
+    return getConfig().permanent;
+  }
 
-    @NoArgsConstructor
-    @ConfigDescription("Craft a gate item to teleport to a marked location.")
-    protected static class Config {
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-        boolean permanent = false;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-        boolean enabled = true;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Consume On Use for the Rift Gate adaptation.", impact = "True enables this behavior and false disables it.")
-        boolean consumeOnUse = true;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Rift Gate adaptation.", impact = "True enables this behavior and false disables it.")
-        boolean showParticles = true;
-    }
+  @NoArgsConstructor
+  @ConfigDescription("Craft a gate item to teleport to a marked location.")
+  protected static class Config {
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
+    boolean permanent = false;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
+    boolean enabled = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Consume On Use for the Rift Gate adaptation.", impact = "True enables this behavior and false disables it.")
+    boolean consumeOnUse = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Rift Gate adaptation.", impact = "True enables this behavior and false disables it.")
+    boolean showParticles = true;
+  }
 }

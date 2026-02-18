@@ -24,9 +24,9 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
+import art.arcane.volmlib.util.inventorygui.Element;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -36,97 +36,97 @@ import org.bukkit.event.entity.EntityDamageEvent;
 
 public class HerbalismHungryShield extends SimpleAdaptation<HerbalismHungryShield.Config> {
 
-    public HerbalismHungryShield() {
-        super("herbalism-hungry-shield");
-        registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("herbalism.hungry_shield.description"));
-        setDisplayName(Localizer.dLocalize("herbalism.hungry_shield.name"));
-        setIcon(Material.APPLE);
-        setBaseCost(getConfig().baseCost);
-        setMaxLevel(getConfig().maxLevel);
-        setInterval(875);
-        setInitialCost(getConfig().initialCost);
-        setCostFactor(getConfig().costFactor);
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.BREAD)
-                .key("challenge_herbalism_shield_500")
-                .title(Localizer.dLocalize("advancement.challenge_herbalism_shield_500.title"))
-                .description(Localizer.dLocalize("advancement.challenge_herbalism_shield_500.description"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .child(AdaptAdvancement.builder()
-                        .icon(Material.GOLDEN_APPLE)
-                        .key("challenge_herbalism_shield_5k")
-                        .title(Localizer.dLocalize("advancement.challenge_herbalism_shield_5k.title"))
-                        .description(Localizer.dLocalize("advancement.challenge_herbalism_shield_5k.description"))
-                        .frame(AdaptAdvancementFrame.CHALLENGE)
-                        .visibility(AdvancementVisibility.PARENT_GRANTED)
-                        .build())
-                .build());
-        registerMilestone("challenge_herbalism_shield_500", "herbalism.hungry-shield.damage-absorbed", 500, 400);
-        registerMilestone("challenge_herbalism_shield_5k", "herbalism.hungry-shield.damage-absorbed", 5000, 1500);
+  public HerbalismHungryShield() {
+    super("herbalism-hungry-shield");
+    registerConfiguration(Config.class);
+    setDescription(Localizer.dLocalize("herbalism.hungry_shield.description"));
+    setDisplayName(Localizer.dLocalize("herbalism.hungry_shield.name"));
+    setIcon(Material.APPLE);
+    setBaseCost(getConfig().baseCost);
+    setMaxLevel(getConfig().maxLevel);
+    setInterval(875);
+    setInitialCost(getConfig().initialCost);
+    setCostFactor(getConfig().costFactor);
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.BREAD)
+        .key("challenge_herbalism_shield_500")
+        .title(Localizer.dLocalize("advancement.challenge_herbalism_shield_500.title"))
+        .description(Localizer.dLocalize("advancement.challenge_herbalism_shield_500.description"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .child(AdaptAdvancement.builder()
+            .icon(Material.GOLDEN_APPLE)
+            .key("challenge_herbalism_shield_5k")
+            .title(Localizer.dLocalize("advancement.challenge_herbalism_shield_5k.title"))
+            .description(Localizer.dLocalize("advancement.challenge_herbalism_shield_5k.description"))
+            .frame(AdaptAdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .build())
+        .build());
+    registerMilestone("challenge_herbalism_shield_500", "herbalism.hungry-shield.damage-absorbed", 500, 400);
+    registerMilestone("challenge_herbalism_shield_5k", "herbalism.hungry-shield.damage-absorbed", 5000, 1500);
+  }
+
+  @Override
+  public void addStats(int level, Element v) {
+    v.addLore(C.GREEN + "+ " + Form.pc(getEffectiveness(getLevelPercent(level)), 0) + C.GRAY + " " + Localizer.dLocalize("herbalism.hungry_shield.lore1"));
+  }
+
+
+  @Override
+  public void onTick() {
+
+  }
+
+  private double getEffectiveness(double factor) {
+    return Math.min(getConfig().maxEffectiveness, factor * factor + getConfig().effectivenessBase);
+  }
+
+
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void on(EntityDamageEvent e) {
+    if (e.getEntity() instanceof Player p && hasActiveAdaptation(p)) {
+      double f = getEffectiveness(getLevelPercent(p));
+      double h = e.getDamage() * f;
+      double d = e.getDamage() - h;
+
+      if (getPlayer(p).consumeFood(h, 6)) {
+        d += h;
+        e.setDamage(d);
+        getPlayer(p).getData().addStat("herbalism.hungry-shield.damage-absorbed", (int) Math.ceil(h));
+        xp(p, d);
+      }
     }
+  }
 
-    @Override
-    public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getEffectiveness(getLevelPercent(level)), 0) + C.GRAY + " " + Localizer.dLocalize("herbalism.hungry_shield.lore1"));
-    }
+  @Override
+  public boolean isEnabled() {
+    return getConfig().enabled;
+  }
 
+  @Override
+  public boolean isPermanent() {
+    return getConfig().permanent;
+  }
 
-    @Override
-    public void onTick() {
-
-    }
-
-    private double getEffectiveness(double factor) {
-        return Math.min(getConfig().maxEffectiveness, factor * factor + getConfig().effectivenessBase);
-    }
-
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void on(EntityDamageEvent e) {
-        if (e.getEntity() instanceof Player p && hasActiveAdaptation(p)) {
-            double f = getEffectiveness(getLevelPercent(p));
-            double h = e.getDamage() * f;
-            double d = e.getDamage() - h;
-
-            if (getPlayer(p).consumeFood(h, 6)) {
-                d += h;
-                e.setDamage(d);
-                getPlayer(p).getData().addStat("herbalism.hungry-shield.damage-absorbed", (int) Math.ceil(h));
-                xp(p, d);
-            }
-        }
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return getConfig().enabled;
-    }
-
-    @Override
-    public boolean isPermanent() {
-        return getConfig().permanent;
-    }
-
-    @NoArgsConstructor
-    @ConfigDescription("Take damage to your hunger before your health.")
-    protected static class Config {
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-        boolean permanent = false;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-        boolean enabled = true;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-        int baseCost = 7;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-        int maxLevel = 5;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-        int initialCost = 10;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-        double costFactor = 0.78;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Effectiveness Base for the Herbalism Hungry Shield adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double effectivenessBase = 0.15;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Effectiveness for the Herbalism Hungry Shield adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double maxEffectiveness = 0.95;
-    }
+  @NoArgsConstructor
+  @ConfigDescription("Take damage to your hunger before your health.")
+  protected static class Config {
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
+    boolean permanent = false;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
+    boolean enabled = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
+    int baseCost = 7;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
+    int maxLevel = 5;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
+    int initialCost = 10;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
+    double costFactor = 0.78;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Effectiveness Base for the Herbalism Hungry Shield adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double effectivenessBase = 0.15;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Effectiveness for the Herbalism Hungry Shield adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double maxEffectiveness = 0.95;
+  }
 }

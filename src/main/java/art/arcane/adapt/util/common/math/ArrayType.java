@@ -27,7 +27,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 @Target({PARAMETER, TYPE, FIELD})
 public @interface ArrayType {
-    Class<?> type();
+  Class<?> type();
 
-    int min() default 0;
+  int min() default 0;
 }

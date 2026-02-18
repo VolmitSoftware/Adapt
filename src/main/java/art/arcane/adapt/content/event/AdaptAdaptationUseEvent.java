@@ -22,7 +22,7 @@ import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.world.AdaptPlayer;
 
 public class AdaptAdaptationUseEvent extends AdaptAdaptationEvent {
-    public AdaptAdaptationUseEvent(boolean async, AdaptPlayer player, Adaptation<?> adaptation) {
-        super(async, player, adaptation);
-    }
+  public AdaptAdaptationUseEvent(boolean async, AdaptPlayer player, Adaptation<?> adaptation) {
+    super(async, player, adaptation);
+  }
 }

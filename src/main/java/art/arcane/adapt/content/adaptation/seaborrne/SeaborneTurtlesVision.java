@@ -24,8 +24,8 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.inventorygui.Element;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -34,82 +34,82 @@ import org.bukkit.potion.PotionEffectType;
 
 public class SeaborneTurtlesVision extends SimpleAdaptation<SeaborneTurtlesVision.Config> {
 
-    public SeaborneTurtlesVision() {
-        super("seaborne-turtles-vision");
-        registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("seaborn.night_vision.description"));
-        setDisplayName(Localizer.dLocalize("seaborn.night_vision.name"));
-        setIcon(Material.DIAMOND_HORSE_ARMOR);
-        setBaseCost(getConfig().baseCost);
-        setMaxLevel(getConfig().maxLevel);
-        setInterval(3000);
-        setInitialCost(getConfig().initialCost);
-        setCostFactor(getConfig().costFactor);
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.TURTLE_HELMET)
-                .key("challenge_seaborne_vision_72k")
-                .title(Localizer.dLocalize("advancement.challenge_seaborne_vision_72k.title"))
-                .description(Localizer.dLocalize("advancement.challenge_seaborne_vision_72k.description"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .build());
-        registerMilestone("challenge_seaborne_vision_72k", "seaborne.turtles-vision.time-underwater", 72000, 400);
-    }
+  public SeaborneTurtlesVision() {
+    super("seaborne-turtles-vision");
+    registerConfiguration(Config.class);
+    setDescription(Localizer.dLocalize("seaborn.night_vision.description"));
+    setDisplayName(Localizer.dLocalize("seaborn.night_vision.name"));
+    setIcon(Material.DIAMOND_HORSE_ARMOR);
+    setBaseCost(getConfig().baseCost);
+    setMaxLevel(getConfig().maxLevel);
+    setInterval(3000);
+    setInitialCost(getConfig().initialCost);
+    setCostFactor(getConfig().costFactor);
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.TURTLE_HELMET)
+        .key("challenge_seaborne_vision_72k")
+        .title(Localizer.dLocalize("advancement.challenge_seaborne_vision_72k.title"))
+        .description(Localizer.dLocalize("advancement.challenge_seaborne_vision_72k.description"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .build());
+    registerMilestone("challenge_seaborne_vision_72k", "seaborne.turtles-vision.time-underwater", 72000, 400);
+  }
 
-    @Override
-    public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Localizer.dLocalize("seaborn.night_vision.lore1"));
-    }
+  @Override
+  public void addStats(int level, Element v) {
+    v.addLore(C.GRAY + Localizer.dLocalize("seaborn.night_vision.lore1"));
+  }
 
 
-    @Override
-    public void onTick() {
-        for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
-            Player player = adaptPlayer.getPlayer();
-            if (player == null || !player.isOnline()) {
-                continue;
-            }
+  @Override
+  public void onTick() {
+    for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+      Player player = adaptPlayer.getPlayer();
+      if (player == null || !player.isOnline()) {
+        continue;
+      }
 
-            withPlayerThread(player, () -> {
-                if (!player.isOnline()) {
-                    return;
-                }
-
-                int level = getActiveLevel(player);
-                if (level <= 0 || !player.isInWater()) {
-                    return;
-                }
-
-                player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 62, 0, false, false));
-                getPlayer(player).getData().addStat("seaborne.turtles-vision.time-underwater", 1);
-            });
+      withPlayerThread(player, () -> {
+        if (!player.isOnline()) {
+          return;
         }
-    }
 
-    @Override
-    public boolean isEnabled() {
-        return getConfig().enabled;
-    }
+        int level = getActiveLevel(player);
+        if (level <= 0 || !player.isInWater()) {
+          return;
+        }
 
-    @Override
-    public boolean isPermanent() {
-        return getConfig().permanent;
+        player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 62, 0, false, false));
+        getPlayer(player).getData().addStat("seaborne.turtles-vision.time-underwater", 1);
+      });
     }
+  }
 
-    @NoArgsConstructor
-    @ConfigDescription("Gain night vision while underwater.")
-    protected static class Config {
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-        boolean permanent = false;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-        boolean enabled = true;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-        int baseCost = 5;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-        int maxLevel = 1;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-        int initialCost = 3;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-        double costFactor = 1;
-    }
+  @Override
+  public boolean isEnabled() {
+    return getConfig().enabled;
+  }
+
+  @Override
+  public boolean isPermanent() {
+    return getConfig().permanent;
+  }
+
+  @NoArgsConstructor
+  @ConfigDescription("Gain night vision while underwater.")
+  protected static class Config {
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
+    boolean permanent = false;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
+    boolean enabled = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
+    int baseCost = 5;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
+    int maxLevel = 1;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
+    int initialCost = 3;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
+    double costFactor = 1;
+  }
 }

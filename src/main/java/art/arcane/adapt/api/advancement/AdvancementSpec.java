@@ -30,73 +30,73 @@ import java.util.List;
 @Builder(toBuilder = true)
 @Data
 public class AdvancementSpec {
-    private String key;
-    private String title;
-    private String description;
-    @Builder.Default
-    private Material icon = Material.EMERALD;
-    @Builder.Default
-    private CustomModel model = null;
-    @Builder.Default
-    private AdaptAdvancementFrame frame = AdaptAdvancementFrame.TASK;
-    @Builder.Default
-    private AdvancementVisibility visibility = AdvancementVisibility.PARENT_GRANTED;
-    @Builder.Default
-    private boolean toast = false;
-    @Builder.Default
-    private boolean announce = false;
-    @Singular
-    private List<AdvancementSpec> children;
+  private String key;
+  private String title;
+  private String description;
+  @Builder.Default
+  private Material icon = Material.EMERALD;
+  @Builder.Default
+  private CustomModel model = null;
+  @Builder.Default
+  private AdaptAdvancementFrame frame = AdaptAdvancementFrame.TASK;
+  @Builder.Default
+  private AdvancementVisibility visibility = AdvancementVisibility.PARENT_GRANTED;
+  @Builder.Default
+  private boolean toast = false;
+  @Builder.Default
+  private boolean announce = false;
+  @Singular
+  private List<AdvancementSpec> children;
 
-    public static AdvancementSpec challenge(String key, Material icon, String title, String description) {
-        return AdvancementSpec.builder()
-                .key(key)
-                .icon(icon)
-                .title(title)
-                .description(description)
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .build();
+  public static AdvancementSpec challenge(String key, Material icon, String title, String description) {
+    return AdvancementSpec.builder()
+        .key(key)
+        .icon(icon)
+        .title(title)
+        .description(description)
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .build();
+  }
+
+  public AdvancementSpec withChild(AdvancementSpec child) {
+    if (child == null) {
+      return this;
     }
 
-    public AdvancementSpec withChild(AdvancementSpec child) {
+    return toBuilder().child(child).build();
+  }
+
+  public AdaptAdvancement toAdvancement() {
+    AdaptAdvancement.AdaptAdvancementBuilder builder = AdaptAdvancement.builder()
+        .key(key)
+        .title(title)
+        .description(description)
+        .icon(icon)
+        .model(model)
+        .frame(frame)
+        .toast(toast)
+        .announce(announce)
+        .visibility(visibility);
+
+    if (children != null) {
+      for (AdvancementSpec child : children) {
         if (child == null) {
-            return this;
+          continue;
         }
-
-        return toBuilder().child(child).build();
+        builder.child(child.toAdvancement());
+      }
     }
 
-    public AdaptAdvancement toAdvancement() {
-        AdaptAdvancement.AdaptAdvancementBuilder builder = AdaptAdvancement.builder()
-                .key(key)
-                .title(title)
-                .description(description)
-                .icon(icon)
-                .model(model)
-                .frame(frame)
-                .toast(toast)
-                .announce(announce)
-                .visibility(visibility);
+    return builder.build();
+  }
 
-        if (children != null) {
-            for (AdvancementSpec child : children) {
-                if (child == null) {
-                    continue;
-                }
-                builder.child(child.toAdvancement());
-            }
-        }
-
-        return builder.build();
-    }
-
-    public AdaptStatTracker statTracker(String stat, double goal, double reward) {
-        return AdaptStatTracker.builder()
-                .stat(stat)
-                .goal(goal)
-                .reward(reward)
-                .advancement(key)
-                .build();
-    }
+  public AdaptStatTracker statTracker(String stat, double goal, double reward) {
+    return AdaptStatTracker.builder()
+        .stat(stat)
+        .goal(goal)
+        .reward(reward)
+        .advancement(key)
+        .build();
+  }
 }

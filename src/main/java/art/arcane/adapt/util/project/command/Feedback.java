@@ -18,30 +18,30 @@ import java.util.List;
 @Data
 @Accessors(chain = true, fluent = true)
 public class Feedback {
-    @Singular
-    private List<SoundFeedback> sounds;
-    @Singular
-    private List<TextComponent> messages;
+  @Singular
+  private List<SoundFeedback> sounds;
+  @Singular
+  private List<TextComponent> messages;
 
-    public void send(CommandSender serverOrPlayer) {
-        if (serverOrPlayer instanceof Player p) {
-            for (SoundFeedback i : sounds) {
-                i.play(p);
-            }
-        }
-
-        Component prefix = Component.text("[").color(NamedTextColor.GRAY)
-                .append(Component.text("Adapt").color(NamedTextColor.DARK_RED))
-                .append(Component.text("] "));
-        for (TextComponent i : messages) {
-            Adapt.audiences.sender(serverOrPlayer).sendMessage(Component.text()
-                    .append(prefix)
-                    .append(i)
-                    .build());
-        }
+  public void send(CommandSender serverOrPlayer) {
+    if (serverOrPlayer instanceof Player p) {
+      for (SoundFeedback i : sounds) {
+        i.play(p);
+      }
     }
 
-    public void send(VolmitSender sender) {
-        send(sender.getS());
+    Component prefix = Component.text("[").color(NamedTextColor.GRAY)
+        .append(Component.text("Adapt").color(NamedTextColor.DARK_RED))
+        .append(Component.text("] "));
+    for (TextComponent i : messages) {
+      Adapt.audiences.sender(serverOrPlayer).sendMessage(Component.text()
+          .append(prefix)
+          .append(i)
+          .build());
     }
+  }
+
+  public void send(VolmitSender sender) {
+    send(sender.getS());
+  }
 }

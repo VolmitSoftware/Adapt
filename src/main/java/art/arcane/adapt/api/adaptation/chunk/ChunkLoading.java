@@ -26,12 +26,12 @@ import org.bukkit.Location;
 import java.util.function.Consumer;
 
 public class ChunkLoading {
-    public static void loadChunkAsync(Location l, Consumer<Chunk> chunk) {
-        if (l.getWorld().isChunkLoaded(l.getBlockX() >> 4, l.getBlockZ() >> 4)) {
-            chunk.accept(l.getChunk());
-            return;
-        }
-        Adapt.verbose("Loading chunk async for " + l);
-        Adapt.platform.getChunkAtAsync(l).thenAccept(c -> J.s(() -> chunk.accept(c)));
+  public static void loadChunkAsync(Location l, Consumer<Chunk> chunk) {
+    if (l.getWorld().isChunkLoaded(l.getBlockX() >> 4, l.getBlockZ() >> 4)) {
+      chunk.accept(l.getChunk());
+      return;
     }
+    Adapt.verbose("Loading chunk async for " + l);
+    Adapt.platform.getChunkAtAsync(l).thenAccept(c -> J.s(() -> chunk.accept(c)));
+  }
 }

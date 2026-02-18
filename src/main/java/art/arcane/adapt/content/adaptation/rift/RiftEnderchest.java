@@ -26,9 +26,9 @@ import art.arcane.adapt.api.world.PlayerAdaptation;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.inventorygui.Element;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -40,84 +40,84 @@ import org.bukkit.inventory.ItemStack;
 
 
 public class RiftEnderchest extends SimpleAdaptation<RiftEnderchest.Config> {
-    public RiftEnderchest() {
-        super("rift-enderchest");
-        setDescription(Localizer.dLocalize("rift.chest.description"));
-        setDisplayName(Localizer.dLocalize("rift.chest.name"));
-        setIcon(Material.ENDER_CHEST);
-        setBaseCost(0);
-        setCostFactor(0);
-        setMaxLevel(1);
-        setInitialCost(10);
-        setInterval(9248);
-        registerConfiguration(Config.class);
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.ENDER_CHEST)
-                .key("challenge_rift_enderchest_200")
-                .title(Localizer.dLocalize("advancement.challenge_rift_enderchest_200.title"))
-                .description(Localizer.dLocalize("advancement.challenge_rift_enderchest_200.description"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .build());
-        registerMilestone("challenge_rift_enderchest_200", "rift.enderchest.opens", 200, 300);
+  public RiftEnderchest() {
+    super("rift-enderchest");
+    setDescription(Localizer.dLocalize("rift.chest.description"));
+    setDisplayName(Localizer.dLocalize("rift.chest.name"));
+    setIcon(Material.ENDER_CHEST);
+    setBaseCost(0);
+    setCostFactor(0);
+    setMaxLevel(1);
+    setInitialCost(10);
+    setInterval(9248);
+    registerConfiguration(Config.class);
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.ENDER_CHEST)
+        .key("challenge_rift_enderchest_200")
+        .title(Localizer.dLocalize("advancement.challenge_rift_enderchest_200.title"))
+        .description(Localizer.dLocalize("advancement.challenge_rift_enderchest_200.description"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .build());
+    registerMilestone("challenge_rift_enderchest_200", "rift.enderchest.opens", 200, 300);
+  }
+
+  @Override
+  public void addStats(int level, Element v) {
+    v.addLore(C.ITALIC + Localizer.dLocalize("rift.chest.lore1"));
+  }
+
+  @EventHandler
+  public void on(PlayerInteractEvent e) {
+    Player p = e.getPlayer();
+    SoundPlayer sp = SoundPlayer.of(p);
+    ItemStack hand = p.getInventory().getItemInMainHand();
+
+    if (hand.getType() != Material.ENDER_CHEST || !hasActiveAdaptation(p)) {
+      return;
     }
 
-    @Override
-    public void addStats(int level, Element v) {
-        v.addLore(C.ITALIC + Localizer.dLocalize("rift.chest.lore1"));
-    }
+    if (p.hasCooldown(hand.getType())) {
+      e.setCancelled(true);
+    } else {
+      p.setCooldown(Material.ENDER_CHEST, 100);
 
-    @EventHandler
-    public void on(PlayerInteractEvent e) {
-        Player p = e.getPlayer();
-        SoundPlayer sp = SoundPlayer.of(p);
-        ItemStack hand = p.getInventory().getItemInMainHand();
-
-        if (hand.getType() != Material.ENDER_CHEST || !hasActiveAdaptation(p)) {
-            return;
+      if ((e.getAction() == Action.RIGHT_CLICK_AIR) || (e.getAction() == Action.LEFT_CLICK_AIR) || (e.getAction() == Action.LEFT_CLICK_BLOCK)) {
+        PlayerSkillLine line = getPlayer(p).getData().getSkillLine("rift");
+        PlayerAdaptation adaptation = line != null ? line.getAdaptation("rift-resist") : null;
+        if (adaptation != null && adaptation.getLevel() > 0) {
+          RiftResist.riftResistStackAdd(p, 10, 2);
         }
-
-        if (p.hasCooldown(hand.getType())) {
-            e.setCancelled(true);
-        } else {
-            p.setCooldown(Material.ENDER_CHEST, 100);
-
-            if ((e.getAction() == Action.RIGHT_CLICK_AIR) || (e.getAction() == Action.LEFT_CLICK_AIR) || (e.getAction() == Action.LEFT_CLICK_BLOCK)) {
-                PlayerSkillLine line = getPlayer(p).getData().getSkillLine("rift");
-                PlayerAdaptation adaptation = line != null ? line.getAdaptation("rift-resist") : null;
-                if (adaptation != null && adaptation.getLevel() > 0) {
-                    RiftResist.riftResistStackAdd(p, 10, 2);
-                }
-                sp.play(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
-                sp.play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
-                p.openInventory(p.getEnderChest());
-                getPlayer(p).getData().addStat("rift.enderchest.opens", 1);
-            }
-        }
+        sp.play(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
+        sp.play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
+        p.openInventory(p.getEnderChest());
+        getPlayer(p).getData().addStat("rift.enderchest.opens", 1);
+      }
     }
+  }
 
 
-    @Override
-    public void onTick() {
+  @Override
+  public void onTick() {
 
-    }
+  }
 
-    @Override
-    public boolean isEnabled() {
-        return getConfig().enabled;
-    }
+  @Override
+  public boolean isEnabled() {
+    return getConfig().enabled;
+  }
 
-    @Override
-    public boolean isPermanent() {
-        return getConfig().permanent;
-    }
+  @Override
+  public boolean isPermanent() {
+    return getConfig().permanent;
+  }
 
-    @NoArgsConstructor
-    @ConfigDescription("Open an enderchest by left-clicking it in your hand.")
-    protected static class Config {
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-        boolean permanent = false;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-        boolean enabled = true;
-    }
+  @NoArgsConstructor
+  @ConfigDescription("Open an enderchest by left-clicking it in your hand.")
+  protected static class Config {
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
+    boolean permanent = false;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
+    boolean enabled = true;
+  }
 }

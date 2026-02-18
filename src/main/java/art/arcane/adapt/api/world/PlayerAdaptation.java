@@ -23,7 +23,7 @@ import lombok.Data;
 
 @Data
 public class PlayerAdaptation {
-    private String id;
-    private int level;
-    private final KMap<String, Object> storage = new KMap<>();
+  private final KMap<String, Object> storage = new KMap<>();
+  private String id;
+  private int level;
 }

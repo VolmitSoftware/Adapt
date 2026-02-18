@@ -24,26 +24,26 @@ import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 
 public class AdaptAdaptationEvent extends AdaptPlayerEvent {
-    private final Skill<?> skill;
-    private final PlayerSkillLine playerSkill;
-    private final Adaptation<?> adaptation;
+  private final Skill<?> skill;
+  private final PlayerSkillLine playerSkill;
+  private final Adaptation<?> adaptation;
 
-    public AdaptAdaptationEvent(boolean async, AdaptPlayer player, Adaptation<?> adaptation) {
-        super(async, player);
-        this.adaptation = adaptation;
-        this.playerSkill = player.getSkillLine(adaptation.getSkill().getId());
-        this.skill = adaptation.getSkill();
-    }
+  public AdaptAdaptationEvent(boolean async, AdaptPlayer player, Adaptation<?> adaptation) {
+    super(async, player);
+    this.adaptation = adaptation;
+    this.playerSkill = player.getSkillLine(adaptation.getSkill().getId());
+    this.skill = adaptation.getSkill();
+  }
 
-    public Skill<?> getSkill() {
-        return skill;
-    }
+  public Skill<?> getSkill() {
+    return skill;
+  }
 
-    public Adaptation<?> getAdaptation() {
-        return adaptation;
-    }
+  public Adaptation<?> getAdaptation() {
+    return adaptation;
+  }
 
-    public PlayerSkillLine getPlayerSkill() {
-        return playerSkill;
-    }
+  public PlayerSkillLine getPlayerSkill() {
+    return playerSkill;
+  }
 }

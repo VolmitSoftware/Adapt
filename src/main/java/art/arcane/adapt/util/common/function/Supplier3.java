@@ -19,5 +19,5 @@
 package art.arcane.adapt.util.common.function;
 
 public interface Supplier3<T, TT, TTT> {
-    void get(T t, TT tt, TTT ttt);
+  void get(T t, TT tt, TTT ttt);
 }

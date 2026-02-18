@@ -5,6 +5,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 
 public interface EntityEvent extends Event {
-    Entity getEntity();
-    EntityType getType();
+  Entity getEntity();
+
+  EntityType getType();
 }

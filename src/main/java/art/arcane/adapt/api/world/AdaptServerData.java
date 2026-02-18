@@ -26,5 +26,5 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class AdaptServerData {
-    private KList<XPMultiplier> multipliers = new KList<>();
+  private KList<XPMultiplier> multipliers = new KList<>();
 }

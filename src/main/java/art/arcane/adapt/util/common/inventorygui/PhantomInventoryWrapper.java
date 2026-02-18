@@ -26,17 +26,17 @@ import org.bukkit.inventory.Inventory;
  * @author cyberpwn
  */
 public interface PhantomInventoryWrapper extends Inventory {
-    /**
-     * Does the given inventory have any space?
-     *
-     * @return true if it has space for at least one more slot.
-     */
-    boolean hasSpace();
+  /**
+   * Does the given inventory have any space?
+   *
+   * @return true if it has space for at least one more slot.
+   */
+  boolean hasSpace();
 
-    /**
-     * Get how many air slots exist (empty slots)
-     *
-     * @return the number of slots empty (0 if full)
-     */
-    int getSlotsLeft();
+  /**
+   * Get how many air slots exist (empty slots)
+   *
+   * @return the number of slots empty (0 if full)
+   */
+  int getSlotsLeft();
 }

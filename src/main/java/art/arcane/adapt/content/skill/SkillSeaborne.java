@@ -48,263 +48,263 @@ import java.util.Map;
 import java.util.UUID;
 
 public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
-    private final Map<UUID, Long> cooldowns;
+  private final Map<UUID, Long> cooldowns;
 
-    public SkillSeaborne() {
-        super("seaborne", Localizer.dLocalize("skill.seaborne.icon"));
-        registerConfiguration(Config.class);
-        setColor(C.BLUE);
-        setDescription(Localizer.dLocalize("skill.seaborne.description"));
-        setDisplayName(Localizer.dLocalize("skill.seaborne.name"));
-        setInterval(2120);
-        setIcon(Material.TRIDENT);
-        registerAdaptation(new SeaborneOxygen());
-        registerAdaptation(new SeaborneSpeed());
-        registerAdaptation(new SeaborneFishersFantasy());
-        registerAdaptation(new SeaborneTurtlesVision());
-        registerAdaptation(new SeaborneTurtlesMiningSpeed());
-        registerAdaptation(new SeaborneTidecaller());
-        registerAdaptation(new SeabornePressureDiver());
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.TURTLE_HELMET)
-                .key("challenge_swim_1nm")
-                .title(Localizer.dLocalize("advancement.challenge_swim_1nm.title"))
-                .description(Localizer.dLocalize("advancement.challenge_swim_1nm.description"))
-                .model(CustomModel.get(Material.TURTLE_HELMET, "advancement", "seaborne", "challenge_swim_1nm"))
+  public SkillSeaborne() {
+    super("seaborne", Localizer.dLocalize("skill.seaborne.icon"));
+    registerConfiguration(Config.class);
+    setColor(C.BLUE);
+    setDescription(Localizer.dLocalize("skill.seaborne.description"));
+    setDisplayName(Localizer.dLocalize("skill.seaborne.name"));
+    setInterval(2120);
+    setIcon(Material.TRIDENT);
+    registerAdaptation(new SeaborneOxygen());
+    registerAdaptation(new SeaborneSpeed());
+    registerAdaptation(new SeaborneFishersFantasy());
+    registerAdaptation(new SeaborneTurtlesVision());
+    registerAdaptation(new SeaborneTurtlesMiningSpeed());
+    registerAdaptation(new SeaborneTidecaller());
+    registerAdaptation(new SeabornePressureDiver());
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.TURTLE_HELMET)
+        .key("challenge_swim_1nm")
+        .title(Localizer.dLocalize("advancement.challenge_swim_1nm.title"))
+        .description(Localizer.dLocalize("advancement.challenge_swim_1nm.description"))
+        .model(CustomModel.get(Material.TURTLE_HELMET, "advancement", "seaborne", "challenge_swim_1nm"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .child(AdaptAdvancement.builder()
+            .icon(Material.HEART_OF_THE_SEA)
+            .key("challenge_swim_5k")
+            .title(Localizer.dLocalize("advancement.challenge_swim_5k.title"))
+            .description(Localizer.dLocalize("advancement.challenge_swim_5k.description"))
+            .model(CustomModel.get(Material.HEART_OF_THE_SEA, "advancement", "seaborne", "challenge_swim_5k"))
+            .frame(AdaptAdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .child(AdaptAdvancement.builder()
+                .icon(Material.TRIDENT)
+                .key("challenge_swim_20k")
+                .title(Localizer.dLocalize("advancement.challenge_swim_20k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_swim_20k.description"))
+                .model(CustomModel.get(Material.TRIDENT, "advancement", "seaborne", "challenge_swim_20k"))
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .child(AdaptAdvancement.builder()
-                        .icon(Material.HEART_OF_THE_SEA)
-                        .key("challenge_swim_5k")
-                        .title(Localizer.dLocalize("advancement.challenge_swim_5k.title"))
-                        .description(Localizer.dLocalize("advancement.challenge_swim_5k.description"))
-                        .model(CustomModel.get(Material.HEART_OF_THE_SEA, "advancement", "seaborne", "challenge_swim_5k"))
-                        .frame(AdaptAdvancementFrame.CHALLENGE)
-                        .visibility(AdvancementVisibility.PARENT_GRANTED)
-                        .child(AdaptAdvancement.builder()
-                                .icon(Material.TRIDENT)
-                                .key("challenge_swim_20k")
-                                .title(Localizer.dLocalize("advancement.challenge_swim_20k.title"))
-                                .description(Localizer.dLocalize("advancement.challenge_swim_20k.description"))
-                                .model(CustomModel.get(Material.TRIDENT, "advancement", "seaborne", "challenge_swim_20k"))
-                                .frame(AdaptAdvancementFrame.CHALLENGE)
-                                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                                .build())
-                        .build())
-                .build());
-        registerMilestone("challenge_swim_1nm", "move.swim", 1852, getConfig().challengeSwim1nmReward);
-        registerMilestone("challenge_swim_5k", "move.swim", 5000, getConfig().challengeSwim5kReward);
-        registerMilestone("challenge_swim_20k", "move.swim", 20000, getConfig().challengeSwim20kReward);
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.FISHING_ROD)
-                .key("challenge_fish_25")
-                .title(Localizer.dLocalize("advancement.challenge_fish_25.title"))
-                .description(Localizer.dLocalize("advancement.challenge_fish_25.description"))
-                .model(CustomModel.get(Material.FISHING_ROD, "advancement", "seaborne", "challenge_fish_25"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .child(AdaptAdvancement.builder()
-                        .icon(Material.TROPICAL_FISH)
-                        .key("challenge_fish_250")
-                        .title(Localizer.dLocalize("advancement.challenge_fish_250.title"))
-                        .description(Localizer.dLocalize("advancement.challenge_fish_250.description"))
-                        .model(CustomModel.get(Material.TROPICAL_FISH, "advancement", "seaborne", "challenge_fish_250"))
-                        .frame(AdaptAdvancementFrame.CHALLENGE)
-                        .visibility(AdvancementVisibility.PARENT_GRANTED)
-                        .build())
-                .build());
-        registerMilestone("challenge_fish_25", "seaborne.fish.caught", 25, getConfig().challengeSwim1nmReward);
-        registerMilestone("challenge_fish_250", "seaborne.fish.caught", 250, getConfig().challengeSwim1nmReward);
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.ROTTEN_FLESH)
-                .key("challenge_drowned_25")
-                .title(Localizer.dLocalize("advancement.challenge_drowned_25.title"))
-                .description(Localizer.dLocalize("advancement.challenge_drowned_25.description"))
-                .model(CustomModel.get(Material.ROTTEN_FLESH, "advancement", "seaborne", "challenge_drowned_25"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .child(AdaptAdvancement.builder()
-                        .icon(Material.TRIDENT)
-                        .key("challenge_drowned_250")
-                        .title(Localizer.dLocalize("advancement.challenge_drowned_250.title"))
-                        .description(Localizer.dLocalize("advancement.challenge_drowned_250.description"))
-                        .model(CustomModel.get(Material.TRIDENT, "advancement", "seaborne", "challenge_drowned_250"))
-                        .frame(AdaptAdvancementFrame.CHALLENGE)
-                        .visibility(AdvancementVisibility.PARENT_GRANTED)
-                        .build())
-                .build());
-        registerMilestone("challenge_drowned_25", "seaborne.drowned.kills", 25, getConfig().challengeSwim1nmReward);
-        registerMilestone("challenge_drowned_250", "seaborne.drowned.kills", 250, getConfig().challengeSwim1nmReward);
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.PRISMARINE_SHARD)
-                .key("challenge_guardian_10")
-                .title(Localizer.dLocalize("advancement.challenge_guardian_10.title"))
-                .description(Localizer.dLocalize("advancement.challenge_guardian_10.description"))
-                .model(CustomModel.get(Material.PRISMARINE_SHARD, "advancement", "seaborne", "challenge_guardian_10"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .child(AdaptAdvancement.builder()
-                        .icon(Material.SEA_LANTERN)
-                        .key("challenge_guardian_100")
-                        .title(Localizer.dLocalize("advancement.challenge_guardian_100.title"))
-                        .description(Localizer.dLocalize("advancement.challenge_guardian_100.description"))
-                        .model(CustomModel.get(Material.SEA_LANTERN, "advancement", "seaborne", "challenge_guardian_100"))
-                        .frame(AdaptAdvancementFrame.CHALLENGE)
-                        .visibility(AdvancementVisibility.PARENT_GRANTED)
-                        .build())
-                .build());
-        registerMilestone("challenge_guardian_10", "seaborne.guardian.kills", 10, getConfig().challengeSwim1nmReward);
-        registerMilestone("challenge_guardian_100", "seaborne.guardian.kills", 100, getConfig().challengeSwim1nmReward);
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.PRISMARINE)
-                .key("challenge_underwater_blocks_100")
-                .title(Localizer.dLocalize("advancement.challenge_underwater_blocks_100.title"))
-                .description(Localizer.dLocalize("advancement.challenge_underwater_blocks_100.description"))
-                .model(CustomModel.get(Material.PRISMARINE, "advancement", "seaborne", "challenge_underwater_blocks_100"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .child(AdaptAdvancement.builder()
-                        .icon(Material.CONDUIT)
-                        .key("challenge_underwater_blocks_1k")
-                        .title(Localizer.dLocalize("advancement.challenge_underwater_blocks_1k.title"))
-                        .description(Localizer.dLocalize("advancement.challenge_underwater_blocks_1k.description"))
-                        .model(CustomModel.get(Material.CONDUIT, "advancement", "seaborne", "challenge_underwater_blocks_1k"))
-                        .frame(AdaptAdvancementFrame.CHALLENGE)
-                        .visibility(AdvancementVisibility.PARENT_GRANTED)
-                        .build())
-                .build());
-        registerMilestone("challenge_underwater_blocks_100", "seaborne.underwater.blocks", 100, getConfig().challengeSwim1nmReward);
-        registerMilestone("challenge_underwater_blocks_1k", "seaborne.underwater.blocks", 1000, getConfig().challengeSwim1nmReward);
-        cooldowns = new HashMap<>();
+                .build())
+            .build())
+        .build());
+    registerMilestone("challenge_swim_1nm", "move.swim", 1852, getConfig().challengeSwim1nmReward);
+    registerMilestone("challenge_swim_5k", "move.swim", 5000, getConfig().challengeSwim5kReward);
+    registerMilestone("challenge_swim_20k", "move.swim", 20000, getConfig().challengeSwim20kReward);
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.FISHING_ROD)
+        .key("challenge_fish_25")
+        .title(Localizer.dLocalize("advancement.challenge_fish_25.title"))
+        .description(Localizer.dLocalize("advancement.challenge_fish_25.description"))
+        .model(CustomModel.get(Material.FISHING_ROD, "advancement", "seaborne", "challenge_fish_25"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .child(AdaptAdvancement.builder()
+            .icon(Material.TROPICAL_FISH)
+            .key("challenge_fish_250")
+            .title(Localizer.dLocalize("advancement.challenge_fish_250.title"))
+            .description(Localizer.dLocalize("advancement.challenge_fish_250.description"))
+            .model(CustomModel.get(Material.TROPICAL_FISH, "advancement", "seaborne", "challenge_fish_250"))
+            .frame(AdaptAdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .build())
+        .build());
+    registerMilestone("challenge_fish_25", "seaborne.fish.caught", 25, getConfig().challengeSwim1nmReward);
+    registerMilestone("challenge_fish_250", "seaborne.fish.caught", 250, getConfig().challengeSwim1nmReward);
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.ROTTEN_FLESH)
+        .key("challenge_drowned_25")
+        .title(Localizer.dLocalize("advancement.challenge_drowned_25.title"))
+        .description(Localizer.dLocalize("advancement.challenge_drowned_25.description"))
+        .model(CustomModel.get(Material.ROTTEN_FLESH, "advancement", "seaborne", "challenge_drowned_25"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .child(AdaptAdvancement.builder()
+            .icon(Material.TRIDENT)
+            .key("challenge_drowned_250")
+            .title(Localizer.dLocalize("advancement.challenge_drowned_250.title"))
+            .description(Localizer.dLocalize("advancement.challenge_drowned_250.description"))
+            .model(CustomModel.get(Material.TRIDENT, "advancement", "seaborne", "challenge_drowned_250"))
+            .frame(AdaptAdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .build())
+        .build());
+    registerMilestone("challenge_drowned_25", "seaborne.drowned.kills", 25, getConfig().challengeSwim1nmReward);
+    registerMilestone("challenge_drowned_250", "seaborne.drowned.kills", 250, getConfig().challengeSwim1nmReward);
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.PRISMARINE_SHARD)
+        .key("challenge_guardian_10")
+        .title(Localizer.dLocalize("advancement.challenge_guardian_10.title"))
+        .description(Localizer.dLocalize("advancement.challenge_guardian_10.description"))
+        .model(CustomModel.get(Material.PRISMARINE_SHARD, "advancement", "seaborne", "challenge_guardian_10"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .child(AdaptAdvancement.builder()
+            .icon(Material.SEA_LANTERN)
+            .key("challenge_guardian_100")
+            .title(Localizer.dLocalize("advancement.challenge_guardian_100.title"))
+            .description(Localizer.dLocalize("advancement.challenge_guardian_100.description"))
+            .model(CustomModel.get(Material.SEA_LANTERN, "advancement", "seaborne", "challenge_guardian_100"))
+            .frame(AdaptAdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .build())
+        .build());
+    registerMilestone("challenge_guardian_10", "seaborne.guardian.kills", 10, getConfig().challengeSwim1nmReward);
+    registerMilestone("challenge_guardian_100", "seaborne.guardian.kills", 100, getConfig().challengeSwim1nmReward);
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.PRISMARINE)
+        .key("challenge_underwater_blocks_100")
+        .title(Localizer.dLocalize("advancement.challenge_underwater_blocks_100.title"))
+        .description(Localizer.dLocalize("advancement.challenge_underwater_blocks_100.description"))
+        .model(CustomModel.get(Material.PRISMARINE, "advancement", "seaborne", "challenge_underwater_blocks_100"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .child(AdaptAdvancement.builder()
+            .icon(Material.CONDUIT)
+            .key("challenge_underwater_blocks_1k")
+            .title(Localizer.dLocalize("advancement.challenge_underwater_blocks_1k.title"))
+            .description(Localizer.dLocalize("advancement.challenge_underwater_blocks_1k.description"))
+            .model(CustomModel.get(Material.CONDUIT, "advancement", "seaborne", "challenge_underwater_blocks_1k"))
+            .frame(AdaptAdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .build())
+        .build());
+    registerMilestone("challenge_underwater_blocks_100", "seaborne.underwater.blocks", 100, getConfig().challengeSwim1nmReward);
+    registerMilestone("challenge_underwater_blocks_1k", "seaborne.underwater.blocks", 1000, getConfig().challengeSwim1nmReward);
+    cooldowns = new HashMap<>();
+  }
+
+  private boolean isOnCooldown(Player p, long cooldown) {
+    Long lastCooldown = cooldowns.get(p.getUniqueId());
+    return lastCooldown != null && lastCooldown + cooldown > System.currentTimeMillis();
+  }
+
+  private void setCooldown(Player p) {
+    cooldowns.put(p.getUniqueId(), System.currentTimeMillis());
+  }
+
+  @Override
+  public void onTick() {
+    if (!this.isEnabled()) {
+      return;
     }
-
-    private boolean isOnCooldown(Player p, long cooldown) {
-        Long lastCooldown = cooldowns.get(p.getUniqueId());
-        return lastCooldown != null && lastCooldown + cooldown > System.currentTimeMillis();
-    }
-
-    private void setCooldown(Player p) {
-        cooldowns.put(p.getUniqueId(), System.currentTimeMillis());
-    }
-
-    @Override
-    public void onTick() {
-        if (!this.isEnabled()) {
-            return;
+    for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+      Player i = adaptPlayer.getPlayer();
+      shouldReturnForPlayer(i, () -> {
+        if ((i.isInWater() || i.isSwimming()) && i.getRemainingAir() < i.getMaximumAir()) {
+          Adapt.verbose("seaborne Tick");
+          checkStatTrackers(adaptPlayer);
+          xpSilent(i, getConfig().swimXP, "seaborne:swim");
         }
-        for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
-            Player i = adaptPlayer.getPlayer();
-            shouldReturnForPlayer(i, () -> {
-                if ((i.isInWater() || i.isSwimming()) && i.getRemainingAir() < i.getMaximumAir()) {
-                    Adapt.verbose("seaborne Tick");
-                    checkStatTrackers(adaptPlayer);
-                    xpSilent(i, getConfig().swimXP, "seaborne:swim");
-                }
-            });
+      });
 
+    }
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(PlayerFishEvent e) {
+    Player p = e.getPlayer();
+    shouldReturnForPlayer(e.getPlayer(), e, () -> {
+      if (e.getState().equals(PlayerFishEvent.State.CAUGHT_FISH)) {
+        getPlayer(p).getData().addStat("seaborne.fish.caught", 1);
+        xp(p, 250);
+      } else if (e.getState().equals(PlayerFishEvent.State.CAUGHT_ENTITY)) {
+        xp(p, 10);
+      }
+    });
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(BlockBreakEvent e) {
+    Player p = e.getPlayer();
+    shouldReturnForPlayer(e.getPlayer(), e, () -> {
+      if (isOnCooldown(p, getConfig().seaPickleCooldown)) {
+        return;
+      }
+      setCooldown(p);
+      if (p.isSwimming() || p.isInWater()) {
+        getPlayer(p).getData().addStat("seaborne.underwater.blocks", 1);
+      }
+      if (e.getBlock().getType().equals(Material.SEA_PICKLE) && p.isSwimming() && p.getRemainingAir() < p.getMaximumAir()) { // BECAUSE I LIKE PICKLES
+        xpSilent(p, 10, "seaborne:sea-pickle");
+      } else {
+        xpSilent(p, 3, "seaborne:underwater-block");
+      }
+    });
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(EntityDeathEvent e) {
+    Player p = e.getEntity().getKiller();
+    if (p == null || !p.getClass().getSimpleName().equals("CraftPlayer")) {
+      return;
+    }
+    shouldReturnForPlayer(p, () -> {
+      if (e.getEntityType() == EntityType.DROWNED) {
+        getPlayer(p).getData().addStat("seaborne.drowned.kills", 1);
+      } else if (e.getEntityType() == EntityType.GUARDIAN || e.getEntityType() == EntityType.ELDER_GUARDIAN) {
+        getPlayer(p).getData().addStat("seaborne.guardian.kills", 1);
+      }
+    });
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(EntityDamageByEntityEvent e) {
+    if (!(e.getEntity() instanceof LivingEntity entity))
+      return;
+
+    if (e.getEntity().getType() == EntityType.DROWNED && e.getDamager() instanceof Player p) {
+      shouldReturnForPlayer(p, e, () -> {
+        if (isOnCooldown(p, getConfig().seaPickleCooldown)) {
+          return;
         }
+        setCooldown(p);
+        xp(p, getConfig().damagedrownxpmultiplier * Math.min(e.getDamage(), getBaseHealth(entity)));
+      });
+    } else if (e.getDamager().getType() == EntityType.TRIDENT) {
+      org.bukkit.projectiles.ProjectileSource shooter = ((Trident) e.getDamager()).getShooter();
+      if (shooter instanceof Player p) {
+        shouldReturnForPlayer(p, e, () -> xp(p, getConfig().tridentxpmultiplier * Math.min(e.getDamage(), getBaseHealth(entity))));
+      }
+    } else if (e.getDamager() instanceof Player p) {
+      if (p.getInventory().getItemInMainHand().getType().equals(Material.TRIDENT)) {
+        shouldReturnForPlayer(p, e, () -> xp(p, getConfig().tridentxpmultiplier * Math.min(e.getDamage(), getBaseHealth(entity))));
+      }
     }
+  }
 
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void on(PlayerFishEvent e) {
-        Player p = e.getPlayer();
-        shouldReturnForPlayer(e.getPlayer(), e, () -> {
-            if (e.getState().equals(PlayerFishEvent.State.CAUGHT_FISH)) {
-                getPlayer(p).getData().addStat("seaborne.fish.caught", 1);
-                xp(p, 250);
-            } else if (e.getState().equals(PlayerFishEvent.State.CAUGHT_ENTITY)) {
-                xp(p, 10);
-            }
-        });
-    }
+  private double getBaseHealth(LivingEntity entity) {
+    art.arcane.adapt.api.version.IAttribute attribute = Version.get().getAttribute(entity, Attributes.GENERIC_MAX_HEALTH);
+    return attribute == null ? 0 : attribute.getBaseValue();
+  }
 
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void on(BlockBreakEvent e) {
-        Player p = e.getPlayer();
-        shouldReturnForPlayer(e.getPlayer(), e, () -> {
-            if (isOnCooldown(p, getConfig().seaPickleCooldown)) {
-                return;
-            }
-            setCooldown(p);
-            if (p.isSwimming() || p.isInWater()) {
-                getPlayer(p).getData().addStat("seaborne.underwater.blocks", 1);
-            }
-            if (e.getBlock().getType().equals(Material.SEA_PICKLE) && p.isSwimming() && p.getRemainingAir() < p.getMaximumAir()) { // BECAUSE I LIKE PICKLES
-                xpSilent(p, 10, "seaborne:sea-pickle");
-            } else {
-                xpSilent(p, 3, "seaborne:underwater-block");
-            }
-        });
-    }
+  @Override
+  public boolean isEnabled() {
+    return getConfig().enabled;
+  }
 
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void on(EntityDeathEvent e) {
-        Player p = e.getEntity().getKiller();
-        if (p == null || !p.getClass().getSimpleName().equals("CraftPlayer")) {
-            return;
-        }
-        shouldReturnForPlayer(p, () -> {
-            if (e.getEntityType() == EntityType.DROWNED) {
-                getPlayer(p).getData().addStat("seaborne.drowned.kills", 1);
-            } else if (e.getEntityType() == EntityType.GUARDIAN || e.getEntityType() == EntityType.ELDER_GUARDIAN) {
-                getPlayer(p).getData().addStat("seaborne.guardian.kills", 1);
-            }
-        });
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void on(EntityDamageByEntityEvent e) {
-        if (!(e.getEntity() instanceof LivingEntity entity))
-            return;
-
-        if (e.getEntity().getType() == EntityType.DROWNED && e.getDamager() instanceof Player p) {
-            shouldReturnForPlayer(p, e, () -> {
-                if (isOnCooldown(p, getConfig().seaPickleCooldown)) {
-                    return;
-                }
-                setCooldown(p);
-                xp(p, getConfig().damagedrownxpmultiplier * Math.min(e.getDamage(), getBaseHealth(entity)));
-            });
-        } else if (e.getDamager().getType() == EntityType.TRIDENT) {
-            var shooter = ((Trident) e.getDamager()).getShooter();
-            if (shooter instanceof Player p) {
-                shouldReturnForPlayer(p, e, () -> xp(p, getConfig().tridentxpmultiplier * Math.min(e.getDamage(), getBaseHealth(entity))));
-            }
-        } else if (e.getDamager() instanceof Player p) {
-            if (p.getInventory().getItemInMainHand().getType().equals(Material.TRIDENT)) {
-                shouldReturnForPlayer(p, e, () -> xp(p, getConfig().tridentxpmultiplier * Math.min(e.getDamage(), getBaseHealth(entity))));
-            }
-        }
-    }
-
-    private double getBaseHealth(LivingEntity entity) {
-        var attribute = Version.get().getAttribute(entity, Attributes.GENERIC_MAX_HEALTH);
-        return attribute == null ? 0 : attribute.getBaseValue();
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return getConfig().enabled;
-    }
-
-    @NoArgsConstructor
-    protected static class Config {
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Sea Pickle Cooldown for the Seaborne skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        public long seaPickleCooldown = 60000;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Tridentxpmultiplier for the Seaborne skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        public double tridentxpmultiplier = 4.0;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Damagedrownxpmultiplier for the Seaborne skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double damagedrownxpmultiplier = 3;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-        boolean enabled = true;
-        String skillColor = "&9";
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Challenge Swim1nm Reward for the Seaborne skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double challengeSwim1nmReward = 750;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Challenge Swim5k Reward for the Seaborne skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double challengeSwim5kReward = 1500;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Challenge Swim20k Reward for the Seaborne skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double challengeSwim20kReward = 3750;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Swim XP for the Seaborne skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double swimXP = 0.4;
-    }
+  @NoArgsConstructor
+  protected static class Config {
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Sea Pickle Cooldown for the Seaborne skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    public long seaPickleCooldown = 60000;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Tridentxpmultiplier for the Seaborne skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    public double tridentxpmultiplier = 4.0;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Damagedrownxpmultiplier for the Seaborne skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double damagedrownxpmultiplier = 3;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
+    boolean enabled = true;
+    String skillColor = "&9";
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Challenge Swim1nm Reward for the Seaborne skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double challengeSwim1nmReward = 750;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Challenge Swim5k Reward for the Seaborne skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double challengeSwim5kReward = 1500;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Challenge Swim20k Reward for the Seaborne skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double challengeSwim20kReward = 3750;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Swim XP for the Seaborne skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double swimXP = 0.4;
+  }
 }

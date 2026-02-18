@@ -39,204 +39,204 @@ import java.util.Map;
 import java.util.UUID;
 
 public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
-    private final Map<UUID, Long> cooldowns;
+  private final Map<UUID, Long> cooldowns;
 
-    public SkillEnchanting() {
-        super("enchanting", Localizer.dLocalize("skill.enchanting.icon"));
-        registerConfiguration(Config.class);
-        setColor(C.LIGHT_PURPLE);
-        setDescription(Localizer.dLocalize("skill.enchanting.description"));
-        setDisplayName(Localizer.dLocalize("skill.enchanting.name"));
-        setInterval(3909);
-        setIcon(Material.KNOWLEDGE_BOOK);
-        cooldowns = new HashMap<>();
-        registerAdaptation(new EnchantingQuickEnchant());
-        registerAdaptation(new EnchantingLapisReturn());
-        registerAdaptation(new EnchantingXPReturn()); //
-        registerAdaptation(new EnchantingAnvilSavant());
-        registerAdaptation(new EnchantingOfferReroll());
-        registerAdaptation(new EnchantingBookshelfAttunement());
-        registerAdaptation(new EnchantingGrindstoneRecovery());
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.CRAFTING_TABLE).key("challenge_enchant_1k")
-                .title(Localizer.dLocalize("advancement.challenge_enchant_1k.title"))
-                .description(Localizer.dLocalize("advancement.challenge_enchant_1k.description"))
-                .model(CustomModel.get(Material.CRAFTING_TABLE, "advancement", "enchanting", "challenge_enchant_1k"))
+  public SkillEnchanting() {
+    super("enchanting", Localizer.dLocalize("skill.enchanting.icon"));
+    registerConfiguration(Config.class);
+    setColor(C.LIGHT_PURPLE);
+    setDescription(Localizer.dLocalize("skill.enchanting.description"));
+    setDisplayName(Localizer.dLocalize("skill.enchanting.name"));
+    setInterval(3909);
+    setIcon(Material.KNOWLEDGE_BOOK);
+    cooldowns = new HashMap<>();
+    registerAdaptation(new EnchantingQuickEnchant());
+    registerAdaptation(new EnchantingLapisReturn());
+    registerAdaptation(new EnchantingXPReturn()); //
+    registerAdaptation(new EnchantingAnvilSavant());
+    registerAdaptation(new EnchantingOfferReroll());
+    registerAdaptation(new EnchantingBookshelfAttunement());
+    registerAdaptation(new EnchantingGrindstoneRecovery());
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.CRAFTING_TABLE).key("challenge_enchant_1k")
+        .title(Localizer.dLocalize("advancement.challenge_enchant_1k.title"))
+        .description(Localizer.dLocalize("advancement.challenge_enchant_1k.description"))
+        .model(CustomModel.get(Material.CRAFTING_TABLE, "advancement", "enchanting", "challenge_enchant_1k"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
+            .icon(Material.KNOWLEDGE_BOOK)
+            .key("challenge_enchant_5k")
+            .title(Localizer.dLocalize("advancement.challenge_enchant_5k.title"))
+            .description(Localizer.dLocalize("advancement.challenge_enchant_5k.description"))
+            .model(CustomModel.get(Material.KNOWLEDGE_BOOK, "advancement", "enchanting", "challenge_enchant_5k"))
+            .frame(AdaptAdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
+                .icon(Material.KNOWLEDGE_BOOK)
+                .key("challenge_enchant_50k")
+                .title(Localizer.dLocalize("advancement.challenge_enchant_50k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_enchant_50k.description"))
+                .model(CustomModel.get(Material.KNOWLEDGE_BOOK, "advancement", "enchanting", "challenge_enchant_50k"))
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
+                    .icon(Material.KNOWLEDGE_BOOK)
+                    .key("challenge_enchant_500k")
+                    .title(Localizer.dLocalize("advancement.challenge_enchant_500k.title"))
+                    .description(Localizer.dLocalize("advancement.challenge_enchant_500k.description"))
+                    .model(CustomModel.get(Material.KNOWLEDGE_BOOK, "advancement", "enchanting", "challenge_enchant_500k"))
+                    .frame(AdaptAdvancementFrame.CHALLENGE)
+                    .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                         .icon(Material.KNOWLEDGE_BOOK)
-                        .key("challenge_enchant_5k")
-                        .title(Localizer.dLocalize("advancement.challenge_enchant_5k.title"))
-                        .description(Localizer.dLocalize("advancement.challenge_enchant_5k.description"))
-                        .model(CustomModel.get(Material.KNOWLEDGE_BOOK, "advancement", "enchanting", "challenge_enchant_5k"))
-                        .frame(AdaptAdvancementFrame.CHALLENGE)
-                        .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
-                                .icon(Material.KNOWLEDGE_BOOK)
-                                .key("challenge_enchant_50k")
-                                .title(Localizer.dLocalize("advancement.challenge_enchant_50k.title"))
-                                .description(Localizer.dLocalize("advancement.challenge_enchant_50k.description"))
-                                .model(CustomModel.get(Material.KNOWLEDGE_BOOK, "advancement", "enchanting", "challenge_enchant_50k"))
-                                .frame(AdaptAdvancementFrame.CHALLENGE)
-                                .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
-                                        .icon(Material.KNOWLEDGE_BOOK)
-                                        .key("challenge_enchant_500k")
-                                        .title(Localizer.dLocalize("advancement.challenge_enchant_500k.title"))
-                                        .description(Localizer.dLocalize("advancement.challenge_enchant_500k.description"))
-                                        .model(CustomModel.get(Material.KNOWLEDGE_BOOK, "advancement", "enchanting", "challenge_enchant_500k"))
-                                        .frame(AdaptAdvancementFrame.CHALLENGE)
-                                        .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
-                                                .icon(Material.KNOWLEDGE_BOOK)
-                                                .key("challenge_enchant_5m")
-                                                .title(Localizer.dLocalize("advancement.challenge_enchant_5m.title"))
-                                                .description(Localizer.dLocalize("advancement.challenge_enchant_5m.description"))
-                                                .model(CustomModel.get(Material.KNOWLEDGE_BOOK, "advancement", "enchanting", "challenge_enchant_5m"))
-                                                .frame(AdaptAdvancementFrame.CHALLENGE)
-                                                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                                                .build())
-                                        .build())
-                                .build())
-                        .build())
-                .build());
-        registerMilestone("challenge_enchant_1k", "enchanted.items", 1000, getConfig().challengeEnchantReward);
-        registerMilestone("challenge_enchant_5k", "enchanted.items", 5000, getConfig().challengeEnchantReward);
-        registerMilestone("challenge_enchant_50k", "enchanted.items", 50000, getConfig().challengeEnchantReward);
-        registerMilestone("challenge_enchant_500k", "enchanted.items", 500000, getConfig().challengeEnchantReward);
-        registerMilestone("challenge_enchant_5m", "enchanted.items", 5000000, getConfig().challengeEnchantReward);
-
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.EXPERIENCE_BOTTLE)
-                .key("challenge_enchant_power_100")
-                .title(Localizer.dLocalize("advancement.challenge_enchant_power_100.title"))
-                .description(Localizer.dLocalize("advancement.challenge_enchant_power_100.description"))
-                .model(CustomModel.get(Material.EXPERIENCE_BOTTLE, "advancement", "enchanting", "challenge_enchant_power_100"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .child(AdaptAdvancement.builder()
-                        .icon(Material.ENCHANTING_TABLE)
-                        .key("challenge_enchant_power_1k")
-                        .title(Localizer.dLocalize("advancement.challenge_enchant_power_1k.title"))
-                        .description(Localizer.dLocalize("advancement.challenge_enchant_power_1k.description"))
-                        .model(CustomModel.get(Material.ENCHANTING_TABLE, "advancement", "enchanting", "challenge_enchant_power_1k"))
+                        .key("challenge_enchant_5m")
+                        .title(Localizer.dLocalize("advancement.challenge_enchant_5m.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_enchant_5m.description"))
+                        .model(CustomModel.get(Material.KNOWLEDGE_BOOK, "advancement", "enchanting", "challenge_enchant_5m"))
                         .frame(AdaptAdvancementFrame.CHALLENGE)
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
-                .build());
-        registerMilestone("challenge_enchant_power_100", "enchanted.power", 100, getConfig().challengeEnchantReward);
-        registerMilestone("challenge_enchant_power_1k", "enchanted.power", 1000, getConfig().challengeEnchantReward * 2);
+                    .build())
+                .build())
+            .build())
+        .build());
+    registerMilestone("challenge_enchant_1k", "enchanted.items", 1000, getConfig().challengeEnchantReward);
+    registerMilestone("challenge_enchant_5k", "enchanted.items", 5000, getConfig().challengeEnchantReward);
+    registerMilestone("challenge_enchant_50k", "enchanted.items", 50000, getConfig().challengeEnchantReward);
+    registerMilestone("challenge_enchant_500k", "enchanted.items", 500000, getConfig().challengeEnchantReward);
+    registerMilestone("challenge_enchant_5m", "enchanted.items", 5000000, getConfig().challengeEnchantReward);
 
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.LAPIS_LAZULI)
-                .key("challenge_enchant_levels_1k")
-                .title(Localizer.dLocalize("advancement.challenge_enchant_levels_1k.title"))
-                .description(Localizer.dLocalize("advancement.challenge_enchant_levels_1k.description"))
-                .model(CustomModel.get(Material.LAPIS_LAZULI, "advancement", "enchanting", "challenge_enchant_levels_1k"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .child(AdaptAdvancement.builder()
-                        .icon(Material.LAPIS_BLOCK)
-                        .key("challenge_enchant_levels_10k")
-                        .title(Localizer.dLocalize("advancement.challenge_enchant_levels_10k.title"))
-                        .description(Localizer.dLocalize("advancement.challenge_enchant_levels_10k.description"))
-                        .model(CustomModel.get(Material.LAPIS_BLOCK, "advancement", "enchanting", "challenge_enchant_levels_10k"))
-                        .frame(AdaptAdvancementFrame.CHALLENGE)
-                        .visibility(AdvancementVisibility.PARENT_GRANTED)
-                        .build())
-                .build());
-        registerMilestone("challenge_enchant_levels_1k", "enchanted.levels.spent", 1000, getConfig().challengeEnchantReward);
-        registerMilestone("challenge_enchant_levels_10k", "enchanted.levels.spent", 10000, getConfig().challengeEnchantReward * 2);
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.EXPERIENCE_BOTTLE)
+        .key("challenge_enchant_power_100")
+        .title(Localizer.dLocalize("advancement.challenge_enchant_power_100.title"))
+        .description(Localizer.dLocalize("advancement.challenge_enchant_power_100.description"))
+        .model(CustomModel.get(Material.EXPERIENCE_BOTTLE, "advancement", "enchanting", "challenge_enchant_power_100"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .child(AdaptAdvancement.builder()
+            .icon(Material.ENCHANTING_TABLE)
+            .key("challenge_enchant_power_1k")
+            .title(Localizer.dLocalize("advancement.challenge_enchant_power_1k.title"))
+            .description(Localizer.dLocalize("advancement.challenge_enchant_power_1k.description"))
+            .model(CustomModel.get(Material.ENCHANTING_TABLE, "advancement", "enchanting", "challenge_enchant_power_1k"))
+            .frame(AdaptAdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .build())
+        .build());
+    registerMilestone("challenge_enchant_power_100", "enchanted.power", 100, getConfig().challengeEnchantReward);
+    registerMilestone("challenge_enchant_power_1k", "enchanted.power", 1000, getConfig().challengeEnchantReward * 2);
 
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.BOOKSHELF)
-                .key("challenge_enchant_high_25")
-                .title(Localizer.dLocalize("advancement.challenge_enchant_high_25.title"))
-                .description(Localizer.dLocalize("advancement.challenge_enchant_high_25.description"))
-                .model(CustomModel.get(Material.BOOKSHELF, "advancement", "enchanting", "challenge_enchant_high_25"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .child(AdaptAdvancement.builder()
-                        .icon(Material.ENCHANTED_BOOK)
-                        .key("challenge_enchant_high_250")
-                        .title(Localizer.dLocalize("advancement.challenge_enchant_high_250.title"))
-                        .description(Localizer.dLocalize("advancement.challenge_enchant_high_250.description"))
-                        .model(CustomModel.get(Material.ENCHANTED_BOOK, "advancement", "enchanting", "challenge_enchant_high_250"))
-                        .frame(AdaptAdvancementFrame.CHALLENGE)
-                        .visibility(AdvancementVisibility.PARENT_GRANTED)
-                        .build())
-                .build());
-        registerMilestone("challenge_enchant_high_25", "enchanting.high.level", 25, getConfig().challengeEnchantReward);
-        registerMilestone("challenge_enchant_high_250", "enchanting.high.level", 250, getConfig().challengeEnchantReward * 2);
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.LAPIS_LAZULI)
+        .key("challenge_enchant_levels_1k")
+        .title(Localizer.dLocalize("advancement.challenge_enchant_levels_1k.title"))
+        .description(Localizer.dLocalize("advancement.challenge_enchant_levels_1k.description"))
+        .model(CustomModel.get(Material.LAPIS_LAZULI, "advancement", "enchanting", "challenge_enchant_levels_1k"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .child(AdaptAdvancement.builder()
+            .icon(Material.LAPIS_BLOCK)
+            .key("challenge_enchant_levels_10k")
+            .title(Localizer.dLocalize("advancement.challenge_enchant_levels_10k.title"))
+            .description(Localizer.dLocalize("advancement.challenge_enchant_levels_10k.description"))
+            .model(CustomModel.get(Material.LAPIS_BLOCK, "advancement", "enchanting", "challenge_enchant_levels_10k"))
+            .frame(AdaptAdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .build())
+        .build());
+    registerMilestone("challenge_enchant_levels_1k", "enchanted.levels.spent", 1000, getConfig().challengeEnchantReward);
+    registerMilestone("challenge_enchant_levels_10k", "enchanted.levels.spent", 10000, getConfig().challengeEnchantReward * 2);
 
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.EXPERIENCE_BOTTLE)
-                .key("challenge_enchant_total_500")
-                .title(Localizer.dLocalize("advancement.challenge_enchant_total_500.title"))
-                .description(Localizer.dLocalize("advancement.challenge_enchant_total_500.description"))
-                .model(CustomModel.get(Material.EXPERIENCE_BOTTLE, "advancement", "enchanting", "challenge_enchant_total_500"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .child(AdaptAdvancement.builder()
-                        .icon(Material.DRAGON_BREATH)
-                        .key("challenge_enchant_total_5k")
-                        .title(Localizer.dLocalize("advancement.challenge_enchant_total_5k.title"))
-                        .description(Localizer.dLocalize("advancement.challenge_enchant_total_5k.description"))
-                        .model(CustomModel.get(Material.DRAGON_BREATH, "advancement", "enchanting", "challenge_enchant_total_5k"))
-                        .frame(AdaptAdvancementFrame.CHALLENGE)
-                        .visibility(AdvancementVisibility.PARENT_GRANTED)
-                        .build())
-                .build());
-        registerMilestone("challenge_enchant_total_500", "enchanting.total.levels", 500, getConfig().challengeEnchantReward);
-        registerMilestone("challenge_enchant_total_5k", "enchanting.total.levels", 5000, getConfig().challengeEnchantReward * 2);
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.BOOKSHELF)
+        .key("challenge_enchant_high_25")
+        .title(Localizer.dLocalize("advancement.challenge_enchant_high_25.title"))
+        .description(Localizer.dLocalize("advancement.challenge_enchant_high_25.description"))
+        .model(CustomModel.get(Material.BOOKSHELF, "advancement", "enchanting", "challenge_enchant_high_25"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .child(AdaptAdvancement.builder()
+            .icon(Material.ENCHANTED_BOOK)
+            .key("challenge_enchant_high_250")
+            .title(Localizer.dLocalize("advancement.challenge_enchant_high_250.title"))
+            .description(Localizer.dLocalize("advancement.challenge_enchant_high_250.description"))
+            .model(CustomModel.get(Material.ENCHANTED_BOOK, "advancement", "enchanting", "challenge_enchant_high_250"))
+            .frame(AdaptAdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .build())
+        .build());
+    registerMilestone("challenge_enchant_high_25", "enchanting.high.level", 25, getConfig().challengeEnchantReward);
+    registerMilestone("challenge_enchant_high_250", "enchanting.high.level", 250, getConfig().challengeEnchantReward * 2);
+
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.EXPERIENCE_BOTTLE)
+        .key("challenge_enchant_total_500")
+        .title(Localizer.dLocalize("advancement.challenge_enchant_total_500.title"))
+        .description(Localizer.dLocalize("advancement.challenge_enchant_total_500.description"))
+        .model(CustomModel.get(Material.EXPERIENCE_BOTTLE, "advancement", "enchanting", "challenge_enchant_total_500"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .child(AdaptAdvancement.builder()
+            .icon(Material.DRAGON_BREATH)
+            .key("challenge_enchant_total_5k")
+            .title(Localizer.dLocalize("advancement.challenge_enchant_total_5k.title"))
+            .description(Localizer.dLocalize("advancement.challenge_enchant_total_5k.description"))
+            .model(CustomModel.get(Material.DRAGON_BREATH, "advancement", "enchanting", "challenge_enchant_total_5k"))
+            .frame(AdaptAdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .build())
+        .build());
+    registerMilestone("challenge_enchant_total_500", "enchanting.total.levels", 500, getConfig().challengeEnchantReward);
+    registerMilestone("challenge_enchant_total_5k", "enchanting.total.levels", 5000, getConfig().challengeEnchantReward * 2);
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(EnchantItemEvent e) {
+    Player p = e.getEnchanter();
+    shouldReturnForPlayer(p, e, () -> {
+      handleEnchantItemEvent(p, e);
+    });
+
+  }
+
+  private void handleEnchantItemEvent(Player p, EnchantItemEvent e) {
+    AdaptPlayer adaptPlayer = getPlayer(p);
+    adaptPlayer.getData().addStat("enchanted.items", 1);
+    adaptPlayer.getData().addStat("enchanted.power", e.getEnchantsToAdd().values().stream().mapToInt(i -> i).sum());
+    adaptPlayer.getData().addStat("enchanted.levels.spent", e.getExpLevelCost());
+    if (e.getExpLevelCost() >= 30) {
+      adaptPlayer.getData().addStat("enchanting.high.level", 1);
     }
+    adaptPlayer.getData().addStat("enchanting.total.levels", e.getExpLevelCost());
 
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void on(EnchantItemEvent e) {
-        Player p = e.getEnchanter();
-        shouldReturnForPlayer(p, e, () -> {
-            handleEnchantItemEvent(p, e);
-        });
+    Long cooldown = cooldowns.get(p.getUniqueId());
+    if (cooldown != null && cooldown + getConfig().cooldownDelay > System.currentTimeMillis())
+      return;
+    cooldowns.put(p.getUniqueId(), System.currentTimeMillis());
+    xp(p, getConfig().enchantPowerXPMultiplier * e.getEnchantsToAdd().values().stream().mapToInt((i) -> i).sum());
+  }
 
+  @Override
+  public void onTick() {
+    if (!this.isEnabled()) {
+      return;
     }
+    checkStatTrackersForOnlinePlayers();
+  }
 
-    private void handleEnchantItemEvent(Player p, EnchantItemEvent e) {
-        AdaptPlayer adaptPlayer = getPlayer(p);
-        adaptPlayer.getData().addStat("enchanted.items", 1);
-        adaptPlayer.getData().addStat("enchanted.power", e.getEnchantsToAdd().values().stream().mapToInt(i -> i).sum());
-        adaptPlayer.getData().addStat("enchanted.levels.spent", e.getExpLevelCost());
-        if (e.getExpLevelCost() >= 30) {
-            adaptPlayer.getData().addStat("enchanting.high.level", 1);
-        }
-        adaptPlayer.getData().addStat("enchanting.total.levels", e.getExpLevelCost());
+  @Override
+  public boolean isEnabled() {
+    return getConfig().enabled;
+  }
 
-        Long cooldown = cooldowns.get(p.getUniqueId());
-        if (cooldown != null && cooldown + getConfig().cooldownDelay > System.currentTimeMillis())
-            return;
-        cooldowns.put(p.getUniqueId(), System.currentTimeMillis());
-        xp(p, getConfig().enchantPowerXPMultiplier * e.getEnchantsToAdd().values().stream().mapToInt((i) -> i).sum());
-    }
-
-    @Override
-    public void onTick() {
-        if (!this.isEnabled()) {
-            return;
-        }
-        checkStatTrackersForOnlinePlayers();
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return getConfig().enabled;
-    }
-
-    @NoArgsConstructor
-    protected static class Config {
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-        boolean enabled = true;
-        String skillColor = "&d";
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Enchant Power XPMultiplier for the Enchanting skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double enchantPowerXPMultiplier = 45;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown Delay for the Enchanting skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        long cooldownDelay = 5250;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Challenge Enchant Reward for the Enchanting skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double challengeEnchantReward = 2500;
-    }
+  @NoArgsConstructor
+  protected static class Config {
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
+    boolean enabled = true;
+    String skillColor = "&d";
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Enchant Power XPMultiplier for the Enchanting skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double enchantPowerXPMultiplier = 45;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown Delay for the Enchanting skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    long cooldownDelay = 5250;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Challenge Enchant Reward for the Enchanting skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double challengeEnchantReward = 2500;
+  }
 }

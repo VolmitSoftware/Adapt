@@ -23,57 +23,57 @@ import java.util.concurrent.TimeUnit;
 
 @Log
 public class RedisSync implements AutoCloseable {
-    private final RedisClient redisClient;
-    private final RedisPubSubReactiveCommands<String, Message> pubSub;
-    private final Cache<UUID, String> dataCache = Caffeine.newBuilder()
-            .expireAfterWrite(1, TimeUnit.MINUTES)
-            .build();
+  private final RedisClient redisClient;
+  private final RedisPubSubReactiveCommands<String, Message> pubSub;
+  private final Cache<UUID, String> dataCache = Caffeine.newBuilder()
+      .expireAfterWrite(1, TimeUnit.MINUTES)
+      .build();
 
-    public RedisSync() {
-        if (!AdaptConfig.get().isUseRedis() || !AdaptConfig.get().isUseSql()) {
-            this.redisClient = null;
-            this.pubSub = null;
-            return;
-        }
-
-        this.redisClient = AdaptConfig.get().getRedis().createClient();
-        this.pubSub = redisClient.connectPubSub(Codec.INSTANCE).reactive();
-        pubSub.subscribe("Adapt:data").subscribe();
-        pubSub.observeChannels().doOnNext(this::update).subscribe();
+  public RedisSync() {
+    if (!AdaptConfig.get().isUseRedis() || !AdaptConfig.get().isUseSql()) {
+      this.redisClient = null;
+      this.pubSub = null;
+      return;
     }
 
-    private void update(@NotNull ChannelMessage<@NotNull String, @Nullable Message> channelMessage) {
-        if (!channelMessage.getChannel().equals("Adapt:data")) return;
-        Message raw = channelMessage.getMessage();
-        if (raw instanceof DataMessage message) {
-            Adapt.verbose("Received player data for " + message.uuid());
-            dataCache.put(message.uuid(), message.json());
-        } else if (raw instanceof DataRequest message) {
-            Adapt.instance.getAdaptServer()
-                    .getPlayerData(message.uuid())
-                    .map(data -> data.toJson(false))
-                    .ifPresent(data -> publish(message.uuid(), data));
-        }
-    }
+    this.redisClient = AdaptConfig.get().getRedis().createClient();
+    this.pubSub = redisClient.connectPubSub(Codec.INSTANCE).reactive();
+    pubSub.subscribe("Adapt:data").subscribe();
+    pubSub.observeChannels().doOnNext(this::update).subscribe();
+  }
 
-    public void publish(@NonNull UUID uuid, @NonNull String playerData) {
-        if (pubSub == null) return;
-        Adapt.verbose("Publishing player data for " + uuid);
-        pubSub.publish("Adapt:data", new DataMessage(uuid, playerData))
-                .subscribe()
-                .dispose();
+  private void update(@NotNull ChannelMessage<@NotNull String, @Nullable Message> channelMessage) {
+    if (!channelMessage.getChannel().equals("Adapt:data")) return;
+    Message raw = channelMessage.getMessage();
+    if (raw instanceof DataMessage message) {
+      Adapt.verbose("Received player data for " + message.uuid());
+      dataCache.put(message.uuid(), message.json());
+    } else if (raw instanceof DataRequest message) {
+      Adapt.instance.getAdaptServer()
+          .getPlayerData(message.uuid())
+          .map(data -> data.toJson(false))
+          .ifPresent(data -> publish(message.uuid(), data));
     }
+  }
 
-    @NonNull
-    public Optional<PlayerData> cachedData(@NonNull UUID uuid) {
-        if (pubSub == null) return Optional.empty();
-        return Optional.ofNullable(dataCache.getIfPresent(uuid))
-                .map(PlayerData::fromJson);
-    }
+  public void publish(@NonNull UUID uuid, @NonNull String playerData) {
+    if (pubSub == null) return;
+    Adapt.verbose("Publishing player data for " + uuid);
+    pubSub.publish("Adapt:data", new DataMessage(uuid, playerData))
+        .subscribe()
+        .dispose();
+  }
 
-    @Override
-    public void close() throws Exception {
-        if (redisClient != null)
-            redisClient.close();
-    }
+  @NonNull
+  public Optional<PlayerData> cachedData(@NonNull UUID uuid) {
+    if (pubSub == null) return Optional.empty();
+    return Optional.ofNullable(dataCache.getIfPresent(uuid))
+        .map(PlayerData::fromJson);
+  }
+
+  @Override
+  public void close() throws Exception {
+    if (redisClient != null)
+      redisClient.close();
+  }
 }

@@ -24,8 +24,8 @@ import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.recipe.MaterialChar;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.inventorygui.Element;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -37,85 +37,85 @@ import java.util.List;
 
 public class CraftingBackpacks extends SimpleAdaptation<CraftingBackpacks.Config> {
 
-    public CraftingBackpacks() {
-        super("crafting-backpacks");
-        registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("crafting.backpacks.description"));
-        setDisplayName(Localizer.dLocalize("crafting.backpacks.name"));
-        setIcon(Material.BUNDLE);
-        setBaseCost(getConfig().baseCost);
-        setCostFactor(getConfig().costFactor);
-        setMaxLevel(getConfig().maxLevel);
-        setInitialCost(getConfig().initialCost);
-        setInterval(17779);
-        registerRecipe(AdaptRecipe.shaped()
-                .key("crafting-backpacks")
-                .ingredient(new MaterialChar('I', Material.LEATHER))
-                .ingredient(new MaterialChar('L', Material.LEAD))
-                .ingredient(new MaterialChar('C', Material.CHEST))
-                .ingredient(new MaterialChar('X', Material.BARREL))
-                .shapes(List.of(
-                        "ILI",
-                        "IXI",
-                        "ICI"))
-                .result(new ItemStack(Material.BUNDLE, 1))
-                .build());
-        AdvancementSpec backpacksCrafted = AdvancementSpec.challenge(
-                "challenge_crafting_backpack_25",
-                Material.BUNDLE,
-                Localizer.dLocalize("advancement.challenge_crafting_backpack_25.title"),
-                Localizer.dLocalize("advancement.challenge_crafting_backpack_25.description")
-        );
-        registerMilestone(backpacksCrafted, "crafting.backpacks.bundles-crafted", 25, 300);
+  public CraftingBackpacks() {
+    super("crafting-backpacks");
+    registerConfiguration(Config.class);
+    setDescription(Localizer.dLocalize("crafting.backpacks.description"));
+    setDisplayName(Localizer.dLocalize("crafting.backpacks.name"));
+    setIcon(Material.BUNDLE);
+    setBaseCost(getConfig().baseCost);
+    setCostFactor(getConfig().costFactor);
+    setMaxLevel(getConfig().maxLevel);
+    setInitialCost(getConfig().initialCost);
+    setInterval(17779);
+    registerRecipe(AdaptRecipe.shaped()
+        .key("crafting-backpacks")
+        .ingredient(new MaterialChar('I', Material.LEATHER))
+        .ingredient(new MaterialChar('L', Material.LEAD))
+        .ingredient(new MaterialChar('C', Material.CHEST))
+        .ingredient(new MaterialChar('X', Material.BARREL))
+        .shapes(List.of(
+            "ILI",
+            "IXI",
+            "ICI"))
+        .result(new ItemStack(Material.BUNDLE, 1))
+        .build());
+    AdvancementSpec backpacksCrafted = AdvancementSpec.challenge(
+        "challenge_crafting_backpack_25",
+        Material.BUNDLE,
+        Localizer.dLocalize("advancement.challenge_crafting_backpack_25.title"),
+        Localizer.dLocalize("advancement.challenge_crafting_backpack_25.description")
+    );
+    registerMilestone(backpacksCrafted, "crafting.backpacks.bundles-crafted", 25, 300);
+  }
+
+  @Override
+  public void addStats(int level, Element v) {
+    v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("crafting.backpacks.lore1"));
+    v.addLore(C.YELLOW + "- " + C.GRAY + Localizer.dLocalize("crafting.backpacks.lore2"));
+    v.addLore(C.YELLOW + "- " + C.GRAY + Localizer.dLocalize("crafting.backpacks.lore3"));
+    v.addLore(C.YELLOW + "- " + C.GRAY + Localizer.dLocalize("crafting.backpacks.lore4"));
+
+  }
+
+
+  @EventHandler
+  public void on(CraftItemEvent e) {
+    Player p = (Player) e.getWhoClicked();
+    if (!hasActiveAdaptation(p)) return;
+    if (e.getRecipe() != null && e.getRecipe().getResult().getType() == Material.BUNDLE) {
+      getPlayer(p).getData().addStat("crafting.backpacks.bundles-crafted", 1);
     }
+  }
 
-    @Override
-    public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("crafting.backpacks.lore1"));
-        v.addLore(C.YELLOW + "- " + C.GRAY + Localizer.dLocalize("crafting.backpacks.lore2"));
-        v.addLore(C.YELLOW + "- " + C.GRAY + Localizer.dLocalize("crafting.backpacks.lore3"));
-        v.addLore(C.YELLOW + "- " + C.GRAY + Localizer.dLocalize("crafting.backpacks.lore4"));
+  @Override
+  public void onTick() {
+  }
 
-    }
+  @Override
+  public boolean isEnabled() {
+    return getConfig().enabled;
+  }
 
+  @Override
+  public boolean isPermanent() {
+    return getConfig().permanent;
+  }
 
-    @EventHandler
-    public void on(CraftItemEvent e) {
-        Player p = (Player) e.getWhoClicked();
-        if (!hasActiveAdaptation(p)) return;
-        if (e.getRecipe() != null && e.getRecipe().getResult().getType() == Material.BUNDLE) {
-            getPlayer(p).getData().addStat("crafting.backpacks.bundles-crafted", 1);
-        }
-    }
-
-    @Override
-    public void onTick() {
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return getConfig().enabled;
-    }
-
-    @Override
-    public boolean isPermanent() {
-        return getConfig().permanent;
-    }
-
-    @NoArgsConstructor
-    @ConfigDescription("Craft Bundles for portable item storage.")
-    protected static class Config {
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-        boolean permanent = true;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-        boolean enabled = true;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-        int baseCost = 5;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-        int maxLevel = 1;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-        int initialCost = 2;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-        double costFactor = 1;
-    }
+  @NoArgsConstructor
+  @ConfigDescription("Craft Bundles for portable item storage.")
+  protected static class Config {
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
+    boolean permanent = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
+    boolean enabled = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
+    int baseCost = 5;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
+    int maxLevel = 1;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
+    int initialCost = 2;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
+    double costFactor = 1;
+  }
 }

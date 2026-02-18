@@ -24,8 +24,8 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.inventorygui.Element;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -38,93 +38,93 @@ import java.util.Map;
 import java.util.UUID;
 
 public class EnchantingXPReturn extends SimpleAdaptation<EnchantingXPReturn.Config> {
-    private final Map<UUID, Long> cooldown = new java.util.concurrent.ConcurrentHashMap<>();
+  private final Map<UUID, Long> cooldown = new java.util.concurrent.ConcurrentHashMap<>();
 
-    public EnchantingXPReturn() {
-        super("enchanting-xp-return");
-        registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("enchanting.return.description"));
-        setDisplayName(Localizer.dLocalize("enchanting.return.name"));
-        setIcon(Material.EXPERIENCE_BOTTLE);
-        setBaseCost(getConfig().baseCost);
-        setMaxLevel(getConfig().maxLevel);
-        setInterval(13001);
-        setInitialCost(getConfig().initialCost);
-        setCostFactor(getConfig().costFactor);
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.EXPERIENCE_BOTTLE)
-                .key("challenge_enchanting_xp_100")
-                .title(Localizer.dLocalize("advancement.challenge_enchanting_xp_100.title"))
-                .description(Localizer.dLocalize("advancement.challenge_enchanting_xp_100.description"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .build());
-        registerMilestone("challenge_enchanting_xp_100", "enchanting.xp-return.levels-saved", 100, 400);
+  public EnchantingXPReturn() {
+    super("enchanting-xp-return");
+    registerConfiguration(Config.class);
+    setDescription(Localizer.dLocalize("enchanting.return.description"));
+    setDisplayName(Localizer.dLocalize("enchanting.return.name"));
+    setIcon(Material.EXPERIENCE_BOTTLE);
+    setBaseCost(getConfig().baseCost);
+    setMaxLevel(getConfig().maxLevel);
+    setInterval(13001);
+    setInitialCost(getConfig().initialCost);
+    setCostFactor(getConfig().costFactor);
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.EXPERIENCE_BOTTLE)
+        .key("challenge_enchanting_xp_100")
+        .title(Localizer.dLocalize("advancement.challenge_enchanting_xp_100.title"))
+        .description(Localizer.dLocalize("advancement.challenge_enchanting_xp_100.description"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .build());
+    registerMilestone("challenge_enchanting_xp_100", "enchanting.xp-return.levels-saved", 100, 400);
+  }
+
+  @Override
+  public void addStats(int level, Element v) {
+    v.addLore(C.GRAY + Localizer.dLocalize("enchanting.return.lore1"));
+    v.addLore(C.GREEN + "" + getConfig().xpReturn * (level * level) + Localizer.dLocalize("enchanting.return.lore2"));
+  }
+
+  @EventHandler
+  public void on(PlayerQuitEvent e) {
+    Player p = e.getPlayer();
+    cooldown.remove(p.getUniqueId());
+  }
+
+
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void on(EnchantItemEvent e) {
+    Player p = e.getEnchanter();
+    int level = getActiveLevel(p);
+    if (level <= 0) {
+      return;
     }
 
-    @Override
-    public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Localizer.dLocalize("enchanting.return.lore1"));
-        v.addLore(C.GREEN + "" + getConfig().xpReturn * (level * level) + Localizer.dLocalize("enchanting.return.lore2"));
+    if (cooldown.containsKey(p.getUniqueId()) && cooldown.get(p.getUniqueId()) + 20000 < System.currentTimeMillis()) {
+      cooldown.remove(p.getUniqueId());
+    } else if (cooldown.containsKey(p.getUniqueId()) && cooldown.get(p.getUniqueId()) + 20000 > System.currentTimeMillis()) {
+      return;
     }
+    cooldown.put(p.getUniqueId(), System.currentTimeMillis());
+    int xpAmount = getConfig().xpReturn * (level * level);
+    p.getWorld().spawn(p.getLocation(), org.bukkit.entity.ExperienceOrb.class).setExperience(xpAmount);
+    getPlayer(p).getData().addStat("enchanting.xp-return.levels-saved", xpAmount);
+  }
 
-    @EventHandler
-    public void on(PlayerQuitEvent e) {
-        Player p = e.getPlayer();
-        cooldown.remove(p.getUniqueId());
-    }
+  @Override
+  public void onTick() {
 
+  }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void on(EnchantItemEvent e) {
-        Player p = e.getEnchanter();
-        int level = getActiveLevel(p);
-        if (level <= 0) {
-            return;
-        }
+  @Override
+  public boolean isEnabled() {
+    return getConfig().enabled;
+  }
 
-        if (cooldown.containsKey(p.getUniqueId()) && cooldown.get(p.getUniqueId()) + 20000 < System.currentTimeMillis()) {
-            cooldown.remove(p.getUniqueId());
-        } else if (cooldown.containsKey(p.getUniqueId()) && cooldown.get(p.getUniqueId()) + 20000 > System.currentTimeMillis()) {
-            return;
-        }
-        cooldown.put(p.getUniqueId(), System.currentTimeMillis());
-        int xpAmount = getConfig().xpReturn * (level * level);
-        p.getWorld().spawn(p.getLocation(), org.bukkit.entity.ExperienceOrb.class).setExperience(xpAmount);
-        getPlayer(p).getData().addStat("enchanting.xp-return.levels-saved", xpAmount);
-    }
+  @Override
+  public boolean isPermanent() {
+    return getConfig().permanent;
+  }
 
-    @Override
-    public void onTick() {
-
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return getConfig().enabled;
-    }
-
-    @Override
-    public boolean isPermanent() {
-        return getConfig().permanent;
-    }
-
-    @NoArgsConstructor
-    @ConfigDescription("Enchanting XP is partially refunded when you enchant an item.")
-    protected static class Config {
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Return for the Enchanting XPReturn adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        public int xpReturn = 2;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-        boolean permanent = false;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-        boolean enabled = true;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-        int baseCost = 1;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-        int maxLevel = 7;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-        int initialCost = 2;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-        double costFactor = 0.9;
-    }
+  @NoArgsConstructor
+  @ConfigDescription("Enchanting XP is partially refunded when you enchant an item.")
+  protected static class Config {
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Return for the Enchanting XPReturn adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    public int xpReturn = 2;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
+    boolean permanent = false;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
+    boolean enabled = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
+    int baseCost = 1;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
+    int maxLevel = 7;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
+    int initialCost = 2;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
+    double costFactor = 0.9;
+  }
 }

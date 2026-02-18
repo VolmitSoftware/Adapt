@@ -26,12 +26,12 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.collection.KMap;
 import art.arcane.volmlib.util.format.Form;
+import art.arcane.volmlib.util.inventorygui.Element;
 import de.slikey.effectlib.effect.BleedEffect;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
@@ -52,159 +52,159 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class DiscoveryVillagerAtt extends SimpleAdaptation<DiscoveryVillagerAtt.Config> {
-    private final KMap<UUID, Integer> active = new KMap<>();
+  private final KMap<UUID, Integer> active = new KMap<>();
 
-    public DiscoveryVillagerAtt() {
-        super("discovery-villager-att");
-        registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("discovery.villager.description"));
-        setDisplayName(Localizer.dLocalize("discovery.villager.name"));
-        setIcon(Material.GLASS_BOTTLE);
-        setInterval(2432);
-        setBaseCost(getConfig().baseCost);
-        setInitialCost(getConfig().initialCost);
-        setCostFactor(getConfig().costFactor);
-        setMaxLevel(getConfig().maxLevel);
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.EMERALD)
-                .key("challenge_discovery_villager_100")
-                .title(Localizer.dLocalize("advancement.challenge_discovery_villager_100.title"))
-                .description(Localizer.dLocalize("advancement.challenge_discovery_villager_100.description"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .child(AdaptAdvancement.builder()
-                        .icon(Material.EMERALD_BLOCK)
-                        .key("challenge_discovery_villager_2500")
-                        .title(Localizer.dLocalize("advancement.challenge_discovery_villager_2500.title"))
-                        .description(Localizer.dLocalize("advancement.challenge_discovery_villager_2500.description"))
-                        .frame(AdaptAdvancementFrame.CHALLENGE)
-                        .visibility(AdvancementVisibility.PARENT_GRANTED)
-                        .build())
-                .build());
-        registerMilestone("challenge_discovery_villager_100", "discovery.villager-att.improved-trades", 100, 300);
-        registerMilestone("challenge_discovery_villager_2500", "discovery.villager-att.improved-trades", 2500, 1000);
-    }
+  public DiscoveryVillagerAtt() {
+    super("discovery-villager-att");
+    registerConfiguration(Config.class);
+    setDescription(Localizer.dLocalize("discovery.villager.description"));
+    setDisplayName(Localizer.dLocalize("discovery.villager.name"));
+    setIcon(Material.GLASS_BOTTLE);
+    setInterval(2432);
+    setBaseCost(getConfig().baseCost);
+    setInitialCost(getConfig().initialCost);
+    setCostFactor(getConfig().costFactor);
+    setMaxLevel(getConfig().maxLevel);
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.EMERALD)
+        .key("challenge_discovery_villager_100")
+        .title(Localizer.dLocalize("advancement.challenge_discovery_villager_100.title"))
+        .description(Localizer.dLocalize("advancement.challenge_discovery_villager_100.description"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .child(AdaptAdvancement.builder()
+            .icon(Material.EMERALD_BLOCK)
+            .key("challenge_discovery_villager_2500")
+            .title(Localizer.dLocalize("advancement.challenge_discovery_villager_2500.title"))
+            .description(Localizer.dLocalize("advancement.challenge_discovery_villager_2500.description"))
+            .frame(AdaptAdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .build())
+        .build());
+    registerMilestone("challenge_discovery_villager_100", "discovery.villager-att.improved-trades", 100, 300);
+    registerMilestone("challenge_discovery_villager_2500", "discovery.villager-att.improved-trades", 2500, 1000);
+  }
 
 
-    @Override
-    public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("discovery.villager.lore1"));
-        v.addLore(C.GREEN + "+ " + Form.pc(getEffectiveness(getLevelPercent(level)), 0) + C.GRAY + " " + Localizer.dLocalize("discovery.villager.lore2"));
-        v.addLore(C.GREEN + "+ " + getXpTaken(level) + " " + C.GRAY + Localizer.dLocalize("discovery.villager.lore3"));
-    }
+  @Override
+  public void addStats(int level, Element v) {
+    v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("discovery.villager.lore1"));
+    v.addLore(C.GREEN + "+ " + Form.pc(getEffectiveness(getLevelPercent(level)), 0) + C.GRAY + " " + Localizer.dLocalize("discovery.villager.lore2"));
+    v.addLore(C.GREEN + "+ " + getXpTaken(level) + " " + C.GRAY + Localizer.dLocalize("discovery.villager.lore3"));
+  }
 
-    private double getEffectiveness(double multiplier) {
-        return Math.min(getConfig().maxEffectiveness, multiplier * multiplier + getConfig().effectivenessBase);
-    }
+  private double getEffectiveness(double multiplier) {
+    return Math.min(getConfig().maxEffectiveness, multiplier * multiplier + getConfig().effectivenessBase);
+  }
 
-    private int getXpTaken(double level) {
-        double d = (getConfig().levelCostAdd * getConfig().amplifier) - (level * getConfig().levelDrain);
-        return (int) d;
-    }
+  private int getXpTaken(double level) {
+    double d = (getConfig().levelCostAdd * getConfig().amplifier) - (level * getConfig().levelDrain);
+    return (int) d;
+  }
 
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void on(PlayerInteractEntityEvent e) {
-        Player p = e.getPlayer();
-        SoundPlayer sp = SoundPlayer.of(p);
-        int level = getActiveLevel(p);
-        if (e.getRightClicked() instanceof Villager v && level > 0) {
-            if (ThreadLocalRandom.current().nextDouble() <= getEffectiveness(getLevelPercent(level))) {
-                if (p.getLevel() - getXpTaken(level) > 0) {
-                    BleedEffect blood = new BleedEffect(Adapt.instance.adaptEffectManager);  // Enemy gets blood
-                    blood.material = Material.EMERALD;
-                    blood.setEntity(v);
-                    p.setLevel((p.getLevel() - getXpTaken(level)));
-                    sp.play(p.getLocation(), Sound.ENTITY_VILLAGER_CELEBRATE, 1f, 1f);
-                    sp.play(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f);
-                    active.put(p.getUniqueId(), level);
-                    p.addPotionEffect(new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, 60, level, true, true));
-                    getPlayer(p).getData().addStat("discovery.villager-att.improved-trades", 1);
-                } else {
-                    BleedEffect blood = new BleedEffect(Adapt.instance.adaptEffectManager);  // Enemy gets blood
-                    blood.material = Material.STONE;
-                    v.shakeHead();
-                    blood.setEntity(v);
-                    sp.play(p.getLocation(), Sound.ENTITY_VILLAGER_NO, 1f, 1f);
-                }
-            }
-        }
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR)
-    @ReceiveCancelledEvents
-    public void on(InventoryOpenEvent event) {
-        if (!(event.getPlayer() instanceof Player p)) {
-            return;
-        }
-        int level = active.getOrDefault(p.getUniqueId(), 0);
-        if (level == 0) return;
-
-        if (event.isCancelled()) {
-            active.remove(p.getUniqueId());
-            p.removePotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE);
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(PlayerInteractEntityEvent e) {
+    Player p = e.getPlayer();
+    SoundPlayer sp = SoundPlayer.of(p);
+    int level = getActiveLevel(p);
+    if (e.getRightClicked() instanceof Villager v && level > 0) {
+      if (ThreadLocalRandom.current().nextDouble() <= getEffectiveness(getLevelPercent(level))) {
+        if (p.getLevel() - getXpTaken(level) > 0) {
+          BleedEffect blood = new BleedEffect(Adapt.instance.adaptEffectManager);  // Enemy gets blood
+          blood.material = Material.EMERALD;
+          blood.setEntity(v);
+          p.setLevel((p.getLevel() - getXpTaken(level)));
+          sp.play(p.getLocation(), Sound.ENTITY_VILLAGER_CELEBRATE, 1f, 1f);
+          sp.play(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f);
+          active.put(p.getUniqueId(), level);
+          p.addPotionEffect(new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, 60, level, true, true));
+          getPlayer(p).getData().addStat("discovery.villager-att.improved-trades", 1);
         } else {
-            p.addPotionEffect(new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, 60, level, true, true));
+          BleedEffect blood = new BleedEffect(Adapt.instance.adaptEffectManager);  // Enemy gets blood
+          blood.material = Material.STONE;
+          v.shakeHead();
+          blood.setEntity(v);
+          sp.play(p.getLocation(), Sound.ENTITY_VILLAGER_NO, 1f, 1f);
         }
+      }
+    }
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  @ReceiveCancelledEvents
+  public void on(InventoryOpenEvent event) {
+    if (!(event.getPlayer() instanceof Player p)) {
+      return;
+    }
+    int level = active.getOrDefault(p.getUniqueId(), 0);
+    if (level == 0) return;
+
+    if (event.isCancelled()) {
+      active.remove(p.getUniqueId());
+      p.removePotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE);
+    } else {
+      p.addPotionEffect(new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, 60, level, true, true));
+    }
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(InventoryCloseEvent event) {
+    if (!(event.getPlayer() instanceof Player p) || !active.containsKey(p.getUniqueId())) {
+      return;
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void on(InventoryCloseEvent event) {
-        if (!(event.getPlayer() instanceof Player p) || !active.containsKey(p.getUniqueId())) {
-            return;
-        }
+    active.remove(p.getUniqueId());
+    p.removePotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE);
+  }
 
-        active.remove(p.getUniqueId());
-        p.removePotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE);
-    }
+  @EventHandler
+  public void on(PlayerQuitEvent event) {
+    active.remove(event.getPlayer().getUniqueId());
+  }
 
-    @EventHandler
-    public void on(PlayerQuitEvent event) {
-        active.remove(event.getPlayer().getUniqueId());
-    }
+  @Override
+  public void onTick() {
+    active.forEach((p, lvl) -> {
+      org.bukkit.entity.Player player = Bukkit.getPlayer(p);
+      if (player == null) return;
+      J.runEntity(player, () -> player.addPotionEffect(new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, 60, lvl, true, true)));
+    });
+  }
 
-    @Override
-    public void onTick() {
-        active.forEach((p, lvl) -> {
-            var player = Bukkit.getPlayer(p);
-            if (player == null) return;
-            J.runEntity(player, () -> player.addPotionEffect(new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, 60, lvl, true, true)));
-        });
-    }
+  @Override
+  public boolean isEnabled() {
+    return getConfig().enabled;
+  }
 
-    @Override
-    public boolean isEnabled() {
-        return getConfig().enabled;
-    }
+  @Override
+  public boolean isPermanent() {
+    return getConfig().permanent;
+  }
 
-    @Override
-    public boolean isPermanent() {
-        return getConfig().permanent;
-    }
-
-    @NoArgsConstructor
-    @ConfigDescription("Get better villager trades at the cost of XP per interaction.")
-    protected static class Config {
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-        boolean permanent = false;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-        boolean enabled = true;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-        int baseCost = 1;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-        int initialCost = 5;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-        double costFactor = 0.01;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-        int maxLevel = 5;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Effectiveness Base for the Discovery Villager Att adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double effectivenessBase = 0.005;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Effectiveness for the Discovery Villager Att adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double maxEffectiveness = 100;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Level Drain for the Discovery Villager Att adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        int levelDrain = 2;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Level Cost Add for the Discovery Villager Att adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        int levelCostAdd = 10;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Amplifier for the Discovery Villager Att adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double amplifier = 1.0;
-    }
+  @NoArgsConstructor
+  @ConfigDescription("Get better villager trades at the cost of XP per interaction.")
+  protected static class Config {
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
+    boolean permanent = false;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
+    boolean enabled = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
+    int baseCost = 1;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
+    int initialCost = 5;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
+    double costFactor = 0.01;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
+    int maxLevel = 5;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Effectiveness Base for the Discovery Villager Att adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double effectivenessBase = 0.005;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Effectiveness for the Discovery Villager Att adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double maxEffectiveness = 100;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Level Drain for the Discovery Villager Att adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    int levelDrain = 2;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Level Cost Add for the Discovery Villager Att adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    int levelCostAdd = 10;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Amplifier for the Discovery Villager Att adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double amplifier = 1.0;
+  }
 }

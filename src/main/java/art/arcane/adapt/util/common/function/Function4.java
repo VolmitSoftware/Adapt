@@ -22,5 +22,5 @@ package art.arcane.adapt.util.common.function;
 @SuppressWarnings("hiding")
 @FunctionalInterface
 public interface Function4<A, B, C, D, R> {
-    R apply(A a, B b, C c, D d);
+  R apply(A a, B b, C c, D d);
 }

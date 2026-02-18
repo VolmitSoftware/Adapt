@@ -2,2210 +2,2210 @@
 [advancement]
 
 [advancement.challenge_move_1k]
-    title = "Нужно двигаться!"
-    description = "Пройдите более 1 километра (1 000 блоков)"
+title = "Нужно двигаться!"
+description = "Пройдите более 1 километра (1 000 блоков)"
 
 [advancement.challenge_sprint_5k]
-    title = "Пробегите 5 км!"
-    description = "Пройдите более 5 километров (5 000 блоков)"
+title = "Пробегите 5 км!"
+description = "Пройдите более 5 километров (5 000 блоков)"
 
 [advancement.challenge_sprint_50k]
-    title = "Промчитесь 50 км!"
-    description = "Пройдите более 50 километров (50 000 блоков)"
+title = "Промчитесь 50 км!"
+description = "Пройдите более 50 километров (50 000 блоков)"
 
 [advancement.challenge_sprint_500k]
-    title = "Путешествие по Вселенной!!"
-    description = "Пройдите более 500 километров (500 000 блоков)"
+title = "Путешествие по Вселенной!!"
+description = "Пройдите более 500 километров (500 000 блоков)"
 
 [advancement.challenge_sprint_marathon]
-    title = "Пробегите (буквально) марафон!"
-    description = "Пробегите более 42 195 блоков!"
+title = "Пробегите (буквально) марафон!"
+description = "Пробегите более 42 195 блоков!"
 
 [advancement.challenge_place_1k]
-    title = "Начинающий строитель!"
-    description = "Разместите 1 000 блоков"
+title = "Начинающий строитель!"
+description = "Разместите 1 000 блоков"
 
 [advancement.challenge_place_5k]
-    title = "Продвинутый строитель!"
-    description = "Разместите 5 000 блоков"
+title = "Продвинутый строитель!"
+description = "Разместите 5 000 блоков"
 
 [advancement.challenge_place_50k]
-    title = "Опытный строитель!"
-    description = "Разместите 50 000 блоков"
+title = "Опытный строитель!"
+description = "Разместите 50 000 блоков"
 
 [advancement.challenge_place_500k]
-    title = "Мастер-строитель!"
-    description = "Разместите 500 000 блоков"
+title = "Мастер-строитель!"
+description = "Разместите 500 000 блоков"
 
 [advancement.challenge_place_5m]
-    title = "Аколит Симметрии!"
-    description = "РЕАЛЬНОСТЬ -- ВАША ИГРОВАЯ ПЛОЩАДКА! (5 миллионов блоков)"
+title = "Аколит Симметрии!"
+description = "РЕАЛЬНОСТЬ -- ВАША ИГРОВАЯ ПЛОЩАДКА! (5 миллионов блоков)"
 
 [advancement.challenge_chop_1k]
-    title = "Начинающий лесоруб!"
-    description = "Срубите 1 000 блоков"
+title = "Начинающий лесоруб!"
+description = "Срубите 1 000 блоков"
 
 [advancement.challenge_chop_5k]
-    title = "Продвинутый лесоруб!"
-    description = "Срубите 5 000 блоков"
+title = "Продвинутый лесоруб!"
+description = "Срубите 5 000 блоков"
 
 [advancement.challenge_chop_50k]
-    title = "Опытный лесоруб!"
-    description = "Срубите 50 000 блоков"
+title = "Опытный лесоруб!"
+description = "Срубите 50 000 блоков"
 
 [advancement.challenge_chop_500k]
-    title = "Мастер-лесоруб!"
-    description = "Срубите 500 000 блоков"
+title = "Мастер-лесоруб!"
+description = "Срубите 500 000 блоков"
 
 [advancement.challenge_chop_5m]
-    title = "Пёс Джексон"
-    description = "Самый лучший, добрый мальчик! (5 миллионов блоков)"
+title = "Пёс Джексон"
+description = "Самый лучший, добрый мальчик! (5 миллионов блоков)"
 
 [advancement.challenge_block_1k]
-    title = "Едва блокирую!"
-    description = "Заблокируйте 1 000 ударов"
+title = "Едва блокирую!"
+description = "Заблокируйте 1 000 ударов"
 
 [advancement.challenge_block_5k]
-    title = "Блокировать -- это весело!"
-    description = "Заблокируйте 5 000 ударов"
+title = "Блокировать -- это весело!"
+description = "Заблокируйте 5 000 ударов"
 
 [advancement.challenge_block_50k]
-    title = "Блокирование -- моя жизнь!"
-    description = "Заблокируйте 50 000 ударов"
+title = "Блокирование -- моя жизнь!"
+description = "Заблокируйте 50 000 ударов"
 
 [advancement.challenge_block_500k]
-    title = "Блокирование -- моё предназначение!"
-    description = "Заблокируйте 500 000 ударов"
+title = "Блокирование -- моё предназначение!"
+description = "Заблокируйте 500 000 ударов"
 
 [advancement.challenge_block_5m]
-    title = "Die Hand Die Verletzt"
-    description = "Заблокируйте 5 000 000 ударов"
+title = "Die Hand Die Verletzt"
+description = "Заблокируйте 5 000 000 ударов"
 
 [advancement.challenge_brew_1k]
-    title = "Начинающий алхимик!"
-    description = "Выпейте 1 000 зелий"
+title = "Начинающий алхимик!"
+description = "Выпейте 1 000 зелий"
 
 [advancement.challenge_brew_5k]
-    title = "Продвинутый алхимик!"
-    description = "Выпейте 5 000 зелий"
+title = "Продвинутый алхимик!"
+description = "Выпейте 5 000 зелий"
 
 [advancement.challenge_brew_50k]
-    title = "Опытный алхимик!"
-    description = "Выпейте 50 000 зелий"
+title = "Опытный алхимик!"
+description = "Выпейте 50 000 зелий"
 
 [advancement.challenge_brew_500k]
-    title = "Мастер-алхимик!"
-    description = "Выпейте 500 000 зелий"
+title = "Мастер-алхимик!"
+description = "Выпейте 500 000 зелий"
 
 [advancement.challenge_brew_5m]
-    title = "Великий Алхимик"
-    description = "Выпейте 5 000 000 зелий"
+title = "Великий Алхимик"
+description = "Выпейте 5 000 000 зелий"
 
 [advancement.challenge_brewsplash_1k]
-    title = "Начинающий зельевар!"
-    description = "Выплесните 1 000 зелий"
+title = "Начинающий зельевар!"
+description = "Выплесните 1 000 зелий"
 
 [advancement.challenge_brewsplash_5k]
-    title = "Продвинутый зельевар!"
-    description = "Выплесните 5 000 зелий"
+title = "Продвинутый зельевар!"
+description = "Выплесните 5 000 зелий"
 
 [advancement.challenge_brewsplash_50k]
-    title = "Опытный зельевар!"
-    description = "Выплесните 50 000 зелий"
+title = "Опытный зельевар!"
+description = "Выплесните 50 000 зелий"
 
 [advancement.challenge_brewsplash_500k]
-    title = "Мастер-зельевар!"
-    description = "Выплесните 500 000 зелий"
+title = "Мастер-зельевар!"
+description = "Выплесните 500 000 зелий"
 
 [advancement.challenge_brewsplash_5m]
-    title = "Брызгомейстер"
-    description = "Выплесните 5 000 000 зелий"
+title = "Брызгомейстер"
+description = "Выплесните 5 000 000 зелий"
 
 [advancement.challenge_craft_1k]
-    title = "Ловкий ремесленник!"
-    description = "Создайте 1 000 предметов"
+title = "Ловкий ремесленник!"
+description = "Создайте 1 000 предметов"
 
 [advancement.challenge_craft_5k]
-    title = "Сварливый ремесленник!"
-    description = "Создайте 5 000 предметов"
+title = "Сварливый ремесленник!"
+description = "Создайте 5 000 предметов"
 
 [advancement.challenge_craft_50k]
-    title = "Усердный ремесленник!"
-    description = "Создайте 50 000 предметов"
+title = "Усердный ремесленник!"
+description = "Создайте 50 000 предметов"
 
 [advancement.challenge_craft_500k]
-    title = "Неугомонный ремесленник!"
-    description = "Создайте 500 000 предметов"
+title = "Неугомонный ремесленник!"
+description = "Создайте 500 000 предметов"
 
 [advancement.challenge_craft_5m]
-    title = "Катастрофический Маккрафтфейс"
-    description = "Создайте 5 000 000 предметов"
+title = "Катастрофический Маккрафтфейс"
+description = "Создайте 5 000 000 предметов"
 
 [advancement.challenge_enchant_1k]
-    title = "Начинающий зачарователь!"
-    description = "Зачаруйте 1 000 предметов"
+title = "Начинающий зачарователь!"
+description = "Зачаруйте 1 000 предметов"
 
 [advancement.challenge_enchant_5k]
-    title = "Продвинутый зачарователь!"
-    description = "Зачаруйте 5 000 предметов"
+title = "Продвинутый зачарователь!"
+description = "Зачаруйте 5 000 предметов"
 
 [advancement.challenge_enchant_50k]
-    title = "Опытный зачарователь!"
-    description = "Зачаруйте 50 000 предметов"
+title = "Опытный зачарователь!"
+description = "Зачаруйте 50 000 предметов"
 
 [advancement.challenge_enchant_500k]
-    title = "Мастер-зачарователь!"
-    description = "Зачаруйте 500 000 предметов"
+title = "Мастер-зачарователь!"
+description = "Зачаруйте 500 000 предметов"
 
 [advancement.challenge_enchant_5m]
-    title = "Загадочный зачарователь"
-    description = "Зачаруйте 5 000 000 предметов"
+title = "Загадочный зачарователь"
+description = "Зачаруйте 5 000 000 предметов"
 
 [advancement.challenge_excavate_1k]
-    title = "Начинающий копатель!"
-    description = "Вскопайте 1 000 блоков"
+title = "Начинающий копатель!"
+description = "Вскопайте 1 000 блоков"
 
 [advancement.challenge_excavate_5k]
-    title = "Продвинутый копатель!"
-    description = "Вскопайте 5 000 блоков"
+title = "Продвинутый копатель!"
+description = "Вскопайте 5 000 блоков"
 
 [advancement.challenge_excavate_50k]
-    title = "Опытный копатель!"
-    description = "Вскопайте 50 000 блоков"
+title = "Опытный копатель!"
+description = "Вскопайте 50 000 блоков"
 
 [advancement.challenge_excavate_500k]
-    title = "Мастер-копатель!"
-    description = "Вскопайте 500 000 блоков"
+title = "Мастер-копатель!"
+description = "Вскопайте 500 000 блоков"
 
 [advancement.challenge_excavate_5m]
-    title = "Загадочный копатель"
-    description = "Вскопайте 5 000 000 блоков"
+title = "Загадочный копатель"
+description = "Вскопайте 5 000 000 блоков"
 
 [advancement.horrible_person]
-    title = "Ты ужасный человек"
-    description = "Непостижимо, правда"
+title = "Ты ужасный человек"
+description = "Непостижимо, правда"
 
 [advancement.challenge_turtle_egg_smasher]
-    title = "Крушитель черепашьих яиц!"
-    description = "Разбейте 100 черепашьих яиц"
+title = "Крушитель черепашьих яиц!"
+description = "Разбейте 100 черепашьих яиц"
 
 [advancement.challenge_turtle_egg_annihilator]
-    title = "Уничтожитель черепашьих яиц!"
-    description = "Разбейте 500 черепашьих яиц"
+title = "Уничтожитель черепашьих яиц!"
+description = "Разбейте 500 черепашьих яиц"
 
 [advancement.challenge_novice_hunter]
-    title = "Начинающий охотник!"
-    description = "Убейте 100 существ"
+title = "Начинающий охотник!"
+description = "Убейте 100 существ"
 
 [advancement.challenge_intermediate_hunter]
-    title = "Продвинутый охотник!"
-    description = "Убейте 500 существ"
+title = "Продвинутый охотник!"
+description = "Убейте 500 существ"
 
 [advancement.challenge_advanced_hunter]
-    title = "Опытный охотник!"
-    description = "Убейте 5 000 существ"
+title = "Опытный охотник!"
+description = "Убейте 5 000 существ"
 
 [advancement.challenge_creeper_conqueror]
-    title = "Покоритель криперов!"
-    description = "Убейте 50 криперов"
+title = "Покоритель криперов!"
+description = "Убейте 50 криперов"
 
 [advancement.challenge_creeper_annihilator]
-    title = "Уничтожитель криперов!"
-    description = "Убейте 200 криперов"
+title = "Уничтожитель криперов!"
+description = "Убейте 200 криперов"
 
 [advancement.challenge_pickaxe_1k]
-    title = "Начинающий шахтёр"
-    description = "Сломайте 1 000 блоков"
+title = "Начинающий шахтёр"
+description = "Сломайте 1 000 блоков"
 
 [advancement.challenge_pickaxe_5k]
-    title = "Опытный шахтёр"
-    description = "Сломайте 5 000 блоков"
+title = "Опытный шахтёр"
+description = "Сломайте 5 000 блоков"
 
 [advancement.challenge_pickaxe_50k]
-    title = "Шахтёр-эксперт"
-    description = "Сломайте 50 000 блоков"
+title = "Шахтёр-эксперт"
+description = "Сломайте 50 000 блоков"
 
 [advancement.challenge_pickaxe_500k]
-    title = "Мастер-шахтёр"
-    description = "Сломайте 500 000 блоков"
+title = "Мастер-шахтёр"
+description = "Сломайте 500 000 блоков"
 
 [advancement.challenge_pickaxe_5m]
-    title = "Легендарный шахтёр"
-    description = "Сломайте 5 000 000 блоков"
+title = "Легендарный шахтёр"
+description = "Сломайте 5 000 000 блоков"
 
 [advancement.challenge_eat_100]
-    title = "Сколько всего вкусного!"
-    description = "Съешьте более 100 предметов!"
+title = "Сколько всего вкусного!"
+description = "Съешьте более 100 предметов!"
 
 [advancement.challenge_eat_1000]
-    title = "Неутолимый голод!"
-    description = "Съешьте более 1 000 предметов!"
+title = "Неутолимый голод!"
+description = "Съешьте более 1 000 предметов!"
 
 [advancement.challenge_eat_10000]
-    title = "ВЕЧНЫЙ ГОЛОД!"
-    description = "Съешьте более 10 000 предметов!"
+title = "ВЕЧНЫЙ ГОЛОД!"
+description = "Съешьте более 10 000 предметов!"
 
 [advancement.challenge_harvest_100]
-    title = "Полный урожай"
-    description = "Соберите более 100 культур!"
+title = "Полный урожай"
+description = "Соберите более 100 культур!"
 
 [advancement.challenge_harvest_1000]
-    title = "Великий урожай"
-    description = "Соберите более 1 000 культур!"
+title = "Великий урожай"
+description = "Соберите более 1 000 культур!"
 
 [advancement.challenge_swim_1nm]
-    title = "Человек-подлодка!"
-    description = "Проплывите 1 морскую милю (1 852 блока)"
+title = "Человек-подлодка!"
+description = "Проплывите 1 морскую милю (1 852 блока)"
 
 [advancement.challenge_sneak_1k]
-    title = "Больные колени"
-    description = "Прокрадитесь более километра (1 000 блоков)"
+title = "Больные колени"
+description = "Прокрадитесь более километра (1 000 блоков)"
 
 [advancement.challenge_sneak_5k]
-    title = "Ходок Теней"
-    description = "Прокрадитесь более 5 000 блоков"
+title = "Ходок Теней"
+description = "Прокрадитесь более 5 000 блоков"
 
 [advancement.challenge_sneak_20k]
-    title = "Призрак"
-    description = "Прокрадитесь более 20 000 блоков"
+title = "Призрак"
+description = "Прокрадитесь более 20 000 блоков"
 
 [advancement.challenge_swim_5k]
-    title = "Глубоководный Ныряльщик"
-    description = "Проплывите более 5 000 блоков"
+title = "Глубоководный Ныряльщик"
+description = "Проплывите более 5 000 блоков"
 
 [advancement.challenge_swim_20k]
-    title = "Избранник Посейдона"
-    description = "Проплывите более 20 000 блоков"
+title = "Избранник Посейдона"
+description = "Проплывите более 20 000 блоков"
 
 [advancement.challenge_sword_100]
-    title = "Первая Кровь"
-    description = "Нанесите 100 ударов мечом"
+title = "Первая Кровь"
+description = "Нанесите 100 ударов мечом"
 
 [advancement.challenge_sword_1k]
-    title = "Танцор Клинка"
-    description = "Нанесите 1 000 ударов мечом"
+title = "Танцор Клинка"
+description = "Нанесите 1 000 ударов мечом"
 
 [advancement.challenge_sword_10k]
-    title = "Тысяча Порезов"
-    description = "Нанесите 10 000 ударов мечом"
+title = "Тысяча Порезов"
+description = "Нанесите 10 000 ударов мечом"
 
 [advancement.challenge_unarmed_100]
-    title = "Барный Драчун"
-    description = "Нанесите 100 ударов голыми руками"
+title = "Барный Драчун"
+description = "Нанесите 100 ударов голыми руками"
 
 [advancement.challenge_unarmed_1k]
-    title = "Железные Кулаки"
-    description = "Нанесите 1 000 ударов голыми руками"
+title = "Железные Кулаки"
+description = "Нанесите 1 000 ударов голыми руками"
 
 [advancement.challenge_unarmed_10k]
-    title = "Один Удар"
-    description = "Нанесите 10 000 ударов голыми руками"
+title = "Один Удар"
+description = "Нанесите 10 000 ударов голыми руками"
 
 [advancement.challenge_trag_1k]
-    title = "Кровавая Цена"
-    description = "Получите 1 000 урона"
+title = "Кровавая Цена"
+description = "Получите 1 000 урона"
 
 [advancement.challenge_trag_10k]
-    title = "Багровый Прилив"
-    description = "Получите 10 000 урона"
+title = "Багровый Прилив"
+description = "Получите 10 000 урона"
 
 [advancement.challenge_trag_100k]
-    title = "Аватар Страдания"
-    description = "Получите 100 000 урона"
+title = "Аватар Страдания"
+description = "Получите 100 000 урона"
 
 [advancement.challenge_ranged_100]
-    title = "Учебная Стрельба"
-    description = "Выпустите 100 снарядов"
+title = "Учебная Стрельба"
+description = "Выпустите 100 снарядов"
 
 [advancement.challenge_ranged_1k]
-    title = "Соколиный Глаз"
-    description = "Выпустите 1 000 снарядов"
+title = "Соколиный Глаз"
+description = "Выпустите 1 000 снарядов"
 
 [advancement.challenge_ranged_10k]
-    title = "Буря Стрел"
-    description = "Выпустите 10 000 снарядов"
+title = "Буря Стрел"
+description = "Выпустите 10 000 снарядов"
 
 [advancement.challenge_chronos_1h]
-    title = "Тик-Так"
-    description = "Проведите 1 час в сети"
+title = "Тик-Так"
+description = "Проведите 1 час в сети"
 
 [advancement.challenge_chronos_24h]
-    title = "Пески Времени"
-    description = "Проведите 24 часа в сети"
+title = "Пески Времени"
+description = "Проведите 24 часа в сети"
 
 [advancement.challenge_chronos_168h]
-    title = "Вне Времени"
-    description = "Проведите 168 часов (1 неделю) в сети"
+title = "Вне Времени"
+description = "Проведите 168 часов (1 неделю) в сети"
 
 [advancement.challenge_nether_50]
-    title = "Привратник Ада"
-    description = "Убейте 50 существ Нижнего мира"
+title = "Привратник Ада"
+description = "Убейте 50 существ Нижнего мира"
 
 [advancement.challenge_nether_500]
-    title = "Страж Бездны"
-    description = "Убейте 500 существ Нижнего мира"
+title = "Страж Бездны"
+description = "Убейте 500 существ Нижнего мира"
 
 [advancement.challenge_nether_5k]
-    title = "Повелитель Нижнего Мира"
-    description = "Убейте 5 000 существ Нижнего мира"
+title = "Повелитель Нижнего Мира"
+description = "Убейте 5 000 существ Нижнего мира"
 
 [advancement.challenge_rift_50]
-    title = "Пространственная Аномалия"
-    description = "Телепортируйтесь 50 раз"
+title = "Пространственная Аномалия"
+description = "Телепортируйтесь 50 раз"
 
 [advancement.challenge_rift_500]
-    title = "Ходок Пустоты"
-    description = "Телепортируйтесь 500 раз"
+title = "Ходок Пустоты"
+description = "Телепортируйтесь 500 раз"
 
 [advancement.challenge_rift_5k]
-    title = "Между Мирами"
-    description = "Телепортируйтесь 5 000 раз"
+title = "Между Мирами"
+description = "Телепортируйтесь 5 000 раз"
 
 [advancement.challenge_taming_10]
-    title = "Шептун Зверей"
-    description = "Разведите 10 животных"
+title = "Шептун Зверей"
+description = "Разведите 10 животных"
 
 [advancement.challenge_taming_50]
-    title = "Вожак Стаи"
-    description = "Разведите 50 животных"
+title = "Вожак Стаи"
+description = "Разведите 50 животных"
 
 [advancement.challenge_taming_500]
-    title = "Повелитель Зверей"
-    description = "Разведите 500 животных"
+title = "Повелитель Зверей"
+description = "Разведите 500 животных"
 
 # Agility - New Achievement Chains
 [advancement.challenge_sprint_dist_5k]
-    title = "Демон Скорости"
-    description = "Пробегите более 5 километров (5,000 блоков)"
+title = "Демон Скорости"
+description = "Пробегите более 5 километров (5,000 блоков)"
 
 [advancement.challenge_sprint_dist_50k]
-    title = "Молниеносные Ноги"
-    description = "Пробегите более 50 километров (50,000 блоков)"
+title = "Молниеносные Ноги"
+description = "Пробегите более 50 километров (50,000 блоков)"
 
 [advancement.challenge_agility_swim_1k]
-    title = "Водомерка"
-    description = "Проплывите более 1 километра (1,000 блоков)"
+title = "Водомерка"
+description = "Проплывите более 1 километра (1,000 блоков)"
 
 [advancement.challenge_agility_swim_10k]
-    title = "Морской Странник"
-    description = "Проплывите более 10 километров (10,000 блоков)"
+title = "Морской Странник"
+description = "Проплывите более 10 километров (10,000 блоков)"
 
 [advancement.challenge_fly_1k]
-    title = "Танцор Небес"
-    description = "Пролетите более 1 километра (1,000 блоков)"
+title = "Танцор Небес"
+description = "Пролетите более 1 километра (1,000 блоков)"
 
 [advancement.challenge_fly_10k]
-    title = "Наездник Ветра"
-    description = "Пролетите более 10 километров (10,000 блоков)"
+title = "Наездник Ветра"
+description = "Пролетите более 10 километров (10,000 блоков)"
 
 [advancement.challenge_agility_sneak_500]
-    title = "Тихие Шаги"
-    description = "Прокрадитесь более 500 блоков"
+title = "Тихие Шаги"
+description = "Прокрадитесь более 500 блоков"
 
 [advancement.challenge_agility_sneak_5k]
-    title = "Призрачная Поступь"
-    description = "Прокрадитесь более 5 километров (5,000 блоков)"
+title = "Призрачная Поступь"
+description = "Прокрадитесь более 5 километров (5,000 блоков)"
 
 # Architect - New Achievement Chains
 [advancement.challenge_demolish_500]
-    title = "Бригада Сноса"
-    description = "Сломайте 500 блоков"
+title = "Бригада Сноса"
+description = "Сломайте 500 блоков"
 
 [advancement.challenge_demolish_5k]
-    title = "Шар-Разрушитель"
-    description = "Сломайте 5,000 блоков"
+title = "Шар-Разрушитель"
+description = "Сломайте 5,000 блоков"
 
 [advancement.challenge_value_placed_10k]
-    title = "Ценный Строитель"
-    description = "Разместите блоки стоимостью 10,000"
+title = "Ценный Строитель"
+description = "Разместите блоки стоимостью 10,000"
 
 [advancement.challenge_value_placed_100k]
-    title = "Мастер Архитектор"
-    description = "Разместите блоки стоимостью 100,000"
+title = "Мастер Архитектор"
+description = "Разместите блоки стоимостью 100,000"
 
 [advancement.challenge_demolish_val_5k]
-    title = "Специалист по Утилизации"
-    description = "Утилизируйте блоки стоимостью 5,000 при сносе"
+title = "Специалист по Утилизации"
+description = "Утилизируйте блоки стоимостью 5,000 при сносе"
 
 [advancement.challenge_demolish_val_50k]
-    title = "Полная Деконструкция"
-    description = "Утилизируйте блоки стоимостью 50,000 при сносе"
+title = "Полная Деконструкция"
+description = "Утилизируйте блоки стоимостью 50,000 при сносе"
 
 [advancement.challenge_high_build_100]
-    title = "Высотный Строитель"
-    description = "Разместите 100 блоков выше Y=128"
+title = "Высотный Строитель"
+description = "Разместите 100 блоков выше Y=128"
 
 [advancement.challenge_high_build_1k]
-    title = "Облачный Архитектор"
-    description = "Разместите 1,000 блоков выше Y=128"
+title = "Облачный Архитектор"
+description = "Разместите 1,000 блоков выше Y=128"
 
 # Axes - New Achievement Chains
 [advancement.challenge_axe_swing_500]
-    title = "Дровосек"
-    description = "Взмахните топором 500 раз"
+title = "Дровосек"
+description = "Взмахните топором 500 раз"
 
 [advancement.challenge_axe_swing_5k]
-    title = "Берсерк"
-    description = "Взмахните топором 5,000 раз"
+title = "Берсерк"
+description = "Взмахните топором 5,000 раз"
 
 [advancement.challenge_axe_damage_1k]
-    title = "Рассекатель"
-    description = "Нанесите 1,000 урона топорами"
+title = "Рассекатель"
+description = "Нанесите 1,000 урона топорами"
 
 [advancement.challenge_axe_damage_10k]
-    title = "Топор Палача"
-    description = "Нанесите 10,000 урона топорами"
+title = "Топор Палача"
+description = "Нанесите 10,000 урона топорами"
 
 [advancement.challenge_axe_value_5k]
-    title = "Торговец Древесиной"
-    description = "Нарубите древесины стоимостью 5,000"
+title = "Торговец Древесиной"
+description = "Нарубите древесины стоимостью 5,000"
 
 [advancement.challenge_axe_value_50k]
-    title = "Лесной Барон"
-    description = "Нарубите древесины стоимостью 50,000"
+title = "Лесной Барон"
+description = "Нарубите древесины стоимостью 50,000"
 
 [advancement.challenge_leaves_500]
-    title = "Воздуходув"
-    description = "Срубите 500 блоков листвы топором"
+title = "Воздуходув"
+description = "Срубите 500 блоков листвы топором"
 
 [advancement.challenge_leaves_5k]
-    title = "Листобой"
-    description = "Срубите 5,000 блоков листвы топором"
+title = "Листобой"
+description = "Срубите 5,000 блоков листвы топором"
 
 # Blocking - New Achievement Chains
 [advancement.challenge_block_dmg_1k]
-    title = "Поглотитель Урона"
-    description = "Заблокируйте 1,000 урона щитом"
+title = "Поглотитель Урона"
+description = "Заблокируйте 1,000 урона щитом"
 
 [advancement.challenge_block_dmg_10k]
-    title = "Живой Щит"
-    description = "Заблокируйте 10,000 урона щитом"
+title = "Живой Щит"
+description = "Заблокируйте 10,000 урона щитом"
 
 [advancement.challenge_block_proj_100]
-    title = "Отражатель Стрел"
-    description = "Заблокируйте 100 снарядов щитом"
+title = "Отражатель Стрел"
+description = "Заблокируйте 100 снарядов щитом"
 
 [advancement.challenge_block_proj_1k]
-    title = "Снарядный Щит"
-    description = "Заблокируйте 1,000 снарядов щитом"
+title = "Снарядный Щит"
+description = "Заблокируйте 1,000 снарядов щитом"
 
 [advancement.challenge_block_melee_500]
-    title = "Мастер Парирования"
-    description = "Заблокируйте 500 атак ближнего боя щитом"
+title = "Мастер Парирования"
+description = "Заблокируйте 500 атак ближнего боя щитом"
 
 [advancement.challenge_block_melee_5k]
-    title = "Железная Крепость"
-    description = "Заблокируйте 5,000 атак ближнего боя щитом"
+title = "Железная Крепость"
+description = "Заблокируйте 5,000 атак ближнего боя щитом"
 
 [advancement.challenge_block_heavy_50]
-    title = "Танк"
-    description = "Заблокируйте 50 тяжёлых атак (свыше 5 урона)"
+title = "Танк"
+description = "Заблокируйте 50 тяжёлых атак (свыше 5 урона)"
 
 [advancement.challenge_block_heavy_500]
-    title = "Недвижимый Объект"
-    description = "Заблокируйте 500 тяжёлых атак (свыше 5 урона)"
+title = "Недвижимый Объект"
+description = "Заблокируйте 500 тяжёлых атак (свыше 5 урона)"
 
 # Brewing - New Achievement Chains
 [advancement.challenge_brew_stands_10]
-    title = "Пивоварня"
-    description = "Установите 10 варочных стоек"
+title = "Пивоварня"
+description = "Установите 10 варочных стоек"
 
 [advancement.challenge_brew_stands_50]
-    title = "Фабрика Зелий"
-    description = "Установите 50 варочных стоек"
+title = "Фабрика Зелий"
+description = "Установите 50 варочных стоек"
 
 [advancement.challenge_brew_strong_25]
-    title = "Крепкое Зелье"
-    description = "Выпейте 25 усиленных зелий"
+title = "Крепкое Зелье"
+description = "Выпейте 25 усиленных зелий"
 
 [advancement.challenge_brew_strong_250]
-    title = "Максимальная Мощь"
-    description = "Выпейте 250 усиленных зелий"
+title = "Максимальная Мощь"
+description = "Выпейте 250 усиленных зелий"
 
 [advancement.challenge_brew_splash_hits_50]
-    title = "Зона Брызг"
-    description = "Попадите в 50 существ взрывными зельями"
+title = "Зона Брызг"
+description = "Попадите в 50 существ взрывными зельями"
 
 [advancement.challenge_brew_splash_hits_500]
-    title = "Чумной Доктор"
-    description = "Попадите в 500 существ взрывными зельями"
+title = "Чумной Доктор"
+description = "Попадите в 500 существ взрывными зельями"
 
 # Chronos - New Achievement Chains
 [advancement.challenge_active_dist_1k]
-    title = "Неугомонный"
-    description = "Пройдите 1 километр в активном состоянии"
+title = "Неугомонный"
+description = "Пройдите 1 километр в активном состоянии"
 
 [advancement.challenge_active_dist_10k]
-    title = "Следопыт"
-    description = "Пройдите 10 километров в активном состоянии"
+title = "Следопыт"
+description = "Пройдите 10 километров в активном состоянии"
 
 [advancement.challenge_active_dist_100k]
-    title = "Вечное Движение"
-    description = "Пройдите 100 километров в активном состоянии"
+title = "Вечное Движение"
+description = "Пройдите 100 километров в активном состоянии"
 
 [advancement.challenge_beds_10]
-    title = "Ранняя Пташка"
-    description = "Поспите в кровати 10 раз"
+title = "Ранняя Пташка"
+description = "Поспите в кровати 10 раз"
 
 [advancement.challenge_beds_100]
-    title = "Прыгун во Времени"
-    description = "Поспите в кровати 100 раз"
+title = "Прыгун во Времени"
+description = "Поспите в кровати 100 раз"
 
 [advancement.challenge_chronos_tp_50]
-    title = "Временной Сдвиг"
-    description = "Телепортируйтесь 50 раз"
+title = "Временной Сдвиг"
+description = "Телепортируйтесь 50 раз"
 
 [advancement.challenge_chronos_tp_500]
-    title = "Искривление Времени"
-    description = "Телепортируйтесь 500 раз"
+title = "Искривление Времени"
+description = "Телепортируйтесь 500 раз"
 
 [advancement.challenge_chronos_deaths_10]
-    title = "Смертный"
-    description = "Умрите 10 раз"
+title = "Смертный"
+description = "Умрите 10 раз"
 
 [advancement.challenge_chronos_deaths_100]
-    title = "Бросивший Вызов Смерти"
-    description = "Умрите 100 раз"
+title = "Бросивший Вызов Смерти"
+description = "Умрите 100 раз"
 
 # Crafting - New Achievement Chains
 [advancement.challenge_craft_value_10k]
-    title = "Ценный Крафт"
-    description = "Скрафтите предметы общей стоимостью 10,000"
+title = "Ценный Крафт"
+description = "Скрафтите предметы общей стоимостью 10,000"
 
 [advancement.challenge_craft_value_100k]
-    title = "Ремесленник"
-    description = "Скрафтите предметы общей стоимостью 100,000"
+title = "Ремесленник"
+description = "Скрафтите предметы общей стоимостью 100,000"
 
 [advancement.challenge_craft_tools_25]
-    title = "Инструментальщик"
-    description = "Скрафтите 25 инструментов"
+title = "Инструментальщик"
+description = "Скрафтите 25 инструментов"
 
 [advancement.challenge_craft_tools_250]
-    title = "Мастер Ковки"
-    description = "Скрафтите 250 инструментов"
+title = "Мастер Ковки"
+description = "Скрафтите 250 инструментов"
 
 [advancement.challenge_craft_armor_25]
-    title = "Бронник"
-    description = "Скрафтите 25 единиц брони"
+title = "Бронник"
+description = "Скрафтите 25 единиц брони"
 
 [advancement.challenge_craft_armor_250]
-    title = "Мастер Бронник"
-    description = "Скрафтите 250 единиц брони"
+title = "Мастер Бронник"
+description = "Скрафтите 250 единиц брони"
 
 [advancement.challenge_craft_mass_25k]
-    title = "Массовое Производство"
-    description = "Скрафтите 25,000 предметов"
+title = "Массовое Производство"
+description = "Скрафтите 25,000 предметов"
 
 [advancement.challenge_craft_mass_250k]
-    title = "Промышленная Революция"
-    description = "Скрафтите 250,000 предметов"
+title = "Промышленная Революция"
+description = "Скрафтите 250,000 предметов"
 
 # Discovery - New Achievement Chains
 [advancement.challenge_discover_items_50]
-    title = "Собиратель"
-    description = "Откройте 50 уникальных предметов"
+title = "Собиратель"
+description = "Откройте 50 уникальных предметов"
 
 [advancement.challenge_discover_items_250]
-    title = "Каталогизатор"
-    description = "Откройте 250 уникальных предметов"
+title = "Каталогизатор"
+description = "Откройте 250 уникальных предметов"
 
 [advancement.challenge_discover_blocks_50]
-    title = "Исследователь"
-    description = "Откройте 50 уникальных блоков"
+title = "Исследователь"
+description = "Откройте 50 уникальных блоков"
 
 [advancement.challenge_discover_blocks_250]
-    title = "Геолог"
-    description = "Откройте 250 уникальных блоков"
+title = "Геолог"
+description = "Откройте 250 уникальных блоков"
 
 [advancement.challenge_discover_mobs_25]
-    title = "Наблюдатель"
-    description = "Откройте 25 уникальных мобов"
+title = "Наблюдатель"
+description = "Откройте 25 уникальных мобов"
 
 [advancement.challenge_discover_mobs_75]
-    title = "Натуралист"
-    description = "Откройте 75 уникальных мобов"
+title = "Натуралист"
+description = "Откройте 75 уникальных мобов"
 
 [advancement.challenge_discover_biomes_10]
-    title = "Странник"
-    description = "Откройте 10 уникальных биомов"
+title = "Странник"
+description = "Откройте 10 уникальных биомов"
 
 [advancement.challenge_discover_biomes_40]
-    title = "Путешественник"
-    description = "Откройте 40 уникальных биомов"
+title = "Путешественник"
+description = "Откройте 40 уникальных биомов"
 
 [advancement.challenge_discover_foods_10]
-    title = "Гурман"
-    description = "Откройте 10 уникальных блюд"
+title = "Гурман"
+description = "Откройте 10 уникальных блюд"
 
 [advancement.challenge_discover_foods_30]
-    title = "Мастер Кулинарии"
-    description = "Откройте 30 уникальных блюд"
+title = "Мастер Кулинарии"
+description = "Откройте 30 уникальных блюд"
 
 # Enchanting - New Achievement Chains
 [advancement.challenge_enchant_power_100]
-    title = "Ткач Силы"
-    description = "Накопите 100 силы зачарования"
+title = "Ткач Силы"
+description = "Накопите 100 силы зачарования"
 
 [advancement.challenge_enchant_power_1k]
-    title = "Магистр Тайных Сил"
-    description = "Накопите 1,000 силы зачарования"
+title = "Магистр Тайных Сил"
+description = "Накопите 1,000 силы зачарования"
 
 [advancement.challenge_enchant_levels_1k]
-    title = "Расточитель Уровней"
-    description = "Потратьте 1,000 уровней опыта на зачарование"
+title = "Расточитель Уровней"
+description = "Потратьте 1,000 уровней опыта на зачарование"
 
 [advancement.challenge_enchant_levels_10k]
-    title = "Поглотитель Опыта"
-    description = "Потратьте 10,000 уровней опыта на зачарование"
+title = "Поглотитель Опыта"
+description = "Потратьте 10,000 уровней опыта на зачарование"
 
 [advancement.challenge_enchant_high_25]
-    title = "По-Крупному"
-    description = "Выполните 25 зачарований максимального уровня"
+title = "По-Крупному"
+description = "Выполните 25 зачарований максимального уровня"
 
 [advancement.challenge_enchant_high_250]
-    title = "Легендарный Зачарователь"
-    description = "Выполните 250 зачарований максимального уровня"
+title = "Легендарный Зачарователь"
+description = "Выполните 250 зачарований максимального уровня"
 
 [advancement.challenge_enchant_total_500]
-    title = "Сжигатель Уровней"
-    description = "Потратьте 500 уровней на все зачарования"
+title = "Сжигатель Уровней"
+description = "Потратьте 500 уровней на все зачарования"
 
 [advancement.challenge_enchant_total_5k]
-    title = "Магические Вложения"
-    description = "Потратьте 5,000 уровней на все зачарования"
+title = "Магические Вложения"
+description = "Потратьте 5,000 уровней на все зачарования"
 
 # Excavation - New Achievement Chains
 [advancement.challenge_dig_swing_500]
-    title = "Копатель"
-    description = "Взмахните лопатой 500 раз"
+title = "Копатель"
+description = "Взмахните лопатой 500 раз"
 
 [advancement.challenge_dig_swing_5k]
-    title = "Экскаватор"
-    description = "Взмахните лопатой 5,000 раз"
+title = "Экскаватор"
+description = "Взмахните лопатой 5,000 раз"
 
 [advancement.challenge_dig_damage_1k]
-    title = "Рыцарь Лопаты"
-    description = "Нанесите 1,000 урона лопатой"
+title = "Рыцарь Лопаты"
+description = "Нанесите 1,000 урона лопатой"
 
 [advancement.challenge_dig_damage_10k]
-    title = "Мастер Лопаты"
-    description = "Нанесите 10,000 урона лопатой"
+title = "Мастер Лопаты"
+description = "Нанесите 10,000 урона лопатой"
 
 [advancement.challenge_dig_value_5k]
-    title = "Торговец Грунтом"
-    description = "Выкопайте блоки стоимостью 5,000"
+title = "Торговец Грунтом"
+description = "Выкопайте блоки стоимостью 5,000"
 
 [advancement.challenge_dig_value_50k]
-    title = "Земляной Барон"
-    description = "Выкопайте блоки стоимостью 50,000"
+title = "Земляной Барон"
+description = "Выкопайте блоки стоимостью 50,000"
 
 [advancement.challenge_dig_gravel_500]
-    title = "Гравийный Дробильщик"
-    description = "Выкопайте 500 блоков гравия, песка или глины"
+title = "Гравийный Дробильщик"
+description = "Выкопайте 500 блоков гравия, песка или глины"
 
 [advancement.challenge_dig_gravel_5k]
-    title = "Просеиватель Песка"
-    description = "Выкопайте 5,000 блоков гравия, песка или глины"
+title = "Просеиватель Песка"
+description = "Выкопайте 5,000 блоков гравия, песка или глины"
 
 # Herbalism - New Achievement Chains
 [advancement.challenge_plant_100]
-    title = "Сеятель"
-    description = "Посадите 100 культур"
+title = "Сеятель"
+description = "Посадите 100 культур"
 
 [advancement.challenge_plant_1k]
-    title = "Зелёный Палец"
-    description = "Посадите 1,000 культур"
+title = "Зелёный Палец"
+description = "Посадите 1,000 культур"
 
 [advancement.challenge_plant_5k]
-    title = "Аграрный Барон"
-    description = "Посадите 5,000 культур"
+title = "Аграрный Барон"
+description = "Посадите 5,000 культур"
 
 [advancement.challenge_compost_50]
-    title = "Переработчик"
-    description = "Компостируйте 50 предметов"
+title = "Переработчик"
+description = "Компостируйте 50 предметов"
 
 [advancement.challenge_compost_500]
-    title = "Обогатитель Почвы"
-    description = "Компостируйте 500 предметов"
+title = "Обогатитель Почвы"
+description = "Компостируйте 500 предметов"
 
 [advancement.challenge_shear_50]
-    title = "Стригаль"
-    description = "Остригите 50 существ"
+title = "Стригаль"
+description = "Остригите 50 существ"
 
 [advancement.challenge_shear_250]
-    title = "Мастер Стада"
-    description = "Остригите 250 существ"
+title = "Мастер Стада"
+description = "Остригите 250 существ"
 
 # Hunter - New Achievement Chains
 [advancement.challenge_kills_500]
-    title = "Истребитель"
-    description = "Уничтожьте 500 существ"
+title = "Истребитель"
+description = "Уничтожьте 500 существ"
 
 [advancement.challenge_kills_5k]
-    title = "Палач"
-    description = "Уничтожьте 5,000 существ"
+title = "Палач"
+description = "Уничтожьте 5,000 существ"
 
 [advancement.challenge_boss_1]
-    title = "Претендент на Босса"
-    description = "Убейте босс-моба"
+title = "Претендент на Босса"
+description = "Убейте босс-моба"
 
 [advancement.challenge_boss_10]
-    title = "Убийца Легенд"
-    description = "Убейте 10 босс-мобов"
+title = "Убийца Легенд"
+description = "Убейте 10 босс-мобов"
 
 # Nether - New Achievement Chains
 [advancement.challenge_wither_dmg_500]
-    title = "Иссушённый"
-    description = "Перенесите 500 урона от иссушения"
+title = "Иссушённый"
+description = "Перенесите 500 урона от иссушения"
 
 [advancement.challenge_wither_dmg_5k]
-    title = "Выживший Среди Скверны"
-    description = "Перенесите 5,000 урона от иссушения"
+title = "Выживший Среди Скверны"
+description = "Перенесите 5,000 урона от иссушения"
 
 [advancement.challenge_wither_skel_25]
-    title = "Собиратель Костей"
-    description = "Убейте 25 скелетов-иссушителей"
+title = "Собиратель Костей"
+description = "Убейте 25 скелетов-иссушителей"
 
 [advancement.challenge_wither_skel_250]
-    title = "Бич Скелетов"
-    description = "Убейте 250 скелетов-иссушителей"
+title = "Бич Скелетов"
+description = "Убейте 250 скелетов-иссушителей"
 
 [advancement.challenge_wither_boss_1]
-    title = "Победитель Визера"
-    description = "Победите Визера"
+title = "Победитель Визера"
+description = "Победите Визера"
 
 [advancement.challenge_wither_boss_10]
-    title = "Властелин Незера"
-    description = "Победите Визера 10 раз"
+title = "Властелин Незера"
+description = "Победите Визера 10 раз"
 
 [advancement.challenge_roses_10]
-    title = "Садовник Смерти"
-    description = "Сломайте 10 роз иссушения"
+title = "Садовник Смерти"
+description = "Сломайте 10 роз иссушения"
 
 [advancement.challenge_roses_100]
-    title = "Собиратель Скверны"
-    description = "Сломайте 100 роз иссушения"
+title = "Собиратель Скверны"
+description = "Сломайте 100 роз иссушения"
 
 # Pickaxes - New Achievement Chains
 [advancement.challenge_pick_swing_500]
-    title = "Рука Шахтёра"
-    description = "Взмахните киркой 500 раз"
+title = "Рука Шахтёра"
+description = "Взмахните киркой 500 раз"
 
 [advancement.challenge_pick_swing_5k]
-    title = "Строитель Туннелей"
-    description = "Взмахните киркой 5,000 раз"
+title = "Строитель Туннелей"
+description = "Взмахните киркой 5,000 раз"
 
 [advancement.challenge_pick_damage_1k]
-    title = "Боевая Кирка"
-    description = "Нанесите 1,000 урона киркой"
+title = "Боевая Кирка"
+description = "Нанесите 1,000 урона киркой"
 
 [advancement.challenge_pick_damage_10k]
-    title = "Военный Клевец"
-    description = "Нанесите 10,000 урона киркой"
+title = "Военный Клевец"
+description = "Нанесите 10,000 урона киркой"
 
 [advancement.challenge_pick_value_5k]
-    title = "Искатель Самоцветов"
-    description = "Добудьте блоки стоимостью 5,000"
+title = "Искатель Самоцветов"
+description = "Добудьте блоки стоимостью 5,000"
 
 [advancement.challenge_pick_value_50k]
-    title = "Рудный Барон"
-    description = "Добудьте блоки стоимостью 50,000"
+title = "Рудный Барон"
+description = "Добудьте блоки стоимостью 50,000"
 
 [advancement.challenge_pick_ores_500]
-    title = "Старатель"
-    description = "Добудьте 500 рудных блоков"
+title = "Старатель"
+description = "Добудьте 500 рудных блоков"
 
 [advancement.challenge_pick_ores_5k]
-    title = "Мастер Шахтёр"
-    description = "Добудьте 5,000 рудных блоков"
+title = "Мастер Шахтёр"
+description = "Добудьте 5,000 рудных блоков"
 
 # Ranged - New Achievement Chains
 [advancement.challenge_ranged_dmg_1k]
-    title = "Меткий Стрелок"
-    description = "Нанесите 1,000 дальнего урона"
+title = "Меткий Стрелок"
+description = "Нанесите 1,000 дальнего урона"
 
 [advancement.challenge_ranged_dmg_10k]
-    title = "Смертоносный Лучник"
-    description = "Нанесите 10,000 дальнего урона"
+title = "Смертоносный Лучник"
+description = "Нанесите 10,000 дальнего урона"
 
 [advancement.challenge_ranged_dist_5k]
-    title = "Дальнобойный"
-    description = "Выпустите снаряды на общую дистанцию 5,000 блоков"
+title = "Дальнобойный"
+description = "Выпустите снаряды на общую дистанцию 5,000 блоков"
 
 [advancement.challenge_ranged_dist_50k]
-    title = "Километровый Выстрел"
-    description = "Выпустите снаряды на общую дистанцию 50,000 блоков"
+title = "Километровый Выстрел"
+description = "Выпустите снаряды на общую дистанцию 50,000 блоков"
 
 [advancement.challenge_ranged_kills_50]
-    title = "Лучник"
-    description = "Убейте 50 мобов дальнобойным оружием"
+title = "Лучник"
+description = "Убейте 50 мобов дальнобойным оружием"
 
 [advancement.challenge_ranged_kills_500]
-    title = "Мастер Лучник"
-    description = "Убейте 500 мобов дальнобойным оружием"
+title = "Мастер Лучник"
+description = "Убейте 500 мобов дальнобойным оружием"
 
 [advancement.challenge_longshot_25]
-    title = "Снайпер"
-    description = "Совершите 25 дальних попаданий (свыше 30 блоков)"
+title = "Снайпер"
+description = "Совершите 25 дальних попаданий (свыше 30 блоков)"
 
 [advancement.challenge_longshot_250]
-    title = "Орлиный Глаз"
-    description = "Совершите 250 дальних попаданий (свыше 30 блоков)"
+title = "Орлиный Глаз"
+description = "Совершите 250 дальних попаданий (свыше 30 блоков)"
 
 # Rift - New Achievement Chains
 [advancement.challenge_rift_pearls_50]
-    title = "Метатель Жемчуга"
-    description = "Бросьте 50 жемчужин Края"
+title = "Метатель Жемчуга"
+description = "Бросьте 50 жемчужин Края"
 
 [advancement.challenge_rift_pearls_500]
-    title = "Телепорт-Маньяк"
-    description = "Бросьте 500 жемчужин Края"
+title = "Телепорт-Маньяк"
+description = "Бросьте 500 жемчужин Края"
 
 [advancement.challenge_rift_enderman_50]
-    title = "Охотник на Эндерменов"
-    description = "Убейте 50 эндерменов"
+title = "Охотник на Эндерменов"
+description = "Убейте 50 эндерменов"
 
 [advancement.challenge_rift_enderman_500]
-    title = "Преследователь Пустоты"
-    description = "Убейте 500 эндерменов"
+title = "Преследователь Пустоты"
+description = "Убейте 500 эндерменов"
 
 [advancement.challenge_rift_dragon_500]
-    title = "Боец с Драконом"
-    description = "Нанесите 500 урона Дракону Края"
+title = "Боец с Драконом"
+description = "Нанесите 500 урона Дракону Края"
 
 [advancement.challenge_rift_dragon_5k]
-    title = "Драконоборец"
-    description = "Нанесите 5,000 урона Дракону Края"
+title = "Драконоборец"
+description = "Нанесите 5,000 урона Дракону Края"
 
 [advancement.challenge_rift_crystal_10]
-    title = "Разрушитель Кристаллов"
-    description = "Уничтожьте 10 кристаллов Края"
+title = "Разрушитель Кристаллов"
+description = "Уничтожьте 10 кристаллов Края"
 
 [advancement.challenge_rift_crystal_100]
-    title = "Демонтажник Края"
-    description = "Уничтожьте 100 кристаллов Края"
+title = "Демонтажник Края"
+description = "Уничтожьте 100 кристаллов Края"
 
 # Seaborne - New Achievement Chains
 [advancement.challenge_fish_25]
-    title = "Рыболов"
-    description = "Поймайте 25 рыб"
+title = "Рыболов"
+description = "Поймайте 25 рыб"
 
 [advancement.challenge_fish_250]
-    title = "Мастер Рыбалки"
-    description = "Поймайте 250 рыб"
+title = "Мастер Рыбалки"
+description = "Поймайте 250 рыб"
 
 [advancement.challenge_drowned_25]
-    title = "Охотник на Утопленников"
-    description = "Убейте 25 утопленников"
+title = "Охотник на Утопленников"
+description = "Убейте 25 утопленников"
 
 [advancement.challenge_drowned_250]
-    title = "Чистильщик Океана"
-    description = "Убейте 250 утопленников"
+title = "Чистильщик Океана"
+description = "Убейте 250 утопленников"
 
 [advancement.challenge_guardian_10]
-    title = "Убийца Стражей"
-    description = "Убейте 10 стражей"
+title = "Убийца Стражей"
+description = "Убейте 10 стражей"
 
 [advancement.challenge_guardian_100]
-    title = "Расхититель Храмов"
-    description = "Убейте 100 стражей"
+title = "Расхититель Храмов"
+description = "Убейте 100 стражей"
 
 [advancement.challenge_underwater_blocks_100]
-    title = "Подводный Шахтёр"
-    description = "Сломайте 100 блоков под водой"
+title = "Подводный Шахтёр"
+description = "Сломайте 100 блоков под водой"
 
 [advancement.challenge_underwater_blocks_1k]
-    title = "Подводный Инженер"
-    description = "Сломайте 1,000 блоков под водой"
+title = "Подводный Инженер"
+description = "Сломайте 1,000 блоков под водой"
 
 # Stealth - New Achievement Chains
 [advancement.challenge_stealth_dmg_500]
-    title = "Удар в Спину"
-    description = "Нанесите 500 урона крадучись"
+title = "Удар в Спину"
+description = "Нанесите 500 урона крадучись"
 
 [advancement.challenge_stealth_dmg_5k]
-    title = "Бесшумный Убийца"
-    description = "Нанесите 5,000 урона крадучись"
+title = "Бесшумный Убийца"
+description = "Нанесите 5,000 урона крадучись"
 
 [advancement.challenge_stealth_kills_10]
-    title = "Ассасин"
-    description = "Убейте 10 мобов крадучись"
+title = "Ассасин"
+description = "Убейте 10 мобов крадучись"
 
 [advancement.challenge_stealth_kills_100]
-    title = "Теневой Жнец"
-    description = "Убейте 100 мобов крадучись"
+title = "Теневой Жнец"
+description = "Убейте 100 мобов крадучись"
 
 [advancement.challenge_stealth_time_1h]
-    title = "Терпеливый"
-    description = "Проведите 1 час крадучись (3,600 секунд)"
+title = "Терпеливый"
+description = "Проведите 1 час крадучись (3,600 секунд)"
 
 [advancement.challenge_stealth_time_10h]
-    title = "Повелитель Теней"
-    description = "Проведите 10 часов крадучись (36,000 секунд)"
+title = "Повелитель Теней"
+description = "Проведите 10 часов крадучись (36,000 секунд)"
 
 [advancement.challenge_stealth_arrows_50]
-    title = "Тихий Лучник"
-    description = "Выпустите 50 стрел крадучись"
+title = "Тихий Лучник"
+description = "Выпустите 50 стрел крадучись"
 
 [advancement.challenge_stealth_arrows_500]
-    title = "Призрачный Стрелок"
-    description = "Выпустите 500 стрел крадучись"
+title = "Призрачный Стрелок"
+description = "Выпустите 500 стрел крадучись"
 
 # Swords - New Achievement Chains
 [advancement.challenge_sword_dmg_1k]
-    title = "Ученик Меча"
-    description = "Нанесите 1,000 урона мечами"
+title = "Ученик Меча"
+description = "Нанесите 1,000 урона мечами"
 
 [advancement.challenge_sword_dmg_10k]
-    title = "Фехтовальщик"
-    description = "Нанесите 10,000 урона мечами"
+title = "Фехтовальщик"
+description = "Нанесите 10,000 урона мечами"
 
 [advancement.challenge_sword_kills_50]
-    title = "Дуэлянт"
-    description = "Убейте 50 мобов мечами"
+title = "Дуэлянт"
+description = "Убейте 50 мобов мечами"
 
 [advancement.challenge_sword_kills_500]
-    title = "Гладиатор"
-    description = "Убейте 500 мобов мечами"
+title = "Гладиатор"
+description = "Убейте 500 мобов мечами"
 
 [advancement.challenge_sword_crit_50]
-    title = "Критический Удар"
-    description = "Нанесите 50 критических ударов мечами"
+title = "Критический Удар"
+description = "Нанесите 50 критических ударов мечами"
 
 [advancement.challenge_sword_crit_500]
-    title = "Мастер Точности"
-    description = "Нанесите 500 критических ударов мечами"
+title = "Мастер Точности"
+description = "Нанесите 500 критических ударов мечами"
 
 [advancement.challenge_sword_heavy_25]
-    title = "Тяжёлый Удар"
-    description = "Нанесите 25 тяжёлых ударов мечами (свыше 8 урона)"
+title = "Тяжёлый Удар"
+description = "Нанесите 25 тяжёлых ударов мечами (свыше 8 урона)"
 
 [advancement.challenge_sword_heavy_250]
-    title = "Сокрушительный Удар"
-    description = "Нанесите 250 тяжёлых ударов мечами (свыше 8 урона)"
+title = "Сокрушительный Удар"
+description = "Нанесите 250 тяжёлых ударов мечами (свыше 8 урона)"
 
 # Taming - New Achievement Chains
 [advancement.challenge_pet_dmg_500]
-    title = "Дрессировщик Зверей"
-    description = "Ваши питомцы наносят 500 общего урона"
+title = "Дрессировщик Зверей"
+description = "Ваши питомцы наносят 500 общего урона"
 
 [advancement.challenge_pet_dmg_5k]
-    title = "Военачальник"
-    description = "Ваши питомцы наносят 5,000 общего урона"
+title = "Военачальник"
+description = "Ваши питомцы наносят 5,000 общего урона"
 
 [advancement.challenge_tamed_10]
-    title = "Друг Животных"
-    description = "Приручите 10 животных"
+title = "Друг Животных"
+description = "Приручите 10 животных"
 
 [advancement.challenge_tamed_100]
-    title = "Смотритель Зоопарка"
-    description = "Приручите 100 животных"
+title = "Смотритель Зоопарка"
+description = "Приручите 100 животных"
 
 [advancement.challenge_pet_kills_25]
-    title = "Стайная Тактика"
-    description = "Ваши питомцы уничтожат 25 существ"
+title = "Стайная Тактика"
+description = "Ваши питомцы уничтожат 25 существ"
 
 [advancement.challenge_pet_kills_250]
-    title = "Командир Стаи"
-    description = "Ваши питомцы уничтожат 250 существ"
+title = "Командир Стаи"
+description = "Ваши питомцы уничтожат 250 существ"
 
 [advancement.challenge_taming_2500]
-    title = "Эксперт по Разведению"
-    description = "Разведите 2,500 животных"
+title = "Эксперт по Разведению"
+description = "Разведите 2,500 животных"
 
 [advancement.challenge_taming_25k]
-    title = "Мастер Генетики"
-    description = "Разведите 25,000 животных"
+title = "Мастер Генетики"
+description = "Разведите 25,000 животных"
 
 # TragOul - New Achievement Chains
 [advancement.challenge_trag_hits_500]
-    title = "Боксёрская Груша"
-    description = "Получите 500 ударов"
+title = "Боксёрская Груша"
+description = "Получите 500 ударов"
 
 [advancement.challenge_trag_hits_5k]
-    title = "Любитель Боли"
-    description = "Получите 5,000 ударов"
+title = "Любитель Боли"
+description = "Получите 5,000 ударов"
 
 [advancement.challenge_trag_deaths_10]
-    title = "Девять Жизней"
-    description = "Умрите 10 раз"
+title = "Девять Жизней"
+description = "Умрите 10 раз"
 
 [advancement.challenge_trag_deaths_100]
-    title = "Повторяющийся Кошмар"
-    description = "Умрите 100 раз"
+title = "Повторяющийся Кошмар"
+description = "Умрите 100 раз"
 
 [advancement.challenge_trag_fire_500]
-    title = "Жертва Огня"
-    description = "Перенесите 500 урона от огня"
+title = "Жертва Огня"
+description = "Перенесите 500 урона от огня"
 
 [advancement.challenge_trag_fire_5k]
-    title = "Феникс"
-    description = "Перенесите 5,000 урона от огня"
+title = "Феникс"
+description = "Перенесите 5,000 урона от огня"
 
 [advancement.challenge_trag_fall_500]
-    title = "Проверка Гравитации"
-    description = "Перенесите 500 урона от падения"
+title = "Проверка Гравитации"
+description = "Перенесите 500 урона от падения"
 
 [advancement.challenge_trag_fall_5k]
-    title = "Предельная Скорость"
-    description = "Перенесите 5,000 урона от падения"
+title = "Предельная Скорость"
+description = "Перенесите 5,000 урона от падения"
 
 # Unarmed - New Achievement Chains
 [advancement.challenge_unarmed_dmg_1k]
-    title = "Драчун"
-    description = "Нанесите 1,000 урона голыми кулаками"
+title = "Драчун"
+description = "Нанесите 1,000 урона голыми кулаками"
 
 [advancement.challenge_unarmed_dmg_10k]
-    title = "Мастер Боевых Искусств"
-    description = "Нанесите 10,000 урона голыми кулаками"
+title = "Мастер Боевых Искусств"
+description = "Нанесите 10,000 урона голыми кулаками"
 
 [advancement.challenge_unarmed_kills_25]
-    title = "Голые Кулаки"
-    description = "Убейте 25 мобов голыми кулаками"
+title = "Голые Кулаки"
+description = "Убейте 25 мобов голыми кулаками"
 
 [advancement.challenge_unarmed_kills_250]
-    title = "Кулак Легенды"
-    description = "Убейте 250 мобов голыми кулаками"
+title = "Кулак Легенды"
+description = "Убейте 250 мобов голыми кулаками"
 
 [advancement.challenge_unarmed_crit_25]
-    title = "Критический Кулак"
-    description = "Нанесите 25 критических ударов голыми кулаками"
+title = "Критический Кулак"
+description = "Нанесите 25 критических ударов голыми кулаками"
 
 [advancement.challenge_unarmed_crit_250]
-    title = "Точный Кулак"
-    description = "Нанесите 250 критических ударов голыми кулаками"
+title = "Точный Кулак"
+description = "Нанесите 250 критических ударов голыми кулаками"
 
 [advancement.challenge_unarmed_heavy_25]
-    title = "Мощный Удар"
-    description = "Нанесите 25 тяжёлых ударов голыми кулаками (свыше 6 урона)"
+title = "Мощный Удар"
+description = "Нанесите 25 тяжёлых ударов голыми кулаками (свыше 6 урона)"
 
 [advancement.challenge_unarmed_heavy_250]
-    title = "Король Нокаутов"
-    description = "Нанесите 250 тяжёлых ударов голыми кулаками (свыше 6 урона)"
+title = "Король Нокаутов"
+description = "Нанесите 250 тяжёлых ударов голыми кулаками (свыше 6 урона)"
 
 # items
 [items]
 
 [items.bound_ender_peral]
-    name = "Портключ Реликвария"
-    usage1 = "Shift + ЛКМ для привязки"
-    usage2 = "ПКМ для доступа к привязанному инвентарю"
+name = "Портключ Реликвария"
+usage1 = "Shift + ЛКМ для привязки"
+usage2 = "ПКМ для доступа к привязанному инвентарю"
 
 [items.bound_eye_of_ender]
-    name = "Зрительный якорь"
-    usage1 = "ПКМ, чтобы использовать и телепортироваться к привязанному месту"
-    usage2 = "Shift + ЛКМ для привязки к блоку"
+name = "Зрительный якорь"
+usage1 = "ПКМ, чтобы использовать и телепортироваться к привязанному месту"
+usage2 = "Shift + ЛКМ для привязки к блоку"
 
 [items.bound_redstone_torch]
-    name = "Пульт редстоуна"
-    usage1 = "ПКМ для создания 1-тикового импульса редстоуна"
-    usage2 = "Shift + ЛКМ по целевому блоку для привязки"
+name = "Пульт редстоуна"
+usage1 = "ПКМ для создания 1-тикового импульса редстоуна"
+usage2 = "Shift + ЛКМ по целевому блоку для привязки"
 
 [items.bound_snowball]
-    name = "Паутинная ловушка!"
-    usage1 = "Бросьте для создания временной паутинной ловушки"
+name = "Паутинная ловушка!"
+usage1 = "Бросьте для создания временной паутинной ловушки"
 
 [items.chrono_time_bottle]
-    name = "Время в бутылке"
-    usage1 = "Пассивно накапливает время, пока находится в инвентаре"
-    usage2 = "ПКМ по тикающим блокам или детёнышам, чтобы потратить накопленное время"
-    stored = "Накопленное время"
+name = "Время в бутылке"
+usage1 = "Пассивно накапливает время, пока находится в инвентаре"
+usage2 = "ПКМ по тикающим блокам или детёнышам, чтобы потратить накопленное время"
+stored = "Накопленное время"
 
 [items.chrono_time_bomb]
-    name = "Хронобомба"
-    usage1 = "ПКМ для запуска хроноснаряда, создающего временное поле"
+name = "Хронобомба"
+usage1 = "ПКМ для запуска хроноснаряда, создающего временное поле"
 
 [items.elevator_block]
-    name = "Блок лифта"
-    usage1 = "Прыжок для телепортации вверх"
-    usage2 = "Присесть для телепортации вниз"
-    usage3 = "Минимум 2 воздушных блока между лифтами"
+name = "Блок лифта"
+usage1 = "Прыжок для телепортации вверх"
+usage2 = "Присесть для телепортации вниз"
+usage3 = "Минимум 2 воздушных блока между лифтами"
 
 # snippets
 [snippets]
 
 [snippets.gui]
-    level = "Уровень"
-    knowledge = "знаний"
-    power_used = "Энергии использовано"
-    not_learned = "Не изучено"
-    xp = "Опыта до"
-    welcome = "Добро пожаловать!"
-    welcome_back = "С возвращением!"
-    xp_bonus_for_time = "Опыта за"
-    max_ability_power = "Максимальная сила способностей"
-    unlock_this_by_clicking = "Разблокируйте с помощью ПКМ: "
-    back = "Назад"
-    unlearn_all = "Забыть всё"
-    unlearned_all = "Всё забыто"
+level = "Уровень"
+knowledge = "знаний"
+power_used = "Энергии использовано"
+not_learned = "Не изучено"
+xp = "Опыта до"
+welcome = "Добро пожаловать!"
+welcome_back = "С возвращением!"
+xp_bonus_for_time = "Опыта за"
+max_ability_power = "Максимальная сила способностей"
+unlock_this_by_clicking = "Разблокируйте с помощью ПКМ: "
+back = "Назад"
+unlearn_all = "Забыть всё"
+unlearned_all = "Всё забыто"
 
 [snippets.adapt_menu]
-    may_not_unlearn = "ВЫ НЕ МОЖЕТЕ ЗАБЫТЬ"
-    may_unlearn = "ВЫ МОЖЕТЕ ИЗУЧИТЬ/ЗАБЫТЬ"
-    knowledge_cost = "Стоимость знаний"
-    knowledge_available = "Доступно знаний"
-    already_learned = "Уже изучено"
-    unlearn_refund = "Нажмите, чтобы забыть и вернуть"
-    no_refunds = "ХАРДКОР, ВОЗВРАТ ОТКЛЮЧЁН"
-    knowledge = "знаний"
-    click_learn = "Нажмите, чтобы изучить"
-    no_knowledge = "(У вас нет знаний)"
-    you_only_have = "У вас только"
-    how_to_level_up = "Повышайте уровень навыков, чтобы увеличить максимальную энергию."
-    not_enough_power = "Недостаточно энергии! Каждый уровень способности стоит 1 энергию."
-    power = "энергия"
-    power_drain = "Расход энергии"
-    learned = "Изучено "
-    unlearned = "Забыто "
-    activator_block = "Книжная полка"
+may_not_unlearn = "ВЫ НЕ МОЖЕТЕ ЗАБЫТЬ"
+may_unlearn = "ВЫ МОЖЕТЕ ИЗУЧИТЬ/ЗАБЫТЬ"
+knowledge_cost = "Стоимость знаний"
+knowledge_available = "Доступно знаний"
+already_learned = "Уже изучено"
+unlearn_refund = "Нажмите, чтобы забыть и вернуть"
+no_refunds = "ХАРДКОР, ВОЗВРАТ ОТКЛЮЧЁН"
+knowledge = "знаний"
+click_learn = "Нажмите, чтобы изучить"
+no_knowledge = "(У вас нет знаний)"
+you_only_have = "У вас только"
+how_to_level_up = "Повышайте уровень навыков, чтобы увеличить максимальную энергию."
+not_enough_power = "Недостаточно энергии! Каждый уровень способности стоит 1 энергию."
+power = "энергия"
+power_drain = "Расход энергии"
+learned = "Изучено "
+unlearned = "Забыто "
+activator_block = "Книжная полка"
 
 [snippets.knowledge_orb]
-    contains = "содержит"
-    knowledge = "знаний"
-    rightclick = "ПКМ"
-    togainknowledge = "чтобы получить эти знания"
-    knowledge_orb = "Сфера знаний"
+contains = "содержит"
+knowledge = "знаний"
+rightclick = "ПКМ"
+togainknowledge = "чтобы получить эти знания"
+knowledge_orb = "Сфера знаний"
 
 [snippets.experience_orb]
-    contains = "содержит"
-    xp = "Опыта"
-    rightclick = "ПКМ"
-    togainxp = "чтобы получить этот опыт"
-    xporb = "Сфера опыта"
+contains = "содержит"
+xp = "Опыта"
+rightclick = "ПКМ"
+togainxp = "чтобы получить этот опыт"
+xporb = "Сфера опыта"
 
 # skill
 [skill]
 
 [skill.agility]
-    name = "Ловкость"
-    icon = "⇉"
-    description = "Ловкость -- это способность быстро и плавно передвигаться, преодолевая препятствия."
+name = "Ловкость"
+icon = "⇉"
+description = "Ловкость -- это способность быстро и плавно передвигаться, преодолевая препятствия."
 
 [skill.architect]
-    name = "Архитектура"
-    icon = "⬧"
-    description = "Структуры -- строительные блоки мира. Реальность в ваших руках, вам ею управлять."
+name = "Архитектура"
+icon = "⬧"
+description = "Структуры -- строительные блоки мира. Реальность в ваших руках, вам ею управлять."
 
 [skill.axes]
-    name = "Топоры"
-    icon = "🪓"
-    description1 = "Зачем рубить деревья, когда можно рубить "
-    description2 = "вещи"
-    description3 = " -- результат тот же!"
+name = "Топоры"
+icon = "🪓"
+description1 = "Зачем рубить деревья, когда можно рубить "
+description2 = "вещи"
+description3 = " -- результат тот же!"
 
 [skill.brewing]
-    name = "Зельеварение"
-    icon = "❦"
-    description = "Двойной пузырёк, тройной пузырёк, четверной пузырёк -- а зелье в котёл так и не лезет"
+name = "Зельеварение"
+icon = "❦"
+description = "Двойной пузырёк, тройной пузырёк, четверной пузырёк -- а зелье в котёл так и не лезет"
 
 [skill.blocking]
-    name = "Блокирование"
-    icon = "🛡"
-    description = "Палки и камни костей не сломают, а вот щит -- запросто."
+name = "Блокирование"
+icon = "🛡"
+description = "Палки и камни костей не сломают, а вот щит -- запросто."
 
 [skill.crafting]
-    name = "Ремесло"
-    icon = "⌂"
-    description = "Когда деталей больше не осталось, почему бы не сделать ещё?"
+name = "Ремесло"
+icon = "⌂"
+description = "Когда деталей больше не осталось, почему бы не сделать ещё?"
 
 [skill.discovery]
-    name = "Исследование"
-    icon = "⚛"
-    description = "По мере расширения восприятия ваш разум раскрывается, обнаруживая то, чего вы не замечали."
+name = "Исследование"
+icon = "⚛"
+description = "По мере расширения восприятия ваш разум раскрывается, обнаруживая то, чего вы не замечали."
 
 [skill.enchanting]
-    name = "Зачарование"
-    icon = "♰"
-    description = "О чём ты говоришь? Пророчества, видения, суеверная болтовня?"
+name = "Зачарование"
+icon = "♰"
+description = "О чём ты говоришь? Пророчества, видения, суеверная болтовня?"
 
 [skill.excavation]
-    name = "Раскопки"
-    icon = "ᛳ"
-    description = "Копай, копай яму..."
+name = "Раскопки"
+icon = "ᛳ"
+description = "Копай, копай яму..."
 
 [skill.herbalism]
-    name = "Травничество"
-    icon = "⚘"
-    description = "Не могу найти растения, но нашёл несколько семян и... это что... Травка?"
+name = "Травничество"
+icon = "⚘"
+description = "Не могу найти растения, но нашёл несколько семян и... это что... Травка?"
 
 [skill.hunter]
-    name = "Охота"
-    icon = "☠"
-    description = "Охота -- это путешествие, а не результат."
+name = "Охота"
+icon = "☠"
+description = "Охота -- это путешествие, а не результат."
 
 [skill.nether]
-    name = "Нижний мир"
-    icon = "₪"
-    description = "Из самых глубин Нижнего мира."
+name = "Нижний мир"
+icon = "₪"
+description = "Из самых глубин Нижнего мира."
 
 [skill.pickaxe]
-    name = "Кирки"
-    icon = "⛏"
-    description = "Гномы -- шахтёры, но я тоже кое-чему научился. Я ШВЕД"
+name = "Кирки"
+icon = "⛏"
+description = "Гномы -- шахтёры, но я тоже кое-чему научился. Я ШВЕД"
 
 [skill.ranged]
-    name = "Дальний бой"
-    icon = "🏹"
-    description = "Расстояние -- ключ к победе и ключ к выживанию."
+name = "Дальний бой"
+icon = "🏹"
+description = "Расстояние -- ключ к победе и ключ к выживанию."
 
 [skill.rift]
-    name = "Разлом"
-    icon = "❍"
-    description = "Разлом -- опасная упряжь, но вы обуздали упряжь."
+name = "Разлом"
+icon = "❍"
+description = "Разлом -- опасная упряжь, но вы обуздали упряжь."
 
 [skill.seaborne]
-    name = "Дитя моря"
-    icon = "🎣"
-    description = "С этим навыком вы повелеваете чудесами водной стихии."
+name = "Дитя моря"
+icon = "🎣"
+description = "С этим навыком вы повелеваете чудесами водной стихии."
 
 [skill.stealth]
-    name = "Скрытность"
-    icon = "☯"
-    description = "Искусство невидимого. Ступайте в тенях."
+name = "Скрытность"
+icon = "☯"
+description = "Искусство невидимого. Ступайте в тенях."
 
 [skill.swords]
-    name = "Мечи"
-    icon = "⚔"
-    description = "Силой Серого Камня!"
+name = "Мечи"
+icon = "⚔"
+description = "Силой Серого Камня!"
 
 [skill.taming]
-    name = "Приручение"
-    icon = "♥"
-    description = "Попугаи и пчёлы... а вы?"
+name = "Приручение"
+icon = "♥"
+description = "Попугаи и пчёлы... а вы?"
 
 [skill.tragoul]
-    name = "Трагул"
-    icon = "🗡"
-    description = "Кровь течёт по венам вселенной. Сжатая вашими руками."
+name = "Трагул"
+icon = "🗡"
+description = "Кровь течёт по венам вселенной. Сжатая вашими руками."
 
 [skill.chronos]
-    name = "Хронос"
-    icon = "🕒"
-    description = "Заведите часы вселенной, ощутите поток. Сломайте часы, станьте ими."
+name = "Хронос"
+icon = "🕒"
+description = "Заведите часы вселенной, ощутите поток. Сломайте часы, станьте ими."
 
 [skill.unarmed]
-    name = "Без оружия"
-    icon = "»"
-    description = "Без оружия -- не значит без силы."
+name = "Без оружия"
+icon = "»"
+description = "Без оружия -- не значит без силы."
 
 # agility
 [agility]
 
 [agility.armor_up]
-    name = "Укрепление брони"
-    description = "Чем дольше бежите, тем больше брони!"
-    lore1 = "Максимум брони"
-    lore2 = "Время набора брони"
-    lore = ["Максимум брони", "Время набора брони"]
+name = "Укрепление брони"
+description = "Чем дольше бежите, тем больше брони!"
+lore1 = "Максимум брони"
+lore2 = "Время набора брони"
+lore = ["Максимум брони", "Время набора брони"]
 
 [agility.ladder_slide]
-    name = "Скольжение по лестнице"
-    description = "Поднимайтесь и скользите по лестницам гораздо быстрее в обоих направлениях."
-    lore1 = "Множитель скорости на лестнице"
-    lore2 = "Скорость быстрого спуска"
-    lore = ["Множитель скорости на лестнице", "Скорость быстрого спуска"]
+name = "Скольжение по лестнице"
+description = "Поднимайтесь и скользите по лестницам гораздо быстрее в обоих направлениях."
+lore1 = "Множитель скорости на лестнице"
+lore2 = "Скорость быстрого спуска"
+lore = ["Множитель скорости на лестнице", "Скорость быстрого спуска"]
 
 [agility.super_jump]
-    name = "Суперпрыжок"
-    description = "Исключительное преимущество в высоте."
-    lore1 = "Максимальная высота прыжка"
-    lore2 = "Shift + Прыжок для суперпрыжка!"
-    lore = ["Максимальная высота прыжка", "Shift + Прыжок для суперпрыжка!"]
+name = "Суперпрыжок"
+description = "Исключительное преимущество в высоте."
+lore1 = "Максимальная высота прыжка"
+lore2 = "Shift + Прыжок для суперпрыжка!"
+lore = ["Максимальная высота прыжка", "Shift + Прыжок для суперпрыжка!"]
 
 [agility.wall_jump]
-    name = "Прыжок от стены"
-    description = "Удерживайте Shift в воздухе у стены, чтобы зацепиться и прыгнуть!"
-    lore1 = "Максимум прыжков"
-    lore2 = "Высота прыжка"
-    lore = ["Максимум прыжков", "Высота прыжка"]
+name = "Прыжок от стены"
+description = "Удерживайте Shift в воздухе у стены, чтобы зацепиться и прыгнуть!"
+lore1 = "Максимум прыжков"
+lore2 = "Высота прыжка"
+lore = ["Максимум прыжков", "Высота прыжка"]
 
 [agility.wind_up]
-    name = "Разгон"
-    description = "Чем дольше бежите, тем быстрее становитесь!"
-    lore1 = "Максимальная скорость"
-    lore2 = "Время разгона"
-    lore = ["Максимальная скорость", "Время разгона"]
+name = "Разгон"
+description = "Чем дольше бежите, тем быстрее становитесь!"
+lore1 = "Максимальная скорость"
+lore2 = "Время разгона"
+lore = ["Максимальная скорость", "Время разгона"]
 
 # architect
 [architect]
 
 [architect.elevator]
-    name = "Лифт"
-    description = "Позволяет построить лифт для быстрой вертикальной телепортации!"
-    lore1 = "Открывает рецепт лифта: X=ШЕРСТЬ, Y=ЭНДЕР-ЖЕМЧУГ"
-    lore2 = "XXX"
-    lore3 = "XYX"
-    lore4 = "XXX"
-    lore = ["Открывает рецепт лифта: X=ШЕРСТЬ, Y=ЭНДЕР-ЖЕМЧУГ", "XXX", "XYX", "XXX"]
+name = "Лифт"
+description = "Позволяет построить лифт для быстрой вертикальной телепортации!"
+lore1 = "Открывает рецепт лифта: X=ШЕРСТЬ, Y=ЭНДЕР-ЖЕМЧУГ"
+lore2 = "XXX"
+lore3 = "XYX"
+lore4 = "XXX"
+lore = ["Открывает рецепт лифта: X=ШЕРСТЬ, Y=ЭНДЕР-ЖЕМЧУГ", "XXX", "XYX", "XXX"]
 
 [architect.foundation]
-    name = "Магический фундамент"
-    description = "Позволяет создавать временный фундамент под собой при приседании!"
-    lore1 = "Магически создать: "
-    lore2 = "блоков под собой!"
-    lore = ["Магически создать: ", "блоков под собой!"]
+name = "Магический фундамент"
+description = "Позволяет создавать временный фундамент под собой при приседании!"
+lore1 = "Магически создать: "
+lore2 = "блоков под собой!"
+lore = ["Магически создать: ", "блоков под собой!"]
 
 [architect.glass]
-    name = "Шёлковое касание: стекло"
-    description = "Позволяет предотвратить потерю стеклянных блоков, когда вы ломаете их пустой рукой!"
-    lore1 = "Ваши руки получают Шёлковое касание для стекла"
-    lore = ["Ваши руки получают Шёлковое касание для стекла"]
+name = "Шёлковое касание: стекло"
+description = "Позволяет предотвратить потерю стеклянных блоков, когда вы ломаете их пустой рукой!"
+lore1 = "Ваши руки получают Шёлковое касание для стекла"
+lore = ["Ваши руки получают Шёлковое касание для стекла"]
 
 [architect.wireless_redstone]
-    name = "Пульт редстоуна"
-    description = "Позволяет переключать редстоун-сигнал дистанционно с помощью редстоунового факела!"
-    lore1 = "Мишень + Редстоуновый факел + Эндер-жемчуг = 1 пульт редстоуна"
-    lore = ["Мишень + Редстоуновый факел + Эндер-жемчуг = 1 пульт редстоуна"]
+name = "Пульт редстоуна"
+description = "Позволяет переключать редстоун-сигнал дистанционно с помощью редстоунового факела!"
+lore1 = "Мишень + Редстоуновый факел + Эндер-жемчуг = 1 пульт редстоуна"
+lore = ["Мишень + Редстоуновый факел + Эндер-жемчуг = 1 пульт редстоуна"]
 
 [architect.placement]
-    name = "Жезл строителя"
-    description = "Позволяет размещать несколько блоков одновременно! Для активации присядьте и держите блок, совпадающий с тем, на который вы смотрите, и ставьте! Возможно, придётся чуть сдвинуться!"
-    lore1 = "Вам нужно"
-    lore2 = "блоков в руке, чтобы разместить это"
-    lore3 = "Жезл строителя из материала"
-    lore = ["Вам нужно", "блоков в руке, чтобы разместить это", "Жезл строителя из материала"]
+name = "Жезл строителя"
+description = "Позволяет размещать несколько блоков одновременно! Для активации присядьте и держите блок, совпадающий с тем, на который вы смотрите, и ставьте! Возможно, придётся чуть сдвинуться!"
+lore1 = "Вам нужно"
+lore2 = "блоков в руке, чтобы разместить это"
+lore3 = "Жезл строителя из материала"
+lore = ["Вам нужно", "блоков в руке, чтобы разместить это", "Жезл строителя из материала"]
 
 # axe
 [axe]
 
 [axe.chop]
-    name = "Рубка топором"
-    description = "Срубайте деревья, нажав ПКМ по нижнему бревну!"
-    lore1 = "Блоков за рубку"
-    lore2 = "Перезарядка рубки"
-    lore3 = "Износ инструмента"
-    lore = ["Блоков за рубку", "Перезарядка рубки", "Износ инструмента"]
+name = "Рубка топором"
+description = "Срубайте деревья, нажав ПКМ по нижнему бревну!"
+lore1 = "Блоков за рубку"
+lore2 = "Перезарядка рубки"
+lore3 = "Износ инструмента"
+lore = ["Блоков за рубку", "Перезарядка рубки", "Износ инструмента"]
 
 [axe.log_swap]
-    name = "Обменник брёвен Люси"
-    description = "Меняйте тип брёвен на верстаке!"
-    lore1 = "8 брёвен любого вида + 1 саженец = 8 брёвен типа саженца"
-    lore = ["8 брёвен любого вида + 1 саженец = 8 брёвен типа саженца"]
+name = "Обменник брёвен Люси"
+description = "Меняйте тип брёвен на верстаке!"
+lore1 = "8 брёвен любого вида + 1 саженец = 8 брёвен типа саженца"
+lore = ["8 брёвен любого вида + 1 саженец = 8 брёвен типа саженца"]
 
 [axe.drop_to_inventory]
-    name = "Автосбор с топора"
+name = "Автосбор с топора"
 
 [axe.ground_smash]
-    name = "Удар топором по земле"
-    description = "Прыгните, затем присядьте и ударьте всех ближайших врагов."
-    lore1 = "Урон"
-    lore2 = "Радиус в блоках"
-    lore3 = "Сила"
-    lore4 = "Перезарядка удара"
-    lore = ["Урон", "Радиус в блоках", "Сила", "Перезарядка удара"]
+name = "Удар топором по земле"
+description = "Прыгните, затем присядьте и ударьте всех ближайших врагов."
+lore1 = "Урон"
+lore2 = "Радиус в блоках"
+lore3 = "Сила"
+lore4 = "Перезарядка удара"
+lore = ["Урон", "Радиус в блоках", "Сила", "Перезарядка удара"]
 
 [axe.leaf_miner]
-    name = "Сборщик листвы"
-    description = "Позволяет ломать массу листвы сразу!"
-    lore1 = "Присядьте и рубите ЛИСТВУ"
-    lore2 = "Радиус сбора листвы"
-    lore3 = "Вы не получите дроп с листвы (защита от эксплойтов)"
-    lore = ["Присядьте и рубите ЛИСТВУ", "Радиус сбора листвы", "Вы не получите дроп с листвы (защита от эксплойтов)"]
+name = "Сборщик листвы"
+description = "Позволяет ломать массу листвы сразу!"
+lore1 = "Присядьте и рубите ЛИСТВУ"
+lore2 = "Радиус сбора листвы"
+lore3 = "Вы не получите дроп с листвы (защита от эксплойтов)"
+lore = ["Присядьте и рубите ЛИСТВУ", "Радиус сбора листвы", "Вы не получите дроп с листвы (защита от эксплойтов)"]
 
 [axe.wood_miner]
-    name = "Лесоруб"
-    description = "Позволяет ломать массу древесины сразу!"
-    lore1 = "Присядьте и рубите ДЕРЕВО/БРЁВНА (не доски)"
-    lore2 = "Радиус рубки древесины"
-    lore3 = "Работает с автосбором в инвентарь"
-    lore = ["Присядьте и рубите ДЕРЕВО/БРЁВНА (не доски)", "Радиус рубки древесины", "Работает с автосбором в инвентарь"]
+name = "Лесоруб"
+description = "Позволяет ломать массу древесины сразу!"
+lore1 = "Присядьте и рубите ДЕРЕВО/БРЁВНА (не доски)"
+lore2 = "Радиус рубки древесины"
+lore3 = "Работает с автосбором в инвентарь"
+lore = ["Присядьте и рубите ДЕРЕВО/БРЁВНА (не доски)", "Радиус рубки древесины", "Работает с автосбором в инвентарь"]
 
 # brewing
 [brewing]
 
 [brewing.lingering]
-    name = "Стойкое зелье"
-    description = "Сваренные зелья действуют дольше!"
-    lore1 = "Длительность"
-    lore2 = "Длительность"
-    lore = ["Длительность", "Длительность"]
+name = "Стойкое зелье"
+description = "Сваренные зелья действуют дольше!"
+lore1 = "Длительность"
+lore2 = "Длительность"
+lore = ["Длительность", "Длительность"]
 
 [brewing.super_heated]
-    name = "Сверхнагретое зелье"
-    description = "Варочные стойки работают быстрее, чем горячее вокруг них."
-    lore1 = "За каждый касающийся блок огня"
-    lore2 = "За каждый касающийся блок лавы"
-    lore = ["За каждый касающийся блок огня", "За каждый касающийся блок лавы"]
+name = "Сверхнагретое зелье"
+description = "Варочные стойки работают быстрее, чем горячее вокруг них."
+lore1 = "За каждый касающийся блок огня"
+lore2 = "За каждый касающийся блок лавы"
+lore = ["За каждый касающийся блок огня", "За каждый касающийся блок лавы"]
 
 [brewing.darkness]
-    name = "Тьма в бутылке"
-    description = "Не знаю, зачем вам это, но вот, держите!"
-    lore1 = "Зелье ночного зрения + Чёрный бетон = Зелье тьмы (30 секунд)"
-    lore2 = "Следует отметить, что это не позволяет бегать!"
-    lore = ["Зелье ночного зрения + Чёрный бетон = Зелье тьмы (30 секунд)", "Следует отметить, что это не позволяет бегать!"]
+name = "Тьма в бутылке"
+description = "Не знаю, зачем вам это, но вот, держите!"
+lore1 = "Зелье ночного зрения + Чёрный бетон = Зелье тьмы (30 секунд)"
+lore2 = "Следует отметить, что это не позволяет бегать!"
+lore = ["Зелье ночного зрения + Чёрный бетон = Зелье тьмы (30 секунд)", "Следует отметить, что это не позволяет бегать!"]
 
 [brewing.haste]
-    name = "Спешка в бутылке"
-    description = "Когда эффективности недостаточно"
-    lore1 = "Зелье скорости + Осколок аметиста = Зелье спешки (60 секунд)"
-    lore2 = "Зелье скорости + Блок аметиста = Зелье спешки II (30 секунд)"
-    lore = ["Зелье скорости + Осколок аметиста = Зелье спешки (60 секунд)", "Зелье скорости + Блок аметиста = Зелье спешки II (30 секунд)"]
+name = "Спешка в бутылке"
+description = "Когда эффективности недостаточно"
+lore1 = "Зелье скорости + Осколок аметиста = Зелье спешки (60 секунд)"
+lore2 = "Зелье скорости + Блок аметиста = Зелье спешки II (30 секунд)"
+lore = ["Зелье скорости + Осколок аметиста = Зелье спешки (60 секунд)", "Зелье скорости + Блок аметиста = Зелье спешки II (30 секунд)"]
 
 [brewing.absorption]
-    name = "Поглощение в бутылке"
-    description = "Закали тело!"
-    lore1 = "Зелье исцеления + Кварц = Зелье поглощения (60 секунд)"
-    lore2 = "Зелье исцеления + Кварцевый блок = Зелье поглощения II (30 секунд)"
-    lore = ["Зелье исцеления + Кварц = Зелье поглощения (60 секунд)", "Зелье исцеления + Кварцевый блок = Зелье поглощения II (30 секунд)"]
+name = "Поглощение в бутылке"
+description = "Закали тело!"
+lore1 = "Зелье исцеления + Кварц = Зелье поглощения (60 секунд)"
+lore2 = "Зелье исцеления + Кварцевый блок = Зелье поглощения II (30 секунд)"
+lore = ["Зелье исцеления + Кварц = Зелье поглощения (60 секунд)", "Зелье исцеления + Кварцевый блок = Зелье поглощения II (30 секунд)"]
 
 [brewing.fatigue]
-    name = "Усталость в бутылке"
-    description = "Ослабь тело!"
-    lore1 = "Зелье слабости + Сгусток слизи = Зелье усталости (30 секунд)"
-    lore2 = "Зелье слабости + Блок слизи = Зелье усталости II (15 секунд)"
-    lore = ["Зелье слабости + Сгусток слизи = Зелье усталости (30 секунд)", "Зелье слабости + Блок слизи = Зелье усталости II (15 секунд)"]
+name = "Усталость в бутылке"
+description = "Ослабь тело!"
+lore1 = "Зелье слабости + Сгусток слизи = Зелье усталости (30 секунд)"
+lore2 = "Зелье слабости + Блок слизи = Зелье усталости II (15 секунд)"
+lore = ["Зелье слабости + Сгусток слизи = Зелье усталости (30 секунд)", "Зелье слабости + Блок слизи = Зелье усталости II (15 секунд)"]
 
 [brewing.hunger]
-    name = "Голод в бутылке"
-    description = "Накорми ненасытного!"
-    lore1 = "Мутное зелье + Гнилая плоть = Зелье голода (30 секунд)"
-    lore2 = "Зелье слабости + Гнилая плоть = Зелье голода III (15 секунд)"
-    lore = ["Мутное зелье + Гнилая плоть = Зелье голода (30 секунд)", "Зелье слабости + Гнилая плоть = Зелье голода III (15 секунд)"]
+name = "Голод в бутылке"
+description = "Накорми ненасытного!"
+lore1 = "Мутное зелье + Гнилая плоть = Зелье голода (30 секунд)"
+lore2 = "Зелье слабости + Гнилая плоть = Зелье голода III (15 секунд)"
+lore = ["Мутное зелье + Гнилая плоть = Зелье голода (30 секунд)", "Зелье слабости + Гнилая плоть = Зелье голода III (15 секунд)"]
 
 [brewing.nausea]
-    name = "Тошнота в бутылке"
-    description = "Меня от тебя тошнит!"
-    lore1 = "Мутное зелье + Коричневый гриб = Зелье тошноты (16 секунд)"
-    lore2 = "Мутное зелье + Багровый гриб = Зелье тошноты II (8 секунд)"
-    lore = ["Мутное зелье + Коричневый гриб = Зелье тошноты (16 секунд)", "Мутное зелье + Багровый гриб = Зелье тошноты II (8 секунд)"]
+name = "Тошнота в бутылке"
+description = "Меня от тебя тошнит!"
+lore1 = "Мутное зелье + Коричневый гриб = Зелье тошноты (16 секунд)"
+lore2 = "Мутное зелье + Багровый гриб = Зелье тошноты II (8 секунд)"
+lore = ["Мутное зелье + Коричневый гриб = Зелье тошноты (16 секунд)", "Мутное зелье + Багровый гриб = Зелье тошноты II (8 секунд)"]
 
 [brewing.blindness]
-    name = "Слепота в бутылке"
-    description = "Ты ужасный человек..."
-    lore1 = "Мутное зелье + Чернильный мешок = Зелье слепоты (30 секунд)"
-    lore2 = "Мутное зелье + Светящийся чернильный мешок = Зелье слепоты II (15 секунд)"
-    lore = ["Мутное зелье + Чернильный мешок = Зелье слепоты (30 секунд)", "Мутное зелье + Светящийся чернильный мешок = Зелье слепоты II (15 секунд)"]
+name = "Слепота в бутылке"
+description = "Ты ужасный человек..."
+lore1 = "Мутное зелье + Чернильный мешок = Зелье слепоты (30 секунд)"
+lore2 = "Мутное зелье + Светящийся чернильный мешок = Зелье слепоты II (15 секунд)"
+lore = ["Мутное зелье + Чернильный мешок = Зелье слепоты (30 секунд)", "Мутное зелье + Светящийся чернильный мешок = Зелье слепоты II (15 секунд)"]
 
 [brewing.resistance]
-    name = "Сопротивление в бутылке"
-    description = "Укрепление в лучшем виде!"
-    lore1 = "Мутное зелье + Железный слиток = Зелье сопротивления (60 секунд)"
-    lore2 = "Мутное зелье + Железный блок = Зелье сопротивления II (30 секунд)"
-    lore = ["Мутное зелье + Железный слиток = Зелье сопротивления (60 секунд)", "Мутное зелье + Железный блок = Зелье сопротивления II (30 секунд)"]
+name = "Сопротивление в бутылке"
+description = "Укрепление в лучшем виде!"
+lore1 = "Мутное зелье + Железный слиток = Зелье сопротивления (60 секунд)"
+lore2 = "Мутное зелье + Железный блок = Зелье сопротивления II (30 секунд)"
+lore = ["Мутное зелье + Железный слиток = Зелье сопротивления (60 секунд)", "Мутное зелье + Железный блок = Зелье сопротивления II (30 секунд)"]
 
 [brewing.health_boost]
-    name = "Жизнь в бутылке"
-    description = "Когда максимального здоровья недостаточно..."
-    lore1 = "Зелье исцеления + Золотое яблоко = Зелье усиления здоровья (120 секунд)"
-    lore2 = "Зелье исцеления + Зачарованное золотое яблоко = Зелье усиления здоровья II (120 секунд)"
-    lore = ["Зелье исцеления + Золотое яблоко = Зелье усиления здоровья (120 секунд)", "Зелье исцеления + Зачарованное золотое яблоко = Зелье усиления здоровья II (120 секунд)"]
+name = "Жизнь в бутылке"
+description = "Когда максимального здоровья недостаточно..."
+lore1 = "Зелье исцеления + Золотое яблоко = Зелье усиления здоровья (120 секунд)"
+lore2 = "Зелье исцеления + Зачарованное золотое яблоко = Зелье усиления здоровья II (120 секунд)"
+lore = ["Зелье исцеления + Золотое яблоко = Зелье усиления здоровья (120 секунд)", "Зелье исцеления + Зачарованное золотое яблоко = Зелье усиления здоровья II (120 секунд)"]
 
 [brewing.decay]
-    name = "Распад в бутылке"
-    description = "Кто бы мог подумать, что Детрит окажется таким полезным?"
-    lore1 = "Зелье слабости + Ядовитый картофель = Зелье иссушения (16 секунд)"
-    lore2 = "Зелье слабости + Багровые корни = Зелье иссушения II (8 секунд)"
-    lore = ["Зелье слабости + Ядовитый картофель = Зелье иссушения (16 секунд)", "Зелье слабости + Багровые корни = Зелье иссушения II (8 секунд)"]
+name = "Распад в бутылке"
+description = "Кто бы мог подумать, что Детрит окажется таким полезным?"
+lore1 = "Зелье слабости + Ядовитый картофель = Зелье иссушения (16 секунд)"
+lore2 = "Зелье слабости + Багровые корни = Зелье иссушения II (8 секунд)"
+lore = ["Зелье слабости + Ядовитый картофель = Зелье иссушения (16 секунд)", "Зелье слабости + Багровые корни = Зелье иссушения II (8 секунд)"]
 
 [brewing.saturation]
-    name = "Насыщение в бутылке"
-    description = "Знаешь... я даже не голоден..."
-    lore1 = "Зелье регенерации + Печёный картофель = Зелье насыщения"
-    lore2 = "Зелье регенерации + Сноп сена = Зелье насыщения II"
-    lore = ["Зелье регенерации + Печёный картофель = Зелье насыщения", "Зелье регенерации + Сноп сена = Зелье насыщения II"]
+name = "Насыщение в бутылке"
+description = "Знаешь... я даже не голоден..."
+lore1 = "Зелье регенерации + Печёный картофель = Зелье насыщения"
+lore2 = "Зелье регенерации + Сноп сена = Зелье насыщения II"
+lore = ["Зелье регенерации + Печёный картофель = Зелье насыщения", "Зелье регенерации + Сноп сена = Зелье насыщения II"]
 
 # blocking
 [blocking]
 
 [blocking.chain_armorer]
-    name = "Цепи Мефистофеля"
-    description = "Позволяет создавать кольчужную броню"
-    lore1 = "Рецепт крафта такой же, как и для любой другой брони, но с железными самородками"
-    lore = ["Рецепт крафта такой же, как и для любой другой брони, но с железными самородками"]
+name = "Цепи Мефистофеля"
+description = "Позволяет создавать кольчужную броню"
+lore1 = "Рецепт крафта такой же, как и для любой другой брони, но с железными самородками"
+lore = ["Рецепт крафта такой же, как и для любой другой брони, но с железными самородками"]
 
 [blocking.horse_armorer]
-    name = "Крафт конской брони"
-    description = "Позволяет создавать конскую броню"
-    lore1 = "Окружите седло материалом, из которого хотите изготовить броню"
-    lore = ["Окружите седло материалом, из которого хотите изготовить броню"]
+name = "Крафт конской брони"
+description = "Позволяет создавать конскую броню"
+lore1 = "Окружите седло материалом, из которого хотите изготовить броню"
+lore = ["Окружите седло материалом, из которого хотите изготовить броню"]
 
 [blocking.saddle_crafter]
-    name = "Крафт седла"
-    description = "Изготовьте седло из кожи"
-    lore1 = "Рецепт: 5 кожи:"
-    lore = ["Рецепт: 5 кожи:"]
+name = "Крафт седла"
+description = "Изготовьте седло из кожи"
+lore1 = "Рецепт: 5 кожи:"
+lore = ["Рецепт: 5 кожи:"]
 
 [blocking.multi_armor]
-    name = "Мультиброня"
-    description = "Привяжите элитры к броне"
-    lore1 = "Невероятный навык для путешествий."
-    lore2 = "Динамически объединяйте и меняйте броню/элитры на лету!"
-    lore3 = "Для объединения: Shift + клик по предмету поверх другого в инвентаре."
-    lore4 = "Для разборки: бросьте предмет с зажатым Shift, и он будет разобран."
-    lore5 = "Если ваша мультиброня уничтожена, вы потеряете все предметы в ней."
-    lore6 = "Мне не нужна броня, она меня разочаровывает..."
-    lore = ["Невероятный навык для путешествий.", "Динамически объединяйте и меняйте броню/элитры на лету!", "Для объединения: Shift + клик по предмету поверх другого в инвентаре.", "Для разборки: бросьте предмет с зажатым Shift, и он будет разобран.", "Если ваша мультиброня уничтожена, вы потеряете все предметы в ней.", "Мне не нужна броня, она меня разочаровывает..."]
+name = "Мультиброня"
+description = "Привяжите элитры к броне"
+lore1 = "Невероятный навык для путешествий."
+lore2 = "Динамически объединяйте и меняйте броню/элитры на лету!"
+lore3 = "Для объединения: Shift + клик по предмету поверх другого в инвентаре."
+lore4 = "Для разборки: бросьте предмет с зажатым Shift, и он будет разобран."
+lore5 = "Если ваша мультиброня уничтожена, вы потеряете все предметы в ней."
+lore6 = "Мне не нужна броня, она меня разочаровывает..."
+lore = ["Невероятный навык для путешествий.", "Динамически объединяйте и меняйте броню/элитры на лету!", "Для объединения: Shift + клик по предмету поверх другого в инвентаре.", "Для разборки: бросьте предмет с зажатым Shift, и он будет разобран.", "Если ваша мультиброня уничтожена, вы потеряете все предметы в ней.", "Мне не нужна броня, она меня разочаровывает..."]
 
 # crafting
 [crafting]
 
 [crafting.deconstruction]
-    name = "Деконструкция"
-    description = "Разбирайте блоки и предметы на базовые компоненты!"
-    lore1 = "Бросьте любой предмет на землю."
-    lore2 = "Затем присядьте и нажмите ПКМ ножницами"
-    lore = ["Бросьте любой предмет на землю.", "Затем присядьте и нажмите ПКМ ножницами"]
+name = "Деконструкция"
+description = "Разбирайте блоки и предметы на базовые компоненты!"
+lore1 = "Бросьте любой предмет на землю."
+lore2 = "Затем присядьте и нажмите ПКМ ножницами"
+lore = ["Бросьте любой предмет на землю.", "Затем присядьте и нажмите ПКМ ножницами"]
 
 [crafting.xp]
-    name = "Опыт за крафт"
-    description = "Получайте пассивный опыт при крафте"
-    lore1 = "Получайте опыт при крафте"
-    lore = ["Получайте опыт при крафте"]
+name = "Опыт за крафт"
+description = "Получайте пассивный опыт при крафте"
+lore1 = "Получайте опыт при крафте"
+lore = ["Получайте опыт при крафте"]
 
 [crafting.reconstruction]
-    name = "Реконструкция руды"
-    description = "Воссоздавайте руды из их базовых компонентов!"
-    lore1 = "8 единиц дропа и 1 основа = 1 руда (бесформенный рецепт)"
-    lore2 = "Дроп должен быть переплавлен (если применимо)"
-    lore3 = "Не включает: обломки, кварц, изумруды и т.д."
-    lore4 = "Основа = оболочка, т.е.: камень, незеррак, глубинный сланец"
-    lore = ["8 единиц дропа и 1 основа = 1 руда (бесформенный рецепт)", "Дроп должен быть переплавлен (если применимо)", "Не включает: обломки, кварц, изумруды и т.д.", "Основа = оболочка, т.е.: камень, незеррак, глубинный сланец"]
+name = "Реконструкция руды"
+description = "Воссоздавайте руды из их базовых компонентов!"
+lore1 = "8 единиц дропа и 1 основа = 1 руда (бесформенный рецепт)"
+lore2 = "Дроп должен быть переплавлен (если применимо)"
+lore3 = "Не включает: обломки, кварц, изумруды и т.д."
+lore4 = "Основа = оболочка, т.е.: камень, незеррак, глубинный сланец"
+lore = ["8 единиц дропа и 1 основа = 1 руда (бесформенный рецепт)", "Дроп должен быть переплавлен (если применимо)", "Не включает: обломки, кварц, изумруды и т.д.", "Основа = оболочка, т.е.: камень, незеррак, глубинный сланец"]
 
 [crafting.leather]
-    name = "Крафт кожи"
-    description = "Изготавливайте кожу из гнилой плоти"
-    lore1 = "Просто положите гнилую плоть на костёр!"
-    lore = ["Просто положите гнилую плоть на костёр!"]
+name = "Крафт кожи"
+description = "Изготавливайте кожу из гнилой плоти"
+lore1 = "Просто положите гнилую плоть на костёр!"
+lore = ["Просто положите гнилую плоть на костёр!"]
 
 [crafting.backpacks]
-    name = "Рюкзаки Бутильера!"
-    description = "Мешки Mojang теперь в игре!"
-    lore1 = "Вы должны быть в режиме выживания"
-    lore2 = "XLX : Кожа, Поводок, Кожа"
-    lore3 = "XSX : Кожа, Бочка, Кожа"
-    lore4 = "XCX : Кожа, Сундук, Кожа"
-    lore = ["Вы должны быть в режиме выживания", "XLX : Кожа, Поводок, Кожа", "XSX : Кожа, Бочка, Кожа", "XCX : Кожа, Сундук, Кожа"]
+name = "Рюкзаки Бутильера!"
+description = "Мешки Mojang теперь в игре!"
+lore1 = "Вы должны быть в режиме выживания"
+lore2 = "XLX : Кожа, Поводок, Кожа"
+lore3 = "XSX : Кожа, Бочка, Кожа"
+lore4 = "XCX : Кожа, Сундук, Кожа"
+lore = ["Вы должны быть в режиме выживания", "XLX : Кожа, Поводок, Кожа", "XSX : Кожа, Бочка, Кожа", "XCX : Кожа, Сундук, Кожа"]
 
 [crafting.stations]
-    name = "Портативные столы!"
-    description = "Используйте верстак прямо в руке!"
-    lore2 = "ВСЕ ПРЕДМЕТЫ, ЗАБЫТЫЕ В СТОЛЕ ПРИ ЗАКРЫТИИ, БУДУТ ПОТЕРЯНЫ НАВСЕГДА!"
-    lore3 = "Доступные столы: Наковальня, Верстак, Точило, Стол картографа, Камнерез, Ткацкий станок"
-    lore = ["ВСЕ ПРЕДМЕТЫ, ЗАБЫТЫЕ В СТОЛЕ ПРИ ЗАКРЫТИИ, БУДУТ ПОТЕРЯНЫ НАВСЕГДА!", "Доступные столы: Наковальня, Верстак, Точило, Стол картографа, Камнерез, Ткацкий станок"]
+name = "Портативные столы!"
+description = "Используйте верстак прямо в руке!"
+lore2 = "ВСЕ ПРЕДМЕТЫ, ЗАБЫТЫЕ В СТОЛЕ ПРИ ЗАКРЫТИИ, БУДУТ ПОТЕРЯНЫ НАВСЕГДА!"
+lore3 = "Доступные столы: Наковальня, Верстак, Точило, Стол картографа, Камнерез, Ткацкий станок"
+lore = ["ВСЕ ПРЕДМЕТЫ, ЗАБЫТЫЕ В СТОЛЕ ПРИ ЗАКРЫТИИ, БУДУТ ПОТЕРЯНЫ НАВСЕГДА!", "Доступные столы: Наковальня, Верстак, Точило, Стол картографа, Камнерез, Ткацкий станок"]
 
 [crafting.skulls]
-    name = "Крафт черепов!"
-    description = "Используя материалы, вы можете создавать черепа мобов!"
-    lore1 = "Окружите костяной блок следующим, чтобы получить череп:"
-    lore2 = "Зомби: Гнилая плоть"
-    lore3 = "Скелет: Кость"
-    lore4 = "Крипер: Порох"
-    lore5 = "Иссушитель: Незеритовый кирпич"
-    lore6 = "Дракон: Дыхание дракона"
-    lore = ["Окружите костяной блок следующим, чтобы получить череп:", "Зомби: Гнилая плоть", "Скелет: Кость", "Крипер: Порох", "Иссушитель: Незеритовый кирпич", "Дракон: Дыхание дракона"]
+name = "Крафт черепов!"
+description = "Используя материалы, вы можете создавать черепа мобов!"
+lore1 = "Окружите костяной блок следующим, чтобы получить череп:"
+lore2 = "Зомби: Гнилая плоть"
+lore3 = "Скелет: Кость"
+lore4 = "Крипер: Порох"
+lore5 = "Иссушитель: Незеритовый кирпич"
+lore6 = "Дракон: Дыхание дракона"
+lore = ["Окружите костяной блок следующим, чтобы получить череп:", "Зомби: Гнилая плоть", "Скелет: Кость", "Крипер: Порох", "Иссушитель: Незеритовый кирпич", "Дракон: Дыхание дракона"]
 
 # chronos
 [chronos]
 
 [chronos.time_in_a_bottle]
-    name = "Время в бутылке"
-    description = "Носите временную бутылку, которая накапливает время. Тратьте его на ускорение тикающих блоков, растений и детёнышей животных. Рецепт (бесформенный): Зелье скорости + Часы + Стеклянная бутылка."
-    lore1 = "Секунд заряжается за тик"
-    lore2 = "Ускорение времени за накопленную секунду"
-    lore3 = "Рецепт (бесформенный): Зелье скорости + Часы + Стеклянная бутылка"
-    lore = ["Секунд заряжается за тик", "Ускорение времени за накопленную секунду", "Рецепт (бесформенный): Зелье скорости + Часы + Стеклянная бутылка"]
+name = "Время в бутылке"
+description = "Носите временную бутылку, которая накапливает время. Тратьте его на ускорение тикающих блоков, растений и детёнышей животных. Рецепт (бесформенный): Зелье скорости + Часы + Стеклянная бутылка."
+lore1 = "Секунд заряжается за тик"
+lore2 = "Ускорение времени за накопленную секунду"
+lore3 = "Рецепт (бесформенный): Зелье скорости + Часы + Стеклянная бутылка"
+lore = ["Секунд заряжается за тик", "Ускорение времени за накопленную секунду", "Рецепт (бесформенный): Зелье скорости + Часы + Стеклянная бутылка"]
 
 [chronos.aberrant_touch]
-    name = "Аберрантное касание"
-    description = "Атаки ближнего боя накладывают накапливающееся замедление за счёт голода, с ограничениями для PvP, и обездвиживают цель при 5 стаках."
-    lore1 = "Атаки ближнего боя накладывают замедление"
-    lore2 = "Ограничение длительности замедления для PvE"
-    lore3 = "Ограничение силы замедления для PvP"
-    lore = ["Атаки ближнего боя накладывают замедление", "Ограничение длительности замедления для PvE", "Ограничение силы замедления для PvP"]
+name = "Аберрантное касание"
+description = "Атаки ближнего боя накладывают накапливающееся замедление за счёт голода, с ограничениями для PvP, и обездвиживают цель при 5 стаках."
+lore1 = "Атаки ближнего боя накладывают замедление"
+lore2 = "Ограничение длительности замедления для PvE"
+lore3 = "Ограничение силы замедления для PvP"
+lore = ["Атаки ближнего боя накладывают замедление", "Ограничение длительности замедления для PvE", "Ограничение силы замедления для PvP"]
 
 [chronos.instant_recall]
-    name = "Мгновенный откат"
-    description = "Нажмите ЛКМ или ПКМ с часами в руке, чтобы перемотать время к недавнему снимку с восстановлением здоровья и голода."
-    lore1 = "Длительность перемотки"
-    lore2 = "Перезарядка"
-    lore3 = "Инвентарь не откатывается"
-    lore = ["Длительность перемотки", "Перезарядка", "Инвентарь не откатывается"]
+name = "Мгновенный откат"
+description = "Нажмите ЛКМ или ПКМ с часами в руке, чтобы перемотать время к недавнему снимку с восстановлением здоровья и голода."
+lore1 = "Длительность перемотки"
+lore2 = "Перезарядка"
+lore3 = "Инвентарь не откатывается"
+lore = ["Длительность перемотки", "Перезарядка", "Инвентарь не откатывается"]
 
 [chronos.time_bomb]
-    name = "Хронобомба"
-    description = "Бросьте скрафченную хронобомбу, которая создаёт временное поле, замедляет существ и замораживает снаряды."
-    lore1 = "Радиус временного поля"
-    lore2 = "Длительность временного поля"
-    lore3 = "Перезарядка бомбы"
-    lore4 = "Рецепт (бесформенный): Часы + Снежок + Алмаз + Песок"
-    lore = ["Радиус временного поля", "Длительность временного поля", "Перезарядка бомбы", "Рецепт (бесформенный): Часы + Снежок + Алмаз + Песок"]
+name = "Хронобомба"
+description = "Бросьте скрафченную хронобомбу, которая создаёт временное поле, замедляет существ и замораживает снаряды."
+lore1 = "Радиус временного поля"
+lore2 = "Длительность временного поля"
+lore3 = "Перезарядка бомбы"
+lore4 = "Рецепт (бесформенный): Часы + Снежок + Алмаз + Песок"
+lore = ["Радиус временного поля", "Длительность временного поля", "Перезарядка бомбы", "Рецепт (бесформенный): Часы + Снежок + Алмаз + Песок"]
 
 # discovery
 [discovery]
 
 [discovery.armor]
-    name = "Мировая броня"
-    description = "Пассивная броня в зависимости от твёрдости ближайших блоков."
-    lore1 = "Пассивная броня"
-    lore2 = "На основе твёрдости ближайших блоков"
-    lore3 = "Сила брони:"
-    lore = ["Пассивная броня", "На основе твёрдости ближайших блоков", "Сила брони:"]
+name = "Мировая броня"
+description = "Пассивная броня в зависимости от твёрдости ближайших блоков."
+lore1 = "Пассивная броня"
+lore2 = "На основе твёрдости ближайших блоков"
+lore3 = "Сила брони:"
+lore = ["Пассивная броня", "На основе твёрдости ближайших блоков", "Сила брони:"]
 
 [discovery.unity]
-    name = "Экспериментальное единство"
-    description = "Сбор сфер опыта добавляет опыт к случайным навыкам."
-    lore1 = "Опыта "
-    lore2 = "за сферу"
-    lore = ["Опыта ", "за сферу"]
+name = "Экспериментальное единство"
+description = "Сбор сфер опыта добавляет опыт к случайным навыкам."
+lore1 = "Опыта "
+lore2 = "за сферу"
+lore = ["Опыта ", "за сферу"]
 
 [discovery.resist]
-    name = "Экспериментальное сопротивление"
-    description = "Тратьте опыт для снижения урона, только когда удар может уронить вас ниже 5 сердец или убить."
-    lore0 = "Срабатывает только при критическом здоровье (<= 5 сердец) раз в 15 секунд"
-    lore1 = " снижения урона"
-    lore2 = "опыта потрачено"
-    lore = ["Срабатывает только при критическом здоровье (<= 5 сердец) раз в 15 секунд", " снижения урона", "опыта потрачено"]
+name = "Экспериментальное сопротивление"
+description = "Тратьте опыт для снижения урона, только когда удар может уронить вас ниже 5 сердец или убить."
+lore0 = "Срабатывает только при критическом здоровье (<= 5 сердец) раз в 15 секунд"
+lore1 = " снижения урона"
+lore2 = "опыта потрачено"
+lore = ["Срабатывает только при критическом здоровье (<= 5 сердец) раз в 15 секунд", " снижения урона", "опыта потрачено"]
 
 [discovery.villager]
-    name = "Привлекательность для жителей"
-    description = "Позволяет получать лучшие сделки у жителей!"
-    lore1 = "Тратится опыт за каждое взаимодействие с жителями"
-    lore2 = "Шанс за взаимодействие потратить опыт и улучшить торговлю"
-    lore3 = "Необходимый расход опыта за взаимодействие"
-    lore = ["Тратится опыт за каждое взаимодействие с жителями", "Шанс за взаимодействие потратить опыт и улучшить торговлю", "Необходимый расход опыта за взаимодействие"]
+name = "Привлекательность для жителей"
+description = "Позволяет получать лучшие сделки у жителей!"
+lore1 = "Тратится опыт за каждое взаимодействие с жителями"
+lore2 = "Шанс за взаимодействие потратить опыт и улучшить торговлю"
+lore3 = "Необходимый расход опыта за взаимодействие"
+lore = ["Тратится опыт за каждое взаимодействие с жителями", "Шанс за взаимодействие потратить опыт и улучшить торговлю", "Необходимый расход опыта за взаимодействие"]
 
 # enchanting
 [enchanting]
 
 [enchanting.lapis_return]
-    name = "Возврат лазурита"
-    description = "За 1 дополнительный уровень опыта есть шанс получить бесплатный лазурит"
-    lore1 = "За каждый уровень увеличивается стоимость зачарования на 1, но может вернуться до 3 лазурита"
-    lore = ["За каждый уровень увеличивается стоимость зачарования на 1, но может вернуться до 3 лазурита"]
+name = "Возврат лазурита"
+description = "За 1 дополнительный уровень опыта есть шанс получить бесплатный лазурит"
+lore1 = "За каждый уровень увеличивается стоимость зачарования на 1, но может вернуться до 3 лазурита"
+lore = ["За каждый уровень увеличивается стоимость зачарования на 1, но может вернуться до 3 лазурита"]
 
 [enchanting.quick_enchant]
-    name = "Быстрое зачарование"
-    description = "Зачаровывайте предметы, нажимая книгами зачарований прямо по ним."
-    lore1 = "Максимум комбинированных уровней"
-    lore2 = "Нельзя зачаровать предмет с более чем "
-    lore3 = "силы"
-    lore = ["Максимум комбинированных уровней", "Нельзя зачаровать предмет с более чем ", "силы"]
+name = "Быстрое зачарование"
+description = "Зачаровывайте предметы, нажимая книгами зачарований прямо по ним."
+lore1 = "Максимум комбинированных уровней"
+lore2 = "Нельзя зачаровать предмет с более чем "
+lore3 = "силы"
+lore = ["Максимум комбинированных уровней", "Нельзя зачаровать предмет с более чем ", "силы"]
 
 [enchanting.return]
-    name = "Возврат опыта"
-    description = "Опыт зачарования возвращается вам при зачаровании предмета."
-    lore1 = "Потраченный опыт имеет шанс вернуться при зачаровании предмета"
-    lore2 = "Опыта за зачарование"
-    lore = ["Потраченный опыт имеет шанс вернуться при зачаровании предмета", "Опыта за зачарование"]
+name = "Возврат опыта"
+description = "Опыт зачарования возвращается вам при зачаровании предмета."
+lore1 = "Потраченный опыт имеет шанс вернуться при зачаровании предмета"
+lore2 = "Опыта за зачарование"
+lore = ["Потраченный опыт имеет шанс вернуться при зачаровании предмета", "Опыта за зачарование"]
 
 # excavation
 [excavation]
 
 [excavation.haste]
-    name = "Торопливый копатель"
-    description = "Ускоряет процесс раскопок с помощью Спешки!"
-    lore1 = "Получайте Спешку при раскопках"
-    lore2 = "x уровней Спешки при начале добычи ЛЮБОГО блока."
-    lore = ["Получайте Спешку при раскопках", "x уровней Спешки при начале добычи ЛЮБОГО блока."]
+name = "Торопливый копатель"
+description = "Ускоряет процесс раскопок с помощью Спешки!"
+lore1 = "Получайте Спешку при раскопках"
+lore2 = "x уровней Спешки при начале добычи ЛЮБОГО блока."
+lore = ["Получайте Спешку при раскопках", "x уровней Спешки при начале добычи ЛЮБОГО блока."]
 
 [excavation.spelunker]
-    name = "Суперзрячий спелеолог!"
-    description = "Видьте руды сквозь землю!"
-    lore1 = "Руда во второй руке, светящиеся ягоды в основной, и присядьте!"
-    lore2 = "Радиус в блоках: "
-    lore3 = "Расходует светящуюся ягоду при использовании"
-    lore = ["Руда во второй руке, светящиеся ягоды в основной, и присядьте!", "Радиус в блоках: ", "Расходует светящуюся ягоду при использовании"]
+name = "Суперзрячий спелеолог!"
+description = "Видьте руды сквозь землю!"
+lore1 = "Руда во второй руке, светящиеся ягоды в основной, и присядьте!"
+lore2 = "Радиус в блоках: "
+lore3 = "Расходует светящуюся ягоду при использовании"
+lore = ["Руда во второй руке, светящиеся ягоды в основной, и присядьте!", "Радиус в блоках: ", "Расходует светящуюся ягоду при использовании"]
 
 [excavation.drop_to_inventory]
-    name = "Автосбор с лопаты"
+name = "Автосбор с лопаты"
 
 [excavation.omni_tool]
-    name = "МУЛЬТИ-И.Н.С.Т.Р.У.М.Е.Н.Т"
-    description = "Переусложнённый роскошный мультитул Такла"
-    lore1 = "Пожалуй, самый мощный навык, позволяющий"
-    lore2 = "динамически объединять и менять инструменты на лету по необходимости."
-    lore3 = "Для объединения: Shift + клик по предмету поверх другого в инвентаре."
-    lore4 = "Для разборки: бросьте предмет с зажатым Shift, и он будет разобран."
-    lore5 = "Нельзя сломать инструменты в мультитуле, но нельзя использовать сломанные"
-    lore6 = "всего объединяемых предметов."
-    lore7 = "Можно использовать пять-шесть инструментов, а можно всего один!"
-    lore = ["Пожалуй, самый мощный навык, позволяющий", "динамически объединять и менять инструменты на лету по необходимости.", "Для объединения: Shift + клик по предмету поверх другого в инвентаре.", "Для разборки: бросьте предмет с зажатым Shift, и он будет разобран.", "Нельзя сломать инструменты в мультитуле, но нельзя использовать сломанные", "всего объединяемых предметов.", "Можно использовать пять-шесть инструментов, а можно всего один!"]
+name = "МУЛЬТИ-И.Н.С.Т.Р.У.М.Е.Н.Т"
+description = "Переусложнённый роскошный мультитул Такла"
+lore1 = "Пожалуй, самый мощный навык, позволяющий"
+lore2 = "динамически объединять и менять инструменты на лету по необходимости."
+lore3 = "Для объединения: Shift + клик по предмету поверх другого в инвентаре."
+lore4 = "Для разборки: бросьте предмет с зажатым Shift, и он будет разобран."
+lore5 = "Нельзя сломать инструменты в мультитуле, но нельзя использовать сломанные"
+lore6 = "всего объединяемых предметов."
+lore7 = "Можно использовать пять-шесть инструментов, а можно всего один!"
+lore = ["Пожалуй, самый мощный навык, позволяющий", "динамически объединять и менять инструменты на лету по необходимости.", "Для объединения: Shift + клик по предмету поверх другого в инвентаре.", "Для разборки: бросьте предмет с зажатым Shift, и он будет разобран.", "Нельзя сломать инструменты в мультитуле, но нельзя использовать сломанные", "всего объединяемых предметов.", "Можно использовать пять-шесть инструментов, а можно всего один!"]
 
 # herbalism
 [herbalism]
 
 [herbalism.growth_aura]
-    name = "Аура роста"
-    description = "Выращивайте природу вокруг себя аурой"
-    lore1 = "Радиус в блоках"
-    lore2 = "Сила ауры роста"
-    lore3 = "Расход еды"
-    lore = ["Радиус в блоках", "Сила ауры роста", "Расход еды"]
+name = "Аура роста"
+description = "Выращивайте природу вокруг себя аурой"
+lore1 = "Радиус в блоках"
+lore2 = "Сила ауры роста"
+lore3 = "Расход еды"
+lore = ["Радиус в блоках", "Сила ауры роста", "Расход еды"]
 
 [herbalism.hippo]
-    name = "Бегемот травника"
-    description = "Употребление пищи даёт больше насыщения"
-    lore1 = "Еда) дополнительные очки насыщения при употреблении"
-    lore = ["Еда) дополнительные очки насыщения при употреблении"]
+name = "Бегемот травника"
+description = "Употребление пищи даёт больше насыщения"
+lore1 = "Еда) дополнительные очки насыщения при употреблении"
+lore = ["Еда) дополнительные очки насыщения при употреблении"]
 
 [herbalism.myconid]
-    name = "Миконид травника"
-    description = "Даёт возможность создавать мицелий"
-    lore1 = "Любая земля + коричневый и красный гриб = мицелий."
-    lore = ["Любая земля + коричневый и красный гриб = мицелий."]
+name = "Миконид травника"
+description = "Даёт возможность создавать мицелий"
+lore1 = "Любая земля + коричневый и красный гриб = мицелий."
+lore = ["Любая земля + коричневый и красный гриб = мицелий."]
 
 [herbalism.terralid]
-    name = "Терралид травника"
-    description = "Даёт возможность создавать блоки дёрна"
-    lore1 = "Три семечка над 3 блоками земли = 3 блока дёрна."
-    lore = ["Три семечка над 3 блоками земли = 3 блока дёрна."]
+name = "Терралид травника"
+description = "Даёт возможность создавать блоки дёрна"
+lore1 = "Три семечка над 3 блоками земли = 3 блока дёрна."
+lore = ["Три семечка над 3 блоками земли = 3 блока дёрна."]
 
 [herbalism.cobweb]
-    name = "Плетёльщик паутины"
-    description = "Даёт возможность создавать паутину на верстаке"
-    lore1 = "Девять нитей = одна паутина."
-    lore = ["Девять нитей = одна паутина."]
+name = "Плетёльщик паутины"
+description = "Даёт возможность создавать паутину на верстаке"
+lore1 = "Девять нитей = одна паутина."
+lore = ["Девять нитей = одна паутина."]
 
 [herbalism.mushroom_blocks]
-    name = "Грибник"
-    description = "Даёт возможность создавать грибные блоки на верстаке"
-    lore1 = "Четыре гриба = блок, или блок = стебель."
-    lore = ["Четыре гриба = блок, или блок = стебель."]
+name = "Грибник"
+description = "Даёт возможность создавать грибные блоки на верстаке"
+lore1 = "Четыре гриба = блок, или блок = стебель."
+lore = ["Четыре гриба = блок, или блок = стебель."]
 
 [herbalism.drop_to_inventory]
-    name = "Автосбор с мотыги"
+name = "Автосбор с мотыги"
 
 [herbalism.hungry_shield]
-    name = "Голодный щит"
-    description = "Получайте урон в голод, а не в здоровье."
-    lore1 = "Сопротивление за счёт голода"
-    lore = ["Сопротивление за счёт голода"]
+name = "Голодный щит"
+description = "Получайте урон в голод, а не в здоровье."
+lore1 = "Сопротивление за счёт голода"
+lore = ["Сопротивление за счёт голода"]
 
 [herbalism.luck]
-    name = "Удача травника"
-    description = "При разрушении травы/цветов есть шанс получить случайный предмет"
-    lore0 = "Цветы = еда, Трава = семена"
-    lore1 = "Шанс получить предмет из цветов"
-    lore2 = "Шанс получить предмет из травы"
-    lore = ["Цветы = еда, Трава = семена", "Шанс получить предмет из цветов", "Шанс получить предмет из травы"]
+name = "Удача травника"
+description = "При разрушении травы/цветов есть шанс получить случайный предмет"
+lore0 = "Цветы = еда, Трава = семена"
+lore1 = "Шанс получить предмет из цветов"
+lore2 = "Шанс получить предмет из травы"
+lore = ["Цветы = еда, Трава = семена", "Шанс получить предмет из цветов", "Шанс получить предмет из травы"]
 
 [herbalism.replant]
-    name = "Сбор и пересадка"
-    description = "Нажмите ПКМ мотыгой по культуре, чтобы собрать и пересадить."
-    lore1 = "Радиус пересадки в блоках"
-    lore = ["Радиус пересадки в блоках"]
+name = "Сбор и пересадка"
+description = "Нажмите ПКМ мотыгой по культуре, чтобы собрать и пересадить."
+lore1 = "Радиус пересадки в блоках"
+lore = ["Радиус пересадки в блоках"]
 
 # hunter
 [hunter]
 
 [hunter.adrenaline]
-    name = "Адреналин"
-    description = "Наносите больше урона, чем ниже ваше здоровье (ближний бой)"
-    lore1 = "Максимальный урон"
-    lore = ["Максимальный урон"]
+name = "Адреналин"
+description = "Наносите больше урона, чем ниже ваше здоровье (ближний бой)"
+lore1 = "Максимальный урон"
+lore = ["Максимальный урон"]
 
 [hunter.penalty]
-    name = ""
-    description = ""
-    lore1 = "Вы получите отравление, если у вас закончится голод"
-    lore = ["Вы получите отравление, если у вас закончится голод"]
+name = ""
+description = ""
+lore1 = "Вы получите отравление, если у вас закончится голод"
+lore = ["Вы получите отравление, если у вас закончится голод"]
 
 [hunter.drop_to_inventory]
-    name = "Автосбор предметов"
-    description = "При убийстве или разрушении блока мечом дроп телепортируется в ваш инвентарь"
-    lore1 = "Когда предмет выпадает из моба/блока, он попадает в ваш инвентарь, если возможно."
-    lore = ["Когда предмет выпадает из моба/блока, он попадает в ваш инвентарь, если возможно."]
+name = "Автосбор предметов"
+description = "При убийстве или разрушении блока мечом дроп телепортируется в ваш инвентарь"
+lore1 = "Когда предмет выпадает из моба/блока, он попадает в ваш инвентарь, если возможно."
+lore = ["Когда предмет выпадает из моба/блока, он попадает в ваш инвентарь, если возможно."]
 
 [hunter.invisibility]
-    name = "Исчезающий шаг"
-    description = "При получении удара вы получаете невидимость ценой голода"
-    lore1 = "Пассивная невидимость при получении удара"
-    lore2 = "x уровней невидимости на 3 секунды при ударе"
-    lore3 = "x накопление голода"
-    lore4 = "Длительность и множитель голода."
-    lore5 = "Длительность невидимости"
-    lore = ["Пассивная невидимость при получении удара", "x уровней невидимости на 3 секунды при ударе", "x накопление голода", "Длительность и множитель голода.", "Длительность невидимости"]
+name = "Исчезающий шаг"
+description = "При получении удара вы получаете невидимость ценой голода"
+lore1 = "Пассивная невидимость при получении удара"
+lore2 = "x уровней невидимости на 3 секунды при ударе"
+lore3 = "x накопление голода"
+lore4 = "Длительность и множитель голода."
+lore5 = "Длительность невидимости"
+lore = ["Пассивная невидимость при получении удара", "x уровней невидимости на 3 секунды при ударе", "x накопление голода", "Длительность и множитель голода.", "Длительность невидимости"]
 
 [hunter.jump_boost]
-    name = "Высоты охотника"
-    description = "При получении удара вы получаете усиление прыжка ценой голода"
-    lore1 = "Пассивное усиление прыжка при получении удара"
-    lore2 = "x уровней усиления прыжка на 3 секунды при ударе"
-    lore3 = "x накопление голода"
-    lore4 = "Длительность и множитель голода."
-    lore5 = "Множитель усиления прыжка, не длительность."
-    lore = ["Пассивное усиление прыжка при получении удара", "x уровней усиления прыжка на 3 секунды при ударе", "x накопление голода", "Длительность и множитель голода.", "Множитель усиления прыжка, не длительность."]
+name = "Высоты охотника"
+description = "При получении удара вы получаете усиление прыжка ценой голода"
+lore1 = "Пассивное усиление прыжка при получении удара"
+lore2 = "x уровней усиления прыжка на 3 секунды при ударе"
+lore3 = "x накопление голода"
+lore4 = "Длительность и множитель голода."
+lore5 = "Множитель усиления прыжка, не длительность."
+lore = ["Пассивное усиление прыжка при получении удара", "x уровней усиления прыжка на 3 секунды при ударе", "x накопление голода", "Длительность и множитель голода.", "Множитель усиления прыжка, не длительность."]
 
 [hunter.luck]
-    name = "Удача охотника"
-    description = "При получении удара вы получаете удачу ценой голода"
-    lore1 = "Пассивная удача при получении удара"
-    lore2 = "x уровней удачи на 3 секунды при ударе"
-    lore3 = "x накопление голода"
-    lore4 = "Длительность и множитель голода."
-    lore5 = "Множитель удачи, не длительность."
-    lore = ["Пассивная удача при получении удара", "x уровней удачи на 3 секунды при ударе", "x накопление голода", "Длительность и множитель голода.", "Множитель удачи, не длительность."]
+name = "Удача охотника"
+description = "При получении удара вы получаете удачу ценой голода"
+lore1 = "Пассивная удача при получении удара"
+lore2 = "x уровней удачи на 3 секунды при ударе"
+lore3 = "x накопление голода"
+lore4 = "Длительность и множитель голода."
+lore5 = "Множитель удачи, не длительность."
+lore = ["Пассивная удача при получении удара", "x уровней удачи на 3 секунды при ударе", "x накопление голода", "Длительность и множитель голода.", "Множитель удачи, не длительность."]
 
 [hunter.regen]
-    name = "Регенерация охотника"
-    description = "При получении удара вы получаете регенерацию ценой голода"
-    lore1 = "Пассивная регенерация при получении удара"
-    lore2 = "x уровней регенерации на 3 секунды при ударе"
-    lore3 = "x накопление голода"
-    lore4 = "Длительность и множитель голода."
-    lore5 = "Множитель регенерации, не длительность."
-    lore = ["Пассивная регенерация при получении удара", "x уровней регенерации на 3 секунды при ударе", "x накопление голода", "Длительность и множитель голода.", "Множитель регенерации, не длительность."]
+name = "Регенерация охотника"
+description = "При получении удара вы получаете регенерацию ценой голода"
+lore1 = "Пассивная регенерация при получении удара"
+lore2 = "x уровней регенерации на 3 секунды при ударе"
+lore3 = "x накопление голода"
+lore4 = "Длительность и множитель голода."
+lore5 = "Множитель регенерации, не длительность."
+lore = ["Пассивная регенерация при получении удара", "x уровней регенерации на 3 секунды при ударе", "x накопление голода", "Длительность и множитель голода.", "Множитель регенерации, не длительность."]
 
 [hunter.resistance]
-    name = "Сопротивление охотника"
-    description = "При получении удара вы получаете сопротивление ценой голода"
-    lore1 = "Пассивное сопротивление при получении удара"
-    lore2 = "x уровней сопротивления на 3 секунды при ударе"
-    lore3 = "x накопление голода"
-    lore4 = "Длительность и множитель голода."
-    lore5 = "Множитель сопротивления, не длительность."
-    lore = ["Пассивное сопротивление при получении удара", "x уровней сопротивления на 3 секунды при ударе", "x накопление голода", "Длительность и множитель голода.", "Множитель сопротивления, не длительность."]
+name = "Сопротивление охотника"
+description = "При получении удара вы получаете сопротивление ценой голода"
+lore1 = "Пассивное сопротивление при получении удара"
+lore2 = "x уровней сопротивления на 3 секунды при ударе"
+lore3 = "x накопление голода"
+lore4 = "Длительность и множитель голода."
+lore5 = "Множитель сопротивления, не длительность."
+lore = ["Пассивное сопротивление при получении удара", "x уровней сопротивления на 3 секунды при ударе", "x накопление голода", "Длительность и множитель голода.", "Множитель сопротивления, не длительность."]
 
 [hunter.speed]
-    name = "Скорость охотника"
-    description = "При получении удара вы получаете скорость ценой голода"
-    lore1 = "Пассивная скорость при получении удара"
-    lore2 = "x уровней скорости на 3 секунды при ударе"
-    lore3 = "x накопление голода"
-    lore4 = "Длительность и множитель голода."
-    lore5 = "Множитель скорости, не длительность."
-    lore = ["Пассивная скорость при получении удара", "x уровней скорости на 3 секунды при ударе", "x накопление голода", "Длительность и множитель голода.", "Множитель скорости, не длительность."]
+name = "Скорость охотника"
+description = "При получении удара вы получаете скорость ценой голода"
+lore1 = "Пассивная скорость при получении удара"
+lore2 = "x уровней скорости на 3 секунды при ударе"
+lore3 = "x накопление голода"
+lore4 = "Длительность и множитель голода."
+lore5 = "Множитель скорости, не длительность."
+lore = ["Пассивная скорость при получении удара", "x уровней скорости на 3 секунды при ударе", "x накопление голода", "Длительность и множитель голода.", "Множитель скорости, не длительность."]
 
 [hunter.strength]
-    name = "Сила охотника"
-    description = "При получении удара вы получаете силу ценой голода"
-    lore1 = "Пассивная сила при получении удара"
-    lore2 = "x уровней силы на 3 секунды при ударе"
-    lore3 = "x накопление голода"
-    lore4 = "Длительность и множитель голода."
-    lore5 = "Множитель силы, не длительность."
-    lore = ["Пассивная сила при получении удара", "x уровней силы на 3 секунды при ударе", "x накопление голода", "Длительность и множитель голода.", "Множитель силы, не длительность."]
+name = "Сила охотника"
+description = "При получении удара вы получаете силу ценой голода"
+lore1 = "Пассивная сила при получении удара"
+lore2 = "x уровней силы на 3 секунды при ударе"
+lore3 = "x накопление голода"
+lore4 = "Длительность и множитель голода."
+lore5 = "Множитель силы, не длительность."
+lore = ["Пассивная сила при получении удара", "x уровней силы на 3 секунды при ударе", "x накопление голода", "Длительность и множитель голода.", "Множитель силы, не длительность."]
 
 # nether
 [nether]
 
 [nether.skull_toss]
-    name = "Бросок черепа иссушителя"
-    description1 = "Выпустите своего внутреннего Иссушителя, используя"
-    description2 = "чью-то"
-    description3 = "голову."
-    lore1 = "Секунд перезарядки между бросками черепов."
-    lore2 = "С черепом иссушителя: бросьте "
-    lore3 = "Череп иссушителя"
-    lore4 = "взрывающийся при попадании."
-    lore = ["Секунд перезарядки между бросками черепов.", "С черепом иссушителя: бросьте ", "Череп иссушителя", "взрывающийся при попадании."]
+name = "Бросок черепа иссушителя"
+description1 = "Выпустите своего внутреннего Иссушителя, используя"
+description2 = "чью-то"
+description3 = "голову."
+lore1 = "Секунд перезарядки между бросками черепов."
+lore2 = "С черепом иссушителя: бросьте "
+lore3 = "Череп иссушителя"
+lore4 = "взрывающийся при попадании."
+lore = ["Секунд перезарядки между бросками черепов.", "С черепом иссушителя: бросьте ", "Череп иссушителя", "взрывающийся при попадании."]
 
 [nether.wither_resist]
-    name = "Сопротивление иссушению"
-    description = "Противостоит иссушению силой незерита."
-    lore1 = "шанс отменить иссушение (за каждую деталь)."
-    lore2 = "Пассив: Незеритовая броня даёт шанс отменить "
-    lore3 = "иссушение."
-    lore = ["шанс отменить иссушение (за каждую деталь).", "Пассив: Незеритовая броня даёт шанс отменить ", "иссушение."]
+name = "Сопротивление иссушению"
+description = "Противостоит иссушению силой незерита."
+lore1 = "шанс отменить иссушение (за каждую деталь)."
+lore2 = "Пассив: Незеритовая броня даёт шанс отменить "
+lore3 = "иссушение."
+lore = ["шанс отменить иссушение (за каждую деталь).", "Пассив: Незеритовая броня даёт шанс отменить ", "иссушение."]
 
 [nether.fire_resist]
-    name = "Огнестойкость"
-    description = "Противостоит огню, закаляя кожу."
-    lore1 = "шанс отменить эффект горения!"
-    lore = ["шанс отменить эффект горения!"]
+name = "Огнестойкость"
+description = "Противостоит огню, закаляя кожу."
+lore1 = "шанс отменить эффект горения!"
+lore = ["шанс отменить эффект горения!"]
 
 # pickaxe
 [pickaxe]
 
 [pickaxe.auto_smelt]
-    name = "Автоплавка"
-    description = "Позволяет автоматически переплавлять стандартные руды"
-    lore1 = "Руды, которые можно переплавить, переплавляются автоматически"
-    lore2 = "% шанс на дополнительный"
-    lore = ["Руды, которые можно переплавить, переплавляются автоматически", "% шанс на дополнительный"]
+name = "Автоплавка"
+description = "Позволяет автоматически переплавлять стандартные руды"
+lore1 = "Руды, которые можно переплавить, переплавляются автоматически"
+lore2 = "% шанс на дополнительный"
+lore = ["Руды, которые можно переплавить, переплавляются автоматически", "% шанс на дополнительный"]
 
 [pickaxe.chisel]
-    name = "Резец для руды"
-    description = "Нажмите ПКМ по руде, чтобы выбить из неё больше ресурсов, за счёт значительного износа инструмента."
-    lore1 = "Шанс выпадения"
-    lore2 = "Износ инструмента"
-    lore = ["Шанс выпадения", "Износ инструмента"]
+name = "Резец для руды"
+description = "Нажмите ПКМ по руде, чтобы выбить из неё больше ресурсов, за счёт значительного износа инструмента."
+lore1 = "Шанс выпадения"
+lore2 = "Износ инструмента"
+lore = ["Шанс выпадения", "Износ инструмента"]
 
 [pickaxe.drop_to_inventory]
-    name = "Автосбор с кирки"
-    description = "При разрушении блока предмет телепортируется в ваш инвентарь"
-    lore1 = "Когда предмет выпадает из разрушенного блока, он попадает в ваш инвентарь, если возможно."
-    lore = ["Когда предмет выпадает из разрушенного блока, он попадает в ваш инвентарь, если возможно."]
+name = "Автосбор с кирки"
+description = "При разрушении блока предмет телепортируется в ваш инвентарь"
+lore1 = "Когда предмет выпадает из разрушенного блока, он попадает в ваш инвентарь, если возможно."
+lore = ["Когда предмет выпадает из разрушенного блока, он попадает в ваш инвентарь, если возможно."]
 
 [pickaxe.silk_spawner]
-    name = "Шёлковый спаунер"
-    description = "Спаунеры выпадают при разрушении"
-    lore1 = "Спаунеры можно добывать с помощью Шёлкового касания."
-    lore2 = "Спаунеры можно добывать при приседании."
-    lore = ["Спаунеры можно добывать с помощью Шёлкового касания.", "Спаунеры можно добывать при приседании."]
+name = "Шёлковый спаунер"
+description = "Спаунеры выпадают при разрушении"
+lore1 = "Спаунеры можно добывать с помощью Шёлкового касания."
+lore2 = "Спаунеры можно добывать при приседании."
+lore = ["Спаунеры можно добывать с помощью Шёлкового касания.", "Спаунеры можно добывать при приседании."]
 
 [pickaxe.vein_miner]
-    name = "Жильный шахтёр"
-    description = "Позволяет разом добыть жилу стандартных руд"
-    lore1 = "Присядьте и добывайте РУДЫ"
-    lore2 = "Радиус жильной добычи"
-    lore3 = "Этот навык НЕ собирает весь дроп вместе!"
-    lore = ["Присядьте и добывайте РУДЫ", "Радиус жильной добычи", "Этот навык НЕ собирает весь дроп вместе!"]
+name = "Жильный шахтёр"
+description = "Позволяет разом добыть жилу стандартных руд"
+lore1 = "Присядьте и добывайте РУДЫ"
+lore2 = "Радиус жильной добычи"
+lore3 = "Этот навык НЕ собирает весь дроп вместе!"
+lore = ["Присядьте и добывайте РУДЫ", "Радиус жильной добычи", "Этот навык НЕ собирает весь дроп вместе!"]
 
 # ranged
 [ranged]
 
 [ranged.arrow_recovery]
-    name = "Возврат стрел"
-    description = "Возвращайте стрелы после убийства врага."
-    lore1 = "Шанс вернуть стрелы при попадании/убийстве"
-    lore2 = "Шанс: "
-    lore = ["Шанс вернуть стрелы при попадании/убийстве", "Шанс: "]
+name = "Возврат стрел"
+description = "Возвращайте стрелы после убийства врага."
+lore1 = "Шанс вернуть стрелы при попадании/убийстве"
+lore2 = "Шанс: "
+lore = ["Шанс вернуть стрелы при попадании/убийстве", "Шанс: "]
 
 [ranged.web_shot]
-    name = "Паутинная ловушка"
-    description = "Окружите цель паутиной при попадании!"
-    lore1 = "8 паутин вокруг снежка, и бросайте!"
-    lore2 = "секунд в клетке, примерно."
-    lore = ["8 паутин вокруг снежка, и бросайте!", "секунд в клетке, примерно."]
+name = "Паутинная ловушка"
+description = "Окружите цель паутиной при попадании!"
+lore1 = "8 паутин вокруг снежка, и бросайте!"
+lore2 = "секунд в клетке, примерно."
+lore = ["8 паутин вокруг снежка, и бросайте!", "секунд в клетке, примерно."]
 
 [ranged.force_shot]
-    name = "Усиленный выстрел"
-    description = "Стреляйте снарядами дальше и быстрее!"
-    advancementname = "Дальний выстрел"
-    advancementlore = "Попадите с расстояния более 30 блоков!"
-    lore1 = "Скорость снаряда"
-    lore = ["Скорость снаряда"]
+name = "Усиленный выстрел"
+description = "Стреляйте снарядами дальше и быстрее!"
+advancementname = "Дальний выстрел"
+advancementlore = "Попадите с расстояния более 30 блоков!"
+lore1 = "Скорость снаряда"
+lore = ["Скорость снаряда"]
 
 [ranged.lunge_shot]
-    name = "Выстрел с выпадом"
-    description = "Во время падения ваши стрелы отбрасывают вас в случайном направлении"
-    lore1 = "Случайная скорость рывка"
-    lore = ["Случайная скорость рывка"]
+name = "Выстрел с выпадом"
+description = "Во время падения ваши стрелы отбрасывают вас в случайном направлении"
+lore1 = "Случайная скорость рывка"
+lore = ["Случайная скорость рывка"]
 
 [ranged.arrow_piercing]
-    name = "Пронзающая стрела"
-    description = "Добавляет пронзание снарядам! Стреляйте сквозь цели!"
-    lore1 = "Пронзённых целей"
-    lore = ["Пронзённых целей"]
+name = "Пронзающая стрела"
+description = "Добавляет пронзание снарядам! Стреляйте сквозь цели!"
+lore1 = "Пронзённых целей"
+lore = ["Пронзённых целей"]
 
 # rift
 [rift]
 
 [rift.remote_access]
-    name = "Удалённый доступ"
-    description = "Потяните из пустоты и получите доступ к отмеченному контейнеру."
-    lore1 = "Эндер-жемчуг + Компас = Портключ Реликвария"
-    lore2 = "Этот предмет позволяет удалённо открывать контейнеры"
-    lore3 = "После крафта посмотрите на предмет для инструкции"
-    notcontainer = "Это не контейнер"
-    lore = ["Эндер-жемчуг + Компас = Портключ Реликвария", "Этот предмет позволяет удалённо открывать контейнеры", "После крафта посмотрите на предмет для инструкции"]
+name = "Удалённый доступ"
+description = "Потяните из пустоты и получите доступ к отмеченному контейнеру."
+lore1 = "Эндер-жемчуг + Компас = Портключ Реликвария"
+lore2 = "Этот предмет позволяет удалённо открывать контейнеры"
+lore3 = "После крафта посмотрите на предмет для инструкции"
+notcontainer = "Это не контейнер"
+lore = ["Эндер-жемчуг + Компас = Портключ Реликвария", "Этот предмет позволяет удалённо открывать контейнеры", "После крафта посмотрите на предмет для инструкции"]
 
 [rift.blink]
-    name = "Мерцание Разлома"
-    description = "Мгновенная телепортация на короткое расстояние, одним мерцанием!"
-    lore1 = "Блоков за мерцание (2x по вертикали)"
-    lore2 = "Во время бега: дважды нажмите Прыжок, чтобы "
-    lore3 = "мерцнуть"
-    lore = ["Блоков за мерцание (2x по вертикали)", "Во время бега: дважды нажмите Прыжок, чтобы ", "мерцнуть"]
+name = "Мерцание Разлома"
+description = "Мгновенная телепортация на короткое расстояние, одним мерцанием!"
+lore1 = "Блоков за мерцание (2x по вертикали)"
+lore2 = "Во время бега: дважды нажмите Прыжок, чтобы "
+lore3 = "мерцнуть"
+lore = ["Блоков за мерцание (2x по вертикали)", "Во время бега: дважды нажмите Прыжок, чтобы ", "мерцнуть"]
 
 [rift.chest]
-    name = "Портативный эндер-сундук"
-    description = "Откройте эндер-сундук, нажав ЛКМ по нему в руке."
-    lore1 = "Нажмите на эндер-сундук в руке, чтобы открыть (только не ставьте его)"
-    lore = ["Нажмите на эндер-сундук в руке, чтобы открыть (только не ставьте его)"]
+name = "Портативный эндер-сундук"
+description = "Откройте эндер-сундук, нажав ЛКМ по нему в руке."
+lore1 = "Нажмите на эндер-сундук в руке, чтобы открыть (только не ставьте его)"
+lore = ["Нажмите на эндер-сундук в руке, чтобы открыть (только не ставьте его)"]
 
 [rift.descent]
-    name = "Антилевитация"
-    description = "Устали зависать в воздухе? Этот навык для вас!"
-    lore1 = "Просто присядьте, чтобы спуститься, и вы будете падать медленнее обычного!"
-    lore2 = "Перезарядка:"
-    lore = ["Просто присядьте, чтобы спуститься, и вы будете падать медленнее обычного!", "Перезарядка:"]
+name = "Антилевитация"
+description = "Устали зависать в воздухе? Этот навык для вас!"
+lore1 = "Просто присядьте, чтобы спуститься, и вы будете падать медленнее обычного!"
+lore2 = "Перезарядка:"
+lore = ["Просто присядьте, чтобы спуститься, и вы будете падать медленнее обычного!", "Перезарядка:"]
 
 [rift.gate]
-    name = "Врата Разлома"
-    description = "Телепортируйтесь к отмеченному месту."
-    lore1 = "КРАФТ: Изумруд + Осколок аметиста + Эндер-жемчуг"
-    lore2 = "Прочтите перед использованием!"
-    lore3 = "Задержка 5 секунд, "
-    lore4 = "вы можете погибнуть во время этой анимации"
-    lore = ["КРАФТ: Изумруд + Осколок аметиста + Эндер-жемчуг", "Прочтите перед использованием!", "Задержка 5 секунд, ", "вы можете погибнуть во время этой анимации"]
+name = "Врата Разлома"
+description = "Телепортируйтесь к отмеченному месту."
+lore1 = "КРАФТ: Изумруд + Осколок аметиста + Эндер-жемчуг"
+lore2 = "Прочтите перед использованием!"
+lore3 = "Задержка 5 секунд, "
+lore4 = "вы можете погибнуть во время этой анимации"
+lore = ["КРАФТ: Изумруд + Осколок аметиста + Эндер-жемчуг", "Прочтите перед использованием!", "Задержка 5 секунд, ", "вы можете погибнуть во время этой анимации"]
 
 [rift.resist]
-    name = "Сопротивление Разлома"
-    description = "Получайте Сопротивление при использовании эндер-предметов и способностей"
-    lore1 = "+ Пассив: даёт сопротивление при использовании способностей Разлома или эндер-предметов"
-    lore2 = "НЕ включает портативный эндер-сундук, только расходуемые предметы"
-    lore = ["+ Пассив: даёт сопротивление при использовании способностей Разлома или эндер-предметов", "НЕ включает портативный эндер-сундук, только расходуемые предметы"]
+name = "Сопротивление Разлома"
+description = "Получайте Сопротивление при использовании эндер-предметов и способностей"
+lore1 = "+ Пассив: даёт сопротивление при использовании способностей Разлома или эндер-предметов"
+lore2 = "НЕ включает портативный эндер-сундук, только расходуемые предметы"
+lore = ["+ Пассив: даёт сопротивление при использовании способностей Разлома или эндер-предметов", "НЕ включает портативный эндер-сундук, только расходуемые предметы"]
 
 [rift.visage]
-    name = "Облик Разлома"
-    description = "Эндермены не становятся агрессивными, если у вас в инвентаре есть эндер-жемчуг."
-    lore1 = "Эндермены не будут агрессивными, если у вас в инвентаре есть эндер-жемчуг."
-    lore = ["Эндермены не будут агрессивными, если у вас в инвентаре есть эндер-жемчуг."]
+name = "Облик Разлома"
+description = "Эндермены не становятся агрессивными, если у вас в инвентаре есть эндер-жемчуг."
+lore1 = "Эндермены не будут агрессивными, если у вас в инвентаре есть эндер-жемчуг."
+lore = ["Эндермены не будут агрессивными, если у вас в инвентаре есть эндер-жемчуг."]
 
 # seaborn
 [seaborn]
 
 [seaborn.oxygen]
-    name = "Органический кислородный баллон"
-    description = "Удерживайте больше кислорода в своих маленьких лёгких!"
-    lore1 = "Увеличение запаса кислорода"
-    lore = ["Увеличение запаса кислорода"]
+name = "Органический кислородный баллон"
+description = "Удерживайте больше кислорода в своих маленьких лёгких!"
+lore1 = "Увеличение запаса кислорода"
+lore = ["Увеличение запаса кислорода"]
 
 [seaborn.fishers_fantasy]
-    name = "Мечта рыбака"
-    description = "Получайте больше опыта от рыбалки и ловите больше рыбы!"
-    lore1 = "С каждым уровнем растёт шанс получить больше опыта и рыбы!"
-    lore = ["С каждым уровнем растёт шанс получить больше опыта и рыбы!"]
+name = "Мечта рыбака"
+description = "Получайте больше опыта от рыбалки и ловите больше рыбы!"
+lore1 = "С каждым уровнем растёт шанс получить больше опыта и рыбы!"
+lore = ["С каждым уровнем растёт шанс получить больше опыта и рыбы!"]
 
 [seaborn.haste]
-    name = "Черепаший шахтёр"
-    description = "При добыче под водой вы получаете Спешку!"
-    lore1 = "Спешка III применяется под водой при добыче (суммируется с Подводником) после окончания эффекта подводного дыхания!"
-    lore = ["Спешка III применяется под водой при добыче (суммируется с Подводником) после окончания эффекта подводного дыхания!"]
+name = "Черепаший шахтёр"
+description = "При добыче под водой вы получаете Спешку!"
+lore1 = "Спешка III применяется под водой при добыче (суммируется с Подводником) после окончания эффекта подводного дыхания!"
+lore = ["Спешка III применяется под водой при добыче (суммируется с Подводником) после окончания эффекта подводного дыхания!"]
 
 [seaborn.night_vision]
-    name = "Зрение черепахи"
-    description = "Под водой вы получаете ночное зрение"
-    lore1 = "Просто получайте ночное зрение под водой после окончания эффекта подводного дыхания!"
-    lore = ["Просто получайте ночное зрение под водой после окончания эффекта подводного дыхания!"]
+name = "Зрение черепахи"
+description = "Под водой вы получаете ночное зрение"
+lore1 = "Просто получайте ночное зрение под водой после окончания эффекта подводного дыхания!"
+lore = ["Просто получайте ночное зрение под водой после окончания эффекта подводного дыхания!"]
 
 [seaborn.dolphin_grace]
-    name = "Грация дельфина"
-    description = "Плавайте как дельфин, без самих дельфинов"
-    lore1 = "+ Пассив: получите "
-    lore2 = "x скорости (грация дельфина)"
-    lore3 = "Точная немецкая инженер... стоп, что-то не то... Не совместимо с Покорителем глубин"
-    lore = ["+ Пассив: получите ", "x скорости (грация дельфина)", "Точная немецкая инженер... стоп, что-то не то... Не совместимо с Покорителем глубин"]
+name = "Грация дельфина"
+description = "Плавайте как дельфин, без самих дельфинов"
+lore1 = "+ Пассив: получите "
+lore2 = "x скорости (грация дельфина)"
+lore3 = "Точная немецкая инженер... стоп, что-то не то... Не совместимо с Покорителем глубин"
+lore = ["+ Пассив: получите ", "x скорости (грация дельфина)", "Точная немецкая инженер... стоп, что-то не то... Не совместимо с Покорителем глубин"]
 
 # stealth
 [stealth]
 
 [stealth.ghost_armor]
-    name = "Призрачная броня"
-    description = "Медленно растущая броня, когда вы не получаете урон. Исчезает после 1 удара"
-    lore1 = "Максимум брони"
-    lore2 = "Скорость"
-    lore = ["Максимум брони", "Скорость"]
+name = "Призрачная броня"
+description = "Медленно растущая броня, когда вы не получаете урон. Исчезает после 1 удара"
+lore1 = "Максимум брони"
+lore2 = "Скорость"
+lore = ["Максимум брони", "Скорость"]
 
 [stealth.night_vision]
-    name = "Скрытное зрение"
-    description = "Получайте ночное зрение при приседании"
-    lore1 = "Получите всплеск "
-    lore2 = "ночного зрения"
-    lore3 = "при приседании"
-    lore = ["Получите всплеск ", "ночного зрения", "при приседании"]
+name = "Скрытное зрение"
+description = "Получайте ночное зрение при приседании"
+lore1 = "Получите всплеск "
+lore2 = "ночного зрения"
+lore3 = "при приседании"
+lore = ["Получите всплеск ", "ночного зрения", "при приседании"]
 
 [stealth.snatch]
-    name = "Хватка"
-    description = "Мгновенно подбирайте выброшенные предметы при приседании!"
-    lore1 = "Радиус хватки"
-    lore = ["Радиус хватки"]
+name = "Хватка"
+description = "Мгновенно подбирайте выброшенные предметы при приседании!"
+lore1 = "Радиус хватки"
+lore = ["Радиус хватки"]
 
 [stealth.speed]
-    name = "Скорость в приседе"
-    description = "Получайте ускорение при приседании"
-    lore1 = "Скорость приседания"
-    lore = ["Скорость приседания"]
+name = "Скорость в приседе"
+description = "Получайте ускорение при приседании"
+lore1 = "Скорость приседания"
+lore = ["Скорость приседания"]
 
 [stealth.ender_veil]
-    name = "Завеса Края"
-    description = "Больше не нужны тыквы для защиты от эндерменов"
-    lore1 = "Защита от эндерменов при приседании"
-    lore2 = "Полная защита от всех эндерменов"
-    lore = ["Защита от эндерменов при приседании", "Полная защита от всех эндерменов"]
+name = "Завеса Края"
+description = "Больше не нужны тыквы для защиты от эндерменов"
+lore1 = "Защита от эндерменов при приседании"
+lore2 = "Полная защита от всех эндерменов"
+lore = ["Защита от эндерменов при приседании", "Полная защита от всех эндерменов"]
 
 # sword
 [sword]
 
 [sword.machete]
-    name = "Мачете"
-    description = "С лёгкостью прорубайте листву!"
-    lore1 = "Радиус удара"
-    lore2 = "Перезарядка удара"
-    lore3 = "Износ инструмента"
-    lore = ["Радиус удара", "Перезарядка удара", "Износ инструмента"]
+name = "Мачете"
+description = "С лёгкостью прорубайте листву!"
+lore1 = "Радиус удара"
+lore2 = "Перезарядка удара"
+lore3 = "Износ инструмента"
+lore = ["Радиус удара", "Перезарядка удара", "Износ инструмента"]
 
 [sword.bloody_blade]
-    name = "Кровавый клинок"
-    description = "Удары мечом вызывают кровотечение!"
-    lore1 = "Удар мечом по живому существу вызывает кровотечение"
-    lore2 = "Длительность кровотечения"
-    lore3 = "Перезарядка кровотечения"
-    lore = ["Удар мечом по живому существу вызывает кровотечение", "Длительность кровотечения", "Перезарядка кровотечения"]
+name = "Кровавый клинок"
+description = "Удары мечом вызывают кровотечение!"
+lore1 = "Удар мечом по живому существу вызывает кровотечение"
+lore2 = "Длительность кровотечения"
+lore3 = "Перезарядка кровотечения"
+lore = ["Удар мечом по живому существу вызывает кровотечение", "Длительность кровотечения", "Перезарядка кровотечения"]
 
 [sword.poisoned_blade]
-    name = "Отравленный клинок"
-    description = "Удары мечом вызывают отравление!"
-    lore1 = "Удар мечом по живому существу вызывает отравление"
-    lore2 = "Длительность отравления"
-    lore3 = "Перезарядка отравления"
-    lore = ["Удар мечом по живому существу вызывает отравление", "Длительность отравления", "Перезарядка отравления"]
+name = "Отравленный клинок"
+description = "Удары мечом вызывают отравление!"
+lore1 = "Удар мечом по живому существу вызывает отравление"
+lore2 = "Длительность отравления"
+lore3 = "Перезарядка отравления"
+lore = ["Удар мечом по живому существу вызывает отравление", "Длительность отравления", "Перезарядка отравления"]
 
 # taming
 [taming]
 
 [taming.damage]
-    name = "Урон питомца"
-    description = "Увеличьте урон, наносимый прирученными животными."
-    lore1 = "Увеличение урона"
-    lore = ["Увеличение урона"]
+name = "Урон питомца"
+description = "Увеличьте урон, наносимый прирученными животными."
+lore1 = "Увеличение урона"
+lore = ["Увеличение урона"]
 
 [taming.health]
-    name = "Здоровье питомца"
-    description = "Увеличьте здоровье прирученных животных."
-    lore1 = "Увеличение здоровья"
-    lore = ["Увеличение здоровья"]
+name = "Здоровье питомца"
+description = "Увеличьте здоровье прирученных животных."
+lore1 = "Увеличение здоровья"
+lore = ["Увеличение здоровья"]
 
 [taming.regeneration]
-    name = "Регенерация питомца"
-    description = "Увеличьте регенерацию прирученных животных."
-    lore1 = "ХП/с"
-    lore = ["ХП/с"]
+name = "Регенерация питомца"
+description = "Увеличьте регенерацию прирученных животных."
+lore1 = "ХП/с"
+lore = ["ХП/с"]
 
 # tragoul
 [tragoul]
 
 [tragoul.thorns]
-    name = "Шипы"
-    description = "Отражайте урон обратно нападающему!"
-    lore1 = "Отражённый урон при получении удара"
-    lore = ["Отражённый урон при получении удара"]
+name = "Шипы"
+description = "Отражайте урон обратно нападающему!"
+lore1 = "Отражённый урон при получении удара"
+lore = ["Отражённый урон при получении удара"]
 
 [tragoul.globe]
-    name = "Сфера боли"
-    description = "Разделите наносимый урон по количеству врагов вокруг вас!"
-    lore1 = "Чем больше врагов вокруг, тем меньше урона по каждому"
-    lore2 = "Радиус: "
-    lore3 = "Добавленный урон всем существам: "
-    lore = ["Чем больше врагов вокруг, тем меньше урона по каждому", "Радиус: ", "Добавленный урон всем существам: "]
+name = "Сфера боли"
+description = "Разделите наносимый урон по количеству врагов вокруг вас!"
+lore1 = "Чем больше врагов вокруг, тем меньше урона по каждому"
+lore2 = "Радиус: "
+lore3 = "Добавленный урон всем существам: "
+lore = ["Чем больше врагов вокруг, тем меньше урона по каждому", "Радиус: ", "Добавленный урон всем существам: "]
 
 [tragoul.healing]
-    name = "Воля боли"
-    description = "Восстанавливайте здоровье в зависимости от нанесённого урона!"
-    lore1 = "Причинять вред ещё никогда не было так приятно! Исцеление от нанесённого урона"
-    lore2 = "3-секундное окно для урона и исцеления, затем 1 секунда перезарядки "
-    lore3 = "Исцеление за процент урона: "
-    lore = ["Причинять вред ещё никогда не было так приятно! Исцеление от нанесённого урона", "3-секундное окно для урона и исцеления, затем 1 секунда перезарядки ", "Исцеление за процент урона: "]
+name = "Воля боли"
+description = "Восстанавливайте здоровье в зависимости от нанесённого урона!"
+lore1 = "Причинять вред ещё никогда не было так приятно! Исцеление от нанесённого урона"
+lore2 = "3-секундное окно для урона и исцеления, затем 1 секунда перезарядки "
+lore3 = "Исцеление за процент урона: "
+lore = ["Причинять вред ещё никогда не было так приятно! Исцеление от нанесённого урона", "3-секундное окно для урона и исцеления, затем 1 секунда перезарядки ", "Исцеление за процент урона: "]
 
 [tragoul.lance]
-    name = "Трупные копья"
-    description = "Убийство врага или убийство способностью создаёт копьё, поражающее ближайшего врага!"
-    lore1 = "Копья вылетают из всего, что вы убьёте, И если эта способность убьёт врага."
-    lore2 = "Пожертвуйте частью здоровья для создания копий (это может убить вас)"
-    lore3 = "Максимум копий: 1 + "
-    lore = ["Копья вылетают из всего, что вы убьёте, И если эта способность убьёт врага.", "Пожертвуйте частью здоровья для создания копий (это может убить вас)", "Максимум копий: 1 + "]
+name = "Трупные копья"
+description = "Убийство врага или убийство способностью создаёт копьё, поражающее ближайшего врага!"
+lore1 = "Копья вылетают из всего, что вы убьёте, И если эта способность убьёт врага."
+lore2 = "Пожертвуйте частью здоровья для создания копий (это может убить вас)"
+lore3 = "Максимум копий: 1 + "
+lore = ["Копья вылетают из всего, что вы убьёте, И если эта способность убьёт врага.", "Пожертвуйте частью здоровья для создания копий (это может убить вас)", "Максимум копий: 1 + "]
 
 # unarmed
 [unarmed]
 
 [unarmed.glass_cannon]
-    name = "Стеклянная пушка"
-    description = "Бонусный урон без оружия, чем ниже значение брони"
-    lore1 = "x урона при 0 брони"
-    lore2 = "Бонусный урон за уровень"
-    lore = ["x урона при 0 брони", "Бонусный урон за уровень"]
+name = "Стеклянная пушка"
+description = "Бонусный урон без оружия, чем ниже значение брони"
+lore1 = "x урона при 0 брони"
+lore2 = "Бонусный урон за уровень"
+lore = ["x урона при 0 брони", "Бонусный урон за уровень"]
 
 [unarmed.power]
-    name = "Сила без оружия"
-    description = "Увеличенный урон без оружия"
-    lore1 = "Урон"
-    lore = ["Урон"]
+name = "Сила без оружия"
+description = "Увеличенный урон без оружия"
+lore1 = "Урон"
+lore = ["Урон"]
 
 [unarmed.sucker_punch]
-    name = "Удар исподтишка"
-    description = "Удары на бегу, но более смертоносные."
-    lore1 = "Урон"
-    lore2 = "Урон увеличивается со скоростью при ударе"
-    lore = ["Урон", "Урон увеличивается со скоростью при ударе"]
+name = "Удар исподтишка"
+description = "Удары на бегу, но более смертоносные."
+lore1 = "Урон"
+lore2 = "Урон увеличивается со скоростью при ударе"
+lore = ["Урон", "Урон увеличивается со скоростью при ударе"]

@@ -17,10 +17,11 @@
  -----------------------------------------------------------------------------*/
 
 package art.arcane.adapt.util.common.format;
+
 import art.arcane.volmlib.util.math.RNG;
 
 public class ING {
-    public ING(RNG rng) {
+  public ING(RNG rng) {
 
-    }
+  }
 }

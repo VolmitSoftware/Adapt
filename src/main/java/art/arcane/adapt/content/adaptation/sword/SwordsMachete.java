@@ -24,13 +24,13 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Materials;
 import art.arcane.volmlib.util.data.Cuboid;
 import art.arcane.volmlib.util.format.Form;
+import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
 import art.arcane.volmlib.util.math.RNG;
 import lombok.NoArgsConstructor;
@@ -50,198 +50,198 @@ import org.bukkit.inventory.ItemStack;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
-    public SwordsMachete() {
-        super("sword-machete");
-        registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("sword.machete.description"));
-        setDisplayName(Localizer.dLocalize("sword.machete.name"));
-        setIcon(Material.IRON_SWORD);
-        setBaseCost(getConfig().baseCost);
-        setMaxLevel(getConfig().maxLevel);
-        setInterval(5234);
-        setInitialCost(getConfig().initialCost);
-        setCostFactor(getConfig().costFactor);
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.IRON_SWORD)
-                .key("challenge_swords_machete_2500")
-                .title(Localizer.dLocalize("advancement.challenge_swords_machete_2500.title"))
-                .description(Localizer.dLocalize("advancement.challenge_swords_machete_2500.description"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .child(AdaptAdvancement.builder()
-                        .icon(Material.DIAMOND_SWORD)
-                        .key("challenge_swords_machete_25k")
-                        .title(Localizer.dLocalize("advancement.challenge_swords_machete_25k.title"))
-                        .description(Localizer.dLocalize("advancement.challenge_swords_machete_25k.description"))
-                        .frame(AdaptAdvancementFrame.CHALLENGE)
-                        .visibility(AdvancementVisibility.PARENT_GRANTED)
-                        .build())
-                .build());
-        registerMilestone("challenge_swords_machete_2500", "swords.machete.foliage-cut", 2500, 300);
-        registerMilestone("challenge_swords_machete_25k", "swords.machete.foliage-cut", 25000, 1000);
-    }
+  public SwordsMachete() {
+    super("sword-machete");
+    registerConfiguration(Config.class);
+    setDescription(Localizer.dLocalize("sword.machete.description"));
+    setDisplayName(Localizer.dLocalize("sword.machete.name"));
+    setIcon(Material.IRON_SWORD);
+    setBaseCost(getConfig().baseCost);
+    setMaxLevel(getConfig().maxLevel);
+    setInterval(5234);
+    setInitialCost(getConfig().initialCost);
+    setCostFactor(getConfig().costFactor);
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.IRON_SWORD)
+        .key("challenge_swords_machete_2500")
+        .title(Localizer.dLocalize("advancement.challenge_swords_machete_2500.title"))
+        .description(Localizer.dLocalize("advancement.challenge_swords_machete_2500.description"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .child(AdaptAdvancement.builder()
+            .icon(Material.DIAMOND_SWORD)
+            .key("challenge_swords_machete_25k")
+            .title(Localizer.dLocalize("advancement.challenge_swords_machete_25k.title"))
+            .description(Localizer.dLocalize("advancement.challenge_swords_machete_25k.description"))
+            .frame(AdaptAdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .build())
+        .build());
+    registerMilestone("challenge_swords_machete_2500", "swords.machete.foliage-cut", 2500, 300);
+    registerMilestone("challenge_swords_machete_25k", "swords.machete.foliage-cut", 25000, 1000);
+  }
 
-    @Override
-    public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + getRadius(level) + C.GRAY + " " + Localizer.dLocalize("sword.machete.lore1"));
-        v.addLore(C.YELLOW + "* " + Form.duration(getCooldownTime(getLevelPercent(level)) * 50D, 1) + C.GRAY + " " + Localizer.dLocalize("sword.machete.lore2"));
-        v.addLore(C.RED + "- " + getDamagePerBlock(getLevelPercent(level)) + C.GRAY + " " + Localizer.dLocalize("sword.machete.lore3"));
-    }
+  @Override
+  public void addStats(int level, Element v) {
+    v.addLore(C.GREEN + "+ " + getRadius(level) + C.GRAY + " " + Localizer.dLocalize("sword.machete.lore1"));
+    v.addLore(C.YELLOW + "* " + Form.duration(getCooldownTime(getLevelPercent(level)) * 50D, 1) + C.GRAY + " " + Localizer.dLocalize("sword.machete.lore2"));
+    v.addLore(C.RED + "- " + getDamagePerBlock(getLevelPercent(level)) + C.GRAY + " " + Localizer.dLocalize("sword.machete.lore3"));
+  }
 
-    public double getRadius(int level) {
-        return (getLevelPercent(level) * getConfig().radiusFactor) + getConfig().radiusBase;
-    }
+  public double getRadius(int level) {
+    return (getLevelPercent(level) * getConfig().radiusFactor) + getConfig().radiusBase;
+  }
 
-    @EventHandler
-    public void on(PlayerInteractEvent e) {
-        Player p = e.getPlayer();
-        SoundPlayer spw = SoundPlayer.of(p.getWorld());
-        if (e.getHand() != null && e.getHand().equals(EquipmentSlot.HAND) && e.getAction().equals(Action.LEFT_CLICK_AIR) || e.getAction().equals(Action.LEFT_CLICK_BLOCK)) {
-            int dmg = 0;
-            ItemStack is = e.getItem();
-            if (isSword(is)) {
-                if (is != null && !p.hasCooldown(is.getType()) && hasActiveAdaptation(p)) {
-                    Location ctr = p.getEyeLocation().clone().add(p.getLocation().getDirection().clone().multiply(2.25)).add(0, -0.5, 0);
+  @EventHandler
+  public void on(PlayerInteractEvent e) {
+    Player p = e.getPlayer();
+    SoundPlayer spw = SoundPlayer.of(p.getWorld());
+    if (e.getHand() != null && e.getHand().equals(EquipmentSlot.HAND) && e.getAction().equals(Action.LEFT_CLICK_AIR) || e.getAction().equals(Action.LEFT_CLICK_BLOCK)) {
+      int dmg = 0;
+      ItemStack is = e.getItem();
+      if (isSword(is)) {
+        if (is != null && !p.hasCooldown(is.getType()) && hasActiveAdaptation(p)) {
+          Location ctr = p.getEyeLocation().clone().add(p.getLocation().getDirection().clone().multiply(2.25)).add(0, -0.5, 0);
 
-                    int lvl = getLevel(p);
-                    Cuboid c = new Cuboid(ctr);
-                    c = c.expand(Cuboid.CuboidDirection.Up, (int) Math.floor(getRadius(lvl)));
-                    c = c.expand(Cuboid.CuboidDirection.Down, (int) Math.floor(getRadius(lvl)));
-                    c = c.expand(Cuboid.CuboidDirection.North, (int) Math.round(getRadius(lvl)));
-                    c = c.expand(Cuboid.CuboidDirection.South, (int) Math.round(getRadius(lvl)));
-                    c = c.expand(Cuboid.CuboidDirection.East, (int) Math.round(getRadius(lvl)));
-                    c = c.expand(Cuboid.CuboidDirection.West, (int) Math.round(getRadius(lvl)));
+          int lvl = getLevel(p);
+          Cuboid c = new Cuboid(ctr);
+          c = c.expand(Cuboid.CuboidDirection.Up, (int) Math.floor(getRadius(lvl)));
+          c = c.expand(Cuboid.CuboidDirection.Down, (int) Math.floor(getRadius(lvl)));
+          c = c.expand(Cuboid.CuboidDirection.North, (int) Math.round(getRadius(lvl)));
+          c = c.expand(Cuboid.CuboidDirection.South, (int) Math.round(getRadius(lvl)));
+          c = c.expand(Cuboid.CuboidDirection.East, (int) Math.round(getRadius(lvl)));
+          c = c.expand(Cuboid.CuboidDirection.West, (int) Math.round(getRadius(lvl)));
 
-                    if (dmg > 0) {
-                        return;
-                    }
+          if (dmg > 0) {
+            return;
+          }
 
-                    for (Block i : c) {
-                        if (M.r((getLevelPercent(lvl) * 2.8) / (i.getLocation().distanceSquared(ctr)))) {
-                            if (i.getType().equals(Material.TALL_GRASS)
-                                    || i.getType().equals(Material.CACTUS)
-                                    || i.getType().equals(Material.SUGAR_CANE)
-                                    || i.getType().equals(Material.CARROT)
-                                    || i.getType().equals(Material.POTATO)
-                                    || i.getType().equals(Material.NETHER_WART)
-                                    || i.getType().equals(Materials.GRASS)
-                                    || i.getType().equals(Material.FERN)
-                                    || i.getType().equals(Material.LARGE_FERN)
-                                    || i.getType().equals(Material.VINE)
-                                    || i.getType().equals(Material.ROSE_BUSH)
-                                    || i.getType().equals(Material.WITHER_ROSE)
-                                    || i.getType().equals(Material.ACACIA_LEAVES)
-                                    || i.getType().equals(Material.BIRCH_LEAVES)
-                                    || i.getType().equals(Material.DARK_OAK_LEAVES)
-                                    || i.getType().equals(Material.JUNGLE_LEAVES)
-                                    || i.getType().equals(Material.OAK_LEAVES)
-                                    || i.getType().equals(Material.SPRUCE_LEAVES)
-                                    || i.getType().equals(Material.BROWN_MUSHROOM)
-                                    || i.getType().equals(Material.RED_MUSHROOM)
-                                    || i.getType().equals(Material.DEAD_BUSH)
-                                    || i.getType().equals(Material.DANDELION)
-                                    || i.getType().equals(Material.TALL_SEAGRASS)
-                                    || i.getType().equals(Material.SEAGRASS)
-                                    || i.getType().equals(Material.WHITE_TULIP)
-                                    || i.getType().equals(Material.RED_TULIP)
-                                    || i.getType().equals(Material.PINK_TULIP)
-                                    || i.getType().equals(Material.ORANGE_TULIP)
-                                    || i.getType().equals(Material.LILY_OF_THE_VALLEY)
-                                    || i.getType().equals(Material.ALLIUM)
-                                    || i.getType().equals(Material.AZURE_BLUET)
-                                    || i.getType().equals(Material.SUNFLOWER)
-                                    || i.getType().equals(Material.CORNFLOWER)
-                                    || i.getType().equals(Material.CHORUS_FLOWER)
-                                    || i.getType().equals(Material.BAMBOO)
-                                    || i.getType().equals(Material.BAMBOO_SAPLING)
-                                    || i.getType().equals(Material.LILAC)
-                                    || i.getType().equals(Material.PEONY)
-                                    || i.getType().equals(Material.LILY_PAD)
-                                    || i.getType().equals(Material.COCOA)
-                                    || i.getType().equals(Material.MANGROVE_LEAVES)
+          for (Block i : c) {
+            if (M.r((getLevelPercent(lvl) * 2.8) / (i.getLocation().distanceSquared(ctr)))) {
+              if (i.getType().equals(Material.TALL_GRASS)
+                  || i.getType().equals(Material.CACTUS)
+                  || i.getType().equals(Material.SUGAR_CANE)
+                  || i.getType().equals(Material.CARROT)
+                  || i.getType().equals(Material.POTATO)
+                  || i.getType().equals(Material.NETHER_WART)
+                  || i.getType().equals(Materials.GRASS)
+                  || i.getType().equals(Material.FERN)
+                  || i.getType().equals(Material.LARGE_FERN)
+                  || i.getType().equals(Material.VINE)
+                  || i.getType().equals(Material.ROSE_BUSH)
+                  || i.getType().equals(Material.WITHER_ROSE)
+                  || i.getType().equals(Material.ACACIA_LEAVES)
+                  || i.getType().equals(Material.BIRCH_LEAVES)
+                  || i.getType().equals(Material.DARK_OAK_LEAVES)
+                  || i.getType().equals(Material.JUNGLE_LEAVES)
+                  || i.getType().equals(Material.OAK_LEAVES)
+                  || i.getType().equals(Material.SPRUCE_LEAVES)
+                  || i.getType().equals(Material.BROWN_MUSHROOM)
+                  || i.getType().equals(Material.RED_MUSHROOM)
+                  || i.getType().equals(Material.DEAD_BUSH)
+                  || i.getType().equals(Material.DANDELION)
+                  || i.getType().equals(Material.TALL_SEAGRASS)
+                  || i.getType().equals(Material.SEAGRASS)
+                  || i.getType().equals(Material.WHITE_TULIP)
+                  || i.getType().equals(Material.RED_TULIP)
+                  || i.getType().equals(Material.PINK_TULIP)
+                  || i.getType().equals(Material.ORANGE_TULIP)
+                  || i.getType().equals(Material.LILY_OF_THE_VALLEY)
+                  || i.getType().equals(Material.ALLIUM)
+                  || i.getType().equals(Material.AZURE_BLUET)
+                  || i.getType().equals(Material.SUNFLOWER)
+                  || i.getType().equals(Material.CORNFLOWER)
+                  || i.getType().equals(Material.CHORUS_FLOWER)
+                  || i.getType().equals(Material.BAMBOO)
+                  || i.getType().equals(Material.BAMBOO_SAPLING)
+                  || i.getType().equals(Material.LILAC)
+                  || i.getType().equals(Material.PEONY)
+                  || i.getType().equals(Material.LILY_PAD)
+                  || i.getType().equals(Material.COCOA)
+                  || i.getType().equals(Material.MANGROVE_LEAVES)
 
-                            ) {
-                                if (!canBlockBreak(p, i.getLocation())) continue;
-                                BlockBreakEvent ee = new BlockBreakEvent(i, p);
-                                Bukkit.getPluginManager().callEvent(ee);
+              ) {
+                if (!canBlockBreak(p, i.getLocation())) continue;
+                BlockBreakEvent ee = new BlockBreakEvent(i, p);
+                Bukkit.getPluginManager().callEvent(ee);
 
-                                if (!ee.isCancelled()) {
-                                    dmg += 1;
-                                    J.runAt(i.getLocation(), () -> {
-                                        i.breakNaturally();
-                                        spw.play(i.getLocation(), Sound.BLOCK_GRASS_BREAK, 0.4f, (float) (ThreadLocalRandom.current().nextDouble() * 1.85D));
-                                    }, RNG.r.i(0, (getMaxLevel() - lvl * 2) + 1));
-                                }
-                            }
-                        }
-                    }
+                if (!ee.isCancelled()) {
+                  dmg += 1;
+                  J.runAt(i.getLocation(), () -> {
+                    i.breakNaturally();
+                    spw.play(i.getLocation(), Sound.BLOCK_GRASS_BREAK, 0.4f, (float) (ThreadLocalRandom.current().nextDouble() * 1.85D));
+                  }, RNG.r.i(0, (getMaxLevel() - lvl * 2) + 1));
+                }
+              }
+            }
+          }
 
-                    if (dmg > 0) {
-                        p.setCooldown(is.getType(), getCooldownTime(getLevelPercent(lvl)));
+          if (dmg > 0) {
+            p.setCooldown(is.getType(), getCooldownTime(getLevelPercent(lvl)));
 //                        if (areParticlesEnabled()) {
 //                            ParticleEffect.SWEEP_ATTACK.display(p.getEyeLocation().clone().add(p.getLocation().getDirection().clone().multiply(1.25)).add(0, -0.5, 0), 0f, 0f, 0f, 0.1f, 1, null);
 //                        }
-                        spw.play(p.getEyeLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, (float) (ThreadLocalRandom.current().nextDouble() / 2D) + 0.65f);
-                        damageHand(p, dmg * getDamagePerBlock(getLevelPercent(lvl)));
-                        xp(p, dmg * 11.25, "foliage-cut");
-                        getPlayer(p).getData().addStat("swords.machete.foliage-cut", dmg);
-                    }
-                }
-            }
+            spw.play(p.getEyeLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, (float) (ThreadLocalRandom.current().nextDouble() / 2D) + 0.65f);
+            damageHand(p, dmg * getDamagePerBlock(getLevelPercent(lvl)));
+            xp(p, dmg * 11.25, "foliage-cut");
+            getPlayer(p).getData().addStat("swords.machete.foliage-cut", dmg);
+          }
         }
+      }
     }
+  }
 
-    private int getCooldownTime(double levelPercent) {
-        return (int) (((int) ((1D - levelPercent) * getConfig().cooldownTicksSlowest)) + getConfig().cooldownTicksBase);
-    }
+  private int getCooldownTime(double levelPercent) {
+    return (int) (((int) ((1D - levelPercent) * getConfig().cooldownTicksSlowest)) + getConfig().cooldownTicksBase);
+  }
 
-    private int getDamagePerBlock(double levelPercent) {
-        return (int) (getConfig().toolDamageBase + (getConfig().toolDamageInverseLevelFactor * ((1D - levelPercent))));
-    }
+  private int getDamagePerBlock(double levelPercent) {
+    return (int) (getConfig().toolDamageBase + (getConfig().toolDamageInverseLevelFactor * ((1D - levelPercent))));
+  }
 
-    @Override
-    public void onTick() {
+  @Override
+  public void onTick() {
 
-    }
+  }
 
-    @Override
-    public boolean isEnabled() {
-        return getConfig().enabled;
-    }
+  @Override
+  public boolean isEnabled() {
+    return getConfig().enabled;
+  }
 
-    @Override
-    public boolean isPermanent() {
-        return getConfig().permanent;
-    }
+  @Override
+  public boolean isPermanent() {
+    return getConfig().permanent;
+  }
 
-    @NoArgsConstructor
-    @ConfigDescription("Cut through foliage with ease using a sword.")
-    protected static class Config {
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-        boolean permanent = false;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-        boolean enabled = true;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Swords Machete adaptation.", impact = "True enables this behavior and false disables it.")
-        boolean showParticles = true;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-        int baseCost = 4;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-        int maxLevel = 3;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-        int initialCost = 7;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-        double costFactor = 0.225;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Radius Base for the Swords Machete adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double radiusBase = 0.6;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Radius Factor for the Swords Machete adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double radiusFactor = 2.36;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown Ticks Base for the Swords Machete adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double cooldownTicksBase = 7;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown Ticks Slowest for the Swords Machete adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double cooldownTicksSlowest = 35;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Tool Damage Base for the Swords Machete adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double toolDamageBase = 1;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Tool Damage Inverse Level Factor for the Swords Machete adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double toolDamageInverseLevelFactor = 5;
-    }
+  @NoArgsConstructor
+  @ConfigDescription("Cut through foliage with ease using a sword.")
+  protected static class Config {
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
+    boolean permanent = false;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
+    boolean enabled = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Swords Machete adaptation.", impact = "True enables this behavior and false disables it.")
+    boolean showParticles = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
+    int baseCost = 4;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
+    int maxLevel = 3;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
+    int initialCost = 7;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
+    double costFactor = 0.225;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Radius Base for the Swords Machete adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double radiusBase = 0.6;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Radius Factor for the Swords Machete adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double radiusFactor = 2.36;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown Ticks Base for the Swords Machete adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double cooldownTicksBase = 7;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown Ticks Slowest for the Swords Machete adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double cooldownTicksSlowest = 35;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Tool Damage Base for the Swords Machete adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double toolDamageBase = 1;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Tool Damage Inverse Level Factor for the Swords Machete adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double toolDamageInverseLevelFactor = 5;
+  }
 }

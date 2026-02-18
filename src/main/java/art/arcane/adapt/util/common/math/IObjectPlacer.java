@@ -21,21 +21,21 @@ package art.arcane.adapt.util.common.math;
 import org.bukkit.block.data.BlockData;
 
 public interface IObjectPlacer {
-    int getHighest(int x, int z);
+  int getHighest(int x, int z);
 
-    int getHighest(int x, int z, boolean ignoreFluid);
+  int getHighest(int x, int z, boolean ignoreFluid);
 
-    void set(int x, int y, int z, BlockData d);
+  void set(int x, int y, int z, BlockData d);
 
-    BlockData get(int x, int y, int z);
+  BlockData get(int x, int y, int z);
 
-    boolean isPreventingDecay();
+  boolean isPreventingDecay();
 
-    boolean isSolid(int x, int y, int z);
+  boolean isSolid(int x, int y, int z);
 
-    boolean isUnderwater(int x, int z);
+  boolean isUnderwater(int x, int z);
 
-    int getFluidHeight();
+  int getFluidHeight();
 
-    boolean isDebugSmartBore();
+  boolean isDebugSmartBore();
 }

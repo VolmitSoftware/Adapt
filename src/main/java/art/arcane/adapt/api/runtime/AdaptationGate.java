@@ -25,47 +25,47 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 public final class AdaptationGate {
-    private AdaptationGate() {
+  private AdaptationGate() {
+  }
+
+  public static boolean shouldSkipPlayer(Player player, Skill<?> skill, boolean hasAdaptPlayer) {
+    if (player == null || skill == null) {
+      return true;
     }
 
-    public static boolean shouldSkipPlayer(Player player, Skill<?> skill, boolean hasAdaptPlayer) {
-        if (player == null || skill == null) {
-            return true;
-        }
-
-        if (!player.getClass().getSimpleName().equals("CraftPlayer")) {
-            return true;
-        }
-
-        return !skill.isEnabled()
-                || skill.hasBlacklistPermission(player, skill)
-                || isWorldBlacklisted(player)
-                || isInCreativeOrSpectator(player)
-                || !hasAdaptPlayer;
+    if (!player.getClass().getSimpleName().equals("CraftPlayer")) {
+      return true;
     }
 
-    public static boolean shouldSkipWorld(World world, Skill<?> skill) {
-        if (world == null || skill == null) {
-            return true;
-        }
+    return !skill.isEnabled()
+        || skill.hasBlacklistPermission(player, skill)
+        || isWorldBlacklisted(player)
+        || isInCreativeOrSpectator(player)
+        || !hasAdaptPlayer;
+  }
 
-        return !skill.isEnabled() || AdaptConfig.get().blacklistedWorlds.contains(world.getName());
+  public static boolean shouldSkipWorld(World world, Skill<?> skill) {
+    if (world == null || skill == null) {
+      return true;
     }
 
-    public static boolean isWorldBlacklisted(Player player) {
-        if (player == null) {
-            return true;
-        }
+    return !skill.isEnabled() || AdaptConfig.get().blacklistedWorlds.contains(world.getName());
+  }
 
-        return AdaptConfig.get().blacklistedWorlds.contains(player.getWorld().getName());
+  public static boolean isWorldBlacklisted(Player player) {
+    if (player == null) {
+      return true;
     }
 
-    public static boolean isInCreativeOrSpectator(Player player) {
-        if (player == null) {
-            return true;
-        }
+    return AdaptConfig.get().blacklistedWorlds.contains(player.getWorld().getName());
+  }
 
-        return !AdaptConfig.get().isXpInCreative()
-                && (player.getGameMode().equals(GameMode.CREATIVE) || player.getGameMode().equals(GameMode.SPECTATOR));
+  public static boolean isInCreativeOrSpectator(Player player) {
+    if (player == null) {
+      return true;
     }
+
+    return !AdaptConfig.get().isXpInCreative()
+        && (player.getGameMode().equals(GameMode.CREATIVE) || player.getGameMode().equals(GameMode.SPECTATOR));
+  }
 }

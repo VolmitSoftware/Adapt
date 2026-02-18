@@ -27,9 +27,9 @@ import art.arcane.adapt.content.adaptation.sword.effects.DamagingBleedEffect;
 import art.arcane.adapt.content.item.ItemListings;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
+import art.arcane.volmlib.util.inventorygui.Element;
 import de.slikey.effectlib.effect.BleedEffect;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
@@ -48,139 +48,139 @@ import java.util.Set;
 import java.util.UUID;
 
 public class SwordsPoisonedBlade extends SimpleAdaptation<SwordsPoisonedBlade.Config> {
-    private final Map<UUID, Long> cooldowns;
-    private final Set<UUID> poisonedEntities = java.util.concurrent.ConcurrentHashMap.newKeySet();
-    private final Map<UUID, UUID> poisonSource = new java.util.concurrent.ConcurrentHashMap<>();
+  private final Map<UUID, Long> cooldowns;
+  private final Set<UUID> poisonedEntities = java.util.concurrent.ConcurrentHashMap.newKeySet();
+  private final Map<UUID, UUID> poisonSource = new java.util.concurrent.ConcurrentHashMap<>();
 
-    public SwordsPoisonedBlade() {
-        super("sword-poison-blade");
-        registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("sword.poisoned_blade.description"));
-        setDisplayName(Localizer.dLocalize("sword.poisoned_blade.name"));
-        setIcon(Material.GREEN_DYE);
-        setBaseCost(getConfig().baseCost);
-        setMaxLevel(getConfig().maxLevel);
-        setInterval(4984);
-        setInitialCost(getConfig().initialCost);
-        setCostFactor(getConfig().costFactor);
-        cooldowns = new java.util.concurrent.ConcurrentHashMap<>();
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.SPIDER_EYE)
-                .key("challenge_swords_poison_500")
-                .title(Localizer.dLocalize("advancement.challenge_swords_poison_500.title"))
-                .description(Localizer.dLocalize("advancement.challenge_swords_poison_500.description"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .build());
-        registerMilestone("challenge_swords_poison_500", "swords.poisoned-blade.poison-applied", 500, 400);
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.FERMENTED_SPIDER_EYE)
-                .key("challenge_swords_poison_kills_50")
-                .title(Localizer.dLocalize("advancement.challenge_swords_poison_kills_50.title"))
-                .description(Localizer.dLocalize("advancement.challenge_swords_poison_kills_50.description"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .build());
-        registerMilestone("challenge_swords_poison_kills_50", "swords.poisoned-blade.poison-kills", 50, 1000);
-    }
+  public SwordsPoisonedBlade() {
+    super("sword-poison-blade");
+    registerConfiguration(Config.class);
+    setDescription(Localizer.dLocalize("sword.poisoned_blade.description"));
+    setDisplayName(Localizer.dLocalize("sword.poisoned_blade.name"));
+    setIcon(Material.GREEN_DYE);
+    setBaseCost(getConfig().baseCost);
+    setMaxLevel(getConfig().maxLevel);
+    setInterval(4984);
+    setInitialCost(getConfig().initialCost);
+    setCostFactor(getConfig().costFactor);
+    cooldowns = new java.util.concurrent.ConcurrentHashMap<>();
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.SPIDER_EYE)
+        .key("challenge_swords_poison_500")
+        .title(Localizer.dLocalize("advancement.challenge_swords_poison_500.title"))
+        .description(Localizer.dLocalize("advancement.challenge_swords_poison_500.description"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .build());
+    registerMilestone("challenge_swords_poison_500", "swords.poisoned-blade.poison-applied", 500, 400);
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.FERMENTED_SPIDER_EYE)
+        .key("challenge_swords_poison_kills_50")
+        .title(Localizer.dLocalize("advancement.challenge_swords_poison_kills_50.title"))
+        .description(Localizer.dLocalize("advancement.challenge_swords_poison_kills_50.description"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .build());
+    registerMilestone("challenge_swords_poison_kills_50", "swords.poisoned-blade.poison-kills", 50, 1000);
+  }
 
-    @Override
-    public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + C.GRAY + " " + Localizer.dLocalize("sword.poisoned_blade.lore1"));
-        v.addLore(C.YELLOW + "* " + Form.duration(getDurationOfEffect(level), 1) + C.GRAY + " " + Localizer.dLocalize("sword.poisoned_blade.lore2"));
-        v.addLore(C.RED + "* " + Form.duration(getCooldown(level), 1) + C.GRAY + " " + Localizer.dLocalize("sword.poisoned_blade.lore3"));
-    }
+  @Override
+  public void addStats(int level, Element v) {
+    v.addLore(C.GREEN + "+ " + C.GRAY + " " + Localizer.dLocalize("sword.poisoned_blade.lore1"));
+    v.addLore(C.YELLOW + "* " + Form.duration(getDurationOfEffect(level), 1) + C.GRAY + " " + Localizer.dLocalize("sword.poisoned_blade.lore2"));
+    v.addLore(C.RED + "* " + Form.duration(getCooldown(level), 1) + C.GRAY + " " + Localizer.dLocalize("sword.poisoned_blade.lore3"));
+  }
 
-    public long getCooldown(int level) {
-        return getConfig().cooldown * level;
-    }
+  public long getCooldown(int level) {
+    return getConfig().cooldown * level;
+  }
 
-    public long getDurationOfEffect(int level) {
-        return getConfig().effectDuration * level;
-    }
+  public long getDurationOfEffect(int level) {
+    return getConfig().effectDuration * level;
+  }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void on(EntityDamageByEntityEvent e) {
-        if (e.getDamager() instanceof Player p && hasActiveAdaptation(p) && ItemListings.getToolSwords().contains(p.getInventory().getItemInMainHand().getType())) {
-            Long cooldown = cooldowns.get(p.getUniqueId());
-            if (cooldown != null && cooldown > System.currentTimeMillis())
-                return;
-            Entity victim = e.getEntity();
-            cooldowns.put(p.getUniqueId(), System.currentTimeMillis() + getCooldown(getLevel(p)));
-            if (!canDamageTarget(p, victim)) return;
-            if (victim instanceof Player pvic) {
-                BleedEffect blood = new BleedEffect(Adapt.instance.adaptEffectManager);
-                blood.setEntity(pvic);
-                blood.material = Material.LARGE_FERN;
-                blood.height = -1;
-                blood.iterations = Math.toIntExact(2 * (3 + (getDurationOfEffect(getLevel(p)) / 1000)));
-                blood.period = 5; //5 Every second, make a proc
-                blood.hurt = false;
-                blood.start();
-                addPotionStacks(pvic, PotionEffectType.POISON, 2, 50 * getLevel(p), true);
-            } else {
-                BleedEffect blood = victim instanceof LivingEntity l ? new DamagingBleedEffect(Adapt.instance.adaptEffectManager, 1, l) : new BleedEffect(Adapt.instance.adaptEffectManager);
-                blood.setEntity(victim);
-                blood.material = Material.LARGE_FERN;
-                blood.height = -1;
-                blood.iterations = Math.toIntExact(2 * (3 + (getDurationOfEffect(getLevel(p)) / 1000)));
-                blood.period = 5; //5 Every second, make a proc
-                blood.hurt = false;
-                blood.start();
-            }
-            poisonedEntities.add(victim.getUniqueId());
-            poisonSource.put(victim.getUniqueId(), p.getUniqueId());
-            getPlayer(p).getData().addStat("swords.poisoned-blade.poison-applied", 1);
-
-        }
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void on(EntityDeathEvent e) {
-        UUID victimId = e.getEntity().getUniqueId();
-        if (poisonedEntities.remove(victimId)) {
-            UUID sourceId = poisonSource.remove(victimId);
-            Player source = sourceId == null ? null : Bukkit.getPlayer(sourceId);
-            if (source != null && source.isOnline()) {
-                getPlayer(source).getData().addStat("swords.poisoned-blade.poison-kills", 1);
-            }
-        }
-    }
-
-
-    @Override
-    public void onTick() {
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void on(EntityDamageByEntityEvent e) {
+    if (e.getDamager() instanceof Player p && hasActiveAdaptation(p) && ItemListings.getToolSwords().contains(p.getInventory().getItemInMainHand().getType())) {
+      Long cooldown = cooldowns.get(p.getUniqueId());
+      if (cooldown != null && cooldown > System.currentTimeMillis())
+        return;
+      Entity victim = e.getEntity();
+      cooldowns.put(p.getUniqueId(), System.currentTimeMillis() + getCooldown(getLevel(p)));
+      if (!canDamageTarget(p, victim)) return;
+      if (victim instanceof Player pvic) {
+        BleedEffect blood = new BleedEffect(Adapt.instance.adaptEffectManager);
+        blood.setEntity(pvic);
+        blood.material = Material.LARGE_FERN;
+        blood.height = -1;
+        blood.iterations = Math.toIntExact(2 * (3 + (getDurationOfEffect(getLevel(p)) / 1000)));
+        blood.period = 5; //5 Every second, make a proc
+        blood.hurt = false;
+        blood.start();
+        addPotionStacks(pvic, PotionEffectType.POISON, 2, 50 * getLevel(p), true);
+      } else {
+        BleedEffect blood = victim instanceof LivingEntity l ? new DamagingBleedEffect(Adapt.instance.adaptEffectManager, 1, l) : new BleedEffect(Adapt.instance.adaptEffectManager);
+        blood.setEntity(victim);
+        blood.material = Material.LARGE_FERN;
+        blood.height = -1;
+        blood.iterations = Math.toIntExact(2 * (3 + (getDurationOfEffect(getLevel(p)) / 1000)));
+        blood.period = 5; //5 Every second, make a proc
+        blood.hurt = false;
+        blood.start();
+      }
+      poisonedEntities.add(victim.getUniqueId());
+      poisonSource.put(victim.getUniqueId(), p.getUniqueId());
+      getPlayer(p).getData().addStat("swords.poisoned-blade.poison-applied", 1);
 
     }
+  }
 
-    @Override
-    public boolean isEnabled() {
-        return getConfig().enabled;
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(EntityDeathEvent e) {
+    UUID victimId = e.getEntity().getUniqueId();
+    if (poisonedEntities.remove(victimId)) {
+      UUID sourceId = poisonSource.remove(victimId);
+      Player source = sourceId == null ? null : Bukkit.getPlayer(sourceId);
+      if (source != null && source.isOnline()) {
+        getPlayer(source).getData().addStat("swords.poisoned-blade.poison-kills", 1);
+      }
     }
+  }
 
-    @Override
-    public boolean isPermanent() {
-        return getConfig().permanent;
-    }
 
-    @NoArgsConstructor
-    @ConfigDescription("Sword strikes apply poison.")
-    protected static class Config {
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown for the Swords Poisoned Blade adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        public long cooldown = 5000;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Effect Duration for the Swords Poisoned Blade adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        public long effectDuration = 1000;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-        boolean permanent = false;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-        boolean enabled = true;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-        int baseCost = 7;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-        int maxLevel = 7;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-        int initialCost = 7;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-        double costFactor = 0.325;
-    }
+  @Override
+  public void onTick() {
+
+  }
+
+  @Override
+  public boolean isEnabled() {
+    return getConfig().enabled;
+  }
+
+  @Override
+  public boolean isPermanent() {
+    return getConfig().permanent;
+  }
+
+  @NoArgsConstructor
+  @ConfigDescription("Sword strikes apply poison.")
+  protected static class Config {
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown for the Swords Poisoned Blade adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    public long cooldown = 5000;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Effect Duration for the Swords Poisoned Blade adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    public long effectDuration = 1000;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
+    boolean permanent = false;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
+    boolean enabled = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
+    int baseCost = 7;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
+    int maxLevel = 7;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
+    int initialCost = 7;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
+    double costFactor = 0.325;
+  }
 }

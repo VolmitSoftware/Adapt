@@ -28,71 +28,74 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class MortarPermission {
-    private MortarPermission parent;
+  private MortarPermission parent;
 
-    public MortarPermission() {
-        for (Field i : getClass().getDeclaredFields()) {
-            if (i.isAnnotationPresent(Permission.class)) {
-                try {
-                    MortarPermission px = (MortarPermission) i.getType().getConstructor().newInstance();
-                    px.setParent(this);
-                    i.set(Modifier.isStatic(i.getModifiers()) ? null : this, px);
-                } catch (IllegalArgumentException | IllegalAccessException | InstantiationException |
-                         InvocationTargetException | NoSuchMethodException | SecurityException e) {
-                    e.printStackTrace();
-                }
-            }
+  public MortarPermission() {
+    for (Field i : getClass().getDeclaredFields()) {
+      if (i.isAnnotationPresent(Permission.class)) {
+        try {
+          MortarPermission px = (MortarPermission) i.getType().getConstructor().newInstance();
+          px.setParent(this);
+          i.set(Modifier.isStatic(i.getModifiers()) ? null : this, px);
+        } catch (IllegalArgumentException | IllegalAccessException |
+                 InstantiationException |
+                 InvocationTargetException | NoSuchMethodException |
+                 SecurityException e) {
+          e.printStackTrace();
         }
+      }
     }
+  }
 
-    public List<MortarPermission> getChildren() {
-        List<MortarPermission> p = new ArrayList<>();
+  public List<MortarPermission> getChildren() {
+    List<MortarPermission> p = new ArrayList<>();
 
-        for (Field i : getClass().getDeclaredFields()) {
-            if (i.isAnnotationPresent(Permission.class)) {
-                try {
-                    p.add((MortarPermission) i.get(Modifier.isStatic(i.getModifiers()) ? null : this));
-                } catch (IllegalArgumentException | IllegalAccessException | SecurityException e) {
-                    e.printStackTrace();
-                }
-            }
+    for (Field i : getClass().getDeclaredFields()) {
+      if (i.isAnnotationPresent(Permission.class)) {
+        try {
+          p.add((MortarPermission) i.get(Modifier.isStatic(i.getModifiers()) ? null : this));
+        } catch (IllegalArgumentException | IllegalAccessException |
+                 SecurityException e) {
+          e.printStackTrace();
         }
-
-        return p;
+      }
     }
 
-    public String getFullNode() {
-        if (hasParent()) {
-            return getParent().getFullNode() + "." + getNode();
-        }
+    return p;
+  }
 
-        return getNode();
+  public String getFullNode() {
+    if (hasParent()) {
+      return getParent().getFullNode() + "." + getNode();
     }
 
-    protected abstract String getNode();
+    return getNode();
+  }
 
-    public abstract String getDescription();
+  protected abstract String getNode();
 
-    public abstract boolean isDefault();
+  public abstract String getDescription();
 
-    @Override
-    public String toString() {
-        return getFullNode();
-    }
+  public abstract boolean isDefault();
 
-    public boolean hasParent() {
-        return getParent() != null;
-    }
+  @Override
+  public String toString() {
+    return getFullNode();
+  }
 
-    public MortarPermission getParent() {
-        return parent;
-    }
+  public boolean hasParent() {
+    return getParent() != null;
+  }
 
-    public void setParent(MortarPermission parent) {
-        this.parent = parent;
-    }
+  public MortarPermission getParent() {
+    return parent;
+  }
 
-    public boolean has(CommandSender sender) {
-        return sender.hasPermission(getFullNode());
-    }
+  public void setParent(MortarPermission parent) {
+    this.parent = parent;
+  }
+
+  public boolean has(CommandSender sender) {
+    return sender.hasPermission(getFullNode());
+  }
 }

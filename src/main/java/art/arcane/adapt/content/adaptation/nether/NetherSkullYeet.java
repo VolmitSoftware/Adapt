@@ -25,9 +25,9 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -54,171 +54,171 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
 
-    private final Map<UUID, Long> lastJump = new ConcurrentHashMap<>();
+  private final Map<UUID, Long> lastJump = new ConcurrentHashMap<>();
 
-    public NetherSkullYeet() {
-        super("nether-skull-toss");
-        registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("nether.skull_toss.description1") + C.ITALIC + " " + Localizer.dLocalize("nether.skull_toss.description2") + " " + C.GRAY + Localizer.dLocalize("nether.skull_toss.description3"));
-        setDisplayName(Localizer.dLocalize("nether.skull_toss.name"));
-        setIcon(Material.WITHER_SKELETON_SKULL);
-        setBaseCost(getConfig().baseCost);
-        setCostFactor(getConfig().costFactor);
-        setMaxLevel(getConfig().maxLevel);
-        setInitialCost(getConfig().initialCost);
-        setInterval(2314);
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.WITHER_SKELETON_SKULL)
-                .key("challenge_nether_skull_100")
-                .title(Localizer.dLocalize("advancement.challenge_nether_skull_100.title"))
-                .description(Localizer.dLocalize("advancement.challenge_nether_skull_100.description"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .build());
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.WITHER_SKELETON_SKULL)
-                .key("challenge_nether_skull_kills_50")
-                .title(Localizer.dLocalize("advancement.challenge_nether_skull_kills_50.title"))
-                .description(Localizer.dLocalize("advancement.challenge_nether_skull_kills_50.description"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .build());
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.WITHER_SKELETON_SKULL)
-                .key("challenge_nether_skull_long_bomb")
-                .title(Localizer.dLocalize("advancement.challenge_nether_skull_long_bomb.title"))
-                .description(Localizer.dLocalize("advancement.challenge_nether_skull_long_bomb.description"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.HIDDEN)
-                .build());
-        registerMilestone("challenge_nether_skull_100", "nether.skull-yeet.skulls-thrown", 100, 300);
-        registerMilestone("challenge_nether_skull_kills_50", "nether.skull-yeet.skull-kills", 50, 500);
-    }
+  public NetherSkullYeet() {
+    super("nether-skull-toss");
+    registerConfiguration(Config.class);
+    setDescription(Localizer.dLocalize("nether.skull_toss.description1") + C.ITALIC + " " + Localizer.dLocalize("nether.skull_toss.description2") + " " + C.GRAY + Localizer.dLocalize("nether.skull_toss.description3"));
+    setDisplayName(Localizer.dLocalize("nether.skull_toss.name"));
+    setIcon(Material.WITHER_SKELETON_SKULL);
+    setBaseCost(getConfig().baseCost);
+    setCostFactor(getConfig().costFactor);
+    setMaxLevel(getConfig().maxLevel);
+    setInitialCost(getConfig().initialCost);
+    setInterval(2314);
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.WITHER_SKELETON_SKULL)
+        .key("challenge_nether_skull_100")
+        .title(Localizer.dLocalize("advancement.challenge_nether_skull_100.title"))
+        .description(Localizer.dLocalize("advancement.challenge_nether_skull_100.description"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .build());
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.WITHER_SKELETON_SKULL)
+        .key("challenge_nether_skull_kills_50")
+        .title(Localizer.dLocalize("advancement.challenge_nether_skull_kills_50.title"))
+        .description(Localizer.dLocalize("advancement.challenge_nether_skull_kills_50.description"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .build());
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.WITHER_SKELETON_SKULL)
+        .key("challenge_nether_skull_long_bomb")
+        .title(Localizer.dLocalize("advancement.challenge_nether_skull_long_bomb.title"))
+        .description(Localizer.dLocalize("advancement.challenge_nether_skull_long_bomb.description"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.HIDDEN)
+        .build());
+    registerMilestone("challenge_nether_skull_100", "nether.skull-yeet.skulls-thrown", 100, 300);
+    registerMilestone("challenge_nether_skull_kills_50", "nether.skull-yeet.skull-kills", 50, 500);
+  }
 
-    @Override
-    public void addStats(int level, Element v) {
-        int chance = getConfig().getBaseCooldown() - getConfig().getLevelCooldown() * level;
-        v.addLore(C.GREEN + String.valueOf(chance) + C.GRAY + " " + Localizer.dLocalize("nether.skull_toss.lore1"));
-        v.addLore(C.GRAY + Localizer.dLocalize("nether.skull_toss.lore2") + C.DARK_GRAY + Localizer.dLocalize("nether.skull_toss.lore3") + C.GRAY + ", " + Localizer.dLocalize("nether.skull_toss.lore4"));
-    }
+  @Override
+  public void addStats(int level, Element v) {
+    int chance = getConfig().getBaseCooldown() - getConfig().getLevelCooldown() * level;
+    v.addLore(C.GREEN + String.valueOf(chance) + C.GRAY + " " + Localizer.dLocalize("nether.skull_toss.lore1"));
+    v.addLore(C.GRAY + Localizer.dLocalize("nether.skull_toss.lore2") + C.DARK_GRAY + Localizer.dLocalize("nether.skull_toss.lore3") + C.GRAY + ", " + Localizer.dLocalize("nether.skull_toss.lore4"));
+  }
 
-    private int getCooldownDuration(Player p) {
-        return (getConfig().getBaseCooldown() - getConfig().getLevelCooldown() * getLevel(p)) * 20;
-    }
+  private int getCooldownDuration(Player p) {
+    return (getConfig().getBaseCooldown() - getConfig().getLevelCooldown() * getLevel(p)) * 20;
+  }
 
-    @EventHandler
-    public void on(PlayerQuitEvent e) {
-        Player p = e.getPlayer();
-        lastJump.remove(p.getUniqueId());
-    }
+  @EventHandler
+  public void on(PlayerQuitEvent e) {
+    Player p = e.getPlayer();
+    lastJump.remove(p.getUniqueId());
+  }
 
-    @EventHandler
-    public void onRightClick(PlayerInteractEvent e) {
-        Player p = e.getPlayer();
-        withAdaptedPlayer(p, e, () -> {
-            if (e.useItemInHand() == Event.Result.DENY) {
-                return;
-            }
+  @EventHandler
+  public void onRightClick(PlayerInteractEvent e) {
+    Player p = e.getPlayer();
+    withAdaptedPlayer(p, e, () -> {
+      if (e.useItemInHand() == Event.Result.DENY) {
+        return;
+      }
 
-            if (e.getAction() != Action.LEFT_CLICK_AIR && e.getAction() != Action.LEFT_CLICK_BLOCK) {
-                return;
-            }
-            if (e.getHand() != EquipmentSlot.HAND || e.getItem() == null || e.getMaterial() != Material.WITHER_SKELETON_SKULL) {
-                return;
-            }
+      if (e.getAction() != Action.LEFT_CLICK_AIR && e.getAction() != Action.LEFT_CLICK_BLOCK) {
+        return;
+      }
+      if (e.getHand() != EquipmentSlot.HAND || e.getItem() == null || e.getMaterial() != Material.WITHER_SKELETON_SKULL) {
+        return;
+      }
 
-            SoundPlayer sp = SoundPlayer.of(p);
+      SoundPlayer sp = SoundPlayer.of(p);
 
-            if (lastJump.get(p.getUniqueId()) != null && M.ms() - lastJump.get(p.getUniqueId()) <= getCooldownDuration(p)) {
-                sp.play(p, Sound.BLOCK_CONDUIT_DEACTIVATE, 1F, 1F);
-                return;
-            }
+      if (lastJump.get(p.getUniqueId()) != null && M.ms() - lastJump.get(p.getUniqueId()) <= getCooldownDuration(p)) {
+        sp.play(p, Sound.BLOCK_CONDUIT_DEACTIVATE, 1F, 1F);
+        return;
+      }
 
-            if (lastJump.get(p.getUniqueId()) != null && M.ms() - lastJump.get(p.getUniqueId()) <= getCooldownDuration(p)) {
-                return;
-            }
+      if (lastJump.get(p.getUniqueId()) != null && M.ms() - lastJump.get(p.getUniqueId()) <= getCooldownDuration(p)) {
+        return;
+      }
 
-            if (p.hasCooldown(p.getInventory().getItemInMainHand().getType())) {
-                e.setCancelled(true);
-                sp.play(p, Sound.BLOCK_CONDUIT_DEACTIVATE, 1F, 1F);
-                return;
-            } else {
-                p.setCooldown(Material.WITHER_SKELETON_SKULL, getCooldownDuration(p));
-            }
+      if (p.hasCooldown(p.getInventory().getItemInMainHand().getType())) {
+        e.setCancelled(true);
+        sp.play(p, Sound.BLOCK_CONDUIT_DEACTIVATE, 1F, 1F);
+        return;
+      } else {
+        p.setCooldown(Material.WITHER_SKELETON_SKULL, getCooldownDuration(p));
+      }
 
 
-            if (p.getGameMode() != GameMode.CREATIVE) {
-                e.getItem().setAmount(e.getItem().getAmount() - 1);
-                lastJump.put(p.getUniqueId(), M.ms());
-            }
+      if (p.getGameMode() != GameMode.CREATIVE) {
+        e.getItem().setAmount(e.getItem().getAmount() - 1);
+        lastJump.put(p.getUniqueId(), M.ms());
+      }
 
-            Vector dir = p.getEyeLocation().getDirection();
-            Location spawn = p.getEyeLocation().add(new Vector(.5, -.5, .5)).add(dir);
-            p.getWorld().spawn(spawn, WitherSkull.class, entity -> {
-                sp.play(entity, Sound.ENTITY_WITHER_SHOOT, 1, 1);
-                entity.setRotation(p.getEyeLocation().getYaw(), p.getEyeLocation().getPitch());
-                entity.setCharged(false);
-                entity.setBounce(false);
-                entity.setDirection(dir);
-                entity.setShooter(p);
-                xp(p, 100);
-            });
-            getPlayer(p).getData().addStat("nether.skull-yeet.skulls-thrown", 1);
-        });
-    }
+      Vector dir = p.getEyeLocation().getDirection();
+      Location spawn = p.getEyeLocation().add(new Vector(.5, -.5, .5)).add(dir);
+      p.getWorld().spawn(spawn, WitherSkull.class, entity -> {
+        sp.play(entity, Sound.ENTITY_WITHER_SHOOT, 1, 1);
+        entity.setRotation(p.getEyeLocation().getYaw(), p.getEyeLocation().getPitch());
+        entity.setCharged(false);
+        entity.setBounce(false);
+        entity.setDirection(dir);
+        entity.setShooter(p);
+        xp(p, 100);
+      });
+      getPlayer(p).getData().addStat("nether.skull-yeet.skulls-thrown", 1);
+    });
+  }
 
-    @EventHandler
-    public void onEntityDeath(EntityDeathEvent e) {
-        LivingEntity dead = e.getEntity();
-        if (dead.getLastDamageCause() instanceof EntityDamageByEntityEvent dbe
-                && dbe.getDamager() instanceof WitherSkull skull
-                && skull.getShooter() instanceof Player p) {
-            withAdaptedPlayer(p, () -> {
-                getPlayer(p).getData().addStat("nether.skull-yeet.skull-kills", 1);
+  @EventHandler
+  public void onEntityDeath(EntityDeathEvent e) {
+    LivingEntity dead = e.getEntity();
+    if (dead.getLastDamageCause() instanceof EntityDamageByEntityEvent dbe
+        && dbe.getDamager() instanceof WitherSkull skull
+        && skull.getShooter() instanceof Player p) {
+      withAdaptedPlayer(p, () -> {
+        getPlayer(p).getData().addStat("nether.skull-yeet.skull-kills", 1);
 
-                double distance = p.getLocation().distance(dead.getLocation());
-                if (distance >= 40 && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_nether_skull_long_bomb")) {
-                    getPlayer(p).getAdvancementHandler().grant("challenge_nether_skull_long_bomb");
-                }
-            });
+        double distance = p.getLocation().distance(dead.getLocation());
+        if (distance >= 40 && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_nether_skull_long_bomb")) {
+          getPlayer(p).getAdvancementHandler().grant("challenge_nether_skull_long_bomb");
         }
+      });
     }
+  }
 
-    @Override
-    public boolean isEnabled() {
-        return getConfig().isEnabled();
-    }
+  @Override
+  public boolean isEnabled() {
+    return getConfig().isEnabled();
+  }
 
-    @Override
-    public void onTick() {
+  @Override
+  public void onTick() {
 
-    }
+  }
 
-    @Override
-    public boolean isPermanent() {
-        return getConfig().permanent;
-    }
+  @Override
+  public boolean isPermanent() {
+    return getConfig().permanent;
+  }
 
 
-    @Data
-    @NoArgsConstructor
-    @ConfigDescription("Throw Wither Skulls that explode on impact.")
-    public static class Config {
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-        public boolean permanent = false;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-        private boolean enabled = true;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Base Cooldown for the Nether Skull Yeet adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        private int baseCooldown = 15;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Level Cooldown for the Nether Skull Yeet adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        private int levelCooldown = 5;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-        private int baseCost = 10;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-        private double costFactor = 0.92;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-        private int maxLevel = 3;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-        private int initialCost = 5;
-    }
+  @Data
+  @NoArgsConstructor
+  @ConfigDescription("Throw Wither Skulls that explode on impact.")
+  public static class Config {
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
+    public boolean permanent = false;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
+    private boolean enabled = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Base Cooldown for the Nether Skull Yeet adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    private int baseCooldown = 15;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Level Cooldown for the Nether Skull Yeet adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    private int levelCooldown = 5;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
+    private int baseCost = 10;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
+    private double costFactor = 0.92;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
+    private int maxLevel = 3;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
+    private int initialCost = 5;
+  }
 }

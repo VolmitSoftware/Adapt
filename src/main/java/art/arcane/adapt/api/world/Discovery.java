@@ -22,10 +22,10 @@ import art.arcane.volmlib.util.collection.KList;
 import lombok.Getter;
 
 public class Discovery<T> {
-    @Getter
-    private final KList<T> seen = new KList<>();
+  @Getter
+  private final KList<T> seen = new KList<>();
 
-    public boolean isNewDiscovery(T t) {
-        return seen.addIfMissing(t);
-    }
+  public boolean isNewDiscovery(T t) {
+    return seen.addIfMissing(t);
+  }
 }

@@ -25,17 +25,17 @@ import org.bukkit.persistence.PersistentDataType;
 
 public class PersistentJson {
 
-    public static void write(PersistentDataContainer c, String key, Object data) {
-        c.set(new NamespacedKey(Adapt.instance, key), PersistentDataType.STRING, Json.toJson(data, false));
+  public static void write(PersistentDataContainer c, String key, Object data) {
+    c.set(new NamespacedKey(Adapt.instance, key), PersistentDataType.STRING, Json.toJson(data, false));
+  }
+
+  private static <T> T fromJSON(PersistentDataContainer c, String key, Class<T> type) {
+    String s = c.get(new NamespacedKey(Adapt.instance, key), PersistentDataType.STRING);
+
+    if (s == null) {
+      return Json.fromJson(s, type);
     }
 
-    private static <T> T fromJSON(PersistentDataContainer c, String key, Class<T> type) {
-        String s = c.get(new NamespacedKey(Adapt.instance, key), PersistentDataType.STRING);
-
-        if (s == null) {
-            return Json.fromJson(s, type);
-        }
-
-        return null;
-    }
+    return null;
+  }
 }

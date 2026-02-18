@@ -17,60 +17,61 @@ import java.util.List;
 
 public interface IBindings extends Listener {
 
-    default void applyModel(CustomModel model, ItemMeta meta) {
-        meta.setCustomModelData(model.model());
+  default void applyModel(CustomModel model, ItemMeta meta) {
+    meta.setCustomModelData(model.model());
+  }
+
+  IAttribute getAttribute(Attributable attributable, Attribute modifier);
+
+  default ItemStack buildPotion(PotionBuilder builder) {
+    ItemStack stack = builder.getBaseItem();
+    if (stack == null) stack = new ItemStack(builder.getType().getMaterial());
+    else if (stack.getType() != builder.getType().getMaterial())
+      stack.setType(builder.getType().getMaterial());
+    PotionMeta meta = (PotionMeta) stack.getItemMeta();
+    assert meta != null;
+    meta.clearCustomEffects();
+    builder.getEffects().forEach(e -> meta.addCustomEffect(e, true));
+    if (builder.getColor() != null)
+      meta.setColor(builder.getColor());
+    stack.setItemMeta(meta);
+
+    Adapt.platform.editItem(stack)
+        .lore(builder.getLore())
+        .customName(builder.getName())
+        .build();
+    return stack;
+  }
+
+  default PotionBuilder editPotion(ItemStack stack) {
+    Type type = null;
+    for (final art.arcane.adapt.api.potion.PotionBuilder.Type val : Type.values()) {
+      if (val.getMaterial() == stack.getType()) {
+        type = val;
+        break;
+      }
     }
 
-    IAttribute getAttribute(Attributable attributable, Attribute modifier);
+    if (type == null) {
+      throw new IllegalArgumentException("Invalid potion type!");
+    }
+    final de.crazydev22.platformutils.ItemEditor editor = Adapt.platform.editItem(stack);
+    final art.arcane.adapt.api.potion.PotionBuilder builder = PotionBuilder.of(type)
+        .setBaseItem(stack);
 
-    default ItemStack buildPotion(PotionBuilder builder) {
-        ItemStack stack = builder.getBaseItem();
-        if (stack == null) stack = new ItemStack(builder.getType().getMaterial());
-        else if (stack.getType() != builder.getType().getMaterial()) stack.setType(builder.getType().getMaterial());
-        PotionMeta meta = (PotionMeta) stack.getItemMeta();
-        assert meta != null;
-        meta.clearCustomEffects();
-        builder.getEffects().forEach(e -> meta.addCustomEffect(e, true));
-        if (builder.getColor() != null)
-            meta.setColor(builder.getColor());
-        stack.setItemMeta(meta);
-
-        Adapt.platform.editItem(stack)
-                .lore(builder.getLore())
-                .customName(builder.getName())
-                .build();
-        return stack;
+    PotionMeta meta = (PotionMeta) stack.getItemMeta();
+    assert meta != null;
+    builder.setBaseType(meta.getBasePotionType())
+        .setLore(editor.lore())
+        .setColor(meta.getColor())
+        .setName(editor.customName());
+    for (org.bukkit.potion.PotionEffect effect : meta.getCustomEffects()) {
+      builder.addEffect(effect);
     }
 
-    default PotionBuilder editPotion(ItemStack stack) {
-        Type type = null;
-        for (final var val : Type.values()) {
-            if (val.getMaterial() == stack.getType()) {
-                type = val;
-                break;
-            }
-        }
+    return builder;
+  }
 
-        if (type == null) {
-            throw new IllegalArgumentException("Invalid potion type!");
-        }
-        final var editor = Adapt.platform.editItem(stack);
-        final var builder = PotionBuilder.of(type)
-                .setBaseItem(stack);
-
-        PotionMeta meta = (PotionMeta) stack.getItemMeta();
-        assert meta != null;
-        builder.setBaseType(meta.getBasePotionType())
-                .setLore(editor.lore())
-                .setColor(meta.getColor())
-                .setName(editor.customName());
-        for (var effect : meta.getCustomEffects()) {
-            builder.addEffect(effect);
-        }
-
-        return builder;
-    }
-
-    @Unmodifiable
-    List<EntityType> getInvalidDamageableEntities();
+  @Unmodifiable
+  List<EntityType> getInvalidDamageableEntities();
 }

@@ -49,380 +49,380 @@ import java.util.concurrent.TimeUnit;
 @EqualsAndHashCode(callSuper = false)
 @Data
 public class AdaptPlayer extends TickedObject {
-    private static final Set<UUID> LOAD_FAILURE_GUARD = ConcurrentHashMap.newKeySet();
+  private static final Set<UUID> LOAD_FAILURE_GUARD = ConcurrentHashMap.newKeySet();
 
-    private final Player player;
-    private final PlayerData data;
-    private ChronoLatch savelatch;
-    private ChronoLatch updatelatch;
-    private Notifier not;
-    private Notifier actionBarNotifier;
-    private AdvancementHandler advancementHandler;
-    private RollingSequence speed;
-    private long lastloc;
-    private Vector velocity;
-    private Location lastpos;
-    private long lastSeen;
-    private volatile boolean pendingDataDeletion;
-    private volatile boolean runtimeReady;
+  private final Player player;
+  private final PlayerData data;
+  private ChronoLatch savelatch;
+  private ChronoLatch updatelatch;
+  private Notifier not;
+  private Notifier actionBarNotifier;
+  private AdvancementHandler advancementHandler;
+  private RollingSequence speed;
+  private long lastloc;
+  private Vector velocity;
+  private Location lastpos;
+  private long lastSeen;
+  private volatile boolean pendingDataDeletion;
+  private volatile boolean runtimeReady;
 
-    public AdaptPlayer(Player p) {
-        this(p, null);
-    }
+  public AdaptPlayer(Player p) {
+    this(p, null);
+  }
 
-    public AdaptPlayer(Player p, PlayerData prefetchedData) {
-        super("players", p.getUniqueId().toString(), 50);
-        this.player = p;
-        data = prefetchedData == null ? loadPlayerData(p.getUniqueId()) : prefetchedData;
-        updatelatch = new ChronoLatch(1000);
-        savelatch = new ChronoLatch(60000);
-        not = new Notifier(this);
-        actionBarNotifier = new Notifier(this);
-        advancementHandler = new AdvancementHandler(this);
-        speed = new RollingSequence(7);
-        lastloc = M.ms();
-        lastSeen = M.ms();
-        velocity = new Vector();
-        runtimeReady = true;
-    }
+  public AdaptPlayer(Player p, PlayerData prefetchedData) {
+    super("players", p.getUniqueId().toString(), 50);
+    this.player = p;
+    data = prefetchedData == null ? loadPlayerData(p.getUniqueId()) : prefetchedData;
+    updatelatch = new ChronoLatch(1000);
+    savelatch = new ChronoLatch(60000);
+    not = new Notifier(this);
+    actionBarNotifier = new Notifier(this);
+    advancementHandler = new AdvancementHandler(this);
+    speed = new RollingSequence(7);
+    lastloc = M.ms();
+    lastSeen = M.ms();
+    velocity = new Vector();
+    runtimeReady = true;
+  }
 
-    public boolean canConsumeFood(double cost, int minFood) {
-        return (player.getFoodLevel() + player.getSaturation()) - minFood > cost;
-    }
-
-    public boolean consumeFood(double cost, int minFood) {
-        if (canConsumeFood(cost, minFood)) {
-            int food = player.getFoodLevel();
-            double sat = player.getSaturation();
-
-            if (sat >= cost) {
-                sat = (player.getSaturation() - cost);
-                cost = 0;
-            } else if (player.getSaturation() > 0) {
-                cost -= sat;
-                sat = 0;
-            }
-
-            if (cost >= 1) {
-                food -= (int) Math.floor(cost);
-                cost = Math.floor(cost);
-            }
-
-            if (cost > 0) {
-                if (sat >= cost) {
-                    sat -= cost;
-                    cost = 0;
-                } else {
-                    sat++;
-                    food--;
-                }
-            }
-
-            if (sat >= cost && cost > 0) {
-                sat -= cost;
-                cost = 0;
-            }
-
-            player.setFoodLevel(food);
-            player.setSaturation((float) sat);
-
-            return true;
+  public static PlayerData loadPlayerData(UUID uuid) {
+    boolean upload = false;
+    if (AdaptConfig.get().isUseSql()) {
+      if (Adapt.instance.getRedisSync() != null) {
+        java.util.Optional<art.arcane.adapt.api.world.PlayerData> opt = Adapt.instance.getRedisSync().cachedData(uuid);
+        if (opt.isPresent()) {
+          Adapt.verbose("Using cached data for player: " + uuid);
+          LOAD_FAILURE_GUARD.remove(uuid);
+          return opt.get();
         }
+      }
 
-        return false;
+      if (Adapt.instance.getSqlManager() != null) {
+        String sqlData = Adapt.instance.getSqlManager().fetchData(uuid);
+        if (sqlData != null) {
+          try {
+            PlayerData parsed = PlayerData.fromJson(sqlData);
+            LOAD_FAILURE_GUARD.remove(uuid);
+            return parsed;
+          } catch (Throwable e) {
+            LOAD_FAILURE_GUARD.add(uuid);
+            Adapt.warn("Failed to parse SQL player data for " + uuid + ": " + e.getClass().getSimpleName() + (e.getMessage() == null ? "" : " (" + e.getMessage() + ")"));
+          }
+        }
+        upload = true;
+      }
     }
 
-    public boolean isBusy() {
-        return not.isBusy();
-    }
-
-    public PlayerSkillLine getSkillLine(String l) {
-        return getData().getSkillLine(l);
-    }
-
-    private void save() {
-        save(false);
-    }
-
-    private void save(boolean synchronous) {
-        UUID uuid = player.getUniqueId();
-        File playerDataFile = getPlayerDataFile(uuid);
-
-        if (pendingDataDeletion) {
-            queueDelete(uuid, playerDataFile);
-            return;
+    File f = getPlayerDataFile(uuid);
+    if (f.exists()) {
+      try {
+        String text = IO.readAll(f);
+        if (upload) {
+          PlayerDataPersistenceQueue queue = Adapt.instance.getPlayerDataPersistenceQueue();
+          if (queue != null) {
+            queue.queueSave(uuid, text, f);
+          } else if (Adapt.instance.getSqlManager() != null) {
+            Adapt.instance.getSqlManager().updateData(uuid, text);
+          }
         }
-
-        if (LOAD_FAILURE_GUARD.contains(uuid)) {
-            Adapt.warn("Skipping save for " + uuid + " because player data failed to load earlier. Existing file is preserved.");
-            return;
-        }
-
-        String json = this.data.toJson(AdaptConfig.get().isUseSql());
-        if (synchronous) {
-            if (AdaptConfig.get().isUseSql()) {
-                if (Adapt.instance.getRedisSync() != null) {
-                    Adapt.instance.getRedisSync().publish(uuid, json);
-                }
-                if (Adapt.instance.getSqlManager() != null) {
-                    Adapt.instance.getSqlManager().updateData(uuid, json);
-                }
-            } else {
-                J.attempt(() -> IO.writeAll(playerDataFile, json));
-            }
-            return;
-        }
-
-        PlayerDataPersistenceQueue queue = Adapt.instance.getPlayerDataPersistenceQueue();
-        if (queue != null) {
-            queue.queueSave(uuid, json, playerDataFile);
-            return;
-        }
-
-        if (AdaptConfig.get().isUseSql()) {
-            if (Adapt.instance.getRedisSync() != null) {
-                Adapt.instance.getRedisSync().publish(uuid, json);
-            }
-            if (Adapt.instance.getSqlManager() != null) {
-                Adapt.instance.getSqlManager().updateData(uuid, json);
-            }
-        } else {
-            J.attempt(() -> IO.writeAll(playerDataFile, json));
-        }
-    }
-
-    @Override
-    public void unregister() {
-        super.unregister();
-        save(true);
-    }
-
-    public void delete(UUID uuid) {
-        pendingDataDeletion = true;
-        File local = getPlayerDataFile(uuid);
-        Adapt.warn("Deleting Player Data: " + local.getAbsolutePath());
-        queueDelete(uuid, local);
-
-        Player p = player;
-        if (!p.isOnline()) {
-            return;
-        }
-
-        J.s(() -> p.kickPlayer("Your data has been deleted."), 20);
-    }
-
-    public boolean shouldUnload() {
-        if (player.isOnline()) {
-            lastSeen = M.ms();
-            return false;
-        }
-
-        return lastSeen + 60_000 < System.currentTimeMillis();
-    }
-
-    public static PlayerData loadPlayerData(UUID uuid) {
-        boolean upload = false;
-        if (AdaptConfig.get().isUseSql()) {
-            if (Adapt.instance.getRedisSync() != null) {
-                var opt = Adapt.instance.getRedisSync().cachedData(uuid);
-                if (opt.isPresent()) {
-                    Adapt.verbose("Using cached data for player: " + uuid);
-                    LOAD_FAILURE_GUARD.remove(uuid);
-                    return opt.get();
-                }
-            }
-
-            if (Adapt.instance.getSqlManager() != null) {
-                String sqlData = Adapt.instance.getSqlManager().fetchData(uuid);
-                if (sqlData != null) {
-                    try {
-                        PlayerData parsed = PlayerData.fromJson(sqlData);
-                        LOAD_FAILURE_GUARD.remove(uuid);
-                        return parsed;
-                    } catch (Throwable e) {
-                        LOAD_FAILURE_GUARD.add(uuid);
-                        Adapt.warn("Failed to parse SQL player data for " + uuid + ": " + e.getClass().getSimpleName() + (e.getMessage() == null ? "" : " (" + e.getMessage() + ")"));
-                    }
-                }
-                upload = true;
-            }
-        }
-
-        File f = getPlayerDataFile(uuid);
-        if (f.exists()) {
-            try {
-                String text = IO.readAll(f);
-                if (upload) {
-                    PlayerDataPersistenceQueue queue = Adapt.instance.getPlayerDataPersistenceQueue();
-                    if (queue != null) {
-                        queue.queueSave(uuid, text, f);
-                    } else if (Adapt.instance.getSqlManager() != null) {
-                        Adapt.instance.getSqlManager().updateData(uuid, text);
-                    }
-                }
-                PlayerData parsed = PlayerData.fromJson(text);
-                LOAD_FAILURE_GUARD.remove(uuid);
-                return parsed;
-            } catch (Throwable e) {
-                LOAD_FAILURE_GUARD.add(uuid);
-                Adapt.warn("Failed to load player data for " + uuid + " from " + f.getAbsolutePath() + ": " + e.getClass().getSimpleName() + (e.getMessage() == null ? "" : " (" + e.getMessage() + ")"));
-            }
-        }
-
+        PlayerData parsed = PlayerData.fromJson(text);
         LOAD_FAILURE_GUARD.remove(uuid);
-        return new PlayerData();
+        return parsed;
+      } catch (Throwable e) {
+        LOAD_FAILURE_GUARD.add(uuid);
+        Adapt.warn("Failed to load player data for " + uuid + " from " + f.getAbsolutePath() + ": " + e.getClass().getSimpleName() + (e.getMessage() == null ? "" : " (" + e.getMessage() + ")"));
+      }
     }
 
-    @Override
-    public void onTick() {
-        if (!runtimeReady) {
-            return;
-        }
+    LOAD_FAILURE_GUARD.remove(uuid);
+    return new PlayerData();
+  }
 
-        if (updatelatch == null) {
-            updatelatch = new ChronoLatch(1000);
-        }
-        if (savelatch == null) {
-            savelatch = new ChronoLatch(60000);
-        }
-        if (speed == null) {
-            speed = new RollingSequence(7);
-        }
-        if (velocity == null) {
-            velocity = new Vector();
-        }
+  private static File getPlayerDataFile(UUID uuid) {
+    return new File(Adapt.instance.getDataFolder("data", "players"), uuid.toString() + ".json");
+  }
 
-        if (updatelatch.flip()) {
-            getData().update(this);
+  public boolean canConsumeFood(double cost, int minFood) {
+    return (player.getFoodLevel() + player.getSaturation()) - minFood > cost;
+  }
+
+  public boolean consumeFood(double cost, int minFood) {
+    if (canConsumeFood(cost, minFood)) {
+      int food = player.getFoodLevel();
+      double sat = player.getSaturation();
+
+      if (sat >= cost) {
+        sat = (player.getSaturation() - cost);
+        cost = 0;
+      } else if (player.getSaturation() > 0) {
+        cost -= sat;
+        sat = 0;
+      }
+
+      if (cost >= 1) {
+        food -= (int) Math.floor(cost);
+        cost = Math.floor(cost);
+      }
+
+      if (cost > 0) {
+        if (sat >= cost) {
+          sat -= cost;
+          cost = 0;
+        } else {
+          sat++;
+          food--;
         }
+      }
 
-        if (savelatch.flip()) {
-            save();
-        }
+      if (sat >= cost && cost > 0) {
+        sat -= cost;
+        cost = 0;
+      }
 
-        getServer().takeSpatial(this);
+      player.setFoodLevel(food);
+      player.setSaturation((float) sat);
 
-        Location at = player.getLocation();
-
-        if (lastpos != null) {
-            if (lastpos.getWorld().equals(at.getWorld())) {
-                if (lastpos.distanceSquared(at) <= 7 * 7) {
-                    speed.put(lastpos.distance(at) / ((double) (M.ms() - lastloc) / 50D));
-                    velocity = velocity.clone().add(at.clone().subtract(lastpos).toVector()).multiply(0.5);
-                    velocity.setX(Math.abs(velocity.getX()) < 0.01 ? 0 : velocity.getX());
-                    velocity.setY(Math.abs(velocity.getY()) < 0.01 ? 0 : velocity.getY());
-                    velocity.setZ(Math.abs(velocity.getZ()) < 0.01 ? 0 : velocity.getZ());
-                }
-            }
-        }
-
-        lastpos = at.clone();
-        lastloc = M.ms();
+      return true;
     }
 
-    public double getSpeed() {
-        if (!runtimeReady || speed == null) {
-            return 0D;
-        }
+    return false;
+  }
 
-        return speed.getAverage();
+  public boolean isBusy() {
+    return not.isBusy();
+  }
+
+  public PlayerSkillLine getSkillLine(String l) {
+    return getData().getSkillLine(l);
+  }
+
+  private void save() {
+    save(false);
+  }
+
+  private void save(boolean synchronous) {
+    UUID uuid = player.getUniqueId();
+    File playerDataFile = getPlayerDataFile(uuid);
+
+    if (pendingDataDeletion) {
+      queueDelete(uuid, playerDataFile);
+      return;
     }
 
-    public boolean hasAdaptation(String id) {
-        if (id == null || id.isBlank()) {
-            return false;
-        }
-
-        int separator = id.indexOf('-');
-        if (separator <= 0) {
-            return false;
-        }
-
-        String skillLine = id.substring(0, separator);
-        if (skillLine.isBlank()) {
-            return false;
-        }
-
-        PlayerSkillLine line = getData().getSkillLineNullable(skillLine);
-        if (line == null) {
-            return false;
-        }
-
-        PlayerAdaptation adaptation = line.getAdaptation(id);
-        return adaptation != null && adaptation.getLevel() > 0;
+    if (LOAD_FAILURE_GUARD.contains(uuid)) {
+      Adapt.warn("Skipping save for " + uuid + " because player data failed to load earlier. Existing file is preserved.");
+      return;
     }
 
-    public void giveXPToRecents(AdaptPlayer p, double xpGained, int ms) {
-        for (PlayerSkillLine i : p.getData().getSkillLines().v()) {
-            if (M.ms() - i.getLast() < ms) {
-                i.giveXP(not, xpGained);
-            }
+    String json = this.data.toJson(AdaptConfig.get().isUseSql());
+    if (synchronous) {
+      if (AdaptConfig.get().isUseSql()) {
+        if (Adapt.instance.getRedisSync() != null) {
+          Adapt.instance.getRedisSync().publish(uuid, json);
         }
-    }
-
-    public void giveXPToRandom(AdaptPlayer p, double xpGained) {
-        p.getData().getSkillLines().v().getRandom().giveXP(p.getNot(), xpGained);
-    }
-
-    public void boostXPToRandom(AdaptPlayer p, double boost, int ms) {
-        p.getData().getSkillLines().v().getRandom().boost(boost, ms);
-    }
-
-    public void boostXPToRecents(double boost, int ms) {
-        for (PlayerSkillLine i : this.getData().getSkillLines().v()) {
-            if (M.ms() - i.getLast() < ms) {
-                i.boost(boost, ms);
-            }
+        if (Adapt.instance.getSqlManager() != null) {
+          Adapt.instance.getSqlManager().updateData(uuid, json);
         }
+      } else {
+        J.attempt(() -> IO.writeAll(playerDataFile, json));
+      }
+      return;
     }
 
-    public void loggedIn() {
-        lastSeen = M.ms();
-        if (AdaptConfig.get().isLoginBonus()) {
-            long timeGone = M.ms() - getData().getLastLogin();
-            boolean first = getData().getLastLogin() == 0;
-            getData().setLastLogin(M.ms());
-            long boostTime = (long) Math.min(timeGone / 12D, TimeUnit.HOURS.toMillis(1));
-            if (boostTime < TimeUnit.MINUTES.toMillis(5)) {
-                return;
-            }
-            double boostAmount = M.lerp(0.1, 0.25, (double) boostTime / (double) TimeUnit.HOURS.toMillis(1));
-            getData().globalXPMultiplier(boostAmount, (int) boostTime);
-            if (!AdaptConfig.get().isWelcomeMessage())
-                return;
-            getNot().queue(AdvancementNotification.builder()
-                    .title(first ? Localizer.dLocalize("snippets.gui.welcome") : Localizer.dLocalize("snippets.gui.welcome_back"))
-                    .description("+" + C.GREEN + Form.pc(boostAmount, 0) + C.GRAY + " " + Localizer.dLocalize("snippets.gui.xp_bonus_for_time") + " " + C.AQUA + Form.duration(boostTime, 0))
-                    .model(CustomModel.get(Material.DIAMOND, "snippets", "gui", first ? "welcome" : "welcomeback"))
-                    .build());
-        }
+    PlayerDataPersistenceQueue queue = Adapt.instance.getPlayerDataPersistenceQueue();
+    if (queue != null) {
+      queue.queueSave(uuid, json, playerDataFile);
+      return;
     }
 
-    public boolean hasSkill(Skill s) {
-        if (s == null) {
-            return false;
-        }
+    if (AdaptConfig.get().isUseSql()) {
+      if (Adapt.instance.getRedisSync() != null) {
+        Adapt.instance.getRedisSync().publish(uuid, json);
+      }
+      if (Adapt.instance.getSqlManager() != null) {
+        Adapt.instance.getSqlManager().updateData(uuid, json);
+      }
+    } else {
+      J.attempt(() -> IO.writeAll(playerDataFile, json));
+    }
+  }
 
-        PlayerSkillLine line = getData().getSkillLine(s.getName());
-        return line != null && line.getXp() > 1;
+  @Override
+  public void unregister() {
+    super.unregister();
+    save(true);
+  }
+
+  public void delete(UUID uuid) {
+    pendingDataDeletion = true;
+    File local = getPlayerDataFile(uuid);
+    Adapt.warn("Deleting Player Data: " + local.getAbsolutePath());
+    queueDelete(uuid, local);
+
+    Player p = player;
+    if (!p.isOnline()) {
+      return;
     }
 
-    private static File getPlayerDataFile(UUID uuid) {
-        return new File(Adapt.instance.getDataFolder("data", "players"), uuid.toString() + ".json");
+    J.s(() -> p.kickPlayer("Your data has been deleted."), 20);
+  }
+
+  public boolean shouldUnload() {
+    if (player.isOnline()) {
+      lastSeen = M.ms();
+      return false;
     }
 
-    private void queueDelete(UUID uuid, File localFile) {
-        PlayerDataPersistenceQueue queue = Adapt.instance.getPlayerDataPersistenceQueue();
-        if (queue != null) {
-            queue.queueDelete(uuid, localFile);
-            return;
-        }
+    return lastSeen + 60_000 < System.currentTimeMillis();
+  }
 
-        if (localFile.exists() && !localFile.delete()) {
-            Adapt.verbose("Failed to delete local player data file " + localFile.getAbsolutePath());
-        }
-        if (AdaptConfig.get().isUseSql() && Adapt.instance.getSqlManager() != null) {
-            Adapt.instance.getSqlManager().delete(uuid);
-        }
+  @Override
+  public void onTick() {
+    if (!runtimeReady) {
+      return;
     }
+
+    if (updatelatch == null) {
+      updatelatch = new ChronoLatch(1000);
+    }
+    if (savelatch == null) {
+      savelatch = new ChronoLatch(60000);
+    }
+    if (speed == null) {
+      speed = new RollingSequence(7);
+    }
+    if (velocity == null) {
+      velocity = new Vector();
+    }
+
+    if (updatelatch.flip()) {
+      getData().update(this);
+    }
+
+    if (savelatch.flip()) {
+      save();
+    }
+
+    getServer().takeSpatial(this);
+
+    Location at = player.getLocation();
+
+    if (lastpos != null) {
+      if (lastpos.getWorld().equals(at.getWorld())) {
+        if (lastpos.distanceSquared(at) <= 7 * 7) {
+          speed.put(lastpos.distance(at) / ((double) (M.ms() - lastloc) / 50D));
+          velocity = velocity.clone().add(at.clone().subtract(lastpos).toVector()).multiply(0.5);
+          velocity.setX(Math.abs(velocity.getX()) < 0.01 ? 0 : velocity.getX());
+          velocity.setY(Math.abs(velocity.getY()) < 0.01 ? 0 : velocity.getY());
+          velocity.setZ(Math.abs(velocity.getZ()) < 0.01 ? 0 : velocity.getZ());
+        }
+      }
+    }
+
+    lastpos = at.clone();
+    lastloc = M.ms();
+  }
+
+  public double getSpeed() {
+    if (!runtimeReady || speed == null) {
+      return 0D;
+    }
+
+    return speed.getAverage();
+  }
+
+  public boolean hasAdaptation(String id) {
+    if (id == null || id.isBlank()) {
+      return false;
+    }
+
+    int separator = id.indexOf('-');
+    if (separator <= 0) {
+      return false;
+    }
+
+    String skillLine = id.substring(0, separator);
+    if (skillLine.isBlank()) {
+      return false;
+    }
+
+    PlayerSkillLine line = getData().getSkillLineNullable(skillLine);
+    if (line == null) {
+      return false;
+    }
+
+    PlayerAdaptation adaptation = line.getAdaptation(id);
+    return adaptation != null && adaptation.getLevel() > 0;
+  }
+
+  public void giveXPToRecents(AdaptPlayer p, double xpGained, int ms) {
+    for (PlayerSkillLine i : p.getData().getSkillLines().v()) {
+      if (M.ms() - i.getLast() < ms) {
+        i.giveXP(not, xpGained);
+      }
+    }
+  }
+
+  public void giveXPToRandom(AdaptPlayer p, double xpGained) {
+    p.getData().getSkillLines().v().getRandom().giveXP(p.getNot(), xpGained);
+  }
+
+  public void boostXPToRandom(AdaptPlayer p, double boost, int ms) {
+    p.getData().getSkillLines().v().getRandom().boost(boost, ms);
+  }
+
+  public void boostXPToRecents(double boost, int ms) {
+    for (PlayerSkillLine i : this.getData().getSkillLines().v()) {
+      if (M.ms() - i.getLast() < ms) {
+        i.boost(boost, ms);
+      }
+    }
+  }
+
+  public void loggedIn() {
+    lastSeen = M.ms();
+    if (AdaptConfig.get().isLoginBonus()) {
+      long timeGone = M.ms() - getData().getLastLogin();
+      boolean first = getData().getLastLogin() == 0;
+      getData().setLastLogin(M.ms());
+      long boostTime = (long) Math.min(timeGone / 12D, TimeUnit.HOURS.toMillis(1));
+      if (boostTime < TimeUnit.MINUTES.toMillis(5)) {
+        return;
+      }
+      double boostAmount = M.lerp(0.1, 0.25, (double) boostTime / (double) TimeUnit.HOURS.toMillis(1));
+      getData().globalXPMultiplier(boostAmount, (int) boostTime);
+      if (!AdaptConfig.get().isWelcomeMessage())
+        return;
+      getNot().queue(AdvancementNotification.builder()
+          .title(first ? Localizer.dLocalize("snippets.gui.welcome") : Localizer.dLocalize("snippets.gui.welcome_back"))
+          .description("+" + C.GREEN + Form.pc(boostAmount, 0) + C.GRAY + " " + Localizer.dLocalize("snippets.gui.xp_bonus_for_time") + " " + C.AQUA + Form.duration(boostTime, 0))
+          .model(CustomModel.get(Material.DIAMOND, "snippets", "gui", first ? "welcome" : "welcomeback"))
+          .build());
+    }
+  }
+
+  public boolean hasSkill(Skill s) {
+    if (s == null) {
+      return false;
+    }
+
+    PlayerSkillLine line = getData().getSkillLine(s.getName());
+    return line != null && line.getXp() > 1;
+  }
+
+  private void queueDelete(UUID uuid, File localFile) {
+    PlayerDataPersistenceQueue queue = Adapt.instance.getPlayerDataPersistenceQueue();
+    if (queue != null) {
+      queue.queueDelete(uuid, localFile);
+      return;
+    }
+
+    if (localFile.exists() && !localFile.delete()) {
+      Adapt.verbose("Failed to delete local player data file " + localFile.getAbsolutePath());
+    }
+    if (AdaptConfig.get().isUseSql() && Adapt.instance.getSqlManager() != null) {
+      Adapt.instance.getSqlManager().delete(uuid);
+    }
+  }
 }

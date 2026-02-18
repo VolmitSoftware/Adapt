@@ -25,12 +25,12 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
+import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
 import art.arcane.volmlib.util.math.RNG;
 import lombok.NoArgsConstructor;
@@ -45,156 +45,156 @@ import org.bukkit.util.Vector;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Config> {
-    public HerbalismGrowthAura() {
-        super("herbalism-growth-aura");
-        registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("herbalism.growth_aura.description"));
-        setDisplayName(Localizer.dLocalize("herbalism.growth_aura.name"));
-        setIcon(Material.BONE_MEAL);
-        setBaseCost(getConfig().baseCost);
-        setMaxLevel(getConfig().maxLevel);
-        setInterval(850);
-        setInitialCost(getConfig().initialCost);
-        setCostFactor(getConfig().costFactor);
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.WHEAT)
-                .key("challenge_herbalism_growth_1k")
-                .title(Localizer.dLocalize("advancement.challenge_herbalism_growth_1k.title"))
-                .description(Localizer.dLocalize("advancement.challenge_herbalism_growth_1k.description"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .child(AdaptAdvancement.builder()
-                        .icon(Material.HAY_BLOCK)
-                        .key("challenge_herbalism_growth_25k")
-                        .title(Localizer.dLocalize("advancement.challenge_herbalism_growth_25k.title"))
-                        .description(Localizer.dLocalize("advancement.challenge_herbalism_growth_25k.description"))
-                        .frame(AdaptAdvancementFrame.CHALLENGE)
-                        .visibility(AdvancementVisibility.PARENT_GRANTED)
-                        .build())
-                .build());
-        registerMilestone("challenge_herbalism_growth_1k", "herbalism.growth-aura.blocks-grown", 1000, 300);
-        registerMilestone("challenge_herbalism_growth_25k", "herbalism.growth-aura.blocks-grown", 25000, 1000);
-    }
+  public HerbalismGrowthAura() {
+    super("herbalism-growth-aura");
+    registerConfiguration(Config.class);
+    setDescription(Localizer.dLocalize("herbalism.growth_aura.description"));
+    setDisplayName(Localizer.dLocalize("herbalism.growth_aura.name"));
+    setIcon(Material.BONE_MEAL);
+    setBaseCost(getConfig().baseCost);
+    setMaxLevel(getConfig().maxLevel);
+    setInterval(850);
+    setInitialCost(getConfig().initialCost);
+    setCostFactor(getConfig().costFactor);
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.WHEAT)
+        .key("challenge_herbalism_growth_1k")
+        .title(Localizer.dLocalize("advancement.challenge_herbalism_growth_1k.title"))
+        .description(Localizer.dLocalize("advancement.challenge_herbalism_growth_1k.description"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .child(AdaptAdvancement.builder()
+            .icon(Material.HAY_BLOCK)
+            .key("challenge_herbalism_growth_25k")
+            .title(Localizer.dLocalize("advancement.challenge_herbalism_growth_25k.title"))
+            .description(Localizer.dLocalize("advancement.challenge_herbalism_growth_25k.description"))
+            .frame(AdaptAdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .build())
+        .build());
+    registerMilestone("challenge_herbalism_growth_1k", "herbalism.growth-aura.blocks-grown", 1000, 300);
+    registerMilestone("challenge_herbalism_growth_25k", "herbalism.growth-aura.blocks-grown", 25000, 1000);
+  }
 
-    @Override
-    public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.f(getRadius(getLevelPercent(level)), 0) + C.GRAY + " " + Localizer.dLocalize("herbalism.growth_aura.lore1"));
-        v.addLore(C.GREEN + "+ " + Form.pc(getStrength(level), 0) + C.GRAY + " " + Localizer.dLocalize("herbalism.growth_aura.lore2"));
-        v.addLore(C.YELLOW + "+ " + Form.f(getFoodCost(getLevelPercent(level)), 2) + C.GRAY + " " + Localizer.dLocalize("herbalism.growth_aura.lore3"));
-    }
+  @Override
+  public void addStats(int level, Element v) {
+    v.addLore(C.GREEN + "+ " + Form.f(getRadius(getLevelPercent(level)), 0) + C.GRAY + " " + Localizer.dLocalize("herbalism.growth_aura.lore1"));
+    v.addLore(C.GREEN + "+ " + Form.pc(getStrength(level), 0) + C.GRAY + " " + Localizer.dLocalize("herbalism.growth_aura.lore2"));
+    v.addLore(C.YELLOW + "+ " + Form.f(getFoodCost(getLevelPercent(level)), 2) + C.GRAY + " " + Localizer.dLocalize("herbalism.growth_aura.lore3"));
+  }
 
-    private double getRadius(double factor) {
-        return factor * getConfig().radiusFactor;
-    }
+  private double getRadius(double factor) {
+    return factor * getConfig().radiusFactor;
+  }
 
-    private double getStrength(int level) {
-        return level * getConfig().strengthFactor;
-    }
+  private double getStrength(int level) {
+    return level * getConfig().strengthFactor;
+  }
 
-    private double getFoodCost(double factor) {
-        return M.lerp(1D - factor, getConfig().maxFoodCost, getConfig().minFoodCost);
-    }
-
-
-    @Override
-    public void onTick() {
-        for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
-            Player p = adaptPlayer.getPlayer();
-            try {
-                if (hasActiveAdaptation(p)) {
-                    double rad = getRadius(getLevelPercent(p));
-                    double strength = getStrength(getLevel(p));
-                    ThreadLocalRandom random = ThreadLocalRandom.current();
-                    double angle = Math.toRadians(random.nextDouble(360D));
-                    double foodCost = getFoodCost(getLevelPercent(p));
+  private double getFoodCost(double factor) {
+    return M.lerp(1D - factor, getConfig().maxFoodCost, getConfig().minFoodCost);
+  }
 
 
-                    for (int i = 0; i < Math.min(Math.min(rad * rad, 256), 3); i++) {
-                        Location m = p.getLocation().clone().add(new Vector(Math.sin(angle), RNG.r.i(-1, 1), Math.cos(angle)).multiply(random.nextDouble(rad)));
-                        Block a = m.getBlock();
-                        if (getConfig().surfaceOnly) {
-                            int max = a.getWorld().getHighestBlockYAt(m);
-
-                            if (max + 1 != a.getY())
-                                continue;
-                        }
-
-                        SoundPlayer spw = SoundPlayer.of(a.getWorld());
-                        if (a.getBlockData() instanceof Ageable) {
-                            Ageable ab = (Ageable) a.getBlockData();
-                            int toGrowLeft = ab.getMaximumAge() - ab.getAge();
-
-                            if (toGrowLeft > 0) {
-                                int add = (int) Math.max(1, Math.min(strength, toGrowLeft));
-                                AdaptPlayer player = getPlayer(p);
-                                if (ab.getMaximumAge() > ab.getAge() && player.canConsumeFood(foodCost, 10)) {
-                                    while (add-- > 0) {
-                                        J.runEntity(p, () -> {
-                                            if (!p.isOnline()
-                                                    || !player.consumeFood(foodCost, 10)
-                                                    || !(a.getBlockData() instanceof Ageable aab)
-                                                    || aab.getAge() == aab.getMaximumAge())
-                                                return;
-
-                                            aab.setAge(aab.getAge() + 1);
-                                            a.setBlockData(aab, true);
-                                            getPlayer(p).getData().addStat("herbalism.growth-aura.blocks-grown", 1);
-                                            spw.play(a.getLocation(), Sound.BLOCK_CHORUS_FLOWER_DEATH, 0.25f, RNG.r.f(0.3f, 0.7f));
-                                            if (areParticlesEnabled()) {
-                                                p.spawnParticle(Particles.VILLAGER_HAPPY, a.getLocation().clone().add(0.5, 0.5, 0.5), 3, 0.3, 0.3, 0.3, 0.9);
-                                            }
-//                                          xp(p, 1); // JESUS THIS IS FUCKING BUSTED
-                                        }, RNG.r.i(30, 60));
-                                    }
-                                }
-                            }
+  @Override
+  public void onTick() {
+    for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+      Player p = adaptPlayer.getPlayer();
+      try {
+        if (hasActiveAdaptation(p)) {
+          double rad = getRadius(getLevelPercent(p));
+          double strength = getStrength(getLevel(p));
+          ThreadLocalRandom random = ThreadLocalRandom.current();
+          double angle = Math.toRadians(random.nextDouble(360D));
+          double foodCost = getFoodCost(getLevelPercent(p));
 
 
-                        }
-                    }
-                }
-            } catch (Throwable e) {
-                e.printStackTrace();
+          for (int i = 0; i < Math.min(Math.min(rad * rad, 256), 3); i++) {
+            Location m = p.getLocation().clone().add(new Vector(Math.sin(angle), RNG.r.i(-1, 1), Math.cos(angle)).multiply(random.nextDouble(rad)));
+            Block a = m.getBlock();
+            if (getConfig().surfaceOnly) {
+              int max = a.getWorld().getHighestBlockYAt(m);
+
+              if (max + 1 != a.getY())
+                continue;
             }
+
+            SoundPlayer spw = SoundPlayer.of(a.getWorld());
+            if (a.getBlockData() instanceof Ageable) {
+              Ageable ab = (Ageable) a.getBlockData();
+              int toGrowLeft = ab.getMaximumAge() - ab.getAge();
+
+              if (toGrowLeft > 0) {
+                int add = (int) Math.max(1, Math.min(strength, toGrowLeft));
+                AdaptPlayer player = getPlayer(p);
+                if (ab.getMaximumAge() > ab.getAge() && player.canConsumeFood(foodCost, 10)) {
+                  while (add-- > 0) {
+                    J.runEntity(p, () -> {
+                      if (!p.isOnline()
+                          || !player.consumeFood(foodCost, 10)
+                          || !(a.getBlockData() instanceof Ageable aab)
+                          || aab.getAge() == aab.getMaximumAge())
+                        return;
+
+                      aab.setAge(aab.getAge() + 1);
+                      a.setBlockData(aab, true);
+                      getPlayer(p).getData().addStat("herbalism.growth-aura.blocks-grown", 1);
+                      spw.play(a.getLocation(), Sound.BLOCK_CHORUS_FLOWER_DEATH, 0.25f, RNG.r.f(0.3f, 0.7f));
+                      if (areParticlesEnabled()) {
+                        p.spawnParticle(Particles.VILLAGER_HAPPY, a.getLocation().clone().add(0.5, 0.5, 0.5), 3, 0.3, 0.3, 0.3, 0.9);
+                      }
+//                                          xp(p, 1); // JESUS THIS IS FUCKING BUSTED
+                    }, RNG.r.i(30, 60));
+                  }
+                }
+              }
+
+
+            }
+          }
         }
+      } catch (Throwable e) {
+        e.printStackTrace();
+      }
     }
+  }
 
-    @Override
-    public boolean isEnabled() {
-        return getConfig().enabled;
-    }
+  @Override
+  public boolean isEnabled() {
+    return getConfig().enabled;
+  }
 
-    @Override
-    public boolean isPermanent() {
-        return getConfig().permanent;
-    }
+  @Override
+  public boolean isPermanent() {
+    return getConfig().permanent;
+  }
 
-    @NoArgsConstructor
-    @ConfigDescription("Grow nature around you in an aura at the cost of hunger.")
-    protected static class Config {
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-        boolean permanent = false;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-        boolean enabled = true;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Herbalism Growth Aura adaptation.", impact = "True enables this behavior and false disables it.")
-        boolean showParticles = true;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Surface Only for the Herbalism Growth Aura adaptation.", impact = "True enables this behavior and false disables it.")
-        boolean surfaceOnly = true;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-        int baseCost = 8;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-        int maxLevel = 7;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-        int initialCost = 12;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-        double costFactor = 0.325;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Min Food Cost for the Herbalism Growth Aura adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double minFoodCost = 0.05;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Food Cost for the Herbalism Growth Aura adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double maxFoodCost = 0.4;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Radius Factor for the Herbalism Growth Aura adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double radiusFactor = 18;
-        @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Strength Factor for the Herbalism Growth Aura adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double strengthFactor = 0.75;
-    }
+  @NoArgsConstructor
+  @ConfigDescription("Grow nature around you in an aura at the cost of hunger.")
+  protected static class Config {
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
+    boolean permanent = false;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
+    boolean enabled = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Herbalism Growth Aura adaptation.", impact = "True enables this behavior and false disables it.")
+    boolean showParticles = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Surface Only for the Herbalism Growth Aura adaptation.", impact = "True enables this behavior and false disables it.")
+    boolean surfaceOnly = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
+    int baseCost = 8;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
+    int maxLevel = 7;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
+    int initialCost = 12;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
+    double costFactor = 0.325;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Min Food Cost for the Herbalism Growth Aura adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double minFoodCost = 0.05;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Food Cost for the Herbalism Growth Aura adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double maxFoodCost = 0.4;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Radius Factor for the Herbalism Growth Aura adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double radiusFactor = 18;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Strength Factor for the Herbalism Growth Aura adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double strengthFactor = 0.75;
+  }
 }

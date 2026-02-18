@@ -33,51 +33,49 @@ import java.util.Objects;
 public class GriefPreventionProtector implements Protector {
 
 
-    @Override
-    public boolean canBlockBreak(Player player, Location location, Adaptation<?> adaptation) {
-        return canEditClaim(player, location);
+  @Override
+  public boolean canBlockBreak(Player player, Location location, Adaptation<?> adaptation) {
+    return canEditClaim(player, location);
+  }
+
+  @Override
+  public boolean canBlockPlace(Player player, Location location, Adaptation<?> adaptation) {
+    return canEditClaim(player, location);
+  }
+
+  @Override
+  public String getName() {
+    return "GriefPrevention";
+  }
+
+  @Override
+  public boolean isEnabledByDefault() {
+    return AdaptConfig.get().getProtectorSupport().isGriefprevention();
+  }
+
+  @Override
+  public void unregister() {
+    Protector.super.unregister();
+  }
+
+
+  private boolean canEditClaim(Player player, Location location) {
+    Claim claim = GriefPrevention.instance.dataStore.getClaimAt(location, true, null);
+    PlayerData playerData = GriefPrevention.instance.dataStore.getPlayerData(player.getUniqueId());
+
+    if (claim == null) {
+      return true;
+    }
+    //If doesn't check is adminclaim getting ownerid return null
+    if (!claim.isAdminClaim() && Objects.equals(claim.getOwnerID(), player.getUniqueId())) {
+      return true;
+    } else if (claim.getPermission(player.getUniqueId().toString()) == ClaimPermission.Build) {
+      return true;
     }
 
-    @Override
-    public boolean canBlockPlace(Player player, Location location, Adaptation<?> adaptation) {
-        return canEditClaim(player, location);
-    }
+    return playerData.ignoreClaims || claim.isAdminClaim() && player.hasPermission("griefprevention.adminclaims");
 
-    @Override
-    public String getName() {
-        return "GriefPrevention";
-    }
-
-    @Override
-    public boolean isEnabledByDefault() {
-        return AdaptConfig.get().getProtectorSupport().isGriefprevention();
-    }
-
-    @Override
-    public void unregister() {
-        Protector.super.unregister();
-    }
-
-
-
-    private boolean canEditClaim(Player player, Location location) {
-        Claim claim = GriefPrevention.instance.dataStore.getClaimAt(location, true, null);
-        PlayerData playerData = GriefPrevention.instance.dataStore.getPlayerData(player.getUniqueId());
-
-        if (claim == null) {
-            return true;
-        }
-        //If doesn't check is adminclaim getting ownerid return null
-        if (!claim.isAdminClaim() && Objects.equals(claim.getOwnerID(), player.getUniqueId())) {
-            return true;
-        }
-        else if (claim.getPermission(player.getUniqueId().toString()) == ClaimPermission.Build) {
-            return true;
-        }
-
-        return playerData.ignoreClaims || claim.isAdminClaim() && player.hasPermission("griefprevention.adminclaims");
-
-    }
+  }
 
 
 }

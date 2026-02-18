@@ -25,27 +25,27 @@ import org.bukkit.ChatColor;
 
 public class DirtyString {
 
-    public static String write(Object data) {
-        return write(Json.toJson(data, false));
-    }
+  public static String write(Object data) {
+    return write(Json.toJson(data, false));
+  }
 
-    public static <T> T fromJson(String data, Class<T> t) {
-        return Json.fromJson(read(data), t);
-    }
+  public static <T> T fromJson(String data, Class<T> t) {
+    return Json.fromJson(read(data), t);
+  }
 
-    public static boolean has(String data) {
-        if (!HiddenStringUtils.hasHiddenString(data)) {
-            Adapt.info("Not has in " + data.replaceAll("\\Q" + ChatColor.COLOR_CHAR + "\\E", "&"));
-        }
-        return HiddenStringUtils.hasHiddenString(data);
+  public static boolean has(String data) {
+    if (!HiddenStringUtils.hasHiddenString(data)) {
+      Adapt.info("Not has in " + data.replaceAll("\\Q" + ChatColor.COLOR_CHAR + "\\E", "&"));
     }
+    return HiddenStringUtils.hasHiddenString(data);
+  }
 
-    public static String write(String data) {
-        return HiddenStringUtils.encodeString(data);
-    }
+  public static String write(String data) {
+    return HiddenStringUtils.encodeString(data);
+  }
 
-    public static String read(String data) {
-        return HiddenStringUtils.extractHiddenString(data);
-    }
+  public static String read(String data) {
+    return HiddenStringUtils.extractHiddenString(data);
+  }
 }
 

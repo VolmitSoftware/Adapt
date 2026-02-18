@@ -19,9 +19,9 @@
 package art.arcane.adapt.util.common.math;
 
 public enum InterpolationType {
-    LINEAR,
-    PARAMETRIC_2,
-    PARAMETRIC_4,
-    BEZIER,
-    NONE
+  LINEAR,
+  PARAMETRIC_2,
+  PARAMETRIC_4,
+  BEZIER,
+  NONE
 }

@@ -22,10 +22,10 @@ import lombok.Value;
 
 @Value
 public class CarveResult {
-    private final int surface;
-    private final int ceiling;
+  private final int surface;
+  private final int ceiling;
 
-    public int getHeight() {
-        return ceiling - surface;
-    }
+  public int getHeight() {
+    return ceiling - surface;
+  }
 }

@@ -26,5 +26,5 @@ import java.util.UUID;
 @AllArgsConstructor
 @Data
 public class BrewingStandOwner {
-    private UUID owner;
+  private UUID owner;
 }
