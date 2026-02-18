@@ -18,66 +18,200 @@
 
 package art.arcane.adapt.api.telemetry;
 
-import java.util.ArrayDeque;
+import java.util.concurrent.atomic.AtomicLongArray;
 
 public final class AbilityCheckTelemetry {
-  private static final long WINDOW_MS = 60_000L;
-  private static final Object LOCK = new Object();
-  private static final ArrayDeque<Long> checkOps = new ArrayDeque<>();
-  private static final ArrayDeque<Long> successfulOps = new ArrayDeque<>();
+  private static final int WINDOW_SECONDS = 60;
+  private static final AtomicLongArray checkOps = new AtomicLongArray(WINDOW_SECONDS);
+  private static final AtomicLongArray successfulOps = new AtomicLongArray(WINDOW_SECONDS);
+  private static final AtomicLongArray cacheHits = new AtomicLongArray(WINDOW_SECONDS);
+  private static final AtomicLongArray cacheMisses = new AtomicLongArray(WINDOW_SECONDS);
+  private static final AtomicLongArray timingMicros = new AtomicLongArray(WINDOW_SECONDS);
+  private static final AtomicLongArray timingSamples = new AtomicLongArray(WINDOW_SECONDS);
 
   private AbilityCheckTelemetry() {
   }
 
   public static void recordCheckAttempt() {
     long now = System.currentTimeMillis();
-    synchronized (LOCK) {
-      checkOps.addLast(now);
-      trim(checkOps, now);
-      trim(successfulOps, now);
-    }
+    increment(checkOps, now, 1);
   }
 
   public static void recordSuccessfulCheck() {
     long now = System.currentTimeMillis();
-    synchronized (LOCK) {
-      successfulOps.addLast(now);
-      trim(checkOps, now);
-      trim(successfulOps, now);
+    increment(successfulOps, now, 1);
+  }
+
+  public static void recordCacheHit() {
+    long now = System.currentTimeMillis();
+    increment(cacheHits, now, 1);
+  }
+
+  public static void recordCacheMiss() {
+    long now = System.currentTimeMillis();
+    increment(cacheMisses, now, 1);
+  }
+
+  public static void recordCheckTimingNanos(long nanos) {
+    if (nanos <= 0L) {
+      return;
     }
+
+    long now = System.currentTimeMillis();
+    long microsLong = Math.min(Integer.MAX_VALUE, Math.max(1L, nanos / 1_000L));
+    increment(timingMicros, now, (int) microsLong);
+    increment(timingSamples, now, 1);
   }
 
   public static long checksPerMinute(long now) {
-    synchronized (LOCK) {
-      trim(checkOps, now);
-      return checkOps.size();
-    }
+    return sumWindow(checkOps, now);
   }
 
   public static long successfulChecksPerMinute(long now) {
-    synchronized (LOCK) {
-      trim(successfulOps, now);
-      return successfulOps.size();
+    return sumWindow(successfulOps, now);
+  }
+
+  public static long checksPerSecond(long now) {
+    return currentSecondValue(checkOps, now);
+  }
+
+  public static long successfulChecksPerSecond(long now) {
+    return currentSecondValue(successfulOps, now);
+  }
+
+  public static long cacheHitsPerMinute(long now) {
+    return sumWindow(cacheHits, now);
+  }
+
+  public static long cacheMissesPerMinute(long now) {
+    return sumWindow(cacheMisses, now);
+  }
+
+  public static double cacheHitRatio(long now) {
+    long hits = cacheHitsPerMinute(now);
+    long misses = cacheMissesPerMinute(now);
+    long total = hits + misses;
+    if (total <= 0L) {
+      return 0D;
     }
+
+    return hits / (double) total;
+  }
+
+  public static double averageCheckMicros(long now) {
+    long samples = sumWindow(timingSamples, now);
+    if (samples <= 0L) {
+      return 0D;
+    }
+
+    long micros = sumWindow(timingMicros, now);
+    return micros / (double) samples;
+  }
+
+  public static double estimatedTimingMillisPerSecond(long now) {
+    double checksPerSecond = checksPerSecond(now);
+    if (checksPerSecond <= 0D) {
+      return 0D;
+    }
+
+    double avgMicros = averageCheckMicros(now);
+    if (avgMicros <= 0D) {
+      return 0D;
+    }
+
+    return (checksPerSecond * avgMicros) / 1_000D;
+  }
+
+  public static double timingBudgetPercent(long now) {
+    double millisPerSecond = estimatedTimingMillisPerSecond(now);
+    if (millisPerSecond <= 0D) {
+      return 0D;
+    }
+
+    double percent = (millisPerSecond / 50D) * 100D;
+    if (!Double.isFinite(percent)) {
+      return 0D;
+    }
+    return Math.max(0D, percent);
   }
 
   public static double checksPerTick(long now) {
-    synchronized (LOCK) {
-      trim(checkOps, now);
-      return checkOps.size() / 1200D;
-    }
+    return checksPerMinute(now) / 1200D;
   }
 
   public static void clear() {
-    synchronized (LOCK) {
-      checkOps.clear();
-      successfulOps.clear();
+    for (int i = 0; i < WINDOW_SECONDS; i++) {
+      checkOps.set(i, 0L);
+      successfulOps.set(i, 0L);
+      cacheHits.set(i, 0L);
+      cacheMisses.set(i, 0L);
+      timingMicros.set(i, 0L);
+      timingSamples.set(i, 0L);
     }
   }
 
-  private static void trim(ArrayDeque<Long> samples, long now) {
-    while (!samples.isEmpty() && (now - samples.peekFirst()) > WINDOW_MS) {
-      samples.removeFirst();
+  private static void increment(AtomicLongArray buckets, long now, int delta) {
+    if (delta <= 0) {
+      return;
     }
+
+    long epochSecondLong = now / 1_000L;
+    int epochSecond = (int) epochSecondLong;
+    int slot = (int) (epochSecondLong % WINDOW_SECONDS);
+    int safeDelta = Math.max(0, delta);
+    while (true) {
+      long packed = buckets.get(slot);
+      int slotSecond = unpackSecond(packed);
+      long slotValue = Integer.toUnsignedLong(unpackValue(packed));
+      long nextValueLong = slotSecond == epochSecond
+          ? Math.min(Integer.MAX_VALUE, slotValue + safeDelta)
+          : Math.min(Integer.MAX_VALUE, safeDelta);
+      long next = pack(epochSecond, (int) nextValueLong);
+      if (buckets.compareAndSet(slot, packed, next)) {
+        return;
+      }
+    }
+  }
+
+  private static long sumWindow(AtomicLongArray buckets, long now) {
+    long epochSecondLong = now / 1_000L;
+    int epochSecond = (int) epochSecondLong;
+    long total = 0L;
+    for (int i = 0; i < WINDOW_SECONDS; i++) {
+      long packed = buckets.get(i);
+      int slotSecond = unpackSecond(packed);
+      long age = Integer.toUnsignedLong(epochSecond - slotSecond);
+      if (age >= WINDOW_SECONDS) {
+        continue;
+      }
+
+      total += Integer.toUnsignedLong(unpackValue(packed));
+    }
+    return total;
+  }
+
+  private static long currentSecondValue(AtomicLongArray buckets, long now) {
+    long epochSecondLong = now / 1_000L;
+    int epochSecond = (int) epochSecondLong;
+    int slot = (int) (epochSecondLong % WINDOW_SECONDS);
+    long packed = buckets.get(slot);
+    if (unpackSecond(packed) != epochSecond) {
+      return 0L;
+    }
+    return Integer.toUnsignedLong(unpackValue(packed));
+  }
+
+  private static long pack(int epochSecond, int value) {
+    long epochPart = Integer.toUnsignedLong(epochSecond) << 32;
+    long valuePart = Integer.toUnsignedLong(value);
+    return epochPart | valuePart;
+  }
+
+  private static int unpackSecond(long packed) {
+    return (int) (packed >>> 32);
+  }
+
+  private static int unpackValue(long packed) {
+    return (int) packed;
   }
 }

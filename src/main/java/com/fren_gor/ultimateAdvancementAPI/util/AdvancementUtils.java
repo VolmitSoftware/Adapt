@@ -34,11 +34,13 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 public class AdvancementUtils {
 
@@ -276,8 +278,23 @@ public class AdvancementUtils {
   public static void runSync(@NotNull Plugin plugin, long delay, @NotNull Runnable runnable) {
     Preconditions.checkNotNull(plugin, "Plugin is null.");
     Preconditions.checkNotNull(runnable, "Runnable is null.");
+    if (!plugin.isEnabled()) {
+      return;
+    }
+
     int safeDelay = sanitizeDelay(delay);
     if (scheduleFoliaSync(plugin, runnable, safeDelay)) {
+      return;
+    }
+
+    if (hasFoliaScheduler()) {
+      if (safeDelay <= 0 && FoliaScheduler.isPrimaryThread()) {
+        runnable.run();
+        return;
+      }
+
+      plugin.getLogger().warning("Failed to schedule advancement sync task on Folia for plugin " + plugin.getName()
+          + " (" + safeDelay + "t).");
       return;
     }
 
@@ -302,15 +319,290 @@ public class AdvancementUtils {
 
   private static boolean scheduleFoliaSync(@NotNull Plugin plugin, @NotNull Runnable runnable, int safeDelay) {
     Player player = extractPlayer(runnable);
-    if (player != null && player.isOnline() && FoliaScheduler.runEntity(plugin, player, runnable, safeDelay)) {
+    if (player != null && player.isOnline()) {
+      if (FoliaScheduler.runEntity(plugin, player, runnable, safeDelay)) {
+        return true;
+      }
+
+      if (scheduleEntityReflective(plugin, player, runnable, safeDelay)) {
+        return true;
+      }
+    }
+
+    if (FoliaScheduler.runGlobal(plugin, runnable, safeDelay)) {
       return true;
     }
 
-    return FoliaScheduler.runGlobal(plugin, runnable, safeDelay);
+    return scheduleGlobalReflective(plugin, runnable, safeDelay);
   }
 
   private static boolean hasFoliaScheduler() {
     return FoliaScheduler.isFolia(Bukkit.getServer());
+  }
+
+  private static boolean scheduleEntityReflective(@NotNull Plugin plugin, @NotNull Player player, @NotNull Runnable runnable, int safeDelay) {
+    Object scheduler = invokeNoThrow(player, "getScheduler", new Class<?>[0]);
+    if (scheduler == null) {
+      return false;
+    }
+
+    Runnable retired = () -> {
+    };
+    Consumer<Object> consumer = task -> runnable.run();
+    long safeLongDelay = Math.max(0L, safeDelay);
+    if (safeLongDelay <= 0L) {
+      Object immediateExecuted = invokeNoThrow(
+          scheduler,
+          "execute",
+          new Class<?>[]{Plugin.class, Runnable.class, Runnable.class, long.class},
+          plugin,
+          runnable,
+          retired,
+          0L
+      );
+      if (immediateExecuted instanceof Boolean done) {
+        return done;
+      }
+
+      if (invokeVoidNoThrow(
+          scheduler,
+          "run",
+          new Class<?>[]{Plugin.class, Consumer.class, Runnable.class},
+          plugin,
+          consumer,
+          retired
+      )) {
+        return true;
+      }
+
+      if (invokeVoidNoThrow(
+          scheduler,
+          "run",
+          new Class<?>[]{Plugin.class, Runnable.class, Runnable.class},
+          plugin,
+          runnable,
+          retired
+      )) {
+        return true;
+      }
+
+      if (invokeVoidNoThrow(
+          scheduler,
+          "runDelayed",
+          new Class<?>[]{Plugin.class, Consumer.class, Runnable.class, long.class},
+          plugin,
+          consumer,
+          retired,
+          1L
+      )) {
+        return true;
+      }
+
+      return invokeVoidNoThrow(
+          scheduler,
+          "runDelayed",
+          new Class<?>[]{Plugin.class, Runnable.class, Runnable.class, long.class},
+          plugin,
+          runnable,
+          retired,
+          1L
+      );
+    }
+
+    if (invokeVoidNoThrow(
+        scheduler,
+        "runDelayed",
+        new Class<?>[]{Plugin.class, Consumer.class, Runnable.class, long.class},
+        plugin,
+        consumer,
+        retired,
+        safeLongDelay
+    )) {
+      return true;
+    }
+
+    if (invokeVoidNoThrow(
+        scheduler,
+        "runDelayed",
+        new Class<?>[]{Plugin.class, Consumer.class, Runnable.class, int.class},
+        plugin,
+        consumer,
+        retired,
+        safeDelay
+    )) {
+      return true;
+    }
+
+    if (invokeVoidNoThrow(
+        scheduler,
+        "runDelayed",
+        new Class<?>[]{Plugin.class, Runnable.class, Runnable.class, long.class},
+        plugin,
+        runnable,
+        retired,
+        safeLongDelay
+    )) {
+      return true;
+    }
+
+    if (invokeVoidNoThrow(
+        scheduler,
+        "runDelayed",
+        new Class<?>[]{Plugin.class, Runnable.class, Runnable.class, int.class},
+        plugin,
+        runnable,
+        retired,
+        safeDelay
+    )) {
+      return true;
+    }
+
+    Object delayedExecuted = invokeNoThrow(
+        scheduler,
+        "execute",
+        new Class<?>[]{Plugin.class, Runnable.class, Runnable.class, long.class},
+        plugin,
+        runnable,
+        retired,
+        safeLongDelay
+    );
+    return delayedExecuted instanceof Boolean done && done;
+  }
+
+  private static boolean scheduleGlobalReflective(@NotNull Plugin plugin, @NotNull Runnable runnable, int safeDelay) {
+    Object scheduler = getGlobalScheduler(plugin);
+    if (scheduler == null) {
+      return false;
+    }
+
+    Consumer<Object> consumer = task -> runnable.run();
+    long safeLongDelay = Math.max(0L, safeDelay);
+    if (safeLongDelay <= 0L) {
+      if (invokeVoidNoThrow(
+          scheduler,
+          "execute",
+          new Class<?>[]{Plugin.class, Runnable.class},
+          plugin,
+          runnable
+      )) {
+        return true;
+      }
+
+      if (invokeVoidNoThrow(
+          scheduler,
+          "run",
+          new Class<?>[]{Plugin.class, Consumer.class},
+          plugin,
+          consumer
+      )) {
+        return true;
+      }
+
+      return invokeVoidNoThrow(
+          scheduler,
+          "run",
+          new Class<?>[]{Plugin.class, Runnable.class},
+          plugin,
+          runnable
+      );
+    }
+
+    if (invokeVoidNoThrow(
+        scheduler,
+        "runDelayed",
+        new Class<?>[]{Plugin.class, Consumer.class, long.class},
+        plugin,
+        consumer,
+        safeLongDelay
+    )) {
+      return true;
+    }
+
+    if (invokeVoidNoThrow(
+        scheduler,
+        "runDelayed",
+        new Class<?>[]{Plugin.class, Consumer.class, int.class},
+        plugin,
+        consumer,
+        safeDelay
+    )) {
+      return true;
+    }
+
+    if (invokeVoidNoThrow(
+        scheduler,
+        "runDelayed",
+        new Class<?>[]{Plugin.class, Runnable.class, long.class},
+        plugin,
+        runnable,
+        safeLongDelay
+    )) {
+      return true;
+    }
+
+    return invokeVoidNoThrow(
+        scheduler,
+        "runDelayed",
+        new Class<?>[]{Plugin.class, Runnable.class, int.class},
+        plugin,
+        runnable,
+        safeDelay
+    );
+  }
+
+  @Nullable
+  private static Object getGlobalScheduler(@NotNull Plugin plugin) {
+    Object serverScheduler = invokeNoThrow(plugin.getServer(), "getGlobalRegionScheduler", new Class<?>[0]);
+    if (serverScheduler != null) {
+      return serverScheduler;
+    }
+
+    return invokeStaticNoThrow(Bukkit.class, "getGlobalRegionScheduler", new Class<?>[0]);
+  }
+
+  @Nullable
+  private static Object invokeStaticNoThrow(
+      @NotNull Class<?> owner,
+      @NotNull String methodName,
+      @NotNull Class<?>[] parameterTypes,
+      Object... args
+  ) {
+    try {
+      Method method = owner.getMethod(methodName, parameterTypes);
+      return method.invoke(null, args);
+    } catch (Throwable ignored) {
+      return null;
+    }
+  }
+
+  @Nullable
+  private static Object invokeNoThrow(
+      @NotNull Object target,
+      @NotNull String methodName,
+      @NotNull Class<?>[] parameterTypes,
+      Object... args
+  ) {
+    try {
+      Method method = target.getClass().getMethod(methodName, parameterTypes);
+      return method.invoke(target, args);
+    } catch (Throwable ignored) {
+      return null;
+    }
+  }
+
+  private static boolean invokeVoidNoThrow(
+      @NotNull Object target,
+      @NotNull String methodName,
+      @NotNull Class<?>[] parameterTypes,
+      Object... args
+  ) {
+    try {
+      Method method = target.getClass().getMethod(methodName, parameterTypes);
+      method.invoke(target, args);
+      return true;
+    } catch (Throwable ignored) {
+      return false;
+    }
   }
 
   @Nullable

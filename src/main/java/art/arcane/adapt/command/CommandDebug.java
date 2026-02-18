@@ -2,6 +2,7 @@ package art.arcane.adapt.command;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.api.telemetry.AbilityCheckTelemetry;
 import art.arcane.adapt.util.command.FConst;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.volmlib.util.director.DirectorOrigin;
@@ -13,6 +14,7 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 import java.util.List;
+import java.util.Locale;
 
 @Director(name = "debug", origin = DirectorOrigin.BOTH, description = "Adapt Debug Command", aliases = {"dev"})
 public class CommandDebug {
@@ -96,6 +98,30 @@ public class CommandDebug {
       return;
     }
 
+    long now = System.currentTimeMillis();
+    long checksPerSecond = AbilityCheckTelemetry.checksPerSecond(now);
+    long successfulPerSecond = AbilityCheckTelemetry.successfulChecksPerSecond(now);
+    long checksPerMinute = AbilityCheckTelemetry.checksPerMinute(now);
+    long successfulPerMinute = AbilityCheckTelemetry.successfulChecksPerMinute(now);
+    long cacheHits = AbilityCheckTelemetry.cacheHitsPerMinute(now);
+    long cacheMisses = AbilityCheckTelemetry.cacheMissesPerMinute(now);
+    double cacheHitRatio = AbilityCheckTelemetry.cacheHitRatio(now) * 100D;
+    double averageMicros = AbilityCheckTelemetry.averageCheckMicros(now);
+    double timingMillisPerSecond = AbilityCheckTelemetry.estimatedTimingMillisPerSecond(now);
+    double timingBudgetPercent = AbilityCheckTelemetry.timingBudgetPercent(now);
+
+    FConst.info("Ability checks: " + checksPerSecond + "/s (" + checksPerMinute + "/m)").send(BukkitDirectorContext.sender());
+    FConst.info("Successful checks: " + successfulPerSecond + "/s (" + successfulPerMinute + "/m)").send(BukkitDirectorContext.sender());
+    FConst.info("Active-level cache hit ratio: "
+        + String.format(Locale.US, "%.1f%%", cacheHitRatio)
+        + " (" + cacheHits + " hit, " + cacheMisses + " miss)")
+        .send(BukkitDirectorContext.sender());
+    FConst.info("Ability check timing budget: "
+        + String.format(Locale.US, "%.2f%%", timingBudgetPercent)
+        + " (" + String.format(Locale.US, "%.2fms/s", timingMillisPerSecond)
+        + ", " + String.format(Locale.US, "%.1fus/check", averageMicros) + ")")
+        .send(BukkitDirectorContext.sender());
+
     List<String> lines = Adapt.instance.getTicker().topMetrics(top);
     long windowMs = Adapt.instance.getTicker().getMetricsWindowMs();
     FConst.success("Ticker window: " + windowMs + "ms").send(BukkitDirectorContext.sender());
@@ -107,7 +133,8 @@ public class CommandDebug {
 
     if (reset) {
       Adapt.instance.getTicker().resetMetrics();
-      FConst.success("Ticker metrics reset.").send(BukkitDirectorContext.sender());
+      AbilityCheckTelemetry.clear();
+      FConst.success("Ticker and ability telemetry reset.").send(BukkitDirectorContext.sender());
     }
   }
 }

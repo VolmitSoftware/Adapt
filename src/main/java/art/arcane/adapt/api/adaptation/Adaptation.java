@@ -748,6 +748,18 @@ public interface Adaptation<T> extends Ticked, Component {
     return AdaptationRuntimeGuards.getLevel(this, p);
   }
 
+  default int getLevel(AdaptPlayer adaptPlayer) {
+    return AdaptationRuntimeGuards.getLevel(this, adaptPlayer);
+  }
+
+  default boolean hasLearnedAdaptation(AdaptPlayer adaptPlayer) {
+    return getLevel(adaptPlayer) > 0;
+  }
+
+  default List<AdaptPlayer> learnedCandidates(long now) {
+    return AdaptationRuntimeGuards.learnedCandidates(this, now);
+  }
+
   /**
    * Learned level normalized to 0..1.
    */

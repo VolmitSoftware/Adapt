@@ -145,7 +145,8 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
 
   @Override
   public void onTick() {
-    for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+    long now = System.currentTimeMillis();
+    for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : learnedCandidates(now)) {
       Player p = adaptPlayer.getPlayer();
       if (p == null || !p.isOnline()) {
         continue;

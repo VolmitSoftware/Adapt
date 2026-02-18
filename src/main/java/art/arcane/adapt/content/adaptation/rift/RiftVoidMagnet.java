@@ -80,8 +80,12 @@ public class RiftVoidMagnet extends SimpleAdaptation<RiftVoidMagnet.Config> {
 
   @Override
   public void onTick() {
-    for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+    long now = System.currentTimeMillis();
+    for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : learnedCandidates(now)) {
       Player p = adaptPlayer.getPlayer();
+      if (p == null || !p.isOnline()) {
+        continue;
+      }
       int level = getActiveLevel(p, Player::isSneaking);
       if (level <= 0 || p.getTicksLived() % getPulseTicks(level) != 0) {
         continue;

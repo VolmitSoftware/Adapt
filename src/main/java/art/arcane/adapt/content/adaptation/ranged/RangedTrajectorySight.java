@@ -260,7 +260,7 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
     }
 
     lastPreviewCandidateRefreshMs = now;
-    for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+    for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : learnedCandidates(now)) {
       Player p = adaptPlayer.getPlayer();
       if (p == null || !p.isOnline()) {
         continue;

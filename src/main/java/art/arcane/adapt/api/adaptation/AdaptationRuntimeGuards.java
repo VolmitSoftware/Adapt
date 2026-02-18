@@ -50,9 +50,11 @@ final class AdaptationRuntimeGuards {
   private static final Map<String, ActiveLevelCacheEntry> ACTIVE_LEVEL_CACHE = new ConcurrentHashMap<>();
   private static final Map<String, ProtectorCacheEntry> PROTECTOR_CACHE = new ConcurrentHashMap<>();
   private static final Map<String, UsageConflictCacheEntry> USAGE_CONFLICT_CACHE = new ConcurrentHashMap<>();
+  private static final Map<String, LearnedCandidateCacheEntry> LEARNED_CANDIDATE_CACHE = new ConcurrentHashMap<>();
   private static final int ACTIVE_LEVEL_CACHE_SOFT_LIMIT = 16_384;
   private static final int ACTIVE_LEVEL_CACHE_SWEEP_INTERVAL_TICKS = 64;
   private static final int ACTIVE_LEVEL_CACHE_RETENTION_TICKS = 2;
+  private static final long LEARNED_CANDIDATE_REFRESH_MS = 250L;
   private static volatile long lastActiveCacheSweepTick = Long.MIN_VALUE;
 
   private AdaptationRuntimeGuards() {
@@ -508,11 +510,19 @@ final class AdaptationRuntimeGuards {
       String key = cacheKey(adaptation, p);
       ActiveLevelCacheEntry cached = ACTIVE_LEVEL_CACHE.get(key);
       if (cached != null && cached.tick() == tick && cached.learnedLevel() == learnedLevel) {
+        AbilityCheckTelemetry.recordCacheHit();
         return cached.level();
       }
 
+      AbilityCheckTelemetry.recordCacheMiss();
       AbilityCheckTelemetry.recordCheckAttempt();
-      int level = resolveActiveLevelUncached(adaptation, p, learnedLevel);
+      long startNs = System.nanoTime();
+      int level;
+      try {
+        level = resolveActiveLevelUncached(adaptation, p, learnedLevel);
+      } finally {
+        AbilityCheckTelemetry.recordCheckTimingNanos(System.nanoTime() - startNs);
+      }
       ACTIVE_LEVEL_CACHE.put(key, new ActiveLevelCacheEntry(tick, learnedLevel, level));
       sweepActiveLevelCache(tick);
 
@@ -549,11 +559,55 @@ final class AdaptationRuntimeGuards {
       return 0;
     }
     AdaptPlayer adaptPlayer = adaptation.getPlayer(p);
-    PlayerSkillLine line = adaptPlayer.getData().getSkillLine(adaptation.getSkill().getName());
+    return getLevel(adaptation, adaptPlayer);
+  }
+
+  static int getLevel(Adaptation<?> adaptation, AdaptPlayer adaptPlayer) {
+    if (adaptation == null || adaptPlayer == null) {
+      return 0;
+    }
+    if (!adaptation.isEnabled()) {
+      return 0;
+    }
+    if (!adaptation.getSkill().isEnabled()) {
+      return 0;
+    }
+
+    PlayerData data = adaptPlayer.getData();
+    if (data == null) {
+      return 0;
+    }
+
+    PlayerSkillLine line = data.getSkillLineNullable(adaptation.getSkill().getName());
     if (line == null) {
       return 0;
     }
     return line.getAdaptationLevel(adaptation.getName());
+  }
+
+  static List<AdaptPlayer> learnedCandidates(Adaptation<?> adaptation, long now) {
+    if (adaptation == null) {
+      return List.of();
+    }
+
+    String key = adaptation.getName();
+    LearnedCandidateCacheEntry cached = LEARNED_CANDIDATE_CACHE.get(key);
+    if (cached != null && now - cached.refreshedAtMs() <= LEARNED_CANDIDATE_REFRESH_MS) {
+      return cached.players();
+    }
+
+    List<AdaptPlayer> online = adaptation.getServer().getOnlineAdaptPlayerSnapshot();
+    ArrayList<AdaptPlayer> candidates = new ArrayList<>(online.size());
+    for (AdaptPlayer adaptPlayer : online) {
+      if (getLevel(adaptation, adaptPlayer) <= 0) {
+        continue;
+      }
+      candidates.add(adaptPlayer);
+    }
+
+    List<AdaptPlayer> immutable = Collections.unmodifiableList(new ArrayList<>(candidates));
+    LEARNED_CANDIDATE_CACHE.put(key, new LearnedCandidateCacheEntry(now, immutable));
+    return immutable;
   }
 
   static <F> F getStorage(Adaptation<?> adaptation, Player p, String key, F defaultValue) {
@@ -749,5 +803,8 @@ final class AdaptationRuntimeGuards {
   }
 
   private record UsageConflictCacheEntry(int signature, Set<String> denied) {
+  }
+
+  private record LearnedCandidateCacheEntry(long refreshedAtMs, List<AdaptPlayer> players) {
   }
 }
