@@ -298,11 +298,21 @@ public class AdvancementUtils {
       return;
     }
 
-    if (safeDelay <= 0) {
-      J.s(runnable);
-    } else {
-      J.s(runnable, safeDelay);
+    if (scheduleLegacySync(runnable, safeDelay)) {
+      return;
     }
+
+    if (scheduleFoliaSync(plugin, runnable, safeDelay)) {
+      return;
+    }
+
+    if (safeDelay <= 0 && FoliaScheduler.isPrimaryThread()) {
+      runnable.run();
+      return;
+    }
+
+    plugin.getLogger().warning("Failed to schedule advancement sync task for plugin " + plugin.getName()
+        + " (" + safeDelay + "t).");
   }
 
   private static int sanitizeDelay(long delay) {
@@ -334,6 +344,49 @@ public class AdvancementUtils {
     }
 
     return scheduleGlobalReflective(plugin, runnable, safeDelay);
+  }
+
+  private static boolean scheduleLegacySync(@NotNull Runnable runnable, int safeDelay) {
+    try {
+      if (safeDelay <= 0) {
+        J.s(runnable);
+      } else {
+        J.s(runnable, safeDelay);
+      }
+      return true;
+    } catch (Throwable ex) {
+      if (isUnsupportedScheduler(ex)) {
+        return false;
+      }
+
+      if (ex instanceof RuntimeException runtimeException) {
+        throw runtimeException;
+      }
+
+      if (ex instanceof Error error) {
+        throw error;
+      }
+
+      throw new RuntimeException(ex);
+    }
+  }
+
+  private static boolean isUnsupportedScheduler(@Nullable Throwable throwable) {
+    Throwable current = throwable;
+    while (current != null) {
+      if (current instanceof UnsupportedOperationException) {
+        return true;
+      }
+
+      String message = current.getMessage();
+      if (message != null && message.contains("BukkitScheduler unsupported")) {
+        return true;
+      }
+
+      current = current.getCause();
+    }
+
+    return false;
   }
 
   private static boolean hasFoliaScheduler() {

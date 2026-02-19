@@ -11,9 +11,7 @@ import com.fren_gor.ultimateAdvancementAPI.AdvancementTab;
 import com.fren_gor.ultimateAdvancementAPI.advancement.Advancement;
 import com.fren_gor.ultimateAdvancementAPI.advancement.BaseAdvancement;
 import com.fren_gor.ultimateAdvancementAPI.advancement.RootAdvancement;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitTask;
 
 import java.util.HashSet;
 import java.util.Locale;
@@ -25,6 +23,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static art.arcane.adapt.Adapt.instance;
 
 public class AdvancementManager {
+  private static final int USER_LOAD_RETRIES = 12;
   private final AdvancementMain main;
   private final Map<String, Advancement> advancements;
   private final AtomicBoolean loaded = new AtomicBoolean(false);
@@ -70,11 +69,11 @@ public class AdvancementManager {
         return;
       }
 
-      attemptGrant(p, advancement, key, toast, true);
+      attemptGrant(p, advancement, key, toast, true, true, USER_LOAD_RETRIES);
     }, 5);
   }
 
-  private void attemptGrant(Player player, Advancement advancement, String key, boolean toast, boolean allowRetryOnGlobal) {
+  private void attemptGrant(Player player, Advancement advancement, String key, boolean toast, boolean allowRetryOnGlobal, boolean allowRetryOnEntity, int userLoadRetriesRemaining) {
     if (player == null || !player.isOnline()) {
       return;
     }
@@ -83,20 +82,27 @@ public class AdvancementManager {
       advancement.grant(player, true);
     } catch (Throwable t) {
       if (isUserNotLoadedError(t)) {
-        Adapt.verbose("Skipped advancement grant '" + key + "' because user data is not loaded yet for " + player.getName() + ".");
+        if (userLoadRetriesRemaining > 0) {
+          J.s(() -> attemptGrant(player, advancement, key, toast, allowRetryOnGlobal, allowRetryOnEntity, userLoadRetriesRemaining - 1), 5);
+          return;
+        }
+
+        Adapt.verbose("Skipped advancement grant '" + key + "' because user data is not loaded yet for " + player.getName() + " after retries.");
         return;
       }
 
       if (isSchedulerContextMismatch(t)) {
-        if (J.isFoliaThreading()) {
-          markRuntimeSchedulerUnsupported(t);
+        if (allowRetryOnGlobal) {
+          J.s(() -> attemptGrant(player, advancement, key, toast, false, allowRetryOnEntity, userLoadRetriesRemaining), 1);
           return;
         }
 
-        if (allowRetryOnGlobal) {
-          J.s(() -> attemptGrant(player, advancement, key, toast, false), 1);
+        if (allowRetryOnEntity && J.runEntity(player, () -> attemptGrant(player, advancement, key, toast, false, false, userLoadRetriesRemaining), 1)) {
           return;
         }
+
+        markRuntimeSchedulerUnsupported(t);
+        return;
       }
 
       Adapt.warn("Failed to grant advancement '" + key + "' for " + player.getName() + ": " + summarizeThrowable(t));
@@ -111,27 +117,34 @@ public class AdvancementManager {
       advancement.displayToastToPlayer(player);
     } catch (Throwable t) {
       if (isUserNotLoadedError(t)) {
-        Adapt.verbose("Skipped advancement toast '" + key + "' because user data is not loaded yet for " + player.getName() + ".");
+        if (userLoadRetriesRemaining > 0) {
+          J.s(() -> attemptToast(player, advancement, key, allowRetryOnGlobal, allowRetryOnEntity, userLoadRetriesRemaining - 1), 5);
+          return;
+        }
+
+        Adapt.verbose("Skipped advancement toast '" + key + "' because user data is not loaded yet for " + player.getName() + " after retries.");
         return;
       }
 
       if (isSchedulerContextMismatch(t)) {
-        if (J.isFoliaThreading()) {
-          markRuntimeSchedulerUnsupported(t);
+        if (allowRetryOnGlobal) {
+          J.s(() -> attemptToast(player, advancement, key, false, allowRetryOnEntity, userLoadRetriesRemaining), 1);
           return;
         }
 
-        if (allowRetryOnGlobal) {
-          J.s(() -> attemptToast(player, advancement, key, false), 1);
+        if (allowRetryOnEntity && J.runEntity(player, () -> attemptToast(player, advancement, key, false, false, userLoadRetriesRemaining), 1)) {
           return;
         }
+
+        markRuntimeSchedulerUnsupported(t);
+        return;
       }
 
       Adapt.warn("Failed to display advancement toast '" + key + "' for " + player.getName() + ": " + summarizeThrowable(t));
     }
   }
 
-  private void attemptToast(Player player, Advancement advancement, String key, boolean allowRetryOnGlobal) {
+  private void attemptToast(Player player, Advancement advancement, String key, boolean allowRetryOnGlobal, boolean allowRetryOnEntity, int userLoadRetriesRemaining) {
     if (player == null || !player.isOnline()) {
       return;
     }
@@ -140,20 +153,27 @@ public class AdvancementManager {
       advancement.displayToastToPlayer(player);
     } catch (Throwable t) {
       if (isUserNotLoadedError(t)) {
-        Adapt.verbose("Skipped advancement toast '" + key + "' because user data is not loaded yet for " + player.getName() + ".");
+        if (userLoadRetriesRemaining > 0) {
+          J.s(() -> attemptToast(player, advancement, key, allowRetryOnGlobal, allowRetryOnEntity, userLoadRetriesRemaining - 1), 5);
+          return;
+        }
+
+        Adapt.verbose("Skipped advancement toast '" + key + "' because user data is not loaded yet for " + player.getName() + " after retries.");
         return;
       }
 
       if (isSchedulerContextMismatch(t)) {
-        if (J.isFoliaThreading()) {
-          markRuntimeSchedulerUnsupported(t);
+        if (allowRetryOnGlobal) {
+          J.s(() -> attemptToast(player, advancement, key, false, allowRetryOnEntity, userLoadRetriesRemaining), 1);
           return;
         }
 
-        if (allowRetryOnGlobal) {
-          J.s(() -> attemptToast(player, advancement, key, false), 1);
+        if (allowRetryOnEntity && J.runEntity(player, () -> attemptToast(player, advancement, key, false, false, userLoadRetriesRemaining), 1)) {
           return;
         }
+
+        markRuntimeSchedulerUnsupported(t);
+        return;
       }
 
       Adapt.warn("Failed to display advancement toast '" + key + "' for " + player.getName() + ": " + summarizeThrowable(t));
@@ -167,6 +187,7 @@ public class AdvancementManager {
 
     Adapt.info("UltimateAdvancementAPI live packet grants/toasts are unavailable on this Folia runtime; stored advancement grants will continue without live packets/toasts.");
     if (throwable != null) {
+      Adapt.warn("UltimateAdvancementAPI live packet fallback cause: " + summarizeThrowable(throwable));
       Adapt.verbose("UltimateAdvancementAPI fallback cause: " + summarizeThrowable(throwable));
     }
   }
@@ -253,26 +274,47 @@ public class AdvancementManager {
     }
 
     J.runEntity(target, () -> {
-      instance.getAdaptServer()
-          .getSkillRegistry()
-          .getSkills()
-          .stream()
-          .map(Skill::buildAdvancements)
-          .forEach(aa -> unlockExisting(player, aa));
+      for (Skill<?> skill : instance.getAdaptServer().getSkillRegistry().getSkills()) {
+        AdaptAdvancement advancement = skill.buildAdvancements();
+        ensureSkillRootGranted(player, advancement);
+        unlockExisting(player, advancement);
+      }
 
       handler.setReady(true);
     }, 20);
   }
 
+  private void ensureSkillRootGranted(AdaptPlayer player, AdaptAdvancement advancement) {
+    if (player == null || advancement == null) {
+      return;
+    }
+
+    String key = advancement.getKey();
+    if (key == null || key.isBlank() || !key.startsWith("skill_")) {
+      return;
+    }
+
+    if (player.getData().isGranted(key)) {
+      return;
+    }
+
+    grant(player, key, false);
+  }
+
   private void unlockExisting(AdaptPlayer player, AdaptAdvancement aa) {
+    if (aa == null) {
+      return;
+    }
+
+    String key = aa.getKey();
+    if (key != null && !key.isBlank() && player.getData().isGranted(key)) {
+      grant(player, key, false);
+    }
+
     if (aa.getChildren() != null) {
       for (AdaptAdvancement i : aa.getChildren()) {
         unlockExisting(player, i);
       }
-    }
-
-    if (player.getData().isGranted(aa.getKey())) {
-      grant(player, aa.getKey(), false);
     }
   }
 
@@ -293,10 +335,6 @@ public class AdvancementManager {
       main.enableMySQL(sql.getUsername(), sql.getPassword(), sql.getDatabase(), sql.getHost(), sql.getPort(), sql.getPoolSize(), sql.getConnectionTimeout());
     } else {
       main.enableSQLite(instance.getDataFile("data", "advancements.db"));
-    }
-
-    if (J.isFoliaThreading() && isLegacyAsyncSchedulerUnsupported()) {
-      markRuntimeSchedulerUnsupported(null);
     }
 
     for (Skill<?> i : instance.getAdaptServer().getSkillRegistry().getSkills()) {
@@ -330,18 +368,5 @@ public class AdvancementManager {
     enabled.set(false);
     loaded.set(false);
     runtimeSchedulerUnsupported.set(false);
-  }
-
-  private boolean isLegacyAsyncSchedulerUnsupported() {
-    try {
-      BukkitTask probe = Bukkit.getScheduler().runTaskTimerAsynchronously(instance, () -> {
-      }, 1L, 1L);
-      probe.cancel();
-      return false;
-    } catch (UnsupportedOperationException ignored) {
-      return true;
-    } catch (Throwable ignored) {
-      return false;
-    }
   }
 }
