@@ -45,6 +45,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
   private final Set<UUID> sneaking;
+  private final Set<UUID> appliedNightVision;
 
 
   public StealthSight() {
@@ -59,6 +60,7 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
     setCostFactor(getConfig().costFactor);
     setMaxLevel(getConfig().maxLevel);
     sneaking = ConcurrentHashMap.newKeySet();
+    appliedNightVision = ConcurrentHashMap.newKeySet();
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.ENDER_EYE)
         .key("challenge_stealth_sight_72k")
@@ -83,20 +85,20 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
       SoundPlayer sp = SoundPlayer.of(p);
       if (!hasActiveAdaptation(p)) {
         sneaking.remove(id);
-        p.removePotionEffect(PotionEffectType.NIGHT_VISION);
+        clearNightVisionIfApplied(p, id);
         return;
       }
 
       if (e.isSneaking()) {
         sneaking.add(id);
         sp.play(p.getLocation(), Sound.BLOCK_FUNGUS_BREAK, 1, 0.99f);
-        p.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 1000, 0, false, false));
+        applyNightVisionIfNeeded(p, id);
         getPlayer(p).getData().addStat("stealth.sight.time-in-darkness", 1);
         return;
       }
 
       sneaking.remove(id);
-      p.removePotionEffect(PotionEffectType.NIGHT_VISION);
+      clearNightVisionIfApplied(p, id);
     });
   }
 
@@ -108,13 +110,14 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
       Player p = Bukkit.getPlayer(id);
       if (p == null || !p.isOnline()) {
         sneaking.remove(id);
+        appliedNightVision.remove(id);
         continue;
       }
 
       Runnable check = () -> {
         if (getActiveLevel(p, Player::isSneaking) <= 0) {
           sneaking.remove(id);
-          J.runEntity(p, () -> p.removePotionEffect(PotionEffectType.NIGHT_VISION));
+          J.runEntity(p, () -> clearNightVisionIfApplied(p, id));
         }
       };
 
@@ -135,6 +138,29 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
   @Override
   public boolean isPermanent() {
     return getConfig().permanent;
+  }
+
+  private void applyNightVisionIfNeeded(Player player, UUID id) {
+    if (player.hasPotionEffect(PotionEffectType.NIGHT_VISION)) {
+      appliedNightVision.remove(id);
+      return;
+    }
+
+    PotionEffect effect = new PotionEffect(PotionEffectType.NIGHT_VISION, 1000, 0, false, false);
+    boolean applied = player.addPotionEffect(effect);
+    if (applied) {
+      appliedNightVision.add(id);
+    } else {
+      appliedNightVision.remove(id);
+    }
+  }
+
+  private void clearNightVisionIfApplied(Player player, UUID id) {
+    if (!appliedNightVision.remove(id)) {
+      return;
+    }
+
+    player.removePotionEffect(PotionEffectType.NIGHT_VISION);
   }
 
   @NoArgsConstructor
