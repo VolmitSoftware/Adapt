@@ -237,7 +237,7 @@ public class Adapt extends VolmitPlugin {
 
   @SneakyThrows
   public static void autoUpdateCheck() {
-    try (BufferedReader in = new BufferedReader(new InputStreamReader(new URL("https://raw.githubusercontent.com/VolmitSoftware/Adapt/main/build.gradle.kts").openStream()))) {
+    try (BufferedReader in = new BufferedReader(new InputStreamReader(new URL("https://raw.githubusercontent.com/VolmitSoftware/Adapt/main/build.gradle").openStream()))) {
       info("Checking for updates...");
       String inputLine;
       while ((inputLine = in.readLine()) != null) {

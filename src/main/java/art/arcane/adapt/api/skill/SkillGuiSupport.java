@@ -110,7 +110,7 @@ final class SkillGuiSupport {
 
     if (!J.isPrimaryThread()) {
       int targetPage = page;
-      J.s(() -> openGui(skill, player, targetPage));
+      J.runEntity(player, () -> openGui(skill, player, targetPage));
       return;
     }
 
@@ -231,7 +231,7 @@ final class SkillGuiSupport {
     }
 
     window.setTitle(skill.getDisplayName(adaptPlayer.getSkillLine(skill.getName()).getLevel()) + " " + Form.pc(XP.getLevelProgress(adaptPlayer.getSkillLine(skill.getName()).getXp())) + " (" + Form.f((int) XP.getXpUntilLevelUp(adaptPlayer.getSkillLine(skill.getName()).getXp())) + Localizer.dLocalize("snippets.gui.xp") + " " + (adaptPlayer.getSkillLine(skill.getName()).getLevel() + 1) + ")");
-    window.onClosed((vv) -> J.s(() -> onGuiClosed(player, !AdaptConfig.get().isEscClosesAllGuis())));
+    window.onClosed((vv) -> J.runEntity(player, () -> onGuiClosed(player, !AdaptConfig.get().isEscClosesAllGuis())));
     window.open();
     Adapt.instance.getGuiLeftovers().put(player.getUniqueId().toString(), window);
   }
@@ -263,7 +263,7 @@ final class SkillGuiSupport {
 
     playCloseSound(player);
     if (openPrevGui) {
-      J.s(() -> {
+      J.runEntity(player, () -> {
         if (player.isOnline() && player.getOpenInventory().getTopInventory().getType() == InventoryType.CRAFTING) {
           SkillsGui.open(player);
         }

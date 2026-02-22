@@ -78,7 +78,7 @@ public final class ConfigGui {
     if (!J.isPrimaryThread()) {
       String path = sectionPath;
       int targetPage = page;
-      J.s(() -> open(player, path, targetPage));
+      J.runEntity(player, () -> open(player, path, targetPage));
       return;
     }
 
@@ -1489,7 +1489,7 @@ public final class ConfigGui {
     }
 
     String parent = parentPath(safePath);
-    J.s(() -> {
+    J.runEntity(player, () -> {
       if (player.isOnline() && player.getOpenInventory().getTopInventory().getType() == InventoryType.CRAFTING) {
         open(player, parent, 0);
       }

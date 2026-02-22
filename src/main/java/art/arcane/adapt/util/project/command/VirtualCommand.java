@@ -27,6 +27,7 @@ import art.arcane.volmlib.util.collection.KMap;
 import art.arcane.volmlib.util.reflect.V;
 import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -172,12 +173,18 @@ public class VirtualCommand {
     for (String i : command.getRequiredPermissions()) {
       if (!sender.hasPermission(i)) {
         failed = true;
-        J.s(() -> Adapt.messagePlayer(sender.getServer().getPlayer(sender.getName()), "- " + C.WHITE + i));
+        Player player = sender.getServer().getPlayer(sender.getName());
+        if (player != null) {
+          J.runEntity(player, () -> Adapt.messagePlayer(player, "- " + C.WHITE + i));
+        }
       }
     }
 
     if (failed) {
-      Adapt.messagePlayer(sender.getServer().getPlayer(sender.getName()), "Insufficient Permissions");
+      Player player = sender.getServer().getPlayer(sender.getName());
+      if (player != null) {
+        Adapt.messagePlayer(player, "Insufficient Permissions");
+      }
       return false;
     }
 

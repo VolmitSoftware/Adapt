@@ -188,7 +188,7 @@ final class AdaptationGuiSupport {
     }
     if (!J.isPrimaryThread()) {
       int targetPage = page;
-      J.s(() -> openGui(adaptation, player, targetPage));
+      J.runEntity(player, () -> openGui(adaptation, player, targetPage));
       return;
     }
 
@@ -269,7 +269,7 @@ final class AdaptationGuiSupport {
                 if (delayTicks != 0) {
                   player.sendTitle(" ", C.RED + "" + C.BOLD + Localizer.dLocalize("snippets.adapt_menu.may_not_unlearn") + " " + adaptation.getDisplayName(currentLevel), 1, 10, 11);
                 }
-                J.s(() -> openAdaptationPage(adaptation, player, currentPage), delayTicks);
+                J.runEntity(player, () -> openAdaptationPage(adaptation, player, currentPage), delayTicks);
                 return;
               }
 
@@ -278,7 +278,7 @@ final class AdaptationGuiSupport {
                 if (adaptation.isPermanent() && !consumePermanentLearnConfirmation(player, adaptation, lvl)) {
                   spw.play(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 0.7f, 0.85f);
                   player.sendTitle(" ", C.GOLD + "" + C.BOLD + "Click again to confirm permanent learn", 1, 16, 8);
-                  J.s(() -> openAdaptationPage(adaptation, player, currentPage), 1);
+                  J.runEntity(player, () -> openAdaptationPage(adaptation, player, currentPage), 1);
                   return;
                 }
 
@@ -358,7 +358,7 @@ final class AdaptationGuiSupport {
     }
 
     w.setTitle(adaptation.getDisplayName());
-    w.onClosed((vv) -> J.s(() -> onGuiClosed(adaptation, player, !AdaptConfig.get().isEscClosesAllGuis())));
+    w.onClosed((vv) -> J.runEntity(player, () -> onGuiClosed(adaptation, player, !AdaptConfig.get().isEscClosesAllGuis())));
     w.open();
     Adapt.instance.getGuiLeftovers().put(player.getUniqueId().toString(), w);
   }
@@ -466,7 +466,7 @@ final class AdaptationGuiSupport {
   private static void closeAndReopenAfterLevelChange(Adaptation<?> adaptation, Player player, int page, int delayTicks) {
     closeCurrentAdaptationGui(player);
     int reopenDelay = Math.max(0, delayTicks);
-    J.s(() -> reopenAdaptationPageIfReady(adaptation, player, page), reopenDelay);
+    J.runEntity(player, () -> reopenAdaptationPageIfReady(adaptation, player, page), reopenDelay);
   }
 
   private static void closeCurrentAdaptationGui(Player player) {
@@ -510,7 +510,7 @@ final class AdaptationGuiSupport {
 
     playCloseSound(player);
     if (openPrevGui) {
-      J.s(() -> {
+      J.runEntity(player, () -> {
         if (player.isOnline() && player.getOpenInventory().getTopInventory().getType() == InventoryType.CRAFTING) {
           adaptation.getSkill().openGui(player);
         }

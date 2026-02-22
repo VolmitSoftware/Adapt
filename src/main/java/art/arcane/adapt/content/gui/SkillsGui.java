@@ -54,7 +54,7 @@ public class SkillsGui {
   public static void open(Player player, int page) {
     if (!J.isPrimaryThread()) {
       int targetPage = page;
-      J.s(() -> open(player, targetPage));
+      J.runEntity(player, () -> open(player, targetPage));
       return;
     }
 

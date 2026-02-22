@@ -25,7 +25,7 @@ public final class GuiConfirm {
     }
 
     if (!J.isPrimaryThread()) {
-      J.s(() -> open(player, title, message, onConfirm, onCancel));
+      J.runEntity(player, () -> open(player, title, message, onConfirm, onCancel));
       return;
     }
 

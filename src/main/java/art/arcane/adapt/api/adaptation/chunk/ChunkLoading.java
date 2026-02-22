@@ -32,6 +32,12 @@ public class ChunkLoading {
       return;
     }
     Adapt.verbose("Loading chunk async for " + l);
-    Adapt.platform.getChunkAtAsync(l).thenAccept(c -> J.s(() -> chunk.accept(c)));
+    Adapt.platform.getChunkAtAsync(l).thenAccept(c -> {
+      if (!J.runAt(l, () -> chunk.accept(c))) {
+        if (!J.isFoliaThreading()) {
+          J.s(() -> chunk.accept(c));
+        }
+      }
+    });
   }
 }

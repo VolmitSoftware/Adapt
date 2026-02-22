@@ -265,7 +265,7 @@ public class AdaptPlayer extends TickedObject {
       return;
     }
 
-    J.s(() -> p.kickPlayer("Your data has been deleted."), 20);
+    J.runEntity(p, () -> p.kickPlayer("Your data has been deleted."), 20);
   }
 
   public boolean shouldUnload() {
