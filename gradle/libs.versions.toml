@@ -1,10 +1,10 @@
 [versions]
 # Plugins
-lombok = "8.14"
+lombok = "9.2.0"
 shadow = "9.0.0-rc3"
 runTask = "2.3.1"
 idea = "1.2"
-slimjar = "2.1.7"
+slimjar = "2.1.9"
 kotlin = "2.2.0"
 kotlin-coroutines = "1.10.2"
 

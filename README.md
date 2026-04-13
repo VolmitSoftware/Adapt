@@ -47,17 +47,17 @@ plugin [Manifold](https://plugins.jetbrains.com/plugin/10057-manifold)
 
 ## Preface: if you need help compiling and you are a developer / intend to help out in the community or with development we would love to help you regardless in the discord! however do not come to the discord asking for free copies, or a tutorial on how to compile.
 
-1. Install [Java JDK 21](https://www.oracle.com/java/technologies/downloads/#java21)
+1. Install [Java JDK 25](https://adoptium.net/temurin/releases/?version=25)
 2. Set the JDK installation path to `JAVA_HOME` as an environment variable.
     * Windows
         1. Start > Type `env` and press Enter
         2. Advanced > Environment Variables
         3. Under System Variables, click `New...`
         4. Variable Name: `JAVA_HOME`
-        5. Variable Value: `C:\Program Files\Java\jdk-21` (verify this exists after installing java don't just copy
+        5. Variable Value: `C:\Program Files\Java\jdk-25` (verify this exists after installing java don't just copy
            the example text)
     * MacOS
-        1. Run `/usr/libexec/java_home -V` and look for Java 21
+        1. Run `/usr/libexec/java_home -V` and look for Java 25
         2. Run `sudo nano ~/.zshenv`
         3. Add `export JAVA_HOME=$(/usr/libexec/java_home)` as a new line
         4. Use `CTRL + X`, then Press `Y`, Then `ENTER`
@@ -69,7 +69,7 @@ plugin [Manifold](https://plugins.jetbrains.com/plugin/10057-manifold)
 <summary> Gradle Setup </summary>
 
 * Run `gradlew setup` any time you get dependency issues with craftbukkit
-* Configure ITJ Gradle to use JDK 21 (in settings, search for gradle)
+* Configure ITJ Gradle to use JDK 25 (in settings, search for gradle)
 * Resync the project & run your newly created task (under the development folder in gradle tasks!)
 
 </details>

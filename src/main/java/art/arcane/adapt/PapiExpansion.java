@@ -1,6 +1,7 @@
 package art.arcane.adapt;
 
 import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.skill.SkillRegistry;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.world.PlayerAdaptation;
 import art.arcane.adapt.api.world.PlayerData;
@@ -12,11 +13,14 @@ import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class PapiExpansion extends PlaceholderExpansion {
   private static final Locale LOCALE = Locale.ROOT;
+  private volatile CatalogSnapshot catalogSnapshot = CatalogSnapshot.empty();
 
   @Override
   public @NotNull String getIdentifier() {
@@ -291,19 +295,8 @@ public class PapiExpansion extends PlaceholderExpansion {
     }
 
     String skillId = rawSkillId.trim();
-    Skill<?> direct = Adapt.instance.getAdaptServer().getSkillRegistry().getAnySkill(skillId);
-    if (direct != null) {
-      return direct;
-    }
-
-    List<Skill<?>> allSkills = Adapt.instance.getAdaptServer().getSkillRegistry().getAllSkills();
-    for (Skill<?> skill : allSkills) {
-      if (skill.getName().equalsIgnoreCase(skillId)) {
-        return skill;
-      }
-    }
-
-    return null;
+    SkillRegistry registry = Adapt.instance.getAdaptServer().getSkillRegistry();
+    return registry.getAnySkill(skillId);
   }
 
   private Adaptation<?> resolveAdaptation(String rawAdaptationId) {
@@ -311,39 +304,8 @@ public class PapiExpansion extends PlaceholderExpansion {
       return null;
     }
 
-    String adaptationId = rawAdaptationId.trim().toLowerCase(LOCALE);
-    List<Skill<?>> allSkills = Adapt.instance.getAdaptServer().getSkillRegistry().getAllSkills();
-    for (Skill<?> skill : allSkills) {
-      for (Adaptation<?> adaptation : skill.getAdaptations()) {
-        if (matchesAdaptationIdentifier(adaptation, adaptationId)) {
-          return adaptation;
-        }
-      }
-    }
-
-    return null;
-  }
-
-  private boolean matchesAdaptationIdentifier(Adaptation<?> adaptation, String normalizedTarget) {
-    String name = adaptation.getName();
-    if (name != null && name.equalsIgnoreCase(normalizedTarget)) {
-      return true;
-    }
-
-    String fullId = adaptation.getId();
-    if (fullId != null && fullId.equalsIgnoreCase(normalizedTarget)) {
-      return true;
-    }
-
-    if (fullId != null && fullId.length() > 37) {
-      String legacyId = fullId.substring(37);
-      if (legacyId.equalsIgnoreCase(normalizedTarget)) {
-        return true;
-      }
-    }
-
-    String scoped = adaptation.getSkill().getName() + ":" + adaptation.getName();
-    return scoped.equalsIgnoreCase(normalizedTarget);
+    String adaptationId = normalizeCatalogKey(rawAdaptationId);
+    return getCatalogSnapshot().findAdaptation(adaptationId);
   }
 
   private int countSeenThings(PlayerData playerData) {
@@ -363,7 +325,7 @@ public class PapiExpansion extends PlaceholderExpansion {
   }
 
   private int countSkills() {
-    return Adapt.instance.getAdaptServer().getSkillRegistry().getAllSkills().size();
+    return getCatalogSnapshot().skillCount();
   }
 
   private int countKnownSkills(PlayerData playerData) {
@@ -377,12 +339,7 @@ public class PapiExpansion extends PlaceholderExpansion {
   }
 
   private int countAdaptations() {
-    int total = 0;
-    List<Skill<?>> skills = Adapt.instance.getAdaptServer().getSkillRegistry().getAllSkills();
-    for (Skill<?> skill : skills) {
-      total += skill.getAdaptations().size();
-    }
-    return total;
+    return getCatalogSnapshot().adaptationCount();
   }
 
   private int countLearnedAdaptations(PlayerData playerData) {
@@ -433,5 +390,72 @@ public class PapiExpansion extends PlaceholderExpansion {
 
   private String format4(double value) {
     return String.format(LOCALE, "%.4f", value);
+  }
+
+  private CatalogSnapshot getCatalogSnapshot() {
+    SkillRegistry registry = Adapt.instance.getAdaptServer().getSkillRegistry();
+    long revision = registry.getCatalogRevision();
+    CatalogSnapshot snapshot = catalogSnapshot;
+    if (snapshot.revision() == revision) {
+      return snapshot;
+    }
+
+    CatalogSnapshot rebuilt = CatalogSnapshot.create(revision, registry.getAllSkills());
+    catalogSnapshot = rebuilt;
+    return rebuilt;
+  }
+
+  private static String normalizeCatalogKey(String raw) {
+    return raw.trim().toLowerCase(LOCALE);
+  }
+
+  private static void indexAdaptationIdentifier(Map<String, Adaptation<?>> index, String rawKey, Adaptation<?> adaptation) {
+    if (rawKey == null || rawKey.isBlank() || adaptation == null) {
+      return;
+    }
+
+    index.putIfAbsent(normalizeCatalogKey(rawKey), adaptation);
+  }
+
+  private static CatalogSnapshot buildCatalogSnapshot(long revision, List<Skill<?>> skills) {
+    Map<String, Adaptation<?>> adaptationsById = new HashMap<>();
+    int adaptationCount = 0;
+    for (Skill<?> skill : skills) {
+      if (skill == null) {
+        continue;
+      }
+
+      List<? extends Adaptation<?>> adaptations = skill.getAdaptations();
+      adaptationCount += adaptations.size();
+      for (Adaptation<?> adaptation : adaptations) {
+        if (adaptation == null) {
+          continue;
+        }
+
+        indexAdaptationIdentifier(adaptationsById, adaptation.getName(), adaptation);
+        String fullId = adaptation.getId();
+        indexAdaptationIdentifier(adaptationsById, fullId, adaptation);
+        if (fullId != null && fullId.length() > 37) {
+          indexAdaptationIdentifier(adaptationsById, fullId.substring(37), adaptation);
+        }
+        indexAdaptationIdentifier(adaptationsById, adaptation.getSkill().getName() + ":" + adaptation.getName(), adaptation);
+      }
+    }
+
+    return new CatalogSnapshot(revision, skills.size(), adaptationCount, Map.copyOf(adaptationsById));
+  }
+
+  private record CatalogSnapshot(long revision, int skillCount, int adaptationCount, Map<String, Adaptation<?>> adaptationsById) {
+    private static CatalogSnapshot empty() {
+      return new CatalogSnapshot(-1L, 0, 0, Map.of());
+    }
+
+    private static CatalogSnapshot create(long revision, List<Skill<?>> skills) {
+      return buildCatalogSnapshot(revision, skills);
+    }
+
+    private Adaptation<?> findAdaptation(String normalizedId) {
+      return adaptationsById.get(normalizedId);
+    }
   }
 }

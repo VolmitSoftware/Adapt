@@ -7,7 +7,7 @@ dependencies {
     compileOnly(libs.velocity)
     annotationProcessor(libs.velocity)
 
-    compileOnly('de.crazydev22.slimjar.helper:velocity:2.1.7')
+    compileOnly('de.crazydev22.slimjar.helper:velocity:2.1.9')
     compileOnly(libs.lettuce)
     compileOnly(libs.toml4j)
     compileOnly(libs.fastutil)

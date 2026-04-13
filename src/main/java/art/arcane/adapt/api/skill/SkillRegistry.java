@@ -52,6 +52,7 @@ import org.bukkit.persistence.PersistentDataType;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class SkillRegistry extends TickedObject {
   public static final KMap<String, Skill<?>> skills = new KMap<>();
@@ -61,6 +62,7 @@ public class SkillRegistry extends TickedObject {
   private final KMap<String, Class<? extends Skill<?>>> skillTypes = new KMap<>();
   private final Map<NamespacedKey, Adaptation<?>> adaptationRecipeIndex = new ConcurrentHashMap<>();
   private final Deque<Skill<?>> deferredBootstrapRecipeRegistration = new ArrayDeque<>();
+  private final AtomicLong catalogRevision = new AtomicLong();
   private volatile boolean deferredBootstrapRecipeTaskScheduled;
   private volatile boolean bootstrapLoading = true;
   private volatile boolean foliaRecipeRegistrationWaitWarned;
@@ -231,6 +233,10 @@ public class SkillRegistry extends TickedObject {
     return new ArrayList<>(knownSkills.v());
   }
 
+  public long getCatalogRevision() {
+    return catalogRevision.get();
+  }
+
   public synchronized void registerSkill(Class<? extends Skill<?>> skillType) {
     long started = System.currentTimeMillis();
     long instantiateStarted = started;
@@ -251,6 +257,7 @@ public class SkillRegistry extends TickedObject {
     if (!skill.isEnabled()) {
       skill.unregister();
       skills.remove(skillName);
+      catalogRevision.incrementAndGet();
       return;
     }
 
@@ -265,6 +272,7 @@ public class SkillRegistry extends TickedObject {
     if (totalMs >= SLOW_SKILL_REG_MS || instantiateMs >= SLOW_SKILL_REG_MS) {
       Adapt.warn("Skill registration slow-path [" + skillName + "] total=" + totalMs + "ms instantiate=" + instantiateMs + "ms bootstrap=" + bootstrapLoading + ".");
     }
+    catalogRevision.incrementAndGet();
   }
 
   public synchronized boolean hotReloadSkillConfig(String skillName) {
@@ -283,6 +291,7 @@ public class SkillRegistry extends TickedObject {
           loaded.unregister();
         }
         skills.remove(normalized);
+        catalogRevision.incrementAndGet();
         return true;
       }
 
@@ -293,6 +302,7 @@ public class SkillRegistry extends TickedObject {
       skills.put(normalized, loaded);
       unregisterRecipes(loaded);
       registerRecipes(loaded);
+      catalogRevision.incrementAndGet();
       return true;
     }
 
@@ -337,6 +347,7 @@ public class SkillRegistry extends TickedObject {
     if (!replacement.isEnabled()) {
       replacement.unregister();
       skills.remove(normalizedName);
+      catalogRevision.incrementAndGet();
       return true;
     }
 
@@ -347,6 +358,7 @@ public class SkillRegistry extends TickedObject {
     }
 
     registerRecipes(replacement);
+    catalogRevision.incrementAndGet();
     return true;
   }
 
@@ -457,6 +469,7 @@ public class SkillRegistry extends TickedObject {
     knownSkills.clear();
     skillTypes.clear();
     adaptationRecipeIndex.clear();
+    catalogRevision.incrementAndGet();
   }
 
   @Override
