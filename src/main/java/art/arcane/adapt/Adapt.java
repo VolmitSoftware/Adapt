@@ -45,6 +45,7 @@ import art.arcane.adapt.util.config.ConfigFileSupport;
 import art.arcane.adapt.util.config.ConfigMigrationManager;
 import art.arcane.adapt.util.project.redis.RedisSync;
 import art.arcane.adapt.util.secret.SecretSplash;
+import art.arcane.volmlib.integration.ReloadAware;
 import art.arcane.volmlib.util.collection.KList;
 import art.arcane.volmlib.util.collection.KMap;
 import art.arcane.volmlib.util.inventorygui.UIWindow;
@@ -71,12 +72,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 import static art.arcane.adapt.util.director.context.AdaptationListingHandler.initializeAdaptationListings;
 
-public class Adapt extends VolmitPlugin {
+public class Adapt extends VolmitPlugin implements ReloadAware {
   private static final long STARTUP_SLOW_PHASE_MS = 1500L;
+  private final AtomicBoolean alreadyDrained = new AtomicBoolean(false);
   private static final boolean SLIMJAR_DEBUG = Boolean.getBoolean("adapt.debug-slimjar");
   private static final boolean DISABLE_REMAPPER = Boolean.getBoolean("adapt.disable-remapper");
   public static Adapt instance;
@@ -385,11 +388,45 @@ public class Adapt extends VolmitPlugin {
     if (getServer().getPluginManager().getPlugin("LockettePro") != null) {
       protectorRegistry.registerProtector(new LocketteProProtector());
     }
-    glowingEntities = new GlowingEntities(this);
+    initializeGlowingEntities();
     initializeAdaptationListings();
     services.values().forEach(AdaptService::onEnable);
     services.values().forEach(this::registerListener);
     ConfigFileSupport.flushCreatedConfigSummary();
+  }
+
+  private void initializeGlowingEntities() {
+    try {
+      glowingEntities = new GlowingEntities(this);
+    } catch (Throwable t) {
+      glowingEntities = null;
+      warn("GlowingEntities is unavailable: " + summarizeThrowable(t) + ". Glow-based effects will be disabled.");
+    }
+  }
+
+  private String summarizeThrowable(Throwable throwable) {
+    if (throwable == null) {
+      return "unknown";
+    }
+
+    Throwable root = throwable;
+    while (root.getCause() != null && root.getCause() != root) {
+      root = root.getCause();
+    }
+
+    StringBuilder summary = new StringBuilder(throwable.getClass().getSimpleName());
+    appendMessage(summary, throwable.getMessage());
+    if (root != throwable) {
+      summary.append(" | cause=").append(root.getClass().getSimpleName());
+      appendMessage(summary, root.getMessage());
+    }
+    return summary.toString();
+  }
+
+  private void appendMessage(StringBuilder builder, String message) {
+    if (message != null && !message.isBlank()) {
+      builder.append(": ").append(message);
+    }
   }
 
   private void migrateAllSkillAndAdaptationConfigs() {
@@ -466,6 +503,9 @@ public class Adapt extends VolmitPlugin {
 
   @Override
   public void stop() {
+    if (!alreadyDrained.compareAndSet(false, true)) {
+      return;
+    }
     if (services != null) {
       services.values().forEach(AdaptService::onDisable);
     }
@@ -495,6 +535,12 @@ public class Adapt extends VolmitPlugin {
     if (services != null) {
       services.clear();
     }
+  }
+
+  @Override
+  public void onPreUnload(ReloadAware.PreUnloadReason reason) {
+    Adapt.info("BileTools pre-unload hook fired (" + reason + "). Draining Adapt (persistence flush + services).");
+    stop();
   }
 
   private void startupPrint() {

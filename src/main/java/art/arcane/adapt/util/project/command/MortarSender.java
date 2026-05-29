@@ -21,6 +21,7 @@ package art.arcane.adapt.util.project.command;
 import art.arcane.adapt.util.common.format.C;
 import lombok.Getter;
 import lombok.Setter;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Server;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -205,6 +206,11 @@ public class MortarSender implements CommandSender {
   @Override
   public String getName() {
     return s.getName();
+  }
+
+  @Override
+  public Component name() {
+    return Component.text(getName());
   }
 
   @Override

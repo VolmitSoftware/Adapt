@@ -19,6 +19,7 @@
 
 package art.arcane.adapt.util.project.command;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.Server;
 import org.bukkit.command.CommandSender;
 import org.bukkit.permissions.Permission;
@@ -62,6 +63,12 @@ public class CommandDummy implements CommandSender {
   @Override
   public String getName() {
     return null;
+  }
+
+  @NotNull
+  @Override
+  public Component name() {
+    return Component.text("");
   }
 
   @NotNull

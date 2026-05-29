@@ -15,7 +15,7 @@ chrono = "22.9.10"
 spatial = "22.11.2"
 
 velocity = "3.4.0-SNAPSHOT"
-spigot = "1.21.11-R0.2-SNAPSHOT"
+spigot = "26.1.2-R0.1-SNAPSHOT"
 platformUtils = "e17ac2c698"
 
 # Dynamically Loaded

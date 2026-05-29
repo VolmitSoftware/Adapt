@@ -324,47 +324,93 @@ public class AdvancementManager {
     }
 
     runtimeSchedulerUnsupported.set(false);
-
-    if (loaded.compareAndSet(false, true))
-      main.load();
-
-    if (!AdaptConfig.get().isAdvancements() || !enabled.compareAndSet(false, true))
+    if (!AdaptConfig.get().isAdvancements() || !enabled.compareAndSet(false, true)) {
       return;
-    if (AdaptConfig.get().isUseSql()) {
-      AdaptConfig.SqlSettings sql = AdaptConfig.get().getSql();
-      main.enableMySQL(sql.getUsername(), sql.getPassword(), sql.getDatabase(), sql.getHost(), sql.getPort(), sql.getPoolSize(), sql.getConnectionTimeout());
-    } else {
-      main.enableSQLite(instance.getDataFile("data", "advancements.db"));
     }
 
-    for (Skill<?> i : instance.getAdaptServer().getSkillRegistry().getSkills()) {
-      AdaptAdvancement aa = i.buildAdvancements();
-      Set<BaseAdvancement> set = new HashSet<>();
-      RootAdvancement root = null;
-
-      for (com.fren_gor.ultimateAdvancementAPI.advancement.Advancement a : aa.toAdvancements().reverse()) {
-        advancements.put(a.getKey().getKey(), a);
-        if (a instanceof RootAdvancement r && root == null) root = r;
-        else if (a instanceof BaseAdvancement b) set.add(b);
+    try {
+      if (loaded.compareAndSet(false, true)) {
+        main.load();
       }
 
-      if (root == null) {
-        Adapt.error("Root advancement not found for " + i.getId());
-        continue;
+      advancements.clear();
+
+      if (AdaptConfig.get().isUseSql()) {
+        AdaptConfig.SqlSettings sql = AdaptConfig.get().getSql();
+        main.enableMySQL(sql.getUsername(), sql.getPassword(), sql.getDatabase(), sql.getHost(), sql.getPort(), sql.getPoolSize(), sql.getConnectionTimeout());
+      } else {
+        main.enableSQLite(instance.getDataFile("data", "advancements.db"));
       }
-      root.getAdvancementTab().registerAdvancements(root, set);
+
+      for (Skill<?> i : instance.getAdaptServer().getSkillRegistry().getSkills()) {
+        AdaptAdvancement aa = i.buildAdvancements();
+        Set<BaseAdvancement> set = new HashSet<>();
+        RootAdvancement root = null;
+
+        for (com.fren_gor.ultimateAdvancementAPI.advancement.Advancement a : aa.toAdvancements().reverse()) {
+          advancements.put(a.getKey().getKey(), a);
+          if (a instanceof RootAdvancement r && root == null) root = r;
+          else if (a instanceof BaseAdvancement b) set.add(b);
+        }
+
+        if (root == null) {
+          Adapt.error("Root advancement not found for " + i.getId());
+          continue;
+        }
+
+        root.getAdvancementTab().registerAdvancements(root, set);
+      }
+    } catch (Throwable t) {
+      Adapt.warn("UltimateAdvancementAPI failed during enable: " + summarizeThrowable(t) + ". Advancements will be disabled.");
+      shutdownMain(t);
     }
   }
 
   public void disable() {
     if (main == null) {
-      enabled.set(false);
-      loaded.set(false);
-      runtimeSchedulerUnsupported.set(false);
+      resetState();
       return;
     }
 
-    main.disable();
+    shutdownMain(null);
+  }
+
+  private void shutdownMain(Throwable cause) {
+    advancements.clear();
+
+    try {
+      main.disable();
+    } catch (Throwable t) {
+      if (isPartialInitialisationError(t)) {
+        Adapt.verbose("Skipped UltimateAdvancementAPI disable cleanup after partial initialisation: " + summarizeThrowable(t));
+      } else {
+        Adapt.warn("UltimateAdvancementAPI disable failed: " + summarizeThrowable(t));
+        if (cause != null) {
+          Adapt.verbose("UltimateAdvancementAPI original enable failure: " + summarizeThrowable(cause));
+        }
+      }
+    } finally {
+      resetState();
+    }
+  }
+
+  private boolean isPartialInitialisationError(Throwable throwable) {
+    Throwable current = throwable;
+    while (current != null) {
+      if (current instanceof IllegalStateException) {
+        String message = current.getMessage();
+        if (message != null && message.contains("has not been initialised yet")) {
+          return true;
+        }
+      }
+
+      current = current.getCause();
+    }
+
+    return false;
+  }
+
+  private void resetState() {
     enabled.set(false);
     loaded.set(false);
     runtimeSchedulerUnsupported.set(false);

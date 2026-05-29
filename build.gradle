@@ -29,9 +29,18 @@ plugins {
     alias(libs.plugins.slimjar)
 }
 
-version = '2.0.0-1.21.11'
-def apiVersion = '1.21'
+version = '2.0.0-26.1.2'
+def apiVersion = '26.1'
 def main = 'art.arcane.adapt.Adapt'
+String configuredNmsJar = findProperty('adaptNmsJar') != null ? findProperty('adaptNmsJar').toString() : System.getenv('ADAPT_NMS_JAR')
+File detectedActiveInstanceVersionsDir = rootDir.toPath().resolve('../../[Minecraft Server]/active-instance/versions').normalize().toFile()
+File detectedVersionedNmsJar = detectedActiveInstanceVersionsDir.exists()
+    ? fileTree(detectedActiveInstanceVersionsDir).matching { include('**/*.jar') }.files.toList().sort { File left, File right -> Long.compare(right.lastModified(), left.lastModified()) }.find()
+    : null
+File detectedLauncherNmsJar = rootDir.toPath().resolve('../../[Minecraft Server]/active-instance/server.jar').normalize().toFile()
+File nmsCompileJar = configuredNmsJar != null && !configuredNmsJar.isBlank()
+    ? file(configuredNmsJar)
+    : detectedVersionedNmsJar != null ? detectedVersionedNmsJar : detectedLauncherNmsJar
 String volmLibCoordinate = providers.gradleProperty('volmLibCoordinate')
     .orElse('com.github.VolmitSoftware:VolmLib:master-SNAPSHOT')
     .get()
@@ -117,7 +126,10 @@ dependencies {
         transitive = false
     }
 
-    compileOnly(libs.spigot)
+    compileOnly('io.papermc.paper:paper-api:26.1.2.build.66-stable')
+    if (nmsCompileJar.exists()) {
+        compileOnly(files(nmsCompileJar))
+    }
 
     // Cancer
     slimApi(libs.fukkit) {
@@ -143,7 +155,7 @@ dependencies {
     slimApi(libs.gson)
     slimApi(libs.toml4j)
     slimApi(libs.fastutil)
-    slimApi(libs.glowingentities)
+    implementation(libs.glowingentities)
     slimApi(libs.caffeine)
 
     //Random Api's

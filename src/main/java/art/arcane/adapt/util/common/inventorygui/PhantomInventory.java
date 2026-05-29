@@ -43,6 +43,11 @@ public class PhantomInventory implements PhantomInventoryWrapper {
   }
 
   @Override
+  public int close() {
+    return i.close();
+  }
+
+  @Override
   public HashMap<Integer, ? extends ItemStack> all(Material arg0) throws IllegalArgumentException {
     return i.all(arg0);
   }
@@ -123,6 +128,11 @@ public class PhantomInventory implements PhantomInventoryWrapper {
   }
 
   @Override
+  public InventoryHolder getHolder(boolean useSnapshot) {
+    return i.getHolder(useSnapshot);
+  }
+
+  @Override
   public ItemStack getItem(int arg0) {
     return i.getItem(arg0);
   }
@@ -175,6 +185,11 @@ public class PhantomInventory implements PhantomInventoryWrapper {
   @Override
   public HashMap<Integer, ItemStack> removeItem(ItemStack... arg0) throws IllegalArgumentException {
     return i.removeItem(arg0);
+  }
+
+  @Override
+  public HashMap<Integer, ItemStack> removeItemAnySlot(ItemStack... arg0) throws IllegalArgumentException {
+    return i.removeItemAnySlot(arg0);
   }
 
   @Override

@@ -437,6 +437,11 @@ public class VolmitSender implements CommandSender {
   }
 
   @Override
+  public Component name() {
+    return Component.text(getName());
+  }
+
+  @Override
   public Spigot spigot() {
     return s.spigot();
   }

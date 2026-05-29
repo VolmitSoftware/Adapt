@@ -156,6 +156,9 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
 
               SoundPlayer spw = SoundPlayer.of(world);
               spw.play(block.getLocation().add(0.5, 0, 0.5), Sound.BLOCK_BEACON_ACTIVATE, 1, 1);
+              if (glowingEntities == null) {
+                continue;
+              }
               Slime slime = block.getWorld().spawn(block.getLocation().add(0.5, 0, 0.5), Slime.class, (s) -> {
                 s.setRotation(0, 0);
                 s.setInvulnerable(true);
