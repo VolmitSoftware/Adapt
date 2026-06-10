@@ -19,13 +19,13 @@
 package art.arcane.adapt.api.skill;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.EventHandlerInvoker;
 import art.arcane.adapt.api.adaptation.ReceiveCancelledEvents;
 import org.bukkit.Bukkit;
 import org.bukkit.event.*;
 import org.bukkit.plugin.EventExecutor;
 import org.bukkit.plugin.Plugin;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
@@ -65,19 +65,7 @@ public final class SkillEventRegistrar {
         continue;
       }
 
-      EventExecutor executor = (target, event) -> {
-        if (!eventType.isAssignableFrom(event.getClass())) {
-          return;
-        }
-
-        try {
-          method.invoke(target, event);
-        } catch (InvocationTargetException ex) {
-          throw new EventException(ex.getCause());
-        } catch (Throwable ex) {
-          throw new EventException(ex);
-        }
-      };
+      EventExecutor executor = EventHandlerInvoker.createExecutor(method, eventType);
 
       boolean ignoreCancelled = shouldIgnoreCancelled(method, annotation, eventType);
       Bukkit.getPluginManager().registerEvent(eventType, listener, annotation.priority(), executor, plugin, ignoreCancelled);

@@ -34,6 +34,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -71,10 +72,17 @@ public class CraftingStations extends SimpleAdaptation<CraftingStations.Config> 
   public void addStats(int level, Element v) {
     v.addLore(C.RED + Localizer.dLocalize("crafting.stations.lore2"));
     v.addLore(C.GRAY + Localizer.dLocalize("crafting.stations.lore3"));
+    if (getConfig().hungerCost > 0) {
+      v.addLore(C.YELLOW + "* " + getConfig().hungerCost + C.GRAY + " " + Localizer.dLocalize("crafting.stations.lore4"));
+    }
   }
 
   @EventHandler
   public void on(PlayerInteractEvent e) {
+    if (e.getHand() != EquipmentSlot.HAND) {
+      return;
+    }
+
     Player p = e.getPlayer();
     if (!hasActiveAdaptation(p)) {
       return;
@@ -87,59 +95,45 @@ public class CraftingStations extends SimpleAdaptation<CraftingStations.Config> 
       return;
     }
 
-    if ((e.getAction().equals(Action.RIGHT_CLICK_AIR) || e.getAction().equals(Action.LEFT_CLICK_AIR) || e.getAction().equals(Action.LEFT_CLICK_BLOCK))) {
-
-      SoundPlayer sp = SoundPlayer.of(p);
-      switch (hand.getType()) {
-        case CRAFTING_TABLE -> {
-          p.setCooldown(hand.getType(), 1000);
-          sp.play(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
-          sp.play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
-          p.openWorkbench(null, true);
-          getPlayer(p).getData().addStat("crafting.stations.portable-opens", 1);
-        }
-        case GRINDSTONE -> {
-          p.setCooldown(hand.getType(), 1000);
-          sp.play(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
-          sp.play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
-          Inventory inv = Bukkit.createInventory(p, InventoryType.GRINDSTONE);
-          p.openInventory(inv);
-          getPlayer(p).getData().addStat("crafting.stations.portable-opens", 1);
-        }
-        case ANVIL -> {
-          p.setCooldown(hand.getType(), 1000);
-          sp.play(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
-          sp.play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
-          Inventory inv = Bukkit.createInventory(p, InventoryType.ANVIL);
-          p.openInventory(inv);
-          getPlayer(p).getData().addStat("crafting.stations.portable-opens", 1);
-        }
-        case STONECUTTER -> {
-          p.setCooldown(hand.getType(), 1000);
-          sp.play(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
-          sp.play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
-          Inventory inv = Bukkit.createInventory(p, InventoryType.STONECUTTER);
-          p.openInventory(inv);
-          getPlayer(p).getData().addStat("crafting.stations.portable-opens", 1);
-        }
-        case CARTOGRAPHY_TABLE -> {
-          p.setCooldown(hand.getType(), 1000);
-          sp.play(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
-          sp.play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
-          Inventory inv = Bukkit.createInventory(p, InventoryType.CARTOGRAPHY);
-          p.openInventory(inv);
-          getPlayer(p).getData().addStat("crafting.stations.portable-opens", 1);
-        }
-        case LOOM -> {
-          p.setCooldown(hand.getType(), 1000);
-          sp.play(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
-          sp.play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
-          Inventory inv = Bukkit.createInventory(p, InventoryType.LOOM);
-          p.openInventory(inv);
-          getPlayer(p).getData().addStat("crafting.stations.portable-opens", 1);
-        }
-      }
+    Action action = e.getAction();
+    if (action != Action.RIGHT_CLICK_AIR && action != Action.LEFT_CLICK_AIR && action != Action.LEFT_CLICK_BLOCK) {
+      return;
     }
+
+    InventoryType station = switch (hand.getType()) {
+      case CRAFTING_TABLE -> InventoryType.WORKBENCH;
+      case GRINDSTONE -> InventoryType.GRINDSTONE;
+      case ANVIL -> InventoryType.ANVIL;
+      case STONECUTTER -> InventoryType.STONECUTTER;
+      case CARTOGRAPHY_TABLE -> InventoryType.CARTOGRAPHY;
+      case LOOM -> InventoryType.LOOM;
+      default -> null;
+    };
+
+    if (station == null) {
+      return;
+    }
+
+    int hungerCost = getConfig().hungerCost;
+    if (hungerCost > 0 && p.getFoodLevel() < hungerCost) {
+      return;
+    }
+
+    if (hungerCost > 0) {
+      p.setFoodLevel(Math.max(0, p.getFoodLevel() - hungerCost));
+    }
+
+    p.setCooldown(hand.getType(), 1000);
+    SoundPlayer sp = SoundPlayer.of(p);
+    sp.play(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
+    sp.play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
+    if (station == InventoryType.WORKBENCH) {
+      p.openWorkbench(null, true);
+    } else {
+      Inventory inv = Bukkit.createInventory(p, station);
+      p.openInventory(inv);
+    }
+    getPlayer(p).getData().addStat("crafting.stations.portable-opens", 1);
   }
 
   @Override
@@ -162,6 +156,8 @@ public class CraftingStations extends SimpleAdaptation<CraftingStations.Config> 
   protected static class Config {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown for the Crafting Stations adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     public int cooldown = 125;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Hunger points consumed each time a portable station is opened.", impact = "Higher values make portable station access cost more food; 0 disables the cost.")
+    int hungerCost = 2;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
     boolean permanent = true;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")

@@ -10,6 +10,10 @@ public class ChronosInstantRecallConfig {
   boolean enabled = true;
   @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Play Clock Sounds for the Chronos Instant Recall adaptation.", impact = "True enables this behavior and false disables it.")
   boolean playClockSounds = true;
+  @art.arcane.adapt.util.config.ConfigDoc(value = "Consumes one clock from the casting hand when a recall successfully starts.", impact = "True makes each recall cost a clock; false keeps recalls item-free.")
+  boolean consumeClock = true;
+  @art.arcane.adapt.util.config.ConfigDoc(value = "Fraction of current health lost when a recall completes; never lethal, health is floored at 1.0.", impact = "Higher values make recalls cost more health; 0 disables the health cost.")
+  double healthCostFraction = 0.5;
   @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Show Rewind Trace Particles for the Chronos Instant Recall adaptation.", impact = "True enables this behavior and false disables it.")
   boolean showRewindTraceParticles = true;
   @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Rewind Trace Points for the Chronos Instant Recall adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

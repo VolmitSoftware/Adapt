@@ -94,100 +94,96 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
 
   @EventHandler
   public void on(PlayerInteractEvent e) {
+    Action action = e.getAction();
+    if ((action != Action.LEFT_CLICK_AIR && action != Action.LEFT_CLICK_BLOCK) || e.getHand() != EquipmentSlot.HAND) {
+      return;
+    }
+
     Player p = e.getPlayer();
+    ItemStack is = e.getItem();
+    if (is == null || !isSword(is) || p.hasCooldown(is.getType()) || !hasActiveAdaptation(p)) {
+      return;
+    }
+
     SoundPlayer spw = SoundPlayer.of(p.getWorld());
-    if (e.getHand() != null && e.getHand().equals(EquipmentSlot.HAND) && e.getAction().equals(Action.LEFT_CLICK_AIR) || e.getAction().equals(Action.LEFT_CLICK_BLOCK)) {
-      int dmg = 0;
-      ItemStack is = e.getItem();
-      if (isSword(is)) {
-        if (is != null && !p.hasCooldown(is.getType()) && hasActiveAdaptation(p)) {
-          Location ctr = p.getEyeLocation().clone().add(p.getLocation().getDirection().clone().multiply(2.25)).add(0, -0.5, 0);
+    int dmg = 0;
+    Location ctr = p.getEyeLocation().clone().add(p.getLocation().getDirection().clone().multiply(2.25)).add(0, -0.5, 0);
 
-          int lvl = getLevel(p);
-          Cuboid c = new Cuboid(ctr);
-          c = c.expand(Cuboid.CuboidDirection.Up, (int) Math.floor(getRadius(lvl)));
-          c = c.expand(Cuboid.CuboidDirection.Down, (int) Math.floor(getRadius(lvl)));
-          c = c.expand(Cuboid.CuboidDirection.North, (int) Math.round(getRadius(lvl)));
-          c = c.expand(Cuboid.CuboidDirection.South, (int) Math.round(getRadius(lvl)));
-          c = c.expand(Cuboid.CuboidDirection.East, (int) Math.round(getRadius(lvl)));
-          c = c.expand(Cuboid.CuboidDirection.West, (int) Math.round(getRadius(lvl)));
+    int lvl = getLevel(p);
+    Cuboid c = new Cuboid(ctr);
+    c = c.expand(Cuboid.CuboidDirection.Up, (int) Math.floor(getRadius(lvl)));
+    c = c.expand(Cuboid.CuboidDirection.Down, (int) Math.floor(getRadius(lvl)));
+    c = c.expand(Cuboid.CuboidDirection.North, (int) Math.round(getRadius(lvl)));
+    c = c.expand(Cuboid.CuboidDirection.South, (int) Math.round(getRadius(lvl)));
+    c = c.expand(Cuboid.CuboidDirection.East, (int) Math.round(getRadius(lvl)));
+    c = c.expand(Cuboid.CuboidDirection.West, (int) Math.round(getRadius(lvl)));
 
-          if (dmg > 0) {
-            return;
+    for (Block i : c) {
+      if (M.r((getLevelPercent(lvl) * 2.8) / (i.getLocation().distanceSquared(ctr)))) {
+        if (i.getType().equals(Material.TALL_GRASS)
+            || i.getType().equals(Material.CACTUS)
+            || i.getType().equals(Material.SUGAR_CANE)
+            || i.getType().equals(Material.CARROT)
+            || i.getType().equals(Material.POTATO)
+            || i.getType().equals(Material.NETHER_WART)
+            || i.getType().equals(Materials.GRASS)
+            || i.getType().equals(Material.FERN)
+            || i.getType().equals(Material.LARGE_FERN)
+            || i.getType().equals(Material.VINE)
+            || i.getType().equals(Material.ROSE_BUSH)
+            || i.getType().equals(Material.WITHER_ROSE)
+            || i.getType().equals(Material.ACACIA_LEAVES)
+            || i.getType().equals(Material.BIRCH_LEAVES)
+            || i.getType().equals(Material.DARK_OAK_LEAVES)
+            || i.getType().equals(Material.JUNGLE_LEAVES)
+            || i.getType().equals(Material.OAK_LEAVES)
+            || i.getType().equals(Material.SPRUCE_LEAVES)
+            || i.getType().equals(Material.BROWN_MUSHROOM)
+            || i.getType().equals(Material.RED_MUSHROOM)
+            || i.getType().equals(Material.DEAD_BUSH)
+            || i.getType().equals(Material.DANDELION)
+            || i.getType().equals(Material.TALL_SEAGRASS)
+            || i.getType().equals(Material.SEAGRASS)
+            || i.getType().equals(Material.WHITE_TULIP)
+            || i.getType().equals(Material.RED_TULIP)
+            || i.getType().equals(Material.PINK_TULIP)
+            || i.getType().equals(Material.ORANGE_TULIP)
+            || i.getType().equals(Material.LILY_OF_THE_VALLEY)
+            || i.getType().equals(Material.ALLIUM)
+            || i.getType().equals(Material.AZURE_BLUET)
+            || i.getType().equals(Material.SUNFLOWER)
+            || i.getType().equals(Material.CORNFLOWER)
+            || i.getType().equals(Material.CHORUS_FLOWER)
+            || i.getType().equals(Material.BAMBOO)
+            || i.getType().equals(Material.BAMBOO_SAPLING)
+            || i.getType().equals(Material.LILAC)
+            || i.getType().equals(Material.PEONY)
+            || i.getType().equals(Material.LILY_PAD)
+            || i.getType().equals(Material.COCOA)
+            || i.getType().equals(Material.MANGROVE_LEAVES)) {
+          if (!canBlockBreak(p, i.getLocation())) {
+            continue;
           }
+          BlockBreakEvent ee = new BlockBreakEvent(i, p);
+          Bukkit.getPluginManager().callEvent(ee);
 
-          for (Block i : c) {
-            if (M.r((getLevelPercent(lvl) * 2.8) / (i.getLocation().distanceSquared(ctr)))) {
-              if (i.getType().equals(Material.TALL_GRASS)
-                  || i.getType().equals(Material.CACTUS)
-                  || i.getType().equals(Material.SUGAR_CANE)
-                  || i.getType().equals(Material.CARROT)
-                  || i.getType().equals(Material.POTATO)
-                  || i.getType().equals(Material.NETHER_WART)
-                  || i.getType().equals(Materials.GRASS)
-                  || i.getType().equals(Material.FERN)
-                  || i.getType().equals(Material.LARGE_FERN)
-                  || i.getType().equals(Material.VINE)
-                  || i.getType().equals(Material.ROSE_BUSH)
-                  || i.getType().equals(Material.WITHER_ROSE)
-                  || i.getType().equals(Material.ACACIA_LEAVES)
-                  || i.getType().equals(Material.BIRCH_LEAVES)
-                  || i.getType().equals(Material.DARK_OAK_LEAVES)
-                  || i.getType().equals(Material.JUNGLE_LEAVES)
-                  || i.getType().equals(Material.OAK_LEAVES)
-                  || i.getType().equals(Material.SPRUCE_LEAVES)
-                  || i.getType().equals(Material.BROWN_MUSHROOM)
-                  || i.getType().equals(Material.RED_MUSHROOM)
-                  || i.getType().equals(Material.DEAD_BUSH)
-                  || i.getType().equals(Material.DANDELION)
-                  || i.getType().equals(Material.TALL_SEAGRASS)
-                  || i.getType().equals(Material.SEAGRASS)
-                  || i.getType().equals(Material.WHITE_TULIP)
-                  || i.getType().equals(Material.RED_TULIP)
-                  || i.getType().equals(Material.PINK_TULIP)
-                  || i.getType().equals(Material.ORANGE_TULIP)
-                  || i.getType().equals(Material.LILY_OF_THE_VALLEY)
-                  || i.getType().equals(Material.ALLIUM)
-                  || i.getType().equals(Material.AZURE_BLUET)
-                  || i.getType().equals(Material.SUNFLOWER)
-                  || i.getType().equals(Material.CORNFLOWER)
-                  || i.getType().equals(Material.CHORUS_FLOWER)
-                  || i.getType().equals(Material.BAMBOO)
-                  || i.getType().equals(Material.BAMBOO_SAPLING)
-                  || i.getType().equals(Material.LILAC)
-                  || i.getType().equals(Material.PEONY)
-                  || i.getType().equals(Material.LILY_PAD)
-                  || i.getType().equals(Material.COCOA)
-                  || i.getType().equals(Material.MANGROVE_LEAVES)
-
-              ) {
-                if (!canBlockBreak(p, i.getLocation())) continue;
-                BlockBreakEvent ee = new BlockBreakEvent(i, p);
-                Bukkit.getPluginManager().callEvent(ee);
-
-                if (!ee.isCancelled()) {
-                  dmg += 1;
-                  J.runAt(i.getLocation(), () -> {
-                    i.breakNaturally();
-                    spw.play(i.getLocation(), Sound.BLOCK_GRASS_BREAK, 0.4f, (float) (ThreadLocalRandom.current().nextDouble() * 1.85D));
-                  }, RNG.r.i(0, (getMaxLevel() - lvl * 2) + 1));
-                }
-              }
-            }
-          }
-
-          if (dmg > 0) {
-            p.setCooldown(is.getType(), getCooldownTime(getLevelPercent(lvl)));
-//                        if (areParticlesEnabled()) {
-//                            ParticleEffect.SWEEP_ATTACK.display(p.getEyeLocation().clone().add(p.getLocation().getDirection().clone().multiply(1.25)).add(0, -0.5, 0), 0f, 0f, 0f, 0.1f, 1, null);
-//                        }
-            spw.play(p.getEyeLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, (float) (ThreadLocalRandom.current().nextDouble() / 2D) + 0.65f);
-            damageHand(p, dmg * getDamagePerBlock(getLevelPercent(lvl)));
-            xp(p, dmg * 11.25, "foliage-cut");
-            getPlayer(p).getData().addStat("swords.machete.foliage-cut", dmg);
+          if (!ee.isCancelled()) {
+            dmg += 1;
+            J.runAt(i.getLocation(), () -> {
+              i.breakNaturally();
+              spw.play(i.getLocation(), Sound.BLOCK_GRASS_BREAK, 0.4f, (float) (ThreadLocalRandom.current().nextDouble() * 1.85D));
+            }, RNG.r.i(0, (getMaxLevel() - lvl * 2) + 1));
           }
         }
       }
+    }
+
+    if (dmg > 0) {
+      p.setCooldown(is.getType(), getCooldownTime(getLevelPercent(lvl)));
+      spw.play(p.getEyeLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, (float) (ThreadLocalRandom.current().nextDouble() / 2D) + 0.65f);
+      damageHand(p, dmg * getDamagePerBlock(getLevelPercent(lvl)));
+      xp(p, dmg * 11.25, "foliage-cut");
+      getPlayer(p).getData().addStat("swords.machete.foliage-cut", dmg);
     }
   }
 

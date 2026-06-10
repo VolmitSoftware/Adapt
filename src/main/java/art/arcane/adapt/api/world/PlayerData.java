@@ -91,11 +91,7 @@ public class PlayerData {
   }
 
   public void addStat(String key, double amt) {
-    if (!stats.containsKey(key)) {
-      stats.put(key, amt);
-    } else {
-      stats.put(key, stats.get(key) + amt);
-    }
+    stats.merge(key, amt, Double::sum);
   }
 
   public void update(AdaptPlayer p) {

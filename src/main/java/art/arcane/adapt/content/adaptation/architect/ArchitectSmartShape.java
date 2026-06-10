@@ -106,7 +106,8 @@ public class ArchitectSmartShape extends SimpleAdaptation<ArchitectSmartShape.Co
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(PlayerInteractEvent e) {
-    if (e.getAction() != Action.LEFT_CLICK_BLOCK || e.getClickedBlock() == null) {
+    Action action = e.getAction();
+    if (action != Action.LEFT_CLICK_BLOCK && action != Action.LEFT_CLICK_AIR) {
       return;
     }
 
@@ -125,7 +126,11 @@ public class ArchitectSmartShape extends SimpleAdaptation<ArchitectSmartShape.Co
         return;
       }
 
-      Block target = e.getClickedBlock();
+      Block target = action == Action.LEFT_CLICK_BLOCK ? e.getClickedBlock() : p.getTargetBlockExact(5);
+      if (target == null) {
+        return;
+      }
+
       if (!canBlockPlace(p, target.getLocation())) {
         return;
       }

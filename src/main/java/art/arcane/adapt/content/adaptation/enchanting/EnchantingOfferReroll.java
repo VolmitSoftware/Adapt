@@ -31,6 +31,7 @@ import art.arcane.volmlib.util.inventorygui.Element;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -77,26 +78,39 @@ public class EnchantingOfferReroll extends SimpleAdaptation<EnchantingOfferRerol
   public void addStats(int level, Element v) {
     v.addLore(C.GREEN + "+ " + Form.duration(getCooldownTicks(level) * 50D, 1) + C.GRAY + " " + Localizer.dLocalize("enchanting.offer_reroll.lore1"));
     v.addLore(C.YELLOW + "* " + getLapisCost(level) + C.GRAY + " " + Localizer.dLocalize("enchanting.offer_reroll.lore2"));
+    if (getConfig().xpLevelCost > 0) {
+      v.addLore(C.YELLOW + "* " + getConfig().xpLevelCost + C.GRAY + " " + Localizer.dLocalize("enchanting.offer_reroll.lore_cost_xp"));
+    }
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
   public void on(PlayerInteractEvent e) {
-    if (e.getAction() != Action.RIGHT_CLICK_BLOCK || e.getHand() != EquipmentSlot.HAND || e.getClickedBlock() == null) {
+    Action action = e.getAction();
+    if (action != Action.RIGHT_CLICK_BLOCK && action != Action.RIGHT_CLICK_AIR) {
+      return;
+    }
+
+    if (e.getHand() != EquipmentSlot.HAND) {
       return;
     }
 
     Player p = e.getPlayer();
     int level = getActiveLevel(p, Player::isSneaking);
-    if (level <= 0 || e.getClickedBlock().getType() != Material.ENCHANTING_TABLE) {
+    if (level <= 0 || p.hasCooldown(Material.ENCHANTING_TABLE)) {
+      return;
+    }
+
+    Block table = action == Action.RIGHT_CLICK_BLOCK ? e.getClickedBlock() : p.getTargetBlockExact(5);
+    if (table == null || table.getType() != Material.ENCHANTING_TABLE) {
+      return;
+    }
+
+    if (p.getLevel() < getConfig().xpLevelCost) {
       return;
     }
 
     int lapisCost = getLapisCost(level);
-    if (p.getFoodLevel() < 0) {
-      return;
-    }
-
-    if (!consumeLapis(p, lapisCost) || p.getLevel() < getConfig().xpLevelCost) {
+    if (!hasLapis(p, lapisCost)) {
       return;
     }
 
@@ -104,6 +118,7 @@ public class EnchantingOfferReroll extends SimpleAdaptation<EnchantingOfferRerol
       return;
     }
 
+    consumeLapis(p, lapisCost);
     p.setLevel(Math.max(0, p.getLevel() - getConfig().xpLevelCost));
     p.setCooldown(Material.ENCHANTING_TABLE, getCooldownTicks(level));
     e.setCancelled(true);
@@ -115,7 +130,22 @@ public class EnchantingOfferReroll extends SimpleAdaptation<EnchantingOfferRerol
     getPlayer(p).getData().addStat("enchanting.offer-reroll.rerolls", 1);
   }
 
-  private boolean consumeLapis(Player p, int amount) {
+  private boolean hasLapis(Player p, int amount) {
+    int found = 0;
+    for (ItemStack stack : p.getInventory().getContents()) {
+      if (stack == null || stack.getType() != Material.LAPIS_LAZULI) {
+        continue;
+      }
+
+      found += stack.getAmount();
+      if (found >= amount) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private void consumeLapis(Player p, int amount) {
     int need = amount;
     for (ItemStack stack : p.getInventory().getContents()) {
       if (stack == null || stack.getType() != Material.LAPIS_LAZULI || need <= 0) {
@@ -126,7 +156,6 @@ public class EnchantingOfferReroll extends SimpleAdaptation<EnchantingOfferRerol
       stack.setAmount(stack.getAmount() - used);
       need -= used;
     }
-    return need <= 0;
   }
 
   private boolean setSeed(Player p, int seed) {

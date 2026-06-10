@@ -34,7 +34,6 @@ import art.arcane.volmlib.util.math.M;
 import art.arcane.volmlib.util.math.RollingSequence;
 import art.arcane.volmlib.util.scheduling.ChronoLatch;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -46,7 +45,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
-@EqualsAndHashCode(callSuper = false)
 @Data
 public class AdaptPlayer extends TickedObject {
   private static final Set<UUID> LOAD_FAILURE_GUARD = ConcurrentHashMap.newKeySet();
@@ -307,21 +305,27 @@ public class AdaptPlayer extends TickedObject {
     getServer().takeSpatial(this);
 
     Location at = player.getLocation();
+    long now = M.ms();
 
-    if (lastpos != null) {
-      if (lastpos.getWorld().equals(at.getWorld())) {
-        if (lastpos.distanceSquared(at) <= 7 * 7) {
-          speed.put(lastpos.distance(at) / ((double) (M.ms() - lastloc) / 50D));
-          velocity = velocity.clone().add(at.clone().subtract(lastpos).toVector()).multiply(0.5);
-          velocity.setX(Math.abs(velocity.getX()) < 0.01 ? 0 : velocity.getX());
-          velocity.setY(Math.abs(velocity.getY()) < 0.01 ? 0 : velocity.getY());
-          velocity.setZ(Math.abs(velocity.getZ()) < 0.01 ? 0 : velocity.getZ());
-        }
+    if (lastpos != null && lastpos.getWorld().equals(at.getWorld())) {
+      double dx = at.getX() - lastpos.getX();
+      double dy = at.getY() - lastpos.getY();
+      double dz = at.getZ() - lastpos.getZ();
+      double distanceSquared = (dx * dx) + (dy * dy) + (dz * dz);
+
+      if (distanceSquared <= 7 * 7) {
+        speed.put(Math.sqrt(distanceSquared) / ((double) (now - lastloc) / 50D));
+        double vx = (velocity.getX() + dx) * 0.5;
+        double vy = (velocity.getY() + dy) * 0.5;
+        double vz = (velocity.getZ() + dz) * 0.5;
+        velocity.setX(Math.abs(vx) < 0.01 ? 0 : vx);
+        velocity.setY(Math.abs(vy) < 0.01 ? 0 : vy);
+        velocity.setZ(Math.abs(vz) < 0.01 ? 0 : vz);
       }
     }
 
-    lastpos = at.clone();
-    lastloc = M.ms();
+    lastpos = at;
+    lastloc = now;
   }
 
   public double getSpeed() {
@@ -424,5 +428,15 @@ public class AdaptPlayer extends TickedObject {
     if (AdaptConfig.get().isUseSql() && Adapt.instance.getSqlManager() != null) {
       Adapt.instance.getSqlManager().delete(uuid);
     }
+  }
+
+  @Override
+  public final boolean equals(Object obj) {
+    return this == obj;
+  }
+
+  @Override
+  public final int hashCode() {
+    return System.identityHashCode(this);
   }
 }

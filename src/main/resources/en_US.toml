@@ -19,7 +19,7 @@ title = "Zoom a 50K!"
 description = "Walk over 50 Kilometers (50,000 blocks)"
 
 [advancement.challenge_sprint_500k]
-title = "Traverse the Universe!!"
+title = "Traverse the Universe!"
 description = "Walk over 500 Kilometers (500,000 blocks)"
 
 [advancement.challenge_sprint_marathon]
@@ -1184,114 +1184,114 @@ xporb = "Experience Orb"
 [skill.agility]
 name = "Agility"
 icon = "⇉"
-description = "Agility is the ability to move quick and fluidly in the face of obstacles."
+description = "Agility is the ability to move quick and fluidly in the face of obstacles. Level up by sprinting, swimming, jumping, and climbing."
 
 [skill.architect]
 name = "Architect"
 icon = "⬧"
-description = "Structures are the building blocks of the world. Reality is in your hands, yours to control."
+description = "Structures are the building blocks of the world. Reality is in your hands, yours to control. Level up by placing blocks."
 
 [skill.axes]
 name = "Axes"
 icon = "🪓"
-description1 = "Why chop down trees, when you could chop "
+description1 = "Level up by chopping wood and fighting with axes. Why chop down trees, when you could chop "
 description2 = "things"
-description3 = "instead, same end result!"
+description3 = "instead? Same end result!"
 
 [skill.brewing]
 name = "Brewing"
 icon = "❦"
-description = "Double Bubble, Triple Bubble, Quadruple Bubble- I still cant put this potion into a cauldron"
+description = "Level up by brewing potions, then unlock recipes vanilla never gave you. Double bubble, triple bubble - still can't put a potion in a cauldron."
 
 [skill.blocking]
 name = "Blocking"
 icon = "🛡"
-description = "Sticks and stones Won't break your bones, But a shield will."
+description = "Sticks and stones won't break your bones, but a shield will. Level up by blocking hits with a shield."
 
 [skill.crafting]
 name = "Crafting"
 icon = "⌂"
-description = "With no more pieces left to place, why not make another?"
+description = "With no more pieces left to place, why not make another? Level up by crafting items."
 
 [skill.discovery]
 name = "Discovery"
 icon = "⚛"
-description = "As your perception expands, your mind unravels to discover that which you did not."
+description = "As your perception expands, your mind unravels to discover that which you did not. Level up by exploring and collecting experience."
 
 [skill.enchanting]
 name = "Enchanting"
 icon = "♰"
-description = "What are you going on about? Prophecies, visions, superstitious jibber-jabber?"
+description = "Bend glimmering knowledge to your will. Level up by enchanting gear at the enchanting table."
 
 [skill.excavation]
 name = "Excavation"
 icon = "ᛳ"
-description = "Diggy Diggy Hole..."
+description = "Diggy diggy hole... Level up by digging dirt, sand, gravel, and other soft ground with shovels."
 
 [skill.herbalism]
 name = "Herbalism"
 icon = "⚘"
-description = "I can't find any plants, but I can find some seeds and- is that... Weed?"
+description = "Master the green and growing things. Level up by farming, harvesting crops, and gathering plants."
 
 [skill.hunter]
 name = "Hunter"
 icon = "☠"
-description = "Hunting is about the journey not the outcome."
+description = "Hunting is about the journey, not the outcome. Level up by slaying mobs; its boons trigger when you are struck, at the cost of hunger."
 
 [skill.nether]
 name = "Nether"
 icon = "₪"
-description = "From the depths of the Nether itself."
+description = "From the depths of the Nether itself. Level up by braving the Nether and its monsters."
 
 [skill.pickaxe]
 name = "Pickaxe"
 icon = "⛏"
-description = "Dwarves are the miners, but ive learned a thing or two in my time. IM SWEDISH"
+description = "Dwarves are the miners, but I've learned a thing or two in my time. Level up by mining stone and ores with pickaxes."
 
 [skill.ranged]
 name = "Ranged"
 icon = "🏹"
-description = "Distance is the key to victory, and the key to survival."
+description = "Distance is the key to victory, and the key to survival. Level up by landing projectile hits."
 
 [skill.rift]
 name = "Rift"
 icon = "❍"
-description = "The Rift is a caustic harness, but you have harnessed the harness."
+description = "Harness the caustic energy of the Rift. Level up by teleporting and using ender items."
 
 [skill.seaborne]
 name = "Seaborne"
 icon = "🎣"
-description = "With this skill, you may will the wonders of the water."
+description = "With this skill, you may will the wonders of the water. Level up by swimming and fishing."
 
 [skill.stealth]
 name = "Stealth"
 icon = "☯"
-description = "The art of the unseen. Walk in the shadows."
+description = "The art of the unseen. Walk in the shadows. Level up by sneaking and striking while hidden."
 
 [skill.swords]
 name = "Swords"
 icon = "⚔"
-description = "By the power of GreyStone!"
+description = "By the power of GreyStone! Level up by dealing damage with swords."
 
 [skill.taming]
 name = "Taming"
 icon = "♥"
-description = "The parrots and the bees... and you?"
+description = "The parrots and the bees... and you? Level up by taming, breeding, and fighting alongside your pets."
 
 [skill.tragoul]
 name = "TragOul"
 icon = "🗡"
-description = "Blood flows through the veins of the universe. Constricted by your hands."
+description = "Blood flows through the veins of the universe, constricted by your hands. Level up by taking damage and surviving at low health."
 
 [skill.chronos]
 name = "Chronos"
 icon = "🕒"
-description = "Wind the Clock of the universe, experience the flow. Break the clock, become it."
+description = "Wind the clock of the universe, experience the flow. Break the clock, become it. Level up by moving, sleeping, and surviving the passage of time."
 
 [skill.unarmed]
 name = "Unarmed"
 icon = "»"
-description = "Without a weapon is not without strength."
+description = "Without a weapon is not without strength. Level up by fighting bare-handed."
 
 # agility
 [agility]
@@ -1312,7 +1312,7 @@ lore = ["Ladder speed multiplier", "Fast descent speed"]
 
 [agility.super_jump]
 name = "Super Jump"
-description = "Exceptional Height Advantage."
+description = "Sneak and jump to launch a super jump. Jump height scales with level."
 lore1 = "Max Jump Height"
 lore2 = "Sneak + Jump to Super Jump!"
 lore = ["Max Jump Height", "Sneak + Jump to Super Jump!"]
@@ -1368,19 +1368,19 @@ lore = ["Magically create: ", "Blocks beneath you!"]
 
 [architect.glass]
 name = "Silk-Touch Glass"
-description = "This allows for you to essentially prevent the loss of glass blocks when you break them with an empty hand!"
+description = "Break glass blocks with an empty hand to pick them up without shattering them."
 lore1 = "Your hands gain silk touch for Glass"
 lore = ["Your hands gain silk touch for Glass"]
 
 [architect.wireless_redstone]
 name = "Redstone Remote"
 description = "This allows for you to use a redstone torch to toggle redstone, remotely!"
-lore1 = "Target + Redstone Torch + Enderpearl = 1 Redstone Remote"
-lore = ["Target + Redstone Torch + Enderpearl = 1 Redstone Remote"]
+lore1 = "Target + Redstone Torch + Ender Pearl = 1 Redstone Remote"
+lore = ["Target + Redstone Torch + Ender Pearl = 1 Redstone Remote"]
 
 [architect.placement]
 name = "Builders Wand"
-description = "Allows for you to place multiple blocks at once to activate Sneak, and hold a block that matches your looking block and place! Keep in mind, you may need to move a tad to trigger bounding the boxes!"
+description = "Sneak while holding a block that matches the surface you are looking at to place multiple blocks across it at once. You may need to move slightly to refresh the placement preview."
 lore1 = "You need"
 lore2 = "blocks in your hand to place this"
 lore3 = "A Material Builders Wand"
@@ -1464,77 +1464,77 @@ lore = ["Per Touching Fire Block", "Per Touching Lava Block"]
 
 [brewing.darkness]
 name = "Bottled Darkness"
-description = "Not sure why you need this, but here you go!"
+description = "Unlocks brewing Potions of Darkness, which shroud vision and prevent sprinting."
 lore1 = "NightVision Potion + Black Concrete = Potion of Darkness (30 seconds)"
-lore2 = "It Should be noted that This prevents the user from Sprinting!"
-lore = ["NightVision Potion + Black Concrete = Potion of Darkness (30 seconds)", "It Should be noted that This prevents the user from Sprinting!"]
+lore2 = "Note: Darkness prevents the drinker from sprinting!"
+lore = ["NightVision Potion + Black Concrete = Potion of Darkness (30 seconds)", "Note: Darkness prevents the drinker from sprinting!"]
 
 [brewing.haste]
 name = "Bottled Haste"
-description = "When Efficiency is not enough"
+description = "Unlocks brewing Potions of Haste for faster mining, when Efficiency is not enough."
 lore1 = "Speed Potion + Amethyst Shard = Potion of Haste (60 seconds)"
 lore2 = "Speed Potion + Amethyst Block = Potion of Haste-2 (30 seconds)"
 lore = ["Speed Potion + Amethyst Shard = Potion of Haste (60 seconds)", "Speed Potion + Amethyst Block = Potion of Haste-2 (30 seconds)"]
 
 [brewing.absorption]
 name = "Bottled Absorption"
-description = "Harden the body!"
+description = "Unlocks brewing Potions of Absorption for temporary bonus hearts."
 lore1 = "Instant Heal + Quartz = Potion of Absorption (60 seconds)"
 lore2 = "Instant Heal + Quartz Block = Potion of Absorption-2 (30 seconds)"
 lore = ["Instant Heal + Quartz = Potion of Absorption (60 seconds)", "Instant Heal + Quartz Block = Potion of Absorption-2 (30 seconds)"]
 
 [brewing.fatigue]
 name = "Bottled Fatigue"
-description = "Weaken the body!"
+description = "Unlocks brewing Potions of Mining Fatigue, which slow a target's digging and attacks."
 lore1 = "Weakness Potion + Slime Ball = Potion of Fatigue (30 seconds)"
 lore2 = "Weakness Potion + Slime Block = Potion of Fatigue-2 (15 seconds)"
 lore = ["Weakness Potion + Slime Ball = Potion of Fatigue (30 seconds)", "Weakness Potion + Slime Block = Potion of Fatigue-2 (15 seconds)"]
 
 [brewing.hunger]
 name = "Bottled Hunger"
-description = "Feed the Insatiable!"
+description = "Unlocks brewing Potions of Hunger, which drain a target's food."
 lore1 = "Awkward Potion + Rotten Flesh = Potion of Hunger (30 seconds)"
 lore2 = "Weakness Potion + Rotten Flesh = Potion of Hunger-3 (15 seconds)"
 lore = ["Awkward Potion + Rotten Flesh = Potion of Hunger (30 seconds)", "Weakness Potion + Rotten Flesh = Potion of Hunger-3 (15 seconds)"]
 
 [brewing.nausea]
 name = "Bottled Nausea"
-description = "You make me sick!"
+description = "Unlocks brewing Potions of Nausea, which warp a target's vision."
 lore1 = "Awkward Potion + Brown Mushroom = Potion of Nausea (16 seconds)"
 lore2 = "Awkward Potion + Crimson Fungus = Potion of Nausea-2 (8 seconds)"
 lore = ["Awkward Potion + Brown Mushroom = Potion of Nausea (16 seconds)", "Awkward Potion + Crimson Fungus = Potion of Nausea-2 (8 seconds)"]
 
 [brewing.blindness]
 name = "Bottled Blindness"
-description = "You're a horrible person..."
+description = "Unlocks brewing Potions of Blindness, which shroud a target's sight."
 lore1 = "Awkward Potion + Ink sack = Potion of Blindness (30 seconds)"
 lore2 = "Awkward Potion + Glowing Ink Sack = Potion of Blindness-2 (15 seconds)"
 lore = ["Awkward Potion + Ink sack = Potion of Blindness (30 seconds)", "Awkward Potion + Glowing Ink Sack = Potion of Blindness-2 (15 seconds)"]
 
 [brewing.resistance]
 name = "Bottled Resistance"
-description = "Fortification at its finest!"
+description = "Unlocks brewing Potions of Resistance, which reduce incoming damage."
 lore1 = "Awkward Potion + Iron Ingot = Potion of Resistance (60 seconds)"
 lore2 = "Awkward Potion + Iron Block = Potion of Resistance-2 (30 seconds)"
 lore = ["Awkward Potion + Iron Ingot = Potion of Resistance (60 seconds)", "Awkward Potion + Iron Block = Potion of Resistance-2 (30 seconds)"]
 
 [brewing.health_boost]
 name = "Bottled Life"
-description = "When Maximum health is not enough..."
+description = "Unlocks brewing Potions of Health Boost for extra maximum hearts."
 lore1 = "Instant-Healing Potion + Golden Apple = Potion of Health Boost (120 seconds)"
 lore2 = "Instant-Healing Potion + Enchanted Golden Apple = Potion of Health Boost-2 (120 seconds)"
 lore = ["Instant-Healing Potion + Golden Apple = Potion of Health Boost (120 seconds)", "Instant-Healing Potion + Enchanted Golden Apple = Potion of Health Boost-2 (120 seconds)"]
 
 [brewing.decay]
 name = "Bottled Decay"
-description = "Who knew Detritus would be so useful?"
+description = "Unlocks brewing Potions of Wither, which afflict a target with decay."
 lore1 = "Weakness Potion + Poisonous Potato = Potion of Wither (16 seconds)"
 lore2 = "Weakness Potion + Crimson Roots = Potion of Wither-2 (8 seconds)"
 lore = ["Weakness Potion + Poisonous Potato = Potion of Wither (16 seconds)", "Weakness Potion + Crimson Roots = Potion of Wither-2 (8 seconds)"]
 
 [brewing.saturation]
 name = "Bottled Saturation"
-description = "Ya know... Im not even Hungry..."
+description = "Unlocks brewing Potions of Saturation, which restore hunger."
 lore1 = "Regen Potion + Baked Potato = Potion of Saturation"
 lore2 = "Regen Potion + Hay Bale = Potion of Saturation-2"
 lore = ["Regen Potion + Baked Potato = Potion of Saturation", "Regen Potion + Hay Bale = Potion of Saturation-2"]
@@ -1562,7 +1562,7 @@ lore = ["Recipe: 5 Leather:"]
 
 [blocking.multi_armor]
 name = "Multi-Armor"
-description = "Bind Elytras to Armor"
+description = "Bind an elytra to your chestplate and swap between them on the fly."
 lore1 = "This Is an amazing skill for traveling."
 lore2 = "Dynamically merge and change Armor/Elytra on the Fly!"
 lore3 = "To merge, shift click an item over another in your inventory."
@@ -1636,7 +1636,7 @@ lore = ["Just toss it(rotten flesh) on the campfire!"]
 
 [crafting.backpacks]
 name = "A Boutilier's Backpacks!"
-description = "This just Brings the Mojang Bundle into the game!"
+description = "Unlocks crafting bundles to carry mixed item stacks in a single slot."
 lore1 = "You need to be in Survival to use this"
 lore2 = "XLX : Leather, Lead, Leather"
 lore3 = "XSX : Leather, Barrel Box, Leather"
@@ -1645,10 +1645,11 @@ lore = ["You need to be in Survival to use this", "XLX : Leather, Lead, Leather"
 
 [crafting.stations]
 name = "Portable Tables!"
-description = "Use a table in the palm of your hand!"
+description = "Click the air while holding an anvil, crafting table, grindstone, stonecutter, cartography table, or loom to open it without placing it. Each open costs hunger."
 lore2 = "ANY ITEMS THAT YOU FORGET IN THE TABLE WHEN CLOSED ARE LOST FOREVER!"
 lore3 = "Valid tables: Anvil, Crafting, Grindstone, Cartography, Stone-Cutter, Loom"
 lore = ["ANY ITEMS THAT YOU FORGET IN THE TABLE WHEN CLOSED ARE LOST FOREVER!", "Valid tables: Anvil, Crafting, Grindstone, Cartography, Stone-Cutter, Loom"]
+lore4 = "Hunger consumed per portable station opened"
 
 [crafting.skulls]
 name = "Craftable skulls!"
@@ -1682,11 +1683,13 @@ lore = ["Melee attacks apply stacking slowness", "PvE slowness duration cap", "P
 
 [chronos.instant_recall]
 name = "Instant Recall"
-description = "Left or right click with a clock in hand to rewind to a recent snapshot with health and hunger restored."
+description = "Left or right click with a clock in hand to rewind to a recent snapshot with health and hunger restored. Costs the clock and half your remaining health, but never kills you."
 lore1 = "Rewind duration"
 lore2 = "Cooldown"
 lore3 = "No inventory rollback"
 lore = ["Rewind duration", "Cooldown", "No inventory rollback"]
+lore_cost_clock = "Consumes the clock on recall"
+lore_cost_health = "of remaining health lost on recall"
 
 [chronos.time_bomb]
 name = "Time Bomb"
@@ -1733,7 +1736,7 @@ lore = ["Triggers only at critical health (<= 5 hearts) once per 15 seconds", " 
 
 [discovery.villager]
 name = "Villager Attraction"
-description = "Allows for you to get Better trades with villagers!"
+description = "Get better trades with villagers, at the cost of XP per interaction."
 lore1 = "This consumes XP per interaction with Villagers"
 lore2 = "Chance Per interaction to consume XP, and enhance trades"
 lore3 = "required XP drain per Interaction"
@@ -1757,19 +1760,20 @@ lore = ["Bonus Reward Chance", "Rare Reward Chance", "Reward Cooldown"]
 
 [discovery.cartographer_pulse]
 name = "Cartographer Pulse"
-description = "Sneak-right-click with a compass to lock your compass toward a nearby structure."
+description = "Sneak-right-click with a compass to lock it toward a nearby structure. Each pulse costs hunger."
 lore1 = "Structure Search Range"
 lore2 = "Pulse Cooldown"
 lore = ["Structure Search Range", "Pulse Cooldown"]
 
 # enchanting
+lore_cost_hunger = "Hunger cost per pulse"
 [enchanting]
 
 [enchanting.lapis_return]
 name = "Lapis Return"
-description = "At the cost of 1 more level of XP, and has a chance to give you free lapis in return"
-lore1 = "For every level, it increases the cost of enchanting, by 1, but can return upwards of 3 Lapis"
-lore = ["For every level, it increases the cost of enchanting, by 1, but can return upwards of 3 Lapis"]
+description = "Enchanting at a table has a chance to refund lapis, more at higher levels."
+lore1 = "Chance to drop free lapis when you enchant; the amount scales with your level"
+lore = ["Chance to drop free lapis when you enchant; the amount scales with your level"]
 
 [enchanting.quick_enchant]
 name = "Quick-Click Enchant"
@@ -1794,10 +1798,11 @@ lore = ["Anvil Cost Reduction"]
 
 [enchanting.offer_reroll]
 name = "Offer Reroll"
-description = "Sneak-right-click an enchanting table to reroll offers for lapis and XP."
+description = "Sneak-right-click an enchanting table to reroll its offers. Each reroll costs lapis and XP levels."
 lore1 = "Reroll Cooldown"
 lore2 = "Lapis Cost"
 lore = ["Reroll Cooldown", "Lapis Cost"]
+lore_cost_xp = "XP Level Cost"
 
 [enchanting.bookshelf_attunement]
 name = "Bookshelf Attunement"
@@ -1825,7 +1830,7 @@ lore = ["Gain Haste while excavating", "x Levels of haste when you start mining 
 
 [excavation.spelunker]
 name = "Super-Seeing Spelunker!"
-description = "See Ores with your eyes, but through the ground!"
+description = "Hold glow berries in your main hand to see ores through the ground."
 lore1 = "Ore in your offhand, Glowberries in your main hand, and Sneak!"
 lore2 = "Block Range: "
 lore3 = "Consumes Glowberry on use"
@@ -1844,15 +1849,15 @@ name = "Shovel Drop-To-Inventory"
 
 [excavation.omni_tool]
 name = "OMNI - T.O.O.L."
-description = "Tackle's overdesigned opulent Leatherman"
-lore1 = "Probably the most powerful of many allows you to"
-lore2 = "dynamically merge and change tools on the fly, based on your needs."
+description = "Merge your tools into one omni-tool that swaps to the right tool for the job. Shift-click one tool onto another in your inventory to merge; sneak-drop to disassemble."
+lore1 = "Merges your tools into a single omni-tool that"
+lore2 = "dynamically swaps to the right tool on the fly, based on your needs."
 lore3 = "To merge, shift click an item over another in your inventory."
 lore4 = "To unbind tools, Sneak-Drop the item, and it will disassemble."
-lore5 = "You can't break tools in this leatherman but you can't use broken tools"
+lore5 = "Merged tools never break, but tools at zero durability can't be used"
 lore6 = "total merge-able items."
 lore7 = "You could use five or six tools, or just one!"
-lore = ["Probably the most powerful of many allows you to", "dynamically merge and change tools on the fly, based on your needs.", "To merge, shift click an item over another in your inventory.", "To unbind tools, Sneak-Drop the item, and it will disassemble.", "You can't break tools in this leatherman but you can't use broken tools", "total merge-able items.", "You could use five or six tools, or just one!"]
+lore = ["Merges your tools into a single omni-tool that", "dynamically swaps to the right tool on the fly, based on your needs.", "To merge, shift click an item over another in your inventory.", "To unbind tools, Sneak-Drop the item, and it will disassemble.", "Merged tools never break, but tools at zero durability can't be used", "total merge-able items.", "You could use five or six tools, or just one!"]
 
 # herbalism
 [herbalism]
@@ -1969,14 +1974,14 @@ lore1 = "Max Damage"
 lore = ["Max Damage"]
 
 [hunter.penalty]
-name = ""
-description = ""
-lore1 = "You will Gain Poison stacks if you run out of hunger"
-lore = ["You will Gain Poison stacks if you run out of hunger"]
+name = "Hunter's Penalty"
+description = "Hunter boons drain hunger; running out of hunger builds Poison stacks."
+lore1 = "Poison stacks if you run out of hunger"
+lore = ["Poison stacks if you run out of hunger"]
 
 [hunter.drop_to_inventory]
 name = "Items Drop-To-Inventory"
-description = "When you Kill something / Break a block With a sword it teleports the drops into your inventory"
+description = "Kills and blocks broken with a sword in hand send their drops straight into your inventory."
 lore1 = "Whenever an item is dropped from a mob/block you break it goes into your inventory if it can."
 lore = ["Whenever an item is dropped from a mob/block you break it goes into your inventory if it can."]
 
@@ -2064,7 +2069,7 @@ lore = ["Gain passive strength when struck", "x Strength stacks for a 3 seconds 
 [nether.skull_toss]
 name = "Wither Skull Throw"
 description1 = "Unleash your inner Wither by using"
-description2 = "someones"
+description2 = "someone's"
 description3 = "head."
 lore1 = "Seconds of cooldown between skull tosses."
 lore2 = "Using Wither Skull: Toss a "
@@ -2135,7 +2140,7 @@ lore = ["Chance to Drop", "Tool Wear"]
 
 [pickaxe.drop_to_inventory]
 name = "Pickaxe Drop-To-Inventory"
-description = "When you break a block it teleports the item into your inventory"
+description = "Blocks you break send their drops straight into your inventory."
 lore1 = "Whenever an item is dropped from a block you break it goes into your inventory if it can."
 lore = ["Whenever an item is dropped from a block you break it goes into your inventory if it can."]
 
@@ -2235,37 +2240,38 @@ lore = ["Max Ricochets", "Speed Bonus Per Ricochet", "Bonus Damage Per Ricochet"
 
 [rift.remote_access]
 name = "Remote Access"
-description = "Pull from the void, and get into a marked container."
-lore1 = "Enderpearl + Compass = Reliquary Portkey"
+description = "Craft a Reliquary Portkey (ender pearl + compass), bind it to a container, and use it to open that container from anywhere."
+lore1 = "Ender Pearl + Compass = Reliquary Portkey"
 lore2 = "This item allows you to access containers remotely"
 lore3 = "Once crafted look at item to see usage"
 notcontainer = "That's not a container"
-lore = ["Enderpearl + Compass = Reliquary Portkey", "This item allows you to access containers remotely", "Once crafted look at item to see usage"]
+lore = ["Ender Pearl + Compass = Reliquary Portkey", "This item allows you to access containers remotely", "Once crafted look at item to see usage"]
 
 [rift.blink]
 name = "Rift Blink"
-description = "Short ranged instant teleportation, Just a blink away!"
+description = "Short-range instant teleport. Double-tap jump while sprinting, right-click while sprinting, or click with an ender pearl in hand to blink. Each blink has a chance to consume an ender pearl."
 lore1 = "Blocks on blink (2x Vertical)"
 lore2 = "While Sprinting: Double tap Jump to "
 lore3 = "Blink"
 lore = ["Blocks on blink (2x Vertical)", "While Sprinting: Double tap Jump to ", "Blink"]
+lore_cost_pearl = "chance to consume an ender pearl on blink"
 
 [rift.chest]
 name = "Easy Enderchest"
-description = "Open an enderchest by Left-clicking it in your hand."
-lore1 = "Click an Enderchest in your hand to open (Just dont place it)"
-lore = ["Click an Enderchest in your hand to open (Just dont place it)"]
+description = "Click while holding an ender chest to open your ender chest without placing it."
+lore1 = "Click an Ender Chest in your hand to open it (just don't place it)"
+lore = ["Click an Ender Chest in your hand to open it (just don't place it)"]
 
 [rift.descent]
 name = "Anti-Levitation"
-description = "Are you tired of being stuck in the air? This is the skill for you!"
+description = "Tap sneak while levitating to cancel Levitation and drift down gently with Slow Falling."
 lore1 = "Just Sneak to descend, and you will fall at a less than normal rate!"
 lore2 = "Cooldown:"
 lore = ["Just Sneak to descend, and you will fall at a less than normal rate!", "Cooldown:"]
 
 [rift.gate]
 name = "Rift Gate"
-description = "Teleport to a marked location."
+description = "Sneak-left-click with an Eye of Ender to bind it to your location, then right-click to teleport back after a 5 second channel."
 lore1 = "CRAFTING: Emerald + Amethyst shard + Ender Pearl"
 lore2 = "Read before using!"
 lore3 = "5s delay, "
@@ -2281,9 +2287,9 @@ lore = ["+ Passive: Provides resistance when you use rift abilities, or Ender It
 
 [rift.visage]
 name = "Rift Visage"
-description = "Prevents Endermen from becoming aggressive if you have Enderpearls in your inventory."
-lore1 = "Endermen will not become aggressive if you have Enderpearls in your inventory."
-lore = ["Endermen will not become aggressive if you have Enderpearls in your inventory."]
+description = "Prevents Endermen from becoming aggressive if you have Ender Pearls in your inventory."
+lore1 = "Endermen will not become aggressive if you have Ender Pearls in your inventory."
+lore = ["Endermen will not become aggressive if you have Ender Pearls in your inventory."]
 
 [rift.void_magnet]
 name = "Void Magnet"
@@ -2365,7 +2371,7 @@ lore = ["Minimum Depth Requirement", "Depth Damage Reduction", "Mining Fatigue R
 
 [stealth.ghost_armor]
 name = "Ghost's Armor"
-description = "Slow building armor when not taking damage, Lasts for 1 hit"
+description = "Slowly builds bonus armor while you avoid damage; it is consumed by the next hit."
 lore1 = "Max Armor"
 lore2 = "Speed"
 lore = ["Max Armor", "Speed"]
@@ -2392,7 +2398,7 @@ lore = ["Sneaking Speed"]
 
 [stealth.ender_veil]
 name = "Enderveil"
-description = "No more Pumpkins to prevent Enderman attacks"
+description = "Look at Endermen freely - prevents Enderman aggression without wearing a pumpkin."
 lore1 = "Prevent enderman attacks while sneaking"
 lore2 = "Prevent all enderman attacks"
 lore = ["Prevent enderman attacks while sneaking", "Prevent all enderman attacks"]
@@ -2499,10 +2505,11 @@ lore = ["Aura Radius", "Aura Strength"]
 
 [taming.beast_recall]
 name = "Beast Recall"
-description = "Sneak-right-click with a lead to recall your nearest tamed companion to a safe nearby spot."
+description = "Sneak-right-click with a lead to recall your nearest tamed companion to a safe nearby spot. Each recall costs hunger."
 lore1 = "Recall Radius"
 lore2 = "Recall Cooldown"
 lore = ["Recall Radius", "Recall Cooldown"]
+lore_cost_hunger = "Hunger cost per recall"
 
 [taming.shared_pain]
 name = "Shared Pain"
@@ -2578,7 +2585,7 @@ lore = ["x Damage at 0 armor", "PerLevel Bonus Damage"]
 
 [unarmed.power]
 name = "Unarmed Power"
-description = "Improved Unarmed Damage"
+description = "Your bare-handed strikes deal more damage."
 lore1 = "Damage"
 lore = ["Damage"]
 
@@ -3788,3 +3795,630 @@ description = "Charge into 300 enemies"
 [advancement.challenge_unarmed_charge_kills_100]
 title = "Unstoppable Force"
 description = "Kill 100 mobs with battering charge"
+
+[excavation.tunneler]
+name = "Tunneler"
+description = "Sneak while digging soft blocks to carve a whole plane at once."
+lore1 = "Bonus Blocks Per Dig"
+lore2 = "Extra Durability Per Bonus Block"
+lore = ["Bonus Blocks Per Dig", "Extra Durability Per Bonus Block"]
+
+[excavation.treasure_hunter]
+name = "Treasure Hunter"
+description = "Digging sand, gravel, mud, or clay can unearth archaeology treasure."
+lore1 = "Treasure Chance"
+lore2 = "Treasures roll from a weighted archaeology table"
+lore = ["Treasure Chance", "Treasures roll from a weighted archaeology table"]
+
+[excavation.soft_fall]
+name = "Soft Fall"
+description = "Landing on soft diggable ground reduces fall damage, up to full negation."
+lore1 = "Fall Damage Reduction"
+lore2 = "Applies when landing on dirt, sand, gravel, clay, mud, or soul sand"
+lore = ["Fall Damage Reduction", "Applies when landing on dirt, sand, gravel, clay, mud, or soul sand"]
+
+[excavation.earth_mover]
+name = "Earth Mover"
+description = "Sneak-right-click the air with a shovel to fling a wave of earth that knocks back and slows hostile mobs. Each wave costs hunger."
+lore1 = "Wave Radius"
+lore2 = "Knockback Force"
+lore3 = "Slow Duration"
+lore4 = "Wave Cooldown"
+lore = ["Wave Radius", "Knockback Force", "Slow Duration", "Wave Cooldown", "Hunger Cost"]
+lore5 = "Hunger Cost"
+
+[excavation.dowsing]
+name = "Dowsing"
+description = "Sneaking with a shovel pings the nearest hidden cave, water, or lava pocket with a directional trail."
+lore1 = "Dowsing Range"
+lore2 = "Dowsing Cooldown"
+lore = ["Dowsing Range", "Dowsing Cooldown"]
+
+[excavation.burrow]
+name = "Burrow"
+description = "Sneak-right-click soft ground with a shovel to rapidly dig straight down, stopping before hazards. Each burrow costs hunger and tool durability."
+lore1 = "Max Burrow Depth"
+lore2 = "Durability Per Block"
+lore3 = "Burrow Cooldown"
+lore = ["Max Burrow Depth", "Durability Per Block", "Burrow Cooldown", "Hunger Cost"]
+lore4 = "Hunger Cost"
+
+[excavation.grave_digger]
+name = "Grave Digger"
+description = "Digging earthen ground can unearth bone loot, and rarely disturbs a hostile grave."
+lore1 = "Bone Loot Chance"
+lore2 = "Disturbed Grave Chance"
+lore = ["Bone Loot Chance", "Disturbed Grave Chance"]
+
+[excavation.mudlark]
+name = "Mudlark"
+description = "Bonus drops from muddy blocks, plus haste while digging in water or rain."
+lore1 = "Bonus Drop Chance"
+lore2 = "x Levels of haste while digging wet"
+lore = ["Bonus Drop Chance", "x Levels of haste while digging wet"]
+
+[advancement.challenge_excavation_tunneler_10k]
+title = "Boring Machine"
+description = "Tunnel 10,000 bonus blocks"
+
+[advancement.challenge_excavation_treasure_500]
+title = "Amateur Archaeologist"
+description = "Unearth 500 treasures"
+
+[advancement.challenge_excavation_softfall_1k]
+title = "Pillow Earth"
+description = "Soak 1,000 fall damage on soft ground"
+
+[advancement.challenge_excavation_earthmover_250]
+title = "Landslide"
+description = "Unleash 250 earth waves"
+
+[advancement.challenge_excavation_dowsing_200]
+title = "Water Witcher"
+description = "Dowse 200 hidden pockets"
+
+[advancement.challenge_excavation_burrow_100]
+title = "Going Down"
+description = "Dig 100 burrows"
+
+[advancement.challenge_excavation_gravedigger_300]
+title = "Rest In Pieces"
+description = "Unearth 300 bone troves"
+
+[advancement.challenge_excavation_mudlark_1k]
+title = "Riverbank Forager"
+description = "Collect 1,000 bonus muddy drops"
+
+# chronos (new adaptations)
+
+[chronos.stasis_field]
+name = "Stasis Field"
+description = "Sneak and right click with an amethyst shard to deploy a stasis bubble that freezes projectiles in midair and locks down mobs inside. Consumes the shard on cast."
+lore1 = "Stasis bubble radius"
+lore2 = "Stasis bubble duration"
+lore3 = "Cooldown"
+lore4 = "Sneak + Right Click with an Amethyst Shard"
+lore = ["Stasis bubble radius", "Stasis bubble duration", "Cooldown", "Sneak + Right Click with an Amethyst Shard"]
+lore_cost_shard = "Consumes the amethyst shard on cast"
+
+[chronos.rewind]
+name = "Rewind"
+description = "Sneak and swap hands to mark a moment in time, then do it again within the window to snap back with health and hunger restored. Each rewind costs hunger."
+lore1 = "Rewind window"
+lore2 = "Cooldown after a rewind"
+lore3 = "Sneak + Swap Hands to mark, repeat to rewind"
+lore = ["Rewind window", "Cooldown after a rewind", "Sneak + Swap Hands to mark, repeat to rewind"]
+lore_cost_hunger = "Hunger cost per rewind"
+
+[chronos.borrowed_time]
+name = "Borrowed Time"
+description = "A portion of incoming damage is deferred and quietly drained back once per second over the following seconds."
+lore1 = "Damage deferred"
+lore2 = "Payback window"
+lore3 = "Deferred damage cannot be deferred again"
+lore = ["Damage deferred", "Payback window", "Deferred damage cannot be deferred again"]
+
+[chronos.overtime]
+name = "Overtime"
+description = "Beneficial potion effects applied to you last longer, scaled by adaptation level."
+lore1 = "Extra effect duration"
+lore2 = "Maximum bonus per effect"
+lore3 = "Only beneficial effects are extended"
+lore = ["Extra effect duration", "Maximum bonus per effect", "Only beneficial effects are extended"]
+
+[chronos.accelerate]
+name = "Accelerate"
+description = "Passively accelerate time around you, occasionally growing nearby crops and fast-forwarding furnaces, smokers, blast furnaces, and brewing stands."
+lore1 = "Aura radius"
+lore2 = "Crop growth chance per pulse"
+lore3 = "of a cook or brew fast-forwarded per pulse hit"
+lore = ["Aura radius", "Crop growth chance per pulse", "of a cook or brew fast-forwarded per pulse hit"]
+
+[chronos.hourglass_guard]
+name = "Hourglass Guard"
+description = "A killing blow instead leaves you at half a heart, granting brief invulnerability and slowing nearby enemies, on a long cooldown."
+lore1 = "Invulnerability after a save"
+lore2 = "Cooldown"
+lore3 = "Nearby enemies are briefly slowed"
+lore = ["Invulnerability after a save", "Cooldown", "Nearby enemies are briefly slowed"]
+
+[chronos.pocket_watch]
+name = "Pocket Watch"
+description = "Sneak while falling with a clock in your inventory to drift in slow motion for a limited, level scaled duration each airtime."
+lore1 = "Slow fall budget per airtime"
+lore2 = "Budget refills on landing"
+lore3 = "Hold Sneak while falling with a Clock in your inventory"
+lore = ["Slow fall budget per airtime", "Budget refills on landing", "Hold Sneak while falling with a Clock in your inventory"]
+
+[chronos.deja_vu]
+name = "Deja Vu"
+description = "Your body remembers recent pain; taking the same kind of damage again within a short window hurts noticeably less."
+lore1 = "Repeat damage absorbed"
+lore2 = "Damage memory window"
+lore3 = "The memory refreshes on every hit of the same kind"
+lore = ["Repeat damage absorbed", "Damage memory window", "The memory refreshes on every hit of the same kind"]
+
+[advancement.challenge_chronos_stasis_50]
+title = "Suspended Animation"
+description = "Deploy 50 stasis fields"
+
+[advancement.challenge_chronos_stasis_500]
+title = "Master of Stillness"
+description = "Deploy 500 stasis fields"
+
+[advancement.challenge_chronos_rewind_50]
+title = "Do Over"
+description = "Complete 50 rewinds"
+
+[advancement.challenge_chronos_rewind_500]
+title = "Unstuck in Time"
+description = "Complete 500 rewinds"
+
+[advancement.challenge_chronos_borrowed_2500]
+title = "Pay It Later"
+description = "Defer 2,500 damage to the future"
+
+[advancement.challenge_chronos_overtime_1k]
+title = "Overtime Pay"
+description = "Gain 1,000 bonus seconds of potion duration"
+
+[advancement.challenge_chronos_accelerate_1k]
+title = "Fast Forward"
+description = "Accelerate 1,000 blocks"
+
+[advancement.challenge_chronos_hourglass_10]
+title = "Out of Time"
+description = "Cheat death 10 times with the hourglass"
+
+[advancement.challenge_chronos_pocket_watch_500]
+title = "Falling Slowly"
+description = "Drift through 500 seconds of slowed falls"
+
+[advancement.challenge_chronos_deja_vu_500]
+title = "Haven't We Met?"
+description = "Absorb 500 familiar damage through deja vu"
+
+[unarmed.disarm]
+name = "Disarm"
+description = "Bare-hand hits can knock the target's held item to the ground."
+lore1 = "Disarm Chance"
+lore2 = "Per-Target Cooldown"
+lore = ["Disarm Chance", "Per-Target Cooldown"]
+
+[unarmed.flurry]
+name = "Flurry"
+description = "Rapid consecutive bare-hand hits build flurry stacks that add bonus damage."
+lore1 = "Max Flurry Stacks"
+lore2 = "Damage Per Stack"
+lore3 = "Flurry Window"
+lore = ["Max Flurry Stacks", "Damage Per Stack", "Flurry Window"]
+
+[unarmed.pressure_point]
+name = "Pressure Point"
+description = "Bare-hand hits apply stacking slowness, with weakness at higher levels."
+lore1 = "Max Slowness Stacks"
+lore2 = "Max Weakness Stacks"
+lore3 = "Weakness unlocks at higher levels"
+lore = ["Max Slowness Stacks", "Max Weakness Stacks", "Weakness unlocks at higher levels"]
+
+[unarmed.shockwave_clap]
+name = "Shockwave Clap"
+description = "Sneak and punch the air to clap a shockwave that knocks back enemies in a cone. Each clap costs hunger."
+lore1 = "Shockwave Range"
+lore2 = "Knockback Force"
+lore3 = "Clap Cooldown"
+lore = ["Shockwave Range", "Knockback Force", "Clap Cooldown", "Hunger Cost"]
+lore4 = "Hunger Cost"
+
+[unarmed.iron_fists]
+name = "Iron Fists"
+description = "Bare fists hit harder and punch through soft blocks faster."
+lore1 = "Flat Punch Damage"
+lore2 = "Soft Block Punch Haste"
+lore = ["Flat Punch Damage", "Soft Block Punch Haste"]
+
+[unarmed.grapple]
+name = "Grapple"
+description = "Sneak-punch a mob to grab it, then hurl it where you look. Each throw adds exhaustion."
+lore1 = "Hurl Force"
+lore2 = "Grapple Cooldown"
+lore3 = "Hit again or release sneak to hurl"
+lore = ["Hurl Force", "Grapple Cooldown", "Hit again or release sneak to hurl", "Exhaustion per Throw"]
+lore4 = "Exhaustion per Throw"
+
+[unarmed.second_wind]
+name = "Second Wind"
+description = "Bare-hand kills restore hunger and grant a short regeneration burst."
+lore1 = "Hunger Restored"
+lore2 = "Regeneration Duration"
+lore = ["Hunger Restored", "Regeneration Duration"]
+
+[unarmed.meditation]
+name = "Meditation"
+description = "Meditate while sneaking, still, and empty-handed to slowly build absorption hearts."
+lore1 = "Max Absorption"
+lore2 = "Absorption Per Pulse"
+lore3 = "Combat Lockout"
+lore = ["Max Absorption", "Absorption Per Pulse", "Combat Lockout"]
+
+[advancement.challenge_unarmed_disarm_100]
+title = "Butterfingers"
+description = "Disarm 100 enemies with your bare hands"
+
+[advancement.challenge_unarmed_disarm_1k]
+title = "Weapon Repossessor"
+description = "Disarm 1,000 enemies with your bare hands"
+
+[advancement.challenge_unarmed_flurry_1k]
+title = "Hands of Fury"
+description = "Land 1,000 flurry hits"
+
+[advancement.challenge_unarmed_flurry_10k]
+title = "Hurricane Hands"
+description = "Land 10,000 flurry hits"
+
+[advancement.challenge_unarmed_pressure_500]
+title = "Nerve Striker"
+description = "Land 500 pressure point strikes"
+
+[advancement.challenge_unarmed_pressure_5k]
+title = "Anatomy Scholar"
+description = "Land 5,000 pressure point strikes"
+
+[advancement.challenge_unarmed_clap_250]
+title = "Thunderclap"
+description = "Knock back 250 enemies with shockwave claps"
+
+[advancement.challenge_unarmed_clap_2500]
+title = "Sonic Boom"
+description = "Knock back 2,500 enemies with shockwave claps"
+
+[advancement.challenge_unarmed_iron_1k]
+title = "Knuckles of Steel"
+description = "Land 1,000 iron fist punches"
+
+[advancement.challenge_unarmed_iron_10k]
+title = "Living Anvil"
+description = "Land 10,000 iron fist punches"
+
+[advancement.challenge_unarmed_grapple_100]
+title = "Suplex City"
+description = "Hurl 100 grabbed mobs"
+
+[advancement.challenge_unarmed_grapple_1k]
+title = "Mob Launcher"
+description = "Hurl 1,000 grabbed mobs"
+
+[advancement.challenge_unarmed_second_wind_100]
+title = "Battle Snack"
+description = "Trigger second wind 100 times"
+
+[advancement.challenge_unarmed_second_wind_1k]
+title = "Endless Stamina"
+description = "Trigger second wind 1,000 times"
+
+[advancement.challenge_unarmed_meditate_500]
+title = "Inner Peace"
+description = "Build 500 absorption health through meditation"
+
+[advancement.challenge_unarmed_meditate_5k]
+title = "Transcendence"
+description = "Build 5,000 absorption health through meditation"
+
+[architect.scaffolder]
+name = "Scaffolder"
+description = "Sneak-place blocks as temporary scaffolds that dissolve on their own and refund the block to you!"
+lore1 = "Sneak-placed blocks dissolve automatically"
+lore2 = "Seconds before a scaffold dissolves and refunds"
+lore = ["Sneak-placed blocks dissolve automatically", "Seconds before a scaffold dissolves and refunds"]
+
+[architect.supply_line]
+name = "Supply Line"
+description = "When the stack in your hand runs out, it refills automatically from shulker boxes or bundles in your inventory!"
+lore1 = "Hand auto-refills from shulkers and bundles"
+lore2 = "Refills per minute"
+lore = ["Hand auto-refills from shulkers and bundles", "Refills per minute"]
+
+[architect.steady_hands]
+name = "Steady Hands"
+description = "While bridging over open air you take no knockback, shrug off falls, and place with a steadier rhythm!"
+lore1 = "No knockback while bridging"
+lore2 = "Blocks of fall damage shielded"
+lore = ["No knockback while bridging", "Blocks of fall damage shielded"]
+
+[architect.chalk_line]
+name = "Chalk Line"
+description = "Sneak-right-click a block while holding any block to snap a straight particle guide line along the axis you face. Do it again to clear it!"
+lore1 = "Particle guide line for aligning builds"
+lore2 = "Seconds the guide line stays visible"
+lore = ["Particle guide line for aligning builds", "Seconds the guide line stays visible"]
+
+[architect.demolition]
+name = "Mason's Eraser"
+description = "Erase your own recent placements near-instantly and the block pops right back as a drop!"
+lore1 = "Your fresh placements break near-instantly"
+lore2 = "Seconds a placement counts as fresh"
+lore = ["Your fresh placements break near-instantly", "Seconds a placement counts as fresh"]
+
+[architect.stonecutter_savant]
+name = "Stonecutter Savant"
+description = "Sneak-punch the air with an empty hand to open a stonecutter wherever you are, as long as you carry a stonecutter!"
+lore1 = "Portable stonecutter on demand"
+lore2 = "Seconds of cooldown between uses"
+lore3 = "Requires a stonecutter item in your inventory"
+lore4 = "Requires a stonecutter in your offhand"
+lore = ["Portable stonecutter on demand", "Seconds of cooldown between uses", "Requires a stonecutter item in your inventory", "Requires a stonecutter in your offhand"]
+
+[advancement.challenge_architect_scaffolder_500]
+title = "Temporary Measures"
+description = "Place 500 temporary scaffolds"
+
+[advancement.challenge_architect_scaffolder_5k]
+title = "Master Rigger"
+description = "Place 5,000 temporary scaffolds"
+
+[advancement.challenge_architect_supply_line_100]
+title = "Keep It Coming"
+description = "Auto-refill your hand 100 times"
+
+[advancement.challenge_architect_supply_line_1k]
+title = "Quartermaster"
+description = "Auto-refill your hand 1,000 times"
+
+[advancement.challenge_architect_steady_hands_500]
+title = "Nerves of Steel"
+description = "Place 500 blocks while bridging"
+
+[advancement.challenge_architect_steady_hands_5k]
+title = "Sky Walker"
+description = "Place 5,000 blocks while bridging"
+
+[advancement.challenge_architect_chalk_line_50]
+title = "Straight and True"
+description = "Snap 50 chalk lines"
+
+[advancement.challenge_architect_chalk_line_500]
+title = "Surveyor"
+description = "Snap 500 chalk lines"
+
+[advancement.challenge_architect_demolition_500]
+title = "Controlled Demolition"
+description = "Demolish 500 of your own placements"
+
+[advancement.challenge_architect_demolition_5k]
+title = "Wrecking Crew"
+description = "Demolish 5,000 of your own placements"
+
+[advancement.challenge_architect_stonecutter_savant_50]
+title = "Cutting Corners"
+description = "Open 50 portable stonecutters"
+
+[advancement.challenge_architect_stonecutter_savant_500]
+title = "Master Mason"
+description = "Open 500 portable stonecutters"
+
+[pickaxe.tunnel_bore]
+name = "Tunnel Bore"
+description = "Sneak and mine stone-type blocks to bore out a whole tunnel face at once"
+lore1 = "Sneak, and mine STONE"
+lore2 = "tunnel face bored per block"
+lore3 = "extra durability per bonus block"
+lore = ["Sneak, and mine STONE", "tunnel face bored per block", "extra durability per bonus block"]
+
+[pickaxe.deep_core]
+name = "Deep Core"
+description = "Mining deepslate grants Haste so it digs like normal stone"
+lore1 = "Mine DEEPSLATE to gain Haste"
+lore2 = "Haste level while mining deepslate"
+lore = ["Mine DEEPSLATE to gain Haste", "Haste level while mining deepslate"]
+
+[pickaxe.obsidian_rush]
+name = "Obsidian Rush"
+description = "Mining obsidian with a diamond or netherite pickaxe grants a strong Haste burst"
+lore1 = "Mine OBSIDIAN with a diamond+ pickaxe"
+lore2 = "Haste level while mining obsidian"
+lore3 = "Also works on crying obsidian!"
+lore = ["Mine OBSIDIAN with a diamond+ pickaxe", "Haste level while mining obsidian", "Also works on crying obsidian!"]
+
+[pickaxe.unbreakable_pact]
+name = "Unbreakable Pact"
+description = "Your pickaxe refuses to break, surviving at 1 durability instead"
+lore1 = "Pickaxes never break, stopping at 1 durability"
+lore2 = "chance to ignore durability loss entirely"
+lore = ["Pickaxes never break, stopping at 1 durability", "chance to ignore durability loss entirely"]
+
+[pickaxe.repair_rhythm]
+name = "Repair Rhythm"
+description = "Sustained mining has a chance to restore durability to your pickaxe"
+lore1 = "Each broken block can restore 1-2 durability"
+lore2 = "chance to repair per broken block"
+lore = ["Each broken block can restore 1-2 durability", "chance to repair per broken block"]
+
+[pickaxe.gem_polish]
+name = "Gem Polish"
+description = "Mining gem ores grants bonus XP orbs and a chance for an extra gem"
+lore1 = "Mine diamond, emerald, lapis or amethyst"
+lore2 = "chance for an extra matching gem"
+lore3 = "bonus XP per gem ore mined"
+lore = ["Mine diamond, emerald, lapis or amethyst", "chance for an extra matching gem", "bonus XP per gem ore mined"]
+
+[pickaxe.stone_skin]
+name = "Stone Skin"
+description = "Breaking stone-type blocks builds short-lived stacking damage resistance"
+lore1 = "Mine stone to build Stone Skin stacks"
+lore2 = "maximum Resistance level"
+lore = ["Mine stone to build Stone Skin stacks", "maximum Resistance level"]
+
+[advancement.challenge_pickaxe_tunnelbore_10k]
+title = "Boring Machine"
+description = "Bore 10,000 bonus blocks while tunneling"
+
+[advancement.challenge_pickaxe_deepcore_5k]
+title = "Core Sampler"
+description = "Mine 5,000 deepslate blocks with Deep Core"
+
+[advancement.challenge_pickaxe_obsidianrush_1k]
+title = "Black Gold"
+description = "Mine 1,000 obsidian blocks with Obsidian Rush"
+
+[advancement.challenge_pickaxe_pact_100]
+title = "Pact Keeper"
+description = "Save your pickaxe from breaking 100 times"
+
+[advancement.challenge_pickaxe_rhythm_5k]
+title = "Perpetual Pick"
+description = "Restore 5,000 durability through Repair Rhythm"
+
+[advancement.challenge_pickaxe_gempolish_500]
+title = "Lapidary"
+description = "Polish out 500 extra gems"
+
+[advancement.challenge_pickaxe_stoneskin_10k]
+title = "Hide of Granite"
+description = "Build 10,000 Stone Skin stacks"
+
+[tragoul.corpse_explosion]
+name = "Corpse Explosion"
+description = "Mobs you kill detonate in a blood nova that damages nearby hostile mobs!"
+lore1 = "Kills detonate the corpse, damaging nearby hostile mobs"
+lore2 = "Nova Radius"
+lore3 = "of the victim's max health added as nova damage"
+lore = ["Kills detonate the corpse, damaging nearby hostile mobs", "Nova Radius", "of the victim's max health added as nova damage"]
+
+[tragoul.soul_siphon]
+name = "Soul Siphon"
+description = "Your melee hits drain life from your victims, healing you for part of the damage dealt!"
+lore1 = "of melee damage dealt returned as health"
+lore2 = "max health restored per second"
+lore = ["of melee damage dealt returned as health", "max health restored per second"]
+
+[tragoul.skeletal_servant]
+name = "Skeletal Servant"
+description = "Sneak and right-click with bones to raise temporary skeletal servants, one living servant per level! Servants spawn with level-scaled random gear, inherit your other Tragoul perks, and immediately hunt any player who attacked you in the last few seconds. Summoning at the cap recycles your oldest servant. Consumes bones on summon, fewer at higher levels."
+lore1 = "Sneak + Right-Click with bones in hand to summon a servant"
+lore2 = "Servant Lifetime"
+lore3 = "Bones consumed per summon"
+lore4 = "Summon Cooldown"
+lore5 = "Max living servants"
+lore6 = "Servants gear up with your level, inherit your Tragoul perks, and prioritize players who attack you"
+lore = ["Sneak + Right-Click with bones in hand to summon a servant", "Servant Lifetime", "Bones consumed per summon", "Summon Cooldown", "Max living servants", "Servants gear up with your level, inherit your Tragoul perks, and prioritize players who attack you"]
+
+[tragoul.marrow_armor]
+name = "Marrow Armor"
+description = "Bones in your inventory shatter to absorb part of incoming hits!"
+lore1 = "Consumes 1 bone to absorb part of a hit"
+lore2 = "of the hit absorbed per bone"
+lore3 = "Internal Cooldown"
+lore = ["Consumes 1 bone to absorb part of a hit", "of the hit absorbed per bone", "Internal Cooldown"]
+
+[tragoul.curse_of_frailty]
+name = "Curse of Frailty"
+description = "Enemies that dare strike you are cursed with weakness, and slowness at higher levels!"
+lore1 = "Attackers are cursed with Weakness"
+lore2 = "Curse Duration"
+lore3 = "Attackers are also cursed with Slowness"
+lore = ["Attackers are cursed with Weakness", "Curse Duration", "Attackers are also cursed with Slowness"]
+
+[tragoul.death_sense]
+name = "Death Sense"
+description = "Sense weakened hostile mobs near you - dying prey briefly glows through walls!"
+lore1 = "Weakened hostile mobs near you briefly glow"
+lore2 = "health or lower marks a mob as dying prey"
+lore3 = "Sense Radius"
+lore = ["Weakened hostile mobs near you briefly glow", "health or lower marks a mob as dying prey", "Sense Radius"]
+
+[tragoul.plague_bearer]
+name = "Plague Bearer"
+description = "Mobs that die poisoned or withered by you spread the affliction to nearby hostile mobs!"
+lore1 = "Your poison and wither spread on death"
+lore2 = "Spread Radius"
+lore3 = "Spread Effect Duration"
+lore = ["Your poison and wither spread on death", "Spread Radius", "Spread Effect Duration"]
+
+[tragoul.last_rites]
+name = "Last Rites"
+description = "A killing blow leaves you at 1 HP as a fleeting spirit instead of dying!"
+lore1 = "Death is denied - you linger as a spirit at 1 HP"
+lore2 = "Spirit Duration"
+lore3 = "Cooldown"
+lore = ["Death is denied - you linger as a spirit at 1 HP", "Spirit Duration", "Cooldown"]
+
+[advancement.challenge_tragoul_corpse_500]
+title = "Walking Detonator"
+description = "Detonate 500 hostile mobs with blood novas"
+
+[advancement.challenge_tragoul_corpse_5k]
+title = "Field of Gore"
+description = "Detonate 5,000 hostile mobs with blood novas"
+
+[advancement.challenge_tragoul_siphon_500]
+title = "Soul Drinker"
+description = "Siphon 500 health from your victims"
+
+[advancement.challenge_tragoul_siphon_10k]
+title = "Hollowing Hunger"
+description = "Siphon 10,000 health from your victims"
+
+[advancement.challenge_tragoul_servant_50]
+title = "Necromancer"
+description = "Summon 50 skeletal servants"
+
+[advancement.challenge_tragoul_servant_500]
+title = "Lord of Bones"
+description = "Summon 500 skeletal servants"
+
+[advancement.challenge_tragoul_marrow_500]
+title = "Bone Shield"
+description = "Absorb 500 damage with marrow armor"
+
+[advancement.challenge_tragoul_marrow_5k]
+title = "Ossified"
+description = "Absorb 5,000 damage with marrow armor"
+
+[advancement.challenge_tragoul_frailty_100]
+title = "Brittle Touch"
+description = "Curse 100 attackers with frailty"
+
+[advancement.challenge_tragoul_frailty_1k]
+title = "Wasting Word"
+description = "Curse 1,000 attackers with frailty"
+
+[advancement.challenge_tragoul_death_sense_1k]
+title = "Reaper's Eye"
+description = "Sense 1,000 dying prey through walls"
+
+[advancement.challenge_tragoul_plague_100]
+title = "Patient Zero"
+description = "Spread your plague to 100 hostile mobs"
+
+[advancement.challenge_tragoul_plague_1k]
+title = "Pandemic"
+description = "Spread your plague to 1,000 hostile mobs"
+
+[advancement.challenge_tragoul_last_rites_5]
+title = "Not Today"
+description = "Defy death 5 times"
+
+[advancement.challenge_tragoul_last_rites_50]
+title = "Unfinished Business"
+description = "Defy death 50 times"

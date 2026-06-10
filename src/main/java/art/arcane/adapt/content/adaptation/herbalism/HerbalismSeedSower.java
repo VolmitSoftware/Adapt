@@ -83,13 +83,13 @@ public class HerbalismSeedSower extends SimpleAdaptation<HerbalismSeedSower.Conf
 
   @EventHandler(priority = EventPriority.HIGHEST)
   public void on(PlayerInteractEvent e) {
-
-    Player p = e.getPlayer();
-    if (!hasActiveAdaptation(p) || !p.isSneaking()) {
+    Action action = e.getAction();
+    if ((action != Action.RIGHT_CLICK_BLOCK && action != Action.RIGHT_CLICK_AIR) || e.getHand() != EquipmentSlot.HAND) {
       return;
     }
 
-    if (e.getAction() != Action.RIGHT_CLICK_BLOCK || e.getHand() != EquipmentSlot.HAND || e.getClickedBlock() == null) {
+    Player p = e.getPlayer();
+    if (!p.isSneaking() || !hasActiveAdaptation(p)) {
       return;
     }
 
@@ -104,7 +104,16 @@ public class HerbalismSeedSower extends SimpleAdaptation<HerbalismSeedSower.Conf
       return;
     }
 
-    int planted = plantNearby(p, e.getClickedBlock(), hand, seedType, cropType, getRadius(getLevel(p)), getMaxCrops(getLevel(p)));
+    Block origin = e.getClickedBlock();
+    if (origin == null) {
+      origin = p.getTargetBlockExact(5);
+    }
+
+    if (origin == null) {
+      return;
+    }
+
+    int planted = plantNearby(p, origin, hand, seedType, cropType, getRadius(getLevel(p)), getMaxCrops(getLevel(p)));
     if (planted <= 0) {
       return;
     }

@@ -136,6 +136,12 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
     v.addLore(C.GREEN + "+ " + Form.duration(getRewindDurationMillis(level), 1) + " " + Localizer.dLocalize("chronos.instant_recall.lore1"));
     v.addLore(C.RED + "* " + Form.duration(getCooldownMillis(level), 1) + " " + Localizer.dLocalize("chronos.instant_recall.lore2"));
     v.addLore(C.GRAY + "* " + Localizer.dLocalize("chronos.instant_recall.lore3"));
+    if (getConfig().consumeClock) {
+      v.addLore(C.RED + "* " + Localizer.dLocalize("chronos.instant_recall.lore_cost_clock"));
+    }
+    if (getConfig().healthCostFraction > 0) {
+      v.addLore(C.RED + "* " + Form.pc(getConfig().healthCostFraction, 0) + " " + Localizer.dLocalize("chronos.instant_recall.lore_cost_health"));
+    }
     List<String> combos = getTriggerCombos();
     if (combos.isEmpty()) {
       v.addLore(C.AQUA + "* " + C.GRAY + "Trigger: " + C.WHITE + "none");
@@ -847,6 +853,32 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
         && !ChronoTimeBombItem.isBindableItem(stack);
   }
 
+  private void consumeRecallClock(Player p) {
+    if (!getConfig().consumeClock) {
+      return;
+    }
+
+    ItemStack main = p.getInventory().getItemInMainHand();
+    if (isRecallClock(main)) {
+      main.setAmount(main.getAmount() - 1);
+      return;
+    }
+
+    ItemStack off = p.getInventory().getItemInOffHand();
+    if (isRecallClock(off)) {
+      off.setAmount(off.getAmount() - 1);
+    }
+  }
+
+  private void applyRecallHealthCost(Player p) {
+    double fraction = Math.max(0D, Math.min(1D, getConfig().healthCostFraction));
+    if (fraction <= 0D || p.isDead()) {
+      return;
+    }
+
+    p.setHealth(Math.max(1.0D, p.getHealth() * (1D - fraction)));
+  }
+
   private void attemptRecall(Player p) {
     UUID id = p.getUniqueId();
     if (!isRecallEligible(p)) {
@@ -887,6 +919,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
       return;
     }
 
+    consumeRecallClock(p);
     Snapshot finalSnapshot = animationPath.get(animationPath.size() - 1);
     RecallXPContext xpContext = buildRecallXPContext(animationPath.get(0), finalSnapshot);
     double healthBeforeRecall = p.getHealth();
@@ -1010,6 +1043,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
           J.teleport(p, finalDestination, PlayerTeleportEvent.TeleportCause.PLUGIN);
         }
         applySnapshotState(p, finalSnapshot);
+        applyRecallHealthCost(p);
 
         if (areParticlesEnabled()) {
           p.getWorld().spawnParticle(Particle.TOTEM_OF_UNDYING, p.getLocation().add(0, 1, 0), 26, 0.25, 0.35, 0.25, 0.01);

@@ -30,6 +30,7 @@ import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
 import lombok.NoArgsConstructor;
@@ -41,10 +42,12 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static art.arcane.adapt.api.adaptation.chunk.ChunkLoading.loadChunkAsync;
 
@@ -245,6 +248,9 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
   @Override
   public void addStats(int level, Element v) {
     v.addLore(C.GREEN + "+ " + (getBlinkDistance(level)) + C.GRAY + " " + Localizer.dLocalize("rift.blink.lore1"));
+    if (getConfig().pearlConsumeChance > 0) {
+      v.addLore(C.RED + "* " + Form.pc(getConfig().pearlConsumeChance, 0) + C.GRAY + " " + Localizer.dLocalize("rift.blink.lore_cost_pearl"));
+    }
     java.util.List<String> combos = getTriggerCombos();
     if (combos.isEmpty()) {
       v.addLore(C.AQUA + "* " + C.GRAY + "Trigger: " + C.WHITE + "none");
@@ -450,6 +456,7 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
       return false;
     }
 
+    consumeBlinkPearl(p);
     PlayerSkillLine line = getPlayer(p).getData().getSkillLineNullable("rift");
     PlayerAdaptation adaptation = line != null ? line.getAdaptation("rift-resist") : null;
     if (adaptation != null && adaptation.getLevel() > 0) {
@@ -481,6 +488,22 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
     spw.play(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 0.50f, 1.0f);
     vfxLevelUp(p);
     return true;
+  }
+
+  private void consumeBlinkPearl(Player p) {
+    double chance = Math.max(0D, Math.min(1D, getConfig().pearlConsumeChance));
+    if (chance <= 0D || ThreadLocalRandom.current().nextDouble() >= chance) {
+      return;
+    }
+
+    for (ItemStack stack : p.getInventory().getContents()) {
+      if (stack == null || stack.getType() != Material.ENDER_PEARL || stack.hasItemMeta()) {
+        continue;
+      }
+
+      stack.setAmount(stack.getAmount() - 1);
+      return;
+    }
   }
 
   private boolean isSafe(Location l) {
@@ -516,6 +539,8 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
     boolean showParticles = true;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Cooldown between successful Rift Blink triggers in milliseconds.", impact = "Higher values reduce blink frequency; lower values allow faster reuse.")
     int cooldownMillis = 2000;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Chance per successful blink to consume one plain ender pearl from the inventory.", impact = "Higher values make blinking drain pearls faster; 0 disables the pearl cost.")
+    double pearlConsumeChance = 0.2;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Enables double-tap jump detection for Rift Blink.", impact = "True allows jump-based activation; false disables jump activation.")
     boolean enableDoubleJumpTrigger = true;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Require sprinting for the double-tap jump trigger.", impact = "True requires sprinting while double-tapping jump; false allows it without sprint.")

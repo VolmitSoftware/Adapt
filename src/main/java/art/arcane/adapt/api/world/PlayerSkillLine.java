@@ -38,6 +38,8 @@ import org.bukkit.Sound;
 @Data
 @NoArgsConstructor
 public class PlayerSkillLine {
+  private static final KMap<String, String> SKILL_ADVANCEMENT_KEYS = new KMap<>();
+  private static final KMap<String, String> ADAPTATION_ADVANCEMENT_KEYS = new KMap<>();
   private final KMap<String, Object> storage = new KMap<>();
   private final KMap<String, PlayerAdaptation> adaptations = new KMap<>();
   private final KList<XPMultiplier> multipliers = new KList<>();
@@ -71,13 +73,19 @@ public class PlayerSkillLine {
   }
 
   private void grantSkillsAndAdaptations(AdaptPlayer p, String line) {
-    if (!p.getData().isGranted("skill_" + line) && AdaptConfig.get().isAdvancements()) {
-      p.getAdvancementHandler().grant("skill_" + line);
+    if (!AdaptConfig.get().isAdvancements()) {
+      return;
+    }
+
+    String skillAdvancement = SKILL_ADVANCEMENT_KEYS.computeIfAbsent(line, l -> "skill_" + l);
+    if (!p.getData().isGranted(skillAdvancement)) {
+      p.getAdvancementHandler().grant(skillAdvancement);
     }
 
     for (String i : getAdaptations().keySet()) {
-      if (!p.getData().isGranted("adaptation_" + i) && AdaptConfig.get().isAdvancements()) {
-        p.getAdvancementHandler().grant("adaptation_" + i);
+      String adaptationAdvancement = ADAPTATION_ADVANCEMENT_KEYS.computeIfAbsent(i, a -> "adaptation_" + a);
+      if (!p.getData().isGranted(adaptationAdvancement)) {
+        p.getAdvancementHandler().grant(adaptationAdvancement);
       }
     }
   }

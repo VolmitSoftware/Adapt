@@ -140,7 +140,7 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
       }
 
       switch (event.getAction()) {
-        case LEFT_CLICK_BLOCK -> handleLeftClickBlock(event, player);
+        case LEFT_CLICK_BLOCK, LEFT_CLICK_AIR -> handleLeftClick(event, player);
         case RIGHT_CLICK_AIR, RIGHT_CLICK_BLOCK ->
             handleRightClick(event, player);
       }
@@ -153,27 +153,30 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
   }
 
 
-  private void handleLeftClickBlock(PlayerInteractEvent event, Player player) {
-    Adapt.verbose("Player " + player.getName() + " is left clicking a block");
+  private void handleLeftClick(PlayerInteractEvent event, Player player) {
+    Adapt.verbose("Player " + player.getName() + " is left clicking");
     if (!player.isSneaking()) {
       return;
     }
 
-    // main hand only
     if (event.getHand() != EquipmentSlot.HAND) {
       return;
     }
 
-    if (event.getClickedBlock() == null) {
-      SoundPlayer sp = SoundPlayer.of(player);
-      sp.play(player.getLocation(), Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 0.1f, 0.9f);
+    Block target = event.getClickedBlock();
+    if (target == null) {
+      target = player.getTargetBlockExact(5);
+    }
+
+    if (target == null) {
       return;
     }
 
-    // prevent breaking block
-    event.setUseItemInHand(Result.DENY);
+    if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
+      event.setUseItemInHand(Result.DENY);
+    }
 
-    Location location = new Location(event.getClickedBlock().getWorld(), event.getClickedBlock().getX(), event.getClickedBlock().getY(), event.getClickedBlock().getZ());
+    Location location = new Location(target.getWorld(), target.getX(), target.getY(), target.getZ());
     linkTorch(player, location);
   }
 

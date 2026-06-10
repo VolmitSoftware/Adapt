@@ -33,9 +33,16 @@ import art.arcane.volmlib.util.inventorygui.Element;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.*;
+import org.bukkit.entity.Arrow;
+import org.bukkit.entity.Egg;
+import org.bukkit.entity.EnderPearl;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
+import org.bukkit.entity.Snowball;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.util.Vector;
@@ -98,6 +105,20 @@ public class ChronosTemporalEcho extends SimpleAdaptation<ChronosTemporalEcho.Co
     Vector originalVelocity = original.getVelocity().clone();
     int delay = getEchoDelayTicks(level);
     J.runEntity(p, () -> spawnEcho(p, echoType, originalVelocity, level), delay);
+  }
+
+  @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+  public void on(ProjectileHitEvent e) {
+    if (e.getHitEntity() == null || !e.getEntity().hasMetadata(ECHO_META)) {
+      return;
+    }
+
+    if (!(e.getHitEntity() instanceof LivingEntity target)) {
+      return;
+    }
+
+    target.setNoDamageTicks(0);
+    target.setLastDamage(0.0D);
   }
 
   private void spawnEcho(Player p, EchoType type, Vector velocity, int level) {

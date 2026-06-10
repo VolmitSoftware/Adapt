@@ -56,6 +56,14 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
     registerAdaptation(new UnarmedGlassCannon());
     registerAdaptation(new UnarmedBatteringCharge());
     registerAdaptation(new UnarmedComboChain());
+    registerAdaptation(new UnarmedDisarm());
+    registerAdaptation(new UnarmedFlurry());
+    registerAdaptation(new UnarmedPressurePoint());
+    registerAdaptation(new UnarmedShockwaveClap());
+    registerAdaptation(new UnarmedIronFists());
+    registerAdaptation(new UnarmedGrapple());
+    registerAdaptation(new UnarmedSecondWind());
+    registerAdaptation(new UnarmedMeditation());
     setIcon(Material.FIRE_CHARGE);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.FIRE_CHARGE)

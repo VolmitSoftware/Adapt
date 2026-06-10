@@ -94,7 +94,8 @@ public class AxeTimberMark extends SimpleAdaptation<AxeTimberMark.Config> {
 
   @EventHandler(priority = EventPriority.HIGHEST)
   public void on(PlayerInteractEvent e) {
-    if (e.getAction() != Action.RIGHT_CLICK_BLOCK || e.getClickedBlock() == null) {
+    Action action = e.getAction();
+    if (action != Action.RIGHT_CLICK_BLOCK && action != Action.RIGHT_CLICK_AIR) {
       return;
     }
 
@@ -108,8 +109,8 @@ public class AxeTimberMark extends SimpleAdaptation<AxeTimberMark.Config> {
       return;
     }
 
-    Block clicked = e.getClickedBlock();
-    if (!isLog(new org.bukkit.inventory.ItemStack(clicked.getType()))) {
+    Block clicked = action == Action.RIGHT_CLICK_BLOCK ? e.getClickedBlock() : p.getTargetBlockExact(5);
+    if (clicked == null || !isLog(new org.bukkit.inventory.ItemStack(clicked.getType()))) {
       return;
     }
 

@@ -34,13 +34,16 @@ import lombok.NoArgsConstructor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.RayTraceResult;
 
 public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
   public PickaxeChisel() {
@@ -90,52 +93,68 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
 
   @EventHandler
   public void on(PlayerInteractEvent e) {
+    Action action = e.getAction();
+    if (action != Action.RIGHT_CLICK_BLOCK && action != Action.RIGHT_CLICK_AIR) {
+      return;
+    }
+
+    if (e.getHand() != null && e.getHand() != EquipmentSlot.HAND) {
+      return;
+    }
+
     Player p = e.getPlayer();
+    if (!isPickaxe(p.getInventory().getItemInMainHand()) || !hasActiveAdaptation(p)) {
+      return;
+    }
 
-    if (e.getClickedBlock() != null && e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && isPickaxe(p.getInventory().getItemInMainHand()) && hasActiveAdaptation(p)) {
-      if (p.getInventory().getItemInMainHand().getEnchantments().containsKey(Enchantment.SILK_TOUCH) || p.getInventory().getItemInMainHand().getEnchantments().containsKey(Enchantment.MENDING)) {
-        return;
-      }
-      if (p.getCooldown(p.getInventory().getItemInMainHand().getType()) > 0) {
-        return;
-      }
-      if (!canBlockBreak(p, e.getClickedBlock().getLocation())) {
-        return;
-      }
-      BlockData b = e.getClickedBlock().getBlockData();
-      if (isOre(b)) {
-        SoundPlayer spw = SoundPlayer.of(p.getWorld());
-        spw.play(p.getLocation(), Sound.BLOCK_DEEPSLATE_PLACE, 1.25f, 1.4f);
-        spw.play(p.getLocation(), Sound.BLOCK_METAL_HIT, 1.25f, 1.7f);
+    if (p.getInventory().getItemInMainHand().getEnchantments().containsKey(Enchantment.SILK_TOUCH) || p.getInventory().getItemInMainHand().getEnchantments().containsKey(Enchantment.MENDING)) {
+      return;
+    }
+    if (p.getCooldown(p.getInventory().getItemInMainHand().getType()) > 0) {
+      return;
+    }
 
-        p.setCooldown(p.getInventory().getItemInMainHand().getType(), getCooldownTime(getLevelPercent(p)));
-        damageHand(p, getDamagePerBlock(getLevelPercent(p)));
+    Block target = action == Action.RIGHT_CLICK_BLOCK ? e.getClickedBlock() : p.getTargetBlockExact(5);
+    if (target == null) {
+      return;
+    }
 
-        Location c = p.rayTraceBlocks(8).getHitPosition().toLocation(p.getWorld());
+    if (!canBlockBreak(p, target.getLocation())) {
+      return;
+    }
+    BlockData b = target.getBlockData();
+    if (isOre(b)) {
+      SoundPlayer spw = SoundPlayer.of(p.getWorld());
+      spw.play(p.getLocation(), Sound.BLOCK_DEEPSLATE_PLACE, 1.25f, 1.4f);
+      spw.play(p.getLocation(), Sound.BLOCK_METAL_HIT, 1.25f, 1.7f);
 
-        ItemStack is = getDropFor(b);
-        if (M.r(getDropChance(getLevelPercent(p)))) {
-          if (areParticlesEnabled()) {
-            e.getClickedBlock().getWorld().spawnParticle(Particles.ITEM_CRACK, c, 14, 0.10, 0.01, 0.01, 0.1, is);
-          }
-          spw.play(p.getLocation(), Sound.BLOCK_DEEPSLATE_PLACE, 1.25f, 0.787f);
-          spw.play(p.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_PLACE, 0.55f, 1.89f);
-          e.getClickedBlock().getWorld().dropItemNaturally(c.clone().subtract(p.getLocation().getDirection().clone().multiply(0.1)), is);
-          getPlayer(p).getData().addStat("pickaxe.chisel.extra-ores", 1);
-        } else {
-          if (areParticlesEnabled()) {
-            e.getClickedBlock().getWorld().spawnParticle(Particles.ITEM_CRACK, c, 3, 0.01, 0.01, 0.01, 0.1, is);
-            e.getClickedBlock().getWorld().spawnParticle(Particles.BLOCK_CRACK, c, 9, 0.1, 0.1, 0.1, e.getClickedBlock().getBlockData());
-          }
+      p.setCooldown(p.getInventory().getItemInMainHand().getType(), getCooldownTime(getLevelPercent(p)));
+      damageHand(p, getDamagePerBlock(getLevelPercent(p)));
+
+      RayTraceResult ray = p.rayTraceBlocks(8);
+      Location c = ray != null ? ray.getHitPosition().toLocation(p.getWorld()) : target.getLocation().add(0.5, 0.5, 0.5);
+
+      ItemStack is = getDropFor(b);
+      if (M.r(getDropChance(getLevelPercent(p)))) {
+        if (areParticlesEnabled()) {
+          target.getWorld().spawnParticle(Particles.ITEM_CRACK, c, 14, 0.10, 0.01, 0.01, 0.1, is);
         }
-
-        if (M.r(getBreakChance(getLevelPercent(p)))) {
-          spw.play(p.getLocation(), Sound.BLOCK_BASALT_BREAK, 1.25f, 0.4f);
-          spw.play(p.getLocation(), Sound.BLOCK_DEEPSLATE_PLACE, 1.25f, 0.887f);
-          e.getClickedBlock().breakNaturally(p.getInventory().getItemInMainHand());
+        spw.play(p.getLocation(), Sound.BLOCK_DEEPSLATE_PLACE, 1.25f, 0.787f);
+        spw.play(p.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_PLACE, 0.55f, 1.89f);
+        target.getWorld().dropItemNaturally(c.clone().subtract(p.getLocation().getDirection().clone().multiply(0.1)), is);
+        getPlayer(p).getData().addStat("pickaxe.chisel.extra-ores", 1);
+      } else {
+        if (areParticlesEnabled()) {
+          target.getWorld().spawnParticle(Particles.ITEM_CRACK, c, 3, 0.01, 0.01, 0.01, 0.1, is);
+          target.getWorld().spawnParticle(Particles.BLOCK_CRACK, c, 9, 0.1, 0.1, 0.1, target.getBlockData());
         }
       }
 
+      if (M.r(getBreakChance(getLevelPercent(p)))) {
+        spw.play(p.getLocation(), Sound.BLOCK_BASALT_BREAK, 1.25f, 0.4f);
+        spw.play(p.getLocation(), Sound.BLOCK_DEEPSLATE_PLACE, 1.25f, 0.887f);
+        target.breakNaturally(p.getInventory().getItemInMainHand());
+      }
     }
   }
 

@@ -343,11 +343,10 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
     // Chrono bottles are never drinkable; always deny vanilla potion use.
     e.setUseItemInHand(Event.Result.DENY);
 
-    if (action != Action.RIGHT_CLICK_BLOCK || e.getClickedBlock() == null) {
+    Block clicked = action == Action.RIGHT_CLICK_BLOCK ? e.getClickedBlock() : p.getTargetBlockExact(5);
+    if (clicked == null) {
       return;
     }
-
-    Block clicked = e.getClickedBlock();
     int level = getActiveInteractLevel(p, clicked.getLocation());
     if (level <= 0) {
       return;

@@ -71,6 +71,7 @@ public class AdaptServer extends TickedObject {
       .build();
   @Getter
   private final List<SpatialXP> spatialTickets = new ArrayList<>();
+  private volatile int spatialTicketCount;
   @Getter
   private final SkillRegistry skillRegistry = new SkillRegistry();
   @Getter
@@ -97,10 +98,15 @@ public class AdaptServer extends TickedObject {
     }
     synchronized (spatialTickets) {
       spatialTickets.add(xp);
+      spatialTicketCount = spatialTickets.size();
     }
   }
 
   public void takeSpatial(AdaptPlayer p) {
+    if (spatialTicketCount == 0) {
+      return;
+    }
+
     try {
       SpatialXP x;
       synchronized (spatialTickets) {
@@ -114,6 +120,7 @@ public class AdaptServer extends TickedObject {
       if (M.ms() > x.getMs()) {
         synchronized (spatialTickets) {
           spatialTickets.remove(x);
+          spatialTicketCount = spatialTickets.size();
         }
         return;
       }
@@ -121,6 +128,7 @@ public class AdaptServer extends TickedObject {
       if (!p.getPlayer().getClass().getSimpleName().equals("CraftPlayer")) {
         synchronized (spatialTickets) {
           spatialTickets.remove(x);
+          spatialTicketCount = spatialTickets.size();
         }
         return;
       }
@@ -136,6 +144,7 @@ public class AdaptServer extends TickedObject {
             if (x.getXp() < 10) {
               xp += x.getXp();
               spatialTickets.remove(x);
+              spatialTicketCount = spatialTickets.size();
             }
           }
 
@@ -277,6 +286,7 @@ public class AdaptServer extends TickedObject {
 
     synchronized (spatialTickets) {
       spatialTickets.removeIf(ticket -> M.ms() > ticket.getMs());
+      spatialTicketCount = spatialTickets.size();
     }
 
     if (!clearLock.tryLock())

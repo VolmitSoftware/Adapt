@@ -92,16 +92,26 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
 
   @EventHandler(priority = EventPriority.HIGHEST)
   public void on(PlayerInteractEvent e) {
-    if (e.getAction() != Action.RIGHT_CLICK_BLOCK || e.getHand() != EquipmentSlot.HAND || e.getClickedBlock() == null) {
+    Action action = e.getAction();
+    if ((action != Action.RIGHT_CLICK_BLOCK && action != Action.RIGHT_CLICK_AIR) || e.getHand() != EquipmentSlot.HAND) {
       return;
     }
 
     Player p = e.getPlayer();
-    if (!hasActiveAdaptation(p) || !p.isSneaking() || e.getClickedBlock().getType() != Material.COMPOSTER || p.hasCooldown(Material.COMPOSTER)) {
+    if (!hasActiveAdaptation(p) || !p.isSneaking() || p.hasCooldown(Material.COMPOSTER)) {
       return;
     }
 
-    if (!(e.getClickedBlock().getBlockData() instanceof Levelled levelled)) {
+    Block composter = e.getClickedBlock();
+    if (composter == null) {
+      composter = p.getTargetBlockExact(5);
+    }
+
+    if (composter == null || composter.getType() != Material.COMPOSTER) {
+      return;
+    }
+
+    if (!(composter.getBlockData() instanceof Levelled levelled)) {
       return;
     }
 
@@ -114,7 +124,7 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
     double fillChance = getFillChance(level);
     int maxItems = getMaxItems(level);
     double radius = getRadius(level);
-    Location center = e.getClickedBlock().getLocation().clone().add(0.5, 0.5, 0.5);
+    Location center = composter.getLocation().clone().add(0.5, 0.5, 0.5);
     World world = center.getWorld();
     if (world == null) {
       return;
@@ -131,9 +141,9 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
       return;
     }
 
-    Levelled updated = (Levelled) e.getClickedBlock().getBlockData();
+    Levelled updated = (Levelled) composter.getBlockData();
     updated.setLevel(Math.min(8, Math.max(oldLevel, state.compostLevel)));
-    e.getClickedBlock().setBlockData(updated);
+    composter.setBlockData(updated);
 
     p.setCooldown(Material.COMPOSTER, getCooldownTicks(level));
     e.setCancelled(true);

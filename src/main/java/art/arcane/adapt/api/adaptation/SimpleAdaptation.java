@@ -33,7 +33,6 @@ import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigFileSupport;
 import art.arcane.volmlib.util.collection.KList;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import org.bukkit.Material;
 
 import java.io.File;
@@ -43,7 +42,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-@EqualsAndHashCode(callSuper = false)
 @Data
 public abstract class SimpleAdaptation<T> extends TickedObject implements Adaptation<T> {
   private int maxLevel;
@@ -301,5 +299,15 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
         .children(a)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build();
+  }
+
+  @Override
+  public final boolean equals(Object obj) {
+    return this == obj;
+  }
+
+  @Override
+  public final int hashCode() {
+    return System.identityHashCode(this);
   }
 }

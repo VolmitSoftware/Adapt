@@ -27,13 +27,13 @@ import art.arcane.volmlib.util.collection.KMap;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.math.M;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-@EqualsAndHashCode(callSuper = true)
 @Data
 public class Notifier extends TickedObject {
   private final Queue<Notification> queue;
@@ -150,14 +150,29 @@ public class Notifier extends TickedObject {
   }
 
   private void cleanupSkills() {
-    for (String i : lastSkills.k()) {
-      if (lastSkills.get(i) == null) { // Shouldn't happen, but just in case I guess.
-        return;
-      }
-      if (M.ms() - lastSkills.get(i) > 10000 || (M.ms() - lastInstance > 3100 && M.ms() - lastSkills.get(i) > 3100)) {
-        lastSkills.remove(i);
-        lastSkillValues.remove(i);
+    if (lastSkills.isEmpty()) {
+      return;
+    }
+
+    long now = M.ms();
+    Iterator<Map.Entry<String, Long>> iterator = lastSkills.entrySet().iterator();
+    while (iterator.hasNext()) {
+      Map.Entry<String, Long> entry = iterator.next();
+      long last = entry.getValue();
+      if (now - last > 10000 || (now - lastInstance > 3100 && now - last > 3100)) {
+        iterator.remove();
+        lastSkillValues.remove(entry.getKey());
       }
     }
+  }
+
+  @Override
+  public final boolean equals(Object obj) {
+    return this == obj;
+  }
+
+  @Override
+  public final int hashCode() {
+    return System.identityHashCode(this);
   }
 }

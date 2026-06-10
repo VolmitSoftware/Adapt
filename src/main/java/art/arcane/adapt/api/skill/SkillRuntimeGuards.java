@@ -33,7 +33,12 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 final class SkillRuntimeGuards {
+  private static final Map<String, String> USE_PERMISSION_NODES = new ConcurrentHashMap<>();
+
   private SkillRuntimeGuards() {
   }
 
@@ -80,15 +85,16 @@ final class SkillRuntimeGuards {
     if (player.isOp()) {
       return true;
     }
-    String usePermission = "adapt.use." + skill.getName().replaceAll("-", "");
+    String usePermission = USE_PERMISSION_NODES.computeIfAbsent(skill.getName(), n -> "adapt.use." + n.replace("-", ""));
     boolean permissionSet = player.isPermissionSet(usePermission);
-    boolean permissionAllowed = player.hasPermission(usePermission);
-    Adapt.verbose("Checking use permission " + usePermission + " for " + player.getName()
-        + " (set=" + permissionSet + ", value=" + permissionAllowed + ")");
+    if (AdaptConfig.get().isVerbose()) {
+      Adapt.verbose("Checking use permission " + usePermission + " for " + player.getName()
+          + " (set=" + permissionSet + ", value=" + player.hasPermission(usePermission) + ")");
+    }
     if (!permissionSet) {
       return true;
     }
-    return permissionAllowed;
+    return player.hasPermission(usePermission);
   }
 
   static boolean shouldSkipPlayer(Skill<?> skill, Player player) {
@@ -198,7 +204,9 @@ final class SkillRuntimeGuards {
       if (visualBurst && location != null && xp > 50) {
         skill.vfxXP(player, location, (int) xp);
       }
-      Adapt.verbose("Gave " + player.getName() + " " + xp + " xp in " + skill.getName() + " " + skill.getClass());
+      if (AdaptConfig.get().isVerbose()) {
+        Adapt.verbose("Gave " + player.getName() + " " + xp + " xp in " + skill.getName() + " " + skill.getClass());
+      }
     } catch (Exception ex) {
       Adapt.verbose("Failed to give xp to " + player.getName() + " for " + skill.getName() + " (" + xp + ")");
     }

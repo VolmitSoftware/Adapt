@@ -79,6 +79,9 @@ public class TamingBeastRecall extends SimpleAdaptation<TamingBeastRecall.Config
   public void addStats(int level, Element v) {
     v.addLore(C.GREEN + "+ " + Form.f(getSearchRadius(level)) + C.GRAY + " " + Localizer.dLocalize("taming.beast_recall.lore1"));
     v.addLore(C.YELLOW + "* " + Form.duration(getCooldownTicks(level) * 50D, 1) + C.GRAY + " " + Localizer.dLocalize("taming.beast_recall.lore2"));
+    if (getConfig().hungerCost > 0) {
+      v.addLore(C.RED + "* " + getConfig().hungerCost + C.GRAY + " " + Localizer.dLocalize("taming.beast_recall.lore_cost_hunger"));
+    }
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
@@ -98,6 +101,11 @@ public class TamingBeastRecall extends SimpleAdaptation<TamingBeastRecall.Config
       return;
     }
 
+    int hungerCost = Math.max(0, getConfig().hungerCost);
+    if (hungerCost > 0 && p.getFoodLevel() < hungerCost) {
+      return;
+    }
+
     Tameable tameable = findNearestOwnedTameable(p, getSearchRadius(level));
     if (tameable == null) {
       return;
@@ -111,6 +119,9 @@ public class TamingBeastRecall extends SimpleAdaptation<TamingBeastRecall.Config
     J.teleport(tameable, safe);
     tameable.setFallDistance(0);
     p.setCooldown(Material.LEAD, getCooldownTicks(level));
+    if (hungerCost > 0) {
+      p.setFoodLevel(Math.max(0, p.getFoodLevel() - hungerCost));
+    }
     e.setCancelled(true);
 
     SoundPlayer sp = SoundPlayer.of(p.getWorld());
@@ -218,5 +229,7 @@ public class TamingBeastRecall extends SimpleAdaptation<TamingBeastRecall.Config
     double cooldownTicksFactor = 280;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp On Recall for the Taming Beast Recall adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpOnRecall = 26;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Food points consumed per beast recall.", impact = "Higher values make each recall cost more hunger; 0 disables the cost.")
+    int hungerCost = 2;
   }
 }

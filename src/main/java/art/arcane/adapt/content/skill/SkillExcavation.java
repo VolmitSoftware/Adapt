@@ -23,10 +23,19 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.content.adaptation.excavation.ExcavationBurrow;
+import art.arcane.adapt.content.adaptation.excavation.ExcavationDowsing;
 import art.arcane.adapt.content.adaptation.excavation.ExcavationDropToInventory;
+import art.arcane.adapt.content.adaptation.excavation.ExcavationEarthMover;
+import art.arcane.adapt.content.adaptation.excavation.ExcavationGraveDigger;
 import art.arcane.adapt.content.adaptation.excavation.ExcavationHaste;
+import art.arcane.adapt.content.adaptation.excavation.ExcavationMudlark;
 import art.arcane.adapt.content.adaptation.excavation.ExcavationOmniTool;
+import art.arcane.adapt.content.adaptation.excavation.ExcavationSeismicPing;
+import art.arcane.adapt.content.adaptation.excavation.ExcavationSoftFall;
 import art.arcane.adapt.content.adaptation.excavation.ExcavationSpelunker;
+import art.arcane.adapt.content.adaptation.excavation.ExcavationTreasureHunter;
+import art.arcane.adapt.content.adaptation.excavation.ExcavationTunneler;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
@@ -59,6 +68,15 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
     registerAdaptation(new ExcavationSpelunker());
     registerAdaptation(new ExcavationOmniTool());
     registerAdaptation(new ExcavationDropToInventory());
+    registerAdaptation(new ExcavationSeismicPing());
+    registerAdaptation(new ExcavationTunneler());
+    registerAdaptation(new ExcavationTreasureHunter());
+    registerAdaptation(new ExcavationSoftFall());
+    registerAdaptation(new ExcavationEarthMover());
+    registerAdaptation(new ExcavationDowsing());
+    registerAdaptation(new ExcavationBurrow());
+    registerAdaptation(new ExcavationGraveDigger());
+    registerAdaptation(new ExcavationMudlark());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.WOODEN_SHOVEL).key("challenge_excavate_1k")
         .title(Localizer.dLocalize("advancement.challenge_excavate_1k.title"))

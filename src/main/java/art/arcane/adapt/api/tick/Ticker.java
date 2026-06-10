@@ -29,7 +29,7 @@ public class Ticker {
   private final KList<Ticked> ticklist;
   private final KList<Ticked> newTicks;
   private final KList<String> removeTicks;
-  private final Map<String, TickMetric> metrics;
+  private final Map<Ticked, TickMetric> metrics;
   private final AtomicLong windowStartMs;
   private volatile boolean ticking;
 
@@ -103,14 +103,14 @@ public class Ticker {
 
   public List<String> topMetrics(int limit) {
     int safeLimit = Math.max(1, limit);
-    ArrayList<Map.Entry<String, TickMetric>> entries = new ArrayList<>(metrics.entrySet());
-    entries.sort(Comparator.comparingLong((Map.Entry<String, TickMetric> e) -> e.getValue().totalNanos.get()).reversed());
+    ArrayList<TickMetric> entries = new ArrayList<>(metrics.values());
+    entries.sort(Comparator.comparingLong((TickMetric m) -> m.totalNanos.get()).reversed());
 
     int outputSize = Math.min(safeLimit, entries.size());
     ArrayList<String> top = new ArrayList<>(outputSize);
     for (int i = 0; i < outputSize; i++) {
-      Map.Entry<String, TickMetric> entry = entries.get(i);
-      top.add(formatMetric(entry.getKey(), entry.getValue()));
+      TickMetric metric = entries.get(i);
+      top.add(formatMetric(metric.label, metric));
     }
     return top;
   }
@@ -143,6 +143,7 @@ public class Ticker {
 
         for (int i = 0; i < ticklist.size(); i++) {
           if (ticklist.get(i).getId().equals(id)) {
+            metrics.remove(ticklist.get(i));
             ticklist.remove(i);
             break;
           }
@@ -158,8 +159,7 @@ public class Ticker {
       return;
     }
 
-    String key = ticked.getGroup() + ":" + ticked.getId();
-    TickMetric metric = metrics.computeIfAbsent(key, unused -> new TickMetric());
+    TickMetric metric = metrics.computeIfAbsent(ticked, t -> new TickMetric(t.getGroup() + ":" + t.getId()));
     metric.calls.incrementAndGet();
     metric.totalNanos.addAndGet(durationNs);
     metric.maxNanos.updateAndGet(old -> Math.max(old, durationNs));
@@ -177,8 +177,13 @@ public class Ticker {
   }
 
   private static class TickMetric {
+    private final String label;
     private final AtomicLong calls = new AtomicLong();
     private final AtomicLong totalNanos = new AtomicLong();
     private final AtomicLong maxNanos = new AtomicLong();
+
+    private TickMetric(String label) {
+      this.label = label;
+    }
   }
 }

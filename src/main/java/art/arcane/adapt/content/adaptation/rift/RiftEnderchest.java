@@ -36,6 +36,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
 
@@ -69,31 +70,37 @@ public class RiftEnderchest extends SimpleAdaptation<RiftEnderchest.Config> {
 
   @EventHandler
   public void on(PlayerInteractEvent e) {
-    Player p = e.getPlayer();
-    SoundPlayer sp = SoundPlayer.of(p);
-    ItemStack hand = p.getInventory().getItemInMainHand();
+    Action action = e.getAction();
+    if (action != Action.RIGHT_CLICK_AIR && action != Action.LEFT_CLICK_AIR && action != Action.LEFT_CLICK_BLOCK) {
+      return;
+    }
 
+    if (e.getHand() != EquipmentSlot.HAND) {
+      return;
+    }
+
+    Player p = e.getPlayer();
+    ItemStack hand = p.getInventory().getItemInMainHand();
     if (hand.getType() != Material.ENDER_CHEST || !hasActiveAdaptation(p)) {
       return;
     }
 
     if (p.hasCooldown(hand.getType())) {
       e.setCancelled(true);
-    } else {
-      p.setCooldown(Material.ENDER_CHEST, 100);
-
-      if ((e.getAction() == Action.RIGHT_CLICK_AIR) || (e.getAction() == Action.LEFT_CLICK_AIR) || (e.getAction() == Action.LEFT_CLICK_BLOCK)) {
-        PlayerSkillLine line = getPlayer(p).getData().getSkillLine("rift");
-        PlayerAdaptation adaptation = line != null ? line.getAdaptation("rift-resist") : null;
-        if (adaptation != null && adaptation.getLevel() > 0) {
-          RiftResist.riftResistStackAdd(p, 10, 2);
-        }
-        sp.play(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
-        sp.play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
-        p.openInventory(p.getEnderChest());
-        getPlayer(p).getData().addStat("rift.enderchest.opens", 1);
-      }
+      return;
     }
+
+    p.setCooldown(Material.ENDER_CHEST, 100);
+    PlayerSkillLine line = getPlayer(p).getData().getSkillLine("rift");
+    PlayerAdaptation adaptation = line != null ? line.getAdaptation("rift-resist") : null;
+    if (adaptation != null && adaptation.getLevel() > 0) {
+      RiftResist.riftResistStackAdd(p, 10, 2);
+    }
+    SoundPlayer sp = SoundPlayer.of(p);
+    sp.play(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
+    sp.play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
+    p.openInventory(p.getEnderChest());
+    getPlayer(p).getData().addStat("rift.enderchest.opens", 1);
   }
 
 

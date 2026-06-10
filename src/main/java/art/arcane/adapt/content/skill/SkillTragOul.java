@@ -67,6 +67,14 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
     registerAdaptation(new TragoulLance());
     registerAdaptation(new TragoulBloodPact());
     registerAdaptation(new TragoulBoneHarvest());
+    registerAdaptation(new TragoulCorpseExplosion());
+    registerAdaptation(new TragoulSoulSiphon());
+    registerAdaptation(new TragoulSkeletalServant());
+    registerAdaptation(new TragoulMarrowArmor());
+    registerAdaptation(new TragoulCurseOfFrailty());
+    registerAdaptation(new TragoulDeathSense());
+    registerAdaptation(new TragoulPlagueBearer());
+    registerAdaptation(new TragoulLastRites());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.CRIMSON_ROOTS)
         .key("challenge_trag_1k")

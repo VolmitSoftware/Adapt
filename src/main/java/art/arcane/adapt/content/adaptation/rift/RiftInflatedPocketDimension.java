@@ -31,6 +31,7 @@ import art.arcane.volmlib.util.inventorygui.Element;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -88,7 +89,8 @@ public class RiftInflatedPocketDimension extends SimpleAdaptation<RiftInflatedPo
       return;
     }
 
-    if (e.getAction() != Action.RIGHT_CLICK_BLOCK || e.getClickedBlock() == null) {
+    Action action = e.getAction();
+    if (action != Action.RIGHT_CLICK_BLOCK && action != Action.RIGHT_CLICK_AIR) {
       return;
     }
 
@@ -102,7 +104,12 @@ public class RiftInflatedPocketDimension extends SimpleAdaptation<RiftInflatedPo
       return;
     }
 
-    Material requested = e.getClickedBlock().getType();
+    Block target = action == Action.RIGHT_CLICK_BLOCK ? e.getClickedBlock() : p.getTargetBlockExact(5);
+    if (target == null) {
+      return;
+    }
+
+    Material requested = target.getType();
     if (!requested.isItem() || requested.isAir()) {
       return;
     }

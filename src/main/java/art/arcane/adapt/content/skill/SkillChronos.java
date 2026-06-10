@@ -77,6 +77,14 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
     registerAdaptation(new ChronosInstantRecall());
     registerAdaptation(new ChronosTimeBomb());
     registerAdaptation(new ChronosTemporalEcho());
+    registerAdaptation(new ChronosStasisField());
+    registerAdaptation(new ChronosRewind());
+    registerAdaptation(new ChronosBorrowedTime());
+    registerAdaptation(new ChronosOvertime());
+    registerAdaptation(new ChronosAccelerate());
+    registerAdaptation(new ChronosHourglassGuard());
+    registerAdaptation(new ChronosPocketWatch());
+    registerAdaptation(new ChronosDejaVu());
     lastPositions = new ConcurrentHashMap<>();
     positionHistory = new ConcurrentHashMap<>();
     recentActionTypes = new ConcurrentHashMap<>();

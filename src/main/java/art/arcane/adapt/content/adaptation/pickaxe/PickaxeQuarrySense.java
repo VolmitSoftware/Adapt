@@ -88,7 +88,7 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
   public void on(PlayerInteractEvent e) {
 
     Action action = e.getAction();
-    if (action != Action.RIGHT_CLICK_BLOCK || e.getClickedBlock() == null) {
+    if (action != Action.RIGHT_CLICK_BLOCK && action != Action.RIGHT_CLICK_AIR) {
       return;
     }
 

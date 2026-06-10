@@ -38,6 +38,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 
 import java.lang.reflect.Field;
@@ -84,6 +85,14 @@ public class DiscoveryCartographerPulse extends SimpleAdaptation<DiscoveryCartog
   public void addStats(int level, Element v) {
     v.addLore(C.GREEN + "+ " + Form.f(getSearchRange(level)) + C.GRAY + " " + Localizer.dLocalize("discovery.cartographer_pulse.lore1"));
     v.addLore(C.YELLOW + "* " + Form.duration(getCooldownMillis(level), 1) + C.GRAY + " " + Localizer.dLocalize("discovery.cartographer_pulse.lore2"));
+    if (getConfig().hungerCost > 0) {
+      v.addLore(C.RED + "* " + getConfig().hungerCost + C.GRAY + " " + Localizer.dLocalize("discovery.cartographer_pulse.lore_cost_hunger"));
+    }
+  }
+
+  @EventHandler
+  public void on(PlayerQuitEvent e) {
+    cooldowns.remove(e.getPlayer().getUniqueId());
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -108,6 +117,11 @@ public class DiscoveryCartographerPulse extends SimpleAdaptation<DiscoveryCartog
       return;
     }
 
+    int hungerCost = Math.max(0, getConfig().hungerCost);
+    if (hungerCost > 0 && p.getFoodLevel() < hungerCost) {
+      return;
+    }
+
     Location target = locateNearestStructureFallback(p.getWorld(), p.getLocation(), getSearchRange(level));
     if (target == null) {
       target = p.getWorld().getSpawnLocation();
@@ -116,6 +130,9 @@ public class DiscoveryCartographerPulse extends SimpleAdaptation<DiscoveryCartog
     p.setCompassTarget(target);
     p.sendMessage(C.AQUA + "Compass pulse: " + C.WHITE + Form.f(target.getBlockX()) + ", " + Form.f(target.getBlockZ()));
     cooldowns.put(p.getUniqueId(), now + getCooldownMillis(level));
+    if (hungerCost > 0) {
+      p.setFoodLevel(Math.max(0, p.getFoodLevel() - hungerCost));
+    }
     SoundPlayer.of(p.getWorld()).play(p.getLocation(), Sound.ITEM_LODESTONE_COMPASS_LOCK, 0.8f, 1.3f);
     xp(p, getConfig().xpPerPulse);
     getPlayer(p).getData().addStat("discovery.cartographer-pulse.pulses", 1);
@@ -269,5 +286,7 @@ public class DiscoveryCartographerPulse extends SimpleAdaptation<DiscoveryCartog
     double cooldownMillisFactor = 14000;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Pulse for the Discovery Cartographer Pulse adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpPerPulse = 25;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Food points consumed per compass pulse.", impact = "Higher values make each pulse cost more hunger; 0 disables the cost.")
+    int hungerCost = 2;
   }
 }

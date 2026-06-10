@@ -125,7 +125,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
     // If the main hand is holding a bound enderpearl
     if (mainHandBound) {
       e.setCancelled(true);
-      if (hasActiveAdaptation(p)) {
+      if (e.getHand() == EquipmentSlot.HAND && hasActiveAdaptation(p)) {
         Adapt.verbose("Player using bound enderpearl.");
         handleEnderPearlInteraction(e, p, block);
       }
@@ -146,13 +146,20 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
     }
 
     Action action = event.getAction();
-    if (action == Action.LEFT_CLICK_BLOCK) {
-      if (sneaking && isStorage(block.getBlockData())) {
-        if (canAccessChest(player, block.getLocation())) {
-          linkPearl(player, block, event);
-        } else {
-          Adapt.verbose("Player " + player.getName() + " doesn't have permission.");
-        }
+    if (action == Action.LEFT_CLICK_BLOCK || action == Action.LEFT_CLICK_AIR) {
+      if (!sneaking) {
+        return;
+      }
+
+      Block target = action == Action.LEFT_CLICK_BLOCK ? block : player.getTargetBlockExact(5);
+      if (target == null || !isStorage(target.getBlockData())) {
+        return;
+      }
+
+      if (canAccessChest(player, target.getLocation())) {
+        linkPearl(player, target, event);
+      } else {
+        Adapt.verbose("Player " + player.getName() + " doesn't have permission.");
       }
     } else if (action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK) {
       openPearl(player);

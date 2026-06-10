@@ -60,6 +60,13 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
     registerAdaptation(new PickaxeDropToInventory());
     registerAdaptation(new PickaxeSilkSpawner());
     registerAdaptation(new PickaxeQuarrySense());
+    registerAdaptation(new PickaxeTunnelBore());
+    registerAdaptation(new PickaxeDeepCore());
+    registerAdaptation(new PickaxeObsidianRush());
+    registerAdaptation(new PickaxeUnbreakablePact());
+    registerAdaptation(new PickaxeRepairRhythm());
+    registerAdaptation(new PickaxeGemPolish());
+    registerAdaptation(new PickaxeStoneSkin());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.WOODEN_PICKAXE)
         .key("challenge_pickaxe_1k")

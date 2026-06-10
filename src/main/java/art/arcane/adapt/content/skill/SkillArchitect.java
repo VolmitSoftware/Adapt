@@ -185,6 +185,12 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
     registerAdaptation(new ArchitectWirelessRedstone());
     registerAdaptation(new ArchitectElevator());
     registerAdaptation(new ArchitectSmartShape());
+    registerAdaptation(new ArchitectScaffolder());
+    registerAdaptation(new ArchitectSupplyLine());
+    registerAdaptation(new ArchitectSteadyHands());
+    registerAdaptation(new ArchitectChalkLine());
+    registerAdaptation(new ArchitectDemolition());
+    registerAdaptation(new ArchitectStonecutterSavant());
   }
 
   @EventHandler(priority = EventPriority.MONITOR)

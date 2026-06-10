@@ -48,6 +48,7 @@ import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -175,10 +176,14 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
       if (!hasActiveAdaptation(p)) {
         return;
       }
-      if (e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
+      Action action = e.getAction();
+      if (action == Action.RIGHT_CLICK_BLOCK || action == Action.RIGHT_CLICK_AIR) {
+        if (e.getHand() != null && e.getHand() != EquipmentSlot.HAND) {
+          return;
+        }
         ItemStack hand = p.getInventory().getItemInMainHand();
         Damageable imHand = (Damageable) hand.getItemMeta();
-        Block block = e.getClickedBlock();
+        Block block = action == Action.RIGHT_CLICK_BLOCK ? e.getClickedBlock() : p.getTargetBlockExact(5);
         if (block != null) {
           SoundPlayer sp = SoundPlayer.of(p);
           SoundPlayer spw = SoundPlayer.of(p.getWorld());

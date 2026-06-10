@@ -34,7 +34,6 @@ import art.arcane.adapt.util.config.ConfigFileSupport;
 import art.arcane.volmlib.util.collection.KList;
 import art.arcane.volmlib.util.format.Form;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.EntityType;
@@ -47,7 +46,6 @@ import java.lang.reflect.Field;
 import java.util.Locale;
 import java.util.UUID;
 
-@EqualsAndHashCode(callSuper = false)
 @Data
 public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
   private final String name;
@@ -58,7 +56,6 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
   private String description;
   private String displayName;
   private Material icon;
-  @EqualsAndHashCode.Exclude
   private KList<Adaptation<?>> adaptations;
   private KList<AdaptStatTracker> statTrackers;
   private KList<AdaptAdvancement> cachedAdvancements;
@@ -590,4 +587,14 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
 
   @Override
   public abstract void onTick();
+
+  @Override
+  public final boolean equals(Object obj) {
+    return this == obj;
+  }
+
+  @Override
+  public final int hashCode() {
+    return System.identityHashCode(this);
+  }
 }

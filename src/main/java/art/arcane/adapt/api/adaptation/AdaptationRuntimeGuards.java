@@ -46,8 +46,9 @@ import java.util.function.IntConsumer;
 import java.util.function.Predicate;
 
 final class AdaptationRuntimeGuards {
-  private static final Map<String, Long> USAGE_BASELINE_XP_COOLDOWNS = new ConcurrentHashMap<>();
-  private static final Map<String, ActiveLevelCacheEntry> ACTIVE_LEVEL_CACHE = new ConcurrentHashMap<>();
+  private static final Map<PlayerAdaptationKey, Long> USAGE_BASELINE_XP_COOLDOWNS = new ConcurrentHashMap<>();
+  private static final Map<PlayerAdaptationKey, ActiveLevelCacheEntry> ACTIVE_LEVEL_CACHE = new ConcurrentHashMap<>();
+  private static final Map<String, String> USE_PERMISSION_NODES = new ConcurrentHashMap<>();
   private static final Map<String, ProtectorCacheEntry> PROTECTOR_CACHE = new ConcurrentHashMap<>();
   private static final Map<String, UsageConflictCacheEntry> USAGE_CONFLICT_CACHE = new ConcurrentHashMap<>();
   private static final Map<String, LearnedCandidateCacheEntry> LEARNED_CANDIDATE_CACHE = new ConcurrentHashMap<>();
@@ -164,7 +165,7 @@ final class AdaptationRuntimeGuards {
 
     long now = M.ms();
     long cooldown = Math.max(250L, cfg.getUsageBaselineCooldownMillis());
-    String key = p.getUniqueId() + "|" + adaptation.getName();
+    PlayerAdaptationKey key = new PlayerAdaptationKey(p.getUniqueId(), adaptation.getName());
     Long next = USAGE_BASELINE_XP_COOLDOWNS.get(key);
     if (next != null && next > now) {
       return;
@@ -184,7 +185,9 @@ final class AdaptationRuntimeGuards {
   }
 
   static boolean canUse(Adaptation<?> adaptation, AdaptPlayer player) {
-    Adapt.verbose("Checking if " + player.getPlayer().getName() + " can use " + adaptation.getName() + "...");
+    if (AdaptConfig.get().isVerbose()) {
+      Adapt.verbose("Checking if " + player.getPlayer().getName() + " can use " + adaptation.getName() + "...");
+    }
     AdaptAdaptationUseEvent e = new AdaptAdaptationUseEvent(!Bukkit.isPrimaryThread(), player, adaptation);
     Bukkit.getServer().getPluginManager().callEvent(e);
     return (!e.isCancelled());
@@ -205,15 +208,16 @@ final class AdaptationRuntimeGuards {
     if (target == null) {
       return false;
     }
-    String usePermission = "adapt.use." + target.getName().replaceAll("-", "");
+    String usePermission = USE_PERMISSION_NODES.computeIfAbsent(target.getName(), n -> "adapt.use." + n.replace("-", ""));
     boolean permissionSet = p.isPermissionSet(usePermission);
-    boolean permissionAllowed = p.hasPermission(usePermission);
-    Adapt.verbose("Checking use permission " + usePermission + " for " + p.getName()
-        + " (set=" + permissionSet + ", value=" + permissionAllowed + ")");
+    if (AdaptConfig.get().isVerbose()) {
+      Adapt.verbose("Checking use permission " + usePermission + " for " + p.getName()
+          + " (set=" + permissionSet + ", value=" + p.hasPermission(usePermission) + ")");
+    }
     if (!permissionSet) {
       return true;
     }
-    return permissionAllowed;
+    return p.hasPermission(usePermission);
   }
 
   static boolean canDamageTarget(Adaptation<?> adaptation, Player attacker, Entity target) {
@@ -518,7 +522,7 @@ final class AdaptationRuntimeGuards {
 
       long tick = runtimeCacheTick();
       int learnedLevel = getLevel(adaptation, p);
-      String key = cacheKey(adaptation, p);
+      PlayerAdaptationKey key = new PlayerAdaptationKey(p.getUniqueId(), adaptation.getName());
       ActiveLevelCacheEntry cached = ACTIVE_LEVEL_CACHE.get(key);
       if (cached != null && cached.tick() == tick && cached.learnedLevel() == learnedLevel) {
         AbilityCheckTelemetry.recordCacheHit();
@@ -660,38 +664,47 @@ final class AdaptationRuntimeGuards {
       return 0;
     }
 
+    boolean verbose = AdaptConfig.get().isVerbose();
     if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-      Adapt.verbose("Player " + p.getName() + " is in a blacklisted world. Skipping adaptation " + adaptation.getName());
+      if (verbose) {
+        Adapt.verbose("Player " + p.getName() + " is in a blacklisted world. Skipping adaptation " + adaptation.getName());
+      }
       return 0;
     }
     if (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR)) {
-      Adapt.verbose("Player " + p.getName() + " is in creative or spectator mode. Skipping adaptation " + adaptation.getName());
+      if (verbose) {
+        Adapt.verbose("Player " + p.getName() + " is in creative or spectator mode. Skipping adaptation " + adaptation.getName());
+      }
       return 0;
     }
     if (!adaptation.checkRegion(p)) {
-      Adapt.verbose("Player " + p.getName() + " don't have adaptation - " + adaptation.getName() + " permission.");
+      if (verbose) {
+        Adapt.verbose("Player " + p.getName() + " don't have adaptation - " + adaptation.getName() + " permission.");
+      }
       return 0;
     }
 
     if (!adaptation.hasUsePermission(p, adaptation)) {
-      Adapt.verbose("Player " + p.getName() + " is blocked by use permission for adaptation " + adaptation.getName());
+      if (verbose) {
+        Adapt.verbose("Player " + p.getName() + " is blocked by use permission for adaptation " + adaptation.getName());
+      }
       return 0;
     }
     if (hasUsageConflict(adaptation, p)) {
       return 0;
     }
     if (!adaptation.canUse(p)) {
-      Adapt.verbose("Player " + p.getName() + " can't use adaptation, This is an API restriction" + adaptation.getName());
+      if (verbose) {
+        Adapt.verbose("Player " + p.getName() + " can't use adaptation, This is an API restriction" + adaptation.getName());
+      }
       return 0;
     }
 
     awardUsageBaselineXp(adaptation, p, level);
-    Adapt.verbose("Player " + p.getName() + " used adaptation " + adaptation.getName());
+    if (verbose) {
+      Adapt.verbose("Player " + p.getName() + " used adaptation " + adaptation.getName());
+    }
     return level;
-  }
-
-  private static String cacheKey(Adaptation<?> adaptation, Player player) {
-    return player.getUniqueId() + "|" + adaptation.getName();
   }
 
   private static long runtimeCacheTick() {
@@ -805,6 +818,9 @@ final class AdaptationRuntimeGuards {
       }
     }
     return hash;
+  }
+
+  private record PlayerAdaptationKey(UUID uuid, String adaptation) {
   }
 
   private record ActiveLevelCacheEntry(long tick, int learnedLevel, int level) {

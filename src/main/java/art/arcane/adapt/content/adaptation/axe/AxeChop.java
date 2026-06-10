@@ -40,6 +40,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
 public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
@@ -92,33 +93,50 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
 
   @EventHandler(priority = EventPriority.HIGHEST)
   public void on(PlayerInteractEvent e) {
+    Action action = e.getAction();
+    if (action != Action.RIGHT_CLICK_BLOCK && action != Action.RIGHT_CLICK_AIR) {
+      return;
+    }
+
+    if (e.getHand() != null && e.getHand() != EquipmentSlot.HAND) {
+      return;
+    }
+
     Player p = e.getPlayer();
     if (p.getCooldown(p.getInventory().getItemInMainHand().getType()) > 0) {
       return;
     }
 
-    if (e.getClickedBlock() != null && e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && isAxe(p.getInventory().getItemInMainHand()) && hasActiveAdaptation(p)) {
-      if (!canBlockBreak(p, e.getClickedBlock().getLocation())) {
-        return;
-      }
-      BlockData b = e.getClickedBlock().getBlockData();
-      if (isLog(new ItemStack(b.getMaterial()))) {
-        e.setCancelled(true);
-        SoundPlayer spw = SoundPlayer.of(p.getWorld());
-        spw.play(p.getLocation(), Sound.ITEM_AXE_STRIP, 1.25f, 0.6f);
-        int logsChopped = 0;
-        for (int i = 0; i < getLevel(p); i++) {
-          if (breakStuff(e.getClickedBlock(), getRange(getLevel(p)), p)) {
-            logsChopped++;
-            p.setCooldown(p.getInventory().getItemInMainHand().getType(), getCooldownTime(getLevelPercent(p)));
-            damageHand(p, getDamagePerBlock(getLevelPercent(p)));
-          }
+    if (!isAxe(p.getInventory().getItemInMainHand()) || !hasActiveAdaptation(p)) {
+      return;
+    }
+
+    Block target = action == Action.RIGHT_CLICK_BLOCK ? e.getClickedBlock() : p.getTargetBlockExact(5);
+    if (target == null) {
+      return;
+    }
+
+    if (!canBlockBreak(p, target.getLocation())) {
+      return;
+    }
+
+    BlockData b = target.getBlockData();
+    if (isLog(new ItemStack(b.getMaterial()))) {
+      e.setCancelled(true);
+      SoundPlayer spw = SoundPlayer.of(p.getWorld());
+      spw.play(p.getLocation(), Sound.ITEM_AXE_STRIP, 1.25f, 0.6f);
+      int logsChopped = 0;
+      for (int i = 0; i < getLevel(p); i++) {
+        if (breakStuff(target, getRange(getLevel(p)), p)) {
+          logsChopped++;
+          p.setCooldown(p.getInventory().getItemInMainHand().getType(), getCooldownTime(getLevelPercent(p)));
+          damageHand(p, getDamagePerBlock(getLevelPercent(p)));
         }
-        if (logsChopped > 0) {
-          getPlayer(p).getData().addStat("axe.chop.trees-felled", 1);
-          if (logsChopped >= 30 && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_axe_chop_one_swing")) {
-            getPlayer(p).getAdvancementHandler().grant("challenge_axe_chop_one_swing");
-          }
+      }
+      if (logsChopped > 0) {
+        getPlayer(p).getData().addStat("axe.chop.trees-felled", 1);
+        if (logsChopped >= 30 && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_axe_chop_one_swing")) {
+          getPlayer(p).getAdvancementHandler().grant("challenge_axe_chop_one_swing");
         }
       }
     }
