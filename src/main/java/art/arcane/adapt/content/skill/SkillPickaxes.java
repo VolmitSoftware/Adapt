@@ -23,6 +23,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.xp.XpProvenance;
 import art.arcane.adapt.content.adaptation.pickaxe.*;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
@@ -239,6 +240,9 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
         }
 
         handleCooldown(p, () -> {
+          if (XpProvenance.breakXpMultiplier(e.getBlock()) <= 0) {
+            return;
+          }
           if (mainHand.getEnchantments().containsKey(Enchantment.SILK_TOUCH)) {
             xp(p, 5);
           } else {

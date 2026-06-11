@@ -44,6 +44,9 @@ File nmsCompileJar = configuredNmsJar != null && !configuredNmsJar.isBlank()
 String volmLibCoordinate = providers.gradleProperty('volmLibCoordinate')
     .orElse('com.github.VolmitSoftware:VolmLib:master-SNAPSHOT')
     .get()
+String hiddenOreCoordinate = providers.gradleProperty('hiddenOreCoordinate')
+    .orElse('com.github.VolmitSoftware:HiddenOre:master-SNAPSHOT')
+    .get()
 
 def shadowJarTask = tasks.named('shadowJar', com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar)
 tasks.named('slimJar').get()
@@ -117,6 +120,10 @@ allprojects {
 dependencies {
     implementation(project(':velocity'))
     implementation(volmLibCoordinate) {
+        changing = true
+        transitive = false
+    }
+    compileOnly(hiddenOreCoordinate) {
         changing = true
         transitive = false
     }

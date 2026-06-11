@@ -4,6 +4,7 @@ import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.version.Version;
 import art.arcane.adapt.util.common.io.Json;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigFileSupport;
 import art.arcane.volmlib.util.collection.KMap;
 import art.arcane.volmlib.util.io.IO;
@@ -15,26 +16,38 @@ import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static art.arcane.adapt.Adapt.instance;
 
 public record CustomModel(Material material, int model,
                           NamespacedKey modelKey) {
   public static final NamespacedKey EMPTY_KEY = NamespacedKey.minecraft("empty");
-  private static UpdateChecker updateChecker = null;
+  private static volatile UpdateChecker updateChecker = null;
+
+  private static UpdateChecker checker() {
+    UpdateChecker current = updateChecker;
+    if (current == null) {
+      synchronized (CustomModel.class) {
+        current = updateChecker;
+        if (current == null) {
+          current = new UpdateChecker();
+          updateChecker = current;
+        }
+      }
+    }
+
+    return current;
+  }
 
   public static CustomModel get(Material fallback, String... path) {
     if (!AdaptConfig.get().isCustomModels())
       return new CustomModel(fallback, 0, null);
 
-    if (updateChecker == null)
-      updateChecker = new UpdateChecker();
-    return updateChecker.get(fallback, path);
+    return checker().get(fallback, path);
   }
 
   public static void clear() {
-    if (updateChecker == null)
-      return;
     updateChecker = null;
   }
 
@@ -43,10 +56,7 @@ public record CustomModel(Material material, int model,
   }
 
   public static boolean reloadFromDisk(boolean quiet) {
-    if (updateChecker == null)
-      updateChecker = new UpdateChecker();
-
-    return updateChecker.reloadFromDisk(quiet);
+    return checker().reloadFromDisk(quiet);
   }
 
   public ItemStack toItemStack() {
@@ -65,6 +75,7 @@ public record CustomModel(Material material, int model,
 
   private static class UpdateChecker {
     private final Object lock = new Object();
+    private final AtomicBoolean writeQueued = new AtomicBoolean(false);
     private final File modelsFile;
     private final File legacyModelsFile;
     private final KMap<String, CustomModel> cache = new KMap<>();
@@ -99,52 +110,79 @@ public record CustomModel(Material material, int model,
     }
 
     public CustomModel get(Material fallback, String... path) {
-      return cache.computeIfAbsent(String.join("", path), k -> {
-        com.google.gson.JsonObject json = this.json;
-        for (java.lang.String s : path) {
-          if (!json.has(s))
+      String key = String.join("", path);
+      CustomModel cached = cache.get(key);
+      if (cached != null) {
+        return cached;
+      }
+
+      CustomModel resolved = resolve(fallback, path);
+      CustomModel raced = cache.putIfAbsent(key, resolved);
+      return raced != null ? raced : resolved;
+    }
+
+    private CustomModel resolve(Material fallback, String... path) {
+      synchronized (lock) {
+        JsonObject node = this.json;
+        for (String s : path) {
+          if (!node.has(s)) {
             return set(new CustomModel(fallback, 0, EMPTY_KEY), path);
-          com.google.gson.JsonElement v = json.get(s);
+          }
+
+          JsonElement v = node.get(s);
           if (!v.isJsonObject()) {
             Adapt.warn("Invalid json at path: " + String.join(".", path));
             return new CustomModel(fallback, 0, EMPTY_KEY);
           }
-          json = v.getAsJsonObject();
+          node = v.getAsJsonObject();
         }
 
         return new CustomModel(
-            json.has("material") ? Material.valueOf(json.get("material").getAsString()) : fallback,
-            json.has("model") ? json.get("model").getAsInt() : 0,
-            json.has("modelKey") ? NamespacedKey.fromString(json.get("modelKey").getAsString()) : EMPTY_KEY
+            node.has("material") ? Material.valueOf(node.get("material").getAsString()) : fallback,
+            node.has("model") ? node.get("model").getAsInt() : 0,
+            node.has("modelKey") ? NamespacedKey.fromString(node.get("modelKey").getAsString()) : EMPTY_KEY
         );
-      });
+      }
     }
 
     public CustomModel set(CustomModel data, String... path) {
-      com.google.gson.JsonObject json = this.json;
-      for (java.lang.String s : path) {
-        if (!json.has(s))
-          json.add(s, new JsonObject());
+      synchronized (lock) {
+        JsonObject node = this.json;
+        for (String s : path) {
+          if (!node.has(s))
+            node.add(s, new JsonObject());
 
-        com.google.gson.JsonElement v = json.get(s);
-        if (!v.isJsonObject()) {
-          v = new JsonObject();
-          json.add(s, v);
+          JsonElement v = node.get(s);
+          if (!v.isJsonObject()) {
+            v = new JsonObject();
+            node.add(s, v);
+          }
+          node = v.getAsJsonObject();
         }
-        json = v.getAsJsonObject();
+
+        node.addProperty("material", data.material.name());
+        node.addProperty("model", data.model);
+        node.addProperty("modelKey", (data.modelKey == null ? EMPTY_KEY : data.modelKey).toString());
       }
 
-      json.addProperty("material", data.material.name());
-      json.addProperty("model", data.model);
-      json.addProperty("modelKey", (data.modelKey == null ? EMPTY_KEY : data.modelKey).toString());
-
-      try {
-        writeFile();
-      } catch (IOException e) {
-        Adapt.error("Failed to write models.toml");
-        e.printStackTrace();
-      }
+      scheduleWrite();
       return data;
+    }
+
+    private void scheduleWrite() {
+      if (!writeQueued.compareAndSet(false, true)) {
+        return;
+      }
+
+      J.a(() -> {
+        writeQueued.set(false);
+        try {
+          writeFile();
+        } catch (IOException e) {
+          Adapt.error("Failed to write models.toml");
+          e.printStackTrace();
+        }
+      });
     }
 
     public void readFile() throws IOException {

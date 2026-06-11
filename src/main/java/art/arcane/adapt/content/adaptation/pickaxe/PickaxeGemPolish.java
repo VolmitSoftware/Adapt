@@ -70,11 +70,11 @@ public class PickaxeGemPolish extends SimpleAdaptation<PickaxeGemPolish.Config> 
     v.addLore(C.GREEN + "+ " + getBonusXp(level) + C.GRAY + " " + Localizer.dLocalize("pickaxe.gem_polish.lore3"));
   }
 
-  private double getGemChance(int level) {
+  public double getGemChance(int level) {
     return Math.min(getConfig().maxGemChance, getConfig().gemChanceBase + (level * getConfig().gemChancePerLevel));
   }
 
-  private int getBonusXp(int level) {
+  public int getBonusXp(int level) {
     return getConfig().bonusXpBase + (level * getConfig().bonusXpPerLevel);
   }
 

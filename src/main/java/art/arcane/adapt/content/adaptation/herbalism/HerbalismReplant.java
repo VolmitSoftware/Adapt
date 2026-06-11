@@ -164,6 +164,10 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
         return;
       }
 
+      if (!canBlockBreak(p, b.getLocation()) || !canBlockPlace(p, b.getLocation())) {
+        return;
+      }
+
       xp(p, b.getLocation().clone().add(0.5, 0.5, 0.5), ((SkillHerbalism.Config) getSkill().getConfig()).harvestPerAgeXP * aa.getAge());
       xp(p, b.getLocation().clone().add(0.5, 0.5, 0.5), ((SkillHerbalism.Config) getSkill().getConfig()).plantCropSeedsXP);
       PlayerSkillLine line = getPlayer(p).getData().getSkillLineNullable("herbalism");

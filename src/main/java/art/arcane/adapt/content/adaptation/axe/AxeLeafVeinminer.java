@@ -85,7 +85,7 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
     return lvl + getConfig().baseRange;
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST)
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(BlockBreakEvent e) {
 
     if (VEIN_MINED.get(e.getBlock())) {
@@ -108,6 +108,10 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
 
     Material blockType = e.getBlock().getType();
     if (!blockType.isItem() || !isLeaves(new ItemStack(blockType))) {
+      return;
+    }
+
+    if (!canBlockBreak(p, e.getBlock().getLocation())) {
       return;
     }
 
@@ -160,7 +164,7 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
 
         VEIN_MINED.add(b);
         if (adaptation != null && adaptation.getLevel() > 0) {
-          Collection<ItemStack> items = block.getDrops();
+          Collection<ItemStack> items = b.getDrops(p.getInventory().getItemInMainHand(), p);
           for (ItemStack i : items) {
             sp.play(p.getLocation(), Sound.BLOCK_CALCITE_HIT, 0.01f, 0.01f);
             HashMap<Integer, ItemStack> extra = p.getInventory().addItem(i);
@@ -168,7 +172,7 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
               p.getWorld().dropItem(p.getLocation(), extra.get(0));
             }
           }
-          p.breakBlock(b);
+          b.setType(Material.AIR);
         } else {
           b.breakNaturally(p.getItemInUse());
           SoundPlayer spw = SoundPlayer.of(block.getWorld());

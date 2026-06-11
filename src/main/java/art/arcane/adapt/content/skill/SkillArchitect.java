@@ -24,6 +24,8 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.xp.XpNovelty;
+import art.arcane.adapt.api.xp.XpProvenance;
 import art.arcane.adapt.content.adaptation.architect.*;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
@@ -208,7 +210,12 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
 
         handleBlockCooldown(p, () -> {
           try {
-            xp(p, e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), getConfig().xpBase + v));
+            double integrity = XpProvenance.placeXpMultiplier(e.getBlock());
+            if (integrity <= 0) {
+              return;
+            }
+            double adjacency = XpNovelty.adjacencyBonusMultiplier(p, e.getBlock());
+            xp(p, e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), getConfig().xpBase + v) * integrity * adjacency);
           } catch (Exception ignored) {
             Adapt.verbose("Failed to give XP to " + p.getName() + " for placing " + e.getBlock().getType().name());
           }

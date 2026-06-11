@@ -96,7 +96,7 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
     return lvl + getConfig().baseRange;
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST)
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(BlockBreakEvent e) {
     if (VEIN_MINED.get(e.getBlock())) {
       return;

@@ -287,6 +287,10 @@ public class ChronosStasisField extends SimpleAdaptation<ChronosStasisField.Conf
       }
 
       if (entity instanceof LivingEntity living && !(entity instanceof Player) && !entity.getUniqueId().equals(bubble.owner())) {
+        if (isProtectedFriendly(owner, living)) {
+          continue;
+        }
+
         living.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, getConfig().effectRefreshTicks, getConfig().slownessAmplifier, true, false, false), true);
         if (PotionEffectTypes.JUMP != null) {
           living.addPotionEffect(new PotionEffect(PotionEffectTypes.JUMP, getConfig().effectRefreshTicks, getConfig().jumpLockAmplifier, true, false, false), true);

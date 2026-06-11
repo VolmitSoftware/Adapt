@@ -29,12 +29,14 @@ import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import lombok.NoArgsConstructor;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Map;
@@ -120,6 +122,10 @@ public class RiftVoidMagnet extends SimpleAdaptation<RiftVoidMagnet.Config> {
         continue;
       }
 
+      if (!canSnatchItem(p, item)) {
+        continue;
+      }
+
       ItemStack stack = item.getItemStack();
       if (stack == null || stack.getType().isAir()) {
         continue;
@@ -127,6 +133,12 @@ public class RiftVoidMagnet extends SimpleAdaptation<RiftVoidMagnet.Config> {
 
       int requestAmount = Math.min(stack.getAmount(), max - moved);
       if (requestAmount <= 0) {
+        continue;
+      }
+
+      EntityPickupItemEvent pickupEvent = new EntityPickupItemEvent(p, item, 0);
+      Bukkit.getPluginManager().callEvent(pickupEvent);
+      if (pickupEvent.isCancelled()) {
         continue;
       }
 

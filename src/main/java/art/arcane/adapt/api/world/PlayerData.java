@@ -124,7 +124,7 @@ public class PlayerData {
         continue;
       }
 
-      if (lineData.getXp() == 0 && lineData.getKnowledge() == 0) {
+      if (lineData.getXp() == 0 && lineData.getKnowledge() == 0 && lineData.getPooledXp() == 0) {
         skillLines.remove(lineId, lineData);
         continue;
       }
@@ -287,6 +287,10 @@ public class PlayerData {
       line.setXp(0);
       line.setLastXP(0);
       line.setLastLevel(0);
+      line.setPooledXp(0);
+      line.setPooledNotifyXp(0);
+      line.setPoolStartedAt(0);
+      line.setPoolLastEarnAt(0);
       line.setMonotonyCounter(0);
       line.setMonotonyMultiplier(1.0);
       line.setLastXpTimestamp(0);
@@ -376,6 +380,11 @@ public class PlayerData {
 
   public String toJson(boolean raw) {
     synchronized (skillLines) {
+      for (PlayerSkillLine line : skillLines.values()) {
+        if (line != null) {
+          line.flushXpPool(null);
+        }
+      }
       return Json.toJson(this, !raw);
     }
   }

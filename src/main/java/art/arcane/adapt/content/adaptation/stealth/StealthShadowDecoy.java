@@ -279,6 +279,10 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
         continue;
       }
 
+      if (isProtectedFriendly(owner, mob)) {
+        continue;
+      }
+
       if (mob.getTarget() == owner || mob.hasLineOfSight(owner)) {
         mob.setTarget(target);
         getPlayer(owner).getData().addStat("stealth.shadow-decoy.mobs-distracted", 1);

@@ -23,7 +23,9 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.version.Version;
+import art.arcane.adapt.content.adaptation.excavation.ExcavationGraveDigger;
 import art.arcane.adapt.content.adaptation.hunter.*;
+import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
@@ -236,6 +238,10 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
     Player p = e.getEntity().getKiller();
 
     if (!getConfig().getXpForAttackingWithTools) {
+      return;
+    }
+
+    if (TragoulSkeletalServant.isServant(e.getEntity()) || ExcavationGraveDigger.isGraveMob(e.getEntity())) {
       return;
     }
 

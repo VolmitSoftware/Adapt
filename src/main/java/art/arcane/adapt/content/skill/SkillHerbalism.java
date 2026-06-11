@@ -22,6 +22,8 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.skill.SimpleSkill;
+import art.arcane.adapt.api.xp.XpNovelty;
+import art.arcane.adapt.api.xp.XpProvenance;
 import art.arcane.adapt.content.adaptation.herbalism.*;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
@@ -279,7 +281,8 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
   private void handleEvent(Cancellable e, Player p, Block block, String stat) {
     handleHerbCooldown(p, () -> {
       if (block.getBlockData() instanceof Ageable ageableBlock) {
-        xp(p, block.getLocation().clone().add(0.5, 0.5, 0.5), getConfig().harvestPerAgeXP * ageableBlock.getAge());
+        double integrity = XpProvenance.harvestXpMultiplier(block) * XpNovelty.fieldCycleMultiplier(p, block);
+        xp(p, block.getLocation().clone().add(0.5, 0.5, 0.5), getConfig().harvestPerAgeXP * ageableBlock.getAge() * integrity);
         getPlayer(p).getData().addStat(stat, 1);
       }
     });

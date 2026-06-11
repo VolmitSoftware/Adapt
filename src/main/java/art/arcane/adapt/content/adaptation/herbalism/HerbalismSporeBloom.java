@@ -117,7 +117,7 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
       int pulseChanged = 0;
       int batch = getBlocksPerPulse(level);
       for (int i = 0; i < batch && cursor[0] < path.size(); i++) {
-        pulseChanged += spreadAt(path.get(cursor[0]++), catalyst, spreadSurface);
+        pulseChanged += spreadAt(player, path.get(cursor[0]++), catalyst, spreadSurface);
       }
 
       if (pulseChanged > 0) {
@@ -244,7 +244,7 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
     return out < 0 ? out + (Math.PI * 2D) : out;
   }
 
-  private int spreadAt(Block floor, Material catalyst, Material spreadSurface) {
+  private int spreadAt(org.bukkit.entity.Player player, Block floor, Material catalyst, Material spreadSurface) {
     int changed = 0;
     Block ground = resolveTopSurfaceSoil(floor);
     if (ground == null) {
@@ -252,14 +252,16 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
     }
     Block above = ground.getRelative(0, 1, 0);
 
-    if (spreadSurface != null && isConvertibleSoil(ground.getType()) && ground.getType() != spreadSurface) {
+    if (spreadSurface != null && isConvertibleSoil(ground.getType()) && ground.getType() != spreadSurface
+        && canBlockBreak(player, ground.getLocation()) && canBlockPlace(player, ground.getLocation())) {
       ground.setType(spreadSurface, false);
       changed++;
     }
 
     if (getConfig().swapFlowersToMushrooms && isFlower(above.getType())) {
       Material replacement = getFlowerReplacement(above.getType(), catalyst);
-      if (replacement != null && above.getType() != replacement) {
+      if (replacement != null && above.getType() != replacement
+          && canBlockBreak(player, above.getLocation()) && canBlockPlace(player, above.getLocation())) {
         above.setType(replacement, false);
         changed++;
       }

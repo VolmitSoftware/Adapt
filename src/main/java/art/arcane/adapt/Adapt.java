@@ -31,6 +31,9 @@ import art.arcane.adapt.api.value.MaterialValue;
 import art.arcane.adapt.api.version.Version;
 import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.adapt.api.world.PlayerDataPersistenceQueue;
+import art.arcane.adapt.api.xp.XpNoveltyListener;
+import art.arcane.adapt.api.xp.XpProvenanceListener;
+import art.arcane.adapt.content.integration.hiddenore.HiddenOreLink;
 import art.arcane.adapt.content.protector.*;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
@@ -58,7 +61,6 @@ import de.slikey.effectlib.EffectManager;
 import fr.skytasul.glowingentities.GlowingEntities;
 import io.github.slimjar.app.builder.SpigotApplicationBuilder;
 import lombok.Getter;
-import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -68,6 +70,10 @@ import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.text.MessageFormat;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -238,28 +244,75 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     info("Language: " + AdaptConfig.get().getLanguage() + " - Language Fallback: " + AdaptConfig.get().getFallbackLanguageDontChangeUnlessYouKnowWhatYouAreDoing());
   }
 
-  @SneakyThrows
   public static void autoUpdateCheck() {
-    try (BufferedReader in = new BufferedReader(new InputStreamReader(new URL("https://raw.githubusercontent.com/VolmitSoftware/Adapt/main/build.gradle").openStream()))) {
-      info("Checking for updates...");
-      String inputLine;
-      while ((inputLine = in.readLine()) != null) {
-        if (inputLine.contains("version '")) {
-          String version = inputLine.replace("version '", "").replace("'", "").replace("// Needs to be version specific", "").replace(" ", "");
-          if (instance.getDescription().getVersion().contains("development")) {
-            info("Development build detected. Skipping update check.");
-            return;
-          } else if (!version.equals(instance.getDescription().getVersion())) {
-            info(MessageFormat.format("Please update your Adapt plugin to the latest version! (Current: {0} Latest: {1})", instance.getDescription().getVersion(), version));
-          } else {
-            info("You are running the latest version of Adapt!");
-          }
-          break;
-        }
-      }
-    } catch (Throwable e) {
-      error("Failed to check for updates.");
+    String localVersion = instance.getDescription().getVersion();
+    if (localVersion.contains("development")) {
+      info("Development build detected. Skipping update check.");
+      return;
     }
+
+    info("Checking for updates...");
+    String remoteVersion = fetchRemoteVersion();
+    if (remoteVersion == null) {
+      error("Failed to check for updates.");
+      return;
+    }
+
+    int comparison = compareVersionPrefixes(localVersion, remoteVersion);
+    if (comparison < 0) {
+      info(MessageFormat.format("Please update your Adapt plugin to the latest version! (Current: {0} Latest: {1})", localVersion, remoteVersion));
+    } else if (comparison > 0) {
+      info("Running a build ahead of the published release. (Current: " + localVersion + " Published: " + remoteVersion + ")");
+    } else {
+      info("You are running the latest version of Adapt!");
+    }
+  }
+
+  private static String fetchRemoteVersion() {
+    String[] sources = {
+        "https://raw.githubusercontent.com/VolmitSoftware/Adapt/main/build.gradle.kts",
+        "https://raw.githubusercontent.com/VolmitSoftware/Adapt/main/build.gradle"
+    };
+    Pattern versionPattern = Pattern.compile("^version\\s*=?\\s*['\"]([^'\"]+)['\"]");
+
+    for (String source : sources) {
+      try (BufferedReader in = new BufferedReader(new InputStreamReader(new URL(source).openStream()))) {
+        String line;
+        while ((line = in.readLine()) != null) {
+          Matcher matcher = versionPattern.matcher(line.trim());
+          if (matcher.find()) {
+            return matcher.group(1);
+          }
+        }
+      } catch (Throwable ignored) {
+      }
+    }
+
+    return null;
+  }
+
+  private static int compareVersionPrefixes(String local, String remote) {
+    int[] a = parseVersionPrefix(local);
+    int[] b = parseVersionPrefix(remote);
+    for (int i = 0; i < 3; i++) {
+      if (a[i] != b[i]) {
+        return Integer.compare(a[i], b[i]);
+      }
+    }
+
+    return 0;
+  }
+
+  private static int[] parseVersionPrefix(String version) {
+    int[] parts = new int[3];
+    Matcher matcher = Pattern.compile("^(\\d+)\\.(\\d+)(?:\\.(\\d+))?").matcher(version);
+    if (matcher.find()) {
+      parts[0] = Integer.parseInt(matcher.group(1));
+      parts[1] = Integer.parseInt(matcher.group(2));
+      parts[2] = matcher.group(3) == null ? 0 : Integer.parseInt(matcher.group(3));
+    }
+
+    return parts;
   }
 
   public static void actionbar(Player p, String msg) {
@@ -360,6 +413,8 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     });
     CustomBlockData.registerListener(this);
     registerListener(new BrewingManager());
+    registerListener(new XpProvenanceListener());
+    registerListener(new XpNoveltyListener());
     registerListener(Version.get());
     setupMetrics();
     startupPrint(); // Splash screen
@@ -388,6 +443,9 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     if (getServer().getPluginManager().getPlugin("LockettePro") != null) {
       protectorRegistry.registerProtector(new LocketteProProtector());
     }
+    if (getServer().getPluginManager().getPlugin("HiddenOre") != null) {
+      HiddenOreLink.activate(this);
+    }
     initializeGlowingEntities();
     initializeAdaptationListings();
     services.values().forEach(AdaptService::onEnable);
@@ -395,7 +453,10 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     ConfigFileSupport.flushCreatedConfigSummary();
   }
 
+  private static final Logger GLOWING_ENTITIES_LOGGER = Logger.getLogger("GlowingEntities");
+
   private void initializeGlowingEntities() {
+    GLOWING_ENTITIES_LOGGER.setFilter(record -> record.getLevel().intValue() >= Level.WARNING.intValue());
     try {
       glowingEntities = new GlowingEntities(this);
     } catch (Throwable t) {

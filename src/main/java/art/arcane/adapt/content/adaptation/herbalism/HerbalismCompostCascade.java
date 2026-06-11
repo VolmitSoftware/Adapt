@@ -132,7 +132,7 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
 
     CompostState state = new CompostState(oldLevel);
 
-    processDroppedItems(world, center, radius, state, maxItems, fillChance);
+    processDroppedItems(p, world, center, radius, state, maxItems, fillChance);
     processMatureCrops(p, world, center, radius, state, maxItems, fillChance);
     processLeafBlocks(p, world, center, radius, level, state, maxItems, fillChance);
     processInventoryItems(p, state, maxItems, fillChance);
@@ -161,13 +161,17 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
     dropRewards(world, center, level, oldLevel, updated.getLevel(), state.consumed);
   }
 
-  private void processDroppedItems(World world, Location center, double radius, CompostState state, int maxItems, double fillChance) {
+  private void processDroppedItems(Player p, World world, Location center, double radius, CompostState state, int maxItems, double fillChance) {
     if (isComposterDone(state, maxItems)) {
       return;
     }
 
     for (Entity entity : world.getNearbyEntities(center, radius, radius, radius)) {
       if (!(entity instanceof Item item) || isComposterDone(state, maxItems)) {
+        continue;
+      }
+
+      if (!canSnatchItem(p, item)) {
         continue;
       }
 

@@ -26,16 +26,22 @@ import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.PlayerAdaptation;
 import art.arcane.adapt.api.world.PlayerData;
 import art.arcane.adapt.api.world.PlayerSkillLine;
+import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
 import art.arcane.adapt.content.event.AdaptAdaptationUseEvent;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.volmlib.util.math.M;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.entity.AnimalTamer;
+import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Display;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Interaction;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
+import org.bukkit.entity.Tameable;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
@@ -225,11 +231,48 @@ final class AdaptationRuntimeGuards {
       return false;
     }
 
+    if (isProtectedFriendly(attacker, target)) {
+      return false;
+    }
+
     if (target instanceof Player victim) {
       return adaptation.canPVP(attacker, victim.getLocation());
     }
 
     return adaptation.canPVE(attacker, target.getLocation());
+  }
+
+  static boolean isProtectedFriendly(Player actor, Entity target) {
+    if (target == null) {
+      return false;
+    }
+
+    if (target instanceof Display || target instanceof Interaction) {
+      return true;
+    }
+
+    if (target instanceof ArmorStand stand && stand.isMarker()) {
+      return true;
+    }
+
+    if (target.isInvulnerable()) {
+      return true;
+    }
+
+    if (target.hasMetadata("NPC")) {
+      return true;
+    }
+
+    if (TragoulSkeletalServant.isServant(target)) {
+      return true;
+    }
+
+    if (actor != null && target instanceof Tameable tameable && tameable.isTamed()) {
+      AnimalTamer tamer = tameable.getOwner();
+      return tamer != null && actor.getUniqueId().equals(tamer.getUniqueId());
+    }
+
+    return false;
   }
 
   static int getActiveSurvivalLevel(Adaptation<?> adaptation, Player player) {

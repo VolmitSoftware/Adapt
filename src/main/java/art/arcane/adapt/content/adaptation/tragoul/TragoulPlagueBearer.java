@@ -113,7 +113,7 @@ public class TragoulPlagueBearer extends SimpleAdaptation<TragoulPlagueBearer.Co
 
     Player owner = p;
     withAdaptedPlayer(owner, e, () -> {
-      if (getActiveLevel(owner) <= 0) {
+      if (getActiveLevel(owner) <= 0 || isProtectedFriendly(owner, monster)) {
         return;
       }
 

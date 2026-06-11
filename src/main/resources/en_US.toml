@@ -4000,10 +4000,11 @@ description = "Absorb 500 familiar damage through deja vu"
 
 [unarmed.disarm]
 name = "Disarm"
-description = "Bare-hand hits can knock the target's held item to the ground."
+description = "Bare-hand hits can knock the held item out of players and mobs alike, and mobs may have a worn armor piece knocked loose too."
 lore1 = "Disarm Chance"
 lore2 = "Per-Target Cooldown"
-lore = ["Disarm Chance", "Per-Target Cooldown"]
+lore3 = "chance a disarmed mob also drops a worn armor piece"
+lore = ["Disarm Chance", "Per-Target Cooldown", "chance a disarmed mob also drops a worn armor piece"]
 
 [unarmed.flurry]
 name = "Flurry"
@@ -4422,3 +4423,6 @@ description = "Defy death 5 times"
 [advancement.challenge_tragoul_last_rites_50]
 title = "Unfinished Business"
 description = "Defy death 50 times"
+
+[snippets.xp]
+inspired = "Inspired! Fresh activity bonus"

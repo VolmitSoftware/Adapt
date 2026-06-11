@@ -7,6 +7,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.minecraft.advancements.AdvancementType;
 import net.minecraft.advancements.DisplayInfo;
 import net.minecraft.core.ClientAsset;
+import net.minecraft.world.item.ItemStackTemplate;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.util.CraftChatMessage;
 import org.bukkit.inventory.ItemStack;
@@ -21,14 +22,14 @@ public class AdvancementDisplayWrapper_v1_21_R7 extends AdvancementDisplayWrappe
 
     public AdvancementDisplayWrapper_v1_21_R7(@NotNull ItemStack icon, @NotNull String title, @NotNull String description, @NotNull AdvancementFrameTypeWrapper frameType, float x, float y, boolean showToast, boolean announceChat, boolean hidden, @Nullable String backgroundTexture) {
         ClientAsset.ResourceTexture clientAsset = Util.parseBackgroundTexture(backgroundTexture);
-        this.display = new DisplayInfo(CraftItemStack.asTemplate(icon), Util.fromString(title), Util.fromString(description), Optional.ofNullable(clientAsset), (AdvancementType) frameType.toNMS(), showToast, announceChat, hidden);
+        this.display = new DisplayInfo(ItemStackTemplate.fromNonEmptyStack(CraftItemStack.asNMSCopy(icon)), Util.fromString(title), Util.fromString(description), Optional.ofNullable(clientAsset), (AdvancementType) frameType.toNMS(), showToast, announceChat, hidden);
         this.display.setLocation(x, y);
         this.frameType = frameType;
     }
 
     public AdvancementDisplayWrapper_v1_21_R7(@NotNull ItemStack icon, @NotNull BaseComponent title, @NotNull BaseComponent description, @NotNull AdvancementFrameTypeWrapper frameType, float x, float y, boolean showToast, boolean announceChat, boolean hidden, @Nullable String backgroundTexture) {
         ClientAsset.ResourceTexture clientAsset = Util.parseBackgroundTexture(backgroundTexture);
-        this.display = new DisplayInfo(CraftItemStack.asTemplate(icon), Util.fromComponent(title), Util.fromComponent(description), Optional.ofNullable(clientAsset), (AdvancementType) frameType.toNMS(), showToast, announceChat, hidden);
+        this.display = new DisplayInfo(ItemStackTemplate.fromNonEmptyStack(CraftItemStack.asNMSCopy(icon)), Util.fromComponent(title), Util.fromComponent(description), Optional.ofNullable(clientAsset), (AdvancementType) frameType.toNMS(), showToast, announceChat, hidden);
         this.display.setLocation(x, y);
         this.frameType = frameType;
     }
@@ -36,7 +37,7 @@ public class AdvancementDisplayWrapper_v1_21_R7 extends AdvancementDisplayWrappe
     @Override
     @NotNull
     public ItemStack getIcon() {
-        return CraftItemStack.asBukkitCopy(display.getIcon());
+        return CraftItemStack.asBukkitCopy(display.getIcon().create());
     }
 
     @Override

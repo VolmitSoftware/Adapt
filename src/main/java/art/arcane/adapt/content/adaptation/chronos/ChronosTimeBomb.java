@@ -418,6 +418,10 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
       }
 
       if (!(entity instanceof Player)) {
+        if (isProtectedFriendly(owner, entity)) {
+          continue;
+        }
+
         boolean wasNew = !frozenEntities.containsKey(entity.getUniqueId());
         freezeEntity(entity);
         if (wasNew && owner != null) {

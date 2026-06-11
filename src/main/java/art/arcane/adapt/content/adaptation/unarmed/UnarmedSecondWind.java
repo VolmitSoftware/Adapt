@@ -96,6 +96,10 @@ public class UnarmedSecondWind extends SimpleAdaptation<UnarmedSecondWind.Config
       return;
     }
 
+    if (isProtectedFriendly(p, victim)) {
+      return;
+    }
+
     if (isTool(p.getInventory().getItemInMainHand()) || isTool(p.getInventory().getItemInOffHand())) {
       return;
     }

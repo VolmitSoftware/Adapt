@@ -42,7 +42,6 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -92,9 +91,6 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
     if (!hasActiveAdaptation(p)) {
       return;
     }
-    if (!canAccessChest(p, p.getLocation())) {
-      return;
-    }
     if (e.isSneaking()) {
       snatch(p);
     }
@@ -107,36 +103,41 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
       return;
     }
 
+    if (!canAccessChest(player, player.getLocation())) {
+      return;
+    }
+
     double range = getRange(factor);
     HashSet<Item> items = new HashSet<>();
     for (Entity droppedItemEntity : player.getWorld().getNearbyEntities(player.getLocation(), range, range / 1.5, range)) {
-      if (droppedItemEntity instanceof Item droppedItem) {
-        if (droppedItem.getPickupDelay() <= 0 || droppedItem.getTicksLived() > 1) {
-          UUID owner = droppedItem.getOwner();
-          if (owner == null || owner.equals(player.getUniqueId()))
-            items.add(droppedItem);
-        }
+      if (droppedItemEntity instanceof Item droppedItem && canSnatchItem(player, droppedItem)) {
+        items.add(droppedItem);
       }
     }
 
     for (Item droppedItemEntity : items) {
-      if (!holds.contains(droppedItemEntity.getEntityId())) {
-        double dist = droppedItemEntity.getLocation().distanceSquared(player.getLocation());
-        if (dist < range * range) {
-          ItemStack is = droppedItemEntity.getItemStack().clone();
-
-          if (Inventories.hasSpace(player.getInventory(), is)) {
-            holds.add(droppedItemEntity.getEntityId());
-            SoundPlayer spw = SoundPlayer.of(player.getWorld());
-            spw.play(player.getLocation(), Sound.BLOCK_LAVA_POP, 1f, (float) (1.0 + (ThreadLocalRandom.current().nextDouble() / 3D)));
-            safeGiveItem(player, droppedItemEntity, is);
-            getPlayer(player).getData().addStat("stealth.snatch.items-snatched", 1);
-            //sendCollected(player, droppedItemEntity);
-            int id = droppedItemEntity.getEntityId();
-            J.runEntity(player, () -> holds.remove(Integer.valueOf(id)), 1);
-          }
-        }
+      if (holds.contains(droppedItemEntity.getEntityId())) {
+        continue;
       }
+
+      double dist = droppedItemEntity.getLocation().distanceSquared(player.getLocation());
+      if (dist >= range * range) {
+        continue;
+      }
+
+      ItemStack is = droppedItemEntity.getItemStack().clone();
+      if (!Inventories.hasSpace(player.getInventory(), is)) {
+        continue;
+      }
+
+      holds.add(droppedItemEntity.getEntityId());
+      int id = droppedItemEntity.getEntityId();
+      if (safeGiveItem(player, droppedItemEntity, is)) {
+        SoundPlayer spw = SoundPlayer.of(player.getWorld());
+        spw.play(player.getLocation(), Sound.BLOCK_LAVA_POP, 1f, (float) (1.0 + (ThreadLocalRandom.current().nextDouble() / 3D)));
+        getPlayer(player).getData().addStat("stealth.snatch.items-snatched", 1);
+      }
+      J.runEntity(player, () -> holds.remove(Integer.valueOf(id)), 1);
     }
 
   }

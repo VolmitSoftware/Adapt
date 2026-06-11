@@ -23,6 +23,7 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.content.integration.hiddenore.HiddenOreLink;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
@@ -166,6 +167,11 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
           ores.add(b);
         }
       }
+    }
+
+    for (HiddenOreLink.VeinTarget vein : HiddenOreLink.veins(origin, radius)) {
+      Location at = vein.location();
+      ores.add(origin.getWorld().getBlockAt(at.getBlockX(), at.getBlockY(), at.getBlockZ()));
     }
 
     ores.sort(Comparator.comparingDouble(b -> b.getLocation().distanceSquared(origin)));

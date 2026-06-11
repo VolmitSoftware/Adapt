@@ -22,7 +22,9 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.skill.SimpleSkill;
+import art.arcane.adapt.content.adaptation.excavation.ExcavationGraveDigger;
 import art.arcane.adapt.content.adaptation.taming.*;
+import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
@@ -217,6 +219,11 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
     if (e.getEntity().getKiller() != null) {
       return;
     }
+
+    if (TragoulSkeletalServant.isServant(e.getEntity()) || ExcavationGraveDigger.isGraveMob(e.getEntity())) {
+      return;
+    }
+
     if (e.getEntity().getLastDamageCause() instanceof EntityDamageByEntityEvent damageEvent) {
       if (damageEvent.getDamager() instanceof Tameable tameable && tameable.isTamed() && tameable.getOwner() instanceof Player p) {
         shouldReturnForPlayer(p, () -> {

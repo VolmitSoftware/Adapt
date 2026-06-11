@@ -20,6 +20,7 @@ package art.arcane.adapt.api.data;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.data.unit.Earnings;
+import art.arcane.adapt.api.data.unit.PlacementStamp;
 import art.arcane.adapt.api.tick.TickedObject;
 import art.arcane.adapt.util.common.parallel.MultiBurst;
 import art.arcane.adapt.util.common.scheduling.J;
@@ -49,6 +50,7 @@ public class WorldData extends TickedObject {
 
   static {
     SpatialMatter.registerSliceType(new Earnings.EarningsMatter());
+    SpatialMatter.registerSliceType(new PlacementStamp.PlacementStampMatter());
     ClassReader.add(WorldData.class.getClassLoader());
   }
 

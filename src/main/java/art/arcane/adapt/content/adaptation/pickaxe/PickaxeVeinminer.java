@@ -26,6 +26,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.world.PlayerAdaptation;
 import art.arcane.adapt.api.world.PlayerSkillLine;
+import art.arcane.adapt.content.integration.hiddenore.HiddenOreLink;
 import art.arcane.adapt.content.item.ItemListings;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
@@ -41,6 +42,7 @@ import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -89,7 +91,7 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
     return lvl + getConfig().baseRange;
   }
 
-  @EventHandler
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(BlockBreakEvent e) {
     if (VEIN_MINED.get(e.getBlock())) {
       return;
@@ -103,6 +105,7 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
 
     if (!e.getBlock().getBlockData().getMaterial().name().endsWith("_ORE")) {
       if (!e.getBlock().getType().equals(Material.OBSIDIAN)) {
+        chainHiddenVein(e.getBlock(), p, level);
         return;
       }
     }
@@ -202,6 +205,39 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
         VEIN_MINED.remove(b);
       }
       VEIN_MINED.remove(block);
+    });
+  }
+
+  private void chainHiddenVein(Block block, Player p, int level) {
+    List<Block> siblings = HiddenOreLink.veinSiblings(block);
+    if (siblings.isEmpty()) {
+      return;
+    }
+
+    int radius = getRadius(level);
+    int radiusSquared = radius * radius;
+    Location origin = block.getLocation();
+    List<Block> targets = new ArrayList<>();
+    for (Block sibling : siblings) {
+      if (sibling.getLocation().distanceSquared(origin) <= radiusSquared && canBlockBreak(p, sibling.getLocation())) {
+        targets.add(sibling);
+      }
+    }
+
+    if (targets.isEmpty()) {
+      return;
+    }
+
+    getPlayer(p).getData().addStat("pickaxe.veinminer.ores-veinmined", targets.size());
+    J.runEntity(p, () -> {
+      for (Block target : targets) {
+        if (VEIN_MINED.get(target)) {
+          continue;
+        }
+        VEIN_MINED.add(target);
+        p.breakBlock(target);
+        VEIN_MINED.remove(target);
+      }
     });
   }
 

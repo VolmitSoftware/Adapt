@@ -50,7 +50,9 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.IntConsumer;
 import java.util.function.Predicate;
 
@@ -539,14 +541,55 @@ public interface Component {
     }
   }
 
-  default void safeGiveItem(Player player, Entity itemEntity, ItemStack is) {
-    EntityPickupItemEvent e = new EntityPickupItemEvent(player, (Item) itemEntity, 0);
+  default boolean safeGiveItem(Player player, Entity itemEntity, ItemStack is) {
+    if (!(itemEntity instanceof Item item) || !item.isValid() || is == null || is.getType().isAir() || is.getAmount() <= 0) {
+      return false;
+    }
+
+    EntityPickupItemEvent e = new EntityPickupItemEvent(player, item, 0);
     Bukkit.getPluginManager().callEvent(e);
-    if (!e.isCancelled()) {
-      itemEntity.remove();
-      if (!player.getInventory().addItem(is).isEmpty()) {
-        player.getWorld().dropItem(player.getLocation(), is);
-      }
+    if (e.isCancelled()) {
+      return false;
+    }
+
+    int requested = is.getAmount();
+    Map<Integer, ItemStack> leftover = player.getInventory().addItem(is.clone());
+    if (leftover.isEmpty()) {
+      item.remove();
+      return true;
+    }
+
+    ItemStack remaining = leftover.values().iterator().next();
+    if (remaining == null || remaining.getAmount() >= requested) {
+      return false;
+    }
+
+    item.setItemStack(remaining);
+    return true;
+  }
+
+  default boolean canSnatchItem(Player player, Item item) {
+    if (!item.isValid() || item.isInvulnerable()) {
+      return false;
+    }
+
+    if (item.getPickupDelay() >= Short.MAX_VALUE) {
+      return false;
+    }
+
+    UUID owner = item.getOwner();
+    if (owner != null && !owner.equals(player.getUniqueId())) {
+      return false;
+    }
+
+    if (item.hasMetadata("NPC") || item.hasMetadata("shopitem") || item.hasMetadata("hologram")) {
+      return false;
+    }
+
+    try {
+      return item.canPlayerPickup();
+    } catch (NoSuchMethodError ignored) {
+      return true;
     }
   }
 

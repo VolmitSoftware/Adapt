@@ -105,6 +105,10 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
 
   private final Map<UUID, CopyOnWriteArrayList<Skeleton>> servants = new ConcurrentHashMap<>();
   private final Map<UUID, Long> cooldowns = new ConcurrentHashMap<>();
+
+  public static boolean isServant(org.bukkit.entity.Entity entity) {
+    return entity.getPersistentDataContainer().has(SERVANT_KEY, PersistentDataType.STRING);
+  }
   private final Map<UUID, PlayerThreat> threats = new ConcurrentHashMap<>();
   private final Map<UUID, Long> servantThornsCooldowns = new ConcurrentHashMap<>();
   private final Map<UUID, Long> servantCurseCooldowns = new ConcurrentHashMap<>();
@@ -839,7 +843,7 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
   }
 
   private long getCooldownMillis(int level) {
-    return Math.max(5000L, (long) Math.round(getConfig().cooldownMillisBase - (getLevelPercent(level) * getConfig().cooldownMillisFactor)));
+    return Math.max(1000L, (long) Math.round(getConfig().cooldownMillisBase - (getLevelPercent(level) * getConfig().cooldownMillisFactor)));
   }
 
   @Override
@@ -897,9 +901,9 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
     @art.arcane.adapt.util.config.ConfigDoc(value = "Additional servant lifetime ticks granted at max level.", impact = "Higher values increase the level-scaled lifetime growth.")
     double durationTicksFactor = 800;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Summon cooldown in milliseconds before level scaling.", impact = "Higher values slow how often a servant can be summoned.")
-    double cooldownMillisBase = 90000;
+    double cooldownMillisBase = 10000;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Cooldown reduction in milliseconds granted at max level.", impact = "Higher values let high levels summon more often.")
-    double cooldownMillisFactor = 45000;
+    double cooldownMillisFactor = 9000;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Living servants allowed per adaptation level.", impact = "Higher values let one necromancer field a larger pack of servants.")
     double servantCapPerLevel = 1.0;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Replaces the oldest living servant when summoning at the cap.", impact = "False quietly refuses the summon instead of recycling the oldest servant.")

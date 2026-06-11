@@ -77,6 +77,7 @@ public class AdaptConfig {
   private Effects effects = new Effects();
   private FarmPrevention farmPrevention = new FarmPrevention();
   private AdaptationXp adaptationXp = new AdaptationXp();
+  private XpIntegrity xpIntegrity = new XpIntegrity();
   private RedisConfig redis = new RedisConfig();
   private SqlSettings sql = new SqlSettings();
   private Protector protectorSupport = new Protector();
@@ -204,6 +205,38 @@ public class AdaptConfig {
     private double activityDecayCurve = 9.0;
     private double activityFloorMultiplier = 0.12;
     private double crossSkillRecoveryFactor = 0.9;
+  }
+
+  @Getter
+  public static class XpIntegrity {
+    private boolean provenanceEnabled = true;
+    private long placedBlockTtlMillis = 86400000;
+    private long replaceDenyTtlMillis = 900000;
+    private boolean bonemealTrackingEnabled = true;
+    private long bonemealTtlMillis = 600000;
+    private double bonemealHarvestMultiplier = 0.5;
+    private boolean noveltyEnabled = true;
+    private int spatialCellShift = 2;
+    private int spatialCellCap = 256;
+    private long spatialCellTtlMillis = 900000;
+    private double spatialRepeatDecay = 0.3;
+    private double spatialFloorMultiplier = 0.25;
+    private int entropyWindow = 48;
+    private double entropyFloorMultiplier = 0.7;
+    private boolean adjacencyBonusEnabled = true;
+    private double adjacencyBonusMax = 0.25;
+    private double adjacencyBonusPerStreak = 0.05;
+    private boolean stillnessEnabled = true;
+    private long stillnessWindowMillis = 60000;
+    private int stillnessMinEvents = 20;
+    private double stillnessEpsilon = 0.75;
+    private double stillnessFloorMultiplier = 0.25;
+    private long fieldCycleMillis = 240000;
+    private double fieldCycleFloorMultiplier = 0.15;
+    private boolean pooledPayoutEnabled = true;
+    private long pooledWindowMillis = 30000;
+    private long pooledIdleFlushMillis = 8000;
+    private boolean inspiredNotifyEnabled = true;
   }
 
   @Getter

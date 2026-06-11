@@ -22,6 +22,7 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.content.integration.hiddenore.HiddenOreLink;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
@@ -104,13 +105,28 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
       return;
     }
 
-    Block target = findNearestOre(e.getBlock().getLocation(), getScanRange(level));
-    if (target == null) {
+    Location blockLocation = e.getBlock().getLocation();
+    Block target = findNearestOre(blockLocation, getScanRange(level));
+    HiddenOreLink.VeinTarget hidden = HiddenOreLink.nearestVein(blockLocation, getScanRange(level));
+
+    Location targetCenter = null;
+    Material targetValueType = null;
+    if (target != null) {
+      targetCenter = target.getLocation().add(0.5, 0.5, 0.5);
+      targetValueType = target.getType();
+    }
+    if (hidden != null) {
+      Location hiddenCenter = hidden.location().clone().add(0.5, 0.5, 0.5);
+      if (targetCenter == null || hiddenCenter.distanceSquared(blockLocation) < targetCenter.distanceSquared(blockLocation)) {
+        targetCenter = hiddenCenter;
+        targetValueType = hidden.display();
+      }
+    }
+    if (targetCenter == null) {
       return;
     }
 
     Location origin = p.getEyeLocation();
-    Location targetCenter = target.getLocation().add(0.5, 0.5, 0.5);
     Vector direction = targetCenter.toVector().subtract(origin.toVector());
     if (direction.lengthSquared() <= 0.0000001) {
       return;
@@ -119,7 +135,7 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
     renderDirectionHint(p, origin, direction.normalize(), getHintSegments(level));
     playPingSound(p, origin.distance(targetCenter), getScanRange(level));
     getPlayer(p).getData().addStat("excavation.seismic-ping.pings-triggered", 1);
-    xp(p, getConfig().xpPerPing + (getValue(target.getType()) * getConfig().targetValueXpMultiplier));
+    xp(p, getConfig().xpPerPing + (getValue(targetValueType) * getConfig().targetValueXpMultiplier));
   }
 
   private void renderDirectionHint(Player p, Location origin, Vector direction, int segments) {

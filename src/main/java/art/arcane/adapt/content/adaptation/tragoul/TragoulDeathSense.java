@@ -97,6 +97,10 @@ public class TragoulDeathSense extends SimpleAdaptation<TragoulDeathSense.Config
             continue;
           }
 
+          if (isProtectedFriendly(p, monster)) {
+            continue;
+          }
+
           IAttribute attribute = Version.get().getAttribute(monster, Attributes.GENERIC_MAX_HEALTH);
           double maxHealth = attribute == null ? 20D : attribute.getValue();
           if (maxHealth <= 0 || monster.getHealth() / maxHealth > threshold) {

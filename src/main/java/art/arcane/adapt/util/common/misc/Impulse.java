@@ -26,6 +26,7 @@ import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 public class Impulse {
   private final List<Entity> ignore;
@@ -34,6 +35,7 @@ public class Impulse {
   private double forceMin;
   private double damageMin;
   private double damageMax;
+  private Predicate<Entity> filter;
 
   public Impulse(double radius) {
     ignore = new ArrayList<>();
@@ -71,11 +73,20 @@ public class Impulse {
     return this;
   }
 
+  public Impulse filter(Predicate<Entity> filter) {
+    this.filter = filter;
+    return this;
+  }
+
   public void punch(Location at) {
     Area a = new Area(at, radius);
 
     for (Entity i : a.getNearbyEntities()) {
       if (ignore.contains(i)) {
+        continue;
+      }
+
+      if (filter != null && !filter.test(i)) {
         continue;
       }
 

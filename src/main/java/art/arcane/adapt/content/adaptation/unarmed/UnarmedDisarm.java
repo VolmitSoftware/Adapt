@@ -19,6 +19,7 @@
 package art.arcane.adapt.content.adaptation.unarmed;
 
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
+import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
@@ -84,6 +85,7 @@ public class UnarmedDisarm extends SimpleAdaptation<UnarmedDisarm.Config> {
   public void addStats(int level, Element v) {
     v.addLore(C.GREEN + "+ " + Form.pc(getChance(level), 0) + C.GRAY + " " + Localizer.dLocalize("unarmed.disarm.lore1"));
     v.addLore(C.YELLOW + "* " + Form.duration((double) getConfig().targetCooldownMillis, 1) + C.GRAY + " " + Localizer.dLocalize("unarmed.disarm.lore2"));
+    v.addLore(C.GREEN + "+ " + Form.pc(getConfig().mobArmorDropChance, 0) + C.GRAY + " " + Localizer.dLocalize("unarmed.disarm.lore3"));
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
@@ -102,7 +104,8 @@ public class UnarmedDisarm extends SimpleAdaptation<UnarmedDisarm.Config> {
       return;
     }
 
-    if (victim instanceof Player && !getConfig().allowDisarmPlayers) {
+    boolean victimIsPlayer = victim instanceof Player;
+    if (victimIsPlayer && !getConfig().allowDisarmPlayers) {
       return;
     }
 
@@ -116,6 +119,10 @@ public class UnarmedDisarm extends SimpleAdaptation<UnarmedDisarm.Config> {
       return;
     }
 
+    if (TragoulSkeletalServant.isServant(victim)) {
+      return;
+    }
+
     EntityEquipment equipment = victim.getEquipment();
     if (equipment == null) {
       return;
@@ -123,19 +130,34 @@ public class UnarmedDisarm extends SimpleAdaptation<UnarmedDisarm.Config> {
 
     ItemStack main = equipment.getItemInMainHand();
     ItemStack off = equipment.getItemInOffHand();
-    ItemStack knocked;
+    ItemStack knocked = null;
     if (isItem(main)) {
       knocked = main.clone();
       equipment.setItemInMainHand(null);
     } else if (isItem(off) && off.getType() == Material.SHIELD) {
       knocked = off.clone();
       equipment.setItemInOffHand(null);
-    } else {
+    }
+
+    ItemStack armor = null;
+    if (!victimIsPlayer && ThreadLocalRandom.current().nextDouble() < getConfig().mobArmorDropChance) {
+      armor = takeRandomArmorPiece(equipment);
+    }
+
+    if (knocked == null && armor == null) {
       return;
     }
 
-    Item dropped = victim.getWorld().dropItemNaturally(victim.getLocation().add(0, 0.4, 0), knocked);
-    dropped.setPickupDelay(getConfig().pickupDelayTicks);
+    if (knocked != null) {
+      Item dropped = victim.getWorld().dropItemNaturally(victim.getLocation().add(0, 0.4, 0), knocked);
+      dropped.setPickupDelay(getConfig().pickupDelayTicks);
+    }
+
+    if (armor != null) {
+      Item droppedArmor = victim.getWorld().dropItemNaturally(victim.getLocation().add(0, 0.4, 0), armor);
+      droppedArmor.setPickupDelay(getConfig().pickupDelayTicks);
+    }
+
     targetLockUntil.put(victim.getUniqueId(), now + getConfig().targetCooldownMillis);
 
     SoundPlayer sp = SoundPlayer.of(victim.getWorld());
@@ -155,6 +177,37 @@ public class UnarmedDisarm extends SimpleAdaptation<UnarmedDisarm.Config> {
 
   private double getChance(int level) {
     return Math.min(1, getConfig().chanceBase + (getLevelPercent(level) * getConfig().chanceFactor));
+  }
+
+  private ItemStack takeRandomArmorPiece(EntityEquipment equipment) {
+    ItemStack[] armor = equipment.getArmorContents();
+    int worn = 0;
+    for (ItemStack piece : armor) {
+      if (isItem(piece)) {
+        worn++;
+      }
+    }
+
+    if (worn == 0) {
+      return null;
+    }
+
+    int pick = ThreadLocalRandom.current().nextInt(worn);
+    for (int i = 0; i < armor.length; i++) {
+      if (!isItem(armor[i])) {
+        continue;
+      }
+
+      if (pick == 0) {
+        ItemStack taken = armor[i].clone();
+        armor[i] = null;
+        equipment.setArmorContents(armor);
+        return taken;
+      }
+      pick--;
+    }
+
+    return null;
   }
 
   @Override
@@ -189,7 +242,9 @@ public class UnarmedDisarm extends SimpleAdaptation<UnarmedDisarm.Config> {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
     double costFactor = 0.55;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Allows disarming other players, not just mobs.", impact = "True lets bare-hand hits knock items out of player hands in PVP.")
-    boolean allowDisarmPlayers = false;
+    boolean allowDisarmPlayers = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Chance that a successful disarm against a mob also knocks loose a worn armor piece.", impact = "Higher values strip mob armor faster; players never lose armor.")
+    double mobArmorDropChance = 0.5;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Base chance for a bare-hand hit to disarm the target.", impact = "Higher values make disarms proc more often at level 1.")
     double chanceBase = 0.04;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Additional disarm chance granted at max level.", impact = "Higher values make disarms proc more often as levels increase.")

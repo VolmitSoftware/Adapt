@@ -138,7 +138,7 @@ public class ChronosAccelerate extends SimpleAdaptation<ChronosAccelerate.Config
       }
 
       if (type == Material.FURNACE || type == Material.BLAST_FURNACE || type == Material.SMOKER) {
-        if (block.getState() instanceof Furnace furnace && accelerateFurnace(furnace, level)) {
+        if (canInteract(p, block.getLocation()) && block.getState() instanceof Furnace furnace && accelerateFurnace(furnace, level)) {
           accelerated++;
           spawnAccelerationParticle(world, x, y, z);
         }
@@ -146,7 +146,7 @@ public class ChronosAccelerate extends SimpleAdaptation<ChronosAccelerate.Config
       }
 
       if (type == Material.BREWING_STAND) {
-        if (block.getState() instanceof BrewingStand stand && accelerateBrewingStand(stand, level)) {
+        if (canInteract(p, block.getLocation()) && block.getState() instanceof BrewingStand stand && accelerateBrewingStand(stand, level)) {
           accelerated++;
           spawnAccelerationParticle(world, x, y, z);
         }
@@ -156,7 +156,8 @@ public class ChronosAccelerate extends SimpleAdaptation<ChronosAccelerate.Config
       BlockData data = block.getBlockData();
       if (data instanceof Ageable ageable
           && ageable.getAge() < ageable.getMaximumAge()
-          && random.nextDouble() < growChance) {
+          && random.nextDouble() < growChance
+          && canInteract(p, block.getLocation())) {
         ageable.setAge(ageable.getAge() + 1);
         block.setBlockData(data, true);
         accelerated++;

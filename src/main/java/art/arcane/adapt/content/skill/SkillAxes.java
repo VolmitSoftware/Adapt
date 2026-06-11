@@ -23,6 +23,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.xp.XpProvenance;
 import art.arcane.adapt.content.adaptation.axe.*;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
@@ -220,7 +221,12 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
           AdaptPlayer a = getPlayer(p);
           a.getData().addStat("axes.blocks.broken", 1);
           a.getData().addStat("axes.blocks.value", getValue(e.getBlock().getBlockData()));
-          handleCooldown(p, () -> xp(p, e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), v)));
+          handleCooldown(p, () -> {
+            if (XpProvenance.breakXpMultiplier(e.getBlock()) <= 0) {
+              return;
+            }
+            xp(p, e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), v));
+          });
         }
         if (e.getBlock().getType().name().endsWith("_LEAVES")) {
           getPlayer(p).getData().addStat("axes.leaves", 1);

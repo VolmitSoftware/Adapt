@@ -100,10 +100,11 @@ public class AxeGroundSmash extends SimpleAdaptation<AxeGroundSmash.Config> {
     new Impulse(radius)
         .damage(getDamage(f), getFalloffDamage(f))
         .force(getForce(f))
+        .filter(nearby -> nearby != p && canDamageTarget(p, nearby))
         .punch(e.getEntity().getLocation());
     int mobsHit = 0;
     for (Entity nearby : e.getEntity().getWorld().getNearbyEntities(e.getEntity().getLocation(), radius, radius, radius)) {
-      if (nearby instanceof LivingEntity && nearby != p) {
+      if (nearby instanceof LivingEntity && nearby != p && canDamageTarget(p, nearby)) {
         mobsHit++;
       }
     }

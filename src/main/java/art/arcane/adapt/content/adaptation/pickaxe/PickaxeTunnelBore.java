@@ -34,6 +34,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -88,7 +89,7 @@ public class PickaxeTunnelBore extends SimpleAdaptation<PickaxeTunnelBore.Config
     return level >= 3 ? 3 : 2;
   }
 
-  @EventHandler
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(BlockBreakEvent e) {
     Block block = e.getBlock();
     if (!BORE_BLOCKS.contains(block.getType())) {

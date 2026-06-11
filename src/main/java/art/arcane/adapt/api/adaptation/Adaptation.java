@@ -481,6 +481,10 @@ public interface Adaptation<T> extends Ticked, Component {
     return AdaptationRuntimeGuards.canDamageTarget(this, attacker, target);
   }
 
+  default boolean isProtectedFriendly(Player actor, Entity target) {
+    return AdaptationRuntimeGuards.isProtectedFriendly(actor, target);
+  }
+
   /**
    * Returns active level only when player is in survival.
    */

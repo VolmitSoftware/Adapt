@@ -23,6 +23,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.xp.XpProvenance;
 import art.arcane.adapt.content.adaptation.excavation.ExcavationBurrow;
 import art.arcane.adapt.content.adaptation.excavation.ExcavationDowsing;
 import art.arcane.adapt.content.adaptation.excavation.ExcavationDropToInventory;
@@ -252,6 +253,9 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
     if (cooldown != null && cooldown + getConfig().cooldownDelay > System.currentTimeMillis())
       return;
     cooldowns.put(p.getUniqueId(), System.currentTimeMillis());
+    if (XpProvenance.breakXpMultiplier(e.getBlock()) <= 0) {
+      return;
+    }
     double v = getValue(e.getBlock().getType());
     xp(p, e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), v));
   }

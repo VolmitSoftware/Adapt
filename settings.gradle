@@ -46,4 +46,42 @@ if (useLocalVolmLib && localVolmLibDirectory != null) {
     }
 }
 
+File resolveLocalHiddenOreDirectory() {
+    String configuredPath = providers.gradleProperty('localHiddenOreDirectory')
+        .orElse(providers.environmentVariable('HIDDENORE_DIR'))
+        .orNull
+    if (configuredPath != null && !configuredPath.isBlank()) {
+        File configuredDirectory = file(configuredPath)
+        if (hasVolmLibSettings(configuredDirectory)) {
+            return configuredDirectory
+        }
+    }
+
+    File currentDirectory = settingsDir
+    while (currentDirectory != null) {
+        File candidate = new File(currentDirectory, 'HiddenOre')
+        if (hasVolmLibSettings(candidate)) {
+            return candidate
+        }
+
+        currentDirectory = currentDirectory.parentFile
+    }
+
+    null
+}
+
+boolean useLocalHiddenOre = providers.gradleProperty('useLocalHiddenOre')
+    .orElse('true')
+    .map { String value -> value.equalsIgnoreCase('true') }
+    .get()
+File localHiddenOreDirectory = resolveLocalHiddenOreDirectory()
+
+if (useLocalHiddenOre && localHiddenOreDirectory != null) {
+    includeBuild(localHiddenOreDirectory) {
+        dependencySubstitution {
+            substitute(module('com.github.VolmitSoftware:HiddenOre')).using(project(':'))
+        }
+    }
+}
+
 include(':velocity')

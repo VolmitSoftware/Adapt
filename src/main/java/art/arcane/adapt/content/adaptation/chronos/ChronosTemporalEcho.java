@@ -117,6 +117,11 @@ public class ChronosTemporalEcho extends SimpleAdaptation<ChronosTemporalEcho.Co
       return;
     }
 
+    Player shooter = e.getEntity().getShooter() instanceof Player p ? p : null;
+    if (isProtectedFriendly(shooter, target)) {
+      return;
+    }
+
     target.setNoDamageTicks(0);
     target.setLastDamage(0.0D);
   }

@@ -31,8 +31,10 @@ import art.arcane.volmlib.util.inventorygui.Element;
 import lombok.NoArgsConstructor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Skeleton;
@@ -42,6 +44,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,8 +54,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class ExcavationGraveDigger extends SimpleAdaptation<ExcavationGraveDigger.Config> {
+  private static final NamespacedKey GRAVE_MOB_KEY = NamespacedKey.fromString("adapt:excavation_grave_mob");
   private final Map<UUID, Long> graveCooldowns = new ConcurrentHashMap<>();
   private volatile TableCache tableCache;
+
+  public static boolean isGraveMob(Entity entity) {
+    return entity.getPersistentDataContainer().has(GRAVE_MOB_KEY, PersistentDataType.BYTE);
+  }
 
   public ExcavationGraveDigger() {
     super("excavation-grave-digger");
@@ -142,8 +150,14 @@ public class ExcavationGraveDigger extends SimpleAdaptation<ExcavationGraveDigge
   private void disturbGrave(Player p, Location blockLocation, ThreadLocalRandom random) {
     Location spawnAt = blockLocation.add(0.5, 0, 0.5);
     Monster grave = random.nextBoolean()
-        ? spawnAt.getWorld().spawn(spawnAt, Zombie.class, z -> z.setTarget(p))
-        : spawnAt.getWorld().spawn(spawnAt, Skeleton.class, s -> s.setTarget(p));
+        ? spawnAt.getWorld().spawn(spawnAt, Zombie.class, z -> {
+          z.getPersistentDataContainer().set(GRAVE_MOB_KEY, PersistentDataType.BYTE, (byte) 1);
+          z.setTarget(p);
+        })
+        : spawnAt.getWorld().spawn(spawnAt, Skeleton.class, s -> {
+          s.getPersistentDataContainer().set(GRAVE_MOB_KEY, PersistentDataType.BYTE, (byte) 1);
+          s.setTarget(p);
+        });
 
     if (areParticlesEnabled()) {
       p.spawnParticle(Particle.SOUL, grave.getLocation().add(0, 1, 0), 14, 0.3, 0.5, 0.3, 0.02);

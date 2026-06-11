@@ -309,29 +309,29 @@ final class PacketDecoyBridge {
     Class<?> setEquipmentPacketClass = Class.forName("net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket");
     Class<?> craftItemStackClass = Class.forName(craftPackage + ".inventory.CraftItemStack");
 
-    this.craftServerGetServer = craftServerClass.getMethod("getServer");
-    this.craftWorldGetHandle = craftWorldClass.getMethod("getHandle");
-    this.craftPlayerGetHandle = craftPlayerClass.getMethod("getHandle");
+    this.craftServerGetServer = findMethod(craftServerClass, "getServer");
+    this.craftWorldGetHandle = findMethod(craftWorldClass, "getHandle");
+    this.craftPlayerGetHandle = findMethod(craftPlayerClass, "getHandle");
 
     this.serverPlayerConstructor = serverPlayerClass.getConstructor(minecraftServerClass, serverLevelClass, gameProfileClass, clientInformationClass);
-    this.clientInformationCreateDefault = clientInformationClass.getMethod("createDefault");
+    this.clientInformationCreateDefault = findMethod(clientInformationClass, "createDefault");
 
     this.gameProfileBasicConstructor = findConstructor(gameProfileClass, UUID.class, String.class);
     this.gameProfileWithPropertiesConstructor = findOptionalConstructor(gameProfileClass, UUID.class, String.class, findPropertyMapClass(gameProfileClass));
     this.gameProfilePropertiesAccessor = findOptionalMethod(gameProfileClass, "properties", "getProperties");
-    this.playerGetGameProfile = nmsPlayerClass.getMethod("getGameProfile");
+    this.playerGetGameProfile = findMethod(nmsPlayerClass, "getGameProfile");
 
-    this.entitySetPos = entityClass.getMethod("setPos", double.class, double.class, double.class);
-    this.entitySetRot = entityClass.getMethod("setRot", float.class, float.class);
-    this.entitySetOnGround = entityClass.getMethod("setOnGround", boolean.class);
-    this.livingSetYHeadRot = livingEntityClass.getMethod("setYHeadRot", float.class);
-    this.livingSetYBodyRot = livingEntityClass.getMethod("setYBodyRot", float.class);
-    this.entityGetId = entityClass.getMethod("getId");
-    this.entityGetType = entityClass.getMethod("getType");
-    this.entityGetEntityData = entityClass.getMethod("getEntityData");
-    this.synchedEntityDataGetNonDefaultValues = synchedEntityDataClass.getMethod("getNonDefaultValues");
+    this.entitySetPos = findMethod(entityClass, "setPos", double.class, double.class, double.class);
+    this.entitySetRot = findMethod(entityClass, "setRot", float.class, float.class);
+    this.entitySetOnGround = findMethod(entityClass, "setOnGround", boolean.class);
+    this.livingSetYHeadRot = findMethod(livingEntityClass, "setYHeadRot", float.class);
+    this.livingSetYBodyRot = findMethod(livingEntityClass, "setYBodyRot", float.class);
+    this.entityGetId = findMethod(entityClass, "getId");
+    this.entityGetType = findMethod(entityClass, "getType");
+    this.entityGetEntityData = findMethod(entityClass, "getEntityData");
+    this.synchedEntityDataGetNonDefaultValues = findMethod(synchedEntityDataClass, "getNonDefaultValues");
     this.synchedEntityDataPackAll = findOptionalMethod(synchedEntityDataClass, "packAll", new Class<?>[0]);
-    this.synchedEntityDataSet = synchedEntityDataClass.getMethod("set", entityDataAccessorClass, Object.class);
+    this.synchedEntityDataSet = findMethod(synchedEntityDataClass, "set", entityDataAccessorClass, Object.class);
 
     this.playerInfoCreateSingleInitializing = findOptionalMethod(playerInfoPacketClass, "createSinglePlayerInitializing", serverPlayerClass, boolean.class);
     this.playerInfoActionConstructor = findOptionalConstructor(playerInfoPacketClass, playerInfoActionEnumClass, serverPlayerClass);
@@ -349,16 +349,16 @@ final class PacketDecoyBridge {
     this.rotateHeadConstructor = rotateHeadPacketClass.getConstructor(entityClass, byte.class);
     this.removeEntitiesConstructor = removeEntitiesPacketClass.getConstructor(int[].class);
     this.playerInfoRemoveConstructor = playerInfoRemovePacketClass.getConstructor(List.class);
-    this.entityPositionSyncOf = entityPositionSyncPacketClass.getMethod("of", entityClass);
+    this.entityPositionSyncOf = findMethod(entityPositionSyncPacketClass, "of", entityClass);
     this.hurtAnimationConstructor = findOptionalConstructor(hurtAnimationPacketClass, int.class, float.class);
     this.setEquipmentConstructor = findOptionalConstructor(setEquipmentPacketClass, int.class, List.class);
-    this.pairOfMethod = pairClass.getMethod("of", Object.class, Object.class);
-    this.craftItemStackAsNmsCopy = craftItemStackClass.getMethod("asNMSCopy", ItemStack.class);
+    this.pairOfMethod = findMethod(pairClass, "of", Object.class, Object.class);
+    this.craftItemStackAsNmsCopy = findMethod(craftItemStackClass, "asNMSCopy", ItemStack.class);
     this.equipmentSlotClass = equipmentSlotClass;
     this.avatarModelCustomizationAccessor = avatarClass.getField("DATA_PLAYER_MODE_CUSTOMISATION");
 
     this.serverPlayerConnectionField = serverPlayerClass.getField("connection");
-    this.connectionSendPacket = connectionClass.getMethod("send", packetClass);
+    this.connectionSendPacket = findMethod(connectionClass, "send", packetClass);
     this.supported = true;
   }
 
@@ -443,11 +443,29 @@ final class PacketDecoyBridge {
     }
   }
 
+  private static Method findMethod(Class<?> type, String name, Class<?>... parameterTypes) throws NoSuchMethodException {
+    try {
+      return type.getMethod(name, parameterTypes);
+    } catch (NoSuchMethodException e) {
+      Class<?> current = type;
+      while (current != null) {
+        try {
+          Method method = current.getDeclaredMethod(name, parameterTypes);
+          method.setAccessible(true);
+          return method;
+        } catch (NoSuchMethodException ignored) {
+        }
+
+        current = current.getSuperclass();
+      }
+
+      throw e;
+    }
+  }
+
   private static Method findOptionalMethod(Class<?> type, String name, Class<?>... parameterTypes) {
     try {
-      Method method = type.getMethod(name, parameterTypes);
-      method.setAccessible(true);
-      return method;
+      return findMethod(type, name, parameterTypes);
     } catch (NoSuchMethodException e) {
       return null;
     }

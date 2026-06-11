@@ -151,6 +151,10 @@ public class ChronosHourglassGuard extends SimpleAdaptation<ChronosHourglassGuar
         continue;
       }
 
+      if (isProtectedFriendly(p, living)) {
+        continue;
+      }
+
       if (living instanceof Player target && !canDamageTarget(p, target)) {
         continue;
       }

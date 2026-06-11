@@ -27,6 +27,7 @@ import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.api.world.PlayerData;
 import art.arcane.adapt.api.xp.XP;
+import art.arcane.adapt.api.xp.XpNovelty;
 import art.arcane.adapt.util.common.scheduling.J;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -195,6 +196,7 @@ final class SkillRuntimeGuards {
       return;
     }
     try {
+      xp *= XpNovelty.noveltyMultiplier(player, location, rewardKey);
       if (silent) {
         XP.xpSilent(player, skill, xp, rewardKey);
       } else {

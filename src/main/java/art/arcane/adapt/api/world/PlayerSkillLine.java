@@ -28,6 +28,8 @@ import art.arcane.adapt.api.notification.TitleNotification;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.xp.XP;
 import art.arcane.adapt.api.xp.XPMultiplier;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.volmlib.util.collection.KList;
 import art.arcane.volmlib.util.collection.KMap;
 import art.arcane.volmlib.util.math.M;
@@ -58,12 +60,20 @@ public class PlayerSkillLine {
   private double monotonyMultiplier = 1.0;
   private RewardStalenessState skillStaleness = new RewardStalenessState();
   private long lastStalenessCleanup = 0;
+  private transient double pooledXp = 0;
+  private transient double pooledNotifyXp = 0;
+  private transient long poolStartedAt = 0;
+  private transient long poolLastEarnAt = 0;
+  private transient long inspiredPendingAt = 0;
+  private transient long inspiredLastNotifyAt = 0;
 
   private static double diff(long a, long b) {
     return Math.abs(a - b / (double) (a == 0 ? 1 : a));
   }
 
   public void update(AdaptPlayer p, String line, PlayerData data) {
+    flushPoolIfReady(p);
+    pulseInspired(p);
     grantSkillsAndAdaptations(p, line);
     checkMaxLevel(p, line);
     updateFreshness();
@@ -157,6 +167,20 @@ public class PlayerSkillLine {
     monotonyMultiplier = computeStalenessMultiplier(xp, rewardKey, now);
 
     xp = multiplier * monotonyMultiplier * xp;
+
+    if (AdaptConfig.get().getXpIntegrity().isPooledPayoutEnabled()) {
+      if (pooledXp == 0) {
+        poolStartedAt = now;
+      }
+      pooledXp += xp;
+      poolLastEarnAt = now;
+      if (p != null) {
+        last = M.ms();
+        pooledNotifyXp += xp;
+      }
+      return;
+    }
+
     this.xp += xp;
 
     if (p != null) {
@@ -165,6 +189,68 @@ public class PlayerSkillLine {
         p.notifyXP(line, xp);
       }
     }
+  }
+
+  private void flushPoolIfReady(AdaptPlayer p) {
+    if (pooledXp == 0 && pooledNotifyXp == 0) {
+      return;
+    }
+
+    if (pooledXp != 0) {
+      AdaptConfig.XpIntegrity integrity = AdaptConfig.get().getXpIntegrity();
+      long now = System.currentTimeMillis();
+      if (now - poolStartedAt < integrity.getPooledWindowMillis() && now - poolLastEarnAt < integrity.getPooledIdleFlushMillis()) {
+        return;
+      }
+    }
+
+    flushXpPool(p.getNot());
+  }
+
+  public void flushXpPool(Notifier p) {
+    if (pooledXp == 0 && pooledNotifyXp == 0) {
+      return;
+    }
+
+    double gained = pooledXp;
+    pooledXp = 0;
+    poolStartedAt = 0;
+    poolLastEarnAt = 0;
+    this.xp += gained;
+
+    if (p == null) {
+      return;
+    }
+
+    double display = pooledNotifyXp;
+    pooledNotifyXp = 0;
+    if (display != 0 && AdaptConfig.get().isActionbarNotifyXp()) {
+      p.notifyXP(line, display);
+    }
+  }
+
+  private void pulseInspired(AdaptPlayer p) {
+    if (inspiredPendingAt == 0) {
+      return;
+    }
+
+    inspiredPendingAt = 0;
+    long now = System.currentTimeMillis();
+    if (now - inspiredLastNotifyAt < 30000) {
+      return;
+    }
+
+    Skill<?> skill = p.getServer().getSkillRegistry().getSkill(line);
+    if (skill == null) {
+      return;
+    }
+
+    inspiredLastNotifyAt = now;
+    p.getActionBarNotifier().queue(ActionBarNotification.builder()
+        .duration(1250)
+        .group("inspired" + line)
+        .title(skill.getDisplayName() + C.RESET + " " + C.GREEN + Localizer.dLocalize("snippets.xp.inspired"))
+        .build());
   }
 
   public void relaxStalenessForActivitySwitch() {
@@ -176,9 +262,14 @@ public class PlayerSkillLine {
     }
 
     double factor = clamp(prevention.getCrossSkillRecoveryFactor(), 0.0, 1.0);
-    applyRecoveryFactor(skillStaleness, factor);
-    for (RewardStalenessState state : activityStaleness.values()) {
-      applyRecoveryFactor(state, factor);
+    double curve = prevention.getSkillDecayCurve();
+    RewardStalenessState state = ensureSkillStaleness();
+    if (factor < 1.0 && curve > 0 && state.getPressure() > curve * 0.25 && AdaptConfig.get().getXpIntegrity().isInspiredNotifyEnabled()) {
+      inspiredPendingAt = System.currentTimeMillis();
+    }
+    applyRecoveryFactor(state, factor);
+    for (RewardStalenessState activityState : activityStaleness.values()) {
+      applyRecoveryFactor(activityState, factor);
     }
     monotonyCounter = 0;
   }

@@ -173,7 +173,7 @@ final class SkillGuiSupport {
               .setMaterial(new MaterialBlock(adaptation.getIcon()))
               .setBaseItemStack(adaptation.getModel().toItemStack())
               .setName(adaptation.getDisplayName(level))
-              .addLore(Form.wrapWordsPrefixed(adaptation.getDescription(), "" + C.GRAY, 45))
+              .addLore(C.GRAY + adaptation.getDescription())
               .addLore(level == 0 ? (C.DARK_GRAY + Localizer.dLocalize("snippets.gui.not_learned")) : (C.GRAY + Localizer.dLocalize("snippets.gui.level") + " " + C.WHITE + Form.toRoman(level)))
               .setProgress(1D)
               .onLeftClick((e) -> openAdaptation(adaptation, player));
