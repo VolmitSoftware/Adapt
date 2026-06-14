@@ -15,8 +15,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+buildscript {
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+    }
+    dependencies {
+        classpath('io.papermc.paperweight:paperweight-userdev:2.0.0-beta.21')
+    }
+}
+
 import io.freefair.gradle.plugins.lombok.LombokPlugin
 import io.github.slimjar.resolver.data.Mirror
+import io.papermc.paperweight.userdev.PaperweightUser
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.jvm.toolchain.JavaLanguageVersion
@@ -29,18 +40,12 @@ plugins {
     alias(libs.plugins.slimjar)
 }
 
+apply plugin: PaperweightUser
+
 version = '2.0.0-26.1.2'
 def apiVersion = '26.1'
 def main = 'art.arcane.adapt.Adapt'
-String configuredNmsJar = findProperty('adaptNmsJar') != null ? findProperty('adaptNmsJar').toString() : System.getenv('ADAPT_NMS_JAR')
-File detectedActiveInstanceVersionsDir = rootDir.toPath().resolve('../../[Minecraft Server]/active-instance/versions').normalize().toFile()
-File detectedVersionedNmsJar = detectedActiveInstanceVersionsDir.exists()
-    ? fileTree(detectedActiveInstanceVersionsDir).matching { include('**/*.jar') }.files.toList().sort { File left, File right -> Long.compare(right.lastModified(), left.lastModified()) }.find()
-    : null
-File detectedLauncherNmsJar = rootDir.toPath().resolve('../../[Minecraft Server]/active-instance/server.jar').normalize().toFile()
-File nmsCompileJar = configuredNmsJar != null && !configuredNmsJar.isBlank()
-    ? file(configuredNmsJar)
-    : detectedVersionedNmsJar != null ? detectedVersionedNmsJar : detectedLauncherNmsJar
+String paperDevBundleVersion = '26.1.2.build.66-stable'
 String volmLibCoordinate = providers.gradleProperty('volmLibCoordinate')
     .orElse('com.github.VolmitSoftware:VolmLib:master-SNAPSHOT')
     .get()
@@ -118,6 +123,8 @@ allprojects {
 }
 
 dependencies {
+    paperweight.paperDevBundle(paperDevBundleVersion)
+
     implementation(project(':velocity'))
     implementation(volmLibCoordinate) {
         changing = true
@@ -134,9 +141,6 @@ dependencies {
     }
 
     compileOnly('io.papermc.paper:paper-api:26.1.2.build.66-stable')
-    if (nmsCompileJar.exists()) {
-        compileOnly(files(nmsCompileJar))
-    }
 
     // Cancer
     slimApi(libs.fukkit) {
