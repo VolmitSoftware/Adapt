@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.api.tick;
 
+import art.arcane.adapt.Adapt;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.volmlib.util.collection.KList;
 
@@ -124,6 +125,7 @@ public class Ticker {
         try {
           t.tick();
         } catch (Throwable exxx) {
+          Adapt.error("Exception ticking " + t.getGroup() + ":" + t.getId());
           exxx.printStackTrace();
         } finally {
           recordMetric(t, System.nanoTime() - start);
@@ -138,16 +140,16 @@ public class Ticker {
     }
 
     synchronized (removeTicks) {
-      while (removeTicks.isNotEmpty()) {
-        String id = removeTicks.popRandom();
-
-        for (int i = 0; i < ticklist.size(); i++) {
-          if (ticklist.get(i).getId().equals(id)) {
-            metrics.remove(ticklist.get(i));
-            ticklist.remove(i);
-            break;
+      if (removeTicks.isNotEmpty()) {
+        Set<String> idsToRemove = new HashSet<>(removeTicks);
+        removeTicks.clear();
+        ticklist.removeIf(t -> {
+          if (t != null && idsToRemove.contains(t.getId())) {
+            metrics.remove(t);
+            return true;
           }
-        }
+          return false;
+        });
       }
     }
 
