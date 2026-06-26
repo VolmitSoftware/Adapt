@@ -15,11 +15,11 @@ chrono = "22.9.10"
 spatial = "22.11.2"
 
 velocity = "3.4.0-SNAPSHOT"
-spigot = "26.1.2-R0.1-SNAPSHOT"
+spigot = "26.2-R0.1-SNAPSHOT"
 platformUtils = "e17ac2c698"
 
 # Dynamically Loaded
-adventure-api = "4.24.0" # https://github.com/KyoriPowered/adventure
+adventure-api = "5.1.1" # https://github.com/KyoriPowered/adventure
 adventure-platform = "4.4.1" # https://github.com/KyoriPowered/adventure-platform
 
 lettuce = "6.5.1.RELEASE"

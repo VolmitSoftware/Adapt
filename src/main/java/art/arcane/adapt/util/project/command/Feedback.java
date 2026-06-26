@@ -1,14 +1,13 @@
 package art.arcane.adapt.util.command;
 
-import art.arcane.adapt.Adapt;
+import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.plugin.VolmitSender;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Singular;
 import lombok.experimental.Accessors;
-import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -30,14 +29,10 @@ public class Feedback {
       }
     }
 
-    Component prefix = Component.text("[").color(NamedTextColor.GRAY)
-        .append(Component.text("Adapt").color(NamedTextColor.DARK_RED))
-        .append(Component.text("] "));
+    LegacyComponentSerializer serializer = LegacyComponentSerializer.legacySection();
+    String prefix = C.GRAY + "[" + C.ADAPT + "Adapt" + C.GRAY + "] ";
     for (TextComponent i : messages) {
-      Adapt.audiences.sender(serverOrPlayer).sendMessage(Component.text()
-          .append(prefix)
-          .append(i)
-          .build());
+      serverOrPlayer.sendMessage(prefix + serializer.serialize(i));
     }
   }
 

@@ -34,7 +34,13 @@ import art.arcane.adapt.api.world.PlayerDataPersistenceQueue;
 import art.arcane.adapt.api.xp.XpNoveltyListener;
 import art.arcane.adapt.api.xp.XpProvenanceListener;
 import art.arcane.adapt.content.integration.hiddenore.HiddenOreLink;
-import art.arcane.adapt.content.protector.*;
+import art.arcane.adapt.content.protector.ChestProtectProtector;
+import art.arcane.adapt.content.protector.FactionsClaimProtector;
+import art.arcane.adapt.content.protector.GriefDefenderProtector;
+import art.arcane.adapt.content.protector.GriefPreventionProtector;
+import art.arcane.adapt.content.protector.LocketteProProtector;
+import art.arcane.adapt.content.protector.ResidenceProtector;
+import art.arcane.adapt.content.protector.WorldGuardProtector;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.io.SQLManager;
@@ -64,12 +70,16 @@ import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.annotation.Annotation;
 import java.net.URL;
+import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.text.MessageFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -608,7 +618,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     if (!AdaptConfig.get().isSplashScreen()) {
       return;
     }
-    String supportedMcVersion = "1.21.11";
+    String supportedMcVersion = "26.2";
     Random r = new Random();
     int game = r.nextInt(100);
     if (game < 90) {

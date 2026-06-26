@@ -42,10 +42,10 @@ plugins {
 
 apply plugin: PaperweightUser
 
-version = '2.0.0-26.1.2'
-def apiVersion = '26.1'
+version = '2.0.0-26.2'
+def apiVersion = '26.2'
 def main = 'art.arcane.adapt.Adapt'
-String paperDevBundleVersion = '26.1.2.build.66-stable'
+String paperDevBundleVersion = '26.2.build.25-alpha'
 String volmLibCoordinate = providers.gradleProperty('volmLibCoordinate')
     .orElse('com.github.VolmitSoftware:VolmLib:master-SNAPSHOT')
     .get()
@@ -140,7 +140,7 @@ dependencies {
         transitive = false
     }
 
-    compileOnly('io.papermc.paper:paper-api:26.1.2.build.66-stable')
+    compileOnly('io.papermc.paper:paper-api:26.2.build.25-alpha')
 
     // Cancer
     slimApi(libs.fukkit) {
@@ -179,6 +179,23 @@ dependencies {
     compileOnlyApi('com.github.TechFortress:GriefPrevention:16.18.1')
     compileOnlyApi('com.griefdefender:api:2.1.0-SNAPSHOT')
     compileOnlyApi(fileTree('libs') { include('*.jar') })
+
+    testImplementation('io.papermc.paper:paper-api:26.2.build.25-alpha')
+    testImplementation('org.junit.jupiter:junit-jupiter:5.11.4')
+    testImplementation('org.mockito:mockito-core:5.14.2')
+    testImplementation('org.mockito:mockito-junit-jupiter:5.14.2')
+    testImplementation('org.assertj:assertj-core:3.26.3')
+    testRuntimeOnly('org.junit.platform:junit-platform-launcher')
+}
+
+tasks.named('test', Test) {
+    useJUnitPlatform()
+    jvmArgs('-Dnet.bytebuddy.experimental=true')
+    testLogging {
+        events('passed', 'skipped', 'failed')
+        showStandardStreams = true
+        exceptionFormat = 'full'
+    }
 }
 
 def lib = 'art.arcane.adapt.util'

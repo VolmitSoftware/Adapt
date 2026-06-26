@@ -22,3 +22,5 @@ build/
 .gradle/
 
 .codegraph/
+
+TEST_SUITE_PLAN.md

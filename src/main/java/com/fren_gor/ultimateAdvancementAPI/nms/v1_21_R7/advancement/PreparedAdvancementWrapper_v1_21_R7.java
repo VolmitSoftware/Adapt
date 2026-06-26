@@ -6,7 +6,7 @@ import com.fren_gor.ultimateAdvancementAPI.nms.wrappers.advancement.AdvancementD
 import com.fren_gor.ultimateAdvancementAPI.nms.wrappers.advancement.AdvancementWrapper;
 import com.fren_gor.ultimateAdvancementAPI.nms.wrappers.advancement.PreparedAdvancementWrapper;
 import net.minecraft.advancements.AdvancementRequirements;
-import net.minecraft.advancements.Criterion;
+import net.minecraft.advancements.triggers.Criterion;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 
