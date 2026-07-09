@@ -19,21 +19,21 @@
 package art.arcane.adapt.content.adaptation.architect;
 
 import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
-import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -43,42 +43,29 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Config> {
-  private final Map<UUID, ChalkAnchor> anchors;
+  private final Map<UUID, ChalkAnchor> anchors = playerState();
 
   public ArchitectChalkLine() {
     super("architect-chalk-line");
     registerConfiguration(ArchitectChalkLine.Config.class);
-    setDescription(Localizer.dLocalize("architect.chalk_line.description"));
-    setDisplayName(Localizer.dLocalize("architect.chalk_line.name"));
     setIcon(Material.STRING);
     setInterval(500);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
-    anchors = new ConcurrentHashMap<>();
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.STRING)
         .key("challenge_architect_chalk_line_50")
-        .title(Localizer.dLocalize("advancement.challenge_architect_chalk_line_50.title"))
-        .description(Localizer.dLocalize("advancement.challenge_architect_chalk_line_50.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.STRING)
             .key("challenge_architect_chalk_line_500")
-            .title(Localizer.dLocalize("advancement.challenge_architect_chalk_line_500.title"))
-            .description(Localizer.dLocalize("advancement.challenge_architect_chalk_line_500.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -119,8 +106,9 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
     if (existing != null && M.ms() < existing.expiresAt()) {
       e.setUseItemInHand(Event.Result.DENY);
       e.setUseInteractedBlock(Event.Result.DENY);
-      SoundPlayer sp = SoundPlayer.of(p);
-      sp.play(p.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_BREAK, 0.5f, 1.2f);
+      fx(existing.anchor(), FxPriority.TRANSITION)
+          .burst(Particles.END_ROD, 6, 0.2D)
+          .sound(Sound.BLOCK_AMETHYST_BLOCK_BREAK, 0.4f, 1.0f);
       return;
     }
 
@@ -139,15 +127,11 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
     long expiresAt = M.ms() + getDurationMillis(getLevelPercent(context.level()));
     Location anchor = target.getLocation().add(0.5, 1.1, 0.5);
     anchors.put(id, new ChalkAnchor(anchor, p.getFacing(), expiresAt));
-    SoundPlayer sp = SoundPlayer.of(p);
-    sp.play(p.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.7f, 1.5f);
-    getPlayer(p).getData().addStat("architect.chalk-line.lines-drawn", 1);
+    fx(anchor, FxPriority.GAMEPLAY)
+        .ring(Particles.END_ROD, 0.6D, 16, 0)
+        .chord(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.7f, 1.5f, Sound.BLOCK_AMETHYST_BLOCK_RESONATE, 0.4f, 2.0f);
+    addStat(p, "architect.chalk-line.lines-drawn", 1);
     xp(p, getConfig().xpPerLine);
-  }
-
-  @EventHandler
-  public void on(PlayerQuitEvent e) {
-    anchors.remove(e.getPlayer().getUniqueId());
   }
 
   @Override
@@ -179,49 +163,21 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
   }
 
   private void renderLine(ChalkAnchor anchor) {
-    if (!areParticlesEnabled()) {
-      return;
-    }
-
     Vector direction = anchor.direction().getDirection();
     Location end = anchor.anchor().clone().add(direction.multiply(getConfig().lineLengthBlocks));
-    vfxParticleLine(anchor.anchor(), end, getConfig().particlesPerLine, Particle.END_ROD);
+    fx(anchor.anchor(), FxPriority.TRAIL)
+        .line(Particles.END_ROD, end.getX(), end.getY(), end.getZ(), getConfig().particlesPerLine);
   }
 
   private long getDurationMillis(double factor) {
     return (long) Math.max(1000, M.lerp(getConfig().minDurationSeconds, getConfig().maxDurationSeconds, factor) * 1000D);
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
   private record ChalkAnchor(Location anchor, BlockFace direction, long expiresAt) {
   }
 
-  @NoArgsConstructor
   @ConfigDescription("Sneak-right-click a block to snap a particle guide line along your facing axis.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Architect Chalk Line adaptation.", impact = "True enables this behavior and false disables it.")
-    boolean showParticles = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 1;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Guide line lifetime in seconds at level 0 progression.", impact = "Higher values keep low-level guide lines visible longer.")
     double minDurationSeconds = 20;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Guide line lifetime in seconds at maximum level progression.", impact = "Higher values keep max-level guide lines visible longer.")
@@ -234,5 +190,11 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
     double renderRangeBlocks = 64;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Adaptation xp granted per chalk line placed.", impact = "Higher values speed up adaptation progression from chalk lines.")
     double xpPerLine = 3;
+
+    public Config() {
+      baseCost = 3;
+      costFactor = 0.4;
+      initialCost = 1;
+    }
   }
 }

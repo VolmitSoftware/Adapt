@@ -22,6 +22,7 @@ import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.Discovery;
@@ -48,7 +49,6 @@ import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.Recipe;
 import org.bukkit.potion.PotionEffect;
 
 import java.util.Map;
@@ -69,19 +69,16 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     registerAdaptation(new DiscoveryBetterMending());
     registerAdaptation(new DiscoveryArchaeologist());
     registerAdaptation(new DiscoveryCartographerPulse());
+    registerAdaptation(new DiscoveryInsight());
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.ITEM_FRAME).key("challenge_discover_items_50")
-        .title(Localizer.dLocalize("advancement.challenge_discover_items_50.title"))
-        .description(Localizer.dLocalize("advancement.challenge_discover_items_50.description"))
         .model(CustomModel.get(Material.ITEM_FRAME, "advancement", "discovery", "challenge_discover_items_50"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.CHEST)
             .key("challenge_discover_items_250")
-            .title(Localizer.dLocalize("advancement.challenge_discover_items_250.title"))
-            .description(Localizer.dLocalize("advancement.challenge_discover_items_250.description"))
             .model(CustomModel.get(Material.CHEST, "advancement", "discovery", "challenge_discover_items_250"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -92,16 +89,12 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.GRASS_BLOCK).key("challenge_discover_blocks_50")
-        .title(Localizer.dLocalize("advancement.challenge_discover_blocks_50.title"))
-        .description(Localizer.dLocalize("advancement.challenge_discover_blocks_50.description"))
         .model(CustomModel.get(Material.GRASS_BLOCK, "advancement", "discovery", "challenge_discover_blocks_50"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.STONE_BRICKS)
             .key("challenge_discover_blocks_250")
-            .title(Localizer.dLocalize("advancement.challenge_discover_blocks_250.title"))
-            .description(Localizer.dLocalize("advancement.challenge_discover_blocks_250.description"))
             .model(CustomModel.get(Material.STONE_BRICKS, "advancement", "discovery", "challenge_discover_blocks_250"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -112,16 +105,12 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.EGG).key("challenge_discover_mobs_25")
-        .title(Localizer.dLocalize("advancement.challenge_discover_mobs_25.title"))
-        .description(Localizer.dLocalize("advancement.challenge_discover_mobs_25.description"))
         .model(CustomModel.get(Material.EGG, "advancement", "discovery", "challenge_discover_mobs_25"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.SPAWNER)
             .key("challenge_discover_mobs_75")
-            .title(Localizer.dLocalize("advancement.challenge_discover_mobs_75.title"))
-            .description(Localizer.dLocalize("advancement.challenge_discover_mobs_75.description"))
             .model(CustomModel.get(Material.SPAWNER, "advancement", "discovery", "challenge_discover_mobs_75"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -132,16 +121,12 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.MAP).key("challenge_discover_biomes_10")
-        .title(Localizer.dLocalize("advancement.challenge_discover_biomes_10.title"))
-        .description(Localizer.dLocalize("advancement.challenge_discover_biomes_10.description"))
         .model(CustomModel.get(Material.MAP, "advancement", "discovery", "challenge_discover_biomes_10"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.FILLED_MAP)
             .key("challenge_discover_biomes_40")
-            .title(Localizer.dLocalize("advancement.challenge_discover_biomes_40.title"))
-            .description(Localizer.dLocalize("advancement.challenge_discover_biomes_40.description"))
             .model(CustomModel.get(Material.FILLED_MAP, "advancement", "discovery", "challenge_discover_biomes_40"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -152,16 +137,12 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.APPLE).key("challenge_discover_foods_10")
-        .title(Localizer.dLocalize("advancement.challenge_discover_foods_10.title"))
-        .description(Localizer.dLocalize("advancement.challenge_discover_foods_10.description"))
         .model(CustomModel.get(Material.APPLE, "advancement", "discovery", "challenge_discover_foods_10"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.GOLDEN_APPLE)
             .key("challenge_discover_foods_30")
-            .title(Localizer.dLocalize("advancement.challenge_discover_foods_30.title"))
-            .description(Localizer.dLocalize("advancement.challenge_discover_foods_30.description"))
             .model(CustomModel.get(Material.GOLDEN_APPLE, "advancement", "discovery", "challenge_discover_foods_30"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -193,15 +174,8 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
   public void on(CraftItemEvent e) {
     if (!(e.getWhoClicked() instanceof Player p)) return;
     shouldReturnForPlayer(p, e, () -> {
-      try {
-        NamespacedKey key = (NamespacedKey) Recipe.class.getDeclaredMethod("getKey()").invoke(e.getRecipe());
-        if (key != null) {
-          seeCraftedRecipe(p, key.toString());
-        }
-      } catch (Throwable ex) {
-        Adapt.verbose("No recipe key found for " + e.getRecipe().getResult().getType().name() + ": "
-            + ex.getClass().getSimpleName()
-            + (ex.getMessage() == null ? "" : " - " + ex.getMessage()));
+      if (e.getRecipe() instanceof Keyed keyed) {
+        seeCraftedRecipe(p, keyed.getKey().toString());
       }
     });
   }
@@ -244,21 +218,45 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
   public void seeBlock(Player p, BlockData bd, Location l) {
     Discovery<String> d = getPlayer(p).getData().getSeenBlocks();
     if (d.isNewDiscovery(bd.getAsString())) {
-      xp(p, getConfig().discoverBlockBaseXP + (getValue(bd) * getConfig().discoverBlockValueXPMultiplier));
-      getPlayer(p).getData().addStat("discovery.blocks", 1);
-      if (areParticlesEnabled()) {
-        p.spawnParticle(Particles.TOTEM, l.clone().add(0.5, 0.5, 0.5), 9, 0, 0, 0, 0.3);
-      }
+      double value = getValue(bd);
+      xp(p, getConfig().discoverBlockBaseXP + (value * getConfig().discoverBlockValueXPMultiplier));
+      addStat(p, "discovery.blocks", 1);
+      celebrateDiscovery(l.clone().add(0.5, 0.5, 0.5), value);
     }
 
     seeItem(p, bd.getMaterial());
+  }
+
+  private static final double DISCOVERY_RARE_VALUE = 24.0D;
+
+  private void celebrateDiscovery(Location loc, double value) {
+    if (value >= DISCOVERY_RARE_VALUE) {
+      timeline(loc)
+          .duration(8)
+          .priority(FxPriority.AMBIENT)
+          .cullRadius(20)
+          .frame((f, tick, progress) -> {
+            f.dustHelix(0.5D, 1.6D, 6, progress * Math.PI * 2.0D, 0.9F);
+            if (tick == 0) {
+              f.chord(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.6F, 1.0F, Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.3F, 1.0F);
+            }
+            if (tick == 4) {
+              f.sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.6F, 1.5F);
+            }
+          })
+          .start();
+    } else {
+      fx(loc, FxPriority.AMBIENT)
+          .particle(Particles.END_ROD, 3, 0, 0, 0, 0.1, 0.02)
+          .sound(Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.4F, 1.6F);
+    }
   }
 
   public void seeItem(Player p, Material bd) {
     Discovery<Material> d = getPlayer(p).getData().getSeenItems();
     if (d.isNewDiscovery(bd)) {
       xp(p, getConfig().discoverItemBaseXP + (getValue(bd) * getConfig().discoverItemValueXPMultiplier));
-      getPlayer(p).getData().addStat("discovery.items", 1);
+      addStat(p, "discovery.items", 1);
     }
   }
 
@@ -282,7 +280,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     Discovery<Material> d = getPlayer(p).getData().getSeenFoods();
     if (d.isNewDiscovery(bd)) {
       xp(p, getConfig().discoverFoodTypeXP);
-      getPlayer(p).getData().addStat("discovery.foods", 1);
+      addStat(p, "discovery.foods", 1);
     }
   }
 
@@ -290,7 +288,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     Discovery<EntityType> d = getPlayer(p).getData().getSeenMobs();
     if (d.isNewDiscovery(bd.getType())) {
       xp(p, getConfig().discoverEntityTypeXP);
-      getPlayer(p).getData().addStat("discovery.mobs", 1);
+      addStat(p, "discovery.mobs", 1);
     }
 
     if (bd instanceof Player) {
@@ -341,12 +339,15 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     }
   }
 
-  public void seeBiome(Player p, Biome e) {
+  public boolean seeBiome(Player p, Biome e) {
     Discovery<String> d = getPlayer(p).getData().getSeenBiomes();
     if (d.isNewDiscovery(e.getKey().toString())) {
       xp(p, getConfig().discoverBiomeXP);
-      getPlayer(p).getData().addStat("discovery.biomes", 1);
+      addStat(p, "discovery.biomes", 1);
+      return true;
     }
+
+    return false;
   }
 
   @Override
@@ -366,7 +367,19 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
       Block b = i.getTargetBlockExact(5, FluidCollisionMode.NEVER);
       if (b != null) {
         seeBlock(i, b.getBlockData(), b.getLocation());
-        seeBiome(i, b.getBiome());
+        if (seeBiome(i, b.getBiome())) {
+          timeline(i.getLocation())
+              .duration(24)
+              .priority(FxPriority.TRANSITION)
+              .cullRadius(24)
+              .frame((f, tick, progress) -> {
+                f.dustRing(0.5D + (progress * 3.5D), 12, 1.0F);
+                if (tick == 0) {
+                  f.chord(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.4F, 1.2F, Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.3F, 1.4F);
+                }
+              })
+              .start();
+        }
       }
     } catch (Throwable ex) {
       Adapt.verbose("Failed to get target block for " + i.getName() + ": "

@@ -18,8 +18,12 @@
 
 package art.arcane.adapt.api;
 
+import art.arcane.adapt.api.adaptation.ReceiveCancelledEvents;
+import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventException;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.plugin.EventExecutor;
 
 import java.lang.invoke.LambdaMetafactory;
@@ -34,9 +38,44 @@ public final class EventHandlerInvoker {
   private EventHandlerInvoker() {
   }
 
-  public static EventExecutor createExecutor(Method method, Class<? extends Event> eventType) {
+  public static boolean shouldIgnoreCancelled(Method method, EventHandler annotation, Class<? extends Event> eventType) {
+    if (!Cancellable.class.isAssignableFrom(eventType)) {
+      return annotation.ignoreCancelled();
+    }
+
+    if (PlayerInteractEvent.class.isAssignableFrom(eventType)) {
+      return false;
+    }
+
+    if (method.isAnnotationPresent(ReceiveCancelledEvents.class)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  public static boolean enforcesInteractionValidity(Method method, Class<? extends Event> eventType) {
+    return PlayerInteractEvent.class.isAssignableFrom(eventType)
+        && !method.isAnnotationPresent(ReceiveCancelledEvents.class);
+  }
+
+  public static EventExecutor createExecutor(Method method, Class<? extends Event> eventType, boolean enforceInteractionValidity) {
     BiConsumer<Object, Object> direct = tryCreateDirectInvoker(method);
     if (direct != null) {
+      if (enforceInteractionValidity) {
+        return (target, event) -> {
+          if (!eventType.isAssignableFrom(event.getClass()) || isVetoedInteraction(event)) {
+            return;
+          }
+
+          try {
+            direct.accept(target, event);
+          } catch (Throwable ex) {
+            throw new EventException(ex);
+          }
+        };
+      }
+
       return (target, event) -> {
         if (!eventType.isAssignableFrom(event.getClass())) {
           return;
@@ -44,6 +83,22 @@ public final class EventHandlerInvoker {
 
         try {
           direct.accept(target, event);
+        } catch (Throwable ex) {
+          throw new EventException(ex);
+        }
+      };
+    }
+
+    if (enforceInteractionValidity) {
+      return (target, event) -> {
+        if (!eventType.isAssignableFrom(event.getClass()) || isVetoedInteraction(event)) {
+          return;
+        }
+
+        try {
+          method.invoke(target, event);
+        } catch (InvocationTargetException ex) {
+          throw new EventException(ex.getCause());
         } catch (Throwable ex) {
           throw new EventException(ex);
         }
@@ -63,6 +118,18 @@ public final class EventHandlerInvoker {
         throw new EventException(ex);
       }
     };
+  }
+
+  private static boolean isVetoedInteraction(Event event) {
+    if (!(event instanceof PlayerInteractEvent interaction)) {
+      return false;
+    }
+
+    if (interaction.getClickedBlock() != null) {
+      return interaction.useInteractedBlock() == Event.Result.DENY;
+    }
+
+    return interaction.useItemInHand() == Event.Result.DENY;
   }
 
   @SuppressWarnings("unchecked")

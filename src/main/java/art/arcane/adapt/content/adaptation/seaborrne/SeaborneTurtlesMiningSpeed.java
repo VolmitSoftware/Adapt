@@ -18,45 +18,50 @@
 
 package art.arcane.adapt.content.adaptation.seaborrne;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.PotionEffectTypes;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.potion.PotionEffect;
 
+import java.util.Map;
+import java.util.UUID;
+
 public class SeaborneTurtlesMiningSpeed extends SimpleAdaptation<SeaborneTurtlesMiningSpeed.Config> {
+  private final Map<UUID, Boolean> submerged = playerState();
+  private final Cooldowns breakPulse = cooldowns();
 
   public SeaborneTurtlesMiningSpeed() {
     super("seaborne-turtles-mining-speed");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("seaborn.haste.description"));
-    setDisplayName(Localizer.dLocalize("seaborn.haste.name"));
+    setLocalizationKey("seaborn.haste");
     setIcon(Material.PRISMARINE_SHARD);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
     setInterval(3000);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.IRON_PICKAXE)
         .key("challenge_seaborne_mining_2500")
-        .title(Localizer.dLocalize("advancement.challenge_seaborne_mining_2500.title"))
-        .description(Localizer.dLocalize("advancement.challenge_seaborne_mining_2500.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.DIAMOND_PICKAXE)
             .key("challenge_seaborne_mining_25k")
-            .title(Localizer.dLocalize("advancement.challenge_seaborne_mining_25k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_seaborne_mining_25k.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -71,9 +76,25 @@ public class SeaborneTurtlesMiningSpeed extends SimpleAdaptation<SeaborneTurtles
   }
 
 
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(BlockBreakEvent e) {
+    Player p = e.getPlayer();
+    Location at = e.getBlock().getLocation();
+    withAdaptedPlayer(p, e, () -> {
+      if (!p.isInWater() || !breakPulse.isReady(p.getUniqueId(), 150L)) {
+        return;
+      }
+
+      breakPulse.mark(p.getUniqueId());
+      fx(at.add(0.5D, 0.5D, 0.5D), FxPriority.AMBIENT)
+          .particle(Particle.BUBBLE, 4, 0, 0, 0, 0.05D, 0.02D)
+          .sound(Sound.BLOCK_AMETHYST_BLOCK_HIT, 0.2F, 1.7F);
+    });
+  }
+
   @Override
   public void onTick() {
-    for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+    for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
       Player player = adaptPlayer.getPlayer();
       if (player == null || !player.isOnline()) {
         continue;
@@ -85,40 +106,41 @@ public class SeaborneTurtlesMiningSpeed extends SimpleAdaptation<SeaborneTurtles
         }
 
         int level = getActiveLevel(player);
-        if (level <= 0 || !player.isInWater()) {
+        if (level <= 0) {
+          return;
+        }
+
+        UUID id = player.getUniqueId();
+        boolean was = submerged.getOrDefault(id, false);
+        if (!player.isInWater()) {
+          if (was) {
+            submerged.put(id, false);
+          }
           return;
         }
 
         player.addPotionEffect(new PotionEffect(PotionEffectTypes.FAST_DIGGING, 62, 1, false, false));
-        getPlayer(player).getData().addStat("seaborne.turtles-mining.blocks-underwater", 1);
+        addStat(player, "seaborne.turtles-mining.blocks-underwater", 1);
+
+        if (!was) {
+          submerged.put(id, true);
+          fx(player.getLocation().add(0D, 1.0D, 0D), FxPriority.TRANSITION)
+              .ring(Particle.CRIT, 0.5D, 6, 0.0D)
+              .particle(Particle.BUBBLE, 6, 0D, 0.2D, 0D, 0.35D, 0.02D)
+              .dustBurst(3, 0.3D, 0.9F)
+              .chord(Sound.BLOCK_AMETHYST_BLOCK_HIT, 0.4F, 1.5F, Sound.BLOCK_CONDUIT_AMBIENT_SHORT, 0.25F, 1.0F);
+        }
       });
     }
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Gain haste while mining underwater.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 15;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 1;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 1;
+  protected static class Config extends AdaptationConfig {
+    public Config() {
+      baseCost = 15;
+      costFactor = 1;
+      maxLevel = 1;
+      initialCost = 3;
+    }
   }
 }

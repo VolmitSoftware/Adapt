@@ -18,18 +18,24 @@
 
 package art.arcane.adapt.content.adaptation.chronos;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxEmitter;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.adapt.util.reflect.registries.PotionEffectTypes;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -51,20 +57,12 @@ public class ChronosOvertime extends SimpleAdaptation<ChronosOvertime.Config> {
   public ChronosOvertime() {
     super("chronos-overtime");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("chronos.overtime.description"));
-    setDisplayName(Localizer.dLocalize("chronos.overtime.name"));
     setIcon(Material.GLISTERING_MELON_SLICE);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(60000);
     extending = ConcurrentHashMap.newKeySet();
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.GLISTERING_MELON_SLICE)
         .key("challenge_chronos_overtime_1k")
-        .title(Localizer.dLocalize("advancement.challenge_chronos_overtime_1k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_chronos_overtime_1k.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -181,8 +179,16 @@ public class ChronosOvertime extends SimpleAdaptation<ChronosOvertime.Config> {
         extending.remove(id);
       }
 
-      getPlayer(p).getData().addStat("chronos.overtime.seconds-extended", bonus / 20D);
+      addStat(p, "chronos.overtime.seconds-extended", bonus / 20D);
       xpSilent(p, Math.min(getConfig().maxXpPerExtension, (bonus / 20D) * getConfig().xpPerBonusSecond), "chronos:overtime");
+
+      Location body = p.getLocation();
+      FxEmitter shimmer = fx(body, FxPriority.TRANSITION)
+          .particle(Particle.WAX_ON, 5, 0, 0.6D, 0, 0.25D, 0.03D)
+          .chord(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.35F, 1.6F, Sound.BLOCK_BREWING_STAND_BREW, 0.3F, 1.3F);
+      if (bonus >= getConfig().maxBonusTicks * 0.6D) {
+        shimmer.ring(Particles.ENCHANTMENT_TABLE, 0.9D, 8, 0.1D);
+      }
     };
 
     if (J.isFoliaThreading()) {
@@ -196,31 +202,8 @@ public class ChronosOvertime extends SimpleAdaptation<ChronosOvertime.Config> {
   public void onTick() {
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Beneficial potion effects applied to you last longer, scaled by adaptation level.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.38;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Base duration extension as a fraction of the original duration.", impact = "Higher values extend beneficial effects more.")
     double baseExtensionPercent = 0.05;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Extra extension fraction per adaptation level.", impact = "Higher values make leveling extend effects faster.")
@@ -237,5 +220,11 @@ public class ChronosOvertime extends SimpleAdaptation<ChronosOvertime.Config> {
     double xpPerBonusSecond = 0.2;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum XP granted by a single extension.", impact = "Higher values allow bigger XP payouts per potion.")
     double maxXpPerExtension = 8;
+
+    public Config() {
+      baseCost = 5;
+      costFactor = 0.38;
+      initialCost = 4;
+    }
   }
 }

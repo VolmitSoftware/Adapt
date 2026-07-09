@@ -18,53 +18,49 @@
 
 package art.arcane.adapt.content.adaptation.ranged;
 
-import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.api.fx.FxPresets;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Color;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.AbstractArrow;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
-
-import java.util.Map;
-import java.util.UUID;
+import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.metadata.MetadataValue;
+import org.bukkit.util.Vector;
 
 public class RangedPiercing extends SimpleAdaptation<RangedPiercing.Config> {
-  private final Map<UUID, Integer> arrowHitCounts = new java.util.concurrent.ConcurrentHashMap<>();
+  private static final String PIERCE_HITS_META = "adapt-pierce-hits";
 
   public RangedPiercing() {
     super("ranged-piercing");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("ranged.arrow_piercing.description"));
-    setDisplayName(Localizer.dLocalize("ranged.arrow_piercing.name"));
+    setLocalizationKey("ranged.arrow_piercing");
     setIcon(Material.FLETCHING_TABLE);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
     setInterval(4791);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.SPECTRAL_ARROW)
         .key("challenge_ranged_piercing_500")
-        .title(Localizer.dLocalize("advancement.challenge_ranged_piercing_500.title"))
-        .description(Localizer.dLocalize("advancement.challenge_ranged_piercing_500.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.SPECTRAL_ARROW)
         .key("challenge_ranged_piercing_4")
-        .title(Localizer.dLocalize("advancement.challenge_ranged_piercing_4.title"))
-        .description(Localizer.dLocalize("advancement.challenge_ranged_piercing_4.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -73,7 +69,7 @@ public class RangedPiercing extends SimpleAdaptation<RangedPiercing.Config> {
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + level + C.GRAY + " " + Localizer.dLocalize("ranged.arrow_piercing.lore1"));
+    statLore(v, level, 1);
   }
 
   @EventHandler
@@ -97,18 +93,56 @@ public class RangedPiercing extends SimpleAdaptation<RangedPiercing.Config> {
     }
 
     AbstractArrow arrow = (AbstractArrow) combat.projectile();
-    if (arrow.getPierceLevel() > 0) {
-      UUID arrowId = arrow.getUniqueId();
-      int hits = arrowHitCounts.getOrDefault(arrowId, 0) + 1;
-      arrowHitCounts.put(arrowId, hits);
-      Player p = combat.attacker();
-      if (hits > 1) {
-        getPlayer(p).getData().addStat("ranged.piercing.extra-hits", 1);
-      }
-      if (hits >= 4 && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_ranged_piercing_4")) {
-        getPlayer(p).getAdvancementHandler().grant("challenge_ranged_piercing_4");
+    if (arrow.getPierceLevel() <= 0) {
+      return;
+    }
+
+    int hits = readHits(arrow) + 1;
+    arrow.setMetadata(PIERCE_HITS_META, new FixedMetadataValue(Adapt.instance, hits));
+    Player p = combat.attacker();
+    LivingEntity target = combat.target();
+
+    if (hits > 1) {
+      addStat(p, "ranged.piercing.extra-hits", 1);
+      emitPierceSpark(target, arrow, hits);
+    }
+    if (hits >= 3) {
+      fx(target, FxPriority.COMBAT)
+          .column(Particles.ENCHANTMENT_TABLE, 8, 1.5D)
+          .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.4F, 1.5F);
+    }
+    if (hits >= 4 && grantOnce(p, "challenge_ranged_piercing_4")) {
+      FxPresets.learnCelebration(this, p);
+    }
+  }
+
+  private int readHits(AbstractArrow arrow) {
+    for (MetadataValue value : arrow.getMetadata(PIERCE_HITS_META)) {
+      if (value.getOwningPlugin() == Adapt.instance) {
+        return value.asInt();
       }
     }
+    return 0;
+  }
+
+  private void emitPierceSpark(LivingEntity target, AbstractArrow arrow, int hits) {
+    Location center = target.getLocation().add(0, target.getHeight() * 0.5D, 0);
+    Vector velocity = arrow.getVelocity();
+    float pitch = 1.0F + (Math.min(hits, 5) * 0.12F);
+    if (velocity.lengthSquared() > 1.0E-6D) {
+      Vector offset = velocity.clone().normalize().multiply(0.6D);
+      Location entry = center.clone().subtract(offset);
+      Location exit = center.clone().add(offset);
+      fx(entry, FxPriority.COMBAT)
+          .line(Particles.CRIT_MAGIC, exit.getX(), exit.getY(), exit.getZ(), 6)
+          .dustBurst(Color.WHITE, 4, 0.2D, 0.4F)
+          .sound(Sound.ENTITY_ARROW_HIT, 0.8F, pitch);
+      return;
+    }
+    fx(center, FxPriority.COMBAT)
+        .burst(Particles.CRIT_MAGIC, 6, 0.25D)
+        .dustBurst(Color.WHITE, 4, 0.2D, 0.4F)
+        .sound(Sound.ENTITY_ARROW_HIT, 0.8F, pitch);
   }
 
   @Override
@@ -116,30 +150,12 @@ public class RangedPiercing extends SimpleAdaptation<RangedPiercing.Config> {
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Projectiles pierce through multiple targets.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 8;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.5;
+  protected static class Config extends AdaptationConfig {
+    public Config() {
+      baseCost = 3;
+      costFactor = 0.5;
+      initialCost = 8;
+    }
   }
 }

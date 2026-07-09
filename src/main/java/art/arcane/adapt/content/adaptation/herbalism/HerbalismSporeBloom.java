@@ -18,18 +18,21 @@
 
 package art.arcane.adapt.content.adaptation.herbalism;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPresets;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -44,24 +47,16 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Config> {
-  private final Map<UUID, Long> cooldowns = new java.util.concurrent.ConcurrentHashMap<>();
+  private final Cooldowns bloomCooldown = cooldowns();
 
   public HerbalismSporeBloom() {
     super("herbalism-spore-bloom");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("herbalism.spore_bloom.description"));
-    setDisplayName(Localizer.dLocalize("herbalism.spore_bloom.name"));
     setIcon(Material.RED_MUSHROOM_BLOCK);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(2100);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.BROWN_MUSHROOM)
         .key("challenge_herbalism_spore_500")
-        .title(Localizer.dLocalize("advancement.challenge_herbalism_spore_500.title"))
-        .description(Localizer.dLocalize("advancement.challenge_herbalism_spore_500.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -70,9 +65,9 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + getBloomAttempts(level) + C.GRAY + " " + Localizer.dLocalize("herbalism.spore_bloom.lore1"));
-    v.addLore(C.GREEN + "+ " + Form.f(getBloomRadius(level)) + C.GRAY + " " + Localizer.dLocalize("herbalism.spore_bloom.lore2"));
-    v.addLore(C.YELLOW + "* " + Form.duration(getCooldownMillis(level), 1) + C.GRAY + " " + Localizer.dLocalize("herbalism.spore_bloom.lore3"));
+    statLore(v, getBloomAttempts(level), 1);
+    statLore(v, Form.f(getBloomRadius(level)), 2);
+    statLore(v, C.YELLOW, "* ", Form.duration(getCooldownMillis(level), 1), 3);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -116,27 +111,32 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
 
       int pulseChanged = 0;
       int batch = getBlocksPerPulse(level);
+      Block frontier = null;
       for (int i = 0; i < batch && cursor[0] < path.size(); i++) {
-        pulseChanged += spreadAt(player, path.get(cursor[0]++), catalyst, spreadSurface);
+        Block cell = path.get(cursor[0]++);
+        int cellChanged = spreadAt(player, cell, catalyst, spreadSurface);
+        if (cellChanged > 0) {
+          frontier = cell;
+        }
+        pulseChanged += cellChanged;
       }
 
       if (pulseChanged > 0) {
         totalChanged[0] += pulseChanged;
-        if (areParticlesEnabled()) {
-          center.getWorld().spawnParticle(Particle.SPORE_BLOSSOM_AIR, center.getLocation().add(0.5, 1.0, 0.5), 8, 0.55, 0.2, 0.55, 0.02);
-        }
-        if (areParticlesEnabled()) {
-          center.getWorld().spawnParticle(Particle.CRIMSON_SPORE, center.getLocation().add(0.5, 1.0, 0.5), 8, 0.55, 0.2, 0.55, 0.01);
-        }
-        SoundPlayer sp = SoundPlayer.of(center.getWorld());
-        sp.play(center.getLocation().add(0.5, 0.5, 0.5), Sound.BLOCK_FUNGUS_PLACE, 0.45f, 0.75f);
-        sp.play(center.getLocation().add(0.5, 0.5, 0.5), Sound.ENTITY_ENDERMAN_AMBIENT, 0.22f, 0.45f + ThreadLocalRandom.current().nextFloat() * 0.45f);
+        Block emitAt = frontier != null ? frontier : center;
+        fx(emitAt.getLocation().add(0.5, 1.0, 0.5), FxPriority.TRANSITION)
+            .particle(Particle.SPORE_BLOSSOM_AIR, 4, 0, 0, 0, 0.4D, 0.02D)
+            .particle(Particle.CRIMSON_SPORE, 2, 0, 0, 0, 0.4D, 0.01D)
+            .chord(Sound.BLOCK_FUNGUS_PLACE, 0.45F, 0.75F, Sound.ENTITY_ENDERMAN_AMBIENT, 0.22F, 0.45F + (ThreadLocalRandom.current().nextFloat() * 0.45F));
       }
 
       if (cursor[0] >= path.size()) {
         if (totalChanged[0] > 0) {
-          getPlayer(player).getData().addStat("herbalism.spore-bloom.blocks-spread", totalChanged[0]);
+          addStat(player, "herbalism.spore-bloom.blocks-spread", totalChanged[0]);
           xp(player, totalChanged[0] * getConfig().xpPerMushroomPlaced);
+          fx(center.getLocation().add(0.5, 1.0, 0.5), FxPriority.TRANSITION)
+              .dome(Particle.SPORE_BLOSSOM_AIR, getBloomRadius(level), 24)
+              .chord(Sound.ENTITY_ENDERMAN_AMBIENT, 0.3F, 0.7F, Sound.BLOCK_FUNGUS_PLACE, 0.35F, 0.9F);
         }
         return;
       }
@@ -315,15 +315,18 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
     }
 
     int level = getActiveLevel(player);
-    long now = System.currentTimeMillis();
-    long ready = cooldowns.getOrDefault(player.getUniqueId(), 0L);
-    if (now < ready) {
-      SoundPlayer.of(center.getWorld()).play(center.getLocation().add(0.5, 0.5, 0.5), Sound.BLOCK_NOTE_BLOCK_BASS, 0.5f, 0.75f);
+    Location failAt = center.getLocation().add(0.5, 0.75, 0.5);
+    if (!bloomCooldown.isReady(player.getUniqueId(), getCooldownMillis(level))) {
+      fx(failAt, FxPriority.TRANSITION)
+          .burst(Particles.SMOKE, 2, 0.2D)
+          .sound(Sound.BLOCK_NOTE_BLOCK_BASS, 0.5F, 0.75F);
       return false;
     }
 
     if (player.getFoodLevel() < getFoodCost(level)) {
-      SoundPlayer.of(center.getWorld()).play(center.getLocation().add(0.5, 0.5, 0.5), Sound.BLOCK_NOTE_BLOCK_BASS, 0.5f, 0.75f);
+      fx(failAt, FxPriority.TRANSITION)
+          .particle(Particle.CRIMSON_SPORE, 3, 0, 0.2D, 0, 0.2D, 0.01D)
+          .sound(Sound.BLOCK_NOTE_BLOCK_BASS, 0.5F, 0.9F);
       return false;
     }
 
@@ -332,12 +335,13 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
     }
 
     player.setFoodLevel(Math.max(0, player.getFoodLevel() - getFoodCost(level)));
-    cooldowns.put(player.getUniqueId(), now + getCooldownMillis(level));
+    bloomCooldown.mark(player.getUniqueId());
 
-    if (areParticlesEnabled()) {
-      center.getWorld().spawnParticle(Particle.SPORE_BLOSSOM_AIR, center.getLocation().add(0.5, 1.0, 0.5), 30, 0.35, 0.15, 0.35, 0.01);
-    }
-    SoundPlayer.of(center.getWorld()).play(center.getLocation().add(0.5, 0.5, 0.5), Sound.ENTITY_ENDERMAN_AMBIENT, 0.45f, 0.55f);
+    Location activation = center.getLocation().add(0.5, 1.0, 0.5);
+    fx(activation, FxPriority.TRANSITION)
+        .burst(Particle.SPORE_BLOSSOM_AIR, 20, 0.35D)
+        .sound(Sound.ENTITY_ENDERMAN_AMBIENT, 0.45F, 0.55F);
+    FxPresets.chargeRing(this, activation, 6);
     startBloom(player, center, catalyst, spreadSurface, level);
     return true;
   }
@@ -519,23 +523,8 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Sneak-right-click mycelium with mushrooms to spread an outward spore-web that mutates nearby growth.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Convert Wood To Hyphae for the Herbalism Spore Bloom adaptation.", impact = "True enables this behavior and false disables it.")
     boolean convertWoodToHyphae = true;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Allows flowers hit by the bloom to be replaced with mushrooms.", impact = "Disable this to keep flowers untouched while still converting soil into mushroom blocks.")
@@ -544,14 +533,6 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
     double branchChance = 0.22;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Mushroom Choices for the Herbalism Spore Bloom adaptation.", impact = "Changing this alters the identifier or text used by the feature.")
     String[] mushroomChoices = {"RED_MUSHROOM", "BROWN_MUSHROOM", "CRIMSON_FUNGUS", "WARPED_FUNGUS"};
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.7;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Bloom Attempts Base for the Herbalism Spore Bloom adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double bloomAttemptsBase = 26;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Bloom Attempts Factor for the Herbalism Spore Bloom adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -584,5 +565,10 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
     double cooldownMillisFactor = 1100;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Mushroom Placed for the Herbalism Spore Bloom adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpPerMushroomPlaced = 1.4;
+
+    public Config() {
+      costFactor = 0.7;
+      initialCost = 4;
+    }
   }
 }

@@ -21,13 +21,19 @@ package art.arcane.adapt.content.skill;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.adaptation.Cooldowns;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.content.adaptation.crafting.*;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import lombok.NoArgsConstructor;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -37,12 +43,8 @@ import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
 public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
-  private final Map<UUID, Long> cooldowns;
+  private final Cooldowns cooldowns = cooldowns();
 
   public SkillCrafting() {
     super("crafting", Localizer.dLocalize("skill.crafting.icon"));
@@ -61,36 +63,26 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
     registerAdaptation(new CraftingReconstruction());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.CRAFTING_TABLE).key("challenge_craft_1k")
-        .title(Localizer.dLocalize("advancement.challenge_craft_1k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_craft_1k.description"))
         .model(CustomModel.get(Material.CRAFTING_TABLE, "advancement", "crafting", "challenge_craft_1k"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
             .icon(Material.CRAFTING_TABLE)
             .key("challenge_craft_5k")
-            .title(Localizer.dLocalize("advancement.challenge_craft_5k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_craft_5k.description"))
             .model(CustomModel.get(Material.CRAFTING_TABLE, "advancement", "crafting", "challenge_craft_5k"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                 .icon(Material.CRAFTING_TABLE)
                 .key("challenge_craft_50k")
-                .title(Localizer.dLocalize("advancement.challenge_craft_50k.title"))
-                .description(Localizer.dLocalize("advancement.challenge_craft_50k.description"))
                 .model(CustomModel.get(Material.CRAFTING_TABLE, "advancement", "crafting", "challenge_craft_50k"))
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                     .icon(Material.CRAFTING_TABLE)
                     .key("challenge_craft_500k")
-                    .title(Localizer.dLocalize("advancement.challenge_craft_500k.title"))
-                    .description(Localizer.dLocalize("advancement.challenge_craft_500k.description"))
                     .model(CustomModel.get(Material.CRAFTING_TABLE, "advancement", "crafting", "challenge_craft_500k"))
                     .frame(AdaptAdvancementFrame.CHALLENGE)
                     .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                         .icon(Material.CRAFTING_TABLE)
                         .key("challenge_craft_5m")
-                        .title(Localizer.dLocalize("advancement.challenge_craft_5m.title"))
-                        .description(Localizer.dLocalize("advancement.challenge_craft_5m.description"))
                         .model(CustomModel.get(Material.CRAFTING_TABLE, "advancement", "crafting", "challenge_craft_5m"))
                         .frame(AdaptAdvancementFrame.CHALLENGE)
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -107,16 +99,12 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.GOLD_INGOT).key("challenge_craft_value_10k")
-        .title(Localizer.dLocalize("advancement.challenge_craft_value_10k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_craft_value_10k.description"))
         .model(CustomModel.get(Material.GOLD_INGOT, "advancement", "crafting", "challenge_craft_value_10k"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.DIAMOND)
             .key("challenge_craft_value_100k")
-            .title(Localizer.dLocalize("advancement.challenge_craft_value_100k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_craft_value_100k.description"))
             .model(CustomModel.get(Material.DIAMOND, "advancement", "crafting", "challenge_craft_value_100k"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -127,16 +115,12 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.IRON_PICKAXE).key("challenge_craft_tools_25")
-        .title(Localizer.dLocalize("advancement.challenge_craft_tools_25.title"))
-        .description(Localizer.dLocalize("advancement.challenge_craft_tools_25.description"))
         .model(CustomModel.get(Material.IRON_PICKAXE, "advancement", "crafting", "challenge_craft_tools_25"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.DIAMOND_PICKAXE)
             .key("challenge_craft_tools_250")
-            .title(Localizer.dLocalize("advancement.challenge_craft_tools_250.title"))
-            .description(Localizer.dLocalize("advancement.challenge_craft_tools_250.description"))
             .model(CustomModel.get(Material.DIAMOND_PICKAXE, "advancement", "crafting", "challenge_craft_tools_250"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -147,16 +131,12 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.IRON_CHESTPLATE).key("challenge_craft_armor_25")
-        .title(Localizer.dLocalize("advancement.challenge_craft_armor_25.title"))
-        .description(Localizer.dLocalize("advancement.challenge_craft_armor_25.description"))
         .model(CustomModel.get(Material.IRON_CHESTPLATE, "advancement", "crafting", "challenge_craft_armor_25"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.DIAMOND_CHESTPLATE)
             .key("challenge_craft_armor_250")
-            .title(Localizer.dLocalize("advancement.challenge_craft_armor_250.title"))
-            .description(Localizer.dLocalize("advancement.challenge_craft_armor_250.description"))
             .model(CustomModel.get(Material.DIAMOND_CHESTPLATE, "advancement", "crafting", "challenge_craft_armor_250"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -167,16 +147,12 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.HOPPER).key("challenge_craft_mass_25k")
-        .title(Localizer.dLocalize("advancement.challenge_craft_mass_25k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_craft_mass_25k.description"))
         .model(CustomModel.get(Material.HOPPER, "advancement", "crafting", "challenge_craft_mass_25k"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.CHEST)
             .key("challenge_craft_mass_250k")
-            .title(Localizer.dLocalize("advancement.challenge_craft_mass_250k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_craft_mass_250k.description"))
             .model(CustomModel.get(Material.CHEST, "advancement", "crafting", "challenge_craft_mass_250k"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -184,8 +160,6 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
         .build());
     registerMilestone("challenge_craft_mass_25k", "crafted.items", 25000, getConfig().challengeCraft1kReward * 2);
     registerMilestone("challenge_craft_mass_250k", "crafted.items", 250000, getConfig().challengeCraft1kReward * 5);
-
-    cooldowns = new HashMap<>();
   }
 
 
@@ -199,17 +173,21 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
       int recipeAmount = calculateRecipeAmount(e);
       if (recipeAmount > 0) {
         double v = recipeAmount * getValue(e.getRecipe().getResult()) * getConfig().craftingValueXPMultiplier;
-        getPlayer(p).getData().addStat("crafted.items", recipeAmount);
-        getPlayer(p).getData().addStat("crafted.value", v);
+        addStat(p, "crafted.items", recipeAmount);
+        addStat(p, "crafted.value", v);
         Material resultType = e.getRecipe().getResult().getType();
         String typeName = resultType.name();
         if (typeName.contains("_PICKAXE") || typeName.contains("_AXE") || typeName.contains("_SHOVEL") || typeName.contains("_HOE") || typeName.contains("_SWORD")) {
-          getPlayer(p).getData().addStat("crafting.tools", recipeAmount);
+          addStat(p, "crafting.tools", recipeAmount);
         }
         if (typeName.contains("_HELMET") || typeName.contains("_CHESTPLATE") || typeName.contains("_LEGGINGS") || typeName.contains("_BOOTS")) {
-          getPlayer(p).getData().addStat("crafting.armor", recipeAmount);
+          addStat(p, "crafting.armor", recipeAmount);
         }
         xp(p, v + getConfig().baseCraftingXP);
+        float chimePitch = (float) Math.min(1.8D, 0.9D + (Math.min(1.0D, v / 200.0D) * 0.9D));
+        fx(p.getLocation().add(0, 1, 0), FxPriority.AMBIENT)
+            .particle(Particles.ENCHANTMENT_TABLE, 3, 0, 0.2D, 0, 0.3D, 0.3D)
+            .sound(Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.4F, chimePitch);
       }
     });
   }
@@ -220,6 +198,11 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
       return;
     }
     xp(e.getBlock().getLocation(), getConfig().furnaceBaseXP + (getValue(e.getResult()) * getConfig().furnaceValueXPMultiplier), getConfig().furnaceXPRadius, getConfig().furnaceXPDuration);
+    Location furnace = e.getBlock().getLocation().add(0.5D, 0.9D, 0.5D);
+    fx(furnace, FxPriority.AMBIENT)
+        .particle(Particles.SMOKE, 1, 0, 0, 0, 0.04D, 0.02D)
+        .particle(Particle.FLAME, 1, 0, 0, 0, 0.03D, 0.01D)
+        .sound(Sound.BLOCK_FURNACE_FIRE_CRACKLE, 0.3F, 1.0F);
   }
 
   @Override
@@ -231,10 +214,10 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
   private boolean isValidCraftEvent(CraftItemEvent e) {
     Player p = (Player) e.getWhoClicked();
 
-    Long cooldown = cooldowns.get(p.getUniqueId());
-    if (cooldown != null && cooldown + getConfig().cooldownDelay > System.currentTimeMillis())
+    if (!cooldowns.isReady(p.getUniqueId(), getConfig().cooldownDelay)) {
       return false;
-    cooldowns.put(p.getUniqueId(), System.currentTimeMillis());
+    }
+    cooldowns.mark(p.getUniqueId());
 
     ItemStack result = e.getInventory().getResult();
     ItemStack cursor = e.getCursor();

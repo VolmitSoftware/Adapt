@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.skill;
 
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
@@ -39,12 +40,8 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
 public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
-  private final Map<UUID, Long> cooldowns;
+  private final Cooldowns cooldowns = cooldowns();
 
   public SkillPickaxes() {
     super("pickaxe", Localizer.dLocalize("skill.pickaxe.icon"));
@@ -54,7 +51,6 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
     setColor(C.GOLD);
     setInterval(2750);
     setIcon(Material.NETHERITE_PICKAXE);
-    cooldowns = new HashMap<>();
     registerAdaptation(new PickaxeChisel());
     registerAdaptation(new PickaxeVeinminer());
     registerAdaptation(new PickaxeAutosmelt());
@@ -71,40 +67,30 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.WOODEN_PICKAXE)
         .key("challenge_pickaxe_1k")
-        .title(Localizer.dLocalize("advancement.challenge_pickaxe_1k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_pickaxe_1k.description"))
         .model(CustomModel.get(Material.WOODEN_PICKAXE, "advancement", "pickaxe", "challenge_pickaxe_1k"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.STONE_PICKAXE)
             .key("challenge_pickaxe_5k")
-            .title(Localizer.dLocalize("advancement.challenge_pickaxe_5k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_pickaxe_5k.description"))
             .model(CustomModel.get(Material.STONE_PICKAXE, "advancement", "pickaxe", "challenge_pickaxe_5k"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .child(AdaptAdvancement.builder()
                 .icon(Material.IRON_PICKAXE)
                 .key("challenge_pickaxe_50k")
-                .title(Localizer.dLocalize("advancement.challenge_pickaxe_50k.title"))
-                .description(Localizer.dLocalize("advancement.challenge_pickaxe_50k.description"))
                 .model(CustomModel.get(Material.IRON_PICKAXE, "advancement", "pickaxe", "challenge_pickaxe_50k"))
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .child(AdaptAdvancement.builder()
                     .icon(Material.DIAMOND_PICKAXE)
                     .key("challenge_pickaxe_500k")
-                    .title(Localizer.dLocalize("advancement.challenge_pickaxe_500k.title"))
-                    .description(Localizer.dLocalize("advancement.challenge_pickaxe_500k.description"))
                     .model(CustomModel.get(Material.DIAMOND_PICKAXE, "advancement", "pickaxe", "challenge_pickaxe_500k"))
                     .frame(AdaptAdvancementFrame.CHALLENGE)
                     .visibility(AdvancementVisibility.PARENT_GRANTED)
                     .child(AdaptAdvancement.builder()
                         .icon(Material.NETHERITE_PICKAXE)
                         .key("challenge_pickaxe_5m")
-                        .title(Localizer.dLocalize("advancement.challenge_pickaxe_5m.title"))
-                        .description(Localizer.dLocalize("advancement.challenge_pickaxe_5m.description"))
                         .model(CustomModel.get(Material.NETHERITE_PICKAXE, "advancement", "pickaxe", "challenge_pickaxe_5m"))
                         .frame(AdaptAdvancementFrame.CHALLENGE)
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -122,16 +108,12 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.WOODEN_PICKAXE).key("challenge_pick_swing_500")
-        .title(Localizer.dLocalize("advancement.challenge_pick_swing_500.title"))
-        .description(Localizer.dLocalize("advancement.challenge_pick_swing_500.description"))
         .model(CustomModel.get(Material.WOODEN_PICKAXE, "advancement", "pickaxe", "challenge_pick_swing_500"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.IRON_PICKAXE)
             .key("challenge_pick_swing_5k")
-            .title(Localizer.dLocalize("advancement.challenge_pick_swing_5k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_pick_swing_5k.description"))
             .model(CustomModel.get(Material.IRON_PICKAXE, "advancement", "pickaxe", "challenge_pick_swing_5k"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -142,16 +124,12 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.GOLDEN_PICKAXE).key("challenge_pick_damage_1k")
-        .title(Localizer.dLocalize("advancement.challenge_pick_damage_1k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_pick_damage_1k.description"))
         .model(CustomModel.get(Material.GOLDEN_PICKAXE, "advancement", "pickaxe", "challenge_pick_damage_1k"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.DIAMOND_PICKAXE)
             .key("challenge_pick_damage_10k")
-            .title(Localizer.dLocalize("advancement.challenge_pick_damage_10k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_pick_damage_10k.description"))
             .model(CustomModel.get(Material.DIAMOND_PICKAXE, "advancement", "pickaxe", "challenge_pick_damage_10k"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -162,16 +140,12 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.RAW_IRON).key("challenge_pick_value_5k")
-        .title(Localizer.dLocalize("advancement.challenge_pick_value_5k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_pick_value_5k.description"))
         .model(CustomModel.get(Material.RAW_IRON, "advancement", "pickaxe", "challenge_pick_value_5k"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.RAW_GOLD)
             .key("challenge_pick_value_50k")
-            .title(Localizer.dLocalize("advancement.challenge_pick_value_50k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_pick_value_50k.description"))
             .model(CustomModel.get(Material.RAW_GOLD, "advancement", "pickaxe", "challenge_pick_value_50k"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -182,16 +156,12 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.IRON_ORE).key("challenge_pick_ores_500")
-        .title(Localizer.dLocalize("advancement.challenge_pick_ores_500.title"))
-        .description(Localizer.dLocalize("advancement.challenge_pick_ores_500.description"))
         .model(CustomModel.get(Material.IRON_ORE, "advancement", "pickaxe", "challenge_pick_ores_500"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.DIAMOND_ORE)
             .key("challenge_pick_ores_5k")
-            .title(Localizer.dLocalize("advancement.challenge_pick_ores_5k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_pick_ores_5k.description"))
             .model(CustomModel.get(Material.DIAMOND_ORE, "advancement", "pickaxe", "challenge_pick_ores_5k"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -288,10 +258,10 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
 
 
   private void handleCooldown(Player p, Runnable action) {
-    Long cooldown = cooldowns.get(p.getUniqueId());
-    if (cooldown != null && cooldown + getConfig().cooldownDelay > System.currentTimeMillis())
+    if (!cooldowns.isReady(p.getUniqueId(), getConfig().cooldownDelay)) {
       return;
-    cooldowns.put(p.getUniqueId(), System.currentTimeMillis());
+    }
+    cooldowns.mark(p.getUniqueId());
     action.run();
   }
 

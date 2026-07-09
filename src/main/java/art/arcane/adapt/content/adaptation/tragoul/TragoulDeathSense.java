@@ -18,10 +18,12 @@
 
 package art.arcane.adapt.content.adaptation.tragoul;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.version.IAttribute;
 import art.arcane.adapt.api.version.Version;
 import art.arcane.adapt.util.common.format.C;
@@ -31,8 +33,9 @@ import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
@@ -43,19 +46,11 @@ public class TragoulDeathSense extends SimpleAdaptation<TragoulDeathSense.Config
   public TragoulDeathSense() {
     super("tragoul-death-sense");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("tragoul.death_sense.description"));
-    setDisplayName(Localizer.dLocalize("tragoul.death_sense.name"));
     setIcon(Material.SPIDER_EYE);
     setInterval(1250);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.SPIDER_EYE)
         .key("challenge_tragoul_death_sense_1k")
-        .title(Localizer.dLocalize("advancement.challenge_tragoul_death_sense_1k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_tragoul_death_sense_1k.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -110,6 +105,8 @@ public class TragoulDeathSense extends SimpleAdaptation<TragoulDeathSense.Config
           J.runEntity(monster, () -> {
             if (monster.isValid() && !monster.isDead()) {
               monster.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, glowTicks, 0, true, false, false), true);
+              fx(monster.getLocation().add(0, 0.8, 0), FxPriority.AMBIENT)
+                  .particle(Particle.SCULK_SOUL, 2, 0, 0.3, 0, 0.15, 0.01);
             }
           });
           sensed++;
@@ -120,6 +117,10 @@ public class TragoulDeathSense extends SimpleAdaptation<TragoulDeathSense.Config
 
         if (sensed > 0) {
           adaptPlayer.getData().addStat("tragoul.death-sense.prey-sensed", sensed);
+          float pitch = (float) (0.5 + (Math.min(sensed, 4) * 0.08));
+          fx(p.getLocation().add(0, 1.0, 0), FxPriority.AMBIENT)
+              .particle(Particle.SCULK_SOUL, 1, 0, 0, 0, 0.1, 0.01)
+              .sound(Sound.BLOCK_NOTE_BLOCK_BASS, 0.2F, pitch);
         }
       });
     }
@@ -134,31 +135,8 @@ public class TragoulDeathSense extends SimpleAdaptation<TragoulDeathSense.Config
         Math.max(0, getConfig().healthThresholdBase + (getLevelPercent(level) * getConfig().healthThresholdFactor)));
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Weakened hostile mobs near you briefly glow so you can sense dying prey through walls.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.6;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Scan radius before level scaling.", impact = "Higher values sense prey further away but cost more scan work.")
     double radiusBase = 8;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Additional scan radius granted at max level.", impact = "Higher values increase level-scaled radius growth.")
@@ -173,5 +151,11 @@ public class TragoulDeathSense extends SimpleAdaptation<TragoulDeathSense.Config
     int glowTicks = 35;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum mobs marked per scan pulse.", impact = "Caps per-pulse work to protect server performance.")
     int maxMarksPerPulse = 8;
+
+    public Config() {
+      baseCost = 3;
+      costFactor = 0.6;
+      initialCost = 3;
+    }
   }
 }

@@ -18,19 +18,24 @@
 
 package art.arcane.adapt.content.adaptation.chronos;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxEmitter;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -49,20 +54,12 @@ public class ChronosPocketWatch extends SimpleAdaptation<ChronosPocketWatch.Conf
   public ChronosPocketWatch() {
     super("chronos-pocket-watch");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("chronos.pocket_watch.description"));
-    setDisplayName(Localizer.dLocalize("chronos.pocket_watch.name"));
     setIcon(Material.FEATHER);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(PULSE_MILLIS);
     airBudgetMillis = new ConcurrentHashMap<>();
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.FEATHER)
         .key("challenge_chronos_pocket_watch_500")
-        .title(Localizer.dLocalize("advancement.challenge_chronos_pocket_watch_500.title"))
-        .description(Localizer.dLocalize("advancement.challenge_chronos_pocket_watch_500.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -117,12 +114,20 @@ public class ChronosPocketWatch extends SimpleAdaptation<ChronosPocketWatch.Conf
         continue;
       }
 
-      long budget = airBudgetMillis.computeIfAbsent(id, k -> getBudgetMillis(level));
+      long max = getBudgetMillis(level);
+      boolean firstPulse = !airBudgetMillis.containsKey(id);
+      long budget = airBudgetMillis.computeIfAbsent(id, k -> max);
       if (budget < PULSE_MILLIS) {
         continue;
       }
 
-      airBudgetMillis.put(id, budget - PULSE_MILLIS);
+      long remaining = budget - PULSE_MILLIS;
+      airBudgetMillis.put(id, remaining);
+
+      boolean activate = firstPulse;
+      boolean deplete = remaining < PULSE_MILLIS;
+      int pulseIndex = (int) ((max - remaining) / PULSE_MILLIS);
+      float driftPitch = max <= 0 ? 1.8F : (float) (1.2D + (0.6D * (1D - ((double) remaining / (double) max))));
 
       Runnable apply = () -> {
         if (!p.isOnline() || p.isDead()) {
@@ -132,8 +137,24 @@ public class ChronosPocketWatch extends SimpleAdaptation<ChronosPocketWatch.Conf
         p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING,
             getConfig().pulseDurationTicks, 0, true, false, false), true);
 
-        if (areParticlesEnabled()) {
-          p.getWorld().spawnParticle(Particle.CLOUD, p.getLocation(), 1, 0.1, 0, 0.1, 0);
+        Location feet = p.getLocation();
+        if (activate) {
+          fx(feet, FxPriority.TRANSITION)
+              .burst(Particle.CLOUD, 6, 0.2D)
+              .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.3F, 1.2F);
+        } else if (deplete) {
+          fx(feet, FxPriority.TRANSITION)
+              .burst(Particles.SMOKE, 3, 0.2D)
+              .sound(Sound.BLOCK_NOTE_BLOCK_BASS, 0.3F, 0.7F);
+        } else {
+          FxEmitter drift = fx(feet, FxPriority.TRAIL)
+              .particle(Particle.CLOUD, 2, 0, 0.1D, 0, 0.1D, 0.01D);
+          if ((pulseIndex & 3) == 0) {
+            drift.particle(Particles.END_ROD, 1, 0, 0.2D, 0, 0.05D, 0.02D);
+          }
+          if ((pulseIndex & 1) == 0) {
+            drift.sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.15F, driftPitch);
+          }
         }
       };
 
@@ -143,36 +164,13 @@ public class ChronosPocketWatch extends SimpleAdaptation<ChronosPocketWatch.Conf
         apply.run();
       }
 
-      getPlayer(p).getData().addStat("chronos.pocket-watch.slow-fall-seconds", PULSE_MILLIS / 1000D);
+      addStat(p, "chronos.pocket-watch.slow-fall-seconds", PULSE_MILLIS / 1000D);
       xpSilent(p, getConfig().xpPerPulse, "chronos:pocket-watch");
     }
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Sneak while airborne to fall in slow motion, with a level scaled time budget per airtime.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.35;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Base seconds of slow falling sustainable per airtime.", impact = "Higher values let the player drift longer each fall.")
     double baseBudgetSeconds = 2;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Extra sustain seconds per adaptation level.", impact = "Higher values make leveling extend the drift budget faster.")
@@ -185,5 +183,10 @@ public class ChronosPocketWatch extends SimpleAdaptation<ChronosPocketWatch.Conf
     boolean requireClock = true;
     @art.arcane.adapt.util.config.ConfigDoc(value = "XP granted per slow fall pulse.", impact = "Higher values grant more skill XP while drifting.")
     double xpPerPulse = 0.3;
+
+    public Config() {
+      costFactor = 0.35;
+      initialCost = 3;
+    }
   }
 }

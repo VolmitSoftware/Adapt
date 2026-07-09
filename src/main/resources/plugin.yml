@@ -40,6 +40,9 @@ permissions:
   adapt.configurator:
     description: Allows opening and using the in-game Adapt config editor
     default: op
+  adapt.effects:
+    description: Allows toggling Adapt effect visibility for yourself
+    default: true
   adapt.config:
     description: Legacy alias for adapt.configurator
     default: false

@@ -18,23 +18,25 @@
 
 package art.arcane.adapt.content.adaptation.agility;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.events.api.ReflectiveHandler;
 import art.arcane.adapt.util.reflect.events.api.entity.EntityDismountEvent;
 import art.arcane.adapt.util.reflect.events.api.entity.EntityMountEvent;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
-import lombok.NoArgsConstructor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -44,36 +46,24 @@ import org.bukkit.util.Vector;
 
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
-  private final Map<UUID, Integer> ticksRunning;
-  private final Map<UUID, RuntimeState> states;
+  private final Map<UUID, Integer> ticksRunning = playerState();
+  private final Map<UUID, RuntimeState> states = playerState();
 
   public AgilityWindUp() {
     super("agility-wind-up");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("agility.wind_up.description"));
-    setDisplayName(Localizer.dLocalize("agility.wind_up.name"));
     setIcon(Material.POWERED_RAIL);
-    setBaseCost(getConfig().baseCost);
-    setCostFactor(getConfig().costFactor);
-    setInitialCost(getConfig().initialCost);
     setInterval(50);
-    ticksRunning = new ConcurrentHashMap<>();
-    states = new ConcurrentHashMap<>();
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.POWERED_RAIL)
         .key("challenge_agility_wind_up_10min")
-        .title(Localizer.dLocalize("advancement.challenge_agility_wind_up_10min.title"))
-        .description(Localizer.dLocalize("advancement.challenge_agility_wind_up_10min.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.ACTIVATOR_RAIL)
             .key("challenge_agility_wind_up_2hr")
-            .title(Localizer.dLocalize("advancement.challenge_agility_wind_up_2hr.title"))
-            .description(Localizer.dLocalize("advancement.challenge_agility_wind_up_2hr.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -84,8 +74,8 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.pc(getWindupSpeed(getLevelPercent(level)), 0) + C.GRAY + " " + Localizer.dLocalize("agility.wind_up.lore1"));
-    v.addLore(C.YELLOW + "* " + Form.duration(getWindupTicks(getLevelPercent(level)) * 50D, 1) + C.GRAY + " " + Localizer.dLocalize("agility.wind_up.lore2"));
+    statLore(v, Form.pc(getWindupSpeed(getLevelPercent(level)), 0), 1);
+    statLore(v, C.YELLOW, "* ", Form.duration(getWindupTicks(getLevelPercent(level)) * 50D, 1), 2);
   }
 
   @EventHandler
@@ -178,20 +168,44 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
     double progress = Math.min(M.lerpInverse(0, ticksToMax, tr), 1);
     double speedIncrease = M.lerp(0, getWindupSpeed(factor), progress);
     applyBoost(p, state, speedIncrease);
-
-    if (areParticlesEnabled()) {
-      if (M.r(0.2 * progress)) {
-        p.getWorld().spawnParticle(Particle.LAVA, p.getLocation(), 1);
-      }
-
-      if (M.r(0.25 * progress)) {
-        p.getWorld().spawnParticle(Particle.FLAME, p.getLocation(), 1, 0, 0, 0, 0);
-      }
-    }
+    emitChargeFeedback(p, state, progress);
 
     if (progress >= 1.0 && isMovingHorizontally(p, getConfig().movementVelocityThreshold)) {
-      getPlayer(p).getData().addStat("agility.wind-up.max-speed-ticks", 1);
+      addStat(p, "agility.wind-up.max-speed-ticks", 1);
+      if (M.r(0.25)) {
+        Vector back = p.getVelocity();
+        fx(p, FxPriority.TRAIL).trail(Particle.SOUL_FIRE_FLAME, -back.getX(), 0.05D, -back.getZ(), 0.8D, 1);
+      }
     }
+  }
+
+  private void emitChargeFeedback(Player p, RuntimeState state, double progress) {
+    int bracket = (int) Math.floor(progress / 0.25D);
+    if (bracket <= state.lastBracket) {
+      return;
+    }
+
+    state.lastBracket = bracket;
+    if (progress >= 1.0D) {
+      if (state.ignited) {
+        return;
+      }
+
+      state.ignited = true;
+      Vector back = p.getVelocity();
+      fx(p, FxPriority.GAMEPLAY)
+          .trail(Particle.FLAME, -back.getX(), 0.1D, -back.getZ(), 1.2D, 6)
+          .chord(Sound.ENTITY_BLAZE_SHOOT, 0.3F, 0.7F, Sound.BLOCK_FIRE_AMBIENT, 0.4F, 1.4F);
+      return;
+    }
+
+    if (bracket < 1) {
+      return;
+    }
+
+    fx(p.getLocation(), FxPriority.GAMEPLAY)
+        .ring(Particle.CLOUD, 1.1D - (bracket * 0.23D), 8, 0.1D)
+        .sound(Sound.ITEM_ARMOR_EQUIP_LEATHER, 0.4F, 0.6F + (bracket * 0.2F));
   }
 
   private void applyBoost(Player p, RuntimeState state, double speedIncrease) {
@@ -226,11 +240,20 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
       return;
     }
 
+    boolean wasCharged = state.lastBracket >= 1;
     state.boosting = false;
+    state.lastBracket = 0;
+    state.ignited = false;
     float restore = clampWalkSpeed(state.originalWalkSpeed);
     float current = p.getWalkSpeed();
     if (Math.abs(current - restore) > 0.0001f) {
       p.setWalkSpeed(restore);
+    }
+
+    if (wasCharged) {
+      fx(p.getLocation(), FxPriority.TRANSITION)
+          .burst(Particles.SMOKE, 3, 0.1D)
+          .sound(Sound.ITEM_ARMOR_EQUIP_LEATHER, 0.3F, 0.5F);
     }
   }
 
@@ -277,32 +300,9 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
     return speed;
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
 
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-
-  @NoArgsConstructor
   @ConfigDescription("Get faster the longer you sprint.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Agility Wind Up adaptation.", impact = "True enables this behavior and false disables it.")
-    boolean showParticles = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 2;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.65;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 8;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Windup Ticks Slowest for the Agility Wind Up adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double windupTicksSlowest = 180;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Windup Ticks Fastest for the Agility Wind Up adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -319,11 +319,19 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
     double maxWalkSpeed = 0.35;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Minimum horizontal movement speed required for max-speed stat credit.", impact = "Higher values require clearer movement before counting max-speed ticks.")
     double movementVelocityThreshold = 0.015;
+
+    public Config() {
+      baseCost = 2;
+      costFactor = 0.65;
+      initialCost = 8;
+    }
   }
 
   private static class RuntimeState {
     private boolean boosting;
     private float originalWalkSpeed;
+    private int lastBracket;
+    private boolean ignited;
   }
 
 }

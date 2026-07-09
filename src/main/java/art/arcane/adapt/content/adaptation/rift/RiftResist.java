@@ -18,19 +18,24 @@
 
 package art.arcane.adapt.content.adaptation.rift;
 
+import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.Fx;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.adapt.util.reflect.registries.PotionEffectTypes;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -45,34 +50,37 @@ public class RiftResist extends SimpleAdaptation<RiftResist.Config> {
   public RiftResist() {
     super("rift-resist");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("rift.resist.description"));
-    setDisplayName(Localizer.dLocalize("rift.resist.name"));
     setIcon(Material.SCULK_VEIN);
-    setBaseCost(getConfig().baseCost);
-    setCostFactor(getConfig().costFactor);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
     setInterval(10288);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.ENDER_PEARL)
         .key("challenge_rift_resist_200")
-        .title(Localizer.dLocalize("advancement.challenge_rift_resist_200.title"))
-        .description(Localizer.dLocalize("advancement.challenge_rift_resist_200.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
     registerMilestone("challenge_rift_resist_200", "rift.resist.activations", 200, 300);
   }
 
-  static void riftResistStackAdd(Player p, int duration, int amplifier) {
-    if (p.getLocation().getWorld() == null) {
+  static void riftResistStackAdd(Adaptation<?> source, Player p, int duration, int amplifier) {
+    Location location = p.getLocation();
+    if (location.getWorld() == null) {
       return;
     }
-    SoundPlayer spw = SoundPlayer.of(p.getWorld());
-    spw.play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_IRON, 1f, 1.24f);
-    spw.play(p.getLocation(), Sound.BLOCK_CONDUIT_AMBIENT_SHORT, 1f, 0.01f);
-    spw.play(p.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 1f, 0.01f);
+
+    boolean refresh = p.getPotionEffect(PotionEffectTypes.DAMAGE_RESISTANCE) != null;
     p.addPotionEffect(new PotionEffect(PotionEffectTypes.DAMAGE_RESISTANCE, duration, amplifier, true, false, false));
+
+    if (refresh) {
+      Fx.now(source, location, FxPriority.TRANSITION)
+          .particle(Particle.REVERSE_PORTAL, 4, 0, 1.1, 0, 0.2, 0.02)
+          .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.4f, 1.6f);
+      return;
+    }
+
+    Fx.now(source, location, FxPriority.TRANSITION)
+        .dome(Particles.ENCHANTMENT_TABLE, 0.9, 14)
+        .particle(Particle.WITCH, 8, 0, 1.0, 0, 0.4, 0.01)
+        .chord(Sound.ITEM_ARMOR_EQUIP_IRON, 1f, 1.24f, Sound.BLOCK_AMETHYST_BLOCK_RESONATE, 0.6f, 1.2f, Sound.BLOCK_CONDUIT_ACTIVATE, 0.5f, 0.8f);
   }
 
   public static boolean hasRiftResistPerk(AdaptPlayer p) {
@@ -97,8 +105,8 @@ public class RiftResist extends SimpleAdaptation<RiftResist.Config> {
       switch (hand.getType()) {
         case ENDER_EYE, ENDER_PEARL -> {
           xp(p, 3);
-          riftResistStackAdd(p, getConfig().duration, getConfig().amplitude);
-          getPlayer(p).getData().addStat("rift.resist.activations", 1);
+          riftResistStackAdd(this, p, getConfig().duration, getConfig().amplitude);
+          addStat(p, "rift.resist.activations", 1);
         }
       }
     }
@@ -110,34 +118,18 @@ public class RiftResist extends SimpleAdaptation<RiftResist.Config> {
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Gain resistance when using Ender items and abilities.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 1;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 1;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Amplitude for the Rift Resist adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     int amplitude = 1;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Duration for the Rift Resist adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     int duration = 80;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 5;
+
+    public Config() {
+      baseCost = 3;
+      costFactor = 1;
+      maxLevel = 1;
+      initialCost = 5;
+    }
   }
 }

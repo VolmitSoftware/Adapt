@@ -18,59 +18,51 @@
 
 package art.arcane.adapt.content.adaptation.excavation;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class ExcavationBurrow extends SimpleAdaptation<ExcavationBurrow.Config> {
-  private final Map<UUID, Long> cooldowns = new ConcurrentHashMap<>();
+  private final Cooldowns cooldowns = cooldowns();
 
   public ExcavationBurrow() {
     super("excavation-burrow");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("excavation.burrow.description"));
-    setDisplayName(Localizer.dLocalize("excavation.burrow.name"));
     setIcon(Material.COARSE_DIRT);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(4130);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.COARSE_DIRT)
         .key("challenge_excavation_burrow_100")
-        .title(Localizer.dLocalize("advancement.challenge_excavation_burrow_100.title"))
-        .description(Localizer.dLocalize("advancement.challenge_excavation_burrow_100.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -79,15 +71,10 @@ public class ExcavationBurrow extends SimpleAdaptation<ExcavationBurrow.Config> 
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + getMaxDepth(level) + C.GRAY + " " + Localizer.dLocalize("excavation.burrow.lore1"));
-    v.addLore(C.GREEN + "+ " + getConfig().durabilityCostPerBlock + C.GRAY + " " + Localizer.dLocalize("excavation.burrow.lore2"));
-    v.addLore(C.YELLOW + "* " + Form.duration(getCooldownMillis(level), 1) + C.GRAY + " " + Localizer.dLocalize("excavation.burrow.lore3"));
-    v.addLore(C.RED + "- " + getConfig().hungerCost + C.GRAY + " " + Localizer.dLocalize("excavation.burrow.lore4"));
-  }
-
-  @EventHandler(priority = EventPriority.MONITOR)
-  public void on(PlayerQuitEvent e) {
-    cooldowns.remove(e.getPlayer().getUniqueId());
+    statLore(v, getMaxDepth(level), 1);
+    statLore(v, getConfig().durabilityCostPerBlock, 2);
+    statLore(v, C.YELLOW, "* ", Form.duration(getCooldownMillis(level), 1), 3);
+    statLore(v, C.RED, "- ", getConfig().hungerCost, 4);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
@@ -123,9 +110,13 @@ public class ExcavationBurrow extends SimpleAdaptation<ExcavationBurrow.Config> 
       return;
     }
 
-    long now = System.currentTimeMillis();
-    long nextReady = cooldowns.getOrDefault(p.getUniqueId(), 0L);
-    if (now < nextReady) {
+    art.arcane.adapt.api.adaptation.Adaptation.BlockActionContext context = resolveBlockBreakContext(p, clicked.getLocation());
+    if (context == null) {
+      return;
+    }
+
+    int level = context.level();
+    if (!cooldowns.isReady(p.getUniqueId(), getCooldownMillis(level))) {
       return;
     }
 
@@ -134,29 +125,38 @@ public class ExcavationBurrow extends SimpleAdaptation<ExcavationBurrow.Config> 
       return;
     }
 
-    art.arcane.adapt.api.adaptation.Adaptation.BlockActionContext context = resolveBlockBreakContext(p, clicked.getLocation());
-    if (context == null) {
-      return;
-    }
-
-    int level = context.level();
-
     List<Block> plan = planDig(p, clicked, getMaxDepth(level));
     if (plan.isEmpty()) {
       return;
     }
 
     if (!applyDurability(p, hand, plan.size() * getConfig().durabilityCostPerBlock)) {
-      SoundPlayer.of(p.getWorld()).play(p.getLocation(), Sound.BLOCK_ANVIL_PLACE, 0.5f, 0.65f);
+      fx(p.getLocation(), FxPriority.TRANSITION)
+          .particle(Particles.SMOKE, 4, 0, 1.0D, 0, 0.15D, 0.01D)
+          .chord(Sound.BLOCK_ANVIL_PLACE, 0.5f, 0.65f, Sound.ITEM_SHIELD_BLOCK, 0.3f, 1.4f);
       return;
     }
 
-    cooldowns.put(p.getUniqueId(), now + getCooldownMillis(level));
+    cooldowns.mark(p.getUniqueId());
     p.setFoodLevel(Math.max(0, p.getFoodLevel() - hungerCost));
     e.setCancelled(true);
+
+    BlockData clickedData = clicked.getBlockData();
+    timeline(p.getLocation())
+        .duration(6)
+        .priority(FxPriority.GAMEPLAY)
+        .cullRadius(24)
+        .frame((fx, tick, progress) -> {
+          fx.ring(Particles.BLOCK_CRACK, 1.4D - (1.1D * progress), 10, 0.1D, clickedData);
+          if (tick == 0) {
+            fx.chord(Sound.BLOCK_ROOTED_DIRT_BREAK, 0.6f, 0.7f, Sound.ITEM_SHOVEL_FLATTEN, 0.5f, 0.9f);
+          }
+        })
+        .start();
+
     scheduleDig(plan, hand.clone());
-    getPlayer(p).getData().addStat("excavation.burrow.burrows-dug", 1);
-    getPlayer(p).getData().addStat("excavation.burrow.blocks-burrowed", plan.size());
+    addStat(p, "excavation.burrow.burrows-dug", 1);
+    addStat(p, "excavation.burrow.blocks-burrowed", plan.size());
     xp(p, plan.size() * getConfig().xpPerBlock);
   }
 
@@ -197,19 +197,32 @@ public class ExcavationBurrow extends SimpleAdaptation<ExcavationBurrow.Config> 
 
   private void scheduleDig(List<Block> plan, ItemStack tool) {
     int interval = Math.max(1, getConfig().ticksPerBlock);
-    for (int i = 0; i < plan.size(); i++) {
+    int size = plan.size();
+    BlockData floorData = plan.get(size - 1).getBlockData();
+    Location floor = plan.get(size - 1).getLocation().add(0.5, 0.0, 0.5);
+    for (int i = 0; i < size; i++) {
       Block block = plan.get(i);
+      float pitch = (float) (1.1D + (0.4D * ((double) i / size)));
       int delay = i * interval;
       if (delay <= 0) {
-        digBlock(block, tool);
+        digBlock(block, tool, pitch);
         continue;
       }
 
-      J.runAt(block.getLocation(), () -> digBlock(block, tool), delay);
+      J.runAt(block.getLocation(), () -> digBlock(block, tool, pitch), delay);
     }
+
+    J.runAt(floor, () -> bottomOut(floor, floorData), (size * interval) + interval);
   }
 
-  private void digBlock(Block block, ItemStack tool) {
+  private void bottomOut(Location floor, BlockData floorData) {
+    fx(floor, FxPriority.GAMEPLAY)
+        .dome(Particle.CLOUD, 0.6D, 12)
+        .particle(Particles.BLOCK_CRACK, 6, 0, 0.2D, 0, 0.15D, 0.15D, floorData)
+        .chord(Sound.BLOCK_ROOTED_DIRT_BREAK, 0.8f, 0.6f, Sound.ITEM_SHOVEL_FLATTEN, 0.4f, 0.5f);
+  }
+
+  private void digBlock(Block block, ItemStack tool, float pitch) {
     if (!isShovelable(block.getType())) {
       return;
     }
@@ -218,12 +231,12 @@ public class ExcavationBurrow extends SimpleAdaptation<ExcavationBurrow.Config> 
       return;
     }
 
+    BlockData data = block.getBlockData();
     block.breakNaturally(tool);
-    if (areParticlesEnabled()) {
-      block.getWorld().spawnParticle(Particle.CLOUD, block.getLocation().add(0.5, 0.5, 0.5), 3, 0.2, 0.2, 0.2, 0.01);
-    }
-
-    SoundPlayer.of(block.getWorld()).play(block.getLocation(), Sound.ITEM_SHOVEL_FLATTEN, 0.45f, 1.3f);
+    fx(block.getLocation().add(0.5, 0.5, 0.5), FxPriority.TRAIL)
+        .particle(Particles.BLOCK_CRACK, 4, 0, 0, 0, 0.15D, 0.02D, data)
+        .particle(Particle.CLOUD, 1, 0, 0, 0, 0.05D, 0.01D)
+        .sound(Sound.ITEM_SHOVEL_FLATTEN, 0.45f, pitch);
   }
 
   private boolean applyDurability(Player p, ItemStack hand, int cost) {
@@ -269,31 +282,8 @@ public class ExcavationBurrow extends SimpleAdaptation<ExcavationBurrow.Config> 
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Sneak-right-click soft ground with a shovel to rapidly dig straight down, stopping before hazards.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 6;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.78;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Depth Base for the Excavation Burrow adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double depthBase = 3;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Depth Factor for the Excavation Burrow adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -312,5 +302,11 @@ public class ExcavationBurrow extends SimpleAdaptation<ExcavationBurrow.Config> 
     double cooldownMillisFactor = 7000;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Block for the Excavation Burrow adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpPerBlock = 2;
+
+    public Config() {
+      baseCost = 5;
+      costFactor = 0.78;
+      initialCost = 6;
+    }
   }
 }

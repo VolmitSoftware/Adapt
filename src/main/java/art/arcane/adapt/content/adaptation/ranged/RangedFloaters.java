@@ -18,19 +18,18 @@
 
 package art.arcane.adapt.content.adaptation.ranged;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Color;
 import org.bukkit.Material;
-import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -46,19 +45,11 @@ public class RangedFloaters extends SimpleAdaptation<RangedFloaters.Config> {
   public RangedFloaters() {
     super("ranged-floaters");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("ranged.floaters.description"));
-    setDisplayName(Localizer.dLocalize("ranged.floaters.name"));
     setIcon(Material.SHULKER_SHELL);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(2400);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.SHULKER_SHELL)
         .key("challenge_ranged_floaters_200")
-        .title(Localizer.dLocalize("advancement.challenge_ranged_floaters_200.title"))
-        .description(Localizer.dLocalize("advancement.challenge_ranged_floaters_200.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -67,9 +58,9 @@ public class RangedFloaters extends SimpleAdaptation<RangedFloaters.Config> {
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.pc(getProcChance(level), 0) + C.GRAY + " " + Localizer.dLocalize("ranged.floaters.lore1"));
-    v.addLore(C.GREEN + "+ " + Form.duration(getDurationTicks(level) * 50D, 1) + C.GRAY + " " + Localizer.dLocalize("ranged.floaters.lore2"));
-    v.addLore(C.GREEN + "+ " + (1 + getAmplifier(level)) + C.GRAY + " " + Localizer.dLocalize("ranged.floaters.lore3"));
+    statLore(v, Form.pc(getProcChance(level), 0), 1);
+    statLore(v, Form.duration(getDurationTicks(level) * 50D, 1), 2);
+    statLore(v, (1 + getAmplifier(level)), 3);
   }
 
   @EventHandler(priority = EventPriority.HIGH)
@@ -94,13 +85,13 @@ public class RangedFloaters extends SimpleAdaptation<RangedFloaters.Config> {
         true,
         true
     ), true);
-    getPlayer(p).getData().addStat("ranged.floaters.targets-levitated", 1);
+    addStat(p, "ranged.floaters.targets-levitated", 1);
 
-    if (areParticlesEnabled()) {
-      target.getWorld().spawnParticle(Particle.END_ROD, target.getLocation().add(0, 1, 0), 10, 0.2, 0.5, 0.2, 0.02);
-    }
-
-    SoundPlayer.of(target.getWorld()).play(target.getLocation(), Sound.ENTITY_SHULKER_SHOOT, 0.6f, 1.45f);
+    int amp = getAmplifier(level);
+    fx(target, FxPriority.COMBAT)
+        .dustRing(Color.fromRGB(230, 245, 255), 0.7D + (amp * 0.2D), 12, 1.0F)
+        .column(Particles.END_ROD, Math.min(16, 10 + (amp * 3)), 2.2D)
+        .chord(Sound.ENTITY_SHULKER_SHOOT, 0.6F, 1.45F, Sound.BLOCK_NOTE_BLOCK_CHIME, 0.4F, 1.2F);
     xp(p, getConfig().skillXpOnProc);
   }
 
@@ -121,33 +112,8 @@ public class RangedFloaters extends SimpleAdaptation<RangedFloaters.Config> {
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Projectiles have a chance to apply levitation to targets.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Ranged Floaters adaptation.", impact = "True enables this behavior and false disables it.")
-    boolean showParticles = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 6;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.78;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Chance Base for the Ranged Floaters adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double chanceBase = 0.12;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Chance Factor for the Ranged Floaters adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -162,5 +128,11 @@ public class RangedFloaters extends SimpleAdaptation<RangedFloaters.Config> {
     double maxAmplifier = 1.0;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Skill Xp On Proc for the Ranged Floaters adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double skillXpOnProc = 8.0;
+
+    public Config() {
+      costFactor = 0.78;
+      maxLevel = 6;
+      initialCost = 4;
+    }
   }
 }

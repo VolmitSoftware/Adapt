@@ -21,6 +21,7 @@ package art.arcane.adapt.api.world;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.fx.FxPresets;
 import art.arcane.adapt.api.notification.ActionBarNotification;
 import art.arcane.adapt.api.notification.Notifier;
 import art.arcane.adapt.api.notification.SoundNotification;
@@ -36,6 +37,7 @@ import art.arcane.volmlib.util.math.M;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bukkit.Sound;
+import org.bukkit.entity.Player;
 
 @Data
 @NoArgsConstructor
@@ -148,6 +150,11 @@ public class PlayerSkillLine {
         p.getData().giveMasterXp((i * AdaptConfig.get().getPlayerXpPerSkillLevelUpLevelMultiplier()) + AdaptConfig.get().getPlayerXpPerSkillLevelUpBase());
       }
 
+      Skill<?> levelSkill = p.getServer().getSkillRegistry().getSkill(line);
+      Player bukkitPlayer = p.getPlayer();
+      if (levelSkill != null && bukkitPlayer != null && bukkitPlayer.isOnline()) {
+        FxPresets.levelUpBurst(levelSkill, bukkitPlayer, getLevel());
+      }
       if (AdaptConfig.get().isActionbarNotifyLevel())
         notifyLevel(p, getLevel(), getKnowledge());
       lastLevel = getLevel();

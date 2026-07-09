@@ -18,23 +18,24 @@
 
 package art.arcane.adapt.content.adaptation.ranged;
 
-import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPresets;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.recipe.MaterialChar;
 import art.arcane.adapt.content.item.BoundSnowBall;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -64,14 +65,9 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
   public RangedWebBomb() {
     super("ranged-webshot");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("ranged.web_shot.description"));
-    setDisplayName(Localizer.dLocalize("ranged.web_shot.name"));
+    setLocalizationKey("ranged.web_shot");
     setIcon(Material.COBWEB);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
     setInterval(4900);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     registerRecipe(AdaptRecipe.shaped()
         .key("ranged-web-bomb")
         .ingredient(new MaterialChar('I', Material.COBWEB))
@@ -87,8 +83,6 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.COBWEB)
         .key("challenge_ranged_web_200")
-        .title(Localizer.dLocalize("advancement.challenge_ranged_web_200.title"))
-        .description(Localizer.dLocalize("advancement.challenge_ranged_web_200.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -98,7 +92,7 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
   @Override
   public void addStats(int level, Element v) {
     v.addLore(C.GREEN + "+ " + Localizer.dLocalize("ranged.web_shot.lore1"));
-    v.addLore(C.YELLOW + "+ " + level + C.GRAY + " " + Localizer.dLocalize("ranged.web_shot.lore2"));
+    statLore(v, C.YELLOW, "+ ", level, 2);
   }
 
 
@@ -131,11 +125,19 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
       block = e.getEntity().getLocation().add(0, 1, 0).getBlock();
     }
 
-    vfxCuboidOutline(block, Particle.REVERSE_PORTAL);
-    Adapt.verbose("Snowball Got: " + snowball.getEntityId() + " " + snowball.getUniqueId());
-    Adapt.verbose("Detected snowball hit");
+    Location center = block.getLocation().add(0.5, 0.5, 0.5);
+    FxPresets.chargeRing(this, center, 8);
+    fx(center, FxPriority.GAMEPLAY)
+        .burst(Particle.WHITE_ASH, 12, 0.4D)
+        .burst(Particle.CLOUD, 6, 0.3D)
+        .chord(Sound.BLOCK_WOOL_PLACE, 0.9F, 0.7F, Sound.BLOCK_ROOTED_DIRT_PLACE, 0.7F, 0.9F);
+
     if (e.getHitEntity() != null) {
-      getPlayer(p).getData().addStat("ranged.web-bomb.mobs-trapped", 1);
+      addStat(p, "ranged.web-bomb.mobs-trapped", 1);
+      fx(e.getHitEntity(), FxPriority.COMBAT)
+          .particle(Particles.CRIT_MAGIC, 6, 0, 0.5D, 0, 0.3D, 0.0D)
+          .particle(Particles.ENCHANTMENT_TABLE, 8, 0, 0.6D, 0, 0.35D, 0.0D)
+          .sound(Sound.BLOCK_WOOL_PLACE, 0.5F, 1.3F);
     }
     snowball.remove();
     Set<Block> locs = new HashSet<>();
@@ -149,18 +151,18 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
     for (Block i : locs) {
       addWebFoundation(i, level);
     }
+
+    J.runAt(block.getLocation(), () -> fx(center, FxPriority.TRANSITION)
+        .burst(Particles.SMOKE, 6, 0.3D)
+        .sound(Sound.BLOCK_ROOTED_DIRT_BREAK, 0.7F, 1.0F), level * 16);
   }
 
 
   @EventHandler
   public void on(ProjectileLaunchEvent e) {
     if (e.getEntity().getShooter() instanceof Player p && e.getEntity() instanceof Snowball snowball && hasActiveAdaptation(p)) {
-      Adapt.verbose("Snowball Launched: " + snowball.getEntityId() + " " + snowball.getUniqueId());
       if (BoundSnowBall.isBindableItem(snowball.getItem())) {
-        Adapt.verbose("Snowball is bound");
         activeSnowballs.put(snowball.getUniqueId(), p.getUniqueId());
-      } else {
-        Adapt.verbose("Snowball is not bound");
       }
     }
   }
@@ -174,13 +176,6 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
       block.setBlockData(BLOCK);
       activeBlocks.add(block);
     });
-    SoundPlayer spw = SoundPlayer.of(block.getWorld());
-    spw.play(block.getLocation(), Sound.BLOCK_ROOTED_DIRT_PLACE, 1.0f, 1.0f);
-    if (areParticlesEnabled()) {
-
-      vfxCuboidOutline(block, Particle.CLOUD);
-      vfxCuboidOutline(block, Particle.WHITE_ASH);
-    }
     J.runAt(block.getLocation(), () -> removeFoundation(block), seconds * 16);
   }
 
@@ -193,11 +188,6 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
       block.setBlockData(AIR);
       activeBlocks.remove(block);
     });
-    SoundPlayer spw = SoundPlayer.of(block.getWorld());
-    spw.play(block.getLocation(), Sound.BLOCK_ROOTED_DIRT_BREAK, 1.0f, 1.0f);
-    if (areParticlesEnabled()) {
-      vfxCuboidOutline(block, Particles.ENCHANTMENT_TABLE);
-    }
   }
 
 
@@ -206,7 +196,6 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
   public void on(BlockPistonExtendEvent e) {
     e.getBlocks().forEach(b -> {
       if (activeBlocks.contains(b)) {
-        Adapt.verbose("Cancelled Piston Extend on Adaptation Foundation Block");
         e.setCancelled(true);
       }
     });
@@ -217,7 +206,6 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
   public void on(BlockPistonRetractEvent e) {
     e.getBlocks().forEach(b -> {
       if (activeBlocks.contains(b)) {
-        Adapt.verbose("Cancelled Piston Retract on Adaptation Foundation Block");
         e.setCancelled(true);
       }
     });
@@ -227,7 +215,6 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
   @EventHandler(priority = EventPriority.HIGHEST)
   public void on(BlockExplodeEvent e) {
     if (activeBlocks.contains(e.getBlock())) {
-      Adapt.verbose("Cancelled Block Explosion on Adaptation Foundation Block");
       e.setCancelled(true);
     }
   }
@@ -252,32 +239,12 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Throw a crafted web snare to trap targets in cobwebs.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Ranged Web Bomb adaptation.", impact = "True enables this behavior and false disables it.")
-    boolean showParticles = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 1;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.9;
+  protected static class Config extends AdaptationConfig {
+    public Config() {
+      baseCost = 5;
+      costFactor = 0.9;
+      initialCost = 1;
+    }
   }
 }

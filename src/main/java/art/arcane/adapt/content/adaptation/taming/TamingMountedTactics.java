@@ -18,19 +18,25 @@
 
 package art.arcane.adapt.content.adaptation.taming;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.math.VelocitySpeed;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -44,32 +50,26 @@ import java.util.Map;
 import java.util.UUID;
 
 public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.Config> {
-  private final Map<UUID, Location> lastMountedLocation = new java.util.concurrent.ConcurrentHashMap<>();
+  private final Map<UUID, Location> lastMountedLocation = playerState();
+  private final Map<UUID, Boolean> wasSprinting = playerState();
+  private final Cooldowns emberCd = cooldowns();
+  private final Cooldowns hitCd = cooldowns();
 
   public TamingMountedTactics() {
     super("tame-mounted-tactics");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("taming.mounted_tactics.description"));
-    setDisplayName(Localizer.dLocalize("taming.mounted_tactics.name"));
+    setLocalizationKey("taming.mounted_tactics");
     setIcon(Material.SADDLE);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(10);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.SADDLE)
         .key("challenge_taming_mounted_200")
-        .title(Localizer.dLocalize("advancement.challenge_taming_mounted_200.title"))
-        .description(Localizer.dLocalize("advancement.challenge_taming_mounted_200.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.DIAMOND_HORSE_ARMOR)
         .key("challenge_taming_mounted_50k")
-        .title(Localizer.dLocalize("advancement.challenge_taming_mounted_50k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_taming_mounted_50k.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -92,19 +92,33 @@ public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.
         continue;
       }
 
+      UUID id = p.getUniqueId();
       Entity vehicle = p.getVehicle();
       if (vehicle != null) {
-        Location last = lastMountedLocation.get(p.getUniqueId());
+        Location last = lastMountedLocation.get(id);
         Location current = p.getLocation();
         if (last != null && last.getWorld() == current.getWorld()) {
           double dist = last.distance(current);
           if (dist > 0.1 && dist < 100) {
-            getPlayer(p).getData().addStat("taming.mounted-tactics.distance", dist);
+            addStat(p, "taming.mounted-tactics.distance", dist);
           }
         }
-        lastMountedLocation.put(p.getUniqueId(), current);
+        lastMountedLocation.put(id, current);
+
+        boolean sprint = p.isSprinting();
+        Boolean wasSprint = wasSprinting.get(id);
+        if (sprint && (wasSprint == null || !wasSprint)) {
+          fx(vehicle.getLocation(), FxPriority.TRAIL)
+              .particle(Particle.POOF, 3, 0, 0.1D, 0, 0.15D, 0.02D)
+              .dustBurst(Color.fromRGB(0x9A7B4F), 4, 0.25D, 1.0F)
+              .sound(Sound.ENTITY_HORSE_GALLOP, 0.4F, 1.1F);
+        }
+        if (wasSprint == null || wasSprint != sprint) {
+          wasSprinting.put(id, sprint);
+        }
       } else {
-        lastMountedLocation.remove(p.getUniqueId());
+        lastMountedLocation.remove(id);
+        wasSprinting.remove(id);
       }
       if (vehicle instanceof AbstractHorse horse) {
         if (hasForwardInput(p)) {
@@ -121,6 +135,12 @@ public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.
         }
         if (strider.getLocation().getBlock().getType() == Material.LAVA || strider.getLocation().clone().subtract(0, 1, 0).getBlock().getType() == Material.LAVA) {
           strider.setShivering(false);
+          if (emberCd.isReady(p.getUniqueId(), 1000)) {
+            emberCd.mark(p.getUniqueId());
+            fx(strider, FxPriority.AMBIENT)
+                .particle(Particle.FLAME, 2, 0, 0.3D, 0, 0.1D, 0.01D)
+                .particle(Particle.SCRAPE, 1, 0, 0.4D, 0, 0.1D, 0);
+          }
         }
       } else if (vehicle instanceof Pig pig) {
         p.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 25, getPigResistanceAmplifier(level), false, false, true), true);
@@ -157,7 +177,7 @@ public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.
     if (e.getEntity().getKiller() instanceof Player p
         && p.getVehicle() != null
         && hasActiveAdaptation(p)) {
-      getPlayer(p).getData().addStat("taming.mounted-tactics.mounted-kills", 1);
+      addStat(p, "taming.mounted-tactics.mounted-kills", 1);
     }
   }
 
@@ -172,6 +192,14 @@ public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.
 
         e.setDamage(e.getDamage() * (1D + getMountedDamageBonus(level)));
         xp(attacker, e.getDamage() * getConfig().xpPerMountedDamage);
+        if (hitCd.isReady(attacker.getUniqueId(), 200)) {
+          hitCd.mark(attacker.getUniqueId());
+          int count = Math.min(9, 4 + level);
+          fx(e.getEntity().getLocation().add(0, 0.8D, 0), FxPriority.COMBAT)
+              .burst(Particles.CRIT_MAGIC, count, 0.35D)
+              .particle(Particle.SWEEP_ATTACK, 1, 0, 0, 0, 0, 0)
+              .chord(Sound.ENTITY_HORSE_BREATHE, 0.4F, 0.9F, Sound.ITEM_TRIDENT_RETURN, 0.35F, 1.3F);
+        }
       }
     }
 
@@ -179,6 +207,14 @@ public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.
       int level = getActiveLevel(defender);
       if (level > 0) {
         e.setDamage(e.getDamage() * (1D - getMountedDamageReduction(level)));
+        Vector face = defender.getLocation().getDirection().setY(0);
+        Location front = defender.getLocation().add(0, 1, 0);
+        if (face.lengthSquared() > 1.0E-6D) {
+          front.add(face.normalize().multiply(0.6D));
+        }
+        fx(front, FxPriority.COMBAT)
+            .dustBurst(Color.fromRGB(0x8FA3B0), 4, 0.35D, 1.0F)
+            .sound(Sound.ITEM_SHIELD_BLOCK, 0.3F, 1.4F);
       }
     }
   }
@@ -223,31 +259,8 @@ public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.
     return getConfig().pigPushBase + (getLevelPercent(level) * getConfig().pigPushFactor);
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Gain mount-specific combat and control bonuses while riding.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.72;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Mounted Damage Bonus Base for the Taming Mounted Tactics adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double mountedDamageBonusBase = 0.08;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Mounted Damage Bonus Factor for the Taming Mounted Tactics adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -292,6 +305,11 @@ public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.
     double pigPushFactor = 0.12;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Mounted Damage for the Taming Mounted Tactics adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpPerMountedDamage = 1.5;
+
+    public Config() {
+      costFactor = 0.72;
+      initialCost = 4;
+    }
 
     double fallbackInputVelocityThresholdSquared() {
       double threshold = Math.max(0, fallbackInputVelocityThreshold);

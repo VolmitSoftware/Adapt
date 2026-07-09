@@ -19,68 +19,52 @@
 package art.arcane.adapt.content.adaptation.agility;
 
 import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
-import lombok.NoArgsConstructor;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.util.Vector;
 
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
-  private final Map<UUID, Double> airjumps;
-  private final Map<UUID, Vector> horizontalIntent;
-  private final Map<UUID, Long> horizontalIntentTime;
-  private final Map<UUID, Boolean> sneakState;
+  private final Map<UUID, Double> airjumps = playerState();
+  private final Map<UUID, Vector> horizontalIntent = playerState();
+  private final Map<UUID, Long> horizontalIntentTime = playerState();
+  private final Map<UUID, Boolean> sneakState = playerState();
 
   public AgilityWallJump() {
     super("agility-wall-jump");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("agility.wall_jump.description"));
-    setDisplayName(Localizer.dLocalize("agility.wall_jump.name"));
     setIcon(Material.VINE);
-    setBaseCost(getConfig().baseCost);
-    setCostFactor(getConfig().costFactor);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
     setInterval(50);
-    airjumps = new ConcurrentHashMap<>();
-    horizontalIntent = new ConcurrentHashMap<>();
-    horizontalIntentTime = new ConcurrentHashMap<>();
-    sneakState = new ConcurrentHashMap<>();
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.LADDER)
         .key("challenge_agility_wall_jump_500")
-        .title(Localizer.dLocalize("advancement.challenge_agility_wall_jump_500.title"))
-        .description(Localizer.dLocalize("advancement.challenge_agility_wall_jump_500.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.FEATHER)
         .key("challenge_agility_parkour_master")
-        .title(Localizer.dLocalize("advancement.challenge_agility_parkour_master.title"))
-        .description(Localizer.dLocalize("advancement.challenge_agility_parkour_master.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.HIDDEN)
         .build());
@@ -89,17 +73,8 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + getMaxJumps(level) + C.GRAY + " " + Localizer.dLocalize("agility.wall_jump.lore1"));
-    v.addLore(C.GREEN + "+ " + Form.pc(getJumpHeight(level), 0) + C.GRAY + " " + Localizer.dLocalize("agility.wall_jump.lore2"));
-  }
-
-  @EventHandler
-  public void on(PlayerQuitEvent e) {
-    UUID id = e.getPlayer().getUniqueId();
-    airjumps.remove(id);
-    horizontalIntent.remove(id);
-    horizontalIntentTime.remove(id);
-    sneakState.remove(id);
+    statLore(v, getMaxJumps(level), 1);
+    statLore(v, Form.pc(getJumpHeight(level), 0), 2);
   }
 
   @EventHandler
@@ -169,7 +144,12 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
     Double j = airjumps.get(id);
 
     if (j != null && j - 0.25 >= getMaxJumps(level)) {
-      p.setGravity(true);
+      if (!p.hasGravity()) {
+        p.setGravity(true);
+        fx(p.getLocation(), FxPriority.TRANSITION)
+            .burst(Particles.SMOKE, 4, 0.15D)
+            .sound(Sound.ITEM_ARMOR_EQUIP_LEATHER, 0.5F, 0.4F);
+      }
       return;
     }
 
@@ -201,10 +181,16 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
             }
           }
           p.setVelocity(launch);
-          if (areParticlesEnabled()) {
-            p.getWorld().spawnParticle(Particles.BLOCK_CRACK, p.getLocation().clone().add(0, 0.3, 0), 15, 0.1, 0.8, 0.1, 0.1, stickBlock.getBlockData());
-          }
-          getPlayer(p).getData().addStat("agility.wall-jump.air-jumps", 1);
+          int jumpCount = (int) Math.floor(j);
+          double awayX = p.getLocation().getX() - (stickBlock.getX() + 0.5D);
+          double awayZ = p.getLocation().getZ() - (stickBlock.getZ() + 0.5D);
+          int cloudCount = Math.max(2, Math.min(6, getMaxJumps(level) - jumpCount + 1));
+          float kickPitch = (float) Math.min(2.0D, 0.8D + (jumpCount * 0.12D));
+          fx(p.getLocation(), FxPriority.GAMEPLAY)
+              .trail(Particle.CLOUD, awayX, 0.2D, awayZ, 0.8D, cloudCount)
+              .particle(Particles.BLOCK_CRACK, 3, 0, 0.3D, 0, 0.15D, 0.05D, stickBlock.getBlockData())
+              .sound(Sound.ITEM_ARMOR_EQUIP_LEATHER, 0.9F, kickPitch);
+          addStat(p, "agility.wall-jump.air-jumps", 1);
           if (j >= 5 && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_agility_parkour_master")) {
             getPlayer(p).getAdvancementHandler().grant("challenge_agility_parkour_master");
           }
@@ -214,20 +200,22 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
 
       if (!jumped && !p.hasGravity()) {
         p.setGravity(true);
-        SoundPlayer spw = SoundPlayer.of(p.getWorld());
-        spw.play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 1f, 0.439f);
+        sfx(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 1F, 0.439F);
       }
       return;
     }
 
     if (stickBlock != null) {
       if (p.hasGravity()) {
-        SoundPlayer spw = SoundPlayer.of(p.getWorld());
-        spw.play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 1f, 0.89f);
-        spw.play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_CHAIN, 1f, 1.39f);
-        if (areParticlesEnabled()) {
-          p.getWorld().spawnParticle(Particles.BLOCK_CRACK, p.getLocation().clone().add(0, 0.3, 0), 15, 0.1, 0.2, 0.1, 0.1, stickBlock.getBlockData());
-        }
+        double dx = (stickBlock.getX() + 0.5D) - p.getLocation().getX();
+        double dz = (stickBlock.getZ() + 0.5D) - p.getLocation().getZ();
+        double len = Math.sqrt((dx * dx) + (dz * dz));
+        Location contact = len < 1.0E-4D
+            ? p.getLocation().clone().add(0, 0.3D, 0)
+            : p.getLocation().clone().add((dx / len) * 0.35D, 0.3D, (dz / len) * 0.35D);
+        fx(contact, FxPriority.COMBAT)
+            .particle(Particles.BLOCK_CRACK, 8, 0, 0.2D, 0, 0.25D, 0.05D, stickBlock.getBlockData())
+            .chord(Sound.ITEM_ARMOR_EQUIP_LEATHER, 1F, 0.89F, Sound.ITEM_ARMOR_EQUIP_CHAIN, 1F, 1.39F, Sound.BLOCK_LADDER_STEP, 0.4F, 0.8F);
       }
 
       applyWallStickForce(p, stickBlock);
@@ -238,6 +226,10 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
       vv = vv == null ? 0 : vv;
       vv += 0.0127;
       airjumps.put(id, vv);
+      if (M.r(0.25)) {
+        fx(p.getLocation(), FxPriority.TRAIL)
+            .particle(Particles.BLOCK_CRACK, 1, 0, 0, 0, 0.05D, 0.05D, stickBlock.getBlockData());
+      }
     }
 
     if (stickBlock == null && !p.hasGravity()) {
@@ -307,33 +299,8 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
     };
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Hold shift while mid-air against a wall to latch and jump.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Agility Wall Jump adaptation.", impact = "True enables this behavior and false disables it.")
-    boolean showParticles = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 2;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.65;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 8;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Jumps Level Bonus Divisor for the Agility Wall Jump adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double maxJumpsLevelBonusDivisor = 2;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Jump Height Base for the Agility Wall Jump adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -348,5 +315,11 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
     double inputMovementThreshold = 0.0025;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Input Window Ms for the Agility Wall Jump adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     long inputWindowMs = 450;
+
+    public Config() {
+      baseCost = 2;
+      costFactor = 0.65;
+      initialCost = 8;
+    }
   }
 }

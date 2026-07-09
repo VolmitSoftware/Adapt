@@ -19,59 +19,50 @@
 package art.arcane.adapt.content.adaptation.agility;
 
 import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class AgilityRollLanding extends SimpleAdaptation<AgilityRollLanding.Config> {
-  private final Map<UUID, Long> rollInputs = new ConcurrentHashMap<>();
-  private final Map<UUID, Long> proneUntilMillis = new ConcurrentHashMap<>();
+  private final Cooldowns rollInputs = cooldowns();
+  private final Map<UUID, Long> proneUntilMillis = playerState();
 
   public AgilityRollLanding() {
     super("agility-roll-landing");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("agility.roll_landing.description"));
-    setDisplayName(Localizer.dLocalize("agility.roll_landing.name"));
     setIcon(Material.HAY_BLOCK);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(1200);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.HAY_BLOCK)
         .key("challenge_agility_roll_100")
-        .title(Localizer.dLocalize("advancement.challenge_agility_roll_100.title"))
-        .description(Localizer.dLocalize("advancement.challenge_agility_roll_100.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.SLIME_BLOCK)
             .key("challenge_agility_roll_1000")
-            .title(Localizer.dLocalize("advancement.challenge_agility_roll_1000.title"))
-            .description(Localizer.dLocalize("advancement.challenge_agility_roll_1000.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -79,8 +70,6 @@ public class AgilityRollLanding extends SimpleAdaptation<AgilityRollLanding.Conf
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.ELYTRA)
         .key("challenge_agility_fearless")
-        .title(Localizer.dLocalize("advancement.challenge_agility_fearless.title"))
-        .description(Localizer.dLocalize("advancement.challenge_agility_fearless.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.HIDDEN)
         .build());
@@ -90,15 +79,9 @@ public class AgilityRollLanding extends SimpleAdaptation<AgilityRollLanding.Conf
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.pc(getFallReduction(level), 0) + C.GRAY + " " + Localizer.dLocalize("agility.roll_landing.lore1"));
-    v.addLore(C.GREEN + "+ " + Form.duration(getInputWindowMillis(level), 1) + C.GRAY + " " + Localizer.dLocalize("agility.roll_landing.lore2"));
-    v.addLore(C.YELLOW + "* " + Form.duration(getCooldownTicks(level) * 50D, 1) + C.GRAY + " " + Localizer.dLocalize("agility.roll_landing.lore3"));
-  }
-
-  @EventHandler(priority = EventPriority.MONITOR)
-  public void on(PlayerQuitEvent e) {
-    rollInputs.remove(e.getPlayer().getUniqueId());
-    proneUntilMillis.remove(e.getPlayer().getUniqueId());
+    statLore(v, Form.pc(getFallReduction(level), 0), 1);
+    statLore(v, Form.duration(getInputWindowMillis(level), 1), 2);
+    statLore(v, C.YELLOW, "* ", Form.duration(getCooldownTicks(level) * 50D, 1), 3);
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -128,10 +111,8 @@ public class AgilityRollLanding extends SimpleAdaptation<AgilityRollLanding.Conf
         return;
       }
 
-      long now = System.currentTimeMillis();
-      long input = rollInputs.getOrDefault(p.getUniqueId(), 0L);
       int level = getActiveLevel(p);
-      if (now - input > getInputWindowMillis(level)) {
+      if (rollInputs.remaining(p.getUniqueId(), getInputWindowMillis(level)) <= 0) {
         return;
       }
 
@@ -155,12 +136,19 @@ public class AgilityRollLanding extends SimpleAdaptation<AgilityRollLanding.Conf
 
       p.setCooldown(Material.HAY_BLOCK, getCooldownTicks(level));
       triggerRollPose(p, level);
-      SoundPlayer.of(p.getWorld()).play(p.getLocation(), Sound.ENTITY_PLAYER_SMALL_FALL, 0.8f, 0.7f);
-      SoundPlayer.of(p.getWorld()).play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 1.0f, 0.89f);
-      SoundPlayer.of(p.getWorld()).play(p.getLocation(), Sound.BLOCK_WOOL_BREAK, 0.55f, 0.9f);
-      getPlayer(p).getData().addStat("agility.roll-landing.damage-prevented", absorbed);
-      if (p.getFallDistance() >= 30 && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_agility_fearless")) {
-        getPlayer(p).getAdvancementHandler().grant("challenge_agility_fearless");
+
+      int dust = (int) Math.max(4, Math.min(12, 4 + Math.round(absorbed)));
+      fx(p.getLocation(), FxPriority.COMBAT)
+          .particle(Particles.BLOCK_CRACK, dust, 0, 0.1D, 0, 0.3D, 0.05D, p.getLocation().getBlock().getRelative(BlockFace.DOWN).getBlockData())
+          .chord(Sound.ENTITY_PLAYER_SMALL_FALL, 0.8F, 0.7F, Sound.ITEM_ARMOR_EQUIP_LEATHER, 1.0F, 0.89F, Sound.BLOCK_WOOL_BREAK, 0.55F, 0.9F);
+      addStat(p, "agility.roll-landing.damage-prevented", absorbed);
+      if (p.getFallDistance() >= 30) {
+        fx(p.getLocation(), FxPriority.COMBAT)
+            .ring(Particle.CRIT, 1.0D, 10, 0.1D)
+            .sound(Sound.BLOCK_NOTE_BLOCK_PLING, 0.4F, 1.5F);
+        if (AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_agility_fearless")) {
+          getPlayer(p).getAdvancementHandler().grant("challenge_agility_fearless");
+        }
       }
       xp(p, absorbed * getConfig().xpPerDamagePrevented);
     });
@@ -184,7 +172,11 @@ public class AgilityRollLanding extends SimpleAdaptation<AgilityRollLanding.Conf
       return;
     }
 
-    rollInputs.put(p.getUniqueId(), System.currentTimeMillis());
+    UUID id = p.getUniqueId();
+    if (rollInputs.remaining(id, 800L) <= 0) {
+      fx(p.getLocation(), FxPriority.TRANSITION).sound(Sound.BLOCK_NOTE_BLOCK_HAT, 0.15F, 1.8F);
+    }
+    rollInputs.mark(id);
   }
 
   private void triggerRollPose(Player p, int level) {
@@ -193,6 +185,12 @@ public class AgilityRollLanding extends SimpleAdaptation<AgilityRollLanding.Conf
     UUID id = p.getUniqueId();
     proneUntilMillis.put(id, until);
     p.setSwimming(true);
+
+    timeline(p)
+        .duration(Math.max(2, proneTicks))
+        .priority(FxPriority.TRAIL)
+        .frame((fx, tick, progress) -> fx.particle(Particle.CLOUD, 1, 0, 0.15D, 0, 0.05D, 0))
+        .start();
 
     J.runEntity(p, () -> {
       if (!p.isOnline() || p.isDead()) {
@@ -237,31 +235,8 @@ public class AgilityRollLanding extends SimpleAdaptation<AgilityRollLanding.Conf
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Timed sneak before landing converts part of fall damage into hunger cost.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.62;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Reduction Base for the Agility Roll Landing adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double reductionBase = 0.22;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Reduction Factor for the Agility Roll Landing adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -288,5 +263,11 @@ public class AgilityRollLanding extends SimpleAdaptation<AgilityRollLanding.Conf
     double proneTicksFactor = 5;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Damage Prevented for the Agility Roll Landing adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpPerDamagePrevented = 4.2;
+
+    public Config() {
+      baseCost = 3;
+      costFactor = 0.62;
+      initialCost = 3;
+    }
   }
 }

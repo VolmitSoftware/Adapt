@@ -18,20 +18,26 @@
 
 package art.arcane.adapt.content.adaptation.chronos;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.content.item.ChronoTimeBottle;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
+import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
 import org.bukkit.Keyed;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.TreeType;
 import org.bukkit.block.Block;
 import org.bukkit.block.BrewingStand;
@@ -62,13 +68,8 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
   public ChronosTimeInABottle() {
     super("chronos-time-bottle");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("chronos.time_in_a_bottle.description"));
-    setDisplayName(Localizer.dLocalize("chronos.time_in_a_bottle.name"));
+    setLocalizationKey("chronos.time_in_a_bottle");
     setIcon(Material.CLOCK);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(1000);
 
     registerRecipe(AdaptRecipe.shapeless()
@@ -81,15 +82,11 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.CLOCK)
         .key("challenge_chronos_bottle_1k")
-        .title(Localizer.dLocalize("advancement.challenge_chronos_bottle_1k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_chronos_bottle_1k.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.RECOVERY_COMPASS)
             .key("challenge_chronos_bottle_25k")
-            .title(Localizer.dLocalize("advancement.challenge_chronos_bottle_25k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_chronos_bottle_25k.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -125,7 +122,7 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + (getConfig().chargePerSecond + (level * getConfig().chargePerSecondPerLevel)) + " " + Localizer.dLocalize("chronos.time_in_a_bottle.lore1"));
+    v.addLore(C.GREEN + "+ " + Form.f(getConfig().chargePerSecond + (level * getConfig().chargePerSecondPerLevel), 2) + " " + Localizer.dLocalize("chronos.time_in_a_bottle.lore1"));
     v.addLore(C.YELLOW + "+ " + Math.round(getCookTicksPerStoredSecond(level)) + " " + Localizer.dLocalize("chronos.time_in_a_bottle.lore2"));
     v.addLore(C.GRAY + "* " + Localizer.dLocalize("chronos.time_in_a_bottle.lore3"));
   }
@@ -362,18 +359,73 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
     }
 
     e.setCancelled(true);
-    ChronoTimeBottle.setStoredSeconds(hand, Math.max(0, storedSeconds - result.spentSeconds()));
-    getPlayer(p).getData().addStat("chronos.time-bottle.charges-spent", 1);
+    double newStored = Math.max(0, storedSeconds - result.spentSeconds());
+    ChronoTimeBottle.setStoredSeconds(hand, newStored);
+    addStat(p, "chronos.time-bottle.charges-spent", 1);
 
+    Location burstAt = clicked.getLocation().add(0.5, 1.0, 0.5);
     if (getConfig().playClockSounds) {
-      ChronosSoundFX.playBottleUse(p, clicked.getLocation().add(0.5, 1.0, 0.5), result.effectTicks());
+      ChronosSoundFX.playBottleUse(p, burstAt, result.effectTicks());
     }
-    if (areParticlesEnabled()) {
-      p.getWorld().spawnParticle(Particle.ENCHANT, clicked.getLocation().add(0.5, 1.0, 0.5), 32, 0.35, 0.3, 0.35, 0.08);
-      p.getWorld().spawnParticle(Particle.END_ROD, clicked.getLocation().add(0.5, 1.0, 0.5), 8, 0.1, 0.2, 0.1, 0.01);
+    emitBlockUseFx(clicked, burstAt);
+    if (newStored <= 0) {
+      emitBottleEmptyFx(burstAt);
     }
 
-    xp(p, clicked.getLocation().add(0.5, 1.0, 0.5), Math.min(getConfig().maxXPPerUse, result.xpGain()));
+    xp(p, burstAt, Math.min(getConfig().maxXPPerUse, result.xpGain()));
+  }
+
+  private void emitBlockUseFx(Block clicked, Location at) {
+    if (clicked.getState() instanceof Furnace) {
+      fx(at, FxPriority.TRANSITION)
+          .particle(Particle.FLAME, 6, 0, 0.2D, 0, 0.2D, 0.01D)
+          .particle(Particles.SMOKE, 4, 0, 0.3D, 0, 0.15D, 0.02D)
+          .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.4F, 1.4F);
+      return;
+    }
+
+    if (clicked.getState() instanceof BrewingStand) {
+      fx(at, FxPriority.TRANSITION)
+          .particle(Particle.WITCH, 6, 0, 0.3D, 0, 0.2D, 0.02D)
+          .particle(Particles.ENCHANTMENT_TABLE, 8, 0, 0.3D, 0, 0.25D, 0.03D)
+          .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.4F, 1.5F);
+      return;
+    }
+
+    if (clicked.getState() instanceof Campfire) {
+      fx(at, FxPriority.TRANSITION)
+          .particle(Particle.FLAME, 8, 0, 0.2D, 0, 0.25D, 0.02D)
+          .particle(Particles.SMOKE, 3, 0, 0.4D, 0, 0.1D, 0.02D)
+          .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.4F, 1.3F);
+      return;
+    }
+
+    fx(at, FxPriority.TRANSITION)
+        .particle(Particles.VILLAGER_HAPPY, 10, 0, 0.3D, 0, 0.3D, 0.01D)
+        .particle(Particle.COMPOSTER, 6, 0, 0.3D, 0, 0.2D, 0.02D)
+        .column(Particles.END_ROD, 4, 1.0D);
+  }
+
+  private void emitBottleEmptyFx(Location at) {
+    fx(at, FxPriority.TRANSITION)
+        .burst(Particles.SMOKE, 3, 0.2D)
+        .sound(Sound.BLOCK_NOTE_BLOCK_BASS, 0.3F, 0.7F);
+  }
+
+  private void emitTreeFlourish(Location base) {
+    Location at = base.clone().add(0.5, 0, 0.5);
+    fx(at, FxPriority.TRANSITION)
+        .chord(Sound.BLOCK_AZALEA_LEAVES_PLACE, 0.7F, 0.8F, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.6F, 1.4F);
+    timeline(at)
+        .duration(6)
+        .priority(FxPriority.TRANSITION)
+        .cullRadius(24)
+        .frame((f, tick, progress) -> {
+          double height = 0.5D + (progress * 4.0D);
+          f.particle(Particles.VILLAGER_HAPPY, 2, 0, height, 0, 0.3D, 0.01D);
+          f.particle(Particles.END_ROD, 1, 0, height, 0, 0.05D, 0.02D);
+        })
+        .start();
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -412,18 +464,23 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
     }
 
     e.setCancelled(true);
-    ChronoTimeBottle.setStoredSeconds(hand, Math.max(0, storedSeconds - result.spentSeconds()));
-    getPlayer(p).getData().addStat("chronos.time-bottle.charges-spent", 1);
+    double newStored = Math.max(0, storedSeconds - result.spentSeconds());
+    ChronoTimeBottle.setStoredSeconds(hand, newStored);
+    addStat(p, "chronos.time-bottle.charges-spent", 1);
 
+    Location entityBurst = ageable.getLocation().add(0, 1.0, 0);
     if (getConfig().playClockSounds) {
-      ChronosSoundFX.playBottleUse(p, ageable.getLocation().add(0, 1.0, 0), result.effectTicks());
+      ChronosSoundFX.playBottleUse(p, entityBurst, result.effectTicks());
     }
-    if (areParticlesEnabled()) {
-      p.getWorld().spawnParticle(Particle.ENCHANT, ageable.getLocation().add(0, 1.0, 0), 24, 0.3, 0.4, 0.3, 0.05);
-      p.getWorld().spawnParticle(Particle.END_ROD, ageable.getLocation().add(0, 1.0, 0), 7, 0.1, 0.25, 0.1, 0.01);
+    fx(entityBurst, FxPriority.TRANSITION)
+        .particle(Particle.WAX_ON, 6, 0, 0.4D, 0, 0.3D, 0.02D)
+        .particle(Particle.HEART, 2, 0, 0.5D, 0, 0.2D, 0.0D)
+        .particle(Particles.ENCHANTMENT_TABLE, 8, 0, 0.4D, 0, 0.25D, 0.03D);
+    if (newStored <= 0) {
+      emitBottleEmptyFx(entityBurst);
     }
 
-    xp(p, ageable.getLocation().add(0, 1.0, 0), Math.min(getConfig().maxXPPerUse, result.xpGain()));
+    xp(p, entityBurst, Math.min(getConfig().maxXPPerUse, result.xpGain()));
   }
 
   private TimeSpendResult accelerateTarget(Block clicked, double storedSeconds, int level) {
@@ -602,7 +659,15 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
       }
 
       TreeType treeType = getTreeType(block.getType());
-      return treeType != null && block.getWorld().generateTree(block.getLocation(), treeType);
+      if (treeType == null) {
+        return false;
+      }
+
+      boolean generated = block.getWorld().generateTree(block.getLocation(), treeType);
+      if (generated) {
+        emitTreeFlourish(block.getLocation());
+      }
+      return generated;
     }
 
     if (data instanceof Ageable ageable && ageable.getAge() < ageable.getMaximumAge()) {
@@ -625,28 +690,39 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
 
       double chargePerSecond = getConfig().chargePerSecond + (level * getConfig().chargePerSecondPerLevel);
 
+      double max = getConfig().maxStoredSeconds;
+      boolean reachedFull = false;
       for (ItemStack stack : p.getInventory().getContents()) {
         if (!ChronoTimeBottle.isBindableItem(stack)) {
           continue;
         }
 
         double stored = ChronoTimeBottle.getStoredSeconds(stack);
-        double capped = Math.min(getConfig().maxStoredSeconds, stored + chargePerSecond);
+        double capped = Math.min(max, stored + chargePerSecond);
         if (capped > stored) {
           ChronoTimeBottle.setStoredSeconds(stack, capped);
+          if (stored < max && capped >= max) {
+            reachedFull = true;
+          }
+        }
+      }
+
+      if (reachedFull) {
+        Runnable glint = () -> {
+          if (!p.isOnline()) {
+            return;
+          }
+          fx(p.getLocation(), FxPriority.AMBIENT)
+              .particle(Particle.WAX_ON, 1, 0, 1.0D, 0, 0.1D, 0.0D)
+              .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.3F, 1.9F);
+        };
+        if (J.isFoliaThreading()) {
+          J.runEntity(p, glint);
+        } else {
+          glint.run();
         }
       }
     }
-  }
-
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
   }
 
   private enum GrowthProfile {
@@ -672,25 +748,10 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
     }
   }
 
-  @NoArgsConstructor
   @ConfigDescription("Carry a temporal bottle that stores time to accelerate timed blocks and baby animals.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Chronos Time In ABottle adaptation.", impact = "True enables this behavior and false disables it.")
-    boolean showParticles = true;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Play Clock Sounds for the Chronos Time In ABottle adaptation.", impact = "True enables this behavior and false disables it.")
     boolean playClockSounds = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 6;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 6;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.35;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Stored Seconds for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double maxStoredSeconds = 900;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Charge Per Second for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -817,5 +878,11 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
     double xpPerGrowthStep = 2;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max XPPer Use for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double maxXPPerUse = 55;
+
+    public Config() {
+      baseCost = 6;
+      costFactor = 0.35;
+      initialCost = 6;
+    }
   }
 }

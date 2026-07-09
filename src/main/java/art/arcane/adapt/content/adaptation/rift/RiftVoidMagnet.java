@@ -18,17 +18,19 @@
 
 package art.arcane.adapt.content.adaptation.rift;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -36,35 +38,30 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Map;
 
 public class RiftVoidMagnet extends SimpleAdaptation<RiftVoidMagnet.Config> {
+  private final Cooldowns engageThrottle = cooldowns();
+
   public RiftVoidMagnet() {
     super("rift-void-magnet");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("rift.void_magnet.description"));
-    setDisplayName(Localizer.dLocalize("rift.void_magnet.name"));
     setIcon(Material.HOPPER_MINECART);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(20);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.ENDER_PEARL)
         .key("challenge_rift_void_magnet_5k")
-        .title(Localizer.dLocalize("advancement.challenge_rift_void_magnet_5k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_rift_void_magnet_5k.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.ENDER_EYE)
             .key("challenge_rift_void_magnet_50k")
-            .title(Localizer.dLocalize("advancement.challenge_rift_void_magnet_50k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_rift_void_magnet_50k.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -75,9 +72,26 @@ public class RiftVoidMagnet extends SimpleAdaptation<RiftVoidMagnet.Config> {
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.f(getRadius(level)) + C.GRAY + " " + Localizer.dLocalize("rift.void_magnet.lore1"));
-    v.addLore(C.GREEN + "+ " + getMaxItems(level) + C.GRAY + " " + Localizer.dLocalize("rift.void_magnet.lore2"));
-    v.addLore(C.YELLOW + "* " + Form.duration(getPulseTicks(level) * 50D, 1) + C.GRAY + " " + Localizer.dLocalize("rift.void_magnet.lore3"));
+    statLore(v, Form.f(getRadius(level)), 1);
+    statLore(v, getMaxItems(level), 2);
+    statLore(v, C.YELLOW, "* ", Form.duration(getPulseTicks(level) * 50D, 1), 3);
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(PlayerToggleSneakEvent e) {
+    if (!e.isSneaking()) {
+      return;
+    }
+    Player p = e.getPlayer();
+    int level = getActiveLevel(p);
+    if (level <= 0 || !engageThrottle.isReady(p.getUniqueId(), 2500L)) {
+      return;
+    }
+
+    engageThrottle.mark(p.getUniqueId());
+    fx(p, FxPriority.TRANSITION)
+        .ring(Particles.END_ROD, getRadius(level), 24, 0.1)
+        .sound(Sound.BLOCK_BEACON_POWER_SELECT, 0.4f, 1.5f);
   }
 
   @Override
@@ -98,13 +112,10 @@ public class RiftVoidMagnet extends SimpleAdaptation<RiftVoidMagnet.Config> {
         continue;
       }
 
-      if (areParticlesEnabled()) {
-
-        p.spawnParticle(Particle.PORTAL, p.getLocation().add(0, 1, 0), 8, 0.3, 0.5, 0.3, 0.05);
-
-      }
-      SoundPlayer.of(p.getWorld()).play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 0.45f, 1.6f);
-      getPlayer(p).getData().addStat("rift.void-magnet.items-pulled", moved);
+      fx(p, FxPriority.TRAIL)
+          .particle(Particle.PORTAL, 8, 0, 1.0, 0, 0.3, 0.05)
+          .sound(Sound.BLOCK_ENDER_CHEST_OPEN, 0.45f, Math.min(1.9f, 1.4f + (moved * 0.02f)));
+      addStat(p, "rift.void-magnet.items-pulled", moved);
       xp(p, moved * getConfig().xpPerMovedItem, "rift:void-magnet:item-pull");
     }
   }
@@ -195,33 +206,10 @@ public class RiftVoidMagnet extends SimpleAdaptation<RiftVoidMagnet.Config> {
     return Math.max(2, (int) Math.round(getConfig().pulseTicksBase - (getLevelPercent(level) * getConfig().pulseTicksFactor)));
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Sneak to periodically pull nearby dropped items into your ender chest first.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Allow Ender Chest Overflow for the Rift Void Magnet adaptation.", impact = "When true, leftovers that do not fit in ender chest can spill into player inventory.")
     boolean allowEnderChestOverflow = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.72;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Radius Base for the Rift Void Magnet adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double radiusBase = 5;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Radius Factor for the Rift Void Magnet adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -236,5 +224,10 @@ public class RiftVoidMagnet extends SimpleAdaptation<RiftVoidMagnet.Config> {
     double pulseTicksFactor = 12;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Moved Item for the Rift Void Magnet adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpPerMovedItem = 0.7;
+
+    public Config() {
+      costFactor = 0.72;
+      initialCost = 4;
+    }
   }
 }

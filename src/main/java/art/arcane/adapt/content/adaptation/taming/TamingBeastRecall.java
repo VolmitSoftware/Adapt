@@ -18,20 +18,22 @@
 
 package art.arcane.adapt.content.adaptation.taming;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -47,26 +49,17 @@ public class TamingBeastRecall extends SimpleAdaptation<TamingBeastRecall.Config
   public TamingBeastRecall() {
     super("tame-beast-recall");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("taming.beast_recall.description"));
-    setDisplayName(Localizer.dLocalize("taming.beast_recall.name"));
+    setLocalizationKey("taming.beast_recall");
     setIcon(Material.LEAD);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(2200);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.LEAD)
         .key("challenge_taming_recall_100")
-        .title(Localizer.dLocalize("advancement.challenge_taming_recall_100.title"))
-        .description(Localizer.dLocalize("advancement.challenge_taming_recall_100.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.ENDER_PEARL)
             .key("challenge_taming_recall_1k")
-            .title(Localizer.dLocalize("advancement.challenge_taming_recall_1k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_taming_recall_1k.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -77,8 +70,8 @@ public class TamingBeastRecall extends SimpleAdaptation<TamingBeastRecall.Config
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.f(getSearchRadius(level)) + C.GRAY + " " + Localizer.dLocalize("taming.beast_recall.lore1"));
-    v.addLore(C.YELLOW + "* " + Form.duration(getCooldownTicks(level) * 50D, 1) + C.GRAY + " " + Localizer.dLocalize("taming.beast_recall.lore2"));
+    statLore(v, Form.f(getSearchRadius(level)), 1);
+    statLore(v, C.YELLOW, "* ", Form.duration(getCooldownTicks(level) * 50D, 1), 2);
     if (getConfig().hungerCost > 0) {
       v.addLore(C.RED + "* " + getConfig().hungerCost + C.GRAY + " " + Localizer.dLocalize("taming.beast_recall.lore_cost_hunger"));
     }
@@ -116,6 +109,7 @@ public class TamingBeastRecall extends SimpleAdaptation<TamingBeastRecall.Config
       return;
     }
 
+    Location from = tameable.getLocation().clone();
     J.teleport(tameable, safe);
     tameable.setFallDistance(0);
     p.setCooldown(Material.LEAD, getCooldownTicks(level));
@@ -124,11 +118,16 @@ public class TamingBeastRecall extends SimpleAdaptation<TamingBeastRecall.Config
     }
     e.setCancelled(true);
 
-    SoundPlayer sp = SoundPlayer.of(p.getWorld());
-    sp.play(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 0.75f, 1.45f);
-    sp.play(safe, Sound.ITEM_LEAD_BREAK, 0.6f, 1.2f);
+    fx(from, FxPriority.TRANSITION)
+        .burst(Particle.REVERSE_PORTAL, 12, 0.3D)
+        .particle(Particle.POOF, 1, 0, 0.2D, 0, 0.1D, 0.02D)
+        .chord(Sound.ENTITY_ENDERMAN_TELEPORT, 0.6F, 1.45F, Sound.ITEM_TRIDENT_RETURN, 0.4F, 1.6F);
+    fx(safe, FxPriority.TRANSITION)
+        .dome(Particle.PORTAL, 0.6D, 8)
+        .particle(Particles.VILLAGER_HAPPY, 4, 0, 0.5D, 0, 0.4D, 0)
+        .chord(Sound.ITEM_LEAD_BREAK, 0.6F, 1.2F, Sound.ENTITY_WOLF_PANT, 0.6F, 1.3F);
     xp(p, getConfig().xpOnRecall);
-    getPlayer(p).getData().addStat("taming.beast-recall.recalls", 1);
+    addStat(p, "taming.beast-recall.recalls", 1);
   }
 
   private Tameable findNearestOwnedTameable(Player p, double radius) {
@@ -192,31 +191,8 @@ public class TamingBeastRecall extends SimpleAdaptation<TamingBeastRecall.Config
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Sneak-right-click with a lead to recall your nearest tamed companion.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.72;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Radius Base for the Taming Beast Recall adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double radiusBase = 20;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Radius Factor for the Taming Beast Recall adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -231,5 +207,10 @@ public class TamingBeastRecall extends SimpleAdaptation<TamingBeastRecall.Config
     double xpOnRecall = 26;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Food points consumed per beast recall.", impact = "Higher values make each recall cost more hunger; 0 disables the cost.")
     int hungerCost = 2;
+
+    public Config() {
+      costFactor = 0.72;
+      initialCost = 4;
+    }
   }
 }

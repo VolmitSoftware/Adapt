@@ -18,17 +18,19 @@
 
 package art.arcane.adapt.content.adaptation.unarmed;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Color;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -38,23 +40,17 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.util.Vector;
 
 public class UnarmedSuckerPunch extends SimpleAdaptation<UnarmedSuckerPunch.Config> {
   public UnarmedSuckerPunch() {
     super("unarmed-sucker-punch");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("unarmed.sucker_punch.description"));
-    setDisplayName(Localizer.dLocalize("unarmed.sucker_punch.name"));
     setIcon(Material.OBSIDIAN);
-    setBaseCost(getConfig().baseCost);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(4944);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.IRON_INGOT)
         .key("challenge_unarmed_sucker_500")
-        .title(Localizer.dLocalize("advancement.challenge_unarmed_sucker_500.title"))
-        .description(Localizer.dLocalize("advancement.challenge_unarmed_sucker_500.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -62,8 +58,6 @@ public class UnarmedSuckerPunch extends SimpleAdaptation<UnarmedSuckerPunch.Conf
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.DIAMOND)
         .key("challenge_unarmed_knockout")
-        .title(Localizer.dLocalize("advancement.challenge_unarmed_knockout.title"))
-        .description(Localizer.dLocalize("advancement.challenge_unarmed_knockout.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -75,7 +69,7 @@ public class UnarmedSuckerPunch extends SimpleAdaptation<UnarmedSuckerPunch.Conf
   public void addStats(int level, Element v) {
     double f = getLevelPercent(level);
     double d = getDamage(f);
-    v.addLore(C.GREEN + "+ " + Form.pc(d, 0) + C.GRAY + " " + Localizer.dLocalize("unarmed.sucker_punch.lore1"));
+    statLore(v, Form.pc(d, 0), 1);
     v.addLore(C.GRAY + Localizer.dLocalize("unarmed.sucker_punch.lore2"));
   }
 
@@ -109,16 +103,22 @@ public class UnarmedSuckerPunch extends SimpleAdaptation<UnarmedSuckerPunch.Conf
     }
 
     e.setDamage(e.getDamage() * getDamage(factor));
-    SoundPlayer spw = SoundPlayer.of(e.getEntity().getWorld());
-    spw.play(e.getEntity().getLocation(), Sound.ENTITY_PLAYER_ATTACK_STRONG, 1f, 1.8f);
-    spw.play(e.getEntity().getLocation(), Sound.BLOCK_BASALT_BREAK, 1f, 0.6f);
+    Location impact = e.getEntity().getLocation().add(0, 1.0D, 0);
+    Vector look = p.getLocation().getDirection();
+    fx(impact, FxPriority.COMBAT)
+        .particle(Particle.CRIT, 12, 0, 0, 0, 0.2D, 0.1D)
+        .particle(Particle.SWEEP_ATTACK, 1, 0, 0, 0, 0, 0)
+        .trail(Particle.CRIT, look.getX(), look.getY(), look.getZ(), 1.2D, 6)
+        .chord(Sound.ENTITY_PLAYER_ATTACK_STRONG, 1.0F, 1.8F, Sound.ENTITY_PLAYER_ATTACK_CRIT, 0.7F, 1.4F, Sound.BLOCK_BASALT_BREAK, 0.9F, 0.55F);
     xp(p, 6.221 * e.getDamage(), "sucker-punch");
-    getPlayer(p).getData().addStat("unarmed.sucker-punch.sucker-punches", 1);
+    addStat(p, "unarmed.sucker-punch.sucker-punches", 1);
     if (e.getDamage() > 5) {
       xp(p, 0.42 * e.getDamage(), "bonus-damage");
-      if (areParticlesEnabled()) {
-        e.getEntity().getWorld().spawnParticle(Particle.FLASH, e.getEntity().getLocation(), 1);
-      }
+      timeline(e.getEntity().getLocation().add(0, 1.0D, 0))
+          .duration(4)
+          .priority(FxPriority.COMBAT)
+          .frame((fx, tick, progress) -> fx.ring(Particle.ELECTRIC_SPARK, 1.2D - (0.9D * progress), 10, 0))
+          .start();
     }
   }
 
@@ -133,9 +133,18 @@ public class UnarmedSuckerPunch extends SimpleAdaptation<UnarmedSuckerPunch.Conf
         && p.isSprinting()
         && !isTool(p.getInventory().getItemInMainHand())
         && !isTool(p.getInventory().getItemInOffHand())) {
-      // One-punch kill: entity was at full health before the killing blow
       if (victim.getMaxHealth() <= dmg.getFinalDamage()) {
-        getPlayer(p).getData().addStat("unarmed.sucker-punch.one-punch-kills", 1);
+        addStat(p, "unarmed.sucker-punch.one-punch-kills", 1);
+        Location ko = victim.getLocation().add(0, 1.0D, 0);
+        fx(ko, FxPriority.COMBAT)
+            .particle(Particle.FLASH, 1, 0, 0, 0, 0, 0)
+            .burst(Particle.CRIT, 24, 0.4D)
+            .chord(Sound.ITEM_TOTEM_USE, 0.5F, 1.9F, Sound.ENTITY_GENERIC_EXPLODE, 0.4F, 1.6F, Sound.BLOCK_ANVIL_LAND, 0.35F, 1.8F);
+        timeline(victim.getLocation())
+            .duration(6)
+            .priority(FxPriority.TRANSITION)
+            .frame((fx, tick, progress) -> fx.dustRing(Color.WHITE, 2.5D * progress, 24, 1.1F))
+            .start();
       }
     }
   }
@@ -145,34 +154,17 @@ public class UnarmedSuckerPunch extends SimpleAdaptation<UnarmedSuckerPunch.Conf
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Sprint punches deal extra damage based on your speed.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Unarmed Sucker Punch adaptation.", impact = "True enables this behavior and false disables it.")
-    boolean showParticles = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 2;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.225;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Base Damage for the Unarmed Sucker Punch adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double baseDamage = 0.2;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Damage Factor for the Unarmed Sucker Punch adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double damageFactor = 0.55;
+
+    public Config() {
+      baseCost = 2;
+      costFactor = 0.225;
+      initialCost = 4;
+    }
   }
 }

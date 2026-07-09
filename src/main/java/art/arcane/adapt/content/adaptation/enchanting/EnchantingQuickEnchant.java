@@ -19,17 +19,18 @@
 package art.arcane.adapt.content.adaptation.enchanting;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.collection.KMap;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.enchantments.Enchantment;
@@ -48,26 +49,16 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
   public EnchantingQuickEnchant() {
     super("enchanting-quick-enchant");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("enchanting.quick_enchant.description"));
-    setDisplayName(Localizer.dLocalize("enchanting.quick_enchant.name"));
     setIcon(Material.WRITABLE_BOOK);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
     setInterval(15100);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.ENCHANTED_BOOK)
         .key("challenge_enchanting_quick_100")
-        .title(Localizer.dLocalize("advancement.challenge_enchanting_quick_100.title"))
-        .description(Localizer.dLocalize("advancement.challenge_enchanting_quick_100.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.BOOKSHELF)
             .key("challenge_enchanting_quick_1k")
-            .title(Localizer.dLocalize("advancement.challenge_enchanting_quick_1k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_enchanting_quick_1k.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -82,7 +73,7 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + getTotalLevelCount(level) + C.GRAY + " " + Localizer.dLocalize("enchanting.quick_enchant.lore1"));
+    statLore(v, getTotalLevelCount(level), 1);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
@@ -92,6 +83,10 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
     }
 
     if (!(e.getWhoClicked() instanceof Player p)) {
+      return;
+    }
+
+    if (e.getAction() != InventoryAction.SWAP_WITH_CURSOR || e.getClick() != ClickType.LEFT) {
       return;
     }
 
@@ -140,10 +135,12 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
         bookEnchants.remove(i);
       }
 
-      SoundPlayer sp = SoundPlayer.of(p);
       if (power > getTotalLevelCount(level)) {
         Adapt.actionbar(p, C.RED + Localizer.dLocalize("enchanting.quick_enchant.lore2") + getTotalLevelCount(level) + " " + Localizer.dLocalize("enchanting.quick_enchant.lore3"));
-        sp.play(p.getLocation(), Sound.BLOCK_CONDUIT_DEACTIVATE, 0.5f, 1.7f);
+        fx(p.getEyeLocation(), FxPriority.TRANSITION)
+            .burst(Particles.SMOKE, 6, 0.2D)
+            .particle(Particles.CRIT_MAGIC, 2, 0, 0.2D, 0, 0.15D, 0.02D)
+            .chord(Sound.BLOCK_CONDUIT_DEACTIVATE, 0.8F, 1.7F, Sound.BLOCK_NOTE_BLOCK_BASS, 0.5F, 0.6F);
         return;
       }
 
@@ -153,8 +150,6 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
         if (im instanceof EnchantmentStorageMeta sm) {
           sm.getStoredEnchants().keySet().forEach(sm::removeStoredEnchant);
           newEnchants.forEach((ec, l) -> sm.addStoredEnchant(ec, l, true));
-          Adapt.messagePlayer(p, "---");
-          sm.getStoredEnchants().forEach((k, v) -> Adapt.messagePlayer(p, k.getKey().getKey() + " " + v));
         } else {
           im.getEnchants().keySet().forEach(im::removeEnchant);
           newEnchants.forEach((ec, l) -> im.addEnchant(ec, l, true));
@@ -164,13 +159,30 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
         item.setItemMeta(im);
         e.setCurrentItem(item);
         e.setCancelled(true);
-        getPlayer(p).getData().addStat("enchanting.quick-enchant.books-applied", 1);
-        sp.play(p.getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 1f, 1.7f);
-        sp.play(p.getLocation(), Sound.BLOCK_DEEPSLATE_TILES_BREAK, 0.5f, 0.7f);
+        addStat(p, "enchanting.quick-enchant.books-applied", 1);
+        actionbarSummary(p, addEnchants);
+        timeline(p)
+            .duration(8)
+            .priority(FxPriority.TRANSITION)
+            .cullRadius(16.0D)
+            .frame((f, tick, progress) -> {
+              f.helix(Particles.ENCHANTMENT_TABLE, (0.8D * (1.0D - progress)) + 0.1D, 1.4D, 3, progress * Math.PI * 2.0D);
+              if (tick == 0) {
+                f.sound(Sound.BLOCK_ENCHANTMENT_TABLE_USE, 1.0F, 1.7F);
+              }
+              if ((tick & 1) == 0) {
+                f.sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.6F, (float) (1.2D + (0.4D * progress)));
+              }
+            })
+            .start();
         xp(p, 320 * addEnchants.values().stream().mapToInt((i) -> i).sum(), "quick-apply");
 
         if (bookEnchants.isEmpty()) {
           e.setCursor(null);
+          fx(p.getEyeLocation(), FxPriority.TRANSITION)
+              .particle(Particles.CRIT_MAGIC, 4, 0, 0, 0, 0.2D, 0.05D)
+              .particle(Particles.END_ROD, 2, 0, 0.3D, 0, 0.1D, 0.02D)
+              .sound(Sound.ITEM_BOOK_PAGE_TURN, 0.8F, 1.4F);
         } else if (!eb.getStoredEnchants().equals(bookEnchants)) {
           eb.getStoredEnchants().keySet().forEach(eb::removeStoredEnchant);
           bookEnchants.forEach((ec, l) -> eb.addStoredEnchant(ec, l, true));
@@ -181,39 +193,38 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
     }
   }
 
+  private void actionbarSummary(Player p, KMap<Enchantment, Integer> added) {
+    if (added.isEmpty()) {
+      return;
+    }
+
+    StringBuilder summary = new StringBuilder();
+    added.forEach((ench, lvl) -> {
+      if (summary.length() > 0) {
+        summary.append(C.GRAY).append(", ");
+      }
+      summary.append(C.LIGHT_PURPLE).append("+ ").append(ench.getKey().getKey()).append(' ').append(lvl);
+    });
+    Adapt.actionbar(p, summary.toString());
+  }
+
   @Override
   public void onTick() {
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Enchant items by clicking enchant books directly on them.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 6;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 7;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 8;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.9;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Power Bonus Limit for the Enchanting Quick Enchant adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     int maxPowerBonusLimit = 4;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Power Bonus1Per Levels for the Enchanting Quick Enchant adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     int maxPowerBonus1PerLevels = 3;
+
+    public Config() {
+      baseCost = 6;
+      costFactor = 0.9;
+      maxLevel = 7;
+      initialCost = 8;
+    }
   }
 }

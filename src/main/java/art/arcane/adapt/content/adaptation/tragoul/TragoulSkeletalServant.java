@@ -19,23 +19,28 @@
 package art.arcane.adapt.content.adaptation.tragoul;
 
 import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
+import art.arcane.adapt.api.minion.MinionBurden;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.version.IAttribute;
 import art.arcane.adapt.api.version.Version;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Attributes;
+import art.arcane.volmlib.util.entity.StackExclusion;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
+import org.bukkit.Color;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
@@ -54,6 +59,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EntityEquipment;
@@ -103,13 +109,15 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
   };
   private static final Material[] BOW_POOL = {Material.BOW};
 
+  private static final Color SERVANT_BONE = Color.fromRGB(230, 225, 205);
   private final Map<UUID, CopyOnWriteArrayList<Skeleton>> servants = new ConcurrentHashMap<>();
-  private final Map<UUID, Long> cooldowns = new ConcurrentHashMap<>();
+  private final Cooldowns cooldowns = cooldowns();
+  private final MinionBurden burden = MinionBurden.get();
 
   public static boolean isServant(org.bukkit.entity.Entity entity) {
     return entity.getPersistentDataContainer().has(SERVANT_KEY, PersistentDataType.STRING);
   }
-  private final Map<UUID, PlayerThreat> threats = new ConcurrentHashMap<>();
+  private final Map<UUID, Threat> threats = new ConcurrentHashMap<>();
   private final Map<UUID, Long> servantThornsCooldowns = new ConcurrentHashMap<>();
   private final Map<UUID, Long> servantCurseCooldowns = new ConcurrentHashMap<>();
   private volatile PerkRefs perkRefs;
@@ -117,26 +125,16 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
   public TragoulSkeletalServant() {
     super("tragoul-skeletal-servant");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("tragoul.skeletal_servant.description"));
-    setDisplayName(Localizer.dLocalize("tragoul.skeletal_servant.name"));
     setIcon(Material.SKELETON_SKULL);
     setInterval(25000);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.BONE)
         .key("challenge_tragoul_servant_50")
-        .title(Localizer.dLocalize("advancement.challenge_tragoul_servant_50.title"))
-        .description(Localizer.dLocalize("advancement.challenge_tragoul_servant_50.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.SKELETON_SKULL)
             .key("challenge_tragoul_servant_500")
-            .title(Localizer.dLocalize("advancement.challenge_tragoul_servant_500.title"))
-            .description(Localizer.dLocalize("advancement.challenge_tragoul_servant_500.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -153,6 +151,9 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
     v.addLore(C.YELLOW + "* " + getBoneCost(level) + C.GRAY + " " + Localizer.dLocalize("tragoul.skeletal_servant.lore3"));
     v.addLore(C.YELLOW + "* " + Form.duration((double) getCooldownMillis(level), 1) + C.GRAY + " " + Localizer.dLocalize("tragoul.skeletal_servant.lore4"));
     v.addLore(C.GRAY + Localizer.dLocalize("tragoul.skeletal_servant.lore6"));
+    if (getConfig().healthCostEnabled && getConfig().healthCostPerMinion > 0) {
+      statLore(v, C.RED, "* ", Form.f(getConfig().healthCostPerMinion, 1), 7);
+    }
   }
 
   @EventHandler
@@ -179,10 +180,8 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
 
       UUID id = p.getUniqueId();
       long now = System.currentTimeMillis();
-      SoundPlayer sp = SoundPlayer.of(p);
-      Long until = cooldowns.get(id);
-      if (until != null && until > now) {
-        sp.play(p, Sound.BLOCK_CONDUIT_DEACTIVATE, 0.8f, 0.8f);
+      if (!cooldowns.isReady(id, getCooldownMillis(level))) {
+        sfx(p.getLocation(), Sound.BLOCK_CONDUIT_DEACTIVATE, 0.8F, 0.8F);
         return;
       }
 
@@ -190,14 +189,14 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
       list.removeIf(servant -> !servant.isValid() || servant.isDead());
       int cap = getServantCap(level);
       if (list.size() >= cap && !getConfig().replaceOldestAtCap) {
-        sp.play(p, Sound.BLOCK_CONDUIT_DEACTIVATE, 0.8f, 1.2f);
+        sfx(p.getLocation(), Sound.BLOCK_CONDUIT_DEACTIVATE, 0.8F, 1.2F);
         return;
       }
 
       int boneCost = getBoneCost(level);
       if (p.getGameMode() != GameMode.CREATIVE) {
         if (!p.getInventory().containsAtLeast(new ItemStack(Material.BONE), boneCost)) {
-          sp.play(p, Sound.BLOCK_CONDUIT_DEACTIVATE, 0.8f, 0.6f);
+          sfx(p.getLocation(), Sound.BLOCK_CONDUIT_DEACTIVATE, 0.8F, 0.6F);
           return;
         }
         p.getInventory().removeItem(new ItemStack(Material.BONE, boneCost));
@@ -208,10 +207,11 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
         J.runEntity(oldest, () -> despawnServant(oldest));
       }
 
-      cooldowns.put(id, now + getCooldownMillis(level));
+      cooldowns.mark(id);
       int durationTicks = getDurationTicks(level);
       ThreadLocalRandom random = ThreadLocalRandom.current();
       Skeleton servant = p.getWorld().spawn(p.getLocation(), Skeleton.class, s -> {
+        StackExclusion.exclude(s);
         s.getPersistentDataContainer().set(SERVANT_KEY, PersistentDataType.STRING, id.toString());
         s.setPersistent(false);
         s.setRemoveWhenFarAway(false);
@@ -220,18 +220,17 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
         equipServant(s, level, random);
       });
       list.add(servant);
-      Player priorityTarget = resolvePriorityTarget(id, p, now);
+      burden.configure(getConfig().healthCostEnabled ? getConfig().healthCostPerMinion : 0, getConfig().minimumOwnerMaxHealth);
+      burden.register(p, servant);
+      LivingEntity priorityTarget = resolvePriorityTarget(id, p, now);
       if (priorityTarget != null) {
         servant.setTarget(priorityTarget);
       }
       scheduleServantPulse(servant, id, now + (durationTicks * 50L));
       J.runEntity(servant, () -> despawnServant(servant), durationTicks);
 
-      if (areParticlesEnabled()) {
-        p.getWorld().spawnParticle(Particle.SOUL, servant.getLocation().add(0, 1, 0), 16, 0.3, 0.6, 0.3, 0.02);
-      }
-      sp.play(servant.getLocation(), Sound.ENTITY_SKELETON_AMBIENT, 0.9f, 0.7f);
-      getPlayer(p).getData().addStat("tragoul.skeletal-servant.servants-summoned", 1);
+      playSummonRitual(servant.getLocation());
+      addStat(p, "tragoul.skeletal-servant.servants-summoned", 1);
       xp(p, getConfig().xpPerSummon);
     });
   }
@@ -313,6 +312,8 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
     if (servant != null && servant != victim) {
       handleServantDealtDamage(e, servant, victim);
     }
+
+    handleOwnerAttack(e, victim);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -370,8 +371,15 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
 
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(PlayerQuitEvent e) {
-    UUID id = e.getPlayer().getUniqueId();
-    cooldowns.remove(id);
+    dismissPack(e.getPlayer().getUniqueId());
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(PlayerDeathEvent e) {
+    dismissPack(e.getEntity().getUniqueId());
+  }
+
+  private void dismissPack(UUID id) {
     threats.remove(id);
     servantCurseCooldowns.remove(id);
     CopyOnWriteArrayList<Skeleton> list = servants.remove(id);
@@ -390,14 +398,31 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
   }
 
   private void handleOwnerDamaged(EntityDamageByEntityEvent e, Player owner) {
-    Player attacker = null;
-    if (e.getDamager() instanceof Player player) {
-      attacker = player;
-    } else if (e.getDamager() instanceof Projectile projectile && projectile.getShooter() instanceof Player shooter) {
-      attacker = shooter;
+    LivingEntity attacker = resolveLivingDamager(e.getDamager());
+    if (attacker == null || attacker == owner) {
+      return;
     }
 
-    if (attacker == null || attacker == owner) {
+    assignPackTarget(owner, attacker);
+  }
+
+  private void handleOwnerAttack(EntityDamageByEntityEvent e, LivingEntity victim) {
+    Player owner = null;
+    if (e.getDamager() instanceof Player player) {
+      owner = player;
+    } else if (e.getDamager() instanceof Projectile projectile && projectile.getShooter() instanceof Player shooter) {
+      owner = shooter;
+    }
+
+    if (owner == null || owner == victim) {
+      return;
+    }
+
+    assignPackTarget(owner, victim);
+  }
+
+  private void assignPackTarget(Player owner, LivingEntity target) {
+    if (target.getPersistentDataContainer().has(SERVANT_KEY, PersistentDataType.STRING)) {
       return;
     }
 
@@ -405,24 +430,31 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
       return;
     }
 
+    if (!canDamageTarget(owner, target)) {
+      return;
+    }
+
     UUID ownerId = owner.getUniqueId();
-    threats.put(ownerId, new PlayerThreat(attacker.getUniqueId(), System.currentTimeMillis()));
+    Threat previous = threats.get(ownerId);
+    boolean newTarget = previous == null || !previous.targetId().equals(target.getUniqueId());
+    threats.put(ownerId, new Threat(target.getUniqueId(), System.currentTimeMillis()));
     CopyOnWriteArrayList<Skeleton> list = servants.get(ownerId);
     if (list == null || list.isEmpty()) {
       return;
     }
 
-    if (!canDamageTarget(owner, attacker)) {
-      return;
-    }
-
-    Player target = attacker;
     for (Skeleton servant : list) {
       J.runEntity(servant, () -> {
-        if (servant.isValid() && !servant.isDead() && target.isOnline() && !target.isDead() && servant.getWorld() == target.getWorld()) {
+        if (servant.isValid() && !servant.isDead() && target.isValid() && !target.isDead() && servant.getWorld() == target.getWorld()) {
           servant.setTarget(target);
+          if (newTarget) {
+            fx(servant.getLocation().add(0, 1.0, 0), FxPriority.COMBAT).particle(Particle.SCULK_SOUL, 3, 0, 0, 0, 0.2, 0.02);
+          }
         }
       });
+    }
+    if (newTarget) {
+      fx(owner.getLocation(), FxPriority.COMBAT).sound(Sound.ENTITY_SKELETON_AMBIENT, 0.7F, 0.5F);
     }
   }
 
@@ -447,16 +479,14 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
     }
 
     long now = System.currentTimeMillis();
-    if (attacker instanceof Player player) {
-      PlayerThreat threat = threats.get(ownerId);
-      if (threat != null && threat.attackerId().equals(player.getUniqueId()) && now - threat.stamp() < getConfig().playerThreatWindowMillis) {
-        threats.put(ownerId, new PlayerThreat(player.getUniqueId(), now));
-      }
+    Threat threat = threats.get(ownerId);
+    if (threat != null && threat.targetId().equals(attacker.getUniqueId()) && now - threat.stamp() < getConfig().playerThreatWindowMillis) {
+      threats.put(ownerId, new Threat(attacker.getUniqueId(), now));
     }
 
     PerkRefs refs = perks();
     applyThorns(refs.thorns(), owner, servant, attacker, now);
-    applyFrailty(refs.frailty(), owner, attacker, now);
+    applyFrailty(refs.frailty(), servant, owner, attacker, now);
   }
 
   private void handleServantDealtDamage(EntityDamageByEntityEvent e, Skeleton servant, LivingEntity victim) {
@@ -472,7 +502,7 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
 
     PerkRefs refs = perks();
     applySoulSiphon(refs.siphon(), owner, servant, victim, e);
-    applyPlagueMark(refs.plague(), owner, victim);
+    applyPlagueMark(refs.plague(), servant, owner, victim);
   }
 
   private void applyThorns(TragoulThorns thorns, Player owner, Skeleton servant, LivingEntity attacker, long now) {
@@ -491,6 +521,7 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
     }
 
     servantThornsCooldowns.put(servant.getUniqueId(), now + 1500L);
+    fx(servant.getLocation().add(0, 1.0, 0), FxPriority.TRAIL).particle(Particle.CRIT, 2, 0, 0, 0, 0.15, 0.02);
     double reflected = thorns.getConfig().damageMultiplierPerLevel * level;
     J.runEntity(attacker, () -> {
       if (attacker.isValid() && !attacker.isDead()) {
@@ -499,7 +530,7 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
     });
   }
 
-  private void applyFrailty(TragoulCurseOfFrailty frailty, Player owner, LivingEntity attacker, long now) {
+  private void applyFrailty(TragoulCurseOfFrailty frailty, Skeleton servant, Player owner, LivingEntity attacker, long now) {
     if (frailty == null) {
       return;
     }
@@ -516,6 +547,7 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
 
     TragoulCurseOfFrailty.Config curseConfig = frailty.getConfig();
     servantCurseCooldowns.put(attacker.getUniqueId(), now + curseConfig.perAttackerCooldownMillis);
+    fx(servant.getLocation().add(0, 1.0, 0), FxPriority.TRAIL).particle(Particle.WARPED_SPORE, 2, 0, 0, 0, 0.15, 0.02);
     double levelPercent = frailty.getLevelPercent(level);
     int duration = Math.max(40, (int) Math.round(curseConfig.curseDurationTicksBase + (levelPercent * curseConfig.curseDurationTicksFactor)));
     int weaknessAmplifier = levelPercent >= 0.8 ? 1 : 0;
@@ -565,12 +597,10 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
     }
 
     servant.setHealth(newHealth);
-    if (areParticlesEnabled()) {
-      servant.getWorld().spawnParticle(Particle.SOUL, servant.getLocation().add(0, 1.2, 0), 4, 0.2, 0.3, 0.2, 0.01);
-    }
+    fx(servant.getLocation().add(0, 1.2, 0), FxPriority.TRAIL).particle(Particle.SOUL, 4, 0, 0, 0, 0.2, 0.02);
   }
 
-  private void applyPlagueMark(TragoulPlagueBearer plague, Player owner, LivingEntity victim) {
+  private void applyPlagueMark(TragoulPlagueBearer plague, Skeleton servant, Player owner, LivingEntity victim) {
     if (plague == null || !(victim instanceof Monster monster)) {
       return;
     }
@@ -589,6 +619,7 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
     if (!pdc.has(PLAGUE_GENERATION_KEY, PersistentDataType.INTEGER)) {
       pdc.set(PLAGUE_GENERATION_KEY, PersistentDataType.INTEGER, 0);
     }
+    fx(servant.getLocation().add(0, 1.0, 0), FxPriority.TRAIL).particle(Particle.SPORE_BLOSSOM_AIR, 2, 0, 0, 0, 0.15, 0.02);
   }
 
   private void scheduleServantPulse(Skeleton servant, UUID ownerId, long expiresAt) {
@@ -604,14 +635,14 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
   }
 
   private void retarget(Skeleton servant, UUID ownerId) {
-    PlayerThreat threat = threats.get(ownerId);
+    Threat threat = threats.get(ownerId);
     if (threat != null && System.currentTimeMillis() - threat.stamp() < getConfig().playerThreatWindowMillis) {
-      Player attacker = Bukkit.getPlayer(threat.attackerId());
-      if (attacker != null && attacker.isOnline() && !attacker.isDead() && attacker.getWorld() == servant.getWorld()) {
+      Entity candidate = Bukkit.getEntity(threat.targetId());
+      if (candidate instanceof LivingEntity target && target.isValid() && !target.isDead() && target.getWorld() == servant.getWorld()) {
         Player owner = Bukkit.getPlayer(ownerId);
-        if (owner != null && owner.isOnline() && canDamageTarget(owner, attacker)) {
-          if (servant.getTarget() != attacker) {
-            servant.setTarget(attacker);
+        if (owner != null && owner.isOnline() && canDamageTarget(owner, target)) {
+          if (servant.getTarget() != target) {
+            servant.setTarget(target);
           }
           return;
         }
@@ -655,12 +686,34 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
 
     servantThornsCooldowns.remove(servant.getUniqueId());
     if (servant.isValid() && !servant.isDead()) {
-      if (areParticlesEnabled()) {
-        servant.getWorld().spawnParticle(Particle.SOUL, servant.getLocation().add(0, 1, 0), 12, 0.3, 0.6, 0.3, 0.02);
-      }
-      SoundPlayer.of(servant.getWorld()).play(servant.getLocation(), Sound.ENTITY_SKELETON_DEATH, 0.7f, 1.3f);
+      fx(servant.getLocation().add(0, 1.0, 0), FxPriority.TRANSITION)
+          .particle(Particle.SOUL, 4, 0, 0.4, 0, 0.3, 0.03)
+          .dustBurst(SERVANT_BONE, 4, 0.3, 1.0F)
+          .chord(Sound.ENTITY_SKELETON_DEATH, 0.7F, 1.3F, Sound.BLOCK_BONE_BLOCK_BREAK, 0.4F, 0.9F);
       servant.remove();
     }
+  }
+
+  private void playSummonRitual(Location spawn) {
+    timeline(spawn)
+        .duration(12)
+        .priority(FxPriority.GAMEPLAY)
+        .cullRadius(32)
+        .frame((fx, tick, progress) -> {
+          if (tick < 4) {
+            fx.dustRing(SERVANT_BONE, 1.2 - (0.2 * tick), 12, 0.1F);
+          } else {
+            double rise = (tick - 4) * 0.15;
+            fx.particle(Particle.SOUL, 3, 0, 0.5 + rise, 0, 0.25, 0.03);
+            fx.particle(Particle.SCULK_SOUL, 2, 0, 0.5 + rise, 0, 0.2, 0.02);
+          }
+          if (tick == 0) {
+            fx.sound(Sound.BLOCK_BONE_BLOCK_PLACE, 0.6F, 0.7F);
+          } else if (tick == 11) {
+            fx.sound(Sound.ENTITY_SKELETON_AMBIENT, 0.9F, 0.7F);
+          }
+        })
+        .start();
   }
 
   private void removeServantRef(UUID ownerId, Skeleton servant) {
@@ -668,33 +721,35 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
     if (list != null) {
       list.remove(servant);
     }
+
+    burden.unregister(ownerId, servant);
   }
 
-  private Player resolvePriorityTarget(UUID ownerId, Player owner, long now) {
-    PlayerThreat threat = threats.get(ownerId);
+  private LivingEntity resolvePriorityTarget(UUID ownerId, Player owner, long now) {
+    Threat threat = threats.get(ownerId);
     if (threat == null || now - threat.stamp() >= getConfig().playerThreatWindowMillis) {
       return null;
     }
 
-    Player attacker = Bukkit.getPlayer(threat.attackerId());
-    if (attacker == null || !attacker.isOnline() || attacker.isDead()) {
+    Entity candidate = Bukkit.getEntity(threat.targetId());
+    if (!(candidate instanceof LivingEntity target) || !target.isValid() || target.isDead()) {
       return null;
     }
 
-    if (attacker.getWorld() != owner.getWorld()) {
+    if (target.getWorld() != owner.getWorld()) {
       return null;
     }
 
-    if (!canDamageTarget(owner, attacker)) {
+    if (!canDamageTarget(owner, target)) {
       return null;
     }
 
-    return attacker;
+    return target;
   }
 
-  private boolean isPriorityTarget(UUID ownerId, Player candidate) {
-    PlayerThreat threat = threats.get(ownerId);
-    if (threat == null || !threat.attackerId().equals(candidate.getUniqueId())) {
+  private boolean isPriorityTarget(UUID ownerId, LivingEntity candidate) {
+    Threat threat = threats.get(ownerId);
+    if (threat == null || !threat.targetId().equals(candidate.getUniqueId())) {
       return false;
     }
 
@@ -847,11 +902,6 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
   }
 
   @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
   public void onTick() {
     long now = System.currentTimeMillis();
     servantCurseCooldowns.entrySet().removeIf(entry -> entry.getValue() <= now);
@@ -863,12 +913,7 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
     }
   }
 
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  private record PlayerThreat(UUID attackerId, long stamp) {
+  private record Threat(UUID targetId, long stamp) {
   }
 
   private record PerkRefs(TragoulThorns thorns, TragoulSoulSiphon siphon,
@@ -877,21 +922,8 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
                           TragoulPlagueBearer plague) {
   }
 
-  @NoArgsConstructor
-  @ConfigDescription("Sneak right-click with bones to raise a pack of temporary skeletal servants that gear up with your level, inherit your Tragoul perks, and hunt whoever attacks you.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.75;
+  @ConfigDescription("Sneak right-click with bones to raise a pack of temporary skeletal servants that gear up with your level, inherit your Tragoul perks, and hunt whatever you strike or whoever strikes you.")
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Bones consumed per summon before level scaling.", impact = "Higher values make summoning more expensive at low levels.")
     double boneCostBase = 8;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Bone cost reduction granted at max level.", impact = "Higher values make summoning cheaper as the player levels.")
@@ -908,7 +940,7 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
     double servantCapPerLevel = 1.0;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Replaces the oldest living servant when summoning at the cap.", impact = "False quietly refuses the summon instead of recycling the oldest servant.")
     boolean replaceOldestAtCap = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Window in milliseconds during which a player who attacked the owner stays the priority target.", impact = "Higher values keep servants hunting an aggressor for longer after the last hit.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Window in milliseconds during which the entity the owner last hit or was hit by stays the pack's priority target.", impact = "Higher values keep servants hunting the marked target for longer after the last combat event.")
     long playerThreatWindowMillis = 5000;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Chance for each armor piece to be equipped on a freshly summoned servant.", impact = "Higher values produce more heavily armored servants.")
     double gearChancePerPiece = 0.55;
@@ -928,5 +960,17 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
     double targetSearchRadius = 12;
     @art.arcane.adapt.util.config.ConfigDoc(value = "XP granted per servant summon.", impact = "Higher values accelerate skill progression from this adaptation.")
     double xpPerSummon = 30;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables the owner max health upkeep while servants are alive.", impact = "False lets the necromancer field servants with no health cost.")
+    boolean healthCostEnabled = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Max health removed from the owner per living servant.", impact = "Higher values make maintaining a large pack of servants more punishing.")
+    double healthCostPerMinion = 2.0;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Lowest max health the servant upkeep can reduce the owner to.", impact = "Higher values guarantee the owner keeps more health while servants are active.")
+    double minimumOwnerMaxHealth = 4.0;
+
+    public Config() {
+      baseCost = 5;
+      costFactor = 0.75;
+      initialCost = 5;
+    }
   }
 }

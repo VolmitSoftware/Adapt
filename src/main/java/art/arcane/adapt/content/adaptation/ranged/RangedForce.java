@@ -18,18 +18,19 @@
 
 package art.arcane.adapt.content.adaptation.ranged;
 
-import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.api.fx.FxPresets;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -37,20 +38,16 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.util.Vector;
 
 public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
 
   public RangedForce() {
     super("ranged-force");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("ranged.force_shot.description"));
-    setDisplayName(Localizer.dLocalize("ranged.force_shot.name"));
+    setLocalizationKey("ranged.force_shot");
     setIcon(Material.TIPPED_ARROW);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
     setInterval(4900);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.SPECTRAL_ARROW)
         .key("challenge_force_30")
@@ -62,8 +59,6 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.SPECTRAL_ARROW)
         .key("challenge_ranged_force_500")
-        .title(Localizer.dLocalize("advancement.challenge_ranged_force_500.title"))
-        .description(Localizer.dLocalize("advancement.challenge_ranged_force_500.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -72,7 +67,7 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.pc(getSpeed(getLevelPercent(level)), 0) + C.GRAY + " " + Localizer.dLocalize("ranged.force_shot.lore1"));
+    statLore(v, Form.pc(getSpeed(getLevelPercent(level)), 0), 1);
   }
 
   private double getSpeed(double factor) {
@@ -94,13 +89,13 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
     xp(p, 5);
     double distSq = a.distanceSquared(b);
 
-    if (distSq > 10 && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_force_30")) {
-      getPlayer(p).getAdvancementHandler().grant("challenge_force_30");
+    if (distSq > 10 && grantOnce(p, "challenge_force_30")) {
       xp(p, getConfig().challengeRewardLongShotReward, "challenge-long-shot");
+      FxPresets.learnCelebration(this, p);
     }
 
     if (distSq > 900) {
-      getPlayer(p).getData().addStat("ranged.force.long-range-hits", 1);
+      addStat(p, "ranged.force.long-range-hits", 1);
     }
   }
 
@@ -110,9 +105,14 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
       int level = getActiveLevel(p);
       if (level > 0) {
         double factor = getLevelPercent(level);
-        e.getEntity().setVelocity(e.getEntity().getVelocity().clone().multiply(1 + getSpeed(factor)));
-        SoundPlayer spw = SoundPlayer.of(e.getEntity().getWorld());
-        spw.play(e.getEntity().getLocation(), Sound.ENTITY_SNOWBALL_THROW, 0.5f + ((float) factor * 0.25f), 0.7f + (float) (factor / 2f));
+        Vector velocity = e.getEntity().getVelocity().clone().multiply(1 + getSpeed(factor));
+        e.getEntity().setVelocity(velocity);
+        int critCount = Math.min(12, 4 + (int) Math.round(factor * 6));
+        fx(e.getEntity().getLocation(), FxPriority.TRAIL)
+            .trail(Particles.CRIT_MAGIC, velocity.getX(), velocity.getY(), velocity.getZ(), 2.0D, critCount)
+            .dustBurst(Color.fromRGB(40, 180, 60), 4, 0.15D, 0.9F)
+            .chord(Sound.ENTITY_SNOWBALL_THROW, 0.5F + ((float) factor * 0.25F), 0.7F + (float) (factor / 2F),
+                Sound.BLOCK_NOTE_BLOCK_HAT, 0.4F, 1.4F + ((float) factor * 0.4F));
       }
     }
   }
@@ -122,34 +122,18 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Shoot projectiles further and faster.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 2;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 7;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.225;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Challenge Reward Long Shot Reward for the Ranged Force adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double challengeRewardLongShotReward = 2000;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Speed Factor for the Ranged Force adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double speedFactor = 1.135;
+
+    public Config() {
+      baseCost = 2;
+      costFactor = 0.225;
+      maxLevel = 7;
+      initialCost = 5;
+    }
   }
 }

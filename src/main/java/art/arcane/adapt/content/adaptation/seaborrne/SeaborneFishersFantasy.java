@@ -18,18 +18,20 @@
 
 package art.arcane.adapt.content.adaptation.seaborrne;
 
-import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.content.item.ItemListings;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -43,26 +45,17 @@ public class SeaborneFishersFantasy extends SimpleAdaptation<SeaborneFishersFant
   public SeaborneFishersFantasy() {
     super("seaborne-fishers-fantasy");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("seaborn.fishers_fantasy.description"));
-    setDisplayName(Localizer.dLocalize("seaborn.fishers_fantasy.name"));
+    setLocalizationKey("seaborn.fishers_fantasy");
     setIcon(Material.FISHING_ROD);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
     setInterval(8080);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.FISHING_ROD)
         .key("challenge_seaborne_fish_500")
-        .title(Localizer.dLocalize("advancement.challenge_seaborne_fish_500.title"))
-        .description(Localizer.dLocalize("advancement.challenge_seaborne_fish_500.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.TROPICAL_FISH)
             .key("challenge_seaborne_fish_5k")
-            .title(Localizer.dLocalize("advancement.challenge_seaborne_fish_5k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_seaborne_fish_5k.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -81,17 +74,28 @@ public class SeaborneFishersFantasy extends SimpleAdaptation<SeaborneFishersFant
     Player p = e.getPlayer();
     withAdaptedPlayer(p, e, () -> {
       if (e.getState() == PlayerFishEvent.State.CAUGHT_FISH) {
-        getPlayer(p).getData().addStat("seaborne.fishers-fantasy.fish-caught", 1);
+        addStat(p, "seaborne.fishers-fantasy.fish-caught", 1);
         int level = getActiveLevel(p);
         ThreadLocalRandom random = ThreadLocalRandom.current();
+        int successes = 0;
         for (int i = 0; i < level; i++) {
-          ItemStack item = new ItemStack(ItemListings.getFishingDrops().getRandom(), 1);
-          if (random.nextBoolean()) {
-            p.getWorld().dropItemNaturally(p.getLocation(), item);
-            p.getWorld().spawn(p.getLocation(), ExperienceOrb.class);
-            Adapt.verbose("Fishing Gift Donated!");
-            xp(p, 15 * level);
+          if (!random.nextBoolean()) {
+            continue;
           }
+
+          ItemStack item = new ItemStack(ItemListings.getFishingDrops().getRandom(), 1);
+          p.getWorld().dropItemNaturally(p.getLocation(), item);
+          p.getWorld().spawn(p.getLocation(), ExperienceOrb.class);
+          xp(p, 15 * level);
+
+          float pitch = (float) Math.min(2.0D, 1.2D + (0.1D * successes));
+          float chimePitch = (float) Math.min(2.0D, 1.5D + (0.08D * successes));
+          fx(p.getLocation().add(0D, 0.5D, 0D), FxPriority.TRANSITION)
+              .particle(Particle.SPLASH, 6, 0D, 0.3D, 0D, 0.25D, 0.05D)
+              .particle(Particle.GLOW, 4, 0D, 0.4D, 0D, 0.3D, 0D)
+              .dustBurst(3, 0.3D, 0.9F)
+              .chord(Sound.BLOCK_CONDUIT_ACTIVATE, 0.4F, pitch, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.35F, chimePitch);
+          successes++;
         }
       }
     });
@@ -102,30 +106,12 @@ public class SeaborneFishersFantasy extends SimpleAdaptation<SeaborneFishersFant
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Earn more XP from fishing and catch more fish.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 7;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 2;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.9;
+  protected static class Config extends AdaptationConfig {
+    public Config() {
+      baseCost = 5;
+      costFactor = 0.9;
+      maxLevel = 7;
+    }
   }
 }

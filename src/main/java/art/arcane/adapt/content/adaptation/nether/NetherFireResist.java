@@ -17,49 +17,48 @@
  -----------------------------------------------------------------------------*/
 package art.arcane.adapt.content.adaptation.nether;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxEmitter;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.bukkit.Color;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageEvent;
 
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class NetherFireResist extends SimpleAdaptation<NetherFireResist.Config> {
+  private final Cooldowns fizzleCooldowns = cooldowns();
+
   public NetherFireResist() {
     super("nether-fire-resist");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("nether.fire_resist.description"));
-    setDisplayName(Localizer.dLocalize("nether.fire_resist.name"));
     setIcon(Material.FIRE_CHARGE);
-    setBaseCost(getConfig().baseCost);
-    setCostFactor(getConfig().costFactor);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
     setInterval(4333);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.FIRE_CHARGE)
         .key("challenge_nether_fire_200")
-        .title(Localizer.dLocalize("advancement.challenge_nether_fire_200.title"))
-        .description(Localizer.dLocalize("advancement.challenge_nether_fire_200.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.MAGMA_CREAM)
             .key("challenge_nether_fire_5k")
-            .title(Localizer.dLocalize("advancement.challenge_nether_fire_5k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_nether_fire_5k.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -70,7 +69,7 @@ public class NetherFireResist extends SimpleAdaptation<NetherFireResist.Config> 
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.RED + "+ " + Form.pc(getFireResist(level), 0) + C.GRAY + " " + Localizer.dLocalize("nether.fire_resist.lore1"));
+    statLore(v, C.RED, "+ ", Form.pc(getFireResist(level), 0), 1);
   }
 
   @EventHandler(priority = EventPriority.HIGH)
@@ -88,7 +87,20 @@ public class NetherFireResist extends SimpleAdaptation<NetherFireResist.Config> 
 
       if (ThreadLocalRandom.current().nextDouble() < getFireResist(getLevel(p))) {
         e.setCancelled(true);
-        getPlayer(p).getData().addStat("nether.fire-resist.negated", 1);
+        addStat(p, "nether.fire-resist.negated", 1);
+        UUID id = p.getUniqueId();
+        if (fizzleCooldowns.remaining(id, 900L) > 0) {
+          return;
+        }
+        boolean warded = fizzleCooldowns.isReady(id, 3000L);
+        fizzleCooldowns.mark(id);
+        FxEmitter emit = fx(p.getLocation(), FxPriority.TRANSITION)
+            .particle(Particles.SMOKE, 5, 0D, 0.2D, 0D, 0.3D, 0.02D)
+            .particle(Particle.SPLASH, 3, 0D, 0.1D, 0D, 0.3D, 0.0D)
+            .sound(Sound.BLOCK_FIRE_EXTINGUISH, 0.3F, 1.5F);
+        if (warded) {
+          emit.dustRing(Color.ORANGE, 0.8D, 10, 1.0F).sound(Sound.BLOCK_FIRE_AMBIENT, 0.25F, 0.9F);
+        }
       }
     });
   }
@@ -102,35 +114,18 @@ public class NetherFireResist extends SimpleAdaptation<NetherFireResist.Config> 
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
   @Data
-  @NoArgsConstructor
   @ConfigDescription("Chance to negate the burning effect.")
-  public static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.75;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 6;
+  public static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Fire Resist Base for the Nether Fire Resist adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double fireResistBase = 0.10;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Fire Resist Factor for the Nether Fire Resist adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double fireResistFactor = 0.25;
+
+    public Config() {
+      costFactor = 0.75;
+      maxLevel = 3;
+      initialCost = 6;
+    }
   }
 }

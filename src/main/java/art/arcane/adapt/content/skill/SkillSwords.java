@@ -18,9 +18,12 @@
 
 package art.arcane.adapt.content.skill;
 
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxEmitter;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.adaptation.sword.*;
@@ -28,7 +31,10 @@ import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import lombok.NoArgsConstructor;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -36,12 +42,8 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
 public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
-  private final Map<UUID, Long> cooldowns;
+  private final Cooldowns cooldowns = cooldowns();
 
   public SkillSwords() {
     super("swords", Localizer.dLocalize("skill.swords.icon"));
@@ -51,7 +53,6 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
     setDisplayName(Localizer.dLocalize("skill.swords.name"));
     setInterval(2150);
     setIcon(Material.DIAMOND_SWORD);
-    cooldowns = new HashMap<>();
     registerAdaptation(new SwordsMachete());
     registerAdaptation(new SwordsPoisonedBlade());
     registerAdaptation(new SwordsBloodyBlade());
@@ -62,24 +63,18 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.WOODEN_SWORD)
         .key("challenge_sword_100")
-        .title(Localizer.dLocalize("advancement.challenge_sword_100.title"))
-        .description(Localizer.dLocalize("advancement.challenge_sword_100.description"))
         .model(CustomModel.get(Material.WOODEN_SWORD, "advancement", "swords", "challenge_sword_100"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.IRON_SWORD)
             .key("challenge_sword_1k")
-            .title(Localizer.dLocalize("advancement.challenge_sword_1k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_sword_1k.description"))
             .model(CustomModel.get(Material.IRON_SWORD, "advancement", "swords", "challenge_sword_1k"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .child(AdaptAdvancement.builder()
                 .icon(Material.DIAMOND_SWORD)
                 .key("challenge_sword_10k")
-                .title(Localizer.dLocalize("advancement.challenge_sword_10k.title"))
-                .description(Localizer.dLocalize("advancement.challenge_sword_10k.description"))
                 .model(CustomModel.get(Material.DIAMOND_SWORD, "advancement", "swords", "challenge_sword_10k"))
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -94,16 +89,12 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.GOLDEN_SWORD)
         .key("challenge_sword_dmg_1k")
-        .title(Localizer.dLocalize("advancement.challenge_sword_dmg_1k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_sword_dmg_1k.description"))
         .model(CustomModel.get(Material.GOLDEN_SWORD, "advancement", "swords", "challenge_sword_dmg_1k"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.NETHERITE_SWORD)
             .key("challenge_sword_dmg_10k")
-            .title(Localizer.dLocalize("advancement.challenge_sword_dmg_10k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_sword_dmg_10k.description"))
             .model(CustomModel.get(Material.NETHERITE_SWORD, "advancement", "swords", "challenge_sword_dmg_10k"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -116,16 +107,12 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.IRON_SWORD)
         .key("challenge_sword_kills_50")
-        .title(Localizer.dLocalize("advancement.challenge_sword_kills_50.title"))
-        .description(Localizer.dLocalize("advancement.challenge_sword_kills_50.description"))
         .model(CustomModel.get(Material.IRON_SWORD, "advancement", "swords", "challenge_sword_kills_50"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.DIAMOND_SWORD)
             .key("challenge_sword_kills_500")
-            .title(Localizer.dLocalize("advancement.challenge_sword_kills_500.title"))
-            .description(Localizer.dLocalize("advancement.challenge_sword_kills_500.description"))
             .model(CustomModel.get(Material.DIAMOND_SWORD, "advancement", "swords", "challenge_sword_kills_500"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -138,16 +125,12 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.GOLDEN_SWORD)
         .key("challenge_sword_crit_50")
-        .title(Localizer.dLocalize("advancement.challenge_sword_crit_50.title"))
-        .description(Localizer.dLocalize("advancement.challenge_sword_crit_50.description"))
         .model(CustomModel.get(Material.GOLDEN_SWORD, "advancement", "swords", "challenge_sword_crit_50"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.NETHERITE_SWORD)
             .key("challenge_sword_crit_500")
-            .title(Localizer.dLocalize("advancement.challenge_sword_crit_500.title"))
-            .description(Localizer.dLocalize("advancement.challenge_sword_crit_500.description"))
             .model(CustomModel.get(Material.NETHERITE_SWORD, "advancement", "swords", "challenge_sword_crit_500"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -160,16 +143,12 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.DIAMOND_SWORD)
         .key("challenge_sword_heavy_25")
-        .title(Localizer.dLocalize("advancement.challenge_sword_heavy_25.title"))
-        .description(Localizer.dLocalize("advancement.challenge_sword_heavy_25.description"))
         .model(CustomModel.get(Material.DIAMOND_SWORD, "advancement", "swords", "challenge_sword_heavy_25"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.NETHERITE_SWORD)
             .key("challenge_sword_heavy_250")
-            .title(Localizer.dLocalize("advancement.challenge_sword_heavy_250.title"))
-            .description(Localizer.dLocalize("advancement.challenge_sword_heavy_250.description"))
             .model(CustomModel.get(Material.NETHERITE_SWORD, "advancement", "swords", "challenge_sword_heavy_250"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -186,17 +165,25 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
         AdaptPlayer a = getPlayer(p);
         ItemStack hand = a.getPlayer().getInventory().getItemInMainHand();
         if (isSword(hand)) {
-          getPlayer(p).getData().addStat("sword.hits", 1);
-          getPlayer(p).getData().addStat("sword.damage", e.getDamage());
-          if (p.getFallDistance() > 0 && !p.isOnGround()) {
-            getPlayer(p).getData().addStat("sword.critical", 1);
+          addStat(p, "sword.hits", 1);
+          addStat(p, "sword.damage", e.getDamage());
+          boolean crit = p.getFallDistance() > 0 && !p.isOnGround();
+          boolean heavy = e.getDamage() > 8;
+          if (crit) {
+            addStat(p, "sword.critical", 1);
           }
-          if (e.getDamage() > 8) {
-            getPlayer(p).getData().addStat("sword.heavy.hits", 1);
+          if (heavy) {
+            addStat(p, "sword.heavy.hits", 1);
           }
           if (!isOnCooldown(p)) {
             setCooldown(p);
             xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().damageXPMultiplier * e.getDamage());
+            FxEmitter pulse = fx(e.getEntity().getLocation().add(0, 1, 0), FxPriority.AMBIENT)
+                .particle(Particle.CRIT, heavy ? 8 : (crit ? 5 : 3), 0, 0, 0, 0.25D, 0.05D)
+                .sound(Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.2F, 1.4F);
+            if (heavy) {
+              pulse.sound(Sound.ENTITY_PLAYER_ATTACK_STRONG, 0.35F, 0.9F);
+            }
           }
         }
       });
@@ -212,18 +199,17 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
     shouldReturnForPlayer(p, () -> {
       ItemStack hand = p.getInventory().getItemInMainHand();
       if (isSword(hand)) {
-        getPlayer(p).getData().addStat("sword.kills", 1);
+        addStat(p, "sword.kills", 1);
       }
     });
   }
 
   private boolean isOnCooldown(Player p) {
-    Long cooldown = cooldowns.get(p.getUniqueId());
-    return cooldown != null && cooldown + getConfig().cooldownDelay > System.currentTimeMillis();
+    return !cooldowns.isReady(p.getUniqueId(), getConfig().cooldownDelay);
   }
 
   private void setCooldown(Player p) {
-    cooldowns.put(p.getUniqueId(), System.currentTimeMillis());
+    cooldowns.mark(p.getUniqueId());
   }
 
 

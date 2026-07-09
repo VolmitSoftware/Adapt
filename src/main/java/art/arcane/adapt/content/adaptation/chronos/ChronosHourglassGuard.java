@@ -18,19 +18,25 @@
 
 package art.arcane.adapt.content.adaptation.chronos;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPresets;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
-import lombok.NoArgsConstructor;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -41,32 +47,28 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ChronosHourglassGuard extends SimpleAdaptation<ChronosHourglassGuard.Config> {
   private final Map<UUID, Long> cooldowns;
   private final Map<UUID, Long> invulnerableUntil;
+  private final Set<UUID> cooldownReadyNotify;
 
   public ChronosHourglassGuard() {
     super("chronos-hourglass-guard");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("chronos.hourglass_guard.description"));
-    setDisplayName(Localizer.dLocalize("chronos.hourglass_guard.name"));
     setIcon(Material.TOTEM_OF_UNDYING);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(1000);
     cooldowns = new ConcurrentHashMap<>();
     invulnerableUntil = new ConcurrentHashMap<>();
+    cooldownReadyNotify = ConcurrentHashMap.newKeySet();
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.TOTEM_OF_UNDYING)
         .key("challenge_chronos_hourglass_10")
-        .title(Localizer.dLocalize("advancement.challenge_chronos_hourglass_10.title"))
-        .description(Localizer.dLocalize("advancement.challenge_chronos_hourglass_10.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -126,22 +128,35 @@ public class ChronosHourglassGuard extends SimpleAdaptation<ChronosHourglassGuar
 
     slowNearbyEnemies(p);
 
-    if (areParticlesEnabled()) {
-      p.getWorld().spawnParticle(Particle.TOTEM_OF_UNDYING, p.getLocation().add(0, 1, 0), 30, 0.35, 0.5, 0.35, 0.12);
-      p.getWorld().spawnParticle(Particle.END_ROD, p.getLocation().add(0, 1, 0), 10, 0.25, 0.4, 0.25, 0.03);
-    }
+    Location saveCenter = p.getLocation();
+    fx(saveCenter, FxPriority.GAMEPLAY)
+        .particle(Particle.FLASH, 1, 0, 1.0D, 0, 0, 0)
+        .sound(Sound.BLOCK_BELL_USE, 0.7F, 0.5F);
+    timeline(p)
+        .duration(6)
+        .priority(FxPriority.GAMEPLAY)
+        .cullRadius(48)
+        .frame((f, tick, progress) -> {
+          f.dome(Particles.END_ROD, 2.6D - (2.0D * progress), 16);
+          if (tick >= 3) {
+            f.particle(Particles.TOTEM, 6, 0, 1.0D, 0, 0.25D, 0.05D);
+          }
+        })
+        .start();
 
     if (getConfig().playClockSounds) {
       ChronosSoundFX.playRewindFinish(p);
     }
 
-    getPlayer(p).getData().addStat("chronos.hourglass-guard.saves", 1);
+    cooldownReadyNotify.add(id);
+    addStat(p, "chronos.hourglass-guard.saves", 1);
     xp(p, p.getLocation(), getConfig().xpOnSave + (level * getConfig().xpPerLevel));
   }
 
   private void slowNearbyEnemies(Player p) {
     double radius = getConfig().enemySlowRadius;
     double radiusSq = radius * radius;
+    int pulsed = 0;
     for (Entity entity : p.getWorld().getNearbyEntities(p.getLocation(), radius, radius, radius)) {
       if (!(entity instanceof LivingEntity living) || entity.getUniqueId().equals(p.getUniqueId())) {
         continue;
@@ -161,6 +176,11 @@ public class ChronosHourglassGuard extends SimpleAdaptation<ChronosHourglassGuar
 
       living.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS,
           getConfig().enemySlowTicks, getConfig().enemySlowAmplifier, true, false, false), true);
+
+      if (pulsed < 8) {
+        fx(living.getLocation(), FxPriority.COMBAT).ring(Particles.END_ROD, 0.9D, 3, 0.15D);
+        pulsed++;
+      }
     }
   }
 
@@ -168,36 +188,33 @@ public class ChronosHourglassGuard extends SimpleAdaptation<ChronosHourglassGuar
   public void onTick() {
     long now = M.ms();
     invulnerableUntil.entrySet().removeIf(entry -> entry.getValue() <= now);
+
+    if (!cooldownReadyNotify.isEmpty()) {
+      for (Iterator<UUID> iterator = cooldownReadyNotify.iterator(); iterator.hasNext(); ) {
+        UUID id = iterator.next();
+        Player p = Bukkit.getPlayer(id);
+        if (p == null) {
+          iterator.remove();
+          continue;
+        }
+
+        if (cooldowns.getOrDefault(id, 0L) <= now) {
+          FxPresets.readyPing(this, p);
+          if (getConfig().playClockSounds) {
+            ChronosSoundFX.playCooldownReady(p);
+          }
+          iterator.remove();
+        }
+      }
+    }
+
     cooldowns.entrySet().removeIf(entry -> entry.getValue() <= now);
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("A killing blow instead leaves you at half a heart, granting brief invulnerability and slowing nearby enemies, on a long cooldown.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Play Clock Sounds for the Chronos Hourglass Guard adaptation.", impact = "True enables this behavior and false disables it.")
     boolean playClockSounds = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 9;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 8;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 3;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Health the player is left with after a save.", impact = "Higher values leave the player healthier after cheating death.")
     double survivalHealth = 1.0;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Invulnerability window in milliseconds after a save.", impact = "Higher values protect the player longer after a save.")
@@ -218,5 +235,12 @@ public class ChronosHourglassGuard extends SimpleAdaptation<ChronosHourglassGuar
     double xpOnSave = 60;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Extra XP granted per adaptation level on save.", impact = "Higher values scale save XP with level faster.")
     double xpPerLevel = 10;
+
+    public Config() {
+      baseCost = 9;
+      costFactor = 0.5;
+      maxLevel = 3;
+      initialCost = 8;
+    }
   }
 }

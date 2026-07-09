@@ -19,18 +19,21 @@
 package art.arcane.adapt.content.adaptation.architect;
 
 import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.PotionEffectTypes;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
 import lombok.NoArgsConstructor;
+import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.BlockFace;
@@ -39,41 +42,26 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerVelocityEvent;
 import org.bukkit.potion.PotionEffect;
 
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-
 public class ArchitectSteadyHands extends SimpleAdaptation<ArchitectSteadyHands.Config> {
-  private final Map<UUID, Long> lastBridge;
+  private final Cooldowns bridgeGrace = cooldowns();
+  private final Cooldowns auraCd = cooldowns();
 
   public ArchitectSteadyHands() {
     super("architect-steady-hands");
     registerConfiguration(ArchitectSteadyHands.Config.class);
-    setDescription(Localizer.dLocalize("architect.steady_hands.description"));
-    setDisplayName(Localizer.dLocalize("architect.steady_hands.name"));
     setIcon(Material.LIGHTNING_ROD);
     setInterval(10440);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
-    lastBridge = new ConcurrentHashMap<>();
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.LIGHTNING_ROD)
         .key("challenge_architect_steady_hands_500")
-        .title(Localizer.dLocalize("advancement.challenge_architect_steady_hands_500.title"))
-        .description(Localizer.dLocalize("advancement.challenge_architect_steady_hands_500.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.LIGHTNING_ROD)
             .key("challenge_architect_steady_hands_5k")
-            .title(Localizer.dLocalize("advancement.challenge_architect_steady_hands_5k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_architect_steady_hands_5k.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -104,16 +92,21 @@ public class ArchitectSteadyHands extends SimpleAdaptation<ArchitectSteadyHands.
       return;
     }
 
-    lastBridge.put(p.getUniqueId(), M.ms());
+    bridgeGrace.mark(p.getUniqueId());
     p.addPotionEffect(new PotionEffect(PotionEffectTypes.FAST_DIGGING, getConfig().hasteDurationTicks, getConfig().hasteAmplifier, false, false, true));
-    getPlayer(p).getData().addStat("architect.steady-hands.bridge-blocks", 1);
+    addStat(p, "architect.steady-hands.bridge-blocks", 1);
+    if (auraCd.isReady(p.getUniqueId(), 250)) {
+      auraCd.mark(p.getUniqueId());
+      fx(p.getLocation(), FxPriority.TRANSITION)
+          .dustRing(Color.fromRGB(255, 225, 120), 0.5D, 12, 0.8F)
+          .sound(Sound.BLOCK_WOOL_STEP, 0.3f, 1.2f);
+    }
   }
 
   @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
   public void on(PlayerVelocityEvent e) {
     Player p = e.getPlayer();
-    Long last = lastBridge.get(p.getUniqueId());
-    if (last == null || M.ms() - last > getConfig().bridgeGraceMillis) {
+    if (bridgeGrace.isReady(p.getUniqueId(), getConfig().bridgeGraceMillis)) {
       return;
     }
 
@@ -134,8 +127,7 @@ public class ArchitectSteadyHands extends SimpleAdaptation<ArchitectSteadyHands.
       return;
     }
 
-    Long last = lastBridge.get(p.getUniqueId());
-    if (last == null || M.ms() - last > getConfig().bridgeGraceMillis) {
+    if (bridgeGrace.isReady(p.getUniqueId(), getConfig().bridgeGraceMillis)) {
       return;
     }
 
@@ -148,17 +140,13 @@ public class ArchitectSteadyHands extends SimpleAdaptation<ArchitectSteadyHands.
     if (e.getDamage() <= shielded) {
       e.setCancelled(true);
       p.setFallDistance(0);
-      SoundPlayer sp = SoundPlayer.of(p);
-      sp.play(p.getLocation(), Sound.BLOCK_WOOL_BREAK, 0.5f, 0.8f);
+      fx(p.getLocation(), FxPriority.COMBAT)
+          .dustRing(Color.fromRGB(255, 240, 180), 0.6D, 16, 1.0F)
+          .sound(Sound.BLOCK_WOOL_BREAK, 0.5f, 0.8f);
       return;
     }
 
     e.setDamage(Math.max(0, e.getDamage() - shielded));
-  }
-
-  @EventHandler
-  public void on(PlayerQuitEvent e) {
-    lastBridge.remove(e.getPlayer().getUniqueId());
   }
 
   private double getShieldedHeight(double factor) {
@@ -169,31 +157,9 @@ public class ArchitectSteadyHands extends SimpleAdaptation<ArchitectSteadyHands.
   public void onTick() {
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
   @NoArgsConstructor
   @ConfigDescription("Stay rock-steady while bridging: no knockback and reduced fall damage.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 2;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.45;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Fall damage shielded in blocks at level 0 progression.", impact = "Higher values absorb more fall damage for low-level players while bridging.")
     double minShieldedBlocks = 3;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Fall damage shielded in blocks at maximum level progression.", impact = "Higher values absorb more fall damage for max-level players while bridging.")

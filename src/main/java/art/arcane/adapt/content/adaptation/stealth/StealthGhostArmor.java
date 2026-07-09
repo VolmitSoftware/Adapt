@@ -18,58 +18,54 @@
 
 package art.arcane.adapt.content.adaptation.stealth;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.version.IAttribute;
 import art.arcane.adapt.api.version.Version;
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Attributes;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
-import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageEvent;
 
+import java.util.Map;
 import java.util.UUID;
 
 public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config> {
   private static final UUID MODIFIER = UUID.nameUUIDFromBytes("adapt-ghost-armor".getBytes());
   private static final NamespacedKey MODIFIER_KEY = NamespacedKey.fromString("adapt:ghost-armor");
 
+  private final Map<UUID, Double> armorAmount = playerState();
+  private final Map<UUID, Boolean> charged = playerState();
+
   public StealthGhostArmor() {
     super("stealth-ghost-armor");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("stealth.ghost_armor.description"));
-    setDisplayName(Localizer.dLocalize("stealth.ghost_armor.name"));
     setIcon(Material.CHAINMAIL_HELMET);
     setInterval(5353);
-    setBaseCost(getConfig().baseCost);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
-    setMaxLevel(getConfig().maxLevel);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.LEATHER_CHESTPLATE)
         .key("challenge_stealth_ghost_100")
-        .title(Localizer.dLocalize("advancement.challenge_stealth_ghost_100.title"))
-        .description(Localizer.dLocalize("advancement.challenge_stealth_ghost_100.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.CHAINMAIL_CHESTPLATE)
             .key("challenge_stealth_ghost_500")
-            .title(Localizer.dLocalize("advancement.challenge_stealth_ghost_500.title"))
-            .description(Localizer.dLocalize("advancement.challenge_stealth_ghost_500.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -80,8 +76,8 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.f(getMaxArmorPoints(getLevelPercent(level)), 0) + C.GRAY + " " + Localizer.dLocalize("stealth.ghost_armor.lore1"));
-    v.addLore(C.GREEN + "+ " + Form.f(getMaxArmorPerTick(getLevelPercent(level)), 1) + C.GRAY + " " + Localizer.dLocalize("stealth.ghost_armor.lore2"));
+    statLore(v, Form.f(getMaxArmorPoints(getLevelPercent(level)), 0), 1);
+    statLore(v, Form.f(getMaxArmorPerTick(getLevelPercent(level)), 1), 2);
   }
 
   public double getMaxArmorPoints(double factor) {
@@ -96,6 +92,7 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
   public void onTick() {
     for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
       Player p = adaptPlayer.getPlayer();
+      UUID id = p.getUniqueId();
       IAttribute attribute = Version.get().getAttribute(p, Attributes.GENERIC_ARMOR);
       if (attribute == null) {
         continue;
@@ -103,6 +100,8 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
 
       if (!hasActiveAdaptation(p)) {
         attribute.removeModifier(MODIFIER, MODIFIER_KEY);
+        armorAmount.remove(id);
+        charged.remove(id);
         continue;
       }
       double oldArmor = 0;
@@ -115,10 +114,32 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
       double armor = getMaxArmorPoints(getLevelPercent(p));
       armor = Double.isNaN(armor) ? 0 : armor;
 
+      double newAmount = oldArmor;
       if (oldArmor < armor) {
-        attribute.setModifier(MODIFIER, MODIFIER_KEY, Math.min(armor, oldArmor + getMaxArmorPerTick(getLevelPercent(p))), AttributeModifier.Operation.ADD_NUMBER);
+        newAmount = Math.min(armor, oldArmor + getMaxArmorPerTick(getLevelPercent(p)));
+        attribute.setModifier(MODIFIER, MODIFIER_KEY, newAmount, AttributeModifier.Operation.ADD_NUMBER);
       } else if (oldArmor > armor) {
+        newAmount = armor;
         attribute.setModifier(MODIFIER, MODIFIER_KEY, armor, AttributeModifier.Operation.ADD_NUMBER);
+      }
+      armorAmount.put(id, newAmount);
+
+      boolean nowCharged = armor > 0 && newAmount >= armor - 1.0E-4D;
+      boolean wasCharged = Boolean.TRUE.equals(charged.get(id));
+      if (nowCharged && !wasCharged) {
+        charged.put(id, Boolean.TRUE);
+        timeline(p).duration(6).priority(FxPriority.TRANSITION).cullRadius(24)
+            .frame((emit, tick, progress) -> {
+              emit.ring(Particles.END_ROD, 0.6D, 8, 1.4D + (progress * 0.3D));
+              if (tick == 0) {
+                emit.sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.35F, 1.8F);
+              }
+            }).start();
+      } else if (!nowCharged) {
+        if (wasCharged) {
+          charged.put(id, Boolean.FALSE);
+        }
+        fx(p.getLocation().add(0, 1.0D, 0), FxPriority.AMBIENT).particle(Particle.WAX_ON, 1, 0, 0.3D, 0, 0.1D, 0.01D);
       }
     }
   }
@@ -126,10 +147,21 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
   @EventHandler(priority = EventPriority.HIGHEST)
   public void on(EntityDamageEvent e) {
     if (e.getEntity() instanceof Player p && hasActiveAdaptation(p) && e.getDamage() > 0) {
-      // Check if 2.5 * e.getDamage() is greater than 10 if so just set it to 10 otherwise use the value of 2.5 * e.getDamage()
       int damageXP = (int) Math.min(10, 2.5 * e.getDamage());
       xp(p, damageXP);
-      getPlayer(p).getData().addStat("stealth.ghost-armor.armor-consumed", 1);
+      addStat(p, "stealth.ghost-armor.armor-consumed", 1);
+      UUID id = p.getUniqueId();
+      double stored = armorAmount.getOrDefault(id, 0.0D);
+      if (stored > 0.1D) {
+        armorAmount.put(id, 0.0D);
+        charged.put(id, Boolean.FALSE);
+        double radius = Math.min(1.6D, 0.8D + (stored * 0.05D));
+        fx(p.getLocation().add(0, 1.0D, 0), FxPriority.COMBAT)
+            .ring(Particle.CRIT, radius, 12, 0)
+            .burst(Particle.CRIT, 4, 0.25D)
+            .dustBurst(4, 0.4D, 1.0F)
+            .chord(Sound.ITEM_SHIELD_BREAK, 0.7F, 1.2F, Sound.BLOCK_GLASS_BREAK, 0.5F, 0.8F, Sound.BLOCK_ANVIL_LAND, 0.2F, 1.8F);
+      }
       J.runEntity(p, () -> {
         IAttribute attribute = Version.get().getAttribute(p, Attributes.GENERIC_ARMOR);
         if (attribute == null) return;
@@ -138,25 +170,8 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
     }
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Slowly build armor when not taking damage, consumed on the next hit.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 3;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Armor for the Stealth Ghost Armor adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     int maxArmor = 16;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Min Armor for the Stealth Ghost Armor adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -165,11 +180,12 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
     int maxArmorPerTick = 3;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Min Armor Per Tick for the Stealth Ghost Armor adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     int minArmorPerTick = 1;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 1;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.335;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 7;
+
+    public Config() {
+      baseCost = 3;
+      costFactor = 0.335;
+      maxLevel = 7;
+      initialCost = 1;
+    }
   }
 }

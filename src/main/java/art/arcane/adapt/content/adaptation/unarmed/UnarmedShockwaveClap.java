@@ -18,17 +18,19 @@
 
 package art.arcane.adapt.content.adaptation.unarmed;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -40,38 +42,29 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.util.Vector;
 
 import java.util.Map;
 import java.util.UUID;
 
 public class UnarmedShockwaveClap extends SimpleAdaptation<UnarmedShockwaveClap.Config> {
-  private final Map<UUID, Long> nextClapAt = new java.util.concurrent.ConcurrentHashMap<>();
+  private static final Color WAVE_COLOR = Color.WHITE;
+  private final Map<UUID, Long> nextClapAt = playerState();
+  private final Cooldowns failCue = cooldowns();
 
   public UnarmedShockwaveClap() {
     super("unarmed-shockwave-clap");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("unarmed.shockwave_clap.description"));
-    setDisplayName(Localizer.dLocalize("unarmed.shockwave_clap.name"));
     setIcon(Material.NOTE_BLOCK);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(5230);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.IRON_INGOT)
         .key("challenge_unarmed_clap_250")
-        .title(Localizer.dLocalize("advancement.challenge_unarmed_clap_250.title"))
-        .description(Localizer.dLocalize("advancement.challenge_unarmed_clap_250.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.DIAMOND)
             .key("challenge_unarmed_clap_2500")
-            .title(Localizer.dLocalize("advancement.challenge_unarmed_clap_2500.title"))
-            .description(Localizer.dLocalize("advancement.challenge_unarmed_clap_2500.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -82,10 +75,10 @@ public class UnarmedShockwaveClap extends SimpleAdaptation<UnarmedShockwaveClap.
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.f(getRange(level)) + C.GRAY + " " + Localizer.dLocalize("unarmed.shockwave_clap.lore1"));
-    v.addLore(C.GREEN + "+ " + Form.f(getForce(level)) + C.GRAY + " " + Localizer.dLocalize("unarmed.shockwave_clap.lore2"));
-    v.addLore(C.YELLOW + "* " + Form.duration((double) getCooldownMillis(level), 1) + C.GRAY + " " + Localizer.dLocalize("unarmed.shockwave_clap.lore3"));
-    v.addLore(C.RED + "- " + getConfig().hungerCost + C.GRAY + " " + Localizer.dLocalize("unarmed.shockwave_clap.lore4"));
+    statLore(v, Form.f(getRange(level)), 1);
+    statLore(v, Form.f(getForce(level)), 2);
+    statLore(v, C.YELLOW, "* ", Form.duration((double) getCooldownMillis(level), 1), 3);
+    statLore(v, C.RED, "- ", getConfig().hungerCost, 4);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
@@ -100,18 +93,21 @@ public class UnarmedShockwaveClap extends SimpleAdaptation<UnarmedShockwaveClap.
       return;
     }
 
-    long now = System.currentTimeMillis();
-    Long next = nextClapAt.get(p.getUniqueId());
-    if (next != null && now < next) {
+    if (isTool(p.getInventory().getItemInMainHand()) || isTool(p.getInventory().getItemInOffHand())) {
       return;
     }
 
-    if (isTool(p.getInventory().getItemInMainHand()) || isTool(p.getInventory().getItemInOffHand())) {
+    UUID id = p.getUniqueId();
+    long now = System.currentTimeMillis();
+    Long next = nextClapAt.get(id);
+    if (next != null && now < next) {
+      playBlocked(p);
       return;
     }
 
     int hungerCost = getConfig().hungerCost;
     if (p.getFoodLevel() < hungerCost) {
+      playBlocked(p);
       return;
     }
 
@@ -121,7 +117,7 @@ public class UnarmedShockwaveClap extends SimpleAdaptation<UnarmedShockwaveClap.
     }
 
     int level = context.level();
-    nextClapAt.put(p.getUniqueId(), now + getCooldownMillis(level));
+    nextClapAt.put(id, now + getCooldownMillis(level));
     p.setFoodLevel(Math.max(0, p.getFoodLevel() - hungerCost));
 
     double range = getRange(level);
@@ -150,27 +146,46 @@ public class UnarmedShockwaveClap extends SimpleAdaptation<UnarmedShockwaveClap.
       }
 
       hit.setVelocity(hit.getVelocity().multiply(0.2).add(to.multiply(force).setY(getUpwardForce(level))));
+      if (affected < 8) {
+        fx(hit.getLocation().add(0, 1, 0), FxPriority.COMBAT)
+            .particle(Particle.CLOUD, 3, 0, 0, 0, 0.15D, 0.03D);
+      }
       affected++;
     }
 
-    SoundPlayer sp = SoundPlayer.of(p.getWorld());
-    sp.play(origin, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, 0.6f);
-    sp.play(origin, Sound.BLOCK_BELL_RESONATE, 0.7f, 1.4f);
-    if (areParticlesEnabled()) {
-      p.getWorld().spawnParticle(Particle.EXPLOSION, origin.clone().add(look.clone().multiply(1.2)).add(0, 1, 0), 1, 0.1, 0.1, 0.1, 0.02);
-      p.getWorld().spawnParticle(Particle.CLOUD, origin.clone().add(look.clone().multiply(1.5)).add(0, 0.8, 0), 20, 0.6, 0.4, 0.6, 0.08);
-    }
-
-    getPlayer(p).getData().addStat("unarmed.shockwave-clap.claps", 1);
+    playShockwave(origin, look, range);
+    addStat(p, "unarmed.shockwave-clap.claps", 1);
     if (affected > 0) {
       xp(p, getConfig().xpPerTargetHit * affected);
-      getPlayer(p).getData().addStat("unarmed.shockwave-clap.mobs-clapped", affected);
+      addStat(p, "unarmed.shockwave-clap.mobs-clapped", affected);
     }
   }
 
-  @EventHandler(priority = EventPriority.MONITOR)
-  public void on(PlayerQuitEvent e) {
-    nextClapAt.remove(e.getPlayer().getUniqueId());
+  private void playShockwave(Location origin, Vector look, double range) {
+    fx(origin, FxPriority.COMBAT)
+        .chord(Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1.0F, 0.6F, Sound.BLOCK_BELL_RESONATE, 0.7F, 1.4F, Sound.ENTITY_GENERIC_EXPLODE, 0.4F, 0.7F);
+    Location center = origin.clone().add(look.clone().multiply(0.6)).add(0, 1.0D, 0);
+    fx(center, FxPriority.COMBAT)
+        .particle(Particle.EXPLOSION, 1, 0, 0, 0, 0.1D, 0.02D)
+        .particle(Particle.SWEEP_ATTACK, 1, 0, 0, 0, 0, 0);
+    int ringPoints = Math.min(28, 12 + (int) (range * 2));
+    timeline(center)
+        .duration(5)
+        .priority(FxPriority.TRANSITION)
+        .cullRadius(Math.min(48.0D, (range * 2.0D) + 8.0D))
+        .frame((fx, tick, progress) -> fx.dustRing(WAVE_COLOR, 0.4D + (range * progress), ringPoints, 1.0F))
+        .start();
+  }
+
+  private void playBlocked(Player p) {
+    if (!failCue.isReady(p.getUniqueId(), 700L)) {
+      return;
+    }
+
+    failCue.mark(p.getUniqueId());
+    fx(p.getEyeLocation(), FxPriority.TRANSITION)
+        .particle(Particles.SMOKE, 2, 0, 0, 0, 0.05D, 0.01D)
+        .sound(Sound.BLOCK_NOTE_BLOCK_HAT, 0.25F, 0.5F);
   }
 
   private double getRange(int level) {
@@ -194,31 +209,8 @@ public class UnarmedShockwaveClap extends SimpleAdaptation<UnarmedShockwaveClap.
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Sneak and punch the air to clap a shockwave that knocks back enemies in a cone.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 6;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.7;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Base shockwave range in blocks at level 1.", impact = "Higher values let the clap reach more distant enemies.")
     double rangeBase = 3.5;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Additional shockwave range granted at max level.", impact = "Higher values extend the clap reach as levels increase.")
@@ -241,5 +233,11 @@ public class UnarmedShockwaveClap extends SimpleAdaptation<UnarmedShockwaveClap.
     int hungerCost = 2;
     @art.arcane.adapt.util.config.ConfigDoc(value = "XP granted per enemy knocked back by a clap.", impact = "Higher values speed up unarmed skill progression from claps.")
     double xpPerTargetHit = 14;
+
+    public Config() {
+      baseCost = 5;
+      costFactor = 0.7;
+      initialCost = 6;
+    }
   }
 }

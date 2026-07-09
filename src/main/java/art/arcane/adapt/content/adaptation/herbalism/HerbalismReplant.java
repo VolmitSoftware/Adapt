@@ -18,24 +18,23 @@
 
 package art.arcane.adapt.content.adaptation.herbalism;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.world.PlayerAdaptation;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.content.skill.SkillHerbalism;
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
-import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.data.Cuboid;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
-import lombok.NoArgsConstructor;
+import org.bukkit.Color;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Ageable;
@@ -54,26 +53,16 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
   public HerbalismReplant() {
     super("herbalism-replant");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("herbalism.replant.description"));
-    setDisplayName(Localizer.dLocalize("herbalism.replant.name"));
     setIcon(Material.PUMPKIN_SEEDS);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
     setInterval(6090);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.WHEAT_SEEDS)
         .key("challenge_herbalism_replant_500")
-        .title(Localizer.dLocalize("advancement.challenge_herbalism_replant_500.title"))
-        .description(Localizer.dLocalize("advancement.challenge_herbalism_replant_500.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.COMPOSTER)
             .key("challenge_herbalism_replant_25k")
-            .title(Localizer.dLocalize("advancement.challenge_herbalism_replant_25k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_herbalism_replant_25k.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -84,7 +73,7 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + getRadius(level) + C.GRAY + Localizer.dLocalize("herbalism.replant.lore1"));
+    statLore(v, getRadius(level), 1);
   }
 
 
@@ -136,7 +125,6 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
     }
 
     if (lvl > 1) {
-      SoundPlayer spw = SoundPlayer.of(p.getWorld());
       Cuboid c = new Cuboid(target.getLocation().clone().add(0.5, 0.5, 0.5));
       c = c.expand(Cuboid.CuboidDirection.Up, (int) Math.floor(getRadius(lvl)));
       c = c.expand(Cuboid.CuboidDirection.Down, (int) Math.floor(getRadius(lvl)));
@@ -148,11 +136,11 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
       for (Block i : c) {
         J.runEntity(p, () -> hit(p, i), M.irand(1, 6));
       }
-      spw.play(p.getLocation(), Sound.ITEM_SHOVEL_FLATTEN, 1f, 0.66f);
-      spw.play(p.getLocation(), Sound.BLOCK_BAMBOO_SAPLING_BREAK, 1f, 0.66f);
-      if (areParticlesEnabled()) {
-        p.spawnParticle(Particles.VILLAGER_HAPPY, p.getLocation().clone().add(0.5, 0.5, 0.5), getLevel(p) * 3, 0.3 * getLevel(p), 0.3 * getLevel(p), 0.3 * getLevel(p), 0.9);
-      }
+
+      double footprint = Math.max(1.0D, getRadius(lvl));
+      fx(target.getLocation().add(0.5, 0.5, 0.5), FxPriority.TRANSITION)
+          .dustRing(Color.LIME, footprint, Math.min(28, (int) Math.round(footprint * 8)), 1.0F)
+          .chord(Sound.ITEM_SHOVEL_FLATTEN, 1F, 0.66F, Sound.BLOCK_BAMBOO_SAPLING_BREAK, 1F, 0.66F);
     } else {
       hit(p, target);
     }
@@ -174,17 +162,19 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
       PlayerAdaptation adaptation = line != null ? line.getAdaptation("herbalism-drop-to-inventory") : null;
       if (adaptation != null && adaptation.getLevel() > 0) {
         Collection<ItemStack> items = b.getDrops();
-        SoundPlayer sp = SoundPlayer.of(p);
+        boolean caught = false;
         for (ItemStack i : items) {
-          sp.play(p.getLocation(), Sound.BLOCK_CALCITE_HIT, 0.05f, 0.01f);
           i.setAmount(1);
-          if (!p.getInventory().addItem(i).isEmpty()) {
+          if (p.getInventory().addItem(i).isEmpty()) {
+            caught = true;
+          } else {
             p.getWorld().dropItem(p.getLocation(), i);
           }
         }
-        aa.setAge(0);
-        J.runAt(b.getLocation(), () -> b.setBlockData(aa, true));
-
+        if (caught) {
+          fx(p.getEyeLocation().subtract(0, 0.4, 0), FxPriority.TRANSITION)
+              .chord(Sound.BLOCK_NOTE_BLOCK_CHIME, 0.5F, 1.6F, Sound.BLOCK_CALCITE_HIT, 0.3F, 1.2F);
+        }
       } else {
         p.breakBlock(b);
       }
@@ -192,13 +182,18 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
       aa.setAge(0);
       J.runAt(b.getLocation(), () -> b.setBlockData(aa, true));
 
-      getPlayer(p).getData().addStat("harvest.blocks", 1);
-      getPlayer(p).getData().addStat("harvest.planted", 1);
-      getPlayer(p).getData().addStat("herbalism.replant.crops-replanted", 1);
+      addStat(p, "harvest.blocks", 1);
+      addStat(p, "harvest.planted", 1);
+      addStat(p, "herbalism.replant.crops-replanted", 1);
+
+      fx(b.getLocation().add(0.5, 0.6, 0.5), FxPriority.TRANSITION)
+          .dustRing(Color.LIME, 0.4D, 8, 0.8F)
+          .particle(Particle.HAPPY_VILLAGER, 3, 0, 0, 0, 0.15D, 0.02D)
+          .particle(Particle.COMPOSTER, 1, 0, 0.1D, 0, 0.1D, 0.02D);
 
       if (M.r(1D / (double) getLevel(p))) {
-        SoundPlayer spw = SoundPlayer.of(p.getWorld());
-        spw.play(b.getLocation(), Sound.ITEM_CROP_PLANT, 1f, 0.7f);
+        fx(b.getLocation().add(0.5, 0.5, 0.5), FxPriority.TRANSITION)
+            .sound(Sound.ITEM_CROP_PLANT, 1F, 0.7F);
       }
     }
   }
@@ -209,33 +204,8 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Right-click a crop with a hoe to harvest and replant it.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Herbalism Replant adaptation.", impact = "True enables this behavior and false disables it.")
-    boolean showParticles = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 6;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.95;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown Lvl1 for the Herbalism Replant adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double cooldownLvl1 = 2;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Base Cooldown for the Herbalism Replant adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -246,5 +216,12 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
     double bonusCooldown = 20;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Radius Sub for the Herbalism Replant adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     int radiusSub = 1;
+
+    public Config() {
+      baseCost = 6;
+      costFactor = 0.95;
+      maxLevel = 3;
+      initialCost = 4;
+    }
   }
 }

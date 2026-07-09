@@ -18,17 +18,19 @@
 
 package art.arcane.adapt.content.adaptation.excavation;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxEmitter;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -39,38 +41,26 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class ExcavationDowsing extends SimpleAdaptation<ExcavationDowsing.Config> {
   private static final int MAX_SCAN_RANGE = 24;
   private static final int[][] SCAN_OFFSETS = buildScanOffsets();
-  private final Map<UUID, Long> cooldowns = new ConcurrentHashMap<>();
+  private final Cooldowns cooldowns = cooldowns();
 
   public ExcavationDowsing() {
     super("excavation-dowsing");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("excavation.dowsing.description"));
-    setDisplayName(Localizer.dLocalize("excavation.dowsing.name"));
     setIcon(Material.COMPASS);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(3970);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.COMPASS)
         .key("challenge_excavation_dowsing_200")
-        .title(Localizer.dLocalize("advancement.challenge_excavation_dowsing_200.title"))
-        .description(Localizer.dLocalize("advancement.challenge_excavation_dowsing_200.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -98,13 +88,8 @@ public class ExcavationDowsing extends SimpleAdaptation<ExcavationDowsing.Config
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + getScanRange(level) + C.GRAY + " " + Localizer.dLocalize("excavation.dowsing.lore1"));
-    v.addLore(C.YELLOW + "* " + Form.duration(getCooldownMillis(level), 1) + C.GRAY + " " + Localizer.dLocalize("excavation.dowsing.lore2"));
-  }
-
-  @EventHandler(priority = EventPriority.MONITOR)
-  public void on(PlayerQuitEvent e) {
-    cooldowns.remove(e.getPlayer().getUniqueId());
+    statLore(v, getScanRange(level), 1);
+    statLore(v, C.YELLOW, "* ", Form.duration(getCooldownMillis(level), 1), 2);
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -118,22 +103,23 @@ public class ExcavationDowsing extends SimpleAdaptation<ExcavationDowsing.Config
       return;
     }
 
-    long now = System.currentTimeMillis();
-    long nextReady = cooldowns.getOrDefault(p.getUniqueId(), 0L);
-    if (now < nextReady) {
-      return;
-    }
-
     art.arcane.adapt.api.adaptation.Adaptation.BlockActionContext context = resolveInteractContext(p, p.getLocation());
     if (context == null) {
       return;
     }
 
     int level = context.level();
-    cooldowns.put(p.getUniqueId(), now + getCooldownMillis(level));
+    if (!cooldowns.isReady(p.getUniqueId(), getCooldownMillis(level))) {
+      return;
+    }
+
+    cooldowns.mark(p.getUniqueId());
 
     Block pocket = findNearestPocket(p.getLocation(), getScanRange(level), getConfig().maxSamples);
     if (pocket == null) {
+      fx(p.getEyeLocation(), FxPriority.TRANSITION)
+          .particle(Particles.SMOKE, 2, 0, 0, 0, 0.1D, 0.01D)
+          .sound(Sound.BLOCK_NOTE_BLOCK_HAT, 0.3f, 0.6f);
       return;
     }
 
@@ -145,9 +131,11 @@ public class ExcavationDowsing extends SimpleAdaptation<ExcavationDowsing.Config
     }
 
     Material type = pocket.getType();
-    renderTrail(p, origin, direction.normalize(), type);
+    Color color = pocketColor(type);
+    ripplePulse(p.getLocation(), color);
+    renderTrail(origin, direction.normalize(), color, type);
     playTone(p, type, origin.distance(target), getScanRange(level));
-    getPlayer(p).getData().addStat("excavation.dowsing.pockets-found", 1);
+    addStat(p, "excavation.dowsing.pockets-found", 1);
     xp(p, getConfig().xpPerPing);
   }
 
@@ -192,24 +180,59 @@ public class ExcavationDowsing extends SimpleAdaptation<ExcavationDowsing.Config
     return null;
   }
 
-  private void renderTrail(Player p, Location origin, Vector direction, Material type) {
-    if (!areParticlesEnabled()) {
-      return;
-    }
-
-    Color color = switch (type) {
+  private Color pocketColor(Material type) {
+    return switch (type) {
       case WATER -> Color.fromRGB(70, 140, 255);
       case LAVA -> Color.fromRGB(255, 120, 30);
       default -> Color.fromRGB(205, 205, 215);
     };
-    Particle.DustOptions dust = new Particle.DustOptions(color, (float) getConfig().particleSize);
-    Location at = origin.clone();
-    for (int i = 0; i < getConfig().trailSegments; i++) {
-      at = at.add(direction.clone().multiply(getConfig().segmentSpacing));
-      p.spawnParticle(Particle.DUST, at, 2, 0.04, 0.04, 0.04, 0, dust);
-    }
+  }
 
-    p.spawnParticle(Particle.END_ROD, at, 6, 0.1, 0.1, 0.1, 0.02);
+  private void ripplePulse(Location center, Color color) {
+    float size = (float) getConfig().particleSize;
+    timeline(center)
+        .duration(5)
+        .priority(FxPriority.TRANSITION)
+        .cullRadius(16)
+        .frame((fx, tick, progress) -> {
+          fx.dustRing(color, 0.5D + (1.5D * progress), 12, size);
+          if (tick == 0) {
+            fx.sound(Sound.BLOCK_SCULK_SENSOR_CLICKING, 0.4f, 1.2f);
+          }
+        })
+        .start();
+  }
+
+  private void renderTrail(Location origin, Vector direction, Color color, Material type) {
+    int segments = Math.max(2, getConfig().trailSegments);
+    double spacing = getConfig().segmentSpacing;
+    double dx = direction.getX();
+    double dy = direction.getY();
+    double dz = direction.getZ();
+    Particle.DustOptions dust = new Particle.DustOptions(color, (float) getConfig().particleSize);
+    timeline(origin)
+        .duration(segments)
+        .priority(FxPriority.TRAIL)
+        .cullRadius(16)
+        .frame((fx, tick, progress) -> {
+          double head = (tick + 1) * spacing;
+          fx.particle(Particles.REDSTONE, 2, dx * head, dy * head, dz * head, 0.04D, 0, dust);
+          if (tick + 1 >= segments) {
+            double tip = segments * spacing;
+            arrivalBurst(fx, type, dx * tip, dy * tip, dz * tip);
+          }
+        })
+        .start();
+  }
+
+  private void arrivalBurst(FxEmitter fx, Material type, double ox, double oy, double oz) {
+    switch (type) {
+      case WATER -> fx.particle(Particle.SPLASH, 6, ox, oy, oz, 0.12D, 0.02D);
+      case LAVA -> fx.particle(Particle.LAVA, 6, ox, oy, oz, 0.12D, 0.02D)
+          .particle(Particle.FLAME, 3, ox, oy, oz, 0.1D, 0.02D);
+      default -> fx.particle(Particle.END_ROD, 6, ox, oy, oz, 0.1D, 0.02D);
+    }
+    fx.sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.5f, 1.4f);
   }
 
   private void playTone(Player p, Material type, double distance, int range) {
@@ -220,9 +243,8 @@ public class ExcavationDowsing extends SimpleAdaptation<ExcavationDowsing.Config
       case LAVA -> Sound.BLOCK_NOTE_BLOCK_BASS;
       default -> Sound.BLOCK_NOTE_BLOCK_BIT;
     };
-    SoundPlayer sp = SoundPlayer.of(p.getWorld());
-    sp.play(p.getLocation(), tone, 0.85f, pitch);
-    sp.play(p.getLocation(), Sound.ITEM_SHOVEL_FLATTEN, 0.3f, 1.6f);
+    fx(p.getLocation(), FxPriority.GAMEPLAY)
+        .chord(tone, 0.85f, pitch, Sound.ITEM_SHOVEL_FLATTEN, 0.3f, 1.6f);
   }
 
   private int getScanRange(int level) {
@@ -238,31 +260,8 @@ public class ExcavationDowsing extends SimpleAdaptation<ExcavationDowsing.Config
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Sneaking with a shovel pings the nearest hidden cave, water, or lava pocket with a directional trail.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.7;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Scan Range Base for the Excavation Dowsing adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double scanRangeBase = 8;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Scan Range Factor for the Excavation Dowsing adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -281,5 +280,10 @@ public class ExcavationDowsing extends SimpleAdaptation<ExcavationDowsing.Config
     double particleSize = 0.7;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Ping for the Excavation Dowsing adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpPerPing = 6;
+
+    public Config() {
+      costFactor = 0.7;
+      initialCost = 4;
+    }
   }
 }

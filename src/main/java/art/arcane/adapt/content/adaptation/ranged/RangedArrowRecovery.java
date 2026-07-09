@@ -1,57 +1,50 @@
 package art.arcane.adapt.content.adaptation.ranged;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Enchantments;
+import art.arcane.adapt.util.reflect.registries.Particles;
+import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
+import org.bukkit.Color;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.inventory.ItemStack;
-
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
+import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.metadata.MetadataValue;
 
 import static xyz.xenondevs.particle.utils.MathUtils.RANDOM;
 
 public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Config> {
-  private final Map<UUID, UUID> shotArrows;
+  private static final String RECOVERY_META = "adapt-recover-arrow";
 
   public RangedArrowRecovery() {
     super("ranged-recovery");
     registerConfiguration(RangedArrowRecovery.Config.class);
-    setDescription(Localizer.dLocalize("ranged.arrow_recovery.description"));
-    setDisplayName(Localizer.dLocalize("ranged.arrow_recovery.name"));
+    setLocalizationKey("ranged.arrow_recovery");
     setIcon(Material.ARROW);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
-    shotArrows = new ConcurrentHashMap<>();
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.ARROW)
         .key("challenge_ranged_arrow_500")
-        .title(Localizer.dLocalize("advancement.challenge_ranged_arrow_500.title"))
-        .description(Localizer.dLocalize("advancement.challenge_ranged_arrow_500.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.SPECTRAL_ARROW)
             .key("challenge_ranged_arrow_10k")
-            .title(Localizer.dLocalize("advancement.challenge_ranged_arrow_10k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_ranged_arrow_10k.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -65,7 +58,7 @@ public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Co
     if (event.getEntity() instanceof Player player && hasActiveAdaptation(player)) {
       if (!event.getBow().containsEnchantment(Enchantments.ARROW_INFINITE)) {
         if (event.getProjectile() instanceof Arrow arrow) {
-          shotArrows.put(arrow.getUniqueId(), player.getUniqueId());
+          arrow.setMetadata(RECOVERY_META, new FixedMetadataValue(Adapt.instance, true));
         }
       }
     }
@@ -73,21 +66,35 @@ public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Co
 
   @EventHandler
   public void onProjectileHit(ProjectileHitEvent event) {
-    if (event.getEntity() instanceof Arrow arrow) {
-      UUID shooterId = shotArrows.get(arrow.getUniqueId());
-      Player shooter = shooterId == null ? null : Bukkit.getPlayer(shooterId);
-      int level = shooter == null ? 0 : getActiveLevel(shooter);
-      if (level > 0) {
-        double chance = getConfig().hitChance[level - 1] / 100.0;
-        if (RANDOM.nextDouble() < chance) {
-          ItemStack arrowStack = new ItemStack(Material.ARROW, 1);
-          shooter.getInventory().addItem(arrowStack);
-          getPlayer(shooter).getData().addStat("ranged.arrow-recovery.arrows-recovered", 1);
-          Adapt.info("Arrow added to inventory.");
-        }
-      }
-      shotArrows.remove(arrow.getUniqueId());
+    if (!(event.getEntity() instanceof Arrow arrow) || !isRecoverable(arrow)) {
+      return;
     }
+    arrow.removeMetadata(RECOVERY_META, Adapt.instance);
+    if (!(arrow.getShooter() instanceof Player shooter)) {
+      return;
+    }
+
+    int level = getActiveLevel(shooter);
+    if (level <= 0 || RANDOM.nextDouble() >= chancePerLevel(level)) {
+      return;
+    }
+
+    shooter.getInventory().addItem(new ItemStack(Material.ARROW, 1));
+    addStat(shooter, "ranged.arrow-recovery.arrows-recovered", 1);
+    Location eye = shooter.getEyeLocation();
+    fx(arrow.getLocation(), FxPriority.AMBIENT)
+        .dustBurst(Color.fromRGB(120, 220, 90), 5, 0.2D, 0.9F)
+        .line(Particles.ENCHANTMENT_TABLE, eye.getX(), eye.getY(), eye.getZ(), 4)
+        .chord(Sound.ENTITY_ITEM_PICKUP, 0.5F, 1.4F, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.3F, 1.8F);
+  }
+
+  private boolean isRecoverable(Arrow arrow) {
+    for (MetadataValue value : arrow.getMetadata(RECOVERY_META)) {
+      if (value.getOwningPlugin() == Adapt.instance) {
+        return value.asBoolean();
+      }
+    }
+    return false;
   }
 
   private double chancePerLevel(int level) {
@@ -95,41 +102,25 @@ public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Co
   }
 
   @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
   public void onTick() {
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
   }
 
   @Override
   public void addStats(int level, Element v) {
     v.addLore(C.GREEN + Localizer.dLocalize("ranged.arrow_recovery.lore1"));
-    v.addLore(C.GREEN + Localizer.dLocalize("ranged.arrow_recovery.lore2") + chancePerLevel(level));
+    v.addLore(C.GREEN + Localizer.dLocalize("ranged.arrow_recovery.lore2") + Form.pc(chancePerLevel(level), 0));
   }
 
-  @NoArgsConstructor
   @ConfigDescription("Chance to recover arrows after hitting or killing an enemy.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 8;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.78;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Hit Chance for the Ranged Arrow Recovery adaptation.", impact = "Add or remove entries to control which values are included.")
     double[] hitChance = {10, 20, 30, 40, 50, 60, 70, 80};
+
+    public Config() {
+      baseCost = 5;
+      costFactor = 0.78;
+      maxLevel = 8;
+      initialCost = 5;
+    }
   }
 }

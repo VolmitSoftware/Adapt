@@ -18,18 +18,20 @@
 
 package art.arcane.adapt.content.adaptation.hunter;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -46,26 +48,16 @@ public class HunterTrophySkinner extends SimpleAdaptation<HunterTrophySkinner.Co
   public HunterTrophySkinner() {
     super("hunter-trophy-skinner");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("hunter.trophy_skinner.description"));
-    setDisplayName(Localizer.dLocalize("hunter.trophy_skinner.name"));
     setIcon(Material.ZOMBIE_HEAD);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(2000);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.SKELETON_SKULL)
         .key("challenge_hunter_trophy_50")
-        .title(Localizer.dLocalize("advancement.challenge_hunter_trophy_50.title"))
-        .description(Localizer.dLocalize("advancement.challenge_hunter_trophy_50.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.ZOMBIE_HEAD)
             .key("challenge_hunter_trophy_heads_100")
-            .title(Localizer.dLocalize("advancement.challenge_hunter_trophy_heads_100.title"))
-            .description(Localizer.dLocalize("advancement.challenge_hunter_trophy_heads_100.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -76,9 +68,9 @@ public class HunterTrophySkinner extends SimpleAdaptation<HunterTrophySkinner.Co
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.pc(getDropChance(level), 0) + C.GRAY + " " + Localizer.dLocalize("hunter.trophy_skinner.lore1"));
-    v.addLore(C.GREEN + "+ " + Form.pc(getHeadChance(level), 0) + C.GRAY + " " + Localizer.dLocalize("hunter.trophy_skinner.lore2"));
-    v.addLore(C.YELLOW + "* " + Form.f(getMinimumRange(level), 1) + C.GRAY + " " + Localizer.dLocalize("hunter.trophy_skinner.lore3"));
+    statLore(v, Form.pc(getDropChance(level), 0), 1);
+    statLore(v, Form.pc(getHeadChance(level), 0), 2);
+    statLore(v, C.YELLOW, "* ", Form.f(getMinimumRange(level), 1), 3);
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -94,6 +86,20 @@ public class HunterTrophySkinner extends SimpleAdaptation<HunterTrophySkinner.Co
       return;
     }
 
+    Location corpse = e.getEntity().getLocation().add(0, e.getEntity().getHeight() * 0.5D, 0);
+    float markPitch = precision.projectileKill() ? 2.0F : 1.4F;
+    timeline(corpse)
+        .duration(2)
+        .priority(FxPriority.COMBAT)
+        .cullRadius(32)
+        .frame((f, tick, progress) -> {
+          f.ring(Particles.CRIT_MAGIC, 0.6D - (0.5D * progress), 6, 0.0D);
+          if (tick == 0) {
+            f.chord(Sound.BLOCK_NOTE_BLOCK_PLING, 0.7F, markPitch, Sound.BLOCK_NOTE_BLOCK_HAT, 0.4F, 1.9F);
+          }
+        })
+        .start();
+
     if (ThreadLocalRandom.current().nextDouble() > getDropChance(level)) {
       return;
     }
@@ -101,18 +107,32 @@ public class HunterTrophySkinner extends SimpleAdaptation<HunterTrophySkinner.Co
     ItemStack trophy = buildTrophyDrop(e.getEntityType(), level, precision.projectileKill());
     if (trophy != null) {
       e.getDrops().add(trophy);
-      getPlayer(killer).getData().addStat("hunter.trophy-skinner.trophies-collected", 1);
+      addStat(killer, "hunter.trophy-skinner.trophies-collected", 1);
+      fx(corpse, FxPriority.COMBAT)
+          .particle(Particles.VILLAGER_HAPPY, 8, 0, 0.2D, 0, 0.3D, 0)
+          .chord(Sound.ENTITY_WOLF_SHAKE, 0.55F, 1.35F, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.4F, 1.8F);
     }
 
     if (ThreadLocalRandom.current().nextDouble() <= getHeadChance(level)) {
       ItemStack head = buildHeadDrop(e.getEntityType());
       if (head != null) {
         e.getDrops().add(head);
-        getPlayer(killer).getData().addStat("hunter.trophy-skinner.heads-collected", 1);
+        addStat(killer, "hunter.trophy-skinner.heads-collected", 1);
+        timeline(corpse)
+            .duration(3)
+            .priority(FxPriority.TRANSITION)
+            .cullRadius(32)
+            .frame((f, tick, progress) -> {
+              f.column(Particles.TOTEM, 12, 1.4D);
+              f.particle(Particle.GLOW, 4, 0, 0.4D, 0, 0.3D, 0);
+              if (tick == 0) {
+                f.chord(Sound.ENTITY_PLAYER_LEVELUP, 0.4F, 1.2F, Sound.BLOCK_NOTE_BLOCK_CHIME, 0.6F, 1.5F);
+              }
+            })
+            .start();
       }
     }
 
-    SoundPlayer.of(killer).play(killer.getLocation(), Sound.ENTITY_WOLF_SHAKE, 0.55f, 1.35f);
     xp(killer, getConfig().xpPerTrophy);
   }
 
@@ -185,31 +205,8 @@ public class HunterTrophySkinner extends SimpleAdaptation<HunterTrophySkinner.Co
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Precision kills can grant bonus trophy drops and occasional heads from elite targets.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.8;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Drop Chance Base for the Hunter Trophy Skinner adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double dropChanceBase = 0.14;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Drop Chance Factor for the Hunter Trophy Skinner adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -232,6 +229,12 @@ public class HunterTrophySkinner extends SimpleAdaptation<HunterTrophySkinner.Co
     double minimumRangeFactor = 10;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls XP Per Trophy for the Hunter Trophy Skinner adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpPerTrophy = 16;
+
+    public Config() {
+      baseCost = 5;
+      costFactor = 0.8;
+      initialCost = 5;
+    }
   }
 
   private record PrecisionContext(boolean projectileKill, boolean precise) {

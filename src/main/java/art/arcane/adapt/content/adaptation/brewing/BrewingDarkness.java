@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.brewing;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -29,10 +30,13 @@ import art.arcane.adapt.content.matter.BrewingStandOwner;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
 import org.bukkit.Color;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.inventory.BrewEvent;
@@ -44,13 +48,7 @@ public class BrewingDarkness extends SimpleAdaptation<BrewingDarkness.Config> {
   public BrewingDarkness() {
     super("brewing-darkness");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("brewing.darkness.description"));
-    setDisplayName(Localizer.dLocalize("brewing.darkness.name"));
     setIcon(Material.BLACK_CONCRETE);
-    setBaseCost(getConfig().baseCost);
-    setCostFactor(getConfig().costFactor);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
     setInterval(1335);
     registerBrewingRecipe(BrewingRecipe.builder()
         .id("brewing-darkness")
@@ -67,8 +65,6 @@ public class BrewingDarkness extends SimpleAdaptation<BrewingDarkness.Config> {
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.BREWING_STAND)
         .key("challenge_brewing_darkness_25")
-        .title(Localizer.dLocalize("advancement.challenge_brewing_darkness_25.title"))
-        .description(Localizer.dLocalize("advancement.challenge_brewing_darkness_25.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -86,6 +82,21 @@ public class BrewingDarkness extends SimpleAdaptation<BrewingDarkness.Config> {
     BrewingStandOwner owner = WorldData.of(e.getBlock().getWorld()).get(e.getBlock(), BrewingStandOwner.class);
     if (owner != null) {
       getServer().peekData(owner.getOwner()).addStat("brewing.darkness.potions-brewed", 1);
+      Location loc = e.getBlock().getLocation().add(0.5D, 0.6D, 0.5D);
+      timeline(loc)
+          .duration(6)
+          .priority(FxPriority.TRANSITION)
+          .cullRadius(24.0D)
+          .frame((f, tick, progress) -> {
+            f.ring(Particle.SCULK_SOUL, 1.0D - (0.8D * progress), 12, 0.4D);
+            if (tick == 0) {
+              f.chord(Sound.BLOCK_SCULK_CATALYST_BREAK, 0.5F, 1.0F, Sound.BLOCK_NOTE_BLOCK_BASS, 0.5F, 0.5F);
+            }
+            if (tick == 5) {
+              f.sound(Sound.BLOCK_BREWING_STAND_BREW, 0.6F, 0.7F);
+            }
+          })
+          .start();
     }
   }
 
@@ -94,30 +105,13 @@ public class BrewingDarkness extends SimpleAdaptation<BrewingDarkness.Config> {
   }
 
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Brew a Potion of Darkness from NightVision Potion and Black Concrete.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 1;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 1;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 2;
+  protected static class Config extends AdaptationConfig {
+    public Config() {
+      permanent = true;
+      baseCost = 3;
+      costFactor = 1;
+      maxLevel = 1;
+    }
   }
 }

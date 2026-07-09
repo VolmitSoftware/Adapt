@@ -18,17 +18,18 @@
 
 package art.arcane.adapt.content.adaptation.stealth;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -51,21 +52,14 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
   public StealthSight() {
     super("stealth-vision");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("stealth.night_vision.description"));
-    setDisplayName(Localizer.dLocalize("stealth.night_vision.name"));
+    setLocalizationKey("stealth.night_vision");
     setIcon(Material.POTION);
-    setBaseCost(getConfig().baseCost);
     setInterval(1500);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
-    setMaxLevel(getConfig().maxLevel);
     sneaking = ConcurrentHashMap.newKeySet();
     appliedNightVision = ConcurrentHashMap.newKeySet();
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.ENDER_EYE)
         .key("challenge_stealth_sight_72k")
-        .title(Localizer.dLocalize("advancement.challenge_stealth_sight_72k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_stealth_sight_72k.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -82,24 +76,43 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
     Player p = e.getPlayer();
     withPlayerThread(p, e, () -> {
       UUID id = p.getUniqueId();
-      SoundPlayer sp = SoundPlayer.of(p);
       if (!hasActiveAdaptation(p)) {
         sneaking.remove(id);
-        clearNightVisionIfApplied(p, id);
+        if (clearNightVisionIfApplied(p, id)) {
+          closeSightFx(p);
+        }
         return;
       }
 
       if (e.isSneaking()) {
         sneaking.add(id);
-        sp.play(p.getLocation(), Sound.BLOCK_FUNGUS_BREAK, 1, 0.99f);
         applyNightVisionIfNeeded(p, id);
-        getPlayer(p).getData().addStat("stealth.sight.time-in-darkness", 1);
+        addStat(p, "stealth.sight.time-in-darkness", 1);
+        openSightFx(p);
         return;
       }
 
       sneaking.remove(id);
-      clearNightVisionIfApplied(p, id);
+      if (clearNightVisionIfApplied(p, id)) {
+        closeSightFx(p);
+      }
     });
+  }
+
+  private void openSightFx(Player p) {
+    timeline(p).duration(5).priority(FxPriority.TRANSITION).cullRadius(12)
+        .frame((fx, tick, progress) -> {
+          fx.ring(Particles.END_ROD, 0.5D - (0.35D * progress), 6, 1.5D);
+          if (tick == 0) {
+            fx.chord(Sound.BLOCK_SCULK_SENSOR_CLICKING, 0.4F, 1.3F, Sound.ENTITY_ENDER_EYE_LAUNCH, 0.25F, 1.6F);
+          }
+        }).start();
+  }
+
+  private void closeSightFx(Player p) {
+    fx(p.getEyeLocation(), FxPriority.TRANSITION)
+        .burst(Particles.SMOKE, 4, 0.15D)
+        .sound(Sound.BLOCK_SCULK_SENSOR_CLICKING, 0.3F, 0.7F);
   }
 
 
@@ -130,16 +143,6 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
   }
 
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
   private void applyNightVisionIfNeeded(Player player, UUID id) {
     if (player.hasPotionEffect(PotionEffectType.NIGHT_VISION)) {
       appliedNightVision.remove(id);
@@ -155,28 +158,22 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
     }
   }
 
-  private void clearNightVisionIfApplied(Player player, UUID id) {
+  private boolean clearNightVisionIfApplied(Player player, UUID id) {
     if (!appliedNightVision.remove(id)) {
-      return;
+      return false;
     }
 
     player.removePotionEffect(PotionEffectType.NIGHT_VISION);
+    return true;
   }
 
-  @NoArgsConstructor
   @ConfigDescription("Gain night vision while sneaking.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 2;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.6;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 1;
+  protected static class Config extends AdaptationConfig {
+    public Config() {
+      baseCost = 2;
+      costFactor = 0.6;
+      maxLevel = 1;
+      initialCost = 5;
+    }
   }
 }

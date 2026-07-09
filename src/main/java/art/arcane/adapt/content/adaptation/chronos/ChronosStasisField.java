@@ -19,23 +19,28 @@
 package art.arcane.adapt.content.adaptation.chronos;
 
 import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxEmitter;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.adapt.util.reflect.registries.PotionEffectTypes;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
-import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -57,7 +62,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class ChronosStasisField extends SimpleAdaptation<ChronosStasisField.Config> {
   private final Map<UUID, Long> cooldowns;
@@ -67,13 +71,7 @@ public class ChronosStasisField extends SimpleAdaptation<ChronosStasisField.Conf
   public ChronosStasisField() {
     super("chronos-stasis-field");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("chronos.stasis_field.description"));
-    setDisplayName(Localizer.dLocalize("chronos.stasis_field.name"));
     setIcon(Material.AMETHYST_SHARD);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(250);
     cooldowns = new ConcurrentHashMap<>();
     bubbles = new CopyOnWriteArrayList<>();
@@ -81,15 +79,11 @@ public class ChronosStasisField extends SimpleAdaptation<ChronosStasisField.Conf
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.AMETHYST_SHARD)
         .key("challenge_chronos_stasis_50")
-        .title(Localizer.dLocalize("advancement.challenge_chronos_stasis_50.title"))
-        .description(Localizer.dLocalize("advancement.challenge_chronos_stasis_50.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.CLOCK)
             .key("challenge_chronos_stasis_500")
-            .title(Localizer.dLocalize("advancement.challenge_chronos_stasis_500.title"))
-            .description(Localizer.dLocalize("advancement.challenge_chronos_stasis_500.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -174,14 +168,27 @@ public class ChronosStasisField extends SimpleAdaptation<ChronosStasisField.Conf
   }
 
   private void deployBubble(Player p, int level, long now) {
+    double bubbleRadius = getRadius(level);
     Location center = p.getLocation().clone().add(0, getConfig().centerYOffset, 0);
-    bubbles.add(new StasisBubble(p.getUniqueId(), center, getRadius(level), now + getDurationMillis(level), 0L));
+    bubbles.add(new StasisBubble(p.getUniqueId(), center, bubbleRadius, now + getDurationMillis(level), 0L));
 
     if (getConfig().playClockSounds) {
       ChronosSoundFX.playTimeBombDetonate(center);
     }
 
-    getPlayer(p).getData().addStat("chronos.stasis-field.casts", 1);
+    Location deployCenter = center.clone();
+    fx(deployCenter, FxPriority.GAMEPLAY)
+        .particle(Particle.FLASH, 1, 0, 0, 0, 0, 0)
+        .dustRing(Color.fromRGB(120, 200, 255), bubbleRadius, 24, 1.2F)
+        .chord(Sound.BLOCK_AMETHYST_BLOCK_RESONATE, 0.6F, 1.5F, Sound.BLOCK_GLASS_PLACE, 0.5F, 0.7F);
+    timeline(deployCenter)
+        .duration(4)
+        .priority(FxPriority.GAMEPLAY)
+        .cullRadius(bubbleRadius + 16)
+        .frame((f, tick, progress) -> f.dome(Particles.END_ROD, bubbleRadius * (0.4D + (0.6D * progress)), 16))
+        .start();
+
+    addStat(p, "chronos.stasis-field.casts", 1);
     xp(p, center, getConfig().xpOnCast + (level * getConfig().xpPerLevel));
   }
 
@@ -197,6 +204,7 @@ public class ChronosStasisField extends SimpleAdaptation<ChronosStasisField.Conf
       if (bubble.expiresAt() <= now) {
         bubbles.remove(bubble);
         releaseBubble(bubble);
+        emitExpiry(bubble);
         continue;
       }
 
@@ -266,6 +274,7 @@ public class ChronosStasisField extends SimpleAdaptation<ChronosStasisField.Conf
     double radius = bubble.radius();
     double radiusSq = radius * radius;
     Player owner = Bukkit.getPlayer(bubble.owner());
+    int sparks = 0;
 
     for (Entity entity : world.getNearbyEntities(bubble.center(), radius, radius, radius)) {
       if (entity.getLocation().distanceSquared(bubble.center()) > radiusSq) {
@@ -277,7 +286,11 @@ public class ChronosStasisField extends SimpleAdaptation<ChronosStasisField.Conf
           frozenProjectiles.put(projectile.getUniqueId(),
               new FrozenProjectileState(bubble.id(), projectile.getVelocity().clone(), projectile.hasGravity()));
           if (owner != null) {
-            getPlayer(owner).getData().addStat("chronos.stasis-field.projectiles-frozen", 1);
+            addStat(owner, "chronos.stasis-field.projectiles-frozen", 1);
+          }
+          if (sparks < 6) {
+            fx(projectile.getLocation(), FxPriority.COMBAT).particle(Particles.END_ROD, 3, 0, 0, 0, 0.1D, 0.0D);
+            sparks++;
           }
         }
 
@@ -298,55 +311,50 @@ public class ChronosStasisField extends SimpleAdaptation<ChronosStasisField.Conf
       }
     }
 
-    if (areParticlesEnabled() && now >= bubble.nextVisualAt()) {
-      spawnOutline(world, bubble);
+    if (now >= bubble.nextVisualAt()) {
+      spawnOutline(bubble, now);
       bubble.setNextVisualAt(now + Math.max(100L, getConfig().outlineRefreshMillis));
     }
   }
 
-  private void spawnOutline(World world, StasisBubble bubble) {
-    ThreadLocalRandom random = ThreadLocalRandom.current();
-    int points = Math.max(4, getConfig().outlineParticleCount);
+  private void spawnOutline(StasisBubble bubble, long now) {
     double radius = bubble.radius();
+    int points = Math.min(12, Math.max(6, getConfig().outlineParticleCount));
+    double spin = ((now % 4000L) / 4000.0D) * Math.PI * 2D;
+    double golden = Math.PI * (3.0D - Math.sqrt(5.0D));
+    FxEmitter shell = fx(bubble.center(), FxPriority.AMBIENT);
     for (int i = 0; i < points; i++) {
-      double theta = random.nextDouble() * Math.PI * 2D;
-      double phi = Math.acos((random.nextDouble() * 2D) - 1D);
-      double x = bubble.center().getX() + (radius * Math.sin(phi) * Math.cos(theta));
-      double y = bubble.center().getY() + (radius * Math.cos(phi));
-      double z = bubble.center().getZ() + (radius * Math.sin(phi) * Math.sin(theta));
-      world.spawnParticle(Particle.END_ROD, x, y, z, 1, 0, 0, 0, 0);
+      double vertical = points == 1 ? 0D : (((2.0D * i) / (points - 1)) - 1.0D);
+      double ringRadius = Math.sqrt(Math.max(0D, 1.0D - (vertical * vertical)));
+      double angle = (golden * i) + spin;
+      double ox = Math.cos(angle) * ringRadius * radius;
+      double oy = vertical * radius;
+      double oz = Math.sin(angle) * ringRadius * radius;
+      shell.particle(Particles.END_ROD, 1, ox, oy, oz, 0, 0);
+    }
+    shell.particle(Particle.WAX_ON, 2, 0, 0, 0, radius * 0.35D, 0.0D);
+  }
+
+  private void emitExpiry(StasisBubble bubble) {
+    Location center = bubble.center();
+    double radius = bubble.radius();
+    Runnable task = () -> fx(center, FxPriority.TRANSITION)
+        .particle(Particle.FLASH, 1, 0, 0, 0, 0, 0)
+        .particle(Particle.PORTAL, 20, 0, 0, 0, radius * 0.4D, 0.5D)
+        .sound(Sound.BLOCK_AMETHYST_BLOCK_BREAK, 0.5F, 0.9F);
+    if (J.isFoliaThreading()) {
+      J.runAt(center, task);
+    } else {
+      task.run();
     }
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Sneak and right click with an amethyst shard to deploy a stasis bubble that freezes projectiles and locks down mobs inside.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Play Clock Sounds for the Chronos Stasis Field adaptation.", impact = "True enables this behavior and false disables it.")
     boolean playClockSounds = true;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Consumes the amethyst shard used to deploy a stasis bubble.", impact = "True makes each cast cost one shard; false keeps casts item-free.")
     boolean consumeShard = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 7;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 6;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Base radius of the stasis bubble in blocks.", impact = "Higher values freeze projectiles and slow mobs in a larger area.")
     double baseRadius = 3.5;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Extra bubble radius granted per adaptation level.", impact = "Higher values make leveling expand the bubble faster.")
@@ -375,6 +383,12 @@ public class ChronosStasisField extends SimpleAdaptation<ChronosStasisField.Conf
     double xpOnCast = 22;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Extra XP granted per adaptation level on cast.", impact = "Higher values scale cast XP with level faster.")
     double xpPerLevel = 3;
+
+    public Config() {
+      baseCost = 7;
+      costFactor = 0.4;
+      initialCost = 6;
+    }
   }
 
   private static final class StasisBubble {

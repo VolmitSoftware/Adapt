@@ -19,20 +19,22 @@
 package art.arcane.adapt.content.adaptation.pickaxe;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.content.integration.hiddenore.HiddenOreLink;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
+import art.arcane.volmlib.util.entity.StackExclusion;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import fr.skytasul.glowingentities.GlowingEntities;
-import lombok.NoArgsConstructor;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -59,19 +61,11 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
   public PickaxeQuarrySense() {
     super("pickaxe-quarry-sense");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("pickaxe.quarry_sense.description"));
-    setDisplayName(Localizer.dLocalize("pickaxe.quarry_sense.name"));
     setIcon(Material.MAP);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(1200);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.SPYGLASS)
         .key("challenge_pickaxe_quarry_200")
-        .title(Localizer.dLocalize("advancement.challenge_pickaxe_quarry_200.title"))
-        .description(Localizer.dLocalize("advancement.challenge_pickaxe_quarry_200.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -80,8 +74,8 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.f(getScanRadius(level)) + C.GRAY + " " + Localizer.dLocalize("pickaxe.quarry_sense.lore1"));
-    v.addLore(C.GREEN + "+ " + Form.pc(getDurabilityCostPercent(level), 2) + C.GRAY + " " + Localizer.dLocalize("pickaxe.quarry_sense.lore2"));
+    statLore(v, Form.f(getScanRadius(level)), 1);
+    statLore(v, Form.pc(getDurabilityCostPercent(level), 2), 2);
     v.addLore(C.YELLOW + "* " + Form.duration(getCooldownTicks(level) * 50D, 1) + C.GRAY + " " + Localizer.dLocalize("pickaxe.quarry_sense.lore3"));
   }
 
@@ -108,26 +102,26 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
       return;
     }
 
-    if (areParticlesEnabled()) {
-      p.spawnParticle(Particle.ENCHANT, p.getEyeLocation(), 14, 0.2, 0.25, 0.2, 0.15);
-    }
-    SoundPlayer.of(p.getWorld()).play(p.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.8f, 1.35f);
+    fx(p.getEyeLocation(), FxPriority.GAMEPLAY)
+        .particle(Particles.ENCHANTMENT_TABLE, 14, 0, 0, 0, 0.22, 0.15)
+        .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.8f, 1.35f);
 
     int durabilityCost = getDurabilityCost(hand, level);
     if (!applyPickaxeCost(p, hand, durabilityCost)) {
-      if (areParticlesEnabled()) {
-        p.spawnParticle(Particle.SMOKE, p.getEyeLocation(), 8, 0.2, 0.2, 0.2, 0.03);
-      }
-      SoundPlayer.of(p.getWorld()).play(p.getLocation(), Sound.BLOCK_ANVIL_PLACE, 0.5f, 0.65f);
+      fx(p.getEyeLocation(), FxPriority.TRANSITION)
+          .particle(Particles.SMOKE, 8, 0, 0, 0, 0.2, 0.03)
+          .dustBurst(Color.fromRGB(0x555555), 6, 0.2, 1.0f)
+          .sound(Sound.BLOCK_ANVIL_PLACE, 0.5f, 0.55f);
       return;
     }
 
-    List<Block> ores = findNearbyOres(p.getLocation(), getScanRadius(level), getMaxHighlights(level));
+    int scanRadius = getScanRadius(level);
+    List<Block> ores = findNearbyOres(p.getLocation(), scanRadius, getMaxHighlights(level));
     if (ores.isEmpty()) {
-      if (areParticlesEnabled()) {
-        p.spawnParticle(Particle.SMOKE, p.getEyeLocation(), 12, 0.22, 0.22, 0.22, 0.02);
-      }
-      SoundPlayer.of(p.getWorld()).play(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 0.6f, 0.75f);
+      fx(p.getEyeLocation(), FxPriority.TRANSITION)
+          .particle(Particles.SMOKE, 12, 0, 0, 0, 0.22, 0.02)
+          .ring(Particles.SMOKE, 0.6D, 10, 0)
+          .sound(Sound.BLOCK_NOTE_BLOCK_BASS, 0.6f, 0.75f);
       p.setCooldown(hand.getType(), getCooldownTicks(level));
       e.setCancelled(true);
       return;
@@ -138,12 +132,20 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
     }
 
     p.setCooldown(hand.getType(), getCooldownTicks(level));
-    if (areParticlesEnabled()) {
-      p.spawnParticle(Particle.GLOW, p.getEyeLocation(), 8, 0.15, 0.15, 0.15, 0.01);
-    }
-    SoundPlayer.of(p.getWorld()).play(p.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 0.9f, 1.6f);
+    timeline(p.getLocation().add(0, 1, 0))
+        .duration(8)
+        .priority(FxPriority.GAMEPLAY)
+        .cullRadius(Math.min(48, scanRadius + 8))
+        .frame((fxE, tick, progress) -> {
+          fxE.dome(Particle.GLOW, scanRadius * 0.5D * progress, Math.min(48, 12 + scanRadius));
+          if (tick == 0 || tick == 3 || tick == 6) {
+            fxE.sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.5f, (float) (1.0D + (progress * 0.8D)));
+          }
+        })
+        .start();
+    fx(p.getLocation(), FxPriority.GAMEPLAY).sound(Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 0.9f, 1.6f);
     xp(p, ores.size() * getConfig().xpPerFoundOre);
-    getPlayer(p).getData().addStat("pickaxe.quarry-sense.scans", 1);
+    addStat(p, "pickaxe.quarry-sense.scans", 1);
     e.setCancelled(true);
   }
 
@@ -190,6 +192,8 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
     }
 
     Slime slime = ore.getWorld().spawn(ore.getLocation().add(0.5, 0.5, 0.5), Slime.class, s -> {
+      StackExclusion.exclude(s);
+      s.setPersistent(false);
       s.setInvulnerable(true);
       s.setCollidable(false);
       s.setGravity(false);
@@ -212,15 +216,10 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
       return;
     }
 
-    if (areParticlesEnabled()) {
-
-      p.spawnParticle(Particle.GLOW, ore.getLocation().add(0.5, 0.5, 0.5), 20, 0.25, 0.25, 0.25, 0.001);
-
-    }
-    if (areParticlesEnabled()) {
-      p.spawnParticle(Particle.END_ROD, ore.getLocation().add(0.5, 0.5, 0.5), 8, 0.15, 0.15, 0.15, 0.003);
-
-    }
+    fx(ore.getLocation().add(0.5, 0.5, 0.5), FxPriority.GAMEPLAY)
+        .ring(Particles.END_ROD, 0.6D, 10, 0.3D)
+        .particle(Particle.GLOW, 8, 0, 0, 0, 0.2, 0.001)
+        .sound(Sound.BLOCK_NOTE_BLOCK_BELL, 0.25f, 1.4f);
     J.runEntity(slime, () -> {
       try {
         glowingEntities.unsetGlowing(slime, p);
@@ -241,14 +240,9 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
           return;
         }
 
-        if (areParticlesEnabled()) {
-
-          p.spawnParticle(Particle.GLOW, loc, 14, 0.22, 0.22, 0.22, 0.001);
-
-        }
-        if (areParticlesEnabled()) {
-          p.spawnParticle(Particle.END_ROD, loc, 4, 0.12, 0.12, 0.12, 0.001);
-        }
+        fx(loc, FxPriority.AMBIENT)
+            .particle(Particle.GLOW, 14, 0, 0, 0, 0.22, 0.001)
+            .particle(Particles.END_ROD, 4, 0, 0, 0, 0.12, 0.001);
       }, t);
     }
   }
@@ -339,33 +333,10 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Sneak-right-click a block with an iron+ pickaxe to highlight nearby ores.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Costs Reduce Max Durability for the Pickaxe Quarry Sense adaptation.", impact = "True reduces max durability instead of adding normal damage.")
     boolean costsReduceMaxDurability = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.7;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Scan Radius Base for the Pickaxe Quarry Sense adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double scanRadiusBase = 10;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Scan Radius Factor for the Pickaxe Quarry Sense adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -390,5 +361,10 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
     double minDurabilityCostPercent = 0.001;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Found Ore for the Pickaxe Quarry Sense adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpPerFoundOre = 6;
+
+    public Config() {
+      costFactor = 0.7;
+      initialCost = 4;
+    }
   }
 }

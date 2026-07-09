@@ -18,58 +18,48 @@
 
 package art.arcane.adapt.content.adaptation.discovery;
 
-import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import art.arcane.volmlib.util.math.M;
-import lombok.NoArgsConstructor;
 import org.bukkit.Color;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageEvent;
 
-import java.util.Map;
 import java.util.UUID;
 
 public class DiscoveryXpResist extends SimpleAdaptation<DiscoveryXpResist.Config> {
   private static final long COOLDOWN_MILLIS = 15000L;
-  private final Map<UUID, Long> cooldowns;
+  private final Cooldowns cooldowns = cooldowns();
 
   public DiscoveryXpResist() {
     super("discovery-xp-resist");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("discovery.resist.description"));
-    setDisplayName(Localizer.dLocalize("discovery.resist.name"));
+    setLocalizationKey("discovery.resist");
     setIcon(Material.TOTEM_OF_UNDYING);
     setInterval(5215);
-    setBaseCost(getConfig().baseCost);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
-    setMaxLevel(getConfig().maxLevel);
-    cooldowns = new java.util.concurrent.ConcurrentHashMap<>();
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.TOTEM_OF_UNDYING)
         .key("challenge_discovery_xp_resist_25")
-        .title(Localizer.dLocalize("advancement.challenge_discovery_xp_resist_25.title"))
-        .description(Localizer.dLocalize("advancement.challenge_discovery_xp_resist_25.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.ENCHANTED_GOLDEN_APPLE)
             .key("challenge_discovery_xp_resist_250")
-            .title(Localizer.dLocalize("advancement.challenge_discovery_xp_resist_250.title"))
-            .description(Localizer.dLocalize("advancement.challenge_discovery_xp_resist_250.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -77,8 +67,6 @@ public class DiscoveryXpResist extends SimpleAdaptation<DiscoveryXpResist.Config
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.TOTEM_OF_UNDYING)
         .key("challenge_discovery_xp_resist_clutch")
-        .title(Localizer.dLocalize("advancement.challenge_discovery_xp_resist_clutch.title"))
-        .description(Localizer.dLocalize("advancement.challenge_discovery_xp_resist_clutch.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -118,32 +106,55 @@ public class DiscoveryXpResist extends SimpleAdaptation<DiscoveryXpResist.Config
       return;
     }
 
-    SoundPlayer sp = SoundPlayer.of(p);
     int xpCost = getXpTaken(level);
     if (p.getLevel() < xpCost) {
-      vfxFastRing(p.getLocation().add(0, 0.05, 0), 1, Color.RED);
-      sp.play(p.getLocation(), Sound.BLOCK_FUNGUS_BREAK, 15, 0.01f);
+      fx(p.getLocation(), FxPriority.COMBAT)
+          .dustBurst(Color.RED, 10, 0.8D, 1.0F)
+          .chord(Sound.BLOCK_FUNGUS_BREAK, 0.6F, 0.6F, Sound.BLOCK_GLASS_BREAK, 0.5F, 0.8F);
       return;
     }
+
     UUID id = p.getUniqueId();
-    Long cooldown = cooldowns.get(id);
-    if (cooldown == null || M.ms() - cooldown > COOLDOWN_MILLIS) {
+    if (cooldowns.isReady(id, COOLDOWN_MILLIS)) {
       double effectiveness = getEffectiveness(getLevelPercent(level));
       double originalDamage = e.getDamage();
       e.setDamage(Math.max(0D, e.getDamage() * (1D - effectiveness)));
       xp(p, 5);
-      cooldowns.put(id, M.ms());
+      cooldowns.mark(id);
       p.setLevel(p.getLevel() - xpCost);
-      vfxFastRing(p.getLocation().add(0, 0.05, 0), 1, Color.LIME);
-      sp.play(p.getLocation(), Sound.ENTITY_IRON_GOLEM_REPAIR, 3, 0.01f);
-      sp.play(p.getLocation(), Sound.BLOCK_SHROOMLIGHT_HIT, 15, 0.01f);
-      getPlayer(p).getData().addStat("discovery.xp-resist.saves", 1);
-      if (originalDamage >= 30.0 && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_discovery_xp_resist_clutch")) {
-        getPlayer(p).getAdvancementHandler().grant("challenge_discovery_xp_resist_clutch");
+      addStat(p, "discovery.xp-resist.saves", 1);
+
+      double startRadius = 0.8D + (getLevelPercent(level) * 1.6D);
+      timeline(p)
+          .duration(12)
+          .priority(FxPriority.COMBAT)
+          .cullRadius(24)
+          .frame((f, tick, progress) -> {
+            double radius = startRadius * (1.0D - progress);
+            f.ring(Particle.ELECTRIC_SPARK, radius, 8, 0.1D);
+            if ((tick & 1) == 0) {
+              f.dustRing(Color.LIME, radius, 8, 1.1F);
+            }
+            if (tick == 0) {
+              f.chord(Sound.ENTITY_IRON_GOLEM_REPAIR, 0.8F, 0.8F, Sound.ITEM_TOTEM_USE, 0.5F, 1.2F);
+            }
+            if ((tick & 3) == 0) {
+              f.sound(Sound.BLOCK_BEACON_ACTIVATE, 0.3F, (float) (1.0D + (progress * 0.6D)));
+            }
+          })
+          .onComplete(() -> fx(p.getLocation(), FxPriority.COMBAT).particle(Particles.TOTEM, 16, 0, 0, 0, 0.2, 0.1))
+          .start();
+
+      if (originalDamage >= 30.0 && grantOnce(p, "challenge_discovery_xp_resist_clutch")) {
+        fx(p.getLocation(), FxPriority.GAMEPLAY)
+            .dome(Particles.END_ROD, 2.0D, 24)
+            .dustBurst(Color.fromRGB(255, 215, 0), 20, 1.2D, 1.4F)
+            .sound(Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.5F, 1.0F);
       }
     } else {
-      vfxFastRing(p.getLocation().add(0, 0.05, 0), 1, Color.RED);
-      sp.play(p.getLocation(), Sound.BLOCK_FUNGUS_BREAK, 15, 0.01f);
+      fx(p.getLocation(), FxPriority.TRANSITION)
+          .particle(Particles.SMOKE, 2, 0, 0, 0, 0.05, 0.01)
+          .sound(Sound.BLOCK_NOTE_BLOCK_BASS, 0.5F, 0.5F);
     }
   }
 
@@ -163,31 +174,8 @@ public class DiscoveryXpResist extends SimpleAdaptation<DiscoveryXpResist.Config
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Consume experience to mitigate damage when a hit would drop you below 5 hearts.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.8;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Effectiveness Base for the Discovery Xp Resist adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double effectivenessBase = 0.15;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Effectiveness for the Discovery Xp Resist adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -200,5 +188,11 @@ public class DiscoveryXpResist extends SimpleAdaptation<DiscoveryXpResist.Config
     double amplifier = 1.0;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Trigger Health Threshold for the Discovery Xp Resist adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double triggerHealthThreshold = 10.0;
+
+    public Config() {
+      baseCost = 5;
+      costFactor = 0.8;
+      initialCost = 3;
+    }
   }
 }

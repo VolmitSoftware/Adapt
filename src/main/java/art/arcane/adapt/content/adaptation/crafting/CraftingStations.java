@@ -18,16 +18,20 @@
 
 package art.arcane.adapt.content.adaptation.crafting;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdvancementSpec;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -40,16 +44,12 @@ import org.bukkit.inventory.ItemStack;
 
 
 public class CraftingStations extends SimpleAdaptation<CraftingStations.Config> {
+  private final Cooldowns blockedCue = cooldowns();
+
   public CraftingStations() {
     super("crafting-stations");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("crafting.stations.description"));
-    setDisplayName(Localizer.dLocalize("crafting.stations.name"));
     setIcon(Material.CRAFTING_TABLE);
-    setBaseCost(getConfig().baseCost);
-    setCostFactor(getConfig().costFactor);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
     setInterval(9248);
     AdvancementSpec stations5k = AdvancementSpec.challenge(
         "challenge_crafting_stations_5k",
@@ -92,6 +92,10 @@ public class CraftingStations extends SimpleAdaptation<CraftingStations.Config> 
 
     if (p.hasCooldown(hand.getType())) {
       e.setCancelled(true);
+      if (blockedCue.isReady(p.getUniqueId(), 700)) {
+        blockedCue.mark(p.getUniqueId());
+        fx(p.getLocation(), FxPriority.TRANSITION).sound(Sound.BLOCK_DISPENSER_FAIL, 0.3F, 1.0F);
+      }
       return;
     }
 
@@ -115,7 +119,11 @@ public class CraftingStations extends SimpleAdaptation<CraftingStations.Config> 
     }
 
     int hungerCost = getConfig().hungerCost;
+    Location handTip = p.getEyeLocation().add(p.getLocation().getDirection().multiply(0.8D));
     if (hungerCost > 0 && p.getFoodLevel() < hungerCost) {
+      fx(handTip, FxPriority.TRANSITION)
+          .burst(Particles.SMOKE, 3, 0.15D)
+          .sound(Sound.BLOCK_NOTE_BLOCK_BASS, 0.5F, 0.6F);
       return;
     }
 
@@ -124,16 +132,33 @@ public class CraftingStations extends SimpleAdaptation<CraftingStations.Config> 
     }
 
     p.setCooldown(hand.getType(), 1000);
-    SoundPlayer sp = SoundPlayer.of(p);
-    sp.play(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
-    sp.play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
+    materializeStation(handTip);
     if (station == InventoryType.WORKBENCH) {
       p.openWorkbench(null, true);
     } else {
       Inventory inv = Bukkit.createInventory(p, station);
       p.openInventory(inv);
     }
-    getPlayer(p).getData().addStat("crafting.stations.portable-opens", 1);
+    addStat(p, "crafting.stations.portable-opens", 1);
+  }
+
+  private void materializeStation(Location handTip) {
+    timeline(handTip)
+        .duration(5)
+        .priority(FxPriority.TRANSITION)
+        .cullRadius(16)
+        .frame((fx, tick, progress) -> {
+          fx.particle(Particle.REVERSE_PORTAL, 3, 0, 0, 0, 0.25D * (1.0D - progress), 0.02D);
+          if (tick == 0) {
+            fx.particle(Particle.ENCHANT, 8, 0, 0, 0, 0.3D, 0.05D);
+            fx.chord(Sound.PARTICLE_SOUL_ESCAPE, 1F, 0.10F, Sound.BLOCK_ENDER_CHEST_OPEN, 1F, 0.10F);
+            fx.chord(Sound.BLOCK_BEACON_ACTIVATE, 0.3F, 1.8F, Sound.BLOCK_ENCHANTMENT_TABLE_USE, 0.4F, 1.0F);
+          }
+          if (tick >= 4) {
+            fx.ring(Particles.CRIT_MAGIC, 0.5D, 10, 0.0D);
+          }
+        })
+        .start();
   }
 
   @Override
@@ -141,34 +166,18 @@ public class CraftingStations extends SimpleAdaptation<CraftingStations.Config> 
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Use crafting tables, anvils, and other stations in the palm of your hand.")
-  protected static class Config {
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown for the Crafting Stations adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     public int cooldown = 125;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Hunger points consumed each time a portable station is opened.", impact = "Higher values make portable station access cost more food; 0 disables the cost.")
     int hungerCost = 2;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 1;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 2;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 1;
+
+    public Config() {
+      permanent = true;
+      baseCost = 5;
+      costFactor = 1;
+      maxLevel = 1;
+    }
   }
 }

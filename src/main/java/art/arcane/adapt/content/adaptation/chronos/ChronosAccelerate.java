@@ -18,21 +18,25 @@
 
 package art.arcane.adapt.content.adaptation.chronos;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BrewingStand;
@@ -45,22 +49,16 @@ import org.bukkit.inventory.ItemStack;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class ChronosAccelerate extends SimpleAdaptation<ChronosAccelerate.Config> {
+  private static final Color AURA_COLOR = Color.fromRGB(230, 210, 150);
+
   public ChronosAccelerate() {
     super("chronos-accelerate");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("chronos.accelerate.description"));
-    setDisplayName(Localizer.dLocalize("chronos.accelerate.name"));
     setIcon(Material.SUGAR);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(getConfig().pulseIntervalMillis);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.SUGAR)
         .key("challenge_chronos_accelerate_1k")
-        .title(Localizer.dLocalize("advancement.challenge_chronos_accelerate_1k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_chronos_accelerate_1k.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -140,7 +138,7 @@ public class ChronosAccelerate extends SimpleAdaptation<ChronosAccelerate.Config
       if (type == Material.FURNACE || type == Material.BLAST_FURNACE || type == Material.SMOKER) {
         if (canInteract(p, block.getLocation()) && block.getState() instanceof Furnace furnace && accelerateFurnace(furnace, level)) {
           accelerated++;
-          spawnAccelerationParticle(world, x, y, z);
+          emitStationFx(world, x, y, z, true);
         }
         continue;
       }
@@ -148,7 +146,7 @@ public class ChronosAccelerate extends SimpleAdaptation<ChronosAccelerate.Config
       if (type == Material.BREWING_STAND) {
         if (canInteract(p, block.getLocation()) && block.getState() instanceof BrewingStand stand && accelerateBrewingStand(stand, level)) {
           accelerated++;
-          spawnAccelerationParticle(world, x, y, z);
+          emitStationFx(world, x, y, z, false);
         }
         continue;
       }
@@ -161,13 +159,14 @@ public class ChronosAccelerate extends SimpleAdaptation<ChronosAccelerate.Config
         ageable.setAge(ageable.getAge() + 1);
         block.setBlockData(data, true);
         accelerated++;
-        spawnAccelerationParticle(world, x, y, z);
+        emitCropFx(world, x, y, z);
       }
     }
 
     if (accelerated > 0) {
-      getPlayer(p).getData().addStat("chronos.accelerate.blocks-accelerated", accelerated);
+      addStat(p, "chronos.accelerate.blocks-accelerated", accelerated);
       xpSilent(p, accelerated * getConfig().xpPerAcceleratedBlock, "chronos:accelerate");
+      fx(center, FxPriority.AMBIENT).dustRing(AURA_COLOR, getRadius(level), 8, 0.9F);
     }
   }
 
@@ -213,37 +212,21 @@ public class ChronosAccelerate extends SimpleAdaptation<ChronosAccelerate.Config
     return true;
   }
 
-  private void spawnAccelerationParticle(World world, int x, int y, int z) {
-    if (areParticlesEnabled()) {
-      world.spawnParticle(Particle.HAPPY_VILLAGER, x + 0.5, y + 0.5, z + 0.5, 2, 0.2, 0.2, 0.2, 0);
-    }
+  private void emitCropFx(World world, int x, int y, int z) {
+    fx(new Location(world, x + 0.5, y + 0.9, z + 0.5), FxPriority.AMBIENT)
+        .particle(Particles.VILLAGER_HAPPY, 3, 0, 0.1D, 0, 0.2D, 0.01D)
+        .particle(Particle.COMPOSTER, 1, 0, 0.2D, 0, 0.15D, 0);
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
+  private void emitStationFx(World world, int x, int y, int z, boolean furnace) {
+    fx(new Location(world, x + 0.5, y + 0.6, z + 0.5), FxPriority.AMBIENT)
+        .particle(Particles.ENCHANTMENT_TABLE, 2, 0, 0.3D, 0, 0.25D, 0.02D)
+        .particle(furnace ? Particles.SMOKE : Particle.SPLASH, 1, 0, 0.3D, 0, 0.1D, 0.01D)
+        .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.3F, 1.6F);
   }
 
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Passively accelerate time around you, occasionally growing nearby crops and speeding furnaces and brewing stands.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Milliseconds between acceleration pulses.", impact = "Lower values pulse more often at more server cost.")
     long pulseIntervalMillis = 3000;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Base aura radius in blocks.", impact = "Higher values sample blocks from a wider area.")
@@ -266,5 +249,11 @@ public class ChronosAccelerate extends SimpleAdaptation<ChronosAccelerate.Config
     double maxCookBoostFraction = 0.6;
     @art.arcane.adapt.util.config.ConfigDoc(value = "XP granted per accelerated block.", impact = "Higher values grant more skill XP from the aura.")
     double xpPerAcceleratedBlock = 1.2;
+
+    public Config() {
+      baseCost = 5;
+      costFactor = 0.4;
+      initialCost = 4;
+    }
   }
 }

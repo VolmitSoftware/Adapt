@@ -19,38 +19,41 @@
 package art.arcane.adapt.content.adaptation.hunter;
 
 import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPresets;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 
 public class HunterInvis extends SimpleAdaptation<HunterInvis.Config> {
+  private final Cooldowns fxCooldown = cooldowns();
+
   public HunterInvis() {
     super("hunter-invis");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("hunter.invisibility.description"));
-    setDisplayName(Localizer.dLocalize("hunter.invisibility.name"));
+    setLocalizationKey("hunter.invisibility");
     setIcon(Material.TROPICAL_FISH_BUCKET);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(9444);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.GLASS)
         .key("challenge_hunter_invis_200")
-        .title(Localizer.dLocalize("advancement.challenge_hunter_invis_200.title"))
-        .description(Localizer.dLocalize("advancement.challenge_hunter_invis_200.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -60,10 +63,10 @@ public class HunterInvis extends SimpleAdaptation<HunterInvis.Config> {
   @Override
   public void addStats(int level, Element v) {
     v.addLore(C.GRAY + Localizer.dLocalize("hunter.invisibility.lore1"));
-    v.addLore(C.GREEN + "+ " + level + C.GRAY + Localizer.dLocalize("hunter.invisibility.lore2"));
-    v.addLore(C.RED + "- " + (5 + level) + C.GRAY + Localizer.dLocalize("hunter.invisibility.lore3"));
-    v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Localizer.dLocalize("hunter.invisibility.lore4"));
-    v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Localizer.dLocalize("hunter.invisibility.lore5"));
+    statLore(v, level, 2);
+    statLore(v, C.RED, "- ", (5 + level), 3);
+    statLore(v, C.GRAY, "* ", level, 4);
+    statLore(v, C.GRAY, "* ", level, 5);
     v.addLore(C.RED + "* " + level + C.GRAY + " " + Localizer.dLocalize("hunter.penalty.lore1"));
     v.addLore(C.GRAY + "- " + level + C.RED + " " + Localizer.dLocalize("hunter.penalty.lore1"));
 
@@ -81,10 +84,12 @@ public class HunterInvis extends SimpleAdaptation<HunterInvis.Config> {
           if (getConfig().poisonPenalty) {
             addPotionStacks(p, PotionEffectType.POISON, getConfig().basePoisonFromLevel - getLevel(p), getConfig().baseHungerDuration, getConfig().stackPoisonPenalty);
           }
+          starveFx(p);
         } else {
           addPotionStacks(p, PotionEffectType.HUNGER, getConfig().baseHungerFromLevel - getLevel(p), getConfig().baseHungerDuration * getLevel(p), getConfig().stackHungerPenalty);
           addPotionStacks(p, PotionEffectType.INVISIBILITY, getLevel(p), getConfig().baseEffectbyLevel * getLevel(p), getConfig().stackBuff);
-          getPlayer(p).getData().addStat("hunter.invis.activations", 1);
+          addStat(p, "hunter.invis.activations", 1);
+          activateFx(p);
         }
       } else {
         if (getConfig().consumable != null && Material.getMaterial(getConfig().consumable) != null) {
@@ -92,15 +97,37 @@ public class HunterInvis extends SimpleAdaptation<HunterInvis.Config> {
           if (mat != null && p.getInventory().contains(mat)) {
             p.getInventory().removeItem(new ItemStack(mat, 1));
             addPotionStacks(p, PotionEffectType.INVISIBILITY, getLevel(p), getConfig().baseEffectbyLevel * getLevel(p), getConfig().stackBuff);
-            getPlayer(p).getData().addStat("hunter.invis.activations", 1);
+            addStat(p, "hunter.invis.activations", 1);
+            activateFx(p);
           } else {
             if (getConfig().poisonPenalty) {
               addPotionStacks(p, PotionEffectType.POISON, getConfig().basePoisonFromLevel - getLevel(p), getConfig().baseHungerDuration, getConfig().stackPoisonPenalty);
             }
+            starveFx(p);
           }
         }
       }
     }
+  }
+
+  private void activateFx(Player p) {
+    if (!fxCooldown.isReady(p.getUniqueId(), 1200L)) {
+      return;
+    }
+    fxCooldown.mark(p.getUniqueId());
+    Location loc = p.getLocation().add(0, 1.0D, 0);
+    fx(loc, FxPriority.TRANSITION)
+        .dome(Particles.SMOKE, 1.2D, 16)
+        .ring(Particle.PORTAL, 1.0D, 12, 0.2D)
+        .chord(Sound.ENTITY_ILLUSIONER_MIRROR_MOVE, 0.7F, 1.0F, Sound.BLOCK_CONDUIT_DEACTIVATE, 0.3F, 1.4F);
+  }
+
+  private void starveFx(Player p) {
+    if (!fxCooldown.isReady(p.getUniqueId(), 1200L)) {
+      return;
+    }
+    fxCooldown.mark(p.getUniqueId());
+    FxPresets.failFizzle(this, p);
   }
 
   @Override
@@ -108,23 +135,8 @@ public class HunterInvis extends SimpleAdaptation<HunterInvis.Config> {
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Gain invisibility when struck, at the cost of hunger.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Use Consumable for the Hunter Invis adaptation.", impact = "True enables this behavior and false disables it.")
     boolean useConsumable = false;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Poison Penalty for the Hunter Invis adaptation.", impact = "True enables this behavior and false disables it.")
@@ -145,13 +157,10 @@ public class HunterInvis extends SimpleAdaptation<HunterInvis.Config> {
     int basePoisonFromLevel = 6;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Consumable for the Hunter Invis adaptation.", impact = "Changing this alters the identifier or text used by the feature.")
     String consumable = "ROTTEN_FLESH";
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 8;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.4;
+
+    public Config() {
+      costFactor = 0.4;
+      initialCost = 8;
+    }
   }
 }

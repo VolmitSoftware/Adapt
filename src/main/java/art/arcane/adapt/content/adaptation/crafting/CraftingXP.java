@@ -18,39 +18,36 @@
 
 package art.arcane.adapt.content.adaptation.crafting;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdvancementSpec;
+import art.arcane.adapt.api.fx.FxEmitter;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.inventory.CraftItemEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-
-import java.util.Map;
-import java.util.UUID;
 
 
 public class CraftingXP extends SimpleAdaptation<CraftingXP.Config> {
-  private final Map<UUID, Long> cooldown = new java.util.concurrent.ConcurrentHashMap<>();
+  private final Cooldowns xpCooldown = cooldowns();
 
 
   public CraftingXP() {
     super("crafting-xp");
     registerConfiguration(CraftingXP.Config.class);
-    setDisplayName(Localizer.dLocalize("crafting.xp.name"));
-    setDescription(Localizer.dLocalize("crafting.xp.description"));
     setIcon(Material.ENCHANTED_BOOK);
     setInterval(5580);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     AdvancementSpec xp25k = AdvancementSpec.challenge(
         "challenge_crafting_xp_25k",
         Material.EXPERIENCE_BOTTLE,
@@ -73,13 +70,6 @@ public class CraftingXP extends SimpleAdaptation<CraftingXP.Config> {
     v.addLore(C.GREEN + Localizer.dLocalize("crafting.xp.lore1"));
   }
 
-  @EventHandler
-  public void on(PlayerQuitEvent e) {
-    Player p = e.getPlayer();
-    cooldown.remove(p.getUniqueId());
-  }
-
-
   @EventHandler(priority = EventPriority.LOW)
   public void on(CraftItemEvent e) {
     Player p = (Player) e.getWhoClicked();
@@ -87,22 +77,28 @@ public class CraftingXP extends SimpleAdaptation<CraftingXP.Config> {
       if (e.getInventory().getResult() != null && e.getCursor() != null && e.getCursor().getAmount() < 64) {
         if (p.getInventory().addItem(e.getCurrentItem()).isEmpty()) {
           p.getInventory().removeItem(e.getCurrentItem());
-          if (cooldown.containsKey(p.getUniqueId()) && cooldown.get(p.getUniqueId()) + 20000 < System.currentTimeMillis()) {
-            cooldown.remove(p.getUniqueId());
-          } else if (cooldown.containsKey(p.getUniqueId()) && cooldown.get(p.getUniqueId()) + 20000 > System.currentTimeMillis()) {
+          if (!xpCooldown.isReady(p.getUniqueId(), 20000)) {
             return;
           }
-          cooldown.put(p.getUniqueId(), System.currentTimeMillis());
-          p.getWorld().spawn(p.getLocation(), org.bukkit.entity.ExperienceOrb.class).setExperience(getLevel(p) * 2);
-          getPlayer(p).getData().addStat("crafting.xp.items-crafted", 1);
+          xpCooldown.mark(p.getUniqueId());
+          int level = getLevel(p);
+          p.getWorld().spawn(p.getLocation(), org.bukkit.entity.ExperienceOrb.class).setExperience(level * 2);
+          addStat(p, "crafting.xp.items-crafted", 1);
+          xpShimmer(p.getLocation().add(0, 1, 0), level);
         }
       }
     }
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
+  private void xpShimmer(Location center, int level) {
+    float pickupPitch = (float) Math.min(2.0D, 0.8D + (level * 0.05D));
+    FxEmitter fx = fx(center, FxPriority.AMBIENT)
+        .particle(Particles.ENCHANTMENT_TABLE, Math.min(14, 6 + level), 0, 0.2D, 0, 0.4D, 0.4D)
+        .chord(Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5F, pickupPitch, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.3F, 1.3F);
+    if (level >= 5) {
+      fx.burst(Particle.GLOW, 3, 0.2D)
+          .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.4F, 1.8F);
+    }
   }
 
 
@@ -110,25 +106,13 @@ public class CraftingXP extends SimpleAdaptation<CraftingXP.Config> {
   public void onTick() {
   }
 
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Gain passive XP when crafting items.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 2;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 7;
+  protected static class Config extends AdaptationConfig {
+    public Config() {
+      baseCost = 2;
+      costFactor = 0.3;
+      maxLevel = 7;
+      initialCost = 3;
+    }
   }
 }

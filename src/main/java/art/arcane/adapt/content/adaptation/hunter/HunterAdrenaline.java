@@ -18,45 +18,42 @@
 
 package art.arcane.adapt.content.adaptation.hunter;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.api.fx.FxEmitter;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Color;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 public class HunterAdrenaline extends SimpleAdaptation<HunterAdrenaline.Config> {
+  private static final Color LOW_HEALTH_RED = Color.fromRGB(140, 0, 0);
+
   public HunterAdrenaline() {
     super("hunter-adrenaline");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("hunter.adrenaline.description"));
-    setDisplayName(Localizer.dLocalize("hunter.adrenaline.name"));
     setIcon(Material.LEATHER_HELMET);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(1911);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.IRON_SWORD)
         .key("challenge_hunter_adrenaline_100")
-        .title(Localizer.dLocalize("advancement.challenge_hunter_adrenaline_100.title"))
-        .description(Localizer.dLocalize("advancement.challenge_hunter_adrenaline_100.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.DIAMOND_SWORD)
             .key("challenge_hunter_adrenaline_2500")
-            .title(Localizer.dLocalize("advancement.challenge_hunter_adrenaline_2500.title"))
-            .description(Localizer.dLocalize("advancement.challenge_hunter_adrenaline_2500.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -67,7 +64,7 @@ public class HunterAdrenaline extends SimpleAdaptation<HunterAdrenaline.Config> 
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.pc(getDamage(level), 0) + C.GRAY + " " + Localizer.dLocalize("hunter.adrenaline.lore1"));
+    statLore(v, Form.pc(getDamage(level), 0), 1);
   }
 
   private double getDamage(int level) {
@@ -91,7 +88,41 @@ public class HunterAdrenaline extends SimpleAdaptation<HunterAdrenaline.Config> 
 
     damageMax *= (1D - hpp);
     e.setDamage(e.getDamage() * (damageMax + 1D));
-    getPlayer(p).getData().addStat("hunter.adrenaline.low-health-kills", 1);
+    addStat(p, "hunter.adrenaline.low-health-kills", 1);
+
+    if (hpp >= 0.35D) {
+      return;
+    }
+
+    FxEmitter flare = fx(p.getEyeLocation().subtract(0, 0.4D, 0), FxPriority.COMBAT)
+        .dustBurst(LOW_HEALTH_RED, 7, 0.25D, 1.1F)
+        .sound(Sound.ENTITY_PLAYER_ATTACK_CRIT, 0.6F, 0.7F);
+    if (hpp < 0.2D) {
+      flare.chord(Sound.ENTITY_ZOGLIN_ATTACK, 0.25F, 1.6F, Sound.BLOCK_NOTE_BLOCK_BASS, 0.4F, 0.5F);
+    }
+
+    if (!(e.getEntity() instanceof LivingEntity victim)) {
+      return;
+    }
+
+    Location victimCenter = victim.getLocation().add(0, victim.getHeight() * 0.5D, 0);
+    fx(victimCenter, FxPriority.COMBAT).burst(Particles.CRIT_MAGIC, 3, 0.2D);
+
+    if (victim.getHealth() - e.getFinalDamage() > 0) {
+      return;
+    }
+
+    timeline(victimCenter)
+        .duration(4)
+        .priority(FxPriority.COMBAT)
+        .cullRadius(32)
+        .frame((f, tick, progress) -> {
+          f.dustRing(LOW_HEALTH_RED, 0.9D - (0.7D * progress), 10, 1.1F);
+          if (tick == 0) {
+            f.sound(Sound.ENTITY_PLAYER_ATTACK_STRONG, 0.7F, 0.9F);
+          }
+        })
+        .start();
   }
 
   @Override
@@ -99,34 +130,16 @@ public class HunterAdrenaline extends SimpleAdaptation<HunterAdrenaline.Config> 
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Deal more melee damage the lower your health is.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 8;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.4;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Damage Base for the Hunter Adrenaline adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double damageBase = 0.12;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Damage Factor for the Hunter Adrenaline adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double damageFactor = 0.21;
+
+    public Config() {
+      costFactor = 0.4;
+      initialCost = 8;
+    }
   }
 }

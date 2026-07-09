@@ -19,19 +19,23 @@
 package art.arcane.adapt.content.adaptation.chronos;
 
 import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxEmitter;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.content.item.ChronoTimeBombItem;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
+import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
-import lombok.NoArgsConstructor;
 import org.bukkit.*;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -70,13 +74,7 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
   public ChronosTimeBomb() {
     super("chronos-time-bomb");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("chronos.time_bomb.description"));
-    setDisplayName(Localizer.dLocalize("chronos.time_bomb.name"));
     setIcon(Material.TNT);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(50);
 
     registerRecipe(AdaptRecipe.shapeless()
@@ -98,16 +96,12 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.ICE)
         .key("challenge_chronos_bomb_freeze_50")
-        .title(Localizer.dLocalize("advancement.challenge_chronos_bomb_freeze_50.title"))
-        .description(Localizer.dLocalize("advancement.challenge_chronos_bomb_freeze_50.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.ICE)
         .key("challenge_chronos_bomb_crowd_8")
-        .title(Localizer.dLocalize("advancement.challenge_chronos_bomb_crowd_8.title"))
-        .description(Localizer.dLocalize("advancement.challenge_chronos_bomb_crowd_8.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -116,7 +110,7 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + getRadius(level) + " " + Localizer.dLocalize("chronos.time_bomb.lore1"));
+    v.addLore(C.GREEN + "+ " + Form.f(getRadius(level), 1) + " " + Localizer.dLocalize("chronos.time_bomb.lore1"));
     v.addLore(C.YELLOW + "+ " + (getDurationTicks(level) / 20D) + "s " + Localizer.dLocalize("chronos.time_bomb.lore2"));
     v.addLore(C.RED + "* " + (getCooldownMillis() / 1000D) + "s " + Localizer.dLocalize("chronos.time_bomb.lore3"));
     v.addLore(C.GRAY + "* " + Localizer.dLocalize("chronos.time_bomb.lore4"));
@@ -269,10 +263,17 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
       ChronosSoundFX.playTimeBombDetonate(center);
     }
 
-    if (areParticlesEnabled() && center.getWorld() != null) {
-      center.getWorld().spawnParticle(Particle.ENCHANT, center, 45, field.radius() * 0.4, 0.35, field.radius() * 0.4, 0.15);
-      center.getWorld().spawnParticle(Particle.END_ROD, center, 20, field.radius() * 0.2, 0.2, field.radius() * 0.2, 0.02);
-    }
+    double fieldRadius = field.radius();
+    Location detonateAt = center.clone();
+    fx(detonateAt, FxPriority.GAMEPLAY)
+        .particle(Particle.FLASH, 1, 0, 0, 0, 0, 0)
+        .particle(Particles.ENCHANTMENT_TABLE, 24, 0, 0.3D, 0, fieldRadius * 0.4D, 0.12D);
+    timeline(detonateAt)
+        .duration(4)
+        .priority(FxPriority.GAMEPLAY)
+        .cullRadius(fieldRadius + 24)
+        .frame((f, tick, progress) -> f.ring(Particles.END_ROD, 0.5D + (fieldRadius * progress), 16, 0.2D))
+        .start();
 
     Player owner = Bukkit.getPlayer(ownerId);
     if (owner != null) {
@@ -412,6 +413,7 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
 
     Collection<Entity> nearby = field.center().getWorld().getNearbyEntities(field.center(), field.radius(), field.radius(), field.radius());
     int entitiesSlowed = 0;
+    int freezeSparks = 0;
     for (Entity entity : nearby) {
       if (entity.getLocation().distanceSquared(field.center()) > field.radius() * field.radius()) {
         continue;
@@ -424,12 +426,18 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
 
         boolean wasNew = !frozenEntities.containsKey(entity.getUniqueId());
         freezeEntity(entity);
-        if (wasNew && owner != null) {
-          entitiesSlowed++;
-          if (entity instanceof Projectile) {
-            getPlayer(owner).getData().addStat("chronos.time-bomb.projectiles-frozen", 1);
+        if (wasNew) {
+          if (freezeSparks < 8) {
+            fx(entity.getLocation(), FxPriority.COMBAT).ring(Particles.END_ROD, 0.8D, 3, 0.15D);
+            freezeSparks++;
           }
-          getPlayer(owner).getData().addStat("chronos.time-bomb.entities-slowed", 1);
+          if (owner != null) {
+            entitiesSlowed++;
+            if (entity instanceof Projectile) {
+              addStat(owner, "chronos.time-bomb.projectiles-frozen", 1);
+            }
+            addStat(owner, "chronos.time-bomb.entities-slowed", 1);
+          }
         }
         continue;
       }
@@ -461,9 +469,7 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
       getPlayer(owner).getAdvancementHandler().grant("challenge_chronos_bomb_crowd_8");
     }
 
-    if (areParticlesEnabled()) {
-      spawnFieldSphere(field, now);
-    }
+    spawnFieldSphere(field, now);
 
     if (getConfig().playClockSounds && now >= field.nextTickSoundAt()) {
       long totalDurationMillis = Math.max(50L, getDurationTicks(field.level()) * 50L);
@@ -488,12 +494,33 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
       return;
     }
 
-    int particles = Math.max(24, getConfig().fieldSphereParticleCount);
     double radius = Math.max(0.1, field.radius());
-    vfxFastSphere(field.center(), radius, Color.BLACK, particles);
-    vfxFastSphere(field.center(), Math.max(0.2, radius * 0.75), Color.fromRGB(210, 210, 210), Math.max(12, particles / 2));
+    double spin = ((now % 3000L) / 3000.0D) * Math.PI * 2D;
+    int ringPoints = 12;
+    double[] latitudes = {-0.6D, 0.0D, 0.6D};
+    FxEmitter lattice = fx(field.center(), FxPriority.AMBIENT);
+    for (double latitude : latitudes) {
+      double ringRadius = radius * Math.sqrt(Math.max(0D, 1.0D - (latitude * latitude)));
+      double oy = latitude * radius;
+      for (int i = 0; i < ringPoints; i++) {
+        double angle = ((Math.PI * 2D * i) / ringPoints) + spin + (latitude * 1.3D);
+        lattice.particle(Particles.END_ROD, 1, Math.cos(angle) * ringRadius, oy, Math.sin(angle) * ringRadius, 0, 0);
+      }
+    }
 
     field.setNextVisualAt(now + Math.max(1, getConfig().fieldSphereRefreshMillis));
+  }
+
+  private void emitFieldThaw(TemporalField field) {
+    if (field.center().getWorld() == null) {
+      return;
+    }
+
+    double radius = field.radius();
+    fx(field.center(), FxPriority.TRANSITION)
+        .particle(Particle.FLASH, 1, 0, 0, 0, 0, 0)
+        .particle(Particle.PORTAL, 24, 0, 0, 0, radius * 0.4D, 0.6D)
+        .sound(Sound.BLOCK_BEACON_DEACTIVATE, 0.6F, 0.9F);
   }
 
   @Override
@@ -536,6 +563,11 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
       }
     }
 
+    for (TemporalField field : fields) {
+      if (field.expiresAt() <= now) {
+        emitFieldThaw(field);
+      }
+    }
     fields.removeIf(field -> field.expiresAt() <= now);
     cooldowns.entrySet().removeIf(entry -> entry.getValue() <= now);
 
@@ -593,35 +625,10 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
     }
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Throw a crafted chrono bomb that creates a temporal field, slowing entities and freezing projectiles.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Chronos Time Bomb adaptation.", impact = "True enables this behavior and false disables it.")
-    boolean showParticles = true;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Play Clock Sounds for the Chronos Time Bomb adaptation.", impact = "True enables this behavior and false disables it.")
     boolean playClockSounds = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 8;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 7;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.42;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Base Radius for the Chronos Time Bomb adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double baseRadius = 6;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Radius Per Level for the Chronos Time Bomb adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -676,6 +683,12 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
     double xpOnCast = 28;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Level for the Chronos Time Bomb adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpPerLevel = 3;
+
+    public Config() {
+      baseCost = 8;
+      costFactor = 0.42;
+      initialCost = 7;
+    }
   }
 
   private static final class TemporalField {

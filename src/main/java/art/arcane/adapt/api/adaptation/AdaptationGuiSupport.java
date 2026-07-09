@@ -20,6 +20,7 @@ package art.arcane.adapt.api.adaptation;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.api.fx.FxPresets;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.PlayerSkillLine;
@@ -81,6 +82,10 @@ final class AdaptationGuiSupport {
       return true;
     }
 
+    if (config instanceof AdaptationConfig shared) {
+      return shared.showParticles;
+    }
+
     Boolean directToggle = readBooleanField(config, "showParticles");
     if (directToggle != null) {
       return directToggle;
@@ -102,6 +107,10 @@ final class AdaptationGuiSupport {
     Object config = adaptation.getConfig();
     if (config == null) {
       return true;
+    }
+
+    if (config instanceof AdaptationConfig shared) {
+      return shared.showSounds;
     }
 
     Boolean directToggle = readBooleanField(config, "showSounds");
@@ -258,6 +267,7 @@ final class AdaptationGuiSupport {
                 if (updatedLevel < currentLevel) {
                   spw.play(player.getLocation(), Sound.BLOCK_NETHER_GOLD_ORE_PLACE, 0.7f, 1.355f);
                   spw.play(player.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 0.4f, 0.755f);
+                  FxPresets.failFizzle(adaptation, player);
                   if (delayTicks != 0) {
                     player.sendTitle(" ", C.GRAY + Localizer.dLocalize("snippets.adapt_menu.unlearned") + " " + adaptation.getDisplayName(currentLevel), 1, 10, 11);
                   }
@@ -292,6 +302,7 @@ final class AdaptationGuiSupport {
                     spw.play(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.7f, 1.355f);
                     spw.play(player.getLocation(), Sound.ITEM_GOAT_HORN_SOUND_1, 0.7f, 1.355f);
                   }
+                  FxPresets.learnCelebration(adaptation, player);
                   if (delayTicks != 0) {
                     player.sendTitle(" ", C.GRAY + Localizer.dLocalize("snippets.adapt_menu.learned") + " " + adaptation.getDisplayName(lvl), 1, 5, 11);
                   }

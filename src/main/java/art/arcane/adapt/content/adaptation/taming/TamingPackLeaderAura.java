@@ -18,10 +18,13 @@
 
 package art.arcane.adapt.content.adaptation.taming;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
@@ -29,7 +32,7 @@ import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
@@ -42,24 +45,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TamingPackLeaderAura extends SimpleAdaptation<TamingPackLeaderAura.Config> {
+  private final Cooldowns ringCd = cooldowns();
   private int ownerCursor = 0;
 
   public TamingPackLeaderAura() {
     super("tame-pack-leader-aura");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("taming.pack_leader_aura.description"));
-    setDisplayName(Localizer.dLocalize("taming.pack_leader_aura.name"));
+    setLocalizationKey("taming.pack_leader_aura");
     setIcon(Material.BONE);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(30);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.BONE)
         .key("challenge_taming_pack_72k")
-        .title(Localizer.dLocalize("advancement.challenge_taming_pack_72k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_taming_pack_72k.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -133,6 +130,7 @@ public class TamingPackLeaderAura extends SimpleAdaptation<TamingPackLeaderAura.
     }
 
     Location ownerLocation = owner.getLocation();
+    boolean buffedAny = false;
     for (Entity nearby : owner.getNearbyEntities(state.radius(), state.radius(), state.radius())) {
       if (!(nearby instanceof Tameable tameable) || !tameable.isTamed()) {
         continue;
@@ -147,6 +145,13 @@ public class TamingPackLeaderAura extends SimpleAdaptation<TamingPackLeaderAura.
       tameable.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, getConfig().effectTicks, state.amplifier(), false, false));
       tameable.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, getConfig().effectTicks, state.amplifier(), false, false));
       state.ownerData().getData().addStat("taming.pack-leader.buffed-ticks", 1);
+      buffedAny = true;
+    }
+
+    if (buffedAny && ringCd.isReady(owner.getUniqueId(), 1000)) {
+      ringCd.mark(owner.getUniqueId());
+      fx(ownerLocation, FxPriority.AMBIENT)
+          .dustRing(Color.fromRGB(0xE8E0C8), 1.8D + (state.amplifier() * 0.4D), 8, 1.0F);
     }
   }
 
@@ -158,36 +163,13 @@ public class TamingPackLeaderAura extends SimpleAdaptation<TamingPackLeaderAura.
     return Math.max(0, (int) Math.floor(getLevelPercent(level) * getConfig().maxAmplifier));
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
   private record OwnerAuraState(AdaptPlayer ownerData, Player owner,
                                 double radius, double radiusSquared,
                                 int amplifier) {
   }
 
-  @NoArgsConstructor
   @ConfigDescription("Nearby tamed companions gain speed and regeneration near their owner.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.65;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Radius Base for the Taming Pack Leader Aura adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double radiusBase = 8;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Radius Factor for the Taming Pack Leader Aura adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -198,5 +180,11 @@ public class TamingPackLeaderAura extends SimpleAdaptation<TamingPackLeaderAura.
     int effectTicks = 80;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum owners processed per aura pass.", impact = "Lower values reduce burst workload but spread updates across more passes.")
     int maxOwnersPerPass = 120;
+
+    public Config() {
+      baseCost = 3;
+      costFactor = 0.65;
+      initialCost = 3;
+    }
   }
 }

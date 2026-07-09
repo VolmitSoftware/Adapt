@@ -18,9 +18,11 @@
 
 package art.arcane.adapt.content.skill;
 
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.content.adaptation.excavation.ExcavationGraveDigger;
 import art.arcane.adapt.content.adaptation.taming.*;
@@ -28,8 +30,11 @@ import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Tameable;
@@ -40,12 +45,8 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityTameEvent;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
 public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
-  private final Map<UUID, Long> cooldowns;
+  private final Cooldowns xpCooldowns = cooldowns();
 
   public SkillTaming() {
     super("taming", Localizer.dLocalize("skill.taming.icon"));
@@ -55,7 +56,6 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
     setColor(C.GOLD);
     setInterval(3480);
     setIcon(Material.LEAD);
-    cooldowns = new HashMap<>();
     registerAdaptation(new TamingHealthBoost());
     registerAdaptation(new TamingDamage());
     registerAdaptation(new TamingHealthRegeneration());
@@ -66,24 +66,18 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.LEAD)
         .key("challenge_taming_10")
-        .title(Localizer.dLocalize("advancement.challenge_taming_10.title"))
-        .description(Localizer.dLocalize("advancement.challenge_taming_10.description"))
         .model(CustomModel.get(Material.LEAD, "advancement", "taming", "challenge_taming_10"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.NAME_TAG)
             .key("challenge_taming_50")
-            .title(Localizer.dLocalize("advancement.challenge_taming_50.title"))
-            .description(Localizer.dLocalize("advancement.challenge_taming_50.description"))
             .model(CustomModel.get(Material.NAME_TAG, "advancement", "taming", "challenge_taming_50"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .child(AdaptAdvancement.builder()
                 .icon(Material.GOLDEN_APPLE)
                 .key("challenge_taming_500")
-                .title(Localizer.dLocalize("advancement.challenge_taming_500.title"))
-                .description(Localizer.dLocalize("advancement.challenge_taming_500.description"))
                 .model(CustomModel.get(Material.GOLDEN_APPLE, "advancement", "taming", "challenge_taming_500"))
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -93,16 +87,12 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.BONE)
         .key("challenge_pet_dmg_500")
-        .title(Localizer.dLocalize("advancement.challenge_pet_dmg_500.title"))
-        .description(Localizer.dLocalize("advancement.challenge_pet_dmg_500.description"))
         .model(CustomModel.get(Material.BONE, "advancement", "taming", "challenge_pet_dmg_500"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.DIAMOND_SWORD)
             .key("challenge_pet_dmg_5k")
-            .title(Localizer.dLocalize("advancement.challenge_pet_dmg_5k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_pet_dmg_5k.description"))
             .model(CustomModel.get(Material.DIAMOND_SWORD, "advancement", "taming", "challenge_pet_dmg_5k"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -111,16 +101,12 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.LEAD)
         .key("challenge_tamed_10")
-        .title(Localizer.dLocalize("advancement.challenge_tamed_10.title"))
-        .description(Localizer.dLocalize("advancement.challenge_tamed_10.description"))
         .model(CustomModel.get(Material.LEAD, "advancement", "taming", "challenge_tamed_10"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.NAME_TAG)
             .key("challenge_tamed_100")
-            .title(Localizer.dLocalize("advancement.challenge_tamed_100.title"))
-            .description(Localizer.dLocalize("advancement.challenge_tamed_100.description"))
             .model(CustomModel.get(Material.NAME_TAG, "advancement", "taming", "challenge_tamed_100"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -129,16 +115,12 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.BONE)
         .key("challenge_pet_kills_25")
-        .title(Localizer.dLocalize("advancement.challenge_pet_kills_25.title"))
-        .description(Localizer.dLocalize("advancement.challenge_pet_kills_25.description"))
         .model(CustomModel.get(Material.BONE, "advancement", "taming", "challenge_pet_kills_25"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.GOLDEN_APPLE)
             .key("challenge_pet_kills_250")
-            .title(Localizer.dLocalize("advancement.challenge_pet_kills_250.title"))
-            .description(Localizer.dLocalize("advancement.challenge_pet_kills_250.description"))
             .model(CustomModel.get(Material.GOLDEN_APPLE, "advancement", "taming", "challenge_pet_kills_250"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -147,16 +129,12 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.GOLDEN_CARROT)
         .key("challenge_taming_2500")
-        .title(Localizer.dLocalize("advancement.challenge_taming_2500.title"))
-        .description(Localizer.dLocalize("advancement.challenge_taming_2500.description"))
         .model(CustomModel.get(Material.GOLDEN_CARROT, "advancement", "taming", "challenge_taming_2500"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.ENCHANTED_GOLDEN_APPLE)
             .key("challenge_taming_25k")
-            .title(Localizer.dLocalize("advancement.challenge_taming_25k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_taming_25k.description"))
             .model(CustomModel.get(Material.ENCHANTED_GOLDEN_APPLE, "advancement", "taming", "challenge_taming_25k"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -182,7 +160,7 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
         continue;
       }
       shouldReturnForPlayer(p, e, () -> {
-        getPlayer(p).getData().addStat("taming.bred", 1);
+        addStat(p, "taming.bred", 1);
         if (!isOnCooldown(p)) {
           setCooldown(p);
           xp(p, getConfig().tameXpBase);
@@ -195,7 +173,7 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
   public void on(EntityDamageByEntityEvent e) {
     if (e.getDamager() instanceof Tameable tameable && tameable.isTamed() && tameable.getOwner() instanceof Player p) {
       shouldReturnForPlayer(p, e, () -> {
-        getPlayer(p).getData().addStat("taming.pet.damage", e.getDamage());
+        addStat(p, "taming.pet.damage", e.getDamage());
         if (!isOnCooldown(p)) {
           setCooldown(p);
           xp(p, e.getEntity().getLocation(), e.getDamage() * getConfig().tameDamageXPMultiplier);
@@ -208,8 +186,22 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
   public void on(EntityTameEvent e) {
     if (e.getOwner() instanceof Player p) {
       shouldReturnForPlayer(p, e, () -> {
-        getPlayer(p).getData().addStat("taming.tamed", 1);
+        addStat(p, "taming.tamed", 1);
         xp(p, e.getEntity().getLocation(), getConfig().tameSuccessXP);
+        timeline(e.getEntity())
+            .duration(8)
+            .priority(FxPriority.TRANSITION)
+            .cullRadius(24)
+            .frame((fx, tick, progress) -> {
+              fx.ring(Particles.VILLAGER_HAPPY, 0.6D - (0.5D * progress), 12, 0.4D);
+              if (tick == 0) {
+                fx.chord(Sound.ENTITY_WOLF_PANT, 0.7F, 1.2F, Sound.BLOCK_NOTE_BLOCK_BELL, 0.5F, 1.6F);
+              }
+              if (progress >= 1.0D) {
+                fx.burst(Particle.HEART, 3, 0.15D).sound(Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.6F, 1.0F);
+              }
+            })
+            .start();
       });
     }
   }
@@ -227,20 +219,22 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
     if (e.getEntity().getLastDamageCause() instanceof EntityDamageByEntityEvent damageEvent) {
       if (damageEvent.getDamager() instanceof Tameable tameable && tameable.isTamed() && tameable.getOwner() instanceof Player p) {
         shouldReturnForPlayer(p, () -> {
-          getPlayer(p).getData().addStat("taming.pet.kills", 1);
+          addStat(p, "taming.pet.kills", 1);
           xp(p, e.getEntity().getLocation(), getConfig().petKillXP);
+          fx(e.getEntity().getLocation(), FxPriority.COMBAT)
+              .burst(Particles.CRIT_MAGIC, 4, 0.25D)
+              .sound(Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.4F, 1.4F);
         });
       }
     }
   }
 
   private boolean isOnCooldown(Player p) {
-    Long cooldown = cooldowns.get(p.getUniqueId());
-    return cooldown != null && cooldown + getConfig().cooldownDelay > System.currentTimeMillis();
+    return !xpCooldowns.isReady(p.getUniqueId(), getConfig().cooldownDelay);
   }
 
   private void setCooldown(Player p) {
-    cooldowns.put(p.getUniqueId(), System.currentTimeMillis());
+    xpCooldowns.mark(p.getUniqueId());
   }
 
 

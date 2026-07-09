@@ -18,18 +18,22 @@
 
 package art.arcane.adapt.content.adaptation.blocking;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.recipe.MaterialChar;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.inventory.CraftItemEvent;
@@ -42,14 +46,9 @@ public class BlockingChainArmorer extends SimpleAdaptation<BlockingChainArmorer.
   public BlockingChainArmorer() {
     super("blocking-chainarmorer");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("blocking.chain_armorer.description"));
-    setDisplayName(Localizer.dLocalize("blocking.chain_armorer.name"));
+    setLocalizationKey("blocking.chain_armorer");
     setIcon(Material.CHAINMAIL_CHESTPLATE);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
     setInterval(17774);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     registerRecipe(AdaptRecipe.shaped()
         .key("blocking-chainarmorer-boots")
         .ingredient(new MaterialChar('I', Material.IRON_NUGGET))
@@ -87,8 +86,6 @@ public class BlockingChainArmorer extends SimpleAdaptation<BlockingChainArmorer.
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.CHAINMAIL_CHESTPLATE)
         .key("challenge_blocking_chain_25")
-        .title(Localizer.dLocalize("advancement.challenge_blocking_chain_25.title"))
-        .description(Localizer.dLocalize("advancement.challenge_blocking_chain_25.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -98,7 +95,11 @@ public class BlockingChainArmorer extends SimpleAdaptation<BlockingChainArmorer.
   @EventHandler
   public void on(CraftItemEvent e) {
     if (e.getWhoClicked() instanceof Player p && hasActiveAdaptation(p) && isAdaptationRecipe(e.getRecipe())) {
-      getPlayer(p).getData().addStat("blocking.chain-armorer.pieces-crafted", 1);
+      addStat(p, "blocking.chain-armorer.pieces-crafted", 1);
+      fx(p, FxPriority.TRANSITION)
+          .column(Particle.WAX_ON, 6, 1.4D)
+          .burst(Particles.CRIT_MAGIC, 3, 0.25D)
+          .chord(Sound.BLOCK_ANVIL_USE, 0.4F, 1.2F, Sound.ITEM_ARMOR_EQUIP_CHAIN, 0.6F, 1.0F);
     }
   }
 
@@ -112,30 +113,14 @@ public class BlockingChainArmorer extends SimpleAdaptation<BlockingChainArmorer.
   public void onTick() {
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Craft Chainmail Armor using iron nuggets.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 1;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 1;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 1;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0;
+  protected static class Config extends AdaptationConfig {
+    public Config() {
+      permanent = true;
+      baseCost = 1;
+      costFactor = 0;
+      maxLevel = 1;
+      initialCost = 1;
+    }
   }
 }

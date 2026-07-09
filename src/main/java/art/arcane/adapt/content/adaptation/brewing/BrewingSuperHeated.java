@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.brewing;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -26,18 +27,19 @@ import art.arcane.adapt.api.data.WorldData;
 import art.arcane.adapt.api.world.PlayerAdaptation;
 import art.arcane.adapt.api.world.PlayerData;
 import art.arcane.adapt.api.world.PlayerSkillLine;
+import art.arcane.adapt.api.fx.FxEmitter;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.content.matter.BrewingStandOwner;
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
 import art.arcane.volmlib.util.math.RNG;
-import lombok.NoArgsConstructor;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -61,26 +63,16 @@ public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Conf
   public BrewingSuperHeated() {
     super("brewing-super-heated");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("brewing.super_heated.description"));
-    setDisplayName(Localizer.dLocalize("brewing.super_heated.name"));
     setIcon(Material.LAVA_BUCKET);
-    setBaseCost(getConfig().baseCost);
-    setCostFactor(getConfig().costFactor);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
     setInterval(253);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.BLAZE_POWDER)
         .key("challenge_brewing_super_heated_100")
-        .title(Localizer.dLocalize("advancement.challenge_brewing_super_heated_100.title"))
-        .description(Localizer.dLocalize("advancement.challenge_brewing_super_heated_100.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.MAGMA_CREAM)
             .key("challenge_brewing_super_heated_2500")
-            .title(Localizer.dLocalize("advancement.challenge_brewing_super_heated_2500.title"))
-            .description(Localizer.dLocalize("advancement.challenge_brewing_super_heated_2500.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -91,8 +83,8 @@ public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Conf
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.pc(getFireBoost(getLevelPercent(level)), 0) + C.GRAY + " " + Localizer.dLocalize("brewing.super_heated.lore1"));
-    v.addLore(C.GREEN + "+ " + Form.pc(getLavaBoost(getLevelPercent(level)), 0) + C.GRAY + " " + Localizer.dLocalize("brewing.super_heated.lore2"));
+    statLore(v, Form.pc(getFireBoost(getLevelPercent(level)), 0), 1);
+    statLore(v, Form.pc(getLavaBoost(getLevelPercent(level)), 0), 2);
   }
 
   public double getLavaBoost(double factor) {
@@ -118,6 +110,12 @@ public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Conf
       BrewingStandOwner owner = WorldData.of(e.getBlock().getWorld()).get(e.getBlock(), BrewingStandOwner.class);
       if (owner != null) {
         getServer().peekData(owner.getOwner()).addStat("brewing.super-heated.brews-accelerated", 1);
+        Location loc = e.getBlock().getLocation().add(0.5D, 0.6D, 0.5D);
+        fx(loc, FxPriority.TRANSITION)
+            .particle(Particle.LAVA, 8, 0, 0.2D, 0, 0.4D, 0.0D)
+            .particle(Particle.FLAME, 6, 0, 0.2D, 0, 0.35D, 0.02D)
+            .particle(Particle.CAMPFIRE_COSY_SMOKE, 2, 0, 0.4D, 0, 0.2D, 0.02D)
+            .chord(Sound.ENTITY_BLAZE_SHOOT, 0.4F, 1.3F, Sound.BLOCK_FIRE_EXTINGUISH, 0.3F, 1.6F);
       }
     }
     if (((BrewingStand) e.getBlock().getState()).getBrewingTime() > 0) {
@@ -228,41 +226,34 @@ public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Conf
     b.update();
 
     if (M.r(1D / (333D / getInterval()))) {
-      SoundPlayer spw = SoundPlayer.of(b.getBlock().getWorld());
-      spw.play(b.getBlock().getLocation(), Sound.BLOCK_FIRE_AMBIENT, 1f, 1f + RNG.r.f(0.3f, 0.6f));
+      Location hl = b.getBlock().getLocation().add(0.5D, 0.9D, 0.5D);
+      FxEmitter emitter = fx(hl, FxPriority.AMBIENT);
+      emitter.sound(Sound.BLOCK_FIRE_AMBIENT, 1.0F, 1.0F + RNG.r.f(0.3F, 0.6F));
+      if (f > 0) {
+        emitter.particle(Particle.SMALL_FLAME, (int) f, 0, 0.1D, 0, 0.25D, 0.01D)
+            .sound(Sound.ITEM_FIRECHARGE_USE, 0.2F, 1.4F);
+      }
+      if (l > 0) {
+        emitter.particle(Particle.LAVA, (int) l, 0, 0.1D, 0, 0.25D, 0.0D)
+            .particle(Particles.SMOKE, (int) l, 0, 0.2D, 0, 0.2D, 0.01D)
+            .sound(Sound.BLOCK_LAVA_POP, 0.3F, 0.8F);
+      }
     }
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Brewing stands work faster when surrounded by fire or lava.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.75;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 5;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Multiplier Factor for the Brewing Super Heated adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double multiplierFactor = 1.33;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Fire Multiplier for the Brewing Super Heated adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double fireMultiplier = 0.14;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Lava Multiplier for the Brewing Super Heated adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double lavaMultiplier = 0.69;
+
+    public Config() {
+      baseCost = 3;
+      costFactor = 0.75;
+      initialCost = 5;
+    }
   }
 }

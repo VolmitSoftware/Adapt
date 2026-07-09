@@ -19,20 +19,19 @@
 package art.arcane.adapt.content.adaptation.architect;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -59,26 +58,16 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
   public ArchitectPlacement() {
     super("architect-placement");
     registerConfiguration(ArchitectPlacement.Config.class);
-    setDescription(Localizer.dLocalize("architect.placement.description"));
-    setDisplayName(Localizer.dLocalize("architect.placement.name"));
     setIcon(Material.SCAFFOLDING);
     setInterval(360);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.BRICKS)
         .key("challenge_architect_placement_1k")
-        .title(Localizer.dLocalize("advancement.challenge_architect_placement_1k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_architect_placement_1k.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.BRICKS)
             .key("challenge_architect_placement_25k")
-            .title(Localizer.dLocalize("advancement.challenge_architect_placement_25k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_architect_placement_25k.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -113,7 +102,6 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
     Player p = e.getPlayer();
     withPlayerThread(p, e, () -> {
       UUID id = p.getUniqueId();
-      SoundPlayer sp = SoundPlayer.of(p);
       if (getActiveLevel(p, Player::isSneaking) <= 0) {
         return;
       }
@@ -149,12 +137,14 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
 
       if (hand.getAmount() < blocks.size()) {
         Adapt.messagePlayer(p, C.RED + Localizer.dLocalize("architect.placement.lore1") + " " + C.GREEN + blocks.size() + C.RED + " " + Localizer.dLocalize("architect.placement.lore2"));
+        fx(p.getLocation(), FxPriority.TRANSITION).sound(Sound.BLOCK_DISPENSER_FAIL, 0.4f, 1.0f);
         return;
       }
 
       if (ignored != null) {
         blocks.remove(ignored);
       }
+      int placedCount = 0;
       for (Map.Entry<Block, BlockFace> entry : blocks.entrySet()) {
         Block b = entry.getKey();
         BlockFace face = entry.getValue();
@@ -168,31 +158,37 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
         }
 
         if (!canBlockPlace(p, relative.getLocation())) {
-          Adapt.verbose("Player " + p.getName() + " doesn't have permission.");
           continue;
         }
 
         relative.setBlockData(b.getBlockData());
-        getPlayer(p).getData().addStat("blocks.placed", 1);
-        getPlayer(p).getData().addStat("blocks.placed.value", v);
-        getPlayer(p).getData().addStat("architect.placement.blocks-placed", 1);
-        sp.play(b.getLocation(), Sound.BLOCK_AZALEA_BREAK, 0.4f, 0.25f);
+        addStat(p, "blocks.placed", 1);
+        addStat(p, "blocks.placed.value", v);
+        addStat(p, "architect.placement.blocks-placed", 1);
         xp(p, 2);
+        placedCount++;
 
         hand.setAmount(hand.getAmount() - 1);
       }
 
       if (ignored != null) {
         e.getBlock().setBlockData(ignored.getBlockData());
-        getPlayer(p).getData().addStat("blocks.placed", 1);
-        getPlayer(p).getData().addStat("blocks.placed.value", v);
-        getPlayer(p).getData().addStat("architect.placement.blocks-placed", 1);
-        sp.play(ignored.getLocation(), Sound.BLOCK_AZALEA_BREAK, 0.4f, 0.25f);
+        addStat(p, "blocks.placed", 1);
+        addStat(p, "blocks.placed.value", v);
+        addStat(p, "architect.placement.blocks-placed", 1);
         xp(p, 2);
+        placedCount++;
 
         hand.setAmount(hand.getAmount() - 1);
       } else {
         e.setCancelled(true);
+      }
+
+      if (placedCount > 0) {
+        float pitch = 1.2f + Math.min(0.6f, placedCount * 0.05f);
+        fx(e.getBlock().getLocation().add(0.5, 0.5, 0.5), FxPriority.GAMEPLAY)
+            .dustRing(0.8D, 16, 1.0F)
+            .sound(Sound.BLOCK_AMETHYST_BLOCK_PLACE, 0.5f, pitch);
       }
 
       totalMap.remove(id);
@@ -323,16 +319,6 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
     }
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
 
   @Override
   public void onTick() {
@@ -389,8 +375,9 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
         PreviewKey key = PreviewKey.of(transposedBlock);
         activePreviews.add(key);
         ensurePreviewDisplay(id, key, b.getBlockData());
-      } else if (areParticlesEnabled()) {
-        vfxCuboidOutline(transposedBlock, Particle.REVERSE_PORTAL);
+      } else {
+        fx(transposedBlock.getLocation().add(0.5, 0.5, 0.5), FxPriority.TRAIL)
+            .dustRing(0.55D, 8, 0.6F);
       }
     }
 
@@ -558,28 +545,20 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
     }
   }
 
-  @NoArgsConstructor
   @ConfigDescription("Place multiple blocks at once while sneaking with a matching block.")
-  protected static class Config {
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Blocks for the Architect Placement adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     public int maxBlocks = 20;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Architect Placement adaptation.", impact = "True enables this behavior and false disables it.")
-    boolean showParticles = true;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Use owner-only block display previews instead of particles for the wand guide.", impact = "True shows ghost blocks only to the wand user; false keeps particle outlines.")
     boolean useDisplayEntities = true;
     @art.arcane.adapt.util.config.ConfigDoc(value = "View range used for wand preview display entities.", impact = "Lower values hide previews sooner; higher values keep them visible from farther away.")
     double displayEntityViewRange = 0.75;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 6;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 1;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 2;
+
+    public Config() {
+      baseCost = 6;
+      costFactor = 2;
+      maxLevel = 1;
+      initialCost = 4;
+    }
   }
 }

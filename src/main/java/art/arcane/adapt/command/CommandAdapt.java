@@ -16,6 +16,7 @@ import art.arcane.adapt.content.gui.SkillsGui;
 import art.arcane.adapt.content.item.ExperienceOrb;
 import art.arcane.adapt.content.item.KnowledgeOrb;
 import art.arcane.adapt.util.command.FConst;
+import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigMigrationManager;
 import art.arcane.adapt.util.director.context.AdaptationListingHandler;
 import art.arcane.adapt.util.director.specialhandlers.NullablePlayerHandler;
@@ -27,6 +28,7 @@ import org.bukkit.entity.Player;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -140,6 +142,39 @@ public class CommandAdapt {
           }
         }
       }
+    }
+  }
+
+  @Director(name = "effects", origin = DirectorOrigin.PLAYER, description = "Toggle Adapt effect visibility for yourself")
+  public void effects(
+      @Param(aliases = "enabled", description = "Explicit on/off state, omit to toggle", defaultValue = "toggle")
+      String enabled
+  ) {
+    if (!BukkitDirectorContext.hasPermission("adapt.effects")) {
+      FConst.error("You lack the Permission 'adapt.effects'").send(BukkitDirectorContext.sender());
+      return;
+    }
+
+    Player player = BukkitDirectorContext.player();
+    PlayerData playerData = Adapt.instance.getAdaptServer().getPlayer(player).getData();
+    String normalized = enabled == null ? "toggle" : enabled.trim().toLowerCase(Locale.ROOT);
+    Boolean target = switch (normalized) {
+      case "toggle" -> !playerData.isEffectsEnabled();
+      case "true", "on", "yes", "enabled" -> Boolean.TRUE;
+      case "false", "off", "no", "disabled" -> Boolean.FALSE;
+      default -> null;
+    };
+
+    if (target == null) {
+      FConst.error(Localizer.dLocalize("snippets.effects.invalid_state")).send(BukkitDirectorContext.sender());
+      return;
+    }
+
+    playerData.setEffectsEnabled(target);
+    if (target) {
+      FConst.success(Localizer.dLocalize("snippets.effects.enabled")).send(BukkitDirectorContext.sender());
+    } else {
+      FConst.success(Localizer.dLocalize("snippets.effects.disabled")).send(BukkitDirectorContext.sender());
     }
   }
 

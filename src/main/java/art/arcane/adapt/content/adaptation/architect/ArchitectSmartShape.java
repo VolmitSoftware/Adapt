@@ -18,16 +18,17 @@
 
 package art.arcane.adapt.content.adaptation.architect;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
 import org.bukkit.Axis;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -70,26 +71,16 @@ public class ArchitectSmartShape extends SimpleAdaptation<ArchitectSmartShape.Co
   public ArchitectSmartShape() {
     super("architect-smart-shape");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("architect.smart_shape.description"));
-    setDisplayName(Localizer.dLocalize("architect.smart_shape.name"));
     setIcon(Material.BRICKS);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(800);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.QUARTZ_STAIRS)
         .key("challenge_architect_smart_shape_200")
-        .title(Localizer.dLocalize("advancement.challenge_architect_smart_shape_200.title"))
-        .description(Localizer.dLocalize("advancement.challenge_architect_smart_shape_200.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.QUARTZ_STAIRS)
             .key("challenge_architect_smart_shape_5k")
-            .title(Localizer.dLocalize("advancement.challenge_architect_smart_shape_5k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_architect_smart_shape_5k.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -138,14 +129,18 @@ public class ArchitectSmartShape extends SimpleAdaptation<ArchitectSmartShape.Co
       BlockData data = target.getBlockData().clone();
       int options = rotateData(data);
       if (options <= 0) {
+        fx(target.getLocation().add(0.5, 0.5, 0.5), FxPriority.TRANSITION)
+            .sound(Sound.BLOCK_WOODEN_BUTTON_CLICK_OFF, 0.25f, 0.9f);
         return;
       }
 
       target.setBlockData(data, true);
       e.setCancelled(true);
-      SoundPlayer.of(p.getWorld()).play(target.getLocation(), Sound.ITEM_AXE_STRIP, 0.45f, 1.8f);
+      fx(target.getLocation().add(0.5, 0.5, 0.5), FxPriority.GAMEPLAY)
+          .ring(Particles.CRIT_MAGIC, 0.55D, 8, 0.3D)
+          .chord(Sound.ITEM_AXE_STRIP, 0.45f, 1.8f, Sound.BLOCK_WOODEN_BUTTON_CLICK_ON, 0.4f, 1.6f);
       xp(p, Math.max(getConfig().minXpPerRotate, options * getConfig().xpPerOrientationOption));
-      getPlayer(p).getData().addStat("architect.smart-shape.rotations", 1);
+      addStat(p, "architect.smart-shape.rotations", 1);
     });
   }
 
@@ -229,34 +224,18 @@ public class ArchitectSmartShape extends SimpleAdaptation<ArchitectSmartShape.Co
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Sneak-left-click a block with an empty hand to rotate its orientation.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 1;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.6;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Min Xp Per Rotate for the Architect Smart Shape adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double minXpPerRotate = 0.4;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Orientation Option for the Architect Smart Shape adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpPerOrientationOption = 0.16;
+
+    public Config() {
+      baseCost = 3;
+      costFactor = 0.6;
+      maxLevel = 1;
+      initialCost = 3;
+    }
   }
 }

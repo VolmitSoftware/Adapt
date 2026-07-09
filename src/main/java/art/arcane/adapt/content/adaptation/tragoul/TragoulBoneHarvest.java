@@ -18,21 +18,24 @@
 
 package art.arcane.adapt.content.adaptation.tragoul;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.math.VelocitySpeed;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Color;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
@@ -41,7 +44,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
@@ -63,33 +65,25 @@ public class TragoulBoneHarvest extends SimpleAdaptation<TragoulBoneHarvest.Conf
       PotionEffectType.NIGHT_VISION
   };
 
+  private static final Color GLOBE_BLOOD = Color.fromRGB(170, 0, 0);
+  private static final Color GLOBE_BONE = Color.fromRGB(230, 225, 205);
   private final Set<UUID> bloodGlobes = ConcurrentHashMap.newKeySet();
   private final Set<UUID> boneGlobes = ConcurrentHashMap.newKeySet();
-  private final Map<UUID, SpeedBurst> speedBursts = new ConcurrentHashMap<>();
+  private final Map<UUID, SpeedBurst> speedBursts = playerState();
 
   public TragoulBoneHarvest() {
     super("tragoul-bone-harvest");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("tragoul.bone_harvest.description"));
-    setDisplayName(Localizer.dLocalize("tragoul.bone_harvest.name"));
     setIcon(Material.BONE_BLOCK);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(2000);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.BONE)
         .key("challenge_tragoul_bone_500")
-        .title(Localizer.dLocalize("advancement.challenge_tragoul_bone_500.title"))
-        .description(Localizer.dLocalize("advancement.challenge_tragoul_bone_500.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.BONE_BLOCK)
             .key("challenge_tragoul_bone_5k")
-            .title(Localizer.dLocalize("advancement.challenge_tragoul_bone_5k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_tragoul_bone_5k.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -145,13 +139,8 @@ public class TragoulBoneHarvest extends SimpleAdaptation<TragoulBoneHarvest.Conf
       bloodGlobes.remove(id);
       boneGlobes.remove(id);
       applyBuff(p, blood, getLevel(p));
-      getPlayer(p).getData().addStat("tragoul.bone-harvest.orbs-collected", 1);
+      addStat(p, "tragoul.bone-harvest.orbs-collected", 1);
     });
-  }
-
-  @EventHandler(priority = EventPriority.MONITOR)
-  public void on(PlayerQuitEvent e) {
-    speedBursts.remove(e.getPlayer().getUniqueId());
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
@@ -175,11 +164,18 @@ public class TragoulBoneHarvest extends SimpleAdaptation<TragoulBoneHarvest.Conf
       boneGlobes.add(dropped.getUniqueId());
     }
 
+    fx(dropped.getLocation().add(0, 0.2, 0), FxPriority.AMBIENT)
+        .dustBurst(blood ? GLOBE_BLOOD : GLOBE_BONE, 3, 0.15, 1.0F)
+        .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.4F, blood ? 0.9F : 1.4F);
+
     int life = getGlobeLifetimeTicks(level);
     J.runEntity(dropped, () -> {
       bloodGlobes.remove(dropped.getUniqueId());
       boneGlobes.remove(dropped.getUniqueId());
       if (dropped.isValid()) {
+        fx(dropped.getLocation().add(0, 0.2, 0), FxPriority.AMBIENT)
+            .burst(Particles.SMOKE, 4, 0.2)
+            .sound(Sound.BLOCK_FIRE_EXTINGUISH, 0.2F, 1.5F);
         dropped.remove();
       }
     }, life);
@@ -189,11 +185,29 @@ public class TragoulBoneHarvest extends SimpleAdaptation<TragoulBoneHarvest.Conf
   private void applyBuff(Player p, boolean blood, int level) {
     if (blood) {
       p.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, getConfig().bloodBuffTicks, getConfig().bloodBuffAmplifier, false, true, true), true);
-      SoundPlayer.of(p.getWorld()).play(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.7f, 1.4f);
+      playBloodPickup(p);
     } else {
       applyRandomBoneBuffs(p, level);
-      SoundPlayer.of(p.getWorld()).play(p.getLocation(), Sound.ENTITY_SKELETON_HURT, 0.7f, 1.2f);
+      fx(p.getLocation().add(0, 1.0, 0), FxPriority.TRANSITION)
+          .dustBurst(GLOBE_BONE, 8, 0.4, 1.0F)
+          .burst(Particle.CRIT, 4, 0.4)
+          .chord(Sound.ENTITY_SKELETON_HURT, 0.7F, 1.2F, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5F, 1.2F);
     }
+  }
+
+  private void playBloodPickup(Player p) {
+    Particle.DustTransition trans = new Particle.DustTransition(Color.fromRGB(200, 0, 20), Color.fromRGB(255, 120, 150), 1.0F);
+    timeline(p)
+        .duration(5)
+        .priority(FxPriority.TRANSITION)
+        .cullRadius(24)
+        .frame((fx, tick, progress) -> {
+          fx.ring(Particle.DUST_COLOR_TRANSITION, 1.2 - (1.0 * progress), 8, 1.0, trans);
+          if (tick == 0) {
+            fx.chord(Sound.ENTITY_PLAYER_LEVELUP, 0.7F, 1.4F, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5F, 1.2F);
+          }
+        })
+        .start();
   }
 
   private void applyRandomBoneBuffs(Player p, int level) {
@@ -244,7 +258,7 @@ public class TragoulBoneHarvest extends SimpleAdaptation<TragoulBoneHarvest.Conf
   @Override
   public void onTick() {
     long now = System.currentTimeMillis();
-    for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+    for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : learnedCandidates(now)) {
       Player p = adaptPlayer.getPlayer();
       if (p == null || !p.isOnline()) {
         continue;
@@ -340,16 +354,6 @@ public class TragoulBoneHarvest extends SimpleAdaptation<TragoulBoneHarvest.Conf
     return !p.isDead() && !p.isFlying() && !p.isGliding() && !p.isSwimming() && p.getVehicle() == null;
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
   private static class SpeedBurst {
     private long expiresAt;
     private int amplifier;
@@ -361,21 +365,8 @@ public class TragoulBoneHarvest extends SimpleAdaptation<TragoulBoneHarvest.Conf
     }
   }
 
-  @NoArgsConstructor
   @ConfigDescription("Kills can spawn temporary blood and bone globes that grant short buffs when picked up.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.72;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Globe Chance Base for the Tragoul Bone Harvest adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double globeChanceBase = 0.16;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Globe Chance Factor for the Tragoul Bone Harvest adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -414,6 +405,11 @@ public class TragoulBoneHarvest extends SimpleAdaptation<TragoulBoneHarvest.Conf
     boolean hardStopOnInvalidState = true;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Fallback movement threshold used when direct input API is unavailable.", impact = "Only used on runtimes without Player input access.")
     double fallbackInputVelocityThreshold = 0.0008;
+
+    public Config() {
+      costFactor = 0.72;
+      initialCost = 4;
+    }
 
     double fallbackInputVelocityThresholdSquared() {
       double threshold = Math.max(0, fallbackInputVelocityThreshold);

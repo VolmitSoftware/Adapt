@@ -18,19 +18,20 @@
 
 package art.arcane.adapt.content.adaptation.blocking;
 
-import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
-import lombok.NoArgsConstructor;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -44,19 +45,11 @@ public class BlockingCounterGuard extends SimpleAdaptation<BlockingCounterGuard.
   public BlockingCounterGuard() {
     super("blocking-counter-guard");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("blocking.counter_guard.description"));
-    setDisplayName(Localizer.dLocalize("blocking.counter_guard.name"));
     setIcon(Material.IRON_BARS);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(1000);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.SHIELD)
         .key("challenge_blocking_counter_500")
-        .title(Localizer.dLocalize("advancement.challenge_blocking_counter_500.title"))
-        .description(Localizer.dLocalize("advancement.challenge_blocking_counter_500.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -64,8 +57,6 @@ public class BlockingCounterGuard extends SimpleAdaptation<BlockingCounterGuard.
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.SHIELD)
         .key("challenge_blocking_counter_max")
-        .title(Localizer.dLocalize("advancement.challenge_blocking_counter_max.title"))
-        .description(Localizer.dLocalize("advancement.challenge_blocking_counter_max.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -73,9 +64,9 @@ public class BlockingCounterGuard extends SimpleAdaptation<BlockingCounterGuard.
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + getMaxStacks(level) + C.GRAY + " " + Localizer.dLocalize("blocking.counter_guard.lore1"));
-    v.addLore(C.GREEN + "+ " + Form.pc(getReflectChance(level), 0) + C.GRAY + " " + Localizer.dLocalize("blocking.counter_guard.lore2"));
-    v.addLore(C.GREEN + "+ " + Form.f(getReflectDamage(level)) + C.GRAY + " " + Localizer.dLocalize("blocking.counter_guard.lore3"));
+    statLore(v, getMaxStacks(level), 1);
+    statLore(v, Form.pc(getReflectChance(level), 0), 2);
+    statLore(v, Form.f(getReflectDamage(level)), 3);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
@@ -89,11 +80,23 @@ public class BlockingCounterGuard extends SimpleAdaptation<BlockingCounterGuard.
     }
 
     int level = getActiveLevel(defender);
+    int maxStacks = getMaxStacks(level);
     int stacks = getStorageInt(defender, "counterStacks", 0);
 
     if (defender.isBlocking()) {
-      stacks = Math.min(getMaxStacks(level), stacks + 1);
+      int before = stacks;
+      stacks = Math.min(maxStacks, stacks + 1);
       setStorage(defender, "counterStacks", stacks);
+      if (stacks != before) {
+        boolean nowMaxed = stacks >= maxStacks;
+        boolean wasMaxed = getStorageInt(defender, "counterMaxed", 0) == 1;
+        stackGainCue(defender, stacks, maxStacks, nowMaxed);
+        if (nowMaxed && !wasMaxed) {
+          setStorage(defender, "counterMaxed", 1);
+          fx(defender.getLocation().add(0, 1.0D, 0), FxPriority.COMBAT)
+              .sound(Sound.BLOCK_BEACON_ACTIVATE, 0.3F, 1.8F);
+        }
+      }
     }
 
     if (stacks <= 0 || !M.r(getReflectChance(level))) {
@@ -113,16 +116,44 @@ public class BlockingCounterGuard extends SimpleAdaptation<BlockingCounterGuard.
       return;
     }
 
-    // Special achievement: reach max stacks and release
-    if (stacks >= getMaxStacks(level) && AdaptConfig.get().isAdvancements() && !getPlayer(defender).getData().isGranted("challenge_blocking_counter_max")) {
-      getPlayer(defender).getAdvancementHandler().grant("challenge_blocking_counter_max");
+    if (stacks >= maxStacks) {
+      grantOnce(defender, "challenge_blocking_counter_max");
     }
 
     double reflected = getReflectDamage(level) + (stacks * getConfig().damagePerStack);
     attacker.damage(reflected, defender);
-    setStorage(defender, "counterStacks", Math.max(0, stacks - getConfig().stackCostOnReflect));
+    int newStacks = Math.max(0, stacks - getConfig().stackCostOnReflect);
+    setStorage(defender, "counterStacks", newStacks);
+    setStorage(defender, "counterMaxed", newStacks >= maxStacks ? 1 : 0);
+    reflectDischarge(defender, attacker);
     xp(defender, reflected * getConfig().xpPerReflectedDamage);
-    getPlayer(defender).getData().addStat("blocking.counter-guard.damage-reflected", reflected);
+    addStat(defender, "blocking.counter-guard.damage-reflected", reflected);
+  }
+
+  private void stackGainCue(Player defender, int stacks, int maxStacks, boolean maxed) {
+    Location chest = defender.getLocation().add(0, 1.0D, 0);
+    int points = Math.min(8, Math.max(1, stacks));
+    if (maxed) {
+      fx(chest, FxPriority.COMBAT)
+          .ring(Particles.END_ROD, 0.5D, points, 0)
+          .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.4F, 1.6F);
+      return;
+    }
+    float pitch = (float) (0.8D + (0.6D * ((double) stacks / maxStacks)));
+    fx(chest, FxPriority.COMBAT)
+        .ring(Particles.CRIT_MAGIC, 0.5D, points, 0)
+        .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.4F, pitch);
+  }
+
+  private void reflectDischarge(Player defender, LivingEntity attacker) {
+    Location from = defender.getEyeLocation();
+    Location to = attacker.getLocation().add(0, 1.0D, 0);
+    int points = (int) Math.min(8, Math.max(3, from.distance(to) * 2));
+    fx(from, FxPriority.COMBAT)
+        .line(Particles.CRIT_MAGIC, to.getX(), to.getY(), to.getZ(), points);
+    fx(to, FxPriority.COMBAT)
+        .burst(Particles.END_ROD, 6, 0.2D)
+        .chord(Sound.ITEM_TRIDENT_RETURN, 0.7F, 1.3F, Sound.ENTITY_ARROW_HIT, 0.5F, 0.9F);
   }
 
   private boolean hasShield(Player p) {
@@ -148,31 +179,8 @@ public class BlockingCounterGuard extends SimpleAdaptation<BlockingCounterGuard.
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Blocking builds retaliation stacks that reflect damage back to attackers.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.75;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Base Stacks for the Blocking Counter Guard adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double baseStacks = 2;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Stack Factor for the Blocking Counter Guard adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -193,5 +201,11 @@ public class BlockingCounterGuard extends SimpleAdaptation<BlockingCounterGuard.
     int stackCostOnReflect = 1;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Reflected Damage for the Blocking Counter Guard adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpPerReflectedDamage = 5.0;
+
+    public Config() {
+      baseCost = 5;
+      costFactor = 0.75;
+      initialCost = 4;
+    }
   }
 }

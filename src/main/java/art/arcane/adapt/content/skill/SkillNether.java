@@ -21,15 +21,20 @@ package art.arcane.adapt.content.skill;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.adaptation.nether.*;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -61,24 +66,18 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.WITHER_SKELETON_SKULL)
         .key("challenge_nether_50")
-        .title(Localizer.dLocalize("advancement.challenge_nether_50.title"))
-        .description(Localizer.dLocalize("advancement.challenge_nether_50.description"))
         .model(CustomModel.get(Material.WITHER_SKELETON_SKULL, "advancement", "nether", "challenge_nether_50"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.NETHER_STAR)
             .key("challenge_nether_500")
-            .title(Localizer.dLocalize("advancement.challenge_nether_500.title"))
-            .description(Localizer.dLocalize("advancement.challenge_nether_500.description"))
             .model(CustomModel.get(Material.NETHER_STAR, "advancement", "nether", "challenge_nether_500"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .child(AdaptAdvancement.builder()
                 .icon(Material.BEACON)
                 .key("challenge_nether_5k")
-                .title(Localizer.dLocalize("advancement.challenge_nether_5k.title"))
-                .description(Localizer.dLocalize("advancement.challenge_nether_5k.description"))
                 .model(CustomModel.get(Material.BEACON, "advancement", "nether", "challenge_nether_5k"))
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -91,16 +90,12 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.WITHER_ROSE)
         .key("challenge_wither_dmg_500")
-        .title(Localizer.dLocalize("advancement.challenge_wither_dmg_500.title"))
-        .description(Localizer.dLocalize("advancement.challenge_wither_dmg_500.description"))
         .model(CustomModel.get(Material.WITHER_ROSE, "advancement", "nether", "challenge_wither_dmg_500"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.SOUL_LANTERN)
             .key("challenge_wither_dmg_5k")
-            .title(Localizer.dLocalize("advancement.challenge_wither_dmg_5k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_wither_dmg_5k.description"))
             .model(CustomModel.get(Material.SOUL_LANTERN, "advancement", "nether", "challenge_wither_dmg_5k"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -111,16 +106,12 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.BONE)
         .key("challenge_wither_skel_25")
-        .title(Localizer.dLocalize("advancement.challenge_wither_skel_25.title"))
-        .description(Localizer.dLocalize("advancement.challenge_wither_skel_25.description"))
         .model(CustomModel.get(Material.BONE, "advancement", "nether", "challenge_wither_skel_25"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.WITHER_SKELETON_SKULL)
             .key("challenge_wither_skel_250")
-            .title(Localizer.dLocalize("advancement.challenge_wither_skel_250.title"))
-            .description(Localizer.dLocalize("advancement.challenge_wither_skel_250.description"))
             .model(CustomModel.get(Material.WITHER_SKELETON_SKULL, "advancement", "nether", "challenge_wither_skel_250"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -131,16 +122,12 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.NETHER_STAR)
         .key("challenge_wither_boss_1")
-        .title(Localizer.dLocalize("advancement.challenge_wither_boss_1.title"))
-        .description(Localizer.dLocalize("advancement.challenge_wither_boss_1.description"))
         .model(CustomModel.get(Material.NETHER_STAR, "advancement", "nether", "challenge_wither_boss_1"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.BEACON)
             .key("challenge_wither_boss_10")
-            .title(Localizer.dLocalize("advancement.challenge_wither_boss_10.title"))
-            .description(Localizer.dLocalize("advancement.challenge_wither_boss_10.description"))
             .model(CustomModel.get(Material.BEACON, "advancement", "nether", "challenge_wither_boss_10"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -151,16 +138,12 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.WITHER_ROSE)
         .key("challenge_roses_10")
-        .title(Localizer.dLocalize("advancement.challenge_roses_10.title"))
-        .description(Localizer.dLocalize("advancement.challenge_roses_10.description"))
         .model(CustomModel.get(Material.WITHER_ROSE, "advancement", "nether", "challenge_roses_10"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.FLOWER_POT)
             .key("challenge_roses_100")
-            .title(Localizer.dLocalize("advancement.challenge_roses_100.title"))
-            .description(Localizer.dLocalize("advancement.challenge_roses_100.description"))
             .model(CustomModel.get(Material.FLOWER_POT, "advancement", "nether", "challenge_roses_100"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -180,7 +163,7 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
       return;
     }
     shouldReturnForPlayer(p, e, () -> {
-      getPlayer(p).getData().addStat("nether.wither.damage", e.getDamage());
+      addStat(p, "nether.wither.damage", e.getDamage());
       xp(p, getConfig().getWitherDamageXp());
     });
   }
@@ -191,8 +174,13 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
     shouldReturnForPlayer(e.getPlayer(), e, () -> {
       if (e.getBlock().getType() == Material.WITHER_ROSE && witherRoseCooldown == 0) {
         witherRoseCooldown = getConfig().getWitherRoseBreakCooldown();
-        getPlayer(p).getData().addStat("nether.roses.broken", 1);
-        xp(p, e.getBlock().getLocation().add(.5D, .5D, .5D), getConfig().getWitherRoseBreakXp());
+        addStat(p, "nether.roses.broken", 1);
+        Location roseLocation = e.getBlock().getLocation().add(.5D, .5D, .5D);
+        xp(p, roseLocation, getConfig().getWitherRoseBreakXp());
+        fx(roseLocation, FxPriority.TRANSITION)
+            .particle(Particle.SOUL, 6, 0D, 0.1D, 0D, 0.2D, 0.02D)
+            .particle(Particles.SMOKE, 4, 0D, 0.1D, 0D, 0.2D, 0.02D)
+            .sound(Sound.PARTICLE_SOUL_ESCAPE, 0.4F, 1.0F);
       }
     });
 
@@ -206,13 +194,17 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
     }
     shouldReturnForPlayer(p, () -> {
       if (e.getEntityType() == EntityType.WITHER_SKELETON) {
-        getPlayer(p).getData().addStat("nether.kills", 1);
-        getPlayer(p).getData().addStat("nether.skeleton.kills", 1);
+        addStat(p, "nether.kills", 1);
+        addStat(p, "nether.skeleton.kills", 1);
         xp(p, getConfig().getWitherSkeletonKillXp());
       } else if (e.getEntityType() == EntityType.WITHER) {
-        getPlayer(p).getData().addStat("nether.kills", 1);
-        getPlayer(p).getData().addStat("nether.boss.kills", 1);
+        addStat(p, "nether.kills", 1);
+        addStat(p, "nether.boss.kills", 1);
         xp(p, getConfig().getWitherKillXp());
+        fx(e.getEntity().getLocation().add(0D, 1.0D, 0D), FxPriority.TRANSITION)
+            .ring(Particle.SOUL, 2.2D, 20, 0.3D)
+            .column(Particles.END_ROD, 8, 2.4D)
+            .chord(Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.7F, 1.0F, Sound.ENTITY_WITHER_HURT, 0.4F, 0.7F);
       }
     });
   }

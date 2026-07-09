@@ -19,18 +19,19 @@
 package art.arcane.adapt.content.adaptation.architect;
 
 import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
-import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -41,7 +42,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Map;
@@ -50,34 +50,22 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ArchitectScaffolder extends SimpleAdaptation<ArchitectScaffolder.Config> {
-  private final Map<Block, ScaffoldMark> scaffolds;
-  private final Map<UUID, Set<Block>> byPlayer;
+  private final Map<Block, ScaffoldMark> scaffolds = new ConcurrentHashMap<>();
+  private final Map<UUID, Set<Block>> byPlayer = playerState();
 
   public ArchitectScaffolder() {
     super("architect-scaffolder");
     registerConfiguration(ArchitectScaffolder.Config.class);
-    setDescription(Localizer.dLocalize("architect.scaffolder.description"));
-    setDisplayName(Localizer.dLocalize("architect.scaffolder.name"));
     setIcon(Material.SCAFFOLDING);
     setInterval(9220);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
-    scaffolds = new ConcurrentHashMap<>();
-    byPlayer = new ConcurrentHashMap<>();
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.SCAFFOLDING)
         .key("challenge_architect_scaffolder_500")
-        .title(Localizer.dLocalize("advancement.challenge_architect_scaffolder_500.title"))
-        .description(Localizer.dLocalize("advancement.challenge_architect_scaffolder_500.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.SCAFFOLDING)
             .key("challenge_architect_scaffolder_5k")
-            .title(Localizer.dLocalize("advancement.challenge_architect_scaffolder_5k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_architect_scaffolder_5k.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -118,15 +106,26 @@ public class ArchitectScaffolder extends SimpleAdaptation<ArchitectScaffolder.Co
 
     mine.add(block);
     scaffolds.put(block, new ScaffoldMark(id, type));
-    SoundPlayer spw = SoundPlayer.of(block.getWorld());
-    spw.play(block.getLocation(), Sound.BLOCK_DEEPSLATE_PLACE, 0.6f, 1.6f);
-    if (areParticlesEnabled()) {
-      vfxCuboidOutline(block, Particle.CLOUD);
-    }
+    fx(block.getLocation().add(0.5, 0.5, 0.5), FxPriority.TRANSITION)
+        .burst(Particle.CLOUD, 8, 0.25D)
+        .burst(Particles.CRIT_MAGIC, 2, 0.15D)
+        .sound(Sound.BLOCK_DEEPSLATE_PLACE, 0.6f, 1.6f);
 
-    getPlayer(p).getData().addStat("architect.scaffolder.blocks-scaffolded", 1);
+    addStat(p, "architect.scaffolder.blocks-scaffolded", 1);
     int delayTicks = getDurationSeconds(getLevelPercent(context.level())) * 20;
+    if (delayTicks > 30) {
+      J.runAt(block.getLocation(), () -> warnScaffold(block), delayTicks - 20);
+    }
     J.runAt(block.getLocation(), () -> removeScaffold(block), delayTicks);
+  }
+
+  private void warnScaffold(Block block) {
+    if (!scaffolds.containsKey(block)) {
+      return;
+    }
+    fx(block.getLocation().add(0.5, 0.5, 0.5), FxPriority.AMBIENT)
+        .burst(Particle.ASH, 3, 0.2D)
+        .sound(Sound.BLOCK_SAND_STEP, 0.3f, 1.4f);
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -146,11 +145,6 @@ public class ArchitectScaffolder extends SimpleAdaptation<ArchitectScaffolder.Co
     }
   }
 
-  @EventHandler
-  public void on(PlayerQuitEvent e) {
-    byPlayer.remove(e.getPlayer().getUniqueId());
-  }
-
   private void removeScaffold(Block block) {
     ScaffoldMark mark = scaffolds.remove(block);
     if (mark == null) {
@@ -167,16 +161,19 @@ public class ArchitectScaffolder extends SimpleAdaptation<ArchitectScaffolder.Co
     }
 
     block.setType(Material.AIR);
-    SoundPlayer spw = SoundPlayer.of(block.getWorld());
-    spw.play(block.getLocation(), Sound.BLOCK_DEEPSLATE_BREAK, 0.6f, 1.4f);
-    if (areParticlesEnabled()) {
-      vfxCuboidOutline(block, Particle.REVERSE_PORTAL);
-    }
+    fx(block.getLocation().add(0.5, 0.5, 0.5), FxPriority.TRANSITION)
+        .burst(Particle.REVERSE_PORTAL, 6, 0.2D)
+        .sound(Sound.BLOCK_DEEPSLATE_BREAK, 0.6f, 1.4f);
 
     ItemStack refund = new ItemStack(mark.material());
     Player owner = Bukkit.getPlayer(mark.owner());
     if (owner != null && owner.isOnline()) {
-      J.runEntity(owner, () -> safeGiveItem(owner, refund));
+      J.runEntity(owner, () -> {
+        safeGiveItem(owner, refund);
+        fx(owner.getLocation().add(0, 1, 0), FxPriority.AMBIENT)
+            .column(Particles.END_ROD, 4, 1.0D)
+            .sound(Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.3f, 1.6f);
+      });
     } else {
       block.getWorld().dropItemNaturally(block.getLocation(), refund);
     }
@@ -190,41 +187,20 @@ public class ArchitectScaffolder extends SimpleAdaptation<ArchitectScaffolder.Co
   public void onTick() {
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
   private record ScaffoldMark(UUID owner, Material material) {
   }
 
-  @NoArgsConstructor
   @ConfigDescription("Sneak-place blocks as temporary scaffolds that dissolve and refund themselves.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Architect Scaffolder adaptation.", impact = "True enables this behavior and false disables it.")
-    boolean showParticles = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 2;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Scaffold lifetime in seconds at level 0 progression.", impact = "Higher values keep low-level scaffolds in the world longer before dissolving.")
     int minDurationSeconds = 5;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Scaffold lifetime in seconds at maximum level progression.", impact = "Higher values keep max-level scaffolds in the world longer before dissolving.")
     int maxDurationSeconds = 30;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum number of active scaffolds tracked per player.", impact = "Higher values let players keep more temporary scaffolds at once.")
     int maxScaffoldsPerPlayer = 24;
+
+    public Config() {
+      costFactor = 0.5;
+    }
   }
 }

@@ -18,49 +18,46 @@
 
 package art.arcane.adapt.content.adaptation.seaborrne;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class SeabornePressureDiver extends SimpleAdaptation<SeabornePressureDiver.Config> {
-  private final Map<UUID, Long> xpCooldowns = new ConcurrentHashMap<>();
+  private final Cooldowns xpCooldowns = cooldowns();
+  private final Cooldowns absorbFx = cooldowns();
+  private final Map<UUID, Boolean> deep = playerState();
+  private final Map<UUID, Boolean> deepTier = playerState();
 
   public SeabornePressureDiver() {
     super("seaborne-pressure-diver");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("seaborn.pressure_diver.description"));
-    setDisplayName(Localizer.dLocalize("seaborn.pressure_diver.name"));
+    setLocalizationKey("seaborn.pressure_diver");
     setIcon(Material.NAUTILUS_SHELL);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(20);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.IRON_PICKAXE)
         .key("challenge_seaborne_pressure_1k")
-        .title(Localizer.dLocalize("advancement.challenge_seaborne_pressure_1k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_seaborne_pressure_1k.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -69,14 +66,9 @@ public class SeabornePressureDiver extends SimpleAdaptation<SeabornePressureDive
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.f(getDepthThreshold(level), 1) + C.GRAY + " " + Localizer.dLocalize("seaborn.pressure_diver.lore1"));
-    v.addLore(C.GREEN + "+ " + Form.pc(getDamageReduction(level), 0) + C.GRAY + " " + Localizer.dLocalize("seaborn.pressure_diver.lore2"));
-    v.addLore(C.GREEN + "+ " + Form.pc(getFatigueTrimChance(level), 0) + C.GRAY + " " + Localizer.dLocalize("seaborn.pressure_diver.lore3"));
-  }
-
-  @EventHandler(priority = EventPriority.MONITOR)
-  public void on(PlayerQuitEvent e) {
-    xpCooldowns.remove(e.getPlayer().getUniqueId());
+    statLore(v, Form.f(getDepthThreshold(level), 1), 1);
+    statLore(v, Form.pc(getDamageReduction(level), 0), 2);
+    statLore(v, Form.pc(getFatigueTrimChance(level), 0), 3);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -87,26 +79,27 @@ public class SeabornePressureDiver extends SimpleAdaptation<SeabornePressureDive
 
     withPlayerThread(p, e, () -> {
       int level = getActiveLevel(p);
-      if (level <= 0) {
-        return;
-      }
-
-      if (!p.isInWater()) {
-        return;
-      }
-
-      if (!isDeepEnough(p, level)) {
+      if (level <= 0 || !p.isInWater() || !isDeepEnough(p, level)) {
         return;
       }
 
       e.setDamage(e.getDamage() * (1D - getDamageReduction(level)));
+      if (!absorbFx.isReady(p.getUniqueId(), 400L)) {
+        return;
+      }
+
+      absorbFx.mark(p.getUniqueId());
+      fx(p.getLocation().add(0D, 1.0D, 0D), FxPriority.COMBAT)
+          .ring(Particle.BUBBLE, 0.7D, 10, 0.0D)
+          .dustRing(0.7D, 8, 1.0F)
+          .chord(Sound.ITEM_SHIELD_BLOCK, 0.4F, 0.8F, Sound.BLOCK_CONDUIT_AMBIENT_SHORT, 0.3F, 0.9F);
     });
   }
 
   @Override
   public void onTick() {
     long now = System.currentTimeMillis();
-    for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : learnedCandidates(now)) {
+    for (AdaptPlayer adaptPlayer : learnedCandidates(now)) {
       Player p = adaptPlayer.getPlayer();
       if (p == null || !p.isOnline()) {
         continue;
@@ -118,23 +111,46 @@ public class SeabornePressureDiver extends SimpleAdaptation<SeabornePressureDive
         }
 
         int level = getActiveLevel(p);
+        UUID id = p.getUniqueId();
         if (level <= 0 || !p.isInWater()) {
+          clearDepthState(id);
           return;
         }
 
-        if (!isDeepEnough(p, level)) {
+        double depth = p.getWorld().getSeaLevel() - p.getEyeLocation().getY();
+        if (depth < getDepthThreshold(level)) {
+          clearDepthState(id);
           return;
         }
 
-        applyDepthBuffs(p, level);
-        awardDepthXp(p, now);
-        getPlayer(p).getData().addStat("seaborne.pressure-diver.deep-blocks-mined", 1);
+        boolean inDeepTier = depth >= getDeepThreshold(level);
+        applyDepthBuffs(p, level, inDeepTier ? 1 : 0);
+        awardDepthXp(p);
+        addStat(p, "seaborne.pressure-diver.deep-blocks-mined", 1);
+
+        if (!deep.getOrDefault(id, false)) {
+          deep.put(id, true);
+          emitPressureSeal(p);
+        }
+
+        boolean wasTier = deepTier.getOrDefault(id, false);
+        if (inDeepTier && !wasTier) {
+          deepTier.put(id, true);
+          emitDeepTier(p);
+        } else if (!inDeepTier && wasTier) {
+          deepTier.put(id, false);
+        }
       });
     }
   }
 
-  private void applyDepthBuffs(Player p, int level) {
-    int resistanceAmp = getResistanceAmplifier(level, p);
+  private void clearDepthState(UUID id) {
+    if (deep.remove(id) != null) {
+      deepTier.remove(id);
+    }
+  }
+
+  private void applyDepthBuffs(Player p, int level, int resistanceAmp) {
     p.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, getConfig().effectTicks, resistanceAmp, false, false, true), true);
     p.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, getConfig().effectTicks, 0, false, false, true), true);
 
@@ -154,33 +170,52 @@ public class SeabornePressureDiver extends SimpleAdaptation<SeabornePressureDive
         false,
         true,
         true), true);
+    fx(p.getLocation().add(0D, 1.0D, 0D), FxPriority.AMBIENT)
+        .particle(Particle.CRIT, 4, 0D, 0.3D, 0D, 0.3D, 0.05D)
+        .dustBurst(3, 0.25D, 0.8F)
+        .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.35F, 1.6F);
   }
 
-  private void awardDepthXp(Player p, long now) {
+  private void awardDepthXp(Player p) {
     UUID id = p.getUniqueId();
-    long next = xpCooldowns.getOrDefault(id, 0L);
-    if (now < next) {
+    if (!xpCooldowns.isReady(id, getConfig().xpPulseCooldownMillis)) {
       return;
     }
 
+    xpCooldowns.mark(id);
     xp(p, getConfig().xpPerDepthPulse);
-    xpCooldowns.put(id, now + getConfig().xpPulseCooldownMillis);
+    fx(p.getLocation(), FxPriority.AMBIENT).sound(Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.2F, 1.4F);
+  }
+
+  private void emitPressureSeal(Player p) {
+    timeline(p)
+        .duration(12)
+        .priority(FxPriority.TRANSITION)
+        .cullRadius(24)
+        .frame((f, tick, progress) -> {
+          double radius = 1.2D - (1.0D * progress);
+          f.ring(Particle.BUBBLE, radius, 14, 0.4D);
+          f.dustRing(radius, 8, 1.0F);
+          if (tick == 0) {
+            f.chord(Sound.BLOCK_CONDUIT_ACTIVATE, 0.5F, 1.4F, Sound.BLOCK_CONDUIT_AMBIENT_SHORT, 0.3F, 0.8F);
+          } else if (tick == 6) {
+            f.sound(Sound.BLOCK_CONDUIT_DEACTIVATE, 0.35F, 0.7F);
+          }
+        })
+        .start();
+  }
+
+  private void emitDeepTier(Player p) {
+    fx(p.getEyeLocation(), FxPriority.TRANSITION)
+        .dome(Particle.SOUL, 1.0D, 6)
+        .particle(Particle.GLOW, 4, 0D, 0.5D, 0D, 0.4D, 0.01D)
+        .sound(Sound.BLOCK_CONDUIT_ACTIVATE, 0.4F, 0.9F);
   }
 
   private boolean isDeepEnough(Player p, int level) {
     double seaLevel = p.getWorld().getSeaLevel();
     double depth = seaLevel - p.getEyeLocation().getY();
     return depth >= getDepthThreshold(level);
-  }
-
-  private int getResistanceAmplifier(int level, Player p) {
-    double seaLevel = p.getWorld().getSeaLevel();
-    double depth = seaLevel - p.getEyeLocation().getY();
-    if (depth >= getDeepThreshold(level)) {
-      return 1;
-    }
-
-    return 0;
   }
 
   private double getDepthThreshold(int level) {
@@ -203,31 +238,8 @@ public class SeabornePressureDiver extends SimpleAdaptation<SeabornePressureDive
     return Math.max(1, (int) Math.round(getConfig().fatigueTrimAmountBase + (getLevelPercent(level) * getConfig().fatigueTrimAmountFactor)));
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Gain depth scaling protection underwater and partially counter mining fatigue in deep ocean play.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.7;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Depth Threshold Base for the Seaborne Pressure Diver adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double depthThresholdBase = 10;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Depth Threshold Factor for the Seaborne Pressure Diver adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -258,5 +270,11 @@ public class SeabornePressureDiver extends SimpleAdaptation<SeabornePressureDive
     double xpPerDepthPulse = 6;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls XP Pulse Cooldown Millis for the Seaborne Pressure Diver adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     long xpPulseCooldownMillis = 3000;
+
+    public Config() {
+      costFactor = 0.7;
+      maxLevel = 4;
+      initialCost = 4;
+    }
   }
 }

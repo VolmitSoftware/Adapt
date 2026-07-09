@@ -18,18 +18,18 @@
 
 package art.arcane.adapt.content.adaptation.nether;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
+import art.arcane.adapt.api.fx.FxEmitter;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -46,26 +46,16 @@ public class NetherBlazeLeech extends SimpleAdaptation<NetherBlazeLeech.Config> 
   public NetherBlazeLeech() {
     super("nether-blaze-leech");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("nether.blaze_leech.description"));
-    setDisplayName(Localizer.dLocalize("nether.blaze_leech.name"));
     setIcon(Material.BLAZE_POWDER);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(900);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.BLAZE_ROD)
         .key("challenge_nether_blaze_200")
-        .title(Localizer.dLocalize("advancement.challenge_nether_blaze_200.title"))
-        .description(Localizer.dLocalize("advancement.challenge_nether_blaze_200.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.BLAZE_POWDER)
             .key("challenge_nether_blaze_2500")
-            .title(Localizer.dLocalize("advancement.challenge_nether_blaze_2500.title"))
-            .description(Localizer.dLocalize("advancement.challenge_nether_blaze_2500.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -76,9 +66,9 @@ public class NetherBlazeLeech extends SimpleAdaptation<NetherBlazeLeech.Config> 
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.pc(getTriggerChance(level), 0) + C.GRAY + " " + Localizer.dLocalize("nether.blaze_leech.lore1"));
-    v.addLore(C.GREEN + "+ " + Form.duration(getRegenTicks(level) * 50D, 1) + C.GRAY + " " + Localizer.dLocalize("nether.blaze_leech.lore2"));
-    v.addLore(C.GREEN + "+ " + Form.f(getFoodRestore(level)) + C.GRAY + " " + Localizer.dLocalize("nether.blaze_leech.lore3"));
+    statLore(v, Form.pc(getTriggerChance(level), 0), 1);
+    statLore(v, Form.duration(getRegenTicks(level) * 50D, 1), 2);
+    statLore(v, Form.f(getFoodRestore(level)), 3);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
@@ -152,10 +142,17 @@ public class NetherBlazeLeech extends SimpleAdaptation<NetherBlazeLeech.Config> 
     int amp = Math.max(0, (int) Math.floor(getRegenAmplifier(level)));
     p.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, getRegenTicks(level), amp, true, false, true), true);
 
-    SoundPlayer sp = SoundPlayer.of(p.getWorld());
-    sp.play(p.getLocation(), Sound.ENTITY_BLAZE_AMBIENT, 0.45f, defensive ? 1.4f : 1.7f);
+    float pitch = defensive ? 1.4F : 1.7F;
+    FxEmitter emit = fx(p.getLocation(), FxPriority.COMBAT)
+        .helix(Particle.FLAME, 0.5D, 1.9D, 8, 0D)
+        .helix(Particle.SOUL, 0.5D, 1.9D, 4, Math.PI)
+        .particle(Particle.HAPPY_VILLAGER, 3, 0D, 1.0D, 0D, 0.3D, 0.0D)
+        .chord(Sound.ENTITY_BLAZE_AMBIENT, 0.45F, pitch, Sound.BLOCK_FIRE_AMBIENT, 0.2F, 1.0F);
+    if (!defensive) {
+      emit.sound(Sound.ENTITY_BLAZE_DEATH, 0.25F, 1.8F);
+    }
     xp(p, defensive ? getConfig().xpOnDefensiveProc : getConfig().xpOnOffensiveProc);
-    getPlayer(p).getData().addStat("nether.blaze-leech.health-from-fire", 1);
+    addStat(p, "nether.blaze-leech.health-from-fire", 1);
   }
 
   private double getTriggerChance(int level) {
@@ -183,31 +180,8 @@ public class NetherBlazeLeech extends SimpleAdaptation<NetherBlazeLeech.Config> 
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Fire interactions can grant hunger and regeneration in short bursts.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.62;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Trigger Chance Base for the Nether Blaze Leech adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double triggerChanceBase = 0.16;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Trigger Chance Factor for the Nether Blaze Leech adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -236,5 +210,11 @@ public class NetherBlazeLeech extends SimpleAdaptation<NetherBlazeLeech.Config> 
     double xpOnDefensiveProc = 6;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp On Offensive Proc for the Nether Blaze Leech adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpOnOffensiveProc = 5;
+
+    public Config() {
+      baseCost = 3;
+      costFactor = 0.62;
+      initialCost = 3;
+    }
   }
 }

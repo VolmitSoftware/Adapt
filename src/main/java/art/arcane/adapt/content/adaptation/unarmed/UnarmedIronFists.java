@@ -18,18 +18,21 @@
 
 package art.arcane.adapt.content.adaptation.unarmed;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.adapt.util.reflect.registries.PotionEffectTypes;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -37,30 +40,25 @@ import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.potion.PotionEffect;
 
+import java.util.Map;
+import java.util.UUID;
+
 public class UnarmedIronFists extends SimpleAdaptation<UnarmedIronFists.Config> {
+  private final Map<UUID, Long> lastPunchedBlock = playerState();
+
   public UnarmedIronFists() {
     super("unarmed-iron-fists");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("unarmed.iron_fists.description"));
-    setDisplayName(Localizer.dLocalize("unarmed.iron_fists.name"));
     setIcon(Material.ANVIL);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(4622);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.IRON_INGOT)
         .key("challenge_unarmed_iron_1k")
-        .title(Localizer.dLocalize("advancement.challenge_unarmed_iron_1k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_unarmed_iron_1k.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.DIAMOND)
             .key("challenge_unarmed_iron_10k")
-            .title(Localizer.dLocalize("advancement.challenge_unarmed_iron_10k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_unarmed_iron_10k.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -71,8 +69,8 @@ public class UnarmedIronFists extends SimpleAdaptation<UnarmedIronFists.Config> 
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.f(getDamageBonus(level)) + C.GRAY + " " + Localizer.dLocalize("unarmed.iron_fists.lore1"));
-    v.addLore(C.GREEN + "+ " + (getHasteAmplifier(level) + 1) + C.GRAY + " " + Localizer.dLocalize("unarmed.iron_fists.lore2"));
+    statLore(v, Form.f(getDamageBonus(level)), 1);
+    statLore(v, getHasteAmplifier(level) + 1, 2);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
@@ -89,7 +87,14 @@ public class UnarmedIronFists extends SimpleAdaptation<UnarmedIronFists.Config> 
 
     e.setDamage(e.getDamage() + getDamageBonus(attack.level()));
     xp(p, getConfig().xpPerHit);
-    getPlayer(p).getData().addStat("unarmed.iron-fists.iron-hits", 1);
+    addStat(p, "unarmed.iron-fists.iron-hits", 1);
+    double levelPercent = getLevelPercent(attack.level());
+    if (levelPercent >= 0.4) {
+      fx(e.getEntity(), FxPriority.COMBAT)
+          .particle(Particle.CRIT, 3, 0, 1.0D, 0, 0.15D, 0.0D)
+          .particle(Particle.ELECTRIC_SPARK, 1, 0, 1.0D, 0, 0.1D, 0.0D)
+          .sound(Sound.BLOCK_ANVIL_LAND, 0.3F, (float) (1.4D + (levelPercent * 0.3D)));
+    }
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
@@ -99,17 +104,32 @@ public class UnarmedIronFists extends SimpleAdaptation<UnarmedIronFists.Config> 
       return;
     }
 
-    float hardness = e.getBlock().getType().getHardness();
+    Block block = e.getBlock();
+    float hardness = block.getType().getHardness();
     if (hardness < 0 || hardness > getConfig().softBlockMaxHardness) {
       return;
     }
 
-    art.arcane.adapt.api.adaptation.Adaptation.BlockActionContext context = resolveInteractContext(p, e.getBlock().getLocation());
+    art.arcane.adapt.api.adaptation.Adaptation.BlockActionContext context = resolveInteractContext(p, block.getLocation());
     if (context == null) {
       return;
     }
 
     p.addPotionEffect(new PotionEffect(PotionEffectTypes.FAST_DIGGING, getConfig().hasteDurationTicks, getHasteAmplifier(context.level()), false, false, true));
+
+    long key = blockKey(block.getX(), block.getY(), block.getZ());
+    Long last = lastPunchedBlock.get(p.getUniqueId());
+    if (last == null || last != key) {
+      lastPunchedBlock.put(p.getUniqueId(), key);
+      fx(block.getLocation().add(0.5, 0.5, 0.5), FxPriority.GAMEPLAY)
+          .particle(Particles.BLOCK_CRACK, 4, 0, 0, 0, 0.1D, 0.02D, block.getBlockData())
+          .particle(Particle.WAX_ON, 2, 0, 0, 0, 0.1D, 0.0D)
+          .sound(Sound.BLOCK_STONE_HIT, 0.35F, 0.8F);
+    }
+  }
+
+  private static long blockKey(int x, int y, int z) {
+    return ((long) x * 73856093L) ^ ((long) y * 19349663L) ^ ((long) z * 83492791L);
   }
 
   private double getDamageBonus(int level) {
@@ -125,31 +145,8 @@ public class UnarmedIronFists extends SimpleAdaptation<UnarmedIronFists.Config> 
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Bare fists hit harder and punch through soft blocks faster.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.45;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Base flat bare-hand damage bonus at level 1.", impact = "Higher values make every bare-hand hit stronger.")
     double damageBase = 0.5;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Additional flat damage bonus granted at max level.", impact = "Higher values make bare-hand hits stronger as levels increase.")
@@ -162,5 +159,10 @@ public class UnarmedIronFists extends SimpleAdaptation<UnarmedIronFists.Config> 
     double hasteAmplifierFactor = 2;
     @art.arcane.adapt.util.config.ConfigDoc(value = "XP granted per bare-hand hit.", impact = "Higher values speed up unarmed skill progression from hits.")
     double xpPerHit = 2.4;
+
+    public Config() {
+      baseCost = 3;
+      initialCost = 4;
+    }
   }
 }

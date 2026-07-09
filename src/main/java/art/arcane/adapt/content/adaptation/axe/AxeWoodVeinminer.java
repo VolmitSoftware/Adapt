@@ -18,26 +18,25 @@
 
 package art.arcane.adapt.content.adaptation.axe;
 
-import art.arcane.adapt.Adapt;
-import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.world.PlayerAdaptation;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -54,36 +53,22 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
   public AxeWoodVeinminer() {
     super("axe-wood-veinminer");
     registerConfiguration(AxeWoodVeinminer.Config.class);
-    setDescription(Localizer.dLocalize("axe.wood_miner.description"));
-    setDisplayName(Localizer.dLocalize("axe.wood_miner.name"));
+    setLocalizationKey("axe.wood_miner");
     setIcon(Material.DIAMOND_AXE);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(5849);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.OAK_LOG)
         .key("challenge_axe_wood_vein_2500")
-        .title(Localizer.dLocalize("advancement.challenge_axe_wood_vein_2500.title"))
-        .description(Localizer.dLocalize("advancement.challenge_axe_wood_vein_2500.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.DIAMOND_AXE)
         .key("challenge_axe_wood_vein_cascade")
-        .title(Localizer.dLocalize("advancement.challenge_axe_wood_vein_cascade.title"))
-        .description(Localizer.dLocalize("advancement.challenge_axe_wood_vein_cascade.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
     registerMilestone("challenge_axe_wood_vein_2500", "axe.wood-veinminer.logs-veinmined", 2500, 500);
-  }
-
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
   }
 
   public void addStats(int level, Element v) {
@@ -121,6 +106,18 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
 
     VEIN_MINED.add(e.getBlock());
     Block block = e.getBlock();
+    BlockData logData = block.getBlockData();
+    timeline(block.getLocation().add(0.5D, 0.5D, 0.5D))
+        .duration(3)
+        .priority(FxPriority.GAMEPLAY)
+        .cullRadius(24)
+        .frame((fx, tick, progress) -> {
+          fx.ring(Particles.CRIT_MAGIC, 0.7D - (0.6D * progress), 8, 0.0D);
+          if (tick == 0) {
+            fx.sound(Sound.ITEM_AXE_STRIP, 1.0F, 0.7F);
+          }
+        })
+        .start();
     Set<Block> blockMap = new HashSet<>();
     int blockCount = 0;
     int radius = getRadius(getLevel(p));
@@ -133,15 +130,12 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
             if (b.getType() == block.getType()) {
               blockCount++;
               if (blockCount > getConfig().maxBlocks) {
-                Adapt.verbose("Block: " + blockCount + " > " + getConfig().maxBlocks);
                 continue;
               }
               if (block.getLocation().distanceSquared(b.getLocation()) > radiusSquared) {
-                Adapt.verbose("Block: " + b.getLocation() + " is too far away from " + block.getLocation() + " (" + radius + ")");
                 continue;
               }
               if (!canBlockBreak(p, b.getLocation())) {
-                Adapt.verbose("Player " + p.getName() + " doesn't have permission.");
                 continue;
               }
               blockMap.add(b);
@@ -152,37 +146,59 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
     }
 
     int logsVeinmined = blockMap.size();
+    PlayerSkillLine line = getPlayer(p).getData().getSkillLineNullable("axes");
+    PlayerAdaptation adaptation = line != null ? line.getAdaptation("axe-drop-to-inventory") : null;
+    boolean toInventory = adaptation != null && adaptation.getLevel() > 0;
     J.runEntity(p, () -> {
       for (Block blocks : blockMap) {
-        PlayerSkillLine line = getPlayer(p).getData().getSkillLineNullable("axes");
-        PlayerAdaptation adaptation = line != null ? line.getAdaptation("axe-drop-to-inventory") : null;
         VEIN_MINED.add(blocks);
-        if (adaptation != null && adaptation.getLevel() > 0) {
+        if (toInventory) {
           Collection<ItemStack> items = blocks.getDrops();
           for (ItemStack item : items) {
             safeGiveItem(p, item);
-            Adapt.verbose("Giving item: " + item);
           }
           blocks.setType(Material.AIR);
         } else {
           blocks.breakNaturally(p.getItemInUse());
-          SoundPlayer spw = SoundPlayer.of(blocks.getWorld());
-          spw.play(e.getBlock().getLocation(), Sound.BLOCK_FUNGUS_BREAK, 0.01f, 0.25f);
-          if (areParticlesEnabled()) {
-            blocks.getWorld().spawnParticle(Particle.ASH, blocks.getLocation().add(0.5, 0.5, 0.5), 25, 0.5, 0.5, 0.5, 0.1);
-          }
-        }
-        if (areParticlesEnabled()) {
-          this.vfxCuboidOutline(blocks, Particles.ENCHANTMENT_TABLE);
         }
         VEIN_MINED.remove(blocks);
       }
       VEIN_MINED.remove(block);
     });
     if (logsVeinmined > 0) {
-      getPlayer(p).getData().addStat("axe.wood-veinminer.logs-veinmined", logsVeinmined);
-      if (logsVeinmined >= 15 && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_axe_wood_vein_cascade")) {
-        getPlayer(p).getAdvancementHandler().grant("challenge_axe_wood_vein_cascade");
+      addStat(p, "axe.wood-veinminer.logs-veinmined", logsVeinmined);
+      int minY = Integer.MAX_VALUE;
+      int maxY = Integer.MIN_VALUE;
+      double sumX = 0.0D;
+      double sumZ = 0.0D;
+      for (Block b : blockMap) {
+        minY = Math.min(minY, b.getY());
+        maxY = Math.max(maxY, b.getY());
+        sumX += b.getX();
+        sumZ += b.getZ();
+      }
+      double climb = maxY - minY;
+      int steps = Math.min(10, Math.max(3, logsVeinmined));
+      int lastTick = steps - 1;
+      Location cascade = new Location(block.getWorld(), (sumX / logsVeinmined) + 0.5D, minY + 0.5D, (sumZ / logsVeinmined) + 0.5D);
+      timeline(cascade)
+          .duration(steps)
+          .priority(FxPriority.TRANSITION)
+          .cullRadius(28)
+          .frame((fx, tick, progress) -> {
+            fx.particle(Particles.BLOCK_CRACK, 4, 0.0D, climb * progress, 0.0D, 0.2D, 0.02D, logData);
+            if ((tick & 1) == 0) {
+              fx.sound(Sound.BLOCK_WOOD_BREAK, 0.6F, (float) (0.8D + (0.5D * progress)));
+            }
+            if (tick == lastTick) {
+              fx.sound(Sound.ENTITY_RAVAGER_STUNNED, 0.3F, 0.5F);
+            }
+          })
+          .start();
+      if (logsVeinmined >= 15 && grantOnce(p, "challenge_axe_wood_vein_cascade")) {
+        fx(p.getLocation().add(0.0D, 1.0D, 0.0D), FxPriority.TRANSITION)
+            .column(Particles.TOTEM, 16, 2.0D)
+            .chord(Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.6F, 1.1F, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.5F, 1.5F);
       }
     }
   }
@@ -192,31 +208,17 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
   public void onTick() {
   }
 
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Break bulk wood at once while sneaking.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Axe Wood Veinminer adaptation.", impact = "True enables this behavior and false disables it.")
-    boolean showParticles = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.95;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Blocks for the Axe Wood Veinminer adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     int maxBlocks = 20;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Base Range for the Axe Wood Veinminer adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     int baseRange = 3;
+
+    public Config() {
+      baseCost = 3;
+      costFactor = 0.95;
+      initialCost = 4;
+    }
   }
 }

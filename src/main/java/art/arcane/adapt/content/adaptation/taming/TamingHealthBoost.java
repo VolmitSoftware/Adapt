@@ -18,10 +18,12 @@
 
 package art.arcane.adapt.content.adaptation.taming;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.version.IAttribute;
 import art.arcane.adapt.api.version.Version;
 import art.arcane.adapt.api.world.AdaptPlayer;
@@ -30,12 +32,14 @@ import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Attributes;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Entity;
@@ -54,19 +58,12 @@ public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config
   public TamingHealthBoost() {
     super("tame-health");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("taming.health.description"));
-    setDisplayName(Localizer.dLocalize("taming.health.name"));
+    setLocalizationKey("taming.health");
     setIcon(Material.COOKED_BEEF);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
     setInterval(4753);
-    setCostFactor(getConfig().costFactor);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.GOLDEN_APPLE)
         .key("challenge_taming_health_boost_1728k")
-        .title(Localizer.dLocalize("advancement.challenge_taming_health_boost_1728k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_taming_health_boost_1728k.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -176,6 +173,10 @@ public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config
 
     attribute.setModifier(MODIFIER, MODIFIER_KEY, getHealthBoost(level), AttributeModifier.Operation.ADD_SCALAR);
     appliedLevels.put(tameableId, level);
+    fx(j, FxPriority.TRANSITION)
+        .ring(Particles.VILLAGER_HAPPY, 0.5D, 6, 0.3D)
+        .column(Particle.HEART, 4, 1.2D)
+        .chord(Sound.BLOCK_NOTE_BLOCK_CHIME, 0.4F, 1.5F, Sound.ENTITY_WOLF_PANT, 0.5F, 1.4F);
   }
 
   private void clearAppliedLevels() {
@@ -229,37 +230,20 @@ public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config
     }
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
   private record OwnerState(AdaptPlayer ownerData, Player owner, int level) {
   }
 
-  @NoArgsConstructor
   @ConfigDescription("Increase your tamed animal maximum health.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 6;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.4;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Health Boost Factor for the Taming Health Boost adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double healthBoostFactor = 2.5;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Health Boost Base for the Taming Health Boost adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double healthBoostBase = 0.57;
+
+    public Config() {
+      baseCost = 6;
+      costFactor = 0.4;
+      initialCost = 3;
+    }
   }
 }

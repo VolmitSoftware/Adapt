@@ -18,18 +18,21 @@
 
 package art.arcane.adapt.content.adaptation.rift;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -41,6 +44,7 @@ import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Vector;
 
 import java.util.Map;
 
@@ -48,26 +52,16 @@ public class RiftInflatedPocketDimension extends SimpleAdaptation<RiftInflatedPo
   public RiftInflatedPocketDimension() {
     super("rift-inflated-pocket-dimension");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("rift.inflated_pocket_dimension.description"));
-    setDisplayName(Localizer.dLocalize("rift.inflated_pocket_dimension.name"));
     setIcon(Material.ENDER_EYE);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(600);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.ENDER_CHEST)
         .key("challenge_rift_pocket_5k")
-        .title(Localizer.dLocalize("advancement.challenge_rift_pocket_5k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_rift_pocket_5k.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.ENDER_CHEST)
             .key("challenge_rift_pocket_store_10k")
-            .title(Localizer.dLocalize("advancement.challenge_rift_pocket_store_10k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_rift_pocket_store_10k.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -90,7 +84,7 @@ public class RiftInflatedPocketDimension extends SimpleAdaptation<RiftInflatedPo
     }
 
     Action action = e.getAction();
-    if (action != Action.RIGHT_CLICK_BLOCK && action != Action.RIGHT_CLICK_AIR) {
+    if (action != Action.RIGHT_CLICK_BLOCK && action != Action.RIGHT_CLICK_AIR && action != Action.LEFT_CLICK_AIR) {
       return;
     }
 
@@ -120,8 +114,12 @@ public class RiftInflatedPocketDimension extends SimpleAdaptation<RiftInflatedPo
     }
 
     e.setCancelled(true);
-    SoundPlayer.of(p).play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 0.4f, 1.7f);
-    getPlayer(p).getData().addStat("rift.inflated-pocket.items-pulled", moved);
+    Location from = target.getLocation().add(0.5, 0.5, 0.5);
+    Vector toHand = p.getEyeLocation().toVector().subtract(from.toVector());
+    fx(from, FxPriority.TRANSITION)
+        .trail(Particle.PORTAL, toHand.getX(), toHand.getY(), toHand.getZ(), Math.max(0.5, toHand.length()), 6)
+        .chord(Sound.BLOCK_ENDER_CHEST_OPEN, 0.4f, 1.7f, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.3f, 1.6f);
+    addStat(p, "rift.inflated-pocket.items-pulled", moved);
     xp(p, moved * getConfig().xpPerTransferredItem, "rift:inflated-pocket:pull");
   }
 
@@ -139,8 +137,9 @@ public class RiftInflatedPocketDimension extends SimpleAdaptation<RiftInflatedPo
 
     J.runEntity(p, () -> {
       ItemStack hand = p.getInventory().getItemInMainHand();
+      boolean wasEmptyHand = hand.getType().isAir();
       int needed = 0;
-      if (hand.getType().isAir()) {
+      if (wasEmptyHand) {
         needed = Math.min(getConfig().buildRefillAmount, placed.getMaxStackSize());
       } else if (hand.getType() == placed && hand.getAmount() < placed.getMaxStackSize()) {
         needed = Math.min(getConfig().buildRefillAmount, placed.getMaxStackSize() - hand.getAmount());
@@ -155,8 +154,14 @@ public class RiftInflatedPocketDimension extends SimpleAdaptation<RiftInflatedPo
         return;
       }
 
-      SoundPlayer.of(p).play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 0.3f, 1.9f);
-      getPlayer(p).getData().addStat("rift.inflated-pocket.items-pulled", moved);
+      if (wasEmptyHand) {
+        fx(e.getBlockPlaced().getLocation().add(0.5, 0.5, 0.5), FxPriority.TRAIL)
+            .particle(Particle.REVERSE_PORTAL, 3, 0, 0.3, 0, 0.15, 0.02)
+            .sound(Sound.BLOCK_ENDER_CHEST_OPEN, 0.3f, 1.9f);
+      } else {
+        fx(p, FxPriority.TRAIL).sound(Sound.BLOCK_ENDER_CHEST_OPEN, 0.3f, 1.9f);
+      }
+      addStat(p, "rift.inflated-pocket.items-pulled", moved);
       xp(p, moved * getConfig().xpPerTransferredItem, "rift:inflated-pocket:build-refill");
     }, 1);
   }
@@ -172,15 +177,19 @@ public class RiftInflatedPocketDimension extends SimpleAdaptation<RiftInflatedPo
     if (!canFullyFitInInventory(p.getEnderChest().getContents(), dropped, p.getEnderChest().getMaxStackSize())) {
       e.setCancelled(true);
       e.getItemDrop().remove();
-      SoundPlayer.of(p).play(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 0.8f, 0.8f);
+      fx(p, FxPriority.TRANSITION)
+          .burst(Particles.SMOKE, 3, 0.2)
+          .sound(Sound.BLOCK_NOTE_BLOCK_BASS, 0.8f, 0.8f);
       return;
     }
 
     e.getItemDrop().remove();
     p.getEnderChest().addItem(dropped);
 
-    SoundPlayer.of(p).play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_CLOSE, 0.5f, 1.4f);
-    getPlayer(p).getData().addStat("rift.inflated-pocket.items-stored", dropped.getAmount());
+    fx(p, FxPriority.TRANSITION)
+        .particle(Particle.PORTAL, 5, 0, 1.0, 0, 0.2, 0.03)
+        .sound(Sound.BLOCK_ENDER_CHEST_CLOSE, 0.5f, 1.4f);
+    addStat(p, "rift.inflated-pocket.items-stored", dropped.getAmount());
     xp(p, dropped.getAmount() * getConfig().xpPerTransferredItem, "rift:inflated-pocket:store");
   }
 
@@ -299,36 +308,21 @@ public class RiftInflatedPocketDimension extends SimpleAdaptation<RiftInflatedPo
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Building and empty-hand block targeting can fetch materials from your ender chest, and sneak-drop stores items into it.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 7;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 1;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 7;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 1;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Build Refill Amount for the Rift Inflated Pocket Dimension adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     int buildRefillAmount = 64;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Right Click Pull Amount for the Rift Inflated Pocket Dimension adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     int rightClickPullAmount = 64;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls XP Per Transferred Item for the Rift Inflated Pocket Dimension adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpPerTransferredItem = 0.08;
+
+    public Config() {
+      permanent = true;
+      baseCost = 7;
+      costFactor = 1;
+      maxLevel = 1;
+      initialCost = 7;
+    }
   }
 }

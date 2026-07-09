@@ -49,7 +49,7 @@ class LoadHarnessTest extends AdaptTestBase {
         }
         Method handler = NoopListener.class.getDeclaredMethod("onLoad", LoadEvent.class);
         handler.setAccessible(true);
-        EventExecutor executor = EventHandlerInvoker.createExecutor(handler, LoadEvent.class);
+        EventExecutor executor = EventHandlerInvoker.createExecutor(handler, LoadEvent.class, false);
         NoopListener listener = new NoopListener();
         LoadEvent event = new LoadEvent();
 

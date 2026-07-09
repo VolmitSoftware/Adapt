@@ -18,25 +18,30 @@
 
 package art.arcane.adapt.content.adaptation.excavation;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ExcavationTunneler extends SimpleAdaptation<ExcavationTunneler.Config> {
   private static final int[][] PLANE_OFFSETS = {
@@ -46,19 +51,11 @@ public class ExcavationTunneler extends SimpleAdaptation<ExcavationTunneler.Conf
   public ExcavationTunneler() {
     super("excavation-tunneler");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("excavation.tunneler.description"));
-    setDisplayName(Localizer.dLocalize("excavation.tunneler.name"));
     setIcon(Material.IRON_SHOVEL);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(3170);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.IRON_SHOVEL)
         .key("challenge_excavation_tunneler_10k")
-        .title(Localizer.dLocalize("advancement.challenge_excavation_tunneler_10k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_excavation_tunneler_10k.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -67,8 +64,8 @@ public class ExcavationTunneler extends SimpleAdaptation<ExcavationTunneler.Conf
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + getBonusBlocks(level) + C.GRAY + " " + Localizer.dLocalize("excavation.tunneler.lore1"));
-    v.addLore(C.YELLOW + "* " + getConfig().durabilityCostPerBonusBlock + C.GRAY + " " + Localizer.dLocalize("excavation.tunneler.lore2"));
+    statLore(v, getBonusBlocks(level), 1);
+    statLore(v, C.YELLOW, "* ", getConfig().durabilityCostPerBonusBlock, 2);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -100,7 +97,11 @@ public class ExcavationTunneler extends SimpleAdaptation<ExcavationTunneler.Conf
     boolean facingX = !horizontal && isFacingX(yaw);
 
     Block origin = e.getBlock();
+    Location originCenter = origin.getLocation().add(0.5, 0.5, 0.5);
+    List<int[]> sweepCells = new ArrayList<>(PLANE_OFFSETS.length);
+    List<BlockData> sweepData = new ArrayList<>(PLANE_OFFSETS.length);
     int broken = 0;
+    boolean durabilityStop = false;
     for (int[] offset : PLANE_OFFSETS) {
       if (broken >= bonus) {
         break;
@@ -133,20 +134,47 @@ public class ExcavationTunneler extends SimpleAdaptation<ExcavationTunneler.Conf
       }
 
       if (!applyDurability(p, hand, getConfig().durabilityCostPerBonusBlock)) {
+        durabilityStop = true;
         break;
       }
 
+      sweepCells.add(new int[]{dx, dy, dz});
+      sweepData.add(target.getBlockData());
       target.breakNaturally(hand);
       broken++;
+    }
+
+    if (durabilityStop) {
+      fx(originCenter, FxPriority.TRANSITION)
+          .particle(Particles.SMOKE, 2, 0, 0.2D, 0, 0.1D, 0.01D)
+          .sound(Sound.ITEM_SHIELD_BLOCK, 0.3f, 1.3f);
     }
 
     if (broken <= 0) {
       return;
     }
 
-    SoundPlayer.of(p.getWorld()).play(origin.getLocation(), Sound.ITEM_SHOVEL_FLATTEN, 0.7f, 0.8f);
-    getPlayer(p).getData().addStat("excavation.tunneler.blocks-tunneled", broken);
+    planeSweep(originCenter, sweepCells, sweepData, broken);
+    addStat(p, "excavation.tunneler.blocks-tunneled", broken);
     xp(p, broken * getConfig().xpPerBonusBlock);
+  }
+
+  private void planeSweep(Location origin, List<int[]> cells, List<BlockData> data, int broken) {
+    int count = cells.size();
+    timeline(origin)
+        .duration(Math.max(4, count))
+        .priority(FxPriority.TRAIL)
+        .cullRadius(20)
+        .frame((fx, tick, progress) -> {
+          if (tick < count) {
+            int[] c = cells.get(tick);
+            fx.particle(Particles.BLOCK_CRACK, 3, c[0], c[1], c[2], 0.15D, 0.05D, data.get(tick));
+          }
+          if (tick == 0) {
+            fx.chord(Sound.ITEM_SHOVEL_FLATTEN, 0.7f, 0.8f, Sound.BLOCK_GRAVEL_BREAK, Math.min(0.7f, 0.2f + (broken * 0.06f)), 0.7f);
+          }
+        })
+        .start();
   }
 
   private boolean isFacingX(float yaw) {
@@ -193,36 +221,19 @@ public class ExcavationTunneler extends SimpleAdaptation<ExcavationTunneler.Conf
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Sneak while digging soft blocks to carve a facing-oriented plane of blocks at once.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.75;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Bonus Blocks Max for the Excavation Tunneler adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double bonusBlocksMax = 8;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Durability Cost Per Bonus Block for the Excavation Tunneler adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     int durabilityCostPerBonusBlock = 1;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Bonus Block for the Excavation Tunneler adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpPerBonusBlock = 1.5;
+
+    public Config() {
+      baseCost = 5;
+      costFactor = 0.75;
+      initialCost = 5;
+    }
   }
 }

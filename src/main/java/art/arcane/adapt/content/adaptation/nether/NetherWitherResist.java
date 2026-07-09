@@ -18,17 +18,23 @@
 
 package art.arcane.adapt.content.adaptation.nether;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxEmitter;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -42,26 +48,16 @@ public class NetherWitherResist extends SimpleAdaptation<NetherWitherResist.Conf
   public NetherWitherResist() {
     super("nether-wither-resist");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("nether.wither_resist.description"));
-    setDisplayName(Localizer.dLocalize("nether.wither_resist.name"));
     setIcon(Material.NETHERITE_CHESTPLATE);
-    setBaseCost(getConfig().baseCost);
-    setCostFactor(getConfig().costFactor);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
     setInterval(9283);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.WITHER_ROSE)
         .key("challenge_nether_wither_100")
-        .title(Localizer.dLocalize("advancement.challenge_nether_wither_100.title"))
-        .description(Localizer.dLocalize("advancement.challenge_nether_wither_100.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.NETHER_STAR)
             .key("challenge_nether_wither_1k")
-            .title(Localizer.dLocalize("advancement.challenge_nether_wither_1k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_nether_wither_1k.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -73,7 +69,7 @@ public class NetherWitherResist extends SimpleAdaptation<NetherWitherResist.Conf
   @Override
   public void addStats(int level, Element v) {
     int chance = (int) (getConfig().basePieceChance + getConfig().getChanceAddition() * level);
-    v.addLore(C.GREEN + "+ " + chance + "%" + C.GRAY + Localizer.dLocalize("nether.wither_resist.lore1"));
+    statLore(v, chance + "%", 1);
     v.addLore(C.GRAY + " " + Localizer.dLocalize("nether.wither_resist.lore1") + C.DARK_GRAY + Localizer.dLocalize("nether.wither_resist.lore2"));
   }
 
@@ -84,15 +80,20 @@ public class NetherWitherResist extends SimpleAdaptation<NetherWitherResist.Conf
         double chance = getTotalChange(p);
         if (ThreadLocalRandom.current().nextInt(101) <= chance) {
           e.setCancelled(true);
-          getPlayer(p).getData().addStat("nether.wither-resist.negated", 1);
+          addStat(p, "nether.wither-resist.negated", 1);
+          boolean mastery = chance >= 100D;
+          Location center = p.getLocation().add(0D, 1.0D, 0D);
+          FxEmitter emit = fx(center, FxPriority.COMBAT)
+              .dome(Particle.SOUL, mastery ? 1.2D : 0.9D, mastery ? 20 : 12)
+              .dome(Particle.SCULK_SOUL, mastery ? 1.2D : 0.9D, 6)
+              .burst(Particle.CRIT, 4, 0.6D)
+              .chord(Sound.PARTICLE_SOUL_ESCAPE, 0.35F, 0.8F, Sound.BLOCK_NOTE_BLOCK_BASS, 0.4F, 0.5F);
+          if (mastery) {
+            emit.column(Particles.END_ROD, 6, 1.4D).sound(Sound.PARTICLE_SOUL_ESCAPE, 0.35F, 1.1F);
+          }
         }
       });
     }
-  }
-
-  @Override
-  public boolean isEnabled() {
-    return getConfig().isEnabled();
   }
 
   @Override
@@ -112,30 +113,19 @@ public class NetherWitherResist extends SimpleAdaptation<NetherWitherResist.Conf
     return 0.0D;
   }
 
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
   @Data
-  @NoArgsConstructor
   @ConfigDescription("Wearing Netherite Armor has a chance to negate the wither effect.")
-  public static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    public boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    private boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    private int baseCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    private double costFactor = 1;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    private int maxLevel = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    private int initialCost = 5;
+  public static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Base Piece Chance for the Nether Wither Resist adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     private double basePieceChance = 10;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Chance Addition for the Nether Wither Resist adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     private double chanceAddition = 5;
+
+    public Config() {
+      baseCost = 3;
+      costFactor = 1;
+      maxLevel = 3;
+      initialCost = 5;
+    }
   }
 }

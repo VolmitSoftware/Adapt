@@ -21,6 +21,8 @@ package art.arcane.adapt.content.skill;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.adaptation.Cooldowns;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.version.Version;
 import art.arcane.adapt.content.adaptation.chronos.ChronosInstantRecall;
@@ -30,24 +32,21 @@ import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.adapt.util.reflect.registries.EntityTypes;
-import art.arcane.volmlib.util.collection.KMap;
-import art.arcane.volmlib.util.math.M;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
-import java.util.UUID;
-
 public class SkillRift extends SimpleSkill<SkillRift.Config> {
-  private final KMap<UUID, Long> lasttp;
+  private final Cooldowns teleportXpCooldown = cooldowns();
 
   public SkillRift() {
     super("rift", Localizer.dLocalize("skill.rift.icon"));
@@ -67,28 +66,21 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
     registerAdaptation(new RiftEnderTaglock());
     registerAdaptation(new RiftInflatedPocketDimension());
     registerAdaptation(new RiftVoidMagnet());
-    lasttp = new KMap<>();
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.ENDER_PEARL)
         .key("challenge_rift_50")
-        .title(Localizer.dLocalize("advancement.challenge_rift_50.title"))
-        .description(Localizer.dLocalize("advancement.challenge_rift_50.description"))
         .model(CustomModel.get(Material.ENDER_PEARL, "advancement", "rift", "challenge_rift_50"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.ENDER_EYE)
             .key("challenge_rift_500")
-            .title(Localizer.dLocalize("advancement.challenge_rift_500.title"))
-            .description(Localizer.dLocalize("advancement.challenge_rift_500.description"))
             .model(CustomModel.get(Material.ENDER_EYE, "advancement", "rift", "challenge_rift_500"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .child(AdaptAdvancement.builder()
                 .icon(Material.END_CRYSTAL)
                 .key("challenge_rift_5k")
-                .title(Localizer.dLocalize("advancement.challenge_rift_5k.title"))
-                .description(Localizer.dLocalize("advancement.challenge_rift_5k.description"))
                 .model(CustomModel.get(Material.END_CRYSTAL, "advancement", "rift", "challenge_rift_5k"))
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -103,16 +95,12 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.ENDER_PEARL)
         .key("challenge_rift_pearls_50")
-        .title(Localizer.dLocalize("advancement.challenge_rift_pearls_50.title"))
-        .description(Localizer.dLocalize("advancement.challenge_rift_pearls_50.description"))
         .model(CustomModel.get(Material.ENDER_PEARL, "advancement", "rift", "challenge_rift_pearls_50"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.ENDER_EYE)
             .key("challenge_rift_pearls_500")
-            .title(Localizer.dLocalize("advancement.challenge_rift_pearls_500.title"))
-            .description(Localizer.dLocalize("advancement.challenge_rift_pearls_500.description"))
             .model(CustomModel.get(Material.ENDER_EYE, "advancement", "rift", "challenge_rift_pearls_500"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -125,16 +113,12 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.ENDER_PEARL)
         .key("challenge_rift_enderman_50")
-        .title(Localizer.dLocalize("advancement.challenge_rift_enderman_50.title"))
-        .description(Localizer.dLocalize("advancement.challenge_rift_enderman_50.description"))
         .model(CustomModel.get(Material.ENDER_PEARL, "advancement", "rift", "challenge_rift_enderman_50"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.END_STONE)
             .key("challenge_rift_enderman_500")
-            .title(Localizer.dLocalize("advancement.challenge_rift_enderman_500.title"))
-            .description(Localizer.dLocalize("advancement.challenge_rift_enderman_500.description"))
             .model(CustomModel.get(Material.END_STONE, "advancement", "rift", "challenge_rift_enderman_500"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -147,16 +131,12 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.DRAGON_BREATH)
         .key("challenge_rift_dragon_500")
-        .title(Localizer.dLocalize("advancement.challenge_rift_dragon_500.title"))
-        .description(Localizer.dLocalize("advancement.challenge_rift_dragon_500.description"))
         .model(CustomModel.get(Material.DRAGON_BREATH, "advancement", "rift", "challenge_rift_dragon_500"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.DRAGON_HEAD)
             .key("challenge_rift_dragon_5k")
-            .title(Localizer.dLocalize("advancement.challenge_rift_dragon_5k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_rift_dragon_5k.description"))
             .model(CustomModel.get(Material.DRAGON_HEAD, "advancement", "rift", "challenge_rift_dragon_5k"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -169,16 +149,12 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.END_CRYSTAL)
         .key("challenge_rift_crystal_10")
-        .title(Localizer.dLocalize("advancement.challenge_rift_crystal_10.title"))
-        .description(Localizer.dLocalize("advancement.challenge_rift_crystal_10.description"))
         .model(CustomModel.get(Material.END_CRYSTAL, "advancement", "rift", "challenge_rift_crystal_10"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.BEACON)
             .key("challenge_rift_crystal_100")
-            .title(Localizer.dLocalize("advancement.challenge_rift_crystal_100.title"))
-            .description(Localizer.dLocalize("advancement.challenge_rift_crystal_100.description"))
             .model(CustomModel.get(Material.BEACON, "advancement", "rift", "challenge_rift_crystal_100"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -196,10 +172,10 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
     }
 
     shouldReturnForPlayer(e.getPlayer(), e, () -> {
-      getPlayer(p).getData().addStat("rift.teleports", 1);
-      if (!lasttp.containsKey(p.getUniqueId())) {
+      addStat(p, "rift.teleports", 1);
+      if (teleportXpCooldown.isReady(p.getUniqueId(), (long) getConfig().teleportXPCooldown)) {
         xpSilent(p, getConfig().teleportXP, "rift:teleport");
-        lasttp.put(p.getUniqueId(), M.ms());
+        teleportXpCooldown.mark(p.getUniqueId());
       }
     });
   }
@@ -212,7 +188,7 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
     shouldReturnForPlayer(p, e, () -> {
       if (e.getEntity() instanceof EnderPearl) {
         xp(p, getConfig().throwEnderpearlXP, "rift:throw:ender-pearl");
-        getPlayer(p).getData().addStat("rift.ender.pearls", 1);
+        addStat(p, "rift.ender.pearls", 1);
       } else if (e.getEntity() instanceof EnderSignal) {
         xp(p, getConfig().throwEnderEyeXP, "rift:throw:ender-eye");
       }
@@ -238,9 +214,9 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
       };
       if (xp > 0) xp(p, xp, rewardKey);
       if (entity.getType() == EntityType.ENDERMAN) {
-        getPlayer(p).getData().addStat("rift.enderman.kills", 1);
+        addStat(p, "rift.enderman.kills", 1);
       } else if (entity.getType() == EntityType.ENDER_DRAGON) {
-        getPlayer(p).getData().addStat("rift.dragon.damage", damage);
+        addStat(p, "rift.dragon.damage", damage);
       }
     } else if (entity.getType() == EntityTypes.ENDER_CRYSTAL) {
       xp(p, getConfig().damageEndCrystalXP, "rift:damage:end-crystal");
@@ -262,34 +238,19 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
       Player p = e.getEntity().getKiller();
       shouldReturnForPlayer(p, () -> {
         xp(e.getEntity().getKiller(), getConfig().destroyEndCrystalXP, "rift:kill:end-crystal");
-        getPlayer(p).getData().addStat("rift.crystals.destroyed", 1);
+        addStat(p, "rift.crystals.destroyed", 1);
+        fx(e.getEntity().getLocation(), FxPriority.AMBIENT)
+            .column(Particles.END_ROD, 6, 1.5)
+            .particle(Particle.REVERSE_PORTAL, 8, 0, 0.5, 0, 0.4, 0.05)
+            .chord(Sound.BLOCK_BEACON_ACTIVATE, 0.5f, 1.4f, Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 0.4f, 1.9f);
       });
     }
-  }
-
-  @EventHandler(priority = EventPriority.MONITOR)
-  public void on(PlayerQuitEvent e) {
-    Player p = e.getPlayer();
-    lasttp.remove(p.getUniqueId());
   }
 
   @Override
   public void onTick() {
     if (!this.isEnabled()) {
       return;
-    }
-    for (UUID playerId : lasttp.k()) {
-      Player player = Bukkit.getPlayer(playerId);
-      if (player == null || !player.isOnline()) {
-        lasttp.remove(playerId);
-        continue;
-      }
-
-      shouldReturnForPlayer(player, () -> {
-        if (M.ms() - lasttp.get(playerId) > getConfig().teleportXPCooldown) {
-          lasttp.remove(playerId);
-        }
-      });
     }
     checkStatTrackersForOnlinePlayers();
   }

@@ -18,19 +18,21 @@
 
 package art.arcane.adapt.content.adaptation.pickaxe;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
-import lombok.NoArgsConstructor;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -43,19 +45,11 @@ public class PickaxeUnbreakablePact extends SimpleAdaptation<PickaxeUnbreakableP
   public PickaxeUnbreakablePact() {
     super("pickaxe-unbreakable-pact");
     registerConfiguration(PickaxeUnbreakablePact.Config.class);
-    setDescription(Localizer.dLocalize("pickaxe.unbreakable_pact.description"));
-    setDisplayName(Localizer.dLocalize("pickaxe.unbreakable_pact.name"));
     setIcon(Material.ANVIL);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(9122);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.NETHERITE_PICKAXE)
         .key("challenge_pickaxe_pact_100")
-        .title(Localizer.dLocalize("advancement.challenge_pickaxe_pact_100.title"))
-        .description(Localizer.dLocalize("advancement.challenge_pickaxe_pact_100.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -65,7 +59,7 @@ public class PickaxeUnbreakablePact extends SimpleAdaptation<PickaxeUnbreakableP
   @Override
   public void addStats(int level, Element v) {
     v.addLore(C.GREEN + Localizer.dLocalize("pickaxe.unbreakable_pact.lore1"));
-    v.addLore(C.GREEN + "+ " + Form.pc(getIgnoreChance(level), 0) + C.GRAY + " " + Localizer.dLocalize("pickaxe.unbreakable_pact.lore2"));
+    statLore(v, Form.pc(getIgnoreChance(level), 0), 2);
   }
 
   private double getIgnoreChance(int level) {
@@ -87,7 +81,11 @@ public class PickaxeUnbreakablePact extends SimpleAdaptation<PickaxeUnbreakableP
 
     if (M.r(getIgnoreChance(level))) {
       e.setCancelled(true);
-      getPlayer(p).getData().addStat("pickaxe.unbreakable-pact.damage-ignored", e.getDamage());
+      addStat(p, "pickaxe.unbreakable-pact.damage-ignored", e.getDamage());
+      if (M.r(0.2)) {
+        fx(p.getLocation().add(0, 1, 0), FxPriority.AMBIENT)
+            .particle(Particle.WAX_ON, 2, 0, 0.2, 0, 0.15, 0.01);
+      }
       return;
     }
 
@@ -103,42 +101,29 @@ public class PickaxeUnbreakablePact extends SimpleAdaptation<PickaxeUnbreakableP
     e.setCancelled(true);
     damageable.setDamage(maxDurability - 1);
     item.setItemMeta(damageable);
-    getPlayer(p).getData().addStat("pickaxe.unbreakable-pact.saves", 1);
-    SoundPlayer.of(p.getWorld()).play(p.getLocation(), Sound.BLOCK_ANVIL_PLACE, 0.4f, 1.8f);
-  }
-
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
+    addStat(p, "pickaxe.unbreakable-pact.saves", 1);
+    fx(p.getLocation().add(0, 1, 0), FxPriority.COMBAT)
+        .particle(Particle.CRIT, 10, 0, 0.2, 0, 0.3, 0.1)
+        .particle(Particles.CRIT_MAGIC, 6, 0, 0.2, 0, 0.3, 0.05)
+        .ring(Particle.WAX_ON, 0.5D, 12, 0.1D)
+        .chord(Sound.BLOCK_ANVIL_PLACE, 0.4f, 1.8f, Sound.BLOCK_AMETHYST_BLOCK_RESONATE, 0.5f, 0.8f, Sound.ITEM_TRIDENT_RETURN, 0.3f, 1.0f);
   }
 
   @Override
   public void onTick() {
   }
 
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Your pickaxe refuses to break, surviving at 1 durability.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 6;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.65;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Chance per level to ignore pickaxe durability loss entirely.", impact = "Higher values make the pickaxe lose durability less often at higher levels.")
     double ignoreChancePerLevel = 0.04;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum total chance to ignore durability loss.", impact = "Higher values allow more durability loss to be ignored at max level.")
     double maxIgnoreChance = 0.25;
+
+    public Config() {
+      baseCost = 6;
+      costFactor = 0.65;
+      initialCost = 5;
+    }
   }
 }

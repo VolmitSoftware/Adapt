@@ -19,21 +19,27 @@
 package art.arcane.adapt.content.adaptation.sword;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.content.adaptation.sword.effects.DamagingBleedEffect;
 import art.arcane.adapt.content.item.ItemListings;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import de.slikey.effectlib.effect.BleedEffect;
-import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
+import org.bukkit.Color;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -43,31 +49,21 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config> {
-  private final Map<UUID, Long> cooldowns;
-  private final Set<UUID> bleedingEntities = java.util.concurrent.ConcurrentHashMap.newKeySet();
-  private final Map<UUID, UUID> bleedSource = new java.util.concurrent.ConcurrentHashMap<>();
+  private static final Color BLOOD = Color.fromRGB(0x9E1414);
+  private final Cooldowns cooldowns = cooldowns();
+  private final Map<UUID, UUID> bleedSource = playerState();
 
   public SwordsBloodyBlade() {
     super("sword-bloody-blade");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("sword.bloody_blade.description"));
-    setDisplayName(Localizer.dLocalize("sword.bloody_blade.name"));
     setIcon(Material.RED_DYE);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
     setInterval(5534);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
-    cooldowns = new java.util.concurrent.ConcurrentHashMap<>();
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.IRON_SWORD)
         .key("challenge_swords_bloody_500")
-        .title(Localizer.dLocalize("advancement.challenge_swords_bloody_500.title"))
-        .description(Localizer.dLocalize("advancement.challenge_swords_bloody_500.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -75,8 +71,6 @@ public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.DIAMOND_SWORD)
         .key("challenge_swords_bloody_kills_100")
-        .title(Localizer.dLocalize("advancement.challenge_swords_bloody_kills_100.title"))
-        .description(Localizer.dLocalize("advancement.challenge_swords_bloody_kills_100.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -85,9 +79,9 @@ public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + C.GRAY + " " + Localizer.dLocalize("sword.bloody_blade.lore1"));
-    v.addLore(C.YELLOW + "* " + Form.duration(getDurationOfEffect(level), 1) + C.GRAY + " " + Localizer.dLocalize("sword.bloody_blade.lore2"));
-    v.addLore(C.RED + "* " + Form.duration(getCooldown(level), 1) + C.GRAY + " " + Localizer.dLocalize("sword.bloody_blade.lore3"));
+    statLore(v, "", 1);
+    statLore(v, C.YELLOW, "* ", Form.duration(getDurationOfEffect(level), 1), 2);
+    statLore(v, C.RED, "* ", Form.duration(getCooldown(level), 1), 3);
   }
 
   public long getCooldown(int level) {
@@ -102,52 +96,45 @@ public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config
   @EventHandler(priority = EventPriority.HIGHEST)
   public void on(EntityDamageByEntityEvent e) {
     if (e.getDamager() instanceof Player p && hasActiveAdaptation(p) && ItemListings.getToolSwords().contains(p.getInventory().getItemInMainHand().getType())) {
-      Long cooldown = cooldowns.get(p.getUniqueId());
-      if (cooldown != null && cooldown > System.currentTimeMillis())
+      UUID id = p.getUniqueId();
+      if (!cooldowns.isReady(id, getCooldown(getLevel(p)))) {
         return;
-      Entity victim = e.getEntity();
-      cooldowns.put(p.getUniqueId(), System.currentTimeMillis() + getCooldown(getLevel(p)));
-      if (!canDamageTarget(p, victim)) return;
-      if (areParticlesEnabled()) {
-        BleedEffect blood = victim instanceof LivingEntity l ? new DamagingBleedEffect(Adapt.instance.adaptEffectManager, getConfig().damagePerBleedProc, l) : new BleedEffect(Adapt.instance.adaptEffectManager);
-        blood.setEntity(victim);
-        blood.material = Material.CRIMSON_ROOTS;
-        blood.height = -1;
-        blood.iterations = Math.toIntExact(2 * (3 + (getDurationOfEffect(getLevel(p)) / 1000)));
-        blood.period = 5; //5 Every second, make a proc
-        blood.hurt = false;
-//                blood.callback = () -> {
-//                    Adapt.mAdapt.msgp(sender.player(),(p,"You bled out..");
-//                    p.setHealth(1d);
-//                };
-        blood.start();
-      } else {
-        BleedEffect blood = victim instanceof LivingEntity l ? new DamagingBleedEffect(Adapt.instance.adaptEffectManager, getConfig().damagePerBleedProc, l) : new BleedEffect(Adapt.instance.adaptEffectManager);
-        blood.setEntity(victim);
-        blood.material = Material.VOID_AIR;
-        blood.height = -1;
-        blood.iterations = Math.toIntExact(2 * (3 + (getDurationOfEffect(getLevel(p)) / 1000)));
-        blood.period = 5; //5 Every second, make a proc
-        blood.hurt = false;
-        blood.start();
       }
-      bleedingEntities.add(victim.getUniqueId());
-      bleedSource.put(victim.getUniqueId(), p.getUniqueId());
-      getPlayer(p).getData().addStat("swords.bloody-blade.bleed-damage", 1);
-
+      Entity victim = e.getEntity();
+      cooldowns.mark(id);
+      if (!canDamageTarget(p, victim)) return;
+      BleedEffect blood = victim instanceof LivingEntity l ? new DamagingBleedEffect(Adapt.instance.adaptEffectManager, getConfig().damagePerBleedProc, l) : new BleedEffect(Adapt.instance.adaptEffectManager);
+      blood.setEntity(victim);
+      blood.material = areParticlesEnabled() ? Material.CRIMSON_ROOTS : Material.VOID_AIR;
+      blood.height = -1;
+      blood.iterations = Math.toIntExact(2 * (3 + (getDurationOfEffect(getLevel(p)) / 1000)));
+      blood.period = 5;
+      blood.hurt = false;
+      blood.start();
+      bleedSource.put(victim.getUniqueId(), id);
+      addStat(p, "swords.bloody-blade.bleed-damage", 1);
+      fx(victim.getLocation().add(0, 1, 0), FxPriority.COMBAT)
+          .dustBurst(BLOOD, 8, 0.3D, 1.1F)
+          .particle(Particle.DAMAGE_INDICATOR, 3, 0, 0, 0, 0.1D, 0.05D)
+          .chord(Sound.ENTITY_PLAYER_ATTACK_STRONG, 0.6F, 0.8F, Sound.BLOCK_HONEY_BLOCK_SLIDE, 0.3F, 0.6F);
     }
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(EntityDeathEvent e) {
     UUID victimId = e.getEntity().getUniqueId();
-    if (bleedingEntities.remove(victimId)) {
-      UUID sourceId = bleedSource.remove(victimId);
-      Player source = sourceId == null ? null : Bukkit.getPlayer(sourceId);
-      if (source != null && source.isOnline()) {
-        getPlayer(source).getData().addStat("swords.bloody-blade.bleed-kills", 1);
-      }
+    UUID sourceId = bleedSource.remove(victimId);
+    if (sourceId == null) {
+      return;
     }
+    Player source = Bukkit.getPlayer(sourceId);
+    if (source != null && source.isOnline()) {
+      addStat(source, "swords.bloody-blade.bleed-kills", 1);
+    }
+    fx(e.getEntity().getLocation().add(0, 0.8D, 0), FxPriority.TRANSITION)
+        .dustBurst(BLOOD, 10, 0.4D, 1.1F)
+        .particle(Particles.SMOKE, 4, 0, 0, 0, 0.05D, 0.01D)
+        .sound(Sound.ENTITY_PLAYER_ATTACK_CRIT, 0.7F, 0.7F);
   }
 
 
@@ -156,39 +143,21 @@ public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Sword strikes cause bleeding over time.")
-  protected static class Config {
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown for the Swords Bloody Blade adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     public long cooldown = 5000;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Damage Per Bleed Proc for the Swords Bloody Blade adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     public double damagePerBleedProc = 0.5;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Effect Duration for the Swords Bloody Blade adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     public long effectDuration = 1000;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Swords Bloody Blade adaptation.", impact = "True enables this behavior and false disables it.")
-    boolean showParticles = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 7;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 7;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 7;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.325;
+
+    public Config() {
+      baseCost = 7;
+      costFactor = 0.325;
+      maxLevel = 7;
+      initialCost = 7;
+    }
 
   }
 }

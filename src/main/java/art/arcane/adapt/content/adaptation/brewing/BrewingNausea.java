@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.brewing;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -30,10 +31,13 @@ import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.PotionEffectTypes;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
 import org.bukkit.Color;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.inventory.BrewEvent;
@@ -44,13 +48,7 @@ public class BrewingNausea extends SimpleAdaptation<BrewingNausea.Config> {
   public BrewingNausea() {
     super("brewing-nausea");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("brewing.nausea.description"));
-    setDisplayName(Localizer.dLocalize("brewing.nausea.name"));
     setIcon(Material.CRIMSON_FUNGUS);
-    setBaseCost(getConfig().baseCost);
-    setCostFactor(getConfig().costFactor);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
     setInterval(1333);
     registerBrewingRecipe(BrewingRecipe.builder()
         .id("brewing-nausea-1")
@@ -79,8 +77,6 @@ public class BrewingNausea extends SimpleAdaptation<BrewingNausea.Config> {
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.POISONOUS_POTATO)
         .key("challenge_brewing_nausea_25")
-        .title(Localizer.dLocalize("advancement.challenge_brewing_nausea_25.title"))
-        .description(Localizer.dLocalize("advancement.challenge_brewing_nausea_25.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -98,6 +94,21 @@ public class BrewingNausea extends SimpleAdaptation<BrewingNausea.Config> {
     BrewingStandOwner owner = WorldData.of(e.getBlock().getWorld()).get(e.getBlock(), BrewingStandOwner.class);
     if (owner != null) {
       getServer().peekData(owner.getOwner()).addStat("brewing.nausea.potions-brewed", 1);
+      Location loc = e.getBlock().getLocation().add(0.5D, 0.6D, 0.5D);
+      timeline(loc)
+          .duration(5)
+          .priority(FxPriority.TRANSITION)
+          .cullRadius(24.0D)
+          .frame((f, tick, progress) -> {
+            f.helix(Particle.PORTAL, 0.45D + (0.15D * Math.sin(progress * Math.PI * 2.0D)), 1.0D, 8, progress * Math.PI * 2.0D);
+            if (tick == 0) {
+              f.chord(Sound.ENTITY_ENDERMAN_TELEPORT, 0.3F, 0.7F, Sound.BLOCK_BREWING_STAND_BREW, 0.6F, 0.8F);
+            }
+            if (tick == 4) {
+              f.particle(Particle.WITCH, 2, 0, 0.5D, 0, 0.2D, 0.01D);
+            }
+          })
+          .start();
     }
   }
 
@@ -106,30 +117,13 @@ public class BrewingNausea extends SimpleAdaptation<BrewingNausea.Config> {
   }
 
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Brew a Potion of Nausea from Awkward Potion and Mushroom.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 1;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 1;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 2;
+  protected static class Config extends AdaptationConfig {
+    public Config() {
+      permanent = true;
+      baseCost = 3;
+      costFactor = 1;
+      maxLevel = 1;
+    }
   }
 }

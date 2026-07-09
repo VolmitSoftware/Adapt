@@ -18,19 +18,22 @@
 
 package art.arcane.adapt.content.adaptation.discovery;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -38,41 +41,31 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Map;
-import java.util.UUID;
 
 public class DiscoveryCartographerPulse extends SimpleAdaptation<DiscoveryCartographerPulse.Config> {
-  private final Map<UUID, Long> cooldowns = new java.util.concurrent.ConcurrentHashMap<>();
+  private final Cooldowns cooldowns = cooldowns();
+  private volatile Method cachedLocateMethod;
+  private volatile Object cachedStructure;
+  private volatile boolean locateResolved;
 
   public DiscoveryCartographerPulse() {
     super("discovery-cartographer-pulse");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("discovery.cartographer_pulse.description"));
-    setDisplayName(Localizer.dLocalize("discovery.cartographer_pulse.name"));
     setIcon(Material.COMPASS);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(2000);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.COMPASS)
         .key("challenge_discovery_cartographer_100")
-        .title(Localizer.dLocalize("advancement.challenge_discovery_cartographer_100.title"))
-        .description(Localizer.dLocalize("advancement.challenge_discovery_cartographer_100.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.FILLED_MAP)
             .key("challenge_discovery_cartographer_1k")
-            .title(Localizer.dLocalize("advancement.challenge_discovery_cartographer_1k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_discovery_cartographer_1k.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -83,16 +76,11 @@ public class DiscoveryCartographerPulse extends SimpleAdaptation<DiscoveryCartog
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.f(getSearchRange(level)) + C.GRAY + " " + Localizer.dLocalize("discovery.cartographer_pulse.lore1"));
-    v.addLore(C.YELLOW + "* " + Form.duration(getCooldownMillis(level), 1) + C.GRAY + " " + Localizer.dLocalize("discovery.cartographer_pulse.lore2"));
+    statLore(v, Form.f(getSearchRange(level)), 1);
+    statLore(v, C.YELLOW, "* ", Form.duration(getCooldownMillis(level), 1), 2);
     if (getConfig().hungerCost > 0) {
       v.addLore(C.RED + "* " + getConfig().hungerCost + C.GRAY + " " + Localizer.dLocalize("discovery.cartographer_pulse.lore_cost_hunger"));
     }
-  }
-
-  @EventHandler
-  public void on(PlayerQuitEvent e) {
-    cooldowns.remove(e.getPlayer().getUniqueId());
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -112,67 +100,113 @@ public class DiscoveryCartographerPulse extends SimpleAdaptation<DiscoveryCartog
       return;
     }
 
-    long now = System.currentTimeMillis();
-    if (now < cooldowns.getOrDefault(p.getUniqueId(), 0L)) {
+    if (!cooldowns.isReady(p.getUniqueId(), getCooldownMillis(level))) {
+      fx(p.getLocation(), FxPriority.TRANSITION)
+          .particle(Particles.SMOKE, 2, 0, 0, 0, 0.05, 0.01)
+          .sound(Sound.BLOCK_NOTE_BLOCK_BASS, 0.5F, 0.6F);
       return;
     }
 
     int hungerCost = Math.max(0, getConfig().hungerCost);
     if (hungerCost > 0 && p.getFoodLevel() < hungerCost) {
+      fx(p.getLocation(), FxPriority.TRANSITION)
+          .particle(Particles.SMOKE, 2, 0, 0, 0, 0.05, 0.01)
+          .sound(Sound.BLOCK_NOTE_BLOCK_BASS, 0.5F, 0.6F);
       return;
     }
 
     Location target = locateNearestStructureFallback(p.getWorld(), p.getLocation(), getSearchRange(level));
+    boolean found = target != null;
     if (target == null) {
       target = p.getWorld().getSpawnLocation();
     }
 
     p.setCompassTarget(target);
     p.sendMessage(C.AQUA + "Compass pulse: " + C.WHITE + Form.f(target.getBlockX()) + ", " + Form.f(target.getBlockZ()));
-    cooldowns.put(p.getUniqueId(), now + getCooldownMillis(level));
+    cooldowns.mark(p.getUniqueId());
     if (hungerCost > 0) {
       p.setFoodLevel(Math.max(0, p.getFoodLevel() - hungerCost));
     }
-    SoundPlayer.of(p.getWorld()).play(p.getLocation(), Sound.ITEM_LODESTONE_COMPASS_LOCK, 0.8f, 1.3f);
+
+    timeline(p)
+        .duration(20)
+        .priority(FxPriority.GAMEPLAY)
+        .cullRadius(24)
+        .frame((f, tick, progress) -> {
+          f.ring(Particle.ELECTRIC_SPARK, 0.5D + (progress * 4.0D), 12, 0.1D);
+          if (tick == 0) {
+            f.chord(Sound.ITEM_LODESTONE_COMPASS_LOCK, 0.8F, 1.3F, Sound.BLOCK_BEACON_ACTIVATE, 0.4F, 1.4F);
+          }
+        })
+        .start();
+
+    if (found) {
+      Location eye = p.getEyeLocation();
+      fx(eye, FxPriority.GAMEPLAY)
+          .trail(Particles.END_ROD, target.getX() - eye.getX(), target.getY() - eye.getY(), target.getZ() - eye.getZ(), 8.0D, 10);
+    }
+
     xp(p, getConfig().xpPerPulse);
-    getPlayer(p).getData().addStat("discovery.cartographer-pulse.pulses", 1);
+    addStat(p, "discovery.cartographer-pulse.pulses", 1);
   }
 
   private Location locateNearestStructureFallback(World world, Location from, int range) {
-    try {
-      for (Method m : world.getClass().getMethods()) {
-        if (!m.getName().equals("locateNearestStructure")) {
-          continue;
-        }
-
-        Class<?>[] p = m.getParameterTypes();
-        if (p.length < 4 || p[0] != Location.class || p[2] != int.class || p[3] != boolean.class) {
-          continue;
-        }
-
-        Object structure = resolvePreferredStructureType(p[1]);
-        if (structure == null) {
-          continue;
-        }
-
-        Object out;
-        if (p.length == 4) {
-          out = m.invoke(world, from, structure, range, false);
-        } else if (p.length == 5 && p[4] == boolean.class) {
-          out = m.invoke(world, from, structure, range, false, false);
-        } else {
-          continue;
-        }
-
-        Location location = extractLocation(out);
-        if (location != null) {
-          return location;
+    if (!locateResolved) {
+      synchronized (this) {
+        if (!locateResolved) {
+          resolveLocateMethod(world);
+          locateResolved = true;
         }
       }
-    } catch (Throwable ignored) {
     }
 
-    return null;
+    Method method = cachedLocateMethod;
+    Object structure = cachedStructure;
+    if (method == null || structure == null) {
+      return null;
+    }
+
+    try {
+      Class<?>[] p = method.getParameterTypes();
+      Object out;
+      if (p.length == 4) {
+        out = method.invoke(world, from, structure, range, false);
+      } else if (p.length == 5 && p[4] == boolean.class) {
+        out = method.invoke(world, from, structure, range, false, false);
+      } else {
+        return null;
+      }
+
+      return extractLocation(out);
+    } catch (Throwable ignored) {
+      return null;
+    }
+  }
+
+  private void resolveLocateMethod(World world) {
+    for (Method m : world.getClass().getMethods()) {
+      if (!m.getName().equals("locateNearestStructure")) {
+        continue;
+      }
+
+      Class<?>[] p = m.getParameterTypes();
+      if (p.length < 4 || p[0] != Location.class || p[2] != int.class || p[3] != boolean.class) {
+        continue;
+      }
+
+      if (p.length != 4 && !(p.length == 5 && p[4] == boolean.class)) {
+        continue;
+      }
+
+      Object structure = resolvePreferredStructureType(p[1]);
+      if (structure == null) {
+        continue;
+      }
+
+      cachedLocateMethod = m;
+      cachedStructure = structure;
+      return;
+    }
   }
 
   private Object resolvePreferredStructureType(Class<?> structureTypeClass) {
@@ -251,31 +285,8 @@ public class DiscoveryCartographerPulse extends SimpleAdaptation<DiscoveryCartog
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Sneak-right-click with a compass to pulse toward a nearby structure target.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.7;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Search Range Base for the Discovery Cartographer Pulse adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double searchRangeBase = 640;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Search Range Factor for the Discovery Cartographer Pulse adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -288,5 +299,11 @@ public class DiscoveryCartographerPulse extends SimpleAdaptation<DiscoveryCartog
     double xpPerPulse = 25;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Food points consumed per compass pulse.", impact = "Higher values make each pulse cost more hunger; 0 disables the cost.")
     int hungerCost = 2;
+
+    public Config() {
+      costFactor = 0.7;
+      maxLevel = 4;
+      initialCost = 4;
+    }
   }
 }

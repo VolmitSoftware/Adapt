@@ -18,21 +18,25 @@
 
 package art.arcane.adapt.content.adaptation.crafting;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdvancementSpec;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapedRecipe;
@@ -47,14 +51,8 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
   public CraftingDeconstruction() {
     super("crafting-deconstruction");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("crafting.deconstruction.description"));
-    setDisplayName(Localizer.dLocalize("crafting.deconstruction.name"));
     setIcon(Material.SHEARS);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(1);
     setInterval(5590);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     AdvancementSpec deconstruction5k = AdvancementSpec.challenge(
         "challenge_crafting_decon_5k",
         Material.IRON_INGOT,
@@ -156,6 +154,10 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
 
   @EventHandler
   public void on(PlayerInteractEvent e) {
+    if (e.getHand() == EquipmentSlot.OFF_HAND) {
+      return;
+    }
+
     Player player = e.getPlayer();
     ItemStack mainHandItem = player.getInventory().getItemInMainHand();
     if (!hasActiveAdaptation(player)) {
@@ -176,26 +178,40 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
   private void processItemInteraction(Player player, ItemStack mainHandItem, Item itemEntity) {
     ItemStack forStuff = itemEntity.getItemStack();
     ItemStack offering = getDeconstructionOffering(forStuff);
+    Location itemLocation = itemEntity.getLocation();
 
-    SoundPlayer spw = SoundPlayer.of(player.getWorld());
     if (offering != null) {
       itemEntity.setItemStack(offering);
-      spw.play(itemEntity.getLocation(), Sound.BLOCK_BASALT_BREAK, 1F, 0.2f);
-      spw.play(itemEntity.getLocation(), Sound.BLOCK_BEEHIVE_SHEAR, 1F, 0.7f);
+      fx(itemLocation, FxPriority.COMBAT)
+          .particle(Particles.ITEM_CRACK, 18, 0, 0, 0, 0.15D, 0.15D, forStuff)
+          .ring(Particle.WAX_ON, 0.5D, 10, 0.2D)
+          .chord(Sound.BLOCK_BASALT_BREAK, 1F, 0.2F, Sound.BLOCK_BEEHIVE_SHEAR, 1F, 0.7F, Sound.ITEM_SHIELD_BREAK, 0.4F, 1.4F);
       xp(player, getValue(offering), "deconstruct");
-      getPlayer(player).getData().addStat("crafting.deconstruction.items-deconstructed", 1);
+      addStat(player, "crafting.deconstruction.items-deconstructed", 1);
 
-      // Damage the shears
       Damageable damageable = (Damageable) mainHandItem.getItemMeta();
       int newDamage = damageable.getDamage() + 8 * forStuff.getAmount();
-      if (newDamage >= mainHandItem.getType().getMaxDurability()) {
-        player.getInventory().setItemInMainHand(null); // Break the shears
+      int maxDurability = mainHandItem.getType().getMaxDurability();
+      if (newDamage >= maxDurability) {
+        player.getInventory().setItemInMainHand(null);
+        fx(itemLocation, FxPriority.COMBAT)
+            .particle(Particles.ITEM_CRACK, 6, 0, 0.1D, 0, 0.2D, 0.05D, new ItemStack(Material.SHEARS))
+            .sound(Sound.ENTITY_ITEM_BREAK, 0.8F, 1.0F);
       } else {
         damageable.setDamage(newDamage);
         mainHandItem.setItemMeta(damageable);
+        if (newDamage >= maxDurability * 0.9D) {
+          fx(itemLocation, FxPriority.TRANSITION)
+              .particle(Particle.ELECTRIC_SPARK, 6, 0, 0.1D, 0, 0.2D, 0.05D)
+              .burst(Particles.CRIT_MAGIC, 3, 0.15D)
+              .sound(Sound.ENTITY_ITEM_BREAK, 0.4F, 1.6F);
+        }
       }
     } else {
-      spw.play(itemEntity.getLocation(), Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 1F, 1f); // Burnt torch sound
+      fx(itemLocation, FxPriority.TRANSITION)
+          .burst(Particles.SMOKE, 4, 0.15D)
+          .particle(Particle.WAX_ON, 2, 0, 0.2D, 0, 0.06D, 0.02D)
+          .chord(Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 1F, 1F, Sound.BLOCK_FIRE_EXTINGUISH, 0.3F, 1.5F);
     }
   }
 
@@ -205,28 +221,13 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Deconstruct blocks and items into salvageable base components using shears.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 9;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 8;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 1.0;
+  protected static class Config extends AdaptationConfig {
+    public Config() {
+      baseCost = 9;
+      costFactor = 1.0;
+      initialCost = 8;
+      maxLevel = 1;
+    }
   }
 }

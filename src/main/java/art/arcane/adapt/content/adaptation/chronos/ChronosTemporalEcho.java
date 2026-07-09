@@ -19,19 +19,23 @@
 package art.arcane.adapt.content.adaptation.chronos;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Egg;
@@ -47,29 +51,18 @@ import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.util.Vector;
 
-import java.util.Map;
-import java.util.UUID;
-
 public class ChronosTemporalEcho extends SimpleAdaptation<ChronosTemporalEcho.Config> {
   private static final String ECHO_META = "adapt-chronos-temporal-echo";
-  private final Map<UUID, Long> cooldowns = new java.util.concurrent.ConcurrentHashMap<>();
+  private final Cooldowns cooldowns = cooldowns();
 
   public ChronosTemporalEcho() {
     super("chronos-temporal-echo");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("chronos.temporal_echo.description"));
-    setDisplayName(Localizer.dLocalize("chronos.temporal_echo.name"));
     setIcon(Material.AMETHYST_CLUSTER);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(1600);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.SPECTRAL_ARROW)
         .key("challenge_chronos_echo_200")
-        .title(Localizer.dLocalize("advancement.challenge_chronos_echo_200.title"))
-        .description(Localizer.dLocalize("advancement.challenge_chronos_echo_200.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -95,16 +88,16 @@ public class ChronosTemporalEcho extends SimpleAdaptation<ChronosTemporalEcho.Co
     }
 
     int level = getActiveLevel(p);
-    long now = System.currentTimeMillis();
-    if (now < cooldowns.getOrDefault(p.getUniqueId(), 0L)) {
+    if (!cooldowns.isReady(p.getUniqueId(), getCooldownMillis(level))) {
       return;
     }
 
-    cooldowns.put(p.getUniqueId(), now + getCooldownMillis(level));
+    cooldowns.mark(p.getUniqueId());
     Projectile original = e.getEntity();
     Vector originalVelocity = original.getVelocity().clone();
     int delay = getEchoDelayTicks(level);
     J.runEntity(p, () -> spawnEcho(p, echoType, originalVelocity, level), delay);
+    fx(p.getEyeLocation(), FxPriority.TRAIL).particle(Particles.ENCHANTMENT_TABLE, 2, 0, 0, 0, 0.2D, 0.02D);
   }
 
   @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
@@ -145,8 +138,19 @@ public class ChronosTemporalEcho extends SimpleAdaptation<ChronosTemporalEcho.Co
     echo.setShooter(p);
     echo.setVelocity(velocity.multiply(getEchoVelocityFactor(level)));
     echo.setMetadata(ECHO_META, new FixedMetadataValue(Adapt.instance, true));
-    SoundPlayer.of(p.getWorld()).play(p.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.75f, 1.35f);
-    getPlayer(p).getData().addStat("chronos.temporal-echo.echo-hits", 1);
+
+    Location spawnAt = echo.getLocation();
+    fx(spawnAt, FxPriority.COMBAT)
+        .ring(Particle.REVERSE_PORTAL, 0.6D, 6, 0.0D)
+        .chord(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.75F, 1.35F, Sound.BLOCK_AMETHYST_BLOCK_HIT, 0.4F, 1.1F);
+    timeline(echo)
+        .duration(4)
+        .priority(FxPriority.TRAIL)
+        .cullRadius(32)
+        .frame((f, tick, progress) -> f.particle(Particle.REVERSE_PORTAL, 2, 0, 0, 0, 0.05D, 0.01D))
+        .start();
+
+    addStat(p, "chronos.temporal-echo.echo-hits", 1);
     xp(p, getConfig().xpPerEcho);
   }
 
@@ -187,16 +191,6 @@ public class ChronosTemporalEcho extends SimpleAdaptation<ChronosTemporalEcho.Co
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
   private enum EchoType {
     ARROW,
     SNOWBALL,
@@ -204,21 +198,8 @@ public class ChronosTemporalEcho extends SimpleAdaptation<ChronosTemporalEcho.Co
     ENDER_PEARL
   }
 
-  @NoArgsConstructor
   @ConfigDescription("Replays your last projectile action shortly after firing at reduced power.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.75;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Echo Delay Ticks Base for the Chronos Temporal Echo adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double echoDelayTicksBase = 18;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Echo Delay Ticks Factor for the Chronos Temporal Echo adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -235,5 +216,11 @@ public class ChronosTemporalEcho extends SimpleAdaptation<ChronosTemporalEcho.Co
     double cooldownMillisFactor = 2600;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Echo for the Chronos Temporal Echo adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpPerEcho = 12;
+
+    public Config() {
+      baseCost = 5;
+      costFactor = 0.75;
+      initialCost = 5;
+    }
   }
 }

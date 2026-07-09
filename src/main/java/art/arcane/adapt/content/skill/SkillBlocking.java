@@ -18,17 +18,21 @@
 
 package art.arcane.adapt.content.skill;
 
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxEmitter;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.adaptation.blocking.*;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import lombok.NoArgsConstructor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -36,13 +40,10 @@ import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import org.bukkit.util.Vector;
 
 public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
-  private final Map<UUID, Long> cooldowns;
+  private final Cooldowns blockCooldowns = cooldowns();
 
   public SkillBlocking() {
     super("blocking", Localizer.dLocalize("skill.blocking.icon"));
@@ -62,36 +63,26 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
     registerAdaptation(new BlockingBulwarkBash());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.LEATHER_CHESTPLATE).key("challenge_block_1k")
-        .title(Localizer.dLocalize("advancement.challenge_block_1k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_block_1k.description"))
         .model(CustomModel.get(Material.LEATHER_CHESTPLATE, "advancement", "blocking", "challenge_block_1k"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
             .icon(Material.CHAINMAIL_CHESTPLATE)
             .key("challenge_block_5k")
-            .title(Localizer.dLocalize("advancement.challenge_block_5k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_block_5k.description"))
             .model(CustomModel.get(Material.CHAINMAIL_CHESTPLATE, "advancement", "blocking", "challenge_block_5k"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                 .icon(Material.IRON_CHESTPLATE)
                 .key("challenge_block_50k")
-                .title(Localizer.dLocalize("advancement.challenge_block_50k.title"))
-                .description(Localizer.dLocalize("advancement.challenge_block_50k.description"))
                 .model(CustomModel.get(Material.IRON_CHESTPLATE, "advancement", "blocking", "challenge_block_50k"))
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                     .icon(Material.GOLDEN_CHESTPLATE)
                     .key("challenge_block_500k")
-                    .title(Localizer.dLocalize("advancement.challenge_block_500k.title"))
-                    .description(Localizer.dLocalize("advancement.challenge_block_500k.description"))
                     .model(CustomModel.get(Material.GOLDEN_CHESTPLATE, "advancement", "blocking", "challenge_block_500k"))
                     .frame(AdaptAdvancementFrame.CHALLENGE)
                     .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                         .icon(Material.DIAMOND_CHESTPLATE)
                         .key("challenge_block_5m")
-                        .title(Localizer.dLocalize("advancement.challenge_block_5m.title"))
-                        .description(Localizer.dLocalize("advancement.challenge_block_5m.description"))
                         .model(CustomModel.get(Material.DIAMOND_CHESTPLATE, "advancement", "blocking", "challenge_block_5m"))
                         .frame(AdaptAdvancementFrame.CHALLENGE)
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -108,16 +99,12 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.IRON_CHESTPLATE).key("challenge_block_dmg_1k")
-        .title(Localizer.dLocalize("advancement.challenge_block_dmg_1k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_block_dmg_1k.description"))
         .model(CustomModel.get(Material.IRON_CHESTPLATE, "advancement", "blocking", "challenge_block_dmg_1k"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.NETHERITE_CHESTPLATE)
             .key("challenge_block_dmg_10k")
-            .title(Localizer.dLocalize("advancement.challenge_block_dmg_10k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_block_dmg_10k.description"))
             .model(CustomModel.get(Material.NETHERITE_CHESTPLATE, "advancement", "blocking", "challenge_block_dmg_10k"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -128,16 +115,12 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.ARROW).key("challenge_block_proj_100")
-        .title(Localizer.dLocalize("advancement.challenge_block_proj_100.title"))
-        .description(Localizer.dLocalize("advancement.challenge_block_proj_100.description"))
         .model(CustomModel.get(Material.ARROW, "advancement", "blocking", "challenge_block_proj_100"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.SPECTRAL_ARROW)
             .key("challenge_block_proj_1k")
-            .title(Localizer.dLocalize("advancement.challenge_block_proj_1k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_block_proj_1k.description"))
             .model(CustomModel.get(Material.SPECTRAL_ARROW, "advancement", "blocking", "challenge_block_proj_1k"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -148,16 +131,12 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.IRON_SWORD).key("challenge_block_melee_500")
-        .title(Localizer.dLocalize("advancement.challenge_block_melee_500.title"))
-        .description(Localizer.dLocalize("advancement.challenge_block_melee_500.description"))
         .model(CustomModel.get(Material.IRON_SWORD, "advancement", "blocking", "challenge_block_melee_500"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.NETHERITE_SWORD)
             .key("challenge_block_melee_5k")
-            .title(Localizer.dLocalize("advancement.challenge_block_melee_5k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_block_melee_5k.description"))
             .model(CustomModel.get(Material.NETHERITE_SWORD, "advancement", "blocking", "challenge_block_melee_5k"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -168,16 +147,12 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.DIAMOND_CHESTPLATE).key("challenge_block_heavy_50")
-        .title(Localizer.dLocalize("advancement.challenge_block_heavy_50.title"))
-        .description(Localizer.dLocalize("advancement.challenge_block_heavy_50.description"))
         .model(CustomModel.get(Material.DIAMOND_CHESTPLATE, "advancement", "blocking", "challenge_block_heavy_50"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.NETHERITE_CHESTPLATE)
             .key("challenge_block_heavy_500")
-            .title(Localizer.dLocalize("advancement.challenge_block_heavy_500.title"))
-            .description(Localizer.dLocalize("advancement.challenge_block_heavy_500.description"))
             .model(CustomModel.get(Material.NETHERITE_CHESTPLATE, "advancement", "blocking", "challenge_block_heavy_500"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -185,15 +160,13 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
         .build());
     registerMilestone("challenge_block_heavy_50", "blocked.heavy", 50, getConfig().challengeBlock1kReward);
     registerMilestone("challenge_block_heavy_500", "blocked.heavy", 500, getConfig().challengeBlock5kReward);
-
-    cooldowns = new HashMap<>();
   }
 
   private void handleCooldown(Player p, Runnable runnable) {
-    Long cooldown = cooldowns.get(p.getUniqueId());
-    if (cooldown != null && cooldown + getConfig().cooldownDelay > System.currentTimeMillis())
+    if (!blockCooldowns.isReady(p.getUniqueId(), getConfig().cooldownDelay)) {
       return;
-    cooldowns.put(p.getUniqueId(), System.currentTimeMillis());
+    }
+    blockCooldowns.mark(p.getUniqueId());
     runnable.run();
   }
 
@@ -201,7 +174,6 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(EntityDamageByEntityEvent e) {
     if (e.getEntity() instanceof Player p) {
-      SoundPlayer sp = SoundPlayer.of(p);
       shouldReturnForPlayer(p, e, () -> {
         if (p.isBlocking()) {
           AdaptPlayer adaptPlayer = getPlayer(p);
@@ -212,17 +184,32 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
           } else {
             adaptPlayer.getData().addStat("blocked.melee", 1);
           }
-          if (e.getDamage() > 5) {
+          boolean heavy = e.getDamage() > 5;
+          if (heavy) {
             adaptPlayer.getData().addStat("blocked.heavy", 1);
           }
 
           handleCooldown(p, () -> {
             xp(p, getConfig().xpOnBlockedAttack);
-            sp.play(p.getLocation(), Sound.BLOCK_IRON_DOOR_CLOSE, 0.5f, 0.77f);
-            sp.play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 0.5f, 0.77f);
+            blockFlash(p, heavy);
           });
         }
       });
+    }
+  }
+
+  private void blockFlash(Player p, boolean heavy) {
+    Location eye = p.getEyeLocation();
+    Vector look = eye.getDirection();
+    Location front = eye.add(look.getX() * 0.6D, look.getY() * 0.6D, look.getZ() * 0.6D);
+    FxEmitter emitter = fx(front, FxPriority.COMBAT)
+        .particle(Particles.BLOCK_CRACK, heavy ? 8 : 6, 0, 0, 0, 0.2D, 0.02D, Material.IRON_BLOCK.createBlockData())
+        .burst(Particles.CRIT_MAGIC, heavy ? 8 : 4, heavy ? 0.35D : 0.2D);
+    if (heavy) {
+      emitter.burst(Particles.END_ROD, 3, 0.15D)
+          .chord(Sound.BLOCK_IRON_DOOR_CLOSE, 0.5F, 0.77F, Sound.ITEM_ARMOR_EQUIP_LEATHER, 0.5F, 0.77F, Sound.ITEM_SHIELD_BLOCK, 0.9F, 0.7F);
+    } else {
+      emitter.chord(Sound.BLOCK_IRON_DOOR_CLOSE, 0.5F, 0.77F, Sound.ITEM_ARMOR_EQUIP_LEATHER, 0.5F, 0.77F, Sound.ITEM_SHIELD_BLOCK, 0.6F, 1.1F);
     }
   }
 

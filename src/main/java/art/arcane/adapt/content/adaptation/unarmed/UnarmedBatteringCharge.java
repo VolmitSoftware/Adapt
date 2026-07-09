@@ -18,17 +18,21 @@
 
 package art.arcane.adapt.content.adaptation.unarmed;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Color;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -39,7 +43,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
@@ -47,25 +50,18 @@ import java.util.Map;
 import java.util.UUID;
 
 public class UnarmedBatteringCharge extends SimpleAdaptation<UnarmedBatteringCharge.Config> {
-  private final Map<UUID, Boolean> primedState = new java.util.concurrent.ConcurrentHashMap<>();
-  private final Map<UUID, Long> primedTrailNextAt = new java.util.concurrent.ConcurrentHashMap<>();
+  private static final Color TRAIL_COLOR = Color.fromRGB(0xCFCFCF);
+  private final Map<UUID, Boolean> primedState = playerState();
+  private final Cooldowns trailCooldown = cooldowns();
 
   public UnarmedBatteringCharge() {
     super("unarmed-battering-charge");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("unarmed.battering_charge.description"));
-    setDisplayName(Localizer.dLocalize("unarmed.battering_charge.name"));
     setIcon(Material.BLAZE_ROD);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(50);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.IRON_INGOT)
         .key("challenge_unarmed_charge_300")
-        .title(Localizer.dLocalize("advancement.challenge_unarmed_charge_300.title"))
-        .description(Localizer.dLocalize("advancement.challenge_unarmed_charge_300.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -73,8 +69,6 @@ public class UnarmedBatteringCharge extends SimpleAdaptation<UnarmedBatteringCha
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.DIAMOND)
         .key("challenge_unarmed_charge_kills_100")
-        .title(Localizer.dLocalize("advancement.challenge_unarmed_charge_kills_100.title"))
-        .description(Localizer.dLocalize("advancement.challenge_unarmed_charge_kills_100.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -83,9 +77,9 @@ public class UnarmedBatteringCharge extends SimpleAdaptation<UnarmedBatteringCha
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.f(getDamageBonus(level)) + C.GRAY + " " + Localizer.dLocalize("unarmed.battering_charge.lore1"));
-    v.addLore(C.GREEN + "+ " + Form.f(getKnockback(level)) + C.GRAY + " " + Localizer.dLocalize("unarmed.battering_charge.lore2"));
-    v.addLore(C.YELLOW + "* " + Form.duration(getCooldownTicks(level) * 50D, 1) + C.GRAY + " " + Localizer.dLocalize("unarmed.battering_charge.lore3"));
+    statLore(v, Form.f(getDamageBonus(level)), 1);
+    statLore(v, Form.f(getKnockback(level)), 2);
+    statLore(v, C.YELLOW, "* ", Form.duration(getCooldownTicks(level) * 50D, 1), 3);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
@@ -123,18 +117,10 @@ public class UnarmedBatteringCharge extends SimpleAdaptation<UnarmedBatteringCha
       p.setCooldown(cooldownItem.getType(), getCooldownTicks(level));
     }
 
-    SoundPlayer sp = SoundPlayer.of(p.getWorld());
-    sp.play(p.getLocation(), Sound.ENTITY_PLAYER_ATTACK_KNOCKBACK, 1f, 0.95f);
-    sp.play(target.getLocation(), Sound.ENTITY_ZOGLIN_ATTACK, 0.5f, 0.8f);
-    if (areParticlesEnabled()) {
-      target.getWorld().spawnParticle(Particle.EXPLOSION, target.getLocation().add(0, 0.8, 0), 1, 0.06, 0.06, 0.06, 0.02);
-    }
-    if (areParticlesEnabled()) {
-      target.getWorld().spawnParticle(Particle.CLOUD, target.getLocation().add(0, 0.6, 0), 14, 0.25, 0.25, 0.25, 0.05);
-    }
+    playImpact(p, target, level);
     primedState.put(p.getUniqueId(), false);
     xp(p, e.getDamage() * getConfig().xpPerDamage);
-    getPlayer(p).getData().addStat("unarmed.battering-charge.charges", 1);
+    addStat(p, "unarmed.battering-charge.charges", 1);
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -146,15 +132,8 @@ public class UnarmedBatteringCharge extends SimpleAdaptation<UnarmedBatteringCha
         && dmg.getDamager() instanceof Player p
         && hasActiveAdaptation(p)
         && isChargeLoadout(p)) {
-      getPlayer(p).getData().addStat("unarmed.battering-charge.charge-kills", 1);
+      addStat(p, "unarmed.battering-charge.charge-kills", 1);
     }
-  }
-
-  @EventHandler(priority = EventPriority.MONITOR)
-  public void on(PlayerQuitEvent e) {
-    UUID id = e.getPlayer().getUniqueId();
-    primedState.remove(id);
-    primedTrailNextAt.remove(id);
   }
 
   private boolean isChargeLoadout(Player p) {
@@ -193,6 +172,43 @@ public class UnarmedBatteringCharge extends SimpleAdaptation<UnarmedBatteringCha
     return v.lengthSquared() >= getConfig().minimumVelocitySquared;
   }
 
+  private void playImpact(Player p, Entity target, int level) {
+    fx(p.getLocation(), FxPriority.COMBAT)
+        .chord(Sound.ENTITY_PLAYER_ATTACK_KNOCKBACK, 1.0F, 0.95F, Sound.ENTITY_IRON_GOLEM_ATTACK, 0.5F, 0.8F);
+    Location impact = target.getLocation().add(0, 0.7D, 0);
+    fx(impact, FxPriority.COMBAT)
+        .particle(Particle.EXPLOSION, 1, 0, 0, 0, 0.06D, 0.02D)
+        .particle(Particle.CLOUD, 14, 0, 0, 0, 0.25D, 0.05D)
+        .sound(Sound.ENTITY_ZOGLIN_ATTACK, 0.5F, 0.8F);
+    double maxRadius = 1.5D + (level * 0.4D);
+    timeline(target.getLocation())
+        .duration(5)
+        .priority(FxPriority.TRANSITION)
+        .frame((fx, tick, progress) -> fx.dustRing(0.2D + (maxRadius * progress), 20, 1.0F))
+        .start();
+  }
+
+  private void playPrimeTelegraph(Player p) {
+    timeline(p)
+        .duration(6)
+        .priority(FxPriority.TRANSITION)
+        .frame((fx, tick, progress) -> {
+          fx.ring(Particle.CRIT, 1.4D - (0.9D * progress), 8, 0.1D);
+          if (tick == 0) {
+            fx.sound(Sound.BLOCK_NOTE_BLOCK_BASEDRUM, 0.55F, 1.15F);
+          } else if (tick == 5) {
+            fx.sound(Sound.BLOCK_NOTE_BLOCK_BASEDRUM, 0.4F, 1.4F);
+          }
+        })
+        .start();
+  }
+
+  private void playChargeExpiry(Player p) {
+    fx(p.getLocation().add(0, 0.2D, 0), FxPriority.TRANSITION)
+        .particle(Particles.SMOKE, 3, 0, 0, 0, 0.1D, 0.01D)
+        .sound(Sound.BLOCK_NOTE_BLOCK_BASEDRUM, 0.3F, 0.85F);
+  }
+
   private double getDamageBonus(int level) {
     return getConfig().damageBase + (getLevelPercent(level) * getConfig().damageFactor);
   }
@@ -208,7 +224,7 @@ public class UnarmedBatteringCharge extends SimpleAdaptation<UnarmedBatteringCha
   @Override
   public void onTick() {
     long now = System.currentTimeMillis();
-    for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : learnedCandidates(now)) {
+    for (AdaptPlayer adaptPlayer : learnedCandidates(now)) {
       Player p = adaptPlayer.getPlayer();
       if (p == null || !p.isOnline()) {
         continue;
@@ -217,7 +233,7 @@ public class UnarmedBatteringCharge extends SimpleAdaptation<UnarmedBatteringCha
       int level = getActiveLevel(p);
       if (level <= 0) {
         primedState.remove(id);
-        primedTrailNextAt.remove(id);
+        trailCooldown.clear(id);
         continue;
       }
 
@@ -225,50 +241,27 @@ public class UnarmedBatteringCharge extends SimpleAdaptation<UnarmedBatteringCha
       boolean wasPrimed = primedState.getOrDefault(id, false);
 
       if (primed) {
-        long nextTrail = primedTrailNextAt.getOrDefault(id, 0L);
-        if (areParticlesEnabled() && now >= nextTrail) {
-          p.getWorld().spawnParticle(Particle.CLOUD, p.getLocation().add(0, 0.2, 0), 2, 0.2, 0.05, 0.2, 0.02);
-          primedTrailNextAt.put(id, now + Math.max(25L, getConfig().primedTrailIntervalMillis));
+        long interval = Math.max(25L, getConfig().primedTrailIntervalMillis);
+        if (trailCooldown.isReady(id, interval)) {
+          trailCooldown.mark(id);
+          fx(p.getLocation().add(0, 0.2D, 0), FxPriority.TRAIL).dustBurst(TRAIL_COLOR, 2, 0.2D, 0.8F);
         }
         if (!wasPrimed) {
-          SoundPlayer.of(p.getWorld()).play(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASEDRUM, 0.55f, 1.15f);
-          if (areParticlesEnabled()) {
-            p.getWorld().spawnParticle(Particle.CRIT, p.getLocation().add(0, 1.0, 0), 8, 0.2, 0.3, 0.2, 0.1);
-          }
+          playPrimeTelegraph(p);
         }
       } else {
-        primedTrailNextAt.remove(id);
+        trailCooldown.clear(id);
+        if (wasPrimed) {
+          playChargeExpiry(p);
+        }
       }
 
       primedState.put(id, primed);
     }
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Sprint into enemies with fists or a shield to deal impact damage.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.7;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Damage Base for the Unarmed Battering Charge adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double damageBase = 0.5;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Damage Factor for the Unarmed Battering Charge adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -287,5 +280,10 @@ public class UnarmedBatteringCharge extends SimpleAdaptation<UnarmedBatteringCha
     double xpPerDamage = 3.3;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Milliseconds between primed trail particle pulses while charge is ready.", impact = "Lower values increase visual frequency and particle cost; higher values reduce trail spam.")
     long primedTrailIntervalMillis = 120;
+
+    public Config() {
+      costFactor = 0.7;
+      initialCost = 4;
+    }
   }
 }

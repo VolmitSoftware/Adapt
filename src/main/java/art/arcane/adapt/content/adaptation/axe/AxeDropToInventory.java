@@ -18,18 +18,20 @@
 
 package art.arcane.adapt.content.adaptation.axe;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.content.item.ItemListings;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.collection.KList;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Item;
@@ -47,25 +49,14 @@ public class AxeDropToInventory extends SimpleAdaptation<AxeDropToInventory.Conf
     setDescription(Localizer.dLocalize("pickaxe.drop_to_inventory.description"));
     setDisplayName(Localizer.dLocalize("axe.drop_to_inventory.name"));
     setIcon(Material.BARREL);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(8800);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.CHEST)
         .key("challenge_axe_dti_5k")
-        .title(Localizer.dLocalize("advancement.challenge_axe_dti_5k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_axe_dti_5k.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
     registerMilestone("challenge_axe_dti_5k", "axe.drop-to-inv.items-caught", 5000, 500);
-  }
-
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
   }
 
   public void addStats(int level, Element v) {
@@ -80,27 +71,48 @@ public class AxeDropToInventory extends SimpleAdaptation<AxeDropToInventory.Conf
       return;
     }
 
-    SoundPlayer sp = SoundPlayer.of(p);
-    if (ItemListings.toolAxes.contains(p.getInventory().getItemInMainHand().getType())) {
-      List<Item> items = new KList<>(e.getItems());
-      e.getItems().clear();
-      int caught = 0;
-      for (Item i : items) {
-        sp.play(p.getLocation(), Sound.BLOCK_CALCITE_HIT, 0.05f, 0.01f);
-        if (!p.getInventory().addItem(i.getItemStack()).isEmpty()) {
-          p.getWorld().dropItem(p.getLocation(), i.getItemStack());
-        }
-        caught++;
-      }
-      if (caught > 0) {
-        getPlayer(p).getData().addStat("axe.drop-to-inv.items-caught", caught);
-      }
+    if (!ItemListings.toolAxes.contains(p.getInventory().getItemInMainHand().getType())) {
+      return;
     }
-  }
 
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
+    List<Item> items = new KList<>(e.getItems());
+    e.getItems().clear();
+    int caught = 0;
+    boolean overflow = false;
+    for (Item i : items) {
+      if (!p.getInventory().addItem(i.getItemStack()).isEmpty()) {
+        p.getWorld().dropItem(p.getLocation(), i.getItemStack());
+        overflow = true;
+      }
+      caught++;
+    }
+    if (caught <= 0) {
+      return;
+    }
+
+    addStat(p, "axe.drop-to-inv.items-caught", caught);
+    int caughtCount = caught;
+    Location from = e.getBlock().getLocation().add(0.5D, 0.5D, 0.5D);
+    Location to = p.getLocation().add(0.0D, 1.0D, 0.0D);
+    double dx = to.getX() - from.getX();
+    double dy = to.getY() - from.getY();
+    double dz = to.getZ() - from.getZ();
+    timeline(from)
+        .duration(5)
+        .priority(FxPriority.TRAIL)
+        .cullRadius(16)
+        .frame((fx, tick, progress) -> {
+          fx.particle(Particles.ENCHANTMENT_TABLE, 2, dx * progress, dy * progress, dz * progress, 0.05D, 0.0D);
+          if (tick == 0) {
+            fx.chord(Sound.ENTITY_ITEM_PICKUP, 0.5F, (float) Math.min(2.0D, 1.2D + (caughtCount * 0.03D)), Sound.BLOCK_AMETHYST_BLOCK_HIT, 0.3F, 1.8F);
+          }
+        })
+        .start();
+    if (overflow) {
+      fx(to, FxPriority.TRANSITION)
+          .burst(Particles.SMOKE, 3, 0.2D)
+          .sound(Sound.BLOCK_DISPENSER_FAIL, 0.4F, 0.8F);
+    }
   }
 
 
@@ -108,20 +120,13 @@ public class AxeDropToInventory extends SimpleAdaptation<AxeDropToInventory.Conf
   public void onTick() {
   }
 
-  @NoArgsConstructor
   @ConfigDescription("Chopped wood drops directly into your inventory.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 1;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 1;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 1;
+  protected static class Config extends AdaptationConfig {
+    public Config() {
+      baseCost = 1;
+      costFactor = 1;
+      maxLevel = 1;
+      initialCost = 3;
+    }
   }
 }

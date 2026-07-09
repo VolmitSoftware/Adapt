@@ -18,21 +18,21 @@
 
 package art.arcane.adapt.content.adaptation.pickaxe;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
-import lombok.NoArgsConstructor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
@@ -49,19 +49,11 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
   public PickaxeChisel() {
     super("pickaxe-chisel");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("pickaxe.chisel.description"));
-    setDisplayName(Localizer.dLocalize("pickaxe.chisel.name"));
     setIcon(Material.IRON_NUGGET);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
     setInterval(7433);
-    setCostFactor(getConfig().costFactor);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.IRON_PICKAXE)
         .key("challenge_pickaxe_chisel_500")
-        .title(Localizer.dLocalize("advancement.challenge_pickaxe_chisel_500.title"))
-        .description(Localizer.dLocalize("advancement.challenge_pickaxe_chisel_500.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -70,8 +62,8 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.pc(getDropChance(getLevelPercent(level)), 0) + C.GRAY + " " + Localizer.dLocalize("pickaxe.chisel.lore1"));
-    v.addLore(C.RED + "- " + getDamagePerBlock(getLevelPercent(level)) + C.GRAY + " " + Localizer.dLocalize("pickaxe.chisel.lore2"));
+    statLore(v, Form.pc(getDropChance(getLevelPercent(level)), 0), 1);
+    statLore(v, C.RED, "- ", getDamagePerBlock(getLevelPercent(level)), 2);
   }
 
   private int getCooldownTime(double levelPercent) {
@@ -124,35 +116,46 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
     }
     BlockData b = target.getBlockData();
     if (isOre(b)) {
-      SoundPlayer spw = SoundPlayer.of(p.getWorld());
-      spw.play(p.getLocation(), Sound.BLOCK_DEEPSLATE_PLACE, 1.25f, 1.4f);
-      spw.play(p.getLocation(), Sound.BLOCK_METAL_HIT, 1.25f, 1.7f);
+      RayTraceResult ray = p.rayTraceBlocks(8);
+      Location c = ray != null ? ray.getHitPosition().toLocation(p.getWorld()) : target.getLocation().add(0.5, 0.5, 0.5);
+
+      fx(c, FxPriority.GAMEPLAY)
+          .particle(Particle.CRIT, 6, 0, 0, 0, 0.08, 0.1)
+          .particle(Particle.ELECTRIC_SPARK, 4, 0, 0, 0, 0.06, 0.05)
+          .chord(Sound.BLOCK_DEEPSLATE_PLACE, 1.25f, 1.4f, Sound.BLOCK_METAL_HIT, 1.25f, 1.7f, Sound.BLOCK_STONE_HIT, 0.6f, 1.9f);
 
       p.setCooldown(p.getInventory().getItemInMainHand().getType(), getCooldownTime(getLevelPercent(p)));
       damageHand(p, getDamagePerBlock(getLevelPercent(p)));
 
-      RayTraceResult ray = p.rayTraceBlocks(8);
-      Location c = ray != null ? ray.getHitPosition().toLocation(p.getWorld()) : target.getLocation().add(0.5, 0.5, 0.5);
-
       ItemStack is = getDropFor(b);
       if (M.r(getDropChance(getLevelPercent(p)))) {
-        if (areParticlesEnabled()) {
-          target.getWorld().spawnParticle(Particles.ITEM_CRACK, c, 14, 0.10, 0.01, 0.01, 0.1, is);
-        }
-        spw.play(p.getLocation(), Sound.BLOCK_DEEPSLATE_PLACE, 1.25f, 0.787f);
-        spw.play(p.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_PLACE, 0.55f, 1.89f);
+        fx(c, FxPriority.GAMEPLAY)
+            .particle(Particles.ITEM_CRACK, 14, 0, 0, 0, 0.08, 0.1, is)
+            .chord(Sound.BLOCK_DEEPSLATE_PLACE, 1.25f, 0.787f, Sound.BLOCK_AMETHYST_BLOCK_PLACE, 0.55f, 1.89f);
+        timeline(c)
+            .duration(6)
+            .priority(FxPriority.TRANSITION)
+            .frame((fxE, tick, progress) -> {
+              fxE.ring(Particles.END_ROD, 0.6D - (0.5D * progress), 6, 0.1D);
+              if (tick == 0 || tick == 3 || tick == 5) {
+                fxE.sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.35F, (float) (1.2D + (progress * 0.7D)));
+              }
+            })
+            .start();
         target.getWorld().dropItemNaturally(c.clone().subtract(p.getLocation().getDirection().clone().multiply(0.1)), is);
-        getPlayer(p).getData().addStat("pickaxe.chisel.extra-ores", 1);
+        addStat(p, "pickaxe.chisel.extra-ores", 1);
       } else {
-        if (areParticlesEnabled()) {
-          target.getWorld().spawnParticle(Particles.ITEM_CRACK, c, 3, 0.01, 0.01, 0.01, 0.1, is);
-          target.getWorld().spawnParticle(Particles.BLOCK_CRACK, c, 9, 0.1, 0.1, 0.1, target.getBlockData());
-        }
+        fx(c, FxPriority.TRANSITION)
+            .particle(Particles.ITEM_CRACK, 3, 0, 0, 0, 0.02, 0.1, is)
+            .particle(Particles.BLOCK_CRACK, 9, 0, 0, 0, 0.1, 0.0, b)
+            .particle(Particles.SMOKE, 2, 0, 0.1, 0, 0.05, 0.01);
       }
 
       if (M.r(getBreakChance(getLevelPercent(p)))) {
-        spw.play(p.getLocation(), Sound.BLOCK_BASALT_BREAK, 1.25f, 0.4f);
-        spw.play(p.getLocation(), Sound.BLOCK_DEEPSLATE_PLACE, 1.25f, 0.887f);
+        fx(c, FxPriority.COMBAT)
+            .particle(Particles.BLOCK_CRACK, 18, 0, 0, 0, 0.12, 0.05, b)
+            .ring(Particles.CRIT_MAGIC, 0.7D, 12, 0.1D)
+            .chord(Sound.BLOCK_BASALT_BREAK, 1.25f, 0.4f, Sound.BLOCK_DEEPSLATE_PLACE, 1.25f, 0.887f);
         target.breakNaturally(p.getInventory().getItemInMainHand());
       }
     }
@@ -184,33 +187,8 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Right-click ores to chisel extra ore at a severe durability cost.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Pickaxe Chisel adaptation.", impact = "True enables this behavior and false disables it.")
-    boolean showParticles = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 6;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 7;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.4;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown Time for the Pickaxe Chisel adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     int cooldownTime = 5;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Drop Chance Base for the Pickaxe Chisel adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -223,5 +201,12 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
     double damagePerBlockBase = 1;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Damage Factor Inverse Multiplier for the Pickaxe Chisel adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double damageFactorInverseMultiplier = 2;
+
+    public Config() {
+      baseCost = 6;
+      costFactor = 0.4;
+      maxLevel = 7;
+      initialCost = 5;
+    }
   }
 }

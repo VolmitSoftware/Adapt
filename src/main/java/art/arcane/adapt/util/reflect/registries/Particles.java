@@ -10,4 +10,7 @@ public class Particles {
   public static final Particle BLOCK_CRACK = RegistryUtil.find(Particle.class, "block_crack", "block");
   public static final Particle VILLAGER_HAPPY = RegistryUtil.find(Particle.class, "villager_happy", "happy_villager");
   public static final Particle ITEM_CRACK = RegistryUtil.find(Particle.class, "item_crack", "item");
+  public static final Particle SMOKE = RegistryUtil.find(Particle.class, "smoke_normal", "smoke");
+  public static final Particle FIREWORK = RegistryUtil.find(Particle.class, "fireworks_spark", "firework");
+  public static final Particle END_ROD = RegistryUtil.find(Particle.class, "end_rod");
 }

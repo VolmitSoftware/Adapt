@@ -23,10 +23,15 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPresets;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.content.item.ChronoTimeBombItem;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.input.DoubleJumpGesture;
 import art.arcane.adapt.util.common.scheduling.J;
+import art.arcane.adapt.util.reflect.registries.Particles;
+import art.arcane.volmlib.util.entity.StackExclusion;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
@@ -49,7 +54,6 @@ import org.bukkit.util.Vector;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 
 public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallConfig> {
   private static final EnumSet<Action> RECALL_ACTIONS = EnumSet.of(
@@ -67,32 +71,21 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
   private final Map<UUID, Long> rewindProtection = new ConcurrentHashMap<>();
   private final Set<UUID> rewinding = ConcurrentHashMap.newKeySet();
   private final Map<UUID, RecallXPFarmStamp> recallXpStamps = new ConcurrentHashMap<>();
-  private final Map<UUID, Long> jumpArmUntil = new ConcurrentHashMap<>();
-  private final Map<UUID, Boolean> lastOnGround = new ConcurrentHashMap<>();
+  private final DoubleJumpGesture doubleJump = new DoubleJumpGesture();
 
   public ChronosInstantRecall() {
     super("chronos-instant-recall");
     registerConfiguration(ChronosInstantRecallConfig.class);
-    setDescription(Localizer.dLocalize("chronos.instant_recall.description"));
-    setDisplayName(Localizer.dLocalize("chronos.instant_recall.name"));
     setIcon(Material.RECOVERY_COMPASS);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(50);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.CLOCK)
         .key("challenge_chronos_recall_50")
-        .title(Localizer.dLocalize("advancement.challenge_chronos_recall_50.title"))
-        .description(Localizer.dLocalize("advancement.challenge_chronos_recall_50.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.RECOVERY_COMPASS)
             .key("challenge_chronos_recall_1k")
-            .title(Localizer.dLocalize("advancement.challenge_chronos_recall_1k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_chronos_recall_1k.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -100,8 +93,6 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.RECOVERY_COMPASS)
         .key("challenge_chronos_recall_cheat_death")
-        .title(Localizer.dLocalize("advancement.challenge_chronos_recall_cheat_death.title"))
-        .description(Localizer.dLocalize("advancement.challenge_chronos_recall_cheat_death.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -223,7 +214,8 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
       return null;
     }
 
-    return location.getWorld().spawn(location, ArmorStand.class, stand -> {
+    ArmorStand spawned = location.getWorld().spawn(location, ArmorStand.class, stand -> {
+      StackExclusion.exclude(stand);
       stand.setInvisible(true);
       stand.setMarker(false);
       stand.setGravity(false);
@@ -234,6 +226,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
       stand.setSmall(true);
       stand.setPersistent(false);
     });
+    return spawned;
   }
 
   private List<String> getTriggerCombos() {
@@ -640,27 +633,6 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
     }
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST)
-  public void on(PlayerToggleFlightEvent e) {
-    Player p = e.getPlayer();
-    UUID id = p.getUniqueId();
-    if (!isRecallEligible(p) || !getConfig().enableDoubleJumpTrigger) {
-      return;
-    }
-
-    Long armUntil = jumpArmUntil.get(id);
-    if (armUntil == null) {
-      return;
-    }
-
-    e.setCancelled(true);
-    p.setFlying(false);
-    clearDoubleJumpArm(p, id);
-    if (armUntil > M.ms()) {
-      attemptRecall(p);
-    }
-  }
-
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(PlayerToggleSneakEvent e) {
     Player p = e.getPlayer();
@@ -789,7 +761,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
         || isRecallClock(p.getInventory().getItemInOffHand());
   }
 
-  private boolean canArmDoubleJump(Player p) {
+  private boolean canTriggerDoubleJump(Player p) {
     if (rewinding.contains(p.getUniqueId())) {
       return false;
     }
@@ -801,39 +773,6 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
     return !getConfig().doubleJumpRequiresClockInHand || hasRecallClockInEitherHand(p);
   }
 
-  private void clearDoubleJumpArm(Player p, UUID id) {
-    if (jumpArmUntil.remove(id) == null) {
-      return;
-    }
-
-    if (p.getGameMode() == GameMode.SURVIVAL) {
-      p.setAllowFlight(false);
-      p.setFlying(false);
-    }
-  }
-
-  private void armDoubleJump(Player p, UUID id) {
-    int triggerWindowMillis = Math.max(150, getConfig().doubleJumpWindowMillis);
-    jumpArmUntil.put(id, M.ms() + triggerWindowMillis);
-    p.setAllowFlight(true);
-    J.runEntity(p, () -> {
-      if (!p.isOnline()) {
-        return;
-      }
-
-      Long armUntil = jumpArmUntil.get(id);
-      if (armUntil != null && armUntil <= M.ms()) {
-        clearDoubleJumpArm(p, id);
-      }
-    }, Math.max(1, (int) Math.ceil(triggerWindowMillis / 50D)));
-  }
-
-  private boolean isDoubleJumpStart(boolean wasOnGround, boolean onGround, Player p) {
-    return wasOnGround
-        && !onGround
-        && p.getVelocity().getY() >= getConfig().doubleJumpMinVerticalVelocity;
-  }
-
   private void clearPlayerState(UUID id) {
     snapshots.remove(id);
     lastSnapshot.remove(id);
@@ -842,8 +781,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
     rewindProtection.remove(id);
     rewinding.remove(id);
     recallXpStamps.remove(id);
-    jumpArmUntil.remove(id);
-    lastOnGround.remove(id);
+    doubleJump.reset(id);
     TELEPORT_XP_SUPPRESS_UNTIL.remove(id);
   }
 
@@ -885,7 +823,6 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
       return;
     }
 
-    clearDoubleJumpArm(p, id);
     if (rewinding.contains(id)) {
       return;
     }
@@ -952,6 +889,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
     markRecallTeleportSuppressed(id, protectionUntil + ((long) Math.max(0, getConfig().rewindTeleportXpSuppressExtraTicks) * 50L));
     p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, animationTicks + getConfig().rewindProtectionTicks, 0, true, false, false), true);
 
+    FxPresets.chargeRing(this, p.getLocation(), 3);
     if (getConfig().playClockSounds) {
       ChronosSoundFX.playRewindStart(p);
       ChronosSoundFX.playRewindFinish(p);
@@ -996,10 +934,11 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
       Location destination = toLocation(snapshot, p.getWorld());
 
       if (getConfig().showRewindTraceParticles && lastLoc[0].getWorld() != null && lastLoc[0].getWorld().equals(destination.getWorld())) {
-        Predicate<Location> traceFilter = J.isFoliaThreading() ? null : l -> l.getBlock().isPassable();
-        vfxParticleLine(lastLoc[0].clone().add(0, 1, 0), destination.clone().add(0, 1, 0), Particle.REVERSE_PORTAL,
-            Math.max(4, getConfig().rewindTracePoints), 1, 0.08D, 0.08D, 0.08D, 0D, null, true,
-            traceFilter);
+        Location traceFrom = lastLoc[0].clone().add(0, 1, 0);
+        Location traceTo = destination.clone().add(0, 1, 0);
+        fx(traceFrom, FxPriority.TRAIL)
+            .line(Particle.REVERSE_PORTAL, traceTo.getX(), traceTo.getY(), traceTo.getZ(), Math.max(4, getConfig().rewindTracePoints))
+            .particle(Particles.END_ROD, 1, traceTo.getX() - traceFrom.getX(), traceTo.getY() - traceFrom.getY(), traceTo.getZ() - traceFrom.getZ(), 0, 0);
       }
 
       boolean movedClient = false;
@@ -1045,17 +984,25 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
         applySnapshotState(p, finalSnapshot);
         applyRecallHealthCost(p);
 
-        if (areParticlesEnabled()) {
-          p.getWorld().spawnParticle(Particle.TOTEM_OF_UNDYING, p.getLocation().add(0, 1, 0), 26, 0.25, 0.35, 0.25, 0.01);
-        }
-        if (areParticlesEnabled()) {
-          p.getWorld().spawnParticle(Particle.ITEM, p.getLocation().add(0, 1, 0), 18, 0.30, 0.30, 0.30, 0.01, new ItemStack(Material.CLOCK));
-        }
+        Location bloomAt = p.getLocation().add(0, 1, 0);
+        fx(bloomAt, FxPriority.TRANSITION)
+            .particle(Particle.FLASH, 1, 0, 0, 0, 0, 0)
+            .particle(Particles.TOTEM, 26, 0, 0, 0, 0.3D, 0.02D);
+        timeline(p)
+            .duration(3)
+            .priority(FxPriority.TRANSITION)
+            .cullRadius(32)
+            .frame((f, tick, prog) -> {
+              if (tick >= 1) {
+                f.particle(Particles.ITEM_CRACK, 9, 0, 1.0D, 0, 0.3D, 0.02D, new ItemStack(Material.CLOCK));
+              }
+            })
+            .start();
         if (getConfig().playClockSounds) {
           ChronosSoundFX.playRewindFinish(p);
         }
         rewinding.remove(id);
-        getPlayer(p).getData().addStat("chronos.instant-recall.recalls", 1);
+        addStat(p, "chronos.instant-recall.recalls", 1);
         if (healthBeforeRecall <= 4 && healthAfterRecall >= 16
             && AdaptConfig.get().isAdvancements()
             && !getPlayer(p).getData().isGranted("challenge_chronos_recall_cheat_death")) {
@@ -1119,40 +1066,21 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
   @EventHandler(priority = EventPriority.HIGHEST)
   public void onDoubleJumpMove(PlayerMoveEvent e) {
     Player p = e.getPlayer();
-    UUID id = p.getUniqueId();
-    boolean wasOnGround = lastOnGround.getOrDefault(id, true);
-    boolean onGround = p.isOnGround();
-    lastOnGround.put(id, onGround);
-
     if (!isRecallEligible(p) || !getConfig().enableDoubleJumpTrigger) {
-      clearDoubleJumpArm(p, id);
+      doubleJump.reset(p);
       return;
     }
 
-    if (!wasOnGround && onGround) {
-      clearDoubleJumpArm(p, id);
+    if (!doubleJump.update(p)) {
       return;
     }
 
-    if (!canArmDoubleJump(p)) {
-      clearDoubleJumpArm(p, id);
+    UUID id = p.getUniqueId();
+    if (!canTriggerDoubleJump(p) || cooldowns.getOrDefault(id, 0L) > M.ms()) {
       return;
     }
 
-    if (cooldowns.getOrDefault(id, 0L) > M.ms()) {
-      clearDoubleJumpArm(p, id);
-      return;
-    }
-
-    if (isDoubleJumpStart(wasOnGround, onGround, p)) {
-      armDoubleJump(p, id);
-      return;
-    }
-
-    Long armUntil = jumpArmUntil.get(id);
-    if (armUntil != null && armUntil <= M.ms()) {
-      clearDoubleJumpArm(p, id);
-    }
+    attemptRecall(p);
   }
 
   @Override
@@ -1181,13 +1109,4 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
     TELEPORT_XP_SUPPRESS_UNTIL.entrySet().removeIf(entry -> entry.getValue() <= now);
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
 }

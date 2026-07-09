@@ -19,17 +19,22 @@
 package art.arcane.adapt.content.adaptation.pickaxe;
 
 import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.adapt.util.reflect.registries.PotionEffectTypes;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -52,19 +57,11 @@ public class PickaxeDeepCore extends SimpleAdaptation<PickaxeDeepCore.Config> {
   public PickaxeDeepCore() {
     super("pickaxe-deep-core");
     registerConfiguration(PickaxeDeepCore.Config.class);
-    setDescription(Localizer.dLocalize("pickaxe.deep_core.description"));
-    setDisplayName(Localizer.dLocalize("pickaxe.deep_core.name"));
     setIcon(Material.DEEPSLATE);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(5825);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.DEEPSLATE)
         .key("challenge_pickaxe_deepcore_5k")
-        .title(Localizer.dLocalize("advancement.challenge_pickaxe_deepcore_5k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_pickaxe_deepcore_5k.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -97,12 +94,24 @@ public class PickaxeDeepCore extends SimpleAdaptation<PickaxeDeepCore.Config> {
       return;
     }
 
-    p.addPotionEffect(new PotionEffect(PotionEffectTypes.FAST_DIGGING, getConfig().durationTicks, getAmplifier(context.level()), false, false, true));
+    int amplifier = getAmplifier(context.level());
+    boolean onset = !p.hasPotionEffect(PotionEffectTypes.FAST_DIGGING);
+    p.addPotionEffect(new PotionEffect(PotionEffectTypes.FAST_DIGGING, getConfig().durationTicks, amplifier, false, false, true));
+    if (onset) {
+      fx(p.getEyeLocation(), FxPriority.TRANSITION)
+          .particle(Particle.CRIT, 4, 0, 0.3, 0, 0.2, 0.05)
+          .particle(Particle.ELECTRIC_SPARK, 3, 0, 0.3, 0, 0.2, 0.03)
+          .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.4f, 1.4f);
+      if (amplifier >= getConfig().maxAmplifier) {
+        fx(p.getLocation(), FxPriority.TRANSITION).ring(Particle.WAX_ON, 0.6D, 12, 0.1D);
+      }
+    }
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(BlockBreakEvent e) {
-    if (!DEEPSLATE_BLOCKS.contains(e.getBlock().getType())) {
+    Block b = e.getBlock();
+    if (!DEEPSLATE_BLOCKS.contains(b.getType())) {
       return;
     }
 
@@ -111,43 +120,30 @@ public class PickaxeDeepCore extends SimpleAdaptation<PickaxeDeepCore.Config> {
       return;
     }
 
-    getPlayer(p).getData().addStat("pickaxe.deep-core.deepslate-mined", 1);
-  }
-
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
+    addStat(p, "pickaxe.deep-core.deepslate-mined", 1);
+    if (Math.floorMod(b.getX() + b.getY() + b.getZ(), 3) == 0) {
+      fx(b.getLocation().add(0.5, 0.5, 0.5), FxPriority.TRAIL)
+          .particle(Particles.BLOCK_CRACK, 4, 0, 0, 0, 0.2, 0.0, b.getBlockData());
+    }
   }
 
   @Override
   public void onTick() {
   }
 
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Gain Haste while mining deepslate so it digs like normal stone.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 3;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Haste amplifier granted at level 1 while mining deepslate.", impact = "Higher values make deepslate mine faster at every level.")
     int amplifierBase = 2;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum Haste amplifier this adaptation can grant.", impact = "Higher values allow stronger Haste at high levels.")
     int maxAmplifier = 5;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Duration in ticks of the Haste effect applied when damaging deepslate.", impact = "Higher values keep the effect active longer between swings.")
     int durationTicks = 60;
+
+    public Config() {
+      costFactor = 0.5;
+      maxLevel = 3;
+      initialCost = 3;
+    }
   }
 }

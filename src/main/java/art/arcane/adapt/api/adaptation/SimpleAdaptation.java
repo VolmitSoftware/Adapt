@@ -23,23 +23,38 @@ import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdvancementSpec;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.Fx;
+import art.arcane.adapt.api.fx.FxEmitter;
+import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.fx.FxTimeline;
 import art.arcane.adapt.api.potion.BrewingRecipe;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.tick.TickedObject;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigFileSupport;
 import art.arcane.volmlib.util.collection.KList;
+import art.arcane.volmlib.util.format.Form;
+import art.arcane.volmlib.util.inventorygui.Element;
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Data
@@ -59,6 +74,13 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
   private KList<AdaptStatTracker> statTrackers;
   private Class<T> configType;
   private volatile T config;
+  private String localizationKey;
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
+  private volatile String localizedDescription;
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
+  private volatile String localizedDisplayName;
 
   public SimpleAdaptation(String name) {
     super("adaptations", UUID.randomUUID() + "-" + name, 1000);
@@ -71,8 +93,8 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
     setBaseCost(4);
     setIcon(Material.PAPER);
     setInitialCost(2);
-    setDescription("No Description Provided");
     this.name = name;
+    this.localizationKey = deriveLocalizationKey(name);
   }
 
   @Override
@@ -237,11 +259,66 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
   @Override
   public String getDisplayName() {
     try {
-      return displayName == null ? Adaptation.super.getDisplayName() : (C.RESET + "" + C.BOLD + getSkill().getColor().toString() + displayName);
+      String shownName = displayName;
+      if (shownName == null) {
+        shownName = localizedDisplayName;
+        if (shownName == null) {
+          shownName = resolveLocalized(localizationKey == null ? null : localizationKey + ".name", null);
+          localizedDisplayName = shownName;
+        }
+      }
+      return shownName == null ? Adaptation.super.getDisplayName() : (C.RESET + "" + C.BOLD + getSkill().getColor().toString() + shownName);
     } catch (Exception ignored) {
       Adapt.verbose("Failed to get display name for " + getName());
       return null;
     }
+  }
+
+  @Override
+  public String getDescription() {
+    String explicit = description;
+    if (explicit != null) {
+      return explicit;
+    }
+
+    String localized = localizedDescription;
+    if (localized == null) {
+      localized = resolveLocalized(localizationKey == null ? null : localizationKey + ".description", "No Description Provided");
+      localizedDescription = localized;
+    }
+    return localized;
+  }
+
+  public void setLocalizationKey(String localizationKey) {
+    this.localizationKey = localizationKey;
+    this.localizedDescription = null;
+    this.localizedDisplayName = null;
+  }
+
+  @Override
+  public boolean isEnabled() {
+    if (getConfigurationClass() == null) {
+      return true;
+    }
+
+    T current = getConfig();
+    if (current instanceof AdaptationConfig shared) {
+      return shared.enabled;
+    }
+    return true;
+  }
+
+  @Override
+  public boolean isPermanent() {
+    if (getConfigurationClass() == null) {
+      return false;
+    }
+
+    T current = getConfig();
+    if (current instanceof AdaptationConfig shared) {
+      return shared.permanent;
+    }
+    return false;
   }
 
   public void registerStatTracker(AdaptStatTracker tracker) {
@@ -301,6 +378,72 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
         .build();
   }
 
+  protected FxEmitter fx(Location location, FxPriority priority) {
+    return Fx.now(this, location, priority);
+  }
+
+  protected FxEmitter fx(Entity entity, FxPriority priority) {
+    return Fx.now(this, entity, priority);
+  }
+
+  protected FxTimeline timeline(Location location) {
+    return FxTimeline.at(this, location);
+  }
+
+  protected FxTimeline timeline(Entity entity) {
+    return FxTimeline.follow(this, entity);
+  }
+
+  protected void sfx(Location location, Sound sound, float volume, float pitch) {
+    Fx.now(this, location, FxPriority.GAMEPLAY).sound(sound, volume, pitch);
+  }
+
+  protected boolean grantOnce(Player p, String advancementKey) {
+    if (!AdaptConfig.get().isAdvancements()) {
+      return false;
+    }
+
+    AdaptPlayer adaptPlayer = getPlayer(p);
+    if (adaptPlayer == null || adaptPlayer.getData().isGranted(advancementKey)) {
+      return false;
+    }
+
+    adaptPlayer.getAdvancementHandler().grant(advancementKey);
+    return true;
+  }
+
+  protected void addStat(Player p, String stat, double amount) {
+    getPlayer(p).getData().addStat(stat, amount);
+  }
+
+  protected void statLore(Element v, Object value, int loreIndex) {
+    statLore(v, C.GREEN, "+ ", value, loreIndex);
+  }
+
+  protected void statLore(Element v, C prefixColor, String prefix, Object value, int loreIndex) {
+    v.addLore(prefixColor + prefix + formatStatValue(value) + C.GRAY + " " + Localizer.dLocalize(localizationKey + ".lore" + loreIndex));
+  }
+
+  private static String formatStatValue(Object value) {
+    if (value instanceof Double d) {
+      return Form.f(d, 2);
+    }
+
+    if (value instanceof Float f) {
+      return Form.f(f, 2);
+    }
+
+    return String.valueOf(value);
+  }
+
+  protected <V> Map<UUID, V> playerState() {
+    return PlayerStateRegistry.newPlayerMap();
+  }
+
+  protected Cooldowns cooldowns() {
+    return PlayerStateRegistry.newCooldowns();
+  }
+
   @Override
   public final boolean equals(Object obj) {
     return this == obj;
@@ -309,5 +452,31 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
   @Override
   public final int hashCode() {
     return System.identityHashCode(this);
+  }
+
+  private static String deriveLocalizationKey(String name) {
+    if (name == null || name.isEmpty()) {
+      return name;
+    }
+
+    int split = name.indexOf('-');
+    if (split < 0) {
+      return name;
+    }
+
+    return name.substring(0, split) + "." + name.substring(split + 1).replace('-', '_');
+  }
+
+  private static String resolveLocalized(String key, String fallback) {
+    if (key == null || key.isEmpty()) {
+      return fallback;
+    }
+
+    String resolved = Localizer.dLocalize(key);
+    if (resolved == null || resolved.equals(key)) {
+      return fallback;
+    }
+
+    return resolved;
   }
 }

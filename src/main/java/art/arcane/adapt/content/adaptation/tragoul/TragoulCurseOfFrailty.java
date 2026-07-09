@@ -18,17 +18,19 @@
 
 package art.arcane.adapt.content.adaptation.tragoul;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -46,31 +48,22 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class TragoulCurseOfFrailty extends SimpleAdaptation<TragoulCurseOfFrailty.Config> {
+  private static final Color FRAILTY_GREEN = Color.fromRGB(90, 120, 40);
   private final Map<UUID, Long> attackerCooldowns = new ConcurrentHashMap<>();
 
   public TragoulCurseOfFrailty() {
     super("tragoul-curse-of-frailty");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("tragoul.curse_of_frailty.description"));
-    setDisplayName(Localizer.dLocalize("tragoul.curse_of_frailty.name"));
     setIcon(Material.FERMENTED_SPIDER_EYE);
     setInterval(5000);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.FERMENTED_SPIDER_EYE)
         .key("challenge_tragoul_frailty_100")
-        .title(Localizer.dLocalize("advancement.challenge_tragoul_frailty_100.title"))
-        .description(Localizer.dLocalize("advancement.challenge_tragoul_frailty_100.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.WITHER_SKELETON_SKULL)
             .key("challenge_tragoul_frailty_1k")
-            .title(Localizer.dLocalize("advancement.challenge_tragoul_frailty_1k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_tragoul_frailty_1k.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -121,27 +114,39 @@ public class TragoulCurseOfFrailty extends SimpleAdaptation<TragoulCurseOfFrailt
       attackerCooldowns.put(target.getUniqueId(), now + getConfig().perAttackerCooldownMillis);
       int duration = getCurseDurationTicks(level);
       int weaknessAmplifier = getLevelPercent(level) >= 0.8 ? 1 : 0;
+      boolean heavy = getLevelPercent(level) >= getConfig().slownessUnlockPercent;
       target.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, duration, weaknessAmplifier, true, true, true), true);
-      if (getLevelPercent(level) >= getConfig().slownessUnlockPercent) {
+      if (heavy) {
         target.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, duration, getConfig().slownessAmplifier, true, true, true), true);
       }
 
-      if (areParticlesEnabled()) {
-        target.getWorld().spawnParticle(Particle.WARPED_SPORE, target.getLocation().add(0, 1.0, 0), 20, 0.3, 0.5, 0.3, 0.02);
-      }
-      SoundPlayer.of(target.getWorld()).play(target.getLocation(), Sound.ENTITY_ELDER_GUARDIAN_CURSE, 0.35f, 1.7f);
-      getPlayer(p).getData().addStat("tragoul.curse-of-frailty.curses-applied", 1);
+      playCurse(target, heavy);
+      addStat(p, "tragoul.curse-of-frailty.curses-applied", 1);
       xp(p, getConfig().xpPerCurse);
     });
   }
 
-  private int getCurseDurationTicks(int level) {
-    return Math.max(40, (int) Math.round(getConfig().curseDurationTicksBase + (getLevelPercent(level) * getConfig().curseDurationTicksFactor)));
+  private void playCurse(LivingEntity target, boolean heavy) {
+    timeline(target)
+        .duration(5)
+        .priority(FxPriority.TRANSITION)
+        .cullRadius(24)
+        .frame((fx, tick, progress) -> {
+          fx.dustRing(FRAILTY_GREEN, 1.5 - (1.0 * progress), 8, 0.1F);
+          if (tick == 0) {
+            fx.particle(Particle.WARPED_SPORE, 20, 0, 1.0, 0, 0.3, 0.02);
+            fx.particle(Particle.WITCH, 3, 0, 1.8, 0, 0.2, 0.01);
+            fx.chord(Sound.ENTITY_ELDER_GUARDIAN_CURSE, 0.35F, 1.7F, Sound.ENTITY_ZOMBIE_INFECT, 0.25F, 0.7F);
+            if (heavy) {
+              fx.burst(Particles.SMOKE, 3, 0.2);
+            }
+          }
+        })
+        .start();
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
+  private int getCurseDurationTicks(int level) {
+    return Math.max(40, (int) Math.round(getConfig().curseDurationTicksBase + (getLevelPercent(level) * getConfig().curseDurationTicksFactor)));
   }
 
   @Override
@@ -150,26 +155,8 @@ public class TragoulCurseOfFrailty extends SimpleAdaptation<TragoulCurseOfFrailt
     attackerCooldowns.entrySet().removeIf(i -> i.getValue() <= now);
   }
 
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Enemies that strike you are cursed with weakness, and slowness at higher levels.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.72;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Curse duration in ticks before level scaling.", impact = "Higher values keep attackers weakened longer.")
     double curseDurationTicksBase = 60;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Additional curse duration ticks granted at max level.", impact = "Higher values increase level-scaled duration growth.")
@@ -182,5 +169,10 @@ public class TragoulCurseOfFrailty extends SimpleAdaptation<TragoulCurseOfFrailt
     long perAttackerCooldownMillis = 4000;
     @art.arcane.adapt.util.config.ConfigDoc(value = "XP granted per curse applied.", impact = "Higher values accelerate skill progression from this adaptation.")
     double xpPerCurse = 5;
+
+    public Config() {
+      costFactor = 0.72;
+      initialCost = 4;
+    }
   }
 }

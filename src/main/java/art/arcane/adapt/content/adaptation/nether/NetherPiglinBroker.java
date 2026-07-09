@@ -18,18 +18,19 @@
 
 package art.arcane.adapt.content.adaptation.nether;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
+import art.arcane.adapt.api.fx.FxEmitter;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Piglin;
@@ -46,26 +47,16 @@ public class NetherPiglinBroker extends SimpleAdaptation<NetherPiglinBroker.Conf
   public NetherPiglinBroker() {
     super("nether-piglin-broker");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("nether.piglin_broker.description"));
-    setDisplayName(Localizer.dLocalize("nether.piglin_broker.name"));
     setIcon(Material.GOLD_INGOT);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(2300);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.GOLD_INGOT)
         .key("challenge_nether_piglin_100")
-        .title(Localizer.dLocalize("advancement.challenge_nether_piglin_100.title"))
-        .description(Localizer.dLocalize("advancement.challenge_nether_piglin_100.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.GOLD_BLOCK)
             .key("challenge_nether_piglin_2500")
-            .title(Localizer.dLocalize("advancement.challenge_nether_piglin_2500.title"))
-            .description(Localizer.dLocalize("advancement.challenge_nether_piglin_2500.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -76,8 +67,8 @@ public class NetherPiglinBroker extends SimpleAdaptation<NetherPiglinBroker.Conf
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.pc(getExtraRollChance(level), 0) + C.GRAY + " " + Localizer.dLocalize("nether.piglin_broker.lore1"));
-    v.addLore(C.GREEN + "+ " + Form.pc(getRareBonusChance(level), 0) + C.GRAY + " " + Localizer.dLocalize("nether.piglin_broker.lore2"));
+    statLore(v, Form.pc(getExtraRollChance(level), 0), 1);
+    statLore(v, Form.pc(getRareBonusChance(level), 0), 2);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -99,27 +90,39 @@ public class NetherPiglinBroker extends SimpleAdaptation<NetherPiglinBroker.Conf
     }
 
     ThreadLocalRandom random = ThreadLocalRandom.current();
-    boolean changed = false;
+    boolean extraRoll = false;
+    boolean rareBonus = false;
     if (random.nextDouble() <= getExtraRollChance(level)) {
       ItemStack bonus = outcome.get(random.nextInt(outcome.size())).clone();
       int amount = Math.max(1, (int) Math.round(bonus.getAmount() * getAmountMultiplier(level)));
       bonus.setAmount(Math.min(bonus.getMaxStackSize(), amount));
       outcome.add(bonus);
-      changed = true;
+      extraRoll = true;
     }
 
     if (random.nextDouble() <= getRareBonusChance(level)) {
       outcome.add(getRareBonusRoll());
-      changed = true;
+      rareBonus = true;
     }
 
-    if (!changed) {
+    if (!extraRoll && !rareBonus) {
       return;
     }
 
-    SoundPlayer.of(broker.getWorld()).play(broker.getLocation(), Sound.ENTITY_PIGLIN_ADMIRING_ITEM, 0.9f, 1.25f);
+    org.bukkit.Location at = broker.getLocation().add(0D, 1.0D, 0D);
+    FxEmitter emit = fx(at, FxPriority.TRANSITION)
+        .particle(Particle.HAPPY_VILLAGER, 10, 0D, 0.5D, 0D, 0.4D, 0.1D)
+        .particle(Particle.WAX_ON, 6, 0D, 0.5D, 0D, 0.3D, 0.05D)
+        .burst(Particle.CRIT, 4, 0.3D)
+        .chord(Sound.ENTITY_PIGLIN_ADMIRING_ITEM, 0.9F, 1.25F, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.4F, 1.5F);
+    emit.sound(Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.3F, 1.2F);
+    if (rareBonus) {
+      emit.column(Particles.END_ROD, 3, 1.2D)
+          .particle(Particle.FLASH, 1, 0D, 0.5D, 0D, 0D, 0.0D)
+          .sound(Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.5F, 1.3F);
+    }
     xp(broker, getConfig().xpOnBoostedBarter);
-    getPlayer(broker).getData().addStat("nether.piglin-broker.improved-barters", 1);
+    addStat(broker, "nether.piglin-broker.improved-barters", 1);
   }
 
   private Player findBroker(Piglin piglin, double range) {
@@ -175,31 +178,8 @@ public class NetherPiglinBroker extends SimpleAdaptation<NetherPiglinBroker.Conf
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Nearby piglin bartering can yield extra or improved rolls.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.7;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Broker Range for the Nether Piglin Broker adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double brokerRange = 18;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Extra Roll Chance Base for the Nether Piglin Broker adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -220,5 +200,10 @@ public class NetherPiglinBroker extends SimpleAdaptation<NetherPiglinBroker.Conf
     double amountMultiplierFactor = 0.5;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp On Boosted Barter for the Nether Piglin Broker adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpOnBoostedBarter = 12;
+
+    public Config() {
+      costFactor = 0.7;
+      initialCost = 4;
+    }
   }
 }

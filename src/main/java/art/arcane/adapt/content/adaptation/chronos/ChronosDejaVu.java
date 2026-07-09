@@ -18,48 +18,43 @@
 
 package art.arcane.adapt.content.adaptation.chronos;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class ChronosDejaVu extends SimpleAdaptation<ChronosDejaVu.Config> {
-  private final Map<UUID, DamageMemory> memory;
+  private final Map<UUID, DamageMemory> memory = playerState();
+  private final Cooldowns fxCooldown = cooldowns();
 
   public ChronosDejaVu() {
     super("chronos-deja-vu");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("chronos.deja_vu.description"));
-    setDisplayName(Localizer.dLocalize("chronos.deja_vu.name"));
     setIcon(Material.ITEM_FRAME);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(60000);
-    memory = new ConcurrentHashMap<>();
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.ITEM_FRAME)
         .key("challenge_chronos_deja_vu_500")
-        .title(Localizer.dLocalize("advancement.challenge_chronos_deja_vu_500.title"))
-        .description(Localizer.dLocalize("advancement.challenge_chronos_deja_vu_500.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -78,11 +73,6 @@ public class ChronosDejaVu extends SimpleAdaptation<ChronosDejaVu.Config> {
         getConfig().baseReductionFraction + (Math.max(1, level) * getConfig().reductionFractionPerLevel));
   }
 
-  @EventHandler
-  public void on(PlayerQuitEvent e) {
-    memory.remove(e.getPlayer().getUniqueId());
-  }
-
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(EntityDamageEvent e) {
     if (!(e.getEntity() instanceof Player p)) {
@@ -97,7 +87,11 @@ public class ChronosDejaVu extends SimpleAdaptation<ChronosDejaVu.Config> {
     EntityDamageEvent.DamageCause cause = e.getCause();
     long now = System.currentTimeMillis();
     DamageMemory previous = memory.put(p.getUniqueId(), new DamageMemory(cause, now));
-    if (previous == null || previous.cause() != cause || now - previous.timestamp() > getConfig().memoryWindowMillis) {
+    boolean familiar = previous != null && previous.cause() == cause && now - previous.timestamp() <= getConfig().memoryWindowMillis;
+    if (!familiar) {
+      if (previous == null || previous.cause() != cause) {
+        fx(p, FxPriority.AMBIENT).dustBurst(1, 0.1D, 0.7F);
+      }
       return;
     }
 
@@ -113,11 +107,16 @@ public class ChronosDejaVu extends SimpleAdaptation<ChronosDejaVu.Config> {
 
     e.setDamage(Math.max(0D, e.getDamage() * (1D - fraction)));
 
-    getPlayer(p).getData().addStat("chronos.deja-vu.damage-absorbed", absorbed);
+    addStat(p, "chronos.deja-vu.damage-absorbed", absorbed);
     xpSilent(p, absorbed * getConfig().xpPerAbsorbedDamage, "chronos:deja-vu");
 
-    if (areParticlesEnabled()) {
-      p.getWorld().spawnParticle(Particle.REVERSE_PORTAL, p.getLocation().add(0, 1, 0), 6, 0.2, 0.3, 0.2, 0.02);
+    if (fxCooldown.isReady(p.getUniqueId(), getConfig().fxCooldownMillis)) {
+      fxCooldown.mark(p.getUniqueId());
+      Location echo = p.getLocation().add(0, 1, 0);
+      fx(echo, FxPriority.COMBAT)
+          .ring(Particle.REVERSE_PORTAL, 0.9D, 6, 0.0D)
+          .particle(Particles.ENCHANTMENT_TABLE, 2, 0, 0.4D, 0, 0.35D, 0.01D)
+          .chord(Sound.BLOCK_BEACON_AMBIENT, 0.3F, 1.4F, Sound.ENTITY_ILLUSIONER_MIRROR_MOVE, 0.25F, 1.2F);
     }
   }
 
@@ -128,31 +127,8 @@ public class ChronosDejaVu extends SimpleAdaptation<ChronosDejaVu.Config> {
     memory.entrySet().removeIf(entry -> now - entry.getValue().timestamp() > window);
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Remember the last source of pain; taking the same kind of damage again shortly after hurts less.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.35;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Window in milliseconds during which a repeated damage cause counts as familiar.", impact = "Higher values keep the damage memory alive longer between hits.")
     long memoryWindowMillis = 8000;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Base fraction of repeated damage that is absorbed.", impact = "Higher values reduce familiar damage more before level scaling.")
@@ -163,6 +139,13 @@ public class ChronosDejaVu extends SimpleAdaptation<ChronosDejaVu.Config> {
     double maxReductionFraction = 0.6;
     @art.arcane.adapt.util.config.ConfigDoc(value = "XP granted per point of absorbed damage.", impact = "Higher values grant more skill XP from familiar hits.")
     double xpPerAbsorbedDamage = 0.8;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Minimum milliseconds between familiar-hit effect emissions.", impact = "Higher values replay the deja vu effects less often during rapid repeated damage.")
+    long fxCooldownMillis = 1500;
+
+    public Config() {
+      costFactor = 0.35;
+      initialCost = 3;
+    }
   }
 
   private record DamageMemory(EntityDamageEvent.DamageCause cause, long timestamp) {

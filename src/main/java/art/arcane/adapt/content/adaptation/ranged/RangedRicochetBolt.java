@@ -19,17 +19,17 @@
 package art.arcane.adapt.content.adaptation.ranged;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -53,26 +53,16 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
   public RangedRicochetBolt() {
     super("ranged-ricochet-bolt");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("ranged.ricochet_bolt.description"));
-    setDisplayName(Localizer.dLocalize("ranged.ricochet_bolt.name"));
     setIcon(Material.SPECTRAL_ARROW);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(1400);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.SPECTRAL_ARROW)
         .key("challenge_ranged_ricochet_kills_50")
-        .title(Localizer.dLocalize("advancement.challenge_ranged_ricochet_kills_50.title"))
-        .description(Localizer.dLocalize("advancement.challenge_ranged_ricochet_kills_50.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.SPECTRAL_ARROW)
             .key("challenge_ranged_ricochet_kills_500")
-            .title(Localizer.dLocalize("advancement.challenge_ranged_ricochet_kills_500.title"))
-            .description(Localizer.dLocalize("advancement.challenge_ranged_ricochet_kills_500.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -83,14 +73,18 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + getMaxRicochets(level) + C.GRAY + " " + Localizer.dLocalize("ranged.ricochet_bolt.lore1"));
-    v.addLore(C.GREEN + "+ " + Form.pc(getSpeedBonusPerRicochet(level), 0) + C.GRAY + " " + Localizer.dLocalize("ranged.ricochet_bolt.lore2"));
-    v.addLore(C.GREEN + "+ " + Form.f(getDamageBonusPerRicochet(level), 2) + C.GRAY + " " + Localizer.dLocalize("ranged.ricochet_bolt.lore3"));
+    statLore(v, getMaxRicochets(level), 1);
+    statLore(v, Form.pc(getSpeedBonusPerRicochet(level), 0), 2);
+    statLore(v, Form.f(getDamageBonusPerRicochet(level), 2), 3);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(ProjectileHitEvent e) {
     if (!(e.getEntity() instanceof Projectile projectile) || !(projectile.getShooter() instanceof Player p)) {
+      return;
+    }
+
+    if (projectile.hasMetadata(RangedHeartseeker.SEEKING_ARROW_META)) {
       return;
     }
 
@@ -106,6 +100,9 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
     int ricochetCount = Math.max(0, getMetadataInt(projectile, RICOCHET_COUNT_META, 0));
     int maxRicochets = Math.max(1, getMetadataInt(projectile, RICOCHET_MAX_META, getMaxRicochets(level)));
     if (ricochetCount >= maxRicochets) {
+      fx(e.getHitBlock().getLocation().add(0.5, 0.5, 0.5), FxPriority.TRANSITION)
+          .burst(Particles.SMOKE, 4, 0.2D)
+          .sound(Sound.BLOCK_FIRE_EXTINGUISH, 0.3F, 1.2F);
       return;
     }
 
@@ -146,20 +143,16 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
     ricochet.setMetadata(RICOCHET_MAX_META, new FixedMetadataValue(Adapt.instance, maxRicochets));
     ricochet.setMetadata(BONUS_DAMAGE_META, new FixedMetadataValue(Adapt.instance, bonusDamage));
 
-    Location fx = e.getHitBlock().getLocation().add(0.5, 0.5, 0.5);
-    if (areParticlesEnabled()) {
-      projectile.getWorld().spawnParticle(Particle.ELECTRIC_SPARK, fx, Math.max(1, getConfig().sparkParticleCount),
-          getConfig().sparkSpread, getConfig().sparkSpread, getConfig().sparkSpread, 0.02);
-      projectile.getWorld().spawnParticle(Particle.CRIT, fx, Math.max(1, getConfig().critParticleCount),
-          getConfig().critSpread, getConfig().critSpread, getConfig().critSpread, 0.08);
-    }
-    if (areSoundsEnabled()) {
-      SoundPlayer sp = SoundPlayer.of(projectile.getWorld());
-      sp.play(fx, Sound.BLOCK_ANVIL_HIT, 0.85f, (float) Math.max(0.4, getConfig().bouncePitchBase - (nextRicochetCount * getConfig().bouncePitchDropPerRicochet)));
-      sp.play(fx, Sound.BLOCK_AMETHYST_BLOCK_HIT, 0.9f, (float) Math.min(2.0, getConfig().sparkPitchBase + (nextRicochetCount * getConfig().sparkPitchRaisePerRicochet)));
-    }
+    Location hitCenter = e.getHitBlock().getLocation().add(0.5, 0.5, 0.5);
+    fx(hitCenter, FxPriority.COMBAT)
+        .particle(Particle.ELECTRIC_SPARK, Math.max(1, getConfig().sparkParticleCount), 0, 0, 0, getConfig().sparkSpread, 0.02D)
+        .particle(Particles.CRIT_MAGIC, Math.max(1, getConfig().critParticleCount), 0, 0, 0, getConfig().critSpread, 0.08D)
+        .dustRing(Color.fromRGB(180, 210, 255), 0.4D + (nextRicochetCount * 0.15D), 12, 1.0F)
+        .line(Particle.ELECTRIC_SPARK, hitCenter.getX() + (reflectedDir.getX() * 1.2D), hitCenter.getY() + (reflectedDir.getY() * 1.2D), hitCenter.getZ() + (reflectedDir.getZ() * 1.2D), 5)
+        .chord(Sound.BLOCK_ANVIL_HIT, 0.85F, (float) Math.max(0.4, getConfig().bouncePitchBase - (nextRicochetCount * getConfig().bouncePitchDropPerRicochet)),
+            Sound.BLOCK_AMETHYST_BLOCK_HIT, 0.9F, (float) Math.min(2.0, getConfig().sparkPitchBase + (nextRicochetCount * getConfig().sparkPitchRaisePerRicochet)));
     xp(p, getConfig().xpPerRicochet + (nextRicochetCount * getConfig().xpPerRicochetStep));
-    getPlayer(p).getData().addStat("ranged.ricochet-bolt.total-ricochets", 1);
+    addStat(p, "ranged.ricochet-bolt.total-ricochets", 1);
     projectile.remove();
   }
 
@@ -176,6 +169,11 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
     double bonusDamage = getMetadataDouble(projectile, BONUS_DAMAGE_META, 0D);
     if (bonusDamage > 0 && e.getDamage() > 0) {
       e.setDamage(e.getDamage() + bonusDamage);
+      int count = Math.min(12, 4 + (int) Math.round(bonusDamage));
+      int ricochets = Math.max(1, getMetadataInt(projectile, RICOCHET_COUNT_META, 1));
+      fx(e.getEntity(), FxPriority.COMBAT)
+          .burst(Particles.CRIT_MAGIC, count, 0.3D)
+          .sound(Sound.ENTITY_ARROW_HIT, 0.7F, (float) Math.min(2.0, 1.2 + (ricochets * 0.12)));
     }
   }
 
@@ -186,7 +184,11 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
           && dmg.getDamager() instanceof Projectile projectile
           && projectile.hasMetadata(RICOCHET_COUNT_META)
           && projectile.getShooter() instanceof Player) {
-        getPlayer(p).getData().addStat("ranged.ricochet-bolt.ricochet-kills", 1);
+        addStat(p, "ranged.ricochet-bolt.ricochet-kills", 1);
+        fx(e.getEntity().getLocation(), FxPriority.COMBAT)
+            .dustRing(Color.fromRGB(90, 220, 230), 1.0D, 16, 1.1F)
+            .burst(Particles.FIREWORK, 8, 0.3D)
+            .chord(Sound.BLOCK_NOTE_BLOCK_BELL, 0.6F, 1.6F, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.5F, 2.0F);
       }
     }
   }
@@ -265,6 +267,7 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
     target.setBounce(source.doesBounce());
     target.setGravity(source.hasGravity());
     target.setFireTicks(source.getFireTicks());
+    source.getPersistentDataContainer().copyTo(target.getPersistentDataContainer(), true);
   }
 
   private Vector reflect(Vector incoming, BlockFace face) {
@@ -359,31 +362,8 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Projectiles ricochet from block impacts with chained bounces, scaling speed, and bonus damage.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.74;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Ricochets Base for the Ranged Ricochet Bolt adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double maxRicochetsBase = 1;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Ricochets Factor for the Ranged Ricochet Bolt adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -432,5 +412,10 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
     double xpPerRicochetStep = 2;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Allow ricochet behavior to apply to throwables (snowballs, eggs, pearls, potions, exp bottles) so all supported player projectiles can bounce.", impact = "True enables universal ricochet across most player-thrown projectiles.")
     boolean applyToAllProjectiles = true;
+
+    public Config() {
+      costFactor = 0.74;
+      initialCost = 4;
+    }
   }
 }

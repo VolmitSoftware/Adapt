@@ -18,9 +18,12 @@
 
 package art.arcane.adapt.api.skill;
 
+import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.Component;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
+import art.arcane.adapt.api.fx.Fx;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.tick.Ticked;
 import art.arcane.adapt.api.world.AdaptPlayer;
@@ -28,6 +31,7 @@ import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.api.xp.XP;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.misc.CustomModel;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.collection.KList;
 import art.arcane.volmlib.util.format.Form;
 import org.bukkit.Location;
@@ -257,7 +261,9 @@ public interface Skill<T> extends Ticked, Component {
    */
   default void xp(Location at, double xp, int rad, long duration) {
     XP.spatialXP(at, this, xp, rad, duration);
-    vfxXP(at);
+    if (AdaptConfig.get().isUseEnchantmentTableParticleForActiveEffects()) {
+      Fx.now(this, at, FxPriority.AMBIENT).particle(Particles.ENCHANTMENT_TABLE, 3, 0, 1.7, 0, 0.1, 3);
+    }
   }
 
   /**

@@ -1,13 +1,10 @@
 package art.arcane.adapt.content.adaptation.chronos;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.util.config.ConfigDescription;
 
 @ConfigDescription("Click with a clock to rewind to a recent snapshot with health and hunger restored.")
-public class ChronosInstantRecallConfig {
-  @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-  boolean permanent = false;
-  @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-  boolean enabled = true;
+public class ChronosInstantRecallConfig extends AdaptationConfig {
   @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Play Clock Sounds for the Chronos Instant Recall adaptation.", impact = "True enables this behavior and false disables it.")
   boolean playClockSounds = true;
   @art.arcane.adapt.util.config.ConfigDoc(value = "Consumes one clock from the casting hand when a recall successfully starts.", impact = "True makes each recall cost a clock; false keeps recalls item-free.")
@@ -56,18 +53,6 @@ public class ChronosInstantRecallConfig {
   boolean doubleJumpRequiresSprint = false;
   @art.arcane.adapt.util.config.ConfigDoc(value = "Require holding a valid recall clock in either hand for double-jump trigger.", impact = "True requires clock-in-hand for jump trigger; false allows jump trigger without holding a clock.")
   boolean doubleJumpRequiresClockInHand = true;
-  @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum milliseconds allowed between jump taps for double-jump recall.", impact = "Higher values make double-tap detection easier; lower values make it stricter.")
-  int doubleJumpWindowMillis = 450;
-  @art.arcane.adapt.util.config.ConfigDoc(value = "Minimum upward velocity required to arm double-jump recall.", impact = "Higher values reduce accidental arm events; lower values increase sensitivity.")
-  double doubleJumpMinVerticalVelocity = 0.2;
-  @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-  int baseCost = 3;
-  @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-  int maxLevel = 5;
-  @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-  int initialCost = 3;
-  @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-  double costFactor = 0.45;
   @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Base Rewind Seconds for the Chronos Instant Recall adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
   double baseRewindSeconds = 3.5;
   @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Rewind Seconds Per Level for the Chronos Instant Recall adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -112,4 +97,9 @@ public class ChronosInstantRecallConfig {
   double xpRepeatTargetRadius = 3.5;
   @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Repeat Penalty Multiplier for the Chronos Instant Recall adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
   double xpRepeatPenaltyMultiplier = 0.2;
+
+  public ChronosInstantRecallConfig() {
+    baseCost = 3;
+    initialCost = 3;
+  }
 }

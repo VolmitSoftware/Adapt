@@ -19,20 +19,20 @@
 package art.arcane.adapt.content.adaptation.sword;
 
 import art.arcane.adapt.Adapt;
-import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.content.adaptation.sword.effects.DamagingBleedEffect;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import de.slikey.effectlib.effect.BleedEffect;
-import lombok.NoArgsConstructor;
+import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -46,29 +46,21 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 
 public class SwordsCrimsonCyclone extends SimpleAdaptation<SwordsCrimsonCyclone.Config> {
+  private static final Color CRIMSON = Color.fromRGB(0x9E1414);
+
   public SwordsCrimsonCyclone() {
     super("sword-crimson-cyclone");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("sword.crimson_cyclone.description"));
-    setDisplayName(Localizer.dLocalize("sword.crimson_cyclone.name"));
     setIcon(Material.NETHERITE_SWORD);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(2400);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.IRON_SWORD)
         .key("challenge_swords_cyclone_500")
-        .title(Localizer.dLocalize("advancement.challenge_swords_cyclone_500.title"))
-        .description(Localizer.dLocalize("advancement.challenge_swords_cyclone_500.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.NETHERITE_SWORD)
             .key("challenge_swords_cyclone_5k")
-            .title(Localizer.dLocalize("advancement.challenge_swords_cyclone_5k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_swords_cyclone_5k.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -78,8 +70,6 @@ public class SwordsCrimsonCyclone extends SimpleAdaptation<SwordsCrimsonCyclone.
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.NETHERITE_SWORD)
         .key("challenge_swords_cyclone_6")
-        .title(Localizer.dLocalize("advancement.challenge_swords_cyclone_6.title"))
-        .description(Localizer.dLocalize("advancement.challenge_swords_cyclone_6.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -87,9 +77,9 @@ public class SwordsCrimsonCyclone extends SimpleAdaptation<SwordsCrimsonCyclone.
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.f(getRadius(level)) + C.GRAY + " " + Localizer.dLocalize("sword.crimson_cyclone.lore1"));
-    v.addLore(C.GREEN + "+ " + Form.f(getBaseDamage(level), 2) + C.GRAY + " " + Localizer.dLocalize("sword.crimson_cyclone.lore2"));
-    v.addLore(C.YELLOW + "* " + Form.duration(getCooldownTicks(level) * 50D, 1) + C.GRAY + " " + Localizer.dLocalize("sword.crimson_cyclone.lore3"));
+    statLore(v, Form.f(getRadius(level)), 1);
+    statLore(v, Form.f(getBaseDamage(level), 2), 2);
+    statLore(v, C.YELLOW, "* ", Form.duration(getCooldownTicks(level) * 50D, 1), 3);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -117,6 +107,7 @@ public class SwordsCrimsonCyclone extends SimpleAdaptation<SwordsCrimsonCyclone.
     }
 
     int hits = 0;
+    int sparks = 0;
     double radius = getRadius(level);
     double damage = getBaseDamage(level);
     p.setFoodLevel(Math.max(0, p.getFoodLevel() - hungerCost));
@@ -124,9 +115,8 @@ public class SwordsCrimsonCyclone extends SimpleAdaptation<SwordsCrimsonCyclone.
 
     e.setDamage(e.getDamage() + damage);
     applyBleed(primaryTarget, level);
-    if (areParticlesEnabled()) {
-      primaryTarget.getWorld().spawnParticle(Particle.CRIMSON_SPORE, primaryTarget.getLocation().add(0, 0.8, 0), 8, 0.2, 0.35, 0.2, 0.01);
-    }
+    crimsonSpark(primaryTarget);
+    sparks++;
     hits++;
 
     for (Entity entity : primaryTarget.getWorld().getNearbyEntities(primaryTarget.getLocation(), radius, radius, radius)) {
@@ -144,8 +134,9 @@ public class SwordsCrimsonCyclone extends SimpleAdaptation<SwordsCrimsonCyclone.
 
       target.damage(damage, p);
       applyBleed(target, level);
-      if (areParticlesEnabled()) {
-        target.getWorld().spawnParticle(Particle.CRIMSON_SPORE, target.getLocation().add(0, 0.8, 0), 8, 0.2, 0.35, 0.2, 0.01);
+      if (sparks < 9) {
+        crimsonSpark(target);
+        sparks++;
       }
       hits++;
     }
@@ -154,24 +145,39 @@ public class SwordsCrimsonCyclone extends SimpleAdaptation<SwordsCrimsonCyclone.
       return;
     }
 
-    if (areParticlesEnabled()) {
-
-      p.getWorld().spawnParticle(Particle.SWEEP_ATTACK, primaryTarget.getLocation().add(0, 1, 0), 2, 0.4, 0.1, 0.4, 0.02);
-
-    }
-    if (areParticlesEnabled()) {
-      p.getWorld().spawnParticle(Particle.CRIMSON_SPORE, primaryTarget.getLocation().add(0, 1, 0), 36, 0.8, 0.4, 0.8, 0.02);
-    }
-    SoundPlayer sp = SoundPlayer.of(p.getWorld());
-    sp.play(primaryTarget.getLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, 0.7f);
-    sp.play(primaryTarget.getLocation(), Sound.ENTITY_WITHER_HURT, 0.65f, 1.45f);
+    double maxRadius = radius;
+    int ringPoints = Math.min(24, 10 + (level * 2));
+    timeline(primaryTarget.getLocation())
+        .duration(8)
+        .priority(FxPriority.COMBAT)
+        .cullRadius(Math.min(48D, maxRadius + 16D))
+        .frame((fx, tick, progress) -> {
+          double growth = tick <= 3 ? (tick + 1) / 4.0D : (8 - tick) / 4.0D;
+          fx.ring(Particle.CRIMSON_SPORE, maxRadius * growth, ringPoints, 1.0D);
+          if (tick == 0) {
+            fx.sound(Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1F, 0.6F);
+          } else if (tick == 2) {
+            fx.sound(Sound.ENTITY_ENDER_DRAGON_FLAP, 0.5F, 1.2F);
+          } else if (tick == 4) {
+            fx.sound(Sound.ENTITY_WITHER_HURT, 0.65F, 1.45F);
+          }
+        })
+        .start();
     xp(p, hits * getConfig().xpPerTargetHit);
-    getPlayer(p).getData().addStat("swords.crimson-cyclone.mobs-hit", hits);
+    addStat(p, "swords.crimson-cyclone.mobs-hit", hits);
 
-    // Special achievement: hit 6+ mobs with one activation
-    if (hits >= 6 && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_swords_cyclone_6")) {
-      getPlayer(p).getAdvancementHandler().grant("challenge_swords_cyclone_6");
+    if (hits >= 6 && grantOnce(p, "challenge_swords_cyclone_6")) {
+      fx(p.getLocation().add(0, 1, 0), FxPriority.TRANSITION)
+          .burst(Particles.TOTEM, 12, 0.4D)
+          .particle(Particle.FLASH, 1, 0, 0, 0, 0, 0)
+          .sound(Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.6F, 1F);
     }
+  }
+
+  private void crimsonSpark(LivingEntity target) {
+    fx(target.getLocation().add(0, 0.8D, 0), FxPriority.COMBAT)
+        .particle(Particle.CRIMSON_SPORE, 3, 0, 0, 0, 0.3D, 0.01D)
+        .dustBurst(CRIMSON, 1, 0.2D, 1.0F);
   }
 
   private boolean isCritTrigger(Player p) {
@@ -242,33 +248,10 @@ public class SwordsCrimsonCyclone extends SimpleAdaptation<SwordsCrimsonCyclone.
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Land a sword crit while falling to unleash a bleeding crimson cyclone around your target.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Show Bleed Particles for the Swords Crimson Cyclone adaptation.", impact = "True enables this behavior and false disables it.")
     boolean showBleedParticles = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.76;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Radius Base for the Swords Crimson Cyclone adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double radiusBase = 2.6;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Radius Factor for the Swords Crimson Cyclone adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -301,5 +284,11 @@ public class SwordsCrimsonCyclone extends SimpleAdaptation<SwordsCrimsonCyclone.
     float minFallDistanceForCrit = 0.08f;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Target Hit for the Swords Crimson Cyclone adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpPerTargetHit = 10;
+
+    public Config() {
+      baseCost = 5;
+      costFactor = 0.76;
+      initialCost = 5;
+    }
   }
 }

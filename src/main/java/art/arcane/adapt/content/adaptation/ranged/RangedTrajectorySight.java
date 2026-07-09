@@ -20,19 +20,19 @@ package art.arcane.adapt.content.adaptation.ranged;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.world.PlayerSkillLine;
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import fr.skytasul.glowingentities.GlowingEntities;
-import lombok.NoArgsConstructor;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
@@ -59,30 +59,23 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySight.Config> {
   private static final double EPSILON = 0.0000001D;
-  private final Map<UUID, Long> drawStartedMillis = new ConcurrentHashMap<>();
-  private final Map<UUID, UUID> previewGlowTargets = new ConcurrentHashMap<>();
+  private final Map<UUID, Long> drawStartedMillis = playerState();
+  private final Map<UUID, UUID> previewGlowTargets = playerState();
   private final Set<UUID> previewCandidates = ConcurrentHashMap.newKeySet();
-  private final Map<UUID, PreviewState> previewState = new ConcurrentHashMap<>();
+  private final Map<UUID, PreviewState> previewState = playerState();
   private volatile RangedForce cachedRangedForce;
   private volatile RangedRicochetBolt cachedRicochetBolt;
+  private volatile RangedHeartseeker cachedHeartseeker;
   private volatile long lastPreviewCandidateRefreshMs;
 
   public RangedTrajectorySight() {
     super("ranged-trajectory-sight");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("ranged.trajectory_sight.description"));
-    setDisplayName(Localizer.dLocalize("ranged.trajectory_sight.name"));
     setIcon(Material.SPYGLASS);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(20);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.SPYGLASS)
         .key("challenge_ranged_trajectory_100")
-        .title(Localizer.dLocalize("advancement.challenge_ranged_trajectory_100.title"))
-        .description(Localizer.dLocalize("advancement.challenge_ranged_trajectory_100.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -91,8 +84,8 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.f(getVelocityMultiplier(level)) + C.GRAY + " " + Localizer.dLocalize("ranged.trajectory_sight.lore1"));
-    v.addLore(C.GREEN + "+ " + Form.f(getSegments(level)) + C.GRAY + " " + Localizer.dLocalize("ranged.trajectory_sight.lore2"));
+    statLore(v, Form.f(getVelocityMultiplier(level)), 1);
+    statLore(v, Form.f(getSegments(level)), 2);
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
@@ -123,8 +116,16 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
     }
 
     if (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK) {
+      boolean wasDrawing = drawStartedMillis.containsKey(p.getUniqueId());
       drawStartedMillis.put(p.getUniqueId(), System.currentTimeMillis());
       markPreviewCandidate(p);
+      if (!wasDrawing) {
+        Location tip = p.getEyeLocation().add(p.getEyeLocation().getDirection().multiply(0.6));
+        fx(tip, FxPriority.TRANSITION)
+            .particle(Particles.ENCHANTMENT_TABLE, 4, 0, 0, 0, 0.05D, 0.01D)
+            .dustRing(Color.fromRGB(120, 225, 255), 0.4D, 12, 0.6F)
+            .sound(Sound.BLOCK_NOTE_BLOCK_HAT, 0.35F, 1.4F);
+      }
     }
   }
 
@@ -188,6 +189,9 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
     if (e.getEntity() instanceof Player p) {
       drawStartedMillis.remove(p.getUniqueId());
       markPreviewCandidate(p);
+      fx(p.getEyeLocation().add(p.getEyeLocation().getDirection().multiply(0.6)), FxPriority.TRANSITION)
+          .dustBurst(Color.fromRGB(120, 225, 255), 3, 0.1D, 0.6F)
+          .sound(Sound.BLOCK_NOTE_BLOCK_HAT, 0.3F, 0.8F);
     }
   }
 
@@ -197,7 +201,10 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
       if (e.getEntity().getLastDamageCause() instanceof EntityDamageByEntityEvent dmg
           && dmg.getDamager() instanceof Projectile projectile
           && projectile.getShooter() instanceof Player) {
-        getPlayer(p).getData().addStat("ranged.trajectory-sight.kills-while-aiming", 1);
+        addStat(p, "ranged.trajectory-sight.kills-while-aiming", 1);
+        fx(e.getEntity().getLocation(), FxPriority.COMBAT)
+            .burst(Particles.CRIT_MAGIC, 6, 0.3D)
+            .chord(Sound.ENTITY_ARROW_HIT, 0.7F, 1.6F, Sound.BLOCK_NOTE_BLOCK_BELL, 0.5F, 2.0F);
       }
     }
   }
@@ -247,8 +254,14 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
         continue;
       }
 
-      UUID predictedHit = renderTrajectory(p, getRenderSegments(level), shot);
-      updatePreviewGlow(p, predictedHit);
+      LivingEntity seekTarget = resolveSeekingTarget(p, context);
+      if (seekTarget != null) {
+        renderSeekingTrajectory(p, getRenderSegments(level), shot.initialVelocity(), seekTarget);
+        releasePreviewGlowFor(p, seekTarget.getUniqueId());
+      } else {
+        UUID predictedHit = renderTrajectory(p, getRenderSegments(level), shot);
+        updatePreviewGlow(p, predictedHit);
+      }
       previewState.put(id, PreviewState.capture(now, level, context, p.getEyeLocation()));
     }
   }
@@ -459,11 +472,11 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
     Color trailColor = shot.trigger() == PreviewTrigger.DRAWING_BOW
         ? Color.fromRGB(120, 225, 255)
         : Color.fromRGB(255, 190, 125);
-    int every = Math.max(1, getConfig().trailParticleEvery);
     double minDistanceSq = Math.max(0, getConfig().minPreviewDistanceFromEye);
     minDistanceSq *= minDistanceSq;
+    double spacing = Math.max(0.25, getConfig().previewPointSpacing);
+    double dotCarry = 0;
     int ricochets = 0;
-    Location lastVisiblePoint = null;
     UUID hitEntityId = null;
 
     for (int i = 0; i < segments; i++) {
@@ -489,10 +502,8 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
           current = target.getLocation().clone();
         }
 
-        if (areParticlesEnabled() && eye.distanceSquared(current) >= minDistanceSq) {
-          float impactSize = getScaledParticleSize(eye.distance(current), 1.15D);
-          Particle.DustOptions impact = new Particle.DustOptions(Color.fromRGB(255, 236, 128), impactSize);
-          p.spawnParticle(Particle.DUST, current, Math.max(1, getConfig().impactParticleCount + 1), 0.02, 0.02, 0.02, 0.0, impact);
+        if (areParticlesEnabled()) {
+          drawImpactMarker(p, eye, current, stepDirection, Color.fromRGB(255, 90, 90), minDistanceSq);
         }
         break;
       }
@@ -500,11 +511,7 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
       if (hit != null && hit.getHitBlock() != null) {
         current = hit.getHitPosition().toLocation(p.getWorld());
         if (areParticlesEnabled()) {
-          if (eye.distanceSquared(current) >= minDistanceSq) {
-            float impactSize = getScaledParticleSize(eye.distance(current), 1.1D);
-            Particle.DustOptions impact = new Particle.DustOptions(Color.fromRGB(255, 236, 128), impactSize);
-            p.spawnParticle(Particle.DUST, current, Math.max(1, getConfig().impactParticleCount), 0.02, 0.02, 0.02, 0.0, impact);
-          }
+          drawImpactMarker(p, eye, current, stepDirection, Color.fromRGB(255, 236, 128), minDistanceSq);
         }
 
         RicochetPreview ricochet = shot.ricochetPreview();
@@ -539,38 +546,165 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
       }
 
       current.add(step);
-
-      if (i % every == 0) {
-        if (areParticlesEnabled()) {
-          if (eye.distanceSquared(current) >= minDistanceSq) {
-            Location delta = current.clone().subtract(from);
-            int subSteps = Math.max(1, getConfig().trailSubSteps);
-            for (int s = 1; s <= subSteps; s++) {
-              double f = (double) s / (double) subSteps;
-              Location point = from.clone().add(delta.clone().multiply(f));
-              if (eye.distanceSquared(point) < minDistanceSq) {
-                continue;
-              }
-
-              float trailSize = getScaledParticleSize(eye.distance(point), 1D);
-              Particle.DustOptions trail = new Particle.DustOptions(trailColor, trailSize);
-              p.spawnParticle(Particle.DUST, point, Math.max(1, getConfig().trailParticleCount), 0.0, 0.0, 0.0, 0.0, trail);
-              lastVisiblePoint = point;
-            }
-          }
-        }
+      if (areParticlesEnabled()) {
+        dotCarry = drawDottedSegment(p, eye, from, current, trailColor, minDistanceSq, spacing, dotCarry);
       }
 
       velocity.multiply(shot.profile().dragFactor());
       velocity.setY(velocity.getY() - shot.profile().gravityStep());
     }
 
-    if (areParticlesEnabled() && lastVisiblePoint != null) {
-      float tipSize = getScaledParticleSize(eye.distance(lastVisiblePoint), 1.2D);
+    if (areParticlesEnabled() && eye.distanceSquared(current) >= minDistanceSq) {
+      float tipSize = getScaledParticleSize(eye.distance(current), 1.2D);
       Particle.DustOptions impact = new Particle.DustOptions(Color.fromRGB(255, 236, 128), tipSize);
-      p.spawnParticle(Particle.DUST, lastVisiblePoint, 1, 0.0, 0.0, 0.0, 0.0, impact);
+      p.spawnParticle(Particle.DUST, current, 1, 0.0, 0.0, 0.0, 0.0, impact);
     }
     return hitEntityId;
+  }
+
+  private double drawDottedSegment(Player p, Location eye, Location from, Location to, Color color, double minDistanceSq, double spacing, double carry) {
+    Vector delta = to.toVector().subtract(from.toVector());
+    double length = delta.length();
+    if (length <= EPSILON) {
+      return carry;
+    }
+
+    Vector direction = delta.multiply(1D / length);
+    double placed = -1;
+    for (double d = spacing - carry; d <= length; d += spacing) {
+      placed = d;
+      Location point = from.clone().add(direction.clone().multiply(d));
+      if (eye.distanceSquared(point) < minDistanceSq) {
+        continue;
+      }
+
+      float size = getScaledParticleSize(eye.distance(point), 1D);
+      Particle.DustOptions trail = new Particle.DustOptions(color, size);
+      p.spawnParticle(Particle.DUST, point, 1, 0.0, 0.0, 0.0, 0.0, trail);
+    }
+
+    return placed < 0 ? carry + length : length - placed;
+  }
+
+  private void drawImpactMarker(Player p, Location eye, Location impact, Vector incoming, Color color, double minDistanceSq) {
+    if (eye.distanceSquared(impact) < minDistanceSq) {
+      return;
+    }
+
+    float size = getScaledParticleSize(eye.distance(impact), 1.2D);
+    Particle.DustOptions core = new Particle.DustOptions(color, (float) Math.min(getConfig().maxParticleSize, size * 1.25D));
+    p.spawnParticle(Particle.DUST, impact, Math.max(1, getConfig().impactParticleCount), 0.02, 0.02, 0.02, 0.0, core);
+
+    Vector normal = incoming.lengthSquared() <= EPSILON ? new Vector(0, 1, 0) : incoming.clone().normalize();
+    Vector seed = Math.abs(normal.getY()) > 0.9 ? new Vector(1, 0, 0) : new Vector(0, 1, 0);
+    Vector u = normal.clone().crossProduct(seed);
+    if (u.lengthSquared() <= EPSILON) {
+      u = new Vector(1, 0, 0);
+    }
+    u.normalize();
+    Vector v = normal.clone().crossProduct(u).normalize();
+    double radius = Math.max(0.1, getConfig().impactRingRadius);
+    Particle.DustOptions ring = new Particle.DustOptions(color, size * 0.8F);
+    for (int i = 0; i < 8; i++) {
+      double angle = (Math.PI * 2D * i) / 8D;
+      Location point = impact.clone()
+          .add(u.clone().multiply(Math.cos(angle) * radius))
+          .add(v.clone().multiply(Math.sin(angle) * radius));
+      p.spawnParticle(Particle.DUST, point, 1, 0.0, 0.0, 0.0, 0.0, ring);
+    }
+  }
+
+  private void renderSeekingTrajectory(Player p, int segments, Vector initialVelocity, LivingEntity target) {
+    if (!areParticlesEnabled()) {
+      return;
+    }
+
+    RangedHeartseeker heartseeker = getHeartseekerAdaptation();
+    if (heartseeker == null) {
+      return;
+    }
+
+    Location eye = p.getEyeLocation().clone();
+    Location current = eye.clone().add(eye.getDirection().normalize().multiply(getConfig().previewStartOffset));
+    Vector dir = initialVelocity.clone();
+    if (dir.lengthSquared() <= EPSILON) {
+      return;
+    }
+
+    RangedHeartseeker.Config seekerConfig = heartseeker.getConfig();
+    double factored = dir.length() * Math.max(0.1, seekerConfig.seekSpeedFactor);
+    double cap = Math.max(seekerConfig.minSpeed, seekerConfig.maxSeekSpeed);
+    double speed = Math.min(cap, Math.max(Math.max(0.4, seekerConfig.minSpeed), factored));
+    dir.normalize();
+    double steer = Math.min(1D, Math.max(0.05D, seekerConfig.steerFactor));
+    double minDistanceSq = Math.max(0, getConfig().minPreviewDistanceFromEye);
+    minDistanceSq *= minDistanceSq;
+    double spacing = Math.max(0.25, getConfig().previewPointSpacing);
+    double dotCarry = 0;
+    Color seekColor = Color.fromRGB(255, 60, 80);
+    int steps = Math.min(80, Math.max(24, segments * 2));
+
+    for (int i = 0; i < steps; i++) {
+      Vector toTarget = target.getLocation().add(0, target.getHeight() * 0.6, 0).toVector().subtract(current.toVector());
+      double distance = toTarget.length();
+      if (distance <= Math.max(0.9D, speed * 0.75D)) {
+        drawImpactMarker(p, eye, current.clone().add(toTarget), dir, seekColor, minDistanceSq);
+        return;
+      }
+
+      Vector desired = toTarget.multiply(1D / distance);
+      dir = dir.multiply(1D - steer).add(desired.multiply(steer));
+      if (dir.lengthSquared() <= EPSILON) {
+        dir = desired.clone();
+      }
+      dir.normalize();
+
+      double stepLength = Math.min(speed, distance);
+      if (p.getWorld().rayTraceBlocks(current, dir, stepLength, FluidCollisionMode.NEVER, true) != null) {
+        Vector lifted = dir.clone().add(new Vector(0, 0.9, 0)).normalize();
+        if (p.getWorld().rayTraceBlocks(current, lifted, stepLength, FluidCollisionMode.NEVER, true) == null) {
+          dir = lifted;
+        } else {
+          drawImpactMarker(p, eye, current, dir, seekColor, minDistanceSq);
+          return;
+        }
+      }
+
+      Location from = current.clone();
+      current.add(dir.clone().multiply(stepLength));
+      dotCarry = drawDottedSegment(p, eye, from, current, seekColor, minDistanceSq, spacing, dotCarry);
+    }
+  }
+
+  private LivingEntity resolveSeekingTarget(Player p, PreviewContext context) {
+    if (context.trigger() != PreviewTrigger.DRAWING_BOW || context.item().getType() != Material.BOW) {
+      return null;
+    }
+
+    RangedHeartseeker heartseeker = getHeartseekerAdaptation();
+    if (heartseeker == null || !heartseeker.isEnabled()) {
+      return null;
+    }
+
+    if (getAdaptationLevel(p, heartseeker.getName()) <= 0) {
+      return null;
+    }
+
+    return heartseeker.getLockedTarget(p);
+  }
+
+  private void releasePreviewGlowFor(Player p, UUID lockedTargetId) {
+    UUID current = previewGlowTargets.get(p.getUniqueId());
+    if (current == null) {
+      return;
+    }
+
+    if (current.equals(lockedTargetId)) {
+      previewGlowTargets.remove(p.getUniqueId());
+      return;
+    }
+
+    updatePreviewGlow(p, null);
   }
 
   private BallisticsProfile resolveBallisticsProfile(Material type) {
@@ -664,6 +798,19 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
     RangedRicochetBolt found = resolveRangedAdaptation(RangedRicochetBolt.class);
     if (found != null) {
       cachedRicochetBolt = found;
+    }
+    return found;
+  }
+
+  private RangedHeartseeker getHeartseekerAdaptation() {
+    RangedHeartseeker cached = cachedHeartseeker;
+    if (cached != null) {
+      return cached;
+    }
+
+    RangedHeartseeker found = resolveRangedAdaptation(RangedHeartseeker.class);
+    if (found != null) {
+      cachedHeartseeker = found;
     }
     return found;
   }
@@ -762,6 +909,9 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
     try {
       glowingEntities.setGlowing(target, p, ChatColor.GOLD);
       previewGlowTargets.put(viewerId, targetId);
+      fx(target, FxPriority.TRANSITION)
+          .burst(Particles.CRIT_MAGIC, 3, 0.15D)
+          .sound(Sound.BLOCK_NOTE_BLOCK_PLING, 0.3F, 2.0F);
     } catch (ReflectiveOperationException ignored) {
       // Ignore and continue; preview should never hard-fail from packet glow.
     }
@@ -874,16 +1024,6 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
     return Math.max(0.1, getConfig().velocityBase + (getLevelPercent(level) * getConfig().velocityFactor));
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
   private enum PreviewTrigger {
     SNEAK_PROJECTILE,
     DRAWING_BOW
@@ -939,21 +1079,8 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
     }
   }
 
-  @NoArgsConstructor
   @ConfigDescription("Preview ranged projectile flight while sneaking or drawing your shot.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.75;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Segments Base for the Ranged Trajectory Sight adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double segmentsBase = 18;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Segments Factor for the Ranged Trajectory Sight adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -991,21 +1118,19 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Sneak Preview Charge Ticks for the Ranged Trajectory Sight adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double sneakPreviewChargeTicks = 16;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Particle Size for the Ranged Trajectory Sight adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double particleSize = 0.13;
+    double particleSize = 0.18;
     @art.arcane.adapt.util.config.ConfigDoc(value = "How much particle size grows per block of distance from the viewer.", impact = "Higher values make far trajectory points easier to see.")
     double particleSizePerBlock = 0.008;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum particle size used for the trajectory preview.", impact = "Caps distance scaling to prevent oversized particles.")
-    double maxParticleSize = 0.45;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Trail Particle Count for the Ranged Trajectory Sight adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    int trailParticleCount = 1;
+    double maxParticleSize = 0.55;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Impact Particle Count for the Ranged Trajectory Sight adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     int impactParticleCount = 2;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Trail Particle Every for the Ranged Trajectory Sight adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    int trailParticleEvery = 3;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Distance in blocks between trajectory preview dots.", impact = "Lower values draw a denser, more continuous line at higher particle cost.")
+    double previewPointSpacing = 0.7;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Radius of the ring marker drawn where the shot would land.", impact = "Higher values draw a larger, more visible impact ring.")
+    double impactRingRadius = 0.35;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Minimum distance from the player's eye before preview particles are shown.", impact = "Higher values keep particles out of your sightline and reduce visual obstruction.")
     double minPreviewDistanceFromEye = 1.6;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "How many interpolated points are drawn between each simulated physics step.", impact = "Higher values smooth the line while increasing particle density.")
-    int trailSubSteps = 1;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Offset forward from the eye where trajectory simulation begins.", impact = "Higher values start the preview further from your face.")
     double previewStartOffset = 0.55;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Highlights the predicted hit target entity with per-player glow.", impact = "Enable to glow whichever entity the preview would hit first.")
@@ -1028,5 +1153,10 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
     double previewHighLoadPercent = 42;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Segment scale applied once high-load shedding is active.", impact = "Lower values reduce trajectory compute cost more aggressively during load spikes.")
     double previewHighLoadSegmentScale = 0.7;
+
+    public Config() {
+      costFactor = 0.75;
+      initialCost = 4;
+    }
   }
 }

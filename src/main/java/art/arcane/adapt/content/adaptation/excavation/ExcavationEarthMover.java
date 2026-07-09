@@ -18,24 +18,24 @@
 
 package art.arcane.adapt.content.adaptation.excavation;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
-import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.adapt.util.reflect.registries.RegistryUtil;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.World;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
@@ -43,37 +43,24 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-
 public class ExcavationEarthMover extends SimpleAdaptation<ExcavationEarthMover.Config> {
   private static final PotionEffectType SLOWNESS = RegistryUtil.find(PotionEffectType.class, "slowness", "slow");
-  private final Map<UUID, Long> cooldowns = new ConcurrentHashMap<>();
+  private final Cooldowns cooldowns = cooldowns();
 
   public ExcavationEarthMover() {
     super("excavation-earth-mover");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("excavation.earth_mover.description"));
-    setDisplayName(Localizer.dLocalize("excavation.earth_mover.name"));
     setIcon(Material.DIRT);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(3730);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.DIRT)
         .key("challenge_excavation_earthmover_250")
-        .title(Localizer.dLocalize("advancement.challenge_excavation_earthmover_250.title"))
-        .description(Localizer.dLocalize("advancement.challenge_excavation_earthmover_250.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -82,16 +69,11 @@ public class ExcavationEarthMover extends SimpleAdaptation<ExcavationEarthMover.
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.f(getRadius(level), 1) + C.GRAY + " " + Localizer.dLocalize("excavation.earth_mover.lore1"));
-    v.addLore(C.GREEN + "+ " + Form.pc(getForce(level), 0) + C.GRAY + " " + Localizer.dLocalize("excavation.earth_mover.lore2"));
-    v.addLore(C.GREEN + "+ " + Form.duration(getSlowTicks(level) * 50D, 1) + C.GRAY + " " + Localizer.dLocalize("excavation.earth_mover.lore3"));
-    v.addLore(C.YELLOW + "* " + Form.duration(getCooldownMillis(level), 1) + C.GRAY + " " + Localizer.dLocalize("excavation.earth_mover.lore4"));
-    v.addLore(C.RED + "- " + getConfig().hungerCost + C.GRAY + " " + Localizer.dLocalize("excavation.earth_mover.lore5"));
-  }
-
-  @EventHandler(priority = EventPriority.MONITOR)
-  public void on(PlayerQuitEvent e) {
-    cooldowns.remove(e.getPlayer().getUniqueId());
+    statLore(v, Form.f(getRadius(level), 1), 1);
+    statLore(v, Form.pc(getForce(level), 0), 2);
+    statLore(v, Form.duration(getSlowTicks(level) * 50D, 1), 3);
+    statLore(v, C.YELLOW, "* ", Form.duration(getCooldownMillis(level), 1), 4);
+    statLore(v, C.RED, "- ", getConfig().hungerCost, 5);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
@@ -114,12 +96,6 @@ public class ExcavationEarthMover extends SimpleAdaptation<ExcavationEarthMover.
       return;
     }
 
-    long now = System.currentTimeMillis();
-    long nextReady = cooldowns.getOrDefault(p.getUniqueId(), 0L);
-    if (now < nextReady) {
-      return;
-    }
-
     int hungerCost = getConfig().hungerCost;
     if (p.getFoodLevel() < hungerCost) {
       return;
@@ -131,13 +107,18 @@ public class ExcavationEarthMover extends SimpleAdaptation<ExcavationEarthMover.
     }
 
     int level = context.level();
-    cooldowns.put(p.getUniqueId(), now + getCooldownMillis(level));
+    if (!cooldowns.isReady(p.getUniqueId(), getCooldownMillis(level))) {
+      return;
+    }
+
+    cooldowns.mark(p.getUniqueId());
     p.setFoodLevel(Math.max(0, p.getFoodLevel() - hungerCost));
 
     double radius = getRadius(level);
     double force = getForce(level);
     int slowTicks = getSlowTicks(level);
     int slowAmplifier = getSlowAmplifier(level);
+    BlockData dirtData = Material.DIRT.createBlockData();
     int hit = 0;
     for (Entity nearby : p.getNearbyEntities(radius, getConfig().verticalRange, radius)) {
       if (!(nearby instanceof Monster monster)) {
@@ -157,40 +138,43 @@ public class ExcavationEarthMover extends SimpleAdaptation<ExcavationEarthMover.
       direction.normalize().multiply(force).setY(getConfig().liftVelocity);
       monster.setVelocity(direction);
       monster.addPotionEffect(new PotionEffect(SLOWNESS, slowTicks, slowAmplifier, false, true, true));
+      if (hit < 8) {
+        fx(monster, FxPriority.COMBAT)
+            .particle(Particles.BLOCK_CRACK, 4, 0, 0.1D, 0, 0.2D, 0.05D, dirtData);
+      }
       hit++;
     }
 
-    renderWave(p, radius);
-    SoundPlayer sp = SoundPlayer.of(p.getWorld());
-    sp.play(p.getLocation(), Sound.BLOCK_ROOTED_DIRT_BREAK, 1.0f, 0.6f);
-    sp.play(p.getLocation(), Sound.ENTITY_ZOMBIE_ATTACK_IRON_DOOR, 0.4f, 0.5f);
-    getPlayer(p).getData().addStat("excavation.earth-mover.waves-unleashed", 1);
+    renderWave(p.getLocation(), radius);
+    addStat(p, "excavation.earth-mover.waves-unleashed", 1);
     if (hit > 0) {
-      getPlayer(p).getData().addStat("excavation.earth-mover.mobs-launched", hit);
+      fx(p.getLocation(), FxPriority.COMBAT).sound(Sound.ENTITY_HOSTILE_BIG_FALL, 0.4f, 0.8f);
+      addStat(p, "excavation.earth-mover.mobs-launched", hit);
       xp(p, hit * getConfig().xpPerMobHit);
+    } else {
+      fx(p.getLocation(), FxPriority.COMBAT).sound(Sound.BLOCK_NOTE_BLOCK_BASS, 0.3f, 0.5f);
     }
   }
 
-  private void renderWave(Player p, double radius) {
-    if (!areParticlesEnabled()) {
-      return;
-    }
-
-    World world = p.getWorld();
-    Location base = p.getLocation().add(0, 0.2, 0);
+  private void renderWave(Location center, double radius) {
     ItemStack dirt = new ItemStack(Material.DIRT);
-    for (int pulse = 0; pulse < 3; pulse++) {
-      double r = radius * ((pulse + 1) / 3.0);
-      int points = 10 + (pulse * 6);
-      J.runEntity(p, () -> {
-        for (int i = 0; i < points; i++) {
-          double angle = (Math.PI * 2 * i) / points;
-          Location at = base.clone().add(Math.cos(angle) * r, 0, Math.sin(angle) * r);
-          world.spawnParticle(Particle.ITEM, at, 3, 0.12, 0.1, 0.12, 0.04, dirt);
-          world.spawnParticle(Particle.CLOUD, at, 1, 0.05, 0.05, 0.05, 0.01);
-        }
-      }, pulse * 2);
-    }
+    timeline(center)
+        .duration(8)
+        .priority(FxPriority.GAMEPLAY)
+        .cullRadius(32)
+        .frame((fx, tick, progress) -> {
+          double r = 0.4D + ((radius - 0.4D) * progress);
+          int points = 10 + (int) (progress * 14);
+          fx.ring(Particles.ITEM_CRACK, r, points, 0.2D, dirt);
+          fx.ring(Particle.CLOUD, r, Math.max(8, points / 2), 0.15D);
+          if (tick == 0) {
+            fx.chord(Sound.BLOCK_ROOTED_DIRT_BREAK, 1.0f, 0.6f, Sound.ENTITY_ZOMBIE_ATTACK_IRON_DOOR, 0.4f, 0.5f, Sound.ENTITY_IRON_GOLEM_ATTACK, 0.5f, 0.6f);
+          }
+          if (tick == 7 && radius > 5.0D) {
+            fx.particle(Particle.EXPLOSION, 1, 0, 0.3D, 0, 0, 0);
+          }
+        })
+        .start();
   }
 
   private double getRadius(int level) {
@@ -218,31 +202,8 @@ public class ExcavationEarthMover extends SimpleAdaptation<ExcavationEarthMover.
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Sneak-right-click the air with a shovel to fling a wave of earth that knocks back and slows hostile mobs.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 6;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 7;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.8;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Radius Base for the Excavation Earth Mover adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double radiusBase = 3;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Radius Factor for the Excavation Earth Mover adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -269,5 +230,11 @@ public class ExcavationEarthMover extends SimpleAdaptation<ExcavationEarthMover.
     int hungerCost = 2;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Mob Hit for the Excavation Earth Mover adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpPerMobHit = 6;
+
+    public Config() {
+      baseCost = 6;
+      costFactor = 0.8;
+      initialCost = 7;
+    }
   }
 }

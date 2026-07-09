@@ -18,16 +18,22 @@
 
 package art.arcane.adapt.content.adaptation.crafting;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdvancementSpec;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.recipe.MaterialChar;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Color;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.inventory.CraftItemEvent;
@@ -40,13 +46,7 @@ public class CraftingSkulls extends SimpleAdaptation<CraftingSkulls.Config> {
   public CraftingSkulls() {
     super("crafting-skulls");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("crafting.skulls.description"));
-    setDisplayName(Localizer.dLocalize("crafting.skulls.name"));
     setIcon(Material.SKELETON_SKULL);
-    setBaseCost(getConfig().baseCost);
-    setCostFactor(getConfig().costFactor);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
     setInterval(17776);
     registerRecipe(AdaptRecipe.shaped()
         .key("crafting-skeletonskull")
@@ -135,7 +135,43 @@ public class CraftingSkulls extends SimpleAdaptation<CraftingSkulls.Config> {
       if (result == Material.SKELETON_SKULL || result == Material.WITHER_SKELETON_SKULL
           || result == Material.ZOMBIE_HEAD || result == Material.CREEPER_HEAD
           || result == Material.DRAGON_HEAD) {
-        getPlayer(p).getData().addStat("crafting.skulls.skulls-crafted", 1);
+        addStat(p, "crafting.skulls.skulls-crafted", 1);
+        soulForge(p.getLocation().add(0, 1, 0), result);
+      }
+    }
+  }
+
+  private void soulForge(Location center, Material result) {
+    timeline(center)
+        .duration(10)
+        .priority(FxPriority.TRANSITION)
+        .cullRadius(20)
+        .frame((fx, tick, progress) -> {
+          double rise = 0.2D + (progress * 1.2D);
+          fx.particle(Particle.SOUL, 2, 0, rise, 0, 0.1D, 0.01D);
+          fx.particle(Particles.SMOKE, 2, 0, rise, 0, 0.12D, 0.01D);
+          if (tick == 0 || tick == 5) {
+            fx.ring(Particle.SOUL, 0.4D, 8, 1.6D);
+          }
+          if (tick == 0) {
+            fx.chord(Sound.PARTICLE_SOUL_ESCAPE, 0.7F, 0.6F, Sound.BLOCK_BONE_BLOCK_PLACE, 0.8F, 0.8F, Sound.ENTITY_SKELETON_AMBIENT, 0.4F, 0.5F);
+          }
+        })
+        .start();
+    switch (result) {
+      case CREEPER_HEAD -> fx(center, FxPriority.TRANSITION)
+          .burst(Particles.SMOKE, 6, 0.3D)
+          .sound(Sound.ENTITY_CREEPER_PRIMED, 0.4F, 1.2F);
+      case WITHER_SKELETON_SKULL -> fx(center, FxPriority.TRANSITION)
+          .burst(Particle.SOUL, 6, 0.3D)
+          .sound(Sound.ENTITY_WITHER_SPAWN, 0.3F, 1.4F);
+      case DRAGON_HEAD -> fx(center, FxPriority.TRANSITION)
+          .particle(Particle.REVERSE_PORTAL, 10, 0, 0.6D, 0, 0.4D, 0.05D)
+          .dustRing(Color.fromRGB(30, 30, 40), 1.2D, 20, 1.2F)
+          .sound(Sound.ENTITY_ENDER_DRAGON_GROWL, 0.3F, 0.8F);
+      case ZOMBIE_HEAD -> fx(center, FxPriority.TRANSITION)
+          .sound(Sound.ENTITY_ZOMBIE_AMBIENT, 0.4F, 0.6F);
+      default -> {
       }
     }
   }
@@ -144,30 +180,13 @@ public class CraftingSkulls extends SimpleAdaptation<CraftingSkulls.Config> {
   public void onTick() {
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Craft Mob Skulls using materials surrounding a Bone Block.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 8;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 1;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 2;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 1;
+  protected static class Config extends AdaptationConfig {
+    public Config() {
+      permanent = true;
+      baseCost = 8;
+      costFactor = 1;
+      maxLevel = 1;
+    }
   }
 }

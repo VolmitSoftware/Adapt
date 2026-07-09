@@ -64,6 +64,7 @@ public class PlayerData {
   private long lastLogin = 0;
   private double masterXp = 1;
   private double lastMasterXp = 0;
+  private boolean effectsEnabled = true;
 
   public static PlayerData fromJson(String json) {
     return Json.fromJson(json, PlayerData.class);

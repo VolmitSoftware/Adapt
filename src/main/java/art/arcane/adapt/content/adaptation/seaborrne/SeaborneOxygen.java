@@ -18,39 +18,38 @@
 
 package art.arcane.adapt.content.adaptation.seaborrne;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import java.util.Map;
+import java.util.UUID;
+
 public class SeaborneOxygen extends SimpleAdaptation<SeaborneOxygen.Config> {
+  private final Map<UUID, Boolean> submerged = playerState();
 
   public SeaborneOxygen() {
     super("seaborne-oxygen");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("seaborn.oxygen.description"));
-    setDisplayName(Localizer.dLocalize("seaborn.oxygen.name"));
+    setLocalizationKey("seaborn.oxygen");
     setIcon(Material.GLASS_PANE);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
     setInterval(3750);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.TURTLE_HELMET)
         .key("challenge_seaborne_oxygen_12k")
-        .title(Localizer.dLocalize("advancement.challenge_seaborne_oxygen_12k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_seaborne_oxygen_12k.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -59,7 +58,7 @@ public class SeaborneOxygen extends SimpleAdaptation<SeaborneOxygen.Config> {
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.pc(getAirBoost(level), 0) + C.GRAY + Localizer.dLocalize("seaborn.oxygen.lore1"));
+    statLore(v, Form.pc(getAirBoost(level), 0), 1);
   }
 
   public double getAirBoost(int level) {
@@ -68,7 +67,7 @@ public class SeaborneOxygen extends SimpleAdaptation<SeaborneOxygen.Config> {
 
   @Override
   public void onTick() {
-    for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+    for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
       Player player = adaptPlayer.getPlayer();
       if (player == null || !player.isOnline()) {
         continue;
@@ -80,43 +79,51 @@ public class SeaborneOxygen extends SimpleAdaptation<SeaborneOxygen.Config> {
         }
 
         int level = getActiveLevel(player);
-        if (level <= 0 || (!player.isInWater() && !player.isSwimming())) {
+        if (level <= 0) {
+          return;
+        }
+
+        UUID id = player.getUniqueId();
+        boolean inWater = player.isInWater() || player.isSwimming();
+        boolean was = submerged.getOrDefault(id, false);
+        if (!inWater) {
+          if (was) {
+            submerged.put(id, false);
+            fx(player.getEyeLocation(), FxPriority.AMBIENT)
+                .particle(Particle.SPLASH, 6, 0D, 0D, 0D, 0.2D, 0.05D)
+                .sound(Sound.BLOCK_CONDUIT_DEACTIVATE, 0.3F, 1.0F);
+          }
           return;
         }
 
         int airTicks = level * getConfig().airPerLevelTics;
         player.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, airTicks, level));
-        getPlayer(player).getData().addStat("seaborne.oxygen.bonus-air-ticks", airTicks);
+        addStat(player, "seaborne.oxygen.bonus-air-ticks", airTicks);
+
+        if (!was) {
+          submerged.put(id, true);
+          fx(player.getEyeLocation(), FxPriority.TRANSITION)
+              .ring(Particle.BUBBLE, 0.45D, 10, 0.0D)
+              .dustBurst(4, 0.3D, 0.9F)
+              .chord(Sound.BLOCK_CONDUIT_ACTIVATE, 0.35F, 1.15F, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.3F, 1.4F);
+          return;
+        }
+
+        fx(player.getEyeLocation(), FxPriority.AMBIENT)
+            .column(Particle.BUBBLE, 2, 0.6D);
       });
     }
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Hold more oxygen underwater.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.525;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Air Per Level Tics for the Seaborne Oxygen adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     int airPerLevelTics = 15;
+
+    public Config() {
+      baseCost = 3;
+      costFactor = 0.525;
+      initialCost = 5;
+    }
   }
 }

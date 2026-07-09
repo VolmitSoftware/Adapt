@@ -18,39 +18,37 @@
 
 package art.arcane.adapt.content.adaptation.enchanting;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
 import org.bukkit.Material;
+import org.bukkit.Sound;
+import org.bukkit.block.Block;
 import org.bukkit.enchantments.EnchantmentOffer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
 
 public class EnchantingBookshelfAttunement extends SimpleAdaptation<EnchantingBookshelfAttunement.Config> {
+  private final Cooldowns shimmerCooldown = cooldowns();
+
   public EnchantingBookshelfAttunement() {
     super("enchanting-bookshelf-attunement");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("enchanting.bookshelf_attunement.description"));
-    setDisplayName(Localizer.dLocalize("enchanting.bookshelf_attunement.name"));
     setIcon(Material.BOOKSHELF);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(1400);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.BOOKSHELF)
         .key("challenge_enchanting_bookshelf_100")
-        .title(Localizer.dLocalize("advancement.challenge_enchanting_bookshelf_100.title"))
-        .description(Localizer.dLocalize("advancement.challenge_enchanting_bookshelf_100.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -59,7 +57,25 @@ public class EnchantingBookshelfAttunement extends SimpleAdaptation<EnchantingBo
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + getVirtualPower(level) + C.GRAY + " " + Localizer.dLocalize("enchanting.bookshelf_attunement.lore1"));
+    statLore(v, getVirtualPower(level), 1);
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(EnchantItemEvent e) {
+    Player p = e.getEnchanter();
+    if (!hasActiveAdaptation(p)) {
+      return;
+    }
+
+    Block enchantBlock = e.getEnchantBlock();
+    if (enchantBlock == null) {
+      return;
+    }
+
+    int count = Math.min(24, 6 + (getVirtualPower(getLevel(p)) * 2));
+    fx(enchantBlock.getLocation().add(0.5D, 1.0D, 0.5D), FxPriority.TRANSITION)
+        .dome(Particles.ENCHANTMENT_TABLE, 1.4D, count)
+        .sound(Sound.BLOCK_BEACON_ACTIVATE, 0.5F, 1.3F);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
@@ -88,7 +104,16 @@ public class EnchantingBookshelfAttunement extends SimpleAdaptation<EnchantingBo
       boosted = true;
     }
     if (boosted) {
-      getPlayer(p).getData().addStat("enchanting.bookshelf-attunement.enchants-boosted", 1);
+      addStat(p, "enchanting.bookshelf-attunement.enchants-boosted", 1);
+      if (shimmerCooldown.isReady(p.getUniqueId(), 1000L)) {
+        shimmerCooldown.mark(p.getUniqueId());
+        Block enchantBlock = e.getEnchantBlock();
+        if (enchantBlock != null) {
+          fx(enchantBlock.getLocation().add(0.5D, 1.0D, 0.5D), FxPriority.AMBIENT)
+              .particle(Particles.ENCHANTMENT_TABLE, 6, 0, 0, 0, 0.4D, 0.05D)
+              .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.3F, 1.5F);
+        }
+      }
     }
   }
 
@@ -101,34 +126,17 @@ public class EnchantingBookshelfAttunement extends SimpleAdaptation<EnchantingBo
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Gain virtual bookshelf power to improve enchanting table offer quality.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.6;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Power Base for the Enchanting Bookshelf Attunement adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double powerBase = 1;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Power Factor for the Enchanting Bookshelf Attunement adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double powerFactor = 5;
+
+    public Config() {
+      costFactor = 0.6;
+      maxLevel = 4;
+      initialCost = 3;
+    }
   }
 }

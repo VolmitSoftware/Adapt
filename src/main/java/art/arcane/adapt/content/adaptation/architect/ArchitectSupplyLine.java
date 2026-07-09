@@ -19,18 +19,20 @@
 package art.arcane.adapt.content.adaptation.architect;
 
 import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
-import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -40,7 +42,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -51,35 +52,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class ArchitectSupplyLine extends SimpleAdaptation<ArchitectSupplyLine.Config> {
-  private final Map<UUID, RefillWindow> windows;
+  private final Map<UUID, RefillWindow> windows = playerState();
+  private final Cooldowns failCd = cooldowns();
 
   public ArchitectSupplyLine() {
     super("architect-supply-line");
     registerConfiguration(ArchitectSupplyLine.Config.class);
-    setDescription(Localizer.dLocalize("architect.supply_line.description"));
-    setDisplayName(Localizer.dLocalize("architect.supply_line.name"));
     setIcon(Material.SHULKER_BOX);
     setInterval(13780);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
-    windows = new ConcurrentHashMap<>();
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.SHULKER_BOX)
         .key("challenge_architect_supply_line_100")
-        .title(Localizer.dLocalize("advancement.challenge_architect_supply_line_100.title"))
-        .description(Localizer.dLocalize("advancement.challenge_architect_supply_line_100.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.SHULKER_BOX)
             .key("challenge_architect_supply_line_1k")
-            .title(Localizer.dLocalize("advancement.challenge_architect_supply_line_1k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_architect_supply_line_1k.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -113,16 +103,15 @@ public class ArchitectSupplyLine extends SimpleAdaptation<ArchitectSupplyLine.Co
     }
 
     if (!tryConsumeRefill(p.getUniqueId(), getRefillsPerMinute(getLevelPercent(context.level())))) {
+      if (failCd.isReady(p.getUniqueId(), 1500)) {
+        failCd.mark(p.getUniqueId());
+        fx(p.getLocation(), FxPriority.TRANSITION).sound(Sound.BLOCK_DISPENSER_FAIL, 0.3f, 0.9f);
+      }
       return;
     }
 
     EquipmentSlot slot = e.getHand();
     J.runEntity(p, () -> refill(p, slot, material), 1);
-  }
-
-  @EventHandler
-  public void on(PlayerQuitEvent e) {
-    windows.remove(e.getPlayer().getUniqueId());
   }
 
   private boolean tryConsumeRefill(UUID id, int allowed) {
@@ -162,13 +151,12 @@ public class ArchitectSupplyLine extends SimpleAdaptation<ArchitectSupplyLine.Co
       p.getInventory().setItemInMainHand(pulled);
     }
 
-    SoundPlayer sp = SoundPlayer.of(p);
-    sp.play(p.getLocation(), Sound.BLOCK_COMPOSTER_FILL, 0.6f, 1.3f);
-    if (areParticlesEnabled()) {
-      p.getWorld().spawnParticle(Particle.WAX_ON, p.getLocation().add(0, 1, 0), 6, 0.3, 0.3, 0.3, 0);
-    }
+    fx(p.getLocation().add(0, 1, 0), FxPriority.TRANSITION)
+        .particle(Particle.WAX_ON, 6, 0, 0, 0, 0.3D, 0)
+        .column(Particles.END_ROD, 4, 0.8D)
+        .chord(Sound.BLOCK_COMPOSTER_FILL, 0.6f, 1.3f, Sound.ITEM_BUNDLE_REMOVE_ONE, 0.4f, 1.4f);
 
-    getPlayer(p).getData().addStat("architect.supply-line.refills", 1);
+    addStat(p, "architect.supply-line.refills", 1);
     xp(p, getConfig().xpPerRefill);
   }
 
@@ -257,41 +245,21 @@ public class ArchitectSupplyLine extends SimpleAdaptation<ArchitectSupplyLine.Co
   public void onTick() {
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
   private record RefillWindow(long start, int used) {
   }
 
-  @NoArgsConstructor
   @ConfigDescription("Automatically refill your hand from shulker boxes or bundles when a placed stack runs out.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Architect Supply Line adaptation.", impact = "True enables this behavior and false disables it.")
-    boolean showParticles = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 2;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Hand refills allowed per minute at level 0 progression.", impact = "Higher values let low-level players refill more often.")
     int minRefillsPerMinute = 4;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Hand refills allowed per minute at maximum level progression.", impact = "Higher values let max-level players refill more often.")
     int maxRefillsPerMinute = 20;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Adaptation xp granted per successful refill.", impact = "Higher values speed up adaptation progression from refills.")
     double xpPerRefill = 2;
+
+    public Config() {
+      baseCost = 5;
+      costFactor = 0.5;
+    }
   }
 }

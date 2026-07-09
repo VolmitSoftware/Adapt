@@ -19,9 +19,12 @@
 package art.arcane.adapt;
 
 import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.adaptation.PlayerStateRegistry;
+import art.arcane.adapt.api.minion.MinionBurden;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdvancementManager;
 import art.arcane.adapt.api.data.WorldData;
+import art.arcane.adapt.api.fx.FxDirector;
 import art.arcane.adapt.api.potion.BrewingManager;
 import art.arcane.adapt.api.protection.ProtectorRegistry;
 import art.arcane.adapt.api.skill.SimpleSkill;
@@ -110,6 +113,8 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
   private GlowingEntities glowingEntities;
   @Getter
   private Ticker ticker;
+  @Getter
+  private FxDirector fxDirector;
   @Getter
   private AdaptServer adaptServer;
   @Getter
@@ -536,6 +541,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
   public void startSim() {
     long startTicker = System.currentTimeMillis();
     ticker = new Ticker();
+    fxDirector = new FxDirector();
     verbose("start-sim detail: ticker init in " + (System.currentTimeMillis() - startTicker) + "ms");
 
     long startServer = System.currentTimeMillis();
@@ -546,6 +552,8 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     } else {
       verbose("start-sim detail: AdaptServer init in " + serverMs + "ms");
     }
+
+    MinionBurden.get().reconcileOnline();
 
     long startAdv = System.currentTimeMillis();
     manager.enable();
@@ -560,6 +568,8 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     if (ticker != null) {
       ticker.clear();
     }
+    PlayerStateRegistry.reset();
+    MinionBurden.shutdown();
     postShutdown.forEach(Runnable::run);
     if (adaptServer != null) {
       adaptServer.unregister();

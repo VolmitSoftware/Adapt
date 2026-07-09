@@ -18,17 +18,19 @@
 
 package art.arcane.adapt.content.adaptation.stealth;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
+import art.arcane.volmlib.util.entity.StackExclusion;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
 import org.bukkit.*;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -51,7 +53,7 @@ import java.util.UUID;
 public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Config> {
   private static final PacketDecoyBridge PACKET_DECOY = PacketDecoyBridge.create();
 
-  private final Map<UUID, Long> cooldowns = new java.util.concurrent.ConcurrentHashMap<>();
+  private final Cooldowns decoyCooldowns = cooldowns();
   private final Map<UUID, DecoyState> activeDecoys = new java.util.concurrent.ConcurrentHashMap<>();
   private final Map<UUID, UUID> anchorOwners = new java.util.concurrent.ConcurrentHashMap<>();
   private final Map<UUID, Long> ownerEquipmentMaskSync = new java.util.concurrent.ConcurrentHashMap<>();
@@ -61,27 +63,17 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
   public StealthShadowDecoy() {
     super("stealth-shadow-decoy");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("stealth.shadow_decoy.description"));
-    setDisplayName(Localizer.dLocalize("stealth.shadow_decoy.name"));
     setIcon(Material.PLAYER_HEAD);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(5);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.ARMOR_STAND)
         .key("challenge_stealth_decoy_100")
-        .title(Localizer.dLocalize("advancement.challenge_stealth_decoy_100.title"))
-        .description(Localizer.dLocalize("advancement.challenge_stealth_decoy_100.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.ARMOR_STAND)
         .key("challenge_stealth_decoy_distract_500")
-        .title(Localizer.dLocalize("advancement.challenge_stealth_decoy_distract_500.title"))
-        .description(Localizer.dLocalize("advancement.challenge_stealth_decoy_distract_500.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -91,15 +83,15 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.duration(getDecoyTicks(level) * 50D, 1) + C.GRAY + " " + Localizer.dLocalize("stealth.shadow_decoy.lore1"));
-    v.addLore(C.GREEN + "+ " + Form.f(getDecoyRadius(level)) + C.GRAY + " " + Localizer.dLocalize("stealth.shadow_decoy.lore2"));
-    v.addLore(C.YELLOW + "* " + Form.duration(getCooldownMillis(level), 1) + C.GRAY + " " + Localizer.dLocalize("stealth.shadow_decoy.lore3"));
+    statLore(v, Form.duration(getDecoyTicks(level) * 50D, 1), 1);
+    statLore(v, Form.f(getDecoyRadius(level)), 2);
+    statLore(v, C.YELLOW, "* ", Form.duration(getCooldownMillis(level), 1), 3);
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(PlayerQuitEvent e) {
     UUID id = e.getPlayer().getUniqueId();
-    cooldowns.remove(id);
+    decoyCooldowns.clear(id);
     ownerEquipmentMaskSync.remove(id);
     ownerTrailNextAt.remove(id);
     ownerAggroNextAt.remove(id);
@@ -181,7 +173,10 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
     push.normalize().multiply(Math.max(0, getConfig().decoyHitKnockback));
     push.setY(Math.max(0, getConfig().decoyHitLift));
     stand.setVelocity(push);
-    SoundPlayer.of(stand.getWorld()).play(stand.getLocation(), Sound.ENTITY_PLAYER_HURT, 0.8f, 1.2f);
+    fx(stand.getLocation().add(0, 1.2D, 0), FxPriority.COMBAT)
+        .burst(Particles.SMOKE, 6, 0.25D)
+        .burst(Particle.CRIT, 3, 0.2D)
+        .chord(Sound.ENTITY_PLAYER_HURT, 0.6F, 1.2F, Sound.BLOCK_SCULK_SENSOR_CLICKING, 0.3F, 1.4F);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -196,15 +191,15 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
       return;
     }
 
-    long now = System.currentTimeMillis();
-    if (now < cooldowns.getOrDefault(p.getUniqueId(), 0L)) {
+    UUID id = p.getUniqueId();
+    if (!decoyCooldowns.isReady(id, getCooldownMillis(level))) {
       return;
     }
 
     spawnDecoy(p, level);
-    cooldowns.put(p.getUniqueId(), now + getCooldownMillis(level));
+    decoyCooldowns.mark(id);
     xp(p, getConfig().xpOnDecoy);
-    getPlayer(p).getData().addStat("stealth.shadow-decoy.decoys-spawned", 1);
+    addStat(p, "stealth.shadow-decoy.decoys-spawned", 1);
   }
 
   private void spawnDecoy(Player owner, int level) {
@@ -228,14 +223,20 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
     ownerAggroNextAt.put(ownerId, 0L);
 
     redirectAggro(owner, anchor, level);
-    if (areParticlesEnabled()) {
-      anchor.getWorld().spawnParticle(Particle.SMOKE, anchor.getLocation().add(0, 1, 0), 18, 0.2, 0.4, 0.2, 0.03);
-    }
-    SoundPlayer.of(owner.getWorld()).play(owner.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 0.6f, 1.7f);
+    fx(owner.getLocation().add(0, 1.0D, 0), FxPriority.TRANSITION)
+        .burst(Particle.REVERSE_PORTAL, 12, 0.3D)
+        .chord(Sound.ENTITY_ENDERMAN_TELEPORT, 0.6F, 1.7F, Sound.ENTITY_ILLUSIONER_MIRROR_MOVE, 0.5F, 1.0F);
+    timeline(anchor).duration(8).priority(FxPriority.TRANSITION).cullRadius(32)
+        .frame((fx, tick, progress) -> {
+          fx.column(Particles.SMOKE, 2, 1.8D);
+          fx.particle(Particle.SOUL, 1, 0, 0.2D + (progress * 1.5D), 0, 0.08D, 0.02D);
+        }).start();
   }
 
   private ArmorStand spawnAnchor(Location location) {
-    return location.getWorld().spawn(location, ArmorStand.class, stand -> {
+    ArmorStand spawned = location.getWorld().spawn(location, ArmorStand.class, stand -> {
+      StackExclusion.exclude(stand);
+      stand.setPersistent(false);
       stand.setMarker(false);
       stand.setVisible(false);
       stand.setInvisible(true);
@@ -247,6 +248,7 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
       stand.setArms(false);
       stand.setCollidable(true);
     });
+    return spawned;
   }
 
   private void configureLegacyVisual(ArmorStand stand, Player owner) {
@@ -284,8 +286,14 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
       }
 
       if (mob.getTarget() == owner || mob.hasLineOfSight(owner)) {
+        boolean newlyDistracted = mob.getTarget() != target;
         mob.setTarget(target);
-        getPlayer(owner).getData().addStat("stealth.shadow-decoy.mobs-distracted", 1);
+        addStat(owner, "stealth.shadow-decoy.mobs-distracted", 1);
+        if (newlyDistracted) {
+          Location decoyLoc = target.getLocation();
+          fx(mob.getEyeLocation(), FxPriority.TRAIL)
+              .line(Particles.SMOKE, decoyLoc.getX(), decoyLoc.getY() + 1.0D, decoyLoc.getZ(), 4);
+        }
       }
     }
   }
@@ -344,15 +352,13 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
   }
 
   private void spawnOwnerTrail(Player owner) {
-    owner.getWorld().spawnParticle(
-        Particle.SMOKE,
-        owner.getLocation().add(0, getConfig().ownerTrailYOffset, 0),
-        Math.max(1, getConfig().ownerTrailParticles),
-        Math.max(0, getConfig().ownerTrailHorizontalSpread),
-        Math.max(0, getConfig().ownerTrailVerticalSpread),
-        Math.max(0, getConfig().ownerTrailHorizontalSpread),
-        Math.max(0, getConfig().ownerTrailSpeed)
-    );
+    fx(owner.getLocation().add(0, getConfig().ownerTrailYOffset, 0), FxPriority.TRAIL)
+        .particle(
+            Particles.SMOKE,
+            Math.max(1, getConfig().ownerTrailParticles),
+            0, 0, 0,
+            Math.max(0, getConfig().ownerTrailHorizontalSpread),
+            Math.max(0, getConfig().ownerTrailSpeed));
   }
 
   private void syncOwnerEquipmentHidden(Player owner) {
@@ -381,11 +387,24 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
     }
 
     Entity entity = Bukkit.getEntity(state.anchorId());
+    Location decoyLoc = entity == null ? null : entity.getLocation();
     anchorOwners.remove(state.anchorId());
     ownerTrailNextAt.remove(state.ownerId());
     ownerAggroNextAt.remove(state.ownerId());
     if (entity instanceof ArmorStand stand && stand.isValid()) {
       stand.remove();
+    }
+
+    if (decoyLoc != null) {
+      fx(decoyLoc.add(0, 1.0D, 0), FxPriority.TRANSITION)
+          .burst(Particles.SMOKE, 10, 0.3D)
+          .sound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.4F, 0.8F);
+    }
+
+    if (owner != null && owner.isOnline()) {
+      fx(owner.getLocation().add(0, 1.0D, 0), FxPriority.TRANSITION)
+          .ring(Particles.END_ROD, 0.6D, 6, 1.0D)
+          .sound(Sound.ITEM_ARMOR_EQUIP_LEATHER, 0.3F, 1.0F);
     }
 
     restoreOwnerEquipment(owner);
@@ -403,31 +422,8 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
     return getConfig().decoyRadiusBase + (getLevelPercent(level) * getConfig().decoyRadiusFactor);
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Stopping sneak spawns a short-lived shadow decoy that pulls your current aggro.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.72;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Base cooldown after creating a decoy, in milliseconds.", impact = "Higher values mean longer time between activations.")
     double cooldownMillisBase = 18000;
     @art.arcane.adapt.util.config.ConfigDoc(value = "How much cooldown is reduced by leveling.", impact = "Higher values reduce cooldown more at higher levels.")
@@ -476,6 +472,11 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
     int decoySkinLayerMask = 127;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Experience granted on each decoy spawn.", impact = "Higher values level the adaptation faster.")
     double xpOnDecoy = 18;
+
+    public Config() {
+      costFactor = 0.72;
+      initialCost = 4;
+    }
   }
 
 }

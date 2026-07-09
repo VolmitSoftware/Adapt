@@ -18,22 +18,25 @@
 
 package art.arcane.adapt.content.adaptation.excavation;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -43,19 +46,11 @@ public class ExcavationSoftFall extends SimpleAdaptation<ExcavationSoftFall.Conf
   public ExcavationSoftFall() {
     super("excavation-soft-fall");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("excavation.soft_fall.description"));
-    setDisplayName(Localizer.dLocalize("excavation.soft_fall.name"));
     setIcon(Material.SAND);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(3530);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.SAND)
         .key("challenge_excavation_softfall_1k")
-        .title(Localizer.dLocalize("advancement.challenge_excavation_softfall_1k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_excavation_softfall_1k.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -64,7 +59,7 @@ public class ExcavationSoftFall extends SimpleAdaptation<ExcavationSoftFall.Conf
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.pc(getReduction(level), 0) + C.GRAY + " " + Localizer.dLocalize("excavation.soft_fall.lore1"));
+    statLore(v, Form.pc(getReduction(level), 0), 1);
     v.addLore(C.GRAY + Localizer.dLocalize("excavation.soft_fall.lore2"));
   }
 
@@ -92,18 +87,43 @@ public class ExcavationSoftFall extends SimpleAdaptation<ExcavationSoftFall.Conf
       }
 
       e.setDamage(Math.max(0, e.getDamage() - prevented));
+      boolean fullNegate = false;
       if (e.getDamage() <= 0.01) {
         e.setCancelled(true);
+        fullNegate = true;
       }
 
-      if (areParticlesEnabled()) {
-        p.spawnParticle(Particle.CLOUD, p.getLocation(), 8, 0.3, 0.1, 0.3, 0.02);
+      Block soft = isSoftGround(feet.getType()) ? feet : feet.getRelative(BlockFace.DOWN);
+      BlockData groundData = soft.getBlockData();
+      Location at = p.getLocation();
+      int puff = (int) Math.min(20.0D, 4.0D + prevented);
+      float pitch = (float) Math.max(0.5D, 0.9D - (prevented * 0.02D));
+      fx(at, FxPriority.TRANSITION)
+          .particle(Particle.CLOUD, puff, 0, 0.1D, 0, 0.3D, 0.02D)
+          .particle(Particles.BLOCK_CRACK, Math.min(12, 3 + (int) prevented), 0, 0.1D, 0, 0.3D, 0.05D, groundData)
+          .chord(Sound.BLOCK_ROOTED_DIRT_BREAK, 0.6f, pitch, Sound.BLOCK_SAND_BREAK, 0.4f, 0.8f);
+
+      if (fullNegate) {
+        cushionRing(at);
       }
 
-      SoundPlayer.of(p.getWorld()).play(p.getLocation(), Sound.BLOCK_ROOTED_DIRT_BREAK, 0.6f, 0.7f);
-      getPlayer(p).getData().addStat("excavation.soft-fall.damage-prevented", prevented);
+      addStat(p, "excavation.soft-fall.damage-prevented", prevented);
       xp(p, prevented * getConfig().xpPerDamagePrevented);
     });
+  }
+
+  private void cushionRing(Location center) {
+    timeline(center)
+        .duration(4)
+        .priority(FxPriority.TRANSITION)
+        .cullRadius(20)
+        .frame((fx, tick, progress) -> {
+          fx.ring(Particle.CLOUD, 0.3D + (1.2D * progress), 12, 0.1D);
+          if (tick == 0) {
+            fx.sound(Sound.BLOCK_WOOL_FALL, 0.5f, 1.2f);
+          }
+        })
+        .start();
   }
 
   private boolean isSoftGround(Material type) {
@@ -125,31 +145,8 @@ public class ExcavationSoftFall extends SimpleAdaptation<ExcavationSoftFall.Conf
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Landing on soft diggable ground reduces fall damage, up to full negation.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.55;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Reduction Base for the Excavation Soft Fall adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double reductionBase = 0.15;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Reduction Factor for the Excavation Soft Fall adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -158,5 +155,11 @@ public class ExcavationSoftFall extends SimpleAdaptation<ExcavationSoftFall.Conf
     double maxReduction = 1.0;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Damage Prevented for the Excavation Soft Fall adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpPerDamagePrevented = 3.0;
+
+    public Config() {
+      baseCost = 3;
+      costFactor = 0.55;
+      initialCost = 3;
+    }
   }
 }

@@ -18,16 +18,22 @@
 
 package art.arcane.adapt.content.adaptation.crafting;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdvancementSpec;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.recipe.MaterialChar;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Color;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.inventory.CraftItemEvent;
@@ -40,13 +46,7 @@ public class CraftingBackpacks extends SimpleAdaptation<CraftingBackpacks.Config
   public CraftingBackpacks() {
     super("crafting-backpacks");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("crafting.backpacks.description"));
-    setDisplayName(Localizer.dLocalize("crafting.backpacks.name"));
     setIcon(Material.BUNDLE);
-    setBaseCost(getConfig().baseCost);
-    setCostFactor(getConfig().costFactor);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
     setInterval(17779);
     registerRecipe(AdaptRecipe.shaped()
         .key("crafting-backpacks")
@@ -84,38 +84,39 @@ public class CraftingBackpacks extends SimpleAdaptation<CraftingBackpacks.Config
     Player p = (Player) e.getWhoClicked();
     if (!hasActiveAdaptation(p)) return;
     if (e.getRecipe() != null && e.getRecipe().getResult().getType() == Material.BUNDLE) {
-      getPlayer(p).getData().addStat("crafting.backpacks.bundles-crafted", 1);
+      addStat(p, "crafting.backpacks.bundles-crafted", 1);
+      cinchDrawstring(p.getLocation().add(0, 1, 0));
     }
+  }
+
+  private void cinchDrawstring(Location center) {
+    timeline(center)
+        .duration(8)
+        .priority(FxPriority.TRANSITION)
+        .cullRadius(24)
+        .frame((fx, tick, progress) -> {
+          double radius = 0.8D - (0.7D * progress);
+          fx.ring(Particles.CRIT_MAGIC, radius, 12, 0.0D);
+          fx.particle(Particle.PORTAL, 2, 0, 0.2D, 0, radius, 0.02D);
+          if (tick == 0) {
+            fx.dustRing(Color.fromRGB(160, 120, 60), 0.6D, 16, 1.0F);
+            fx.chord(Sound.ITEM_BUNDLE_INSERT, 0.8F, 0.8F, Sound.BLOCK_WOOL_PLACE, 0.6F, 1.2F, Sound.ITEM_ARMOR_EQUIP_LEATHER, 0.5F, 1.0F);
+          }
+        })
+        .start();
   }
 
   @Override
   public void onTick() {
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Craft Bundles for portable item storage.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 1;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 2;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 1;
+  protected static class Config extends AdaptationConfig {
+    public Config() {
+      permanent = true;
+      baseCost = 5;
+      costFactor = 1;
+      maxLevel = 1;
+    }
   }
 }

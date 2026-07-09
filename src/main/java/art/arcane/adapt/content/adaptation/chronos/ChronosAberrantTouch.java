@@ -19,16 +19,23 @@
 package art.arcane.adapt.content.adaptation.chronos;
 
 import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Color;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -40,37 +47,26 @@ import org.bukkit.util.Vector;
 
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ChronosAberrantTouch extends SimpleAdaptation<ChronosAberrantTouch.Config> {
-  private final Map<UUID, Long> cooldowns;
-  private final Map<UUID, StackState> targetStacks;
+  private final Cooldowns cooldowns = cooldowns();
+  private final Map<UUID, StackState> targetStacks = new ConcurrentHashMap<>();
 
   public ChronosAberrantTouch() {
     super("chronos-aberrant-touch");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("chronos.aberrant_touch.description"));
-    setDisplayName(Localizer.dLocalize("chronos.aberrant_touch.name"));
     setIcon(Material.SPIDER_EYE);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(1000);
-    cooldowns = new java.util.concurrent.ConcurrentHashMap<>();
-    targetStacks = new java.util.concurrent.ConcurrentHashMap<>();
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.CLOCK)
         .key("challenge_chronos_aberrant_500")
-        .title(Localizer.dLocalize("advancement.challenge_chronos_aberrant_500.title"))
-        .description(Localizer.dLocalize("advancement.challenge_chronos_aberrant_500.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.CLOCK)
         .key("challenge_chronos_aberrant_frozen")
-        .title(Localizer.dLocalize("advancement.challenge_chronos_aberrant_frozen.title"))
-        .description(Localizer.dLocalize("advancement.challenge_chronos_aberrant_frozen.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -104,8 +100,7 @@ public class ChronosAberrantTouch extends SimpleAdaptation<ChronosAberrantTouch.
     }
 
     long now = System.currentTimeMillis();
-    long cooldownUntil = cooldowns.getOrDefault(attacker.getUniqueId(), 0L);
-    if (cooldownUntil > now) {
+    if (!cooldowns.isReady(attacker.getUniqueId(), getConfig().cooldownMillis)) {
       return;
     }
 
@@ -132,11 +127,13 @@ public class ChronosAberrantTouch extends SimpleAdaptation<ChronosAberrantTouch.
     int newDuration = Math.min(durationCap, currentDuration + getDurationAddedTicks(level));
 
     target.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, Math.max(20, newDuration), Math.max(0, newAmplifier), true, true, true), true);
-    getPlayer(attacker).getData().addStat("chronos.aberrant-touch.slowness-stacks-applied", 1);
+    addStat(attacker, "chronos.aberrant-touch.slowness-stacks-applied", 1);
 
     StackState state = targetStacks.getOrDefault(target.getUniqueId(), new StackState(0, 0L));
     int stacks = (now - state.lastHitMillis() > getConfig().stackResetMillis) ? 1 : state.stacks() + 1;
-    if (stacks >= getConfig().rootAtStacks) {
+    boolean rooted = stacks >= getConfig().rootAtStacks;
+    int chargeStacks = stacks;
+    if (rooted) {
       target.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, getConfig().rootDurationTicks, getConfig().rootAmplifier, true, true, true), true);
       target.setVelocity(new Vector());
       stacks = 0;
@@ -149,44 +146,49 @@ public class ChronosAberrantTouch extends SimpleAdaptation<ChronosAberrantTouch.
     if (getConfig().playClockSounds) {
       ChronosSoundFX.playTouchProc(attacker, target.getLocation());
     }
+    emitTouchFx(target, Math.max(0, newAmplifier), rooted, chargeStacks);
     xp(attacker, attacker.getLocation(), getConfig().xpPerProc + (getConfig().xpPerLevel * level));
-    cooldowns.put(attacker.getUniqueId(), now + getConfig().cooldownMillis);
+    cooldowns.mark(attacker.getUniqueId());
+  }
+
+  private void emitTouchFx(LivingEntity target, int amplifier, boolean rooted, int stacks) {
+    if (rooted) {
+      Location center = target.getLocation();
+      fx(center, FxPriority.COMBAT).particle(Particle.FLASH, 1, 0, 0.1D, 0, 0, 0);
+      timeline(target)
+          .duration(4)
+          .priority(FxPriority.COMBAT)
+          .cullRadius(40)
+          .frame((f, tick, progress) -> {
+            f.ring(Particles.END_ROD, 1.4D - (1.1D * progress), 12, 0.15D);
+            if (tick == 0) {
+              f.chord(Sound.BLOCK_RESPAWN_ANCHOR_DEPLETE, 0.6F, 0.7F, Sound.BLOCK_AMETHYST_BLOCK_RESONATE, 0.5F, 1.4F);
+            }
+          })
+          .start();
+      return;
+    }
+
+    int motes = Math.min(6, 2 + amplifier);
+    int rootAt = Math.max(1, getConfig().rootAtStacks);
+    float ratio = Math.min(1F, (float) stacks / rootAt);
+    Color charge = Color.fromRGB((int) (90 + (165 * ratio)), (int) (120 + (135 * ratio)), 255);
+    Location body = target.getLocation().add(0, target.getHeight() * 0.55D, 0);
+    fx(body, FxPriority.COMBAT)
+        .particle(Particle.SCULK_SOUL, motes, 0, 0.15D, 0, 0.3D, 0.02D)
+        .dustRing(charge, 0.5D, 6, 0.8F);
   }
 
   @Override
   public void onTick() {
     long now = System.currentTimeMillis();
-    cooldowns.entrySet().removeIf(entry -> entry.getValue() <= now);
     targetStacks.entrySet().removeIf(entry -> now - entry.getValue().lastHitMillis() > getConfig().stackResetMillis);
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Melee attacks apply stacking slowness at the cost of hunger, with PvP caps.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Play Clock Sounds for the Chronos Aberrant Touch adaptation.", impact = "True enables this behavior and false disables it.")
     boolean playClockSounds = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 7;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 6;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.38;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Duration Add Ticks for the Chronos Aberrant Touch adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     int durationAddTicks = 30;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Duration Per Level Ticks for the Chronos Aberrant Touch adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -219,6 +221,12 @@ public class ChronosAberrantTouch extends SimpleAdaptation<ChronosAberrantTouch.
     double xpPerProc = 4;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Level for the Chronos Aberrant Touch adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpPerLevel = 1.25;
+
+    public Config() {
+      baseCost = 7;
+      costFactor = 0.38;
+      initialCost = 6;
+    }
   }
 
   private record StackState(int stacks, long lastHitMillis) {

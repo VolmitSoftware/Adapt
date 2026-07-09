@@ -1178,6 +1178,11 @@ rightclick = "Right-Click"
 togainxp = "to gain this experience"
 xporb = "Experience Orb"
 
+[snippets.effects]
+enabled = "Adapt ability effects are now visible for you."
+disabled = "Adapt ability effects are now hidden for you."
+invalid_state = "Invalid state. Use enabled=true, enabled=false, or omit to toggle."
+
 # skill
 [skill]
 
@@ -1298,17 +1303,19 @@ description = "Without a weapon is not without strength. Level up by fighting ba
 
 [agility.armor_up]
 name = "Armor-Up"
-description = "Get more armor the longer you sprint!"
+description = "Get more armor the longer you sprint! Stop and it fades away slowly."
 lore1 = "Max Armor"
 lore2 = "Armor-Up Time"
-lore = ["Max Armor", "Armor-Up Time"]
+lore3 = "Armor Decay Time"
+lore = ["Max Armor", "Armor-Up Time", "Armor Decay Time"]
 
 [agility.ladder_slide]
 name = "Ladder Slide"
-description = "Climb and slide ladders much faster in both directions."
-lore1 = "Ladder speed multiplier"
-lore2 = "Fast descent speed"
-lore = ["Ladder speed multiplier", "Fast descent speed"]
+description = "Slide down ladders and vines fast, climb them faster, sneak to brake, and land safely at the bottom."
+lore1 = "Ladder slide speed (blocks/sec)"
+lore2 = "Ladder climb speed (blocks/sec)"
+lore3 = "Sneak brake power"
+lore = ["Ladder slide speed (blocks/sec)", "Ladder climb speed (blocks/sec)", "Sneak brake power"]
 
 [agility.super_jump]
 name = "Super Jump"
@@ -1767,6 +1774,13 @@ lore = ["Structure Search Range", "Pulse Cooldown"]
 
 # enchanting
 lore_cost_hunger = "Hunger cost per pulse"
+
+[discovery.insight]
+name = "Insight"
+description = "Study creatures at a glance: the entity you look at shows its name and health bar above its head, and your hits show floating damage numbers with crits in orange."
+lore1 = "Detection Range"
+lore = ["Detection Range"]
+
 [enchanting]
 
 [enchanting.lapis_return]
@@ -1794,6 +1808,7 @@ lore = ["Experience spent has a chance to be refunded when you enchant an item",
 name = "Anvil Savant"
 description = "Reduce anvil XP cost when combining, repairing, and renaming."
 lore1 = "Anvil Cost Reduction"
+saved = "Levels Saved"
 lore = ["Anvil Cost Reduction"]
 
 [enchanting.offer_reroll]
@@ -2194,7 +2209,7 @@ lore = ["Projectile Speed"]
 
 [ranged.trajectory_sight]
 name = "Trajectory Sight"
-description = "Sneak or draw a ranged weapon to preview projectile flight."
+description = "Sneak or draw a ranged weapon to preview projectile flight as a clear dotted line with a ringed impact marker. With a Heartseeker lock active, the preview shows the arrow's curved seeking path to the mark instead."
 lore1 = "Prediction Range"
 lore2 = "Prediction Detail"
 lore = ["Prediction Range", "Prediction Detail"]
@@ -2235,6 +2250,27 @@ lore2 = "Speed Bonus Per Ricochet"
 lore3 = "Bonus Damage Per Ricochet"
 lore = ["Max Ricochets", "Speed Bonus Per Ricochet", "Bonus Damage Per Ricochet"]
 
+[ranged.fetch_shot]
+name = "Fetch Shot"
+description = "Shoot dropped items with projectiles to pull them straight into your inventory."
+lore1 = "Fetch Radius"
+lore = ["Fetch Radius"]
+
+[ranged.heavy_draw]
+name = "Heavy Draw"
+description = "Heavier projectiles fly slower but hit far harder."
+lore1 = "Bonus Damage"
+lore2 = "Projectile Speed"
+lore = ["Bonus Damage", "Projectile Speed"]
+
+[ranged.heartseeker]
+name = "Heartseeker"
+description = "Draw a bow while looking at a creature to lock on - it glows red for you, and your arrow whistles and curves through the air to find it no matter where you aim, weaving around obstacles. Each Piercing level and each Ricochet Bolt level adds a seeking pass: the arrow whips around after connecting and hunts a fresh nearby target before striking the same one twice. Every seeking shot puts your bow on a short cooldown."
+lore1 = "Draw a bow while looking at a creature to lock on"
+lore2 = "Bow cooldown after a seeking shot"
+lore3 = "Piercing and Ricochet Bolt levels add extra seeking passes"
+lore = ["Draw a bow while looking at a creature to lock on", "Bow cooldown after a seeking shot", "Piercing and Ricochet Bolt levels add extra seeking passes"]
+
 # rift
 [rift]
 
@@ -2249,11 +2285,9 @@ lore = ["Ender Pearl + Compass = Reliquary Portkey", "This item allows you to ac
 
 [rift.blink]
 name = "Rift Blink"
-description = "Short-range instant teleport. Double-tap jump while sprinting, right-click while sprinting, or click with an ender pearl in hand to blink. Each blink has a chance to consume an ender pearl."
-lore1 = "Blocks on blink (2x Vertical)"
-lore2 = "While Sprinting: Double tap Jump to "
-lore3 = "Blink"
-lore = ["Blocks on blink (2x Vertical)", "While Sprinting: Double tap Jump to ", "Blink"]
+description = "Double-jump to blink toward where you are looking. Aim at ground to land there, at a ledge to mantle onto it, or into open air to dash. Each blink has a chance to consume an ender pearl."
+lore1 = "Blink Range"
+lore = ["Blink Range"]
 lore_cost_pearl = "chance to consume an ender pearl on blink"
 
 [rift.chest]
@@ -2271,7 +2305,8 @@ lore = ["Just Sneak to descend, and you will fall at a less than normal rate!", 
 
 [rift.gate]
 name = "Rift Gate"
-description = "Sneak-left-click with an Eye of Ender to bind it to your location, then right-click to teleport back after a 5 second channel."
+description = "Craft a recall gate (Emerald + Amethyst Shard + Ender Pearl), then sneak-left-click it to bind your location and right-click to teleport back after a 5 second channel."
+description_freehand = "Sneak-left-click with an Eye of Ender to bind it to your location, then right-click to teleport back after a 5 second channel."
 lore1 = "CRAFTING: Emerald + Amethyst shard + Ender Pearl"
 lore2 = "Read before using!"
 lore3 = "5s delay, "
@@ -3016,6 +3051,14 @@ description = "Have environmental armor for 1 cumulative hour"
 title = "Stone Skin"
 description = "Have environmental armor for 24 cumulative hours"
 
+[advancement.challenge_discovery_insight_100]
+title = "Field Notes"
+description = "Inspect 100 creatures"
+
+[advancement.challenge_discovery_insight_1000]
+title = "Monster Manual"
+description = "Inspect 1,000 creatures"
+
 [advancement.challenge_discovery_mending_10k]
 title = "Master Mender"
 description = "Restore 10,000 durability via direct mending"
@@ -3409,6 +3452,30 @@ description = "Kill 50 mobs with ricocheted projectiles"
 [advancement.challenge_ranged_ricochet_kills_500]
 title = "Pinball Wizard"
 description = "Kill 500 mobs with ricocheted projectiles"
+
+[advancement.challenge_ranged_fetch_500]
+title = "Retriever"
+description = "Fetch 500 dropped items with projectiles"
+
+[advancement.challenge_ranged_fetch_5k]
+title = "Golden Retriever"
+description = "Fetch 5,000 dropped items with projectiles"
+
+[advancement.challenge_ranged_heavy_hits_250]
+title = "Heavy Hitter"
+description = "Land 250 Heavy Draw projectile hits"
+
+[advancement.challenge_ranged_heavy_hits_2500]
+title = "Siege Engine"
+description = "Land 2,500 Heavy Draw projectile hits"
+
+[advancement.challenge_ranged_heartseeker_100]
+title = "Heartstriker"
+description = "Land 100 seeking arrow hits"
+
+[advancement.challenge_ranged_heartseeker_1k]
+title = "Whistling Death"
+description = "Land 1,000 seeking arrow hits"
 
 # --- RIFT ---
 
@@ -4315,14 +4382,15 @@ lore = ["of melee damage dealt returned as health", "max health restored per sec
 
 [tragoul.skeletal_servant]
 name = "Skeletal Servant"
-description = "Sneak and right-click with bones to raise temporary skeletal servants, one living servant per level! Servants spawn with level-scaled random gear, inherit your other Tragoul perks, and immediately hunt any player who attacked you in the last few seconds. Summoning at the cap recycles your oldest servant. Consumes bones on summon, fewer at higher levels."
+description = "Sneak and right-click with bones to raise temporary skeletal servants, one living servant per level! Servants spawn with level-scaled random gear, inherit your other Tragoul perks, and hunt your mark: whatever you strike, or whatever struck you last. Summoning at the cap recycles your oldest servant. Consumes bones on summon, fewer at higher levels."
 lore1 = "Sneak + Right-Click with bones in hand to summon a servant"
 lore2 = "Servant Lifetime"
 lore3 = "Bones consumed per summon"
 lore4 = "Summon Cooldown"
 lore5 = "Max living servants"
-lore6 = "Servants gear up with your level, inherit your Tragoul perks, and prioritize players who attack you"
-lore = ["Sneak + Right-Click with bones in hand to summon a servant", "Servant Lifetime", "Bones consumed per summon", "Summon Cooldown", "Max living servants", "Servants gear up with your level, inherit your Tragoul perks, and prioritize players who attack you"]
+lore6 = "Servants gear up with your level, inherit your Tragoul perks, and hunt whatever you strike or whatever strikes you"
+lore7 = "Max health lost per living servant"
+lore = ["Sneak + Right-Click with bones in hand to summon a servant", "Servant Lifetime", "Bones consumed per summon", "Summon Cooldown", "Max living servants", "Servants gear up with your level, inherit your Tragoul perks, and hunt whatever you strike or whatever strikes you", "Max health lost per living servant"]
 
 [tragoul.marrow_armor]
 name = "Marrow Armor"

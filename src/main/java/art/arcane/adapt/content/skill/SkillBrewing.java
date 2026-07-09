@@ -18,10 +18,12 @@
 
 package art.arcane.adapt.content.skill;
 
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.data.WorldData;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.adaptation.brewing.*;
@@ -32,7 +34,10 @@ import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.spatial.matter.SpatialMatter;
 import lombok.NoArgsConstructor;
+import org.bukkit.Color;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -46,12 +51,8 @@ import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionType;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
 public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
-  private final Map<UUID, Long> cooldowns;
+  private final Cooldowns cooldowns = cooldowns();
 
   public SkillBrewing() {
     super("brewing", Localizer.dLocalize("skill.brewing.icon"));
@@ -61,7 +62,6 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
     setDisplayName(Localizer.dLocalize("skill.brewing.name"));
     setInterval(5851);
     setIcon(Material.LINGERING_POTION);
-    cooldowns = new HashMap<>();
     registerAdaptation(new BrewingLingering()); // Features
     registerAdaptation(new BrewingSuperHeated());
     registerAdaptation(new BrewingAbsorption()); // Brews
@@ -78,36 +78,26 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.POTION).key("challenge_brew_1k")
-        .title(Localizer.dLocalize("advancement.challenge_brew_1k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_brew_1k.description"))
         .model(CustomModel.get(Material.POTION, "advancement", "brewing", "challenge_brew_1k"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
             .icon(Material.POTION)
             .key("challenge_brew_5k")
-            .title(Localizer.dLocalize("advancement.challenge_brew_5k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_brew_5k.description"))
             .model(CustomModel.get(Material.POTION, "advancement", "brewing", "challenge_brew_5k"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                 .icon(Material.POTION)
                 .key("challenge_brew_50k")
-                .title(Localizer.dLocalize("advancement.challenge_brew_50k.title"))
-                .description(Localizer.dLocalize("advancement.challenge_brew_50k.description"))
                 .model(CustomModel.get(Material.POTION, "advancement", "brewing", "challenge_brew_50k"))
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                     .icon(Material.POTION)
                     .key("challenge_brew_500k")
-                    .title(Localizer.dLocalize("advancement.challenge_brew_500k.title"))
-                    .description(Localizer.dLocalize("advancement.challenge_brew_500k.description"))
                     .model(CustomModel.get(Material.POTION, "advancement", "brewing", "challenge_brew_500k"))
                     .frame(AdaptAdvancementFrame.CHALLENGE)
                     .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                         .icon(Material.POTION)
                         .key("challenge_brew_5m")
-                        .title(Localizer.dLocalize("advancement.challenge_brew_5m.title"))
-                        .description(Localizer.dLocalize("advancement.challenge_brew_5m.description"))
                         .model(CustomModel.get(Material.POTION, "advancement", "brewing", "challenge_brew_5m"))
                         .frame(AdaptAdvancementFrame.CHALLENGE)
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -124,36 +114,26 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.SPLASH_POTION).key("challenge_brewsplash_1k")
-        .title(Localizer.dLocalize("advancement.challenge_brewsplash_1k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_brewsplash_1k.description"))
         .model(CustomModel.get(Material.SPLASH_POTION, "advancement", "brewing", "brewsplash_1k"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
             .icon(Material.SPLASH_POTION)
             .key("challenge_brewsplash_5k")
-            .title(Localizer.dLocalize("advancement.challenge_brewsplash_5k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_brewsplash_5k.description"))
             .model(CustomModel.get(Material.SPLASH_POTION, "advancement", "brewing", "brewsplash_5k"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                 .icon(Material.SPLASH_POTION)
                 .key("challenge_brewsplash_50k")
-                .title(Localizer.dLocalize("advancement.challenge_brewsplash_50k.title"))
-                .description(Localizer.dLocalize("advancement.challenge_brewsplash_50k.description"))
                 .model(CustomModel.get(Material.SPLASH_POTION, "advancement", "brewing", "brewsplash_50k"))
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                     .icon(Material.SPLASH_POTION)
                     .key("challenge_brewsplash_500k")
-                    .title(Localizer.dLocalize("advancement.challenge_brewsplash_500k.title"))
-                    .description(Localizer.dLocalize("advancement.challenge_brewsplash_500k.description"))
                     .model(CustomModel.get(Material.SPLASH_POTION, "advancement", "brewing", "brewsplash_50k"))
                     .frame(AdaptAdvancementFrame.CHALLENGE)
                     .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                         .icon(Material.SPLASH_POTION)
                         .key("challenge_brewsplash_5m")
-                        .title(Localizer.dLocalize("advancement.challenge_brewsplash_5m.title"))
-                        .description(Localizer.dLocalize("advancement.challenge_brewsplash_5m.description"))
                         .model(CustomModel.get(Material.SPLASH_POTION, "advancement", "brewing", "brewsplash_5m"))
                         .frame(AdaptAdvancementFrame.CHALLENGE)
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -170,16 +150,12 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.BREWING_STAND).key("challenge_brew_stands_10")
-        .title(Localizer.dLocalize("advancement.challenge_brew_stands_10.title"))
-        .description(Localizer.dLocalize("advancement.challenge_brew_stands_10.description"))
         .model(CustomModel.get(Material.BREWING_STAND, "advancement", "brewing", "challenge_brew_stands_10"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.BLAZE_ROD)
             .key("challenge_brew_stands_50")
-            .title(Localizer.dLocalize("advancement.challenge_brew_stands_50.title"))
-            .description(Localizer.dLocalize("advancement.challenge_brew_stands_50.description"))
             .model(CustomModel.get(Material.BLAZE_ROD, "advancement", "brewing", "challenge_brew_stands_50"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -190,16 +166,12 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.GLOWSTONE_DUST).key("challenge_brew_strong_25")
-        .title(Localizer.dLocalize("advancement.challenge_brew_strong_25.title"))
-        .description(Localizer.dLocalize("advancement.challenge_brew_strong_25.description"))
         .model(CustomModel.get(Material.GLOWSTONE_DUST, "advancement", "brewing", "challenge_brew_strong_25"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.DRAGON_BREATH)
             .key("challenge_brew_strong_250")
-            .title(Localizer.dLocalize("advancement.challenge_brew_strong_250.title"))
-            .description(Localizer.dLocalize("advancement.challenge_brew_strong_250.description"))
             .model(CustomModel.get(Material.DRAGON_BREATH, "advancement", "brewing", "challenge_brew_strong_250"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -210,16 +182,12 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.SPLASH_POTION).key("challenge_brew_splash_hits_50")
-        .title(Localizer.dLocalize("advancement.challenge_brew_splash_hits_50.title"))
-        .description(Localizer.dLocalize("advancement.challenge_brew_splash_hits_50.description"))
         .model(CustomModel.get(Material.SPLASH_POTION, "advancement", "brewing", "challenge_brew_splash_hits_50"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.LINGERING_POTION)
             .key("challenge_brew_splash_hits_500")
-            .title(Localizer.dLocalize("advancement.challenge_brew_splash_hits_500.title"))
-            .description(Localizer.dLocalize("advancement.challenge_brew_splash_hits_500.description"))
             .model(CustomModel.get(Material.LINGERING_POTION, "advancement", "brewing", "challenge_brew_splash_hits_500"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -232,10 +200,10 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
   }
 
   private void handleCooldown(Player p, Runnable runnable) {
-    Long cooldown = cooldowns.get(p.getUniqueId());
-    if (cooldown != null && cooldown + getConfig().cooldownDelay > System.currentTimeMillis())
+    if (!cooldowns.isReady(p.getUniqueId(), getConfig().cooldownDelay)) {
       return;
-    cooldowns.put(p.getUniqueId(), System.currentTimeMillis());
+    }
+    cooldowns.mark(p.getUniqueId());
     runnable.run();
   }
 
@@ -252,17 +220,23 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
         return;
       }
 
-      getPlayer(p).getData().addStat("brewing.consumed", 1);
+      addStat(p, "brewing.consumed", 1);
       if (potionMeta.getBasePotionData().isUpgraded()) {
-        getPlayer(p).getData().addStat("brewing.strong", 1);
+        addStat(p, "brewing.strong", 1);
       }
 
       double customEffectPower = sumPotionEffects(potionMeta.getCustomEffects());
       double upgradeBonus = potionMeta.getBasePotionData().isUpgraded() ? 50 : 25;
-      handleCooldown(p, () -> xp(p, p.getLocation(),
-          getConfig().splashXP
-              + (getConfig().splashMultiplier * customEffectPower)
-              + (getConfig().splashMultiplier * upgradeBonus)));
+      handleCooldown(p, () -> {
+        xp(p, p.getLocation(),
+            getConfig().splashXP
+                + (getConfig().splashMultiplier * customEffectPower)
+                + (getConfig().splashMultiplier * upgradeBonus));
+        Color tint = potionMeta.hasColor() ? potionMeta.getColor() : null;
+        fx(p.getLocation().add(0.0D, 1.0D, 0.0D), FxPriority.AMBIENT)
+            .dustBurst(tint, 5, 0.3D, 1.0F)
+            .sound(Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.3F, 1.4F);
+      });
     });
   }
 
@@ -271,10 +245,23 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
     if (e.getPotion().getShooter() instanceof Player p) {
       shouldReturnForPlayer(p, e, () -> {
         AdaptPlayer a = getPlayer(p);
-        getPlayer(p).getData().addStat("brewing.splashes", 1);
-        getPlayer(p).getData().addStat("brewing.splash.hits", e.getAffectedEntities().size());
+        addStat(p, "brewing.splashes", 1);
+        addStat(p, "brewing.splash.hits", e.getAffectedEntities().size());
         double effectPower = sumPotionEffects(e.getPotion().getEffects());
         xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().splashXP + (getConfig().splashMultiplier * effectPower));
+        Color tint = e.getPotion().getItem().getItemMeta() instanceof PotionMeta pm && pm.hasColor() ? pm.getColor() : null;
+        Location loc = e.getEntity().getLocation();
+        timeline(loc)
+            .duration(4)
+            .priority(FxPriority.TRANSITION)
+            .cullRadius(24.0D)
+            .frame((f, tick, progress) -> {
+              f.dustRing(tint, 0.2D + (2.0D * progress), 16, 1.1F);
+              if (tick == 0) {
+                f.sound(Sound.BLOCK_GLASS_BREAK, 0.4F, 1.5F);
+              }
+            })
+            .start();
       });
     }
   }

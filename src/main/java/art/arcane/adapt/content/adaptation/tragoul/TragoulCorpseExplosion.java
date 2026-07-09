@@ -18,22 +18,23 @@
 
 package art.arcane.adapt.content.adaptation.tragoul;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.version.IAttribute;
 import art.arcane.adapt.api.version.Version;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
 import org.bukkit.Color;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
@@ -49,30 +50,22 @@ import org.bukkit.persistence.PersistentDataType;
 
 public class TragoulCorpseExplosion extends SimpleAdaptation<TragoulCorpseExplosion.Config> {
   private static final NamespacedKey NOVA_KEY = NamespacedKey.fromString("adapt:tragoul_nova_stamp");
+  private static final Color NOVA_CRIMSON = Color.fromRGB(150, 12, 12);
+  private static final Color NOVA_BONE = Color.fromRGB(200, 190, 170);
 
   public TragoulCorpseExplosion() {
     super("tragoul-corpse-explosion");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("tragoul.corpse_explosion.description"));
-    setDisplayName(Localizer.dLocalize("tragoul.corpse_explosion.name"));
     setIcon(Material.WITHER_ROSE);
     setInterval(25000);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.WITHER_ROSE)
         .key("challenge_tragoul_corpse_500")
-        .title(Localizer.dLocalize("advancement.challenge_tragoul_corpse_500.title"))
-        .description(Localizer.dLocalize("advancement.challenge_tragoul_corpse_500.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.NETHERRACK)
             .key("challenge_tragoul_corpse_5k")
-            .title(Localizer.dLocalize("advancement.challenge_tragoul_corpse_5k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_tragoul_corpse_5k.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -102,7 +95,7 @@ public class TragoulCorpseExplosion extends SimpleAdaptation<TragoulCorpseExplos
       return;
     }
 
-    withAdaptedPlayer(killer, () -> detonate(killer, victim, now));
+    withAdaptedPlayer(killer, () -> detonate(killer, victim, now, false));
   }
 
   static void detonateServantKill(TragoulCorpseExplosion nova, Player owner, LivingEntity victim) {
@@ -112,10 +105,10 @@ public class TragoulCorpseExplosion extends SimpleAdaptation<TragoulCorpseExplos
       return;
     }
 
-    nova.withAdaptedPlayer(owner, () -> nova.detonate(owner, victim, now));
+    nova.withAdaptedPlayer(owner, () -> nova.detonate(owner, victim, now, true));
   }
 
-  private void detonate(Player credited, LivingEntity victim, long now) {
+  private void detonate(Player credited, LivingEntity victim, long now, boolean servant) {
     int level = getActiveLevel(credited);
     if (level <= 0 || !canDamageTarget(credited, victim)) {
       return;
@@ -137,6 +130,8 @@ public class TragoulCorpseExplosion extends SimpleAdaptation<TragoulCorpseExplos
       J.runEntity(monster, () -> {
         if (monster.isValid() && !monster.isDead()) {
           monster.damage(damage, credited);
+          fx(monster.getLocation().add(0, 1.0, 0), FxPriority.COMBAT)
+              .particle(Particle.DAMAGE_INDICATOR, 2, 0, 0, 0, 0.2, 0.02);
         }
       });
       hit++;
@@ -149,14 +144,28 @@ public class TragoulCorpseExplosion extends SimpleAdaptation<TragoulCorpseExplos
       return;
     }
 
-    if (areParticlesEnabled()) {
-      Particle.DustOptions dust = new Particle.DustOptions(Color.fromRGB(150, 12, 12), 1.4f);
-      victim.getWorld().spawnParticle(Particle.DUST, victim.getLocation().add(0, 0.9, 0), 70, radius * 0.4, 0.6, radius * 0.4, 0.01, dust);
-      victim.getWorld().spawnParticle(Particle.DAMAGE_INDICATOR, victim.getLocation().add(0, 1, 0), 12, 0.5, 0.5, 0.5, 0.04);
-    }
-    SoundPlayer.of(victim.getWorld()).play(victim.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 0.55f, 1.35f);
-    getPlayer(credited).getData().addStat("tragoul.corpse-explosion.mobs-detonated", hit);
+    playNova(victim.getLocation(), radius, servant ? NOVA_BONE : NOVA_CRIMSON);
+    addStat(credited, "tragoul.corpse-explosion.mobs-detonated", hit);
     xp(credited, hit * getConfig().xpPerMobHit);
+  }
+
+  private void playNova(Location center, double radius, Color tint) {
+    double inner = radius * 0.3;
+    int ringPoints = (int) Math.max(12, Math.min(28, radius * 6));
+    timeline(center)
+        .duration(3)
+        .priority(FxPriority.GAMEPLAY)
+        .cullRadius(radius + 8)
+        .frame((fx, tick, progress) -> {
+          double r = inner + ((radius - inner) * progress);
+          fx.dustRing(tint, r, ringPoints, 1.4F);
+          if (tick == 0) {
+            fx.particle(Particle.DAMAGE_INDICATOR, 8, 0, 1.0, 0, 0.4, 0.04);
+            fx.column(Particle.SOUL, 8, 2.0);
+            fx.chord(Sound.ENTITY_GENERIC_EXPLODE, 0.55F, 1.35F, Sound.BLOCK_RESPAWN_ANCHOR_DEPLETE, 0.5F, 0.8F);
+          }
+        })
+        .start();
   }
 
   private double getRadius(int level) {
@@ -175,34 +184,11 @@ public class TragoulCorpseExplosion extends SimpleAdaptation<TragoulCorpseExplos
   }
 
   @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
   public void onTick() {
   }
 
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Mobs you kill detonate in a blood nova that damages nearby hostile mobs.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.72;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Base nova radius before level scaling.", impact = "Higher values damage hostile mobs further from the corpse.")
     double radiusBase = 3.0;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Additional nova radius granted at max level.", impact = "Higher values increase the level-scaled radius growth.")
@@ -221,5 +207,10 @@ public class TragoulCorpseExplosion extends SimpleAdaptation<TragoulCorpseExplos
     long chainSuppressionMillis = 5000;
     @art.arcane.adapt.util.config.ConfigDoc(value = "XP granted per hostile mob hit by a nova.", impact = "Higher values accelerate skill progression from this adaptation.")
     double xpPerMobHit = 6;
+
+    public Config() {
+      costFactor = 0.72;
+      initialCost = 4;
+    }
   }
 }

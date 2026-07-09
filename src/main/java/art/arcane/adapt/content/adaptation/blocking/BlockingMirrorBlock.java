@@ -19,19 +19,19 @@
 package art.arcane.adapt.content.adaptation.blocking;
 
 import art.arcane.adapt.Adapt;
-import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -54,19 +54,11 @@ public class BlockingMirrorBlock extends SimpleAdaptation<BlockingMirrorBlock.Co
   public BlockingMirrorBlock() {
     super("blocking-mirror-block");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("blocking.mirror_block.description"));
-    setDisplayName(Localizer.dLocalize("blocking.mirror_block.name"));
     setIcon(Material.LIGHT_WEIGHTED_PRESSURE_PLATE);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(1200);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.SHIELD)
         .key("challenge_blocking_mirror_100")
-        .title(Localizer.dLocalize("advancement.challenge_blocking_mirror_100.title"))
-        .description(Localizer.dLocalize("advancement.challenge_blocking_mirror_100.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -74,8 +66,6 @@ public class BlockingMirrorBlock extends SimpleAdaptation<BlockingMirrorBlock.Co
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.SHIELD)
         .key("challenge_blocking_mirror_3in5")
-        .title(Localizer.dLocalize("advancement.challenge_blocking_mirror_3in5.title"))
-        .description(Localizer.dLocalize("advancement.challenge_blocking_mirror_3in5.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -83,9 +73,9 @@ public class BlockingMirrorBlock extends SimpleAdaptation<BlockingMirrorBlock.Co
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.pc(getReflectChance(level), 0) + C.GRAY + " " + Localizer.dLocalize("blocking.mirror_block.lore1"));
-    v.addLore(C.GREEN + "+ " + Form.pc(getReflectedDamageFactor(level), 0) + C.GRAY + " " + Localizer.dLocalize("blocking.mirror_block.lore2"));
-    v.addLore(C.YELLOW + "* " + Form.duration(getReflectCooldownMillis(level), 1) + C.GRAY + " " + Localizer.dLocalize("blocking.mirror_block.lore3"));
+    statLore(v, Form.pc(getReflectChance(level), 0), 1);
+    statLore(v, Form.pc(getReflectedDamageFactor(level), 0), 2);
+    statLore(v, C.YELLOW, "* ", Form.duration(getReflectCooldownMillis(level), 1), 3);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
@@ -104,6 +94,7 @@ public class BlockingMirrorBlock extends SimpleAdaptation<BlockingMirrorBlock.Co
     long now = System.currentTimeMillis();
     long next = getStorageLong(defender, "mirrorBlockNext", 0L);
     if (next > now) {
+      onCooldownTell(defender);
       return;
     }
 
@@ -115,16 +106,11 @@ public class BlockingMirrorBlock extends SimpleAdaptation<BlockingMirrorBlock.Co
     reflectProjectile(defender, projectile, level);
     setStorage(defender, "mirrorBlockNext", now + getReflectCooldownMillis(level));
 
-    SoundPlayer sp = SoundPlayer.of(defender.getWorld());
-    sp.play(defender.getLocation(), Sound.ITEM_SHIELD_BLOCK, 1f, 1.35f);
-    sp.play(defender.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_HIT, 0.8f, 0.8f);
-    if (areParticlesEnabled()) {
-      defender.spawnParticle(Particle.CRIT, defender.getLocation().add(0, 1, 0), 20, 0.35, 0.3, 0.35, 0.08);
-    }
+    mirrorFlash(defender);
+    reflectTrail(projectile);
     xp(defender, getConfig().xpOnReflect);
-    getPlayer(defender).getData().addStat("blocking.mirror-block.projectiles-reflected", 1);
+    addStat(defender, "blocking.mirror-block.projectiles-reflected", 1);
 
-    // Special achievement: reflect 3 projectiles within 5 seconds
     long windowStart = getStorageLong(defender, "mirrorWindowStart", 0L);
     int windowCount = getStorageInt(defender, "mirrorWindowCount", 0);
     if (now - windowStart > 5000L) {
@@ -135,9 +121,35 @@ public class BlockingMirrorBlock extends SimpleAdaptation<BlockingMirrorBlock.Co
     }
     setStorage(defender, "mirrorWindowStart", windowStart);
     setStorage(defender, "mirrorWindowCount", windowCount);
-    if (windowCount >= 3 && AdaptConfig.get().isAdvancements() && !getPlayer(defender).getData().isGranted("challenge_blocking_mirror_3in5")) {
-      getPlayer(defender).getAdvancementHandler().grant("challenge_blocking_mirror_3in5");
+    if (windowCount >= 3 && grantOnce(defender, "challenge_blocking_mirror_3in5")) {
+      fx(defender.getLocation().add(0, 1.0D, 0), FxPriority.TRANSITION)
+          .particle(Particle.REVERSE_PORTAL, 12, 0, 0.3D, 0, 0.4D, 0.02D)
+          .sound(Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.7F, 1.0F);
     }
+  }
+
+  private void mirrorFlash(Player defender) {
+    Location chest = defender.getLocation().add(0, 1.0D, 0);
+    fx(chest, FxPriority.COMBAT)
+        .ring(Particles.END_ROD, 0.5D, 8, 0)
+        .burst(Particles.CRIT_MAGIC, 10, 0.35D)
+        .chord(Sound.ITEM_SHIELD_BLOCK, 1.0F, 1.35F, Sound.BLOCK_AMETHYST_BLOCK_HIT, 0.8F, 0.8F, Sound.BLOCK_AMETHYST_BLOCK_RESONATE, 0.5F, 1.5F);
+  }
+
+  private void reflectTrail(Projectile projectile) {
+    timeline(projectile)
+        .duration(40)
+        .priority(FxPriority.TRAIL)
+        .cullRadius(24.0D)
+        .frame((fxE, tick, progress) -> fxE.particle(Particle.WAX_ON, 1, 0, 0, 0, 0, 0))
+        .start();
+  }
+
+  private void onCooldownTell(Player defender) {
+    Vector look = defender.getEyeLocation().getDirection();
+    Location front = defender.getEyeLocation().add(look.getX() * 0.4D, look.getY() * 0.4D, look.getZ() * 0.4D);
+    fx(front, FxPriority.AMBIENT)
+        .particle(Particles.SMOKE, 2, 0, 0, 0, 0.05D, 0.01D);
   }
 
   private void applyReflectedDamageModifier(EntityDamageByEntityEvent e, Projectile projectile) {
@@ -209,31 +221,8 @@ public class BlockingMirrorBlock extends SimpleAdaptation<BlockingMirrorBlock.Co
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Blocking with a shield can reflect incoming projectiles at reduced force and damage.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.7;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Reflect Chance Base for the Blocking Mirror Block adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double reflectChanceBase = 0.1;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Reflect Chance Factor for the Blocking Mirror Block adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -262,5 +251,10 @@ public class BlockingMirrorBlock extends SimpleAdaptation<BlockingMirrorBlock.Co
     double fallbackReflectedSpeed = 0.95;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp On Reflect for the Blocking Mirror Block adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpOnReflect = 8;
+
+    public Config() {
+      costFactor = 0.7;
+      initialCost = 4;
+    }
   }
 }

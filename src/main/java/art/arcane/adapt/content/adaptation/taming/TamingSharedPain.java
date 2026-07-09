@@ -18,18 +18,21 @@
 
 package art.arcane.adapt.content.adaptation.taming;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Color;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Tameable;
@@ -38,29 +41,22 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageEvent;
 
 public class TamingSharedPain extends SimpleAdaptation<TamingSharedPain.Config> {
+  private final Cooldowns redirectFx = cooldowns();
+
   public TamingSharedPain() {
     super("tame-shared-pain");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("taming.shared_pain.description"));
-    setDisplayName(Localizer.dLocalize("taming.shared_pain.name"));
+    setLocalizationKey("taming.shared_pain");
     setIcon(Material.POPPY);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(1700);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.SHIELD)
         .key("challenge_taming_shared_500")
-        .title(Localizer.dLocalize("advancement.challenge_taming_shared_500.title"))
-        .description(Localizer.dLocalize("advancement.challenge_taming_shared_500.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.TOTEM_OF_UNDYING)
             .key("challenge_taming_shared_5k")
-            .title(Localizer.dLocalize("advancement.challenge_taming_shared_5k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_taming_shared_5k.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -71,8 +67,8 @@ public class TamingSharedPain extends SimpleAdaptation<TamingSharedPain.Config> 
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.pc(getRedirectPercent(level), 0) + C.GRAY + " " + Localizer.dLocalize("taming.shared_pain.lore1"));
-    v.addLore(C.YELLOW + "* " + Form.f(getOwnerHealthFloor(level), 1) + C.GRAY + " " + Localizer.dLocalize("taming.shared_pain.lore2"));
+    statLore(v, Form.pc(getRedirectPercent(level), 0), 1);
+    statLore(v, C.YELLOW, "* ", Form.f(getOwnerHealthFloor(level), 1), 2);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -86,29 +82,44 @@ public class TamingSharedPain extends SimpleAdaptation<TamingSharedPain.Config> 
       return;
     }
 
-    double redirect = e.getDamage() * getRedirectPercent(level);
-    if (redirect <= 0) {
+    double raw = e.getDamage() * getRedirectPercent(level);
+    if (raw <= 0) {
       return;
     }
 
     double floor = getOwnerHealthFloor(level);
     double allowed = Math.max(0, owner.getHealth() - floor);
-    redirect = Math.min(redirect, allowed);
+    double redirect = Math.min(raw, allowed);
     if (redirect <= 0.01) {
       return;
     }
 
+    boolean clamped = allowed < raw;
     e.setDamage(Math.max(0, e.getDamage() - redirect));
     if (e.getDamage() <= 0.01) {
       e.setCancelled(true);
     }
 
     owner.damage(redirect);
-    getPlayer(owner).getData().addStat("taming.shared-pain.damage-taken", redirect);
-    SoundPlayer sp = SoundPlayer.of(owner.getWorld());
-    sp.play(owner.getLocation(), Sound.BLOCK_AMETHYST_CLUSTER_HIT, 0.65f, 0.7f);
-    sp.play(tameable.getLocation(), Sound.ENTITY_WOLF_WHINE, 0.55f, 1.2f);
+    addStat(owner, "taming.shared-pain.damage-taken", redirect);
     xp(owner, redirect * getConfig().xpPerRedirectedDamage);
+
+    if (redirectFx.isReady(tameable.getUniqueId(), 500L)) {
+      redirectFx.mark(tameable.getUniqueId());
+      Location ownerChest = owner.getLocation().add(0, 1, 0);
+      Location petChest = tameable.getLocation().add(0, 1, 0);
+      fx(petChest, FxPriority.COMBAT)
+          .line(Particle.CRIT, ownerChest.getX(), ownerChest.getY(), ownerChest.getZ(), 6)
+          .sound(Sound.ENTITY_WOLF_WHINE, 0.55F, 1.2F);
+      fx(ownerChest, FxPriority.COMBAT)
+          .particle(Particle.DAMAGE_INDICATOR, 3, 0, 0, 0, 0.15D, 0)
+          .chord(Sound.BLOCK_AMETHYST_CLUSTER_HIT, 0.5F, 0.6F, Sound.ENTITY_PLAYER_HURT, 0.25F, 1.0F);
+      if (clamped) {
+        fx(ownerChest, FxPriority.TRANSITION)
+            .dustBurst(Color.fromRGB(0xF2C14E), 2, 0.3D, 1.0F)
+            .sound(Sound.BLOCK_CONDUIT_ACTIVATE, 0.25F, 1.5F);
+      }
+    }
   }
 
   private double getRedirectPercent(int level) {
@@ -124,31 +135,8 @@ public class TamingSharedPain extends SimpleAdaptation<TamingSharedPain.Config> 
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Redirect part of your pet's incoming damage to you, preserving companion survivability.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.72;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Redirect Percent Base for the Taming Shared Pain adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double redirectPercentBase = 0.2;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Redirect Percent Factor for the Taming Shared Pain adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -161,5 +149,10 @@ public class TamingSharedPain extends SimpleAdaptation<TamingSharedPain.Config> 
     double ownerHealthFloorFactor = 4.0;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Redirected Damage for the Taming Shared Pain adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpPerRedirectedDamage = 2.0;
+
+    public Config() {
+      costFactor = 0.72;
+      initialCost = 4;
+    }
   }
 }

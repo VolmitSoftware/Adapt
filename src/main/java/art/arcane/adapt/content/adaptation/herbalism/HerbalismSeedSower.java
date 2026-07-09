@@ -18,19 +18,21 @@
 
 package art.arcane.adapt.content.adaptation.herbalism;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxEmitter;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Color;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -45,26 +47,16 @@ public class HerbalismSeedSower extends SimpleAdaptation<HerbalismSeedSower.Conf
   public HerbalismSeedSower() {
     super("herbalism-seed-sower");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("herbalism.seed_sower.description"));
-    setDisplayName(Localizer.dLocalize("herbalism.seed_sower.name"));
     setIcon(Material.WHEAT_SEEDS);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(6920);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.WHEAT_SEEDS)
         .key("challenge_herbalism_seed_1k")
-        .title(Localizer.dLocalize("advancement.challenge_herbalism_seed_1k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_herbalism_seed_1k.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.FARMLAND)
             .key("challenge_herbalism_seed_25k")
-            .title(Localizer.dLocalize("advancement.challenge_herbalism_seed_25k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_herbalism_seed_25k.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -76,9 +68,9 @@ public class HerbalismSeedSower extends SimpleAdaptation<HerbalismSeedSower.Conf
   @Override
   public void addStats(int level, Element v) {
     double factor = getLevelPercent(level);
-    v.addLore(C.GREEN + "+ " + getRadius(level) + C.GRAY + " " + Localizer.dLocalize("herbalism.seed_sower.lore1"));
-    v.addLore(C.GREEN + "+ " + getMaxCrops(level) + C.GRAY + " " + Localizer.dLocalize("herbalism.seed_sower.lore2"));
-    v.addLore(C.YELLOW + "* " + Form.duration(getCooldownTicks(factor) * 50D, 1) + C.GRAY + " " + Localizer.dLocalize("herbalism.seed_sower.lore3"));
+    statLore(v, getRadius(level), 1);
+    statLore(v, getMaxCrops(level), 2);
+    statLore(v, C.YELLOW, "* ", Form.duration(getCooldownTicks(factor) * 50D, 1), 3);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
@@ -120,19 +112,22 @@ public class HerbalismSeedSower extends SimpleAdaptation<HerbalismSeedSower.Conf
 
     e.setCancelled(true);
     p.setCooldown(seedType, getCooldownTicks(getLevelPercent(p)));
-    getPlayer(p).getData().addStat("harvest.planted", planted);
-    getPlayer(p).getData().addStat("herbalism.seed-sower.seeds-planted", planted);
+    addStat(p, "harvest.planted", planted);
+    addStat(p, "herbalism.seed-sower.seeds-planted", planted);
     xp(p, planted * getConfig().xpPerCrop);
 
-    SoundPlayer sp = SoundPlayer.of(p.getWorld());
-    sp.play(p.getLocation(), Sound.ITEM_CROP_PLANT, 0.6f, 1.25f);
+    double footprint = Math.max(1.0D, getRadius(getLevel(p)));
+    FxEmitter emitter = fx(origin.getLocation().add(0.5, 0.5, 0.5), FxPriority.TRANSITION)
+        .dustRing(Color.LIME, footprint, Math.min(28, (int) Math.round(footprint * 8)), 1.0F)
+        .sound(Sound.ITEM_CROP_PLANT, 0.6F, 1.25F);
     if (planted > 4) {
-      sp.play(p.getLocation(), Sound.BLOCK_ROOTED_DIRT_PLACE, 0.5f, 1.35f);
+      emitter.sound(Sound.BLOCK_ROOTED_DIRT_PLACE, 0.5F, 1.35F);
     }
   }
 
   private int plantNearby(Player p, Block origin, ItemStack seeds, Material seedType, Material cropType, int radius, int maxCrops) {
     int planted = 0;
+    int emitted = 0;
     int available = p.getGameMode() == GameMode.CREATIVE ? Integer.MAX_VALUE : seeds.getAmount();
     int y = origin.getY();
 
@@ -155,6 +150,13 @@ public class HerbalismSeedSower extends SimpleAdaptation<HerbalismSeedSower.Conf
         crop.setType(cropType);
         planted++;
         available--;
+
+        if (emitted < 12) {
+          fx(crop.getLocation().add(0.5, 0.2, 0.5), FxPriority.AMBIENT)
+              .particle(Particle.COMPOSTER, 1, 0, 0.05D, 0, 0.1D, 0.01D)
+              .particle(Particle.HAPPY_VILLAGER, 1, 0, 0.05D, 0, 0.1D, 0.01D);
+          emitted++;
+        }
       }
     }
 
@@ -205,31 +207,8 @@ public class HerbalismSeedSower extends SimpleAdaptation<HerbalismSeedSower.Conf
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Sneak-right-click with seeds to plant nearby farmland and soul-sand plots.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.675;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Base Radius for the Herbalism Seed Sower adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double baseRadius = 1;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Radius Factor for the Herbalism Seed Sower adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -244,5 +223,11 @@ public class HerbalismSeedSower extends SimpleAdaptation<HerbalismSeedSower.Conf
     double cooldownTicksReduction = 42;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Crop for the Herbalism Seed Sower adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpPerCrop = 1.45;
+
+    public Config() {
+      baseCost = 3;
+      costFactor = 0.675;
+      initialCost = 3;
+    }
   }
 }

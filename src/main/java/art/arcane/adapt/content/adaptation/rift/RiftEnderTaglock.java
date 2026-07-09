@@ -19,19 +19,20 @@
 package art.arcane.adapt.content.adaptation.rift;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.content.item.BoundEnderPearl;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
 import org.bukkit.*;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -40,13 +41,10 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.metadata.MetadataValue;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.BoundingBox;
@@ -56,37 +54,26 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> {
-  private static final String PROJECTILE_TARGET_META = "adapt-rift-taglock-target";
+  private static final double PEARL_TELEPORT_DAMAGE = 5.0;
   private final NamespacedKey targetKey;
-  private final Map<UUID, Long> suppressPearlTeleportUntil = new ConcurrentHashMap<>();
+  private final Map<UUID, Long> suppressPearlTeleportUntil = playerState();
 
   public RiftEnderTaglock() {
     super("rift-ender-taglock");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("rift.ender_taglock.description"));
-    setDisplayName(Localizer.dLocalize("rift.ender_taglock.name"));
     setIcon(Material.ENDER_PEARL);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(1200);
     targetKey = new NamespacedKey(Adapt.instance, "rift_taglock_target_uuid");
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.ENDER_PEARL)
         .key("challenge_rift_taglock_100")
-        .title(Localizer.dLocalize("advancement.challenge_rift_taglock_100.title"))
-        .description(Localizer.dLocalize("advancement.challenge_rift_taglock_100.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.ENDER_EYE)
             .key("challenge_rift_taglock_500")
-            .title(Localizer.dLocalize("advancement.challenge_rift_taglock_500.title"))
-            .description(Localizer.dLocalize("advancement.challenge_rift_taglock_500.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -105,11 +92,6 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
       v.addLore(C.GREEN + "+ " + Localizer.dLocalize("rift.ender_taglock.lore3"));
     }
     v.addLore(C.YELLOW + "* " + Form.duration(getThrowCooldownTicks(level) * 50D, 1) + C.GRAY + " " + Localizer.dLocalize("rift.ender_taglock.lore4"));
-  }
-
-  @EventHandler(priority = EventPriority.MONITOR)
-  public void on(PlayerQuitEvent e) {
-    suppressPearlTeleportUntil.remove(e.getPlayer().getUniqueId());
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -134,11 +116,22 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
 
     e.setCancelled(true);
     tagIntoPearl(p, hand, target);
-    SoundPlayer.of(p).play(p.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 0.55f, 1.4f);
-    if (areParticlesEnabled()) {
-      p.getWorld().spawnParticle(Particle.PORTAL, target.getLocation().add(0, 1, 0), 14, 0.25, 0.4, 0.25, 0.04);
-    }
-    getPlayer(p).getData().addStat("rift.ender-taglock.entities-tagged", 1);
+    fx(p, FxPriority.COMBAT).sound(Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 0.55f, 1.4f);
+    timeline(target)
+        .duration(8)
+        .priority(FxPriority.COMBAT)
+        .cullRadius(24)
+        .frame((fx, tick, progress) -> {
+          fx.ring(Particle.PORTAL, 1.2 - (1.1 * progress), 8, 1.0);
+          if (tick == 7) {
+            fx.particle(Particle.REVERSE_PORTAL, 6, 0, 1.0, 0, 0.2, 0.03);
+          }
+          if (tick % 3 == 0) {
+            fx.sound(Sound.BLOCK_AMETHYST_BLOCK_RESONATE, 0.5f, (float) (1.0 + (progress * 0.6)));
+          }
+        })
+        .start();
+    addStat(p, "rift.ender-taglock.entities-tagged", 1);
     xp(p, getConfig().xpOnTag);
   }
 
@@ -171,17 +164,22 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
 
     e.setCancelled(true);
     if (p.hasCooldown(Material.ENDER_PEARL)) {
-      SoundPlayer.of(p).play(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, 0.55f, 0.6f);
+      fx(p.getEyeLocation(), FxPriority.TRANSITION)
+          .burst(Particles.SMOKE, 2, 0.15)
+          .sound(Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, 0.55f, 0.6f);
       return;
     }
 
     decrementTaggedPearl(p, slot, hand);
 
     EnderPearl pearl = p.launchProjectile(EnderPearl.class);
-    pearl.setMetadata(PROJECTILE_TARGET_META, new FixedMetadataValue(Adapt.instance, target.toString()));
+    pearl.getPersistentDataContainer().set(targetKey, PersistentDataType.STRING, target.toString());
     suppressPearlTeleportUntil.put(p.getUniqueId(), System.currentTimeMillis() + getSuppressPearlTeleportWindowMillis());
     p.setCooldown(Material.ENDER_PEARL, getThrowCooldownTicks(level));
-    SoundPlayer.of(p).play(p.getLocation(), Sound.ENTITY_ENDER_EYE_LAUNCH, 0.65f, 1.25f);
+    Vector dir = p.getLocation().getDirection();
+    fx(p.getEyeLocation(), FxPriority.TRANSITION)
+        .trail(Particle.REVERSE_PORTAL, dir.getX(), dir.getY(), dir.getZ(), 1.5, 8)
+        .chord(Sound.ENTITY_ENDER_EYE_LAUNCH, 0.65f, 1.25f, Sound.BLOCK_AMETHYST_BLOCK_HIT, 0.4f, 1.4f);
     xp(p, getConfig().xpOnThrow);
   }
 
@@ -203,18 +201,25 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
     suppressPearlTeleportUntil.remove(id);
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(ProjectileHitEvent e) {
     if (!(e.getEntity() instanceof EnderPearl pearl) || !(pearl.getShooter() instanceof Player p)) {
       return;
     }
 
-    if (!hasActiveAdaptation(p)) {
+    String raw = pearl.getPersistentDataContainer().get(targetKey, PersistentDataType.STRING);
+    if (raw == null || raw.isEmpty()) {
       return;
     }
 
-    String raw = getMetadataString(pearl, PROJECTILE_TARGET_META);
-    if (raw == null) {
+    if (pearl.isDead() || !pearl.isValid()) {
+      return;
+    }
+
+    suppressPearlTeleportUntil.put(p.getUniqueId(), System.currentTimeMillis() + getSuppressPearlTeleportWindowMillis());
+    J.runEntity(p, () -> suppressPearlTeleportUntil.remove(p.getUniqueId()), 10);
+
+    if (!hasActiveAdaptation(p)) {
       return;
     }
 
@@ -243,19 +248,40 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
       return;
     }
 
+    Location origin = target.getLocation().clone();
     destination.getChunk().load();
     J.teleport(target, destination);
-    if (areParticlesEnabled()) {
-      target.getWorld().spawnParticle(Particle.REVERSE_PORTAL, destination.clone().add(0, 0.75, 0), 18, 0.3, 0.35, 0.3, 0.05);
+    applyPearlDamage(p, target);
+
+    int level = getActiveLevel(p);
+    double shockRadius = level >= 3 ? 2.0 : (level == 2 ? 1.6 : 1.4);
+    fx(origin, FxPriority.COMBAT)
+        .particle(Particle.REVERSE_PORTAL, 10, 0, 1.0, 0, 0.3, 0.05);
+    timeline(destination)
+        .duration(5)
+        .priority(FxPriority.COMBAT)
+        .cullRadius(28)
+        .frame((fx, tick, progress) -> {
+          fx.ring(Particles.END_ROD, 0.3 + ((shockRadius - 0.3) * progress), 16, 0.1);
+          if (tick == 0) {
+            fx.chord(Sound.ENTITY_ENDERMAN_TELEPORT, 0.75f, 1.35f, Sound.ENTITY_ELDER_GUARDIAN_CURSE, 0.5f, 1.9f);
+          }
+        })
+        .start();
+    if (target instanceof Player victim) {
+      fx(victim, FxPriority.COMBAT).sound(Sound.ENTITY_ELDER_GUARDIAN_CURSE, 0.75f, 1.9f);
     }
-    SoundPlayer.of(target.getWorld()).play(destination, Sound.ENTITY_ENDERMAN_TELEPORT, 0.75f, 1.35f);
-    SoundPlayer.of(target.getWorld()).play(destination, Sound.ENTITY_ELDER_GUARDIAN_CURSE, 0.5f, 1.9f);
-    if (target instanceof Player victim && areSoundsEnabled()) {
-      victim.playSound(victim.getLocation(), Sound.ENTITY_ELDER_GUARDIAN_CURSE, 0.75f, 1.9f);
-    }
-    getPlayer(p).getData().addStat("rift.ender-taglock.taglocked-teleports", 1);
+    addStat(p, "rift.ender-taglock.taglocked-teleports", 1);
     xp(p, getConfig().xpOnTeleport);
-    J.runEntity(p, () -> suppressPearlTeleportUntil.remove(p.getUniqueId()), 2);
+  }
+
+  private void applyPearlDamage(Player thrower, LivingEntity target) {
+    LivingEntity victim = getConfig().damageSender ? thrower : target;
+    J.runEntity(victim, () -> {
+      if (victim.isValid() && !victim.isDead()) {
+        victim.damage(PEARL_TELEPORT_DAMAGE);
+      }
+    });
   }
 
   private Location resolveDestination(ProjectileHitEvent e) {
@@ -393,16 +419,6 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
     return width >= getConfig().largeWidthThreshold || height >= getConfig().largeHeightThreshold;
   }
 
-  private String getMetadataString(Entity entity, String key) {
-    for (MetadataValue value : entity.getMetadata(key)) {
-      if (value.getOwningPlugin() == Adapt.instance) {
-        return value.asString();
-      }
-    }
-
-    return null;
-  }
-
   private int getThrowCooldownTicks(int level) {
     return Math.max(4, (int) Math.round(getConfig().throwCooldownTicksBase - (getLevelPercent(level) * getConfig().throwCooldownTicksFactor)));
   }
@@ -417,31 +433,8 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
     suppressPearlTeleportUntil.entrySet().removeIf(i -> i.getValue() <= now);
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Tag entities into ender pearls and throw those pearls to reposition the tagged target.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 7;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 7;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.95;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Throw Cooldown Ticks Base for the Rift Ender Taglock adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double throwCooldownTicksBase = 30;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Throw Cooldown Ticks Factor for the Rift Ender Taglock adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -456,7 +449,16 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
     double xpOnTag = 8;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls XP On Throw for the Rift Ender Taglock adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpOnThrow = 5;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls who takes the ender pearl teleport damage when a taglocked pearl lands.", impact = "True damages the thrower like a normal pearl; false damages the taglocked target instead.")
+    boolean damageSender = true;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls XP On Teleport for the Rift Ender Taglock adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpOnTeleport = 14;
+
+    public Config() {
+      baseCost = 7;
+      costFactor = 0.95;
+      maxLevel = 3;
+      initialCost = 7;
+    }
   }
 }

@@ -19,21 +19,27 @@
 package art.arcane.adapt.content.adaptation.excavation;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.content.item.ItemListings;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
-import art.arcane.adapt.util.reflect.registries.Particles;
+import art.arcane.volmlib.util.entity.StackExclusion;
 import art.arcane.volmlib.util.inventorygui.Element;
 import fr.skytasul.glowingentities.GlowingEntities;
-import lombok.NoArgsConstructor;
-import org.bukkit.*;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Slime;
@@ -45,38 +51,23 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.util.Vector;
-
-import java.util.Map;
-import java.util.UUID;
 
 public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Config> {
-  private final Map<UUID, Long> cooldowns;
+  private final Cooldowns cooldowns = cooldowns();
 
   public ExcavationSpelunker() {
     super("excavation-spelunker");
     registerConfiguration(ExcavationSpelunker.Config.class);
-    setDisplayName(Localizer.dLocalize("excavation.spelunker.name"));
-    setDescription(Localizer.dLocalize("excavation.spelunker.description"));
     setIcon(Material.GOLDEN_HELMET);
     setInterval(20388);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
-    cooldowns = new java.util.concurrent.ConcurrentHashMap<>();
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.SPYGLASS)
         .key("challenge_excavation_spelunker_1k")
-        .title(Localizer.dLocalize("advancement.challenge_excavation_spelunker_1k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_excavation_spelunker_1k.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.DIAMOND_ORE)
             .key("challenge_excavation_spelunker_25k")
-            .title(Localizer.dLocalize("advancement.challenge_excavation_spelunker_25k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_excavation_spelunker_25k.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -95,21 +86,22 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
   @EventHandler(priority = EventPriority.HIGH)
   public void on(PlayerToggleSneakEvent e) {
     Player p = e.getPlayer();
-    SoundPlayer sp = SoundPlayer.of(p);
     int level = getActiveLevel(p, Player::isSneaking);
-    // Check if player is sneaking, has Glowberries in main hand, and an ore in offhand
-    if (level > 0 && hasGlowberries(p) && hasOreInOffhand(p)) {
-      // Check if player is on cooldown
-      Long cooldown = cooldowns.get(p.getUniqueId());
-      if (cooldown != null && cooldown > System.currentTimeMillis()) {
-        sp.play(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1, 1);
-        return;
-      }
-      int radius = getConfig().rangeMultiplier * level;
-      consumeGlowberry(p);
-      searchForOres(p, radius);
-      cooldowns.put(p.getUniqueId(), (long) (System.currentTimeMillis() + (1000 * getConfig().cooldown)));
+    if (level <= 0 || !hasGlowberries(p) || !hasOreInOffhand(p)) {
+      return;
     }
+
+    if (!cooldowns.isReady(p.getUniqueId(), (long) (1000 * getConfig().cooldown))) {
+      fx(p.getEyeLocation(), FxPriority.TRANSITION)
+          .particle(Particle.SMOKE, 2, 0, 0, 0, 0.1D, 0.01D)
+          .sound(Sound.BLOCK_NOTE_BLOCK_BASS, 0.5f, 1.0f);
+      return;
+    }
+
+    int radius = getConfig().rangeMultiplier * level;
+    consumeGlowberry(p);
+    searchForOres(p, radius);
+    cooldowns.mark(p.getUniqueId());
   }
 
   private boolean hasGlowberries(Player player) {
@@ -132,62 +124,72 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
     World world = p.getWorld();
     Material targetOre = p.getInventory().getItemInOffHand().getType();
     ChatColor c = ItemListings.oreColorsChatColor.get(targetOre);
-    Particle.DustOptions dustOptions = new Particle.DustOptions(Color.WHITE, 1);
+    GlowingEntities glowingEntities = Adapt.instance.getGlowingEntities();
+
+    timeline(playerLocation)
+        .duration(5)
+        .priority(FxPriority.GAMEPLAY)
+        .cullRadius(24)
+        .frame((fx, tick, progress) -> {
+          fx.ring(Particle.END_ROD, 0.5D + (2.0D * progress), 16, 1.0D);
+          if (tick == 0) {
+            fx.chord(Sound.BLOCK_SCULK_SENSOR_CLICKING, 0.6f, 1.0f, Sound.BLOCK_BEACON_ACTIVATE, 0.5f, 1.4f);
+          }
+        })
+        .start();
+
     for (int x = -radius; x <= radius; x++) {
       for (int y = -radius; y <= radius; y++) {
         for (int z = -radius; z <= radius; z++) {
-          if (x * x + y * y + z * z <= radius * radius) {
-            Location blockLocation = playerLocation.clone().add(x, y, z);
-            Block block = world.getBlockAt(blockLocation);
-            GlowingEntities glowingEntities = Adapt.instance.getGlowingEntities();
-
-            if (block.getType() == targetOre) {
-              getPlayer(p).getData().addStat("excavation.spelunker.ores-revealed", 1);
-              // Raytrace particles from player to the found ore
-              Vector vector = blockLocation.clone().subtract(playerLocation).toVector().normalize().multiply(0.5);
-              Location particleLocation = playerLocation.clone();
-
-              while (particleLocation.distance(blockLocation) > 0.5) {
-                particleLocation.add(vector);
-                if (areParticlesEnabled()) {
-                  p.spawnParticle(Particles.REDSTONE, particleLocation, 1, dustOptions);
-                }
-              }
-
-              SoundPlayer spw = SoundPlayer.of(world);
-              spw.play(block.getLocation().add(0.5, 0, 0.5), Sound.BLOCK_BEACON_ACTIVATE, 1, 1);
-              if (glowingEntities == null) {
-                continue;
-              }
-              Slime slime = block.getWorld().spawn(block.getLocation().add(0.5, 0, 0.5), Slime.class, (s) -> {
-                s.setRotation(0, 0);
-                s.setInvulnerable(true);
-                s.setCollidable(false);
-                s.setGravity(false);
-                s.setSilent(true);
-                s.setAI(false);
-                s.setSize(2);
-                s.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 0, false, false));
-                s.setMetadata("preventSuffocation", new FixedMetadataValue(Adapt.instance, true));
-              });
-
-              try {
-                glowingEntities.setGlowing(slime, p, c);
-              } catch (ReflectiveOperationException e) {
-                throw new RuntimeException(e);
-              }
-
-              J.runEntity(slime, () -> {
-                try {
-                  glowingEntities.unsetGlowing(slime, p);
-                } catch (ReflectiveOperationException e) {
-                  throw new RuntimeException(e);
-                }
-
-                slime.remove();
-              }, 5 * 20);
-            }
+          if (x * x + y * y + z * z > radius * radius) {
+            continue;
           }
+
+          Block block = world.getBlockAt(playerLocation.getBlockX() + x, playerLocation.getBlockY() + y, playerLocation.getBlockZ() + z);
+          if (block.getType() != targetOre) {
+            continue;
+          }
+
+          addStat(p, "excavation.spelunker.ores-revealed", 1);
+          fx(block.getLocation().add(0.5, 0.5, 0.5), FxPriority.AMBIENT)
+              .particle(Particle.WAX_ON, 3, 0, 0, 0, 0.2D, 0.02D);
+
+          if (glowingEntities == null) {
+            continue;
+          }
+
+          Slime slime = block.getWorld().spawn(block.getLocation().add(0.5, 0, 0.5), Slime.class, (s) -> {
+            StackExclusion.exclude(s);
+            s.setPersistent(false);
+            s.setRotation(0, 0);
+            s.setInvulnerable(true);
+            s.setCollidable(false);
+            s.setGravity(false);
+            s.setSilent(true);
+            s.setAI(false);
+            s.setSize(2);
+            s.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 0, false, false));
+            s.setMetadata("preventSuffocation", new FixedMetadataValue(Adapt.instance, true));
+          });
+
+          try {
+            glowingEntities.setGlowing(slime, p, c);
+          } catch (ReflectiveOperationException ex) {
+            throw new RuntimeException(ex);
+          }
+
+          J.runEntity(slime, () -> {
+            try {
+              glowingEntities.unsetGlowing(slime, p);
+            } catch (ReflectiveOperationException ex) {
+              throw new RuntimeException(ex);
+            }
+
+            fx(slime.getLocation().add(0, 0.5, 0), FxPriority.AMBIENT)
+                .particle(Particle.SMOKE, 3, 0, 0, 0, 0.15D, 0.01D)
+                .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.3f, 1.6f);
+            slime.remove();
+          }, 5 * 20);
         }
       }
     }
@@ -207,40 +209,21 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
     }
   }
 
-
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-
   @Override
   public void onTick() {
   }
 
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("See ores through the ground using Glowberries in your main hand.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown for the Excavation Spelunker adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double cooldown = 6.0;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 10;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 1;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Range Multiplier for the Excavation Spelunker adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     int rangeMultiplier = 5;
+
+    public Config() {
+      baseCost = 5;
+      costFactor = 1;
+      initialCost = 10;
+    }
   }
 }

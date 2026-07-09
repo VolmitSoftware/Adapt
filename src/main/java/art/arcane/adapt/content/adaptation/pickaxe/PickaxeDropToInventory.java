@@ -18,19 +18,22 @@
 
 package art.arcane.adapt.content.adaptation.pickaxe;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.content.item.ItemListings;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.collection.KList;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
@@ -44,28 +47,15 @@ public class PickaxeDropToInventory extends SimpleAdaptation<PickaxeDropToInvent
   public PickaxeDropToInventory() {
     super("pickaxe-drop-to-inventory");
     registerConfiguration(PickaxeDropToInventory.Config.class);
-    setDescription(Localizer.dLocalize("pickaxe.drop_to_inventory.description"));
-    setDisplayName(Localizer.dLocalize("pickaxe.drop_to_inventory.name"));
     setIcon(Material.MINECART);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(7944);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.CHEST)
         .key("challenge_pickaxe_dti_25k")
-        .title(Localizer.dLocalize("advancement.challenge_pickaxe_dti_25k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_pickaxe_dti_25k.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
     registerMilestone("challenge_pickaxe_dti_25k", "pickaxe.drop-to-inv.items-caught", 25000, 500);
-  }
-
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
   }
 
   public void addStats(int level, Element v) {
@@ -75,7 +65,6 @@ public class PickaxeDropToInventory extends SimpleAdaptation<PickaxeDropToInvent
   @EventHandler(priority = EventPriority.HIGHEST)
   public void on(BlockDropItemEvent e) {
     Player p = e.getPlayer();
-    SoundPlayer sp = SoundPlayer.of(p);
     if (resolveBlockBreakContext(p, e.getBlock().getLocation(), null, true) == null) {
       return;
     }
@@ -83,15 +72,25 @@ public class PickaxeDropToInventory extends SimpleAdaptation<PickaxeDropToInvent
       List<Item> items = new KList<>(e.getItems());
       e.getItems().clear();
       int caught = 0;
+      boolean overflow = false;
       for (Item i : items) {
-        sp.play(p.getLocation(), Sound.BLOCK_CALCITE_HIT, 0.05f, 0.01f);
         if (!p.getInventory().addItem(i.getItemStack()).isEmpty()) {
           p.getWorld().dropItem(p.getLocation(), i.getItemStack());
+          overflow = true;
         }
         caught++;
       }
       if (caught > 0) {
-        getPlayer(p).getData().addStat("pickaxe.drop-to-inv.items-caught", caught);
+        Location target = p.getLocation().add(0, 1.1D, 0);
+        fx(e.getBlock().getLocation().add(0.5, 0.5, 0.5), FxPriority.TRAIL)
+            .line(Particle.WAX_ON, target.getX(), target.getY(), target.getZ(), 8)
+            .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.25f, 1.6f);
+        addStat(p, "pickaxe.drop-to-inv.items-caught", caught);
+      }
+      if (overflow) {
+        fx(p.getLocation(), FxPriority.TRANSITION)
+            .particle(Particles.SMOKE, 2, 0, 0.1, 0, 0.05, 0.01)
+            .sound(Sound.BLOCK_NOTE_BLOCK_BASS, 0.4f, 0.6f);
       }
     }
   }
@@ -101,25 +100,13 @@ public class PickaxeDropToInventory extends SimpleAdaptation<PickaxeDropToInvent
   public void onTick() {
   }
 
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Mined blocks drop directly into your inventory.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 1;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 1;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 1;
+  protected static class Config extends AdaptationConfig {
+    public Config() {
+      baseCost = 1;
+      costFactor = 1;
+      maxLevel = 1;
+      initialCost = 3;
+    }
   }
 }

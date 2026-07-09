@@ -18,23 +18,23 @@
 
 package art.arcane.adapt.content.adaptation.ranged;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Color;
+import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -47,24 +47,16 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class RangedPinningShot extends SimpleAdaptation<RangedPinningShot.Config> {
-  private final Map<UUID, Long> targetProcTimes = new java.util.concurrent.ConcurrentHashMap<>();
+  private final Map<UUID, Long> targetProcTimes = playerState();
 
   public RangedPinningShot() {
     super("ranged-pinning-shot");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("ranged.pinning_shot.description"));
-    setDisplayName(Localizer.dLocalize("ranged.pinning_shot.name"));
     setIcon(Material.TRIPWIRE_HOOK);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(2200);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.ARROW)
         .key("challenge_ranged_pinning_300")
-        .title(Localizer.dLocalize("advancement.challenge_ranged_pinning_300.title"))
-        .description(Localizer.dLocalize("advancement.challenge_ranged_pinning_300.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -73,25 +65,21 @@ public class RangedPinningShot extends SimpleAdaptation<RangedPinningShot.Config
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.pc(getProcChance(level), 0) + C.GRAY + " " + Localizer.dLocalize("ranged.pinning_shot.lore1"));
-    v.addLore(C.GREEN + "+ " + Form.duration(getDurationTicks(level) * 50D, 1) + C.GRAY + " " + Localizer.dLocalize("ranged.pinning_shot.lore2"));
-    v.addLore(C.YELLOW + "* " + Form.duration(getReapplyCooldownMillis(level), 1) + C.GRAY + " " + Localizer.dLocalize("ranged.pinning_shot.lore3"));
+    statLore(v, Form.pc(getProcChance(level), 0), 1);
+    statLore(v, Form.duration(getDurationTicks(level) * 50D, 1), 2);
+    statLore(v, C.YELLOW, "* ", Form.duration(getReapplyCooldownMillis(level), 1), 3);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
   public void on(EntityDamageByEntityEvent e) {
-    if (!(e.getDamager() instanceof Projectile projectile) || !(projectile.getShooter() instanceof Player p) || !(e.getEntity() instanceof LivingEntity target)) {
+    art.arcane.adapt.api.adaptation.Adaptation.ProjectileContext combat = resolveProjectileContext(e);
+    if (combat == null) {
       return;
     }
 
-    int level = getActiveLevel(p);
-    if (level <= 0) {
-      return;
-    }
-
-    if (!canDamageTarget(p, target)) {
-      return;
-    }
+    Player p = combat.attacker();
+    LivingEntity target = combat.target();
+    int level = combat.level();
 
     long now = System.currentTimeMillis();
     cleanupExpired(now);
@@ -107,25 +95,22 @@ public class RangedPinningShot extends SimpleAdaptation<RangedPinningShot.Config
 
     targetProcTimes.put(target.getUniqueId(), now);
     target.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, getDurationTicks(level), getAmplifier(level), true, true, true), true);
-    getPlayer(p).getData().addStat("ranged.pinning-shot.targets-pinned", 1);
+    addStat(p, "ranged.pinning-shot.targets-pinned", 1);
 
     if (getConfig().dampenVelocityOnProc) {
-      Vector v = target.getVelocity();
-      target.setVelocity(new Vector(v.getX() * getConfig().horizontalVelocityFactor, v.getY(), v.getZ() * getConfig().horizontalVelocityFactor));
+      Vector velocity = target.getVelocity();
+      target.setVelocity(new Vector(velocity.getX() * getConfig().horizontalVelocityFactor, velocity.getY(), velocity.getZ() * getConfig().horizontalVelocityFactor));
+      fx(target, FxPriority.COMBAT).dustBurst(Color.fromRGB(140, 120, 100), 6, 0.2D, 1.0F);
     }
 
-    if (areParticlesEnabled()) {
-
-      target.getWorld().spawnParticle(Particle.CRIT, target.getLocation().add(0, 0.9, 0), 18, 0.3, 0.45, 0.3, 0.08);
-
-    }
-    if (areParticlesEnabled()) {
-      target.getWorld().spawnParticle(Particle.ENCHANT, target.getLocation().add(0, 1.0, 0), 28, 0.35, 0.5, 0.35, 0.35);
-
-    }
-    SoundPlayer sp = SoundPlayer.of(target.getWorld());
-    sp.play(target.getLocation(), Sound.BLOCK_BELL_USE, 1.1f, 0.48f);
-    sp.play(target.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 0.7f, 0.55f);
+    Location center = target.getLocation();
+    double ringRadius = 0.6D + Math.min(0.4D, getDurationTicks(level) / 300.0D);
+    fx(center, FxPriority.COMBAT)
+        .column(Particles.CRIT_MAGIC, 6, 1.6D)
+        .dustRing(Color.fromRGB(120, 120, 140), ringRadius, 12, 1.0F)
+        .particle(Particles.ENCHANTMENT_TABLE, 8, 0, 1.0D, 0, 0.35D, 0.0D)
+        .chord(Sound.BLOCK_BELL_USE, 1.1F, 0.48F, Sound.BLOCK_NOTE_BLOCK_BASS, 0.7F, 0.55F)
+        .sound(Sound.BLOCK_ANVIL_LAND, 0.3F, 0.6F);
     xp(p, getConfig().xpOnProc);
   }
 
@@ -158,33 +143,10 @@ public class RangedPinningShot extends SimpleAdaptation<RangedPinningShot.Config
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Projectiles can pin targets with heavy slowness.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Dampen Velocity On Proc for the Ranged Pinning Shot adaptation.", impact = "True enables this behavior and false disables it.")
     boolean dampenVelocityOnProc = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 6;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.74;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Proc Chance Base for the Ranged Pinning Shot adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double procChanceBase = 0.12;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Proc Chance Factor for the Ranged Pinning Shot adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -211,5 +173,11 @@ public class RangedPinningShot extends SimpleAdaptation<RangedPinningShot.Config
     long entryTtlMillis = 60000;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp On Proc for the Ranged Pinning Shot adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpOnProc = 12;
+
+    public Config() {
+      costFactor = 0.74;
+      maxLevel = 6;
+      initialCost = 4;
+    }
   }
 }

@@ -18,25 +18,25 @@
 
 package art.arcane.adapt.content.adaptation.axe;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.world.PlayerAdaptation;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -51,28 +51,16 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
   public AxeLeafVeinminer() {
     super("axe-leaf-veinminer");
     registerConfiguration(AxeLeafVeinminer.Config.class);
-    setDescription(Localizer.dLocalize("axe.leaf_miner.description"));
-    setDisplayName(Localizer.dLocalize("axe.leaf_miner.name"));
+    setLocalizationKey("axe.leaf_miner");
     setIcon(Material.BIRCH_LEAVES);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(5849);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.OAK_LEAVES)
         .key("challenge_axe_leaf_5k")
-        .title(Localizer.dLocalize("advancement.challenge_axe_leaf_5k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_axe_leaf_5k.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
     registerMilestone("challenge_axe_leaf_5k", "axe.leaf-veinminer.leaves-broken", 5000, 400);
-  }
-
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
   }
 
   public void addStats(int level, Element v) {
@@ -93,7 +81,6 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
     }
 
     Player p = e.getPlayer();
-    SoundPlayer sp = SoundPlayer.of(p);
     if (!hasActiveAdaptation(p)) {
       return;
     }
@@ -118,6 +105,10 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
     VEIN_MINED.add(e.getBlock());
 
     Block block = e.getBlock();
+    BlockData leafData = block.getBlockData();
+    fx(p.getEyeLocation(), FxPriority.TRAIL)
+        .line(Particles.VILLAGER_HAPPY, block.getX() + 0.5D, block.getY() + 0.5D, block.getZ() + 0.5D, 5)
+        .sound(Sound.ENTITY_PLAYER_ATTACK_SWEEP, 0.5F, 1.2F);
     Map<Location, Block> blockMap = new HashMap<>();
     Deque<Block> stack = new ArrayDeque<>();
     Set<Location> queued = new HashSet<>();
@@ -156,17 +147,16 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
     }
 
     int leavesBroken = blockMap.size();
+    PlayerSkillLine line = getPlayer(p).getData().getSkillLineNullable("axes");
+    PlayerAdaptation adaptation = line != null ? line.getAdaptation("axe-drop-to-inventory") : null;
+    boolean toInventory = adaptation != null && adaptation.getLevel() > 0;
     J.runEntity(p, () -> {
       for (Location l : blockMap.keySet()) {
         Block b = block.getWorld().getBlockAt(l);
-        PlayerSkillLine line = getPlayer(p).getData().getSkillLineNullable("axes");
-        PlayerAdaptation adaptation = line != null ? line.getAdaptation("axe-drop-to-inventory") : null;
-
         VEIN_MINED.add(b);
-        if (adaptation != null && adaptation.getLevel() > 0) {
+        if (toInventory) {
           Collection<ItemStack> items = b.getDrops(p.getInventory().getItemInMainHand(), p);
           for (ItemStack i : items) {
-            sp.play(p.getLocation(), Sound.BLOCK_CALCITE_HIT, 0.01f, 0.01f);
             HashMap<Integer, ItemStack> extra = p.getInventory().addItem(i);
             if (!extra.isEmpty()) {
               p.getWorld().dropItem(p.getLocation(), extra.get(0));
@@ -175,21 +165,42 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
           b.setType(Material.AIR);
         } else {
           b.breakNaturally(p.getItemInUse());
-          SoundPlayer spw = SoundPlayer.of(block.getWorld());
-          spw.play(b.getLocation(), Sound.BLOCK_FUNGUS_BREAK, 0.01f, 0.25f);
-          if (areParticlesEnabled()) {
-            b.getWorld().spawnParticle(Particle.ASH, b.getLocation().add(0.5, 0.5, 0.5), 25, 0.5, 0.5, 0.5, 0.1);
-          }
-        }
-        if (areParticlesEnabled()) {
-          this.vfxCuboidOutline(b, Particles.ENCHANTMENT_TABLE);
         }
         VEIN_MINED.remove(b);
       }
       VEIN_MINED.remove(block);
     });
     if (leavesBroken > 0) {
-      getPlayer(p).getData().addStat("axe.leaf-veinminer.leaves-broken", leavesBroken);
+      addStat(p, "axe.leaf-veinminer.leaves-broken", leavesBroken);
+      double sumX = 0.0D;
+      double sumY = 0.0D;
+      double sumZ = 0.0D;
+      for (Location l : blockMap.keySet()) {
+        sumX += l.getX();
+        sumY += l.getY();
+        sumZ += l.getZ();
+      }
+      Location center = new Location(block.getWorld(), (sumX / leavesBroken) + 0.5D, (sumY / leavesBroken) + 0.5D, (sumZ / leavesBroken) + 0.5D);
+      double extent = Math.min(3.0D, 1.0D + (radius * 0.35D));
+      timeline(center)
+          .duration(8)
+          .priority(FxPriority.TRANSITION)
+          .cullRadius(24)
+          .frame((fx, tick, progress) -> {
+            fx.particle(Particles.BLOCK_CRACK, 3, 0.0D, extent * 0.4D * (1.0D - progress), 0.0D, extent, 0.02D, leafData);
+            if (tick == 0) {
+              fx.chord(Sound.BLOCK_AZALEA_LEAVES_BREAK, 0.7F, 1.0F, Sound.BLOCK_GRASS_BREAK, 0.4F, 1.3F);
+            }
+            if ((tick & 1) == 0) {
+              fx.particle(Particles.VILLAGER_HAPPY, 1, 0.0D, 0.0D, 0.0D, extent, 0.0D);
+            }
+          })
+          .start();
+      if (leavesBroken >= 40) {
+        fx(center, FxPriority.AMBIENT)
+            .burst(Particles.VILLAGER_HAPPY, 6, 0.4D)
+            .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.5F, 1.5F);
+      }
     }
   }
 
@@ -198,29 +209,15 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
   public void onTick() {
   }
 
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Break bulk leaves at once while sneaking.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Axe Leaf Veinminer adaptation.", impact = "True enables this behavior and false disables it.")
-    boolean showParticles = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 6;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 1;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.325;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Base Range for the Axe Leaf Veinminer adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     int baseRange = 5;
+
+    public Config() {
+      baseCost = 6;
+      costFactor = 0.325;
+      initialCost = 1;
+    }
   }
 }

@@ -18,17 +18,18 @@
 
 package art.arcane.adapt.content.adaptation.excavation;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -49,19 +50,11 @@ public class ExcavationTreasureHunter extends SimpleAdaptation<ExcavationTreasur
   public ExcavationTreasureHunter() {
     super("excavation-treasure-hunter");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("excavation.treasure_hunter.description"));
-    setDisplayName(Localizer.dLocalize("excavation.treasure_hunter.name"));
     setIcon(Material.EMERALD);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(3370);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.EMERALD)
         .key("challenge_excavation_treasure_500")
-        .title(Localizer.dLocalize("advancement.challenge_excavation_treasure_500.title"))
-        .description(Localizer.dLocalize("advancement.challenge_excavation_treasure_500.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -70,7 +63,7 @@ public class ExcavationTreasureHunter extends SimpleAdaptation<ExcavationTreasur
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.pc(getTreasureChance(level), 1) + C.GRAY + " " + Localizer.dLocalize("excavation.treasure_hunter.lore1"));
+    statLore(v, Form.pc(getTreasureChance(level), 1), 1);
     v.addLore(C.GRAY + Localizer.dLocalize("excavation.treasure_hunter.lore2"));
   }
 
@@ -106,14 +99,19 @@ public class ExcavationTreasureHunter extends SimpleAdaptation<ExcavationTreasur
     Location drop = e.getBlock().getLocation().add(0.5, 0.5, 0.5);
     e.getBlock().getWorld().dropItemNaturally(drop, new ItemStack(entry.material(), amount));
 
-    if (areParticlesEnabled()) {
-      p.spawnParticle(Particle.WAX_ON, drop, 10, 0.25, 0.25, 0.25, 0.02);
+    boolean rare = entry.weight() <= 6.0D;
+    int sparkle = rare ? 14 : 6;
+    float pling = rare ? 1.9f : 1.4f;
+    fx(drop, FxPriority.TRANSITION)
+        .particle(Particle.WAX_ON, sparkle, 0, 0.1D, 0, 0.25D, 0.02D)
+        .particle(Particles.ITEM_CRACK, 3, 0, 0.15D, 0, 0.15D, 0.02D, new ItemStack(entry.material()))
+        .chord(Sound.ITEM_BRUSH_BRUSHING_SAND_COMPLETE, 0.8f, 1.2f, Sound.BLOCK_NOTE_BLOCK_PLING, 0.6f, pling);
+    if (rare) {
+      fx(drop, FxPriority.TRANSITION)
+          .particle(Particle.END_ROD, 4, 0, 0.2D, 0, 0.2D, 0.03D)
+          .sound(Sound.ENTITY_PLAYER_LEVELUP, 0.3f, 2.0f);
     }
-
-    SoundPlayer sp = SoundPlayer.of(p.getWorld());
-    sp.play(drop, Sound.ITEM_BRUSH_BRUSHING_SAND_COMPLETE, 0.8f, 1.2f);
-    sp.play(drop, Sound.BLOCK_NOTE_BLOCK_PLING, 0.6f, 1.7f);
-    getPlayer(p).getData().addStat("excavation.treasure-hunter.treasures-found", 1);
+    addStat(p, "excavation.treasure-hunter.treasures-found", 1);
     xp(p, getConfig().xpPerTreasure);
   }
 
@@ -190,16 +188,6 @@ public class ExcavationTreasureHunter extends SimpleAdaptation<ExcavationTreasur
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
   private record LootEntry(Material material, double weight, int min, int max) {
   }
 
@@ -207,21 +195,8 @@ public class ExcavationTreasureHunter extends SimpleAdaptation<ExcavationTreasur
                             double totalWeight) {
   }
 
-  @NoArgsConstructor
   @ConfigDescription("Digging sand, gravel, mud, or clay with a shovel can unearth archaeology treasure.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.7;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Treasure Chance Base for the Excavation Treasure Hunter adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double treasureChanceBase = 0.01;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Treasure Chance Factor for the Excavation Treasure Hunter adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -240,5 +215,10 @@ public class ExcavationTreasureHunter extends SimpleAdaptation<ExcavationTreasur
     ));
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Treasure for the Excavation Treasure Hunter adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpPerTreasure = 12;
+
+    public Config() {
+      costFactor = 0.7;
+      initialCost = 4;
+    }
   }
 }

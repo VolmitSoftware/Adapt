@@ -18,19 +18,24 @@
 
 package art.arcane.adapt.content.adaptation.chronos;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
+import org.bukkit.Color;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -53,21 +58,13 @@ public class ChronosBorrowedTime extends SimpleAdaptation<ChronosBorrowedTime.Co
   public ChronosBorrowedTime() {
     super("chronos-borrowed-time");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("chronos.borrowed_time.description"));
-    setDisplayName(Localizer.dLocalize("chronos.borrowed_time.name"));
     setIcon(Material.SOUL_SAND);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(1000);
     deferred = new ConcurrentHashMap<>();
     applyingDeferred = ConcurrentHashMap.newKeySet();
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.SOUL_SAND)
         .key("challenge_chronos_borrowed_2500")
-        .title(Localizer.dLocalize("advancement.challenge_chronos_borrowed_2500.title"))
-        .description(Localizer.dLocalize("advancement.challenge_chronos_borrowed_2500.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -133,7 +130,13 @@ public class ChronosBorrowedTime extends SimpleAdaptation<ChronosBorrowedTime.Co
     deferred.computeIfAbsent(id, k -> new ConcurrentLinkedDeque<>())
         .add(new DeferredDamage(deferredAmount / pulses, pulses));
 
-    getPlayer(p).getData().addStat("chronos.borrowed-time.damage-deferred", deferredAmount);
+    addStat(p, "chronos.borrowed-time.damage-deferred", deferredAmount);
+
+    Location chest = p.getLocation().add(0, 1.0, 0);
+    fx(chest, FxPriority.TRANSITION)
+        .particle(Particle.SOUL, 4, 0, 0.1D, 0, 0.2D, 0.01D)
+        .dustRing(Color.fromRGB(210, 150, 60), 0.6D, 8, 0.9F)
+        .sound(Sound.BLOCK_SCULK_CATALYST_BLOOM, 0.4F, 0.8F);
   }
 
   @Override
@@ -164,6 +167,7 @@ public class ChronosBorrowedTime extends SimpleAdaptation<ChronosBorrowedTime.Co
       if (queue.isEmpty()) {
         deferred.remove(id);
       }
+      boolean cleared = queue.isEmpty();
 
       if (amount <= 0D) {
         continue;
@@ -192,8 +196,16 @@ public class ChronosBorrowedTime extends SimpleAdaptation<ChronosBorrowedTime.Co
           p.setHealth(remaining);
         }
 
-        if (areParticlesEnabled()) {
-          p.getWorld().spawnParticle(Particle.ASH, p.getLocation().add(0, 1, 0), 3, 0.2, 0.3, 0.2, 0);
+        int motes = (int) Math.max(2, Math.min(5, Math.round(damage)));
+        float pitch = 0.5F + Math.min(0.9F, (float) (damage * 0.12D));
+        fx(p.getLocation().add(0, 1.0, 0), FxPriority.TRAIL)
+            .particle(Particle.SOUL, motes, 0, 0.1D, 0, 0.2D, 0.02D)
+            .sound(Sound.BLOCK_SAND_STEP, 0.2F, pitch);
+
+        if (cleared) {
+          fx(p.getLocation().add(0, 1.0, 0), FxPriority.TRANSITION)
+              .column(Particles.END_ROD, 6, 1.2D)
+              .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.5F, 1.5F);
         }
       };
 
@@ -205,31 +217,8 @@ public class ChronosBorrowedTime extends SimpleAdaptation<ChronosBorrowedTime.Co
     }
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Defer a portion of incoming damage, paying it back in small ticks over the following seconds.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 6;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.42;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Base fraction of incoming damage that is deferred.", impact = "Higher values move more damage into the payback window.")
     double baseDeferFraction = 0.1;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Extra deferred fraction per adaptation level.", impact = "Higher values make leveling defer more damage.")
@@ -240,6 +229,12 @@ public class ChronosBorrowedTime extends SimpleAdaptation<ChronosBorrowedTime.Co
     double minimumDeferDamage = 1.0;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Number of one second pulses the deferred damage is paid back over.", impact = "Higher values spread payback thinner over a longer window.")
     int paybackPulses = 10;
+
+    public Config() {
+      baseCost = 6;
+      costFactor = 0.42;
+      initialCost = 5;
+    }
   }
 
   private static final class DeferredDamage {

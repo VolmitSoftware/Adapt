@@ -18,19 +18,22 @@
 
 package art.arcane.adapt.content.adaptation.herbalism;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxEmitter;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.content.item.ItemListings;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
 import org.bukkit.Color;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -42,19 +45,11 @@ public class HerbalismHungryHippo extends SimpleAdaptation<HerbalismHungryHippo.
   public HerbalismHungryHippo() {
     super("herbalism-hippo");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("herbalism.hippo.description"));
-    setDisplayName(Localizer.dLocalize("herbalism.hippo.name"));
     setIcon(Material.POTATO);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
     setInterval(8111);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.GOLDEN_APPLE)
         .key("challenge_herbalism_hippo_500")
-        .title(Localizer.dLocalize("advancement.challenge_herbalism_hippo_500.title"))
-        .description(Localizer.dLocalize("advancement.challenge_herbalism_hippo_500.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -69,16 +64,32 @@ public class HerbalismHungryHippo extends SimpleAdaptation<HerbalismHungryHippo.
   @EventHandler(priority = EventPriority.NORMAL)
   public void on(PlayerItemConsumeEvent e) {
     Player p = e.getPlayer();
-    SoundPlayer sp = SoundPlayer.of(p);
     if (!hasActiveAdaptation(p)) {
       return;
     }
-    if (ItemListings.getFood().contains(e.getItem().getType())) {
-      p.setFoodLevel(p.getFoodLevel() + 2 + getLevel(p));
-      sp.play(p.getLocation(), Sound.BLOCK_POINTED_DRIPSTONE_LAND, 1, 0.25f);
-      vfxFastRing(p.getLocation().add(0, 0.25, 0), 2, Color.GREEN);
-      getPlayer(p).getData().addStat("herbalism.hungry-hippo.bonus-saturation", 2 + getLevel(p));
-      xp(p, 5);
+
+    Material food = e.getItem().getType();
+    if (!ItemListings.getFood().contains(food)) {
+      return;
+    }
+
+    int level = getLevel(p);
+    p.setFoodLevel(p.getFoodLevel() + 2 + level);
+    addStat(p, "herbalism.hungry-hippo.bonus-saturation", 2 + level);
+    xp(p, 5);
+
+    boolean bigMeal = food == Material.GOLDEN_APPLE || food == Material.ENCHANTED_GOLDEN_APPLE || food == Material.GOLDEN_CARROT;
+    double radius = Math.min(2.5D, 0.9D + (level * 0.18D));
+    int ringPoints = Math.min(16, 8 + (level * 2));
+    Color ringColor = bigMeal ? Color.fromRGB(255, 205, 70) : Color.fromRGB(120, 220, 90);
+    FxEmitter emitter = fx(p.getLocation().add(0, 0.25, 0), FxPriority.TRANSITION)
+        .dustRing(ringColor, radius * 0.5D, 12, 1.0F)
+        .ring(Particles.VILLAGER_HAPPY, radius, ringPoints, 0.9D)
+        .particle(Particle.COMPOSTER, 3, 0, 0.4D, 0, 0.25D, 0.03D)
+        .chord(Sound.BLOCK_POINTED_DRIPSTONE_LAND, 1F, 0.25F, Sound.BLOCK_NOTE_BLOCK_CHIME, 0.4F, 1.4F);
+    if (bigMeal) {
+      emitter.particle(Particle.WAX_ON, 4, 0, 0.6D, 0, 0.5D, 0.02D)
+          .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.5F, 1.6F);
     }
   }
 
@@ -88,30 +99,13 @@ public class HerbalismHungryHippo extends SimpleAdaptation<HerbalismHungryHippo.
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Consuming food gives you more saturation.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 8;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 7;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.75;
+  protected static class Config extends AdaptationConfig {
+    public Config() {
+      baseCost = 8;
+      costFactor = 0.75;
+      maxLevel = 7;
+      initialCost = 3;
+    }
   }
 }

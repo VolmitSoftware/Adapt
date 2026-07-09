@@ -18,18 +18,21 @@
 
 package art.arcane.adapt.content.adaptation.axe;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Materials;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -41,13 +44,8 @@ public class AxeCraftLogSwap extends SimpleAdaptation<AxeCraftLogSwap.Config> {
   public AxeCraftLogSwap() {
     super("axe-logswap");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("axe.log_swap.description"));
-    setDisplayName(Localizer.dLocalize("axe.log_swap.name"));
+    setLocalizationKey("axe.log_swap");
     setIcon(Material.MUDDY_MANGROVE_ROOTS);
-    setBaseCost(getConfig().baseCost);
-    setCostFactor(getConfig().costFactor);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
     setInterval(17773);
 
     //Birch -> Types
@@ -1016,8 +1014,6 @@ public class AxeCraftLogSwap extends SimpleAdaptation<AxeCraftLogSwap.Config> {
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.OAK_SAPLING)
         .key("challenge_axe_log_swap_500")
-        .title(Localizer.dLocalize("advancement.challenge_axe_log_swap_500.title"))
-        .description(Localizer.dLocalize("advancement.challenge_axe_log_swap_500.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -1035,7 +1031,11 @@ public class AxeCraftLogSwap extends SimpleAdaptation<AxeCraftLogSwap.Config> {
       return;
     }
     if (e.getRecipe() instanceof org.bukkit.inventory.ShapelessRecipe recipe && recipe.getKey().getNamespace().equals("adapt") && recipe.getKey().getKey().startsWith("axe-swap")) {
-      getPlayer(p).getData().addStat("axe.log-swap.conversions", 1);
+      addStat(p, "axe.log-swap.conversions", 1);
+      fx(p.getLocation().add(0.0D, 1.0D, 0.0D), FxPriority.TRANSITION)
+          .particle(Particles.VILLAGER_HAPPY, 8, 0.0D, 0.0D, 0.0D, 0.4D, 0.02D)
+          .dustBurst(4, 0.3D, 1.0F)
+          .chord(Sound.BLOCK_SWEET_BERRY_BUSH_PICK_BERRIES, 0.6F, 1.2F, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.4F, 1.6F);
     }
   }
 
@@ -1043,30 +1043,13 @@ public class AxeCraftLogSwap extends SimpleAdaptation<AxeCraftLogSwap.Config> {
   public void onTick() {
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Convert log types using a sapling in a crafting table.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 2;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 1;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 2;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 1;
+  protected static class Config extends AdaptationConfig {
+    public Config() {
+      permanent = true;
+      baseCost = 2;
+      costFactor = 1;
+      maxLevel = 1;
+    }
   }
 }

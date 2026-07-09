@@ -19,20 +19,23 @@
 package art.arcane.adapt.content.adaptation.pickaxe;
 
 import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
-import lombok.NoArgsConstructor;
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -44,19 +47,11 @@ public class PickaxeGemPolish extends SimpleAdaptation<PickaxeGemPolish.Config> 
   public PickaxeGemPolish() {
     super("pickaxe-gem-polish");
     registerConfiguration(PickaxeGemPolish.Config.class);
-    setDescription(Localizer.dLocalize("pickaxe.gem_polish.description"));
-    setDisplayName(Localizer.dLocalize("pickaxe.gem_polish.name"));
     setIcon(Material.DIAMOND);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(6844);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.EMERALD)
         .key("challenge_pickaxe_gempolish_500")
-        .title(Localizer.dLocalize("advancement.challenge_pickaxe_gempolish_500.title"))
-        .description(Localizer.dLocalize("advancement.challenge_pickaxe_gempolish_500.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -66,8 +61,8 @@ public class PickaxeGemPolish extends SimpleAdaptation<PickaxeGemPolish.Config> 
   @Override
   public void addStats(int level, Element v) {
     v.addLore(C.GREEN + Localizer.dLocalize("pickaxe.gem_polish.lore1"));
-    v.addLore(C.GREEN + "+ " + Form.pc(getGemChance(level), 0) + C.GRAY + " " + Localizer.dLocalize("pickaxe.gem_polish.lore2"));
-    v.addLore(C.GREEN + "+ " + getBonusXp(level) + C.GRAY + " " + Localizer.dLocalize("pickaxe.gem_polish.lore3"));
+    statLore(v, Form.pc(getGemChance(level), 0), 2);
+    statLore(v, getBonusXp(level), 3);
   }
 
   public double getGemChance(int level) {
@@ -110,52 +105,55 @@ public class PickaxeGemPolish extends SimpleAdaptation<PickaxeGemPolish.Config> 
       return;
     }
 
+    Material blockType = e.getBlock().getType();
     Location drop = e.getBlock().getLocation().add(0.5, 0.5, 0.5);
     int bonusXp = getBonusXp(context.level());
     if (bonusXp > 0) {
       e.getBlock().getWorld().spawn(drop, org.bukkit.entity.ExperienceOrb.class).setExperience(bonusXp);
+      fx(drop, FxPriority.AMBIENT)
+          .column(Particles.END_ROD, 4, 0.8D)
+          .sound(Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5f, 1.4f);
     }
 
     if (M.r(getGemChance(context.level()))) {
       e.getBlock().getWorld().dropItemNaturally(drop, new ItemStack(gem));
-      getPlayer(p).getData().addStat("pickaxe.gem-polish.gems-polished", 1);
-      if (areParticlesEnabled()) {
-        e.getBlock().getWorld().spawnParticle(Particle.HAPPY_VILLAGER, drop, 6, 0.25, 0.25, 0.25);
+      addStat(p, "pickaxe.gem-polish.gems-polished", 1);
+      Color gemColor = gemColor(gem);
+      timeline(drop)
+          .duration(5)
+          .priority(FxPriority.TRANSITION)
+          .frame((fxE, tick, progress) -> {
+            double r = 0.7D - (0.5D * progress);
+            fxE.ring(Particles.END_ROD, r, 4, 0.4D);
+            fxE.dustRing(gemColor, r, 6, 1.0F);
+            if (tick == 0) {
+              fxE.chord(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.5f, 1.6f, Sound.BLOCK_AMETHYST_CLUSTER_BREAK, 0.4f, 1.2f);
+            }
+          })
+          .start();
+      if (blockType == Material.AMETHYST_CLUSTER) {
+        fx(drop, FxPriority.AMBIENT).sound(Sound.BLOCK_AMETHYST_CLUSTER_HIT, 0.4f, 1.3f);
       }
     }
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
+  private static Color gemColor(Material gem) {
+    return switch (gem) {
+      case EMERALD -> Color.fromRGB(0x2ECC71);
+      case LAPIS_LAZULI -> Color.fromRGB(0x1E5AA8);
+      case AMETHYST_SHARD -> Color.fromRGB(0x9B59B6);
+      default -> Color.fromRGB(0x4DD0E1);
+    };
   }
 
   @Override
   public void onTick() {
   }
 
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Mining gem ores grants bonus XP orbs and a chance for an extra matching gem.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Skips all bonuses when the pickaxe has Silk Touch.", impact = "True prevents double-dipping by silk-touching ores and mining them again.")
     boolean preventSilkTouchDoubleDip = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 6;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.7;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Base chance for an extra gem drop when mining a gem ore.", impact = "Higher values drop extra gems more often at every level.")
     double gemChanceBase = 0.04;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Additional extra-gem chance gained per adaptation level.", impact = "Higher values drop extra gems more often at higher levels.")
@@ -166,5 +164,11 @@ public class PickaxeGemPolish extends SimpleAdaptation<PickaxeGemPolish.Config> 
     int bonusXpBase = 1;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Additional bonus XP orb value gained per adaptation level.", impact = "Higher values grant more XP at higher levels.")
     int bonusXpPerLevel = 2;
+
+    public Config() {
+      baseCost = 6;
+      costFactor = 0.7;
+      initialCost = 4;
+    }
   }
 }

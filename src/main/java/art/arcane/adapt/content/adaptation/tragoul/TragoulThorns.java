@@ -18,59 +18,50 @@
 
 package art.arcane.adapt.content.adaptation.tragoul;
 
-import art.arcane.adapt.Adapt;
-import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
+import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import de.slikey.effectlib.effect.BleedEffect;
-import lombok.NoArgsConstructor;
+import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 
 public class TragoulThorns extends SimpleAdaptation<TragoulThorns.Config> {
-  private final Map<UUID, Long> cooldowns;
+  private static final Color THORN_CRIMSON = Color.fromRGB(140, 10, 10);
+  private static final Color THORN_LETHAL = Color.fromRGB(120, 0, 0);
+  private final Cooldowns cooldowns = cooldowns();
 
   public TragoulThorns() {
     super("tragoul-thorns");
     registerConfiguration(TragoulThorns.Config.class);
-    setDescription(Localizer.dLocalize("tragoul.thorns.description"));
-    setDisplayName(Localizer.dLocalize("tragoul.thorns.name"));
     setIcon(Material.CACTUS);
     setInterval(25000);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
-    cooldowns = new ConcurrentHashMap<>();
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.CACTUS)
         .key("challenge_tragoul_thorns_500")
-        .title(Localizer.dLocalize("advancement.challenge_tragoul_thorns_500.title"))
-        .description(Localizer.dLocalize("advancement.challenge_tragoul_thorns_500.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.IRON_CHESTPLATE)
             .key("challenge_tragoul_thorns_5k")
-            .title(Localizer.dLocalize("advancement.challenge_tragoul_thorns_5k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_tragoul_thorns_5k.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -80,8 +71,6 @@ public class TragoulThorns extends SimpleAdaptation<TragoulThorns.Config> {
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.CACTUS)
         .key("challenge_tragoul_thorns_kill")
-        .title(Localizer.dLocalize("advancement.challenge_tragoul_thorns_kill.title"))
-        .description(Localizer.dLocalize("advancement.challenge_tragoul_thorns_kill.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -89,7 +78,7 @@ public class TragoulThorns extends SimpleAdaptation<TragoulThorns.Config> {
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "" + getConfig().damageMultiplierPerLevel * level + "x " + Localizer.dLocalize("tragoul.thorns.lore1"));
+    v.addLore(C.GREEN + Form.f(getConfig().damageMultiplierPerLevel * level, 2) + "x " + Localizer.dLocalize("tragoul.thorns.lore1"));
   }
 
 
@@ -103,67 +92,39 @@ public class TragoulThorns extends SimpleAdaptation<TragoulThorns.Config> {
         }
 
         UUID id = p.getUniqueId();
-        Long cooldown = cooldowns.get(id);
-        if (cooldown != null && cooldown + 1500 > System.currentTimeMillis()) {
+        if (!cooldowns.isReady(id, 1500L)) {
           return;
         }
 
-        cooldowns.put(id, System.currentTimeMillis());
+        cooldowns.mark(id);
 
         LivingEntity le = null;
-
-        if (e.getDamager() instanceof LivingEntity) {
-          le = (LivingEntity) e.getDamager();
-        } else if (e.getDamager() instanceof Projectile projectile && projectile.getShooter() instanceof LivingEntity) {
-          le = (LivingEntity) projectile.getShooter();
+        if (e.getDamager() instanceof LivingEntity living) {
+          le = living;
+        } else if (e.getDamager() instanceof Projectile projectile && projectile.getShooter() instanceof LivingEntity shooter) {
+          le = shooter;
         }
 
         if (le != null && canDamageTarget(p, le)) {
-          if (areParticlesEnabled()) {
-            playThornsParticles(le);
-          }
+          LivingEntity attacker = le;
           double reflectedDamage = getConfig().damageMultiplierPerLevel * level;
-          double healthBefore = le.getHealth();
-          le.damage(reflectedDamage, p);
-          getPlayer(p).getData().addStat("tragoul.thorns.damage-reflected", (int) reflectedDamage);
-          if (healthBefore <= reflectedDamage && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_tragoul_thorns_kill")) {
-            getPlayer(p).getAdvancementHandler().grant("challenge_tragoul_thorns_kill");
+          double healthBefore = attacker.getHealth();
+          fx(attacker, FxPriority.COMBAT)
+              .ring(Particles.CRIT_MAGIC, 0.6D, 10, 1.0D)
+              .dustBurst(THORN_CRIMSON, 4, 0.4D, 1.0F)
+              .chord(Sound.ENTITY_PLAYER_ATTACK_CRIT, 0.5F, 1.4F, Sound.ENTITY_ARROW_HIT, 0.4F, 0.8F);
+          attacker.damage(reflectedDamage, p);
+          addStat(p, "tragoul.thorns.damage-reflected", (int) reflectedDamage);
+          if (healthBefore <= reflectedDamage) {
+            fx(attacker, FxPriority.COMBAT)
+                .particle(Particle.DAMAGE_INDICATOR, 6, 0, 1.0D, 0, 0.3D, 0.05D)
+                .dustBurst(THORN_LETHAL, 10, 0.4D, 1.0F)
+                .chord(Sound.ENTITY_PLAYER_ATTACK_CRIT, 0.7F, 0.7F, Sound.BLOCK_BONE_BLOCK_BREAK, 0.5F, 1.2F);
+            grantOnce(p, "challenge_tragoul_thorns_kill");
           }
         }
       });
     }
-  }
-
-  private void playThornsParticles(LivingEntity target) {
-    Runnable burst = () -> {
-      if (target == null || !target.isValid()) {
-        return;
-      }
-
-      target.getWorld().spawnParticle(Particle.DAMAGE_INDICATOR, target.getLocation().clone().add(0, 1, 0), 8, 0.35, 0.45, 0.35, 0.01);
-      target.getWorld().spawnParticle(Particle.CRIT, target.getLocation().clone().add(0, 1, 0), 10, 0.4, 0.5, 0.4, 0.06);
-    };
-
-    if (J.isFoliaThreading()) {
-      J.runEntity(target, burst);
-      return;
-    }
-
-    try {
-      BleedEffect blood = new BleedEffect(Adapt.instance.adaptEffectManager);
-      blood.setEntity(target);
-      blood.height = -1;
-      blood.iterations = 1;
-      blood.start();
-    } catch (UnsupportedOperationException | IllegalStateException ex) {
-      Adapt.verbose("Falling back to native thorns particles: " + ex.getMessage());
-      burst.run();
-    }
-  }
-
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
   }
 
 
@@ -171,29 +132,14 @@ public class TragoulThorns extends SimpleAdaptation<TragoulThorns.Config> {
   public void onTick() {
   }
 
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Reflect damage back to your attacker.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Tragoul Thorns adaptation.", impact = "True enables this behavior and false disables it.")
-    boolean showParticles = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 4;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Damage Multiplier Per Level for the Tragoul Thorns adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double damageMultiplierPerLevel = 1.0;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.72;
+
+    public Config() {
+      costFactor = 0.72;
+      initialCost = 4;
+    }
   }
 }

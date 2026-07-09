@@ -18,40 +18,37 @@
 
 package art.arcane.adapt.content.adaptation.nether;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.api.fx.FxEmitter;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.util.Vector;
 
 public class NetherGhastWard extends SimpleAdaptation<NetherGhastWard.Config> {
   public NetherGhastWard() {
     super("nether-ghast-ward");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("nether.ghast_ward.description"));
-    setDisplayName(Localizer.dLocalize("nether.ghast_ward.name"));
     setIcon(Material.GHAST_TEAR);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(2000);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.GHAST_TEAR)
         .key("challenge_nether_ghast_500")
-        .title(Localizer.dLocalize("advancement.challenge_nether_ghast_500.title"))
-        .description(Localizer.dLocalize("advancement.challenge_nether_ghast_500.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -60,9 +57,9 @@ public class NetherGhastWard extends SimpleAdaptation<NetherGhastWard.Config> {
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.pc(getGhastProjectileReduction(level), 0) + C.GRAY + " " + Localizer.dLocalize("nether.ghast_ward.lore1"));
-    v.addLore(C.GREEN + "+ " + Form.pc(getExplosionReduction(level), 0) + C.GRAY + " " + Localizer.dLocalize("nether.ghast_ward.lore2"));
-    v.addLore(C.GREEN + "+ " + Form.pc(getWitherSkeletonReduction(level), 0) + C.GRAY + " " + Localizer.dLocalize("nether.ghast_ward.lore3"));
+    statLore(v, Form.pc(getGhastProjectileReduction(level), 0), 1);
+    statLore(v, Form.pc(getExplosionReduction(level), 0), 2);
+    statLore(v, Form.pc(getWitherSkeletonReduction(level), 0), 3);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
@@ -80,11 +77,23 @@ public class NetherGhastWard extends SimpleAdaptation<NetherGhastWard.Config> {
       if (e.getDamager() instanceof Fireball fireball && fireball.getShooter() instanceof Ghast) {
         double before = e.getDamage();
         e.setDamage(Math.max(0, e.getDamage() * (1D - getGhastProjectileReduction(level))));
+        int fireBefore = p.getFireTicks();
         p.setFireTicks(Math.min(p.getFireTicks(), getMaxFireTicks(level)));
         xp(p, e.getDamage() * getConfig().xpPerMitigatedDamage);
         int reduced = (int) Math.round(before - e.getDamage());
         if (reduced > 0) {
-          getPlayer(p).getData().addStat("nether.ghast-ward.damage-reduced", reduced);
+          addStat(p, "nether.ghast-ward.damage-reduced", reduced);
+        }
+        Location center = p.getLocation().add(0D, 1.0D, 0D);
+        Vector rel = p.getLocation().toVector().subtract(fireball.getLocation().toVector());
+        double yaw = Math.atan2(rel.getZ(), rel.getX());
+        int arcPoints = 8 + (int) Math.round(getGhastProjectileReduction(level) * 8D);
+        FxEmitter emit = fx(center, FxPriority.COMBAT)
+            .arc(Particle.SOUL, 1.2D, arcPoints, yaw, Math.PI * 0.6D, 0.0D)
+            .burst(Particle.CRIT, 4, 0.3D)
+            .chord(Sound.ITEM_SHIELD_BLOCK, 0.6F, 1.1F, Sound.ENTITY_WITHER_HURT, 0.3F, 1.6F);
+        if (p.getFireTicks() < fireBefore) {
+          emit.particle(Particles.SMOKE, 3, 0D, 0D, 0D, 0.2D, 0.0D);
         }
         return;
       }
@@ -95,8 +104,12 @@ public class NetherGhastWard extends SimpleAdaptation<NetherGhastWard.Config> {
         xp(p, e.getDamage() * getConfig().xpPerMitigatedDamage);
         int reduced = (int) Math.round(before - e.getDamage());
         if (reduced > 0) {
-          getPlayer(p).getData().addStat("nether.ghast-ward.damage-reduced", reduced);
+          addStat(p, "nether.ghast-ward.damage-reduced", reduced);
         }
+        fx(p.getLocation().add(0D, 1.0D, 0D), FxPriority.COMBAT)
+            .burst(Particle.CRIT, 6, 0.3D)
+            .particle(Particle.SOUL, 2, 0D, 0.2D, 0D, 0.2D, 0.0D)
+            .sound(Sound.ITEM_SHIELD_BLOCK, 0.35F, 1.5F);
       }
     });
   }
@@ -121,8 +134,12 @@ public class NetherGhastWard extends SimpleAdaptation<NetherGhastWard.Config> {
       xp(p, e.getDamage() * getConfig().xpPerMitigatedDamage);
       int reduced = (int) Math.round(before - e.getDamage());
       if (reduced > 0) {
-        getPlayer(p).getData().addStat("nether.ghast-ward.damage-reduced", reduced);
+        addStat(p, "nether.ghast-ward.damage-reduced", reduced);
       }
+      double domeRadius = 0.9D + (getExplosionReduction(getLevel(p)) * 0.8D);
+      fx(p.getLocation().add(0D, 1.0D, 0D), FxPriority.COMBAT)
+          .dome(Particle.SCULK_SOUL, domeRadius, 14)
+          .chord(Sound.BLOCK_BEACON_DEACTIVATE, 0.4F, 1.4F, Sound.ENTITY_GENERIC_EXPLODE, 0.25F, 0.6F);
     });
   }
 
@@ -151,31 +168,8 @@ public class NetherGhastWard extends SimpleAdaptation<NetherGhastWard.Config> {
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Harden against ghast blasts and wither-skeleton pressure in the Nether.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 6;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.73;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Ghast Projectile Reduction Base for the Nether Ghast Ward adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double ghastProjectileReductionBase = 0.14;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Ghast Projectile Reduction Factor for the Nether Ghast Ward adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -200,5 +194,11 @@ public class NetherGhastWard extends SimpleAdaptation<NetherGhastWard.Config> {
     double maxFireTicksFactor = 70;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Mitigated Damage for the Nether Ghast Ward adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpPerMitigatedDamage = 4.2;
+
+    public Config() {
+      costFactor = 0.73;
+      maxLevel = 6;
+      initialCost = 4;
+    }
   }
 }

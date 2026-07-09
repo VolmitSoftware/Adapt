@@ -18,19 +18,22 @@
 
 package art.arcane.adapt.content.adaptation.herbalism;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxEmitter;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -54,26 +57,16 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
   public HerbalismCompostCascade() {
     super("herbalism-compost-cascade");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("herbalism.compost_cascade.description"));
-    setDisplayName(Localizer.dLocalize("herbalism.compost_cascade.name"));
     setIcon(Material.COMPOSTER);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(600);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.COMPOSTER)
         .key("challenge_herbalism_compost_1k")
-        .title(Localizer.dLocalize("advancement.challenge_herbalism_compost_1k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_herbalism_compost_1k.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.BONE_MEAL)
             .key("challenge_herbalism_compost_25k")
-            .title(Localizer.dLocalize("advancement.challenge_herbalism_compost_25k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_herbalism_compost_25k.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -84,10 +77,10 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.f(getRadius(level)) + C.GRAY + " " + Localizer.dLocalize("herbalism.compost_cascade.lore1"));
-    v.addLore(C.GREEN + "+ " + getMaxItems(level) + C.GRAY + " " + Localizer.dLocalize("herbalism.compost_cascade.lore2"));
-    v.addLore(C.GREEN + "+ " + Form.pc(getFillChance(level), 0) + C.GRAY + " " + Localizer.dLocalize("herbalism.compost_cascade.lore3"));
-    v.addLore(C.YELLOW + "* " + Form.duration(getCooldownTicks(level) * 50D, 1) + C.GRAY + " " + Localizer.dLocalize("herbalism.compost_cascade.lore4"));
+    statLore(v, Form.f(getRadius(level)), 1);
+    statLore(v, getMaxItems(level), 2);
+    statLore(v, Form.pc(getFillChance(level), 0), 3);
+    statLore(v, C.YELLOW, "* ", Form.duration(getCooldownTicks(level) * 50D, 1), 4);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
@@ -108,6 +101,10 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
     }
 
     if (composter == null || composter.getType() != Material.COMPOSTER) {
+      return;
+    }
+
+    if (!canInteract(p, composter.getLocation()) || !canBlockPlace(p, composter.getLocation())) {
       return;
     }
 
@@ -148,14 +145,34 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
     p.setCooldown(Material.COMPOSTER, getCooldownTicks(level));
     e.setCancelled(true);
 
-    getPlayer(p).getData().addStat("harvest.composted", state.consumed);
-    getPlayer(p).getData().addStat("herbalism.compost-cascade.items-composted", state.consumed);
+    addStat(p, "harvest.composted", state.consumed);
+    addStat(p, "herbalism.compost-cascade.items-composted", state.consumed);
     xp(p, center, (state.consumed * getConfig().xpPerItemConsumed) + (state.levelGains * getConfig().xpPerLevelGain));
 
-    SoundPlayer sp = SoundPlayer.of(world);
-    sp.play(center, Sound.BLOCK_COMPOSTER_FILL, 0.8f, 1.25f);
+    double visualRadius = Math.min(8.0D, radius);
+    timeline(center)
+        .duration(8)
+        .priority(FxPriority.TRANSITION)
+        .cullRadius(20)
+        .frame((fx, tick, progress) -> {
+          double r = 0.4D + ((visualRadius - 0.4D) * (1.0D - progress));
+          fx.dome(Particle.SPORE_BLOSSOM_AIR, r, 8);
+          fx.ring(Particle.COMPOSTER, r * 0.85D, 8, 0.2D);
+          if (tick == 0) {
+            fx.sound(Sound.BLOCK_COMPOSTER_FILL, 0.8F, 1.25F);
+          } else if (tick == 1) {
+            fx.sound(Sound.BLOCK_COMPOSTER_FILL, 0.5F, 0.9F);
+          } else if ((tick & 1) == 0) {
+            fx.sound(Sound.BLOCK_NOTE_BLOCK_HAT, 0.3F, (float) (1.1D + (progress * 0.6D)));
+          }
+        })
+        .start();
+
     if (updated.getLevel() >= 8) {
-      sp.play(center, Sound.BLOCK_COMPOSTER_READY, 1.0f, 1.12f);
+      fx(center, FxPriority.TRANSITION)
+          .dustRing(Color.fromRGB(120, 230, 120), 1.2D, 16, 1.1F)
+          .column(Particles.VILLAGER_HAPPY, 10, 1.4D)
+          .chord(Sound.BLOCK_COMPOSTER_READY, 1.0F, 1.12F, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.6F, 1.2F);
     }
 
     dropRewards(world, center, level, oldLevel, updated.getLevel(), state.consumed);
@@ -247,6 +264,7 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
     int r = Math.max(1, (int) Math.ceil(radius));
     double rs = radius * radius;
     int bursts = getLeafCompostBursts(level);
+    int puffs = 0;
     for (int x = -r; x <= r; x++) {
       for (int y = -r; y <= r; y++) {
         for (int z = -r; z <= r; z++) {
@@ -266,6 +284,13 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
           b.setType(Material.AIR, false);
           ItemStack leafMass = new ItemStack(Material.OAK_LEAVES, bursts);
           compostStack(leafMass, state, maxItems, getLeafFillChance(level, fillChance));
+
+          if (puffs < 8) {
+            fx(b.getLocation().add(0.5, 0.5, 0.5), FxPriority.AMBIENT)
+                .particle(Particle.SPORE_BLOSSOM_AIR, 2, 0, 0.1D, 0, 0.15D, 0.01D)
+                .particle(Particle.COMPOSTER, 1, 0, 0.1D, 0, 0.1D, 0.01D);
+            puffs++;
+          }
         }
       }
     }
@@ -328,10 +353,27 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
     }
 
     int rolls = getValuableRolls(level);
+    int sparkled = 0;
     for (int i = 0; i < rolls; i++) {
       if (ThreadLocalRandom.current().nextDouble() <= getValuableChance(level)) {
-        world.dropItemNaturally(center, rollValuableReward(level));
+        ItemStack reward = rollValuableReward(level);
+        world.dropItemNaturally(center, reward);
+        if (sparkled < 3) {
+          valuableSparkle(center, reward.getType());
+          sparkled++;
+        }
       }
+    }
+  }
+
+  private void valuableSparkle(Location center, Material type) {
+    FxEmitter emitter = fx(center, FxPriority.TRANSITION)
+        .particle(Particle.WAX_ON, 6, 0, 0.3D, 0, 0.4D, 0.02D)
+        .sound(Sound.BLOCK_AMETHYST_CLUSTER_BREAK, 0.5F, 1.7F);
+    if (type == Material.DIAMOND) {
+      emitter.column(Particles.END_ROD, 4, 1.2D).sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.5F, 2.0F);
+    } else if (type == Material.EMERALD) {
+      emitter.column(Particles.END_ROD, 2, 0.9D);
     }
   }
 
@@ -466,31 +508,8 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Sneak-right-click a composter to process nearby drops, crops, leaves, and your own compostables.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 6;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.72;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Radius Base for the Herbalism Compost Cascade adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double radiusBase = 5.0;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Radius Factor for the Herbalism Compost Cascade adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -543,6 +562,12 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
     double xpPerItemConsumed = 1.2;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Level Gain for the Herbalism Compost Cascade adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpPerLevelGain = 2.8;
+
+    public Config() {
+      costFactor = 0.72;
+      maxLevel = 6;
+      initialCost = 4;
+    }
   }
 
   private static class CompostState {

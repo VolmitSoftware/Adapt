@@ -18,18 +18,20 @@
 
 package art.arcane.adapt.content.adaptation.unarmed;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
+import art.arcane.adapt.api.fx.FxEmitter;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -39,7 +41,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 
@@ -48,31 +49,21 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class UnarmedDisarm extends SimpleAdaptation<UnarmedDisarm.Config> {
-  private final Map<UUID, Long> targetLockUntil = new java.util.concurrent.ConcurrentHashMap<>();
+  private final Map<UUID, Long> targetLockUntil = playerState();
 
   public UnarmedDisarm() {
     super("unarmed-disarm");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("unarmed.disarm.description"));
-    setDisplayName(Localizer.dLocalize("unarmed.disarm.name"));
     setIcon(Material.STICK);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(5125);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.IRON_INGOT)
         .key("challenge_unarmed_disarm_100")
-        .title(Localizer.dLocalize("advancement.challenge_unarmed_disarm_100.title"))
-        .description(Localizer.dLocalize("advancement.challenge_unarmed_disarm_100.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.DIAMOND)
             .key("challenge_unarmed_disarm_1k")
-            .title(Localizer.dLocalize("advancement.challenge_unarmed_disarm_1k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_unarmed_disarm_1k.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -83,9 +74,9 @@ public class UnarmedDisarm extends SimpleAdaptation<UnarmedDisarm.Config> {
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.pc(getChance(level), 0) + C.GRAY + " " + Localizer.dLocalize("unarmed.disarm.lore1"));
-    v.addLore(C.YELLOW + "* " + Form.duration((double) getConfig().targetCooldownMillis, 1) + C.GRAY + " " + Localizer.dLocalize("unarmed.disarm.lore2"));
-    v.addLore(C.GREEN + "+ " + Form.pc(getConfig().mobArmorDropChance, 0) + C.GRAY + " " + Localizer.dLocalize("unarmed.disarm.lore3"));
+    statLore(v, Form.pc(getChance(level), 0), 1);
+    statLore(v, C.YELLOW, "* ", Form.duration((double) getConfig().targetCooldownMillis, 1), 2);
+    statLore(v, Form.pc(getConfig().mobArmorDropChance, 0), 3);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
@@ -151,28 +142,45 @@ public class UnarmedDisarm extends SimpleAdaptation<UnarmedDisarm.Config> {
     if (knocked != null) {
       Item dropped = victim.getWorld().dropItemNaturally(victim.getLocation().add(0, 0.4, 0), knocked);
       dropped.setPickupDelay(getConfig().pickupDelayTicks);
+      spinTrail(dropped);
     }
 
     if (armor != null) {
       Item droppedArmor = victim.getWorld().dropItemNaturally(victim.getLocation().add(0, 0.4, 0), armor);
       droppedArmor.setPickupDelay(getConfig().pickupDelayTicks);
+      spinTrail(droppedArmor);
     }
 
     targetLockUntil.put(victim.getUniqueId(), now + getConfig().targetCooldownMillis);
 
-    SoundPlayer sp = SoundPlayer.of(victim.getWorld());
-    sp.play(victim.getLocation(), Sound.ENTITY_PLAYER_ATTACK_KNOCKBACK, 0.8f, 1.35f);
-    sp.play(victim.getLocation(), Sound.ITEM_LEAD_BREAK, 0.9f, 0.8f);
-    if (areParticlesEnabled()) {
-      victim.getWorld().spawnParticle(Particle.CRIT, victim.getLocation().add(0, 1.1, 0), 10, 0.25, 0.3, 0.25, 0.08);
-    }
+    playDisarm(victim, knocked, armor);
     xp(p, getConfig().xpPerDisarm, "disarm");
-    getPlayer(p).getData().addStat("unarmed.disarm.disarms", 1);
+    addStat(p, "unarmed.disarm.disarms", 1);
   }
 
-  @EventHandler(priority = EventPriority.MONITOR)
-  public void on(PlayerQuitEvent e) {
-    targetLockUntil.remove(e.getPlayer().getUniqueId());
+  private void spinTrail(Item item) {
+    timeline(item)
+        .duration(6)
+        .priority(FxPriority.TRAIL)
+        .frame((fx, tick, progress) -> fx.particle(Particle.WAX_ON, 1, 0, 0.1D, 0, 0.05D, 0.0D))
+        .start();
+  }
+
+  private void playDisarm(LivingEntity victim, ItemStack knocked, ItemStack armor) {
+    Location head = victim.getLocation().add(0, 1.1D, 0);
+    FxEmitter fx = fx(head, FxPriority.COMBAT)
+        .particle(Particle.CRIT, 6, 0, 0, 0, 0.3D, 0.08D)
+        .chord(Sound.ENTITY_PLAYER_ATTACK_KNOCKBACK, 0.8F, 1.35F, Sound.ITEM_LEAD_BREAK, 0.9F, 0.8F);
+    ItemStack sprayItem = knocked != null ? knocked : armor;
+    if (sprayItem != null) {
+      fx.particle(Particles.ITEM_CRACK, 8, 0, 0, 0, 0.15D, 0.05D, sprayItem);
+    }
+    if (knocked != null && knocked.getType() == Material.SHIELD) {
+      fx.sound(Sound.ITEM_SHIELD_BREAK, 0.4F, 1.4F);
+    }
+    if (armor != null) {
+      fx.sound(Sound.ITEM_ARMOR_EQUIP_IRON, 0.6F, 0.7F);
+    }
   }
 
   private double getChance(int level) {
@@ -216,31 +224,8 @@ public class UnarmedDisarm extends SimpleAdaptation<UnarmedDisarm.Config> {
     targetLockUntil.values().removeIf(until -> until <= now);
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Bare-hand hits can knock the target's held item to the ground.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.55;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Allows disarming other players, not just mobs.", impact = "True lets bare-hand hits knock items out of player hands in PVP.")
     boolean allowDisarmPlayers = true;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Chance that a successful disarm against a mob also knocks loose a worn armor piece.", impact = "Higher values strip mob armor faster; players never lose armor.")
@@ -255,5 +240,10 @@ public class UnarmedDisarm extends SimpleAdaptation<UnarmedDisarm.Config> {
     long targetCooldownMillis = 8000;
     @art.arcane.adapt.util.config.ConfigDoc(value = "XP granted per successful disarm.", impact = "Higher values speed up unarmed skill progression from disarms.")
     double xpPerDisarm = 28;
+
+    public Config() {
+      costFactor = 0.55;
+      initialCost = 5;
+    }
   }
 }

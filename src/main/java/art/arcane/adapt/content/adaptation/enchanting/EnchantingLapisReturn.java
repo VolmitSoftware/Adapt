@@ -18,53 +18,49 @@
 
 package art.arcane.adapt.content.adaptation.enchanting;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Color;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.enchantment.EnchantItemEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisReturn.Config> {
-  private final Map<UUID, Long> cooldown = new java.util.concurrent.ConcurrentHashMap<>();
+  private final Cooldowns cooldown = cooldowns();
 
   public EnchantingLapisReturn() {
     super("enchanting-lapis-return");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("enchanting.lapis_return.description"));
-    setDisplayName(Localizer.dLocalize("enchanting.lapis_return.name"));
     setIcon(Material.LAPIS_LAZULI);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
     setInterval(20999);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.LAPIS_LAZULI)
         .key("challenge_enchanting_lapis_100")
-        .title(Localizer.dLocalize("advancement.challenge_enchanting_lapis_100.title"))
-        .description(Localizer.dLocalize("advancement.challenge_enchanting_lapis_100.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.LAPIS_BLOCK)
             .key("challenge_enchanting_lapis_2500")
-            .title(Localizer.dLocalize("advancement.challenge_enchanting_lapis_2500.title"))
-            .description(Localizer.dLocalize("advancement.challenge_enchanting_lapis_2500.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -78,33 +74,47 @@ public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisRetur
     v.addLore(C.GREEN + Localizer.dLocalize("enchanting.lapis_return.lore1"));
   }
 
-  @EventHandler
-  public void on(PlayerQuitEvent e) {
-    cooldown.remove(e.getPlayer().getUniqueId());
-  }
-
-
   @EventHandler(priority = EventPriority.HIGH)
   public void on(EnchantItemEvent e) {
-
     Player p = e.getEnchanter();
     int level = getActiveLevel(p);
     if (level <= 0) {
       return;
     }
 
-
     if (ThreadLocalRandom.current().nextDouble(100D) > 80D) {
-      long now = System.currentTimeMillis();
       UUID playerId = p.getUniqueId();
-      Long nextAllowedAt = cooldown.get(playerId);
-      if (nextAllowedAt != null && nextAllowedAt > now) {
+      if (!cooldown.isReady(playerId, 20000L)) {
         return;
       }
 
-      cooldown.put(playerId, now + 20000L);
-      p.getWorld().dropItemNaturally(p.getLocation(), new ItemStack(Material.LAPIS_LAZULI, level));
-      getPlayer(p).getData().addStat("enchanting.lapis-return.lapis-saved", level);
+      cooldown.mark(playerId);
+      Location drop = p.getLocation();
+      p.getWorld().dropItemNaturally(drop, new ItemStack(Material.LAPIS_LAZULI, level));
+      addStat(p, "enchanting.lapis-return.lapis-saved", level);
+      lapisRefundFx(e, drop);
+    }
+  }
+
+  private void lapisRefundFx(EnchantItemEvent e, Location drop) {
+    Color lapis = Color.fromRGB(38, 97, 156);
+    ItemStack fragment = new ItemStack(Material.LAPIS_LAZULI);
+    timeline(drop)
+        .duration(6)
+        .priority(FxPriority.TRANSITION)
+        .cullRadius(16.0D)
+        .frame((f, tick, progress) -> {
+          f.ring(Particles.REDSTONE, (0.6D * (1.0D - progress)) + 0.15D, 10, 0.1D + (0.8D * progress), new Particle.DustOptions(lapis, 1.0F));
+          if (tick == 0) {
+            f.particle(Particles.ITEM_CRACK, 5, 0, 0.2D, 0, 0.25D, 0.05D, fragment)
+                .chord(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.7F, 0.9F, Sound.BLOCK_NOTE_BLOCK_CHIME, 0.5F, 1.3F);
+          }
+        })
+        .start();
+    Block enchantBlock = e.getEnchantBlock();
+    if (enchantBlock != null) {
+      fx(enchantBlock.getLocation().add(0.5D, 1.0D, 0.5D), FxPriority.AMBIENT)
+          .particle(Particle.GLOW, 3, 0, 0, 0, 0.1D, 0.02D);
     }
   }
 
@@ -113,30 +123,12 @@ public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisRetur
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Chance to return free lapis when enchanting at the cost of 1 extra level.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 2;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.9;
+  protected static class Config extends AdaptationConfig {
+    public Config() {
+      baseCost = 5;
+      costFactor = 0.9;
+      maxLevel = 3;
+    }
   }
 }

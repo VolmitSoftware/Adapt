@@ -18,17 +18,22 @@
 
 package art.arcane.adapt.content.skill;
 
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.adaptation.unarmed.*;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
+import org.bukkit.Sound;
+import org.bukkit.entity.Boss;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -36,17 +41,12 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
 public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
-  private final Map<UUID, Long> cooldowns;
+  private final Cooldowns cooldowns = cooldowns();
 
   public SkillUnarmed() {
     super("unarmed", Localizer.dLocalize("skill.unarmed.icon"));
     registerConfiguration(Config.class);
-    cooldowns = new HashMap<>();
     setColor(C.YELLOW);
     setDescription(Localizer.dLocalize("skill.unarmed.description"));
     setDisplayName(Localizer.dLocalize("skill.unarmed.name"));
@@ -68,24 +68,18 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.FIRE_CHARGE)
         .key("challenge_unarmed_100")
-        .title(Localizer.dLocalize("advancement.challenge_unarmed_100.title"))
-        .description(Localizer.dLocalize("advancement.challenge_unarmed_100.description"))
         .model(CustomModel.get(Material.FIRE_CHARGE, "advancement", "unarmed", "challenge_unarmed_100"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.BLAZE_POWDER)
             .key("challenge_unarmed_1k")
-            .title(Localizer.dLocalize("advancement.challenge_unarmed_1k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_unarmed_1k.description"))
             .model(CustomModel.get(Material.BLAZE_POWDER, "advancement", "unarmed", "challenge_unarmed_1k"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .child(AdaptAdvancement.builder()
                 .icon(Material.NETHER_STAR)
                 .key("challenge_unarmed_10k")
-                .title(Localizer.dLocalize("advancement.challenge_unarmed_10k.title"))
-                .description(Localizer.dLocalize("advancement.challenge_unarmed_10k.description"))
                 .model(CustomModel.get(Material.NETHER_STAR, "advancement", "unarmed", "challenge_unarmed_10k"))
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -100,16 +94,12 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.FIRE_CHARGE)
         .key("challenge_unarmed_dmg_1k")
-        .title(Localizer.dLocalize("advancement.challenge_unarmed_dmg_1k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_unarmed_dmg_1k.description"))
         .model(CustomModel.get(Material.FIRE_CHARGE, "advancement", "unarmed", "challenge_unarmed_dmg_1k"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.BLAZE_ROD)
             .key("challenge_unarmed_dmg_10k")
-            .title(Localizer.dLocalize("advancement.challenge_unarmed_dmg_10k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_unarmed_dmg_10k.description"))
             .model(CustomModel.get(Material.BLAZE_ROD, "advancement", "unarmed", "challenge_unarmed_dmg_10k"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -122,16 +112,12 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.ROTTEN_FLESH)
         .key("challenge_unarmed_kills_25")
-        .title(Localizer.dLocalize("advancement.challenge_unarmed_kills_25.title"))
-        .description(Localizer.dLocalize("advancement.challenge_unarmed_kills_25.description"))
         .model(CustomModel.get(Material.ROTTEN_FLESH, "advancement", "unarmed", "challenge_unarmed_kills_25"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.ZOMBIE_HEAD)
             .key("challenge_unarmed_kills_250")
-            .title(Localizer.dLocalize("advancement.challenge_unarmed_kills_250.title"))
-            .description(Localizer.dLocalize("advancement.challenge_unarmed_kills_250.description"))
             .model(CustomModel.get(Material.ZOMBIE_HEAD, "advancement", "unarmed", "challenge_unarmed_kills_250"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -144,16 +130,12 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.SUGAR)
         .key("challenge_unarmed_crit_25")
-        .title(Localizer.dLocalize("advancement.challenge_unarmed_crit_25.title"))
-        .description(Localizer.dLocalize("advancement.challenge_unarmed_crit_25.description"))
         .model(CustomModel.get(Material.SUGAR, "advancement", "unarmed", "challenge_unarmed_crit_25"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.FERMENTED_SPIDER_EYE)
             .key("challenge_unarmed_crit_250")
-            .title(Localizer.dLocalize("advancement.challenge_unarmed_crit_250.title"))
-            .description(Localizer.dLocalize("advancement.challenge_unarmed_crit_250.description"))
             .model(CustomModel.get(Material.FERMENTED_SPIDER_EYE, "advancement", "unarmed", "challenge_unarmed_crit_250"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -166,16 +148,12 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.TNT)
         .key("challenge_unarmed_heavy_25")
-        .title(Localizer.dLocalize("advancement.challenge_unarmed_heavy_25.title"))
-        .description(Localizer.dLocalize("advancement.challenge_unarmed_heavy_25.description"))
         .model(CustomModel.get(Material.TNT, "advancement", "unarmed", "challenge_unarmed_heavy_25"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.END_CRYSTAL)
             .key("challenge_unarmed_heavy_250")
-            .title(Localizer.dLocalize("advancement.challenge_unarmed_heavy_250.title"))
-            .description(Localizer.dLocalize("advancement.challenge_unarmed_heavy_250.description"))
             .model(CustomModel.get(Material.END_CRYSTAL, "advancement", "unarmed", "challenge_unarmed_heavy_250"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -214,10 +192,10 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
         if (e.getDamage() > 6) {
           a.getData().addStat("unarmed.heavy", 1);
         }
-        Long cooldown = cooldowns.get(p.getUniqueId());
-        if (cooldown != null && cooldown + getConfig().cooldownDelay > System.currentTimeMillis())
+        if (!cooldowns.isReady(p.getUniqueId(), getConfig().cooldownDelay)) {
           return;
-        cooldowns.put(p.getUniqueId(), System.currentTimeMillis());
+        }
+        cooldowns.mark(p.getUniqueId());
         xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().damageXPMultiplier * e.getDamage());
       }
     });
@@ -236,6 +214,12 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
 
       if (!isMelee(hand)) {
         a.getData().addStat("unarmed.kills", 1);
+        if (e.getEntity() instanceof Boss) {
+          fx(e.getEntity().getLocation().add(0, 1.2D, 0), FxPriority.TRANSITION)
+              .burst(Particles.TOTEM, 16, 0.5D)
+              .dustHelix(1.0D, 2.4D, 12, 0D, 1.0F)
+              .chord(Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.7F, 1.1F, Sound.ENTITY_PLAYER_LEVELUP, 0.5F, 1.4F);
+        }
       }
     });
   }

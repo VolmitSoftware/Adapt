@@ -19,17 +19,22 @@
 package art.arcane.adapt.content.adaptation.pickaxe;
 
 import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.adapt.util.reflect.registries.PotionEffectTypes;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Color;
 import org.bukkit.Material;
+import org.bukkit.Sound;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -42,19 +47,11 @@ public class PickaxeObsidianRush extends SimpleAdaptation<PickaxeObsidianRush.Co
   public PickaxeObsidianRush() {
     super("pickaxe-obsidian-rush");
     registerConfiguration(PickaxeObsidianRush.Config.class);
-    setDescription(Localizer.dLocalize("pickaxe.obsidian_rush.description"));
-    setDisplayName(Localizer.dLocalize("pickaxe.obsidian_rush.name"));
     setIcon(Material.CRYING_OBSIDIAN);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(6233);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.OBSIDIAN)
         .key("challenge_pickaxe_obsidianrush_1k")
-        .title(Localizer.dLocalize("advancement.challenge_pickaxe_obsidianrush_1k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_pickaxe_obsidianrush_1k.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -103,12 +100,27 @@ public class PickaxeObsidianRush extends SimpleAdaptation<PickaxeObsidianRush.Co
       return;
     }
 
+    boolean onset = !p.hasPotionEffect(PotionEffectTypes.FAST_DIGGING);
     p.addPotionEffect(new PotionEffect(PotionEffectTypes.FAST_DIGGING, getConfig().durationTicks, getAmplifier(context.level()), false, false, true));
+    if (onset) {
+      Color surge = e.getBlock().getType() == Material.CRYING_OBSIDIAN ? Color.fromRGB(0x8A2BE2) : Color.fromRGB(0x3B2E5A);
+      timeline(p)
+          .duration(6)
+          .priority(FxPriority.TRANSITION)
+          .frame((fxE, tick, progress) -> {
+            fxE.dustHelix(surge, 0.6D, 2.2D, 12, progress * Math.PI * 2.0D, 1.2F);
+            if (tick == 0 || tick == 2 || tick == 4) {
+              fxE.sound(Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 0.5f, (float) (0.7D + (progress * 0.4D)));
+            }
+          })
+          .start();
+    }
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(BlockBreakEvent e) {
-    if (!isRushTarget(e.getBlock().getType())) {
+    Block b = e.getBlock();
+    if (!isRushTarget(b.getType())) {
       return;
     }
 
@@ -117,43 +129,32 @@ public class PickaxeObsidianRush extends SimpleAdaptation<PickaxeObsidianRush.Co
       return;
     }
 
-    getPlayer(p).getData().addStat("pickaxe.obsidian-rush.obsidian-mined", 1);
-  }
-
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
+    addStat(p, "pickaxe.obsidian-rush.obsidian-mined", 1);
+    Color tint = b.getType() == Material.CRYING_OBSIDIAN ? Color.fromRGB(0x8A2BE2) : Color.fromRGB(0x2A2140);
+    fx(b.getLocation().add(0.5, 0.5, 0.5), FxPriority.COMBAT)
+        .particle(Particles.BLOCK_CRACK, 8, 0, 0, 0, 0.2, 0.0, b.getBlockData())
+        .dustBurst(tint, 4, 0.2, 1.2f)
+        .sound(Sound.BLOCK_RESPAWN_ANCHOR_DEPLETE, 0.7f, 1.2f);
   }
 
   @Override
   public void onTick() {
   }
 
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Gain a strong Haste burst while mining obsidian with a diamond or netherite pickaxe.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.55;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 3;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Haste amplifier added on top of the adaptation level while mining obsidian.", impact = "Higher values make obsidian mine faster at every level.")
     int amplifierBase = 3;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum Haste amplifier this adaptation can grant.", impact = "Higher values allow stronger Haste at high levels.")
     int maxAmplifier = 7;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Duration in ticks of the Haste burst applied when damaging obsidian.", impact = "Higher values keep the burst active longer between swings.")
     int durationTicks = 120;
+
+    public Config() {
+      baseCost = 5;
+      costFactor = 0.55;
+      maxLevel = 3;
+      initialCost = 4;
+    }
   }
 }

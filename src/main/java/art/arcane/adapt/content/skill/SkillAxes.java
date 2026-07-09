@@ -21,6 +21,7 @@ package art.arcane.adapt.content.skill;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.xp.XpProvenance;
@@ -37,12 +38,10 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
-  private final Map<UUID, Long> cooldowns;
+  private final Cooldowns cooldowns = cooldowns();
 
   public SkillAxes() {
     super("axes", Localizer.dLocalize("skill.axes.icon"));
@@ -52,7 +51,6 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
     setDisplayName(Localizer.dLocalize("skill.axes.name"));
     setInterval(5251);
     setIcon(Material.GOLDEN_AXE);
-    cooldowns = new HashMap<>();
     registerAdaptation(new AxeGroundSmash());
     registerAdaptation(new AxeChop());
     registerAdaptation(new AxeDropToInventory());
@@ -62,36 +60,26 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
     registerAdaptation(new AxeTimberMark());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.WOODEN_AXE).key("challenge_chop_1k")
-        .title(Localizer.dLocalize("advancement.challenge_chop_1k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_chop_1k.description"))
         .model(CustomModel.get(Material.WOODEN_AXE, "advancement", "axes", "challenge_chop_1k"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
             .icon(Material.STONE_AXE)
             .key("challenge_chop_5k")
-            .title(Localizer.dLocalize("advancement.challenge_chop_5k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_chop_5k.description"))
             .model(CustomModel.get(Material.STONE_AXE, "advancement", "axes", "challenge_chop_5k"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                 .icon(Material.IRON_AXE)
                 .key("challenge_chop_50k")
-                .title(Localizer.dLocalize("advancement.challenge_chop_50k.title"))
-                .description(Localizer.dLocalize("advancement.challenge_chop_50k.description"))
                 .model(CustomModel.get(Material.IRON_AXE, "advancement", "axes", "challenge_chop_50k"))
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                     .icon(Material.DIAMOND_AXE)
                     .key("challenge_chop_500k")
-                    .title(Localizer.dLocalize("advancement.challenge_chop_500k.title"))
-                    .description(Localizer.dLocalize("advancement.challenge_chop_500k.description"))
                     .model(CustomModel.get(Material.DIAMOND_AXE, "advancement", "axes", "challenge_chop_500k"))
                     .frame(AdaptAdvancementFrame.CHALLENGE)
                     .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                         .icon(Material.NETHERITE_AXE)
                         .key("challenge_chop_5m")
-                        .title(Localizer.dLocalize("advancement.challenge_chop_5m.title"))
-                        .description(Localizer.dLocalize("advancement.challenge_chop_5m.description"))
                         .model(CustomModel.get(Material.NETHERITE_AXE, "advancement", "axes", "challenge_chop_5m"))
                         .frame(AdaptAdvancementFrame.CHALLENGE)
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -108,16 +96,12 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.WOODEN_AXE).key("challenge_axe_swing_500")
-        .title(Localizer.dLocalize("advancement.challenge_axe_swing_500.title"))
-        .description(Localizer.dLocalize("advancement.challenge_axe_swing_500.description"))
         .model(CustomModel.get(Material.WOODEN_AXE, "advancement", "axes", "challenge_axe_swing_500"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.IRON_AXE)
             .key("challenge_axe_swing_5k")
-            .title(Localizer.dLocalize("advancement.challenge_axe_swing_5k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_axe_swing_5k.description"))
             .model(CustomModel.get(Material.IRON_AXE, "advancement", "axes", "challenge_axe_swing_5k"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -128,16 +112,12 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.GOLDEN_AXE).key("challenge_axe_damage_1k")
-        .title(Localizer.dLocalize("advancement.challenge_axe_damage_1k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_axe_damage_1k.description"))
         .model(CustomModel.get(Material.GOLDEN_AXE, "advancement", "axes", "challenge_axe_damage_1k"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.DIAMOND_AXE)
             .key("challenge_axe_damage_10k")
-            .title(Localizer.dLocalize("advancement.challenge_axe_damage_10k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_axe_damage_10k.description"))
             .model(CustomModel.get(Material.DIAMOND_AXE, "advancement", "axes", "challenge_axe_damage_10k"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -148,16 +128,12 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.OAK_LOG).key("challenge_axe_value_5k")
-        .title(Localizer.dLocalize("advancement.challenge_axe_value_5k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_axe_value_5k.description"))
         .model(CustomModel.get(Material.OAK_LOG, "advancement", "axes", "challenge_axe_value_5k"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.DARK_OAK_LOG)
             .key("challenge_axe_value_50k")
-            .title(Localizer.dLocalize("advancement.challenge_axe_value_50k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_axe_value_50k.description"))
             .model(CustomModel.get(Material.DARK_OAK_LOG, "advancement", "axes", "challenge_axe_value_50k"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -168,16 +144,12 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.OAK_LEAVES).key("challenge_leaves_500")
-        .title(Localizer.dLocalize("advancement.challenge_leaves_500.title"))
-        .description(Localizer.dLocalize("advancement.challenge_leaves_500.description"))
         .model(CustomModel.get(Material.OAK_LEAVES, "advancement", "axes", "challenge_leaves_500"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.AZALEA_LEAVES)
             .key("challenge_leaves_5k")
-            .title(Localizer.dLocalize("advancement.challenge_leaves_5k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_leaves_5k.description"))
             .model(CustomModel.get(Material.AZALEA_LEAVES, "advancement", "axes", "challenge_leaves_5k"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -229,17 +201,18 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
           });
         }
         if (e.getBlock().getType().name().endsWith("_LEAVES")) {
-          getPlayer(p).getData().addStat("axes.leaves", 1);
+          addStat(p, "axes.leaves", 1);
         }
       }
     });
   }
 
   private void handleCooldown(Player p, Runnable action) {
-    Long cooldown = cooldowns.get(p.getUniqueId());
-    if (cooldown != null && cooldown + getConfig().cooldownDelay > System.currentTimeMillis())
+    UUID id = p.getUniqueId();
+    if (!cooldowns.isReady(id, getConfig().cooldownDelay)) {
       return;
-    cooldowns.put(p.getUniqueId(), System.currentTimeMillis());
+    }
+    cooldowns.mark(id);
     action.run();
   }
 

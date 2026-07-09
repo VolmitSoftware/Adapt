@@ -19,7 +19,9 @@
 package art.arcane.adapt.content.adaptation.stealth;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
@@ -31,7 +33,6 @@ import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
-import lombok.NoArgsConstructor;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -49,19 +50,12 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
   public StealthSpeed() {
     super("stealth-speed");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("stealth.speed.description"));
-    setDisplayName(Localizer.dLocalize("stealth.speed.name"));
     setIcon(Material.MUSHROOM_STEW);
-    setBaseCost(getConfig().baseCost);
     setInterval(getConfig().setInterval);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     states = new java.util.concurrent.ConcurrentHashMap<>();
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.LEATHER_BOOTS)
         .key("challenge_stealth_speed_5k")
-        .title(Localizer.dLocalize("advancement.challenge_stealth_speed_5k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_stealth_speed_5k.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -113,11 +107,12 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
       }
 
       if (getConfig().showSoulParticles && M.r(getConfig().soulParticleChance)) {
-        p.spawnParticle(Particle.SOUL, p.getLocation().clone().add(0, getConfig().soulParticleYOffset, 0), 1, 0.14, 0.02, 0.14, 0);
+        fx(p.getLocation().clone().add(0, getConfig().soulParticleYOffset, 0), FxPriority.TRAIL)
+            .particle(crawling ? Particle.ASH : Particle.SOUL, 1, 0, 0, 0, 0.12D, 0);
       }
 
       if (now - state.lastStatMillis >= statIntervalMs) {
-        getPlayer(p).getData().addStat("stealth.speed.blocks-sneak-sprinted", 1);
+        addStat(p, "stealth.speed.blocks-sneak-sprinted", 1);
         state.lastStatMillis = now;
       }
     }
@@ -130,7 +125,11 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
 
       long cooldown = Math.max(0, getConfig().activationSoundCooldownMs);
       if (cooldown <= 0 || now - state.lastSoundMillis >= cooldown) {
-        p.playSound(p.getLocation(), DEFAULT_ACTIVATION_SOUND, getConfig().activationSoundVolume, getConfig().activationSoundPitch);
+        Vector back = p.getLocation().getDirection().setY(0).multiply(-1);
+        fx(p.getLocation().add(0, 0.15D, 0), FxPriority.TRANSITION)
+            .particle(Particle.SOUL, 6, back.getX() * 0.3D, 0.1D, back.getZ() * 0.3D, 0.15D, 0.02D)
+            .particle(Particle.CLOUD, 4, 0, 0.1D, 0, 0.2D, 0.01D)
+            .chord(DEFAULT_ACTIVATION_SOUND, getConfig().activationSoundVolume, getConfig().activationSoundPitch, Sound.ITEM_TRIDENT_RIPTIDE_1, 0.3F, 1.4F);
         state.lastSoundMillis = now;
       }
     }
@@ -289,6 +288,7 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
     }
 
     J.teleport(p, destination);
+    stepFx(destination);
     return true;
   }
 
@@ -314,7 +314,14 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
 
     J.teleport(p, destination);
     p.setFallDistance(0);
+    stepFx(destination);
     return true;
+  }
+
+  private void stepFx(Location destination) {
+    fx(destination, FxPriority.TRAIL)
+        .particle(Particle.CLOUD, 2, 0, 0.05D, 0, 0.08D, 0.01D)
+        .sound(Sound.BLOCK_WOOL_STEP, 0.2F, 1.2F);
   }
 
   private boolean isStepObstacle(org.bukkit.Location base, int yOffset) {
@@ -385,16 +392,6 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
     return Math.max(0, factor * getConfig().maxSpeedBonus);
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
   private static class RuntimeState {
     private boolean boosting;
     private float originalWalkSpeed = 0.2f;
@@ -403,21 +400,10 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
     private long lastStepMillis;
   }
 
-  @NoArgsConstructor
   @ConfigDescription("Gain speed while sneaking.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Tick interval (ms) used to update stealth speed.", impact = "Lower values feel more responsive but run updates more frequently.")
     long setInterval = 50;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 2;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.6;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Fallback baseline walk speed if no original speed has been captured yet.", impact = "Usually keep this at vanilla default unless another plugin changes baseline speeds globally.")
     float baselineWalkSpeed = 0.2f;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum additional walk speed granted at max level.", impact = "Higher values make stealth speed more noticeable.")
@@ -470,5 +456,11 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
     long activationSoundCooldownMs = 250;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Minimum time between progression stat increments while moving with stealth speed.", impact = "Controls how quickly the sneak-speed progression stat accumulates.")
     long statIntervalMs = 200;
+
+    public Config() {
+      baseCost = 2;
+      costFactor = 0.6;
+      initialCost = 5;
+    }
   }
 }

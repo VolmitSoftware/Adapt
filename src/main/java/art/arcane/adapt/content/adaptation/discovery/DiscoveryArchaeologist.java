@@ -19,17 +19,18 @@
 package art.arcane.adapt.content.adaptation.discovery;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -38,7 +39,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.EventExecutor;
 
@@ -52,34 +53,24 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class DiscoveryArchaeologist extends SimpleAdaptation<DiscoveryArchaeologist.Config> {
   private static final String BLOCK_BRUSH_EVENT_CLASS = "org.bukkit.event.block.BlockBrushEvent";
   private static final long BRUSH_FALLBACK_WINDOW_MILLIS = 25000L;
-  private final Map<UUID, Long> cooldowns = new java.util.concurrent.ConcurrentHashMap<>();
-  private final Map<UUID, PendingBrush> pendingBrushes = new java.util.concurrent.ConcurrentHashMap<>();
+  private final Cooldowns cooldowns = cooldowns();
+  private final Map<UUID, PendingBrush> pendingBrushes = playerState();
   private final AtomicBoolean brushEventFailureWarned = new AtomicBoolean(false);
   private final BrushEventBridge brushEventBridge;
 
   public DiscoveryArchaeologist() {
     super("discovery-archaeologist");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("discovery.archaeologist.description"));
-    setDisplayName(Localizer.dLocalize("discovery.archaeologist.name"));
     setIcon(Material.BRUSH);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(2300);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.BRUSH)
         .key("challenge_discovery_archaeologist_50")
-        .title(Localizer.dLocalize("advancement.challenge_discovery_archaeologist_50.title"))
-        .description(Localizer.dLocalize("advancement.challenge_discovery_archaeologist_50.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.DECORATED_POT)
             .key("challenge_discovery_archaeologist_500")
-            .title(Localizer.dLocalize("advancement.challenge_discovery_archaeologist_500.title"))
-            .description(Localizer.dLocalize("advancement.challenge_discovery_archaeologist_500.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -92,16 +83,9 @@ public class DiscoveryArchaeologist extends SimpleAdaptation<DiscoveryArchaeolog
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.pc(getBonusRollChance(level), 0) + C.GRAY + " " + Localizer.dLocalize("discovery.archaeologist.lore1"));
-    v.addLore(C.GREEN + "+ " + Form.pc(getRareRewardChance(level), 0) + C.GRAY + " " + Localizer.dLocalize("discovery.archaeologist.lore2"));
-    v.addLore(C.YELLOW + "* " + Form.duration(getCooldownMillis(level), 1) + C.GRAY + " " + Localizer.dLocalize("discovery.archaeologist.lore3"));
-  }
-
-  @EventHandler(priority = EventPriority.MONITOR)
-  public void on(PlayerQuitEvent e) {
-    UUID id = e.getPlayer().getUniqueId();
-    cooldowns.remove(id);
-    pendingBrushes.remove(id);
+    statLore(v, Form.pc(getBonusRollChance(level), 0), 1);
+    statLore(v, Form.pc(getRareRewardChance(level), 0), 2);
+    statLore(v, C.YELLOW, "* ", Form.duration(getCooldownMillis(level), 1), 3);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -115,6 +99,10 @@ public class DiscoveryArchaeologist extends SimpleAdaptation<DiscoveryArchaeolog
       return;
     }
 
+    if (e.getHand() == EquipmentSlot.OFF_HAND && e.getPlayer().getInventory().getItemInMainHand().getType() == Material.BRUSH) {
+      return;
+    }
+
     Block block = e.getClickedBlock();
     if (block == null || !isSuspiciousBlock(block.getType())) {
       return;
@@ -125,7 +113,15 @@ public class DiscoveryArchaeologist extends SimpleAdaptation<DiscoveryArchaeolog
       return;
     }
 
-    pendingBrushes.put(p.getUniqueId(), PendingBrush.from(block, System.currentTimeMillis() + BRUSH_FALLBACK_WINDOW_MILLIS));
+    UUID id = p.getUniqueId();
+    PendingBrush prior = pendingBrushes.get(id);
+    boolean freshBrush = prior == null || !prior.sameBlock(block);
+    pendingBrushes.put(id, PendingBrush.from(block, System.currentTimeMillis() + BRUSH_FALLBACK_WINDOW_MILLIS));
+
+    if (freshBrush) {
+      fx(block.getLocation().add(0.5, 0.9, 0.5), FxPriority.TRAIL)
+          .particle(Particles.ENCHANTMENT_TABLE, 3, 0, 0, 0, 0.1, 0.01);
+    }
   }
 
   private void registerBrushEventBridge(BrushEventBridge bridge) {
@@ -185,37 +181,51 @@ public class DiscoveryArchaeologist extends SimpleAdaptation<DiscoveryArchaeolog
       return;
     }
 
-    long now = System.currentTimeMillis();
-    long nextReady = cooldowns.getOrDefault(p.getUniqueId(), 0L);
-    if (now < nextReady) {
+    if (!cooldowns.isReady(p.getUniqueId(), getCooldownMillis(level))) {
       return;
     }
 
-    cooldowns.put(p.getUniqueId(), now + getCooldownMillis(level));
+    cooldowns.mark(p.getUniqueId());
+    Location surface = block.getLocation().add(0.5, 0.65, 0.5);
     if (ThreadLocalRandom.current().nextDouble() > getBonusRollChance(level)) {
+      fx(surface, FxPriority.TRAIL)
+          .particle(Particles.SMOKE, 2, 0, 0, 0, 0.05, 0.01)
+          .sound(Sound.BLOCK_SAND_BREAK, 0.4F, 0.8F);
       return;
     }
 
-    ItemStack reward = rollReward(level);
+    boolean rare = ThreadLocalRandom.current().nextDouble() <= getRareRewardChance(level);
+    ItemStack reward = rollReward(rare);
     Map<Integer, ItemStack> overflow = p.getInventory().addItem(reward);
     overflow.values().forEach(item -> p.getWorld().dropItemNaturally(p.getLocation(), item));
 
-    if (areParticlesEnabled()) {
-      block.getWorld().spawnParticle(Particle.ENCHANT, block.getLocation().add(0.5, 0.65, 0.5), 18, 0.25, 0.2, 0.25, 0.2);
+    if (rare) {
+      timeline(surface)
+          .duration(10)
+          .priority(FxPriority.GAMEPLAY)
+          .cullRadius(32)
+          .frame((f, tick, progress) -> {
+            f.ring(Particle.WAX_ON, 1.2D - (1.2D * progress), 12, 0.2D);
+            if (tick == 0) {
+              f.chord(Sound.ITEM_BRUSH_BRUSHING_SAND_COMPLETE, 1F, 1.15F, Sound.BLOCK_AMETHYST_BLOCK_RESONATE, 0.7F, 0.9F, Sound.ENTITY_PLAYER_LEVELUP, 0.4F, 1.6F);
+            }
+          })
+          .onComplete(() -> fx(surface, FxPriority.GAMEPLAY).particle(Particles.TOTEM, 14, 0, 0, 0, 0.15, 0.1))
+          .start();
+    } else {
+      fx(surface, FxPriority.COMBAT)
+          .particle(Particles.ENCHANTMENT_TABLE, 9, 0, 0, 0, 0.25, 0.2)
+          .particle(Particles.CRIT_MAGIC, 6, 0, 0, 0, 0.22, 0.02)
+          .chord(Sound.ITEM_BRUSH_BRUSHING_SAND_COMPLETE, 1F, 1.15F, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.7F, 1.55F);
     }
-    if (areParticlesEnabled()) {
-      block.getWorld().spawnParticle(Particle.CRIT, block.getLocation().add(0.5, 0.65, 0.5), 12, 0.22, 0.22, 0.22, 0.02);
-    }
-    SoundPlayer sp = SoundPlayer.of(block.getWorld());
-    sp.play(block.getLocation().add(0.5, 0.5, 0.5), Sound.ITEM_BRUSH_BRUSHING_SAND_COMPLETE, 1f, 1.15f);
-    sp.play(block.getLocation().add(0.5, 0.5, 0.5), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.7f, 1.55f);
+
     xp(p, getConfig().xpPerReward + (getValue(reward.getType()) * getConfig().rewardValueXpMultiplier));
-    getPlayer(p).getData().addStat("discovery.archaeologist.bonus-finds", 1);
+    addStat(p, "discovery.archaeologist.bonus-finds", 1);
   }
 
-  private ItemStack rollReward(int level) {
+  private ItemStack rollReward(boolean rare) {
     ThreadLocalRandom random = ThreadLocalRandom.current();
-    if (random.nextDouble() <= getRareRewardChance(level)) {
+    if (rare) {
       return switch (random.nextInt(4)) {
         case 0 -> new ItemStack(Material.DIAMOND, 1);
         case 1 -> new ItemStack(Material.EMERALD, 1);
@@ -296,16 +306,6 @@ public class DiscoveryArchaeologist extends SimpleAdaptation<DiscoveryArchaeolog
     }
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
   private static final class BrushEventBridge {
     private final Class<? extends Event> eventClass;
     private final Method getPlayer;
@@ -384,27 +384,18 @@ public class DiscoveryArchaeologist extends SimpleAdaptation<DiscoveryArchaeolog
       return new PendingBrush(block.getWorld().getUID(), block.getX(), block.getY(), block.getZ(), block.getType(), expiresAt);
     }
 
+    private boolean sameBlock(Block block) {
+      return block.getX() == x && block.getY() == y && block.getZ() == z && block.getWorld().getUID().equals(worldId);
+    }
+
     private Block resolveBlock() {
       World world = Bukkit.getWorld(worldId);
       return world == null ? null : world.getBlockAt(x, y, z);
     }
   }
 
-  @NoArgsConstructor
   @ConfigDescription("Brushing suspicious blocks has a chance to grant bonus archaeology loot.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 6;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.8;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Bonus Roll Chance Base for the Discovery Archaeologist adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double bonusRollChanceBase = 0.12;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Bonus Roll Chance Factor for the Discovery Archaeologist adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -425,5 +416,11 @@ public class DiscoveryArchaeologist extends SimpleAdaptation<DiscoveryArchaeolog
     double xpPerReward = 10;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Reward Value Xp Multiplier for the Discovery Archaeologist adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double rewardValueXpMultiplier = 0.45;
+
+    public Config() {
+      costFactor = 0.8;
+      maxLevel = 6;
+      initialCost = 4;
+    }
   }
 }

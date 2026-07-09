@@ -18,51 +18,46 @@
 
 package art.arcane.adapt.content.adaptation.excavation;
 
+import art.arcane.adapt.api.adaptation.Cooldowns;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.content.integration.hiddenore.HiddenOreLink;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
-import org.bukkit.*;
+import org.bukkit.Color;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
-import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPing.Config> {
-  private final Map<UUID, Long> cooldowns = new java.util.concurrent.ConcurrentHashMap<>();
+  private final Cooldowns cooldowns = cooldowns();
 
   public ExcavationSeismicPing() {
     super("excavation-seismic-ping");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("excavation.seismic_ping.description"));
-    setDisplayName(Localizer.dLocalize("excavation.seismic_ping.name"));
     setIcon(Material.GOAT_HORN);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(2200);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.BELL)
         .key("challenge_excavation_seismic_200")
-        .title(Localizer.dLocalize("advancement.challenge_excavation_seismic_200.title"))
-        .description(Localizer.dLocalize("advancement.challenge_excavation_seismic_200.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -71,14 +66,9 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + getScanRange(level) + C.GRAY + " " + Localizer.dLocalize("excavation.seismic_ping.lore1"));
-    v.addLore(C.GREEN + "+ " + Form.pc(getPingChance(level), 0) + C.GRAY + " " + Localizer.dLocalize("excavation.seismic_ping.lore2"));
-    v.addLore(C.YELLOW + "* " + Form.duration(getCooldownMillis(level), 1) + C.GRAY + " " + Localizer.dLocalize("excavation.seismic_ping.lore3"));
-  }
-
-  @EventHandler(priority = EventPriority.MONITOR)
-  public void on(PlayerQuitEvent e) {
-    cooldowns.remove(e.getPlayer().getUniqueId());
+    statLore(v, getScanRange(level), 1);
+    statLore(v, Form.pc(getPingChance(level), 0), 2);
+    statLore(v, C.YELLOW, "* ", Form.duration(getCooldownMillis(level), 1), 3);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -94,13 +84,11 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
     }
 
     int level = context.level();
-    long now = System.currentTimeMillis();
-    long nextReady = cooldowns.getOrDefault(p.getUniqueId(), 0L);
-    if (now < nextReady) {
+    if (!cooldowns.isReady(p.getUniqueId(), getCooldownMillis(level))) {
       return;
     }
 
-    cooldowns.put(p.getUniqueId(), now + getCooldownMillis(level));
+    cooldowns.mark(p.getUniqueId());
     if (ThreadLocalRandom.current().nextDouble() > getPingChance(level)) {
       return;
     }
@@ -123,6 +111,8 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
       }
     }
     if (targetCenter == null) {
+      fx(blockLocation.clone().add(0.5, 0.5, 0.5), FxPriority.TRANSITION)
+          .sound(Sound.BLOCK_NOTE_BLOCK_HAT, 0.3f, 0.5f);
       return;
     }
 
@@ -132,35 +122,85 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
       return;
     }
 
-    renderDirectionHint(p, origin, direction.normalize(), getHintSegments(level));
+    Color tint = oreTint(targetValueType);
+    groundPulse(blockLocation.clone().add(0.5, 0.5, 0.5), tint);
+    renderDirectionHint(origin, direction.normalize(), getHintSegments(level), tint);
     playPingSound(p, origin.distance(targetCenter), getScanRange(level));
-    getPlayer(p).getData().addStat("excavation.seismic-ping.pings-triggered", 1);
+    addStat(p, "excavation.seismic-ping.pings-triggered", 1);
     xp(p, getConfig().xpPerPing + (getValue(targetValueType) * getConfig().targetValueXpMultiplier));
   }
 
-  private void renderDirectionHint(Player p, Location origin, Vector direction, int segments) {
-    Particle.DustOptions dust = new Particle.DustOptions(Color.fromRGB(110, 230, 255), (float) getConfig().particleSize);
-    Location at = origin.clone();
-    for (int i = 0; i < segments; i++) {
-      at = at.add(direction.clone().multiply(getConfig().segmentSpacing));
-      if (areParticlesEnabled()) {
-        p.spawnParticle(Particle.DUST, at, Math.max(1, getConfig().segmentParticleCount), 0.05, 0.05, 0.05, 0, dust);
-      }
+  private Color oreTint(Material type) {
+    if (type == null) {
+      return Color.fromRGB(110, 230, 255);
     }
 
-    if (areParticlesEnabled()) {
-
-      p.spawnParticle(Particle.ELECTRIC_SPARK, at, Math.max(1, getConfig().tipParticleCount), 0.1, 0.1, 0.1, 0.04);
-
+    String name = type.name();
+    if (name.contains("REDSTONE")) {
+      return Color.fromRGB(255, 60, 60);
     }
+    if (name.contains("DIAMOND")) {
+      return Color.fromRGB(90, 230, 235);
+    }
+    if (name.contains("GOLD")) {
+      return Color.fromRGB(255, 215, 70);
+    }
+    if (name.contains("IRON") || name.contains("COPPER")) {
+      return Color.fromRGB(210, 180, 150);
+    }
+    if (name.contains("EMERALD")) {
+      return Color.fromRGB(70, 230, 130);
+    }
+    if (name.contains("LAPIS")) {
+      return Color.fromRGB(60, 110, 240);
+    }
+    return Color.fromRGB(110, 230, 255);
+  }
+
+  private void groundPulse(Location center, Color tint) {
+    float size = (float) getConfig().particleSize;
+    timeline(center)
+        .duration(4)
+        .priority(FxPriority.GAMEPLAY)
+        .cullRadius(20)
+        .frame((fx, tick, progress) -> {
+          fx.dustRing(tint, 0.4D + (1.4D * progress), 10, size);
+          if (tick == 0) {
+            fx.sound(Sound.BLOCK_SCULK_SENSOR_CLICKING, 0.4f, 0.8f);
+          }
+        })
+        .start();
+  }
+
+  private void renderDirectionHint(Location origin, Vector direction, int segments, Color tint) {
+    int total = Math.max(2, segments);
+    double spacing = getConfig().segmentSpacing;
+    double dx = direction.getX();
+    double dy = direction.getY();
+    double dz = direction.getZ();
+    int perSegment = Math.max(1, getConfig().segmentParticleCount);
+    int tipCount = Math.max(1, getConfig().tipParticleCount);
+    Particle.DustOptions dust = new Particle.DustOptions(tint, (float) getConfig().particleSize);
+    timeline(origin)
+        .duration(total)
+        .priority(FxPriority.TRAIL)
+        .cullRadius(20)
+        .frame((fx, tick, progress) -> {
+          double head = (tick + 1) * spacing;
+          fx.particle(Particles.REDSTONE, perSegment, dx * head, dy * head, dz * head, 0.05D, 0, dust);
+          if (tick + 1 >= total) {
+            double tip = total * spacing;
+            fx.particle(Particle.ELECTRIC_SPARK, tipCount, dx * tip, dy * tip, dz * tip, 0.1D, 0.04D);
+          }
+        })
+        .start();
   }
 
   private void playPingSound(Player p, double distance, int range) {
     double normalized = Math.min(1.0, distance / Math.max(1.0, range));
     float pitch = (float) Math.max(0.45, Math.min(1.95, 1.9 - (normalized * 1.1)));
-    SoundPlayer sp = SoundPlayer.of(p.getWorld());
-    sp.play(p.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.9f, pitch);
-    sp.play(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BIT, 0.65f, (float) Math.min(2.0, pitch + 0.2));
+    fx(p.getLocation(), FxPriority.GAMEPLAY)
+        .chord(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.9f, pitch, Sound.BLOCK_NOTE_BLOCK_BIT, 0.65f, (float) Math.min(2.0, pitch + 0.2));
   }
 
   private Block findNearestOre(Location origin, int range) {
@@ -245,31 +285,8 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Mining can emit seismic pings that hint toward nearby ore direction.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.78;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Scan Range Base for the Excavation Seismic Ping adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double scanRangeBase = 11;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Scan Range Factor for the Excavation Seismic Ping adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -300,5 +317,10 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
     double xpPerPing = 8;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Target Value Xp Multiplier for the Excavation Seismic Ping adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double targetValueXpMultiplier = 0.5;
+
+    public Config() {
+      costFactor = 0.78;
+      initialCost = 4;
+    }
   }
 }

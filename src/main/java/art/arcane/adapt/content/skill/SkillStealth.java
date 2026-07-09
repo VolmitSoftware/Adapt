@@ -21,6 +21,7 @@ package art.arcane.adapt.content.skill;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.adaptation.excavation.ExcavationGraveDigger;
@@ -29,9 +30,12 @@ import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import lombok.NoArgsConstructor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -39,12 +43,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
 public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
-  private final Map<UUID, Long> cooldowns;
 
   public SkillStealth() {
     super("stealth", Localizer.dLocalize("skill.stealth.icon"));
@@ -52,7 +51,6 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
     setColor(C.DARK_GRAY);
     setInterval(1412);
     setIcon(Material.WITHER_ROSE);
-    cooldowns = new HashMap<>();
     setDescription(Localizer.dLocalize("skill.stealth.description"));
     setDisplayName(Localizer.dLocalize("skill.stealth.name"));
     registerAdaptation(new StealthSpeed());
@@ -65,24 +63,18 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.LEATHER_LEGGINGS)
         .key("challenge_sneak_1k")
-        .title(Localizer.dLocalize("advancement.challenge_sneak_1k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_sneak_1k.description"))
         .model(CustomModel.get(Material.LEATHER_LEGGINGS, "advancement", "stealth", "challenge_sneak_1k"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.CHAINMAIL_LEGGINGS)
             .key("challenge_sneak_5k")
-            .title(Localizer.dLocalize("advancement.challenge_sneak_5k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_sneak_5k.description"))
             .model(CustomModel.get(Material.CHAINMAIL_LEGGINGS, "advancement", "stealth", "challenge_sneak_5k"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .child(AdaptAdvancement.builder()
                 .icon(Material.NETHERITE_LEGGINGS)
                 .key("challenge_sneak_20k")
-                .title(Localizer.dLocalize("advancement.challenge_sneak_20k.title"))
-                .description(Localizer.dLocalize("advancement.challenge_sneak_20k.description"))
                 .model(CustomModel.get(Material.NETHERITE_LEGGINGS, "advancement", "stealth", "challenge_sneak_20k"))
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -97,16 +89,12 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.STONE_SWORD)
         .key("challenge_stealth_dmg_500")
-        .title(Localizer.dLocalize("advancement.challenge_stealth_dmg_500.title"))
-        .description(Localizer.dLocalize("advancement.challenge_stealth_dmg_500.description"))
         .model(CustomModel.get(Material.STONE_SWORD, "advancement", "stealth", "challenge_stealth_dmg_500"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.NETHERITE_SWORD)
             .key("challenge_stealth_dmg_5k")
-            .title(Localizer.dLocalize("advancement.challenge_stealth_dmg_5k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_stealth_dmg_5k.description"))
             .model(CustomModel.get(Material.NETHERITE_SWORD, "advancement", "stealth", "challenge_stealth_dmg_5k"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -119,16 +107,12 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.SKELETON_SKULL)
         .key("challenge_stealth_kills_10")
-        .title(Localizer.dLocalize("advancement.challenge_stealth_kills_10.title"))
-        .description(Localizer.dLocalize("advancement.challenge_stealth_kills_10.description"))
         .model(CustomModel.get(Material.SKELETON_SKULL, "advancement", "stealth", "challenge_stealth_kills_10"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.WITHER_ROSE)
             .key("challenge_stealth_kills_100")
-            .title(Localizer.dLocalize("advancement.challenge_stealth_kills_100.title"))
-            .description(Localizer.dLocalize("advancement.challenge_stealth_kills_100.description"))
             .model(CustomModel.get(Material.WITHER_ROSE, "advancement", "stealth", "challenge_stealth_kills_100"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -141,16 +125,12 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.LEATHER_BOOTS)
         .key("challenge_stealth_time_1h")
-        .title(Localizer.dLocalize("advancement.challenge_stealth_time_1h.title"))
-        .description(Localizer.dLocalize("advancement.challenge_stealth_time_1h.description"))
         .model(CustomModel.get(Material.LEATHER_BOOTS, "advancement", "stealth", "challenge_stealth_time_1h"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.CHAINMAIL_BOOTS)
             .key("challenge_stealth_time_10h")
-            .title(Localizer.dLocalize("advancement.challenge_stealth_time_10h.title"))
-            .description(Localizer.dLocalize("advancement.challenge_stealth_time_10h.description"))
             .model(CustomModel.get(Material.CHAINMAIL_BOOTS, "advancement", "stealth", "challenge_stealth_time_10h"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -163,16 +143,12 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.BOW)
         .key("challenge_stealth_arrows_50")
-        .title(Localizer.dLocalize("advancement.challenge_stealth_arrows_50.title"))
-        .description(Localizer.dLocalize("advancement.challenge_stealth_arrows_50.description"))
         .model(CustomModel.get(Material.BOW, "advancement", "stealth", "challenge_stealth_arrows_50"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.CROSSBOW)
             .key("challenge_stealth_arrows_500")
-            .title(Localizer.dLocalize("advancement.challenge_stealth_arrows_500.title"))
-            .description(Localizer.dLocalize("advancement.challenge_stealth_arrows_500.description"))
             .model(CustomModel.get(Material.CROSSBOW, "advancement", "stealth", "challenge_stealth_arrows_500"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -186,7 +162,7 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
   public void on(EntityDamageByEntityEvent e) {
     if (e.getDamager() instanceof Player p && p.isSneaking()) {
       shouldReturnForPlayer(p, e, () -> {
-        getPlayer(p).getData().addStat("stealth.damage.sneaking", e.getDamage());
+        addStat(p, "stealth.damage.sneaking", e.getDamage());
         xp(p, e.getEntity().getLocation(), e.getDamage() * getConfig().sneakCombatXPMultiplier);
       });
     }
@@ -205,8 +181,12 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
     Player p = e.getEntity().getKiller();
     if (p.isSneaking()) {
       shouldReturnForPlayer(p, () -> {
-        getPlayer(p).getData().addStat("stealth.kills.sneaking", 1);
+        addStat(p, "stealth.kills.sneaking", 1);
         xp(p, e.getEntity().getLocation(), getConfig().sneakKillXP);
+        fx(e.getEntity().getLocation().add(0, 0.5D, 0), FxPriority.COMBAT)
+            .burst(Particles.SMOKE, 6, 0.2D)
+            .burst(Particle.CRIT, 2, 0.15D)
+            .chord(Sound.ENTITY_PLAYER_ATTACK_CRIT, 0.5F, 0.7F, Sound.PARTICLE_SOUL_ESCAPE, 0.4F, 1.3F);
       });
     }
   }
@@ -218,7 +198,7 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
     }
     if (p.isSneaking()) {
       shouldReturnForPlayer(p, e, () -> {
-        getPlayer(p).getData().addStat("stealth.arrows.sneaking", 1);
+        addStat(p, "stealth.arrows.sneaking", 1);
       });
     }
   }

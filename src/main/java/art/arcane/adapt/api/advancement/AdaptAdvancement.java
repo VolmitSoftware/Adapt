@@ -20,6 +20,7 @@ package art.arcane.adapt.api.advancement;
 
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.volmlib.util.collection.KList;
 import com.fren_gor.ultimateAdvancementAPI.AdvancementTab;
@@ -42,15 +43,18 @@ import java.util.List;
 @Builder
 @Data
 public class AdaptAdvancement {
+  private static final String MISSING_TITLE = "MISSING TITLE";
+  private static final String MISSING_DESCRIPTION = "MISSING DESCRIPTION";
+
   private String background;
   @Builder.Default
   private Material icon = Material.EMERALD;
   @Builder.Default
   private CustomModel model = null;
   @Builder.Default
-  private String title = "MISSING TITLE";
+  private String title = MISSING_TITLE;
   @Builder.Default
-  private String description = "MISSING DESCRIPTION";
+  private String description = MISSING_DESCRIPTION;
   @Builder.Default
   private AdaptAdvancementFrame frame = AdaptAdvancementFrame.TASK;
   @Builder.Default
@@ -72,8 +76,8 @@ public class AdaptAdvancement {
     ItemStack icon = getModel() != null ?
         getModel().toItemStack() :
         new ItemStack(getIcon());
-    AdvancementDisplay d = new AdvancementDisplay.Builder(icon, getTitle())
-        .description(getDescription())
+    AdvancementDisplay d = new AdvancementDisplay.Builder(icon, resolveTitle())
+        .description(resolveDescription())
         .frame(getFrame().toUaaFrame())
         .showToast(toast)
         .x(1f + depth)
@@ -92,6 +96,43 @@ public class AdaptAdvancement {
 
   public KList<Advancement> toAdvancements() {
     return toAdvancements(null, 0, 0);
+  }
+
+  private String resolveTitle() {
+    if (title != null && !title.equals(MISSING_TITLE)) {
+      return title;
+    }
+
+    String localized = localizedOrNull("advancement." + key + ".title");
+    if (localized != null) {
+      title = localized;
+      return localized;
+    }
+
+    return title == null ? MISSING_TITLE : title;
+  }
+
+  private String resolveDescription() {
+    if (description != null && !description.equals(MISSING_DESCRIPTION)) {
+      return description;
+    }
+
+    String localized = localizedOrNull("advancement." + key + ".description");
+    if (localized != null) {
+      description = localized;
+      return localized;
+    }
+
+    return description == null ? MISSING_DESCRIPTION : description;
+  }
+
+  private static String localizedOrNull(String localizationKey) {
+    String resolved = Localizer.dLocalize(localizationKey);
+    if (resolved == null || resolved.equals(localizationKey)) {
+      return null;
+    }
+
+    return resolved;
   }
 
   private KList<Advancement> toAdvancements(Advancement p, int index, int depth) {

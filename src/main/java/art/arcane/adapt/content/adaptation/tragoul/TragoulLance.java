@@ -1,4 +1,4 @@
-package art.arcane.adapt.content.adaptation.tragoul;/*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
  -   Adapt is a Skill/Integration plugin  for Minecraft Bukkit Servers
  -   Copyright (c) 2022 Arcane Arts (Volmit Software)
  -
@@ -16,19 +16,25 @@ package art.arcane.adapt.content.adaptation.tragoul;/*--------------------------
  -   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
 
-import art.arcane.adapt.Adapt;
+package art.arcane.adapt.content.adaptation.tragoul;
+
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
 import org.bukkit.Color;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -37,37 +43,23 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-
 public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
-  private final Map<UUID, Long> cooldowns;
+  private static final Color LANCE_MAROON = Color.fromRGB(128, 0, 0);
+  private final Cooldowns cooldowns = cooldowns();
 
   public TragoulLance() {
     super("tragoul-lance");
     registerConfiguration(TragoulLance.Config.class);
-    setDescription(Localizer.dLocalize("tragoul.lance.description"));
-    setDisplayName(Localizer.dLocalize("tragoul.lance.name"));
     setIcon(Material.TRIDENT);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
-    cooldowns = new ConcurrentHashMap<>();
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.IRON_SWORD)
         .key("challenge_tragoul_lance_200")
-        .title(Localizer.dLocalize("advancement.challenge_tragoul_lance_200.title"))
-        .description(Localizer.dLocalize("advancement.challenge_tragoul_lance_200.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.DIAMOND_SWORD)
         .key("challenge_tragoul_lance_kills_100")
-        .title(Localizer.dLocalize("advancement.challenge_tragoul_lance_kills_100.title"))
-        .description(Localizer.dLocalize("advancement.challenge_tragoul_lance_kills_100.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -86,74 +78,95 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
             return;
           }
 
-          Long cooldown = cooldowns.get(p.getUniqueId());
-          if (cooldown != null && cooldown + 5000 > System.currentTimeMillis()) {
+          if (!cooldowns.isReady(p.getUniqueId(), 5000L)) {
             return;
           }
 
-          cooldowns.put(p.getUniqueId(), System.currentTimeMillis());
+          cooldowns.mark(p.getUniqueId());
           double baseSeekerRange = 5 + 4 * level;
           double damageDealt = e.getDamage();
           double seekerDamage = getConfig().seekerDamageMultiplier * damageDealt;
 
-          triggerSeeker(p, event.getEntity(), seekerDamage, level, baseSeekerRange);
-          getPlayer(p).getData().addStat("tragoul.lance.lance-kills", 1);
+          triggerSeeker(p, event.getEntity(), seekerDamage, level, baseSeekerRange, level);
+          addStat(p, "tragoul.lance.lance-kills", 1);
         });
       }
     }
   }
 
-  private void triggerSeeker(Player p, Entity origin, double damage, int remainingSeekers, double range) {
+  private void triggerSeeker(Player p, Entity origin, double damage, int remainingSeekers, double range, int totalSeekers) {
     if (remainingSeekers <= 0) {
       return;
     }
 
     LivingEntity nearest = null;
-    double minDistance = range;
+    double best = range * range;
 
     for (Entity e : origin.getNearbyEntities(range, range, range)) {
       if (e instanceof LivingEntity le && le != p) {
-        double distance = origin.getLocation().distance(le.getLocation());
-        if (distance < minDistance) {
+        double d2 = origin.getLocation().distanceSquared(le.getLocation());
+        if (d2 < best) {
           nearest = le;
-          minDistance = distance;
+          best = d2;
         }
       }
     }
 
     if (nearest != null) {
-      getPlayer(p).getData().addStat("tragoul.lance.lances-spawned", 1);
-      vfxMovingSphere(origin.getLocation(), nearest.getLocation(), getConfig().seekerDelay, Color.MAROON, 0.25, 4);
+      addStat(p, "tragoul.lance.lances-spawned", 1);
+      playLanceLaunch(origin.getLocation());
+      playLanceTravel(origin.getLocation(), nearest.getLocation());
       double seekerDamage = getConfig().seekerDamageMultiplier * damage;
       double selfDamage = getConfig().selfDamageMultiplier * seekerDamage;
-      Adapt.verbose("Seeker damage: " + seekerDamage + " Self damage: " + selfDamage);
 
       p.damage(selfDamage, p);
+      fx(p, FxPriority.TRAIL)
+          .particle(Particle.DAMAGE_INDICATOR, 2, 0, 1.0, 0, 0.1, 0.01)
+          .sound(Sound.ENTITY_PLAYER_HURT, 0.2F, 1.0F);
 
       LivingEntity finalNearest = nearest;
+      int generation = totalSeekers - remainingSeekers;
       J.runEntity(finalNearest, () -> {
         double remainingHealth = finalNearest.getHealth() - damage;
         finalNearest.damage(damage, p);
+        float pitch = (float) Math.min(2.0, 1.0 + (generation * 0.1));
+        fx(finalNearest, FxPriority.COMBAT)
+            .burst(Particle.CRIT, 8, 0.4)
+            .dustBurst(LANCE_MAROON, 6, 0.4, 1.0F)
+            .chord(Sound.ITEM_TRIDENT_HIT, 0.7F, pitch, Sound.ENTITY_ARROW_HIT, 0.4F, 0.7F);
         if (remainingHealth <= 0) {
-          triggerSeeker(p, finalNearest, damage * 0.5, remainingSeekers - 1, range);
+          triggerSeeker(p, finalNearest, damage * 0.5, remainingSeekers - 1, range, totalSeekers);
         }
       }, getConfig().seekerDelay);
     }
   }
 
-
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
+  private void playLanceLaunch(Location origin) {
+    fx(origin.clone().add(0, 1.0, 0), FxPriority.COMBAT)
+        .burst(Particle.SCULK_SOUL, 6, 0.3)
+        .chord(Sound.ITEM_TRIDENT_RIPTIDE_1, 0.6F, 1.3F, Sound.ENTITY_WITHER_SHOOT, 0.3F, 1.8F);
   }
+
+  private void playLanceTravel(Location origin, Location target) {
+    Location start = origin.clone().add(0, 1.0, 0);
+    double dx = target.getX() - start.getX();
+    double dy = (target.getY() + 1.0) - start.getY();
+    double dz = target.getZ() - start.getZ();
+    timeline(start)
+        .duration(Math.max(4, getConfig().seekerDelay))
+        .priority(FxPriority.TRAIL)
+        .cullRadius(32)
+        .frame((fx, tick, progress) -> {
+          fx.particle(Particle.SOUL_FIRE_FLAME, 2, dx * progress, dy * progress, dz * progress, 0.03, 0);
+          double tail = Math.max(0.0, progress - 0.06);
+          fx.particle(Particle.SOUL, 1, dx * tail, dy * tail, dz * tail, 0.02, 0);
+        })
+        .start();
+  }
+
 
   @Override
   public void onTick() {
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
   }
 
   @Override
@@ -163,26 +176,18 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
     v.addLore(C.YELLOW + Localizer.dLocalize("tragoul.lance.lore3") + level);
   }
 
-  @NoArgsConstructor
   @ConfigDescription("Killing an enemy spawns a lance that seeks and damages a nearby enemy.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 4;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Seeker Delay for the Tragoul Lance adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     int seekerDelay = 20;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.72;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Seeker Damage Multiplier for the Tragoul Lance adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double seekerDamageMultiplier = 0.5;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Self Damage Multiplier for the Tragoul Lance adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double selfDamageMultiplier = 0.5;
+
+    public Config() {
+      costFactor = 0.72;
+      initialCost = 4;
+    }
   }
 }

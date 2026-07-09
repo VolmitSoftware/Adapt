@@ -18,19 +18,22 @@
 
 package art.arcane.adapt.content.adaptation.seaborrne;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPresets;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
 import org.bukkit.FluidCollisionMode;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -44,29 +47,22 @@ import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.util.Vector;
 
 public class SeaborneTidecaller extends SimpleAdaptation<SeaborneTidecaller.Config> {
+  private final Cooldowns fizzleThrottle = cooldowns();
+
   public SeaborneTidecaller() {
     super("seaborne-tidecaller");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("seaborn.tidecaller.description"));
-    setDisplayName(Localizer.dLocalize("seaborn.tidecaller.name"));
+    setLocalizationKey("seaborn.tidecaller");
     setIcon(Material.HEART_OF_THE_SEA);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(1600);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.TRIDENT)
         .key("challenge_seaborne_tidecaller_200")
-        .title(Localizer.dLocalize("advancement.challenge_seaborne_tidecaller_200.title"))
-        .description(Localizer.dLocalize("advancement.challenge_seaborne_tidecaller_200.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.HEART_OF_THE_SEA)
             .key("challenge_seaborne_tidecaller_5k")
-            .title(Localizer.dLocalize("advancement.challenge_seaborne_tidecaller_5k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_seaborne_tidecaller_5k.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -77,7 +73,7 @@ public class SeaborneTidecaller extends SimpleAdaptation<SeaborneTidecaller.Conf
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.f(getDashDistance(level), 1) + C.GRAY + " " + Localizer.dLocalize("seaborn.tidecaller.lore1"));
+    statLore(v, Form.f(getDashDistance(level), 1), 1);
     v.addLore(C.YELLOW + "* " + Form.duration(getCooldownTicks(level) * 50D, 1) + C.GRAY + " " + Localizer.dLocalize("seaborn.tidecaller.lore2"));
     java.util.List<String> combos = getTriggerCombos();
     if (combos.isEmpty()) {
@@ -156,6 +152,10 @@ public class SeaborneTidecaller extends SimpleAdaptation<SeaborneTidecaller.Conf
       return;
     }
 
+    if (!getConfig().enableSneakTrigger || p.hasCooldown(Material.HEART_OF_THE_SEA)) {
+      return;
+    }
+
     tryDash(p, TriggerType.SNEAK);
   }
 
@@ -165,7 +165,12 @@ public class SeaborneTidecaller extends SimpleAdaptation<SeaborneTidecaller.Conf
       return;
     }
 
-    tryDash(e.getPlayer(), TriggerType.ATTACK);
+    Player p = e.getPlayer();
+    if (!getConfig().enableAttackTrigger || p.hasCooldown(Material.HEART_OF_THE_SEA)) {
+      return;
+    }
+
+    tryDash(p, TriggerType.ATTACK);
   }
 
   private void tryDash(Player p, TriggerType triggerType) {
@@ -199,48 +204,89 @@ public class SeaborneTidecaller extends SimpleAdaptation<SeaborneTidecaller.Conf
       int level = getActiveLevel(p);
       Vector direction = resolveDashDirection(p);
       if (direction.lengthSquared() <= 0.000001) {
+        fizzle(p);
         return;
       }
 
       if (isBlockedAhead(p, direction)) {
+        fizzle(p);
         return;
       }
 
       boolean wasSwimming = p.isSwimming();
-      org.bukkit.Location target;
-      org.bukkit.Location origin = null;
+      double dashDistance = getDashDistance(level);
+      Location launch = p.getLocation().clone();
+      int fan = (int) Math.min(20L, 12L + Math.round(dashDistance));
 
-      if (areParticlesEnabled()) {
-        p.getWorld().spawnParticle(Particle.SPLASH, p.getLocation().add(0, 1, 0), 20, 0.25, 0.35, 0.25, 0.08);
-      }
+      fx(launch.clone().add(0D, 1.0D, 0D), FxPriority.GAMEPLAY)
+          .trail(Particle.SPLASH, direction.getX(), direction.getY(), direction.getZ(), Math.min(4.0D, dashDistance * 0.4D), fan)
+          .particle(Particle.BUBBLE, 10, 0D, 0.2D, 0D, 0.35D, 0.05D)
+          .ring(Particle.BUBBLE, 0.6D, 6, 0.0D)
+          .dustBurst(6, 0.4D, 1.0F)
+          .chord(Sound.ITEM_TRIDENT_RIPTIDE_2, 0.75F, 1.2F, Sound.ENTITY_DOLPHIN_SPLASH, 0.5F, 0.9F);
 
+      Location target;
       if (getConfig().useVelocityDash) {
         applyVelocityDash(p, direction, level);
-        target = p.getLocation().clone().add(direction.clone().multiply(Math.max(0.35, getDashDistance(level) * 0.35)));
+        target = p.getLocation().clone().add(direction.clone().multiply(Math.max(0.35D, dashDistance * 0.35D)));
+        timeline(p)
+            .duration(8)
+            .priority(FxPriority.TRAIL)
+            .cullRadius(32)
+            .frame((f, tick, progress) -> {
+              f.particle(Particle.BUBBLE, 3, 0D, 1.0D, 0D, 0.15D, 0.02D);
+              if ((tick & 1) == 0) {
+                f.particle(Particle.SPLASH, 2, 0D, 1.0D, 0D, 0.1D, 0.02D);
+              }
+            })
+            .start();
       } else {
-        origin = p.getLocation().clone();
-        target = findSafeDashTarget(p, getDashDistance(level));
+        Location origin = p.getLocation().clone();
+        target = findSafeDashTarget(p, dashDistance);
         if (target == null) {
+          fizzle(p);
           return;
         }
         J.teleport(p, target);
         applyDashMomentum(p, origin, target);
+        fx(origin.clone().add(0D, 1.0D, 0D), FxPriority.TRAIL)
+            .line(Particle.BUBBLE, target.getX(), target.getY() + 1.0D, target.getZ(), 12)
+            .line(Particle.SPLASH, target.getX(), target.getY() + 1.0D, target.getZ(), 8);
       }
 
       preserveSwimStateAfterDash(p, wasSwimming);
-      if (areParticlesEnabled()) {
-        p.getWorld().spawnParticle(Particle.SPLASH, target.clone().add(0, 1, 0), 30, 0.35, 0.45, 0.35, 0.08);
-      }
-      if (areParticlesEnabled()) {
-        p.getWorld().spawnParticle(Particle.BUBBLE, target.clone().add(0, 0.9, 0), 18, 0.4, 0.35, 0.4, 0.05);
-      }
-      SoundPlayer sp = SoundPlayer.of(p.getWorld());
-      sp.play(p.getLocation(), Sound.ITEM_TRIDENT_RIPTIDE_2, 0.75f, 1.2f);
-      sp.play(target, Sound.ENTITY_DOLPHIN_SPLASH, 0.65f, 1.15f);
-      p.setCooldown(Material.HEART_OF_THE_SEA, getCooldownTicks(level));
+
+      double arrivalRadius = Math.min(1.6D, 0.6D + (dashDistance * 0.08D));
+      fx(target.clone().add(0D, 1.0D, 0D), FxPriority.GAMEPLAY)
+          .particle(Particle.SPLASH, 24, 0D, 0D, 0D, 0.35D, 0.08D)
+          .particle(Particle.BUBBLE, 14, 0D, 0D, 0D, 0.4D, 0.05D)
+          .chord(Sound.ENTITY_DOLPHIN_SPLASH, 0.65F, 1.15F, Sound.ENTITY_PLAYER_SPLASH, 0.5F, 1.1F);
+      timeline(target.clone())
+          .duration(6)
+          .priority(FxPriority.TRANSITION)
+          .cullRadius(32)
+          .frame((f, tick, progress) -> f.ring(Particle.BUBBLE, 0.3D + (arrivalRadius * progress), 12, 0.2D))
+          .start();
+
+      int cooldownTicks = getCooldownTicks(level);
+      p.setCooldown(Material.HEART_OF_THE_SEA, cooldownTicks);
+      J.runEntity(p, () -> {
+        if (p.isOnline() && !p.hasCooldown(Material.HEART_OF_THE_SEA)) {
+          FxPresets.readyPing(this, p);
+        }
+      }, cooldownTicks);
       xp(p, getConfig().xpPerBurst);
-      getPlayer(p).getData().addStat("seaborne.tidecaller.dashes", 1);
+      addStat(p, "seaborne.tidecaller.dashes", 1);
     });
+  }
+
+  private void fizzle(Player p) {
+    if (!fizzleThrottle.isReady(p.getUniqueId(), 500L)) {
+      return;
+    }
+
+    fizzleThrottle.mark(p.getUniqueId());
+    FxPresets.failFizzle(this, p);
   }
 
   private void applyVelocityDash(Player p, Vector direction, int level) {
@@ -383,36 +429,13 @@ public class SeaborneTidecaller extends SimpleAdaptation<SeaborneTidecaller.Conf
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
   private enum TriggerType {
     SNEAK,
     ATTACK
   }
 
-  @NoArgsConstructor
   @ConfigDescription("Sneak while it is raining to dash like a water blink through the storm.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.72;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Dash Distance Base for the Seaborne Tidecaller adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double dashDistanceBase = 6;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Dash Distance Factor for the Seaborne Tidecaller adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -465,5 +488,10 @@ public class SeaborneTidecaller extends SimpleAdaptation<SeaborneTidecaller.Conf
     boolean replaceVerticalMomentum = false;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Re-applies swimming pose after dash when the player started swimming and remains in water.", impact = "Prevents dash teleports from popping swimmers out of swim posture.")
     boolean preserveSwimmingAfterDash = true;
+
+    public Config() {
+      costFactor = 0.72;
+      initialCost = 4;
+    }
   }
 }

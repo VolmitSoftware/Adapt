@@ -18,18 +18,21 @@
 
 package art.arcane.adapt.content.adaptation.discovery;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPresets;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Color;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -45,26 +48,16 @@ public class DiscoveryBetterMending extends SimpleAdaptation<DiscoveryBetterMend
   public DiscoveryBetterMending() {
     super("discovery-better-mending");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("discovery.better_mending.description"));
-    setDisplayName(Localizer.dLocalize("discovery.better_mending.name"));
     setIcon(Material.PHANTOM_MEMBRANE);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(2400);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.ANVIL)
         .key("challenge_discovery_mending_10k")
-        .title(Localizer.dLocalize("advancement.challenge_discovery_mending_10k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_discovery_mending_10k.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.ENCHANTED_GOLDEN_APPLE)
             .key("challenge_discovery_mending_100k")
-            .title(Localizer.dLocalize("advancement.challenge_discovery_mending_100k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_discovery_mending_100k.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -75,9 +68,9 @@ public class DiscoveryBetterMending extends SimpleAdaptation<DiscoveryBetterMend
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.f(getRepairPerXp(level)) + C.GRAY + " " + Localizer.dLocalize("discovery.better_mending.lore1"));
-    v.addLore(C.GREEN + "+ " + getMaxXpSpend(level) + C.GRAY + " " + Localizer.dLocalize("discovery.better_mending.lore2"));
-    v.addLore(C.YELLOW + "* " + Form.duration(getCooldownTicks(level) * 50D, 1) + C.GRAY + " " + Localizer.dLocalize("discovery.better_mending.lore3"));
+    statLore(v, Form.f(getRepairPerXp(level)), 1);
+    statLore(v, getMaxXpSpend(level), 2);
+    statLore(v, C.YELLOW, "* ", Form.duration(getCooldownTicks(level) * 50D, 1), 3);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
@@ -109,6 +102,7 @@ public class DiscoveryBetterMending extends SimpleAdaptation<DiscoveryBetterMend
 
     int availableXp = getTotalExp(p);
     if (availableXp <= 0) {
+      FxPresets.failFizzle(this, p);
       return;
     }
 
@@ -118,6 +112,7 @@ public class DiscoveryBetterMending extends SimpleAdaptation<DiscoveryBetterMend
     int xpNeeded = (int) Math.ceil(currentDamage / repairPerXp);
     int xpSpent = Math.min(maxXpSpend, xpNeeded);
     if (xpSpent <= 0) {
+      FxPresets.failFizzle(this, p);
       return;
     }
 
@@ -131,14 +126,29 @@ public class DiscoveryBetterMending extends SimpleAdaptation<DiscoveryBetterMend
     p.setCooldown(hand.getType(), getCooldownTicks(level));
     e.setCancelled(true);
 
-    SoundPlayer sp = SoundPlayer.of(p.getWorld());
-    sp.play(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.8f, 1.45f);
-    if (newDamage <= 0) {
-      sp.play(p.getLocation(), Sound.BLOCK_ANVIL_USE, 0.5f, 1.65f);
-    }
+    timeline(p)
+        .duration(8)
+        .priority(FxPriority.TRANSITION)
+        .cullRadius(16)
+        .frame((f, tick, progress) -> {
+          f.helix(Particle.WAX_ON, 0.4D, 1.6D, 5, progress * Math.PI * 2.0D);
+          if ((tick & 1) == 0) {
+            f.particle(Particles.ENCHANTMENT_TABLE, 2, 0, 0.9, 0, 0.2, 0.01);
+            f.sound(Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5F, (float) (1.2D + (progress * 0.4D)));
+          }
+        })
+        .onComplete(() -> {
+          if (newDamage <= 0) {
+            fx(p.getLocation(), FxPriority.TRANSITION)
+                .particle(Particles.TOTEM, 8, 0, 0, 0, 0.15, 0.1)
+                .dustRing(Color.AQUA, 0.6D, 12, 1.1F)
+                .chord(Sound.BLOCK_ANVIL_USE, 0.5F, 1.65F, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.5F, 1.9F);
+          }
+        })
+        .start();
 
     xp(p, Math.max(1D, (currentDamage - newDamage) * getConfig().skillXpPerDurability));
-    getPlayer(p).getData().addStat("discovery.better-mending.durability-restored", repaired);
+    addStat(p, "discovery.better-mending.durability-restored", repaired);
   }
 
   private boolean canMend(ItemStack hand) {
@@ -174,31 +184,8 @@ public class DiscoveryBetterMending extends SimpleAdaptation<DiscoveryBetterMend
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Sneak-left-click to spend XP and directly mend the Mending item in your hand.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 6;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.8;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Repair Per Xp Base for the Discovery Better Mending adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double repairPerXpBase = 2.0;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Repair Per Xp Factor for the Discovery Better Mending adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -213,5 +200,11 @@ public class DiscoveryBetterMending extends SimpleAdaptation<DiscoveryBetterMend
     double cooldownTicksReduction = 26.0;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Skill Xp Per Durability for the Discovery Better Mending adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double skillXpPerDurability = 0.35;
+
+    public Config() {
+      costFactor = 0.8;
+      maxLevel = 6;
+      initialCost = 4;
+    }
   }
 }

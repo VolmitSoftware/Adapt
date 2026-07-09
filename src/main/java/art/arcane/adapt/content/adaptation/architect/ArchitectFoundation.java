@@ -19,19 +19,19 @@
 package art.arcane.adapt.content.adaptation.architect;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPresets;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
-import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
-import lombok.NoArgsConstructor;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
@@ -66,14 +66,8 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
   public ArchitectFoundation() {
     super("architect-foundation");
     registerConfiguration(ArchitectFoundation.Config.class);
-    setDescription(Localizer.dLocalize("architect.foundation.description"));
-    setDisplayName(Localizer.dLocalize("architect.foundation.name"));
     setIcon(Material.TINTED_GLASS);
     setInterval(988);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     blockPower = new ConcurrentHashMap<>();
     cooldowns = new ConcurrentHashMap<>();
     active = ConcurrentHashMap.newKeySet();
@@ -81,15 +75,11 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.SCAFFOLDING)
         .key("challenge_architect_foundation_1k")
-        .title(Localizer.dLocalize("advancement.challenge_architect_foundation_1k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_architect_foundation_1k.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.SCAFFOLDING)
             .key("challenge_architect_foundation_10k")
-            .title(Localizer.dLocalize("advancement.challenge_architect_foundation_10k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_architect_foundation_10k.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -136,15 +126,23 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
       locs.add(world.getBlockAt(l.clone().add(0.3, -1, 0.3)));
       locs.add(world.getBlockAt(l.clone().add(-0.3, -1, +0.3)));
 
+      int startPower = power;
       for (Block b : locs) {
         if (addFoundation(b)) {
           power--;
-          getPlayer(p).getData().addStat("architect.foundation.blocks-placed", 1);
+          addStat(p, "architect.foundation.blocks-placed", 1);
         }
 
         if (power <= 0) {
           break;
         }
+      }
+
+      if (power != startPower) {
+        float pitch = (float) (0.8D + (0.8D * (power / (double) Math.max(1, getConfig().maxBlocks))));
+        fx(l, FxPriority.TRAIL)
+            .dustRing(Color.fromRGB(120, 255, 200), 0.6D, 12, 0.8F)
+            .sound(Sound.BLOCK_DEEPSLATE_PLACE, 0.7f, pitch);
       }
 
       blockPower.put(id, power);
@@ -212,13 +210,13 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
       if (e.isSneaking() && ready && !active) {
         this.active.add(id);
         cooldowns.put(id, Long.MAX_VALUE);
-        // effect start placing
+        FxPresets.chargeRing(this, p.getLocation(), 6);
       } else if (!e.isSneaking() && active) {
         this.active.remove(id);
         cooldowns.put(id, M.ms() + getConfig().cooldown);
-        SoundPlayer sp = SoundPlayer.of(p);
-        sp.play(p.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 1.0f, 10.0f);
-        sp.play(p.getLocation(), Sound.BLOCK_SCULK_CATALYST_BREAK, 1.0f, 0.81f);
+        fx(p.getLocation(), FxPriority.TRANSITION)
+            .dustRing(Color.GRAY, 1.0D, 16, 1.0F)
+            .chord(Sound.BLOCK_BEACON_DEACTIVATE, 1.0f, 2.0f, Sound.BLOCK_SCULK_CATALYST_BREAK, 1.0f, 0.81f);
       }
     });
   }
@@ -239,13 +237,6 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
       block.setBlockData(BLOCK);
       activeBlocks.add(block);
     });
-    SoundPlayer spw = SoundPlayer.of(block.getWorld());
-    spw.play(block.getLocation(), Sound.BLOCK_DEEPSLATE_PLACE, 1.0f, 1.0f);
-    if (areParticlesEnabled()) {
-
-      vfxCuboidOutline(block, Particle.REVERSE_PORTAL);
-      vfxCuboidOutline(block, Particle.ASH);
-    }
     J.runAt(block.getLocation(), () -> removeFoundation(block), 3 * 20);
     return true;
   }
@@ -258,12 +249,10 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
     J.runAt(block.getLocation(), () -> {
       block.setBlockData(AIR);
       activeBlocks.remove(block);
-      SoundPlayer spw = SoundPlayer.of(block.getWorld());
-      spw.play(block.getLocation(), Sound.BLOCK_DEEPSLATE_BREAK, 1.0f, 1.0f);
+      fx(block.getLocation().add(0.5, 0.5, 0.5), FxPriority.TRAIL)
+          .burst(Particle.ASH, 4, 0.2D)
+          .sound(Sound.BLOCK_DEEPSLATE_BREAK, 0.6f, 1.0f);
     });
-    if (areParticlesEnabled()) {
-      vfxCuboidOutline(block, Particles.ENCHANTMENT_TABLE);
-    }
   }
 
   public int getBlockPower(double factor) {
@@ -272,6 +261,9 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
 
   @Override
   public void onTick() {
+    if (active.isEmpty() && blockPower.isEmpty()) {
+      return;
+    }
     for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
       Player i = adaptPlayer.getPlayer();
       if (i == null || !i.isOnline()) {
@@ -294,13 +286,9 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
     int availablePower = getBlockPower(getLevelPercent(i));
     blockPower.compute(id, (k, v) -> {
       if (v == null || (ready && v != availablePower)) {
-        final org.bukkit.World world = i.getWorld();
-        final org.bukkit.Location location = i.getLocation();
-
-        SoundPlayer spw = SoundPlayer.of(world);
-        spw.play(location, Sound.BLOCK_BEACON_ACTIVATE, 1.0f, 10.0f);
-        spw.play(location, Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 1.0f, 0.81f);
-
+        fx(i.getLocation(), FxPriority.TRANSITION)
+            .dustRing(Color.fromRGB(120, 255, 200), 1.2D, 16, 1.0F)
+            .chord(Sound.BLOCK_BEACON_ACTIVATE, 1.0f, 2.0f, Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 1.0f, 0.81f);
         return availablePower;
       }
       return v;
@@ -325,19 +313,8 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
     active.remove(id);
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Sneak to place a temporary foundation beneath you.")
-  protected static class Config {
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Duration for the Architect Foundation adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     public long duration = 3000;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Min Blocks for the Architect Foundation adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -346,19 +323,11 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
     public int maxBlocks = 35;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown for the Architect Foundation adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     public int cooldown = 5000;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Architect Foundation adaptation.", impact = "True enables this behavior and false disables it.")
-    boolean showParticles = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 1;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.40;
+
+    public Config() {
+      baseCost = 5;
+      costFactor = 0.40;
+      initialCost = 1;
+    }
   }
 }

@@ -1,15 +1,21 @@
 package art.arcane.adapt.content.adaptation.rift;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.Enderman;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -18,29 +24,21 @@ import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.inventory.ItemStack;
 
 public class RiftVisage extends SimpleAdaptation<RiftVisage.Config> {
+  private final Cooldowns aversionThrottle = cooldowns();
+
   public RiftVisage() {
     super("rift-visage");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("rift.visage.description"));
-    setDisplayName(Localizer.dLocalize("rift.visage.name"));
     setIcon(Material.POPPED_CHORUS_FRUIT);
-    setBaseCost(getConfig().baseCost);
-    setCostFactor(getConfig().costFactor);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
     setInterval(1000);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.ENDER_EYE)
         .key("challenge_rift_visage_100")
-        .title(Localizer.dLocalize("advancement.challenge_rift_visage_100.title"))
-        .description(Localizer.dLocalize("advancement.challenge_rift_visage_100.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.DRAGON_HEAD)
             .key("challenge_rift_visage_1k")
-            .title(Localizer.dLocalize("advancement.challenge_rift_visage_1k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_rift_visage_1k.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -57,13 +55,26 @@ public class RiftVisage extends SimpleAdaptation<RiftVisage.Config> {
   @EventHandler
   public void onEntityTarget(EntityTargetEvent event) {
     Entity entity = event.getEntity();
-    if (entity instanceof Enderman) {
-      if (event.getTarget() instanceof Player player) {
-        if (hasActiveAdaptation(player) && hasEnderPearl(player)) {
-          event.setCancelled(true);
-          getPlayer(player).getData().addStat("rift.visage.stares-survived", 1);
-        }
-      }
+    if (!(entity instanceof Enderman)) {
+      return;
+    }
+    if (!(event.getTarget() instanceof Player player)) {
+      return;
+    }
+    if (!hasActiveAdaptation(player) || !hasEnderPearl(player)) {
+      return;
+    }
+
+    event.setCancelled(true);
+    addStat(player, "rift.visage.stares-survived", 1);
+    if (aversionThrottle.isReady(player.getUniqueId(), 2000L)) {
+      aversionThrottle.mark(player.getUniqueId());
+      Location eye = entity.getLocation().add(0, 1.5, 0);
+      fx(eye, FxPriority.AMBIENT)
+          .burst(Particles.SMOKE, 4, 0.2)
+          .sound(Sound.ENTITY_ENDERMAN_AMBIENT, 0.3f, 0.7f);
+      fx(player, FxPriority.AMBIENT)
+          .particle(Particle.REVERSE_PORTAL, 2, 0, 1.0, 0, 0.2, 0.02);
     }
   }
 
@@ -80,30 +91,13 @@ public class RiftVisage extends SimpleAdaptation<RiftVisage.Config> {
   public void onTick() {
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Prevents Endermen from becoming aggressive when you carry Enderpearls.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 8;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 1;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 2;
+  protected static class Config extends AdaptationConfig {
+    public Config() {
+      permanent = true;
+      baseCost = 8;
+      costFactor = 0;
+      maxLevel = 1;
+    }
   }
 }

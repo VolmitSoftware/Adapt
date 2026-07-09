@@ -18,18 +18,22 @@
 
 package art.arcane.adapt.content.adaptation.enchanting;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPresets;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -40,32 +44,25 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
+import java.lang.reflect.Method;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class EnchantingOfferReroll extends SimpleAdaptation<EnchantingOfferReroll.Config> {
+  private static volatile Method setSeedMethod;
+
   public EnchantingOfferReroll() {
     super("enchanting-offer-reroll");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("enchanting.offer_reroll.description"));
-    setDisplayName(Localizer.dLocalize("enchanting.offer_reroll.name"));
     setIcon(Material.ENCHANTING_TABLE);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(1800);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.ENCHANTING_TABLE)
         .key("challenge_enchanting_reroll_100")
-        .title(Localizer.dLocalize("advancement.challenge_enchanting_reroll_100.title"))
-        .description(Localizer.dLocalize("advancement.challenge_enchanting_reroll_100.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.ENCHANTING_TABLE)
             .key("challenge_enchanting_reroll_1k")
-            .title(Localizer.dLocalize("advancement.challenge_enchanting_reroll_1k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_enchanting_reroll_1k.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -76,8 +73,8 @@ public class EnchantingOfferReroll extends SimpleAdaptation<EnchantingOfferRerol
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.duration(getCooldownTicks(level) * 50D, 1) + C.GRAY + " " + Localizer.dLocalize("enchanting.offer_reroll.lore1"));
-    v.addLore(C.YELLOW + "* " + getLapisCost(level) + C.GRAY + " " + Localizer.dLocalize("enchanting.offer_reroll.lore2"));
+    statLore(v, Form.duration(getCooldownTicks(level) * 50D, 1), 1);
+    statLore(v, C.YELLOW, "* ", getLapisCost(level), 2);
     if (getConfig().xpLevelCost > 0) {
       v.addLore(C.YELLOW + "* " + getConfig().xpLevelCost + C.GRAY + " " + Localizer.dLocalize("enchanting.offer_reroll.lore_cost_xp"));
     }
@@ -95,6 +92,10 @@ public class EnchantingOfferReroll extends SimpleAdaptation<EnchantingOfferRerol
     }
 
     Player p = e.getPlayer();
+    if (!p.isSneaking()) {
+      return;
+    }
+
     int level = getActiveLevel(p, Player::isSneaking);
     if (level <= 0 || p.hasCooldown(Material.ENCHANTING_TABLE)) {
       return;
@@ -105,12 +106,15 @@ public class EnchantingOfferReroll extends SimpleAdaptation<EnchantingOfferRerol
       return;
     }
 
+    Location tableTop = table.getLocation().add(0.5D, 1.0D, 0.5D);
     if (p.getLevel() < getConfig().xpLevelCost) {
+      FxPresets.failFizzle(this, tableTop);
       return;
     }
 
     int lapisCost = getLapisCost(level);
     if (!hasLapis(p, lapisCost)) {
+      FxPresets.failFizzle(this, tableTop);
       return;
     }
 
@@ -123,11 +127,37 @@ public class EnchantingOfferReroll extends SimpleAdaptation<EnchantingOfferRerol
     p.setCooldown(Material.ENCHANTING_TABLE, getCooldownTicks(level));
     e.setCancelled(true);
 
-    SoundPlayer sp = SoundPlayer.of(p.getWorld());
-    sp.play(p.getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 1f, 1.2f);
-    sp.play(p.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.5f, 0.85f);
+    rerollSurgeFx(tableTop);
     xp(p, getConfig().xpGainOnReroll);
-    getPlayer(p).getData().addStat("enchanting.offer-reroll.rerolls", 1);
+    addStat(p, "enchanting.offer-reroll.rerolls", 1);
+  }
+
+  private void rerollSurgeFx(Location tableTop) {
+    timeline(tableTop)
+        .duration(10)
+        .priority(FxPriority.TRANSITION)
+        .cullRadius(20.0D)
+        .frame((f, tick, progress) -> {
+          if (tick < 4) {
+            f.dustRing(1.5D - (0.3D * tick), 12, 0.9F);
+          }
+          if (tick < 6) {
+            f.particle(Particles.ENCHANTMENT_TABLE, 4, 0, 0.4D, 0, 0.6D, 0.1D);
+          } else {
+            f.helix(Particle.PORTAL, (1.2D * (1.0D - ((progress - 0.6D) / 0.4D))) + 0.15D, 1.4D, 4, progress * Math.PI * 4.0D);
+          }
+          if (tick == 0) {
+            f.particle(Particle.FLASH, 1, 0, 0.5D, 0, 0, 0)
+                .sound(Sound.BLOCK_ENCHANTMENT_TABLE_USE, 1.0F, 1.2F);
+          }
+          if ((tick & 1) == 0 && tick <= 8) {
+            f.sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.4F, (float) (0.85D + (0.45D * progress)));
+          }
+          if (tick == 8) {
+            f.sound(Sound.BLOCK_BEACON_POWER_SELECT, 0.4F, 1.0F);
+          }
+        })
+        .start();
   }
 
   private boolean hasLapis(Player p, int amount) {
@@ -160,7 +190,13 @@ public class EnchantingOfferReroll extends SimpleAdaptation<EnchantingOfferRerol
 
   private boolean setSeed(Player p, int seed) {
     try {
-      p.getClass().getMethod("setEnchantmentSeed", int.class).invoke(p, seed);
+      Method method = setSeedMethod;
+      if (method == null) {
+        method = p.getClass().getMethod("setEnchantmentSeed", int.class);
+        setSeedMethod = method;
+      }
+
+      method.invoke(p, seed);
       return true;
     } catch (Throwable ignored) {
       return false;
@@ -180,31 +216,8 @@ public class EnchantingOfferReroll extends SimpleAdaptation<EnchantingOfferRerol
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Sneak-right-click an enchanting table to reroll offers for lapis and XP.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.7;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Lapis Cost Base for the Enchanting Offer Reroll adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double lapisCostBase = 4;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Lapis Cost Factor for the Enchanting Offer Reroll adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -217,5 +230,11 @@ public class EnchantingOfferReroll extends SimpleAdaptation<EnchantingOfferRerol
     int xpLevelCost = 1;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Gain On Reroll for the Enchanting Offer Reroll adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpGainOnReroll = 15;
+
+    public Config() {
+      costFactor = 0.7;
+      maxLevel = 4;
+      initialCost = 4;
+    }
   }
 }

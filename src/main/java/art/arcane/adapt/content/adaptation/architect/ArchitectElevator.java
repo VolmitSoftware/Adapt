@@ -19,23 +19,23 @@
 package art.arcane.adapt.content.adaptation.architect;
 
 import art.arcane.adapt.Adapt;
-import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPresets;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.recipe.MaterialChar;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.inventorygui.Element;
 import com.jeff_media.customblockdata.CustomBlockData;
 import com.jeff_media.customblockdata.events.CustomBlockDataMoveEvent;
 import com.jeff_media.customblockdata.events.CustomBlockDataRemoveEvent;
-import lombok.NoArgsConstructor;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -66,23 +66,13 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
   private static final NamespacedKey TARGET_DOWN = new NamespacedKey(Adapt.instance, "target_down");
   private static final NamespacedKey TARGET_UP = new NamespacedKey(Adapt.instance, "target_up");
 
-  private static final int PARTICLE_COUNT = 20;
-  private static final float SOUND_VOLUME = 1f;
-  private static final float SOUND_PITCH = 1f;
-
   private final Set<UUID> players = java.util.concurrent.ConcurrentHashMap.newKeySet();
 
   public ArchitectElevator() {
     super("architect-elevator");
     registerConfiguration(ArchitectElevator.Config.class);
-    setDescription(Localizer.dLocalize("architect.elevator.description"));
-    setDisplayName(Localizer.dLocalize("architect.elevator.name"));
     setIcon(Material.HEAVY_WEIGHTED_PRESSURE_PLATE);
     setInterval(988);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
 
     registerRecipe(AdaptRecipe.shaped()
         .key("elevator")
@@ -96,15 +86,11 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.WHITE_WOOL)
         .key("challenge_architect_elevator_100")
-        .title(Localizer.dLocalize("advancement.challenge_architect_elevator_100.title"))
-        .description(Localizer.dLocalize("advancement.challenge_architect_elevator_100.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.WHITE_WOOL)
             .key("challenge_architect_elevator_penthouse")
-            .title(Localizer.dLocalize("advancement.challenge_architect_elevator_penthouse.title"))
-            .description(Localizer.dLocalize("advancement.challenge_architect_elevator_penthouse.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -376,57 +362,39 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
       return;
 
     teleportPlayer(player, loc);
-    getPlayer(player).getData().addStat("architect.elevator.trips", 1);
-    if (distance >= 50 && AdaptConfig.get().isAdvancements() && !getPlayer(player).getData().isGranted("challenge_architect_elevator_penthouse")) {
-      getPlayer(player).getAdvancementHandler().grant("challenge_architect_elevator_penthouse");
+    addStat(player, "architect.elevator.trips", 1);
+    if (distance >= 50 && grantOnce(player, "challenge_architect_elevator_penthouse")) {
+      FxPresets.learnCelebration(this, player);
+      fx(player.getLocation(), FxPriority.TRANSITION).sound(Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.5f, 1.0f);
     }
   }
 
   private void teleportPlayer(Player p, Location l) {
-    playTeleportEffects(p);
+    fx(p.getLocation(), FxPriority.TRANSITION)
+        .column(Particle.PORTAL, 12, 2.0D)
+        .sound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.6f, 1.0f);
     J.teleport(p, l);
-    SoundPlayer.of(p.getWorld()).play(p, Sound.ENTITY_ENDERMAN_TELEPORT, SOUND_VOLUME, SOUND_PITCH);
-    playTeleportEffects(p);
-  }
-
-  private void playTeleportEffects(Player p) {
-    if (areParticlesEnabled()) {
-      p.getWorld().spawnParticle(Particle.PORTAL, p.getLocation(), PARTICLE_COUNT);
-    }
+    fx(l, FxPriority.TRANSITION)
+        .helix(Particle.PORTAL, 0.8D, 2.5D, 16, 0)
+        .chord(Sound.ENTITY_ENDERMAN_TELEPORT, 0.6f, 1.2f, Sound.BLOCK_BEACON_POWER_SELECT, 0.3f, 1.5f);
   }
 
   @Override
   public void onTick() {
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Build wool elevators to teleport vertically.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Base Distance for the Architect Elevator adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     int baseDistance = 32;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Multiplier for the Architect Elevator adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     int multiplier = 1;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 1;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.40;
+
+    public Config() {
+      baseCost = 5;
+      costFactor = 0.40;
+      maxLevel = 4;
+      initialCost = 1;
+    }
   }
 }

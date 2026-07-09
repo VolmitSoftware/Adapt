@@ -20,19 +20,20 @@ package art.arcane.adapt.content.adaptation.rift;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.content.item.BoundEnderPearl;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 import manifold.rt.api.util.Pair;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -64,13 +65,8 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
   public RiftAccess() {
     super("rift-access");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("rift.remote_access.description"));
-    setDisplayName(Localizer.dLocalize("rift.remote_access.name"));
-    setMaxLevel(1);
+    setLocalizationKey("rift.remote_access");
     setIcon(Material.NETHER_STAR);
-    setBaseCost(getConfig().baseCost);
-    setCostFactor(getConfig().costFactor);
-    setInitialCost(getConfig().initialCost);
     setInterval(1000);
     registerRecipe(AdaptRecipe.shapeless()
         .key("rift-remote-access")
@@ -81,15 +77,11 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.CHEST)
         .key("challenge_rift_access_100")
-        .title(Localizer.dLocalize("advancement.challenge_rift_access_100.title"))
-        .description(Localizer.dLocalize("advancement.challenge_rift_access_100.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.ENDER_CHEST)
             .key("challenge_rift_access_2500")
-            .title(Localizer.dLocalize("advancement.challenge_rift_access_2500.title"))
-            .description(Localizer.dLocalize("advancement.challenge_rift_access_2500.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -168,12 +160,23 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
 
   private void linkPearl(Player p, Block block, PlayerInteractEvent event) {
     event.setCancelled(true);
-    if (areParticlesEnabled()) {
-      vfxCuboidOutline(block, Particle.REVERSE_PORTAL);
-    }
+    Location center = block.getLocation().add(0.5, 0.5, 0.5);
+    timeline(center)
+        .duration(10)
+        .priority(FxPriority.TRANSITION)
+        .cullRadius(24)
+        .frame((fx, tick, progress) -> {
+          fx.ring(Particle.REVERSE_PORTAL, 0.7, 10, 0.0);
+          fx.particle(Particles.END_ROD, 1, 0, 1.0 - progress, 0, 0.02, 0);
+          if (tick == 0) {
+            fx.sound(Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 0.5f, 1.6f);
+          }
+          if (tick == 9) {
+            fx.sound(Sound.BLOCK_ENDER_CHEST_CLOSE, 0.5f, 0.8f);
+          }
+        })
+        .start();
     ItemStack hand = p.getInventory().getItemInMainHand();
-    SoundPlayer sp = SoundPlayer.of(p);
-    sp.play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_CLOSE, 0.5f, 0.8f);
 
     if (hand.getAmount() == 1) {
       BoundEnderPearl.setData(hand, block);
@@ -185,10 +188,20 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
   }
 
   private void openPearl(Player p) {
-    SoundPlayer sp = SoundPlayer.of(p);
     Block b = BoundEnderPearl.getBlock(p.getInventory().getItemInMainHand());
     if (b == null || !canAccessChest(p, b.getLocation())) {
-      sp.play(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1f, 1f);
+      timeline(p)
+          .duration(3)
+          .priority(FxPriority.TRANSITION)
+          .frame((fx, tick, progress) -> {
+            if (tick == 0) {
+              fx.burst(Particles.SMOKE, 3, 0.2).sound(Sound.BLOCK_NOTE_BLOCK_BASS, 1f, 0.8f);
+            }
+            if (tick == 2) {
+              fx.sound(Sound.BLOCK_NOTE_BLOCK_BASS, 0.6f, 0.6f);
+            }
+          })
+          .start();
       return;
     }
     loadChunkAsync(b.getLocation(), chunk -> {
@@ -201,9 +214,17 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
         if (view == null) return;
         activeViewsMap.computeIfAbsent(Pair.make(new ChunkPos(chunk).add(), b.getLocation()), k -> new ArrayList<>()).add(view);
       }
-      sp.play(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
-      sp.play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
-      getPlayer(p).getData().addStat("rift.access.remote-opens", 1);
+      timeline(p)
+          .duration(6)
+          .priority(FxPriority.TRANSITION)
+          .frame((fx, tick, progress) -> {
+            fx.helix(Particle.PORTAL, 0.5, 1.4, 8, progress * Math.PI * 2.0);
+            if (tick == 0) {
+              fx.chord(Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.8f, Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 1.0f);
+            }
+          })
+          .start();
+      addStat(p, "rift.access.remote-opens", 1);
     });
   }
 
@@ -288,31 +309,14 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
   }
 
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Craft a Reliquary Portkey to access marked containers remotely.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Rift Access adaptation.", impact = "True enables this behavior and false disables it.")
-    boolean showParticles = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.2;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 15;
+  protected static class Config extends AdaptationConfig {
+    public Config() {
+      baseCost = 3;
+      costFactor = 0.2;
+      initialCost = 15;
+      maxLevel = 1;
+    }
   }
 
   @EqualsAndHashCode

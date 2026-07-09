@@ -21,6 +21,7 @@ package art.arcane.adapt.content.skill;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.adaptation.chronos.*;
@@ -28,9 +29,12 @@ import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.scheduling.J;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import lombok.NoArgsConstructor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.EnderPearl;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -39,7 +43,6 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
@@ -51,17 +54,18 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
-  private final Map<UUID, Location> lastPositions;
-  private final Map<UUID, Deque<Location>> positionHistory;
-  private final Map<UUID, Set<String>> recentActionTypes;
-  private final Map<UUID, Long> actionTypeResetTimestamps;
-  private final Map<UUID, Long> lastActivityTimestamps;
-  private final Map<UUID, Long> sleepCooldowns;
-  private final Map<UUID, Long> sleepEntryWorldTime;
-  private final Map<UUID, SpeedPotionTracker> speedPotionTrackers;
-  private final Map<UUID, Long> enderPearlCooldowns;
-  private final Map<UUID, Long> survivalStreakStart;
-  private final Map<UUID, Long> lastSurvivalCheck;
+  private final Map<UUID, Location> lastPositions = playerState();
+  private final Map<UUID, Deque<Location>> positionHistory = playerState();
+  private final Map<UUID, Set<String>> recentActionTypes = playerState();
+  private final Map<UUID, Long> actionTypeResetTimestamps = playerState();
+  private final Map<UUID, Long> lastActivityTimestamps = playerState();
+  private final Map<UUID, Long> sleepCooldowns = playerState();
+  private final Map<UUID, Long> sleepEntryWorldTime = playerState();
+  private final Map<UUID, SpeedPotionTracker> speedPotionTrackers = playerState();
+  private final Map<UUID, Long> enderPearlCooldowns = playerState();
+  private final Map<UUID, Long> survivalStreakStart = playerState();
+  private final Map<UUID, Long> lastSurvivalCheck = playerState();
+  private final Map<UUID, Integer> survivalStreakHour = playerState();
 
   public SkillChronos() {
     super("chronos", Localizer.dLocalize("skill.chronos.icon"));
@@ -85,38 +89,21 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
     registerAdaptation(new ChronosHourglassGuard());
     registerAdaptation(new ChronosPocketWatch());
     registerAdaptation(new ChronosDejaVu());
-    lastPositions = new ConcurrentHashMap<>();
-    positionHistory = new ConcurrentHashMap<>();
-    recentActionTypes = new ConcurrentHashMap<>();
-    actionTypeResetTimestamps = new ConcurrentHashMap<>();
-    lastActivityTimestamps = new ConcurrentHashMap<>();
-    sleepCooldowns = new ConcurrentHashMap<>();
-    sleepEntryWorldTime = new ConcurrentHashMap<>();
-    speedPotionTrackers = new ConcurrentHashMap<>();
-    enderPearlCooldowns = new ConcurrentHashMap<>();
-    survivalStreakStart = new ConcurrentHashMap<>();
-    lastSurvivalCheck = new ConcurrentHashMap<>();
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.CLOCK)
         .key("challenge_chronos_1h")
-        .title(Localizer.dLocalize("advancement.challenge_chronos_1h.title"))
-        .description(Localizer.dLocalize("advancement.challenge_chronos_1h.description"))
         .model(CustomModel.get(Material.CLOCK, "advancement", "chronos", "challenge_chronos_1h"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.COMPASS)
             .key("challenge_chronos_24h")
-            .title(Localizer.dLocalize("advancement.challenge_chronos_24h.title"))
-            .description(Localizer.dLocalize("advancement.challenge_chronos_24h.description"))
             .model(CustomModel.get(Material.COMPASS, "advancement", "chronos", "challenge_chronos_24h"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .child(AdaptAdvancement.builder()
                 .icon(Material.RECOVERY_COMPASS)
                 .key("challenge_chronos_168h")
-                .title(Localizer.dLocalize("advancement.challenge_chronos_168h.title"))
-                .description(Localizer.dLocalize("advancement.challenge_chronos_168h.description"))
                 .model(CustomModel.get(Material.RECOVERY_COMPASS, "advancement", "chronos", "challenge_chronos_168h"))
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -129,24 +116,18 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.COMPASS).key("challenge_active_dist_1k")
-        .title(Localizer.dLocalize("advancement.challenge_active_dist_1k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_active_dist_1k.description"))
         .model(CustomModel.get(Material.COMPASS, "advancement", "chronos", "challenge_active_dist_1k"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.RECOVERY_COMPASS)
             .key("challenge_active_dist_10k")
-            .title(Localizer.dLocalize("advancement.challenge_active_dist_10k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_active_dist_10k.description"))
             .model(CustomModel.get(Material.RECOVERY_COMPASS, "advancement", "chronos", "challenge_active_dist_10k"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .child(AdaptAdvancement.builder()
                 .icon(Material.LODESTONE)
                 .key("challenge_active_dist_100k")
-                .title(Localizer.dLocalize("advancement.challenge_active_dist_100k.title"))
-                .description(Localizer.dLocalize("advancement.challenge_active_dist_100k.description"))
                 .model(CustomModel.get(Material.LODESTONE, "advancement", "chronos", "challenge_active_dist_100k"))
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -159,16 +140,12 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.WHITE_BED).key("challenge_beds_10")
-        .title(Localizer.dLocalize("advancement.challenge_beds_10.title"))
-        .description(Localizer.dLocalize("advancement.challenge_beds_10.description"))
         .model(CustomModel.get(Material.WHITE_BED, "advancement", "chronos", "challenge_beds_10"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.RED_BED)
             .key("challenge_beds_100")
-            .title(Localizer.dLocalize("advancement.challenge_beds_100.title"))
-            .description(Localizer.dLocalize("advancement.challenge_beds_100.description"))
             .model(CustomModel.get(Material.RED_BED, "advancement", "chronos", "challenge_beds_100"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -179,16 +156,12 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.ENDER_PEARL).key("challenge_chronos_tp_50")
-        .title(Localizer.dLocalize("advancement.challenge_chronos_tp_50.title"))
-        .description(Localizer.dLocalize("advancement.challenge_chronos_tp_50.description"))
         .model(CustomModel.get(Material.ENDER_PEARL, "advancement", "chronos", "challenge_chronos_tp_50"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.CHORUS_FRUIT)
             .key("challenge_chronos_tp_500")
-            .title(Localizer.dLocalize("advancement.challenge_chronos_tp_500.title"))
-            .description(Localizer.dLocalize("advancement.challenge_chronos_tp_500.description"))
             .model(CustomModel.get(Material.CHORUS_FRUIT, "advancement", "chronos", "challenge_chronos_tp_500"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -199,16 +172,12 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.SKELETON_SKULL).key("challenge_chronos_deaths_10")
-        .title(Localizer.dLocalize("advancement.challenge_chronos_deaths_10.title"))
-        .description(Localizer.dLocalize("advancement.challenge_chronos_deaths_10.description"))
         .model(CustomModel.get(Material.SKELETON_SKULL, "advancement", "chronos", "challenge_chronos_deaths_10"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.WITHER_SKELETON_SKULL)
             .key("challenge_chronos_deaths_100")
-            .title(Localizer.dLocalize("advancement.challenge_chronos_deaths_100.title"))
-            .description(Localizer.dLocalize("advancement.challenge_chronos_deaths_100.description"))
             .model(CustomModel.get(Material.WITHER_SKELETON_SKULL, "advancement", "chronos", "challenge_chronos_deaths_100"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -339,6 +308,12 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
               getConfig().survivalStreakHourCap * getConfig().survivalStreakBonusPerHour
           );
           xpSilent(p, getConfig().survivalXPPerMinute * streakBonus * afkMult, "chronos:survival");
+
+          int wholeHours = (int) aliveHours;
+          if (wholeHours >= 1 && wholeHours > survivalStreakHour.getOrDefault(uuid, 0)) {
+            survivalStreakHour.put(uuid, wholeHours);
+            emitSurvivalMilestone(p);
+          }
         }
 
         checkStatTrackers(adaptPlayer);
@@ -365,7 +340,7 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
       long worldTime = p.getWorld().getTime();
       sleepEntryWorldTime.put(uuid, worldTime);
       sleepCooldowns.put(uuid, now);
-      getPlayer(p).getData().addStat("chronos.beds.used", 1);
+      addStat(p, "chronos.beds.used", 1);
 
       J.runEntity(p, () -> {
         if (!p.isOnline()) {
@@ -375,6 +350,9 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
         boolean nightSkipped = currentWorldTime < 1000 || currentWorldTime < worldTime - 100;
         if (nightSkipped) {
           xp(p, p.getLocation(), getConfig().sleepSkipXP);
+          fx(p.getLocation().add(0, 1, 0), FxPriority.TRANSITION)
+              .arc(Particles.END_ROD, 1.4D, 10, 0, Math.PI, 0.4D)
+              .chord(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.5F, 1.1F, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.4F, 1.6F);
         } else {
           xp(p, p.getLocation(), getConfig().sleepAttemptXP);
         }
@@ -487,7 +465,7 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
     }
     shouldReturnForPlayer(p, () -> {
       trackAction(p.getUniqueId(), "teleport");
-      getPlayer(p).getData().addStat("chronos.teleports", 1);
+      addStat(p, "chronos.teleports", 1);
       xp(p, e.getTo(), getConfig().enderPearlTeleportXP);
     });
   }
@@ -500,26 +478,25 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
     UUID uuid = p.getUniqueId();
     survivalStreakStart.put(uuid, System.currentTimeMillis());
     lastSurvivalCheck.remove(uuid);
+    survivalStreakHour.remove(uuid);
     trackAction(uuid, "combat");
-    shouldReturnForPlayer(p, () -> getPlayer(p).getData().addStat("chronos.deaths", 1));
+    shouldReturnForPlayer(p, () -> addStat(p, "chronos.deaths", 1));
   }
 
-  // --- Player Quit Cleanup ---
-
-  @EventHandler(priority = EventPriority.MONITOR)
-  public void on(PlayerQuitEvent e) {
-    UUID uuid = e.getPlayer().getUniqueId();
-    lastPositions.remove(uuid);
-    positionHistory.remove(uuid);
-    recentActionTypes.remove(uuid);
-    actionTypeResetTimestamps.remove(uuid);
-    lastActivityTimestamps.remove(uuid);
-    sleepCooldowns.remove(uuid);
-    sleepEntryWorldTime.remove(uuid);
-    speedPotionTrackers.remove(uuid);
-    enderPearlCooldowns.remove(uuid);
-    survivalStreakStart.remove(uuid);
-    lastSurvivalCheck.remove(uuid);
+  private void emitSurvivalMilestone(Player p) {
+    Runnable pulse = () -> {
+      if (!p.isOnline()) {
+        return;
+      }
+      fx(p.getLocation().add(0, 1, 0), FxPriority.AMBIENT)
+          .particle(Particle.WAX_ON, 4, 0, 0.5D, 0, 0.3D, 0.02D)
+          .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.4F, 1.5F);
+    };
+    if (J.isFoliaThreading()) {
+      J.runEntity(p, pulse);
+    } else {
+      pulse.run();
+    }
   }
 
   @Override

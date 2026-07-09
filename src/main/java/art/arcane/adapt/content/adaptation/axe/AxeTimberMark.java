@@ -18,21 +18,24 @@
 
 package art.arcane.adapt.content.adaptation.axe;
 
-import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.fx.FxTimeline;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -40,38 +43,30 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 
 import java.util.ArrayDeque;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 public class AxeTimberMark extends SimpleAdaptation<AxeTimberMark.Config> {
+  private final Map<UUID, Mark> marks = playerState();
+
   public AxeTimberMark() {
     super("axe-timber-mark");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("axe.timber_mark.description"));
-    setDisplayName(Localizer.dLocalize("axe.timber_mark.name"));
     setIcon(Material.OAK_LOG);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(1000);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.OAK_LOG)
         .key("challenge_axe_timber_200")
-        .title(Localizer.dLocalize("advancement.challenge_axe_timber_200.title"))
-        .description(Localizer.dLocalize("advancement.challenge_axe_timber_200.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.DIAMOND_AXE)
         .key("challenge_axe_timber_40")
-        .title(Localizer.dLocalize("advancement.challenge_axe_timber_40.title"))
-        .description(Localizer.dLocalize("advancement.challenge_axe_timber_40.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -82,14 +77,6 @@ public class AxeTimberMark extends SimpleAdaptation<AxeTimberMark.Config> {
   public void addStats(int level, Element v) {
     v.addLore(C.GREEN + "+ " + getMaxBlocks(level) + C.GRAY + " " + Localizer.dLocalize("axe.timber_mark.lore1"));
     v.addLore(C.YELLOW + "* " + Form.duration(getMarkDurationMillis(level), 1) + C.GRAY + " " + Localizer.dLocalize("axe.timber_mark.lore2"));
-  }
-
-  @EventHandler(priority = EventPriority.MONITOR)
-  public void on(PlayerQuitEvent e) {
-    UUID id = e.getPlayer().getUniqueId();
-    setStorage(e.getPlayer(), "timberMarkBlock", null);
-    setStorage(e.getPlayer(), "timberMarkUntil", 0L);
-    setStorage(e.getPlayer(), "timberMarkOwner", id.toString());
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
@@ -114,12 +101,44 @@ public class AxeTimberMark extends SimpleAdaptation<AxeTimberMark.Config> {
       return;
     }
 
-    setStorage(p, "timberMarkBlock", clicked.getLocation().toString());
-    setStorage(p, "timberMarkUntil", System.currentTimeMillis() + getMarkDurationMillis(level));
     e.setUseInteractedBlock(Event.Result.DENY);
     e.setUseItemInHand(Event.Result.DENY);
     e.setCancelled(true);
-    SoundPlayer.of(p.getWorld()).play(clicked.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 0.6f, 1.8f);
+
+    UUID id = p.getUniqueId();
+    Mark existing = marks.get(id);
+    if (existing != null) {
+      existing.aura.cancel();
+    }
+
+    long duration = getMarkDurationMillis(level);
+    long until = System.currentTimeMillis() + duration;
+    Location markCenter = clicked.getLocation().add(0.5D, 0.5D, 0.5D);
+    int auraTicks = (int) Math.max(4L, duration / 50L);
+    Mark[] self = new Mark[1];
+    FxTimeline aura = timeline(markCenter)
+        .duration(auraTicks)
+        .priority(FxPriority.AMBIENT)
+        .cullRadius(24)
+        .frame((fx, tick, progress) -> {
+          if ((tick % 10) == 0) {
+            fx.dustRing(0.62D, 8, (float) Math.max(0.2D, 1.2D - progress));
+          }
+        })
+        .onComplete(() -> {
+          marks.remove(id, self[0]);
+          fx(markCenter, FxPriority.TRANSITION)
+              .burst(Particles.SMOKE, 3, 0.15D)
+              .sound(Sound.BLOCK_NOTE_BLOCK_BASS, 0.4F, 0.6F);
+        });
+    Mark mark = new Mark(clicked, until, aura);
+    self[0] = mark;
+    marks.put(id, mark);
+    aura.start();
+
+    fx(markCenter, FxPriority.TRANSITION)
+        .dustRing(0.62D, 10, 1.0F)
+        .chord(Sound.BLOCK_NOTE_BLOCK_CHIME, 0.6F, 1.8F, Sound.BLOCK_AMETHYST_BLOCK_HIT, 0.3F, 2.0F);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
@@ -131,22 +150,23 @@ public class AxeTimberMark extends SimpleAdaptation<AxeTimberMark.Config> {
       return;
     }
 
-    Long until = getStorageLong(p, "timberMarkUntil", 0L);
-    String marked = getStorageString(p, "timberMarkBlock", "");
-    if (until == null || until < System.currentTimeMillis() || marked == null || marked.isEmpty()) {
+    UUID id = p.getUniqueId();
+    Mark mark = marks.get(id);
+    if (mark == null || mark.until < System.currentTimeMillis() || !mark.block.equals(e.getBlock())) {
       return;
     }
 
-    if (!e.getBlock().getLocation().toString().equals(marked)) {
-      return;
-    }
+    marks.remove(id);
+    mark.aura.cancel();
 
-    Material type = e.getBlock().getType();
+    Block seed = e.getBlock();
+    BlockData logData = seed.getBlockData();
+    Material type = seed.getType();
     int maxBlocks = getMaxBlocks(level);
-    Set<Block> connected = floodLogs(e.getBlock(), type, maxBlocks);
+    Set<Block> connected = floodLogs(seed, type, maxBlocks);
     int logsFelled = 0;
     for (Block b : connected) {
-      if (b.equals(e.getBlock())) {
+      if (b.equals(seed)) {
         continue;
       }
 
@@ -160,6 +180,7 @@ public class AxeTimberMark extends SimpleAdaptation<AxeTimberMark.Config> {
     }
 
     Set<Block> leaves = floodLeaves(connected, getMaxLeaves(level));
+    int leavesCleared = 0;
     for (Block leaf : leaves) {
       if (!canBlockBreak(p, leaf.getLocation())) {
         continue;
@@ -167,14 +188,49 @@ public class AxeTimberMark extends SimpleAdaptation<AxeTimberMark.Config> {
 
       leaf.breakNaturally(p.getInventory().getItemInMainHand());
       xp(p, getConfig().xpPerLeafCleared);
+      leavesCleared++;
     }
 
-    SoundPlayer.of(p.getWorld()).play(e.getBlock().getLocation(), Sound.BLOCK_WOOD_BREAK, 0.6f, 0.8f);
-    setStorage(p, "timberMarkUntil", 0L);
-    setStorage(p, "timberMarkBlock", "");
-    getPlayer(p).getData().addStat("axe.timber-mark.marks-felled", 1);
-    if (logsFelled >= 40 && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_axe_timber_40")) {
-      getPlayer(p).getAdvancementHandler().grant("challenge_axe_timber_40");
+    addStat(p, "axe.timber-mark.marks-felled", 1);
+    if (logsFelled >= 40) {
+      grantOnce(p, "challenge_axe_timber_40");
+    }
+
+    int minY = Integer.MAX_VALUE;
+    int maxY = Integer.MIN_VALUE;
+    double sumX = 0.0D;
+    double sumZ = 0.0D;
+    for (Block b : connected) {
+      minY = Math.min(minY, b.getY());
+      maxY = Math.max(maxY, b.getY());
+      sumX += b.getX();
+      sumZ += b.getZ();
+    }
+    int count = connected.size();
+    double climb = maxY - minY;
+    int steps = Math.min(10, Math.max(3, logsFelled + 1));
+    int lastTick = steps - 1;
+    Location cascade = new Location(seed.getWorld(), (sumX / count) + 0.5D, minY + 0.5D, (sumZ / count) + 0.5D);
+    timeline(cascade)
+        .duration(steps)
+        .priority(FxPriority.TRANSITION)
+        .cullRadius(28)
+        .frame((fx, tick, progress) -> {
+          fx.particle(Particles.BLOCK_CRACK, 4, 0.0D, climb * progress, 0.0D, 0.2D, 0.02D, logData);
+          if ((tick & 1) == 0) {
+            fx.sound(Sound.BLOCK_WOOD_BREAK, 0.6F, (float) (0.7D + (0.4D * progress)));
+          }
+          if (tick == lastTick) {
+            fx.sound(Sound.ENTITY_IRON_GOLEM_DAMAGE, 0.3F, 0.6F);
+          }
+        })
+        .start();
+    fx(cascade, FxPriority.TRANSITION).dustRing(1.0D, 12, 1.0F);
+
+    if (leavesCleared > 0) {
+      fx(cascade.clone().add(0.0D, climb * 0.5D, 0.0D), FxPriority.AMBIENT)
+          .particle(Particles.VILLAGER_HAPPY, 8, 0.0D, 0.0D, 0.0D, 2.0D, 0.02D)
+          .sound(Sound.BLOCK_AZALEA_LEAVES_BREAK, 0.5F, 1.1F);
     }
   }
 
@@ -267,36 +323,25 @@ public class AxeTimberMark extends SimpleAdaptation<AxeTimberMark.Config> {
     return Math.max(0, (int) Math.round(getConfig().maxLeavesBase + (getLevelPercent(level) * getConfig().maxLeavesFactor)));
   }
 
+  private static final class Mark {
+    private final Block block;
+    private final long until;
+    private final FxTimeline aura;
+
+    private Mark(Block block, long until, FxTimeline aura) {
+      this.block = block;
+      this.until = until;
+      this.aura = aura;
+    }
+  }
+
   @Override
   public void onTick() {
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Mark a trunk, then break the marked log to fell connected wood.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.7;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Blocks Base for the Axe Timber Mark adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double maxBlocksBase = 12;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Blocks Factor for the Axe Timber Mark adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -313,5 +358,10 @@ public class AxeTimberMark extends SimpleAdaptation<AxeTimberMark.Config> {
     double maxLeavesFactor = 180;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Leaf Cleared for the Axe Timber Mark adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpPerLeafCleared = 0.4;
+
+    public Config() {
+      costFactor = 0.7;
+      initialCost = 4;
+    }
   }
 }

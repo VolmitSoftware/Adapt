@@ -18,18 +18,19 @@
 
 package art.arcane.adapt.content.adaptation.unarmed;
 
-import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxEmitter;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -39,31 +40,22 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Map;
 import java.util.UUID;
 
 public class UnarmedComboChain extends SimpleAdaptation<UnarmedComboChain.Config> {
-  private final Map<UUID, ComboState> combos = new java.util.concurrent.ConcurrentHashMap<>();
+  private final Map<UUID, ComboState> combos = playerState();
 
   public UnarmedComboChain() {
     super("unarmed-combo-chain");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("unarmed.combo_chain.description"));
-    setDisplayName(Localizer.dLocalize("unarmed.combo_chain.name"));
     setIcon(Material.CHAINMAIL_BOOTS);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(1800);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.IRON_INGOT)
         .key("challenge_unarmed_combo_5k")
-        .title(Localizer.dLocalize("advancement.challenge_unarmed_combo_5k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_unarmed_combo_5k.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -71,16 +63,12 @@ public class UnarmedComboChain extends SimpleAdaptation<UnarmedComboChain.Config
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.BLAZE_POWDER)
         .key("challenge_unarmed_combo_10")
-        .title(Localizer.dLocalize("advancement.challenge_unarmed_combo_10.title"))
-        .description(Localizer.dLocalize("advancement.challenge_unarmed_combo_10.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.BLAZE_ROD)
         .key("challenge_unarmed_combo_25")
-        .title(Localizer.dLocalize("advancement.challenge_unarmed_combo_25.title"))
-        .description(Localizer.dLocalize("advancement.challenge_unarmed_combo_25.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -88,9 +76,9 @@ public class UnarmedComboChain extends SimpleAdaptation<UnarmedComboChain.Config
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + getMaxStacks(level) + C.GRAY + " " + Localizer.dLocalize("unarmed.combo_chain.lore1"));
-    v.addLore(C.GREEN + "+ " + Form.f(getDamagePerStack(level)) + C.GRAY + " " + Localizer.dLocalize("unarmed.combo_chain.lore2"));
-    v.addLore(C.YELLOW + "* " + Form.duration(getComboWindowMillis(level), 1) + C.GRAY + " " + Localizer.dLocalize("unarmed.combo_chain.lore3"));
+    statLore(v, getMaxStacks(level), 1);
+    statLore(v, Form.f(getDamagePerStack(level)), 2);
+    statLore(v, C.YELLOW, "* ", Form.duration(getComboWindowMillis(level), 1), 3);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
@@ -103,7 +91,7 @@ public class UnarmedComboChain extends SimpleAdaptation<UnarmedComboChain.Config
     Player p = attack.attacker();
     ItemStack hand = p.getInventory().getItemInMainHand();
     if (isMelee(hand)) {
-      combos.remove(p.getUniqueId());
+      dropCombo(p);
       return;
     }
 
@@ -120,16 +108,15 @@ public class UnarmedComboChain extends SimpleAdaptation<UnarmedComboChain.Config
 
     double bonus = state.stacks * getDamagePerStack(level);
     e.setDamage(e.getDamage() + bonus);
-    playComboFeedback(p, e.getEntity().getLocation(), state.stacks, getMaxStacks(level));
+    playComboFeedback(e.getEntity().getLocation(), state.stacks, getMaxStacks(level));
     xp(p, bonus * getConfig().xpPerBonusDamage);
-    getPlayer(p).getData().addStat("unarmed.combo-chain.total-combo-hits", 1);
+    addStat(p, "unarmed.combo-chain.total-combo-hits", 1);
 
-    // Special achievements: reach a 10-hit or 25-hit combo
-    if (state.stacks >= 10 && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_unarmed_combo_10")) {
-      getPlayer(p).getAdvancementHandler().grant("challenge_unarmed_combo_10");
+    if (state.stacks >= 10) {
+      grantOnce(p, "challenge_unarmed_combo_10");
     }
-    if (state.stacks >= 25 && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_unarmed_combo_25")) {
-      getPlayer(p).getAdvancementHandler().grant("challenge_unarmed_combo_25");
+    if (state.stacks >= 25) {
+      grantOnce(p, "challenge_unarmed_combo_25");
     }
   }
 
@@ -152,13 +139,24 @@ public class UnarmedComboChain extends SimpleAdaptation<UnarmedComboChain.Config
 
     long now = System.currentTimeMillis();
     if (now - state.lastHitMillis > getConfig().missResetGraceMillis) {
-      combos.remove(p.getUniqueId());
+      dropCombo(p);
     }
   }
 
-  @EventHandler(priority = EventPriority.MONITOR)
-  public void on(PlayerQuitEvent e) {
-    combos.remove(e.getPlayer().getUniqueId());
+  private void dropCombo(Player p) {
+    ComboState state = combos.remove(p.getUniqueId());
+    if (state == null || state.stacks < 3) {
+      return;
+    }
+
+    Location loc = p.getLocation().add(0, 1, 0);
+    fx(loc, FxPriority.TRANSITION)
+        .particle(Particles.SMOKE, 2, 0, 0, 0, 0.05D, 0.01D);
+    timeline(loc)
+        .duration(3)
+        .priority(FxPriority.TRANSITION)
+        .frame((fx, tick, progress) -> fx.sound(Sound.BLOCK_NOTE_BLOCK_BASS, 0.4F, (float) (1.2D - (0.5D * progress))))
+        .start();
   }
 
   private int getMaxStacks(int level) {
@@ -173,19 +171,31 @@ public class UnarmedComboChain extends SimpleAdaptation<UnarmedComboChain.Config
     return Math.max(250, (long) Math.round(getConfig().comboWindowMillisBase + (getLevelPercent(level) * getConfig().comboWindowMillisFactor)));
   }
 
-  private void playComboFeedback(Player p, org.bukkit.Location hitLocation, int stacks, int maxStacks) {
-    float pitch = Math.min(2.0f, 0.85f + (stacks * 0.09f));
+  private void playComboFeedback(Location hitLocation, int stacks, int maxStacks) {
     if (stacks >= maxStacks) {
-      SoundPlayer.of(p.getWorld()).play(hitLocation, Sound.BLOCK_ANVIL_PLACE, 0.55f, 1.7f);
-      if (areParticlesEnabled()) {
-        p.spawnParticle(Particle.TOTEM_OF_UNDYING, hitLocation.clone().add(0, 1, 0), 5, 0.2, 0.4, 0.2, 0.05);
-      }
+      Location center = hitLocation.clone().add(0, 1, 0);
+      fx(center, FxPriority.COMBAT).sound(Sound.BLOCK_ANVIL_PLACE, 0.55F, 1.7F);
+      timeline(center)
+          .duration(8)
+          .priority(FxPriority.COMBAT)
+          .frame((fx, tick, progress) -> {
+            fx.helix(Particle.WAX_ON, 0.8D, 2.2D, 4, progress * Math.PI * 2.0D);
+            if (tick == 0) {
+              fx.sound(Sound.ENTITY_PLAYER_ATTACK_CRIT, 0.6F, 1.9F);
+            }
+          })
+          .start();
       return;
     }
 
-    SoundPlayer.of(p.getWorld()).play(hitLocation, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.55f, pitch);
-    if (areParticlesEnabled()) {
-      p.spawnParticle(Particle.CRIT, hitLocation.clone().add(0, 0.9, 0), 6 + Math.min(16, stacks * 2), 0.22, 0.34, 0.22, 0.1);
+    float pitch = Math.min(2.0F, 0.85F + (stacks * 0.09F));
+    Particle tier = stacks >= (maxStacks * 0.6D) ? Particle.WAX_ON : Particle.CRIT;
+    int count = 4 + Math.min(14, stacks * 2);
+    FxEmitter fx = fx(hitLocation.clone().add(0, 0.9, 0), FxPriority.COMBAT)
+        .particle(tier, count, 0, 0, 0, 0.22D, 0.1D)
+        .sound(Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.55F, pitch);
+    if (stacks >= maxStacks - 1) {
+      fx.particle(Particle.WAX_ON, 2, 0, 1.0D, 0, 0.2D, 0.05D);
     }
   }
 
@@ -194,31 +204,8 @@ public class UnarmedComboChain extends SimpleAdaptation<UnarmedComboChain.Config
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Consecutive unarmed hits build combo stacks for increased punch damage.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 6;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.6;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Stacks Base for the Unarmed Combo Chain adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double maxStacksBase = 2;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Stacks Factor for the Unarmed Combo Chain adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -235,6 +222,13 @@ public class UnarmedComboChain extends SimpleAdaptation<UnarmedComboChain.Config
     long missResetGraceMillis = 280;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Bonus Damage for the Unarmed Combo Chain adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpPerBonusDamage = 4.1;
+
+    public Config() {
+      baseCost = 3;
+      costFactor = 0.6;
+      maxLevel = 6;
+      initialCost = 4;
+    }
   }
 
   private static class ComboState {

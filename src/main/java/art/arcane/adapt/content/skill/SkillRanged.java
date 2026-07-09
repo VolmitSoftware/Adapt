@@ -18,16 +18,21 @@
 
 package art.arcane.adapt.content.skill;
 
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.content.adaptation.ranged.*;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import lombok.NoArgsConstructor;
+import org.bukkit.Color;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.FishHook;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -39,13 +44,10 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
-import java.util.UUID;
 
 public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
-  private final Map<UUID, Long> cooldowns;
+  private final Cooldowns cooldowns = cooldowns();
 
   public SkillRanged() {
     super("ranged", Localizer.dLocalize("skill.ranged.icon"));
@@ -63,29 +65,25 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
     registerAdaptation(new RangedFloaters());
     registerAdaptation(new RangedPinningShot());
     registerAdaptation(new RangedRicochetBolt());
+    registerAdaptation(new RangedFetchShot());
+    registerAdaptation(new RangedHeavyDraw());
+    registerAdaptation(new RangedHeartseeker());
     setIcon(Material.CROSSBOW);
-    cooldowns = new HashMap<>();
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.ARROW)
         .key("challenge_ranged_100")
-        .title(Localizer.dLocalize("advancement.challenge_ranged_100.title"))
-        .description(Localizer.dLocalize("advancement.challenge_ranged_100.description"))
         .model(CustomModel.get(Material.ARROW, "advancement", "ranged", "challenge_ranged_100"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.SPECTRAL_ARROW)
             .key("challenge_ranged_1k")
-            .title(Localizer.dLocalize("advancement.challenge_ranged_1k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_ranged_1k.description"))
             .model(CustomModel.get(Material.SPECTRAL_ARROW, "advancement", "ranged", "challenge_ranged_1k"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .child(AdaptAdvancement.builder()
                 .icon(Material.CROSSBOW)
                 .key("challenge_ranged_10k")
-                .title(Localizer.dLocalize("advancement.challenge_ranged_10k.title"))
-                .description(Localizer.dLocalize("advancement.challenge_ranged_10k.description"))
                 .model(CustomModel.get(Material.CROSSBOW, "advancement", "ranged", "challenge_ranged_10k"))
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -100,16 +98,12 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.BOW)
         .key("challenge_ranged_dmg_1k")
-        .title(Localizer.dLocalize("advancement.challenge_ranged_dmg_1k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_ranged_dmg_1k.description"))
         .model(CustomModel.get(Material.BOW, "advancement", "ranged", "challenge_ranged_dmg_1k"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.CROSSBOW)
             .key("challenge_ranged_dmg_10k")
-            .title(Localizer.dLocalize("advancement.challenge_ranged_dmg_10k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_ranged_dmg_10k.description"))
             .model(CustomModel.get(Material.CROSSBOW, "advancement", "ranged", "challenge_ranged_dmg_10k"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -122,16 +116,12 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.ARROW)
         .key("challenge_ranged_dist_5k")
-        .title(Localizer.dLocalize("advancement.challenge_ranged_dist_5k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_ranged_dist_5k.description"))
         .model(CustomModel.get(Material.ARROW, "advancement", "ranged", "challenge_ranged_dist_5k"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.SPECTRAL_ARROW)
             .key("challenge_ranged_dist_50k")
-            .title(Localizer.dLocalize("advancement.challenge_ranged_dist_50k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_ranged_dist_50k.description"))
             .model(CustomModel.get(Material.SPECTRAL_ARROW, "advancement", "ranged", "challenge_ranged_dist_50k"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -144,16 +134,12 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.TIPPED_ARROW)
         .key("challenge_ranged_kills_50")
-        .title(Localizer.dLocalize("advancement.challenge_ranged_kills_50.title"))
-        .description(Localizer.dLocalize("advancement.challenge_ranged_kills_50.description"))
         .model(CustomModel.get(Material.TIPPED_ARROW, "advancement", "ranged", "challenge_ranged_kills_50"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.TARGET)
             .key("challenge_ranged_kills_500")
-            .title(Localizer.dLocalize("advancement.challenge_ranged_kills_500.title"))
-            .description(Localizer.dLocalize("advancement.challenge_ranged_kills_500.description"))
             .model(CustomModel.get(Material.TARGET, "advancement", "ranged", "challenge_ranged_kills_500"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -166,16 +152,12 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.SPYGLASS)
         .key("challenge_longshot_25")
-        .title(Localizer.dLocalize("advancement.challenge_longshot_25.title"))
-        .description(Localizer.dLocalize("advancement.challenge_longshot_25.description"))
         .model(CustomModel.get(Material.SPYGLASS, "advancement", "ranged", "challenge_longshot_25"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.ENDER_EYE)
             .key("challenge_longshot_250")
-            .title(Localizer.dLocalize("advancement.challenge_longshot_250.title"))
-            .description(Localizer.dLocalize("advancement.challenge_longshot_250.description"))
             .model(CustomModel.get(Material.ENDER_EYE, "advancement", "ranged", "challenge_longshot_250"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -195,12 +177,12 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
         return; // Ignore snowballs and fishing hooks
       }
 
-      getPlayer(p).getData().addStat("ranged.shotsfired", 1);
-      getPlayer(p).getData().addStat("ranged.shotsfired." + e.getEntity().getType().name().toLowerCase(Locale.ROOT), 1);
-      Long cooldown = cooldowns.get(p.getUniqueId());
-      if (cooldown != null && cooldown + getConfig().cooldownDelay > System.currentTimeMillis())
+      addStat(p, "ranged.shotsfired", 1);
+      addStat(p, "ranged.shotsfired." + e.getEntity().getType().name().toLowerCase(Locale.ROOT), 1);
+      if (!cooldowns.isReady(p.getUniqueId(), getConfig().cooldownDelay)) {
         return;
-      cooldowns.put(p.getUniqueId(), System.currentTimeMillis());
+      }
+      cooldowns.mark(p.getUniqueId());
       xp(p, getConfig().shootXP);
     });
   }
@@ -216,18 +198,22 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
       }
       if (e.getEntity().getLocation().getWorld().equals(p.getLocation().getWorld())) {
         double distance = e.getEntity().getLocation().distance(p.getLocation());
-        getPlayer(p).getData().addStat("ranged.distance", distance);
-        getPlayer(p).getData().addStat("ranged.distance." + e.getDamager().getType().name().toLowerCase(Locale.ROOT), distance);
+        addStat(p, "ranged.distance", distance);
+        addStat(p, "ranged.distance." + e.getDamager().getType().name().toLowerCase(Locale.ROOT), distance);
         if (distance > 30) {
-          getPlayer(p).getData().addStat("ranged.longshots", 1);
+          addStat(p, "ranged.longshots", 1);
+          fx(e.getEntity().getLocation(), FxPriority.COMBAT)
+              .dustRing(Color.fromRGB(70, 220, 60), 0.9D, 16, 1.0F)
+              .burst(Particles.END_ROD, 8, 0.3D)
+              .chord(Sound.ENTITY_ARROW_HIT, 0.7F, 1.6F, Sound.BLOCK_NOTE_BLOCK_CHIME, 0.5F, 2.0F);
         }
       }
-      getPlayer(p).getData().addStat("ranged.damage", e.getDamage());
-      getPlayer(p).getData().addStat("ranged.damage." + e.getDamager().getType().name().toLowerCase(Locale.ROOT), e.getDamage());
-      Long cooldown = cooldowns.get(p.getUniqueId());
-      if (cooldown != null && cooldown + getConfig().cooldownDelay > System.currentTimeMillis())
+      addStat(p, "ranged.damage", e.getDamage());
+      addStat(p, "ranged.damage." + e.getDamager().getType().name().toLowerCase(Locale.ROOT), e.getDamage());
+      if (!cooldowns.isReady(p.getUniqueId(), getConfig().cooldownDelay)) {
         return;
-      cooldowns.put(p.getUniqueId(), System.currentTimeMillis());
+      }
+      cooldowns.mark(p.getUniqueId());
       xp(p, e.getEntity().getLocation(), (getConfig().hitDamageXPMultiplier * e.getDamage()) + (e.getEntity().getLocation().distance(p.getLocation()) * getConfig().hitDistanceXPMultiplier));
 
     });
@@ -243,7 +229,7 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
     shouldReturnForPlayer(p, () -> {
       ItemStack hand = p.getInventory().getItemInMainHand();
       if (hand.getType() == Material.BOW || hand.getType() == Material.CROSSBOW) {
-        getPlayer(p).getData().addStat("ranged.kills", 1);
+        addStat(p, "ranged.kills", 1);
       }
     });
   }

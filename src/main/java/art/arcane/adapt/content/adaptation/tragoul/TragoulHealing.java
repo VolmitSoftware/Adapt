@@ -18,58 +18,52 @@
 
 package art.arcane.adapt.content.adaptation.tragoul;
 
-import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.version.Version;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Attributes;
+import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Color;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class TragoulHealing extends SimpleAdaptation<TragoulHealing.Config> {
-  private final Map<UUID, Long> cooldowns;
-  private final Map<UUID, Long> healingWindow;
+  private static final Color HEAL_CRIMSON = Color.fromRGB(150, 0, 10);
+  private static final Color HEAL_PINK = Color.fromRGB(210, 40, 40);
+  private final Cooldowns cooldowns = cooldowns();
+  private final Map<UUID, Boolean> healingWindow = playerState();
 
   public TragoulHealing() {
     super("tragoul-healing");
     registerConfiguration(TragoulHealing.Config.class);
-    setDescription(Localizer.dLocalize("tragoul.healing.description"));
-    setDisplayName(Localizer.dLocalize("tragoul.healing.name"));
     setIcon(Material.GLISTERING_MELON_SLICE);
     setInterval(25000);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
-    cooldowns = new ConcurrentHashMap<>();
-    healingWindow = new ConcurrentHashMap<>();
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.REDSTONE)
         .key("challenge_tragoul_healing_500")
-        .title(Localizer.dLocalize("advancement.challenge_tragoul_healing_500.title"))
-        .description(Localizer.dLocalize("advancement.challenge_tragoul_healing_500.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.RED_DYE)
             .key("challenge_tragoul_healing_10k")
-            .title(Localizer.dLocalize("advancement.challenge_tragoul_healing_10k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_tragoul_healing_10k.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -82,7 +76,7 @@ public class TragoulHealing extends SimpleAdaptation<TragoulHealing.Config> {
   public void addStats(int level, Element v) {
     v.addLore(C.GREEN + Localizer.dLocalize("tragoul.healing.lore1"));
     v.addLore(C.YELLOW + Localizer.dLocalize("tragoul.healing.lore2"));
-    v.addLore(C.YELLOW + Localizer.dLocalize("tragoul.healing.lore3") + (getConfig().minHealPercent + (getConfig().maxHealPercent - getConfig().minHealPercent) * (level - 1) / (getConfig().maxLevel - 1)) + "%");
+    v.addLore(C.YELLOW + Localizer.dLocalize("tragoul.healing.lore3") + Form.pc(getHealPercent(level), 0));
   }
 
   @EventHandler
@@ -94,74 +88,70 @@ public class TragoulHealing extends SimpleAdaptation<TragoulHealing.Config> {
           return;
         }
 
-        if (isOnCooldown(p)) {
+        if (!cooldowns.isReady(p.getUniqueId(), getConfig().cooldownDuration)) {
           return;
         }
 
         if (!healingWindow.containsKey(p.getUniqueId())) {
-          Adapt.verbose("Starting healing window for " + p.getName());
           startHealingWindow(p);
+          playDrainTether(e.getEntity().getLocation(), p.getLocation());
+          fx(p.getLocation().add(0, 1.0, 0), FxPriority.TRANSITION)
+              .dustBurst(HEAL_CRIMSON, 6, 0.3D, 1.0F)
+              .sound(Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 0.4F, 1.3F);
         }
 
-        if (areParticlesEnabled()) {
-          vfxParticleLine(p.getLocation(), e.getEntity().getLocation(), 25, Particle.WHITE_ASH);
-        }
-
-        double healPercentage = getConfig().minHealPercent + (getConfig().maxHealPercent - getConfig().minHealPercent) * (level - 1) / (getConfig().maxLevel - 1);
-        double healAmount = e.getDamage() * healPercentage;
-        Adapt.verbose("Healing " + p.getName() + " for " + healAmount + " (" + healPercentage * 100 + "% of " + e.getDamage() + " damage)");
+        double healAmount = e.getDamage() * getHealPercent(level);
         art.arcane.adapt.api.version.IAttribute attribute = Version.get().getAttribute(p, Attributes.GENERIC_MAX_HEALTH);
         p.setHealth(Math.min(attribute == null ? p.getHealth() : attribute.getValue(), p.getHealth() + healAmount));
-        getPlayer(p).getData().addStat("tragoul.healing.health-stolen", (int) healAmount);
+        addStat(p, "tragoul.healing.health-stolen", (int) healAmount);
+        fx(p.getLocation().add(0, 1.0, 0), FxPriority.TRAIL).dustBurst(HEAL_PINK, 2, 0.15D, 0.8F);
       });
     }
   }
 
-  private boolean isOnCooldown(Player p) {
-    Long cooldown = cooldowns.get(p.getUniqueId());
-    return cooldown != null && cooldown > System.currentTimeMillis();
+  private double getHealPercent(int level) {
+    return getConfig().minHealPercent + (getConfig().maxHealPercent - getConfig().minHealPercent) * (level - 1) / (getConfig().maxLevel - 1);
   }
 
   private void startHealingWindow(Player p) {
-    long currentTime = System.currentTimeMillis();
-    healingWindow.put(p.getUniqueId(), currentTime + getConfig().windowDuration);
+    UUID id = p.getUniqueId();
+    healingWindow.put(id, true);
     J.runEntity(p, () -> {
-      healingWindow.remove(p.getUniqueId());
-      cooldowns.put(p.getUniqueId(), currentTime + getConfig().windowDuration + getConfig().cooldownDuration);
+      healingWindow.remove(id);
+      cooldowns.mark(id);
+      fx(p.getLocation().add(0, 1.0, 0), FxPriority.TRANSITION).burst(Particle.SOUL, 3, 0.2D);
     }, getConfig().windowDuration / 50);
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
+  private void playDrainTether(Location victimLoc, Location playerLoc) {
+    Location from = victimLoc.clone().add(0, 1.0, 0);
+    double dx = playerLoc.getX() - from.getX();
+    double dy = (playerLoc.getY() + 1.0) - from.getY();
+    double dz = playerLoc.getZ() - from.getZ();
+    Particle.DustTransition trans = new Particle.DustTransition(HEAL_CRIMSON, HEAL_PINK, 1.0F);
+    timeline(from)
+        .duration(5)
+        .priority(FxPriority.TRAIL)
+        .cullRadius(24)
+        .frame((fx, tick, progress) -> {
+          fx.particle(Particle.DUST_COLOR_TRANSITION, 2, dx * progress, dy * progress, dz * progress, 0.05D, 0, trans);
+          if (tick == 0) {
+            fx.sound(Sound.PARTICLE_SOUL_ESCAPE, 0.35F, 1.5F);
+          }
+        })
+        .start();
   }
 
   @Override
   public void onTick() {
   }
 
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Regain health based on the damage you deal.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Tragoul Healing adaptation.", impact = "True enables this behavior and false disables it.")
-    boolean showParticles = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.72;
+  protected static class Config extends AdaptationConfig {
+    public Config() {
+      costFactor = 0.72;
+      initialCost = 4;
+    }
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Min Heal Percent for the Tragoul Healing adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double minHealPercent = 0.10; // 0.10%
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Heal Percent for the Tragoul Healing adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

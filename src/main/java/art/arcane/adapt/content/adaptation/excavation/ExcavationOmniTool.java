@@ -18,21 +18,22 @@
 
 package art.arcane.adapt.content.adaptation.excavation;
 
-import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.content.item.ItemListings;
 import art.arcane.adapt.content.item.multiItems.OmniTool;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
@@ -62,26 +63,17 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
   public ExcavationOmniTool() {
     super("excavation-omnitool");
     registerConfiguration(ExcavationOmniTool.Config.class);
-    setDisplayName(Localizer.dLocalize("excavation.omni_tool.name"));
-    setDescription(Localizer.dLocalize("excavation.omni_tool.description"));
+    setLocalizationKey("excavation.omni_tool");
     setIcon(Material.DISC_FRAGMENT_5);
     setInterval(20202);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.IRON_PICKAXE)
         .key("challenge_excavation_omni_1k")
-        .title(Localizer.dLocalize("advancement.challenge_excavation_omni_1k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_excavation_omni_1k.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.NETHERITE_PICKAXE)
             .key("challenge_excavation_omni_25k")
-            .title(Localizer.dLocalize("advancement.challenge_excavation_omni_25k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_excavation_omni_25k.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -101,11 +93,6 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
     v.addLore(C.UNDERLINE + Localizer.dLocalize("excavation.omni_tool.lore7"));
 
 
-  }
-
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
   }
 
   @Override
@@ -131,13 +118,11 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
         return;
       }
       J.runEntity(p, () -> p.getInventory().setItemInMainHand(omniTool.nextSword(hand)));
-      SoundPlayer spw = SoundPlayer.of(p.getWorld());
-      spw.play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
+      swapFx(p);
       if (inHand != null && inHand.hasDamage()) {
         if ((hand.getType().getMaxDurability() - inHand.getDamage() - 2) <= 2) {
           e.setCancelled(true);
-          SoundPlayer sp = SoundPlayer.of(p);
-          sp.play(p.getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.25f, 0.77f);
+          nearBreakFx(p);
         }
       }
 
@@ -185,29 +170,26 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
         Damageable imHand = (Damageable) hand.getItemMeta();
         Block block = action == Action.RIGHT_CLICK_BLOCK ? e.getClickedBlock() : p.getTargetBlockExact(5);
         if (block != null) {
-          SoundPlayer sp = SoundPlayer.of(p);
-          SoundPlayer spw = SoundPlayer.of(p.getWorld());
           if (ItemListings.farmable.contains(block.getType())) {
             if (isShovel(hand)) {
               J.runEntity(p, () -> p.getInventory().setItemInMainHand(omniTool.nextHoe(hand)));
-              spw.play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
             } else {
               J.runEntity(p, () -> p.getInventory().setItemInMainHand(omniTool.nextShovel(hand)));
-              spw.play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
             }
+            swapFx(p);
             if (imHand != null && imHand.hasDamage()) {
               if ((hand.getType().getMaxDurability() - imHand.getDamage() - 2) <= 2) {
                 e.setCancelled(true);
-                sp.play(p.getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.25f, 0.77f);
+                nearBreakFx(p);
               }
             }
           } else if (ItemListings.burnable.contains(block.getType())) {
             J.runEntity(p, () -> p.getInventory().setItemInMainHand(omniTool.nextFnS(hand)));
-            spw.play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
+            swapFx(p);
             if (imHand != null && imHand.hasDamage()) {
               if ((hand.getType().getMaxDurability() - imHand.getDamage() - 2) <= 2) {
                 e.setCancelled(true);
-                sp.play(p.getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.25f, 0.77f);
+                nearBreakFx(p);
               }
             }
           }
@@ -250,8 +232,7 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
         }
 
         J.runEntity(p, () -> {
-          SoundPlayer sp = SoundPlayer.of(p);
-          sp.play(p.getLocation(), Sound.ENTITY_IRON_GOLEM_DEATH, 0.25f, 0.77f);
+          splitFx(p);
           for (ItemStack i : drops) {
             p.getWorld().dropItem(p.getLocation(), i);
           }
@@ -264,7 +245,7 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(BlockDamageEvent e) {
     Player p = e.getPlayer();
-    org.bukkit.block.Block b = e.getBlock(); // nms block for pref tool
+    Block b = e.getBlock();
     ItemStack hand = p.getInventory().getItemInMainHand();
 
     if (validateTool(hand)) {
@@ -275,31 +256,21 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
       Damageable imHand = (Damageable) hand.getItemMeta();
       if (ItemListings.getAxePreference().contains(b.getType())) {
         if (!isAxe(hand)) {
-          Adapt.verbose("Omnitool for " + p.getName() + " changed to axe");
           J.runEntity(p, () -> p.getInventory().setItemInMainHand(omniTool.nextAxe(hand)));
           itemDelegate(e, hand, imHand);
-        } else {
-          Adapt.verbose("Omnitool for " + p.getName() + " is already axe");
         }
       } else if (ItemListings.getShovelPreference().contains(b.getType())) {
         if (!isShovel(hand)) {
-          Adapt.verbose("Omnitool for " + p.getName() + " changed to shovel");
           J.runEntity(p, () -> p.getInventory().setItemInMainHand(omniTool.nextShovel(hand)));
           itemDelegate(e, hand, imHand);
-        } else {
-          Adapt.verbose("Omnitool for " + p.getName() + " is already shovel");
         }
       } else if (ItemListings.getSwordPreference().contains(b.getType())) {
         if (!isSword(hand)) {
-          Adapt.verbose("Omnitool for " + p.getName() + " changed to sword");
           J.runEntity(p, () -> p.getInventory().setItemInMainHand(omniTool.nextSword(hand)));
           itemDelegate(e, hand, imHand);
-        } else {
-          Adapt.verbose("Omnitool for " + p.getName() + " is already sword");
         }
-      } else { // Default to pickaxe
+      } else {
         if (!isPickaxe(hand)) {
-          Adapt.verbose("Omnitool for " + p.getName() + " changed to pickaxe");
           J.runEntity(p, () -> p.getInventory().setItemInMainHand(omniTool.nextPickaxe(hand)));
           itemDelegate(e, hand, imHand);
         }
@@ -322,8 +293,7 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
       if (omniTool.explode(cursor).size() > 1 || omniTool.explode(clicked).size() > 1) {
         if (omniTool.explode(cursor).size() >= getSlots(level) || omniTool.explode(clicked).size() >= getSlots(level)) {
           e.setCancelled(true);
-          SoundPlayer sp = SoundPlayer.of(player);
-          sp.play(e.getWhoClicked().getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 1f, 0.77f);
+          fx(player, FxPriority.TRANSITION).sound(Sound.BLOCK_BEACON_DEACTIVATE, 1f, 0.77f);
           return;
         }
       }
@@ -332,8 +302,7 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
           e.setCancelled(true);
           e.getWhoClicked().setItemOnCursor(new ItemStack(Material.AIR));
           e.getClickedInventory().setItem(e.getSlot(), omniTool.build(cursor, clicked));
-          SoundPlayer spw = SoundPlayer.of(e.getWhoClicked().getWorld());
-          spw.play(e.getWhoClicked().getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
+          mergeFx(player);
         }
       }
     }
@@ -342,16 +311,41 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
 
   private void itemDelegate(BlockDamageEvent e, ItemStack hand, Damageable imHand) {
     Player p = e.getPlayer();
-    getPlayer(p).getData().addStat("excavation.omni-tool.auto-swaps", 1);
-    SoundPlayer sp = SoundPlayer.of(p);
-    SoundPlayer spw = SoundPlayer.of(p.getWorld());
-    spw.play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
+    addStat(p, "excavation.omni-tool.auto-swaps", 1);
+    swapFx(p);
     if (imHand != null && imHand.hasDamage()) {
       if ((hand.getType().getMaxDurability() - imHand.getDamage() - 2) <= 2) {
         e.setCancelled(true);
-        sp.play(p.getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.25f, 0.77f);
+        nearBreakFx(p);
       }
     }
+  }
+
+  private void swapFx(Player p) {
+    fx(p, FxPriority.TRANSITION)
+        .particle(Particles.ENCHANTMENT_TABLE, 6, 0, 1.0D, 0, 0.3D, 0.05D)
+        .particle(Particles.CRIT_MAGIC, 3, 0, 1.0D, 0, 0.3D, 0.1D)
+        .sound(Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
+  }
+
+  private void nearBreakFx(Player p) {
+    fx(p, FxPriority.TRANSITION)
+        .particle(Particles.SMOKE, 3, 0, 1.0D, 0, 0.2D, 0.01D)
+        .particle(Particles.CRIT_MAGIC, 1, 0, 1.0D, 0, 0.2D, 0.05D)
+        .sound(Sound.ENTITY_IRON_GOLEM_STEP, 0.25f, 0.77f);
+  }
+
+  private void splitFx(Player p) {
+    fx(p, FxPriority.TRANSITION)
+        .particle(Particles.CRIT_MAGIC, 8, 0, 1.0D, 0, 0.4D, 0.1D)
+        .chord(Sound.ENTITY_IRON_GOLEM_DEATH, 0.25f, 0.77f, Sound.ITEM_TRIDENT_RETURN, 0.3f, 1.2f);
+  }
+
+  private void mergeFx(Player p) {
+    fx(p, FxPriority.TRANSITION)
+        .particle(Particle.WAX_ON, 10, 0, 1.0D, 0, 0.4D, 0.05D)
+        .particle(Particle.ELECTRIC_SPARK, 5, 0, 1.0D, 0, 0.4D, 0.1D)
+        .chord(Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f, Sound.BLOCK_ANVIL_USE, 0.4f, 1.4f);
   }
 
   private boolean validateTool(ItemStack item) {
@@ -364,27 +358,15 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
     return getConfig().startingSlots + level;
   }
 
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Dynamically merge and swap tools on the fly based on what you are mining.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 10;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.20;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Starting Slots for the Excavation Omni Tool adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     int startingSlots = 1;
+
+    public Config() {
+      baseCost = 10;
+      costFactor = 0.20;
+      initialCost = 3;
+    }
   }
 }

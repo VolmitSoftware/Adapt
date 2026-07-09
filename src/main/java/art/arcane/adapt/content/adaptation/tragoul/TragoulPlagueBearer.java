@@ -18,19 +18,23 @@
 
 package art.arcane.adapt.content.adaptation.tragoul;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxEmitter;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
+import org.bukkit.Color;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
@@ -49,36 +53,30 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class TragoulPlagueBearer extends SimpleAdaptation<TragoulPlagueBearer.Config> {
   private static final NamespacedKey PLAGUE_OWNER_KEY = NamespacedKey.fromString("adapt:tragoul_plague_owner");
   private static final NamespacedKey PLAGUE_GENERATION_KEY = NamespacedKey.fromString("adapt:tragoul_plague_generation");
   private static final NamespacedKey PLAGUE_STAMP_KEY = NamespacedKey.fromString("adapt:tragoul_plague_stamp");
+  private static final Color PLAGUE_POISON = Color.fromRGB(90, 130, 30);
+  private static final Color PLAGUE_WITHER = Color.fromRGB(30, 30, 30);
 
   public TragoulPlagueBearer() {
     super("tragoul-plague-bearer");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("tragoul.plague_bearer.description"));
-    setDisplayName(Localizer.dLocalize("tragoul.plague_bearer.name"));
     setIcon(Material.POISONOUS_POTATO);
     setInterval(25000);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.POISONOUS_POTATO)
         .key("challenge_tragoul_plague_100")
-        .title(Localizer.dLocalize("advancement.challenge_tragoul_plague_100.title"))
-        .description(Localizer.dLocalize("advancement.challenge_tragoul_plague_100.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.SPIDER_EYE)
             .key("challenge_tragoul_plague_1k")
-            .title(Localizer.dLocalize("advancement.challenge_tragoul_plague_1k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_tragoul_plague_1k.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -152,6 +150,7 @@ public class TragoulPlagueBearer extends SimpleAdaptation<TragoulPlagueBearer.Co
 
     int generation = pdc.getOrDefault(PLAGUE_GENERATION_KEY, PersistentDataType.INTEGER, 0);
     if (generation >= getConfig().maxGenerations) {
+      fx(victim.getLocation().add(0, 0.8, 0), FxPriority.AMBIENT).burst(Particles.SMOKE, 2, 0.2);
       return;
     }
 
@@ -169,6 +168,7 @@ public class TragoulPlagueBearer extends SimpleAdaptation<TragoulPlagueBearer.Co
       double radius = getSpreadRadius(level);
       int durationTicks = getSpreadDurationTicks(level);
       PotionEffectType effect = withered ? PotionEffectType.WITHER : PotionEffectType.POISON;
+      List<Location> hosts = new ArrayList<>();
       int spread = 0;
       for (Entity entity : victim.getNearbyEntities(radius, radius, radius)) {
         if (!(entity instanceof Monster monster) || monster.isDead() || !monster.isValid()) {
@@ -183,6 +183,7 @@ public class TragoulPlagueBearer extends SimpleAdaptation<TragoulPlagueBearer.Co
         targetPdc.set(PLAGUE_OWNER_KEY, PersistentDataType.STRING, ownerRaw);
         targetPdc.set(PLAGUE_GENERATION_KEY, PersistentDataType.INTEGER, generation + 1);
         targetPdc.set(PLAGUE_STAMP_KEY, PersistentDataType.LONG, now);
+        hosts.add(monster.getLocation());
         J.runEntity(monster, () -> {
           if (monster.isValid() && !monster.isDead()) {
             monster.addPotionEffect(new PotionEffect(effect, durationTicks, 0, true, true, true), true);
@@ -198,13 +199,20 @@ public class TragoulPlagueBearer extends SimpleAdaptation<TragoulPlagueBearer.Co
         return;
       }
 
-      if (areParticlesEnabled()) {
-        victim.getWorld().spawnParticle(Particle.SMOKE, victim.getLocation().add(0, 0.8, 0), 24, radius * 0.35, 0.5, radius * 0.35, 0.01);
-      }
-      SoundPlayer.of(victim.getWorld()).play(victim.getLocation(), Sound.ENTITY_ZOMBIE_INFECT, 0.6f, 1.4f);
-      getPlayer(owner).getData().addStat("tragoul.plague-bearer.mobs-infected", spread);
+      playSpread(victim.getLocation(), hosts, radius, withered);
+      addStat(owner, "tragoul.plague-bearer.mobs-infected", spread);
       xp(owner, spread * getConfig().xpPerInfection);
     });
+  }
+
+  private void playSpread(Location corpse, List<Location> hosts, double radius, boolean withered) {
+    FxEmitter emitter = fx(corpse.clone().add(0, 0.8, 0), FxPriority.GAMEPLAY);
+    emitter.dustBurst(withered ? PLAGUE_WITHER : PLAGUE_POISON, 8, radius * 0.35, 1.2F);
+    emitter.particle(Particle.SPORE_BLOSSOM_AIR, 6, 0, 0.6, 0, radius * 0.3, 0.02);
+    for (Location host : hosts) {
+      emitter.line(Particle.SPORE_BLOSSOM_AIR, host.getX(), host.getY() + 1.0, host.getZ(), 4);
+    }
+    emitter.chord(Sound.ENTITY_ZOMBIE_INFECT, 0.6F, 1.4F, Sound.BLOCK_SCULK_CATALYST_BLOOM, 0.4F, 1.0F);
   }
 
   private boolean markIfAfflicted(Monster monster, UUID ownerId) {
@@ -213,10 +221,15 @@ public class TragoulPlagueBearer extends SimpleAdaptation<TragoulPlagueBearer.Co
     }
 
     PersistentDataContainer pdc = monster.getPersistentDataContainer();
+    boolean firstMark = !pdc.has(PLAGUE_OWNER_KEY, PersistentDataType.STRING);
     pdc.set(PLAGUE_OWNER_KEY, PersistentDataType.STRING, ownerId.toString());
     pdc.set(PLAGUE_STAMP_KEY, PersistentDataType.LONG, System.currentTimeMillis());
     if (!pdc.has(PLAGUE_GENERATION_KEY, PersistentDataType.INTEGER)) {
       pdc.set(PLAGUE_GENERATION_KEY, PersistentDataType.INTEGER, 0);
+    }
+    if (firstMark) {
+      fx(monster.getLocation().add(0, 1.0, 0), FxPriority.AMBIENT)
+          .particle(Particle.SPORE_BLOSSOM_AIR, 2, 0, 0, 0, 0.2, 0.01);
     }
     return true;
   }
@@ -230,34 +243,11 @@ public class TragoulPlagueBearer extends SimpleAdaptation<TragoulPlagueBearer.Co
   }
 
   @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
   public void onTick() {
   }
 
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Mobs that die poisoned or withered by you spread the affliction to nearby hostile mobs.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.72;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Spread radius before level scaling.", impact = "Higher values infect hostile mobs further from the corpse.")
     double spreadRadiusBase = 3;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Additional spread radius granted at max level.", impact = "Higher values increase level-scaled radius growth.")
@@ -274,5 +264,10 @@ public class TragoulPlagueBearer extends SimpleAdaptation<TragoulPlagueBearer.Co
     long afflictionFreshnessMillis = 15000;
     @art.arcane.adapt.util.config.ConfigDoc(value = "XP granted per mob infected by the spread.", impact = "Higher values accelerate skill progression from this adaptation.")
     double xpPerInfection = 6;
+
+    public Config() {
+      costFactor = 0.72;
+      initialCost = 4;
+    }
   }
 }

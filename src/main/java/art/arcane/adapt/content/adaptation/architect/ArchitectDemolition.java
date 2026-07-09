@@ -19,17 +19,20 @@
 package art.arcane.adapt.content.adaptation.architect;
 
 import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
 import lombok.NoArgsConstructor;
+import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -55,28 +58,18 @@ public class ArchitectDemolition extends SimpleAdaptation<ArchitectDemolition.Co
   public ArchitectDemolition() {
     super("architect-demolition");
     registerConfiguration(ArchitectDemolition.Config.class);
-    setDescription(Localizer.dLocalize("architect.demolition.description"));
-    setDisplayName(Localizer.dLocalize("architect.demolition.name"));
     setIcon(Material.TNT);
     setInterval(10880);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     placed = new ConcurrentHashMap<>();
     order = new ConcurrentHashMap<>();
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.TNT)
         .key("challenge_architect_demolition_500")
-        .title(Localizer.dLocalize("advancement.challenge_architect_demolition_500.title"))
-        .description(Localizer.dLocalize("advancement.challenge_architect_demolition_500.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.TNT)
             .key("challenge_architect_demolition_5k")
-            .title(Localizer.dLocalize("advancement.challenge_architect_demolition_5k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_architect_demolition_5k.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -103,6 +96,8 @@ public class ArchitectDemolition extends SimpleAdaptation<ArchitectDemolition.Co
     ConcurrentLinkedDeque<Block> deque = order.computeIfAbsent(id, unused -> new ConcurrentLinkedDeque<>());
     deque.addLast(block);
     placed.put(block, new DemolitionMark(id, M.ms()));
+    fx(block.getLocation().add(0.5, 0.5, 0.5), FxPriority.AMBIENT)
+        .burst(Particles.CRIT_MAGIC, 2, 0.1D);
     int cap = getConfig().maxTrackedPerPlayer;
     while (deque.size() > cap) {
       Block oldest = deque.pollFirst();
@@ -139,8 +134,8 @@ public class ArchitectDemolition extends SimpleAdaptation<ArchitectDemolition.Co
     }
 
     e.setInstaBreak(true);
-    SoundPlayer sp = SoundPlayer.of(p);
-    sp.play(e.getBlock().getLocation(), Sound.BLOCK_AMETHYST_BLOCK_HIT, 0.5f, 0.7f);
+    fx(e.getBlock().getLocation().add(0.5, 0.5, 0.5), FxPriority.COMBAT)
+        .sound(Sound.BLOCK_AMETHYST_BLOCK_HIT, 0.5f, 0.7f);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -175,11 +170,12 @@ public class ArchitectDemolition extends SimpleAdaptation<ArchitectDemolition.Co
 
     e.setDropItems(false);
     e.getBlock().getWorld().dropItemNaturally(e.getBlock().getLocation(), new ItemStack(type));
-    if (areParticlesEnabled()) {
-      vfxCuboidOutline(e.getBlock(), Particle.SCRAPE);
-    }
+    fx(e.getBlock().getLocation().add(0.5, 0.5, 0.5), FxPriority.COMBAT)
+        .ring(Particle.SCRAPE, 0.8D, 16, 0.2D)
+        .dustBurst(Color.fromRGB(255, 120, 40), 6, 0.4D, 1.0F)
+        .chord(Sound.BLOCK_STONE_BREAK, 0.6f, 1.0f, Sound.BLOCK_ANVIL_LAND, 0.15f, 1.6f);
 
-    getPlayer(p).getData().addStat("architect.demolition.blocks-demolished", 1);
+    addStat(p, "architect.demolition.blocks-demolished", 1);
     xp(p, getConfig().xpPerDemolish);
   }
 
@@ -203,36 +199,12 @@ public class ArchitectDemolition extends SimpleAdaptation<ArchitectDemolition.Co
   public void onTick() {
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
   private record DemolitionMark(UUID owner, long at) {
   }
 
   @NoArgsConstructor
   @ConfigDescription("Blocks you recently placed break near-instantly and always drop their item.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Architect Demolition adaptation.", impact = "True enables this behavior and false disables it.")
-    boolean showParticles = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 2;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.45;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "How many seconds a placement counts as recent at level 0 progression.", impact = "Higher values let low-level players instabreak older placements.")
     double minWindowSeconds = 10;
     @art.arcane.adapt.util.config.ConfigDoc(value = "How many seconds a placement counts as recent at maximum level progression.", impact = "Higher values let max-level players instabreak older placements.")

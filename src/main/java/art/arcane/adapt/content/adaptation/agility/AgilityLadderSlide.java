@@ -18,58 +18,61 @@
 
 package art.arcane.adapt.content.adaptation.agility;
 
+import art.arcane.adapt.api.adaptation.Adaptation.BlockActionContext;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import art.arcane.volmlib.util.math.M;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
+import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.util.Vector;
 
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 
 public class AgilityLadderSlide extends SimpleAdaptation<AgilityLadderSlide.Config> {
-  private final Map<UUID, UpwardState> upwardStates;
+  private static final double MOVE_EPSILON = 1.0E-4D;
+  private static final double VANILLA_CLIMB_SPEED = 0.15D;
+  private static final double TICKS_PER_SECOND = 20.0D;
+  private static final int CLIMB_TOP_LOOKAHEAD = 2;
+  private static final long SLIDE_GRACE_MS = 700L;
+  private static final Predicate<Player> GROUNDED_ACTIONS = player -> !player.isFlying() && !player.isGliding() && !player.isSwimming();
+
+  private final Map<UUID, LadderState> states = playerState();
+  private final Cooldowns slideGrace = cooldowns();
 
   public AgilityLadderSlide() {
     super("agility-ladder-slide");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("agility.ladder_slide.description"));
-    setDisplayName(Localizer.dLocalize("agility.ladder_slide.name"));
     setIcon(Material.LADDER);
-    setBaseCost(getConfig().baseCost);
-    setCostFactor(getConfig().costFactor);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
     setInterval(50);
-    upwardStates = new ConcurrentHashMap<>();
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.LADDER)
         .key("challenge_agility_ladder_500")
-        .title(Localizer.dLocalize("advancement.challenge_agility_ladder_500.title"))
-        .description(Localizer.dLocalize("advancement.challenge_agility_ladder_500.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.IRON_CHAIN)
             .key("challenge_agility_ladder_10k")
-            .title(Localizer.dLocalize("advancement.challenge_agility_ladder_10k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_agility_ladder_10k.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -79,9 +82,14 @@ public class AgilityLadderSlide extends SimpleAdaptation<AgilityLadderSlide.Conf
   }
 
   @Override
+  public void onTick() {
+  }
+
+  @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.f(getConfig().speedMultiplier, 1) + "x " + C.GRAY + Localizer.dLocalize("agility.ladder_slide.lore1"));
-    v.addLore(C.YELLOW + "Downward speed boost coming in a future update.");
+    statLore(v, Form.f(getDescentSpeed(level) * TICKS_PER_SECOND, 1), 1);
+    statLore(v, Form.f(getClimbAssist(level) * TICKS_PER_SECOND, 1), 2);
+    statLore(v, Form.pc(1.0D - clampBrakeFactor(), 0), 3);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -91,188 +99,241 @@ public class AgilityLadderSlide extends SimpleAdaptation<AgilityLadderSlide.Conf
     }
 
     Player p = e.getPlayer();
-    withPlayerThread(p, e, () -> {
-      art.arcane.adapt.api.adaptation.Adaptation.BlockActionContext context = resolveInteractContext(p, p.getLocation(), player -> !player.isFlying() && !player.isGliding() && !player.isSwimming());
-      if (context == null) {
-        clearUpwardState(p);
-        return;
-      }
+    if (!p.isClimbing()) {
+      resetState(p);
+      return;
+    }
 
-      Location location = context.location();
+    withPlayerThread(p, e, () -> handleClimb(p, e));
+  }
 
-      Block activeLadder = getActiveLadderBlock(location);
-      if (activeLadder == null) {
-        clearUpwardState(p);
-        return;
-      }
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+  public void on(EntityDamageEvent e) {
+    if (!(e.getEntity() instanceof Player p) || e.getCause() != EntityDamageEvent.DamageCause.FALL) {
+      return;
+    }
 
-      double dy = e.getTo().getY() - e.getFrom().getY();
-      boolean lookingUp = p.getLocation().getPitch() <= -Math.abs(getConfig().lookUpPitchThreshold);
-      if (!lookingUp) {
-        clearUpwardState(p);
-        return;
-      }
+    if (!getConfig().safeLanding || slideGrace.isReady(p.getUniqueId(), SLIDE_GRACE_MS)) {
+      return;
+    }
 
-      double epsilon = Math.abs(getConfig().movementDirectionEpsilonUpward);
-      Vector velocity = p.getVelocity();
-      if (p.isSneaking()) {
-        clearUpwardState(p);
-        applyVerticalVelocity(p, velocity, 0);
-        return;
-      }
-
-      boolean movingUp = dy > epsilon;
-      if (!movingUp) {
-        clearUpwardState(p);
-        return;
-      }
-
-      double baseUp = Math.max(0, getConfig().normalUpwardLadderSpeed);
-      double targetUp = isNearLadderEnd(activeLadder, true) ? baseUp : getUpwardSpeed();
-      applySmoothUpwardVelocity(p, velocity, baseUp, targetUp);
+    withAdaptedPlayer(p, e, () -> {
+      slideGrace.clear(p.getUniqueId());
+      e.setCancelled(true);
       p.setFallDistance(0);
-      getPlayer(p).getData().addStat("agility.ladder-slide.blocks-climbed", 1);
+      fx(p.getLocation(), FxPriority.TRANSITION)
+          .burst(Particle.CLOUD, 4, 0.12D)
+          .sound(Sound.BLOCK_LADDER_STEP, 0.35F, 1.1F);
     });
   }
 
-  @EventHandler
-  public void on(PlayerQuitEvent e) {
-    clearUpwardState(e.getPlayer());
-  }
-
-  private void applySmoothUpwardVelocity(Player p, Vector velocity, double baseUpwardSpeed, double targetUpwardSpeed) {
-    double minUp = Math.max(0, baseUpwardSpeed);
-    double target = Math.max(minUp, targetUpwardSpeed);
-    long now = System.currentTimeMillis();
-    UpwardState state = upwardStates.get(p.getUniqueId());
-    if (state == null || now - state.lastSeenAt > Math.max(0, getConfig().upwardStateResetMs)) {
-      state = new UpwardState(Math.max(minUp, Math.max(0, velocity.getY())), now);
-      upwardStates.put(p.getUniqueId(), state);
-    }
-
-    double smoothing = clamp(getConfig().upwardAccelerationSmoothing, 0.01, 1.0);
-    double current = Math.max(minUp, state.currentSpeed);
-    double next = current + ((target - current) * smoothing);
-    state.currentSpeed = Math.min(target, Math.max(minUp, next));
-    state.lastSeenAt = now;
-    applyVerticalVelocity(p, velocity, state.currentSpeed);
-  }
-
-  private void clearUpwardState(Player p) {
-    if (p == null) {
+  private void handleClimb(Player p, PlayerMoveEvent e) {
+    BlockActionContext context = resolveInteractContext(p, p.getLocation(), GROUNDED_ACTIONS);
+    if (context == null) {
+      resetState(p);
       return;
     }
-    upwardStates.remove(p.getUniqueId());
+
+    Block climbable = activeClimbable(context.location());
+    if (climbable == null) {
+      resetState(p);
+      return;
+    }
+
+    int level = context.level();
+    double dy = e.getTo().getY() - e.getFrom().getY();
+    Vector velocity = p.getVelocity();
+    boolean sneaking = p.isSneaking();
+    LadderState state = states.computeIfAbsent(p.getUniqueId(), id -> new LadderState(velocity.getY()));
+
+    if (!sneaking && dy > MOVE_EPSILON) {
+      engageClimb(p, state, velocity, level, climbable);
+      return;
+    }
+
+    if (dy < -MOVE_EPSILON) {
+      if (sneaking) {
+        engageBrake(p, state, velocity, level);
+      } else {
+        engageSlide(p, state, velocity, level);
+      }
+      return;
+    }
+
+    transition(p, state, Mode.NONE);
+    state.velocity = velocity.getY();
   }
 
-  private double clamp(double v, double min, double max) {
-    return Math.max(min, Math.min(max, v));
+  private void engageClimb(Player p, LadderState state, Vector velocity, int level, Block climbable) {
+    boolean nearTop = isNearTop(climbable);
+    double target = nearTop ? VANILLA_CLIMB_SPEED : getClimbAssist(level);
+    transition(p, state, nearTop ? Mode.NONE : Mode.CLIMB);
+    state.velocity = Math.min(target, ramp(state.velocity, target));
+    applyVerticalVelocity(p, velocity, state.velocity);
+    p.setFallDistance(0);
+    addStat(p, "agility.ladder-slide.blocks-climbed", 1);
+    if (!nearTop) {
+      maybeTrail(p, false);
+    }
+  }
+
+  private void engageSlide(Player p, LadderState state, Vector velocity, int level) {
+    double target = -getDescentSpeed(level);
+    transition(p, state, Mode.SLIDE);
+    state.velocity = Math.max(target, ramp(state.velocity, target));
+    applyVerticalVelocity(p, velocity, state.velocity);
+    p.setFallDistance(0);
+    if (getConfig().safeLanding) {
+      slideGrace.mark(p.getUniqueId());
+    }
+    addStat(p, "agility.ladder-slide.blocks-descended", 1);
+    maybeTrail(p, true);
+  }
+
+  private void engageBrake(Player p, LadderState state, Vector velocity, int level) {
+    double target = -getDescentSpeed(level) * clampBrakeFactor();
+    transition(p, state, Mode.BRAKE);
+    state.velocity = ramp(state.velocity, target);
+    applyVerticalVelocity(p, velocity, state.velocity);
+    p.setFallDistance(0);
+    if (getConfig().safeLanding) {
+      slideGrace.mark(p.getUniqueId());
+    }
+  }
+
+  private void transition(Player p, LadderState state, Mode to) {
+    if (state.mode == to) {
+      return;
+    }
+
+    state.mode = to;
+    switch (to) {
+      case CLIMB -> fx(p.getLocation().add(0, 1.0D, 0), FxPriority.TRANSITION)
+          .burst(Particle.CRIT, 2, 0.05D)
+          .sound(Sound.ENTITY_PHANTOM_FLAP, 0.22F, 1.2F);
+      case SLIDE -> fx(p.getLocation(), FxPriority.TRANSITION)
+          .burst(Particle.CLOUD, 3, 0.08D)
+          .sound(Sound.BLOCK_LADDER_STEP, 0.3F, 0.7F);
+      case BRAKE -> fx(p.getLocation(), FxPriority.TRANSITION)
+          .sound(Sound.BLOCK_LADDER_HIT, 0.28F, 0.9F);
+      case NONE -> {
+      }
+    }
+  }
+
+  private void maybeTrail(Player p, boolean sliding) {
+    if (!M.r(0.08D)) {
+      return;
+    }
+
+    double oy = sliding ? 0.2D : -0.2D;
+    fx(p.getLocation(), FxPriority.TRAIL).particle(Particle.CLOUD, 1, 0, oy, 0, 0.05D, 0.02D);
+  }
+
+  private double ramp(double current, double target) {
+    double smoothing = clamp(getConfig().assistSmoothing, 0.05D, 1.0D);
+    return current + ((target - current) * smoothing);
   }
 
   private void applyVerticalVelocity(Player p, Vector velocity, double targetY) {
-    if (Math.abs(velocity.getY() - targetY) <= getConfig().velocityEpsilon) {
+    if (Math.abs(velocity.getY() - targetY) <= Math.abs(getConfig().velocityEpsilon)) {
       return;
     }
 
     p.setVelocity(velocity.setY(targetY));
   }
 
-  private Block getActiveLadderBlock(Location location) {
+  private void resetState(Player p) {
+    states.remove(p.getUniqueId());
+  }
+
+  private Block activeClimbable(Location location) {
     Block feet = location.getBlock();
-    if (feet.getType() == Material.LADDER) {
+    if (isSlideClimbable(feet.getType())) {
       return feet;
     }
 
-    Block head = location.clone().add(0, 1, 0).getBlock();
-    if (head.getType() == Material.LADDER) {
+    Block head = feet.getRelative(BlockFace.UP);
+    if (isSlideClimbable(head.getType())) {
       return head;
     }
 
     return null;
   }
 
-  private boolean isNearLadderEnd(Block ladder, boolean upward) {
-    int laddersAhead = 0;
-    Block cursor = ladder;
-    BlockFace direction = upward ? BlockFace.UP : BlockFace.DOWN;
-    int limit = Math.max(1, getConfig().maxLadderScanDistance);
-    for (int i = 0; i < limit; i++) {
-      cursor = cursor.getRelative(direction);
-      if (cursor.getType() != Material.LADDER) {
-        break;
-      }
-
-      laddersAhead++;
-      if (laddersAhead > getConfig().revertDistanceBlocks) {
-        return false;
+  private boolean isNearTop(Block climbable) {
+    Block cursor = climbable;
+    for (int i = 0; i < CLIMB_TOP_LOOKAHEAD; i++) {
+      cursor = cursor.getRelative(BlockFace.UP);
+      if (!isSlideClimbable(cursor.getType())) {
+        return true;
       }
     }
 
-    return laddersAhead <= getConfig().revertDistanceBlocks;
+    return false;
   }
 
-  @Override
-  public void onTick() {
+  private boolean isSlideClimbable(Material type) {
+    return type != Material.SCAFFOLDING && Tag.CLIMBABLE.isTagged(type);
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
+  private double clampBrakeFactor() {
+    return clamp(getConfig().sneakBrakeFactor, 0.0D, 1.0D);
   }
 
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
+  private double clamp(double value, double min, double max) {
+    return Math.max(min, Math.min(max, value));
   }
 
-  private double getUpwardSpeed() {
-    return getConfig().baseUpwardLadderSpeed * getConfig().speedMultiplier;
+  private double getDescentSpeed(int level) {
+    return getConfig().descentSpeedBase + (getLevelPercent(level) * getConfig().descentSpeedPerLevel);
   }
 
-  @NoArgsConstructor
-  @ConfigDescription("Climb and slide ladders much faster in both directions.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 1;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 1;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.12;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 1;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Multiplier applied to baseUpwardLadderSpeed to compute the target climb speed.", impact = "Higher values increase final ladder climb speed after the ramp-up phase.")
-    double speedMultiplier = 2.0;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Velocity difference threshold used to skip tiny Y-velocity adjustments.", impact = "Lower values apply more frequent micro-updates; higher values reduce minor velocity writes.")
+  private double getClimbAssist(int level) {
+    return getConfig().climbAssistBase + (getLevelPercent(level) * getConfig().climbAssistPerLevel);
+  }
+
+  @ConfigDescription("Slide down ladders and vines quickly, climb them faster, brake by sneaking, and land safely.")
+  protected static class Config extends AdaptationConfig {
+    @ConfigDoc(value = "Base downward slide speed in blocks per tick before per-level scaling.", impact = "Higher values make ladder descents faster; lower values keep them gentle.")
+    double descentSpeedBase = 0.30;
+    @ConfigDoc(value = "Additional downward slide speed granted at the maximum level.", impact = "Higher values widen the descent-speed gain earned from leveling this adaptation.")
+    double descentSpeedPerLevel = 0.30;
+    @ConfigDoc(value = "Base upward climb-assist speed in blocks per tick before per-level scaling.", impact = "Higher values make ladder ascents faster; lower values keep them closer to vanilla.")
+    double climbAssistBase = 0.28;
+    @ConfigDoc(value = "Additional upward climb-assist speed granted at the maximum level.", impact = "Higher values widen the climb-speed gain earned from leveling this adaptation.")
+    double climbAssistPerLevel = 0.22;
+    @ConfigDoc(value = "Fraction of slide speed retained while sneaking to brake a descent.", impact = "Lower values brake harder toward a full stop; higher values allow a faster controlled slide.")
+    double sneakBrakeFactor = 0.1;
+    @ConfigDoc(value = "Smoothing factor blending current vertical speed toward the target each move.", impact = "Values near 1.0 snap to the target quickly; lower values ease in more gradually.")
+    double assistSmoothing = 0.35;
+    @ConfigDoc(value = "Vertical velocity difference below which tiny corrective writes are skipped.", impact = "Lower values apply more frequent micro-updates; higher values reduce minor velocity writes.")
     double velocityEpsilon = 0.003;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Baseline climb speed used before the speed multiplier is applied.", impact = "Higher values raise the base climb profile and increase total ladder ascent speed.")
-    double baseUpwardLadderSpeed = 0.12;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Vanilla-like upward speed used near ladder endpoints to avoid overshooting.", impact = "Higher values make endpoint climbing snappier; lower values keep transitions conservative.")
-    double normalUpwardLadderSpeed = 0.2;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Minimum positive Y movement treated as intentional upward ladder motion.", impact = "Lower values are more sensitive to slight upward input; higher values require clearer upward movement.")
-    double movementDirectionEpsilonUpward = 0.0004;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Smoothing factor for blending current upward velocity toward target ladder speed.", impact = "Values near 1.0 ramp quickly; lower values create a slower curve-like acceleration profile.")
-    double upwardAccelerationSmoothing = 0.28;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "How long to retain previous upward speed state between ladder movement samples.", impact = "Lower values reset ramp-up sooner; higher values preserve momentum between short interruptions.")
-    long upwardStateResetMs = 200;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Minimum upward look angle required to activate upward ladder acceleration.", impact = "Larger values require players to look farther upward before acceleration engages.")
-    double lookUpPitchThreshold = 15;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Distance from ladder top where motion reverts toward normal upward speed.", impact = "Higher values begin fallback earlier near ladder ends; lower values keep boosted speed longer.")
-    int revertDistanceBlocks = 1;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum blocks scanned to detect ladder continuity when checking ladder endpoints.", impact = "Higher values support taller ladders at slightly higher per-check cost.")
-    int maxLadderScanDistance = 64;
+    @ConfigDoc(value = "Prevents fall damage that results directly from a fast ladder slide.", impact = "True negates slide-attributable landing damage; false lets vanilla fall damage apply.")
+    boolean safeLanding = true;
+
+    public Config() {
+      baseCost = 1;
+      costFactor = 0.12;
+      maxLevel = 1;
+      initialCost = 1;
+    }
   }
 
-  private static class UpwardState {
-    private double currentSpeed;
-    private long lastSeenAt;
+  private enum Mode {
+    NONE,
+    CLIMB,
+    SLIDE,
+    BRAKE
+  }
 
-    private UpwardState(double currentSpeed, long lastSeenAt) {
-      this.currentSpeed = currentSpeed;
-      this.lastSeenAt = lastSeenAt;
+  private static final class LadderState {
+    private Mode mode;
+    private double velocity;
+
+    private LadderState(double velocity) {
+      this.mode = Mode.NONE;
+      this.velocity = velocity;
     }
   }
 }

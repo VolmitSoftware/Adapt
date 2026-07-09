@@ -18,18 +18,20 @@
 
 package art.arcane.adapt.content.adaptation.unarmed;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -39,7 +41,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.util.Vector;
 
@@ -47,32 +48,22 @@ import java.util.Map;
 import java.util.UUID;
 
 public class UnarmedGrapple extends SimpleAdaptation<UnarmedGrapple.Config> {
-  private final Map<UUID, GrabState> grabs = new java.util.concurrent.ConcurrentHashMap<>();
-  private final Map<UUID, Long> cooldownUntil = new java.util.concurrent.ConcurrentHashMap<>();
+  private final Map<UUID, GrabState> grabs = playerState();
+  private final Cooldowns grappleCooldown = cooldowns();
 
   public UnarmedGrapple() {
     super("unarmed-grapple");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("unarmed.grapple.description"));
-    setDisplayName(Localizer.dLocalize("unarmed.grapple.name"));
     setIcon(Material.LEAD);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(2750);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.IRON_INGOT)
         .key("challenge_unarmed_grapple_100")
-        .title(Localizer.dLocalize("advancement.challenge_unarmed_grapple_100.title"))
-        .description(Localizer.dLocalize("advancement.challenge_unarmed_grapple_100.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.DIAMOND)
             .key("challenge_unarmed_grapple_1k")
-            .title(Localizer.dLocalize("advancement.challenge_unarmed_grapple_1k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_unarmed_grapple_1k.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -83,10 +74,10 @@ public class UnarmedGrapple extends SimpleAdaptation<UnarmedGrapple.Config> {
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.f(getForce(level)) + C.GRAY + " " + Localizer.dLocalize("unarmed.grapple.lore1"));
-    v.addLore(C.YELLOW + "* " + Form.duration((double) getCooldownMillis(level), 1) + C.GRAY + " " + Localizer.dLocalize("unarmed.grapple.lore2"));
+    statLore(v, Form.f(getForce(level)), 1);
+    statLore(v, C.YELLOW, "* ", Form.duration((double) getCooldownMillis(level), 1), 2);
     v.addLore(C.GRAY + Localizer.dLocalize("unarmed.grapple.lore3"));
-    v.addLore(C.RED + "- " + Form.f(getConfig().exhaustionPerThrow, 1) + C.GRAY + " " + Localizer.dLocalize("unarmed.grapple.lore4"));
+    statLore(v, C.RED, "- ", Form.f(getConfig().exhaustionPerThrow, 1), 4);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
@@ -104,7 +95,7 @@ public class UnarmedGrapple extends SimpleAdaptation<UnarmedGrapple.Config> {
     long now = System.currentTimeMillis();
     GrabState state = grabs.remove(p.getUniqueId());
     if (state != null && now - state.grabbedAtMillis <= getConfig().grabTimeoutMillis) {
-      hurl(p, state.target, attack.level(), now);
+      hurl(p, state.target, attack.level());
       return;
     }
 
@@ -112,8 +103,7 @@ public class UnarmedGrapple extends SimpleAdaptation<UnarmedGrapple.Config> {
       return;
     }
 
-    Long lock = cooldownUntil.get(p.getUniqueId());
-    if (lock != null && now < lock) {
+    if (!grappleCooldown.isReady(p.getUniqueId(), getCooldownMillis(attack.level()))) {
       return;
     }
 
@@ -130,10 +120,7 @@ public class UnarmedGrapple extends SimpleAdaptation<UnarmedGrapple.Config> {
     }
 
     grabs.put(p.getUniqueId(), new GrabState(victim, now));
-    SoundPlayer.of(p.getWorld()).play(victim.getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 1f, 0.7f);
-    if (areParticlesEnabled()) {
-      victim.getWorld().spawnParticle(Particle.CRIT, victim.getLocation().add(0, 1, 0), 6, 0.2, 0.3, 0.2, 0.05);
-    }
+    playGrab(p, victim);
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
@@ -158,17 +145,10 @@ public class UnarmedGrapple extends SimpleAdaptation<UnarmedGrapple.Config> {
       return;
     }
 
-    hurl(p, state.target, level, now);
+    hurl(p, state.target, level);
   }
 
-  @EventHandler(priority = EventPriority.MONITOR)
-  public void on(PlayerQuitEvent e) {
-    UUID id = e.getPlayer().getUniqueId();
-    grabs.remove(id);
-    cooldownUntil.remove(id);
-  }
-
-  private void hurl(Player p, LivingEntity target, int level, long now) {
+  private void hurl(Player p, LivingEntity target, int level) {
     if (!target.isValid() || target.isDead() || target.getWorld() != p.getWorld()) {
       return;
     }
@@ -178,7 +158,7 @@ public class UnarmedGrapple extends SimpleAdaptation<UnarmedGrapple.Config> {
       return;
     }
 
-    cooldownUntil.put(p.getUniqueId(), now + getCooldownMillis(level));
+    grappleCooldown.mark(p.getUniqueId());
     p.setExhaustion(p.getExhaustion() + (float) getConfig().exhaustionPerThrow);
     Vector velocity = p.getLocation().getDirection().normalize().multiply(getForce(level)).setY(getConfig().upwardBoost + (getLevelPercent(level) * getConfig().upwardBoostFactor));
     J.runEntity(target, () -> {
@@ -187,14 +167,35 @@ public class UnarmedGrapple extends SimpleAdaptation<UnarmedGrapple.Config> {
       }
     });
 
-    SoundPlayer sp = SoundPlayer.of(p.getWorld());
-    sp.play(p.getLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, 0.75f);
-    sp.play(target.getLocation(), Sound.ENTITY_PLAYER_ATTACK_KNOCKBACK, 0.9f, 1.2f);
-    if (areParticlesEnabled()) {
-      target.getWorld().spawnParticle(Particle.CLOUD, target.getLocation().add(0, 0.8, 0), 12, 0.25, 0.25, 0.25, 0.05);
-    }
+    playHurl(p, target, velocity);
     xp(p, getConfig().xpPerHurl, "grapple");
-    getPlayer(p).getData().addStat("unarmed.grapple.hurled-mobs", 1);
+    addStat(p, "unarmed.grapple.hurled-mobs", 1);
+  }
+
+  private void playGrab(Player p, LivingEntity victim) {
+    Location mob = victim.getLocation().add(0, 1, 0);
+    fx(mob, FxPriority.COMBAT)
+        .particle(Particle.CRIT, 6, 0, 0, 0, 0.3D, 0.05D)
+        .chord(Sound.ITEM_ARMOR_EQUIP_LEATHER, 1.0F, 0.7F, Sound.BLOCK_NOTE_BLOCK_BASEDRUM, 0.4F, 0.8F);
+    fx(p.getEyeLocation(), FxPriority.TRANSITION)
+        .line(Particle.CRIT, mob.getX(), mob.getY(), mob.getZ(), 8);
+  }
+
+  private void playHurl(Player p, LivingEntity target, Vector velocity) {
+    fx(target.getLocation().add(0, 0.8D, 0), FxPriority.COMBAT)
+        .particle(Particle.CLOUD, 8, 0, 0, 0, 0.25D, 0.05D)
+        .trail(Particle.CRIT, velocity.getX(), velocity.getY(), velocity.getZ(), 1.6D, 6)
+        .sound(Sound.ENTITY_PLAYER_ATTACK_KNOCKBACK, 0.9F, 1.2F);
+    timeline(p)
+        .duration(3)
+        .priority(FxPriority.COMBAT)
+        .frame((fx, tick, progress) -> fx.sound(Sound.ENTITY_PLAYER_ATTACK_SWEEP, 0.9F, (float) (0.9D + (progress * 0.4D))))
+        .start();
+    timeline(target)
+        .duration(6)
+        .priority(FxPriority.TRAIL)
+        .frame((fx, tick, progress) -> fx.particle(Particle.CRIT, 1, 0, 0.2D, 0, 0.05D, 0.0D))
+        .start();
   }
 
   private double getForce(int level) {
@@ -209,34 +210,10 @@ public class UnarmedGrapple extends SimpleAdaptation<UnarmedGrapple.Config> {
   public void onTick() {
     long now = System.currentTimeMillis();
     grabs.values().removeIf(state -> now - state.grabbedAtMillis > getConfig().grabTimeoutMillis || !state.target.isValid() || state.target.isDead());
-    cooldownUntil.values().removeIf(until -> until <= now);
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Sneak-punch a mob to grab it, then hurl it where you look.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 6;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.65;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Allows grappling other players, not just mobs.", impact = "True lets sneak-punches grab players in PVP.")
     boolean allowGrapplePlayers = false;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Base hurl force at level 1.", impact = "Higher values throw grabbed mobs further.")
@@ -259,6 +236,12 @@ public class UnarmedGrapple extends SimpleAdaptation<UnarmedGrapple.Config> {
     double exhaustionPerThrow = 2.0;
     @art.arcane.adapt.util.config.ConfigDoc(value = "XP granted per hurled mob.", impact = "Higher values speed up unarmed skill progression from grapples.")
     double xpPerHurl = 32;
+
+    public Config() {
+      baseCost = 5;
+      costFactor = 0.65;
+      initialCost = 6;
+    }
   }
 
   private static class GrabState {

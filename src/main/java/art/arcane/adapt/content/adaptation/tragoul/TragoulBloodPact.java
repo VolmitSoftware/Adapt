@@ -18,22 +18,23 @@
 
 package art.arcane.adapt.content.adaptation.tragoul;
 
-import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.math.VelocitySpeed;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Color;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
-import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -42,13 +43,11 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> {
@@ -62,34 +61,25 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
       PotionEffectType.NIGHT_VISION
   };
 
-  private final Map<UUID, Long> procCooldowns = new ConcurrentHashMap<>();
-  private final Map<UUID, Boolean> lowHealthProcs = new ConcurrentHashMap<>();
-  private final Map<UUID, SpeedBurst> speedBursts = new ConcurrentHashMap<>();
+  private static final Color PACT_CRIMSON = Color.fromRGB(150, 0, 10);
+  private final Cooldowns procCooldowns = cooldowns();
+  private final Map<UUID, Boolean> lowHealthProcs = playerState();
+  private final Map<UUID, SpeedBurst> speedBursts = playerState();
 
   public TragoulBloodPact() {
     super("tragoul-blood-pact");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("tragoul.blood_pact.description"));
-    setDisplayName(Localizer.dLocalize("tragoul.blood_pact.name"));
     setIcon(Material.NETHER_WART);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(20);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.REDSTONE)
         .key("challenge_tragoul_pact_200")
-        .title(Localizer.dLocalize("advancement.challenge_tragoul_pact_200.title"))
-        .description(Localizer.dLocalize("advancement.challenge_tragoul_pact_200.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.NETHERITE_SWORD)
         .key("challenge_tragoul_pact_kills_500")
-        .title(Localizer.dLocalize("advancement.challenge_tragoul_pact_kills_500.title"))
-        .description(Localizer.dLocalize("advancement.challenge_tragoul_pact_kills_500.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -98,8 +88,6 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.REDSTONE)
         .key("challenge_tragoul_pact_all_in")
-        .title(Localizer.dLocalize("advancement.challenge_tragoul_pact_all_in.title"))
-        .description(Localizer.dLocalize("advancement.challenge_tragoul_pact_all_in.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -110,13 +98,6 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
     v.addLore(C.GREEN + "+ " + Form.pc(getProcChance(level), 0) + C.GRAY + " " + Localizer.dLocalize("tragoul.blood_pact.lore1"));
     v.addLore(C.GREEN + "+ " + Form.duration(getEffectDurationTicks(level) * 50D, 1) + C.GRAY + " " + Localizer.dLocalize("tragoul.blood_pact.lore2"));
     v.addLore(C.YELLOW + "* " + Form.duration(getProcCooldownMillis(level), 1) + C.GRAY + " " + Localizer.dLocalize("tragoul.blood_pact.lore3"));
-  }
-
-  @EventHandler(priority = EventPriority.MONITOR)
-  public void on(PlayerQuitEvent e) {
-    procCooldowns.remove(e.getPlayer().getUniqueId());
-    lowHealthProcs.remove(e.getPlayer().getUniqueId());
-    speedBursts.remove(e.getPlayer().getUniqueId());
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
@@ -136,9 +117,7 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
         return;
       }
 
-      long now = System.currentTimeMillis();
-      long until = procCooldowns.getOrDefault(p.getUniqueId(), 0L);
-      if (now < until) {
+      if (!procCooldowns.isReady(p.getUniqueId(), getProcCooldownMillis(level))) {
         return;
       }
 
@@ -146,16 +125,13 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
         return;
       }
 
-      procCooldowns.put(p.getUniqueId(), now + getProcCooldownMillis(level));
-      getPlayer(p).getData().addStat("tragoul.blood-pact.health-sacrificed", (int) e.getFinalDamage());
+      procCooldowns.mark(p.getUniqueId());
+      addStat(p, "tragoul.blood-pact.health-sacrificed", (int) e.getFinalDamage());
       if (p.getHealth() - e.getFinalDamage() <= 6.0) {
         lowHealthProcs.put(p.getUniqueId(), true);
       }
       applyRandomBuffs(p, level, e.getFinalDamage());
-      if (areParticlesEnabled()) {
-        p.getWorld().spawnParticle(Particle.CRIMSON_SPORE, p.getLocation().add(0, 1.0, 0), 22, 0.28, 0.42, 0.28, 0.02);
-      }
-      SoundPlayer.of(p.getWorld()).play(p.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 0.62f, 1.25f);
+      playPactProc(p);
       xp(p, getConfig().xpPerProc);
     });
   }
@@ -166,9 +142,11 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
       if (dmgEvent.getDamager() instanceof Player p) {
         withAdaptedPlayer(p, () -> {
           if (p.hasPotionEffect(PotionEffectType.ABSORPTION) || p.hasPotionEffect(PotionEffectType.RESISTANCE)) {
-            getPlayer(p).getData().addStat("tragoul.blood-pact.empowered-kills", 1);
-            if (lowHealthProcs.getOrDefault(p.getUniqueId(), false) && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_tragoul_pact_all_in")) {
-              getPlayer(p).getAdvancementHandler().grant("challenge_tragoul_pact_all_in");
+            addStat(p, "tragoul.blood-pact.empowered-kills", 1);
+            if (lowHealthProcs.getOrDefault(p.getUniqueId(), false) && grantOnce(p, "challenge_tragoul_pact_all_in")) {
+              fx(p.getLocation().add(0, 1.0, 0), FxPriority.TRANSITION)
+                  .burst(Particles.TOTEM, 12, 0.4)
+                  .sound(Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 0.5F, 1.5F);
             }
           }
         });
@@ -218,6 +196,28 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
     }
 
     speedBursts.put(id, new SpeedBurst(now + durationMs, amplifier));
+    fx(p, FxPriority.TRAIL)
+        .dustBurst(PACT_CRIMSON, 4, 0.3, 1.0F)
+        .sound(Sound.PARTICLE_SOUL_ESCAPE, 0.3F, 1.5F);
+  }
+
+  private void playPactProc(Player p) {
+    timeline(p)
+        .duration(10)
+        .priority(FxPriority.TRANSITION)
+        .cullRadius(32)
+        .frame((fx, tick, progress) -> {
+          Color spiral = Color.fromRGB((int) (150 + (80 * progress)), (int) (180 * progress), (int) (10 + (30 * progress)));
+          fx.dustHelix(spiral, 0.7, 2.2, 6, progress * Math.PI * 2.0, 1.0F);
+          if (tick == 0) {
+            fx.chord(Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 0.6F, 1.0F, Sound.BLOCK_BEACON_ACTIVATE, 0.4F, 1.6F, Sound.ENTITY_WITHER_SPAWN, 0.15F, 2.0F);
+          } else if (tick == 3 || tick == 6) {
+            fx.sound(Sound.BLOCK_NOTE_BLOCK_BELL, 0.4F, tick == 3 ? 1.5F : 1.8F);
+          } else if (tick == 9) {
+            fx.burst(Particles.TOTEM, 8, 0.4);
+          }
+        })
+        .start();
   }
 
   private double getProcChance(int level) {
@@ -255,9 +255,7 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
 
   @Override
   public void onTick() {
-    long now = System.currentTimeMillis();
-    procCooldowns.entrySet().removeIf(i -> i.getValue() <= now);
-    applySpeedBursts(now);
+    applySpeedBursts(System.currentTimeMillis());
   }
 
   private void applySpeedBursts(long now) {
@@ -277,6 +275,7 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
         if (burst.expiresAt <= now) {
           invalidateSpeedBurst(p, burst, false);
           speedBursts.remove(id);
+          fx(p, FxPriority.TRAIL).dustBurst(PACT_CRIMSON, 3, 0.25, 0.8F);
           return;
         }
 
@@ -357,16 +356,6 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
     return !p.isDead() && !p.isFlying() && !p.isGliding() && !p.isSwimming() && p.getVehicle() == null;
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
   private static class SpeedBurst {
     private long expiresAt;
     private int amplifier;
@@ -378,21 +367,8 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
     }
   }
 
-  @NoArgsConstructor
   @ConfigDescription("Taking at least 2 hearts of damage can trigger temporary beneficial effects.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.62;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Min Damage Trigger Hearts for the Tragoul Blood Pact adaptation.", impact = "Minimum damage taken in hearts required before the proc roll happens.")
     double minDamageTriggerHearts = 2.0;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Proc Chance Base for the Tragoul Blood Pact adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -433,6 +409,11 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
     boolean hardStopOnInvalidState = true;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Fallback movement threshold used when direct input API is unavailable.", impact = "Only used on runtimes without Player input access.")
     double fallbackInputVelocityThreshold = 0.0008;
+
+    public Config() {
+      costFactor = 0.62;
+      initialCost = 4;
+    }
 
     double fallbackInputVelocityThresholdSquared() {
       double threshold = Math.max(0, fallbackInputVelocityThreshold);

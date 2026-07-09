@@ -19,19 +19,25 @@
 package art.arcane.adapt.content.adaptation.pickaxe;
 
 import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -55,19 +61,11 @@ public class PickaxeTunnelBore extends SimpleAdaptation<PickaxeTunnelBore.Config
   public PickaxeTunnelBore() {
     super("pickaxe-tunnel-bore");
     registerConfiguration(PickaxeTunnelBore.Config.class);
-    setDescription(Localizer.dLocalize("pickaxe.tunnel_bore.description"));
-    setDisplayName(Localizer.dLocalize("pickaxe.tunnel_bore.name"));
     setIcon(Material.COBBLESTONE);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(8123);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.IRON_PICKAXE)
         .key("challenge_pickaxe_tunnelbore_10k")
-        .title(Localizer.dLocalize("advancement.challenge_pickaxe_tunnelbore_10k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_pickaxe_tunnelbore_10k.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -78,7 +76,7 @@ public class PickaxeTunnelBore extends SimpleAdaptation<PickaxeTunnelBore.Config
   public void addStats(int level, Element v) {
     v.addLore(C.GREEN + Localizer.dLocalize("pickaxe.tunnel_bore.lore1"));
     v.addLore(C.GREEN + "" + getBoreWidth(level) + "x" + getBoreHeight(level) + C.GRAY + " " + Localizer.dLocalize("pickaxe.tunnel_bore.lore2"));
-    v.addLore(C.RED + "- " + getConfig().durabilityPerBonusBlock + C.GRAY + " " + Localizer.dLocalize("pickaxe.tunnel_bore.lore3"));
+    statLore(v, C.RED, "- ", getConfig().durabilityPerBonusBlock, 3);
   }
 
   private int getBoreWidth(int level) {
@@ -106,21 +104,41 @@ public class PickaxeTunnelBore extends SimpleAdaptation<PickaxeTunnelBore.Config
       return;
     }
 
-    List<Block> targets = collectPlane(p, block, getBoreWidth(context.level()), getBoreHeight(context.level()));
+    int boreWidth = getBoreWidth(context.level());
+    int boreHeight = getBoreHeight(context.level());
+    List<Block> targets = collectPlane(p, block, boreWidth, boreHeight);
     if (targets.isEmpty()) {
       return;
     }
 
     ItemStack tool = p.getInventory().getItemInMainHand().clone();
     damageHand(p, targets.size() * getConfig().durabilityPerBonusBlock);
-    getPlayer(p).getData().addStat("pickaxe.tunnel-bore.blocks-bored", targets.size());
+    addStat(p, "pickaxe.tunnel-bore.blocks-bored", targets.size());
+
+    Location center = block.getLocation().add(0.5, 0.5, 0.5);
+    fx(center, FxPriority.GAMEPLAY)
+        .ring(Particle.CRIT, 0.9D, 12, 0.1D)
+        .sound(Sound.BLOCK_STONE_BREAK, 0.5f, 0.7f);
+    if (boreWidth * boreHeight >= 9) {
+      fx(center, FxPriority.TRANSITION)
+          .particle(Particle.CLOUD, 12, 0, 0.3, 0, 0.5, 0.02)
+          .chord(Sound.BLOCK_GRAVEL_BREAK, 0.6f, 0.5f, Sound.ENTITY_RAVAGER_STEP, 0.4f, 0.6f);
+    }
+
     J.runEntity(p, () -> {
+      int index = 0;
       for (Block b : targets) {
         if (!BORE_BLOCKS.contains(b.getType())) {
           continue;
         }
 
+        if ((index & 1) == 0) {
+          BlockData bd = b.getBlockData();
+          fx(b.getLocation().add(0.5, 0.5, 0.5), FxPriority.TRAIL)
+              .particle(Particles.BLOCK_CRACK, 3, 0, 0, 0, 0.2, 0.0, bd);
+        }
         b.breakNaturally(tool);
+        index++;
       }
     });
   }
@@ -164,35 +182,19 @@ public class PickaxeTunnelBore extends SimpleAdaptation<PickaxeTunnelBore.Config
   }
 
   @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
   public void onTick() {
   }
 
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Sneak-mine stone-type blocks to bore a tunnel plane oriented by your facing.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.6;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 3;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Extra pickaxe durability damage taken per bonus block bored.", impact = "Higher values wear the pickaxe out faster while tunnel boring.")
     int durabilityPerBonusBlock = 1;
+
+    public Config() {
+      baseCost = 5;
+      costFactor = 0.6;
+      maxLevel = 3;
+      initialCost = 4;
+    }
   }
 }

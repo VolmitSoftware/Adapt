@@ -20,8 +20,14 @@ package art.arcane.adapt.api.skill;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.adaptation.Cooldowns;
+import art.arcane.adapt.api.adaptation.PlayerStateRegistry;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.Fx;
+import art.arcane.adapt.api.fx.FxEmitter;
+import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.fx.FxTimeline;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.tick.TickedObject;
 import art.arcane.adapt.api.world.AdaptPlayer;
@@ -34,8 +40,11 @@ import art.arcane.adapt.util.config.ConfigFileSupport;
 import art.arcane.volmlib.util.collection.KList;
 import art.arcane.volmlib.util.format.Form;
 import lombok.Data;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.World;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
@@ -44,6 +53,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Locale;
+import java.util.Map;
 import java.util.UUID;
 
 @Data
@@ -295,6 +305,38 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
 
   protected boolean isInCreativeOrSpectator(Player p) {
     return SkillRuntimeGuards.isInCreativeOrSpectator(p);
+  }
+
+  protected FxEmitter fx(Location location, FxPriority priority) {
+    return Fx.now(this, location, priority);
+  }
+
+  protected FxEmitter fx(Entity entity, FxPriority priority) {
+    return Fx.now(this, entity, priority);
+  }
+
+  protected FxTimeline timeline(Location location) {
+    return FxTimeline.at(this, location);
+  }
+
+  protected FxTimeline timeline(Entity entity) {
+    return FxTimeline.follow(this, entity);
+  }
+
+  protected void sfx(Location location, Sound sound, float volume, float pitch) {
+    Fx.now(this, location, FxPriority.GAMEPLAY).sound(sound, volume, pitch);
+  }
+
+  protected <V> Map<UUID, V> playerState() {
+    return PlayerStateRegistry.newPlayerMap();
+  }
+
+  protected Cooldowns cooldowns() {
+    return PlayerStateRegistry.newCooldowns();
+  }
+
+  protected void addStat(Player p, String stat, double amount) {
+    getPlayer(p).getData().addStat(stat, amount);
   }
 
   public void setColor(C color) {

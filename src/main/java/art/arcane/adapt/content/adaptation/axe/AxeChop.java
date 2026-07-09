@@ -18,19 +18,18 @@
 
 package art.arcane.adapt.content.adaptation.axe;
 
-import art.arcane.adapt.Adapt;
-import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
@@ -48,26 +47,16 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
   public AxeChop() {
     super("axe-chop");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("axe.chop.description"));
-    setDisplayName(Localizer.dLocalize("axe.chop.name"));
     setIcon(Material.IRON_AXE);
-    setBaseCost(getConfig().baseCost);
-    setCostFactor(getConfig().costFactor);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
     setInterval(6911);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.IRON_AXE)
         .key("challenge_axe_chop_100")
-        .title(Localizer.dLocalize("advancement.challenge_axe_chop_100.title"))
-        .description(Localizer.dLocalize("advancement.challenge_axe_chop_100.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.DIAMOND_AXE)
             .key("challenge_axe_chop_2500")
-            .title(Localizer.dLocalize("advancement.challenge_axe_chop_2500.title"))
-            .description(Localizer.dLocalize("advancement.challenge_axe_chop_2500.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -75,8 +64,6 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.NETHERITE_AXE)
         .key("challenge_axe_chop_one_swing")
-        .title(Localizer.dLocalize("advancement.challenge_axe_chop_one_swing.title"))
-        .description(Localizer.dLocalize("advancement.challenge_axe_chop_one_swing.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -86,9 +73,9 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + level + C.GRAY + " " + Localizer.dLocalize("axe.chop.lore1"));
-    v.addLore(C.YELLOW + "* " + Form.duration(getCooldownTime(getLevelPercent(level)) * 50D, 1) + C.GRAY + " " + Localizer.dLocalize("axe.chop.lore2"));
-    v.addLore(C.RED + "- " + getDamagePerBlock(getLevelPercent(level)) + C.GRAY + " " + Localizer.dLocalize("axe.chop.lore3"));
+    statLore(v, level, 1);
+    statLore(v, C.YELLOW, "* ", Form.duration(getCooldownTime(getLevelPercent(level)) * 50D, 1), 2);
+    statLore(v, C.RED, "- ", getDamagePerBlock(getLevelPercent(level)), 3);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
@@ -123,8 +110,18 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
     BlockData b = target.getBlockData();
     if (isLog(new ItemStack(b.getMaterial()))) {
       e.setCancelled(true);
-      SoundPlayer spw = SoundPlayer.of(p.getWorld());
-      spw.play(p.getLocation(), Sound.ITEM_AXE_STRIP, 1.25f, 0.6f);
+      Location chopLoc = target.getLocation().add(0.5D, 1.0D, 0.5D);
+      timeline(chopLoc)
+          .duration(4)
+          .priority(FxPriority.GAMEPLAY)
+          .cullRadius(24)
+          .frame((fx, tick, progress) -> {
+            fx.ring(Particles.CRIT_MAGIC, 0.6D - (0.55D * progress), 8, 0.0D);
+            if (tick == 0) {
+              fx.chord(Sound.ITEM_AXE_STRIP, 1.25F, 0.6F, Sound.ITEM_AXE_WAX_OFF, 0.4F, 1.4F);
+            }
+          })
+          .start();
       int logsChopped = 0;
       for (int i = 0; i < getLevel(p); i++) {
         if (breakStuff(target, getRange(getLevel(p)), p)) {
@@ -134,9 +131,25 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
         }
       }
       if (logsChopped > 0) {
-        getPlayer(p).getData().addStat("axe.chop.trees-felled", 1);
-        if (logsChopped >= 30 && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_axe_chop_one_swing")) {
-          getPlayer(p).getAdvancementHandler().grant("challenge_axe_chop_one_swing");
+        addStat(p, "axe.chop.trees-felled", 1);
+        int felledLogs = logsChopped;
+        int steps = Math.min(8, Math.max(3, felledLogs));
+        Location base = target.getLocation().add(0.5D, 0.0D, 0.5D);
+        timeline(base)
+            .duration(steps)
+            .priority(FxPriority.TRANSITION)
+            .cullRadius(24)
+            .frame((fx, tick, progress) -> {
+              fx.particle(Particles.BLOCK_CRACK, 3, 0.0D, progress * felledLogs, 0.0D, 0.15D, 0.02D, b);
+              if ((tick & 1) == 0) {
+                fx.sound(Sound.ITEM_AXE_STRIP, 0.6F, (float) (0.9D + (0.5D * progress)));
+              }
+            })
+            .start();
+        if (logsChopped >= 30 && grantOnce(p, "challenge_axe_chop_one_swing")) {
+          fx(p.getLocation().add(0.0D, 1.0D, 0.0D), FxPriority.TRANSITION)
+              .column(Particles.TOTEM, 20, 2.0D)
+              .chord(Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.7F, 1.0F, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.5F, 1.6F);
         }
       }
     }
@@ -166,7 +179,6 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
     }
 
     if (!canBlockBreak(player, last.getLocation())) {
-      Adapt.verbose("Player " + player.getName() + " doesn't have permission.");
       return false;
     }
 
@@ -174,12 +186,7 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
       return false;
     }
 
-    Block ll = last;
-
-    SoundPlayer spw = SoundPlayer.of(b.getWorld());
-    spw.play(ll.getLocation(), Sound.ITEM_AXE_STRIP, 0.75f, 1.3f);
-
-    player.breakBlock(ll);
+    player.breakBlock(last);
     return true;
   }
 
@@ -189,31 +196,8 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Chop down trees by right-clicking the base log.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.35;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 2;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Range Level Multiplier for the Axe Chop adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     int rangeLevelMultiplier = 5;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown Ticks Base for the Axe Chop adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -224,5 +208,10 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
     double damagePerBlockBase = 1;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Damage Per Block Inverse Level Multiplier for the Axe Chop adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double damagePerBlockInverseLevelMultiplier = 4;
+
+    public Config() {
+      baseCost = 3;
+      costFactor = 0.35;
+    }
   }
 }

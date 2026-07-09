@@ -19,19 +19,20 @@
 package art.arcane.adapt.content.adaptation.chronos;
 
 import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
-import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -62,13 +63,7 @@ public class ChronosRewind extends SimpleAdaptation<ChronosRewind.Config> {
   public ChronosRewind() {
     super("chronos-rewind");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("chronos.rewind.description"));
-    setDisplayName(Localizer.dLocalize("chronos.rewind.name"));
     setIcon(Material.ENDER_EYE);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(1000);
     snapshots = new ConcurrentHashMap<>();
     cooldowns = new ConcurrentHashMap<>();
@@ -76,15 +71,11 @@ public class ChronosRewind extends SimpleAdaptation<ChronosRewind.Config> {
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.ENDER_EYE)
         .key("challenge_chronos_rewind_50")
-        .title(Localizer.dLocalize("advancement.challenge_chronos_rewind_50.title"))
-        .description(Localizer.dLocalize("advancement.challenge_chronos_rewind_50.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.RECOVERY_COMPASS)
             .key("challenge_chronos_rewind_500")
-            .title(Localizer.dLocalize("advancement.challenge_chronos_rewind_500.title"))
-            .description(Localizer.dLocalize("advancement.challenge_chronos_rewind_500.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -140,9 +131,7 @@ public class ChronosRewind extends SimpleAdaptation<ChronosRewind.Config> {
 
     long cooldownUntil = cooldowns.getOrDefault(id, 0L);
     if (cooldownUntil > now) {
-      if (getConfig().playClockSounds) {
-        ChronosSoundFX.playClockReject(p);
-      }
+      reject(p);
       return;
     }
 
@@ -153,18 +142,24 @@ public class ChronosRewind extends SimpleAdaptation<ChronosRewind.Config> {
       ChronosSoundFX.playRewindStart(p);
     }
 
-    if (areParticlesEnabled()) {
-      p.getWorld().spawnParticle(Particle.REVERSE_PORTAL, p.getLocation().add(0, 1, 0), 14, 0.3, 0.5, 0.3, 0.02);
+    fx(p.getLocation(), FxPriority.TRANSITION)
+        .column(Particles.END_ROD, 4, 1.4D)
+        .ring(Particle.REVERSE_PORTAL, 0.5D, 8, 0.6D)
+        .sound(Sound.BLOCK_AMETHYST_CLUSTER_PLACE, 0.5F, 1.6F);
+  }
+
+  private void reject(Player p) {
+    if (getConfig().playClockSounds) {
+      ChronosSoundFX.playClockReject(p);
     }
+    fx(p.getLocation().add(0, 1.2, 0), FxPriority.TRANSITION).burst(Particles.SMOKE, 3, 0.15D);
   }
 
   private void performRewind(Player p, int level, RewindSnapshot snapshot, long now) {
     UUID id = p.getUniqueId();
     int hungerCost = Math.max(0, getConfig().hungerCost);
     if (hungerCost > 0 && p.getFoodLevel() < hungerCost) {
-      if (getConfig().playClockSounds) {
-        ChronosSoundFX.playClockReject(p);
-      }
+      reject(p);
       return;
     }
 
@@ -172,9 +167,7 @@ public class ChronosRewind extends SimpleAdaptation<ChronosRewind.Config> {
 
     Location destination = snapshot.location();
     if (destination.getWorld() == null) {
-      if (getConfig().playClockSounds) {
-        ChronosSoundFX.playClockReject(p);
-      }
+      reject(p);
       return;
     }
 
@@ -182,12 +175,16 @@ public class ChronosRewind extends SimpleAdaptation<ChronosRewind.Config> {
     cooldownReadyNotify.add(id);
 
     Location departure = p.getLocation().clone();
-    if (areParticlesEnabled()) {
-      p.getWorld().spawnParticle(Particle.REVERSE_PORTAL, departure.clone().add(0, 1, 0), 18, 0.3, 0.5, 0.3, 0.04);
-      p.getWorld().spawnParticle(Particle.PORTAL, departure.clone().add(0, 1, 0), 28, 0.4, 0.6, 0.4, 0.6);
-    }
+    Location departFx = departure.clone().add(0, 1, 0);
+    fx(departFx, FxPriority.TRANSITION)
+        .particle(Particle.REVERSE_PORTAL, 18, 0, 0, 0, 0.35D, 0.04D)
+        .particle(Particle.PORTAL, 28, 0, 0, 0, 0.45D, 0.6D)
+        .sound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.7F, 0.65F);
 
-    SoundPlayer.of(p.getWorld()).play(departure, Sound.ENTITY_ENDERMAN_TELEPORT, 0.7f, 0.65f);
+    if (departure.getWorld() != null && departure.getWorld().equals(destination.getWorld())) {
+      fx(departFx, FxPriority.TRAIL)
+          .line(Particle.PORTAL, destination.getX(), destination.getY() + 1, destination.getZ(), 10);
+    }
 
     J.teleport(p, destination, PlayerTeleportEvent.TeleportCause.PLUGIN);
 
@@ -213,13 +210,11 @@ public class ChronosRewind extends SimpleAdaptation<ChronosRewind.Config> {
       p.setFallDistance(0);
       p.addPotionEffect(new PotionEffect(PotionEffectType.DARKNESS, 35, 0, true, false, false));
 
-      if (areParticlesEnabled()) {
-        p.getWorld().spawnParticle(Particle.END_ROD, p.getLocation().add(0, 1, 0), 10, 0.25, 0.4, 0.25, 0.02);
-        p.getWorld().spawnParticle(Particle.REVERSE_PORTAL, p.getLocation().add(0, 1, 0), 22, 0.35, 0.55, 0.35, 0.05);
-        p.getWorld().spawnParticle(Particle.PORTAL, p.getLocation().add(0, 1, 0), 28, 0.4, 0.6, 0.4, 0.6);
-      }
-
-      SoundPlayer.of(p.getWorld()).play(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 0.7f, 0.85f);
+      fx(p.getLocation().add(0, 1, 0), FxPriority.TRANSITION)
+          .particle(Particle.END_ROD, 10, 0, 0, 0, 0.3D, 0.02D)
+          .particle(Particle.REVERSE_PORTAL, 22, 0, 0, 0, 0.4D, 0.05D)
+          .particle(Particle.PORTAL, 28, 0, 0, 0, 0.45D, 0.6D)
+          .sound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.7F, 0.85F);
     };
 
     if (J.isFoliaThreading()) {
@@ -232,7 +227,7 @@ public class ChronosRewind extends SimpleAdaptation<ChronosRewind.Config> {
       ChronosSoundFX.playRewindFinish(p);
     }
 
-    getPlayer(p).getData().addStat("chronos.rewind.rewinds", 1);
+    addStat(p, "chronos.rewind.rewinds", 1);
     xp(p, destination, getConfig().xpOnRewind + (level * getConfig().xpPerLevel));
   }
 
@@ -260,33 +255,10 @@ public class ChronosRewind extends SimpleAdaptation<ChronosRewind.Config> {
     cooldowns.entrySet().removeIf(entry -> entry.getValue() <= now);
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Sneak and swap hands to mark a moment in time, then do it again within the window to snap back with health and hunger restored.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Play Clock Sounds for the Chronos Rewind adaptation.", impact = "True enables this behavior and false disables it.")
     boolean playClockSounds = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 6;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Food points consumed when a rewind completes.", impact = "Higher values make each rewind cost more hunger; 0 disables the cost.")
     int hungerCost = 6;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Window in milliseconds after marking a snapshot during which the rewind can be completed.", impact = "Higher values give more time to trigger the snap back.")
@@ -301,6 +273,12 @@ public class ChronosRewind extends SimpleAdaptation<ChronosRewind.Config> {
     double xpOnRewind = 18;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Extra XP granted per adaptation level on rewind.", impact = "Higher values scale rewind XP with level faster.")
     double xpPerLevel = 3;
+
+    public Config() {
+      baseCost = 6;
+      costFactor = 0.4;
+      initialCost = 5;
+    }
   }
 
   private record RewindSnapshot(Location location, double health,

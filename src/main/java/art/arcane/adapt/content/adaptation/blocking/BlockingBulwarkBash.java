@@ -18,18 +18,19 @@
 
 package art.arcane.adapt.content.adaptation.blocking;
 
-import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxEmitter;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -38,34 +39,22 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleSprintEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
-import java.util.Map;
-import java.util.UUID;
-
 public class BlockingBulwarkBash extends SimpleAdaptation<BlockingBulwarkBash.Config> {
-  private final Map<UUID, Long> lastSprintMillis = new java.util.concurrent.ConcurrentHashMap<>();
+  private final Cooldowns sprintTimestamps = cooldowns();
 
   public BlockingBulwarkBash() {
     super("blocking-bulwark-bash");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("blocking.bulwark_bash.description"));
-    setDisplayName(Localizer.dLocalize("blocking.bulwark_bash.name"));
     setIcon(Material.BELL);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(2000);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.SHIELD)
         .key("challenge_blocking_bulwark_500")
-        .title(Localizer.dLocalize("advancement.challenge_blocking_bulwark_500.title"))
-        .description(Localizer.dLocalize("advancement.challenge_blocking_bulwark_500.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -73,8 +62,6 @@ public class BlockingBulwarkBash extends SimpleAdaptation<BlockingBulwarkBash.Co
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.SHIELD)
         .key("challenge_blocking_bulwark_4")
-        .title(Localizer.dLocalize("advancement.challenge_blocking_bulwark_4.title"))
-        .description(Localizer.dLocalize("advancement.challenge_blocking_bulwark_4.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -82,21 +69,16 @@ public class BlockingBulwarkBash extends SimpleAdaptation<BlockingBulwarkBash.Co
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.f(getRange(level)) + C.GRAY + " " + Localizer.dLocalize("blocking.bulwark_bash.lore1"));
-    v.addLore(C.GREEN + "+ " + Form.pc(getDamageBonus(level), 0) + C.GRAY + " " + Localizer.dLocalize("blocking.bulwark_bash.lore2"));
-    v.addLore(C.YELLOW + "* " + Form.duration(getCooldownTicks(level) * 50D, 1) + C.GRAY + " " + Localizer.dLocalize("blocking.bulwark_bash.lore3"));
+    statLore(v, Form.f(getRange(level)), 1);
+    statLore(v, Form.pc(getDamageBonus(level), 0), 2);
+    statLore(v, C.YELLOW, "* ", Form.duration(getCooldownTicks(level) * 50D, 1), 3);
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(PlayerToggleSprintEvent e) {
     if (e.isSprinting()) {
-      lastSprintMillis.put(e.getPlayer().getUniqueId(), System.currentTimeMillis());
+      sprintTimestamps.mark(e.getPlayer().getUniqueId());
     }
-  }
-
-  @EventHandler(priority = EventPriority.MONITOR)
-  public void on(PlayerQuitEvent e) {
-    lastSprintMillis.remove(e.getPlayer().getUniqueId());
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -128,7 +110,7 @@ public class BlockingBulwarkBash extends SimpleAdaptation<BlockingBulwarkBash.Co
         continue;
       }
 
-      applyImpact(p, hit, level);
+      applyImpact(p, hit, level, affected < 6);
       affected++;
     }
 
@@ -138,25 +120,42 @@ public class BlockingBulwarkBash extends SimpleAdaptation<BlockingBulwarkBash.Co
 
     e.setDamage(e.getDamage() + getBaseDamage(level));
     p.setCooldown(Material.SHIELD, getCooldownTicks(level));
-    if (areParticlesEnabled()) {
-      p.getWorld().spawnParticle(Particle.SWEEP_ATTACK, p.getLocation().add(0, 1, 0), 1, 0, 0, 0, 0);
-    }
-    if (areParticlesEnabled()) {
-      p.getWorld().spawnParticle(Particle.CLOUD, p.getLocation().add(0, 0.3, 0), 18, 0.35, 0.1, 0.35, 0.06);
-    }
-    SoundPlayer sp = SoundPlayer.of(p.getWorld());
-    sp.play(p.getLocation(), Sound.ITEM_SHIELD_BLOCK, 1f, 0.85f);
-    sp.play(p.getLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 0.9f, 0.7f);
+    boolean hype = affected >= 4;
+    bashShockwave(p, radius, hype);
     xp(p, getConfig().xpPerTargetHit * affected);
-    getPlayer(p).getData().addStat("blocking.bulwark-bash.mobs-bashed", affected);
+    addStat(p, "blocking.bulwark-bash.mobs-bashed", affected);
 
-    // Special achievement: hit 4+ enemies in single bash
-    if (affected >= 4 && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_blocking_bulwark_4")) {
-      getPlayer(p).getAdvancementHandler().grant("challenge_blocking_bulwark_4");
+    if (hype) {
+      grantOnce(p, "challenge_blocking_bulwark_4");
     }
   }
 
-  private void applyImpact(Player p, LivingEntity target, int level) {
+  private void bashShockwave(Player p, double radius, boolean hype) {
+    FxEmitter burst = fx(p, FxPriority.GAMEPLAY)
+        .particle(Particle.SWEEP_ATTACK, 1, 0, 1.0D, 0, 0, 0)
+        .particle(Particle.CLOUD, 18, 0, 0.3D, 0, 0.35D, 0.06D);
+    if (hype) {
+      burst.burst(Particle.FLASH, 1, 0)
+          .chord(Sound.ITEM_SHIELD_BLOCK, 1.0F, 0.85F, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 0.9F, 0.7F, Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.6F, 1.0F);
+    } else {
+      burst.chord(Sound.ITEM_SHIELD_BLOCK, 1.0F, 0.85F, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 0.9F, 0.7F, Sound.ENTITY_GENERIC_EXPLODE, 0.5F, 1.4F);
+    }
+
+    double maxRadius = Math.max(0.5D, radius);
+    timeline(p.getLocation())
+        .duration(5)
+        .priority(FxPriority.GAMEPLAY)
+        .cullRadius(Math.max(16.0D, maxRadius * 3.0D))
+        .frame((fxE, tick, progress) -> {
+          fxE.ring(Particle.CLOUD, 0.4D + (maxRadius * progress), 8, 0.2D);
+          if (tick == 0) {
+            fxE.sound(Sound.BLOCK_ANVIL_PLACE, 0.4F, 0.8F);
+          }
+        })
+        .start();
+  }
+
+  private void applyImpact(Player p, LivingEntity target, int level, boolean visual) {
     Vector kb = target.getLocation().toVector().subtract(p.getLocation().toVector()).setY(0);
     if (kb.lengthSquared() <= 0.0001) {
       kb = p.getLocation().getDirection().setY(0);
@@ -168,11 +167,15 @@ public class BlockingBulwarkBash extends SimpleAdaptation<BlockingBulwarkBash.Co
     kb.normalize();
     target.setVelocity(target.getVelocity().multiply(0.25).add(kb.multiply(getKnockback(level)).setY(getUpwardKnockback(level))));
     target.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, getStunTicks(level), getStunAmplifier(level), false, false, true), true);
+
+    if (visual) {
+      fx(target.getLocation().add(0, 1.0D, 0), FxPriority.COMBAT)
+          .burst(Particles.CRIT_MAGIC, 3, 0.2D);
+    }
   }
 
   private boolean wasRecentlySprinting(Player p) {
-    long last = lastSprintMillis.getOrDefault(p.getUniqueId(), 0L);
-    return p.isSprinting() || (System.currentTimeMillis() - last) <= getConfig().recentSprintWindowMillis;
+    return p.isSprinting() || !sprintTimestamps.isReady(p.getUniqueId(), getConfig().recentSprintWindowMillis);
   }
 
   private boolean isJumpCrit(Player p) {
@@ -217,35 +220,10 @@ public class BlockingBulwarkBash extends SimpleAdaptation<BlockingBulwarkBash.Co
 
   @Override
   public void onTick() {
-    long cutoff = System.currentTimeMillis() - Math.max(1000L, getConfig().recentSprintWindowMillis * 3L);
-    lastSprintMillis.entrySet().removeIf(i -> i.getValue() < cutoff);
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Sprint, jump, and land a shielded crit to unleash a bash shockwave.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.72;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Base Damage for the Blocking Bulwark Bash adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double baseDamage = 1.0;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Damage Bonus Base for the Blocking Bulwark Bash adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -282,5 +260,10 @@ public class BlockingBulwarkBash extends SimpleAdaptation<BlockingBulwarkBash.Co
     long recentSprintWindowMillis = 900L;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Target Hit for the Blocking Bulwark Bash adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpPerTargetHit = 8;
+
+    public Config() {
+      costFactor = 0.72;
+      initialCost = 4;
+    }
   }
 }

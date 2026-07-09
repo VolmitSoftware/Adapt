@@ -18,22 +18,24 @@
 
 package art.arcane.adapt.content.adaptation.excavation;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
@@ -42,20 +44,17 @@ import org.bukkit.entity.Zombie;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class ExcavationGraveDigger extends SimpleAdaptation<ExcavationGraveDigger.Config> {
   private static final NamespacedKey GRAVE_MOB_KEY = NamespacedKey.fromString("adapt:excavation_grave_mob");
-  private final Map<UUID, Long> graveCooldowns = new ConcurrentHashMap<>();
+  private final Cooldowns graveCooldowns = cooldowns();
   private volatile TableCache tableCache;
 
   public static boolean isGraveMob(Entity entity) {
@@ -65,19 +64,11 @@ public class ExcavationGraveDigger extends SimpleAdaptation<ExcavationGraveDigge
   public ExcavationGraveDigger() {
     super("excavation-grave-digger");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("excavation.grave_digger.description"));
-    setDisplayName(Localizer.dLocalize("excavation.grave_digger.name"));
     setIcon(Material.BONE);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(4310);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.BONE)
         .key("challenge_excavation_gravedigger_300")
-        .title(Localizer.dLocalize("advancement.challenge_excavation_gravedigger_300.title"))
-        .description(Localizer.dLocalize("advancement.challenge_excavation_gravedigger_300.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -86,13 +77,20 @@ public class ExcavationGraveDigger extends SimpleAdaptation<ExcavationGraveDigge
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.pc(getLootChance(level), 1) + C.GRAY + " " + Localizer.dLocalize("excavation.grave_digger.lore1"));
-    v.addLore(C.RED + "+ " + Form.pc(getGraveChance(level), 2) + C.GRAY + " " + Localizer.dLocalize("excavation.grave_digger.lore2"));
+    statLore(v, Form.pc(getLootChance(level), 1), 1);
+    statLore(v, C.RED, "+ ", Form.pc(getGraveChance(level), 2), 2);
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
-  public void on(PlayerQuitEvent e) {
-    graveCooldowns.remove(e.getPlayer().getUniqueId());
+  public void on(EntityDeathEvent e) {
+    if (!isGraveMob(e.getEntity())) {
+      return;
+    }
+
+    fx(e.getEntity().getLocation().add(0, 0.5, 0), FxPriority.TRANSITION)
+        .particle(Particle.SOUL, 8, 0, 0.3D, 0, 0.3D, 0.01D)
+        .particle(Particle.ASH, 3, 0, 0.2D, 0, 0.2D, 0.01D)
+        .sound(Sound.BLOCK_SOUL_SAND_BREAK, 0.6f, 0.8f);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -119,13 +117,10 @@ public class ExcavationGraveDigger extends SimpleAdaptation<ExcavationGraveDigge
       dropLoot(p, center, random);
     }
 
-    if (random.nextDouble() < getGraveChance(level)) {
-      long now = System.currentTimeMillis();
-      long nextReady = graveCooldowns.getOrDefault(p.getUniqueId(), 0L);
-      if (now >= nextReady) {
-        graveCooldowns.put(p.getUniqueId(), now + (long) getConfig().graveCooldownMillis);
-        disturbGrave(p, e.getBlock().getLocation(), random);
-      }
+    if (random.nextDouble() < getGraveChance(level)
+        && graveCooldowns.isReady(p.getUniqueId(), (long) getConfig().graveCooldownMillis)) {
+      graveCooldowns.mark(p.getUniqueId());
+      disturbGrave(p, e.getBlock().getLocation(), random);
     }
   }
 
@@ -138,13 +133,20 @@ public class ExcavationGraveDigger extends SimpleAdaptation<ExcavationGraveDigge
     LootEntry entry = pickWeighted(table, random.nextDouble() * table.totalWeight());
     int amount = entry.min() >= entry.max() ? entry.min() : random.nextInt(entry.min(), entry.max() + 1);
     center.getWorld().dropItemNaturally(center, new ItemStack(entry.material(), amount));
-    if (areParticlesEnabled()) {
-      p.spawnParticle(Particle.ASH, center, 8, 0.25, 0.25, 0.25, 0.01);
-    }
-
-    SoundPlayer.of(p.getWorld()).play(center, Sound.BLOCK_ROOTED_DIRT_BREAK, 0.7f, 0.8f);
-    getPlayer(p).getData().addStat("excavation.grave-digger.bones-unearthed", 1);
+    boolean bony = isBoneLoot(entry.material());
+    fx(center, FxPriority.TRANSITION)
+        .particle(Particle.ASH, 8, 0, 0, 0, 0.25D, 0.01D)
+        .particle(bony ? Particle.SOUL : Particles.ENCHANTMENT_TABLE, bony ? 5 : 3, 0, 0.3D, 0, 0.2D, 0.02D)
+        .chord(Sound.BLOCK_ROOTED_DIRT_BREAK, 0.7f, 0.8f, Sound.BLOCK_BONE_BLOCK_BREAK, 0.6f, 1.0f);
+    addStat(p, "excavation.grave-digger.bones-unearthed", 1);
     xp(p, getConfig().xpPerLoot);
+  }
+
+  private boolean isBoneLoot(Material material) {
+    return switch (material) {
+      case BONE_BLOCK, SKELETON_SKULL -> true;
+      default -> false;
+    };
   }
 
   private void disturbGrave(Player p, Location blockLocation, ThreadLocalRandom random) {
@@ -159,14 +161,24 @@ public class ExcavationGraveDigger extends SimpleAdaptation<ExcavationGraveDigge
           s.setTarget(p);
         });
 
-    if (areParticlesEnabled()) {
-      p.spawnParticle(Particle.SOUL, grave.getLocation().add(0, 1, 0), 14, 0.3, 0.5, 0.3, 0.02);
-    }
-
-    SoundPlayer sp = SoundPlayer.of(p.getWorld());
-    sp.play(spawnAt, Sound.ENTITY_SKELETON_HURT, 0.8f, 0.6f);
-    sp.play(spawnAt, Sound.BLOCK_ROOTED_DIRT_BREAK, 1.0f, 0.5f);
-    getPlayer(p).getData().addStat("excavation.grave-digger.graves-disturbed", 1);
+    BlockData soilData = Material.DIRT.createBlockData();
+    timeline(grave.getLocation().add(0, 0.1, 0))
+        .duration(10)
+        .priority(FxPriority.GAMEPLAY)
+        .cullRadius(32)
+        .frame((fx, tick, progress) -> {
+          if (tick == 0) {
+            fx.particle(Particles.BLOCK_CRACK, 10, 0, 0.2D, 0, 0.3D, 0.15D, soilData)
+                .column(Particles.SMOKE, 6, 1.5D)
+                .sound(Sound.BLOCK_ROOTED_DIRT_BREAK, 1.0f, 0.4f);
+          }
+          if (tick == 5) {
+            fx.particle(Particle.SOUL, 14, 0, 1.0D, 0, 0.3D, 0.02D)
+                .chord(Sound.ENTITY_SKELETON_HURT, 0.8f, 0.6f, Sound.AMBIENT_CAVE, 0.5f, 0.5f);
+          }
+        })
+        .start();
+    addStat(p, "excavation.grave-digger.graves-disturbed", 1);
     xp(p, getConfig().xpPerGrave);
   }
 
@@ -248,16 +260,6 @@ public class ExcavationGraveDigger extends SimpleAdaptation<ExcavationGraveDigge
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
   private record LootEntry(Material material, double weight, int min, int max) {
   }
 
@@ -265,21 +267,8 @@ public class ExcavationGraveDigger extends SimpleAdaptation<ExcavationGraveDigge
                             double totalWeight) {
   }
 
-  @NoArgsConstructor
   @ConfigDescription("Digging earthen ground can unearth bone loot, and rarely disturbs a hostile grave.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.68;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Loot Chance Base for the Excavation Grave Digger adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double lootChanceBase = 0.008;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Loot Chance Factor for the Excavation Grave Digger adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -306,5 +295,10 @@ public class ExcavationGraveDigger extends SimpleAdaptation<ExcavationGraveDigge
     double xpPerLoot = 8;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Grave for the Excavation Grave Digger adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpPerGrave = 35;
+
+    public Config() {
+      costFactor = 0.68;
+      initialCost = 4;
+    }
   }
 }

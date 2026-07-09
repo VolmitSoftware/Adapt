@@ -18,17 +18,18 @@
 
 package art.arcane.adapt.content.adaptation.herbalism;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -40,29 +41,20 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
-import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class HerbalismBeeShepherd extends SimpleAdaptation<HerbalismBeeShepherd.Config> {
-  private final Map<UUID, Long> lastPulse = new java.util.concurrent.ConcurrentHashMap<>();
+  private final Cooldowns pulseCooldown = cooldowns();
+  private final Cooldowns auraHint = cooldowns();
 
   public HerbalismBeeShepherd() {
     super("herbalism-bee-shepherd");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("herbalism.bee_shepherd.description"));
-    setDisplayName(Localizer.dLocalize("herbalism.bee_shepherd.name"));
     setIcon(Material.BEE_NEST);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(10);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.HONEYCOMB)
         .key("challenge_herbalism_bee_100")
-        .title(Localizer.dLocalize("advancement.challenge_herbalism_bee_100.title"))
-        .description(Localizer.dLocalize("advancement.challenge_herbalism_bee_100.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -71,14 +63,13 @@ public class HerbalismBeeShepherd extends SimpleAdaptation<HerbalismBeeShepherd.
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.f(getRadius(level)) + C.GRAY + " " + Localizer.dLocalize("herbalism.bee_shepherd.lore1"));
-    v.addLore(C.GREEN + "+ " + getGrowthAttempts(level) + C.GRAY + " " + Localizer.dLocalize("herbalism.bee_shepherd.lore2"));
-    v.addLore(C.YELLOW + "* " + Form.duration(getPulseMillis(level), 1) + C.GRAY + " " + Localizer.dLocalize("herbalism.bee_shepherd.lore3"));
+    statLore(v, Form.f(getRadius(level)), 1);
+    statLore(v, getGrowthAttempts(level), 2);
+    statLore(v, C.YELLOW, "* ", Form.duration(getPulseMillis(level), 1), 3);
   }
 
   @Override
   public void onTick() {
-    long now = System.currentTimeMillis();
     for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
       Player p = adaptPlayer.getPlayer();
       if (!hasActiveAdaptation(p) || !isHoldingFlower(p)) {
@@ -86,7 +77,7 @@ public class HerbalismBeeShepherd extends SimpleAdaptation<HerbalismBeeShepherd.
       }
 
       int level = getActiveLevel(p);
-      if (now - lastPulse.getOrDefault(p.getUniqueId(), 0L) < getPulseMillis(level)) {
+      if (!pulseCooldown.isReady(p.getUniqueId(), getPulseMillis(level))) {
         continue;
       }
 
@@ -97,19 +88,27 @@ public class HerbalismBeeShepherd extends SimpleAdaptation<HerbalismBeeShepherd.
 
       int grown = pulseGrowth(p, level);
       int attracted = pullNearbyBees(p, level);
-      lastPulse.put(p.getUniqueId(), now);
+      pulseCooldown.mark(p.getUniqueId());
       if (attracted > 0) {
-        getPlayer(p).getData().addStat("herbalism.bee-shepherd.bees-attracted", attracted);
+        addStat(p, "herbalism.bee-shepherd.bees-attracted", attracted);
       }
+
+      if (auraHint.isReady(p.getUniqueId(), 8000L)) {
+        auraHint.mark(p.getUniqueId());
+        fx(p.getLocation(), FxPriority.AMBIENT)
+            .dustRing(Color.LIME, getRadius(level), 20, 1.0F)
+            .sound(Sound.BLOCK_ROOTED_DIRT_PLACE, 0.4F, 1.1F);
+      }
+
       if (grown <= 0) {
         continue;
       }
 
       p.setFoodLevel(Math.max(0, p.getFoodLevel() - foodCost));
-      if (areParticlesEnabled()) {
-        p.spawnParticle(Particle.HAPPY_VILLAGER, p.getLocation().add(0, 1, 0), 12, 0.5, 0.4, 0.5, 0.1);
-      }
-      SoundPlayer.of(p.getWorld()).play(p.getLocation(), Sound.ENTITY_BEE_POLLINATE, 0.85f, 1.25f);
+      fx(p.getLocation().add(0, 1, 0), FxPriority.AMBIENT)
+          .ring(Particle.HAPPY_VILLAGER, 0.9D, 8, 0.2D)
+          .particle(Particle.COMPOSTER, 2, 0, 0.3D, 0, 0.2D, 0.02D)
+          .chord(Sound.ENTITY_BEE_POLLINATE, 0.85F, 1.25F, Sound.BLOCK_NOTE_BLOCK_CHIME, 0.25F, 1.6F);
       xp(p, grown * getConfig().xpPerGrowth);
     }
   }
@@ -118,7 +117,9 @@ public class HerbalismBeeShepherd extends SimpleAdaptation<HerbalismBeeShepherd.
     ThreadLocalRandom random = ThreadLocalRandom.current();
     int radius = Math.max(1, (int) Math.round(getRadius(level)));
     int grown = 0;
+    int emitted = 0;
     int attempts = getGrowthAttempts(level);
+    boolean showParticles = getConfig().showGrowthParticles;
     for (int i = 0; i < attempts; i++) {
       int dx = random.nextInt(-radius, radius + 1);
       int dz = random.nextInt(-radius, radius + 1);
@@ -132,10 +133,12 @@ public class HerbalismBeeShepherd extends SimpleAdaptation<HerbalismBeeShepherd.
       ageable.setAge(Math.min(ageable.getMaximumAge(), ageable.getAge() + increase));
       block.setBlockData(ageable, true);
       grown++;
-      if (getConfig().showGrowthParticles) {
-        if (areParticlesEnabled()) {
-          p.getWorld().spawnParticle(Particle.COMPOSTER, block.getLocation().add(0.5, 0.5, 0.5), 3, 0.1, 0.1, 0.1, 0.01);
-        }
+
+      if (showParticles && emitted < 6 && ageable.getAge() >= ageable.getMaximumAge()) {
+        fx(block.getLocation().add(0.5, 1.0, 0.5), FxPriority.AMBIENT)
+            .particle(Particle.HAPPY_VILLAGER, 2, 0, 0, 0, 0.1D, 0.01D)
+            .particle(Particle.COMPOSTER, 1, 0, 0.1D, 0, 0.1D, 0.01D);
+        emitted++;
       }
     }
 
@@ -145,6 +148,7 @@ public class HerbalismBeeShepherd extends SimpleAdaptation<HerbalismBeeShepherd.
   private int pullNearbyBees(Player p, int level) {
     double radius = getRadius(level);
     int count = 0;
+    int trails = 0;
     for (Entity entity : p.getWorld().getNearbyEntities(p.getLocation(), radius, radius, radius)) {
       if (!(entity instanceof Bee bee)) {
         continue;
@@ -153,6 +157,12 @@ public class HerbalismBeeShepherd extends SimpleAdaptation<HerbalismBeeShepherd.
       Vector toward = p.getLocation().add(0, 0.75, 0).toVector().subtract(bee.getLocation().toVector());
       if (toward.lengthSquared() <= 0.001) {
         continue;
+      }
+
+      if (trails < 4) {
+        fx(bee.getLocation(), FxPriority.TRAIL)
+            .trail(Particle.HAPPY_VILLAGER, toward.getX(), toward.getY(), toward.getZ(), Math.min(3.0D, toward.length()), 3);
+        trails++;
       }
 
       toward.normalize().multiply(getBeePullStrength(level));
@@ -215,33 +225,10 @@ public class HerbalismBeeShepherd extends SimpleAdaptation<HerbalismBeeShepherd.
     return Math.max(0.01, getConfig().beePullStrengthBase + (getLevelPercent(level) * getConfig().beePullStrengthFactor));
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Holding flowers near crops emits growth pulses and draws nearby bees toward you.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Show Growth Particles for the Herbalism Bee Shepherd adaptation.", impact = "True enables this behavior and false disables it.")
     boolean showGrowthParticles = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.64;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Radius Base for the Herbalism Bee Shepherd adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double radiusBase = 7;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Radius Factor for the Herbalism Bee Shepherd adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -268,5 +255,11 @@ public class HerbalismBeeShepherd extends SimpleAdaptation<HerbalismBeeShepherd.
     double beePullStrengthFactor = 0.14;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Growth for the Herbalism Bee Shepherd adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpPerGrowth = 0.9;
+
+    public Config() {
+      baseCost = 3;
+      costFactor = 0.64;
+      initialCost = 3;
+    }
   }
 }

@@ -18,61 +18,54 @@
 
 package art.arcane.adapt.content.adaptation.agility;
 
-import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.version.IAttribute;
 import art.arcane.adapt.api.version.Version;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Attributes;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
-import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
   private static final UUID MODIFIER = UUID.nameUUIDFromBytes("adapt-armor-up".getBytes());
   private static final NamespacedKey MODIFIER_KEY = NamespacedKey.fromString("adapt:armor-up");
-  private final Map<UUID, Integer> ticksRunning;
-
+  private final Map<UUID, RuntimeState> states = playerState();
 
   public AgilityArmorUp() {
     super("agility-armor-up");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("agility.armor_up.description"));
     setIcon(Material.IRON_CHESTPLATE);
-    setDisplayName(Localizer.dLocalize("agility.armor_up.name"));
-    setBaseCost(getConfig().baseCost);
-    setCostFactor(getConfig().costFactor);
-    setInitialCost(getConfig().initialCost);
     setInterval(50);
-    ticksRunning = new ConcurrentHashMap<>();
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.IRON_CHESTPLATE)
         .key("challenge_agility_armor_up_30min")
-        .title(Localizer.dLocalize("advancement.challenge_agility_armor_up_30min.title"))
-        .description(Localizer.dLocalize("advancement.challenge_agility_armor_up_30min.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.DIAMOND_CHESTPLATE)
             .key("challenge_agility_armor_up_5hr")
-            .title(Localizer.dLocalize("advancement.challenge_agility_armor_up_5hr.title"))
-            .description(Localizer.dLocalize("advancement.challenge_agility_armor_up_5hr.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -83,21 +76,24 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.pc(getWindupArmor(getLevelPercent(level)), 0) + C.GRAY + " " + Localizer.dLocalize("agility.armor_up.lore1"));
+    statLore(v, Form.pc(getWindupArmor(getLevelPercent(level)), 0), 1);
     v.addLore(C.YELLOW + "* " + Form.duration(getWindupTicks(getLevelPercent(level)) * 50D, 1) + " " + C.GRAY + Localizer.dLocalize("agility.armor_up.lore2"));
+    v.addLore(C.YELLOW + "* " + Form.duration(getDecaySeconds(getLevelPercent(level)) * 1000D, 1) + " " + C.GRAY + Localizer.dLocalize("agility.armor_up.lore3"));
+  }
+
+  @EventHandler
+  public void on(PlayerJoinEvent e) {
+    scrubModifier(e.getPlayer());
   }
 
   @EventHandler
   public void on(PlayerQuitEvent e) {
-    ticksRunning.remove(e.getPlayer().getUniqueId());
+    clearAndRemoveState(e.getPlayer());
   }
 
-  private double getWindupTicks(double factor) {
-    return M.lerp(getConfig().windupTicksSlowest, getConfig().windupTicksFastest, factor);
-  }
-
-  private double getWindupArmor(double factor) {
-    return getConfig().windupArmorBase + (factor * getConfig().windupArmorLevelMultiplier);
+  @EventHandler
+  public void on(PlayerDeathEvent e) {
+    clearAndRemoveState(e.getEntity());
   }
 
   @Override
@@ -112,85 +108,165 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
     }
   }
 
+  private double getWindupTicks(double factor) {
+    return M.lerp(getConfig().windupTicksSlowest, getConfig().windupTicksFastest, factor);
+  }
+
+  private double getWindupArmor(double factor) {
+    return getConfig().windupArmorBase + (factor * getConfig().windupArmorLevelMultiplier);
+  }
+
+  private double getDecaySeconds(double factor) {
+    return getConfig().decaySecondsBase + (factor * getConfig().decaySecondsMaxLevelBonus);
+  }
+
   private void updatePlayer(Player p) {
     if (p == null || !p.isOnline()) {
       return;
     }
 
     UUID id = p.getUniqueId();
-    art.arcane.adapt.api.version.IAttribute attribute = Version.get().getAttribute(p, Attributes.GENERIC_ARMOR);
+    RuntimeState state = states.computeIfAbsent(id, key -> new RuntimeState());
+    IAttribute attribute = Version.get().getAttribute(p, Attributes.GENERIC_ARMOR);
     if (attribute == null) {
-      ticksRunning.remove(id);
-      return;
-    }
-
-    try {
-      attribute.removeModifier(MODIFIER, MODIFIER_KEY);
-    } catch (Exception e) {
-      Adapt.verbose("Failed to remove windup modifier: " + e.getMessage());
-    }
-
-    if (!hasActiveAdaptation(p) || p.isSwimming() || p.isFlying() || p.isGliding() || p.isSneaking()) {
-      ticksRunning.remove(id);
-      return;
-    }
-
-    if (!p.isSprinting()) {
-      ticksRunning.remove(id);
-      return;
-    }
-
-    ticksRunning.compute(id, (k, v) -> v == null ? 1 : v + 1);
-    int tr = ticksRunning.getOrDefault(id, 0);
-    if (tr <= 0) {
       return;
     }
 
     double factor = getLevelPercent(p);
-    double ticksToMax = getWindupTicks(factor);
-    double progress = Math.min(M.lerpInverse(0, ticksToMax, tr), 1);
-    double armorInc = M.lerp(0, getWindupArmor(factor), progress);
-
-    if (areParticlesEnabled()) {
-      if (M.r(0.2 * progress)) {
-        p.getWorld().spawnParticle(Particle.END_ROD, p.getLocation(), 1);
-      }
-
-      if (M.r(0.25 * progress)) {
-        p.getWorld().spawnParticle(Particle.WAX_ON, p.getLocation(), 1, 0, 0, 0, 0);
-      }
+    if (isPlatingActive(p)) {
+      buildPlating(p, state, attribute, factor);
+      return;
     }
 
+    decayPlating(p, state, attribute, factor);
+  }
+
+  private boolean isPlatingActive(Player p) {
+    if (!hasActiveAdaptation(p)) {
+      return false;
+    }
+    if (p.isSwimming() || p.isFlying() || p.isGliding() || p.isSneaking()) {
+      return false;
+    }
+    return p.isSprinting();
+  }
+
+  private void buildPlating(Player p, RuntimeState state, IAttribute attribute, double factor) {
+    state.decaying = false;
+    double ticksToMax = Math.max(1D, getWindupTicks(factor));
+    state.plating = Math.min(1.0D, state.plating + (1.0D / ticksToMax));
+    emitPlatingFeedback(p, state, state.plating);
+    double armorInc = getWindupArmor(factor) * state.plating;
     attribute.setModifier(MODIFIER, MODIFIER_KEY, armorInc * 10, AttributeModifier.Operation.MULTIPLY_SCALAR_1);
-    getPlayer(p).getData().addStat("agility.armor-up.ticks-armored", 1);
+    addStat(p, "agility.armor-up.ticks-armored", 1);
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
+  private void decayPlating(Player p, RuntimeState state, IAttribute attribute, double factor) {
+    if (state.plating <= 0D) {
+      attribute.removeModifier(MODIFIER, MODIFIER_KEY);
+      return;
+    }
+
+    if (!state.decaying) {
+      state.decaying = true;
+      double decayTicks = Math.max(1D, getDecaySeconds(factor) * 20D);
+      state.decayPerTick = state.plating / decayTicks;
+    }
+
+    state.plating = Math.max(0D, state.plating - state.decayPerTick);
+    if (state.plating <= 0D) {
+      completeDecay(p, state, attribute);
+      return;
+    }
+
+    double armorInc = getWindupArmor(factor) * state.plating;
+    attribute.setModifier(MODIFIER, MODIFIER_KEY, armorInc * 10, AttributeModifier.Operation.MULTIPLY_SCALAR_1);
+    emitDecayShimmer(p);
   }
 
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
+  private void completeDecay(Player p, RuntimeState state, IAttribute attribute) {
+    state.plating = 0D;
+    state.decaying = false;
+    state.lastBracket = 0;
+    state.fullyArmored = false;
+    attribute.removeModifier(MODIFIER, MODIFIER_KEY);
+    fx(p.getLocation(), FxPriority.TRANSITION)
+        .burst(Particles.SMOKE, 3, 0.1D)
+        .sound(Sound.ITEM_ARMOR_EQUIP_LEATHER, 0.3F, 0.5F);
+  }
+
+  private void emitPlatingFeedback(Player p, RuntimeState state, double progress) {
+    if (progress >= 1.0D && M.r(0.2)) {
+      fx(p.getLocation(), FxPriority.AMBIENT).particle(Particle.END_ROD, 1, 0, 0.1D, 0, 0.05D, 0);
+    }
+
+    int bracket = (int) Math.floor(progress / 0.25D);
+    if (bracket <= state.lastBracket) {
+      return;
+    }
+
+    state.lastBracket = bracket;
+    if (progress >= 1.0D) {
+      if (state.fullyArmored) {
+        return;
+      }
+
+      state.fullyArmored = true;
+      fx(p, FxPriority.GAMEPLAY)
+          .dome(Particle.WAX_ON, 0.8D, 10)
+          .chord(Sound.BLOCK_ANVIL_LAND, 0.25F, 1.6F, Sound.ITEM_ARMOR_EQUIP_NETHERITE, 0.4F, 1.0F);
+      return;
+    }
+
+    if (bracket < 1) {
+      return;
+    }
+
+    float pitch = switch (bracket) {
+      case 1 -> 0.8F;
+      case 2 -> 1.0F;
+      default -> 1.3F;
+    };
+    fx(p, FxPriority.GAMEPLAY)
+        .helix(Particle.END_ROD, 0.6D, 1.4D, 6, 0)
+        .sound(Sound.ITEM_ARMOR_EQUIP_IRON, 0.4F, pitch);
+  }
+
+  private void emitDecayShimmer(Player p) {
+    if (!M.r(0.1)) {
+      return;
+    }
+
+    fx(p.getLocation(), FxPriority.AMBIENT).particle(Particle.END_ROD, 1, 0, 0.1D, 0, 0.02D, 0);
+  }
+
+  private void clearAndRemoveState(Player p) {
+    if (p == null) {
+      return;
+    }
+
+    states.remove(p.getUniqueId());
+    scrubModifier(p);
+  }
+
+  private void scrubModifier(Player p) {
+    if (p == null) {
+      return;
+    }
+
+    withPlayerThread(p, () -> {
+      IAttribute attribute = Version.get().getAttribute(p, Attributes.GENERIC_ARMOR);
+      if (attribute == null) {
+        return;
+      }
+
+      attribute.removeModifier(MODIFIER, MODIFIER_KEY);
+    });
   }
 
 
-  @NoArgsConstructor
   @ConfigDescription("Gain more armor the longer you sprint.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Agility Armor Up adaptation.", impact = "True enables this behavior and false disables it.")
-    boolean showParticles = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 2;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.65;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 8;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Windup Ticks Slowest for the Agility Armor Up adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double windupTicksSlowest = 180;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Windup Ticks Fastest for the Agility Armor Up adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -199,6 +275,24 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
     double windupArmorBase = 0.22;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Windup Armor Level Multiplier for the Agility Armor Up adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double windupArmorLevelMultiplier = 0.525;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Decay Seconds Base for the Agility Armor Up adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double decaySecondsBase = 5.0;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Decay Seconds Max Level Bonus for the Agility Armor Up adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double decaySecondsMaxLevelBonus = 5.0;
+
+    public Config() {
+      baseCost = 2;
+      costFactor = 0.65;
+      initialCost = 8;
+    }
+  }
+
+  private static class RuntimeState {
+    private double plating;
+    private int lastBracket;
+    private boolean fullyArmored;
+    private boolean decaying;
+    private double decayPerTick;
   }
 
 }

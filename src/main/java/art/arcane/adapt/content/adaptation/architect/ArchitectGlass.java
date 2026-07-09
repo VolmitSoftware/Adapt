@@ -18,16 +18,17 @@
 
 package art.arcane.adapt.content.adaptation.architect;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -41,26 +42,16 @@ public class ArchitectGlass extends SimpleAdaptation<ArchitectGlass.Config> {
   public ArchitectGlass() {
     super("architect-glass");
     registerConfiguration(ArchitectGlass.Config.class);
-    setDescription(Localizer.dLocalize("architect.glass.description"));
-    setDisplayName(Localizer.dLocalize("architect.glass.name"));
     setIcon(Material.GLASS);
     setInterval(25000);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.GLASS)
         .key("challenge_architect_glass_200")
-        .title(Localizer.dLocalize("advancement.challenge_architect_glass_200.title"))
-        .description(Localizer.dLocalize("advancement.challenge_architect_glass_200.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.GLASS)
             .key("challenge_architect_glass_5k")
-            .title(Localizer.dLocalize("advancement.challenge_architect_glass_5k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_architect_glass_5k.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -85,23 +76,15 @@ public class ArchitectGlass extends SimpleAdaptation<ArchitectGlass.Config> {
         }
         if (e.getBlock().getType().toString().contains("GLASS") && !e.getBlock().getType().toString().contains("TINTED_GLASS")) {
           e.getBlock().getWorld().dropItemNaturally(e.getBlock().getLocation(), new ItemStack(e.getBlock().getType(), 1));
-          SoundPlayer spw = SoundPlayer.of(e.getBlock().getWorld());
-          spw.play(e.getBlock().getLocation(), Sound.BLOCK_LARGE_AMETHYST_BUD_BREAK, 1.0f, 1.0f);
-          if (areParticlesEnabled()) {
-
-            e.getBlock().getWorld().spawnParticle(Particle.SCRAPE, e.getBlock().getLocation(), 1);
-            vfxCuboidOutline(e.getBlock(), Particle.REVERSE_PORTAL);
-          }
+          fx(e.getBlock().getLocation().add(0.5, 0.5, 0.5), FxPriority.COMBAT)
+              .dustRing(Color.fromRGB(180, 230, 255), 0.4D, 12, 0.8F)
+              .burst(Particle.REVERSE_PORTAL, 6, 0.2D)
+              .chord(Sound.BLOCK_LARGE_AMETHYST_BUD_BREAK, 0.7f, 1.0f, Sound.BLOCK_GLASS_BREAK, 0.4f, 1.8f, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.3f, 2.0f);
           e.getBlock().breakNaturally();
-          getPlayer(p).getData().addStat("architect.glass.blocks-recovered", 1);
+          addStat(p, "architect.glass.blocks-recovered", 1);
         }
       }
     });
-  }
-
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
   }
 
 
@@ -109,27 +92,14 @@ public class ArchitectGlass extends SimpleAdaptation<ArchitectGlass.Config> {
   public void onTick() {
   }
 
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Silk-touch glass blocks when breaking them with an empty hand.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Architect Glass adaptation.", impact = "True enables this behavior and false disables it.")
-    boolean showParticles = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 1;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 0;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 5;
+  protected static class Config extends AdaptationConfig {
+    public Config() {
+      permanent = true;
+      baseCost = 3;
+      costFactor = 5;
+      maxLevel = 1;
+      initialCost = 0;
+    }
   }
 }

@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.brewing;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -30,10 +31,13 @@ import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.PotionTypes;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
 import org.bukkit.Color;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.inventory.BrewEvent;
@@ -44,13 +48,7 @@ public class BrewingSaturation extends SimpleAdaptation<BrewingSaturation.Config
   public BrewingSaturation() {
     super("brewing-saturation");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("brewing.saturation.description"));
-    setDisplayName(Localizer.dLocalize("brewing.saturation.name"));
     setIcon(Material.BAKED_POTATO);
-    setBaseCost(getConfig().baseCost);
-    setCostFactor(getConfig().costFactor);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
     setInterval(1334);
     registerBrewingRecipe(BrewingRecipe.builder()
         .id("brewing-saturation-1")
@@ -79,8 +77,6 @@ public class BrewingSaturation extends SimpleAdaptation<BrewingSaturation.Config
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.GOLDEN_CARROT)
         .key("challenge_brewing_saturation_25")
-        .title(Localizer.dLocalize("advancement.challenge_brewing_saturation_25.title"))
-        .description(Localizer.dLocalize("advancement.challenge_brewing_saturation_25.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -98,6 +94,11 @@ public class BrewingSaturation extends SimpleAdaptation<BrewingSaturation.Config
     BrewingStandOwner owner = WorldData.of(e.getBlock().getWorld()).get(e.getBlock(), BrewingStandOwner.class);
     if (owner != null) {
       getServer().peekData(owner.getOwner()).addStat("brewing.saturation.potions-brewed", 1);
+      Location loc = e.getBlock().getLocation().add(0.5D, 0.6D, 0.5D);
+      fx(loc, FxPriority.TRANSITION)
+          .dustBurst(Color.ORANGE, 8, 0.3D, 1.2F)
+          .particle(Particle.CAMPFIRE_COSY_SMOKE, 3, 0, 0.3D, 0, 0.2D, 0.02D)
+          .chord(Sound.ENTITY_GENERIC_EAT, 0.3F, 1.2F, Sound.BLOCK_BREWING_STAND_BREW, 0.6F, 1.1F);
     }
   }
 
@@ -106,30 +107,13 @@ public class BrewingSaturation extends SimpleAdaptation<BrewingSaturation.Config
   }
 
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Brew a Potion of Saturation from Regen Potion and Baked Potato.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 1;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 1;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 2;
+  protected static class Config extends AdaptationConfig {
+    public Config() {
+      permanent = true;
+      baseCost = 3;
+      costFactor = 1;
+      maxLevel = 1;
+    }
   }
 }

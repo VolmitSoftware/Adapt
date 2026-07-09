@@ -18,58 +18,49 @@
 
 package art.arcane.adapt.content.adaptation.tragoul;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
 import org.bukkit.Color;
 import org.bukkit.Material;
-import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class TragoulMarrowArmor extends SimpleAdaptation<TragoulMarrowArmor.Config> {
-  private final Map<UUID, Long> cooldowns = new ConcurrentHashMap<>();
+  private static final Color BONE_WHITE = Color.fromRGB(235, 230, 210);
+  private final Cooldowns cooldowns = cooldowns();
+  private final Cooldowns clickFx = cooldowns();
 
   public TragoulMarrowArmor() {
     super("tragoul-marrow-armor");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("tragoul.marrow_armor.description"));
-    setDisplayName(Localizer.dLocalize("tragoul.marrow_armor.name"));
     setIcon(Material.BONE_MEAL);
     setInterval(25000);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.BONE_MEAL)
         .key("challenge_tragoul_marrow_500")
-        .title(Localizer.dLocalize("advancement.challenge_tragoul_marrow_500.title"))
-        .description(Localizer.dLocalize("advancement.challenge_tragoul_marrow_500.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.BONE_BLOCK)
             .key("challenge_tragoul_marrow_5k")
-            .title(Localizer.dLocalize("advancement.challenge_tragoul_marrow_5k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_tragoul_marrow_5k.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -85,11 +76,6 @@ public class TragoulMarrowArmor extends SimpleAdaptation<TragoulMarrowArmor.Conf
     v.addLore(C.YELLOW + "* " + Form.duration((double) getInternalCooldownMillis(level), 1) + C.GRAY + " " + Localizer.dLocalize("tragoul.marrow_armor.lore3"));
   }
 
-  @EventHandler(priority = EventPriority.MONITOR)
-  public void on(PlayerQuitEvent e) {
-    cooldowns.remove(e.getPlayer().getUniqueId());
-  }
-
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(EntityDamageEvent e) {
     if (!(e.getEntity() instanceof Player p)) {
@@ -100,35 +86,57 @@ public class TragoulMarrowArmor extends SimpleAdaptation<TragoulMarrowArmor.Conf
       return;
     }
 
-    long now = System.currentTimeMillis();
-    Long until = cooldowns.get(p.getUniqueId());
-    if (until != null && until > now) {
-      return;
-    }
-
     withAdaptedPlayer(p, e, () -> {
       int level = getActiveLevel(p);
       if (level <= 0) {
         return;
       }
 
-      if (!p.getInventory().containsAtLeast(new ItemStack(Material.BONE), 1)) {
+      UUID id = p.getUniqueId();
+      if (!cooldowns.isReady(id, getInternalCooldownMillis(level))) {
         return;
       }
 
-      cooldowns.put(p.getUniqueId(), now + getInternalCooldownMillis(level));
+      if (!p.getInventory().containsAtLeast(new ItemStack(Material.BONE), 1)) {
+        if (clickFx.isReady(id, 1500L)) {
+          clickFx.mark(id);
+          fx(p.getLocation().add(0, 1.0, 0), FxPriority.TRANSITION)
+              .burst(Particles.SMOKE, 1, 0.1)
+              .sound(Sound.BLOCK_BONE_BLOCK_HIT, 0.3F, 0.6F);
+        }
+        return;
+      }
+
+      cooldowns.mark(id);
       p.getInventory().removeItem(new ItemStack(Material.BONE, 1));
       double absorbed = e.getDamage() * getAbsorbPercent(level);
       e.setDamage(Math.max(0, e.getDamage() - absorbed));
-
-      if (areParticlesEnabled()) {
-        Particle.DustOptions dust = new Particle.DustOptions(Color.fromRGB(235, 230, 210), 1.1f);
-        p.getWorld().spawnParticle(Particle.DUST, p.getLocation().add(0, 1.0, 0), 18, 0.3, 0.45, 0.3, 0.01, dust);
-      }
-      SoundPlayer.of(p.getWorld()).play(p.getLocation(), Sound.BLOCK_BONE_BLOCK_BREAK, 0.8f, 1.1f);
-      getPlayer(p).getData().addStat("tragoul.marrow-armor.damage-absorbed", absorbed);
+      playMarrowShield(p);
+      addStat(p, "tragoul.marrow-armor.damage-absorbed", absorbed);
       xp(p, getConfig().xpPerAbsorb);
     });
+  }
+
+  private void playMarrowShield(Player p) {
+    BlockData boneData = Material.BONE_BLOCK.createBlockData();
+    timeline(p)
+        .duration(4)
+        .priority(FxPriority.TRANSITION)
+        .cullRadius(24)
+        .frame((fx, tick, progress) -> {
+          if (tick < 3) {
+            fx.dustRing(BONE_WHITE, 1.1 - (0.15 * tick), 14, 1.2F);
+            fx.dustHelix(BONE_WHITE, 0.8, 2.0, 8, progress * Math.PI, 1.0F);
+          }
+          if (tick == 0) {
+            fx.sound(Sound.BLOCK_BONE_BLOCK_PLACE, 0.5F, 0.8F);
+          }
+          if (tick == 3) {
+            fx.particle(Particles.BLOCK_CRACK, 4, 0, 1.0, 0, 0.35, 0.05, boneData);
+            fx.sound(Sound.BLOCK_BONE_BLOCK_BREAK, 0.8F, 1.1F);
+          }
+        })
+        .start();
   }
 
   private double getAbsorbPercent(int level) {
@@ -141,34 +149,11 @@ public class TragoulMarrowArmor extends SimpleAdaptation<TragoulMarrowArmor.Conf
   }
 
   @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
   public void onTick() {
   }
 
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Consume a bone from your inventory to absorb part of incoming damage.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.72;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Minimum final damage required before a bone is consumed.", impact = "Higher values ignore chip damage and save bones for real hits.")
     double minDamageToTrigger = 2.0;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Fraction of the hit absorbed before level scaling.", impact = "Higher values absorb more damage per bone.")
@@ -183,5 +168,10 @@ public class TragoulMarrowArmor extends SimpleAdaptation<TragoulMarrowArmor.Conf
     double internalCooldownMillisFactor = 2000;
     @art.arcane.adapt.util.config.ConfigDoc(value = "XP granted per absorbed hit.", impact = "Higher values accelerate skill progression from this adaptation.")
     double xpPerAbsorb = 8;
+
+    public Config() {
+      costFactor = 0.72;
+      initialCost = 4;
+    }
   }
 }

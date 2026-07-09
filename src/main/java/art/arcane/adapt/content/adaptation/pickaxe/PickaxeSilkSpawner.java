@@ -1,18 +1,23 @@
 package art.arcane.adapt.content.adaptation.pickaxe;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.collection.KList;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.RNG;
-import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Item;
 import org.bukkit.event.EventHandler;
@@ -28,26 +33,16 @@ public class PickaxeSilkSpawner extends SimpleAdaptation<PickaxeSilkSpawner.Conf
   public PickaxeSilkSpawner() {
     super("pickaxe-silk-spawner");
     registerConfiguration(PickaxeSilkSpawner.Config.class);
-    setDescription(Localizer.dLocalize("pickaxe.silk_spawner.description"));
-    setDisplayName(Localizer.dLocalize("pickaxe.silk_spawner.name"));
     setIcon(Material.SPAWNER);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(8444);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.SPAWNER)
         .key("challenge_pickaxe_spawner_10")
-        .title(Localizer.dLocalize("advancement.challenge_pickaxe_spawner_10.title"))
-        .description(Localizer.dLocalize("advancement.challenge_pickaxe_spawner_10.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.SPAWNER)
             .key("challenge_pickaxe_spawner_50")
-            .title(Localizer.dLocalize("advancement.challenge_pickaxe_spawner_50.title"))
-            .description(Localizer.dLocalize("advancement.challenge_pickaxe_spawner_50.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -71,6 +66,26 @@ public class PickaxeSilkSpawner extends SimpleAdaptation<PickaxeSilkSpawner.Conf
     }
 
     event.setDropItems(false);
+    Location spawnerCenter = block.getLocation().add(0.5, 0.5, 0.5);
+    timeline(spawnerCenter)
+        .duration(18)
+        .priority(FxPriority.TRANSITION)
+        .cullRadius(32)
+        .frame((fxE, tick, progress) -> {
+          fxE.ring(Particle.SOUL, 1.4D - (1.2D * progress), 16, 0.4D);
+          fxE.particle(Particle.PORTAL, 4, 0, 0.5, 0, 0.8, 0.1);
+          if (tick == 0) {
+            fxE.sound(Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 0.8f, 0.8f);
+          } else if ((tick & 3) == 0) {
+            fxE.sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.5f, (float) (1.0D + (progress * 0.8D)));
+          }
+          if (tick == 17) {
+            fxE.particle(Particle.FLASH, 1, 0, 0.5, 0, 0, 0)
+                .ring(Particle.SOUL, 1.6D, 20, 0.4D)
+                .chord(Sound.BLOCK_RESPAWN_ANCHOR_SET_SPAWN, 0.9f, 1.2f, Sound.BLOCK_BEACON_ACTIVATE, 0.5f, 1.0f);
+          }
+        })
+        .start();
     org.bukkit.inventory.ItemStack spawner = new ItemStack(Material.SPAWNER);
     org.bukkit.block.BlockState state = block.getState();
     if (spawner.getItemMeta() instanceof BlockStateMeta meta) {
@@ -93,17 +108,18 @@ public class PickaxeSilkSpawner extends SimpleAdaptation<PickaxeSilkSpawner.Conf
       for (Item i : dropEvent.getItems()) {
         if (i.isValid()) i.remove();
       }
+      fx(spawnerCenter, FxPriority.TRANSITION)
+          .particle(Particles.SMOKE, 6, 0, 0.3, 0, 0.2, 0.02)
+          .chord(Sound.BLOCK_FIRE_EXTINGUISH, 0.6f, 0.6f, Sound.BLOCK_NOTE_BLOCK_BASS, 0.5f, 0.5f);
     } else {
       for (Item i : dropEvent.getItems()) {
         if (!i.isValid()) block.getWorld().addEntity(i);
       }
-      getPlayer(player).getData().addStat("pickaxe.silk-spawner.spawners-collected", 1);
+      addStat(player, "pickaxe.silk-spawner.spawners-collected", 1);
+      fx(loc, FxPriority.TRANSITION)
+          .column(Particles.END_ROD, 8, 1.0D)
+          .sound(Sound.ENTITY_ITEM_PICKUP, 0.6f, 0.7f);
     }
-  }
-
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
   }
 
   @Override
@@ -115,25 +131,13 @@ public class PickaxeSilkSpawner extends SimpleAdaptation<PickaxeSilkSpawner.Conf
   public void onTick() {
   }
 
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Spawners drop when broken with silk touch or while sneaking.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 6;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 2;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.95;
+  protected static class Config extends AdaptationConfig {
+    public Config() {
+      baseCost = 6;
+      costFactor = 0.95;
+      maxLevel = 2;
+      initialCost = 4;
+    }
   }
 }

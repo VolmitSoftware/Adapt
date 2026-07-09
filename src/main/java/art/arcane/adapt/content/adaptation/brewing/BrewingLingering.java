@@ -19,6 +19,7 @@
 package art.arcane.adapt.content.adaptation.brewing;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -26,22 +27,22 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.data.WorldData;
 import art.arcane.adapt.api.world.PlayerAdaptation;
 import art.arcane.adapt.api.world.PlayerData;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.content.matter.BrewingStandOwner;
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.ItemFlags;
 import art.arcane.volmlib.util.collection.KList;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.function.Function3;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import org.bukkit.Color;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
@@ -128,26 +129,16 @@ public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> 
   public BrewingLingering() {
     super("brewing-lingering");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("brewing.lingering.description"));
-    setDisplayName(Localizer.dLocalize("brewing.lingering.name"));
     setIcon(Material.DRAGON_BREATH);
-    setBaseCost(getConfig().baseCost);
-    setCostFactor(getConfig().costFactor);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
     setInterval(4788);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.LINGERING_POTION)
         .key("challenge_brewing_lingering_200")
-        .title(Localizer.dLocalize("advancement.challenge_brewing_lingering_200.title"))
-        .description(Localizer.dLocalize("advancement.challenge_brewing_lingering_200.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.DRAGON_BREATH)
             .key("challenge_brewing_lingering_5k")
-            .title(Localizer.dLocalize("advancement.challenge_brewing_lingering_5k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_brewing_lingering_5k.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -158,8 +149,8 @@ public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> 
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.duration((long) getDurationBoost(getLevelPercent(level)), 0) + C.GRAY + " " + Localizer.dLocalize("brewing.lingering.lore1"));
-    v.addLore(C.GREEN + "+ " + Form.pc(getPercentBoost(getLevelPercent(level)), 0) + C.GRAY + " " + Localizer.dLocalize("brewing.lingering.lore2"));
+    statLore(v, Form.duration((long) getDurationBoost(getLevelPercent(level)), 0), 1);
+    statLore(v, Form.pc(getPercentBoost(getLevelPercent(level)), 0), 2);
   }
 
   public double getDurationBoost(double factor) {
@@ -209,9 +200,24 @@ public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> 
     }
 
     if (ef) {
-      SoundPlayer spw = SoundPlayer.of(e.getBlock().getWorld());
-      spw.play(e.getBlock().getLocation(), Sound.BLOCK_BREWING_STAND_BREW, 1f, 0.75f);
-      spw.play(e.getBlock().getLocation(), Sound.BLOCK_BREWING_STAND_BREW, 1f, 1.75f);
+      Location loc = e.getBlock().getLocation().add(0.5D, 0.6D, 0.5D);
+      Particle.DustTransition transition = new Particle.DustTransition(Color.fromRGB(0x8A, 0x2B, 0xE2), Color.fromRGB(0xFF, 0x77, 0xFF), 1.2F);
+      timeline(loc)
+          .duration(6)
+          .priority(FxPriority.TRANSITION)
+          .cullRadius(24.0D)
+          .frame((f, tick, progress) -> {
+            f.ring(Particle.DUST_COLOR_TRANSITION, 0.4D + (0.6D * progress), 10, 0.3D, transition);
+            if (tick == 0) {
+              f.particle(Particle.DRAGON_BREATH, 16, 0, 0.2D, 0, 0.4D, 0.01D)
+                  .chord(Sound.BLOCK_BREWING_STAND_BREW, 1.0F, 0.75F, Sound.BLOCK_BREWING_STAND_BREW, 1.0F, 1.75F, Sound.ENTITY_ENDER_DRAGON_FLAP, 0.3F, 1.2F)
+                  .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.4F, 1.2F);
+            }
+            if (tick == 3) {
+              f.sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.4F, 1.6F);
+            }
+          })
+          .start();
     }
   }
 
@@ -313,31 +319,8 @@ public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> 
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Brewed potions last longer.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.75;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 5;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Base Duration Boost Ticks for the Brewing Lingering adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double baseDurationBoostTicks = 100;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Duration Boost Factor Ticks for the Brewing Lingering adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -348,6 +331,12 @@ public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> 
     double baseDurationMultiplier = 0.05;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Use Custom Lore for the Brewing Lingering adaptation.", impact = "True enables this behavior and false disables it.")
     boolean useCustomLore = true;
+
+    public Config() {
+      baseCost = 3;
+      costFactor = 0.75;
+      initialCost = 5;
+    }
   }
 
   private record Modifier(Attribute attribute,

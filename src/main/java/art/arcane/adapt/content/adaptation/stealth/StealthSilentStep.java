@@ -20,20 +20,25 @@ package art.arcane.adapt.content.adaptation.stealth;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.api.fx.FxEmitter;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import fr.skytasul.glowingentities.GlowingEntities;
-import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -47,38 +52,32 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config> {
-  private final Map<UUID, Boolean> dimmed = new java.util.concurrent.ConcurrentHashMap<>();
-  private final Map<UUID, List<Long>> recentBackstabs = new java.util.concurrent.ConcurrentHashMap<>();
-  private final Map<UUID, Map<UUID, ThreatLevel>> threatGlows = new java.util.concurrent.ConcurrentHashMap<>();
+  private final Map<UUID, Boolean> dimmed = new ConcurrentHashMap<>();
+  private final Map<UUID, List<Long>> recentBackstabs = playerState();
+  private final Map<UUID, Map<UUID, ThreatLevel>> threatGlows = playerState();
   private final Set<UUID> activeSneakers = java.util.concurrent.ConcurrentHashMap.newKeySet();
-  private final Map<UUID, Long> lastTargetDropScan = new java.util.concurrent.ConcurrentHashMap<>();
+  private final Cooldowns moveScanCooldown = cooldowns();
+  private final Cooldowns redThreatCooldown = cooldowns();
+  private volatile EnumSet<EntityType> blacklistCache;
+  private volatile List<String> blacklistSource;
 
   public StealthSilentStep() {
     super("stealth-silent-step");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("stealth.silent_step.description"));
-    setDisplayName(Localizer.dLocalize("stealth.silent_step.name"));
     setIcon(Material.WHITE_WOOL);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(50);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.IRON_SWORD)
         .key("challenge_stealth_silent_200")
-        .title(Localizer.dLocalize("advancement.challenge_stealth_silent_200.title"))
-        .description(Localizer.dLocalize("advancement.challenge_stealth_silent_200.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.DIAMOND_SWORD)
         .key("challenge_stealth_silent_5in10")
-        .title(Localizer.dLocalize("advancement.challenge_stealth_silent_5in10.title"))
-        .description(Localizer.dLocalize("advancement.challenge_stealth_silent_5in10.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -87,9 +86,9 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.f(getStealthRadius(level)) + C.GRAY + " " + Localizer.dLocalize("stealth.silent_step.lore1"));
-    v.addLore(C.GREEN + "+ " + Form.pc(getMobBackstabMultiplier(level) - 1D, 0) + C.GRAY + " " + Localizer.dLocalize("stealth.silent_step.lore2"));
-    v.addLore(C.GREEN + "+ " + Form.pc(getPlayerBackstabMultiplier(level) - 1D, 0) + C.GRAY + " " + Localizer.dLocalize("stealth.silent_step.lore3"));
+    statLore(v, Form.f(getStealthRadius(level)), 1);
+    statLore(v, Form.pc(getMobBackstabMultiplier(level) - 1D, 0), 2);
+    statLore(v, Form.pc(getPlayerBackstabMultiplier(level) - 1D, 0), 3);
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
@@ -100,7 +99,7 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
     clearThreatGlows(player);
     recentBackstabs.remove(id);
     activeSneakers.remove(id);
-    lastTargetDropScan.remove(id);
+    moveScanCooldown.clear(id);
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
@@ -113,7 +112,7 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
     }
 
     activeSneakers.remove(id);
-    lastTargetDropScan.remove(id);
+    moveScanCooldown.clear(id);
     clearDimming(p);
     clearThreatGlows(p);
   }
@@ -153,17 +152,15 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
     int level = getActiveLevel(p, Player::isSneaking);
     if (level <= 0) {
       activeSneakers.remove(id);
-      lastTargetDropScan.remove(id);
+      moveScanCooldown.clear(id);
       return;
     }
 
     activeSneakers.add(id);
-    long now = System.currentTimeMillis();
-    long lastScan = lastTargetDropScan.getOrDefault(id, 0L);
-    if (now - lastScan < Math.max(20L, getConfig().targetDropScanIntervalMillis)) {
+    if (!moveScanCooldown.isReady(id, Math.max(20L, getConfig().targetDropScanIntervalMillis))) {
       return;
     }
-    lastTargetDropScan.put(id, now);
+    moveScanCooldown.mark(id);
 
     double radius = getStealthRadius(level);
     for (Entity entity : p.getWorld().getNearbyEntities(p.getLocation(), radius, radius, radius)) {
@@ -200,7 +197,18 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
     double multiplier = (target instanceof Player) ? getPlayerBackstabMultiplier(level) : getMobBackstabMultiplier(level);
     e.setDamage(e.getDamage() * multiplier);
     xp(attacker, e.getDamage() * getConfig().xpPerBonusDamage);
-    getPlayer(attacker).getData().addStat("stealth.silent-step.backstabs", 1);
+    addStat(attacker, "stealth.silent-step.backstabs", 1);
+
+    Location hit = target.getLocation().add(0, 1.0D, 0);
+    int count = (int) Math.min(18, Math.round(6 * multiplier));
+    FxEmitter impact = fx(hit, FxPriority.COMBAT)
+        .burst(Particle.CRIT, count, 0.3D)
+        .particle(Particle.DAMAGE_INDICATOR, Math.max(2, count / 3), 0, 0, 0, 0.25D, 0.05D)
+        .burst(Particles.SMOKE, 3, 0.2D);
+    if (multiplier >= 1.8D) {
+      impact.ring(Particle.SWEEP_ATTACK, 0.8D, 6, 1.0D);
+    }
+    impact.chord(Sound.ENTITY_PLAYER_ATTACK_CRIT, 0.7F, 0.9F, Sound.ITEM_TRIDENT_HIT, 0.4F, 1.4F, Sound.BLOCK_SCULK_SHRIEKER_SHRIEK, 0.2F, 1.8F);
 
     long now = System.currentTimeMillis();
     UUID uid = attacker.getUniqueId();
@@ -210,6 +218,17 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
         && AdaptConfig.get().isAdvancements()
         && !getPlayer(attacker).getData().isGranted("challenge_stealth_silent_5in10")) {
       getPlayer(attacker).getAdvancementHandler().grant("challenge_stealth_silent_5in10");
+      timeline(attacker).duration(10).priority(FxPriority.TRANSITION).cullRadius(32)
+          .frame((fx, tick, progress) -> {
+            fx.ring(Particle.SOUL, 1.2D - progress, 12, 1.0D);
+            fx.dustRing(1.2D - progress, 12, 1.0F);
+            if (tick == 0) {
+              fx.chord(Sound.ENTITY_ILLUSIONER_CAST_SPELL, 0.5F, 1.2F, Sound.BLOCK_BEACON_POWER_SELECT, 0.4F, 1.5F);
+            }
+            if (progress >= 0.95D) {
+              fx.particle(Particle.FLASH, 1, 0, 1.0D, 0, 0, 0);
+            }
+          }).start();
     }
   }
 
@@ -220,7 +239,7 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
       Player p = Bukkit.getPlayer(id);
       if (p == null || !p.isOnline()) {
         activeSneakers.remove(id);
-        lastTargetDropScan.remove(id);
+        moveScanCooldown.clear(id);
         continue;
       }
 
@@ -229,7 +248,7 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
         clearDimming(p);
         clearThreatGlows(p);
         activeSneakers.remove(id);
-        lastTargetDropScan.remove(id);
+        moveScanCooldown.clear(id);
         continue;
       }
 
@@ -277,7 +296,12 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
 
   private void applyDimming(Player p, int level) {
     p.addPotionEffect(new PotionEffect(PotionEffectType.DARKNESS, getDimDurationTicks(level), getConfig().dimAmplifier, false, false, false), true);
-    dimmed.put(p.getUniqueId(), true);
+    boolean wasDimmed = Boolean.TRUE.equals(dimmed.put(p.getUniqueId(), true));
+    if (!wasDimmed) {
+      fx(p.getLocation().add(0, 1.0D, 0), FxPriority.TRANSITION)
+          .burst(Particles.SMOKE, 5, 0.25D)
+          .sound(Sound.BLOCK_SCULK_SENSOR_CLICKING, 0.25F, 0.6F);
+    }
   }
 
   private void clearDimming(Player p) {
@@ -328,6 +352,12 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
         continue;
       }
 
+      if (desired == ThreatLevel.CAN_DETECT && current != ThreatLevel.CAN_DETECT
+          && redThreatCooldown.isReady(p.getUniqueId(), 1000L)) {
+        redThreatCooldown.mark(p.getUniqueId());
+        fx(p.getLocation(), FxPriority.COMBAT).sound(Sound.BLOCK_NOTE_BLOCK_PLING, 0.3F, 0.5F);
+      }
+
       Entity entity = snapshot.entities.get(entityId);
       if (entity == null) {
         entity = Bukkit.getEntity(entityId);
@@ -375,21 +405,17 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
   }
 
   private ThreatLevel getThreatLevel(LivingEntity observer, LivingEntity target, double detectThreshold) {
+    double lookDot = getLookDot(observer, target);
+    double almostThreshold = Math.max(-1, detectThreshold - Math.max(0, getConfig().almostLookDotMargin));
+    if (lookDot < almostThreshold) {
+      return ThreatLevel.NONE;
+    }
+
     if (!observer.hasLineOfSight(target)) {
       return ThreatLevel.NONE;
     }
 
-    double lookDot = getLookDot(observer, target);
-    if (lookDot >= detectThreshold) {
-      return ThreatLevel.CAN_DETECT;
-    }
-
-    double almostThreshold = Math.max(-1, detectThreshold - Math.max(0, getConfig().almostLookDotMargin));
-    if (lookDot >= almostThreshold) {
-      return ThreatLevel.ALMOST_DETECT;
-    }
-
-    return ThreatLevel.NONE;
+    return lookDot >= detectThreshold ? ThreatLevel.CAN_DETECT : ThreatLevel.ALMOST_DETECT;
   }
 
   private double getDetectionLookDotThreshold() {
@@ -420,26 +446,31 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
   }
 
   private boolean isTargetBlacklistType(EntityType type) {
-    if (type == null) {
-      return false;
+    return type != null && resolveBlacklist().contains(type);
+  }
+
+  private EnumSet<EntityType> resolveBlacklist() {
+    List<String> source = getConfig().targetingBlacklistTypes;
+    EnumSet<EntityType> cache = blacklistCache;
+    if (cache != null && source == blacklistSource) {
+      return cache;
     }
 
-    for (String raw : getConfig().targetingBlacklistTypes) {
+    EnumSet<EntityType> built = EnumSet.noneOf(EntityType.class);
+    for (String raw : source) {
       if (raw == null || raw.isBlank()) {
         continue;
       }
 
       try {
-        EntityType configured = EntityType.valueOf(raw.trim().toUpperCase(Locale.ROOT));
-        if (configured == type) {
-          return true;
-        }
+        built.add(EntityType.valueOf(raw.trim().toUpperCase(Locale.ROOT)));
       } catch (IllegalArgumentException ignored) {
-        // Ignore invalid enum names in config.
       }
     }
 
-    return false;
+    blacklistSource = source;
+    blacklistCache = built;
+    return built;
   }
 
   private double getStealthRadius(int level) {
@@ -462,37 +493,14 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
     return getConfig().playerBackstabBase + (getLevelPercent(level) * getConfig().playerBackstabFactor);
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
   private enum ThreatLevel {
     NONE,
     ALMOST_DETECT,
     CAN_DETECT
   }
 
-  @NoArgsConstructor
   @ConfigDescription("Sneaking prevents hostile mob detection, and unseen hits deal backstab damage.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 2;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.65;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Radius Base for the Stealth Silent Step adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double radiusBase = 6;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Radius Factor for the Stealth Silent Step adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -537,6 +545,13 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
     double minimumMoveSquared = 0.0025;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Milliseconds between mob target-drop scans while sneaking.", impact = "Lower values react faster but increase nearby-entity scan frequency.")
     long targetDropScanIntervalMillis = 120;
+
+    public Config() {
+      baseCost = 3;
+      costFactor = 0.65;
+      maxLevel = 2;
+      initialCost = 3;
+    }
   }
 
   private static class ThreatSnapshot {

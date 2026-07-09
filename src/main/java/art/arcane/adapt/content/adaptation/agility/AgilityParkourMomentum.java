@@ -18,26 +18,28 @@
 
 package art.arcane.adapt.content.adaptation.agility;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.math.VelocitySpeed;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
+import art.arcane.volmlib.util.math.M;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
@@ -46,29 +48,21 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class AgilityParkourMomentum extends SimpleAdaptation<AgilityParkourMomentum.Config> {
-  private final Map<UUID, Integer> momentum = new ConcurrentHashMap<>();
-  private final Map<UUID, Boolean> wasOnGround = new ConcurrentHashMap<>();
-  private final Map<UUID, Boolean> speedBoosting = new ConcurrentHashMap<>();
+  private final Map<UUID, Integer> momentum = playerState();
+  private final Map<UUID, Boolean> wasOnGround = playerState();
+  private final Map<UUID, Boolean> speedBoosting = playerState();
+  private final Map<UUID, Integer> lastSpeedAmp = playerState();
 
   public AgilityParkourMomentum() {
     super("agility-parkour-momentum");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("agility.parkour_momentum.description"));
-    setDisplayName(Localizer.dLocalize("agility.parkour_momentum.name"));
     setIcon(Material.RABBIT_FOOT);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(10);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.RABBIT_FOOT)
         .key("challenge_agility_parkour_500")
-        .title(Localizer.dLocalize("advancement.challenge_agility_parkour_500.title"))
-        .description(Localizer.dLocalize("advancement.challenge_agility_parkour_500.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -77,17 +71,9 @@ public class AgilityParkourMomentum extends SimpleAdaptation<AgilityParkourMomen
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + getMaxMomentum(level) + C.GRAY + " " + Localizer.dLocalize("agility.parkour_momentum.lore1"));
-    v.addLore(C.GREEN + "+ " + getMaxSpeedAmplifier(level) + C.GRAY + " " + Localizer.dLocalize("agility.parkour_momentum.lore2"));
-    v.addLore(C.GREEN + "+ " + getMaxJumpAmplifier(level) + C.GRAY + " " + Localizer.dLocalize("agility.parkour_momentum.lore3"));
-  }
-
-  @EventHandler(priority = EventPriority.MONITOR)
-  public void on(PlayerQuitEvent e) {
-    UUID id = e.getPlayer().getUniqueId();
-    momentum.remove(id);
-    wasOnGround.remove(id);
-    speedBoosting.remove(id);
+    statLore(v, getMaxMomentum(level), 1);
+    statLore(v, getMaxSpeedAmplifier(level), 2);
+    statLore(v, getMaxJumpAmplifier(level), 3);
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -118,8 +104,14 @@ public class AgilityParkourMomentum extends SimpleAdaptation<AgilityParkourMomen
       if (!onGroundBefore && onGroundNow) {
         if (isMomentumLanding(p) && isOnLedge(p)) {
           current += getConfig().landingGain;
-          getPlayer(p).getData().addStat("agility.parkour-momentum.ledge-landings", 1);
+          addStat(p, "agility.parkour-momentum.ledge-landings", 1);
+          fx(p.getLocation(), FxPriority.TRAIL)
+              .particle(Particles.BLOCK_CRACK, 4, 0, 0.1D, 0, 0.2D, 0.05D, p.getLocation().getBlock().getRelative(BlockFace.DOWN).getBlockData());
         } else {
+          if (current > 0) {
+            fx(p.getLocation(), FxPriority.TRAIL)
+                .burst(Particles.SMOKE, 3, 0.1D);
+          }
           current -= getConfig().failedLandingPenalty;
         }
       } else if (onGroundNow && !p.isSprinting()) {
@@ -141,6 +133,7 @@ public class AgilityParkourMomentum extends SimpleAdaptation<AgilityParkourMomen
         momentum.remove(id);
         wasOnGround.remove(id);
         speedBoosting.remove(id);
+        lastSpeedAmp.remove(id);
         continue;
       }
 
@@ -149,6 +142,7 @@ public class AgilityParkourMomentum extends SimpleAdaptation<AgilityParkourMomen
         if (level <= 0) {
           momentum.remove(id);
           wasOnGround.remove(id);
+          lastSpeedAmp.remove(id);
           invalidateMomentumSpeed(p, id, true);
           return;
         }
@@ -156,6 +150,7 @@ public class AgilityParkourMomentum extends SimpleAdaptation<AgilityParkourMomen
         int maxMomentum = getMaxMomentum(level);
         int current = momentum.getOrDefault(id, 0);
         if (current <= 0) {
+          lastSpeedAmp.remove(id);
           invalidateMomentumSpeed(p, id, false);
           return;
         }
@@ -167,7 +162,8 @@ public class AgilityParkourMomentum extends SimpleAdaptation<AgilityParkourMomen
           return;
         }
 
-        int speedAmp = Math.max(0, Math.min(getMaxSpeedAmplifier(level), (int) Math.floor((current / (double) maxMomentum) * (getMaxSpeedAmplifier(level) + 1)) - 1));
+        int maxSpeedAmp = getMaxSpeedAmplifier(level);
+        int speedAmp = Math.max(0, Math.min(maxSpeedAmp, (int) Math.floor((current / (double) maxMomentum) * (maxSpeedAmp + 1)) - 1));
         int jumpAmp = Math.max(0, Math.min(getMaxJumpAmplifier(level), (int) Math.floor((current / (double) maxMomentum) * (getMaxJumpAmplifier(level) + 1)) - 1));
 
         p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, 25, jumpAmp, false, false));
@@ -182,7 +178,21 @@ public class AgilityParkourMomentum extends SimpleAdaptation<AgilityParkourMomen
             brakeMomentumSpeed(p, id);
           } else {
             applyMomentumSpeed(p, id, input, speedAmp);
+            if (speedAmp >= maxSpeedAmp && M.r(0.25)) {
+              fx(p.getLocation(), FxPriority.TRAIL).particle(Particle.CRIT, 1, 0, 0.1D, 0, 0.1D, 0.02D);
+            }
           }
+        }
+
+        int prevAmp = lastSpeedAmp.getOrDefault(id, 0);
+        if (speedAmp > prevAmp) {
+          Vector back = p.getLocation().getDirection().setY(0).multiply(-1);
+          fx(p.getLocation(), FxPriority.TRANSITION)
+              .trail(Particle.CLOUD, back.getX(), 0.1D, back.getZ(), 0.6D, 4)
+              .sound(Sound.ENTITY_PLAYER_ATTACK_SWEEP, 0.2F, 1.4F);
+        }
+        if (speedAmp != prevAmp) {
+          lastSpeedAmp.put(id, speedAmp);
         }
 
         if (p.isOnGround() && !p.isSprinting()) {
@@ -199,6 +209,7 @@ public class AgilityParkourMomentum extends SimpleAdaptation<AgilityParkourMomen
     tracked.addAll(momentum.keySet());
     tracked.addAll(wasOnGround.keySet());
     tracked.addAll(speedBoosting.keySet());
+    tracked.addAll(lastSpeedAmp.keySet());
     return tracked;
   }
 
@@ -306,31 +317,8 @@ public class AgilityParkourMomentum extends SimpleAdaptation<AgilityParkourMomen
     return Math.max(0, (int) Math.round(getConfig().jumpAmplifierBase + (getLevelPercent(level) * getConfig().jumpAmplifierFactor)));
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Build momentum by chaining sprint-jumps and landings to gain speed and jump boosts.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.6;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Momentum Base for the Agility Parkour Momentum adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double momentumBase = 4;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Momentum Factor for the Agility Parkour Momentum adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -369,6 +357,12 @@ public class AgilityParkourMomentum extends SimpleAdaptation<AgilityParkourMomen
     boolean hardStopOnInvalidState = true;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Fallback movement threshold used when direct input API is unavailable.", impact = "Only used on runtimes without Player input access.")
     double fallbackInputVelocityThreshold = 0.0008;
+
+    public Config() {
+      baseCost = 3;
+      costFactor = 0.6;
+      initialCost = 3;
+    }
 
     double fallbackInputVelocityThresholdSquared() {
       double threshold = Math.max(0, fallbackInputVelocityThreshold);

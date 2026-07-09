@@ -19,9 +19,11 @@
 package art.arcane.adapt.content.skill;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.xp.XpNovelty;
@@ -30,20 +32,21 @@ import art.arcane.adapt.content.adaptation.architect.*;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import lombok.NoArgsConstructor;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
 public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
-  private final Map<UUID, Long> cooldowns;
+  private final Cooldowns placeCooldown = cooldowns();
+  private final Cooldowns highBuildPing = cooldowns();
 
   public SkillArchitect() {
     super("architect", Localizer.dLocalize("skill.architect.icon"));
@@ -53,39 +56,28 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
     setDisplayName(Localizer.dLocalize("skill.architect.name"));
     setInterval(3100);
     setIcon(Material.IRON_BARS);
-    cooldowns = new HashMap<>();
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.BRICK).key("challenge_place_1k")
-        .title(Localizer.dLocalize("advancement.challenge_place_1k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_place_1k.description"))
         .model(CustomModel.get(Material.BRICK, "advancement", "architect", "challenge_place_1k"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
             .icon(Material.BRICK)
             .key("challenge_place_5k")
-            .title(Localizer.dLocalize("advancement.challenge_place_5k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_place_5k.description"))
             .model(CustomModel.get(Material.BRICK, "advancement", "architect", "challenge_place_5k"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                 .icon(Material.NETHER_BRICK)
                 .key("challenge_place_50k")
-                .title(Localizer.dLocalize("advancement.challenge_place_50k.title"))
-                .description(Localizer.dLocalize("advancement.challenge_place_50k.description"))
                 .model(CustomModel.get(Material.NETHER_BRICK, "advancement", "architect", "challenge_place_50k"))
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                     .icon(Material.NETHER_BRICK)
                     .key("challenge_place_500k")
-                    .title(Localizer.dLocalize("advancement.challenge_place_500k.title"))
-                    .description(Localizer.dLocalize("advancement.challenge_place_500k.description"))
                     .model(CustomModel.get(Material.NETHER_BRICK, "advancement", "architect", "challenge_place_500k"))
                     .frame(AdaptAdvancementFrame.CHALLENGE)
                     .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                         .icon(Material.IRON_INGOT)
                         .key("challenge_place_5m")
-                        .title(Localizer.dLocalize("advancement.challenge_place_5m.title"))
-                        .description(Localizer.dLocalize("advancement.challenge_place_5m.description"))
                         .model(CustomModel.get(Material.IRON_INGOT, "advancement", "architect", "challenge_place_5m"))
                         .frame(AdaptAdvancementFrame.CHALLENGE)
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -102,16 +94,12 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.IRON_PICKAXE).key("challenge_demolish_500")
-        .title(Localizer.dLocalize("advancement.challenge_demolish_500.title"))
-        .description(Localizer.dLocalize("advancement.challenge_demolish_500.description"))
         .model(CustomModel.get(Material.IRON_PICKAXE, "advancement", "architect", "challenge_demolish_500"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.TNT)
             .key("challenge_demolish_5k")
-            .title(Localizer.dLocalize("advancement.challenge_demolish_5k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_demolish_5k.description"))
             .model(CustomModel.get(Material.TNT, "advancement", "architect", "challenge_demolish_5k"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -122,16 +110,12 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.GOLD_INGOT).key("challenge_value_placed_10k")
-        .title(Localizer.dLocalize("advancement.challenge_value_placed_10k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_value_placed_10k.description"))
         .model(CustomModel.get(Material.GOLD_INGOT, "advancement", "architect", "challenge_value_placed_10k"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.DIAMOND)
             .key("challenge_value_placed_100k")
-            .title(Localizer.dLocalize("advancement.challenge_value_placed_100k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_value_placed_100k.description"))
             .model(CustomModel.get(Material.DIAMOND, "advancement", "architect", "challenge_value_placed_100k"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -142,16 +126,12 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.TNT_MINECART).key("challenge_demolish_val_5k")
-        .title(Localizer.dLocalize("advancement.challenge_demolish_val_5k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_demolish_val_5k.description"))
         .model(CustomModel.get(Material.TNT_MINECART, "advancement", "architect", "challenge_demolish_val_5k"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.END_CRYSTAL)
             .key("challenge_demolish_val_50k")
-            .title(Localizer.dLocalize("advancement.challenge_demolish_val_50k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_demolish_val_50k.description"))
             .model(CustomModel.get(Material.END_CRYSTAL, "advancement", "architect", "challenge_demolish_val_50k"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -162,16 +142,12 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.SCAFFOLDING).key("challenge_high_build_100")
-        .title(Localizer.dLocalize("advancement.challenge_high_build_100.title"))
-        .description(Localizer.dLocalize("advancement.challenge_high_build_100.description"))
         .model(CustomModel.get(Material.SCAFFOLDING, "advancement", "architect", "challenge_high_build_100"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.LIGHTNING_ROD)
             .key("challenge_high_build_1k")
-            .title(Localizer.dLocalize("advancement.challenge_high_build_1k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_high_build_1k.description"))
             .model(CustomModel.get(Material.LIGHTNING_ROD, "advancement", "architect", "challenge_high_build_1k"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -206,6 +182,12 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
         adaptPlayer.getData().addStat("blocks.placed.value", v);
         if (e.getBlock().getY() > 128) {
           adaptPlayer.getData().addStat("architect.builds.high", 1);
+          if (highBuildPing.isReady(p.getUniqueId(), 5000)) {
+            highBuildPing.mark(p.getUniqueId());
+            fx(e.getBlock().getLocation().add(0.5, 1.0, 0.5), FxPriority.TRANSITION)
+                .column(Particles.END_ROD, 3, 1.4)
+                .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.25f, 1.9f);
+          }
         }
 
         handleBlockCooldown(p, () -> {
@@ -240,10 +222,10 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
   }
 
   private void handleBlockCooldown(Player p, Runnable action) {
-    Long cooldown = cooldowns.get(p.getUniqueId());
-    if (cooldown != null && cooldown + getConfig().cooldownDelay > System.currentTimeMillis())
+    if (!placeCooldown.isReady(p.getUniqueId(), getConfig().cooldownDelay)) {
       return;
-    cooldowns.put(p.getUniqueId(), System.currentTimeMillis());
+    }
+    placeCooldown.mark(p.getUniqueId());
     action.run();
   }
 

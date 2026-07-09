@@ -18,18 +18,17 @@
 
 package art.arcane.adapt.content.adaptation.excavation;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.adapt.util.reflect.registries.PotionEffectTypes;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.NoArgsConstructor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -42,25 +41,21 @@ import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class ExcavationMudlark extends SimpleAdaptation<ExcavationMudlark.Config> {
+  private final Map<UUID, Long> wetHasteUntil = playerState();
+
   public ExcavationMudlark() {
     super("excavation-mudlark");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("excavation.mudlark.description"));
-    setDisplayName(Localizer.dLocalize("excavation.mudlark.name"));
     setIcon(Material.MUD);
-    setBaseCost(getConfig().baseCost);
-    setMaxLevel(getConfig().maxLevel);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
     setInterval(4530);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.MUD)
         .key("challenge_excavation_mudlark_1k")
-        .title(Localizer.dLocalize("advancement.challenge_excavation_mudlark_1k.title"))
-        .description(Localizer.dLocalize("advancement.challenge_excavation_mudlark_1k.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
@@ -69,8 +64,8 @@ public class ExcavationMudlark extends SimpleAdaptation<ExcavationMudlark.Config
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.pc(getBonusChance(level), 1) + C.GRAY + " " + Localizer.dLocalize("excavation.mudlark.lore1"));
-    v.addLore(C.GREEN + "+ " + (getHasteAmplifier(level) + 1) + C.GRAY + " " + Localizer.dLocalize("excavation.mudlark.lore2"));
+    statLore(v, Form.pc(getBonusChance(level), 1), 1);
+    statLore(v, getHasteAmplifier(level) + 1, 2);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
@@ -90,6 +85,17 @@ public class ExcavationMudlark extends SimpleAdaptation<ExcavationMudlark.Config
     }
 
     p.addPotionEffect(new PotionEffect(PotionEffectTypes.FAST_DIGGING, getConfig().hasteDurationTicks, getHasteAmplifier(context.level()), false, false, true));
+
+    UUID id = p.getUniqueId();
+    long now = System.currentTimeMillis();
+    Long until = wetHasteUntil.get(id);
+    boolean onset = until == null || now >= until;
+    wetHasteUntil.put(id, now + (getConfig().hasteDurationTicks * 50L));
+    if (onset) {
+      fx(p.getEyeLocation(), FxPriority.AMBIENT)
+          .particle(Particle.SPLASH, 5, 0, 0.2D, 0, 0.3D, 0.02D)
+          .sound(Sound.ENTITY_PLAYER_SPLASH, 0.3f, 1.4f);
+    }
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -117,12 +123,11 @@ public class ExcavationMudlark extends SimpleAdaptation<ExcavationMudlark.Config
     Material bonus = getBonusDrop(type);
     Location drop = e.getBlock().getLocation().add(0.5, 0.5, 0.5);
     e.getBlock().getWorld().dropItemNaturally(drop, new ItemStack(bonus, 1));
-    if (areParticlesEnabled()) {
-      p.spawnParticle(Particle.SPLASH, drop, 8, 0.25, 0.2, 0.25, 0.01);
-    }
-
-    SoundPlayer.of(p.getWorld()).play(drop, Sound.BLOCK_ROOTED_DIRT_BREAK, 0.6f, 1.2f);
-    getPlayer(p).getData().addStat("excavation.mudlark.bonus-drops", 1);
+    fx(drop, FxPriority.TRANSITION)
+        .particle(Particle.SPLASH, 8, 0, 0, 0, 0.25D, 0.01D)
+        .particle(Particles.ITEM_CRACK, 3, 0, 0.1D, 0, 0.15D, 0.02D, new ItemStack(bonus))
+        .chord(Sound.BLOCK_ROOTED_DIRT_BREAK, 0.6f, 1.2f, Sound.ENTITY_ITEM_PICKUP, 0.4f, 1.5f);
+    addStat(p, "excavation.mudlark.bonus-drops", 1);
     xp(p, getConfig().xpPerBonusDrop);
   }
 
@@ -167,31 +172,8 @@ public class ExcavationMudlark extends SimpleAdaptation<ExcavationMudlark.Config
 
   }
 
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Bonus drops from muddy blocks, plus haste while digging in water or rain.")
-  protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.6;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 5;
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Bonus Chance Base for the Excavation Mudlark adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double bonusChanceBase = 0.05;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Bonus Chance Factor for the Excavation Mudlark adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -204,5 +186,11 @@ public class ExcavationMudlark extends SimpleAdaptation<ExcavationMudlark.Config
     int hasteDurationTicks = 60;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Bonus Drop for the Excavation Mudlark adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpPerBonusDrop = 3;
+
+    public Config() {
+      baseCost = 3;
+      costFactor = 0.6;
+      initialCost = 3;
+    }
   }
 }

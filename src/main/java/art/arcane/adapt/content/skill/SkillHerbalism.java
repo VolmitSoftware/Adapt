@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.skill;
 
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
@@ -44,12 +45,8 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.meta.PotionMeta;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
 public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
-  private final Map<UUID, Long> cooldown = new HashMap<>();
+  private final Cooldowns cooldown = cooldowns();
 
   public SkillHerbalism() {
     super("herbalism", Localizer.dLocalize("skill.herbalism.icon"));
@@ -77,23 +74,17 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.COOKED_BEEF)
         .key("challenge_eat_100")
-        .title(Localizer.dLocalize("advancement.challenge_eat_100.title"))
-        .description(Localizer.dLocalize("advancement.challenge_eat_100.description"))
         .model(CustomModel.get(Material.COOKED_BEEF, "advancement", "herbalism", "challenge_eat_100"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.COOKED_BEEF)
             .key("challenge_eat_1000")
-            .title(Localizer.dLocalize("advancement.challenge_eat_1000.title"))
-            .description(Localizer.dLocalize("advancement.challenge_eat_1000.description"))
             .model(CustomModel.get(Material.COOKED_BEEF, "advancement", "herbalism", "challenge_eat_1000"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                 .icon(Material.COOKED_BEEF)
                 .key("challenge_eat_10000")
-                .title(Localizer.dLocalize("advancement.challenge_eat_10000.title"))
-                .description(Localizer.dLocalize("advancement.challenge_eat_10000.description"))
                 .model(CustomModel.get(Material.COOKED_BEEF, "advancement", "herbalism", "challenge_eat_10000"))
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -108,16 +99,12 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.COOKED_BEEF)
         .key("challenge_harvest_100")
-        .title(Localizer.dLocalize("advancement.challenge_harvest_100.title"))
-        .description(Localizer.dLocalize("advancement.challenge_harvest_100.description"))
         .model(CustomModel.get(Material.COOKED_BEEF, "advancement", "herbalism", "harvest_100"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.COOKED_BEEF)
             .key("challenge_harvest_1000")
-            .title(Localizer.dLocalize("advancement.challenge_harvest_1000.title"))
-            .description(Localizer.dLocalize("advancement.challenge_harvest_1000.description"))
             .model(CustomModel.get(Material.COOKED_BEEF, "advancement", "herbalism", "harvest_1000"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -129,24 +116,18 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.WHEAT_SEEDS)
         .key("challenge_plant_100")
-        .title(Localizer.dLocalize("advancement.challenge_plant_100.title"))
-        .description(Localizer.dLocalize("advancement.challenge_plant_100.description"))
         .model(CustomModel.get(Material.WHEAT_SEEDS, "advancement", "herbalism", "challenge_plant_100"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.BEETROOT_SEEDS)
             .key("challenge_plant_1k")
-            .title(Localizer.dLocalize("advancement.challenge_plant_1k.title"))
-            .description(Localizer.dLocalize("advancement.challenge_plant_1k.description"))
             .model(CustomModel.get(Material.BEETROOT_SEEDS, "advancement", "herbalism", "challenge_plant_1k"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .child(AdaptAdvancement.builder()
                 .icon(Material.GOLDEN_CARROT)
                 .key("challenge_plant_5k")
-                .title(Localizer.dLocalize("advancement.challenge_plant_5k.title"))
-                .description(Localizer.dLocalize("advancement.challenge_plant_5k.description"))
                 .model(CustomModel.get(Material.GOLDEN_CARROT, "advancement", "herbalism", "challenge_plant_5k"))
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -160,16 +141,12 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.COMPOSTER)
         .key("challenge_compost_50")
-        .title(Localizer.dLocalize("advancement.challenge_compost_50.title"))
-        .description(Localizer.dLocalize("advancement.challenge_compost_50.description"))
         .model(CustomModel.get(Material.COMPOSTER, "advancement", "herbalism", "challenge_compost_50"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.BONE_MEAL)
             .key("challenge_compost_500")
-            .title(Localizer.dLocalize("advancement.challenge_compost_500.title"))
-            .description(Localizer.dLocalize("advancement.challenge_compost_500.description"))
             .model(CustomModel.get(Material.BONE_MEAL, "advancement", "herbalism", "challenge_compost_500"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -181,16 +158,12 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.SHEARS)
         .key("challenge_shear_50")
-        .title(Localizer.dLocalize("advancement.challenge_shear_50.title"))
-        .description(Localizer.dLocalize("advancement.challenge_shear_50.description"))
         .model(CustomModel.get(Material.SHEARS, "advancement", "herbalism", "challenge_shear_50"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.WHITE_WOOL)
             .key("challenge_shear_250")
-            .title(Localizer.dLocalize("advancement.challenge_shear_250.title"))
-            .description(Localizer.dLocalize("advancement.challenge_shear_250.description"))
             .model(CustomModel.get(Material.WHITE_WOOL, "advancement", "herbalism", "challenge_shear_250"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -202,12 +175,6 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
 
 
   @EventHandler(priority = EventPriority.MONITOR)
-  public void on(PlayerQuitEvent e) {
-    Player p = e.getPlayer();
-    cooldown.remove(p.getUniqueId());
-  }
-
-  @EventHandler(priority = EventPriority.MONITOR)
   public void on(PlayerItemConsumeEvent e) {
     Player p = e.getPlayer();
     shouldReturnForPlayer(e.getPlayer(), e, () -> {
@@ -217,7 +184,7 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
 
       handleHerbCooldown(p, () -> {
         xp(p, getConfig().foodConsumeXP);
-        getPlayer(p).getData().addStat("food.eaten", 1);
+        addStat(p, "food.eaten", 1);
       });
 
 
@@ -228,7 +195,7 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
   public void on(PlayerShearEntityEvent e) {
     Player p = e.getPlayer();
     shouldReturnForPlayer(e.getPlayer(), e, () -> {
-      getPlayer(p).getData().addStat("herbalism.sheared", 1);
+      addStat(p, "herbalism.sheared", 1);
       xp(p, e.getEntity().getLocation(), getConfig().shearXP);
     });
   }
@@ -266,15 +233,11 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
   }
 
   private void handleHerbCooldown(Player p, Runnable action) {
-    if (cooldown.containsKey(p.getUniqueId())) {
-      if (cooldown.get(p.getUniqueId()) + getConfig().harvestXpCooldown > System.currentTimeMillis()) {
-        return;
-      } else {
-        cooldown.remove(p.getUniqueId());
-      }
+    if (!cooldown.isReady(p.getUniqueId(), (long) getConfig().harvestXpCooldown)) {
+      return;
     }
 
-    cooldown.put(p.getUniqueId(), System.currentTimeMillis());
+    cooldown.mark(p.getUniqueId());
     action.run();
   }
 
@@ -283,7 +246,7 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
       if (block.getBlockData() instanceof Ageable ageableBlock) {
         double integrity = XpProvenance.harvestXpMultiplier(block) * XpNovelty.fieldCycleMultiplier(p, block);
         xp(p, block.getLocation().clone().add(0.5, 0.5, 0.5), getConfig().harvestPerAgeXP * ageableBlock.getAge() * integrity);
-        getPlayer(p).getData().addStat(stat, 1);
+        addStat(p, stat, 1);
       }
     });
   }
@@ -300,7 +263,7 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
       int nl = newData.getLevel();
       if (nl > ol || (ol > 0 && nl == 0)) {
         xp(p, e.getClickedBlock().getLocation().clone().add(0.5, 0.5, 0.5), getConfig().composterBaseXP + (nl * getConfig().composterLevelXPMultiplier) + (nl == 0 ? getConfig().composterNonZeroLevelBonus : 5));
-        getPlayer(p).getData().addStat("harvest.composted", 1);
+        addStat(p, "harvest.composted", 1);
       }
     });
   }

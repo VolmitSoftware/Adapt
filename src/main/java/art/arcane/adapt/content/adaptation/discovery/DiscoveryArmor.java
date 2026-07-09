@@ -18,34 +18,34 @@
 
 package art.arcane.adapt.content.adaptation.discovery;
 
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.version.IAttribute;
 import art.arcane.adapt.api.version.Version;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.math.Sphere;
-import art.arcane.adapt.util.common.math.VectorMath;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.adapt.util.reflect.registries.Particles;
-import art.arcane.volmlib.util.collection.KMap;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
-import lombok.NoArgsConstructor;
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Sound;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.util.Vector;
 
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
@@ -54,31 +54,22 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
   private static final long UPDATE_COOLDOWN = TimeUnit.SECONDS.toMillis(3);
   private static final Sphere SPHERE = new Sphere(5);
 
-  private final KMap<UUID, Long> playerData = new KMap<>();
+  private final Cooldowns updateThrottle = cooldowns();
 
   public DiscoveryArmor() {
     super("discovery-world-armor");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("discovery.armor.description"));
-    setDisplayName(Localizer.dLocalize("discovery.armor.name"));
+    setLocalizationKey("discovery.armor");
     setIcon(Material.TURTLE_HELMET);
     setInterval(305);
-    setBaseCost(getConfig().baseCost);
-    setInitialCost(getConfig().initialCost);
-    setCostFactor(getConfig().costFactor);
-    setMaxLevel(getConfig().maxLevel);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.IRON_CHESTPLATE)
         .key("challenge_discovery_armor_1hr")
-        .title(Localizer.dLocalize("advancement.challenge_discovery_armor_1hr.title"))
-        .description(Localizer.dLocalize("advancement.challenge_discovery_armor_1hr.description"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.DIAMOND_CHESTPLATE)
             .key("challenge_discovery_armor_24hr")
-            .title(Localizer.dLocalize("advancement.challenge_discovery_armor_24hr.title"))
-            .description(Localizer.dLocalize("advancement.challenge_discovery_armor_24hr.description"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
@@ -116,13 +107,6 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
         a = 0;
       }
       armorValue += a;
-
-      if (a > 2 && M.r(0.005 * a)) {
-        Vector v = VectorMath.directionNoNormal(l, b.getLocation().add(0.5, 0.5, 0.5));
-        if (areParticlesEnabled()) {
-          l.getWorld().spawnParticle(Particles.ENCHANTMENT_TABLE, l.clone().add(0, 1, 0), 0, v.getX(), v.getY(), v.getZ());
-        }
-      }
     }
 
     return Math.min((armorValue / count) * (level / 2D) * 0.65, 10);
@@ -144,10 +128,8 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
       Player p = adaptPlayer.getPlayer();
       if (p == null || !p.isOnline()) continue;
 
-      long now = M.ms();
-      Long nextUpdate = playerData.getOrDefault(p.getUniqueId(), now);
-      if (nextUpdate > now) continue;
-      playerData.put(p.getUniqueId(), now + UPDATE_COOLDOWN);
+      if (!updateThrottle.isReady(p.getUniqueId(), UPDATE_COOLDOWN)) continue;
+      updateThrottle.mark(p.getUniqueId());
 
       IAttribute attribute = Version.get().getAttribute(p, Attributes.GENERIC_ARMOR);
       if (attribute == null) continue;
@@ -172,45 +154,31 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
         if (lArmor > 0) {
           adaptPlayer.getData().addStat("discovery.armor.ticks-with-bonus", 1);
         }
+
+        if (Math.round(lArmor) != Math.round(oldArmor) && Math.round(lArmor) > 0) {
+          fx(p.getLocation(), FxPriority.TRANSITION)
+              .dustRing(Color.fromRGB(150, 170, 190), 0.8D, 16, 1.1F)
+              .chord(Sound.BLOCK_STONE_PLACE, 0.5F, 0.7F, Sound.BLOCK_AMETHYST_BLOCK_STEP, 0.3F, 1.2F);
+        } else if (lArmor > 6D && ThreadLocalRandom.current().nextInt(20) == 0) {
+          fx(p.getLocation(), FxPriority.AMBIENT)
+              .particle(Particles.CRIT_MAGIC, 2, 0, 0, 0, 0.05D, 0.01D);
+        }
       }
     }
   }
 
-  @EventHandler
-  public void onPlayerQuit(PlayerQuitEvent event) {
-    playerData.remove(event.getPlayer().getUniqueId());
-  }
-
-  @Override
-  public boolean isEnabled() {
-    return getConfig().enabled;
-  }
-
-  @Override
-  public boolean isPermanent() {
-    return getConfig().permanent;
-  }
-
-  @NoArgsConstructor
   @ConfigDescription("Gain passive armor based on nearby block hardness.")
-  protected static class Config {
+  protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Radius Factor for the Discovery Armor adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     public int radiusFactor = 3;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Strength Exponent for the Discovery Armor adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     public double strengthExponent = 1.25;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Discovery Armor adaptation.", impact = "True enables this behavior and false disables it.")
-    public boolean showParticles = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
-    boolean permanent = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
-    boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
-    int baseCost = 2;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
-    int initialCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
-    double costFactor = 0.3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
-    int maxLevel = 3;
+
+    public Config() {
+      baseCost = 2;
+      costFactor = 0.3;
+      maxLevel = 3;
+      initialCost = 3;
+    }
   }
 }
