@@ -115,9 +115,6 @@ public class BlockingHorseArmorer extends SimpleAdaptation<BlockingHorseArmorer.
   }
 
 
-  @Override
-  public void onTick() {
-  }
 
   @ConfigDescription("Craft Horse Armor by surrounding a saddle with material.")
   protected static class Config extends AdaptationConfig {

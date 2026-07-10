@@ -146,10 +146,6 @@ public class HerbalismRootedFooting extends SimpleAdaptation<HerbalismRootedFoot
     return Math.min(getConfig().maxAbsorbPercent, getConfig().absorbBase + (getLevelPercent(level) * getConfig().absorbFactor));
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Protect farmland and convert fall damage into hunger on natural ground.")
   protected static class Config extends AdaptationConfig {

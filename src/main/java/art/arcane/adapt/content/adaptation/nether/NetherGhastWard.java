@@ -33,7 +33,11 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.entity.*;
+import org.bukkit.entity.AbstractArrow;
+import org.bukkit.entity.Fireball;
+import org.bukkit.entity.Ghast;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.WitherSkeleton;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -163,10 +167,6 @@ public class NetherGhastWard extends SimpleAdaptation<NetherGhastWard.Config> {
     return Math.max(0, (int) Math.round(getConfig().maxFireTicksBase - (getLevelPercent(level) * getConfig().maxFireTicksFactor)));
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Harden against ghast blasts and wither-skeleton pressure in the Nether.")
   protected static class Config extends AdaptationConfig {

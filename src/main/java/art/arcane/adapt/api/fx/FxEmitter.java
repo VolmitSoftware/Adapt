@@ -6,9 +6,9 @@ import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.World;
-import org.bukkit.entity.Player;
 
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Consumer;
 
 public final class FxEmitter {
   static final FxEmitter NO_OP = new FxEmitter();
@@ -30,9 +30,9 @@ public final class FxEmitter {
   private final boolean soundsOn;
   private final Color color;
   private final FxViewers.Snapshot viewersSnapshot;
-  private final Player[] viewers;
   private final int[] viewerIndices;
   private final int viewerCount;
+  private final Consumer<Throwable> failureHandler;
   private int emittedParticles;
 
   private FxEmitter() {
@@ -45,12 +45,12 @@ public final class FxEmitter {
     this.soundsOn = false;
     this.color = Color.WHITE;
     this.viewersSnapshot = null;
-    this.viewers = new Player[0];
     this.viewerIndices = new int[0];
     this.viewerCount = 0;
+    this.failureHandler = null;
   }
 
-  private FxEmitter(World world, double x, double y, double z, FxPriority priority, boolean particlesOn, boolean soundsOn, Color color, FxViewers.Snapshot viewersSnapshot, Player[] viewers, int[] viewerIndices, int viewerCount) {
+  private FxEmitter(World world, double x, double y, double z, FxPriority priority, boolean particlesOn, boolean soundsOn, Color color, FxViewers.Snapshot viewersSnapshot, int[] viewerIndices, int viewerCount, Consumer<Throwable> failureHandler) {
     this.world = world;
     this.x = x;
     this.y = y;
@@ -60,12 +60,16 @@ public final class FxEmitter {
     this.soundsOn = soundsOn;
     this.color = color;
     this.viewersSnapshot = viewersSnapshot;
-    this.viewers = viewers;
     this.viewerIndices = viewerIndices;
     this.viewerCount = viewerCount;
+    this.failureHandler = failureHandler;
   }
 
   static FxEmitter create(World world, double x, double y, double z, FxPriority priority, double cullRadius, boolean particles, boolean sounds, Color color) {
+    return create(world, x, y, z, priority, cullRadius, particles, sounds, color, null);
+  }
+
+  static FxEmitter create(World world, double x, double y, double z, FxPriority priority, double cullRadius, boolean particles, boolean sounds, Color color, Consumer<Throwable> failureHandler) {
     if (world == null || priority == null || (!particles && !sounds)) {
       return NO_OP;
     }
@@ -77,14 +81,13 @@ public final class FxEmitter {
       return NO_OP;
     }
 
-    Player[] resolved = new Player[count];
     int[] indices = new int[count];
-    int filled = current.fillViewers(world, x, y, z, radius, resolved, indices);
+    int filled = current.fillViewerIndices(world, x, y, z, radius, indices);
     if (filled <= 0) {
       return NO_OP;
     }
 
-    return new FxEmitter(world, x, y, z, priority, particles, sounds, color == null ? Color.WHITE : color, current, resolved, indices, filled);
+    return new FxEmitter(world, x, y, z, priority, particles, sounds, color == null ? Color.WHITE : color, current, indices, filled, failureHandler);
   }
 
   public FxEmitter particle(Particle particle, int count, double ox, double oy, double oz, double spread, double speed) {
@@ -104,12 +107,7 @@ public final class FxEmitter {
     double px = x + ox;
     double py = y + oy;
     double pz = z + oz;
-    for (int v = 0; v < viewerCount; v++) {
-      if (!viewersSnapshot.tryEmit(viewerIndices[v])) {
-        continue;
-      }
-      viewers[v].spawnParticle(particle, px, py, pz, allowed, spread, spread, spread, speed, data);
-    }
+    dispatch(emission(player -> player.spawnParticle(particle, px, py, pz, allowed, spread, spread, spread, speed, data)));
     return this;
   }
 
@@ -130,16 +128,12 @@ public final class FxEmitter {
     }
 
     double py = y + yOffset;
-    for (int v = 0; v < viewerCount; v++) {
-      if (!viewersSnapshot.tryEmit(viewerIndices[v])) {
-        continue;
-      }
-      Player player = viewers[v];
+    dispatch(emission(player -> {
       for (int k = 0; k < allowed; k++) {
         int i = (int) (((long) k * total) / allowed);
         player.spawnParticle(particle, x + (lut[i << 1] * radius), py, z + (lut[(i << 1) + 1] * radius), 1, 0, 0, 0, 0, data);
       }
-    }
+    }));
     return this;
   }
 
@@ -157,11 +151,7 @@ public final class FxEmitter {
     double cosYaw = Math.cos(yawRadians);
     double sinYaw = Math.sin(yawRadians);
     double py = y + yOffset;
-    for (int v = 0; v < viewerCount; v++) {
-      if (!viewersSnapshot.tryEmit(viewerIndices[v])) {
-        continue;
-      }
-      Player player = viewers[v];
+    dispatch(emission(player -> {
       int last = -1;
       for (int k = 0; k < allowed; k++) {
         double fraction = allowed == 1 ? 0.5D : (double) k / (allowed - 1);
@@ -174,7 +164,7 @@ public final class FxEmitter {
         double lz = CIRCLE_32[(i << 1) + 1] * radius;
         player.spawnParticle(particle, x + ((cosYaw * lx) - (sinYaw * lz)), py, z + ((sinYaw * lx) + (cosYaw * lz)), 1, 0, 0, 0, 0, null);
       }
-    }
+    }));
     return this;
   }
 
@@ -195,11 +185,7 @@ public final class FxEmitter {
     int total = CIRCLE_32.length >> 1;
     double cosPhase = Math.cos(phaseRadians);
     double sinPhase = Math.sin(phaseRadians);
-    for (int v = 0; v < viewerCount; v++) {
-      if (!viewersSnapshot.tryEmit(viewerIndices[v])) {
-        continue;
-      }
-      Player player = viewers[v];
+    dispatch(emission(player -> {
       for (int k = 0; k < allowed; k++) {
         double t = allowed == 1 ? 0.5D : (double) k / (allowed - 1);
         int i = (int) (((long) k * total * HELIX_REVOLUTIONS) / allowed) % total;
@@ -207,7 +193,7 @@ public final class FxEmitter {
         double lz = CIRCLE_32[(i << 1) + 1] * radius;
         player.spawnParticle(particle, x + ((cosPhase * lx) - (sinPhase * lz)), y + (t * height), z + ((sinPhase * lx) + (cosPhase * lz)), 1, 0, 0, 0, 0, data);
       }
-    }
+    }));
     return this;
   }
 
@@ -224,16 +210,12 @@ public final class FxEmitter {
     double dx = tx - x;
     double dy = ty - y;
     double dz = tz - z;
-    for (int v = 0; v < viewerCount; v++) {
-      if (!viewersSnapshot.tryEmit(viewerIndices[v])) {
-        continue;
-      }
-      Player player = viewers[v];
+    dispatch(emission(player -> {
       for (int k = 0; k < allowed; k++) {
         double t = allowed == 1 ? 0.5D : (double) k / (allowed - 1);
         player.spawnParticle(particle, x + (dx * t), y + (dy * t), z + (dz * t), 1, 0, 0, 0, 0, null);
       }
-    }
+    }));
     return this;
   }
 
@@ -247,12 +229,7 @@ public final class FxEmitter {
       return this;
     }
 
-    for (int v = 0; v < viewerCount; v++) {
-      if (!viewersSnapshot.tryEmit(viewerIndices[v])) {
-        continue;
-      }
-      viewers[v].spawnParticle(particle, x, y, z, allowed, spread, spread, spread, 0, null);
-    }
+    dispatch(emission(player -> player.spawnParticle(particle, x, y, z, allowed, spread, spread, spread, 0, null)));
     return this;
   }
 
@@ -266,16 +243,12 @@ public final class FxEmitter {
       return this;
     }
 
-    for (int v = 0; v < viewerCount; v++) {
-      if (!viewersSnapshot.tryEmit(viewerIndices[v])) {
-        continue;
-      }
-      Player player = viewers[v];
+    dispatch(emission(player -> {
       for (int k = 0; k < allowed; k++) {
         double t = allowed == 1 ? 0.5D : (double) k / (allowed - 1);
         player.spawnParticle(particle, x, y + (t * height), z, 1, 0, 0, 0, 0, null);
       }
-    }
+    }));
     return this;
   }
 
@@ -290,16 +263,12 @@ public final class FxEmitter {
       return this;
     }
 
-    for (int v = 0; v < viewerCount; v++) {
-      if (!viewersSnapshot.tryEmit(viewerIndices[v])) {
-        continue;
-      }
-      Player player = viewers[v];
+    dispatch(emission(player -> {
       for (int k = 0; k < allowed; k++) {
         int base = ((int) (((long) k * total) / allowed)) * 3;
         player.spawnParticle(particle, x + (DOME_48[base] * radius), y + (DOME_48[base + 1] * radius), z + (DOME_48[base + 2] * radius), 1, 0, 0, 0, 0, null);
       }
-    }
+    }));
     return this;
   }
 
@@ -322,16 +291,12 @@ public final class FxEmitter {
     double sx = dirX * scale;
     double sy = dirY * scale;
     double sz = dirZ * scale;
-    for (int v = 0; v < viewerCount; v++) {
-      if (!viewersSnapshot.tryEmit(viewerIndices[v])) {
-        continue;
-      }
-      Player player = viewers[v];
+    dispatch(emission(player -> {
       for (int k = 0; k < allowed; k++) {
         double t = (double) (k + 1) / allowed;
         player.spawnParticle(particle, x + (sx * t), y + (sy * t), z + (sz * t), 1, 0, 0, 0, 0, null);
       }
-    }
+    }));
     return this;
   }
 
@@ -414,7 +379,7 @@ public final class FxEmitter {
 
     double radius = Math.min(48.0D, Math.max(8.0D, 16.0D * volume));
     Location location = new Location(world, x, y, z);
-    viewersSnapshot.forEach(world, x, y, z, radius, player -> player.playSound(location, sound, volume, pitch));
+    viewersSnapshot.dispatch(world, x, y, z, radius, emission(player -> player.playSound(location, sound, volume, pitch)));
   }
 
   public Color color() {
@@ -423,6 +388,19 @@ public final class FxEmitter {
 
   public int viewerCount() {
     return viewerCount;
+  }
+
+  private FxDispatch.Emission emission(FxDispatch.Command command) {
+    return FxDispatch.emission(command, failureHandler);
+  }
+
+  private void dispatch(FxDispatch.Emission emission) {
+    for (int v = 0; v < viewerCount; v++) {
+      int viewerIndex = viewerIndices[v];
+      if (viewersSnapshot.tryEmit(viewerIndex)) {
+        viewersSnapshot.dispatch(viewerIndex, emission);
+      }
+    }
   }
 
   private int budget(int count) {
@@ -453,10 +431,7 @@ public final class FxEmitter {
     int grantedPackets = FxBudget.tryConsume(priority, scaled * viewerCount);
     int allowed = grantedPackets / viewerCount;
     if (allowed <= 0) {
-      if (priority != FxPriority.GAMEPLAY) {
-        return 0;
-      }
-      allowed = 1;
+      return 0;
     }
 
     emittedParticles += allowed;

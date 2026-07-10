@@ -5,18 +5,6 @@
 title = "Hareket Etmeliyim!"
 description = "1 Kilometre yuru (1.000 blok)"
 
-[advancement.challenge_sprint_5k]
-title = "5K Kosu Yap!"
-description = "5 Kilometre yuru (5.000 blok)"
-
-[advancement.challenge_sprint_50k]
-title = "Ucarcasina 50K!"
-description = "50 Kilometre yuru (50.000 blok)"
-
-[advancement.challenge_sprint_500k]
-title = "Evreni Dolas!!"
-description = "500 Kilometre yuru (500.000 blok)"
-
 [advancement.challenge_sprint_marathon]
 title = "Gercek Bir Maraton Kos!"
 description = "42.195 Blok kosar adim at!"
@@ -33,14 +21,6 @@ description = "5.000 Blok Yerlestir"
 title = "Ileri Duzey Insaatci!"
 description = "50.000 Blok Yerlestir"
 
-[advancement.challenge_place_500k]
-title = "Usta Insaatci!"
-description = "500.000 Blok Yerlestir"
-
-[advancement.challenge_place_5m]
-title = "Simetrinin Ciragi!"
-description = "GERCEKLIK SENIN OYUN ALANIN! (5 Milyon Blok)"
-
 [advancement.challenge_chop_1k]
 title = "Acemi Oduncu!"
 description = "1.000 Blok Kes"
@@ -52,14 +32,6 @@ description = "5.000 Blok Kes"
 [advancement.challenge_chop_50k]
 title = "Ileri Duzey Oduncu!"
 description = "50.000 Blok Kes"
-
-[advancement.challenge_chop_500k]
-title = "Usta Oduncu!"
-description = "500.000 Blok Kes"
-
-[advancement.challenge_chop_5m]
-title = "Kopek Jackson"
-description = "En iyi uslu cocuk! (5 Milyon Blok)"
 
 [advancement.challenge_block_1k]
 title = "Zorlukla Engelleme!"
@@ -73,14 +45,6 @@ description = "5000 Vurusu Engelle"
 title = "Engellemek benim Hayatim!"
 description = "50.000 Vurusu Engelle"
 
-[advancement.challenge_block_500k]
-title = "Engellemek benim Amacim!"
-description = "500.000 Vurusu Engelle"
-
-[advancement.challenge_block_5m]
-title = "Die Hand Die Verletzt"
-description = "5.000.000 Vurusu Engelle"
-
 [advancement.challenge_brew_1k]
 title = "Acemi Simyaci!"
 description = "1000 Iksir Tuket"
@@ -89,18 +53,6 @@ description = "1000 Iksir Tuket"
 title = "Orta Duzey Simyaci!"
 description = "5000 Iksir Tuket"
 
-[advancement.challenge_brew_50k]
-title = "Ileri Duzey Simyaci!"
-description = "50.000 Iksir Tuket"
-
-[advancement.challenge_brew_500k]
-title = "Usta Simyaci!"
-description = "500.000 Iksir Tuket"
-
-[advancement.challenge_brew_5m]
-title = "Essiz Simyaci"
-description = "5.000.000 Iksir Tuket"
-
 [advancement.challenge_brewsplash_1k]
 title = "Acemi Iksir-Patlatici!"
 description = "1000 Iksir Patlat"
@@ -108,18 +60,6 @@ description = "1000 Iksir Patlat"
 [advancement.challenge_brewsplash_5k]
 title = "Orta Duzey Iksir-Patlatici!"
 description = "5000 Iksir Patlat"
-
-[advancement.challenge_brewsplash_50k]
-title = "Ileri Duzey Iksir-Patlatici!"
-description = "50.000 Iksir Patlat"
-
-[advancement.challenge_brewsplash_500k]
-title = "Usta Iksir-Patlatici!"
-description = "500.000 Iksir Patlat"
-
-[advancement.challenge_brewsplash_5m]
-title = "Iksir Patlatma Ustadi"
-description = "5.000.000 Iksir Patlat"
 
 [advancement.challenge_craft_1k]
 title = "Kurnaz Zanaatkar!"
@@ -133,14 +73,6 @@ description = "5000 Esya Uret"
 title = "Calisan Zanaatkar!"
 description = "50.000 Esya Uret"
 
-[advancement.challenge_craft_500k]
-title = "Kakofonik Zanaatkar!"
-description = "500.000 Esya Uret"
-
-[advancement.challenge_craft_5m]
-title = "Felaketzede Ureticiyuz"
-description = "5.000.000 Esya Uret"
-
 [advancement.challenge_enchant_1k]
 title = "Acemi Buyucu!"
 description = "1000 Esya Buyule"
@@ -148,18 +80,6 @@ description = "1000 Esya Buyule"
 [advancement.challenge_enchant_5k]
 title = "Orta Duzey Buyucu!"
 description = "5000 Esya Buyule"
-
-[advancement.challenge_enchant_50k]
-title = "Ileri Duzey Buyucu!"
-description = "50.000 Esya Buyule"
-
-[advancement.challenge_enchant_500k]
-title = "Usta Buyucu!"
-description = "500.000 Esya Buyule"
-
-[advancement.challenge_enchant_5m]
-title = "Esrarengiz Buyucu"
-description = "5.000.000 Esya Buyule"
 
 [advancement.challenge_excavate_1k]
 title = "Hevesli Kazici!"
@@ -172,26 +92,6 @@ description = "5000 Blok Kaz"
 [advancement.challenge_excavate_50k]
 title = "Ileri Duzey Kazici!"
 description = "50.000 Blok Kaz"
-
-[advancement.challenge_excavate_500k]
-title = "Usta Kazici!"
-description = "500.000 Blok Kaz"
-
-[advancement.challenge_excavate_5m]
-title = "Esrarengiz Kazici"
-description = "5.000.000 Blok Kaz"
-
-[advancement.horrible_person]
-title = "Sen Korkunc bir Insansin"
-description = "Akilalmaz, gercekten"
-
-[advancement.challenge_turtle_egg_smasher]
-title = "Kaplumbaga Yumurtasi Ezici!"
-description = "100 kaplumbaga yumurtasi kir"
-
-[advancement.challenge_turtle_egg_annihilator]
-title = "Kaplumbaga Yumurtasi Yok Edici!"
-description = "500 kaplumbaga yumurtasi kir"
 
 [advancement.challenge_novice_hunter]
 title = "Acemi Avci!"
@@ -224,14 +124,6 @@ description = "5000 Blok Kir"
 [advancement.challenge_pickaxe_50k]
 title = "Uzman Madenci"
 description = "50.000 Blok Kir"
-
-[advancement.challenge_pickaxe_500k]
-title = "Usta Madenci"
-description = "500.000 Blok Kir"
-
-[advancement.challenge_pickaxe_5m]
-title = "Efsanevi Madenci"
-description = "5.000.000 Blok Kir"
 
 [advancement.challenge_eat_100]
 title = "Ne cok yiyecek!"
@@ -332,10 +224,6 @@ description = "1 saat cevrimici ol"
 [advancement.challenge_chronos_24h]
 title = "Zamanin Kumlari"
 description = "24 saat cevrimici ol"
-
-[advancement.challenge_chronos_168h]
-title = "Zamansiz"
-description = "168 saat (1 hafta) cevrimici ol"
 
 [advancement.challenge_nether_50]
 title = "Cehennem Kapicisi"
@@ -440,14 +328,6 @@ title = "Bulut Mimari"
 description = "Y=128 ustune 1,000 blok yerlestir"
 
 # Axes - New Achievement Chains
-[advancement.challenge_axe_swing_500]
-title = "Balta Sallayici"
-description = "Baltayi 500 kez salla"
-
-[advancement.challenge_axe_swing_5k]
-title = "Berserker"
-description = "Baltayi 5,000 kez salla"
-
 [advancement.challenge_axe_damage_1k]
 title = "Kesici"
 description = "Balta ile 1,000 hasar ver"
@@ -559,14 +439,6 @@ description = "50 kez isinlan"
 title = "Zaman Bukulmesi"
 description = "500 kez isinlan"
 
-[advancement.challenge_chronos_deaths_10]
-title = "Olumlu"
-description = "10 kez ol"
-
-[advancement.challenge_chronos_deaths_100]
-title = "Olume Meydan Okuyan"
-description = "100 kez ol"
-
 # Crafting - New Achievement Chains
 [advancement.challenge_craft_value_10k]
 title = "Zanaat Degeri"
@@ -591,14 +463,6 @@ description = "25 parca zirh imal et"
 [advancement.challenge_craft_armor_250]
 title = "Usta Zirhci"
 description = "250 parca zirh imal et"
-
-[advancement.challenge_craft_mass_25k]
-title = "Seri Uretici"
-description = "25,000 esya imal et"
-
-[advancement.challenge_craft_mass_250k]
-title = "Endustri Devrimi"
-description = "250,000 esya imal et"
 
 # Discovery - New Achievement Chains
 [advancement.challenge_discover_items_50]
@@ -650,14 +514,6 @@ description = "100 buyuleme gucu biriktir"
 title = "Buyu Ustasi"
 description = "1,000 buyuleme gucu biriktir"
 
-[advancement.challenge_enchant_levels_1k]
-title = "Seviye Harcayici"
-description = "Buyulemeye 1,000 tecrube seviyesi harca"
-
-[advancement.challenge_enchant_levels_10k]
-title = "XP Yutagi"
-description = "Buyulemeye 10,000 tecrube seviyesi harca"
-
 [advancement.challenge_enchant_high_25]
 title = "Yuksek Bahisci"
 description = "25 maksimum seviye buyuleme yap"
@@ -675,14 +531,6 @@ title = "Mistik Yatirim"
 description = "Tum buyulemelere toplam 5,000 seviye harca"
 
 # Excavation - New Achievement Chains
-[advancement.challenge_dig_swing_500]
-title = "Kazici"
-description = "Kuregi 500 kez salla"
-
-[advancement.challenge_dig_swing_5k]
-title = "Hafriyatci"
-description = "Kuregi 5,000 kez salla"
-
 [advancement.challenge_dig_damage_1k]
 title = "Kurek Savascisi"
 description = "Kurekle 1,000 hasar ver"
@@ -787,14 +635,6 @@ title = "Bela Toplayicisi"
 description = "100 wither gulu kir"
 
 # Pickaxes - New Achievement Chains
-[advancement.challenge_pick_swing_500]
-title = "Madenci Kolu"
-description = "Kazmayi 500 kez salla"
-
-[advancement.challenge_pick_swing_5k]
-title = "Tunel Yapici"
-description = "Kazmayi 5,000 kez salla"
-
 [advancement.challenge_pick_damage_1k]
 title = "Kazma Dovuscusu"
 description = "Kazma ile 1,000 hasar ver"
@@ -935,14 +775,6 @@ description = "Sinsileyken 10 yaratik oldur"
 title = "Golge Bicakçisi"
 description = "Sinsileyken 100 yaratik oldur"
 
-[advancement.challenge_stealth_time_1h]
-title = "Sabırli"
-description = "1 saat sinsi yuru (3,600 saniye)"
-
-[advancement.challenge_stealth_time_10h]
-title = "Golgelerin Efendisi"
-description = "10 saat sinsi yuru (36,000 saniye)"
-
 [advancement.challenge_stealth_arrows_50]
 title = "Sessiz Okcu"
 description = "Sinsileyken 50 ok at"
@@ -1009,14 +841,6 @@ description = "Evcil hayvanlarin 25 yaratik oldursun"
 title = "Alfa Komutan"
 description = "Evcil hayvanlarin 250 yaratik oldursun"
 
-[advancement.challenge_taming_2500]
-title = "Uretim Uzmani"
-description = "2,500 hayvan cogalt"
-
-[advancement.challenge_taming_25k]
-title = "Genetik Ustasi"
-description = "25,000 hayvan cogalt"
-
 # TragOul - New Achievement Chains
 [advancement.challenge_trag_hits_500]
 title = "Kum Torbasi"
@@ -1025,30 +849,6 @@ description = "500 darbe al"
 [advancement.challenge_trag_hits_5k]
 title = "Ceza Aşigi"
 description = "5,000 darbe al"
-
-[advancement.challenge_trag_deaths_10]
-title = "Dokuz Canli"
-description = "10 kez ol"
-
-[advancement.challenge_trag_deaths_100]
-title = "Tekrarlayan Kabus"
-description = "100 kez ol"
-
-[advancement.challenge_trag_fire_500]
-title = "Yanik Kurbani"
-description = "500 ates hasari al"
-
-[advancement.challenge_trag_fire_5k]
-title = "Anka Kusu"
-description = "5,000 ates hasari al"
-
-[advancement.challenge_trag_fall_500]
-title = "Yercekimi Testi"
-description = "500 dusme hasari al"
-
-[advancement.challenge_trag_fall_5k]
-title = "Son Hiz"
-description = "5,000 dusme hasari al"
 
 # Unarmed - New Achievement Chains
 [advancement.challenge_unarmed_dmg_1k]

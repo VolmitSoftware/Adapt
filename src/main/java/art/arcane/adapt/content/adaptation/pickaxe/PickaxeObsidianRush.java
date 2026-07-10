@@ -137,9 +137,6 @@ public class PickaxeObsidianRush extends SimpleAdaptation<PickaxeObsidianRush.Co
         .sound(Sound.BLOCK_RESPAWN_ANCHOR_DEPLETE, 0.7f, 1.2f);
   }
 
-  @Override
-  public void onTick() {
-  }
 
   @ConfigDescription("Gain a strong Haste burst while mining obsidian with a diamond or netherite pickaxe.")
   protected static class Config extends AdaptationConfig {

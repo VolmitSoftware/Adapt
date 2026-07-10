@@ -96,9 +96,6 @@ public class PickaxeDropToInventory extends SimpleAdaptation<PickaxeDropToInvent
   }
 
 
-  @Override
-  public void onTick() {
-  }
 
   @ConfigDescription("Mined blocks drop directly into your inventory.")
   protected static class Config extends AdaptationConfig {

@@ -37,23 +37,38 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
+  private static final int MAX_ITEMS_PER_PULSE = 32;
+  private static final int MAX_CANDIDATES_PER_PULSE = 128;
+  private static final int MAX_SESSION_VISITS_PER_TICK = 32;
+  private static final long ACTIVE_TICK_MILLIS = 50L;
+  private static final long IDLE_TICK_MILLIS = 1000L;
   private final Set<Integer> holds;
+  private final Map<UUID, SnatchSession> activeSessions;
+  private final ConcurrentLinkedQueue<SnatchSession> sessionQueue;
 
   public StealthSnatch() {
     super("stealth-snatch");
     registerConfiguration(Config.class);
     setIcon(Material.CHEST_MINECART);
-    setInterval(getConfig().snatchRate);
     holds = ConcurrentHashMap.newKeySet();
+    activeSessions = playerState();
+    sessionQueue = new ConcurrentLinkedQueue<>();
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.CHEST)
         .key("challenge_stealth_snatch_2500")
@@ -75,22 +90,35 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
     statLore(v, Form.f(getRange(getLevelPercent(level)), 1), 1);
   }
 
-  @EventHandler
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(PlayerToggleSneakEvent e) {
     Player p = e.getPlayer();
+    UUID playerId = p.getUniqueId();
+    if (!e.isSneaking()) {
+      removePlayerSession(playerId);
+      return;
+    }
     if (!hasActiveAdaptation(p)) {
       return;
     }
-    if (e.isSneaking()) {
-      double range = getRange(getLevelPercent(p));
-      timeline(p).duration(6).priority(FxPriority.TRANSITION).cullRadius(range + 8)
-          .frame((fx, tick, progress) -> {
-            fx.ring(Particle.ENCHANT, 0.3D + ((range - 0.3D) * progress), 10, 0.1D);
-            if (tick == 0) {
-              fx.sound(Sound.BLOCK_AMETHYST_BLOCK_RESONATE, 0.4F, 1.5F);
-            }
-          }).start();
-      snatch(p);
+
+    double range = getRange(getLevelPercent(p));
+    timeline(p).duration(6).priority(FxPriority.TRANSITION).cullRadius(range + 8)
+        .frame((fx, tick, progress) -> {
+          fx.ring(Particle.ENCHANT, 0.3D + ((range - 0.3D) * progress), 10, 0.1D);
+          if (tick == 0) {
+            fx.sound(Sound.BLOCK_AMETHYST_BLOCK_RESONATE, 0.4F, 1.5F);
+          }
+        }).start();
+    snatch(p);
+    SnatchSession session = new SnatchSession(p, playerId);
+    if (activeSessions.putIfAbsent(playerId, session) == null) {
+      session.nextSnatchAt = System.currentTimeMillis() + getSnatchRateMillis();
+      sessionQueue.add(session);
+      setInterval(ACTIVE_TICK_MILLIS);
+      if (!isBursting()) {
+        retick();
+      }
     }
   }
 
@@ -106,8 +134,12 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
     }
 
     double range = getRange(factor);
-    HashSet<Item> items = new HashSet<>();
+    List<Item> items = new ArrayList<>(MAX_ITEMS_PER_PULSE);
+    int inspected = 0;
     for (Entity droppedItemEntity : player.getWorld().getNearbyEntities(player.getLocation(), range, range / 1.5, range)) {
+      if (++inspected > MAX_CANDIDATES_PER_PULSE || items.size() >= MAX_ITEMS_PER_PULSE) {
+        break;
+      }
       if (droppedItemEntity instanceof Item droppedItem && canSnatchItem(player, droppedItem)) {
         items.add(droppedItem);
       }
@@ -154,23 +186,95 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
   }
 
   private double getRange(double factor) {
-    return (factor * getConfig().radiusFactor) + 1;
+    double range = (factor * getConfig().radiusFactor) + 1D;
+    return Double.isFinite(range) ? Math.max(1D, Math.min(8D, range)) : 1D;
   }
 
   @Override
   public void onTick() {
-    for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
-      Player i = adaptPlayer.getPlayer();
-      if (i.isSneaking()) {
-        J.runEntity(i, () -> snatch(i));
+    if (activeSessions.isEmpty()) {
+      setInterval(IDLE_TICK_MILLIS);
+      return;
+    }
+
+    long now = System.currentTimeMillis();
+    int visitLimit = Math.min(MAX_SESSION_VISITS_PER_TICK, activeSessions.size());
+    for (int visited = 0; visited < visitLimit; visited++) {
+      SnatchSession session = sessionQueue.poll();
+      if (session == null) {
+        break;
+      }
+      if (activeSessions.get(session.playerId) != session) {
+        continue;
+      }
+      sessionQueue.add(session);
+      if (now < session.nextSnatchAt || !session.pending.compareAndSet(false, true)) {
+        continue;
+      }
+      if (!J.runEntity(session.player, () -> runSnatchSession(session))) {
+        session.pending.set(false);
+        removeSession(session);
       }
     }
   }
 
+  private void runSnatchSession(SnatchSession session) {
+    try {
+      Player player = session.player;
+      if (activeSessions.get(session.playerId) != session
+          || !player.isOnline() || player.isDead() || !player.isSneaking()
+          || !hasActiveAdaptation(player)) {
+        removeSession(session);
+        return;
+      }
+
+      snatch(player);
+      session.nextSnatchAt = System.currentTimeMillis() + getSnatchRateMillis();
+    } finally {
+      session.pending.set(false);
+    }
+  }
+
+  private long getSnatchRateMillis() {
+    return Math.max(ACTIVE_TICK_MILLIS, getConfig().snatchRate);
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(PlayerQuitEvent event) {
+    removePlayerSession(event.getPlayer().getUniqueId());
+  }
+
+  private void removePlayerSession(UUID playerId) {
+    SnatchSession removed = activeSessions.remove(playerId);
+    if (removed != null) {
+      sessionQueue.remove(removed);
+      return;
+    }
+    sessionQueue.removeIf(session -> session.playerId.equals(playerId));
+  }
+
+  private void removeSession(SnatchSession session) {
+    activeSessions.remove(session.playerId, session);
+    sessionQueue.remove(session);
+  }
+
   @Override
-  protected void onConfigReload(Config previousConfig, Config newConfig) {
-    super.onConfigReload(previousConfig, newConfig);
-    setInterval(newConfig.snatchRate);
+  public void unregister() {
+    activeSessions.clear();
+    sessionQueue.clear();
+    super.unregister();
+  }
+
+  private static final class SnatchSession {
+    private final Player player;
+    private final UUID playerId;
+    private final AtomicBoolean pending = new AtomicBoolean();
+    private volatile long nextSnatchAt;
+
+    private SnatchSession(Player player, UUID playerId) {
+      this.player = player;
+      this.playerId = playerId;
+    }
   }
 
   @ConfigDescription("Snatch dropped items instantly while sneaking.")

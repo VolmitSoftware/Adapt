@@ -46,7 +46,14 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.IntConsumer;
 import java.util.function.Predicate;
@@ -57,11 +64,9 @@ final class AdaptationRuntimeGuards {
   private static final Map<String, String> USE_PERMISSION_NODES = new ConcurrentHashMap<>();
   private static final Map<String, ProtectorCacheEntry> PROTECTOR_CACHE = new ConcurrentHashMap<>();
   private static final Map<String, UsageConflictCacheEntry> USAGE_CONFLICT_CACHE = new ConcurrentHashMap<>();
-  private static final Map<String, LearnedCandidateCacheEntry> LEARNED_CANDIDATE_CACHE = new ConcurrentHashMap<>();
   private static final int ACTIVE_LEVEL_CACHE_SOFT_LIMIT = 16_384;
   private static final int ACTIVE_LEVEL_CACHE_SWEEP_INTERVAL_TICKS = 64;
   private static final int ACTIVE_LEVEL_CACHE_RETENTION_TICKS = 2;
-  private static final long LEARNED_CANDIDATE_REFRESH_MS = 250L;
   private static volatile long lastActiveCacheSweepTick = Long.MIN_VALUE;
 
   private AdaptationRuntimeGuards() {
@@ -568,25 +573,24 @@ final class AdaptationRuntimeGuards {
       PlayerAdaptationKey key = new PlayerAdaptationKey(p.getUniqueId(), adaptation.getName());
       ActiveLevelCacheEntry cached = ACTIVE_LEVEL_CACHE.get(key);
       if (cached != null && cached.tick() == tick && cached.learnedLevel() == learnedLevel) {
-        AbilityCheckTelemetry.recordCacheHit();
+        AbilityCheckTelemetry.recordCacheHit(System.currentTimeMillis());
         return cached.level();
       }
 
-      AbilityCheckTelemetry.recordCacheMiss();
-      AbilityCheckTelemetry.recordCheckAttempt();
       long startNs = System.nanoTime();
-      int level;
+      int level = 0;
       try {
         level = resolveActiveLevelUncached(adaptation, p, learnedLevel);
       } finally {
-        AbilityCheckTelemetry.recordCheckTimingNanos(System.nanoTime() - startNs);
+        AbilityCheckTelemetry.recordUncachedCheck(
+            System.currentTimeMillis(),
+            System.nanoTime() - startNs,
+            level > 0
+        );
       }
       ACTIVE_LEVEL_CACHE.put(key, new ActiveLevelCacheEntry(tick, learnedLevel, level));
       sweepActiveLevelCache(tick);
 
-      if (level > 0) {
-        AbilityCheckTelemetry.recordSuccessfulCheck();
-      }
       return level;
     } catch (Exception e) {
       if (e instanceof IndexOutOfBoundsException) {
@@ -647,25 +651,7 @@ final class AdaptationRuntimeGuards {
     if (adaptation == null) {
       return List.of();
     }
-
-    String key = adaptation.getName();
-    LearnedCandidateCacheEntry cached = LEARNED_CANDIDATE_CACHE.get(key);
-    if (cached != null && now - cached.refreshedAtMs() <= LEARNED_CANDIDATE_REFRESH_MS) {
-      return cached.players();
-    }
-
-    List<AdaptPlayer> online = adaptation.getServer().getOnlineAdaptPlayerSnapshot();
-    ArrayList<AdaptPlayer> candidates = new ArrayList<>(online.size());
-    for (AdaptPlayer adaptPlayer : online) {
-      if (getLevel(adaptation, adaptPlayer) <= 0) {
-        continue;
-      }
-      candidates.add(adaptPlayer);
-    }
-
-    List<AdaptPlayer> immutable = Collections.unmodifiableList(new ArrayList<>(candidates));
-    LEARNED_CANDIDATE_CACHE.put(key, new LearnedCandidateCacheEntry(now, immutable));
-    return immutable;
+    return adaptation.getServer().getLearnedAdaptPlayerSnapshot(adaptation.getName());
   }
 
   static <F> F getStorage(Adaptation<?> adaptation, Player p, String key, F defaultValue) {
@@ -875,6 +861,4 @@ final class AdaptationRuntimeGuards {
   private record UsageConflictCacheEntry(int signature, Set<String> denied) {
   }
 
-  private record LearnedCandidateCacheEntry(long refreshedAtMs, List<AdaptPlayer> players) {
-  }
 }

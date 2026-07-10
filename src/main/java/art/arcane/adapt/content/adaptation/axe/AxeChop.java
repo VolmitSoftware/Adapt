@@ -191,10 +191,6 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
   }
 
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Chop down trees by right-clicking the base log.")
   protected static class Config extends AdaptationConfig {

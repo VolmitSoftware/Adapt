@@ -102,9 +102,6 @@ public class ExcavationDropToInventory extends SimpleAdaptation<ExcavationDropTo
   }
 
 
-  @Override
-  public void onTick() {
-  }
 
   @ConfigDescription("Excavated blocks drop directly into your inventory.")
   protected static class Config extends AdaptationConfig {

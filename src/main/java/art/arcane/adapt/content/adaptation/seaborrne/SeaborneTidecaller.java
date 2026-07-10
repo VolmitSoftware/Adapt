@@ -424,10 +424,6 @@ public class SeaborneTidecaller extends SimpleAdaptation<SeaborneTidecaller.Conf
     return Math.max(20, (int) Math.round(getConfig().cooldownTicksBase - (getLevelPercent(level) * getConfig().cooldownTicksFactor)));
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   private enum TriggerType {
     SNEAK,

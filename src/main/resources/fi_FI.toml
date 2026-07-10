@@ -5,18 +5,6 @@
 title = "Täytyy liikkua!"
 description = "Kävele yli 1 kilometri (1 000 lohkoa)"
 
-[advancement.challenge_sprint_5k]
-title = "Juokse 5K!"
-description = "Kävele yli 5 kilometriä (5 000 lohkoa)"
-
-[advancement.challenge_sprint_50k]
-title = "Zoomaa 50K!"
-description = "Kävele yli 50 kilometriä (50 000 lohkoa)"
-
-[advancement.challenge_sprint_500k]
-title = "Halki maailmankaikkeuden!!"
-description = "Kävele yli 500 kilometriä (500 000 lohkoa)"
-
 [advancement.challenge_sprint_marathon]
 title = "Juokse (kirjaimellinen) maraton!"
 description = "Juokse yli 42 195 lohkoa!"
@@ -33,14 +21,6 @@ description = "Aseta 5 000 lohkoa"
 title = "Edistynyt rakentaja!"
 description = "Aseta 50 000 lohkoa"
 
-[advancement.challenge_place_500k]
-title = "Rakennusmestari!"
-description = "Aseta 500 000 lohkoa"
-
-[advancement.challenge_place_5m]
-title = "Symmetrian akolyytti!"
-description = "TODELLISUUS ON LEIKKIKENTTÄSI! (5 miljoonaa lohkoa)"
-
 [advancement.challenge_chop_1k]
 title = "Aloitteleva metsuri!"
 description = "Kaada 1 000 lohkoa"
@@ -52,14 +32,6 @@ description = "Kaada 5 000 lohkoa"
 [advancement.challenge_chop_50k]
 title = "Edistynyt metsuri!"
 description = "Kaada 50 000 lohkoa"
-
-[advancement.challenge_chop_500k]
-title = "Mestarimetsuri!"
-description = "Kaada 500 000 lohkoa"
-
-[advancement.challenge_chop_5m]
-title = "Jackson-koira"
-description = "Maailman paras poika! (5 miljoonaa lohkoa)"
 
 [advancement.challenge_block_1k]
 title = "Tuskin torjuttu!"
@@ -73,14 +45,6 @@ description = "Torju 5000 osumaa"
 title = "Torjuminen on elämäni!"
 description = "Torju 50 000 osumaa"
 
-[advancement.challenge_block_500k]
-title = "Torjuminen on tarkoitukseni!"
-description = "Torju 500 000 osumaa"
-
-[advancement.challenge_block_5m]
-title = "Die Hand Die Verletzt"
-description = "Torju 5 000 000 osumaa"
-
 [advancement.challenge_brew_1k]
 title = "Aloitteleva alkemisti!"
 description = "Juo 1000 taikajuomaa"
@@ -89,18 +53,6 @@ description = "Juo 1000 taikajuomaa"
 title = "Keskitason alkemisti!"
 description = "Juo 5000 taikajuomaa"
 
-[advancement.challenge_brew_50k]
-title = "Edistynyt alkemisti!"
-description = "Juo 50 000 taikajuomaa"
-
-[advancement.challenge_brew_500k]
-title = "Mestarialkemisti!"
-description = "Juo 500 000 taikajuomaa"
-
-[advancement.challenge_brew_5m]
-title = "Alkemisti"
-description = "Juo 5 000 000 taikajuomaa"
-
 [advancement.challenge_brewsplash_1k]
 title = "Aloitteleva roiskuttaja!"
 description = "Roiskuta 1000 taikajuomaa"
@@ -108,18 +60,6 @@ description = "Roiskuta 1000 taikajuomaa"
 [advancement.challenge_brewsplash_5k]
 title = "Keskitason roiskuttaja!"
 description = "Roiskuta 5000 taikajuomaa"
-
-[advancement.challenge_brewsplash_50k]
-title = "Edistynyt roiskuttaja!"
-description = "Roiskuta 50 000 taikajuomaa"
-
-[advancement.challenge_brewsplash_500k]
-title = "Mestarioiskuttaja!"
-description = "Roiskuta 500 000 taikajuomaa"
-
-[advancement.challenge_brewsplash_5m]
-title = "Roiskumestari"
-description = "Roiskuta 5 000 000 taikajuomaa"
 
 [advancement.challenge_craft_1k]
 title = "Taitava nikkaroija!"
@@ -133,14 +73,6 @@ description = "Valmista 5000 esinettä"
 title = "Uuttera nikkaroija!"
 description = "Valmista 50 000 esinettä"
 
-[advancement.challenge_craft_500k]
-title = "Korviahuumaava nikkaroija!"
-description = "Valmista 500 000 esinettä"
-
-[advancement.challenge_craft_5m]
-title = "Tuhoisa McNikkaroija"
-description = "Valmista 5 000 000 esinettä"
-
 [advancement.challenge_enchant_1k]
 title = "Aloitteleva lumooja!"
 description = "Lumoa 1000 esinettä"
@@ -148,18 +80,6 @@ description = "Lumoa 1000 esinettä"
 [advancement.challenge_enchant_5k]
 title = "Keskitason lumooja!"
 description = "Lumoa 5000 esinettä"
-
-[advancement.challenge_enchant_50k]
-title = "Edistynyt lumooja!"
-description = "Lumoa 50 000 esinettä"
-
-[advancement.challenge_enchant_500k]
-title = "Mestarilumooja!"
-description = "Lumoa 500 000 esinettä"
-
-[advancement.challenge_enchant_5m]
-title = "Arvoituksellinen lumooja"
-description = "Lumoa 5 000 000 esinettä"
 
 [advancement.challenge_excavate_1k]
 title = "Innokas kaivaja!"
@@ -172,26 +92,6 @@ description = "Kaiva 5000 lohkoa"
 [advancement.challenge_excavate_50k]
 title = "Edistynyt kaivaja!"
 description = "Kaiva 50 000 lohkoa"
-
-[advancement.challenge_excavate_500k]
-title = "Mestarikaivaja!"
-description = "Kaiva 500 000 lohkoa"
-
-[advancement.challenge_excavate_5m]
-title = "Arvoituksellinen kaivaja"
-description = "Kaiva 5 000 000 lohkoa"
-
-[advancement.horrible_person]
-title = "Olet kauhea ihminen"
-description = "Aivan käsittämätöntä, todella"
-
-[advancement.challenge_turtle_egg_smasher]
-title = "Kilpikonnanmunien murskaja!"
-description = "Riko 100 kilpikonnan munaa"
-
-[advancement.challenge_turtle_egg_annihilator]
-title = "Kilpikonnanmunien tuhoaja!"
-description = "Riko 500 kilpikonnan munaa"
 
 [advancement.challenge_novice_hunter]
 title = "Aloitteleva metsästäjä!"
@@ -224,14 +124,6 @@ description = "Riko 5000 lohkoa"
 [advancement.challenge_pickaxe_50k]
 title = "Asiantunteva kaivosmies"
 description = "Riko 50 000 lohkoa"
-
-[advancement.challenge_pickaxe_500k]
-title = "Mestarikaivosmies"
-description = "Riko 500 000 lohkoa"
-
-[advancement.challenge_pickaxe_5m]
-title = "Legendaarinen kaivosmies"
-description = "Riko 5 000 000 lohkoa"
 
 [advancement.challenge_eat_100]
 title = "Niin paljon syötävää!"
@@ -332,10 +224,6 @@ description = "Vieta 1 tunti verkossa"
 [advancement.challenge_chronos_24h]
 title = "Ajan Hiekat"
 description = "Vieta 24 tuntia verkossa"
-
-[advancement.challenge_chronos_168h]
-title = "Ajaton"
-description = "Vieta 168 tuntia (1 viikko) verkossa"
 
 [advancement.challenge_nether_50]
 title = "Helvetin Portinvartija"
@@ -440,14 +328,6 @@ title = "Pilviarkkitehti"
 description = "Aseta 1,000 lohkoa Y=128 yläpuolelle"
 
 # Axes - New Achievement Chains
-[advancement.challenge_axe_swing_500]
-title = "Kirveen Heiluttaja"
-description = "Heiluta kirvestä 500 kertaa"
-
-[advancement.challenge_axe_swing_5k]
-title = "Berserki"
-description = "Heiluta kirvestä 5,000 kertaa"
-
 [advancement.challenge_axe_damage_1k]
 title = "Halkaisija"
 description = "Tee 1,000 vahinkoa kirveellä"
@@ -559,14 +439,6 @@ description = "Teleporttaa 50 kertaa"
 title = "Ajan Vääristymä"
 description = "Teleporttaa 500 kertaa"
 
-[advancement.challenge_chronos_deaths_10]
-title = "Kuolevainen"
-description = "Kuole 10 kertaa"
-
-[advancement.challenge_chronos_deaths_100]
-title = "Kuoleman Uhmaaja"
-description = "Kuole 100 kertaa"
-
 # Crafting - New Achievement Chains
 [advancement.challenge_craft_value_10k]
 title = "Käsityön Arvo"
@@ -591,14 +463,6 @@ description = "Valmista 25 haarniskakappaletta"
 [advancement.challenge_craft_armor_250]
 title = "Mestarihaarniskaseppä"
 description = "Valmista 250 haarniskakappaletta"
-
-[advancement.challenge_craft_mass_25k]
-title = "Massatuottaja"
-description = "Valmista 25,000 esinettä"
-
-[advancement.challenge_craft_mass_250k]
-title = "Teollinen Vallankumous"
-description = "Valmista 250,000 esinettä"
 
 # Discovery - New Achievement Chains
 [advancement.challenge_discover_items_50]
@@ -650,14 +514,6 @@ description = "Kerää 100 lumoamisvoimaa"
 title = "Taikuuden Mestari"
 description = "Kerää 1,000 lumoamisvoimaa"
 
-[advancement.challenge_enchant_levels_1k]
-title = "Tasojen Kuluttaja"
-description = "Käytä 1,000 kokemustasoa lumoamiseen"
-
-[advancement.challenge_enchant_levels_10k]
-title = "XP-nielu"
-description = "Käytä 10,000 kokemustasoa lumoamiseen"
-
 [advancement.challenge_enchant_high_25]
 title = "Suurpelaaja"
 description = "Suorita 25 maksimitason lumoamista"
@@ -675,14 +531,6 @@ title = "Taikainvestointi"
 description = "Käytä 5,000 kokonaistasoa kaikkiin lumouksiin"
 
 # Excavation - New Achievement Chains
-[advancement.challenge_dig_swing_500]
-title = "Kaivaja"
-description = "Heiluta lapiota 500 kertaa"
-
-[advancement.challenge_dig_swing_5k]
-title = "Kaivinkone"
-description = "Heiluta lapiota 5,000 kertaa"
-
 [advancement.challenge_dig_damage_1k]
 title = "Lapiosoturi"
 description = "Tee 1,000 vahinkoa lapiolla"
@@ -787,14 +635,6 @@ title = "Taudin Kerääjä"
 description = "Riko 100 wither-ruusua"
 
 # Pickaxes - New Achievement Chains
-[advancement.challenge_pick_swing_500]
-title = "Kaivosmiehen Käsi"
-description = "Heiluta hakuukirvestä 500 kertaa"
-
-[advancement.challenge_pick_swing_5k]
-title = "Tunnelinkaivaja"
-description = "Heiluta hakuukirvestä 5,000 kertaa"
-
 [advancement.challenge_pick_damage_1k]
 title = "Hakutaistelija"
 description = "Tee 1,000 vahinkoa hakuukirveellä"
@@ -935,14 +775,6 @@ description = "Tapa 10 olentoa hiipien"
 title = "Varjojen Niittäjä"
 description = "Tapa 100 olentoa hiipien"
 
-[advancement.challenge_stealth_time_1h]
-title = "Kärsivällinen"
-description = "Vietä 1 tunti hiipien (3,600 sekuntia)"
-
-[advancement.challenge_stealth_time_10h]
-title = "Varjojen Mestari"
-description = "Vietä 10 tuntia hiipien (36,000 sekuntia)"
-
 [advancement.challenge_stealth_arrows_50]
 title = "Hiljainen Jousimies"
 description = "Ammu 50 nuolta hiipien"
@@ -1009,14 +841,6 @@ description = "Lemmikkisi tappavat 25 olentoa"
 title = "Alfakomentaja"
 description = "Lemmikkisi tappavat 250 olentoa"
 
-[advancement.challenge_taming_2500]
-title = "Jalostusasiantuntija"
-description = "Jalosta 2,500 eläintä"
-
-[advancement.challenge_taming_25k]
-title = "Genetiikan Mestari"
-description = "Jalosta 25,000 eläintä"
-
 # TragOul - New Achievement Chains
 [advancement.challenge_trag_hits_500]
 title = "Nyrkkeilysäkki"
@@ -1025,30 +849,6 @@ description = "Vastaanota 500 osumaa"
 [advancement.challenge_trag_hits_5k]
 title = "Rangaistuksen Rakastaja"
 description = "Vastaanota 5,000 osumaa"
-
-[advancement.challenge_trag_deaths_10]
-title = "Yhdeksän Henkeä"
-description = "Kuole 10 kertaa"
-
-[advancement.challenge_trag_deaths_100]
-title = "Toistuva Painajainen"
-description = "Kuole 100 kertaa"
-
-[advancement.challenge_trag_fire_500]
-title = "Palon Uhri"
-description = "Kestä 500 tulivahinkoa"
-
-[advancement.challenge_trag_fire_5k]
-title = "Feeniks"
-description = "Kestä 5,000 tulivahinkoa"
-
-[advancement.challenge_trag_fall_500]
-title = "Painovoiman Testi"
-description = "Kestä 500 putoamisvahinkoa"
-
-[advancement.challenge_trag_fall_5k]
-title = "Loppunopeus"
-description = "Kestä 5,000 putoamisvahinkoa"
 
 # Unarmed - New Achievement Chains
 [advancement.challenge_unarmed_dmg_1k]

@@ -32,7 +32,8 @@ import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -190,13 +191,10 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
     }
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
 
-  @Data
+  @Getter
+  @Setter
   @ConfigDescription("Throw Wither Skulls that explode on impact.")
   public static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Base Cooldown for the Nether Skull Yeet adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

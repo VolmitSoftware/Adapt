@@ -31,7 +31,7 @@ import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
-import art.arcane.volmlib.util.math.RNG;
+import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -40,16 +40,48 @@ import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Ageable;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.util.Vector;
 
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Config> {
+  private static final int PLAYER_CHECKS_PER_TICK = 32;
+  private static final int LOCATION_SAMPLES_PER_TICK = 32;
+  private static final int MUTATIONS_PER_TICK = 16;
+  private static final int COMPLETIONS_PER_TICK = 16;
+  private static final int MAX_QUEUED_SAMPLES = 4096;
+  private static final int MAX_QUEUED_MUTATIONS = 4096;
+  private static final int MAX_QUEUED_COMPLETIONS = 2048;
+  private static final long ROSTER_REFRESH_MILLIS = 5000L;
+  private static final long PULSE_INTERVAL_MILLIS = 850L;
+  private static final long IDLE_CHECK_MILLIS = 250L;
+  private final Map<UUID, Long> nextCheckAt = playerState();
+  private final Queue<UUID> playerQueue = new ConcurrentLinkedQueue<>();
+  private final Set<UUID> queuedPlayers = ConcurrentHashMap.newKeySet();
+  private final Set<UUID> pendingPulses = ConcurrentHashMap.newKeySet();
+  private final Queue<GrowthSample> locationSamples = new ConcurrentLinkedQueue<>();
+  private final AtomicInteger queuedSamples = new AtomicInteger();
+  private final PriorityBlockingQueue<GrowthMutation> mutations = new PriorityBlockingQueue<>();
+  private final AtomicInteger queuedMutations = new AtomicInteger();
+  private final Queue<GrowthPulse> completedPulses = new ConcurrentLinkedQueue<>();
+  private final AtomicInteger queuedCompletions = new AtomicInteger();
+  private volatile long nextRosterRefreshAt;
+
   public HerbalismGrowthAura() {
     super("herbalism-growth-aura");
     registerConfiguration(Config.class);
     setIcon(Material.BONE_MEAL);
-    setInterval(850);
+    setInterval(10);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.WHEAT)
         .key("challenge_herbalism_growth_1k")
@@ -88,69 +120,340 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
 
   @Override
   public void onTick() {
-    for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+    long now = System.currentTimeMillis();
+    refreshRoster(now);
+    processLocationSamples();
+    processMutations(now);
+    processCompletions();
+    processPlayers(now);
+  }
+
+  @EventHandler
+  public void on(PlayerQuitEvent e) {
+    UUID id = e.getPlayer().getUniqueId();
+    nextCheckAt.remove(id);
+    pendingPulses.remove(id);
+    if (queuedPlayers.remove(id)) {
+      playerQueue.remove(id);
+    }
+  }
+
+  private void refreshRoster(long now) {
+    if (now < nextRosterRefreshAt) {
+      return;
+    }
+    nextRosterRefreshAt = now + ROSTER_REFRESH_MILLIS;
+    for (AdaptPlayer adaptPlayer : learnedCandidates(now)) {
       Player p = adaptPlayer.getPlayer();
-      try {
-        if (hasActiveAdaptation(p)) {
-          double rad = getRadius(getLevelPercent(p));
-          double strength = getStrength(getLevel(p));
-          ThreadLocalRandom random = ThreadLocalRandom.current();
-          double angle = Math.toRadians(random.nextDouble(360D));
-          double foodCost = getFoodCost(getLevelPercent(p));
-
-
-          for (int i = 0; i < Math.min(Math.min(rad * rad, 256), 3); i++) {
-            Location m = p.getLocation().clone().add(new Vector(Math.sin(angle), RNG.r.i(-1, 1), Math.cos(angle)).multiply(random.nextDouble(rad)));
-            Block a = m.getBlock();
-            if (getConfig().surfaceOnly) {
-              int max = a.getWorld().getHighestBlockYAt(m);
-
-              if (max + 1 != a.getY())
-                continue;
-            }
-
-            if (a.getBlockData() instanceof Ageable) {
-              Ageable ab = (Ageable) a.getBlockData();
-              int toGrowLeft = ab.getMaximumAge() - ab.getAge();
-
-              if (toGrowLeft > 0) {
-                int add = (int) Math.max(1, Math.min(strength, toGrowLeft));
-                AdaptPlayer player = getPlayer(p);
-                if (ab.getMaximumAge() > ab.getAge() && player.canConsumeFood(foodCost, 10)) {
-                  while (add-- > 0) {
-                    J.runEntity(p, () -> {
-                      if (!p.isOnline()
-                          || !player.consumeFood(foodCost, 10)
-                          || !(a.getBlockData() instanceof Ageable aab)
-                          || aab.getAge() == aab.getMaximumAge())
-                        return;
-
-                      aab.setAge(aab.getAge() + 1);
-                      a.setBlockData(aab, true);
-                      addStat(p, "herbalism.growth-aura.blocks-grown", 1);
-                      if (aab.getAge() >= aab.getMaximumAge()) {
-                        fx(a.getLocation().add(0.5, 1.0, 0.5), FxPriority.AMBIENT)
-                            .dustRing(Color.LIME, 0.6D, 10, 0.9F)
-                            .particle(Particle.HAPPY_VILLAGER, 2, 0, 0, 0, 0.1D, 0.02D)
-                            .chord(Sound.ITEM_CROP_PLANT, 0.35F, 1.2F, Sound.BLOCK_NOTE_BLOCK_CHIME, 0.3F, 1.6F);
-                      } else {
-                        fx(a.getLocation().add(0.5, 0.6, 0.5), FxPriority.AMBIENT)
-                            .particle(Particle.HAPPY_VILLAGER, 2, 0, 0, 0, 0.1D, 0.02D)
-                            .particle(Particle.COMPOSTER, 1, 0, 0.1D, 0, 0.1D, 0.02D)
-                            .sound(Sound.ITEM_CROP_PLANT, 0.25F, 1.5F);
-                      }
-                    }, RNG.r.i(30, 60));
-                  }
-                }
-              }
-
-
-            }
-          }
-        }
-      } catch (Throwable e) {
-        e.printStackTrace();
+      if (p != null) {
+        queuePlayer(p.getUniqueId());
       }
+    }
+  }
+
+  private void processPlayers(long now) {
+    int attempts = workFor(queuedPlayers.size(), PLAYER_CHECKS_PER_TICK);
+    for (int i = 0; i < attempts; i++) {
+      UUID id = playerQueue.poll();
+      if (id == null) {
+        break;
+      }
+      queuedPlayers.remove(id);
+      Long due = nextCheckAt.get(id);
+      if (due != null && due > now) {
+        queuePlayer(id);
+        continue;
+      }
+      Player p = Bukkit.getPlayer(id);
+      if (p == null) {
+        nextCheckAt.remove(id);
+        pendingPulses.remove(id);
+        continue;
+      }
+      withPlayerThread(p, () -> evaluatePlayer(p));
+    }
+  }
+
+  private void evaluatePlayer(Player p) {
+    UUID id = p.getUniqueId();
+    if (!p.isOnline() || getLevel(p) <= 0) {
+      nextCheckAt.remove(id);
+      pendingPulses.remove(id);
+      return;
+    }
+
+    long now = System.currentTimeMillis();
+    int level = getActiveLevel(p);
+    if (level <= 0 || pendingPulses.contains(id)) {
+      nextCheckAt.put(id, now + IDLE_CHECK_MILLIS);
+      queuePlayer(id);
+      return;
+    }
+
+    double factor = getLevelPercent(level);
+    double foodCost = getFoodCost(factor);
+    AdaptPlayer adaptPlayer = getPlayer(p);
+    if (adaptPlayer == null || !adaptPlayer.canConsumeFood(foodCost, 10)) {
+      nextCheckAt.put(id, now + IDLE_CHECK_MILLIS);
+      queuePlayer(id);
+      return;
+    }
+
+    pendingPulses.add(id);
+    nextCheckAt.put(id, now + PULSE_INTERVAL_MILLIS);
+    startGrowthPulse(p, factor, getStrength(level), foodCost);
+    queuePlayer(id);
+  }
+
+  private void startGrowthPulse(Player p, double factor, double strength, double foodCost) {
+    double radius = getRadius(factor);
+    int sampleCount = sampleCountForRadius(radius);
+    if (sampleCount <= 0) {
+      pendingPulses.remove(p.getUniqueId());
+      return;
+    }
+
+    ThreadLocalRandom random = ThreadLocalRandom.current();
+    double angle = Math.toRadians(random.nextDouble(360D));
+    Vector direction = new Vector(Math.sin(angle), 0D, Math.cos(angle));
+    Location center = p.getLocation();
+    GrowthPulse pulse = new GrowthPulse(p, sampleCount);
+    for (int i = 0; i < sampleCount; i++) {
+      Vector offset = direction.clone();
+      offset.setY(random.nextInt(-1, 2));
+      offset.multiply(random.nextDouble(radius));
+      Location target = center.clone().add(offset);
+      GrowthSample sample = new GrowthSample(target, strength, foodCost, getConfig().surfaceOnly, pulse);
+      if (!offerLocationSample(sample)) {
+        completeGrowthSample(pulse, 0);
+      }
+    }
+  }
+
+  private boolean offerLocationSample(GrowthSample sample) {
+    int queued = queuedSamples.incrementAndGet();
+    if (queued > MAX_QUEUED_SAMPLES) {
+      queuedSamples.decrementAndGet();
+      return false;
+    }
+    locationSamples.add(sample);
+    return true;
+  }
+
+  private void processLocationSamples() {
+    int attempts = workFor(queuedSamples.get(), LOCATION_SAMPLES_PER_TICK);
+    for (int i = 0; i < attempts; i++) {
+      GrowthSample sample = locationSamples.poll();
+      if (sample == null) {
+        break;
+      }
+      queuedSamples.decrementAndGet();
+      if (!J.runAt(sample.location, () -> inspectLocationSample(sample))) {
+        completeGrowthSample(sample.pulse, 0);
+      }
+    }
+  }
+
+  private void inspectLocationSample(GrowthSample sample) {
+    Block block = sample.location.getBlock();
+    if (sample.surfaceOnly && block.getWorld().getHighestBlockYAt(sample.location) + 1 != block.getY()) {
+      completeGrowthSample(sample.pulse, 0);
+      return;
+    }
+    if (!(block.getBlockData() instanceof Ageable ageable)) {
+      completeGrowthSample(sample.pulse, 0);
+      return;
+    }
+
+    int remainingAge = ageable.getMaximumAge() - ageable.getAge();
+    if (remainingAge <= 0) {
+      completeGrowthSample(sample.pulse, 0);
+      return;
+    }
+    int increments = (int) Math.max(1D, Math.min(sample.strength, remainingAge));
+    long dueAt = System.currentTimeMillis() + ThreadLocalRandom.current().nextLong(1500L, 3001L);
+    if (!offerMutation(new GrowthMutation(sample.location, increments, sample.foodCost, dueAt, sample.pulse))) {
+      completeGrowthSample(sample.pulse, 0);
+    }
+  }
+
+  private boolean offerMutation(GrowthMutation mutation) {
+    int queued = queuedMutations.incrementAndGet();
+    if (queued > MAX_QUEUED_MUTATIONS) {
+      queuedMutations.decrementAndGet();
+      return false;
+    }
+    mutations.add(mutation);
+    return true;
+  }
+
+  private void processMutations(long now) {
+    int attempts = workFor(queuedMutations.get(), MUTATIONS_PER_TICK);
+    for (int i = 0; i < attempts; i++) {
+      GrowthMutation mutation = mutations.peek();
+      if (mutation == null || mutation.dueAt > now) {
+        break;
+      }
+      mutations.poll();
+      queuedMutations.decrementAndGet();
+      Player p = mutation.pulse.player;
+      if (!J.runEntity(p, () -> reserveFoodAndMutate(mutation))) {
+        completeGrowthSample(mutation.pulse, 0);
+      }
+    }
+  }
+
+  private void reserveFoodAndMutate(GrowthMutation mutation) {
+    Player p = mutation.pulse.player;
+    if (!p.isOnline()) {
+      completeGrowthSample(mutation.pulse, 0);
+      return;
+    }
+    AdaptPlayer adaptPlayer = getPlayer(p);
+    if (adaptPlayer == null) {
+      completeGrowthSample(mutation.pulse, 0);
+      return;
+    }
+    int paidIncrements = 0;
+    while (paidIncrements < mutation.increments && adaptPlayer.consumeFood(mutation.foodCost, 10)) {
+      paidIncrements++;
+    }
+    if (paidIncrements <= 0) {
+      completeGrowthSample(mutation.pulse, 0);
+      return;
+    }
+
+    int reserved = paidIncrements;
+    if (!J.runAt(mutation.location, () -> applyMutation(mutation, reserved))) {
+      completeGrowthSample(mutation.pulse, 0);
+    }
+  }
+
+  private void applyMutation(GrowthMutation mutation, int reserved) {
+    Block block = mutation.location.getBlock();
+    if (!(block.getBlockData() instanceof Ageable ageable)) {
+      completeGrowthSample(mutation.pulse, 0);
+      return;
+    }
+    int grown = Math.min(reserved, ageable.getMaximumAge() - ageable.getAge());
+    if (grown <= 0) {
+      completeGrowthSample(mutation.pulse, 0);
+      return;
+    }
+
+    ageable.setAge(ageable.getAge() + grown);
+    block.setBlockData(ageable, true);
+    if (ageable.getAge() >= ageable.getMaximumAge()) {
+      fx(block.getLocation().add(0.5, 1.0, 0.5), FxPriority.AMBIENT)
+          .dustRing(Color.LIME, 0.6D, 10, 0.9F)
+          .particle(Particle.HAPPY_VILLAGER, 2, 0, 0, 0, 0.1D, 0.02D)
+          .chord(Sound.ITEM_CROP_PLANT, 0.35F, 1.2F, Sound.BLOCK_NOTE_BLOCK_CHIME, 0.3F, 1.6F);
+    } else {
+      fx(block.getLocation().add(0.5, 0.6, 0.5), FxPriority.AMBIENT)
+          .particle(Particle.HAPPY_VILLAGER, 2, 0, 0, 0, 0.1D, 0.02D)
+          .particle(Particle.COMPOSTER, 1, 0, 0.1D, 0, 0.1D, 0.02D)
+          .sound(Sound.ITEM_CROP_PLANT, 0.25F, 1.5F);
+    }
+    completeGrowthSample(mutation.pulse, grown);
+  }
+
+  private void completeGrowthSample(GrowthPulse pulse, int grown) {
+    if (grown > 0) {
+      pulse.grown.addAndGet(grown);
+    }
+    if (pulse.remaining.decrementAndGet() != 0) {
+      return;
+    }
+    int queued = queuedCompletions.incrementAndGet();
+    if (queued > MAX_QUEUED_COMPLETIONS) {
+      queuedCompletions.decrementAndGet();
+      pendingPulses.remove(pulse.player.getUniqueId());
+      return;
+    }
+    completedPulses.add(pulse);
+  }
+
+  private void processCompletions() {
+    int attempts = workFor(queuedCompletions.get(), COMPLETIONS_PER_TICK);
+    for (int i = 0; i < attempts; i++) {
+      GrowthPulse pulse = completedPulses.poll();
+      if (pulse == null) {
+        break;
+      }
+      queuedCompletions.decrementAndGet();
+      if (!J.runEntity(pulse.player, () -> finishGrowthPulse(pulse))) {
+        pendingPulses.remove(pulse.player.getUniqueId());
+      }
+    }
+  }
+
+  private void finishGrowthPulse(GrowthPulse pulse) {
+    pendingPulses.remove(pulse.player.getUniqueId());
+    if (pulse.player.isOnline() && pulse.grown.get() > 0) {
+      addStat(pulse.player, "herbalism.growth-aura.blocks-grown", pulse.grown.get());
+    }
+  }
+
+  private void queuePlayer(UUID id) {
+    if (queuedPlayers.add(id)) {
+      playerQueue.add(id);
+    }
+  }
+
+  static int workFor(int queued, int limit) {
+    return Math.min(Math.max(0, queued), Math.max(0, limit));
+  }
+
+  static int sampleCountForRadius(double radius) {
+    double limit = Math.min(Math.min(Math.max(0D, radius * radius), 256D), 3D);
+    return (int) Math.ceil(limit);
+  }
+
+  private static final class GrowthPulse {
+    private final Player player;
+    private final AtomicInteger remaining;
+    private final AtomicInteger grown = new AtomicInteger();
+
+    private GrowthPulse(Player player, int samples) {
+      this.player = player;
+      this.remaining = new AtomicInteger(samples);
+    }
+  }
+
+  private static final class GrowthSample {
+    private final Location location;
+    private final double strength;
+    private final double foodCost;
+    private final boolean surfaceOnly;
+    private final GrowthPulse pulse;
+
+    private GrowthSample(Location location, double strength, double foodCost, boolean surfaceOnly, GrowthPulse pulse) {
+      this.location = location;
+      this.strength = strength;
+      this.foodCost = foodCost;
+      this.surfaceOnly = surfaceOnly;
+      this.pulse = pulse;
+    }
+  }
+
+  private static final class GrowthMutation implements Comparable<GrowthMutation> {
+    private final Location location;
+    private final int increments;
+    private final double foodCost;
+    private final long dueAt;
+    private final GrowthPulse pulse;
+
+    private GrowthMutation(Location location, int increments, double foodCost, long dueAt, GrowthPulse pulse) {
+      this.location = location;
+      this.increments = increments;
+      this.foodCost = foodCost;
+      this.dueAt = dueAt;
+      this.pulse = pulse;
+    }
+
+    @Override
+    public int compareTo(GrowthMutation other) {
+      return Long.compare(dueAt, other.dueAt);
     }
   }
 

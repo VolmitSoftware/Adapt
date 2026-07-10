@@ -159,9 +159,6 @@ public class TragoulLastRites extends SimpleAdaptation<TragoulLastRites.Config> 
     return Math.max(30000L, (long) Math.round(getConfig().cooldownMillisBase - (getLevelPercent(level) * getConfig().cooldownMillisFactor)));
   }
 
-  @Override
-  public void onTick() {
-  }
 
   @ConfigDescription("A killing blow leaves you at 1 HP as a fleeting spirit instead of dying.")
   protected static class Config extends AdaptationConfig {

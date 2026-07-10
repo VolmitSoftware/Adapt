@@ -36,6 +36,17 @@ public class BrewingManager implements Listener {
     recipes.computeIfAbsent(recipe, unused -> ConcurrentHashMap.newKeySet()).add(adaptation);
   }
 
+  public static void unregisterRecipe(String adaptation, BrewingRecipe recipe) {
+    if (adaptation == null || recipe == null) {
+      return;
+    }
+
+    recipes.computeIfPresent(recipe, (registeredRecipe, adaptations) -> {
+      adaptations.remove(adaptation);
+      return adaptations.isEmpty() ? null : adaptations;
+    });
+  }
+
   @EventHandler
   public void onInventoryClick(InventoryClickEvent e) {
     if (e.getView().getTopInventory().getType() != InventoryType.BREWING || e.getView().getTopInventory().getHolder() == null) {
@@ -79,7 +90,7 @@ public class BrewingManager implements Listener {
       Set<String> requiredAdaptations = recipes.get(recipe);
       BrewingTask active = activeTasks.get(standLocation);
       if (!playerHasRequiredAdaptation(p, requiredAdaptations)) {
-        if (active != null && !active.getRecipe().getId().equals(recipe.getId())) {
+        if (active != null && !active.getRecipe().equals(recipe)) {
           BrewingTask removed = activeTasks.remove(standLocation);
           if (removed != null) {
             removed.cancel();
@@ -88,7 +99,7 @@ public class BrewingManager implements Listener {
         return;
       }
 
-      if (active != null && active.getRecipe().getId().equals(recipe.getId())) {
+      if (active != null && active.getRecipe().equals(recipe)) {
         return;
       }
 
@@ -99,7 +110,14 @@ public class BrewingManager implements Listener {
         }
       }
 
-      activeTasks.put(standLocation, new BrewingTask(recipe, standLocation));
+      BrewingTask task = BrewingTask.create(
+          recipe,
+          standLocation,
+          clicker.getUniqueId(),
+          finished -> activeTasks.remove(standLocation, finished)
+      );
+      activeTasks.put(standLocation, task);
+      task.start();
     }, 1);
   }
 

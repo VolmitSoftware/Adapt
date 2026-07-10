@@ -23,6 +23,7 @@ import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.PlayerStateRegistry;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
+import art.arcane.adapt.api.advancement.AdvancementSpec;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxEmitter;
@@ -30,7 +31,6 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.FxTimeline;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.tick.TickedObject;
-import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.content.item.ItemListings;
 import art.arcane.adapt.util.common.format.AdventureCompat;
@@ -39,7 +39,8 @@ import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigFileSupport;
 import art.arcane.volmlib.util.collection.KList;
 import art.arcane.volmlib.util.format.Form;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -55,8 +56,11 @@ import java.lang.reflect.Field;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.DoubleSupplier;
 
-@Data
+@Getter
+@Setter
 public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
   private final String name;
   private final String emojiName;
@@ -73,6 +77,7 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
   private KList<AdaptRecipe> recipes;
   private Class<T> configType;
   private volatile T config;
+  private final AtomicBoolean unregistered = new AtomicBoolean();
 
   public SimpleSkill(String name, String emojiName) {
     super("skill", UUID.randomUUID() + "-skill-" + name, 50);
@@ -87,8 +92,14 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
     setDescription("No Description Provided");
     setMinXp(100);
     setAdvancementBackground("minecraft:textures/block/deepslate_tiles.png");
+  }
 
+  @Override
+  protected void onRuntimeActivated() {
     J.a(() -> {
+      if (!isRuntimeRegistered()) {
+        return;
+      }
       J.attempt(this::getConfig);
       getAdaptations().forEach(i -> J.attempt(i::getConfig));
     }, 1);
@@ -134,6 +145,21 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
       if (announce) {
         Adapt.info("Hotloaded " + file.getPath());
       }
+      return true;
+    } catch (Throwable e) {
+      Adapt.warn("Skipped hotload for " + file.getPath() + " due to invalid config: " + e.getMessage());
+      return false;
+    }
+  }
+
+  public synchronized boolean validateConfigFromDisk() {
+    if (getConfigurationClass() == null) {
+      return false;
+    }
+
+    File file = getConfigFile();
+    try {
+      loadConfig(file, createDefaultConfig(), false);
       return true;
     } catch (Throwable e) {
       Adapt.warn("Skipped hotload for " + file.getPath() + " due to invalid config: " + e.getMessage());
@@ -276,6 +302,21 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
     cachedAdvancements.add(a);
   }
 
+  protected void registerAdvancementSpec(AdvancementSpec spec) {
+    if (spec != null) {
+      registerAdvancement(spec.toAdvancement());
+    }
+  }
+
+  protected void registerMilestone(AdvancementSpec spec, String stat, double goal, double reward) {
+    if (spec == null) {
+      return;
+    }
+
+    registerAdvancementSpec(spec);
+    registerStatTracker(spec.statTracker(stat, goal, reward));
+  }
+
   public boolean checkValidEntity(EntityType e) {
     if (!e.isAlive() || e.equals(EntityType.PARROT)) {
       return false;
@@ -416,11 +457,13 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
         .build());
   }
 
-  protected void checkStatTrackersForOnlinePlayers() {
-    for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
-      Player player = adaptPlayer.getPlayer();
-      shouldReturnForPlayer(player, () -> checkStatTrackers(adaptPlayer));
-    }
+  protected void registerMilestone(String advancementKey, String stat, double goal, DoubleSupplier rewardSupplier) {
+    registerStatTracker(AdaptStatTracker.builder()
+        .advancement(advancementKey)
+        .stat(stat)
+        .goal(goal)
+        .rewardSupplier(rewardSupplier)
+        .build());
   }
 
   @Override
@@ -436,6 +479,9 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
 
   @Override
   public void unregister() {
+    if (!unregistered.compareAndSet(false, true)) {
+      return;
+    }
     super.unregister();
     adaptations.forEach(Adaptation::unregister);
   }
@@ -627,8 +673,6 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
     }
   }
 
-  @Override
-  public abstract void onTick();
 
   @Override
   public final boolean equals(Object obj) {

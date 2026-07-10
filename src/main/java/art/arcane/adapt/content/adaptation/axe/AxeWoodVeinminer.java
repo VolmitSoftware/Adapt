@@ -88,19 +88,12 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
     }
 
     Player p = e.getPlayer();
+    ItemStack tool = p.getInventory().getItemInMainHand();
+    if (!p.isSneaking() || !isAxe(tool) || !isLogMaterial(e.getBlock().getType())) {
+      return;
+    }
+
     if (!hasActiveAdaptation(p)) {
-      return;
-    }
-
-    if (!p.isSneaking()) {
-      return;
-    }
-
-    if (!isAxe(p.getInventory().getItemInMainHand())) {
-      return;
-    }
-
-    if (!isLog(new ItemStack(e.getBlock().getType()))) {
       return;
     }
 
@@ -118,21 +111,21 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
           }
         })
         .start();
-    Set<Block> blockMap = new HashSet<>();
-    int blockCount = 0;
+    int maxBlocks = Math.max(1, getConfig().maxBlocks);
+    Set<Block> blockMap = new HashSet<>(maxBlocks);
     int radius = getRadius(getLevel(p));
     int radiusSquared = radius * radius;
+    scan:
     for (int i = 0; i < radius; i++) {
       for (int x = -i; x <= i; x++) {
         for (int y = -i; y <= i; y++) {
           for (int z = -i; z <= i; z++) {
+            if (blockMap.size() >= maxBlocks) {
+              break scan;
+            }
             Block b = block.getRelative(x, y, z);
             if (b.getType() == block.getType()) {
-              blockCount++;
-              if (blockCount > getConfig().maxBlocks) {
-                continue;
-              }
-              if (block.getLocation().distanceSquared(b.getLocation()) > radiusSquared) {
+              if ((x * x) + (y * y) + (z * z) > radiusSquared) {
                 continue;
               }
               if (!canBlockBreak(p, b.getLocation())) {
@@ -159,7 +152,7 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
           }
           blocks.setType(Material.AIR);
         } else {
-          blocks.breakNaturally(p.getItemInUse());
+          blocks.breakNaturally(tool);
         }
         VEIN_MINED.remove(blocks);
       }
@@ -204,8 +197,16 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
   }
 
 
-  @Override
-  public void onTick() {
+
+  private boolean isLogMaterial(Material type) {
+    String name = type.name();
+    return type == Material.MUSHROOM_STEM
+        || type == Material.BROWN_MUSHROOM_BLOCK
+        || type == Material.RED_MUSHROOM_BLOCK
+        || type == Material.MANGROVE_ROOTS
+        || type == Material.MUDDY_MANGROVE_ROOTS
+        || name.endsWith("_LOG")
+        || name.endsWith("_WOOD");
   }
 
   @ConfigDescription("Break bulk wood at once while sneaking.")

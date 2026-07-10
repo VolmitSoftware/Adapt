@@ -141,9 +141,6 @@ public class HunterDropToInventory extends SimpleAdaptation<HunterDropToInventor
     }
   }
 
-  @Override
-  public void onTick() {
-  }
 
   @ConfigDescription("Mob and block drops teleport directly into your inventory.")
   protected static class Config extends AdaptationConfig {

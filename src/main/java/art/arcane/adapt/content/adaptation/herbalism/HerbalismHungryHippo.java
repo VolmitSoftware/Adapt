@@ -94,10 +94,6 @@ public class HerbalismHungryHippo extends SimpleAdaptation<HerbalismHungryHippo.
   }
 
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Consuming food gives you more saturation.")
   protected static class Config extends AdaptationConfig {

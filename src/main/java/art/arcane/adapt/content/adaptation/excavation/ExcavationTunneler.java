@@ -216,10 +216,6 @@ public class ExcavationTunneler extends SimpleAdaptation<ExcavationTunneler.Conf
     return Math.max(1, Math.min(8, (int) Math.floor(getLevelPercent(level) * getConfig().bonusBlocksMax)));
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Sneak while digging soft blocks to carve a facing-oriented plane of blocks at once.")
   protected static class Config extends AdaptationConfig {

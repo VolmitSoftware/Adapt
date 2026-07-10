@@ -23,32 +23,41 @@ import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.tick.TickedObject;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.volmlib.util.collection.KList;
 import art.arcane.volmlib.util.collection.KMap;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.math.M;
-import lombok.Data;
+import org.bukkit.entity.Entity;
 
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-@Data
 public class Notifier extends TickedObject {
+  private static final long ACTIVE_INTERVAL_MS = 97L;
+  private static final long IDLE_INTERVAL_MS = Long.MAX_VALUE;
+  private static final int MAX_PENDING_NOTIFICATIONS = 64;
+
   private final Queue<Notification> queue;
+  private final Object queueLock;
   private final AdaptPlayer target;
   private final KMap<String, Long> lastSkills;
   private final KMap<String, Double> lastSkillValues;
+  private final AtomicBoolean xpDirty;
   private int busyTicks;
   private int delayTicks;
   private long lastInstance;
+  private volatile String latestXpSkill;
 
   public Notifier(AdaptPlayer target) {
-    super("notifications", target.getPlayer().getUniqueId() + "-notify", 97);
+    super("notifications", target.getPlayer().getUniqueId() + "-notify", IDLE_INTERVAL_MS);
     queue = new ConcurrentLinkedQueue<>();
+    queueLock = new Object();
     lastSkills = new KMap<>();
     lastSkillValues = new KMap<>();
+    xpDirty = new AtomicBoolean();
     busyTicks = 0;
     delayTicks = 0;
     this.target = target;
@@ -57,6 +66,7 @@ public class Notifier extends TickedObject {
 
   public void notifyXP(String line, double value) {
     try {
+      activate();
       if (!lastSkills.containsKey(line)) {
         lastSkillValues.put(line, 0d);
       }
@@ -64,40 +74,45 @@ public class Notifier extends TickedObject {
       lastSkills.put(line, M.ms());
       lastSkillValues.put(line, lastSkillValues.get(line) + value);
       lastInstance = M.ms();
-
-
-      StringBuilder sb = new StringBuilder();
-
-      for (String i : lastSkills.sortKNumber().reverse()) {
-        Skill sk = getServer().getSkillRegistry().getSkill(i);
-        sb.append(i.equals(line) ? sk.getDisplayName() : sk.getShortName())
-            .append(C.RESET).append(C.GRAY)
-            .append(" +").append(C.WHITE)
-            .append(line.equals(i) ? C.UNDERLINE : "")
-            .append(Form.f(lastSkillValues.get(i).intValue()))
-            .append(C.RESET).append(C.GRAY)
-            .append("XP ");
-      }
+      latestXpSkill = line;
+      xpDirty.set(true);
 
       while (lastSkills.size() > 5) {
         String s = lastSkills.sortKNumber().reverse().get(0);
         lastSkills.remove(s);
         lastSkillValues.remove(s);
       }
-
-      target.getActionBarNotifier().queue(ActionBarNotification.builder()
-          .duration(0)
-          .maxTTL(M.ms() + 100)
-          .title(sb.toString())
-          .group("xp")
-          .build());
     } catch (Throwable e) {
       Adapt.verbose("Failed to notify xp: " + e.getMessage());
     }
   }
 
   public void queue(Notification... f) {
-    queue.addAll(Arrays.asList(f));
+    if (f == null || f.length == 0) {
+      return;
+    }
+
+    boolean queued = false;
+    synchronized (queueLock) {
+      for (Notification notification : f) {
+        if (notification == null) {
+          continue;
+        }
+
+        String group = notification.getGroup();
+        if (group != null && !group.isBlank() && !Notification.DEFAULT_GROUP.equals(group)) {
+          queue.removeIf(existing -> group.equals(existing.getGroup()));
+        }
+        while (queue.size() >= MAX_PENDING_NOTIFICATIONS) {
+          queue.poll();
+        }
+        queue.add(notification);
+        queued = true;
+      }
+    }
+    if (queued) {
+      activate();
+    }
   }
 
   public boolean isBusy() {
@@ -106,7 +121,13 @@ public class Notifier extends TickedObject {
 
   @Override
   public void onTick() {
+    if (queue.isEmpty() && busyTicks <= 0 && delayTicks <= 0 && lastSkills.isEmpty()) {
+      setInterval(IDLE_INTERVAL_MS);
+      return;
+    }
+
     cleanupSkills();
+    flushXpNotification();
 
     if (busyTicks > 6) {
       busyTicks = 6;
@@ -129,14 +150,13 @@ public class Notifier extends TickedObject {
       delayTicks = 0;
     }
 
-
-    if (!isBusy()) {
-      cleanupStackedNotifications();
+    Notification n;
+    synchronized (queueLock) {
+      n = queue.poll();
     }
 
-    Notification n = queue.poll();
-
     if (n == null) {
+      parkIfIdle();
       return;
     }
 
@@ -145,8 +165,61 @@ public class Notifier extends TickedObject {
     n.play(target);
   }
 
-  private void cleanupStackedNotifications() {
+  private void parkIfIdle() {
+    if (!queue.isEmpty() || busyTicks > 0 || delayTicks > 0 || xpDirty.get()) {
+      return;
+    }
+    if (lastSkills.isEmpty()) {
+      setInterval(IDLE_INTERVAL_MS);
+      return;
+    }
 
+    long untilExpiry = (lastInstance + 3_101L) - M.ms();
+    setInterval(Math.max(ACTIVE_INTERVAL_MS, untilExpiry));
+  }
+
+  private void activate() {
+    setInterval(ACTIVE_INTERVAL_MS);
+    if (!isBursting()) {
+      retick();
+    }
+  }
+
+  int pendingNotifications() {
+    return queue.size();
+  }
+
+  private void flushXpNotification() {
+    if (!xpDirty.compareAndSet(true, false) || lastSkills.isEmpty()) {
+      return;
+    }
+
+    String latest = latestXpSkill;
+    StringBuilder title = new StringBuilder();
+    KList<String> orderedSkills = lastSkills.sortKNumber().reverse();
+    for (String skillName : orderedSkills) {
+      Skill<?> skill = getServer().getSkillRegistry().getSkill(skillName);
+      if (skill == null) {
+        continue;
+      }
+      title.append(skillName.equals(latest) ? skill.getDisplayName() : skill.getShortName())
+          .append(C.RESET).append(C.GRAY)
+          .append(" +").append(C.WHITE)
+          .append(skillName.equals(latest) ? C.UNDERLINE : "")
+          .append(Form.f(lastSkillValues.get(skillName).intValue()))
+          .append(C.RESET).append(C.GRAY)
+          .append("XP ");
+    }
+    if (title.isEmpty()) {
+      return;
+    }
+
+    target.getActionBarNotifier().queue(ActionBarNotification.builder()
+        .duration(0)
+        .maxTTL(M.ms() + 100)
+        .title(title.toString())
+        .group("xp")
+        .build());
   }
 
   private void cleanupSkills() {
@@ -164,6 +237,11 @@ public class Notifier extends TickedObject {
         lastSkillValues.remove(entry.getKey());
       }
     }
+  }
+
+  @Override
+  protected Entity getTickOwner() {
+    return target.getPlayer();
   }
 
   @Override

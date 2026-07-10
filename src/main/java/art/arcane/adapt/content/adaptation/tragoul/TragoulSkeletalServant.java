@@ -46,12 +46,15 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.AnimalTamer;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Skeleton;
+import org.bukkit.entity.Tameable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
@@ -62,6 +65,7 @@ import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.world.EntitiesUnloadEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -71,12 +75,25 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServant.Config> {
+  private static final int HARD_MAX_SERVANTS_PER_OWNER = 16;
+  private static final int MAX_IMMEDIATE_RETARGETS = 4;
+  private static final int MAX_LOCAL_TARGET_CANDIDATES = 8;
+  private static final int MIN_RETARGET_INTERVAL_TICKS = 10;
+  private static final int MAX_RETARGET_SEARCHES_PER_TICK = 64;
+  private static final int TARGET_ASSIGNMENT_DELAY_TICKS = 2;
+  private static final int OWNER_HANDOFF_TIMEOUT_TICKS = 10;
+  private static final long THREAT_REFRESH_MILLIS = 500L;
+  private static final long RETARGET_BUDGET_COUNT_MASK = 0xFFFFL;
+  private static final double HARD_MAX_TARGET_SEARCH_RADIUS = 24D;
   private static final NamespacedKey SERVANT_KEY = NamespacedKey.fromString("adapt:tragoul_servant_owner");
   private static final NamespacedKey PLAGUE_OWNER_KEY = NamespacedKey.fromString("adapt:tragoul_plague_owner");
   private static final NamespacedKey PLAGUE_GENERATION_KEY = NamespacedKey.fromString("adapt:tragoul_plague_generation");
@@ -111,12 +128,16 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
 
   private static final Color SERVANT_BONE = Color.fromRGB(230, 225, 205);
   private final Map<UUID, CopyOnWriteArrayList<Skeleton>> servants = new ConcurrentHashMap<>();
+  private final Map<UUID, UUID> servantOwners = new ConcurrentHashMap<>();
+  private final Map<Skeleton, UUID> servantOwnersByEntity = new ConcurrentHashMap<>();
+  private final Map<Skeleton, UUID> servantIdsByEntity = new ConcurrentHashMap<>();
+  private final Map<UUID, TargetRequest> latestTargetRequests = new ConcurrentHashMap<>();
+  private final Set<UUID> activeTargetRequests = ConcurrentHashMap.newKeySet();
+  private final Map<UUID, Long> pendingLocalRetargets = new ConcurrentHashMap<>();
   private final Cooldowns cooldowns = cooldowns();
   private final MinionBurden burden = MinionBurden.get();
-
-  public static boolean isServant(org.bukkit.entity.Entity entity) {
-    return entity.getPersistentDataContainer().has(SERVANT_KEY, PersistentDataType.STRING);
-  }
+  private final AtomicLong localRetargetSequence = new AtomicLong();
+  private final AtomicLong retargetBudgetState = new AtomicLong();
   private final Map<UUID, Threat> threats = new ConcurrentHashMap<>();
   private final Map<UUID, Long> servantThornsCooldowns = new ConcurrentHashMap<>();
   private final Map<UUID, Long> servantCurseCooldowns = new ConcurrentHashMap<>();
@@ -141,6 +162,10 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
         .build());
     registerMilestone("challenge_tragoul_servant_50", "tragoul.skeletal-servant.servants-summoned", 50, 400);
     registerMilestone("challenge_tragoul_servant_500", "tragoul.skeletal-servant.servants-summoned", 500, 1500);
+  }
+
+  public static boolean isServant(Entity entity) {
+    return entity.getPersistentDataContainer().has(SERVANT_KEY, PersistentDataType.STRING);
   }
 
   @Override
@@ -186,7 +211,6 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
       }
 
       CopyOnWriteArrayList<Skeleton> list = servants.computeIfAbsent(id, k -> new CopyOnWriteArrayList<>());
-      list.removeIf(servant -> !servant.isValid() || servant.isDead());
       int cap = getServantCap(level);
       if (list.size() >= cap && !getConfig().replaceOldestAtCap) {
         sfx(p.getLocation(), Sound.BLOCK_CONDUIT_DEACTIVATE, 0.8F, 1.2F);
@@ -204,7 +228,19 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
 
       while (list.size() >= cap) {
         Skeleton oldest = list.remove(0);
-        J.runEntity(oldest, () -> despawnServant(oldest));
+        UUID oldestId = servantIdsByEntity.get(oldest);
+        if (oldestId == null) {
+          if (!J.runEntity(oldest, () -> removeServantOwned(id, oldest, true))) {
+            burden.unregister(id, oldest);
+          }
+          continue;
+        }
+        servantOwners.remove(oldestId);
+        servantOwnersByEntity.remove(oldest);
+        servantIdsByEntity.remove(oldest);
+        if (!J.runEntity(oldest, () -> removeServantOwned(id, oldest, true))) {
+          forgetServant(id, oldest, oldestId);
+        }
       }
 
       cooldowns.mark(id);
@@ -220,14 +256,18 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
         equipServant(s, level, random);
       });
       list.add(servant);
+      UUID servantId = servant.getUniqueId();
+      servantOwners.put(servantId, id);
+      servantOwnersByEntity.put(servant, id);
+      servantIdsByEntity.put(servant, servantId);
       burden.configure(getConfig().healthCostEnabled ? getConfig().healthCostPerMinion : 0, getConfig().minimumOwnerMaxHealth);
       burden.register(p, servant);
-      LivingEntity priorityTarget = resolvePriorityTarget(id, p, now);
+      LivingEntity priorityTarget = resolvePriorityTargetOwned(id, p, now);
       if (priorityTarget != null) {
         servant.setTarget(priorityTarget);
       }
       scheduleServantPulse(servant, id, now + (durationTicks * 50L));
-      J.runEntity(servant, () -> despawnServant(servant), durationTicks);
+      J.runEntity(servant, () -> removeServantOwned(id, servant, true), durationTicks);
 
       playSummonRitual(servant.getLocation());
       addStat(p, "tragoul.skeletal-servant.servants-summoned", 1);
@@ -246,14 +286,13 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
       return;
     }
 
-    String ownerRaw = skeleton.getPersistentDataContainer().get(SERVANT_KEY, PersistentDataType.STRING);
-    if (ownerRaw == null) {
+    UUID ownerId = resolveServantOwnerOwned(skeleton);
+    if (ownerId == null) {
       return;
     }
 
     if (target instanceof Player player) {
-      UUID ownerId = UUID.fromString(ownerRaw);
-      if (player.getUniqueId().equals(ownerId) || !isPriorityTarget(ownerId, player)) {
+      if (!isPriorityTarget(ownerId, player)) {
         e.setCancelled(true);
         if (skeleton.getTarget() instanceof Player) {
           skeleton.setTarget(null);
@@ -262,7 +301,7 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
       return;
     }
 
-    if (target instanceof Skeleton other && other.getPersistentDataContainer().has(SERVANT_KEY, PersistentDataType.STRING)) {
+    if (target instanceof Skeleton other && servantOwnersByEntity.containsKey(other)) {
       e.setCancelled(true);
     }
   }
@@ -273,17 +312,12 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
       return;
     }
 
-    Skeleton servant = resolveServantDamager(e.getDamager());
+    ServantDamager servant = resolveServantDamager(e.getDamager());
     if (servant == null) {
       return;
     }
 
-    String ownerRaw = servant.getPersistentDataContainer().get(SERVANT_KEY, PersistentDataType.STRING);
-    if (ownerRaw == null) {
-      return;
-    }
-
-    UUID ownerId = UUID.fromString(ownerRaw);
+    UUID ownerId = servant.ownerId();
     if (victim.getUniqueId().equals(ownerId) || !isPriorityTarget(ownerId, victim)) {
       e.setCancelled(true);
     }
@@ -293,9 +327,9 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
   public void onCombatPerks(EntityDamageByEntityEvent e) {
     Entity entity = e.getEntity();
     if (entity instanceof Skeleton skeleton) {
-      String ownerRaw = skeleton.getPersistentDataContainer().get(SERVANT_KEY, PersistentDataType.STRING);
-      if (ownerRaw != null) {
-        handleServantHit(e, skeleton, ownerRaw);
+      UUID ownerId = resolveServantOwnerOwned(skeleton);
+      if (ownerId != null) {
+        handleServantHit(e, skeleton, ownerId);
         return;
       }
     }
@@ -308,8 +342,8 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
       return;
     }
 
-    Skeleton servant = resolveServantDamager(e.getDamager());
-    if (servant != null && servant != victim) {
+    ServantDamager servant = resolveServantDamager(e.getDamager());
+    if (servant != null && servant.servant() != victim) {
       handleServantDealtDamage(e, servant, victim);
     }
 
@@ -322,15 +356,30 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
       return;
     }
 
-    String ownerRaw = skeleton.getPersistentDataContainer().get(SERVANT_KEY, PersistentDataType.STRING);
-    if (ownerRaw == null) {
+    UUID ownerId = resolveServantOwnerOwned(skeleton);
+    if (ownerId == null) {
       return;
     }
 
     e.getDrops().clear();
     e.setDroppedExp(0);
     servantThornsCooldowns.remove(skeleton.getUniqueId());
-    removeServantRef(UUID.fromString(ownerRaw), skeleton);
+    removeServantRef(ownerId, skeleton);
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(EntitiesUnloadEvent event) {
+    for (Entity entity : event.getEntities()) {
+      if (!(entity instanceof Skeleton skeleton)) {
+        continue;
+      }
+      UUID ownerId = resolveServantOwnerOwned(skeleton);
+      if (ownerId == null) {
+        continue;
+      }
+      servantThornsCooldowns.remove(skeleton.getUniqueId());
+      removeServantRef(ownerId, skeleton);
+    }
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -348,18 +397,13 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
       return;
     }
 
-    Skeleton servant = resolveServantDamager(damageEvent.getDamager());
+    ServantDamager servant = resolveServantDamager(damageEvent.getDamager());
     if (servant == null) {
       return;
     }
 
-    String ownerRaw = servant.getPersistentDataContainer().get(SERVANT_KEY, PersistentDataType.STRING);
-    if (ownerRaw == null) {
-      return;
-    }
-
-    Player owner = Bukkit.getPlayer(UUID.fromString(ownerRaw));
-    if (owner == null || !owner.isOnline()) {
+    Player owner = Bukkit.getPlayer(servant.ownerId());
+    if (owner == null) {
       return;
     }
 
@@ -381,6 +425,8 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
 
   private void dismissPack(UUID id) {
     threats.remove(id);
+    latestTargetRequests.remove(id);
+    activeTargetRequests.remove(id);
     servantCurseCooldowns.remove(id);
     CopyOnWriteArrayList<Skeleton> list = servants.remove(id);
     if (list == null) {
@@ -388,12 +434,21 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
     }
 
     for (Skeleton servant : list) {
-      servantThornsCooldowns.remove(servant.getUniqueId());
-      J.runEntity(servant, () -> {
-        if (servant.isValid() && !servant.isDead()) {
-          servant.remove();
+      UUID servantId = servantIdsByEntity.get(servant);
+      if (servantId == null) {
+        if (!J.runEntity(servant, () -> removeServantOwned(id, servant, false))) {
+          burden.unregister(id, servant);
         }
-      });
+        continue;
+      }
+      servantOwners.remove(servantId);
+      servantOwnersByEntity.remove(servant);
+      servantIdsByEntity.remove(servant);
+      servantThornsCooldowns.remove(servantId);
+      pendingLocalRetargets.remove(servantId);
+      if (!J.runEntity(servant, () -> removeServantOwned(id, servant, false))) {
+        forgetServant(id, servant, servantId);
+      }
     }
   }
 
@@ -422,276 +477,568 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
   }
 
   private void assignPackTarget(Player owner, LivingEntity target) {
-    if (target.getPersistentDataContainer().has(SERVANT_KEY, PersistentDataType.STRING)) {
-      return;
-    }
-
-    if (getLevel(owner) <= 0) {
-      return;
-    }
-
-    if (!canDamageTarget(owner, target)) {
-      return;
-    }
-
     UUID ownerId = owner.getUniqueId();
-    Threat previous = threats.get(ownerId);
-    boolean newTarget = previous == null || !previous.targetId().equals(target.getUniqueId());
-    threats.put(ownerId, new Threat(target.getUniqueId(), System.currentTimeMillis()));
-    CopyOnWriteArrayList<Skeleton> list = servants.get(ownerId);
-    if (list == null || list.isEmpty()) {
+    CopyOnWriteArrayList<Skeleton> pack = servants.get(ownerId);
+    if (pack == null || pack.isEmpty()) {
+      return;
+    }
+    Threat current = threats.get(ownerId);
+    TargetRequest queued = latestTargetRequests.get(ownerId);
+    long now = System.currentTimeMillis();
+    if (queued == null && current != null && current.target() == target) {
+      current.refreshStamp(now);
+      requestThreatRefresh(current, now);
       return;
     }
 
-    for (Skeleton servant : list) {
-      J.runEntity(servant, () -> {
-        if (servant.isValid() && !servant.isDead() && target.isValid() && !target.isDead() && servant.getWorld() == target.getWorld()) {
-          servant.setTarget(target);
-          if (newTarget) {
-            fx(servant.getLocation().add(0, 1.0, 0), FxPriority.COMBAT).particle(Particle.SCULK_SOUL, 3, 0, 0, 0, 0.2, 0.02);
-          }
-        }
-      });
-    }
-    if (newTarget) {
-      fx(owner.getLocation(), FxPriority.COMBAT).sound(Sound.ENTITY_SKELETON_AMBIENT, 0.7F, 0.5F);
+    TargetRequest request = new TargetRequest(target, now);
+    latestTargetRequests.put(ownerId, request);
+    if (activeTargetRequests.add(ownerId)) {
+      scheduleTargetRequest(ownerId, owner);
     }
   }
 
-  private void handleServantHit(EntityDamageByEntityEvent e, Skeleton servant, String ownerRaw) {
+  private void scheduleTargetRequest(UUID ownerId, Player owner) {
+    if (!J.runEntity(owner, () -> startTargetRequestOwned(ownerId, owner), TARGET_ASSIGNMENT_DELAY_TICKS)) {
+      latestTargetRequests.remove(ownerId);
+      activeTargetRequests.remove(ownerId);
+    }
+  }
+
+  private void startTargetRequestOwned(UUID ownerId, Player owner) {
+    TargetRequest request = latestTargetRequests.get(ownerId);
+    if (request == null || !owner.isOnline() || getLevel(owner) <= 0) {
+      finishTargetRequestOwned(ownerId, owner, request);
+      return;
+    }
+
+    LivingEntity target = request.target();
+    if (!J.runEntity(target, () -> {
+      TargetSnapshot snapshot = captureTargetOwned(ownerId, target);
+      if (!J.runEntity(owner, () -> completeTargetRequestOwned(ownerId, owner, request, snapshot))) {
+        latestTargetRequests.remove(ownerId, request);
+        activeTargetRequests.remove(ownerId);
+      }
+    })) {
+      finishTargetRequestOwned(ownerId, owner, request);
+      return;
+    }
+    J.runEntity(owner, () -> expireTargetRequestOwned(ownerId, owner, request), OWNER_HANDOFF_TIMEOUT_TICKS);
+  }
+
+  private void completeTargetRequestOwned(UUID ownerId, Player owner, TargetRequest request, TargetSnapshot snapshot) {
+    if (latestTargetRequests.get(ownerId) != request) {
+      if (latestTargetRequests.containsKey(ownerId)) {
+        scheduleTargetRequest(ownerId, owner);
+      } else {
+        activeTargetRequests.remove(ownerId);
+      }
+      return;
+    }
+
+    if (snapshot != null && owner.isOnline() && getLevel(owner) > 0 && canDamageSnapshotOwned(owner, snapshot)) {
+      publishThreatOwned(ownerId, owner, snapshot, request.requestedAt());
+    }
+    finishTargetRequestOwned(ownerId, owner, request);
+  }
+
+  private void expireTargetRequestOwned(UUID ownerId, Player owner, TargetRequest request) {
+    if (latestTargetRequests.get(ownerId) == request) {
+      finishTargetRequestOwned(ownerId, owner, request);
+    }
+  }
+
+  private void finishTargetRequestOwned(UUID ownerId, Player owner, TargetRequest completed) {
+    if (completed != null) {
+      latestTargetRequests.remove(ownerId, completed);
+    }
+    if (latestTargetRequests.containsKey(ownerId)) {
+      scheduleTargetRequest(ownerId, owner);
+      return;
+    }
+
+    activeTargetRequests.remove(ownerId);
+    if (latestTargetRequests.containsKey(ownerId) && activeTargetRequests.add(ownerId)) {
+      scheduleTargetRequest(ownerId, owner);
+    }
+  }
+
+  private void publishThreatOwned(UUID ownerId, Player owner, TargetSnapshot snapshot, long stamp) {
+    Threat previous = threats.get(ownerId);
+    boolean newTarget = previous == null || previous.target() != snapshot.entity();
+    Threat current;
+    if (newTarget) {
+      current = new Threat(ownerId, owner, snapshot, stamp);
+      threats.put(ownerId, current);
+    } else {
+      previous.update(snapshot, stamp);
+      current = previous;
+    }
+
+    if (!newTarget) {
+      return;
+    }
+
+    CopyOnWriteArrayList<Skeleton> list = servants.get(ownerId);
+    if (list != null) {
+      int dispatched = 0;
+      for (Skeleton servant : list) {
+        if (dispatched >= MAX_IMMEDIATE_RETARGETS) {
+          break;
+        }
+        J.runEntity(servant, () -> assignPriorityTargetOwned(servant, current, true));
+        dispatched++;
+      }
+    }
+    fx(owner.getLocation(), FxPriority.COMBAT).sound(Sound.ENTITY_SKELETON_AMBIENT, 0.7F, 0.5F);
+  }
+
+  private void handleServantHit(EntityDamageByEntityEvent e, Skeleton servant, UUID ownerId) {
     LivingEntity attacker = resolveLivingDamager(e.getDamager());
     if (attacker == null || attacker == servant) {
       return;
     }
 
-    if (attacker instanceof Skeleton other && other.getPersistentDataContainer().has(SERVANT_KEY, PersistentDataType.STRING)) {
-      return;
-    }
-
-    UUID ownerId = UUID.fromString(ownerRaw);
-    if (attacker instanceof Player player && player.getUniqueId().equals(ownerId)) {
+    if (attacker instanceof Skeleton other && servantOwnersByEntity.containsKey(other)) {
       return;
     }
 
     Player owner = Bukkit.getPlayer(ownerId);
-    if (owner == null || !owner.isOnline()) {
+    if (owner == null) {
       return;
     }
 
     long now = System.currentTimeMillis();
-    Threat threat = threats.get(ownerId);
-    if (threat != null && threat.targetId().equals(attacker.getUniqueId()) && now - threat.stamp() < getConfig().playerThreatWindowMillis) {
-      threats.put(ownerId, new Threat(attacker.getUniqueId(), now));
+    UUID servantId = servant.getUniqueId();
+    if (!J.runEntity(attacker, () -> {
+      TargetSnapshot snapshot = captureTargetOwned(ownerId, attacker);
+      if (snapshot != null) {
+        J.runEntity(owner, () -> prepareDefensePerksOwned(owner, servant, servantId, snapshot, now));
+      }
+    })) {
+      servantThornsCooldowns.remove(servantId);
+    }
+  }
+
+  private void prepareDefensePerksOwned(Player owner, Skeleton servant, UUID servantId, TargetSnapshot attacker, long now) {
+    if (!owner.isOnline() || !canDamageSnapshotOwned(owner, attacker)) {
+      return;
+    }
+
+    Threat threat = threats.get(owner.getUniqueId());
+    if (threat != null && threat.target() == attacker.entity() && now - threat.stamp() < getThreatWindowMillis()) {
+      threat.update(attacker, now);
     }
 
     PerkRefs refs = perks();
-    applyThorns(refs.thorns(), owner, servant, attacker, now);
-    applyFrailty(refs.frailty(), servant, owner, attacker, now);
+    boolean thornsApplied = false;
+    double reflectedDamage = 0D;
+    TragoulThorns thorns = refs.thorns();
+    Long thornsUntil = servantThornsCooldowns.get(servantId);
+    if (thorns != null && (thornsUntil == null || thornsUntil <= now)) {
+      int level = thorns.getActiveLevel(owner);
+      if (level > 0) {
+        servantThornsCooldowns.put(servantId, now + 1500L);
+        reflectedDamage = thorns.getConfig().damageMultiplierPerLevel * level;
+        thornsApplied = reflectedDamage > 0D;
+      }
+    }
+
+    boolean frailtyApplied = false;
+    int frailtyDuration = 0;
+    int weaknessAmplifier = 0;
+    boolean slowness = false;
+    int slownessAmplifier = 0;
+    TragoulCurseOfFrailty frailty = refs.frailty();
+    Long curseUntil = servantCurseCooldowns.get(attacker.entityId());
+    if (frailty != null && (curseUntil == null || curseUntil <= now)) {
+      int level = frailty.getActiveLevel(owner);
+      if (level > 0) {
+        TragoulCurseOfFrailty.Config config = frailty.getConfig();
+        servantCurseCooldowns.put(attacker.entityId(), now + config.perAttackerCooldownMillis);
+        double levelPercent = frailty.getLevelPercent(level);
+        frailtyDuration = Math.max(40, (int) Math.round(config.curseDurationTicksBase + (levelPercent * config.curseDurationTicksFactor)));
+        weaknessAmplifier = levelPercent >= 0.8D ? 1 : 0;
+        slowness = levelPercent >= config.slownessUnlockPercent;
+        slownessAmplifier = config.slownessAmplifier;
+        frailtyApplied = true;
+      }
+    }
+
+    if (!thornsApplied && !frailtyApplied) {
+      return;
+    }
+
+    DefenseEffect effect = new DefenseEffect(owner, reflectedDamage, thornsApplied, frailtyApplied,
+        frailtyDuration, weaknessAmplifier, slowness, slownessAmplifier);
+    J.runEntity(attacker.entity(), () -> applyDefenseEffectOwned(attacker, effect));
+    J.runEntity(servant, () -> playDefenseEffectOwned(servant, servantId, effect));
   }
 
-  private void handleServantDealtDamage(EntityDamageByEntityEvent e, Skeleton servant, LivingEntity victim) {
-    String ownerRaw = servant.getPersistentDataContainer().get(SERVANT_KEY, PersistentDataType.STRING);
-    if (ownerRaw == null) {
+  private void applyDefenseEffectOwned(TargetSnapshot attacker, DefenseEffect effect) {
+    LivingEntity target = attacker.entity();
+    if (!target.isValid() || target.isDead()) {
       return;
     }
 
-    Player owner = Bukkit.getPlayer(UUID.fromString(ownerRaw));
-    if (owner == null || !owner.isOnline()) {
-      return;
+    if (effect.thornsApplied()) {
+      target.damage(effect.reflectedDamage(), effect.owner());
     }
-
-    PerkRefs refs = perks();
-    applySoulSiphon(refs.siphon(), owner, servant, victim, e);
-    applyPlagueMark(refs.plague(), servant, owner, victim);
+    if (effect.frailtyApplied()) {
+      target.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, effect.frailtyDuration(), effect.weaknessAmplifier(), true, true, true));
+      if (effect.slowness()) {
+        target.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, effect.frailtyDuration(), effect.slownessAmplifier(), true, true, true));
+      }
+    }
   }
 
-  private void applyThorns(TragoulThorns thorns, Player owner, Skeleton servant, LivingEntity attacker, long now) {
-    if (thorns == null) {
+  private void playDefenseEffectOwned(Skeleton servant, UUID servantId, DefenseEffect effect) {
+    if (!servant.isValid() || servant.isDead() || !servantOwners.containsKey(servantId)) {
+      return;
+    }
+    Location location = servant.getLocation().add(0, 1.0D, 0);
+    if (effect.thornsApplied()) {
+      fx(location, FxPriority.TRAIL).particle(Particle.CRIT, 2, 0, 0, 0, 0.15D, 0.02D);
+    }
+    if (effect.frailtyApplied()) {
+      fx(location, FxPriority.TRAIL).particle(Particle.WARPED_SPORE, 2, 0, 0, 0, 0.15D, 0.02D);
+    }
+  }
+
+  private void handleServantDealtDamage(EntityDamageByEntityEvent event, ServantDamager servant, LivingEntity victim) {
+    Player owner = Bukkit.getPlayer(servant.ownerId());
+    if (owner == null) {
       return;
     }
 
-    Long until = servantThornsCooldowns.get(servant.getUniqueId());
-    if (until != null && until > now) {
-      return;
-    }
-
-    int level = thorns.getActiveLevel(owner);
-    if (level <= 0 || !canDamageTarget(owner, attacker)) {
-      return;
-    }
-
-    servantThornsCooldowns.put(servant.getUniqueId(), now + 1500L);
-    fx(servant.getLocation().add(0, 1.0, 0), FxPriority.TRAIL).particle(Particle.CRIT, 2, 0, 0, 0, 0.15, 0.02);
-    double reflected = thorns.getConfig().damageMultiplierPerLevel * level;
-    J.runEntity(attacker, () -> {
-      if (attacker.isValid() && !attacker.isDead()) {
-        attacker.damage(reflected, owner);
+    EntityDamageEvent.DamageCause cause = event.getCause();
+    double finalDamage = event.getFinalDamage();
+    J.runEntity(victim, () -> {
+      TargetSnapshot snapshot = captureTargetOwned(servant.ownerId(), victim);
+      if (snapshot != null) {
+        J.runEntity(owner, () -> prepareOffensePerksOwned(owner, servant.servant(), snapshot, cause, finalDamage));
       }
     });
   }
 
-  private void applyFrailty(TragoulCurseOfFrailty frailty, Skeleton servant, Player owner, LivingEntity attacker, long now) {
-    if (frailty == null) {
+  private void prepareOffensePerksOwned(Player owner, Skeleton servant, TargetSnapshot victim,
+                                        EntityDamageEvent.DamageCause cause, double finalDamage) {
+    if (!owner.isOnline() || !canDamageSnapshotOwned(owner, victim)) {
       return;
     }
 
-    Long until = servantCurseCooldowns.get(attacker.getUniqueId());
-    if (until != null && until > now) {
-      return;
-    }
-
-    int level = frailty.getActiveLevel(owner);
-    if (level <= 0 || !canDamageTarget(owner, attacker)) {
-      return;
-    }
-
-    TragoulCurseOfFrailty.Config curseConfig = frailty.getConfig();
-    servantCurseCooldowns.put(attacker.getUniqueId(), now + curseConfig.perAttackerCooldownMillis);
-    fx(servant.getLocation().add(0, 1.0, 0), FxPriority.TRAIL).particle(Particle.WARPED_SPORE, 2, 0, 0, 0, 0.15, 0.02);
-    double levelPercent = frailty.getLevelPercent(level);
-    int duration = Math.max(40, (int) Math.round(curseConfig.curseDurationTicksBase + (levelPercent * curseConfig.curseDurationTicksFactor)));
-    int weaknessAmplifier = levelPercent >= 0.8 ? 1 : 0;
-    boolean slowness = levelPercent >= curseConfig.slownessUnlockPercent;
-    int slownessAmplifier = curseConfig.slownessAmplifier;
-    J.runEntity(attacker, () -> {
-      if (!attacker.isValid() || attacker.isDead()) {
-        return;
+    PerkRefs refs = perks();
+    double heal = 0D;
+    TragoulSoulSiphon siphon = refs.siphon();
+    if (siphon != null && (cause == EntityDamageEvent.DamageCause.ENTITY_ATTACK
+        || cause == EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK)) {
+      int level = siphon.getActiveLevel(owner);
+      if (level > 0) {
+        TragoulSoulSiphon.Config config = siphon.getConfig();
+        double levelPercent = siphon.getLevelPercent(level);
+        double percent = Math.max(0D, config.healPercentBase + (levelPercent * config.healPercentFactor));
+        double cap = Math.max(0.5D, config.healCapPerSecondBase + (levelPercent * config.healCapPerSecondFactor));
+        heal = Math.min(cap, finalDamage * percent);
       }
+    }
 
-      attacker.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, duration, weaknessAmplifier, true, true, true), true);
-      if (slowness) {
-        attacker.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, duration, slownessAmplifier, true, true, true), true);
-      }
-    });
+    boolean plague = false;
+    TragoulPlagueBearer plagueBearer = refs.plague();
+    if (plagueBearer != null && victim.monster() && victim.afflicted()) {
+      plague = plagueBearer.getActiveLevel(owner) > 0;
+    }
+
+    if (heal <= 0D && !plague) {
+      return;
+    }
+
+    OffenseEffect effect = new OffenseEffect(owner.getUniqueId(), heal, plague);
+    J.runEntity(servant, () -> applyOffenseToServantOwned(servant, effect));
+    if (plague) {
+      J.runEntity(victim.entity(), () -> applyPlagueOwned(victim, effect.ownerId()));
+    }
   }
 
-  private void applySoulSiphon(TragoulSoulSiphon siphon, Player owner, Skeleton servant, LivingEntity victim, EntityDamageByEntityEvent e) {
-    if (siphon == null) {
+  private void applyOffenseToServantOwned(Skeleton servant, OffenseEffect effect) {
+    if (!servantOwnersByEntity.containsKey(servant) || !servant.isValid() || servant.isDead()) {
       return;
     }
 
-    EntityDamageEvent.DamageCause cause = e.getCause();
-    if (cause != EntityDamageEvent.DamageCause.ENTITY_ATTACK && cause != EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK) {
-      return;
+    if (effect.heal() > 0D) {
+      IAttribute attribute = Version.get().getAttribute(servant, Attributes.GENERIC_MAX_HEALTH);
+      double maxHealth = attribute == null ? 20D : attribute.getValue();
+      double currentHealth = servant.getHealth();
+      double newHealth = Math.min(maxHealth, currentHealth + effect.heal());
+      if (newHealth > currentHealth) {
+        servant.setHealth(newHealth);
+        fx(servant.getLocation().add(0, 1.2D, 0), FxPriority.TRAIL).particle(Particle.SOUL, 4, 0, 0, 0, 0.2D, 0.02D);
+      }
     }
-
-    int level = siphon.getActiveLevel(owner);
-    if (level <= 0 || !canDamageTarget(owner, victim)) {
-      return;
+    if (effect.plague()) {
+      fx(servant.getLocation().add(0, 1.0D, 0), FxPriority.TRAIL).particle(Particle.SPORE_BLOSSOM_AIR, 2, 0, 0, 0, 0.15D, 0.02D);
     }
-
-    TragoulSoulSiphon.Config siphonConfig = siphon.getConfig();
-    double levelPercent = siphon.getLevelPercent(level);
-    double percent = Math.max(0, siphonConfig.healPercentBase + (levelPercent * siphonConfig.healPercentFactor));
-    double cap = Math.max(0.5, siphonConfig.healCapPerSecondBase + (levelPercent * siphonConfig.healCapPerSecondFactor));
-    double heal = Math.min(cap, e.getFinalDamage() * percent);
-    if (heal <= 0) {
-      return;
-    }
-
-    IAttribute attribute = Version.get().getAttribute(servant, Attributes.GENERIC_MAX_HEALTH);
-    double maxHealth = attribute == null ? 20D : attribute.getValue();
-    double newHealth = Math.min(maxHealth, servant.getHealth() + heal);
-    if (newHealth <= servant.getHealth()) {
-      return;
-    }
-
-    servant.setHealth(newHealth);
-    fx(servant.getLocation().add(0, 1.2, 0), FxPriority.TRAIL).particle(Particle.SOUL, 4, 0, 0, 0, 0.2, 0.02);
   }
 
-  private void applyPlagueMark(TragoulPlagueBearer plague, Skeleton servant, Player owner, LivingEntity victim) {
-    if (plague == null || !(victim instanceof Monster monster)) {
-      return;
-    }
-
-    if (!monster.hasPotionEffect(PotionEffectType.POISON) && !monster.hasPotionEffect(PotionEffectType.WITHER)) {
-      return;
-    }
-
-    if (plague.getActiveLevel(owner) <= 0) {
+  private void applyPlagueOwned(TargetSnapshot victim, UUID ownerId) {
+    LivingEntity target = victim.entity();
+    if (!(target instanceof Monster monster) || !monster.isValid() || monster.isDead()) {
       return;
     }
 
     PersistentDataContainer pdc = monster.getPersistentDataContainer();
-    pdc.set(PLAGUE_OWNER_KEY, PersistentDataType.STRING, owner.getUniqueId().toString());
+    pdc.set(PLAGUE_OWNER_KEY, PersistentDataType.STRING, ownerId.toString());
     pdc.set(PLAGUE_STAMP_KEY, PersistentDataType.LONG, System.currentTimeMillis());
     if (!pdc.has(PLAGUE_GENERATION_KEY, PersistentDataType.INTEGER)) {
       pdc.set(PLAGUE_GENERATION_KEY, PersistentDataType.INTEGER, 0);
     }
-    fx(servant.getLocation().add(0, 1.0, 0), FxPriority.TRAIL).particle(Particle.SPORE_BLOSSOM_AIR, 2, 0, 0, 0, 0.15, 0.02);
   }
 
   private void scheduleServantPulse(Skeleton servant, UUID ownerId, long expiresAt) {
-    J.runEntity(servant, () -> {
-      if (!servant.isValid() || servant.isDead() || System.currentTimeMillis() >= expiresAt) {
-        removeServantRef(ownerId, servant);
+    if (!J.runEntity(servant, () -> {
+      UUID servantId = servant.getUniqueId();
+      if (!ownerId.equals(servantOwners.get(servantId))) {
         return;
       }
 
-      retarget(servant, ownerId);
+      if (!servant.isValid() || servant.isDead() || System.currentTimeMillis() >= expiresAt) {
+        removeServantOwned(ownerId, servant, true);
+        return;
+      }
+
+      retargetOwned(servant, servantId, ownerId);
       scheduleServantPulse(servant, ownerId, expiresAt);
-    }, getConfig().retargetIntervalTicks);
+    }, getRetargetIntervalTicks())) {
+      UUID servantId = servant.getUniqueId();
+      forgetServant(ownerId, servant, servantId);
+    }
   }
 
-  private void retarget(Skeleton servant, UUID ownerId) {
+  private void retargetOwned(Skeleton servant, UUID servantId, UUID ownerId) {
+    long now = System.currentTimeMillis();
     Threat threat = threats.get(ownerId);
-    if (threat != null && System.currentTimeMillis() - threat.stamp() < getConfig().playerThreatWindowMillis) {
-      Entity candidate = Bukkit.getEntity(threat.targetId());
-      if (candidate instanceof LivingEntity target && target.isValid() && !target.isDead() && target.getWorld() == servant.getWorld()) {
-        Player owner = Bukkit.getPlayer(ownerId);
-        if (owner != null && owner.isOnline() && canDamageTarget(owner, target)) {
-          if (servant.getTarget() != target) {
-            servant.setTarget(target);
-          }
-          return;
-        }
+    if (threat != null && now - threat.stamp() < getThreatWindowMillis()) {
+      requestThreatRefresh(threat, now);
+      if (assignPriorityTargetOwned(servant, threat, false)) {
+        return;
       }
     }
 
     LivingEntity current = servant.getTarget();
-    if (current instanceof Monster && current.isValid() && !current.isDead()) {
+    if (current instanceof Monster && !isTrackedServant(current)) {
+      return;
+    }
+    if (current != null) {
+      servant.setTarget(null);
+    }
+
+    if (!tryAcquireRetargetSearch()) {
       return;
     }
 
-    double range = getConfig().targetSearchRadius;
-    Monster nearest = null;
-    double best = Double.MAX_VALUE;
+    double range = getTargetSearchRadius();
+    int desiredCandidate = Math.floorMod(servantId.hashCode() + (int) (now / 500L), MAX_LOCAL_TARGET_CANDIDATES);
+    Monster first = null;
+    Monster candidate = null;
+    int candidateIndex = 0;
     for (Entity entity : servant.getNearbyEntities(range, range, range)) {
-      if (!(entity instanceof Monster monster) || monster.isDead() || !monster.isValid()) {
+      if (!(entity instanceof Monster monster) || isTrackedServant(monster)) {
         continue;
       }
-
-      if (monster.getPersistentDataContainer().has(SERVANT_KEY, PersistentDataType.STRING)) {
-        continue;
+      if (first == null) {
+        first = monster;
       }
-
-      double distance = monster.getLocation().distanceSquared(servant.getLocation());
-      if (distance < best) {
-        best = distance;
-        nearest = monster;
+      if (candidateIndex == desiredCandidate) {
+        candidate = monster;
+        break;
+      }
+      candidateIndex++;
+      if (candidateIndex >= MAX_LOCAL_TARGET_CANDIDATES) {
+        break;
       }
     }
 
-    if (nearest != null) {
-      servant.setTarget(nearest);
+    if (candidate == null) {
+      candidate = first;
+    }
+    if (candidate == null) {
+      return;
+    }
+
+    long token = localRetargetSequence.incrementAndGet();
+    if (pendingLocalRetargets.putIfAbsent(servantId, token) != null) {
+      return;
+    }
+    Monster selected = candidate;
+    if (!J.runEntity(selected, () -> {
+      TargetSnapshot snapshot = captureTargetOwned(ownerId, selected);
+      Player owner = Bukkit.getPlayer(ownerId);
+      if (snapshot == null || owner == null
+          || !J.runEntity(owner, () -> completeLocalRetargetOwnerOwned(owner, servant, servantId, token, snapshot))) {
+        pendingLocalRetargets.remove(servantId, token);
+      }
+    })) {
+      pendingLocalRetargets.remove(servantId, token);
+      return;
+    }
+    J.runEntity(servant, () -> pendingLocalRetargets.remove(servantId, token), OWNER_HANDOFF_TIMEOUT_TICKS);
+  }
+
+  private void completeLocalRetargetOwnerOwned(Player owner, Skeleton servant, UUID servantId, long token, TargetSnapshot target) {
+    if (!owner.isOnline() || getLevel(owner) <= 0 || !canDamageSnapshotOwned(owner, target)) {
+      pendingLocalRetargets.remove(servantId, token);
+      return;
+    }
+
+    UUID ownerId = owner.getUniqueId();
+    if (!J.runEntity(servant, () -> completeLocalRetargetServantOwned(servant, servantId, token, ownerId, target))) {
+      pendingLocalRetargets.remove(servantId, token);
     }
   }
 
-  private void despawnServant(Skeleton servant) {
-    String ownerRaw = servant.getPersistentDataContainer().get(SERVANT_KEY, PersistentDataType.STRING);
-    if (ownerRaw != null) {
-      removeServantRef(UUID.fromString(ownerRaw), servant);
+  private void completeLocalRetargetServantOwned(Skeleton servant, UUID servantId, long token,
+                                                 UUID ownerId, TargetSnapshot target) {
+    try {
+      if (!Long.valueOf(token).equals(pendingLocalRetargets.get(servantId))) {
+        return;
+      }
+      if (!ownerId.equals(servantOwners.get(servantId)) || !servant.isValid() || servant.isDead()) {
+        return;
+      }
+
+      Threat threat = threats.get(ownerId);
+      if (threat != null && System.currentTimeMillis() - threat.stamp() < getThreatWindowMillis()
+          && assignPriorityTargetOwned(servant, threat, false)) {
+        return;
+      }
+
+      LivingEntity current = servant.getTarget();
+      if (current instanceof Monster && !isTrackedServant(current)) {
+        return;
+      }
+      if (current != null) {
+        servant.setTarget(null);
+      }
+      if (servant.getWorld().getUID().equals(target.worldId())) {
+        servant.setTarget(target.entity());
+      }
+    } finally {
+      pendingLocalRetargets.remove(servantId, token);
+    }
+  }
+
+  private boolean assignPriorityTargetOwned(Skeleton servant, Threat threat, boolean showFx) {
+    if (threats.get(threat.ownerId()) != threat || System.currentTimeMillis() - threat.stamp() >= getThreatWindowMillis()) {
+      return false;
     }
 
-    servantThornsCooldowns.remove(servant.getUniqueId());
+    TargetSnapshot snapshot = threat.snapshot();
+    if (!servant.getWorld().getUID().equals(snapshot.worldId())) {
+      return false;
+    }
+
+    if (servant.getTarget() != snapshot.entity()) {
+      servant.setTarget(snapshot.entity());
+    }
+    if (showFx) {
+      fx(servant.getLocation().add(0, 1.0D, 0), FxPriority.COMBAT).particle(Particle.SCULK_SOUL, 3, 0, 0, 0, 0.2D, 0.02D);
+    }
+    return true;
+  }
+
+  private void requestThreatRefresh(Threat threat, long now) {
+    if (!threat.beginRefresh(now)) {
+      return;
+    }
+
+    LivingEntity target = threat.target();
+    if (!J.runEntity(target, () -> {
+      TargetSnapshot snapshot = captureTargetOwned(threat.ownerId(), target);
+      Player owner = threat.owner();
+      if (!J.runEntity(owner, () -> completeThreatRefreshOwnerOwned(threat, snapshot))) {
+        threat.finishRefresh(System.currentTimeMillis());
+        threats.remove(threat.ownerId(), threat);
+      }
+    })) {
+      threat.finishRefresh(now);
+      threats.remove(threat.ownerId(), threat);
+    }
+  }
+
+  private void completeThreatRefreshOwnerOwned(Threat threat, TargetSnapshot snapshot) {
+    long now = System.currentTimeMillis();
+    try {
+      if (threats.get(threat.ownerId()) != threat) {
+        return;
+      }
+      Player owner = threat.owner();
+      if (snapshot == null || !owner.isOnline() || getLevel(owner) <= 0 || !canDamageSnapshotOwned(owner, snapshot)) {
+        threats.remove(threat.ownerId(), threat);
+        return;
+      }
+      threat.updateSnapshot(snapshot);
+    } finally {
+      threat.finishRefresh(now);
+    }
+  }
+
+  private TargetSnapshot captureTargetOwned(UUID ownerId, LivingEntity target) {
+    if (!target.isValid() || target.isDead()) {
+      return null;
+    }
+
+    UUID targetId = target.getUniqueId();
+    boolean protectedFriendly = ownerId.equals(targetId)
+        || (target instanceof ArmorStand stand && stand.isMarker())
+        || target.isInvulnerable()
+        || target.hasMetadata("NPC")
+        || isServant(target);
+    if (!protectedFriendly && target instanceof Tameable tameable && tameable.isTamed()) {
+      AnimalTamer tamer = tameable.getOwner();
+      protectedFriendly = tamer != null && ownerId.equals(tamer.getUniqueId());
+    }
+
+    boolean afflicted = target.hasPotionEffect(PotionEffectType.POISON)
+        || target.hasPotionEffect(PotionEffectType.WITHER);
+    Location location = target.getLocation();
+    return new TargetSnapshot(target, targetId, location.getWorld().getUID(), location,
+        target instanceof Player, target instanceof Monster, protectedFriendly, afflicted);
+  }
+
+  private boolean canDamageSnapshotOwned(Player owner, TargetSnapshot target) {
+    if (target.protectedFriendly() || owner.getUniqueId().equals(target.entityId())) {
+      return false;
+    }
+    return target.player() ? canPVP(owner, target.location()) : canPVE(owner, target.location());
+  }
+
+  private void removeServantOwned(UUID ownerId, Skeleton servant, boolean showFx) {
+    UUID servantId = servant.getUniqueId();
+    forgetServant(ownerId, servant, servantId);
     if (servant.isValid() && !servant.isDead()) {
-      fx(servant.getLocation().add(0, 1.0, 0), FxPriority.TRANSITION)
-          .particle(Particle.SOUL, 4, 0, 0.4, 0, 0.3, 0.03)
-          .dustBurst(SERVANT_BONE, 4, 0.3, 1.0F)
-          .chord(Sound.ENTITY_SKELETON_DEATH, 0.7F, 1.3F, Sound.BLOCK_BONE_BLOCK_BREAK, 0.4F, 0.9F);
+      if (showFx) {
+        fx(servant.getLocation().add(0, 1.0D, 0), FxPriority.TRANSITION)
+            .particle(Particle.SOUL, 4, 0, 0.4D, 0, 0.3D, 0.03D)
+            .dustBurst(SERVANT_BONE, 4, 0.3D, 1.0F)
+            .chord(Sound.ENTITY_SKELETON_DEATH, 0.7F, 1.3F, Sound.BLOCK_BONE_BLOCK_BREAK, 0.4F, 0.9F);
+      }
       servant.remove();
     }
+  }
+
+  private void forgetServant(UUID ownerId, Skeleton servant, UUID servantId) {
+    servantOwners.remove(servantId, ownerId);
+    servantOwnersByEntity.remove(servant, ownerId);
+    servantIdsByEntity.remove(servant, servantId);
+    servantThornsCooldowns.remove(servantId);
+    pendingLocalRetargets.remove(servantId);
+    CopyOnWriteArrayList<Skeleton> list = servants.get(ownerId);
+    if (list != null) {
+      list.remove(servant);
+      if (list.isEmpty()) {
+        servants.remove(ownerId, list);
+      }
+    }
+    burden.unregister(ownerId, servant);
   }
 
   private void playSummonRitual(Location spawn) {
@@ -717,48 +1064,28 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
   }
 
   private void removeServantRef(UUID ownerId, Skeleton servant) {
-    CopyOnWriteArrayList<Skeleton> list = servants.get(ownerId);
-    if (list != null) {
-      list.remove(servant);
-    }
-
-    burden.unregister(ownerId, servant);
+    forgetServant(ownerId, servant, servant.getUniqueId());
   }
 
-  private LivingEntity resolvePriorityTarget(UUID ownerId, Player owner, long now) {
+  private LivingEntity resolvePriorityTargetOwned(UUID ownerId, Player owner, long now) {
     Threat threat = threats.get(ownerId);
-    if (threat == null || now - threat.stamp() >= getConfig().playerThreatWindowMillis) {
+    if (threat == null || now - threat.stamp() >= getThreatWindowMillis()) {
       return null;
     }
 
-    Entity candidate = Bukkit.getEntity(threat.targetId());
-    if (!(candidate instanceof LivingEntity target) || !target.isValid() || target.isDead()) {
+    TargetSnapshot target = threat.snapshot();
+    if (!target.worldId().equals(owner.getWorld().getUID()) || !canDamageSnapshotOwned(owner, target)) {
       return null;
     }
-
-    if (target.getWorld() != owner.getWorld()) {
-      return null;
-    }
-
-    if (!canDamageTarget(owner, target)) {
-      return null;
-    }
-
-    return target;
+    requestThreatRefresh(threat, now);
+    return target.entity();
   }
 
   private boolean isPriorityTarget(UUID ownerId, LivingEntity candidate) {
     Threat threat = threats.get(ownerId);
-    if (threat == null || !threat.targetId().equals(candidate.getUniqueId())) {
-      return false;
-    }
-
-    if (System.currentTimeMillis() - threat.stamp() >= getConfig().playerThreatWindowMillis) {
-      return false;
-    }
-
-    Player owner = Bukkit.getPlayer(ownerId);
-    return owner != null && owner.isOnline() && canDamageTarget(owner, candidate);
+    return threat != null
+        && threat.target() == candidate
+        && System.currentTimeMillis() - threat.stamp() < getThreatWindowMillis();
   }
 
   private void applyServantAttributes(Skeleton servant, int level) {
@@ -872,21 +1199,68 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
     return null;
   }
 
-  private static Skeleton resolveServantDamager(Entity damager) {
+  private ServantDamager resolveServantDamager(Entity damager) {
     Entity source = damager;
     if (source instanceof Projectile projectile && projectile.getShooter() instanceof Entity shooter) {
       source = shooter;
     }
 
-    if (source instanceof Skeleton skeleton && skeleton.getPersistentDataContainer().has(SERVANT_KEY, PersistentDataType.STRING)) {
-      return skeleton;
+    if (source instanceof Skeleton skeleton) {
+      UUID ownerId = servantOwnersByEntity.get(skeleton);
+      if (ownerId != null) {
+        return new ServantDamager(skeleton, ownerId);
+      }
     }
 
     return null;
   }
 
+  private UUID resolveServantOwnerOwned(Skeleton servant) {
+    UUID ownerId = servantOwnersByEntity.get(servant);
+    if (ownerId != null) {
+      return ownerId;
+    }
+
+    String raw = servant.getPersistentDataContainer().get(SERVANT_KEY, PersistentDataType.STRING);
+    if (raw == null) {
+      return null;
+    }
+    ownerId = UUID.fromString(raw);
+    UUID servantId = servant.getUniqueId();
+    servantOwners.put(servantId, ownerId);
+    servantOwnersByEntity.put(servant, ownerId);
+    servantIdsByEntity.put(servant, servantId);
+    return ownerId;
+  }
+
+  private boolean isTrackedServant(LivingEntity entity) {
+    return entity instanceof Skeleton skeleton && servantOwnersByEntity.containsKey(skeleton);
+  }
+
+  private boolean tryAcquireRetargetSearch() {
+    long epoch = System.currentTimeMillis() / 50L;
+    while (true) {
+      long state = retargetBudgetState.get();
+      long stateEpoch = state >>> 16;
+      long count = state & RETARGET_BUDGET_COUNT_MASK;
+      long next;
+      if (stateEpoch != epoch) {
+        next = (epoch << 16) | 1L;
+      } else {
+        if (count >= MAX_RETARGET_SEARCHES_PER_TICK) {
+          return false;
+        }
+        next = state + 1L;
+      }
+      if (retargetBudgetState.compareAndSet(state, next)) {
+        return true;
+      }
+    }
+  }
+
   private int getServantCap(int level) {
-    return Math.max(1, (int) Math.round(level * getConfig().servantCapPerLevel));
+    int configured = Math.max(1, (int) Math.round(level * getConfig().servantCapPerLevel));
+    return Math.min(HARD_MAX_SERVANTS_PER_OWNER, configured);
   }
 
   private int getBoneCost(int level) {
@@ -901,19 +1275,102 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
     return Math.max(1000L, (long) Math.round(getConfig().cooldownMillisBase - (getLevelPercent(level) * getConfig().cooldownMillisFactor)));
   }
 
+  private int getRetargetIntervalTicks() {
+    return Math.max(MIN_RETARGET_INTERVAL_TICKS, getConfig().retargetIntervalTicks);
+  }
+
+  private double getTargetSearchRadius() {
+    return Math.min(HARD_MAX_TARGET_SEARCH_RADIUS, Math.max(1D, getConfig().targetSearchRadius));
+  }
+
+  private long getThreatWindowMillis() {
+    return Math.max(0L, getConfig().playerThreatWindowMillis);
+  }
+
   @Override
   public void onTick() {
     long now = System.currentTimeMillis();
     servantCurseCooldowns.entrySet().removeIf(entry -> entry.getValue() <= now);
     servantThornsCooldowns.entrySet().removeIf(entry -> entry.getValue() <= now);
-    long window = getConfig().playerThreatWindowMillis;
+    long window = getThreatWindowMillis();
     threats.entrySet().removeIf(entry -> now - entry.getValue().stamp() > window);
-    for (CopyOnWriteArrayList<Skeleton> list : servants.values()) {
-      list.removeIf(servant -> !servant.isValid() || servant.isDead());
+  }
+
+  private static final class Threat {
+    private final UUID ownerId;
+    private final Player owner;
+    private final AtomicBoolean refreshPending = new AtomicBoolean();
+    private volatile TargetSnapshot snapshot;
+    private volatile long stamp;
+    private volatile long nextRefreshAt;
+
+    private Threat(UUID ownerId, Player owner, TargetSnapshot snapshot, long stamp) {
+      this.ownerId = ownerId;
+      this.owner = owner;
+      this.snapshot = snapshot;
+      this.stamp = stamp;
+      this.nextRefreshAt = stamp + THREAT_REFRESH_MILLIS;
+    }
+
+    private UUID ownerId() {
+      return ownerId;
+    }
+
+    private Player owner() {
+      return owner;
+    }
+
+    private LivingEntity target() {
+      return snapshot.entity();
+    }
+
+    private TargetSnapshot snapshot() {
+      return snapshot;
+    }
+
+    private long stamp() {
+      return stamp;
+    }
+
+    private void refreshStamp(long refreshedAt) {
+      stamp = refreshedAt;
+    }
+
+    private void update(TargetSnapshot refreshed, long refreshedAt) {
+      snapshot = refreshed;
+      stamp = refreshedAt;
+    }
+
+    private void updateSnapshot(TargetSnapshot refreshed) {
+      snapshot = refreshed;
+    }
+
+    private boolean beginRefresh(long now) {
+      return now >= nextRefreshAt && refreshPending.compareAndSet(false, true);
+    }
+
+    private void finishRefresh(long now) {
+      nextRefreshAt = now + THREAT_REFRESH_MILLIS;
+      refreshPending.set(false);
     }
   }
 
-  private record Threat(UUID targetId, long stamp) {
+  private record TargetRequest(LivingEntity target, long requestedAt) {
+  }
+
+  private record TargetSnapshot(LivingEntity entity, UUID entityId, UUID worldId, Location location,
+                                boolean player, boolean monster, boolean protectedFriendly, boolean afflicted) {
+  }
+
+  private record ServantDamager(Skeleton servant, UUID ownerId) {
+  }
+
+  private record DefenseEffect(Player owner, double reflectedDamage, boolean thornsApplied,
+                               boolean frailtyApplied, int frailtyDuration, int weaknessAmplifier,
+                               boolean slowness, int slownessAmplifier) {
+  }
+
+  private record OffenseEffect(UUID ownerId, double heal, boolean plague) {
   }
 
   private record PerkRefs(TragoulThorns thorns, TragoulSoulSiphon siphon,
@@ -936,7 +1393,7 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
     double cooldownMillisBase = 10000;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Cooldown reduction in milliseconds granted at max level.", impact = "Higher values let high levels summon more often.")
     double cooldownMillisFactor = 9000;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Living servants allowed per adaptation level.", impact = "Higher values let one necromancer field a larger pack of servants.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Living servants allowed per adaptation level, with a hard runtime ceiling of 16 per owner.", impact = "Higher values let one necromancer field a larger pack up to the server-safety ceiling.")
     double servantCapPerLevel = 1.0;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Replaces the oldest living servant when summoning at the cap.", impact = "False quietly refuses the summon instead of recycling the oldest servant.")
     boolean replaceOldestAtCap = true;
@@ -954,9 +1411,9 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
     double healthBonusPerLevel = 2.0;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Bonus attack damage granted to servants per adaptation level.", impact = "Higher values make servants hit harder as the owner levels.")
     double attackBonusPerLevel = 0.5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Ticks between servant retarget pulses.", impact = "Lower values retarget faster but cost more scheduler work.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Ticks between servant retarget pulses, clamped to at least 10 ticks.", impact = "Lower values retarget faster but cannot exceed the server-safety cadence.")
     int retargetIntervalTicks = 20;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Radius the servant scans for hostile mobs to attack.", impact = "Higher values let the servant acquire targets further away.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Radius the servant scans for hostile mobs to attack, capped at 24 blocks.", impact = "Higher values let the servant acquire targets further away up to the bounded search radius.")
     double targetSearchRadius = 12;
     @art.arcane.adapt.util.config.ConfigDoc(value = "XP granted per servant summon.", impact = "Higher values accelerate skill progression from this adaptation.")
     double xpPerSummon = 30;

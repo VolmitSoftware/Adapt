@@ -25,7 +25,6 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
-import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -39,20 +38,23 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.player.PlayerToggleSneakEvent;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class UnarmedMeditation extends SimpleAdaptation<UnarmedMeditation.Config> {
   private final Cooldowns combatCooldown = cooldowns();
   private final Map<UUID, Location> lastPositions = playerState();
   private final Map<UUID, Boolean> medState = playerState();
+  private final Set<UUID> activeSessions = ConcurrentHashMap.newKeySet();
 
   public UnarmedMeditation() {
     super("unarmed-meditation");
     registerConfiguration(Config.class);
     setIcon(Material.AMETHYST_CLUSTER);
-    setInterval(1000);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.IRON_INGOT)
         .key("challenge_unarmed_meditate_500")
@@ -80,68 +82,91 @@ public class UnarmedMeditation extends SimpleAdaptation<UnarmedMeditation.Config
   public void on(EntityDamageByEntityEvent e) {
     if (e.getDamager() instanceof Player attacker) {
       combatCooldown.mark(attacker.getUniqueId());
+      stopMeditation(attacker);
     }
     if (e.getEntity() instanceof Player victim) {
       combatCooldown.mark(victim.getUniqueId());
+      stopMeditation(victim);
     }
   }
 
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(PlayerToggleSneakEvent e) {
+    if (!e.isSneaking()) {
+      stopMeditation(e.getPlayer());
+      return;
+    }
+    startMeditation(e.getPlayer());
+  }
+
   @Override
-  public void onTick() {
-    long now = System.currentTimeMillis();
-    for (AdaptPlayer adaptPlayer : learnedCandidates(now)) {
-      Player p = adaptPlayer.getPlayer();
-      if (p == null || !p.isOnline()) {
-        continue;
-      }
+  public void unregister() {
+    activeSessions.clear();
+    super.unregister();
+  }
 
-      UUID id = p.getUniqueId();
-      if (!p.isSneaking() || isItem(p.getInventory().getItemInMainHand()) || isItem(p.getInventory().getItemInOffHand())) {
-        lastPositions.remove(id);
-        breakMeditation(p, id);
-        continue;
-      }
+  private void startMeditation(Player player) {
+    UUID id = player.getUniqueId();
+    if (!activeSessions.add(id)) {
+      return;
+    }
+    if (!J.runEntity(player, () -> pulseMeditation(player), 20)) {
+      activeSessions.remove(id);
+    }
+  }
 
-      if (!combatCooldown.isReady(id, getConfig().combatLockoutMillis)) {
-        breakMeditation(p, id);
-        continue;
-      }
+  private void pulseMeditation(Player player) {
+    UUID id = player.getUniqueId();
+    if (!activeSessions.contains(id) || !player.isOnline() || player.isDead() || !player.isSneaking()
+        || isItem(player.getInventory().getItemInMainHand()) || isItem(player.getInventory().getItemInOffHand())
+        || !combatCooldown.isReady(id, getConfig().combatLockoutMillis)) {
+      stopMeditation(player);
+      return;
+    }
 
-      Location current = p.getLocation();
-      Location previous = lastPositions.put(id, current);
-      if (previous == null || previous.getWorld() != current.getWorld() || previous.distanceSquared(current) > getConfig().stationaryEpsilonSquared) {
-        breakMeditation(p, id);
-        continue;
-      }
+    Location current = player.getLocation();
+    Location previous = lastPositions.put(id, current);
+    if (previous == null || previous.getWorld() != current.getWorld()
+        || previous.distanceSquared(current) > getConfig().stationaryEpsilonSquared) {
+      breakMeditation(player, id);
+      scheduleNextPulse(player);
+      return;
+    }
 
-      int level = getActiveLevel(p);
-      if (level <= 0) {
-        breakMeditation(p, id);
-        continue;
-      }
+    int level = getActiveLevel(player);
+    if (level <= 0) {
+      stopMeditation(player);
+      return;
+    }
 
-      enterMeditation(p, id);
-      double cap = getAbsorptionCap(level);
-      double absorption = p.getAbsorptionAmount();
-      if (absorption >= cap) {
-        continue;
-      }
-
+    enterMeditation(player, id);
+    double cap = getAbsorptionCap(level);
+    double absorption = player.getAbsorptionAmount();
+    if (absorption < cap) {
       double gained = Math.min(cap - absorption, getConfig().gainPerPulse);
-      J.runEntity(p, () -> {
-        if (p.isOnline() && !p.isDead()) {
-          p.setAbsorptionAmount(Math.min(cap, p.getAbsorptionAmount() + gained));
-        }
-      });
-
+      player.setAbsorptionAmount(Math.min(cap, absorption + gained));
       double fill = cap <= 0 ? 1.0D : Math.min(1.0D, (absorption + gained) / cap);
       fx(current.clone().add(0, 1.1D, 0), FxPriority.AMBIENT)
           .column(Particles.END_ROD, 2, 1.0D)
           .particle(Particles.ENCHANTMENT_TABLE, 3, 0, 0, 0, 0.4D, 0.04D)
           .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.3F, (float) (1.4D + (fill * 0.3D)));
-      xpSilent(p, getConfig().xpPerPulse, "meditation");
-      adaptPlayer.getData().addStat("unarmed.meditation.absorption-gained", gained);
+      xpSilent(player, getConfig().xpPerPulse, "meditation");
+      getPlayer(player).getData().addStat("unarmed.meditation.absorption-gained", gained);
     }
+    scheduleNextPulse(player);
+  }
+
+  private void scheduleNextPulse(Player player) {
+    if (!J.runEntity(player, () -> pulseMeditation(player), 20)) {
+      stopMeditation(player);
+    }
+  }
+
+  private void stopMeditation(Player player) {
+    UUID id = player.getUniqueId();
+    activeSessions.remove(id);
+    lastPositions.remove(id);
+    breakMeditation(player, id);
   }
 
   private void enterMeditation(Player p, UUID id) {

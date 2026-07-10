@@ -46,22 +46,18 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 public class ChronosBorrowedTime extends SimpleAdaptation<ChronosBorrowedTime.Config> {
-  private final Map<UUID, Deque<DeferredDamage>> deferred;
-  private final Set<UUID> applyingDeferred;
+  private final Map<UUID, Deque<DeferredDamage>> deferred = playerState();
+  private final Map<UUID, Boolean> applyingDeferred = playerState();
 
   public ChronosBorrowedTime() {
     super("chronos-borrowed-time");
     registerConfiguration(Config.class);
     setIcon(Material.SOUL_SAND);
     setInterval(1000);
-    deferred = new ConcurrentHashMap<>();
-    applyingDeferred = ConcurrentHashMap.newKeySet();
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.SOUL_SAND)
         .key("challenge_chronos_borrowed_2500")
@@ -104,7 +100,7 @@ public class ChronosBorrowedTime extends SimpleAdaptation<ChronosBorrowedTime.Co
     }
 
     UUID id = p.getUniqueId();
-    if (applyingDeferred.contains(id)) {
+    if (applyingDeferred.containsKey(id)) {
       return;
     }
 
@@ -186,7 +182,7 @@ public class ChronosBorrowedTime extends SimpleAdaptation<ChronosBorrowedTime.Co
 
         double remaining = health - damage;
         if (remaining <= 0D) {
-          applyingDeferred.add(id);
+          applyingDeferred.put(id, true);
           try {
             p.damage(damage);
           } finally {

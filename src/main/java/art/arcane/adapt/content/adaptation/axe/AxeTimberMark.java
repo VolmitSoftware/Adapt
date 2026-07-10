@@ -335,10 +335,6 @@ public class AxeTimberMark extends SimpleAdaptation<AxeTimberMark.Config> {
     }
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Mark a trunk, then break the marked log to fell connected wood.")
   protected static class Config extends AdaptationConfig {

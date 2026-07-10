@@ -109,9 +109,6 @@ public class BlockingChainArmorer extends SimpleAdaptation<BlockingChainArmorer.
   }
 
 
-  @Override
-  public void onTick() {
-  }
 
   @ConfigDescription("Craft Chainmail Armor using iron nuggets.")
   protected static class Config extends AdaptationConfig {

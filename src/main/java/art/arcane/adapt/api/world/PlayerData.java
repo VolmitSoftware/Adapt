@@ -33,8 +33,13 @@ import art.arcane.volmlib.util.collection.KList;
 import art.arcane.volmlib.util.collection.KMap;
 import art.arcane.volmlib.util.collection.KSet;
 import art.arcane.volmlib.util.format.Form;
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.World;
@@ -64,7 +69,12 @@ public class PlayerData {
   private long lastLogin = 0;
   private double masterXp = 1;
   private double lastMasterXp = 0;
-  private boolean effectsEnabled = true;
+  private volatile boolean effectsEnabled = true;
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
+  private transient volatile AdaptPlayer runtimeOwner;
 
   public static PlayerData fromJson(String json) {
     return Json.fromJson(json, PlayerData.class);
@@ -82,8 +92,8 @@ public class PlayerData {
     return advancements.contains(advancement);
   }
 
-  public void ensureGranted(String advancement) {
-    advancements.add(advancement);
+  public boolean ensureGranted(String advancement) {
+    return advancements.add(advancement);
   }
 
   public double getStat(String key) {
@@ -93,6 +103,30 @@ public class PlayerData {
 
   public void addStat(String key, double amt) {
     stats.merge(key, amt, Double::sum);
+    AdaptPlayer owner = runtimeOwner;
+    if (owner != null) {
+      owner.onStatChanged(key);
+    }
+  }
+
+  void bindRuntimeOwner(AdaptPlayer owner) {
+    runtimeOwner = owner;
+    for (PlayerSkillLine line : skillLines.values()) {
+      if (line != null) {
+        line.bindRuntimeOwner(owner);
+      }
+    }
+  }
+
+  void unbindRuntimeOwner(AdaptPlayer owner) {
+    if (runtimeOwner == owner) {
+      runtimeOwner = null;
+    }
+    for (PlayerSkillLine line : skillLines.values()) {
+      if (line != null) {
+        line.unbindRuntimeOwner(owner);
+      }
+    }
   }
 
   public void update(AdaptPlayer p) {
@@ -127,6 +161,8 @@ public class PlayerData {
 
       if (lineData.getXp() == 0 && lineData.getKnowledge() == 0 && lineData.getPooledXp() == 0) {
         skillLines.remove(lineId, lineData);
+        lineData.unbindRuntimeOwner(runtimeOwner);
+        refreshLearnedIndex();
         continue;
       }
 
@@ -262,6 +298,7 @@ public class PlayerData {
 
       PlayerSkillLine s = new PlayerSkillLine();
       s.setLine(skillLine);
+      s.bindRuntimeOwner(runtimeOwner);
       skillLines.put(skillLine, s);
       return s;
     }
@@ -272,8 +309,13 @@ public class PlayerData {
   }
 
   public void resetMonotonyForOtherSkills(String currentSkill) {
+    if (currentSkill == null || currentSkill.isBlank() || currentSkill.equals(last)) {
+      return;
+    }
+
+    last = currentSkill;
     for (PlayerSkillLine line : skillLines.values()) {
-      if (!line.getLine().equals(currentSkill)) {
+      if (line != null && !currentSkill.equals(line.getLine())) {
         line.relaxStalenessForActivitySwitch();
       }
     }
@@ -301,6 +343,7 @@ public class PlayerData {
     }
     masterXp = 1;
     lastMasterXp = 0;
+    refreshLearnedIndex();
   }
 
   public void clearKnowledge() {
@@ -313,6 +356,7 @@ public class PlayerData {
     for (PlayerSkillLine line : skillLines.values()) {
       line.getAdaptations().clear();
     }
+    refreshLearnedIndex();
   }
 
   public void clearStats() {
@@ -365,6 +409,14 @@ public class PlayerData {
         adapt.setLevel(adapt.getLevel() - 1);
         usedPower -= 1;
       }
+    }
+    refreshLearnedIndex();
+  }
+
+  private void refreshLearnedIndex() {
+    AdaptPlayer owner = runtimeOwner;
+    if (owner != null && owner.getServer() != null) {
+      owner.getServer().refreshLearnedAdaptations(owner);
     }
   }
 

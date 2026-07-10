@@ -25,7 +25,19 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.xp.XpProvenance;
-import art.arcane.adapt.content.adaptation.pickaxe.*;
+import art.arcane.adapt.content.adaptation.pickaxe.PickaxeAutosmelt;
+import art.arcane.adapt.content.adaptation.pickaxe.PickaxeChisel;
+import art.arcane.adapt.content.adaptation.pickaxe.PickaxeDeepCore;
+import art.arcane.adapt.content.adaptation.pickaxe.PickaxeDropToInventory;
+import art.arcane.adapt.content.adaptation.pickaxe.PickaxeGemPolish;
+import art.arcane.adapt.content.adaptation.pickaxe.PickaxeObsidianRush;
+import art.arcane.adapt.content.adaptation.pickaxe.PickaxeQuarrySense;
+import art.arcane.adapt.content.adaptation.pickaxe.PickaxeRepairRhythm;
+import art.arcane.adapt.content.adaptation.pickaxe.PickaxeSilkSpawner;
+import art.arcane.adapt.content.adaptation.pickaxe.PickaxeStoneSkin;
+import art.arcane.adapt.content.adaptation.pickaxe.PickaxeTunnelBore;
+import art.arcane.adapt.content.adaptation.pickaxe.PickaxeUnbreakablePact;
+import art.arcane.adapt.content.adaptation.pickaxe.PickaxeVeinminer;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
@@ -82,45 +94,13 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
                 .model(CustomModel.get(Material.IRON_PICKAXE, "advancement", "pickaxe", "challenge_pickaxe_50k"))
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .child(AdaptAdvancement.builder()
-                    .icon(Material.DIAMOND_PICKAXE)
-                    .key("challenge_pickaxe_500k")
-                    .model(CustomModel.get(Material.DIAMOND_PICKAXE, "advancement", "pickaxe", "challenge_pickaxe_500k"))
-                    .frame(AdaptAdvancementFrame.CHALLENGE)
-                    .visibility(AdvancementVisibility.PARENT_GRANTED)
-                    .child(AdaptAdvancement.builder()
-                        .icon(Material.NETHERITE_PICKAXE)
-                        .key("challenge_pickaxe_5m")
-                        .model(CustomModel.get(Material.NETHERITE_PICKAXE, "advancement", "pickaxe", "challenge_pickaxe_5m"))
-                        .frame(AdaptAdvancementFrame.CHALLENGE)
-                        .visibility(AdvancementVisibility.PARENT_GRANTED)
-                        .build())
-                    .build())
                 .build())
             .build())
         .build());
 
-    registerMilestone("challenge_pickaxe_1k", "pickaxe.blocks.broken", 100, getConfig().emeraldBonus * 2);
-    registerMilestone("challenge_pickaxe_5k", "pickaxe.blocks.broken", 500, getConfig().emeraldBonus * 5);
-    registerMilestone("challenge_pickaxe_50k", "pickaxe.blocks.broken", 5000, getConfig().emeraldBonus * 10);
-    registerMilestone("challenge_pickaxe_500k", "pickaxe.blocks.broken", 50000, getConfig().emeraldBonus * 10);
-    registerMilestone("challenge_pickaxe_5m", "pickaxe.blocks.broken", 500000, getConfig().emeraldBonus * 50);
-
-    registerAdvancement(AdaptAdvancement.builder()
-        .icon(Material.WOODEN_PICKAXE).key("challenge_pick_swing_500")
-        .model(CustomModel.get(Material.WOODEN_PICKAXE, "advancement", "pickaxe", "challenge_pick_swing_500"))
-        .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
-        .child(AdaptAdvancement.builder()
-            .icon(Material.IRON_PICKAXE)
-            .key("challenge_pick_swing_5k")
-            .model(CustomModel.get(Material.IRON_PICKAXE, "advancement", "pickaxe", "challenge_pick_swing_5k"))
-            .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
-            .build())
-        .build());
-    registerMilestone("challenge_pick_swing_500", "pickaxe.swings", 500, getConfig().emeraldBonus);
-    registerMilestone("challenge_pick_swing_5k", "pickaxe.swings", 5000, getConfig().emeraldBonus * 2);
+    registerMilestone("challenge_pickaxe_1k", "pickaxe.blocks.broken", 1000, () -> getConfig().emeraldBonus * 2);
+    registerMilestone("challenge_pickaxe_5k", "pickaxe.blocks.broken", 5000, () -> getConfig().emeraldBonus * 5);
+    registerMilestone("challenge_pickaxe_50k", "pickaxe.blocks.broken", 50000, () -> getConfig().emeraldBonus * 10);
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.GOLDEN_PICKAXE).key("challenge_pick_damage_1k")
@@ -135,8 +115,8 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_pick_damage_1k", "pickaxe.damage", 1000, getConfig().emeraldBonus);
-    registerMilestone("challenge_pick_damage_10k", "pickaxe.damage", 10000, getConfig().emeraldBonus * 2);
+    registerMilestone("challenge_pick_damage_1k", "pickaxe.damage", 1000, () -> getConfig().emeraldBonus);
+    registerMilestone("challenge_pick_damage_10k", "pickaxe.damage", 10000, () -> getConfig().emeraldBonus * 2);
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.RAW_IRON).key("challenge_pick_value_5k")
@@ -151,8 +131,8 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_pick_value_5k", "pickaxe.blocks.value", 5000, getConfig().emeraldBonus);
-    registerMilestone("challenge_pick_value_50k", "pickaxe.blocks.value", 50000, getConfig().emeraldBonus * 2);
+    registerMilestone("challenge_pick_value_5k", "pickaxe.blocks.value", 5000, () -> getConfig().emeraldBonus);
+    registerMilestone("challenge_pick_value_50k", "pickaxe.blocks.value", 50000, () -> getConfig().emeraldBonus * 2);
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.IRON_ORE).key("challenge_pick_ores_500")
@@ -167,59 +147,56 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_pick_ores_500", "pickaxe.ores", 500, getConfig().emeraldBonus);
-    registerMilestone("challenge_pick_ores_5k", "pickaxe.ores", 5000, getConfig().emeraldBonus * 2);
+    registerMilestone("challenge_pick_ores_500", "pickaxe.ores", 500, () -> getConfig().emeraldBonus);
+    registerMilestone("challenge_pick_ores_5k", "pickaxe.ores", 5000, () -> getConfig().emeraldBonus * 2);
 
   }
 
-  @EventHandler(priority = EventPriority.MONITOR)
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(EntityDamageByEntityEvent e) {
-    Player p = e.getDamager() instanceof Player ? (Player) e.getDamager() : null;
-    if (!getConfig().getXpForAttackingWithTools || p == null) {
+    if (!getConfig().getXpForAttackingWithTools
+        || !(e.getDamager() instanceof Player p)
+        || !checkValidEntity(e.getEntity().getType())
+        || !isPickaxe(p.getInventory().getItemInMainHand())) {
       return;
     }
 
-    shouldReturnForPlayer(p, () -> {
-      if (checkValidEntity(e.getEntity().getType())) {
-        AdaptPlayer a = getPlayer(p);
-        ItemStack hand = p.getInventory().getItemInMainHand();
-        if (isPickaxe(hand)) {
-          a.getData().addStat("pickaxe.swings", 1);
-          a.getData().addStat("pickaxe.damage", e.getDamage());
-          handleCooldown(p, () -> xp(p, e.getEntity().getLocation(), getConfig().damageXPMultiplier * e.getDamage()));
-        }
+    shouldReturnForPlayer(p, e, () -> {
+      AdaptPlayer adaptPlayer = getPlayer(p);
+      adaptPlayer.getData().addStat("pickaxe.damage", e.getDamage());
+      if (beginCooldown(p)) {
+        xp(p, e.getEntity().getLocation(), getConfig().damageXPMultiplier * e.getDamage());
       }
     });
   }
 
-  @EventHandler(priority = EventPriority.MONITOR)
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(BlockBreakEvent e) {
     Player p = e.getPlayer();
-    shouldReturnForPlayer(p, () -> {
-      ItemStack mainHand = p.getInventory().getItemInMainHand();
+    ItemStack mainHand = p.getInventory().getItemInMainHand();
+    if (!isPickaxe(mainHand)) {
+      return;
+    }
 
-      if (isPickaxe(mainHand)) {
-        Material blockType = e.getBlock().getType();
-        double blockValue = getValue(blockType);
-        AdaptPlayer adaptPlayer = getPlayer(p);
+    shouldReturnForPlayer(p, e, () -> {
+      Material blockType = e.getBlock().getType();
+      double blockValue = getValue(blockType);
+      AdaptPlayer adaptPlayer = getPlayer(p);
 
-        adaptPlayer.getData().addStat("pickaxe.blocks.broken", 1);
-        adaptPlayer.getData().addStat("pickaxe.blocks.value", blockValue);
-        if (blockType.name().contains("_ORE")) {
-          adaptPlayer.getData().addStat("pickaxe.ores", 1);
-        }
+      adaptPlayer.getData().addStat("pickaxe.blocks.broken", 1);
+      adaptPlayer.getData().addStat("pickaxe.blocks.value", blockValue);
+      if (blockType.name().contains("_ORE")) {
+        adaptPlayer.getData().addStat("pickaxe.ores", 1);
+      }
 
-        handleCooldown(p, () -> {
-          if (XpProvenance.breakXpMultiplier(e.getBlock()) <= 0) {
-            return;
-          }
-          if (mainHand.getEnchantments().containsKey(Enchantment.SILK_TOUCH)) {
-            xp(p, 5);
-          } else {
-            Location blockLocation = e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5);
-            xp(p, blockLocation, blockXP(e.getBlock(), blockValue));
-          }
-        });
+      if (!beginCooldown(p) || XpProvenance.breakXpMultiplier(e.getBlock()) <= 0) {
+        return;
+      }
+      if (mainHand.containsEnchantment(Enchantment.SILK_TOUCH)) {
+        xp(p, 5);
+      } else {
+        Location blockLocation = e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5);
+        xp(p, blockLocation, blockXP(e.getBlock(), blockValue));
       }
     });
   }
@@ -257,17 +234,12 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
   }
 
 
-  private void handleCooldown(Player p, Runnable action) {
+  private boolean beginCooldown(Player p) {
     if (!cooldowns.isReady(p.getUniqueId(), getConfig().cooldownDelay)) {
-      return;
+      return false;
     }
     cooldowns.mark(p.getUniqueId());
-    action.run();
-  }
-
-  @Override
-  public void onTick() {
-    checkStatTrackersForOnlinePlayers();
+    return true;
   }
 
   @Override

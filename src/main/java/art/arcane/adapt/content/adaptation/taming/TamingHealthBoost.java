@@ -35,39 +35,68 @@ import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.World;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Tameable;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.world.EntitiesUnloadEvent;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config> {
   private static final UUID MODIFIER = UUID.nameUUIDFromBytes("adapt-tame-health-boost".getBytes());
   private static final NamespacedKey MODIFIER_KEY = NamespacedKey.fromString("adapt:tame-health-boost");
-  private static final double FOLIA_SCAN_RADIUS = 48D;
+  private static final String LIFECYCLE_SCOPE = "tame-health";
+  private static final long ATTRIBUTE_REFRESH_MILLIS = 4753L;
+  private static final long OWNER_LEVEL_REFRESH_MILLIS = 1000L;
+  private static final long STATE_PRUNE_MILLIS = 60000L;
+  private final TameableOwnershipIndex ownershipIndex = TameableOwnershipIndex.instance();
+  private final TameableOwnershipIndex.Generation generation = ownershipIndex.claimGeneration(LIFECYCLE_SCOPE);
   private final Map<UUID, Integer> appliedLevels = new ConcurrentHashMap<>();
+  private final Map<UUID, Long> nextUpdateAt = new ConcurrentHashMap<>();
+  private final Map<UUID, Long> activeStatAt = new ConcurrentHashMap<>();
+  private final Map<UUID, OwnerState> ownerStates = new ConcurrentHashMap<>();
+  private final AtomicBoolean lifecycleCleanupStarted = new AtomicBoolean();
+  private Iterator<TameableOwnershipIndex.TrackedTameable> workCursor = Collections.emptyIterator();
+  private long nextOwnerLevelRefresh;
+  private long nextStatePrune;
+
+  static double elapsedActiveTicks(Long previous, long now) {
+    if (previous == null || now <= previous) {
+      return 0D;
+    }
+    return (now - previous) / 50D;
+  }
 
   public TamingHealthBoost() {
     super("tame-health");
     registerConfiguration(Config.class);
     setLocalizationKey("taming.health");
     setIcon(Material.COOKED_BEEF);
-    setInterval(4753);
+    setInterval(50);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.GOLDEN_APPLE)
-        .key("challenge_taming_health_boost_1728k")
+        .key("challenge_taming_health_boost_72k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
-    registerMilestone("challenge_taming_health_boost_1728k", "taming.health-boost.ticks-active", 1728000, 400);
+    registerMilestone("challenge_taming_health_boost_72k", "taming.health-boost.ticks-active", 72000, 400);
   }
 
   @Override
@@ -80,72 +109,163 @@ public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config
   }
 
   @Override
+  public void unregister() {
+    if (lifecycleCleanupStarted.compareAndSet(false, true)) {
+      ownershipIndex.cleanupLoaded(generation, this::removeHealthModifier);
+      ownerStates.clear();
+      nextUpdateAt.clear();
+      activeStatAt.clear();
+      appliedLevels.clear();
+    }
+    super.unregister();
+  }
+
+  @Override
   public void onTick() {
+    if (lifecycleCleanupStarted.get() || !ownershipIndex.isGenerationCurrent(generation)) {
+      return;
+    }
+
+    long now = System.currentTimeMillis();
+    List<AdaptPlayer> candidates = isEnabled() ? learnedCandidates(now) : List.of();
+    if (isEnabled()) {
+      refreshOwnerStates(candidates, now);
+    } else {
+      ownerStates.clear();
+    }
+    if (ownerStates.isEmpty() && appliedLevels.isEmpty()) {
+      pruneState(now);
+      return;
+    }
+
+    ownershipIndex.ensureBootstrapped();
+    ownershipIndex.discoverNearbyFolia(candidates, now);
+    processTameables(now);
+    pruneState(now);
+  }
+
+  private void refreshOwnerStates(List<AdaptPlayer> online, long now) {
+    if (now < nextOwnerLevelRefresh) {
+      return;
+    }
+
     if (J.isFoliaThreading()) {
-      onFoliaTick();
-      pruneInvalidAppliedLevels();
+      refreshFoliaOwnerStates(online);
+      nextOwnerLevelRefresh = now + OWNER_LEVEL_REFRESH_MILLIS;
       return;
     }
 
-    Map<UUID, OwnerState> ownerStates = new HashMap<>();
-    boolean hasActiveOwners = false;
-    for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+    Map<UUID, OwnerState> refreshed = new HashMap<>(online.size());
+    for (AdaptPlayer adaptPlayer : online) {
       Player owner = adaptPlayer.getPlayer();
-      int level = getLevel(owner);
+      if (owner == null || !owner.isOnline()) {
+        continue;
+      }
+
+      int level = getLevel(adaptPlayer);
       if (level > 0) {
-        ownerStates.put(owner.getUniqueId(), new OwnerState(adaptPlayer, owner, level));
-        hasActiveOwners = true;
+        refreshed.put(owner.getUniqueId(), new OwnerState(adaptPlayer, level));
       }
     }
-
-    if (!hasActiveOwners) {
-      clearAppliedLevels();
-      return;
-    }
-
-    Set<UUID> seen = new HashSet<>();
-    for (World world : Bukkit.getServer().getWorlds()) {
-      Collection<Tameable> tameables = world.getEntitiesByClass(Tameable.class);
-      for (Tameable tameable : tameables) {
-        if (tameable.isTamed() && tameable.getOwner() instanceof Player p) {
-          seen.add(tameable.getUniqueId());
-          OwnerState state = ownerStates.get(p.getUniqueId());
-          int level = state == null ? 0 : state.level();
-          update(tameable, level);
-          if (level > 0 && state != null) {
-            state.ownerData().getData().addStat("taming.health-boost.ticks-active", 1);
-          }
-        }
-      }
-    }
-    clearMissingAppliedLevels(seen);
+    ownerStates.clear();
+    ownerStates.putAll(refreshed);
+    nextOwnerLevelRefresh = now + OWNER_LEVEL_REFRESH_MILLIS;
   }
 
-  private void onFoliaTick() {
-    for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+  private void refreshFoliaOwnerStates(List<AdaptPlayer> online) {
+    Set<UUID> onlineIds = new HashSet<>(online.size());
+    for (AdaptPlayer adaptPlayer : online) {
       Player owner = adaptPlayer.getPlayer();
-      OwnerState state = new OwnerState(adaptPlayer, owner, getLevel(owner));
-      J.runEntity(owner, () -> updateNearbyOwnedTameables(state));
+      if (owner == null) {
+        continue;
+      }
+
+      UUID ownerId = owner.getUniqueId();
+      onlineIds.add(ownerId);
+      J.runEntity(owner, () -> ownershipIndex.runIfGenerationCurrent(generation, () -> {
+        if (lifecycleCleanupStarted.get()) {
+          return;
+        }
+        if (!owner.isOnline()) {
+          ownerStates.remove(ownerId);
+          return;
+        }
+
+        int level = getLevel(adaptPlayer);
+        if (level > 0) {
+          ownerStates.put(ownerId, new OwnerState(adaptPlayer, level));
+        } else {
+          ownerStates.remove(ownerId);
+        }
+      }));
+    }
+    ownerStates.keySet().removeIf(ownerId -> !onlineIds.contains(ownerId));
+  }
+
+  private void processTameables(long now) {
+    if (!workCursor.hasNext()) {
+      workCursor = ownershipIndex.iterator();
+    }
+
+    int limit = Math.max(1, getConfig().maxTameablesPerPass);
+    int examined = 0;
+    while (examined < limit && workCursor.hasNext()) {
+      TameableOwnershipIndex.TrackedTameable tracked = workCursor.next();
+      examined++;
+
+      UUID entityId = tracked.entityId();
+      Long nextUpdate = nextUpdateAt.get(entityId);
+      if (nextUpdate != null && now < nextUpdate) {
+        continue;
+      }
+
+      nextUpdateAt.put(entityId, now + ATTRIBUTE_REFRESH_MILLIS);
+      Runnable updateTask = () -> ownershipIndex.runIfGenerationCurrent(generation, () -> {
+        if (!lifecycleCleanupStarted.get()) {
+          updateTrackedTameable(tracked);
+        }
+      });
+      if (J.isFoliaThreading()) {
+        J.runEntity(tracked.entity(), updateTask);
+      } else {
+        updateTask.run();
+      }
     }
   }
 
-  private void updateNearbyOwnedTameables(OwnerState state) {
-    Player owner = state.owner();
-    if (owner == null || !owner.isOnline()) {
+  private void updateTrackedTameable(TameableOwnershipIndex.TrackedTameable tracked) {
+    UUID ownerId = ownershipIndex.refreshOwner(tracked);
+    if (ownerId == null) {
+      removeHealthModifier(tracked.entity());
+      nextUpdateAt.remove(tracked.entityId());
+      activeStatAt.remove(tracked.entityId());
       return;
     }
 
-    for (Entity nearby : owner.getNearbyEntities(FOLIA_SCAN_RADIUS, FOLIA_SCAN_RADIUS, FOLIA_SCAN_RADIUS)) {
-      if (!(nearby instanceof Tameable tameable) || !tameable.isTamed()) {
-        continue;
+    OwnerState state = ownerStates.get(ownerId);
+    int level = state == null ? 0 : state.level();
+    update(tracked.entity(), level);
+    if (state != null && level > 0 && appliedLevels.containsKey(tracked.entityId())) {
+      double activeTicks = activeTicksSinceLastUpdate(tracked.entityId());
+      if (activeTicks > 0D) {
+        addActiveTicks(state.ownerData(), activeTicks);
       }
-      if (!(tameable.getOwner() instanceof Player tameOwner) || !tameOwner.getUniqueId().equals(owner.getUniqueId())) {
-        continue;
-      }
+    } else {
+      activeStatAt.remove(tracked.entityId());
+    }
+  }
 
-      update(tameable, state.level());
-      if (state.level() > 0) {
-        state.ownerData().getData().addStat("taming.health-boost.ticks-active", 1);
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(EntityDeathEvent event) {
+    clearEntityState(event.getEntity().getUniqueId());
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(EntitiesUnloadEvent event) {
+    for (Entity entity : event.getEntities()) {
+      if (entity instanceof Tameable) {
+        nextUpdateAt.remove(entity.getUniqueId());
+        activeStatAt.remove(entity.getUniqueId());
       }
     }
   }
@@ -167,11 +287,11 @@ public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config
       return;
     }
 
-    if (appliedLevel != null && appliedLevel == level) {
+    if (appliedLevel != null && appliedLevel == level && attribute.hasModifier(MODIFIER, MODIFIER_KEY)) {
       return;
     }
 
-    attribute.setModifier(MODIFIER, MODIFIER_KEY, getHealthBoost(level), AttributeModifier.Operation.ADD_SCALAR);
+    attribute.setTransientModifier(MODIFIER, MODIFIER_KEY, getHealthBoost(level), AttributeModifier.Operation.ADD_SCALAR);
     appliedLevels.put(tameableId, level);
     fx(j, FxPriority.TRANSITION)
         .ring(Particles.VILLAGER_HAPPY, 0.5D, 6, 0.3D)
@@ -179,58 +299,55 @@ public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config
         .chord(Sound.BLOCK_NOTE_BLOCK_CHIME, 0.4F, 1.5F, Sound.ENTITY_WOLF_PANT, 0.5F, 1.4F);
   }
 
-  private void clearAppliedLevels() {
-    if (appliedLevels.isEmpty()) {
+  private void pruneState(long now) {
+    if (now < nextStatePrune) {
       return;
     }
 
-    for (UUID tameableId : new HashSet<>(appliedLevels.keySet())) {
-      Entity entity = Bukkit.getEntity(tameableId);
-      if (entity instanceof Tameable tameable) {
-        IAttribute attribute = Version.get().getAttribute(tameable, Attributes.GENERIC_MAX_HEALTH);
-        if (attribute != null && attribute.hasModifier(MODIFIER, MODIFIER_KEY)) {
-          attribute.removeModifier(MODIFIER, MODIFIER_KEY);
-        }
-      }
-      appliedLevels.remove(tameableId);
-    }
+    nextUpdateAt.keySet().removeIf(entityId -> !ownershipIndex.contains(entityId));
+    activeStatAt.keySet().removeIf(entityId -> !ownershipIndex.contains(entityId));
+    nextStatePrune = now + STATE_PRUNE_MILLIS;
   }
 
-  private void clearMissingAppliedLevels(Set<UUID> seen) {
-    if (appliedLevels.isEmpty()) {
+  private double activeTicksSinceLastUpdate(UUID entityId) {
+    long now = System.currentTimeMillis();
+    Long previous = activeStatAt.put(entityId, now);
+    return elapsedActiveTicks(previous, now);
+  }
+
+  private void addActiveTicks(AdaptPlayer ownerData, double activeTicks) {
+    Player owner = ownerData.getPlayer();
+    if (owner == null) {
       return;
     }
 
-    for (UUID tameableId : new HashSet<>(appliedLevels.keySet())) {
-      if (seen.contains(tameableId)) {
-        continue;
+    J.runEntity(owner, () -> ownershipIndex.runIfGenerationCurrent(generation, () -> {
+      if (!lifecycleCleanupStarted.get()) {
+        ownerData.getData().addStat("taming.health-boost.ticks-active", activeTicks);
       }
-
-      Entity entity = Bukkit.getEntity(tameableId);
-      if (entity instanceof Tameable tameable) {
-        IAttribute attribute = Version.get().getAttribute(tameable, Attributes.GENERIC_MAX_HEALTH);
-        if (attribute != null && attribute.hasModifier(MODIFIER, MODIFIER_KEY)) {
-          attribute.removeModifier(MODIFIER, MODIFIER_KEY);
-        }
-      }
-      appliedLevels.remove(tameableId);
-    }
+    }));
   }
 
-  private void pruneInvalidAppliedLevels() {
-    if (appliedLevels.isEmpty()) {
+  private void clearEntityState(UUID entityId) {
+    appliedLevels.remove(entityId);
+    nextUpdateAt.remove(entityId);
+    activeStatAt.remove(entityId);
+  }
+
+  private void removeHealthModifier(Tameable tameable) {
+    if (!tameable.isValid() || tameable.isDead()) {
+      appliedLevels.remove(tameable.getUniqueId());
       return;
     }
 
-    for (UUID tameableId : new HashSet<>(appliedLevels.keySet())) {
-      Entity entity = Bukkit.getEntity(tameableId);
-      if (!(entity instanceof Tameable tameable) || !tameable.isValid() || tameable.isDead()) {
-        appliedLevels.remove(tameableId);
-      }
+    IAttribute attribute = Version.get().getAttribute(tameable, Attributes.GENERIC_MAX_HEALTH);
+    if (attribute != null && attribute.hasModifier(MODIFIER, MODIFIER_KEY)) {
+      attribute.removeModifier(MODIFIER, MODIFIER_KEY);
     }
+    appliedLevels.remove(tameable.getUniqueId());
   }
 
-  private record OwnerState(AdaptPlayer ownerData, Player owner, int level) {
+  private record OwnerState(AdaptPlayer ownerData, int level) {
   }
 
   @ConfigDescription("Increase your tamed animal maximum health.")
@@ -239,6 +356,8 @@ public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config
     double healthBoostFactor = 2.5;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Health Boost Base for the Taming Health Boost adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double healthBoostBase = 0.57;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum loaded tameables examined per scheduler pass.", impact = "Higher values refresh very large pet populations faster but increase per-tick work.")
+    int maxTameablesPerPass = 128;
 
     public Config() {
       baseCost = 6;

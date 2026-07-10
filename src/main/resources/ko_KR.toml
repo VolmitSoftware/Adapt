@@ -5,18 +5,6 @@
 title = "움직입시다!"
 description = "1KM 이상 이동하기 (1,000 블럭)"
 
-[advancement.challenge_sprint_5k]
-title = "5KM 뜀박질!"
-description = "5KM 이상 이동하기 (5,000 블럭)"
-
-[advancement.challenge_sprint_50k]
-title = "50KM 전력질주!"
-description = "50KM 이상 이동하기 (50,000 블럭)"
-
-[advancement.challenge_sprint_500k]
-title = "우주를 횡단하라!!"
-description = "500KM 이상 이동하기 (500,000 블럭)"
-
 [advancement.challenge_sprint_marathon]
 title = "(진짜) 마라톤 뛸 시간!"
 description = "42,195 블럭을 달리세요!"
@@ -33,14 +21,6 @@ description = "블럭 5,000개를 배치하세요"
 title = "숙련된 건축가!"
 description = "블럭 50,000개를 배치하세요"
 
-[advancement.challenge_place_500k]
-title = "마스터 건축가!"
-description = "블럭 500,000개를 배치하세요"
-
-[advancement.challenge_place_5m]
-title = "대칭의 수호자!"
-description = "현실이 당신의 놀이터입니다! (5백만 블럭)"
-
 [advancement.challenge_chop_1k]
 title = "풋내기 나무꾼!"
 description = "나무 블럭 1,000개를 베세요"
@@ -52,14 +32,6 @@ description = "나무 블럭 5,000개를 베세요"
 [advancement.challenge_chop_50k]
 title = "숙련된 나무꾼!"
 description = "나무 블럭 50,000개를 베세요"
-
-[advancement.challenge_chop_500k]
-title = "마스터 나무꾼!"
-description = "나무 블럭 500,000개를 베세요"
-
-[advancement.challenge_chop_5m]
-title = "잭슨이라는 개"
-description = "세상에서 제일 착한 강아지! (5백만 블럭)"
 
 [advancement.challenge_block_1k]
 title = "겨우 막는 중!"
@@ -73,14 +45,6 @@ description = "공격 5,000번을 막으세요"
 title = "막기가 내 인생이야!"
 description = "공격 50,000번을 막으세요"
 
-[advancement.challenge_block_500k]
-title = "막기가 내 존재 이유야!"
-description = "공격 500,000번을 막으세요"
-
-[advancement.challenge_block_5m]
-title = "아픈 손"
-description = "공격 5,000,000번을 막으세요"
-
 [advancement.challenge_brew_1k]
 title = "풋내기 연금술사!"
 description = "물약 1,000개를 사용하세요"
@@ -89,18 +53,6 @@ description = "물약 1,000개를 사용하세요"
 title = "중급 연금술사!"
 description = "물약 5,000개를 사용하세요"
 
-[advancement.challenge_brew_50k]
-title = "숙련된 연금술사!"
-description = "물약 50,000개를 사용하세요"
-
-[advancement.challenge_brew_500k]
-title = "마스터 연금술사!"
-description = "물약 500,000개를 사용하세요"
-
-[advancement.challenge_brew_5m]
-title = "위대한 연금술사"
-description = "물약 5,000,000개를 사용하세요"
-
 [advancement.challenge_brewsplash_1k]
 title = "풋내기 투척사!"
 description = "물약 1,000개를 던지세요"
@@ -108,18 +60,6 @@ description = "물약 1,000개를 던지세요"
 [advancement.challenge_brewsplash_5k]
 title = "중급 투척사!"
 description = "물약 5,000개를 던지세요"
-
-[advancement.challenge_brewsplash_50k]
-title = "숙련된 투척사!"
-description = "물약 50,000개를 던지세요"
-
-[advancement.challenge_brewsplash_500k]
-title = "마스터 투척사!"
-description = "물약 500,000개를 던지세요"
-
-[advancement.challenge_brewsplash_5m]
-title = "투척의 달인"
-description = "물약 5,000,000개를 던지세요"
 
 [advancement.challenge_craft_1k]
 title = "손재주 좋은 제작자!"
@@ -133,14 +73,6 @@ description = "아이템 5,000개를 제작하세요"
 title = "헌신적인 제작자!"
 description = "아이템 50,000개를 제작하세요"
 
-[advancement.challenge_craft_500k]
-title = "요란한 제작자!"
-description = "아이템 500,000개를 제작하세요"
-
-[advancement.challenge_craft_5m]
-title = "재앙의 제작왕"
-description = "아이템 5,000,000개를 제작하세요"
-
 [advancement.challenge_enchant_1k]
 title = "풋내기 마법부여사!"
 description = "아이템 1,000개를 마법부여하세요"
@@ -148,18 +80,6 @@ description = "아이템 1,000개를 마법부여하세요"
 [advancement.challenge_enchant_5k]
 title = "중급 마법부여사!"
 description = "아이템 5,000개를 마법부여하세요"
-
-[advancement.challenge_enchant_50k]
-title = "숙련된 마법부여사!"
-description = "아이템 50,000개를 마법부여하세요"
-
-[advancement.challenge_enchant_500k]
-title = "마스터 마법부여사!"
-description = "아이템 500,000개를 마법부여하세요"
-
-[advancement.challenge_enchant_5m]
-title = "신비로운 마법부여사"
-description = "아이템 5,000,000개를 마법부여하세요"
 
 [advancement.challenge_excavate_1k]
 title = "의욕 넘치는 발굴가!"
@@ -172,26 +92,6 @@ description = "블럭 5,000개를 파내세요"
 [advancement.challenge_excavate_50k]
 title = "숙련된 발굴가!"
 description = "블럭 50,000개를 파내세요"
-
-[advancement.challenge_excavate_500k]
-title = "마스터 발굴가!"
-description = "블럭 500,000개를 파내세요"
-
-[advancement.challenge_excavate_5m]
-title = "신비로운 발굴가"
-description = "블럭 5,000,000개를 파내세요"
-
-[advancement.horrible_person]
-title = "당신은 끔찍한 사람입니다"
-description = "정말 이해할 수 없군요"
-
-[advancement.challenge_turtle_egg_smasher]
-title = "거북이 알 분쇄기!"
-description = "거북이 알 100개 깨기"
-
-[advancement.challenge_turtle_egg_annihilator]
-title = "거북이 알 섬멸자!"
-description = "거북이 알 500개 깨기"
 
 [advancement.challenge_novice_hunter]
 title = "초보 사냥꾼!"
@@ -224,14 +124,6 @@ description = "블록 5,000개 깨기"
 [advancement.challenge_pickaxe_50k]
 title = "전문 광부"
 description = "블록 50,000개 깨기"
-
-[advancement.challenge_pickaxe_500k]
-title = "마스터 광부"
-description = "블록 500,000개 깨기"
-
-[advancement.challenge_pickaxe_5m]
-title = "전설의 광부"
-description = "블록 5,000,000개 깨기"
 
 [advancement.challenge_eat_100]
 title = "먹을 게 너무 많아!"
@@ -332,10 +224,6 @@ description = "1시간 동안 온라인 상태 유지하기"
 [advancement.challenge_chronos_24h]
 title = "시간의 모래"
 description = "24시간 동안 온라인 상태 유지하기"
-
-[advancement.challenge_chronos_168h]
-title = "영원한 자"
-description = "168시간(1주일) 동안 온라인 상태 유지하기"
 
 [advancement.challenge_nether_50]
 title = "지옥의 문지기"
@@ -440,14 +328,6 @@ title = "구름 위의 건축사"
 description = "Y=128 위에 1,000블록 설치하기"
 
 # Axes - New Achievement Chains
-[advancement.challenge_axe_swing_500]
-title = "도끼 휘두르기"
-description = "도끼를 500번 휘두르기"
-
-[advancement.challenge_axe_swing_5k]
-title = "광전사"
-description = "도끼를 5,000번 휘두르기"
-
 [advancement.challenge_axe_damage_1k]
 title = "절단자"
 description = "도끼로 1,000 데미지 입히기"
@@ -559,14 +439,6 @@ description = "50번 텔레포트하기"
 title = "시간의 왜곡"
 description = "500번 텔레포트하기"
 
-[advancement.challenge_chronos_deaths_10]
-title = "필멸자"
-description = "10번 죽기"
-
-[advancement.challenge_chronos_deaths_100]
-title = "죽음을 이기는 자"
-description = "100번 죽기"
-
 # Crafting - New Achievement Chains
 [advancement.challenge_craft_value_10k]
 title = "제작의 가치"
@@ -591,14 +463,6 @@ description = "갑옷 25개 제작하기"
 [advancement.challenge_craft_armor_250]
 title = "갑옷의 대가"
 description = "갑옷 250개 제작하기"
-
-[advancement.challenge_craft_mass_25k]
-title = "대량 생산"
-description = "아이템 25,000개 제작하기"
-
-[advancement.challenge_craft_mass_250k]
-title = "산업 혁명"
-description = "아이템 250,000개 제작하기"
 
 # Discovery - New Achievement Chains
 [advancement.challenge_discover_items_50]
@@ -650,14 +514,6 @@ description = "인챈트 파워 100 축적하기"
 title = "비술의 대가"
 description = "인챈트 파워 1,000 축적하기"
 
-[advancement.challenge_enchant_levels_1k]
-title = "레벨 소모자"
-description = "인챈트에 경험 레벨 1,000 사용하기"
-
-[advancement.challenge_enchant_levels_10k]
-title = "경험치의 무덤"
-description = "인챈트에 경험 레벨 10,000 사용하기"
-
 [advancement.challenge_enchant_high_25]
 title = "도박사"
 description = "최대 레벨 인챈트 25회 수행하기"
@@ -675,14 +531,6 @@ title = "비술의 투자"
 description = "모든 인챈트에 총 5,000레벨 사용하기"
 
 # Excavation - New Achievement Chains
-[advancement.challenge_dig_swing_500]
-title = "삽질꾼"
-description = "삽을 500번 휘두르기"
-
-[advancement.challenge_dig_swing_5k]
-title = "굴착기"
-description = "삽을 5,000번 휘두르기"
-
 [advancement.challenge_dig_damage_1k]
 title = "삽의 기사"
 description = "삽으로 1,000 데미지 입히기"
@@ -787,14 +635,6 @@ title = "역병 수집가"
 description = "위더 장미 100송이 부수기"
 
 # Pickaxes - New Achievement Chains
-[advancement.challenge_pick_swing_500]
-title = "광부의 팔"
-description = "곡괭이를 500번 휘두르기"
-
-[advancement.challenge_pick_swing_5k]
-title = "터널 굴착자"
-description = "곡괭이를 5,000번 휘두르기"
-
 [advancement.challenge_pick_damage_1k]
 title = "곡괭이 전사"
 description = "곡괭이로 1,000 데미지 입히기"
@@ -935,14 +775,6 @@ description = "웅크리기 중 몹 10마리 처치하기"
 title = "그림자 사신"
 description = "웅크리기 중 몹 100마리 처치하기"
 
-[advancement.challenge_stealth_time_1h]
-title = "인내"
-description = "1시간(3,600초) 웅크리기"
-
-[advancement.challenge_stealth_time_10h]
-title = "그림자의 지배자"
-description = "10시간(36,000초) 웅크리기"
-
 [advancement.challenge_stealth_arrows_50]
 title = "조용한 궁수"
 description = "웅크리기 중 화살 50발 발사하기"
@@ -1009,14 +841,6 @@ description = "펫이 생물 25마리 처치하기"
 title = "우두머리 지휘관"
 description = "펫이 생물 250마리 처치하기"
 
-[advancement.challenge_taming_2500]
-title = "번식 전문가"
-description = "동물 2,500마리 번식시키기"
-
-[advancement.challenge_taming_25k]
-title = "유전학의 대가"
-description = "동물 25,000마리 번식시키기"
-
 # TragOul - New Achievement Chains
 [advancement.challenge_trag_hits_500]
 title = "샌드백"
@@ -1025,30 +849,6 @@ description = "500번 맞기"
 [advancement.challenge_trag_hits_5k]
 title = "고통의 미식가"
 description = "5,000번 맞기"
-
-[advancement.challenge_trag_deaths_10]
-title = "아홉 개의 생명"
-description = "10번 죽기"
-
-[advancement.challenge_trag_deaths_100]
-title = "반복되는 악몽"
-description = "100번 죽기"
-
-[advancement.challenge_trag_fire_500]
-title = "화상 피해자"
-description = "화염 데미지 500 견디기"
-
-[advancement.challenge_trag_fire_5k]
-title = "불사조"
-description = "화염 데미지 5,000 견디기"
-
-[advancement.challenge_trag_fall_500]
-title = "중력 확인"
-description = "낙하 데미지 500 견디기"
-
-[advancement.challenge_trag_fall_5k]
-title = "종단 속도"
-description = "낙하 데미지 5,000 견디기"
 
 # Unarmed - New Achievement Chains
 [advancement.challenge_unarmed_dmg_1k]

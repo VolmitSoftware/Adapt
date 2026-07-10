@@ -181,9 +181,6 @@ public class PickaxeTunnelBore extends SimpleAdaptation<PickaxeTunnelBore.Config
     return targets;
   }
 
-  @Override
-  public void onTick() {
-  }
 
   @ConfigDescription("Sneak-mine stone-type blocks to bore a tunnel plane oriented by your facing.")
   protected static class Config extends AdaptationConfig {

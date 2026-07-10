@@ -28,6 +28,7 @@ import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -41,9 +42,13 @@ import org.bukkit.event.player.PlayerVelocityEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class BlockingBastionStance extends SimpleAdaptation<BlockingBastionStance.Config> {
+  private final Map<UUID, Boolean> activeSessions = playerState();
+
   public BlockingBastionStance() {
     super("blocking-bastion-stance");
     registerConfiguration(Config.class);
@@ -71,8 +76,12 @@ public class BlockingBastionStance extends SimpleAdaptation<BlockingBastionStanc
     statLore(v, Form.pc(getProjectileNegateChance(level), 0), 3);
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST)
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(EntityDamageByEntityEvent e) {
+    if (e.isCancelled()) {
+      return;
+    }
+
     if (!(e.getEntity() instanceof Player defender) || !isBastionStance(defender)) {
       return;
     }
@@ -88,6 +97,7 @@ public class BlockingBastionStance extends SimpleAdaptation<BlockingBastionStanc
 
     int sessionCount = getStorageInt(defender, "bastionSessionCount", 0) + 1;
     setStorage(defender, "bastionSessionCount", sessionCount);
+    activeSessions.put(defender.getUniqueId(), Boolean.TRUE);
     if (sessionCount >= 10) {
       grantOnce(defender, "challenge_blocking_bastion_10");
     }
@@ -175,12 +185,19 @@ public class BlockingBastionStance extends SimpleAdaptation<BlockingBastionStanc
 
   @Override
   public void onTick() {
-    for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
-      Player p = adaptPlayer.getPlayer();
-      int level = getActiveLevel(p);
-      if (level > 0 && !isBastionStance(p, level)) {
-        setStorage(p, "bastionSessionCount", 0);
+    for (UUID playerId : activeSessions.keySet()) {
+      Player p = Bukkit.getPlayer(playerId);
+      if (p == null || !p.isOnline()) {
+        activeSessions.remove(playerId);
+        continue;
       }
+      withPlayerThread(p, () -> {
+        int level = getActiveLevel(p);
+        if (level <= 0 || !isBastionStance(p, level)) {
+          setStorage(p, "bastionSessionCount", 0);
+          activeSessions.remove(playerId);
+        }
+      });
     }
   }
 

@@ -25,6 +25,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.version.IAttribute;
 import art.arcane.adapt.api.version.Version;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
@@ -101,7 +102,7 @@ public class TragoulHealing extends SimpleAdaptation<TragoulHealing.Config> {
         }
 
         double healAmount = e.getDamage() * getHealPercent(level);
-        art.arcane.adapt.api.version.IAttribute attribute = Version.get().getAttribute(p, Attributes.GENERIC_MAX_HEALTH);
+        IAttribute attribute = Version.get().getAttribute(p, Attributes.GENERIC_MAX_HEALTH);
         p.setHealth(Math.min(attribute == null ? p.getHealth() : attribute.getValue(), p.getHealth() + healAmount));
         addStat(p, "tragoul.healing.health-stolen", (int) healAmount);
         fx(p.getLocation().add(0, 1.0, 0), FxPriority.TRAIL).dustBurst(HEAL_PINK, 2, 0.15D, 0.8F);
@@ -142,9 +143,6 @@ public class TragoulHealing extends SimpleAdaptation<TragoulHealing.Config> {
         .start();
   }
 
-  @Override
-  public void onTick() {
-  }
 
   @ConfigDescription("Regain health based on the damage you deal.")
   protected static class Config extends AdaptationConfig {

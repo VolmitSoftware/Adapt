@@ -125,10 +125,6 @@ public class HunterAdrenaline extends SimpleAdaptation<HunterAdrenaline.Config> 
         .start();
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Deal more melee damage the lower your health is.")
   protected static class Config extends AdaptationConfig {

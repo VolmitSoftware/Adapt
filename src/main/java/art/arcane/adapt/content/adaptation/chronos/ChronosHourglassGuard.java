@@ -27,6 +27,7 @@ import art.arcane.adapt.api.fx.FxPresets;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
@@ -37,9 +38,11 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Tameable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -47,25 +50,33 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.LongSupplier;
 
 public class ChronosHourglassGuard extends SimpleAdaptation<ChronosHourglassGuard.Config> {
-  private final Map<UUID, Long> cooldowns;
-  private final Map<UUID, Long> invulnerableUntil;
-  private final Set<UUID> cooldownReadyNotify;
+  private static final double HARD_MAX_ENEMY_SLOW_RADIUS = 12D;
+  private static final int HARD_MAX_CANDIDATES_PER_SAVE = 32;
+  private static final int HARD_MAX_AFFECTED_PER_SAVE = 16;
+  private static final int HARD_MAX_TARGET_CHAINS_PER_WINDOW = 128;
+
+  private final Map<UUID, Long> cooldowns = playerState();
+  private final Map<UUID, Long> invulnerableUntil = playerState();
+  private final Map<UUID, Boolean> cooldownReadyNotify = playerState();
+  private final HourglassWorkBudget slowBudget = new HourglassWorkBudget(
+      HARD_MAX_TARGET_CHAINS_PER_WINDOW,
+      50L,
+      System::currentTimeMillis
+  );
 
   public ChronosHourglassGuard() {
     super("chronos-hourglass-guard");
     registerConfiguration(Config.class);
     setIcon(Material.TOTEM_OF_UNDYING);
     setInterval(1000);
-    cooldowns = new ConcurrentHashMap<>();
-    invulnerableUntil = new ConcurrentHashMap<>();
-    cooldownReadyNotify = ConcurrentHashMap.newKeySet();
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.TOTEM_OF_UNDYING)
         .key("challenge_chronos_hourglass_10")
@@ -92,6 +103,7 @@ public class ChronosHourglassGuard extends SimpleAdaptation<ChronosHourglassGuar
     UUID id = e.getPlayer().getUniqueId();
     cooldowns.remove(id);
     invulnerableUntil.remove(id);
+    cooldownReadyNotify.remove(id);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -148,40 +160,98 @@ public class ChronosHourglassGuard extends SimpleAdaptation<ChronosHourglassGuar
       ChronosSoundFX.playRewindFinish(p);
     }
 
-    cooldownReadyNotify.add(id);
+    cooldownReadyNotify.put(id, true);
     addStat(p, "chronos.hourglass-guard.saves", 1);
     xp(p, p.getLocation(), getConfig().xpOnSave + (level * getConfig().xpPerLevel));
   }
 
   private void slowNearbyEnemies(Player p) {
-    double radius = getConfig().enemySlowRadius;
-    double radiusSq = radius * radius;
-    int pulsed = 0;
-    for (Entity entity : p.getWorld().getNearbyEntities(p.getLocation(), radius, radius, radius)) {
+    int targetBudget = slowBudget.reserve(HARD_MAX_CANDIDATES_PER_SAVE);
+    if (targetBudget <= 0) {
+      return;
+    }
+    Location center = p.getLocation();
+    double radius = Math.max(1D, Math.min(HARD_MAX_ENEMY_SLOW_RADIUS, getConfig().enemySlowRadius));
+    List<LivingEntity> candidates = new ArrayList<>(targetBudget);
+    for (Entity entity : center.getWorld().getNearbyEntities(center, radius, radius, radius)) {
       if (!(entity instanceof LivingEntity living) || entity.getUniqueId().equals(p.getUniqueId())) {
         continue;
       }
-
-      if (entity.getLocation().distanceSquared(p.getLocation()) > radiusSq) {
-        continue;
-      }
-
-      if (isProtectedFriendly(p, living)) {
-        continue;
-      }
-
-      if (living instanceof Player target && !canDamageTarget(p, target)) {
-        continue;
-      }
-
-      living.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS,
-          getConfig().enemySlowTicks, getConfig().enemySlowAmplifier, true, false, false), true);
-
-      if (pulsed < 8) {
-        fx(living.getLocation(), FxPriority.COMBAT).ring(Particles.END_ROD, 0.9D, 3, 0.15D);
-        pulsed++;
+      candidates.add(living);
+      if (candidates.size() >= targetBudget) {
+        break;
       }
     }
+
+    SlowBatch batch = new SlowBatch(
+        p,
+        center,
+        radius,
+        Math.max(1, Math.min(1200, getConfig().enemySlowTicks)),
+        Math.max(0, Math.min(4, getConfig().enemySlowAmplifier))
+    );
+    for (LivingEntity candidate : candidates) {
+      J.runEntity(candidate, () -> inspectSlowCandidateOwned(batch, candidate));
+    }
+  }
+
+  private void inspectSlowCandidateOwned(SlowBatch batch, LivingEntity target) {
+    SlowTargetSnapshot snapshot = captureSlowTarget(batch, target);
+    if (snapshot == null || !batch.hasCapacity()) {
+      return;
+    }
+    J.runEntity(batch.player, () -> authorizeSlowCandidateOwned(batch, target, snapshot));
+  }
+
+  private SlowTargetSnapshot captureSlowTarget(SlowBatch batch, LivingEntity target) {
+    if (!target.isValid() || target.isDead() || isProtectedFriendly(null, target)) {
+      return null;
+    }
+    if (target instanceof Tameable tameable && tameable.isTamed()) {
+      AnimalTamer owner = tameable.getOwner();
+      if (owner != null && batch.playerId.equals(owner.getUniqueId())) {
+        return null;
+      }
+    }
+    Location location = target.getLocation();
+    if (!isInsideSlowArea(batch, location)) {
+      return null;
+    }
+    return new SlowTargetSnapshot(location, target instanceof Player);
+  }
+
+  private void authorizeSlowCandidateOwned(SlowBatch batch, LivingEntity target, SlowTargetSnapshot snapshot) {
+    if (!batch.player.isOnline() || !batch.hasCapacity()) {
+      return;
+    }
+    boolean allowed = snapshot.playerTarget
+        ? canPVP(batch.player, snapshot.location)
+        : canPVE(batch.player, snapshot.location);
+    if (allowed) {
+      J.runEntity(target, () -> applySlowOwned(batch, target));
+    }
+  }
+
+  private void applySlowOwned(SlowBatch batch, LivingEntity target) {
+    if (captureSlowTarget(batch, target) == null || !batch.claimAffected()) {
+      return;
+    }
+    target.addPotionEffect(new PotionEffect(
+        PotionEffectType.SLOWNESS,
+        batch.slowTicks,
+        batch.slowAmplifier,
+        true,
+        false,
+        false
+    ), true);
+    if (batch.claimFx()) {
+      fx(target.getLocation(), FxPriority.COMBAT).ring(Particles.END_ROD, 0.9D, 3, 0.15D);
+    }
+  }
+
+  private boolean isInsideSlowArea(SlowBatch batch, Location location) {
+    return location.getWorld() == batch.center.getWorld()
+        && location.distanceSquared(batch.center) <= batch.radiusSquared;
   }
 
   @Override
@@ -190,20 +260,23 @@ public class ChronosHourglassGuard extends SimpleAdaptation<ChronosHourglassGuar
     invulnerableUntil.entrySet().removeIf(entry -> entry.getValue() <= now);
 
     if (!cooldownReadyNotify.isEmpty()) {
-      for (Iterator<UUID> iterator = cooldownReadyNotify.iterator(); iterator.hasNext(); ) {
-        UUID id = iterator.next();
+      for (UUID id : cooldownReadyNotify.keySet()) {
         Player p = Bukkit.getPlayer(id);
         if (p == null) {
-          iterator.remove();
+          cooldownReadyNotify.remove(id);
           continue;
         }
 
-        if (cooldowns.getOrDefault(id, 0L) <= now) {
-          FxPresets.readyPing(this, p);
-          if (getConfig().playClockSounds) {
-            ChronosSoundFX.playCooldownReady(p);
-          }
-          iterator.remove();
+        if (cooldowns.getOrDefault(id, 0L) <= now && cooldownReadyNotify.remove(id) != null) {
+          J.runEntity(p, () -> {
+            if (!p.isOnline()) {
+              return;
+            }
+            FxPresets.readyPing(this, p);
+            if (getConfig().playClockSounds) {
+              ChronosSoundFX.playCooldownReady(p);
+            }
+          });
         }
       }
     }
@@ -225,7 +298,7 @@ public class ChronosHourglassGuard extends SimpleAdaptation<ChronosHourglassGuar
     long cooldownReductionPerLevelMillis = 60000;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Lowest possible cooldown in milliseconds regardless of level.", impact = "Higher values keep a floor under cooldown reduction.")
     long minimumCooldownMillis = 180000;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Radius in blocks for the slow applied to nearby enemies on save.", impact = "Higher values slow enemies from further away.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Radius in blocks for the slow applied to nearby enemies on save.", impact = "Higher values slow enemies from further away up to the hard 12-block radius limit.")
     double enemySlowRadius = 5;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Duration in ticks of the slow applied to nearby enemies.", impact = "Higher values keep enemies slowed longer.")
     int enemySlowTicks = 50;
@@ -241,6 +314,77 @@ public class ChronosHourglassGuard extends SimpleAdaptation<ChronosHourglassGuar
       costFactor = 0.5;
       maxLevel = 3;
       initialCost = 8;
+    }
+  }
+
+  private record SlowTargetSnapshot(Location location, boolean playerTarget) {
+  }
+
+  private static final class SlowBatch {
+    private final Player player;
+    private final UUID playerId;
+    private final Location center;
+    private final double radiusSquared;
+    private final int slowTicks;
+    private final int slowAmplifier;
+    private final AtomicInteger affected = new AtomicInteger();
+    private final AtomicInteger renderedFx = new AtomicInteger();
+
+    private SlowBatch(Player player, Location center, double radius, int slowTicks, int slowAmplifier) {
+      this.player = player;
+      this.playerId = player.getUniqueId();
+      this.center = center;
+      this.radiusSquared = radius * radius;
+      this.slowTicks = slowTicks;
+      this.slowAmplifier = slowAmplifier;
+    }
+
+    private boolean hasCapacity() {
+      return affected.get() < HARD_MAX_AFFECTED_PER_SAVE;
+    }
+
+    private boolean claimAffected() {
+      return claim(affected, HARD_MAX_AFFECTED_PER_SAVE);
+    }
+
+    private boolean claimFx() {
+      return claim(renderedFx, 8);
+    }
+
+    private boolean claim(AtomicInteger counter, int limit) {
+      int current = counter.get();
+      while (current < limit) {
+        if (counter.compareAndSet(current, current + 1)) {
+          return true;
+        }
+        current = counter.get();
+      }
+      return false;
+    }
+  }
+
+  static final class HourglassWorkBudget {
+    private final int limit;
+    private final long windowMillis;
+    private final LongSupplier clock;
+    private long windowStartedAt = Long.MIN_VALUE;
+    private int acquired;
+
+    HourglassWorkBudget(int limit, long windowMillis, LongSupplier clock) {
+      this.limit = Math.max(1, limit);
+      this.windowMillis = Math.max(1L, windowMillis);
+      this.clock = clock;
+    }
+
+    synchronized int reserve(int requested) {
+      long now = clock.getAsLong();
+      if (windowStartedAt == Long.MIN_VALUE || now < windowStartedAt || now - windowStartedAt >= windowMillis) {
+        windowStartedAt = now;
+        acquired = 0;
+      }
+      int granted = Math.min(Math.max(0, requested), limit - acquired);
+      acquired += granted;
+      return granted;
     }
   }
 }

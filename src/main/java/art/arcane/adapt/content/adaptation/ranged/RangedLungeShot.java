@@ -88,10 +88,6 @@ public class RangedLungeShot extends SimpleAdaptation<RangedLungeShot.Config> {
     }
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("While falling, firing arrows launches you in a random direction.")
   protected static class Config extends AdaptationConfig {

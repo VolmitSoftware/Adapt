@@ -38,14 +38,40 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Tameable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
   private static final Color LANCE_MAROON = Color.fromRGB(128, 0, 0);
+  private static final double HARD_MAX_RANGE = 32D;
+  private static final int HARD_MAX_CHAIN_HITS = 6;
+  private static final int MAX_CANDIDATES_PER_SEARCH = 24;
+  private static final int MAX_CANDIDATE_HANDOFFS = 8;
+  private static final int MAX_SEARCHES_PER_WINDOW = 32;
+  private static final int MAX_PENDING_CHAINS = 256;
+  private static final long WORK_WINDOW_MILLIS = 50L;
+  private static final long CHAIN_TIMEOUT_MILLIS = 30_000L;
+  private static final long COOLDOWN_MILLIS = 5000L;
   private final Cooldowns cooldowns = cooldowns();
+  private final LanceAdmission admission = new LanceAdmission(MAX_PENDING_CHAINS);
+  private final LanceWorkBudget workBudget = new LanceWorkBudget(MAX_SEARCHES_PER_WINDOW, WORK_WINDOW_MILLIS);
+  private volatile boolean acceptingChains = true;
 
   public TragoulLance() {
     super("tragoul-lance");
@@ -68,77 +94,318 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
   }
 
 
-  @EventHandler(priority = EventPriority.LOWEST)
-  public void onEntityDeath(EntityDeathEvent event) {
-    if (event.getEntity().getLastDamageCause() instanceof EntityDamageByEntityEvent e) {
-      if (e.getDamager() instanceof Player p) {
-        withAdaptedPlayer(p, () -> {
-          int level = getActiveLevel(p);
-          if (level <= 0 || !canDamageTarget(p, event.getEntity())) {
-            return;
-          }
-
-          if (!cooldowns.isReady(p.getUniqueId(), 5000L)) {
-            return;
-          }
-
-          cooldowns.mark(p.getUniqueId());
-          double baseSeekerRange = 5 + 4 * level;
-          double damageDealt = e.getDamage();
-          double seekerDamage = getConfig().seekerDamageMultiplier * damageDealt;
-
-          triggerSeeker(p, event.getEntity(), seekerDamage, level, baseSeekerRange, level);
-          addStat(p, "tragoul.lance.lance-kills", 1);
-        });
-      }
-    }
+  @Override
+  public void unregister() {
+    acceptingChains = false;
+    admission.clear();
+    super.unregister();
   }
 
-  private void triggerSeeker(Player p, Entity origin, double damage, int remainingSeekers, double range, int totalSeekers) {
-    if (remainingSeekers <= 0) {
+  @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+  public void onEntityDeath(EntityDeathEvent event) {
+    LivingEntity victim = event.getEntity();
+    if (!(victim.getLastDamageCause() instanceof EntityDamageByEntityEvent damage)
+        || !(damage.getDamager() instanceof Player owner)) {
       return;
     }
 
-    LivingEntity nearest = null;
-    double best = range * range;
+    Location source = victim.getLocation().clone();
+    UUID tameOwnerId = null;
+    if (victim instanceof Tameable tameable && tameable.isTamed()) {
+      tameOwnerId = tameable.getOwnerUniqueId();
+    }
+    SourceSnapshot snapshot = new SourceSnapshot(
+        source,
+        victim instanceof Player,
+        isProtectedFriendly(null, victim),
+        tameOwnerId,
+        Math.max(0D, damage.getDamage())
+    );
+    J.runEntity(owner, () -> prepareChainOwnerOwned(owner, snapshot));
+  }
 
-    for (Entity e : origin.getNearbyEntities(range, range, range)) {
-      if (e instanceof LivingEntity le && le != p) {
-        double d2 = origin.getLocation().distanceSquared(le.getLocation());
-        if (d2 < best) {
-          nearest = le;
-          best = d2;
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(PlayerQuitEvent event) {
+    admission.cancel(event.getPlayer().getUniqueId());
+  }
+
+  private void prepareChainOwnerOwned(Player owner, SourceSnapshot source) {
+    if (!acceptingChains || !owner.isOnline()) {
+      return;
+    }
+
+    int level = getActiveLevel(owner);
+    UUID ownerId = owner.getUniqueId();
+    if (level <= 0 || !cooldowns.isReady(ownerId, COOLDOWN_MILLIS)
+        || !canDamageSnapshotOwned(owner, source.player(), source.protectedFriendly(), source.tameOwnerId(), source.location())) {
+      return;
+    }
+
+    long token = admission.admit(ownerId, System.currentTimeMillis(), CHAIN_TIMEOUT_MILLIS);
+    if (token < 0L) {
+      return;
+    }
+
+    int remainingHits = Math.max(1, Math.min(HARD_MAX_CHAIN_HITS, level));
+    double range = Math.max(1D, Math.min(HARD_MAX_RANGE, 5D + (4D * level)));
+    double damage = source.damage() * getSeekerDamageMultiplier();
+    if (damage <= 0D) {
+      admission.complete(ownerId, token);
+      return;
+    }
+
+    LanceChain chain = new LanceChain(
+        owner,
+        ownerId,
+        token,
+        range,
+        getSelfDamageMultiplier(),
+        getSeekerDelay()
+    );
+    requestSearchOwnerOwned(chain, source.location(), damage, remainingHits);
+  }
+
+  private void requestSearchOwnerOwned(LanceChain chain, Location source, double damage, int remainingHits) {
+    if (!isCurrent(chain) || !chain.owner().isOnline() || remainingHits <= 0
+        || !workBudget.trySearch(System.currentTimeMillis())) {
+      admission.complete(chain.ownerId(), chain.token());
+      return;
+    }
+
+    SearchPass pass = new SearchPass(chain, source.clone(), damage, remainingHits);
+    if (!J.runAt(source, () -> collectCandidatesRegionOwned(pass))) {
+      admission.complete(chain.ownerId(), chain.token());
+    }
+  }
+
+  private void collectCandidatesRegionOwned(SearchPass pass) {
+    if (!isCurrent(pass.chain())) {
+      return;
+    }
+
+    Location source = pass.source();
+    Collection<Entity> nearby = source.getWorld().getNearbyEntities(
+        source,
+        pass.chain().range(),
+        pass.chain().range(),
+        pass.chain().range()
+    );
+    List<LivingEntity> candidates = new ArrayList<>(MAX_CANDIDATE_HANDOFFS);
+    int examined = 0;
+    for (Entity entity : nearby) {
+      if (examined++ >= MAX_CANDIDATES_PER_SEARCH) {
+        break;
+      }
+      if (entity instanceof LivingEntity candidate && candidate != pass.chain().owner()) {
+        candidates.add(candidate);
+        if (candidates.size() >= MAX_CANDIDATE_HANDOFFS) {
+          break;
         }
       }
     }
 
-    if (nearest != null) {
-      addStat(p, "tragoul.lance.lances-spawned", 1);
-      playLanceLaunch(origin.getLocation());
-      playLanceTravel(origin.getLocation(), nearest.getLocation());
-      double seekerDamage = getConfig().seekerDamageMultiplier * damage;
-      double selfDamage = getConfig().selfDamageMultiplier * seekerDamage;
+    if (candidates.isEmpty()) {
+      finishChain(pass.chain());
+      return;
+    }
 
-      p.damage(selfDamage, p);
-      fx(p, FxPriority.TRAIL)
+    CandidateBatch batch = new CandidateBatch(pass, candidates.size());
+    for (LivingEntity candidate : candidates) {
+      if (!J.runEntity(candidate, () -> batch.complete(captureTargetOwned(pass.chain().ownerId(), candidate)))) {
+        batch.complete(null);
+      }
+    }
+    batch.armTimeout();
+  }
+
+  private TargetSnapshot captureTargetOwned(UUID ownerId, LivingEntity target) {
+    if (!target.isValid() || target.isDead()) {
+      return null;
+    }
+
+    UUID targetId = target.getUniqueId();
+    boolean protectedFriendly = ownerId.equals(targetId) || isProtectedFriendly(null, target);
+    if (!protectedFriendly && target instanceof Tameable tameable && tameable.isTamed()) {
+      protectedFriendly = ownerId.equals(tameable.getOwnerUniqueId());
+    }
+    return new TargetSnapshot(
+        target,
+        targetId,
+        target.getLocation().clone(),
+        target instanceof Player,
+        protectedFriendly
+    );
+  }
+
+  private void selectTargetOwnerOwned(CandidateBatch batch) {
+    SearchPass pass = batch.pass();
+    LanceChain chain = pass.chain();
+    if (!isCurrent(chain) || !chain.owner().isOnline() || getActiveLevel(chain.owner()) <= 0) {
+      finishChain(chain);
+      return;
+    }
+
+    TargetSnapshot selected = null;
+    double bestDistanceSquared = chain.range() * chain.range();
+    for (TargetSnapshot candidate : batch.targets()) {
+      if (candidate.location().getWorld() != pass.source().getWorld()
+          || chain.hitIds().contains(candidate.entityId()) || !canDamageSnapshotOwned(
+          chain.owner(), candidate.player(), candidate.protectedFriendly(), null, candidate.location())) {
+        continue;
+      }
+      double distanceSquared = pass.source().distanceSquared(candidate.location());
+      if (distanceSquared <= bestDistanceSquared) {
+        selected = candidate;
+        bestDistanceSquared = distanceSquared;
+      }
+    }
+
+    if (selected == null) {
+      finishChain(chain);
+      return;
+    }
+
+    chain.hitIds().add(selected.entityId());
+    playLanceLaunch(pass.source());
+    playLanceTravel(pass.source(), selected.location(), chain.delayTicks());
+    TargetSnapshot target = selected;
+    if (!J.runEntity(target.entity(), () -> prepareImpactTargetOwned(pass, target), chain.delayTicks())) {
+      finishChain(chain);
+    }
+  }
+
+  private void prepareImpactTargetOwned(SearchPass pass, TargetSnapshot snapshot) {
+    LanceChain chain = pass.chain();
+    if (!isCurrent(chain)) {
+      return;
+    }
+
+    TargetSnapshot current = captureTargetOwned(chain.ownerId(), snapshot.entity());
+    if (current == null || current.protectedFriendly()
+        || !current.entityId().equals(snapshot.entityId())
+        || current.location().getWorld() != pass.source().getWorld()
+        || current.location().distanceSquared(pass.source()) > chain.range() * chain.range()) {
+      finishChain(chain);
+      return;
+    }
+
+    if (!J.runEntity(chain.owner(), () -> validateImpactPolicyOwnerOwned(pass, current))) {
+      finishChain(chain);
+    }
+  }
+
+  private void validateImpactPolicyOwnerOwned(SearchPass pass, TargetSnapshot approved) {
+    LanceChain chain = pass.chain();
+    if (!isCurrent(chain) || !chain.owner().isOnline() || !canDamageSnapshotOwned(
+        chain.owner(), approved.player(), approved.protectedFriendly(), null, approved.location().clone())) {
+      finishChain(chain);
+      return;
+    }
+
+    if (!J.runEntity(approved.entity(), () -> applyTargetOwned(pass, approved))) {
+      finishChain(chain);
+    }
+  }
+
+  private void applyTargetOwned(SearchPass pass, TargetSnapshot approved) {
+    LanceChain chain = pass.chain();
+    if (!isCurrent(chain)) {
+      return;
+    }
+
+    TargetSnapshot current = captureTargetOwned(chain.ownerId(), approved.entity());
+    if (current == null || current.protectedFriendly()
+        || !current.entityId().equals(approved.entityId())
+        || !sameBlock(current.location(), approved.location())) {
+      finishChain(chain);
+      return;
+    }
+
+    LivingEntity target = current.entity();
+    double healthBefore = target.getHealth() + target.getAbsorptionAmount();
+    target.damage(pass.damage(), chain.owner());
+    double healthAfter = target.isDead() ? 0D : target.getHealth() + target.getAbsorptionAmount();
+    boolean successful = healthAfter < healthBefore;
+    boolean killed = target.isDead();
+    Location impact = target.getLocation().clone();
+    if (successful) {
+      int generation = chain.hitIds().size() - 1;
+      float pitch = (float) Math.min(2.0, 1.0 + (generation * 0.1));
+      fx(target, FxPriority.COMBAT)
+          .burst(Particle.CRIT, 8, 0.4)
+          .dustBurst(LANCE_MAROON, 6, 0.4, 1.0F)
+          .chord(Sound.ITEM_TRIDENT_HIT, 0.7F, pitch, Sound.ENTITY_ARROW_HIT, 0.4F, 0.7F);
+    }
+
+    if (!J.runEntity(chain.owner(), () -> completeHitOwnerOwned(pass, impact, successful, killed))) {
+      admission.complete(chain.ownerId(), chain.token());
+    }
+  }
+
+  private void completeHitOwnerOwned(SearchPass pass, Location impact, boolean successful, boolean killed) {
+    LanceChain chain = pass.chain();
+    Player owner = chain.owner();
+    if (!isCurrent(chain) || !owner.isOnline() || !successful) {
+      finishChain(chain);
+      return;
+    }
+
+    if (chain.activated().compareAndSet(false, true)) {
+      cooldowns.mark(chain.ownerId());
+      addStat(owner, "tragoul.lance.lance-kills", 1);
+    }
+    addStat(owner, "tragoul.lance.lances-spawned", 1);
+
+    double selfDamage = pass.damage() * chain.selfDamageMultiplier();
+    if (selfDamage > 0D && owner.isValid() && !owner.isDead()) {
+      owner.damage(selfDamage, owner);
+      fx(owner, FxPriority.TRAIL)
           .particle(Particle.DAMAGE_INDICATOR, 2, 0, 1.0, 0, 0.1, 0.01)
           .sound(Sound.ENTITY_PLAYER_HURT, 0.2F, 1.0F);
-
-      LivingEntity finalNearest = nearest;
-      int generation = totalSeekers - remainingSeekers;
-      J.runEntity(finalNearest, () -> {
-        double remainingHealth = finalNearest.getHealth() - damage;
-        finalNearest.damage(damage, p);
-        float pitch = (float) Math.min(2.0, 1.0 + (generation * 0.1));
-        fx(finalNearest, FxPriority.COMBAT)
-            .burst(Particle.CRIT, 8, 0.4)
-            .dustBurst(LANCE_MAROON, 6, 0.4, 1.0F)
-            .chord(Sound.ITEM_TRIDENT_HIT, 0.7F, pitch, Sound.ENTITY_ARROW_HIT, 0.4F, 0.7F);
-        if (remainingHealth <= 0) {
-          triggerSeeker(p, finalNearest, damage * 0.5, remainingSeekers - 1, range, totalSeekers);
-        }
-      }, getConfig().seekerDelay);
     }
+
+    if (killed && pass.remainingHits() > 1) {
+      requestSearchOwnerOwned(chain, impact, pass.damage() * 0.5D, pass.remainingHits() - 1);
+    } else {
+      finishChain(chain);
+    }
+  }
+
+  private boolean canDamageSnapshotOwned(Player owner, boolean player, boolean protectedFriendly,
+                                         UUID tameOwnerId, Location target) {
+    if (protectedFriendly || owner.getUniqueId().equals(tameOwnerId)) {
+      return false;
+    }
+    return player ? canPVP(owner, target) : canPVE(owner, target);
+  }
+
+  private boolean isCurrent(LanceChain chain) {
+    return acceptingChains && admission.isCurrent(chain.ownerId(), chain.token(), System.currentTimeMillis());
+  }
+
+  private void finishChain(LanceChain chain) {
+    admission.complete(chain.ownerId(), chain.token());
+  }
+
+  private int getSeekerDelay() {
+    return Math.max(1, Math.min(40, getConfig().seekerDelay));
+  }
+
+  private double getSeekerDamageMultiplier() {
+    double configured = getConfig().seekerDamageMultiplier;
+    return Double.isFinite(configured) ? Math.max(0D, Math.min(2D, configured)) : 0D;
+  }
+
+  private double getSelfDamageMultiplier() {
+    double configured = getConfig().selfDamageMultiplier;
+    return Double.isFinite(configured) ? Math.max(0D, Math.min(1D, configured)) : 0D;
+  }
+
+  private boolean sameBlock(Location first, Location second) {
+    return first.getWorld() == second.getWorld()
+        && first.getBlockX() == second.getBlockX()
+        && first.getBlockY() == second.getBlockY()
+        && first.getBlockZ() == second.getBlockZ();
   }
 
   private void playLanceLaunch(Location origin) {
@@ -147,13 +414,13 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
         .chord(Sound.ITEM_TRIDENT_RIPTIDE_1, 0.6F, 1.3F, Sound.ENTITY_WITHER_SHOOT, 0.3F, 1.8F);
   }
 
-  private void playLanceTravel(Location origin, Location target) {
+  private void playLanceTravel(Location origin, Location target, int delayTicks) {
     Location start = origin.clone().add(0, 1.0, 0);
     double dx = target.getX() - start.getX();
     double dy = (target.getY() + 1.0) - start.getY();
     double dz = target.getZ() - start.getZ();
     timeline(start)
-        .duration(Math.max(4, getConfig().seekerDelay))
+        .duration(Math.max(4, delayTicks))
         .priority(FxPriority.TRAIL)
         .cullRadius(32)
         .frame((fx, tick, progress) -> {
@@ -165,9 +432,6 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
   }
 
 
-  @Override
-  public void onTick() {
-  }
 
   @Override
   public void addStats(int level, Element v) {
@@ -188,6 +452,166 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
     public Config() {
       costFactor = 0.72;
       initialCost = 4;
+    }
+  }
+
+  private record SourceSnapshot(Location location, boolean player, boolean protectedFriendly,
+                                UUID tameOwnerId, double damage) {
+  }
+
+  private record TargetSnapshot(LivingEntity entity, UUID entityId, Location location,
+                                boolean player, boolean protectedFriendly) {
+  }
+
+  private record SearchPass(LanceChain chain, Location source, double damage, int remainingHits) {
+  }
+
+  private record LanceChain(Player owner, UUID ownerId, long token, double range,
+                            double selfDamageMultiplier, int delayTicks,
+                            Set<UUID> hitIds, AtomicBoolean activated) {
+    private LanceChain(Player owner, UUID ownerId, long token, double range,
+                       double selfDamageMultiplier, int delayTicks) {
+      this(owner, ownerId, token, range, selfDamageMultiplier, delayTicks,
+          ConcurrentHashMap.newKeySet(), new AtomicBoolean());
+    }
+  }
+
+  private final class CandidateBatch {
+    private final SearchPass pass;
+    private final ConcurrentLinkedQueue<TargetSnapshot> targets = new ConcurrentLinkedQueue<>();
+    private final AtomicInteger remaining;
+    private final AtomicBoolean dispatched = new AtomicBoolean();
+
+    private CandidateBatch(SearchPass pass, int remaining) {
+      this.pass = pass;
+      this.remaining = new AtomicInteger(remaining);
+    }
+
+    private SearchPass pass() {
+      return pass;
+    }
+
+    private ConcurrentLinkedQueue<TargetSnapshot> targets() {
+      return targets;
+    }
+
+    private void complete(TargetSnapshot target) {
+      if (target != null) {
+        targets.add(target);
+      }
+      if (remaining.decrementAndGet() == 0) {
+        dispatch();
+      }
+    }
+
+    private void armTimeout() {
+      if (!J.runEntity(pass.chain().owner(), this::dispatch, 10)) {
+        finishChain(pass.chain());
+      }
+    }
+
+    private void dispatch() {
+      if (!dispatched.compareAndSet(false, true)) {
+        return;
+      }
+      if (!J.runEntity(pass.chain().owner(), () -> selectTargetOwnerOwned(this))) {
+        finishChain(pass.chain());
+      }
+    }
+  }
+
+  static final class LanceWorkBudget {
+    private final int searchLimit;
+    private final long windowMillis;
+    private long windowStartedAt = Long.MIN_VALUE;
+    private int searches;
+
+    LanceWorkBudget(int searchLimit, long windowMillis) {
+      this.searchLimit = Math.max(1, searchLimit);
+      this.windowMillis = Math.max(1L, windowMillis);
+    }
+
+    synchronized boolean trySearch(long now) {
+      if (windowStartedAt == Long.MIN_VALUE || now < windowStartedAt || now - windowStartedAt >= windowMillis) {
+        windowStartedAt = now;
+        searches = 0;
+      }
+      if (searches >= searchLimit) {
+        return false;
+      }
+      searches++;
+      return true;
+    }
+  }
+
+  static final class LanceAdmission {
+    private final int capacity;
+    private final Map<UUID, PendingChain> pending = new HashMap<>();
+    private long nextToken;
+
+    LanceAdmission(int capacity) {
+      this.capacity = Math.max(1, capacity);
+    }
+
+    synchronized long admit(UUID ownerId, long now, long timeoutMillis) {
+      PendingChain existing = pending.get(ownerId);
+      if (existing != null && existing.expiresAt() > now) {
+        return -1L;
+      }
+      if (existing != null) {
+        pending.remove(ownerId);
+      }
+      if (pending.size() >= capacity) {
+        pending.entrySet().removeIf(entry -> entry.getValue().expiresAt() <= now);
+        if (pending.size() >= capacity) {
+          return -1L;
+        }
+      }
+
+      long token = ++nextToken;
+      pending.put(ownerId, new PendingChain(token, deadline(now, timeoutMillis)));
+      return token;
+    }
+
+    synchronized boolean isCurrent(UUID ownerId, long token, long now) {
+      PendingChain chain = pending.get(ownerId);
+      if (chain == null || chain.token() != token) {
+        return false;
+      }
+      if (chain.expiresAt() <= now) {
+        pending.remove(ownerId);
+        return false;
+      }
+      return true;
+    }
+
+    synchronized boolean complete(UUID ownerId, long token) {
+      PendingChain chain = pending.get(ownerId);
+      if (chain == null || chain.token() != token) {
+        return false;
+      }
+      pending.remove(ownerId);
+      return true;
+    }
+
+    synchronized void cancel(UUID ownerId) {
+      pending.remove(ownerId);
+    }
+
+    synchronized int size() {
+      return pending.size();
+    }
+
+    synchronized void clear() {
+      pending.clear();
+    }
+
+    private static long deadline(long now, long timeoutMillis) {
+      long timeout = Math.max(1L, timeoutMillis);
+      return now > Long.MAX_VALUE - timeout ? Long.MAX_VALUE : now + timeout;
+    }
+
+    private record PendingChain(long token, long expiresAt) {
     }
   }
 }

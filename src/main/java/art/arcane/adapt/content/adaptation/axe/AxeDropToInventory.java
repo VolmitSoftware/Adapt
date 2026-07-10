@@ -116,9 +116,6 @@ public class AxeDropToInventory extends SimpleAdaptation<AxeDropToInventory.Conf
   }
 
 
-  @Override
-  public void onTick() {
-  }
 
   @ConfigDescription("Chopped wood drops directly into your inventory.")
   protected static class Config extends AdaptationConfig {

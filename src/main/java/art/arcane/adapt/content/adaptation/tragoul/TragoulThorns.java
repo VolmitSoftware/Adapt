@@ -128,9 +128,6 @@ public class TragoulThorns extends SimpleAdaptation<TragoulThorns.Config> {
   }
 
 
-  @Override
-  public void onTick() {
-  }
 
   @ConfigDescription("Reflect damage back to your attacker.")
   protected static class Config extends AdaptationConfig {

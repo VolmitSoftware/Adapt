@@ -132,10 +132,6 @@ public class HunterStrength extends SimpleAdaptation<HunterStrength.Config> {
     FxPresets.failFizzle(this, p);
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Gain strength when struck, at the cost of hunger.")
   protected static class Config extends AdaptationConfig {

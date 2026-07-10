@@ -30,6 +30,7 @@ import art.arcane.adapt.content.item.ItemListings;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
+import art.arcane.adapt.util.common.world.WorldBlockScanScheduler;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.entity.StackExclusion;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -46,14 +47,26 @@ import org.bukkit.entity.Slime;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
+
 public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Config> {
+  private static final String MARKER_META = "adapt-spelunker-marker";
+  private static final int MAX_SCAN_RADIUS = 32;
+  private static final int MAX_BLOCK_CHECKS_PER_ACTIVATION = 8192;
+  private static final int MAX_HIGHLIGHTS_PER_ACTIVATION = 16;
   private final Cooldowns cooldowns = cooldowns();
+  private final Map<UUID, UUID> activeScans = new ConcurrentHashMap<>();
 
   public ExcavationSpelunker() {
     super("excavation-spelunker");
@@ -79,15 +92,23 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
   @Override
   public void addStats(int level, Element v) {
     v.addLore(C.GREEN + Localizer.dLocalize("excavation.spelunker.lore1"));
-    v.addLore(C.YELLOW + Localizer.dLocalize("excavation.spelunker.lore2") + getConfig().rangeMultiplier * level);
+    v.addLore(C.YELLOW + Localizer.dLocalize("excavation.spelunker.lore2") + getScanRadius(level));
     v.addLore(C.YELLOW + Localizer.dLocalize("excavation.spelunker.lore3"));
   }
 
   @EventHandler(priority = EventPriority.HIGH)
   public void on(PlayerToggleSneakEvent e) {
+    if (!e.isSneaking()) {
+      return;
+    }
+
     Player p = e.getPlayer();
-    int level = getActiveLevel(p, Player::isSneaking);
-    if (level <= 0 || !hasGlowberries(p) || !hasOreInOffhand(p)) {
+    if (!hasGlowberries(p) || !hasOreInOffhand(p)) {
+      return;
+    }
+
+    int level = getActiveLevel(p);
+    if (level <= 0) {
       return;
     }
 
@@ -98,9 +119,14 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
       return;
     }
 
-    int radius = getConfig().rangeMultiplier * level;
-    consumeGlowberry(p);
-    searchForOres(p, radius);
+    if (activeScans.containsKey(p.getUniqueId())) {
+      return;
+    }
+
+    int radius = getScanRadius(level);
+    Location origin = p.getLocation();
+    Material targetOre = p.getInventory().getItemInOffHand().getType();
+    startScan(p, origin, targetOre, radius);
     cooldowns.mark(p.getUniqueId());
   }
 
@@ -119,14 +145,8 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
     return ItemListings.ores.contains(offhandType);
   }
 
-  private void searchForOres(Player p, int radius) {
-    Location playerLocation = p.getLocation();
-    World world = p.getWorld();
-    Material targetOre = p.getInventory().getItemInOffHand().getType();
-    ChatColor c = ItemListings.oreColorsChatColor.get(targetOre);
-    GlowingEntities glowingEntities = Adapt.instance.getGlowingEntities();
-
-    timeline(playerLocation)
+  private void startScan(Player p, Location origin, Material targetOre, int radius) {
+    timeline(origin)
         .duration(5)
         .priority(FxPriority.GAMEPLAY)
         .cullRadius(24)
@@ -138,79 +158,160 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
         })
         .start();
 
-    for (int x = -radius; x <= radius; x++) {
-      for (int y = -radius; y <= radius; y++) {
-        for (int z = -radius; z <= radius; z++) {
-          if (x * x + y * y + z * z > radius * radius) {
-            continue;
-          }
+    int limit = Math.min(MAX_HIGHLIGHTS_PER_ACTIVATION, Math.max(1, getConfig().maxHighlights));
+    int checks = Math.min(MAX_BLOCK_CHECKS_PER_ACTIVATION, Math.max(1, getConfig().maxBlockChecks));
+    WorldBlockScanScheduler.ScanRequest request = WorldBlockScanScheduler.ScanRequest.builder(origin)
+        .radius(radius)
+        .denseRadius(getConfig().denseScanRadius)
+        .maxSamples(checks)
+        .maxResults(limit)
+        .seed(ThreadLocalRandom.current().nextInt())
+        .matcher(type -> type == targetOre)
+        .completion(result -> completeScan(p, targetOre, result))
+        .build();
+    UUID scanId = WorldBlockScanScheduler.submit(this, p.getUniqueId(), request);
+    activeScans.put(p.getUniqueId(), scanId);
+  }
 
-          Block block = world.getBlockAt(playerLocation.getBlockX() + x, playerLocation.getBlockY() + y, playerLocation.getBlockZ() + z);
-          if (block.getType() != targetOre) {
-            continue;
-          }
+  private void completeScan(Player p, Material targetOre, WorldBlockScanScheduler.ScanResult result) {
+    UUID playerId = p.getUniqueId();
+    if (!result.scanId().equals(activeScans.get(playerId))) {
+      return;
+    }
 
-          addStat(p, "excavation.spelunker.ores-revealed", 1);
-          fx(block.getLocation().add(0.5, 0.5, 0.5), FxPriority.AMBIENT)
-              .particle(Particle.WAX_ON, 3, 0, 0, 0, 0.2D, 0.02D);
-
-          if (glowingEntities == null) {
-            continue;
-          }
-
-          Slime slime = block.getWorld().spawn(block.getLocation().add(0.5, 0, 0.5), Slime.class, (s) -> {
-            StackExclusion.exclude(s);
-            s.setPersistent(false);
-            s.setRotation(0, 0);
-            s.setInvulnerable(true);
-            s.setCollidable(false);
-            s.setGravity(false);
-            s.setSilent(true);
-            s.setAI(false);
-            s.setSize(2);
-            s.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 0, false, false));
-            s.setMetadata("preventSuffocation", new FixedMetadataValue(Adapt.instance, true));
-          });
-
-          try {
-            glowingEntities.setGlowing(slime, p, c);
-          } catch (ReflectiveOperationException ex) {
-            throw new RuntimeException(ex);
-          }
-
-          J.runEntity(slime, () -> {
-            try {
-              glowingEntities.unsetGlowing(slime, p);
-            } catch (ReflectiveOperationException ex) {
-              throw new RuntimeException(ex);
-            }
-
-            fx(slime.getLocation().add(0, 0.5, 0), FxPriority.AMBIENT)
-                .particle(Particle.SMOKE, 3, 0, 0, 0, 0.15D, 0.01D)
-                .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.3f, 1.6f);
-            slime.remove();
-          }, 5 * 20);
-        }
+    boolean scheduled = J.runEntity(p, () -> {
+      if (!activeScans.remove(playerId, result.scanId()) || !p.isOnline()) {
+        return;
       }
+
+      List<WorldBlockScanScheduler.Match> matches = result.matches();
+      if (matches.isEmpty()) {
+        showScanFailure(p);
+        return;
+      }
+      if (!hasGlowberries(p) || p.getInventory().getItemInOffHand().getType() != targetOre) {
+        showScanFailure(p);
+        return;
+      }
+
+      consumeGlowberry(p);
+      ChatColor color = ItemListings.oreColorsChatColor.getOrDefault(targetOre, ChatColor.WHITE);
+      GlowingEntities glowingEntities = Adapt.instance.getGlowingEntities();
+      for (WorldBlockScanScheduler.Match match : matches) {
+        addStat(p, "excavation.spelunker.ores-revealed", 1);
+        showOreMarker(p, result.world(), match, targetOre, color, glowingEntities);
+      }
+    });
+    if (!scheduled) {
+      activeScans.remove(playerId, result.scanId());
     }
   }
 
+  private void showScanFailure(Player p) {
+    fx(p.getEyeLocation(), FxPriority.TRANSITION)
+        .particle(Particle.SMOKE, 4, 0, 0, 0, 0.12D, 0.01D)
+        .sound(Sound.BLOCK_NOTE_BLOCK_HAT, 0.4f, 0.65f);
+  }
+
+  private void showOreMarker(Player p, World world, WorldBlockScanScheduler.Match match, Material targetOre,
+                             ChatColor color, GlowingEntities glowingEntities) {
+    Location center = match.center(world);
+    J.runAt(center, () -> {
+      if (!world.isChunkLoaded(match.x() >> 4, match.z() >> 4)) {
+        return;
+      }
+      Block block = world.getBlockAt(match.x(), match.y(), match.z());
+      if (block.getType() != targetOre) {
+        return;
+      }
+
+      fx(center, FxPriority.AMBIENT)
+          .particle(Particle.WAX_ON, 3, 0, 0, 0, 0.2D, 0.02D);
+      if (glowingEntities == null) {
+        return;
+      }
+
+      Slime slime = world.spawn(new Location(world, match.x() + 0.5D, match.y(), match.z() + 0.5D), Slime.class, s -> {
+        StackExclusion.exclude(s);
+        s.setPersistent(false);
+        s.setRotation(0, 0);
+        s.setInvulnerable(true);
+        s.setCollidable(false);
+        s.setGravity(false);
+        s.setSilent(true);
+        s.setAI(false);
+        s.setSize(2);
+        s.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 0, false, false));
+        s.setMetadata(MARKER_META, new FixedMetadataValue(Adapt.instance, true));
+      });
+      scheduleGlow(p, slime, color, glowingEntities);
+    });
+  }
+
+  private void scheduleGlow(Player p, Slime slime, ChatColor color, GlowingEntities glowingEntities) {
+    if (!J.runEntity(p, () -> setGlowing(glowingEntities, slime, p, color))) {
+      J.runEntity(slime, slime::remove);
+      return;
+    }
+    J.runEntity(p, () -> unsetGlowing(glowingEntities, slime, p), (5 * 20) - 1);
+    J.runEntity(slime, () -> {
+      fx(slime.getLocation().add(0, 0.5, 0), FxPriority.AMBIENT)
+          .particle(Particle.SMOKE, 3, 0, 0, 0, 0.15D, 0.01D)
+          .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.3f, 1.6f);
+      slime.remove();
+    }, 5 * 20);
+  }
+
+  private void setGlowing(GlowingEntities glowingEntities, Slime slime, Player p, ChatColor color) {
+    try {
+      synchronized (Adapt.glowingEntitiesLock()) {
+        glowingEntities.setGlowing(slime, p, color);
+      }
+    } catch (ReflectiveOperationException error) {
+      Adapt.verbose("Failed to enable glowing marker for Spelunker: " + error.getClass().getSimpleName()
+          + (error.getMessage() == null ? "" : " - " + error.getMessage()));
+      J.runEntity(slime, slime::remove);
+    }
+  }
+
+  private void unsetGlowing(GlowingEntities glowingEntities, Slime slime, Player p) {
+    try {
+      synchronized (Adapt.glowingEntitiesLock()) {
+        glowingEntities.unsetGlowing(slime, p);
+      }
+    } catch (ReflectiveOperationException error) {
+      Adapt.verbose("Failed to clear glowing marker for Spelunker: " + error.getClass().getSimpleName()
+          + (error.getMessage() == null ? "" : " - " + error.getMessage()));
+    }
+  }
 
   @EventHandler
-  public void onEntityDamage(EntityDamageEvent e) {
-    if (e.getEntity() instanceof Slime && e.getCause() == EntityDamageEvent.DamageCause.SUFFOCATION) {
-      Slime slime = (Slime) e.getEntity();
-      if (slime.hasMetadata("preventSuffocation")) {
-        e.setCancelled(true);
-      } else {
-        e.setCancelled(true);
-        slime.remove();
-      }
-    }
+  public void on(PlayerQuitEvent e) {
+    UUID playerId = e.getPlayer().getUniqueId();
+    activeScans.remove(playerId);
+    WorldBlockScanScheduler.cancel(this, playerId);
   }
 
   @Override
-  public void onTick() {
+  public void unregister() {
+    activeScans.clear();
+    WorldBlockScanScheduler.cancelOwner(this);
+    super.unregister();
+  }
+
+  @EventHandler
+  public void onEntityDamage(EntityDamageEvent e) {
+    if (e.getEntity() instanceof Slime slime
+        && e.getCause() == EntityDamageEvent.DamageCause.SUFFOCATION
+        && slime.hasMetadata(MARKER_META)) {
+      e.setCancelled(true);
+    }
+  }
+
+
+  private int getScanRadius(int level) {
+    long configuredRadius = (long) getConfig().rangeMultiplier * level;
+    return (int) Math.min(MAX_SCAN_RADIUS, Math.max(1L, configuredRadius));
   }
 
   @ConfigDescription("See ores through the ground using Glowberries in your main hand.")
@@ -219,6 +320,12 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
     double cooldown = 6.0;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Range Multiplier for the Excavation Spelunker adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     int rangeMultiplier = 5;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum world block checks made by one Spelunker activation.", impact = "Higher values improve target detection but increase total budgeted scan work; values above the hard safety cap are clamped.")
+    int maxBlockChecks = 8192;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Radius searched completely before the remaining Spelunker budget is spread across the full range.", impact = "Higher values prioritize nearby accuracy; lower values reserve more samples for distant target ore.")
+    int denseScanRadius = 8;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum ore markers created by one Spelunker scan.", impact = "Higher values reveal more ore at once but create more temporary entities and effects.")
+    int maxHighlights = 16;
 
     public Config() {
       baseCost = 5;

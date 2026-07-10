@@ -136,10 +136,6 @@ public class UnarmedSecondWind extends SimpleAdaptation<UnarmedSecondWind.Config
     return Math.max(20, (int) Math.round(getConfig().regenDurationTicksBase + (getLevelPercent(level) * getConfig().regenDurationTicksFactor)));
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Bare-hand kills restore hunger and grant a short regeneration burst.")
   protected static class Config extends AdaptationConfig {

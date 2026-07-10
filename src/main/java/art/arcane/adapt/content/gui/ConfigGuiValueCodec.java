@@ -1,6 +1,11 @@
 package art.arcane.adapt.content.gui;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
 
 final class ConfigGuiValueCodec {
   private ConfigGuiValueCodec() {

@@ -28,11 +28,22 @@ import art.arcane.volmlib.util.scheduling.PrecisionStopwatch;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.inventory.*;
+import org.bukkit.inventory.CookingRecipe;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.MerchantRecipe;
+import org.bukkit.inventory.Recipe;
+import org.bukkit.inventory.ShapedRecipe;
+import org.bukkit.inventory.ShapelessRecipe;
+import org.bukkit.inventory.StonecuttingRecipe;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Getter
 public class MaterialValue {

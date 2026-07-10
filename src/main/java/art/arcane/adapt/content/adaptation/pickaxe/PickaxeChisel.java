@@ -182,10 +182,6 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
     };
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Right-click ores to chisel extra ore at a severe durability cost.")
   protected static class Config extends AdaptationConfig {

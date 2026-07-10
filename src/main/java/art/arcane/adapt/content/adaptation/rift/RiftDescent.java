@@ -108,9 +108,6 @@ public class RiftDescent extends SimpleAdaptation<RiftDescent.Config> {
   }
 
 
-  @Override
-  public void onTick() {
-  }
 
   @ConfigDescription("Sneak to descend and negate levitation effects.")
   protected static class Config extends AdaptationConfig {

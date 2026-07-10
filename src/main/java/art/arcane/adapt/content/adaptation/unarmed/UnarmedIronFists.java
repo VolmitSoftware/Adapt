@@ -140,10 +140,6 @@ public class UnarmedIronFists extends SimpleAdaptation<UnarmedIronFists.Config> 
     return Math.max(0, (int) Math.round(getLevelPercent(level) * getConfig().hasteAmplifierFactor));
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Bare fists hit harder and punch through soft blocks faster.")
   protected static class Config extends AdaptationConfig {

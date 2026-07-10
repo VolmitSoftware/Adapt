@@ -5,18 +5,6 @@
 title = "上路啦！"
 description = "總計走過1公里的距離（1,000 格方塊）"
 
-[advancement.challenge_sprint_5k]
-title = "長跑5公里！"
-description = "總計走過5公里（5,000 格方塊）"
-
-[advancement.challenge_sprint_50k]
-title = "飛速衝刺50公里！"
-description = "總計走過50公里（50,000 格方塊）"
-
-[advancement.challenge_sprint_500k]
-title = "穿越宇宙！！"
-description = "總計走過500公里（500,000 格方塊）"
-
 [advancement.challenge_sprint_marathon]
 title = "衝刺一場（真正的）馬拉松！"
 description = "以疾跑的方式跑過 42,195 格方塊！"
@@ -33,14 +21,6 @@ description = "放置 5,000 格方塊"
 title = "高級建築師！"
 description = "放置 50,000 格方塊"
 
-[advancement.challenge_place_500k]
-title = "建築大師！"
-description = "放置 500,000 格方塊"
-
-[advancement.challenge_place_5m]
-title = "對稱之信徒！"
-description = "現實是你的遊樂場！（500萬格方塊）"
-
 [advancement.challenge_chop_1k]
 title = "初學伐木工！"
 description = "砍伐 1,000 格方塊"
@@ -52,14 +32,6 @@ description = "砍伐 5,000 格方塊"
 [advancement.challenge_chop_50k]
 title = "高級伐木工！"
 description = "砍伐 50,000 格方塊"
-
-[advancement.challenge_chop_500k]
-title = "伐木大師！"
-description = "砍伐 500,000 格方塊"
-
-[advancement.challenge_chop_5m]
-title = "傑克森小狗"
-description = "最棒的好孩子！（500萬格方塊）"
 
 [advancement.challenge_block_1k]
 title = "初學格擋！"
@@ -73,14 +45,6 @@ description = "格擋 5000 次攻擊"
 title = "為格擋而生！"
 description = "格擋 50,000 次攻擊"
 
-[advancement.challenge_block_500k]
-title = "格擋即使命！"
-description = "格擋 500,000 次攻擊"
-
-[advancement.challenge_block_5m]
-title = "傷害之手"
-description = "格擋 5,000,000 次攻擊"
-
 [advancement.challenge_brew_1k]
 title = "初學煉金術士！"
 description = "飲用 1000 瓶藥水"
@@ -89,18 +53,6 @@ description = "飲用 1000 瓶藥水"
 title = "中級煉金術士！"
 description = "飲用 5000 瓶藥水"
 
-[advancement.challenge_brew_50k]
-title = "高級煉金術士！"
-description = "飲用 50,000 瓶藥水"
-
-[advancement.challenge_brew_500k]
-title = "煉金大師！"
-description = "飲用 500,000 瓶藥水"
-
-[advancement.challenge_brew_5m]
-title = "大煉金術師"
-description = "飲用 5,000,000 瓶藥水"
-
 [advancement.challenge_brewsplash_1k]
 title = "初學藥水投擲手！"
 description = "投擲 1000 瓶藥水"
@@ -108,18 +60,6 @@ description = "投擲 1000 瓶藥水"
 [advancement.challenge_brewsplash_5k]
 title = "中級藥水投擲手！"
 description = "投擲 5000 瓶藥水"
-
-[advancement.challenge_brewsplash_50k]
-title = "高級藥水投擲手！"
-description = "投擲 50,000 瓶藥水"
-
-[advancement.challenge_brewsplash_500k]
-title = "藥水投擲大師！"
-description = "投擲 500,000 瓶藥水"
-
-[advancement.challenge_brewsplash_5m]
-title = "潑灑宗師"
-description = "投擲 5,000,000 瓶藥水"
 
 [advancement.challenge_craft_1k]
 title = "巧手製造匠！"
@@ -133,14 +73,6 @@ description = "製作 5000 件物品"
 title = "勤勉製造匠！"
 description = "製作 50,000 件物品"
 
-[advancement.challenge_craft_500k]
-title = "喧鬧製造匠！"
-description = "製作 500,000 件物品"
-
-[advancement.challenge_craft_5m]
-title = "災難級工匠大人"
-description = "製作 5,000,000 件物品"
-
 [advancement.challenge_enchant_1k]
 title = "初學附魔師！"
 description = "附魔 1000 件物品"
@@ -148,18 +80,6 @@ description = "附魔 1000 件物品"
 [advancement.challenge_enchant_5k]
 title = "中級附魔師！"
 description = "附魔 5000 件物品"
-
-[advancement.challenge_enchant_50k]
-title = "高級附魔師！"
-description = "附魔 50,000 件物品"
-
-[advancement.challenge_enchant_500k]
-title = "附魔大師！"
-description = "附魔 500,000 件物品"
-
-[advancement.challenge_enchant_5m]
-title = "神秘附魔家"
-description = "附魔 5,000,000 件物品"
 
 [advancement.challenge_excavate_1k]
 title = "初學挖掘者！"
@@ -172,26 +92,6 @@ description = "挖掘 5000 格方塊"
 [advancement.challenge_excavate_50k]
 title = "高級挖掘者！"
 description = "挖掘 50,000 格方塊"
-
-[advancement.challenge_excavate_500k]
-title = "挖掘大師！"
-description = "挖掘 500,000 格方塊"
-
-[advancement.challenge_excavate_5m]
-title = "神秘挖掘者"
-description = "挖掘 5,000,000 格方塊"
-
-[advancement.horrible_person]
-title = "你是一個可怕的人"
-description = "實在是深不可測"
-
-[advancement.challenge_turtle_egg_smasher]
-title = "海龜蛋粉碎機！"
-description = "打碎 100 個海龜蛋"
-
-[advancement.challenge_turtle_egg_annihilator]
-title = "海龜蛋殲滅者！"
-description = "打碎 500 個海龜蛋"
 
 [advancement.challenge_novice_hunter]
 title = "新手獵人！"
@@ -224,14 +124,6 @@ description = "挖碎 5000 格方塊"
 [advancement.challenge_pickaxe_50k]
 title = "專家礦工"
 description = "挖碎 50,000 格方塊"
-
-[advancement.challenge_pickaxe_500k]
-title = "礦工大師"
-description = "挖碎 500,000 格方塊"
-
-[advancement.challenge_pickaxe_5m]
-title = "傳奇礦工"
-description = "挖碎 5,000,000 格方塊"
 
 [advancement.challenge_eat_100]
 title = "好多東西吃！"
@@ -332,10 +224,6 @@ description = "在線 1 小時"
 [advancement.challenge_chronos_24h]
 title = "時間之沙"
 description = "在線 24 小時"
-
-[advancement.challenge_chronos_168h]
-title = "永恆不朽"
-description = "在線 168 小時（1 週）"
 
 [advancement.challenge_nether_50]
 title = "地獄守門人"
@@ -440,14 +328,6 @@ title = "雲端建築師"
 description = "在 Y=128 以上放置 1,000 個方塊"
 
 # Axes - New Achievement Chains
-[advancement.challenge_axe_swing_500]
-title = "揮斧者"
-description = "揮舞斧頭 500 次"
-
-[advancement.challenge_axe_swing_5k]
-title = "狂戰士"
-description = "揮舞斧頭 5,000 次"
-
 [advancement.challenge_axe_damage_1k]
 title = "劈裂者"
 description = "用斧頭造成 1,000 傷害"
@@ -559,14 +439,6 @@ description = "傳送 50 次"
 title = "時間扭曲"
 description = "傳送 500 次"
 
-[advancement.challenge_chronos_deaths_10]
-title = "凡人"
-description = "死亡 10 次"
-
-[advancement.challenge_chronos_deaths_100]
-title = "死亡挑戰者"
-description = "死亡 100 次"
-
 # Crafting - New Achievement Chains
 [advancement.challenge_craft_value_10k]
 title = "匠心獨運"
@@ -591,14 +463,6 @@ description = "製作 25 件護甲"
 [advancement.challenge_craft_armor_250]
 title = "護甲大師"
 description = "製作 250 件護甲"
-
-[advancement.challenge_craft_mass_25k]
-title = "批量生產"
-description = "製作 25,000 個物品"
-
-[advancement.challenge_craft_mass_250k]
-title = "工業革命"
-description = "製作 250,000 個物品"
 
 # Discovery - New Achievement Chains
 [advancement.challenge_discover_items_50]
@@ -650,14 +514,6 @@ description = "累積 100 附魔之力"
 title = "奧術宗師"
 description = "累積 1,000 附魔之力"
 
-[advancement.challenge_enchant_levels_1k]
-title = "等級消耗者"
-description = "在附魔上花費 1,000 經驗等級"
-
-[advancement.challenge_enchant_levels_10k]
-title = "經驗黑洞"
-description = "在附魔上花費 10,000 經驗等級"
-
 [advancement.challenge_enchant_high_25]
 title = "豪賭者"
 description = "進行 25 次最高級附魔"
@@ -675,14 +531,6 @@ title = "奧術投資"
 description = "在所有附魔上累計花費 5,000 等級"
 
 # Excavation - New Achievement Chains
-[advancement.challenge_dig_swing_500]
-title = "挖掘者"
-description = "揮舞鏟子 500 次"
-
-[advancement.challenge_dig_swing_5k]
-title = "挖掘機"
-description = "揮舞鏟子 5,000 次"
-
 [advancement.challenge_dig_damage_1k]
 title = "鏟騎士"
 description = "用鏟子造成 1,000 傷害"
@@ -787,14 +635,6 @@ title = "枯萎收集者"
 description = "破壞 100 朵凋零玫瑰"
 
 # Pickaxes - New Achievement Chains
-[advancement.challenge_pick_swing_500]
-title = "礦工之臂"
-description = "揮舞鎬子 500 次"
-
-[advancement.challenge_pick_swing_5k]
-title = "隧道挖掘者"
-description = "揮舞鎬子 5,000 次"
-
 [advancement.challenge_pick_damage_1k]
 title = "鎬戰者"
 description = "用鎬子造成 1,000 傷害"
@@ -935,14 +775,6 @@ description = "潛行時擊殺 10 個生物"
 title = "暗影死神"
 description = "潛行時擊殺 100 個生物"
 
-[advancement.challenge_stealth_time_1h]
-title = "耐心者"
-description = "潛行 1 小時 (3,600 秒)"
-
-[advancement.challenge_stealth_time_10h]
-title = "暗影之主"
-description = "潛行 10 小時 (36,000 秒)"
-
 [advancement.challenge_stealth_arrows_50]
 title = "暗箭手"
 description = "潛行時射出 50 支箭"
@@ -1009,14 +841,6 @@ description = "你的寵物擊殺 25 個生物"
 title = "首領指揮官"
 description = "你的寵物擊殺 250 個生物"
 
-[advancement.challenge_taming_2500]
-title = "繁殖專家"
-description = "繁殖 2,500 隻動物"
-
-[advancement.challenge_taming_25k]
-title = "基因大師"
-description = "繁殖 25,000 隻動物"
-
 # TragOul - New Achievement Chains
 [advancement.challenge_trag_hits_500]
 title = "沙包"
@@ -1025,30 +849,6 @@ description = "受到 500 次攻擊"
 [advancement.challenge_trag_hits_5k]
 title = "受虐狂"
 description = "受到 5,000 次攻擊"
-
-[advancement.challenge_trag_deaths_10]
-title = "九條命"
-description = "死亡 10 次"
-
-[advancement.challenge_trag_deaths_100]
-title = "反覆噩夢"
-description = "死亡 100 次"
-
-[advancement.challenge_trag_fire_500]
-title = "火焰受害者"
-description = "承受 500 火焰傷害"
-
-[advancement.challenge_trag_fire_5k]
-title = "浴火鳳凰"
-description = "承受 5,000 火焰傷害"
-
-[advancement.challenge_trag_fall_500]
-title = "重力測試"
-description = "承受 500 墜落傷害"
-
-[advancement.challenge_trag_fall_5k]
-title = "極限速度"
-description = "承受 5,000 墜落傷害"
 
 # Unarmed - New Achievement Chains
 [advancement.challenge_unarmed_dmg_1k]

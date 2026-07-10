@@ -88,43 +88,13 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
                 .key("challenge_excavate_50k")
                 .model(CustomModel.get(Material.STONE_SHOVEL, "advancement", "excavation", "challenge_excavate_50k"))
                 .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
-                    .icon(Material.IRON_SHOVEL)
-                    .key("challenge_excavate_500k")
-                    .model(CustomModel.get(Material.IRON_SHOVEL, "advancement", "excavation", "challenge_excavate_500k"))
-                    .frame(AdaptAdvancementFrame.CHALLENGE)
-                    .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
-                        .icon(Material.DIAMOND_SHOVEL)
-                        .key("challenge_excavate_5m")
-                        .model(CustomModel.get(Material.DIAMOND_SHOVEL, "advancement", "excavation", "challenge_excavate_5m"))
-                        .frame(AdaptAdvancementFrame.CHALLENGE)
-                        .visibility(AdvancementVisibility.PARENT_GRANTED)
-                        .build())
-                    .build())
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build())
             .build())
         .build());
-    registerMilestone("challenge_excavate_1k", "excavation.blocks.broken", 1000, getConfig().challengeExcavationReward);
-    registerMilestone("challenge_excavate_5k", "excavation.blocks.broken", 5000, getConfig().challengeExcavationReward);
-    registerMilestone("challenge_excavate_50k", "excavation.blocks.broken", 50000, getConfig().challengeExcavationReward);
-    registerMilestone("challenge_enchant_500k", "excavation.blocks.broken", 500000, getConfig().challengeExcavationReward);
-    registerMilestone("challenge_excavate_5m", "excavation.blocks.broken", 5000000, getConfig().challengeExcavationReward);
-
-    registerAdvancement(AdaptAdvancement.builder()
-        .icon(Material.WOODEN_SHOVEL).key("challenge_dig_swing_500")
-        .model(CustomModel.get(Material.WOODEN_SHOVEL, "advancement", "excavation", "challenge_dig_swing_500"))
-        .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
-        .child(AdaptAdvancement.builder()
-            .icon(Material.IRON_SHOVEL)
-            .key("challenge_dig_swing_5k")
-            .model(CustomModel.get(Material.IRON_SHOVEL, "advancement", "excavation", "challenge_dig_swing_5k"))
-            .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
-            .build())
-        .build());
-    registerMilestone("challenge_dig_swing_500", "excavation.swings", 500, getConfig().challengeExcavationReward);
-    registerMilestone("challenge_dig_swing_5k", "excavation.swings", 5000, getConfig().challengeExcavationReward * 2);
+    registerMilestone("challenge_excavate_1k", "excavation.blocks.broken", 1000, () -> getConfig().challengeExcavationReward);
+    registerMilestone("challenge_excavate_5k", "excavation.blocks.broken", 5000, () -> getConfig().challengeExcavationReward);
+    registerMilestone("challenge_excavate_50k", "excavation.blocks.broken", 50000, () -> getConfig().challengeExcavationReward);
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.GOLDEN_SHOVEL).key("challenge_dig_damage_1k")
@@ -139,8 +109,8 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_dig_damage_1k", "excavation.damage", 1000, getConfig().challengeExcavationReward);
-    registerMilestone("challenge_dig_damage_10k", "excavation.damage", 10000, getConfig().challengeExcavationReward * 2);
+    registerMilestone("challenge_dig_damage_1k", "excavation.damage", 1000, () -> getConfig().challengeExcavationReward);
+    registerMilestone("challenge_dig_damage_10k", "excavation.damage", 10000, () -> getConfig().challengeExcavationReward * 2);
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.CLAY_BALL).key("challenge_dig_value_5k")
@@ -155,8 +125,8 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_dig_value_5k", "excavation.blocks.value", 5000, getConfig().challengeExcavationReward);
-    registerMilestone("challenge_dig_value_50k", "excavation.blocks.value", 50000, getConfig().challengeExcavationReward * 2);
+    registerMilestone("challenge_dig_value_5k", "excavation.blocks.value", 5000, () -> getConfig().challengeExcavationReward);
+    registerMilestone("challenge_dig_value_50k", "excavation.blocks.value", 50000, () -> getConfig().challengeExcavationReward * 2);
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.GRAVEL).key("challenge_dig_gravel_500")
@@ -171,19 +141,20 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_dig_gravel_500", "excavation.gravel", 500, getConfig().challengeExcavationReward);
-    registerMilestone("challenge_dig_gravel_5k", "excavation.gravel", 5000, getConfig().challengeExcavationReward * 2);
+    registerMilestone("challenge_dig_gravel_500", "excavation.gravel", 500, () -> getConfig().challengeExcavationReward);
+    registerMilestone("challenge_dig_gravel_5k", "excavation.gravel", 5000, () -> getConfig().challengeExcavationReward * 2);
   }
 
 
-  @EventHandler(priority = EventPriority.MONITOR)
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(EntityDamageByEntityEvent e) {
-    if (e.getDamager() instanceof Player p && checkValidEntity(e.getEntity().getType())) {
-      if (!getConfig().getXpForAttackingWithTools) {
-        return;
-      }
-      shouldReturnForPlayer(p, e, () -> handleEntityDamageByPlayer(p, e));
+    if (!getConfig().getXpForAttackingWithTools
+        || !(e.getDamager() instanceof Player p)
+        || !checkValidEntity(e.getEntity().getType())
+        || !isShovel(p.getInventory().getItemInMainHand())) {
+      return;
     }
+    shouldReturnForPlayer(p, e, () -> handleEntityDamageByPlayer(p, e));
   }
 
   private void handleEntityDamageByPlayer(Player p, EntityDamageByEntityEvent e) {
@@ -194,20 +165,18 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
         return;
       }
       cooldowns.mark(p.getUniqueId());
-      addStat(p, "excavation.swings", 1);
       addStat(p, "excavation.damage", e.getDamage());
       xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().axeDamageXPMultiplier * e.getDamage());
     }
   }
 
-  @EventHandler(priority = EventPriority.MONITOR)
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(BlockBreakEvent e) {
     Player p = e.getPlayer();
-    shouldReturnForPlayer(p, e, () -> {
-      if (isShovel(p.getInventory().getItemInMainHand())) {
-        handleBlockBreakWithShovel(p, e);
-      }
-    });
+    if (!isShovel(p.getInventory().getItemInMainHand())) {
+      return;
+    }
+    shouldReturnForPlayer(p, e, () -> handleBlockBreakWithShovel(p, e));
 
   }
 
@@ -237,14 +206,6 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
     return value;
   }
 
-
-  @Override
-  public void onTick() {
-    if (!this.isEnabled()) {
-      return;
-    }
-    checkStatTrackersForOnlinePlayers();
-  }
 
   @Override
   public boolean isEnabled() {

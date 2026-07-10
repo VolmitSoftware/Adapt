@@ -21,19 +21,18 @@ package art.arcane.adapt.content.adaptation.tragoul;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
+import art.arcane.adapt.api.adaptation.VelocityBurstRuntime;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.math.VelocitySpeed;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Color;
-import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -42,12 +41,14 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.util.Vector;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> {
@@ -64,13 +65,13 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
   private static final Color PACT_CRIMSON = Color.fromRGB(150, 0, 10);
   private final Cooldowns procCooldowns = cooldowns();
   private final Map<UUID, Boolean> lowHealthProcs = playerState();
-  private final Map<UUID, SpeedBurst> speedBursts = playerState();
+  private final VelocityBurstRuntime.Client speedBursts;
 
   public TragoulBloodPact() {
     super("tragoul-blood-pact");
+    speedBursts = VelocityBurstRuntime.register(getName(), new BurstFeedback());
     registerConfiguration(Config.class);
     setIcon(Material.NETHER_WART);
-    setInterval(20);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.REDSTONE)
         .key("challenge_tragoul_pact_200")
@@ -94,15 +95,16 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
   }
 
   @Override
+  public void unregister() {
+    speedBursts.unregister();
+    super.unregister();
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     v.addLore(C.GREEN + "+ " + Form.pc(getProcChance(level), 0) + C.GRAY + " " + Localizer.dLocalize("tragoul.blood_pact.lore1"));
     v.addLore(C.GREEN + "+ " + Form.duration(getEffectDurationTicks(level) * 50D, 1) + C.GRAY + " " + Localizer.dLocalize("tragoul.blood_pact.lore2"));
     v.addLore(C.YELLOW + "* " + Form.duration(getProcCooldownMillis(level), 1) + C.GRAY + " " + Localizer.dLocalize("tragoul.blood_pact.lore3"));
-  }
-
-  @EventHandler(priority = EventPriority.MONITOR)
-  public void on(PlayerDeathEvent e) {
-    speedBursts.remove(e.getEntity().getUniqueId());
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -181,24 +183,13 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
   }
 
   private void grantSpeedBurst(Player p, int amplifier, int durationTicks) {
-    if (durationTicks <= 0) {
-      return;
-    }
-
-    UUID id = p.getUniqueId();
-    long now = System.currentTimeMillis();
-    long durationMs = Math.max(50L, durationTicks * 50L);
-    SpeedBurst burst = speedBursts.get(id);
-    if (burst != null && burst.expiresAt > now) {
-      burst.expiresAt += durationMs;
-      burst.amplifier = Math.max(burst.amplifier, amplifier);
-      return;
-    }
-
-    speedBursts.put(id, new SpeedBurst(now + durationMs, amplifier));
-    fx(p, FxPriority.TRAIL)
-        .dustBurst(PACT_CRIMSON, 4, 0.3, 1.0F)
-        .sound(Sound.PARTICLE_SOUL_ESCAPE, 0.3F, 1.5F);
+    VelocityBurstRuntime.BurstRequest request = new VelocityBurstRuntime.BurstRequest(
+        amplifier,
+        durationTicks,
+        true,
+        burstProfile()
+    );
+    speedBursts.start(p, request);
   }
 
   private void playPactProc(Player p) {
@@ -253,117 +244,30 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
     return Math.max(1, getConfig().minDamageTriggerHearts * 2D);
   }
 
-  @Override
-  public void onTick() {
-    applySpeedBursts(System.currentTimeMillis());
+  private VelocityBurstRuntime.Profile burstProfile() {
+    Config config = getConfig();
+    return new VelocityBurstRuntime.Profile(
+        config.baseHorizontalSpeed,
+        config.maxHorizontalSpeed,
+        config.accelPerTick,
+        config.brakePerTick,
+        config.stopThreshold,
+        config.hardStopOnInvalidState,
+        config.fallbackInputVelocityThreshold
+    );
   }
 
-  private void applySpeedBursts(long now) {
-    for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : learnedCandidates(now)) {
-      Player p = adaptPlayer.getPlayer();
-      if (p == null || !p.isOnline()) {
-        continue;
-      }
-
-      withPlayerThread(p, () -> {
-        UUID id = p.getUniqueId();
-        SpeedBurst burst = speedBursts.get(id);
-        if (burst == null) {
-          return;
-        }
-
-        if (burst.expiresAt <= now) {
-          invalidateSpeedBurst(p, burst, false);
-          speedBursts.remove(id);
-          fx(p, FxPriority.TRAIL).dustBurst(PACT_CRIMSON, 3, 0.25, 0.8F);
-          return;
-        }
-
-        if (!isVelocityEligible(p)) {
-          invalidateSpeedBurst(p, burst, true);
-          return;
-        }
-
-        VelocitySpeed.InputSnapshot input = VelocitySpeed.readInput(p, getConfig().fallbackInputVelocityThresholdSquared());
-        if (!input.hasHorizontal()) {
-          brakeSpeedBurst(p, burst);
-          return;
-        }
-
-        applySpeedBurst(p, burst, input);
-      });
-    }
-  }
-
-  private void applySpeedBurst(Player p, SpeedBurst burst, VelocitySpeed.InputSnapshot input) {
-    Vector direction = VelocitySpeed.resolveHorizontalDirection(p, input);
-    if (direction.lengthSquared() <= VelocitySpeed.EPSILON) {
-      brakeSpeedBurst(p, burst);
-      return;
+  private final class BurstFeedback implements VelocityBurstRuntime.Feedback {
+    @Override
+    public void onStarted(Player player) {
+      fx(player, FxPriority.TRAIL)
+          .dustBurst(PACT_CRIMSON, 4, 0.3, 1.0F)
+          .sound(Sound.PARTICLE_SOUL_ESCAPE, 0.3F, 1.5F);
     }
 
-    double targetSpeed = Math.min(getConfig().maxHorizontalSpeed,
-        Math.max(0, getConfig().baseHorizontalSpeed * VelocitySpeed.speedAmplifierScalar(burst.amplifier)));
-    Vector horizontal = VelocitySpeed.horizontalOnly(p.getVelocity());
-    Vector targetHorizontal = direction.multiply(targetSpeed);
-    Vector nextHorizontal = VelocitySpeed.moveTowards(horizontal, targetHorizontal, Math.max(0, getConfig().accelPerTick));
-    nextHorizontal = VelocitySpeed.clampHorizontal(nextHorizontal, getConfig().maxHorizontalSpeed);
-    VelocitySpeed.setHorizontalVelocity(p, nextHorizontal);
-    burst.boosting = true;
-  }
-
-  private void brakeSpeedBurst(Player p, SpeedBurst burst) {
-    if (!burst.boosting) {
-      return;
-    }
-
-    Vector horizontal = VelocitySpeed.horizontalOnly(p.getVelocity());
-    double stopThreshold = Math.max(0, getConfig().stopThreshold);
-    if (horizontal.lengthSquared() <= stopThreshold * stopThreshold) {
-      VelocitySpeed.hardStopHorizontal(p);
-      burst.boosting = false;
-      return;
-    }
-
-    Vector nextHorizontal = VelocitySpeed.moveTowards(horizontal, new Vector(), Math.max(0, getConfig().brakePerTick));
-    if (nextHorizontal.lengthSquared() <= stopThreshold * stopThreshold) {
-      VelocitySpeed.hardStopHorizontal(p);
-      burst.boosting = false;
-      return;
-    }
-
-    VelocitySpeed.setHorizontalVelocity(p, nextHorizontal);
-  }
-
-  private void invalidateSpeedBurst(Player p, SpeedBurst burst, boolean invalidState) {
-    if (!burst.boosting) {
-      return;
-    }
-
-    if (invalidState && getConfig().hardStopOnInvalidState) {
-      VelocitySpeed.hardStopHorizontal(p);
-    }
-
-    burst.boosting = false;
-  }
-
-  private boolean isVelocityEligible(Player p) {
-    GameMode mode = p.getGameMode();
-    if (mode != GameMode.SURVIVAL && mode != GameMode.ADVENTURE) {
-      return false;
-    }
-
-    return !p.isDead() && !p.isFlying() && !p.isGliding() && !p.isSwimming() && p.getVehicle() == null;
-  }
-
-  private static class SpeedBurst {
-    private long expiresAt;
-    private int amplifier;
-    private boolean boosting;
-
-    private SpeedBurst(long expiresAt, int amplifier) {
-      this.expiresAt = expiresAt;
-      this.amplifier = amplifier;
+    @Override
+    public void onEnded(Player player) {
+      fx(player, FxPriority.TRAIL).dustBurst(PACT_CRIMSON, 3, 0.25, 0.8F);
     }
   }
 
@@ -413,11 +317,6 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
     public Config() {
       costFactor = 0.62;
       initialCost = 4;
-    }
-
-    double fallbackInputVelocityThresholdSquared() {
-      double threshold = Math.max(0, fallbackInputVelocityThreshold);
-      return threshold * threshold;
     }
   }
 }

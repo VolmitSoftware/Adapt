@@ -127,9 +127,6 @@ public class PickaxeSilkSpawner extends SimpleAdaptation<PickaxeSilkSpawner.Conf
     v.addLore(C.GREEN + Localizer.dLocalize("pickaxe.silk_spawner.lore" + (level < 2 ? 1 : 2)));
   }
 
-  @Override
-  public void onTick() {
-  }
 
   @ConfigDescription("Spawners drop when broken with silk touch or while sneaking.")
   protected static class Config extends AdaptationConfig {

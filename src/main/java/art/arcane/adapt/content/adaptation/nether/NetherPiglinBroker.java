@@ -173,10 +173,6 @@ public class NetherPiglinBroker extends SimpleAdaptation<NetherPiglinBroker.Conf
     return Math.max(1.0, getConfig().amountMultiplierBase + (getLevelPercent(level) * getConfig().amountMultiplierFactor));
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Nearby piglin bartering can yield extra or improved rolls.")
   protected static class Config extends AdaptationConfig {

@@ -255,10 +255,6 @@ public class ExcavationGraveDigger extends SimpleAdaptation<ExcavationGraveDigge
     return Math.min(getConfig().maxGraveChance, getConfig().graveChanceBase + (getLevelPercent(level) * getConfig().graveChanceFactor));
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   private record LootEntry(Material material, double weight, int min, int max) {
   }

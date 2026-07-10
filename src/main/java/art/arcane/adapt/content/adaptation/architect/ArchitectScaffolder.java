@@ -183,9 +183,6 @@ public class ArchitectScaffolder extends SimpleAdaptation<ArchitectScaffolder.Co
     return (int) Math.max(1, M.lerp(getConfig().minDurationSeconds, getConfig().maxDurationSeconds, factor));
   }
 
-  @Override
-  public void onTick() {
-  }
 
   private record ScaffoldMark(UUID owner, Material material) {
   }

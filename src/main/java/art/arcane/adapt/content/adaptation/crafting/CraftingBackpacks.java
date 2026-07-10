@@ -106,9 +106,6 @@ public class CraftingBackpacks extends SimpleAdaptation<CraftingBackpacks.Config
         .start();
   }
 
-  @Override
-  public void onTick() {
-  }
 
   @ConfigDescription("Craft Bundles for portable item storage.")
   protected static class Config extends AdaptationConfig {

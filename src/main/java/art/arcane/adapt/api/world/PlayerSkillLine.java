@@ -34,8 +34,13 @@ import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.volmlib.util.collection.KList;
 import art.arcane.volmlib.util.collection.KMap;
 import art.arcane.volmlib.util.math.M;
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
@@ -68,6 +73,11 @@ public class PlayerSkillLine {
   private transient long poolLastEarnAt = 0;
   private transient long inspiredPendingAt = 0;
   private transient long inspiredLastNotifyAt = 0;
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
+  private transient volatile AdaptPlayer runtimeOwner;
 
   private static double diff(long a, long b) {
     return Math.abs(a - b / (double) (a == 0 ? 1 : a));
@@ -443,6 +453,7 @@ public class PlayerSkillLine {
     int clamped = Math.max(0, Math.min(level, a.getMaxLevel()));
     if (clamped <= 0) {
       adaptations.remove(a.getName());
+      updateLearnedIndex(a.getName(), 0);
       return;
     }
 
@@ -450,6 +461,25 @@ public class PlayerSkillLine {
     v.setId(a.getName());
     v.setLevel(clamped);
     adaptations.put(a.getName(), v);
+    updateLearnedIndex(a.getName(), clamped);
+  }
+
+  void bindRuntimeOwner(AdaptPlayer owner) {
+    runtimeOwner = owner;
+  }
+
+  void unbindRuntimeOwner(AdaptPlayer owner) {
+    if (runtimeOwner == owner) {
+      runtimeOwner = null;
+    }
+  }
+
+  private void updateLearnedIndex(String adaptationName, int level) {
+    AdaptPlayer owner = runtimeOwner;
+    if (owner == null || owner.getServer() == null) {
+      return;
+    }
+    owner.getServer().updateLearnedAdaptation(owner, adaptationName, level);
   }
 
   public Skill<?> getRawSkill(AdaptPlayer p) {

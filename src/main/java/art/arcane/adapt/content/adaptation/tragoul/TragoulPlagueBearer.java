@@ -44,6 +44,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
+import org.bukkit.entity.Tameable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -54,8 +55,14 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class TragoulPlagueBearer extends SimpleAdaptation<TragoulPlagueBearer.Config> {
   private static final NamespacedKey PLAGUE_OWNER_KEY = NamespacedKey.fromString("adapt:tragoul_plague_owner");
@@ -63,6 +70,26 @@ public class TragoulPlagueBearer extends SimpleAdaptation<TragoulPlagueBearer.Co
   private static final NamespacedKey PLAGUE_STAMP_KEY = NamespacedKey.fromString("adapt:tragoul_plague_stamp");
   private static final Color PLAGUE_POISON = Color.fromRGB(90, 130, 30);
   private static final Color PLAGUE_WITHER = Color.fromRGB(30, 30, 30);
+  private static final double HARD_MAX_SPREAD_RADIUS = 12D;
+  private static final int HARD_MAX_GENERATIONS = 4;
+  private static final int HARD_MAX_SPREAD_TARGETS = 8;
+  private static final int MAX_CANDIDATES_PER_SPREAD = 24;
+  private static final int MAX_CANDIDATE_HANDOFFS = 12;
+  private static final int MAX_MARKS_PER_WINDOW = 64;
+  private static final int MAX_SPREADS_PER_WINDOW = 32;
+  private static final int MAX_PENDING_MARKS = 1024;
+  private static final int MAX_PENDING_SPREADS = 256;
+  private static final int HARD_MAX_DURATION_TICKS = 600;
+  private static final long HARD_MAX_FRESHNESS_MILLIS = 60_000L;
+  private static final long WORK_WINDOW_MILLIS = 50L;
+  private final PlagueWorkBudget workBudget = new PlagueWorkBudget(
+      MAX_MARKS_PER_WINDOW,
+      MAX_SPREADS_PER_WINDOW,
+      WORK_WINDOW_MILLIS
+  );
+  private final PendingEntityGate pendingMarks = new PendingEntityGate(MAX_PENDING_MARKS);
+  private final AtomicInteger pendingSpreads = new AtomicInteger();
+  private volatile boolean acceptingWork = true;
 
   public TragoulPlagueBearer() {
     super("tragoul-plague-bearer");
@@ -92,6 +119,13 @@ public class TragoulPlagueBearer extends SimpleAdaptation<TragoulPlagueBearer.Co
     v.addLore(C.GREEN + "+ " + Form.duration(getSpreadDurationTicks(level) * 50D, 1) + C.GRAY + " " + Localizer.dLocalize("tragoul.plague_bearer.lore3"));
   }
 
+  @Override
+  public void unregister() {
+    acceptingWork = false;
+    pendingMarks.clear();
+    super.unregister();
+  }
+
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(EntityDamageByEntityEvent e) {
     if (!(e.getEntity() instanceof Monster monster)) {
@@ -109,23 +143,19 @@ public class TragoulPlagueBearer extends SimpleAdaptation<TragoulPlagueBearer.Co
       return;
     }
 
+    UUID monsterId = monster.getUniqueId();
+    if (!acceptingWork || !pendingMarks.admit(monsterId)) {
+      return;
+    }
+    if (!workBudget.tryMark(System.currentTimeMillis())) {
+      pendingMarks.complete(monsterId);
+      return;
+    }
+
     Player owner = p;
-    withAdaptedPlayer(owner, e, () -> {
-      if (getActiveLevel(owner) <= 0 || isProtectedFriendly(owner, monster)) {
-        return;
-      }
-
-      UUID ownerId = owner.getUniqueId();
-      if (markIfAfflicted(monster, ownerId)) {
-        return;
-      }
-
-      J.runEntity(monster, () -> {
-        if (monster.isValid() && !monster.isDead()) {
-          markIfAfflicted(monster, ownerId);
-        }
-      }, 2);
-    });
+    if (!J.runEntity(monster, () -> prepareMarkTargetOwned(owner, monster, monsterId), 2)) {
+      pendingMarks.complete(monsterId);
+    }
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -139,7 +169,7 @@ public class TragoulPlagueBearer extends SimpleAdaptation<TragoulPlagueBearer.Co
 
     long now = System.currentTimeMillis();
     Long stamp = pdc.get(PLAGUE_STAMP_KEY, PersistentDataType.LONG);
-    if (stamp == null || now - stamp > getConfig().afflictionFreshnessMillis) {
+    if (stamp == null || now - stamp > getAfflictionFreshnessMillis()) {
       return;
     }
 
@@ -148,61 +178,219 @@ public class TragoulPlagueBearer extends SimpleAdaptation<TragoulPlagueBearer.Co
       return;
     }
 
-    int generation = pdc.getOrDefault(PLAGUE_GENERATION_KEY, PersistentDataType.INTEGER, 0);
-    if (generation >= getConfig().maxGenerations) {
+    int generation = Math.max(0, pdc.getOrDefault(PLAGUE_GENERATION_KEY, PersistentDataType.INTEGER, 0));
+    if (generation >= getMaxGenerations()) {
       fx(victim.getLocation().add(0, 0.8, 0), FxPriority.AMBIENT).burst(Particles.SMOKE, 2, 0.2);
       return;
     }
 
-    Player owner = Bukkit.getPlayer(UUID.fromString(ownerRaw));
-    if (owner == null || !owner.isOnline()) {
+    UUID ownerId = parseOwnerId(ownerRaw);
+    if (ownerId == null) {
       return;
     }
 
-    withAdaptedPlayer(owner, () -> {
-      int level = getActiveLevel(owner);
-      if (level <= 0) {
+    Player owner = Bukkit.getPlayer(ownerId);
+    if (owner == null) {
+      return;
+    }
+
+    SpreadSeed seed = new SpreadSeed(
+        victim.getLocation().clone(),
+        ownerRaw,
+        ownerId,
+        generation + 1,
+        withered,
+        now
+    );
+    J.runEntity(owner, () -> prepareSpreadOwnerOwned(owner, seed));
+  }
+
+  private void prepareMarkTargetOwned(Player owner, Monster monster, UUID monsterId) {
+    if (!acceptingWork || !monster.isValid() || monster.isDead()
+        || isProtectedFriendly(null, monster)
+        || (!monster.hasPotionEffect(PotionEffectType.POISON)
+        && !monster.hasPotionEffect(PotionEffectType.WITHER))) {
+      pendingMarks.complete(monsterId);
+      return;
+    }
+
+    Location location = monster.getLocation().clone();
+    if (!J.runEntity(owner, () -> validateMarkOwnerOwned(owner, monster, monsterId, location))) {
+      pendingMarks.complete(monsterId);
+    }
+  }
+
+  private void validateMarkOwnerOwned(Player owner, Monster monster, UUID monsterId, Location location) {
+    if (!acceptingWork || !owner.isOnline() || getActiveLevel(owner) <= 0 || !canPVE(owner, location.clone())) {
+      pendingMarks.complete(monsterId);
+      return;
+    }
+
+    UUID ownerId = owner.getUniqueId();
+    if (!J.runEntity(monster, () -> applyMarkTargetOwned(monster, monsterId, ownerId, location))) {
+      pendingMarks.complete(monsterId);
+    }
+  }
+
+  private void applyMarkTargetOwned(Monster monster, UUID monsterId, UUID ownerId, Location approvedLocation) {
+    try {
+      if (!monster.isValid() || monster.isDead() || !sameBlock(monster.getLocation(), approvedLocation)) {
         return;
       }
+      markIfAfflicted(monster, ownerId);
+    } finally {
+      pendingMarks.complete(monsterId);
+    }
+  }
 
-      double radius = getSpreadRadius(level);
-      int durationTicks = getSpreadDurationTicks(level);
-      PotionEffectType effect = withered ? PotionEffectType.WITHER : PotionEffectType.POISON;
-      List<Location> hosts = new ArrayList<>();
-      int spread = 0;
-      for (Entity entity : victim.getNearbyEntities(radius, radius, radius)) {
-        if (!(entity instanceof Monster monster) || monster.isDead() || !monster.isValid()) {
-          continue;
-        }
+  private void prepareSpreadOwnerOwned(Player owner, SpreadSeed seed) {
+    if (!acceptingWork || !owner.isOnline()) {
+      return;
+    }
 
-        if (!canDamageTarget(owner, monster)) {
-          continue;
-        }
+    int level = getActiveLevel(owner);
+    int maxTargets = Math.max(0, Math.min(HARD_MAX_SPREAD_TARGETS, getConfig().maxSpreadTargets));
+    if (level <= 0 || maxTargets <= 0 || !workBudget.trySpread(System.currentTimeMillis()) || !acquireSpread()) {
+      return;
+    }
 
-        PersistentDataContainer targetPdc = monster.getPersistentDataContainer();
-        targetPdc.set(PLAGUE_OWNER_KEY, PersistentDataType.STRING, ownerRaw);
-        targetPdc.set(PLAGUE_GENERATION_KEY, PersistentDataType.INTEGER, generation + 1);
-        targetPdc.set(PLAGUE_STAMP_KEY, PersistentDataType.LONG, now);
-        hosts.add(monster.getLocation());
-        J.runEntity(monster, () -> {
-          if (monster.isValid() && !monster.isDead()) {
-            monster.addPotionEffect(new PotionEffect(effect, durationTicks, 0, true, true, true), true);
-          }
-        });
-        spread++;
-        if (spread >= getConfig().maxSpreadTargets) {
+    SpreadLease lease = new SpreadLease();
+    SpreadPlan plan = new SpreadPlan(
+        owner,
+        seed.ownerId(),
+        seed.corpse(),
+        getSpreadRadius(level),
+        getSpreadDurationTicks(level),
+        seed.withered() ? PotionEffectType.WITHER : PotionEffectType.POISON,
+        seed.ownerRaw(),
+        seed.generation(),
+        seed.stamp(),
+        maxTargets,
+        Math.max(0D, getConfig().xpPerInfection),
+        seed.withered(),
+        lease
+    );
+    if (!J.runAt(plan.corpse(), () -> collectSpreadCandidatesRegionOwned(plan))) {
+      lease.release();
+    }
+  }
+
+  private void collectSpreadCandidatesRegionOwned(SpreadPlan plan) {
+    Collection<Entity> nearby = plan.corpse().getWorld().getNearbyEntities(
+        plan.corpse(), plan.radius(), plan.radius(), plan.radius());
+    List<Monster> candidates = new ArrayList<>(MAX_CANDIDATE_HANDOFFS);
+    int examined = 0;
+    for (Entity entity : nearby) {
+      if (examined++ >= MAX_CANDIDATES_PER_SPREAD) {
+        break;
+      }
+      if (entity instanceof Monster monster) {
+        candidates.add(monster);
+        if (candidates.size() >= MAX_CANDIDATE_HANDOFFS) {
           break;
         }
       }
+    }
+    if (candidates.isEmpty()) {
+      plan.lease().release();
+      return;
+    }
 
-      if (spread <= 0) {
+    SpreadCandidateBatch batch = new SpreadCandidateBatch(plan, candidates.size());
+    for (Monster candidate : candidates) {
+      if (!J.runEntity(candidate, () -> batch.complete(captureSpreadTargetOwned(plan, candidate)))) {
+        batch.complete(null);
+      }
+    }
+    batch.armTimeout();
+  }
+
+  private SpreadTarget captureSpreadTargetOwned(SpreadPlan plan, Monster target) {
+    if (!target.isValid() || target.isDead() || isProtectedFriendly(null, target)) {
+      return null;
+    }
+    Location location = target.getLocation().clone();
+    if (location.getWorld() != plan.corpse().getWorld()
+        || location.distanceSquared(plan.corpse()) > plan.radius() * plan.radius()) {
+      return null;
+    }
+    return new SpreadTarget(target, target.getUniqueId(), location);
+  }
+
+  private void selectSpreadTargetsOwnerOwned(SpreadCandidateBatch batch) {
+    SpreadPlan plan = batch.plan();
+    if (!acceptingWork || !plan.owner().isOnline() || getActiveLevel(plan.owner()) <= 0) {
+      plan.lease().release();
+      return;
+    }
+
+    List<SpreadTarget> selected = new ArrayList<>(plan.maxTargets());
+    for (SpreadTarget target : batch.targets()) {
+      if (canPVE(plan.owner(), target.location().clone())) {
+        selected.add(target);
+        if (selected.size() >= plan.maxTargets()) {
+          break;
+        }
+      }
+    }
+    if (selected.isEmpty()) {
+      plan.lease().release();
+      return;
+    }
+
+    SpreadApplyBatch applyBatch = new SpreadApplyBatch(plan, selected.size());
+    for (SpreadTarget target : selected) {
+      if (!J.runEntity(target.entity(), () -> applySpreadTargetOwned(plan, target, applyBatch))) {
+        applyBatch.complete(null);
+      }
+    }
+    applyBatch.armTimeout();
+  }
+
+  private void applySpreadTargetOwned(SpreadPlan plan, SpreadTarget snapshot, SpreadApplyBatch batch) {
+    if (batch.isDispatched()) {
+      return;
+    }
+    Monster target = snapshot.entity();
+    if (!target.isValid() || target.isDead() || isProtectedFriendly(null, target)) {
+      batch.complete(null);
+      return;
+    }
+    Location current = target.getLocation().clone();
+    if (!sameBlock(current, snapshot.location())) {
+      batch.complete(null);
+      return;
+    }
+
+    PersistentDataContainer pdc = target.getPersistentDataContainer();
+    String existingOwner = pdc.get(PLAGUE_OWNER_KEY, PersistentDataType.STRING);
+    Long existingStamp = pdc.get(PLAGUE_STAMP_KEY, PersistentDataType.LONG);
+    if (plan.ownerRaw().equals(existingOwner) && existingStamp != null
+        && plan.stamp() - existingStamp <= getAfflictionFreshnessMillis()) {
+      batch.complete(null);
+      return;
+    }
+
+    pdc.set(PLAGUE_OWNER_KEY, PersistentDataType.STRING, plan.ownerRaw());
+    pdc.set(PLAGUE_GENERATION_KEY, PersistentDataType.INTEGER, plan.generation());
+    pdc.set(PLAGUE_STAMP_KEY, PersistentDataType.LONG, plan.stamp());
+    target.addPotionEffect(new PotionEffect(plan.effect(), plan.durationTicks(), 0, true, true, true), true);
+    batch.complete(current);
+  }
+
+  private void rewardSpreadOwnerOwned(SpreadApplyBatch batch) {
+    SpreadPlan plan = batch.plan();
+    try {
+      int spread = batch.hosts().size();
+      if (spread <= 0 || !plan.owner().isOnline()) {
         return;
       }
-
-      playSpread(victim.getLocation(), hosts, radius, withered);
-      addStat(owner, "tragoul.plague-bearer.mobs-infected", spread);
-      xp(owner, spread * getConfig().xpPerInfection);
-    });
+      playSpread(plan.corpse(), new ArrayList<>(batch.hosts()), plan.radius(), plan.withered());
+      addStat(plan.owner(), "tragoul.plague-bearer.mobs-infected", spread);
+      xp(plan.owner(), spread * plan.xpPerInfection());
+    } finally {
+      plan.lease().release();
+    }
   }
 
   private void playSpread(Location corpse, List<Location> hosts, double radius, boolean withered) {
@@ -235,16 +423,60 @@ public class TragoulPlagueBearer extends SimpleAdaptation<TragoulPlagueBearer.Co
   }
 
   private double getSpreadRadius(int level) {
-    return Math.max(1, getConfig().spreadRadiusBase + (getLevelPercent(level) * getConfig().spreadRadiusFactor));
+    double configured = getConfig().spreadRadiusBase + (getLevelPercent(level) * getConfig().spreadRadiusFactor);
+    if (!Double.isFinite(configured)) {
+      return 1D;
+    }
+    return Math.max(1D, Math.min(HARD_MAX_SPREAD_RADIUS, configured));
   }
 
   private int getSpreadDurationTicks(int level) {
-    return Math.max(40, (int) Math.round(getConfig().spreadDurationTicksBase + (getLevelPercent(level) * getConfig().spreadDurationTicksFactor)));
+    double configured = getConfig().spreadDurationTicksBase
+        + (getLevelPercent(level) * getConfig().spreadDurationTicksFactor);
+    if (!Double.isFinite(configured)) {
+      return 40;
+    }
+    return Math.max(40, Math.min(HARD_MAX_DURATION_TICKS, (int) Math.round(configured)));
   }
 
-  @Override
-  public void onTick() {
+  private int getMaxGenerations() {
+    return Math.max(0, Math.min(HARD_MAX_GENERATIONS, getConfig().maxGenerations));
   }
+
+  private long getAfflictionFreshnessMillis() {
+    return Math.max(1000L, Math.min(HARD_MAX_FRESHNESS_MILLIS, getConfig().afflictionFreshnessMillis));
+  }
+
+  private UUID parseOwnerId(String raw) {
+    if (raw == null || raw.length() != 36) {
+      return null;
+    }
+    try {
+      return UUID.fromString(raw);
+    } catch (IllegalArgumentException ignored) {
+      return null;
+    }
+  }
+
+  private boolean sameBlock(Location first, Location second) {
+    return first.getWorld() == second.getWorld()
+        && first.getBlockX() == second.getBlockX()
+        && first.getBlockY() == second.getBlockY()
+        && first.getBlockZ() == second.getBlockZ();
+  }
+
+  private boolean acquireSpread() {
+    while (true) {
+      int current = pendingSpreads.get();
+      if (current >= MAX_PENDING_SPREADS) {
+        return false;
+      }
+      if (pendingSpreads.compareAndSet(current, current + 1)) {
+        return true;
+      }
+    }
+  }
+
 
   @ConfigDescription("Mobs that die poisoned or withered by you spread the affliction to nearby hostile mobs.")
   protected static class Config extends AdaptationConfig {
@@ -268,6 +500,191 @@ public class TragoulPlagueBearer extends SimpleAdaptation<TragoulPlagueBearer.Co
     public Config() {
       costFactor = 0.72;
       initialCost = 4;
+    }
+  }
+
+  private record SpreadSeed(Location corpse, String ownerRaw, UUID ownerId,
+                            int generation, boolean withered, long stamp) {
+  }
+
+  private record SpreadPlan(Player owner, UUID ownerId, Location corpse, double radius,
+                            int durationTicks, PotionEffectType effect, String ownerRaw,
+                            int generation, long stamp, int maxTargets, double xpPerInfection,
+                            boolean withered, SpreadLease lease) {
+  }
+
+  private record SpreadTarget(Monster entity, UUID entityId, Location location) {
+  }
+
+  private final class SpreadLease {
+    private final AtomicBoolean released = new AtomicBoolean();
+
+    private void release() {
+      if (released.compareAndSet(false, true)) {
+        pendingSpreads.decrementAndGet();
+      }
+    }
+  }
+
+  private final class SpreadCandidateBatch {
+    private final SpreadPlan plan;
+    private final ConcurrentLinkedQueue<SpreadTarget> targets = new ConcurrentLinkedQueue<>();
+    private final AtomicInteger remaining;
+    private final AtomicBoolean dispatched = new AtomicBoolean();
+
+    private SpreadCandidateBatch(SpreadPlan plan, int remaining) {
+      this.plan = plan;
+      this.remaining = new AtomicInteger(remaining);
+    }
+
+    private SpreadPlan plan() {
+      return plan;
+    }
+
+    private ConcurrentLinkedQueue<SpreadTarget> targets() {
+      return targets;
+    }
+
+    private void complete(SpreadTarget target) {
+      if (target != null) {
+        targets.add(target);
+      }
+      if (remaining.decrementAndGet() == 0) {
+        dispatch();
+      }
+    }
+
+    private void armTimeout() {
+      if (!J.runEntity(plan.owner(), this::dispatch, 10)) {
+        plan.lease().release();
+      }
+    }
+
+    private void dispatch() {
+      if (!dispatched.compareAndSet(false, true)) {
+        return;
+      }
+      if (!J.runEntity(plan.owner(), () -> selectSpreadTargetsOwnerOwned(this))) {
+        plan.lease().release();
+      }
+    }
+  }
+
+  private final class SpreadApplyBatch {
+    private final SpreadPlan plan;
+    private final ConcurrentLinkedQueue<Location> hosts = new ConcurrentLinkedQueue<>();
+    private final AtomicInteger remaining;
+    private final AtomicBoolean dispatched = new AtomicBoolean();
+
+    private SpreadApplyBatch(SpreadPlan plan, int remaining) {
+      this.plan = plan;
+      this.remaining = new AtomicInteger(remaining);
+    }
+
+    private SpreadPlan plan() {
+      return plan;
+    }
+
+    private ConcurrentLinkedQueue<Location> hosts() {
+      return hosts;
+    }
+
+    private void complete(Location host) {
+      if (host != null) {
+        hosts.add(host);
+      }
+      if (remaining.decrementAndGet() == 0) {
+        dispatch();
+      }
+    }
+
+    private void armTimeout() {
+      if (!J.runEntity(plan.owner(), this::dispatch, 10)) {
+        plan.lease().release();
+      }
+    }
+
+    private boolean isDispatched() {
+      return dispatched.get();
+    }
+
+    private void dispatch() {
+      if (!dispatched.compareAndSet(false, true)) {
+        return;
+      }
+      if (!J.runEntity(plan.owner(), () -> rewardSpreadOwnerOwned(this))) {
+        plan.lease().release();
+      }
+    }
+  }
+
+  static final class PlagueWorkBudget {
+    private final int markLimit;
+    private final int spreadLimit;
+    private final long windowMillis;
+    private long windowStartedAt = Long.MIN_VALUE;
+    private int marks;
+    private int spreads;
+
+    PlagueWorkBudget(int markLimit, int spreadLimit, long windowMillis) {
+      this.markLimit = Math.max(1, markLimit);
+      this.spreadLimit = Math.max(1, spreadLimit);
+      this.windowMillis = Math.max(1L, windowMillis);
+    }
+
+    synchronized boolean tryMark(long now) {
+      refresh(now);
+      if (marks >= markLimit) {
+        return false;
+      }
+      marks++;
+      return true;
+    }
+
+    synchronized boolean trySpread(long now) {
+      refresh(now);
+      if (spreads >= spreadLimit) {
+        return false;
+      }
+      spreads++;
+      return true;
+    }
+
+    private void refresh(long now) {
+      if (windowStartedAt == Long.MIN_VALUE || now < windowStartedAt || now - windowStartedAt >= windowMillis) {
+        windowStartedAt = now;
+        marks = 0;
+        spreads = 0;
+      }
+    }
+  }
+
+  static final class PendingEntityGate {
+    private final int capacity;
+    private final Set<UUID> pending = new HashSet<>();
+
+    PendingEntityGate(int capacity) {
+      this.capacity = Math.max(1, capacity);
+    }
+
+    synchronized boolean admit(UUID entityId) {
+      if (pending.contains(entityId) || pending.size() >= capacity) {
+        return false;
+      }
+      pending.add(entityId);
+      return true;
+    }
+
+    synchronized void complete(UUID entityId) {
+      pending.remove(entityId);
+    }
+
+    synchronized int size() {
+      return pending.size();
+    }
+
+    synchronized void clear() {
+      pending.clear();
     }
   }
 }

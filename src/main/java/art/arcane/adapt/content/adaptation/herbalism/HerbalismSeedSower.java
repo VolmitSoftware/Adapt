@@ -202,10 +202,6 @@ public class HerbalismSeedSower extends SimpleAdaptation<HerbalismSeedSower.Conf
     return Math.max(2, (int) Math.round(getConfig().cooldownTicksBase - (factor * getConfig().cooldownTicksReduction)));
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Sneak-right-click with seeds to plant nearby farmland and soul-sand plots.")
   protected static class Config extends AdaptationConfig {

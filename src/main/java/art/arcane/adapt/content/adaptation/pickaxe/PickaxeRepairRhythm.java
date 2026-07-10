@@ -107,9 +107,6 @@ public class PickaxeRepairRhythm extends SimpleAdaptation<PickaxeRepairRhythm.Co
         .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.25f, restore >= 2 ? 1.95f : 1.8f);
   }
 
-  @Override
-  public void onTick() {
-  }
 
   @ConfigDescription("Sustained mining has a chance to restore pickaxe durability per broken block.")
   protected static class Config extends AdaptationConfig {

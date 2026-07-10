@@ -21,6 +21,10 @@ package art.arcane.adapt.api.skill;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.adaptation.SimpleAdaptation;
+import art.arcane.adapt.api.adaptation.VelocityBurstRuntime;
+import art.arcane.adapt.api.advancement.AdvancementManager;
+import art.arcane.adapt.api.minion.MinionBurden;
 import art.arcane.adapt.api.potion.BrewingManager;
 import art.arcane.adapt.api.protection.Protector;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
@@ -29,7 +33,28 @@ import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.api.xp.XPMultiplier;
 import art.arcane.adapt.content.gui.SkillsGui;
-import art.arcane.adapt.content.skill.*;
+import art.arcane.adapt.content.skill.SkillAgility;
+import art.arcane.adapt.content.skill.SkillArchitect;
+import art.arcane.adapt.content.skill.SkillAxes;
+import art.arcane.adapt.content.skill.SkillBlocking;
+import art.arcane.adapt.content.skill.SkillBrewing;
+import art.arcane.adapt.content.skill.SkillChronos;
+import art.arcane.adapt.content.skill.SkillCrafting;
+import art.arcane.adapt.content.skill.SkillDiscovery;
+import art.arcane.adapt.content.skill.SkillEnchanting;
+import art.arcane.adapt.content.skill.SkillExcavation;
+import art.arcane.adapt.content.skill.SkillHerbalism;
+import art.arcane.adapt.content.skill.SkillHunter;
+import art.arcane.adapt.content.skill.SkillNether;
+import art.arcane.adapt.content.skill.SkillPickaxes;
+import art.arcane.adapt.content.skill.SkillRanged;
+import art.arcane.adapt.content.skill.SkillRift;
+import art.arcane.adapt.content.skill.SkillSeaborne;
+import art.arcane.adapt.content.skill.SkillStealth;
+import art.arcane.adapt.content.skill.SkillSwords;
+import art.arcane.adapt.content.skill.SkillTaming;
+import art.arcane.adapt.content.skill.SkillTragOul;
+import art.arcane.adapt.content.skill.SkillUnarmed;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
@@ -37,7 +62,12 @@ import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.collection.KMap;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.math.M;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Keyed;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Sound;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -50,22 +80,38 @@ import org.bukkit.inventory.Recipe;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class SkillRegistry extends TickedObject {
   public static final KMap<String, Skill<?>> skills = new KMap<>();
   private static final long SLOW_SKILL_REG_MS = 300L;
   private static final int DEFERRED_SKILLS_PER_TICK = 2;
+  private static final int STAT_RECONCILIATION_BATCH_SIZE = 32;
   private final KMap<String, Skill<?>> knownSkills = new KMap<>();
   private final KMap<String, Class<? extends Skill<?>>> skillTypes = new KMap<>();
   private final Map<NamespacedKey, Adaptation<?>> adaptationRecipeIndex = new ConcurrentHashMap<>();
   private final Deque<Skill<?>> deferredBootstrapRecipeRegistration = new ArrayDeque<>();
+  private final Map<String, DeferredRecipeTransition> deferredRecipeTransitions = new LinkedHashMap<>();
   private final AtomicLong catalogRevision = new AtomicLong();
+  private final AtomicBoolean statReconciliationScheduled = new AtomicBoolean();
+  private final AtomicLong statReconciliationRevision = new AtomicLong();
+  private final AtomicBoolean unregistered = new AtomicBoolean();
+  private volatile StatTrackerIndex statTrackerIndex = StatTrackerIndex.empty();
   private volatile boolean deferredBootstrapRecipeTaskScheduled;
   private volatile boolean bootstrapLoading = true;
   private volatile boolean foliaRecipeRegistrationWaitWarned;
+  private volatile boolean runtimeStarted;
 
   public SkillRegistry() {
     super("registry", UUID.randomUUID() + "-sk", 1250);
@@ -92,6 +138,18 @@ public class SkillRegistry extends TickedObject {
     registerSkill(SkillBrewing.class);
     registerSkill(SkillNether.class);
     bootstrapLoading = false;
+    rebuildStatTrackerIndex();
+  }
+
+  public synchronized void startRuntime() {
+    if (runtimeStarted || unregistered.get()) {
+      return;
+    }
+    runtimeStarted = true;
+    for (Skill<?> skill : skills.v()) {
+      prepareSkillRuntime(skill);
+    }
+    activateRuntime();
     scheduleDeferredBootstrapRecipeRegistration();
   }
 
@@ -237,6 +295,45 @@ public class SkillRegistry extends TickedObject {
     return catalogRevision.get();
   }
 
+  public void evaluateStatTrackers(AdaptPlayer player, String stat) {
+    StatTrackerIndex index = statTrackerIndex;
+    List<StatTrackerIndex.Binding> bindings = index.bindingsFor(stat);
+    if (bindings.isEmpty() || !SkillRuntimeGuards.canEvaluateStatTrackers(player)) {
+      return;
+    }
+
+    SkillRuntimeGuards.evaluateStatTrackers(bindings, player, player.getData().getStat(stat));
+  }
+
+  public void reconcileStatTrackers(AdaptPlayer player) {
+    if (!SkillRuntimeGuards.canEvaluateStatTrackers(player)) {
+      return;
+    }
+
+    StatTrackerIndex index = statTrackerIndex;
+    for (String stat : index.trackedStats()) {
+      SkillRuntimeGuards.evaluateStatTrackers(index.bindingsFor(stat), player, player.getData().getStat(stat));
+    }
+  }
+
+  public void reconcileStatTrackersForOnlinePlayers() {
+    if (!AdaptConfig.get().isAdvancements()
+        || Adapt.instance == null || Adapt.instance.getAdaptServer() == null) {
+      return;
+    }
+    AdvancementManager manager = Adapt.instance.getManager();
+    if (manager == null || !manager.isCatalogReady(catalogRevision.get())) {
+      return;
+    }
+
+    statReconciliationRevision.incrementAndGet();
+    if (!statReconciliationScheduled.compareAndSet(false, true)) {
+      return;
+    }
+
+    J.s(this::startStatTrackerReconciliation, 1);
+  }
+
   public synchronized void registerSkill(Class<? extends Skill<?>> skillType) {
     long started = System.currentTimeMillis();
     long instantiateStarted = started;
@@ -257,11 +354,12 @@ public class SkillRegistry extends TickedObject {
     if (!skill.isEnabled()) {
       skill.unregister();
       skills.remove(skillName);
-      catalogRevision.incrementAndGet();
+      catalogChanged(true);
       return;
     }
 
     skills.put(skillName, skill);
+    prepareSkillRuntime(skill);
     if (bootstrapLoading) {
       deferredBootstrapRecipeRegistration.addLast(skill);
     } else {
@@ -272,47 +370,91 @@ public class SkillRegistry extends TickedObject {
     if (totalMs >= SLOW_SKILL_REG_MS || instantiateMs >= SLOW_SKILL_REG_MS) {
       Adapt.warn("Skill registration slow-path [" + skillName + "] total=" + totalMs + "ms instantiate=" + instantiateMs + "ms bootstrap=" + bootstrapLoading + ".");
     }
-    catalogRevision.incrementAndGet();
+    catalogChanged(true);
   }
 
   public synchronized boolean hotReloadSkillConfig(String skillName) {
     String normalized = normalizeSkillName(skillName);
     Skill<?> loaded = knownSkills.get(normalized);
-    if (loaded instanceof SimpleSkill<?> simpleSkill) {
-      boolean wasEnabled = loaded.isEnabled();
-      boolean ok = simpleSkill.reloadConfigFromDisk(false);
-      if (!ok) {
-        return false;
-      }
-
-      if (!loaded.isEnabled()) {
-        unregisterRecipes(loaded);
-        if (wasEnabled) {
-          loaded.unregister();
-        }
-        skills.remove(normalized);
-        catalogRevision.incrementAndGet();
-        return true;
-      }
-
-      if (!wasEnabled) {
-        return replaceSkillInstance(normalized, inferSkillType(normalized, loaded), loaded);
-      }
-
-      skills.put(normalized, loaded);
-      unregisterRecipes(loaded);
-      registerRecipes(loaded);
-      catalogRevision.incrementAndGet();
-      return true;
-    }
-
     Class<? extends Skill<?>> skillType = inferSkillType(normalized, loaded);
     if (skillType == null) {
       Adapt.verbose("No known skill type for config hotload: " + skillName);
       return false;
     }
+    if (!(loaded instanceof SimpleSkill<?> simpleSkill)) {
+      return replaceSkillInstance(normalized, skillType, loaded);
+    }
+    if (!simpleSkill.validateConfigFromDisk()) {
+      return false;
+    }
 
-    return replaceSkillInstance(normalized, skillType, loaded);
+    List<AdaptationConfigState> adaptationStates = new ArrayList<>();
+    for (Adaptation<?> adaptation : loaded.getAdaptations()) {
+      if (!(adaptation instanceof SimpleAdaptation<?> simpleAdaptation)) {
+        continue;
+      }
+      if (!simpleAdaptation.validateConfigFromDisk()) {
+        return false;
+      }
+      adaptationStates.add(new AdaptationConfigState(simpleAdaptation, simpleAdaptation.isEnabled()));
+    }
+
+    boolean previouslyEnabled = loaded.isEnabled();
+    if (!simpleSkill.reloadConfigFromDisk(true)) {
+      return false;
+    }
+    if (previouslyEnabled != loaded.isEnabled()) {
+      return replaceSkillInstance(normalized, skillType, loaded);
+    }
+
+    boolean adaptationLifecycleChanged = false;
+    for (AdaptationConfigState state : adaptationStates) {
+      if (!state.adaptation().reloadConfigFromDisk(false)) {
+        return false;
+      }
+      adaptationLifecycleChanged |= state.previouslyEnabled() != state.adaptation().isEnabled();
+    }
+    if (adaptationLifecycleChanged) {
+      return replaceSkillInstance(normalized, skillType, loaded);
+    }
+
+    for (AdaptationConfigState state : adaptationStates) {
+      synchronizeAdaptationRecipes(loaded, state.adaptation(), state.previouslyEnabled());
+    }
+
+    catalogChanged(true);
+    return true;
+  }
+
+  public synchronized boolean hotReloadAdaptationConfig(String adaptationName) {
+    if (adaptationName == null || adaptationName.isBlank()) {
+      return false;
+    }
+
+    for (Skill<?> skill : knownSkills.v()) {
+      for (Adaptation<?> adaptation : skill.getAdaptations()) {
+        if (!adaptation.getName().equalsIgnoreCase(adaptationName)) {
+          continue;
+        }
+        if (!(adaptation instanceof SimpleAdaptation<?> simpleAdaptation)
+            || !simpleAdaptation.validateConfigFromDisk()) {
+          return false;
+        }
+        boolean previouslyEnabled = simpleAdaptation.isEnabled();
+        if (!simpleAdaptation.reloadConfigFromDisk(true)) {
+          return false;
+        }
+        if (previouslyEnabled != simpleAdaptation.isEnabled()) {
+          String normalized = normalizeSkillName(skill.getName());
+          Class<? extends Skill<?>> skillType = inferSkillType(normalized, skill);
+          return skillType != null && replaceSkillInstance(normalized, skillType, skill);
+        }
+        synchronizeAdaptationRecipes(skill, simpleAdaptation, previouslyEnabled);
+        catalogChanged(true);
+        return true;
+      }
+    }
+    return false;
   }
 
   @SuppressWarnings("unchecked")
@@ -336,41 +478,98 @@ public class SkillRegistry extends TickedObject {
     }
 
     Skill<?> previousKnown = knownSkills.put(normalizedName, replacement);
-    if (previousKnown != null && previousKnown != replacement) {
-      unregisterRecipes(previousKnown);
-      previousKnown.unregister();
-    } else if (previousLoaded != null && previousLoaded != replacement) {
-      unregisterRecipes(previousLoaded);
-      previousLoaded.unregister();
+    Skill<?> previousActive = replacement.isEnabled()
+        ? skills.put(normalizedName, replacement)
+        : skills.remove(normalizedName);
+    List<Skill<?>> retired = new ArrayList<>(3);
+    addRetired(retired, previousKnown, replacement);
+    addRetired(retired, previousLoaded, replacement);
+    addRetired(retired, previousActive, replacement);
+    DeferredRecipeTransition deferred = deferredRecipeTransitions.remove(normalizedName);
+    if (deferred != null) {
+      for (Skill<?> previous : deferred.retired()) {
+        addRetired(retired, previous, replacement);
+      }
+      addRetired(retired, deferred.replacement(), replacement);
+    }
+    boolean deferRecipeTransition = shouldDelayRecipeRegistrationForFolia();
+    for (Skill<?> previous : retired) {
+      if (!deferRecipeTransition) {
+        unregisterRecipes(previous);
+      }
+      previous.unregister();
     }
 
     if (!replacement.isEnabled()) {
       replacement.unregister();
-      skills.remove(normalizedName);
-      catalogRevision.incrementAndGet();
+      if (deferRecipeTransition) {
+        enqueueDeferredRecipeTransition(normalizedName, retired, replacement);
+      }
+      catalogChanged(true);
       return true;
     }
 
-    Skill<?> previous = skills.put(normalizedName, replacement);
-    if (previous != null && previous != replacement) {
-      unregisterRecipes(previous);
-      previous.unregister();
+    prepareSkillRuntime(replacement);
+    if (deferRecipeTransition) {
+      enqueueDeferredRecipeTransition(normalizedName, retired, replacement);
+    } else {
+      registerRecipesNow(replacement);
     }
-
-    registerRecipes(replacement);
-    catalogRevision.incrementAndGet();
+    catalogChanged(true);
     return true;
   }
 
-  public synchronized void refreshRecipes(Skill<?> skill) {
-    if (skill == null) {
+  private void addRetired(List<Skill<?>> retired, Skill<?> candidate, Skill<?> replacement) {
+    if (candidate == null || candidate == replacement) {
       return;
     }
-
-    unregisterRecipes(skill);
-    if (skill.isEnabled()) {
-      registerRecipes(skill);
+    for (Skill<?> existing : retired) {
+      if (existing == candidate) {
+        return;
+      }
     }
+    retired.add(candidate);
+  }
+
+  private void prepareSkillRuntime(Skill<?> skill) {
+    if (runtimeStarted) {
+      skill.activateRuntime();
+    }
+    for (Adaptation<?> adaptation : skill.getAdaptations()) {
+      if (!adaptation.isEnabled()) {
+        adaptation.unregister();
+      } else if (runtimeStarted) {
+        adaptation.activateRuntime();
+      }
+    }
+    if (runtimeStarted) {
+      SkillOwnerPulse.startRuntime();
+      VelocityBurstRuntime.startRuntime();
+      MinionBurden.startRuntime();
+    }
+  }
+
+  private synchronized void enqueueDeferredRecipeTransition(String normalizedName, List<Skill<?>> retired,
+                                                             Skill<?> replacement) {
+    DeferredRecipeTransition existing = deferredRecipeTransitions.get(normalizedName);
+    List<Skill<?>> mergedRetired = new ArrayList<>();
+    if (existing != null) {
+      for (Skill<?> previous : existing.retired()) {
+        addRetired(mergedRetired, previous, replacement);
+      }
+    }
+    for (Skill<?> previous : retired) {
+      addRetired(mergedRetired, previous, replacement);
+    }
+    deferredRecipeTransitions.put(
+        normalizedName,
+        new DeferredRecipeTransition(List.copyOf(mergedRetired), replacement)
+    );
+    scheduleDeferredBootstrapRecipeRegistration();
+  }
+
+  public void synchronizeAdvancementRuntime() {
+    synchronizeAdvancementRuntime(catalogRevision.get());
   }
 
   public boolean isKnownSkill(String skillName) {
@@ -400,13 +599,11 @@ public class SkillRegistry extends TickedObject {
   }
 
   private void unregisterRecipes(Skill<?> s) {
+    synchronized (this) {
+      deferredBootstrapRecipeRegistration.removeIf(candidate -> candidate == s);
+    }
     s.getRecipes().forEach(AdaptRecipe::unregister);
-    s.getAdaptations().forEach(adaptation -> {
-      adaptation.getRecipes().forEach(recipe -> {
-        removeAdaptationRecipeIndex(recipe, adaptation);
-        recipe.unregister();
-      });
-    });
+    s.getAdaptations().forEach(this::unregisterAdaptationRecipes);
   }
 
   private void registerRecipes(Skill<?> s) {
@@ -431,12 +628,40 @@ public class SkillRegistry extends TickedObject {
       if (!adaptation.isEnabled()) {
         return;
       }
-      adaptation.getRecipes().forEach(recipe -> {
-        recipe.register();
-        indexAdaptationRecipe(recipe, adaptation);
-      });
-      adaptation.getBrewingRecipes().forEach(r -> BrewingManager.registerRecipe(adaptation.getName(), r));
+      registerAdaptationRecipesNow(adaptation);
     });
+  }
+
+  private void synchronizeAdaptationRecipes(Skill<?> skill, SimpleAdaptation<?> adaptation, boolean previouslyEnabled) {
+    boolean enabled = skill.isEnabled() && adaptation.isEnabled();
+    if (previouslyEnabled && !enabled) {
+      unregisterAdaptationRecipes(adaptation);
+      return;
+    }
+    if (previouslyEnabled || !enabled) {
+      return;
+    }
+    if (shouldDelayRecipeRegistrationForFolia()) {
+      enqueueDeferredRecipeRegistration(skill);
+      return;
+    }
+    registerAdaptationRecipesNow(adaptation);
+  }
+
+  private void unregisterAdaptationRecipes(Adaptation<?> adaptation) {
+    adaptation.getRecipes().forEach(recipe -> {
+      removeAdaptationRecipeIndex(recipe, adaptation);
+      recipe.unregister();
+    });
+    adaptation.getBrewingRecipes().forEach(recipe -> BrewingManager.unregisterRecipe(adaptation.getName(), recipe));
+  }
+
+  private void registerAdaptationRecipesNow(Adaptation<?> adaptation) {
+    adaptation.getRecipes().forEach(recipe -> {
+      recipe.register();
+      indexAdaptationRecipe(recipe, adaptation);
+    });
+    adaptation.getBrewingRecipes().forEach(recipe -> BrewingManager.registerRecipe(adaptation.getName(), recipe));
   }
 
   private boolean shouldDelayRecipeRegistrationForFolia() {
@@ -459,8 +684,16 @@ public class SkillRegistry extends TickedObject {
 
   @Override
   public void unregister() {
+    if (!unregistered.compareAndSet(false, true)) {
+      return;
+    }
+    runtimeStarted = false;
     deferredBootstrapRecipeTaskScheduled = false;
     deferredBootstrapRecipeRegistration.clear();
+    for (DeferredRecipeTransition transition : deferredRecipeTransitions.values()) {
+      transition.retired().forEach(this::unregisterRecipes);
+    }
+    deferredRecipeTransitions.clear();
     for (Skill<?> i : knownSkills.v()) {
       i.unregister();
       unregisterRecipes(i);
@@ -469,12 +702,69 @@ public class SkillRegistry extends TickedObject {
     knownSkills.clear();
     skillTypes.clear();
     adaptationRecipeIndex.clear();
+    statTrackerIndex = StatTrackerIndex.empty();
+    statReconciliationScheduled.set(false);
     catalogRevision.incrementAndGet();
+    super.unregister();
   }
 
-  @Override
-  public void onTick() {
 
+  private void catalogChanged(boolean reconcilePlayers) {
+    long revision = catalogRevision.incrementAndGet();
+    if (!bootstrapLoading) {
+      rebuildStatTrackerIndex();
+      if (reconcilePlayers) {
+        synchronizeAdvancementRuntime(revision);
+      }
+    }
+  }
+
+  private void rebuildStatTrackerIndex() {
+    statTrackerIndex = StatTrackerIndex.build(new ArrayList<>(knownSkills.v()));
+  }
+
+  private void synchronizeAdvancementRuntime(long revision) {
+    if (Adapt.instance == null || Adapt.instance.getManager() == null) {
+      return;
+    }
+    Adapt.instance.getManager().synchronizeCatalog(revision, this::reconcileStatTrackersForOnlinePlayers);
+  }
+
+  private void startStatTrackerReconciliation() {
+    long revision = statReconciliationRevision.get();
+    List<AdaptPlayer> players = List.copyOf(Adapt.instance.getAdaptServer().getOnlineAdaptPlayerSnapshot());
+    if (players.isEmpty()) {
+      finishStatTrackerReconciliation(revision);
+      return;
+    }
+    reconcileStatTrackerBatch(players, 0, revision);
+  }
+
+  private void reconcileStatTrackerBatch(List<AdaptPlayer> players, int startIndex, long revision) {
+    int endIndex = Math.min(startIndex + STAT_RECONCILIATION_BATCH_SIZE, players.size());
+    for (int index = startIndex; index < endIndex; index++) {
+      players.get(index).reconcileStatTrackers();
+    }
+
+    if (endIndex < players.size()) {
+      J.s(() -> reconcileStatTrackerBatch(players, endIndex, revision), 1);
+      return;
+    }
+
+    finishStatTrackerReconciliation(revision);
+  }
+
+  private void finishStatTrackerReconciliation(long revision) {
+    if (statReconciliationRevision.get() != revision) {
+      J.s(this::startStatTrackerReconciliation, 1);
+      return;
+    }
+
+    statReconciliationScheduled.set(false);
+    if (statReconciliationRevision.get() != revision
+        && statReconciliationScheduled.compareAndSet(false, true)) {
+      J.s(this::startStatTrackerReconciliation, 1);
+    }
   }
 
   private String normalizeSkillName(String raw) {
@@ -517,16 +807,22 @@ public class SkillRegistry extends TickedObject {
   }
 
   private synchronized void scheduleDeferredBootstrapRecipeRegistration() {
-    if (deferredBootstrapRecipeRegistration.isEmpty() || deferredBootstrapRecipeTaskScheduled) {
+    if (!isRuntimeRegistered()
+        || (deferredBootstrapRecipeRegistration.isEmpty() && deferredRecipeTransitions.isEmpty())
+        || deferredBootstrapRecipeTaskScheduled) {
       return;
     }
 
     deferredBootstrapRecipeTaskScheduled = true;
-    Adapt.info("Deferring recipe registration for " + deferredBootstrapRecipeRegistration.size() + " skills.");
+    int deferredCount = deferredBootstrapRecipeRegistration.size() + deferredRecipeTransitions.size();
+    Adapt.info("Deferring recipe registration for " + deferredCount + " skills.");
     J.s(this::runDeferredBootstrapRecipeRegistrationTick, 1);
   }
 
   private void runDeferredBootstrapRecipeRegistrationTick() {
+    if (!isRuntimeRegistered() || !deferredBootstrapRecipeTaskScheduled) {
+      return;
+    }
     if (shouldDelayRecipeRegistrationForFolia()) {
       if (!foliaRecipeRegistrationWaitWarned) {
         foliaRecipeRegistrationWaitWarned = true;
@@ -551,18 +847,32 @@ public class SkillRegistry extends TickedObject {
           break;
         }
 
+        DeferredRecipeTransition transition = pollDeferredRecipeTransition();
+        if (transition != null) {
+          applyDeferredRecipeTransition(transition);
+          processed++;
+          if (System.currentTimeMillis() - started > 8L) {
+            break;
+          }
+          continue;
+        }
+
         Skill<?> skill = deferredBootstrapRecipeRegistration.pollFirst();
         if (skill == null) {
           break;
         }
-        registerRecipesNow(skill);
         processed++;
+        Skill<?> current = knownSkills.get(normalizeSkillName(skill.getName()));
+        if (current != skill) {
+          continue;
+        }
+        registerRecipesNow(skill);
         if (System.currentTimeMillis() - started > 8L) {
           break;
         }
       }
 
-      complete = deferredBootstrapRecipeRegistration.isEmpty();
+      complete = deferredBootstrapRecipeRegistration.isEmpty() && deferredRecipeTransitions.isEmpty();
       if (complete) {
         deferredBootstrapRecipeTaskScheduled = false;
       }
@@ -578,5 +888,35 @@ public class SkillRegistry extends TickedObject {
     } else {
       J.s(this::runDeferredBootstrapRecipeRegistrationTick, 1);
     }
+  }
+
+  private DeferredRecipeTransition pollDeferredRecipeTransition() {
+    Iterator<Map.Entry<String, DeferredRecipeTransition>> iterator = deferredRecipeTransitions.entrySet().iterator();
+    if (!iterator.hasNext()) {
+      return null;
+    }
+    DeferredRecipeTransition transition = iterator.next().getValue();
+    iterator.remove();
+    return transition;
+  }
+
+  private void applyDeferredRecipeTransition(DeferredRecipeTransition transition) {
+    for (Skill<?> retired : transition.retired()) {
+      unregisterRecipes(retired);
+    }
+    Skill<?> replacement = transition.replacement();
+    if (replacement == null || !replacement.isEnabled()) {
+      return;
+    }
+    Skill<?> current = knownSkills.get(normalizeSkillName(replacement.getName()));
+    if (current == replacement) {
+      registerRecipesNow(replacement);
+    }
+  }
+
+  private record AdaptationConfigState(SimpleAdaptation<?> adaptation, boolean previouslyEnabled) {
+  }
+
+  private record DeferredRecipeTransition(List<Skill<?>> retired, Skill<?> replacement) {
   }
 }

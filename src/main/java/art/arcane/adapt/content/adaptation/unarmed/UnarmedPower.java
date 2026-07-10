@@ -110,10 +110,6 @@ public class UnarmedPower extends SimpleAdaptation<UnarmedPower.Config> {
     return getLevelPercent(level) * getConfig().damageFactor;
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Improved base unarmed damage.")
   protected static class Config extends AdaptationConfig {

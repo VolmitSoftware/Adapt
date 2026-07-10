@@ -153,9 +153,6 @@ public class ArchitectSteadyHands extends SimpleAdaptation<ArchitectSteadyHands.
     return M.lerp(getConfig().minShieldedBlocks, getConfig().maxShieldedBlocks, factor);
   }
 
-  @Override
-  public void onTick() {
-  }
 
   @NoArgsConstructor
   @ConfigDescription("Stay rock-steady while bridging: no knockback and reduced fall damage.")

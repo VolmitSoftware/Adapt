@@ -38,7 +38,7 @@ class LoadHarnessTest extends AdaptTestBase {
     }
 
     @Test
-    @DisplayName("simulated 1000-player tick of dispatch and xp work stays within budget (report only)")
+    @DisplayName("simulated 1000-player data and dispatch micro-harness reports timing")
     void thousandPlayerLoadReport() throws Exception {
         int players = 1000;
         List<PlayerData> data = new ArrayList<>(players);
@@ -92,6 +92,8 @@ class LoadHarnessTest extends AdaptTestBase {
         System.out.println("==================== ADAPT 1K LOAD HARNESS ====================");
         System.out.println("players                : " + players);
         System.out.println("work per player/tick   : addStat + giveXP (flush 1/8) + 3 LMF event dispatches");
+        System.out.println("excluded runtime work  : Bukkit players, schedulers, stat trackers, world/entity scans, persistence IO");
+        System.out.println("interpretation         : micro-harness only; not a production 1K-server capacity claim");
         System.out.printf("median tick time       : %.3f ms%n", msPerTick);
         System.out.printf("server tick budget     : %.1f ms (one 20 TPS tick)%n", tickBudgetMs);
         System.out.printf("budget used            : %.2f %% [%s]%n", budgetPercent, verdict);

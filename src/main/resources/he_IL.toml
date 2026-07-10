@@ -5,18 +5,6 @@
 title = "חייב לזוז!"
 description = "ללכת יותר מקילומטר אחד (1,000 בלוקים)"
 
-[advancement.challenge_sprint_5k]
-title = "ספרינט 5K!"
-description = "ללכת יותר מ-5 קילומטרים (5,000 בלוקים)"
-
-[advancement.challenge_sprint_50k]
-title = "זום של 50K!"
-description = "ללכת יותר מ-50 קילומטרים (50,000 בלוקים)"
-
-[advancement.challenge_sprint_500k]
-title = "לחצות את היקום!!"
-description = "ללכת יותר מ-500 קילומטרים (500,000 בלוקים)"
-
 [advancement.challenge_sprint_marathon]
 title = "ספרינט מרתון (תרתי משמע)!"
 description = "לרוץ מעל 42,195 בלוקים!"
@@ -33,14 +21,6 @@ description = "הנח 5,000 בלוקים"
 title = "בונה מתקדם!"
 description = "הנח 50,000 בלוקים"
 
-[advancement.challenge_place_500k]
-title = "בונה מאסטר!"
-description = "הנח 500,000 בלוקים"
-
-[advancement.challenge_place_5m]
-title = "תלמיד הסימטריה!"
-description = "המציאות היא מגרש המשחקים שלך! (5 מיליון בלוקים)"
-
 [advancement.challenge_chop_1k]
 title = "חוטב עצים מתחיל!"
 description = "חטוב 1,000 בלוקים"
@@ -52,14 +32,6 @@ description = "חטוב 5,000 בלוקים"
 [advancement.challenge_chop_50k]
 title = "חוטב עצים מתקדם!"
 description = "חטוב 50,000 בלוקים"
-
-[advancement.challenge_chop_500k]
-title = "חוטב עצים מאסטר!"
-description = "חטוב 500,000 בלוקים"
-
-[advancement.challenge_chop_5m]
-title = "ג'קסון הכלב"
-description = "הילד הכי טוב שיש! (5 מיליון בלוקים)"
 
 [advancement.challenge_block_1k]
 title = "בקושי חוסם!"
@@ -73,14 +45,6 @@ description = "חסום 5000 מכות"
 title = "חסימה זה החיים שלי!"
 description = "חסום 50,000 מכות"
 
-[advancement.challenge_block_500k]
-title = "חסימה היא הייעוד שלי!"
-description = "חסום 500,000 מכות"
-
-[advancement.challenge_block_5m]
-title = "היד הכואבת"
-description = "חסום 5,000,000 מכות"
-
 [advancement.challenge_brew_1k]
 title = "אלכימאי מתחיל!"
 description = "צרוך 1000 שיקויים"
@@ -89,18 +53,6 @@ description = "צרוך 1000 שיקויים"
 title = "אלכימאי בינוני!"
 description = "צרוך 5000 שיקויים"
 
-[advancement.challenge_brew_50k]
-title = "אלכימאי מתקדם!"
-description = "צרוך 50,000 שיקויים"
-
-[advancement.challenge_brew_500k]
-title = "אלכימאי מאסטר!"
-description = "צרוך 500,000 שיקויים"
-
-[advancement.challenge_brew_5m]
-title = "האלכימאי"
-description = "צרוך 5,000,000 שיקויים"
-
 [advancement.challenge_brewsplash_1k]
 title = "מתיז שיקויים מתחיל!"
 description = "התז 1000 שיקויים"
@@ -108,18 +60,6 @@ description = "התז 1000 שיקויים"
 [advancement.challenge_brewsplash_5k]
 title = "מתיז שיקויים בינוני!"
 description = "התז 5000 שיקויים"
-
-[advancement.challenge_brewsplash_50k]
-title = "מתיז שיקויים מתקדם!"
-description = "התז 50,000 שיקויים"
-
-[advancement.challenge_brewsplash_500k]
-title = "מתיז שיקויים מאסטר!"
-description = "התז 500,000 שיקויים"
-
-[advancement.challenge_brewsplash_5m]
-title = "מייסטר ההתזה"
-description = "התז 5,000,000 שיקויים"
 
 [advancement.challenge_craft_1k]
 title = "יוצר מלאכתי!"
@@ -133,14 +73,6 @@ description = "צור 5000 פריטים"
 title = "יוצר מסור!"
 description = "צור 50,000 פריטים"
 
-[advancement.challenge_craft_500k]
-title = "יוצר רועש!"
-description = "צור 500,000 פריטים"
-
-[advancement.challenge_craft_5m]
-title = "מיסטר יוצר-פנים"
-description = "צור 5,000,000 פריטים"
-
 [advancement.challenge_enchant_1k]
 title = "קוסם מתחיל!"
 description = "כשף 1000 פריטים"
@@ -148,18 +80,6 @@ description = "כשף 1000 פריטים"
 [advancement.challenge_enchant_5k]
 title = "קוסם בינוני!"
 description = "כשף 5000 פריטים"
-
-[advancement.challenge_enchant_50k]
-title = "קוסם מתקדם!"
-description = "כשף 50,000 פריטים"
-
-[advancement.challenge_enchant_500k]
-title = "קוסם מאסטר!"
-description = "כשף 500,000 פריטים"
-
-[advancement.challenge_enchant_5m]
-title = "הקוסם החידתי"
-description = "כשף 5,000,000 פריטים"
 
 [advancement.challenge_excavate_1k]
 title = "חופר נלהב!"
@@ -172,26 +92,6 @@ description = "חפור 5000 בלוקים"
 [advancement.challenge_excavate_50k]
 title = "חופר מתקדם!"
 description = "חפור 50,000 בלוקים"
-
-[advancement.challenge_excavate_500k]
-title = "חופר מאסטר!"
-description = "חפור 500,000 בלוקים"
-
-[advancement.challenge_excavate_5m]
-title = "החופר החידתי"
-description = "חפור 5,000,000 בלוקים"
-
-[advancement.horrible_person]
-title = "אתה אדם נורא"
-description = "בלתי נתפס, באמת"
-
-[advancement.challenge_turtle_egg_smasher]
-title = "מרסק ביצי צבים!"
-description = "שבור 100 ביצי צבים"
-
-[advancement.challenge_turtle_egg_annihilator]
-title = "משמיד ביצי צבים!"
-description = "שבור 500 ביצי צבים"
 
 [advancement.challenge_novice_hunter]
 title = "צייד מתחיל!"
@@ -224,14 +124,6 @@ description = "שבור 5000 בלוקים"
 [advancement.challenge_pickaxe_50k]
 title = "כורה מומחה"
 description = "שבור 50,000 בלוקים"
-
-[advancement.challenge_pickaxe_500k]
-title = "כורה מאסטר"
-description = "שבור 500,000 בלוקים"
-
-[advancement.challenge_pickaxe_5m]
-title = "כורה אגדי"
-description = "שבור 5,000,000 בלוקים"
 
 [advancement.challenge_eat_100]
 title = "כל כך הרבה לאכול!"
@@ -332,10 +224,6 @@ description = "בלה שעה אחת מחובר"
 [advancement.challenge_chronos_24h]
 title = "חולות הזמן"
 description = "בלה 24 שעות מחובר"
-
-[advancement.challenge_chronos_168h]
-title = "נצחי"
-description = "בלה 168 שעות (שבוע) מחובר"
 
 [advancement.challenge_nether_50]
 title = "שומר שערי הגיהנום"
@@ -440,14 +328,6 @@ title = "אדריכל העננים"
 description = "הנח 1,000 בלוקים מעל Y=128"
 
 # Axes - New Achievement Chains
-[advancement.challenge_axe_swing_500]
-title = "מניף הגרזן"
-description = "הנף את הגרזן 500 פעמים"
-
-[advancement.challenge_axe_swing_5k]
-title = "ברסרקר"
-description = "הנף את הגרזן 5,000 פעמים"
-
 [advancement.challenge_axe_damage_1k]
 title = "מבתר"
 description = "גרום 1,000 נזק עם גרזנים"
@@ -559,14 +439,6 @@ description = "השתגר 50 פעמים"
 title = "עיוות זמן"
 description = "השתגר 500 פעמים"
 
-[advancement.challenge_chronos_deaths_10]
-title = "בן תמותה"
-description = "מות 10 פעמים"
-
-[advancement.challenge_chronos_deaths_100]
-title = "מתגרה במוות"
-description = "מות 100 פעמים"
-
 # Crafting - New Achievement Chains
 [advancement.challenge_craft_value_10k]
 title = "יצירה בעלת ערך"
@@ -591,14 +463,6 @@ description = "צור 25 חלקי שריון"
 [advancement.challenge_craft_armor_250]
 title = "אמן השריון"
 description = "צור 250 חלקי שריון"
-
-[advancement.challenge_craft_mass_25k]
-title = "ייצור המוני"
-description = "צור 25,000 חפצים"
-
-[advancement.challenge_craft_mass_250k]
-title = "מהפכה תעשייתית"
-description = "צור 250,000 חפצים"
 
 # Discovery - New Achievement Chains
 [advancement.challenge_discover_items_50]
@@ -650,14 +514,6 @@ description = "צבור 100 כוח כישוף"
 title = "אדון הקסם"
 description = "צבור 1,000 כוח כישוף"
 
-[advancement.challenge_enchant_levels_1k]
-title = "מבזבז רמות"
-description = "הוצא 1,000 רמות ניסיון על כישוף"
-
-[advancement.challenge_enchant_levels_10k]
-title = "בור ניסיון"
-description = "הוצא 10,000 רמות ניסיון על כישוף"
-
 [advancement.challenge_enchant_high_25]
 title = "מהמר גדול"
 description = "בצע 25 כישופים ברמה מקסימלית"
@@ -675,14 +531,6 @@ title = "השקעה קסומה"
 description = "הוצא 5,000 רמות סה\"כ על כל הכישופים"
 
 # Excavation - New Achievement Chains
-[advancement.challenge_dig_swing_500]
-title = "חופר"
-description = "הנף את האת 500 פעמים"
-
-[advancement.challenge_dig_swing_5k]
-title = "מחפרון"
-description = "הנף את האת 5,000 פעמים"
-
 [advancement.challenge_dig_damage_1k]
 title = "אביר האת"
 description = "גרום 1,000 נזק עם את"
@@ -787,14 +635,6 @@ title = "אוסף הכמישה"
 description = "שבור 100 ורדי ויתר"
 
 # Pickaxes - New Achievement Chains
-[advancement.challenge_pick_swing_500]
-title = "זרוע הכורה"
-description = "הנף את המכוש 500 פעמים"
-
-[advancement.challenge_pick_swing_5k]
-title = "כורה מנהרות"
-description = "הנף את המכוש 5,000 פעמים"
-
 [advancement.challenge_pick_damage_1k]
 title = "לוחם מכוש"
 description = "גרום 1,000 נזק עם מכוש"
@@ -935,14 +775,6 @@ description = "הרוג 10 מובים בזחילה"
 title = "קוצר הצללים"
 description = "הרוג 100 מובים בזחילה"
 
-[advancement.challenge_stealth_time_1h]
-title = "סבלני"
-description = "בלה שעה אחת בזחילה (3,600 שניות)"
-
-[advancement.challenge_stealth_time_10h]
-title = "אדון הצללים"
-description = "בלה 10 שעות בזחילה (36,000 שניות)"
-
 [advancement.challenge_stealth_arrows_50]
 title = "קשת שקט"
 description = "ירה 50 חצים בזחילה"
@@ -1009,14 +841,6 @@ description = "חיות המחמד שלך הורגות 25 יצורים"
 title = "מפקד הלהקה"
 description = "חיות המחמד שלך הורגות 250 יצורים"
 
-[advancement.challenge_taming_2500]
-title = "מומחה רבייה"
-description = "הרבה 2,500 חיות"
-
-[advancement.challenge_taming_25k]
-title = "מאסטר גנטיקה"
-description = "הרבה 25,000 חיות"
-
 # TragOul - New Achievement Chains
 [advancement.challenge_trag_hits_500]
 title = "שק חבטות"
@@ -1025,30 +849,6 @@ description = "קבל 500 מכות"
 [advancement.challenge_trag_hits_5k]
 title = "מכור לסבל"
 description = "קבל 5,000 מכות"
-
-[advancement.challenge_trag_deaths_10]
-title = "תשע נשמות"
-description = "מות 10 פעמים"
-
-[advancement.challenge_trag_deaths_100]
-title = "סיוט חוזר"
-description = "מות 100 פעמים"
-
-[advancement.challenge_trag_fire_500]
-title = "קורבן אש"
-description = "ספוג 500 נזק אש"
-
-[advancement.challenge_trag_fire_5k]
-title = "עוף החול"
-description = "ספוג 5,000 נזק אש"
-
-[advancement.challenge_trag_fall_500]
-title = "בדיקת כבידה"
-description = "ספוג 500 נזק נפילה"
-
-[advancement.challenge_trag_fall_5k]
-title = "מהירות סופית"
-description = "ספוג 5,000 נזק נפילה"
 
 # Unarmed - New Achievement Chains
 [advancement.challenge_unarmed_dmg_1k]

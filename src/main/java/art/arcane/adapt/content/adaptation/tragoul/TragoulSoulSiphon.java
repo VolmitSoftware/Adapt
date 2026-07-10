@@ -149,9 +149,6 @@ public class TragoulSoulSiphon extends SimpleAdaptation<TragoulSoulSiphon.Config
     return Math.max(0.5, getConfig().healCapPerSecondBase + (getLevelPercent(level) * getConfig().healCapPerSecondFactor));
   }
 
-  @Override
-  public void onTick() {
-  }
 
   private static class HealBudget {
     private long windowStart;

@@ -186,10 +186,6 @@ public class ChronosTemporalEcho extends SimpleAdaptation<ChronosTemporalEcho.Co
     return Math.max(500L, (long) Math.round(getConfig().cooldownMillisBase - (getLevelPercent(level) * getConfig().cooldownMillisFactor)));
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   private enum EchoType {
     ARROW,

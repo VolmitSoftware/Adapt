@@ -45,21 +45,20 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class ChronosOvertime extends SimpleAdaptation<ChronosOvertime.Config> {
   private static final Set<PotionEffectType> BENEFICIAL = buildBeneficialSet();
 
-  private final Set<UUID> extending;
+  private final Map<UUID, Boolean> extending = playerState();
 
   public ChronosOvertime() {
     super("chronos-overtime");
     registerConfiguration(Config.class);
     setIcon(Material.GLISTERING_MELON_SLICE);
     setInterval(60000);
-    extending = ConcurrentHashMap.newKeySet();
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.GLISTERING_MELON_SLICE)
         .key("challenge_chronos_overtime_1k")
@@ -126,7 +125,7 @@ public class ChronosOvertime extends SimpleAdaptation<ChronosOvertime.Config> {
     }
 
     UUID id = p.getUniqueId();
-    if (extending.contains(id)) {
+    if (extending.containsKey(id)) {
       return;
     }
 
@@ -171,7 +170,7 @@ public class ChronosOvertime extends SimpleAdaptation<ChronosOvertime.Config> {
         return;
       }
 
-      extending.add(id);
+      extending.put(id, true);
       try {
         p.addPotionEffect(new PotionEffect(type, targetDuration, amplifier,
             current.isAmbient(), current.hasParticles(), current.hasIcon()), true);
@@ -198,9 +197,6 @@ public class ChronosOvertime extends SimpleAdaptation<ChronosOvertime.Config> {
     }
   }
 
-  @Override
-  public void onTick() {
-  }
 
   @ConfigDescription("Beneficial potion effects applied to you last longer, scaled by adaptation level.")
   protected static class Config extends AdaptationConfig {

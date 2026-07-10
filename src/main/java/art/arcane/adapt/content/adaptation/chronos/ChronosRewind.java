@@ -49,25 +49,19 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class ChronosRewind extends SimpleAdaptation<ChronosRewind.Config> {
-  private final Map<UUID, RewindSnapshot> snapshots;
-  private final Map<UUID, Long> cooldowns;
-  private final Set<UUID> cooldownReadyNotify;
+  private final Map<UUID, RewindSnapshot> snapshots = playerState();
+  private final Map<UUID, Long> cooldowns = playerState();
+  private final Map<UUID, Boolean> cooldownReadyNotify = playerState();
 
   public ChronosRewind() {
     super("chronos-rewind");
     registerConfiguration(Config.class);
     setIcon(Material.ENDER_EYE);
     setInterval(1000);
-    snapshots = new ConcurrentHashMap<>();
-    cooldowns = new ConcurrentHashMap<>();
-    cooldownReadyNotify = ConcurrentHashMap.newKeySet();
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.ENDER_EYE)
         .key("challenge_chronos_rewind_50")
@@ -172,7 +166,7 @@ public class ChronosRewind extends SimpleAdaptation<ChronosRewind.Config> {
     }
 
     cooldowns.put(id, now + getCooldownMillis(level));
-    cooldownReadyNotify.add(id);
+    cooldownReadyNotify.put(id, true);
 
     Location departure = p.getLocation().clone();
     Location departFx = departure.clone().add(0, 1, 0);
@@ -236,19 +230,19 @@ public class ChronosRewind extends SimpleAdaptation<ChronosRewind.Config> {
     long now = M.ms();
     snapshots.entrySet().removeIf(entry -> entry.getValue().expiresAt() <= now);
 
-    for (Iterator<UUID> iterator = cooldownReadyNotify.iterator(); iterator.hasNext(); ) {
-      UUID id = iterator.next();
+    for (UUID id : cooldownReadyNotify.keySet()) {
       Player p = Bukkit.getPlayer(id);
       if (p == null) {
-        iterator.remove();
+        cooldownReadyNotify.remove(id);
         continue;
       }
 
-      if (cooldowns.getOrDefault(id, 0L) <= now) {
-        if (getConfig().playClockSounds) {
-          ChronosSoundFX.playCooldownReady(p);
-        }
-        iterator.remove();
+      if (cooldowns.getOrDefault(id, 0L) <= now && cooldownReadyNotify.remove(id) != null) {
+        J.runEntity(p, () -> {
+          if (p.isOnline() && getConfig().playClockSounds) {
+            ChronosSoundFX.playCooldownReady(p);
+          }
+        });
       }
     }
 

@@ -58,7 +58,6 @@ class ConcurrencyStressTest extends AdaptTestBase {
         List<Ticked> tickeds = new ArrayList<>();
         for (int i = 0; i < 8; i++) {
             Ticked m = mock(Ticked.class);
-            lenient().when(m.shouldTick()).thenReturn(true);
             lenient().when(m.getId()).thenReturn("t" + i);
             lenient().when(m.getGroup()).thenReturn("g");
             lenient().when(m.getInterval()).thenReturn(0L);

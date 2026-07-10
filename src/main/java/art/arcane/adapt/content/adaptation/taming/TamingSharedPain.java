@@ -130,10 +130,6 @@ public class TamingSharedPain extends SimpleAdaptation<TamingSharedPain.Config> 
     return Math.max(1.0, getConfig().ownerHealthFloorBase + (getLevelPercent(level) * getConfig().ownerHealthFloorFactor));
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Redirect part of your pet's incoming damage to you, preserving companion survivability.")
   protected static class Config extends AdaptationConfig {

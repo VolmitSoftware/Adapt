@@ -139,9 +139,6 @@ public class ArchitectStonecutterSavant extends SimpleAdaptation<ArchitectStonec
     return (long) Math.max(1000, M.lerp(getConfig().maxCooldownSeconds, getConfig().minCooldownSeconds, factor) * 1000D);
   }
 
-  @Override
-  public void onTick() {
-  }
 
   @ConfigDescription("Sneak-punch the air with an empty hand while carrying a stonecutter to open it anywhere.")
   protected static class Config extends AdaptationConfig {

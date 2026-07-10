@@ -6,6 +6,7 @@ import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.Skill;
+import art.arcane.adapt.api.skill.SkillRegistry;
 import art.arcane.adapt.util.command.FConst;
 import art.arcane.adapt.util.director.context.AdaptationListingHandler;
 import art.arcane.volmlib.util.director.DirectorOrigin;
@@ -33,13 +34,14 @@ public class CommandDefault {
       return;
     }
 
-    Skill<?> skill = Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(skillTarget.name());
+    SkillRegistry registry = Adapt.instance.getAdaptServer().getSkillRegistry();
+    Skill<?> skill = registry.getSkill(skillTarget.name());
     if (skill == null) {
       FConst.error("Unknown skill: " + skillTarget.name()).send(BukkitDirectorContext.sender());
       return;
     }
 
-    if (!(skill instanceof SimpleSkill<?> simpleSkill)) {
+    if (!(skill instanceof SimpleSkill<?>)) {
       FConst.error("Skill " + skill.getName() + " does not support config reset.").send(BukkitDirectorContext.sender());
       return;
     }
@@ -50,7 +52,10 @@ public class CommandDefault {
       return;
     }
 
-    simpleSkill.reloadConfigFromDisk(false);
+    if (!registry.hotReloadSkillConfig(skill.getName())) {
+      FConst.error("Failed to reload the default config for " + skill.getName()).send(BukkitDirectorContext.sender());
+      return;
+    }
     FConst.success("Reset config for skill " + skill.getName() + " to defaults.").send(BukkitDirectorContext.sender());
   }
 
@@ -89,7 +94,7 @@ public class CommandDefault {
       return;
     }
 
-    if (!(adaptation instanceof SimpleAdaptation<?> simpleAdaptation)) {
+    if (!(adaptation instanceof SimpleAdaptation<?>)) {
       FConst.error("Adaptation " + adaptation.getName() + " does not support config reset.").send(BukkitDirectorContext.sender());
       return;
     }
@@ -100,7 +105,11 @@ public class CommandDefault {
       return;
     }
 
-    simpleAdaptation.reloadConfigFromDisk(false);
+    SkillRegistry registry = Adapt.instance.getAdaptServer().getSkillRegistry();
+    if (!registry.hotReloadAdaptationConfig(adaptation.getName())) {
+      FConst.error("Failed to reload the default config for " + adaptation.getName()).send(BukkitDirectorContext.sender());
+      return;
+    }
     FConst.success("Reset config for adaptation " + adaptation.getName() + " to defaults.").send(BukkitDirectorContext.sender());
   }
 
@@ -162,19 +171,16 @@ public class CommandDefault {
     AdaptConfig.reload();
 
     // Reload all skill and adaptation configs from defaults
-    for (Skill<?> skill : Adapt.instance.getAdaptServer().getSkillRegistry().getSkills()) {
-      if (skill instanceof SimpleSkill<?> simpleSkill) {
-        if (simpleSkill.reloadConfigFromDisk(false)) {
-          reset++;
+    SkillRegistry registry = Adapt.instance.getAdaptServer().getSkillRegistry();
+    for (Skill<?> skill : registry.getAllSkills()) {
+      int configCount = skill instanceof SimpleSkill<?> ? 1 : 0;
+      for (Adaptation<?> adaptation : skill.getAdaptations()) {
+        if (adaptation instanceof SimpleAdaptation<?>) {
+          configCount++;
         }
       }
-
-      for (Adaptation<?> adaptation : skill.getAdaptations()) {
-        if (adaptation instanceof SimpleAdaptation<?> simpleAdaptation) {
-          if (simpleAdaptation.reloadConfigFromDisk(false)) {
-            reset++;
-          }
-        }
+      if (registry.hotReloadSkillConfig(skill.getName())) {
+        reset += configCount;
       }
     }
 

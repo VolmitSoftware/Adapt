@@ -27,11 +27,11 @@ import org.bukkit.Location;
 public class SpatialXP {
   private Location location;
   private double radius;
-  private Skill skill;
+  private Skill<?> skill;
   private double xp;
   private long ms;
 
-  public SpatialXP(Location l, Skill s, double xp, double radius, long duration) {
+  public SpatialXP(Location l, Skill<?> s, double xp, double radius, long duration) {
     this.location = l;
     this.skill = s;
     this.xp = xp;

@@ -204,6 +204,11 @@ public record RuntimeAttribute(
   }
 
   @Override
+  public void addTransientModifier(UUID uuid, NamespacedKey key, double amount, AttributeModifier.Operation operation) {
+    instance.addTransientModifier(createModifier(uuid, key, amount, operation));
+  }
+
+  @Override
   public boolean hasModifier(UUID uuid, NamespacedKey key) {
     for (AttributeModifier modifier : instance.getModifiers()) {
       if (matches(modifier, uuid, key)) {

@@ -43,7 +43,12 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.Collection;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 import static art.arcane.adapt.util.data.Metadata.VEIN_MINED;
 
@@ -81,20 +86,13 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
     }
 
     Player p = e.getPlayer();
-    if (!hasActiveAdaptation(p)) {
-      return;
-    }
-
-    if (!p.isSneaking()) {
-      return;
-    }
-
-    if (!isAxe(p.getInventory().getItemInMainHand())) {
+    ItemStack tool = p.getInventory().getItemInMainHand();
+    if (!p.isSneaking() || !isAxe(tool)) {
       return;
     }
 
     Material blockType = e.getBlock().getType();
-    if (!blockType.isItem() || !isLeaves(new ItemStack(blockType))) {
+    if (!isLeavesMaterial(blockType) || !hasActiveAdaptation(p)) {
       return;
     }
 
@@ -109,20 +107,19 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
     fx(p.getEyeLocation(), FxPriority.TRAIL)
         .line(Particles.VILLAGER_HAPPY, block.getX() + 0.5D, block.getY() + 0.5D, block.getZ() + 0.5D, 5)
         .sound(Sound.ENTITY_PLAYER_ATTACK_SWEEP, 0.5F, 1.2F);
-    Map<Location, Block> blockMap = new HashMap<>();
+    Set<Block> blockMap = new HashSet<>();
     Deque<Block> stack = new ArrayDeque<>();
-    Set<Location> queued = new HashSet<>();
+    Set<Block> queued = new HashSet<>();
     stack.push(block);
-    queued.add(block.getLocation());
+    queued.add(block);
     int radius = getRadius(getLevel(p));
     int radiusSquared = radius * radius;
     while (!stack.isEmpty() && blockMap.size() < radius) {
       Block currentBlock = stack.pop();
-      Location currentLocation = currentBlock.getLocation();
-      if (blockMap.containsKey(currentLocation)) {
+      if (blockMap.contains(currentBlock)) {
         continue;
       }
-      blockMap.put(currentLocation, currentBlock);
+      blockMap.add(currentBlock);
       for (int x = -1; x <= 1; x++) {
         for (int y = -1; y <= 1; y++) {
           for (int z = -1; z <= 1; z++) {
@@ -130,16 +127,15 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
               continue;
             }
             Block b = currentBlock.getRelative(x, y, z);
-            Location nextLocation = b.getLocation();
             if (b.getType() != block.getType()
-                || blockMap.containsKey(nextLocation)
-                || !queued.add(nextLocation)) {
+                || blockMap.contains(b)
+                || !queued.add(b)) {
               continue;
             }
-            if (currentBlock.getLocation().distanceSquared(b.getLocation()) <= radiusSquared && canBlockBreak(p, b.getLocation())) {
+            if (distanceSquared(block, b) <= radiusSquared && canBlockBreak(p, b.getLocation())) {
               stack.push(b);
             } else {
-              queued.remove(nextLocation);
+              queued.remove(b);
             }
           }
         }
@@ -151,8 +147,7 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
     PlayerAdaptation adaptation = line != null ? line.getAdaptation("axe-drop-to-inventory") : null;
     boolean toInventory = adaptation != null && adaptation.getLevel() > 0;
     J.runEntity(p, () -> {
-      for (Location l : blockMap.keySet()) {
-        Block b = block.getWorld().getBlockAt(l);
+      for (Block b : blockMap) {
         VEIN_MINED.add(b);
         if (toInventory) {
           Collection<ItemStack> items = b.getDrops(p.getInventory().getItemInMainHand(), p);
@@ -164,7 +159,7 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
           }
           b.setType(Material.AIR);
         } else {
-          b.breakNaturally(p.getItemInUse());
+          b.breakNaturally(tool);
         }
         VEIN_MINED.remove(b);
       }
@@ -175,10 +170,10 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
       double sumX = 0.0D;
       double sumY = 0.0D;
       double sumZ = 0.0D;
-      for (Location l : blockMap.keySet()) {
-        sumX += l.getX();
-        sumY += l.getY();
-        sumZ += l.getZ();
+      for (Block selected : blockMap) {
+        sumX += selected.getX();
+        sumY += selected.getY();
+        sumZ += selected.getZ();
       }
       Location center = new Location(block.getWorld(), (sumX / leavesBroken) + 0.5D, (sumY / leavesBroken) + 0.5D, (sumZ / leavesBroken) + 0.5D);
       double extent = Math.min(3.0D, 1.0D + (radius * 0.35D));
@@ -205,8 +200,18 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
   }
 
 
-  @Override
-  public void onTick() {
+
+  private int distanceSquared(Block first, Block second) {
+    int dx = first.getX() - second.getX();
+    int dy = first.getY() - second.getY();
+    int dz = first.getZ() - second.getZ();
+    return (dx * dx) + (dy * dy) + (dz * dz);
+  }
+
+  private boolean isLeavesMaterial(Material type) {
+    return type == Material.MANGROVE_ROOTS
+        || type == Material.MUDDY_MANGROVE_ROOTS
+        || type.name().endsWith("_LEAVES");
   }
 
   @ConfigDescription("Break bulk leaves at once while sneaking.")

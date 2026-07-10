@@ -26,6 +26,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPresets;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -37,6 +38,7 @@ import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.metadata.FixedMetadataValue;
@@ -44,7 +46,8 @@ import org.bukkit.metadata.MetadataValue;
 import org.bukkit.util.Vector;
 
 public class RangedPiercing extends SimpleAdaptation<RangedPiercing.Config> {
-  private static final String PIERCE_HITS_META = "adapt-pierce-hits";
+  static final String PIERCE_HITS_META = "adapt-pierce-hits";
+  static final String PIERCE_INITIALIZED_META = "adapt-piercing-initialized";
 
   public RangedPiercing() {
     super("ranged-piercing");
@@ -74,36 +77,39 @@ public class RangedPiercing extends SimpleAdaptation<RangedPiercing.Config> {
 
   @EventHandler
   public void on(ProjectileLaunchEvent e) {
-    if (e.getEntity().getShooter() instanceof Player p) {
-      if (e.getEntity() instanceof AbstractArrow a) {
-        xp(p, 5);
-        int level = getActiveLevel(p);
-        if (level > 0) {
-          a.setPierceLevel(((AbstractArrow) e.getEntity()).getPierceLevel() + level);
-        }
-      }
-    }
-  }
-
-  @EventHandler
-  public void on(EntityDamageByEntityEvent e) {
-    art.arcane.adapt.api.adaptation.Adaptation.ProjectileContext combat = resolveProjectileContext(e, projectile -> projectile instanceof AbstractArrow);
-    if (combat == null) {
+    if (!(e.getEntity() instanceof AbstractArrow arrow)
+        || isPiercingInitialized(arrow)
+        || !(arrow.getShooter() instanceof Player player)) {
       return;
     }
+    int level = getActiveLevel(player);
+    if (level <= 0) {
+      return;
+    }
+    arrow.setPierceLevel(arrow.getPierceLevel() + level);
+    arrow.setMetadata(
+        PIERCE_INITIALIZED_META,
+        new FixedMetadataValue(Adapt.instance, true)
+    );
+    xp(player, 5);
+  }
 
-    AbstractArrow arrow = (AbstractArrow) combat.projectile();
-    if (arrow.getPierceLevel() <= 0) {
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+  public void on(EntityDamageByEntityEvent e) {
+    if (!(e.getDamager() instanceof AbstractArrow arrow)
+        || !(arrow.getShooter() instanceof Player player)
+        || !(e.getEntity() instanceof LivingEntity target)
+        || !isPiercingInitialized(arrow)
+        || arrow.getPierceLevel() <= 0
+        || isProtectedFriendly(player, target)) {
       return;
     }
 
     int hits = readHits(arrow) + 1;
     arrow.setMetadata(PIERCE_HITS_META, new FixedMetadataValue(Adapt.instance, hits));
-    Player p = combat.attacker();
-    LivingEntity target = combat.target();
 
     if (hits > 1) {
-      addStat(p, "ranged.piercing.extra-hits", 1);
+      J.runEntity(player, () -> rewardPiercingHitOwned(player, hits));
       emitPierceSpark(target, arrow, hits);
     }
     if (hits >= 3) {
@@ -111,18 +117,51 @@ public class RangedPiercing extends SimpleAdaptation<RangedPiercing.Config> {
           .column(Particles.ENCHANTMENT_TABLE, 8, 1.5D)
           .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.4F, 1.5F);
     }
-    if (hits >= 4 && grantOnce(p, "challenge_ranged_piercing_4")) {
-      FxPresets.learnCelebration(this, p);
-    }
   }
 
-  private int readHits(AbstractArrow arrow) {
+  static int readHits(AbstractArrow arrow) {
     for (MetadataValue value : arrow.getMetadata(PIERCE_HITS_META)) {
       if (value.getOwningPlugin() == Adapt.instance) {
         return value.asInt();
       }
     }
     return 0;
+  }
+
+  static boolean isPiercingInitialized(AbstractArrow arrow) {
+    for (MetadataValue value : arrow.getMetadata(PIERCE_INITIALIZED_META)) {
+      if (value.getOwningPlugin() == Adapt.instance) {
+        return value.asBoolean();
+      }
+    }
+    return false;
+  }
+
+  static void copyPiercingState(AbstractArrow source, AbstractArrow target) {
+    applyPiercingState(target, isPiercingInitialized(source), readHits(source));
+  }
+
+  static void applyPiercingState(AbstractArrow target, boolean initialized, int hits) {
+    if (!initialized) {
+      return;
+    }
+    target.setMetadata(
+        PIERCE_INITIALIZED_META,
+        new FixedMetadataValue(Adapt.instance, true)
+    );
+    if (hits > 0) {
+      target.setMetadata(PIERCE_HITS_META, new FixedMetadataValue(Adapt.instance, hits));
+    }
+  }
+
+  private void rewardPiercingHitOwned(Player player, int hits) {
+    if (!player.isOnline()) {
+      return;
+    }
+    addStat(player, "ranged.piercing.extra-hits", 1);
+    if (hits >= 4 && grantOnce(player, "challenge_ranged_piercing_4")) {
+      FxPresets.learnCelebration(this, player);
+    }
   }
 
   private void emitPierceSpark(LivingEntity target, AbstractArrow arrow, int hits) {
@@ -145,10 +184,6 @@ public class RangedPiercing extends SimpleAdaptation<RangedPiercing.Config> {
         .sound(Sound.ENTITY_ARROW_HIT, 0.8F, pitch);
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Projectiles pierce through multiple targets.")
   protected static class Config extends AdaptationConfig {

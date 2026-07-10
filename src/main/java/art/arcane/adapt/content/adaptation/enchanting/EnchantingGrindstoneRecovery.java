@@ -188,10 +188,6 @@ public class EnchantingGrindstoneRecovery extends SimpleAdaptation<EnchantingGri
     return Math.max(10, (int) Math.round(getConfig().cooldownTicksBase - (getLevelPercent(level) * getConfig().cooldownTicksFactor)));
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Using a grindstone can recover one removed enchant on a book with bonus XP.")
   protected static class Config extends AdaptationConfig {

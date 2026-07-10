@@ -34,7 +34,12 @@ import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
-import org.bukkit.*;
+import org.bukkit.Color;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.AnaloguePowerable;
 import org.bukkit.block.data.BlockData;
@@ -47,20 +52,15 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.Map;
-import java.util.UUID;
-
 import static art.arcane.adapt.api.adaptation.chunk.ChunkLoading.loadChunkAsync;
 
 public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWirelessRedstone.Config> {
   private final Cooldowns pulseCd = cooldowns();
-  private final Map<UUID, Boolean> cooldownOverlay = playerState();
 
   public ArchitectWirelessRedstone() {
     super("architect-wireless-redstone");
     registerConfiguration(ArchitectWirelessRedstone.Config.class);
     setIcon(Material.REDSTONE_TORCH);
-    setInterval(100);
     registerRecipe(AdaptRecipe.shapeless()
         .key("remote-redstone-torch")
         .ingredient(Material.REDSTONE_TORCH)
@@ -181,18 +181,14 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
           .sound(Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 0.1f, 0.9f);
     } else {
       pulseCd.mark(player.getUniqueId());
-      updatePlayerCooldown(player, false);
+      showPlayerCooldown(player);
       triggerPulse(player, event.getItem());
     }
   }
 
-  public void updatePlayerCooldown(Player player, boolean reset) {
-    player.setCooldown(Material.REDSTONE_TORCH, reset ? 0 : 5000);
-    if (reset) {
-      cooldownOverlay.remove(player.getUniqueId());
-    } else {
-      cooldownOverlay.put(player.getUniqueId(), Boolean.TRUE);
-    }
+  private void showPlayerCooldown(Player player) {
+    int cooldownTicks = Math.max(1, (int) Math.ceil(getConfig().cooldown / 50D));
+    player.setCooldown(Material.REDSTONE_TORCH, cooldownTicks);
   }
 
 
@@ -255,25 +251,6 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
 
   private boolean isBound(ItemStack stack) {
     return (stack.getType().equals(Material.REDSTONE_TORCH) && BoundRedstoneTorch.getLocation(stack) != null);
-  }
-
-
-  @Override
-  public void onTick() {
-    for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
-      Player p = adaptPlayer.getPlayer();
-      if (p == null || !p.isOnline()) {
-        continue;
-      }
-      ItemStack hand = p.getInventory().getItemInMainHand();
-      ItemStack offhand = p.getInventory().getItemInOffHand();
-      if ((isRedstoneTorch(hand) && BoundRedstoneTorch.hasItemData(hand)) || (
-          isRedstoneTorch(offhand) && BoundRedstoneTorch.hasItemData(offhand))) {
-        withPlayerThread(p, () -> updatePlayerCooldown(p, false));
-      } else if (cooldownOverlay.containsKey(p.getUniqueId())) {
-        withPlayerThread(p, () -> updatePlayerCooldown(p, true));
-      }
-    }
   }
 
   @ConfigDescription("Use a crafted redstone remote to toggle redstone at a distance.")

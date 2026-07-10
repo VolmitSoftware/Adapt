@@ -29,6 +29,7 @@ import art.arcane.adapt.api.potion.BrewingManager;
 import art.arcane.adapt.api.protection.ProtectorRegistry;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.Skill;
+import art.arcane.adapt.api.skill.SkillRegistry;
 import art.arcane.adapt.api.tick.Ticker;
 import art.arcane.adapt.api.value.MaterialValue;
 import art.arcane.adapt.api.version.Version;
@@ -53,6 +54,7 @@ import art.arcane.adapt.util.common.plugin.Metrics;
 import art.arcane.adapt.util.common.plugin.VolmitPlugin;
 import art.arcane.adapt.util.common.plugin.VolmitSender;
 import art.arcane.adapt.util.common.scheduling.J;
+import art.arcane.adapt.util.common.world.WorldBlockScanScheduler;
 import art.arcane.adapt.util.config.ConfigFileSupport;
 import art.arcane.adapt.util.config.ConfigMigrationManager;
 import art.arcane.adapt.util.project.redis.RedisSync;
@@ -101,6 +103,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
   private final AtomicBoolean alreadyDrained = new AtomicBoolean(false);
   private static final boolean SLIMJAR_DEBUG = Boolean.getBoolean("adapt.debug-slimjar");
   private static final boolean DISABLE_REMAPPER = Boolean.getBoolean("adapt.disable-remapper");
+  private static final Object GLOWING_ENTITIES_LOCK = new Object();
   public static Adapt instance;
   public static HashMap<String, String> wordKey = new HashMap<>();
   public static Platform platform;
@@ -150,6 +153,10 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
   @SuppressWarnings("unchecked")
   public static <T> T service(Class<T> c) {
     return (T) instance.services.get(c);
+  }
+
+  public static Object glowingEntitiesLock() {
+    return GLOWING_ENTITIES_LOCK;
   }
 
   private static void runStartupPhaseVoid(String phase, Runnable action) {
@@ -518,22 +525,21 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
 
     int migratedSkills = 0;
     int migratedAdaptations = 0;
-    for (Skill<?> skill : adaptServer.getSkillRegistry().getSkills()) {
-      if (skill instanceof SimpleSkill<?> simpleSkill) {
-        if (simpleSkill.reloadConfigFromDisk(false)) {
+    SkillRegistry registry = adaptServer.getSkillRegistry();
+    for (Skill<?> skill : registry.getAllSkills()) {
+      int adaptationConfigs = 0;
+      for (Adaptation<?> adaptation : skill.getAdaptations()) {
+        if (adaptation instanceof SimpleAdaptation<?>) {
+          adaptationConfigs++;
+        }
+      }
+      if (registry.hotReloadSkillConfig(skill.getName())) {
+        if (skill instanceof SimpleSkill<?>) {
           migratedSkills++;
         }
-      }
-
-      for (Adaptation<?> adaptation : skill.getAdaptations()) {
-        if (adaptation instanceof SimpleAdaptation<?> simpleAdaptation) {
-          if (simpleAdaptation.reloadConfigFromDisk(false)) {
-            migratedAdaptations++;
-          }
-        }
+        migratedAdaptations += adaptationConfigs;
       }
     }
-
     int deletedLegacyJson = ConfigMigrationManager.deleteMigratedLegacyJsonFiles();
     Adapt.info("Canonicalized skill/adaptation configs to TOML (skills=" + migratedSkills + ", adaptations=" + migratedAdaptations + ", deletedLegacyJson=" + deletedLegacyJson + ").");
   }
@@ -542,10 +548,12 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     long startTicker = System.currentTimeMillis();
     ticker = new Ticker();
     fxDirector = new FxDirector();
+    fxDirector.activateRuntime();
     verbose("start-sim detail: ticker init in " + (System.currentTimeMillis() - startTicker) + "ms");
 
     long startServer = System.currentTimeMillis();
     adaptServer = new AdaptServer();
+    adaptServer.startRuntime();
     long serverMs = System.currentTimeMillis() - startServer;
     if (serverMs >= STARTUP_SLOW_PHASE_MS) {
       warn("start-sim detail: AdaptServer init took " + serverMs + "ms.");
@@ -553,7 +561,9 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
       verbose("start-sim detail: AdaptServer init in " + serverMs + "ms");
     }
 
-    MinionBurden.get().reconcileOnline();
+    MinionBurden burden = MinionBurden.get();
+    MinionBurden.startRuntime();
+    burden.reconcileOnline();
 
     long startAdv = System.currentTimeMillis();
     manager.enable();
@@ -565,8 +575,9 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
   }
 
   public void stopSim() {
+    WorldBlockScanScheduler.reset();
     if (ticker != null) {
-      ticker.clear();
+      ticker.shutdown();
     }
     PlayerStateRegistry.reset();
     MinionBurden.shutdown();

@@ -28,6 +28,7 @@ import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
+import art.arcane.adapt.util.common.world.LoadedChunkAccess;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
@@ -44,12 +45,25 @@ import org.bukkit.block.Furnace;
 import org.bukkit.block.data.Ageable;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ChronosAccelerate extends SimpleAdaptation<ChronosAccelerate.Config> {
   private static final Color AURA_COLOR = Color.fromRGB(230, 210, 150);
+  private static final int HARD_MAX_PLAYERS_PER_PASS = 512;
+  private static final int HARD_MAX_SAMPLES_PER_PASS = 8192;
+  private static final int MAX_CATCH_UP_PULSES = 4;
+
+  private final Map<UUID, Long> nextPulseAt = playerState();
+  private int playerCursor;
 
   public ChronosAccelerate() {
     super("chronos-accelerate");
@@ -72,6 +86,11 @@ public class ChronosAccelerate extends SimpleAdaptation<ChronosAccelerate.Config
     v.addLore(C.GRAY + "* " + Math.round(getCookBoostFraction(level) * 100D) + "% " + Localizer.dLocalize("chronos.accelerate.lore3"));
   }
 
+  @EventHandler
+  public void on(PlayerQuitEvent e) {
+    nextPulseAt.remove(e.getPlayer().getUniqueId());
+  }
+
   private double getRadius(int level) {
     return getConfig().baseRadius + (Math.max(1, level) * getConfig().radiusPerLevel);
   }
@@ -92,82 +111,128 @@ public class ChronosAccelerate extends SimpleAdaptation<ChronosAccelerate.Config
   @Override
   public void onTick() {
     long now = System.currentTimeMillis();
-    for (AdaptPlayer adaptPlayer : learnedCandidates(now)) {
-      Player p = adaptPlayer.getPlayer();
-      if (p == null || !p.isOnline()) {
-        continue;
-      }
-
-      int level = getActiveLevel(p);
-      if (level <= 0) {
-        continue;
-      }
-
-      Location center = p.getLocation().clone();
-      Runnable task = () -> accelerateAround(p, center, level);
-      if (J.isFoliaThreading()) {
-        J.runAt(center, task);
-      } else {
-        task.run();
+    List<AdaptPlayer> candidates = learnedCandidates(now);
+    ChronosWorkBudget.Batch batch = ChronosWorkBudget.batch(
+        candidates.size(), playerCursor, getConfig().maxPlayersPerPass, HARD_MAX_PLAYERS_PER_PASS);
+    AtomicInteger sampleBudget = new AtomicInteger(
+        ChronosWorkBudget.bounded(getConfig().maxSamplesPerPass, 1, HARD_MAX_SAMPLES_PER_PASS));
+    for (int i = 0; i < batch.count(); i++) {
+      AdaptPlayer adaptPlayer = candidates.get((batch.start() + i) % candidates.size());
+      Player player = adaptPlayer.getPlayer();
+      if (player != null) {
+        J.runEntity(player, () -> prepareAcceleration(player, now, sampleBudget));
       }
     }
+    playerCursor = batch.nextCursor();
   }
 
-  private void accelerateAround(Player p, Location center, int level) {
+  private void prepareAcceleration(Player player, long now, AtomicInteger sampleBudget) {
+    if (!player.isOnline()) {
+      return;
+    }
+
+    UUID playerId = player.getUniqueId();
+    int level = getActiveLevel(player);
+    if (level <= 0) {
+      nextPulseAt.remove(playerId);
+      return;
+    }
+
+    long interval = Math.max(1L, getConfig().pulseIntervalMillis);
+    ChronosWorkBudget.Pulse pulse = ChronosWorkBudget.pulse(
+        now, nextPulseAt.get(playerId), interval, MAX_CATCH_UP_PULSES);
+    nextPulseAt.put(playerId, pulse.nextAt());
+    if (pulse.count() <= 0) {
+      return;
+    }
+
+    int requested = Math.max(1, getSamples(level)) * pulse.count();
+    int granted = claimSamples(sampleBudget, requested);
+    if (granted <= 0) {
+      return;
+    }
+
+    Location center = player.getLocation().clone();
     World world = center.getWorld();
     if (world == null) {
       return;
     }
 
+    AccelerationBatch acceleration = new AccelerationBatch(player, center, level, granted);
     ThreadLocalRandom random = ThreadLocalRandom.current();
     int radius = Math.max(1, (int) Math.round(getRadius(level)));
-    int samples = getSamples(level);
-    double growChance = getGrowChance(level);
-    int accelerated = 0;
-
-    for (int i = 0; i < samples; i++) {
+    for (int i = 0; i < granted; i++) {
       int x = center.getBlockX() + random.nextInt(-radius, radius + 1);
       int y = center.getBlockY() + random.nextInt(-2, 3);
       int z = center.getBlockZ() + random.nextInt(-radius, radius + 1);
-      Block block = world.getBlockAt(x, y, z);
-      Material type = block.getType();
-      if (type.isAir()) {
+      Location target = new Location(world, x, y, z);
+      if (!canInteract(player, target)) {
+        acceleration.complete(false);
         continue;
       }
 
-      if (type == Material.FURNACE || type == Material.BLAST_FURNACE || type == Material.SMOKER) {
-        if (canInteract(p, block.getLocation()) && block.getState() instanceof Furnace furnace && accelerateFurnace(furnace, level)) {
-          accelerated++;
-          emitStationFx(world, x, y, z, true);
-        }
-        continue;
-      }
-
-      if (type == Material.BREWING_STAND) {
-        if (canInteract(p, block.getLocation()) && block.getState() instanceof BrewingStand stand && accelerateBrewingStand(stand, level)) {
-          accelerated++;
-          emitStationFx(world, x, y, z, false);
-        }
-        continue;
-      }
-
-      BlockData data = block.getBlockData();
-      if (data instanceof Ageable ageable
-          && ageable.getAge() < ageable.getMaximumAge()
-          && random.nextDouble() < growChance
-          && canInteract(p, block.getLocation())) {
-        ageable.setAge(ageable.getAge() + 1);
-        block.setBlockData(data, true);
-        accelerated++;
-        emitCropFx(world, x, y, z);
+      if (!J.runAt(target, () -> acceleration.complete(accelerateBlock(target, level)))) {
+        acceleration.complete(false);
       }
     }
+  }
 
-    if (accelerated > 0) {
-      addStat(p, "chronos.accelerate.blocks-accelerated", accelerated);
-      xpSilent(p, accelerated * getConfig().xpPerAcceleratedBlock, "chronos:accelerate");
-      fx(center, FxPriority.AMBIENT).dustRing(AURA_COLOR, getRadius(level), 8, 0.9F);
+  private boolean accelerateBlock(Location target, int level) {
+    World world = target.getWorld();
+    if (world == null) {
+      return false;
     }
+
+    LoadedChunkAccess loaded = new LoadedChunkAccess(world, 0);
+    if (!loaded.canRead(target.getBlockX(), target.getBlockZ())) {
+      return false;
+    }
+
+    Block block = world.getBlockAt(target);
+    Material type = block.getType();
+    if (type.isAir()) {
+      return false;
+    }
+
+    if (type == Material.FURNACE || type == Material.BLAST_FURNACE || type == Material.SMOKER) {
+      if (block.getState() instanceof Furnace furnace && accelerateFurnace(furnace, level)) {
+        emitStationFx(world, target.getBlockX(), target.getBlockY(), target.getBlockZ(), true);
+        return true;
+      }
+      return false;
+    }
+
+    if (type == Material.BREWING_STAND) {
+      if (block.getState() instanceof BrewingStand stand && accelerateBrewingStand(stand, level)) {
+        emitStationFx(world, target.getBlockX(), target.getBlockY(), target.getBlockZ(), false);
+        return true;
+      }
+      return false;
+    }
+
+    BlockData data = block.getBlockData();
+    if (!(data instanceof Ageable ageable)
+        || ageable.getAge() >= ageable.getMaximumAge()
+        || ThreadLocalRandom.current().nextDouble() >= getGrowChance(level)) {
+      return false;
+    }
+
+    ageable.setAge(ageable.getAge() + 1);
+    block.setBlockData(data, true);
+    emitCropFx(world, target.getBlockX(), target.getBlockY(), target.getBlockZ());
+    return true;
+  }
+
+  private int claimSamples(AtomicInteger remaining, int requested) {
+    int observed = remaining.get();
+    while (observed > 0) {
+      int claimed = Math.min(observed, requested);
+      if (remaining.compareAndSet(observed, observed - claimed)) {
+        return claimed;
+      }
+      observed = remaining.get();
+    }
+    return 0;
   }
 
   private boolean accelerateFurnace(Furnace furnace, int level) {
@@ -225,6 +290,12 @@ public class ChronosAccelerate extends SimpleAdaptation<ChronosAccelerate.Config
         .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.3F, 1.6F);
   }
 
+  @Override
+  protected void onConfigReload(Config previousConfig, Config newConfig) {
+    super.onConfigReload(previousConfig, newConfig);
+    setInterval(Math.max(1L, newConfig.pulseIntervalMillis));
+  }
+
   @ConfigDescription("Passively accelerate time around you, occasionally growing nearby crops and speeding furnaces and brewing stands.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Milliseconds between acceleration pulses.", impact = "Lower values pulse more often at more server cost.")
@@ -237,6 +308,10 @@ public class ChronosAccelerate extends SimpleAdaptation<ChronosAccelerate.Config
     int baseSamplesPerPulse = 3;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Hard cap on blocks sampled per pulse.", impact = "Higher values raise the per pulse work ceiling.")
     int maxSamplesPerPulse = 8;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum learned players prepared in one acceleration pass.", impact = "Higher values refresh more players immediately; lower values spread owner-thread scheduling across passes.")
+    int maxPlayersPerPass = 512;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum block-region jobs admitted by one acceleration pass.", impact = "Higher values preserve more simultaneous aura pulses; lower values shed work sooner under extreme populations.")
+    int maxSamplesPerPass = 8192;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Base chance for a sampled crop to advance one growth stage.", impact = "Higher values grow crops faster.")
     double baseGrowChance = 0.3;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Extra crop growth chance per adaptation level.", impact = "Higher values make leveling grow crops faster.")
@@ -254,6 +329,44 @@ public class ChronosAccelerate extends SimpleAdaptation<ChronosAccelerate.Config
       baseCost = 5;
       costFactor = 0.4;
       initialCost = 4;
+    }
+  }
+
+  private final class AccelerationBatch {
+    private final Player player;
+    private final Location center;
+    private final int level;
+    private final AtomicInteger remaining;
+    private final AtomicInteger accelerated;
+    private final AtomicBoolean finalized;
+
+    private AccelerationBatch(Player player, Location center, int level, int samples) {
+      this.player = player;
+      this.center = center;
+      this.level = level;
+      remaining = new AtomicInteger(samples);
+      accelerated = new AtomicInteger();
+      finalized = new AtomicBoolean(false);
+    }
+
+    private void complete(boolean changed) {
+      if (changed) {
+        accelerated.incrementAndGet();
+      }
+      if (remaining.decrementAndGet() != 0 || !finalized.compareAndSet(false, true)) {
+        return;
+      }
+      J.runEntity(player, this::finish);
+    }
+
+    private void finish() {
+      int count = accelerated.get();
+      if (!player.isOnline() || count <= 0) {
+        return;
+      }
+      addStat(player, "chronos.accelerate.blocks-accelerated", count);
+      xpSilent(player, count * getConfig().xpPerAcceleratedBlock, "chronos:accelerate");
+      fx(center, FxPriority.AMBIENT).dustRing(AURA_COLOR, getRadius(level), 8, 0.9F);
     }
   }
 }

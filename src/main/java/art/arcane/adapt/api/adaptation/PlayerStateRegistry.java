@@ -5,16 +5,22 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-import java.util.List;
+import java.lang.ref.Reference;
+import java.lang.ref.ReferenceQueue;
+import java.lang.ref.WeakReference;
 import java.util.Map;
+import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class PlayerStateRegistry {
-  private static final List<Map<UUID, ?>> MAPS = new CopyOnWriteArrayList<>();
+  private static final Queue<WeakReference<Map<UUID, ?>>> MAPS = new ConcurrentLinkedQueue<>();
+  private static final ReferenceQueue<Map<UUID, ?>> COLLECTED_MAPS = new ReferenceQueue<>();
   private static final AtomicBoolean LISTENER_REGISTERED = new AtomicBoolean(false);
+  private static volatile Adapt listenerPlugin;
+  private static volatile QuitListener quitListener;
 
   private PlayerStateRegistry() {
   }
@@ -22,7 +28,8 @@ public final class PlayerStateRegistry {
   public static <V> Map<UUID, V> newPlayerMap() {
     ensureListener();
     ConcurrentHashMap<UUID, V> map = new ConcurrentHashMap<>();
-    MAPS.add(map);
+    pruneCollectedMaps();
+    MAPS.add(new WeakReference<>(map, COLLECTED_MAPS));
     return map;
   }
 
@@ -30,12 +37,21 @@ public final class PlayerStateRegistry {
     return new Cooldowns(newPlayerMap());
   }
 
-  public static void reset() {
+  public static synchronized void reset() {
     MAPS.clear();
+    while (COLLECTED_MAPS.poll() != null) {
+    }
+    Adapt plugin = listenerPlugin;
+    QuitListener listener = quitListener;
+    if (plugin != null && listener != null) {
+      plugin.unregisterListener(listener);
+    }
+    listenerPlugin = null;
+    quitListener = null;
     LISTENER_REGISTERED.set(false);
   }
 
-  private static void ensureListener() {
+  private static synchronized void ensureListener() {
     if (!LISTENER_REGISTERED.compareAndSet(false, true)) {
       return;
     }
@@ -46,12 +62,26 @@ public final class PlayerStateRegistry {
       return;
     }
 
-    plugin.registerListener(new QuitListener());
+    QuitListener listener = new QuitListener();
+    listenerPlugin = plugin;
+    quitListener = listener;
+    plugin.registerListener(listener);
   }
 
-  private static void clearPlayer(UUID id) {
-    for (Map<UUID, ?> map : MAPS) {
-      map.remove(id);
+  static void clearPlayer(UUID id) {
+    pruneCollectedMaps();
+    for (WeakReference<Map<UUID, ?>> reference : MAPS) {
+      Map<UUID, ?> map = reference.get();
+      if (map != null) {
+        map.remove(id);
+      }
+    }
+  }
+
+  private static void pruneCollectedMaps() {
+    Reference<? extends Map<UUID, ?>> reference;
+    while ((reference = COLLECTED_MAPS.poll()) != null) {
+      MAPS.remove(reference);
     }
   }
 

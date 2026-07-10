@@ -303,10 +303,6 @@ public class RiftInflatedPocketDimension extends SimpleAdaptation<RiftInflatedPo
     return false;
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Building and empty-hand block targeting can fetch materials from your ender chest, and sneak-drop stores items into it.")
   protected static class Config extends AdaptationConfig {

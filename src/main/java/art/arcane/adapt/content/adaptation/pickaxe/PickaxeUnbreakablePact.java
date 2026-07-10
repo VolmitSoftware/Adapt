@@ -109,9 +109,6 @@ public class PickaxeUnbreakablePact extends SimpleAdaptation<PickaxeUnbreakableP
         .chord(Sound.BLOCK_ANVIL_PLACE, 0.4f, 1.8f, Sound.BLOCK_AMETHYST_BLOCK_RESONATE, 0.5f, 0.8f, Sound.ITEM_TRIDENT_RETURN, 0.3f, 1.0f);
   }
 
-  @Override
-  public void onTick() {
-  }
 
   @ConfigDescription("Your pickaxe refuses to break, surviving at 1 durability.")
   protected static class Config extends AdaptationConfig {

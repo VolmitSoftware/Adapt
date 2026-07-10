@@ -364,10 +364,6 @@ public class CraftingReconstruction extends SimpleAdaptation<CraftingReconstruct
         .start();
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Recraft ores from their base smelted components.")
   protected static class Config extends AdaptationConfig {

@@ -255,10 +255,6 @@ public class ExcavationDowsing extends SimpleAdaptation<ExcavationDowsing.Config
     return Math.max(2000L, (long) Math.round(getConfig().cooldownMillisBase - (getLevelPercent(level) * getConfig().cooldownMillisFactor)));
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Sneaking with a shovel pings the nearest hidden cave, water, or lava pocket with a directional trail.")
   protected static class Config extends AdaptationConfig {

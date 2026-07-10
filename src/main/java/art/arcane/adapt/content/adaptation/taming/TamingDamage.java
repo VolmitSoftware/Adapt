@@ -35,13 +35,12 @@ import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import org.bukkit.Bukkit;
 import org.bukkit.Color;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.World;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -50,22 +49,42 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.world.EntitiesUnloadEvent;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
   private static final UUID MODIFIER = UUID.nameUUIDFromBytes("adapt-tame-damage-boost".getBytes());
   private static final NamespacedKey MODIFIER_KEY = NamespacedKey.fromString("adapt:tame-damage-boost");
-  private static final double FOLIA_SCAN_RADIUS = 48D;
+  private static final String LIFECYCLE_SCOPE = "tame-damage";
+  private static final long ATTRIBUTE_REFRESH_MILLIS = 6119L;
+  private static final long OWNER_LEVEL_REFRESH_MILLIS = 5000L;
+  private static final long STATE_PRUNE_MILLIS = 60000L;
+  private final TameableOwnershipIndex ownershipIndex = TameableOwnershipIndex.instance();
+  private final TameableOwnershipIndex.Generation generation = ownershipIndex.claimGeneration(LIFECYCLE_SCOPE);
   private final Map<UUID, Integer> appliedLevels = new ConcurrentHashMap<>();
+  private final Map<UUID, Long> nextUpdateAt = new ConcurrentHashMap<>();
+  private final Map<UUID, Integer> ownerLevels = new ConcurrentHashMap<>();
+  private final AtomicBoolean lifecycleCleanupStarted = new AtomicBoolean();
+  private Iterator<TameableOwnershipIndex.TrackedTameable> workCursor = Collections.emptyIterator();
+  private long nextOwnerLevelRefresh;
+  private long nextStatePrune;
 
   public TamingDamage() {
     super("tame-damage");
     registerConfiguration(Config.class);
     setLocalizationKey("taming.damage");
     setIcon(Material.FLINT);
-    setInterval(6119);
+    setInterval(50);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.BONE)
         .key("challenge_taming_damage_500")
@@ -92,81 +111,175 @@ public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
   }
 
   @Override
+  public void unregister() {
+    if (lifecycleCleanupStarted.compareAndSet(false, true)) {
+      ownershipIndex.cleanupLoaded(generation, this::removeDamageModifier);
+      ownerLevels.clear();
+      nextUpdateAt.clear();
+      appliedLevels.clear();
+    }
+    super.unregister();
+  }
+
+  @Override
   public void onTick() {
-    if (J.isFoliaThreading()) {
-      onFoliaTick();
-      pruneInvalidAppliedLevels();
+    if (lifecycleCleanupStarted.get() || !ownershipIndex.isGenerationCurrent(generation)) {
       return;
     }
 
-    Map<UUID, Integer> ownerLevels = new HashMap<>();
-    boolean hasActiveOwners = false;
-    for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
-      Player owner = adaptPlayer.getPlayer();
-      int level = getActiveLevel(owner);
-      if (level > 0) {
-        ownerLevels.put(owner.getUniqueId(), level);
-        hasActiveOwners = true;
-      }
+    long now = System.currentTimeMillis();
+    List<AdaptPlayer> candidates = isEnabled() ? learnedCandidates(now) : List.of();
+    if (isEnabled()) {
+      refreshOwnerLevels(candidates, now);
+    } else {
+      ownerLevels.clear();
     }
-
-    if (!hasActiveOwners) {
-      clearAppliedLevels();
+    if (ownerLevels.isEmpty() && appliedLevels.isEmpty()) {
+      pruneState(now);
       return;
     }
 
-    Set<UUID> seen = new HashSet<>();
-    for (World world : Bukkit.getServer().getWorlds()) {
-      Collection<Tameable> tameables = world.getEntitiesByClass(Tameable.class);
-      for (Tameable tameable : tameables) {
-        if (tameable.isTamed() && tameable.getOwner() instanceof Player p) {
-          seen.add(tameable.getUniqueId());
-          update(tameable, ownerLevels.getOrDefault(p.getUniqueId(), 0));
-        }
-      }
-    }
-    clearMissingAppliedLevels(seen);
-  }
-
-  private void onFoliaTick() {
-    for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
-      Player owner = adaptPlayer.getPlayer();
-      int level = getActiveLevel(owner);
-      J.runEntity(owner, () -> updateNearbyOwnedTameables(owner, level));
-    }
-  }
-
-  private void updateNearbyOwnedTameables(Player owner, int level) {
-    if (owner == null || !owner.isOnline()) {
-      return;
-    }
-
-    for (Entity nearby : owner.getNearbyEntities(FOLIA_SCAN_RADIUS, FOLIA_SCAN_RADIUS, FOLIA_SCAN_RADIUS)) {
-      if (!(nearby instanceof Tameable tameable) || !tameable.isTamed()) {
-        continue;
-      }
-      if (!(tameable.getOwner() instanceof Player tameOwner) || !tameOwner.getUniqueId().equals(owner.getUniqueId())) {
-        continue;
-      }
-
-      update(tameable, level);
-    }
+    ownershipIndex.ensureBootstrapped();
+    ownershipIndex.discoverNearbyFolia(candidates, now);
+    processTameables(now);
+    pruneState(now);
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(EntityDeathEvent e) {
+    if (lifecycleCleanupStarted.get() || !ownershipIndex.isGenerationCurrent(generation)) {
+      return;
+    }
+
     if (e.getEntity().getLastDamageCause() instanceof EntityDamageByEntityEvent dmgEvent
         && dmgEvent.getDamager() instanceof Tameable tam
         && tam.isTamed()
-        && tam.getOwner() instanceof Player p
-        && hasActiveAdaptation(p)) {
-      addStat(p, "taming.damage.pet-kills", 1);
-      fx(e.getEntity().getLocation(), FxPriority.COMBAT)
+        && tam.getOwner() instanceof Player owner) {
+      Location deathLocation = e.getEntity().getLocation();
+      J.runEntity(owner, () -> recordPetKill(owner, deathLocation));
+    }
+    appliedLevels.remove(e.getEntity().getUniqueId());
+    nextUpdateAt.remove(e.getEntity().getUniqueId());
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(EntitiesUnloadEvent event) {
+    for (Entity entity : event.getEntities()) {
+      if (entity instanceof Tameable) {
+        nextUpdateAt.remove(entity.getUniqueId());
+      }
+    }
+  }
+
+  private void refreshOwnerLevels(List<AdaptPlayer> online, long now) {
+    if (now < nextOwnerLevelRefresh) {
+      return;
+    }
+
+    if (J.isFoliaThreading()) {
+      refreshFoliaOwnerLevels(online);
+      nextOwnerLevelRefresh = now + OWNER_LEVEL_REFRESH_MILLIS;
+      return;
+    }
+
+    Map<UUID, Integer> refreshed = new HashMap<>(online.size());
+    for (AdaptPlayer adaptPlayer : online) {
+      Player owner = adaptPlayer.getPlayer();
+      if (owner == null || !owner.isOnline()) {
+        continue;
+      }
+
+      int level = getActiveLevel(owner);
+      if (level > 0) {
+        refreshed.put(owner.getUniqueId(), level);
+      }
+    }
+    ownerLevels.clear();
+    ownerLevels.putAll(refreshed);
+    nextOwnerLevelRefresh = now + OWNER_LEVEL_REFRESH_MILLIS;
+  }
+
+  private void refreshFoliaOwnerLevels(List<AdaptPlayer> online) {
+    Set<UUID> onlineIds = new HashSet<>(online.size());
+    for (AdaptPlayer adaptPlayer : online) {
+      Player owner = adaptPlayer.getPlayer();
+      if (owner == null) {
+        continue;
+      }
+
+      UUID ownerId = owner.getUniqueId();
+      onlineIds.add(ownerId);
+      J.runEntity(owner, () -> ownershipIndex.runIfGenerationCurrent(generation, () -> {
+        if (lifecycleCleanupStarted.get()) {
+          return;
+        }
+        if (!owner.isOnline()) {
+          ownerLevels.remove(ownerId);
+          return;
+        }
+        int level = getActiveLevel(owner);
+        if (level > 0) {
+          ownerLevels.put(ownerId, level);
+        } else {
+          ownerLevels.remove(ownerId);
+        }
+      }));
+    }
+    ownerLevels.keySet().removeIf(ownerId -> !onlineIds.contains(ownerId));
+  }
+
+  private void processTameables(long now) {
+    if (!workCursor.hasNext()) {
+      workCursor = ownershipIndex.iterator();
+    }
+
+    int limit = Math.max(1, getConfig().maxTameablesPerPass);
+    int examined = 0;
+    while (examined < limit && workCursor.hasNext()) {
+      TameableOwnershipIndex.TrackedTameable tracked = workCursor.next();
+      examined++;
+
+      UUID entityId = tracked.entityId();
+      Long nextUpdate = nextUpdateAt.get(entityId);
+      if (nextUpdate != null && now < nextUpdate) {
+        continue;
+      }
+
+      nextUpdateAt.put(entityId, now + ATTRIBUTE_REFRESH_MILLIS);
+      Runnable updateTask = () -> ownershipIndex.runIfGenerationCurrent(generation, () -> {
+        if (!lifecycleCleanupStarted.get()) {
+          updateTrackedTameable(tracked);
+        }
+      });
+      if (J.isFoliaThreading()) {
+        J.runEntity(tracked.entity(), updateTask);
+      } else {
+        updateTask.run();
+      }
+    }
+  }
+
+  private void updateTrackedTameable(TameableOwnershipIndex.TrackedTameable tracked) {
+    UUID ownerId = ownershipIndex.refreshOwner(tracked);
+    if (ownerId == null) {
+      removeDamageModifier(tracked.entity());
+      return;
+    }
+
+    update(tracked.entity(), ownerLevels.getOrDefault(ownerId, 0));
+  }
+
+  private void recordPetKill(Player owner, Location deathLocation) {
+    ownershipIndex.runIfGenerationCurrent(generation, () -> {
+      if (lifecycleCleanupStarted.get() || !hasActiveAdaptation(owner)) {
+        return;
+      }
+      addStat(owner, "taming.damage.pet-kills", 1);
+      fx(deathLocation, FxPriority.COMBAT)
           .burst(Particle.CRIT, 5, 0.3D)
           .particle(Particle.SWEEP_ATTACK, 1, 0, 0.6D, 0, 0, 0)
           .sound(Sound.ENTITY_WOLF_GROWL, 0.45F, 1.1F);
-    }
-    appliedLevels.remove(e.getEntity().getUniqueId());
+    });
   }
 
   private void update(Tameable j, int level) {
@@ -186,11 +299,11 @@ public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
       return;
     }
 
-    if (appliedLevel != null && appliedLevel == level) {
+    if (appliedLevel != null && appliedLevel == level && attribute.hasModifier(MODIFIER, MODIFIER_KEY)) {
       return;
     }
 
-    attribute.setModifier(MODIFIER, MODIFIER_KEY, getDamageBoost(level), AttributeModifier.Operation.ADD_SCALAR);
+    attribute.setTransientModifier(MODIFIER, MODIFIER_KEY, getDamageBoost(level), AttributeModifier.Operation.ADD_SCALAR);
     appliedLevels.put(tameableId, level);
     fx(j, FxPriority.TRANSITION)
         .ring(Particles.CRIT_MAGIC, 0.4D, 6, 0.6D)
@@ -198,55 +311,26 @@ public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
         .chord(Sound.ENTITY_WOLF_GROWL, 0.5F, 0.8F, Sound.ITEM_TRIDENT_RETURN, 0.3F, 0.7F);
   }
 
-  private void clearAppliedLevels() {
-    if (appliedLevels.isEmpty()) {
+  private void pruneState(long now) {
+    if (now < nextStatePrune) {
       return;
     }
 
-    for (UUID tameableId : new HashSet<>(appliedLevels.keySet())) {
-      Entity entity = Bukkit.getEntity(tameableId);
-      if (entity instanceof Tameable tameable) {
-        IAttribute attribute = Version.get().getAttribute(tameable, Attributes.GENERIC_ATTACK_DAMAGE);
-        if (attribute != null && attribute.hasModifier(MODIFIER, MODIFIER_KEY)) {
-          attribute.removeModifier(MODIFIER, MODIFIER_KEY);
-        }
-      }
-      appliedLevels.remove(tameableId);
-    }
+    nextUpdateAt.keySet().removeIf(entityId -> !ownershipIndex.contains(entityId));
+    nextStatePrune = now + STATE_PRUNE_MILLIS;
   }
 
-  private void clearMissingAppliedLevels(Set<UUID> seen) {
-    if (appliedLevels.isEmpty()) {
+  private void removeDamageModifier(Tameable tameable) {
+    if (!tameable.isValid() || tameable.isDead()) {
+      appliedLevels.remove(tameable.getUniqueId());
       return;
     }
 
-    for (UUID tameableId : new HashSet<>(appliedLevels.keySet())) {
-      if (seen.contains(tameableId)) {
-        continue;
-      }
-
-      Entity entity = Bukkit.getEntity(tameableId);
-      if (entity instanceof Tameable tameable) {
-        IAttribute attribute = Version.get().getAttribute(tameable, Attributes.GENERIC_ATTACK_DAMAGE);
-        if (attribute != null && attribute.hasModifier(MODIFIER, MODIFIER_KEY)) {
-          attribute.removeModifier(MODIFIER, MODIFIER_KEY);
-        }
-      }
-      appliedLevels.remove(tameableId);
+    IAttribute attribute = Version.get().getAttribute(tameable, Attributes.GENERIC_ATTACK_DAMAGE);
+    if (attribute != null && attribute.hasModifier(MODIFIER, MODIFIER_KEY)) {
+      attribute.removeModifier(MODIFIER, MODIFIER_KEY);
     }
-  }
-
-  private void pruneInvalidAppliedLevels() {
-    if (appliedLevels.isEmpty()) {
-      return;
-    }
-
-    for (UUID tameableId : new HashSet<>(appliedLevels.keySet())) {
-      Entity entity = Bukkit.getEntity(tameableId);
-      if (!(entity instanceof Tameable tameable) || !tameable.isValid() || tameable.isDead()) {
-        appliedLevels.remove(tameableId);
-      }
-    }
+    appliedLevels.remove(tameable.getUniqueId());
   }
 
   @ConfigDescription("Increase your tamed animal damage dealt.")
@@ -255,6 +339,8 @@ public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
     double baseDamage = 0.08;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Damage Factor for the Taming Damage adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double damageFactor = 0.65;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum loaded tameables examined per scheduler pass.", impact = "Higher values refresh very large pet populations faster but increase per-tick work.")
+    int maxTameablesPerPass = 128;
 
     public Config() {
       baseCost = 6;

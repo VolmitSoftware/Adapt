@@ -102,9 +102,6 @@ public class CraftingXP extends SimpleAdaptation<CraftingXP.Config> {
   }
 
 
-  @Override
-  public void onTick() {
-  }
 
   @ConfigDescription("Gain passive XP when crafting items.")
   protected static class Config extends AdaptationConfig {

@@ -135,10 +135,6 @@ public class NetherLavaWalker extends SimpleAdaptation<NetherLavaWalker.Config> 
     return Math.max(100, (long) Math.round(getConfig().cooldownMillisBase - (getLevelPercent(level) * getConfig().cooldownMillisFactor)));
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Stride over lava in the Nether at the cost of hunger.")
   protected static class Config extends AdaptationConfig {

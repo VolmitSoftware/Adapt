@@ -3,25 +3,29 @@ package art.arcane.adapt.api.fx;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.AdaptServer;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicIntegerArray;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicLongArray;
+import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 
 public final class FxViewers {
   public static final double DEFAULT_CULL_RADIUS = 24.0D;
   public static final double MAX_CULL_RADIUS = 48.0D;
+  private static final int DISABLED_VIEWER_INDEX = -2;
+  private static final int UNINDEXED_VIEWER_INDEX = -1;
   private static final int CELL_SHIFT = 5;
-  private static final Snapshot EMPTY = new Snapshot(Long.MIN_VALUE, new Player[0], new double[0], new double[0], new double[0], Map.of());
+  private static final long SNAPSHOT_REFRESH_TICKS = 5L;
+  private static final Snapshot EMPTY = new Snapshot(Long.MIN_VALUE, new Player[0], new double[0], new double[0], new double[0], Map.of(), Map.of());
   private static final Object BUILD_LOCK = new Object();
   private static final AtomicLong TICK_STAMP = new AtomicLong();
   private static volatile Snapshot snapshot = EMPTY;
@@ -29,25 +33,54 @@ public final class FxViewers {
   private FxViewers() {
   }
 
-  public static void forEach(World world, double x, double y, double z, double radius, Consumer<Player> action) {
-    current().forEach(world, x, y, z, radius, action);
+  public static void dispatch(Collection<Player> viewers, Consumer<Player> action) {
+    if (viewers == null || action == null) {
+      return;
+    }
+    FxDispatch.Emission emission = FxDispatch.emission(action::accept, null);
+    Snapshot current = current();
+    for (Player viewer : viewers) {
+      if (viewer != null && !current.dispatch(viewer, emission) && current.shouldFallback(viewer)) {
+        FxDispatch.dispatch(viewer, emission);
+      }
+    }
+  }
+
+  public static void dispatch(World world, double x, double y, double z, double radius, Consumer<Player> action) {
+    if (action == null) {
+      return;
+    }
+    current().dispatch(world, x, y, z, radius, FxDispatch.emission(action::accept, null));
+  }
+
+  static boolean dispatch(Player viewer, FxDispatch.Emission emission) {
+    return current().dispatch(viewer, emission);
+  }
+
+  static boolean shouldFallback(Player viewer) {
+    return current().shouldFallback(viewer);
   }
 
   static void bumpTick() {
     TICK_STAMP.incrementAndGet();
   }
 
+  static void reset() {
+    TICK_STAMP.set(0L);
+    snapshot = EMPTY;
+  }
+
   static Snapshot current() {
     long stamp = TICK_STAMP.get();
     Snapshot current = snapshot;
-    if (current.stamp == stamp) {
+    if (isFresh(current, stamp)) {
       return current;
     }
 
     synchronized (BUILD_LOCK) {
       current = snapshot;
       stamp = TICK_STAMP.get();
-      if (current.stamp == stamp) {
+      if (isFresh(current, stamp)) {
         return current;
       }
 
@@ -57,33 +90,42 @@ public final class FxViewers {
     }
   }
 
+  private static boolean isFresh(Snapshot current, long stamp) {
+    return current.stamp != Long.MIN_VALUE
+        && stamp >= current.stamp
+        && stamp - current.stamp < SNAPSHOT_REFRESH_TICKS;
+  }
+
   private static Snapshot build(long stamp) {
     AdaptServer server = Adapt.instance == null ? null : Adapt.instance.getAdaptServer();
-    List<AdaptPlayer> adaptPlayers = server == null ? null : server.getOnlineAdaptPlayerSnapshot();
-    int capacity = adaptPlayers == null ? Bukkit.getOnlinePlayers().size() : adaptPlayers.size();
+    if (server == null) {
+      return emptySnapshot(stamp);
+    }
+
+    List<AdaptPlayer> adaptPlayers = server.getOnlineAdaptPlayerSnapshot();
+    int capacity = adaptPlayers.size();
     Player[] players = new Player[capacity];
     double[] xs = new double[capacity];
     double[] ys = new double[capacity];
     double[] zs = new double[capacity];
     Map<World, Map<Long, int[]>> cells = new HashMap<>(4);
-    Location scratch = new Location(null, 0, 0, 0);
+    IdentityHashMap<Player, Integer> dispatchIndices = new IdentityHashMap<>(capacity);
     int count = 0;
 
-    if (adaptPlayers != null) {
-      for (int i = 0; i < adaptPlayers.size() && count < capacity; i++) {
-        AdaptPlayer adaptPlayer = adaptPlayers.get(i);
-        if (adaptPlayer == null || adaptPlayer.getData() == null || !adaptPlayer.getData().isEffectsEnabled()) {
-          continue;
-        }
-        count = index(adaptPlayer.getPlayer(), players, xs, ys, zs, cells, scratch, count);
+    for (int i = 0; i < adaptPlayers.size() && count < capacity; i++) {
+      AdaptPlayer adaptPlayer = adaptPlayers.get(i);
+      if (adaptPlayer == null || adaptPlayer.getData() == null || adaptPlayer.getPlayer() == null) {
+        continue;
       }
-    } else {
-      for (Player player : Bukkit.getOnlinePlayers()) {
-        if (count >= capacity) {
-          break;
-        }
-        count = index(player, players, xs, ys, zs, cells, scratch, count);
+      Player player = adaptPlayer.getPlayer();
+      boolean effectsEnabled = adaptPlayer.getData().isEffectsEnabled();
+      if (!effectsEnabled) {
+        dispatchIndices.put(player, DISABLED_VIEWER_INDEX);
+        continue;
       }
+      int playerIndex = count;
+      count = index(adaptPlayer, players, xs, ys, zs, cells, count);
+      dispatchIndices.put(player, count > playerIndex ? playerIndex : UNINDEXED_VIEWER_INDEX);
     }
 
     if (count < capacity) {
@@ -93,26 +135,28 @@ public final class FxViewers {
       zs = Arrays.copyOf(zs, count);
     }
 
-    return new Snapshot(stamp, players, xs, ys, zs, cells);
+    return new Snapshot(stamp, players, xs, ys, zs, cells, dispatchIndices);
   }
 
-  private static int index(Player player, Player[] players, double[] xs, double[] ys, double[] zs, Map<World, Map<Long, int[]>> cells, Location scratch, int count) {
-    if (player == null || !player.isOnline()) {
+  private static Snapshot emptySnapshot(long stamp) {
+    return new Snapshot(stamp, new Player[0], new double[0], new double[0], new double[0], Map.of(), Map.of());
+  }
+
+  private static int index(AdaptPlayer adaptPlayer, Player[] players, double[] xs, double[] ys, double[] zs,
+                           Map<World, Map<Long, int[]>> cells, int count) {
+    Player player = adaptPlayer.getPlayer();
+    AdaptPlayer.FxPosition position = adaptPlayer.getFxPosition();
+    if (player == null || position == null || position.world() == null) {
       return count;
     }
 
-    World world = player.getWorld();
-    if (world == null) {
-      return count;
-    }
-
-    Location location = player.getLocation(scratch);
+    World world = position.world();
     players[count] = player;
-    xs[count] = location.getX();
-    ys[count] = location.getY();
-    zs[count] = location.getZ();
+    xs[count] = position.x();
+    ys[count] = position.y();
+    zs[count] = position.z();
     Map<Long, int[]> worldCells = cells.computeIfAbsent(world, w -> new HashMap<>(64));
-    addToBucket(worldCells, cellKey(location.getX(), location.getZ()), count);
+    addToBucket(worldCells, cellKey(position.x(), position.z()), count);
     return count + 1;
   }
 
@@ -148,20 +192,20 @@ public final class FxViewers {
     private final double[] ys;
     private final double[] zs;
     private final Map<World, Map<Long, int[]>> cells;
-    private final AtomicIntegerArray emissions;
+    private final Map<Player, Integer> dispatchIndices;
+    private final AtomicLongArray emissions;
+    private final AtomicReferenceArray<FxDispatch.ViewerBatch> dispatches;
 
-    private Snapshot(long stamp, Player[] players, double[] xs, double[] ys, double[] zs, Map<World, Map<Long, int[]>> cells) {
+    private Snapshot(long stamp, Player[] players, double[] xs, double[] ys, double[] zs, Map<World, Map<Long, int[]>> cells, Map<Player, Integer> dispatchIndices) {
       this.stamp = stamp;
       this.players = players;
       this.xs = xs;
       this.ys = ys;
       this.zs = zs;
       this.cells = cells;
-      this.emissions = new AtomicIntegerArray(players.length);
-    }
-
-    void forEach(World world, double x, double y, double z, double radius, Consumer<Player> action) {
-      visit(world, x, y, z, radius, index -> action.accept(players[index]));
+      this.dispatchIndices = dispatchIndices;
+      this.emissions = new AtomicLongArray(players.length);
+      this.dispatches = new AtomicReferenceArray<>(players.length);
     }
 
     int countViewers(World world, double x, double y, double z, double radius) {
@@ -170,12 +214,11 @@ public final class FxViewers {
       return count[0];
     }
 
-    int fillViewers(World world, double x, double y, double z, double radius, Player[] outPlayers, int[] outIndices) {
+    int fillViewerIndices(World world, double x, double y, double z, double radius, int[] outIndices) {
       int[] filled = new int[1];
       visit(world, x, y, z, radius, index -> {
         int slot = filled[0];
-        if (slot < outPlayers.length) {
-          outPlayers[slot] = players[index];
+        if (slot < outIndices.length) {
           outIndices[slot] = index;
           filled[0] = slot + 1;
         }
@@ -187,7 +230,64 @@ public final class FxViewers {
       if (index < 0 || index >= emissions.length()) {
         return false;
       }
-      return emissions.getAndIncrement(index) < FxBudget.PER_VIEWER_EMISSION_CAP;
+
+      int tick = (int) TICK_STAMP.get();
+      while (true) {
+        long current = emissions.get(index);
+        int currentTick = (int) (current >>> 32);
+        int count = (int) current;
+        if (currentTick == tick && count >= FxBudget.PER_VIEWER_EMISSION_CAP) {
+          return false;
+        }
+
+        int nextCount = currentTick == tick ? count + 1 : 1;
+        long next = (Integer.toUnsignedLong(tick) << 32) | Integer.toUnsignedLong(nextCount);
+        if (emissions.compareAndSet(index, current, next)) {
+          return true;
+        }
+      }
+    }
+
+    void dispatch(int index, FxDispatch.Emission emission) {
+      if (index < 0 || index >= dispatches.length() || emission == null) {
+        return;
+      }
+
+      FxDispatch.ViewerBatch batch = dispatches.get(index);
+      if (batch == null) {
+        FxDispatch.ViewerBatch created = new FxDispatch.ViewerBatch(players[index]);
+        if (dispatches.compareAndSet(index, null, created)) {
+          batch = created;
+        } else {
+          batch = dispatches.get(index);
+        }
+      }
+      batch.enqueue(emission);
+    }
+
+    void dispatch(World world, double x, double y, double z, double radius, FxDispatch.Emission emission) {
+      if (emission == null) {
+        return;
+      }
+      visit(world, x, y, z, radius, index -> dispatch(index, emission));
+    }
+
+    boolean dispatch(Player viewer, FxDispatch.Emission emission) {
+      Integer index = dispatchIndices.get(viewer);
+      if (index == null || index < 0) {
+        return false;
+      }
+      dispatch(index, emission);
+      return true;
+    }
+
+    boolean isKnown(Player viewer) {
+      return dispatchIndices.containsKey(viewer);
+    }
+
+    boolean shouldFallback(Player viewer) {
+      Integer index = dispatchIndices.get(viewer);
+      return index == null || index == UNINDEXED_VIEWER_INDEX;
     }
 
     private void visit(World world, double x, double y, double z, double radius, IntConsumer action) {
@@ -226,5 +326,6 @@ public final class FxViewers {
         }
       }
     }
+
   }
 }

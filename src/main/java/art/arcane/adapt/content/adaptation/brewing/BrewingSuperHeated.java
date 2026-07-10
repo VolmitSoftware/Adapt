@@ -24,9 +24,6 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.data.WorldData;
-import art.arcane.adapt.api.world.PlayerAdaptation;
-import art.arcane.adapt.api.world.PlayerData;
-import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.content.matter.BrewingStandOwner;
@@ -109,7 +106,7 @@ public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Conf
     if (activeStands.containsKey(e.getBlock())) {
       BrewingStandOwner owner = WorldData.of(e.getBlock().getWorld()).get(e.getBlock(), BrewingStandOwner.class);
       if (owner != null) {
-        getServer().peekData(owner.getOwner()).addStat("brewing.super-heated.brews-accelerated", 1);
+        getServer().addStat(owner.getOwner(), "brewing.super-heated.brews-accelerated", 1);
         Location loc = e.getBlock().getLocation().add(0.5D, 0.6D, 0.5D);
         fx(loc, FxPriority.TRANSITION)
             .particle(Particle.LAVA, 8, 0, 0.2D, 0, 0.4D, 0.0D)
@@ -179,20 +176,13 @@ public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Conf
       return;
     }
 
-    PlayerData playerData = getServer().peekData(owner.getOwner());
-    if (playerData == null) {
+    int level = getServer().getOnlineAdaptationLevel(owner.getOwner(), getSkill().getName(), getName());
+    if (level <= 0) {
       activeStands.remove(block);
       return;
     }
 
-    PlayerSkillLine line = playerData.getSkillLineNullable(getSkill().getName());
-    PlayerAdaptation adaptation = line != null ? line.getAdaptation(getName()) : null;
-    if (adaptation == null || adaptation.getLevel() <= 0) {
-      activeStands.remove(block);
-      return;
-    }
-
-    updateHeat(brewingStand, getLevelPercent(adaptation.getLevel()));
+    updateHeat(brewingStand, getLevelPercent(level));
   }
 
   private void updateHeat(BrewingStand b, double factor) {

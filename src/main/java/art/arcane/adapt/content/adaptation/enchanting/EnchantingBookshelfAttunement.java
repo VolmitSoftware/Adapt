@@ -121,10 +121,6 @@ public class EnchantingBookshelfAttunement extends SimpleAdaptation<EnchantingBo
     return Math.max(1, (int) Math.round(getConfig().powerBase + (getLevelPercent(level) * getConfig().powerFactor)));
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Gain virtual bookshelf power to improve enchanting table offer quality.")
   protected static class Config extends AdaptationConfig {

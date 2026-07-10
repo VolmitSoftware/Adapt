@@ -27,11 +27,13 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -41,19 +43,56 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.LongSupplier;
 
 public class RiftVoidMagnet extends SimpleAdaptation<RiftVoidMagnet.Config> {
-  private final Cooldowns engageThrottle = cooldowns();
+  static final long WORK_WINDOW_MILLIS = 50L;
+  static final int HARD_MAX_ACTIVE_SESSIONS = 1024;
+  static final int HARD_MAX_SESSION_VISITS_PER_WINDOW = 256;
+  static final int HARD_MAX_SCAN_OWNER_HANDOFFS_PER_WINDOW = 64;
+  static final int HARD_MAX_SCAN_EXECUTIONS_PER_WINDOW = 64;
+  static final int HARD_MAX_CANDIDATE_INSPECTIONS_PER_WINDOW = 1024;
+  static final int HARD_MAX_ITEM_HANDOFFS_PER_WINDOW = 256;
+  static final int HARD_MAX_ITEM_EXECUTIONS_PER_WINDOW = 256;
+  static final int HARD_MAX_CANDIDATE_INSPECTIONS_PER_SCAN = 64;
+  static final int HARD_MAX_ITEMS_PER_PULSE = 32;
+  static final double HARD_MAX_RADIUS = 16D;
+
+  private final Cooldowns engageThrottle;
+  private final MagnetCoordinator<Player> coordinator;
+  private final MagnetWorkBudget workBudget;
 
   public RiftVoidMagnet() {
     super("rift-void-magnet");
+    engageThrottle = cooldowns();
+    coordinator = new MagnetCoordinator<>(HARD_MAX_ACTIVE_SESSIONS);
+    workBudget = new MagnetWorkBudget(
+        HARD_MAX_SESSION_VISITS_PER_WINDOW,
+        HARD_MAX_SCAN_OWNER_HANDOFFS_PER_WINDOW,
+        HARD_MAX_SCAN_EXECUTIONS_PER_WINDOW,
+        HARD_MAX_CANDIDATE_INSPECTIONS_PER_WINDOW,
+        HARD_MAX_ITEM_HANDOFFS_PER_WINDOW,
+        HARD_MAX_ITEM_EXECUTIONS_PER_WINDOW,
+        WORK_WINDOW_MILLIS,
+        System::currentTimeMillis
+    );
     registerConfiguration(Config.class);
     setIcon(Material.HOPPER_MINECART);
-    setInterval(20);
+    setInterval(WORK_WINDOW_MILLIS);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.ENDER_PEARL)
         .key("challenge_rift_void_magnet_5k")
@@ -80,11 +119,19 @@ public class RiftVoidMagnet extends SimpleAdaptation<RiftVoidMagnet.Config> {
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(PlayerToggleSneakEvent e) {
     if (!e.isSneaking()) {
+      coordinator.remove(e.getPlayer().getUniqueId());
       return;
     }
     Player p = e.getPlayer();
     int level = getActiveLevel(p);
-    if (level <= 0 || !engageThrottle.isReady(p.getUniqueId(), 2500L)) {
+    if (level <= 0) {
+      return;
+    }
+
+    if (!startSession(p, level)) {
+      return;
+    }
+    if (!engageThrottle.isReady(p.getUniqueId(), 2500L)) {
       return;
     }
 
@@ -94,93 +141,200 @@ public class RiftVoidMagnet extends SimpleAdaptation<RiftVoidMagnet.Config> {
         .sound(Sound.BLOCK_BEACON_POWER_SELECT, 0.4f, 1.5f);
   }
 
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(PlayerQuitEvent e) {
+    UUID playerId = e.getPlayer().getUniqueId();
+    coordinator.remove(playerId);
+    engageThrottle.clear(playerId);
+  }
+
   @Override
   public void onTick() {
-    long now = System.currentTimeMillis();
-    for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : learnedCandidates(now)) {
-      Player p = adaptPlayer.getPlayer();
-      if (p == null || !p.isOnline()) {
-        continue;
-      }
-      int level = getActiveLevel(p, Player::isSneaking);
-      if (level <= 0 || p.getTicksLived() % getPulseTicks(level) != 0) {
-        continue;
-      }
+    if (coordinator.size() == 0) {
+      return;
+    }
 
-      int moved = collectNearbyItems(p, level);
-      if (moved <= 0) {
-        continue;
-      }
+    int visitLimit = workBudget.takeSessionVisits(HARD_MAX_SESSION_VISITS_PER_WINDOW);
+    int dispatchLimit = workBudget.remainingScanOwnerHandoffs();
+    if (visitLimit <= 0 || dispatchLimit <= 0) {
+      return;
+    }
 
-      fx(p, FxPriority.TRAIL)
-          .particle(Particle.PORTAL, 8, 0, 1.0, 0, 0.3, 0.05)
-          .sound(Sound.BLOCK_ENDER_CHEST_OPEN, 0.45f, Math.min(1.9f, 1.4f + (moved * 0.02f)));
-      addStat(p, "rift.void-magnet.items-pulled", moved);
-      xp(p, moved * getConfig().xpPerMovedItem, "rift:void-magnet:item-pull");
+    List<MagnetDispatch<Player>> dispatches = coordinator.poll(
+        System.currentTimeMillis(),
+        visitLimit,
+        dispatchLimit
+    );
+    workBudget.takeScanOwnerHandoffs(dispatches.size());
+    for (MagnetDispatch<Player> dispatch : dispatches) {
+      if (!J.runEntity(dispatch.owner(), () -> scanOwnerOwned(dispatch))) {
+        coordinator.remove(dispatch.ownerId(), dispatch.generation());
+      }
     }
   }
 
-  private int collectNearbyItems(Player p, int level) {
-    int moved = 0;
-    int max = getMaxItems(level);
-    double r = getRadius(level);
-    for (Entity entity : p.getWorld().getNearbyEntities(p.getLocation(), r, r, r)) {
-      if (!(entity instanceof Item item)) {
-        continue;
+  @Override
+  public void unregister() {
+    coordinator.clear();
+    super.unregister();
+  }
+
+  private boolean startSession(Player player, int level) {
+    UUID playerId = player.getUniqueId();
+    long firstPulseAt = System.currentTimeMillis() + (getPulseTicks(level) * 50L);
+    return coordinator.admit(playerId, player, firstPulseAt);
+  }
+
+  private void scanOwnerOwned(MagnetDispatch<Player> dispatch) {
+    Player player = dispatch.owner();
+    boolean keepSession = false;
+    long nextPulseAt = System.currentTimeMillis();
+    try {
+      if (!coordinator.isCurrent(dispatch.ownerId(), dispatch.generation())
+          || !player.isOnline() || !player.isSneaking()) {
+        return;
       }
 
-      if (moved >= max || item.isDead() || !item.isValid()) {
-        continue;
+      int level = getActiveLevel(player, Player::isSneaking);
+      if (level <= 0) {
+        return;
+      }
+      if (!workBudget.tryScanExecution()) {
+        keepSession = true;
+        return;
       }
 
-      if (!canSnatchItem(p, item)) {
-        continue;
+      double radius = getRadius(level);
+      Location center = player.getLocation().clone();
+      MagnetPulse pulse = new MagnetPulse(
+          dispatch.ownerId(),
+          dispatch.generation(),
+          player,
+          center,
+          radius * radius,
+          getMaxItems(level)
+      );
+      Collection<Entity> nearby = player.getWorld().getNearbyEntities(
+          center,
+          radius,
+          radius,
+          radius,
+          entity -> entity instanceof Item
+      );
+      int inspected = 0;
+      for (Entity entity : nearby) {
+        if (inspected >= HARD_MAX_CANDIDATE_INSPECTIONS_PER_SCAN
+            || !workBudget.tryCandidateInspection()) {
+          break;
+        }
+        inspected++;
+        if (!workBudget.tryItemHandoff()) {
+          break;
+        }
+        Item item = (Item) entity;
+        J.runEntity(item, () -> transferItemOwned(pulse, item));
       }
 
-      ItemStack stack = item.getItemStack();
-      if (stack == null || stack.getType().isAir()) {
-        continue;
-      }
-
-      int requestAmount = Math.min(stack.getAmount(), max - moved);
-      if (requestAmount <= 0) {
-        continue;
-      }
-
-      EntityPickupItemEvent pickupEvent = new EntityPickupItemEvent(p, item, 0);
-      Bukkit.getPluginManager().callEvent(pickupEvent);
-      if (pickupEvent.isCancelled()) {
-        continue;
-      }
-
-      ItemStack toChest = stack.clone();
-      toChest.setAmount(requestAmount);
-      Map<Integer, ItemStack> chestOverflow = p.getEnderChest().addItem(toChest);
-      int chestRemaining = sumItemAmounts(chestOverflow);
-      int movedAmount = Math.max(0, requestAmount - chestRemaining);
-
-      if (chestRemaining > 0 && getConfig().allowEnderChestOverflow) {
-        ItemStack toInventory = stack.clone();
-        toInventory.setAmount(chestRemaining);
-        Map<Integer, ItemStack> inventoryOverflow = p.getInventory().addItem(toInventory);
-        int inventoryRemaining = sumItemAmounts(inventoryOverflow);
-        movedAmount += Math.max(0, chestRemaining - inventoryRemaining);
-      }
-
-      if (movedAmount <= 0) {
-        continue;
-      }
-
-      if (movedAmount >= stack.getAmount()) {
-        item.remove();
+      keepSession = true;
+      nextPulseAt = System.currentTimeMillis() + (getPulseTicks(level) * 50L);
+    } finally {
+      if (keepSession) {
+        coordinator.complete(dispatch.ownerId(), dispatch.generation(), nextPulseAt);
       } else {
-        stack.setAmount(stack.getAmount() - movedAmount);
-        item.setItemStack(stack);
+        coordinator.remove(dispatch.ownerId(), dispatch.generation());
       }
-      moved += movedAmount;
+    }
+  }
+
+  private void transferItemOwned(MagnetPulse pulse, Item item) {
+    Player player = pulse.owner;
+    if (!coordinator.isCurrent(pulse.ownerId, pulse.generation)
+        || !J.isOwnedByCurrentRegion(item)
+        || !J.isOwnedByCurrentRegion(player)) {
+      return;
+    }
+    if (!workBudget.tryItemExecution()
+        || !player.isOnline()
+        || !player.isSneaking()
+        || getActiveLevel(player, Player::isSneaking) <= 0
+        || item.isDead()
+        || !item.isValid()
+        || !canSnatchItem(player, item)) {
+      return;
     }
 
-    return moved;
+    Location itemLocation = item.getLocation();
+    if (itemLocation.getWorld() != pulse.center.getWorld()
+        || itemLocation.distanceSquared(pulse.center) > pulse.radiusSquared) {
+      return;
+    }
+
+    ItemStack original = item.getItemStack().clone();
+    if (original == null || original.getType().isAir() || original.getAmount() <= 0) {
+      return;
+    }
+
+    int requested = pulse.transfers.reserve(original.getAmount());
+    if (requested <= 0) {
+      return;
+    }
+
+    EntityPickupItemEvent pickupEvent = new EntityPickupItemEvent(player, item, 0);
+    Bukkit.getPluginManager().callEvent(pickupEvent);
+    if (pickupEvent.isCancelled() || !item.isValid() || item.isDead()) {
+      pulse.transfers.release(requested);
+      return;
+    }
+
+    ItemStack stack = item.getItemStack().clone();
+    if (!stack.isSimilar(original)) {
+      pulse.transfers.release(requested);
+      return;
+    }
+    if (stack.getAmount() < requested) {
+      pulse.transfers.release(requested - stack.getAmount());
+      requested = stack.getAmount();
+    }
+    if (requested <= 0) {
+      return;
+    }
+
+    int moved = depositIntoInventories(player, stack, requested);
+    pulse.transfers.release(requested - moved);
+    if (moved <= 0) {
+      return;
+    }
+
+    if (moved >= stack.getAmount()) {
+      item.remove();
+    } else {
+      stack.setAmount(stack.getAmount() - moved);
+      item.setItemStack(stack);
+    }
+
+    addStat(player, "rift.void-magnet.items-pulled", moved);
+    xp(player, moved * getConfig().xpPerMovedItem, "rift:void-magnet:item-pull");
+    if (pulse.feedback.compareAndSet(false, true)) {
+      fx(player, FxPriority.TRAIL)
+          .particle(Particle.PORTAL, 8, 0, 1.0, 0, 0.3, 0.05)
+          .sound(Sound.BLOCK_ENDER_CHEST_OPEN, 0.45f, Math.min(1.9f, 1.4f + (moved * 0.02f)));
+    }
+  }
+
+  private int depositIntoInventories(Player player, ItemStack stack, int requested) {
+    ItemStack toChest = stack.clone();
+    toChest.setAmount(requested);
+    Map<Integer, ItemStack> chestOverflow = player.getEnderChest().addItem(toChest);
+    int chestRemaining = sumItemAmounts(chestOverflow);
+    int moved = Math.max(0, requested - chestRemaining);
+    if (chestRemaining <= 0 || !getConfig().allowEnderChestOverflow) {
+      return moved;
+    }
+
+    ItemStack toInventory = stack.clone();
+    toInventory.setAmount(chestRemaining);
+    Map<Integer, ItemStack> inventoryOverflow = player.getInventory().addItem(toInventory);
+    return moved + Math.max(0, chestRemaining - sumItemAmounts(inventoryOverflow));
   }
 
   private int sumItemAmounts(Map<Integer, ItemStack> overflow) {
@@ -195,15 +349,29 @@ public class RiftVoidMagnet extends SimpleAdaptation<RiftVoidMagnet.Config> {
   }
 
   private double getRadius(int level) {
-    return getConfig().radiusBase + (getLevelPercent(level) * getConfig().radiusFactor);
+    return boundedRadius(getConfig().radiusBase + (getLevelPercent(level) * getConfig().radiusFactor));
   }
 
   private int getMaxItems(int level) {
-    return Math.max(1, (int) Math.round(getConfig().maxItemsBase + (getLevelPercent(level) * getConfig().maxItemsFactor)));
+    return boundedItemLimit(getConfig().maxItemsBase + (getLevelPercent(level) * getConfig().maxItemsFactor));
   }
 
   private int getPulseTicks(int level) {
     return Math.max(2, (int) Math.round(getConfig().pulseTicksBase - (getLevelPercent(level) * getConfig().pulseTicksFactor)));
+  }
+
+  static double boundedRadius(double radius) {
+    if (!Double.isFinite(radius)) {
+      return 1D;
+    }
+    return Math.max(1D, Math.min(HARD_MAX_RADIUS, radius));
+  }
+
+  static int boundedItemLimit(double itemLimit) {
+    if (!Double.isFinite(itemLimit)) {
+      return 1;
+    }
+    return Math.max(1, Math.min(HARD_MAX_ITEMS_PER_PULSE, (int) Math.round(itemLimit)));
   }
 
   @ConfigDescription("Sneak to periodically pull nearby dropped items into your ender chest first.")
@@ -229,5 +397,277 @@ public class RiftVoidMagnet extends SimpleAdaptation<RiftVoidMagnet.Config> {
       costFactor = 0.72;
       initialCost = 4;
     }
+  }
+
+  static final class MagnetCoordinator<T> {
+    private final int capacity;
+    private final Map<UUID, MagnetSession<T>> sessions = new HashMap<>();
+    private final ArrayDeque<MagnetSession<T>> queue = new ArrayDeque<>();
+    private long generation;
+
+    MagnetCoordinator(int capacity) {
+      if (capacity <= 0) {
+        throw new IllegalArgumentException("Magnet session capacity must be positive");
+      }
+      this.capacity = capacity;
+    }
+
+    synchronized boolean admit(UUID ownerId, T owner, long nextPulseAt) {
+      Objects.requireNonNull(ownerId);
+      Objects.requireNonNull(owner);
+      if (sessions.containsKey(ownerId) || sessions.size() >= capacity) {
+        return false;
+      }
+
+      MagnetSession<T> session = new MagnetSession<>(ownerId, ++generation, owner, nextPulseAt);
+      sessions.put(ownerId, session);
+      queue.addLast(session);
+      return true;
+    }
+
+    synchronized List<MagnetDispatch<T>> poll(long now, int visitLimit, int dispatchLimit) {
+      int visits = Math.min(Math.max(0, visitLimit), queue.size());
+      int dispatches = Math.max(0, dispatchLimit);
+      ArrayList<MagnetDispatch<T>> ready = new ArrayList<>(Math.min(visits, dispatches));
+      for (int visited = 0; visited < visits && ready.size() < dispatches; visited++) {
+        MagnetSession<T> session = queue.pollFirst();
+        if (session == null) {
+          break;
+        }
+        if (sessions.get(session.ownerId) != session) {
+          continue;
+        }
+        queue.addLast(session);
+        if (session.inFlight || now < session.nextPulseAt) {
+          continue;
+        }
+        session.inFlight = true;
+        ready.add(new MagnetDispatch<>(session.ownerId, session.generation, session.owner));
+      }
+      return ready;
+    }
+
+    synchronized boolean complete(UUID ownerId, long expectedGeneration, long nextPulseAt) {
+      MagnetSession<T> session = sessions.get(ownerId);
+      if (session == null || session.generation != expectedGeneration || !session.inFlight) {
+        return false;
+      }
+      session.nextPulseAt = nextPulseAt;
+      session.inFlight = false;
+      return true;
+    }
+
+    synchronized boolean isCurrent(UUID ownerId, long expectedGeneration) {
+      MagnetSession<T> session = sessions.get(ownerId);
+      return session != null && session.generation == expectedGeneration;
+    }
+
+    synchronized boolean remove(UUID ownerId, long expectedGeneration) {
+      MagnetSession<T> session = sessions.get(ownerId);
+      if (session == null || session.generation != expectedGeneration) {
+        return false;
+      }
+      sessions.remove(ownerId);
+      queue.remove(session);
+      return true;
+    }
+
+    synchronized boolean remove(UUID ownerId) {
+      MagnetSession<T> session = sessions.remove(ownerId);
+      if (session == null) {
+        return false;
+      }
+      queue.remove(session);
+      return true;
+    }
+
+    synchronized int clear() {
+      int removed = sessions.size();
+      sessions.clear();
+      queue.clear();
+      return removed;
+    }
+
+    synchronized int size() {
+      return sessions.size();
+    }
+  }
+
+  static final class MagnetWorkBudget {
+    private final int sessionVisitLimit;
+    private final int scanOwnerHandoffLimit;
+    private final int scanExecutionLimit;
+    private final int candidateInspectionLimit;
+    private final int itemHandoffLimit;
+    private final int itemExecutionLimit;
+    private final long windowMillis;
+    private final LongSupplier clock;
+    private long window = Long.MIN_VALUE;
+    private int sessionVisits;
+    private int scanOwnerHandoffs;
+    private int scanExecutions;
+    private int candidateInspections;
+    private int itemHandoffs;
+    private int itemExecutions;
+
+    MagnetWorkBudget(int sessionVisitLimit, int scanOwnerHandoffLimit, int scanExecutionLimit,
+                     int candidateInspectionLimit, int itemHandoffLimit, int itemExecutionLimit,
+                     long windowMillis, LongSupplier clock) {
+      if (sessionVisitLimit <= 0 || scanOwnerHandoffLimit <= 0 || scanExecutionLimit <= 0
+          || candidateInspectionLimit <= 0 || itemHandoffLimit <= 0 || itemExecutionLimit <= 0
+          || windowMillis <= 0) {
+        throw new IllegalArgumentException("Magnet work limits must be positive");
+      }
+      this.sessionVisitLimit = sessionVisitLimit;
+      this.scanOwnerHandoffLimit = scanOwnerHandoffLimit;
+      this.scanExecutionLimit = scanExecutionLimit;
+      this.candidateInspectionLimit = candidateInspectionLimit;
+      this.itemHandoffLimit = itemHandoffLimit;
+      this.itemExecutionLimit = itemExecutionLimit;
+      this.windowMillis = windowMillis;
+      this.clock = Objects.requireNonNull(clock);
+    }
+
+    synchronized int takeSessionVisits(int requested) {
+      rotateWindow();
+      int granted = Math.min(Math.max(0, requested), sessionVisitLimit - sessionVisits);
+      sessionVisits += granted;
+      return granted;
+    }
+
+    synchronized int remainingScanOwnerHandoffs() {
+      rotateWindow();
+      return Math.max(0, scanOwnerHandoffLimit - scanOwnerHandoffs);
+    }
+
+    synchronized int takeScanOwnerHandoffs(int requested) {
+      rotateWindow();
+      int granted = Math.min(Math.max(0, requested), scanOwnerHandoffLimit - scanOwnerHandoffs);
+      scanOwnerHandoffs += granted;
+      return granted;
+    }
+
+    synchronized boolean tryScanExecution() {
+      rotateWindow();
+      if (scanExecutions >= scanExecutionLimit) {
+        return false;
+      }
+      scanExecutions++;
+      return true;
+    }
+
+    synchronized boolean tryCandidateInspection() {
+      rotateWindow();
+      if (candidateInspections >= candidateInspectionLimit) {
+        return false;
+      }
+      candidateInspections++;
+      return true;
+    }
+
+    synchronized boolean tryItemHandoff() {
+      rotateWindow();
+      if (itemHandoffs >= itemHandoffLimit) {
+        return false;
+      }
+      itemHandoffs++;
+      return true;
+    }
+
+    synchronized boolean tryItemExecution() {
+      rotateWindow();
+      if (itemExecutions >= itemExecutionLimit) {
+        return false;
+      }
+      itemExecutions++;
+      return true;
+    }
+
+    private void rotateWindow() {
+      long currentWindow = Math.floorDiv(clock.getAsLong(), windowMillis);
+      if (currentWindow == window) {
+        return;
+      }
+      window = currentWindow;
+      sessionVisits = 0;
+      scanOwnerHandoffs = 0;
+      scanExecutions = 0;
+      candidateInspections = 0;
+      itemHandoffs = 0;
+      itemExecutions = 0;
+    }
+  }
+
+  static final class MagnetTransferBudget {
+    private final int limit;
+    private final AtomicInteger reserved = new AtomicInteger();
+
+    MagnetTransferBudget(int limit) {
+      if (limit <= 0) {
+        throw new IllegalArgumentException("Magnet transfer limit must be positive");
+      }
+      this.limit = limit;
+    }
+
+    int reserve(int requested) {
+      int current = reserved.get();
+      while (requested > 0 && current < limit) {
+        int granted = Math.min(requested, limit - current);
+        if (reserved.compareAndSet(current, current + granted)) {
+          return granted;
+        }
+        current = reserved.get();
+      }
+      return 0;
+    }
+
+    void release(int amount) {
+      if (amount <= 0) {
+        return;
+      }
+      reserved.updateAndGet(current -> Math.max(0, current - amount));
+    }
+
+    int reserved() {
+      return reserved.get();
+    }
+  }
+
+  private static final class MagnetPulse {
+    private final UUID ownerId;
+    private final long generation;
+    private final Player owner;
+    private final Location center;
+    private final double radiusSquared;
+    private final MagnetTransferBudget transfers;
+    private final AtomicBoolean feedback = new AtomicBoolean();
+
+    private MagnetPulse(UUID ownerId, long generation, Player owner, Location center,
+                        double radiusSquared, int transferLimit) {
+      this.ownerId = ownerId;
+      this.generation = generation;
+      this.owner = owner;
+      this.center = center;
+      this.radiusSquared = radiusSquared;
+      transfers = new MagnetTransferBudget(transferLimit);
+    }
+  }
+
+  private static final class MagnetSession<T> {
+    private final UUID ownerId;
+    private final long generation;
+    private final T owner;
+    private long nextPulseAt;
+    private boolean inFlight;
+
+    private MagnetSession(UUID ownerId, long generation, T owner, long nextPulseAt) {
+      this.ownerId = ownerId;
+      this.generation = generation;
+      this.owner = owner;
+      this.nextPulseAt = nextPulseAt;
+    }
+  }
+
+  record MagnetDispatch<T>(UUID ownerId, long generation, T owner) {
   }
 }

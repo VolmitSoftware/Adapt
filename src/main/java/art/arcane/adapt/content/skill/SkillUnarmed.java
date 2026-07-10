@@ -25,7 +25,19 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.content.adaptation.unarmed.*;
+import art.arcane.adapt.content.adaptation.unarmed.UnarmedBatteringCharge;
+import art.arcane.adapt.content.adaptation.unarmed.UnarmedComboChain;
+import art.arcane.adapt.content.adaptation.unarmed.UnarmedDisarm;
+import art.arcane.adapt.content.adaptation.unarmed.UnarmedFlurry;
+import art.arcane.adapt.content.adaptation.unarmed.UnarmedGlassCannon;
+import art.arcane.adapt.content.adaptation.unarmed.UnarmedGrapple;
+import art.arcane.adapt.content.adaptation.unarmed.UnarmedIronFists;
+import art.arcane.adapt.content.adaptation.unarmed.UnarmedMeditation;
+import art.arcane.adapt.content.adaptation.unarmed.UnarmedPower;
+import art.arcane.adapt.content.adaptation.unarmed.UnarmedPressurePoint;
+import art.arcane.adapt.content.adaptation.unarmed.UnarmedSecondWind;
+import art.arcane.adapt.content.adaptation.unarmed.UnarmedShockwaveClap;
+import art.arcane.adapt.content.adaptation.unarmed.UnarmedSuckerPunch;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
@@ -86,9 +98,9 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
                 .build())
             .build())
         .build());
-    registerMilestone("challenge_unarmed_100", "unarmed.hits", 100, getConfig().challengeUnarmedReward);
-    registerMilestone("challenge_unarmed_1k", "unarmed.hits", 1000, getConfig().challengeUnarmedReward * 2);
-    registerMilestone("challenge_unarmed_10k", "unarmed.hits", 10000, getConfig().challengeUnarmedReward * 5);
+    registerMilestone("challenge_unarmed_100", "unarmed.hits", 100, () -> getConfig().challengeUnarmedReward);
+    registerMilestone("challenge_unarmed_1k", "unarmed.hits", 1000, () -> getConfig().challengeUnarmedReward * 2);
+    registerMilestone("challenge_unarmed_10k", "unarmed.hits", 10000, () -> getConfig().challengeUnarmedReward * 5);
 
     // Chain 2 - Unarmed Damage
     registerAdvancement(AdaptAdvancement.builder()
@@ -105,8 +117,8 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_unarmed_dmg_1k", "unarmed.damage", 1000, getConfig().challengeUnarmedDmgReward);
-    registerMilestone("challenge_unarmed_dmg_10k", "unarmed.damage", 10000, getConfig().challengeUnarmedDmgReward * 3);
+    registerMilestone("challenge_unarmed_dmg_1k", "unarmed.damage", 1000, () -> getConfig().challengeUnarmedDmgReward);
+    registerMilestone("challenge_unarmed_dmg_10k", "unarmed.damage", 10000, () -> getConfig().challengeUnarmedDmgReward * 3);
 
     // Chain 3 - Unarmed Kills
     registerAdvancement(AdaptAdvancement.builder()
@@ -123,8 +135,8 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_unarmed_kills_25", "unarmed.kills", 25, getConfig().challengeUnarmedKillsReward);
-    registerMilestone("challenge_unarmed_kills_250", "unarmed.kills", 250, getConfig().challengeUnarmedKillsReward * 3);
+    registerMilestone("challenge_unarmed_kills_25", "unarmed.kills", 25, () -> getConfig().challengeUnarmedKillsReward);
+    registerMilestone("challenge_unarmed_kills_250", "unarmed.kills", 250, () -> getConfig().challengeUnarmedKillsReward * 3);
 
     // Chain 4 - Unarmed Criticals
     registerAdvancement(AdaptAdvancement.builder()
@@ -141,8 +153,8 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_unarmed_crit_25", "unarmed.critical", 25, getConfig().challengeUnarmedCritReward);
-    registerMilestone("challenge_unarmed_crit_250", "unarmed.critical", 250, getConfig().challengeUnarmedCritReward * 3);
+    registerMilestone("challenge_unarmed_crit_25", "unarmed.critical", 25, () -> getConfig().challengeUnarmedCritReward);
+    registerMilestone("challenge_unarmed_crit_250", "unarmed.critical", 250, () -> getConfig().challengeUnarmedCritReward * 3);
 
     // Chain 5 - Unarmed Heavy Hits
     registerAdvancement(AdaptAdvancement.builder()
@@ -159,13 +171,15 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_unarmed_heavy_25", "unarmed.heavy", 25, getConfig().challengeUnarmedHeavyReward);
-    registerMilestone("challenge_unarmed_heavy_250", "unarmed.heavy", 250, getConfig().challengeUnarmedHeavyReward * 3);
+    registerMilestone("challenge_unarmed_heavy_25", "unarmed.heavy", 25, () -> getConfig().challengeUnarmedHeavyReward);
+    registerMilestone("challenge_unarmed_heavy_250", "unarmed.heavy", 250, () -> getConfig().challengeUnarmedHeavyReward * 3);
   }
 
-  @EventHandler(priority = EventPriority.MONITOR)
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(EntityDamageByEntityEvent e) {
-    if (!(e.getDamager() instanceof Player p)) {
+    if (!(e.getDamager() instanceof Player p)
+        || !checkValidEntity(e.getEntity().getType())
+        || isMelee(p.getInventory().getItemInMainHand())) {
       return;
     }
 
@@ -176,28 +190,20 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
         return;
       }
 
-      if (!checkValidEntity(e.getEntity().getType())) {
+      AdaptPlayer a = getPlayer(p);
+      a.getData().addStat("unarmed.hits", 1);
+      a.getData().addStat("unarmed.damage", e.getDamage());
+      if (p.getFallDistance() > 0 && !p.isOnGround()) {
+        a.getData().addStat("unarmed.critical", 1);
+      }
+      if (e.getDamage() > 6) {
+        a.getData().addStat("unarmed.heavy", 1);
+      }
+      if (!cooldowns.isReady(p.getUniqueId(), getConfig().cooldownDelay)) {
         return;
       }
-
-      AdaptPlayer a = getPlayer(p);
-      ItemStack hand = a.getPlayer().getInventory().getItemInMainHand();
-
-      if (!isMelee(hand)) {
-        a.getData().addStat("unarmed.hits", 1);
-        a.getData().addStat("unarmed.damage", e.getDamage());
-        if (p.getFallDistance() > 0 && !p.isOnGround()) {
-          a.getData().addStat("unarmed.critical", 1);
-        }
-        if (e.getDamage() > 6) {
-          a.getData().addStat("unarmed.heavy", 1);
-        }
-        if (!cooldowns.isReady(p.getUniqueId(), getConfig().cooldownDelay)) {
-          return;
-        }
-        cooldowns.mark(p.getUniqueId());
-        xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().damageXPMultiplier * e.getDamage());
-      }
+      cooldowns.mark(p.getUniqueId());
+      xp(p, e.getEntity().getLocation(), getConfig().damageXPMultiplier * e.getDamage());
     });
   }
 
@@ -222,14 +228,6 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
         }
       }
     });
-  }
-
-  @Override
-  public void onTick() {
-    if (!this.isEnabled()) {
-      return;
-    }
-    checkStatTrackersForOnlinePlayers();
   }
 
   @Override

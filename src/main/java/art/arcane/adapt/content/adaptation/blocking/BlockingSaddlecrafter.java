@@ -83,9 +83,6 @@ public class BlockingSaddlecrafter extends SimpleAdaptation<BlockingSaddlecrafte
   }
 
 
-  @Override
-  public void onTick() {
-  }
 
   @ConfigDescription("Craft a Saddle using leather.")
   protected static class Config extends AdaptationConfig {

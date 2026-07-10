@@ -32,8 +32,6 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 
 import java.util.Map;
 import java.util.UUID;
@@ -67,12 +65,8 @@ public class SeaborneOxygen extends SimpleAdaptation<SeaborneOxygen.Config> {
 
   @Override
   public void onTick() {
-    for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+    for (AdaptPlayer adaptPlayer : learnedCandidates(System.currentTimeMillis())) {
       Player player = adaptPlayer.getPlayer();
-      if (player == null || !player.isOnline()) {
-        continue;
-      }
-
       withPlayerThread(player, () -> {
         if (!player.isOnline() || player.getWorld() == null) {
           return;
@@ -96,9 +90,12 @@ public class SeaborneOxygen extends SimpleAdaptation<SeaborneOxygen.Config> {
           return;
         }
 
-        int airTicks = level * getConfig().airPerLevelTics;
-        player.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, airTicks, level));
-        addStat(player, "seaborne.oxygen.bonus-air-ticks", airTicks);
+        int restoredAir = restoreAir(player.getRemainingAir(), player.getMaximumAir(),
+            level * Math.max(0, getConfig().airPerLevelTics));
+        if (restoredAir > 0) {
+          player.setRemainingAir(player.getRemainingAir() + restoredAir);
+          addStat(player, "seaborne.oxygen.bonus-air-ticks", restoredAir);
+        }
 
         if (!was) {
           submerged.put(id, true);
@@ -113,6 +110,13 @@ public class SeaborneOxygen extends SimpleAdaptation<SeaborneOxygen.Config> {
             .column(Particle.BUBBLE, 2, 0.6D);
       });
     }
+  }
+
+  static int restoreAir(int currentAir, int maximumAir, int requestedAir) {
+    if (maximumAir <= currentAir || requestedAir <= 0) {
+      return 0;
+    }
+    return Math.min(requestedAir, maximumAir - currentAir);
   }
 
   @ConfigDescription("Hold more oxygen underwater.")

@@ -1,10 +1,10 @@
 package art.arcane.adapt.content.adaptation.stealth;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.util.common.scheduling.J;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -13,20 +13,22 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.*;
-
-record DecoyState(UUID ownerId, UUID anchorId, PacketPlayerDecoy packetDecoy,
-                  long expiresAt, int level) {
-}
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 final class PacketPlayerDecoy {
   final PacketDecoyBridge bridge;
   final int entityId;
   final Object nmsEntity;
-  private final World world;
   private final UUID profileId;
   private final long removeTabAt;
-  private final Set<UUID> knownViewers;
+  private final Map<UUID, Player> knownViewers;
   private boolean removedFromTab;
   private Object spawnPlayerInfoPacket;
   private Object spawnAddEntityPacket;
@@ -38,15 +40,15 @@ final class PacketPlayerDecoy {
   private double lastZ;
   private float lastYaw;
   private float lastPitch;
+  private int lookCursor;
 
-  PacketPlayerDecoy(PacketDecoyBridge bridge, World world, UUID profileId, int entityId, Object nmsEntity, int tabListRemoveDelayTicks) {
+  PacketPlayerDecoy(PacketDecoyBridge bridge, UUID profileId, int entityId, Object nmsEntity, int tabListRemoveDelayTicks) {
     this.bridge = bridge;
-    this.world = world;
     this.profileId = profileId;
     this.entityId = entityId;
     this.nmsEntity = nmsEntity;
     this.removeTabAt = System.currentTimeMillis() + Math.max(0, tabListRemoveDelayTicks) * 50L;
-    this.knownViewers = java.util.concurrent.ConcurrentHashMap.newKeySet();
+    this.knownViewers = new ConcurrentHashMap<>();
     this.removedFromTab = false;
     this.spawnPlayerInfoPacket = null;
     this.spawnAddEntityPacket = null;
@@ -58,6 +60,7 @@ final class PacketPlayerDecoy {
     this.lastZ = Double.NaN;
     this.lastYaw = Float.NaN;
     this.lastPitch = Float.NaN;
+    this.lookCursor = 0;
   }
 
   public void spawn(Object playerInfoPacket, Object addEntityPacket, Object metadataPacket, Object equipmentPacket) {
@@ -65,11 +68,17 @@ final class PacketPlayerDecoy {
     this.spawnAddEntityPacket = addEntityPacket;
     this.spawnMetadataPacket = metadataPacket;
     this.spawnEquipmentPacket = equipmentPacket;
-    ensureViewerState();
   }
 
-  public void tick() {
-    ensureViewerState();
+  public void refresh(Location anchor, boolean onGround, Set<Player> trackedViewers, int maxViewers,
+                      int maxViewerAdds, int maxLookUpdates, double eyeHeight) {
+    refreshViewerState(trackedViewers, maxViewers, maxViewerAdds);
+    tick();
+    syncToAnchor(anchor, onGround);
+    lookAtViewers(anchor.clone().add(0, eyeHeight, 0), maxLookUpdates);
+  }
+
+  private void tick() {
     if (removeTabAt < 0 || removedFromTab || System.currentTimeMillis() < removeTabAt) {
       return;
     }
@@ -84,26 +93,37 @@ final class PacketPlayerDecoy {
     removedFromTab = true;
   }
 
-  public void lookAtViewers(Location origin) {
-    ensureViewerState();
-    for (Player viewer : spawnedViewerPlayers()) {
-      Location to = viewer.getEyeLocation();
-      if (origin.getWorld() != to.getWorld()) {
-        continue;
-      }
-
-      double dx = to.getX() - origin.getX();
-      double dy = to.getY() - origin.getY();
-      double dz = to.getZ() - origin.getZ();
-      double horizontal = Math.sqrt(dx * dx + dz * dz);
-      float yaw = (float) Math.toDegrees(Math.atan2(-dx, dz));
-      float pitch = (float) Math.toDegrees(-Math.atan2(dy, horizontal));
-      bridge.applyLook(this, yaw, pitch, viewer);
+  private void lookAtViewers(Location origin, int maxUpdates) {
+    List<Player> viewers = spawnedViewerPlayers();
+    if (viewers.isEmpty()) {
+      return;
     }
+
+    int updates = Math.min(Math.max(1, maxUpdates), viewers.size());
+    int start = Math.floorMod(lookCursor, viewers.size());
+    for (int offset = 0; offset < updates; offset++) {
+      Player viewer = viewers.get((start + offset) % viewers.size());
+      J.runEntity(viewer, () -> lookAtViewer(origin, viewer));
+    }
+    lookCursor = (start + updates) % viewers.size();
   }
 
-  public void syncToAnchor(Location anchor, boolean onGround) {
-    ensureViewerState();
+  private void lookAtViewer(Location origin, Player viewer) {
+    Location to = viewer.getEyeLocation();
+    if (origin.getWorld() != to.getWorld()) {
+      return;
+    }
+
+    double dx = to.getX() - origin.getX();
+    double dy = to.getY() - origin.getY();
+    double dz = to.getZ() - origin.getZ();
+    double horizontal = Math.sqrt(dx * dx + dz * dz);
+    float yaw = (float) Math.toDegrees(Math.atan2(-dx, dz));
+    float pitch = (float) Math.toDegrees(-Math.atan2(dy, horizontal));
+    bridge.applyLook(this, yaw, pitch, viewer);
+  }
+
+  private void syncToAnchor(Location anchor, boolean onGround) {
     long now = System.currentTimeMillis();
     double dx = Double.isFinite(lastX) ? anchor.getX() - lastX : 1;
     double dy = Double.isFinite(lastY) ? anchor.getY() - lastY : 1;
@@ -112,7 +132,7 @@ final class PacketPlayerDecoy {
     float yawDiff = Float.isFinite(lastYaw) ? Math.abs(anchor.getYaw() - lastYaw) : 360f;
     float pitchDiff = Float.isFinite(lastPitch) ? Math.abs(anchor.getPitch() - lastPitch) : 360f;
 
-    if (distanceSq < 0.0004 && yawDiff < 0.8f && pitchDiff < 0.8f && now - lastPositionSyncAt < 45L) {
+    if (distanceSq < 0.0004 && yawDiff < 0.8f && pitchDiff < 0.8f && now - lastPositionSyncAt < 500L) {
       return;
     }
 
@@ -127,7 +147,6 @@ final class PacketPlayerDecoy {
   }
 
   public void hitFrom(Location source) {
-    ensureViewerState();
     if (!Double.isFinite(lastX) || !Double.isFinite(lastZ)) {
       bridge.sendHurtAnimation(this, 0f, spawnedViewerPlayers());
       return;
@@ -155,22 +174,41 @@ final class PacketPlayerDecoy {
     knownViewers.clear();
   }
 
-  private void ensureViewerState() {
-    Set<UUID> online = new HashSet<>();
-    for (Player viewer : world.getPlayers()) {
-      if (!viewer.isOnline()) {
+  private void refreshViewerState(Set<Player> trackedViewers, int maxViewers, int maxViewerAdds) {
+    for (Map.Entry<UUID, Player> entry : knownViewers.entrySet()) {
+      Player viewer = entry.getValue();
+      if (viewer.isOnline() && trackedViewers.contains(viewer)) {
         continue;
       }
-
-      UUID id = viewer.getUniqueId();
-      online.add(id);
-      if (!knownViewers.contains(id)) {
-        spawnFor(viewer);
-        knownViewers.add(id);
+      if (knownViewers.remove(entry.getKey(), viewer)) {
+        destroyFor(viewer);
       }
     }
 
-    knownViewers.retainAll(online);
+    int viewerLimit = Math.max(1, maxViewers);
+    int remainingAdds = Math.max(1, maxViewerAdds);
+    for (Player viewer : trackedViewers) {
+      if (knownViewers.size() >= viewerLimit || remainingAdds <= 0) {
+        return;
+      }
+      if (!viewer.isOnline() || knownViewers.putIfAbsent(viewer.getUniqueId(), viewer) != null) {
+        continue;
+      }
+
+      spawnFor(viewer);
+      remainingAdds--;
+    }
+  }
+
+  private void destroyFor(Player viewer) {
+    Object removeEntityPacket = bridge.createRemoveEntityPacket(entityId);
+    Object removePlayerInfoPacket = bridge.createPlayerInfoRemovePacket(profileId);
+    if (removeEntityPacket != null) {
+      bridge.sendPacket(viewer, removeEntityPacket);
+    }
+    if (removePlayerInfoPacket != null) {
+      bridge.sendPacket(viewer, removePlayerInfoPacket);
+    }
   }
 
   private void spawnFor(Player viewer) {
@@ -199,9 +237,9 @@ final class PacketPlayerDecoy {
   }
 
   private List<Player> spawnedViewerPlayers() {
-    List<Player> viewers = new ArrayList<>();
-    for (Player viewer : world.getPlayers()) {
-      if (viewer.isOnline() && knownViewers.contains(viewer.getUniqueId())) {
+    List<Player> viewers = new ArrayList<>(knownViewers.size());
+    for (Player viewer : knownViewers.values()) {
+      if (viewer.isOnline()) {
         viewers.add(viewer);
       }
     }
@@ -566,7 +604,7 @@ final class PacketDecoyBridge {
       Object metadataPacket = createMetadataPacket(nmsDecoy, entityId);
       Object equipmentPacket = createEquipmentPacket(entityId, owner, false, true);
 
-      PacketPlayerDecoy decoy = new PacketPlayerDecoy(this, location.getWorld(), profileId, entityId, nmsDecoy, tabListRemoveDelayTicks);
+      PacketPlayerDecoy decoy = new PacketPlayerDecoy(this, profileId, entityId, nmsDecoy, tabListRemoveDelayTicks);
       decoy.spawn(playerInfoPacket, addEntityPacket, metadataPacket, equipmentPacket);
       return decoy;
     } catch (Throwable e) {
@@ -796,7 +834,7 @@ final class PacketDecoyBridge {
     }
   }
 
-  public void sendOwnerEquipment(Player owner, boolean hide) {
+  public void sendOwnerEquipment(Player owner, boolean hide, int maxViewers) {
     if (!supported || owner == null || !owner.isOnline()) {
       return;
     }
@@ -807,11 +845,16 @@ final class PacketDecoyBridge {
         return;
       }
 
-      for (Player viewer : new ArrayList<>(owner.getWorld().getPlayers())) {
+      int remaining = Math.max(1, maxViewers);
+      for (Player viewer : owner.getTrackedPlayers()) {
         if (viewer.getUniqueId().equals(owner.getUniqueId())) {
           continue;
         }
         sendPacket(viewer, packet);
+        remaining--;
+        if (remaining <= 0) {
+          return;
+        }
       }
     } catch (Throwable ignored) {
     }
@@ -819,6 +862,14 @@ final class PacketDecoyBridge {
 
   public void sendPacket(Player viewer, Object packet) {
     if (!supported || packet == null || viewer == null || !viewer.isOnline()) {
+      return;
+    }
+
+    J.runEntity(viewer, () -> sendPacketOwned(viewer, packet));
+  }
+
+  private void sendPacketOwned(Player viewer, Object packet) {
+    if (!viewer.isOnline()) {
       return;
     }
 

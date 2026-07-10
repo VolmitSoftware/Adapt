@@ -3,7 +3,6 @@ package art.arcane.adapt.service;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.skill.SkillRegistry;
 import art.arcane.adapt.api.tick.TickedObject;
@@ -27,7 +26,12 @@ import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.nio.file.Files;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
 
 import static art.arcane.adapt.util.director.context.AdaptationListingHandler.initializeAdaptationListings;
 
@@ -173,13 +177,9 @@ public class HotloadSVC implements AdaptService {
           continue;
         }
 
-        if (!(adaptation instanceof SimpleAdaptation<?> simpleAdaptation)) {
-          return false;
-        }
-
-        boolean ok = simpleAdaptation.reloadConfigFromDisk(false);
+        SkillRegistry registry = Adapt.instance.getAdaptServer().getSkillRegistry();
+        boolean ok = registry.hotReloadAdaptationConfig(adaptationName);
         if (ok) {
-          Adapt.instance.getAdaptServer().getSkillRegistry().refreshRecipes(skill);
           initializeAdaptationListings();
         } else {
           Adapt.warn("Skipped hotload for " + file.getPath() + " due to invalid adaptation config.");
@@ -206,6 +206,8 @@ public class HotloadSVC implements AdaptService {
     } else {
       CustomModel.clear();
     }
+
+    Adapt.instance.getAdaptServer().getSkillRegistry().synchronizeAdvancementRuntime();
   }
 
   private boolean validateAndCanonicalizeConfig(File file) {

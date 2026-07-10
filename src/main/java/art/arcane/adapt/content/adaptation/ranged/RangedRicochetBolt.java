@@ -25,30 +25,59 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
+import art.arcane.volmlib.util.scheduling.FoliaScheduler;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.entity.*;
+import org.bukkit.entity.AbstractArrow;
+import org.bukkit.entity.Arrow;
+import org.bukkit.entity.Egg;
+import org.bukkit.entity.EnderPearl;
+import org.bukkit.entity.LingeringPotion;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
+import org.bukkit.entity.Snowball;
+import org.bukkit.entity.SpectralArrow;
+import org.bukkit.entity.SplashPotion;
+import org.bukkit.entity.ThrownExpBottle;
+import org.bukkit.entity.ThrownPotion;
+import org.bukkit.entity.ThrowableProjectile;
+import org.bukkit.entity.Trident;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 
+import java.io.IOException;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
 public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Config> {
+  private static final int MAX_RICOCHETS = 12;
   private static final String RICOCHET_COUNT_META = "adapt-ricochet-count";
   private static final String RICOCHET_MAX_META = "adapt-ricochet-max";
   private static final String BONUS_DAMAGE_META = "adapt-ricochet-bonus-damage";
+  private static final String RICOCHET_PROFILE_META = "adapt-ricochet-profile";
+
+  private final Set<String> reportedTransferFailures = ConcurrentHashMap.newKeySet();
 
   public RangedRicochetBolt() {
     super("ranged-ricochet-bolt");
@@ -78,6 +107,21 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
     statLore(v, Form.f(getDamageBonusPerRicochet(level), 2), 3);
   }
 
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(ProjectileLaunchEvent e) {
+    Projectile projectile = e.getEntity();
+    if (getMetadataProfile(projectile) != null
+        || !(projectile.getShooter() instanceof Player player)
+        || !supportsRicochet(projectile)) {
+      return;
+    }
+
+    RicochetProfile profile = getActiveProfile(player);
+    if (profile != null) {
+      applyRicochetProfile(projectile, profile);
+    }
+  }
+
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(ProjectileHitEvent e) {
     if (!(e.getEntity() instanceof Projectile projectile) || !(projectile.getShooter() instanceof Player p)) {
@@ -88,8 +132,8 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
       return;
     }
 
-    int level = getActiveLevel(p);
-    if (level <= 0) {
+    RicochetProfile profile = getMetadataProfile(projectile);
+    if (profile == null) {
       return;
     }
 
@@ -98,7 +142,14 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
     }
 
     int ricochetCount = Math.max(0, getMetadataInt(projectile, RICOCHET_COUNT_META, 0));
-    int maxRicochets = Math.max(1, getMetadataInt(projectile, RICOCHET_MAX_META, getMaxRicochets(level)));
+    int maxRicochets = Math.min(
+        MAX_RICOCHETS,
+        Math.max(0, getMetadataInt(
+            projectile,
+            RICOCHET_MAX_META,
+            profile.maximumRicochets()
+        ))
+    );
     if (ricochetCount >= maxRicochets) {
       fx(e.getHitBlock().getLocation().add(0.5, 0.5, 0.5), FxPriority.TRANSITION)
           .burst(Particles.SMOKE, 4, 0.2D)
@@ -107,52 +158,92 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
     }
 
     Vector incoming = resolveIncomingVector(projectile);
-    if (incoming.lengthSquared() < getConfig().minRicochetVelocitySquared) {
-      return;
-    }
-
     BlockFace hitFace = resolveHitFace(e, incoming);
     if (hitFace == null) {
       return;
     }
-
-    Vector reflectedDir = reflect(incoming.clone().normalize(), hitFace);
-    if (reflectedDir.lengthSquared() <= 0.0000001) {
+    double currentBonusDamage = getMetadataDouble(projectile, BONUS_DAMAGE_META, 0D);
+    RicochetTransition transition = profile.withMaximumRicochets(maxRicochets)
+        .next(ricochetCount, currentBonusDamage, incoming, hitFace.getDirection());
+    if (transition == null) {
       return;
     }
 
-    reflectedDir.normalize();
-    double nextSpeed = Math.max(getConfig().minimumPostBounceSpeed, incoming.length()) * (1D + getSpeedBonusPerRicochet(level));
-    if (nextSpeed <= 0) {
-      return;
-    }
-
-    Vector ricochetVelocity = reflectedDir.clone().multiply(nextSpeed);
-    int nextRicochetCount = ricochetCount + 1;
-    double bonusDamage = getMetadataDouble(projectile, BONUS_DAMAGE_META, 0D) + getDamageBonusPerRicochet(level);
+    Vector ricochetVelocity = transition.direction().clone().multiply(transition.speed());
 
     Location bounceLocation = projectile.getLocation().clone()
         .add(hitFace.getDirection().normalize().multiply(getConfig().spawnOffsetFromSurface))
-        .add(reflectedDir.clone().multiply(getConfig().spawnOffsetAlongDirection));
-    Projectile ricochet = spawnRicochetProjectile(projectile, bounceLocation, ricochetVelocity, p);
-    if (ricochet == null) {
+        .add(transition.direction().clone().multiply(getConfig().spawnOffsetAlongDirection));
+    World bounceWorld = bounceLocation.getWorld();
+    int bounceChunkX = bounceLocation.getBlockX() >> 4;
+    int bounceChunkZ = bounceLocation.getBlockZ() >> 4;
+    if (bounceWorld == null || !bounceWorld.isChunkLoaded(bounceChunkX, bounceChunkZ)) {
+      return;
+    }
+    Location hitCenter = e.getHitBlock().getLocation().add(0.5, 0.5, 0.5);
+    boolean foliaThreading = J.isFoliaThreading();
+    boolean destinationOwned = !foliaThreading
+        || FoliaScheduler.isOwnedByCurrentRegion(bounceLocation);
+    if (!RicochetTransferRules.requiresRegionHandoff(foliaThreading, destinationOwned)) {
+      Projectile ricochet = spawnLocalRicochetProjectile(
+          projectile,
+          bounceLocation,
+          ricochetVelocity,
+          p,
+          profile,
+          transition.count(),
+          maxRicochets,
+          transition.bonusDamage()
+      );
+      if (ricochet == null) {
+        return;
+      }
+
+      emitRicochetFx(hitCenter, transition);
+      J.runEntity(p, () -> rewardRicochetOwned(p, transition));
+      projectile.remove();
       return;
     }
 
-    ricochet.setMetadata(RICOCHET_COUNT_META, new FixedMetadataValue(Adapt.instance, nextRicochetCount));
-    ricochet.setMetadata(RICOCHET_MAX_META, new FixedMetadataValue(Adapt.instance, maxRicochets));
-    ricochet.setMetadata(BONUS_DAMAGE_META, new FixedMetadataValue(Adapt.instance, bonusDamage));
+    RicochetProjectileTemplate primary;
+    try {
+      primary = captureTransferOwned(
+          projectile,
+          bounceLocation,
+          ricochetVelocity,
+          p,
+          profile,
+          transition.count(),
+          maxRicochets,
+          transition.bonusDamage(),
+          hitCenter,
+          transition
+      );
+    } catch (IOException exception) {
+      reportTransferFailure(
+          "serialize projectile data",
+          projectile.getWorld(),
+          projectile.getLocation(),
+          exception
+      );
+      return;
+    }
+    if (primary == null) {
+      return;
+    }
+    Location fallbackLocation = resolveTransferFallbackOwned(
+        projectile.getLocation(),
+        e.getHitBlock(),
+        incoming
+    );
+    RicochetProjectileTemplate fallback = fallbackLocation == null
+        ? null
+        : primary.withSpawnLocation(fallbackLocation);
+    RicochetTransferRequest request = new RicochetTransferRequest(primary, fallback);
+    if (!J.runAt(bounceLocation, () -> completeTransferOwned(request))) {
+      return;
+    }
 
-    Location hitCenter = e.getHitBlock().getLocation().add(0.5, 0.5, 0.5);
-    fx(hitCenter, FxPriority.COMBAT)
-        .particle(Particle.ELECTRIC_SPARK, Math.max(1, getConfig().sparkParticleCount), 0, 0, 0, getConfig().sparkSpread, 0.02D)
-        .particle(Particles.CRIT_MAGIC, Math.max(1, getConfig().critParticleCount), 0, 0, 0, getConfig().critSpread, 0.08D)
-        .dustRing(Color.fromRGB(180, 210, 255), 0.4D + (nextRicochetCount * 0.15D), 12, 1.0F)
-        .line(Particle.ELECTRIC_SPARK, hitCenter.getX() + (reflectedDir.getX() * 1.2D), hitCenter.getY() + (reflectedDir.getY() * 1.2D), hitCenter.getZ() + (reflectedDir.getZ() * 1.2D), 5)
-        .chord(Sound.BLOCK_ANVIL_HIT, 0.85F, (float) Math.max(0.4, getConfig().bouncePitchBase - (nextRicochetCount * getConfig().bouncePitchDropPerRicochet)),
-            Sound.BLOCK_AMETHYST_BLOCK_HIT, 0.9F, (float) Math.min(2.0, getConfig().sparkPitchBase + (nextRicochetCount * getConfig().sparkPitchRaisePerRicochet)));
-    xp(p, getConfig().xpPerRicochet + (nextRicochetCount * getConfig().xpPerRicochetStep));
-    addStat(p, "ranged.ricochet-bolt.total-ricochets", 1);
     projectile.remove();
   }
 
@@ -162,7 +253,7 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
       return;
     }
 
-    if (!canDamageTarget(p, e.getEntity())) {
+    if (isProtectedFriendly(p, e.getEntity())) {
       return;
     }
 
@@ -179,101 +270,420 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
 
   @EventHandler
   public void on(EntityDeathEvent e) {
-    if (e.getEntity().getKiller() instanceof Player p && hasActiveAdaptation(p)) {
-      if (e.getEntity().getLastDamageCause() instanceof EntityDamageByEntityEvent dmg
-          && dmg.getDamager() instanceof Projectile projectile
-          && projectile.hasMetadata(RICOCHET_COUNT_META)
-          && projectile.getShooter() instanceof Player) {
-        addStat(p, "ranged.ricochet-bolt.ricochet-kills", 1);
-        fx(e.getEntity().getLocation(), FxPriority.COMBAT)
-            .dustRing(Color.fromRGB(90, 220, 230), 1.0D, 16, 1.1F)
-            .burst(Particles.FIREWORK, 8, 0.3D)
-            .chord(Sound.BLOCK_NOTE_BLOCK_BELL, 0.6F, 1.6F, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.5F, 2.0F);
-      }
+    if (!(e.getEntity().getLastDamageCause() instanceof EntityDamageByEntityEvent damage)
+        || !(damage.getDamager() instanceof Projectile projectile)
+        || !projectile.hasMetadata(RICOCHET_COUNT_META)
+        || getMetadataInt(projectile, RICOCHET_COUNT_META, 0) <= 0
+        || !(projectile.getShooter() instanceof Player shooter)) {
+      return;
+    }
+
+    Location deathLocation = e.getEntity().getLocation();
+    J.runEntity(shooter, () -> rewardRicochetKillOwned(shooter, deathLocation));
+  }
+
+  private Projectile spawnLocalRicochetProjectile(
+      Projectile source,
+      Location spawnLocation,
+      Vector velocity,
+      Player shooter,
+      RicochetProfile profile,
+      int count,
+      int maximum,
+      double bonusDamage
+  ) {
+    RicochetProjectileKind kind = RicochetProjectileKind.resolve(source);
+    if (kind == null) {
+      return null;
+    }
+
+    try {
+      return source.getWorld().spawn(
+          spawnLocation,
+          kind.projectileClass(),
+          false,
+          target -> {
+            copyCommonStateOwned(source, target, shooter, velocity);
+            copyPayloadOwned(source, target);
+            applyRicochetProfile(target, profile);
+            applyRicochetState(target, count, maximum, bonusDamage);
+          }
+      );
+    } catch (RuntimeException exception) {
+      reportTransferFailure("spawn local projectile", source.getWorld(), spawnLocation, exception);
+      return null;
     }
   }
 
-  private Projectile spawnRicochetProjectile(Projectile original, Location spawnLocation, Vector velocity, Player shooter) {
-    Vector dir = velocity.clone().normalize();
-    float speed = (float) Math.max(0.2, velocity.length());
-    if (original instanceof SpectralArrow sourceSpectral && sourceSpectral instanceof AbstractArrow sourceAbstract) {
-      SpectralArrow spectral = original.getWorld().spawn(spawnLocation, SpectralArrow.class);
-      copyArrowState(sourceAbstract, spectral, shooter, velocity);
-      spectral.setGlowingTicks(sourceSpectral.getGlowingTicks());
-      return spectral;
+  private RicochetProjectileTemplate captureTransferOwned(
+      Projectile source,
+      Location spawnLocation,
+      Vector velocity,
+      Player shooter,
+      RicochetProfile profile,
+      int count,
+      int maximum,
+      double bonusDamage,
+      Location hitCenter,
+      RicochetTransition transition
+  ) throws IOException {
+    RicochetProjectileKind kind = RicochetProjectileKind.resolve(source);
+    RicochetProjectilePayload payload = capturePayloadOwned(source);
+    if (kind == null || payload == null) {
+      return null;
     }
 
-    if (original instanceof Trident sourceTrident) {
-      Trident trident = original.getWorld().spawn(spawnLocation, Trident.class);
-      copyArrowState(sourceTrident, trident, shooter, velocity);
-      trident.setItem(sourceTrident.getItem());
-      return trident;
-    }
+    byte[] persistentBytes = RicochetPersistentData.snapshot(source.getPersistentDataContainer());
+    RicochetCommonState common = new RicochetCommonState(
+        source.hasGravity(),
+        source.getFireTicks(),
+        source.hasLeftShooter(),
+        source.hasBeenShot(),
+        source.isPersistent(),
+        source.getTicksLived(),
+        source.getFallDistance(),
+        source.getVisualFire(),
+        source.getFreezeTicks(),
+        source.isSilent(),
+        source.isGlowing(),
+        source.isInvulnerable(),
+        source.isInvisible(),
+        source.hasNoPhysics(),
+        source.getPortalCooldown(),
+        source.customName(),
+        source.isCustomNameVisible(),
+        source.isVisibleByDefault(),
+        source.getScoreboardTags(),
+        RangedHeavyDraw.readHeavyLevel(source),
+        persistentBytes
+    );
+    return new RicochetProjectileTemplate(
+        kind,
+        source.getWorld(),
+        spawnLocation,
+        velocity,
+        shooter,
+        profile,
+        count,
+        maximum,
+        bonusDamage,
+        hitCenter,
+        transition,
+        common,
+        payload
+    );
+  }
 
-    if (original instanceof Arrow sourceArrow) {
-      Arrow arrow = original.getWorld().spawnArrow(spawnLocation, dir, speed, 0f);
-      copyArrowState(sourceArrow, arrow, shooter, velocity);
-      arrow.setBasePotionType(sourceArrow.getBasePotionType());
-      sourceArrow.getCustomEffects().forEach(effect -> arrow.addCustomEffect(effect, true));
-      return arrow;
+  private RicochetProjectilePayload capturePayloadOwned(Projectile source) {
+    if (source instanceof SpectralArrow spectral) {
+      return new RicochetSpectralPayload(captureArrowStateOwned(spectral), spectral.getGlowingTicks());
     }
-
-    if (original instanceof Snowball) {
-      Snowball snowball = original.getWorld().spawn(spawnLocation, Snowball.class);
-      copyProjectileState(original, snowball, shooter, velocity);
-      return snowball;
+    if (source instanceof Trident trident) {
+      return new RicochetTridentPayload(
+          captureArrowStateOwned(trident),
+          trident.getItem(),
+          trident.hasGlint(),
+          trident.getLoyaltyLevel()
+      );
     }
-
-    if (original instanceof Egg) {
-      Egg egg = original.getWorld().spawn(spawnLocation, Egg.class);
-      copyProjectileState(original, egg, shooter, velocity);
-      return egg;
+    if (source instanceof Arrow arrow) {
+      return new RicochetArrowPayload(
+          captureArrowStateOwned(arrow),
+          arrow.getBasePotionType(),
+          arrow.getColor(),
+          arrow.getCustomEffects()
+      );
     }
-
-    if (original instanceof EnderPearl) {
-      EnderPearl pearl = original.getWorld().spawn(spawnLocation, EnderPearl.class);
-      copyProjectileState(original, pearl, shooter, velocity);
-      return pearl;
+    if (source instanceof ThrowableProjectile throwable) {
+      return new RicochetThrowablePayload(throwable.getItem());
     }
-
-    if (original instanceof ThrownPotion sourcePotion) {
-      ThrownPotion potion = original.getWorld().spawn(spawnLocation, ThrownPotion.class);
-      copyProjectileState(sourcePotion, potion, shooter, velocity);
-      potion.setItem(sourcePotion.getItem().clone());
-      return potion;
-    }
-
-    if (original instanceof ThrownExpBottle) {
-      ThrownExpBottle bottle = original.getWorld().spawn(spawnLocation, ThrownExpBottle.class);
-      copyProjectileState(original, bottle, shooter, velocity);
-      return bottle;
-    }
-
     return null;
   }
 
-  private void copyArrowState(AbstractArrow source, AbstractArrow target, Player shooter, Vector velocity) {
-    copyProjectileState(source, target, shooter, velocity);
-    target.setDamage(source.getDamage());
-    target.setCritical(source.isCritical());
-    target.setKnockbackStrength(source.getKnockbackStrength());
-    target.setPierceLevel(source.getPierceLevel());
-    target.setPickupStatus(AbstractArrow.PickupStatus.CREATIVE_ONLY);
+  private RicochetArrowState captureArrowStateOwned(AbstractArrow arrow) {
+    return new RicochetArrowState(
+        arrow.getDamage(),
+        arrow.isCritical(),
+        arrow.getPierceLevel(),
+        arrow.getKnockbackStrength(),
+        arrow.getPickupStatus(),
+        RangedPiercing.isPiercingInitialized(arrow),
+        RangedPiercing.readHits(arrow),
+        arrow.getItemStack(),
+        arrow.getWeapon(),
+        arrow.getLifetimeTicks(),
+        arrow.getHitSound()
+    );
   }
 
-  private void copyProjectileState(Projectile source, Projectile target, Player shooter, Vector velocity) {
-    target.setShooter(shooter);
-    target.setVelocity(velocity);
-    target.setBounce(source.doesBounce());
+  private void completeTransferOwned(RicochetTransferRequest request) {
+    if (!isRuntimeRegistered()) {
+      return;
+    }
+    if (completeTransferOwned(request.primary())) {
+      return;
+    }
+    RicochetProjectileTemplate fallback = request.fallback();
+    if (fallback != null) {
+      J.runAt(fallback.spawnLocation(), () -> completeTransferOwned(fallback));
+    }
+  }
+
+  private boolean completeTransferOwned(RicochetProjectileTemplate template) {
+    if (!isRuntimeRegistered()) {
+      return false;
+    }
+    Location spawnLocation = template.spawnLocation();
+    World world = template.world();
+    int chunkX = spawnLocation.getBlockX() >> 4;
+    int chunkZ = spawnLocation.getBlockZ() >> 4;
+    if (!world.isChunkLoaded(chunkX, chunkZ)
+        || (J.isFoliaThreading()
+        && !FoliaScheduler.isOwnedByCurrentRegion(world, chunkX, chunkZ))) {
+      return false;
+    }
+
+    Projectile target = null;
+    try {
+      target = world.createEntity(spawnLocation, template.kind().projectileClass());
+      hydrateTemplateOwned(target, template);
+      world.addEntity(target);
+    } catch (IOException | RuntimeException exception) {
+      if (target != null && target.isInWorld()) {
+        target.remove();
+      }
+      reportTransferFailure("complete region projectile transfer", world, spawnLocation, exception);
+      return false;
+    }
+
+    Location hitCenter = template.hitCenter();
+    J.runAt(hitCenter, () -> emitRicochetFx(hitCenter, template.transition()));
+    Player shooter = template.shooter();
+    J.runEntity(shooter, () -> rewardRicochetOwned(shooter, template.transition()));
+    return true;
+  }
+
+  private void hydrateTemplateOwned(Projectile target, RicochetProjectileTemplate template)
+      throws IOException {
+    applyCommonStateOwned(target, template.shooter(), template.velocity(), template.common());
+    applyPayloadOwned(target, template.payload());
+    applyRicochetProfile(target, template.profile());
+    applyRicochetState(target, template.count(), template.maximum(), template.bonusDamage());
+  }
+
+  private void copyCommonStateOwned(
+      Projectile source,
+      Projectile target,
+      Player shooter,
+      Vector velocity
+  ) {
+    setShooterOwned(target, shooter);
     target.setGravity(source.hasGravity());
     target.setFireTicks(source.getFireTicks());
+    target.setHasLeftShooter(source.hasLeftShooter());
+    target.setHasBeenShot(source.hasBeenShot());
+    target.setPersistent(source.isPersistent());
+    target.setTicksLived(Math.max(1, source.getTicksLived()));
+    target.setFallDistance(source.getFallDistance());
+    target.setVisualFire(source.getVisualFire());
+    target.setFreezeTicks(source.getFreezeTicks());
+    target.setSilent(source.isSilent());
+    target.setGlowing(source.isGlowing());
+    target.setInvulnerable(source.isInvulnerable());
+    target.setInvisible(source.isInvisible());
+    target.setNoPhysics(source.hasNoPhysics());
+    target.setPortalCooldown(source.getPortalCooldown());
+    target.customName(source.customName());
+    target.setCustomNameVisible(source.isCustomNameVisible());
+    target.setVisibleByDefault(source.isVisibleByDefault());
+    for (String tag : source.getScoreboardTags()) {
+      target.addScoreboardTag(tag);
+    }
     source.getPersistentDataContainer().copyTo(target.getPersistentDataContainer(), true);
+    RangedHeavyDraw.copyHeavyState(source, target);
+    target.setVelocity(velocity);
   }
 
-  private Vector reflect(Vector incoming, BlockFace face) {
-    Vector normal = face.getDirection().normalize();
-    double dot = incoming.dot(normal);
-    return incoming.clone().subtract(normal.multiply(2D * dot));
+  private void applyCommonStateOwned(
+      Projectile target,
+      Player shooter,
+      Vector velocity,
+      RicochetCommonState state
+  ) throws IOException {
+    setShooterOwned(target, shooter);
+    target.setGravity(state.gravity());
+    target.setFireTicks(state.fireTicks());
+    target.setHasLeftShooter(state.leftShooter());
+    target.setHasBeenShot(state.beenShot());
+    target.setPersistent(state.persistent());
+    target.setTicksLived(Math.max(1, state.ticksLived()));
+    target.setFallDistance(state.fallDistance());
+    target.setVisualFire(state.visualFire());
+    target.setFreezeTicks(state.freezeTicks());
+    target.setSilent(state.silent());
+    target.setGlowing(state.glowing());
+    target.setInvulnerable(state.invulnerable());
+    target.setInvisible(state.invisible());
+    target.setNoPhysics(state.noPhysics());
+    target.setPortalCooldown(state.portalCooldown());
+    target.customName(state.customName());
+    target.setCustomNameVisible(state.customNameVisible());
+    target.setVisibleByDefault(state.visibleByDefault());
+    for (String tag : state.scoreboardTags()) {
+      target.addScoreboardTag(tag);
+    }
+    byte[] persistentData = state.persistentData();
+    RicochetPersistentData.restore(target.getPersistentDataContainer(), persistentData);
+    RangedHeavyDraw.applyHeavyState(target, state.heavyDrawLevel());
+    target.setVelocity(velocity);
+  }
+
+  private void setShooterOwned(Projectile target, Player shooter) {
+    if (target instanceof AbstractArrow arrow) {
+      arrow.setShooter(shooter, false);
+      return;
+    }
+    target.setShooter(shooter);
+  }
+
+  private void copyPayloadOwned(Projectile source, Projectile target) {
+    if (source instanceof AbstractArrow sourceArrow && target instanceof AbstractArrow targetArrow) {
+      copyArrowStateOwned(sourceArrow, targetArrow);
+    }
+    if (source instanceof Arrow sourceArrow && target instanceof Arrow targetArrow) {
+      targetArrow.setBasePotionType(sourceArrow.getBasePotionType());
+      targetArrow.setColor(sourceArrow.getColor());
+      for (PotionEffect effect : sourceArrow.getCustomEffects()) {
+        targetArrow.addCustomEffect(effect, true);
+      }
+      return;
+    }
+    if (source instanceof SpectralArrow sourceSpectral
+        && target instanceof SpectralArrow targetSpectral) {
+      targetSpectral.setGlowingTicks(sourceSpectral.getGlowingTicks());
+      return;
+    }
+    if (source instanceof Trident sourceTrident && target instanceof Trident targetTrident) {
+      targetTrident.setItem(sourceTrident.getItem().clone());
+      targetTrident.setGlint(sourceTrident.hasGlint());
+      targetTrident.setLoyaltyLevel(sourceTrident.getLoyaltyLevel());
+      targetTrident.setHasDealtDamage(false);
+      return;
+    }
+    if (source instanceof ThrowableProjectile sourceThrowable
+        && target instanceof ThrowableProjectile targetThrowable) {
+      targetThrowable.setItem(sourceThrowable.getItem().clone());
+    }
+  }
+
+  private void copyArrowStateOwned(AbstractArrow source, AbstractArrow target) {
+    target.setDamage(source.getDamage());
+    target.setCritical(source.isCritical());
+    target.setPierceLevel(source.getPierceLevel());
+    target.setKnockbackStrength(source.getKnockbackStrength());
+    target.setPickupStatus(source.getPickupStatus());
+    target.setItemStack(source.getItemStack().clone());
+    ItemStack weapon = source.getWeapon();
+    if (weapon != null) {
+      target.setWeapon(weapon.clone());
+    }
+    target.setLifetimeTicks(source.getLifetimeTicks());
+    target.setHitSound(source.getHitSound());
+    RangedPiercing.copyPiercingState(source, target);
+  }
+
+  private void applyPayloadOwned(Projectile target, RicochetProjectilePayload payload) {
+    if (payload instanceof RicochetArrowPayload arrowPayload && target instanceof Arrow arrow) {
+      applyArrowStateOwned(arrow, arrowPayload.arrow());
+      arrow.setBasePotionType(arrowPayload.basePotionType());
+      arrow.setColor(arrowPayload.color());
+      for (PotionEffect effect : arrowPayload.customEffects()) {
+        arrow.addCustomEffect(effect, true);
+      }
+      return;
+    }
+    if (payload instanceof RicochetSpectralPayload spectralPayload
+        && target instanceof SpectralArrow spectral) {
+      applyArrowStateOwned(spectral, spectralPayload.arrow());
+      spectral.setGlowingTicks(spectralPayload.glowingTicks());
+      return;
+    }
+    if (payload instanceof RicochetTridentPayload tridentPayload
+        && target instanceof Trident trident) {
+      applyArrowStateOwned(trident, tridentPayload.arrow());
+      trident.setItem(tridentPayload.item());
+      trident.setGlint(tridentPayload.glint());
+      trident.setLoyaltyLevel(tridentPayload.loyaltyLevel());
+      trident.setHasDealtDamage(false);
+      return;
+    }
+    if (payload instanceof RicochetThrowablePayload throwablePayload
+        && target instanceof ThrowableProjectile throwable) {
+      throwable.setItem(throwablePayload.item());
+    }
+  }
+
+  private void applyArrowStateOwned(AbstractArrow target, RicochetArrowState state) {
+    target.setDamage(state.damage());
+    target.setCritical(state.critical());
+    target.setPierceLevel(state.pierceLevel());
+    target.setKnockbackStrength(state.knockbackStrength());
+    target.setPickupStatus(state.pickupStatus());
+    target.setItemStack(state.item());
+    ItemStack weapon = state.weapon();
+    if (weapon != null) {
+      target.setWeapon(weapon);
+    }
+    target.setLifetimeTicks(state.lifetimeTicks());
+    target.setHitSound(state.hitSound());
+    RangedPiercing.applyPiercingState(
+        target,
+        state.piercingInitialized(),
+        state.piercingHits()
+    );
+  }
+
+  private void reportTransferFailure(
+      String operation,
+      World world,
+      Location location,
+      Throwable throwable
+  ) {
+    String failureKey = operation + ":" + world.getUID() + ":" + throwable.getClass().getName();
+    if (!reportedTransferFailures.add(failureKey)) {
+      return;
+    }
+    Adapt.warn("Failed to " + operation + " for Ricochet Bolt in " + world.getName()
+        + " at " + location.getBlockX() + "," + location.getBlockY() + ","
+        + location.getBlockZ() + ".");
+    throwable.printStackTrace();
+  }
+
+  private Location resolveTransferFallbackOwned(Location impact, Block block, Vector incoming) {
+    if (block == null || incoming.lengthSquared() <= 0.000001D) {
+      return null;
+    }
+    Vector backward = incoming.clone().normalize().multiply(-1D);
+    BoundingBox occupied = block.getBoundingBox().expand(0.05D);
+    for (double distance = 0.2D; distance <= 4D; distance += 0.2D) {
+      Location candidate = impact.clone().add(backward.clone().multiply(distance));
+      if (!occupied.contains(candidate.toVector()) && isLoadedOwned(candidate)) {
+        return candidate;
+      }
+    }
+    return null;
+  }
+
+  private boolean isLoadedOwned(Location location) {
+    World world = location.getWorld();
+    if (world == null) {
+      return false;
+    }
+    int chunkX = location.getBlockX() >> 4;
+    int chunkZ = location.getBlockZ() >> 4;
+    return world.isChunkLoaded(chunkX, chunkZ)
+        && (!J.isFoliaThreading()
+        || FoliaScheduler.isOwnedByCurrentRegion(world, chunkX, chunkZ));
   }
 
   private Vector resolveIncomingVector(Projectile projectile) {
@@ -333,6 +743,15 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
     return fallback;
   }
 
+  private RicochetProfile getMetadataProfile(Projectile projectile) {
+    for (MetadataValue value : projectile.getMetadata(RICOCHET_PROFILE_META)) {
+      if (value.getOwningPlugin() == Adapt.instance && value.value() instanceof RicochetProfile profile) {
+        return profile;
+      }
+    }
+    return null;
+  }
+
   private double getMetadataDouble(Projectile projectile, String key, double fallback) {
     for (MetadataValue value : projectile.getMetadata(key)) {
       if (value.getOwningPlugin() == Adapt.instance) {
@@ -343,8 +762,90 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
     return fallback;
   }
 
+  RicochetProfile getActiveProfile(Player player) {
+    int level = getActiveLevel(player);
+    if (level <= 0) {
+      return null;
+    }
+    return new RicochetProfile(
+        getMaxRicochets(level),
+        getSpeedBonusPerRicochet(level),
+        getDamageBonusPerRicochet(level),
+        Math.max(0D, getConfig().minRicochetVelocitySquared),
+        Math.max(0D, getConfig().minimumPostBounceSpeed)
+    );
+  }
+
+  void applyRicochetProfile(Projectile projectile, RicochetProfile profile) {
+    projectile.setMetadata(RICOCHET_PROFILE_META, new FixedMetadataValue(Adapt.instance, profile));
+  }
+
+  void applyRicochetState(Projectile projectile, int count, int maximum, double bonusDamage) {
+    projectile.setMetadata(RICOCHET_COUNT_META,
+        new FixedMetadataValue(Adapt.instance, Math.max(0, count)));
+    projectile.setMetadata(RICOCHET_MAX_META,
+        new FixedMetadataValue(Adapt.instance, Math.max(0, maximum)));
+    projectile.setMetadata(BONUS_DAMAGE_META,
+        new FixedMetadataValue(Adapt.instance, Math.max(0D, bonusDamage)));
+  }
+
+  void emitRicochetFx(Location hitCenter, RicochetTransition transition) {
+    Vector reflected = transition.direction();
+    int count = transition.count();
+    fx(hitCenter, FxPriority.COMBAT)
+        .particle(Particle.ELECTRIC_SPARK, Math.max(1, getConfig().sparkParticleCount),
+            0, 0, 0, getConfig().sparkSpread, 0.02D)
+        .particle(Particles.CRIT_MAGIC, Math.max(1, getConfig().critParticleCount),
+            0, 0, 0, getConfig().critSpread, 0.08D)
+        .dustRing(Color.fromRGB(180, 210, 255), 0.4D + (count * 0.15D), 12, 1.0F)
+        .line(Particle.ELECTRIC_SPARK,
+            hitCenter.getX() + (reflected.getX() * 1.2D),
+            hitCenter.getY() + (reflected.getY() * 1.2D),
+            hitCenter.getZ() + (reflected.getZ() * 1.2D),
+            5)
+        .chord(
+            Sound.BLOCK_ANVIL_HIT,
+            0.85F,
+            (float) Math.max(0.4D,
+                getConfig().bouncePitchBase - (count * getConfig().bouncePitchDropPerRicochet)),
+            Sound.BLOCK_AMETHYST_BLOCK_HIT,
+            0.9F,
+            (float) Math.min(2D,
+                getConfig().sparkPitchBase + (count * getConfig().sparkPitchRaisePerRicochet))
+        );
+  }
+
+  void rewardRicochetOwned(Player player, RicochetTransition transition) {
+    xp(player, getConfig().xpPerRicochet + (transition.count() * getConfig().xpPerRicochetStep));
+    addStat(player, "ranged.ricochet-bolt.total-ricochets", 1);
+  }
+
+  private void rewardRicochetKillOwned(Player player, Location deathLocation) {
+    if (!player.isOnline() || !hasActiveAdaptation(player)) {
+      return;
+    }
+    addStat(player, "ranged.ricochet-bolt.ricochet-kills", 1);
+    J.runAt(deathLocation, () -> fx(deathLocation, FxPriority.COMBAT)
+        .dustRing(Color.fromRGB(90, 220, 230), 1.0D, 16, 1.1F)
+        .burst(Particles.FIREWORK, 8, 0.3D)
+        .chord(
+            Sound.BLOCK_NOTE_BLOCK_BELL,
+            0.6F,
+            1.6F,
+            Sound.BLOCK_AMETHYST_BLOCK_CHIME,
+            0.5F,
+            2.0F
+        ));
+  }
+
   private int getMaxRicochets(int level) {
-    return Math.max(1, (int) Math.round(getConfig().maxRicochetsBase + (getLevelPercent(level) * getConfig().maxRicochetsFactor)));
+    return Math.min(
+        MAX_RICOCHETS,
+        Math.max(1, (int) Math.round(
+            getConfig().maxRicochetsBase
+                + (getLevelPercent(level) * getConfig().maxRicochetsFactor)
+        ))
+    );
   }
 
   private double getSpeedBonusPerRicochet(int level) {
@@ -357,10 +858,6 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
         getConfig().damageBonusPerRicochetBase + (getLevelPercent(level) * getConfig().damageBonusPerRicochetFactor));
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Projectiles ricochet from block impacts with chained bounces, scaling speed, and bonus damage.")
   protected static class Config extends AdaptationConfig {

@@ -47,17 +47,25 @@ public final class MinionBurden extends TickedObject {
   private static final NamespacedKey BURDEN_KEY = new NamespacedKey("adapt", "minion-burden");
   private static final double DEFAULT_HEALTH_PER_MINION = 2.0;
   private static final double DEFAULT_MINIMUM_MAX_HEALTH = 4.0;
+  private static final int MAX_TRACKED_MINIONS_PER_OWNER = 16;
+  private static final int MAINTENANCE_OWNERS_PER_TICK = 4;
+  private static final long MAINTENANCE_INTERVAL_MS = 1_000L;
 
   private static volatile MinionBurden instance;
 
   private final MinionRegistry registry = new MinionRegistry();
   private final Map<UUID, LivingEntity> minions = new ConcurrentHashMap<>();
   private final Set<UUID> livenessStrikes = ConcurrentHashMap.newKeySet();
+  private final Set<UUID> pendingLivenessChecks = ConcurrentHashMap.newKeySet();
+  private List<UUID> maintenanceOwners = List.of();
+  private int maintenanceIndex;
+  private long nextMaintenanceAt;
   private volatile double healthPerMinion = DEFAULT_HEALTH_PER_MINION;
   private volatile double minimumMaxHealth = DEFAULT_MINIMUM_MAX_HEALTH;
 
   private MinionBurden() {
-    super("minion-burden", "minion-burden", 1000);
+    super("minion-burden", "minion-burden", MAINTENANCE_INTERVAL_MS);
+    nextMaintenanceAt = System.currentTimeMillis() + MAINTENANCE_INTERVAL_MS;
   }
 
   public static MinionBurden get() {
@@ -68,9 +76,18 @@ public final class MinionBurden extends TickedObject {
 
     synchronized (MinionBurden.class) {
       if (instance == null) {
-        instance = new MinionBurden();
+        MinionBurden created = new MinionBurden();
+        instance = created;
       }
       return instance;
+    }
+  }
+
+  public static void startRuntime() {
+    synchronized (MinionBurden.class) {
+      if (instance != null) {
+        instance.activateRuntime();
+      }
     }
   }
 
@@ -105,9 +122,28 @@ public final class MinionBurden extends TickedObject {
 
   @Override
   public void onTick() {
-    for (UUID ownerId : registry.ownerIds()) {
-      recompute(ownerId);
+    long now = System.currentTimeMillis();
+    if (maintenanceIndex >= maintenanceOwners.size()) {
+      if (now < nextMaintenanceAt) {
+        setInterval(nextMaintenanceAt - now);
+        return;
+      }
+      maintenanceOwners = new ArrayList<>(registry.ownerIds());
+      maintenanceIndex = 0;
+      nextMaintenanceAt = now + MAINTENANCE_INTERVAL_MS;
     }
+
+    int endIndex = maintenanceBatchEnd(maintenanceIndex, maintenanceOwners.size());
+    while (maintenanceIndex < endIndex) {
+      recompute(maintenanceOwners.get(maintenanceIndex++));
+    }
+    setInterval(maintenanceIndex < maintenanceOwners.size()
+        ? MIN_INTERVAL_MILLIS
+        : Math.max(MIN_INTERVAL_MILLIS, nextMaintenanceAt - now));
+  }
+
+  static int maintenanceBatchEnd(int startIndex, int ownerCount) {
+    return Math.min(Math.max(0, ownerCount), Math.max(0, startIndex) + MAINTENANCE_OWNERS_PER_TICK);
   }
 
   public void configure(double healthPerMinion, double minimumMaxHealth) {
@@ -139,9 +175,11 @@ public final class MinionBurden extends TickedObject {
 
     UUID ownerId = owner.getUniqueId();
     UUID minionId = minion.getUniqueId();
+    if (!registry.add(ownerId, minionId)) {
+      return;
+    }
     StackExclusion.exclude(minion);
     minions.put(minionId, minion);
-    registry.add(ownerId, minionId);
     recompute(ownerId);
   }
 
@@ -161,6 +199,7 @@ public final class MinionBurden extends TickedObject {
     UUID minionId = minion.getUniqueId();
     minions.remove(minionId);
     livenessStrikes.remove(minionId);
+    pendingLivenessChecks.remove(minionId);
     registry.remove(ownerId, minionId);
     recompute(ownerId);
   }
@@ -200,7 +239,7 @@ public final class MinionBurden extends TickedObject {
   }
 
   private void recompute(UUID ownerId) {
-    pruneOwner(ownerId);
+    probeOwnerMinions(ownerId);
     Player owner = Bukkit.getPlayer(ownerId);
     if (owner == null || !owner.isOnline()) {
       return;
@@ -240,7 +279,7 @@ public final class MinionBurden extends TickedObject {
     }
   }
 
-  private void pruneOwner(UUID ownerId) {
+  private void probeOwnerMinions(UUID ownerId) {
     for (UUID minionId : registry.minions(ownerId)) {
       LivingEntity minion = minions.get(minionId);
       if (minion == null) {
@@ -248,33 +287,42 @@ public final class MinionBurden extends TickedObject {
         registry.remove(ownerId, minionId);
         continue;
       }
-
-      boolean alive;
-      try {
-        alive = minion.isValid() && !minion.isDead();
-      } catch (Throwable t) {
-        alive = true;
-      }
-
-      if (alive) {
-        livenessStrikes.remove(minionId);
+      if (!pendingLivenessChecks.add(minionId)) {
         continue;
       }
-
-      if (livenessStrikes.add(minionId)) {
-        continue;
+      if (!J.runEntity(minion, () -> completeLivenessCheck(ownerId, minionId, minion))) {
+        pendingLivenessChecks.remove(minionId);
+        recordMissingMinion(ownerId, minionId);
       }
-
-      livenessStrikes.remove(minionId);
-      registry.remove(ownerId, minionId);
-      minions.remove(minionId);
     }
+  }
+
+  private void completeLivenessCheck(UUID ownerId, UUID minionId, LivingEntity minion) {
+    pendingLivenessChecks.remove(minionId);
+    if (minion.isValid() && !minion.isDead()) {
+      livenessStrikes.remove(minionId);
+      return;
+    }
+    recordMissingMinion(ownerId, minionId);
+  }
+
+  private void recordMissingMinion(UUID ownerId, UUID minionId) {
+    if (livenessStrikes.add(minionId)) {
+      return;
+    }
+
+    livenessStrikes.remove(minionId);
+    pendingLivenessChecks.remove(minionId);
+    registry.remove(ownerId, minionId);
+    minions.remove(minionId);
+    recompute(ownerId);
   }
 
   private void dropTracking(UUID ownerId) {
     for (UUID minionId : registry.clear(ownerId)) {
       minions.remove(minionId);
       livenessStrikes.remove(minionId);
+      pendingLivenessChecks.remove(minionId);
     }
   }
 
@@ -295,6 +343,9 @@ public final class MinionBurden extends TickedObject {
     registry.clearAll();
     minions.clear();
     livenessStrikes.clear();
+    pendingLivenessChecks.clear();
+    maintenanceOwners = List.of();
+    maintenanceIndex = 0;
   }
 
   private void scrub(Player player) {
@@ -341,7 +392,16 @@ public final class MinionBurden extends TickedObject {
     private final Map<UUID, Set<UUID>> owners = new ConcurrentHashMap<>();
 
     public boolean add(UUID owner, UUID minion) {
-      return owners.computeIfAbsent(owner, key -> ConcurrentHashMap.newKeySet()).add(minion);
+      Set<UUID> minions = owners.computeIfAbsent(owner, key -> ConcurrentHashMap.newKeySet());
+      synchronized (minions) {
+        if (minions.contains(minion)) {
+          return false;
+        }
+        if (minions.size() >= MAX_TRACKED_MINIONS_PER_OWNER) {
+          return false;
+        }
+        return minions.add(minion);
+      }
     }
 
     public boolean remove(UUID owner, UUID minion) {

@@ -26,7 +26,14 @@ public interface IAttribute {
     addModifier(uuid, key, amount, operation);
   }
 
+  default void setTransientModifier(UUID uuid, NamespacedKey key, double amount, AttributeModifier.Operation operation) {
+    removeModifier(uuid, key);
+    addTransientModifier(uuid, key, amount, operation);
+  }
+
   void addModifier(UUID uuid, NamespacedKey key, double amount, AttributeModifier.Operation operation);
+
+  void addTransientModifier(UUID uuid, NamespacedKey key, double amount, AttributeModifier.Operation operation);
 
   boolean hasModifier(UUID uuid, NamespacedKey key);
 

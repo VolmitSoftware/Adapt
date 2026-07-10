@@ -241,9 +241,6 @@ public class ArchitectSupplyLine extends SimpleAdaptation<ArchitectSupplyLine.Co
     return (int) Math.max(1, M.lerp(getConfig().minRefillsPerMinute, getConfig().maxRefillsPerMinute, factor));
   }
 
-  @Override
-  public void onTick() {
-  }
 
   private record RefillWindow(long start, int used) {
   }

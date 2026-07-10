@@ -21,7 +21,6 @@ package art.arcane.adapt.api.skill;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.runtime.AdaptationGate;
 import art.arcane.adapt.api.world.AdaptPlayer;
@@ -36,6 +35,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -45,38 +45,43 @@ final class SkillRuntimeGuards {
   private SkillRuntimeGuards() {
   }
 
-  static void checkStatTrackers(Skill<?> skill, AdaptPlayer player) {
-    if (skill == null || player == null || !skill.isEnabled()) {
-      return;
-    }
-    if (!AdaptConfig.get().isAdvancements()) {
-      return;
-    }
-    if (!isRuntimePlayer(player.getPlayer())) {
+  static boolean canEvaluateStatTrackers(AdaptPlayer player) {
+    return player != null
+        && AdaptConfig.get().isAdvancements()
+        && isRuntimePlayer(player.getPlayer());
+  }
+
+  static void evaluateStatTrackers(List<StatTrackerIndex.Binding> bindings, AdaptPlayer player, double statValue) {
+    if (bindings.isEmpty()) {
       return;
     }
 
+    Player runtimePlayer = player.getPlayer();
     PlayerData data = player.getData();
-
-    for (AdaptStatTracker tracker : skill.getStatTrackers()) {
-      if (!data.isGranted(tracker.getAdvancement()) && data.getStat(tracker.getStat()) >= tracker.getGoal()) {
-        player.getAdvancementHandler().grant(tracker.getAdvancement());
-        skill.xp(player.getPlayer(), tracker.getReward());
+    Skill<?> currentSkill = null;
+    boolean skipCurrentSkill = true;
+    for (StatTrackerIndex.Binding binding : bindings) {
+      Skill<?> skill = binding.skill();
+      if (skill != currentSkill) {
+        currentSkill = skill;
+        skipCurrentSkill = shouldSkipPlayer(skill, runtimePlayer);
       }
-    }
-
-    for (Adaptation<?> adaptation : skill.getAdaptations()) {
-      if (!(adaptation instanceof SimpleAdaptation<?> simpleAdaptation)) {
+      if (skipCurrentSkill) {
         continue;
       }
-      if (!adaptation.isEnabled()) {
+
+      Adaptation<?> adaptation = binding.adaptation();
+      if (adaptation != null && !adaptation.isEnabled()) {
         continue;
       }
-      for (AdaptStatTracker tracker : simpleAdaptation.getStatTrackers()) {
-        if (!data.isGranted(tracker.getAdvancement()) && data.getStat(tracker.getStat()) >= tracker.getGoal()) {
-          player.getAdvancementHandler().grant(tracker.getAdvancement());
-          skill.xp(player.getPlayer(), tracker.getReward());
-        }
+
+      AdaptStatTracker tracker = binding.tracker();
+      if (!(statValue >= tracker.getGoal()) || data.isGranted(tracker.getAdvancement())) {
+        continue;
+      }
+
+      if (player.getAdvancementHandler().grant(tracker.getAdvancement())) {
+        skill.xp(runtimePlayer, tracker.getReward());
       }
     }
   }

@@ -40,7 +40,12 @@ import java.util.Map;
 import java.util.UUID;
 
 public class SeaborneTurtlesVision extends SimpleAdaptation<SeaborneTurtlesVision.Config> {
+  private static final int EFFECT_DURATION_TICKS = 160;
+  private static final int EFFECT_REFRESH_THRESHOLD_TICKS = 100;
+  private static final double MAX_CREDIT_TICKS_PER_SAMPLE = 160D;
+
   private final Map<UUID, Boolean> submerged = playerState();
+  private final Map<UUID, Long> lastUnderwaterSample = playerState();
 
   public SeaborneTurtlesVision() {
     super("seaborne-turtles-vision");
@@ -65,12 +70,8 @@ public class SeaborneTurtlesVision extends SimpleAdaptation<SeaborneTurtlesVisio
 
   @Override
   public void onTick() {
-    for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+    for (AdaptPlayer adaptPlayer : learnedCandidates(System.currentTimeMillis())) {
       Player player = adaptPlayer.getPlayer();
-      if (player == null || !player.isOnline()) {
-        continue;
-      }
-
       withPlayerThread(player, () -> {
         if (!player.isOnline()) {
           return;
@@ -78,6 +79,8 @@ public class SeaborneTurtlesVision extends SimpleAdaptation<SeaborneTurtlesVisio
 
         int level = getActiveLevel(player);
         if (level <= 0) {
+          submerged.remove(player.getUniqueId());
+          lastUnderwaterSample.remove(player.getUniqueId());
           return;
         }
 
@@ -85,16 +88,21 @@ public class SeaborneTurtlesVision extends SimpleAdaptation<SeaborneTurtlesVisio
         boolean was = submerged.getOrDefault(id, false);
         if (!player.isInWater()) {
           if (was) {
-            submerged.put(id, false);
+            submerged.remove(id);
             fx(player.getEyeLocation(), FxPriority.AMBIENT)
                 .particle(Particle.GLOW, 3, 0D, 0D, 0D, 0.2D, 0.02D)
                 .sound(Sound.BLOCK_CONDUIT_DEACTIVATE, 0.25F, 1.0F);
           }
+          lastUnderwaterSample.remove(id);
           return;
         }
 
-        player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 62, 0, false, false));
-        addStat(player, "seaborne.turtles-vision.time-underwater", 1);
+        refreshNightVision(player);
+        long now = System.currentTimeMillis();
+        double elapsedTicks = elapsedUnderwaterTicks(lastUnderwaterSample.put(id, now), now);
+        if (elapsedTicks > 0D) {
+          addStat(player, "seaborne.turtles-vision.time-underwater", elapsedTicks);
+        }
 
         if (!was) {
           submerged.put(id, true);
@@ -114,6 +122,25 @@ public class SeaborneTurtlesVision extends SimpleAdaptation<SeaborneTurtlesVisio
         }
       });
     }
+  }
+
+  private void refreshNightVision(Player player) {
+    PotionEffect current = player.getPotionEffect(PotionEffectType.NIGHT_VISION);
+    if (current == null || shouldRefreshEffect(current.getDuration(), current.getAmplifier(), 0)) {
+      player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, EFFECT_DURATION_TICKS, 0, false, false));
+    }
+  }
+
+  static boolean shouldRefreshEffect(int currentDuration, int currentAmplifier, int targetAmplifier) {
+    return currentAmplifier < targetAmplifier
+        || (currentAmplifier == targetAmplifier && currentDuration <= EFFECT_REFRESH_THRESHOLD_TICKS);
+  }
+
+  static double elapsedUnderwaterTicks(Long previousSample, long now) {
+    if (previousSample == null || now <= previousSample) {
+      return 0D;
+    }
+    return Math.min(MAX_CREDIT_TICKS_PER_SAMPLE, (now - previousSample) / 50D);
   }
 
   @ConfigDescription("Gain night vision while underwater.")

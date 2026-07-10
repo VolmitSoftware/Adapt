@@ -28,7 +28,18 @@ import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.xp.XpNovelty;
 import art.arcane.adapt.api.xp.XpProvenance;
-import art.arcane.adapt.content.adaptation.architect.*;
+import art.arcane.adapt.content.adaptation.architect.ArchitectChalkLine;
+import art.arcane.adapt.content.adaptation.architect.ArchitectDemolition;
+import art.arcane.adapt.content.adaptation.architect.ArchitectElevator;
+import art.arcane.adapt.content.adaptation.architect.ArchitectFoundation;
+import art.arcane.adapt.content.adaptation.architect.ArchitectGlass;
+import art.arcane.adapt.content.adaptation.architect.ArchitectPlacement;
+import art.arcane.adapt.content.adaptation.architect.ArchitectScaffolder;
+import art.arcane.adapt.content.adaptation.architect.ArchitectSmartShape;
+import art.arcane.adapt.content.adaptation.architect.ArchitectSteadyHands;
+import art.arcane.adapt.content.adaptation.architect.ArchitectStonecutterSavant;
+import art.arcane.adapt.content.adaptation.architect.ArchitectSupplyLine;
+import art.arcane.adapt.content.adaptation.architect.ArchitectWirelessRedstone;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
@@ -70,27 +81,13 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
                 .key("challenge_place_50k")
                 .model(CustomModel.get(Material.NETHER_BRICK, "advancement", "architect", "challenge_place_50k"))
                 .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
-                    .icon(Material.NETHER_BRICK)
-                    .key("challenge_place_500k")
-                    .model(CustomModel.get(Material.NETHER_BRICK, "advancement", "architect", "challenge_place_500k"))
-                    .frame(AdaptAdvancementFrame.CHALLENGE)
-                    .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
-                        .icon(Material.IRON_INGOT)
-                        .key("challenge_place_5m")
-                        .model(CustomModel.get(Material.IRON_INGOT, "advancement", "architect", "challenge_place_5m"))
-                        .frame(AdaptAdvancementFrame.CHALLENGE)
-                        .visibility(AdvancementVisibility.PARENT_GRANTED)
-                        .build())
-                    .build())
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build())
             .build())
         .build());
-    registerMilestone("challenge_place_1k", "blocks.placed", 1000, getConfig().challengePlace1kReward);
-    registerMilestone("challenge_place_5k", "blocks.placed", 5000, getConfig().challengePlace1kReward);
-    registerMilestone("challenge_place_50k", "blocks.placed", 50000, getConfig().challengePlace1kReward);
-    registerMilestone("challenge_place_500k", "blocks.placed", 500000, getConfig().challengePlace1kReward);
-    registerMilestone("challenge_place_5m", "blocks.placed", 5000000, getConfig().challengePlace1kReward);
+    registerMilestone("challenge_place_1k", "blocks.placed", 1000, () -> getConfig().challengePlace1kReward);
+    registerMilestone("challenge_place_5k", "blocks.placed", 5000, () -> getConfig().challengePlace1kReward);
+    registerMilestone("challenge_place_50k", "blocks.placed", 50000, () -> getConfig().challengePlace1kReward);
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.IRON_PICKAXE).key("challenge_demolish_500")
@@ -105,8 +102,8 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_demolish_500", "blocks.broken", 500, getConfig().challengePlace1kReward);
-    registerMilestone("challenge_demolish_5k", "blocks.broken", 5000, getConfig().challengePlace1kReward * 2);
+    registerMilestone("challenge_demolish_500", "blocks.broken", 500, () -> getConfig().challengePlace1kReward);
+    registerMilestone("challenge_demolish_5k", "blocks.broken", 5000, () -> getConfig().challengePlace1kReward * 2);
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.GOLD_INGOT).key("challenge_value_placed_10k")
@@ -121,8 +118,8 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_value_placed_10k", "blocks.placed.value", 10000, getConfig().challengePlace1kReward);
-    registerMilestone("challenge_value_placed_100k", "blocks.placed.value", 100000, getConfig().challengePlace1kReward * 2);
+    registerMilestone("challenge_value_placed_10k", "blocks.placed.value", 10000, () -> getConfig().challengePlace1kReward);
+    registerMilestone("challenge_value_placed_100k", "blocks.placed.value", 100000, () -> getConfig().challengePlace1kReward * 2);
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.TNT_MINECART).key("challenge_demolish_val_5k")
@@ -137,8 +134,8 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_demolish_val_5k", "architect.demolish.value", 5000, getConfig().challengePlace1kReward);
-    registerMilestone("challenge_demolish_val_50k", "architect.demolish.value", 50000, getConfig().challengePlace1kReward * 2);
+    registerMilestone("challenge_demolish_val_5k", "architect.demolish.value", 5000, () -> getConfig().challengePlace1kReward);
+    registerMilestone("challenge_demolish_val_50k", "architect.demolish.value", 50000, () -> getConfig().challengePlace1kReward * 2);
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.SCAFFOLDING).key("challenge_high_build_100")
@@ -153,8 +150,8 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_high_build_100", "architect.builds.high", 100, getConfig().challengePlace1kReward);
-    registerMilestone("challenge_high_build_1k", "architect.builds.high", 1000, getConfig().challengePlace1kReward * 2);
+    registerMilestone("challenge_high_build_100", "architect.builds.high", 100, () -> getConfig().challengePlace1kReward);
+    registerMilestone("challenge_high_build_1k", "architect.builds.high", 1000, () -> getConfig().challengePlace1kReward * 2);
 
     setIcon(Material.SMITHING_TABLE);
     registerAdaptation(new ArchitectGlass());
@@ -171,7 +168,7 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
     registerAdaptation(new ArchitectStonecutterSavant());
   }
 
-  @EventHandler(priority = EventPriority.MONITOR)
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(BlockPlaceEvent e) {
     Player p = e.getPlayer();
     shouldReturnForPlayer(p, e, () -> {
@@ -206,7 +203,7 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
     });
   }
 
-  @EventHandler(priority = EventPriority.MONITOR)
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(BlockBreakEvent e) {
     Player p = e.getPlayer();
     shouldReturnForPlayer(p, e, () -> {
@@ -214,11 +211,6 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
       adaptPlayer.getData().addStat("blocks.broken", 1);
       adaptPlayer.getData().addStat("architect.demolish.value", getValue(e.getBlock()));
     });
-  }
-
-  @Override
-  public void onTick() {
-    checkStatTrackersForOnlinePlayers();
   }
 
   private void handleBlockCooldown(Player p, Runnable action) {

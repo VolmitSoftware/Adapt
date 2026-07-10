@@ -123,9 +123,6 @@ public class PickaxeStoneSkin extends SimpleAdaptation<PickaxeStoneSkin.Config> 
     p.addPotionEffect(new PotionEffect(PotionEffectTypes.DAMAGE_RESISTANCE, getConfig().effectDurationTicks, tier - 1, false, false, true));
   }
 
-  @Override
-  public void onTick() {
-  }
 
   private record StackState(int stacks, long expiresAt) {
   }

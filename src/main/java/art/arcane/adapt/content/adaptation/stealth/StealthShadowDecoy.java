@@ -26,13 +26,21 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.entity.StackExclusion;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import org.bukkit.*;
-import org.bukkit.entity.*;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
+import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Mob;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -46,19 +54,17 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
-import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Config> {
   private static final PacketDecoyBridge PACKET_DECOY = PacketDecoyBridge.create();
 
   private final Cooldowns decoyCooldowns = cooldowns();
-  private final Map<UUID, DecoyState> activeDecoys = new java.util.concurrent.ConcurrentHashMap<>();
-  private final Map<UUID, UUID> anchorOwners = new java.util.concurrent.ConcurrentHashMap<>();
-  private final Map<UUID, Long> ownerEquipmentMaskSync = new java.util.concurrent.ConcurrentHashMap<>();
-  private final Map<UUID, Long> ownerTrailNextAt = new java.util.concurrent.ConcurrentHashMap<>();
-  private final Map<UUID, Long> ownerAggroNextAt = new java.util.concurrent.ConcurrentHashMap<>();
+  private final Map<UUID, DecoySession> activeDecoys = new ConcurrentHashMap<>();
+  private final Map<UUID, UUID> anchorOwners = new ConcurrentHashMap<>();
 
   public StealthShadowDecoy() {
     super("stealth-shadow-decoy");
@@ -92,12 +98,9 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
   public void on(PlayerQuitEvent e) {
     UUID id = e.getPlayer().getUniqueId();
     decoyCooldowns.clear(id);
-    ownerEquipmentMaskSync.remove(id);
-    ownerTrailNextAt.remove(id);
-    ownerAggroNextAt.remove(id);
-    DecoyState state = activeDecoys.remove(id);
+    DecoySession state = activeDecoys.get(id);
     if (state != null) {
-      removeDecoy(state, null);
+      terminateDecoy(state, false);
     }
   }
 
@@ -116,7 +119,7 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
     }
 
     e.setCancelled(true);
-    DecoyState state = activeDecoys.get(ownerId);
+    DecoySession state = activeDecoys.get(ownerId);
     if (state == null) {
       return;
     }
@@ -125,7 +128,7 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
       return;
     }
 
-    reactToDecoyHit(state, stand, attacker);
+    reactToDecoyHit(state, stand, attacker.getLocation());
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -151,22 +154,26 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
       return;
     }
 
-    DecoyState state = activeDecoys.get(ownerId);
+    DecoySession state = activeDecoys.get(ownerId);
     if (state == null) {
       return;
     }
 
-    reactToDecoyHit(state, stand, attacker);
+    Location source = attacker.getLocation().clone();
+    J.runEntity(stand, () -> reactToDecoyHit(state, stand, source));
   }
 
-  private void reactToDecoyHit(DecoyState state, ArmorStand stand, LivingEntity attacker) {
-    if (state.packetDecoy() != null) {
-      state.packetDecoy().hitFrom(attacker.getLocation());
+  private void reactToDecoyHit(DecoySession state, ArmorStand stand, Location source) {
+    if (!state.active.get()) {
+      return;
+    }
+    if (state.packetDecoy != null) {
+      state.packetDecoy.hitFrom(source);
     }
 
-    Vector push = stand.getLocation().toVector().subtract(attacker.getLocation().toVector());
+    Vector push = stand.getLocation().toVector().subtract(source.toVector());
     if (push.lengthSquared() < 0.0001) {
-      push = attacker.getLocation().getDirection().multiply(-1);
+      push = source.getDirection().multiply(-1);
     }
 
     push.setY(0);
@@ -203,9 +210,9 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
   }
 
   private void spawnDecoy(Player owner, int level) {
-    DecoyState previous = activeDecoys.remove(owner.getUniqueId());
+    DecoySession previous = activeDecoys.get(owner.getUniqueId());
     if (previous != null) {
-      removeDecoy(previous, owner);
+      terminateDecoy(previous, false);
     }
 
     ArmorStand anchor = spawnAnchor(owner.getLocation());
@@ -218,11 +225,10 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
 
     long expiresAt = System.currentTimeMillis() + (getDecoyTicks(level) * 50L);
     UUID ownerId = owner.getUniqueId();
-    activeDecoys.put(ownerId, new DecoyState(ownerId, anchor.getUniqueId(), packetDecoy, expiresAt, level));
-    ownerTrailNextAt.put(ownerId, 0L);
-    ownerAggroNextAt.put(ownerId, 0L);
+    DecoySession state = new DecoySession(owner, anchor, packetDecoy, expiresAt, level);
+    activeDecoys.put(ownerId, state);
 
-    redirectAggro(owner, anchor, level);
+    refreshOwner(state);
     fx(owner.getLocation().add(0, 1.0D, 0), FxPriority.TRANSITION)
         .burst(Particle.REVERSE_PORTAL, 12, 0.3D)
         .chord(Sound.ENTITY_ENDERMAN_TELEPORT, 0.6F, 1.7F, Sound.ENTITY_ILLUSIONER_MIRROR_MOVE, 0.5F, 1.0F);
@@ -273,82 +279,107 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
     equipment.setItemInOffHand(owner.getInventory().getItemInOffHand());
   }
 
-  private void redirectAggro(Player owner, LivingEntity target, int level) {
-    double radius = getDecoyRadius(level);
-    Location center = target.getLocation();
-    for (Entity entity : owner.getWorld().getNearbyEntities(center, radius, radius, radius)) {
+  private void redirectAggro(DecoySession state) {
+    if (!state.active.get()) {
+      return;
+    }
+
+    Player owner = state.owner;
+    ArmorStand target = state.anchor;
+    double radius = getDecoyRadius(state.level);
+    Location decoyLocation = target.getLocation().clone();
+    int remaining = Math.max(1, getConfig().maxAggroEntitiesPerScan);
+    for (Entity entity : target.getNearbyEntities(radius, radius, radius)) {
       if (!(entity instanceof Mob mob)) {
         continue;
       }
 
-      if (isProtectedFriendly(owner, mob)) {
-        continue;
-      }
-
-      if (mob.getTarget() == owner || mob.hasLineOfSight(owner)) {
-        boolean newlyDistracted = mob.getTarget() != target;
-        mob.setTarget(target);
-        addStat(owner, "stealth.shadow-decoy.mobs-distracted", 1);
-        if (newlyDistracted) {
-          Location decoyLoc = target.getLocation();
-          fx(mob.getEyeLocation(), FxPriority.TRAIL)
-              .line(Particles.SMOKE, decoyLoc.getX(), decoyLoc.getY() + 1.0D, decoyLoc.getZ(), 4);
+      J.runEntity(mob, () -> {
+        if (!state.active.get() || isProtectedFriendly(owner, mob)) {
+          return;
         }
+
+        if (mob.getTarget() == owner || mob.hasLineOfSight(owner)) {
+          boolean newlyDistracted = mob.getTarget() != target;
+          mob.setTarget(target);
+          if (newlyDistracted) {
+            J.runEntity(owner, () -> addStat(owner, "stealth.shadow-decoy.mobs-distracted", 1));
+            fx(mob.getEyeLocation(), FxPriority.TRAIL)
+                .line(Particles.SMOKE, decoyLocation.getX(), decoyLocation.getY() + 1.0D, decoyLocation.getZ(), 4);
+          }
+        }
+      });
+      remaining--;
+      if (remaining <= 0) {
+        return;
       }
     }
   }
 
-  @Override
-  public void onTick() {
+  private void refreshOwner(DecoySession state) {
+    Player owner = state.owner;
     long now = System.currentTimeMillis();
-    Iterator<Map.Entry<UUID, DecoyState>> it = activeDecoys.entrySet().iterator();
-    while (it.hasNext()) {
-      Map.Entry<UUID, DecoyState> entry = it.next();
-      UUID ownerId = entry.getKey();
-      DecoyState state = entry.getValue();
-      Player owner = Bukkit.getPlayer(ownerId);
+    if (!state.active.get()
+        || activeDecoys.get(owner.getUniqueId()) != state
+        || !owner.isOnline()
+        || state.expiresAt <= now) {
+      terminateDecoy(state, true);
+      return;
+    }
 
-      if (owner == null || !owner.isOnline() || state.expiresAt() <= now) {
-        removeDecoy(state, owner);
-        it.remove();
-        continue;
-      }
+    applyOwnerInvisibility(state);
+    syncOwnerEquipmentHidden(state, now);
+    if (now >= state.ownerTrailNextAt) {
+      spawnOwnerTrail(owner);
+      state.ownerTrailNextAt = now + Math.max(25L, getConfig().ownerTrailIntervalMillis);
+    }
 
-      Entity entity = Bukkit.getEntity(state.anchorId());
-      if (!(entity instanceof ArmorStand anchor) || !anchor.isValid()) {
-        removeDecoy(state, owner);
-        it.remove();
-        continue;
-      }
-
-      PacketPlayerDecoy packetDecoy = state.packetDecoy();
-      if (packetDecoy != null) {
-        packetDecoy.tick();
-        packetDecoy.syncToAnchor(anchor.getLocation(), anchor.isOnGround());
-        packetDecoy.lookAtViewers(anchor.getLocation().add(0, getConfig().decoyEyeHeight, 0));
-      }
-
-      applyOwnerInvisibility(owner);
-      syncOwnerEquipmentHidden(owner);
-      if (now >= ownerTrailNextAt.getOrDefault(ownerId, 0L)) {
-        spawnOwnerTrail(owner);
-        ownerTrailNextAt.put(ownerId, now + Math.max(25L, getConfig().ownerTrailIntervalMillis));
-      }
-      if (now >= ownerAggroNextAt.getOrDefault(ownerId, 0L)) {
-        redirectAggro(owner, anchor, state.level());
-        ownerAggroNextAt.put(ownerId, now + Math.max(25L, getConfig().aggroRedirectIntervalMillis));
-      }
+    if (!J.runEntity(state.anchor, () -> refreshAnchor(state, now))) {
+      terminateDecoy(state, true);
+      return;
+    }
+    if (!J.runEntity(owner, () -> refreshOwner(state), 1)) {
+      terminateDecoy(state, false);
     }
   }
 
-  private void applyOwnerInvisibility(Player owner) {
+  private void refreshAnchor(DecoySession state, long now) {
+    ArmorStand anchor = state.anchor;
+    if (!state.active.get() || !anchor.isValid()) {
+      terminateDecoy(state, true);
+      return;
+    }
+
+    PacketPlayerDecoy packetDecoy = state.packetDecoy;
+    if (packetDecoy != null) {
+      packetDecoy.refresh(
+          anchor.getLocation(),
+          anchor.isOnGround(),
+          anchor.getTrackedPlayers(),
+          Math.max(1, getConfig().maxPacketViewers),
+          Math.max(1, getConfig().maxViewerAddsPerRefresh),
+          Math.max(1, getConfig().maxViewerLookUpdatesPerRefresh),
+          getConfig().decoyEyeHeight
+      );
+    }
+
+    if (now >= state.ownerAggroNextAt) {
+      redirectAggro(state);
+      state.ownerAggroNextAt = now + Math.max(25L, getConfig().aggroRedirectIntervalMillis);
+    }
+  }
+
+  private void applyOwnerInvisibility(DecoySession state) {
+    Player owner = state.owner;
     int duration = Math.max(20, getConfig().ownerInvisibilityRefreshTicks);
     PotionEffect current = owner.getPotionEffect(PotionEffectType.INVISIBILITY);
     if (current != null && current.getDuration() > duration + 5) {
+      state.ownerInvisibilityApplied = false;
       return;
     }
 
     owner.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, duration, getConfig().ownerInvisibilityAmplifier, false, false, false), true);
+    state.ownerInvisibilityApplied = true;
   }
 
   private void spawnOwnerTrail(Player owner) {
@@ -361,53 +392,73 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
             Math.max(0, getConfig().ownerTrailSpeed));
   }
 
-  private void syncOwnerEquipmentHidden(Player owner) {
-    long now = System.currentTimeMillis();
-    long nextAt = ownerEquipmentMaskSync.getOrDefault(owner.getUniqueId(), 0L);
-    if (now < nextAt) {
+  private void syncOwnerEquipmentHidden(DecoySession state, long now) {
+    if (now < state.ownerEquipmentNextAt) {
       return;
     }
 
-    PACKET_DECOY.sendOwnerEquipment(owner, true);
-    ownerEquipmentMaskSync.put(owner.getUniqueId(), now + Math.max(100L, getConfig().ownerEquipmentHideResendMillis));
+    PACKET_DECOY.sendOwnerEquipment(state.owner, true, Math.max(1, getConfig().maxPacketViewers));
+    state.ownerEquipmentNextAt = now + Math.max(100L, getConfig().ownerEquipmentHideResendMillis);
   }
 
-  private void restoreOwnerEquipment(Player owner) {
-    if (owner == null || !owner.isOnline()) {
+  private void restoreOwnerState(DecoySession state, boolean feedback) {
+    Player owner = state.owner;
+    if (!owner.isOnline()) {
       return;
     }
 
-    ownerEquipmentMaskSync.remove(owner.getUniqueId());
-    PACKET_DECOY.sendOwnerEquipment(owner, false);
-  }
-
-  private void removeDecoy(DecoyState state, Player owner) {
-    if (state.packetDecoy() != null) {
-      state.packetDecoy().destroy();
+    if (state.ownerInvisibilityApplied) {
+      PotionEffect current = owner.getPotionEffect(PotionEffectType.INVISIBILITY);
+      int duration = Math.max(20, getConfig().ownerInvisibilityRefreshTicks);
+      if (current != null
+          && current.getAmplifier() == getConfig().ownerInvisibilityAmplifier
+          && current.getDuration() <= duration + 5) {
+        owner.removePotionEffect(PotionEffectType.INVISIBILITY);
+      }
     }
-
-    Entity entity = Bukkit.getEntity(state.anchorId());
-    Location decoyLoc = entity == null ? null : entity.getLocation();
-    anchorOwners.remove(state.anchorId());
-    ownerTrailNextAt.remove(state.ownerId());
-    ownerAggroNextAt.remove(state.ownerId());
-    if (entity instanceof ArmorStand stand && stand.isValid()) {
-      stand.remove();
-    }
-
-    if (decoyLoc != null) {
-      fx(decoyLoc.add(0, 1.0D, 0), FxPriority.TRANSITION)
-          .burst(Particles.SMOKE, 10, 0.3D)
-          .sound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.4F, 0.8F);
-    }
-
-    if (owner != null && owner.isOnline()) {
+    state.ownerInvisibilityApplied = false;
+    PACKET_DECOY.sendOwnerEquipment(owner, false, Math.max(1, getConfig().maxPacketViewers));
+    if (feedback) {
       fx(owner.getLocation().add(0, 1.0D, 0), FxPriority.TRANSITION)
           .ring(Particles.END_ROD, 0.6D, 6, 1.0D)
           .sound(Sound.ITEM_ARMOR_EQUIP_LEATHER, 0.3F, 1.0F);
     }
+  }
 
-    restoreOwnerEquipment(owner);
+  private void terminateDecoy(DecoySession state, boolean feedback) {
+    if (!state.active.compareAndSet(true, false)) {
+      return;
+    }
+
+    activeDecoys.remove(state.owner.getUniqueId(), state);
+    anchorOwners.remove(state.anchor.getUniqueId(), state.owner.getUniqueId());
+    if (state.packetDecoy != null) {
+      state.packetDecoy.destroy();
+    }
+
+    J.runEntity(state.owner, () -> restoreOwnerState(state, feedback));
+    J.runEntity(state.anchor, () -> {
+      Location decoyLocation = state.anchor.getLocation();
+      if (state.anchor.isValid()) {
+        state.anchor.remove();
+      }
+
+      if (feedback) {
+        fx(decoyLocation.add(0, 1.0D, 0), FxPriority.TRANSITION)
+            .burst(Particles.SMOKE, 10, 0.3D)
+            .sound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.4F, 0.8F);
+      }
+    });
+  }
+
+  @Override
+  public void unregister() {
+    super.unregister();
+    for (DecoySession state : activeDecoys.values()) {
+      terminateDecoy(state, false);
+    }
+    activeDecoys.clear();
+    anchorOwners.clear();
   }
 
   private long getCooldownMillis(int level) {
@@ -462,6 +513,14 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
     long ownerEquipmentHideResendMillis = 250;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Milliseconds between aggro redirect scans while a decoy is active.", impact = "Lower values pull mobs more aggressively; higher values reduce nearby-entity scan cost.")
     long aggroRedirectIntervalMillis = 150;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum mobs dispatched by each decoy aggro scan.", impact = "Caps scheduler pressure in dense farms while preserving frequent nearby redirects.")
+    int maxAggroEntitiesPerScan = 32;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum players sent fake-decoy and equipment packets for one decoy.", impact = "Bounds packet fanout in very dense hubs; tracked viewers beyond the cap rely on the armor-stand fallback state.")
+    int maxPacketViewers = 64;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum newly tracked viewers initialized during each decoy refresh.", impact = "Spreads join and tracking bursts across ticks instead of producing one large packet spike.")
+    int maxViewerAddsPerRefresh = 8;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum viewer-facing rotations sent during each decoy refresh.", impact = "Bounds look packet work while keeping the fake player responsive to nearby viewers.")
+    int maxViewerLookUpdatesPerRefresh = 16;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Horizontal knockback applied when the decoy is hit.", impact = "Higher values make the decoy react more dramatically when struck.")
     double decoyHitKnockback = 0.28;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Vertical lift applied when the decoy is hit.", impact = "Higher values make impacts pop the decoy upward more.")
@@ -476,6 +535,27 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
     public Config() {
       costFactor = 0.72;
       initialCost = 4;
+    }
+  }
+
+  private static class DecoySession {
+    private final Player owner;
+    private final ArmorStand anchor;
+    private final PacketPlayerDecoy packetDecoy;
+    private final long expiresAt;
+    private final int level;
+    private final AtomicBoolean active = new AtomicBoolean(true);
+    private long ownerEquipmentNextAt;
+    private long ownerTrailNextAt;
+    private long ownerAggroNextAt;
+    private boolean ownerInvisibilityApplied;
+
+    private DecoySession(Player owner, ArmorStand anchor, PacketPlayerDecoy packetDecoy, long expiresAt, int level) {
+      this.owner = owner;
+      this.anchor = anchor;
+      this.packetDecoy = packetDecoy;
+      this.expiresAt = expiresAt;
+      this.level = level;
     }
   }
 

@@ -133,10 +133,6 @@ public class HunterLuck extends SimpleAdaptation<HunterLuck.Config> {
     FxPresets.failFizzle(this, p);
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Gain luck when struck, at the cost of hunger.")
   protected static class Config extends AdaptationConfig {

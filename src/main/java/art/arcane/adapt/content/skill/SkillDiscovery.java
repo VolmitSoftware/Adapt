@@ -19,6 +19,7 @@
 package art.arcane.adapt.content.skill;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
@@ -26,7 +27,14 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.Discovery;
-import art.arcane.adapt.content.adaptation.discovery.*;
+import art.arcane.adapt.content.adaptation.discovery.DiscoveryArchaeologist;
+import art.arcane.adapt.content.adaptation.discovery.DiscoveryArmor;
+import art.arcane.adapt.content.adaptation.discovery.DiscoveryBetterMending;
+import art.arcane.adapt.content.adaptation.discovery.DiscoveryCartographerPulse;
+import art.arcane.adapt.content.adaptation.discovery.DiscoveryInsight;
+import art.arcane.adapt.content.adaptation.discovery.DiscoveryUnity;
+import art.arcane.adapt.content.adaptation.discovery.DiscoveryVillagerAtt;
+import art.arcane.adapt.content.adaptation.discovery.DiscoveryXpResist;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
@@ -34,7 +42,12 @@ import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import lombok.NoArgsConstructor;
-import org.bukkit.*;
+import org.bukkit.FluidCollisionMode;
+import org.bukkit.Keyed;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
@@ -47,20 +60,34 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
-import org.bukkit.event.player.*;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
+import org.bukkit.event.player.PlayerExpChangeEvent;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 
 public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
+  private static final double DISCOVERY_RARE_VALUE = 24.0D;
+  private static final long TARGET_CHECK_INTERVAL_MILLIS = 500L;
+
+  private final Cooldowns targetCheckThrottle = cooldowns();
+  private final Map<UUID, TargetObservation> lastTargetObservations = playerState();
+  private int targetCursor;
+
   public SkillDiscovery() {
     super("discovery", Localizer.dLocalize("skill.discovery.icon"));
     registerConfiguration(Config.class);
     setColor(C.AQUA);
     setDescription(Localizer.dLocalize("skill.discovery.description"));
     setDisplayName(Localizer.dLocalize("skill.discovery.name"));
-    setInterval(500);
+    setInterval(50);
     setIcon(Material.FILLED_MAP);
     registerAdaptation(new DiscoveryUnity());
     registerAdaptation(new DiscoveryArmor());
@@ -227,8 +254,6 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     seeItem(p, bd.getMaterial());
   }
 
-  private static final double DISCOVERY_RARE_VALUE = 24.0D;
-
   private void celebrateDiscovery(Location loc, double value) {
     if (value >= DISCOVERY_RARE_VALUE) {
       timeline(loc)
@@ -352,37 +377,90 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
 
   @Override
   public void onTick() {
-    if (!this.isEnabled()) return;
-    for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
-      Player i = adaptPlayer.getPlayer();
-      shouldReturnForPlayer(i, () -> {
-        checkStatTrackers(adaptPlayer);
-        seeTargetBlock(i);
-      });
+    if (!isEnabled()) {
+      return;
     }
+
+    List<AdaptPlayer> online = getServer().getOnlineAdaptPlayerSnapshot();
+    int size = online.size();
+    int limit = targetCheckBatchSize(size, getConfig().maxTargetChecksPerPass);
+    if (limit == 0) {
+      targetCursor = 0;
+      return;
+    }
+
+    int start = Math.floorMod(targetCursor, size);
+    for (int offset = 0; offset < limit; offset++) {
+      queueTargetCheck(online.get((start + offset) % size));
+    }
+    targetCursor = (start + limit) % size;
   }
 
-  private void seeTargetBlock(Player i) {
+  static int targetCheckBatchSize(int playerCount, int configuredLimit) {
+    if (playerCount <= 0) {
+      return 0;
+    }
+    return Math.max(1, Math.min(playerCount, configuredLimit));
+  }
+
+  private void queueTargetCheck(AdaptPlayer adaptPlayer) {
+    Player player = adaptPlayer.getPlayer();
+    if (player == null || !player.isOnline()) {
+      return;
+    }
+
+    UUID playerId = player.getUniqueId();
+    if (!targetCheckThrottle.isReady(playerId, TARGET_CHECK_INTERVAL_MILLIS)) {
+      return;
+    }
+
+    targetCheckThrottle.mark(playerId);
+    shouldReturnForPlayer(player, () -> seeTargetBlock(player));
+  }
+
+  private void seeTargetBlock(Player player) {
     try {
-      Block b = i.getTargetBlockExact(5, FluidCollisionMode.NEVER);
-      if (b != null) {
-        seeBlock(i, b.getBlockData(), b.getLocation());
-        if (seeBiome(i, b.getBiome())) {
-          timeline(i.getLocation())
-              .duration(24)
-              .priority(FxPriority.TRANSITION)
-              .cullRadius(24)
-              .frame((f, tick, progress) -> {
-                f.dustRing(0.5D + (progress * 3.5D), 12, 1.0F);
-                if (tick == 0) {
-                  f.chord(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.4F, 1.2F, Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.3F, 1.4F);
-                }
-              })
-              .start();
-        }
+      Block block = player.getTargetBlockExact(5, FluidCollisionMode.NEVER);
+      UUID playerId = player.getUniqueId();
+      if (block == null) {
+        lastTargetObservations.remove(playerId);
+        return;
+      }
+
+      BlockData blockData = block.getBlockData();
+      Biome biome = block.getBiome();
+      UUID worldId = block.getWorld().getUID();
+      TargetObservation previous = lastTargetObservations.get(playerId);
+      if (previous != null && previous.matches(worldId, block.getX(), block.getY(), block.getZ(), blockData, biome)) {
+        return;
+      }
+
+      TargetObservation observation = new TargetObservation(
+          worldId,
+          block.getX(),
+          block.getY(),
+          block.getZ(),
+          blockData,
+          biome
+      );
+      seeBlock(player, blockData, block.getLocation());
+      boolean discoveredBiome = seeBiome(player, biome);
+      lastTargetObservations.put(playerId, observation);
+      if (discoveredBiome) {
+        timeline(player.getLocation())
+            .duration(24)
+            .priority(FxPriority.TRANSITION)
+            .cullRadius(24)
+            .frame((f, tick, progress) -> {
+              f.dustRing(0.5D + (progress * 3.5D), 12, 1.0F);
+              if (tick == 0) {
+                f.chord(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.4F, 1.2F, Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.3F, 1.4F);
+              }
+            })
+            .start();
       }
     } catch (Throwable ex) {
-      Adapt.verbose("Failed to get target block for " + i.getName() + ": "
+      Adapt.verbose("Failed to get target block for " + player.getName() + ": "
           + ex.getClass().getSimpleName()
           + (ex.getMessage() == null ? "" : " - " + ex.getMessage()));
     }
@@ -430,5 +508,18 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     double discoverBlockBaseXP = 3;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Discover Block Value XPMultiplier for the Discovery skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double discoverBlockValueXPMultiplier = 0.333;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum target-block checks per scheduler pass.", impact = "Higher values refresh very large servers faster but increase per-tick ray tracing.")
+    int maxTargetChecksPerPass = 64;
+  }
+
+  private record TargetObservation(UUID worldId, int x, int y, int z, BlockData blockData, Biome biome) {
+    private boolean matches(UUID worldId, int x, int y, int z, BlockData blockData, Biome biome) {
+      return this.x == x
+          && this.y == y
+          && this.z == z
+          && this.worldId.equals(worldId)
+          && this.blockData.equals(blockData)
+          && Objects.equals(this.biome, biome);
+    }
   }
 }

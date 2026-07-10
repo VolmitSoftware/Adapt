@@ -146,9 +146,6 @@ public class PickaxeGemPolish extends SimpleAdaptation<PickaxeGemPolish.Config> 
     };
   }
 
-  @Override
-  public void onTick() {
-  }
 
   @ConfigDescription("Mining gem ores grants bonus XP orbs and a chance for an extra matching gem.")
   protected static class Config extends AdaptationConfig {

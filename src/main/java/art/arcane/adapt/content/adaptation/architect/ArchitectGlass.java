@@ -88,9 +88,6 @@ public class ArchitectGlass extends SimpleAdaptation<ArchitectGlass.Config> {
   }
 
 
-  @Override
-  public void onTick() {
-  }
 
   @ConfigDescription("Silk-touch glass blocks when breaking them with an empty hand.")
   protected static class Config extends AdaptationConfig {

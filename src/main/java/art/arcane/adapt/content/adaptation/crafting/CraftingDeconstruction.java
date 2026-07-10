@@ -216,10 +216,6 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
   }
 
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Deconstruct blocks and items into salvageable base components using shears.")
   protected static class Config extends AdaptationConfig {

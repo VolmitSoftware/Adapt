@@ -22,9 +22,22 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.skill.SkillOwnerPulse;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.content.adaptation.chronos.*;
+import art.arcane.adapt.content.adaptation.chronos.ChronosAberrantTouch;
+import art.arcane.adapt.content.adaptation.chronos.ChronosAccelerate;
+import art.arcane.adapt.content.adaptation.chronos.ChronosBorrowedTime;
+import art.arcane.adapt.content.adaptation.chronos.ChronosDejaVu;
+import art.arcane.adapt.content.adaptation.chronos.ChronosHourglassGuard;
+import art.arcane.adapt.content.adaptation.chronos.ChronosInstantRecall;
+import art.arcane.adapt.content.adaptation.chronos.ChronosOvertime;
+import art.arcane.adapt.content.adaptation.chronos.ChronosPocketWatch;
+import art.arcane.adapt.content.adaptation.chronos.ChronosRewind;
+import art.arcane.adapt.content.adaptation.chronos.ChronosStasisField;
+import art.arcane.adapt.content.adaptation.chronos.ChronosTemporalEcho;
+import art.arcane.adapt.content.adaptation.chronos.ChronosTimeBomb;
+import art.arcane.adapt.content.adaptation.chronos.ChronosTimeInABottle;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
@@ -50,7 +63,11 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
@@ -60,18 +77,17 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
   private final Map<UUID, Long> actionTypeResetTimestamps = playerState();
   private final Map<UUID, Long> lastActivityTimestamps = playerState();
   private final Map<UUID, Long> sleepCooldowns = playerState();
-  private final Map<UUID, Long> sleepEntryWorldTime = playerState();
   private final Map<UUID, SpeedPotionTracker> speedPotionTrackers = playerState();
   private final Map<UUID, Long> enderPearlCooldowns = playerState();
   private final Map<UUID, Long> survivalStreakStart = playerState();
   private final Map<UUID, Long> lastSurvivalCheck = playerState();
   private final Map<UUID, Integer> survivalStreakHour = playerState();
+  private final SkillOwnerPulse.Registration ownerPulse;
 
   public SkillChronos() {
     super("chronos", Localizer.dLocalize("skill.chronos.icon"));
     registerConfiguration(Config.class);
     setColor(C.AQUA);
-    setInterval(600000);
     setDescription(Localizer.dLocalize("skill.chronos.description"));
     setDisplayName(Localizer.dLocalize("skill.chronos.name"));
     setInterval(getConfig().setInterval);
@@ -101,18 +117,10 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
             .model(CustomModel.get(Material.COMPASS, "advancement", "chronos", "challenge_chronos_24h"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
-            .child(AdaptAdvancement.builder()
-                .icon(Material.RECOVERY_COMPASS)
-                .key("challenge_chronos_168h")
-                .model(CustomModel.get(Material.RECOVERY_COMPASS, "advancement", "chronos", "challenge_chronos_168h"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .build())
             .build())
         .build());
-    registerMilestone("challenge_chronos_1h", "minutes.online", 60, getConfig().challengeChronosReward);
-    registerMilestone("challenge_chronos_24h", "minutes.online", 1440, getConfig().challengeChronosReward * 2);
-    registerMilestone("challenge_chronos_168h", "minutes.online", 10080, getConfig().challengeChronosReward * 5);
+    registerMilestone("challenge_chronos_1h", "minutes.online", 60, () -> getConfig().challengeChronosReward);
+    registerMilestone("challenge_chronos_24h", "minutes.online", 1440, () -> getConfig().challengeChronosReward * 2);
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.COMPASS).key("challenge_active_dist_1k")
@@ -134,9 +142,9 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
                 .build())
             .build())
         .build());
-    registerMilestone("challenge_active_dist_1k", "chronos.active.distance", 1000, getConfig().challengeChronosReward);
-    registerMilestone("challenge_active_dist_10k", "chronos.active.distance", 10000, getConfig().challengeChronosReward * 2);
-    registerMilestone("challenge_active_dist_100k", "chronos.active.distance", 100000, getConfig().challengeChronosReward * 5);
+    registerMilestone("challenge_active_dist_1k", "chronos.active.distance", 1000, () -> getConfig().challengeChronosReward);
+    registerMilestone("challenge_active_dist_10k", "chronos.active.distance", 10000, () -> getConfig().challengeChronosReward * 2);
+    registerMilestone("challenge_active_dist_100k", "chronos.active.distance", 100000, () -> getConfig().challengeChronosReward * 5);
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.WHITE_BED).key("challenge_beds_10")
@@ -151,8 +159,8 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_beds_10", "chronos.beds.used", 10, getConfig().challengeChronosReward);
-    registerMilestone("challenge_beds_100", "chronos.beds.used", 100, getConfig().challengeChronosReward * 2);
+    registerMilestone("challenge_beds_10", "chronos.beds.used", 10, () -> getConfig().challengeChronosReward);
+    registerMilestone("challenge_beds_100", "chronos.beds.used", 100, () -> getConfig().challengeChronosReward * 2);
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.ENDER_PEARL).key("challenge_chronos_tp_50")
@@ -167,24 +175,9 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_chronos_tp_50", "chronos.teleports", 50, getConfig().challengeChronosReward);
-    registerMilestone("challenge_chronos_tp_500", "chronos.teleports", 500, getConfig().challengeChronosReward * 2);
-
-    registerAdvancement(AdaptAdvancement.builder()
-        .icon(Material.SKELETON_SKULL).key("challenge_chronos_deaths_10")
-        .model(CustomModel.get(Material.SKELETON_SKULL, "advancement", "chronos", "challenge_chronos_deaths_10"))
-        .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
-        .child(AdaptAdvancement.builder()
-            .icon(Material.WITHER_SKELETON_SKULL)
-            .key("challenge_chronos_deaths_100")
-            .model(CustomModel.get(Material.WITHER_SKELETON_SKULL, "advancement", "chronos", "challenge_chronos_deaths_100"))
-            .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
-            .build())
-        .build());
-    registerMilestone("challenge_chronos_deaths_10", "chronos.deaths", 10, getConfig().challengeChronosReward);
-    registerMilestone("challenge_chronos_deaths_100", "chronos.deaths", 100, getConfig().challengeChronosReward * 2);
+    registerMilestone("challenge_chronos_tp_50", "chronos.teleports", 50, () -> getConfig().challengeChronosReward);
+    registerMilestone("challenge_chronos_tp_500", "chronos.teleports", 500, () -> getConfig().challengeChronosReward * 2);
+    ownerPulse = SkillOwnerPulse.register(this, this::getInterval, this::pulseChronos);
   }
 
   private void trackAction(UUID uuid, String actionType) {
@@ -192,11 +185,16 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
     lastActivityTimestamps.put(uuid, now);
 
     Long resetTime = actionTypeResetTimestamps.get(uuid);
+    Set<String> actions = recentActionTypes.get(uuid);
     if (resetTime == null || now - resetTime > getConfig().activityWindow) {
-      recentActionTypes.put(uuid, ConcurrentHashMap.newKeySet());
+      actions = ConcurrentHashMap.newKeySet();
+      recentActionTypes.put(uuid, actions);
       actionTypeResetTimestamps.put(uuid, now);
+    } else if (actions == null) {
+      actions = ConcurrentHashMap.newKeySet();
+      recentActionTypes.put(uuid, actions);
     }
-    recentActionTypes.computeIfAbsent(uuid, k -> ConcurrentHashMap.newKeySet()).add(actionType);
+    actions.add(actionType);
   }
 
   private boolean isAfk(UUID uuid) {
@@ -237,88 +235,82 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
     return time >= 12542 && time <= 23460;
   }
 
-  @Override
-  public void onTick() {
-    if (!this.isEnabled()) {
+  private void pulseChronos(AdaptPlayer adaptPlayer, Player player, long elapsedMillis, long cadenceMillis) {
+    shouldReturnForPlayer(player, () -> processChronosPulse(adaptPlayer, player, elapsedMillis, cadenceMillis));
+  }
+
+  private void processChronosPulse(AdaptPlayer adaptPlayer, Player player, long elapsedMillis, long cadenceMillis) {
+    long now = System.currentTimeMillis();
+    UUID playerId = player.getUniqueId();
+    Location current = player.getLocation();
+    Location last = lastPositions.get(playerId);
+    Deque<Location> history = positionHistory.computeIfAbsent(playerId, ignored -> new ArrayDeque<>());
+    history.addLast(current);
+    int historySize = Math.max(1, getConfig().positionHistorySize);
+    while (history.size() > historySize) {
+      history.removeFirst();
+    }
+
+    double moved = last != null && last.getWorld() != null && last.getWorld().equals(current.getWorld())
+        ? last.distance(current)
+        : 0D;
+    if (moved >= getConfig().minimumMovementForActiveCheck) {
+      trackAction(playerId, "movement");
+    }
+
+    double afkMultiplier = getAfkMultiplier(playerId);
+    double cadenceScale = (double) elapsedMillis / cadenceMillis;
+    if (moved >= getConfig().minimumMovementForActiveCheck) {
+      adaptPlayer.getData().addStat("minutes.online", elapsedMillis / 60000D);
+      adaptPlayer.getData().addStat("chronos.active.distance", moved);
+      double movementXp = (moved / getConfig().distancePerBonusXP) * getConfig().activeMovementXP;
+      double movementCap = getConfig().activeMovementXPCapPerTick * cadenceScale;
+      xpSilent(player, Math.min(movementCap, movementXp) * afkMultiplier, "chronos:movement");
+    }
+
+    awardPassiveXp(player, playerId, now, cadenceScale, afkMultiplier);
+    awardSurvivalXp(player, playerId, now, afkMultiplier);
+    lastPositions.put(playerId, current);
+  }
+
+  private void awardPassiveXp(Player player, UUID playerId, long now, double cadenceScale, double afkMultiplier) {
+    Long lastActivity = lastActivityTimestamps.get(playerId);
+    if (lastActivity == null || now - lastActivity >= getConfig().activityWindow) {
       return;
     }
-    long now = System.currentTimeMillis();
 
-    for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
-      Player p = adaptPlayer.getPlayer();
-      shouldReturnForPlayer(p, () -> {
-        UUID uuid = p.getUniqueId();
-        Location current = p.getLocation();
-        Location last = lastPositions.get(uuid);
+    double passiveXp = getConfig().passiveActiveXP;
+    if (isNight(player)) {
+      passiveXp *= getConfig().nightActivityMultiplier;
+    }
+    Set<String> actions = recentActionTypes.getOrDefault(playerId, Set.of());
+    if (actions.size() >= getConfig().activityTypesForBonus) {
+      passiveXp *= getConfig().activityBonusMultiplier;
+    }
+    xpSilent(player, passiveXp * cadenceScale * afkMultiplier, "chronos:passive");
+  }
 
-        // Update position history
-        Deque<Location> history = positionHistory.computeIfAbsent(uuid, k -> new ArrayDeque<>());
-        history.addLast(current.clone());
-        while (history.size() > getConfig().positionHistorySize) {
-          history.removeFirst();
-        }
+  private void awardSurvivalXp(Player player, UUID playerId, long now, double afkMultiplier) {
+    survivalStreakStart.putIfAbsent(playerId, now);
+    Long lastCheck = lastSurvivalCheck.get(playerId);
+    if (lastCheck != null && now - lastCheck < 60000L) {
+      return;
+    }
 
-        double moved = (last != null && last.getWorld() != null && last.getWorld().equals(current.getWorld()))
-            ? last.distance(current)
-            : 0;
+    lastSurvivalCheck.put(playerId, now);
+    long aliveMillis = now - survivalStreakStart.getOrDefault(playerId, now);
+    double aliveHours = aliveMillis / 3600000D;
+    double streakBonus = 1D + Math.min(
+        aliveHours * getConfig().survivalStreakBonusPerHour,
+        getConfig().survivalStreakHourCap * getConfig().survivalStreakBonusPerHour
+    );
+    double elapsedMinutes = lastCheck == null ? 1D : (now - lastCheck) / 60000D;
+    xpSilent(player, getConfig().survivalXPPerMinute * elapsedMinutes * streakBonus * afkMultiplier, "chronos:survival");
 
-        // Track movement as an action type
-        if (moved >= getConfig().minimumMovementForActiveCheck) {
-          trackAction(uuid, "movement");
-        }
-
-        double afkMult = getAfkMultiplier(uuid);
-
-        // Movement XP (existing behavior, now with AFK penalty)
-        if (moved >= getConfig().minimumMovementForActiveCheck) {
-          adaptPlayer.getData().addStat("minutes.online", 10);
-          adaptPlayer.getData().addStat("chronos.active.distance", moved);
-          double bonus = (moved / getConfig().distancePerBonusXP) * getConfig().activeMovementXP;
-          xpSilent(p, Math.min(getConfig().activeMovementXPCapPerTick, bonus) * afkMult, "chronos:movement");
-        }
-
-        // Passive active-play XP
-        Long lastActivity = lastActivityTimestamps.get(uuid);
-        if (lastActivity != null && now - lastActivity < getConfig().activityWindow) {
-          double passiveXP = getConfig().passiveActiveXP;
-
-          // Night activity multiplier
-          if (isNight(p)) {
-            passiveXP *= getConfig().nightActivityMultiplier;
-          }
-
-          // Activity variety bonus
-          Set<String> actions = recentActionTypes.getOrDefault(uuid, Set.of());
-          if (actions.size() >= getConfig().activityTypesForBonus) {
-            passiveXP *= getConfig().activityBonusMultiplier;
-          }
-
-          xpSilent(p, passiveXP * afkMult, "chronos:passive");
-        }
-
-        // Survival streak XP
-        survivalStreakStart.putIfAbsent(uuid, now);
-        Long lastCheck = lastSurvivalCheck.get(uuid);
-        if (lastCheck == null || now - lastCheck >= 60000) {
-          lastSurvivalCheck.put(uuid, now);
-          long aliveMs = now - survivalStreakStart.getOrDefault(uuid, now);
-          double aliveHours = aliveMs / 3600000.0;
-          double streakBonus = 1.0 + Math.min(
-              aliveHours * getConfig().survivalStreakBonusPerHour,
-              getConfig().survivalStreakHourCap * getConfig().survivalStreakBonusPerHour
-          );
-          xpSilent(p, getConfig().survivalXPPerMinute * streakBonus * afkMult, "chronos:survival");
-
-          int wholeHours = (int) aliveHours;
-          if (wholeHours >= 1 && wholeHours > survivalStreakHour.getOrDefault(uuid, 0)) {
-            survivalStreakHour.put(uuid, wholeHours);
-            emitSurvivalMilestone(p);
-          }
-        }
-
-        checkStatTrackers(adaptPlayer);
-        lastPositions.put(uuid, current.clone());
-      });
+    int wholeHours = (int) aliveHours;
+    if (wholeHours >= 1 && wholeHours > survivalStreakHour.getOrDefault(playerId, 0)) {
+      survivalStreakHour.put(playerId, wholeHours);
+      emitSurvivalMilestone(player);
     }
   }
 
@@ -338,7 +330,6 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
 
       trackAction(uuid, "sleep");
       long worldTime = p.getWorld().getTime();
-      sleepEntryWorldTime.put(uuid, worldTime);
       sleepCooldowns.put(uuid, now);
       addStat(p, "chronos.beds.used", 1);
 
@@ -480,7 +471,6 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
     lastSurvivalCheck.remove(uuid);
     survivalStreakHour.remove(uuid);
     trackAction(uuid, "combat");
-    shouldReturnForPlayer(p, () -> addStat(p, "chronos.deaths", 1));
   }
 
   private void emitSurvivalMilestone(Player p) {
@@ -497,6 +487,23 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
     } else {
       pulse.run();
     }
+  }
+
+  @Override
+  public void unregister() {
+    ownerPulse.unregister();
+    lastPositions.clear();
+    positionHistory.clear();
+    recentActionTypes.clear();
+    actionTypeResetTimestamps.clear();
+    lastActivityTimestamps.clear();
+    sleepCooldowns.clear();
+    speedPotionTrackers.clear();
+    enderPearlCooldowns.clear();
+    survivalStreakStart.clear();
+    lastSurvivalCheck.clear();
+    survivalStreakHour.clear();
+    super.unregister();
   }
 
   @Override

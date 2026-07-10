@@ -183,10 +183,6 @@ public class ExcavationTreasureHunter extends SimpleAdaptation<ExcavationTreasur
     return Math.min(getConfig().maxTreasureChance, getConfig().treasureChanceBase + (getLevelPercent(level) * getConfig().treasureChanceFactor));
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   private record LootEntry(Material material, double weight, int min, int max) {
   }

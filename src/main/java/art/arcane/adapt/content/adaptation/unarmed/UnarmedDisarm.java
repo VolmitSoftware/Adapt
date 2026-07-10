@@ -18,14 +18,15 @@
 
 package art.arcane.adapt.content.adaptation.unarmed;
 
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
-import art.arcane.adapt.api.fx.FxEmitter;
-import art.arcane.adapt.api.fx.FxPriority;
-import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxEmitter;
+import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -79,9 +80,13 @@ public class UnarmedDisarm extends SimpleAdaptation<UnarmedDisarm.Config> {
     statLore(v, Form.pc(getConfig().mobArmorDropChance, 0), 3);
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST)
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(EntityDamageByEntityEvent e) {
-    art.arcane.adapt.api.adaptation.Adaptation.AttackContext attack = resolveAttackContext(e);
+    if (e.isCancelled()) {
+      return;
+    }
+
+    Adaptation.AttackContext attack = resolveAttackContext(e);
     if (attack == null) {
       return;
     }

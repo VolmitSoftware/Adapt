@@ -95,9 +95,6 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
 
   }
 
-  @Override
-  public void onTick() {
-  }
 
   @EventHandler(priority = EventPriority.HIGH)
   public void on(EntityDamageByEntityEvent e) {

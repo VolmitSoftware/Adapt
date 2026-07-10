@@ -27,24 +27,39 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.version.IAttribute;
 import art.arcane.adapt.api.version.Version;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.math.Sphere;
+import art.arcane.adapt.util.common.scheduling.J;
+import art.arcane.adapt.util.common.world.LoadedChunkAccess;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
+import art.arcane.volmlib.util.math.BlockPosition;
 import art.arcane.volmlib.util.math.M;
+import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
@@ -52,30 +67,29 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
   private static final UUID MODIFIER = UUID.nameUUIDFromBytes("adapt-discovery-armor".getBytes());
   private static final NamespacedKey MODIFIER_KEY = NamespacedKey.fromString("adapt:discovery-armor");
   private static final long UPDATE_COOLDOWN = TimeUnit.SECONDS.toMillis(3);
-  private static final Sphere SPHERE = new Sphere(5);
+  private static final List<BlockPosition> ARMOR_OFFSETS = createArmorOffsets();
 
+  private final double[] materialArmorPoints = createMaterialArmorPoints();
   private final Cooldowns updateThrottle = cooldowns();
+  private final Map<UUID, Boolean> appliedPlayers = new ConcurrentHashMap<>();
+  private final Map<UUID, Long> bonusStatAt = playerState();
+  private final AtomicBoolean lifecycleCleanupStarted = new AtomicBoolean();
+  private Iterator<UUID> cleanupCursor = Map.<UUID, Boolean>of().keySet().iterator();
+  private int playerCursor;
 
   public DiscoveryArmor() {
     super("discovery-world-armor");
     registerConfiguration(Config.class);
     setLocalizationKey("discovery.armor");
     setIcon(Material.TURTLE_HELMET);
-    setInterval(305);
+    setInterval(50);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.IRON_CHESTPLATE)
         .key("challenge_discovery_armor_1hr")
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
-        .child(AdaptAdvancement.builder()
-            .icon(Material.DIAMOND_CHESTPLATE)
-            .key("challenge_discovery_armor_24hr")
-            .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
-            .build())
         .build());
     registerMilestone("challenge_discovery_armor_1hr", "discovery.armor.ticks-with-bonus", 72000, 400);
-    registerMilestone("challenge_discovery_armor_24hr", "discovery.armor.ticks-with-bonus", 1728000, 2000);
   }
 
   @Override
@@ -85,94 +99,264 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
   }
 
   public double getArmorPoints(Material m) {
-    return Math.log(Math.min(2000, m.getBlastResistance() * m.getBlastResistance())) + Math.log((m.getHardness() < 0 ? 50 : Math.min(50, m.getHardness() + 25)) * 0.33);
+    return materialArmorPoints[m.ordinal()];
+  }
+
+  @Override
+  public void unregister() {
+    if (lifecycleCleanupStarted.compareAndSet(false, true)) {
+      bonusStatAt.clear();
+      cleanupArmorBatch(appliedPlayers.keySet().iterator());
+    }
+    super.unregister();
   }
 
   public double getArmor(Location l, int level) {
-    Block center = l.getBlock();
-    double armorValue = 0.0;
-    double count = 0;
-
-    art.arcane.adapt.util.common.math.Sphere sphere = SPHERE.clone();
-
-    while (sphere.hasNext()) {
-      art.arcane.volmlib.util.math.BlockPosition r = sphere.next();
-      Block b = center.getRelative(r.getX(), r.getY(), r.getZ());
-      if (b.isEmpty() || b.isLiquid())
-        continue;
-
-      count++;
-      double a = getArmorPoints(b.getType());
-      if (Double.isNaN(a) || a < 0) {
-        a = 0;
-      }
-      armorValue += a;
+    World world = l.getWorld();
+    if (world == null) {
+      return 0D;
     }
 
-    return Math.min((armorValue / count) * (level / 2D) * 0.65, 10);
+    int centerX = l.getBlockX();
+    int centerY = l.getBlockY();
+    int centerZ = l.getBlockZ();
+    int minY = world.getMinHeight();
+    int maxY = world.getMaxHeight() - 1;
+    LoadedChunkAccess chunkAccess = new LoadedChunkAccess(world, 5);
+    double armorValue = 0.0;
+    int count = 0;
+
+    for (BlockPosition offset : ARMOR_OFFSETS) {
+      int blockX = centerX + offset.getX();
+      int blockY = centerY + offset.getY();
+      int blockZ = centerZ + offset.getZ();
+      if (blockY < minY || blockY > maxY || !chunkAccess.canRead(blockX, blockZ)) {
+        continue;
+      }
+
+      Block block = world.getBlockAt(blockX, blockY, blockZ);
+      Material material = block.getType();
+      if (material.isAir() || block.isLiquid()) {
+        continue;
+      }
+
+      count++;
+      armorValue += materialArmorPoints[material.ordinal()];
+    }
+
+    return scaleArmor(armorValue, count, level);
   }
 
-
-  private double getRadius(double factor) {
-    return factor * getConfig().radiusFactor;
+  static int scanBlockCount() {
+    return ARMOR_OFFSETS.size();
   }
 
-  private double getStrength(double factor) {
-    return Math.pow(factor, getConfig().strengthExponent);
+  static double computeArmorPoints(Material material) {
+    if (!material.isBlock()) {
+      return 0D;
+    }
+    return computeArmorPoints(material.getBlastResistance(), material.getHardness());
   }
 
+  static double computeArmorPoints(double blastResistance, double hardness) {
+    double points = Math.log(Math.min(2000D, blastResistance * blastResistance))
+        + Math.log((hardness < 0D ? 50D : Math.min(50D, hardness + 25D)) * 0.33D);
+    return Double.isFinite(points) && points > 0D ? points : 0D;
+  }
+
+  static double scaleArmor(double armorValue, int count, int level) {
+    if (count <= 0 || armorValue <= 0D || level <= 0) {
+      return 0D;
+    }
+
+    return Math.min((armorValue / count) * (level / 2D) * 0.65D, 10D);
+  }
+
+  static double elapsedActiveTicks(Long previous, long now) {
+    if (previous == null || now <= previous) {
+      return 0D;
+    }
+    return (now - previous) / 50D;
+  }
 
   @Override
   public void onTick() {
-    for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
-      Player p = adaptPlayer.getPlayer();
-      if (p == null || !p.isOnline()) continue;
+    long now = System.currentTimeMillis();
+    List<AdaptPlayer> candidates = learnedCandidates(now);
+    int size = candidates.size();
+    if (size == 0) {
+      playerCursor = 0;
+    } else {
+      int limit = Math.max(1, Math.min(size, getConfig().maxPlayersPerPass));
+      int start = Math.floorMod(playerCursor, size);
+      for (int i = 0; i < limit; i++) {
+        queueArmorUpdate(candidates.get((start + i) % size));
+      }
+      playerCursor = (start + limit) % size;
+    }
 
-      if (!updateThrottle.isReady(p.getUniqueId(), UPDATE_COOLDOWN)) continue;
-      updateThrottle.mark(p.getUniqueId());
+    cleanupInactivePlayers();
+  }
 
-      IAttribute attribute = Version.get().getAttribute(p, Attributes.GENERIC_ARMOR);
-      if (attribute == null) continue;
+  @EventHandler
+  public void on(PlayerJoinEvent event) {
+    Player player = event.getPlayer();
+    withPlayerThread(player, () -> removeInactiveModifier(player));
+  }
 
-      if (!hasActiveAdaptation(p)) {
-        attribute.removeModifier(MODIFIER, MODIFIER_KEY);
-      } else {
-        double oldArmor = 0;
-        for (IAttribute.Modifier modifier : attribute.getModifier(MODIFIER, MODIFIER_KEY)) {
-          double amount = modifier.getAmount();
-          if (!Double.isNaN(amount) && amount > oldArmor) {
-            oldArmor = amount;
-          }
-        }
+  @EventHandler
+  public void on(PlayerQuitEvent event) {
+    removeArmorModifier(event.getPlayer());
+    updateThrottle.clear(event.getPlayer().getUniqueId());
+  }
 
-        double armor = getArmor(p.getLocation(), getLevel(p));
-        armor = Double.isNaN(armor) ? 0 : armor;
+  private void queueArmorUpdate(AdaptPlayer adaptPlayer) {
+    Player player = adaptPlayer.getPlayer();
+    if (player == null || !player.isOnline()) {
+      return;
+    }
 
-        double lArmor = M.lerp(oldArmor, armor, 0.3);
-        lArmor = Double.isNaN(lArmor) ? 0 : lArmor;
-        attribute.setModifier(MODIFIER, MODIFIER_KEY, lArmor, AttributeModifier.Operation.ADD_NUMBER);
-        if (lArmor > 0) {
-          adaptPlayer.getData().addStat("discovery.armor.ticks-with-bonus", 1);
-        }
+    UUID playerId = player.getUniqueId();
+    if (!updateThrottle.isReady(playerId, UPDATE_COOLDOWN)) {
+      return;
+    }
+    updateThrottle.mark(playerId);
+    withPlayerThread(player, () -> updateArmor(adaptPlayer, player));
+  }
 
-        if (Math.round(lArmor) != Math.round(oldArmor) && Math.round(lArmor) > 0) {
-          fx(p.getLocation(), FxPriority.TRANSITION)
-              .dustRing(Color.fromRGB(150, 170, 190), 0.8D, 16, 1.1F)
-              .chord(Sound.BLOCK_STONE_PLACE, 0.5F, 0.7F, Sound.BLOCK_AMETHYST_BLOCK_STEP, 0.3F, 1.2F);
-        } else if (lArmor > 6D && ThreadLocalRandom.current().nextInt(20) == 0) {
-          fx(p.getLocation(), FxPriority.AMBIENT)
-              .particle(Particles.CRIT_MAGIC, 2, 0, 0, 0, 0.05D, 0.01D);
-        }
+  private void updateArmor(AdaptPlayer adaptPlayer, Player player) {
+    IAttribute attribute = Version.get().getAttribute(player, Attributes.GENERIC_ARMOR);
+    if (attribute == null) {
+      return;
+    }
+
+    if (!hasActiveAdaptation(player)) {
+      attribute.removeModifier(MODIFIER, MODIFIER_KEY);
+      appliedPlayers.remove(player.getUniqueId());
+      bonusStatAt.remove(player.getUniqueId());
+      return;
+    }
+
+    double oldArmor = 0D;
+    for (IAttribute.Modifier modifier : attribute.getModifier(MODIFIER, MODIFIER_KEY)) {
+      double amount = modifier.getAmount();
+      if (Double.isFinite(amount) && amount > oldArmor) {
+        oldArmor = amount;
       }
     }
+
+    double armor = getArmor(player.getLocation(), getLevel(player));
+    double lerpedArmor = M.lerp(oldArmor, armor, 0.3D);
+    lerpedArmor = Double.isFinite(lerpedArmor) ? lerpedArmor : 0D;
+    attribute.setModifier(MODIFIER, MODIFIER_KEY, lerpedArmor, AttributeModifier.Operation.ADD_NUMBER);
+    appliedPlayers.put(player.getUniqueId(), true);
+    if (lerpedArmor > 0D) {
+      double activeTicks = activeTicksSinceLastUpdate(player.getUniqueId());
+      if (activeTicks > 0D) {
+        adaptPlayer.getData().addStat("discovery.armor.ticks-with-bonus", activeTicks);
+      }
+    } else {
+      bonusStatAt.remove(player.getUniqueId());
+    }
+
+    if (Math.round(lerpedArmor) != Math.round(oldArmor) && Math.round(lerpedArmor) > 0) {
+      fx(player.getLocation(), FxPriority.TRANSITION)
+          .dustRing(Color.fromRGB(150, 170, 190), 0.8D, 16, 1.1F)
+          .chord(Sound.BLOCK_STONE_PLACE, 0.5F, 0.7F, Sound.BLOCK_AMETHYST_BLOCK_STEP, 0.3F, 1.2F);
+    } else if (lerpedArmor > 6D && ThreadLocalRandom.current().nextInt(20) == 0) {
+      fx(player.getLocation(), FxPriority.AMBIENT)
+          .particle(Particles.CRIT_MAGIC, 2, 0, 0, 0, 0.05D, 0.01D);
+    }
+  }
+
+  private void cleanupInactivePlayers() {
+    if (!cleanupCursor.hasNext()) {
+      cleanupCursor = appliedPlayers.keySet().iterator();
+    }
+
+    int limit = Math.max(1, getConfig().maxPlayersPerPass);
+    int examined = 0;
+    while (examined < limit && cleanupCursor.hasNext()) {
+      UUID playerId = cleanupCursor.next();
+      examined++;
+      Player player = Bukkit.getPlayer(playerId);
+      if (player == null || !player.isOnline()) {
+        appliedPlayers.remove(playerId);
+        continue;
+      }
+
+      AdaptPlayer adaptPlayer = getPlayer(player);
+      if (getLevel(adaptPlayer) > 0) {
+        continue;
+      }
+      withPlayerThread(player, () -> removeInactiveModifier(player));
+    }
+  }
+
+  private void removeInactiveModifier(Player player) {
+    if (hasActiveAdaptation(player)) {
+      return;
+    }
+
+    removeArmorModifier(player);
+  }
+
+  private void removeArmorModifier(Player player) {
+    IAttribute attribute = Version.get().getAttribute(player, Attributes.GENERIC_ARMOR);
+    if (attribute != null) {
+      attribute.removeModifier(MODIFIER, MODIFIER_KEY);
+    }
+    appliedPlayers.remove(player.getUniqueId());
+    bonusStatAt.remove(player.getUniqueId());
+  }
+
+  private void cleanupArmorBatch(Iterator<UUID> cursor) {
+    int limit = Math.max(1, getConfig().maxPlayersPerPass);
+    int processed = 0;
+    while (processed < limit && cursor.hasNext()) {
+      UUID playerId = cursor.next();
+      processed++;
+      Player player = Bukkit.getPlayer(playerId);
+      if (player == null || !player.isOnline()) {
+        appliedPlayers.remove(playerId);
+        continue;
+      }
+      J.runEntity(player, () -> removeArmorModifier(player));
+    }
+
+    if (cursor.hasNext()) {
+      J.s(() -> cleanupArmorBatch(cursor), 1);
+    }
+  }
+
+  private double activeTicksSinceLastUpdate(UUID playerId) {
+    long now = System.currentTimeMillis();
+    Long previous = bonusStatAt.put(playerId, now);
+    return elapsedActiveTicks(previous, now);
+  }
+
+  private double[] createMaterialArmorPoints() {
+    Material[] materials = Material.values();
+    double[] points = new double[materials.length];
+    for (Material material : materials) {
+      points[material.ordinal()] = computeArmorPoints(material);
+    }
+    return points;
+  }
+
+  private static List<BlockPosition> createArmorOffsets() {
+    Sphere sphere = new Sphere(5);
+    List<BlockPosition> offsets = new ArrayList<>(1331);
+    while (sphere.hasNext()) {
+      offsets.add(sphere.next());
+    }
+    return List.copyOf(offsets);
   }
 
   @ConfigDescription("Gain passive armor based on nearby block hardness.")
   protected static class Config extends AdaptationConfig {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Radius Factor for the Discovery Armor adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    public int radiusFactor = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Strength Exponent for the Discovery Armor adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    public double strengthExponent = 1.25;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum players examined per scheduler pass.", impact = "Higher values refresh large servers faster but increase per-tick block reads.")
+    public int maxPlayersPerPass = 16;
 
     public Config() {
       baseCost = 2;

@@ -108,10 +108,6 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
     attemptBlink(p);
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   private boolean isBlinkEligible(Player p) {
     return hasActiveAdaptation(p) && p.getGameMode() == GameMode.SURVIVAL;

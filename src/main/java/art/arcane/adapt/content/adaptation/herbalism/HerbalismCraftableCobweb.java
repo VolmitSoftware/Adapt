@@ -88,9 +88,6 @@ public class HerbalismCraftableCobweb extends SimpleAdaptation<HerbalismCraftabl
     }
   }
 
-  @Override
-  public void onTick() {
-  }
 
   @ConfigDescription("Craft Cobwebs from String in a Crafting Table.")
   protected static class Config extends AdaptationConfig {

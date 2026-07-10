@@ -118,10 +118,6 @@ public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisRetur
     }
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Chance to return free lapis when enchanting at the cost of 1 extra level.")
   protected static class Config extends AdaptationConfig {

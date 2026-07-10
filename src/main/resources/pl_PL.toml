@@ -5,18 +5,6 @@
 title = "Ruszaj sie!"
 description = "Przejdz ponad 1 kilometr (1000 blokow)"
 
-[advancement.challenge_sprint_5k]
-title = "Przebieg 5K!"
-description = "Przejdz ponad 5 kilometrow (5000 blokow)"
-
-[advancement.challenge_sprint_50k]
-title = "Przesmiglaj 50K!"
-description = "Przejdz ponad 50 kilometrow (50 000 blokow)"
-
-[advancement.challenge_sprint_500k]
-title = "Przemierz Wszechswiat!!"
-description = "Przejdz ponad 500 kilometrow (500 000 blokow)"
-
 [advancement.challenge_sprint_marathon]
 title = "Przebieg (doslownego) Maratonu!"
 description = "Przebiegnij ponad 42 195 blokow!"
@@ -33,14 +21,6 @@ description = "Umiesc 5000 blokow"
 title = "Zaawansowany Budowniczy!"
 description = "Umiesc 50 000 blokow"
 
-[advancement.challenge_place_500k]
-title = "Mistrz Budowniczy!"
-description = "Umiesc 500 000 blokow"
-
-[advancement.challenge_place_5m]
-title = "Akolita Symetrii!"
-description = "RZECZYWISTOSC TO TWOJ PLAC ZABAW! (5 milionow blokow)"
-
 [advancement.challenge_chop_1k]
 title = "Poczatkujacy Drwal!"
 description = "Wytnij 1000 blokow"
@@ -52,14 +32,6 @@ description = "Wytnij 5000 blokow"
 [advancement.challenge_chop_50k]
 title = "Zaawansowany Drwal!"
 description = "Wytnij 50 000 blokow"
-
-[advancement.challenge_chop_500k]
-title = "Mistrz Drwal!"
-description = "Wytnij 500 000 blokow"
-
-[advancement.challenge_chop_5m]
-title = "Jackson Piesek"
-description = "Najlepszy dobry chlopak! (5 milionow blokow)"
 
 [advancement.challenge_block_1k]
 title = "Ledwo Blokujesz!"
@@ -73,14 +45,6 @@ description = "Zablokuj 5000 trafien"
 title = "Blokowanie to moje zycie!"
 description = "Zablokuj 50 000 trafien"
 
-[advancement.challenge_block_500k]
-title = "Blokowanie to moje Powolanie!"
-description = "Zablokuj 500 000 trafien"
-
-[advancement.challenge_block_5m]
-title = "Die Hand Die Verletzt"
-description = "Zablokuj 5 000 000 trafien"
-
 [advancement.challenge_brew_1k]
 title = "Poczatkujacy Alchemik!"
 description = "Wypij 1000 mikstur"
@@ -89,18 +53,6 @@ description = "Wypij 1000 mikstur"
 title = "Sredniozaawansowany Alchemik!"
 description = "Wypij 5000 mikstur"
 
-[advancement.challenge_brew_50k]
-title = "Zaawansowany Alchemik!"
-description = "Wypij 50 000 mikstur"
-
-[advancement.challenge_brew_500k]
-title = "Mistrz Alchemik!"
-description = "Wypij 500 000 mikstur"
-
-[advancement.challenge_brew_5m]
-title = "Alchemik"
-description = "Wypij 5 000 000 mikstur"
-
 [advancement.challenge_brewsplash_1k]
 title = "Poczatkujacy Rozpryskiwacz Mikstur!"
 description = "Rozpryskaj 1000 mikstur"
@@ -108,18 +60,6 @@ description = "Rozpryskaj 1000 mikstur"
 [advancement.challenge_brewsplash_5k]
 title = "Sredniozaawansowany Rozpryskiwacz Mikstur!"
 description = "Rozpryskaj 5000 mikstur"
-
-[advancement.challenge_brewsplash_50k]
-title = "Zaawansowany Rozpryskiwacz Mikstur!"
-description = "Rozpryskaj 50 000 mikstur"
-
-[advancement.challenge_brewsplash_500k]
-title = "Mistrz Rozpryskiwania Mikstur!"
-description = "Rozpryskaj 500 000 mikstur"
-
-[advancement.challenge_brewsplash_5m]
-title = "Mistrz Splasha"
-description = "Rozpryskaj 5 000 000 mikstur"
 
 [advancement.challenge_craft_1k]
 title = "Sprytny Rzemieslnik!"
@@ -133,14 +73,6 @@ description = "Wytworz 5000 przedmiotow"
 title = "Pokorny Rzemieslnik!"
 description = "Wytworz 50 000 przedmiotow"
 
-[advancement.challenge_craft_500k]
-title = "Kakofoniczny Rzemieslnik!"
-description = "Wytworz 500 000 przedmiotow"
-
-[advancement.challenge_craft_5m]
-title = "Kleskowy McCraftface"
-description = "Wytworz 5 000 000 przedmiotow"
-
 [advancement.challenge_enchant_1k]
 title = "Poczatkujacy Zaklinacz!"
 description = "Zaczaruj 1000 przedmiotow"
@@ -148,18 +80,6 @@ description = "Zaczaruj 1000 przedmiotow"
 [advancement.challenge_enchant_5k]
 title = "Sredniozaawansowany Zaklinacz!"
 description = "Zaczaruj 5000 przedmiotow"
-
-[advancement.challenge_enchant_50k]
-title = "Zaawansowany Zaklinacz!"
-description = "Zaczaruj 50 000 przedmiotow"
-
-[advancement.challenge_enchant_500k]
-title = "Mistrz Zaklinacz!"
-description = "Zaczaruj 500 000 przedmiotow"
-
-[advancement.challenge_enchant_5m]
-title = "Enigmatyczny Zaklinacz"
-description = "Zaczaruj 5 000 000 przedmiotow"
 
 [advancement.challenge_excavate_1k]
 title = "Poczatkujacy Kopacz!"
@@ -172,26 +92,6 @@ description = "Wykop 5000 blokow"
 [advancement.challenge_excavate_50k]
 title = "Zaawansowany Kopacz!"
 description = "Wykop 50 000 blokow"
-
-[advancement.challenge_excavate_500k]
-title = "Mistrz Kopacz!"
-description = "Wykop 500 000 blokow"
-
-[advancement.challenge_excavate_5m]
-title = "Enigmatyczny Kopacz"
-description = "Wykop 5 000 000 blokow"
-
-[advancement.horrible_person]
-title = "Jestes okropna osoba"
-description = "Niepojete, naprawde"
-
-[advancement.challenge_turtle_egg_smasher]
-title = "Rozbijacz Jaj Zolwi!"
-description = "Zniszcz 100 jaj zolwia"
-
-[advancement.challenge_turtle_egg_annihilator]
-title = "Anihilator Jaj Zolwi!"
-description = "Zniszcz 500 jaj zolwia"
 
 [advancement.challenge_novice_hunter]
 title = "Poczatkujacy Lowca!"
@@ -224,14 +124,6 @@ description = "Zniszcz 5000 blokow"
 [advancement.challenge_pickaxe_50k]
 title = "Ekspert Gornik"
 description = "Zniszcz 50 000 blokow"
-
-[advancement.challenge_pickaxe_500k]
-title = "Mistrz Gornik"
-description = "Zniszcz 500 000 blokow"
-
-[advancement.challenge_pickaxe_5m]
-title = "Legendarny Gornik"
-description = "Zniszcz 5 000 000 blokow"
 
 [advancement.challenge_eat_100]
 title = "Tyle do jedzenia!"
@@ -332,10 +224,6 @@ description = "Spedz 1 godzine online"
 [advancement.challenge_chronos_24h]
 title = "Piaski Czasu"
 description = "Spedz 24 godziny online"
-
-[advancement.challenge_chronos_168h]
-title = "Ponadczasowy"
-description = "Spedz 168 godzin (1 tydzien) online"
 
 [advancement.challenge_nether_50]
 title = "Straznik Piekiel"
@@ -440,14 +328,6 @@ title = "Architekt Chmur"
 description = "Ustaw 1,000 blokow powyzej Y=128"
 
 # Axes - New Achievement Chains
-[advancement.challenge_axe_swing_500]
-title = "Drwal"
-description = "Zamachnij sie toporem 500 razy"
-
-[advancement.challenge_axe_swing_5k]
-title = "Berserker"
-description = "Zamachnij sie toporem 5,000 razy"
-
 [advancement.challenge_axe_damage_1k]
 title = "Tasak"
 description = "Zadaj 1,000 obrazen toporem"
@@ -559,14 +439,6 @@ description = "Teleportuj sie 50 razy"
 title = "Zakrzywienie Czasu"
 description = "Teleportuj sie 500 razy"
 
-[advancement.challenge_chronos_deaths_10]
-title = "Smiertelnik"
-description = "Zgin 10 razy"
-
-[advancement.challenge_chronos_deaths_100]
-title = "Pogromca Smierci"
-description = "Zgin 100 razy"
-
 # Crafting - New Achievement Chains
 [advancement.challenge_craft_value_10k]
 title = "Wartosc Rzemiosla"
@@ -591,14 +463,6 @@ description = "Wytwórz 25 czesci zbroi"
 [advancement.challenge_craft_armor_250]
 title = "Mistrz Zbrojmistrz"
 description = "Wytwórz 250 czesci zbroi"
-
-[advancement.challenge_craft_mass_25k]
-title = "Masowa Produkcja"
-description = "Wytwórz 25,000 przedmiotow"
-
-[advancement.challenge_craft_mass_250k]
-title = "Rewolucja Przemyslowa"
-description = "Wytwórz 250,000 przedmiotow"
 
 # Discovery - New Achievement Chains
 [advancement.challenge_discover_items_50]
@@ -650,14 +514,6 @@ description = "Zgromadz 100 mocy zaklinania"
 title = "Mistrz Magii"
 description = "Zgromadz 1,000 mocy zaklinania"
 
-[advancement.challenge_enchant_levels_1k]
-title = "Wydawca Poziomow"
-description = "Wydaj 1,000 poziomow doswiadczenia na zaklinanie"
-
-[advancement.challenge_enchant_levels_10k]
-title = "Pochłaniacz XP"
-description = "Wydaj 10,000 poziomow doswiadczenia na zaklinanie"
-
 [advancement.challenge_enchant_high_25]
 title = "Wysokie Stawki"
 description = "Wykonaj 25 zaklinań maksymalnego poziomu"
@@ -675,14 +531,6 @@ title = "Magiczna Inwestycja"
 description = "Wydaj 5,000 łącznych poziomow na wszystkie zaklecia"
 
 # Excavation - New Achievement Chains
-[advancement.challenge_dig_swing_500]
-title = "Kopacz"
-description = "Zamachnij sie łopata 500 razy"
-
-[advancement.challenge_dig_swing_5k]
-title = "Koparka"
-description = "Zamachnij sie łopata 5,000 razy"
-
 [advancement.challenge_dig_damage_1k]
 title = "Rycerz Łopaty"
 description = "Zadaj 1,000 obrazen łopata"
@@ -787,14 +635,6 @@ title = "Zbieracz Zarazy"
 description = "Zniszcz 100 witherowych roz"
 
 # Pickaxes - New Achievement Chains
-[advancement.challenge_pick_swing_500]
-title = "Ramie Gornika"
-description = "Zamachnij sie kilofem 500 razy"
-
-[advancement.challenge_pick_swing_5k]
-title = "Budowniczy Tuneli"
-description = "Zamachnij sie kilofem 5,000 razy"
-
 [advancement.challenge_pick_damage_1k]
 title = "Wojownik Kilofa"
 description = "Zadaj 1,000 obrazen kilofem"
@@ -935,14 +775,6 @@ description = "Zabij 10 mobow podczas skradania"
 title = "Zniwiarz Cieni"
 description = "Zabij 100 mobow podczas skradania"
 
-[advancement.challenge_stealth_time_1h]
-title = "Cierpliwy"
-description = "Spedz 1 godzine skradajac sie (3,600 sekund)"
-
-[advancement.challenge_stealth_time_10h]
-title = "Mistrz Cieni"
-description = "Spedz 10 godzin skradajac sie (36,000 sekund)"
-
 [advancement.challenge_stealth_arrows_50]
 title = "Cichy Łucznik"
 description = "Wystrzel 50 strzal podczas skradania"
@@ -1009,14 +841,6 @@ description = "Twoje zwierzeta zabijaja 25 stworzen"
 title = "Alfa Dowódca"
 description = "Twoje zwierzeta zabijaja 250 stworzen"
 
-[advancement.challenge_taming_2500]
-title = "Ekspert Hodowli"
-description = "Rozmnóz 2,500 zwierzat"
-
-[advancement.challenge_taming_25k]
-title = "Mistrz Genetyki"
-description = "Rozmnóz 25,000 zwierzat"
-
 # TragOul - New Achievement Chains
 [advancement.challenge_trag_hits_500]
 title = "Worek Treningowy"
@@ -1025,30 +849,6 @@ description = "Otrzymaj 500 trafien"
 [advancement.challenge_trag_hits_5k]
 title = "Żarłok Kar"
 description = "Otrzymaj 5,000 trafien"
-
-[advancement.challenge_trag_deaths_10]
-title = "Dziewiec Życ"
-description = "Zgin 10 razy"
-
-[advancement.challenge_trag_deaths_100]
-title = "Powracajacy Koszmar"
-description = "Zgin 100 razy"
-
-[advancement.challenge_trag_fire_500]
-title = "Ofiara Ognia"
-description = "Przetrwaj 500 obrazen od ognia"
-
-[advancement.challenge_trag_fire_5k]
-title = "Feniks"
-description = "Przetrwaj 5,000 obrazen od ognia"
-
-[advancement.challenge_trag_fall_500]
-title = "Test Grawitacji"
-description = "Przetrwaj 500 obrazen od upadku"
-
-[advancement.challenge_trag_fall_5k]
-title = "Predkosc Graniczna"
-description = "Przetrwaj 5,000 obrazen od upadku"
 
 # Unarmed - New Achievement Chains
 [advancement.challenge_unarmed_dmg_1k]

@@ -216,10 +216,6 @@ public class BlockingMirrorBlock extends SimpleAdaptation<BlockingMirrorBlock.Co
     return Math.max(100L, Math.round(getConfig().cooldownMillisBase - (getLevelPercent(level) * getConfig().cooldownMillisFactor)));
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Blocking with a shield can reflect incoming projectiles at reduced force and damage.")
   protected static class Config extends AdaptationConfig {

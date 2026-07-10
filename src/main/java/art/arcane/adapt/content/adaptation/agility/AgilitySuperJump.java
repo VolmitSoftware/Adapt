@@ -134,10 +134,6 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
     });
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Sneak and jump for exceptional height advantage.")
   protected static class Config extends AdaptationConfig {

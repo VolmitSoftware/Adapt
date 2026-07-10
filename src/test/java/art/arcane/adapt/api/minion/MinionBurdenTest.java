@@ -97,6 +97,26 @@ class MinionBurdenTest {
     }
 
     @Test
+    @DisplayName("registry enforces the servant ceiling independently of callers")
+    void registryEnforcesPerOwnerCeiling() {
+        MinionBurden.MinionRegistry registry = new MinionBurden.MinionRegistry();
+        UUID owner = UUID.randomUUID();
+
+        for (int index = 0; index < 20; index++) {
+            registry.add(owner, UUID.randomUUID());
+        }
+
+        assertThat(registry.count(owner)).isEqualTo(16);
+    }
+
+    @Test
+    @DisplayName("maintenance work advances at most four owners per tick")
+    void maintenanceBatchHasAHardOwnerCeiling() {
+        assertThat(MinionBurden.maintenanceBatchEnd(0, 1_000)).isEqualTo(4);
+        assertThat(MinionBurden.maintenanceBatchEnd(996, 1_000)).isEqualTo(1_000);
+    }
+
+    @Test
     @DisplayName("removing the last minion drops the owner entirely")
     void removingLastMinionDropsOwner() {
         MinionBurden.MinionRegistry registry = new MinionBurden.MinionRegistry();

@@ -24,9 +24,17 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.skill.SkillOwnerPulse;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.content.adaptation.blocking.*;
+import art.arcane.adapt.content.adaptation.blocking.BlockingBastionStance;
+import art.arcane.adapt.content.adaptation.blocking.BlockingBulwarkBash;
+import art.arcane.adapt.content.adaptation.blocking.BlockingChainArmorer;
+import art.arcane.adapt.content.adaptation.blocking.BlockingCounterGuard;
+import art.arcane.adapt.content.adaptation.blocking.BlockingHorseArmorer;
+import art.arcane.adapt.content.adaptation.blocking.BlockingMirrorBlock;
+import art.arcane.adapt.content.adaptation.blocking.BlockingMultiArmor;
+import art.arcane.adapt.content.adaptation.blocking.BlockingSaddlecrafter;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
@@ -37,13 +45,16 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.util.Vector;
 
 public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
+  private static final BlockData IRON_BLOCK_DATA = Material.IRON_BLOCK.createBlockData();
   private final Cooldowns blockCooldowns = cooldowns();
+  private final SkillOwnerPulse.Registration ownerPulse;
 
   public SkillBlocking() {
     super("blocking", Localizer.dLocalize("skill.blocking.icon"));
@@ -75,27 +86,13 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
                 .key("challenge_block_50k")
                 .model(CustomModel.get(Material.IRON_CHESTPLATE, "advancement", "blocking", "challenge_block_50k"))
                 .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
-                    .icon(Material.GOLDEN_CHESTPLATE)
-                    .key("challenge_block_500k")
-                    .model(CustomModel.get(Material.GOLDEN_CHESTPLATE, "advancement", "blocking", "challenge_block_500k"))
-                    .frame(AdaptAdvancementFrame.CHALLENGE)
-                    .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
-                        .icon(Material.DIAMOND_CHESTPLATE)
-                        .key("challenge_block_5m")
-                        .model(CustomModel.get(Material.DIAMOND_CHESTPLATE, "advancement", "blocking", "challenge_block_5m"))
-                        .frame(AdaptAdvancementFrame.CHALLENGE)
-                        .visibility(AdvancementVisibility.PARENT_GRANTED)
-                        .build())
-                    .build())
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build())
             .build())
         .build());
-    registerMilestone("challenge_block_1k", "blocked.hits", 1000, getConfig().challengeBlock1kReward);
-    registerMilestone("challenge_block_5k", "blocked.hits", 5000, getConfig().challengeBlock1kReward);
-    registerMilestone("challenge_block_50k", "blocked.hits", 50000, getConfig().challengeBlock5kReward);
-    registerMilestone("challenge_block_500k", "blocked.hits", 500000, getConfig().challengeBlock5kReward);
-    registerMilestone("challenge_block_5m", "blocked.hits", 5000000, getConfig().challengeBlock5kReward);
+    registerMilestone("challenge_block_1k", "blocked.hits", 1000, () -> getConfig().challengeBlock1kReward);
+    registerMilestone("challenge_block_5k", "blocked.hits", 5000, () -> getConfig().challengeBlock1kReward);
+    registerMilestone("challenge_block_50k", "blocked.hits", 50000, () -> getConfig().challengeBlock5kReward);
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.IRON_CHESTPLATE).key("challenge_block_dmg_1k")
@@ -110,8 +107,8 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_block_dmg_1k", "blocked.damage", 1000, getConfig().challengeBlock1kReward);
-    registerMilestone("challenge_block_dmg_10k", "blocked.damage", 10000, getConfig().challengeBlock5kReward);
+    registerMilestone("challenge_block_dmg_1k", "blocked.damage", 1000, () -> getConfig().challengeBlock1kReward);
+    registerMilestone("challenge_block_dmg_10k", "blocked.damage", 10000, () -> getConfig().challengeBlock5kReward);
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.ARROW).key("challenge_block_proj_100")
@@ -126,8 +123,8 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_block_proj_100", "blocked.projectiles", 100, getConfig().challengeBlock1kReward);
-    registerMilestone("challenge_block_proj_1k", "blocked.projectiles", 1000, getConfig().challengeBlock5kReward);
+    registerMilestone("challenge_block_proj_100", "blocked.projectiles", 100, () -> getConfig().challengeBlock1kReward);
+    registerMilestone("challenge_block_proj_1k", "blocked.projectiles", 1000, () -> getConfig().challengeBlock5kReward);
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.IRON_SWORD).key("challenge_block_melee_500")
@@ -142,8 +139,8 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_block_melee_500", "blocked.melee", 500, getConfig().challengeBlock1kReward);
-    registerMilestone("challenge_block_melee_5k", "blocked.melee", 5000, getConfig().challengeBlock5kReward);
+    registerMilestone("challenge_block_melee_500", "blocked.melee", 500, () -> getConfig().challengeBlock1kReward);
+    registerMilestone("challenge_block_melee_5k", "blocked.melee", 5000, () -> getConfig().challengeBlock5kReward);
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.DIAMOND_CHESTPLATE).key("challenge_block_heavy_50")
@@ -158,44 +155,45 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_block_heavy_50", "blocked.heavy", 50, getConfig().challengeBlock1kReward);
-    registerMilestone("challenge_block_heavy_500", "blocked.heavy", 500, getConfig().challengeBlock5kReward);
+    registerMilestone("challenge_block_heavy_50", "blocked.heavy", 50, () -> getConfig().challengeBlock1kReward);
+    registerMilestone("challenge_block_heavy_500", "blocked.heavy", 500, () -> getConfig().challengeBlock5kReward);
+    ownerPulse = SkillOwnerPulse.register(this, this::getInterval, this::pulseShieldXp);
   }
 
-  private void handleCooldown(Player p, Runnable runnable) {
+  private boolean beginCooldown(Player p) {
     if (!blockCooldowns.isReady(p.getUniqueId(), getConfig().cooldownDelay)) {
-      return;
+      return false;
     }
     blockCooldowns.mark(p.getUniqueId());
-    runnable.run();
+    return true;
   }
 
 
-  @EventHandler(priority = EventPriority.MONITOR)
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(EntityDamageByEntityEvent e) {
-    if (e.getEntity() instanceof Player p) {
-      shouldReturnForPlayer(p, e, () -> {
-        if (p.isBlocking()) {
-          AdaptPlayer adaptPlayer = getPlayer(p);
-          adaptPlayer.getData().addStat("blocked.hits", 1);
-          adaptPlayer.getData().addStat("blocked.damage", e.getDamage());
-          if (e.getDamager() instanceof Projectile) {
-            adaptPlayer.getData().addStat("blocked.projectiles", 1);
-          } else {
-            adaptPlayer.getData().addStat("blocked.melee", 1);
-          }
-          boolean heavy = e.getDamage() > 5;
-          if (heavy) {
-            adaptPlayer.getData().addStat("blocked.heavy", 1);
-          }
-
-          handleCooldown(p, () -> {
-            xp(p, getConfig().xpOnBlockedAttack);
-            blockFlash(p, heavy);
-          });
-        }
-      });
+    if (!(e.getEntity() instanceof Player p) || !p.isBlocking()) {
+      return;
     }
+
+    shouldReturnForPlayer(p, e, () -> {
+      AdaptPlayer adaptPlayer = getPlayer(p);
+      adaptPlayer.getData().addStat("blocked.hits", 1);
+      adaptPlayer.getData().addStat("blocked.damage", e.getDamage());
+      if (e.getDamager() instanceof Projectile) {
+        adaptPlayer.getData().addStat("blocked.projectiles", 1);
+      } else {
+        adaptPlayer.getData().addStat("blocked.melee", 1);
+      }
+      boolean heavy = e.getDamage() > 5;
+      if (heavy) {
+        adaptPlayer.getData().addStat("blocked.heavy", 1);
+      }
+
+      if (beginCooldown(p)) {
+        xp(p, getConfig().xpOnBlockedAttack);
+        blockFlash(p, heavy);
+      }
+    });
   }
 
   private void blockFlash(Player p, boolean heavy) {
@@ -203,7 +201,7 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
     Vector look = eye.getDirection();
     Location front = eye.add(look.getX() * 0.6D, look.getY() * 0.6D, look.getZ() * 0.6D);
     FxEmitter emitter = fx(front, FxPriority.COMBAT)
-        .particle(Particles.BLOCK_CRACK, heavy ? 8 : 6, 0, 0, 0, 0.2D, 0.02D, Material.IRON_BLOCK.createBlockData())
+        .particle(Particles.BLOCK_CRACK, heavy ? 8 : 6, 0, 0, 0, 0.2D, 0.02D, IRON_BLOCK_DATA)
         .burst(Particles.CRIT_MAGIC, heavy ? 8 : 4, heavy ? 0.35D : 0.2D);
     if (heavy) {
       emitter.burst(Particles.END_ROD, 3, 0.15D)
@@ -214,20 +212,25 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
   }
 
   @Override
-  public void onTick() {
-    if (!this.isEnabled()) {
-      return;
-    }
+  public void unregister() {
+    ownerPulse.unregister();
+    super.unregister();
+  }
 
-    for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
-      Player i = adaptPlayer.getPlayer();
-      shouldReturnForPlayer(i, () -> {
-        checkStatTrackers(adaptPlayer);
-        if (getConfig().passiveXpForUsingShield > 0 && (i.getInventory().getItemInOffHand().getType().equals(Material.SHIELD) || i.getInventory().getItemInMainHand().getType().equals(Material.SHIELD))) {
-          xpSilent(i, getConfig().passiveXpForUsingShield, "blocking:shield-hold");
-        }
-      });
-    }
+  private void pulseShieldXp(AdaptPlayer adaptPlayer, Player player, long elapsedMillis, long cadenceMillis) {
+    shouldReturnForPlayer(player, () -> {
+      long passiveXp = getConfig().passiveXpForUsingShield;
+      if (passiveXp <= 0) {
+        return;
+      }
+      if (player.getInventory().getItemInOffHand().getType() != Material.SHIELD
+          && player.getInventory().getItemInMainHand().getType() != Material.SHIELD) {
+        return;
+      }
+
+      double cadenceScale = (double) elapsedMillis / cadenceMillis;
+      xpSilent(player, passiveXp * cadenceScale, "blocking:shield-hold");
+    });
   }
 
 

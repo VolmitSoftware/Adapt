@@ -140,10 +140,6 @@ public class ExcavationSoftFall extends SimpleAdaptation<ExcavationSoftFall.Conf
     return Math.min(getConfig().maxReduction, getConfig().reductionBase + (getLevelPercent(level) * getConfig().reductionFactor));
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Landing on soft diggable ground reduces fall damage, up to full negation.")
   protected static class Config extends AdaptationConfig {

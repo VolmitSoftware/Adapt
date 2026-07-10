@@ -61,10 +61,18 @@ public final class Fx {
     if (effects != null && !effects.isParticlesEnabled()) {
       return;
     }
-    if (!viewerEffectsEnabled(viewer)) {
-      return;
+
+    double x = location.getX();
+    double y = location.getY();
+    double z = location.getZ();
+    FxDispatch.Emission emission = FxDispatch.emission(player -> {
+      if (viewerEffectsEnabled(player)) {
+        player.spawnParticle(particle, x, y, z, count, spreadX, spreadY, spreadZ, speed);
+      }
+    }, null);
+    if (!FxViewers.dispatch(viewer, emission) && FxViewers.shouldFallback(viewer)) {
+      FxDispatch.dispatch(viewer, emission);
     }
-    viewer.spawnParticle(particle, location, count, spreadX, spreadY, spreadZ, speed);
   }
 
   static Color adaptationColor(Adaptation<?> adaptation) {

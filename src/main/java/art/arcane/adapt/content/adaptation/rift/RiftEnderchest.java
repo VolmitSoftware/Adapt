@@ -105,10 +105,6 @@ public class RiftEnderchest extends SimpleAdaptation<RiftEnderchest.Config> {
   }
 
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Open an enderchest by left-clicking it in your hand.")
   protected static class Config extends AdaptationConfig {

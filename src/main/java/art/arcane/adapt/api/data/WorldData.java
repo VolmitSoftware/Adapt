@@ -33,7 +33,11 @@ import art.arcane.volmlib.util.collection.KMap;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.io.CountingDataInputStream;
 import art.arcane.volmlib.util.mantle.io.IOWorkerCodecSupport;
-import art.arcane.volmlib.util.mantle.runtime.*;
+import art.arcane.volmlib.util.mantle.runtime.IOWorker;
+import art.arcane.volmlib.util.mantle.runtime.Mantle;
+import art.arcane.volmlib.util.mantle.runtime.MantleDataAdapter;
+import art.arcane.volmlib.util.mantle.runtime.MantleHooks;
+import art.arcane.volmlib.util.mantle.runtime.TectonicPlate;
 import art.arcane.volmlib.util.parallel.HyperLockSupport;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -294,10 +298,15 @@ public class WorldData extends TickedObject {
 
   public static void stop() {
     mantles.v().forEach(WorldData::unregister);
+    mantles.clear();
   }
 
   public static WorldData of(World world) {
-    return mantles.computeIfAbsent(world, WorldData::new);
+    return mantles.computeIfAbsent(world, key -> {
+      WorldData data = new WorldData(key);
+      data.activateRuntime();
+      return data;
+    });
   }
 
   public double getEarningsMultiplier(Block block) {

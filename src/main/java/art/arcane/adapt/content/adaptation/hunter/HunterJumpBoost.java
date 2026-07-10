@@ -131,10 +131,6 @@ public class HunterJumpBoost extends SimpleAdaptation<HunterJumpBoost.Config> {
     FxPresets.failFizzle(this, p);
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Gain jump boost when struck, at the cost of hunger.")
   protected static class Config extends AdaptationConfig {

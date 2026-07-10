@@ -127,9 +127,6 @@ public class PickaxeDeepCore extends SimpleAdaptation<PickaxeDeepCore.Config> {
     }
   }
 
-  @Override
-  public void onTick() {
-  }
 
   @ConfigDescription("Gain Haste while mining deepslate so it digs like normal stone.")
   protected static class Config extends AdaptationConfig {

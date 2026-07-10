@@ -20,20 +20,19 @@ package art.arcane.adapt.content.adaptation.tragoul;
 
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
+import art.arcane.adapt.api.adaptation.VelocityBurstRuntime;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
-import art.arcane.adapt.util.common.math.VelocitySpeed;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Color;
-import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -43,14 +42,16 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.util.Vector;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -69,13 +70,13 @@ public class TragoulBoneHarvest extends SimpleAdaptation<TragoulBoneHarvest.Conf
   private static final Color GLOBE_BONE = Color.fromRGB(230, 225, 205);
   private final Set<UUID> bloodGlobes = ConcurrentHashMap.newKeySet();
   private final Set<UUID> boneGlobes = ConcurrentHashMap.newKeySet();
-  private final Map<UUID, SpeedBurst> speedBursts = playerState();
+  private final VelocityBurstRuntime.Client speedBursts;
 
   public TragoulBoneHarvest() {
     super("tragoul-bone-harvest");
+    speedBursts = VelocityBurstRuntime.register(getName(), new BurstFeedback());
     registerConfiguration(Config.class);
     setIcon(Material.BONE_BLOCK);
-    setInterval(2000);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.BONE)
         .key("challenge_tragoul_bone_500")
@@ -90,6 +91,12 @@ public class TragoulBoneHarvest extends SimpleAdaptation<TragoulBoneHarvest.Conf
         .build());
     registerMilestone("challenge_tragoul_bone_500", "tragoul.bone-harvest.orbs-collected", 500, 300);
     registerMilestone("challenge_tragoul_bone_5k", "tragoul.bone-harvest.orbs-collected", 5000, 1000);
+  }
+
+  @Override
+  public void unregister() {
+    speedBursts.unregister();
+    super.unregister();
   }
 
   @Override
@@ -141,11 +148,6 @@ public class TragoulBoneHarvest extends SimpleAdaptation<TragoulBoneHarvest.Conf
       applyBuff(p, blood, getLevel(p));
       addStat(p, "tragoul.bone-harvest.orbs-collected", 1);
     });
-  }
-
-  @EventHandler(priority = EventPriority.MONITOR)
-  public void on(PlayerDeathEvent e) {
-    speedBursts.remove(e.getEntity().getUniqueId());
   }
 
   private void spawnGlobe(Player owner, EntityDeathEvent e, boolean blood, int level) {
@@ -230,21 +232,13 @@ public class TragoulBoneHarvest extends SimpleAdaptation<TragoulBoneHarvest.Conf
   }
 
   private void grantSpeedBurst(Player p, int amplifier, int durationTicks) {
-    if (durationTicks <= 0) {
-      return;
-    }
-
-    UUID id = p.getUniqueId();
-    long now = System.currentTimeMillis();
-    long durationMs = Math.max(50L, durationTicks * 50L);
-    SpeedBurst burst = speedBursts.get(id);
-    if (burst != null && burst.expiresAt > now) {
-      burst.expiresAt += durationMs;
-      burst.amplifier = Math.max(burst.amplifier, amplifier);
-      return;
-    }
-
-    speedBursts.put(id, new SpeedBurst(now + durationMs, amplifier));
+    VelocityBurstRuntime.BurstRequest request = new VelocityBurstRuntime.BurstRequest(
+        amplifier,
+        durationTicks,
+        true,
+        burstProfile()
+    );
+    speedBursts.start(p, request);
   }
 
   private double getGlobeChance(int level) {
@@ -255,114 +249,20 @@ public class TragoulBoneHarvest extends SimpleAdaptation<TragoulBoneHarvest.Conf
     return Math.max(20, (int) Math.round(getConfig().globeLifetimeTicksBase + (getLevelPercent(level) * getConfig().globeLifetimeTicksFactor)));
   }
 
-  @Override
-  public void onTick() {
-    long now = System.currentTimeMillis();
-    for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : learnedCandidates(now)) {
-      Player p = adaptPlayer.getPlayer();
-      if (p == null || !p.isOnline()) {
-        continue;
-      }
-
-      withPlayerThread(p, () -> {
-        UUID id = p.getUniqueId();
-        SpeedBurst burst = speedBursts.get(id);
-        if (burst == null) {
-          return;
-        }
-
-        if (burst.expiresAt <= now) {
-          invalidateSpeedBurst(p, burst, false);
-          speedBursts.remove(id);
-          return;
-        }
-
-        if (!isVelocityEligible(p)) {
-          invalidateSpeedBurst(p, burst, true);
-          return;
-        }
-
-        VelocitySpeed.InputSnapshot input = VelocitySpeed.readInput(p, getConfig().fallbackInputVelocityThresholdSquared());
-        if (!input.hasHorizontal()) {
-          brakeSpeedBurst(p, burst);
-          return;
-        }
-
-        applySpeedBurst(p, burst, input);
-      });
-    }
+  private VelocityBurstRuntime.Profile burstProfile() {
+    Config config = getConfig();
+    return new VelocityBurstRuntime.Profile(
+        config.baseHorizontalSpeed,
+        config.maxHorizontalSpeed,
+        config.accelPerTick,
+        config.brakePerTick,
+        config.stopThreshold,
+        config.hardStopOnInvalidState,
+        config.fallbackInputVelocityThreshold
+    );
   }
 
-  private void applySpeedBurst(Player p, SpeedBurst burst, VelocitySpeed.InputSnapshot input) {
-    Vector direction = VelocitySpeed.resolveHorizontalDirection(p, input);
-    if (direction.lengthSquared() <= VelocitySpeed.EPSILON) {
-      brakeSpeedBurst(p, burst);
-      return;
-    }
-
-    double targetSpeed = Math.min(getConfig().maxHorizontalSpeed,
-        Math.max(0, getConfig().baseHorizontalSpeed * VelocitySpeed.speedAmplifierScalar(burst.amplifier)));
-    Vector horizontal = VelocitySpeed.horizontalOnly(p.getVelocity());
-    Vector targetHorizontal = direction.multiply(targetSpeed);
-    Vector nextHorizontal = VelocitySpeed.moveTowards(horizontal, targetHorizontal, Math.max(0, getConfig().accelPerTick));
-    nextHorizontal = VelocitySpeed.clampHorizontal(nextHorizontal, getConfig().maxHorizontalSpeed);
-    VelocitySpeed.setHorizontalVelocity(p, nextHorizontal);
-    burst.boosting = true;
-  }
-
-  private void brakeSpeedBurst(Player p, SpeedBurst burst) {
-    if (!burst.boosting) {
-      return;
-    }
-
-    Vector horizontal = VelocitySpeed.horizontalOnly(p.getVelocity());
-    double stopThreshold = Math.max(0, getConfig().stopThreshold);
-    if (horizontal.lengthSquared() <= stopThreshold * stopThreshold) {
-      VelocitySpeed.hardStopHorizontal(p);
-      burst.boosting = false;
-      return;
-    }
-
-    Vector nextHorizontal = VelocitySpeed.moveTowards(horizontal, new Vector(), Math.max(0, getConfig().brakePerTick));
-    if (nextHorizontal.lengthSquared() <= stopThreshold * stopThreshold) {
-      VelocitySpeed.hardStopHorizontal(p);
-      burst.boosting = false;
-      return;
-    }
-
-    VelocitySpeed.setHorizontalVelocity(p, nextHorizontal);
-  }
-
-  private void invalidateSpeedBurst(Player p, SpeedBurst burst, boolean invalidState) {
-    if (!burst.boosting) {
-      return;
-    }
-
-    if (invalidState && getConfig().hardStopOnInvalidState) {
-      VelocitySpeed.hardStopHorizontal(p);
-    }
-
-    burst.boosting = false;
-  }
-
-  private boolean isVelocityEligible(Player p) {
-    GameMode mode = p.getGameMode();
-    if (mode != GameMode.SURVIVAL && mode != GameMode.ADVENTURE) {
-      return false;
-    }
-
-    return !p.isDead() && !p.isFlying() && !p.isGliding() && !p.isSwimming() && p.getVehicle() == null;
-  }
-
-  private static class SpeedBurst {
-    private long expiresAt;
-    private int amplifier;
-    private boolean boosting;
-
-    private SpeedBurst(long expiresAt, int amplifier) {
-      this.expiresAt = expiresAt;
-      this.amplifier = amplifier;
-    }
+  private static final class BurstFeedback implements VelocityBurstRuntime.Feedback {
   }
 
   @ConfigDescription("Kills can spawn temporary blood and bone globes that grant short buffs when picked up.")
@@ -409,11 +309,6 @@ public class TragoulBoneHarvest extends SimpleAdaptation<TragoulBoneHarvest.Conf
     public Config() {
       costFactor = 0.72;
       initialCost = 4;
-    }
-
-    double fallbackInputVelocityThresholdSquared() {
-      double threshold = Math.max(0, fallbackInputVelocityThreshold);
-      return threshold * threshold;
     }
   }
 }

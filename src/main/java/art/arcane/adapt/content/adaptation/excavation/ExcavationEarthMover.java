@@ -26,6 +26,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.adapt.util.reflect.registries.RegistryUtil;
@@ -36,7 +37,6 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -49,7 +49,15 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class ExcavationEarthMover extends SimpleAdaptation<ExcavationEarthMover.Config> {
+  private static final int HARD_MAX_CANDIDATES_PER_ACTIVATION = 32;
+  private static final int HARD_MAX_AFFECTED_PER_ACTIVATION = 16;
+  private static final int HARD_MAX_TARGET_FX_PER_ACTIVATION = 12;
   private static final PotionEffectType SLOWNESS = RegistryUtil.find(PotionEffectType.class, "slowness", "slow");
   private final Cooldowns cooldowns = cooldowns();
 
@@ -118,42 +126,106 @@ public class ExcavationEarthMover extends SimpleAdaptation<ExcavationEarthMover.
     double force = getForce(level);
     int slowTicks = getSlowTicks(level);
     int slowAmplifier = getSlowAmplifier(level);
+    Location origin = p.getLocation().clone();
     BlockData dirtData = Material.DIRT.createBlockData();
-    int hit = 0;
-    for (Entity nearby : p.getNearbyEntities(radius, getConfig().verticalRange, radius)) {
-      if (!(nearby instanceof Monster monster)) {
-        continue;
-      }
-
-      if (!canDamageTarget(p, monster)) {
-        continue;
-      }
-
-      Vector direction = monster.getLocation().toVector().subtract(p.getLocation().toVector());
-      direction.setY(0);
-      if (direction.lengthSquared() < 0.01) {
-        direction = new Vector(1, 0, 0);
-      }
-
-      direction.normalize().multiply(force).setY(getConfig().liftVelocity);
-      monster.setVelocity(direction);
-      monster.addPotionEffect(new PotionEffect(SLOWNESS, slowTicks, slowAmplifier, false, true, true));
-      if (hit < 8) {
-        fx(monster, FxPriority.COMBAT)
-            .particle(Particles.BLOCK_CRACK, 4, 0, 0.1D, 0, 0.2D, 0.05D, dirtData);
-      }
-      hit++;
-    }
-
-    renderWave(p.getLocation(), radius);
+    List<Monster> candidates = collectCandidates(origin, radius);
+    renderWave(origin, radius);
     addStat(p, "excavation.earth-mover.waves-unleashed", 1);
-    if (hit > 0) {
-      fx(p.getLocation(), FxPriority.COMBAT).sound(Sound.ENTITY_HOSTILE_BIG_FALL, 0.4f, 0.8f);
-      addStat(p, "excavation.earth-mover.mobs-launched", hit);
-      xp(p, hit * getConfig().xpPerMobHit);
-    } else {
-      fx(p.getLocation(), FxPriority.COMBAT).sound(Sound.BLOCK_NOTE_BLOCK_BASS, 0.3f, 0.5f);
+
+    if (candidates.isEmpty()) {
+      fx(origin, FxPriority.COMBAT).sound(Sound.BLOCK_NOTE_BLOCK_BASS, 0.3f, 0.5f);
+      return;
     }
+
+    EarthMoverBatch batch = new EarthMoverBatch(p, origin, radius, getConfig().verticalRange, force,
+        getConfig().liftVelocity, slowTicks, slowAmplifier, getAffectedLimit(), getTargetFxLimit(),
+        getConfig().xpPerMobHit, dirtData, candidates.size());
+    for (Monster monster : candidates) {
+      if (!J.runEntity(monster, () -> inspectCandidateOwned(batch, monster))) {
+        batch.complete();
+      }
+    }
+    J.runEntity(p, batch::finishTimedOut, 3);
+  }
+
+  private List<Monster> collectCandidates(Location origin, double radius) {
+    int limit = getCandidateLimit();
+    List<Monster> candidates = new ArrayList<>(limit);
+    for (Monster monster : origin.getWorld().getNearbyEntitiesByType(
+        Monster.class, origin, radius, getConfig().verticalRange, radius)) {
+      candidates.add(monster);
+      if (candidates.size() >= limit) {
+        break;
+      }
+    }
+    return candidates;
+  }
+
+  private void inspectCandidateOwned(EarthMoverBatch batch, Monster monster) {
+    if (batch.isFinalized() || !batch.hasAffectedCapacity()) {
+      batch.complete();
+      return;
+    }
+    Location targetLocation = validTargetLocation(batch, monster);
+    if (targetLocation == null) {
+      batch.complete();
+      return;
+    }
+
+    if (!J.runEntity(batch.player, () -> authorizeCandidate(batch, monster, targetLocation))) {
+      batch.complete();
+    }
+  }
+
+  private void authorizeCandidate(EarthMoverBatch batch, Monster monster, Location targetLocation) {
+    if (batch.isFinalized() || !batch.player.isOnline() || !canPVE(batch.player, targetLocation)) {
+      batch.complete();
+      return;
+    }
+
+    if (!J.runEntity(monster, () -> applyImpactOwned(batch, monster))) {
+      batch.complete();
+    }
+  }
+
+  private void applyImpactOwned(EarthMoverBatch batch, Monster monster) {
+    if (batch.isFinalized()) {
+      return;
+    }
+    Location targetLocation = validTargetLocation(batch, monster);
+    if (targetLocation == null || !batch.claimAffected()) {
+      batch.complete();
+      return;
+    }
+
+    Vector direction = targetLocation.toVector().subtract(batch.origin.toVector()).setY(0);
+    if (direction.lengthSquared() < 0.01D) {
+      direction = new Vector(1, 0, 0);
+    }
+
+    direction.normalize().multiply(batch.force).setY(batch.liftVelocity);
+    monster.setVelocity(direction);
+    monster.addPotionEffect(new PotionEffect(SLOWNESS, batch.slowTicks, batch.slowAmplifier, false, true, true));
+    if (batch.claimTargetFx()) {
+      fx(monster, FxPriority.COMBAT)
+          .particle(Particles.BLOCK_CRACK, 4, 0, 0.1D, 0, 0.2D, 0.05D, batch.dirtData);
+    }
+    batch.complete();
+  }
+
+  private Location validTargetLocation(EarthMoverBatch batch, Monster monster) {
+    if (!monster.isValid() || monster.isDead() || isProtectedFriendly(null, monster)) {
+      return null;
+    }
+
+    Location location = monster.getLocation();
+    if (location.getWorld() != batch.origin.getWorld()
+        || Math.abs(location.getX() - batch.origin.getX()) > batch.radius
+        || Math.abs(location.getY() - batch.origin.getY()) > batch.verticalRange
+        || Math.abs(location.getZ() - batch.origin.getZ()) > batch.radius) {
+      return null;
+    }
+    return location;
   }
 
   private void renderWave(Location center, double radius) {
@@ -197,10 +269,18 @@ public class ExcavationEarthMover extends SimpleAdaptation<ExcavationEarthMover.
     return Math.max(1000L, (long) Math.round(getConfig().cooldownMillisBase - (getLevelPercent(level) * getConfig().cooldownMillisFactor)));
   }
 
-  @Override
-  public void onTick() {
-
+  private int getCandidateLimit() {
+    return Math.max(1, Math.min(getConfig().maxCandidatesPerActivation, HARD_MAX_CANDIDATES_PER_ACTIVATION));
   }
+
+  private int getAffectedLimit() {
+    return Math.max(1, Math.min(Math.min(getConfig().maxAffectedPerActivation, getCandidateLimit()), HARD_MAX_AFFECTED_PER_ACTIVATION));
+  }
+
+  private int getTargetFxLimit() {
+    return Math.max(0, Math.min(getConfig().maxTargetFxPerActivation, HARD_MAX_TARGET_FX_PER_ACTIVATION));
+  }
+
 
   @ConfigDescription("Sneak-right-click the air with a shovel to fling a wave of earth that knocks back and slows hostile mobs.")
   protected static class Config extends AdaptationConfig {
@@ -230,11 +310,118 @@ public class ExcavationEarthMover extends SimpleAdaptation<ExcavationEarthMover.
     int hungerCost = 2;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Mob Hit for the Excavation Earth Mover adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpPerMobHit = 6;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum hostile mobs inspected by one earth wave.", impact = "Lower values reduce dense-entity scheduling; values are clamped to an absolute maximum of 32.")
+    int maxCandidatesPerActivation = 16;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum hostile mobs launched by one earth wave.", impact = "Lower values cap combat work and rewards in dense farms; values are clamped to an absolute maximum of 16.")
+    int maxAffectedPerActivation = 12;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum launched mobs that receive individual block-particle effects.", impact = "Lower values reduce particle dispatch while preserving the main wave effect; values are clamped to an absolute maximum of 12.")
+    int maxTargetFxPerActivation = 8;
 
     public Config() {
       baseCost = 6;
       costFactor = 0.8;
       initialCost = 7;
+    }
+  }
+
+  private final class EarthMoverBatch {
+    private final Player player;
+    private final Location origin;
+    private final double radius;
+    private final double verticalRange;
+    private final double force;
+    private final double liftVelocity;
+    private final int slowTicks;
+    private final int slowAmplifier;
+    private final int affectedLimit;
+    private final int targetFxLimit;
+    private final double xpPerMobHit;
+    private final BlockData dirtData;
+    private final AtomicInteger remaining;
+    private final AtomicInteger affected = new AtomicInteger();
+    private final AtomicInteger targetFx = new AtomicInteger();
+    private final AtomicBoolean finalized = new AtomicBoolean();
+
+    private EarthMoverBatch(Player player, Location origin, double radius, double verticalRange, double force,
+                            double liftVelocity, int slowTicks, int slowAmplifier, int affectedLimit,
+                            int targetFxLimit, double xpPerMobHit, BlockData dirtData, int candidates) {
+      this.player = player;
+      this.origin = origin;
+      this.radius = radius;
+      this.verticalRange = verticalRange;
+      this.force = force;
+      this.liftVelocity = liftVelocity;
+      this.slowTicks = slowTicks;
+      this.slowAmplifier = slowAmplifier;
+      this.affectedLimit = affectedLimit;
+      this.targetFxLimit = targetFxLimit;
+      this.xpPerMobHit = xpPerMobHit;
+      this.dirtData = dirtData;
+      remaining = new AtomicInteger(candidates);
+    }
+
+    private synchronized boolean claimAffected() {
+      if (finalized.get() || affected.get() >= affectedLimit) {
+        return false;
+      }
+      affected.incrementAndGet();
+      return true;
+    }
+
+    private boolean hasAffectedCapacity() {
+      return affected.get() < affectedLimit;
+    }
+
+    private boolean claimTargetFx() {
+      return claim(targetFx, targetFxLimit);
+    }
+
+    private boolean claim(AtomicInteger counter, int limit) {
+      int current = counter.get();
+      while (current < limit) {
+        if (counter.compareAndSet(current, current + 1)) {
+          return true;
+        }
+        current = counter.get();
+      }
+      return false;
+    }
+
+    private void complete() {
+      if (finalized.get() || remaining.decrementAndGet() != 0 || !markFinalized()) {
+        return;
+      }
+      J.runEntity(player, this::finish);
+    }
+
+    private synchronized boolean markFinalized() {
+      return finalized.compareAndSet(false, true);
+    }
+
+    private boolean isFinalized() {
+      return finalized.get();
+    }
+
+    private void finishTimedOut() {
+      if (markFinalized()) {
+        finish();
+      }
+    }
+
+    private void finish() {
+      if (!player.isOnline()) {
+        return;
+      }
+
+      int hit = affected.get();
+      if (hit <= 0) {
+        fx(origin, FxPriority.COMBAT).sound(Sound.BLOCK_NOTE_BLOCK_BASS, 0.3f, 0.5f);
+        return;
+      }
+
+      fx(origin, FxPriority.COMBAT).sound(Sound.ENTITY_HOSTILE_BIG_FALL, 0.4f, 0.8f);
+      addStat(player, "excavation.earth-mover.mobs-launched", hit);
+      xp(player, hit * xpPerMobHit);
     }
   }
 }

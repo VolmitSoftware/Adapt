@@ -21,11 +21,18 @@ package art.arcane.adapt.api.world;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.function.DoubleSupplier;
+
 @Data
 @Builder
 public class AdaptStatTracker {
   private String stat;
   private double goal;
   private double reward;
+  private DoubleSupplier rewardSupplier;
   private String advancement;
+
+  public double getReward() {
+    return rewardSupplier == null ? reward : rewardSupplier.getAsDouble();
+  }
 }

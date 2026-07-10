@@ -195,9 +195,6 @@ public class ArchitectDemolition extends SimpleAdaptation<ArchitectDemolition.Co
     return (long) Math.max(1000, M.lerp(getConfig().minWindowSeconds, getConfig().maxWindowSeconds, factor) * 1000D);
   }
 
-  @Override
-  public void onTick() {
-  }
 
   private record DemolitionMark(UUID owner, long at) {
   }

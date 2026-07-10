@@ -169,10 +169,6 @@ public class DiscoveryXpResist extends SimpleAdaptation<DiscoveryXpResist.Config
     return predictedHealth <= 0D || predictedHealth <= threshold || p.getHealth() <= threshold;
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Consume experience to mitigate damage when a hit would drop you below 5 hearts.")
   protected static class Config extends AdaptationConfig {

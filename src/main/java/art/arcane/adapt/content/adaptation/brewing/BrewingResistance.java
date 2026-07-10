@@ -19,14 +19,13 @@
 package art.arcane.adapt.content.adaptation.brewing;
 
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.potion.AdaptBrewCompleteEvent;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.data.WorldData;
 import art.arcane.adapt.api.potion.BrewingRecipe;
 import art.arcane.adapt.api.potion.PotionBuilder;
-import art.arcane.adapt.content.matter.BrewingStandOwner;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -39,7 +38,6 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.inventory.BrewEvent;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 
@@ -90,29 +88,26 @@ public class BrewingResistance extends SimpleAdaptation<BrewingResistance.Config
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
-  public void on(BrewEvent e) {
-    BrewingStandOwner owner = WorldData.of(e.getBlock().getWorld()).get(e.getBlock(), BrewingStandOwner.class);
-    if (owner != null) {
-      getServer().peekData(owner.getOwner()).addStat("brewing.resistance.potions-brewed", 1);
-      Location loc = e.getBlock().getLocation().add(0.5D, 0.6D, 0.5D);
-      timeline(loc)
-          .duration(4)
-          .priority(FxPriority.TRANSITION)
-          .cullRadius(24.0D)
-          .frame((f, tick, progress) -> {
-            f.dustRing(Color.WHITE, tick < 3 ? 0.9D : 0.35D, 10, 1.2F);
-            if (tick == 0) {
-              f.particle(Particles.END_ROD, 3, 0, 0.3D, 0, 0.2D, 0.02D)
-                  .chord(Sound.BLOCK_ANVIL_LAND, 0.2F, 1.9F, Sound.BLOCK_BREWING_STAND_BREW, 0.6F, 1.0F);
-            }
-          })
-          .start();
+  public void on(AdaptBrewCompleteEvent e) {
+    if (!getBrewingRecipes().contains(e.getRecipe())) {
+      return;
     }
+    getServer().addStat(e.getBrewerId(), "brewing.resistance.potions-brewed", e.getBrewedPotions());
+    Location loc = e.getBlock().getLocation().add(0.5D, 0.6D, 0.5D);
+    timeline(loc)
+        .duration(4)
+        .priority(FxPriority.TRANSITION)
+        .cullRadius(24.0D)
+        .frame((f, tick, progress) -> {
+          f.dustRing(Color.WHITE, tick < 3 ? 0.9D : 0.35D, 10, 1.2F);
+          if (tick == 0) {
+            f.particle(Particles.END_ROD, 3, 0, 0.3D, 0, 0.2D, 0.02D)
+                .chord(Sound.BLOCK_ANVIL_LAND, 0.2F, 1.9F, Sound.BLOCK_BREWING_STAND_BREW, 0.6F, 1.0F);
+          }
+        })
+        .start();
   }
 
-  @Override
-  public void onTick() {
-  }
 
 
   @ConfigDescription("Brew a Potion of Resistance from Awkward Potion and Iron.")

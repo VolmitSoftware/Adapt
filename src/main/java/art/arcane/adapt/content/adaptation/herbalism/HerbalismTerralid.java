@@ -88,9 +88,6 @@ public class HerbalismTerralid extends SimpleAdaptation<HerbalismTerralid.Config
     }
   }
 
-  @Override
-  public void onTick() {
-  }
 
   @ConfigDescription("Craft Grass Blocks from Seeds and Dirt.")
   protected static class Config extends AdaptationConfig {

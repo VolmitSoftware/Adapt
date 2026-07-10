@@ -81,9 +81,6 @@ public class AgilityLadderSlide extends SimpleAdaptation<AgilityLadderSlide.Conf
     registerMilestone("challenge_agility_ladder_10k", "agility.ladder-slide.blocks-climbed", 10000, 1000);
   }
 
-  @Override
-  public void onTick() {
-  }
 
   @Override
   public void addStats(int level, Element v) {

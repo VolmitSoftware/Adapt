@@ -521,19 +521,19 @@ public class CommandAdapt {
 
     int migratedSkills = 0;
     int migratedAdaptations = 0;
-    for (Skill<?> skill : Adapt.instance.getAdaptServer().getSkillRegistry().getSkills()) {
-      if (skill instanceof SimpleSkill<?> simpleSkill) {
-        if (simpleSkill.reloadConfigFromDisk(false)) {
-          migratedSkills++;
+    SkillRegistry registry = Adapt.instance.getAdaptServer().getSkillRegistry();
+    for (Skill<?> skill : registry.getAllSkills()) {
+      int adaptationConfigs = 0;
+      for (Adaptation<?> adaptation : skill.getAdaptations()) {
+        if (adaptation instanceof SimpleAdaptation<?>) {
+          adaptationConfigs++;
         }
       }
-
-      for (Adaptation<?> adaptation : skill.getAdaptations()) {
-        if (adaptation instanceof SimpleAdaptation<?> simpleAdaptation) {
-          if (simpleAdaptation.reloadConfigFromDisk(false)) {
-            migratedAdaptations++;
-          }
+      if (registry.hotReloadSkillConfig(skill.getName())) {
+        if (skill instanceof SimpleSkill<?>) {
+          migratedSkills++;
         }
+        migratedAdaptations += adaptationConfigs;
       }
     }
 

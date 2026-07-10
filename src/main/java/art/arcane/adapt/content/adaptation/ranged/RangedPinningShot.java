@@ -138,10 +138,6 @@ public class RangedPinningShot extends SimpleAdaptation<RangedPinningShot.Config
     return Math.max(1000, (long) Math.round(getConfig().reapplyCooldownMillisBase - (getLevelPercent(level) * getConfig().reapplyCooldownMillisFactor)));
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Projectiles can pin targets with heavy slowness.")
   protected static class Config extends AdaptationConfig {

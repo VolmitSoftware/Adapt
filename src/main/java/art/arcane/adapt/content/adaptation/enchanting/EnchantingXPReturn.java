@@ -100,10 +100,6 @@ public class EnchantingXPReturn extends SimpleAdaptation<EnchantingXPReturn.Conf
         .start();
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Enchanting XP is partially refunded when you enchant an item.")
   protected static class Config extends AdaptationConfig {

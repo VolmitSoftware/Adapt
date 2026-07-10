@@ -19,8 +19,7 @@
 package art.arcane.adapt.util.common.plugin;
 
 import art.arcane.adapt.Adapt;
-import art.arcane.adapt.api.adaptation.AdaptationEventRegistrar;
-import art.arcane.adapt.api.skill.SkillEventRegistrar;
+import art.arcane.adapt.api.ComponentEventRegistrar;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.project.command.Control;
 import art.arcane.adapt.util.project.command.IController;
@@ -250,7 +249,7 @@ public abstract class VolmitPlugin extends JavaPlugin implements Listener {
     if (bad) {
       return;
     }
-    if (!SkillEventRegistrar.register(this, l) && !AdaptationEventRegistrar.register(this, l)) {
+    if (!ComponentEventRegistrar.register(this, l)) {
       Bukkit.getPluginManager().registerEvents(l, this);
     }
     ReflectiveEvents.register(l);

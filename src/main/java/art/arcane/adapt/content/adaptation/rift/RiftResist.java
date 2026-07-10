@@ -113,10 +113,6 @@ public class RiftResist extends SimpleAdaptation<RiftResist.Config> {
 
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Gain resistance when using Ender items and abilities.")
   protected static class Config extends AdaptationConfig {

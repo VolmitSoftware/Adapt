@@ -159,10 +159,6 @@ public class SwordsRiposteWindow extends SimpleAdaptation<SwordsRiposteWindow.Co
     return getConfig().damageBonusBase + (getLevelPercent(level) * getConfig().damageBonusFactor);
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Blocking with a shield arms a short riposte window for your next sword strike.")
   protected static class Config extends AdaptationConfig {

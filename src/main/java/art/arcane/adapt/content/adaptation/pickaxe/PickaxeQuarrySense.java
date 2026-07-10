@@ -29,14 +29,20 @@ import art.arcane.adapt.content.integration.hiddenore.HiddenOreLink;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
+import art.arcane.adapt.util.common.world.WorldBlockScanScheduler;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.entity.StackExclusion;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import fr.skytasul.glowingentities.GlowingEntities;
-import org.bukkit.*;
-import org.bukkit.block.Block;
+import org.bukkit.ChatColor;
+import org.bukkit.Color;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Slime;
 import org.bukkit.event.EventHandler;
@@ -44,6 +50,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
@@ -52,11 +59,18 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Config> {
   private static final String MARKER_META = "adapt-quarry-sense-marker";
+  private static final int MAX_SCAN_RADIUS = 32;
+  private static final int MAX_BLOCK_CHECKS_PER_ACTIVATION = 4096;
+  private static final int MAX_HIGHLIGHTS_PER_ACTIVATION = 16;
+  private final Map<UUID, UUID> activeScans = new ConcurrentHashMap<>();
 
   public PickaxeQuarrySense() {
     super("pickaxe-quarry-sense");
@@ -102,36 +116,124 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
       return;
     }
 
+    if (activeScans.containsKey(p.getUniqueId())) {
+      e.setCancelled(true);
+      return;
+    }
+
     fx(p.getEyeLocation(), FxPriority.GAMEPLAY)
         .particle(Particles.ENCHANTMENT_TABLE, 14, 0, 0, 0, 0.22, 0.15)
         .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.8f, 1.35f);
 
     int durabilityCost = getDurabilityCost(hand, level);
-    if (!applyPickaxeCost(p, hand, durabilityCost)) {
-      fx(p.getEyeLocation(), FxPriority.TRANSITION)
-          .particle(Particles.SMOKE, 8, 0, 0, 0, 0.2, 0.03)
-          .dustBurst(Color.fromRGB(0x555555), 6, 0.2, 1.0f)
-          .sound(Sound.BLOCK_ANVIL_PLACE, 0.5f, 0.55f);
+    if (!canApplyPickaxeCost(hand, durabilityCost)) {
+      showPickaxeCostFailure(p);
       return;
     }
 
     int scanRadius = getScanRadius(level);
-    List<Block> ores = findNearbyOres(p.getLocation(), scanRadius, getMaxHighlights(level));
-    if (ores.isEmpty()) {
-      fx(p.getEyeLocation(), FxPriority.TRANSITION)
-          .particle(Particles.SMOKE, 12, 0, 0, 0, 0.22, 0.02)
-          .ring(Particles.SMOKE, 0.6D, 10, 0)
-          .sound(Sound.BLOCK_NOTE_BLOCK_BASS, 0.6f, 0.75f);
-      p.setCooldown(hand.getType(), getCooldownTicks(level));
+    startScan(p, p.getLocation(), hand.getType(), level, scanRadius);
+    e.setCancelled(true);
+  }
+
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void on(EntityDamageEvent e) {
+    if (e.getEntity() instanceof Slime slime && slime.hasMetadata(MARKER_META)) {
       e.setCancelled(true);
+    }
+  }
+
+  private void startScan(Player p, Location origin, Material pickaxeType, int level, int radius) {
+    World world = origin.getWorld();
+    if (world == null) {
       return;
     }
 
-    for (Block ore : ores) {
-      showOreMarker(p, ore, getHighlightTicks(level));
+    ArrayList<WorldBlockScanScheduler.AdditionalMatch> hiddenMatches = new ArrayList<>();
+    for (HiddenOreLink.VeinTarget vein : HiddenOreLink.veins(origin, radius)) {
+      Location at = vein.location();
+      if (at.getWorld() != world
+          || at.getBlockY() < world.getMinHeight()
+          || at.getBlockY() >= world.getMaxHeight()) {
+        continue;
+      }
+      double dx = at.getX() - origin.getX();
+      double dy = at.getY() - origin.getY();
+      double dz = at.getZ() - origin.getZ();
+      double distanceSquared = (dx * dx) + (dy * dy) + (dz * dz);
+      if (distanceSquared <= (double) radius * radius) {
+        hiddenMatches.add(new WorldBlockScanScheduler.AdditionalMatch(
+            at.getBlockX(), at.getBlockY(), at.getBlockZ(), vein.display(), distanceSquared
+        ));
+      }
     }
 
-    p.setCooldown(hand.getType(), getCooldownTicks(level));
+    int checks = Math.min(MAX_BLOCK_CHECKS_PER_ACTIVATION, Math.max(1, getConfig().maxBlockChecks));
+    WorldBlockScanScheduler.ScanRequest request = WorldBlockScanScheduler.ScanRequest.builder(origin)
+        .radius(radius)
+        .denseRadius(getConfig().denseScanRadius)
+        .maxSamples(checks)
+        .maxResults(getMaxHighlights(level))
+        .seed(ThreadLocalRandom.current().nextInt())
+        .additionalMatches(hiddenMatches)
+        .matcher(this::isQuarryOre)
+        .completion(result -> completeScan(p, pickaxeType, level, radius, result))
+        .build();
+    UUID scanId = WorldBlockScanScheduler.submit(this, p.getUniqueId(), request);
+    activeScans.put(p.getUniqueId(), scanId);
+  }
+
+  private void completeScan(Player p, Material pickaxeType, int level, int scanRadius,
+                            WorldBlockScanScheduler.ScanResult result) {
+    UUID playerId = p.getUniqueId();
+    if (!result.scanId().equals(activeScans.get(playerId))) {
+      return;
+    }
+
+    boolean scheduled = J.runEntity(p, () -> {
+      if (!activeScans.remove(playerId, result.scanId()) || !p.isOnline()) {
+        return;
+      }
+
+      List<WorldBlockScanScheduler.Match> ores = result.matches();
+      int cooldownTicks = getCooldownTicks(level);
+      if (ores.isEmpty()) {
+        showEmptyScan(p);
+        p.setCooldown(pickaxeType, cooldownTicks);
+        return;
+      }
+
+      ItemStack currentHand = p.getInventory().getItemInMainHand();
+      int durabilityCost = getDurabilityCost(currentHand, level);
+      if (currentHand.getType() != pickaxeType
+          || !isEligiblePickaxe(currentHand)
+          || !canApplyPickaxeCost(currentHand, durabilityCost)
+          || !applyPickaxeCost(p, currentHand, durabilityCost)) {
+        showPickaxeCostFailure(p);
+        p.setCooldown(pickaxeType, cooldownTicks);
+        return;
+      }
+
+      int highlightTicks = getHighlightTicks(level);
+      for (WorldBlockScanScheduler.Match ore : ores) {
+        showOreMarker(p, result.world(), ore, highlightTicks);
+      }
+      p.setCooldown(pickaxeType, cooldownTicks);
+      showSuccessfulScan(p, scanRadius, ores.size());
+    });
+    if (!scheduled) {
+      activeScans.remove(playerId, result.scanId());
+    }
+  }
+
+  private void showEmptyScan(Player p) {
+    fx(p.getEyeLocation(), FxPriority.TRANSITION)
+        .particle(Particles.SMOKE, 12, 0, 0, 0, 0.22, 0.02)
+        .ring(Particles.SMOKE, 0.6D, 10, 0)
+        .sound(Sound.BLOCK_NOTE_BLOCK_BASS, 0.6f, 0.75f);
+  }
+
+  private void showSuccessfulScan(Player p, int scanRadius, int oreCount) {
     timeline(p.getLocation().add(0, 1, 0))
         .duration(8)
         .priority(FxPriority.GAMEPLAY)
@@ -144,54 +246,31 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
         })
         .start();
     fx(p.getLocation(), FxPriority.GAMEPLAY).sound(Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 0.9f, 1.6f);
-    xp(p, ores.size() * getConfig().xpPerFoundOre);
+    xp(p, oreCount * getConfig().xpPerFoundOre);
     addStat(p, "pickaxe.quarry-sense.scans", 1);
-    e.setCancelled(true);
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST)
-  public void on(EntityDamageEvent e) {
-    if (e.getEntity() instanceof Slime slime && slime.hasMetadata(MARKER_META)) {
-      e.setCancelled(true);
-    }
+  private void showOreMarker(Player p, World world, WorldBlockScanScheduler.Match ore, int durationTicks) {
+    Location center = ore.center(world);
+    J.runAt(center, () -> showOreMarkerAtRegion(p, world, ore, center, durationTicks));
   }
 
-  private List<Block> findNearbyOres(Location origin, int radius, int maxResults) {
-    List<Block> ores = new ArrayList<>();
-    for (int x = -radius; x <= radius; x++) {
-      for (int y = -radius; y <= radius; y++) {
-        for (int z = -radius; z <= radius; z++) {
-          Block b = origin.getWorld().getBlockAt(origin.getBlockX() + x, origin.getBlockY() + y, origin.getBlockZ() + z);
-          if (!isOre(b.getBlockData())) {
-            continue;
-          }
-
-          ores.add(b);
-        }
-      }
+  private void showOreMarkerAtRegion(Player p, World world, WorldBlockScanScheduler.Match ore, Location center,
+                                     int durationTicks) {
+    if (!world.isChunkLoaded(ore.x() >> 4, ore.z() >> 4)) {
+      return;
     }
-
-    for (HiddenOreLink.VeinTarget vein : HiddenOreLink.veins(origin, radius)) {
-      Location at = vein.location();
-      ores.add(origin.getWorld().getBlockAt(at.getBlockX(), at.getBlockY(), at.getBlockZ()));
-    }
-
-    ores.sort(Comparator.comparingDouble(b -> b.getLocation().distanceSquared(origin)));
-    if (ores.size() > maxResults) {
-      return new ArrayList<>(ores.subList(0, maxResults));
-    }
-
-    return ores;
-  }
-
-  private void showOreMarker(Player p, Block ore, int durationTicks) {
-    GlowingEntities glowingEntities = Adapt.instance.getGlowingEntities();
-    if (glowingEntities == null) {
-      showFallbackMarker(p, ore, durationTicks);
+    if (!ore.supplied() && world.getBlockAt(ore.x(), ore.y(), ore.z()).getType() != ore.material()) {
       return;
     }
 
-    Slime slime = ore.getWorld().spawn(ore.getLocation().add(0.5, 0.5, 0.5), Slime.class, s -> {
+    GlowingEntities glowingEntities = Adapt.instance.getGlowingEntities();
+    if (glowingEntities == null) {
+      showFallbackMarker(p, center, durationTicks);
+      return;
+    }
+
+    Slime slime = world.spawn(center, Slime.class, s -> {
       StackExclusion.exclude(s);
       s.setPersistent(false);
       s.setInvulnerable(true);
@@ -205,35 +284,48 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
       s.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 0, false, false));
     });
 
-    try {
-      glowingEntities.setGlowing(slime, p, ChatColor.AQUA);
-    } catch (ReflectiveOperationException ex) {
-      Adapt.verbose("Failed to enable glowing marker for QuarrySense: "
-          + ex.getClass().getSimpleName()
-          + (ex.getMessage() == null ? "" : " - " + ex.getMessage()));
-      slime.remove();
-      showFallbackMarker(p, ore, durationTicks);
+    if (!J.runEntity(p, () -> enableGlow(glowingEntities, slime, p, center, durationTicks))) {
+      J.runEntity(slime, slime::remove);
       return;
     }
 
-    fx(ore.getLocation().add(0.5, 0.5, 0.5), FxPriority.GAMEPLAY)
+    fx(center, FxPriority.GAMEPLAY)
         .ring(Particles.END_ROD, 0.6D, 10, 0.3D)
         .particle(Particle.GLOW, 8, 0, 0, 0, 0.2, 0.001)
         .sound(Sound.BLOCK_NOTE_BLOCK_BELL, 0.25f, 1.4f);
+    J.runEntity(p, () -> disableGlow(glowingEntities, slime, p), Math.max(1, durationTicks - 1));
     J.runEntity(slime, () -> {
-      try {
-        glowingEntities.unsetGlowing(slime, p);
-      } catch (ReflectiveOperationException ex) {
-        Adapt.verbose("Failed to clear glowing marker for QuarrySense: "
-            + ex.getClass().getSimpleName()
-            + (ex.getMessage() == null ? "" : " - " + ex.getMessage()));
-      }
       slime.remove();
     }, durationTicks);
   }
 
-  private void showFallbackMarker(Player p, Block ore, int durationTicks) {
-    Location loc = ore.getLocation().add(0.5, 0.5, 0.5);
+  private void enableGlow(GlowingEntities glowingEntities, Slime slime, Player p, Location center, int durationTicks) {
+    try {
+      synchronized (Adapt.glowingEntitiesLock()) {
+        glowingEntities.setGlowing(slime, p, ChatColor.AQUA);
+      }
+    } catch (ReflectiveOperationException error) {
+      Adapt.verbose("Failed to enable glowing marker for QuarrySense: "
+          + error.getClass().getSimpleName()
+          + (error.getMessage() == null ? "" : " - " + error.getMessage()));
+      J.runEntity(slime, slime::remove);
+      showFallbackMarker(p, center, durationTicks);
+    }
+  }
+
+  private void disableGlow(GlowingEntities glowingEntities, Slime slime, Player p) {
+    try {
+      synchronized (Adapt.glowingEntitiesLock()) {
+        glowingEntities.unsetGlowing(slime, p);
+      }
+    } catch (ReflectiveOperationException error) {
+      Adapt.verbose("Failed to clear glowing marker for QuarrySense: "
+          + error.getClass().getSimpleName()
+          + (error.getMessage() == null ? "" : " - " + error.getMessage()));
+    }
+  }
+
+  private void showFallbackMarker(Player p, Location loc, int durationTicks) {
     for (int t = 0; t <= durationTicks; t += 8) {
       J.runEntity(p, () -> {
         if (!p.isOnline()) {
@@ -247,6 +339,20 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
     }
   }
 
+  @EventHandler
+  public void on(PlayerQuitEvent e) {
+    UUID playerId = e.getPlayer().getUniqueId();
+    activeScans.remove(playerId);
+    WorldBlockScanScheduler.cancel(this, playerId);
+  }
+
+  @Override
+  public void unregister() {
+    activeScans.clear();
+    WorldBlockScanScheduler.cancelOwner(this);
+    super.unregister();
+  }
+
   private boolean isEligiblePickaxe(ItemStack hand) {
     if (!isItem(hand)) {
       return false;
@@ -256,6 +362,39 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
       case IRON_PICKAXE, DIAMOND_PICKAXE, NETHERITE_PICKAXE -> true;
       default -> false;
     };
+  }
+
+  private boolean isQuarryOre(Material type) {
+    return switch (type) {
+      case COPPER_ORE, DEEPSLATE_COPPER_ORE, COAL_ORE, GOLD_ORE, IRON_ORE,
+           DIAMOND_ORE, LAPIS_ORE, EMERALD_ORE, NETHER_QUARTZ_ORE,
+           NETHER_GOLD_ORE, REDSTONE_ORE, DEEPSLATE_COAL_ORE,
+           DEEPSLATE_IRON_ORE, DEEPSLATE_GOLD_ORE, DEEPSLATE_LAPIS_ORE,
+           DEEPSLATE_DIAMOND_ORE, DEEPSLATE_EMERALD_ORE,
+           DEEPSLATE_REDSTONE_ORE -> true;
+      default -> false;
+    };
+  }
+
+  private boolean canApplyPickaxeCost(ItemStack hand, int durabilityCost) {
+    if (!(hand.getItemMeta() instanceof Damageable damageable)) {
+      return false;
+    }
+    if (!getConfig().costsReduceMaxDurability) {
+      return (long) damageable.getDamage() + durabilityCost < hand.getType().getMaxDurability();
+    }
+
+    int fallbackMax = Math.max(1, hand.getType().getMaxDurability());
+    int currentMax = damageable.hasMaxDamage() ? Math.max(1, damageable.getMaxDamage()) : fallbackMax;
+    int currentDamage = Math.max(0, damageable.getDamage());
+    return (long) currentMax - durabilityCost > currentDamage + 1L;
+  }
+
+  private void showPickaxeCostFailure(Player p) {
+    fx(p.getEyeLocation(), FxPriority.TRANSITION)
+        .particle(Particles.SMOKE, 8, 0, 0, 0, 0.2, 0.03)
+        .dustBurst(Color.fromRGB(0x555555), 6, 0.2, 1.0f)
+        .sound(Sound.BLOCK_ANVIL_PLACE, 0.5f, 0.55f);
   }
 
   private boolean applyPickaxeCost(Player p, ItemStack hand, int durabilityCost) {
@@ -303,11 +442,11 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
   }
 
   private int getScanRadius(int level) {
-    return Math.max(4, (int) Math.round(getConfig().scanRadiusBase + (getLevelPercent(level) * getConfig().scanRadiusFactor)));
+    return Math.min(MAX_SCAN_RADIUS, Math.max(4, (int) Math.round(getConfig().scanRadiusBase + (getLevelPercent(level) * getConfig().scanRadiusFactor))));
   }
 
   private int getMaxHighlights(int level) {
-    return Math.max(1, (int) Math.round(getConfig().maxHighlightsBase + (getLevelPercent(level) * getConfig().maxHighlightsFactor)));
+    return Math.min(MAX_HIGHLIGHTS_PER_ACTIVATION, Math.max(1, (int) Math.round(getConfig().maxHighlightsBase + (getLevelPercent(level) * getConfig().maxHighlightsFactor))));
   }
 
   private int getHighlightTicks(int level) {
@@ -328,10 +467,6 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
         getConfig().durabilityCostPercentBase - (getLevelPercent(level) * getConfig().durabilityCostPercentFactor));
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Sneak-right-click a block with an iron+ pickaxe to highlight nearby ores.")
   protected static class Config extends AdaptationConfig {
@@ -341,6 +476,10 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
     double scanRadiusBase = 10;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Scan Radius Factor for the Pickaxe Quarry Sense adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double scanRadiusFactor = 18;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum world block checks made by one Quarry Sense activation.", impact = "Higher values improve ore detection but increase total budgeted scan work; values above the hard safety cap are clamped.")
+    int maxBlockChecks = 2048;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Radius searched completely before the remaining Quarry Sense budget is spread across the full range.", impact = "Higher values prioritize nearby accuracy; lower values reserve more samples for distant ore.")
+    int denseScanRadius = 6;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Highlights Base for the Pickaxe Quarry Sense adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double maxHighlightsBase = 6;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Highlights Factor for the Pickaxe Quarry Sense adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

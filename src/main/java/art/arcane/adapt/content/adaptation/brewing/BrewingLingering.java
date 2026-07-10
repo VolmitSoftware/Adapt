@@ -25,8 +25,6 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.data.WorldData;
-import art.arcane.adapt.api.world.PlayerAdaptation;
-import art.arcane.adapt.api.world.PlayerData;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.content.matter.BrewingStandOwner;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -173,33 +171,28 @@ public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> 
       return;
     }
 
-    PlayerData data = null;
+    int level = getServer().getOnlineAdaptationLevel(owner.getOwner(), getSkill().getName(), getName());
+    if (level <= 0) {
+      return;
+    }
+
     java.util.List<org.bukkit.inventory.ItemStack> results = e.getResults();
-    boolean ef = false;
+    int enhancedPotions = 0;
     for (int i = 0; i < results.size(); i++) {
       ItemStack is = results.get(i);
 
-      if (is == null || is.getItemMeta() == null || !(is.getItemMeta() instanceof PotionMeta p))
+      if (is == null || is.getItemMeta() == null || !(is.getItemMeta() instanceof PotionMeta p)) {
         continue;
-
-      data = data == null ? getServer().peekData(owner.getOwner()) : data;
-
-      if (data.getSkillLines().containsKey(getSkill().getName()) && data.getSkillLine(getSkill().getName()).getAdaptations().containsKey(getName())) {
-        PlayerAdaptation a = data.getSkillLine(getSkill().getName()).getAdaptations().get(getName());
-
-        if (a.getLevel() > 0) {
-          double factor = getLevelPercent(a.getLevel());
-          boolean enhanced = enhance(factor, is, p);
-          if (enhanced) {
-            data.addStat("brewing.lingering.potions-extended", 1);
-          }
-          ef = enhanced || ef;
-          results.set(i, is);
-        }
       }
+
+      if (enhance(getLevelPercent(level), is, p)) {
+        enhancedPotions++;
+      }
+      results.set(i, is);
     }
 
-    if (ef) {
+    if (enhancedPotions > 0) {
+      getServer().addStat(owner.getOwner(), "brewing.lingering.potions-extended", enhancedPotions);
       Location loc = e.getBlock().getLocation().add(0.5D, 0.6D, 0.5D);
       Particle.DustTransition transition = new Particle.DustTransition(Color.fromRGB(0x8A, 0x2B, 0xE2), Color.fromRGB(0xFF, 0x77, 0xFF), 1.2F);
       timeline(loc)
@@ -314,10 +307,6 @@ public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> 
     }
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Brewed potions last longer.")
   protected static class Config extends AdaptationConfig {

@@ -115,10 +115,6 @@ public class SwordsDualWield extends SimpleAdaptation<SwordsDualWield.Config> {
     return getConfig().mixedWeaponBase + (getLevelPercent(level) * getConfig().mixedWeaponFactor);
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Wield a sword in both hands for increased damage output.")
   protected static class Config extends AdaptationConfig {

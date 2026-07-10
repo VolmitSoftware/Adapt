@@ -39,19 +39,37 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.entity.AnimalTamer;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Tameable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class TragoulCorpseExplosion extends SimpleAdaptation<TragoulCorpseExplosion.Config> {
+  private static final int HARD_MAX_NOVA_TARGETS = 16;
+  private static final int HARD_MAX_NOVA_CANDIDATES = 32;
+  private static final int MAX_NOVAS_PER_TICK = 8;
+  private static final int MAX_PENDING_NOVAS = 256;
+  private static final double HARD_MAX_NOVA_RADIUS = 16D;
   private static final NamespacedKey NOVA_KEY = NamespacedKey.fromString("adapt:tragoul_nova_stamp");
   private static final Color NOVA_CRIMSON = Color.fromRGB(150, 12, 12);
   private static final Color NOVA_BONE = Color.fromRGB(200, 190, 170);
+  private final ConcurrentLinkedQueue<NovaPlan> pendingNovas = new ConcurrentLinkedQueue<>();
+  private final AtomicInteger pendingNovaCount = new AtomicInteger();
+  private final AtomicBoolean novaDrainScheduled = new AtomicBoolean();
 
   public TragoulCorpseExplosion() {
     super("tragoul-corpse-explosion");
@@ -87,66 +105,181 @@ public class TragoulCorpseExplosion extends SimpleAdaptation<TragoulCorpseExplos
     if (killer == null) {
       return;
     }
+    requestDetonation(killer, e.getEntity(), false);
+  }
 
-    LivingEntity victim = e.getEntity();
+  static void detonateServantKill(TragoulCorpseExplosion nova, Player owner, LivingEntity victim) {
+    nova.requestDetonation(owner, victim, true);
+  }
+
+  private void requestDetonation(Player owner, LivingEntity victim, boolean servant) {
+    if (owner == null || victim == null) {
+      return;
+    }
+    J.runEntity(victim, () -> prepareSourceOwned(owner, victim, servant));
+  }
+
+  private void prepareSourceOwned(Player owner, LivingEntity victim, boolean servant) {
     long now = System.currentTimeMillis();
     Long novaStamp = victim.getPersistentDataContainer().get(NOVA_KEY, PersistentDataType.LONG);
     if (novaStamp != null && now - novaStamp < getConfig().chainSuppressionMillis) {
       return;
     }
 
-    withAdaptedPlayer(killer, () -> detonate(killer, victim, now, false));
+    IAttribute attribute = Version.get().getAttribute(victim, Attributes.GENERIC_MAX_HEALTH);
+    double maxHealth = attribute == null ? 20D : attribute.getValue();
+    ProtectionSnapshot protection = captureProtectionOwned(victim);
+    NovaSourceSnapshot source = new NovaSourceSnapshot(victim.getLocation(), maxHealth,
+        victim instanceof Player, protection.protectedFriendly(), protection.tameOwnerId());
+    J.runEntity(owner, () -> prepareNovaOwnerOwned(owner, source, servant));
   }
 
-  static void detonateServantKill(TragoulCorpseExplosion nova, Player owner, LivingEntity victim) {
-    long now = System.currentTimeMillis();
-    Long novaStamp = victim.getPersistentDataContainer().get(NOVA_KEY, PersistentDataType.LONG);
-    if (novaStamp != null && now - novaStamp < nova.getConfig().chainSuppressionMillis) {
+  private void prepareNovaOwnerOwned(Player owner, NovaSourceSnapshot source, boolean servant) {
+    if (!owner.isOnline()) {
       return;
     }
 
-    nova.withAdaptedPlayer(owner, () -> nova.detonate(owner, victim, now, true));
-  }
-
-  private void detonate(Player credited, LivingEntity victim, long now, boolean servant) {
-    int level = getActiveLevel(credited);
-    if (level <= 0 || !canDamageTarget(credited, victim)) {
+    int level = getActiveLevel(owner);
+    if (level <= 0 || !canDamageSnapshotOwned(owner, source.player(), source.protectedFriendly(),
+        source.tameOwnerId(), source.location())) {
       return;
     }
-
     double radius = getRadius(level);
-    double damage = getNovaDamage(level, victim);
-    int hit = 0;
-    for (Entity entity : victim.getNearbyEntities(radius, radius, radius)) {
-      if (!(entity instanceof Monster monster) || monster.isDead() || !monster.isValid()) {
-        continue;
-      }
+    double damage = getNovaDamage(level, source.maxHealth());
+    int maxTargets = Math.min(HARD_MAX_NOVA_TARGETS, Math.max(1, getConfig().maxTargets));
+    int candidateLimit = Math.min(HARD_MAX_NOVA_CANDIDATES, maxTargets * 2);
+    NovaPlan plan = new NovaPlan(owner, source.location(), radius, damage, maxTargets, candidateLimit,
+        getConfig().xpPerMobHit, servant);
+    enqueueNova(plan);
+  }
 
-      if (!canDamageTarget(credited, monster)) {
-        continue;
-      }
+  private void enqueueNova(NovaPlan plan) {
+    if (pendingNovaCount.incrementAndGet() > MAX_PENDING_NOVAS) {
+      pendingNovaCount.decrementAndGet();
+      return;
+    }
+    pendingNovas.add(plan);
+    scheduleNovaDrain();
+  }
 
-      monster.getPersistentDataContainer().set(NOVA_KEY, PersistentDataType.LONG, now);
-      J.runEntity(monster, () -> {
-        if (monster.isValid() && !monster.isDead()) {
-          monster.damage(damage, credited);
-          fx(monster.getLocation().add(0, 1.0, 0), FxPriority.COMBAT)
-              .particle(Particle.DAMAGE_INDICATOR, 2, 0, 0, 0, 0.2, 0.02);
-        }
-      });
-      hit++;
-      if (hit >= getConfig().maxTargets) {
+  private void scheduleNovaDrain() {
+    if (novaDrainScheduled.compareAndSet(false, true)) {
+      J.s(this::drainNovas, 1);
+    }
+  }
+
+  private void drainNovas() {
+    int drained = 0;
+    while (drained < MAX_NOVAS_PER_TICK) {
+      NovaPlan plan = pendingNovas.poll();
+      if (plan == null) {
         break;
       }
+      pendingNovaCount.decrementAndGet();
+      J.runAt(plan.source(), () -> collectCandidatesOwned(plan));
+      drained++;
+    }
+    novaDrainScheduled.set(false);
+    if (!pendingNovas.isEmpty()) {
+      scheduleNovaDrain();
+    }
+  }
+
+  private void collectCandidatesOwned(NovaPlan plan) {
+    List<Monster> candidates = new ArrayList<>(plan.candidateLimit());
+    Location source = plan.source();
+    double radius = plan.radius();
+    for (Entity entity : source.getWorld().getNearbyEntities(source, radius, radius, radius)) {
+      if (entity instanceof Monster monster) {
+        candidates.add(monster);
+        if (candidates.size() >= plan.candidateLimit()) {
+          break;
+        }
+      }
     }
 
-    if (hit <= 0) {
+    if (candidates.isEmpty()) {
       return;
     }
 
-    playNova(victim.getLocation(), radius, servant ? NOVA_BONE : NOVA_CRIMSON);
-    addStat(credited, "tragoul.corpse-explosion.mobs-detonated", hit);
-    xp(credited, hit * getConfig().xpPerMobHit);
+    NovaBatch batch = new NovaBatch(plan, candidates.size());
+    for (Monster candidate : candidates) {
+      if (!J.runEntity(candidate, () -> batch.complete(captureTargetOwned(candidate)))) {
+        batch.complete(null);
+      }
+    }
+    batch.armTimeout();
+  }
+
+  private NovaTargetSnapshot captureTargetOwned(Monster target) {
+    if (!target.isValid() || target.isDead()) {
+      return null;
+    }
+    Location location = target.getLocation();
+    ProtectionSnapshot protection = captureProtectionOwned(target);
+    return new NovaTargetSnapshot(target, location, protection.protectedFriendly(), protection.tameOwnerId());
+  }
+
+  private ProtectionSnapshot captureProtectionOwned(LivingEntity target) {
+    if (target instanceof ArmorStand stand && stand.isMarker()) {
+      return new ProtectionSnapshot(true, null);
+    }
+    if (target.isInvulnerable() || target.hasMetadata("NPC") || TragoulSkeletalServant.isServant(target)) {
+      return new ProtectionSnapshot(true, null);
+    }
+    if (target instanceof Tameable tameable && tameable.isTamed()) {
+      AnimalTamer tamer = tameable.getOwner();
+      return new ProtectionSnapshot(false, tamer == null ? null : tamer.getUniqueId());
+    }
+    return new ProtectionSnapshot(false, null);
+  }
+
+  private void completeBatchOwnerOwned(NovaBatch batch) {
+    NovaPlan plan = batch.plan();
+    Player owner = plan.owner();
+    if (!owner.isOnline() || getActiveLevel(owner) <= 0) {
+      return;
+    }
+
+    List<NovaTargetSnapshot> selected = new ArrayList<>(plan.maxTargets());
+    for (NovaTargetSnapshot target : batch.targets()) {
+      if (canDamageSnapshotOwned(owner, false, target.protectedFriendly(), target.tameOwnerId(), target.location())) {
+        selected.add(target);
+        if (selected.size() >= plan.maxTargets()) {
+          break;
+        }
+      }
+    }
+    if (selected.isEmpty()) {
+      return;
+    }
+
+    long now = System.currentTimeMillis();
+    for (NovaTargetSnapshot target : selected) {
+      J.runEntity(target.entity(), () -> applyNovaTargetOwned(owner, target, plan.damage(), now));
+    }
+    playNova(plan.source(), plan.radius(), plan.servant() ? NOVA_BONE : NOVA_CRIMSON);
+    addStat(owner, "tragoul.corpse-explosion.mobs-detonated", selected.size());
+    xp(owner, selected.size() * plan.xpPerMobHit());
+  }
+
+  private void applyNovaTargetOwned(Player owner, NovaTargetSnapshot target, double damage, long now) {
+    Monster monster = target.entity();
+    if (!monster.isValid() || monster.isDead()) {
+      return;
+    }
+    monster.getPersistentDataContainer().set(NOVA_KEY, PersistentDataType.LONG, now);
+    monster.damage(damage, owner);
+    fx(monster.getLocation().add(0, 1.0D, 0), FxPriority.COMBAT)
+        .particle(Particle.DAMAGE_INDICATOR, 2, 0, 0, 0, 0.2D, 0.02D);
+  }
+
+  private boolean canDamageSnapshotOwned(Player owner, boolean player, boolean protectedFriendly,
+                                         UUID tameOwnerId, Location target) {
+    if (protectedFriendly || owner.getUniqueId().equals(tameOwnerId)) {
+      return false;
+    }
+    return player ? canPVP(owner, target) : canPVE(owner, target);
   }
 
   private void playNova(Location center, double radius, Color tint) {
@@ -169,23 +302,73 @@ public class TragoulCorpseExplosion extends SimpleAdaptation<TragoulCorpseExplos
   }
 
   private double getRadius(int level) {
-    return Math.max(1, getConfig().radiusBase + (getLevelPercent(level) * getConfig().radiusFactor));
+    double configured = Math.max(1D, getConfig().radiusBase + (getLevelPercent(level) * getConfig().radiusFactor));
+    return Math.min(HARD_MAX_NOVA_RADIUS, configured);
   }
 
   private double getVictimHealthFraction(int level) {
     return Math.max(0, getConfig().victimHealthFractionBase + (getLevelPercent(level) * getConfig().victimHealthFractionFactor));
   }
 
-  private double getNovaDamage(int level, LivingEntity victim) {
-    IAttribute attribute = Version.get().getAttribute(victim, Attributes.GENERIC_MAX_HEALTH);
-    double victimMaxHealth = attribute == null ? 20D : attribute.getValue();
+  private double getNovaDamage(int level, double victimMaxHealth) {
     double damage = getConfig().baseDamage + (victimMaxHealth * getVictimHealthFraction(level));
     return Math.min(getConfig().maxDamage, damage);
   }
 
-  @Override
-  public void onTick() {
+  private record ProtectionSnapshot(boolean protectedFriendly, UUID tameOwnerId) {
   }
+
+  private record NovaSourceSnapshot(Location location, double maxHealth, boolean player,
+                                    boolean protectedFriendly, UUID tameOwnerId) {
+  }
+
+  private record NovaTargetSnapshot(Monster entity, Location location, boolean protectedFriendly,
+                                    UUID tameOwnerId) {
+  }
+
+  private record NovaPlan(Player owner, Location source, double radius, double damage,
+                          int maxTargets, int candidateLimit, double xpPerMobHit, boolean servant) {
+  }
+
+  private final class NovaBatch {
+    private final NovaPlan plan;
+    private final ConcurrentLinkedQueue<NovaTargetSnapshot> targets = new ConcurrentLinkedQueue<>();
+    private final AtomicInteger remaining;
+    private final AtomicBoolean dispatched = new AtomicBoolean();
+
+    private NovaBatch(NovaPlan plan, int remaining) {
+      this.plan = plan;
+      this.remaining = new AtomicInteger(remaining);
+    }
+
+    private NovaPlan plan() {
+      return plan;
+    }
+
+    private ConcurrentLinkedQueue<NovaTargetSnapshot> targets() {
+      return targets;
+    }
+
+    private void complete(NovaTargetSnapshot target) {
+      if (target != null) {
+        targets.add(target);
+      }
+      if (remaining.decrementAndGet() == 0) {
+        dispatch();
+      }
+    }
+
+    private void armTimeout() {
+      J.runEntity(plan.owner(), this::dispatch, 10);
+    }
+
+    private void dispatch() {
+      if (dispatched.compareAndSet(false, true)) {
+        J.runEntity(plan.owner(), () -> completeBatchOwnerOwned(this));
+      }
+    }
+  }
+
 
   @ConfigDescription("Mobs you kill detonate in a blood nova that damages nearby hostile mobs.")
   protected static class Config extends AdaptationConfig {
@@ -201,7 +384,7 @@ public class TragoulCorpseExplosion extends SimpleAdaptation<TragoulCorpseExplos
     double victimHealthFractionFactor = 0.25;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Hard cap on nova damage per mob.", impact = "Prevents extreme bosses from producing one-shot novas.")
     double maxDamage = 16.0;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum hostile mobs damaged per nova.", impact = "Caps per-kill work to protect server performance.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum hostile mobs damaged per nova, with a hard runtime ceiling of 16.", impact = "Caps per-kill work to protect server performance.")
     int maxTargets = 12;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Window in milliseconds during which a nova-damaged mob cannot trigger another nova.", impact = "Prevents chain-reaction detonations.")
     long chainSuppressionMillis = 5000;

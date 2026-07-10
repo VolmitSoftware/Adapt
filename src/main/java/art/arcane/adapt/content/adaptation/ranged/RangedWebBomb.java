@@ -53,7 +53,11 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
@@ -234,10 +238,6 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
   }
 
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Throw a crafted web snare to trap targets in cobwebs.")
   protected static class Config extends AdaptationConfig {

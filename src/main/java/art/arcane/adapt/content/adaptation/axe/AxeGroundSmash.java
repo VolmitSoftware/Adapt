@@ -145,10 +145,6 @@ public class AxeGroundSmash extends SimpleAdaptation<AxeGroundSmash.Config> {
     return getConfig().falloffFactor * factor;
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Jump then crouch to smash all nearby enemies with your axe.")
   protected static class Config extends AdaptationConfig {

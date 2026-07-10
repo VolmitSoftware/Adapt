@@ -107,10 +107,6 @@ public class RangedFloaters extends SimpleAdaptation<RangedFloaters.Config> {
     return Math.max(0, (int) Math.floor(getLevelPercent(level) * getConfig().maxAmplifier));
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Projectiles have a chance to apply levitation to targets.")
   protected static class Config extends AdaptationConfig {

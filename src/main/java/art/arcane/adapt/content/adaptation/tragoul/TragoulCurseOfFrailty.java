@@ -26,17 +26,22 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Color;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.entity.AnimalTamer;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
+import org.bukkit.entity.Tameable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -49,6 +54,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class TragoulCurseOfFrailty extends SimpleAdaptation<TragoulCurseOfFrailty.Config> {
   private static final Color FRAILTY_GREEN = Color.fromRGB(90, 120, 40);
+  private static final int MAX_ATTACKER_COOLDOWNS = 16_384;
   private final Map<UUID, Long> attackerCooldowns = new ConcurrentHashMap<>();
 
   public TragoulCurseOfFrailty() {
@@ -98,32 +104,126 @@ public class TragoulCurseOfFrailty extends SimpleAdaptation<TragoulCurseOfFrailt
       return;
     }
 
+    LivingEntity target = attacker;
     long now = System.currentTimeMillis();
-    Long until = attackerCooldowns.get(attacker.getUniqueId());
-    if (until != null && until > now) {
+    withAdaptedPlayer(p, () -> prepareCurseOwnerOwned(p, target, now));
+  }
+
+  private void prepareCurseOwnerOwned(Player player, LivingEntity target, long now) {
+    int level = getActiveLevel(player);
+    if (level <= 0) {
       return;
     }
 
-    LivingEntity target = attacker;
-    withAdaptedPlayer(p, e, () -> {
-      int level = getActiveLevel(p);
-      if (level <= 0 || !canDamageTarget(p, target)) {
-        return;
-      }
+    UUID targetId = target.getUniqueId();
+    long cooldownUntil = now + Math.max(250L, getConfig().perAttackerCooldownMillis);
+    if (!reserveCooldown(targetId, now, cooldownUntil)) {
+      return;
+    }
 
-      attackerCooldowns.put(target.getUniqueId(), now + getConfig().perAttackerCooldownMillis);
-      int duration = getCurseDurationTicks(level);
-      int weaknessAmplifier = getLevelPercent(level) >= 0.8 ? 1 : 0;
-      boolean heavy = getLevelPercent(level) >= getConfig().slownessUnlockPercent;
-      target.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, duration, weaknessAmplifier, true, true, true), true);
-      if (heavy) {
-        target.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, duration, getConfig().slownessAmplifier, true, true, true), true);
-      }
+    UUID playerId = player.getUniqueId();
+    if (!J.runEntity(target, () -> captureTargetOwned(player, playerId, target, targetId, level, cooldownUntil))) {
+      attackerCooldowns.remove(targetId, cooldownUntil);
+    }
+  }
 
-      playCurse(target, heavy);
-      addStat(p, "tragoul.curse-of-frailty.curses-applied", 1);
-      xp(p, getConfig().xpPerCurse);
-    });
+  private void captureTargetOwned(Player player, UUID playerId, LivingEntity target, UUID targetId, int level, long cooldownUntil) {
+    if (!target.isValid() || target.isDead()) {
+      attackerCooldowns.remove(targetId, cooldownUntil);
+      return;
+    }
+
+    TargetSnapshot snapshot = new TargetSnapshot(
+        target.getLocation().clone(),
+        target instanceof Player,
+        isProtectedTarget(playerId, target)
+    );
+    if (!J.runEntity(player, () -> validateCurseOwnerOwned(player, target, targetId, level, cooldownUntil, snapshot))) {
+      attackerCooldowns.remove(targetId, cooldownUntil);
+    }
+  }
+
+  private void validateCurseOwnerOwned(Player player, LivingEntity target, UUID targetId, int level, long cooldownUntil, TargetSnapshot snapshot) {
+    if (!player.isOnline() || getActiveLevel(player) <= 0 || snapshot.protectedTarget()) {
+      attackerCooldowns.remove(targetId, cooldownUntil);
+      return;
+    }
+
+    boolean allowed = snapshot.playerTarget()
+        ? canPVP(player, snapshot.location())
+        : canPVE(player, snapshot.location());
+    if (!allowed) {
+      attackerCooldowns.remove(targetId, cooldownUntil);
+      return;
+    }
+
+    double levelPercent = getLevelPercent(level);
+    int duration = getCurseDurationTicks(level);
+    int weaknessAmplifier = levelPercent >= 0.8 ? 1 : 0;
+    boolean heavy = levelPercent >= getConfig().slownessUnlockPercent;
+    int slownessAmplifier = Math.max(0, Math.min(4, getConfig().slownessAmplifier));
+    if (!J.runEntity(target, () -> applyCurseTargetOwned(player, target, targetId, cooldownUntil, duration,
+        weaknessAmplifier, heavy, slownessAmplifier))) {
+      attackerCooldowns.remove(targetId, cooldownUntil);
+    }
+  }
+
+  private void applyCurseTargetOwned(Player player, LivingEntity target, UUID targetId, long cooldownUntil, int duration,
+                                     int weaknessAmplifier, boolean heavy, int slownessAmplifier) {
+    if (!target.isValid() || target.isDead()) {
+      attackerCooldowns.remove(targetId, cooldownUntil);
+      return;
+    }
+
+    target.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, duration, weaknessAmplifier, true, true, true), true);
+    if (heavy) {
+      target.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, duration, slownessAmplifier, true, true, true), true);
+    }
+    playCurse(target, heavy);
+    J.runEntity(player, () -> rewardCurseOwnerOwned(player));
+  }
+
+  private void rewardCurseOwnerOwned(Player player) {
+    if (!player.isOnline()) {
+      return;
+    }
+    addStat(player, "tragoul.curse-of-frailty.curses-applied", 1);
+    xp(player, getConfig().xpPerCurse);
+  }
+
+  private boolean reserveCooldown(UUID targetId, long now, long cooldownUntil) {
+    while (true) {
+      Long current = attackerCooldowns.get(targetId);
+      if (current != null && current > now) {
+        return false;
+      }
+      if (current == null) {
+        if (attackerCooldowns.size() >= MAX_ATTACKER_COOLDOWNS) {
+          return false;
+        }
+        if (attackerCooldowns.putIfAbsent(targetId, cooldownUntil) == null) {
+          return true;
+        }
+        continue;
+      }
+      if (attackerCooldowns.replace(targetId, current, cooldownUntil)) {
+        return true;
+      }
+    }
+  }
+
+  private boolean isProtectedTarget(UUID playerId, LivingEntity target) {
+    if (target instanceof ArmorStand stand && stand.isMarker()) {
+      return true;
+    }
+    if (target.isInvulnerable() || target.hasMetadata("NPC") || TragoulSkeletalServant.isServant(target)) {
+      return true;
+    }
+    if (!(target instanceof Tameable tameable) || !tameable.isTamed()) {
+      return false;
+    }
+    AnimalTamer owner = tameable.getOwner();
+    return owner != null && playerId.equals(owner.getUniqueId());
   }
 
   private void playCurse(LivingEntity target, boolean heavy) {
@@ -153,6 +253,9 @@ public class TragoulCurseOfFrailty extends SimpleAdaptation<TragoulCurseOfFrailt
   public void onTick() {
     long now = System.currentTimeMillis();
     attackerCooldowns.entrySet().removeIf(i -> i.getValue() <= now);
+  }
+
+  private record TargetSnapshot(Location location, boolean playerTarget, boolean protectedTarget) {
   }
 
   @ConfigDescription("Enemies that strike you are cursed with weakness, and slowness at higher levels.")

@@ -31,13 +31,24 @@ import art.arcane.adapt.content.item.ChronoTimeBombItem;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
+import art.arcane.adapt.util.common.world.LoadedChunkAccess;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
-import org.bukkit.*;
-import org.bukkit.entity.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
+import org.bukkit.World;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
+import org.bukkit.entity.ThrownPotion;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
@@ -51,10 +62,19 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Predicate;
 
 public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
   private static final EnumSet<Action> SUPPORTED_ACTIONS = EnumSet.of(
@@ -62,14 +82,34 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
       Action.RIGHT_CLICK_BLOCK
   );
   private static final long PROJECTILE_TRACK_TTL_MS = 15000L;
+  private static final long MIN_FIELD_SCAN_INTERVAL_MILLIS = 200L;
+  private static final long MAX_FIELD_SCAN_INTERVAL_MILLIS = 250L;
+  private static final double HARD_MAX_FIELD_RADIUS = 16D;
+  private static final int HARD_MAX_ACTIVE_FIELDS = 64;
+  private static final int HARD_MAX_REGION_SCANS_PER_CYCLE = 128;
+  private static final int HARD_MAX_REGION_SCANS_PER_FIELD = 16;
+  private static final int HARD_MAX_ENTITIES_PER_SCAN_CYCLE = 2048;
+  private static final int HARD_MAX_ENTITIES_PER_FIELD = 256;
+  private static final int HARD_MAX_ENTITIES_PER_REGION = 128;
+  private static final int HARD_MAX_FROZEN_ENTITIES_PER_TICK = 512;
+  private static final int HARD_MAX_FROZEN_PLAYERS_PER_TICK = 256;
+  private static final int HARD_MAX_FIELD_FX_PARTICLES_PER_TICK = 4096;
+  private static final int HARD_MAX_FIELD_FX_PARTICLES_PER_FIELD = 64;
+  private static final int HARD_MAX_IMMEDIATE_FIELD_FX_PARTICLES = 512;
+  private static final int HARD_MAX_FREEZE_FX_PARTICLES_PER_SCAN = 1024;
+  private static final int HARD_MAX_FREEZE_FX_PARTICLES_PER_FIELD = 24;
 
   private final Map<UUID, Long> cooldowns;
-  private final Set<UUID> cooldownReadyNotify;
+  private final Map<UUID, Boolean> cooldownReadyNotify;
   private final List<TemporalField> fields;
   private final Map<UUID, ArmedBombProjectile> activeBombProjectiles;
   private final Map<UUID, FrozenEntityState> frozenEntities;
   private final Map<UUID, FrozenPlayerState> frozenPlayers;
-  private final AtomicBoolean syncTickQueued;
+  private final AtomicInteger immediateFieldFxBudget;
+  private Iterator<Map.Entry<UUID, FrozenEntityState>> frozenEntityCursor = Collections.emptyIterator();
+  private Iterator<Map.Entry<UUID, FrozenPlayerState>> frozenPlayerCursor = Collections.emptyIterator();
+  private int fieldScanRotation;
+  private int presentationRotation;
 
   public ChronosTimeBomb() {
     super("chronos-time-bomb");
@@ -87,12 +127,12 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
         .build());
 
     cooldowns = new ConcurrentHashMap<>();
-    cooldownReadyNotify = ConcurrentHashMap.newKeySet();
+    cooldownReadyNotify = new ConcurrentHashMap<>();
     fields = new CopyOnWriteArrayList<>();
     activeBombProjectiles = new ConcurrentHashMap<>();
     frozenEntities = new ConcurrentHashMap<>();
     frozenPlayers = new ConcurrentHashMap<>();
-    syncTickQueued = new AtomicBoolean(false);
+    immediateFieldFxBudget = new AtomicInteger(HARD_MAX_IMMEDIATE_FIELD_FX_PARTICLES);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.ICE)
         .key("challenge_chronos_bomb_freeze_50")
@@ -117,7 +157,8 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
   }
 
   private double getRadius(int level) {
-    return getConfig().baseRadius + ((Math.max(1, level) - 1) * getConfig().radiusPerLevel);
+    double configured = getConfig().baseRadius + ((Math.max(1, level) - 1) * getConfig().radiusPerLevel);
+    return Math.max(1D, Math.min(HARD_MAX_FIELD_RADIUS, configured));
   }
 
   private int getDurationTicks(int level) {
@@ -212,7 +253,7 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
     }
 
     cooldowns.put(p.getUniqueId(), now + getCooldownMillis());
-    cooldownReadyNotify.add(p.getUniqueId());
+    cooldownReadyNotify.put(p.getUniqueId(), true);
     activeBombProjectiles.put(potion.getUniqueId(), new ArmedBombProjectile(p.getUniqueId(), level, now));
 
     if (getConfig().playClockSounds) {
@@ -249,15 +290,20 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
   }
 
   private void deployField(UUID ownerId, int level, Location center) {
+    long now = M.ms();
     TemporalField field = new TemporalField(
         ownerId,
         center,
         getRadius(level),
-        M.ms() + (getDurationTicks(level) * 50L),
+        now + (getDurationTicks(level) * 50L),
         level,
-        M.ms(),
-        M.ms());
-    fields.add(field);
+        now,
+        now,
+        now);
+    TemporalField replaced = addFieldBounded(field);
+    if (replaced != null && claimBudget(immediateFieldFxBudget, 25) == 25) {
+      emitFieldThaw(replaced);
+    }
 
     if (getConfig().playClockSounds) {
       ChronosSoundFX.playTimeBombDetonate(center);
@@ -281,44 +327,74 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
     }
   }
 
-  private void freezeEntity(Entity entity) {
+  private TemporalField addFieldBounded(TemporalField field) {
+    int maximum = ChronosWorkBudget.bounded(getConfig().maxActiveFields, 1, HARD_MAX_ACTIVE_FIELDS);
+    synchronized (fields) {
+      TemporalField replaced = null;
+      if (fields.size() >= maximum) {
+        ArrayList<Long> expiries = new ArrayList<>(fields.size());
+        for (TemporalField current : fields) {
+          expiries.add(current.expiresAt());
+        }
+        int oldest = ChronosWorkBudget.oldestIndex(expiries);
+        if (oldest >= 0) {
+          replaced = fields.remove(oldest);
+        }
+      }
+      fields.add(field);
+      return replaced;
+    }
+  }
+
+  private boolean freezeEntity(Entity entity, UUID fieldId) {
     if (entity instanceof Player) {
-      return;
+      return false;
     }
 
-    UUID id = entity.getUniqueId();
-    FrozenEntityState state = frozenEntities.get(id);
+    UUID entityId = entity.getUniqueId();
+    FrozenEntityState state = frozenEntities.get(entityId);
+    boolean created = false;
     if (state == null) {
-      Boolean hadAi = null;
-      if (entity instanceof LivingEntity living) {
-        hadAi = living.hasAI();
-      }
+      Boolean hadAi = entity instanceof LivingEntity living ? living.hasAI() : null;
+      FrozenEntityState candidate = new FrozenEntityState(entity.getVelocity(), entity.hasGravity(), hadAi);
+      FrozenEntityState existing = frozenEntities.putIfAbsent(entityId, candidate);
+      state = existing == null ? candidate : existing;
+      created = existing == null;
+    }
 
-      state = new FrozenEntityState(entity.getVelocity().clone(), entity.hasGravity(), hadAi);
-      frozenEntities.put(id, state);
-    } else if (getConfig().accumulateFrozenImpulse) {
+    state.addField(fieldId);
+    if (!created && getConfig().accumulateFrozenImpulse) {
       state.captureImpulse(entity.getVelocity(), getConfig().frozenImpulseMinMagnitude, getConfig().frozenImpulseSampleCap);
     }
+    maintainFrozenEntity(entity);
+    return created;
+  }
 
+  private void maintainFrozenEntity(Entity entity) {
     entity.setGravity(false);
     entity.setVelocity(new Vector());
     entity.setFallDistance(0);
-
     if (entity instanceof LivingEntity living) {
       living.setAI(false);
     }
   }
 
-  private void freezePlayer(Player player) {
-    UUID id = player.getUniqueId();
-    if (!frozenPlayers.containsKey(id)) {
-      frozenPlayers.put(id, new FrozenPlayerState(player.getAllowFlight(), player.isFlying(), player.hasGravity()));
+  private void freezePlayer(Player player, UUID fieldId) {
+    UUID playerId = player.getUniqueId();
+    FrozenPlayerState state = frozenPlayers.get(playerId);
+    if (state == null) {
+      FrozenPlayerState candidate = new FrozenPlayerState(player.getAllowFlight(), player.isFlying(), player.hasGravity());
+      FrozenPlayerState existing = frozenPlayers.putIfAbsent(playerId, candidate);
+      state = existing == null ? candidate : existing;
     }
+    state.addField(fieldId);
+    maintainFrozenPlayer(player);
+  }
 
+  private void maintainFrozenPlayer(Player player) {
     if (!getConfig().freezePlayersInAir || player.isOnGround()) {
       return;
     }
-
     player.setFallDistance(0);
     player.setAllowFlight(true);
     player.setFlying(true);
@@ -326,312 +402,493 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
     player.setVelocity(new Vector());
   }
 
-  private void unfreezePlayer(UUID playerId, FrozenPlayerState state) {
-    Player player = Bukkit.getPlayer(playerId);
-    if (player == null || !player.isOnline()) {
-      return;
-    }
-
+  private void unfreezePlayer(Player player, FrozenPlayerState state) {
     player.setGravity(state.gravity());
     if (state.allowFlight()) {
       player.setAllowFlight(true);
       player.setFlying(state.flying());
-    } else {
-      player.setFlying(false);
-      player.setAllowFlight(false);
-    }
-  }
-
-  private boolean shouldFreezePlayer(Player player) {
-    if (!getConfig().freezePlayersInAir) {
-      return false;
-    }
-
-    UUID playerId = player.getUniqueId();
-    for (TemporalField field : fields) {
-      if (field.center().getWorld() == null || !field.center().getWorld().equals(player.getWorld())) {
-        continue;
-      }
-
-      if (field.center().distanceSquared(player.getLocation()) > field.radius() * field.radius()) {
-        continue;
-      }
-
-      if (playerId.equals(field.owner())) {
-        continue;
-      }
-
-      Player owner = Bukkit.getPlayer(field.owner());
-      if (owner != null && !canDamageTarget(owner, player)) {
-        continue;
-      }
-
-      return true;
-    }
-
-    return false;
-  }
-
-  private void unfreezeEntity(UUID entityId, FrozenEntityState state) {
-    Entity entity = Bukkit.getEntity(entityId);
-    if (entity == null || entity.isDead() || !entity.isValid()) {
       return;
     }
+    player.setFlying(false);
+    player.setAllowFlight(false);
+  }
 
+  private void unfreezeEntity(Entity entity, FrozenEntityState state) {
     entity.setGravity(state.gravity());
     entity.setVelocity(state.buildReleaseVelocity(getConfig().frozenImpulseReleaseCap));
-
     if (entity instanceof LivingEntity living && state.hadAi() != null) {
       living.setAI(state.hadAi());
     }
   }
 
-  private boolean isInsideAnyField(Location location) {
-    if (location.getWorld() == null) {
-      return false;
+  private void evaluateFieldEntity(TemporalField field, Entity entity, FieldPulseState pulse, long now) {
+    if (!isFieldActive(field, now) || !entity.isValid() || entity.isDead()) {
+      return;
     }
 
-    for (TemporalField field : fields) {
-      if (field.center().getWorld() == null || !field.center().getWorld().equals(location.getWorld())) {
-        continue;
-      }
-
-      if (field.center().distanceSquared(location) <= field.radius() * field.radius()) {
-        return true;
-      }
+    Location entityLocation = entity.getLocation();
+    if (!field.contains(entityLocation)) {
+      return;
     }
 
-    return false;
-  }
-
-  private void applyField(TemporalField field, long now) {
-    if (field.center().getWorld() == null) {
+    if (entity instanceof Player player && player.getUniqueId().equals(field.owner())) {
+      player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS,
+          getConfig().effectRefreshTicks, getConfig().casterSlownessAmplifier, true, false, false), true);
+      player.addPotionEffect(new PotionEffect(PotionEffectType.MINING_FATIGUE,
+          getConfig().effectRefreshTicks, getConfig().fatigueAmplifier, true, false, false), true);
       return;
     }
 
     Player owner = Bukkit.getPlayer(field.owner());
-
-    Collection<Entity> nearby = field.center().getWorld().getNearbyEntities(field.center(), field.radius(), field.radius(), field.radius());
-    int entitiesSlowed = 0;
-    int freezeSparks = 0;
-    for (Entity entity : nearby) {
-      if (entity.getLocation().distanceSquared(field.center()) > field.radius() * field.radius()) {
-        continue;
-      }
-
-      if (!(entity instanceof Player)) {
-        if (isProtectedFriendly(owner, entity)) {
-          continue;
-        }
-
-        boolean wasNew = !frozenEntities.containsKey(entity.getUniqueId());
-        freezeEntity(entity);
-        if (wasNew) {
-          if (freezeSparks < 8) {
-            fx(entity.getLocation(), FxPriority.COMBAT).ring(Particles.END_ROD, 0.8D, 3, 0.15D);
-            freezeSparks++;
-          }
-          if (owner != null) {
-            entitiesSlowed++;
-            if (entity instanceof Projectile) {
-              addStat(owner, "chronos.time-bomb.projectiles-frozen", 1);
-            }
-            addStat(owner, "chronos.time-bomb.entities-slowed", 1);
-          }
-        }
-        continue;
-      }
-
-      LivingEntity living = (LivingEntity) entity;
-      boolean caster = entity.getUniqueId().equals(field.owner());
-      if (caster) {
-        living.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, getConfig().effectRefreshTicks, getConfig().casterSlownessAmplifier, true, false, false), true);
-        living.addPotionEffect(new PotionEffect(PotionEffectType.MINING_FATIGUE, getConfig().effectRefreshTicks, getConfig().fatigueAmplifier, true, false, false), true);
-        continue;
-      }
-
-      if (owner != null) {
-        if (!canDamageTarget(owner, living)) {
-          continue;
-        }
-      }
-
-      living.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, getConfig().effectRefreshTicks, getConfig().slownessAmplifier, true, false, false), true);
-      living.addPotionEffect(new PotionEffect(PotionEffectType.MINING_FATIGUE, getConfig().effectRefreshTicks, getConfig().fatigueAmplifier, true, false, false), true);
-      freezePlayer((Player) living);
-      living.setVelocity(new Vector());
-      entitiesSlowed++;
+    if (isProtectedFriendly(owner, entity)) {
+      return;
+    }
+    if (owner == null) {
+      applyFieldEntity(field, entity, null, pulse, now);
+      return;
     }
 
-    if (entitiesSlowed >= 8 && owner != null
-        && AdaptConfig.get().isAdvancements()
-        && !getPlayer(owner).getData().isGranted("challenge_chronos_bomb_crowd_8")) {
-      getPlayer(owner).getAdvancementHandler().grant("challenge_chronos_bomb_crowd_8");
-    }
-
-    spawnFieldSphere(field, now);
-
-    if (getConfig().playClockSounds && now >= field.nextTickSoundAt()) {
-      long totalDurationMillis = Math.max(50L, getDurationTicks(field.level()) * 50L);
-      long remainingMillis = Math.max(0L, field.expiresAt() - now);
-      double progress = 1D - (remainingMillis / (double) totalDurationMillis);
-      progress = Math.max(0D, Math.min(1D, progress));
-
-      double pitchCurve = Math.pow(progress, Math.max(0.1D, getConfig().fieldTickPitchCurveExponent));
-      float pitch = (float) (getConfig().fieldTickPitchStart
-          + ((getConfig().fieldTickPitchEnd - getConfig().fieldTickPitchStart) * pitchCurve));
-      ChronosSoundFX.playTimeFieldTick(field.center(), pitch);
-
-      double acceleration = Math.max(0D, Math.min(0.95D, getConfig().fieldTickAccelerationFactor));
-      long interval = (long) Math.max(getConfig().fieldTickMinIntervalMillis,
-          getConfig().fieldTickSoundIntervalMillis * (1D - (progress * acceleration)));
-      field.setNextTickSoundAt(now + interval);
-    }
+    Location targetLocation = entityLocation.clone();
+    boolean playerTarget = entity instanceof Player;
+    J.runEntity(owner, () -> {
+      if (!owner.isOnline()) {
+        return;
+      }
+      boolean allowed = playerTarget ? canPVP(owner, targetLocation) : canPVE(owner, targetLocation);
+      if (allowed) {
+        J.runEntity(entity, () -> applyFieldEntity(field, entity, owner, pulse, M.ms()));
+      }
+    });
   }
 
-  private void spawnFieldSphere(TemporalField field, long now) {
-    if (!getConfig().showFieldSphere || now < field.nextVisualAt() || field.center().getWorld() == null) {
+  private void applyFieldEntity(TemporalField field, Entity entity, Player owner, FieldPulseState pulse, long now) {
+    if (!isFieldActive(field, now) || !entity.isValid() || entity.isDead() || !field.contains(entity.getLocation())) {
+      return;
+    }
+
+    if (entity instanceof Player player) {
+      player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS,
+          getConfig().effectRefreshTicks, getConfig().slownessAmplifier, true, false, false), true);
+      player.addPotionEffect(new PotionEffect(PotionEffectType.MINING_FATIGUE,
+          getConfig().effectRefreshTicks, getConfig().fatigueAmplifier, true, false, false), true);
+      freezePlayer(player, field.id());
+      player.setVelocity(new Vector());
+      recordFieldImpact(owner, false, false, pulse.recordSlowed());
+      return;
+    }
+
+    boolean newlyFrozen = freezeEntity(entity, field.id());
+    if (!newlyFrozen) {
+      return;
+    }
+
+    if (pulse.claimFxParticles(3) == 3) {
+      fx(entity.getLocation(), FxPriority.COMBAT).ring(Particles.END_ROD, 0.8D, 3, 0.15D);
+    }
+    recordFieldImpact(owner, true, entity instanceof Projectile, pulse.recordSlowed());
+  }
+
+  private void recordFieldImpact(Player owner, boolean newlyFrozen, boolean projectile, boolean crowdThreshold) {
+    if (owner == null || (!newlyFrozen && !crowdThreshold)) {
+      return;
+    }
+
+    J.runEntity(owner, () -> {
+      if (!owner.isOnline()) {
+        return;
+      }
+      if (newlyFrozen) {
+        addStat(owner, "chronos.time-bomb.entities-slowed", 1);
+        if (projectile) {
+          addStat(owner, "chronos.time-bomb.projectiles-frozen", 1);
+        }
+      }
+      if (crowdThreshold
+          && AdaptConfig.get().isAdvancements()
+          && !getPlayer(owner).getData().isGranted("challenge_chronos_bomb_crowd_8")) {
+        getPlayer(owner).getAdvancementHandler().grant("challenge_chronos_bomb_crowd_8");
+      }
+    });
+  }
+
+  private boolean isFieldActive(TemporalField field, long now) {
+    return field != null && field.expiresAt() > now && fields.contains(field);
+  }
+
+  private boolean isAuthorizedFieldAt(UUID fieldId, Location location, long now) {
+    for (TemporalField field : fields) {
+      if (field.id().equals(fieldId) && field.expiresAt() > now && field.contains(location)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private void spawnFieldSphere(TemporalField field, long now, int particleCount) {
+    if (particleCount <= 0 || field.center().getWorld() == null) {
       return;
     }
 
     double radius = Math.max(0.1, field.radius());
     double spin = ((now % 3000L) / 3000.0D) * Math.PI * 2D;
-    int ringPoints = 12;
-    double[] latitudes = {-0.6D, 0.0D, 0.6D};
     FxEmitter lattice = fx(field.center(), FxPriority.AMBIENT);
-    for (double latitude : latitudes) {
-      double ringRadius = radius * Math.sqrt(Math.max(0D, 1.0D - (latitude * latitude)));
-      double oy = latitude * radius;
-      for (int i = 0; i < ringPoints; i++) {
-        double angle = ((Math.PI * 2D * i) / ringPoints) + spin + (latitude * 1.3D);
-        lattice.particle(Particles.END_ROD, 1, Math.cos(angle) * ringRadius, oy, Math.sin(angle) * ringRadius, 0, 0);
-      }
+    double goldenAngle = Math.PI * (3D - Math.sqrt(5D));
+    for (int i = 0; i < particleCount; i++) {
+      double y = 1D - (2D * (i + 0.5D) / particleCount);
+      double ringRadius = Math.sqrt(Math.max(0D, 1D - (y * y)));
+      double angle = (goldenAngle * i) + spin;
+      lattice.particle(Particles.END_ROD, 1,
+          Math.cos(angle) * ringRadius * radius,
+          y * radius,
+          Math.sin(angle) * ringRadius * radius,
+          0,
+          0);
     }
-
-    field.setNextVisualAt(now + Math.max(1, getConfig().fieldSphereRefreshMillis));
   }
 
   private void emitFieldThaw(TemporalField field) {
-    if (field.center().getWorld() == null) {
+    emitFieldThaw(field, 25);
+  }
+
+  private void emitFieldThaw(TemporalField field, int particleBudget) {
+    if (field.center().getWorld() == null || particleBudget <= 0) {
       return;
     }
 
-    double radius = field.radius();
-    fx(field.center(), FxPriority.TRANSITION)
+    Location center = field.center().clone();
+    int portalParticles = Math.max(0, particleBudget - 1);
+    J.runAt(center, () -> fx(center, FxPriority.TRANSITION)
         .particle(Particle.FLASH, 1, 0, 0, 0, 0, 0)
-        .particle(Particle.PORTAL, 24, 0, 0, 0, radius * 0.4D, 0.6D)
-        .sound(Sound.BLOCK_BEACON_DEACTIVATE, 0.6F, 0.9F);
+        .particle(Particle.PORTAL, portalParticles, 0, 0, 0, field.radius() * 0.4D, 0.6D)
+        .sound(Sound.BLOCK_BEACON_DEACTIVATE, 0.6F, 0.9F));
   }
 
   @Override
   public void onTick() {
-    if (J.isPrimaryThread()) {
-      onTickSync();
-      return;
-    }
+    long now = M.ms();
+    immediateFieldFxBudget.set(Math.min(HARD_MAX_IMMEDIATE_FIELD_FX_PARTICLES,
+        ChronosWorkBudget.bounded(getConfig().maxFieldFxParticlesPerTick,
+            1, HARD_MAX_FIELD_FX_PARTICLES_PER_TICK)));
+    cleanupBombProjectiles(now);
+    notifyReadyCooldowns(now);
 
-    if (!syncTickQueued.compareAndSet(false, true)) {
-      return;
-    }
-
-    J.s(() -> {
-      try {
-        onTickSync();
-      } finally {
-        syncTickQueued.set(false);
-      }
-    });
+    int fieldFxBudget = ChronosWorkBudget.bounded(getConfig().maxFieldFxParticlesPerTick,
+        1, HARD_MAX_FIELD_FX_PARTICLES_PER_TICK);
+    fieldFxBudget = expireFields(now, fieldFxBudget);
+    presentFields(now, fieldFxBudget);
+    scheduleDueFieldScans(now);
+    reconcileFrozenPlayers(now);
+    reconcileFrozenEntities(now);
+    cooldowns.entrySet().removeIf(entry -> entry.getValue() <= now);
   }
 
-  private void onTickSync() {
-    long now = M.ms();
-    cleanupBombProjectiles(now);
+  private void notifyReadyCooldowns(long now) {
+    for (UUID id : cooldownReadyNotify.keySet()) {
+      if (cooldowns.getOrDefault(id, 0L) > now || cooldownReadyNotify.remove(id) == null) {
+        continue;
+      }
+      Player player = Bukkit.getPlayer(id);
+      if (player != null && getConfig().playClockSounds) {
+        J.runEntity(player, () -> {
+          if (player.isOnline()) {
+            ChronosSoundFX.playCooldownReady(player);
+          }
+        });
+      }
+    }
+  }
 
-    for (UUID id : new HashSet<>(cooldownReadyNotify)) {
-      Player p = Bukkit.getPlayer(id);
-      if (p == null) {
-        cooldownReadyNotify.remove(id);
+  private int expireFields(long now, int particleBudget) {
+    int remaining = particleBudget;
+    for (TemporalField field : fields) {
+      if (field.expiresAt() > now || !fields.remove(field)) {
+        continue;
+      }
+      int thawParticles = Math.min(25, remaining);
+      if (thawParticles > 0) {
+        emitFieldThaw(field, thawParticles);
+        remaining -= thawParticles;
+      }
+    }
+    return remaining;
+  }
+
+  private void presentFields(long now, int particleBudget) {
+    ArrayList<TemporalField> activeFields = new ArrayList<>(fields);
+    int fieldCount = activeFields.size();
+    if (fieldCount == 0) {
+      return;
+    }
+
+    int perFieldParticles = ChronosWorkBudget.bounded(getConfig().maxFieldFxParticlesPerField,
+        1, HARD_MAX_FIELD_FX_PARTICLES_PER_FIELD);
+    int requestedSphereParticles = Math.min(
+        ChronosWorkBudget.bounded(getConfig().fieldSphereParticleCount, 1, HARD_MAX_FIELD_FX_PARTICLES_PER_FIELD),
+        ChronosWorkBudget.bounded(getConfig().maxFieldSphereParticlesPerField,
+            1, HARD_MAX_FIELD_FX_PARTICLES_PER_FIELD));
+    ChronosWorkBudget.Allocation allocation = ChronosWorkBudget.allocate(
+        fieldCount, particleBudget, perFieldParticles, presentationRotation);
+    presentationRotation = Math.floorMod(presentationRotation + 1, fieldCount);
+
+    for (int i = 0; i < fieldCount; i++) {
+      TemporalField field = activeFields.get(i);
+      boolean visualDue = getConfig().showFieldSphere && now >= field.nextVisualAt();
+      boolean soundDue = getConfig().playClockSounds && now >= field.nextTickSoundAt();
+      if (!visualDue && !soundDue) {
         continue;
       }
 
-      long cooldown = cooldowns.getOrDefault(id, 0L);
-      if (cooldown <= now) {
-        if (getConfig().playClockSounds) {
-          ChronosSoundFX.playCooldownReady(p);
+      int visualParticles = visualDue ? Math.min(requestedSphereParticles, allocation.grant(i)) : 0;
+      if (visualParticles > 0) {
+        field.setNextVisualAt(now + Math.max(1L, getConfig().fieldSphereRefreshMillis));
+        Location center = field.center().clone();
+        J.runAt(center, () -> spawnFieldSphere(field, now, visualParticles));
+      }
+
+      if (soundDue) {
+        float pitch = calculateFieldPitch(field, now);
+        field.setNextTickSoundAt(now + calculateFieldSoundInterval(field, now));
+        ChronosSoundFX.playTimeFieldTick(field.center(), pitch);
+      }
+    }
+  }
+
+  private float calculateFieldPitch(TemporalField field, long now) {
+    double progress = calculateFieldProgress(field, now);
+    double pitchCurve = Math.pow(progress, Math.max(0.1D, getConfig().fieldTickPitchCurveExponent));
+    return (float) (getConfig().fieldTickPitchStart
+        + ((getConfig().fieldTickPitchEnd - getConfig().fieldTickPitchStart) * pitchCurve));
+  }
+
+  private long calculateFieldSoundInterval(TemporalField field, long now) {
+    double progress = calculateFieldProgress(field, now);
+    double acceleration = Math.max(0D, Math.min(0.95D, getConfig().fieldTickAccelerationFactor));
+    return (long) Math.max(getConfig().fieldTickMinIntervalMillis,
+        getConfig().fieldTickSoundIntervalMillis * (1D - (progress * acceleration)));
+  }
+
+  private double calculateFieldProgress(TemporalField field, long now) {
+    long totalDurationMillis = Math.max(50L, getDurationTicks(field.level()) * 50L);
+    long remainingMillis = Math.max(0L, field.expiresAt() - now);
+    return Math.max(0D, Math.min(1D, 1D - (remainingMillis / (double) totalDurationMillis)));
+  }
+
+  private void scheduleDueFieldScans(long now) {
+    ArrayList<TemporalField> dueFields = new ArrayList<>();
+    long interval = ChronosWorkBudget.bounded(getConfig().fieldScanIntervalMillis,
+        MIN_FIELD_SCAN_INTERVAL_MILLIS, MAX_FIELD_SCAN_INTERVAL_MILLIS);
+    for (TemporalField field : fields) {
+      if (field.expiresAt() > now && now >= field.nextScanAt()) {
+        field.setNextScanAt(now + interval);
+        dueFields.add(field);
+      }
+    }
+    int fieldCount = dueFields.size();
+    if (fieldCount == 0) {
+      return;
+    }
+
+    int regionGlobal = ChronosWorkBudget.bounded(getConfig().maxRegionScansPerCycle,
+        1, HARD_MAX_REGION_SCANS_PER_CYCLE);
+    int regionPerField = ChronosWorkBudget.bounded(getConfig().maxRegionScansPerField,
+        1, HARD_MAX_REGION_SCANS_PER_FIELD);
+    int entityGlobal = ChronosWorkBudget.bounded(getConfig().maxEntitiesPerScanCycle,
+        1, HARD_MAX_ENTITIES_PER_SCAN_CYCLE);
+    int entityPerField = ChronosWorkBudget.bounded(getConfig().maxEntitiesPerField,
+        1, HARD_MAX_ENTITIES_PER_FIELD);
+    int fxGlobal = ChronosWorkBudget.bounded(getConfig().maxFreezeFxParticlesPerScan,
+        1, HARD_MAX_FREEZE_FX_PARTICLES_PER_SCAN);
+    int fxPerField = ChronosWorkBudget.bounded(getConfig().maxFreezeFxParticlesPerField,
+        1, HARD_MAX_FREEZE_FX_PARTICLES_PER_FIELD);
+    ChronosWorkBudget.Allocation regions = ChronosWorkBudget.allocate(
+        fieldCount, regionGlobal, regionPerField, fieldScanRotation);
+    ChronosWorkBudget.Allocation entities = ChronosWorkBudget.allocate(
+        fieldCount, entityGlobal, entityPerField, fieldScanRotation);
+    ChronosWorkBudget.Allocation particles = ChronosWorkBudget.allocate(
+        fieldCount, fxGlobal, fxPerField, fieldScanRotation);
+    fieldScanRotation = Math.floorMod(fieldScanRotation + 1, fieldCount);
+
+    for (int i = 0; i < fieldCount; i++) {
+      TemporalField field = dueFields.get(i);
+      int regionGrant = regions.grant(i);
+      int entityGrant = entities.grant(i);
+      if (regionGrant <= 0 || entityGrant <= 0) {
+        continue;
+      }
+      FieldPulseState pulse = new FieldPulseState(entityGrant, particles.grant(i));
+      scheduleFieldRegions(field, regionGrant, pulse, now);
+    }
+  }
+
+  private void scheduleFieldRegions(TemporalField field, int regionGrant, FieldPulseState pulse, long now) {
+    World world = field.center().getWorld();
+    if (world == null) {
+      return;
+    }
+
+    int minChunkX = ((int) Math.floor(field.center().getX() - field.radius())) >> 4;
+    int maxChunkX = ((int) Math.floor(field.center().getX() + field.radius())) >> 4;
+    int minChunkZ = ((int) Math.floor(field.center().getZ() - field.radius())) >> 4;
+    int maxChunkZ = ((int) Math.floor(field.center().getZ() + field.radius())) >> 4;
+    int width = (maxChunkX - minChunkX) + 1;
+    int depth = (maxChunkZ - minChunkZ) + 1;
+    long regionCountLong = (long) width * depth;
+    if (width <= 0 || depth <= 0 || regionCountLong <= 0L || regionCountLong > Integer.MAX_VALUE) {
+      return;
+    }
+
+    int regionCount = (int) regionCountLong;
+    int scanCount = Math.min(regionGrant, regionCount);
+    int start = field.claimRegionStart(regionCount, scanCount);
+    for (int i = 0; i < scanCount; i++) {
+      int index = (start + i) % regionCount;
+      int chunkX = minChunkX + (index % width);
+      int chunkZ = minChunkZ + (index / width);
+      Location regionCenter = new Location(world, (chunkX << 4) + 8, field.center().getY(), (chunkZ << 4) + 8);
+      J.runAt(regionCenter, () -> scanFieldRegion(field, world, chunkX, chunkZ, pulse, now));
+    }
+  }
+
+  private void scanFieldRegion(TemporalField field, World world, int chunkX, int chunkZ,
+                               FieldPulseState pulse, long now) {
+    if (!isFieldActive(field, now)) {
+      return;
+    }
+
+    LoadedChunkAccess loadedChunks = new LoadedChunkAccess(world, 0);
+    int blockX = (chunkX << 4) + 8;
+    int blockZ = (chunkZ << 4) + 8;
+    if (!loadedChunks.canRead(blockX, blockZ)) {
+      return;
+    }
+
+    Chunk chunk = world.getChunkAt(chunkX, chunkZ);
+    Entity[] chunkEntities = chunk.getEntities();
+    int entityLimit = ChronosWorkBudget.bounded(getConfig().maxEntitiesPerRegion,
+        1, HARD_MAX_ENTITIES_PER_REGION);
+    int scheduled = 0;
+    for (Entity entity : chunkEntities) {
+      if (scheduled >= entityLimit || !pulse.tryClaimEntity()) {
+        break;
+      }
+      scheduled++;
+      J.runEntity(entity, () -> evaluateFieldEntity(field, entity, pulse, M.ms()));
+    }
+  }
+
+  private void reconcileFrozenPlayers(long now) {
+    int limit = Math.min(frozenPlayers.size(), ChronosWorkBudget.bounded(getConfig().maxFrozenPlayersPerTick,
+        1, HARD_MAX_FROZEN_PLAYERS_PER_TICK));
+    for (int processed = 0; processed < limit; processed++) {
+      if (!frozenPlayerCursor.hasNext()) {
+        frozenPlayerCursor = frozenPlayers.entrySet().iterator();
+        if (!frozenPlayerCursor.hasNext()) {
+          return;
         }
-        cooldownReadyNotify.remove(id);
       }
-    }
 
-    for (TemporalField field : fields) {
-      if (field.expiresAt() <= now) {
-        emitFieldThaw(field);
-      }
-    }
-    fields.removeIf(field -> field.expiresAt() <= now);
-    cooldowns.entrySet().removeIf(entry -> entry.getValue() <= now);
-
-    for (TemporalField field : fields) {
-      applyField(field, now);
-    }
-
-    for (Map.Entry<UUID, FrozenPlayerState> entry : new ArrayList<>(frozenPlayers.entrySet())) {
+      Map.Entry<UUID, FrozenPlayerState> entry = frozenPlayerCursor.next();
       UUID playerId = entry.getKey();
+      FrozenPlayerState state = entry.getValue();
       Player player = Bukkit.getPlayer(playerId);
-      if (player == null || !player.isOnline() || player.isDead()) {
-        frozenPlayers.remove(playerId);
+      if (player == null) {
+        frozenPlayers.remove(playerId, state);
         continue;
       }
+      J.runEntity(player, () -> reconcileFrozenPlayer(player, state, now));
+    }
+  }
 
-      if (shouldFreezePlayer(player)) {
-        freezePlayer(player);
-        continue;
-      }
-
-      unfreezePlayer(playerId, entry.getValue());
-      frozenPlayers.remove(playerId);
+  private void reconcileFrozenPlayer(Player player, FrozenPlayerState state, long now) {
+    UUID playerId = player.getUniqueId();
+    if (frozenPlayers.get(playerId) != state) {
+      return;
+    }
+    if (!player.isOnline() || player.isDead()) {
+      frozenPlayers.remove(playerId, state);
+      return;
     }
 
-    for (Map.Entry<UUID, FrozenEntityState> entry : new ArrayList<>(frozenEntities.entrySet())) {
+    Location location = player.getLocation();
+    state.retainFields(fieldId -> isAuthorizedFieldAt(fieldId, location, now));
+    if (state.hasFields()) {
+      maintainFrozenPlayer(player);
+      return;
+    }
+    unfreezePlayer(player, state);
+    frozenPlayers.remove(playerId, state);
+  }
+
+  private void reconcileFrozenEntities(long now) {
+    int limit = Math.min(frozenEntities.size(), ChronosWorkBudget.bounded(getConfig().maxFrozenEntitiesPerTick,
+        1, HARD_MAX_FROZEN_ENTITIES_PER_TICK));
+    for (int processed = 0; processed < limit; processed++) {
+      if (!frozenEntityCursor.hasNext()) {
+        frozenEntityCursor = frozenEntities.entrySet().iterator();
+        if (!frozenEntityCursor.hasNext()) {
+          return;
+        }
+      }
+
+      Map.Entry<UUID, FrozenEntityState> entry = frozenEntityCursor.next();
       UUID entityId = entry.getKey();
+      FrozenEntityState state = entry.getValue();
       Entity entity = Bukkit.getEntity(entityId);
-      if (entity == null || entity.isDead() || !entity.isValid()) {
-        frozenEntities.remove(entityId);
+      if (entity == null) {
+        frozenEntities.remove(entityId, state);
         continue;
       }
-
-      if (isInsideAnyField(entity.getLocation())) {
-        freezeEntity(entity);
-        continue;
-      }
-
-      unfreezeEntity(entityId, entry.getValue());
-      frozenEntities.remove(entityId);
+      J.runEntity(entity, () -> reconcileFrozenEntity(entity, state, now));
     }
+  }
+
+  private void reconcileFrozenEntity(Entity entity, FrozenEntityState state, long now) {
+    UUID entityId = entity.getUniqueId();
+    if (frozenEntities.get(entityId) != state) {
+      return;
+    }
+    if (entity.isDead() || !entity.isValid()) {
+      frozenEntities.remove(entityId, state);
+      return;
+    }
+
+    Location location = entity.getLocation();
+    state.retainFields(fieldId -> isAuthorizedFieldAt(fieldId, location, now));
+    if (state.hasFields()) {
+      if (getConfig().accumulateFrozenImpulse) {
+        state.captureImpulse(entity.getVelocity(), getConfig().frozenImpulseMinMagnitude,
+            getConfig().frozenImpulseSampleCap);
+      }
+      maintainFrozenEntity(entity);
+      return;
+    }
+    unfreezeEntity(entity, state);
+    frozenEntities.remove(entityId, state);
   }
 
   private void cleanupBombProjectiles(long now) {
-    for (Map.Entry<UUID, ArmedBombProjectile> entry : new ArrayList<>(activeBombProjectiles.entrySet())) {
-      UUID projectileId = entry.getKey();
-      Entity entity = Bukkit.getEntity(projectileId);
-      if (entity == null || !entity.isValid() || entity.isDead()) {
-        activeBombProjectiles.remove(projectileId);
-        continue;
-      }
+    activeBombProjectiles.entrySet().removeIf(
+        entry -> now - entry.getValue().launchedAt() > PROJECTILE_TRACK_TTL_MS);
+  }
 
-      if (now - entry.getValue().launchedAt() > PROJECTILE_TRACK_TTL_MS) {
-        activeBombProjectiles.remove(projectileId);
+  private int claimBudget(AtomicInteger budget, int requested) {
+    int current = budget.get();
+    while (current >= requested) {
+      if (budget.compareAndSet(current, current - requested)) {
+        return requested;
       }
+      current = budget.get();
     }
+    return 0;
   }
 
   @ConfigDescription("Throw a crafted chrono bomb that creates a temporal field, slowing entities and freezing projectiles.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Play Clock Sounds for the Chronos Time Bomb adaptation.", impact = "True enables this behavior and false disables it.")
     boolean playClockSounds = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Base Radius for the Chronos Time Bomb adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Base temporal-field radius in blocks.", impact = "Level scaling can expand the field up to the hard 16-block radius limit.")
     double baseRadius = 6;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Radius Per Level for the Chronos Time Bomb adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Additional temporal-field radius per adaptation level.", impact = "Higher values reach the hard 16-block radius limit sooner.")
     double radiusPerLevel = 1.5;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Base Duration Ticks for the Chronos Time Bomb adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     int baseDurationTicks = 60;
@@ -679,6 +936,34 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
     double fieldTickPitchCurveExponent = 3.75;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Field Tick Acceleration Factor for the Chronos Time Bomb adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double fieldTickAccelerationFactor = 0.82;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum concurrent temporal fields processed by this server.", impact = "Bounds active field state and replaces the field nearest expiry when full.")
+    int maxActiveFields = 32;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Interval between temporal field entity scans.", impact = "Values are constrained to 200-250 milliseconds to preserve feel while bounding scan frequency.")
+    long fieldScanIntervalMillis = 250;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum loaded-region scans shared by all temporal fields per scan cycle.", impact = "Bounds region scheduler and chunk-query work.")
+    int maxRegionScansPerCycle = 64;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum loaded-region scans assigned to one temporal field per scan cycle.", impact = "Prevents one large field from monopolizing scan work.")
+    int maxRegionScansPerField = 8;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum entities scheduled for temporal field evaluation per scan cycle.", impact = "Bounds aggregate entity scheduler work.")
+    int maxEntitiesPerScanCycle = 512;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum entities assigned to one temporal field per scan cycle.", impact = "Shares entity work fairly across concurrent fields.")
+    int maxEntitiesPerField = 64;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum entities read from one owned loaded region during a field scan.", impact = "Bounds burst work in entity-dense chunks.")
+    int maxEntitiesPerRegion = 64;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum frozen non-player entities reconciled per tick.", impact = "Bounds retained-state checks and release work.")
+    int maxFrozenEntitiesPerTick = 256;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum frozen players reconciled per tick.", impact = "Bounds player-owned retained-state checks and release work.")
+    int maxFrozenPlayersPerTick = 128;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum field presentation particles shared by all temporal fields per tick.", impact = "Bounds aggregate field and thaw visual effects.")
+    int maxFieldFxParticlesPerTick = 512;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum field presentation particles assigned to one temporal field per tick.", impact = "Prevents one field from monopolizing visual effects.")
+    int maxFieldFxParticlesPerField = 48;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum sphere particles emitted by one field refresh.", impact = "Bounds the visible lattice while retaining full field scale.")
+    int maxFieldSphereParticlesPerField = 36;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum freeze-impact particles shared by all temporal fields per scan cycle.", impact = "Bounds combat visual effect work.")
+    int maxFreezeFxParticlesPerScan = 256;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum freeze-impact particles assigned to one temporal field per scan cycle.", impact = "Shares combat visual effects fairly across fields.")
+    int maxFreezeFxParticlesPerField = 24;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp On Cast for the Chronos Time Bomb adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpOnCast = 28;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Level for the Chronos Time Bomb adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -692,22 +977,32 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
   }
 
   private static final class TemporalField {
+    private final UUID id;
     private final UUID owner;
     private final Location center;
     private final double radius;
     private final long expiresAt;
     private final int level;
-    private long nextTickSoundAt;
-    private long nextVisualAt;
+    private volatile long nextScanAt;
+    private volatile long nextTickSoundAt;
+    private volatile long nextVisualAt;
+    private int regionCursor;
 
-    private TemporalField(UUID owner, Location center, double radius, long expiresAt, int level, long nextTickSoundAt, long nextVisualAt) {
+    private TemporalField(UUID owner, Location center, double radius, long expiresAt, int level,
+                          long nextScanAt, long nextTickSoundAt, long nextVisualAt) {
+      this.id = UUID.randomUUID();
       this.owner = owner;
-      this.center = center;
+      this.center = center.clone();
       this.radius = radius;
       this.expiresAt = expiresAt;
       this.level = level;
+      this.nextScanAt = nextScanAt;
       this.nextTickSoundAt = nextTickSoundAt;
       this.nextVisualAt = nextVisualAt;
+    }
+
+    private UUID id() {
+      return id;
     }
 
     private UUID owner() {
@@ -730,6 +1025,14 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
       return level;
     }
 
+    private long nextScanAt() {
+      return nextScanAt;
+    }
+
+    private void setNextScanAt(long nextScanAt) {
+      this.nextScanAt = nextScanAt;
+    }
+
     private long nextTickSoundAt() {
       return nextTickSoundAt;
     }
@@ -745,6 +1048,23 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
     private void setNextVisualAt(long nextVisualAt) {
       this.nextVisualAt = nextVisualAt;
     }
+
+    private boolean contains(Location location) {
+      World fieldWorld = center.getWorld();
+      return fieldWorld != null
+          && location != null
+          && fieldWorld.equals(location.getWorld())
+          && center.distanceSquared(location) <= radius * radius;
+    }
+
+    private synchronized int claimRegionStart(int regionCount, int scanCount) {
+      if (regionCount <= 0) {
+        return 0;
+      }
+      int start = Math.floorMod(regionCursor, regionCount);
+      regionCursor = (start + Math.max(0, scanCount)) % regionCount;
+      return start;
+    }
   }
 
   private static final class FrozenEntityState {
@@ -752,6 +1072,7 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
     private final boolean gravity;
     private final Boolean hadAi;
     private final Vector impulseDirectionAccumulator;
+    private final Set<UUID> fieldIds;
     private double impulseMagnitudeAccumulator;
     private int impulseSamples;
 
@@ -760,6 +1081,7 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
       this.gravity = gravity;
       this.hadAi = hadAi;
       this.impulseDirectionAccumulator = new Vector();
+      this.fieldIds = ConcurrentHashMap.newKeySet();
       this.impulseMagnitudeAccumulator = 0D;
       this.impulseSamples = 0;
     }
@@ -770,6 +1092,22 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
 
     private Boolean hadAi() {
       return hadAi;
+    }
+
+    private void addField(UUID fieldId) {
+      fieldIds.add(fieldId);
+    }
+
+    private void retainFields(Predicate<UUID> retain) {
+      for (UUID fieldId : fieldIds) {
+        if (!retain.test(fieldId)) {
+          fieldIds.remove(fieldId);
+        }
+      }
+    }
+
+    private boolean hasFields() {
+      return !fieldIds.isEmpty();
     }
 
     private void captureImpulse(Vector currentVelocity, double minMagnitude, double sampleCap) {
@@ -816,8 +1154,89 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
     }
   }
 
-  private record FrozenPlayerState(boolean allowFlight, boolean flying,
-                                   boolean gravity) {
+  private static final class FrozenPlayerState {
+    private final boolean allowFlight;
+    private final boolean flying;
+    private final boolean gravity;
+    private final Set<UUID> fieldIds;
+
+    private FrozenPlayerState(boolean allowFlight, boolean flying, boolean gravity) {
+      this.allowFlight = allowFlight;
+      this.flying = flying;
+      this.gravity = gravity;
+      this.fieldIds = ConcurrentHashMap.newKeySet();
+    }
+
+    private boolean allowFlight() {
+      return allowFlight;
+    }
+
+    private boolean flying() {
+      return flying;
+    }
+
+    private boolean gravity() {
+      return gravity;
+    }
+
+    private void addField(UUID fieldId) {
+      fieldIds.add(fieldId);
+    }
+
+    private void retainFields(Predicate<UUID> retain) {
+      for (UUID fieldId : fieldIds) {
+        if (!retain.test(fieldId)) {
+          fieldIds.remove(fieldId);
+        }
+      }
+    }
+
+    private boolean hasFields() {
+      return !fieldIds.isEmpty();
+    }
+  }
+
+  private static final class FieldPulseState {
+    private final AtomicInteger remainingEntities;
+    private final AtomicInteger remainingFxParticles;
+    private final AtomicInteger slowedEntities;
+    private final AtomicBoolean crowdAwarded;
+
+    private FieldPulseState(int entityBudget, int fxParticleBudget) {
+      this.remainingEntities = new AtomicInteger(Math.max(0, entityBudget));
+      this.remainingFxParticles = new AtomicInteger(Math.max(0, fxParticleBudget));
+      this.slowedEntities = new AtomicInteger();
+      this.crowdAwarded = new AtomicBoolean();
+    }
+
+    private boolean tryClaimEntity() {
+      int current = remainingEntities.get();
+      while (current > 0) {
+        if (remainingEntities.compareAndSet(current, current - 1)) {
+          return true;
+        }
+        current = remainingEntities.get();
+      }
+      return false;
+    }
+
+    private int claimFxParticles(int requested) {
+      if (requested <= 0) {
+        return 0;
+      }
+      int current = remainingFxParticles.get();
+      while (current >= requested) {
+        if (remainingFxParticles.compareAndSet(current, current - requested)) {
+          return requested;
+        }
+        current = remainingFxParticles.get();
+      }
+      return 0;
+    }
+
+    private boolean recordSlowed() {
+      return slowedEntities.incrementAndGet() >= 8 && crowdAwarded.compareAndSet(false, true);
+    }
   }
 
   private record ArmedBombProjectile(UUID owner, int level, long launchedAt) {

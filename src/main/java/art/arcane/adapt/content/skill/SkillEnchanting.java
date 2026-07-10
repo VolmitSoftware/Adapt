@@ -25,7 +25,13 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.content.adaptation.enchanting.*;
+import art.arcane.adapt.content.adaptation.enchanting.EnchantingAnvilSavant;
+import art.arcane.adapt.content.adaptation.enchanting.EnchantingBookshelfAttunement;
+import art.arcane.adapt.content.adaptation.enchanting.EnchantingGrindstoneRecovery;
+import art.arcane.adapt.content.adaptation.enchanting.EnchantingLapisReturn;
+import art.arcane.adapt.content.adaptation.enchanting.EnchantingOfferReroll;
+import art.arcane.adapt.content.adaptation.enchanting.EnchantingQuickEnchant;
+import art.arcane.adapt.content.adaptation.enchanting.EnchantingXPReturn;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
@@ -67,32 +73,11 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
             .key("challenge_enchant_5k")
             .model(CustomModel.get(Material.KNOWLEDGE_BOOK, "advancement", "enchanting", "challenge_enchant_5k"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
-                .icon(Material.KNOWLEDGE_BOOK)
-                .key("challenge_enchant_50k")
-                .model(CustomModel.get(Material.KNOWLEDGE_BOOK, "advancement", "enchanting", "challenge_enchant_50k"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
-                    .icon(Material.KNOWLEDGE_BOOK)
-                    .key("challenge_enchant_500k")
-                    .model(CustomModel.get(Material.KNOWLEDGE_BOOK, "advancement", "enchanting", "challenge_enchant_500k"))
-                    .frame(AdaptAdvancementFrame.CHALLENGE)
-                    .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
-                        .icon(Material.KNOWLEDGE_BOOK)
-                        .key("challenge_enchant_5m")
-                        .model(CustomModel.get(Material.KNOWLEDGE_BOOK, "advancement", "enchanting", "challenge_enchant_5m"))
-                        .frame(AdaptAdvancementFrame.CHALLENGE)
-                        .visibility(AdvancementVisibility.PARENT_GRANTED)
-                        .build())
-                    .build())
-                .build())
+            .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_enchant_1k", "enchanted.items", 1000, getConfig().challengeEnchantReward);
-    registerMilestone("challenge_enchant_5k", "enchanted.items", 5000, getConfig().challengeEnchantReward);
-    registerMilestone("challenge_enchant_50k", "enchanted.items", 50000, getConfig().challengeEnchantReward);
-    registerMilestone("challenge_enchant_500k", "enchanted.items", 500000, getConfig().challengeEnchantReward);
-    registerMilestone("challenge_enchant_5m", "enchanted.items", 5000000, getConfig().challengeEnchantReward);
+    registerMilestone("challenge_enchant_1k", "enchanted.items", 1000, () -> getConfig().challengeEnchantReward);
+    registerMilestone("challenge_enchant_5k", "enchanted.items", 5000, () -> getConfig().challengeEnchantReward);
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.EXPERIENCE_BOTTLE)
@@ -108,25 +93,8 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_enchant_power_100", "enchanted.power", 100, getConfig().challengeEnchantReward);
-    registerMilestone("challenge_enchant_power_1k", "enchanted.power", 1000, getConfig().challengeEnchantReward * 2);
-
-    registerAdvancement(AdaptAdvancement.builder()
-        .icon(Material.LAPIS_LAZULI)
-        .key("challenge_enchant_levels_1k")
-        .model(CustomModel.get(Material.LAPIS_LAZULI, "advancement", "enchanting", "challenge_enchant_levels_1k"))
-        .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
-        .child(AdaptAdvancement.builder()
-            .icon(Material.LAPIS_BLOCK)
-            .key("challenge_enchant_levels_10k")
-            .model(CustomModel.get(Material.LAPIS_BLOCK, "advancement", "enchanting", "challenge_enchant_levels_10k"))
-            .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
-            .build())
-        .build());
-    registerMilestone("challenge_enchant_levels_1k", "enchanted.levels.spent", 1000, getConfig().challengeEnchantReward);
-    registerMilestone("challenge_enchant_levels_10k", "enchanted.levels.spent", 10000, getConfig().challengeEnchantReward * 2);
+    registerMilestone("challenge_enchant_power_100", "enchanted.power", 100, () -> getConfig().challengeEnchantReward);
+    registerMilestone("challenge_enchant_power_1k", "enchanted.power", 1000, () -> getConfig().challengeEnchantReward * 2);
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.BOOKSHELF)
@@ -142,8 +110,8 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_enchant_high_25", "enchanting.high.level", 25, getConfig().challengeEnchantReward);
-    registerMilestone("challenge_enchant_high_250", "enchanting.high.level", 250, getConfig().challengeEnchantReward * 2);
+    registerMilestone("challenge_enchant_high_25", "enchanting.high.level", 25, () -> getConfig().challengeEnchantReward);
+    registerMilestone("challenge_enchant_high_250", "enchanting.high.level", 250, () -> getConfig().challengeEnchantReward * 2);
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.EXPERIENCE_BOTTLE)
@@ -159,11 +127,11 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_enchant_total_500", "enchanting.total.levels", 500, getConfig().challengeEnchantReward);
-    registerMilestone("challenge_enchant_total_5k", "enchanting.total.levels", 5000, getConfig().challengeEnchantReward * 2);
+    registerMilestone("challenge_enchant_total_500", "enchanting.total.levels", 500, () -> getConfig().challengeEnchantReward);
+    registerMilestone("challenge_enchant_total_5k", "enchanting.total.levels", 5000, () -> getConfig().challengeEnchantReward * 2);
   }
 
-  @EventHandler(priority = EventPriority.MONITOR)
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(EnchantItemEvent e) {
     Player p = e.getEnchanter();
     shouldReturnForPlayer(p, e, () -> {
@@ -174,10 +142,12 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
 
   private void handleEnchantItemEvent(Player p, EnchantItemEvent e) {
     AdaptPlayer adaptPlayer = getPlayer(p);
-    int power = e.getEnchantsToAdd().values().stream().mapToInt(i -> i).sum();
+    int power = 0;
+    for (int level : e.getEnchantsToAdd().values()) {
+      power += level;
+    }
     adaptPlayer.getData().addStat("enchanted.items", 1);
     adaptPlayer.getData().addStat("enchanted.power", power);
-    adaptPlayer.getData().addStat("enchanted.levels.spent", e.getExpLevelCost());
     Block enchantBlock = e.getEnchantBlock();
     Location tableLocation = enchantBlock == null ? null : enchantBlock.getLocation().add(0.5D, 0.9D, 0.5D);
     if (e.getExpLevelCost() >= 30) {
@@ -213,14 +183,6 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
           }
         })
         .start();
-  }
-
-  @Override
-  public void onTick() {
-    if (!this.isEnabled()) {
-      return;
-    }
-    checkStatTrackersForOnlinePlayers();
   }
 
   @Override

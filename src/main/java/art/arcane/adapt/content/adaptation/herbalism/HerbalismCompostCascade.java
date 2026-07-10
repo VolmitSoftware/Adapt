@@ -503,10 +503,6 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
     return Math.max(0, (int) Math.round(getConfig().valuableRollsBase + (getLevelPercent(level) * getConfig().valuableRollsFactor)));
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Sneak-right-click a composter to process nearby drops, crops, leaves, and your own compostables.")
   protected static class Config extends AdaptationConfig {

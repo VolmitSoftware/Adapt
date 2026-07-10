@@ -280,10 +280,6 @@ public class DiscoveryCartographerPulse extends SimpleAdaptation<DiscoveryCartog
     return Math.max(1500L, (long) Math.round(getConfig().cooldownMillisBase - (getLevelPercent(level) * getConfig().cooldownMillisFactor)));
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Sneak-right-click with a compass to pulse toward a nearby structure target.")
   protected static class Config extends AdaptationConfig {

@@ -199,10 +199,6 @@ public class UnarmedComboChain extends SimpleAdaptation<UnarmedComboChain.Config
     }
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Consecutive unarmed hits build combo stacks for increased punch damage.")
   protected static class Config extends AdaptationConfig {

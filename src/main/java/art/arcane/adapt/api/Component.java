@@ -27,7 +27,10 @@ import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import com.francobm.magicosmetics.api.CosmeticType;
 import com.francobm.magicosmetics.api.MagicAPI;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
@@ -38,13 +41,12 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -79,53 +81,6 @@ public interface Component {
     XP.wisdom(p, w);
   }
 
-  /**
-   * Attempts to "damage" an item. 1. If the item is null, null is returned 2.
-   * If the item doesnt have durability, (damage) amount will be consumed from
-   * the stack, null will be returned if more consumed than amount 3. If the
-   * item has durability, the damage will be consuemd and return the item
-   * affected, OR null if it broke
-   *
-   * @param item   the item (tool)
-   * @param damage the damage to cause
-   * @return the damaged item or null if destroyed
-   */
-  default ItemStack damage(ItemStack item, int damage) {
-    if (item == null) {
-      return null;
-    }
-
-    if (item.getItemMeta() == null) {
-      if (item.getAmount() == 1) {
-        return null;
-      }
-
-      item = item.clone();
-      item.setAmount(item.getAmount() - 1);
-      return item;
-    }
-
-    if (item.getItemMeta() instanceof Damageable d) {
-      if (d.getDamage() + 1 > item.getType().getMaxDurability()) {
-        return null;
-      }
-
-      d.setDamage(d.getDamage() + 1);
-      item = item.clone();
-      item.setItemMeta(d);
-      return item;
-    } else {
-      if (item.getAmount() == 1) {
-        return null;
-      }
-
-      item = item.clone();
-      item.setAmount(item.getAmount() - 1);
-
-      return item;
-    }
-  }
-
   default void decrementItemstack(ItemStack hand, Player p) {
     if (hand.getAmount() > 1) {
       hand.setAmount(hand.getAmount() - 1);
@@ -135,74 +90,68 @@ public interface Component {
   }
 
   default double getArmorValue(Player player) {
-    org.bukkit.inventory.PlayerInventory inv = player.getInventory();
-    ItemStack boots = inv.getBoots();
-    ItemStack helmet = inv.getHelmet();
-    ItemStack chest = inv.getChestplate();
-    ItemStack pants = inv.getLeggings();
-    double armorValue = 0.0;
-    if (helmet == null) armorValue = armorValue + 0.0;
-    else if (Bukkit.getServer().getPluginManager().getPlugin("MagicCosmetics") != null && MagicAPI.hasEquipCosmetic(player, CosmeticType.HAT)) {
-      armorValue = armorValue + 0;
-    } else if (helmet.getType() == Material.LEATHER_HELMET)
-      armorValue = armorValue + 0.04;
-    else if (helmet.getType() == Material.GOLDEN_HELMET)
-      armorValue = armorValue + 0.08;
-    else if (helmet.getType() == Material.TURTLE_HELMET)
-      armorValue = armorValue + 0.08;
-    else if (helmet.getType() == Material.CHAINMAIL_HELMET)
-      armorValue = armorValue + 0.08;
-    else if (helmet.getType() == Material.IRON_HELMET)
-      armorValue = armorValue + 0.08;
-    else if (helmet.getType() == Material.DIAMOND_HELMET)
-      armorValue = armorValue + 0.12;
-    else if (helmet.getType() == Material.NETHERITE_HELMET)
-      armorValue = armorValue + 0.12;
-    //
-    if (boots == null) armorValue = armorValue + 0.0;
-    else if (boots.getType() == Material.LEATHER_BOOTS)
-      armorValue = armorValue + 0.04;
-    else if (boots.getType() == Material.GOLDEN_BOOTS)
-      armorValue = armorValue + 0.04;
-    else if (boots.getType() == Material.CHAINMAIL_BOOTS)
-      armorValue = armorValue + 0.04;
-    else if (boots.getType() == Material.IRON_BOOTS)
-      armorValue = armorValue + 0.08;
-    else if (boots.getType() == Material.DIAMOND_BOOTS)
-      armorValue = armorValue + 0.12;
-    else if (boots.getType() == Material.NETHERITE_BOOTS)
-      armorValue = armorValue + 0.12;
-    //
-    if (pants == null) armorValue = armorValue + 0.0;
-    else if (pants.getType() == Material.LEATHER_LEGGINGS)
-      armorValue = armorValue + 0.08;
-    else if (pants.getType() == Material.GOLDEN_LEGGINGS)
-      armorValue = armorValue + 0.12;
-    else if (pants.getType() == Material.CHAINMAIL_LEGGINGS)
-      armorValue = armorValue + 0.16;
-    else if (pants.getType() == Material.IRON_LEGGINGS)
-      armorValue = armorValue + 0.20;
-    else if (pants.getType() == Material.DIAMOND_LEGGINGS)
-      armorValue = armorValue + 0.24;
-    else if (pants.getType() == Material.NETHERITE_LEGGINGS)
-      armorValue = armorValue + 0.24;
-    //
-    if (chest == null) armorValue = armorValue + 0.0;
-    else if (Bukkit.getServer().getPluginManager().getPlugin("MagicCosmetics") != null && MagicAPI.hasEquipCosmetic(player, CosmeticType.BAG)) {
-      armorValue = armorValue + 0;
-    } else if (chest.getType() == Material.LEATHER_CHESTPLATE)
-      armorValue = armorValue + 0.12;
-    else if (chest.getType() == Material.GOLDEN_CHESTPLATE)
-      armorValue = armorValue + 0.20;
-    else if (chest.getType() == Material.CHAINMAIL_CHESTPLATE)
-      armorValue = armorValue + 0.20;
-    else if (chest.getType() == Material.IRON_CHESTPLATE)
-      armorValue = armorValue + 0.24;
-    else if (chest.getType() == Material.DIAMOND_CHESTPLATE)
-      armorValue = armorValue + 0.32;
-    else if (chest.getType() == Material.NETHERITE_CHESTPLATE)
-      armorValue = armorValue + 0.32;
-    return armorValue;
+    PlayerInventory inventory = player.getInventory();
+    ItemStack helmet = inventory.getHelmet();
+    ItemStack chestplate = inventory.getChestplate();
+    boolean cosmeticsEnabled = Bukkit.getPluginManager().isPluginEnabled("MagicCosmetics");
+    double helmetValue = cosmeticsEnabled && helmet != null && MagicAPI.hasEquipCosmetic(player, CosmeticType.HAT)
+        ? 0D
+        : helmetArmor(helmet);
+    double chestplateValue = cosmeticsEnabled && chestplate != null && MagicAPI.hasEquipCosmetic(player, CosmeticType.BAG)
+        ? 0D
+        : chestplateArmor(chestplate);
+    return helmetValue + chestplateValue + leggingsArmor(inventory.getLeggings()) + bootsArmor(inventory.getBoots());
+  }
+
+  private double helmetArmor(ItemStack item) {
+    if (item == null || item.getType().isAir()) {
+      return 0D;
+    }
+    return switch (item.getType()) {
+      case LEATHER_HELMET -> 0.04D;
+      case GOLDEN_HELMET, TURTLE_HELMET, CHAINMAIL_HELMET, IRON_HELMET -> 0.08D;
+      case DIAMOND_HELMET, NETHERITE_HELMET -> 0.12D;
+      default -> 0D;
+    };
+  }
+
+  private double chestplateArmor(ItemStack item) {
+    if (item == null || item.getType().isAir()) {
+      return 0D;
+    }
+    return switch (item.getType()) {
+      case LEATHER_CHESTPLATE -> 0.12D;
+      case GOLDEN_CHESTPLATE, CHAINMAIL_CHESTPLATE -> 0.20D;
+      case IRON_CHESTPLATE -> 0.24D;
+      case DIAMOND_CHESTPLATE, NETHERITE_CHESTPLATE -> 0.32D;
+      default -> 0D;
+    };
+  }
+
+  private double leggingsArmor(ItemStack item) {
+    if (item == null || item.getType().isAir()) {
+      return 0D;
+    }
+    return switch (item.getType()) {
+      case LEATHER_LEGGINGS -> 0.08D;
+      case GOLDEN_LEGGINGS -> 0.12D;
+      case CHAINMAIL_LEGGINGS -> 0.16D;
+      case IRON_LEGGINGS -> 0.20D;
+      case DIAMOND_LEGGINGS, NETHERITE_LEGGINGS -> 0.24D;
+      default -> 0D;
+    };
+  }
+
+  private double bootsArmor(ItemStack item) {
+    if (item == null || item.getType().isAir()) {
+      return 0D;
+    }
+    return switch (item.getType()) {
+      case LEATHER_BOOTS, GOLDEN_BOOTS, CHAINMAIL_BOOTS -> 0.04D;
+      case IRON_BOOTS -> 0.08D;
+      case DIAMOND_BOOTS, NETHERITE_BOOTS -> 0.12D;
+      default -> 0D;
+    };
   }
 
   default boolean isAdaptableDamageCause(EntityDamageEvent event) {
@@ -210,33 +159,27 @@ public interface Component {
   }
 
   default void addPotionStacks(Player p, PotionEffectType potionEffect, int amplifier, int duration, boolean overlap) {
-    List<PotionEffect> activeEffects = new ArrayList<>(p.getActivePotionEffects());
-    SoundPlayer sp = SoundPlayer.of(p);
-    for (PotionEffect activeEffect : activeEffects) {
-      if (activeEffect.getType() == potionEffect) {
-        if (!overlap) {
-          return; // don't modify the effect if overlap is false
-        }
-        // modify the effect if overlap is true
-        int newDuration = activeEffect.getDuration() + duration;
-        int newAmplifier = Math.max(activeEffect.getAmplifier(), amplifier);
-        p.removePotionEffect(potionEffect);
-        p.addPotionEffect(new PotionEffect(potionEffect, newDuration, newAmplifier));
-        sp.play(p.getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.25f, 0.25f);
+    PotionEffect activeEffect = p.getPotionEffect(potionEffect);
+    if (activeEffect != null) {
+      if (!overlap) {
         return;
       }
+      long combinedDuration = (long) activeEffect.getDuration() + Math.max(1, duration);
+      int newDuration = (int) Math.min(Integer.MAX_VALUE, combinedDuration);
+      int newAmplifier = Math.max(activeEffect.getAmplifier(), amplifier);
+      p.removePotionEffect(potionEffect);
+      p.addPotionEffect(new PotionEffect(potionEffect, newDuration, newAmplifier));
+      SoundPlayer.of(p).play(p.getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.25f, 0.25f);
+      return;
     }
-    // if we didn't find an existing effect, add a new one
-    J.s(() -> {
-      p.addPotionEffect(new PotionEffect(potionEffect, duration, amplifier));
-      sp.play(p.getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.25f, 0.25f);
+
+    J.runEntity(p, () -> {
+      if (!p.isOnline()) {
+        return;
+      }
+      p.addPotionEffect(new PotionEffect(potionEffect, Math.max(1, duration), amplifier));
+      SoundPlayer.of(p).play(p.getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.25f, 0.25f);
     }, 1);
-
-  }
-
-
-  default void potion(Player p, PotionEffectType type, int power, int duration) {
-    p.addPotionEffect(new PotionEffect(type, power, duration, true, false, false));
   }
 
   default double blockXP(Block block, double xp) {

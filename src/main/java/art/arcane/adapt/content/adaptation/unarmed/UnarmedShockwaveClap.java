@@ -26,6 +26,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
@@ -35,19 +36,27 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.entity.Entity;
+import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Tameable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.util.Vector;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class UnarmedShockwaveClap extends SimpleAdaptation<UnarmedShockwaveClap.Config> {
+  private static final int HARD_MAX_CANDIDATES_PER_ACTIVATION = 32;
+  private static final int HARD_MAX_AFFECTED_PER_ACTIVATION = 16;
+  private static final int HARD_MAX_TARGET_FX_PER_ACTIVATION = 12;
   private static final Color WAVE_COLOR = Color.WHITE;
   private final Map<UUID, Long> nextClapAt = playerState();
   private final Cooldowns failCue = cooldowns();
@@ -124,41 +133,112 @@ public class UnarmedShockwaveClap extends SimpleAdaptation<UnarmedShockwaveClap.
     double force = getForce(level);
     Location origin = p.getLocation();
     Vector look = origin.getDirection().normalize();
-    int affected = 0;
-    for (Entity nearby : p.getWorld().getNearbyEntities(origin, range, range, range)) {
-      if (!(nearby instanceof LivingEntity hit) || hit == p) {
-        continue;
-      }
-
-      Vector to = hit.getLocation().toVector().subtract(origin.toVector());
-      double lengthSquared = to.lengthSquared();
-      if (lengthSquared <= 0.0001 || lengthSquared > range * range) {
-        continue;
-      }
-
-      to.multiply(1 / Math.sqrt(lengthSquared));
-      if (look.dot(to) < getConfig().coneDotThreshold) {
-        continue;
-      }
-
-      if (!canDamageTarget(p, hit)) {
-        continue;
-      }
-
-      hit.setVelocity(hit.getVelocity().multiply(0.2).add(to.multiply(force).setY(getUpwardForce(level))));
-      if (affected < 8) {
-        fx(hit.getLocation().add(0, 1, 0), FxPriority.COMBAT)
-            .particle(Particle.CLOUD, 3, 0, 0, 0, 0.15D, 0.03D);
-      }
-      affected++;
-    }
-
+    List<LivingEntity> candidates = collectCandidates(p, origin, range);
     playShockwave(origin, look, range);
     addStat(p, "unarmed.shockwave-clap.claps", 1);
-    if (affected > 0) {
-      xp(p, getConfig().xpPerTargetHit * affected);
-      addStat(p, "unarmed.shockwave-clap.mobs-clapped", affected);
+
+    if (candidates.isEmpty()) {
+      return;
     }
+
+    ShockwaveBatch batch = new ShockwaveBatch(p, origin.clone(), look.clone(), range, force,
+        getUpwardForce(level), getConfig().coneDotThreshold, getAffectedLimit(), getTargetFxLimit(),
+        getConfig().xpPerTargetHit, candidates.size());
+    for (LivingEntity target : candidates) {
+      if (!J.runEntity(target, () -> inspectCandidateOwned(batch, target))) {
+        batch.complete();
+      }
+    }
+    J.runEntity(p, batch::finishTimedOut, 3);
+  }
+
+  private List<LivingEntity> collectCandidates(Player player, Location origin, double range) {
+    int limit = getCandidateLimit();
+    List<LivingEntity> candidates = new ArrayList<>(limit);
+    for (LivingEntity candidate : origin.getWorld().getNearbyLivingEntities(origin, range, range, range)) {
+      if (candidate == player) {
+        continue;
+      }
+      candidates.add(candidate);
+      if (candidates.size() >= limit) {
+        break;
+      }
+    }
+    return candidates;
+  }
+
+  private void inspectCandidateOwned(ShockwaveBatch batch, LivingEntity target) {
+    if (batch.isFinalized() || !batch.hasAffectedCapacity()) {
+      batch.complete();
+      return;
+    }
+    Location targetLocation = validTargetLocation(batch, target);
+    if (targetLocation == null) {
+      batch.complete();
+      return;
+    }
+
+    boolean playerTarget = target instanceof Player;
+    if (!J.runEntity(batch.player, () -> authorizeCandidate(batch, target, targetLocation, playerTarget))) {
+      batch.complete();
+    }
+  }
+
+  private void authorizeCandidate(ShockwaveBatch batch, LivingEntity target, Location targetLocation, boolean playerTarget) {
+    if (batch.isFinalized() || !batch.player.isOnline()) {
+      batch.complete();
+      return;
+    }
+
+    boolean allowed = playerTarget ? canPVP(batch.player, targetLocation) : canPVE(batch.player, targetLocation);
+    if (!allowed || !J.runEntity(target, () -> applyImpactOwned(batch, target))) {
+      batch.complete();
+    }
+  }
+
+  private void applyImpactOwned(ShockwaveBatch batch, LivingEntity target) {
+    if (batch.isFinalized()) {
+      return;
+    }
+    Location targetLocation = validTargetLocation(batch, target);
+    if (targetLocation == null || !batch.claimAffected()) {
+      batch.complete();
+      return;
+    }
+
+    Vector to = targetLocation.toVector().subtract(batch.origin.toVector());
+    double lengthSquared = to.lengthSquared();
+    to.multiply(1D / Math.sqrt(lengthSquared));
+    target.setVelocity(target.getVelocity().multiply(0.2D).add(to.multiply(batch.force).setY(batch.upwardForce)));
+    if (batch.claimTargetFx()) {
+      fx(targetLocation.clone().add(0, 1, 0), FxPriority.COMBAT)
+          .particle(Particle.CLOUD, 3, 0, 0, 0, 0.15D, 0.03D);
+    }
+    batch.complete();
+  }
+
+  private Location validTargetLocation(ShockwaveBatch batch, LivingEntity target) {
+    if (!target.isValid() || target.isDead() || isProtectedFriendly(null, target)) {
+      return null;
+    }
+    if (target instanceof Tameable tameable && tameable.isTamed()) {
+      AnimalTamer owner = tameable.getOwner();
+      if (owner != null && batch.playerId.equals(owner.getUniqueId())) {
+        return null;
+      }
+    }
+
+    Location location = target.getLocation();
+    if (location.getWorld() != batch.origin.getWorld()) {
+      return null;
+    }
+    Vector to = location.toVector().subtract(batch.origin.toVector());
+    double lengthSquared = to.lengthSquared();
+    if (lengthSquared <= 0.0001D || lengthSquared > batch.rangeSquared) {
+      return null;
+    }
+    to.multiply(1D / Math.sqrt(lengthSquared));
+    return batch.look.dot(to) >= batch.coneDotThreshold ? location : null;
   }
 
   private void playShockwave(Location origin, Vector look, double range) {
@@ -204,10 +284,18 @@ public class UnarmedShockwaveClap extends SimpleAdaptation<UnarmedShockwaveClap.
     return Math.max(1000L, (long) Math.round(getConfig().cooldownMillisBase - (getLevelPercent(level) * getConfig().cooldownMillisFactor)));
   }
 
-  @Override
-  public void onTick() {
-
+  private int getCandidateLimit() {
+    return Math.max(1, Math.min(getConfig().maxCandidatesPerActivation, HARD_MAX_CANDIDATES_PER_ACTIVATION));
   }
+
+  private int getAffectedLimit() {
+    return Math.max(1, Math.min(Math.min(getConfig().maxAffectedPerActivation, getCandidateLimit()), HARD_MAX_AFFECTED_PER_ACTIVATION));
+  }
+
+  private int getTargetFxLimit() {
+    return Math.max(0, Math.min(getConfig().maxTargetFxPerActivation, HARD_MAX_TARGET_FX_PER_ACTIVATION));
+  }
+
 
   @ConfigDescription("Sneak and punch the air to clap a shockwave that knocks back enemies in a cone.")
   protected static class Config extends AdaptationConfig {
@@ -233,11 +321,111 @@ public class UnarmedShockwaveClap extends SimpleAdaptation<UnarmedShockwaveClap.
     int hungerCost = 2;
     @art.arcane.adapt.util.config.ConfigDoc(value = "XP granted per enemy knocked back by a clap.", impact = "Higher values speed up unarmed skill progression from claps.")
     double xpPerTargetHit = 14;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum living targets inspected by one shockwave clap.", impact = "Lower values reduce dense-entity scheduling; values are clamped to an absolute maximum of 32.")
+    int maxCandidatesPerActivation = 16;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum living targets knocked back by one shockwave clap.", impact = "Lower values cap combat work and rewards in dense groups; values are clamped to an absolute maximum of 16.")
+    int maxAffectedPerActivation = 12;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum knocked-back targets that receive individual cloud particles.", impact = "Lower values reduce particle dispatch while preserving the main shockwave; values are clamped to an absolute maximum of 12.")
+    int maxTargetFxPerActivation = 8;
 
     public Config() {
       baseCost = 5;
       costFactor = 0.7;
       initialCost = 6;
+    }
+  }
+
+  private final class ShockwaveBatch {
+    private final Player player;
+    private final UUID playerId;
+    private final Location origin;
+    private final Vector look;
+    private final double rangeSquared;
+    private final double force;
+    private final double upwardForce;
+    private final double coneDotThreshold;
+    private final int affectedLimit;
+    private final int targetFxLimit;
+    private final double xpPerTargetHit;
+    private final AtomicInteger remaining;
+    private final AtomicInteger affected = new AtomicInteger();
+    private final AtomicInteger targetFx = new AtomicInteger();
+    private final AtomicBoolean finalized = new AtomicBoolean();
+
+    private ShockwaveBatch(Player player, Location origin, Vector look, double range, double force,
+                           double upwardForce, double coneDotThreshold, int affectedLimit, int targetFxLimit,
+                           double xpPerTargetHit, int candidates) {
+      this.player = player;
+      playerId = player.getUniqueId();
+      this.origin = origin;
+      this.look = look;
+      rangeSquared = range * range;
+      this.force = force;
+      this.upwardForce = upwardForce;
+      this.coneDotThreshold = coneDotThreshold;
+      this.affectedLimit = affectedLimit;
+      this.targetFxLimit = targetFxLimit;
+      this.xpPerTargetHit = xpPerTargetHit;
+      remaining = new AtomicInteger(candidates);
+    }
+
+    private synchronized boolean claimAffected() {
+      if (finalized.get() || affected.get() >= affectedLimit) {
+        return false;
+      }
+      affected.incrementAndGet();
+      return true;
+    }
+
+    private boolean hasAffectedCapacity() {
+      return affected.get() < affectedLimit;
+    }
+
+    private boolean claimTargetFx() {
+      return claim(targetFx, targetFxLimit);
+    }
+
+    private boolean claim(AtomicInteger counter, int limit) {
+      int current = counter.get();
+      while (current < limit) {
+        if (counter.compareAndSet(current, current + 1)) {
+          return true;
+        }
+        current = counter.get();
+      }
+      return false;
+    }
+
+    private void complete() {
+      if (finalized.get() || remaining.decrementAndGet() != 0 || !markFinalized()) {
+        return;
+      }
+      J.runEntity(player, this::finish);
+    }
+
+    private synchronized boolean markFinalized() {
+      return finalized.compareAndSet(false, true);
+    }
+
+    private boolean isFinalized() {
+      return finalized.get();
+    }
+
+    private void finishTimedOut() {
+      if (markFinalized()) {
+        finish();
+      }
+    }
+
+    private void finish() {
+      if (!player.isOnline()) {
+        return;
+      }
+      int hit = affected.get();
+      if (hit > 0) {
+        xp(player, xpPerTargetHit * hit);
+        addStat(player, "unarmed.shockwave-clap.mobs-clapped", hit);
+      }
     }
   }
 }

@@ -107,9 +107,6 @@ public class ExcavationHaste extends SimpleAdaptation<ExcavationHaste.Config> {
     }
   }
 
-  @Override
-  public void onTick() {
-  }
 
   @ConfigDescription("Gain Haste while excavating blocks.")
   protected static class Config extends AdaptationConfig {

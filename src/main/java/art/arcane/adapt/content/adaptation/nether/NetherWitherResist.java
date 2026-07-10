@@ -30,7 +30,8 @@ import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -96,9 +97,6 @@ public class NetherWitherResist extends SimpleAdaptation<NetherWitherResist.Conf
     }
   }
 
-  @Override
-  public void onTick() {
-  }
 
   private double getTotalChange(Player p) {
     return getChance(p, EquipmentSlot.HEAD) + getChance(p, EquipmentSlot.CHEST) + getChance(p, EquipmentSlot.LEGS) + getChance(p, EquipmentSlot.FEET);
@@ -113,7 +111,8 @@ public class NetherWitherResist extends SimpleAdaptation<NetherWitherResist.Conf
     return 0.0D;
   }
 
-  @Data
+  @Getter
+  @Setter
   @ConfigDescription("Wearing Netherite Armor has a chance to negate the wither effect.")
   public static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Base Piece Chance for the Nether Wither Resist adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

@@ -5,18 +5,6 @@
 title = "Moet bewegen!"
 description = "Loop meer dan 1 kilometer (1.000 blokken)"
 
-[advancement.challenge_sprint_5k]
-title = "Sprint een 5K!"
-description = "Loop meer dan 5 kilometer (5.000 blokken)"
-
-[advancement.challenge_sprint_50k]
-title = "Zoom een 50K!"
-description = "Loop meer dan 50 kilometer (50.000 blokken)"
-
-[advancement.challenge_sprint_500k]
-title = "Doorkruis het heelal!!"
-description = "Loop meer dan 500 kilometer (500.000 blokken)"
-
 [advancement.challenge_sprint_marathon]
 title = "Sprint een (letterlijke) Marathon!"
 description = "Sprint meer dan 42.195 blokken!"
@@ -33,14 +21,6 @@ description = "Plaats 5.000 blokken"
 title = "Gevorderde Bouwer!"
 description = "Plaats 50.000 blokken"
 
-[advancement.challenge_place_500k]
-title = "Meester Bouwer!"
-description = "Plaats 500.000 blokken"
-
-[advancement.challenge_place_5m]
-title = "Acoliet van de Symmetrie!"
-description = "DE WERKELIJKHEID IS JOUW SPEELTUIN! (5 miljoen blokken)"
-
 [advancement.challenge_chop_1k]
 title = "Beginnende Houthakker!"
 description = "Hak 1.000 blokken"
@@ -52,14 +32,6 @@ description = "Hak 5.000 blokken"
 [advancement.challenge_chop_50k]
 title = "Gevorderde Houthakker!"
 description = "Hak 50.000 blokken"
-
-[advancement.challenge_chop_500k]
-title = "Meester Houthakker!"
-description = "Hak 500.000 blokken"
-
-[advancement.challenge_chop_5m]
-title = "Jackson de Hond"
-description = "De allerbeste brave jongen! (5 miljoen blokken)"
 
 [advancement.challenge_block_1k]
 title = "Amper Geblokkeerd!"
@@ -73,14 +45,6 @@ description = "Blokkeer 5000 treffers"
 title = "Blokkeren is mijn Leven!"
 description = "Blokkeer 50.000 treffers"
 
-[advancement.challenge_block_500k]
-title = "Blokkeren is mijn Doel!"
-description = "Blokkeer 500.000 treffers"
-
-[advancement.challenge_block_5m]
-title = "Die Hand Die Verletzt"
-description = "Blokkeer 5.000.000 treffers"
-
 [advancement.challenge_brew_1k]
 title = "Beginnende Alchemist!"
 description = "Consumeer 1000 drankjes"
@@ -89,18 +53,6 @@ description = "Consumeer 1000 drankjes"
 title = "Gemiddelde Alchemist!"
 description = "Consumeer 5000 drankjes"
 
-[advancement.challenge_brew_50k]
-title = "Gevorderde Alchemist!"
-description = "Consumeer 50.000 drankjes"
-
-[advancement.challenge_brew_500k]
-title = "Meester Alchemist!"
-description = "Consumeer 500.000 drankjes"
-
-[advancement.challenge_brew_5m]
-title = "De Alchemist"
-description = "Consumeer 5.000.000 drankjes"
-
 [advancement.challenge_brewsplash_1k]
 title = "Beginnende Drankje-Gooier!"
 description = "Gooi 1000 drankjes"
@@ -108,18 +60,6 @@ description = "Gooi 1000 drankjes"
 [advancement.challenge_brewsplash_5k]
 title = "Gemiddelde Drankje-Gooier!"
 description = "Gooi 5000 drankjes"
-
-[advancement.challenge_brewsplash_50k]
-title = "Gevorderde Drankje-Gooier!"
-description = "Gooi 50.000 drankjes"
-
-[advancement.challenge_brewsplash_500k]
-title = "Meester Drankje-Gooier!"
-description = "Gooi 500.000 drankjes"
-
-[advancement.challenge_brewsplash_5m]
-title = "De Gooi-Meester"
-description = "Gooi 5.000.000 drankjes"
 
 [advancement.challenge_craft_1k]
 title = "Handige Knutselaar!"
@@ -133,14 +73,6 @@ description = "Maak 5000 voorwerpen"
 title = "Onderdanige Knutselaar!"
 description = "Maak 50.000 voorwerpen"
 
-[advancement.challenge_craft_500k]
-title = "Kakofone Knutselaar!"
-description = "Maak 500.000 voorwerpen"
-
-[advancement.challenge_craft_5m]
-title = "Rampzalige McCraftface"
-description = "Maak 5.000.000 voorwerpen"
-
 [advancement.challenge_enchant_1k]
 title = "Beginnende Betoveraar!"
 description = "Betover 1000 voorwerpen"
@@ -148,18 +80,6 @@ description = "Betover 1000 voorwerpen"
 [advancement.challenge_enchant_5k]
 title = "Gemiddelde Betoveraar!"
 description = "Betover 5000 voorwerpen"
-
-[advancement.challenge_enchant_50k]
-title = "Gevorderde Betoveraar!"
-description = "Betover 50.000 voorwerpen"
-
-[advancement.challenge_enchant_500k]
-title = "Meester Betoveraar!"
-description = "Betover 500.000 voorwerpen"
-
-[advancement.challenge_enchant_5m]
-title = "Raadselachtige Betoveraar"
-description = "Betover 5.000.000 voorwerpen"
 
 [advancement.challenge_excavate_1k]
 title = "Enthousiaste Graver!"
@@ -172,26 +92,6 @@ description = "Graaf 5000 blokken op"
 [advancement.challenge_excavate_50k]
 title = "Gevorderde Graver!"
 description = "Graaf 50.000 blokken op"
-
-[advancement.challenge_excavate_500k]
-title = "Meester Graver!"
-description = "Graaf 500.000 blokken op"
-
-[advancement.challenge_excavate_5m]
-title = "Raadselachtige Graver"
-description = "Graaf 5.000.000 blokken op"
-
-[advancement.horrible_person]
-title = "Je bent een verschrikkelijk persoon"
-description = "Ondoorgrondelijk, echt waar"
-
-[advancement.challenge_turtle_egg_smasher]
-title = "Schildpadei-Verbrijzelaar!"
-description = "Breek 100 schildpadeieren"
-
-[advancement.challenge_turtle_egg_annihilator]
-title = "Schildpadei-Vernietiger!"
-description = "Breek 500 schildpadeieren"
 
 [advancement.challenge_novice_hunter]
 title = "Beginnende Jager!"
@@ -224,14 +124,6 @@ description = "Breek 5000 blokken"
 [advancement.challenge_pickaxe_50k]
 title = "Deskundige Mijnwerker"
 description = "Breek 50.000 blokken"
-
-[advancement.challenge_pickaxe_500k]
-title = "Meester Mijnwerker"
-description = "Breek 500.000 blokken"
-
-[advancement.challenge_pickaxe_5m]
-title = "Legendarische Mijnwerker"
-description = "Breek 5.000.000 blokken"
 
 [advancement.challenge_eat_100]
 title = "Zoveel te eten!"
@@ -332,10 +224,6 @@ description = "Breng 1 uur online door"
 [advancement.challenge_chronos_24h]
 title = "Zand der Tijd"
 description = "Breng 24 uur online door"
-
-[advancement.challenge_chronos_168h]
-title = "Tijdloos"
-description = "Breng 168 uur (1 week) online door"
 
 [advancement.challenge_nether_50]
 title = "Poortwachter van de Hel"
@@ -440,14 +328,6 @@ title = "Wolkenarchitect"
 description = "Plaats 1,000 blokken boven Y=128"
 
 # Axes - New Achievement Chains
-[advancement.challenge_axe_swing_500]
-title = "Bijlzwaaier"
-description = "Zwaai je bijl 500 keer"
-
-[advancement.challenge_axe_swing_5k]
-title = "Berserker"
-description = "Zwaai je bijl 5,000 keer"
-
 [advancement.challenge_axe_damage_1k]
 title = "Kliever"
 description = "Deel 1,000 schade uit met bijlen"
@@ -559,14 +439,6 @@ description = "Teleporteer 50 keer"
 title = "Tijdkronkel"
 description = "Teleporteer 500 keer"
 
-[advancement.challenge_chronos_deaths_10]
-title = "Sterfelijk"
-description = "Sterf 10 keer"
-
-[advancement.challenge_chronos_deaths_100]
-title = "Doodstarter"
-description = "Sterf 100 keer"
-
 # Crafting - New Achievement Chains
 [advancement.challenge_craft_value_10k]
 title = "Ambachtelijke Waarde"
@@ -591,14 +463,6 @@ description = "Maak 25 stukken wapenrusting"
 [advancement.challenge_craft_armor_250]
 title = "Meester Wapensmid"
 description = "Maak 250 stukken wapenrusting"
-
-[advancement.challenge_craft_mass_25k]
-title = "Massaproductie"
-description = "Maak 25,000 items"
-
-[advancement.challenge_craft_mass_250k]
-title = "Industriele Revolutie"
-description = "Maak 250,000 items"
 
 # Discovery - New Achievement Chains
 [advancement.challenge_discover_items_50]
@@ -650,14 +514,6 @@ description = "Verzamel 100 betoveringskracht"
 title = "Arcane Meester"
 description = "Verzamel 1,000 betoveringskracht"
 
-[advancement.challenge_enchant_levels_1k]
-title = "Levelverbruiker"
-description = "Besteed 1,000 ervaringsniveaus aan betoveringen"
-
-[advancement.challenge_enchant_levels_10k]
-title = "Ervaringsput"
-description = "Besteed 10,000 ervaringsniveaus aan betoveringen"
-
 [advancement.challenge_enchant_high_25]
 title = "Hoge Inzet"
 description = "Voer 25 betoveringen op maximaal niveau uit"
@@ -675,14 +531,6 @@ title = "Arcane Investering"
 description = "Besteed 5,000 totale niveaus aan alle betoveringen"
 
 # Excavation - New Achievement Chains
-[advancement.challenge_dig_swing_500]
-title = "Graver"
-description = "Zwaai je schop 500 keer"
-
-[advancement.challenge_dig_swing_5k]
-title = "Graafmachine"
-description = "Zwaai je schop 5,000 keer"
-
 [advancement.challenge_dig_damage_1k]
 title = "Schopridder"
 description = "Deel 1,000 schade uit met een schop"
@@ -787,14 +635,6 @@ title = "Plaagverzamelaar"
 description = "Breek 100 witherrosen"
 
 # Pickaxes - New Achievement Chains
-[advancement.challenge_pick_swing_500]
-title = "Mijnwerkersarm"
-description = "Zwaai je houweel 500 keer"
-
-[advancement.challenge_pick_swing_5k]
-title = "Tunnelgraver"
-description = "Zwaai je houweel 5,000 keer"
-
 [advancement.challenge_pick_damage_1k]
 title = "Houweelvechter"
 description = "Deel 1,000 schade uit met een houweel"
@@ -935,14 +775,6 @@ description = "Dood 10 mobs terwijl je sluipt"
 title = "Schaduwmaaier"
 description = "Dood 100 mobs terwijl je sluipt"
 
-[advancement.challenge_stealth_time_1h]
-title = "Geduldig"
-description = "Breng 1 uur sluipend door (3,600 seconden)"
-
-[advancement.challenge_stealth_time_10h]
-title = "Meester der Schaduwen"
-description = "Breng 10 uur sluipend door (36,000 seconden)"
-
 [advancement.challenge_stealth_arrows_50]
 title = "Stille Boogschutter"
 description = "Schiet 50 pijlen terwijl je sluipt"
@@ -1009,14 +841,6 @@ description = "Je huisdieren verslaan 25 wezens"
 title = "Alfacommandant"
 description = "Je huisdieren verslaan 250 wezens"
 
-[advancement.challenge_taming_2500]
-title = "Fokexpert"
-description = "Fok 2,500 dieren"
-
-[advancement.challenge_taming_25k]
-title = "Geneticameester"
-description = "Fok 25,000 dieren"
-
 # TragOul - New Achievement Chains
 [advancement.challenge_trag_hits_500]
 title = "Bokszak"
@@ -1025,30 +849,6 @@ description = "Ontvang 500 treffers"
 [advancement.challenge_trag_hits_5k]
 title = "Gulzig voor Straf"
 description = "Ontvang 5,000 treffers"
-
-[advancement.challenge_trag_deaths_10]
-title = "Negen Levens"
-description = "Sterf 10 keer"
-
-[advancement.challenge_trag_deaths_100]
-title = "Terugkerende Nachtmerrie"
-description = "Sterf 100 keer"
-
-[advancement.challenge_trag_fire_500]
-title = "Brandslachtoffer"
-description = "Doorsta 500 vuurschade"
-
-[advancement.challenge_trag_fire_5k]
-title = "Feniks"
-description = "Doorsta 5,000 vuurschade"
-
-[advancement.challenge_trag_fall_500]
-title = "Zwaartekrachttest"
-description = "Doorsta 500 valschade"
-
-[advancement.challenge_trag_fall_5k]
-title = "Eindsnelheid"
-description = "Doorsta 5,000 valschade"
 
 # Unarmed - New Achievement Chains
 [advancement.challenge_unarmed_dmg_1k]

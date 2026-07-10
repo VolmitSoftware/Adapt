@@ -19,14 +19,13 @@
 package art.arcane.adapt.content.adaptation.brewing;
 
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.potion.AdaptBrewCompleteEvent;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.data.WorldData;
 import art.arcane.adapt.api.potion.BrewingRecipe;
 import art.arcane.adapt.api.potion.PotionBuilder;
-import art.arcane.adapt.content.matter.BrewingStandOwner;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -40,7 +39,6 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.inventory.BrewEvent;
 import org.bukkit.potion.PotionType;
 
 
@@ -90,21 +88,18 @@ public class BrewingFatigue extends SimpleAdaptation<BrewingFatigue.Config> {
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
-  public void on(BrewEvent e) {
-    BrewingStandOwner owner = WorldData.of(e.getBlock().getWorld()).get(e.getBlock(), BrewingStandOwner.class);
-    if (owner != null) {
-      getServer().peekData(owner.getOwner()).addStat("brewing.fatigue.potions-brewed", 1);
-      Location loc = e.getBlock().getLocation().add(0.5D, 0.6D, 0.5D);
-      fx(loc, FxPriority.TRANSITION)
-          .dustBurst(Color.fromRGB(0x00, 0x42, 0x00), 10, 0.25D, 1.3F)
-          .particle(Particles.SMOKE, 3, 0, 0.1D, 0, 0.2D, 0.01D)
-          .chord(Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, 0.4F, 0.5F, Sound.BLOCK_BREWING_STAND_BREW, 0.6F, 0.6F);
+  public void on(AdaptBrewCompleteEvent e) {
+    if (!getBrewingRecipes().contains(e.getRecipe())) {
+      return;
     }
+    getServer().addStat(e.getBrewerId(), "brewing.fatigue.potions-brewed", e.getBrewedPotions());
+    Location loc = e.getBlock().getLocation().add(0.5D, 0.6D, 0.5D);
+    fx(loc, FxPriority.TRANSITION)
+        .dustBurst(Color.fromRGB(0x00, 0x42, 0x00), 10, 0.25D, 1.3F)
+        .particle(Particles.SMOKE, 3, 0, 0.1D, 0, 0.2D, 0.01D)
+        .chord(Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, 0.4F, 0.5F, Sound.BLOCK_BREWING_STAND_BREW, 0.6F, 0.6F);
   }
 
-  @Override
-  public void onTick() {
-  }
 
 
   @ConfigDescription("Brew a Potion of Fatigue from Weakness Potion and Slime.")

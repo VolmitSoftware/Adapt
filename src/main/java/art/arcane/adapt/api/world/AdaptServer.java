@@ -34,8 +34,10 @@ import art.arcane.adapt.content.item.ExperienceOrb;
 import art.arcane.adapt.content.item.KnowledgeOrb;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.io.Json;
+import art.arcane.adapt.util.common.io.SQLManager;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.volmlib.util.io.IO;
 import art.arcane.volmlib.util.math.M;
 import com.github.benmanes.caffeine.cache.Cache;
@@ -44,6 +46,7 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -57,14 +60,32 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class AdaptServer extends TickedObject {
   private final ReentrantLock clearLock = new ReentrantLock();
   private final Map<UUID, AdaptPlayer> players = new ConcurrentHashMap<>();
+  private final Map<UUID, AdaptPlayer> onlineAdaptPlayers = new ConcurrentHashMap<>();
+  private final Map<UUID, Set<String>> learnedAdaptationsByPlayer = new ConcurrentHashMap<>();
+  private final Map<UUID, Map<String, Integer>> learnedAdaptationLevelsByPlayer = new ConcurrentHashMap<>();
+  private final Map<String, Set<UUID>> playersByLearnedAdaptation = new ConcurrentHashMap<>();
+  private final Map<String, List<AdaptPlayer>> learnedAdaptPlayerSnapshots = new ConcurrentHashMap<>();
+  private final AtomicBoolean spatialFailureReported = new AtomicBoolean(false);
+  private final AtomicBoolean onlineSnapshotRefreshScheduled = new AtomicBoolean(false);
+  private final AtomicLong onlineMembershipRevision = new AtomicLong();
   private final Cache<UUID, PlayerData> prefetchedPlayerData = Caffeine.newBuilder()
       .expireAfterWrite(2, TimeUnit.MINUTES)
       .maximumSize(2048)
@@ -84,9 +105,18 @@ public class AdaptServer extends TickedObject {
   public AdaptServer() {
     super("core", UUID.randomUUID().toString(), 1000);
     load();
+  }
 
-    Bukkit.getOnlinePlayers().forEach(this::join);
-    refreshOnlinePlayerSnapshots();
+  public synchronized void startRuntime() {
+    if (isRuntimeRegistered()) {
+      return;
+    }
+    skillRegistry.startRuntime();
+    activateRuntime();
+    for (Player player : Bukkit.getOnlinePlayers()) {
+      join(player, false);
+    }
+    rebuildOnlinePlayerSnapshots();
   }
 
   public void offer(SpatialXP xp) {
@@ -102,7 +132,7 @@ public class AdaptServer extends TickedObject {
     }
   }
 
-  public void takeSpatial(AdaptPlayer p) {
+  public void takeSpatial(AdaptPlayer p, Location playerLocation) {
     if (spatialTicketCount == 0) {
       return;
     }
@@ -133,8 +163,8 @@ public class AdaptServer extends TickedObject {
         return;
       }
 
-      if (p.getPlayer().getWorld().equals(x.getLocation().getWorld())) {
-        double c = p.getPlayer().getLocation().distanceSquared(x.getLocation());
+      if (playerLocation.getWorld().equals(x.getLocation().getWorld())) {
+        double c = playerLocation.distanceSquared(x.getLocation());
         if (c < x.getRadius() * x.getRadius()) {
           double distl = M.lerpInverse(0, x.getRadius() * x.getRadius(), c);
           double xp = x.getXp() / (1.5D * ((distl * 9) + 1));
@@ -151,26 +181,52 @@ public class AdaptServer extends TickedObject {
           XP.xp(p, x.getSkill(), xp);
         }
       }
-    } catch (Throwable ignored) {
+    } catch (Throwable error) {
+      if (spatialFailureReported.compareAndSet(false, true)) {
+        Adapt.warn("Spatial XP processing failed; further spatial failures will be suppressed until reload.");
+        error.printStackTrace();
+      }
     }
   }
 
+  boolean hasSpatialTickets() {
+    return spatialTicketCount > 0;
+  }
+
   public void join(Player p) {
+    join(p, true);
+  }
+
+  private void join(Player p, boolean refreshSnapshots) {
     AdaptPlayer existing = players.get(p.getUniqueId());
     if (existing != null) {
-      if (existing.getPlayer() == p) {
+      if (existing.getPlayer() == p && existing.isRuntimeReady()) {
+        onlineAdaptPlayers.put(p.getUniqueId(), existing);
+        refreshLearnedAdaptations(existing);
+        onlineMembershipRevision.incrementAndGet();
         existing.loggedIn();
-        refreshOnlinePlayerSnapshots();
+        if (refreshSnapshots) {
+          scheduleOnlinePlayerSnapshotRefresh();
+        }
         return;
       }
 
-      players.remove(p.getUniqueId());
+      players.remove(p.getUniqueId(), existing);
+      if (existing.isRuntimeReady()) {
+        existing.unregister();
+      }
     }
 
-    PlayerData prefetched = takePrefetchedData(p.getUniqueId());
+    PlayerData prefetched = existing == null ? takePrefetchedData(p.getUniqueId()) : existing.getData();
     AdaptPlayer a = new AdaptPlayer(p, prefetched);
+    a.startRuntime();
     players.put(p.getUniqueId(), a);
-    refreshOnlinePlayerSnapshots();
+    onlineAdaptPlayers.put(p.getUniqueId(), a);
+    refreshLearnedAdaptations(a);
+    onlineMembershipRevision.incrementAndGet();
+    if (refreshSnapshots) {
+      scheduleOnlinePlayerSnapshotRefresh();
+    }
     a.loggedIn();
   }
 
@@ -181,15 +237,25 @@ public class AdaptServer extends TickedObject {
     // Keep the entry briefly after quit so late quit listeners/tasks do not
     // re-create a new AdaptPlayer for an offline player.
     prefetchedPlayerData.invalidate(p);
-    refreshOnlinePlayerSnapshots();
+    onlineAdaptPlayers.remove(p, a);
+    removeLearnedPlayer(p);
+    onlineMembershipRevision.incrementAndGet();
+    scheduleOnlinePlayerSnapshotRefresh();
   }
 
   @Override
   public void unregister() {
     new HashSet<>(players.keySet()).forEach(this::quit);
+    players.clear();
     prefetchedPlayerData.invalidateAll();
+    onlineAdaptPlayers.clear();
+    learnedAdaptationsByPlayer.clear();
+    learnedAdaptationLevelsByPlayer.clear();
+    playersByLearnedAdaptation.clear();
+    learnedAdaptPlayerSnapshots.clear();
     onlinePlayerSnapshot = List.of();
     onlineAdaptPlayerSnapshot = List.of();
+    onlineSnapshotRefreshScheduled.set(false);
     skillRegistry.unregister();
     save();
     super.unregister();
@@ -300,6 +366,7 @@ public class AdaptServer extends TickedObject {
         AdaptPlayer player = entry.getValue();
         if (player == null) {
           iterator.remove();
+          onlineAdaptPlayers.remove(entry.getKey());
           prefetchedPlayerData.invalidate(entry.getKey());
           continue;
         }
@@ -310,11 +377,13 @@ public class AdaptServer extends TickedObject {
 
         player.unregister();
         iterator.remove();
+        onlineAdaptPlayers.remove(entry.getKey(), player);
         prefetchedPlayerData.invalidate(entry.getKey());
       }
 
       if (players.size() != sizeBefore) {
-        refreshOnlinePlayerSnapshots();
+        onlineMembershipRevision.incrementAndGet();
+        scheduleOnlinePlayerSnapshotRefresh();
       }
     } finally {
       clearLock.unlock();
@@ -322,27 +391,167 @@ public class AdaptServer extends TickedObject {
   }
 
   public PlayerData peekData(UUID player) {
-    if (Bukkit.getPlayer(player) != null) {
-      return getPlayer(Bukkit.getPlayer(player)).getData();
+    AdaptPlayer loaded = players.get(player);
+    if (loaded != null) {
+      return loaded.getData();
+    }
+
+    PlayerData prefetched = prefetchedPlayerData.getIfPresent(player);
+    if (prefetched != null) {
+      return prefetched;
     }
 
     if (AdaptConfig.get().isUseSql()) {
-      String sqlData = Adapt.instance.getSqlManager().fetchData(player);
+      SQLManager sqlManager = Adapt.instance.getSqlManager();
+      String sqlData = sqlManager == null ? null : sqlManager.fetchData(player);
       if (sqlData != null) {
-        return Json.fromJson(sqlData, PlayerData.class);
+        PlayerData data = Json.fromJson(sqlData, PlayerData.class);
+        if (data != null) {
+          prefetchedPlayerData.put(player, data);
+          return data;
+        }
       }
     }
 
-    File f = new File(Adapt.instance.getDataFolder("data", "players"), player + ".json");
-    if (f.exists()) {
+    File file = new File(Adapt.instance.getDataFolder("data", "players"), player + ".json");
+    if (file.exists()) {
       try {
-        return Json.fromJson(IO.readAll(f), PlayerData.class);
-      } catch (Throwable ignored) {
+        PlayerData data = Json.fromJson(IO.readAll(file), PlayerData.class);
+        if (data != null) {
+          prefetchedPlayerData.put(player, data);
+          return data;
+        }
+      } catch (Throwable error) {
         Adapt.verbose("Failed to load player data for " + player);
       }
     }
 
     return new PlayerData();
+  }
+
+  public boolean addStat(UUID playerId, String stat, double amount) {
+    if (playerId == null || stat == null || stat.isBlank() || amount == 0D) {
+      return false;
+    }
+
+    AdaptPlayer online = onlineAdaptPlayers.get(playerId);
+    if (online == null || !online.isRuntimeReady()) {
+      return false;
+    }
+
+    Player player = online.getPlayer();
+    return player != null && J.runEntity(player, () -> {
+      if (onlineAdaptPlayers.get(playerId) == online && online.isRuntimeReady()) {
+        online.getData().addStat(stat, amount);
+      }
+    });
+  }
+
+  public int getOnlineAdaptationLevel(UUID playerId, String skillName, String adaptationName) {
+    AdaptPlayer online = onlineAdaptPlayers.get(playerId);
+    if (online == null || !online.isRuntimeReady()) {
+      return 0;
+    }
+    Map<String, Integer> levels = learnedAdaptationLevelsByPlayer.get(playerId);
+    return levels == null ? 0 : levels.getOrDefault(adaptationName, 0);
+  }
+
+  public List<AdaptPlayer> getLearnedAdaptPlayerSnapshot(String adaptationName) {
+    if (adaptationName == null || adaptationName.isBlank()) {
+      return List.of();
+    }
+
+    return learnedAdaptPlayerSnapshots.computeIfAbsent(adaptationName, this::buildLearnedAdaptPlayerSnapshot);
+  }
+
+  private List<AdaptPlayer> buildLearnedAdaptPlayerSnapshot(String adaptationName) {
+    Set<UUID> playerIds = playersByLearnedAdaptation.get(adaptationName);
+    if (playerIds == null || playerIds.isEmpty()) {
+      return List.of();
+    }
+
+    ArrayList<AdaptPlayer> learned = new ArrayList<>(playerIds.size());
+    for (UUID playerId : playerIds) {
+      AdaptPlayer player = onlineAdaptPlayers.get(playerId);
+      if (player != null && player.isRuntimeReady()) {
+        learned.add(player);
+      }
+    }
+    return Collections.unmodifiableList(learned);
+  }
+
+  public void updateLearnedAdaptation(AdaptPlayer player, String adaptationName, int level) {
+    if (player == null || adaptationName == null || adaptationName.isBlank()) {
+      return;
+    }
+
+    UUID playerId = player.getPlayer().getUniqueId();
+    Set<String> learned = learnedAdaptationsByPlayer.computeIfAbsent(playerId, unused -> ConcurrentHashMap.newKeySet());
+    Map<String, Integer> levels = learnedAdaptationLevelsByPlayer.computeIfAbsent(playerId, unused -> new ConcurrentHashMap<>());
+    if (level > 0) {
+      learned.add(adaptationName);
+      levels.put(adaptationName, level);
+      playersByLearnedAdaptation.computeIfAbsent(adaptationName, unused -> ConcurrentHashMap.newKeySet()).add(playerId);
+      learnedAdaptPlayerSnapshots.remove(adaptationName);
+      return;
+    }
+
+    learned.remove(adaptationName);
+    levels.remove(adaptationName);
+    if (levels.isEmpty()) {
+      learnedAdaptationLevelsByPlayer.remove(playerId, levels);
+    }
+    if (learned.isEmpty()) {
+      learnedAdaptationsByPlayer.remove(playerId, learned);
+    }
+    removeLearnedAdaptationPlayer(adaptationName, playerId);
+  }
+
+  public void refreshLearnedAdaptations(AdaptPlayer player) {
+    if (player == null) {
+      return;
+    }
+
+    UUID playerId = player.getPlayer().getUniqueId();
+    Set<String> refreshed = new HashSet<>();
+    Map<String, Integer> refreshedLevels = new ConcurrentHashMap<>();
+    for (PlayerSkillLine line : player.getData().getSkillLines().values()) {
+      if (line == null) {
+        continue;
+      }
+      for (Map.Entry<String, PlayerAdaptation> entry : line.getAdaptations().entrySet()) {
+        String adaptationName = entry.getKey();
+        PlayerAdaptation adaptation = entry.getValue();
+        if (adaptationName != null && !adaptationName.isBlank()
+            && adaptation != null && adaptation.getLevel() > 0) {
+          refreshed.add(adaptationName);
+          refreshedLevels.put(adaptationName, adaptation.getLevel());
+        }
+      }
+    }
+
+    Set<String> indexed = ConcurrentHashMap.newKeySet();
+    indexed.addAll(refreshed);
+    Set<String> previous = learnedAdaptationsByPlayer.put(playerId, indexed);
+    if (refreshedLevels.isEmpty()) {
+      learnedAdaptationLevelsByPlayer.remove(playerId);
+    } else {
+      learnedAdaptationLevelsByPlayer.put(playerId, refreshedLevels);
+    }
+    if (previous != null) {
+      for (String adaptationName : previous) {
+        if (!refreshed.contains(adaptationName)) {
+          removeLearnedAdaptationPlayer(adaptationName, playerId);
+        }
+      }
+    }
+    for (String adaptationName : refreshed) {
+      playersByLearnedAdaptation.computeIfAbsent(adaptationName, unused -> ConcurrentHashMap.newKeySet()).add(playerId);
+      learnedAdaptPlayerSnapshots.remove(adaptationName);
+    }
+    if (indexed.isEmpty()) {
+      learnedAdaptationsByPlayer.remove(playerId, indexed);
+    }
   }
 
   @NonNull
@@ -360,10 +569,34 @@ public class AdaptServer extends TickedObject {
     AdaptPlayer created = players.computeIfAbsent(p.getUniqueId(), player -> {
       Adapt.warn("Failed to find AdaptPlayer for " + p.getName() + " (" + p.getUniqueId() + ")");
       Adapt.warn("Loading new AdaptPlayer...");
-      return new AdaptPlayer(p, takePrefetchedData(player));
+      AdaptPlayer loaded = new AdaptPlayer(p, takePrefetchedData(player));
+      loaded.startRuntime();
+      return loaded;
     });
-    refreshOnlinePlayerSnapshots();
+    onlineAdaptPlayers.put(p.getUniqueId(), created);
+    refreshLearnedAdaptations(created);
+    onlineMembershipRevision.incrementAndGet();
+    scheduleOnlinePlayerSnapshotRefresh();
     return created;
+  }
+
+  private void removeLearnedPlayer(UUID playerId) {
+    Set<String> learned = learnedAdaptationsByPlayer.remove(playerId);
+    learnedAdaptationLevelsByPlayer.remove(playerId);
+    if (learned == null) {
+      return;
+    }
+    for (String adaptationName : learned) {
+      removeLearnedAdaptationPlayer(adaptationName, playerId);
+    }
+  }
+
+  private void removeLearnedAdaptationPlayer(String adaptationName, UUID playerId) {
+    playersByLearnedAdaptation.computeIfPresent(adaptationName, (name, playerIds) -> {
+      playerIds.remove(playerId);
+      return playerIds.isEmpty() ? null : playerIds;
+    });
+    learnedAdaptPlayerSnapshots.remove(adaptationName);
   }
 
   private PlayerData takePrefetchedData(UUID uuid) {
@@ -374,24 +607,34 @@ public class AdaptServer extends TickedObject {
     return prefetched;
   }
 
-  private void refreshOnlinePlayerSnapshots() {
-    ArrayList<AdaptPlayer> adaptPlayers = new ArrayList<>(players.size());
-    ArrayList<Player> playerSnapshot = new ArrayList<>(players.size());
+  private void scheduleOnlinePlayerSnapshotRefresh() {
+    if (onlineSnapshotRefreshScheduled.compareAndSet(false, true)) {
+      J.s(this::rebuildOnlinePlayerSnapshots);
+    }
+  }
 
-    for (AdaptPlayer adaptPlayer : players.values()) {
-      if (adaptPlayer == null) {
+  private void rebuildOnlinePlayerSnapshots() {
+    long revision = onlineMembershipRevision.get();
+    ArrayList<AdaptPlayer> adaptPlayers = new ArrayList<>(onlineAdaptPlayers.size());
+    ArrayList<Player> playerSnapshot = new ArrayList<>(onlineAdaptPlayers.size());
+
+    for (AdaptPlayer adaptPlayer : onlineAdaptPlayers.values()) {
+      if (adaptPlayer == null || !adaptPlayer.isRuntimeReady()) {
         continue;
       }
-      Player online = adaptPlayer.getPlayer();
-      if (online == null || !online.isOnline()) {
-        continue;
+      Player player = adaptPlayer.getPlayer();
+      if (player != null) {
+        adaptPlayers.add(adaptPlayer);
+        playerSnapshot.add(player);
       }
-      adaptPlayers.add(adaptPlayer);
-      playerSnapshot.add(online);
     }
 
     onlineAdaptPlayerSnapshot = Collections.unmodifiableList(adaptPlayers);
     onlinePlayerSnapshot = Collections.unmodifiableList(playerSnapshot);
+    onlineSnapshotRefreshScheduled.set(false);
+    if (onlineMembershipRevision.get() != revision) {
+      scheduleOnlinePlayerSnapshotRefresh();
+    }
   }
 
   public void openSkillGUI(Skill<?> skill, Player p) {

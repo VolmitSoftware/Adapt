@@ -124,10 +124,6 @@ public class HerbalismLuck extends SimpleAdaptation<HerbalismLuck.Config> {
   }
 
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Breaking Grass or Flowers has a chance to drop random items.")
   protected static class Config extends AdaptationConfig {

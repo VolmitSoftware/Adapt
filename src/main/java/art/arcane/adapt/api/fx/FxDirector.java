@@ -1,7 +1,7 @@
 package art.arcane.adapt.api.fx;
 
-import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.tick.TickedObject;
+import art.arcane.adapt.util.common.scheduling.J;
 
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -22,6 +22,7 @@ public final class FxDirector extends TickedObject {
     this.incoming = new ConcurrentLinkedQueue<>();
     this.timelines = new ArrayList<>(64);
     this.activeCount = new AtomicInteger();
+    FxViewers.reset();
     active = this;
   }
 
@@ -45,16 +46,15 @@ public final class FxDirector extends TickedObject {
     }
 
     int keep = 0;
+    boolean foliaThreading = J.isFoliaThreading();
     for (int i = 0; i < size; i++) {
       FxTimeline timeline = timelines.get(i);
       boolean alive;
       try {
-        alive = timeline.advance();
+        alive = timeline.advance(foliaThreading);
       } catch (Throwable e) {
         alive = false;
-        timeline.cancel();
-        Adapt.error("Fx timeline for '" + timeline.label() + "' threw during a frame; cancelling it.");
-        e.printStackTrace();
+        timeline.fail(e);
       }
 
       if (alive) {
@@ -73,11 +73,16 @@ public final class FxDirector extends TickedObject {
   void register(FxTimeline timeline) {
     FxPriority priority = timeline.priority();
     int cap = priority == FxPriority.GAMEPLAY || priority == FxPriority.COMBAT ? MAX_CRITICAL_TIMELINES : MAX_ACTIVE_TIMELINES;
-    if (activeCount.get() >= cap) {
-      return;
+    while (true) {
+      int current = activeCount.get();
+      if (current >= cap) {
+        return;
+      }
+      if (activeCount.compareAndSet(current, current + 1)) {
+        break;
+      }
     }
 
-    activeCount.incrementAndGet();
     incoming.add(timeline);
   }
 }

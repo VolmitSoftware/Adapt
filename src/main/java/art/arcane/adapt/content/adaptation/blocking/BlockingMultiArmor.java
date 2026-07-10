@@ -90,9 +90,6 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
     v.addLore(C.UNDERLINE + Localizer.dLocalize("blocking.multi_armor.lore6"));
   }
 
-  @Override
-  public void onTick() {
-  }
 
   @EventHandler(priority = EventPriority.HIGH)
   public void on(PlayerMoveEvent e) {

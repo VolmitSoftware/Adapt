@@ -19,10 +19,10 @@
 package art.arcane.adapt.content.adaptation.seaborrne;
 
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
-import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.world.AdaptPlayer;
@@ -45,6 +45,10 @@ import java.util.Map;
 import java.util.UUID;
 
 public class SeaborneTurtlesMiningSpeed extends SimpleAdaptation<SeaborneTurtlesMiningSpeed.Config> {
+  private static final int EFFECT_DURATION_TICKS = 160;
+  private static final int EFFECT_REFRESH_THRESHOLD_TICKS = 100;
+  private static final int EFFECT_AMPLIFIER = 1;
+
   private final Map<UUID, Boolean> submerged = playerState();
   private final Cooldowns breakPulse = cooldowns();
 
@@ -81,10 +85,14 @@ public class SeaborneTurtlesMiningSpeed extends SimpleAdaptation<SeaborneTurtles
     Player p = e.getPlayer();
     Location at = e.getBlock().getLocation();
     withAdaptedPlayer(p, e, () -> {
-      if (!p.isInWater() || !breakPulse.isReady(p.getUniqueId(), 150L)) {
+      if (!p.isInWater()) {
         return;
       }
 
+      addStat(p, "seaborne.turtles-mining.blocks-underwater", 1);
+      if (!breakPulse.isReady(p.getUniqueId(), 150L)) {
+        return;
+      }
       breakPulse.mark(p.getUniqueId());
       fx(at.add(0.5D, 0.5D, 0.5D), FxPriority.AMBIENT)
           .particle(Particle.BUBBLE, 4, 0, 0, 0, 0.05D, 0.02D)
@@ -94,12 +102,8 @@ public class SeaborneTurtlesMiningSpeed extends SimpleAdaptation<SeaborneTurtles
 
   @Override
   public void onTick() {
-    for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
+    for (AdaptPlayer adaptPlayer : learnedCandidates(System.currentTimeMillis())) {
       Player player = adaptPlayer.getPlayer();
-      if (player == null || !player.isOnline()) {
-        continue;
-      }
-
       withPlayerThread(player, () -> {
         if (!player.isOnline()) {
           return;
@@ -107,6 +111,7 @@ public class SeaborneTurtlesMiningSpeed extends SimpleAdaptation<SeaborneTurtles
 
         int level = getActiveLevel(player);
         if (level <= 0) {
+          submerged.remove(player.getUniqueId());
           return;
         }
 
@@ -114,13 +119,12 @@ public class SeaborneTurtlesMiningSpeed extends SimpleAdaptation<SeaborneTurtles
         boolean was = submerged.getOrDefault(id, false);
         if (!player.isInWater()) {
           if (was) {
-            submerged.put(id, false);
+            submerged.remove(id);
           }
           return;
         }
 
-        player.addPotionEffect(new PotionEffect(PotionEffectTypes.FAST_DIGGING, 62, 1, false, false));
-        addStat(player, "seaborne.turtles-mining.blocks-underwater", 1);
+        refreshMiningSpeed(player);
 
         if (!was) {
           submerged.put(id, true);
@@ -132,6 +136,18 @@ public class SeaborneTurtlesMiningSpeed extends SimpleAdaptation<SeaborneTurtles
         }
       });
     }
+  }
+
+  private void refreshMiningSpeed(Player player) {
+    PotionEffect current = player.getPotionEffect(PotionEffectTypes.FAST_DIGGING);
+    if (current == null || shouldRefreshEffect(current.getDuration(), current.getAmplifier(), EFFECT_AMPLIFIER)) {
+      player.addPotionEffect(new PotionEffect(PotionEffectTypes.FAST_DIGGING, EFFECT_DURATION_TICKS, EFFECT_AMPLIFIER, false, false));
+    }
+  }
+
+  static boolean shouldRefreshEffect(int currentDuration, int currentAmplifier, int targetAmplifier) {
+    return currentAmplifier < targetAmplifier
+        || (currentAmplifier == targetAmplifier && currentDuration <= EFFECT_REFRESH_THRESHOLD_TICKS);
   }
 
   @ConfigDescription("Gain haste while mining underwater.")

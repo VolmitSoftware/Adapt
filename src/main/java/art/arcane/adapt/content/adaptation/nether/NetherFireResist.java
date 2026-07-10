@@ -30,7 +30,8 @@ import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -109,12 +110,9 @@ public class NetherFireResist extends SimpleAdaptation<NetherFireResist.Config> 
     return getConfig().fireResistBase + (getConfig().fireResistFactor * level);
   }
 
-  @Override
-  public void onTick() {
 
-  }
-
-  @Data
+  @Getter
+  @Setter
   @ConfigDescription("Chance to negate the burning effect.")
   public static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Fire Resist Base for the Nether Fire Resist adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

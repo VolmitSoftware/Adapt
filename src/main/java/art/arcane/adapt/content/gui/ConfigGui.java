@@ -30,7 +30,13 @@ import org.bukkit.event.inventory.InventoryType;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class ConfigGui {
@@ -1200,6 +1206,7 @@ public final class ConfigGui {
     } else {
       CustomModel.clear();
     }
+    synchronizeAdvancementRuntime();
   }
 
   private static SectionTarget resolveSectionTarget(String path, boolean createMissing) {
@@ -1305,7 +1312,7 @@ public final class ConfigGui {
 
       String[] parts = payload.split("\\Q.\\E", 2);
       Adaptation<?> adaptation = resolveAdaptation(parts[0]);
-      if (adaptation == null || adaptation.getConfig() == null || !(adaptation instanceof SimpleAdaptation<?> simpleAdaptation)) {
+      if (adaptation == null || adaptation.getConfig() == null || !(adaptation instanceof SimpleAdaptation<?>)) {
         return null;
       }
 
@@ -1319,7 +1326,7 @@ public final class ConfigGui {
           adaptation.getConfig(),
           objectPath,
           Adapt.instance.getDataFile("adapt", "adaptations", adaptation.getName() + ".toml"),
-          () -> simpleAdaptation.reloadConfigFromDisk(false),
+          () -> Adapt.instance.getAdaptServer().getSkillRegistry().hotReloadAdaptationConfig(adaptation.getName()),
           () -> {
           }
       );
@@ -1346,6 +1353,12 @@ public final class ConfigGui {
       return normalized.substring(withDot.length());
     }
     return normalized;
+  }
+
+  private static void synchronizeAdvancementRuntime() {
+    if (Adapt.instance != null && Adapt.instance.getAdaptServer() != null) {
+      Adapt.instance.getAdaptServer().getSkillRegistry().synchronizeAdvancementRuntime();
+    }
   }
 
   private static Skill<?> resolveSkill(String skillName) {

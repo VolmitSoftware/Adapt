@@ -176,9 +176,6 @@ public class CraftingSkulls extends SimpleAdaptation<CraftingSkulls.Config> {
     }
   }
 
-  @Override
-  public void onTick() {
-  }
 
   @ConfigDescription("Craft Mob Skulls using materials surrounding a Bone Block.")
   protected static class Config extends AdaptationConfig {

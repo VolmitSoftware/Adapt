@@ -133,10 +133,6 @@ public class UnarmedFlurry extends SimpleAdaptation<UnarmedFlurry.Config> {
     return getConfig().damagePerStackBase + (getLevelPercent(level) * getConfig().damagePerStackFactor);
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Rapid consecutive bare-hand hits build flurry stacks that add bonus damage.")
   protected static class Config extends AdaptationConfig {

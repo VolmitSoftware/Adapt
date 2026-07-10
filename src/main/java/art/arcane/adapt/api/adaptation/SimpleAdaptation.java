@@ -40,7 +40,6 @@ import art.arcane.volmlib.util.collection.KList;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import lombok.AccessLevel;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Location;
@@ -57,7 +56,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-@Data
+@Getter
+@Setter
 public abstract class SimpleAdaptation<T> extends TickedObject implements Adaptation<T> {
   private int maxLevel;
   private int initialCost;
@@ -138,6 +138,21 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
       if (announce) {
         Adapt.info("Hotloaded " + file.getPath());
       }
+      return true;
+    } catch (Throwable e) {
+      Adapt.warn("Skipped hotload for " + file.getPath() + " due to invalid config: " + e.getMessage());
+      return false;
+    }
+  }
+
+  public synchronized boolean validateConfigFromDisk() {
+    if (getConfigurationClass() == null) {
+      return false;
+    }
+
+    File file = getConfigFile();
+    try {
+      loadConfig(file, createDefaultConfig(), false);
       return true;
     } catch (Throwable e) {
       Adapt.warn("Skipped hotload for " + file.getPath() + " due to invalid config: " + e.getMessage());
@@ -408,8 +423,7 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
       return false;
     }
 
-    adaptPlayer.getAdvancementHandler().grant(advancementKey);
-    return true;
+    return adaptPlayer.getAdvancementHandler().grant(advancementKey);
   }
 
   protected void addStat(Player p, String stat, double amount) {

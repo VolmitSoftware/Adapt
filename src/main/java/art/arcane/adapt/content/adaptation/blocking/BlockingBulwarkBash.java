@@ -27,15 +27,19 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Tameable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -44,7 +48,16 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class BlockingBulwarkBash extends SimpleAdaptation<BlockingBulwarkBash.Config> {
+  private static final int HARD_MAX_CANDIDATES_PER_ACTIVATION = 32;
+  private static final int HARD_MAX_AFFECTED_PER_ACTIVATION = 16;
+  private static final int HARD_MAX_TARGET_FX_PER_ACTIVATION = 12;
   private final Cooldowns sprintTimestamps = cooldowns();
 
   public BlockingBulwarkBash() {
@@ -99,34 +112,120 @@ public class BlockingBulwarkBash extends SimpleAdaptation<BlockingBulwarkBash.Co
     }
 
     int level = combat.level();
-    int affected = 0;
     double radius = getRange(level);
-    for (org.bukkit.entity.Entity nearby : target.getWorld().getNearbyEntities(target.getLocation(), radius, radius, radius)) {
-      if (!(nearby instanceof LivingEntity hit) || hit == p) {
-        continue;
-      }
-
-      if (!canDamageTarget(p, hit)) {
-        continue;
-      }
-
-      applyImpact(p, hit, level, affected < 6);
-      affected++;
-    }
-
-    if (affected <= 0) {
-      return;
-    }
+    Location playerOrigin = p.getLocation().clone();
+    Vector fallbackDirection = playerOrigin.getDirection().clone().setY(0);
+    Location center = target.getLocation().clone();
+    int targetFxLimit = getTargetFxLimit();
+    applyImpact(target, playerOrigin, fallbackDirection, getKnockback(level), getUpwardKnockback(level),
+        getStunTicks(level), getStunAmplifier(level), targetFxLimit > 0);
 
     e.setDamage(e.getDamage() + getBaseDamage(level));
     p.setCooldown(Material.SHIELD, getCooldownTicks(level));
-    boolean hype = affected >= 4;
-    bashShockwave(p, radius, hype);
-    xp(p, getConfig().xpPerTargetHit * affected);
-    addStat(p, "blocking.bulwark-bash.mobs-bashed", affected);
 
+    List<LivingEntity> candidates = collectCandidates(p, target, center, radius);
+    if (candidates.isEmpty() || getAffectedLimit() <= 1) {
+      finishBash(p, radius, 1, getConfig().xpPerTargetHit);
+      return;
+    }
+
+    BulwarkBatch batch = new BulwarkBatch(p, playerOrigin, fallbackDirection, center, radius,
+        getKnockback(level), getUpwardKnockback(level), getStunTicks(level), getStunAmplifier(level),
+        getAffectedLimit(), targetFxLimit, getConfig().xpPerTargetHit, targetFxLimit > 0, candidates.size());
+    for (LivingEntity hit : candidates) {
+      if (!J.runEntity(hit, () -> inspectCandidateOwned(batch, hit))) {
+        batch.complete();
+      }
+    }
+    J.runEntity(p, batch::finishTimedOut, 3);
+  }
+
+  private List<LivingEntity> collectCandidates(Player player, LivingEntity primaryTarget, Location center, double radius) {
+    int limit = getCandidateLimit();
+    List<LivingEntity> candidates = new ArrayList<>(limit);
+    for (LivingEntity candidate : center.getWorld().getNearbyLivingEntities(center, radius, radius, radius)) {
+      if (candidate == player || candidate == primaryTarget) {
+        continue;
+      }
+      candidates.add(candidate);
+      if (candidates.size() >= limit) {
+        break;
+      }
+    }
+    return candidates;
+  }
+
+  private void inspectCandidateOwned(BulwarkBatch batch, LivingEntity target) {
+    if (batch.isFinalized() || !batch.hasAffectedCapacity()) {
+      batch.complete();
+      return;
+    }
+    Location targetLocation = validTargetLocation(batch, target);
+    if (targetLocation == null) {
+      batch.complete();
+      return;
+    }
+
+    boolean playerTarget = target instanceof Player;
+    if (!J.runEntity(batch.player, () -> authorizeCandidate(batch, target, targetLocation, playerTarget))) {
+      batch.complete();
+    }
+  }
+
+  private void authorizeCandidate(BulwarkBatch batch, LivingEntity target, Location targetLocation, boolean playerTarget) {
+    if (batch.isFinalized() || !batch.player.isOnline()) {
+      batch.complete();
+      return;
+    }
+
+    boolean allowed = playerTarget ? canPVP(batch.player, targetLocation) : canPVE(batch.player, targetLocation);
+    if (!allowed || !J.runEntity(target, () -> applyImpactOwned(batch, target))) {
+      batch.complete();
+    }
+  }
+
+  private void applyImpactOwned(BulwarkBatch batch, LivingEntity target) {
+    if (batch.isFinalized()) {
+      return;
+    }
+    if (validTargetLocation(batch, target) == null || !batch.claimAffected()) {
+      batch.complete();
+      return;
+    }
+
+    applyImpact(target, batch.playerOrigin, batch.fallbackDirection, batch.knockback,
+        batch.upwardKnockback, batch.stunTicks, batch.stunAmplifier, batch.claimTargetFx());
+    batch.complete();
+  }
+
+  private Location validTargetLocation(BulwarkBatch batch, LivingEntity target) {
+    if (!target.isValid() || target.isDead() || isProtectedFriendly(null, target)) {
+      return null;
+    }
+    if (target instanceof Tameable tameable && tameable.isTamed()) {
+      AnimalTamer owner = tameable.getOwner();
+      if (owner != null && batch.playerId.equals(owner.getUniqueId())) {
+        return null;
+      }
+    }
+
+    Location location = target.getLocation();
+    if (location.getWorld() != batch.center.getWorld()
+        || Math.abs(location.getX() - batch.center.getX()) > batch.radius
+        || Math.abs(location.getY() - batch.center.getY()) > batch.radius
+        || Math.abs(location.getZ() - batch.center.getZ()) > batch.radius) {
+      return null;
+    }
+    return location;
+  }
+
+  private void finishBash(Player player, double radius, int affected, double xpPerTargetHit) {
+    boolean hype = affected >= 4;
+    bashShockwave(player, radius, hype);
+    xp(player, xpPerTargetHit * affected);
+    addStat(player, "blocking.bulwark-bash.mobs-bashed", affected);
     if (hype) {
-      grantOnce(p, "challenge_blocking_bulwark_4");
+      grantOnce(player, "challenge_blocking_bulwark_4");
     }
   }
 
@@ -155,18 +254,20 @@ public class BlockingBulwarkBash extends SimpleAdaptation<BlockingBulwarkBash.Co
         .start();
   }
 
-  private void applyImpact(Player p, LivingEntity target, int level, boolean visual) {
-    Vector kb = target.getLocation().toVector().subtract(p.getLocation().toVector()).setY(0);
+  private void applyImpact(LivingEntity target, Location playerOrigin, Vector fallbackDirection,
+                           double knockback, double upwardKnockback, int stunTicks, int stunAmplifier,
+                           boolean visual) {
+    Vector kb = target.getLocation().toVector().subtract(playerOrigin.toVector()).setY(0);
     if (kb.lengthSquared() <= 0.0001) {
-      kb = p.getLocation().getDirection().setY(0);
+      kb = fallbackDirection.clone();
     }
     if (kb.lengthSquared() <= 0.0001) {
-      return;
+      kb = new Vector(1, 0, 0);
     }
 
     kb.normalize();
-    target.setVelocity(target.getVelocity().multiply(0.25).add(kb.multiply(getKnockback(level)).setY(getUpwardKnockback(level))));
-    target.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, getStunTicks(level), getStunAmplifier(level), false, false, true), true);
+    target.setVelocity(target.getVelocity().multiply(0.25D).add(kb.multiply(knockback).setY(upwardKnockback)));
+    target.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, stunTicks, stunAmplifier, false, false, true), true);
 
     if (visual) {
       fx(target.getLocation().add(0, 1.0D, 0), FxPriority.COMBAT)
@@ -218,9 +319,18 @@ public class BlockingBulwarkBash extends SimpleAdaptation<BlockingBulwarkBash.Co
     return Math.max(20, (int) Math.round(getConfig().cooldownTicksBase - (getLevelPercent(level) * getConfig().cooldownTicksFactor)));
   }
 
-  @Override
-  public void onTick() {
+  private int getCandidateLimit() {
+    return Math.max(1, Math.min(getConfig().maxCandidatesPerActivation, HARD_MAX_CANDIDATES_PER_ACTIVATION));
   }
+
+  private int getAffectedLimit() {
+    return Math.max(1, Math.min(Math.min(getConfig().maxAffectedPerActivation, getCandidateLimit() + 1), HARD_MAX_AFFECTED_PER_ACTIVATION));
+  }
+
+  private int getTargetFxLimit() {
+    return Math.max(0, Math.min(getConfig().maxTargetFxPerActivation, HARD_MAX_TARGET_FX_PER_ACTIVATION));
+  }
+
 
   @ConfigDescription("Sprint, jump, and land a shielded crit to unleash a bash shockwave.")
   protected static class Config extends AdaptationConfig {
@@ -260,10 +370,105 @@ public class BlockingBulwarkBash extends SimpleAdaptation<BlockingBulwarkBash.Co
     long recentSprintWindowMillis = 900L;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Target Hit for the Blocking Bulwark Bash adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpPerTargetHit = 8;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum secondary living targets inspected by one bulwark bash.", impact = "Lower values reduce dense-entity scheduling; values are clamped to an absolute maximum of 32.")
+    int maxCandidatesPerActivation = 16;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum total targets affected by one bulwark bash, including the primary target.", impact = "Lower values cap combat work and rewards in dense groups; values are clamped to an absolute maximum of 16.")
+    int maxAffectedPerActivation = 12;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum affected targets that receive individual impact particles.", impact = "Lower values reduce particle dispatch while preserving the main shockwave; values are clamped to an absolute maximum of 12.")
+    int maxTargetFxPerActivation = 6;
 
     public Config() {
       costFactor = 0.72;
       initialCost = 4;
+    }
+  }
+
+  private final class BulwarkBatch {
+    private final Player player;
+    private final UUID playerId;
+    private final Location playerOrigin;
+    private final Vector fallbackDirection;
+    private final Location center;
+    private final double radius;
+    private final double knockback;
+    private final double upwardKnockback;
+    private final int stunTicks;
+    private final int stunAmplifier;
+    private final int affectedLimit;
+    private final int targetFxLimit;
+    private final double xpPerTargetHit;
+    private final AtomicInteger remaining;
+    private final AtomicInteger affected = new AtomicInteger(1);
+    private final AtomicInteger targetFx;
+    private final AtomicBoolean finalized = new AtomicBoolean();
+
+    private BulwarkBatch(Player player, Location playerOrigin, Vector fallbackDirection, Location center,
+                         double radius, double knockback, double upwardKnockback, int stunTicks,
+                         int stunAmplifier, int affectedLimit, int targetFxLimit, double xpPerTargetHit,
+                         boolean primaryFx, int candidates) {
+      this.player = player;
+      playerId = player.getUniqueId();
+      this.playerOrigin = playerOrigin;
+      this.fallbackDirection = fallbackDirection;
+      this.center = center;
+      this.radius = radius;
+      this.knockback = knockback;
+      this.upwardKnockback = upwardKnockback;
+      this.stunTicks = stunTicks;
+      this.stunAmplifier = stunAmplifier;
+      this.affectedLimit = affectedLimit;
+      this.targetFxLimit = targetFxLimit;
+      this.xpPerTargetHit = xpPerTargetHit;
+      remaining = new AtomicInteger(candidates);
+      targetFx = new AtomicInteger(primaryFx ? 1 : 0);
+    }
+
+    private synchronized boolean claimAffected() {
+      if (finalized.get() || affected.get() >= affectedLimit) {
+        return false;
+      }
+      affected.incrementAndGet();
+      return true;
+    }
+
+    private boolean hasAffectedCapacity() {
+      return affected.get() < affectedLimit;
+    }
+
+    private boolean claimTargetFx() {
+      return claim(targetFx, targetFxLimit);
+    }
+
+    private boolean claim(AtomicInteger counter, int limit) {
+      int current = counter.get();
+      while (current < limit) {
+        if (counter.compareAndSet(current, current + 1)) {
+          return true;
+        }
+        current = counter.get();
+      }
+      return false;
+    }
+
+    private void complete() {
+      if (finalized.get() || remaining.decrementAndGet() != 0 || !markFinalized()) {
+        return;
+      }
+      J.runEntity(player, () -> finishBash(player, radius, affected.get(), xpPerTargetHit));
+    }
+
+    private synchronized boolean markFinalized() {
+      return finalized.compareAndSet(false, true);
+    }
+
+    private boolean isFinalized() {
+      return finalized.get();
+    }
+
+    private void finishTimedOut() {
+      if (markFinalized()) {
+        finishBash(player, radius, affected.get(), xpPerTargetHit);
+      }
     }
   }
 }

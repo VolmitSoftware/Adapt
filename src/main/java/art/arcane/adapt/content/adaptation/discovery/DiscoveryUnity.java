@@ -114,10 +114,6 @@ public class DiscoveryUnity extends SimpleAdaptation<DiscoveryUnity.Config> {
     return amount * getConfig().xpGainedMultiplier * factor;
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Collecting Experience Orbs adds XP to random skills.")
   protected static class Config extends AdaptationConfig {

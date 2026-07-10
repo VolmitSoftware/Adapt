@@ -35,7 +35,12 @@ import art.arcane.volmlib.util.entity.StackExclusion;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
@@ -44,14 +49,27 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.player.*;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.EnumSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
@@ -64,13 +82,13 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
   );
   private static final Map<UUID, Long> TELEPORT_XP_SUPPRESS_UNTIL = new ConcurrentHashMap<>();
 
-  private final Map<UUID, Deque<Snapshot>> snapshots = new ConcurrentHashMap<>();
-  private final Map<UUID, Long> lastSnapshot = new ConcurrentHashMap<>();
-  private final Map<UUID, Long> cooldowns = new ConcurrentHashMap<>();
-  private final Set<UUID> cooldownReadyNotify = ConcurrentHashMap.newKeySet();
-  private final Map<UUID, Long> rewindProtection = new ConcurrentHashMap<>();
-  private final Set<UUID> rewinding = ConcurrentHashMap.newKeySet();
-  private final Map<UUID, RecallXPFarmStamp> recallXpStamps = new ConcurrentHashMap<>();
+  private final Map<UUID, Deque<Snapshot>> snapshots = playerState();
+  private final Map<UUID, Long> lastSnapshot = playerState();
+  private final Map<UUID, Long> cooldowns = playerState();
+  private final Map<UUID, Boolean> cooldownReadyNotify = playerState();
+  private final Map<UUID, Long> rewindProtection = playerState();
+  private final Map<UUID, Boolean> rewinding = playerState();
+  private final Map<UUID, RecallXPFarmStamp> recallXpStamps = playerState();
   private final DoubleJumpGesture doubleJump = new DoubleJumpGesture();
 
   public ChronosInstantRecall() {
@@ -591,7 +609,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
   public void on(PlayerTeleportEvent e) {
     Player p = e.getPlayer();
     UUID id = p.getUniqueId();
-    if (!isRecallEligible(p) || rewinding.contains(id)) {
+    if (!isRecallEligible(p) || rewinding.containsKey(id)) {
       return;
     }
 
@@ -607,7 +625,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
   public void on(PlayerChangedWorldEvent e) {
     Player p = e.getPlayer();
     UUID id = p.getUniqueId();
-    if (!isRecallEligible(p) || rewinding.contains(id)) {
+    if (!isRecallEligible(p) || rewinding.containsKey(id)) {
       return;
     }
 
@@ -762,7 +780,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
   }
 
   private boolean canTriggerDoubleJump(Player p) {
-    if (rewinding.contains(p.getUniqueId())) {
+    if (rewinding.containsKey(p.getUniqueId())) {
       return false;
     }
 
@@ -823,7 +841,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
       return;
     }
 
-    if (rewinding.contains(id)) {
+    if (rewinding.containsKey(id)) {
       return;
     }
 
@@ -882,8 +900,8 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
     }
 
     cooldowns.put(id, castAt + getCooldownMillis(level));
-    cooldownReadyNotify.add(id);
-    rewinding.add(id);
+    cooldownReadyNotify.put(id, true);
+    rewinding.put(id, true);
     long protectionUntil = castAt + ((long) (animationTicks + getConfig().rewindProtectionTicks) * 50L);
     rewindProtection.put(id, protectionUntil);
     markRecallTeleportSuppressed(id, protectionUntil + ((long) Math.max(0, getConfig().rewindTeleportXpSuppressExtraTicks) * 50L));
@@ -1047,7 +1065,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
 
     UUID id = p.getUniqueId();
     long protectedUntil = rewindProtection.getOrDefault(id, 0L);
-    if (rewinding.contains(id) || protectedUntil > M.ms()) {
+    if (rewinding.containsKey(id) || protectedUntil > M.ms()) {
       e.setCancelled(true);
       p.setNoDamageTicks(Math.max(p.getNoDamageTicks(), getConfig().rewindProtectionTicks));
     }
@@ -1086,21 +1104,20 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
   @Override
   public void onTick() {
     long now = M.ms();
-    Set<UUID> cooldownReadySet = cooldownReadyNotify;
-    for (Iterator<UUID> iterator = cooldownReadySet.iterator(); iterator.hasNext(); ) {
-      UUID id = iterator.next();
+    for (UUID id : cooldownReadyNotify.keySet()) {
       Player p = Bukkit.getPlayer(id);
       if (p == null) {
-        iterator.remove();
+        cooldownReadyNotify.remove(id);
         continue;
       }
 
       long cooldown = cooldowns.getOrDefault(id, 0L);
-      if (cooldown <= now) {
-        if (getConfig().playClockSounds) {
-          ChronosSoundFX.playCooldownReady(p);
-        }
-        iterator.remove();
+      if (cooldown <= now && cooldownReadyNotify.remove(id) != null) {
+        J.runEntity(p, () -> {
+          if (p.isOnline() && getConfig().playClockSounds) {
+            ChronosSoundFX.playCooldownReady(p);
+          }
+        });
       }
     }
 

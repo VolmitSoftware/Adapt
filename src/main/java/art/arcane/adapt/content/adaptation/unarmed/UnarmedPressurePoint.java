@@ -131,10 +131,6 @@ public class UnarmedPressurePoint extends SimpleAdaptation<UnarmedPressurePoint.
     return getLevelPercent(level) >= getConfig().weaknessUnlockPercent;
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Bare-hand hits apply stacking slowness, with weakness at higher levels.")
   protected static class Config extends AdaptationConfig {

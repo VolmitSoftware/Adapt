@@ -37,7 +37,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Builder
@@ -69,24 +68,23 @@ public class AdaptAdvancement {
   private List<AdaptAdvancement> children;
 
   private Advancement toAdvancement(Advancement parent, int index, int depth) {
-    if (children == null) {
-      children = new ArrayList<>();
-    }
-
-    ItemStack icon = getModel() != null ?
-        getModel().toItemStack() :
+    CustomModel customModel = getModel();
+    ItemStack icon = customModel != null ?
+        customModel.toItemStack() :
         new ItemStack(getIcon());
     AdvancementDisplay d = new AdvancementDisplay.Builder(icon, resolveTitle())
         .description(resolveDescription())
         .frame(getFrame().toUaaFrame())
         .showToast(toast)
+        .announceChat(announce)
         .x(1f + depth)
         .y(1f + index)
         .build();
 
     if (parent == null) {
-      if (background == null)
+      if (background == null) {
         throw new IllegalArgumentException("Background cannot be null");
+      }
 
       return new MainAdvancement(Adapt.instance.getManager().createAdvancementTab(getKey()), getKey(), d, background);
     }
@@ -95,7 +93,9 @@ public class AdaptAdvancement {
   }
 
   public KList<Advancement> toAdvancements() {
-    return toAdvancements(null, 0, 0);
+    KList<Advancement> advancements = new KList<>();
+    appendAdvancements(advancements, null, 0, 0);
+    return advancements;
   }
 
   private String resolveTitle() {
@@ -135,18 +135,16 @@ public class AdaptAdvancement {
     return resolved;
   }
 
-  private KList<Advancement> toAdvancements(Advancement p, int index, int depth) {
-    KList<Advancement> aa = new KList<>();
-    Advancement a = toAdvancement(p, index, depth);
+  private void appendAdvancements(KList<Advancement> advancements, Advancement parent, int index, int depth) {
+    int subtreeStart = advancements.size();
+    Advancement advancement = toAdvancement(parent, index, depth);
     if (children != null && !children.isEmpty()) {
-      for (AdaptAdvancement i : children) {
-        aa.addAll(i.toAdvancements(a, aa.size(), depth + 1));
+      for (AdaptAdvancement child : children) {
+        child.appendAdvancements(advancements, advancement, advancements.size() - subtreeStart, depth + 1);
       }
     }
 
-    aa.add(a);
-
-    return aa;
+    advancements.add(advancement);
   }
 
   private static class MainAdvancement extends RootAdvancement {

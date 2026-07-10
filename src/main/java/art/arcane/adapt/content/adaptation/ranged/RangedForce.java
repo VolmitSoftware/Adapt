@@ -117,10 +117,6 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
     }
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Shoot projectiles further and faster.")
   protected static class Config extends AdaptationConfig {

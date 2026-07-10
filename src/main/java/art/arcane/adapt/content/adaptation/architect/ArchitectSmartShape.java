@@ -46,7 +46,11 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
 
 public class ArchitectSmartShape extends SimpleAdaptation<ArchitectSmartShape.Config> {
   private static final List<BlockFace> ROTATION_ORDER = Arrays.asList(
@@ -219,10 +223,6 @@ public class ArchitectSmartShape extends SimpleAdaptation<ArchitectSmartShape.Co
     return current;
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Sneak-left-click a block with an empty hand to rotate its orientation.")
   protected static class Config extends AdaptationConfig {

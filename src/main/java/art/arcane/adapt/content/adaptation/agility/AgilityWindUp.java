@@ -40,15 +40,20 @@ import org.bukkit.Sound;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.entity.EntityToggleGlideEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerGameModeChangeEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerToggleFlightEvent;
+import org.bukkit.event.player.PlayerToggleSneakEvent;
+import org.bukkit.event.player.PlayerToggleSprintEvent;
 import org.bukkit.util.Vector;
 
 import java.util.Map;
 import java.util.UUID;
 
 public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
-  private final Map<UUID, Integer> ticksRunning = playerState();
   private final Map<UUID, RuntimeState> states = playerState();
 
   public AgilityWindUp() {
@@ -61,15 +66,8 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
         .key("challenge_agility_wind_up_10min")
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
-        .child(AdaptAdvancement.builder()
-            .icon(Material.ACTIVATOR_RAIL)
-            .key("challenge_agility_wind_up_2hr")
-            .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
-            .build())
         .build());
     registerMilestone("challenge_agility_wind_up_10min", "agility.wind-up.max-speed-ticks", 12000, 400);
-    registerMilestone("challenge_agility_wind_up_2hr", "agility.wind-up.max-speed-ticks", 144000, 1500);
   }
 
   @Override
@@ -95,12 +93,7 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
     }
 
     Player p = (Player) event.getEntity();
-    UUID id = p.getUniqueId();
-    ticksRunning.remove(id);
-    RuntimeState state = states.get(id);
-    if (state != null) {
-      clearBoost(p, state);
-    }
+    clearAndRemoveState(p);
   }
 
   @ReflectiveHandler
@@ -110,12 +103,7 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
     }
 
     Player p = (Player) event.getEntity();
-    UUID id = p.getUniqueId();
-    ticksRunning.remove(id);
-    RuntimeState state = states.get(id);
-    if (state != null) {
-      clearBoost(p, state);
-    }
+    clearAndRemoveState(p);
   }
 
   private double getWindupTicks(double factor) {
@@ -126,52 +114,96 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
     return getConfig().windupSpeedBase + (factor * getConfig().windupSpeedLevelMultiplier);
   }
 
-  @Override
-  public void onTick() {
-    long now = System.currentTimeMillis();
-    for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : learnedCandidates(now)) {
-      Player p = adaptPlayer.getPlayer();
-      if (p == null || !p.isOnline()) {
-        continue;
-      }
-      withPlayerThread(p, () -> updatePlayer(p));
+  @EventHandler
+  public void on(PlayerMoveEvent e) {
+    updatePlayer(e.getPlayer(), e.getPlayer().isSprinting());
+  }
+
+  @EventHandler
+  public void on(PlayerToggleSprintEvent e) {
+    if (!e.isSprinting()) {
+      clearAndRemoveState(e.getPlayer());
+      return;
+    }
+    updatePlayer(e.getPlayer(), true);
+  }
+
+  @EventHandler
+  public void on(PlayerToggleSneakEvent e) {
+    if (e.isSneaking()) {
+      clearAndRemoveState(e.getPlayer());
     }
   }
 
-  private void updatePlayer(Player p) {
+  @EventHandler
+  public void on(PlayerToggleFlightEvent e) {
+    if (e.isFlying()) {
+      clearAndRemoveState(e.getPlayer());
+    }
+  }
+
+  @EventHandler
+  public void on(EntityToggleGlideEvent e) {
+    if (e.getEntity() instanceof Player p && e.isGliding()) {
+      clearAndRemoveState(p);
+    }
+  }
+
+  @EventHandler
+  public void on(PlayerGameModeChangeEvent e) {
+    GameMode mode = e.getNewGameMode();
+    if (mode != GameMode.SURVIVAL && mode != GameMode.ADVENTURE) {
+      clearAndRemoveState(e.getPlayer());
+    }
+  }
+
+  private void updatePlayer(Player p, boolean sprinting) {
     if (p == null || !p.isOnline()) {
       return;
     }
 
     UUID id = p.getUniqueId();
-    RuntimeState state = states.computeIfAbsent(id, key -> new RuntimeState());
-    if (!hasActiveAdaptation(p) || !isWindupEligible(p) || !p.isSprinting()) {
-      ticksRunning.remove(id);
-      clearBoost(p, state);
+    RuntimeState state = states.get(id);
+    if (state == null && !sprinting) {
+      return;
+    }
+    if (!hasActiveAdaptation(p) || !isWindupEligible(p) || !sprinting) {
+      if (state != null) {
+        clearBoost(p, state);
+        states.remove(id, state);
+      }
       return;
     }
 
     double factor = getLevelPercent(p);
     if (factor <= 0) {
-      ticksRunning.remove(id);
-      clearBoost(p, state);
+      if (state != null) {
+        clearBoost(p, state);
+        states.remove(id, state);
+      }
       return;
     }
 
-    ticksRunning.compute(id, (k, v) -> v == null ? 1 : v + 1);
-    int tr = ticksRunning.getOrDefault(id, 0);
-    if (tr <= 0) {
+    if (state == null) {
+      state = new RuntimeState();
+      states.put(id, state);
+    }
+    long now = System.currentTimeMillis();
+    double elapsedTicks = elapsedTicks(state.lastUpdateAt, now);
+    state.lastUpdateAt = now;
+    if (elapsedTicks <= 0D) {
       return;
     }
+    state.runningTicks += elapsedTicks;
 
     double ticksToMax = Math.max(1D, getWindupTicks(factor));
-    double progress = Math.min(M.lerpInverse(0, ticksToMax, tr), 1);
+    double progress = Math.min(M.lerpInverse(0, ticksToMax, state.runningTicks), 1);
     double speedIncrease = M.lerp(0, getWindupSpeed(factor), progress);
-    applyBoost(p, state, speedIncrease);
+    applyBoost(p, state, speedIncrease, elapsedTicks);
     emitChargeFeedback(p, state, progress);
 
     if (progress >= 1.0 && isMovingHorizontally(p, getConfig().movementVelocityThreshold)) {
-      addStat(p, "agility.wind-up.max-speed-ticks", 1);
+      addStat(p, "agility.wind-up.max-speed-ticks", elapsedTicks);
       if (M.r(0.25)) {
         Vector back = p.getVelocity();
         fx(p, FxPriority.TRAIL).trail(Particle.SOUL_FIRE_FLAME, -back.getX(), 0.05D, -back.getZ(), 0.8D, 1);
@@ -208,7 +240,7 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
         .sound(Sound.ITEM_ARMOR_EQUIP_LEATHER, 0.4F, 0.6F + (bracket * 0.2F));
   }
 
-  private void applyBoost(Player p, RuntimeState state, double speedIncrease) {
+  private void applyBoost(Player p, RuntimeState state, double speedIncrease, double elapsedTicks) {
     if (!state.boosting) {
       state.boosting = true;
       state.originalWalkSpeed = p.getWalkSpeed();
@@ -223,7 +255,7 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
       target = maxWalkSpeed;
     }
 
-    float smoothing = (float) Math.max(0D, Math.min(1D, getConfig().walkSpeedLerpPerTick));
+    float smoothing = elapsedSmoothing(getConfig().walkSpeedLerpPerTick, elapsedTicks);
     float current = p.getWalkSpeed();
     float next = current + ((target - current) * smoothing);
     if (Math.abs(target - next) < 0.0005f) {
@@ -263,7 +295,6 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
     }
 
     UUID id = p.getUniqueId();
-    ticksRunning.remove(id);
     RuntimeState state = states.remove(id);
     if (state != null) {
       clearBoost(p, state);
@@ -271,9 +302,9 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
   }
 
   private boolean isMovingHorizontally(Player p, double velocityThreshold) {
-    Vector movement = new Vector(p.getVelocity().getX(), 0, p.getVelocity().getZ());
+    Vector velocity = p.getVelocity();
     double threshold = Math.max(0D, velocityThreshold);
-    return movement.lengthSquared() > (threshold * threshold);
+    return (velocity.getX() * velocity.getX()) + (velocity.getZ() * velocity.getZ()) > (threshold * threshold);
   }
 
   private boolean isWindupEligible(Player p) {
@@ -298,6 +329,24 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
       return 1f;
     }
     return speed;
+  }
+
+  static double elapsedTicks(long previousUpdateAt, long now) {
+    if (previousUpdateAt <= 0L) {
+      return 1D;
+    }
+    if (now <= previousUpdateAt) {
+      return 0D;
+    }
+    return Math.min(20D, (now - previousUpdateAt) / 50D);
+  }
+
+  static float elapsedSmoothing(double perTickSmoothing, double elapsedTicks) {
+    double clamped = Math.max(0D, Math.min(1D, perTickSmoothing));
+    if (clamped <= 0D || elapsedTicks <= 0D) {
+      return 0F;
+    }
+    return (float) (1D - Math.pow(1D - clamped, elapsedTicks));
   }
 
 
@@ -328,6 +377,8 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
   }
 
   private static class RuntimeState {
+    private long lastUpdateAt;
+    private double runningTicks;
     private boolean boosting;
     private float originalWalkSpeed;
     private int lastBracket;

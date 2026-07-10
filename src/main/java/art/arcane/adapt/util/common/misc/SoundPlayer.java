@@ -3,6 +3,7 @@ package art.arcane.adapt.util.common.misc;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.fx.FxViewers;
+import art.arcane.adapt.util.common.scheduling.J;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
@@ -47,7 +48,7 @@ public class SoundPlayer {
   }
 
   public void play(@NotNull Entity entity, @NotNull Sound sound, float volume, float pitch) {
-    play(entity.getLocation(), sound, volume, pitch);
+    J.runEntity(entity, () -> play(entity.getLocation(), sound, volume, pitch));
   }
 
   public void play(@NotNull Location location, @NotNull Sound sound, float volume, float pitch) {
@@ -55,12 +56,17 @@ public class SoundPlayer {
       return;
     }
 
-    if (players != null) {
-      players.forEach(player -> player.playSound(location, sound, volume, pitch));
+    Location soundLocation = snapshot(location);
+    if (soundLocation == null) {
       return;
     }
 
-    playCulled(location, volume, player -> player.playSound(location, sound, volume, pitch));
+    if (players != null) {
+      FxViewers.dispatch(players, player -> player.playSound(soundLocation, sound, volume, pitch));
+      return;
+    }
+
+    playCulled(soundLocation, volume, player -> player.playSound(soundLocation, sound, volume, pitch));
   }
 
   public void play(@NotNull Location location, @NotNull Sound sound, SoundCategory category, float volume, float pitch) {
@@ -68,12 +74,17 @@ public class SoundPlayer {
       return;
     }
 
-    if (players != null) {
-      players.forEach(player -> player.playSound(location, sound, category, volume, pitch));
+    Location soundLocation = snapshot(location);
+    if (soundLocation == null) {
       return;
     }
 
-    playCulled(location, volume, player -> player.playSound(location, sound, category, volume, pitch));
+    if (players != null) {
+      FxViewers.dispatch(players, player -> player.playSound(soundLocation, sound, category, volume, pitch));
+      return;
+    }
+
+    playCulled(soundLocation, volume, player -> player.playSound(soundLocation, sound, category, volume, pitch));
   }
 
   private void playCulled(Location location, float volume, Consumer<Player> action) {
@@ -84,20 +95,21 @@ public class SoundPlayer {
 
     double radius = Math.min(MAX_CULL_RADIUS, Math.max(MIN_CULL_RADIUS, CULL_RADIUS_PER_VOLUME * volume));
     try {
-      FxViewers.forEach(target, location.getX(), location.getY(), location.getZ(), radius, action);
+      FxViewers.dispatch(target, location.getX(), location.getY(), location.getZ(), radius, action);
     } catch (Throwable e) {
       if (VIEWER_INDEX_FAILURE_LOGGED.compareAndSet(false, true)) {
-        Adapt.warn("Fx viewer index failed while culling a sound; falling back to world player scans.");
+        Adapt.warn("Fx viewer index failed while culling a sound; dropping the affected sound.");
         e.printStackTrace();
       }
-
-      double radiusSq = radius * radius;
-      for (Player player : target.getPlayers()) {
-        if (player.getWorld() == target && player.getLocation().distanceSquared(location) <= radiusSq) {
-          action.accept(player);
-        }
-      }
     }
+  }
+
+  private Location snapshot(Location location) {
+    World target = location.getWorld() == null ? world : location.getWorld();
+    if (target == null) {
+      return null;
+    }
+    return new Location(target, location.getX(), location.getY(), location.getZ());
   }
 
   private boolean areSoundsEnabled() {

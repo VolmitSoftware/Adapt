@@ -131,10 +131,6 @@ public class HunterRegen extends SimpleAdaptation<HunterRegen.Config> {
     FxPresets.failFizzle(this, p);
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Gain regeneration when struck, at the cost of hunger.")
   protected static class Config extends AdaptationConfig {

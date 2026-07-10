@@ -197,9 +197,6 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
   }
 
 
-  @Override
-  public void onTick() {
-  }
 
   @ConfigDescription("Automatically smelt mined ores with a chance for extra drops.")
   protected static class Config extends AdaptationConfig {

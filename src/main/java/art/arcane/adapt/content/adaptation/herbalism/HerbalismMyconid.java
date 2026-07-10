@@ -85,9 +85,6 @@ public class HerbalismMyconid extends SimpleAdaptation<HerbalismMyconid.Config> 
     }
   }
 
-  @Override
-  public void onTick() {
-  }
 
   @ConfigDescription("Craft Mycelium from Dirt and Mushrooms.")
   protected static class Config extends AdaptationConfig {

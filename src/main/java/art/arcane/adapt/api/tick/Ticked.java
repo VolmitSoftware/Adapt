@@ -19,9 +19,11 @@
 package art.arcane.adapt.api.tick;
 
 import art.arcane.adapt.api.world.AdaptComponent;
-import art.arcane.volmlib.util.math.M;
 
 public interface Ticked extends AdaptComponent {
+  default void activateRuntime() {
+  }
+
   default void retick() {
     burst(1);
   }
@@ -39,8 +41,6 @@ public interface Ticked extends AdaptComponent {
   void stopBursting();
 
   void stopSkipping();
-
-  long getTickCount();
 
   long getAge();
 
@@ -60,7 +60,4 @@ public interface Ticked extends AdaptComponent {
 
   String getId();
 
-  default boolean shouldTick() {
-    return M.ms() - getLastTick() > getInterval();
-  }
 }

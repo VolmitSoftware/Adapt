@@ -208,10 +208,6 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
     Adapt.actionbar(p, summary.toString());
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Enchant items by clicking enchant books directly on them.")
   protected static class Config extends AdaptationConfig {

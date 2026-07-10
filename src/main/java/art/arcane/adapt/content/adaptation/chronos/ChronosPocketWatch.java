@@ -42,21 +42,24 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class ChronosPocketWatch extends SimpleAdaptation<ChronosPocketWatch.Config> {
   private static final long PULSE_MILLIS = 250L;
+  private static final int HARD_MAX_PLAYERS_PER_PASS = 512;
+  private static final int MAX_CATCH_UP_PULSES = 4;
 
-  private final Map<UUID, Long> airBudgetMillis;
+  private final Map<UUID, Long> airBudgetMillis = playerState();
+  private final Map<UUID, Long> nextPulseAt = playerState();
+  private int playerCursor;
 
   public ChronosPocketWatch() {
     super("chronos-pocket-watch");
     registerConfiguration(Config.class);
     setIcon(Material.FEATHER);
     setInterval(PULSE_MILLIS);
-    airBudgetMillis = new ConcurrentHashMap<>();
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.FEATHER)
         .key("challenge_chronos_pocket_watch_500")
@@ -79,93 +82,103 @@ public class ChronosPocketWatch extends SimpleAdaptation<ChronosPocketWatch.Conf
 
   @EventHandler
   public void on(PlayerQuitEvent e) {
-    airBudgetMillis.remove(e.getPlayer().getUniqueId());
+    UUID playerId = e.getPlayer().getUniqueId();
+    airBudgetMillis.remove(playerId);
+    nextPulseAt.remove(playerId);
   }
 
   @Override
   public void onTick() {
     long now = System.currentTimeMillis();
-    for (AdaptPlayer adaptPlayer : learnedCandidates(now)) {
-      Player p = adaptPlayer.getPlayer();
-      if (p == null || !p.isOnline()) {
-        continue;
+    List<AdaptPlayer> candidates = learnedCandidates(now);
+    ChronosWorkBudget.Batch batch = ChronosWorkBudget.batch(
+        candidates.size(), playerCursor, getConfig().maxPlayersPerPass, HARD_MAX_PLAYERS_PER_PASS);
+    for (int i = 0; i < batch.count(); i++) {
+      AdaptPlayer adaptPlayer = candidates.get((batch.start() + i) % candidates.size());
+      Player player = adaptPlayer.getPlayer();
+      if (player != null) {
+        J.runEntity(player, () -> pulsePlayer(player, now));
       }
+    }
+    playerCursor = batch.nextCursor();
+  }
 
-      UUID id = p.getUniqueId();
-      if (p.isOnGround()) {
-        airBudgetMillis.remove(id);
-        continue;
-      }
+  private void pulsePlayer(Player player, long now) {
+    if (!player.isOnline() || player.isDead()) {
+      return;
+    }
 
-      int level = getActiveLevel(p, Player::isSneaking);
-      if (level <= 0) {
-        continue;
-      }
+    UUID playerId = player.getUniqueId();
+    if (player.isOnGround()) {
+      airBudgetMillis.remove(playerId);
+      nextPulseAt.remove(playerId);
+      return;
+    }
 
-      if (p.isFlying() || p.isGliding() || p.isInsideVehicle() || p.isSwimming()) {
-        continue;
-      }
+    int level = getActiveLevel(player, Player::isSneaking);
+    if (level <= 0
+        || player.isFlying()
+        || player.isGliding()
+        || player.isInsideVehicle()
+        || player.isSwimming()
+        || (!airBudgetMillis.containsKey(playerId) && player.getFallDistance() < getConfig().minFallDistance)
+        || (getConfig().requireClock && !player.getInventory().contains(Material.CLOCK))) {
+      nextPulseAt.remove(playerId);
+      return;
+    }
 
-      if (!airBudgetMillis.containsKey(id) && p.getFallDistance() < getConfig().minFallDistance) {
-        continue;
-      }
+    ChronosWorkBudget.Pulse pulse = ChronosWorkBudget.pulse(
+        now, nextPulseAt.get(playerId), PULSE_MILLIS, MAX_CATCH_UP_PULSES);
+    nextPulseAt.put(playerId, pulse.nextAt());
+    if (pulse.count() <= 0) {
+      return;
+    }
 
-      if (getConfig().requireClock && !p.getInventory().contains(Material.CLOCK)) {
-        continue;
-      }
+    long maximum = getBudgetMillis(level);
+    boolean firstPulse = !airBudgetMillis.containsKey(playerId);
+    long budget = airBudgetMillis.computeIfAbsent(playerId, key -> maximum);
+    int appliedPulses = Math.min(pulse.count(), (int) (budget / PULSE_MILLIS));
+    if (appliedPulses <= 0) {
+      return;
+    }
 
-      long max = getBudgetMillis(level);
-      boolean firstPulse = !airBudgetMillis.containsKey(id);
-      long budget = airBudgetMillis.computeIfAbsent(id, k -> max);
-      if (budget < PULSE_MILLIS) {
-        continue;
-      }
+    long remaining = budget - (appliedPulses * PULSE_MILLIS);
+    airBudgetMillis.put(playerId, remaining);
+    int pulseIndex = (int) ((maximum - remaining) / PULSE_MILLIS);
+    float driftPitch = maximum <= 0
+        ? 1.8F
+        : (float) (1.2D + (0.6D * (1D - ((double) remaining / (double) maximum))));
 
-      long remaining = budget - PULSE_MILLIS;
-      airBudgetMillis.put(id, remaining);
+    player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING,
+        getConfig().pulseDurationTicks, 0, true, false, false), true);
+    emitPulseFx(player, firstPulse, remaining < PULSE_MILLIS, pulseIndex, driftPitch);
 
-      boolean activate = firstPulse;
-      boolean deplete = remaining < PULSE_MILLIS;
-      int pulseIndex = (int) ((max - remaining) / PULSE_MILLIS);
-      float driftPitch = max <= 0 ? 1.8F : (float) (1.2D + (0.6D * (1D - ((double) remaining / (double) max))));
+    addStat(player, "chronos.pocket-watch.slow-fall-seconds", appliedPulses * (PULSE_MILLIS / 1000D));
+    xpSilent(player, appliedPulses * getConfig().xpPerPulse, "chronos:pocket-watch");
+  }
 
-      Runnable apply = () -> {
-        if (!p.isOnline() || p.isDead()) {
-          return;
-        }
+  private void emitPulseFx(Player player, boolean activate, boolean deplete, int pulseIndex, float driftPitch) {
+    Location feet = player.getLocation();
+    if (activate) {
+      fx(feet, FxPriority.TRANSITION)
+          .burst(Particle.CLOUD, 6, 0.2D)
+          .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.3F, 1.2F);
+      return;
+    }
+    if (deplete) {
+      fx(feet, FxPriority.TRANSITION)
+          .burst(Particles.SMOKE, 3, 0.2D)
+          .sound(Sound.BLOCK_NOTE_BLOCK_BASS, 0.3F, 0.7F);
+      return;
+    }
 
-        p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING,
-            getConfig().pulseDurationTicks, 0, true, false, false), true);
-
-        Location feet = p.getLocation();
-        if (activate) {
-          fx(feet, FxPriority.TRANSITION)
-              .burst(Particle.CLOUD, 6, 0.2D)
-              .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.3F, 1.2F);
-        } else if (deplete) {
-          fx(feet, FxPriority.TRANSITION)
-              .burst(Particles.SMOKE, 3, 0.2D)
-              .sound(Sound.BLOCK_NOTE_BLOCK_BASS, 0.3F, 0.7F);
-        } else {
-          FxEmitter drift = fx(feet, FxPriority.TRAIL)
-              .particle(Particle.CLOUD, 2, 0, 0.1D, 0, 0.1D, 0.01D);
-          if ((pulseIndex & 3) == 0) {
-            drift.particle(Particles.END_ROD, 1, 0, 0.2D, 0, 0.05D, 0.02D);
-          }
-          if ((pulseIndex & 1) == 0) {
-            drift.sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.15F, driftPitch);
-          }
-        }
-      };
-
-      if (J.isFoliaThreading()) {
-        J.runEntity(p, apply);
-      } else {
-        apply.run();
-      }
-
-      addStat(p, "chronos.pocket-watch.slow-fall-seconds", PULSE_MILLIS / 1000D);
-      xpSilent(p, getConfig().xpPerPulse, "chronos:pocket-watch");
+    FxEmitter drift = fx(feet, FxPriority.TRAIL)
+        .particle(Particle.CLOUD, 2, 0, 0.1D, 0, 0.1D, 0.01D);
+    if ((pulseIndex & 3) == 0) {
+      drift.particle(Particles.END_ROD, 1, 0, 0.2D, 0, 0.05D, 0.02D);
+    }
+    if ((pulseIndex & 1) == 0) {
+      drift.sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.15F, driftPitch);
     }
   }
 
@@ -183,6 +196,8 @@ public class ChronosPocketWatch extends SimpleAdaptation<ChronosPocketWatch.Conf
     boolean requireClock = true;
     @art.arcane.adapt.util.config.ConfigDoc(value = "XP granted per slow fall pulse.", impact = "Higher values grant more skill XP while drifting.")
     double xpPerPulse = 0.3;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum learned players processed per pulse pass.", impact = "Higher values refresh more players immediately; lower values spread owner-thread scheduling across passes.")
+    int maxPlayersPerPass = 512;
 
     public Config() {
       costFactor = 0.35;

@@ -24,13 +24,25 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.skill.SimpleSkill;
-import art.arcane.adapt.content.adaptation.ranged.*;
+import art.arcane.adapt.content.adaptation.ranged.RangedArrowRecovery;
+import art.arcane.adapt.content.adaptation.ranged.RangedFetchShot;
+import art.arcane.adapt.content.adaptation.ranged.RangedFloaters;
+import art.arcane.adapt.content.adaptation.ranged.RangedForce;
+import art.arcane.adapt.content.adaptation.ranged.RangedHeartseeker;
+import art.arcane.adapt.content.adaptation.ranged.RangedHeavyDraw;
+import art.arcane.adapt.content.adaptation.ranged.RangedLungeShot;
+import art.arcane.adapt.content.adaptation.ranged.RangedPiercing;
+import art.arcane.adapt.content.adaptation.ranged.RangedPinningShot;
+import art.arcane.adapt.content.adaptation.ranged.RangedRicochetBolt;
+import art.arcane.adapt.content.adaptation.ranged.RangedTrajectorySight;
+import art.arcane.adapt.content.adaptation.ranged.RangedWebBomb;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import lombok.NoArgsConstructor;
 import org.bukkit.Color;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.FishHook;
@@ -90,9 +102,9 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
                 .build())
             .build())
         .build());
-    registerMilestone("challenge_ranged_100", "ranged.shotsfired", 100, getConfig().challengeRangedReward);
-    registerMilestone("challenge_ranged_1k", "ranged.shotsfired", 1000, getConfig().challengeRangedReward * 2);
-    registerMilestone("challenge_ranged_10k", "ranged.shotsfired", 10000, getConfig().challengeRangedReward * 5);
+    registerMilestone("challenge_ranged_100", "ranged.shotsfired", 100, () -> getConfig().challengeRangedReward);
+    registerMilestone("challenge_ranged_1k", "ranged.shotsfired", 1000, () -> getConfig().challengeRangedReward * 2);
+    registerMilestone("challenge_ranged_10k", "ranged.shotsfired", 10000, () -> getConfig().challengeRangedReward * 5);
 
     // Chain 2 - Ranged Damage
     registerAdvancement(AdaptAdvancement.builder()
@@ -109,8 +121,8 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_ranged_dmg_1k", "ranged.damage", 1000, getConfig().challengeRangedDmgReward);
-    registerMilestone("challenge_ranged_dmg_10k", "ranged.damage", 10000, getConfig().challengeRangedDmgReward * 3);
+    registerMilestone("challenge_ranged_dmg_1k", "ranged.damage", 1000, () -> getConfig().challengeRangedDmgReward);
+    registerMilestone("challenge_ranged_dmg_10k", "ranged.damage", 10000, () -> getConfig().challengeRangedDmgReward * 3);
 
     // Chain 3 - Ranged Distance
     registerAdvancement(AdaptAdvancement.builder()
@@ -127,8 +139,8 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_ranged_dist_5k", "ranged.distance", 5000, getConfig().challengeRangedDistReward);
-    registerMilestone("challenge_ranged_dist_50k", "ranged.distance", 50000, getConfig().challengeRangedDistReward * 3);
+    registerMilestone("challenge_ranged_dist_5k", "ranged.distance", 5000, () -> getConfig().challengeRangedDistReward);
+    registerMilestone("challenge_ranged_dist_50k", "ranged.distance", 50000, () -> getConfig().challengeRangedDistReward * 3);
 
     // Chain 4 - Ranged Kills
     registerAdvancement(AdaptAdvancement.builder()
@@ -145,8 +157,8 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_ranged_kills_50", "ranged.kills", 50, getConfig().challengeRangedKillsReward);
-    registerMilestone("challenge_ranged_kills_500", "ranged.kills", 500, getConfig().challengeRangedKillsReward * 3);
+    registerMilestone("challenge_ranged_kills_50", "ranged.kills", 50, () -> getConfig().challengeRangedKillsReward);
+    registerMilestone("challenge_ranged_kills_500", "ranged.kills", 500, () -> getConfig().challengeRangedKillsReward * 3);
 
     // Chain 5 - Longshots
     registerAdvancement(AdaptAdvancement.builder()
@@ -163,22 +175,22 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_longshot_25", "ranged.longshots", 25, getConfig().challengeRangedLongshotReward);
-    registerMilestone("challenge_longshot_250", "ranged.longshots", 250, getConfig().challengeRangedLongshotReward * 3);
+    registerMilestone("challenge_longshot_25", "ranged.longshots", 25, () -> getConfig().challengeRangedLongshotReward);
+    registerMilestone("challenge_longshot_250", "ranged.longshots", 250, () -> getConfig().challengeRangedLongshotReward * 3);
   }
 
-  @EventHandler(priority = EventPriority.MONITOR)
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(ProjectileLaunchEvent e) {
-    if (!(e.getEntity().getShooter() instanceof Player p)) {
+    Projectile projectile = e.getEntity();
+    if (!(projectile.getShooter() instanceof Player p)
+        || projectile instanceof Snowball
+        || projectile instanceof FishHook) {
       return;
     }
     shouldReturnForPlayer(p, e, () -> {
-      if (e.getEntity() instanceof Snowball || e.getEntity().getType().name().toLowerCase(Locale.ROOT).contains("hook")) {
-        return; // Ignore snowballs and fishing hooks
-      }
-
+      String projectileType = projectile.getType().name().toLowerCase(Locale.ROOT);
       addStat(p, "ranged.shotsfired", 1);
-      addStat(p, "ranged.shotsfired." + e.getEntity().getType().name().toLowerCase(Locale.ROOT), 1);
+      addStat(p, "ranged.shotsfired." + projectileType, 1);
       if (!cooldowns.isReady(p.getUniqueId(), getConfig().cooldownDelay)) {
         return;
       }
@@ -187,34 +199,39 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
     });
   }
 
-  @EventHandler(priority = EventPriority.MONITOR)
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(EntityDamageByEntityEvent e) {
-    if (!(e.getDamager() instanceof Projectile) || !(((Projectile) e.getDamager()).getShooter() instanceof Player p) || !checkValidEntity(e.getEntity().getType())) {
+    if (!(e.getDamager() instanceof Projectile projectile)
+        || !(projectile.getShooter() instanceof Player p)
+        || projectile instanceof Snowball
+        || projectile instanceof FishHook
+        || !checkValidEntity(e.getEntity().getType())) {
       return;
     }
     shouldReturnForPlayer(p, e, () -> {
-      if (e.getEntity() instanceof Snowball || e.getEntity() instanceof FishHook) {
-        return; // Ignore snowballs and fishing hooks
-      }
-      if (e.getEntity().getLocation().getWorld().equals(p.getLocation().getWorld())) {
-        double distance = e.getEntity().getLocation().distance(p.getLocation());
+      Location targetLocation = e.getEntity().getLocation();
+      Location playerLocation = p.getLocation();
+      double distance = 0D;
+      String projectileType = projectile.getType().name().toLowerCase(Locale.ROOT);
+      if (targetLocation.getWorld() == playerLocation.getWorld()) {
+        distance = targetLocation.distance(playerLocation);
         addStat(p, "ranged.distance", distance);
-        addStat(p, "ranged.distance." + e.getDamager().getType().name().toLowerCase(Locale.ROOT), distance);
+        addStat(p, "ranged.distance." + projectileType, distance);
         if (distance > 30) {
           addStat(p, "ranged.longshots", 1);
-          fx(e.getEntity().getLocation(), FxPriority.COMBAT)
+          fx(targetLocation, FxPriority.COMBAT)
               .dustRing(Color.fromRGB(70, 220, 60), 0.9D, 16, 1.0F)
               .burst(Particles.END_ROD, 8, 0.3D)
               .chord(Sound.ENTITY_ARROW_HIT, 0.7F, 1.6F, Sound.BLOCK_NOTE_BLOCK_CHIME, 0.5F, 2.0F);
         }
       }
       addStat(p, "ranged.damage", e.getDamage());
-      addStat(p, "ranged.damage." + e.getDamager().getType().name().toLowerCase(Locale.ROOT), e.getDamage());
+      addStat(p, "ranged.damage." + projectileType, e.getDamage());
       if (!cooldowns.isReady(p.getUniqueId(), getConfig().cooldownDelay)) {
         return;
       }
       cooldowns.mark(p.getUniqueId());
-      xp(p, e.getEntity().getLocation(), (getConfig().hitDamageXPMultiplier * e.getDamage()) + (e.getEntity().getLocation().distance(p.getLocation()) * getConfig().hitDistanceXPMultiplier));
+      xp(p, targetLocation, (getConfig().hitDamageXPMultiplier * e.getDamage()) + (distance * getConfig().hitDistanceXPMultiplier));
 
     });
   }
@@ -232,14 +249,6 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
         addStat(p, "ranged.kills", 1);
       }
     });
-  }
-
-  @Override
-  public void onTick() {
-    if (!this.isEnabled()) {
-      return;
-    }
-    checkStatTrackersForOnlinePlayers();
   }
 
   @Override

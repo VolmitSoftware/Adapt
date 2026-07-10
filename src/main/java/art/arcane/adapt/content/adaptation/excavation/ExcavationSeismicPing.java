@@ -18,8 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.excavation;
 
-import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -27,6 +28,8 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.content.integration.hiddenore.HiddenOreLink;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.scheduling.J;
+import art.arcane.adapt.util.common.world.WorldBlockScanScheduler;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
@@ -37,18 +40,26 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPing.Config> {
+  private static final int MAX_SCAN_RANGE = 32;
+  private static final int MAX_BLOCK_CHECKS_PER_ACTIVATION = 2048;
   private final Cooldowns cooldowns = cooldowns();
+  private final Map<UUID, UUID> activeScans = new ConcurrentHashMap<>();
 
   public ExcavationSeismicPing() {
     super("excavation-seismic-ping");
@@ -78,7 +89,7 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
       return;
     }
 
-    art.arcane.adapt.api.adaptation.Adaptation.BlockActionContext context = resolveBlockBreakContext(p, e.getBlock().getLocation());
+    Adaptation.BlockActionContext context = resolveBlockBreakContext(p, e.getBlock().getLocation());
     if (context == null) {
       return;
     }
@@ -93,41 +104,90 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
       return;
     }
 
-    Location blockLocation = e.getBlock().getLocation();
-    Block target = findNearestOre(blockLocation, getScanRange(level));
-    HiddenOreLink.VeinTarget hidden = HiddenOreLink.nearestVein(blockLocation, getScanRange(level));
-
-    Location targetCenter = null;
-    Material targetValueType = null;
-    if (target != null) {
-      targetCenter = target.getLocation().add(0.5, 0.5, 0.5);
-      targetValueType = target.getType();
+    if (activeScans.containsKey(p.getUniqueId())) {
+      return;
     }
-    if (hidden != null) {
-      Location hiddenCenter = hidden.location().clone().add(0.5, 0.5, 0.5);
-      if (targetCenter == null || hiddenCenter.distanceSquared(blockLocation) < targetCenter.distanceSquared(blockLocation)) {
-        targetCenter = hiddenCenter;
-        targetValueType = hidden.display();
+
+    Location blockLocation = e.getBlock().getLocation();
+    int scanRange = getScanRange(level);
+    startScan(p, blockLocation, scanRange, level);
+  }
+
+  private void startScan(Player p, Location origin, int scanRange, int level) {
+    World world = origin.getWorld();
+    if (world == null) {
+      return;
+    }
+
+    ArrayList<WorldBlockScanScheduler.AdditionalMatch> hiddenMatches = new ArrayList<>(1);
+    HiddenOreLink.VeinTarget hidden = HiddenOreLink.nearestVein(origin, scanRange);
+    if (hidden != null && hidden.location().getWorld() == world) {
+      Location at = hidden.location();
+      double dx = at.getX() - origin.getX();
+      double dy = at.getY() - origin.getY();
+      double dz = at.getZ() - origin.getZ();
+      double distanceSquared = (dx * dx) + (dy * dy) + (dz * dz);
+      if (at.getBlockY() >= world.getMinHeight()
+          && at.getBlockY() < world.getMaxHeight()
+          && distanceSquared <= (double) scanRange * scanRange) {
+        hiddenMatches.add(new WorldBlockScanScheduler.AdditionalMatch(
+            at.getBlockX(), at.getBlockY(), at.getBlockZ(), hidden.display(), distanceSquared
+        ));
       }
     }
-    if (targetCenter == null) {
-      fx(blockLocation.clone().add(0.5, 0.5, 0.5), FxPriority.TRANSITION)
-          .sound(Sound.BLOCK_NOTE_BLOCK_HAT, 0.3f, 0.5f);
+
+    int checks = Math.min(MAX_BLOCK_CHECKS_PER_ACTIVATION, Math.max(1, getConfig().maxBlockChecks));
+    WorldBlockScanScheduler.ScanRequest request = WorldBlockScanScheduler.ScanRequest.builder(origin)
+        .radius(scanRange)
+        .denseRadius(getConfig().denseScanRadius)
+        .maxSamples(checks)
+        .maxResults(1)
+        .seed(ThreadLocalRandom.current().nextInt())
+        .additionalMatches(hiddenMatches)
+        .matcher(this::isOre)
+        .completion(result -> completeScan(p, origin, scanRange, level, result))
+        .build();
+    UUID scanId = WorldBlockScanScheduler.submit(this, p.getUniqueId(), request);
+    activeScans.put(p.getUniqueId(), scanId);
+  }
+
+  private void completeScan(Player p, Location blockLocation, int scanRange, int level,
+                            WorldBlockScanScheduler.ScanResult result) {
+    UUID playerId = p.getUniqueId();
+    if (!result.scanId().equals(activeScans.get(playerId))) {
       return;
     }
 
-    Location origin = p.getEyeLocation();
-    Vector direction = targetCenter.toVector().subtract(origin.toVector());
-    if (direction.lengthSquared() <= 0.0000001) {
-      return;
-    }
+    boolean scheduled = J.runEntity(p, () -> {
+      if (!activeScans.remove(playerId, result.scanId()) || !p.isOnline()) {
+        return;
+      }
 
-    Color tint = oreTint(targetValueType);
-    groundPulse(blockLocation.clone().add(0.5, 0.5, 0.5), tint);
-    renderDirectionHint(origin, direction.normalize(), getHintSegments(level), tint);
-    playPingSound(p, origin.distance(targetCenter), getScanRange(level));
-    addStat(p, "excavation.seismic-ping.pings-triggered", 1);
-    xp(p, getConfig().xpPerPing + (getValue(targetValueType) * getConfig().targetValueXpMultiplier));
+      List<WorldBlockScanScheduler.Match> matches = result.matches();
+      if (matches.isEmpty()) {
+        fx(blockLocation.clone().add(0.5, 0.5, 0.5), FxPriority.TRANSITION)
+            .sound(Sound.BLOCK_NOTE_BLOCK_HAT, 0.3f, 0.5f);
+        return;
+      }
+
+      WorldBlockScanScheduler.Match target = matches.get(0);
+      Location targetCenter = target.center(result.world());
+      Location playerOrigin = p.getEyeLocation();
+      Vector direction = targetCenter.toVector().subtract(playerOrigin.toVector());
+      if (direction.lengthSquared() <= 0.0000001) {
+        return;
+      }
+
+      Color tint = oreTint(target.material());
+      groundPulse(blockLocation.clone().add(0.5, 0.5, 0.5), tint);
+      renderDirectionHint(playerOrigin, direction.normalize(), getHintSegments(level), tint);
+      playPingSound(p, playerOrigin.distance(targetCenter), scanRange);
+      addStat(p, "excavation.seismic-ping.pings-triggered", 1);
+      xp(p, getConfig().xpPerPing + (getValue(target.material()) * getConfig().targetValueXpMultiplier));
+    });
+    if (!scheduled) {
+      activeScans.remove(playerId, result.scanId());
+    }
   }
 
   private Color oreTint(Material type) {
@@ -203,54 +263,6 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
         .chord(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.9f, pitch, Sound.BLOCK_NOTE_BLOCK_BIT, 0.65f, (float) Math.min(2.0, pitch + 0.2));
   }
 
-  private Block findNearestOre(Location origin, int range) {
-    World world = origin.getWorld();
-    if (world == null) {
-      return null;
-    }
-
-    int ox = origin.getBlockX();
-    int oy = origin.getBlockY();
-    int oz = origin.getBlockZ();
-    int minY = world.getMinHeight();
-    int maxY = world.getMaxHeight() - 1;
-    int rangeSq = range * range;
-
-    Block best = null;
-    double bestDistanceSq = Double.MAX_VALUE;
-    for (int x = -range; x <= range; x++) {
-      int bx = ox + x;
-      for (int z = -range; z <= range; z++) {
-        int bz = oz + z;
-        if (!world.isChunkLoaded(bx >> 4, bz >> 4)) {
-          continue;
-        }
-
-        for (int y = -range; y <= range; y++) {
-          int by = oy + y;
-          if (by < minY || by > maxY) {
-            continue;
-          }
-
-          int d2 = (x * x) + (y * y) + (z * z);
-          if (d2 > rangeSq || d2 >= bestDistanceSq) {
-            continue;
-          }
-
-          Block block = world.getBlockAt(bx, by, bz);
-          if (!isOre(block.getType())) {
-            continue;
-          }
-
-          best = block;
-          bestDistanceSq = d2;
-        }
-      }
-    }
-
-    return best;
-  }
-
   private boolean isOre(Material type) {
     return type == Material.ANCIENT_DEBRIS || type.name().endsWith("_ORE");
   }
@@ -264,8 +276,22 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
     return name.endsWith("_SHOVEL") || name.endsWith("_PICKAXE");
   }
 
+  @EventHandler
+  public void on(PlayerQuitEvent e) {
+    UUID playerId = e.getPlayer().getUniqueId();
+    activeScans.remove(playerId);
+    WorldBlockScanScheduler.cancel(this, playerId);
+  }
+
+  @Override
+  public void unregister() {
+    activeScans.clear();
+    WorldBlockScanScheduler.cancelOwner(this);
+    super.unregister();
+  }
+
   private int getScanRange(int level) {
-    return Math.max(6, (int) Math.round(getConfig().scanRangeBase + (getLevelPercent(level) * getConfig().scanRangeFactor)));
+    return Math.min(MAX_SCAN_RANGE, Math.max(6, (int) Math.round(getConfig().scanRangeBase + (getLevelPercent(level) * getConfig().scanRangeFactor))));
   }
 
   private double getPingChance(int level) {
@@ -280,10 +306,6 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
     return Math.max(4, (int) Math.round(getConfig().hintSegmentsBase + (getLevelPercent(level) * getConfig().hintSegmentsFactor)));
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Mining can emit seismic pings that hint toward nearby ore direction.")
   protected static class Config extends AdaptationConfig {
@@ -291,6 +313,10 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
     double scanRangeBase = 11;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Scan Range Factor for the Excavation Seismic Ping adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double scanRangeFactor = 18;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum world block checks made by one seismic ping.", impact = "Higher values improve ore detection but increase total budgeted scan work; values above the hard safety cap are clamped.")
+    int maxBlockChecks = 1024;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Radius searched completely before the remaining seismic budget is spread across the full range.", impact = "Higher values prioritize nearby accuracy; lower values reserve more samples for distant ore.")
+    int denseScanRadius = 5;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Ping Chance Base for the Excavation Seismic Ping adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double pingChanceBase = 0.14;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Ping Chance Factor for the Excavation Seismic Ping adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

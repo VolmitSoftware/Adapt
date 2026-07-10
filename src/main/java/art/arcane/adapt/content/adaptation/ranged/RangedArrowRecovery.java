@@ -101,9 +101,6 @@ public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Co
     return (getConfig().hitChance[level - 1] / 100.0);
   }
 
-  @Override
-  public void onTick() {
-  }
 
   @Override
   public void addStats(int level, Element v) {

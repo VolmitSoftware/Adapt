@@ -1,13 +1,12 @@
 package art.arcane.adapt.api.protection;
 
-import java.util.ArrayDeque;
+import java.util.concurrent.atomic.AtomicLongArray;
 
 public final class WorldPolicyLatencyTelemetry {
-  private static final long WINDOW_MS = 60_000L;
-  private static final int MAX_SAMPLES = 200_000;
-
-  private static final ArrayDeque<Sample> SAMPLES = new ArrayDeque<>();
-  private static long totalNanos = 0L;
+  private static final int WINDOW_SECONDS = 60;
+  private static final AtomicLongArray SLOT_SECONDS = new AtomicLongArray(WINDOW_SECONDS);
+  private static final AtomicLongArray SAMPLE_COUNTS = new AtomicLongArray(WINDOW_SECONDS);
+  private static final AtomicLongArray TOTAL_NANOS = new AtomicLongArray(WINDOW_SECONDS);
 
   private WorldPolicyLatencyTelemetry() {
   }
@@ -17,52 +16,55 @@ public final class WorldPolicyLatencyTelemetry {
       return;
     }
 
-    long now = System.currentTimeMillis();
-    synchronized (SAMPLES) {
-      trim(now);
-      SAMPLES.addLast(new Sample(now, durationNanos));
-      totalNanos += durationNanos;
-
-      while (SAMPLES.size() > MAX_SAMPLES) {
-        Sample oldest = SAMPLES.removeFirst();
-        totalNanos -= oldest.durationNanos;
-      }
-
-      if (totalNanos < 0L) {
-        totalNanos = 0L;
-      }
-    }
+    long epochSecond = System.currentTimeMillis() / 1_000L;
+    int slot = (int) (epochSecond % WINDOW_SECONDS);
+    prepareSlot(slot, epochSecond);
+    SAMPLE_COUNTS.incrementAndGet(slot);
+    TOTAL_NANOS.addAndGet(slot, durationNanos);
   }
 
   public static double averageMillis(long now) {
-    synchronized (SAMPLES) {
-      trim(now);
-      if (SAMPLES.isEmpty()) {
-        return 0D;
+    long epochSecond = now / 1_000L;
+    long samples = 0L;
+    long totalNanos = 0L;
+    for (int i = 0; i < WINDOW_SECONDS; i++) {
+      long slotSecond = SLOT_SECONDS.get(i);
+      if (slotSecond <= 0L || epochSecond - slotSecond < 0L || epochSecond - slotSecond >= WINDOW_SECONDS) {
+        continue;
       }
-
-      return (totalNanos / 1_000_000D) / (double) SAMPLES.size();
+      samples += SAMPLE_COUNTS.get(i);
+      totalNanos += TOTAL_NANOS.get(i);
     }
+
+    return samples == 0L ? 0D : (totalNanos / 1_000_000D) / (double) samples;
   }
 
   public static void clear() {
-    synchronized (SAMPLES) {
-      SAMPLES.clear();
-      totalNanos = 0L;
+    for (int i = 0; i < WINDOW_SECONDS; i++) {
+      SLOT_SECONDS.set(i, 0L);
+      SAMPLE_COUNTS.set(i, 0L);
+      TOTAL_NANOS.set(i, 0L);
     }
   }
 
-  private static void trim(long now) {
-    while (!SAMPLES.isEmpty() && (now - SAMPLES.peekFirst().timestampMs) > WINDOW_MS) {
-      Sample oldest = SAMPLES.removeFirst();
-      totalNanos -= oldest.durationNanos;
-    }
+  private static void prepareSlot(int slot, long epochSecond) {
+    while (true) {
+      long current = SLOT_SECONDS.get(slot);
+      if (current == epochSecond) {
+        return;
+      }
+      if (current < 0L) {
+        Thread.onSpinWait();
+        continue;
+      }
+      if (!SLOT_SECONDS.compareAndSet(slot, current, -epochSecond)) {
+        continue;
+      }
 
-    if (totalNanos < 0L) {
-      totalNanos = 0L;
+      SAMPLE_COUNTS.set(slot, 0L);
+      TOTAL_NANOS.set(slot, 0L);
+      SLOT_SECONDS.set(slot, epochSecond);
+      return;
     }
-  }
-
-  private record Sample(long timestampMs, long durationNanos) {
   }
 }

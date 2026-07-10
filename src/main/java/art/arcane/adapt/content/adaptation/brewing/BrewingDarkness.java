@@ -19,14 +19,13 @@
 package art.arcane.adapt.content.adaptation.brewing;
 
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.potion.AdaptBrewCompleteEvent;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.data.WorldData;
 import art.arcane.adapt.api.potion.BrewingRecipe;
 import art.arcane.adapt.api.potion.PotionBuilder;
-import art.arcane.adapt.content.matter.BrewingStandOwner;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -39,7 +38,6 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.inventory.BrewEvent;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 
@@ -78,31 +76,28 @@ public class BrewingDarkness extends SimpleAdaptation<BrewingDarkness.Config> {
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
-  public void on(BrewEvent e) {
-    BrewingStandOwner owner = WorldData.of(e.getBlock().getWorld()).get(e.getBlock(), BrewingStandOwner.class);
-    if (owner != null) {
-      getServer().peekData(owner.getOwner()).addStat("brewing.darkness.potions-brewed", 1);
-      Location loc = e.getBlock().getLocation().add(0.5D, 0.6D, 0.5D);
-      timeline(loc)
-          .duration(6)
-          .priority(FxPriority.TRANSITION)
-          .cullRadius(24.0D)
-          .frame((f, tick, progress) -> {
-            f.ring(Particle.SCULK_SOUL, 1.0D - (0.8D * progress), 12, 0.4D);
-            if (tick == 0) {
-              f.chord(Sound.BLOCK_SCULK_CATALYST_BREAK, 0.5F, 1.0F, Sound.BLOCK_NOTE_BLOCK_BASS, 0.5F, 0.5F);
-            }
-            if (tick == 5) {
-              f.sound(Sound.BLOCK_BREWING_STAND_BREW, 0.6F, 0.7F);
-            }
-          })
-          .start();
+  public void on(AdaptBrewCompleteEvent e) {
+    if (!getBrewingRecipes().contains(e.getRecipe())) {
+      return;
     }
+    getServer().addStat(e.getBrewerId(), "brewing.darkness.potions-brewed", e.getBrewedPotions());
+    Location loc = e.getBlock().getLocation().add(0.5D, 0.6D, 0.5D);
+    timeline(loc)
+        .duration(6)
+        .priority(FxPriority.TRANSITION)
+        .cullRadius(24.0D)
+        .frame((f, tick, progress) -> {
+          f.ring(Particle.SCULK_SOUL, 1.0D - (0.8D * progress), 12, 0.4D);
+          if (tick == 0) {
+            f.chord(Sound.BLOCK_SCULK_CATALYST_BREAK, 0.5F, 1.0F, Sound.BLOCK_NOTE_BLOCK_BASS, 0.5F, 0.5F);
+          }
+          if (tick == 5) {
+            f.sound(Sound.BLOCK_BREWING_STAND_BREW, 0.6F, 0.7F);
+          }
+        })
+        .start();
   }
 
-  @Override
-  public void onTick() {
-  }
 
 
   @ConfigDescription("Brew a Potion of Darkness from NightVision Potion and Black Concrete.")

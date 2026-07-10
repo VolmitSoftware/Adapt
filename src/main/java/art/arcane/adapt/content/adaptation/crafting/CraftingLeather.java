@@ -105,9 +105,6 @@ public class CraftingLeather extends SimpleAdaptation<CraftingLeather.Config> {
   }
 
 
-  @Override
-  public void onTick() {
-  }
 
   @ConfigDescription("Craft Leather from Rotten Flesh on a campfire.")
   protected static class Config extends AdaptationConfig {

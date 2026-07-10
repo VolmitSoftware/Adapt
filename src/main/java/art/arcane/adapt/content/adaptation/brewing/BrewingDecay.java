@@ -19,14 +19,13 @@
 package art.arcane.adapt.content.adaptation.brewing;
 
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.potion.AdaptBrewCompleteEvent;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.data.WorldData;
 import art.arcane.adapt.api.potion.BrewingRecipe;
 import art.arcane.adapt.api.potion.PotionBuilder;
-import art.arcane.adapt.content.matter.BrewingStandOwner;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -40,7 +39,6 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.inventory.BrewEvent;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 
@@ -91,22 +89,19 @@ public class BrewingDecay extends SimpleAdaptation<BrewingDecay.Config> {
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
-  public void on(BrewEvent e) {
-    BrewingStandOwner owner = WorldData.of(e.getBlock().getWorld()).get(e.getBlock(), BrewingStandOwner.class);
-    if (owner != null) {
-      getServer().peekData(owner.getOwner()).addStat("brewing.decay.potions-brewed", 1);
-      Location loc = e.getBlock().getLocation().add(0.5D, 0.6D, 0.5D);
-      fx(loc, FxPriority.TRANSITION)
-          .particle(Particles.SMOKE, 8, 0, 0.3D, 0, 0.2D, 0.03D)
-          .dustBurst(Color.fromRGB(0x2E, 0x14, 0x14), 6, 0.3D, 1.2F)
-          .particle(Particle.ASH, 3, 0, 0.4D, 0, 0.3D, 0.01D)
-          .chord(Sound.ENTITY_WITHER_SHOOT, 0.3F, 1.4F, Sound.BLOCK_BREWING_STAND_BREW, 0.6F, 0.5F);
+  public void on(AdaptBrewCompleteEvent e) {
+    if (!getBrewingRecipes().contains(e.getRecipe())) {
+      return;
     }
+    getServer().addStat(e.getBrewerId(), "brewing.decay.potions-brewed", e.getBrewedPotions());
+    Location loc = e.getBlock().getLocation().add(0.5D, 0.6D, 0.5D);
+    fx(loc, FxPriority.TRANSITION)
+        .particle(Particles.SMOKE, 8, 0, 0.3D, 0, 0.2D, 0.03D)
+        .dustBurst(Color.fromRGB(0x2E, 0x14, 0x14), 6, 0.3D, 1.2F)
+        .particle(Particle.ASH, 3, 0, 0.4D, 0, 0.3D, 0.01D)
+        .chord(Sound.ENTITY_WITHER_SHOOT, 0.3F, 1.4F, Sound.BLOCK_BREWING_STAND_BREW, 0.6F, 0.5F);
   }
 
-  @Override
-  public void onTick() {
-  }
 
 
   @ConfigDescription("Brew a Potion of Wither from Weakness Potion and Poisonous Potato.")

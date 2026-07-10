@@ -26,7 +26,13 @@ import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.content.adaptation.sword.*;
+import art.arcane.adapt.content.adaptation.sword.SwordsBloodyBlade;
+import art.arcane.adapt.content.adaptation.sword.SwordsCrimsonCyclone;
+import art.arcane.adapt.content.adaptation.sword.SwordsDualWield;
+import art.arcane.adapt.content.adaptation.sword.SwordsExecutionersEdge;
+import art.arcane.adapt.content.adaptation.sword.SwordsMachete;
+import art.arcane.adapt.content.adaptation.sword.SwordsPoisonedBlade;
+import art.arcane.adapt.content.adaptation.sword.SwordsRiposteWindow;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
@@ -81,9 +87,9 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
                 .build())
             .build())
         .build());
-    registerMilestone("challenge_sword_100", "sword.hits", 100, getConfig().challengeSwordReward);
-    registerMilestone("challenge_sword_1k", "sword.hits", 1000, getConfig().challengeSwordReward * 2);
-    registerMilestone("challenge_sword_10k", "sword.hits", 10000, getConfig().challengeSwordReward * 5);
+    registerMilestone("challenge_sword_100", "sword.hits", 100, () -> getConfig().challengeSwordReward);
+    registerMilestone("challenge_sword_1k", "sword.hits", 1000, () -> getConfig().challengeSwordReward * 2);
+    registerMilestone("challenge_sword_10k", "sword.hits", 10000, () -> getConfig().challengeSwordReward * 5);
 
     // Chain 2 - sword.damage
     registerAdvancement(AdaptAdvancement.builder()
@@ -100,8 +106,8 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_sword_dmg_1k", "sword.damage", 1000, getConfig().challengeSwordDmgReward);
-    registerMilestone("challenge_sword_dmg_10k", "sword.damage", 10000, getConfig().challengeSwordDmgReward * 3);
+    registerMilestone("challenge_sword_dmg_1k", "sword.damage", 1000, () -> getConfig().challengeSwordDmgReward);
+    registerMilestone("challenge_sword_dmg_10k", "sword.damage", 10000, () -> getConfig().challengeSwordDmgReward * 3);
 
     // Chain 3 - sword.kills
     registerAdvancement(AdaptAdvancement.builder()
@@ -118,8 +124,8 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_sword_kills_50", "sword.kills", 50, getConfig().challengeSwordKillsReward);
-    registerMilestone("challenge_sword_kills_500", "sword.kills", 500, getConfig().challengeSwordKillsReward * 3);
+    registerMilestone("challenge_sword_kills_50", "sword.kills", 50, () -> getConfig().challengeSwordKillsReward);
+    registerMilestone("challenge_sword_kills_500", "sword.kills", 500, () -> getConfig().challengeSwordKillsReward * 3);
 
     // Chain 4 - sword.critical
     registerAdvancement(AdaptAdvancement.builder()
@@ -136,8 +142,8 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_sword_crit_50", "sword.critical", 50, getConfig().challengeSwordCritReward);
-    registerMilestone("challenge_sword_crit_500", "sword.critical", 500, getConfig().challengeSwordCritReward * 3);
+    registerMilestone("challenge_sword_crit_50", "sword.critical", 50, () -> getConfig().challengeSwordCritReward);
+    registerMilestone("challenge_sword_crit_500", "sword.critical", 500, () -> getConfig().challengeSwordCritReward * 3);
 
     // Chain 5 - sword.heavy.hits
     registerAdvancement(AdaptAdvancement.builder()
@@ -154,40 +160,40 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_sword_heavy_25", "sword.heavy.hits", 25, getConfig().challengeSwordHeavyReward);
-    registerMilestone("challenge_sword_heavy_250", "sword.heavy.hits", 250, getConfig().challengeSwordHeavyReward * 3);
+    registerMilestone("challenge_sword_heavy_25", "sword.heavy.hits", 25, () -> getConfig().challengeSwordHeavyReward);
+    registerMilestone("challenge_sword_heavy_250", "sword.heavy.hits", 250, () -> getConfig().challengeSwordHeavyReward * 3);
   }
 
-  @EventHandler(priority = EventPriority.MONITOR)
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(EntityDamageByEntityEvent e) {
-    if (e.getDamager() instanceof Player p && checkValidEntity(e.getEntity().getType())) {
-      shouldReturnForPlayer(p, e, () -> {
-        AdaptPlayer a = getPlayer(p);
-        ItemStack hand = a.getPlayer().getInventory().getItemInMainHand();
-        if (isSword(hand)) {
-          addStat(p, "sword.hits", 1);
-          addStat(p, "sword.damage", e.getDamage());
-          boolean crit = p.getFallDistance() > 0 && !p.isOnGround();
-          boolean heavy = e.getDamage() > 8;
-          if (crit) {
-            addStat(p, "sword.critical", 1);
-          }
-          if (heavy) {
-            addStat(p, "sword.heavy.hits", 1);
-          }
-          if (!isOnCooldown(p)) {
-            setCooldown(p);
-            xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().damageXPMultiplier * e.getDamage());
-            FxEmitter pulse = fx(e.getEntity().getLocation().add(0, 1, 0), FxPriority.AMBIENT)
-                .particle(Particle.CRIT, heavy ? 8 : (crit ? 5 : 3), 0, 0, 0, 0.25D, 0.05D)
-                .sound(Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.2F, 1.4F);
-            if (heavy) {
-              pulse.sound(Sound.ENTITY_PLAYER_ATTACK_STRONG, 0.35F, 0.9F);
-            }
-          }
-        }
-      });
+    if (!(e.getDamager() instanceof Player p)
+        || !checkValidEntity(e.getEntity().getType())
+        || !isSword(p.getInventory().getItemInMainHand())) {
+      return;
     }
+
+    shouldReturnForPlayer(p, e, () -> {
+      addStat(p, "sword.hits", 1);
+      addStat(p, "sword.damage", e.getDamage());
+      boolean crit = p.getFallDistance() > 0 && !p.isOnGround();
+      boolean heavy = e.getDamage() > 8;
+      if (crit) {
+        addStat(p, "sword.critical", 1);
+      }
+      if (heavy) {
+        addStat(p, "sword.heavy.hits", 1);
+      }
+      if (!isOnCooldown(p)) {
+        setCooldown(p);
+        xp(p, e.getEntity().getLocation(), getConfig().damageXPMultiplier * e.getDamage());
+        FxEmitter pulse = fx(e.getEntity().getLocation().add(0, 1, 0), FxPriority.AMBIENT)
+            .particle(Particle.CRIT, heavy ? 8 : (crit ? 5 : 3), 0, 0, 0, 0.25D, 0.05D)
+            .sound(Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.2F, 1.4F);
+        if (heavy) {
+          pulse.sound(Sound.ENTITY_PLAYER_ATTACK_STRONG, 0.35F, 0.9F);
+        }
+      }
+    });
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
@@ -212,14 +218,6 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
     cooldowns.mark(p.getUniqueId());
   }
 
-
-  @Override
-  public void onTick() {
-    if (!this.isEnabled()) {
-      return;
-    }
-    checkStatTrackersForOnlinePlayers();
-  }
 
   @Override
   public boolean isEnabled() {

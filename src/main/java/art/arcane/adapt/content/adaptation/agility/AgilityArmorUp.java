@@ -34,6 +34,7 @@ import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
@@ -41,17 +42,28 @@ import org.bukkit.Sound;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerToggleSneakEvent;
+import org.bukkit.event.player.PlayerToggleSprintEvent;
 
 import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
+  private static final int DECAY_BATCH_SIZE = 128;
   private static final UUID MODIFIER = UUID.nameUUIDFromBytes("adapt-armor-up".getBytes());
   private static final NamespacedKey MODIFIER_KEY = NamespacedKey.fromString("adapt:armor-up");
   private final Map<UUID, RuntimeState> states = playerState();
+  private final Queue<UUID> decayQueue = new ConcurrentLinkedQueue<>();
+  private final Set<UUID> queuedDecay = ConcurrentHashMap.newKeySet();
 
   public AgilityArmorUp() {
     super("agility-armor-up");
@@ -63,15 +75,8 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
         .key("challenge_agility_armor_up_30min")
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
-        .child(AdaptAdvancement.builder()
-            .icon(Material.DIAMOND_CHESTPLATE)
-            .key("challenge_agility_armor_up_5hr")
-            .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
-            .build())
         .build());
     registerMilestone("challenge_agility_armor_up_30min", "agility.armor-up.ticks-armored", 36000, 500);
-    registerMilestone("challenge_agility_armor_up_5hr", "agility.armor-up.ticks-armored", 360000, 1500);
   }
 
   @Override
@@ -96,15 +101,52 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
     clearAndRemoveState(e.getEntity());
   }
 
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(PlayerMoveEvent e) {
+    updatePlayer(e.getPlayer(), null, null);
+  }
+
+  @EventHandler
+  public void on(PlayerToggleSprintEvent e) {
+    updatePlayer(e.getPlayer(), e.isSprinting(), null);
+  }
+
+  @EventHandler
+  public void on(PlayerToggleSneakEvent e) {
+    if (e.isSneaking()) {
+      updatePlayer(e.getPlayer(), null, true);
+    }
+  }
+
   @Override
   public void onTick() {
-    long now = System.currentTimeMillis();
-    for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : learnedCandidates(now)) {
-      Player p = adaptPlayer.getPlayer();
-      if (p == null || !p.isOnline()) {
+    int attempts = Math.min(DECAY_BATCH_SIZE, queuedDecay.size());
+    for (int i = 0; i < attempts; i++) {
+      UUID id = decayQueue.poll();
+      if (id == null) {
+        break;
+      }
+      queuedDecay.remove(id);
+      RuntimeState state = states.get(id);
+      if (state == null || !state.decaying) {
         continue;
       }
-      withPlayerThread(p, () -> updatePlayer(p));
+      Player p = Bukkit.getPlayer(id);
+      if (p == null || !p.isOnline()) {
+        states.remove(id, state);
+        continue;
+      }
+      withPlayerThread(p, () -> {
+        updatePlayer(p, null, null);
+        RuntimeState current = states.get(id);
+        if (current != null && current.decaying) {
+          queueDecay(id, current);
+        }
+      });
+      RuntimeState current = states.get(id);
+      if (current != null && current.decaying) {
+        queueDecay(id, current);
+      }
     }
   }
 
@@ -120,48 +162,77 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
     return getConfig().decaySecondsBase + (factor * getConfig().decaySecondsMaxLevelBonus);
   }
 
-  private void updatePlayer(Player p) {
+  private void updatePlayer(Player p, Boolean sprintingOverride, Boolean sneakingOverride) {
     if (p == null || !p.isOnline()) {
       return;
     }
 
     UUID id = p.getUniqueId();
-    RuntimeState state = states.computeIfAbsent(id, key -> new RuntimeState());
+    RuntimeState state = states.get(id);
+    boolean sprinting = sprintingOverride == null ? p.isSprinting() : sprintingOverride;
+    boolean sneaking = sneakingOverride == null ? p.isSneaking() : sneakingOverride;
+    if (state == null && !sprinting) {
+      return;
+    }
+    boolean platingActive = isPlatingActive(p, sprinting, sneaking);
+    if (!platingActive && state == null) {
+      return;
+    }
+
     IAttribute attribute = Version.get().getAttribute(p, Attributes.GENERIC_ARMOR);
     if (attribute == null) {
       return;
     }
 
     double factor = getLevelPercent(p);
-    if (isPlatingActive(p)) {
-      buildPlating(p, state, attribute, factor);
+    if (platingActive) {
+      if (state == null) {
+        state = new RuntimeState();
+        states.put(id, state);
+      }
+      double elapsedTicks = updateElapsedTicks(state);
+      buildPlating(p, state, attribute, factor, elapsedTicks);
+      if (queuedDecay.remove(id)) {
+        decayQueue.remove(id);
+      }
       return;
     }
 
-    decayPlating(p, state, attribute, factor);
+    double elapsedTicks = updateElapsedTicks(state);
+    decayPlating(p, state, attribute, factor, elapsedTicks);
+    if (state.plating <= 0D) {
+      states.remove(id, state);
+      if (queuedDecay.remove(id)) {
+        decayQueue.remove(id);
+      }
+      return;
+    }
+    queueDecay(id, state);
   }
 
-  private boolean isPlatingActive(Player p) {
+  private boolean isPlatingActive(Player p, boolean sprinting, boolean sneaking) {
     if (!hasActiveAdaptation(p)) {
       return false;
     }
-    if (p.isSwimming() || p.isFlying() || p.isGliding() || p.isSneaking()) {
+    if (p.isSwimming() || p.isFlying() || p.isGliding() || sneaking) {
       return false;
     }
-    return p.isSprinting();
+    return sprinting;
   }
 
-  private void buildPlating(Player p, RuntimeState state, IAttribute attribute, double factor) {
+  private void buildPlating(Player p, RuntimeState state, IAttribute attribute, double factor, double elapsedTicks) {
     state.decaying = false;
     double ticksToMax = Math.max(1D, getWindupTicks(factor));
-    state.plating = Math.min(1.0D, state.plating + (1.0D / ticksToMax));
+    state.plating = Math.min(1.0D, state.plating + (elapsedTicks / ticksToMax));
     emitPlatingFeedback(p, state, state.plating);
     double armorInc = getWindupArmor(factor) * state.plating;
     attribute.setModifier(MODIFIER, MODIFIER_KEY, armorInc * 10, AttributeModifier.Operation.MULTIPLY_SCALAR_1);
-    addStat(p, "agility.armor-up.ticks-armored", 1);
+    if (elapsedTicks > 0D) {
+      addStat(p, "agility.armor-up.ticks-armored", elapsedTicks);
+    }
   }
 
-  private void decayPlating(Player p, RuntimeState state, IAttribute attribute, double factor) {
+  private void decayPlating(Player p, RuntimeState state, IAttribute attribute, double factor, double elapsedTicks) {
     if (state.plating <= 0D) {
       attribute.removeModifier(MODIFIER, MODIFIER_KEY);
       return;
@@ -173,7 +244,7 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
       state.decayPerTick = state.plating / decayTicks;
     }
 
-    state.plating = Math.max(0D, state.plating - state.decayPerTick);
+    state.plating = Math.max(0D, state.plating - (state.decayPerTick * elapsedTicks));
     if (state.plating <= 0D) {
       completeDecay(p, state, attribute);
       return;
@@ -246,7 +317,33 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
     }
 
     states.remove(p.getUniqueId());
+    if (queuedDecay.remove(p.getUniqueId())) {
+      decayQueue.remove(p.getUniqueId());
+    }
     scrubModifier(p);
+  }
+
+  private void queueDecay(UUID id, RuntimeState state) {
+    if (state.decaying && state.plating > 0D && queuedDecay.add(id)) {
+      decayQueue.add(id);
+    }
+  }
+
+  private double updateElapsedTicks(RuntimeState state) {
+    long now = System.currentTimeMillis();
+    double elapsed = elapsedTicks(state.lastUpdateAt, now);
+    state.lastUpdateAt = now;
+    return elapsed;
+  }
+
+  static double elapsedTicks(long previousUpdateAt, long now) {
+    if (previousUpdateAt <= 0L) {
+      return 1D;
+    }
+    if (now <= previousUpdateAt) {
+      return 0D;
+    }
+    return Math.min(20D, (now - previousUpdateAt) / 50D);
   }
 
   private void scrubModifier(Player p) {
@@ -288,10 +385,11 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
   }
 
   private static class RuntimeState {
-    private double plating;
+    private long lastUpdateAt;
+    private volatile double plating;
     private int lastBracket;
     private boolean fullyArmored;
-    private boolean decaying;
+    private volatile boolean decaying;
     private double decayPerTick;
   }
 

@@ -10,18 +10,6 @@
 title = "Gotta Move!"
 description = "Walk over 1 Kilometer (1,000 blocks)"
 
-[advancement.challenge_sprint_5k]
-title = "Sprint a 5K!"
-description = "Walk over 5 Kilometers (5,000 blocks)"
-
-[advancement.challenge_sprint_50k]
-title = "Zoom a 50K!"
-description = "Walk over 50 Kilometers (50,000 blocks)"
-
-[advancement.challenge_sprint_500k]
-title = "Traverse the Universe!"
-description = "Walk over 500 Kilometers (500,000 blocks)"
-
 [advancement.challenge_sprint_marathon]
 title = "Sprint a (literal) Marathon!"
 description = "Sprint over 42,195 Blocks!"
@@ -38,14 +26,6 @@ description = "Place 5,000 blocks"
 title = "City Planner"
 description = "Place 50,000 blocks"
 
-[advancement.challenge_place_500k]
-title = "World Shaper"
-description = "Place 500,000 blocks"
-
-[advancement.challenge_place_5m]
-title = "Symmetry's Acolyte"
-description = "Place 5,000,000 blocks"
-
 [advancement.challenge_chop_1k]
 title = "Splinter Collector"
 description = "Chop 1,000 blocks"
@@ -57,14 +37,6 @@ description = "Chop 5,000 blocks"
 [advancement.challenge_chop_50k]
 title = "Deforester"
 description = "Chop 50,000 blocks"
-
-[advancement.challenge_chop_500k]
-title = "Paul Bunyan"
-description = "Chop 500,000 blocks"
-
-[advancement.challenge_chop_5m]
-title = "Jackson the Dog"
-description = "The bestest good Boy! (5 Million blocks)"
 
 [advancement.challenge_block_1k]
 title = "Shield Bearer"
@@ -78,14 +50,6 @@ description = "Block 5,000 hits"
 title = "Immovable Object"
 description = "Block 50,000 hits"
 
-[advancement.challenge_block_500k]
-title = "Living Fortress"
-description = "Block 500,000 hits"
-
-[advancement.challenge_block_5m]
-title = "Die Hand Die Verletzt"
-description = "Block 5,000,000 hits"
-
 [advancement.challenge_brew_1k]
 title = "Bottoms Up"
 description = "Consume 1,000 potions"
@@ -94,18 +58,6 @@ description = "Consume 1,000 potions"
 title = "Potion Addict"
 description = "Consume 5,000 potions"
 
-[advancement.challenge_brew_50k]
-title = "Elixir Connoisseur"
-description = "Consume 50,000 potions"
-
-[advancement.challenge_brew_500k]
-title = "Liquid Courage"
-description = "Consume 500,000 potions"
-
-[advancement.challenge_brew_5m]
-title = "The Alchemist"
-description = "Consume 5,000,000 potions"
-
 [advancement.challenge_brewsplash_1k]
 title = "Glass Cannon"
 description = "Splash 1,000 potions"
@@ -113,18 +65,6 @@ description = "Splash 1,000 potions"
 [advancement.challenge_brewsplash_5k]
 title = "Area Denial"
 description = "Splash 5,000 potions"
-
-[advancement.challenge_brewsplash_50k]
-title = "Chemical Warfare"
-description = "Splash 50,000 potions"
-
-[advancement.challenge_brewsplash_500k]
-title = "Rain of Reagents"
-description = "Splash 500,000 potions"
-
-[advancement.challenge_brewsplash_5m]
-title = "The Splash Meister"
-description = "Splash 5,000,000 potions"
 
 [advancement.challenge_craft_1k]
 title = "Crafty Crafter!"
@@ -138,14 +78,6 @@ description = "Craft 5000 Items"
 title = "Servile Crafter!"
 description = "Craft 50,000 Items"
 
-[advancement.challenge_craft_500k]
-title = "Cacophonous Crafter!"
-description = "Craft 500,000 Items"
-
-[advancement.challenge_craft_5m]
-title = "Calamitous McCraftface"
-description = "Craft 5,000,000 Items"
-
 [advancement.challenge_enchant_1k]
 title = "Arcane Dabbler"
 description = "Enchant 1,000 items"
@@ -153,18 +85,6 @@ description = "Enchant 1,000 items"
 [advancement.challenge_enchant_5k]
 title = "Runeweaver"
 description = "Enchant 5,000 items"
-
-[advancement.challenge_enchant_50k]
-title = "Mystic Artisan"
-description = "Enchant 50,000 items"
-
-[advancement.challenge_enchant_500k]
-title = "Archmage"
-description = "Enchant 500,000 items"
-
-[advancement.challenge_enchant_5m]
-title = "Enigmatic Enchanter"
-description = "Enchant 5,000,000 items"
 
 [advancement.challenge_excavate_1k]
 title = "Dirt Mover"
@@ -178,37 +98,17 @@ description = "Excavate 5,000 blocks"
 title = "Canyon Carver"
 description = "Excavate 50,000 blocks"
 
-[advancement.challenge_excavate_500k]
-title = "Terrain Sculptor"
-description = "Excavate 500,000 blocks"
-
-[advancement.challenge_excavate_5m]
-title = "Geological Anomaly"
-description = "Excavate 5,000,000 blocks"
-
-[advancement.horrible_person]
-title = "You're a Horrible Person"
-description = "Unfathomable, really"
-
-[advancement.challenge_turtle_egg_smasher]
-title = "Turtle Egg Smasher!"
-description = "Break 100 turtle eggs"
-
-[advancement.challenge_turtle_egg_annihilator]
-title = "Turtle Egg Annihilator!"
-description = "Break 500 turtle eggs"
-
 [advancement.challenge_novice_hunter]
 title = "Predator's Instinct"
-description = "Kill 100 entities"
+description = "Kill 100 hostile mobs"
 
 [advancement.challenge_intermediate_hunter]
 title = "Apex Predator"
-description = "Kill 500 entities"
+description = "Kill 500 hostile mobs"
 
 [advancement.challenge_advanced_hunter]
 title = "Extinction Event"
-description = "Kill 5,000 entities"
+description = "Kill 5,000 hostile mobs"
 
 [advancement.challenge_creeper_conqueror]
 title = "Creeper Conqueror!"
@@ -229,14 +129,6 @@ description = "Break 5,000 blocks with a pickaxe"
 [advancement.challenge_pickaxe_50k]
 title = "Dwarven Heritage"
 description = "Break 50,000 blocks with a pickaxe"
-
-[advancement.challenge_pickaxe_500k]
-title = "Core Breacher"
-description = "Break 500,000 blocks with a pickaxe"
-
-[advancement.challenge_pickaxe_5m]
-title = "World Eater"
-description = "Break 5,000,000 blocks with a pickaxe"
 
 [advancement.challenge_eat_100]
 title = "So much to eat!"
@@ -337,10 +229,6 @@ description = "Spend 1 hour online"
 [advancement.challenge_chronos_24h]
 title = "Sands of Time"
 description = "Spend 24 hours online"
-
-[advancement.challenge_chronos_168h]
-title = "Timeless"
-description = "Spend 168 hours (1 week) online"
 
 [advancement.challenge_nether_50]
 title = "Hell's Gatekeeper"
@@ -445,14 +333,6 @@ title = "Cloud Architect"
 description = "Place 1,000 blocks above Y=128"
 
 # Axes - New Achievement Chains
-[advancement.challenge_axe_swing_500]
-title = "Axe Swinger"
-description = "Swing your axe 500 times"
-
-[advancement.challenge_axe_swing_5k]
-title = "Berserker"
-description = "Swing your axe 5,000 times"
-
 [advancement.challenge_axe_damage_1k]
 title = "Cleaver"
 description = "Deal 1,000 damage with axes"
@@ -564,14 +444,6 @@ description = "Teleport 50 times"
 title = "Time Warp"
 description = "Teleport 500 times"
 
-[advancement.challenge_chronos_deaths_10]
-title = "Mortal"
-description = "Die 10 times"
-
-[advancement.challenge_chronos_deaths_100]
-title = "Death Defier"
-description = "Die 100 times"
-
 # Crafting - New Achievement Chains
 [advancement.challenge_craft_value_10k]
 title = "Craft Worth"
@@ -596,14 +468,6 @@ description = "Craft 25 pieces of armor"
 [advancement.challenge_craft_armor_250]
 title = "Master Armorer"
 description = "Craft 250 pieces of armor"
-
-[advancement.challenge_craft_mass_25k]
-title = "Mass Producer"
-description = "Craft 25,000 items"
-
-[advancement.challenge_craft_mass_250k]
-title = "Industrial Revolution"
-description = "Craft 250,000 items"
 
 # Discovery - New Achievement Chains
 [advancement.challenge_discover_items_50]
@@ -655,14 +519,6 @@ description = "Accumulate 100 enchantment power"
 title = "Arcane Master"
 description = "Accumulate 1,000 enchantment power"
 
-[advancement.challenge_enchant_levels_1k]
-title = "Level Spender"
-description = "Spend 1,000 experience levels on enchanting"
-
-[advancement.challenge_enchant_levels_10k]
-title = "XP Sink"
-description = "Spend 10,000 experience levels on enchanting"
-
 [advancement.challenge_enchant_high_25]
 title = "High Roller"
 description = "Perform 25 max-level enchantments"
@@ -680,14 +536,6 @@ title = "Arcane Investment"
 description = "Spend 5,000 total levels across all enchantments"
 
 # Excavation - New Achievement Chains
-[advancement.challenge_dig_swing_500]
-title = "Digger"
-description = "Swing your shovel 500 times"
-
-[advancement.challenge_dig_swing_5k]
-title = "Excavator"
-description = "Swing your shovel 5,000 times"
-
 [advancement.challenge_dig_damage_1k]
 title = "Shovel Knight"
 description = "Deal 1,000 damage with a shovel"
@@ -792,14 +640,6 @@ title = "Blight Collector"
 description = "Break 100 wither roses"
 
 # Pickaxes - New Achievement Chains
-[advancement.challenge_pick_swing_500]
-title = "Miner's Arm"
-description = "Swing your pickaxe 500 times"
-
-[advancement.challenge_pick_swing_5k]
-title = "Tunnel Maker"
-description = "Swing your pickaxe 5,000 times"
-
 [advancement.challenge_pick_damage_1k]
 title = "Pick Fighter"
 description = "Deal 1,000 damage with a pickaxe"
@@ -940,14 +780,6 @@ description = "Kill 10 mobs while sneaking"
 title = "Shadow Reaper"
 description = "Kill 100 mobs while sneaking"
 
-[advancement.challenge_stealth_time_1h]
-title = "Patient"
-description = "Spend 1 hour sneaking (3,600 seconds)"
-
-[advancement.challenge_stealth_time_10h]
-title = "Master of Shadows"
-description = "Spend 10 hours sneaking (36,000 seconds)"
-
 [advancement.challenge_stealth_arrows_50]
 title = "Silent Archer"
 description = "Fire 50 arrows while sneaking"
@@ -1014,14 +846,6 @@ description = "Your pets slay 25 creatures"
 title = "Alpha Commander"
 description = "Your pets slay 250 creatures"
 
-[advancement.challenge_taming_2500]
-title = "Breeding Expert"
-description = "Breed 2,500 animals"
-
-[advancement.challenge_taming_25k]
-title = "Genetics Master"
-description = "Breed 25,000 animals"
-
 # TragOul - New Achievement Chains
 [advancement.challenge_trag_hits_500]
 title = "Punching Bag"
@@ -1030,30 +854,6 @@ description = "Receive 500 hits"
 [advancement.challenge_trag_hits_5k]
 title = "Glutton for Punishment"
 description = "Receive 5,000 hits"
-
-[advancement.challenge_trag_deaths_10]
-title = "Nine Lives"
-description = "Die 10 times"
-
-[advancement.challenge_trag_deaths_100]
-title = "Recurring Nightmare"
-description = "Die 100 times"
-
-[advancement.challenge_trag_fire_500]
-title = "Burn Victim"
-description = "Endure 500 fire damage"
-
-[advancement.challenge_trag_fire_5k]
-title = "Phoenix"
-description = "Endure 5,000 fire damage"
-
-[advancement.challenge_trag_fall_500]
-title = "Gravity Check"
-description = "Endure 500 fall damage"
-
-[advancement.challenge_trag_fall_5k]
-title = "Terminal Velocity"
-description = "Endure 5,000 fall damage"
 
 # Unarmed - New Achievement Chains
 [advancement.challenge_unarmed_dmg_1k]
@@ -2265,11 +2065,11 @@ lore = ["Bonus Damage", "Projectile Speed"]
 
 [ranged.heartseeker]
 name = "Heartseeker"
-description = "Draw a bow while looking at a creature to lock on - it glows red for you, and your arrow whistles and curves through the air to find it no matter where you aim, weaving around obstacles. Each Piercing level and each Ricochet Bolt level adds a seeking pass: the arrow whips around after connecting and hunts a fresh nearby target before striking the same one twice. Every seeking shot puts your bow on a short cooldown."
+description = "Draw a bow while looking at a creature to lock on - it glows red for you, and your arrow whistles and curves through the air to find it no matter where you aim, weaving around obstacles. Piercing levels and Ricochet Bolt's available bounce capacity add seeking passes: the arrow punches through its target, exits the far side, then bends toward a fresh nearby target; without a new target it keeps flying forward. Ricochet passes preserve their reflection, speed, damage, and rewards when seeking arrows strike blocks. Every seeking shot puts your bow on a short cooldown."
 lore1 = "Draw a bow while looking at a creature to lock on"
 lore2 = "Bow cooldown after a seeking shot"
-lore3 = "Piercing and Ricochet Bolt levels add extra seeking passes"
-lore = ["Draw a bow while looking at a creature to lock on", "Bow cooldown after a seeking shot", "Piercing and Ricochet Bolt levels add extra seeking passes"]
+lore3 = "Piercing and Ricochet Bolt bounce capacity add seeking passes"
+lore = ["Draw a bow while looking at a creature to lock on", "Bow cooldown after a seeking shot", "Piercing and Ricochet Bolt bounce capacity add seeking passes"]
 
 # rift
 [rift]
@@ -2657,10 +2457,6 @@ lore = ["Max Combo Stacks", "Damage Per Stack", "Combo Window"]
 title = "Iron Jogger"
 description = "Sprint with armor bonus for 30 cumulative minutes"
 
-[advancement.challenge_agility_armor_up_5hr]
-title = "Marathon Knight"
-description = "Sprint with armor bonus for 5 cumulative hours"
-
 [advancement.challenge_agility_ladder_500]
 title = "Elevator Operator"
 description = "Climb 500 ladder blocks"
@@ -2688,10 +2484,6 @@ description = "Chain 5+ wall jumps without touching the ground"
 [advancement.challenge_agility_wind_up_10min]
 title = "Second Wind"
 description = "Spend 10 cumulative minutes at max sprint speed"
-
-[advancement.challenge_agility_wind_up_2hr]
-title = "Sonic Boom"
-description = "Spend 2 cumulative hours at max sprint speed"
 
 [advancement.challenge_agility_parkour_500]
 title = "Freerunner"
@@ -2927,13 +2719,13 @@ description = "Brew 25 saturation potions"
 
 # --- CHRONOS ---
 
-[advancement.challenge_chronos_bottle_1k]
+[advancement.challenge_chronos_bottle_seconds_1k]
 title = "Chronomancer"
-description = "Spend 1,000 time charges"
+description = "Spend 1,000 seconds of stored time"
 
-[advancement.challenge_chronos_bottle_25k]
+[advancement.challenge_chronos_bottle_seconds_25k]
 title = "Time Lord"
-description = "Spend 25,000 time charges"
+description = "Spend 25,000 seconds of stored time"
 
 [advancement.challenge_chronos_aberrant_500]
 title = "Temporal Drain"
@@ -3046,10 +2838,6 @@ description = "Complete 2,500 improved trades"
 [advancement.challenge_discovery_armor_1hr]
 title = "One with the Earth"
 description = "Have environmental armor for 1 cumulative hour"
-
-[advancement.challenge_discovery_armor_24hr]
-title = "Stone Skin"
-description = "Have environmental armor for 24 cumulative hours"
 
 [advancement.challenge_discovery_insight_100]
 title = "Field Notes"
@@ -3281,7 +3069,7 @@ description = "Trigger luck 200 times from kills"
 
 [advancement.challenge_hunter_regen_500]
 title = "Wolverine"
-description = "Regenerate 500 hearts from kill regen"
+description = "Trigger Hunter regeneration 500 times after being struck"
 
 [advancement.challenge_hunter_resistance_500]
 title = "Thick Hide"
@@ -3347,11 +3135,11 @@ description = "Mitigate 500 nether mob damage"
 
 [advancement.challenge_nether_blaze_200]
 title = "Pyrophyte"
-description = "Gain 200 hearts from fire damage"
+description = "Trigger Blaze Leech 200 times"
 
 [advancement.challenge_nether_blaze_2500]
 title = "Flame Eater"
-description = "Gain 2,500 hearts from fire damage"
+description = "Trigger Blaze Leech 2,500 times"
 
 [advancement.challenge_nether_piglin_100]
 title = "Gold Broker"
@@ -3607,7 +3395,7 @@ description = "Build max ghost armor 100 times"
 title = "Glass Cannon Reversed"
 description = "Absorb 500 hits with ghost armor"
 
-[advancement.challenge_stealth_sight_72k]
+[advancement.challenge_stealth_sight_sneak_1h]
 title = "Creature of the Night"
 description = "Spend 1 hour sneaking with night vision"
 
@@ -3655,7 +3443,7 @@ description = "Cut 25,000 foliage blocks"
 
 [advancement.challenge_swords_bloody_500]
 title = "Bloodletter"
-description = "Deal 500 hearts of bleed damage"
+description = "Inflict bleeding 500 times"
 
 [advancement.challenge_swords_bloody_kills_100]
 title = "Death by a Thousand Cuts"
@@ -3723,9 +3511,9 @@ description = "Your pets kill 500 mobs"
 title = "Beast Master"
 description = "Your pets kill 5,000 mobs"
 
-[advancement.challenge_taming_health_boost_1728k]
+[advancement.challenge_taming_health_boost_72k]
 title = "Guardian of Beasts"
-description = "Keep pets health-boosted for 24 cumulative hours"
+description = "Keep pets health-boosted for 1 cumulative hour"
 
 [advancement.challenge_taming_regen_1k]
 title = "Healing Touch"

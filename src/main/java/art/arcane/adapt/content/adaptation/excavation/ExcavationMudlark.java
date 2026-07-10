@@ -167,10 +167,6 @@ public class ExcavationMudlark extends SimpleAdaptation<ExcavationMudlark.Config
     return Math.max(0, (int) Math.round(getLevelPercent(level) * (getConfig().maxHasteLevel - 1)));
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Bonus drops from muddy blocks, plus haste while digging in water or rain.")
   protected static class Config extends AdaptationConfig {

@@ -21,11 +21,13 @@ package art.arcane.adapt.api.tick;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.volmlib.util.math.M;
+import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
 import java.lang.reflect.Method;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -34,6 +36,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 public abstract class TickedObject implements Ticked, Listener {
+  public static final long MIN_INTERVAL_MILLIS = 50L;
+  private static final Map<Class<?>, Boolean> LISTENER_REGISTRATION = new ConcurrentHashMap<>();
+  private static final Map<Class<?>, Boolean> TICK_REGISTRATION = new ConcurrentHashMap<>();
   private static final Set<String> LISTENER_INTROSPECTION_WARNED = ConcurrentHashMap.newKeySet();
   private static final Set<String> FOLIA_TICK_VIOLATION_WARNED = ConcurrentHashMap.newKeySet();
 
@@ -41,14 +46,16 @@ public abstract class TickedObject implements Ticked, Listener {
   private final AtomicLong interval;
   private final AtomicInteger skip;
   private final AtomicInteger burst;
-  private final AtomicLong ticks;
   private final AtomicInteger dieIn;
   private final AtomicBoolean die;
   private final AtomicBoolean pendingSyncTick;
+  private final AtomicBoolean active;
+  private final AtomicBoolean retired;
   private final long start;
   private final String group;
   private final String id;
   private final boolean listenerRegistered;
+  private final boolean tickingRegistered;
 
   public TickedObject() {
     this("null");
@@ -71,18 +78,16 @@ public abstract class TickedObject implements Ticked, Listener {
     this.id = id;
     this.die = new AtomicBoolean(false);
     this.dieIn = new AtomicInteger(0);
-    this.interval = new AtomicLong(interval);
+    this.interval = new AtomicLong(Math.max(MIN_INTERVAL_MILLIS, interval));
     this.lastTick = new AtomicLong(M.ms());
     this.burst = new AtomicInteger(0);
     this.skip = new AtomicInteger(0);
-    this.ticks = new AtomicLong(0);
     this.pendingSyncTick = new AtomicBoolean(false);
+    this.active = new AtomicBoolean(false);
+    this.retired = new AtomicBoolean(false);
     this.start = M.ms();
     this.listenerRegistered = shouldRegisterAsListener();
-    Adapt.instance.getTicker().register(this);
-    if (listenerRegistered) {
-      Adapt.instance.registerListener(this);
-    }
+    this.tickingRegistered = shouldRegisterForTicking();
   }
 
   private static boolean hasEventHandlerMethods(Class<?> type) {
@@ -128,8 +133,43 @@ public abstract class TickedObject implements Ticked, Listener {
   }
 
   @Override
-  public void unregister() {
-    Adapt.instance.getTicker().unregister(this);
+  public final synchronized void activateRuntime() {
+    if (retired.get() || !active.compareAndSet(false, true)) {
+      return;
+    }
+    boolean tickerAdded = false;
+    boolean listenerAdded = false;
+    try {
+      onRuntimeActivated();
+      if (tickingRegistered) {
+        Adapt.instance.getTicker().register(this);
+        tickerAdded = true;
+      }
+      if (listenerRegistered) {
+        Adapt.instance.registerListener(this);
+        listenerAdded = true;
+      }
+    } catch (RuntimeException | Error error) {
+      active.set(false);
+      if (listenerAdded) {
+        Adapt.instance.unregisterListener(this);
+      }
+      if (tickerAdded) {
+        Adapt.instance.getTicker().unregister(this);
+      }
+      throw error;
+    }
+  }
+
+  @Override
+  public synchronized void unregister() {
+    retired.set(true);
+    if (!active.compareAndSet(true, false)) {
+      return;
+    }
+    if (tickingRegistered) {
+      Adapt.instance.getTicker().unregister(this);
+    }
     if (listenerRegistered) {
       Adapt.instance.unregisterListener(this);
     }
@@ -151,16 +191,41 @@ public abstract class TickedObject implements Ticked, Listener {
 
   @Override
   public void setInterval(long ms) {
-    interval.set(ms);
+    interval.set(Math.max(MIN_INTERVAL_MILLIS, ms));
   }
 
   @Override
   public void tick() {
+    if (!active.get()) {
+      return;
+    }
+
+    Entity tickOwner = getTickOwner();
+    if (J.isFoliaThreading() && tickOwner != null && !J.isOwnedByCurrentRegion(tickOwner)) {
+      if (pendingSyncTick.compareAndSet(false, true)) {
+        boolean scheduled = J.runEntity(tickOwner, () -> {
+          try {
+            tick();
+          } catch (Throwable error) {
+            reportAsyncTickFailure(error);
+          } finally {
+            pendingSyncTick.set(false);
+          }
+        });
+        if (!scheduled) {
+          pendingSyncTick.set(false);
+        }
+      }
+      return;
+    }
+
     if (!J.isPrimaryThread()) {
       if (pendingSyncTick.compareAndSet(false, true)) {
         J.s(() -> {
           try {
             tick();
+          } catch (Throwable error) {
+            reportAsyncTickFailure(error);
           } finally {
             pendingSyncTick.set(false);
           }
@@ -169,7 +234,7 @@ public abstract class TickedObject implements Ticked, Listener {
       return;
     }
 
-    if (skip.getAndDecrement() > 0) {
+    if (consumeOne(skip)) {
       return;
     }
 
@@ -179,7 +244,8 @@ public abstract class TickedObject implements Ticked, Listener {
     }
 
     lastTick.set(M.ms());
-    burst.decrementAndGet();
+    consumeOne(burst);
+    long executionStarted = System.nanoTime();
     try {
       onTick();
     } catch (IllegalStateException ex) {
@@ -194,17 +260,46 @@ public abstract class TickedObject implements Ticked, Listener {
         return;
       }
       throw ex;
+    } finally {
+      Ticker ticker = Adapt.instance == null ? null : Adapt.instance.getTicker();
+      if (ticker != null && active.get()) {
+        ticker.recordMetric(this, System.nanoTime() - executionStarted);
+      }
     }
   }
 
-  public abstract void onTick();
+  public void onTick() {
+  }
+
+  protected void onRuntimeActivated() {
+  }
+
+  protected Entity getTickOwner() {
+    return null;
+  }
 
   protected boolean shouldRegisterAsListener() {
     try {
-      return hasEventHandlerMethods(getClass());
+      return LISTENER_REGISTRATION.computeIfAbsent(getClass(), TickedObject::hasEventHandlerMethods);
     } catch (Throwable e) {
       warnListenerIntrospectionFailure(getClass(), e);
       return false;
+    }
+  }
+
+  protected boolean shouldRegisterForTicking() {
+    return TICK_REGISTRATION.computeIfAbsent(getClass(), TickedObject::hasCustomTick);
+  }
+
+  public final boolean isRuntimeRegistered() {
+    return active.get();
+  }
+
+  private static boolean hasCustomTick(Class<?> type) {
+    try {
+      return type.getMethod("onTick").getDeclaringClass() != TickedObject.class;
+    } catch (ReflectiveOperationException | SecurityException error) {
+      return true;
     }
   }
 
@@ -219,11 +314,6 @@ public abstract class TickedObject implements Ticked, Listener {
   }
 
   @Override
-  public long getTickCount() {
-    return ticks.get();
-  }
-
-  @Override
   public long getAge() {
     return M.ms() - start;
   }
@@ -235,12 +325,9 @@ public abstract class TickedObject implements Ticked, Listener {
 
   @Override
   public void burst(int ticks) {
-    if (burst.get() < 0) {
-      burst.set(ticks);
-      return;
+    if (ticks > 0) {
+      burst.addAndGet(ticks);
     }
-
-    burst.addAndGet(ticks);
   }
 
   @Override
@@ -260,12 +347,25 @@ public abstract class TickedObject implements Ticked, Listener {
 
   @Override
   public void skip(int ticks) {
-    if (skip.get() < 0) {
-      skip.set(ticks);
-      return;
+    if (ticks > 0) {
+      skip.addAndGet(ticks);
     }
+  }
 
-    skip.addAndGet(ticks);
+  private boolean consumeOne(AtomicInteger counter) {
+    int value = counter.get();
+    while (value > 0) {
+      if (counter.compareAndSet(value, value - 1)) {
+        return true;
+      }
+      value = counter.get();
+    }
+    return false;
+  }
+
+  private void reportAsyncTickFailure(Throwable error) {
+    Adapt.error("Exception ticking " + group + ":" + id);
+    error.printStackTrace();
   }
 
   private boolean isFoliaThreadOwnershipViolation(Throwable throwable) {

@@ -5,18 +5,6 @@
 title = "動かなきゃ！"
 description = "1キロメートル（1,000ブロック）以上歩く"
 
-[advancement.challenge_sprint_5k]
-title = "5Kを全力疾走！"
-description = "5キロメートル（5,000ブロック）以上歩く"
-
-[advancement.challenge_sprint_50k]
-title = "50Kをズーム！"
-description = "50キロメートル（50,000ブロック）以上歩く"
-
-[advancement.challenge_sprint_500k]
-title = "宇宙を横断せよ!!"
-description = "500キロメートル（500,000ブロック）以上歩く"
-
 [advancement.challenge_sprint_marathon]
 title = "（文字通りの）マラソンを全力疾走！"
 description = "42,195ブロックを全力疾走！"
@@ -33,14 +21,6 @@ description = "5,000個のブロックを設置する"
 title = "上級ビルダー！"
 description = "50,000個のブロックを設置する"
 
-[advancement.challenge_place_500k]
-title = "マスタービルダー！"
-description = "500,000個のブロックを設置する"
-
-[advancement.challenge_place_5m]
-title = "シンメトリーの侍者！"
-description = "現実はあなたの遊び場だ！（500万ブロック）"
-
 [advancement.challenge_chop_1k]
 title = "新米きこり！"
 description = "1,000ブロックを伐採する"
@@ -52,14 +32,6 @@ description = "5,000ブロックを伐採する"
 [advancement.challenge_chop_50k]
 title = "上級きこり！"
 description = "50,000ブロックを伐採する"
-
-[advancement.challenge_chop_500k]
-title = "きこりの達人！"
-description = "500,000ブロックを伐採する"
-
-[advancement.challenge_chop_5m]
-title = "犬のジャクソン"
-description = "最高のいい子！（500万ブロック）"
 
 [advancement.challenge_block_1k]
 title = "かろうじて防御！"
@@ -73,14 +45,6 @@ description = "5000回の攻撃をブロックする"
 title = "防御こそ我が人生！"
 description = "50,000回の攻撃をブロックする"
 
-[advancement.challenge_block_500k]
-title = "防御こそ我が使命！"
-description = "500,000回の攻撃をブロックする"
-
-[advancement.challenge_block_5m]
-title = "傷つける手"
-description = "5,000,000回の攻撃をブロックする"
-
 [advancement.challenge_brew_1k]
 title = "新米錬金術師！"
 description = "ポーションを1000個消費する"
@@ -89,18 +53,6 @@ description = "ポーションを1000個消費する"
 title = "中級錬金術師！"
 description = "ポーションを5000個消費する"
 
-[advancement.challenge_brew_50k]
-title = "上級錬金術師！"
-description = "ポーションを50,000個消費する"
-
-[advancement.challenge_brew_500k]
-title = "錬金術の達人！"
-description = "ポーションを500,000個消費する"
-
-[advancement.challenge_brew_5m]
-title = "錬金術師"
-description = "ポーションを5,000,000個消費する"
-
 [advancement.challenge_brewsplash_1k]
 title = "初心者スプラッシュ師！"
 description = "1000個のスプラッシュポーションを投げる"
@@ -108,18 +60,6 @@ description = "1000個のスプラッシュポーションを投げる"
 [advancement.challenge_brewsplash_5k]
 title = "中級スプラッシュ師！"
 description = "5000個のスプラッシュポーションを投げる"
-
-[advancement.challenge_brewsplash_50k]
-title = "上級スプラッシュ師！"
-description = "50,000個のスプラッシュポーションを投げる"
-
-[advancement.challenge_brewsplash_500k]
-title = "マスタースプラッシュ師！"
-description = "500,000個のスプラッシュポーションを投げる"
-
-[advancement.challenge_brewsplash_5m]
-title = "スプラッシュマイスター"
-description = "5,000,000個のスプラッシュポーションを投げる"
 
 [advancement.challenge_craft_1k]
 title = "器用なクラフター！"
@@ -133,14 +73,6 @@ description = "5000個のアイテムを作成する"
 title = "献身的なクラフター！"
 description = "50,000個のアイテムを作成する"
 
-[advancement.challenge_craft_500k]
-title = "騒々しいクラフター！"
-description = "500,000個のアイテムを作成する"
-
-[advancement.challenge_craft_5m]
-title = "災厄のマックラフト"
-description = "5,000,000個のアイテムを作成する"
-
 [advancement.challenge_enchant_1k]
 title = "初心者エンチャンター！"
 description = "1000個のアイテムをエンチャントする"
@@ -148,18 +80,6 @@ description = "1000個のアイテムをエンチャントする"
 [advancement.challenge_enchant_5k]
 title = "中級エンチャンター！"
 description = "5000個のアイテムをエンチャントする"
-
-[advancement.challenge_enchant_50k]
-title = "上級エンチャンター！"
-description = "50,000個のアイテムをエンチャントする"
-
-[advancement.challenge_enchant_500k]
-title = "マスターエンチャンター！"
-description = "500,000個のアイテムをエンチャントする"
-
-[advancement.challenge_enchant_5m]
-title = "謎めくエンチャンター"
-description = "5,000,000個のアイテムをエンチャントする"
 
 [advancement.challenge_excavate_1k]
 title = "魅せられた発掘者！"
@@ -172,26 +92,6 @@ description = "5000ブロックを発掘する"
 [advancement.challenge_excavate_50k]
 title = "上級発掘者！"
 description = "50,000ブロックを発掘する"
-
-[advancement.challenge_excavate_500k]
-title = "発掘の達人！"
-description = "500,000ブロックを発掘する"
-
-[advancement.challenge_excavate_5m]
-title = "謎めく発掘者"
-description = "5,000,000ブロックを発掘する"
-
-[advancement.horrible_person]
-title = "あなたはひどい人だ"
-description = "本当に計り知れない"
-
-[advancement.challenge_turtle_egg_smasher]
-title = "カメの卵クラッシャー！"
-description = "カメの卵を100個割る"
-
-[advancement.challenge_turtle_egg_annihilator]
-title = "カメの卵殲滅者！"
-description = "カメの卵を500個割る"
 
 [advancement.challenge_novice_hunter]
 title = "初心者ハンター！"
@@ -224,14 +124,6 @@ description = "5000個のブロックを壊す"
 [advancement.challenge_pickaxe_50k]
 title = "エキスパートマイナー"
 description = "50,000個のブロックを壊す"
-
-[advancement.challenge_pickaxe_500k]
-title = "マスターマイナー"
-description = "500,000個のブロックを壊す"
-
-[advancement.challenge_pickaxe_5m]
-title = "伝説のマイナー"
-description = "5,000,000個のブロックを壊す"
 
 [advancement.challenge_eat_100]
 title = "食べるものがいっぱい！"
@@ -332,10 +224,6 @@ description = "1時間オンラインで過ごす"
 [advancement.challenge_chronos_24h]
 title = "時の砂"
 description = "24時間オンラインで過ごす"
-
-[advancement.challenge_chronos_168h]
-title = "時を超えし者"
-description = "168時間（1週間）オンラインで過ごす"
 
 [advancement.challenge_nether_50]
 title = "地獄の門番"
@@ -440,14 +328,6 @@ title = "雲上の建築士"
 description = "Y=128以上に1,000ブロックを設置する"
 
 # Axes - New Achievement Chains
-[advancement.challenge_axe_swing_500]
-title = "斧振り"
-description = "斧を500回振る"
-
-[advancement.challenge_axe_swing_5k]
-title = "狂戦士"
-description = "斧を5,000回振る"
-
 [advancement.challenge_axe_damage_1k]
 title = "断裂者"
 description = "斧で1,000ダメージを与える"
@@ -559,14 +439,6 @@ description = "50回テレポートする"
 title = "時間の歪み"
 description = "500回テレポートする"
 
-[advancement.challenge_chronos_deaths_10]
-title = "死すべき者"
-description = "10回死ぬ"
-
-[advancement.challenge_chronos_deaths_100]
-title = "死を超える者"
-description = "100回死ぬ"
-
 # Crafting - New Achievement Chains
 [advancement.challenge_craft_value_10k]
 title = "製作の価値"
@@ -591,14 +463,6 @@ description = "25個の防具をクラフトする"
 [advancement.challenge_craft_armor_250]
 title = "防具の達人"
 description = "250個の防具をクラフトする"
-
-[advancement.challenge_craft_mass_25k]
-title = "大量生産"
-description = "25,000個のアイテムをクラフトする"
-
-[advancement.challenge_craft_mass_250k]
-title = "産業革命"
-description = "250,000個のアイテムをクラフトする"
 
 # Discovery - New Achievement Chains
 [advancement.challenge_discover_items_50]
@@ -650,14 +514,6 @@ description = "エンチャントパワーを100蓄積する"
 title = "秘術の達人"
 description = "エンチャントパワーを1,000蓄積する"
 
-[advancement.challenge_enchant_levels_1k]
-title = "レベル消費者"
-description = "エンチャントに1,000経験レベルを使う"
-
-[advancement.challenge_enchant_levels_10k]
-title = "経験値の泉"
-description = "エンチャントに10,000経験レベルを使う"
-
 [advancement.challenge_enchant_high_25]
 title = "大勝負"
 description = "最大レベルのエンチャントを25回行う"
@@ -675,14 +531,6 @@ title = "秘術の投資"
 description = "全エンチャントで合計5,000レベルを使う"
 
 # Excavation - New Achievement Chains
-[advancement.challenge_dig_swing_500]
-title = "掘り師"
-description = "シャベルを500回振る"
-
-[advancement.challenge_dig_swing_5k]
-title = "掘削者"
-description = "シャベルを5,000回振る"
-
 [advancement.challenge_dig_damage_1k]
 title = "シャベルの騎士"
 description = "シャベルで1,000ダメージを与える"
@@ -787,14 +635,6 @@ title = "枯死の収集者"
 description = "ウィザーローズを100本壊す"
 
 # Pickaxes - New Achievement Chains
-[advancement.challenge_pick_swing_500]
-title = "鉱夫の腕"
-description = "つるはしを500回振る"
-
-[advancement.challenge_pick_swing_5k]
-title = "坑道掘り"
-description = "つるはしを5,000回振る"
-
 [advancement.challenge_pick_damage_1k]
 title = "つるはし戦士"
 description = "つるはしで1,000ダメージを与える"
@@ -935,14 +775,6 @@ description = "スニーク中に10体のモブを倒す"
 title = "影の死神"
 description = "スニーク中に100体のモブを倒す"
 
-[advancement.challenge_stealth_time_1h]
-title = "忍耐"
-description = "1時間(3,600秒)スニークする"
-
-[advancement.challenge_stealth_time_10h]
-title = "影の支配者"
-description = "10時間(36,000秒)スニークする"
-
 [advancement.challenge_stealth_arrows_50]
 title = "静かなる射手"
 description = "スニーク中に50本の矢を放つ"
@@ -1009,14 +841,6 @@ description = "ペットが25体の生物を倒す"
 title = "群れの指揮官"
 description = "ペットが250体の生物を倒す"
 
-[advancement.challenge_taming_2500]
-title = "繁殖の専門家"
-description = "2,500匹の動物を繁殖させる"
-
-[advancement.challenge_taming_25k]
-title = "遺伝学の達人"
-description = "25,000匹の動物を繁殖させる"
-
 # TragOul - New Achievement Chains
 [advancement.challenge_trag_hits_500]
 title = "打たれ役"
@@ -1025,30 +849,6 @@ description = "500回攻撃を受ける"
 [advancement.challenge_trag_hits_5k]
 title = "痛みの虜"
 description = "5,000回攻撃を受ける"
-
-[advancement.challenge_trag_deaths_10]
-title = "九つの命"
-description = "10回死ぬ"
-
-[advancement.challenge_trag_deaths_100]
-title = "繰り返す悪夢"
-description = "100回死ぬ"
-
-[advancement.challenge_trag_fire_500]
-title = "炎の犠牲者"
-description = "炎ダメージを500耐える"
-
-[advancement.challenge_trag_fire_5k]
-title = "不死鳥"
-description = "炎ダメージを5,000耐える"
-
-[advancement.challenge_trag_fall_500]
-title = "重力確認"
-description = "落下ダメージを500耐える"
-
-[advancement.challenge_trag_fall_5k]
-title = "終端速度"
-description = "落下ダメージを5,000耐える"
 
 # Unarmed - New Achievement Chains
 [advancement.challenge_unarmed_dmg_1k]

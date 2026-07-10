@@ -25,6 +25,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.item.ChronoTimeBottle;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
@@ -55,22 +56,34 @@ import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionType;
 
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.Config> {
   private static final String RECIPE_KEY = "chronos-time-in-a-bottle";
+  private static final long TICK_INTERVAL_MILLIS = 50L;
+  private static final long CHARGE_INTERVAL_MILLIS = 1000L;
+  private static final int HARD_MAX_PLAYERS_PER_PASS = 32;
+  private static final int MAX_CATCH_UP_PULSES = 4;
+
+  private final Map<UUID, Long> nextChargeAt = playerState();
+  private final Map<UUID, Boolean> pendingCharges = playerState();
+  private int playerCursor;
 
   public ChronosTimeInABottle() {
     super("chronos-time-bottle");
     registerConfiguration(Config.class);
     setLocalizationKey("chronos.time_in_a_bottle");
     setIcon(Material.CLOCK);
-    setInterval(1000);
+    setInterval(TICK_INTERVAL_MILLIS);
 
     registerRecipe(AdaptRecipe.shapeless()
         .key(RECIPE_KEY)
@@ -81,18 +94,34 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
         .build());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.CLOCK)
-        .key("challenge_chronos_bottle_1k")
+        .key("challenge_chronos_bottle_seconds_1k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
             .icon(Material.RECOVERY_COMPASS)
-            .key("challenge_chronos_bottle_25k")
+            .key("challenge_chronos_bottle_seconds_25k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_chronos_bottle_1k", "chronos.time-bottle.charges-spent", 1000, 500);
-    registerMilestone("challenge_chronos_bottle_25k", "chronos.time-bottle.charges-spent", 25000, 2000);
+    registerMilestone(
+        "challenge_chronos_bottle_seconds_1k",
+        "chronos.time-bottle.seconds-spent",
+        1000,
+        500
+    );
+    registerMilestone(
+        "challenge_chronos_bottle_seconds_25k",
+        "chronos.time-bottle.seconds-spent",
+        25000,
+        2000
+    );
+  }
+
+  @EventHandler
+  public void on(PlayerQuitEvent e) {
+    nextChargeAt.remove(e.getPlayer().getUniqueId());
+    pendingCharges.remove(e.getPlayer().getUniqueId());
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -361,7 +390,7 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
     e.setCancelled(true);
     double newStored = Math.max(0, storedSeconds - result.spentSeconds());
     ChronoTimeBottle.setStoredSeconds(hand, newStored);
-    addStat(p, "chronos.time-bottle.charges-spent", 1);
+    addStat(p, "chronos.time-bottle.seconds-spent", result.spentSeconds());
 
     Location burstAt = clicked.getLocation().add(0.5, 1.0, 0.5);
     if (getConfig().playClockSounds) {
@@ -466,7 +495,7 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
     e.setCancelled(true);
     double newStored = Math.max(0, storedSeconds - result.spentSeconds());
     ChronoTimeBottle.setStoredSeconds(hand, newStored);
-    addStat(p, "chronos.time-bottle.charges-spent", 1);
+    addStat(p, "chronos.time-bottle.seconds-spent", result.spentSeconds());
 
     Location entityBurst = ageable.getLocation().add(0, 1.0, 0);
     if (getConfig().playClockSounds) {
@@ -681,47 +710,83 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
 
   @Override
   public void onTick() {
-    for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
-      Player p = adaptPlayer.getPlayer();
-      int level = getActiveLevel(p);
-      if (level <= 0) {
+    long now = System.currentTimeMillis();
+    List<AdaptPlayer> candidates = learnedCandidates(now);
+    ChronosWorkBudget.Batch batch = ChronosWorkBudget.batch(
+        candidates.size(), playerCursor, getConfig().maxPlayersPerPass, HARD_MAX_PLAYERS_PER_PASS);
+    for (int i = 0; i < batch.count(); i++) {
+      AdaptPlayer adaptPlayer = candidates.get((batch.start() + i) % candidates.size());
+      Player player = adaptPlayer.getPlayer();
+      if (player != null && isChargeDue(player.getUniqueId(), now)) {
+        queueBottleCharge(player);
+      }
+    }
+    playerCursor = batch.nextCursor();
+  }
+
+  private boolean isChargeDue(UUID playerId, long now) {
+    Long due = nextChargeAt.get(playerId);
+    return due == null || now >= due;
+  }
+
+  private void queueBottleCharge(Player player) {
+    UUID playerId = player.getUniqueId();
+    if (pendingCharges.putIfAbsent(playerId, true) != null) {
+      return;
+    }
+    boolean scheduled = J.runEntity(player, () -> {
+      try {
+        chargeBottles(player, System.currentTimeMillis());
+      } finally {
+        pendingCharges.remove(playerId);
+      }
+    });
+    if (!scheduled) {
+      pendingCharges.remove(playerId);
+    }
+  }
+
+  private void chargeBottles(Player player, long now) {
+    if (!player.isOnline()) {
+      return;
+    }
+
+    UUID playerId = player.getUniqueId();
+    int level = getActiveLevel(player);
+    if (level <= 0) {
+      nextChargeAt.remove(playerId);
+      return;
+    }
+
+    ChronosWorkBudget.Pulse pulse = ChronosWorkBudget.pulse(
+        now, nextChargeAt.get(playerId), CHARGE_INTERVAL_MILLIS, MAX_CATCH_UP_PULSES);
+    nextChargeAt.put(playerId, pulse.nextAt());
+    if (pulse.count() <= 0) {
+      return;
+    }
+
+    double charge = (getConfig().chargePerSecond + (level * getConfig().chargePerSecondPerLevel)) * pulse.count();
+    double maximum = getConfig().maxStoredSeconds;
+    boolean reachedFull = false;
+    for (ItemStack stack : player.getInventory().getContents()) {
+      if (!ChronoTimeBottle.isBindableItem(stack)) {
         continue;
       }
 
-      double chargePerSecond = getConfig().chargePerSecond + (level * getConfig().chargePerSecondPerLevel);
-
-      double max = getConfig().maxStoredSeconds;
-      boolean reachedFull = false;
-      for (ItemStack stack : p.getInventory().getContents()) {
-        if (!ChronoTimeBottle.isBindableItem(stack)) {
-          continue;
-        }
-
-        double stored = ChronoTimeBottle.getStoredSeconds(stack);
-        double capped = Math.min(max, stored + chargePerSecond);
-        if (capped > stored) {
-          ChronoTimeBottle.setStoredSeconds(stack, capped);
-          if (stored < max && capped >= max) {
-            reachedFull = true;
-          }
-        }
+      double stored = ChronoTimeBottle.getStoredSeconds(stack);
+      double capped = Math.min(maximum, stored + charge);
+      if (capped <= stored) {
+        continue;
       }
 
-      if (reachedFull) {
-        Runnable glint = () -> {
-          if (!p.isOnline()) {
-            return;
-          }
-          fx(p.getLocation(), FxPriority.AMBIENT)
-              .particle(Particle.WAX_ON, 1, 0, 1.0D, 0, 0.1D, 0.0D)
-              .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.3F, 1.9F);
-        };
-        if (J.isFoliaThreading()) {
-          J.runEntity(p, glint);
-        } else {
-          glint.run();
-        }
-      }
+      ChronoTimeBottle.setStoredSeconds(stack, capped);
+      reachedFull = reachedFull || (stored < maximum && capped >= maximum);
+    }
+
+    if (reachedFull) {
+      fx(player.getLocation(), FxPriority.AMBIENT)
+          .particle(Particle.WAX_ON, 1, 0, 1.0D, 0, 0.1D, 0.0D)
+          .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.3F, 1.9F);
     }
   }
 
@@ -758,6 +823,8 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
     double chargePerSecond = 0.1;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Charge Per Second Per Level for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double chargePerSecondPerLevel = 0.02;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum learned players processed in one bottle charge pass.", impact = "Higher values refresh more inventories immediately; lower values spread owner-thread inventory work across passes.")
+    int maxPlayersPerPass = 32;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Base Cook Ticks Per Stored Second for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double baseCookTicksPerStoredSecond = 20;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cook Ticks Per Second Per Level for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

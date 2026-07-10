@@ -21,13 +21,21 @@ package art.arcane.adapt.content.skill;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.skill.SkillOwnerPulse;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.content.adaptation.agility.*;
+import art.arcane.adapt.content.adaptation.agility.AgilityArmorUp;
+import art.arcane.adapt.content.adaptation.agility.AgilityLadderSlide;
+import art.arcane.adapt.content.adaptation.agility.AgilityParkourMomentum;
+import art.arcane.adapt.content.adaptation.agility.AgilityRollLanding;
+import art.arcane.adapt.content.adaptation.agility.AgilitySuperJump;
+import art.arcane.adapt.content.adaptation.agility.AgilityWallJump;
+import art.arcane.adapt.content.adaptation.agility.AgilityWindUp;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import lombok.NoArgsConstructor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -35,6 +43,8 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerMoveEvent;
 
 public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
+  private final SkillOwnerPulse.Registration ownerPulse;
+
   public SkillAgility() {
     super("agility", Localizer.dLocalize("skill.agility.icon"));
     registerConfiguration(Config.class);
@@ -57,25 +67,6 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
-            .icon(Material.IRON_BOOTS)
-            .key("challenge_sprint_5k")
-            .model(CustomModel.get(Material.IRON_BOOTS, "advancement", "agility", "challenge_sprint_5k"))
-            .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
-                .icon(Material.DIAMOND_BOOTS)
-                .key("challenge_sprint_50k")
-                .model(CustomModel.get(Material.DIAMOND_BOOTS, "advancement", "agility", "challenge_sprint_50k"))
-                .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
-                    .icon(Material.NETHERITE_BOOTS)
-                    .key("challenge_sprint_500k")
-                    .model(CustomModel.get(Material.NETHERITE_BOOTS, "advancement", "agility", "challenge_sprint_500k"))
-                    .frame(AdaptAdvancementFrame.CHALLENGE)
-                    .visibility(AdvancementVisibility.PARENT_GRANTED)
-                    .build())
-                .build())
-            .build())
-        .child(AdaptAdvancement.builder()
             .icon(Material.GOLDEN_BOOTS)
             .key("challenge_sprint_marathon")
             .model(CustomModel.get(Material.GOLDEN_BOOTS, "advancement", "agility", "challenge_sprint_marathon"))
@@ -83,11 +74,8 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_move_1k", "move", 1000, getConfig().challengeMove1kReward);
-    registerMilestone("challenge_sprint_5k", "move", 5000, getConfig().challengeSprint5kReward);
-    registerMilestone("challenge_sprint_50k", "move", 50000, getConfig().challengeSprint5kReward);
-    registerMilestone("challenge_sprint_500k", "move", 500000, getConfig().challengeSprint5kReward);
-    registerMilestone("challenge_sprint_marathon", "move", 42195, getConfig().challengeSprintMarathonReward);
+    registerMilestone("challenge_move_1k", "move", 1000, () -> getConfig().challengeMove1kReward);
+    registerMilestone("challenge_sprint_marathon", "move.sprint", 42195, () -> getConfig().challengeSprintMarathonReward);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.GOLDEN_BOOTS).key("challenge_sprint_dist_5k")
         .model(CustomModel.get(Material.GOLDEN_BOOTS, "advancement", "agility", "challenge_sprint_dist_5k"))
@@ -101,8 +89,8 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_sprint_dist_5k", "move.sprint", 5000, getConfig().challengeSprint5kReward);
-    registerMilestone("challenge_sprint_dist_50k", "move.sprint", 50000, getConfig().challengeSprint5kReward * 2);
+    registerMilestone("challenge_sprint_dist_5k", "move.sprint", 5000, () -> getConfig().challengeSprint5kReward);
+    registerMilestone("challenge_sprint_dist_50k", "move.sprint", 50000, () -> getConfig().challengeSprint5kReward * 2);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.LILY_PAD).key("challenge_agility_swim_1k")
         .model(CustomModel.get(Material.LILY_PAD, "advancement", "agility", "challenge_agility_swim_1k"))
@@ -116,8 +104,8 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_agility_swim_1k", "move.swim", 1000, getConfig().challengeSprint5kReward);
-    registerMilestone("challenge_agility_swim_10k", "move.swim", 10000, getConfig().challengeSprint5kReward * 2);
+    registerMilestone("challenge_agility_swim_1k", "move.swim", 1000, () -> getConfig().challengeSprint5kReward);
+    registerMilestone("challenge_agility_swim_10k", "move.swim", 10000, () -> getConfig().challengeSprint5kReward * 2);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.FEATHER).key("challenge_fly_1k")
         .model(CustomModel.get(Material.FEATHER, "advancement", "agility", "challenge_fly_1k"))
@@ -131,8 +119,8 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_fly_1k", "move.fly", 1000, getConfig().challengeSprint5kReward);
-    registerMilestone("challenge_fly_10k", "move.fly", 10000, getConfig().challengeSprint5kReward * 2);
+    registerMilestone("challenge_fly_1k", "move.fly", 1000, () -> getConfig().challengeSprint5kReward);
+    registerMilestone("challenge_fly_10k", "move.fly", 10000, () -> getConfig().challengeSprint5kReward * 2);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.LEATHER_LEGGINGS).key("challenge_agility_sneak_500")
         .model(CustomModel.get(Material.LEATHER_LEGGINGS, "advancement", "agility", "challenge_agility_sneak_500"))
@@ -146,64 +134,66 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_agility_sneak_500", "move.sneak", 500, getConfig().challengeSprint5kReward);
-    registerMilestone("challenge_agility_sneak_5k", "move.sneak", 5000, getConfig().challengeSprint5kReward * 2);
+    registerMilestone("challenge_agility_sneak_500", "move.sneak", 500, () -> getConfig().challengeSprint5kReward);
+    registerMilestone("challenge_agility_sneak_5k", "move.sneak", 5000, () -> getConfig().challengeSprint5kReward * 2);
+    ownerPulse = SkillOwnerPulse.register(this, this::getInterval, this::pulsePassiveXp);
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(PlayerMoveEvent e) {
+    Location from = e.getFrom();
+    Location to = e.getTo();
+    if (to == null || from.getWorld() != to.getWorld()
+        || (from.getX() == to.getX() && from.getY() == to.getY() && from.getZ() == to.getZ())) {
+      return;
+    }
+
     Player p = e.getPlayer();
     shouldReturnForPlayer(p, e, () -> {
-      if (e.getFrom().getWorld() != null && e.getTo() != null && e.getFrom().getWorld().equals(e.getTo().getWorld())) {
-        double d = e.getFrom().distance(e.getTo());
-        AdaptPlayer adaptPlayer = getPlayer(p);
-        adaptPlayer.getData().addStat("move", d);
+      double distance = from.distance(to);
+      AdaptPlayer adaptPlayer = getPlayer(p);
+      adaptPlayer.getData().addStat("move", distance);
 
-        if (p.isSneaking()) {
-          adaptPlayer.getData().addStat("move.sneak", d);
-        } else if (p.isFlying()) {
-          adaptPlayer.getData().addStat("move.fly", d);
-        } else if (p.isSwimming()) {
-          adaptPlayer.getData().addStat("move.swim", d);
-        } else if (p.isSprinting()) {
-          adaptPlayer.getData().addStat("move.sprint", d);
-        }
-
-        // Add XP for moving
-        xpSilent(p, getConfig().moveXpPassive * d, "agility:move");
+      if (p.isSneaking()) {
+        adaptPlayer.getData().addStat("move.sneak", distance);
+      } else if (p.isFlying()) {
+        adaptPlayer.getData().addStat("move.fly", distance);
+      } else if (p.isSwimming()) {
+        adaptPlayer.getData().addStat("move.swim", distance);
+      } else if (p.isSprinting()) {
+        adaptPlayer.getData().addStat("move.sprint", distance);
       }
+
+      xpSilent(p, getConfig().moveXpPassive * distance, "agility:move");
     });
   }
 
 
   @Override
-  public void onTick() {
-    for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
-      Player i = adaptPlayer.getPlayer();
-      shouldReturnForPlayer(i, () -> {
-        checkStatTrackers(adaptPlayer);
+  public void unregister() {
+    ownerPulse.unregister();
+    super.unregister();
+  }
 
-        // Check for sprinting
-        if (i.isSprinting() && !i.isFlying() && !i.isSwimming() && !i.isSneaking()) {
-          xpSilent(i, getConfig().sprintXpPassive, "agility:sprint");
-        }
+  private void pulsePassiveXp(AdaptPlayer adaptPlayer, Player player, long elapsedMillis, long cadenceMillis) {
+    shouldReturnForPlayer(player, () -> {
+      double cadenceScale = (double) elapsedMillis / cadenceMillis;
+      if (player.isSprinting() && !player.isFlying() && !player.isSwimming() && !player.isSneaking()) {
+        xpSilent(player, getConfig().sprintXpPassive * cadenceScale, "agility:sprint");
+      }
 
-        // Check for swimming
-        if (i.isSwimming() && !i.isFlying() && !i.isSprinting() && !i.isSneaking()) {
-          xpSilent(i, getConfig().swimXpPassive, "agility:swim");
-        }
+      if (player.isSwimming() && !player.isFlying() && !player.isSprinting() && !player.isSneaking()) {
+        xpSilent(player, getConfig().swimXpPassive * cadenceScale, "agility:swim");
+      }
 
-        // Check for jumping
-        if (!i.isOnGround() && !i.isFlying() && !i.isSneaking()) {
-          xpSilent(i, getConfig().jumpXpPassive, "agility:jump");
-        }
+      if (!player.isOnGround() && !player.isFlying() && !player.isSneaking()) {
+        xpSilent(player, getConfig().jumpXpPassive * cadenceScale, "agility:jump");
+      }
 
-        // Check for climbing ladders
-        if (i.isClimbing() && !i.isFlying() && !i.isSneaking()) {
-          xpSilent(i, getConfig().climbXpPassive, "agility:climb");
-        }
-      });
-    }
+      if (player.isClimbing() && !player.isFlying() && !player.isSneaking()) {
+        xpSilent(player, getConfig().climbXpPassive * cadenceScale, "agility:climb");
+      }
+    });
   }
 
 

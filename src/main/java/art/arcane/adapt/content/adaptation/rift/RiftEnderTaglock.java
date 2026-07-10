@@ -33,14 +33,31 @@ import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import org.bukkit.*;
-import org.bukkit.entity.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
+import org.bukkit.entity.Ambient;
+import org.bukkit.entity.Animals;
+import org.bukkit.entity.EnderPearl;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Mob;
+import org.bukkit.entity.Monster;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Slime;
+import org.bukkit.entity.Tameable;
+import org.bukkit.entity.Villager;
+import org.bukkit.entity.WaterMob;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -51,14 +68,24 @@ import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+
+import static art.arcane.adapt.api.adaptation.chunk.ChunkLoading.loadChunkAsync;
 
 public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> {
   private static final double PEARL_TELEPORT_DAMAGE = 5.0;
+  private static final int MAX_PENDING_TELEPORTS = 2048;
+  private static final int MAX_TARGET_SNAPSHOT_ATTEMPTS = 2;
+  private static final long OPERATION_TIMEOUT_MILLIS = 60_000L;
+  private static final long TELEPORT_COMPLETION_TIMEOUT_MILLIS = 300_000L;
   private final NamespacedKey targetKey;
   private final Map<UUID, Long> suppressPearlTeleportUntil = playerState();
+  private final TeleportAdmission pendingTeleports = new TeleportAdmission(MAX_PENDING_TELEPORTS);
+  private volatile boolean acceptingTeleports = true;
 
   public RiftEnderTaglock() {
     super("rift-ender-taglock");
@@ -80,6 +107,21 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
         .build());
     registerMilestone("challenge_rift_taglock_100", "rift.ender-taglock.entities-tagged", 100, 400);
     registerMilestone("challenge_rift_taglock_500", "rift.ender-taglock.taglocked-teleports", 500, 1000);
+  }
+
+  @Override
+  public void unregister() {
+    acceptingTeleports = false;
+    pendingTeleports.clear();
+    suppressPearlTeleportUntil.clear();
+    super.unregister();
+  }
+
+  @Override
+  public void onTick() {
+    long now = System.currentTimeMillis();
+    suppressPearlTeleportUntil.entrySet().removeIf(i -> i.getValue() <= now);
+    pendingTeleports.purgeExpired(now);
   }
 
   @Override
@@ -203,12 +245,7 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(ProjectileHitEvent e) {
-    if (!(e.getEntity() instanceof EnderPearl pearl) || !(pearl.getShooter() instanceof Player p)) {
-      return;
-    }
-
-    String raw = pearl.getPersistentDataContainer().get(targetKey, PersistentDataType.STRING);
-    if (raw == null || raw.isEmpty()) {
+    if (!(e.getEntity() instanceof EnderPearl pearl) || !(pearl.getShooter() instanceof Player thrower)) {
       return;
     }
 
@@ -216,48 +253,183 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
       return;
     }
 
-    suppressPearlTeleportUntil.put(p.getUniqueId(), System.currentTimeMillis() + getSuppressPearlTeleportWindowMillis());
-    J.runEntity(p, () -> suppressPearlTeleportUntil.remove(p.getUniqueId()), 10);
+    String raw = pearl.getPersistentDataContainer().get(targetKey, PersistentDataType.STRING);
+    UUID targetId = parseTargetId(raw);
+    if (targetId == null) {
+      return;
+    }
+    Location destination = resolveDestination(e);
+    J.runEntity(thrower, () -> prepareThrowerOwned(thrower, targetId, destination));
+  }
 
-    if (!hasActiveAdaptation(p)) {
+  @EventHandler
+  public void on(PlayerQuitEvent e) {
+    UUID playerId = e.getPlayer().getUniqueId();
+    suppressPearlTeleportUntil.remove(playerId);
+    pendingTeleports.cancel(playerId);
+  }
+
+  private void prepareThrowerOwned(Player thrower, UUID targetId, Location destination) {
+    if (!acceptingTeleports) {
       return;
     }
 
-    UUID targetId;
-    try {
-      targetId = UUID.fromString(raw);
-    } catch (IllegalArgumentException ex) {
+    UUID throwerId = thrower.getUniqueId();
+    long suppressUntil = System.currentTimeMillis() + getSuppressPearlTeleportWindowMillis();
+    suppressPearlTeleportUntil.put(throwerId, suppressUntil);
+    J.runEntity(thrower, () -> suppressPearlTeleportUntil.remove(throwerId, suppressUntil), 10);
+
+    int level = getActiveLevel(thrower);
+    if (!thrower.isOnline() || level <= 0 || throwerId.equals(targetId)) {
       return;
     }
 
     Entity entity = Bukkit.getEntity(targetId);
-    if (!(entity instanceof LivingEntity target) || !target.isValid() || target.isDead()) {
+    if (!(entity instanceof LivingEntity target)) {
       return;
     }
 
-    Location destination = resolveDestination(e);
-    if (!canDamageTarget(p, target)) {
+    long token = pendingTeleports.admit(throwerId, System.currentTimeMillis(), OPERATION_TIMEOUT_MILLIS);
+    if (token < 0L) {
       return;
     }
 
-    if (target instanceof Player) {
-      if (!canPVP(p, destination)) {
-        return;
-      }
-    } else if (!canPVE(p, destination)) {
+    TaglockOperation operation = new TaglockOperation(
+        thrower,
+        throwerId,
+        target,
+        targetId,
+        destination.clone(),
+        level,
+        getConfig().damageSender,
+        token
+    );
+    if (!J.runEntity(target, () -> prepareTargetOwned(operation, 0))) {
+      pendingTeleports.complete(throwerId, token);
+    }
+  }
+
+  private void prepareTargetOwned(TaglockOperation operation, int attempt) {
+    if (!isCurrent(operation)) {
       return;
     }
 
+    LivingEntity target = operation.target();
+    if (!isUsableTargetOwned(operation)) {
+      pendingTeleports.complete(operation.throwerId(), operation.token());
+      return;
+    }
+
+    TargetSnapshot snapshot = new TargetSnapshot(target.getLocation().clone(), target instanceof Player);
+    if (!J.runEntity(operation.thrower(), () -> validatePolicyOwned(operation, snapshot, attempt))) {
+      pendingTeleports.complete(operation.throwerId(), operation.token());
+    }
+  }
+
+  private void validatePolicyOwned(TaglockOperation operation, TargetSnapshot snapshot, int attempt) {
+    if (!isCurrent(operation)) {
+      return;
+    }
+
+    Player thrower = operation.thrower();
+    if (!thrower.isOnline() || getActiveLevel(thrower) <= 0) {
+      pendingTeleports.complete(operation.throwerId(), operation.token());
+      return;
+    }
+
+    boolean allowed = snapshot.playerTarget()
+        ? canPVP(thrower, snapshot.location().clone()) && canPVP(thrower, operation.destination().clone())
+        : canPVE(thrower, snapshot.location().clone()) && canPVE(thrower, operation.destination().clone());
+    if (!allowed) {
+      pendingTeleports.complete(operation.throwerId(), operation.token());
+      return;
+    }
+
+    loadChunkAsync(operation.destination().clone(), ignored -> scheduleTargetApply(operation, snapshot, attempt));
+  }
+
+  private void scheduleTargetApply(TaglockOperation operation, TargetSnapshot snapshot, int attempt) {
+    if (!isCurrent(operation)) {
+      return;
+    }
+
+    if (!J.runEntity(operation.target(), () -> applyTargetOwned(operation, snapshot, attempt))) {
+      pendingTeleports.complete(operation.throwerId(), operation.token());
+    }
+  }
+
+  private void applyTargetOwned(TaglockOperation operation, TargetSnapshot snapshot, int attempt) {
+    if (!isCurrent(operation)) {
+      return;
+    }
+
+    if (!isUsableTargetOwned(operation)) {
+      pendingTeleports.complete(operation.throwerId(), operation.token());
+      return;
+    }
+
+    LivingEntity target = operation.target();
     Location origin = target.getLocation().clone();
-    destination.getChunk().load();
-    J.teleport(target, destination);
-    applyPearlDamage(p, target);
+    if (!snapshot.sameBlock(origin)) {
+      if (attempt + 1 < MAX_TARGET_SNAPSHOT_ATTEMPTS) {
+        prepareTargetOwned(operation, attempt + 1);
+      } else {
+        pendingTeleports.complete(operation.throwerId(), operation.token());
+      }
+      return;
+    }
 
-    int level = getActiveLevel(p);
-    double shockRadius = level >= 3 ? 2.0 : (level == 2 ? 1.6 : 1.4);
+    if (!pendingTeleports.markTeleporting(
+        operation.throwerId(),
+        operation.token(),
+        System.currentTimeMillis(),
+        TELEPORT_COMPLETION_TIMEOUT_MILLIS
+    )) {
+      return;
+    }
+
+    CompletableFuture<Boolean> completion;
+    try {
+      completion = target.teleportAsync(operation.destination().clone());
+    } catch (RuntimeException error) {
+      pendingTeleports.complete(operation.throwerId(), operation.token());
+      reportTeleportFailure(operation.targetId(), error);
+      return;
+    }
+
+    if (completion == null) {
+      pendingTeleports.complete(operation.throwerId(), operation.token());
+      return;
+    }
+    completion.whenComplete((success, error) -> finishTeleport(operation, origin, success, error));
+  }
+
+  private void finishTeleport(TaglockOperation operation, Location origin, Boolean success, Throwable error) {
+    if (error != null) {
+      pendingTeleports.complete(operation.throwerId(), operation.token());
+      reportTeleportFailure(operation.targetId(), error);
+      return;
+    }
+
+    if (!Boolean.TRUE.equals(success)
+        || !pendingTeleports.complete(operation.throwerId(), operation.token())) {
+      return;
+    }
+
+    J.runEntity(operation.target(), () -> finishTargetOwned(operation, origin));
+    J.runEntity(operation.thrower(), () -> rewardThrowerOwned(operation));
+  }
+
+  private void finishTargetOwned(TaglockOperation operation, Location origin) {
+    LivingEntity target = operation.target();
+    if (!operation.damageSender() && target.isValid() && !target.isDead()) {
+      target.damage(PEARL_TELEPORT_DAMAGE);
+    }
+
+    double shockRadius = getShockRadius(operation.level());
     fx(origin, FxPriority.COMBAT)
         .particle(Particle.REVERSE_PORTAL, 10, 0, 1.0, 0, 0.3, 0.05);
-    timeline(destination)
+    timeline(operation.destination().clone())
         .duration(5)
         .priority(FxPriority.COMBAT)
         .cullRadius(28)
@@ -268,20 +440,52 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
           }
         })
         .start();
-    if (target instanceof Player victim) {
+    if (target instanceof Player victim && victim.isOnline()) {
       fx(victim, FxPriority.COMBAT).sound(Sound.ENTITY_ELDER_GUARDIAN_CURSE, 0.75f, 1.9f);
     }
-    addStat(p, "rift.ender-taglock.taglocked-teleports", 1);
-    xp(p, getConfig().xpOnTeleport);
   }
 
-  private void applyPearlDamage(Player thrower, LivingEntity target) {
-    LivingEntity victim = getConfig().damageSender ? thrower : target;
-    J.runEntity(victim, () -> {
-      if (victim.isValid() && !victim.isDead()) {
-        victim.damage(PEARL_TELEPORT_DAMAGE);
-      }
-    });
+  private void rewardThrowerOwned(TaglockOperation operation) {
+    Player thrower = operation.thrower();
+    if (!thrower.isOnline()) {
+      return;
+    }
+
+    if (operation.damageSender() && thrower.isValid() && !thrower.isDead()) {
+      thrower.damage(PEARL_TELEPORT_DAMAGE);
+    }
+    addStat(thrower, "rift.ender-taglock.taglocked-teleports", 1);
+    xp(thrower, getConfig().xpOnTeleport);
+  }
+
+  private boolean isUsableTargetOwned(TaglockOperation operation) {
+    LivingEntity target = operation.target();
+    if (!target.isValid() || target.isDead() || !operation.targetId().equals(target.getUniqueId())) {
+      return false;
+    }
+    if (isProtectedFriendly(null, target)) {
+      return false;
+    }
+    return !(target instanceof Tameable tameable)
+        || !tameable.isTamed()
+        || !operation.throwerId().equals(tameable.getOwnerUniqueId());
+  }
+
+  private boolean isCurrent(TaglockOperation operation) {
+    return pendingTeleports.isCurrent(
+        operation.throwerId(),
+        operation.token(),
+        System.currentTimeMillis()
+    );
+  }
+
+  private double getShockRadius(int level) {
+    return level >= 3 ? 2.0 : (level == 2 ? 1.6 : 1.4);
+  }
+
+  private void reportTeleportFailure(UUID targetId, Throwable error) {
+    Adapt.warn("Failed to complete an Ender Taglock teleport for target " + targetId + ".");
+    error.printStackTrace();
   }
 
   private Location resolveDestination(ProjectileHitEvent e) {
@@ -353,7 +557,11 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
     }
 
     String raw = item.getItemMeta().getPersistentDataContainer().get(targetKey, PersistentDataType.STRING);
-    if (raw == null || raw.isEmpty()) {
+    return parseTargetId(raw);
+  }
+
+  private UUID parseTargetId(String raw) {
+    if (raw == null || raw.length() != 36) {
       return null;
     }
 
@@ -427,12 +635,6 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
     return Math.max(1000L, getConfig().suppressPearlTeleportWindowMillis);
   }
 
-  @Override
-  public void onTick() {
-    long now = System.currentTimeMillis();
-    suppressPearlTeleportUntil.entrySet().removeIf(i -> i.getValue() <= now);
-  }
-
   @ConfigDescription("Tag entities into ender pearls and throw those pearls to reposition the tagged target.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Throw Cooldown Ticks Base for the Rift Ender Taglock adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -459,6 +661,123 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
       costFactor = 0.95;
       maxLevel = 3;
       initialCost = 7;
+    }
+  }
+
+  private record TaglockOperation(
+      Player thrower,
+      UUID throwerId,
+      LivingEntity target,
+      UUID targetId,
+      Location destination,
+      int level,
+      boolean damageSender,
+      long token
+  ) {
+  }
+
+  private record TargetSnapshot(Location location, boolean playerTarget) {
+    private boolean sameBlock(Location current) {
+      return location.getWorld() == current.getWorld()
+          && location.getBlockX() == current.getBlockX()
+          && location.getBlockY() == current.getBlockY()
+          && location.getBlockZ() == current.getBlockZ();
+    }
+  }
+
+  static final class TeleportAdmission {
+    private final int capacity;
+    private final Map<UUID, PendingTeleport> pending = new HashMap<>();
+    private long nextToken;
+
+    TeleportAdmission(int capacity) {
+      this.capacity = Math.max(1, capacity);
+    }
+
+    synchronized long admit(UUID ownerId, long now, long timeoutMillis) {
+      PendingTeleport existing = pending.get(ownerId);
+      if (existing != null && existing.expiresAt() > now) {
+        return -1L;
+      }
+      if (existing != null) {
+        pending.remove(ownerId);
+      }
+      if (pending.size() >= capacity) {
+        purgeExpired(now);
+        if (pending.size() >= capacity) {
+          return -1L;
+        }
+      }
+
+      long token = ++nextToken;
+      pending.put(ownerId, new PendingTeleport(token, deadline(now, timeoutMillis), false));
+      return token;
+    }
+
+    synchronized boolean isCurrent(UUID ownerId, long token, long now) {
+      PendingTeleport operation = pending.get(ownerId);
+      if (operation == null || operation.token() != token) {
+        return false;
+      }
+      if (operation.expiresAt() <= now) {
+        pending.remove(ownerId);
+        return false;
+      }
+      return true;
+    }
+
+    synchronized boolean markTeleporting(UUID ownerId, long token, long now, long timeoutMillis) {
+      if (!isCurrent(ownerId, token, now)) {
+        return false;
+      }
+
+      PendingTeleport operation = pending.get(ownerId);
+      if (operation.teleporting()) {
+        return false;
+      }
+      pending.put(ownerId, new PendingTeleport(token, deadline(now, timeoutMillis), true));
+      return true;
+    }
+
+    synchronized boolean complete(UUID ownerId, long token) {
+      PendingTeleport operation = pending.get(ownerId);
+      if (operation == null || operation.token() != token) {
+        return false;
+      }
+      pending.remove(ownerId);
+      return true;
+    }
+
+    synchronized void cancel(UUID ownerId) {
+      PendingTeleport operation = pending.get(ownerId);
+      if (operation != null && !operation.teleporting()) {
+        pending.remove(ownerId);
+      }
+    }
+
+    synchronized int purgeExpired(long now) {
+      int before = pending.size();
+      pending.entrySet().removeIf(entry -> entry.getValue().expiresAt() <= now);
+      return before - pending.size();
+    }
+
+    synchronized int size() {
+      return pending.size();
+    }
+
+    synchronized void clear() {
+      pending.clear();
+    }
+
+    private static long deadline(long now, long timeoutMillis) {
+      long timeout = Math.max(1L, timeoutMillis);
+      if (now > Long.MAX_VALUE - timeout) {
+        return Long.MAX_VALUE;
+      }
+      return now + timeout;
+    }
+
+    private record PendingTeleport(long token, long expiresAt, boolean teleporting) {
     }
   }
 }

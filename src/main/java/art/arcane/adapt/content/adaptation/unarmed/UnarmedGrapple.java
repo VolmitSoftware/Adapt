@@ -49,13 +49,13 @@ import java.util.UUID;
 
 public class UnarmedGrapple extends SimpleAdaptation<UnarmedGrapple.Config> {
   private final Map<UUID, GrabState> grabs = playerState();
+  private final Map<UUID, Long> pendingHurls = playerState();
   private final Cooldowns grappleCooldown = cooldowns();
 
   public UnarmedGrapple() {
     super("unarmed-grapple");
     registerConfiguration(Config.class);
     setIcon(Material.LEAD);
-    setInterval(2750);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.IRON_INGOT)
         .key("challenge_unarmed_grapple_100")
@@ -149,27 +149,34 @@ public class UnarmedGrapple extends SimpleAdaptation<UnarmedGrapple.Config> {
   }
 
   private void hurl(Player p, LivingEntity target, int level) {
-    if (!target.isValid() || target.isDead() || target.getWorld() != p.getWorld()) {
+    UUID playerId = p.getUniqueId();
+    long now = System.currentTimeMillis();
+    if (pendingHurls.getOrDefault(playerId, 0L) > now) {
       return;
     }
+    pendingHurls.put(playerId, now + 1000L);
 
+    Location playerLocation = p.getLocation();
     double maxRange = getConfig().maxHurlRange;
-    if (target.getLocation().distanceSquared(p.getLocation()) > maxRange * maxRange) {
-      return;
-    }
+    double maxRangeSquared = maxRange * maxRange;
+    Vector velocity = playerLocation.getDirection().normalize().multiply(getForce(level))
+        .setY(getConfig().upwardBoost + (getLevelPercent(level) * getConfig().upwardBoostFactor));
+    boolean scheduled = J.runEntity(target, () -> {
+      if (!target.isValid() || target.isDead() || target.getWorld() != playerLocation.getWorld()
+          || target.getLocation().distanceSquared(playerLocation) > maxRangeSquared) {
+        pendingHurls.remove(playerId);
+        return;
+      }
 
-    grappleCooldown.mark(p.getUniqueId());
-    p.setExhaustion(p.getExhaustion() + (float) getConfig().exhaustionPerThrow);
-    Vector velocity = p.getLocation().getDirection().normalize().multiply(getForce(level)).setY(getConfig().upwardBoost + (getLevelPercent(level) * getConfig().upwardBoostFactor));
-    J.runEntity(target, () -> {
-      if (target.isValid() && !target.isDead()) {
-        target.setVelocity(velocity);
+      target.setVelocity(velocity);
+      playTargetHurlFx(target, velocity);
+      if (!J.runEntity(p, () -> completeHurl(p))) {
+        pendingHurls.remove(playerId);
       }
     });
-
-    playHurl(p, target, velocity);
-    xp(p, getConfig().xpPerHurl, "grapple");
-    addStat(p, "unarmed.grapple.hurled-mobs", 1);
+    if (!scheduled) {
+      pendingHurls.remove(playerId);
+    }
   }
 
   private void playGrab(Player p, LivingEntity victim) {
@@ -181,21 +188,33 @@ public class UnarmedGrapple extends SimpleAdaptation<UnarmedGrapple.Config> {
         .line(Particle.CRIT, mob.getX(), mob.getY(), mob.getZ(), 8);
   }
 
-  private void playHurl(Player p, LivingEntity target, Vector velocity) {
+  private void playTargetHurlFx(LivingEntity target, Vector velocity) {
     fx(target.getLocation().add(0, 0.8D, 0), FxPriority.COMBAT)
         .particle(Particle.CLOUD, 8, 0, 0, 0, 0.25D, 0.05D)
         .trail(Particle.CRIT, velocity.getX(), velocity.getY(), velocity.getZ(), 1.6D, 6)
         .sound(Sound.ENTITY_PLAYER_ATTACK_KNOCKBACK, 0.9F, 1.2F);
-    timeline(p)
-        .duration(3)
-        .priority(FxPriority.COMBAT)
-        .frame((fx, tick, progress) -> fx.sound(Sound.ENTITY_PLAYER_ATTACK_SWEEP, 0.9F, (float) (0.9D + (progress * 0.4D))))
-        .start();
     timeline(target)
         .duration(6)
         .priority(FxPriority.TRAIL)
         .frame((fx, tick, progress) -> fx.particle(Particle.CRIT, 1, 0, 0.2D, 0, 0.05D, 0.0D))
         .start();
+  }
+
+  private void completeHurl(Player player) {
+    pendingHurls.remove(player.getUniqueId());
+    if (!player.isOnline()) {
+      return;
+    }
+
+    grappleCooldown.mark(player.getUniqueId());
+    player.setExhaustion(player.getExhaustion() + (float) getConfig().exhaustionPerThrow);
+    timeline(player)
+        .duration(3)
+        .priority(FxPriority.COMBAT)
+        .frame((fx, tick, progress) -> fx.sound(Sound.ENTITY_PLAYER_ATTACK_SWEEP, 0.9F, (float) (0.9D + (progress * 0.4D))))
+        .start();
+    xp(player, getConfig().xpPerHurl, "grapple");
+    addStat(player, "unarmed.grapple.hurled-mobs", 1);
   }
 
   private double getForce(int level) {
@@ -204,12 +223,6 @@ public class UnarmedGrapple extends SimpleAdaptation<UnarmedGrapple.Config> {
 
   private long getCooldownMillis(int level) {
     return Math.max(1000L, (long) Math.round(getConfig().cooldownMillisBase - (getLevelPercent(level) * getConfig().cooldownMillisFactor)));
-  }
-
-  @Override
-  public void onTick() {
-    long now = System.currentTimeMillis();
-    grabs.values().removeIf(state -> now - state.grabbedAtMillis > getConfig().grabTimeoutMillis || !state.target.isValid() || state.target.isDead());
   }
 
   @ConfigDescription("Sneak-punch a mob to grab it, then hurl it where you look.")

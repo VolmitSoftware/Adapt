@@ -87,9 +87,6 @@ public class RiftVisage extends SimpleAdaptation<RiftVisage.Config> {
     return false;
   }
 
-  @Override
-  public void onTick() {
-  }
 
   @ConfigDescription("Prevents Endermen from becoming aggressive when you carry Enderpearls.")
   protected static class Config extends AdaptationConfig {

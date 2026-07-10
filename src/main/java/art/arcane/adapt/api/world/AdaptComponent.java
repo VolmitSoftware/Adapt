@@ -25,9 +25,116 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.List;
-
-import static org.bukkit.Material.*;
+import static org.bukkit.Material.BARREL;
+import static org.bukkit.Material.BLACK_SHULKER_BOX;
+import static org.bukkit.Material.BLAST_FURNACE;
+import static org.bukkit.Material.BLUE_SHULKER_BOX;
+import static org.bukkit.Material.BOW;
+import static org.bukkit.Material.BROWN_MUSHROOM_BLOCK;
+import static org.bukkit.Material.BROWN_SHULKER_BOX;
+import static org.bukkit.Material.CHAINMAIL_BOOTS;
+import static org.bukkit.Material.CHAINMAIL_CHESTPLATE;
+import static org.bukkit.Material.CHAINMAIL_HELMET;
+import static org.bukkit.Material.CHAINMAIL_LEGGINGS;
+import static org.bukkit.Material.CHEST;
+import static org.bukkit.Material.COAL_ORE;
+import static org.bukkit.Material.COPPER_ORE;
+import static org.bukkit.Material.CROSSBOW;
+import static org.bukkit.Material.CYAN_SHULKER_BOX;
+import static org.bukkit.Material.DEEPSLATE_COAL_ORE;
+import static org.bukkit.Material.DEEPSLATE_COPPER_ORE;
+import static org.bukkit.Material.DEEPSLATE_DIAMOND_ORE;
+import static org.bukkit.Material.DEEPSLATE_EMERALD_ORE;
+import static org.bukkit.Material.DEEPSLATE_GOLD_ORE;
+import static org.bukkit.Material.DEEPSLATE_IRON_ORE;
+import static org.bukkit.Material.DEEPSLATE_LAPIS_ORE;
+import static org.bukkit.Material.DEEPSLATE_REDSTONE_ORE;
+import static org.bukkit.Material.DIAMOND_AXE;
+import static org.bukkit.Material.DIAMOND_BOOTS;
+import static org.bukkit.Material.DIAMOND_CHESTPLATE;
+import static org.bukkit.Material.DIAMOND_HELMET;
+import static org.bukkit.Material.DIAMOND_HOE;
+import static org.bukkit.Material.DIAMOND_LEGGINGS;
+import static org.bukkit.Material.DIAMOND_ORE;
+import static org.bukkit.Material.DIAMOND_PICKAXE;
+import static org.bukkit.Material.DIAMOND_SHOVEL;
+import static org.bukkit.Material.DIAMOND_SWORD;
+import static org.bukkit.Material.DISPENSER;
+import static org.bukkit.Material.DROPPER;
+import static org.bukkit.Material.ELYTRA;
+import static org.bukkit.Material.EMERALD_ORE;
+import static org.bukkit.Material.FURNACE;
+import static org.bukkit.Material.GOLDEN_AXE;
+import static org.bukkit.Material.GOLDEN_BOOTS;
+import static org.bukkit.Material.GOLDEN_CHESTPLATE;
+import static org.bukkit.Material.GOLDEN_HELMET;
+import static org.bukkit.Material.GOLDEN_HOE;
+import static org.bukkit.Material.GOLDEN_LEGGINGS;
+import static org.bukkit.Material.GOLDEN_PICKAXE;
+import static org.bukkit.Material.GOLDEN_SHOVEL;
+import static org.bukkit.Material.GOLDEN_SWORD;
+import static org.bukkit.Material.GOLD_ORE;
+import static org.bukkit.Material.GRAY_SHULKER_BOX;
+import static org.bukkit.Material.GREEN_SHULKER_BOX;
+import static org.bukkit.Material.HOPPER;
+import static org.bukkit.Material.IRON_AXE;
+import static org.bukkit.Material.IRON_BOOTS;
+import static org.bukkit.Material.IRON_CHESTPLATE;
+import static org.bukkit.Material.IRON_HELMET;
+import static org.bukkit.Material.IRON_HOE;
+import static org.bukkit.Material.IRON_LEGGINGS;
+import static org.bukkit.Material.IRON_ORE;
+import static org.bukkit.Material.IRON_PICKAXE;
+import static org.bukkit.Material.IRON_SHOVEL;
+import static org.bukkit.Material.IRON_SWORD;
+import static org.bukkit.Material.LAPIS_ORE;
+import static org.bukkit.Material.LEATHER_BOOTS;
+import static org.bukkit.Material.LEATHER_CHESTPLATE;
+import static org.bukkit.Material.LEATHER_HELMET;
+import static org.bukkit.Material.LEATHER_LEGGINGS;
+import static org.bukkit.Material.LEGACY_ELYTRA;
+import static org.bukkit.Material.LIGHT_BLUE_SHULKER_BOX;
+import static org.bukkit.Material.LIGHT_GRAY_SHULKER_BOX;
+import static org.bukkit.Material.LIME_SHULKER_BOX;
+import static org.bukkit.Material.MAGENTA_SHULKER_BOX;
+import static org.bukkit.Material.MANGROVE_ROOTS;
+import static org.bukkit.Material.MUDDY_MANGROVE_ROOTS;
+import static org.bukkit.Material.MUSHROOM_STEM;
+import static org.bukkit.Material.NETHERITE_AXE;
+import static org.bukkit.Material.NETHERITE_BOOTS;
+import static org.bukkit.Material.NETHERITE_CHESTPLATE;
+import static org.bukkit.Material.NETHERITE_HELMET;
+import static org.bukkit.Material.NETHERITE_HOE;
+import static org.bukkit.Material.NETHERITE_LEGGINGS;
+import static org.bukkit.Material.NETHERITE_PICKAXE;
+import static org.bukkit.Material.NETHERITE_SHOVEL;
+import static org.bukkit.Material.NETHERITE_SWORD;
+import static org.bukkit.Material.NETHER_GOLD_ORE;
+import static org.bukkit.Material.NETHER_QUARTZ_ORE;
+import static org.bukkit.Material.ORANGE_SHULKER_BOX;
+import static org.bukkit.Material.PINK_SHULKER_BOX;
+import static org.bukkit.Material.PURPLE_SHULKER_BOX;
+import static org.bukkit.Material.REDSTONE_ORE;
+import static org.bukkit.Material.RED_MUSHROOM_BLOCK;
+import static org.bukkit.Material.RED_SHULKER_BOX;
+import static org.bukkit.Material.SEA_PICKLE;
+import static org.bukkit.Material.SHULKER_BOX;
+import static org.bukkit.Material.SMOKER;
+import static org.bukkit.Material.STONE_AXE;
+import static org.bukkit.Material.STONE_HOE;
+import static org.bukkit.Material.STONE_PICKAXE;
+import static org.bukkit.Material.STONE_SHOVEL;
+import static org.bukkit.Material.STONE_SWORD;
+import static org.bukkit.Material.TRAPPED_CHEST;
+import static org.bukkit.Material.TRIDENT;
+import static org.bukkit.Material.TURTLE_HELMET;
+import static org.bukkit.Material.WHITE_SHULKER_BOX;
+import static org.bukkit.Material.WOODEN_AXE;
+import static org.bukkit.Material.WOODEN_HOE;
+import static org.bukkit.Material.WOODEN_PICKAXE;
+import static org.bukkit.Material.WOODEN_SHOVEL;
+import static org.bukkit.Material.WOODEN_SWORD;
+import static org.bukkit.Material.YELLOW_SHULKER_BOX;
 
 public interface AdaptComponent {
   default AdaptServer getServer() {
@@ -51,15 +158,15 @@ public interface AdaptComponent {
   }
 
   default boolean isMace(ItemStack is) {
-    return is.getType() == Materials.MACE;
+    return isItem(is) && is.getType() == Materials.MACE;
   }
 
   default boolean isShield(ItemStack is) {
-    return is.getType().equals(Material.SHIELD);
+    return isItem(is) && is.getType() == Material.SHIELD;
   }
 
   default boolean isXpBlock(Material material) {
-    return material.equals(Material.EXPERIENCE_BOTTLE);
+    return material == Material.EXPERIENCE_BOTTLE;
   }
 
   default boolean isRanged(ItemStack it) {
@@ -133,9 +240,12 @@ public interface AdaptComponent {
 
   default boolean isLog(ItemStack it) {
     if (isItem(it)) {
-      return List.of(MUSHROOM_STEM, BROWN_MUSHROOM_BLOCK, RED_MUSHROOM_BLOCK, MANGROVE_ROOTS, MUDDY_MANGROVE_ROOTS).contains(it.getType())
-          || it.getType().name().endsWith("_LOG")
-          || it.getType().name().endsWith("_WOOD");
+      Material type = it.getType();
+      return switch (type) {
+        case MUSHROOM_STEM, BROWN_MUSHROOM_BLOCK, RED_MUSHROOM_BLOCK,
+             MANGROVE_ROOTS, MUDDY_MANGROVE_ROOTS -> true;
+        default -> type.name().endsWith("_LOG") || type.name().endsWith("_WOOD");
+      };
     }
 
     return false;
@@ -143,8 +253,8 @@ public interface AdaptComponent {
 
   default boolean isLeaves(ItemStack it) {
     if (isItem(it)) {
-      return List.of(Material.MANGROVE_ROOTS, Material.MUDDY_MANGROVE_ROOTS).contains(it.getType())
-          || it.getType().name().endsWith("_LEAVES");
+      Material type = it.getType();
+      return type == MANGROVE_ROOTS || type == MUDDY_MANGROVE_ROOTS || type.name().endsWith("_LEAVES");
     }
 
     return false;
@@ -223,6 +333,9 @@ public interface AdaptComponent {
   }
 
   default boolean isOre(BlockData b) {
+    if (b == null) {
+      return false;
+    }
     return switch (b.getMaterial()) {
       case COPPER_ORE, DEEPSLATE_COPPER_ORE, COAL_ORE, GOLD_ORE, IRON_ORE,
            DIAMOND_ORE, LAPIS_ORE, EMERALD_ORE, NETHER_QUARTZ_ORE,
@@ -235,6 +348,9 @@ public interface AdaptComponent {
   }
 
   default boolean isStorage(BlockData b) {
+    if (b == null) {
+      return false;
+    }
     return switch (b.getMaterial()) {
       case CHEST,
            SMOKER,

@@ -101,10 +101,6 @@ public class SeaborneFishersFantasy extends SimpleAdaptation<SeaborneFishersFant
     });
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Earn more XP from fishing and catch more fish.")
   protected static class Config extends AdaptationConfig {

@@ -19,14 +19,13 @@
 package art.arcane.adapt.content.adaptation.brewing;
 
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.potion.AdaptBrewCompleteEvent;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.data.WorldData;
 import art.arcane.adapt.api.potion.BrewingRecipe;
 import art.arcane.adapt.api.potion.PotionBuilder;
-import art.arcane.adapt.content.matter.BrewingStandOwner;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -40,7 +39,6 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.inventory.BrewEvent;
 import org.bukkit.potion.PotionEffectType;
 
 
@@ -90,21 +88,18 @@ public class BrewingSaturation extends SimpleAdaptation<BrewingSaturation.Config
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
-  public void on(BrewEvent e) {
-    BrewingStandOwner owner = WorldData.of(e.getBlock().getWorld()).get(e.getBlock(), BrewingStandOwner.class);
-    if (owner != null) {
-      getServer().peekData(owner.getOwner()).addStat("brewing.saturation.potions-brewed", 1);
-      Location loc = e.getBlock().getLocation().add(0.5D, 0.6D, 0.5D);
-      fx(loc, FxPriority.TRANSITION)
-          .dustBurst(Color.ORANGE, 8, 0.3D, 1.2F)
-          .particle(Particle.CAMPFIRE_COSY_SMOKE, 3, 0, 0.3D, 0, 0.2D, 0.02D)
-          .chord(Sound.ENTITY_GENERIC_EAT, 0.3F, 1.2F, Sound.BLOCK_BREWING_STAND_BREW, 0.6F, 1.1F);
+  public void on(AdaptBrewCompleteEvent e) {
+    if (!getBrewingRecipes().contains(e.getRecipe())) {
+      return;
     }
+    getServer().addStat(e.getBrewerId(), "brewing.saturation.potions-brewed", e.getBrewedPotions());
+    Location loc = e.getBlock().getLocation().add(0.5D, 0.6D, 0.5D);
+    fx(loc, FxPriority.TRANSITION)
+        .dustBurst(Color.ORANGE, 8, 0.3D, 1.2F)
+        .particle(Particle.CAMPFIRE_COSY_SMOKE, 3, 0, 0.3D, 0, 0.2D, 0.02D)
+        .chord(Sound.ENTITY_GENERIC_EAT, 0.3F, 1.2F, Sound.BLOCK_BREWING_STAND_BREW, 0.6F, 1.1F);
   }
 
-  @Override
-  public void onTick() {
-  }
 
 
   @ConfigDescription("Brew a Potion of Saturation from Regen Potion and Baked Potato.")

@@ -25,12 +25,12 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
@@ -48,28 +48,51 @@ import org.bukkit.entity.TextDisplay;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Transformation;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.LongSupplier;
 
 public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> {
   private static final String BAR_SEGMENT = "❚";
+  private static final int HARD_MAX_HUD_CLEANUPS_PER_TICK = 4;
+  private static final long HUD_UPDATE_INTERVAL_MILLIS = 250L;
+  private static final long HUD_CLEANUP_INTERVAL_MILLIS = 1000L;
 
   private final Map<UUID, InsightHud> huds = new ConcurrentHashMap<>();
   private final Cooldowns xpCooldowns = cooldowns();
+  private final Cooldowns hudUpdateThrottle = cooldowns();
+  private final InsightRequestGate requestGate = new InsightRequestGate();
+  private final InsightWorkBudget workBudget = new InsightWorkBudget(50L, System::currentTimeMillis);
+  private final ConcurrentLinkedQueue<MovedViewer> movedViewers = new ConcurrentLinkedQueue<>();
+  private final Set<UUID> queuedMovedViewers = ConcurrentHashMap.newKeySet();
+  private final Set<UUID> pendingViewerUpdates = ConcurrentHashMap.newKeySet();
+  private final AtomicBoolean lifecycleCleanupStarted = new AtomicBoolean();
+  private Iterator<UUID> hudCleanupCursor = Collections.emptyIterator();
+  private int playerCursor;
+  private long nextHudCleanupAt;
 
   public DiscoveryInsight() {
     super("discovery-insight");
     registerConfiguration(Config.class);
     setIcon(Material.SPYGLASS);
-    setInterval(250);
+    setInterval(50);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.SPYGLASS)
         .key("challenge_discovery_insight_100")
@@ -98,89 +121,215 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
     }
 
     Player attacker;
-    boolean crit;
+    boolean projectileCritical;
+    boolean melee;
     if (e.getDamager() instanceof Player pl) {
       attacker = pl;
-      crit = pl.getFallDistance() > 0 && !pl.isOnGround();
+      projectileCritical = false;
+      melee = true;
     } else if (e.getDamager() instanceof Projectile pr && pr.getShooter() instanceof Player pl) {
       attacker = pl;
-      crit = pr instanceof AbstractArrow arrow && arrow.isCritical();
+      projectileCritical = pr instanceof AbstractArrow arrow && arrow.isCritical();
+      melee = false;
     } else {
       return;
     }
 
-    if (attacker == victim || !hasActiveAdaptation(attacker)) {
-      return;
-    }
-
     double damage = e.getFinalDamage();
-    if (damage <= 0) {
+    int damageLimit = InsightWorkLimits.damageNumbers(getConfig().maxDamageNumbersPerTick);
+    if (attacker == victim || damage <= 0D || getLevel(attacker) <= 0
+        || !workBudget.tryAcquireDamageNumber(damageLimit)) {
       return;
     }
 
-    spawnDamageNumber(attacker, victim, damage, crit);
+    ThreadLocalRandom random = ThreadLocalRandom.current();
+    Location location = victim.getLocation().add(
+        random.nextDouble(-0.35D, 0.35D),
+        (victim.getHeight() * 0.8D) + 0.3D,
+        random.nextDouble(-0.35D, 0.35D));
+    DamageTargetSnapshot target = new DamageTargetSnapshot(location, damage);
+    J.runEntity(attacker, () -> prepareDamageNumberOwned(attacker, target, melee, projectileCritical));
   }
 
-  @EventHandler
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(PlayerMoveEvent e) {
+    Location to = e.getTo();
+    if (to == null || !viewChanged(e.getFrom(), to)) {
+      return;
+    }
+
+    Player player = e.getPlayer();
+    UUID playerId = player.getUniqueId();
+    if (huds.containsKey(playerId) && queuedMovedViewers.add(playerId)) {
+      movedViewers.offer(new MovedViewer(playerId, player));
+    }
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
   public void on(PlayerQuitEvent e) {
-    clearHud(e.getPlayer().getUniqueId());
+    UUID playerId = e.getPlayer().getUniqueId();
+    requestGate.advance(playerId);
+    queuedMovedViewers.remove(playerId);
+    pendingViewerUpdates.remove(playerId);
+    clearHud(playerId);
+  }
+
+  @Override
+  public void unregister() {
+    if (lifecycleCleanupStarted.compareAndSet(false, true)) {
+      requestGate.clear();
+      movedViewers.clear();
+      queuedMovedViewers.clear();
+      pendingViewerUpdates.clear();
+      cleanupHudsOnUnregister(huds.keySet().iterator());
+    }
+    super.unregister();
   }
 
   @Override
   public void onTick() {
-    for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
-      Player p = adaptPlayer.getPlayer();
-      if (p == null || !p.isOnline()) {
-        continue;
-      }
+    if (lifecycleCleanupStarted.get()) {
+      return;
+    }
+    long now = System.currentTimeMillis();
+    updatePlayerBatch(now);
+    cleanupHudBatch(now);
+  }
 
-      if (getActiveLevel(p) <= 0 && !huds.containsKey(p.getUniqueId())) {
-        continue;
-      }
-
-      J.runEntity(p, () -> updateHud(p));
+  private void updatePlayerBatch(long now) {
+    List<AdaptPlayer> candidates = learnedCandidates(now);
+    int limit = InsightWorkLimits.viewerUpdates(getConfig().maxPlayersPerPass);
+    int priorityAttempts = drainMovedViewers(InsightWorkLimits.priorityViewerUpdates(limit));
+    int size = candidates.size();
+    if (size == 0) {
+      playerCursor = 0;
+      return;
     }
 
-    for (UUID id : huds.keySet()) {
-      Player owner = Bukkit.getPlayer(id);
-      if (owner == null || !owner.isOnline()) {
+    int regularLimit = Math.min(size, Math.max(0, limit - priorityAttempts));
+    int start = Math.floorMod(playerCursor, size);
+    for (int i = 0; i < regularLimit; i++) {
+      AdaptPlayer adaptPlayer = candidates.get((start + i) % size);
+      Player player = adaptPlayer.getPlayer();
+      if (player != null) {
+        queueHudUpdate(player);
+      }
+    }
+    playerCursor = (start + regularLimit) % size;
+  }
+
+  private int drainMovedViewers(int limit) {
+    int processed = 0;
+    while (processed < limit) {
+      MovedViewer moved = movedViewers.poll();
+      if (moved == null) {
+        break;
+      }
+      queuedMovedViewers.remove(moved.playerId());
+      queueHudUpdate(moved.player());
+      processed++;
+    }
+    return processed;
+  }
+
+  private void queueHudUpdate(Player player) {
+    UUID playerId = player.getUniqueId();
+    if (!hudUpdateThrottle.isReady(playerId, HUD_UPDATE_INTERVAL_MILLIS)
+        || !pendingViewerUpdates.add(playerId)) {
+      return;
+    }
+
+    hudUpdateThrottle.mark(playerId);
+    if (!J.runEntity(player, () -> {
+      try {
+        if (player.isOnline()) {
+          updateHudOwned(player);
+        } else {
+          requestGate.advance(playerId);
+          clearHud(playerId);
+        }
+      } finally {
+        pendingViewerUpdates.remove(playerId);
+      }
+    })) {
+      pendingViewerUpdates.remove(playerId);
+    }
+  }
+
+  private void cleanupHudBatch(long now) {
+    if (!hudCleanupCursor.hasNext()) {
+      if (now < nextHudCleanupAt) {
+        return;
+      }
+      hudCleanupCursor = huds.keySet().iterator();
+      nextHudCleanupAt = now + HUD_CLEANUP_INTERVAL_MILLIS;
+    }
+
+    int limit = HARD_MAX_HUD_CLEANUPS_PER_TICK;
+    int processed = 0;
+    while (processed < limit && hudCleanupCursor.hasNext()) {
+      UUID id = hudCleanupCursor.next();
+      processed++;
+      InsightHud hud = huds.get(id);
+      if (hud == null) {
+        continue;
+      }
+      Player owner = hud.owner;
+      if (!J.runEntity(owner, () -> {
+        if (!owner.isOnline() || getActiveLevel(owner) <= 0) {
+          requestGate.advance(id);
+          clearHud(id);
+        }
+      })) {
+        requestGate.advance(id);
         clearHud(id);
       }
     }
   }
 
-  private void updateHud(Player p) {
-    UUID id = p.getUniqueId();
-    int level = getActiveLevel(p);
-    if (level <= 0) {
-      clearHud(id);
-      return;
+  private void cleanupHudsOnUnregister(Iterator<UUID> cursor) {
+    int limit = InsightWorkLimits.viewerUpdates(getConfig().maxPlayersPerPass);
+    int processed = 0;
+    while (processed < limit && cursor.hasNext()) {
+      clearHud(cursor.next());
+      processed++;
     }
 
-    LivingEntity target = findLookTarget(p, getRange(level));
-    if (target == null) {
-      clearHud(id);
-      return;
-    }
-
-    InsightHud hud = huds.get(id);
-    if (hud != null && hud.entityId == target.getEntityId()) {
-      refreshHud(p, hud, target);
-      return;
-    }
-
-    clearHud(id);
-    spawnHud(p, target);
-    if (xpCooldowns.isReady(id, getConfig().xpCooldownMs)) {
-      xpCooldowns.mark(id);
-      xp(p, getConfig().xpPerInspection);
-      addStat(p, "discovery.insight.entities-inspected", 1);
+    if (cursor.hasNext()) {
+      J.s(() -> cleanupHudsOnUnregister(cursor), 1);
     }
   }
 
-  private LivingEntity findLookTarget(Player p, double range) {
+  private void updateHudOwned(Player p) {
+    UUID id = p.getUniqueId();
+    long token = requestGate.advance(id);
+    int level = getActiveLevel(p);
+    if (level <= 0) {
+      clearHudIfCurrent(id, token);
+      return;
+    }
+
     Location eye = p.getEyeLocation();
-    RayTraceResult hit = p.getWorld().rayTrace(eye, eye.getDirection(), range, FluidCollisionMode.NEVER, true, 0.3, en -> isValidTarget(p, en));
+    ViewerPoint viewer = new ViewerPoint(eye.getWorld().getUID(), eye.getX(), eye.getY(), eye.getZ());
+    LivingEntity target = findLookTargetCandidate(p, eye, getRange(level));
+    if (target == null) {
+      clearHudIfCurrent(id, token);
+      return;
+    }
+
+    if (target instanceof Player other && !p.canSee(other)) {
+      clearHudIfCurrent(id, token);
+      return;
+    }
+
+    if (!J.runEntity(target, () -> inspectTargetOwned(id, p, target, viewer, token))) {
+      clearHudIfCurrent(id, token);
+    }
+  }
+
+  private LivingEntity findLookTargetCandidate(Player p, Location eye, double range) {
+    RayTraceResult hit = p.getWorld().rayTrace(eye, eye.getDirection(), range, FluidCollisionMode.NEVER, true, 0.3,
+        entity -> entity instanceof LivingEntity && entity != p && !(entity instanceof ArmorStand));
     if (hit == null || !(hit.getHitEntity() instanceof LivingEntity target)) {
       return null;
     }
@@ -188,90 +337,130 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
     return target;
   }
 
-  private boolean isValidTarget(Player p, Entity entity) {
-    if (!(entity instanceof LivingEntity target) || target == p || target instanceof ArmorStand) {
-      return false;
+  private void inspectTargetOwned(UUID ownerId, Player owner, LivingEntity target, ViewerPoint viewer, long token) {
+    if (lifecycleCleanupStarted.get() || !requestGate.isCurrent(ownerId, token)) {
+      return;
     }
-
     if (!target.isValid() || target.isDead() || target.isInvisible()) {
-      return false;
-    }
-
-    return !(target instanceof Player other) || p.canSee(other);
-  }
-
-  private void spawnHud(Player p, LivingEntity target) {
-    InsightHud hud = new InsightHud(target.getEntityId());
-    huds.put(p.getUniqueId(), hud);
-    Runnable spawnTask = () -> {
-      if (!target.isValid() || huds.get(p.getUniqueId()) != hud) {
-        huds.remove(p.getUniqueId(), hud);
-        return;
-      }
-
-      Location loc = hudLocation(target);
-      float scale = displayScale(p, loc);
-      TextDisplay display = target.getWorld().spawn(loc, TextDisplay.class, d -> {
-        applyDisplayDefaults(d);
-        d.setTeleportDuration(3);
-        d.setLineWidth(220);
-        d.setText(buildHudText(target));
-        d.setTransformation(scaleTransformation(scale, 0f));
-      });
-      hud.display = display;
-      if (huds.get(p.getUniqueId()) != hud) {
-        removeDisplayEntity(display);
-        return;
-      }
-
-      showToOwner(p, display);
-    };
-
-    if (J.isFoliaThreading()) {
-      J.runEntity(target, spawnTask);
+      clearHudIfCurrent(ownerId, token);
       return;
     }
 
-    spawnTask.run();
+    Location location = hudLocation(target);
+    HudVitals vitals = readVitals(target);
+    float scale = displayScale(viewer, location);
+    UUID targetId = target.getUniqueId();
+    InsightHud current = huds.get(ownerId);
+    if (current != null && current.targetId.equals(targetId) && current.display != null) {
+      refreshDisplay(current, new HudRenderState(location, scale, vitals), token);
+      return;
+    }
+
+    spawnHudOwned(ownerId, owner, target, targetId, location, scale, vitals, token);
   }
 
-  private void refreshHud(Player p, InsightHud hud, LivingEntity target) {
+  private void spawnHudOwned(UUID ownerId, Player owner, LivingEntity target, UUID targetId, Location location,
+                             float scale, HudVitals vitals, long token) {
+    if (!requestGate.isCurrent(ownerId, token)) {
+      return;
+    }
+
+    InsightHud hud = new InsightHud(ownerId, owner, targetId);
+    InsightHud replaced = huds.put(ownerId, hud);
+    if (replaced != null) {
+      removeDisplayEntity(replaced.display);
+    }
+
+    TextDisplay display = target.getWorld().spawn(location, TextDisplay.class, candidate -> {
+      applyDisplayDefaults(candidate);
+      candidate.setTeleportDuration(3);
+      candidate.setLineWidth(220);
+      candidate.setText(buildHudText(vitals));
+      candidate.setTransformation(scaleTransformation(scale, 0f));
+    });
+    hud.display = display;
+    hud.applyRenderState(new HudRenderState(location, scale, vitals));
+    if (!requestGate.isCurrent(ownerId, token) || huds.get(ownerId) != hud) {
+      huds.remove(ownerId, hud);
+      removeDisplayEntity(display);
+      return;
+    }
+
+    if (!J.runEntity(owner, () -> acceptSpawnedHudOwned(owner, hud, display, token))) {
+      huds.remove(ownerId, hud);
+      removeDisplayEntity(display);
+    }
+  }
+
+  private void acceptSpawnedHudOwned(Player owner, InsightHud hud, TextDisplay display, long token) {
+    UUID ownerId = owner.getUniqueId();
+    if (!owner.isOnline() || getActiveLevel(owner) <= 0 || !requestGate.isCurrent(ownerId, token)
+        || huds.get(ownerId) != hud) {
+      huds.remove(ownerId, hud);
+      removeDisplayEntity(display);
+      return;
+    }
+
+    owner.showEntity(Adapt.instance, display);
+    if (xpCooldowns.isReady(ownerId, getConfig().xpCooldownMs)) {
+      xpCooldowns.mark(ownerId);
+      xp(owner, getConfig().xpPerInspection);
+      addStat(owner, "discovery.insight.entities-inspected", 1);
+    }
+  }
+
+  private void refreshDisplay(InsightHud hud, HudRenderState state, long token) {
     TextDisplay display = hud.display;
-    if (display == null) {
+    if (display == null || hud.matches(state)) {
       return;
     }
 
-    if (!display.isValid()) {
-      clearHud(p.getUniqueId());
-      return;
-    }
-
-    Location loc = hudLocation(target);
-    float scale = displayScale(p, loc);
-    Runnable task = () -> {
-      if (!display.isValid() || !target.isValid()) {
-        return;
-      }
-
-      display.setText(buildHudText(target));
-      display.setTransformation(scaleTransformation(scale, 0f));
-      J.teleport(display, loc);
-    };
-
-    if (J.isFoliaThreading()) {
-      J.runEntity(display, task);
-      return;
-    }
-
-    task.run();
+    J.runEntity(display, () -> refreshDisplayOwned(hud, display, state, token));
   }
 
-  private void spawnDamageNumber(Player attacker, LivingEntity victim, double damage, boolean crit) {
-    ThreadLocalRandom random = ThreadLocalRandom.current();
-    Location loc = victim.getLocation().add(random.nextDouble(-0.35, 0.35), (victim.getHeight() * 0.8) + 0.3, random.nextDouble(-0.35, 0.35));
-    float scale = displayScale(attacker, loc) * (crit ? 1.25f : 1f);
-    String text = (crit ? C.GOLD : C.WHITE) + formatDamage(damage);
-    TextDisplay display = victim.getWorld().spawn(loc, TextDisplay.class, d -> {
+  private void refreshDisplayOwned(InsightHud hud, TextDisplay display, HudRenderState state, long token) {
+    UUID ownerId = hud.ownerId;
+    if (!display.isValid()) {
+      huds.remove(ownerId, hud);
+      return;
+    }
+    if (huds.get(ownerId) != hud || !requestGate.isCurrent(ownerId, token)) {
+      return;
+    }
+
+    boolean positionChanged = !hud.hasPosition(state.location());
+    boolean scaleChanged = Float.compare(hud.scale, state.scale()) != 0;
+    boolean vitalsChanged = !hud.hasVitals(state.vitals());
+    if (vitalsChanged) {
+      display.setText(buildHudText(state.vitals()));
+    }
+    if (scaleChanged) {
+      display.setTransformation(scaleTransformation(state.scale(), 0f));
+    }
+    if (positionChanged) {
+      J.teleport(display, state.location());
+    }
+    hud.applyRenderState(state);
+  }
+
+  private void prepareDamageNumberOwned(Player attacker, DamageTargetSnapshot target,
+                                        boolean melee, boolean projectileCritical) {
+    if (!attacker.isOnline() || !hasActiveAdaptation(attacker)) {
+      return;
+    }
+
+    boolean critical = projectileCritical || (melee && attacker.getFallDistance() > 0F && !attacker.isOnGround());
+    Location eye = attacker.getEyeLocation();
+    ViewerPoint viewer = new ViewerPoint(eye.getWorld().getUID(), eye.getX(), eye.getY(), eye.getZ());
+    J.runAt(target.location(), () -> spawnDamageNumberOwned(attacker, viewer, target, critical));
+  }
+
+  private void spawnDamageNumberOwned(Player attacker, ViewerPoint viewer,
+                                      DamageTargetSnapshot target, boolean critical) {
+    Location location = target.location();
+    float scale = displayScale(viewer, location) * (critical ? 1.25F : 1F);
+    String text = (critical ? C.GOLD : C.WHITE) + formatDamage(target.damage());
+    TextDisplay display = location.getWorld().spawn(location, TextDisplay.class, d -> {
       applyDisplayDefaults(d);
       d.setBackgroundColor(Color.fromARGB(0, 0, 0, 0));
       d.setText(text);
@@ -297,6 +486,13 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
     }, life + 2);
   }
 
+  private boolean viewChanged(Location from, Location to) {
+    return Float.compare(from.getYaw(), to.getYaw()) != 0
+        || Float.compare(from.getPitch(), to.getPitch()) != 0
+        || from.getWorld() != to.getWorld()
+        || from.distanceSquared(to) > 0.01D;
+  }
+
   private void applyDisplayDefaults(TextDisplay d) {
     d.setPersistent(false);
     d.setInvulnerable(true);
@@ -310,9 +506,16 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
     d.setShadowStrength(0f);
   }
 
-  private String buildHudText(LivingEntity target) {
+  private HudVitals readVitals(LivingEntity target) {
     double max = maxHealth(target);
-    double hp = Math.max(0, Math.min(target.getHealth(), max));
+    double health = Math.max(0D, Math.min(target.getHealth(), max));
+    String name = target.getCustomName() == null ? target.getName() : target.getCustomName();
+    return new HudVitals(name, health, max);
+  }
+
+  private String buildHudText(HudVitals vitals) {
+    double max = vitals.maxHealth();
+    double hp = vitals.health();
     double fraction = max <= 0 ? 0 : hp / max;
     int segments = Math.max(4, getConfig().healthBarSegments);
     int filled = (int) Math.ceil(fraction * segments);
@@ -322,8 +525,7 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
     filled = Math.min(segments, filled);
 
     C barColor = fraction > 0.5 ? C.GREEN : (fraction > 0.25 ? C.YELLOW : C.RED);
-    String name = target.getCustomName() == null ? target.getName() : target.getCustomName();
-    return C.WHITE + name + "\n"
+    return C.WHITE + vitals.name() + "\n"
         + barColor + BAR_SEGMENT.repeat(filled)
         + C.DARK_GRAY + BAR_SEGMENT.repeat(segments - filled)
         + C.GRAY + " " + Form.f(hp, 1) + C.DARK_GRAY + "/" + C.GRAY + Form.f(max, 0);
@@ -342,8 +544,16 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
     return target.getLocation().add(0, target.getHeight() + 0.5, 0);
   }
 
-  private float displayScale(Player viewer, Location loc) {
-    double distance = viewer.getWorld().equals(loc.getWorld()) ? viewer.getEyeLocation().distance(loc) : getConfig().hudMaxScale / getConfig().hudScalePerBlock;
+  private float displayScale(ViewerPoint viewer, Location loc) {
+    double distance;
+    if (!viewer.worldId().equals(loc.getWorld().getUID())) {
+      distance = getConfig().hudMaxScale / getConfig().hudScalePerBlock;
+    } else {
+      double dx = viewer.x() - loc.getX();
+      double dy = viewer.y() - loc.getY();
+      double dz = viewer.z() - loc.getZ();
+      distance = Math.sqrt((dx * dx) + (dy * dy) + (dz * dz));
+    }
     return (float) Math.min(getConfig().hudMaxScale, Math.max(getConfig().hudMinScale, distance * getConfig().hudScalePerBlock));
   }
 
@@ -361,49 +571,101 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
       return;
     }
 
-    TextDisplay display = hud.display;
-    if (display != null) {
-      removeDisplayEntity(display);
+    removeDisplayEntity(hud.display);
+  }
+
+  private void clearHudIfCurrent(UUID id, long token) {
+    if (requestGate.isCurrent(id, token)) {
+      clearHud(id);
     }
   }
 
   private void removeDisplayEntity(Entity entity) {
-    if (J.isFoliaThreading()) {
-      J.runEntity(entity, () -> {
-        if (entity.isValid()) {
-          entity.remove();
-        }
-      });
+    if (entity == null) {
       return;
     }
 
-    if (entity.isValid()) {
-      entity.remove();
-    }
+    J.runEntity(entity, () -> {
+      if (entity.isValid()) {
+        entity.remove();
+      }
+    });
   }
 
   private void showToOwner(Player owner, Entity entity) {
-    if (J.isFoliaThreading()) {
-      J.runEntity(owner, () -> {
-        if (entity.isValid() && owner.isOnline()) {
-          owner.showEntity(Adapt.instance, entity);
-        }
-      });
-      return;
-    }
-
-    if (owner.isOnline()) {
-      owner.showEntity(Adapt.instance, entity);
-    }
+    J.runEntity(owner, () -> {
+      if (owner.isOnline()) {
+        owner.showEntity(Adapt.instance, entity);
+      }
+    });
   }
 
   private static final class InsightHud {
-    private final int entityId;
+    private final UUID ownerId;
+    private final Player owner;
+    private final UUID targetId;
     private volatile TextDisplay display;
+    private volatile UUID worldId;
+    private volatile double x = Double.NaN;
+    private volatile double y = Double.NaN;
+    private volatile double z = Double.NaN;
+    private volatile float scale = Float.NaN;
+    private volatile String name;
+    private volatile double health = Double.NaN;
+    private volatile double maxHealth = Double.NaN;
 
-    private InsightHud(int entityId) {
-      this.entityId = entityId;
+    private InsightHud(UUID ownerId, Player owner, UUID targetId) {
+      this.ownerId = ownerId;
+      this.owner = owner;
+      this.targetId = targetId;
     }
+
+    private boolean hasPosition(Location location) {
+      return Objects.equals(worldId, location.getWorld().getUID())
+          && Double.compare(x, location.getX()) == 0
+          && Double.compare(y, location.getY()) == 0
+          && Double.compare(z, location.getZ()) == 0;
+    }
+
+    private boolean hasVitals(HudVitals vitals) {
+      return Objects.equals(name, vitals.name())
+          && Double.compare(health, vitals.health()) == 0
+          && Double.compare(maxHealth, vitals.maxHealth()) == 0;
+    }
+
+    private boolean matches(HudRenderState state) {
+      return hasPosition(state.location())
+          && Float.compare(scale, state.scale()) == 0
+          && hasVitals(state.vitals());
+    }
+
+    private void applyRenderState(HudRenderState state) {
+      Location location = state.location();
+      HudVitals vitals = state.vitals();
+      worldId = location.getWorld().getUID();
+      x = location.getX();
+      y = location.getY();
+      z = location.getZ();
+      this.scale = state.scale();
+      name = vitals.name();
+      health = vitals.health();
+      maxHealth = vitals.maxHealth();
+    }
+  }
+
+  private record HudVitals(String name, double health, double maxHealth) {
+  }
+
+  private record HudRenderState(Location location, float scale, HudVitals vitals) {
+  }
+
+  private record ViewerPoint(UUID worldId, double x, double y, double z) {
+  }
+
+  private record DamageTargetSnapshot(Location location, double damage) {
+  }
+
+  private record MovedViewer(UUID playerId, Player player) {
   }
 
   @ConfigDescription("Study creatures at a glance with a floating name, health bar, and personal damage numbers.")
@@ -426,10 +688,14 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
     double damageNumberRise = 0.7;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Lifetime of damage numbers in ticks.", impact = "Higher values keep numbers on screen longer.")
     int damageNumberLifeTicks = 16;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum damage numbers spawned per scheduler tick, capped internally at 16.", impact = "Lower values reduce cosmetic display work during dense combat without changing damage.")
+    int maxDamageNumbersPerTick = 16;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Inspection for the Discovery Insight adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpPerInspection = 3;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Cooldown between inspection XP grants in milliseconds.", impact = "Higher values slow inspection XP gain.")
     long xpCooldownMs = 10000;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum viewers examined per scheduler tick, capped internally at 32.", impact = "Higher values refresh Insight faster on large servers but increase player and target owned work.")
+    int maxPlayersPerPass = 32;
 
     public Config() {
       baseCost = 2;
@@ -437,5 +703,80 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
       maxLevel = 5;
       initialCost = 2;
     }
+  }
+}
+
+final class InsightRequestGate {
+  private final AtomicLong sequence = new AtomicLong();
+  private final Map<UUID, Long> current = new ConcurrentHashMap<>();
+
+  long advance(UUID playerId) {
+    long token = sequence.incrementAndGet();
+    current.put(playerId, token);
+    return token;
+  }
+
+  boolean isCurrent(UUID playerId, long token) {
+    Long currentToken = current.get(playerId);
+    return currentToken != null && currentToken == token;
+  }
+
+  void clear() {
+    sequence.incrementAndGet();
+    current.clear();
+  }
+}
+
+final class InsightWorkBudget {
+  private final long windowMillis;
+  private final LongSupplier clock;
+  private long window = Long.MIN_VALUE;
+  private int damageNumbers;
+
+  InsightWorkBudget(long windowMillis, LongSupplier clock) {
+    this.windowMillis = Math.max(1L, windowMillis);
+    this.clock = Objects.requireNonNull(clock);
+  }
+
+  synchronized boolean tryAcquireDamageNumber(int limit) {
+    rotateWindow();
+    if (damageNumbers >= Math.max(0, limit)) {
+      return false;
+    }
+    damageNumbers++;
+    return true;
+  }
+
+  synchronized int damageNumbers() {
+    return damageNumbers;
+  }
+
+  private void rotateWindow() {
+    long currentWindow = Math.floorDiv(clock.getAsLong(), windowMillis);
+    if (currentWindow != window) {
+      window = currentWindow;
+      damageNumbers = 0;
+    }
+  }
+}
+
+final class InsightWorkLimits {
+  private static final int MAX_VIEWER_UPDATES_PER_TICK = 32;
+  private static final int MAX_PRIORITY_VIEWER_UPDATES_PER_TICK = 8;
+  private static final int MAX_DAMAGE_NUMBERS_PER_TICK = 16;
+
+  private InsightWorkLimits() {
+  }
+
+  static int viewerUpdates(int configured) {
+    return Math.min(MAX_VIEWER_UPDATES_PER_TICK, Math.max(1, configured));
+  }
+
+  static int priorityViewerUpdates(int totalLimit) {
+    return Math.min(MAX_PRIORITY_VIEWER_UPDATES_PER_TICK, Math.max(0, totalLimit));
+  }
+
+  static int damageNumbers(int configured) {
+    return Math.min(MAX_DAMAGE_NUMBERS_PER_TICK, Math.max(1, configured));
   }
 }

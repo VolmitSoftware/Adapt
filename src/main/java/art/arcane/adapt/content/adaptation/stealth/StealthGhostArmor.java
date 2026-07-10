@@ -42,16 +42,24 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config> {
   private static final UUID MODIFIER = UUID.nameUUIDFromBytes("adapt-ghost-armor".getBytes());
   private static final NamespacedKey MODIFIER_KEY = NamespacedKey.fromString("adapt:ghost-armor");
+  private static final long ELIGIBILITY_RECHECK_MILLIS = 5_000L;
 
-  private final Map<UUID, Double> armorAmount = playerState();
-  private final Map<UUID, Boolean> charged = playerState();
+  private final Map<UUID, ArmorSession> sessions = new ConcurrentHashMap<>();
+  private final Map<UUID, Long> eligibilityChecks = new ConcurrentHashMap<>();
 
   public StealthGhostArmor() {
     super("stealth-ghost-armor");
@@ -88,85 +96,211 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
     return M.lerp(getConfig().minArmorPerTick, getConfig().maxArmorPerTick, factor);
   }
 
-  @Override
-  public void onTick() {
-    for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
-      Player p = adaptPlayer.getPlayer();
-      UUID id = p.getUniqueId();
-      IAttribute attribute = Version.get().getAttribute(p, Attributes.GENERIC_ARMOR);
-      if (attribute == null) {
-        continue;
-      }
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(PlayerJoinEvent e) {
+    Player player = e.getPlayer();
+    J.runEntity(player, () -> startSessionIfEligible(player), 1);
+  }
 
-      if (!hasActiveAdaptation(p)) {
-        attribute.removeModifier(MODIFIER, MODIFIER_KEY);
-        armorAmount.remove(id);
-        charged.remove(id);
-        continue;
-      }
-      double oldArmor = 0;
-      for (IAttribute.Modifier modifier : attribute.getModifier(MODIFIER, MODIFIER_KEY)) {
-        double amount = modifier.getAmount();
-        if (!Double.isNaN(amount) && amount > oldArmor) {
-          oldArmor = amount;
-        }
-      }
-      double armor = getMaxArmorPoints(getLevelPercent(p));
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(PlayerRespawnEvent e) {
+    Player player = e.getPlayer();
+    J.runEntity(player, () -> startSessionIfEligible(player), 1);
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(PlayerMoveEvent e) {
+    if (e.getTo() == null
+        || (e.getFrom().getBlockX() == e.getTo().getBlockX()
+        && e.getFrom().getBlockY() == e.getTo().getBlockY()
+        && e.getFrom().getBlockZ() == e.getTo().getBlockZ())) {
+      return;
+    }
+
+    Player player = e.getPlayer();
+    UUID playerId = player.getUniqueId();
+    if (sessions.containsKey(playerId)) {
+      return;
+    }
+
+    long now = System.currentTimeMillis();
+    if (now < eligibilityChecks.getOrDefault(playerId, 0L)) {
+      return;
+    }
+
+    eligibilityChecks.put(playerId, now + ELIGIBILITY_RECHECK_MILLIS);
+    startSessionIfEligible(player);
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(PlayerQuitEvent e) {
+    stopSession(e.getPlayer());
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(PlayerDeathEvent e) {
+    stopSession(e.getEntity());
+  }
+
+  @Override
+  public void unregister() {
+    super.unregister();
+    for (ArmorSession session : sessions.values()) {
+      session.refreshScheduled.set(false);
+      Player owner = session.owner;
+      J.runEntity(owner, () -> removeModifier(owner));
+    }
+    sessions.clear();
+    eligibilityChecks.clear();
+  }
+
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void on(EntityDamageEvent e) {
+    if (!(e.getEntity() instanceof Player p) || e.getDamage() <= 0 || !hasActiveAdaptation(p)) {
+      return;
+    }
+
+    ArmorSession session = sessions.computeIfAbsent(p.getUniqueId(), key -> new ArmorSession(p));
+    startScheduledRefresh(session, 1);
+    int damageXP = (int) Math.min(10, 2.5 * e.getDamage());
+    xp(p, damageXP);
+    addStat(p, "stealth.ghost-armor.armor-consumed", 1);
+    double stored = session.armorAmount;
+    if (stored > 0.1D) {
+      session.armorAmount = 0.0D;
+      session.charged = false;
+      double radius = Math.min(1.6D, 0.8D + (stored * 0.05D));
+      fx(p.getLocation().add(0, 1.0D, 0), FxPriority.COMBAT)
+          .ring(Particle.CRIT, radius, 12, 0)
+          .burst(Particle.CRIT, 4, 0.25D)
+          .dustBurst(4, 0.4D, 1.0F)
+          .chord(Sound.ITEM_SHIELD_BREAK, 0.7F, 1.2F, Sound.BLOCK_GLASS_BREAK, 0.5F, 0.8F, Sound.BLOCK_ANVIL_LAND, 0.2F, 1.8F);
+    }
+    J.runEntity(p, () -> removeModifier(p), 1);
+  }
+
+  private void startSessionIfEligible(Player player) {
+    if (!player.isOnline() || !hasActiveAdaptation(player)) {
+      return;
+    }
+
+    ArmorSession session = sessions.computeIfAbsent(player.getUniqueId(), key -> new ArmorSession(player));
+    if (session.refreshScheduled.compareAndSet(false, true)) {
+      refreshArmor(session);
+    }
+  }
+
+  private void refreshArmor(ArmorSession session) {
+    Player player = session.owner;
+    UUID playerId = player.getUniqueId();
+    if (sessions.get(playerId) != session || !player.isOnline() || !hasActiveAdaptation(player)) {
+      stopSession(player);
+      return;
+    }
+
+    IAttribute attribute = Version.get().getAttribute(player, Attributes.GENERIC_ARMOR);
+    if (attribute != null) {
+      double oldArmor = readArmor(attribute);
+      double levelPercent = getLevelPercent(player);
+      double armor = getMaxArmorPoints(levelPercent);
       armor = Double.isNaN(armor) ? 0 : armor;
 
       double newAmount = oldArmor;
       if (oldArmor < armor) {
-        newAmount = Math.min(armor, oldArmor + getMaxArmorPerTick(getLevelPercent(p)));
+        newAmount = Math.min(armor, oldArmor + getMaxArmorPerTick(levelPercent));
         attribute.setModifier(MODIFIER, MODIFIER_KEY, newAmount, AttributeModifier.Operation.ADD_NUMBER);
       } else if (oldArmor > armor) {
         newAmount = armor;
         attribute.setModifier(MODIFIER, MODIFIER_KEY, armor, AttributeModifier.Operation.ADD_NUMBER);
       }
-      armorAmount.put(id, newAmount);
+      session.armorAmount = newAmount;
+      updateChargeFeedback(player, session, armor, newAmount);
+    }
 
-      boolean nowCharged = armor > 0 && newAmount >= armor - 1.0E-4D;
-      boolean wasCharged = Boolean.TRUE.equals(charged.get(id));
-      if (nowCharged && !wasCharged) {
-        charged.put(id, Boolean.TRUE);
-        timeline(p).duration(6).priority(FxPriority.TRANSITION).cullRadius(24)
-            .frame((emit, tick, progress) -> {
-              emit.ring(Particles.END_ROD, 0.6D, 8, 1.4D + (progress * 0.3D));
-              if (tick == 0) {
-                emit.sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.35F, 1.8F);
-              }
-            }).start();
-      } else if (!nowCharged) {
-        if (wasCharged) {
-          charged.put(id, Boolean.FALSE);
-        }
-        fx(p.getLocation().add(0, 1.0D, 0), FxPriority.AMBIENT).particle(Particle.WAX_ON, 1, 0, 0.3D, 0, 0.1D, 0.01D);
+    scheduleNextRefresh(session, refreshDelayTicks());
+  }
+
+  private double readArmor(IAttribute attribute) {
+    double armor = 0;
+    for (IAttribute.Modifier modifier : attribute.getModifier(MODIFIER, MODIFIER_KEY)) {
+      double amount = modifier.getAmount();
+      if (!Double.isNaN(amount) && amount > armor) {
+        armor = amount;
       }
+    }
+    return armor;
+  }
+
+  private void updateChargeFeedback(Player player, ArmorSession session, double armor, double newAmount) {
+    boolean nowCharged = armor > 0 && newAmount >= armor - 1.0E-4D;
+    boolean wasCharged = session.charged;
+    session.charged = nowCharged;
+    if (nowCharged && !wasCharged) {
+      timeline(player).duration(6).priority(FxPriority.TRANSITION).cullRadius(24)
+          .frame((emit, tick, progress) -> {
+            emit.ring(Particles.END_ROD, 0.6D, 8, 1.4D + (progress * 0.3D));
+            if (tick == 0) {
+              emit.sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.35F, 1.8F);
+            }
+          }).start();
+      return;
+    }
+
+    if (!nowCharged) {
+      fx(player.getLocation().add(0, 1.0D, 0), FxPriority.AMBIENT)
+          .particle(Particle.WAX_ON, 1, 0, 0.3D, 0, 0.1D, 0.01D);
     }
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST)
-  public void on(EntityDamageEvent e) {
-    if (e.getEntity() instanceof Player p && hasActiveAdaptation(p) && e.getDamage() > 0) {
-      int damageXP = (int) Math.min(10, 2.5 * e.getDamage());
-      xp(p, damageXP);
-      addStat(p, "stealth.ghost-armor.armor-consumed", 1);
-      UUID id = p.getUniqueId();
-      double stored = armorAmount.getOrDefault(id, 0.0D);
-      if (stored > 0.1D) {
-        armorAmount.put(id, 0.0D);
-        charged.put(id, Boolean.FALSE);
-        double radius = Math.min(1.6D, 0.8D + (stored * 0.05D));
-        fx(p.getLocation().add(0, 1.0D, 0), FxPriority.COMBAT)
-            .ring(Particle.CRIT, radius, 12, 0)
-            .burst(Particle.CRIT, 4, 0.25D)
-            .dustBurst(4, 0.4D, 1.0F)
-            .chord(Sound.ITEM_SHIELD_BREAK, 0.7F, 1.2F, Sound.BLOCK_GLASS_BREAK, 0.5F, 0.8F, Sound.BLOCK_ANVIL_LAND, 0.2F, 1.8F);
-      }
-      J.runEntity(p, () -> {
-        IAttribute attribute = Version.get().getAttribute(p, Attributes.GENERIC_ARMOR);
-        if (attribute == null) return;
-        attribute.removeModifier(MODIFIER, MODIFIER_KEY);
-      });
+  private void startScheduledRefresh(ArmorSession session, int delayTicks) {
+    if (!session.refreshScheduled.compareAndSet(false, true)) {
+      return;
+    }
+
+    scheduleNextRefresh(session, delayTicks);
+  }
+
+  private void scheduleNextRefresh(ArmorSession session, int delayTicks) {
+    if (!session.refreshScheduled.get() || sessions.get(session.owner.getUniqueId()) != session) {
+      return;
+    }
+
+    if (!J.runEntity(session.owner, () -> refreshArmor(session), Math.max(1, delayTicks))) {
+      stopSession(session.owner);
+    }
+  }
+
+  private int refreshDelayTicks() {
+    return Math.max(1, (int) Math.ceil(Math.max(50L, getInterval()) / 50.0D));
+  }
+
+  private void stopSession(Player player) {
+    UUID playerId = player.getUniqueId();
+    ArmorSession session = sessions.remove(playerId);
+    eligibilityChecks.remove(playerId);
+    if (session != null) {
+      session.refreshScheduled.set(false);
+      session.armorAmount = 0.0D;
+      session.charged = false;
+    }
+    removeModifier(player);
+  }
+
+  private void removeModifier(Player player) {
+    IAttribute attribute = Version.get().getAttribute(player, Attributes.GENERIC_ARMOR);
+    if (attribute != null) {
+      attribute.removeModifier(MODIFIER, MODIFIER_KEY);
+    }
+  }
+
+  private static class ArmorSession {
+    private final Player owner;
+    private final AtomicBoolean refreshScheduled = new AtomicBoolean();
+    private double armorAmount;
+    private boolean charged;
+
+    private ArmorSession(Player owner) {
+      this.owner = owner;
     }
   }
 

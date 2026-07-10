@@ -106,9 +106,6 @@ public class HerbalismCraftableMushroomBlocks extends SimpleAdaptation<Herbalism
     }
   }
 
-  @Override
-  public void onTick() {
-  }
 
   @ConfigDescription("Craft Mushroom Blocks from Mushrooms in a Crafting Table.")
   protected static class Config extends AdaptationConfig {

@@ -20,6 +20,7 @@ package art.arcane.adapt.content.adaptation.stealth;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -28,18 +29,22 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import fr.skytasul.glowingentities.GlowingEntities;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.entity.*;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Mob;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -51,15 +56,58 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.LongSupplier;
 
 public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config> {
-  private final Map<UUID, Boolean> dimmed = new ConcurrentHashMap<>();
-  private final Map<UUID, List<Long>> recentBackstabs = playerState();
-  private final Map<UUID, Map<UUID, ThreatLevel>> threatGlows = playerState();
-  private final Set<UUID> activeSneakers = java.util.concurrent.ConcurrentHashMap.newKeySet();
-  private final Cooldowns moveScanCooldown = cooldowns();
+  static final int HARD_MAX_ACTIVE_SESSIONS = 2_048;
+  static final int HARD_MAX_OWNER_REFRESH_DISPATCHES_PER_TICK = 128;
+  static final int HARD_MAX_SCAN_DISPATCHES_PER_TICK = 16;
+  static final int HARD_MAX_SCAN_COMPLETIONS_PER_TICK = 16;
+  static final int HARD_MAX_SCAN_AUDITS_PER_TICK = 64;
+  static final int HARD_MAX_ACTIVE_SCANS = 128;
+  static final int HARD_MAX_CANDIDATES_PER_SCAN = 32;
+  static final int HARD_MAX_CANDIDATE_HANDOFFS_PER_WINDOW = 512;
+  static final int HARD_MAX_GLOW_OPERATIONS_PER_WINDOW = 128;
+  static final int HARD_MAX_GLOW_HANDOFFS_PER_TICK = 128;
+  static final int HARD_MAX_PENDING_GLOW_OPERATIONS = 131_072;
+  static final double HARD_MAX_STEALTH_RADIUS = 16D;
+  static final double HARD_MAX_DETECTION_RADIUS = 24D;
+  static final long WORK_WINDOW_NANOS = 50_000_000L;
+  private static final int HARD_MIN_DIM_DURATION_TICKS = 160;
+  private static final long MIN_THREAT_SCAN_INTERVAL_MILLIS = 200L;
+  private static final long MAX_THREAT_SCAN_INTERVAL_MILLIS = 5_000L;
+  private static final int HARD_MAX_SCAN_COMPLETION_DELAY_TICKS = 4;
+  private final Map<UUID, DimState> dimmed = new ConcurrentHashMap<>();
+  private final Map<UUID, List<Long>> recentBackstabs = new ConcurrentHashMap<>();
+  private final Map<UUID, Map<UUID, ThreatGlow>> threatGlows = new ConcurrentHashMap<>();
+  private final SilentStepSessionCoordinator<SneakSession> coordinator =
+      new SilentStepSessionCoordinator<>(HARD_MAX_ACTIVE_SESSIONS);
+  private final SilentStepCapacityGate scanCapacity = new SilentStepCapacityGate(HARD_MAX_ACTIVE_SCANS);
+  private final SilentStepWindowBudget workBudget = new SilentStepWindowBudget(
+      HARD_MAX_SCAN_DISPATCHES_PER_TICK,
+      HARD_MAX_CANDIDATE_HANDOFFS_PER_WINDOW,
+      HARD_MAX_GLOW_OPERATIONS_PER_WINDOW,
+      WORK_WINDOW_NANOS
+  );
+  private final ConcurrentLinkedQueue<ThreatScan> scanAuditQueue = new ConcurrentLinkedQueue<>();
+  private final ConcurrentLinkedQueue<ThreatScan> completedScans = new ConcurrentLinkedQueue<>();
+  private final SilentStepCoalescingQueue<GlowOperation> glowQueue =
+      new SilentStepCoalescingQueue<>(HARD_MAX_PENDING_GLOW_OPERATIONS);
   private final Cooldowns redThreatCooldown = cooldowns();
   private volatile EnumSet<EntityType> blacklistCache;
   private volatile List<String> blacklistSource;
@@ -95,26 +143,20 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
   public void on(PlayerQuitEvent e) {
     Player player = e.getPlayer();
     UUID id = player.getUniqueId();
-    clearDimming(player);
-    clearThreatGlows(player);
+    stopSession(player, true);
     recentBackstabs.remove(id);
-    activeSneakers.remove(id);
-    moveScanCooldown.clear(id);
+    redThreatCooldown.clear(id);
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(PlayerToggleSneakEvent e) {
     Player p = e.getPlayer();
-    UUID id = p.getUniqueId();
-    if (e.isSneaking()) {
-      activeSneakers.add(id);
+    if (e.isSneaking() && getActiveLevel(p) > 0) {
+      startSession(p);
       return;
     }
 
-    activeSneakers.remove(id);
-    moveScanCooldown.clear(id);
-    clearDimming(p);
-    clearThreatGlows(p);
+    stopSession(p);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -123,7 +165,7 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
       return;
     }
 
-    if (getActiveLevel(p, Player::isSneaking) <= 0) {
+    if (!coordinator.contains(p.getUniqueId())) {
       return;
     }
 
@@ -143,45 +185,26 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
       return;
     }
 
-    if (e.getFrom().getWorld() == e.getTo().getWorld()
-        && e.getFrom().distanceSquared(e.getTo()) < Math.max(0D, getConfig().minimumMoveSquared)) {
+    Player p = e.getPlayer();
+    SneakSession currentSession = coordinator.get(p.getUniqueId());
+    if (currentSession != null) {
+      p.setFallDistance(Math.min(p.getFallDistance(), getMaxSilentFallDistance()));
+    }
+    if (currentSession != null) {
       return;
     }
-    Player p = e.getPlayer();
-    UUID id = p.getUniqueId();
     int level = getActiveLevel(p, Player::isSneaking);
     if (level <= 0) {
-      activeSneakers.remove(id);
-      moveScanCooldown.clear(id);
+      stopSession(p);
       return;
     }
 
-    activeSneakers.add(id);
-    if (!moveScanCooldown.isReady(id, Math.max(20L, getConfig().targetDropScanIntervalMillis))) {
-      return;
-    }
-    moveScanCooldown.mark(id);
-
-    double radius = getStealthRadius(level);
-    for (Entity entity : p.getWorld().getNearbyEntities(p.getLocation(), radius, radius, radius)) {
-      if (!(entity instanceof Mob mob)) {
-        continue;
-      }
-
-      if (isTargetBlacklistType(mob.getType())) {
-        continue;
-      }
-
-      if (mob.getTarget() == p) {
-        mob.setTarget(null);
-        xp(p, getConfig().xpPerTargetDrop);
-      }
-    }
+    startSession(p);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
   public void on(EntityDamageByEntityEvent e) {
-    art.arcane.adapt.api.adaptation.Adaptation.MeleeContext combat = resolveMeleeContext(e);
+    Adaptation.MeleeContext combat = resolveMeleeContext(e);
     if (combat == null) {
       return;
     }
@@ -212,9 +235,10 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
 
     long now = System.currentTimeMillis();
     UUID uid = attacker.getUniqueId();
-    recentBackstabs.computeIfAbsent(uid, k -> new ArrayList<>()).add(now);
-    recentBackstabs.get(uid).removeIf(t -> now - t > 10000);
-    if (recentBackstabs.get(uid).size() >= 5
+    List<Long> backstabs = recentBackstabs.computeIfAbsent(uid, k -> new ArrayList<>());
+    backstabs.add(now);
+    backstabs.removeIf(timestamp -> now - timestamp > 10000);
+    if (backstabs.size() >= 5
         && AdaptConfig.get().isAdvancements()
         && !getPlayer(attacker).getData().isGranted("challenge_stealth_silent_5in10")) {
       getPlayer(attacker).getAdvancementHandler().grant("challenge_stealth_silent_5in10");
@@ -234,184 +258,608 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
 
   @Override
   public void onTick() {
-    Set<UUID> tracked = new HashSet<>(activeSneakers);
-    for (UUID id : tracked) {
-      Player p = Bukkit.getPlayer(id);
-      if (p == null || !p.isOnline()) {
-        activeSneakers.remove(id);
-        moveScanCooldown.clear(id);
+    long now = System.currentTimeMillis();
+    auditScans(now);
+    dispatchGlowOperations();
+    dispatchScanCompletions();
+    dispatchOwnerRefreshes(now);
+    dispatchScans(now);
+  }
+
+  @Override
+  public void unregister() {
+    List<SneakSession> sessions = coordinator.clear();
+    for (SneakSession session : sessions) {
+      session.active.set(false);
+      retireScan(session.pendingScan);
+      redThreatCooldown.clear(session.playerId);
+      Player owner = session.owner;
+      DimState dimState = dimmed.remove(session.playerId);
+      Map<UUID, ThreatGlow> activeGlows = threatGlows.remove(session.playerId);
+      J.runEntity(owner, () -> {
+        clearDimmingOwned(owner, dimState);
+        clearThreatGlowsImmediate(owner, activeGlows);
+      });
+    }
+    scanAuditQueue.clear();
+    completedScans.clear();
+    scanCapacity.reset();
+    glowQueue.clear();
+    dimmed.clear();
+    threatGlows.clear();
+    recentBackstabs.clear();
+    super.unregister();
+  }
+
+  private void startSession(Player player) {
+    UUID playerId = player.getUniqueId();
+    if (coordinator.get(playerId) != null) {
+      return;
+    }
+    SneakSession session = new SneakSession(player, playerId);
+    if (coordinator.admit(playerId, session)) {
+      coordinator.enqueueScan(playerId, session);
+    }
+  }
+
+  private void dispatchOwnerRefreshes(long now) {
+    for (SneakSession session : coordinator.takeRefreshes(HARD_MAX_OWNER_REFRESH_DISPATCHES_PER_TICK)) {
+      if (now >= session.nextThreatScanAt) {
+        coordinator.enqueueScan(session.playerId, session);
+      }
+      if (!session.refreshPending.compareAndSet(false, true)) {
         continue;
       }
+      if (!J.runEntity(session.owner, () -> refreshSessionOwned(session))) {
+        session.refreshPending.set(false);
+        removeUnavailableSession(session);
+      }
+    }
+  }
 
-      int level = getActiveLevel(p, Player::isSneaking);
-      if (level <= 0) {
-        clearDimming(p);
-        clearThreatGlows(p);
-        activeSneakers.remove(id);
-        moveScanCooldown.clear(id);
+  private void refreshSessionOwned(SneakSession session) {
+    try {
+      if (!isSessionValidOwned(session)) {
+        stopSession(session, false);
+        return;
+      }
+      Player player = session.owner;
+      player.setFallDistance(Math.min(player.getFallDistance(), getMaxSilentFallDistance()));
+    } finally {
+      session.refreshPending.set(false);
+    }
+  }
+
+  private void dispatchScans(long now) {
+    for (SneakSession session : coordinator.takeScans(HARD_MAX_SCAN_DISPATCHES_PER_TICK)) {
+      if (!session.scanPending.compareAndSet(false, true)) {
         continue;
       }
+      if (!J.runEntity(session.owner, () -> startScanOwned(session, now))) {
+        session.scanPending.set(false);
+        removeUnavailableSession(session);
+      }
+    }
+  }
 
-      p.setFallDistance(Math.min(p.getFallDistance(), getConfig().maxSilentFallDistance));
-      ThreatSnapshot threatSnapshot = collectThreatSnapshot(p, level);
-      if (threatSnapshot.canDetect.isEmpty()) {
-        applyDimming(p, level);
+  private void startScanOwned(SneakSession session, long requestedAt) {
+    boolean started = false;
+    boolean capacityAcquired = false;
+    boolean restoreActivationCleanup = false;
+    try {
+      if (!isSessionValidOwned(session)) {
+        stopSession(session, false);
+        return;
+      }
+      long now = Math.max(requestedAt, System.currentTimeMillis());
+      boolean targetDrop = session.activationCleanupPending.get();
+      boolean threatScan = now >= session.nextThreatScanAt;
+      if (!targetDrop && !threatScan) {
+        return;
+      }
+      if (!workBudget.tryScanStart(System.nanoTime()) || !scanCapacity.tryAcquire()) {
+        coordinator.enqueueScan(session.playerId, session);
+        return;
+      }
+      capacityAcquired = true;
+
+      targetDrop = session.activationCleanupPending.getAndSet(false);
+      restoreActivationCleanup = targetDrop;
+      threatScan = now >= session.nextThreatScanAt;
+      if (!targetDrop && !threatScan) {
+        scanCapacity.release();
+        capacityAcquired = false;
+        return;
+      }
+      Player player = session.owner;
+      int level = getActiveLevel(player, Player::isSneaking);
+      double mobRadius = getStealthRadius(level);
+      double playerRadius = getPlayerDetectionRadius(level);
+      double scanRadius = threatScan ? Math.max(mobRadius, playerRadius) : mobRadius;
+      int targetLimit = clampCandidateLimit(getConfig().maxTargetDropEntitiesPerScan);
+      int threatLimit = clampCandidateLimit(getConfig().maxThreatEntitiesPerScan);
+      int candidateLimit = targetDrop && threatScan ? Math.max(targetLimit, threatLimit)
+          : targetDrop ? targetLimit : threatLimit;
+      long deadline = now + (getThreatScanCompletionDelayTicks() * 50L);
+      ThreatScan scan = new ThreatScan(
+          session,
+          targetDrop,
+          threatScan,
+          player.getLocation().clone(),
+          player.getEyeLocation().clone(),
+          mobRadius,
+          playerRadius,
+          getDetectionLookDotThreshold(),
+          getAlmostLookDotMargin(),
+          getConfig().allMobsAffectStealthVisibility,
+          EnumSet.copyOf(resolveBlacklist()),
+          deadline
+      );
+      if (threatScan) {
+        session.nextThreatScanAt = now + getThreatScanIntervalMillis();
+      }
+      session.pendingScan = scan;
+      scanAuditQueue.add(scan);
+      started = true;
+      capacityAcquired = false;
+      restoreActivationCleanup = false;
+      collectCandidatesOwned(player, scan, scanRadius, candidateLimit);
+    } finally {
+      if (capacityAcquired) {
+        scanCapacity.release();
+      }
+      if (restoreActivationCleanup) {
+        session.activationCleanupPending.set(true);
+        coordinator.enqueueScan(session.playerId, session);
+      }
+      if (!started) {
+        session.scanPending.set(false);
+      }
+    }
+  }
+
+  private void collectCandidatesOwned(Player player, ThreatScan scan, double radius, int candidateLimit) {
+    int inspected = 0;
+    Iterable<? extends Entity> candidates = scan.threatScan
+        ? player.getWorld().getNearbyLivingEntities(
+            scan.center,
+            radius,
+            radius,
+            radius,
+            entity -> entity instanceof Mob || entity instanceof Player
+        )
+        : player.getWorld().getNearbyEntitiesByType(Mob.class, scan.center, radius, radius, radius);
+    for (Entity entity : candidates) {
+      if (entity == player || !isCandidateReference(entity, scan)) {
+        continue;
+      }
+      if (++inspected > candidateLimit || !workBudget.tryCandidateHandoff(System.nanoTime())) {
+        break;
+      }
+
+      scan.reserveCandidate();
+      boolean scheduled = J.runEntity(entity, () -> inspectCandidateOwned(entity, scan));
+      if (!scheduled) {
+        scan.completeCandidate(null, ThreatLevel.NONE, false);
+      }
+    }
+    scan.finishCollecting();
+    enqueueCompletedScan(scan, System.currentTimeMillis());
+  }
+
+  private boolean isCandidateReference(Entity entity, ThreatScan scan) {
+    if (entity instanceof Player) {
+      return scan.threatScan;
+    }
+    if (!(entity instanceof Mob)) {
+      return false;
+    }
+    return scan.targetDrop || scan.threatScan;
+  }
+
+  private void inspectCandidateOwned(Entity entity, ThreatScan scan) {
+    ThreatLevel threat = ThreatLevel.NONE;
+    boolean droppedTarget = false;
+    if (!scan.isFinished() && entity instanceof Mob mob) {
+      boolean blacklisted = scan.targetingBlacklist.contains(mob.getType());
+      if (scan.targetDrop && !blacklisted && mob.getTarget() == scan.session.owner) {
+        mob.setTarget(null);
+        droppedTarget = true;
+      }
+      if (scan.threatScan && (scan.allMobsAffectStealthVisibility || blacklisted)) {
+        threat = evaluateThreatOwned(mob, scan, scan.mobRadius);
+      }
+    } else if (!scan.isFinished() && scan.threatScan && entity instanceof Player observer) {
+      threat = evaluateThreatOwned(observer, scan, scan.playerRadius);
+    }
+    scan.completeCandidate(entity, threat, droppedTarget);
+    enqueueCompletedScan(scan, System.currentTimeMillis());
+  }
+
+  private ThreatLevel evaluateThreatOwned(LivingEntity observer, ThreatScan scan, double radius) {
+    if (!observer.isValid() || observer.isDead()) {
+      return ThreatLevel.NONE;
+    }
+    if (!isWithinBox(scan.center, observer.getLocation(), radius)) {
+      return ThreatLevel.NONE;
+    }
+    return getThreatLevel(observer, scan.targetEye, scan.detectThreshold, scan.almostLookDotMargin);
+  }
+
+  private void auditScans(long now) {
+    for (int index = 0; index < HARD_MAX_SCAN_AUDITS_PER_TICK; index++) {
+      ThreatScan scan = scanAuditQueue.poll();
+      if (scan == null) {
+        return;
+      }
+      if (scan.isFinished() || scan.isCompletionQueued()) {
+        continue;
+      }
+      enqueueCompletedScan(scan, now);
+      if (!scan.isCompletionQueued()) {
+        scanAuditQueue.add(scan);
+      }
+    }
+  }
+
+  private void enqueueCompletedScan(ThreatScan scan, long now) {
+    if (scan.tryQueueCompletion(now)) {
+      completedScans.add(scan);
+    }
+  }
+
+  private void dispatchScanCompletions() {
+    for (int index = 0; index < HARD_MAX_SCAN_COMPLETIONS_PER_TICK; index++) {
+      ThreatScan scan = completedScans.poll();
+      if (scan == null) {
+        return;
+      }
+      if (scan.isFinished()) {
+        continue;
+      }
+      if (!J.runEntity(scan.session.owner, () -> finishScanOwned(scan))) {
+        removeUnavailableSession(scan.session);
+      }
+    }
+  }
+
+  private void finishScanOwned(ThreatScan scan) {
+    if (!scan.finish()) {
+      return;
+    }
+    scanCapacity.release();
+    SneakSession session = scan.session;
+    if (session.pendingScan == scan) {
+      session.pendingScan = null;
+    }
+    session.scanPending.set(false);
+    if (!isSessionValidOwned(session)) {
+      stopSession(session, false);
+      return;
+    }
+
+    Player player = session.owner;
+    int targetDrops = scan.targetDrops();
+    if (targetDrops > 0) {
+      xp(player, getConfig().xpPerTargetDrop * targetDrops);
+    }
+    if (scan.threatScan) {
+      if (scan.snapshot.canDetect()) {
+        clearDimming(player);
       } else {
-        clearDimming(p);
+        applyDimming(player, getActiveLevel(player));
       }
-      updateThreatGlows(p, threatSnapshot);
+      updateThreatGlows(session, scan.snapshot);
+    }
+    if (session.activationCleanupPending.get() || System.currentTimeMillis() >= session.nextThreatScanAt) {
+      coordinator.enqueueScan(session.playerId, session);
     }
   }
 
-  private ThreatSnapshot collectThreatSnapshot(Player p, int level) {
-    ThreatSnapshot snapshot = new ThreatSnapshot();
-    double detectionLookDotThreshold = getDetectionLookDotThreshold();
-    double mobRadius = getStealthRadius(level);
-    for (Entity entity : p.getWorld().getNearbyEntities(p.getLocation(), mobRadius, mobRadius, mobRadius)) {
-      if (!(entity instanceof Mob mob)) {
-        continue;
-      }
-
-      if (!getConfig().allMobsAffectStealthVisibility && !isTargetBlacklistType(mob.getType())) {
-        continue;
-      }
-
-      snapshot.add(mob, getThreatLevel(mob, p, detectionLookDotThreshold));
+  private void retireScan(ThreatScan scan) {
+    if (scan == null || !scan.finish()) {
+      return;
     }
-
-    double playerRadius = getPlayerDetectionRadius(level);
-    for (Entity nearby : p.getWorld().getNearbyEntities(p.getLocation(), playerRadius, playerRadius, playerRadius)) {
-      if (!(nearby instanceof Player other)) {
-        continue;
-      }
-      if (other == p || other.isDead()) {
-        continue;
-      }
-
-      snapshot.add(other, getThreatLevel(other, p, detectionLookDotThreshold));
+    scanCapacity.release();
+    SneakSession session = scan.session;
+    if (session.pendingScan == scan) {
+      session.pendingScan = null;
     }
-
-    return snapshot;
+    session.scanPending.set(false);
   }
 
-  private void applyDimming(Player p, int level) {
-    p.addPotionEffect(new PotionEffect(PotionEffectType.DARKNESS, getDimDurationTicks(level), getConfig().dimAmplifier, false, false, false), true);
-    boolean wasDimmed = Boolean.TRUE.equals(dimmed.put(p.getUniqueId(), true));
-    if (!wasDimmed) {
-      fx(p.getLocation().add(0, 1.0D, 0), FxPriority.TRANSITION)
+  private void removeUnavailableSession(SneakSession session) {
+    if (!coordinator.remove(session.playerId, session)) {
+      return;
+    }
+    session.active.set(false);
+    session.discardGlowOperations.set(true);
+    retireScan(session.pendingScan);
+    dimmed.remove(session.playerId);
+    threatGlows.remove(session.playerId);
+    redThreatCooldown.clear(session.playerId);
+  }
+
+  private boolean isSessionValidOwned(SneakSession session) {
+    Player player = session.owner;
+    return session.active.get()
+        && coordinator.isCurrent(session.playerId, session)
+        && player.isOnline()
+        && !player.isDead()
+        && player.isSneaking()
+        && getActiveLevel(player, Player::isSneaking) > 0;
+  }
+
+  private void stopSession(Player player) {
+    stopSession(player, false);
+  }
+
+  private void stopSession(Player player, boolean discardGlows) {
+    UUID playerId = player.getUniqueId();
+    SneakSession session = coordinator.get(playerId);
+    if (session == null) {
+      redThreatCooldown.clear(playerId);
+      clearDimming(player);
+      clearThreatGlows(player, null, true);
+      return;
+    }
+    stopSession(session, discardGlows);
+  }
+
+  private void stopSession(SneakSession session, boolean discardGlows) {
+    if (!coordinator.remove(session.playerId, session)) {
+      session.active.set(false);
+      session.discardGlowOperations.set(true);
+      retireScan(session.pendingScan);
+      return;
+    }
+    session.active.set(false);
+    session.discardGlowOperations.set(discardGlows);
+    retireScan(session.pendingScan);
+    redThreatCooldown.clear(session.playerId);
+    clearDimming(session.owner);
+    clearThreatGlows(session.owner, session, discardGlows);
+  }
+
+  private boolean isWithinBox(Location center, Location other, double radius) {
+    return center.getWorld() == other.getWorld()
+        && Math.abs(center.getX() - other.getX()) <= radius
+        && Math.abs(center.getY() - other.getY()) <= radius
+        && Math.abs(center.getZ() - other.getZ()) <= radius;
+  }
+
+  private void applyDimming(Player player, int level) {
+    int duration = getDimDurationTicks(level);
+    int amplifier = getConfig().dimAmplifier;
+    player.addPotionEffect(new PotionEffect(PotionEffectType.DARKNESS, duration, amplifier, false, false, false), true);
+    DimState previous = dimmed.put(player.getUniqueId(), new DimState(amplifier, duration));
+    if (previous == null) {
+      fx(player.getLocation().add(0, 1.0D, 0), FxPriority.TRANSITION)
           .burst(Particles.SMOKE, 5, 0.25D)
           .sound(Sound.BLOCK_SCULK_SENSOR_CLICKING, 0.25F, 0.6F);
     }
   }
 
-  private void clearDimming(Player p) {
-    if (dimmed.remove(p.getUniqueId()) != null) {
-      p.removePotionEffect(PotionEffectType.DARKNESS);
+  private void clearDimming(Player player) {
+    DimState state = dimmed.remove(player.getUniqueId());
+    clearDimmingOwned(player, state);
+  }
+
+  private void clearDimmingOwned(Player player, DimState state) {
+    if (state == null) {
+      return;
+    }
+
+    PotionEffect current = player.getPotionEffect(PotionEffectType.DARKNESS);
+    if (current != null
+        && current.getAmplifier() == state.amplifier
+        && current.getDuration() <= state.duration) {
+      player.removePotionEffect(PotionEffectType.DARKNESS);
     }
   }
 
-  private void updateThreatGlows(Player p, ThreatSnapshot snapshot) {
+  private void updateThreatGlows(SneakSession session, ThreatSnapshot snapshot) {
+    Player player = session.owner;
     if (!getConfig().showThreatGlows) {
-      clearThreatGlows(p);
+      clearThreatGlows(player, session, false);
       return;
     }
 
     GlowingEntities glowingEntities = Adapt.instance.getGlowingEntities();
     if (glowingEntities == null) {
-      clearThreatGlows(p);
+      threatGlows.remove(session.playerId);
       return;
     }
 
-    UUID viewerId = p.getUniqueId();
-    Map<UUID, ThreatLevel> active = threatGlows.computeIfAbsent(viewerId, k -> new java.util.concurrent.ConcurrentHashMap<>());
-
-    List<UUID> stale = new ArrayList<>();
-    for (UUID entityId : active.keySet()) {
-      if (!snapshot.threats.containsKey(entityId)) {
-        stale.add(entityId);
+    UUID viewerId = session.playerId;
+    Map<UUID, ThreatGlow> active = threatGlows.computeIfAbsent(viewerId, key -> new ConcurrentHashMap<>());
+    for (Map.Entry<UUID, ThreatGlow> entry : active.entrySet()) {
+      if (snapshot.threats.containsKey(entry.getKey())) {
+        continue;
       }
-    }
 
-    for (UUID entityId : stale) {
-      Entity entity = Bukkit.getEntity(entityId);
-      if (entity != null) {
-        try {
-          glowingEntities.unsetGlowing(entity, p);
-        } catch (ReflectiveOperationException ignored) {
-          // Ignore reflective failures and continue clearing other entities.
-        }
+      ThreatGlow stale = entry.getValue();
+      GlowOperation operation = new GlowOperation(
+          session,
+          entry.getKey(),
+          stale.entity,
+          stale.runtimeEntityId,
+          player,
+          null,
+          true
+      );
+      if (queueGlowOperation(operation, true)) {
+        active.remove(entry.getKey(), stale);
       }
-      active.remove(entityId);
     }
 
     for (Map.Entry<UUID, ThreatLevel> entry : snapshot.threats.entrySet()) {
       UUID entityId = entry.getKey();
       ThreatLevel desired = entry.getValue();
-      ThreatLevel current = active.get(entityId);
-      if (desired == current) {
-        continue;
-      }
-
-      if (desired == ThreatLevel.CAN_DETECT && current != ThreatLevel.CAN_DETECT
-          && redThreatCooldown.isReady(p.getUniqueId(), 1000L)) {
-        redThreatCooldown.mark(p.getUniqueId());
-        fx(p.getLocation(), FxPriority.COMBAT).sound(Sound.BLOCK_NOTE_BLOCK_PLING, 0.3F, 0.5F);
-      }
-
       Entity entity = snapshot.entities.get(entityId);
-      if (entity == null) {
-        entity = Bukkit.getEntity(entityId);
-      }
-      if (entity == null || !entity.isValid()) {
+      Integer runtimeEntityId = snapshot.runtimeEntityIds.get(entityId);
+      if (entity == null || runtimeEntityId == null) {
         continue;
       }
 
-      try {
-        glowingEntities.setGlowing(entity, p, getThreatColor(desired));
-        active.put(entityId, desired);
-      } catch (ReflectiveOperationException ignored) {
-        // Ignore reflective failures and keep runtime behavior intact.
+      ThreatGlow current = active.get(entityId);
+      if (current != null && current.level == desired && current.runtimeEntityId == runtimeEntityId
+          && current.entity == entity) {
+        continue;
+      }
+
+      if (desired == ThreatLevel.CAN_DETECT
+          && (current == null || current.level != ThreatLevel.CAN_DETECT)
+          && redThreatCooldown.isReady(viewerId, 1000L)) {
+        redThreatCooldown.mark(viewerId);
+        fx(player.getLocation(), FxPriority.COMBAT).sound(Sound.BLOCK_NOTE_BLOCK_PLING, 0.3F, 0.5F);
+      }
+
+      if (current != null && current.entity != entity) {
+        GlowOperation unset = new GlowOperation(
+            session,
+            entityId,
+            current.entity,
+            current.runtimeEntityId,
+            player,
+            null,
+            true
+        );
+        if (!queueGlowOperation(unset, true)) {
+          continue;
+        }
+      }
+      GlowOperation set = new GlowOperation(
+          session,
+          entityId,
+          entity,
+          runtimeEntityId,
+          player,
+          desired,
+          false
+      );
+      if ((current != null || active.size() < HARD_MAX_CANDIDATES_PER_SCAN)
+          && queueGlowOperation(set, true)) {
+        active.put(entityId, new ThreatGlow(entity, runtimeEntityId, desired));
       }
     }
 
     if (active.isEmpty()) {
-      threatGlows.remove(viewerId);
+      threatGlows.remove(viewerId, active);
     }
   }
 
-  private void clearThreatGlows(Player p) {
-    Map<UUID, ThreatLevel> active = threatGlows.remove(p.getUniqueId());
+  private void clearThreatGlows(Player player, SneakSession session, boolean discard) {
+    UUID playerId = player.getUniqueId();
+    Map<UUID, ThreatGlow> active = threatGlows.remove(playerId);
     if (active == null || active.isEmpty()) {
       return;
     }
-
-    GlowingEntities glowingEntities = Adapt.instance.getGlowingEntities();
-    if (glowingEntities == null) {
+    if (discard || session == null || Adapt.instance.getGlowingEntities() == null) {
       return;
     }
 
-    for (UUID entityId : active.keySet()) {
-      Entity entity = Bukkit.getEntity(entityId);
-      if (entity == null) {
-        continue;
-      }
+    for (Map.Entry<UUID, ThreatGlow> entry : active.entrySet()) {
+      ThreatGlow glow = entry.getValue();
+      GlowOperation operation = new GlowOperation(
+          session,
+          entry.getKey(),
+          glow.entity,
+          glow.runtimeEntityId,
+          player,
+          null,
+          true
+      );
+      queueGlowOperation(operation, false);
+    }
+  }
 
-      try {
-        glowingEntities.unsetGlowing(entity, p);
-      } catch (ReflectiveOperationException ignored) {
-        // Ignore reflective failures and continue clearing other entities.
+  private boolean queueGlowOperation(GlowOperation operation, boolean budgeted) {
+    if (budgeted && !workBudget.tryGlowOperation(System.nanoTime())) {
+      return false;
+    }
+    SilentStepGlowKey key = new SilentStepGlowKey(operation.session.playerId, operation.runtimeEntityId);
+    return glowQueue.offer(key, operation);
+  }
+
+  private void clearThreatGlowsImmediate(Player player, Map<UUID, ThreatGlow> active) {
+    GlowingEntities glowingEntities = Adapt.instance.getGlowingEntities();
+    if (active == null || active.isEmpty() || glowingEntities == null) {
+      return;
+    }
+    synchronized (Adapt.glowingEntitiesLock()) {
+      for (ThreatGlow glow : active.values()) {
+        try {
+          glowingEntities.unsetGlowing(glow.runtimeEntityId, player);
+        } catch (ReflectiveOperationException | IllegalStateException ignored) {
+        }
       }
     }
   }
 
-  private ThreatLevel getThreatLevel(LivingEntity observer, LivingEntity target, double detectThreshold) {
-    double lookDot = getLookDot(observer, target);
-    double almostThreshold = Math.max(-1, detectThreshold - Math.max(0, getConfig().almostLookDotMargin));
+  private void dispatchGlowOperations() {
+    for (GlowOperation operation : glowQueue.take(HARD_MAX_GLOW_HANDOFFS_PER_TICK)) {
+      if (operation.session.discardGlowOperations.get()) {
+        continue;
+      }
+      if (!operation.cleanup
+          && !coordinator.isCurrent(operation.session.playerId, operation.session)) {
+        rollbackGlowSet(operation);
+        continue;
+      }
+      Entity schedulerOwner = operation.level == null ? operation.viewer : operation.entity;
+      if (!J.runEntity(schedulerOwner, () -> applyGlowOwned(operation)) && operation.level != null) {
+        rollbackGlowSet(operation);
+      }
+    }
+  }
+
+  private void rollbackGlowSet(GlowOperation operation) {
+    Map<UUID, ThreatGlow> active = threatGlows.get(operation.session.playerId);
+    if (active == null) {
+      return;
+    }
+    ThreatGlow current = active.get(operation.entityUuid);
+    if (current != null
+        && current.entity == operation.entity
+        && current.runtimeEntityId == operation.runtimeEntityId
+        && current.level == operation.level) {
+      active.remove(operation.entityUuid, current);
+    }
+  }
+
+  private void applyGlowOwned(GlowOperation operation) {
+    GlowingEntities glowingEntities = Adapt.instance.getGlowingEntities();
+    if (glowingEntities == null) {
+      if (operation.level != null) {
+        rollbackGlowSet(operation);
+      }
+      return;
+    }
+    synchronized (Adapt.glowingEntitiesLock()) {
+      try {
+        if (operation.level == null) {
+          glowingEntities.unsetGlowing(operation.runtimeEntityId, operation.viewer);
+        } else {
+          glowingEntities.setGlowing(operation.entity, operation.viewer, getThreatColor(operation.level));
+        }
+      } catch (ReflectiveOperationException | IllegalStateException ignored) {
+        if (operation.level != null) {
+          rollbackGlowSet(operation);
+        }
+      }
+    }
+  }
+
+  private ThreatLevel getThreatLevel(LivingEntity observer, Location targetEye, double detectThreshold,
+                                     double almostLookDotMargin) {
+    double lookDot = getLookDot(observer, targetEye);
+    double almostThreshold = Math.max(-1D, detectThreshold - almostLookDotMargin);
     if (lookDot < almostThreshold) {
       return ThreatLevel.NONE;
     }
 
-    if (!observer.hasLineOfSight(target)) {
+    if (!observer.hasLineOfSight(targetEye)) {
       return ThreatLevel.NONE;
     }
 
@@ -419,7 +867,42 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
   }
 
   private double getDetectionLookDotThreshold() {
-    return Math.max(-1, Math.min(1, getConfig().detectionLookDotThreshold));
+    return clampFinite(getConfig().detectionLookDotThreshold, -1D, 1D, 0.2D);
+  }
+
+  private double getAlmostLookDotMargin() {
+    return clampFinite(getConfig().almostLookDotMargin, 0D, 2D, 0.2D);
+  }
+
+  private long getThreatScanIntervalMillis() {
+    return clampInterval(
+        getConfig().threatScanIntervalMillis,
+        MIN_THREAT_SCAN_INTERVAL_MILLIS,
+        MAX_THREAT_SCAN_INTERVAL_MILLIS
+    );
+  }
+
+  private int getThreatScanCompletionDelayTicks() {
+    return Math.max(1, Math.min(HARD_MAX_SCAN_COMPLETION_DELAY_TICKS, getConfig().threatScanCompletionDelayTicks));
+  }
+
+  private float getMaxSilentFallDistance() {
+    return (float) clampFinite(getConfig().maxSilentFallDistance, 0D, 64D, 1.6D);
+  }
+
+  static int clampCandidateLimit(int configured) {
+    return Math.max(1, Math.min(HARD_MAX_CANDIDATES_PER_SCAN, configured));
+  }
+
+  static long clampInterval(long configured, long minimum, long maximum) {
+    return Math.max(minimum, Math.min(maximum, configured));
+  }
+
+  static double clampFinite(double configured, double minimum, double maximum, double fallback) {
+    if (!Double.isFinite(configured)) {
+      return fallback;
+    }
+    return Math.max(minimum, Math.min(maximum, configured));
   }
 
   private ChatColor getThreatColor(ThreatLevel level) {
@@ -435,8 +918,13 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
   }
 
   private double getLookDot(LivingEntity observer, LivingEntity target) {
-    Vector look = observer.getEyeLocation().getDirection().normalize();
-    Vector toTarget = target.getEyeLocation().toVector().subtract(observer.getEyeLocation().toVector());
+    return getLookDot(observer, target.getEyeLocation());
+  }
+
+  private double getLookDot(LivingEntity observer, Location targetEye) {
+    Location observerEye = observer.getEyeLocation();
+    Vector look = observerEye.getDirection().normalize();
+    Vector toTarget = targetEye.toVector().subtract(observerEye.toVector());
     if (toTarget.lengthSquared() <= 0.0001) {
       return 1;
     }
@@ -449,8 +937,11 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
     return type != null && resolveBlacklist().contains(type);
   }
 
-  private EnumSet<EntityType> resolveBlacklist() {
+  private synchronized EnumSet<EntityType> resolveBlacklist() {
     List<String> source = getConfig().targetingBlacklistTypes;
+    if (source == null) {
+      source = List.of();
+    }
     EnumSet<EntityType> cache = blacklistCache;
     if (cache != null && source == blacklistSource) {
       return cache;
@@ -474,15 +965,23 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
   }
 
   private double getStealthRadius(int level) {
-    return getConfig().radiusBase + (getLevelPercent(level) * getConfig().radiusFactor);
+    double configured = getConfig().radiusBase + (getLevelPercent(level) * getConfig().radiusFactor);
+    return clampFinite(configured, 1D, HARD_MAX_STEALTH_RADIUS, 1D);
   }
 
   private double getPlayerDetectionRadius(int level) {
-    return getConfig().playerDetectionRadiusBase + (getLevelPercent(level) * getConfig().playerDetectionRadiusFactor);
+    double configured = getConfig().playerDetectionRadiusBase
+        + (getLevelPercent(level) * getConfig().playerDetectionRadiusFactor);
+    return clampFinite(configured, 1D, HARD_MAX_DETECTION_RADIUS, 1D);
   }
 
   private int getDimDurationTicks(int level) {
-    return Math.max(10, (int) Math.round(getConfig().dimDurationTicksBase + (getLevelPercent(level) * getConfig().dimDurationTicksFactor)));
+    double configured = getConfig().dimDurationTicksBase
+        + (getLevelPercent(level) * getConfig().dimDurationTicksFactor);
+    if (!Double.isFinite(configured)) {
+      return HARD_MIN_DIM_DURATION_TICKS;
+    }
+    return Math.max(HARD_MIN_DIM_DURATION_TICKS, (int) Math.round(configured));
   }
 
   private double getMobBackstabMultiplier(int level) {
@@ -541,10 +1040,14 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
     boolean allMobsAffectStealthVisibility = true;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Entity types that are NOT ignored by stealth targeting suppression.", impact = "Mobs listed here can still detect/target sneaking players with Silent Step.")
     List<String> targetingBlacklistTypes = new ArrayList<>(List.of("WARDEN", "WITHER", "PHANTOM", "ENDER_DRAGON"));
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Minimum squared movement distance required before running target-drop scans.", impact = "Higher values skip tiny movement jitter and reduce move-event scan pressure.")
-    double minimumMoveSquared = 0.0025;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Milliseconds between mob target-drop scans while sneaking.", impact = "Lower values react faster but increase nearby-entity scan frequency.")
-    long targetDropScanIntervalMillis = 120;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Milliseconds between nearby threat-awareness scans while sneaking.", impact = "Lower values update threat glows faster but increase nearby-entity scan frequency.")
+    long threatScanIntervalMillis = 250;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum mobs inspected by each target-drop scan.", impact = "Caps per-player work in dense farms while keeping the closest scheduler-provided candidates responsive.")
+    int maxTargetDropEntitiesPerScan = 32;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum mobs and players inspected by each threat-awareness scan.", impact = "Caps cross-entity dispatch in dense hubs; higher values improve awareness coverage at greater scheduler cost.")
+    int maxThreatEntitiesPerScan = 32;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Ticks allowed for secondary entity threat checks to complete before applying partial results.", impact = "Small values keep the HUD responsive without waiting indefinitely for retired or migrating entities.")
+    int threatScanCompletionDelayTicks = 2;
 
     public Config() {
       baseCost = 3;
@@ -554,10 +1057,168 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
     }
   }
 
+  private static class DimState {
+    private final int amplifier;
+    private final int duration;
+
+    private DimState(int amplifier, int duration) {
+      this.amplifier = amplifier;
+      this.duration = duration;
+    }
+  }
+
+  private static class ThreatGlow {
+    private final Entity entity;
+    private final int runtimeEntityId;
+    private final ThreatLevel level;
+
+    private ThreatGlow(Entity entity, int runtimeEntityId, ThreatLevel level) {
+      this.entity = entity;
+      this.runtimeEntityId = runtimeEntityId;
+      this.level = level;
+    }
+  }
+
+  private static class GlowOperation {
+    private final SneakSession session;
+    private final UUID entityUuid;
+    private final Entity entity;
+    private final int runtimeEntityId;
+    private final Player viewer;
+    private final ThreatLevel level;
+    private final boolean cleanup;
+
+    private GlowOperation(SneakSession session, UUID entityUuid, Entity entity, int runtimeEntityId,
+                          Player viewer, ThreatLevel level, boolean cleanup) {
+      this.session = session;
+      this.entityUuid = entityUuid;
+      this.entity = entity;
+      this.runtimeEntityId = runtimeEntityId;
+      this.viewer = viewer;
+      this.level = level;
+      this.cleanup = cleanup;
+    }
+  }
+
+  private static class SneakSession {
+    private final Player owner;
+    private final UUID playerId;
+    private final AtomicBoolean active = new AtomicBoolean(true);
+    private final AtomicBoolean refreshPending = new AtomicBoolean();
+    private final AtomicBoolean scanPending = new AtomicBoolean();
+    private final AtomicBoolean activationCleanupPending = new AtomicBoolean(true);
+    private final AtomicBoolean discardGlowOperations = new AtomicBoolean();
+    private volatile long nextThreatScanAt;
+    private volatile ThreatScan pendingScan;
+
+    private SneakSession(Player owner, UUID playerId) {
+      this.owner = owner;
+      this.playerId = playerId;
+    }
+  }
+
+  private static class ThreatScan {
+    private final SneakSession session;
+    private final boolean targetDrop;
+    private final boolean threatScan;
+    private final Location center;
+    private final Location targetEye;
+    private final double mobRadius;
+    private final double playerRadius;
+    private final double detectThreshold;
+    private final double almostLookDotMargin;
+    private final boolean allMobsAffectStealthVisibility;
+    private final Set<EntityType> targetingBlacklist;
+    private final long deadline;
+    private final ThreatSnapshot snapshot = new ThreatSnapshot();
+    private boolean collecting = true;
+    private boolean completionQueued;
+    private boolean finished;
+    private int remaining;
+    private int targetDrops;
+
+    private ThreatScan(SneakSession session, boolean targetDrop, boolean threatScan, Location center,
+                       Location targetEye, double mobRadius, double playerRadius, double detectThreshold,
+                       double almostLookDotMargin, boolean allMobsAffectStealthVisibility,
+                       Set<EntityType> targetingBlacklist, long deadline) {
+      this.session = session;
+      this.targetDrop = targetDrop;
+      this.threatScan = threatScan;
+      this.center = center;
+      this.targetEye = targetEye;
+      this.mobRadius = mobRadius;
+      this.playerRadius = playerRadius;
+      this.detectThreshold = detectThreshold;
+      this.almostLookDotMargin = almostLookDotMargin;
+      this.allMobsAffectStealthVisibility = allMobsAffectStealthVisibility;
+      this.targetingBlacklist = targetingBlacklist;
+      this.deadline = deadline;
+    }
+
+    private synchronized void reserveCandidate() {
+      if (!finished) {
+        remaining++;
+      }
+    }
+
+    private synchronized void completeCandidate(Entity entity, ThreatLevel threat, boolean droppedTarget) {
+      if (finished) {
+        return;
+      }
+      if (entity != null) {
+        snapshot.add(entity, threat);
+      }
+      if (droppedTarget) {
+        targetDrops++;
+      }
+      remaining = Math.max(0, remaining - 1);
+    }
+
+    private synchronized void finishCollecting() {
+      collecting = false;
+    }
+
+    private synchronized boolean tryQueueCompletion(long now) {
+      if (finished || completionQueued) {
+        return false;
+      }
+      if ((collecting || remaining > 0) && now < deadline) {
+        return false;
+      }
+      completionQueued = true;
+      return true;
+    }
+
+    private synchronized boolean isCompletionQueued() {
+      return completionQueued;
+    }
+
+    private synchronized boolean isFinished() {
+      return finished;
+    }
+
+    private synchronized boolean finish() {
+      if (finished) {
+        return false;
+      }
+      finished = true;
+      return true;
+    }
+
+    private synchronized int targetDrops() {
+      return targetDrops;
+    }
+  }
+
   private static class ThreatSnapshot {
-    private final Map<UUID, ThreatLevel> threats = new java.util.concurrent.ConcurrentHashMap<>();
-    private final Map<UUID, Entity> entities = new java.util.concurrent.ConcurrentHashMap<>();
-    private final Map<UUID, ThreatLevel> canDetect = new java.util.concurrent.ConcurrentHashMap<>();
+    private final Map<UUID, ThreatLevel> threats = new HashMap<>();
+    private final Map<UUID, Entity> entities = new HashMap<>();
+    private final Map<UUID, Integer> runtimeEntityIds = new HashMap<>();
+    private boolean canDetect;
+
+    private boolean canDetect() {
+      return canDetect;
+    }
 
     private void add(Entity entity, ThreatLevel level) {
       if (entity == null || level == ThreatLevel.NONE) {
@@ -566,14 +1227,302 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
 
       UUID id = entity.getUniqueId();
       entities.put(id, entity);
+      runtimeEntityIds.put(id, entity.getEntityId());
       ThreatLevel existing = threats.get(id);
       if (existing == null || level.ordinal() > existing.ordinal()) {
         threats.put(id, level);
       }
 
       if (level == ThreatLevel.CAN_DETECT) {
-        canDetect.put(id, level);
+        canDetect = true;
       }
     }
+  }
+}
+
+final class SilentStepGlowKey {
+  private final UUID viewerId;
+  private final int runtimeEntityId;
+
+  SilentStepGlowKey(UUID viewerId, int runtimeEntityId) {
+    this.viewerId = viewerId;
+    this.runtimeEntityId = runtimeEntityId;
+  }
+
+  @Override
+  public boolean equals(Object other) {
+    if (this == other) {
+      return true;
+    }
+    if (!(other instanceof SilentStepGlowKey key)) {
+      return false;
+    }
+    return viewerId.equals(key.viewerId) && runtimeEntityId == key.runtimeEntityId;
+  }
+
+  @Override
+  public int hashCode() {
+    return (31 * viewerId.hashCode()) + runtimeEntityId;
+  }
+}
+
+final class SilentStepCoalescingQueue<T> {
+  private final int capacity;
+  private final Map<SilentStepGlowKey, T> pending = new HashMap<>();
+  private final ArrayDeque<SilentStepGlowKey> order = new ArrayDeque<>();
+
+  SilentStepCoalescingQueue(int capacity) {
+    this.capacity = Math.max(1, capacity);
+  }
+
+  synchronized boolean offer(SilentStepGlowKey key, T operation) {
+    if (pending.containsKey(key)) {
+      pending.put(key, operation);
+      return true;
+    }
+    if (pending.size() >= capacity) {
+      return false;
+    }
+    pending.put(key, operation);
+    order.addLast(key);
+    return true;
+  }
+
+  synchronized List<T> take(int limit) {
+    int safeLimit = Math.max(0, limit);
+    List<T> operations = new ArrayList<>(Math.min(safeLimit, order.size()));
+    while (operations.size() < safeLimit) {
+      SilentStepGlowKey key = order.pollFirst();
+      if (key == null) {
+        break;
+      }
+      T operation = pending.remove(key);
+      if (operation != null) {
+        operations.add(operation);
+      }
+    }
+    return operations;
+  }
+
+  synchronized void clear() {
+    pending.clear();
+    order.clear();
+  }
+
+  synchronized int size() {
+    return pending.size();
+  }
+}
+
+final class SilentStepSessionCoordinator<T> {
+  private final int capacity;
+  private final Map<UUID, SessionSlot<T>> sessions = new ConcurrentHashMap<>();
+  private final Map<UUID, SessionSlot<T>> refreshOrder = new LinkedHashMap<>();
+  private final Map<UUID, SessionSlot<T>> scanOrder = new LinkedHashMap<>();
+
+  SilentStepSessionCoordinator(int capacity) {
+    this.capacity = Math.max(1, capacity);
+  }
+
+  synchronized boolean admit(UUID playerId, T session) {
+    if (sessions.containsKey(playerId) || sessions.size() >= capacity) {
+      return false;
+    }
+    SessionSlot<T> slot = new SessionSlot<>(playerId, session);
+    sessions.put(playerId, slot);
+    refreshOrder.put(playerId, slot);
+    return true;
+  }
+
+  T get(UUID playerId) {
+    SessionSlot<T> slot = sessions.get(playerId);
+    return slot == null ? null : slot.session;
+  }
+
+  boolean contains(UUID playerId) {
+    return sessions.containsKey(playerId);
+  }
+
+  boolean isCurrent(UUID playerId, T session) {
+    SessionSlot<T> slot = sessions.get(playerId);
+    return slot != null && slot.session == session;
+  }
+
+  synchronized boolean enqueueScan(UUID playerId, T session) {
+    SessionSlot<T> slot = sessions.get(playerId);
+    if (slot == null || slot.session != session || scanOrder.containsKey(playerId)) {
+      return false;
+    }
+    scanOrder.put(playerId, slot);
+    return true;
+  }
+
+  synchronized List<T> takeRefreshes(int limit) {
+    int count = Math.min(Math.max(0, limit), refreshOrder.size());
+    List<T> selected = new ArrayList<>(count);
+    List<SessionSlot<T>> rotated = new ArrayList<>(count);
+    Iterator<Map.Entry<UUID, SessionSlot<T>>> iterator = refreshOrder.entrySet().iterator();
+    while (iterator.hasNext() && selected.size() < count) {
+      SessionSlot<T> slot = iterator.next().getValue();
+      iterator.remove();
+      selected.add(slot.session);
+      rotated.add(slot);
+    }
+    for (SessionSlot<T> slot : rotated) {
+      refreshOrder.put(slot.playerId, slot);
+    }
+    return selected;
+  }
+
+  synchronized List<T> takeScans(int limit) {
+    int safeLimit = Math.max(0, limit);
+    List<T> selected = new ArrayList<>(Math.min(safeLimit, scanOrder.size()));
+    Iterator<Map.Entry<UUID, SessionSlot<T>>> iterator = scanOrder.entrySet().iterator();
+    while (iterator.hasNext() && selected.size() < safeLimit) {
+      SessionSlot<T> slot = iterator.next().getValue();
+      iterator.remove();
+      selected.add(slot.session);
+    }
+    return selected;
+  }
+
+  synchronized T remove(UUID playerId) {
+    SessionSlot<T> removed = sessions.remove(playerId);
+    if (removed == null) {
+      return null;
+    }
+    refreshOrder.remove(playerId);
+    scanOrder.remove(playerId);
+    return removed.session;
+  }
+
+  synchronized boolean remove(UUID playerId, T session) {
+    SessionSlot<T> slot = sessions.get(playerId);
+    if (slot == null || slot.session != session) {
+      return false;
+    }
+    remove(playerId);
+    return true;
+  }
+
+  synchronized List<T> clear() {
+    List<T> removed = new ArrayList<>(sessions.size());
+    for (SessionSlot<T> slot : sessions.values()) {
+      removed.add(slot.session);
+    }
+    sessions.clear();
+    refreshOrder.clear();
+    scanOrder.clear();
+    return removed;
+  }
+
+  int activeCount() {
+    return sessions.size();
+  }
+
+  private static final class SessionSlot<T> {
+    private final UUID playerId;
+    private final T session;
+
+    private SessionSlot(UUID playerId, T session) {
+      this.playerId = playerId;
+      this.session = session;
+    }
+  }
+}
+
+final class SilentStepCapacityGate {
+  private final int capacity;
+  private final AtomicInteger active = new AtomicInteger();
+
+  SilentStepCapacityGate(int capacity) {
+    this.capacity = Math.max(1, capacity);
+  }
+
+  boolean tryAcquire() {
+    while (true) {
+      int current = active.get();
+      if (current >= capacity) {
+        return false;
+      }
+      if (active.compareAndSet(current, current + 1)) {
+        return true;
+      }
+    }
+  }
+
+  void release() {
+    active.updateAndGet(current -> Math.max(0, current - 1));
+  }
+
+  void reset() {
+    active.set(0);
+  }
+
+  int activeCount() {
+    return active.get();
+  }
+}
+
+final class SilentStepWindowBudget {
+  private final int maxScans;
+  private final int maxCandidateHandoffs;
+  private final int maxGlowOperations;
+  private final long windowNanos;
+  private final LongSupplier clock;
+  private long windowStart;
+  private int scans;
+  private int candidateHandoffs;
+  private int glowOperations;
+
+  SilentStepWindowBudget(int maxScans, int maxCandidateHandoffs, int maxGlowOperations, long windowNanos) {
+    this(maxScans, maxCandidateHandoffs, maxGlowOperations, windowNanos, System::nanoTime);
+  }
+
+  SilentStepWindowBudget(int maxScans, int maxCandidateHandoffs, int maxGlowOperations, long windowNanos,
+                         LongSupplier clock) {
+    this.maxScans = Math.max(1, maxScans);
+    this.maxCandidateHandoffs = Math.max(1, maxCandidateHandoffs);
+    this.maxGlowOperations = Math.max(1, maxGlowOperations);
+    this.windowNanos = Math.max(1L, windowNanos);
+    this.clock = clock;
+    windowStart = clock.getAsLong();
+  }
+
+  synchronized boolean tryScanStart(long now) {
+    resetWindow(now);
+    if (scans >= maxScans) {
+      return false;
+    }
+    scans++;
+    return true;
+  }
+
+  synchronized boolean tryGlowOperation(long now) {
+    resetWindow(now);
+    if (glowOperations >= maxGlowOperations) {
+      return false;
+    }
+    glowOperations++;
+    return true;
+  }
+
+  synchronized boolean tryCandidateHandoff(long now) {
+    resetWindow(now);
+    if (candidateHandoffs >= maxCandidateHandoffs) {
+      return false;
+    }
+    candidateHandoffs++;
+    return true;
+  }
+
+  private void resetWindow(long now) {
+    if (now >= windowStart && now - windowStart < windowNanos) {
+      return;
+    }
+    windowStart = now;
+    scans = 0;
+    candidateHandoffs = 0;
+    glowOperations = 0;
   }
 }

@@ -38,18 +38,23 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.util.Vector;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
   private final Map<UUID, Double> airjumps = playerState();
   private final Map<UUID, Vector> horizontalIntent = playerState();
   private final Map<UUID, Long> horizontalIntentTime = playerState();
   private final Map<UUID, Boolean> sneakState = playerState();
+  private final Set<UUID> gravityControlled = ConcurrentHashMap.newKeySet();
 
   public AgilityWallJump() {
     super("agility-wall-jump");
@@ -80,7 +85,18 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
   @EventHandler
   public void on(PlayerToggleSneakEvent e) {
     Player p = e.getPlayer();
-    withPlayerThread(p, e, () -> sneakState.put(p.getUniqueId(), e.isSneaking()));
+    sneakState.put(p.getUniqueId(), e.isSneaking());
+    updatePlayer(p);
+  }
+
+  @EventHandler
+  public void on(PlayerQuitEvent e) {
+    clearPlayerState(e.getPlayer());
+  }
+
+  @EventHandler
+  public void on(PlayerDeathEvent e) {
+    clearPlayerState(e.getEntity());
   }
 
   private int getMaxJumps(int level) {
@@ -95,39 +111,27 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
   public void on(PlayerMoveEvent e) {
     Player p = e.getPlayer();
     UUID id = p.getUniqueId();
-    sneakState.put(id, p.isSneaking());
-    if (resolveInteractContext(p, p.getLocation()) == null) {
+    if (!p.isSneaking() && !airjumps.containsKey(id) && !gravityControlled.contains(id)) {
       return;
     }
+    sneakState.put(id, p.isSneaking());
     if (airjumps.containsKey(id)) {
       if (p.isOnGround() && !p.getLocation().getBlock().getRelative(BlockFace.DOWN).getBlockData().getMaterial().isAir()) {
         airjumps.remove(id);
       }
     }
 
-    if (e.getTo() == null || e.getFrom().getWorld() == null || e.getTo().getWorld() == null || !e.getFrom().getWorld().equals(e.getTo().getWorld())) {
-      return;
-    }
-
-    Vector delta = e.getTo().toVector().subtract(e.getFrom().toVector());
-    delta.setY(0);
-    double movementThresholdSq = getConfig().inputMovementThreshold * getConfig().inputMovementThreshold;
-    if (delta.lengthSquared() >= movementThresholdSq) {
-      horizontalIntent.put(id, delta.normalize());
-      horizontalIntentTime.put(id, M.ms());
-    }
-  }
-
-  @Override
-  public void onTick() {
-    long now = System.currentTimeMillis();
-    for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : learnedCandidates(now)) {
-      Player p = adaptPlayer.getPlayer();
-      if (p == null || !p.isOnline()) {
-        continue;
+    if (e.getTo() != null && e.getFrom().getWorld() != null && e.getTo().getWorld() != null && e.getFrom().getWorld().equals(e.getTo().getWorld())) {
+      Vector delta = e.getTo().toVector().subtract(e.getFrom().toVector());
+      delta.setY(0);
+      double movementThresholdSq = getConfig().inputMovementThreshold * getConfig().inputMovementThreshold;
+      if (delta.lengthSquared() >= movementThresholdSq) {
+        horizontalIntent.put(id, delta.normalize());
+        horizontalIntentTime.put(id, M.ms());
       }
-      withPlayerThread(p, () -> updatePlayer(p));
     }
+
+    updatePlayer(p);
   }
 
   private void updatePlayer(Player p) {
@@ -136,16 +140,19 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
     }
 
     UUID id = p.getUniqueId();
+    if (!airjumps.containsKey(id) && !gravityControlled.contains(id) && !isSneaking(id, p)) {
+      return;
+    }
     int level = getActiveInteractLevel(p, p.getLocation());
     if (level <= 0) {
+      clearPlayerState(p);
       return;
     }
 
     Double j = airjumps.get(id);
 
     if (j != null && j - 0.25 >= getMaxJumps(level)) {
-      if (!p.hasGravity()) {
-        p.setGravity(true);
+      if (releaseGravity(p, id)) {
         fx(p.getLocation(), FxPriority.TRANSITION)
             .burst(Particles.SMOKE, 4, 0.15D)
             .sound(Sound.ITEM_ARMOR_EQUIP_LEATHER, 0.5F, 0.4F);
@@ -155,9 +162,7 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
 
     if (p.isOnGround()) {
       airjumps.remove(id);
-      if (!p.hasGravity()) {
-        p.setGravity(true);
-      }
+      releaseGravity(p, id);
       return;
     }
 
@@ -165,7 +170,7 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
     if (p.isFlying() || !isSneaking(id, p)) {
       boolean jumped = false;
 
-      if (!p.hasGravity() && p.getFallDistance() > 0.45 && stickBlock != null) {
+      if (gravityControlled.contains(id) && p.getFallDistance() > 0.45 && stickBlock != null) {
         j = j == null ? 0 : j;
         j++;
 
@@ -198,8 +203,7 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
         airjumps.put(id, j);
       }
 
-      if (!jumped && !p.hasGravity()) {
-        p.setGravity(true);
+      if (!jumped && releaseGravity(p, id)) {
         sfx(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 1F, 0.439F);
       }
       return;
@@ -219,7 +223,10 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
       }
 
       applyWallStickForce(p, stickBlock);
-      p.setGravity(false);
+      if (p.hasGravity()) {
+        gravityControlled.add(id);
+        p.setGravity(false);
+      }
       Vector c = p.getVelocity();
       p.setVelocity(p.getVelocity().setY((c.getY() * 0.35) - 0.0025));
       Double vv = airjumps.get(id);
@@ -232,8 +239,8 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
       }
     }
 
-    if (stickBlock == null && !p.hasGravity()) {
-      p.setGravity(true);
+    if (stickBlock == null) {
+      releaseGravity(p, id);
     }
   }
 
@@ -257,6 +264,23 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
   private boolean isSneaking(UUID id, Player p) {
     Boolean cached = sneakState.get(id);
     return cached != null ? cached : p.isSneaking();
+  }
+
+  private void clearPlayerState(Player p) {
+    UUID id = p.getUniqueId();
+    airjumps.remove(id);
+    horizontalIntent.remove(id);
+    horizontalIntentTime.remove(id);
+    sneakState.remove(id);
+    releaseGravity(p, id);
+  }
+
+  private boolean releaseGravity(Player p, UUID id) {
+    if (!gravityControlled.remove(id) || p.hasGravity()) {
+      return false;
+    }
+    p.setGravity(true);
+    return true;
   }
 
   private Block stickToWall(Player p) {

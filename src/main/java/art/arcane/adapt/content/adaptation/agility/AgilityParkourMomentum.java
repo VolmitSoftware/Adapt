@@ -44,12 +44,13 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 public class AgilityParkourMomentum extends SimpleAdaptation<AgilityParkourMomentum.Config> {
+  private static final BlockFace[] HORIZONTAL_FACES = {
+      BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST
+  };
   private final Map<UUID, Integer> momentum = playerState();
   private final Map<UUID, Boolean> wasOnGround = playerState();
   private final Map<UUID, Boolean> speedBoosting = playerState();
@@ -94,6 +95,9 @@ public class AgilityParkourMomentum extends SimpleAdaptation<AgilityParkourMomen
       if (level <= 0) {
         momentum.remove(id);
         wasOnGround.remove(id);
+        lastSpeedAmp.remove(id);
+        invalidateMomentumSpeed(p, id, true);
+        speedBoosting.remove(id);
         return;
       }
 
@@ -119,15 +123,20 @@ public class AgilityParkourMomentum extends SimpleAdaptation<AgilityParkourMomen
       }
 
       current = clampMomentum(current, getMaxMomentum(level));
-      momentum.put(id, current);
+      if (current > 0) {
+        momentum.put(id, current);
+      } else {
+        momentum.remove(id);
+        lastSpeedAmp.remove(id);
+        invalidateMomentumSpeed(p, id, false);
+      }
       wasOnGround.put(id, onGroundNow);
     });
   }
 
   @Override
   public void onTick() {
-    Set<UUID> tracked = trackedPlayerIds();
-    for (UUID id : tracked) {
+    for (UUID id : momentum.keySet()) {
       Player p = Bukkit.getPlayer(id);
       if (p == null || !p.isOnline()) {
         momentum.remove(id);
@@ -150,6 +159,7 @@ public class AgilityParkourMomentum extends SimpleAdaptation<AgilityParkourMomen
         int maxMomentum = getMaxMomentum(level);
         int current = momentum.getOrDefault(id, 0);
         if (current <= 0) {
+          momentum.remove(id);
           lastSpeedAmp.remove(id);
           invalidateMomentumSpeed(p, id, false);
           return;
@@ -157,7 +167,14 @@ public class AgilityParkourMomentum extends SimpleAdaptation<AgilityParkourMomen
 
         if (p.isOnGround() && !isOnLedge(p)) {
           current -= getConfig().offLedgeDecayPerTick;
-          momentum.put(id, clampMomentum(current, maxMomentum));
+          int remaining = clampMomentum(current, maxMomentum);
+          if (remaining > 0) {
+            momentum.put(id, remaining);
+          } else {
+            momentum.remove(id);
+            lastSpeedAmp.remove(id);
+            invalidateMomentumSpeed(p, id, false);
+          }
           brakeMomentumSpeed(p, id);
           return;
         }
@@ -166,7 +183,10 @@ public class AgilityParkourMomentum extends SimpleAdaptation<AgilityParkourMomen
         int speedAmp = Math.max(0, Math.min(maxSpeedAmp, (int) Math.floor((current / (double) maxMomentum) * (maxSpeedAmp + 1)) - 1));
         int jumpAmp = Math.max(0, Math.min(getMaxJumpAmplifier(level), (int) Math.floor((current / (double) maxMomentum) * (getMaxJumpAmplifier(level) + 1)) - 1));
 
-        p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, 25, jumpAmp, false, false));
+        PotionEffect jumpBoost = p.getPotionEffect(PotionEffectType.JUMP_BOOST);
+        if (jumpBoost == null || jumpBoost.getAmplifier() != jumpAmp || jumpBoost.getDuration() <= 10) {
+          p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, 30, jumpAmp, false, false));
+        }
 
         if (speedAmp <= 0) {
           brakeMomentumSpeed(p, id);
@@ -199,18 +219,16 @@ public class AgilityParkourMomentum extends SimpleAdaptation<AgilityParkourMomen
           current -= getConfig().passiveGroundDecayPerTick;
         }
 
-        momentum.put(id, clampMomentum(current, maxMomentum));
+        int remaining = clampMomentum(current, maxMomentum);
+        if (remaining > 0) {
+          momentum.put(id, remaining);
+        } else {
+          momentum.remove(id);
+          lastSpeedAmp.remove(id);
+          invalidateMomentumSpeed(p, id, false);
+        }
       });
     }
-  }
-
-  private Set<UUID> trackedPlayerIds() {
-    Set<UUID> tracked = new HashSet<>();
-    tracked.addAll(momentum.keySet());
-    tracked.addAll(wasOnGround.keySet());
-    tracked.addAll(speedBoosting.keySet());
-    tracked.addAll(lastSpeedAmp.keySet());
-    return tracked;
   }
 
   private void applyMomentumSpeed(Player p, UUID id, VelocitySpeed.InputSnapshot input, int speedAmp) {
@@ -239,14 +257,14 @@ public class AgilityParkourMomentum extends SimpleAdaptation<AgilityParkourMomen
     double stopThreshold = Math.max(0, getConfig().stopThreshold);
     if (horizontal.lengthSquared() <= stopThreshold * stopThreshold) {
       VelocitySpeed.hardStopHorizontal(p);
-      speedBoosting.put(id, false);
+      speedBoosting.remove(id);
       return;
     }
 
     Vector nextHorizontal = VelocitySpeed.moveTowards(horizontal, new Vector(), Math.max(0, getConfig().brakePerTick));
     if (nextHorizontal.lengthSquared() <= stopThreshold * stopThreshold) {
       VelocitySpeed.hardStopHorizontal(p);
-      speedBoosting.put(id, false);
+      speedBoosting.remove(id);
       return;
     }
 
@@ -262,7 +280,7 @@ public class AgilityParkourMomentum extends SimpleAdaptation<AgilityParkourMomen
       VelocitySpeed.hardStopHorizontal(p);
     }
 
-    speedBoosting.put(id, false);
+    speedBoosting.remove(id);
   }
 
   private boolean isVelocityEligible(Player p) {
@@ -289,8 +307,7 @@ public class AgilityParkourMomentum extends SimpleAdaptation<AgilityParkourMomen
       return false;
     }
 
-    BlockFace[] sides = {BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST};
-    for (BlockFace side : sides) {
+    for (BlockFace side : HORIZONTAL_FACES) {
       Block sideAtFeet = feet.getRelative(side);
       Block sideBelow = below.getRelative(side);
       if (!sideAtFeet.getType().isSolid() && !sideBelow.getType().isSolid()) {

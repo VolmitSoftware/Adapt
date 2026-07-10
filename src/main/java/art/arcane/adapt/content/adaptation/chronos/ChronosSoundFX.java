@@ -45,7 +45,9 @@ public final class ChronosSoundFX {
       }
     };
 
-    if (J.isPrimaryThread()) {
+    if (J.isFoliaThreading()) {
+      J.runAt(at, playTask);
+    } else if (J.isPrimaryThread()) {
       playTask.run();
     } else {
       J.runAt(at, playTask);
@@ -68,7 +70,7 @@ public final class ChronosSoundFX {
       }
     };
 
-    if (delayTicks <= 0 && J.isPrimaryThread()) {
+    if (!J.isFoliaThreading() && delayTicks <= 0 && J.isPrimaryThread()) {
       playTask.run();
       return;
     }
@@ -77,7 +79,7 @@ public final class ChronosSoundFX {
   }
 
   private static void playOnPlayer(Player player, Sound sound, float volume, float pitch) {
-    if (player == null || !player.isOnline()) {
+    if (player == null) {
       return;
     }
     if (!areSoundsEnabled()) {
@@ -95,7 +97,9 @@ public final class ChronosSoundFX {
       }
     };
 
-    if (J.isPrimaryThread()) {
+    if (J.isFoliaThreading() && J.isOwnedByCurrentRegion(player)) {
+      playTask.run();
+    } else if (!J.isFoliaThreading() && J.isPrimaryThread()) {
       playTask.run();
     } else {
       J.runEntity(player, playTask);
@@ -103,7 +107,7 @@ public final class ChronosSoundFX {
   }
 
   private static void playOnPlayerLater(Player player, Sound sound, float volume, float pitch, int delayTicks) {
-    if (player == null || !player.isOnline()) {
+    if (player == null) {
       return;
     }
     if (!areSoundsEnabled()) {
@@ -121,7 +125,9 @@ public final class ChronosSoundFX {
       }
     };
 
-    if (delayTicks <= 0 && J.isPrimaryThread()) {
+    if (delayTicks <= 0
+        && ((J.isFoliaThreading() && J.isOwnedByCurrentRegion(player))
+        || (!J.isFoliaThreading() && J.isPrimaryThread()))) {
       playTask.run();
       return;
     }
@@ -130,15 +136,13 @@ public final class ChronosSoundFX {
   }
 
   public static void playClockReject(Player p) {
-    Location l = p.getLocation();
-    play(l, Sound.BLOCK_NOTE_BLOCK_BASS, 0.42f, 0.58f);
-    play(l, Sound.ENTITY_ITEM_FRAME_ROTATE_ITEM, 0.32f, 0.62f);
+    playOnPlayer(p, Sound.BLOCK_NOTE_BLOCK_BASS, 0.42f, 0.58f);
+    playOnPlayer(p, Sound.ENTITY_ITEM_FRAME_ROTATE_ITEM, 0.32f, 0.62f);
   }
 
   public static void playCooldownReady(Player p) {
-    Location l = p.getLocation();
-    play(l, Sound.BLOCK_LEVER_CLICK, 0.35f, 1.75f);
-    playLater(l, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.28f, 1.93f, 1);
+    playOnPlayer(p, Sound.BLOCK_LEVER_CLICK, 0.35f, 1.75f);
+    playOnPlayerLater(p, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.28f, 1.93f, 1);
   }
 
   public static void playBottleUse(Player p, Location at, int advanceTicks) {
@@ -149,17 +153,15 @@ public final class ChronosSoundFX {
   }
 
   public static void playRewindStart(Player p) {
-    Location l = p.getLocation();
-    play(l, Sound.BLOCK_NOTE_BLOCK_BASS, 0.45f, 0.82f);
-    play(l, Sound.BLOCK_LEVER_CLICK, 0.5f, 0.75f);
+    playOnPlayer(p, Sound.BLOCK_NOTE_BLOCK_BASS, 0.45f, 0.82f);
+    playOnPlayer(p, Sound.BLOCK_LEVER_CLICK, 0.5f, 0.75f);
   }
 
   public static void playRewindStep(Player p, float progress) {
-    Location l = p.getLocation();
     float clamped = Math.max(0f, Math.min(1f, progress));
     float pitch = 0.74f + (clamped * 0.95f);
-    play(l, Sound.ENTITY_ITEM_FRAME_ROTATE_ITEM, 0.2f, Math.min(2f, pitch + 0.1f));
-    play(l, Sound.BLOCK_LEVER_CLICK, 0.24f, pitch);
+    playOnPlayer(p, Sound.ENTITY_ITEM_FRAME_ROTATE_ITEM, 0.2f, Math.min(2f, pitch + 0.1f));
+    playOnPlayer(p, Sound.BLOCK_LEVER_CLICK, 0.24f, pitch);
   }
 
   public static void playRewindFinish(Player p) {
@@ -183,15 +185,18 @@ public final class ChronosSoundFX {
   }
 
   public static void playTouchProc(Player p, Location target) {
-    Location l = target == null ? p.getLocation() : target;
-    play(l, Sound.BLOCK_LEVER_CLICK, 0.34f, 1.7f);
-    play(l, Sound.BLOCK_NOTE_BLOCK_BASS, 0.26f, 1.18f);
+    if (target == null) {
+      playOnPlayer(p, Sound.BLOCK_LEVER_CLICK, 0.34f, 1.7f);
+      playOnPlayer(p, Sound.BLOCK_NOTE_BLOCK_BASS, 0.26f, 1.18f);
+      return;
+    }
+    play(target, Sound.BLOCK_LEVER_CLICK, 0.34f, 1.7f);
+    play(target, Sound.BLOCK_NOTE_BLOCK_BASS, 0.26f, 1.18f);
   }
 
   public static void playTimeBombArm(Player p) {
-    Location l = p.getLocation();
-    play(l, Sound.BLOCK_LEVER_CLICK, 0.46f, 1.35f);
-    play(l, Sound.ENTITY_ITEM_FRAME_ROTATE_ITEM, 0.35f, 1.1f);
+    playOnPlayer(p, Sound.BLOCK_LEVER_CLICK, 0.46f, 1.35f);
+    playOnPlayer(p, Sound.ENTITY_ITEM_FRAME_ROTATE_ITEM, 0.35f, 1.1f);
   }
 
   public static void playTimeBombDetonate(Location center) {

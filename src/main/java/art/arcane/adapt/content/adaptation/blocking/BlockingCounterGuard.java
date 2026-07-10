@@ -174,10 +174,6 @@ public class BlockingCounterGuard extends SimpleAdaptation<BlockingCounterGuard.
     return getConfig().baseReflectDamage + (getLevelPercent(level) * getConfig().reflectDamageFactor);
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Blocking builds retaliation stacks that reflect damage back to attackers.")
   protected static class Config extends AdaptationConfig {

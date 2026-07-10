@@ -5,18 +5,6 @@
 title = "¡A moverse!"
 description = "Camina mas de 1 kilometro (1,000 bloques)"
 
-[advancement.challenge_sprint_5k]
-title = "¡Corre un 5K!"
-description = "Camina mas de 5 kilometros (5,000 bloques)"
-
-[advancement.challenge_sprint_50k]
-title = "¡Zoom de 50K!"
-description = "Camina mas de 50 kilometros (50,000 bloques)"
-
-[advancement.challenge_sprint_500k]
-title = "¡¡Atraviesa el Universo!!"
-description = "Camina mas de 500 kilometros (500,000 bloques)"
-
 [advancement.challenge_sprint_marathon]
 title = "¡Corre un maraton (literal)!"
 description = "¡Esprintea mas de 42,195 bloques!"
@@ -33,14 +21,6 @@ description = "Coloca 5,000 bloques"
 title = "¡Constructor avanzado!"
 description = "Coloca 50,000 bloques"
 
-[advancement.challenge_place_500k]
-title = "¡Maestro constructor!"
-description = "Coloca 500,000 bloques"
-
-[advancement.challenge_place_5m]
-title = "¡Acolito de la Simetria!"
-description = "¡LA REALIDAD ES TU PATIO DE JUEGOS! (5 millones de bloques)"
-
 [advancement.challenge_chop_1k]
 title = "¡Lenador novato!"
 description = "Tala 1,000 bloques"
@@ -52,14 +32,6 @@ description = "Tala 5,000 bloques"
 [advancement.challenge_chop_50k]
 title = "¡Lenador avanzado!"
 description = "Tala 50,000 bloques"
-
-[advancement.challenge_chop_500k]
-title = "¡Maestro lenador!"
-description = "Tala 500,000 bloques"
-
-[advancement.challenge_chop_5m]
-title = "Jackson el Perro"
-description = "¡El mejor chico bueno! (5 millones de bloques)"
 
 [advancement.challenge_block_1k]
 title = "¡Apenas bloqueando!"
@@ -73,14 +45,6 @@ description = "Bloquea 5000 golpes"
 title = "¡Bloquear es mi vida!"
 description = "Bloquea 50,000 golpes"
 
-[advancement.challenge_block_500k]
-title = "¡Bloquear es mi proposito!"
-description = "Bloquea 500,000 golpes"
-
-[advancement.challenge_block_5m]
-title = "Die Hand Die Verletzt"
-description = "Bloquea 5,000,000 golpes"
-
 [advancement.challenge_brew_1k]
 title = "¡Alquimista novato!"
 description = "Consume 1000 pociones"
@@ -89,18 +53,6 @@ description = "Consume 1000 pociones"
 title = "¡Alquimista intermedio!"
 description = "Consume 5000 pociones"
 
-[advancement.challenge_brew_50k]
-title = "¡Alquimista avanzado!"
-description = "Consume 50,000 pociones"
-
-[advancement.challenge_brew_500k]
-title = "¡Maestro alquimista!"
-description = "Consume 500,000 pociones"
-
-[advancement.challenge_brew_5m]
-title = "El Alquimista"
-description = "Consume 5,000,000 pociones"
-
 [advancement.challenge_brewsplash_1k]
 title = "¡Salpicador de pociones novato!"
 description = "Salpica 1000 pociones"
@@ -108,18 +60,6 @@ description = "Salpica 1000 pociones"
 [advancement.challenge_brewsplash_5k]
 title = "¡Salpicador de pociones intermedio!"
 description = "Salpica 5000 pociones"
-
-[advancement.challenge_brewsplash_50k]
-title = "¡Salpicador de pociones avanzado!"
-description = "Salpica 50,000 pociones"
-
-[advancement.challenge_brewsplash_500k]
-title = "¡Maestro salpicador de pociones!"
-description = "Salpica 500,000 pociones"
-
-[advancement.challenge_brewsplash_5m]
-title = "El Maestro de las Salpicaduras"
-description = "Salpica 5,000,000 pociones"
 
 [advancement.challenge_craft_1k]
 title = "¡Artesano astuto!"
@@ -133,14 +73,6 @@ description = "Fabrica 5000 objetos"
 title = "¡Artesano servil!"
 description = "Fabrica 50,000 objetos"
 
-[advancement.challenge_craft_500k]
-title = "¡Artesano cacofonico!"
-description = "Fabrica 500,000 objetos"
-
-[advancement.challenge_craft_5m]
-title = "McCraftface Calamitoso"
-description = "Fabrica 5,000,000 objetos"
-
 [advancement.challenge_enchant_1k]
 title = "¡Encantador novato!"
 description = "Encanta 1000 objetos"
@@ -148,18 +80,6 @@ description = "Encanta 1000 objetos"
 [advancement.challenge_enchant_5k]
 title = "¡Encantador intermedio!"
 description = "Encanta 5000 objetos"
-
-[advancement.challenge_enchant_50k]
-title = "¡Encantador avanzado!"
-description = "Encanta 50,000 objetos"
-
-[advancement.challenge_enchant_500k]
-title = "¡Maestro encantador!"
-description = "Encanta 500,000 objetos"
-
-[advancement.challenge_enchant_5m]
-title = "Encantador Enigmatico"
-description = "Encanta 5,000,000 objetos"
 
 [advancement.challenge_excavate_1k]
 title = "¡Excavador entusiasta!"
@@ -172,26 +92,6 @@ description = "Excava 5000 bloques"
 [advancement.challenge_excavate_50k]
 title = "¡Excavador avanzado!"
 description = "Excava 50,000 bloques"
-
-[advancement.challenge_excavate_500k]
-title = "¡Maestro excavador!"
-description = "Excava 500,000 bloques"
-
-[advancement.challenge_excavate_5m]
-title = "Excavador Enigmatico"
-description = "Excava 5,000,000 bloques"
-
-[advancement.horrible_person]
-title = "Eres una persona horrible"
-description = "Incomprensible, de verdad"
-
-[advancement.challenge_turtle_egg_smasher]
-title = "¡Rompe-huevos de tortuga!"
-description = "Rompe 100 huevos de tortuga"
-
-[advancement.challenge_turtle_egg_annihilator]
-title = "¡Aniquilador de huevos de tortuga!"
-description = "Rompe 500 huevos de tortuga"
 
 [advancement.challenge_novice_hunter]
 title = "¡Cazador novato!"
@@ -224,14 +124,6 @@ description = "Rompe 5000 bloques"
 [advancement.challenge_pickaxe_50k]
 title = "Minero experto"
 description = "Rompe 50,000 bloques"
-
-[advancement.challenge_pickaxe_500k]
-title = "Maestro minero"
-description = "Rompe 500,000 bloques"
-
-[advancement.challenge_pickaxe_5m]
-title = "Minero legendario"
-description = "Rompe 5,000,000 bloques"
 
 [advancement.challenge_eat_100]
 title = "¡Tanto para comer!"
@@ -333,10 +225,6 @@ description = "Pasa 1 hora en linea"
 title = "Arenas del Tiempo"
 description = "Pasa 24 horas en linea"
 
-[advancement.challenge_chronos_168h]
-title = "Eterno"
-description = "Pasa 168 horas (1 semana) en linea"
-
 [advancement.challenge_nether_50]
 title = "Portero del Infierno"
 description = "Mata 50 criaturas del Nether"
@@ -426,12 +314,6 @@ title = "Arquitecto de las Nubes"
 description = "Coloca 1.000 bloques por encima de Y=128"
 
 # Axes
-[advancement.challenge_axe_swing_500]
-title = "Hachero"
-description = "Balancea tu hacha 500 veces"
-[advancement.challenge_axe_swing_5k]
-title = "Berserker"
-description = "Balancea tu hacha 5.000 veces"
 [advancement.challenge_axe_damage_1k]
 title = "Cuchilla"
 description = "Inflige 1.000 de dano con hachas"
@@ -519,13 +401,6 @@ description = "Teletransportate 50 veces"
 [advancement.challenge_chronos_tp_500]
 title = "Distorsion Temporal"
 description = "Teletransportate 500 veces"
-[advancement.challenge_chronos_deaths_10]
-title = "Mortal"
-description = "Muere 10 veces"
-[advancement.challenge_chronos_deaths_100]
-title = "Desafiante de la Muerte"
-description = "Muere 100 veces"
-
 # Crafting
 [advancement.challenge_craft_value_10k]
 title = "Valor Artesanal"
@@ -545,13 +420,6 @@ description = "Fabrica 25 piezas de armadura"
 [advancement.challenge_craft_armor_250]
 title = "Maestro Armero"
 description = "Fabrica 250 piezas de armadura"
-[advancement.challenge_craft_mass_25k]
-title = "Productor en Masa"
-description = "Fabrica 25.000 objetos"
-[advancement.challenge_craft_mass_250k]
-title = "Revolucion Industrial"
-description = "Fabrica 250.000 objetos"
-
 # Discovery
 [advancement.challenge_discover_items_50]
 title = "Coleccionista"
@@ -591,12 +459,6 @@ description = "Acumula 100 de poder de encantamiento"
 [advancement.challenge_enchant_power_1k]
 title = "Maestro Arcano"
 description = "Acumula 1.000 de poder de encantamiento"
-[advancement.challenge_enchant_levels_1k]
-title = "Gastador de Niveles"
-description = "Gasta 1.000 niveles de experiencia en encantamientos"
-[advancement.challenge_enchant_levels_10k]
-title = "Sumidero de XP"
-description = "Gasta 10.000 niveles de experiencia en encantamientos"
 [advancement.challenge_enchant_high_25]
 title = "Apostador Fuerte"
 description = "Realiza 25 encantamientos de nivel maximo"
@@ -611,12 +473,6 @@ title = "Inversion Arcana"
 description = "Gasta 5.000 niveles totales en encantamientos"
 
 # Excavation
-[advancement.challenge_dig_swing_500]
-title = "Cavador"
-description = "Balancea tu pala 500 veces"
-[advancement.challenge_dig_swing_5k]
-title = "Excavador"
-description = "Balancea tu pala 5.000 veces"
 [advancement.challenge_dig_damage_1k]
 title = "Caballero de la Pala"
 description = "Inflige 1.000 de dano con una pala"
@@ -700,12 +556,6 @@ title = "Coleccionista de Plaga"
 description = "Rompe 100 rosas de Wither"
 
 # Pickaxes
-[advancement.challenge_pick_swing_500]
-title = "Brazo de Minero"
-description = "Balancea tu pico 500 veces"
-[advancement.challenge_pick_swing_5k]
-title = "Constructor de Tuneles"
-description = "Balancea tu pico 5.000 veces"
 [advancement.challenge_pick_damage_1k]
 title = "Luchador de Pico"
 description = "Inflige 1.000 de dano con un pico"
@@ -816,12 +666,6 @@ description = "Mata a 10 criaturas mientras te agachas"
 [advancement.challenge_stealth_kills_100]
 title = "Segador de Sombras"
 description = "Mata a 100 criaturas mientras te agachas"
-[advancement.challenge_stealth_time_1h]
-title = "Paciente"
-description = "Pasa 1 hora agachado (3.600 segundos)"
-[advancement.challenge_stealth_time_10h]
-title = "Maestro de las Sombras"
-description = "Pasa 10 horas agachado (36.000 segundos)"
 [advancement.challenge_stealth_arrows_50]
 title = "Arquero Silencioso"
 description = "Dispara 50 flechas mientras te agachas"
@@ -874,13 +718,6 @@ description = "Tus mascotas eliminan 25 criaturas"
 [advancement.challenge_pet_kills_250]
 title = "Comandante Alfa"
 description = "Tus mascotas eliminan 250 criaturas"
-[advancement.challenge_taming_2500]
-title = "Experto en Cria"
-description = "Cria 2.500 animales"
-[advancement.challenge_taming_25k]
-title = "Maestro Genetista"
-description = "Cria 25.000 animales"
-
 # TragOul
 [advancement.challenge_trag_hits_500]
 title = "Saco de Golpes"
@@ -888,25 +725,6 @@ description = "Recibe 500 golpes"
 [advancement.challenge_trag_hits_5k]
 title = "Adicto al Castigo"
 description = "Recibe 5.000 golpes"
-[advancement.challenge_trag_deaths_10]
-title = "Siete Vidas"
-description = "Muere 10 veces"
-[advancement.challenge_trag_deaths_100]
-title = "Pesadilla Recurrente"
-description = "Muere 100 veces"
-[advancement.challenge_trag_fire_500]
-title = "Victima del Fuego"
-description = "Soporta 500 de dano por fuego"
-[advancement.challenge_trag_fire_5k]
-title = "Fenix"
-description = "Soporta 5.000 de dano por fuego"
-[advancement.challenge_trag_fall_500]
-title = "Prueba de Gravedad"
-description = "Soporta 500 de dano por caida"
-[advancement.challenge_trag_fall_5k]
-title = "Velocidad Terminal"
-description = "Soporta 5.000 de dano por caida"
-
 # Unarmed
 [advancement.challenge_unarmed_dmg_1k]
 title = "Peleador"

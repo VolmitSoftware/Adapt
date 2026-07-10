@@ -111,9 +111,6 @@ public class HerbalismDropToInventory extends SimpleAdaptation<HerbalismDropToIn
   }
 
 
-  @Override
-  public void onTick() {
-  }
 
   @ConfigDescription("Harvested crops drop directly into your inventory.")
   protected static class Config extends AdaptationConfig {

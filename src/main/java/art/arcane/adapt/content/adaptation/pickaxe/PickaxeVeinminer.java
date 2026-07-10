@@ -49,7 +49,13 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static art.arcane.adapt.util.data.Metadata.VEIN_MINED;
 
@@ -92,12 +98,17 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
     }
 
     Player p = e.getPlayer();
+    ItemStack tool = p.getInventory().getItemInMainHand();
+    if (!p.isSneaking() || !isPickaxe(tool)) {
+      return;
+    }
+
     int level = getActiveLevel(p, Player::isSneaking);
     if (level <= 0) {
       return;
     }
 
-    if (!e.getBlock().getBlockData().getMaterial().name().endsWith("_ORE")) {
+    if (!e.getBlock().getType().name().endsWith("_ORE")) {
       if (!e.getBlock().getType().equals(Material.OBSIDIAN)) {
         chainHiddenVein(e.getBlock(), p, level);
         return;
@@ -107,31 +118,29 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
 
     Block block = e.getBlock();
     Material targetType = block.getType();
-    Location origin = block.getLocation();
-    Map<Location, Block> blockMap = new HashMap<>();
-    Set<Location> queued = new HashSet<>();
+    Set<Block> blockMap = new HashSet<>();
+    Set<Block> queued = new HashSet<>();
     Deque<Block> queue = new ArrayDeque<>();
     queue.add(block);
-    queued.add(origin);
+    queued.add(block);
     int radius = getRadius(level);
     int radiusSquared = radius * radius;
-    int maxBlocks = Math.max(1, ((radius * 2) + 1) * ((radius * 2) + 1) * ((radius * 2) + 1));
+    int maxBlocks = Math.max(1, getConfig().maxBlocks);
     while (!queue.isEmpty() && blockMap.size() < maxBlocks) {
       Block current = queue.poll();
       if (current == null) {
         continue;
       }
 
-      Location currentLocation = current.getLocation();
-      if (current.getType() != targetType || blockMap.containsKey(currentLocation)) {
+      if (current.getType() != targetType || blockMap.contains(current)) {
         continue;
       }
 
-      if (currentLocation.distanceSquared(origin) > radiusSquared || !canBlockBreak(p, currentLocation)) {
+      if (distanceSquared(current, block) > radiusSquared || !canBlockBreak(p, current.getLocation())) {
         continue;
       }
 
-      blockMap.put(currentLocation, current);
+      blockMap.add(current);
       for (int x = -1; x <= 1; x++) {
         for (int y = -1; y <= 1; y++) {
           for (int z = -1; z <= 1; z++) {
@@ -144,12 +153,11 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
               continue;
             }
 
-            Location nextLocation = next.getLocation();
-            if (nextLocation.distanceSquared(origin) > radiusSquared) {
+            if (distanceSquared(next, block) > radiusSquared) {
               continue;
             }
 
-            if (queued.add(nextLocation)) {
+            if (queued.add(next)) {
               queue.add(next);
             }
           }
@@ -175,33 +183,34 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
     }
 
     BlockData veinData = targetType.createBlockData();
+    PlayerSkillLine line = getPlayer(p).getData().getSkillLineNullable("pickaxe");
+    PlayerAdaptation autoSmelt = line != null ? line.getAdaptation("pickaxe-autosmelt") : null;
+    PlayerAdaptation drop2Inv = line != null ? line.getAdaptation("pickaxe-drop-to-inventory") : null;
+    boolean autoSmeltEnabled = autoSmelt != null && autoSmelt.getLevel() > 0;
+    boolean dropToInventory = drop2Inv != null && drop2Inv.getLevel() > 0;
     J.runEntity(p, () -> {
       int index = 0;
-      for (Location l : blockMap.keySet()) {
-        if (!canBlockBreak(p, l)) {
+      for (Block b : blockMap) {
+        if (!canBlockBreak(p, b.getLocation())) {
           Adapt.verbose("Player " + p.getName() + " doesn't have permission.");
           continue;
         }
-        Block b = block.getWorld().getBlockAt(l);
-        PlayerSkillLine line = getPlayer(p).getData().getSkillLineNullable("pickaxe");
-        PlayerAdaptation autoSmelt = line != null ? line.getAdaptation("pickaxe-autosmelt") : null;
-        PlayerAdaptation drop2Inv = line != null ? line.getAdaptation("pickaxe-drop-to-inventory") : null;
         VEIN_MINED.add(b);
-        if (autoSmelt != null && autoSmelt.getLevel() > 0 && ItemListings.getSmeltOre().contains(b.getType())) {
-          if (drop2Inv != null && drop2Inv.getLevel() > 0) {
+        if (autoSmeltEnabled && ItemListings.getSmeltOre().contains(b.getType())) {
+          if (dropToInventory) {
             PickaxeAutosmelt.autosmeltBlockDTI(b, p, this);
           } else {
             PickaxeAutosmelt.autosmeltBlock(b, p, this);
           }
         } else {
-          if (drop2Inv != null && drop2Inv.getLevel() > 0) {
+          if (dropToInventory) {
             b.getDrops(p.getInventory().getItemInMainHand(), p).forEach(item -> {
               HashMap<Integer, ItemStack> extra = p.getInventory().addItem(item);
               extra.forEach((k, v) -> p.getWorld().dropItem(p.getLocation(), v));
             });
             b.setType(Material.AIR);
           } else {
-            b.breakNaturally(p.getItemInUse());
+            b.breakNaturally(tool);
             FxEmitter crumble = fx(b.getLocation().add(0.5, 0.5, 0.5), FxPriority.TRAIL)
                 .particle(Particles.BLOCK_CRACK, 3, 0, 0, 0, 0.25, 0.0, veinData);
             if ((index & 3) == 0) {
@@ -214,6 +223,13 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
       }
       VEIN_MINED.remove(block);
     });
+  }
+
+  private int distanceSquared(Block first, Block second) {
+    int dx = first.getX() - second.getX();
+    int dy = first.getY() - second.getY();
+    int dz = first.getZ() - second.getZ();
+    return (dx * dx) + (dy * dy) + (dz * dz);
   }
 
   private void chainHiddenVein(Block block, Player p, int level) {
@@ -253,14 +269,13 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
   }
 
 
-  @Override
-  public void onTick() {
-  }
 
   @ConfigDescription("Break connected ore veins at once while sneaking.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Base Range for the Pickaxe Veinminer adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     int baseRange = 2;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum blocks mined by one Veinminer activation.", impact = "Higher values allow larger artificial veins but increase the worst-case block update cost.")
+    int maxBlocks = 64;
 
     public Config() {
       baseCost = 6;

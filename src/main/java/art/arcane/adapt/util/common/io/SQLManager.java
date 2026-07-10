@@ -3,7 +3,12 @@ package art.arcane.adapt.util.common.io;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.UUID;
 
 public class SQLManager {
@@ -55,8 +60,8 @@ public class SQLManager {
     }
   }
 
-  public synchronized void updateData(UUID uuid, String data) {
-    executeWithRetry(conn -> {
+  public synchronized boolean updateData(UUID uuid, String data) {
+    return executeWithRetry(conn -> {
       try (PreparedStatement statement = conn.prepareStatement(UPDATE_QUERY)) {
         statement.setString(1, uuid.toString());
         statement.setString(2, data);
@@ -93,12 +98,14 @@ public class SQLManager {
     }
   }
 
-  private void executeWithRetry(SqlAction action, String errorMessage) {
+  private boolean executeWithRetry(SqlAction action, String errorMessage) {
     try {
       checkAndReestablishConnection();
       action.run(connection);
+      return true;
     } catch (SQLException e) {
       handleSQLException(errorMessage, e);
+      return false;
     }
   }
 
@@ -114,6 +121,7 @@ public class SQLManager {
   private void handleSQLException(String message, SQLException e) {
     Adapt.error(message);
     Adapt.error("\t" + e.getClass().getSimpleName() + (e.getMessage() != null ? ": " + e.getMessage() : ""));
+    e.printStackTrace();
   }
 
   private String assembleUrl(AdaptConfig config) {

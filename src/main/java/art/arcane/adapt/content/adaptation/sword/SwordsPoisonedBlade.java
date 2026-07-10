@@ -150,10 +150,6 @@ public class SwordsPoisonedBlade extends SimpleAdaptation<SwordsPoisonedBlade.Co
   }
 
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Sword strikes apply poison.")
   protected static class Config extends AdaptationConfig {

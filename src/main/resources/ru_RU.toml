@@ -5,18 +5,6 @@
 title = "Нужно двигаться!"
 description = "Пройдите более 1 километра (1 000 блоков)"
 
-[advancement.challenge_sprint_5k]
-title = "Пробегите 5 км!"
-description = "Пройдите более 5 километров (5 000 блоков)"
-
-[advancement.challenge_sprint_50k]
-title = "Промчитесь 50 км!"
-description = "Пройдите более 50 километров (50 000 блоков)"
-
-[advancement.challenge_sprint_500k]
-title = "Путешествие по Вселенной!!"
-description = "Пройдите более 500 километров (500 000 блоков)"
-
 [advancement.challenge_sprint_marathon]
 title = "Пробегите (буквально) марафон!"
 description = "Пробегите более 42 195 блоков!"
@@ -33,14 +21,6 @@ description = "Разместите 5 000 блоков"
 title = "Опытный строитель!"
 description = "Разместите 50 000 блоков"
 
-[advancement.challenge_place_500k]
-title = "Мастер-строитель!"
-description = "Разместите 500 000 блоков"
-
-[advancement.challenge_place_5m]
-title = "Аколит Симметрии!"
-description = "РЕАЛЬНОСТЬ -- ВАША ИГРОВАЯ ПЛОЩАДКА! (5 миллионов блоков)"
-
 [advancement.challenge_chop_1k]
 title = "Начинающий лесоруб!"
 description = "Срубите 1 000 блоков"
@@ -52,14 +32,6 @@ description = "Срубите 5 000 блоков"
 [advancement.challenge_chop_50k]
 title = "Опытный лесоруб!"
 description = "Срубите 50 000 блоков"
-
-[advancement.challenge_chop_500k]
-title = "Мастер-лесоруб!"
-description = "Срубите 500 000 блоков"
-
-[advancement.challenge_chop_5m]
-title = "Пёс Джексон"
-description = "Самый лучший, добрый мальчик! (5 миллионов блоков)"
 
 [advancement.challenge_block_1k]
 title = "Едва блокирую!"
@@ -73,14 +45,6 @@ description = "Заблокируйте 5 000 ударов"
 title = "Блокирование -- моя жизнь!"
 description = "Заблокируйте 50 000 ударов"
 
-[advancement.challenge_block_500k]
-title = "Блокирование -- моё предназначение!"
-description = "Заблокируйте 500 000 ударов"
-
-[advancement.challenge_block_5m]
-title = "Die Hand Die Verletzt"
-description = "Заблокируйте 5 000 000 ударов"
-
 [advancement.challenge_brew_1k]
 title = "Начинающий алхимик!"
 description = "Выпейте 1 000 зелий"
@@ -89,18 +53,6 @@ description = "Выпейте 1 000 зелий"
 title = "Продвинутый алхимик!"
 description = "Выпейте 5 000 зелий"
 
-[advancement.challenge_brew_50k]
-title = "Опытный алхимик!"
-description = "Выпейте 50 000 зелий"
-
-[advancement.challenge_brew_500k]
-title = "Мастер-алхимик!"
-description = "Выпейте 500 000 зелий"
-
-[advancement.challenge_brew_5m]
-title = "Великий Алхимик"
-description = "Выпейте 5 000 000 зелий"
-
 [advancement.challenge_brewsplash_1k]
 title = "Начинающий зельевар!"
 description = "Выплесните 1 000 зелий"
@@ -108,18 +60,6 @@ description = "Выплесните 1 000 зелий"
 [advancement.challenge_brewsplash_5k]
 title = "Продвинутый зельевар!"
 description = "Выплесните 5 000 зелий"
-
-[advancement.challenge_brewsplash_50k]
-title = "Опытный зельевар!"
-description = "Выплесните 50 000 зелий"
-
-[advancement.challenge_brewsplash_500k]
-title = "Мастер-зельевар!"
-description = "Выплесните 500 000 зелий"
-
-[advancement.challenge_brewsplash_5m]
-title = "Брызгомейстер"
-description = "Выплесните 5 000 000 зелий"
 
 [advancement.challenge_craft_1k]
 title = "Ловкий ремесленник!"
@@ -133,14 +73,6 @@ description = "Создайте 5 000 предметов"
 title = "Усердный ремесленник!"
 description = "Создайте 50 000 предметов"
 
-[advancement.challenge_craft_500k]
-title = "Неугомонный ремесленник!"
-description = "Создайте 500 000 предметов"
-
-[advancement.challenge_craft_5m]
-title = "Катастрофический Маккрафтфейс"
-description = "Создайте 5 000 000 предметов"
-
 [advancement.challenge_enchant_1k]
 title = "Начинающий зачарователь!"
 description = "Зачаруйте 1 000 предметов"
@@ -148,18 +80,6 @@ description = "Зачаруйте 1 000 предметов"
 [advancement.challenge_enchant_5k]
 title = "Продвинутый зачарователь!"
 description = "Зачаруйте 5 000 предметов"
-
-[advancement.challenge_enchant_50k]
-title = "Опытный зачарователь!"
-description = "Зачаруйте 50 000 предметов"
-
-[advancement.challenge_enchant_500k]
-title = "Мастер-зачарователь!"
-description = "Зачаруйте 500 000 предметов"
-
-[advancement.challenge_enchant_5m]
-title = "Загадочный зачарователь"
-description = "Зачаруйте 5 000 000 предметов"
 
 [advancement.challenge_excavate_1k]
 title = "Начинающий копатель!"
@@ -172,26 +92,6 @@ description = "Вскопайте 5 000 блоков"
 [advancement.challenge_excavate_50k]
 title = "Опытный копатель!"
 description = "Вскопайте 50 000 блоков"
-
-[advancement.challenge_excavate_500k]
-title = "Мастер-копатель!"
-description = "Вскопайте 500 000 блоков"
-
-[advancement.challenge_excavate_5m]
-title = "Загадочный копатель"
-description = "Вскопайте 5 000 000 блоков"
-
-[advancement.horrible_person]
-title = "Ты ужасный человек"
-description = "Непостижимо, правда"
-
-[advancement.challenge_turtle_egg_smasher]
-title = "Крушитель черепашьих яиц!"
-description = "Разбейте 100 черепашьих яиц"
-
-[advancement.challenge_turtle_egg_annihilator]
-title = "Уничтожитель черепашьих яиц!"
-description = "Разбейте 500 черепашьих яиц"
 
 [advancement.challenge_novice_hunter]
 title = "Начинающий охотник!"
@@ -224,14 +124,6 @@ description = "Сломайте 5 000 блоков"
 [advancement.challenge_pickaxe_50k]
 title = "Шахтёр-эксперт"
 description = "Сломайте 50 000 блоков"
-
-[advancement.challenge_pickaxe_500k]
-title = "Мастер-шахтёр"
-description = "Сломайте 500 000 блоков"
-
-[advancement.challenge_pickaxe_5m]
-title = "Легендарный шахтёр"
-description = "Сломайте 5 000 000 блоков"
 
 [advancement.challenge_eat_100]
 title = "Сколько всего вкусного!"
@@ -332,10 +224,6 @@ description = "Проведите 1 час в сети"
 [advancement.challenge_chronos_24h]
 title = "Пески Времени"
 description = "Проведите 24 часа в сети"
-
-[advancement.challenge_chronos_168h]
-title = "Вне Времени"
-description = "Проведите 168 часов (1 неделю) в сети"
 
 [advancement.challenge_nether_50]
 title = "Привратник Ада"
@@ -440,14 +328,6 @@ title = "Облачный Архитектор"
 description = "Разместите 1,000 блоков выше Y=128"
 
 # Axes - New Achievement Chains
-[advancement.challenge_axe_swing_500]
-title = "Дровосек"
-description = "Взмахните топором 500 раз"
-
-[advancement.challenge_axe_swing_5k]
-title = "Берсерк"
-description = "Взмахните топором 5,000 раз"
-
 [advancement.challenge_axe_damage_1k]
 title = "Рассекатель"
 description = "Нанесите 1,000 урона топорами"
@@ -559,14 +439,6 @@ description = "Телепортируйтесь 50 раз"
 title = "Искривление Времени"
 description = "Телепортируйтесь 500 раз"
 
-[advancement.challenge_chronos_deaths_10]
-title = "Смертный"
-description = "Умрите 10 раз"
-
-[advancement.challenge_chronos_deaths_100]
-title = "Бросивший Вызов Смерти"
-description = "Умрите 100 раз"
-
 # Crafting - New Achievement Chains
 [advancement.challenge_craft_value_10k]
 title = "Ценный Крафт"
@@ -591,14 +463,6 @@ description = "Скрафтите 25 единиц брони"
 [advancement.challenge_craft_armor_250]
 title = "Мастер Бронник"
 description = "Скрафтите 250 единиц брони"
-
-[advancement.challenge_craft_mass_25k]
-title = "Массовое Производство"
-description = "Скрафтите 25,000 предметов"
-
-[advancement.challenge_craft_mass_250k]
-title = "Промышленная Революция"
-description = "Скрафтите 250,000 предметов"
 
 # Discovery - New Achievement Chains
 [advancement.challenge_discover_items_50]
@@ -650,14 +514,6 @@ description = "Накопите 100 силы зачарования"
 title = "Магистр Тайных Сил"
 description = "Накопите 1,000 силы зачарования"
 
-[advancement.challenge_enchant_levels_1k]
-title = "Расточитель Уровней"
-description = "Потратьте 1,000 уровней опыта на зачарование"
-
-[advancement.challenge_enchant_levels_10k]
-title = "Поглотитель Опыта"
-description = "Потратьте 10,000 уровней опыта на зачарование"
-
 [advancement.challenge_enchant_high_25]
 title = "По-Крупному"
 description = "Выполните 25 зачарований максимального уровня"
@@ -675,14 +531,6 @@ title = "Магические Вложения"
 description = "Потратьте 5,000 уровней на все зачарования"
 
 # Excavation - New Achievement Chains
-[advancement.challenge_dig_swing_500]
-title = "Копатель"
-description = "Взмахните лопатой 500 раз"
-
-[advancement.challenge_dig_swing_5k]
-title = "Экскаватор"
-description = "Взмахните лопатой 5,000 раз"
-
 [advancement.challenge_dig_damage_1k]
 title = "Рыцарь Лопаты"
 description = "Нанесите 1,000 урона лопатой"
@@ -787,14 +635,6 @@ title = "Собиратель Скверны"
 description = "Сломайте 100 роз иссушения"
 
 # Pickaxes - New Achievement Chains
-[advancement.challenge_pick_swing_500]
-title = "Рука Шахтёра"
-description = "Взмахните киркой 500 раз"
-
-[advancement.challenge_pick_swing_5k]
-title = "Строитель Туннелей"
-description = "Взмахните киркой 5,000 раз"
-
 [advancement.challenge_pick_damage_1k]
 title = "Боевая Кирка"
 description = "Нанесите 1,000 урона киркой"
@@ -935,14 +775,6 @@ description = "Убейте 10 мобов крадучись"
 title = "Теневой Жнец"
 description = "Убейте 100 мобов крадучись"
 
-[advancement.challenge_stealth_time_1h]
-title = "Терпеливый"
-description = "Проведите 1 час крадучись (3,600 секунд)"
-
-[advancement.challenge_stealth_time_10h]
-title = "Повелитель Теней"
-description = "Проведите 10 часов крадучись (36,000 секунд)"
-
 [advancement.challenge_stealth_arrows_50]
 title = "Тихий Лучник"
 description = "Выпустите 50 стрел крадучись"
@@ -1009,14 +841,6 @@ description = "Ваши питомцы уничтожат 25 существ"
 title = "Командир Стаи"
 description = "Ваши питомцы уничтожат 250 существ"
 
-[advancement.challenge_taming_2500]
-title = "Эксперт по Разведению"
-description = "Разведите 2,500 животных"
-
-[advancement.challenge_taming_25k]
-title = "Мастер Генетики"
-description = "Разведите 25,000 животных"
-
 # TragOul - New Achievement Chains
 [advancement.challenge_trag_hits_500]
 title = "Боксёрская Груша"
@@ -1025,30 +849,6 @@ description = "Получите 500 ударов"
 [advancement.challenge_trag_hits_5k]
 title = "Любитель Боли"
 description = "Получите 5,000 ударов"
-
-[advancement.challenge_trag_deaths_10]
-title = "Девять Жизней"
-description = "Умрите 10 раз"
-
-[advancement.challenge_trag_deaths_100]
-title = "Повторяющийся Кошмар"
-description = "Умрите 100 раз"
-
-[advancement.challenge_trag_fire_500]
-title = "Жертва Огня"
-description = "Перенесите 500 урона от огня"
-
-[advancement.challenge_trag_fire_5k]
-title = "Феникс"
-description = "Перенесите 5,000 урона от огня"
-
-[advancement.challenge_trag_fall_500]
-title = "Проверка Гравитации"
-description = "Перенесите 500 урона от падения"
-
-[advancement.challenge_trag_fall_5k]
-title = "Предельная Скорость"
-description = "Перенесите 5,000 урона от падения"
 
 # Unarmed - New Achievement Chains
 [advancement.challenge_unarmed_dmg_1k]

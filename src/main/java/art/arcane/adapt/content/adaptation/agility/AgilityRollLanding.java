@@ -230,10 +230,6 @@ public class AgilityRollLanding extends SimpleAdaptation<AgilityRollLanding.Conf
     return Math.max(2, (int) Math.round(getConfig().proneTicksBase + (getLevelPercent(level) * getConfig().proneTicksFactor)));
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Timed sneak before landing converts part of fall damage into hunger cost.")
   protected static class Config extends AdaptationConfig {

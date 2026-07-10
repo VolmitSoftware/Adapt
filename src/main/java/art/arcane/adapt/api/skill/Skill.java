@@ -26,7 +26,6 @@ import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.tick.Ticked;
-import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.api.xp.XP;
 import art.arcane.adapt.util.common.format.C;
@@ -122,13 +121,6 @@ public interface Skill<T> extends Ticked, Component {
   @Override
   default boolean areSoundsEnabled() {
     return SkillGuiSupport.areSoundsEnabled(this, Component.super.areSoundsEnabled());
-  }
-
-  /**
-   * Evaluates and grants eligible stat-tracker advancements for one player.
-   */
-  default void checkStatTrackers(AdaptPlayer player) {
-    SkillRuntimeGuards.checkStatTrackers(this, player);
   }
 
   /**

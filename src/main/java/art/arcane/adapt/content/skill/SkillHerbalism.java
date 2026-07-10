@@ -25,7 +25,21 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.xp.XpNovelty;
 import art.arcane.adapt.api.xp.XpProvenance;
-import art.arcane.adapt.content.adaptation.herbalism.*;
+import art.arcane.adapt.content.adaptation.herbalism.HerbalismBeeShepherd;
+import art.arcane.adapt.content.adaptation.herbalism.HerbalismCompostCascade;
+import art.arcane.adapt.content.adaptation.herbalism.HerbalismCraftableCobweb;
+import art.arcane.adapt.content.adaptation.herbalism.HerbalismCraftableMushroomBlocks;
+import art.arcane.adapt.content.adaptation.herbalism.HerbalismDropToInventory;
+import art.arcane.adapt.content.adaptation.herbalism.HerbalismGrowthAura;
+import art.arcane.adapt.content.adaptation.herbalism.HerbalismHungryHippo;
+import art.arcane.adapt.content.adaptation.herbalism.HerbalismHungryShield;
+import art.arcane.adapt.content.adaptation.herbalism.HerbalismLuck;
+import art.arcane.adapt.content.adaptation.herbalism.HerbalismMyconid;
+import art.arcane.adapt.content.adaptation.herbalism.HerbalismReplant;
+import art.arcane.adapt.content.adaptation.herbalism.HerbalismRootedFooting;
+import art.arcane.adapt.content.adaptation.herbalism.HerbalismSeedSower;
+import art.arcane.adapt.content.adaptation.herbalism.HerbalismSporeBloom;
+import art.arcane.adapt.content.adaptation.herbalism.HerbalismTerralid;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
@@ -42,7 +56,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.player.*;
+import org.bukkit.event.player.PlayerHarvestBlockEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemConsumeEvent;
+import org.bukkit.event.player.PlayerShearEntityEvent;
 import org.bukkit.inventory.meta.PotionMeta;
 
 public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
@@ -91,9 +108,9 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
                 .build())
             .build())
         .build());
-    registerMilestone("challenge_eat_100", "food.eaten", 100, getConfig().challengeEat100Reward);
-    registerMilestone("challenge_eat_1000", "food.eaten", 1000, getConfig().challengeEat1kReward);
-    registerMilestone("challenge_eat_10000", "food.eaten", 10000, getConfig().challengeEat1kReward);
+    registerMilestone("challenge_eat_100", "food.eaten", 100, () -> getConfig().challengeEat100Reward);
+    registerMilestone("challenge_eat_1000", "food.eaten", 1000, () -> getConfig().challengeEat1kReward);
+    registerMilestone("challenge_eat_10000", "food.eaten", 10000, () -> getConfig().challengeEat1kReward * 5);
 
 
     registerAdvancement(AdaptAdvancement.builder()
@@ -110,8 +127,8 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_harvest_100", "harvest.blocks", 100, getConfig().challengeHarvest100Reward);
-    registerMilestone("challenge_harvest_1000", "harvest.blocks", 1000, getConfig().challengeHarvest1kReward);
+    registerMilestone("challenge_harvest_100", "harvest.blocks", 100, () -> getConfig().challengeHarvest100Reward);
+    registerMilestone("challenge_harvest_1000", "harvest.blocks", 1000, () -> getConfig().challengeHarvest1kReward);
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.WHEAT_SEEDS)
@@ -134,9 +151,9 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
                 .build())
             .build())
         .build());
-    registerMilestone("challenge_plant_100", "harvest.planted", 100, getConfig().challengePlant100Reward);
-    registerMilestone("challenge_plant_1k", "harvest.planted", 1000, getConfig().challengePlant1kReward);
-    registerMilestone("challenge_plant_5k", "harvest.planted", 5000, getConfig().challengePlant5kReward);
+    registerMilestone("challenge_plant_100", "harvest.planted", 100, () -> getConfig().challengePlant100Reward);
+    registerMilestone("challenge_plant_1k", "harvest.planted", 1000, () -> getConfig().challengePlant1kReward);
+    registerMilestone("challenge_plant_5k", "harvest.planted", 5000, () -> getConfig().challengePlant5kReward);
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.COMPOSTER)
@@ -152,8 +169,8 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_compost_50", "harvest.composted", 50, getConfig().challengeCompost50Reward);
-    registerMilestone("challenge_compost_500", "harvest.composted", 500, getConfig().challengeCompost500Reward);
+    registerMilestone("challenge_compost_50", "harvest.composted", 50, () -> getConfig().challengeCompost50Reward);
+    registerMilestone("challenge_compost_500", "harvest.composted", 500, () -> getConfig().challengeCompost500Reward);
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.SHEARS)
@@ -169,8 +186,8 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_shear_50", "herbalism.sheared", 50, getConfig().challengeShear50Reward);
-    registerMilestone("challenge_shear_250", "herbalism.sheared", 250, getConfig().challengeShear250Reward);
+    registerMilestone("challenge_shear_50", "herbalism.sheared", 50, () -> getConfig().challengeShear50Reward);
+    registerMilestone("challenge_shear_250", "herbalism.sheared", 250, () -> getConfig().challengeShear250Reward);
   }
 
 
@@ -268,11 +285,6 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
     });
   }
 
-
-  @Override
-  public void onTick() {
-    checkStatTrackersForOnlinePlayers();
-  }
 
   @Override
   public boolean isEnabled() {

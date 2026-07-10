@@ -18,19 +18,26 @@
 
 package art.arcane.adapt.content.skill;
 
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.skill.SimpleSkill;
-import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.content.adaptation.nether.*;
+import art.arcane.adapt.content.adaptation.nether.NetherBlazeLeech;
+import art.arcane.adapt.content.adaptation.nether.NetherFireResist;
+import art.arcane.adapt.content.adaptation.nether.NetherGhastWard;
+import art.arcane.adapt.content.adaptation.nether.NetherLavaWalker;
+import art.arcane.adapt.content.adaptation.nether.NetherPiglinBroker;
+import art.arcane.adapt.content.adaptation.nether.NetherSkullYeet;
+import art.arcane.adapt.content.adaptation.nether.NetherWitherResist;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.reflect.registries.Particles;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -46,7 +53,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 
 public class SkillNether extends SimpleSkill<SkillNether.Config> {
-  private int witherRoseCooldown;
+  private final Cooldowns witherRoseCooldowns = cooldowns();
 
   public SkillNether() {
     super("nether", Localizer.dLocalize("skill.nether.icon"));
@@ -84,9 +91,9 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
                 .build())
             .build())
         .build());
-    registerMilestone("challenge_nether_50", "nether.kills", 50, getConfig().getChallengeNetherReward());
-    registerMilestone("challenge_nether_500", "nether.kills", 500, getConfig().getChallengeNetherReward() * 2);
-    registerMilestone("challenge_nether_5k", "nether.kills", 5000, getConfig().getChallengeNetherReward() * 5);
+    registerMilestone("challenge_nether_50", "nether.kills", 50, () -> getConfig().getChallengeNetherReward());
+    registerMilestone("challenge_nether_500", "nether.kills", 500, () -> getConfig().getChallengeNetherReward() * 2);
+    registerMilestone("challenge_nether_5k", "nether.kills", 5000, () -> getConfig().getChallengeNetherReward() * 5);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.WITHER_ROSE)
         .key("challenge_wither_dmg_500")
@@ -101,8 +108,8 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_wither_dmg_500", "nether.wither.damage", 500, getConfig().getChallengeWitherDmgReward());
-    registerMilestone("challenge_wither_dmg_5k", "nether.wither.damage", 5000, getConfig().getChallengeWitherDmgReward() * 2);
+    registerMilestone("challenge_wither_dmg_500", "nether.wither.damage", 500, () -> getConfig().getChallengeWitherDmgReward());
+    registerMilestone("challenge_wither_dmg_5k", "nether.wither.damage", 5000, () -> getConfig().getChallengeWitherDmgReward() * 2);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.BONE)
         .key("challenge_wither_skel_25")
@@ -117,8 +124,8 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_wither_skel_25", "nether.skeleton.kills", 25, getConfig().getChallengeWitherSkelReward());
-    registerMilestone("challenge_wither_skel_250", "nether.skeleton.kills", 250, getConfig().getChallengeWitherSkelReward() * 2);
+    registerMilestone("challenge_wither_skel_25", "nether.skeleton.kills", 25, () -> getConfig().getChallengeWitherSkelReward());
+    registerMilestone("challenge_wither_skel_250", "nether.skeleton.kills", 250, () -> getConfig().getChallengeWitherSkelReward() * 2);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.NETHER_STAR)
         .key("challenge_wither_boss_1")
@@ -133,8 +140,8 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_wither_boss_1", "nether.boss.kills", 1, getConfig().getChallengeWitherBossReward());
-    registerMilestone("challenge_wither_boss_10", "nether.boss.kills", 10, getConfig().getChallengeWitherBossReward() * 2);
+    registerMilestone("challenge_wither_boss_1", "nether.boss.kills", 1, () -> getConfig().getChallengeWitherBossReward());
+    registerMilestone("challenge_wither_boss_10", "nether.boss.kills", 10, () -> getConfig().getChallengeWitherBossReward() * 2);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.WITHER_ROSE)
         .key("challenge_roses_10")
@@ -149,8 +156,8 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_roses_10", "nether.roses.broken", 10, getConfig().getChallengeRosesReward());
-    registerMilestone("challenge_roses_100", "nether.roses.broken", 100, getConfig().getChallengeRosesReward() * 2);
+    registerMilestone("challenge_roses_10", "nether.roses.broken", 10, () -> getConfig().getChallengeRosesReward());
+    registerMilestone("challenge_roses_100", "nether.roses.broken", 100, () -> getConfig().getChallengeRosesReward() * 2);
   }
 
   private boolean isWitherDamageCause(EntityDamageEvent.DamageCause cause) {
@@ -170,26 +177,32 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
 
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(BlockBreakEvent e) {
-    Player p = e.getPlayer();
-    shouldReturnForPlayer(e.getPlayer(), e, () -> {
-      if (e.getBlock().getType() == Material.WITHER_ROSE && witherRoseCooldown == 0) {
-        witherRoseCooldown = getConfig().getWitherRoseBreakCooldown();
-        addStat(p, "nether.roses.broken", 1);
-        Location roseLocation = e.getBlock().getLocation().add(.5D, .5D, .5D);
-        xp(p, roseLocation, getConfig().getWitherRoseBreakXp());
-        fx(roseLocation, FxPriority.TRANSITION)
-            .particle(Particle.SOUL, 6, 0D, 0.1D, 0D, 0.2D, 0.02D)
-            .particle(Particles.SMOKE, 4, 0D, 0.1D, 0D, 0.2D, 0.02D)
-            .sound(Sound.PARTICLE_SOUL_ESCAPE, 0.4F, 1.0F);
-      }
-    });
+    if (e.getBlock().getType() != Material.WITHER_ROSE) {
+      return;
+    }
 
+    Player p = e.getPlayer();
+    shouldReturnForPlayer(p, e, () -> {
+      long cooldownMillis = Math.max(0L, (long) getConfig().getWitherRoseBreakCooldown() * 50L);
+      if (!witherRoseCooldowns.isReady(p.getUniqueId(), cooldownMillis)) {
+        return;
+      }
+
+      witherRoseCooldowns.mark(p.getUniqueId());
+      addStat(p, "nether.roses.broken", 1);
+      Location roseLocation = e.getBlock().getLocation().add(.5D, .5D, .5D);
+      xp(p, roseLocation, getConfig().getWitherRoseBreakXp());
+      fx(roseLocation, FxPriority.TRANSITION)
+          .particle(Particle.SOUL, 6, 0D, 0.1D, 0D, 0.2D, 0.02D)
+          .particle(Particles.SMOKE, 4, 0D, 0.1D, 0D, 0.2D, 0.02D)
+          .sound(Sound.PARTICLE_SOUL_ESCAPE, 0.4F, 1.0F);
+    });
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(EntityDeathEvent e) {
     Player p = e.getEntity().getKiller();
-    if (p == null || !p.getClass().getSimpleName().equals("CraftPlayer")) {
+    if (p == null) {
       return;
     }
     shouldReturnForPlayer(p, () -> {
@@ -218,25 +231,12 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
   }
 
   @Override
-  public void onTick() {
-    if (!this.isEnabled()) {
-      return;
-    }
-    if (witherRoseCooldown > 0) {
-      witherRoseCooldown--;
-    }
-    for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
-      Player i = adaptPlayer.getPlayer();
-      shouldReturnForPlayer(i, () -> checkStatTrackers(adaptPlayer));
-    }
-  }
-
-  @Override
   public boolean isEnabled() {
     return getConfig().isEnabled();
   }
 
-  @Data
+  @Getter
+  @Setter
   @NoArgsConstructor
   public static class Config {
     String skillColor = "&8";

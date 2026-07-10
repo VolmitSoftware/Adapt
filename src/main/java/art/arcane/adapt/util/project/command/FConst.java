@@ -5,7 +5,7 @@ import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Sound;
 
-import java.awt.*;
+import java.awt.Color;
 
 public class FConst {
   public static final Color COLOR_ERROR = new Color(255, 0, 0);

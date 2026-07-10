@@ -47,17 +47,25 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Config> {
+  private static final int MAX_ANCHORS_PER_TICK = 64;
+  private static final long RENDER_CYCLE_MILLIS = 500L;
   private final Map<UUID, ChalkAnchor> anchors = playerState();
+  private List<UUID> renderPlayers = List.of();
+  private int renderIndex;
+  private long nextRenderCycleAt;
 
   public ArchitectChalkLine() {
     super("architect-chalk-line");
     registerConfiguration(ArchitectChalkLine.Config.class);
     setIcon(Material.STRING);
-    setInterval(500);
+    setInterval(RENDER_CYCLE_MILLIS);
+    nextRenderCycleAt = M.ms() + RENDER_CYCLE_MILLIS;
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.STRING)
         .key("challenge_architect_chalk_line_50")
@@ -137,36 +145,78 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
   @Override
   public void onTick() {
     if (anchors.isEmpty()) {
+      renderPlayers = List.of();
+      renderIndex = 0;
+      setInterval(RENDER_CYCLE_MILLIS);
       return;
     }
 
     long now = M.ms();
-    double rangeSquared = getConfig().renderRangeBlocks * getConfig().renderRangeBlocks;
-    for (Map.Entry<UUID, ChalkAnchor> entry : anchors.entrySet()) {
-      ChalkAnchor anchor = entry.getValue();
-      if (now >= anchor.expiresAt()) {
-        anchors.remove(entry.getKey(), anchor);
-        continue;
+    if (renderIndex >= renderPlayers.size()) {
+      if (now < nextRenderCycleAt) {
+        setInterval(nextRenderCycleAt - now);
+        return;
       }
-
-      Player p = Bukkit.getPlayer(entry.getKey());
-      if (p == null || !p.isOnline() || !p.getWorld().equals(anchor.anchor().getWorld())) {
-        continue;
-      }
-
-      if (p.getLocation().distanceSquared(anchor.anchor()) > rangeSquared) {
-        continue;
-      }
-
-      withPlayerThread(p, () -> renderLine(anchor));
+      renderPlayers = new ArrayList<>(anchors.keySet());
+      renderIndex = 0;
+      nextRenderCycleAt = now + RENDER_CYCLE_MILLIS;
     }
+
+    int endIndex = renderBatchEnd(renderIndex, renderPlayers.size());
+    while (renderIndex < endIndex) {
+      UUID playerId = renderPlayers.get(renderIndex++);
+      ChalkAnchor anchor = anchors.get(playerId);
+      if (anchor == null) {
+        continue;
+      }
+      if (now >= anchor.expiresAt()) {
+        anchors.remove(playerId, anchor);
+        continue;
+      }
+
+      Player player = Bukkit.getPlayer(playerId);
+      if (player == null) {
+        anchors.remove(playerId, anchor);
+        continue;
+      }
+      withPlayerThread(player, () -> renderLine(player, playerId, anchor));
+    }
+    setInterval(renderIndex < renderPlayers.size()
+        ? MIN_INTERVAL_MILLIS
+        : Math.max(MIN_INTERVAL_MILLIS, nextRenderCycleAt - now));
   }
 
-  private void renderLine(ChalkAnchor anchor) {
+  private void renderLine(Player player, UUID playerId, ChalkAnchor anchor) {
+    if (!player.isOnline() || anchors.get(playerId) != anchor || M.ms() >= anchor.expiresAt()) {
+      anchors.remove(playerId, anchor);
+      return;
+    }
+    if (player.getWorld() != anchor.anchor().getWorld()
+        || player.getLocation().distanceSquared(anchor.anchor()) > renderRangeSquared(getConfig().renderRangeBlocks)) {
+      return;
+    }
+
     Vector direction = anchor.direction().getDirection();
-    Location end = anchor.anchor().clone().add(direction.multiply(getConfig().lineLengthBlocks));
+    Location end = anchor.anchor().clone().add(direction.multiply(clampLineLength(getConfig().lineLengthBlocks)));
     fx(anchor.anchor(), FxPriority.TRAIL)
-        .line(Particles.END_ROD, end.getX(), end.getY(), end.getZ(), getConfig().particlesPerLine);
+        .line(Particles.END_ROD, end.getX(), end.getY(), end.getZ(), clampParticleCount(getConfig().particlesPerLine));
+  }
+
+  static int renderBatchEnd(int startIndex, int playerCount) {
+    return Math.min(Math.max(0, playerCount), Math.max(0, startIndex) + MAX_ANCHORS_PER_TICK);
+  }
+
+  static int clampParticleCount(int configured) {
+    return Math.max(2, Math.min(32, configured));
+  }
+
+  static double clampLineLength(double configured) {
+    return Math.max(1D, Math.min(64D, configured));
+  }
+
+  static double renderRangeSquared(double configured) {
+    double range = Math.max(8D, Math.min(96D, configured));
+    return range * range;
   }
 
   private long getDurationMillis(double factor) {

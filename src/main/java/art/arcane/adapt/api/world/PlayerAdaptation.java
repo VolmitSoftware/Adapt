@@ -19,11 +19,13 @@
 package art.arcane.adapt.api.world;
 
 import art.arcane.volmlib.util.collection.KMap;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 public class PlayerAdaptation {
   private final KMap<String, Object> storage = new KMap<>();
   private String id;
-  private int level;
+  private volatile int level;
 }

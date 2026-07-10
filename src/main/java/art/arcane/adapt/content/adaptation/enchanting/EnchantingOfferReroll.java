@@ -211,10 +211,6 @@ public class EnchantingOfferReroll extends SimpleAdaptation<EnchantingOfferRerol
     return Math.max(20, (int) Math.round(getConfig().cooldownTicksBase - (getLevelPercent(level) * getConfig().cooldownTicksFactor)));
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Sneak-right-click an enchanting table to reroll offers for lapis and XP.")
   protected static class Config extends AdaptationConfig {

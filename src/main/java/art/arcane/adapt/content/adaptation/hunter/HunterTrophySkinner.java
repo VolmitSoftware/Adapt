@@ -200,10 +200,6 @@ public class HunterTrophySkinner extends SimpleAdaptation<HunterTrophySkinner.Co
     return Math.max(4, getConfig().minimumRangeBase - (getLevelPercent(level) * getConfig().minimumRangeFactor));
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Precision kills can grant bonus trophy drops and occasional heads from elite targets.")
   protected static class Config extends AdaptationConfig {

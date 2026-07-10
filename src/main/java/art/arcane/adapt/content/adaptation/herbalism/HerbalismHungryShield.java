@@ -70,10 +70,6 @@ public class HerbalismHungryShield extends SimpleAdaptation<HerbalismHungryShiel
   }
 
 
-  @Override
-  public void onTick() {
-
-  }
 
   private double getEffectiveness(double factor) {
     return Math.min(getConfig().maxEffectiveness, factor * factor + getConfig().effectivenessBase);

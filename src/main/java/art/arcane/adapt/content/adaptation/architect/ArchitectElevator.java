@@ -36,7 +36,13 @@ import art.arcane.volmlib.util.inventorygui.Element;
 import com.jeff_media.customblockdata.CustomBlockData;
 import com.jeff_media.customblockdata.events.CustomBlockDataMoveEvent;
 import com.jeff_media.customblockdata.events.CustomBlockDataRemoveEvent;
-import org.bukkit.*;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
+import org.bukkit.Tag;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
@@ -58,7 +64,7 @@ import org.bukkit.util.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.UUID;
 
 public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config> {
@@ -66,7 +72,7 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
   private static final NamespacedKey TARGET_DOWN = new NamespacedKey(Adapt.instance, "target_down");
   private static final NamespacedKey TARGET_UP = new NamespacedKey(Adapt.instance, "target_up");
 
-  private final Set<UUID> players = java.util.concurrent.ConcurrentHashMap.newKeySet();
+  private final Map<UUID, Boolean> players = playerState();
 
   public ArchitectElevator() {
     super("architect-elevator");
@@ -156,7 +162,7 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
     if (e.getTo() == null) return;
     Player player = e.getPlayer();
 
-    if (!players.add(player.getUniqueId())) {
+    if (players.putIfAbsent(player.getUniqueId(), Boolean.TRUE) != null) {
       if (e.getFrom().getY() < e.getTo().getY() || player.isFlying())
         players.remove(player.getUniqueId());
       return;
@@ -379,9 +385,6 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
         .chord(Sound.ENTITY_ENDERMAN_TELEPORT, 0.6f, 1.2f, Sound.BLOCK_BEACON_POWER_SELECT, 0.3f, 1.5f);
   }
 
-  @Override
-  public void onTick() {
-  }
 
   @ConfigDescription("Build wool elevators to teleport vertically.")
   protected static class Config extends AdaptationConfig {

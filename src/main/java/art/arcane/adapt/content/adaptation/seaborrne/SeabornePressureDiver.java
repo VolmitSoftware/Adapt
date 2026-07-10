@@ -25,10 +25,10 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
-import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -36,18 +36,30 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class SeabornePressureDiver extends SimpleAdaptation<SeabornePressureDiver.Config> {
+  private static final long ENTRY_CHECK_INTERVAL_MS = 250L;
+  private static final int REFRESH_BATCH_SIZE = 128;
   private final Cooldowns xpCooldowns = cooldowns();
   private final Cooldowns absorbFx = cooldowns();
   private final Map<UUID, Boolean> deep = playerState();
   private final Map<UUID, Boolean> deepTier = playerState();
+  private final Map<UUID, Long> nextRefreshAt = playerState();
+  private final Map<UUID, Long> lastDeepUpdateAt = playerState();
+  private final Queue<UUID> activeQueue = new ConcurrentLinkedQueue<>();
+  private final Set<UUID> queuedPlayers = ConcurrentHashMap.newKeySet();
 
   public SeabornePressureDiver() {
     super("seaborne-pressure-diver");
@@ -96,61 +108,118 @@ public class SeabornePressureDiver extends SimpleAdaptation<SeabornePressureDive
     });
   }
 
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(PlayerMoveEvent e) {
+    Player p = e.getPlayer();
+    UUID id = p.getUniqueId();
+    if (!p.isInWater()) {
+      if (deep.containsKey(id)) {
+        clearDepthState(id, true);
+      }
+      return;
+    }
+    long now = System.currentTimeMillis();
+    Long due = nextRefreshAt.get(id);
+    if (due != null && due > now) {
+      return;
+    }
+    long interval = deep.getOrDefault(id, false)
+        ? refreshIntervalMillis(getConfig().effectTicks)
+        : ENTRY_CHECK_INTERVAL_MS;
+    nextRefreshAt.put(id, now + interval);
+    updateDepthPlayer(p, now);
+  }
+
+  @EventHandler
+  public void on(PlayerQuitEvent e) {
+    clearDepthState(e.getPlayer().getUniqueId(), true);
+  }
+
   @Override
   public void onTick() {
     long now = System.currentTimeMillis();
-    for (AdaptPlayer adaptPlayer : learnedCandidates(now)) {
-      Player p = adaptPlayer.getPlayer();
-      if (p == null || !p.isOnline()) {
+    int attempts = Math.min(REFRESH_BATCH_SIZE, queuedPlayers.size());
+    for (int i = 0; i < attempts; i++) {
+      UUID id = activeQueue.poll();
+      if (id == null) {
+        break;
+      }
+      queuedPlayers.remove(id);
+      Long due = nextRefreshAt.get(id);
+      if (due != null && due > now) {
+        queuePlayer(id);
         continue;
       }
-
-      withPlayerThread(p, () -> {
-        if (!p.isOnline()) {
-          return;
-        }
-
-        int level = getActiveLevel(p);
-        UUID id = p.getUniqueId();
-        if (level <= 0 || !p.isInWater()) {
-          clearDepthState(id);
-          return;
-        }
-
-        double depth = p.getWorld().getSeaLevel() - p.getEyeLocation().getY();
-        if (depth < getDepthThreshold(level)) {
-          clearDepthState(id);
-          return;
-        }
-
-        boolean inDeepTier = depth >= getDeepThreshold(level);
-        applyDepthBuffs(p, level, inDeepTier ? 1 : 0);
-        awardDepthXp(p);
-        addStat(p, "seaborne.pressure-diver.deep-blocks-mined", 1);
-
-        if (!deep.getOrDefault(id, false)) {
-          deep.put(id, true);
-          emitPressureSeal(p);
-        }
-
-        boolean wasTier = deepTier.getOrDefault(id, false);
-        if (inDeepTier && !wasTier) {
-          deepTier.put(id, true);
-          emitDeepTier(p);
-        } else if (!inDeepTier && wasTier) {
-          deepTier.put(id, false);
-        }
-      });
+      Player p = Bukkit.getPlayer(id);
+      if (p == null || !p.isOnline()) {
+        clearDepthState(id, true);
+        continue;
+      }
+      nextRefreshAt.put(id, now + refreshIntervalMillis(getConfig().effectTicks));
+      withPlayerThread(p, () -> updateDepthPlayer(p, System.currentTimeMillis()));
+      queuePlayer(id);
     }
   }
 
-  private void clearDepthState(UUID id) {
-    if (deep.remove(id) != null) {
-      deepTier.remove(id);
+  private void updateDepthPlayer(Player p, long now) {
+    UUID id = p.getUniqueId();
+    int level = getActiveLevel(p);
+    if (level <= 0 || !p.isInWater()) {
+      clearDepthState(id, false);
+      nextRefreshAt.put(id, now + ENTRY_CHECK_INTERVAL_MS);
+      return;
+    }
+
+    double depth = p.getWorld().getSeaLevel() - p.getEyeLocation().getY();
+    if (depth < getDepthThreshold(level)) {
+      clearDepthState(id, false);
+      nextRefreshAt.put(id, now + ENTRY_CHECK_INTERVAL_MS);
+      return;
+    }
+
+    Long previous = lastDeepUpdateAt.put(id, now);
+    double elapsedTicks = elapsedActiveTicks(previous, now);
+    boolean inDeepTier = depth >= getDeepThreshold(level);
+    applyDepthBuffs(p, level, inDeepTier ? 1 : 0, elapsedTicks);
+    awardDepthXp(p);
+    if (elapsedTicks > 0D) {
+      addStat(p, "seaborne.pressure-diver.deep-blocks-mined", elapsedTicks);
+    }
+
+    if (!deep.getOrDefault(id, false)) {
+      deep.put(id, true);
+      emitPressureSeal(p);
+    }
+
+    boolean wasTier = deepTier.getOrDefault(id, false);
+    if (inDeepTier && !wasTier) {
+      deepTier.put(id, true);
+      emitDeepTier(p);
+    } else if (!inDeepTier && wasTier) {
+      deepTier.put(id, false);
+    }
+    queuePlayer(id);
+  }
+
+  private void clearDepthState(UUID id, boolean removeSchedule) {
+    deep.remove(id);
+    deepTier.remove(id);
+    lastDeepUpdateAt.remove(id);
+    if (queuedPlayers.remove(id)) {
+      activeQueue.remove(id);
+    }
+    if (removeSchedule) {
+      nextRefreshAt.remove(id);
     }
   }
 
-  private void applyDepthBuffs(Player p, int level, int resistanceAmp) {
+  private void queuePlayer(UUID id) {
+    if (deep.getOrDefault(id, false) && queuedPlayers.add(id)) {
+      activeQueue.add(id);
+    }
+  }
+
+  private void applyDepthBuffs(Player p, int level, int resistanceAmp, double elapsedTicks) {
     p.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, getConfig().effectTicks, resistanceAmp, false, false, true), true);
     p.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, getConfig().effectTicks, 0, false, false, true), true);
 
@@ -159,11 +228,12 @@ public class SeabornePressureDiver extends SimpleAdaptation<SeabornePressureDive
       return;
     }
 
-    if (ThreadLocalRandom.current().nextDouble() > getFatigueTrimChance(level)) {
+    int trimCount = sampleProcCount(getFatigueTrimChance(level), elapsedTicks, ThreadLocalRandom.current());
+    if (trimCount <= 0) {
       return;
     }
 
-    int reducedAmp = Math.max(0, fatigue.getAmplifier() - getFatigueTrimAmount(level));
+    int reducedAmp = Math.max(0, fatigue.getAmplifier() - (getFatigueTrimAmount(level) * trimCount));
     p.addPotionEffect(new PotionEffect(PotionEffectType.MINING_FATIGUE,
         Math.max(20, Math.min(fatigue.getDuration(), getConfig().fatigueReplaceTicks)),
         reducedAmp,
@@ -236,6 +306,46 @@ public class SeabornePressureDiver extends SimpleAdaptation<SeabornePressureDive
 
   private int getFatigueTrimAmount(int level) {
     return Math.max(1, (int) Math.round(getConfig().fatigueTrimAmountBase + (getLevelPercent(level) * getConfig().fatigueTrimAmountFactor)));
+  }
+
+  static long refreshIntervalMillis(int effectTicks) {
+    return Math.max(250L, Math.min(750L, Math.max(1, effectTicks) * 25L));
+  }
+
+  static double elapsedActiveTicks(Long previousUpdateAt, long now) {
+    if (previousUpdateAt == null) {
+      return 1D;
+    }
+    if (now <= previousUpdateAt) {
+      return 0D;
+    }
+    return Math.min(40D, (now - previousUpdateAt) / 50D);
+  }
+
+  static double accumulatedChance(double perTickChance, double elapsedTicks) {
+    double chance = Math.max(0D, Math.min(1D, perTickChance));
+    if (chance <= 0D || elapsedTicks <= 0D) {
+      return 0D;
+    }
+    return 1D - Math.pow(1D - chance, elapsedTicks);
+  }
+
+  private static int sampleProcCount(double perTickChance, double elapsedTicks, ThreadLocalRandom random) {
+    double chance = Math.max(0D, Math.min(1D, perTickChance));
+    double ticks = Math.max(0D, Math.min(40D, elapsedTicks));
+    int wholeTicks = (int) Math.floor(ticks);
+    int procs = 0;
+    for (int i = 0; i < wholeTicks; i++) {
+      if (random.nextDouble() < chance) {
+        procs++;
+      }
+    }
+
+    double partialTick = ticks - wholeTicks;
+    if (partialTick > 0D && random.nextDouble() < accumulatedChance(chance, partialTick)) {
+      procs++;
+    }
+    return procs;
   }
 
   @ConfigDescription("Gain depth scaling protection underwater and partially counter mining fatigue in deep ocean play.")

@@ -29,7 +29,20 @@ import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.PlayerAdaptation;
 import art.arcane.adapt.api.world.PlayerSkillLine;
-import art.arcane.adapt.content.adaptation.tragoul.*;
+import art.arcane.adapt.content.adaptation.tragoul.TragoulBloodPact;
+import art.arcane.adapt.content.adaptation.tragoul.TragoulBoneHarvest;
+import art.arcane.adapt.content.adaptation.tragoul.TragoulCorpseExplosion;
+import art.arcane.adapt.content.adaptation.tragoul.TragoulCurseOfFrailty;
+import art.arcane.adapt.content.adaptation.tragoul.TragoulDeathSense;
+import art.arcane.adapt.content.adaptation.tragoul.TragoulGlobe;
+import art.arcane.adapt.content.adaptation.tragoul.TragoulHealing;
+import art.arcane.adapt.content.adaptation.tragoul.TragoulLance;
+import art.arcane.adapt.content.adaptation.tragoul.TragoulLastRites;
+import art.arcane.adapt.content.adaptation.tragoul.TragoulMarrowArmor;
+import art.arcane.adapt.content.adaptation.tragoul.TragoulPlagueBearer;
+import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
+import art.arcane.adapt.content.adaptation.tragoul.TragoulSoulSiphon;
+import art.arcane.adapt.content.adaptation.tragoul.TragoulThorns;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
@@ -42,7 +55,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 
 public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
@@ -91,9 +103,9 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
                 .build())
             .build())
         .build());
-    registerMilestone("challenge_trag_1k", "trag.damage", 1000, getConfig().challengeTragReward);
-    registerMilestone("challenge_trag_10k", "trag.damage", 10000, getConfig().challengeTragReward * 2);
-    registerMilestone("challenge_trag_100k", "trag.damage", 100000, getConfig().challengeTragReward * 5);
+    registerMilestone("challenge_trag_1k", "trag.damage", 1000, () -> getConfig().challengeTragReward);
+    registerMilestone("challenge_trag_10k", "trag.damage", 10000, () -> getConfig().challengeTragReward * 2);
+    registerMilestone("challenge_trag_100k", "trag.damage", 100000, () -> getConfig().challengeTragReward * 5);
 
     // Chain 2 - Hits Received
     registerAdvancement(AdaptAdvancement.builder()
@@ -110,62 +122,9 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_trag_hits_500", "trag.hitsrecieved", 500, getConfig().challengeTragReward);
-    registerMilestone("challenge_trag_hits_5k", "trag.hitsrecieved", 5000, getConfig().challengeTragReward);
+    registerMilestone("challenge_trag_hits_500", "trag.hitsrecieved", 500, () -> getConfig().challengeTragReward);
+    registerMilestone("challenge_trag_hits_5k", "trag.hitsrecieved", 5000, () -> getConfig().challengeTragReward * 2);
 
-    // Chain 3 - Deaths
-    registerAdvancement(AdaptAdvancement.builder()
-        .icon(Material.SKELETON_SKULL)
-        .key("challenge_trag_deaths_10")
-        .model(CustomModel.get(Material.SKELETON_SKULL, "advancement", "tragoul", "challenge_trag_deaths_10"))
-        .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
-        .child(AdaptAdvancement.builder()
-            .icon(Material.WITHER_SKELETON_SKULL)
-            .key("challenge_trag_deaths_100")
-            .model(CustomModel.get(Material.WITHER_SKELETON_SKULL, "advancement", "tragoul", "challenge_trag_deaths_100"))
-            .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
-            .build())
-        .build());
-    registerMilestone("challenge_trag_deaths_10", "trag.deaths", 10, getConfig().challengeTragReward);
-    registerMilestone("challenge_trag_deaths_100", "trag.deaths", 100, getConfig().challengeTragReward);
-
-    // Chain 4 - Fire Damage
-    registerAdvancement(AdaptAdvancement.builder()
-        .icon(Material.BLAZE_POWDER)
-        .key("challenge_trag_fire_500")
-        .model(CustomModel.get(Material.BLAZE_POWDER, "advancement", "tragoul", "challenge_trag_fire_500"))
-        .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
-        .child(AdaptAdvancement.builder()
-            .icon(Material.MAGMA_CREAM)
-            .key("challenge_trag_fire_5k")
-            .model(CustomModel.get(Material.MAGMA_CREAM, "advancement", "tragoul", "challenge_trag_fire_5k"))
-            .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
-            .build())
-        .build());
-    registerMilestone("challenge_trag_fire_500", "trag.fire.damage", 500, getConfig().challengeTragReward);
-    registerMilestone("challenge_trag_fire_5k", "trag.fire.damage", 5000, getConfig().challengeTragReward);
-
-    // Chain 5 - Fall Damage
-    registerAdvancement(AdaptAdvancement.builder()
-        .icon(Material.FEATHER)
-        .key("challenge_trag_fall_500")
-        .model(CustomModel.get(Material.FEATHER, "advancement", "tragoul", "challenge_trag_fall_500"))
-        .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
-        .child(AdaptAdvancement.builder()
-            .icon(Material.HAY_BLOCK)
-            .key("challenge_trag_fall_5k")
-            .model(CustomModel.get(Material.HAY_BLOCK, "advancement", "tragoul", "challenge_trag_fall_5k"))
-            .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
-            .build())
-        .build());
-    registerMilestone("challenge_trag_fall_500", "trag.fall.damage", 500, getConfig().challengeTragReward);
-    registerMilestone("challenge_trag_fall_5k", "trag.fall.damage", 5000, getConfig().challengeTragReward);
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
@@ -189,7 +148,9 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
       }
       cooldowns.mark(p.getUniqueId());
       xp(a.getPlayer(), getConfig().damageReceivedXpMultiplier * e.getDamage());
-      fx(p.getLocation().add(0, 1.0, 0), FxPriority.AMBIENT).particle(Particle.SOUL, 2, 0, 0, 0, 0.2, 0.03);
+      if (getConfig().showParticles) {
+        fx(p.getLocation().add(0, 1.0, 0), FxPriority.AMBIENT).particle(Particle.SOUL, 2, 0, 0, 0, 0.2, 0.03);
+      }
       if (p.getHealth() - e.getFinalDamage() > 0 && p.getHealth() - e.getFinalDamage() <= 8) {
         xp(a.getPlayer(), getConfig().lowHealthSurvivalXP);
         playSecondWind(p);
@@ -202,7 +163,6 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
     Player p = e.getEntity();
     shouldReturnForPlayer(p, () -> {
       AdaptPlayer a = getPlayer(p);
-      a.getData().addStat("trag.deaths", 1);
       if (AdaptConfig.get().isHardcoreResetOnPlayerDeath()) {
         Adapt.info("Resetting " + p.getName() + "'s skills due to death");
         a.delete(p.getUniqueId());
@@ -236,23 +196,6 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
     });
   }
 
-  @EventHandler(priority = EventPriority.MONITOR)
-  public void on(EntityDamageEvent e) {
-    if (!(e.getEntity() instanceof Player p)) {
-      return;
-    }
-    shouldReturnForPlayer(p, e, () -> {
-      EntityDamageEvent.DamageCause cause = e.getCause();
-      if (cause == EntityDamageEvent.DamageCause.FALL) {
-        addStat(p, "trag.fall.damage", e.getDamage());
-      } else if (cause == EntityDamageEvent.DamageCause.FIRE
-          || cause == EntityDamageEvent.DamageCause.FIRE_TICK
-          || cause == EntityDamageEvent.DamageCause.LAVA) {
-        addStat(p, "trag.fire.damage", e.getDamage());
-      }
-    });
-  }
-
   private void playSecondWind(Player p) {
     Particle.DustTransition trans = new Particle.DustTransition(Color.fromRGB(120, 0, 0), Color.fromRGB(0, 190, 200), 1.2F);
     timeline(p)
@@ -260,9 +203,13 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
         .priority(FxPriority.COMBAT)
         .cullRadius(32)
         .frame((fx, tick, progress) -> {
-          fx.ring(Particle.DUST_COLOR_TRANSITION, 1.4 - (1.0 * progress), 12, 1.0, trans);
+          if (getConfig().showParticles) {
+            fx.ring(Particle.DUST_COLOR_TRANSITION, 1.4 - (1.0 * progress), 12, 1.0, trans);
+          }
           if (tick == 0) {
-            fx.particle(Particle.DAMAGE_INDICATOR, 2, 0, 0.5, 0, 0.2, 0.02);
+            if (getConfig().showParticles) {
+              fx.particle(Particle.DAMAGE_INDICATOR, 2, 0, 0.5, 0, 0.2, 0.02);
+            }
             fx.chord(Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 0.5F, 0.8F, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.4F, 1.6F);
           }
         })
@@ -276,8 +223,10 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
         .cullRadius(24)
         .frame((fx, tick, progress) -> {
           double radius = 2.5 * (1.0 - progress);
-          fx.dome(Particle.ASH, radius, 15);
-          fx.particle(Particle.SCULK_SOUL, 2, 0, 0.3, 0, radius * 0.5, 0.02);
+          if (getConfig().showParticles) {
+            fx.dome(Particle.ASH, radius, 15);
+            fx.particle(Particle.SCULK_SOUL, 2, 0, 0.3, 0, radius * 0.5, 0.02);
+          }
           if (tick == 0) {
             fx.sound(Sound.ENTITY_BLAZE_DEATH, 1.0F, 1.0F);
           } else if (tick == 10) {
@@ -286,15 +235,6 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
         })
         .start();
   }
-
-  @Override
-  public void onTick() {
-    if (!this.isEnabled()) {
-      return;
-    }
-    checkStatTrackersForOnlinePlayers();
-  }
-
 
   @Override
   public boolean isEnabled() {

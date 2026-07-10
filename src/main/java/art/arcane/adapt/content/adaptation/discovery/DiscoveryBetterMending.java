@@ -179,10 +179,6 @@ public class DiscoveryBetterMending extends SimpleAdaptation<DiscoveryBetterMend
     return Math.max(6, (int) Math.round(getConfig().cooldownTicksBase - (getLevelPercent(level) * getConfig().cooldownTicksReduction)));
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Sneak-left-click to spend XP and directly mend the Mending item in your hand.")
   protected static class Config extends AdaptationConfig {

@@ -25,7 +25,13 @@ import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.xp.XpProvenance;
-import art.arcane.adapt.content.adaptation.axe.*;
+import art.arcane.adapt.content.adaptation.axe.AxeChop;
+import art.arcane.adapt.content.adaptation.axe.AxeCraftLogSwap;
+import art.arcane.adapt.content.adaptation.axe.AxeDropToInventory;
+import art.arcane.adapt.content.adaptation.axe.AxeGroundSmash;
+import art.arcane.adapt.content.adaptation.axe.AxeLeafVeinminer;
+import art.arcane.adapt.content.adaptation.axe.AxeTimberMark;
+import art.arcane.adapt.content.adaptation.axe.AxeWoodVeinminer;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
@@ -72,43 +78,13 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
                 .key("challenge_chop_50k")
                 .model(CustomModel.get(Material.IRON_AXE, "advancement", "axes", "challenge_chop_50k"))
                 .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
-                    .icon(Material.DIAMOND_AXE)
-                    .key("challenge_chop_500k")
-                    .model(CustomModel.get(Material.DIAMOND_AXE, "advancement", "axes", "challenge_chop_500k"))
-                    .frame(AdaptAdvancementFrame.CHALLENGE)
-                    .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
-                        .icon(Material.NETHERITE_AXE)
-                        .key("challenge_chop_5m")
-                        .model(CustomModel.get(Material.NETHERITE_AXE, "advancement", "axes", "challenge_chop_5m"))
-                        .frame(AdaptAdvancementFrame.CHALLENGE)
-                        .visibility(AdvancementVisibility.PARENT_GRANTED)
-                        .build())
-                    .build())
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build())
             .build())
         .build());
-    registerMilestone("challenge_chop_1k", "axes.blocks.broken", 1000, getConfig().challengeChopReward);
-    registerMilestone("challenge_chop_5k", "axes.blocks.broken", 5000, getConfig().challengeChopReward);
-    registerMilestone("challenge_chop_50k", "axes.blocks.broken", 50000, getConfig().challengeChopReward);
-    registerMilestone("challenge_chop_500k", "axes.blocks.broken", 500000, getConfig().challengeChopReward);
-    registerMilestone("challenge_chop_5m", "axes.blocks.broken", 5000000, getConfig().challengeChopReward);
-
-    registerAdvancement(AdaptAdvancement.builder()
-        .icon(Material.WOODEN_AXE).key("challenge_axe_swing_500")
-        .model(CustomModel.get(Material.WOODEN_AXE, "advancement", "axes", "challenge_axe_swing_500"))
-        .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
-        .child(AdaptAdvancement.builder()
-            .icon(Material.IRON_AXE)
-            .key("challenge_axe_swing_5k")
-            .model(CustomModel.get(Material.IRON_AXE, "advancement", "axes", "challenge_axe_swing_5k"))
-            .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
-            .build())
-        .build());
-    registerMilestone("challenge_axe_swing_500", "axes.swings", 500, getConfig().challengeChopReward);
-    registerMilestone("challenge_axe_swing_5k", "axes.swings", 5000, getConfig().challengeChopReward * 2);
+    registerMilestone("challenge_chop_1k", "axes.blocks.broken", 1000, () -> getConfig().challengeChopReward);
+    registerMilestone("challenge_chop_5k", "axes.blocks.broken", 5000, () -> getConfig().challengeChopReward);
+    registerMilestone("challenge_chop_50k", "axes.blocks.broken", 50000, () -> getConfig().challengeChopReward);
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.GOLDEN_AXE).key("challenge_axe_damage_1k")
@@ -123,8 +99,8 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_axe_damage_1k", "axes.damage", 1000, getConfig().challengeChopReward);
-    registerMilestone("challenge_axe_damage_10k", "axes.damage", 10000, getConfig().challengeChopReward * 2);
+    registerMilestone("challenge_axe_damage_1k", "axes.damage", 1000, () -> getConfig().challengeChopReward);
+    registerMilestone("challenge_axe_damage_10k", "axes.damage", 10000, () -> getConfig().challengeChopReward * 2);
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.OAK_LOG).key("challenge_axe_value_5k")
@@ -139,8 +115,8 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_axe_value_5k", "axes.blocks.value", 5000, getConfig().challengeChopReward);
-    registerMilestone("challenge_axe_value_50k", "axes.blocks.value", 50000, getConfig().challengeChopReward * 2);
+    registerMilestone("challenge_axe_value_5k", "axes.blocks.value", 5000, () -> getConfig().challengeChopReward);
+    registerMilestone("challenge_axe_value_50k", "axes.blocks.value", 50000, () -> getConfig().challengeChopReward * 2);
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.OAK_LEAVES).key("challenge_leaves_500")
@@ -155,91 +131,98 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_leaves_500", "axes.leaves", 500, getConfig().challengeChopReward);
-    registerMilestone("challenge_leaves_5k", "axes.leaves", 5000, getConfig().challengeChopReward * 2);
+    registerMilestone("challenge_leaves_500", "axes.leaves", 500, () -> getConfig().challengeChopReward);
+    registerMilestone("challenge_leaves_5k", "axes.leaves", 5000, () -> getConfig().challengeChopReward * 2);
   }
 
-  @EventHandler(priority = EventPriority.MONITOR)
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(EntityDamageByEntityEvent e) {
-    if (e.getDamager() instanceof Player p && checkValidEntity(e.getEntity().getType())) {
-      if (!getConfig().getXpForAttackingWithTools) {
+    if (!getConfig().getXpForAttackingWithTools
+        || !(e.getDamager() instanceof Player p)
+        || !checkValidEntity(e.getEntity().getType())
+        || !isAxe(p.getInventory().getItemInMainHand())) {
+      return;
+    }
+
+    shouldReturnForPlayer(p, e, () -> {
+      if (e.getEntity().isDead() || e.getEntity().isInvulnerable() || p.isDead() || p.isInvulnerable()) {
         return;
       }
-      shouldReturnForPlayer(p, () -> {
-        if (e.getEntity().isDead() || e.getEntity().isInvulnerable() || p.isDead() || p.isInvulnerable()) {
-          return;
-        }
-        AdaptPlayer a = getPlayer(p);
-        ItemStack hand = a.getPlayer().getInventory().getItemInMainHand();
+      if (!beginCooldown(p)) {
+        return;
+      }
 
-        if (isAxe(hand)) {
-          handleCooldown(p, () -> {
-            a.getData().addStat("axes.swings", 1);
-            a.getData().addStat("axes.damage", e.getDamage());
-            xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().axeDamageXPMultiplier * e.getDamage());
-          });
-        }
-      });
-    }
+      AdaptPlayer adaptPlayer = getPlayer(p);
+      adaptPlayer.getData().addStat("axes.damage", e.getDamage());
+      xp(p, e.getEntity().getLocation(), getConfig().axeDamageXPMultiplier * e.getDamage());
+    });
   }
 
-  @EventHandler(priority = EventPriority.MONITOR)
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(BlockBreakEvent e) {
     Player p = e.getPlayer();
-    shouldReturnForPlayer(p, () -> {
-      if (isAxe(p.getInventory().getItemInMainHand())) {
-        if (isLog(new ItemStack(e.getBlock().getType()))) {
-          double v = getValue(e.getBlock().getType());
-          AdaptPlayer a = getPlayer(p);
-          a.getData().addStat("axes.blocks.broken", 1);
-          a.getData().addStat("axes.blocks.value", getValue(e.getBlock().getBlockData()));
-          handleCooldown(p, () -> {
-            if (XpProvenance.breakXpMultiplier(e.getBlock()) <= 0) {
-              return;
-            }
-            xp(p, e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), v));
-          });
+    if (!isAxe(p.getInventory().getItemInMainHand())) {
+      return;
+    }
+
+    shouldReturnForPlayer(p, e, () -> {
+      Material blockType = e.getBlock().getType();
+      String typeName = blockType.name();
+      if (isLogMaterial(blockType, typeName)) {
+        double value = getValue(blockType);
+        AdaptPlayer adaptPlayer = getPlayer(p);
+        adaptPlayer.getData().addStat("axes.blocks.broken", 1);
+        adaptPlayer.getData().addStat("axes.blocks.value", getValue(e.getBlock().getBlockData()));
+        if (beginCooldown(p) && XpProvenance.breakXpMultiplier(e.getBlock()) > 0) {
+          xp(p, e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), value));
         }
-        if (e.getBlock().getType().name().endsWith("_LEAVES")) {
-          addStat(p, "axes.leaves", 1);
-        }
+      }
+      if (typeName.endsWith("_LEAVES")) {
+        addStat(p, "axes.leaves", 1);
       }
     });
   }
 
-  private void handleCooldown(Player p, Runnable action) {
+  private boolean beginCooldown(Player p) {
     UUID id = p.getUniqueId();
     if (!cooldowns.isReady(id, getConfig().cooldownDelay)) {
-      return;
+      return false;
     }
     cooldowns.mark(id);
-    action.run();
+    return true;
+  }
+
+  private boolean isLogMaterial(Material type, String typeName) {
+    return type == Material.MUSHROOM_STEM
+        || type == Material.BROWN_MUSHROOM_BLOCK
+        || type == Material.RED_MUSHROOM_BLOCK
+        || type == Material.MANGROVE_ROOTS
+        || type == Material.MUDDY_MANGROVE_ROOTS
+        || typeName.endsWith("_LOG")
+        || typeName.endsWith("_WOOD");
   }
 
   public double getValue(Material type) {
     double value = super.getValue(type) * getConfig().valueXPMultiplier;
-    value += Math.min(getConfig().maxHardnessBonus, type.getHardness());
+    float hardness = type.getHardness();
+    String typeName = type.name();
+    value += Math.min(getConfig().maxHardnessBonus, hardness);
     value += Math.min(getConfig().maxBlastResistanceBonus, type.getBlastResistance());
 
-    if (type.name().endsWith("_LOG") || type.name().endsWith("_WOOD")) {
+    if (typeName.endsWith("_LOG") || typeName.endsWith("_WOOD")) {
       value += getConfig().logOrWoodXPMultiplier;
     }
-    if (type.name().endsWith("_LEAVES")) {
+    if (typeName.endsWith("_LEAVES")) {
       value += getConfig().leavesMultiplier;
     }
 
-    if (type.getHardness() == 0) {
+    if (hardness == 0) {
       value = 0;
     }
 
     return value;
   }
 
-
-  @Override
-  public void onTick() {
-    checkStatTrackersForOnlinePlayers();
-  }
 
   @Override
   public boolean isEnabled() {

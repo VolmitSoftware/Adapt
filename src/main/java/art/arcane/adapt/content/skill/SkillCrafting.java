@@ -24,7 +24,13 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.skill.SimpleSkill;
-import art.arcane.adapt.content.adaptation.crafting.*;
+import art.arcane.adapt.content.adaptation.crafting.CraftingBackpacks;
+import art.arcane.adapt.content.adaptation.crafting.CraftingDeconstruction;
+import art.arcane.adapt.content.adaptation.crafting.CraftingLeather;
+import art.arcane.adapt.content.adaptation.crafting.CraftingReconstruction;
+import art.arcane.adapt.content.adaptation.crafting.CraftingSkulls;
+import art.arcane.adapt.content.adaptation.crafting.CraftingStations;
+import art.arcane.adapt.content.adaptation.crafting.CraftingXP;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
@@ -75,27 +81,13 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
                 .key("challenge_craft_50k")
                 .model(CustomModel.get(Material.CRAFTING_TABLE, "advancement", "crafting", "challenge_craft_50k"))
                 .frame(AdaptAdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
-                    .icon(Material.CRAFTING_TABLE)
-                    .key("challenge_craft_500k")
-                    .model(CustomModel.get(Material.CRAFTING_TABLE, "advancement", "crafting", "challenge_craft_500k"))
-                    .frame(AdaptAdvancementFrame.CHALLENGE)
-                    .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
-                        .icon(Material.CRAFTING_TABLE)
-                        .key("challenge_craft_5m")
-                        .model(CustomModel.get(Material.CRAFTING_TABLE, "advancement", "crafting", "challenge_craft_5m"))
-                        .frame(AdaptAdvancementFrame.CHALLENGE)
-                        .visibility(AdvancementVisibility.PARENT_GRANTED)
-                        .build())
-                    .build())
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build())
             .build())
         .build());
-    registerMilestone("challenge_craft_1k", "crafted.items", 1000, getConfig().challengeCraft1kReward);
-    registerMilestone("challenge_craft_5k", "crafted.items", 5000, getConfig().challengeCraft1kReward);
-    registerMilestone("challenge_craft_50k", "crafted.items", 50000, getConfig().challengeCraft1kReward);
-    registerMilestone("challenge_craft_500k", "crafted.items", 500000, getConfig().challengeCraft1kReward);
-    registerMilestone("challenge_craft_5m", "crafted.items", 5000000, getConfig().challengeCraft1kReward);
+    registerMilestone("challenge_craft_1k", "crafted.items", 1000, () -> getConfig().challengeCraft1kReward);
+    registerMilestone("challenge_craft_5k", "crafted.items", 5000, () -> getConfig().challengeCraft1kReward);
+    registerMilestone("challenge_craft_50k", "crafted.items", 50000, () -> getConfig().challengeCraft1kReward);
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.GOLD_INGOT).key("challenge_craft_value_10k")
@@ -110,8 +102,8 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_craft_value_10k", "crafted.value", 10000, getConfig().challengeCraft1kReward);
-    registerMilestone("challenge_craft_value_100k", "crafted.value", 100000, getConfig().challengeCraft1kReward * 2);
+    registerMilestone("challenge_craft_value_10k", "crafted.value", 10000, () -> getConfig().challengeCraft1kReward);
+    registerMilestone("challenge_craft_value_100k", "crafted.value", 100000, () -> getConfig().challengeCraft1kReward * 2);
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.IRON_PICKAXE).key("challenge_craft_tools_25")
@@ -126,8 +118,8 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_craft_tools_25", "crafting.tools", 25, getConfig().challengeCraft1kReward);
-    registerMilestone("challenge_craft_tools_250", "crafting.tools", 250, getConfig().challengeCraft1kReward * 2);
+    registerMilestone("challenge_craft_tools_25", "crafting.tools", 25, () -> getConfig().challengeCraft1kReward);
+    registerMilestone("challenge_craft_tools_250", "crafting.tools", 250, () -> getConfig().challengeCraft1kReward * 2);
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.IRON_CHESTPLATE).key("challenge_craft_armor_25")
@@ -142,28 +134,13 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_craft_armor_25", "crafting.armor", 25, getConfig().challengeCraft1kReward);
-    registerMilestone("challenge_craft_armor_250", "crafting.armor", 250, getConfig().challengeCraft1kReward * 2);
+    registerMilestone("challenge_craft_armor_25", "crafting.armor", 25, () -> getConfig().challengeCraft1kReward);
+    registerMilestone("challenge_craft_armor_250", "crafting.armor", 250, () -> getConfig().challengeCraft1kReward * 2);
 
-    registerAdvancement(AdaptAdvancement.builder()
-        .icon(Material.HOPPER).key("challenge_craft_mass_25k")
-        .model(CustomModel.get(Material.HOPPER, "advancement", "crafting", "challenge_craft_mass_25k"))
-        .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
-        .child(AdaptAdvancement.builder()
-            .icon(Material.CHEST)
-            .key("challenge_craft_mass_250k")
-            .model(CustomModel.get(Material.CHEST, "advancement", "crafting", "challenge_craft_mass_250k"))
-            .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
-            .build())
-        .build());
-    registerMilestone("challenge_craft_mass_25k", "crafted.items", 25000, getConfig().challengeCraft1kReward * 2);
-    registerMilestone("challenge_craft_mass_250k", "crafted.items", 250000, getConfig().challengeCraft1kReward * 5);
   }
 
 
-  @EventHandler(priority = EventPriority.MONITOR)
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(CraftItemEvent e) {
     Player p = (Player) e.getWhoClicked();
     shouldReturnForPlayer(p, e, () -> {
@@ -205,28 +182,22 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
         .sound(Sound.BLOCK_FURNACE_FIRE_CRACKLE, 0.3F, 1.0F);
   }
 
-  @Override
-  public void onTick() {
-    checkStatTrackersForOnlinePlayers();
-  }
-
-
   private boolean isValidCraftEvent(CraftItemEvent e) {
     Player p = (Player) e.getWhoClicked();
+    ItemStack result = e.getInventory().getResult();
+    ItemStack cursor = e.getCursor();
+    if (result == null || result.getAmount() <= 0 || (cursor != null && cursor.getAmount() >= cursor.getMaxStackSize())) {
+      return false;
+    }
 
     if (!cooldowns.isReady(p.getUniqueId(), getConfig().cooldownDelay)) {
       return false;
     }
     cooldowns.mark(p.getUniqueId());
-
-    ItemStack result = e.getInventory().getResult();
-    ItemStack cursor = e.getCursor();
-
-    return result != null && result.getAmount() > 0 && (cursor == null || cursor.getAmount() < 64);
+    return true;
   }
 
   private int calculateRecipeAmount(CraftItemEvent e) {
-    ItemStack test = e.getRecipe().getResult().clone();
     int recipeAmount = e.getInventory().getResult().getAmount();
     switch (e.getClick()) {
       case NUMBER_KEY -> {
@@ -245,7 +216,7 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
           break;
         }
         int maxCraftable = getMaxCraftAmount(e.getInventory());
-        int capacity = fits(test, e.getView().getBottomInventory());
+        int capacity = fits(e.getRecipe().getResult(), e.getView().getBottomInventory());
         if (capacity < maxCraftable) {
           maxCraftable = ((capacity + recipeAmount - 1) / recipeAmount) * recipeAmount;
         }
@@ -259,13 +230,14 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
 
   private int fits(ItemStack stack, Inventory inv) {
     ItemStack[] contents = inv.getContents();
+    int maxStackSize = stack.getMaxStackSize();
     int result = 0;
 
     for (ItemStack is : contents) {
       if (is == null) {
-        result += stack.getMaxStackSize();
+        result += maxStackSize;
       } else if (is.isSimilar(stack)) {
-        result += Math.max(stack.getMaxStackSize() - is.getAmount(), 0);
+        result += Math.max(maxStackSize - is.getAmount(), 0);
       }
     }
 

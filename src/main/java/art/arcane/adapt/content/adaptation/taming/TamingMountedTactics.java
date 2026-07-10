@@ -29,31 +29,53 @@ import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.math.VelocitySpeed;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.events.api.ReflectiveHandler;
+import art.arcane.adapt.util.reflect.events.api.entity.EntityDismountEvent;
+import art.arcane.adapt.util.reflect.events.api.entity.EntityMountEvent;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
+import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.entity.*;
+import org.bukkit.block.BlockFace;
+import org.bukkit.entity.AbstractHorse;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Pig;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Strider;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerToggleSprintEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.Config> {
+  private static final int REFRESH_BATCH_SIZE = 64;
+  private static final long REFRESH_INTERVAL_MS = 500L;
   private final Map<UUID, Location> lastMountedLocation = playerState();
   private final Map<UUID, Boolean> wasSprinting = playerState();
+  private final Map<UUID, Long> nextRefreshAt = playerState();
   private final Cooldowns emberCd = cooldowns();
   private final Cooldowns hitCd = cooldowns();
+  private final Queue<UUID> activeQueue = new ConcurrentLinkedQueue<>();
+  private final Set<UUID> queuedPlayers = ConcurrentHashMap.newKeySet();
 
   public TamingMountedTactics() {
     super("tame-mounted-tactics");
@@ -85,75 +107,179 @@ public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.
 
   @Override
   public void onTick() {
-    for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
-      Player p = adaptPlayer.getPlayer();
-      int level = getActiveLevel(p);
-      if (level <= 0) {
+    long now = System.currentTimeMillis();
+    int attempts = Math.min(REFRESH_BATCH_SIZE, queuedPlayers.size());
+    for (int i = 0; i < attempts; i++) {
+      UUID id = activeQueue.poll();
+      if (id == null) {
+        break;
+      }
+      queuedPlayers.remove(id);
+      Long due = nextRefreshAt.get(id);
+      if (due != null && due > now) {
+        queuePlayer(id);
         continue;
       }
-
-      UUID id = p.getUniqueId();
-      Entity vehicle = p.getVehicle();
-      if (vehicle != null) {
-        Location last = lastMountedLocation.get(id);
-        Location current = p.getLocation();
-        if (last != null && last.getWorld() == current.getWorld()) {
-          double dist = last.distance(current);
-          if (dist > 0.1 && dist < 100) {
-            addStat(p, "taming.mounted-tactics.distance", dist);
-          }
-        }
-        lastMountedLocation.put(id, current);
-
-        boolean sprint = p.isSprinting();
-        Boolean wasSprint = wasSprinting.get(id);
-        if (sprint && (wasSprint == null || !wasSprint)) {
-          fx(vehicle.getLocation(), FxPriority.TRAIL)
-              .particle(Particle.POOF, 3, 0, 0.1D, 0, 0.15D, 0.02D)
-              .dustBurst(Color.fromRGB(0x9A7B4F), 4, 0.25D, 1.0F)
-              .sound(Sound.ENTITY_HORSE_GALLOP, 0.4F, 1.1F);
-        }
-        if (wasSprint == null || wasSprint != sprint) {
-          wasSprinting.put(id, sprint);
-        }
-      } else {
-        lastMountedLocation.remove(id);
-        wasSprinting.remove(id);
+      Player p = Bukkit.getPlayer(id);
+      if (p == null || !p.isOnline()) {
+        clearPlayerState(id);
+        continue;
       }
-      if (vehicle instanceof AbstractHorse horse) {
-        if (hasForwardInput(p)) {
-          applyMountForwardSpeed(horse, p, getHorseTargetSpeed(level));
+      nextRefreshAt.put(id, now + REFRESH_INTERVAL_MS);
+      withPlayerThread(p, () -> {
+        Entity vehicle = p.getVehicle();
+        if (updateMountedPlayer(p, vehicle, null)) {
+          queuePlayer(id);
+        } else {
+          clearPlayerState(id);
         }
-        if (p.isSprinting()) {
-          Vector push = p.getLocation().getDirection().clone().setY(0).normalize().multiply(getHorsePush(level));
-          horse.setVelocity(horse.getVelocity().multiply(0.8).add(push));
-        }
-      } else if (vehicle instanceof Strider strider) {
-        p.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 40, 0, false, false, true), true);
-        if (hasForwardInput(p)) {
-          applyMountForwardSpeed(strider, p, getStriderTargetSpeed(level));
-        }
-        if (strider.getLocation().getBlock().getType() == Material.LAVA || strider.getLocation().clone().subtract(0, 1, 0).getBlock().getType() == Material.LAVA) {
-          strider.setShivering(false);
-          if (emberCd.isReady(p.getUniqueId(), 1000)) {
-            emberCd.mark(p.getUniqueId());
-            fx(strider, FxPriority.AMBIENT)
-                .particle(Particle.FLAME, 2, 0, 0.3D, 0, 0.1D, 0.01D)
-                .particle(Particle.SCRAPE, 1, 0, 0.4D, 0, 0.1D, 0);
-          }
-        }
-      } else if (vehicle instanceof Pig pig) {
-        p.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 25, getPigResistanceAmplifier(level), false, false, true), true);
-        if (p.isSprinting()) {
-          Vector forward = p.getLocation().getDirection().clone().setY(0).normalize().multiply(getPigPush(level));
-          pig.setVelocity(pig.getVelocity().multiply(0.7).add(forward));
-        }
-      }
+      });
+      queuePlayer(id);
     }
   }
 
-  private void applyMountForwardSpeed(Entity mount, Player rider, double targetSpeed) {
-    Vector direction = rider.getLocation().getDirection().setY(0);
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(PlayerMoveEvent e) {
+    refreshFromEvent(e.getPlayer(), null, null);
+  }
+
+  @EventHandler
+  public void on(PlayerToggleSprintEvent e) {
+    refreshFromEvent(e.getPlayer(), null, e.isSprinting());
+  }
+
+  @EventHandler
+  public void on(PlayerQuitEvent e) {
+    clearPlayerState(e.getPlayer().getUniqueId());
+  }
+
+  @EventHandler
+  public void on(PlayerDeathEvent e) {
+    clearPlayerState(e.getEntity().getUniqueId());
+  }
+
+  @ReflectiveHandler
+  public void on(EntityMountEvent e) {
+    if (e.getEntity() instanceof Player p) {
+      refreshFromEvent(p, e.getMount(), null);
+    }
+  }
+
+  @ReflectiveHandler
+  public void on(EntityDismountEvent e) {
+    if (e.getEntity() instanceof Player p) {
+      clearPlayerState(p.getUniqueId());
+    }
+  }
+
+  private void refreshFromEvent(Player p, Entity vehicleOverride, Boolean sprintingOverride) {
+    UUID id = p.getUniqueId();
+    if (vehicleOverride == null && p.getVehicle() == null && !nextRefreshAt.containsKey(id)) {
+      return;
+    }
+    Entity vehicle = vehicleOverride == null ? p.getVehicle() : vehicleOverride;
+    if (updateMountedPlayer(p, vehicle, sprintingOverride)) {
+      if (!requiresStationaryRefresh(vehicle)) {
+        clearRefreshSchedule(id);
+        return;
+      }
+      nextRefreshAt.put(id, System.currentTimeMillis() + REFRESH_INTERVAL_MS);
+      queuePlayer(id);
+      return;
+    }
+    clearPlayerState(id);
+  }
+
+  private boolean updateMountedPlayer(Player p, Entity vehicle, Boolean sprintingOverride) {
+    UUID id = p.getUniqueId();
+    int level = getActiveLevel(p);
+    if (level <= 0) {
+      return false;
+    }
+
+    if (vehicle == null) {
+      return false;
+    }
+
+    Location current = p.getLocation();
+    Location last = lastMountedLocation.put(id, current);
+    if (last != null && last.getWorld() == current.getWorld()) {
+      double distance = last.distance(current);
+      if (distance > 0.1 && distance < 100) {
+        addStat(p, "taming.mounted-tactics.distance", distance);
+      }
+    }
+
+    boolean sprinting = sprintingOverride == null ? p.isSprinting() : sprintingOverride;
+    Boolean sprintingBefore = wasSprinting.put(id, sprinting);
+    if (sprinting && (sprintingBefore == null || !sprintingBefore)) {
+      fx(vehicle.getLocation(), FxPriority.TRAIL)
+          .particle(Particle.POOF, 3, 0, 0.1D, 0, 0.15D, 0.02D)
+          .dustBurst(Color.fromRGB(0x9A7B4F), 4, 0.25D, 1.0F)
+          .sound(Sound.ENTITY_HORSE_GALLOP, 0.4F, 1.1F);
+    }
+
+    if (vehicle instanceof AbstractHorse horse) {
+      if (hasForwardInput(p)) {
+        applyMountForwardSpeed(horse, current.getDirection(), getHorseTargetSpeed(level));
+      }
+      if (sprinting) {
+        applyHorizontalPush(horse, current.getDirection(), 0.8D, getHorsePush(level));
+      }
+      return true;
+    }
+
+    if (vehicle instanceof Strider strider) {
+      p.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 40, 0, false, false, true), true);
+      if (hasForwardInput(p)) {
+        applyMountForwardSpeed(strider, current.getDirection(), getStriderTargetSpeed(level));
+      }
+      Location striderLocation = strider.getLocation();
+      if (striderLocation.getBlock().getType() == Material.LAVA
+          || striderLocation.getBlock().getRelative(BlockFace.DOWN).getType() == Material.LAVA) {
+        strider.setShivering(false);
+        if (emberCd.isReady(id, 1000)) {
+          emberCd.mark(id);
+          fx(strider, FxPriority.AMBIENT)
+              .particle(Particle.FLAME, 2, 0, 0.3D, 0, 0.1D, 0.01D)
+              .particle(Particle.SCRAPE, 1, 0, 0.4D, 0, 0.1D, 0);
+        }
+      }
+      return true;
+    }
+
+    if (vehicle instanceof Pig pig) {
+      p.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 25, getPigResistanceAmplifier(level), false, false, true), true);
+      if (sprinting) {
+        applyHorizontalPush(pig, current.getDirection(), 0.7D, getPigPush(level));
+      }
+    }
+    return true;
+  }
+
+  private void queuePlayer(UUID id) {
+    if (nextRefreshAt.containsKey(id) && queuedPlayers.add(id)) {
+      activeQueue.add(id);
+    }
+  }
+
+  private void clearRefreshSchedule(UUID id) {
+    nextRefreshAt.remove(id);
+    if (queuedPlayers.remove(id)) {
+      activeQueue.remove(id);
+    }
+  }
+
+  private void clearPlayerState(UUID id) {
+    lastMountedLocation.remove(id);
+    wasSprinting.remove(id);
+    clearRefreshSchedule(id);
+    emberCd.clear(id);
+    hitCd.clear(id);
+  }
+
+  private void applyMountForwardSpeed(Entity mount, Vector direction, double targetSpeed) {
+    direction.setY(0);
     if (direction.lengthSquared() <= VelocitySpeed.EPSILON) {
       return;
     }
@@ -165,6 +291,19 @@ public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.
     Vector nextHorizontal = VelocitySpeed.moveTowards(horizontal, targetHorizontal, Math.max(0, getConfig().mountAccelPerTick));
     nextHorizontal = VelocitySpeed.clampHorizontal(nextHorizontal, getConfig().mountMaxHorizontalSpeed);
     mount.setVelocity(new Vector(nextHorizontal.getX(), velocity.getY(), nextHorizontal.getZ()));
+  }
+
+  private void applyHorizontalPush(Entity mount, Vector direction, double damping, double amount) {
+    direction.setY(0);
+    if (direction.lengthSquared() <= VelocitySpeed.EPSILON) {
+      return;
+    }
+    Vector push = direction.normalize().multiply(Math.max(0D, amount));
+    mount.setVelocity(mount.getVelocity().multiply(damping).add(push));
+  }
+
+  private boolean requiresStationaryRefresh(Entity vehicle) {
+    return vehicle instanceof AbstractHorse || vehicle instanceof Strider || vehicle instanceof Pig;
   }
 
   private boolean hasForwardInput(Player p) {

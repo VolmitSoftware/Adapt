@@ -17,6 +17,8 @@ release/
 
 build/
 
+logs/
+
 .DS_Store
 
 .gradle/

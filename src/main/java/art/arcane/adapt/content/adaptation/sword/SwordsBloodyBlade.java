@@ -138,10 +138,6 @@ public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config
   }
 
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Sword strikes cause bleeding over time.")
   protected static class Config extends AdaptationConfig {

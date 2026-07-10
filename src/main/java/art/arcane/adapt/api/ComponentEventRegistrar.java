@@ -16,10 +16,11 @@
  -   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
 
-package art.arcane.adapt.api.skill;
+package art.arcane.adapt.api;
 
 import art.arcane.adapt.Adapt;
-import art.arcane.adapt.api.EventHandlerInvoker;
+import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.skill.Skill;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -33,12 +34,13 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public final class SkillEventRegistrar {
-  private SkillEventRegistrar() {
+public final class ComponentEventRegistrar {
+  private ComponentEventRegistrar() {
   }
 
   public static boolean register(Plugin plugin, Listener listener) {
-    if (!(listener instanceof Skill<?>)) {
+    String componentType = componentType(listener);
+    if (componentType == null) {
       return false;
     }
 
@@ -59,15 +61,18 @@ public final class SkillEventRegistrar {
       try {
         method.setAccessible(true);
       } catch (Throwable ex) {
-        Adapt.warn("Failed enabling access to skill handler "
+        Adapt.warn("Failed enabling access to " + componentType + " handler "
             + listener.getClass().getName() + "#" + method.getName()
             + ": " + ex.getClass().getSimpleName()
             + (ex.getMessage() == null ? "" : " - " + ex.getMessage()));
         continue;
       }
 
-      EventExecutor executor = EventHandlerInvoker.createExecutor(method, eventType, EventHandlerInvoker.enforcesInteractionValidity(method, eventType));
-
+      EventExecutor executor = EventHandlerInvoker.createExecutor(
+          method,
+          eventType,
+          EventHandlerInvoker.enforcesInteractionValidity(method, eventType)
+      );
       boolean ignoreCancelled = EventHandlerInvoker.shouldIgnoreCancelled(method, annotation, eventType);
       Bukkit.getPluginManager().registerEvent(eventType, listener, annotation.priority(), executor, plugin, ignoreCancelled);
       registeredAny = true;
@@ -76,15 +81,24 @@ public final class SkillEventRegistrar {
     return registeredAny;
   }
 
+  private static String componentType(Listener listener) {
+    if (listener instanceof Skill<?>) {
+      return "skill";
+    }
+    if (listener instanceof Adaptation<?>) {
+      return "adaptation";
+    }
+    return null;
+  }
+
   private static Map<String, Method> collectHandlerMethods(Class<?> type) {
     Map<String, Method> methods = new LinkedHashMap<>();
     Class<?> current = type;
     while (current != null && current != Object.class) {
       for (Method method : current.getDeclaredMethods()) {
-        if (!method.isAnnotationPresent(EventHandler.class)) {
-          continue;
+        if (method.isAnnotationPresent(EventHandler.class)) {
+          methods.putIfAbsent(signature(method), method);
         }
-        methods.putIfAbsent(signature(method), method);
       }
       current = current.getSuperclass();
     }

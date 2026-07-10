@@ -25,7 +25,6 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
-import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -43,6 +42,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerToggleSprintEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
@@ -58,7 +59,6 @@ public class UnarmedBatteringCharge extends SimpleAdaptation<UnarmedBatteringCha
     super("unarmed-battering-charge");
     registerConfiguration(Config.class);
     setIcon(Material.BLAZE_ROD);
-    setInterval(50);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.IRON_INGOT)
         .key("challenge_unarmed_charge_300")
@@ -134,6 +134,24 @@ public class UnarmedBatteringCharge extends SimpleAdaptation<UnarmedBatteringCha
         && isChargeLoadout(p)) {
       addStat(p, "unarmed.battering-charge.charge-kills", 1);
     }
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(PlayerMoveEvent e) {
+    updatePrimedState(e.getPlayer());
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(PlayerToggleSprintEvent e) {
+    if (!e.isSprinting()) {
+      UUID id = e.getPlayer().getUniqueId();
+      if (Boolean.TRUE.equals(primedState.remove(id))) {
+        playChargeExpiry(e.getPlayer());
+      }
+      trailCooldown.clear(id);
+      return;
+    }
+    updatePrimedState(e.getPlayer());
   }
 
   private boolean isChargeLoadout(Player p) {
@@ -221,43 +239,31 @@ public class UnarmedBatteringCharge extends SimpleAdaptation<UnarmedBatteringCha
     return Math.max(10, (int) Math.round(getConfig().cooldownTicksBase - (getLevelPercent(level) * getConfig().cooldownTicksFactor)));
   }
 
-  @Override
-  public void onTick() {
-    long now = System.currentTimeMillis();
-    for (AdaptPlayer adaptPlayer : learnedCandidates(now)) {
-      Player p = adaptPlayer.getPlayer();
-      if (p == null || !p.isOnline()) {
-        continue;
-      }
-      UUID id = p.getUniqueId();
-      int level = getActiveLevel(p);
-      if (level <= 0) {
-        primedState.remove(id);
-        trailCooldown.clear(id);
-        continue;
-      }
-
-      boolean primed = isChargeReady(p);
-      boolean wasPrimed = primedState.getOrDefault(id, false);
-
-      if (primed) {
-        long interval = Math.max(25L, getConfig().primedTrailIntervalMillis);
-        if (trailCooldown.isReady(id, interval)) {
-          trailCooldown.mark(id);
-          fx(p.getLocation().add(0, 0.2D, 0), FxPriority.TRAIL).dustBurst(TRAIL_COLOR, 2, 0.2D, 0.8F);
-        }
-        if (!wasPrimed) {
-          playPrimeTelegraph(p);
-        }
-      } else {
-        trailCooldown.clear(id);
-        if (wasPrimed) {
-          playChargeExpiry(p);
-        }
-      }
-
-      primedState.put(id, primed);
+  private void updatePrimedState(Player player) {
+    UUID id = player.getUniqueId();
+    if (!player.isSprinting() && !primedState.containsKey(id)) {
+      return;
     }
+
+    int level = getActiveLevel(player);
+    boolean primed = level > 0 && isChargeReady(player);
+    boolean wasPrimed = primedState.getOrDefault(id, false);
+    if (primed) {
+      long interval = Math.max(50L, getConfig().primedTrailIntervalMillis);
+      if (trailCooldown.isReady(id, interval)) {
+        trailCooldown.mark(id);
+        fx(player.getLocation().add(0, 0.2D, 0), FxPriority.TRAIL).dustBurst(TRAIL_COLOR, 2, 0.2D, 0.8F);
+      }
+      if (!wasPrimed) {
+        playPrimeTelegraph(player);
+      }
+    } else {
+      trailCooldown.clear(id);
+      if (wasPrimed) {
+        playChargeExpiry(player);
+      }
+    }
+    primedState.put(id, primed);
   }
 
   @ConfigDescription("Sprint into enemies with fists or a shield to deal impact damage.")

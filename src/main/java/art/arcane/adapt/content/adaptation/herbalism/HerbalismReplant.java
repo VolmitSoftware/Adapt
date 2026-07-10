@@ -199,10 +199,6 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
   }
 
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Right-click a crop with a hoe to harvest and replant it.")
   protected static class Config extends AdaptationConfig {

@@ -22,10 +22,17 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.skill.SkillOwnerPulse;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.adaptation.excavation.ExcavationGraveDigger;
-import art.arcane.adapt.content.adaptation.stealth.*;
+import art.arcane.adapt.content.adaptation.stealth.StealthEnderVeil;
+import art.arcane.adapt.content.adaptation.stealth.StealthGhostArmor;
+import art.arcane.adapt.content.adaptation.stealth.StealthShadowDecoy;
+import art.arcane.adapt.content.adaptation.stealth.StealthSight;
+import art.arcane.adapt.content.adaptation.stealth.StealthSilentStep;
+import art.arcane.adapt.content.adaptation.stealth.StealthSnatch;
+import art.arcane.adapt.content.adaptation.stealth.StealthSpeed;
 import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
@@ -44,6 +51,7 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 
 public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
+  private final SkillOwnerPulse.Registration ownerPulse;
 
   public SkillStealth() {
     super("stealth", Localizer.dLocalize("skill.stealth.icon"));
@@ -81,9 +89,9 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
                 .build())
             .build())
         .build());
-    registerMilestone("challenge_sneak_1k", "move.sneak", 1000, getConfig().challengeSneak1kReward);
-    registerMilestone("challenge_sneak_5k", "move.sneak", 5000, getConfig().challengeSneak5kReward);
-    registerMilestone("challenge_sneak_20k", "move.sneak", 20000, getConfig().challengeSneak20kReward);
+    registerMilestone("challenge_sneak_1k", "move.sneak", 1000, () -> getConfig().challengeSneak1kReward);
+    registerMilestone("challenge_sneak_5k", "move.sneak", 5000, () -> getConfig().challengeSneak5kReward);
+    registerMilestone("challenge_sneak_20k", "move.sneak", 20000, () -> getConfig().challengeSneak20kReward);
 
     // Chain 2 - Stealth Damage While Sneaking
     registerAdvancement(AdaptAdvancement.builder()
@@ -100,8 +108,8 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_stealth_dmg_500", "stealth.damage.sneaking", 500, getConfig().challengeStealthDmg500Reward);
-    registerMilestone("challenge_stealth_dmg_5k", "stealth.damage.sneaking", 5000, getConfig().challengeStealthDmg5kReward);
+    registerMilestone("challenge_stealth_dmg_500", "stealth.damage.sneaking", 500, () -> getConfig().challengeStealthDmg500Reward);
+    registerMilestone("challenge_stealth_dmg_5k", "stealth.damage.sneaking", 5000, () -> getConfig().challengeStealthDmg5kReward);
 
     // Chain 3 - Stealth Kills While Sneaking
     registerAdvancement(AdaptAdvancement.builder()
@@ -118,28 +126,9 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_stealth_kills_10", "stealth.kills.sneaking", 10, getConfig().challengeStealthKills10Reward);
-    registerMilestone("challenge_stealth_kills_100", "stealth.kills.sneaking", 100, getConfig().challengeStealthKills100Reward);
+    registerMilestone("challenge_stealth_kills_10", "stealth.kills.sneaking", 10, () -> getConfig().challengeStealthKills10Reward);
+    registerMilestone("challenge_stealth_kills_100", "stealth.kills.sneaking", 100, () -> getConfig().challengeStealthKills100Reward);
 
-    // Chain 4 - Stealth Time Spent Sneaking
-    registerAdvancement(AdaptAdvancement.builder()
-        .icon(Material.LEATHER_BOOTS)
-        .key("challenge_stealth_time_1h")
-        .model(CustomModel.get(Material.LEATHER_BOOTS, "advancement", "stealth", "challenge_stealth_time_1h"))
-        .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
-        .child(AdaptAdvancement.builder()
-            .icon(Material.CHAINMAIL_BOOTS)
-            .key("challenge_stealth_time_10h")
-            .model(CustomModel.get(Material.CHAINMAIL_BOOTS, "advancement", "stealth", "challenge_stealth_time_10h"))
-            .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
-            .build())
-        .build());
-    registerMilestone("challenge_stealth_time_1h", "stealth.time", 3600, getConfig().challengeStealthTime1hReward);
-    registerMilestone("challenge_stealth_time_10h", "stealth.time", 36000, getConfig().challengeStealthTime10hReward);
-
-    // Chain 5 - Stealth Arrows Fired While Sneaking
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.BOW)
         .key("challenge_stealth_arrows_50")
@@ -154,8 +143,9 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_stealth_arrows_50", "stealth.arrows.sneaking", 50, getConfig().challengeStealthArrows50Reward);
-    registerMilestone("challenge_stealth_arrows_500", "stealth.arrows.sneaking", 500, getConfig().challengeStealthArrows500Reward);
+    registerMilestone("challenge_stealth_arrows_50", "stealth.arrows.sneaking", 50, () -> getConfig().challengeStealthArrows50Reward);
+    registerMilestone("challenge_stealth_arrows_500", "stealth.arrows.sneaking", 500, () -> getConfig().challengeStealthArrows500Reward);
+    ownerPulse = SkillOwnerPulse.register(this, this::getInterval, this::pulseSneakingXp);
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
@@ -204,21 +194,24 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
   }
 
   @Override
-  public void onTick() {
-    if (!this.isEnabled()) {
-      return;
-    }
-    for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
-      Player i = adaptPlayer.getPlayer();
-      shouldReturnForPlayer(i, () -> {
-        checkStatTrackers(adaptPlayer);
-        if (i.isSneaking() && !i.isSwimming() && !i.isSprinting() && !i.isFlying() && !i.isGliding() && (i.getGameMode().equals(GameMode.SURVIVAL) || i.getGameMode().equals(GameMode.ADVENTURE))) {
-          xpSilent(i, getConfig().sneakXP, "stealth:sneak");
-          adaptPlayer.getData().addStat("stealth.time", 1);
-        }
-      });
+  public void unregister() {
+    ownerPulse.unregister();
+    super.unregister();
+  }
 
-    }
+  private void pulseSneakingXp(AdaptPlayer adaptPlayer, Player player, long elapsedMillis, long cadenceMillis) {
+    shouldReturnForPlayer(player, () -> {
+      if (!player.isSneaking() || player.isSwimming() || player.isSprinting()
+          || player.isFlying() || player.isGliding()) {
+        return;
+      }
+      if (player.getGameMode() != GameMode.SURVIVAL && player.getGameMode() != GameMode.ADVENTURE) {
+        return;
+      }
+
+      double cadenceScale = (double) elapsedMillis / cadenceMillis;
+      xpSilent(player, getConfig().sneakXP * cadenceScale, "stealth:sneak");
+    });
   }
 
   @Override
@@ -251,10 +244,6 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
     double challengeStealthKills10Reward = 1000;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Challenge Stealth Kills 100 Reward for the Stealth skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double challengeStealthKills100Reward = 5000;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Challenge Stealth Time 1h Reward for the Stealth skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double challengeStealthTime1hReward = 2000;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Challenge Stealth Time 10h Reward for the Stealth skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double challengeStealthTime10hReward = 7500;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Challenge Stealth Arrows 50 Reward for the Stealth skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double challengeStealthArrows50Reward = 1250;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Challenge Stealth Arrows 500 Reward for the Stealth skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

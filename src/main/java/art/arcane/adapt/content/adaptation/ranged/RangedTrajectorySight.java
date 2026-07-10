@@ -28,12 +28,21 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.world.PlayerSkillLine;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import fr.skytasul.glowingentities.GlowingEntities;
-import org.bukkit.*;
+import io.papermc.paper.event.player.PlayerStopUsingItemEvent;
+import org.bukkit.ChatColor;
+import org.bukkit.Color;
+import org.bukkit.FluidCollisionMode;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -45,34 +54,47 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
-import org.bukkit.event.player.*;
+import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemHeldEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerSwapHandItemsEvent;
+import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySight.Config> {
   private static final double EPSILON = 0.0000001D;
-  private final Map<UUID, Long> drawStartedMillis = playerState();
-  private final Map<UUID, UUID> previewGlowTargets = playerState();
-  private final Set<UUID> previewCandidates = ConcurrentHashMap.newKeySet();
-  private final Map<UUID, PreviewState> previewState = playerState();
+  private static final int MAX_RENDER_PASSES_PER_WINDOW = 12;
+  private static final int MAX_RAY_TRACES_PER_WINDOW = 512;
+  private static final long BUDGET_WINDOW_NANOS = 50_000_000L;
+  private static final TrajectorySightBudget RUNTIME_BUDGET = new TrajectorySightBudget(
+      MAX_RENDER_PASSES_PER_WINDOW,
+      MAX_RAY_TRACES_PER_WINDOW,
+      BUDGET_WINDOW_NANOS
+  );
+
+  private final Map<UUID, Long> drawStartedMillis = new ConcurrentHashMap<>();
+  private final Map<UUID, Entity> previewGlowTargets = new ConcurrentHashMap<>();
+  private final Map<UUID, PreviewState> previewState = new ConcurrentHashMap<>();
+  private final Map<UUID, AimingSession> activeSessions = new ConcurrentHashMap<>();
   private volatile RangedForce cachedRangedForce;
   private volatile RangedRicochetBolt cachedRicochetBolt;
   private volatile RangedHeartseeker cachedHeartseeker;
-  private volatile long lastPreviewCandidateRefreshMs;
 
   public RangedTrajectorySight() {
     super("ranged-trajectory-sight");
     registerConfiguration(Config.class);
     setIcon(Material.SPYGLASS);
-    setInterval(20);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.SPYGLASS)
         .key("challenge_ranged_trajectory_100")
@@ -90,8 +112,27 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
 
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(PlayerQuitEvent e) {
-    Player p = e.getPlayer();
-    clearPreviewState(p);
+    stopAimingSession(e.getPlayer());
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(PlayerChangedWorldEvent e) {
+    stopAimingSession(e.getPlayer());
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(PlayerDeathEvent e) {
+    stopAimingSession(e.getEntity());
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(PlayerDropItemEvent e) {
+    restartAfterItemChange(e.getPlayer());
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(PlayerStopUsingItemEvent e) {
+    stopAimingSession(e.getPlayer());
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -118,7 +159,7 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
     if (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK) {
       boolean wasDrawing = drawStartedMillis.containsKey(p.getUniqueId());
       drawStartedMillis.put(p.getUniqueId(), System.currentTimeMillis());
-      markPreviewCandidate(p);
+      startAimingSession(p);
       if (!wasDrawing) {
         Location tip = p.getEyeLocation().add(p.getEyeLocation().getDirection().multiply(0.6));
         fx(tip, FxPriority.TRANSITION)
@@ -132,21 +173,13 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(PlayerItemHeldEvent e) {
     Player p = e.getPlayer();
-    if (!hasActiveAdaptation(p)) {
-      return;
-    }
-
-    markPreviewCandidate(p);
+    restartAfterItemChange(p);
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(PlayerSwapHandItemsEvent e) {
     Player p = e.getPlayer();
-    if (!hasActiveAdaptation(p)) {
-      return;
-    }
-
-    markPreviewCandidate(p);
+    restartAfterItemChange(p);
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
@@ -157,38 +190,19 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
     }
 
     if (e.isSneaking()) {
-      markPreviewCandidate(p);
+      startIfAiming(p);
       return;
     }
 
     if (resolvePreviewContext(p) == null) {
-      previewCandidates.remove(p.getUniqueId());
-      previewState.remove(p.getUniqueId());
-      clearPreviewGlow(p);
+      stopAimingSession(p);
     }
-  }
-
-  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-  public void on(PlayerMoveEvent e) {
-    Player p = e.getPlayer();
-    UUID id = p.getUniqueId();
-    boolean tracked = previewCandidates.contains(id);
-    if (!tracked && !p.isSneaking() && !p.isHandRaised()) {
-      return;
-    }
-
-    if (!hasActiveAdaptation(p)) {
-      return;
-    }
-
-    markPreviewCandidate(p);
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(EntityShootBowEvent e) {
-    if (e.getEntity() instanceof Player p) {
-      drawStartedMillis.remove(p.getUniqueId());
-      markPreviewCandidate(p);
+    if (e.getEntity() instanceof Player p && hasActiveAdaptation(p)) {
+      stopAimingSession(p);
       fx(p.getEyeLocation().add(p.getEyeLocation().getDirection().multiply(0.6)), FxPriority.TRANSITION)
           .dustBurst(Color.fromRGB(120, 225, 255), 3, 0.1D, 0.6F)
           .sound(Sound.BLOCK_NOTE_BLOCK_HAT, 0.3F, 0.8F);
@@ -210,92 +224,173 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
   }
 
   @Override
-  public void onTick() {
+  public void unregister() {
+    super.unregister();
+    for (AimingSession session : activeSessions.values()) {
+      stopAimingSession(session.owner);
+    }
+    activeSessions.clear();
+  }
+
+  private void restartAfterItemChange(Player player) {
+    stopAimingSession(player);
+    J.runEntity(player, () -> startIfAiming(player), 1);
+  }
+
+  private void startIfAiming(Player player) {
+    if (player.isOnline() && hasActiveAdaptation(player) && resolvePreviewContext(player) != null) {
+      startAimingSession(player);
+    }
+  }
+
+  private void startAimingSession(Player player) {
+    UUID playerId = player.getUniqueId();
+    if (activeSessions.containsKey(playerId)) {
+      return;
+    }
+
+    AimingSession session = new AimingSession(player, player.getWorld());
+    AimingSession existing = activeSessions.putIfAbsent(playerId, session);
+    if (existing != null) {
+      return;
+    }
+
+    long token = session.gate.start();
+    if (token < 0 || !scheduleSession(session, token, 1)) {
+      stopAimingSession(player);
+    }
+  }
+
+  private void runSession(AimingSession session, long token) {
+    Player player = session.owner;
+    UUID playerId = player.getUniqueId();
+    if (!session.gate.isCurrent(token)
+        || activeSessions.get(playerId) != session
+        || !player.isOnline()
+        || player.getWorld() != session.world) {
+      stopAimingSession(player);
+      return;
+    }
+
     long now = System.currentTimeMillis();
-    refreshPreviewCandidates(now);
-    if (previewCandidates.isEmpty()) {
+    if (!updatePreview(session, token, now)) {
       return;
     }
 
-    Set<UUID> candidates = new HashSet<>(previewCandidates);
-    for (UUID id : candidates) {
-      Player p = Bukkit.getPlayer(id);
-      if (p == null || !p.isOnline()) {
-        clearPreviewState(id);
-        continue;
-      }
-
-      int level = getActiveLevel(p);
-      if (level <= 0) {
-        clearPreviewState(p);
-        continue;
-      }
-
-      PreviewContext context = resolvePreviewContext(p);
-      if (context == null) {
-        previewState.remove(id);
-        previewCandidates.remove(id);
-        drawStartedMillis.remove(id);
-        clearPreviewGlow(p);
-        continue;
-      }
-
-      if (context.trigger() != PreviewTrigger.DRAWING_BOW) {
-        drawStartedMillis.remove(p.getUniqueId());
-      }
-
-      ShotPreview shot = getShotPreview(p, context);
-      if (shot == null) {
-        clearPreviewGlow(p);
-        continue;
-      }
-
-      if (!shouldRenderPreview(p, level, context, now)) {
-        continue;
-      }
-
-      LivingEntity seekTarget = resolveSeekingTarget(p, context);
-      if (seekTarget != null) {
-        renderSeekingTrajectory(p, getRenderSegments(level), shot.initialVelocity(), seekTarget);
-        releasePreviewGlowFor(p, seekTarget.getUniqueId());
-      } else {
-        UUID predictedHit = renderTrajectory(p, getRenderSegments(level), shot);
-        updatePreviewGlow(p, predictedHit);
-      }
-      previewState.put(id, PreviewState.capture(now, level, context, p.getEyeLocation()));
+    if (!scheduleSession(session, token, sessionDelayTicks())) {
+      stopAimingSession(player);
     }
   }
 
-  private void refreshPreviewCandidates(long now) {
-    long refreshEvery = Math.max(250L, getConfig().previewCandidateRefreshMillis);
-    if (now - lastPreviewCandidateRefreshMs < refreshEvery) {
+  private boolean scheduleSession(AimingSession session, long token, int delayTicks) {
+    return J.runEntity(session.owner, () -> runSession(session, token), Math.max(1, delayTicks));
+  }
+
+  private int sessionDelayTicks() {
+    int intervalMillis = Math.max(75, Math.min(100, getConfig().activeSessionIntervalMillis));
+    return Math.max(1, (int) Math.ceil(intervalMillis / 50.0D));
+  }
+
+  private boolean updatePreview(AimingSession session, long token, long now) {
+    Player p = session.owner;
+    UUID id = p.getUniqueId();
+    int level = getActiveLevel(p);
+    if (level <= 0) {
+      stopAimingSession(p);
+      return false;
+    }
+
+    PreviewContext context = resolvePreviewContext(p);
+    if (context == null) {
+      stopAimingSession(p);
+      return false;
+    }
+
+    if (context.trigger() != PreviewTrigger.DRAWING_BOW) {
+      drawStartedMillis.remove(p.getUniqueId());
+    }
+
+    ShotPreview shot = getShotPreview(p, context);
+    if (shot == null) {
+      clearPreviewGlow(p);
+      return true;
+    }
+
+    if (!shouldRenderPreview(p, level, context, now)) {
+      return true;
+    }
+
+    LivingEntity seekTarget = resolveSeekingTarget(p, context);
+    if (seekTarget != null) {
+      requestSeekingRender(session, token, level, context, shot, seekTarget);
+      return true;
+    }
+
+    if (!RUNTIME_BUDGET.tryAcquireRender(id)) {
+      return true;
+    }
+
+    Entity predictedHit = renderTrajectory(p, getRenderSegments(level), shot);
+    updatePreviewGlow(p, predictedHit);
+    previewState.put(id, PreviewState.capture(now, level, context, p.getEyeLocation()));
+    return true;
+  }
+
+  private void requestSeekingRender(AimingSession session, long token, int level, PreviewContext context,
+                                    ShotPreview shot, LivingEntity target) {
+    if (!session.seekingSnapshotPending.compareAndSet(false, true)) {
       return;
     }
 
-    lastPreviewCandidateRefreshMs = now;
-    for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : learnedCandidates(now)) {
-      Player p = adaptPlayer.getPlayer();
-      if (p == null || !p.isOnline()) {
-        continue;
+    boolean scheduled = J.runEntity(target, () -> {
+      if (!target.isValid() || target.isDead()) {
+        J.runEntity(session.owner, () -> session.seekingSnapshotPending.set(false));
+        return;
       }
 
-      int level = getActiveLevel(p);
-      if (level <= 0) {
-        continue;
-      }
-
-      if (resolvePreviewContext(p) != null) {
-        previewCandidates.add(p.getUniqueId());
-      }
+      Location targetPoint = target.getLocation().add(0, target.getHeight() * 0.6D, 0);
+      SeekingTargetSnapshot snapshot = new SeekingTargetSnapshot(target.getUniqueId(), targetPoint);
+      J.runEntity(session.owner, () -> completeSeekingRender(session, token, level, context, shot, snapshot));
+    });
+    if (!scheduled) {
+      session.seekingSnapshotPending.set(false);
     }
   }
 
-  private void markPreviewCandidate(Player p) {
-    if (p == null) {
+  private void completeSeekingRender(AimingSession session, long token, int level, PreviewContext context,
+                                     ShotPreview shot, SeekingTargetSnapshot target) {
+    session.seekingSnapshotPending.set(false);
+    Player player = session.owner;
+    UUID playerId = player.getUniqueId();
+    if (!session.gate.isCurrent(token)
+        || activeSessions.get(playerId) != session
+        || !player.isOnline()
+        || player.getWorld() != session.world
+        || target.point().getWorld() != player.getWorld()
+        || resolvePreviewContext(player) == null
+        || !RUNTIME_BUDGET.tryAcquireRender(playerId)) {
       return;
     }
 
-    previewCandidates.add(p.getUniqueId());
+    renderSeekingTrajectory(player, getRenderSegments(level), shot.initialVelocity(), target);
+    releasePreviewGlowFor(player, target.entityId());
+    previewState.put(playerId, PreviewState.capture(System.currentTimeMillis(), level, context, player.getEyeLocation()));
+  }
+
+  private void stopAimingSession(Player player) {
+    if (player == null) {
+      return;
+    }
+
+    UUID playerId = player.getUniqueId();
+    AimingSession session = activeSessions.remove(playerId);
+    if (session != null) {
+      session.gate.stop();
+      session.seekingSnapshotPending.set(false);
+    }
+    RUNTIME_BUDGET.cancel(playerId);
+    clearPreviewState(playerId);
+    clearPreviewGlow(player);
   }
 
   private boolean shouldRenderPreview(Player p, int level, PreviewContext context, long now) {
@@ -357,22 +452,12 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
     return Math.max(minSegments, Math.min(maxSegments, scaled));
   }
 
-  private void clearPreviewState(Player p) {
-    if (p == null) {
-      return;
-    }
-
-    clearPreviewState(p.getUniqueId());
-    clearPreviewGlow(p);
-  }
-
   private void clearPreviewState(UUID id) {
     if (id == null) {
       return;
     }
 
     drawStartedMillis.remove(id);
-    previewCandidates.remove(id);
     previewState.remove(id);
   }
 
@@ -465,9 +550,10 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
     return Math.min(1.0, force);
   }
 
-  private UUID renderTrajectory(Player p, int segments, ShotPreview shot) {
-    Location eye = p.getEyeLocation().clone();
-    Location current = eye.clone().add(p.getEyeLocation().getDirection().normalize().multiply(getConfig().previewStartOffset));
+  private Entity renderTrajectory(Player p, int segments, ShotPreview shot) {
+    Location eye = p.getEyeLocation();
+    Vector launchDirection = eye.getDirection().normalize();
+    Location current = eye.clone().add(launchDirection.multiply(getConfig().previewStartOffset));
     Vector velocity = shot.initialVelocity().clone();
     Color trailColor = shot.trigger() == PreviewTrigger.DRAWING_BOW
         ? Color.fromRGB(120, 225, 255)
@@ -477,23 +563,29 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
     double spacing = Math.max(0.25, getConfig().previewPointSpacing);
     double dotCarry = 0;
     int ricochets = 0;
-    UUID hitEntityId = null;
+    Entity hitEntity = null;
 
     for (int i = 0; i < segments; i++) {
       Vector step = velocity.clone();
       double stepLength = step.length();
       if (stepLength <= EPSILON) {
-        return hitEntityId;
+        return hitEntity;
       }
 
       Vector stepDirection = step.clone().normalize();
       Location from = current.clone();
+      if (!RUNTIME_BUDGET.tryAcquireRayTrace()) {
+        break;
+      }
       RayTraceResult entityHit = p.getWorld().rayTraceEntities(current, stepDirection, stepLength, entity -> isValidPreviewTarget(p, entity));
+      if (!RUNTIME_BUDGET.tryAcquireRayTrace()) {
+        break;
+      }
       RayTraceResult hit = p.getWorld().rayTraceBlocks(current, stepDirection, stepLength, FluidCollisionMode.NEVER, true);
       if (isEntityFirstHit(current, hit, entityHit)) {
         Entity target = entityHit.getHitEntity();
         if (target != null) {
-          hitEntityId = target.getUniqueId();
+          hitEntity = target;
         }
 
         if (entityHit.getHitPosition() != null) {
@@ -559,7 +651,7 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
       Particle.DustOptions impact = new Particle.DustOptions(Color.fromRGB(255, 236, 128), tipSize);
       p.spawnParticle(Particle.DUST, current, 1, 0.0, 0.0, 0.0, 0.0, impact);
     }
-    return hitEntityId;
+    return hitEntity;
   }
 
   private double drawDottedSegment(Player p, Location eye, Location from, Location to, Color color, double minDistanceSq, double spacing, double carry) {
@@ -614,7 +706,7 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
     }
   }
 
-  private void renderSeekingTrajectory(Player p, int segments, Vector initialVelocity, LivingEntity target) {
+  private void renderSeekingTrajectory(Player p, int segments, Vector initialVelocity, SeekingTargetSnapshot target) {
     if (!areParticlesEnabled()) {
       return;
     }
@@ -645,7 +737,7 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
     int steps = Math.min(80, Math.max(24, segments * 2));
 
     for (int i = 0; i < steps; i++) {
-      Vector toTarget = target.getLocation().add(0, target.getHeight() * 0.6, 0).toVector().subtract(current.toVector());
+      Vector toTarget = target.point().toVector().subtract(current.toVector());
       double distance = toTarget.length();
       if (distance <= Math.max(0.9D, speed * 0.75D)) {
         drawImpactMarker(p, eye, current.clone().add(toTarget), dir, seekColor, minDistanceSq);
@@ -660,8 +752,14 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
       dir.normalize();
 
       double stepLength = Math.min(speed, distance);
+      if (!RUNTIME_BUDGET.tryAcquireRayTrace()) {
+        return;
+      }
       if (p.getWorld().rayTraceBlocks(current, dir, stepLength, FluidCollisionMode.NEVER, true) != null) {
         Vector lifted = dir.clone().add(new Vector(0, 0.9, 0)).normalize();
+        if (!RUNTIME_BUDGET.tryAcquireRayTrace()) {
+          return;
+        }
         if (p.getWorld().rayTraceBlocks(current, lifted, stepLength, FluidCollisionMode.NEVER, true) == null) {
           dir = lifted;
         } else {
@@ -694,13 +792,13 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
   }
 
   private void releasePreviewGlowFor(Player p, UUID lockedTargetId) {
-    UUID current = previewGlowTargets.get(p.getUniqueId());
+    Entity current = previewGlowTargets.get(p.getUniqueId());
     if (current == null) {
       return;
     }
 
-    if (current.equals(lockedTargetId)) {
-      previewGlowTargets.remove(p.getUniqueId());
+    if (current.getUniqueId().equals(lockedTargetId)) {
+      previewGlowTargets.remove(p.getUniqueId(), current);
       return;
     }
 
@@ -865,18 +963,18 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
     return entity instanceof LivingEntity
         && entity.isValid()
         && !entity.isDead()
-        && entity.getUniqueId() != shooter.getUniqueId();
+        && !entity.getUniqueId().equals(shooter.getUniqueId());
   }
 
-  private void updatePreviewGlow(Player p, UUID targetId) {
+  private void updatePreviewGlow(Player p, Entity target) {
     if (!getConfig().glowPredictedTarget) {
       clearPreviewGlow(p);
       return;
     }
 
     UUID viewerId = p.getUniqueId();
-    UUID current = previewGlowTargets.get(viewerId);
-    if (current != null && current.equals(targetId)) {
+    Entity current = previewGlowTargets.get(viewerId);
+    if (current != null && target != null && current.getUniqueId().equals(target.getUniqueId())) {
       return;
     }
 
@@ -886,41 +984,45 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
     }
 
     if (current != null) {
-      Entity stale = Bukkit.getEntity(current);
-      if (stale != null) {
+      previewGlowTargets.remove(viewerId, current);
+      J.runEntity(current, () -> {
         try {
-          glowingEntities.unsetGlowing(stale, p);
+          synchronized (Adapt.glowingEntitiesLock()) {
+            glowingEntities.unsetGlowing(current, p);
+          }
         } catch (ReflectiveOperationException ignored) {
           // Ignore and continue; preview should never hard-fail from packet glow.
         }
+      });
+    }
+
+    if (target == null) {
+      return;
+    }
+
+    previewGlowTargets.put(viewerId, target);
+    J.runEntity(target, () -> {
+      if (!target.isValid() || previewGlowTargets.get(viewerId) != target) {
+        return;
       }
-      previewGlowTargets.remove(viewerId);
-    }
-
-    if (targetId == null) {
-      return;
-    }
-
-    Entity target = Bukkit.getEntity(targetId);
-    if (target == null || !target.isValid()) {
-      return;
-    }
-
-    try {
-      glowingEntities.setGlowing(target, p, ChatColor.GOLD);
-      previewGlowTargets.put(viewerId, targetId);
-      fx(target, FxPriority.TRANSITION)
-          .burst(Particles.CRIT_MAGIC, 3, 0.15D)
-          .sound(Sound.BLOCK_NOTE_BLOCK_PLING, 0.3F, 2.0F);
-    } catch (ReflectiveOperationException ignored) {
-      // Ignore and continue; preview should never hard-fail from packet glow.
-    }
+      try {
+        synchronized (Adapt.glowingEntitiesLock()) {
+          glowingEntities.setGlowing(target, p, ChatColor.GOLD);
+        }
+        fx(target, FxPriority.TRANSITION)
+            .burst(Particles.CRIT_MAGIC, 3, 0.15D)
+            .sound(Sound.BLOCK_NOTE_BLOCK_PLING, 0.3F, 2.0F);
+      } catch (ReflectiveOperationException ignored) {
+        previewGlowTargets.remove(viewerId, target);
+        // Ignore and continue; preview should never hard-fail from packet glow.
+      }
+    });
   }
 
   private void clearPreviewGlow(Player p) {
     UUID viewerId = p.getUniqueId();
-    UUID targetId = previewGlowTargets.remove(viewerId);
-    if (targetId == null) {
+    Entity target = previewGlowTargets.remove(viewerId);
+    if (target == null) {
       return;
     }
 
@@ -929,16 +1031,15 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
       return;
     }
 
-    Entity entity = Bukkit.getEntity(targetId);
-    if (entity == null) {
-      return;
-    }
-
-    try {
-      glowingEntities.unsetGlowing(entity, p);
-    } catch (ReflectiveOperationException ignored) {
-      // Ignore and continue; preview should never hard-fail from packet glow.
-    }
+    J.runEntity(target, () -> {
+      try {
+        synchronized (Adapt.glowingEntitiesLock()) {
+          glowingEntities.unsetGlowing(target, p);
+        }
+      } catch (ReflectiveOperationException ignored) {
+        // Ignore and continue; preview should never hard-fail from packet glow.
+      }
+    });
   }
 
   private boolean supportsRicochet(Material launchType, RicochetPreview ricochet) {
@@ -973,7 +1074,7 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
       return false;
     }
 
-    ItemStack active = p.getItemInUse();
+    ItemStack active = p.getActiveItem();
     return isItem(active) && active.getType() == type;
   }
 
@@ -1079,6 +1180,21 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
     }
   }
 
+  private record SeekingTargetSnapshot(UUID entityId, Location point) {
+  }
+
+  private static class AimingSession {
+    private final Player owner;
+    private final World world;
+    private final TrajectorySightSessionGate gate = new TrajectorySightSessionGate();
+    private final AtomicBoolean seekingSnapshotPending = new AtomicBoolean();
+
+    private AimingSession(Player owner, World world) {
+      this.owner = owner;
+      this.world = world;
+    }
+  }
+
   @ConfigDescription("Preview ranged projectile flight while sneaking or drawing your shot.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Segments Base for the Ranged Trajectory Sight adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -1137,8 +1253,8 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
     boolean glowPredictedTarget = true;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Minimum milliseconds between preview renders for a player when aim and context have not changed.", impact = "Lower values make previews smoother but increase CPU and ray-trace load.")
     int previewRenderIntervalMillis = 75;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Minimum milliseconds between full-candidate refresh scans.", impact = "Lower values discover eligible preview players faster but increase baseline scan cost.")
-    int previewCandidateRefreshMillis = 1000;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Milliseconds between owner-local active aiming refreshes, clamped between 75 and 100.", impact = "Lower values request smoother previews; the server scheduler resolves this range to two ticks on standard 20 TPS timing.")
+    int activeSessionIntervalMillis = 100;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Yaw delta in degrees required to force a preview recompute before the normal render interval.", impact = "Lower values react to small camera turns; higher values reduce recompute frequency.")
     double previewYawDeltaDegrees = 1.2;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Pitch delta in degrees required to force a preview recompute before the normal render interval.", impact = "Lower values react to small vertical aim changes; higher values reduce recompute frequency.")

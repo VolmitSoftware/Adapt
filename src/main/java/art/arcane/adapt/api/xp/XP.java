@@ -28,19 +28,19 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 public class XP {
-  public static void xp(Player p, Skill skill, double xp) {
+  public static void xp(Player p, Skill<?> skill, double xp) {
     xp(Adapt.instance.getAdaptServer().getPlayer(p), skill, xp, null);
   }
 
-  public static void xp(Player p, Skill skill, double xp, String rewardKey) {
+  public static void xp(Player p, Skill<?> skill, double xp, String rewardKey) {
     xp(Adapt.instance.getAdaptServer().getPlayer(p), skill, xp, rewardKey);
   }
 
-  public static void xp(AdaptPlayer p, Skill skill, double xp) {
+  public static void xp(AdaptPlayer p, Skill<?> skill, double xp) {
     xp(p, skill, xp, null);
   }
 
-  public static void xp(AdaptPlayer p, Skill skill, double xp, String rewardKey) {
+  public static void xp(AdaptPlayer p, Skill<?> skill, double xp, String rewardKey) {
     PlayerSkillLine skillLine = p.getSkillLine(skill.getName());
     if (skillLine != null) {
       p.getData().resetMonotonyForOtherSkills(skill.getName());
@@ -48,26 +48,29 @@ public class XP {
     }
   }
 
-  public static void xpSilent(Player p, Skill skill, double xp) {
+  public static void xpSilent(Player p, Skill<?> skill, double xp) {
     xpSilent(Adapt.instance.getAdaptServer().getPlayer(p), skill, xp, null);
   }
 
-  public static void xpSilent(Player p, Skill skill, double xp, String rewardKey) {
+  public static void xpSilent(Player p, Skill<?> skill, double xp, String rewardKey) {
     xpSilent(Adapt.instance.getAdaptServer().getPlayer(p), skill, xp, rewardKey);
   }
 
-  public static void xpSilent(AdaptPlayer p, Skill skill, double xp) {
+  public static void xpSilent(AdaptPlayer p, Skill<?> skill, double xp) {
     xpSilent(p, skill, xp, null);
   }
 
-  public static void xpSilent(AdaptPlayer p, Skill skill, double xp, String rewardKey) {
-    if (p.getSkillLine(skill.getName()) != null) {
-      p.getData().resetMonotonyForOtherSkills(skill.getName());
-      p.getSkillLine(skill.getName()).giveXP(null, xp, rewardKey);
+  public static void xpSilent(AdaptPlayer p, Skill<?> skill, double xp, String rewardKey) {
+    PlayerSkillLine skillLine = p.getSkillLine(skill.getName());
+    if (skillLine == null) {
+      return;
     }
+
+    p.getData().resetMonotonyForOtherSkills(skill.getName());
+    skillLine.giveXP(null, xp, rewardKey);
   }
 
-  public static void spatialXP(Location l, Skill skill, double xp, int rad, long duration) {
+  public static void spatialXP(Location l, Skill<?> skill, double xp, int rad, long duration) {
     Adapt.instance.getAdaptServer().offer(new SpatialXP(l, skill, xp, rad, duration));
   }
 
@@ -79,19 +82,19 @@ public class XP {
     p.getData().setWisdom(p.getData().getWisdom() + k);
   }
 
-  public static void knowledge(Player p, Skill skill, long k) {
+  public static void knowledge(Player p, Skill<?> skill, long k) {
     knowledge(Adapt.instance.getAdaptServer().getPlayer(p), skill, k);
   }
 
-  public static void knowledge(AdaptPlayer p, Skill skill, long k) {
+  public static void knowledge(AdaptPlayer p, Skill<?> skill, long k) {
     p.getSkillLine(skill.getName()).giveKnowledge(k);
   }
 
-  public static void boostXP(Player p, Skill skill, double percentChange, int durationMS) {
+  public static void boostXP(Player p, Skill<?> skill, double percentChange, int durationMS) {
     boostXP(Adapt.instance.getAdaptServer().getPlayer(p), skill, percentChange, durationMS);
   }
 
-  public static void boostXP(AdaptPlayer p, Skill skill, double percentChange, int durationMS) {
+  public static void boostXP(AdaptPlayer p, Skill<?> skill, double percentChange, int durationMS) {
     p.getSkillLine(skill.getName()).boost(percentChange, durationMS);
   }
 

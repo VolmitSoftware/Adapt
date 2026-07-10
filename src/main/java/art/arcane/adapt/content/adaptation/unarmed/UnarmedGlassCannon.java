@@ -119,10 +119,6 @@ public class UnarmedGlassCannon extends SimpleAdaptation<UnarmedGlassCannon.Conf
     }
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Bonus unarmed damage the lower your armor value is.")
   protected static class Config extends AdaptationConfig {

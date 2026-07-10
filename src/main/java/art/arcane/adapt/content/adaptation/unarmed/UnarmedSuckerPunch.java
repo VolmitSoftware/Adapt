@@ -149,10 +149,6 @@ public class UnarmedSuckerPunch extends SimpleAdaptation<UnarmedSuckerPunch.Conf
     }
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Sprint punches deal extra damage based on your speed.")
   protected static class Config extends AdaptationConfig {

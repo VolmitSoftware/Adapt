@@ -32,6 +32,7 @@ import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
+import io.papermc.paper.event.player.PlayerTradeEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -44,22 +45,28 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.inventory.MerchantInventory;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class DiscoveryVillagerAtt extends SimpleAdaptation<DiscoveryVillagerAtt.Config> {
-  private final Map<UUID, Integer> active = playerState();
+  private static final int PENDING_TIMEOUT_TICKS = 20;
+  private static final int EFFECT_DURATION_TICKS = 200;
+  private static final int EFFECT_REFRESH_TICKS = 160;
+  private final Map<UUID, PendingTrade> pending = playerState();
+  private final Map<UUID, TradeSession> active = playerState();
+  private final AtomicLong sessionSequence = new AtomicLong();
 
   public DiscoveryVillagerAtt() {
     super("discovery-villager-att");
     registerConfiguration(Config.class);
     setLocalizationKey("discovery.villager");
     setIcon(Material.GLASS_BOTTLE);
-    setInterval(2432);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.EMERALD)
         .key("challenge_discovery_villager_100")
@@ -85,52 +92,55 @@ public class DiscoveryVillagerAtt extends SimpleAdaptation<DiscoveryVillagerAtt.
   }
 
   private double getEffectiveness(double multiplier) {
-    return Math.min(getConfig().maxEffectiveness, multiplier * multiplier + getConfig().effectivenessBase);
+    return effectiveness(getConfig().maxEffectiveness, getConfig().effectivenessBase, multiplier);
   }
 
   private int getXpTaken(double level) {
-    double d = (getConfig().levelCostAdd * getConfig().amplifier) - (level * getConfig().levelDrain);
-    return (int) d;
+    return xpCost(getConfig().levelCostAdd, getConfig().amplifier, getConfig().levelDrain, level);
   }
 
-  @EventHandler(priority = EventPriority.MONITOR)
+  static double effectiveness(double configuredMaximum, double base, double multiplier) {
+    double ceiling = Math.max(0D, Math.min(1D, configuredMaximum));
+    return Math.max(0D, Math.min(ceiling, multiplier * multiplier + base));
+  }
+
+  static int xpCost(int baseCost, double amplifier, int levelDrain, double level) {
+    return Math.max(1, (int) Math.ceil((baseCost * amplifier) - (level * levelDrain)));
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(PlayerInteractEntityEvent e) {
     Player p = e.getPlayer();
     int level = getActiveLevel(p);
-    if (e.getRightClicked() instanceof Villager v && level > 0) {
-      if (ThreadLocalRandom.current().nextDouble() <= getEffectiveness(getLevelPercent(level))) {
-        if (p.getLevel() - getXpTaken(level) > 0) {
-          p.setLevel((p.getLevel() - getXpTaken(level)));
-          active.put(p.getUniqueId(), level);
-          p.addPotionEffect(new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, 60, level, true, true));
-          addStat(p, "discovery.villager-att.improved-trades", 1);
-
-          timeline(v)
-              .duration(8)
-              .priority(FxPriority.TRANSITION)
-              .cullRadius(24)
-              .frame((f, tick, progress) -> {
-                f.helix(Particles.VILLAGER_HAPPY, 0.6D, 1.8D, 6, progress * Math.PI * 2.0D);
-                if ((tick & 3) == 0) {
-                  f.particle(Particle.WAX_ON, 2, 0, 1.0, 0, 0.25, 0.01);
-                }
-                if (tick == 0) {
-                  f.chord(Sound.ENTITY_VILLAGER_CELEBRATE, 1F, 1F, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1F, 1.3F);
-                }
-              })
-              .onComplete(() -> fx(p.getLocation(), FxPriority.TRANSITION)
-                  .dustRing(Color.fromRGB(80, 200, 120), 1.0D, 12, 1.0F)
-                  .dome(Particles.VILLAGER_HAPPY, 1.5D, 24)
-                  .chord(Sound.BLOCK_BEACON_POWER_SELECT, 0.3F, 1.4F, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.4F, 1.5F))
-              .start();
-        } else {
-          v.shakeHead();
-          fx(v.getLocation().add(0, 1.0, 0), FxPriority.TRANSITION)
-              .particle(Particles.SMOKE, 2, 0, 0, 0, 0.05, 0.01)
-              .sound(Sound.ENTITY_VILLAGER_NO, 1F, 1F);
-        }
-      }
+    if (!(e.getRightClicked() instanceof Villager villager) || level <= 0
+        || ThreadLocalRandom.current().nextDouble() > getEffectiveness(getLevelPercent(level))) {
+      return;
     }
+
+    int cost = getXpTaken(level);
+    if (p.getLevel() < cost) {
+      villager.shakeHead();
+      fx(villager.getLocation().add(0, 1.0, 0), FxPriority.TRANSITION)
+          .particle(Particles.SMOKE, 2, 0, 0, 0, 0.05, 0.01)
+          .sound(Sound.ENTITY_VILLAGER_NO, 1F, 1F);
+      return;
+    }
+
+    UUID playerId = p.getUniqueId();
+    PendingTrade previousPending = pending.get(playerId);
+    long startedAt = previousPending == null ? System.currentTimeMillis() : previousPending.startedAt();
+    PotionEffect previousEffect = previousPending == null
+        ? p.getPotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE)
+        : previousPending.previousEffect();
+    PendingTrade candidate = new PendingTrade(villager.getUniqueId(), level, cost,
+        sessionSequence.incrementAndGet(), previousEffect, startedAt);
+    pending.put(playerId, candidate);
+    applyTradeEffect(p, level);
+    J.runEntity(p, () -> {
+      if (pending.remove(playerId, candidate)) {
+        restoreHeroEffect(p, candidate.level(), candidate.previousEffect(), candidate.startedAt());
+      }
+    }, PENDING_TIMEOUT_TICKS);
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
@@ -139,34 +149,136 @@ public class DiscoveryVillagerAtt extends SimpleAdaptation<DiscoveryVillagerAtt.
     if (!(event.getPlayer() instanceof Player p)) {
       return;
     }
-    int level = active.getOrDefault(p.getUniqueId(), 0);
-    if (level == 0) return;
+    UUID playerId = p.getUniqueId();
+    PendingTrade candidate = pending.remove(playerId);
+    if (candidate == null || event.isCancelled() || !(event.getInventory() instanceof MerchantInventory merchantInventory)
+        || !(merchantInventory.getMerchant() instanceof Villager villager)
+        || !candidate.villagerId().equals(villager.getUniqueId()) || p.getLevel() < candidate.cost()) {
+      if (candidate != null) {
+        restoreHeroEffect(p, candidate.level(), candidate.previousEffect(), candidate.startedAt());
+      }
+      return;
+    }
 
-    if (event.isCancelled()) {
-      active.remove(p.getUniqueId());
-      p.removePotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE);
-    } else {
-      p.addPotionEffect(new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, 60, level, true, true));
+    p.setLevel(p.getLevel() - candidate.cost());
+    TradeSession session = new TradeSession(candidate.villagerId(), candidate.level(), candidate.sequence(),
+        candidate.previousEffect(), candidate.startedAt());
+    active.put(playerId, session);
+    refreshTradeSession(p, session);
+    playActivationFx(p, villager);
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(PlayerTradeEvent event) {
+    Player player = event.getPlayer();
+    TradeSession session = active.get(player.getUniqueId());
+    if (session != null && session.villagerId().equals(event.getMerchant().getUniqueId())) {
+      addStat(player, "discovery.villager-att.improved-trades", 1);
     }
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(InventoryCloseEvent event) {
-    if (!(event.getPlayer() instanceof Player p) || !active.containsKey(p.getUniqueId())) {
+    if (!(event.getPlayer() instanceof Player p)) {
       return;
     }
 
-    active.remove(p.getUniqueId());
-    p.removePotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE);
+    TradeSession session = active.remove(p.getUniqueId());
+    if (session != null) {
+      restoreHeroEffect(p, session.level(), session.previousEffect(), session.startedAt());
+    }
+  }
+
+  private void refreshTradeSession(Player player, TradeSession session) {
+    UUID playerId = player.getUniqueId();
+    if (active.get(playerId) != session || !player.isOnline()
+        || !(player.getOpenInventory().getTopInventory() instanceof MerchantInventory merchantInventory)
+        || !(merchantInventory.getMerchant() instanceof Villager villager)
+        || !session.villagerId().equals(villager.getUniqueId())) {
+      if (active.remove(playerId, session)) {
+        restoreHeroEffect(player, session.level(), session.previousEffect(), session.startedAt());
+      }
+      return;
+    }
+
+    PotionEffect current = player.getPotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE);
+    if (current == null || current.getAmplifier() != session.level() || current.getDuration() <= 60) {
+      applyTradeEffect(player, session.level());
+    }
+    J.runEntity(player, () -> refreshTradeSession(player, session), EFFECT_REFRESH_TICKS);
+  }
+
+  private void playActivationFx(Player player, Villager villager) {
+    timeline(villager)
+        .duration(8)
+        .priority(FxPriority.TRANSITION)
+        .cullRadius(24)
+        .frame((f, tick, progress) -> {
+          f.helix(Particles.VILLAGER_HAPPY, 0.6D, 1.8D, 6, progress * Math.PI * 2.0D);
+          if ((tick & 3) == 0) {
+            f.particle(Particle.WAX_ON, 2, 0, 1.0, 0, 0.25, 0.01);
+          }
+          if (tick == 0) {
+            f.chord(Sound.ENTITY_VILLAGER_CELEBRATE, 1F, 1F, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1F, 1.3F);
+          }
+        })
+        .onComplete(() -> J.runEntity(player, () -> fx(player.getLocation(), FxPriority.TRANSITION)
+            .dustRing(Color.fromRGB(80, 200, 120), 1.0D, 12, 1.0F)
+            .dome(Particles.VILLAGER_HAPPY, 1.5D, 24)
+            .chord(Sound.BLOCK_BEACON_POWER_SELECT, 0.3F, 1.4F, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.4F, 1.5F)))
+        .start();
+  }
+
+  private void applyTradeEffect(Player player, int level) {
+    player.addPotionEffect(new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE,
+        EFFECT_DURATION_TICKS, level, true, true), true);
+  }
+
+  private void restoreHeroEffect(Player player, int adaptationLevel, PotionEffect previous, long startedAt) {
+    PotionEffect current = player.getPotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE);
+    if (current == null || current.getAmplifier() != adaptationLevel) {
+      return;
+    }
+
+    player.removePotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE);
+    if (previous == null) {
+      return;
+    }
+    long elapsedTicks = Math.max(0L, (System.currentTimeMillis() - startedAt) / 50L);
+    int remaining = (int) Math.max(0L, previous.getDuration() - elapsedTicks);
+    if (remaining > 0) {
+      player.addPotionEffect(new PotionEffect(previous.getType(), remaining, previous.getAmplifier(),
+          previous.isAmbient(), previous.hasParticles(), previous.hasIcon()), true);
+    }
   }
 
   @Override
-  public void onTick() {
-    active.forEach((p, lvl) -> {
-      org.bukkit.entity.Player player = Bukkit.getPlayer(p);
-      if (player == null) return;
-      J.runEntity(player, () -> player.addPotionEffect(new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, 60, lvl, true, true)));
-    });
+  public void unregister() {
+    super.unregister();
+    for (Map.Entry<UUID, PendingTrade> entry : pending.entrySet()) {
+      Player player = Bukkit.getPlayer(entry.getKey());
+      PendingTrade candidate = entry.getValue();
+      if (player != null && candidate != null) {
+        J.runEntity(player, () -> restoreHeroEffect(player, candidate.level(), candidate.previousEffect(), candidate.startedAt()));
+      }
+    }
+    pending.clear();
+    for (UUID playerId : active.keySet()) {
+      Player player = Bukkit.getPlayer(playerId);
+      TradeSession session = active.get(playerId);
+      if (player != null && session != null) {
+        J.runEntity(player, () -> restoreHeroEffect(player, session.level(), session.previousEffect(), session.startedAt()));
+      }
+    }
+    active.clear();
+  }
+
+  private record PendingTrade(UUID villagerId, int level, int cost, long sequence,
+                              PotionEffect previousEffect, long startedAt) {
+  }
+
+  private record TradeSession(UUID villagerId, int level, long sequence,
+                              PotionEffect previousEffect, long startedAt) {
   }
 
   @ConfigDescription("Get better villager trades at the cost of XP per interaction.")

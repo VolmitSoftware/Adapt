@@ -31,11 +31,14 @@ import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Container;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Entity;
@@ -48,18 +51,44 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Config> {
+  private static final int MAX_PREVIEW_OWNERS_PER_TICK = 64;
+  private static final int MAX_DISPLAY_WORK_PER_TICK = 256;
+  private static final int MAX_DISPLAY_REMOVALS_PER_TICK = 256;
+  private static final int MAX_ACTIVE_PREVIEW_DISPLAYS = 2048;
+  private static final long PREVIEW_CYCLE_MILLIS = 500L;
+  private static final long VIEWPORT_DEBOUNCE_MILLIS = 150L;
   private final Map<UUID, Map<Block, BlockFace>> totalMap = new ConcurrentHashMap<>();
   private final Map<UUID, Map<PreviewKey, BlockDisplay>> previewDisplays = new ConcurrentHashMap<>();
+  private final Map<UUID, ViewportSignature> viewportSignatures = new ConcurrentHashMap<>();
+  private final Map<UUID, Long> lastViewportCheck = new ConcurrentHashMap<>();
+  private final Set<PreviewOwnerKey> pendingPreviewSpawns = ConcurrentHashMap.newKeySet();
+  private final Queue<Entity> displayRemovalQueue = new ConcurrentLinkedQueue<>();
+  private final PreviewWorkBudget previewWorkBudget = new PreviewWorkBudget(MAX_DISPLAY_WORK_PER_TICK);
+  private final PreviewCapacity previewCapacity = new PreviewCapacity(MAX_ACTIVE_PREVIEW_DISPLAYS);
+  private List<UUID> previewOwners = List.of();
+  private int previewOwnerIndex;
+  private long nextPreviewCycleAt;
 
   public ArchitectPlacement() {
     super("architect-placement");
     registerConfiguration(ArchitectPlacement.Config.class);
     setIcon(Material.SCAFFOLDING);
-    setInterval(360);
+    setInterval(PREVIEW_CYCLE_MILLIS);
+    nextPreviewCycleAt = System.currentTimeMillis() + PREVIEW_CYCLE_MILLIS;
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.BRICKS)
         .key("challenge_architect_placement_1k")
@@ -92,9 +121,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
 
   @EventHandler
   public void on(PlayerQuitEvent e) {
-    UUID id = e.getPlayer().getUniqueId();
-    totalMap.remove(id);
-    clearPreviewDisplays(id);
+    clearPlayerPreview(e.getPlayer().getUniqueId());
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -191,8 +218,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
             .sound(Sound.BLOCK_AMETHYST_BLOCK_PLACE, 0.5f, pitch);
       }
 
-      totalMap.remove(id);
-      clearPreviewDisplays(id);
+      clearPlayerPreview(id);
       if (hand.getAmount() > 0) {
         runPlayerViewport(getBlockFace(p), p.getTargetBlock(null, 5), p.getInventory().getItemInMainHand().getType(), p);
       }
@@ -200,24 +226,26 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
   }
 
 
-  @EventHandler
+  @EventHandler(ignoreCancelled = true)
   public void on(PlayerToggleSneakEvent e) {
     Player p = e.getPlayer();
+    UUID id = p.getUniqueId();
+    if (!e.isSneaking()) {
+      clearPlayerPreview(id);
+      return;
+    }
+    if (!p.getInventory().getItemInMainHand().getType().isBlock()) {
+      return;
+    }
+
     withPlayerThread(p, e, () -> {
-      UUID id = p.getUniqueId();
       int level = getActiveLevel(p);
       if (level <= 0) {
-        totalMap.remove(id);
-        clearPreviewDisplays(id);
+        clearPlayerPreview(id);
         return;
       }
 
-      if (e.isSneaking()) {
-        totalMap.remove(id);
-        clearPreviewDisplays(id);
-      }
-
-      if (!e.isSneaking() && p.getInventory().getItemInMainHand().getType().isBlock()) {
+      if (p.getInventory().getItemInMainHand().getType().isBlock()) {
         Block block = p.getTargetBlock(null, 5); // 5 is the range of player
         if (block instanceof Container) { // return if block is a container
           return;
@@ -233,21 +261,29 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
   }
 
 
-  @EventHandler
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(PlayerMoveEvent e) {
     Player p = e.getPlayer();
+    UUID id = p.getUniqueId();
+    Material handMaterial = p.getInventory().getItemInMainHand().getType();
+    if (!p.isSneaking() || !handMaterial.isBlock()) {
+      if (totalMap.containsKey(id) || previewDisplays.containsKey(id)) {
+        clearPlayerPreview(id);
+      }
+      return;
+    }
+
+    long now = System.currentTimeMillis();
+    Long previousCheck = lastViewportCheck.put(id, now);
+    if (previousCheck != null && now - previousCheck < VIEWPORT_DEBOUNCE_MILLIS) {
+      return;
+    }
+
     withPlayerThread(p, e, () -> {
-      UUID id = p.getUniqueId();
       int level = getActiveLevel(p);
       if (level <= 0) {
-        totalMap.remove(id);
-        clearPreviewDisplays(id);
+        clearPlayerPreview(id);
         return;
-      }
-
-      if (!p.isSneaking()) {
-        totalMap.remove(id);
-        clearPreviewDisplays(id);
       }
 
       if (p.isSneaking() && p.getInventory().getItemInMainHand().getType().isBlock()) {
@@ -255,12 +291,12 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
         if (block instanceof Container) { // return if block is a container
           return;
         }
-        Material handMaterial = p.getInventory().getItemInMainHand().getType();
-        if (handMaterial.isAir()) {
+        Material currentHandMaterial = p.getInventory().getItemInMainHand().getType();
+        if (currentHandMaterial.isAir()) {
           return;
         }
         BlockFace viewPortBlock = getBlockFace(p);
-        runPlayerViewport(viewPortBlock, block, handMaterial, p);
+        runPlayerViewport(viewPortBlock, block, currentHandMaterial, p);
       }
     });
   }
@@ -268,8 +304,12 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
   public void runPlayerViewport(BlockFace viewPortBlock, Block block, Material handMaterial, Player p) {
     UUID id = p.getUniqueId();
     if (viewPortBlock == null || block == null || handMaterial == null || handMaterial.isAir()) {
-      totalMap.remove(id);
-      clearPreviewDisplays(id);
+      clearPlayerPreview(id);
+      return;
+    }
+
+    ViewportSignature signature = ViewportSignature.of(block, viewPortBlock, handMaterial);
+    if (signature.equals(viewportSignatures.get(id)) && totalMap.containsKey(id)) {
       return;
     }
 
@@ -296,12 +336,13 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
     }
 
     if (map.isEmpty()) {
-      totalMap.remove(id);
-      clearPreviewDisplays(id);
+      clearPlayerPreview(id);
       return;
     }
 
     totalMap.put(id, map);
+    viewportSignatures.put(id, signature);
+    renderPreview(p);
   }
 
   private void addViewportEntry(Map<Block, BlockFace> map, Block target, BlockFace viewPortBlock, Material handMaterial) {
@@ -309,7 +350,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
       return;
     }
 
-    int maxBlocks = Math.max(1, getConfig().maxBlocks);
+    int maxBlocks = clampPreviewBlocks(getConfig().maxBlocks);
     if (map.size() >= maxBlocks) {
       return;
     }
@@ -322,41 +363,54 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
 
   @Override
   public void onTick() {
-    if (previewDisplays.isEmpty() && totalMap.isEmpty()) {
+    drainDisplayRemovals();
+    if (previewDisplays.isEmpty() && totalMap.isEmpty() && displayRemovalQueue.isEmpty()) {
+      previewOwners = List.of();
+      previewOwnerIndex = 0;
+      setInterval(PREVIEW_CYCLE_MILLIS);
       return;
-    }
-
-    for (Map.Entry<UUID, Map<PreviewKey, BlockDisplay>> entry : previewDisplays.entrySet()) {
-      UUID playerId = entry.getKey();
-      Map<PreviewKey, BlockDisplay> displays = entry.getValue();
-      if (!totalMap.containsKey(playerId) && previewDisplays.remove(playerId, displays)) {
-        clearPreviewDisplays(displays);
-      }
     }
 
     if (totalMap.isEmpty()) {
+      setInterval(displayRemovalQueue.isEmpty() ? PREVIEW_CYCLE_MILLIS : MIN_INTERVAL_MILLIS);
       return;
     }
 
-    for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
-      Player p = adaptPlayer.getPlayer();
-      if (p == null || !p.isOnline() || !totalMap.containsKey(p.getUniqueId())) {
+    long now = System.currentTimeMillis();
+    if (previewOwnerIndex >= previewOwners.size()) {
+      if (now < nextPreviewCycleAt) {
+        setInterval(nextPreviewCycleAt - now);
+        return;
+      }
+      previewOwners = new ArrayList<>(totalMap.keySet());
+      previewOwnerIndex = 0;
+      nextPreviewCycleAt = now + PREVIEW_CYCLE_MILLIS;
+    }
+
+    int endIndex = previewBatchEnd(previewOwnerIndex, previewOwners.size());
+    while (previewOwnerIndex < endIndex) {
+      UUID playerId = previewOwners.get(previewOwnerIndex++);
+      Player player = Bukkit.getPlayer(playerId);
+      if (player == null) {
+        clearPlayerPreview(playerId);
         continue;
       }
-      withPlayerThread(p, () -> renderPreview(p));
+      withPlayerThread(player, () -> renderPreview(player));
     }
+    setInterval(previewOwnerIndex < previewOwners.size()
+        ? MIN_INTERVAL_MILLIS
+        : Math.max(MIN_INTERVAL_MILLIS, nextPreviewCycleAt - now));
   }
 
   private void renderPreview(Player p) {
     UUID id = p.getUniqueId();
     Map<Block, BlockFace> blockRender = totalMap.get(id);
     if (getActiveLevel(p, Player::isSneaking) <= 0 || blockRender == null || blockRender.isEmpty()) {
-      totalMap.remove(id);
-      clearPreviewDisplays(id);
+      clearPlayerPreview(id);
       return;
     }
 
-    Set<PreviewKey> activePreviews = new HashSet<>();
+    Set<PreviewKey> activePreviews = new HashSet<>(blockRender.size());
     boolean displayPreview = getConfig().useDisplayEntities;
 
     for (Map.Entry<Block, BlockFace> entry : blockRender.entrySet()) {
@@ -374,7 +428,10 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
 
         PreviewKey key = PreviewKey.of(transposedBlock);
         activePreviews.add(key);
-        ensurePreviewDisplay(id, key, b.getBlockData());
+        if (!ensurePreviewDisplay(id, key, b.getBlockData())) {
+          fx(transposedBlock.getLocation().add(0.5, 0.5, 0.5), FxPriority.TRAIL)
+              .dustRing(0.55D, 8, 0.6F);
+        }
       } else {
         fx(transposedBlock.getLocation().add(0.5, 0.5, 0.5), FxPriority.TRAIL)
             .dustRing(0.55D, 8, 0.6F);
@@ -388,79 +445,125 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
     }
   }
 
-  private void ensurePreviewDisplay(UUID playerId, PreviewKey key, org.bukkit.block.data.BlockData sourceData) {
+  private boolean ensurePreviewDisplay(UUID playerId, PreviewKey key, BlockData sourceData) {
     if (key == null || sourceData == null) {
-      return;
+      return false;
     }
 
     Map<PreviewKey, BlockDisplay> displays = previewDisplays.computeIfAbsent(playerId, unused -> new ConcurrentHashMap<>());
     BlockDisplay existing = displays.get(key);
     if (existing != null) {
-      if (existing.isValid()) {
-        if (J.isFoliaThreading()) {
-          J.runEntity(existing, () -> {
-            if (!existing.isValid()) {
-              displays.remove(key, existing);
-              return;
-            }
-            existing.setBlock(sourceData);
-            showPreviewToOwner(playerId, existing);
-          });
-        } else {
-          existing.setBlock(sourceData);
-          showPreviewToOwner(playerId, existing);
-        }
-        return;
+      if (previewWorkBudget.tryReserve(System.currentTimeMillis())) {
+        refreshPreviewDisplay(displays, key, existing, sourceData);
       }
-      displays.remove(key);
+      return true;
+    }
+
+    PreviewOwnerKey ownerKey = new PreviewOwnerKey(playerId, key);
+    if (pendingPreviewSpawns.contains(ownerKey)) {
+      return true;
+    }
+    if (!previewWorkBudget.tryReserve(System.currentTimeMillis()) || !previewCapacity.tryAcquire()) {
+      return false;
+    }
+    if (!pendingPreviewSpawns.add(ownerKey)) {
+      previewCapacity.release();
+      return true;
+    }
+
+    World world = Bukkit.getWorld(key.worldId());
+    if (world == null) {
+      pendingPreviewSpawns.remove(ownerKey);
+      previewCapacity.release();
+      return false;
     }
 
     Runnable spawnTask = () -> {
-      if (!totalMap.containsKey(playerId)) {
-        return;
-      }
+      boolean retainedCapacity = false;
+      try {
+        if (!pendingPreviewSpawns.contains(ownerKey) || !totalMap.containsKey(playerId)) {
+          return;
+        }
 
-      org.bukkit.World world = Bukkit.getWorld(key.worldId());
-      if (world == null) {
-        return;
-      }
+        Block targetBlock = world.getBlockAt(key.x(), key.y(), key.z());
+        BlockDisplay live = displays.get(key);
+        if (live != null) {
+          if (live.isValid()) {
+            if (!live.getBlock().equals(sourceData)) {
+              live.setBlock(sourceData);
+            }
+            return;
+          }
+          if (displays.remove(key, live)) {
+            previewCapacity.release();
+          }
+        }
 
-      Block targetBlock = world.getBlockAt(key.x(), key.y(), key.z());
-      BlockDisplay live = displays.get(key);
-      if (live != null && live.isValid()) {
-        live.setBlock(sourceData);
-        showPreviewToOwner(playerId, live);
-        return;
+        BlockDisplay spawned = world.spawn(targetBlock.getLocation(), BlockDisplay.class, display -> {
+          display.setPersistent(false);
+          display.setInvulnerable(true);
+          display.setGravity(false);
+          display.setSilent(true);
+          display.setVisibleByDefault(false);
+          display.setInterpolationDuration(2);
+          display.setTeleportDuration(1);
+          display.setViewRange((float) clampDisplayViewRange(getConfig().displayEntityViewRange));
+          display.setShadowRadius(0f);
+          display.setShadowStrength(0f);
+          display.setBrightness(new Display.Brightness(15, 15));
+          display.setBlock(sourceData);
+        });
+        if (!totalMap.containsKey(playerId)) {
+          spawned.remove();
+          return;
+        }
+        BlockDisplay raced = displays.putIfAbsent(key, spawned);
+        if (raced != null) {
+          spawned.remove();
+          refreshPreviewDisplay(displays, key, raced, sourceData);
+          return;
+        }
+        retainedCapacity = true;
+        showPreviewToOwner(playerId, spawned);
+      } finally {
+        boolean heldReservation = pendingPreviewSpawns.remove(ownerKey);
+        if (!retainedCapacity && heldReservation) {
+          previewCapacity.release();
+        }
       }
-
-      BlockDisplay spawned = world.spawn(targetBlock.getLocation(), BlockDisplay.class, display -> {
-        display.setPersistent(false);
-        display.setInvulnerable(true);
-        display.setGravity(false);
-        display.setSilent(true);
-        display.setVisibleByDefault(false);
-        display.setInterpolationDuration(2);
-        display.setTeleportDuration(1);
-        display.setViewRange((float) Math.max(0.25, getConfig().displayEntityViewRange));
-        display.setShadowRadius(0f);
-        display.setShadowStrength(0f);
-        display.setBrightness(new Display.Brightness(15, 15));
-        display.setBlock(sourceData);
-      });
-      displays.put(key, spawned);
-      showPreviewToOwner(playerId, spawned);
     };
 
-    if (J.isFoliaThreading()) {
-      org.bukkit.World world = Bukkit.getWorld(key.worldId());
-      if (world == null) {
+    Location location = new Location(world, key.x() + 0.5, key.y(), key.z() + 0.5);
+    if (!J.runAt(location, spawnTask)) {
+      pendingPreviewSpawns.remove(ownerKey);
+      previewCapacity.release();
+      return false;
+    }
+    J.s(() -> {
+      if (pendingPreviewSpawns.remove(ownerKey) && !displays.containsKey(key)) {
+        previewCapacity.release();
+      }
+    }, 20);
+    return true;
+  }
+
+  private void refreshPreviewDisplay(Map<PreviewKey, BlockDisplay> displays, PreviewKey key,
+                                     BlockDisplay display, BlockData sourceData) {
+    if (!J.runEntity(display, () -> {
+      if (!display.isValid()) {
+        if (displays.remove(key, display)) {
+          previewCapacity.release();
+        }
         return;
       }
-      J.runAt(new org.bukkit.Location(world, key.x() + 0.5, key.y(), key.z() + 0.5), spawnTask);
-      return;
+      if (!display.getBlock().equals(sourceData)) {
+        display.setBlock(sourceData);
+      }
+    })) {
+      if (displays.remove(key, display)) {
+        previewCapacity.release();
+      }
     }
-
-    spawnTask.run();
   }
 
   private void clearStalePreviewDisplays(UUID playerId, Set<PreviewKey> activePreviews) {
@@ -477,12 +580,13 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
 
       BlockDisplay removed = entry.getValue();
       if (removed != null && displays.remove(key, removed)) {
+        previewCapacity.release();
         removeDisplayEntity(removed);
       }
     }
 
     if (displays.isEmpty()) {
-      previewDisplays.remove(playerId);
+      previewDisplays.remove(playerId, displays);
     }
   }
 
@@ -491,13 +595,24 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
     clearPreviewDisplays(displays);
   }
 
+  private void clearPlayerPreview(UUID playerId) {
+    totalMap.remove(playerId);
+    viewportSignatures.remove(playerId);
+    lastViewportCheck.remove(playerId);
+    clearPreviewDisplays(playerId);
+  }
+
   private void clearPreviewDisplays(Map<PreviewKey, BlockDisplay> displays) {
     if (displays == null || displays.isEmpty()) {
       return;
     }
 
-    for (BlockDisplay display : displays.values()) {
-      removeDisplayEntity(display);
+    for (Map.Entry<PreviewKey, BlockDisplay> entry : displays.entrySet()) {
+      BlockDisplay display = entry.getValue();
+      if (display != null && displays.remove(entry.getKey(), display)) {
+        previewCapacity.release();
+        removeDisplayEntity(display);
+      }
     }
   }
 
@@ -505,43 +620,155 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
     if (entity == null) {
       return;
     }
-
-    if (J.isFoliaThreading()) {
-      J.runEntity(entity, () -> {
-        if (entity.isValid()) {
-          entity.remove();
-        }
-      });
-    } else if (entity.isValid()) {
-      entity.remove();
+    displayRemovalQueue.add(entity);
+    setInterval(MIN_INTERVAL_MILLIS);
+    if (!isBursting()) {
+      retick();
     }
   }
 
+  private void drainDisplayRemovals() {
+    Entity entity;
+    int dispatched = 0;
+    while (dispatched < MAX_DISPLAY_REMOVALS_PER_TICK && (entity = displayRemovalQueue.poll()) != null) {
+      removeDisplayEntityNow(entity);
+      dispatched++;
+    }
+  }
+
+  private void removeDisplayEntityNow(Entity entity) {
+    J.runEntity(entity, () -> {
+      if (entity.isValid()) {
+        entity.remove();
+      }
+    });
+  }
+
   private void showPreviewToOwner(UUID playerId, Entity entity) {
-    if (entity == null || !entity.isValid()) {
+    if (entity == null) {
       return;
     }
 
     Player owner = Bukkit.getPlayer(playerId);
-    if (owner == null || !owner.isOnline()) {
+    if (owner == null) {
       return;
     }
 
-    if (J.isFoliaThreading()) {
-      J.runEntity(owner, () -> {
-        if (entity.isValid()) {
-          owner.showEntity(Adapt.instance, entity);
-        }
-      });
-      return;
-    }
+    J.runEntity(owner, () -> {
+      if (owner.isOnline()) {
+        owner.showEntity(Adapt.instance, entity);
+      }
+    });
+  }
 
-    owner.showEntity(Adapt.instance, entity);
+  static int previewBatchEnd(int startIndex, int ownerCount) {
+    return Math.min(Math.max(0, ownerCount), Math.max(0, startIndex) + MAX_PREVIEW_OWNERS_PER_TICK);
+  }
+
+  static int clampPreviewBlocks(int configured) {
+    return Math.max(1, Math.min(9, configured));
+  }
+
+  static double clampDisplayViewRange(double configured) {
+    return Math.max(0.25D, Math.min(2D, configured));
+  }
+
+  @Override
+  public void unregister() {
+    super.unregister();
+    totalMap.clear();
+    viewportSignatures.clear();
+    lastViewportCheck.clear();
+    pendingPreviewSpawns.clear();
+    for (Map<PreviewKey, BlockDisplay> displays : previewDisplays.values()) {
+      for (BlockDisplay display : displays.values()) {
+        removeDisplayEntityNow(display);
+      }
+    }
+    previewDisplays.clear();
+    previewCapacity.reset();
+    Entity queuedRemoval;
+    while ((queuedRemoval = displayRemovalQueue.poll()) != null) {
+      removeDisplayEntityNow(queuedRemoval);
+    }
+    previewOwners = List.of();
+    previewOwnerIndex = 0;
   }
 
   private record PreviewKey(UUID worldId, int x, int y, int z) {
     private static PreviewKey of(Block block) {
       return new PreviewKey(block.getWorld().getUID(), block.getX(), block.getY(), block.getZ());
+    }
+  }
+
+  private record PreviewOwnerKey(UUID playerId, PreviewKey previewKey) {
+  }
+
+  private record ViewportSignature(UUID worldId, int x, int y, int z, BlockFace face, Material material) {
+    private static ViewportSignature of(Block block, BlockFace face, Material material) {
+      return new ViewportSignature(block.getWorld().getUID(), block.getX(), block.getY(), block.getZ(), face, material);
+    }
+  }
+
+  static final class PreviewWorkBudget {
+    private final int limit;
+    private final AtomicLong state = new AtomicLong();
+
+    PreviewWorkBudget(int limit) {
+      this.limit = Math.max(0, limit);
+    }
+
+    boolean tryReserve(long nowMillis) {
+      int tick = (int) (Math.max(0L, nowMillis) / MIN_INTERVAL_MILLIS);
+      while (true) {
+        long current = state.get();
+        int currentTick = (int) (current >>> 32);
+        int used = (int) current;
+        if (currentTick == tick && used >= limit) {
+          return false;
+        }
+        int nextUsed = currentTick == tick ? used + 1 : 1;
+        long next = (Integer.toUnsignedLong(tick) << 32) | Integer.toUnsignedLong(nextUsed);
+        if (state.compareAndSet(current, next)) {
+          return nextUsed <= limit;
+        }
+      }
+    }
+  }
+
+  static final class PreviewCapacity {
+    private final int limit;
+    private final AtomicInteger active = new AtomicInteger();
+
+    PreviewCapacity(int limit) {
+      this.limit = Math.max(0, limit);
+    }
+
+    boolean tryAcquire() {
+      while (true) {
+        int current = active.get();
+        if (current >= limit) {
+          return false;
+        }
+        if (active.compareAndSet(current, current + 1)) {
+          return true;
+        }
+      }
+    }
+
+    void release() {
+      int current = active.get();
+      while (current > 0 && !active.compareAndSet(current, current - 1)) {
+        current = active.get();
+      }
+    }
+
+    int active() {
+      return active.get();
+    }
+
+    void reset() {
+      active.set(0);
     }
   }
 

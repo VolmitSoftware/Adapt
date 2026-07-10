@@ -25,7 +25,13 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.content.adaptation.excavation.ExcavationGraveDigger;
-import art.arcane.adapt.content.adaptation.taming.*;
+import art.arcane.adapt.content.adaptation.taming.TamingBeastRecall;
+import art.arcane.adapt.content.adaptation.taming.TamingDamage;
+import art.arcane.adapt.content.adaptation.taming.TamingHealthBoost;
+import art.arcane.adapt.content.adaptation.taming.TamingHealthRegeneration;
+import art.arcane.adapt.content.adaptation.taming.TamingMountedTactics;
+import art.arcane.adapt.content.adaptation.taming.TamingPackLeaderAura;
+import art.arcane.adapt.content.adaptation.taming.TamingSharedPain;
 import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
@@ -35,7 +41,6 @@ import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Tameable;
 import org.bukkit.event.EventHandler;
@@ -126,47 +131,30 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerAdvancement(AdaptAdvancement.builder()
-        .icon(Material.GOLDEN_CARROT)
-        .key("challenge_taming_2500")
-        .model(CustomModel.get(Material.GOLDEN_CARROT, "advancement", "taming", "challenge_taming_2500"))
-        .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
-        .child(AdaptAdvancement.builder()
-            .icon(Material.ENCHANTED_GOLDEN_APPLE)
-            .key("challenge_taming_25k")
-            .model(CustomModel.get(Material.ENCHANTED_GOLDEN_APPLE, "advancement", "taming", "challenge_taming_25k"))
-            .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
-            .build())
-        .build());
-    registerMilestone("challenge_taming_10", "taming.bred", 10, getConfig().challengeTamingReward);
-    registerMilestone("challenge_taming_50", "taming.bred", 50, getConfig().challengeTamingReward * 2);
-    registerMilestone("challenge_taming_500", "taming.bred", 500, getConfig().challengeTamingReward * 5);
-    registerMilestone("challenge_pet_dmg_500", "taming.pet.damage", 500, getConfig().challengePetDmgReward);
-    registerMilestone("challenge_pet_dmg_5k", "taming.pet.damage", 5000, getConfig().challengePetDmgReward * 5);
-    registerMilestone("challenge_tamed_10", "taming.tamed", 10, getConfig().challengeTamedReward);
-    registerMilestone("challenge_tamed_100", "taming.tamed", 100, getConfig().challengeTamedReward * 5);
-    registerMilestone("challenge_pet_kills_25", "taming.pet.kills", 25, getConfig().challengePetKillsReward);
-    registerMilestone("challenge_pet_kills_250", "taming.pet.kills", 250, getConfig().challengePetKillsReward * 5);
-    registerMilestone("challenge_taming_2500", "taming.bred", 2500, getConfig().challengeTamingReward * 10);
-    registerMilestone("challenge_taming_25k", "taming.bred", 25000, getConfig().challengeTamingReward * 25);
+    registerMilestone("challenge_taming_10", "taming.bred", 10, () -> getConfig().challengeTamingReward);
+    registerMilestone("challenge_taming_50", "taming.bred", 50, () -> getConfig().challengeTamingReward * 2);
+    registerMilestone("challenge_taming_500", "taming.bred", 500, () -> getConfig().challengeTamingReward * 5);
+    registerMilestone("challenge_pet_dmg_500", "taming.pet.damage", 500, () -> getConfig().challengePetDmgReward);
+    registerMilestone("challenge_pet_dmg_5k", "taming.pet.damage", 5000, () -> getConfig().challengePetDmgReward * 5);
+    registerMilestone("challenge_tamed_10", "taming.tamed", 10, () -> getConfig().challengeTamedReward);
+    registerMilestone("challenge_tamed_100", "taming.tamed", 100, () -> getConfig().challengeTamedReward * 5);
+    registerMilestone("challenge_pet_kills_25", "taming.pet.kills", 25, () -> getConfig().challengePetKillsReward);
+    registerMilestone("challenge_pet_kills_250", "taming.pet.kills", 250, () -> getConfig().challengePetKillsReward * 5);
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(EntityBreedEvent e) {
-    for (Entity nearby : e.getEntity().getNearbyEntities(15, 15, 15)) {
-      if (!(nearby instanceof Player p)) {
-        continue;
-      }
-      shouldReturnForPlayer(p, e, () -> {
-        addStat(p, "taming.bred", 1);
-        if (!isOnCooldown(p)) {
-          setCooldown(p);
-          xp(p, getConfig().tameXpBase);
-        }
-      });
+    if (!(e.getBreeder() instanceof Player p)) {
+      return;
     }
+
+    shouldReturnForPlayer(p, e, () -> {
+      addStat(p, "taming.bred", 1);
+      if (!isOnCooldown(p)) {
+        setCooldown(p);
+        xp(p, getConfig().tameXpBase);
+      }
+    });
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
@@ -237,14 +225,6 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
     xpCooldowns.mark(p.getUniqueId());
   }
 
-
-  @Override
-  public void onTick() {
-    if (!this.isEnabled()) {
-      return;
-    }
-    checkStatTrackersForOnlinePlayers();
-  }
 
   @Override
   public boolean isEnabled() {

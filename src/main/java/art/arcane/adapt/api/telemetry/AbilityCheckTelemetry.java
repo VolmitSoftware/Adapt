@@ -32,35 +32,19 @@ public final class AbilityCheckTelemetry {
   private AbilityCheckTelemetry() {
   }
 
-  public static void recordCheckAttempt() {
-    long now = System.currentTimeMillis();
-    increment(checkOps, now, 1);
-  }
-
-  public static void recordSuccessfulCheck() {
-    long now = System.currentTimeMillis();
-    increment(successfulOps, now, 1);
-  }
-
-  public static void recordCacheHit() {
-    long now = System.currentTimeMillis();
+  public static void recordCacheHit(long now) {
     increment(cacheHits, now, 1);
   }
 
-  public static void recordCacheMiss() {
-    long now = System.currentTimeMillis();
+  public static void recordUncachedCheck(long now, long nanos, boolean successful) {
     increment(cacheMisses, now, 1);
-  }
-
-  public static void recordCheckTimingNanos(long nanos) {
-    if (nanos <= 0L) {
-      return;
-    }
-
-    long now = System.currentTimeMillis();
+    increment(checkOps, now, 1);
     long microsLong = Math.min(Integer.MAX_VALUE, Math.max(1L, nanos / 1_000L));
     increment(timingMicros, now, (int) microsLong);
     increment(timingSamples, now, 1);
+    if (successful) {
+      increment(successfulOps, now, 1);
+    }
   }
 
   public static long checksPerMinute(long now) {

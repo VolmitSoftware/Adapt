@@ -33,15 +33,24 @@ import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
-import org.bukkit.*;
+import org.bukkit.GameMode;
+import org.bukkit.Input;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.util.Vector;
 
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
   private static final Sound DEFAULT_ACTIVATION_SOUND = Sound.PARTICLE_SOUL_ESCAPE;
@@ -52,7 +61,7 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
     registerConfiguration(Config.class);
     setIcon(Material.MUSHROOM_STEW);
     setInterval(getConfig().setInterval);
-    states = new java.util.concurrent.ConcurrentHashMap<>();
+    states = new ConcurrentHashMap<>();
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.LEATHER_BOOTS)
         .key("challenge_stealth_speed_5k")
@@ -77,44 +86,91 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
     clearAndRemoveState(e.getEntity());
   }
 
+  @EventHandler
+  public void on(PlayerToggleSneakEvent e) {
+    Player player = e.getPlayer();
+    if (e.isSneaking()) {
+      startSession(player);
+      return;
+    }
+
+    RuntimeState state = states.get(player.getUniqueId());
+    if (state != null && !isCrawlingOnLand(player)) {
+      clearAndRemoveState(player);
+    }
+  }
+
+  @EventHandler
+  public void on(PlayerMoveEvent e) {
+    Player player = e.getPlayer();
+    if (states.containsKey(player.getUniqueId())) {
+      return;
+    }
+
+    if ((player.isSneaking() || isCrawlingOnLand(player)) && hasActiveAdaptation(player)) {
+      startSession(player);
+    }
+  }
+
   @Override
-  public void onTick() {
+  public void unregister() {
+    super.unregister();
+    for (RuntimeState state : states.values()) {
+      state.refreshScheduled.set(false);
+      Player owner = state.owner;
+      J.runEntity(owner, () -> clearBoost(owner, state));
+    }
+    states.clear();
+  }
+
+  private void startSession(Player player) {
+    UUID playerId = player.getUniqueId();
+    RuntimeState state = states.computeIfAbsent(playerId, key -> new RuntimeState(player));
+    if (state.refreshScheduled.compareAndSet(false, true)) {
+      refreshSession(player, state);
+    }
+  }
+
+  private void refreshSession(Player p, RuntimeState state) {
+    UUID playerId = p.getUniqueId();
+    if (states.get(playerId) != state || !p.isOnline()) {
+      state.refreshScheduled.set(false);
+      return;
+    }
+
+    boolean crawling = isCrawlingOnLand(p);
+    if ((!p.isSneaking() && !crawling) || !hasActiveAdaptation(p)) {
+      clearAndRemoveState(p);
+      return;
+    }
+
     long now = System.currentTimeMillis();
     long statIntervalMs = Math.max(50L, getConfig().statIntervalMs);
 
-    for (art.arcane.adapt.api.world.AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
-      Player p = adaptPlayer.getPlayer();
-      RuntimeState state = states.computeIfAbsent(p.getUniqueId(), key -> new RuntimeState());
-
-      if (!isEligible(p)) {
-        clearBoost(p, state);
-        continue;
-      }
-
+    if (!isEligible(p, crawling)) {
+      clearBoost(p, state);
+    } else {
       double levelFactor = getLevelPercent(p);
-      if (levelFactor <= 0) {
-        clearBoost(p, state);
-        continue;
-      }
-
-      boolean crawling = isCrawlingOnLand(p);
       float targetWalkSpeed = computeTargetWalkSpeed(state, p, levelFactor, crawling);
       applyBoost(p, state, targetWalkSpeed, now);
       applyAutoStep(p, state, now);
 
-      if (!isMovingHorizontally(p, getConfig().movementVelocityThreshold)) {
-        continue;
-      }
+      if (isMovingHorizontally(p, getConfig().movementVelocityThreshold)) {
+        if (getConfig().showSoulParticles && M.r(getConfig().soulParticleChance)) {
+          fx(p.getLocation().clone().add(0, getConfig().soulParticleYOffset, 0), FxPriority.TRAIL)
+              .particle(crawling ? Particle.ASH : Particle.SOUL, 1, 0, 0, 0, 0.12D, 0);
+        }
 
-      if (getConfig().showSoulParticles && M.r(getConfig().soulParticleChance)) {
-        fx(p.getLocation().clone().add(0, getConfig().soulParticleYOffset, 0), FxPriority.TRAIL)
-            .particle(crawling ? Particle.ASH : Particle.SOUL, 1, 0, 0, 0, 0.12D, 0);
+        if (now - state.lastStatMillis >= statIntervalMs) {
+          addStat(p, "stealth.speed.blocks-sneak-sprinted", 1);
+          state.lastStatMillis = now;
+        }
       }
+    }
 
-      if (now - state.lastStatMillis >= statIntervalMs) {
-        addStat(p, "stealth.speed.blocks-sneak-sprinted", 1);
-        state.lastStatMillis = now;
-      }
+    int delayTicks = Math.max(1, (int) Math.ceil(Math.max(50L, getConfig().setInterval) / 50.0D));
+    if (!J.runEntity(p, () -> refreshSession(p, state), delayTicks)) {
+      clearAndRemoveState(p);
     }
   }
 
@@ -163,15 +219,11 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
       return;
     }
 
+    state.refreshScheduled.set(false);
     clearBoost(p, state);
   }
 
-  private boolean isEligible(Player p) {
-    if (!hasActiveAdaptation(p)) {
-      return false;
-    }
-
-    boolean crawlingOnLand = isCrawlingOnLand(p);
+  private boolean isEligible(Player p, boolean crawlingOnLand) {
     if (!p.isSneaking() && !crawlingOnLand) {
       return false;
     }
@@ -393,11 +445,17 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
   }
 
   private static class RuntimeState {
+    private final Player owner;
+    private final AtomicBoolean refreshScheduled = new AtomicBoolean();
     private boolean boosting;
     private float originalWalkSpeed = 0.2f;
     private long lastSoundMillis;
     private long lastStatMillis;
     private long lastStepMillis;
+
+    private RuntimeState(Player owner) {
+      this.owner = owner;
+    }
   }
 
   @ConfigDescription("Gain speed while sneaking.")

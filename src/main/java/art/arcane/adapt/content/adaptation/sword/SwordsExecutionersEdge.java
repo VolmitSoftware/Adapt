@@ -156,10 +156,6 @@ public class SwordsExecutionersEdge extends SimpleAdaptation<SwordsExecutionersE
     return Math.min(getConfig().maxThreshold, getConfig().thresholdBase + (getLevelPercent(level) * getConfig().thresholdFactor));
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Sword strikes deal bonus damage to low-health targets.")
   protected static class Config extends AdaptationConfig {

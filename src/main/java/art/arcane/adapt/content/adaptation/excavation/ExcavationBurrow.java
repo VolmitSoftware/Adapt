@@ -277,10 +277,6 @@ public class ExcavationBurrow extends SimpleAdaptation<ExcavationBurrow.Config> 
     return Math.max(2000L, (long) Math.round(getConfig().cooldownMillisBase - (getLevelPercent(level) * getConfig().cooldownMillisFactor)));
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Sneak-right-click soft ground with a shovel to rapidly dig straight down, stopping before hazards.")
   protected static class Config extends AdaptationConfig {

@@ -139,10 +139,6 @@ public class EnchantingAnvilSavant extends SimpleAdaptation<EnchantingAnvilSavan
     return Math.min(getConfig().maximumReduction, getConfig().reductionBase + (getLevelPercent(level) * getConfig().reductionFactor));
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Reduce anvil XP cost when combining, repairing, and renaming.")
   protected static class Config extends AdaptationConfig {

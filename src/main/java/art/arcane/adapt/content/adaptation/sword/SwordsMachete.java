@@ -171,10 +171,6 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
     return (int) (getConfig().toolDamageBase + (getConfig().toolDamageInverseLevelFactor * ((1D - levelPercent))));
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Cut through foliage with ease using a sword.")
   protected static class Config extends AdaptationConfig {

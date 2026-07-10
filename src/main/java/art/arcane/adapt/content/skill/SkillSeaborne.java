@@ -23,10 +23,18 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.skill.SkillOwnerPulse;
 import art.arcane.adapt.api.skill.SimpleSkill;
+import art.arcane.adapt.api.version.IAttribute;
 import art.arcane.adapt.api.version.Version;
 import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.content.adaptation.seaborrne.*;
+import art.arcane.adapt.content.adaptation.seaborrne.SeaborneFishersFantasy;
+import art.arcane.adapt.content.adaptation.seaborrne.SeaborneOxygen;
+import art.arcane.adapt.content.adaptation.seaborrne.SeabornePressureDiver;
+import art.arcane.adapt.content.adaptation.seaborrne.SeaborneSpeed;
+import art.arcane.adapt.content.adaptation.seaborrne.SeaborneTidecaller;
+import art.arcane.adapt.content.adaptation.seaborrne.SeaborneTurtlesMiningSpeed;
+import art.arcane.adapt.content.adaptation.seaborrne.SeaborneTurtlesVision;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
@@ -50,8 +58,10 @@ import java.util.Map;
 import java.util.UUID;
 
 public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
-  private final Cooldowns seaCooldowns = cooldowns();
+  private final Cooldowns underwaterBlockCooldowns = cooldowns();
+  private final Cooldowns drownedDamageCooldowns = cooldowns();
   private final Map<UUID, Boolean> swimming = playerState();
+  private final SkillOwnerPulse.Registration ownerPulse;
 
   public SkillSeaborne() {
     super("seaborne", Localizer.dLocalize("skill.seaborne.icon"));
@@ -89,9 +99,9 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
                 .build())
             .build())
         .build());
-    registerMilestone("challenge_swim_1nm", "move.swim", 1852, getConfig().challengeSwim1nmReward);
-    registerMilestone("challenge_swim_5k", "move.swim", 5000, getConfig().challengeSwim5kReward);
-    registerMilestone("challenge_swim_20k", "move.swim", 20000, getConfig().challengeSwim20kReward);
+    registerMilestone("challenge_swim_1nm", "move.swim", 1852, () -> getConfig().challengeSwim1nmReward);
+    registerMilestone("challenge_swim_5k", "move.swim", 5000, () -> getConfig().challengeSwim5kReward);
+    registerMilestone("challenge_swim_20k", "move.swim", 20000, () -> getConfig().challengeSwim20kReward);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.FISHING_ROD)
         .key("challenge_fish_25")
@@ -106,8 +116,8 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_fish_25", "seaborne.fish.caught", 25, getConfig().challengeSwim1nmReward);
-    registerMilestone("challenge_fish_250", "seaborne.fish.caught", 250, getConfig().challengeSwim1nmReward);
+    registerMilestone("challenge_fish_25", "seaborne.fish.caught", 25, () -> getConfig().challengeSwim1nmReward);
+    registerMilestone("challenge_fish_250", "seaborne.fish.caught", 250, () -> getConfig().challengeSwim1nmReward * 2);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.ROTTEN_FLESH)
         .key("challenge_drowned_25")
@@ -122,8 +132,8 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_drowned_25", "seaborne.drowned.kills", 25, getConfig().challengeSwim1nmReward);
-    registerMilestone("challenge_drowned_250", "seaborne.drowned.kills", 250, getConfig().challengeSwim1nmReward);
+    registerMilestone("challenge_drowned_25", "seaborne.drowned.kills", 25, () -> getConfig().challengeSwim1nmReward);
+    registerMilestone("challenge_drowned_250", "seaborne.drowned.kills", 250, () -> getConfig().challengeSwim1nmReward * 2);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.PRISMARINE_SHARD)
         .key("challenge_guardian_10")
@@ -138,8 +148,8 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_guardian_10", "seaborne.guardian.kills", 10, getConfig().challengeSwim1nmReward);
-    registerMilestone("challenge_guardian_100", "seaborne.guardian.kills", 100, getConfig().challengeSwim1nmReward);
+    registerMilestone("challenge_guardian_10", "seaborne.guardian.kills", 10, () -> getConfig().challengeSwim1nmReward);
+    registerMilestone("challenge_guardian_100", "seaborne.guardian.kills", 100, () -> getConfig().challengeSwim1nmReward * 2);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.PRISMARINE)
         .key("challenge_underwater_blocks_100")
@@ -154,39 +164,41 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build())
         .build());
-    registerMilestone("challenge_underwater_blocks_100", "seaborne.underwater.blocks", 100, getConfig().challengeSwim1nmReward);
-    registerMilestone("challenge_underwater_blocks_1k", "seaborne.underwater.blocks", 1000, getConfig().challengeSwim1nmReward);
+    registerMilestone("challenge_underwater_blocks_100", "seaborne.underwater.blocks", 100, () -> getConfig().challengeSwim1nmReward);
+    registerMilestone("challenge_underwater_blocks_1k", "seaborne.underwater.blocks", 1000, () -> getConfig().challengeSwim1nmReward * 2);
+    ownerPulse = SkillOwnerPulse.register(this, this::getInterval, this::pulseSwimmingXp);
   }
 
   @Override
-  public void onTick() {
-    if (!this.isEnabled()) {
-      return;
-    }
-    for (AdaptPlayer adaptPlayer : getServer().getOnlineAdaptPlayerSnapshot()) {
-      Player i = adaptPlayer.getPlayer();
-      shouldReturnForPlayer(i, () -> {
-        boolean qualifies = (i.isInWater() || i.isSwimming()) && i.getRemainingAir() < i.getMaximumAir();
-        UUID id = i.getUniqueId();
-        boolean was = swimming.getOrDefault(id, false);
-        if (!qualifies) {
-          if (was) {
-            swimming.put(id, false);
-          }
-          return;
-        }
+  public void unregister() {
+    ownerPulse.unregister();
+    swimming.clear();
+    super.unregister();
+  }
 
-        checkStatTrackers(adaptPlayer);
-        xpSilent(i, getConfig().swimXP, "seaborne:swim");
-        if (!was) {
-          swimming.put(id, true);
-          fx(i.getLocation(), FxPriority.AMBIENT)
-              .column(Particle.END_ROD, 4, 1.0D)
-              .particle(Particle.BUBBLE, 4, 0D, 0.5D, 0D, 0.3D, 0.02D)
-              .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.25F, 1.8F);
+  private void pulseSwimmingXp(AdaptPlayer adaptPlayer, Player player, long elapsedMillis, long cadenceMillis) {
+    shouldReturnForPlayer(player, () -> {
+      boolean qualifies = (player.isInWater() || player.isSwimming())
+          && player.getRemainingAir() < player.getMaximumAir();
+      UUID playerId = player.getUniqueId();
+      boolean wasSwimming = swimming.getOrDefault(playerId, false);
+      if (!qualifies) {
+        if (wasSwimming) {
+          swimming.remove(playerId);
         }
-      });
-    }
+        return;
+      }
+
+      double cadenceScale = (double) elapsedMillis / cadenceMillis;
+      xpSilent(player, getConfig().swimXP * cadenceScale, "seaborne:swim");
+      if (!wasSwimming) {
+        swimming.put(playerId, true);
+        fx(player.getLocation(), FxPriority.AMBIENT)
+            .column(Particle.END_ROD, 4, 1.0D)
+            .particle(Particle.BUBBLE, 4, 0D, 0.5D, 0D, 0.3D, 0.02D)
+            .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.25F, 1.8F);
+      }
+    });
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
@@ -206,13 +218,16 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
   public void on(BlockBreakEvent e) {
     Player p = e.getPlayer();
     shouldReturnForPlayer(e.getPlayer(), e, () -> {
-      if (!seaCooldowns.isReady(p.getUniqueId(), getConfig().seaPickleCooldown)) {
+      if (!p.isSwimming() && !p.isInWater()) {
         return;
       }
-      seaCooldowns.mark(p.getUniqueId());
-      if (p.isSwimming() || p.isInWater()) {
-        addStat(p, "seaborne.underwater.blocks", 1);
+
+      if (!underwaterBlockCooldowns.isReady(p.getUniqueId(), getConfig().seaPickleCooldown)) {
+        return;
       }
+
+      underwaterBlockCooldowns.mark(p.getUniqueId());
+      addStat(p, "seaborne.underwater.blocks", 1);
       if (e.getBlock().getType().equals(Material.SEA_PICKLE) && p.isSwimming() && p.getRemainingAir() < p.getMaximumAir()) { // BECAUSE I LIKE PICKLES
         xpSilent(p, 10, "seaborne:sea-pickle");
       } else {
@@ -224,7 +239,7 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(EntityDeathEvent e) {
     Player p = e.getEntity().getKiller();
-    if (p == null || !p.getClass().getSimpleName().equals("CraftPlayer")) {
+    if (p == null) {
       return;
     }
     shouldReturnForPlayer(p, () -> {
@@ -254,10 +269,10 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
 
     if (e.getEntity().getType() == EntityType.DROWNED && e.getDamager() instanceof Player p) {
       shouldReturnForPlayer(p, e, () -> {
-        if (!seaCooldowns.isReady(p.getUniqueId(), getConfig().seaPickleCooldown)) {
+        if (!drownedDamageCooldowns.isReady(p.getUniqueId(), getConfig().drownedDamageXpCooldown)) {
           return;
         }
-        seaCooldowns.mark(p.getUniqueId());
+        drownedDamageCooldowns.mark(p.getUniqueId());
         xp(p, getConfig().damagedrownxpmultiplier * Math.min(e.getDamage(), getBaseHealth(entity)));
       });
     } else if (e.getDamager().getType() == EntityType.TRIDENT) {
@@ -273,7 +288,7 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
   }
 
   private double getBaseHealth(LivingEntity entity) {
-    art.arcane.adapt.api.version.IAttribute attribute = Version.get().getAttribute(entity, Attributes.GENERIC_MAX_HEALTH);
+    IAttribute attribute = Version.get().getAttribute(entity, Attributes.GENERIC_MAX_HEALTH);
     return attribute == null ? 0 : attribute.getBaseValue();
   }
 
@@ -286,6 +301,8 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
   protected static class Config {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Sea Pickle Cooldown for the Seaborne skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     public long seaPickleCooldown = 60000;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Cooldown between XP awards for damaging drowned.", impact = "Higher values reduce repeated combat XP frequency; lower values reward hits more often.")
+    public long drownedDamageXpCooldown = 1500;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Tridentxpmultiplier for the Seaborne skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     public double tridentxpmultiplier = 4.0;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Damagedrownxpmultiplier for the Seaborne skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

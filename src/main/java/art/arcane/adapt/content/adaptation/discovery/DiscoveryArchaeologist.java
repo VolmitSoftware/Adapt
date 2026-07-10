@@ -27,11 +27,17 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -39,22 +45,30 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.EventExecutor;
 
 import java.lang.reflect.Method;
-import java.util.Iterator;
 import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DiscoveryArchaeologist extends SimpleAdaptation<DiscoveryArchaeologist.Config> {
   private static final String BLOCK_BRUSH_EVENT_CLASS = "org.bukkit.event.block.BlockBrushEvent";
   private static final long BRUSH_FALLBACK_WINDOW_MILLIS = 25000L;
+  private static final long FALLBACK_CHECK_INTERVAL_MILLIS = 2300L;
+  private static final int PENDING_CHECKS_PER_TICK = 16;
   private final Cooldowns cooldowns = cooldowns();
   private final Map<UUID, PendingBrush> pendingBrushes = playerState();
+  private final Queue<UUID> pendingQueue = new ConcurrentLinkedQueue<>();
+  private final Set<UUID> queuedPending = ConcurrentHashMap.newKeySet();
   private final AtomicBoolean brushEventFailureWarned = new AtomicBoolean(false);
   private final BrushEventBridge brushEventBridge;
 
@@ -62,7 +76,7 @@ public class DiscoveryArchaeologist extends SimpleAdaptation<DiscoveryArchaeolog
     super("discovery-archaeologist");
     registerConfiguration(Config.class);
     setIcon(Material.BRUSH);
-    setInterval(2300);
+    setInterval(10);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.BRUSH)
         .key("challenge_discovery_archaeologist_50")
@@ -117,6 +131,7 @@ public class DiscoveryArchaeologist extends SimpleAdaptation<DiscoveryArchaeolog
     PendingBrush prior = pendingBrushes.get(id);
     boolean freshBrush = prior == null || !prior.sameBlock(block);
     pendingBrushes.put(id, PendingBrush.from(block, System.currentTimeMillis() + BRUSH_FALLBACK_WINDOW_MILLIS));
+    queuePending(id);
 
     if (freshBrush) {
       fx(block.getLocation().add(0.5, 0.9, 0.5), FxPriority.TRAIL)
@@ -147,9 +162,13 @@ public class DiscoveryArchaeologist extends SimpleAdaptation<DiscoveryArchaeolog
       }
 
       Material newStateType = bridge.newStateType(event);
-      handleBrush(p, block, originalType, newStateType);
+      if (p != null && block != null) {
+        Location blockLocation = block.getLocation();
+        Material completedOriginalType = originalType;
+        withPlayerThread(p, () -> handleBrush(p, blockLocation, completedOriginalType, newStateType));
+      }
       if (p != null && newStateType != null && !isSuspiciousBlock(newStateType)) {
-        pendingBrushes.remove(p.getUniqueId());
+        removePending(p.getUniqueId());
       }
     } catch (Throwable t) {
       if (brushEventFailureWarned.compareAndSet(false, true)) {
@@ -158,8 +177,8 @@ public class DiscoveryArchaeologist extends SimpleAdaptation<DiscoveryArchaeolog
     }
   }
 
-  private void handleBrush(Player p, Block block, Material originalType, Material newStateType) {
-    if (p == null || block == null) {
+  private void handleBrush(Player p, Location blockLocation, Material originalType, Material newStateType) {
+    if (p == null || blockLocation == null) {
       return;
     }
 
@@ -177,7 +196,7 @@ public class DiscoveryArchaeologist extends SimpleAdaptation<DiscoveryArchaeolog
       return;
     }
 
-    if (!canBlockBreak(p, block.getLocation())) {
+    if (!canBlockBreak(p, blockLocation)) {
       return;
     }
 
@@ -186,7 +205,7 @@ public class DiscoveryArchaeologist extends SimpleAdaptation<DiscoveryArchaeolog
     }
 
     cooldowns.mark(p.getUniqueId());
-    Location surface = block.getLocation().add(0.5, 0.65, 0.5);
+    Location surface = blockLocation.clone().add(0.5, 0.65, 0.5);
     if (ThreadLocalRandom.current().nextDouble() > getBonusRollChance(level)) {
       fx(surface, FxPriority.TRAIL)
           .particle(Particles.SMOKE, 2, 0, 0, 0, 0.05, 0.01)
@@ -265,45 +284,88 @@ public class DiscoveryArchaeologist extends SimpleAdaptation<DiscoveryArchaeolog
 
   @Override
   public void onTick() {
-    if (pendingBrushes.isEmpty()) {
+    long now = System.currentTimeMillis();
+    int attempts = workFor(queuedPending.size(), PENDING_CHECKS_PER_TICK);
+    for (int i = 0; i < attempts; i++) {
+      UUID id = pendingQueue.poll();
+      if (id == null) {
+        break;
+      }
+      queuedPending.remove(id);
+      PendingBrush pending = pendingBrushes.get(id);
+      if (pending == null) {
+        continue;
+      }
+      if (pending.expiresAt <= now) {
+        pendingBrushes.remove(id, pending);
+        continue;
+      }
+      if (pending.nextCheckAt > now) {
+        queuePending(id);
+        continue;
+      }
+      pending.nextCheckAt = now + FALLBACK_CHECK_INTERVAL_MILLIS;
+      Location location = pending.location();
+      if (location == null) {
+        pendingBrushes.remove(id, pending);
+        continue;
+      }
+      if (!J.runAt(location, () -> inspectPendingBrush(id, pending))) {
+        queuePending(id);
+      }
+    }
+  }
+
+  @EventHandler
+  public void on(PlayerQuitEvent e) {
+    removePending(e.getPlayer().getUniqueId());
+  }
+
+  private void inspectPendingBrush(UUID id, PendingBrush pending) {
+    if (pendingBrushes.get(id) != pending) {
+      return;
+    }
+    Block current = pending.resolveBlock();
+    if (current == null) {
+      pendingBrushes.remove(id, pending);
+      return;
+    }
+    Material currentType = current.getType();
+    if (isSuspiciousBlock(currentType)) {
+      queuePending(id);
       return;
     }
 
-    long now = System.currentTimeMillis();
-    Iterator<Map.Entry<UUID, PendingBrush>> iterator = pendingBrushes.entrySet().iterator();
-    while (iterator.hasNext()) {
-      Map.Entry<UUID, PendingBrush> entry = iterator.next();
-      PendingBrush pending = entry.getValue();
-      if (pending.expiresAt <= now) {
-        iterator.remove();
-        continue;
-      }
-
-      Player p = Bukkit.getPlayer(entry.getKey());
-      if (p == null || !p.isOnline()) {
-        iterator.remove();
-        continue;
-      }
-
-      if (!hasActiveAdaptation(p)) {
-        iterator.remove();
-        continue;
-      }
-
-      Block current = pending.resolveBlock();
-      if (current == null) {
-        iterator.remove();
-        continue;
-      }
-
-      Material currentType = current.getType();
-      if (isSuspiciousBlock(currentType)) {
-        continue;
-      }
-
-      handleBrush(p, current, pending.originalType, currentType);
-      iterator.remove();
+    pendingBrushes.remove(id, pending);
+    Player p = Bukkit.getPlayer(id);
+    if (p == null) {
+      return;
     }
+    Location location = current.getLocation();
+    if (!J.runEntity(p, () -> {
+      if (p.isOnline() && hasActiveAdaptation(p)) {
+        handleBrush(p, location, pending.originalType, currentType);
+      }
+    })) {
+      pendingBrushes.remove(id, pending);
+    }
+  }
+
+  private void queuePending(UUID id) {
+    if (pendingBrushes.containsKey(id) && queuedPending.add(id)) {
+      pendingQueue.add(id);
+    }
+  }
+
+  private void removePending(UUID id) {
+    pendingBrushes.remove(id);
+    if (queuedPending.remove(id)) {
+      pendingQueue.remove(id);
+    }
+  }
+
+  static int workFor(int queued, int limit) {
+    return Math.min(Math.max(0, queued), Math.max(0, limit));
   }
 
   private static final class BrushEventBridge {
@@ -370,6 +432,7 @@ public class DiscoveryArchaeologist extends SimpleAdaptation<DiscoveryArchaeolog
     private final int z;
     private final Material originalType;
     private final long expiresAt;
+    private volatile long nextCheckAt;
 
     private PendingBrush(UUID worldId, int x, int y, int z, Material originalType, long expiresAt) {
       this.worldId = worldId;
@@ -378,6 +441,7 @@ public class DiscoveryArchaeologist extends SimpleAdaptation<DiscoveryArchaeolog
       this.z = z;
       this.originalType = originalType;
       this.expiresAt = expiresAt;
+      this.nextCheckAt = 0L;
     }
 
     private static PendingBrush from(Block block, long expiresAt) {
@@ -391,6 +455,11 @@ public class DiscoveryArchaeologist extends SimpleAdaptation<DiscoveryArchaeolog
     private Block resolveBlock() {
       World world = Bukkit.getWorld(worldId);
       return world == null ? null : world.getBlockAt(x, y, z);
+    }
+
+    private Location location() {
+      World world = Bukkit.getWorld(worldId);
+      return world == null ? null : new Location(world, x, y, z);
     }
   }
 

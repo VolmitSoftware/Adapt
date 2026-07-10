@@ -175,10 +175,6 @@ public class NetherBlazeLeech extends SimpleAdaptation<NetherBlazeLeech.Config> 
     return Math.max(100L, Math.round(getConfig().cooldownMillisBase - (getLevelPercent(level) * getConfig().cooldownMillisFactor)));
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Fire interactions can grant hunger and regeneration in short bursts.")
   protected static class Config extends AdaptationConfig {

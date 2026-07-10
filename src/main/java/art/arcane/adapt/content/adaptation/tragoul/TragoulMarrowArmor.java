@@ -148,9 +148,6 @@ public class TragoulMarrowArmor extends SimpleAdaptation<TragoulMarrowArmor.Conf
     return Math.max(500L, (long) Math.round(getConfig().internalCooldownMillisBase - (getLevelPercent(level) * getConfig().internalCooldownMillisFactor)));
   }
 
-  @Override
-  public void onTick() {
-  }
 
   @ConfigDescription("Consume a bone from your inventory to absorb part of incoming damage.")
   protected static class Config extends AdaptationConfig {

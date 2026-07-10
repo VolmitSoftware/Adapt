@@ -1039,9 +1039,6 @@ public class AxeCraftLogSwap extends SimpleAdaptation<AxeCraftLogSwap.Config> {
     }
   }
 
-  @Override
-  public void onTick() {
-  }
 
   @ConfigDescription("Convert log types using a sapling in a crafting table.")
   protected static class Config extends AdaptationConfig {

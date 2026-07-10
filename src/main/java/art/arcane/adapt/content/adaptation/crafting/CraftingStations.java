@@ -161,10 +161,6 @@ public class CraftingStations extends SimpleAdaptation<CraftingStations.Config> 
         .start();
   }
 
-  @Override
-  public void onTick() {
-
-  }
 
   @ConfigDescription("Use crafting tables, anvils, and other stations in the palm of your hand.")
   protected static class Config extends AdaptationConfig {

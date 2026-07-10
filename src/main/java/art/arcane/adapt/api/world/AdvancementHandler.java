@@ -19,14 +19,17 @@
 package art.arcane.adapt.api.world;
 
 import art.arcane.adapt.AdaptConfig;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import static art.arcane.adapt.Adapt.instance;
 
-@Data
 public class AdvancementHandler {
-  private AdaptPlayer player;
-  private boolean ready;
+  @Getter
+  private final AdaptPlayer player;
+  @Getter
+  @Setter
+  private volatile boolean ready;
 
   public AdvancementHandler(AdaptPlayer player) {
     this.player = player;
@@ -34,12 +37,14 @@ public class AdvancementHandler {
     instance.getManager().unlockExisting(player, this);
   }
 
-  public void grant(String key, boolean toast) {
-    if (!AdaptConfig.get().isAdvancements()) return;
-    instance.getManager().grant(getPlayer(), key, toast);
+  public boolean grant(String key, boolean toast) {
+    if (!AdaptConfig.get().isAdvancements()) {
+      return false;
+    }
+    return instance.getManager().grant(player, key, toast);
   }
 
-  public void grant(String key) {
-    grant(key, true);
+  public boolean grant(String key) {
+    return grant(key, true);
   }
 }

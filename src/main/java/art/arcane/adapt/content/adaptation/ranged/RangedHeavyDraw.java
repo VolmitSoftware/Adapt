@@ -26,6 +26,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
@@ -48,7 +49,7 @@ import org.bukkit.metadata.MetadataValue;
 import org.bukkit.util.Vector;
 
 public class RangedHeavyDraw extends SimpleAdaptation<RangedHeavyDraw.Config> {
-  private static final String HEAVY_LEVEL_META = "adapt-heavy-draw-level";
+  static final String HEAVY_LEVEL_META = "adapt-heavy-draw-level";
 
   public RangedHeavyDraw() {
     super("ranged-heavy-draw");
@@ -79,7 +80,9 @@ public class RangedHeavyDraw extends SimpleAdaptation<RangedHeavyDraw.Config> {
 
   @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
   public void on(ProjectileLaunchEvent e) {
-    if (!(e.getEntity().getShooter() instanceof Player p) || !isHeavyCapable(e.getEntity())) {
+    if (readHeavyLevel(e.getEntity()) > 0
+        || !(e.getEntity().getShooter() instanceof Player p)
+        || !isHeavyCapable(e.getEntity())) {
       return;
     }
 
@@ -98,26 +101,53 @@ public class RangedHeavyDraw extends SimpleAdaptation<RangedHeavyDraw.Config> {
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(EntityDamageByEntityEvent e) {
-    if (!(e.getDamager() instanceof Projectile projectile) || !(projectile.getShooter() instanceof Player p) || !projectile.hasMetadata(HEAVY_LEVEL_META)) {
+    if (!(e.getDamager() instanceof Projectile projectile)
+        || !(projectile.getShooter() instanceof Player p)) {
       return;
     }
 
-    if (!canDamageTarget(p, e.getEntity()) || e.getDamage() <= 0) {
+    int level = readHeavyLevel(projectile);
+    if (level <= 0 || isProtectedFriendly(p, e.getEntity()) || e.getDamage() <= 0D) {
       return;
     }
 
-    int level = Math.max(1, getMetadataInt(projectile, HEAVY_LEVEL_META, 1));
     double multiplier = 1D + getDamageBonus(level);
     if (isVelocityScaledDamage(projectile)) {
       multiplier /= Math.max(0.05D, getVelocityFactor(level));
     }
 
     e.setDamage(e.getDamage() * multiplier);
-    xp(p, getConfig().xpPerHeavyHit);
-    addStat(p, "ranged.heavy-draw.heavy-hits", 1);
+    J.runEntity(p, () -> rewardHeavyHitOwned(p));
     fx(e.getEntity(), FxPriority.COMBAT)
         .burst(Particles.CRIT_MAGIC, 8, 0.3D)
         .chord(Sound.BLOCK_ANVIL_LAND, 0.3F, 1.6F, Sound.ENTITY_ARROW_HIT, 0.6F, 0.7F);
+  }
+
+  static int readHeavyLevel(Projectile projectile) {
+    for (MetadataValue value : projectile.getMetadata(HEAVY_LEVEL_META)) {
+      if (value.getOwningPlugin() == Adapt.instance) {
+        return Math.max(0, value.asInt());
+      }
+    }
+    return 0;
+  }
+
+  static void copyHeavyState(Projectile source, Projectile target) {
+    applyHeavyState(target, readHeavyLevel(source));
+  }
+
+  static void applyHeavyState(Projectile target, int level) {
+    if (level > 0) {
+      target.setMetadata(HEAVY_LEVEL_META, new FixedMetadataValue(Adapt.instance, level));
+    }
+  }
+
+  private void rewardHeavyHitOwned(Player player) {
+    if (!player.isOnline()) {
+      return;
+    }
+    xp(player, getConfig().xpPerHeavyHit);
+    addStat(player, "ranged.heavy-draw.heavy-hits", 1);
   }
 
   private boolean isHeavyCapable(Projectile projectile) {
@@ -148,21 +178,6 @@ public class RangedHeavyDraw extends SimpleAdaptation<RangedHeavyDraw.Config> {
 
     double t = Math.min(1D, Math.max(0D, (level - 1) / (double) (maxLevel - 1)));
     return start + ((end - start) * t);
-  }
-
-  private int getMetadataInt(Projectile projectile, String key, int fallback) {
-    for (MetadataValue value : projectile.getMetadata(key)) {
-      if (value.getOwningPlugin() == Adapt.instance) {
-        return value.asInt();
-      }
-    }
-
-    return fallback;
-  }
-
-  @Override
-  public void onTick() {
-
   }
 
   @ConfigDescription("Heavier projectiles fly slower but hit far harder.")

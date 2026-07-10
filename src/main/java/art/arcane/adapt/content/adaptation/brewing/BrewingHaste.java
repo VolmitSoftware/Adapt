@@ -19,14 +19,13 @@
 package art.arcane.adapt.content.adaptation.brewing;
 
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.potion.AdaptBrewCompleteEvent;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.data.WorldData;
 import art.arcane.adapt.api.potion.BrewingRecipe;
 import art.arcane.adapt.api.potion.PotionBuilder;
-import art.arcane.adapt.content.matter.BrewingStandOwner;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -41,7 +40,6 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.inventory.BrewEvent;
 
 
 public class BrewingHaste extends SimpleAdaptation<BrewingHaste.Config> {
@@ -90,31 +88,28 @@ public class BrewingHaste extends SimpleAdaptation<BrewingHaste.Config> {
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
-  public void on(BrewEvent e) {
-    BrewingStandOwner owner = WorldData.of(e.getBlock().getWorld()).get(e.getBlock(), BrewingStandOwner.class);
-    if (owner != null) {
-      getServer().peekData(owner.getOwner()).addStat("brewing.haste.potions-brewed", 1);
-      Location loc = e.getBlock().getLocation().add(0.5D, 0.6D, 0.5D);
-      Color amethyst = Color.fromRGB(0x9B, 0x59, 0xB6);
-      timeline(loc)
-          .duration(3)
-          .priority(FxPriority.TRANSITION)
-          .cullRadius(24.0D)
-          .frame((f, tick, progress) -> {
-            f.dustRing(amethyst, 0.3D + (0.7D * progress), 12, 0.6F);
-            f.particle(Particles.CRIT_MAGIC, 2, 0, 0.3D, 0, 0.25D, 0.05D);
-            if (tick == 0) {
-              f.particle(Particles.END_ROD, 3, 0, 0.3D, 0, 0.2D, 0.03D)
-                  .chord(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.6F, 1.4F, Sound.BLOCK_BREWING_STAND_BREW, 0.6F, 1.2F, Sound.BLOCK_AMETHYST_CLUSTER_HIT, 0.4F, 1.8F);
-            }
-          })
-          .start();
+  public void on(AdaptBrewCompleteEvent e) {
+    if (!getBrewingRecipes().contains(e.getRecipe())) {
+      return;
     }
+    getServer().addStat(e.getBrewerId(), "brewing.haste.potions-brewed", e.getBrewedPotions());
+    Location loc = e.getBlock().getLocation().add(0.5D, 0.6D, 0.5D);
+    Color amethyst = Color.fromRGB(0x9B, 0x59, 0xB6);
+    timeline(loc)
+        .duration(3)
+        .priority(FxPriority.TRANSITION)
+        .cullRadius(24.0D)
+        .frame((f, tick, progress) -> {
+          f.dustRing(amethyst, 0.3D + (0.7D * progress), 12, 0.6F);
+          f.particle(Particles.CRIT_MAGIC, 2, 0, 0.3D, 0, 0.25D, 0.05D);
+          if (tick == 0) {
+            f.particle(Particles.END_ROD, 3, 0, 0.3D, 0, 0.2D, 0.03D)
+                .chord(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.6F, 1.4F, Sound.BLOCK_BREWING_STAND_BREW, 0.6F, 1.2F, Sound.BLOCK_AMETHYST_CLUSTER_HIT, 0.4F, 1.8F);
+          }
+        })
+        .start();
   }
 
-  @Override
-  public void onTick() {
-  }
 
 
   @ConfigDescription("Brew a Potion of Haste from Speed Potion and Amethyst.")
