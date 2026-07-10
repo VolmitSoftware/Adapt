@@ -35,6 +35,7 @@ import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.scheduling.FoliaScheduler;
+import com.destroystokyo.paper.event.entity.EntityAddToWorldEvent;
 import fr.skytasul.glowingentities.GlowingEntities;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -45,8 +46,6 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.World;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.ArmorStand;
@@ -64,7 +63,6 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityRemoveEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
-import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.metadata.FixedMetadataValue;
@@ -77,7 +75,6 @@ import org.bukkit.util.Vector;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -204,7 +201,7 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
     }
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+  @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
   public void on(EntityShootBowEvent e) {
     if (!(e.getEntity() instanceof Player player) || e.getBow() == null || e.getBow().getType() != Material.BOW) {
       return;
@@ -236,7 +233,9 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
       return;
     }
 
-    RicochetBinding ricochet = resolveRicochetBinding(player);
+    double speed = HeartseekerFlightMath.seekSpeed(arrow.getVelocity().length());
+    int piercingPasses = resolvePiercingPasses(player);
+    int ricochetPasses = resolveRicochetPasses(player);
     long lifecycleToken = lifecycle.current();
     UUID arrowId = arrow.getUniqueId();
     PendingLaunch launch = new PendingLaunch(
@@ -245,7 +244,9 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
         playerId,
         lock.target(),
         level,
-        ricochet,
+        piercingPasses,
+        ricochetPasses,
+        speed,
         lifecycleToken,
         System.nanoTime() + PENDING_LAUNCH_TIMEOUT_NANOS
     );
@@ -258,7 +259,7 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-  public void on(ProjectileLaunchEvent e) {
+  public void on(EntityAddToWorldEvent e) {
     if (!(e.getEntity() instanceof AbstractArrow arrow)) {
       return;
     }
@@ -273,7 +274,9 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
         arrow,
         launch.target(),
         launch.level(),
-        launch.ricochet(),
+        launch.piercingPasses(),
+        launch.ricochetPasses(),
+        launch.speed(),
         launch.lifecycleToken()
     );
   }
@@ -291,8 +294,7 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
     if (state == null) {
       return;
     }
-    arrow.removeMetadata(SEEKING_ARROW_META, Adapt.instance);
-    handleBlockHitOwned(e, arrow, state);
+    handleBlockHitOwned(arrow, state);
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -307,16 +309,13 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
     if (state == null) {
       return;
     }
-    arrow.removeMetadata(SEEKING_ARROW_META, Adapt.instance);
     if (isProtectedFriendly(state.owner, victim)) {
       coordinator.remove(arrow.getUniqueId(), state.generation);
-      restoreArrowOwned(arrow, state);
+      retireHitArrow(arrow);
       applyGlow(state.owner, null);
       return;
     }
 
-    UUID victimId = victim.getUniqueId();
-    state.hitIds.add(victimId);
     Location victimLocation = victim.getLocation();
     fx(victimLocation.clone().add(0, victim.getHeight() * 0.6D, 0), FxPriority.COMBAT)
         .dustBurst(SEEKER_RED, 14, 0.4D, 1.4F)
@@ -334,18 +333,20 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
 
     ContinuationTemplate template = captureContinuationOwned(arrow, victim, state);
     HeartseekerPassBudget nextBudget = state.passBudget.afterEntityPass();
+    double exitDistance = HeartseekerFlightMath.repeatExitDistance(
+        state.speed,
+        victim.getMaximumNoDamageTicks(),
+        getLungeTurnDegreesPerTick(),
+        getContinuationExitDistance()
+    );
     scheduleContinuationOwned(new ContinuationRequest(
         arrow,
         state,
         template,
-        null,
         nextBudget,
-        state.ricochet,
         state.speed,
-        null,
-        true,
-        null,
-        null
+        victim,
+        exitDistance
     ));
   }
 
@@ -465,6 +466,10 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
     return lock.target().entity();
   }
 
+  public static boolean isSeekingProjectile(Entity entity) {
+    return entity.hasMetadata(SEEKING_ARROW_META);
+  }
+
   private void completeLockRequestOwned(Player player, long request, long lifecycleToken,
                                         TargetSnapshot snapshot) {
     UUID playerId = player.getUniqueId();
@@ -485,8 +490,8 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
   }
 
   private void admitInitialArrowOwned(Player owner, UUID ownerId, AbstractArrow arrow,
-                                      TargetSnapshot target, int level, RicochetBinding ricochet,
-                                      long lifecycleToken) {
+                                      TargetSnapshot target, int level, int piercingPasses,
+                                      int ricochetPasses, double speed, long lifecycleToken) {
     if (!lifecycle.isCurrent(lifecycleToken) || !arrow.isValid() || arrow.isDead()
         || !arrow.getWorld().getUID().equals(target.worldId())) {
       arrow.removeMetadata(SEEKING_ARROW_META, Adapt.instance);
@@ -494,10 +499,9 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
       return;
     }
 
-    double speed = resolveSeekSpeed(arrow.getVelocity().length());
     HeartseekerPassBudget passBudget = HeartseekerChainRules.resolveBudget(
-        arrow.getPierceLevel(),
-        ricochet == null ? 0 : ricochet.profile().maximumRicochets(),
+        piercingPasses,
+        ricochetPasses,
         getMaxChainPasses()
     );
     HomingState state = admitArrowOwned(new HomingAdmission(
@@ -506,9 +510,8 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
         arrow,
         target,
         passBudget,
-        RicochetProgress.initial(ricochet),
         speed,
-        Set.of(),
+        true,
         lifecycleToken
     ));
     if (state == null) {
@@ -516,6 +519,8 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
       applyGlow(owner, null);
       return;
     }
+
+    updateArrowOwned(arrow, state);
 
     boolean rewardScheduled = J.runEntity(owner,
         () -> rewardInitialAdmissionOwned(owner, target, level, lifecycleToken));
@@ -543,7 +548,6 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
     AbstractArrow arrow = admission.arrow();
     UUID arrowId = arrow.getUniqueId();
     HomingState state = new HomingState(admission, generation);
-    state.hitIds.addAll(admission.hitIds());
     HomingState existing = homing.putIfAbsent(arrowId, state);
     if (existing != null) {
       return null;
@@ -554,6 +558,7 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
     arrow.setPickupStatus(AbstractArrow.PickupStatus.CREATIVE_ONLY);
     arrow.setPierceLevel(0);
     arrow.setMetadata(SEEKING_ARROW_META, new FixedMetadataValue(Adapt.instance, true));
+    applyFlightOwned(arrow, arrow.getVelocity(), state.speed);
     return state;
   }
 
@@ -562,7 +567,7 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
     if (pendingContinuations.putIfAbsent(sourceId, request) != null) {
       return false;
     }
-    if (request.retarget() && request.source().isValid()) {
+    if (request.source().isValid()) {
       if (!freezeSuspendedSourceNextTick(request)) {
         releaseContinuationSourceOwned(request);
         return false;
@@ -574,7 +579,7 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
         () -> completeContinuationTransferOwned(request)
     );
     if (!scheduled) {
-      fallbackOrReleaseContinuation(request);
+      releaseContinuationSource(request);
     }
     return scheduled;
   }
@@ -609,18 +614,17 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
     AbstractArrow continuation = spawnContinuationOwned(
         request.template(),
         sourceState.owner,
-        request.speed(),
-        request.passBudget()
+        request.speed()
     );
     if (continuation == null) {
-      fallbackOrReleaseContinuation(request);
+      releaseContinuationSource(request);
       return;
     }
 
     UUID continuationId = continuation.getUniqueId();
     if (!coordinator.transfer(sourceId, sourceState.generation, continuationId)) {
       continuation.remove();
-      fallbackOrReleaseContinuation(request);
+      releaseContinuationSource(request);
       return;
     }
 
@@ -630,9 +634,8 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
         continuation,
         sourceState.target,
         request.passBudget(),
-        request.ricochet(),
         request.speed(),
-        sourceState.hitIds,
+        false,
         sourceState.lifecycleToken
     ), sourceState.generation);
     if (state == null) {
@@ -644,9 +647,9 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
 
     state.targetLost = sourceState.targetLost;
     state.exitDirection = request.template().exitDirection().clone();
-    state.exitUntilNanos = System.nanoTime() + getContinuationExitNanos();
+    state.exitOrigin = request.template().source().clone();
+    state.exitMinimumDistance = request.exitDistance();
     state.lastTrail = request.template().source().clone();
-    applyRicochetState(continuation, request.passBudget(), request.ricochet());
     pendingContinuations.remove(sourceId, request);
     retiringSources.put(sourceId, source);
     retireHitArrow(source);
@@ -654,27 +657,7 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
         .dustRing(SEEKER_RED, 0.6D, 12, 1.0F)
         .sound(Sound.BLOCK_NOTE_BLOCK_FLUTE, 0.6F, 2.0F);
 
-    RicochetTransition transition = request.ricochetTransition();
-    RicochetBinding binding = request.ricochet().binding();
-    if (transition != null && binding != null && request.ricochetFxLocation() != null) {
-      J.runAt(request.ricochetFxLocation(),
-          () -> binding.adaptation().emitRicochetFx(request.ricochetFxLocation(), transition));
-      J.runEntity(state.owner,
-          () -> binding.adaptation().rewardRicochetOwned(state.owner, transition));
-    }
-
-    if (request.retarget()) {
-      beginContinuationRetargetOwned(state, request.fallback());
-      return;
-    }
-    TargetSnapshot target = state.target;
-    if (target == null || state.targetLost) {
-      beginContinuationRetargetOwned(state, null);
-    } else if (!coordinator.resume(continuationId, state.generation)) {
-      endHomingOwned(state.arrow, state, false, false);
-    } else {
-      applyGlow(state.owner, target);
-    }
+    beginContinuationRetargetOwned(state, request.fallback());
   }
 
   private void releaseContinuationSource(ContinuationRequest request) {
@@ -683,7 +666,7 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
     pendingContinuations.remove(source.getUniqueId(), request);
     coordinator.remove(source.getUniqueId(), state.generation);
     Runnable release = () -> releaseContinuationSourceOwned(request);
-    int delay = request.retarget() ? 1 : 0;
+    int delay = 1;
     boolean scheduled = J.isFoliaThreading()
         ? FoliaScheduler.runEntity(Adapt.instance, source, release, delay)
         : J.runEntity(source, release, delay);
@@ -703,8 +686,8 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
     pendingContinuations.remove(source.getUniqueId(), request);
     coordinator.remove(source.getUniqueId(), state.generation);
     if (source.isValid()) {
-      restoreArrowOwned(source, state, request.passBudget(), request.ricochet());
-      source.setVelocity(request.template().exitDirection().clone().multiply(request.speed()));
+      source.removeMetadata(SEEKING_ARROW_META, Adapt.instance);
+      source.remove();
     }
     applyGlow(state.owner, null);
   }
@@ -725,93 +708,18 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
     }
   }
 
-  private void fallbackOrReleaseContinuation(ContinuationRequest request) {
-    ContinuationTemplate fallback = request.fallbackTemplate();
-    HomingState state = request.sourceState();
-    UUID sourceId = request.source().getUniqueId();
-    if (fallback != null && coordinator.isCurrent(sourceId, state.generation)) {
-      ContinuationRequest fallbackRequest = new ContinuationRequest(
-          request.source(),
-          state,
-          fallback,
-          null,
-          request.passBudget(),
-          request.ricochet(),
-          request.speed(),
-          request.fallback(),
-          request.retarget(),
-          request.ricochetTransition(),
-          request.ricochetFxLocation()
-      );
-      if (pendingContinuations.replace(sourceId, request, fallbackRequest)
-          && J.runAt(fallback.source(), () -> completeContinuationTransferOwned(fallbackRequest))) {
-        return;
-      }
-      request = fallbackRequest;
-    }
-    releaseContinuationSource(request);
-  }
-
   private void beginContinuationRetargetOwned(HomingState state, LivingEntity fallback) {
     beginFlightRetargetOwned(state.arrow, state, null, fallback);
   }
 
-  private void handleBlockHitOwned(ProjectileHitEvent event, AbstractArrow arrow,
-                                   HomingState state) {
-    Block block = event.getHitBlock();
-    RicochetBinding binding = state.ricochet.binding();
-    if (block != null && binding != null && state.passBudget.ricochet() > 0) {
-      Location impact = arrow.getLocation();
-      Vector traveled = state.lastTrail == null
-          ? new Vector()
-          : impact.toVector().subtract(state.lastTrail.toVector());
-      Vector liveVelocity = arrow.getVelocity();
-      Vector incoming = liveVelocity.lengthSquared() > 0.000001D
-          ? liveVelocity
-          : resolveContinuationDirection(liveVelocity, traveled, impact.getDirection())
-              .multiply(state.speed);
-      BlockFace hitFace = event.getHitBlockFace() == null
-          ? resolveBlockHitFace(incoming)
-          : event.getHitBlockFace();
-      int maximum = state.ricochet.count() + state.passBudget.ricochet();
-      RicochetTransition transition = binding.profile()
-          .withMaximumRicochets(maximum)
-          .next(state.ricochet.count(), state.ricochet.bonusDamage(), incoming,
-              hitFace.getDirection());
-      if (transition != null) {
-        BlockContinuation continuation = captureBlockContinuationOwned(
-            event,
-            arrow,
-            state,
-            hitFace,
-            transition.direction()
-        );
-        HeartseekerPassBudget nextBudget = state.passBudget.afterBlockRicochet();
-        RicochetProgress progress = state.ricochet.afterBounce(transition);
-        scheduleContinuationOwned(new ContinuationRequest(
-            arrow,
-            state,
-            continuation.primary(),
-            continuation.fallback(),
-            nextBudget,
-            progress,
-            clampContinuationSpeed(transition.speed()),
-            null,
-            false,
-            transition,
-            block.getLocation().add(0.5D, 0.5D, 0.5D)
-        ));
-        return;
-      }
-    }
-
+  private void handleBlockHitOwned(AbstractArrow arrow, HomingState state) {
     coordinator.remove(arrow.getUniqueId(), state.generation);
-    restoreArrowOwned(arrow, state, state.passBudget, state.ricochet);
     applyGlow(state.owner, null);
     if (arrow.isValid()) {
       fx(arrow.getLocation(), FxPriority.TRANSITION)
           .dustBurst(SEEKER_RED, 5, 0.25D, 1.0F)
           .sound(Sound.BLOCK_NOTE_BLOCK_FLUTE, 0.4F, 0.8F);
+      retireHitArrow(arrow);
     }
   }
 
@@ -888,13 +796,34 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
       return;
     }
 
-    if (state.exitDirection != null && now < state.exitUntilNanos) {
+    if (state.exitDirection != null && state.exitOrigin != null) {
       Location arrowLocation = arrow.getLocation();
-      arrow.setVelocity(state.exitDirection.clone().multiply(state.speed));
-      updateTrailOwned(state, arrowLocation, now);
-      return;
+      if (arrowLocation.getWorld() == state.exitOrigin.getWorld()
+          && !HeartseekerFlightMath.hasTraveledMinimum(
+              state.exitOrigin.toVector(),
+              arrowLocation.toVector(),
+              state.exitMinimumDistance
+          )) {
+        state.markSteerTime(now);
+        Vector exitDirection = resolveClearFlightDirectionOwned(
+            arrowLocation,
+            state.exitDirection,
+            state.exitDirection,
+            getRayLookahead(),
+            state,
+            now
+        );
+        if (exitDirection == null) {
+          endHomingOwned(arrow, state, true, true);
+          return;
+        }
+        applyFlightOwned(arrow, exitDirection, state.speed);
+        updateTrailOwned(state, arrowLocation, now);
+        return;
+      }
     }
     state.exitDirection = null;
+    state.exitOrigin = null;
 
     if (state.targetRefreshPending.get()
         && now - state.targetRequestStartedNanos > Math.max(250_000_000L, getTargetRefreshNanos() * 3L)) {
@@ -910,13 +839,19 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
     requestTargetRefresh(state, now);
 
     Location arrowLocation = arrow.getLocation();
-    Vector toTarget = target.aimPoint().toVector().subtract(arrowLocation.toVector());
+    Vector targetPoint = target.aimPoint().toVector();
+    Vector toTarget = targetPoint.clone().subtract(arrowLocation.toVector());
     double distance = toTarget.length();
     if (distance <= 0.000001D) {
       return;
     }
 
-    if (distance < state.bestDistance - 0.35D) {
+    double initialArcTraveled = state.updateInitialArcDistance(arrowLocation);
+    boolean initialArcActive = state.initialArcActive
+        && initialArcTraveled < getInitialArcDistance();
+    state.initialArcActive = initialArcActive;
+
+    if (initialArcActive || distance < state.bestDistance - 0.35D) {
       state.bestDistance = distance;
       state.lastProgressNanos = now;
     } else if (now - state.lastProgressNanos > getStuckNanos()) {
@@ -924,39 +859,58 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
       return;
     }
 
-    Vector desired = toTarget.multiply(1D / distance);
-    Vector direction;
-    double effectiveSpeed = state.speed;
+    Vector directDesired = toTarget.multiply(1D / distance);
+    Vector desired = initialArcActive
+        ? HeartseekerFlightMath.quadraticArcGuidance(
+            state.initialArcOrigin,
+            state.initialArcDirection,
+            targetPoint,
+            initialArcTraveled,
+            getInitialArcControlDistance(),
+            getInitialArcDistance()
+        )
+        : directDesired;
+    Vector velocity = arrow.getVelocity();
+    Vector current = velocity.lengthSquared() <= 0.000001D
+        ? desired.clone()
+        : velocity.clone().normalize();
     double lungeRadius = getLungeRadius();
-    if (distance <= lungeRadius) {
-      direction = desired.clone();
-    } else {
-      Vector velocity = arrow.getVelocity();
-      Vector current = velocity.lengthSquared() <= 0.000001D ? desired.clone() : velocity.normalize();
-      double steerFactor = getSteerFactor();
-      direction = current.multiply(1D - steerFactor).add(desired.clone().multiply(steerFactor));
-      if (direction.lengthSquared() <= 0.000001D) {
-        direction = desired.clone();
-      }
-      direction.normalize();
+    double elapsedTicks = state.consumeSteerTicks(now);
+    double turnDegrees = !initialArcActive && distance <= lungeRadius
+        ? getLungeTurnDegreesPerTick()
+        : getTurnDegreesPerTick();
+    Vector direction = HeartseekerFlightMath.turnTowards(
+        current,
+        desired,
+        Math.toRadians(turnDegrees * elapsedTicks)
+    );
 
-      double lookahead = Math.min(getRayLookahead(), Math.max(0D, distance - 0.5D));
-      if (lookahead > 1.5D && isRayPathOwned(arrowLocation, direction, lookahead)
-          && workBudget.tryRayTrace()
-          && arrow.getWorld().rayTraceBlocks(arrowLocation, direction, lookahead,
-          FluidCollisionMode.NEVER, true) != null) {
-        direction = findClearDirectionOwned(arrowLocation, direction, lookahead);
-      }
-
-      double slowRadius = getApproachSlowRadius(lungeRadius);
-      if (distance < slowRadius) {
-        double factor = Math.max(getApproachSpeedFloor(), distance / slowRadius);
-        effectiveSpeed = Math.max(0.2D, state.speed * Math.min(1D, factor));
-      }
+    double lookahead = Math.min(getRayLookahead(), Math.max(0D, distance - 0.35D));
+    Vector clearDirection = resolveClearFlightDirectionOwned(
+        arrowLocation,
+        direction,
+        desired,
+        lookahead,
+        state,
+        now
+    );
+    if (clearDirection == null) {
+      endHomingOwned(arrow, state, true, true);
+      return;
     }
+    direction = clearDirection;
 
-    arrow.setVelocity(direction.multiply(effectiveSpeed));
+    applyFlightOwned(arrow, direction, state.speed);
     updateTrailOwned(state, arrowLocation, now);
+  }
+
+  private void applyFlightOwned(AbstractArrow arrow, Vector direction, double speed) {
+    Vector normalized = direction.lengthSquared() <= 0.000001D
+        ? new Vector(0D, 0D, 1D)
+        : direction.clone().normalize();
+    HeartseekerFlightMath.Facing facing = HeartseekerFlightMath.facing(normalized);
+    arrow.setRotation(facing.yaw(), facing.pitch());
+    arrow.setVelocity(normalized.multiply(speed));
   }
 
   private void updateTrailOwned(HomingState state, Location arrowLocation, long now) {
@@ -1030,7 +984,6 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
         state.owner,
         state.ownerId,
         arrow.getLocation(),
-        state.hitIds,
         excludeId,
         state,
         state.lifecycleToken
@@ -1114,10 +1067,10 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
     double radius = getReseekRadius();
     int limit = getCandidateCollectionLimit();
     List<LivingEntity> candidates = new ArrayList<>(Math.min(limit, getCandidateHandoffLimit() + 1));
+    if (fallback != null) {
+      candidates.add(fallback);
+    }
     if (!isAreaOwned(center, radius)) {
-      if (fallback != null) {
-        candidates.add(fallback);
-      }
       return candidates;
     }
 
@@ -1128,27 +1081,23 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
         radius,
         entity -> entity instanceof LivingEntity
     );
-    int inspected = 0;
+    List<LivingEntity> nearbyCandidates = new ArrayList<>();
+    UUID fallbackId = fallback == null ? null : fallback.getUniqueId();
     for (Entity entity : nearby) {
-      if (++inspected > limit) {
-        break;
-      }
       if (!(entity instanceof LivingEntity living)
           || living == context.owner()
-          || living instanceof ArmorStand) {
+          || living instanceof ArmorStand
+          || living.getUniqueId().equals(fallbackId)) {
         continue;
       }
-      candidates.add(living);
+      nearbyCandidates.add(living);
     }
-    boolean includesFallback = false;
-    for (LivingEntity candidate : candidates) {
-      if (candidate == fallback) {
-        includesFallback = true;
-        break;
-      }
-    }
-    if (fallback != null && !includesFallback) {
-      candidates.add(fallback);
+    nearbyCandidates.sort(Comparator.comparingDouble(
+        candidate -> candidate.getLocation().distanceSquared(center)
+    ));
+    int available = Math.max(0, limit - candidates.size());
+    for (int index = 0; index < Math.min(available, nearbyCandidates.size()); index++) {
+      candidates.add(nearbyCandidates.get(index));
     }
     return candidates;
   }
@@ -1161,14 +1110,21 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
       return;
     }
 
+    UUID fallbackId = batch.request.fallback == null
+        ? null
+        : batch.request.fallback.getUniqueId();
     List<TargetSnapshot> fresh = new ArrayList<>();
+    List<TargetSnapshot> repeat = new ArrayList<>(1);
     for (TargetSnapshot snapshot : batch.snapshots) {
       if (snapshot == null || !snapshot.worldId().equals(context.center().getWorld().getUID())
-          || snapshot.entityId().equals(context.excludeId())
           || !canDamageSnapshotOwned(context.owner(), snapshot)) {
         continue;
       }
-      if (context.hitIds().contains(snapshot.entityId())) {
+      if (snapshot.entityId().equals(fallbackId)) {
+        repeat.add(snapshot);
+        continue;
+      }
+      if (snapshot.entityId().equals(context.excludeId())) {
         continue;
       }
       fresh.add(snapshot);
@@ -1178,43 +1134,29 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
         snapshot -> snapshot.location().distanceSquared(context.center())
     );
     fresh.sort(distanceOrder);
-    List<TargetSnapshot> ordered = new ArrayList<>(getCandidateRayCheckLimit());
-    appendCandidates(ordered, fresh);
-    if (ordered.isEmpty()) {
+    repeat.sort(distanceOrder);
+    TargetSnapshot selected = fresh.isEmpty()
+        ? (repeat.isEmpty() ? null : repeat.getFirst())
+        : fresh.getFirst();
+    if (selected == null) {
       failReseekContext(context);
       return;
     }
 
     boolean scheduled = J.runEntity(context.state().arrow,
-        () -> completeReseekSourceOwned(context, ordered));
+        () -> completeReseekSourceOwned(context, selected));
     if (!scheduled) {
       failReseekContext(context);
     }
   }
 
-  private void appendCandidates(List<TargetSnapshot> output, List<TargetSnapshot> source) {
-    int limit = getCandidateRayCheckLimit();
-    for (TargetSnapshot snapshot : source) {
-      if (output.size() >= limit) {
-        return;
-      }
-      output.add(snapshot);
-    }
-  }
-
-  private void completeReseekSourceOwned(ReseekContext context, List<TargetSnapshot> candidates) {
+  private void completeReseekSourceOwned(ReseekContext context, TargetSnapshot selected) {
     if (!lifecycle.isCurrent(context.lifecycleToken())) {
       failReseekContext(context);
       return;
     }
 
     HomingState state = context.state();
-    Location origin = state.arrow.getLocation();
-    TargetSnapshot selected = selectClearCandidateOwned(origin, candidates);
-    if (selected == null) {
-      failReseekContext(context);
-      return;
-    }
 
     UUID arrowId = state.arrow.getUniqueId();
     if (homing.get(arrowId) != state || !coordinator.isCurrent(arrowId, state.generation)
@@ -1224,6 +1166,7 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
     state.target = selected;
     state.targetLost = false;
     state.reseekPending = false;
+    clearAvoidance(state);
     state.bestDistance = Double.MAX_VALUE;
     state.lastProgressNanos = System.nanoTime();
     state.passStartedNanos = System.nanoTime();
@@ -1232,29 +1175,6 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
       return;
     }
     applyGlow(state.owner, selected);
-  }
-
-  private TargetSnapshot selectClearCandidateOwned(Location origin, List<TargetSnapshot> candidates) {
-    for (TargetSnapshot candidate : candidates) {
-      if (candidate.worldId().equals(origin.getWorld().getUID()) && hasClearPathOwned(origin, candidate.aimPoint())) {
-        return candidate;
-      }
-    }
-    return null;
-  }
-
-  private boolean hasClearPathOwned(Location origin, Location target) {
-    Vector delta = target.toVector().subtract(origin.toVector());
-    double distance = delta.length();
-    if (distance <= 0.5D) {
-      return true;
-    }
-    Vector direction = delta.multiply(1D / distance);
-    if (!isRayPathOwned(origin, direction, distance) || !workBudget.tryRayTrace()) {
-      return false;
-    }
-    return origin.getWorld().rayTraceBlocks(origin, direction, distance,
-        FluidCollisionMode.NEVER, true) == null;
   }
 
   private void failReseekContext(ReseekContext context) {
@@ -1269,8 +1189,7 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
   }
 
   private AbstractArrow spawnContinuationOwned(ContinuationTemplate template, Player owner,
-                                               double speed,
-                                               HeartseekerPassBudget passBudget) {
+                                               double speed) {
     Location source = template.source();
     if (!isSpawnLocationOwned(source)) {
       return null;
@@ -1292,7 +1211,7 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
 
     Vector direction = template.exitDirection().clone();
     next.setShooter(owner);
-    next.setVelocity(direction.multiply(speed));
+    applyFlightOwned(next, direction, speed);
     next.setDamage(template.damage());
     next.setCritical(template.critical());
     next.setFireTicks(template.fireTicks());
@@ -1300,13 +1219,7 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
     next.setPersistent(template.persistent());
     next.setGravity(template.gravity());
     next.setPickupStatus(template.pickupStatus());
-    next.setPierceLevel(passBudget.piercing());
-    RangedHeavyDraw.applyHeavyState(next, template.heavyDrawLevel());
-    RangedPiercing.applyPiercingState(
-        next,
-        template.piercingInitialized(),
-        template.piercingHits()
-    );
+    next.setPierceLevel(0);
     return next;
   }
 
@@ -1327,63 +1240,6 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
     }
     sourceLocation = resolveContinuationSource(sourceLocation, victim.getBoundingBox(), exitDirection);
     return createContinuationTemplate(source, state, sourceLocation, exitDirection);
-  }
-
-  private BlockContinuation captureBlockContinuationOwned(ProjectileHitEvent event,
-                                                          AbstractArrow source,
-                                                          HomingState state,
-                                                          BlockFace hitFace,
-                                                          Vector reflected) {
-    Location impact = source.getLocation();
-    Location sourceLocation = resolveBlockContinuationSource(
-        impact,
-        event.getHitBlock(),
-        hitFace,
-        reflected
-    );
-    ContinuationTemplate primary = createContinuationTemplate(
-        source,
-        state,
-        sourceLocation,
-        reflected
-    );
-    Location fallbackSource = resolveBlockFallbackSourceOwned(
-        impact,
-        event.getHitBlock(),
-        state.lastTrail,
-        hitFace
-    );
-    ContinuationTemplate fallback = fallbackSource == null
-        ? null
-        : createContinuationTemplate(source, state, fallbackSource, reflected);
-    return new BlockContinuation(primary, fallback);
-  }
-
-  private Location resolveBlockFallbackSourceOwned(Location impact, Block block,
-                                                   Location previous, BlockFace hitFace) {
-    if (block == null) {
-      return null;
-    }
-
-    Vector outward = previous != null && previous.getWorld() == impact.getWorld()
-        ? previous.toVector().subtract(impact.toVector())
-        : hitFace.getDirection();
-    if (outward.lengthSquared() <= 0.000001D) {
-      outward = hitFace.getDirection();
-    }
-    outward.normalize();
-
-    double available = previous == null || previous.getWorld() != impact.getWorld()
-        ? 2D
-        : Math.max(2D, Math.min(6D, previous.distance(impact)));
-    BoundingBox occupied = block.getBoundingBox().expand(0.05D);
-    for (double distance = 0.2D; distance <= available; distance += 0.2D) {
-      Location candidate = impact.clone().add(outward.clone().multiply(distance));
-      if (!occupied.contains(candidate.toVector()) && isSpawnLocationOwned(candidate)) {
-        return candidate;
-      }
-    }
-    return null;
   }
 
   private ContinuationTemplate createContinuationTemplate(AbstractArrow source, HomingState state,
@@ -1408,47 +1264,8 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
         effects,
         state.originalGravity,
         state.originalPersistent,
-        state.originalPickupStatus,
-        RangedHeavyDraw.readHeavyLevel(source),
-        RangedPiercing.isPiercingInitialized(source),
-        RangedPiercing.readHits(source)
+        state.originalPickupStatus
     );
-  }
-
-  private BlockFace resolveBlockHitFace(Vector incoming) {
-    double x = Math.abs(incoming.getX());
-    double y = Math.abs(incoming.getY());
-    double z = Math.abs(incoming.getZ());
-    if (y >= x && y >= z) {
-      return incoming.getY() > 0D ? BlockFace.DOWN : BlockFace.UP;
-    }
-    if (x >= z) {
-      return incoming.getX() > 0D ? BlockFace.WEST : BlockFace.EAST;
-    }
-    return incoming.getZ() > 0D ? BlockFace.NORTH : BlockFace.SOUTH;
-  }
-
-  private Location resolveBlockContinuationSource(Location impact, Block block, BlockFace hitFace,
-                                                  Vector reflected) {
-    Location source = impact.clone();
-    Vector normal = hitFace.getDirection();
-    double offset = getContinuationExitOffset();
-    if (normal.getX() > 0D) {
-      source.setX(block.getX() + 1D + offset);
-    } else if (normal.getX() < 0D) {
-      source.setX(block.getX() - offset);
-    }
-    if (normal.getY() > 0D) {
-      source.setY(block.getY() + 1D + offset);
-    } else if (normal.getY() < 0D) {
-      source.setY(block.getY() - offset);
-    }
-    if (normal.getZ() > 0D) {
-      source.setZ(block.getZ() + 1D + offset);
-    } else if (normal.getZ() < 0D) {
-      source.setZ(block.getZ() - offset);
-    }
-    return source.add(reflected.clone().multiply(offset));
   }
 
   static Vector resolveContinuationDirection(Vector liveVelocity, Vector traveled,
@@ -1690,33 +1507,10 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
   }
 
   private void restoreArrowOwned(AbstractArrow arrow, HomingState state) {
-    restoreArrowOwned(arrow, state, state.passBudget, state.ricochet);
-  }
-
-  private void restoreArrowOwned(AbstractArrow arrow, HomingState state,
-                                 HeartseekerPassBudget passBudget,
-                                 RicochetProgress ricochet) {
     arrow.setGravity(state.originalGravity);
     arrow.setPersistent(state.originalPersistent);
     arrow.setPickupStatus(state.originalPickupStatus);
-    arrow.setPierceLevel(passBudget.piercing());
-    applyRicochetState(arrow, passBudget, ricochet);
-  }
-
-  private void applyRicochetState(AbstractArrow arrow, HeartseekerPassBudget passBudget,
-                                  RicochetProgress ricochet) {
-    RicochetBinding binding = ricochet.binding();
-    if (binding == null) {
-      return;
-    }
-    binding.adaptation().applyRicochetProfile(arrow, binding.profile());
-    int maximum = ricochet.count() + passBudget.ricochet();
-    binding.adaptation().applyRicochetState(
-        arrow,
-        ricochet.count(),
-        maximum,
-        ricochet.bonusDamage()
-    );
+    arrow.setPierceLevel(0);
   }
 
   private void removeSeekingArrow(AbstractArrow arrow, HomingState state) {
@@ -1805,31 +1599,110 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
     return target.player() ? canPVP(owner, target.location()) : canPVE(owner, target.location());
   }
 
-  private Vector findClearDirectionOwned(Location arrowLocation, Vector blocked, double lookahead) {
-    Vector up = new Vector(0D, 1D, 0D);
-    Vector side = blocked.clone().crossProduct(up);
-    if (side.lengthSquared() <= 0.000001D) {
-      side = new Vector(1D, 0D, 0D);
+  private void recordClearPath(HomingState state) {
+    if (state.avoidanceDirection == null) {
+      return;
     }
-    side.normalize();
+    state.avoidanceClearChecks++;
+    if (state.avoidanceClearChecks >= getAvoidanceClearChecks()) {
+      state.avoidanceDirection = null;
+      state.avoidanceHoldUpdates = 0;
+      state.avoidanceClearChecks = 0;
+    }
+  }
 
+  private Vector resolveClearFlightDirectionOwned(Location arrowLocation, Vector preferred,
+                                                  Vector desired, double lookahead,
+                                                  HomingState state, long now) {
+    if (lookahead <= 0.6D || !isRayPathOwned(arrowLocation, preferred, lookahead)) {
+      return preferred;
+    }
+    if (!workBudget.tryRayTrace()) {
+      if (state.avoidanceDirection != null && state.avoidanceHoldUpdates > 0) {
+        state.avoidanceHoldUpdates--;
+        state.lastProgressNanos = now;
+        return state.avoidanceDirection.clone();
+      }
+      return preferred;
+    }
+
+    RayTraceResult obstacle = arrowLocation.getWorld().rayTraceBlocks(
+        arrowLocation,
+        preferred,
+        lookahead,
+        FluidCollisionMode.NEVER,
+        true
+    );
+    if (obstacle == null) {
+      recordClearPath(state);
+      return preferred;
+    }
+
+    Vector clearDirection = findClearDirectionOwned(
+        arrowLocation,
+        preferred,
+        desired,
+        lookahead,
+        state
+    );
+    if (clearDirection != null) {
+      state.lastProgressNanos = now;
+    }
+    return clearDirection;
+  }
+
+  private Vector findClearDirectionOwned(Location arrowLocation, Vector blocked, Vector desired,
+                                         double lookahead, HomingState state) {
     int attempts = getAvoidanceRayLimit();
+    double blockedLength = blocked.length();
+    double desiredLength = desired.length();
+    boolean distinctDesired = blockedLength > 0.000001D
+        && desiredLength > 0.000001D
+        && blocked.dot(desired) / (blockedLength * desiredLength) < 0.999D;
+    boolean cachedUsed = false;
+    int fanIndex = 0;
     for (int index = 0; index < attempts; index++) {
-      Vector option = switch (index) {
-        case 0 -> blocked.clone().add(up.clone().multiply(0.9D)).normalize();
-        case 1 -> blocked.clone().add(side.clone().multiply(0.9D)).normalize();
-        case 2 -> blocked.clone().add(side.clone().multiply(-0.9D)).normalize();
-        default -> blocked.clone().add(up.clone().multiply(-0.9D)).normalize();
-      };
+      Vector option;
+      if (index == 0 && distinctDesired) {
+        option = desired.clone();
+      } else if (!cachedUsed && state.avoidanceDirection != null) {
+        option = state.avoidanceDirection.clone();
+        cachedUsed = true;
+      } else {
+        option = HeartseekerFlightMath.avoidance(
+            blocked,
+            fanIndex++,
+            getAvoidanceStrength()
+        );
+      }
       if (!isRayPathOwned(arrowLocation, option, lookahead) || !workBudget.tryRayTrace()) {
         continue;
       }
-      if (arrowLocation.getWorld().rayTraceBlocks(arrowLocation, option, lookahead,
-          FluidCollisionMode.NEVER, true) == null) {
+      RayTraceResult hit = arrowLocation.getWorld().rayTraceBlocks(
+          arrowLocation,
+          option,
+          lookahead,
+          FluidCollisionMode.NEVER,
+          true
+      );
+      if (hit == null) {
+        rememberAvoidance(state, option);
         return option;
       }
     }
-    return blocked;
+    return null;
+  }
+
+  private void rememberAvoidance(HomingState state, Vector direction) {
+    state.avoidanceDirection = direction.clone();
+    state.avoidanceHoldUpdates = getAvoidanceHoldUpdates();
+    state.avoidanceClearChecks = 0;
+  }
+
+  private void clearAvoidance(HomingState state) {
+    state.avoidanceDirection = null;
+    state.avoidanceHoldUpdates = 0;
+    state.avoidanceClearChecks = 0;
   }
 
   private void drawTrailSegmentOwned(Location from, Location to) {
@@ -1908,15 +1781,22 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
         || FoliaScheduler.isOwnedByCurrentRegion(world, chunkX, chunkZ));
   }
 
-  private RicochetBinding resolveRicochetBinding(Player owner) {
+  private int resolvePiercingPasses(Player owner) {
     for (Adaptation<?> adaptation : getSkill().getAdaptations()) {
-      if (!(adaptation instanceof RangedRicochetBolt ricochet)) {
-        continue;
+      if (adaptation instanceof RangedPiercing piercing) {
+        return Math.max(0, piercing.getActiveLevel(owner));
       }
-      RicochetProfile profile = ricochet.getActiveProfile(owner);
-      return profile == null ? null : new RicochetBinding(ricochet, profile);
     }
-    return null;
+    return 0;
+  }
+
+  private int resolveRicochetPasses(Player owner) {
+    for (Adaptation<?> adaptation : getSkill().getAdaptations()) {
+      if (adaptation instanceof RangedRicochetBolt ricochet) {
+        return Math.max(0, ricochet.getActiveLevel(owner));
+      }
+    }
+    return 0;
   }
 
   private void applyGlow(Player viewer, TargetSnapshot target) {
@@ -1977,23 +1857,6 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
     return clamp((int) Math.round(start + ((end - start) * progress)), 1, 1_200);
   }
 
-  private double resolveSeekSpeed(double launchSpeed) {
-    double minimum = getMinimumSpeed();
-    double factor = clamp(getConfig().seekSpeedFactor, 0.1D, 2D);
-    double maximum = Math.max(minimum, clamp(getConfig().maxSeekSpeed, 0.2D, 5D));
-    return Math.min(maximum, Math.max(minimum, launchSpeed * factor));
-  }
-
-  private double clampContinuationSpeed(double speed) {
-    double minimum = getMinimumSpeed();
-    double maximum = Math.max(minimum, clamp(getConfig().maxSeekSpeed, 0.2D, 5D));
-    return Math.min(maximum, Math.max(minimum, speed));
-  }
-
-  private double getMinimumSpeed() {
-    return clamp(getConfig().minSpeed, 0.2D, 4D);
-  }
-
   private double getLockRange() {
     return clamp(getConfig().lockRange, 4D, 64D);
   }
@@ -2002,16 +1865,20 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
     return clamp(getConfig().lockTimeoutMillis, 250L, 10_000L);
   }
 
-  private double getSteerFactor() {
-    return clamp(getConfig().steerFactor, 0.05D, 1D);
+  private double getTurnDegreesPerTick() {
+    return clamp(getConfig().turnDegreesPerTick, 1D, 45D);
   }
 
-  private double getApproachSlowRadius(double lungeRadius) {
-    return Math.max(lungeRadius, clamp(getConfig().approachSlowRadius, 1D, 16D));
+  private double getLungeTurnDegreesPerTick() {
+    return clamp(getConfig().lungeTurnDegreesPerTick, getTurnDegreesPerTick(), 90D);
   }
 
-  private double getApproachSpeedFloor() {
-    return clamp(getConfig().approachSpeedFloor, 0.2D, 1D);
+  private double getInitialArcControlDistance() {
+    return clamp(getConfig().initialArcControlDistance, 1D, 24D);
+  }
+
+  private double getInitialArcDistance() {
+    return clamp(getConfig().initialArcDistance, 2D, 32D);
   }
 
   private double getLungeRadius() {
@@ -2043,11 +1910,23 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
   }
 
   private double getRayLookahead() {
-    return clamp(getConfig().rayLookahead, 1.5D, 8D);
+    return clamp(getConfig().rayLookahead, 1.5D, 12D);
   }
 
   private int getAvoidanceRayLimit() {
-    return clamp(getConfig().maxAvoidanceRays, 1, 4);
+    return clamp(getConfig().maxAvoidanceRays, 1, 8);
+  }
+
+  private double getAvoidanceStrength() {
+    return clamp(getConfig().avoidanceStrength, 0.25D, 2D);
+  }
+
+  private int getAvoidanceHoldUpdates() {
+    return clamp(getConfig().avoidanceHoldUpdates, 1, 12);
+  }
+
+  private int getAvoidanceClearChecks() {
+    return clamp(getConfig().avoidanceClearChecks, 1, 6);
   }
 
   private long getTargetRefreshNanos() {
@@ -2062,16 +1941,12 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
     return clamp(getConfig().maxCandidateHandoffsPerReseek, 1, 12);
   }
 
-  private int getCandidateRayCheckLimit() {
-    return clamp(getConfig().maxCandidateRayChecksPerReseek, 1, 6);
-  }
-
   private int getMaxChainPasses() {
     return clamp(getConfig().maxChainPasses, 0, 12);
   }
 
-  private long getContinuationExitNanos() {
-    return clamp(getConfig().continuationExitTicks, 1, 10) * 50_000_000L;
+  private double getContinuationExitDistance() {
+    return clamp(getConfig().continuationExitDistance, 2D, 16D);
   }
 
   private double getContinuationExitOffset() {
@@ -2184,12 +2059,12 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
     private final long generation;
     private final long lifecycleToken;
     private final HeartseekerPassBudget passBudget;
-    private final RicochetProgress ricochet;
     private final double speed;
     private final boolean originalGravity;
     private final boolean originalPersistent;
     private final AbstractArrow.PickupStatus originalPickupStatus;
-    private final Set<UUID> hitIds = new HashSet<>();
+    private final Vector initialArcOrigin;
+    private final Vector initialArcDirection;
     private final AtomicBoolean targetRefreshPending = new AtomicBoolean();
     private volatile TargetSnapshot target;
     private volatile boolean targetLost;
@@ -2197,11 +2072,19 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
     private long passStartedNanos = System.nanoTime();
     private long lastProgressNanos = passStartedNanos;
     private long lastSoundNanos = passStartedNanos;
+    private long lastSteerNanos = passStartedNanos;
     private double bestDistance = Double.MAX_VALUE;
     private Location lastTrail;
     private Vector exitDirection;
-    private long exitUntilNanos;
+    private Location exitOrigin;
+    private Vector avoidanceDirection;
+    private double exitMinimumDistance;
+    private double initialArcTraveled;
+    private Location initialArcLastLocation;
+    private int avoidanceHoldUpdates;
+    private int avoidanceClearChecks;
     private boolean reseekPending;
+    private boolean initialArcActive;
 
     private HomingState(HomingAdmission admission, long generation) {
       this.arrow = admission.arrow();
@@ -2211,11 +2094,44 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
       this.generation = generation;
       this.lifecycleToken = admission.lifecycleToken();
       this.passBudget = admission.passBudget();
-      this.ricochet = admission.ricochet();
       this.speed = admission.speed();
       this.originalGravity = arrow.hasGravity();
       this.originalPersistent = arrow.isPersistent();
       this.originalPickupStatus = arrow.getPickupStatus();
+      Location launchLocation = arrow.getLocation();
+      if (admission.initialArc()) {
+        Vector launchVelocity = arrow.getVelocity();
+        this.initialArcOrigin = launchLocation.toVector();
+        this.initialArcLastLocation = launchLocation.clone();
+        this.initialArcDirection = launchVelocity.lengthSquared() <= 0.000001D
+            ? launchLocation.getDirection()
+            : launchVelocity.normalize();
+      } else {
+        this.initialArcOrigin = null;
+        this.initialArcLastLocation = null;
+        this.initialArcDirection = null;
+      }
+      this.initialArcActive = admission.initialArc();
+    }
+
+    private double updateInitialArcDistance(Location current) {
+      if (!initialArcActive || initialArcLastLocation == null
+          || initialArcLastLocation.getWorld() != current.getWorld()) {
+        return initialArcActive ? initialArcTraveled : Double.MAX_VALUE;
+      }
+      initialArcTraveled += initialArcLastLocation.distance(current);
+      initialArcLastLocation = current.clone();
+      return initialArcTraveled;
+    }
+
+    private double consumeSteerTicks(long now) {
+      double ticks = Math.max(1D, Math.min(8D, (now - lastSteerNanos) / 50_000_000D));
+      lastSteerNanos = now;
+      return ticks;
+    }
+
+    private void markSteerTime(long now) {
+      lastSteerNanos = now;
     }
   }
 
@@ -2226,8 +2142,9 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
   }
 
   private record PendingLaunch(AbstractArrow arrow, Player owner, UUID ownerId,
-                               TargetSnapshot target, int level, RicochetBinding ricochet,
-                               long lifecycleToken, long deadlineNanos) {
+                               TargetSnapshot target, int level, int piercingPasses,
+                               int ricochetPasses, double speed, long lifecycleToken,
+                               long deadlineNanos) {
   }
 
   private record TargetSnapshot(LivingEntity entity, UUID entityId, UUID worldId,
@@ -2241,55 +2158,31 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
                                       int knockbackStrength, int fireTicks, int glowingTicks,
                                       PotionType potionType, List<PotionEffect> effects,
                                       boolean gravity, boolean persistent,
-                                      AbstractArrow.PickupStatus pickupStatus,
-                                      int heavyDrawLevel, boolean piercingInitialized,
-                                      int piercingHits) {
+                                      AbstractArrow.PickupStatus pickupStatus) {
   }
 
   private record ContinuationRequest(AbstractArrow source, HomingState sourceState,
                                      ContinuationTemplate template,
-                                     ContinuationTemplate fallbackTemplate,
                                      HeartseekerPassBudget passBudget,
-                                     RicochetProgress ricochet, double speed,
-                                     LivingEntity fallback, boolean retarget,
-                                     RicochetTransition ricochetTransition,
-                                     Location ricochetFxLocation) {
-  }
-
-  private record BlockContinuation(ContinuationTemplate primary,
-                                   ContinuationTemplate fallback) {
+                                     double speed,
+                                     LivingEntity fallback, double exitDistance) {
   }
 
   private record HomingAdmission(Player owner, UUID ownerId, AbstractArrow arrow,
                                  TargetSnapshot target, HeartseekerPassBudget passBudget,
-                                 RicochetProgress ricochet, double speed, Set<UUID> hitIds,
-                                 long lifecycleToken) {
-  }
-
-  private record RicochetBinding(RangedRicochetBolt adaptation, RicochetProfile profile) {
-  }
-
-  private record RicochetProgress(RicochetBinding binding, int count, double bonusDamage) {
-    private static RicochetProgress initial(RicochetBinding binding) {
-      return new RicochetProgress(binding, 0, 0D);
-    }
-
-    private RicochetProgress afterBounce(RicochetTransition transition) {
-      return new RicochetProgress(binding, transition.count(), transition.bonusDamage());
-    }
+                                 double speed, boolean initialArc, long lifecycleToken) {
   }
 
   private record ReseekContext(Player owner, UUID ownerId, Location center,
-                               Set<UUID> hitIds, UUID excludeId, HomingState state,
+                               UUID excludeId, HomingState state,
                                long lifecycleToken) {
     private static ReseekContext retarget(Player owner, UUID ownerId, Location center,
-                                          Set<UUID> hitIds, UUID excludeId, HomingState state,
+                                          UUID excludeId, HomingState state,
                                           long lifecycleToken) {
       return new ReseekContext(
           owner,
           ownerId,
           center.clone(),
-          Set.copyOf(hitIds),
           excludeId,
           state,
           lifecycleToken
@@ -2308,18 +2201,14 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
     double lockRange = 32D;
     @ConfigDoc(value = "Milliseconds a lock stays valid after acquiring it before the shot.", impact = "Higher values let players hold a draw longer without losing the lock.")
     long lockTimeoutMillis = 6_000L;
-    @ConfigDoc(value = "Fraction of the arrow's heading corrected toward the target each update.", impact = "Higher values curve harder and more dramatically toward the mark.")
-    double steerFactor = 0.4D;
-    @ConfigDoc(value = "Minimum flight speed maintained while an arrow is seeking.", impact = "Higher values keep weakly drawn shots moving fast.")
-    double minSpeed = 1.1D;
-    @ConfigDoc(value = "Fraction of the fired arrow's speed used while seeking.", impact = "Lower values make seeking arrows fly slower relative to the shot.")
-    double seekSpeedFactor = 0.7D;
-    @ConfigDoc(value = "Hard cap on seeking flight speed regardless of launch boosts.", impact = "Keeps launch speed bonuses from accelerating seeking arrows without limit.")
-    double maxSeekSpeed = 2.1D;
-    @ConfigDoc(value = "Distance from the target at which seeking arrows begin slowing for tighter turns.", impact = "Higher values start the approach slowdown earlier.")
-    double approachSlowRadius = 6D;
-    @ConfigDoc(value = "Lowest fraction of seeking speed kept during the close approach.", impact = "Lower values make near-target turns tighter and slower.")
-    double approachSpeedFloor = 0.55D;
+    @ConfigDoc(value = "Maximum degrees the arrow turns toward its target per tick.", impact = "Higher values make the curve tighter; lower values produce a broader natural arc.")
+    double turnDegreesPerTick = 10D;
+    @ConfigDoc(value = "Maximum degrees the arrow turns per tick during its final approach.", impact = "Higher values let close shots finish decisively without snapping directly at the target.")
+    double lungeTurnDegreesPerTick = 18D;
+    @ConfigDoc(value = "Distance ahead of the shooter used as the control point for the initial launch arc.", impact = "Higher values preserve the fired direction longer and create a wider opening arc.")
+    double initialArcControlDistance = 8D;
+    @ConfigDoc(value = "Distance traveled before the initial launch arc hands full control to target homing.", impact = "Higher values make the fired direction influence more of the opening flight.")
+    double initialArcDistance = 12D;
     @ConfigDoc(value = "Distance at which the arrow commits to a direct lunge at the target.", impact = "Higher values commit to the final strike from further out.")
     double lungeRadius = 2.5D;
     @ConfigDoc(value = "Maximum ticks a single seeking pass may fly before giving up.", impact = "Higher values let arrows chase evasive targets longer.")
@@ -2335,21 +2224,25 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
     @ConfigDoc(value = "Maximum trail points emitted by one steering update.", impact = "Higher values make long update gaps look more continuous but cost more particles.")
     int maxTrailPointsPerUpdate = 20;
     @ConfigDoc(value = "Maximum distance checked ahead for block avoidance.", impact = "Higher values see obstacles sooner but trace through more of the world.")
-    double rayLookahead = 8D;
+    double rayLookahead = 10D;
     @ConfigDoc(value = "Maximum alternate avoidance rays tested after the direct path is blocked.", impact = "Higher values improve obstacle routing at additional ray-trace cost.")
-    int maxAvoidanceRays = 3;
+    int maxAvoidanceRays = 4;
+    @ConfigDoc(value = "Width of the avoidance cone used when the seeking path meets a block.", impact = "Higher values turn farther around walls and pillars instead of grazing them.")
+    double avoidanceStrength = 1.15D;
+    @ConfigDoc(value = "Steering updates that retain the selected route around an obstacle.", impact = "Higher values reduce left-right oscillation around wide walls.")
+    int avoidanceHoldUpdates = 4;
+    @ConfigDoc(value = "Consecutive clear path checks required before releasing a remembered avoidance route.", impact = "Higher values keep the arrow committed around corners for longer.")
+    int avoidanceClearChecks = 2;
     @ConfigDoc(value = "Milliseconds between target-owner position snapshots.", impact = "Lower values track moving targets more tightly while scheduling more target reads.")
     long targetRefreshMillis = 50L;
     @ConfigDoc(value = "Maximum nearby entities inspected during one reseek.", impact = "Higher values improve discovery in dense fights at additional collection cost.")
     int maxCandidatesPerReseek = 24;
     @ConfigDoc(value = "Maximum candidate-owner snapshot handoffs during one reseek.", impact = "Higher values evaluate more targets at additional scheduler cost.")
     int maxCandidateHandoffsPerReseek = 8;
-    @ConfigDoc(value = "Maximum candidate paths ray-traced during one reseek.", impact = "Higher values are more likely to find a visible target at additional trace cost.")
-    int maxCandidateRayChecksPerReseek = 4;
     @ConfigDoc(value = "Maximum chained seeking passes inherited from Piercing and Ricochet Bolt.", impact = "Higher values allow longer chains while retaining a hard runtime ceiling.")
     int maxChainPasses = 8;
-    @ConfigDoc(value = "Ticks a chained arrow keeps traveling through the struck target before bending toward its next mark.", impact = "Higher values create a longer visible exit arc before the next turn.")
-    int continuationExitTicks = 2;
+    @ConfigDoc(value = "Minimum distance a chained arrow travels beyond a struck target before it may turn toward the next mark.", impact = "Higher values create more separation and prevent repeat passes from landing during damage immunity.")
+    double continuationExitDistance = 8D;
     @ConfigDoc(value = "Distance beyond the struck target's collision box where a chained arrow reappears.", impact = "Higher values make the through-target exit more visible and reduce immediate repeat collisions.")
     double continuationExitOffset = 0.35D;
     @ConfigDoc(value = "Bow item cooldown in ticks applied after a seeking shot at level 1.", impact = "Higher values slow how often seeking shots can be fired at low levels.")

@@ -70,6 +70,9 @@ public class RangedLungeShot extends SimpleAdaptation<RangedLungeShot.Config> {
 
   @EventHandler
   public void on(ProjectileLaunchEvent e) {
+    if (RangedHeartseeker.isSeekingProjectile(e.getEntity())) {
+      return;
+    }
     if (e.getEntity().getShooter() instanceof Player p) {
       if (e.getEntity() instanceof AbstractArrow a) {
         if (hasActiveAdaptation(p)) {

@@ -76,6 +76,9 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
 
   @EventHandler
   public void on(EntityDamageByEntityEvent e) {
+    if (RangedHeartseeker.isSeekingProjectile(e.getDamager())) {
+      return;
+    }
     art.arcane.adapt.api.adaptation.Adaptation.ProjectileContext combat = resolveProjectileContext(e);
     if (combat == null) {
       return;
@@ -101,6 +104,9 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
 
   @EventHandler
   public void on(ProjectileLaunchEvent e) {
+    if (RangedHeartseeker.isSeekingProjectile(e.getEntity())) {
+      return;
+    }
     if (e.getEntity().getShooter() instanceof Player p) {
       int level = getActiveLevel(p);
       if (level > 0) {

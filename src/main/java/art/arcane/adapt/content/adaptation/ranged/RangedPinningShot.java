@@ -72,6 +72,9 @@ public class RangedPinningShot extends SimpleAdaptation<RangedPinningShot.Config
 
   @EventHandler(priority = EventPriority.HIGHEST)
   public void on(EntityDamageByEntityEvent e) {
+    if (RangedHeartseeker.isSeekingProjectile(e.getDamager())) {
+      return;
+    }
     art.arcane.adapt.api.adaptation.Adaptation.ProjectileContext combat = resolveProjectileContext(e);
     if (combat == null) {
       return;

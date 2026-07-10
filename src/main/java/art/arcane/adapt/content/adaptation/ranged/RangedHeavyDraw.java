@@ -80,7 +80,8 @@ public class RangedHeavyDraw extends SimpleAdaptation<RangedHeavyDraw.Config> {
 
   @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
   public void on(ProjectileLaunchEvent e) {
-    if (readHeavyLevel(e.getEntity()) > 0
+    if (RangedHeartseeker.isSeekingProjectile(e.getEntity())
+        || readHeavyLevel(e.getEntity()) > 0
         || !(e.getEntity().getShooter() instanceof Player p)
         || !isHeavyCapable(e.getEntity())) {
       return;
@@ -101,7 +102,8 @@ public class RangedHeavyDraw extends SimpleAdaptation<RangedHeavyDraw.Config> {
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(EntityDamageByEntityEvent e) {
-    if (!(e.getDamager() instanceof Projectile projectile)
+    if (RangedHeartseeker.isSeekingProjectile(e.getDamager())
+        || !(e.getDamager() instanceof Projectile projectile)
         || !(projectile.getShooter() instanceof Player p)) {
       return;
     }

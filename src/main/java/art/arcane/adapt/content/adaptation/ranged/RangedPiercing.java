@@ -77,7 +77,8 @@ public class RangedPiercing extends SimpleAdaptation<RangedPiercing.Config> {
 
   @EventHandler
   public void on(ProjectileLaunchEvent e) {
-    if (!(e.getEntity() instanceof AbstractArrow arrow)
+    if (RangedHeartseeker.isSeekingProjectile(e.getEntity())
+        || !(e.getEntity() instanceof AbstractArrow arrow)
         || isPiercingInitialized(arrow)
         || !(arrow.getShooter() instanceof Player player)) {
       return;
@@ -96,7 +97,8 @@ public class RangedPiercing extends SimpleAdaptation<RangedPiercing.Config> {
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(EntityDamageByEntityEvent e) {
-    if (!(e.getDamager() instanceof AbstractArrow arrow)
+    if (RangedHeartseeker.isSeekingProjectile(e.getDamager())
+        || !(e.getDamager() instanceof AbstractArrow arrow)
         || !(arrow.getShooter() instanceof Player player)
         || !(e.getEntity() instanceof LivingEntity target)
         || !isPiercingInitialized(arrow)

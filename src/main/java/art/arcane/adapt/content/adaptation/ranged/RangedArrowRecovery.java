@@ -55,7 +55,9 @@ public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Co
 
   @EventHandler
   public void onEntityShootBow(EntityShootBowEvent event) {
-    if (event.getEntity() instanceof Player player && hasActiveAdaptation(player)) {
+    if (!RangedHeartseeker.isSeekingProjectile(event.getProjectile())
+        && event.getEntity() instanceof Player player
+        && hasActiveAdaptation(player)) {
       if (!event.getBow().containsEnchantment(Enchantments.ARROW_INFINITE)) {
         if (event.getProjectile() instanceof Arrow arrow) {
           arrow.setMetadata(RECOVERY_META, new FixedMetadataValue(Adapt.instance, true));
@@ -66,7 +68,9 @@ public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Co
 
   @EventHandler
   public void onProjectileHit(ProjectileHitEvent event) {
-    if (!(event.getEntity() instanceof Arrow arrow) || !isRecoverable(arrow)) {
+    if (RangedHeartseeker.isSeekingProjectile(event.getEntity())
+        || !(event.getEntity() instanceof Arrow arrow)
+        || !isRecoverable(arrow)) {
       return;
     }
     arrow.removeMetadata(RECOVERY_META, Adapt.instance);

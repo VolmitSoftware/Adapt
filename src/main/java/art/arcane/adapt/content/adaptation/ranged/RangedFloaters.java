@@ -65,6 +65,9 @@ public class RangedFloaters extends SimpleAdaptation<RangedFloaters.Config> {
 
   @EventHandler(priority = EventPriority.HIGH)
   public void on(EntityDamageByEntityEvent e) {
+    if (RangedHeartseeker.isSeekingProjectile(e.getDamager())) {
+      return;
+    }
     art.arcane.adapt.api.adaptation.Adaptation.ProjectileContext combat = resolveProjectileContext(e);
     if (combat == null) {
       return;

@@ -498,12 +498,24 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
     }
 
     Vector velocity = direction.normalize().multiply(launchVelocity);
-    velocity.multiply(getRangedForceLaunchMultiplier(p));
-    RicochetPreview ricochet = getRicochetPreview(p);
-    if (!supportsRicochet(launchType, ricochet)) {
-      ricochet = RicochetPreview.disabled();
+    RicochetPreview ricochet = RicochetPreview.disabled();
+    if (!isHeartseekerPreview(p, context)) {
+      velocity.multiply(getRangedForceLaunchMultiplier(p));
+      ricochet = getRicochetPreview(p);
+      if (!supportsRicochet(launchType, ricochet)) {
+        ricochet = RicochetPreview.disabled();
+      }
     }
     return new ShotPreview(velocity, ricochet, profile, context.trigger());
+  }
+
+  private boolean isHeartseekerPreview(Player player, PreviewContext context) {
+    if (context.trigger() != PreviewTrigger.DRAWING_BOW
+        || context.item().getType() != Material.BOW) {
+      return false;
+    }
+    RangedHeartseeker heartseeker = getHeartseekerAdaptation();
+    return heartseeker != null && heartseeker.getLockedTarget(player) != null;
   }
 
   private double getLaunchVelocity(Player p, Material type) {
@@ -724,11 +736,11 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
     }
 
     RangedHeartseeker.Config seekerConfig = heartseeker.getConfig();
-    double factored = dir.length() * Math.max(0.1, seekerConfig.seekSpeedFactor);
-    double cap = Math.max(seekerConfig.minSpeed, seekerConfig.maxSeekSpeed);
-    double speed = Math.min(cap, Math.max(Math.max(0.4, seekerConfig.minSpeed), factored));
+    double speed = HeartseekerFlightMath.seekSpeed(dir.length());
     dir.normalize();
-    double steer = Math.min(1D, Math.max(0.05D, seekerConfig.steerFactor));
+    Vector arcOrigin = current.toVector();
+    Vector arcLaunchDirection = dir.clone();
+    double arcTraveled = 0D;
     double minDistanceSq = Math.max(0, getConfig().minPreviewDistanceFromEye);
     minDistanceSq *= minDistanceSq;
     double spacing = Math.max(0.25, getConfig().previewPointSpacing);
@@ -744,12 +756,27 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
         return;
       }
 
-      Vector desired = toTarget.multiply(1D / distance);
-      dir = dir.multiply(1D - steer).add(desired.multiply(steer));
-      if (dir.lengthSquared() <= EPSILON) {
-        dir = desired.clone();
-      }
-      dir.normalize();
+      Vector directDesired = toTarget.multiply(1D / distance);
+      boolean initialArcActive = arcTraveled < Math.max(2D, seekerConfig.initialArcDistance);
+      Vector desired = initialArcActive
+          ? HeartseekerFlightMath.quadraticArcGuidance(
+              arcOrigin,
+              arcLaunchDirection,
+              target.point().toVector(),
+              arcTraveled,
+              Math.max(1D, seekerConfig.initialArcControlDistance),
+              Math.max(2D, seekerConfig.initialArcDistance)
+          )
+          : directDesired;
+      double turnDegrees = !initialArcActive
+          && distance <= Math.max(1D, seekerConfig.lungeRadius)
+          ? seekerConfig.lungeTurnDegreesPerTick
+          : seekerConfig.turnDegreesPerTick;
+      dir = HeartseekerFlightMath.turnTowards(
+          dir,
+          desired,
+          Math.toRadians(Math.max(1D, Math.min(90D, turnDegrees)))
+      );
 
       double stepLength = Math.min(speed, distance);
       if (!RUNTIME_BUDGET.tryAcquireRayTrace()) {
@@ -770,6 +797,7 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
 
       Location from = current.clone();
       current.add(dir.clone().multiply(stepLength));
+      arcTraveled += stepLength;
       dotCarry = drawDottedSegment(p, eye, from, current, seekColor, minDistanceSq, spacing, dotCarry);
     }
   }

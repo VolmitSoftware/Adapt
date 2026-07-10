@@ -1,5 +1,7 @@
 package art.arcane.adapt.content.adaptation.ranged;
 
+import org.bukkit.util.Vector;
+
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -437,9 +439,6 @@ record HeartseekerPassBudget(int piercing, int ricochet) {
     return ricochet > 0 ? new HeartseekerPassBudget(0, ricochet - 1) : this;
   }
 
-  HeartseekerPassBudget afterBlockRicochet() {
-    return ricochet > 0 ? new HeartseekerPassBudget(piercing, ricochet - 1) : this;
-  }
 }
 
 final class HeartseekerChunkTraversal {
@@ -517,5 +516,156 @@ final class HeartseekerLifecycle {
 
   long invalidate() {
     return generation.incrementAndGet();
+  }
+}
+
+final class HeartseekerFlightMath {
+  private static final double LAUNCH_SPEED_RATIO = 0.5D;
+  private static final double FULL_DRAW_FLOOR_SPEED = 0.9D;
+  private static final double FULL_DRAW_SEEK_SPEED = 1.5D;
+
+  private HeartseekerFlightMath() {
+  }
+
+  static double seekSpeed(double launchSpeed) {
+    double scaled = Math.max(0D, launchSpeed) * LAUNCH_SPEED_RATIO;
+    return Math.max(FULL_DRAW_FLOOR_SPEED, Math.min(FULL_DRAW_SEEK_SPEED, scaled));
+  }
+
+  static Vector turnTowards(Vector current, Vector desired, double maximumRadians) {
+    Vector currentDirection = normalized(current);
+    Vector desiredDirection = normalized(desired);
+    if (currentDirection.lengthSquared() <= 0.000001D) {
+      return desiredDirection;
+    }
+    if (desiredDirection.lengthSquared() <= 0.000001D) {
+      return currentDirection;
+    }
+    double dot = Math.max(-1D, Math.min(1D, currentDirection.dot(desiredDirection)));
+    double angle = Math.acos(dot);
+    double turn = Math.max(0D, maximumRadians);
+    if (angle <= turn || angle <= 0.000001D) {
+      return desiredDirection;
+    }
+    if (turn <= 0D) {
+      return currentDirection;
+    }
+
+    Vector axis = currentDirection.clone().crossProduct(desiredDirection);
+    if (axis.lengthSquared() <= 0.000001D) {
+      axis = basis(currentDirection).side();
+    } else {
+      axis.normalize();
+    }
+    double cosine = Math.cos(turn);
+    double sine = Math.sin(turn);
+    Vector rotated = currentDirection.clone().multiply(cosine)
+        .add(axis.clone().crossProduct(currentDirection).multiply(sine))
+        .add(axis.clone().multiply(axis.dot(currentDirection) * (1D - cosine)));
+    return normalized(rotated);
+  }
+
+  static Vector quadraticArcGuidance(Vector origin, Vector launchDirection, Vector target,
+                                     double traveledDistance, double controlDistance,
+                                     double arcDistance) {
+    double launchLengthSquared = launchDirection.lengthSquared();
+    double targetX = target.getX() - origin.getX();
+    double targetY = target.getY() - origin.getY();
+    double targetZ = target.getZ() - origin.getZ();
+    if (launchLengthSquared <= 0.000001D) {
+      return normalized(targetX, targetY, targetZ);
+    }
+
+    double inverseLaunchLength = 1D / Math.sqrt(launchLengthSquared);
+    double controlLength = Math.max(0D, controlDistance);
+    double controlX = launchDirection.getX() * inverseLaunchLength * controlLength;
+    double controlY = launchDirection.getY() * inverseLaunchLength * controlLength;
+    double controlZ = launchDirection.getZ() * inverseLaunchLength * controlLength;
+    double safeArcDistance = Math.max(0.000001D, arcDistance);
+    double progress = Math.max(0D, Math.min(1D, traveledDistance / safeArcDistance));
+    double tangentX = (controlX * (1D - progress))
+        + ((targetX - controlX) * progress);
+    double tangentY = (controlY * (1D - progress))
+        + ((targetY - controlY) * progress);
+    double tangentZ = (controlZ * (1D - progress))
+        + ((targetZ - controlZ) * progress);
+    Vector tangent = normalized(tangentX, tangentY, tangentZ);
+    return tangent.lengthSquared() <= 0.000001D
+        ? normalized(targetX, targetY, targetZ)
+        : tangent;
+  }
+
+  static boolean hasTraveledMinimum(Vector origin, Vector current, double minimumDistance) {
+    double distance = Math.max(0D, minimumDistance);
+    return current.distanceSquared(origin) >= distance * distance;
+  }
+
+  static double repeatExitDistance(double speed, int noDamageTicks, double maximumTurnDegrees,
+                                   double configuredDistance) {
+    double safeSpeed = Math.max(0D, speed);
+    double safeTurnDegrees = Math.max(1D, maximumTurnDegrees);
+    double turnTicks = 180D / safeTurnDegrees;
+    double travelTicks = Math.max(0D, Math.max(0, noDamageTicks) + 2D - turnTicks);
+    double immunityDistance = safeSpeed * travelTicks * 0.5D;
+    return Math.min(24D, Math.max(Math.max(0D, configuredDistance), immunityDistance));
+  }
+
+  static Facing facing(Vector direction) {
+    Vector normalized = normalized(direction);
+    double horizontal = Math.sqrt((normalized.getX() * normalized.getX())
+        + (normalized.getZ() * normalized.getZ()));
+    float yaw = (float) Math.toDegrees(Math.atan2(-normalized.getX(), normalized.getZ()));
+    float pitch = (float) Math.toDegrees(Math.atan2(-normalized.getY(), horizontal));
+    return new Facing(yaw, pitch);
+  }
+
+  static Vector avoidance(Vector forward, int index, double strength) {
+    Vector normalizedForward = normalized(forward);
+    Basis basis = basis(normalizedForward);
+    Vector side = basis.side();
+    Vector vertical = basis.vertical();
+    Vector offset = switch (Math.floorMod(index, 8)) {
+      case 0 -> vertical;
+      case 1 -> side;
+      case 2 -> side.multiply(-1D);
+      case 3 -> vertical.multiply(-1D);
+      case 4 -> vertical.add(side).normalize();
+      case 5 -> vertical.add(side.multiply(-1D)).normalize();
+      case 6 -> vertical.multiply(-1D).add(side).normalize();
+      default -> vertical.multiply(-1D).add(side.multiply(-1D)).normalize();
+    };
+    return normalizedForward.add(offset.multiply(strength)).normalize();
+  }
+
+  private static Basis basis(Vector forward) {
+    Vector reference = Math.abs(forward.getY()) < 0.9D
+        ? new Vector(0D, 1D, 0D)
+        : new Vector(1D, 0D, 0D);
+    Vector side = forward.clone().crossProduct(reference);
+    if (side.lengthSquared() <= 0.000001D) {
+      side = new Vector(0D, 0D, 1D);
+    }
+    side.normalize();
+    Vector vertical = side.clone().crossProduct(forward).normalize();
+    return new Basis(side, vertical);
+  }
+
+  private static Vector normalized(Vector vector) {
+    return vector.lengthSquared() <= 0.000001D ? new Vector() : vector.clone().normalize();
+  }
+
+  private static Vector normalized(double x, double y, double z) {
+    double lengthSquared = (x * x) + (y * y) + (z * z);
+    if (lengthSquared <= 0.000001D) {
+      return new Vector();
+    }
+    double inverseLength = 1D / Math.sqrt(lengthSquared);
+    return new Vector(x * inverseLength, y * inverseLength, z * inverseLength);
+  }
+
+  private record Basis(Vector side, Vector vertical) {
+  }
+
+  record Facing(float yaw, float pitch) {
   }
 }

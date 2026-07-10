@@ -110,7 +110,8 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(ProjectileLaunchEvent e) {
     Projectile projectile = e.getEntity();
-    if (getMetadataProfile(projectile) != null
+    if (RangedHeartseeker.isSeekingProjectile(projectile)
+        || getMetadataProfile(projectile) != null
         || !(projectile.getShooter() instanceof Player player)
         || !supportsRicochet(projectile)) {
       return;
@@ -249,7 +250,10 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(EntityDamageByEntityEvent e) {
-    if (!(e.getDamager() instanceof Projectile projectile) || !(projectile.getShooter() instanceof Player p) || !projectile.hasMetadata(BONUS_DAMAGE_META)) {
+    if (RangedHeartseeker.isSeekingProjectile(e.getDamager())
+        || !(e.getDamager() instanceof Projectile projectile)
+        || !(projectile.getShooter() instanceof Player p)
+        || !projectile.hasMetadata(BONUS_DAMAGE_META)) {
       return;
     }
 
@@ -272,6 +276,7 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
   public void on(EntityDeathEvent e) {
     if (!(e.getEntity().getLastDamageCause() instanceof EntityDamageByEntityEvent damage)
         || !(damage.getDamager() instanceof Projectile projectile)
+        || RangedHeartseeker.isSeekingProjectile(projectile)
         || !projectile.hasMetadata(RICOCHET_COUNT_META)
         || getMetadataInt(projectile, RICOCHET_COUNT_META, 0) <= 0
         || !(projectile.getShooter() instanceof Player shooter)) {

@@ -1,9 +1,16 @@
 package art.arcane.adapt.content.adaptation.ranged;
 
+import com.destroystokyo.paper.event.entity.EntityAddToWorldEvent;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.entity.EntityShootBowEvent;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.util.Vector;
 import org.bukkit.util.BoundingBox;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -15,6 +22,188 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.data.Offset.offset;
 
 class HeartseekerRuntimeTest {
+  @Test
+  void seekingSpeedUsesRawLaunchSpeedWithFloorAndFullDrawCeiling() {
+    assertThat(HeartseekerFlightMath.seekSpeed(3D)).isEqualTo(1.5D);
+    assertThat(HeartseekerFlightMath.seekSpeed(4D)).isEqualTo(1.5D);
+    assertThat(HeartseekerFlightMath.seekSpeed(1.8D)).isEqualTo(0.9D);
+    assertThat(HeartseekerFlightMath.seekSpeed(0D)).isEqualTo(0.9D);
+    assertThat(HeartseekerFlightMath.seekSpeed(-4D)).isEqualTo(0.9D);
+  }
+
+  @Test
+  void initialAdmissionWaitsUntilPaperMarksTheArrowValid() {
+    List<Class<?>> handledEvents = Arrays.stream(RangedHeartseeker.class.getDeclaredMethods())
+        .filter(method -> method.isAnnotationPresent(EventHandler.class))
+        .filter(method -> method.getParameterCount() == 1)
+        .map(Method::getParameterTypes)
+        .map(parameters -> parameters[0])
+        .toList();
+
+    assertThat(handledEvents).contains(EntityAddToWorldEvent.class);
+    assertThat(handledEvents).doesNotContain(ProjectileLaunchEvent.class);
+  }
+
+  @Test
+  void heartseekerClaimsLockedShotsBeforeOtherBowAdaptations() throws NoSuchMethodException {
+    Method handler = RangedHeartseeker.class.getDeclaredMethod("on", EntityShootBowEvent.class);
+    EventHandler eventHandler = handler.getAnnotation(EventHandler.class);
+
+    assertThat(eventHandler.priority()).isEqualTo(EventPriority.LOWEST);
+    assertThat(eventHandler.ignoreCancelled()).isTrue();
+  }
+
+  @Test
+  void steeringCurvesTowardTargetWithoutAddingLateralOrbit() {
+    Vector current = new Vector(1D, 0D, 0D);
+    Vector desired = new Vector(0D, 0D, 1D);
+    Vector steered = HeartseekerFlightMath.turnTowards(current, desired, Math.toRadians(20D));
+
+    assertThat(steered.length()).isCloseTo(1D, offset(0.000001D));
+    assertThat(steered.getX()).isPositive();
+    assertThat(steered.getZ()).isPositive();
+    assertThat(steered.getY()).isZero();
+    assertThat(Math.toDegrees(Math.acos(current.dot(steered))))
+        .isCloseTo(20D, offset(0.0001D));
+  }
+
+  @Test
+  void alignedAndOppositeSteeringRemainFiniteAndBounded() {
+    Vector forward = new Vector(0D, 0D, 1D);
+    Vector aligned = HeartseekerFlightMath.turnTowards(
+        forward,
+        forward,
+        Math.toRadians(10D)
+    );
+    Vector opposite = HeartseekerFlightMath.turnTowards(
+        forward,
+        new Vector(0D, 0D, -1D),
+        Math.toRadians(10D)
+    );
+
+    assertThat(aligned).isEqualTo(forward);
+    assertThat(opposite.length()).isCloseTo(1D, offset(0.000001D));
+    assertThat(opposite.getZ()).isPositive();
+    assertThat(Double.isFinite(opposite.getX())).isTrue();
+    assertThat(Double.isFinite(opposite.getY())).isTrue();
+  }
+
+  @Test
+  void initialArcStartsInTheFiredDirectionAndThenBendsTowardTarget() {
+    Vector origin = new Vector(0D, 0D, 0D);
+    Vector firedUp = new Vector(0D, 1D, 0D);
+    Vector target = new Vector(12D, 0D, 0D);
+
+    Vector launch = HeartseekerFlightMath.quadraticArcGuidance(
+        origin,
+        firedUp,
+        target,
+        0D,
+        8D,
+        12D
+    );
+    Vector middle = HeartseekerFlightMath.quadraticArcGuidance(
+        origin,
+        firedUp,
+        target,
+        6D,
+        8D,
+        12D
+    );
+    Vector finish = HeartseekerFlightMath.quadraticArcGuidance(
+        origin,
+        firedUp,
+        target,
+        12D,
+        8D,
+        12D
+    );
+
+    assertThat(launch.getX()).isZero();
+    assertThat(launch.getY()).isEqualTo(1D);
+    assertThat(middle.getX()).isPositive();
+    assertThat(finish.getX()).isPositive();
+    assertThat(finish.getY()).isNegative();
+  }
+
+  @Test
+  void initialArcPreservesArbitraryLaunchTangentsAndDegenerateInputsStayFinite() {
+    Vector fired = new Vector(0.35D, 0.8D, -0.2D).normalize();
+    Vector launch = HeartseekerFlightMath.quadraticArcGuidance(
+        new Vector(4D, 2D, -3D),
+        fired,
+        new Vector(18D, 5D, 9D),
+        0D,
+        8D,
+        12D
+    );
+    Vector degenerate = HeartseekerFlightMath.quadraticArcGuidance(
+        new Vector(1D, 1D, 1D),
+        new Vector(),
+        new Vector(1D, 1D, 1D),
+        12D,
+        0D,
+        0D
+    );
+
+    assertThat(launch.dot(fired)).isCloseTo(1D, offset(0.000001D));
+    assertThat(Double.isFinite(degenerate.getX())).isTrue();
+    assertThat(Double.isFinite(degenerate.getY())).isTrue();
+    assertThat(Double.isFinite(degenerate.getZ())).isTrue();
+  }
+
+  @Test
+  void continuationExitRequiresPhysicalClearanceInsteadOfDispatchTiming() {
+    Vector origin = new Vector(0D, 0D, 0D);
+
+    assertThat(HeartseekerFlightMath.hasTraveledMinimum(
+        origin,
+        new Vector(7.99D, 0D, 0D),
+        8D
+    )).isFalse();
+    assertThat(HeartseekerFlightMath.hasTraveledMinimum(
+        origin,
+        new Vector(8D, 0D, 0D),
+        8D
+    )).isTrue();
+    assertThat(new RangedHeartseeker.Config().continuationExitDistance).isEqualTo(8D);
+  }
+
+  @Test
+  void repeatExitExpandsForDamageImmunityAtAggressiveTurnRates() {
+    assertThat(HeartseekerFlightMath.repeatExitDistance(1.5D, 20, 18D, 8D))
+        .isEqualTo(9D);
+    assertThat(HeartseekerFlightMath.repeatExitDistance(1.5D, 20, 90D, 8D))
+        .isEqualTo(15D);
+    assertThat(HeartseekerFlightMath.repeatExitDistance(0.9D, 20, 18D, 8D))
+        .isEqualTo(8D);
+  }
+
+  @Test
+  void facingMatchesTheFlightVectorIncludingVerticalAim() {
+    HeartseekerFlightMath.Facing east = HeartseekerFlightMath.facing(new Vector(1D, 0D, 0D));
+    HeartseekerFlightMath.Facing up = HeartseekerFlightMath.facing(new Vector(0D, 1D, 0D));
+
+    assertThat(east.yaw()).isCloseTo(-90F, offset(0.0001F));
+    assertThat(east.pitch()).isCloseTo(0F, offset(0.0001F));
+    assertThat(up.pitch()).isCloseTo(-90F, offset(0.0001F));
+  }
+
+  @Test
+  void avoidanceProbesEightDistinctForwardRoutesAroundAnObstacle() {
+    Vector forward = new Vector(1D, 0D, 0D);
+    Set<String> routes = new HashSet<>();
+
+    for (int index = 0; index < 8; index++) {
+      Vector route = HeartseekerFlightMath.avoidance(forward, index, 1.15D);
+      assertThat(route.length()).isCloseTo(1D, offset(0.000001D));
+      assertThat(route.dot(forward)).isPositive();
+      routes.add(String.format("%.4f:%.4f:%.4f", route.getX(), route.getY(), route.getZ()));
+    }
+
+    assertThat(routes).hasSize(8);
+  }
+
   @Test
   void admitsOneArrowForEachOfOneThousandOwnersAndRejectsGlobalOverflow() {
     HeartseekerCoordinator coordinator = new HeartseekerCoordinator(1_024, 3);
@@ -170,7 +359,6 @@ class HeartseekerRuntimeTest {
 
     assertThat(budget.total()).isEqualTo(5);
     assertThat(budget.afterEntityPass()).isEqualTo(new HeartseekerPassBudget(2, 2));
-    assertThat(budget.afterBlockRicochet()).isEqualTo(new HeartseekerPassBudget(3, 1));
     assertThat(HeartseekerChainRules.resolveBudget(7, 7, 8))
         .isEqualTo(new HeartseekerPassBudget(7, 1));
   }
@@ -186,28 +374,6 @@ class HeartseekerRuntimeTest {
 
     assertThat(direction.length()).isCloseTo(1D, offset(0.000001D));
     assertThat(direction.dot(incoming.clone().normalize())).isCloseTo(1D, offset(0.000001D));
-  }
-
-  @Test
-  void blockRicochetReflectsBeforeSeekingResumes() {
-    RicochetProfile profile = new RicochetProfile(2, 0.25D, 1.5D, 0.09D, 0.45D);
-    RicochetTransition transition = profile.next(
-        0,
-        0D,
-        new Vector(1D, 0.2D, 0D),
-        new Vector(-1D, 0D, 0D)
-    );
-
-    assertThat(transition).isNotNull();
-    assertThat(transition.direction().length()).isCloseTo(1D, offset(0.000001D));
-    assertThat(transition.direction().getX()).isNegative();
-    assertThat(transition.direction().getY()).isPositive();
-    assertThat(transition.count()).isEqualTo(1);
-    assertThat(transition.bonusDamage()).isEqualTo(1.5D);
-    assertThat(transition.speed()).isCloseTo(new Vector(1D, 0.2D, 0D).length() * 1.25D,
-        offset(0.000001D));
-    assertThat(profile.next(2, 3D, new Vector(1D, 0D, 0D), new Vector(-1D, 0D, 0D)))
-        .isNull();
   }
 
   @Test

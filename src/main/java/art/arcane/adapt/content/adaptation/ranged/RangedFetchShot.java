@@ -84,7 +84,9 @@ public class RangedFetchShot extends SimpleAdaptation<RangedFetchShot.Config> {
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(ProjectileHitEvent e) {
     Projectile projectile = e.getEntity();
-    if (projectile instanceof FishHook || !(projectile.getShooter() instanceof Player p)) {
+    if (RangedHeartseeker.isSeekingProjectile(projectile)
+        || projectile instanceof FishHook
+        || !(projectile.getShooter() instanceof Player p)) {
       return;
     }
 
