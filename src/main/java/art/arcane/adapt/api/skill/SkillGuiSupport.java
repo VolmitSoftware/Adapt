@@ -193,46 +193,53 @@ final class SkillGuiSupport {
       int jumpPages = 5;
       int jumpBack = Math.max(0, currentPage - jumpPages);
       int jumpForward = Math.min(plan.pageCount() - 1, currentPage + jumpPages);
-      if (currentPage > 0) {
-        window.setElement(-4, navRow, new UIElement("skill-prev")
+      if (plan.pageCount() > 1 && currentPage > 0) {
+        window.setElement(-4, navRow, new UIElement("skill-first")
+            .setMaterial(new MaterialBlock(Material.LECTERN))
+            .setName(C.GRAY + "First")
+            .onLeftClick((e) -> openSkillPage(skill, player, 0)));
+        window.setElement(-3, navRow, new UIElement("skill-prev")
             .setMaterial(new MaterialBlock(Material.ARROW))
             .setName(C.WHITE + "Previous")
             .addLore(C.GRAY + "Right click: jump -" + jumpPages + " pages")
             .onLeftClick((e) -> openSkillPage(skill, player, currentPage - 1))
             .onRightClick((e) -> openSkillPage(skill, player, jumpBack)));
-        window.setElement(-3, navRow, new UIElement("skill-first")
-            .setMaterial(new MaterialBlock(Material.LECTERN))
-            .setName(C.GRAY + "First")
-            .onLeftClick((e) -> openSkillPage(skill, player, 0)));
+      } else if (plan.pageCount() > 1) {
+        window.setElement(-4, navRow, boundaryElement("skill-first-disabled", "First page"));
+        window.setElement(-3, navRow, boundaryElement("skill-prev-disabled", "No previous page"));
       }
-      if (currentPage < plan.pageCount() - 1) {
-        window.setElement(4, navRow, new UIElement("skill-next")
+      if (plan.pageCount() > 1 && currentPage < plan.pageCount() - 1) {
+        window.setElement(3, navRow, new UIElement("skill-next")
             .setMaterial(new MaterialBlock(Material.ARROW))
             .setName(C.WHITE + "Next")
             .addLore(C.GRAY + "Right click: jump +" + jumpPages + " pages")
             .onLeftClick((e) -> openSkillPage(skill, player, currentPage + 1))
             .onRightClick((e) -> openSkillPage(skill, player, jumpForward)));
-        window.setElement(3, navRow, new UIElement("skill-last")
+        window.setElement(4, navRow, new UIElement("skill-last")
             .setMaterial(new MaterialBlock(Material.LECTERN))
             .setName(C.GRAY + "Last")
             .onLeftClick((e) -> openSkillPage(skill, player, plan.pageCount() - 1)));
+      } else if (plan.pageCount() > 1) {
+        window.setElement(3, navRow, boundaryElement("skill-next-disabled", "No next page"));
+        window.setElement(4, navRow, boundaryElement("skill-last-disabled", "Last page"));
       }
 
       int from = visibleAdaptations.isEmpty() ? 0 : (start + 1);
       int to = visibleAdaptations.isEmpty() ? 0 : end;
-      window.setElement(-1, navRow, new UIElement("skill-page-info")
-          .setMaterial(new MaterialBlock(Material.PAPER))
-          .setName(C.AQUA + "Page " + (currentPage + 1) + "/" + plan.pageCount())
-          .addLore(C.GRAY + "Showing " + from + "-" + to + " of " + visibleAdaptations.size())
-          .setProgress(1D));
-
+      Element center;
       if (AdaptConfig.get().isGuiBackButton()) {
-        window.setElement(0, navRow, new UIElement("back")
+        center = new UIElement("back")
             .setMaterial(new MaterialBlock(Material.ARROW))
             .setName("" + C.RESET + C.GRAY + Localizer.dLocalize("snippets.gui.back"))
-            .onLeftClick((e) -> navigateBack(player)));
+            .onLeftClick((e) -> navigateBack(player));
+      } else {
+        center = new UIElement("skill-page-info")
+            .setMaterial(new MaterialBlock(Material.PAPER))
+            .setName(C.AQUA + "Adaptations");
       }
-
+      center.addLore(C.DARK_GRAY + "Page " + (currentPage + 1) + "/" + plan.pageCount()
+          + " • Showing " + from + "-" + to + " of " + visibleAdaptations.size());
+      window.setElement(0, navRow, center.setProgress(1D));
     }
 
     window.setTitle(skill.getDisplayName(adaptPlayer.getSkillLine(skill.getName()).getLevel()) + " " + Form.pc(XP.getLevelProgress(adaptPlayer.getSkillLine(skill.getName()).getXp())) + " (" + Form.f((int) XP.getXpUntilLevelUp(adaptPlayer.getSkillLine(skill.getName()).getXp())) + Localizer.dLocalize("snippets.gui.xp") + " " + (adaptPlayer.getSkillLine(skill.getName()).getLevel() + 1) + ")");
@@ -327,6 +334,12 @@ final class SkillGuiSupport {
 
     String normalized = ColorFormatter.stripColor(value).toLowerCase(Locale.ROOT).trim();
     return normalized.replaceFirst("^[^\\p{L}\\p{N}]+", "");
+  }
+
+  private static Element boundaryElement(String id, String name) {
+    return new UIElement(id)
+        .setMaterial(new MaterialBlock(Material.GRAY_STAINED_GLASS_PANE))
+        .setName(C.DARK_GRAY + name);
   }
 
   private static Boolean readBooleanField(Object source, String fieldName) {

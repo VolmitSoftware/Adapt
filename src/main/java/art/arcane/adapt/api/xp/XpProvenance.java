@@ -23,14 +23,17 @@ import art.arcane.adapt.api.data.WorldData;
 import art.arcane.adapt.api.data.unit.PlacementStamp;
 import art.arcane.volmlib.util.math.M;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public final class XpProvenance {
   private XpProvenance() {
   }
 
   public static void recordPlacement(Block block) {
-    AdaptConfig.XpIntegrity config = AdaptConfig.get().getXpIntegrity();
-    if (!config.isProvenanceEnabled()) {
+    if (block == null) {
       return;
     }
 
@@ -49,6 +52,49 @@ public final class XpProvenance {
 
     PlacementStamp stamp = WorldData.of(block.getWorld()).get(block, PlacementStamp.class);
     return stamp != null && withinTtl(stamp.getPlacedAt(), config.getPlacedBlockTtlMillis());
+  }
+
+  public static boolean hasPermanentPlayerModification(Block block) {
+    if (block == null) {
+      return false;
+    }
+    PlacementStamp stamp = WorldData.of(block.getWorld()).get(block, PlacementStamp.class);
+    return hasPermanentPlacementRecord(stamp);
+  }
+
+  public static boolean hasPermanentPlacementRecord(PlacementStamp stamp) {
+    return stamp != null && (stamp.getPlacedAt() != 0 || stamp.getBrokenAt() != 0);
+  }
+
+  public static void transferPistonMovement(List<Block> movedBlocks, BlockFace direction) {
+    if (movedBlocks == null || movedBlocks.isEmpty() || direction == null) {
+      return;
+    }
+    int limit = Math.min(12, movedBlocks.size());
+    ArrayList<PlacementMovement> movements = new ArrayList<>(limit);
+    for (int index = 0; index < limit; index++) {
+      Block source = movedBlocks.get(index);
+      if (source == null) {
+        continue;
+      }
+      WorldData data = WorldData.of(source.getWorld());
+      movements.add(new PlacementMovement(
+          source,
+          source.getRelative(direction),
+          data.get(source, PlacementStamp.class)
+      ));
+    }
+    for (PlacementMovement movement : movements) {
+      WorldData.of(movement.source().getWorld()).remove(movement.source(), PlacementStamp.class);
+    }
+    for (PlacementMovement movement : movements) {
+      WorldData data = WorldData.of(movement.destination().getWorld());
+      if (movement.stamp() == null) {
+        data.remove(movement.destination(), PlacementStamp.class);
+      } else {
+        data.set(movement.destination(), movement.stamp());
+      }
+    }
   }
 
   public static void recordPlayerPlacedBreak(Block block) {
@@ -123,5 +169,8 @@ public final class XpProvenance {
 
   private static int nowSeconds() {
     return (int) (M.ms() / 1000L);
+  }
+
+  private record PlacementMovement(Block source, Block destination, PlacementStamp stamp) {
   }
 }

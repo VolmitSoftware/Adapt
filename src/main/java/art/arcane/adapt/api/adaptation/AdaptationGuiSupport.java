@@ -330,46 +330,53 @@ final class AdaptationGuiSupport {
       int jumpPages = 5;
       int jumpBack = Math.max(0, currentPage - jumpPages);
       int jumpForward = Math.min(plan.pageCount() - 1, currentPage + jumpPages);
-      if (currentPage > 0) {
-        w.setElement(-4, navRow, new UIElement("adapt-prev")
+      if (plan.pageCount() > 1 && currentPage > 0) {
+        w.setElement(-4, navRow, new UIElement("adapt-first")
+            .setMaterial(new MaterialBlock(Material.LECTERN))
+            .setName(C.GRAY + "First")
+            .onLeftClick((e) -> openAdaptationPage(adaptation, player, 0)));
+        w.setElement(-3, navRow, new UIElement("adapt-prev")
             .setMaterial(new MaterialBlock(Material.ARROW))
             .setName(C.WHITE + "Previous")
             .addLore(C.GRAY + "Right click: jump -" + jumpPages + " pages")
             .onLeftClick((e) -> openAdaptationPage(adaptation, player, currentPage - 1))
             .onRightClick((e) -> openAdaptationPage(adaptation, player, jumpBack)));
-        w.setElement(-3, navRow, new UIElement("adapt-first")
-            .setMaterial(new MaterialBlock(Material.LECTERN))
-            .setName(C.GRAY + "First")
-            .onLeftClick((e) -> openAdaptationPage(adaptation, player, 0)));
+      } else if (plan.pageCount() > 1) {
+        w.setElement(-4, navRow, boundaryElement("adapt-first-disabled", "First page"));
+        w.setElement(-3, navRow, boundaryElement("adapt-prev-disabled", "No previous page"));
       }
-      if (currentPage < plan.pageCount() - 1) {
-        w.setElement(4, navRow, new UIElement("adapt-next")
+      if (plan.pageCount() > 1 && currentPage < plan.pageCount() - 1) {
+        w.setElement(3, navRow, new UIElement("adapt-next")
             .setMaterial(new MaterialBlock(Material.ARROW))
             .setName(C.WHITE + "Next")
             .addLore(C.GRAY + "Right click: jump +" + jumpPages + " pages")
             .onLeftClick((e) -> openAdaptationPage(adaptation, player, currentPage + 1))
             .onRightClick((e) -> openAdaptationPage(adaptation, player, jumpForward)));
-        w.setElement(3, navRow, new UIElement("adapt-last")
+        w.setElement(4, navRow, new UIElement("adapt-last")
             .setMaterial(new MaterialBlock(Material.LECTERN))
             .setName(C.GRAY + "Last")
             .onLeftClick((e) -> openAdaptationPage(adaptation, player, plan.pageCount() - 1)));
+      } else if (plan.pageCount() > 1) {
+        w.setElement(3, navRow, boundaryElement("adapt-next-disabled", "No next page"));
+        w.setElement(4, navRow, boundaryElement("adapt-last-disabled", "Last page"));
       }
 
       int from = adaptation.getMaxLevel() <= 0 ? 0 : (start + 1);
       int to = adaptation.getMaxLevel() <= 0 ? 0 : end;
-      w.setElement(-1, navRow, new UIElement("adapt-page-info")
-          .setMaterial(new MaterialBlock(Material.PAPER))
-          .setName(C.AQUA + "Page " + (currentPage + 1) + "/" + plan.pageCount())
-          .addLore(C.GRAY + "Showing " + from + "-" + to + " of " + adaptation.getMaxLevel())
-          .setProgress(1D));
-
+      Element center;
       if (AdaptConfig.get().isGuiBackButton()) {
-        w.setElement(0, navRow, new UIElement("back")
+        center = new UIElement("back")
             .setMaterial(new MaterialBlock(Material.ARROW))
             .setName("" + C.RESET + C.GRAY + Localizer.dLocalize("snippets.gui.back"))
-            .onLeftClick((e) -> navigateBack(adaptation, player)));
+            .onLeftClick((e) -> navigateBack(adaptation, player));
+      } else {
+        center = new UIElement("adapt-page-info")
+            .setMaterial(new MaterialBlock(Material.PAPER))
+            .setName(C.AQUA + "Levels");
       }
-
+      center.addLore(C.DARK_GRAY + "Page " + (currentPage + 1) + "/" + plan.pageCount()
+          + " • Showing " + from + "-" + to + " of " + adaptation.getMaxLevel());
+      w.setElement(0, navRow, center.setProgress(1D));
     }
 
     w.setTitle(adaptation.getDisplayName());
@@ -471,6 +478,12 @@ final class AdaptationGuiSupport {
     }
 
     return null;
+  }
+
+  private static Element boundaryElement(String id, String name) {
+    return new UIElement(id)
+        .setMaterial(new MaterialBlock(Material.GRAY_STAINED_GLASS_PANE))
+        .setName(C.DARK_GRAY + name);
   }
 
   private static void openAdaptationPage(Adaptation<?> adaptation, Player player, int page) {

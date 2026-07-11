@@ -3,6 +3,8 @@ package art.arcane.adapt.api.fx;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.mutation.MutationConfig;
+import art.arcane.adapt.api.mutation.MutationType;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.adapt.api.world.PlayerData;
@@ -53,6 +55,30 @@ public final class Fx {
     return emitter(skill.areParticlesEnabled(), skill.areSoundsEnabled(), skillColor(skill), entity.getWorld(), location.getX(), location.getY(), location.getZ(), priority);
   }
 
+  public static FxEmitter now(MutationType mutation, Location location, FxPriority priority) {
+    if (mutation == null || location == null || location.getWorld() == null || priority == null) {
+      return FxEmitter.NO_OP;
+    }
+    MutationConfig config = MutationConfig.get();
+    if (!config.isEnabled()) {
+      return FxEmitter.NO_OP;
+    }
+    MutationConfig.Profile profile = config.profile(mutation);
+    AdaptConfig.Effects effects = AdaptConfig.get().getEffects();
+    boolean particles = config.isParticlesEnabled() && profile.isParticlesEnabled()
+        && (effects == null || effects.isParticlesEnabled());
+    boolean sounds = config.isSoundsEnabled() && profile.isSoundsEnabled()
+        && (effects == null || effects.isSoundsEnabled());
+    return emitter(particles, sounds, mutationColor(mutation), location.getWorld(), location.getX(), location.getY(), location.getZ(), priority);
+  }
+
+  public static FxEmitter now(MutationType mutation, Entity entity, FxPriority priority) {
+    if (entity == null) {
+      return FxEmitter.NO_OP;
+    }
+    return now(mutation, entity.getLocation(), priority);
+  }
+
   public static void targeted(Player viewer, Particle particle, Location location, int count, double spreadX, double spreadY, double spreadZ, double speed) {
     if (viewer == null || particle == null || location == null || location.getWorld() == null) {
       return;
@@ -87,6 +113,29 @@ public final class Fx {
       return Color.WHITE;
     }
     return colorOf(skill.getColor());
+  }
+
+  static Color mutationColor(MutationType mutation) {
+    if (mutation == null) {
+      return Color.WHITE;
+    }
+    return switch (mutation) {
+      case GALE_LUNG -> Color.fromRGB(55, 224, 205);
+      case BASTION_SPINE -> Color.fromRGB(132, 119, 98);
+      case VERDANT_MOLT -> Color.fromRGB(99, 190, 87);
+      case TEMPERBOUND -> Color.fromRGB(224, 145, 65);
+      case PARADOX_SCAR -> Color.fromRGB(210, 106, 255);
+      case ARSENAL_CORTEX -> Color.fromRGB(235, 190, 72);
+      case PACKMIND -> Color.fromRGB(237, 153, 53);
+      case TROPHY_CRUCIBLE -> Color.fromRGB(183, 82, 57);
+      case UMBRAL_ECHO -> Color.fromRGB(91, 42, 145);
+      case LIVING_LATTICE -> Color.fromRGB(59, 160, 82);
+      case MASTERWORK_BOND -> Color.fromRGB(84, 167, 207);
+      case DEEPBLOOD -> Color.fromRGB(170, 31, 46);
+      case MYCELIAL_NERVE -> Color.fromRGB(191, 120, 210);
+      case GRAVEBLOOM -> Color.fromRGB(217, 218, 187);
+      case RESONANT_FORMULA -> Color.fromRGB(101, 178, 255);
+    };
   }
 
   static Color colorOf(C color) {

@@ -7,6 +7,8 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.content.mutation.runtime.MutationUtilityTag;
+import art.arcane.adapt.service.MutationRuntimeSVC;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -55,7 +57,7 @@ public class RiftVisage extends SimpleAdaptation<RiftVisage.Config> {
   @EventHandler
   public void onEntityTarget(EntityTargetEvent event) {
     Entity entity = event.getEntity();
-    if (!(entity instanceof Enderman)) {
+    if (!(entity instanceof Enderman enderman)) {
       return;
     }
     if (!(event.getTarget() instanceof Player player)) {
@@ -66,6 +68,7 @@ public class RiftVisage extends SimpleAdaptation<RiftVisage.Config> {
     }
 
     event.setCancelled(true);
+    emitFormulaUtility(player, enderman);
     addStat(player, "rift.visage.stares-survived", 1);
     if (aversionThrottle.isReady(player.getUniqueId(), 2000L)) {
       aversionThrottle.mark(player.getUniqueId());
@@ -75,6 +78,13 @@ public class RiftVisage extends SimpleAdaptation<RiftVisage.Config> {
           .sound(Sound.ENTITY_ENDERMAN_AMBIENT, 0.3f, 0.7f);
       fx(player, FxPriority.AMBIENT)
           .particle(Particle.REVERSE_PORTAL, 2, 0, 1.0, 0, 0.2, 0.02);
+    }
+  }
+
+  private void emitFormulaUtility(Player player, Enderman enderman) {
+    MutationRuntimeSVC runtime = MutationRuntimeSVC.get();
+    if (runtime != null) {
+      runtime.emitAnomalyUtility(player, enderman, MutationUtilityTag.INTERRUPTION, 0.5D, false);
     }
   }
 

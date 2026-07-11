@@ -24,6 +24,7 @@ import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.PlayerAdaptation;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.api.xp.XP;
+import art.arcane.adapt.service.MutationSVC;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.inventorygui.GuiEffects;
@@ -46,13 +47,21 @@ import java.util.Locale;
 
 public class SkillsGui {
   private static final int PAGE_JUMP = 5;
+  private static final int SKILLS_PER_ROW = 5;
+  private static final int SKILL_ROWS = 5;
+  private static final int SKILLS_PER_PAGE = SKILLS_PER_ROW * SKILL_ROWS;
 
   public static void open(Player player) {
     open(player, 0);
   }
 
   public static void open(Player player, int page) {
-    if (!J.isPrimaryThread()) {
+    if (player == null || !player.isOnline()) {
+      return;
+    }
+    boolean owned = (!J.isFoliaThreading() && J.isPrimaryThread())
+        || (J.isFoliaThreading() && J.isOwnedByCurrentRegion(player));
+    if (!owned) {
       int targetPage = page;
       J.runEntity(player, () -> open(player, targetPage));
       return;
@@ -93,33 +102,40 @@ public class SkillsGui {
             .thenComparing(entry -> entry.skill().getName(), String.CASE_INSENSITIVE_ORDER)
     );
 
-    boolean reserveNavigation = false;
-    GuiLayout.PagePlan plan = GuiLayout.plan(entries.size(), reserveNavigation);
-    int currentPage = GuiLayout.clampPage(page, plan.pageCount());
-    int start = currentPage * plan.itemsPerPage();
-    int end = Math.min(entries.size(), start + plan.itemsPerPage());
+    MutationSVC mutationService = MutationSVC.get();
+    boolean showMutations = player.hasPermission("adapt.mutations")
+        && mutationService != null
+        && mutationService.getManager() != null
+        && mutationService.getManager().getConfig().isEnabled();
+    int pageCount = Math.max(1, (int) Math.ceil(entries.size() / (double) SKILLS_PER_PAGE));
+    int currentPage = GuiLayout.clampPage(page, pageCount);
+    int start = currentPage * SKILLS_PER_PAGE;
+    int end = Math.min(entries.size(), start + SKILLS_PER_PAGE);
 
     UIWindow w = new UIWindow(Adapt.instance, player);
     GuiTheme.apply(w, "/");
-    w.setViewportHeight(plan.rows());
+    w.setViewportHeight(6);
 
     if (entries.isEmpty()) {
-      w.setElement(0, 0, new UIElement("skills-empty")
+      w.setElement(0, 2, new UIElement("skills-empty")
           .setMaterial(new MaterialBlock(Material.PAPER))
           .setName(C.GRAY + "No skills available")
           .addLore(C.DARK_GRAY + "No eligible skills were found for this player."));
     } else {
       List<GuiEffects.Placement> reveal = new ArrayList<>();
-      for (int row = 0; row < plan.contentRows(); row++) {
-        int rowStart = start + (row * GuiLayout.WIDTH);
+      int pageItems = end - start;
+      int usedRows = Math.max(1, (int) Math.ceil(pageItems / (double) SKILLS_PER_ROW));
+      for (int logicalRow = 0; logicalRow < usedRows; logicalRow++) {
+        int row = GuiLayout.centeredFiveRow(logicalRow, usedRows);
+        int rowStart = start + (logicalRow * SKILLS_PER_ROW);
         if (rowStart >= end) {
           break;
         }
 
-        int rowCount = Math.min(GuiLayout.WIDTH, end - rowStart);
+        int rowCount = Math.min(SKILLS_PER_ROW, end - rowStart);
         for (int i = 0; i < rowCount; i++) {
           SkillPageEntry entry = entries.get(rowStart + i);
-          int pos = GuiLayout.centeredPosition(i, rowCount);
+          int pos = GuiLayout.spacedFivePosition(i, rowCount);
           Element element = new UIElement("skill-" + entry.skill().getName())
               .setMaterial(new MaterialBlock(entry.skill().getIcon()))
               .setBaseItemStack(entry.skill().getModel().toItemStack())
@@ -135,11 +151,7 @@ public class SkillsGui {
       GuiEffects.applyReveal(w, reveal);
     }
 
-    if (plan.hasNavigationRow()) {
-      int navRow = plan.rows() - 1;
-      applyPageControls(w, player, navRow, currentPage, plan.pageCount(), entries.size(), start, end);
-
-    }
+    applyPageControls(w, player, 5, currentPage, pageCount, entries.size(), start, end, showMutations);
 
     w.setTitle(Localizer.dLocalize("snippets.gui.level") + " " + (int) XP.getLevelForXp(adaptPlayer.getData().getMasterXp()) + " (" + adaptPlayer.getData().getUsedPower() + "/" + adaptPlayer.getData().getMaxPower() + " " + Localizer.dLocalize("snippets.gui.power_used") + ")");
     w.open();
@@ -179,48 +191,68 @@ public class SkillsGui {
       int pageCount,
       int totalEntries,
       int start,
-      int end
+      int end,
+      boolean showMutations
   ) {
-    if (pageCount <= 1) {
-      return;
-    }
-
     int jumpBack = Math.max(0, currentPage - PAGE_JUMP);
     int jumpForward = Math.min(pageCount - 1, currentPage + PAGE_JUMP);
 
-    if (currentPage > 0) {
-      window.setElement(-4, navRow, new UIElement("skills-prev")
+    if (pageCount > 1 && currentPage > 0) {
+      window.setElement(-4, navRow, new UIElement("skills-first")
+          .setMaterial(new MaterialBlock(Material.LECTERN))
+          .setName(C.GRAY + "First")
+          .onLeftClick((e) -> open(player, 0)));
+      window.setElement(-3, navRow, new UIElement("skills-prev")
           .setMaterial(new MaterialBlock(Material.ARROW))
           .setName(C.WHITE + "Previous")
           .addLore(C.GRAY + "Right click: jump -" + PAGE_JUMP + " pages")
           .onLeftClick((e) -> open(player, currentPage - 1))
           .onRightClick((e) -> open(player, jumpBack)));
-      window.setElement(-3, navRow, new UIElement("skills-first")
-          .setMaterial(new MaterialBlock(Material.LECTERN))
-          .setName(C.GRAY + "First")
-          .onLeftClick((e) -> open(player, 0)));
+    } else if (pageCount > 1) {
+      window.setElement(-4, navRow, boundaryElement("skills-first-disabled", "First page"));
+      window.setElement(-3, navRow, boundaryElement("skills-prev-disabled", "No previous page"));
     }
 
-    if (currentPage < pageCount - 1) {
-      window.setElement(4, navRow, new UIElement("skills-next")
+    if (pageCount > 1 && currentPage < pageCount - 1) {
+      window.setElement(3, navRow, new UIElement("skills-next")
           .setMaterial(new MaterialBlock(Material.ARROW))
           .setName(C.WHITE + "Next")
           .addLore(C.GRAY + "Right click: jump +" + PAGE_JUMP + " pages")
           .onLeftClick((e) -> open(player, currentPage + 1))
           .onRightClick((e) -> open(player, jumpForward)));
-      window.setElement(3, navRow, new UIElement("skills-last")
+      window.setElement(4, navRow, new UIElement("skills-last")
           .setMaterial(new MaterialBlock(Material.LECTERN))
           .setName(C.GRAY + "Last")
           .onLeftClick((e) -> open(player, pageCount - 1)));
+    } else if (pageCount > 1) {
+      window.setElement(3, navRow, boundaryElement("skills-next-disabled", "No next page"));
+      window.setElement(4, navRow, boundaryElement("skills-last-disabled", "Last page"));
     }
 
     int from = totalEntries <= 0 ? 0 : (start + 1);
     int to = totalEntries <= 0 ? 0 : end;
-    window.setElement(-1, navRow, new UIElement("skills-page-info")
-        .setMaterial(new MaterialBlock(Material.PAPER))
-        .setName(C.AQUA + "Page " + (currentPage + 1) + "/" + pageCount)
-        .addLore(C.GRAY + "Showing " + from + "-" + to + " of " + totalEntries)
-        .setProgress(1D));
+    Element center;
+    if (showMutations) {
+      center = new UIElement("mutations")
+          .setMaterial(new MaterialBlock(Material.AMETHYST_CLUSTER))
+          .setName(C.LIGHT_PURPLE + "Experimental Mutations")
+          .addLore(C.GRAY + "Optional build choices unlocked by your Adapt level.")
+          .addLore(C.WHITE + "Click to view your slots and requirements.")
+          .onLeftClick(event -> MutationGui.open(player));
+    } else {
+      center = new UIElement("skills-page-info")
+          .setMaterial(new MaterialBlock(Material.PAPER))
+          .setName(C.AQUA + "Skills");
+    }
+    center.addLore(C.DARK_GRAY + "Page " + (currentPage + 1) + "/" + pageCount
+        + " • Showing " + from + "-" + to + " of " + totalEntries);
+    window.setElement(0, navRow, center.setProgress(1D));
+  }
+
+  private static Element boundaryElement(String id, String name) {
+    return new UIElement(id)
+        .setMaterial(new MaterialBlock(Material.GRAY_STAINED_GLASS_PANE))
+        .setName(C.DARK_GRAY + name);
   }
 
   private record SkillPageEntry(Skill<?> skill, PlayerSkillLine line,

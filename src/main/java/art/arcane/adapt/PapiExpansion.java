@@ -1,6 +1,10 @@
 package art.arcane.adapt;
 
 import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.mutation.MutationManager;
+import art.arcane.adapt.api.mutation.MutationSnapshot;
+import art.arcane.adapt.api.mutation.MutationState;
+import art.arcane.adapt.api.mutation.MutationType;
 import art.arcane.adapt.api.skill.SkillRegistry;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.world.PlayerAdaptation;
@@ -8,6 +12,7 @@ import art.arcane.adapt.api.world.PlayerData;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.api.xp.XP;
 import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.service.MutationSVC;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
@@ -17,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 
 public class PapiExpansion extends PlaceholderExpansion {
   private static final Locale LOCALE = Locale.ROOT;
@@ -94,12 +100,20 @@ public class PapiExpansion extends PlaceholderExpansion {
       return resolveAdaptationAttribute(playerData, adaptation, attr);
     }
 
+    if ("mutation".equals(root)) {
+      return resolveMutationAttribute(player.getUniqueId(), args);
+    }
+
     if ("skills".equals(root) && args.length > 1 && "count".equalsIgnoreCase(args[1])) {
       return String.valueOf(countSkills());
     }
 
     if ("adaptations".equals(root) && args.length > 1 && "count".equalsIgnoreCase(args[1])) {
       return String.valueOf(countAdaptations());
+    }
+
+    if ("mutations".equals(root) && args.length > 1 && "count".equalsIgnoreCase(args[1])) {
+      return String.valueOf(MutationType.values().length);
     }
 
     if (args.length >= 2) {
@@ -261,6 +275,102 @@ public class PapiExpansion extends PlaceholderExpansion {
           String.valueOf(canClaimTarget(playerData, line, adaptation, currentLevel, nextLevel));
       default -> "0";
     };
+  }
+
+  private String resolveMutationAttribute(UUID playerId, String[] args) {
+    MutationSVC service = MutationSVC.get();
+    if (service == null || service.getManager() == null) {
+      return "0";
+    }
+
+    MutationManager manager = service.getManager();
+    MutationSnapshot snapshot = manager.snapshot(playerId);
+    String attribute = join(args, 1).toLowerCase(LOCALE);
+    String common = resolveCommonMutationAttribute(manager, snapshot, attribute);
+    if (common != null) {
+      return common;
+    }
+
+    for (MutationType type : MutationType.values()) {
+      String prefix = type.id().toLowerCase(LOCALE).replace('-', '_');
+      if (!attribute.startsWith(prefix + "_")) {
+        continue;
+      }
+      return resolveMutationTypeAttribute(
+          snapshot,
+          type,
+          attribute.substring(prefix.length() + 1)
+      );
+    }
+    return "0";
+  }
+
+  private String resolveCommonMutationAttribute(
+      MutationManager manager,
+      MutationSnapshot snapshot,
+      String attribute
+  ) {
+    return switch (attribute) {
+      case "enabled", "feature_enabled", "experimental_enabled" -> String.valueOf(manager.getConfig().isEnabled());
+      case "slot_1", "slot_one", "slot_1_name", "slot_one_name" ->
+          mutationDisplayName(manager, snapshot.slotOneId());
+      case "slot_2", "slot_two", "slot_2_name", "slot_two_name" ->
+          mutationDisplayName(manager, snapshot.slotTwoId());
+      case "slot_1_id", "slot_one_id" -> emptyIfNull(snapshot.slotOneId());
+      case "slot_2_id", "slot_two_id" -> emptyIfNull(snapshot.slotTwoId());
+      case "slot_1_unlocked", "slot_one_unlocked" -> String.valueOf(snapshot.slotOneUnlocked());
+      case "slot_2_unlocked", "slot_two_unlocked" -> String.valueOf(snapshot.slotTwoUnlocked());
+      case "perfect", "perfect_adaptation" -> String.valueOf(snapshot.perfect());
+      case "cooperative", "cooperative_opt_in" -> String.valueOf(snapshot.cooperativeOptIn());
+      case "expressed_count" -> String.valueOf(snapshot.expressed().size());
+      case "count" -> String.valueOf(MutationType.values().length);
+      default -> null;
+    };
+  }
+
+  private String resolveMutationTypeAttribute(
+      MutationSnapshot snapshot,
+      MutationType type,
+      String attribute
+  ) {
+    MutationState state = snapshot.state(type);
+    return switch (attribute) {
+      case "id" -> type.id();
+      case "name", "display_name", "displayname" -> type.displayName();
+      case "state" -> state.name().toLowerCase(LOCALE);
+      case "reason" -> emptyIfNull(snapshot.reason(type));
+      case "qualification_reason" -> emptyIfNull(snapshot.qualificationReason(type));
+      case "expressed" -> String.valueOf(snapshot.expressed().contains(type));
+      case "qualified", "qualification" -> String.valueOf(snapshot.qualified(type));
+      case "qualifying_adaptations" -> String.join(",", snapshot.qualifyingAdaptations(type));
+      case "selected", "slot" -> String.valueOf(selectedMutationSlot(snapshot, type));
+      case "first_domain" -> type.firstDomain().name().toLowerCase(LOCALE);
+      case "second_domain" -> type.secondDomain().name().toLowerCase(LOCALE);
+      case "pvp_relevant" -> String.valueOf(type.pvpRelevant());
+      default -> "0";
+    };
+  }
+
+  private int selectedMutationSlot(MutationSnapshot snapshot, MutationType type) {
+    if (type.id().equalsIgnoreCase(snapshot.slotOneId())) {
+      return 1;
+    }
+    if (type.id().equalsIgnoreCase(snapshot.slotTwoId())) {
+      return 2;
+    }
+    return 0;
+  }
+
+  private String mutationDisplayName(MutationManager manager, String mutationId) {
+    if (mutationId == null || mutationId.isBlank()) {
+      return "";
+    }
+    MutationType type = manager.find(mutationId);
+    return type == null ? mutationId : type.displayName();
+  }
+
+  private String emptyIfNull(String value) {
+    return value == null ? "" : value;
   }
 
   private boolean canClaimTarget(PlayerData playerData, PlayerSkillLine line, Adaptation<?> adaptation, int currentLevel, int targetLevel) {

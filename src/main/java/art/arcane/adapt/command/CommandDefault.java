@@ -7,6 +7,8 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.skill.SkillRegistry;
+import art.arcane.adapt.service.HotloadSVC;
+import art.arcane.adapt.service.MutationSVC;
 import art.arcane.adapt.util.command.FConst;
 import art.arcane.adapt.util.director.context.AdaptationListingHandler;
 import art.arcane.volmlib.util.director.DirectorOrigin;
@@ -56,6 +58,7 @@ public class CommandDefault {
       FConst.error("Failed to reload the default config for " + skill.getName()).send(BukkitDirectorContext.sender());
       return;
     }
+    reconcileMutations();
     FConst.success("Reset config for skill " + skill.getName() + " to defaults.").send(BukkitDirectorContext.sender());
   }
 
@@ -110,6 +113,7 @@ public class CommandDefault {
       FConst.error("Failed to reload the default config for " + adaptation.getName()).send(BukkitDirectorContext.sender());
       return;
     }
+    reconcileMutations();
     FConst.success("Reset config for adaptation " + adaptation.getName() + " to defaults.").send(BukkitDirectorContext.sender());
   }
 
@@ -183,6 +187,7 @@ public class CommandDefault {
         reset += configCount;
       }
     }
+    reconcileMutations();
 
     FConst.success("Archived " + archived + " config files to config-archive/" + timestamp + "/").send(BukkitDirectorContext.sender());
     FConst.success("Reset " + reset + " configs to defaults.").send(BukkitDirectorContext.sender());
@@ -196,6 +201,13 @@ public class CommandDefault {
     } catch (IOException e) {
       Adapt.warn("Failed to archive " + source.getPath() + ": " + e.getMessage());
       return false;
+    }
+  }
+
+  private void reconcileMutations() {
+    MutationSVC service = MutationSVC.get();
+    if (service != null) {
+      HotloadSVC.reconcileOnlineMutations(service.getManager());
     }
   }
 }

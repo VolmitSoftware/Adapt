@@ -38,6 +38,7 @@ public class CommandAdapt {
   private CommandClear clear;
   private CommandReset reset;
   private CommandDefault defaults;
+  private CommandMutation mutations;
 
   @Director(description = "Boost Target player Experience gain.")
   public void boost(

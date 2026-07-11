@@ -24,6 +24,8 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.content.mutation.runtime.MutationUtilityTag;
+import art.arcane.adapt.service.MutationRuntimeSVC;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
@@ -175,20 +177,48 @@ public class TragoulCurseOfFrailty extends SimpleAdaptation<TragoulCurseOfFrailt
       return;
     }
 
-    target.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, duration, weaknessAmplifier, true, true, true), true);
+    boolean utilityApplied = target.addPotionEffect(new PotionEffect(
+        PotionEffectType.WEAKNESS,
+        duration,
+        weaknessAmplifier,
+        true,
+        true,
+        true
+    ), true);
     if (heavy) {
-      target.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, duration, slownessAmplifier, true, true, true), true);
+      utilityApplied |= target.addPotionEffect(new PotionEffect(
+          PotionEffectType.SLOWNESS,
+          duration,
+          slownessAmplifier,
+          true,
+          true,
+          true
+      ), true);
     }
     playCurse(target, heavy);
-    J.runEntity(player, () -> rewardCurseOwnerOwned(player));
+    boolean applied = utilityApplied;
+    J.runEntity(player, () -> finishCurseOwnerOwned(player, target, heavy, applied));
   }
 
-  private void rewardCurseOwnerOwned(Player player) {
+  private void finishCurseOwnerOwned(Player player, LivingEntity target, boolean heavy, boolean utilityApplied) {
     if (!player.isOnline()) {
       return;
     }
     addStat(player, "tragoul.curse-of-frailty.curses-applied", 1);
     xp(player, getConfig().xpPerCurse);
+    if (!utilityApplied) {
+      return;
+    }
+    MutationRuntimeSVC runtime = MutationRuntimeSVC.get();
+    if (runtime != null) {
+      runtime.emitAnomalyUtility(
+          player,
+          target,
+          MutationUtilityTag.DEBUFF,
+          heavy ? 1D : 0.75D,
+          false
+      );
+    }
   }
 
   private boolean reserveCooldown(UUID targetId, long now, long cooldownUntil) {

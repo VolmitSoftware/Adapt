@@ -30,6 +30,7 @@ import art.arcane.adapt.api.xp.SpatialXP;
 import art.arcane.adapt.api.xp.XP;
 import art.arcane.adapt.api.xp.XPMultiplier;
 import art.arcane.adapt.content.gui.SkillsGui;
+import art.arcane.adapt.service.MutationSVC;
 import art.arcane.adapt.content.item.ExperienceOrb;
 import art.arcane.adapt.content.item.KnowledgeOrb;
 import art.arcane.adapt.util.common.format.C;
@@ -405,7 +406,7 @@ public class AdaptServer extends TickedObject {
       SQLManager sqlManager = Adapt.instance.getSqlManager();
       String sqlData = sqlManager == null ? null : sqlManager.fetchData(player);
       if (sqlData != null) {
-        PlayerData data = Json.fromJson(sqlData, PlayerData.class);
+        PlayerData data = PlayerData.fromJson(sqlData);
         if (data != null) {
           prefetchedPlayerData.put(player, data);
           return data;
@@ -416,7 +417,7 @@ public class AdaptServer extends TickedObject {
     File file = new File(Adapt.instance.getDataFolder("data", "players"), player + ".json");
     if (file.exists()) {
       try {
-        PlayerData data = Json.fromJson(IO.readAll(file), PlayerData.class);
+        PlayerData data = PlayerData.fromJson(IO.readAll(file));
         if (data != null) {
           prefetchedPlayerData.put(player, data);
           return data;
@@ -493,6 +494,7 @@ public class AdaptServer extends TickedObject {
       levels.put(adaptationName, level);
       playersByLearnedAdaptation.computeIfAbsent(adaptationName, unused -> ConcurrentHashMap.newKeySet()).add(playerId);
       learnedAdaptPlayerSnapshots.remove(adaptationName);
+      reconcileMutations(player);
       return;
     }
 
@@ -505,6 +507,7 @@ public class AdaptServer extends TickedObject {
       learnedAdaptationsByPlayer.remove(playerId, learned);
     }
     removeLearnedAdaptationPlayer(adaptationName, playerId);
+    reconcileMutations(player);
   }
 
   public void refreshLearnedAdaptations(AdaptPlayer player) {
@@ -552,12 +555,24 @@ public class AdaptServer extends TickedObject {
     if (indexed.isEmpty()) {
       learnedAdaptationsByPlayer.remove(playerId, indexed);
     }
+    reconcileMutations(player);
+  }
+
+  private void reconcileMutations(AdaptPlayer player) {
+    MutationSVC mutationService = MutationSVC.get();
+    if (mutationService != null && mutationService.getManager() != null) {
+      mutationService.getManager().reconcile(player);
+    }
   }
 
   @NonNull
   public Optional<PlayerData> getPlayerData(@NonNull UUID uuid) {
     return Optional.ofNullable(players.get(uuid))
         .map(AdaptPlayer::getData);
+  }
+
+  public AdaptPlayer getOnlineAdaptPlayer(UUID playerId) {
+    return playerId == null ? null : onlineAdaptPlayers.get(playerId);
   }
 
   public AdaptPlayer getPlayer(Player p) {

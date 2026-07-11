@@ -3,10 +3,12 @@ package art.arcane.adapt.service;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.mutation.MutationManager;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.skill.SkillRegistry;
 import art.arcane.adapt.api.tick.TickedObject;
 import art.arcane.adapt.content.gui.ConfigGui;
+import art.arcane.adapt.content.gui.MutationGui;
 import art.arcane.adapt.content.gui.SkillsGui;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
@@ -38,12 +40,14 @@ import static art.arcane.adapt.util.director.context.AdaptationListingHandler.in
 public class HotloadSVC implements AdaptService {
   private static final long WATCHER_POLL_MS = 500;
   private static final int MAX_DIFF_MESSAGES_PER_FILE = 12;
+  private static final int MUTATION_RECONCILIATION_BATCH_SIZE = 32;
 
   private TickedObject configTicker;
   private File adaptConfigFile;
   private File adaptConfigLegacyFile;
   private File modelsFile;
   private File modelsLegacyFile;
+  private File mutationsConfigFile;
   private File skillsFolder;
   private File adaptationsFolder;
   private final ConfigHotloadEngine hotloadEngine = new ConfigHotloadEngine(
@@ -59,11 +63,12 @@ public class HotloadSVC implements AdaptService {
     adaptConfigLegacyFile = Adapt.instance.getDataFile("adapt", "adapt.json");
     modelsFile = Adapt.instance.getDataFile("adapt", "models.toml");
     modelsLegacyFile = Adapt.instance.getDataFile("adapt", "models.json");
+    mutationsConfigFile = Adapt.instance.getDataFile("adapt", "mutations.toml");
     skillsFolder = Adapt.instance.getDataFolder("adapt", "skills");
     adaptationsFolder = Adapt.instance.getDataFolder("adapt", "adaptations");
     hotloadEngine.configure(
         WATCHER_POLL_MS,
-        List.of(adaptConfigFile, adaptConfigLegacyFile, modelsFile, modelsLegacyFile),
+        List.of(adaptConfigFile, adaptConfigLegacyFile, modelsFile, modelsLegacyFile, mutationsConfigFile),
         List.of(skillsFolder, adaptationsFolder)
     );
     Adapt.info("Config hotload watcher enabled for all /adapt/*.json and /adapt/*.toml files.");
@@ -124,10 +129,15 @@ public class HotloadSVC implements AdaptService {
         boolean ok = AdaptConfig.reload();
         if (ok) {
           refreshGlobalRuntimeSettings();
+          reconcileCurrentMutationQualification();
         } else {
           Adapt.warn("Skipped hotload for " + file.getPath() + " due to invalid config.");
         }
         return ok;
+      }
+
+      if (isMutationsConfigFile(file)) {
+        return reloadMutationsConfig(file);
       }
 
       if (isSkillConfigFile(file)) {
@@ -159,6 +169,7 @@ public class HotloadSVC implements AdaptService {
     boolean ok = registry.hotReloadSkillConfig(skillName);
     if (ok) {
       initializeAdaptationListings();
+      reconcileCurrentMutationQualification();
     } else {
       Adapt.warn("Skipped hotload for " + file.getPath() + " due to invalid skill config.");
     }
@@ -181,6 +192,7 @@ public class HotloadSVC implements AdaptService {
         boolean ok = registry.hotReloadAdaptationConfig(adaptationName);
         if (ok) {
           initializeAdaptationListings();
+          reconcileCurrentMutationQualification();
         } else {
           Adapt.warn("Skipped hotload for " + file.getPath() + " due to invalid adaptation config.");
         }
@@ -193,6 +205,43 @@ public class HotloadSVC implements AdaptService {
 
   private boolean reloadModelsConfig(File file) {
     return CustomModel.reloadFromDisk(true);
+  }
+
+  private boolean reloadMutationsConfig(File file) {
+    MutationSVC mutationService = MutationSVC.get();
+    if (mutationService == null || !mutationService.reload()) {
+      Adapt.warn("Skipped hotload for " + file.getPath() + " due to invalid Mutation config.");
+      return false;
+    }
+    reconcileOnlineMutations(mutationService.getManager());
+    return true;
+  }
+
+  public static void reconcileOnlineMutations(MutationManager manager) {
+    if (manager == null || !manager.getConfig().isEnabled()) {
+      return;
+    }
+    List<Player> players = new ArrayList<>(Adapt.instance.getAdaptServer().getOnlinePlayerSnapshot());
+    for (int start = 0; start < players.size(); start += MUTATION_RECONCILIATION_BATCH_SIZE) {
+      int from = start;
+      int to = Math.min(players.size(), start + MUTATION_RECONCILIATION_BATCH_SIZE);
+      int delay = start / MUTATION_RECONCILIATION_BATCH_SIZE;
+      J.s(() -> {
+        for (int index = from; index < to; index++) {
+          Player player = players.get(index);
+          if (player != null && player.isOnline()) {
+            J.runEntity(player, () -> manager.reconcile(player));
+          }
+        }
+      }, delay);
+    }
+  }
+
+  private void reconcileCurrentMutationQualification() {
+    MutationSVC mutationService = MutationSVC.get();
+    if (mutationService != null) {
+      reconcileOnlineMutations(mutationService.getManager());
+    }
   }
 
   private void refreshGlobalRuntimeSettings() {
@@ -245,6 +294,10 @@ public class HotloadSVC implements AdaptService {
     return sameFile(file, modelsFile) || sameFile(file, modelsLegacyFile);
   }
 
+  private boolean isMutationsConfigFile(File file) {
+    return sameFile(file, mutationsConfigFile);
+  }
+
   private boolean isSkillConfigFile(File file) {
     return isDirectChild(skillsFolder, file) && ConfigFileSupport.isSupportedConfigFile(file);
   }
@@ -256,6 +309,7 @@ public class HotloadSVC implements AdaptService {
   private boolean isManagedConfigFile(File file) {
     return isAdaptConfigFile(file)
         || isModelsConfigFile(file)
+        || isMutationsConfigFile(file)
         || isSkillConfigFile(file)
         || isAdaptationConfigFile(file);
   }
@@ -303,6 +357,7 @@ public class HotloadSVC implements AdaptService {
     addIfManaged(files, added, adaptConfigLegacyFile);
     addIfManaged(files, added, modelsFile);
     addIfManaged(files, added, modelsLegacyFile);
+    addIfManaged(files, added, mutationsConfigFile);
 
     addDirectChildren(skillsFolder, files, added);
     addDirectChildren(adaptationsFolder, files, added);
@@ -459,6 +514,11 @@ public class HotloadSVC implements AdaptService {
 
     if (tag.startsWith("config/")) {
       ConfigGui.reopenFromTag(player, tag);
+      return;
+    }
+
+    if (tag.startsWith("mutations")) {
+      MutationGui.reopenFromTag(player, tag);
       return;
     }
 

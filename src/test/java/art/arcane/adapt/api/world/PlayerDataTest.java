@@ -1,6 +1,7 @@
 package art.arcane.adapt.api.world;
 
 import art.arcane.adapt.AdaptTestBase;
+import art.arcane.adapt.api.mutation.PlayerMutationData;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -115,6 +116,67 @@ class PlayerDataTest extends AdaptTestBase {
 
         assertThat(axes.recoveryCalls).isEqualTo(1);
         assertThat(swords.recoveryCalls).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("mutation state preserves discovery order and unknown ids through json")
+    void mutationStateRoundTripsWithoutPruning() {
+        PlayerData data = new PlayerData();
+        PlayerMutationData mutations = data.getMutationData();
+        mutations.discover("gale-lung");
+        mutations.discover("future-disabled-id");
+        mutations.setSlotOneId("gale-lung");
+        mutations.setSlotTwoId("future-disabled-id");
+        mutations.setSlotOneReadyAt(1234L);
+        mutations.setSlotTwoReadyAt(5678L);
+        mutations.setCooperativeOptIn(true);
+        mutations.setDeepbloodIchor(42D);
+
+        PlayerData restored = PlayerData.fromJson(data.toJson(false));
+
+        assertThat(restored).isNotNull();
+        assertThat(restored.getMutationData().getDiscovered())
+            .containsExactly("gale-lung", "future-disabled-id");
+        assertThat(restored.getMutationData().getSlotOneId()).isEqualTo("gale-lung");
+        assertThat(restored.getMutationData().getSlotTwoId()).isEqualTo("future-disabled-id");
+        assertThat(restored.getMutationData().getSlotOneReadyAt()).isEqualTo(1234L);
+        assertThat(restored.getMutationData().getSlotTwoReadyAt()).isEqualTo(5678L);
+        assertThat(restored.getMutationData().isCooperativeOptIn()).isTrue();
+        assertThat(restored.getMutationData().getDeepbloodIchor()).isEqualTo(42D);
+    }
+
+    @Test
+    @DisplayName("legacy player json receives empty mutation state while json null stays invalid")
+    void legacyJsonNormalizesMutationStateWithoutMaskingNull() {
+        PlayerData restored = PlayerData.fromJson("{\"masterXp\":1}");
+        PlayerData legacyMutation = PlayerData.fromJson(
+            "{\"mutationData\":{\"discovered\":null,\"slotOneId\":\"GALE_LUNG\",\"formulaSigils\":null}}"
+        );
+
+        assertThat(restored).isNotNull();
+        assertThat(restored.getMutationData()).isNotNull();
+        assertThat(restored.getMutationData().getDiscovered()).isEmpty();
+        assertThat(legacyMutation).isNotNull();
+        assertThat(legacyMutation.getMutationData().getDiscovered()).isEmpty();
+        assertThat(legacyMutation.getMutationData().getSlotOneId()).isEqualTo("gale-lung");
+        assertThat(legacyMutation.getMutationData().getFormulaSigils()).isEmpty();
+        assertThat(PlayerData.fromJson("null")).isNull();
+    }
+
+    @Test
+    @DisplayName("adaptation and xp clears retain mutation selections while clear all removes them")
+    void mutationResetSemanticsMatchProgressionScope() {
+        PlayerData data = new PlayerData();
+        data.getMutationData().discover("deepblood");
+        data.getMutationData().setSlotOneId("deepblood");
+
+        data.clearAdaptations();
+        assertThat(data.getMutationData().getSlotOneId()).isEqualTo("deepblood");
+        data.clearXp();
+        assertThat(data.getMutationData().getSlotOneId()).isEqualTo("deepblood");
+        data.clearAll();
+        assertThat(data.getMutationData().getSlotOneId()).isEmpty();
+        assertThat(data.getMutationData().getDiscovered()).isEmpty();
     }
 
     private static final class CountingSkillLine extends PlayerSkillLine {

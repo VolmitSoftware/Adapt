@@ -108,6 +108,9 @@ public class AdaptPlayer extends TickedObject {
       if (pendingSave != null) {
         try {
           PlayerData parsed = PlayerData.fromJson(pendingSave);
+          if (parsed == null) {
+            throw new IllegalArgumentException("Pending player data JSON resolved to null");
+          }
           LOAD_FAILURE_GUARD.remove(uuid);
           return parsed;
         } catch (Throwable error) {
@@ -159,6 +162,9 @@ public class AdaptPlayer extends TickedObject {
         if (sqlData != null) {
           try {
             PlayerData parsed = PlayerData.fromJson(sqlData);
+            if (parsed == null) {
+              throw new IllegalArgumentException("SQL player data JSON resolved to null");
+            }
             LOAD_FAILURE_GUARD.remove(uuid);
             return parsed;
           } catch (Throwable e) {
@@ -292,6 +298,10 @@ public class AdaptPlayer extends TickedObject {
     } else {
       J.attempt(() -> IO.writeAll(playerDataFile, json));
     }
+  }
+
+  public void saveNow() {
+    save();
   }
 
   @Override

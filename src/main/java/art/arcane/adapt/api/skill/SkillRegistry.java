@@ -25,6 +25,7 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.VelocityBurstRuntime;
 import art.arcane.adapt.api.advancement.AdvancementManager;
 import art.arcane.adapt.api.minion.MinionBurden;
+import art.arcane.adapt.api.mutation.MutationManager;
 import art.arcane.adapt.api.potion.BrewingManager;
 import art.arcane.adapt.api.protection.Protector;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
@@ -55,6 +56,7 @@ import art.arcane.adapt.content.skill.SkillSwords;
 import art.arcane.adapt.content.skill.SkillTaming;
 import art.arcane.adapt.content.skill.SkillTragOul;
 import art.arcane.adapt.content.skill.SkillUnarmed;
+import art.arcane.adapt.service.MutationSVC;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
@@ -175,7 +177,7 @@ public class SkillRegistry extends TickedObject {
     return true;
   }
 
-  @EventHandler(priority = EventPriority.MONITOR)
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(PlayerInteractEvent e) {
     Player p = e.getPlayer();
 
@@ -193,6 +195,11 @@ public class SkillRegistry extends TickedObject {
         (p.getInventory().getItemInOffHand().getType().equals(Material.AIR) || !p.getInventory().getItemInOffHand().getType().isBlock());
 
     if (isAdaptActivator) {
+      MutationSVC mutationService = MutationSVC.get();
+      MutationManager mutationManager = mutationService == null ? null : mutationService.getManager();
+      if (mutationManager != null && mutationManager.getConfig().isEnabled()) {
+        mutationManager.authorizeBookshelf(p, e.getClickedBlock().getLocation());
+      }
       SoundPlayer spw = SoundPlayer.of(e.getClickedBlock().getWorld());
       spw.play(e.getClickedBlock().getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.5f, 0.72f);
       spw.play(e.getClickedBlock().getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 0.35f, 0.755f);

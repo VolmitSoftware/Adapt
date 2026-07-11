@@ -189,7 +189,7 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(PlayerToggleSneakEvent e) {
     Player p = e.getPlayer();
-    if (e.isSneaking()) {
+    if (e.isSneaking() || p.hasMetadata("adapt-mutation-exposed")) {
       return;
     }
 
@@ -322,6 +322,7 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
     if (!state.active.get()
         || activeDecoys.get(owner.getUniqueId()) != state
         || !owner.isOnline()
+        || owner.hasMetadata("adapt-mutation-exposed")
         || state.expiresAt <= now) {
       terminateDecoy(state, true);
       return;

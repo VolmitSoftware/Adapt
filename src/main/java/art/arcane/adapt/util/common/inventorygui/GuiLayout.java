@@ -3,19 +3,34 @@ package art.arcane.adapt.util.common.inventorygui;
 public final class GuiLayout {
   public static final int WIDTH = 9;
   public static final int MAX_ROWS = 6;
+  private static final int[][] CENTERED_POSITIONS = {
+      {},
+      {0},
+      {-1, 1},
+      {-1, 0, 1},
+      {-2, -1, 1, 2},
+      {-2, -1, 0, 1, 2},
+      {-3, -2, -1, 1, 2, 3},
+      {-3, -2, -1, 0, 1, 2, 3},
+      {-4, -3, -2, -1, 1, 2, 3, 4},
+      {-4, -3, -2, -1, 0, 1, 2, 3, 4}
+  };
+  private static final int[][] FIVE_ROW_POSITIONS = {
+      {},
+      {2},
+      {1, 3},
+      {1, 2, 3},
+      {0, 1, 3, 4},
+      {0, 1, 2, 3, 4}
+  };
 
   private GuiLayout() {
   }
 
   public static PagePlan plan(int totalItems, boolean reserveNavigationRow) {
     int items = Math.max(0, totalItems);
-
     boolean navigation = reserveNavigationRow;
     int maxContentRows = MAX_ROWS - (navigation ? 1 : 0);
-    if (maxContentRows < 1) {
-      maxContentRows = 1;
-    }
-
     if (items > maxContentRows * WIDTH) {
       navigation = true;
       maxContentRows = MAX_ROWS - 1;
@@ -51,8 +66,19 @@ public final class GuiLayout {
   public static int centeredPosition(int indexInRow, int rowCount) {
     int count = Math.max(1, Math.min(WIDTH, rowCount));
     int index = Math.max(0, Math.min(count - 1, indexInRow));
-    int start = -(count / 2);
-    return start + index;
+    return CENTERED_POSITIONS[count][index];
+  }
+
+  public static int spacedFivePosition(int indexInRow, int rowCount) {
+    int count = Math.max(1, Math.min(5, rowCount));
+    int index = Math.max(0, Math.min(count - 1, indexInRow));
+    return -(count - 1) + (index * 2);
+  }
+
+  public static int centeredFiveRow(int index, int rowCount) {
+    int count = Math.max(1, Math.min(5, rowCount));
+    int safeIndex = Math.max(0, Math.min(count - 1, index));
+    return FIVE_ROW_POSITIONS[count][safeIndex];
   }
 
   public record PagePlan(

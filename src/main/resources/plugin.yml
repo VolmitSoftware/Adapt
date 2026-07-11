@@ -43,6 +43,57 @@ permissions:
   adapt.effects:
     description: Allows toggling Adapt effect visibility for yourself
     default: true
+  adapt.mutations:
+    description: Allows using personal experimental Mutations after the server opts in
+    default: true
+  adapt.mutations.admin:
+    description: Allows inspecting and managing experimental Mutation state
+    default: op
+  adapt.use.mutation.gale-lung:
+    description: Allows using the Gale Lung Mutation
+    default: true
+  adapt.use.mutation.bastion-spine:
+    description: Allows using the Bastion Spine Mutation
+    default: true
+  adapt.use.mutation.verdant-molt:
+    description: Allows using the Verdant Molt Mutation
+    default: true
+  adapt.use.mutation.temperbound:
+    description: Allows using the Temperbound Mutation
+    default: true
+  adapt.use.mutation.paradox-scar:
+    description: Allows using the Paradox Scar Mutation
+    default: true
+  adapt.use.mutation.arsenal-cortex:
+    description: Allows using the Arsenal Cortex Mutation
+    default: true
+  adapt.use.mutation.packmind:
+    description: Allows using the Packmind Mutation
+    default: true
+  adapt.use.mutation.trophy-crucible:
+    description: Allows using the Trophy Crucible Mutation
+    default: true
+  adapt.use.mutation.umbral-echo:
+    description: Allows using the Umbral Echo Mutation
+    default: true
+  adapt.use.mutation.living-lattice:
+    description: Allows using the Living Lattice Mutation
+    default: true
+  adapt.use.mutation.masterwork-bond:
+    description: Allows using the Masterwork Bond Mutation
+    default: true
+  adapt.use.mutation.deepblood:
+    description: Allows using the Deepblood Mutation
+    default: true
+  adapt.use.mutation.mycelial-nerve:
+    description: Allows using the Mycelial Nerve Mutation
+    default: true
+  adapt.use.mutation.gravebloom:
+    description: Allows using the Gravebloom Mutation
+    default: true
+  adapt.use.mutation.resonant-formula:
+    description: Allows using the Resonant Formula Mutation
+    default: true
   adapt.config:
     description: Legacy alias for adapt.configurator
     default: false

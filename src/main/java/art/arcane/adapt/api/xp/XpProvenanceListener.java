@@ -25,6 +25,8 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockFertilizeEvent;
+import org.bukkit.event.block.BlockPistonExtendEvent;
+import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 
 import java.util.List;
@@ -34,10 +36,6 @@ public class XpProvenanceListener implements Listener {
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(BlockPlaceEvent e) {
-    if (!AdaptConfig.get().getXpIntegrity().isProvenanceEnabled()) {
-      return;
-    }
-
     XpProvenance.recordPlacement(e.getBlock());
   }
 
@@ -63,5 +61,15 @@ public class XpProvenanceListener implements Listener {
     for (int i = 0; i < limit; i++) {
       XpProvenance.recordBonemeal(blocks.get(i).getBlock());
     }
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(BlockPistonExtendEvent e) {
+    XpProvenance.transferPistonMovement(e.getBlocks(), e.getDirection());
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(BlockPistonRetractEvent e) {
+    XpProvenance.transferPistonMovement(e.getBlocks(), e.getDirection().getOppositeFace());
   }
 }

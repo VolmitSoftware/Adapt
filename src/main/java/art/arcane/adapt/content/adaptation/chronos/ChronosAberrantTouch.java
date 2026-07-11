@@ -26,6 +26,8 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.content.mutation.runtime.MutationUtilityTag;
+import art.arcane.adapt.service.MutationRuntimeSVC;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -126,7 +128,14 @@ public class ChronosAberrantTouch extends SimpleAdaptation<ChronosAberrantTouch.
     int newAmplifier = Math.min(amplifierCap, currentAmplifier + 1);
     int newDuration = Math.min(durationCap, currentDuration + getDurationAddedTicks(level));
 
-    target.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, Math.max(20, newDuration), Math.max(0, newAmplifier), true, true, true), true);
+    boolean utilityApplied = target.addPotionEffect(new PotionEffect(
+        PotionEffectType.SLOWNESS,
+        Math.max(20, newDuration),
+        Math.max(0, newAmplifier),
+        true,
+        true,
+        true
+    ), true);
     addStat(attacker, "chronos.aberrant-touch.slowness-stacks-applied", 1);
 
     StackState state = targetStacks.getOrDefault(target.getUniqueId(), new StackState(0, 0L));
@@ -134,7 +143,14 @@ public class ChronosAberrantTouch extends SimpleAdaptation<ChronosAberrantTouch.
     boolean rooted = stacks >= getConfig().rootAtStacks;
     int chargeStacks = stacks;
     if (rooted) {
-      target.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, getConfig().rootDurationTicks, getConfig().rootAmplifier, true, true, true), true);
+      utilityApplied |= target.addPotionEffect(new PotionEffect(
+          PotionEffectType.SLOWNESS,
+          getConfig().rootDurationTicks,
+          getConfig().rootAmplifier,
+          true,
+          true,
+          true
+      ), true);
       target.setVelocity(new Vector());
       stacks = 0;
       if (AdaptConfig.get().isAdvancements() && !getPlayer(attacker).getData().isGranted("challenge_chronos_aberrant_frozen")) {
@@ -147,8 +163,18 @@ public class ChronosAberrantTouch extends SimpleAdaptation<ChronosAberrantTouch.
       ChronosSoundFX.playTouchProc(attacker, target.getLocation());
     }
     emitTouchFx(target, Math.max(0, newAmplifier), rooted, chargeStacks);
+    if (utilityApplied) {
+      emitFormulaUtility(attacker, target, rooted ? 1D : 0.6D);
+    }
     xp(attacker, attacker.getLocation(), getConfig().xpPerProc + (getConfig().xpPerLevel * level));
     cooldowns.mark(attacker.getUniqueId());
+  }
+
+  private void emitFormulaUtility(Player attacker, LivingEntity target, double strength) {
+    MutationRuntimeSVC runtime = MutationRuntimeSVC.get();
+    if (runtime != null) {
+      runtime.emitAnomalyUtility(attacker, target, MutationUtilityTag.PINNING, strength, false);
+    }
   }
 
   private void emitTouchFx(LivingEntity target, int amplifier, boolean rooted, int stacks) {

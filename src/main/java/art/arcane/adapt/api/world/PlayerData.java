@@ -23,12 +23,14 @@ import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.notification.ActionBarNotification;
 import art.arcane.adapt.api.notification.SoundNotification;
 import art.arcane.adapt.api.notification.TitleNotification;
+import art.arcane.adapt.api.mutation.PlayerMutationData;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.xp.XP;
 import art.arcane.adapt.api.xp.XPMultiplier;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.io.Json;
+import art.arcane.adapt.service.MutationSVC;
 import art.arcane.volmlib.util.collection.KList;
 import art.arcane.volmlib.util.collection.KMap;
 import art.arcane.volmlib.util.collection.KSet;
@@ -70,6 +72,7 @@ public class PlayerData {
   private double masterXp = 1;
   private double lastMasterXp = 0;
   private volatile boolean effectsEnabled = true;
+  private PlayerMutationData mutationData = new PlayerMutationData();
   @Getter(AccessLevel.NONE)
   @Setter(AccessLevel.NONE)
   @EqualsAndHashCode.Exclude
@@ -77,7 +80,19 @@ public class PlayerData {
   private transient volatile AdaptPlayer runtimeOwner;
 
   public static PlayerData fromJson(String json) {
-    return Json.fromJson(json, PlayerData.class);
+    PlayerData data = Json.fromJson(json, PlayerData.class);
+    if (data == null) {
+      return null;
+    }
+    data.getMutationData().normalize();
+    return data;
+  }
+
+  public PlayerMutationData getMutationData() {
+    if (mutationData == null) {
+      mutationData = new PlayerMutationData();
+    }
+    return mutationData;
   }
 
   public void giveMasterXp(double xp) {
@@ -212,6 +227,11 @@ public class PlayerData {
               .group("power")
               .title(C.GOLD + "" + Form.f(level * AdaptConfig.get().getPowerPerLevel(), 0) + C.GRAY + " " + Localizer.dLocalize("snippets.gui.max_ability_power")) // I'm sorry I missed this!
               .build());
+
+      MutationSVC mutationService = MutationSVC.get();
+      if (mutationService != null && mutationService.getManager() != null) {
+        mutationService.onLevelChanged(p, oldLevel, level);
+      }
 
     }
   }
@@ -377,6 +397,11 @@ public class PlayerData {
     seenBlocks = new Discovery<>();
   }
 
+  public void clearMutations() {
+    getMutationData().clearAll();
+    refreshLearnedIndex();
+  }
+
   public void pruneAdaptationsForPowerBudget() {
     int usedPower = getUsedPower();
     int maxPower = getMaxPower();
@@ -429,6 +454,7 @@ public class PlayerData {
     advancements.clear();
     multipliers.clear();
     wisdom = 0;
+    clearMutations();
   }
 
   public String toJson(boolean raw) {
