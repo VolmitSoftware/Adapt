@@ -1251,23 +1251,23 @@ lore = ["Hồi Máu Tức Thì + Thạch Anh = Thuốc Hấp Thụ (60 giây)", 
 [brewing.fatigue]
 name = "Mệt Mỏi Đóng Chai"
 description = "Làm suy yếu cơ thể!"
-lore1 = "Thuốc Yếu Đuối + Bóng Slime = Thuốc Mệt Mỏi (30 giây)"
-lore2 = "Thuốc Yếu Đuối + Khối Slime = Thuốc Mệt Mỏi-2 (15 giây)"
-lore = ["Thuốc Yếu Đuối + Bóng Slime = Thuốc Mệt Mỏi (30 giây)", "Thuốc Yếu Đuối + Khối Slime = Thuốc Mệt Mỏi-2 (15 giây)"]
+lore1 = "Thuốc Yếu Đuối + Bóng Slime = Thuốc Mệt Mỏi (60 giây)"
+lore2 = "Thuốc Yếu Đuối + Khối Slime = Thuốc Mệt Mỏi-2 (30 giây)"
+lore = ["Thuốc Yếu Đuối + Bóng Slime = Thuốc Mệt Mỏi (60 giây)", "Thuốc Yếu Đuối + Khối Slime = Thuốc Mệt Mỏi-2 (30 giây)"]
 
 [brewing.hunger]
 name = "Đói Đóng Chai"
 description = "Cho kẻ ăn không biết no!"
-lore1 = "Thuốc Vụng Về + Thịt Thối = Thuốc Đói (30 giây)"
-lore2 = "Thuốc Yếu Đuối + Thịt Thối = Thuốc Đói-3 (15 giây)"
-lore = ["Thuốc Vụng Về + Thịt Thối = Thuốc Đói (30 giây)", "Thuốc Yếu Đuối + Thịt Thối = Thuốc Đói-3 (15 giây)"]
+lore1 = "Thuốc Vụng Về + Thịt Thối = Thuốc Đói (60 giây)"
+lore2 = "Thuốc Yếu Đuối + Thịt Thối = Thuốc Đói-3 (30 giây)"
+lore = ["Thuốc Vụng Về + Thịt Thối = Thuốc Đói (60 giây)", "Thuốc Yếu Đuối + Thịt Thối = Thuốc Đói-3 (30 giây)"]
 
 [brewing.nausea]
 name = "Buồn Nôn Đóng Chai"
 description = "Bạn làm tôi phát ốm!"
-lore1 = "Thuốc Vụng Về + Nấm Nâu = Thuốc Buồn Nôn (16 giây)"
-lore2 = "Thuốc Vụng Về + Nấm Đỏ Thẫm = Thuốc Buồn Nôn-2 (8 giây)"
-lore = ["Thuốc Vụng Về + Nấm Nâu = Thuốc Buồn Nôn (16 giây)", "Thuốc Vụng Về + Nấm Đỏ Thẫm = Thuốc Buồn Nôn-2 (8 giây)"]
+lore1 = "Thuốc Vụng Về + Nấm Nâu = Thuốc Buồn Nôn (30 giây)"
+lore2 = "Thuốc Vụng Về + Nấm Đỏ Thẫm = Thuốc Buồn Nôn-2 (15 giây)"
+lore = ["Thuốc Vụng Về + Nấm Nâu = Thuốc Buồn Nôn (30 giây)", "Thuốc Vụng Về + Nấm Đỏ Thẫm = Thuốc Buồn Nôn-2 (15 giây)"]
 
 [brewing.blindness]
 name = "Mù Lòa Đóng Chai"
@@ -1286,9 +1286,9 @@ lore = ["Thuốc Vụng Về + Thỏi Sắt = Thuốc Kháng Cự (60 giây)", "
 [brewing.health_boost]
 name = "Sinh Mệnh Đóng Chai"
 description = "Khi máu tối đa là chưa đủ..."
-lore1 = "Thuốc Hồi Máu Tức Thì + Táo Vàng = Thuốc Tăng Máu (120 giây)"
-lore2 = "Thuốc Hồi Máu Tức Thì + Táo Vàng Phù Phép = Thuốc Tăng Máu-2 (120 giây)"
-lore = ["Thuốc Hồi Máu Tức Thì + Táo Vàng = Thuốc Tăng Máu (120 giây)", "Thuốc Hồi Máu Tức Thì + Táo Vàng Phù Phép = Thuốc Tăng Máu-2 (120 giây)"]
+lore1 = "Thuốc Hồi Máu Tức Thì + Táo Vàng = Thuốc Tăng Máu (60 giây)"
+lore2 = "Thuốc Hồi Máu Tức Thì + Táo Vàng Phù Phép = Thuốc Tăng Máu-2 (60 giây)"
+lore = ["Thuốc Hồi Máu Tức Thì + Táo Vàng = Thuốc Tăng Máu (60 giây)", "Thuốc Hồi Máu Tức Thì + Táo Vàng Phù Phép = Thuốc Tăng Máu-2 (60 giây)"]
 
 [brewing.decay]
 name = "Phân Hủy Đóng Chai"

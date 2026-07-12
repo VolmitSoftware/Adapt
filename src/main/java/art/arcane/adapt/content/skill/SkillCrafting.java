@@ -25,11 +25,18 @@ import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.content.adaptation.crafting.CraftingBackpacks;
+import art.arcane.adapt.content.adaptation.crafting.CraftingBulkArtisan;
+import art.arcane.adapt.content.adaptation.crafting.CraftingCompactor;
 import art.arcane.adapt.content.adaptation.crafting.CraftingDeconstruction;
 import art.arcane.adapt.content.adaptation.crafting.CraftingLeather;
+import art.arcane.adapt.content.adaptation.crafting.CraftingMasterwork;
+import art.arcane.adapt.content.adaptation.crafting.CraftingProvisioner;
 import art.arcane.adapt.content.adaptation.crafting.CraftingReconstruction;
+import art.arcane.adapt.content.adaptation.crafting.CraftingSignature;
 import art.arcane.adapt.content.adaptation.crafting.CraftingSkulls;
 import art.arcane.adapt.content.adaptation.crafting.CraftingStations;
+import art.arcane.adapt.content.adaptation.crafting.CraftingThriftyHands;
+import art.arcane.adapt.content.adaptation.crafting.CraftingTinkerer;
 import art.arcane.adapt.content.adaptation.crafting.CraftingXP;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
@@ -67,6 +74,13 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
     registerAdaptation(new CraftingBackpacks());
     registerAdaptation(new CraftingStations());
     registerAdaptation(new CraftingReconstruction());
+    registerAdaptation(new CraftingBulkArtisan());
+    registerAdaptation(new CraftingThriftyHands());
+    registerAdaptation(new CraftingMasterwork());
+    registerAdaptation(new CraftingCompactor());
+    registerAdaptation(new CraftingTinkerer());
+    registerAdaptation(new CraftingProvisioner());
+    registerAdaptation(new CraftingSignature());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.CRAFTING_TABLE).key("challenge_craft_1k")
         .model(CustomModel.get(Material.CRAFTING_TABLE, "advancement", "crafting", "challenge_craft_1k"))

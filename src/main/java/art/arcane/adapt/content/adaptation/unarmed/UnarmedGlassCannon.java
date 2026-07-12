@@ -83,14 +83,16 @@ public class UnarmedGlassCannon extends SimpleAdaptation<UnarmedGlassCannon.Conf
 
     double armor = getArmorValue(p);
     double damage = e.getDamage();
+    int level = attack.level();
+    double flatBonus = level * getConfig().perLevelBonusMultiplier;
 
     if (armor == 0) {
-      e.setDamage(damage * getConfig().maxDamageFactor);
+      e.setDamage((damage * (getConfig().maxDamageFactor + (level * getConfig().maxDamagePerLevelMultiplier))) + flatBonus);
       fx(e.getEntity(), FxPriority.COMBAT)
           .particle(Particles.BLOCK_CRACK, 14, 0, 1.0D, 0, 0.3D, 0.05D, Material.GLASS.createBlockData())
           .chord(Sound.BLOCK_GLASS_BREAK, 0.8F, 1.2F, Sound.ENTITY_PLAYER_ATTACK_CRIT, 0.7F, 1.5F);
     } else {
-      e.setDamage(damage - (damage * armor));
+      e.setDamage((damage - (damage * armor)) + flatBonus);
       fx(e.getEntity(), FxPriority.COMBAT)
           .particle(Particle.CRIT, 2, 0, 1.0D, 0, 0.15D, 0.0D);
     }

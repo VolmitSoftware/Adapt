@@ -5,6 +5,7 @@ import art.arcane.adapt.util.config.TomlCodec;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class MutationConfigTest {
   @Test
@@ -108,5 +109,22 @@ class MutationConfigTest {
     parsed.normalize();
 
     assertThat(parsed.isEnabled()).isTrue();
+  }
+
+  @Test
+  void worldBlacklistsRequireCanonicalNamespacedKeys() {
+    MutationConfig valid = Json.fromJson(
+        "{\"worldBlacklist\":[\" minecraft:overworld \",\"iris:floating_islands\"]}",
+        MutationConfig.class
+    );
+
+    valid.normalize();
+
+    assertThat(valid.getWorldBlacklist()).containsExactly("minecraft:overworld", "iris:floating_islands");
+
+    MutationConfig invalid = Json.fromJson("{\"worldBlacklist\":[\"world\"]}", MutationConfig.class);
+    assertThatThrownBy(invalid::normalize)
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("fully qualified namespaced key");
   }
 }

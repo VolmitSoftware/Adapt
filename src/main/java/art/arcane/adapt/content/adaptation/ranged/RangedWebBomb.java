@@ -158,7 +158,7 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
 
     J.runAt(block.getLocation(), () -> fx(center, FxPriority.TRANSITION)
         .burst(Particles.SMOKE, 6, 0.3D)
-        .sound(Sound.BLOCK_ROOTED_DIRT_BREAK, 0.7F, 1.0F), level * 16);
+        .sound(Sound.BLOCK_ROOTED_DIRT_BREAK, 0.7F, 1.0F), level * 20);
   }
 
 
@@ -180,7 +180,7 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
       block.setBlockData(BLOCK);
       activeBlocks.add(block);
     });
-    J.runAt(block.getLocation(), () -> removeFoundation(block), seconds * 16);
+    J.runAt(block.getLocation(), () -> removeFoundation(block), seconds * 20);
   }
 
   public void removeFoundation(Block block) {

@@ -102,7 +102,6 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
   private static final long STARTUP_SLOW_PHASE_MS = 1500L;
   private final AtomicBoolean alreadyDrained = new AtomicBoolean(false);
   private static final boolean SLIMJAR_DEBUG = Boolean.getBoolean("adapt.debug-slimjar");
-  private static final boolean DISABLE_REMAPPER = Boolean.getBoolean("adapt.disable-remapper");
   private static final Object GLOWING_ENTITIES_LOCK = new Object();
   public static Adapt instance;
   public static HashMap<String, String> wordKey = new HashMap<>();
@@ -140,12 +139,8 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     getLogger().info("Loading Libraries...");
     new SpigotApplicationBuilder(this)
         .debug(SLIMJAR_DEBUG)
-        .remap(!DISABLE_REMAPPER)
         .build();
     long libraryLoadElapsed = System.currentTimeMillis() - libraryLoadStart;
-    if (DISABLE_REMAPPER) {
-      getLogger().warning("SlimJar remapper disabled via -Dadapt.disable-remapper=true.");
-    }
     getLogger().info("Libraries Loaded! (" + libraryLoadElapsed + "ms)");
     adaptEffectManager = new EffectManager(this);
   }

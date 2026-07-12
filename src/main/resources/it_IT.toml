@@ -1119,23 +1119,23 @@ lore = ["Guarigione Istantanea + Quarzo = Pozione dell'Assorbimento (60 secondi)
 [brewing.fatigue]
 name = "Fatica in Bottiglia"
 description = "Indebolisci il corpo!"
-lore1 = "Pozione di Debolezza + Palla di Slime = Pozione della Fatica (30 secondi)"
-lore2 = "Pozione di Debolezza + Blocco di Slime = Pozione della Fatica-2 (15 secondi)"
-lore = ["Pozione di Debolezza + Palla di Slime = Pozione della Fatica (30 secondi)", "Pozione di Debolezza + Blocco di Slime = Pozione della Fatica-2 (15 secondi)"]
+lore1 = "Pozione di Debolezza + Palla di Slime = Pozione della Fatica (60 secondi)"
+lore2 = "Pozione di Debolezza + Blocco di Slime = Pozione della Fatica-2 (30 secondi)"
+lore = ["Pozione di Debolezza + Palla di Slime = Pozione della Fatica (60 secondi)", "Pozione di Debolezza + Blocco di Slime = Pozione della Fatica-2 (30 secondi)"]
 
 [brewing.hunger]
 name = "Fame in Bottiglia"
 description = "Dai da mangiare all'insaziabile!"
-lore1 = "Pozione Sconclusionata + Carne Marcia = Pozione della Fame (30 secondi)"
-lore2 = "Pozione di Debolezza + Carne Marcia = Pozione della Fame-3 (15 secondi)"
-lore = ["Pozione Sconclusionata + Carne Marcia = Pozione della Fame (30 secondi)", "Pozione di Debolezza + Carne Marcia = Pozione della Fame-3 (15 secondi)"]
+lore1 = "Pozione Sconclusionata + Carne Marcia = Pozione della Fame (60 secondi)"
+lore2 = "Pozione di Debolezza + Carne Marcia = Pozione della Fame-3 (30 secondi)"
+lore = ["Pozione Sconclusionata + Carne Marcia = Pozione della Fame (60 secondi)", "Pozione di Debolezza + Carne Marcia = Pozione della Fame-3 (30 secondi)"]
 
 [brewing.nausea]
 name = "Nausea in Bottiglia"
 description = "Mi fai venire il voltastomaco!"
-lore1 = "Pozione Sconclusionata + Fungo Marrone = Pozione della Nausea (16 secondi)"
-lore2 = "Pozione Sconclusionata + Fungo Cremisi = Pozione della Nausea-2 (8 secondi)"
-lore = ["Pozione Sconclusionata + Fungo Marrone = Pozione della Nausea (16 secondi)", "Pozione Sconclusionata + Fungo Cremisi = Pozione della Nausea-2 (8 secondi)"]
+lore1 = "Pozione Sconclusionata + Fungo Marrone = Pozione della Nausea (30 secondi)"
+lore2 = "Pozione Sconclusionata + Fungo Cremisi = Pozione della Nausea-2 (15 secondi)"
+lore = ["Pozione Sconclusionata + Fungo Marrone = Pozione della Nausea (30 secondi)", "Pozione Sconclusionata + Fungo Cremisi = Pozione della Nausea-2 (15 secondi)"]
 
 [brewing.blindness]
 name = "Cecita' in Bottiglia"
@@ -1154,9 +1154,9 @@ lore = ["Pozione Sconclusionata + Lingotto di Ferro = Pozione della Resistenza (
 [brewing.health_boost]
 name = "Vita in Bottiglia"
 description = "Quando la salute massima non basta..."
-lore1 = "Pozione di Guarigione Istantanea + Mela d'Oro = Pozione di Salute Potenziata (120 secondi)"
-lore2 = "Pozione di Guarigione Istantanea + Mela d'Oro Incantata = Pozione di Salute Potenziata-2 (120 secondi)"
-lore = ["Pozione di Guarigione Istantanea + Mela d'Oro = Pozione di Salute Potenziata (120 secondi)", "Pozione di Guarigione Istantanea + Mela d'Oro Incantata = Pozione di Salute Potenziata-2 (120 secondi)"]
+lore1 = "Pozione di Guarigione Istantanea + Mela d'Oro = Pozione di Salute Potenziata (60 secondi)"
+lore2 = "Pozione di Guarigione Istantanea + Mela d'Oro Incantata = Pozione di Salute Potenziata-2 (60 secondi)"
+lore = ["Pozione di Guarigione Istantanea + Mela d'Oro = Pozione di Salute Potenziata (60 secondi)", "Pozione di Guarigione Istantanea + Mela d'Oro Incantata = Pozione di Salute Potenziata-2 (60 secondi)"]
 
 [brewing.decay]
 name = "Decadimento in Bottiglia"

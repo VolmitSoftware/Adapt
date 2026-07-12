@@ -92,7 +92,7 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
     xp(p, 5);
     double distSq = a.distanceSquared(b);
 
-    if (distSq > 10 && grantOnce(p, "challenge_force_30")) {
+    if (distSq > 900 && grantOnce(p, "challenge_force_30")) {
       xp(p, getConfig().challengeRewardLongShotReward, "challenge-long-shot");
       FxPresets.learnCelebration(this, p);
     }

@@ -1,0 +1,216 @@
+/*------------------------------------------------------------------------------
+ -   Adapt is a Skill/Integration plugin  for Minecraft Bukkit Servers
+ -   Copyright (c) 2022 Arcane Arts (Volmit Software)
+ -
+ -   This program is free software: you can redistribute it and/or modify
+ -   it under the terms of the GNU General Public License as published by
+ -   the Free Software Foundation, either version 3 of the License, or
+ -   (at your option) any later version.
+ -
+ -   This program is distributed in the hope that it will be useful,
+ -   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ -   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ -   GNU General Public License for more details.
+ -
+ -   You should have received a copy of the GNU General Public License
+ -   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ -----------------------------------------------------------------------------*/
+
+package art.arcane.adapt.content.adaptation.crafting;
+
+import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.SimpleAdaptation;
+import art.arcane.adapt.api.advancement.AdaptAdvancement;
+import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
+import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
+import art.arcane.volmlib.util.inventorygui.Element;
+import org.bukkit.Material;
+import org.bukkit.Sound;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerSwapHandItemsEvent;
+import org.bukkit.inventory.ItemStack;
+
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+public class CraftingCompactor extends SimpleAdaptation<CraftingCompactor.Config> {
+  private static final int UNITS_PER_BLOCK = 9;
+  private static final int FULL_STACK = 64;
+  private static final CompactEntry[] ENTRIES = {
+      new CompactEntry(Material.IRON_INGOT, Material.IRON_BLOCK, 1),
+      new CompactEntry(Material.GOLD_INGOT, Material.GOLD_BLOCK, 1),
+      new CompactEntry(Material.COAL, Material.COAL_BLOCK, 1),
+      new CompactEntry(Material.REDSTONE, Material.REDSTONE_BLOCK, 1),
+      new CompactEntry(Material.COPPER_INGOT, Material.COPPER_BLOCK, 2),
+      new CompactEntry(Material.LAPIS_LAZULI, Material.LAPIS_BLOCK, 2),
+      new CompactEntry(Material.RAW_IRON, Material.RAW_IRON_BLOCK, 2),
+      new CompactEntry(Material.RAW_GOLD, Material.RAW_GOLD_BLOCK, 3),
+      new CompactEntry(Material.RAW_COPPER, Material.RAW_COPPER_BLOCK, 3),
+      new CompactEntry(Material.DIAMOND, Material.DIAMOND_BLOCK, 3),
+      new CompactEntry(Material.EMERALD, Material.EMERALD_BLOCK, 3),
+      new CompactEntry(Material.NETHERITE_INGOT, Material.NETHERITE_BLOCK, 4)
+  };
+
+  private final Map<UUID, Boolean> toggled = playerState();
+  private int playerCursor;
+
+  public CraftingCompactor() {
+    super("crafting-compactor");
+    registerConfiguration(Config.class);
+    setIcon(Material.IRON_BLOCK);
+    setInterval(2000);
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.IRON_BLOCK)
+        .key("challenge_crafting_compactor_1k")
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .child(AdaptAdvancement.builder()
+            .icon(Material.NETHERITE_BLOCK)
+            .key("challenge_crafting_compactor_10k")
+            .frame(AdaptAdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .build())
+        .build());
+    registerMilestone("challenge_crafting_compactor_1k", "crafting.compactor.blocks-compacted", 1000, 400);
+    registerMilestone("challenge_crafting_compactor_10k", "crafting.compactor.blocks-compacted", 10000, 1500);
+  }
+
+  @Override
+  public void addStats(int level, Element v) {
+    v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("crafting.compactor.lore1"));
+    statLore(v, materialsCovered(level), 2);
+    v.addLore(C.YELLOW + "* " + C.GRAY + Localizer.dLocalize("crafting.compactor.lore3"));
+  }
+
+  static int materialsCovered(int level) {
+    int count = 0;
+    for (CompactEntry entry : ENTRIES) {
+      if (entry.minLevel() <= level) {
+        count++;
+      }
+    }
+    return count;
+  }
+
+  @Override
+  public void onTick() {
+    List<AdaptPlayer> candidates = learnedCandidates(System.currentTimeMillis());
+    int size = candidates.size();
+    if (size == 0) {
+      playerCursor = 0;
+      return;
+    }
+
+    int limit = Math.max(1, Math.min(size, getConfig().maxPlayersPerPass));
+    int start = Math.floorMod(playerCursor, size);
+    for (int i = 0; i < limit; i++) {
+      AdaptPlayer adaptPlayer = candidates.get((start + i) % size);
+      Player player = adaptPlayer.getPlayer();
+      if (player == null || !player.isOnline() || !Boolean.TRUE.equals(toggled.get(player.getUniqueId()))) {
+        continue;
+      }
+      int level = getActiveLevel(player);
+      if (level <= 0) {
+        continue;
+      }
+      withPlayerThread(player, () -> compact(player, level));
+    }
+    playerCursor = (start + limit) % size;
+  }
+
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+  public void on(PlayerSwapHandItemsEvent e) {
+    Player p = e.getPlayer();
+    if (!p.isSneaking() || getActiveLevel(p) <= 0) {
+      return;
+    }
+
+    e.setCancelled(true);
+    UUID id = p.getUniqueId();
+    boolean now = !Boolean.TRUE.equals(toggled.get(id));
+    toggled.put(id, now);
+    fx(p.getLocation().add(0, 1, 0), FxPriority.TRANSITION)
+        .particle(now ? Particles.CRIT_MAGIC : Particles.SMOKE, 6, 0, 0.2D, 0, 0.25D, 0.1D)
+        .sound(Sound.BLOCK_STONE_BUTTON_CLICK_ON, 0.6F, now ? 1.6F : 0.8F);
+    Adapt.actionbar(p, (now ? C.GREEN : C.RED) + Localizer.dLocalize(now ? "crafting.compactor.toggle_on" : "crafting.compactor.toggle_off"));
+  }
+
+  @EventHandler
+  public void on(PlayerQuitEvent e) {
+    toggled.remove(e.getPlayer().getUniqueId());
+  }
+
+  private void compact(Player p, int level) {
+    if (!p.isOnline() || getActiveLevel(p) <= 0 || !Boolean.TRUE.equals(toggled.get(p.getUniqueId()))) {
+      return;
+    }
+
+    int totalBlocks = 0;
+    for (CompactEntry entry : ENTRIES) {
+      if (entry.minLevel() > level) {
+        continue;
+      }
+      int available = availablePlain(p, entry.unit());
+      if (available < FULL_STACK) {
+        continue;
+      }
+      int blocks = available / UNITS_PER_BLOCK;
+      if (blocks <= 0) {
+        continue;
+      }
+      p.getInventory().removeItem(new ItemStack(entry.unit(), blocks * UNITS_PER_BLOCK));
+      Map<Integer, ItemStack> leftovers = p.getInventory().addItem(new ItemStack(entry.block(), blocks));
+      for (ItemStack leftover : leftovers.values()) {
+        if (leftover != null && !leftover.getType().isAir() && leftover.getAmount() > 0) {
+          p.getWorld().dropItemNaturally(p.getLocation(), leftover);
+        }
+      }
+      totalBlocks += blocks;
+    }
+
+    if (totalBlocks > 0) {
+      addStat(p, "crafting.compactor.blocks-compacted", totalBlocks);
+      fx(p.getLocation().add(0, 1, 0), FxPriority.AMBIENT)
+          .particle(Particles.CRIT_MAGIC, Math.min(12, 3 + totalBlocks), 0, 0.2D, 0, 0.25D, 0.15D)
+          .sound(Sound.BLOCK_STONE_PLACE, 0.4F, 1.2F);
+    }
+  }
+
+  private int availablePlain(Player p, Material material) {
+    ItemStack unit = new ItemStack(material);
+    int total = 0;
+    for (ItemStack slot : p.getInventory().getStorageContents()) {
+      if (slot != null && slot.isSimilar(unit)) {
+        total += slot.getAmount();
+      }
+    }
+    return total;
+  }
+
+  private record CompactEntry(Material unit, Material block, int minLevel) {
+  }
+
+  @ConfigDescription("Toggle with sneak + swap-hands to auto-craft full stacks of ingots, gems, and raw ores into blocks in your inventory.")
+  protected static class Config extends AdaptationConfig {
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum players processed per compaction pass.", impact = "Higher values compact large servers faster but do more work per tick.")
+    int maxPlayersPerPass = 16;
+
+    public Config() {
+      baseCost = 3;
+      costFactor = 0.3;
+      maxLevel = 4;
+      initialCost = 4;
+    }
+  }
+}

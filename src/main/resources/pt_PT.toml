@@ -1251,23 +1251,23 @@ lore = ["Cura Instantanea + Quartzo = Pocao de Absorcao (60 segundos)", "Cura In
 [brewing.fatigue]
 name = "Fadiga Engarrafada"
 description = "Enfraquece o corpo!"
-lore1 = "Pocao de Fraqueza + Bola de Slime = Pocao de Fadiga (30 segundos)"
-lore2 = "Pocao de Fraqueza + Bloco de Slime = Pocao de Fadiga-2 (15 segundos)"
-lore = ["Pocao de Fraqueza + Bola de Slime = Pocao de Fadiga (30 segundos)", "Pocao de Fraqueza + Bloco de Slime = Pocao de Fadiga-2 (15 segundos)"]
+lore1 = "Pocao de Fraqueza + Bola de Slime = Pocao de Fadiga (60 segundos)"
+lore2 = "Pocao de Fraqueza + Bloco de Slime = Pocao de Fadiga-2 (30 segundos)"
+lore = ["Pocao de Fraqueza + Bola de Slime = Pocao de Fadiga (60 segundos)", "Pocao de Fraqueza + Bloco de Slime = Pocao de Fadiga-2 (30 segundos)"]
 
 [brewing.hunger]
 name = "Fome Engarrafada"
 description = "Alimenta o Insaciavel!"
-lore1 = "Pocao Estranha + Carne Podre = Pocao de Fome (30 segundos)"
-lore2 = "Pocao de Fraqueza + Carne Podre = Pocao de Fome-3 (15 segundos)"
-lore = ["Pocao Estranha + Carne Podre = Pocao de Fome (30 segundos)", "Pocao de Fraqueza + Carne Podre = Pocao de Fome-3 (15 segundos)"]
+lore1 = "Pocao Estranha + Carne Podre = Pocao de Fome (60 segundos)"
+lore2 = "Pocao de Fraqueza + Carne Podre = Pocao de Fome-3 (30 segundos)"
+lore = ["Pocao Estranha + Carne Podre = Pocao de Fome (60 segundos)", "Pocao de Fraqueza + Carne Podre = Pocao de Fome-3 (30 segundos)"]
 
 [brewing.nausea]
 name = "Nausea Engarrafada"
 description = "Voce me da enjoo!"
-lore1 = "Pocao Estranha + Cogumelo Castanho = Pocao de Nausea (16 segundos)"
-lore2 = "Pocao Estranha + Fungo Carmesim = Pocao de Nausea-2 (8 segundos)"
-lore = ["Pocao Estranha + Cogumelo Castanho = Pocao de Nausea (16 segundos)", "Pocao Estranha + Fungo Carmesim = Pocao de Nausea-2 (8 segundos)"]
+lore1 = "Pocao Estranha + Cogumelo Castanho = Pocao de Nausea (30 segundos)"
+lore2 = "Pocao Estranha + Fungo Carmesim = Pocao de Nausea-2 (15 segundos)"
+lore = ["Pocao Estranha + Cogumelo Castanho = Pocao de Nausea (30 segundos)", "Pocao Estranha + Fungo Carmesim = Pocao de Nausea-2 (15 segundos)"]
 
 [brewing.blindness]
 name = "Cegueira Engarrafada"
@@ -1286,9 +1286,9 @@ lore = ["Pocao Estranha + Lingote de Ferro = Pocao de Resistencia (60 segundos)"
 [brewing.health_boost]
 name = "Vida Engarrafada"
 description = "Quando a saude maxima nao e suficiente..."
-lore1 = "Pocao de Cura Instantanea + Maca Dourada = Pocao de Aumento de Saude (120 segundos)"
-lore2 = "Pocao de Cura Instantanea + Maca Dourada Encantada = Pocao de Aumento de Saude-2 (120 segundos)"
-lore = ["Pocao de Cura Instantanea + Maca Dourada = Pocao de Aumento de Saude (120 segundos)", "Pocao de Cura Instantanea + Maca Dourada Encantada = Pocao de Aumento de Saude-2 (120 segundos)"]
+lore1 = "Pocao de Cura Instantanea + Maca Dourada = Pocao de Aumento de Saude (60 segundos)"
+lore2 = "Pocao de Cura Instantanea + Maca Dourada Encantada = Pocao de Aumento de Saude-2 (60 segundos)"
+lore = ["Pocao de Cura Instantanea + Maca Dourada = Pocao de Aumento de Saude (60 segundos)", "Pocao de Cura Instantanea + Maca Dourada Encantada = Pocao de Aumento de Saude-2 (60 segundos)"]
 
 [brewing.decay]
 name = "Decomposicao Engarrafada"

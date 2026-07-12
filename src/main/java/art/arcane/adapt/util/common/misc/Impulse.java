@@ -95,7 +95,7 @@ public class Impulse {
       double distance = i.getLocation().distance(at);
 
       if (forceMin < forceMax) {
-        force.clone().multiply(((1D - (distance / radius)) * (forceMax - forceMin)) + forceMin);
+        force.multiply(((1D - (distance / radius)) * (forceMax - forceMin)) + forceMin);
       }
 
       if (damageMin < damageMax) {

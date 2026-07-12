@@ -270,19 +270,28 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
       return;
     }
 
-    Slime slime = world.spawn(center, Slime.class, s -> {
-      StackExclusion.exclude(s);
-      s.setPersistent(false);
-      s.setInvulnerable(true);
-      s.setCollidable(false);
-      s.setGravity(false);
-      s.setSilent(true);
-      s.setAI(false);
-      s.setSize(2);
-      s.setRotation(0, 0);
-      s.setMetadata(MARKER_META, new FixedMetadataValue(Adapt.instance, true));
-      s.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 0, false, false));
-    });
+    Slime slime;
+    try {
+      slime = world.spawn(center, Slime.class, s -> {
+        StackExclusion.exclude(s);
+        s.setPersistent(false);
+        s.setInvulnerable(true);
+        s.setCollidable(false);
+        s.setGravity(false);
+        s.setSilent(true);
+        s.setAI(false);
+        s.setSize(2);
+        s.setRotation(0, 0);
+        s.setMetadata(MARKER_META, new FixedMetadataValue(Adapt.instance, true));
+        s.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 0, false, false));
+      });
+    } catch (Throwable error) {
+      Adapt.verbose("Failed to spawn glowing marker for QuarrySense: "
+          + error.getClass().getSimpleName()
+          + (error.getMessage() == null ? "" : " - " + error.getMessage()));
+      showFallbackMarker(p, center, durationTicks);
+      return;
+    }
 
     if (!J.runEntity(p, () -> enableGlow(glowingEntities, slime, p, center, durationTicks))) {
       J.runEntity(slime, slime::remove);
@@ -304,7 +313,7 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
       synchronized (Adapt.glowingEntitiesLock()) {
         glowingEntities.setGlowing(slime, p, ChatColor.AQUA);
       }
-    } catch (ReflectiveOperationException error) {
+    } catch (Throwable error) {
       Adapt.verbose("Failed to enable glowing marker for QuarrySense: "
           + error.getClass().getSimpleName()
           + (error.getMessage() == null ? "" : " - " + error.getMessage()));
@@ -318,7 +327,7 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
       synchronized (Adapt.glowingEntitiesLock()) {
         glowingEntities.unsetGlowing(slime, p);
       }
-    } catch (ReflectiveOperationException error) {
+    } catch (Throwable error) {
       Adapt.verbose("Failed to clear glowing marker for QuarrySense: "
           + error.getClass().getSimpleName()
           + (error.getMessage() == null ? "" : " - " + error.getMessage()));

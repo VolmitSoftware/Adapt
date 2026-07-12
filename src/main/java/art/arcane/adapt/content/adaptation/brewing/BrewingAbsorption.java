@@ -68,7 +68,7 @@ public class BrewingAbsorption extends SimpleAdaptation<BrewingAbsorption.Config
         .ingredient(Material.QUARTZ_BLOCK)
         .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionTypes.INSTANT_HEAL))
         .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
-            .setName("Bottled Haste 2")
+            .setName("Bottled Absorption 2")
             .setColor(Color.GRAY)
             .addEffect(PotionEffectType.ABSORPTION, 600, 2, true, true, true)
             .build())

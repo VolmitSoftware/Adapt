@@ -1251,23 +1251,23 @@ lore = ["Directe Genezing + Kwarts = Absorptiedrankje (60 seconden)", "Directe G
 [brewing.fatigue]
 name = "Gebottelde Vermoeidheid"
 description = "Verzwak het lichaam!"
-lore1 = "Zwaktedrankje + Slijmbal = Vermoeidheidsdrankje (30 seconden)"
-lore2 = "Zwaktedrankje + Slijmblok = Vermoeidheidsdrankje-2 (15 seconden)"
-lore = ["Zwaktedrankje + Slijmbal = Vermoeidheidsdrankje (30 seconden)", "Zwaktedrankje + Slijmblok = Vermoeidheidsdrankje-2 (15 seconden)"]
+lore1 = "Zwaktedrankje + Slijmbal = Vermoeidheidsdrankje (60 seconden)"
+lore2 = "Zwaktedrankje + Slijmblok = Vermoeidheidsdrankje-2 (30 seconden)"
+lore = ["Zwaktedrankje + Slijmbal = Vermoeidheidsdrankje (60 seconden)", "Zwaktedrankje + Slijmblok = Vermoeidheidsdrankje-2 (30 seconden)"]
 
 [brewing.hunger]
 name = "Gebottelde Honger"
 description = "Voed de onverzadigbare!"
-lore1 = "Onhandig Drankje + Rottend Vlees = Hongerdrankje (30 seconden)"
-lore2 = "Zwaktedrankje + Rottend Vlees = Hongerdrankje-3 (15 seconden)"
-lore = ["Onhandig Drankje + Rottend Vlees = Hongerdrankje (30 seconden)", "Zwaktedrankje + Rottend Vlees = Hongerdrankje-3 (15 seconden)"]
+lore1 = "Onhandig Drankje + Rottend Vlees = Hongerdrankje (60 seconden)"
+lore2 = "Zwaktedrankje + Rottend Vlees = Hongerdrankje-3 (30 seconden)"
+lore = ["Onhandig Drankje + Rottend Vlees = Hongerdrankje (60 seconden)", "Zwaktedrankje + Rottend Vlees = Hongerdrankje-3 (30 seconden)"]
 
 [brewing.nausea]
 name = "Gebottelde Misselijkheid"
 description = "Je maakt me misselijk!"
-lore1 = "Onhandig Drankje + Bruine Paddenstoel = Misselijkheidsdrankje (16 seconden)"
-lore2 = "Onhandig Drankje + Karmozijn Schimmel = Misselijkheidsdrankje-2 (8 seconden)"
-lore = ["Onhandig Drankje + Bruine Paddenstoel = Misselijkheidsdrankje (16 seconden)", "Onhandig Drankje + Karmozijn Schimmel = Misselijkheidsdrankje-2 (8 seconden)"]
+lore1 = "Onhandig Drankje + Bruine Paddenstoel = Misselijkheidsdrankje (30 seconden)"
+lore2 = "Onhandig Drankje + Karmozijn Schimmel = Misselijkheidsdrankje-2 (15 seconden)"
+lore = ["Onhandig Drankje + Bruine Paddenstoel = Misselijkheidsdrankje (30 seconden)", "Onhandig Drankje + Karmozijn Schimmel = Misselijkheidsdrankje-2 (15 seconden)"]
 
 [brewing.blindness]
 name = "Gebottelde Blindheid"
@@ -1286,9 +1286,9 @@ lore = ["Onhandig Drankje + IJzerstaaf = Weerstandsdrankje (60 seconden)", "Onha
 [brewing.health_boost]
 name = "Gebotteld Leven"
 description = "Wanneer maximale gezondheid niet genoeg is..."
-lore1 = "Directe-Genezingsdrankje + Gouden Appel = Gezondheidsboostdrankje (120 seconden)"
-lore2 = "Directe-Genezingsdrankje + Betoverde Gouden Appel = Gezondheidsboostdrankje-2 (120 seconden)"
-lore = ["Directe-Genezingsdrankje + Gouden Appel = Gezondheidsboostdrankje (120 seconden)", "Directe-Genezingsdrankje + Betoverde Gouden Appel = Gezondheidsboostdrankje-2 (120 seconden)"]
+lore1 = "Directe-Genezingsdrankje + Gouden Appel = Gezondheidsboostdrankje (60 seconden)"
+lore2 = "Directe-Genezingsdrankje + Betoverde Gouden Appel = Gezondheidsboostdrankje-2 (60 seconden)"
+lore = ["Directe-Genezingsdrankje + Gouden Appel = Gezondheidsboostdrankje (60 seconden)", "Directe-Genezingsdrankje + Betoverde Gouden Appel = Gezondheidsboostdrankje-2 (60 seconden)"]
 
 [brewing.decay]
 name = "Gebotteld Verval"

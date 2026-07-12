@@ -85,7 +85,7 @@ public class SeaborneFishersFantasy extends SimpleAdaptation<SeaborneFishersFant
 
           ItemStack item = new ItemStack(ItemListings.getFishingDrops().getRandom(), 1);
           p.getWorld().dropItemNaturally(p.getLocation(), item);
-          p.getWorld().spawn(p.getLocation(), ExperienceOrb.class);
+          p.getWorld().spawn(p.getLocation(), ExperienceOrb.class).setExperience(level * 2);
           xp(p, 15 * level);
 
           float pitch = (float) Math.min(2.0D, 1.2D + (0.1D * successes));

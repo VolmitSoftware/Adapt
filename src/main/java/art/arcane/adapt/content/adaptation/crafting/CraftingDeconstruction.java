@@ -142,7 +142,7 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
 
     if (sel != null && sel.getAmount() * forStuff.getAmount() > 1) {
       int a = ((sel.getAmount() * forStuff.getAmount()) / outa) / 2;
-      if (a <= sel.getMaxStackSize() && getValue(sel) < getValue(forStuff)) {
+      if (a >= 1 && a <= sel.getMaxStackSize() && getValue(sel) < getValue(forStuff)) {
         sel.setAmount(a);
         return sel.clone();
       }

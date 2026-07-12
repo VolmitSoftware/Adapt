@@ -1119,23 +1119,23 @@ lore = ["Soin instantane + Quartz = Potion d'absorption (60 secondes)", "Soin in
 [brewing.fatigue]
 name = "Fatigue en bouteille"
 description = "Affaiblissez le corps !"
-lore1 = "Potion de faiblesse + Boule de slime = Potion de fatigue (30 secondes)"
-lore2 = "Potion de faiblesse + Bloc de slime = Potion de fatigue-2 (15 secondes)"
-lore = ["Potion de faiblesse + Boule de slime = Potion de fatigue (30 secondes)", "Potion de faiblesse + Bloc de slime = Potion de fatigue-2 (15 secondes)"]
+lore1 = "Potion de faiblesse + Boule de slime = Potion de fatigue (60 secondes)"
+lore2 = "Potion de faiblesse + Bloc de slime = Potion de fatigue-2 (30 secondes)"
+lore = ["Potion de faiblesse + Boule de slime = Potion de fatigue (60 secondes)", "Potion de faiblesse + Bloc de slime = Potion de fatigue-2 (30 secondes)"]
 
 [brewing.hunger]
 name = "Faim en bouteille"
 description = "Nourrissez l'insatiable !"
-lore1 = "Potion bizarre + Chair putrefiee = Potion de faim (30 secondes)"
-lore2 = "Potion de faiblesse + Chair putrefiee = Potion de faim-3 (15 secondes)"
-lore = ["Potion bizarre + Chair putrefiee = Potion de faim (30 secondes)", "Potion de faiblesse + Chair putrefiee = Potion de faim-3 (15 secondes)"]
+lore1 = "Potion bizarre + Chair putrefiee = Potion de faim (60 secondes)"
+lore2 = "Potion de faiblesse + Chair putrefiee = Potion de faim-3 (30 secondes)"
+lore = ["Potion bizarre + Chair putrefiee = Potion de faim (60 secondes)", "Potion de faiblesse + Chair putrefiee = Potion de faim-3 (30 secondes)"]
 
 [brewing.nausea]
 name = "Nausee en bouteille"
 description = "Vous me rendez malade !"
-lore1 = "Potion bizarre + Champignon brun = Potion de nausee (16 secondes)"
-lore2 = "Potion bizarre + Champignon cramoisi = Potion de nausee-2 (8 secondes)"
-lore = ["Potion bizarre + Champignon brun = Potion de nausee (16 secondes)", "Potion bizarre + Champignon cramoisi = Potion de nausee-2 (8 secondes)"]
+lore1 = "Potion bizarre + Champignon brun = Potion de nausee (30 secondes)"
+lore2 = "Potion bizarre + Champignon cramoisi = Potion de nausee-2 (15 secondes)"
+lore = ["Potion bizarre + Champignon brun = Potion de nausee (30 secondes)", "Potion bizarre + Champignon cramoisi = Potion de nausee-2 (15 secondes)"]
 
 [brewing.blindness]
 name = "Cecite en bouteille"
@@ -1154,9 +1154,9 @@ lore = ["Potion bizarre + Lingot de fer = Potion de resistance (60 secondes)", "
 [brewing.health_boost]
 name = "Vie en bouteille"
 description = "Quand la sante maximale ne suffit pas..."
-lore1 = "Potion de soin instantane + Pomme doree = Potion de boost de sante (120 secondes)"
-lore2 = "Potion de soin instantane + Pomme doree enchantee = Potion de boost de sante-2 (120 secondes)"
-lore = ["Potion de soin instantane + Pomme doree = Potion de boost de sante (120 secondes)", "Potion de soin instantane + Pomme doree enchantee = Potion de boost de sante-2 (120 secondes)"]
+lore1 = "Potion de soin instantane + Pomme doree = Potion de boost de sante (60 secondes)"
+lore2 = "Potion de soin instantane + Pomme doree enchantee = Potion de boost de sante-2 (60 secondes)"
+lore = ["Potion de soin instantane + Pomme doree = Potion de boost de sante (60 secondes)", "Potion de soin instantane + Pomme doree enchantee = Potion de boost de sante-2 (60 secondes)"]
 
 [brewing.decay]
 name = "Decomposition en bouteille"

@@ -1119,23 +1119,23 @@ lore = ["Sofortige Heilung + Quarz = Trank der Absorption (60 Sekunden)", "Sofor
 [brewing.fatigue]
 name = "Abgefüllte Müdigkeit"
 description = "Schwäche den Körper!"
-lore1 = "Schwächetrank + Schleimball = Trank der Müdigkeit (30 Sekunden)"
-lore2 = "Schwächetrank + Schleimblock = Trank der Müdigkeit-2 (15 Sekunden)"
-lore = ["Schwächetrank + Schleimball = Trank der Müdigkeit (30 Sekunden)", "Schwächetrank + Schleimblock = Trank der Müdigkeit-2 (15 Sekunden)"]
+lore1 = "Schwächetrank + Schleimball = Trank der Müdigkeit (60 Sekunden)"
+lore2 = "Schwächetrank + Schleimblock = Trank der Müdigkeit-2 (30 Sekunden)"
+lore = ["Schwächetrank + Schleimball = Trank der Müdigkeit (60 Sekunden)", "Schwächetrank + Schleimblock = Trank der Müdigkeit-2 (30 Sekunden)"]
 
 [brewing.hunger]
 name = "Abgefüllter Hunger"
 description = "Nähre die Unersättlichen!"
-lore1 = "Seltsamer Trank + Verrottetes Fleisch = Trank des Hungers (30 Sekunden)"
-lore2 = "Schwächetrank + Verrottetes Fleisch = Trank des Hungers-3 (15 Sekunden)"
-lore = ["Seltsamer Trank + Verrottetes Fleisch = Trank des Hungers (30 Sekunden)", "Schwächetrank + Verrottetes Fleisch = Trank des Hungers-3 (15 Sekunden)"]
+lore1 = "Seltsamer Trank + Verrottetes Fleisch = Trank des Hungers (60 Sekunden)"
+lore2 = "Schwächetrank + Verrottetes Fleisch = Trank des Hungers-3 (30 Sekunden)"
+lore = ["Seltsamer Trank + Verrottetes Fleisch = Trank des Hungers (60 Sekunden)", "Schwächetrank + Verrottetes Fleisch = Trank des Hungers-3 (30 Sekunden)"]
 
 [brewing.nausea]
 name = "Abgefüllte Übelkeit"
 description = "Du machst mich krank!"
-lore1 = "Seltsamer Trank + Brauner Pilz = Trank der Übelkeit (16 Sekunden)"
-lore2 = "Seltsamer Trank + Karmesinpilz = Trank der Übelkeit-2 (8 Sekunden)"
-lore = ["Seltsamer Trank + Brauner Pilz = Trank der Übelkeit (16 Sekunden)", "Seltsamer Trank + Karmesinpilz = Trank der Übelkeit-2 (8 Sekunden)"]
+lore1 = "Seltsamer Trank + Brauner Pilz = Trank der Übelkeit (30 Sekunden)"
+lore2 = "Seltsamer Trank + Karmesinpilz = Trank der Übelkeit-2 (15 Sekunden)"
+lore = ["Seltsamer Trank + Brauner Pilz = Trank der Übelkeit (30 Sekunden)", "Seltsamer Trank + Karmesinpilz = Trank der Übelkeit-2 (15 Sekunden)"]
 
 [brewing.blindness]
 name = "Abgefüllte Blindheit"
@@ -1154,9 +1154,9 @@ lore = ["Seltsamer Trank + Eisenbarren = Trank des Widerstands (60 Sekunden)", "
 [brewing.health_boost]
 name = "Abgefülltes Leben"
 description = "Wenn maximale Gesundheit nicht ausreicht..."
-lore1 = "Trank der Heilung + Goldener Apfel = Trank der Gesundheitssteigerung (120 Sekunden)"
-lore2 = "Trank der Heilung + Verzauberter Goldener Apfel = Trank der Gesundheitssteigerung-2 (120 Sekunden)"
-lore = ["Trank der Heilung + Goldener Apfel = Trank der Gesundheitssteigerung (120 Sekunden)", "Trank der Heilung + Verzauberter Goldener Apfel = Trank der Gesundheitssteigerung-2 (120 Sekunden)"]
+lore1 = "Trank der Heilung + Goldener Apfel = Trank der Gesundheitssteigerung (60 Sekunden)"
+lore2 = "Trank der Heilung + Verzauberter Goldener Apfel = Trank der Gesundheitssteigerung-2 (60 Sekunden)"
+lore = ["Trank der Heilung + Goldener Apfel = Trank der Gesundheitssteigerung (60 Sekunden)", "Trank der Heilung + Verzauberter Goldener Apfel = Trank der Gesundheitssteigerung-2 (60 Sekunden)"]
 
 [brewing.decay]
 name = "Abgefüllter Verfall"

@@ -131,7 +131,7 @@ public class CraftingStations extends SimpleAdaptation<CraftingStations.Config> 
       p.setFoodLevel(Math.max(0, p.getFoodLevel() - hungerCost));
     }
 
-    p.setCooldown(hand.getType(), 1000);
+    p.setCooldown(hand.getType(), getConfig().cooldown);
     materializeStation(handTip);
     if (station == InventoryType.WORKBENCH) {
       p.openWorkbench(null, true);

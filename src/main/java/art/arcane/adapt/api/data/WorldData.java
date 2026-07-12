@@ -29,6 +29,7 @@ import art.arcane.spatial.matter.ClassReader;
 import art.arcane.spatial.matter.Matter;
 import art.arcane.spatial.matter.MatterSlice;
 import art.arcane.spatial.matter.SpatialMatter;
+import art.arcane.volmlib.util.bukkit.WorldIdentity;
 import art.arcane.volmlib.util.collection.KMap;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.io.CountingDataInputStream;
@@ -39,6 +40,7 @@ import art.arcane.volmlib.util.mantle.runtime.MantleDataAdapter;
 import art.arcane.volmlib.util.mantle.runtime.MantleHooks;
 import art.arcane.volmlib.util.mantle.runtime.TectonicPlate;
 import art.arcane.volmlib.util.parallel.HyperLockSupport;
+import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
@@ -66,7 +68,11 @@ public class WorldData extends TickedObject {
     super("world-data", world.getUID().toString(), 30_000);
     this.world = world;
     this.minHeight = world.getMinHeight();
-    mantle = createMantle(Adapt.instance.getDataFolder("data", "mantle", world.getName()), world.getMaxHeight());
+    NamespacedKey worldKey = WorldIdentity.key(world);
+    mantle = createMantle(
+        Adapt.instance.getDataFolder("data", "mantle", worldKey.getNamespace(), worldKey.getKey()),
+        world.getMaxHeight()
+    );
   }
 
   private static Mantle<Matter> createMantle(File dataFolder, int worldHeight) {

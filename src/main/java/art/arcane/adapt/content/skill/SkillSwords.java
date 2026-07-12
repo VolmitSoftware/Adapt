@@ -26,13 +26,20 @@ import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.content.adaptation.sword.SwordsBladeFlow;
 import art.arcane.adapt.content.adaptation.sword.SwordsBloodyBlade;
+import art.arcane.adapt.content.adaptation.sword.SwordsCrescentGuard;
 import art.arcane.adapt.content.adaptation.sword.SwordsCrimsonCyclone;
 import art.arcane.adapt.content.adaptation.sword.SwordsDualWield;
+import art.arcane.adapt.content.adaptation.sword.SwordsDuelistsFocus;
 import art.arcane.adapt.content.adaptation.sword.SwordsExecutionersEdge;
+import art.arcane.adapt.content.adaptation.sword.SwordsHamstring;
+import art.arcane.adapt.content.adaptation.sword.SwordsHeirloomEdge;
+import art.arcane.adapt.content.adaptation.sword.SwordsLungeStrike;
 import art.arcane.adapt.content.adaptation.sword.SwordsMachete;
 import art.arcane.adapt.content.adaptation.sword.SwordsPoisonedBlade;
 import art.arcane.adapt.content.adaptation.sword.SwordsRiposteWindow;
+import art.arcane.adapt.content.adaptation.sword.SwordsWhetstoneRitual;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
@@ -66,6 +73,13 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
     registerAdaptation(new SwordsExecutionersEdge());
     registerAdaptation(new SwordsRiposteWindow());
     registerAdaptation(new SwordsCrimsonCyclone());
+    registerAdaptation(new SwordsLungeStrike());
+    registerAdaptation(new SwordsBladeFlow());
+    registerAdaptation(new SwordsDuelistsFocus());
+    registerAdaptation(new SwordsWhetstoneRitual());
+    registerAdaptation(new SwordsCrescentGuard());
+    registerAdaptation(new SwordsHamstring());
+    registerAdaptation(new SwordsHeirloomEdge());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.WOODEN_SWORD)
         .key("challenge_sword_100")

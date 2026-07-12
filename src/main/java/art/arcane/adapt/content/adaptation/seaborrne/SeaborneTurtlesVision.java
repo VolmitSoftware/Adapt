@@ -40,8 +40,8 @@ import java.util.Map;
 import java.util.UUID;
 
 public class SeaborneTurtlesVision extends SimpleAdaptation<SeaborneTurtlesVision.Config> {
-  private static final int EFFECT_DURATION_TICKS = 160;
-  private static final int EFFECT_REFRESH_THRESHOLD_TICKS = 100;
+  private static final int EFFECT_DURATION_TICKS = 600;
+  private static final int EFFECT_REFRESH_THRESHOLD_TICKS = 500;
   private static final double MAX_CREDIT_TICKS_PER_SAMPLE = 160D;
 
   private final Map<UUID, Boolean> submerged = playerState();
@@ -77,18 +77,21 @@ public class SeaborneTurtlesVision extends SimpleAdaptation<SeaborneTurtlesVisio
           return;
         }
 
+        UUID id = player.getUniqueId();
         int level = getActiveLevel(player);
         if (level <= 0) {
-          submerged.remove(player.getUniqueId());
-          lastUnderwaterSample.remove(player.getUniqueId());
+          if (submerged.remove(id) != null) {
+            player.removePotionEffect(PotionEffectType.NIGHT_VISION);
+          }
+          lastUnderwaterSample.remove(id);
           return;
         }
 
-        UUID id = player.getUniqueId();
         boolean was = submerged.getOrDefault(id, false);
         if (!player.isInWater()) {
           if (was) {
             submerged.remove(id);
+            player.removePotionEffect(PotionEffectType.NIGHT_VISION);
             fx(player.getEyeLocation(), FxPriority.AMBIENT)
                 .particle(Particle.GLOW, 3, 0D, 0D, 0D, 0.2D, 0.02D)
                 .sound(Sound.BLOCK_CONDUIT_DEACTIVATE, 0.25F, 1.0F);

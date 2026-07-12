@@ -1119,23 +1119,23 @@ lore = ["Curacion Instantanea + Cuarzo = Pocion de Absorcion (60 segundos)", "Cu
 [brewing.fatigue]
 name = "Fatiga Embotellada"
 description = "¡Debilita el cuerpo!"
-lore1 = "Pocion de Debilidad + Bola de Slime = Pocion de Fatiga (30 segundos)"
-lore2 = "Pocion de Debilidad + Bloque de Slime = Pocion de Fatiga-2 (15 segundos)"
-lore = ["Pocion de Debilidad + Bola de Slime = Pocion de Fatiga (30 segundos)", "Pocion de Debilidad + Bloque de Slime = Pocion de Fatiga-2 (15 segundos)"]
+lore1 = "Pocion de Debilidad + Bola de Slime = Pocion de Fatiga (60 segundos)"
+lore2 = "Pocion de Debilidad + Bloque de Slime = Pocion de Fatiga-2 (30 segundos)"
+lore = ["Pocion de Debilidad + Bola de Slime = Pocion de Fatiga (60 segundos)", "Pocion de Debilidad + Bloque de Slime = Pocion de Fatiga-2 (30 segundos)"]
 
 [brewing.hunger]
 name = "Hambre Embotellada"
 description = "¡Alimenta al insaciable!"
-lore1 = "Pocion Rara + Carne Podrida = Pocion de Hambre (30 segundos)"
-lore2 = "Pocion de Debilidad + Carne Podrida = Pocion de Hambre-3 (15 segundos)"
-lore = ["Pocion Rara + Carne Podrida = Pocion de Hambre (30 segundos)", "Pocion de Debilidad + Carne Podrida = Pocion de Hambre-3 (15 segundos)"]
+lore1 = "Pocion Rara + Carne Podrida = Pocion de Hambre (60 segundos)"
+lore2 = "Pocion de Debilidad + Carne Podrida = Pocion de Hambre-3 (30 segundos)"
+lore = ["Pocion Rara + Carne Podrida = Pocion de Hambre (60 segundos)", "Pocion de Debilidad + Carne Podrida = Pocion de Hambre-3 (30 segundos)"]
 
 [brewing.nausea]
 name = "Nauseas Embotelladas"
 description = "¡Me das asco!"
-lore1 = "Pocion Rara + Champiñon Marron = Pocion de Nauseas (16 segundos)"
-lore2 = "Pocion Rara + Hongo Carmesi = Pocion de Nauseas-2 (8 segundos)"
-lore = ["Pocion Rara + Champiñon Marron = Pocion de Nauseas (16 segundos)", "Pocion Rara + Hongo Carmesi = Pocion de Nauseas-2 (8 segundos)"]
+lore1 = "Pocion Rara + Champiñon Marron = Pocion de Nauseas (30 segundos)"
+lore2 = "Pocion Rara + Hongo Carmesi = Pocion de Nauseas-2 (15 segundos)"
+lore = ["Pocion Rara + Champiñon Marron = Pocion de Nauseas (30 segundos)", "Pocion Rara + Hongo Carmesi = Pocion de Nauseas-2 (15 segundos)"]
 
 [brewing.blindness]
 name = "Ceguera Embotellada"
@@ -1154,9 +1154,9 @@ lore = ["Pocion Rara + Lingote de Hierro = Pocion de Resistencia (60 segundos)",
 [brewing.health_boost]
 name = "Vida Embotellada"
 description = "Cuando la salud maxima no es suficiente..."
-lore1 = "Pocion de Curacion Instantanea + Manzana Dorada = Pocion de Mejora de Salud (120 segundos)"
-lore2 = "Pocion de Curacion Instantanea + Manzana Dorada Encantada = Pocion de Mejora de Salud-2 (120 segundos)"
-lore = ["Pocion de Curacion Instantanea + Manzana Dorada = Pocion de Mejora de Salud (120 segundos)", "Pocion de Curacion Instantanea + Manzana Dorada Encantada = Pocion de Mejora de Salud-2 (120 segundos)"]
+lore1 = "Pocion de Curacion Instantanea + Manzana Dorada = Pocion de Mejora de Salud (60 segundos)"
+lore2 = "Pocion de Curacion Instantanea + Manzana Dorada Encantada = Pocion de Mejora de Salud-2 (60 segundos)"
+lore = ["Pocion de Curacion Instantanea + Manzana Dorada = Pocion de Mejora de Salud (60 segundos)", "Pocion de Curacion Instantanea + Manzana Dorada Encantada = Pocion de Mejora de Salud-2 (60 segundos)"]
 
 [brewing.decay]
 name = "Deterioro Embotellado"

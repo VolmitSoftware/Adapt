@@ -45,7 +45,7 @@ apply plugin: PaperweightUser
 version = '2.0.0-26.2'
 def apiVersion = '26.2'
 def main = 'art.arcane.adapt.Adapt'
-String paperDevBundleVersion = '26.2.build.25-alpha'
+String paperDevBundleVersion = '26.2.build.60-beta'
 String volmLibCoordinate = providers.gradleProperty('volmLibCoordinate')
     .orElse('com.github.VolmitSoftware:VolmLib:master-SNAPSHOT')
     .get()
@@ -145,7 +145,7 @@ dependencies {
         transitive = false
     }
 
-    compileOnly('io.papermc.paper:paper-api:26.2.build.25-alpha')
+    compileOnly('io.papermc.paper:paper-api:26.2.build.60-beta')
 
     // Cancer
     slimApi(libs.fukkit) {
@@ -185,7 +185,7 @@ dependencies {
     compileOnlyApi('com.griefdefender:api:2.1.0-SNAPSHOT')
     compileOnlyApi(fileTree('libs') { include('*.jar') })
 
-    testImplementation('io.papermc.paper:paper-api:26.2.build.25-alpha')
+    testImplementation('io.papermc.paper:paper-api:26.2.build.60-beta')
     testImplementation('org.junit.jupiter:junit-jupiter:5.11.4')
     testImplementation('org.mockito:mockito-core:5.14.2')
     testImplementation('org.mockito:mockito-junit-jupiter:5.14.2')

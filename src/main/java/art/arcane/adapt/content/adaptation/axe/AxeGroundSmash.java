@@ -82,6 +82,10 @@ public class AxeGroundSmash extends SimpleAdaptation<AxeGroundSmash.Config> {
       return;
     }
 
+    if (p.getCooldown(combat.mainHand().getType()) > 0) {
+      return;
+    }
+
     double f = getLevelPercent(combat.level());
 
     p.setCooldown(combat.mainHand().getType(), getCooldownTime(f));

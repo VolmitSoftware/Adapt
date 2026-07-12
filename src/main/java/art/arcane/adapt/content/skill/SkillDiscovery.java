@@ -31,7 +31,13 @@ import art.arcane.adapt.content.adaptation.discovery.DiscoveryArchaeologist;
 import art.arcane.adapt.content.adaptation.discovery.DiscoveryArmor;
 import art.arcane.adapt.content.adaptation.discovery.DiscoveryBetterMending;
 import art.arcane.adapt.content.adaptation.discovery.DiscoveryCartographerPulse;
+import art.arcane.adapt.content.adaptation.discovery.DiscoveryFieldNotes;
 import art.arcane.adapt.content.adaptation.discovery.DiscoveryInsight;
+import art.arcane.adapt.content.adaptation.discovery.DiscoveryKeenEye;
+import art.arcane.adapt.content.adaptation.discovery.DiscoveryPolymath;
+import art.arcane.adapt.content.adaptation.discovery.DiscoveryRelicAppraiser;
+import art.arcane.adapt.content.adaptation.discovery.DiscoverySixthSense;
+import art.arcane.adapt.content.adaptation.discovery.DiscoveryTrailblazer;
 import art.arcane.adapt.content.adaptation.discovery.DiscoveryUnity;
 import art.arcane.adapt.content.adaptation.discovery.DiscoveryVillagerAtt;
 import art.arcane.adapt.content.adaptation.discovery.DiscoveryXpResist;
@@ -41,6 +47,7 @@ import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
+import art.arcane.volmlib.util.bukkit.WorldIdentity;
 import lombok.NoArgsConstructor;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Keyed;
@@ -97,6 +104,12 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     registerAdaptation(new DiscoveryArchaeologist());
     registerAdaptation(new DiscoveryCartographerPulse());
     registerAdaptation(new DiscoveryInsight());
+    registerAdaptation(new DiscoveryTrailblazer());
+    registerAdaptation(new DiscoveryFieldNotes());
+    registerAdaptation(new DiscoveryPolymath());
+    registerAdaptation(new DiscoveryRelicAppraiser());
+    registerAdaptation(new DiscoverySixthSense());
+    registerAdaptation(new DiscoveryKeenEye());
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.ITEM_FRAME).key("challenge_discover_items_50")
@@ -343,7 +356,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
 
   public void seeWorld(Player p, World world) {
     Discovery<String> d = getPlayer(p).getData().getSeenWorlds();
-    if (d.isNewDiscovery(world.getName() + "-" + world.getSeed())) {
+    if (d.isNewDiscovery(WorldIdentity.serialize(world) + "-" + world.getSeed())) {
       xp(p, getConfig().discoverWorldXP);
     }
 

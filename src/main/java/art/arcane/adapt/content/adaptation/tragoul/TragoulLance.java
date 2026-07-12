@@ -65,6 +65,7 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
   private static final int MAX_CANDIDATE_HANDOFFS = 8;
   private static final int MAX_SEARCHES_PER_WINDOW = 32;
   private static final int MAX_PENDING_CHAINS = 256;
+  private static final double IMPACT_MOVE_TOLERANCE_SQUARED = 6.25D;
   private static final long WORK_WINDOW_MILLIS = 50L;
   private static final long CHAIN_TIMEOUT_MILLIS = 30_000L;
   private static final long COOLDOWN_MILLIS = 5000L;
@@ -316,7 +317,8 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
     TargetSnapshot current = captureTargetOwned(chain.ownerId(), approved.entity());
     if (current == null || current.protectedFriendly()
         || !current.entityId().equals(approved.entityId())
-        || !sameBlock(current.location(), approved.location())) {
+        || current.location().getWorld() != approved.location().getWorld()
+        || current.location().distanceSquared(approved.location()) > IMPACT_MOVE_TOLERANCE_SQUARED) {
       finishChain(chain);
       return;
     }
@@ -393,19 +395,12 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
 
   private double getSeekerDamageMultiplier() {
     double configured = getConfig().seekerDamageMultiplier;
-    return Double.isFinite(configured) ? Math.max(0D, Math.min(2D, configured)) : 0D;
+    return Double.isFinite(configured) ? Math.max(0D, Math.min(4D, configured)) : 0D;
   }
 
   private double getSelfDamageMultiplier() {
     double configured = getConfig().selfDamageMultiplier;
     return Double.isFinite(configured) ? Math.max(0D, Math.min(1D, configured)) : 0D;
-  }
-
-  private boolean sameBlock(Location first, Location second) {
-    return first.getWorld() == second.getWorld()
-        && first.getBlockX() == second.getBlockX()
-        && first.getBlockY() == second.getBlockY()
-        && first.getBlockZ() == second.getBlockZ();
   }
 
   private void playLanceLaunch(Location origin) {
@@ -443,11 +438,11 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
   @ConfigDescription("Killing an enemy spawns a lance that seeks and damages a nearby enemy.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Seeker Delay for the Tragoul Lance adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    int seekerDelay = 20;
+    int seekerDelay = 12;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Seeker Damage Multiplier for the Tragoul Lance adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double seekerDamageMultiplier = 0.5;
+    double seekerDamageMultiplier = 1.0;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Self Damage Multiplier for the Tragoul Lance adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double selfDamageMultiplier = 0.5;
+    double selfDamageMultiplier = 0.25;
 
     public Config() {
       costFactor = 0.72;

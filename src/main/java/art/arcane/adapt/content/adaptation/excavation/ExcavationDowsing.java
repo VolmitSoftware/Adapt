@@ -27,6 +27,8 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.scheduling.J;
+import art.arcane.adapt.util.common.world.WorldBlockScanScheduler;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
@@ -41,17 +43,22 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class ExcavationDowsing extends SimpleAdaptation<ExcavationDowsing.Config> {
   private static final int MAX_SCAN_RANGE = 24;
-  private static final int[][] SCAN_OFFSETS = buildScanOffsets();
+  private static final int MAX_BLOCK_CHECKS_PER_ACTIVATION = 4096;
+  private static final int MIN_POCKET_DISTANCE_SQUARED = 25;
   private final Cooldowns cooldowns = cooldowns();
+  private final Map<UUID, UUID> activeScans = new ConcurrentHashMap<>();
 
   public ExcavationDowsing() {
     super("excavation-dowsing");
@@ -65,25 +72,6 @@ public class ExcavationDowsing extends SimpleAdaptation<ExcavationDowsing.Config
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
     registerMilestone("challenge_excavation_dowsing_200", "excavation.dowsing.pockets-found", 200, 400);
-  }
-
-  private static int[][] buildScanOffsets() {
-    List<int[]> offsets = new ArrayList<>();
-    for (int x = -MAX_SCAN_RANGE; x <= MAX_SCAN_RANGE; x += 2) {
-      for (int y = -MAX_SCAN_RANGE; y <= MAX_SCAN_RANGE; y += 2) {
-        for (int z = -MAX_SCAN_RANGE; z <= MAX_SCAN_RANGE; z += 2) {
-          int d2 = (x * x) + (y * y) + (z * z);
-          if (d2 < 25 || d2 > MAX_SCAN_RANGE * MAX_SCAN_RANGE) {
-            continue;
-          }
-
-          offsets.add(new int[]{x, y, z, d2});
-        }
-      }
-    }
-
-    offsets.sort(Comparator.comparingInt(o -> o[3]));
-    return offsets.toArray(new int[0][]);
   }
 
   @Override
@@ -113,71 +101,101 @@ public class ExcavationDowsing extends SimpleAdaptation<ExcavationDowsing.Config
       return;
     }
 
+    if (activeScans.containsKey(p.getUniqueId())) {
+      return;
+    }
+
     cooldowns.mark(p.getUniqueId());
-
-    Block pocket = findNearestPocket(p.getLocation(), getScanRange(level), getConfig().maxSamples);
-    if (pocket == null) {
-      fx(p.getEyeLocation(), FxPriority.TRANSITION)
-          .particle(Particles.SMOKE, 2, 0, 0, 0, 0.1D, 0.01D)
-          .sound(Sound.BLOCK_NOTE_BLOCK_HAT, 0.3f, 0.6f);
-      return;
-    }
-
-    Location origin = p.getEyeLocation();
-    Location target = pocket.getLocation().add(0.5, 0.5, 0.5);
-    Vector direction = target.toVector().subtract(origin.toVector());
-    if (direction.lengthSquared() <= 0.0000001) {
-      return;
-    }
-
-    Material type = pocket.getType();
-    Color color = pocketColor(type);
-    ripplePulse(p.getLocation(), color);
-    renderTrail(origin, direction.normalize(), color, type);
-    playTone(p, type, origin.distance(target), getScanRange(level));
-    addStat(p, "excavation.dowsing.pockets-found", 1);
-    xp(p, getConfig().xpPerPing);
+    startScan(p, p.getLocation(), getScanRange(level));
   }
 
-  private Block findNearestPocket(Location origin, int range, int maxSamples) {
+  private void startScan(Player p, Location origin, int range) {
     World world = origin.getWorld();
     if (world == null) {
-      return null;
+      return;
     }
 
-    int ox = origin.getBlockX();
-    int oy = origin.getBlockY();
-    int oz = origin.getBlockZ();
-    int minY = world.getMinHeight();
-    int maxY = world.getMaxHeight() - 1;
-    int rangeSq = range * range;
-    int samples = 0;
+    int originX = origin.getBlockX();
+    int originY = origin.getBlockY();
+    int originZ = origin.getBlockZ();
+    int checks = Math.min(MAX_BLOCK_CHECKS_PER_ACTIVATION, Math.max(1, getConfig().maxSamples));
+    WorldBlockScanScheduler.ScanRequest request = WorldBlockScanScheduler.ScanRequest.builder(origin)
+        .radius(range)
+        .denseRadius(getConfig().denseScanRadius)
+        .maxSamples(checks)
+        .maxResults(1)
+        .seed(ThreadLocalRandom.current().nextInt())
+        .blockMatcher(block -> isPocket(block, originX, originY, originZ))
+        .completion(result -> completeScan(p, range, result))
+        .build();
+    UUID scanId = WorldBlockScanScheduler.submit(this, p.getUniqueId(), request);
+    activeScans.put(p.getUniqueId(), scanId);
+  }
 
-    for (int[] offset : SCAN_OFFSETS) {
-      if (offset[3] > rangeSq || samples >= maxSamples) {
-        return null;
-      }
-
-      samples++;
-      int by = oy + offset[1];
-      if (by < minY || by > maxY) {
-        continue;
-      }
-
-      int bx = ox + offset[0];
-      int bz = oz + offset[2];
-      if (!world.isChunkLoaded(bx >> 4, bz >> 4)) {
-        continue;
-      }
-
-      Block block = world.getBlockAt(bx, by, bz);
-      Material type = block.getType();
-      if ((type == Material.WATER || type == Material.LAVA || type.isAir()) && block.getLightFromSky() == 0) {
-        return block;
-      }
+  private void completeScan(Player p, int range, WorldBlockScanScheduler.ScanResult result) {
+    UUID playerId = p.getUniqueId();
+    if (!result.scanId().equals(activeScans.get(playerId))) {
+      return;
     }
 
-    return null;
+    boolean scheduled = J.runEntity(p, () -> {
+      if (!activeScans.remove(playerId, result.scanId()) || !p.isOnline()) {
+        return;
+      }
+
+      List<WorldBlockScanScheduler.Match> matches = result.matches();
+      if (matches.isEmpty()) {
+        fx(p.getEyeLocation(), FxPriority.TRANSITION)
+            .particle(Particles.SMOKE, 2, 0, 0, 0, 0.1D, 0.01D)
+            .sound(Sound.BLOCK_NOTE_BLOCK_HAT, 0.3f, 0.6f);
+        return;
+      }
+
+      WorldBlockScanScheduler.Match pocket = matches.get(0);
+      Location origin = p.getEyeLocation();
+      Location target = pocket.center(result.world());
+      Vector direction = target.toVector().subtract(origin.toVector());
+      if (direction.lengthSquared() <= 0.0000001) {
+        return;
+      }
+
+      Material type = pocket.material();
+      Color color = pocketColor(type);
+      ripplePulse(p.getLocation(), color);
+      renderTrail(origin, direction.normalize(), color, type);
+      playTone(p, type, origin.distance(target), range);
+      addStat(p, "excavation.dowsing.pockets-found", 1);
+      xp(p, getConfig().xpPerPing);
+    });
+    if (!scheduled) {
+      activeScans.remove(playerId, result.scanId());
+    }
+  }
+
+  private boolean isPocket(Block block, int originX, int originY, int originZ) {
+    int dx = block.getX() - originX;
+    int dy = block.getY() - originY;
+    int dz = block.getZ() - originZ;
+    if (((dx * dx) + (dy * dy) + (dz * dz)) < MIN_POCKET_DISTANCE_SQUARED) {
+      return false;
+    }
+
+    Material type = block.getType();
+    return (type == Material.WATER || type == Material.LAVA || type.isAir()) && block.getLightFromSky() == 0;
+  }
+
+  @EventHandler
+  public void on(PlayerQuitEvent e) {
+    UUID playerId = e.getPlayer().getUniqueId();
+    activeScans.remove(playerId);
+    WorldBlockScanScheduler.cancel(this, playerId);
+  }
+
+  @Override
+  public void unregister() {
+    activeScans.clear();
+    WorldBlockScanScheduler.cancelOwner(this);
+    super.unregister();
   }
 
   private Color pocketColor(Material type) {
@@ -264,6 +282,8 @@ public class ExcavationDowsing extends SimpleAdaptation<ExcavationDowsing.Config
     double scanRangeFactor = 16;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Samples for the Excavation Dowsing adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     int maxSamples = 2000;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Radius searched completely before the remaining Dowsing budget is spread across the full range.", impact = "Higher values prioritize nearby accuracy; lower values reserve more samples for distant pockets.")
+    int denseScanRadius = 10;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown Millis Base for the Excavation Dowsing adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double cooldownMillisBase = 9000;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown Millis Factor for the Excavation Dowsing adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

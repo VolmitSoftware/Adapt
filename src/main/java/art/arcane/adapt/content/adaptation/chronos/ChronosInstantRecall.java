@@ -32,6 +32,7 @@ import art.arcane.adapt.util.common.input.DoubleJumpGesture;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.entity.StackExclusion;
+import art.arcane.volmlib.util.bukkit.WorldIdentity;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
@@ -216,9 +217,9 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
       return false;
     }
 
-    String world = path.get(0).worldName();
+    String worldKey = path.get(0).worldKey();
     for (Snapshot snapshot : path) {
-      if (!Objects.equals(world, snapshot.worldName())) {
+      if (!Objects.equals(worldKey, snapshot.worldKey())) {
         return false;
       }
     }
@@ -312,7 +313,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
 
   private RecallXPContext buildRecallXPContext(Snapshot from, Snapshot to) {
     double distance;
-    if (Objects.equals(from.worldName(), to.worldName())) {
+    if (Objects.equals(from.worldKey(), to.worldKey())) {
       double dx = from.x() - to.x();
       double dy = from.y() - to.y();
       double dz = from.z() - to.z();
@@ -326,11 +327,11 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
     double saturationRecovered = Math.max(0D, to.saturation() - from.saturation());
 
     return new RecallXPContext(
-        from.worldName(),
+        from.worldKey(),
         from.x(),
         from.y(),
         from.z(),
-        to.worldName(),
+        to.worldKey(),
         to.x(),
         to.y(),
         to.z(),
@@ -352,11 +353,11 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
   }
 
   private boolean isRepeatRecall(RecallXPFarmStamp stamp, RecallXPContext context) {
-    return pointsAreSimilar(stamp.fromWorld(), stamp.fromX(), stamp.fromY(), stamp.fromZ(),
-        context.fromWorld(), context.fromX(), context.fromY(), context.fromZ(),
+    return pointsAreSimilar(stamp.fromWorldKey(), stamp.fromX(), stamp.fromY(), stamp.fromZ(),
+        context.fromWorldKey(), context.fromX(), context.fromY(), context.fromZ(),
         getConfig().xpRepeatSourceRadius)
-        && pointsAreSimilar(stamp.toWorld(), stamp.toX(), stamp.toY(), stamp.toZ(),
-        context.toWorld(), context.toX(), context.toY(), context.toZ(),
+        && pointsAreSimilar(stamp.toWorldKey(), stamp.toX(), stamp.toY(), stamp.toZ(),
+        context.toWorldKey(), context.toX(), context.toY(), context.toZ(),
         getConfig().xpRepeatTargetRadius);
   }
 
@@ -396,7 +397,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
 
   private Snapshot snapshotFromPlayer(Player p, long now) {
     return new Snapshot(now,
-        p.getWorld().getName(),
+        WorldIdentity.serialize(p.getWorld()),
         p.getLocation().getX(),
         p.getLocation().getY(),
         p.getLocation().getZ(),
@@ -416,7 +417,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
     }
 
     return new Snapshot(now,
-        world.getName(),
+        WorldIdentity.serialize(world),
         location.getX(),
         location.getY(),
         location.getZ(),
@@ -550,7 +551,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
     }
 
     long timestamp = (long) Math.round(lerp(a.timestamp(), b.timestamp(), alpha));
-    String worldName = alpha < 0.5D ? a.worldName() : b.worldName();
+    String worldKey = alpha < 0.5D ? a.worldKey() : b.worldKey();
     double x = lerp(a.x(), b.x(), alpha);
     double y = lerp(a.y(), b.y(), alpha);
     double z = lerp(a.z(), b.z(), alpha);
@@ -562,7 +563,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
     float exhaustion = (float) lerp(a.exhaustion(), b.exhaustion(), alpha);
     int fireTicks = (int) Math.round(lerp(a.fireTicks(), b.fireTicks(), alpha));
 
-    return new Snapshot(timestamp, worldName, x, y, z, yaw, pitch, health, foodLevel, saturation, exhaustion, fireTicks);
+    return new Snapshot(timestamp, worldKey, x, y, z, yaw, pitch, health, foodLevel, saturation, exhaustion, fireTicks);
   }
 
   private double lerp(double a, double b, double alpha) {
@@ -582,10 +583,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
   }
 
   private Location toLocation(Snapshot snapshot, World fallback) {
-    World world = Bukkit.getWorld(snapshot.worldName());
-    if (world == null) {
-      world = fallback;
-    }
+    World world = WorldIdentity.resolve(snapshot.worldKey()).orElse(fallback);
     return new Location(world, snapshot.x(), snapshot.y(), snapshot.z(), snapshot.yaw(), snapshot.pitch());
   }
 
@@ -1032,11 +1030,11 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
           xp(p, p.getLocation(), xpGain);
           recallXpStamps.put(id, new RecallXPFarmStamp(
               awardAt,
-              xpContext.fromWorld(),
+              xpContext.fromWorldKey(),
               xpContext.fromX(),
               xpContext.fromY(),
               xpContext.fromZ(),
-              xpContext.toWorld(),
+              xpContext.toWorldKey(),
               xpContext.toX(),
               xpContext.toY(),
               xpContext.toZ()));

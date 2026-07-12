@@ -53,8 +53,9 @@ import java.util.UUID;
 
 public class SwordsPoisonedBlade extends SimpleAdaptation<SwordsPoisonedBlade.Config> {
   private static final Color VENOM = Color.fromRGB(0x6EDB4C);
+  private static final long KILL_CREDIT_GRACE_MS = 4000L;
   private final Cooldowns cooldowns = cooldowns();
-  private final Map<UUID, UUID> poisonSource = playerState();
+  private final Map<UUID, PoisonMark> poisonSource = playerState();
 
   public SwordsPoisonedBlade() {
     super("sword-poison-blade");
@@ -86,14 +87,14 @@ public class SwordsPoisonedBlade extends SimpleAdaptation<SwordsPoisonedBlade.Co
   }
 
   public long getCooldown(int level) {
-    return getConfig().cooldown * level;
+    return Math.max(getConfig().cooldown, getDurationOfEffect(level));
   }
 
   public long getDurationOfEffect(int level) {
     return getConfig().effectDuration * level;
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST)
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(EntityDamageByEntityEvent e) {
     if (e.getDamager() instanceof Player p && hasActiveAdaptation(p) && ItemListings.getToolSwords().contains(p.getInventory().getItemInMainHand().getType())) {
       UUID id = p.getUniqueId();
@@ -101,8 +102,8 @@ public class SwordsPoisonedBlade extends SimpleAdaptation<SwordsPoisonedBlade.Co
         return;
       }
       Entity victim = e.getEntity();
-      cooldowns.mark(id);
       if (!canDamageTarget(p, victim)) return;
+      cooldowns.mark(id);
       if (victim instanceof Player pvic) {
         BleedEffect blood = new BleedEffect(Adapt.instance.adaptEffectManager);
         blood.setEntity(pvic);
@@ -123,7 +124,9 @@ public class SwordsPoisonedBlade extends SimpleAdaptation<SwordsPoisonedBlade.Co
         blood.hurt = false;
         blood.start();
       }
-      poisonSource.put(victim.getUniqueId(), id);
+      long now = System.currentTimeMillis();
+      pruneExpired(now);
+      poisonSource.put(victim.getUniqueId(), new PoisonMark(id, now + getDurationOfEffect(getLevel(p)) + KILL_CREDIT_GRACE_MS));
       addStat(p, "swords.poisoned-blade.poison-applied", 1);
       fx(victim.getLocation().add(0, 1, 0), FxPriority.COMBAT)
           .dustBurst(VENOM, 10, 0.3D, 1.0F)
@@ -135,11 +138,11 @@ public class SwordsPoisonedBlade extends SimpleAdaptation<SwordsPoisonedBlade.Co
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(EntityDeathEvent e) {
     UUID victimId = e.getEntity().getUniqueId();
-    UUID sourceId = poisonSource.remove(victimId);
-    if (sourceId == null) {
+    PoisonMark mark = poisonSource.remove(victimId);
+    if (mark == null || mark.expiresAt() < System.currentTimeMillis()) {
       return;
     }
-    Player source = Bukkit.getPlayer(sourceId);
+    Player source = Bukkit.getPlayer(mark.source());
     if (source != null && source.isOnline()) {
       addStat(source, "swords.poisoned-blade.poison-kills", 1);
     }
@@ -147,6 +150,13 @@ public class SwordsPoisonedBlade extends SimpleAdaptation<SwordsPoisonedBlade.Co
         .particle(Particles.SMOKE, 6, 0, 0, 0, 0.05D, 0.01D)
         .dustBurst(VENOM, 6, 0.35D, 1.0F)
         .sound(Sound.ENTITY_SPIDER_DEATH, 0.5F, 1.4F);
+  }
+
+  private void pruneExpired(long now) {
+    poisonSource.values().removeIf(mark -> mark.expiresAt() < now);
+  }
+
+  private record PoisonMark(UUID source, long expiresAt) {
   }
 
 

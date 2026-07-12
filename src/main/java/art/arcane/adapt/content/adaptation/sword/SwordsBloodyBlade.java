@@ -53,8 +53,9 @@ import java.util.UUID;
 
 public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config> {
   private static final Color BLOOD = Color.fromRGB(0x9E1414);
+  private static final long KILL_CREDIT_GRACE_MS = 4000L;
   private final Cooldowns cooldowns = cooldowns();
-  private final Map<UUID, UUID> bleedSource = playerState();
+  private final Map<UUID, BleedMark> bleedSource = playerState();
 
   public SwordsBloodyBlade() {
     super("sword-bloody-blade");
@@ -85,7 +86,7 @@ public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config
   }
 
   public long getCooldown(int level) {
-    return getConfig().cooldown * level;
+    return Math.max(getConfig().cooldown, getDurationOfEffect(level));
   }
 
   public long getDurationOfEffect(int level) {
@@ -93,7 +94,7 @@ public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config
   }
 
 
-  @EventHandler(priority = EventPriority.HIGHEST)
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(EntityDamageByEntityEvent e) {
     if (e.getDamager() instanceof Player p && hasActiveAdaptation(p) && ItemListings.getToolSwords().contains(p.getInventory().getItemInMainHand().getType())) {
       UUID id = p.getUniqueId();
@@ -101,8 +102,8 @@ public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config
         return;
       }
       Entity victim = e.getEntity();
-      cooldowns.mark(id);
       if (!canDamageTarget(p, victim)) return;
+      cooldowns.mark(id);
       BleedEffect blood = victim instanceof LivingEntity l ? new DamagingBleedEffect(Adapt.instance.adaptEffectManager, getConfig().damagePerBleedProc, l) : new BleedEffect(Adapt.instance.adaptEffectManager);
       blood.setEntity(victim);
       blood.material = areParticlesEnabled() ? Material.CRIMSON_ROOTS : Material.VOID_AIR;
@@ -111,7 +112,9 @@ public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config
       blood.period = 5;
       blood.hurt = false;
       blood.start();
-      bleedSource.put(victim.getUniqueId(), id);
+      long now = System.currentTimeMillis();
+      pruneExpired(now);
+      bleedSource.put(victim.getUniqueId(), new BleedMark(id, now + getDurationOfEffect(getLevel(p)) + KILL_CREDIT_GRACE_MS));
       addStat(p, "swords.bloody-blade.bleed-damage", 1);
       fx(victim.getLocation().add(0, 1, 0), FxPriority.COMBAT)
           .dustBurst(BLOOD, 8, 0.3D, 1.1F)
@@ -123,11 +126,11 @@ public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(EntityDeathEvent e) {
     UUID victimId = e.getEntity().getUniqueId();
-    UUID sourceId = bleedSource.remove(victimId);
-    if (sourceId == null) {
+    BleedMark mark = bleedSource.remove(victimId);
+    if (mark == null || mark.expiresAt() < System.currentTimeMillis()) {
       return;
     }
-    Player source = Bukkit.getPlayer(sourceId);
+    Player source = Bukkit.getPlayer(mark.source());
     if (source != null && source.isOnline()) {
       addStat(source, "swords.bloody-blade.bleed-kills", 1);
     }
@@ -135,6 +138,13 @@ public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config
         .dustBurst(BLOOD, 10, 0.4D, 1.1F)
         .particle(Particles.SMOKE, 4, 0, 0, 0, 0.05D, 0.01D)
         .sound(Sound.ENTITY_PLAYER_ATTACK_CRIT, 0.7F, 0.7F);
+  }
+
+  private void pruneExpired(long now) {
+    bleedSource.values().removeIf(mark -> mark.expiresAt() < now);
+  }
+
+  private record BleedMark(UUID source, long expiresAt) {
   }
 
 

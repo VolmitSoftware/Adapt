@@ -1293,23 +1293,23 @@ lore = ["Instant Heal + Quartz = Potion of Absorption (60 seconds)", "Instant He
 [brewing.fatigue]
 name = "Bottled Fatigue"
 description = "Unlocks brewing Potions of Mining Fatigue, which slow a target's digging and attacks."
-lore1 = "Weakness Potion + Slime Ball = Potion of Fatigue (30 seconds)"
-lore2 = "Weakness Potion + Slime Block = Potion of Fatigue-2 (15 seconds)"
-lore = ["Weakness Potion + Slime Ball = Potion of Fatigue (30 seconds)", "Weakness Potion + Slime Block = Potion of Fatigue-2 (15 seconds)"]
+lore1 = "Weakness Potion + Slime Ball = Potion of Fatigue (60 seconds)"
+lore2 = "Weakness Potion + Slime Block = Potion of Fatigue-2 (30 seconds)"
+lore = ["Weakness Potion + Slime Ball = Potion of Fatigue (60 seconds)", "Weakness Potion + Slime Block = Potion of Fatigue-2 (30 seconds)"]
 
 [brewing.hunger]
 name = "Bottled Hunger"
 description = "Unlocks brewing Potions of Hunger, which drain a target's food."
-lore1 = "Awkward Potion + Rotten Flesh = Potion of Hunger (30 seconds)"
-lore2 = "Weakness Potion + Rotten Flesh = Potion of Hunger-3 (15 seconds)"
-lore = ["Awkward Potion + Rotten Flesh = Potion of Hunger (30 seconds)", "Weakness Potion + Rotten Flesh = Potion of Hunger-3 (15 seconds)"]
+lore1 = "Awkward Potion + Rotten Flesh = Potion of Hunger (60 seconds)"
+lore2 = "Weakness Potion + Rotten Flesh = Potion of Hunger-3 (30 seconds)"
+lore = ["Awkward Potion + Rotten Flesh = Potion of Hunger (60 seconds)", "Weakness Potion + Rotten Flesh = Potion of Hunger-3 (30 seconds)"]
 
 [brewing.nausea]
 name = "Bottled Nausea"
 description = "Unlocks brewing Potions of Nausea, which warp a target's vision."
-lore1 = "Awkward Potion + Brown Mushroom = Potion of Nausea (16 seconds)"
-lore2 = "Awkward Potion + Crimson Fungus = Potion of Nausea-2 (8 seconds)"
-lore = ["Awkward Potion + Brown Mushroom = Potion of Nausea (16 seconds)", "Awkward Potion + Crimson Fungus = Potion of Nausea-2 (8 seconds)"]
+lore1 = "Awkward Potion + Brown Mushroom = Potion of Nausea (30 seconds)"
+lore2 = "Awkward Potion + Crimson Fungus = Potion of Nausea-2 (15 seconds)"
+lore = ["Awkward Potion + Brown Mushroom = Potion of Nausea (30 seconds)", "Awkward Potion + Crimson Fungus = Potion of Nausea-2 (15 seconds)"]
 
 [brewing.blindness]
 name = "Bottled Blindness"
@@ -1328,9 +1328,9 @@ lore = ["Awkward Potion + Iron Ingot = Potion of Resistance (60 seconds)", "Awkw
 [brewing.health_boost]
 name = "Bottled Life"
 description = "Unlocks brewing Potions of Health Boost for extra maximum hearts."
-lore1 = "Instant-Healing Potion + Golden Apple = Potion of Health Boost (120 seconds)"
-lore2 = "Instant-Healing Potion + Enchanted Golden Apple = Potion of Health Boost-2 (120 seconds)"
-lore = ["Instant-Healing Potion + Golden Apple = Potion of Health Boost (120 seconds)", "Instant-Healing Potion + Enchanted Golden Apple = Potion of Health Boost-2 (120 seconds)"]
+lore1 = "Instant-Healing Potion + Golden Apple = Potion of Health Boost (60 seconds)"
+lore2 = "Instant-Healing Potion + Enchanted Golden Apple = Potion of Health Boost-2 (60 seconds)"
+lore = ["Instant-Healing Potion + Golden Apple = Potion of Health Boost (60 seconds)", "Instant-Healing Potion + Enchanted Golden Apple = Potion of Health Boost-2 (60 seconds)"]
 
 [brewing.decay]
 name = "Bottled Decay"
@@ -4282,3 +4282,1286 @@ description = "Defy death 50 times"
 
 [snippets.xp]
 inspired = "Inspired! Fresh activity bonus"
+
+# agility
+[agility.slipstream_slide]
+name = "Slipstream Slide"
+description = "Tap sneak while sprinting to slide in a low pose, keeping momentum and fitting under 1-block gaps."
+lore1 = "Slide speed (blocks/sec)"
+lore2 = "Slide cooldown"
+lore3 = "Max level: mobs you slide through are slowed"
+lore = ["Slide speed (blocks/sec)", "Slide cooldown", "Max level: mobs you slide through are slowed"]
+
+[agility.air_dash]
+name = "Air Dash"
+description = "Left-click air after a sprint-jump to dash forward with pure horizontal velocity."
+lore1 = "Dash speed (blocks/sec)"
+lore2 = "Mid-air dash charges"
+lore = ["Dash speed (blocks/sec)", "Mid-air dash charges"]
+
+[agility.cat_reflexes]
+name = "Cat Reflexes"
+description = "A chance while sprinting to dodge incoming projectiles entirely."
+lore1 = "Projectile dodge chance"
+lore = ["Projectile dodge chance"]
+
+[agility.featherfoot]
+name = "Featherfoot"
+description = "Sprinting ignores farmland, pressure plates, sweet-berry snags, and eventually powder snow."
+lore1 = "Surfaces ignored while sprinting"
+lore2 = "Farmland > pressure plates > sweet berries > powder snow"
+lore = ["Surfaces ignored while sprinting", "Farmland > pressure plates > sweet berries > powder snow"]
+
+[agility.vault]
+name = "Vault"
+description = "Sprint straight over fences, walls, and low ledges instead of stalling against them."
+lore1 = "Max vault height (blocks)"
+lore2 = "Hunger cost per vault"
+lore = ["Max vault height (blocks)", "Hunger cost per vault"]
+
+[agility.marathoner]
+name = "Marathoner"
+description = "Sprinting drains less saturation, letting you run further before hunger bites."
+lore1 = "Sprint saturation drain reduction"
+lore = ["Sprint saturation drain reduction"]
+
+[agility.kip_up]
+name = "Kip-Up"
+description = "Jump right after taking a hit to convert knockback into recovered momentum and a speed burst."
+lore1 = "Recovery window"
+lore2 = "Recovery speed boost tier"
+lore = ["Recovery window", "Recovery speed boost tier"]
+
+[advancement.challenge_agility_slipstream_500]
+title = "Powder Hound"
+description = "Slide 500 times"
+
+[advancement.challenge_agility_slipstream_5k]
+title = "Downhill Racer"
+description = "Slide 5,000 times"
+
+[advancement.challenge_agility_air_dash_500]
+title = "Air Traffic"
+description = "Air dash 500 times"
+
+[advancement.challenge_agility_air_dash_5k]
+title = "Sky Streak"
+description = "Air dash 5,000 times"
+
+[advancement.challenge_agility_cat_reflexes_100]
+title = "Whiff"
+description = "Dodge 100 projectiles while sprinting"
+
+[advancement.challenge_agility_cat_reflexes_1k]
+title = "Nine Lives"
+description = "Dodge 1,000 projectiles while sprinting"
+
+[advancement.challenge_agility_featherfoot_500]
+title = "Light Step"
+description = "Ignore 500 hazardous surfaces while sprinting"
+
+[advancement.challenge_agility_featherfoot_5k]
+title = "Untrodden"
+description = "Ignore 5,000 hazardous surfaces while sprinting"
+
+[advancement.challenge_agility_vault_250]
+title = "Hurdler"
+description = "Vault 250 obstacles"
+
+[advancement.challenge_agility_vault_2500]
+title = "Freerun"
+description = "Vault 2,500 obstacles"
+
+[advancement.challenge_agility_marathoner_5k]
+title = "Second Lung"
+description = "Save 5,000 saturation while sprinting"
+
+[advancement.challenge_agility_marathoner_50k]
+title = "Ultramarathon"
+description = "Save 50,000 saturation while sprinting"
+
+[advancement.challenge_agility_kip_up_100]
+title = "Back On Your Feet"
+description = "Recover from 100 hits with a kip-up"
+
+[advancement.challenge_agility_kip_up_1k]
+title = "Unshaken"
+description = "Recover from 1,000 hits with a kip-up"
+
+# axe
+[axe.throwing_axe]
+name = "Throwing Axe"
+description = "Left-click air with an axe to hurl it as a spinning projectile that deals its melee damage."
+lore1 = "Melee Damage Multiplier"
+lore2 = "Throw Speed"
+lore3 = "Throw Cooldown"
+lore4 = "Returns to your hand at max level"
+lore = ["Melee Damage Multiplier", "Throw Speed", "Throw Cooldown", "Returns to your hand at max level"]
+
+[axe.sunder]
+name = "Sunder"
+description = "Axe hits shred a target's armor in stacking layers that fade over time."
+lore1 = "Armor Shred Per Stack"
+lore2 = "Max Stacks"
+lore3 = "Shred Duration"
+lore = ["Armor Shred Per Stack", "Max Stacks", "Shred Duration"]
+
+[axe.cleave]
+name = "Cleave"
+description = "Melee axe swings cleave extra enemies in a short frontal arc."
+lore1 = "Cleave Arc"
+lore2 = "Max Extra Targets"
+lore3 = "Damage Share"
+lore = ["Cleave Arc", "Max Extra Targets", "Damage Share"]
+
+[axe.bark_hide]
+name = "Bark Hide"
+description = "Chopping logs layers on short-lived absorption that fades once you stop working."
+lore1 = "Absorption Cap"
+lore2 = "Decay Grace"
+lore = ["Absorption Cap", "Decay Grace"]
+
+[axe.sap_tap]
+name = "Sap Tap"
+description = "Sneak-right-click a natural log with a glass bottle in your off hand to draw tree sap."
+lore1 = "Sap Per Tap"
+lore2 = "Bonus Drop Chance"
+item = "Tree Sap"
+lore = ["Sap Per Tap", "Bonus Drop Chance"]
+
+[axe.orchardist]
+name = "Orchardist"
+description = "Felling a tree with an axe automatically replants a matching sapling."
+lore1 = "Replant Chance"
+lore2 = "Drops a bonus sapling at max level"
+lore = ["Replant Chance", "Drops a bonus sapling at max level"]
+
+[axe.shield_splitter]
+name = "Shield Splitter"
+description = "Axe hits on blocking foes disable their shield longer and deal bonus damage."
+lore1 = "Shield Disable Duration"
+lore2 = "Bonus Damage vs Blocking"
+lore = ["Shield Disable Duration", "Bonus Damage vs Blocking"]
+
+[advancement.challenge_axe_throw_500]
+title = "Hatchet Hurler"
+description = "Land 500 thrown-axe hits"
+
+[advancement.challenge_axe_throw_5k]
+title = "Whirling Death"
+description = "Land 5,000 thrown-axe hits"
+
+[advancement.challenge_axe_sunder_500]
+title = "Armor Cracker"
+description = "Apply 500 Sunder stacks"
+
+[advancement.challenge_axe_sunder_5k]
+title = "Plate Render"
+description = "Apply 5,000 Sunder stacks"
+
+[advancement.challenge_axe_cleave_1k]
+title = "Wide Swing"
+description = "Cleave 1,000 secondary targets"
+
+[advancement.challenge_axe_cleave_10k]
+title = "Reaper of the Line"
+description = "Cleave 10,000 secondary targets"
+
+[advancement.challenge_axe_bark_hide_2500]
+title = "Second Skin"
+description = "Build 2,500 bark absorption stacks"
+
+[advancement.challenge_axe_sap_tap_500]
+title = "Sugar Season"
+description = "Draw 500 sap"
+
+[advancement.challenge_axe_orchardist_500]
+title = "Steward of the Grove"
+description = "Replant 500 trees"
+
+[advancement.challenge_axe_shield_splitter_250]
+title = "Guard Breaker"
+description = "Split 250 shields"
+
+# crafting
+[crafting.bulk_artisan]
+name = "Bulk Artisan"
+description = "Shift-click a craft result to pull extra ingredients from your inventory and craft a bigger batch at once."
+lore1 = "Shift-click also pulls matching ingredients from your inventory"
+lore2 = "bonus items per shift-craft"
+lore = ["Shift-click also pulls matching ingredients from your inventory", "bonus items per shift-craft"]
+
+[crafting.thrifty_hands]
+name = "Thrifty Hands"
+description = "Every craft has a chance to refund one of its ingredients."
+lore1 = "chance to refund a crafting ingredient"
+lore = ["chance to refund a crafting ingredient"]
+
+[crafting.masterwork]
+name = "Masterwork"
+description = "Tools and armor you craft can roll bonus durability, with a chance for a minor attribute bonus at full level."
+lore1 = "chance to forge a masterwork piece"
+lore2 = "bonus max durability"
+lore3 = "At full level, a chance for a minor attribute bonus"
+tag = "Masterwork"
+attribute_tag = "Masterwork Edge"
+lore = ["chance to forge a masterwork piece", "bonus max durability", "At full level, a chance for a minor attribute bonus"]
+
+[crafting.compactor]
+name = "Compactor"
+description = "Toggle to auto-craft full stacks of ingots, gems, and raw ores into blocks in your inventory."
+lore1 = "Sneak + swap hands to toggle auto-compacting"
+lore2 = "materials compacted into block form"
+lore3 = "Only acts on full stacks, leaving loose remainders"
+toggle_on = "Compactor enabled"
+toggle_off = "Compactor disabled"
+lore = ["Sneak + swap hands to toggle auto-compacting", "materials compacted into block form", "Only acts on full stacks, leaving loose remainders"]
+
+[crafting.tinkerer]
+name = "Tinkerer"
+description = "Combine two damaged tools of the same type in the crafting grid to keep their best enchantments."
+lore1 = "Grid-repair two matching tools to keep the better enchantments"
+lore2 = "chance to preserve every enchantment"
+lore3 = "Otherwise a single random enchantment is lost"
+lore = ["Grid-repair two matching tools to keep the better enchantments", "chance to preserve every enchantment", "Otherwise a single random enchantment is lost"]
+
+[crafting.provisioner]
+name = "Provisioner"
+description = "Crafting or cooking food has a chance to yield bonus portions."
+lore1 = "chance for bonus food portions"
+lore2 = "bonus portions per proc"
+lore = ["chance for bonus food portions", "bonus portions per proc"]
+
+[crafting.signature]
+name = "Artisan's Signature"
+description = "Items you craft carry your signature, and villagers offer better trades while you carry your signed goods."
+lore1 = "Crafted items are signed with your name"
+lore2 = "Villagers offer better trades while you carry signed goods"
+tag = "Signed by"
+lore = ["Crafted items are signed with your name", "Villagers offer better trades while you carry signed goods"]
+
+[advancement.challenge_crafting_bulk_1k]
+title = "Batch Work"
+description = "Bulk-craft 1,000 items"
+
+[advancement.challenge_crafting_bulk_10k]
+title = "Assembly Line"
+description = "Bulk-craft 10,000 items"
+
+[advancement.challenge_crafting_thrifty_500]
+title = "Penny Pincher"
+description = "Refund 500 ingredients"
+
+[advancement.challenge_crafting_thrifty_5k]
+title = "Waste Not"
+description = "Refund 5,000 ingredients"
+
+[advancement.challenge_crafting_masterwork_50]
+title = "Craftsman"
+description = "Forge 50 masterwork pieces"
+
+[advancement.challenge_crafting_masterwork_500]
+title = "Grandmaster Smith"
+description = "Forge 500 masterwork pieces"
+
+[advancement.challenge_crafting_compactor_1k]
+title = "Space Saver"
+description = "Compact 1,000 blocks"
+
+[advancement.challenge_crafting_compactor_10k]
+title = "Storage Baron"
+description = "Compact 10,000 blocks"
+
+[advancement.challenge_crafting_tinkerer_50]
+title = "Tinkerer"
+description = "Tinker 50 tools"
+
+[advancement.challenge_crafting_tinkerer_500]
+title = "Master Tinkerer"
+description = "Tinker 500 tools"
+
+[advancement.challenge_crafting_provisioner_500]
+title = "Caterer"
+description = "Yield 500 bonus food portions"
+
+[advancement.challenge_crafting_provisioner_5k]
+title = "Quartermaster"
+description = "Yield 5,000 bonus food portions"
+
+[advancement.challenge_crafting_signature_100]
+title = "Signed"
+description = "Complete 100 villager trades carrying signed goods"
+
+[advancement.challenge_crafting_signature_1k]
+title = "Renowned Artisan"
+description = "Complete 1,000 villager trades carrying signed goods"
+
+# enchanting
+[enchanting.curse_cleansing]
+name = "Curse Cleansing"
+description = "The grindstone can strip Curse of Binding and Curse of Vanishing for a steep XP level cost."
+lore1 = "XP Level Cost"
+cleansed = "Curses Cleansed"
+lore = ["XP Level Cost"]
+
+[enchanting.tome_rebinding]
+name = "Tome Rebinding"
+description = "Sneak-right-click a multi-enchant book in an anvil to split it into single-enchant books. Lossy at low levels, lossless at max."
+lore1 = "Enchant Loss Chance"
+lore2 = "XP Level Cost"
+split = "Books Split Off"
+lore = ["Enchant Loss Chance", "XP Level Cost"]
+
+[enchanting.soul_link]
+name = "Soul Link"
+description = "Sneak-right-click an anvil to soul-link an enchanted item so it survives death, gated by an XP level buffer."
+lore1 = "XP Save Cost"
+lore2 = "Re-Mark Cooldown"
+linked = "Item Soul-Linked"
+saved = "Soul-Linked Item Recovered"
+cooling = "Soul Link recharging"
+lore = ["XP Save Cost", "Re-Mark Cooldown"]
+
+[enchanting.arcane_siphon]
+name = "Arcane Siphon"
+description = "Killing mobs in enchanted gear grants bonus XP and can siphon a book of their enchantments."
+lore1 = "Book Drop Chance"
+lore2 = "Enchant Quality Bonus"
+lore = ["Book Drop Chance", "Enchant Quality Bonus"]
+
+[enchanting.rune_sight]
+name = "Rune Sight"
+description = "Reveal the enchantments behind enchanting-table offers before you commit. One at first, the full list at max."
+lore1 = "Offers Revealed"
+lore = ["Offers Revealed"]
+
+[enchanting.infusion_transfer]
+name = "Infusion Transfer"
+description = "Right-click the base item in an anvil to move one enchantment onto it from the sacrifice item."
+lore1 = "Source Survival Chance"
+lore2 = "XP Level Cost"
+moved = "Enchant Moved"
+lore = ["Source Survival Chance", "XP Level Cost"]
+
+[enchanting.echo_of_knowledge]
+name = "Echo of Knowledge"
+description = "Hold an enchanted book while collecting XP to charge it and upgrade an enchantment within vanilla caps."
+lore1 = "XP Charge Rate"
+upgraded = "Enchant Upgraded"
+lore = ["XP Charge Rate"]
+
+[advancement.challenge_enchanting_cleanse_10]
+title = "Curse Breaker"
+description = "Cleanse 10 curses at the grindstone"
+
+[advancement.challenge_enchanting_cleanse_100]
+title = "Unbound"
+description = "Cleanse 100 curses"
+
+[advancement.challenge_enchanting_rebind_50]
+title = "Page Splitter"
+description = "Split 50 enchanted tomes"
+
+[advancement.challenge_enchanting_rebind_500]
+title = "Master Binder"
+description = "Split 500 enchanted tomes"
+
+[advancement.challenge_enchanting_soul_10]
+title = "Soul Tether"
+description = "Recover 10 soul-linked items from death"
+
+[advancement.challenge_enchanting_soul_100]
+title = "Undying Bond"
+description = "Recover 100 soul-linked items"
+
+[advancement.challenge_enchanting_siphon_25]
+title = "Arcane Scavenger"
+description = "Siphon 25 enchantment books from slain mobs"
+
+[advancement.challenge_enchanting_siphon_250]
+title = "Soul Harvester"
+description = "Siphon 250 enchantment books"
+
+[advancement.challenge_enchanting_rune_100]
+title = "Rune Reader"
+description = "Reveal 100 enchanting offers"
+
+[advancement.challenge_enchanting_rune_1k]
+title = "All-Seeing Scholar"
+description = "Reveal 1,000 enchanting offers"
+
+[advancement.challenge_enchanting_infusion_25]
+title = "Enchant Smith"
+description = "Transfer 25 enchantments between items"
+
+[advancement.challenge_enchanting_infusion_250]
+title = "Infusion Master"
+description = "Transfer 250 enchantments"
+
+[advancement.challenge_enchanting_echo_25]
+title = "Knowledge Keeper"
+description = "Charge 25 enchantment upgrades"
+
+[advancement.challenge_enchanting_echo_250]
+title = "Living Library"
+description = "Charge 250 enchantment upgrades"
+
+# nether
+[nether.soul_strider]
+name = "Soul Strider"
+description = "Move at full speed across soul sand and soul soil, gaining soul-speed bursts at mastery."
+lore1 = "Soul Stride Speed"
+lore2 = "Mastery Soul-Speed Burst"
+lore = ["Soul Stride Speed", "Mastery Soul-Speed Burst"]
+
+[nether.magma_skin]
+name = "Magma Skin"
+description = "While burning, melee attackers catch fire and your own strikes deal bonus fire damage."
+lore1 = "Attacker Ignite Duration"
+lore2 = "Bonus Fire Damage while Burning"
+lore = ["Attacker Ignite Duration", "Bonus Fire Damage while Burning"]
+
+[nether.netherrack_mason]
+name = "Netherrack Mason"
+description = "Mine netherrack, basalt, and blackstone faster in the Nether with occasional bonus drops."
+lore1 = "Mining Haste Tier"
+lore2 = "Bonus Drop Chance"
+lore = ["Mining Haste Tier", "Bonus Drop Chance"]
+
+[nether.strider_bond]
+name = "Strider Bond"
+description = "Ride striders faster, keep their pace out of lava, and land safely when dismounting over lava."
+lore1 = "Strider Speed Tier"
+lore2 = "Lava Dismount Rescue Radius"
+lore = ["Strider Speed Tier", "Lava Dismount Rescue Radius"]
+
+[nether.crimson_feast]
+name = "Crimson Feast"
+description = "Eat nether fungi and warped flora, and gain fire resistance from any meal in the Nether."
+lore1 = "Food Restored per Flora"
+lore2 = "Bonus Saturation"
+lore3 = "Nether Meal Fire Resistance"
+lore = ["Food Restored per Flora", "Bonus Saturation", "Nether Meal Fire Resistance"]
+
+[nether.ashwalker]
+name = "Ashwalker"
+description = "Ignore magma-block and campfire burns, and shrug off most soul-fire damage at mastery."
+lore1 = "Magma Block Immunity"
+lore2 = "Campfire Immunity"
+lore3 = "Soul-Fire Damage Reduction"
+lore = ["Magma Block Immunity", "Campfire Immunity", "Soul-Fire Damage Reduction"]
+
+[nether.wither_harvest]
+name = "Wither Harvest"
+description = "Wither skeletons yield extra bones and coal, with slightly improved skull odds."
+lore1 = "Bonus Bones"
+lore2 = "Bonus Coal"
+lore3 = "Improved Skull Chance"
+lore = ["Bonus Bones", "Bonus Coal", "Improved Skull Chance"]
+
+[advancement.challenge_nether_soul_1k]
+title = "Ash Treader"
+description = "Walk 1,000 blocks on soul sand or soul soil"
+
+[advancement.challenge_nether_soul_25k]
+title = "Soul Sprinter"
+description = "Walk 25,000 blocks on soul sand or soul soil"
+
+[advancement.challenge_nether_magma_100]
+title = "Molten Touch"
+description = "Ignite 100 melee attackers while burning"
+
+[advancement.challenge_nether_magma_2500]
+title = "Living Inferno"
+description = "Ignite 2,500 melee attackers while burning"
+
+[advancement.challenge_nether_mason_1k]
+title = "Nether Mason"
+description = "Mine 1,000 netherrack, basalt, or blackstone blocks in the Nether"
+
+[advancement.challenge_nether_mason_25k]
+title = "Basalt Breaker"
+description = "Mine 25,000 netherrack, basalt, or blackstone blocks in the Nether"
+
+[advancement.challenge_nether_strider_500]
+title = "Strider Rider"
+description = "Ride striders 500 blocks"
+
+[advancement.challenge_nether_strider_5k]
+title = "Lava Voyager"
+description = "Ride striders 5,000 blocks"
+
+[advancement.challenge_nether_strider_rescue]
+title = "Soft Landing"
+description = "Be caught by Strider Bond when dismounting over lava"
+
+[advancement.challenge_nether_feast_100]
+title = "Fungal Diet"
+description = "Eat 100 nether fungi or warped flora"
+
+[advancement.challenge_nether_feast_2500]
+title = "Crimson Gourmand"
+description = "Eat 2,500 nether fungi or warped flora"
+
+[advancement.challenge_nether_ash_200]
+title = "Ember Skin"
+description = "Negate 200 magma and fire damage"
+
+[advancement.challenge_nether_ash_5k]
+title = "Cinderproof"
+description = "Negate 5,000 magma and fire damage"
+
+[advancement.challenge_nether_harvest_100]
+title = "Bone Collector"
+description = "Harvest 100 wither skeletons"
+
+[advancement.challenge_nether_harvest_2500]
+title = "Skull Reaper"
+description = "Harvest 2,500 wither skeletons"
+
+# seaborrne
+[seaborn.coral_gardener]
+name = "Coral Gardener"
+description = "Coral you place survives out of water far longer, bonemeal grows coral, and reef blocks grant bonus XP."
+lore1 = "Coral Survival Time"
+lore2 = "Bonemeal Growth Chance"
+lore = ["Coral Survival Time", "Bonemeal Growth Chance"]
+
+[seaborn.deep_salvager]
+name = "Deep Salvager"
+description = "Underwater containers shimmer within range and reward bonus treasure the first time you open them submerged."
+lore1 = "Detection Range (blocks)"
+lore2 = "Bonus Treasure Rolls"
+lore = ["Detection Range (blocks)", "Bonus Treasure Rolls"]
+
+[seaborn.ink_veil]
+name = "Ink Veil"
+description = "Taking damage underwater bursts an ink cloud that blinds hostiles and briefly hides you from drowned and guardians."
+lore1 = "Ink Cloud Size (blocks)"
+lore2 = "Ink Burst Cooldown"
+lore = ["Ink Cloud Size (blocks)", "Ink Burst Cooldown"]
+
+[seaborn.trident_mastery]
+name = "Trident Mastery"
+description = "Tridents deal bonus damage and home back to you faster after a throw."
+lore1 = "Bonus Trident Damage"
+lore2 = "Recall Speed"
+lore = ["Bonus Trident Damage", "Recall Speed"]
+
+[seaborn.fish_whisperer]
+name = "Fish Whisperer"
+description = "Fish school toward you, dolphins and axolotls assist your hunts, and you fish with a permanent Luck of the Sea tier."
+lore1 = "Luck of the Sea Tier"
+lore2 = "Creature Affinity Range (blocks)"
+lore = ["Luck of the Sea Tier", "Creature Affinity Range (blocks)"]
+
+[seaborn.hydro_jet]
+name = "Hydro Jet"
+description = "Tap sneak while swimming to burst forward on a jet of water. Costs hunger and consumes a charge."
+lore1 = "Burst Force"
+lore2 = "Jet Charges"
+lore = ["Burst Force", "Jet Charges"]
+
+[seaborn.brine_skin]
+name = "Brine Skin"
+description = "While wet you slowly regenerate and take reduced damage, and the buff lingers briefly after you dry off."
+lore1 = "Brine Regeneration Tier"
+lore2 = "Damage Reduction While Wet"
+lore = ["Brine Regeneration Tier", "Damage Reduction While Wet"]
+
+[advancement.challenge_seaborne_coral_500]
+title = "Reef Rookie"
+description = "Place 500 coral or reef blocks"
+
+[advancement.challenge_seaborne_coral_5k]
+title = "Reef Architect"
+description = "Place 5,000 coral or reef blocks"
+
+[advancement.challenge_seaborne_salvage_100]
+title = "Wreck Diver"
+description = "Salvage 100 underwater containers"
+
+[advancement.challenge_seaborne_salvage_1k]
+title = "Deep Treasure Hunter"
+description = "Salvage 1,000 underwater containers"
+
+[advancement.challenge_seaborne_ink_100]
+title = "Ink Screen"
+description = "Burst 100 ink clouds"
+
+[advancement.challenge_seaborne_ink_1k]
+title = "Cephalopod"
+description = "Burst 1,000 ink clouds"
+
+[advancement.challenge_seaborne_trident_250]
+title = "Harpooner"
+description = "Land 250 trident hits"
+
+[advancement.challenge_seaborne_trident_2500]
+title = "Storm Bringer"
+description = "Land 2,500 trident hits"
+
+[advancement.challenge_seaborne_charm_2k]
+title = "Fish Friend"
+description = "Charm 2,000 sea creatures"
+
+[advancement.challenge_seaborne_charm_20k]
+title = "Pied Piper of the Sea"
+description = "Charm 20,000 sea creatures"
+
+[advancement.challenge_seaborne_hydro_200]
+title = "Jet Stream"
+description = "Perform 200 hydro jets"
+
+[advancement.challenge_seaborne_hydro_5k]
+title = "Torpedo"
+description = "Perform 5,000 hydro jets"
+
+[advancement.challenge_seaborne_brine_72k]
+title = "Salt of the Sea"
+description = "Spend 1 cumulative hour wet"
+
+# stealth
+# ---- Stealth: new adaptations ----
+[stealth.shadowmeld]
+name = "Shadowmeld"
+description = "Stand still while sneaking in low light to meld into the shadows, becoming invisible to mobs until you move or act."
+lore1 = "Light Threshold"
+lore2 = "Meld Delay"
+lore = ["Light Threshold", "Meld Delay"]
+
+[stealth.smoke_pellet]
+name = "Smoke Pellet"
+description = "Sneak and flick an empty hand to throw a smoke pellet that blinds nearby hostiles. Costs one gunpowder."
+lore1 = "Cloud Radius"
+lore2 = "Cloud Duration"
+lore = ["Cloud Radius", "Cloud Duration"]
+
+[stealth.cutpurse]
+name = "Cutpurse"
+description = "Sneak-hits on pillagers, vindicators, and piglins can pick their pockets, stealing loot without a kill."
+lore1 = "Steal Chance"
+lore2 = "Loot Stacks"
+lore = ["Steal Chance", "Loot Stacks"]
+
+[stealth.trap_sense]
+name = "Trap Sense"
+description = "While sneaking, nearby tripwires, pressure plates, and sculk sensors glimmer; higher levels raise shrieker warning levels more slowly."
+lore1 = "Detection Range"
+lore2 = "Sculk Mercy"
+lore = ["Detection Range", "Sculk Mercy"]
+
+[stealth.assassinate]
+name = "Assassinate"
+description = "A strike from the shadows or while fully unseen instantly executes non-boss mobs below a max-health cap."
+lore1 = "Executable Health Cap"
+lore2 = "Cooldown"
+lore = ["Executable Health Cap", "Cooldown"]
+
+[stealth.decoy_swap]
+name = "Decoy Swap"
+description = "While your Shadow Decoy is alive, double-tap sneak to swap places with it."
+lore1 = "Swap Range"
+lore2 = "Cooldown"
+lore = ["Swap Range", "Cooldown"]
+
+[stealth.umbral_recovery]
+name = "Umbral Recovery"
+description = "Kills made while sneaking refund hunger and extend any active invisibility window."
+lore1 = "Hunger Refund"
+lore2 = "Invisibility Extension"
+lore = ["Hunger Refund", "Invisibility Extension"]
+
+# ---- Stealth: new advancements ----
+[advancement.challenge_stealth_shadowmeld_100]
+title = "One With Shadow"
+description = "Meld into the shadows 100 times"
+
+[advancement.challenge_stealth_shadowmeld_1k]
+title = "Living Darkness"
+description = "Meld into the shadows 1,000 times"
+
+[advancement.challenge_stealth_smoke_100]
+title = "Smokescreen"
+description = "Throw 100 smoke pellets"
+
+[advancement.challenge_stealth_smoke_1k]
+title = "Vanishing Act"
+description = "Throw 1,000 smoke pellets"
+
+[advancement.challenge_stealth_cutpurse_100]
+title = "Light Fingers"
+description = "Pick 100 pockets"
+
+[advancement.challenge_stealth_cutpurse_1k]
+title = "Master Thief"
+description = "Pick 1,000 pockets"
+
+[advancement.challenge_stealth_trap_500]
+title = "Trapfinder"
+description = "Reveal 500 traps"
+
+[advancement.challenge_stealth_trap_5k]
+title = "Sixth Sense"
+description = "Reveal 5,000 traps"
+
+[advancement.challenge_stealth_assassinate_50]
+title = "Silent Death"
+description = "Execute 50 mobs from the shadows"
+
+[advancement.challenge_stealth_assassinate_500]
+title = "Grim Reaper"
+description = "Execute 500 mobs from the shadows"
+
+[advancement.challenge_stealth_decoy_swap_100]
+title = "Sleight of Shadow"
+description = "Swap with your decoy 100 times"
+
+[advancement.challenge_stealth_decoy_swap_1k]
+title = "Now You See Me"
+description = "Swap with your decoy 1,000 times"
+
+[advancement.challenge_stealth_umbral_200]
+title = "Nightfeeder"
+description = "Recover from 200 sneaking kills"
+
+[advancement.challenge_stealth_umbral_2k]
+title = "Shadowfeast"
+description = "Recover from 2,000 sneaking kills"
+
+# sword
+[sword.lunge_strike]
+name = "Lunge Strike"
+description = "Sprint-attack with a sword to lunge into the blow with extra reach."
+lore1 = "Lunge Force"
+lore2 = "Bonus Reach"
+lore = ["Lunge Force", "Bonus Reach"]
+
+[sword.blade_flow]
+name = "Blade Flow"
+description = "Chain sword hits to build attack-speed stacks. Taking damage breaks the flow."
+lore1 = "Max Flow Stacks"
+lore2 = "Attack Speed / Stack"
+lore = ["Max Flow Stacks", "Attack Speed / Stack"]
+
+[sword.duelists_focus]
+name = "Duelist's Focus"
+description = "Deal more damage and take less while exactly one hostile is engaged with you."
+lore1 = "Bonus Damage"
+lore2 = "Damage Reduction"
+lore = ["Bonus Damage", "Damage Reduction"]
+
+[sword.whetstone_ritual]
+name = "Whetstone Ritual"
+description = "Sneak right-click a grindstone with a sword to grind a temporary sharpness buff for durability and XP."
+lore1 = "Sharpness Level"
+lore2 = "Buff Duration"
+lore = ["Sharpness Level", "Buff Duration"]
+
+[sword.crescent_guard]
+name = "Crescent Guard"
+description = "Killing blows with a sword grant a brief burst of absorption hearts."
+lore1 = "Absorption Hearts"
+lore2 = "Guard Duration"
+lore = ["Absorption Hearts", "Guard Duration"]
+
+[sword.hamstring]
+name = "Hamstring"
+description = "Strikes on sprinting or fleeing targets slow them and stop them sprinting."
+lore1 = "Slowness Tier"
+lore2 = "Slow Duration"
+lore = ["Slowness Tier", "Slow Duration"]
+
+[sword.heirloom_edge]
+name = "Heirloom Edge"
+description = "Name a sword at an anvil to make it an heirloom that banks a tiny permanent damage bonus every few kills."
+lore1 = "Damage Per Bank"
+lore2 = "Kills Per Bank"
+lore3 = "Banked Damage Cap"
+lore = ["Damage Per Bank", "Kills Per Bank", "Banked Damage Cap"]
+
+[advancement.challenge_swords_lunge_250]
+title = "First Step"
+description = "Land 250 lunge strikes"
+
+[advancement.challenge_swords_lunge_2500]
+title = "Blink Step"
+description = "Land 2,500 lunge strikes"
+
+[advancement.challenge_swords_flow_1k]
+title = "Finding Flow"
+description = "Build 1,000 blade flow stacks"
+
+[advancement.challenge_swords_flow_10k]
+title = "In the Zone"
+description = "Build 10,000 blade flow stacks"
+
+[advancement.challenge_swords_flow_max]
+title = "Perfect Flow"
+description = "Reach your maximum blade flow stacks"
+
+[advancement.challenge_swords_duelist_200]
+title = "One on One"
+description = "Land 200 focused duelist hits"
+
+[advancement.challenge_swords_duelist_2500]
+title = "Master Duelist"
+description = "Land 2,500 focused duelist hits"
+
+[advancement.challenge_swords_whetstone_100]
+title = "Sharpened"
+description = "Perform 100 whetstone rituals"
+
+[advancement.challenge_swords_whetstone_1000]
+title = "Keen Edge"
+description = "Perform 1,000 whetstone rituals"
+
+[advancement.challenge_swords_crescent_200]
+title = "Crescent"
+description = "Score 200 guarded kills"
+
+[advancement.challenge_swords_crescent_2500]
+title = "Waxing Guard"
+description = "Score 2,500 guarded kills"
+
+[advancement.challenge_swords_hamstring_200]
+title = "Cut Off"
+description = "Hamstring 200 fleeing targets"
+
+[advancement.challenge_swords_hamstring_2500]
+title = "No Escape"
+description = "Hamstring 2,500 fleeing targets"
+
+[advancement.challenge_swords_heirloom_10]
+title = "Family Blade"
+description = "Bank 10 heirloom growths"
+
+[advancement.challenge_swords_heirloom_100]
+title = "Living Legacy"
+description = "Bank 100 heirloom growths"
+
+# taming
+[taming.fetch]
+name = "Fetch"
+description = "Your tamed wolves gather nearby dropped items and bring them straight to you."
+lore1 = "Fetch Range"
+lore2 = "Carry Chance"
+lore = ["Fetch Range", "Carry Chance"]
+
+[taming.alphas_command]
+name = "Alpha's Command"
+description = "Sneak-left-click a target while holding a bone to make your nearby pets focus it."
+lore1 = "Command Range"
+lore2 = "Focus Duration"
+lore = ["Command Range", "Focus Duration"]
+
+[taming.guardian_instinct]
+name = "Guardian Instinct"
+description = "Nearby pets leap to intercept projectiles aimed at you, taking reduced damage themselves."
+lore1 = "Intercept Chance"
+lore2 = "Pet Damage Reduction"
+lore = ["Intercept Chance", "Pet Damage Reduction"]
+
+[taming.stable_hand]
+name = "Stable Hand"
+description = "Animals you tame or breed keep a permanent bias toward better speed, jump, and health."
+lore1 = "Attribute Bias"
+lore = ["Attribute Bias"]
+
+[taming.wild_empathy]
+name = "Wild Empathy"
+description = "Taming succeeds more often, and neutral mobs are slower to anger at you."
+lore1 = "Extra Taming Odds"
+lore2 = "Anger Resistance"
+lore = ["Extra Taming Odds", "Anger Resistance"]
+
+[taming.battle_bond]
+name = "Battle Bond"
+description = "When one of your pets lands a kill, you and the nearby pack gain brief strength and speed."
+lore1 = "Buff Tier"
+lore2 = "Buff Duration"
+lore = ["Buff Tier", "Buff Duration"]
+
+[taming.last_breath]
+name = "Last Breath"
+description = "On a lethal hit a pet drops to 1 HP, is briefly invulnerable, and recalls to your side."
+lore1 = "Per-Pet Cooldown"
+lore2 = "Invulnerability"
+lore = ["Per-Pet Cooldown", "Invulnerability"]
+
+[advancement.challenge_taming_fetch_1k]
+title = "Good Boy"
+description = "Your wolves fetch 1,000 dropped items"
+
+[advancement.challenge_taming_fetch_10k]
+title = "Retriever"
+description = "Your wolves fetch 10,000 dropped items"
+
+[advancement.challenge_taming_command_250]
+title = "Sic 'Em"
+description = "Command your pack onto 250 targets"
+
+[advancement.challenge_taming_command_2500]
+title = "Warlord of Beasts"
+description = "Command your pack onto 2,500 targets"
+
+[advancement.challenge_taming_guardian_250]
+title = "Living Shield"
+description = "Your pets intercept 250 projectiles for you"
+
+[advancement.challenge_taming_guardian_2500]
+title = "Bodyguard Pack"
+description = "Your pets intercept 2,500 projectiles for you"
+
+[advancement.challenge_taming_stable_100]
+title = "Stable Hand"
+description = "Shape 100 animals with a lasting bias"
+
+[advancement.challenge_taming_stable_1k]
+title = "Master Breeder"
+description = "Shape 1,000 animals with a lasting bias"
+
+[advancement.challenge_taming_empathy_100]
+title = "Whisperer"
+description = "Wild Empathy tames 100 animals"
+
+[advancement.challenge_taming_empathy_1k]
+title = "Kindred Spirit"
+description = "Wild Empathy tames 1,000 animals"
+
+[advancement.challenge_taming_bond_250]
+title = "Battle Bond"
+description = "Trigger Battle Bond on 250 pet kills"
+
+[advancement.challenge_taming_bond_2500]
+title = "Warband"
+description = "Trigger Battle Bond on 2,500 pet kills"
+
+[advancement.challenge_taming_lastbreath_50]
+title = "Last Breath"
+description = "Save a pet from death 50 times"
+
+[advancement.challenge_taming_lastbreath_500]
+title = "Nine Lives"
+description = "Save a pet from death 500 times"
+
+# blocking
+[blocking.shield_wall]
+name = "Shield Wall"
+description = "While blocking, allies sheltered behind your shield take reduced projectile damage."
+lore1 = "Protection Arc (Degrees)"
+lore2 = "Projectile Damage Reduction"
+lore3 = "Protection Range"
+lore = ["Protection Arc (Degrees)", "Projectile Damage Reduction", "Protection Range"]
+
+[blocking.perfect_guard]
+name = "Perfect Guard"
+description = "Raise your shield the instant before a hit lands to negate it entirely and stagger the attacker."
+lore1 = "Perfect Guard Window"
+lore2 = "Stagger Duration"
+lore3 = "Stagger Power"
+lore = ["Perfect Guard Window", "Stagger Duration", "Stagger Power"]
+
+[blocking.tempered_guard]
+name = "Tempered Guard"
+description = "Blocked hits can temper your gear, restoring a sliver of shield and armor durability."
+lore1 = "Repair Chance Per Blocked Hit"
+lore2 = "Durability Restored Per Proc"
+lore = ["Repair Chance Per Blocked Hit", "Durability Restored Per Proc"]
+
+[blocking.shieldbearers_resolve]
+name = "Shieldbearer's Resolve"
+description = "When an axe disables your shield, brace with resistance and recover the shield faster."
+lore1 = "Shield Recovery Speed"
+lore2 = "Resistance Tier"
+lore = ["Shield Recovery Speed", "Resistance Tier"]
+
+[blocking.phalanx_crafter]
+name = "Phalanx Crafter"
+description = "Craft banner-faced shields directly, and reinforce shields with netherite for bonus durability."
+lore1 = "Level 1: craft a banner-faced shield directly from wool, planks, and iron."
+lore2 = "Level 2: forge a netherite-reinforced shield with greatly increased durability."
+lore = ["Level 1: craft a banner-faced shield directly from wool, planks, and iron.", "Level 2: forge a netherite-reinforced shield with greatly increased durability."]
+
+[blocking.interpose]
+name = "Interpose"
+description = "Sneak-block near a wounded ally to redirect part of the damage they take onto your shield."
+lore1 = "Damage Redirect Share"
+lore2 = "Interpose Range"
+lore3 = "Ally Low-Health Threshold"
+lore = ["Damage Redirect Share", "Interpose Range", "Ally Low-Health Threshold"]
+
+[advancement.challenge_blocking_shieldwall_500]
+title = "Living Rampart"
+description = "Shield 500 total projectile damage for allies"
+
+[advancement.challenge_blocking_shieldwall_5k]
+title = "Aegis of the Line"
+description = "Shield 5,000 total projectile damage for allies"
+
+[advancement.challenge_blocking_perfect_100]
+title = "Split-Second"
+description = "Perfectly guard 100 incoming hits"
+
+[advancement.challenge_blocking_perfect_1k]
+title = "Untouchable"
+description = "Perfectly guard 1,000 incoming hits"
+
+[advancement.challenge_blocking_tempered_500]
+title = "Self-Tempering"
+description = "Restore 500 total durability by blocking"
+
+[advancement.challenge_blocking_tempered_5k]
+title = "Everforged"
+description = "Restore 5,000 total durability by blocking"
+
+[advancement.challenge_blocking_resolve_100]
+title = "Unbroken"
+description = "Recover from 100 shield-disabling axe hits"
+
+[advancement.challenge_blocking_resolve_1k]
+title = "Immovable Vanguard"
+description = "Recover from 1,000 shield-disabling axe hits"
+
+[advancement.challenge_blocking_phalanx_25]
+title = "Shieldwright"
+description = "Craft 25 shields with Phalanx Crafter"
+
+[advancement.challenge_blocking_phalanx_netherite]
+title = "Netherite Bulwark"
+description = "Forge a netherite-reinforced shield"
+
+[advancement.challenge_blocking_interpose_250]
+title = "Bodyguard"
+description = "Redirect 250 total damage away from allies"
+
+[advancement.challenge_blocking_interpose_2k]
+title = "Guardian Angel"
+description = "Redirect 2,000 total damage away from allies"
+
+# discovery
+[discovery.trailblazer]
+name = "Trailblazer"
+description = "Your first visit to each biome or structure type grants a skill-XP burst and brief speed."
+lore1 = "First-Visit XP Burst"
+lore2 = "Discovery Speed Duration"
+lore = ["First-Visit XP Burst", "Discovery Speed Duration"]
+
+[discovery.field_notes]
+name = "Field Notes"
+description = "Your first kill of each mob species pays big XP and banks a small permanent damage bonus against that species."
+lore1 = "Max Damage Bonus per Species"
+lore2 = "First-Kill XP Bounty"
+lore = ["Max Damage Bonus per Species", "First-Kill XP Bounty"]
+
+[discovery.polymath]
+name = "Polymath"
+description = "Each skill you have leveled past a threshold adds a small global XP-gain bonus."
+lore1 = "Global XP Bonus per Qualifying Skill"
+lore2 = "Skill Level Needed to Qualify"
+lore = ["Global XP Bonus per Qualifying Skill", "Skill Level Needed to Qualify"]
+
+[discovery.relic_appraiser]
+name = "Relic Appraiser"
+description = "Sneak-right-click rare drops (heads, discs, armor trims, pottery sherds) to appraise them for Discovery XP; appraised items gain a lore tag."
+lore1 = "Appraisal XP (scaled by item rarity)"
+lore = ["Appraisal XP (scaled by item rarity)"]
+lore_tag = "Appraised"
+
+[discovery.sixth_sense]
+name = "Sixth Sense"
+description = "A soft particle pulse hints when an unexplored structure is within range."
+lore1 = "Structure Detection Range"
+lore = ["Structure Detection Range"]
+
+[discovery.keen_eye]
+name = "Keen Eye"
+description = "Chests and spawners in your line of sight briefly glimmer."
+lore1 = "Line-of-Sight Range"
+lore2 = "Glimmer Duration"
+lore = ["Line-of-Sight Range", "Glimmer Duration"]
+
+[advancement.challenge_discovery_trailblazer_25]
+title = "First Steps"
+description = "Make 25 first-time biome or structure discoveries"
+
+[advancement.challenge_discovery_trailblazer_100]
+title = "Pathfinder"
+description = "Make 100 first-time discoveries"
+
+[advancement.challenge_discovery_fieldnotes_25]
+title = "Bestiary"
+description = "Log a first kill for 25 mob species"
+
+[advancement.challenge_discovery_fieldnotes_100]
+title = "Monster Hunter"
+description = "Log a first kill for 100 mob species"
+
+[advancement.challenge_discovery_polymath_500]
+title = "Well Rounded"
+description = "Benefit from the Polymath bonus 500 times"
+
+[advancement.challenge_discovery_polymath_5k]
+title = "Renaissance Mind"
+description = "Benefit from the Polymath bonus 5,000 times"
+
+[advancement.challenge_discovery_appraiser_50]
+title = "Appraiser"
+description = "Appraise 50 rare relics"
+
+[advancement.challenge_discovery_appraiser_500]
+title = "Curator"
+description = "Appraise 500 rare relics"
+
+[advancement.challenge_discovery_sixthsense_100]
+title = "Intuition"
+description = "Sense 100 nearby unexplored structures"
+
+[advancement.challenge_discovery_sixthsense_1k]
+title = "Sixth Sense"
+description = "Sense 1,000 nearby unexplored structures"
+
+[advancement.challenge_discovery_keeneye_250]
+title = "Keen Eye"
+description = "Reveal 250 chests or spawners"
+
+[advancement.challenge_discovery_keeneye_2500]
+title = "Eagle Eye"
+description = "Reveal 2,500 chests or spawners"
+
+# hunter
+[hunter.predator_focus]
+name = "Predator Focus"
+description = "Repeated strikes on the same target ramp your damage; switching targets resets the ramp."
+lore1 = "Maximum ramp stacks"
+lore2 = "Bonus melee damage per ramp stack"
+lore3 = "Bonus melee damage at full ramp"
+lore = ["Maximum ramp stacks", "Bonus melee damage per ramp stack", "Bonus melee damage at full ramp"]
+
+[hunter.big_game]
+name = "Big Game Hunter"
+description = "Deal bonus damage to and reap extra drops from large and boss-class mobs."
+lore1 = "Bonus damage versus big game"
+lore2 = "Extra drop chance versus big game"
+lore = ["Bonus damage versus big game", "Extra drop chance versus big game"]
+
+[hunter.blood_trail]
+name = "Blood Trail"
+description = "Mobs you wound below half health leave a blood scent trail only you can see."
+lore1 = "Seconds the scent trail lingers"
+lore2 = "Blocks you can track the scent from"
+lore = ["Seconds the scent trail lingers", "Blocks you can track the scent from"]
+
+[hunter.snare_line]
+name = "Snare Line"
+description = "Craft a string-and-iron snare; hostile mobs that cross it are rooted briefly."
+item = "Hunter's Snare"
+lore1 = "Seconds mobs are rooted"
+lore2 = "Trigger charges per snare"
+lore3 = "Craft with string and iron, then right-click the ground to set it"
+lore = ["Seconds mobs are rooted", "Trigger charges per snare", "Craft with string and iron, then right-click the ground to set it"]
+
+[advancement.challenge_hunter_predator_focus_500]
+title = "Locked On"
+description = "Land 500 ramped Predator Focus strikes"
+
+[advancement.challenge_hunter_predator_focus_5k]
+title = "Apex Predator"
+description = "Land 5,000 ramped Predator Focus strikes"
+
+[advancement.challenge_hunter_big_game_100]
+title = "Big Game Hunter"
+description = "Slay 100 large or boss-class mobs"
+
+[advancement.challenge_hunter_big_game_1k]
+title = "Trophy Wall"
+description = "Slay 1,000 large or boss-class mobs"
+
+[advancement.challenge_hunter_blood_trail_250]
+title = "First Blood"
+description = "Open 250 blood trails"
+
+[advancement.challenge_hunter_blood_trail_2500]
+title = "Bloodhound"
+description = "Open 2,500 blood trails"
+
+[advancement.challenge_hunter_snare_200]
+title = "Trapper"
+description = "Snare 200 hostile mobs"
+
+[advancement.challenge_hunter_snare_2k]
+title = "Master Trapper"
+description = "Snare 2,000 hostile mobs"
+
+# rift
+[rift.void_skin]
+name = "Void Skin"
+description = "Dropping below a few hearts blinks you to a nearby safe spot and grants brief resistance. Costs an ender pearl and has a long cooldown. Leveling raises the trigger health and shortens the cooldown."
+lore1 = "Trigger Health (hearts)"
+lore2 = "Escape Cooldown"
+lore3 = "Costs an Ender Pearl"
+lore = ["Trigger Health (hearts)", "Escape Cooldown", "Costs an Ender Pearl"]
+
+[rift.pearl_rebound]
+name = "Pearl Rebound"
+description = "Thrown ender pearls bounce once off the first surface they hit and steer toward where you are aiming, and ender pearl teleport damage is reduced. Leveling increases both the damage reduction and the aim control."
+lore1 = "Pearl Damage Reduction"
+lore2 = "Aim Control"
+lore = ["Pearl Damage Reduction", "Aim Control"]
+
+[rift.conduit]
+name = "Rift Conduit"
+description = "Sneak-right-click a container with an ender pearl to capture a conduit taglock, then right-click a second container to link them. Items left in one linked container flow into the other when you close it. At max level the two containers can even be in different dimensions."
+lore1 = "Items Per Flow"
+lore2 = "Binding Range"
+lore3 = "Links across dimensions"
+lore = ["Items Per Flow", "Binding Range", "Links across dimensions"]
+taglock_name = "Rift Conduit Taglock"
+taglock_lore1 = "Captured a container at"
+taglock_lore2 = "Right-click a second container to link them"
+msg_captured = "Conduit taglock captured. Right-click a second container to link it."
+msg_linked = "Containers linked. Items placed in one now flow to the other."
+msg_need_container = "Aim at a container to use the conduit taglock."
+msg_range = "That container is too far away to link."
+msg_same = "You cannot link a container to itself."
+msg_stale = "The captured container is no longer available."
+
+[rift.step]
+name = "Rift Step"
+description = "Hold sneak during a lethal fall to phase to the nearest safe surface instead of hitting the ground. Costs an ender pearl and some experience. Leveling reduces the experience cost."
+lore1 = "Hold sneak during a lethal fall to phase to safety"
+lore2 = "Experience Cost"
+lore3 = "Costs an Ender Pearl"
+lore = ["Hold sneak during a lethal fall to phase to safety", "Experience Cost", "Costs an Ender Pearl"]
+
+[advancement.challenge_rift_void_skin_50]
+title = "Second Skin"
+description = "Escape 50 dangerous moments with Void Skin"
+
+[advancement.challenge_rift_void_skin_500]
+title = "Untouchable"
+description = "Escape 500 dangerous moments with Void Skin"
+
+[advancement.challenge_rift_rebound_100]
+title = "Bank Shot"
+description = "Rebound 100 ender pearls off surfaces"
+
+[advancement.challenge_rift_rebound_1k]
+title = "Trick Shot"
+description = "Rebound 1,000 ender pearls off surfaces"
+
+[advancement.challenge_rift_conduit_10]
+title = "Entangled"
+description = "Form 10 rift conduit links"
+
+[advancement.challenge_rift_conduit_10k]
+title = "Freight Network"
+description = "Flow 10,000 items through rift conduits"
+
+[advancement.challenge_rift_step_50]
+title = "Soft Landing"
+description = "Phase away from 50 lethal falls with Rift Step"
+
+[advancement.challenge_rift_step_500]
+title = "Gravity Optional"
+description = "Phase away from 500 lethal falls with Rift Step"

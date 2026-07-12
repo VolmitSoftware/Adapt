@@ -28,11 +28,18 @@ import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.version.IAttribute;
 import art.arcane.adapt.api.version.Version;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.content.adaptation.seaborrne.SeaborneBrineSkin;
+import art.arcane.adapt.content.adaptation.seaborrne.SeaborneCoralGardener;
+import art.arcane.adapt.content.adaptation.seaborrne.SeaborneDeepSalvager;
+import art.arcane.adapt.content.adaptation.seaborrne.SeaborneFishWhisperer;
 import art.arcane.adapt.content.adaptation.seaborrne.SeaborneFishersFantasy;
+import art.arcane.adapt.content.adaptation.seaborrne.SeaborneHydroJet;
+import art.arcane.adapt.content.adaptation.seaborrne.SeaborneInkVeil;
 import art.arcane.adapt.content.adaptation.seaborrne.SeaborneOxygen;
 import art.arcane.adapt.content.adaptation.seaborrne.SeabornePressureDiver;
 import art.arcane.adapt.content.adaptation.seaborrne.SeaborneSpeed;
 import art.arcane.adapt.content.adaptation.seaborrne.SeaborneTidecaller;
+import art.arcane.adapt.content.adaptation.seaborrne.SeaborneTridentMastery;
 import art.arcane.adapt.content.adaptation.seaborrne.SeaborneTurtlesMiningSpeed;
 import art.arcane.adapt.content.adaptation.seaborrne.SeaborneTurtlesVision;
 import art.arcane.adapt.util.common.format.C;
@@ -78,6 +85,13 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
     registerAdaptation(new SeaborneTurtlesMiningSpeed());
     registerAdaptation(new SeaborneTidecaller());
     registerAdaptation(new SeabornePressureDiver());
+    registerAdaptation(new SeaborneCoralGardener());
+    registerAdaptation(new SeaborneDeepSalvager());
+    registerAdaptation(new SeaborneInkVeil());
+    registerAdaptation(new SeaborneTridentMastery());
+    registerAdaptation(new SeaborneFishWhisperer());
+    registerAdaptation(new SeaborneHydroJet());
+    registerAdaptation(new SeaborneBrineSkin());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.TURTLE_HELMET)
         .key("challenge_swim_1nm")

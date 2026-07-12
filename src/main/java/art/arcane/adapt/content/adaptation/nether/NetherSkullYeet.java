@@ -42,7 +42,6 @@ import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.WitherSkull;
-import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -100,11 +99,7 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
   @EventHandler
   public void onRightClick(PlayerInteractEvent e) {
     Player p = e.getPlayer();
-    withAdaptedPlayer(p, e, () -> {
-      if (e.useItemInHand() == Event.Result.DENY) {
-        return;
-      }
-
+    withAdaptedPlayer(p, () -> {
       if (e.getAction() != Action.LEFT_CLICK_AIR && e.getAction() != Action.LEFT_CLICK_BLOCK) {
         return;
       }

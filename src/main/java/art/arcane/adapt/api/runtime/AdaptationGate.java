@@ -49,7 +49,7 @@ public final class AdaptationGate {
       return true;
     }
 
-    return !skill.isEnabled() || AdaptConfig.get().blacklistedWorlds.contains(world.getName());
+    return !skill.isEnabled() || AdaptConfig.get().isWorldBlacklisted(world);
   }
 
   public static boolean isWorldBlacklisted(Player player) {
@@ -57,7 +57,7 @@ public final class AdaptationGate {
       return true;
     }
 
-    return AdaptConfig.get().blacklistedWorlds.contains(player.getWorld().getName());
+    return AdaptConfig.get().isWorldBlacklisted(player.getWorld());
   }
 
   public static boolean isInCreativeOrSpectator(Player player) {

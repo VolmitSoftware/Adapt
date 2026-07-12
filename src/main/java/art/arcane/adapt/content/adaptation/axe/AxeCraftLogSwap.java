@@ -60,7 +60,7 @@ public class AxeCraftLogSwap extends SimpleAdaptation<AxeCraftLogSwap.Config> {
         .ingredient(Material.BIRCH_LOG)
         .ingredient(Material.BIRCH_LOG)
         .ingredient(Material.OAK_SAPLING)
-        .result(new ItemStack(Material.OAK_PLANKS, 1))
+        .result(new ItemStack(Material.OAK_LOG, 8))
         .build());
     registerRecipe(AdaptRecipe.shapeless()
         .key("axe-swapbirchacacia")

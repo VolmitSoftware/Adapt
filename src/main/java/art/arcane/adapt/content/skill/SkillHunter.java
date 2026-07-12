@@ -28,12 +28,16 @@ import art.arcane.adapt.api.version.IAttribute;
 import art.arcane.adapt.api.version.Version;
 import art.arcane.adapt.content.adaptation.excavation.ExcavationGraveDigger;
 import art.arcane.adapt.content.adaptation.hunter.HunterAdrenaline;
+import art.arcane.adapt.content.adaptation.hunter.HunterBigGameHunter;
+import art.arcane.adapt.content.adaptation.hunter.HunterBloodTrail;
 import art.arcane.adapt.content.adaptation.hunter.HunterDropToInventory;
 import art.arcane.adapt.content.adaptation.hunter.HunterInvis;
 import art.arcane.adapt.content.adaptation.hunter.HunterJumpBoost;
 import art.arcane.adapt.content.adaptation.hunter.HunterLuck;
+import art.arcane.adapt.content.adaptation.hunter.HunterPredatorFocus;
 import art.arcane.adapt.content.adaptation.hunter.HunterRegen;
 import art.arcane.adapt.content.adaptation.hunter.HunterResistance;
+import art.arcane.adapt.content.adaptation.hunter.HunterSnareLine;
 import art.arcane.adapt.content.adaptation.hunter.HunterSpeed;
 import art.arcane.adapt.content.adaptation.hunter.HunterStrength;
 import art.arcane.adapt.content.adaptation.hunter.HunterTrophySkinner;
@@ -84,6 +88,10 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
     registerAdaptation(new HunterResistance());
     registerAdaptation(new HunterDropToInventory());
     registerAdaptation(new HunterTrophySkinner());
+    registerAdaptation(new HunterPredatorFocus());
+    registerAdaptation(new HunterBigGameHunter());
+    registerAdaptation(new HunterBloodTrail());
+    registerAdaptation(new HunterSnareLine());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.BONE)
         .key("challenge_novice_hunter")

@@ -145,7 +145,7 @@ public class HunterRegen extends SimpleAdaptation<HunterRegen.Config> {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Stack Buff for the Hunter Regen adaptation.", impact = "True enables this behavior and false disables it.")
     boolean stackBuff = false;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Base Effectby Level for the Hunter Regen adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    int baseEffectbyLevel = 5;
+    int baseEffectbyLevel = 30;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Base Hunger From Level for the Hunter Regen adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     int baseHungerFromLevel = 10;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Base Hunger Duration for the Hunter Regen adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

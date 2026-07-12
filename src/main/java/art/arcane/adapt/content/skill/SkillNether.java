@@ -24,12 +24,19 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.skill.SimpleSkill;
+import art.arcane.adapt.content.adaptation.nether.NetherAshwalker;
 import art.arcane.adapt.content.adaptation.nether.NetherBlazeLeech;
+import art.arcane.adapt.content.adaptation.nether.NetherCrimsonFeast;
 import art.arcane.adapt.content.adaptation.nether.NetherFireResist;
 import art.arcane.adapt.content.adaptation.nether.NetherGhastWard;
 import art.arcane.adapt.content.adaptation.nether.NetherLavaWalker;
+import art.arcane.adapt.content.adaptation.nether.NetherMagmaSkin;
+import art.arcane.adapt.content.adaptation.nether.NetherNetherrackMason;
 import art.arcane.adapt.content.adaptation.nether.NetherPiglinBroker;
 import art.arcane.adapt.content.adaptation.nether.NetherSkullYeet;
+import art.arcane.adapt.content.adaptation.nether.NetherSoulStrider;
+import art.arcane.adapt.content.adaptation.nether.NetherStriderBond;
+import art.arcane.adapt.content.adaptation.nether.NetherWitherHarvest;
 import art.arcane.adapt.content.adaptation.nether.NetherWitherResist;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
@@ -70,6 +77,13 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
     registerAdaptation(new NetherGhastWard());
     registerAdaptation(new NetherBlazeLeech());
     registerAdaptation(new NetherPiglinBroker());
+    registerAdaptation(new NetherSoulStrider());
+    registerAdaptation(new NetherMagmaSkin());
+    registerAdaptation(new NetherNetherrackMason());
+    registerAdaptation(new NetherStriderBond());
+    registerAdaptation(new NetherCrimsonFeast());
+    registerAdaptation(new NetherAshwalker());
+    registerAdaptation(new NetherWitherHarvest());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.WITHER_SKELETON_SKULL)
         .key("challenge_nether_50")

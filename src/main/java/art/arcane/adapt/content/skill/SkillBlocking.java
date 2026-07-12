@@ -32,9 +32,15 @@ import art.arcane.adapt.content.adaptation.blocking.BlockingBulwarkBash;
 import art.arcane.adapt.content.adaptation.blocking.BlockingChainArmorer;
 import art.arcane.adapt.content.adaptation.blocking.BlockingCounterGuard;
 import art.arcane.adapt.content.adaptation.blocking.BlockingHorseArmorer;
+import art.arcane.adapt.content.adaptation.blocking.BlockingInterpose;
 import art.arcane.adapt.content.adaptation.blocking.BlockingMirrorBlock;
 import art.arcane.adapt.content.adaptation.blocking.BlockingMultiArmor;
+import art.arcane.adapt.content.adaptation.blocking.BlockingPerfectGuard;
+import art.arcane.adapt.content.adaptation.blocking.BlockingPhalanxCrafter;
 import art.arcane.adapt.content.adaptation.blocking.BlockingSaddlecrafter;
+import art.arcane.adapt.content.adaptation.blocking.BlockingShieldWall;
+import art.arcane.adapt.content.adaptation.blocking.BlockingShieldbearersResolve;
+import art.arcane.adapt.content.adaptation.blocking.BlockingTemperedGuard;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
@@ -72,6 +78,12 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
     registerAdaptation(new BlockingBastionStance());
     registerAdaptation(new BlockingMirrorBlock());
     registerAdaptation(new BlockingBulwarkBash());
+    registerAdaptation(new BlockingShieldWall());
+    registerAdaptation(new BlockingPerfectGuard());
+    registerAdaptation(new BlockingTemperedGuard());
+    registerAdaptation(new BlockingShieldbearersResolve());
+    registerAdaptation(new BlockingPhalanxCrafter());
+    registerAdaptation(new BlockingInterpose());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.LEATHER_CHESTPLATE).key("challenge_block_1k")
         .model(CustomModel.get(Material.LEATHER_CHESTPLATE, "advancement", "blocking", "challenge_block_1k"))

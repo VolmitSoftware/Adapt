@@ -110,6 +110,7 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
         && e.getCurrentItem().getItemMeta() != null
         && e.getCurrentItem().getAmount() == 1
         && e.getCursor().getAmount() == 1) {
+      e.setCancelled(true);
       ItemStack item = e.getCurrentItem();
       ItemStack book = e.getCursor();
       KMap<Enchantment, Integer> itemEnchants = new KMap<>(item.getType().equals(Material.ENCHANTED_BOOK)
@@ -158,7 +159,6 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
         xp(p, 50);
         item.setItemMeta(im);
         e.setCurrentItem(item);
-        e.setCancelled(true);
         addStat(p, "enchanting.quick-enchant.books-applied", 1);
         actionbarSummary(p, addEnchants);
         timeline(p)

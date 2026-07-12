@@ -25,13 +25,20 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.content.adaptation.excavation.ExcavationGraveDigger;
+import art.arcane.adapt.content.adaptation.taming.TamingAlphasCommand;
+import art.arcane.adapt.content.adaptation.taming.TamingBattleBond;
 import art.arcane.adapt.content.adaptation.taming.TamingBeastRecall;
 import art.arcane.adapt.content.adaptation.taming.TamingDamage;
+import art.arcane.adapt.content.adaptation.taming.TamingFetch;
+import art.arcane.adapt.content.adaptation.taming.TamingGuardianInstinct;
 import art.arcane.adapt.content.adaptation.taming.TamingHealthBoost;
 import art.arcane.adapt.content.adaptation.taming.TamingHealthRegeneration;
+import art.arcane.adapt.content.adaptation.taming.TamingLastBreath;
 import art.arcane.adapt.content.adaptation.taming.TamingMountedTactics;
 import art.arcane.adapt.content.adaptation.taming.TamingPackLeaderAura;
 import art.arcane.adapt.content.adaptation.taming.TamingSharedPain;
+import art.arcane.adapt.content.adaptation.taming.TamingStableHand;
+import art.arcane.adapt.content.adaptation.taming.TamingWildEmpathy;
 import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
@@ -68,6 +75,13 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
     registerAdaptation(new TamingBeastRecall());
     registerAdaptation(new TamingSharedPain());
     registerAdaptation(new TamingMountedTactics());
+    registerAdaptation(new TamingFetch());
+    registerAdaptation(new TamingAlphasCommand());
+    registerAdaptation(new TamingGuardianInstinct());
+    registerAdaptation(new TamingStableHand());
+    registerAdaptation(new TamingWildEmpathy());
+    registerAdaptation(new TamingBattleBond());
+    registerAdaptation(new TamingLastBreath());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.LEAD)
         .key("challenge_taming_10")

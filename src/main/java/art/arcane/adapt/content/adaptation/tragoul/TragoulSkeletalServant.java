@@ -1408,9 +1408,9 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
     @art.arcane.adapt.util.config.ConfigDoc(value = "Chance a servant spawns with a bow instead of a sword.", impact = "Higher values produce more ranged servants.")
     double bowChance = 0.3;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Bonus max health granted to servants per adaptation level.", impact = "Higher values make servants tankier as the owner levels.")
-    double healthBonusPerLevel = 2.0;
+    double healthBonusPerLevel = 3.0;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Bonus attack damage granted to servants per adaptation level.", impact = "Higher values make servants hit harder as the owner levels.")
-    double attackBonusPerLevel = 0.5;
+    double attackBonusPerLevel = 1.0;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Ticks between servant retarget pulses, clamped to at least 10 ticks.", impact = "Lower values retarget faster but cannot exceed the server-safety cadence.")
     int retargetIntervalTicks = 20;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Radius the servant scans for hostile mobs to attack, capped at 24 blocks.", impact = "Higher values let the servant acquire targets further away up to the bounded search radius.")

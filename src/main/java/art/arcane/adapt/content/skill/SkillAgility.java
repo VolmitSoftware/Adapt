@@ -24,11 +24,18 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.skill.SkillOwnerPulse;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.content.adaptation.agility.AgilityAirDash;
 import art.arcane.adapt.content.adaptation.agility.AgilityArmorUp;
+import art.arcane.adapt.content.adaptation.agility.AgilityCatReflexes;
+import art.arcane.adapt.content.adaptation.agility.AgilityFeatherfoot;
+import art.arcane.adapt.content.adaptation.agility.AgilityKipUp;
 import art.arcane.adapt.content.adaptation.agility.AgilityLadderSlide;
+import art.arcane.adapt.content.adaptation.agility.AgilityMarathoner;
 import art.arcane.adapt.content.adaptation.agility.AgilityParkourMomentum;
 import art.arcane.adapt.content.adaptation.agility.AgilityRollLanding;
+import art.arcane.adapt.content.adaptation.agility.AgilitySlipstreamSlide;
 import art.arcane.adapt.content.adaptation.agility.AgilitySuperJump;
+import art.arcane.adapt.content.adaptation.agility.AgilityVault;
 import art.arcane.adapt.content.adaptation.agility.AgilityWallJump;
 import art.arcane.adapt.content.adaptation.agility.AgilityWindUp;
 import art.arcane.adapt.util.common.format.C;
@@ -60,6 +67,13 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
     registerAdaptation(new AgilityLadderSlide());
     registerAdaptation(new AgilityParkourMomentum());
     registerAdaptation(new AgilityRollLanding());
+    registerAdaptation(new AgilitySlipstreamSlide());
+    registerAdaptation(new AgilityAirDash());
+    registerAdaptation(new AgilityCatReflexes());
+    registerAdaptation(new AgilityFeatherfoot());
+    registerAdaptation(new AgilityVault());
+    registerAdaptation(new AgilityMarathoner());
+    registerAdaptation(new AgilityKipUp());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.LEATHER_BOOTS)
         .key("challenge_move_1k")

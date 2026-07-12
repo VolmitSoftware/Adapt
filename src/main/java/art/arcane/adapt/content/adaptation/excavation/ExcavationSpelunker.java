@@ -41,7 +41,6 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Slime;
 import org.bukkit.event.EventHandler;
@@ -215,23 +214,30 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
 
   private void showOreMarker(Player p, World world, WorldBlockScanScheduler.Match match, Material targetOre,
                              ChatColor color, GlowingEntities glowingEntities) {
-    Location center = match.center(world);
-    J.runAt(center, () -> {
-      if (!world.isChunkLoaded(match.x() >> 4, match.z() >> 4)) {
-        return;
-      }
-      Block block = world.getBlockAt(match.x(), match.y(), match.z());
-      if (block.getType() != targetOre) {
-        return;
-      }
+    Location center = new Location(world, match.x() + 0.5D, match.y(), match.z() + 0.5D);
+    J.runAt(center, () -> showOreMarkerAtRegion(p, world, match, center, targetOre, color, glowingEntities));
+  }
 
-      fx(center, FxPriority.AMBIENT)
-          .particle(Particle.WAX_ON, 3, 0, 0, 0, 0.2D, 0.02D);
-      if (glowingEntities == null) {
-        return;
-      }
+  private void showOreMarkerAtRegion(Player p, World world, WorldBlockScanScheduler.Match match, Location center,
+                                     Material targetOre, ChatColor color, GlowingEntities glowingEntities) {
+    if (!world.isChunkLoaded(match.x() >> 4, match.z() >> 4)) {
+      return;
+    }
+    if (world.getBlockAt(match.x(), match.y(), match.z()).getType() != targetOre) {
+      return;
+    }
 
-      Slime slime = world.spawn(new Location(world, match.x() + 0.5D, match.y(), match.z() + 0.5D), Slime.class, s -> {
+    fx(center, FxPriority.AMBIENT)
+        .particle(Particle.WAX_ON, 3, 0, 0, 0, 0.2D, 0.02D);
+
+    if (glowingEntities == null) {
+      showFallbackMarker(p, center);
+      return;
+    }
+
+    Slime slime;
+    try {
+      slime = world.spawn(center, Slime.class, s -> {
         StackExclusion.exclude(s);
         s.setPersistent(false);
         s.setRotation(0, 0);
@@ -244,12 +250,19 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
         s.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 0, false, false));
         s.setMetadata(MARKER_META, new FixedMetadataValue(Adapt.instance, true));
       });
-      scheduleGlow(p, slime, color, glowingEntities);
-    });
+    } catch (Throwable error) {
+      Adapt.verbose("Failed to spawn glowing marker for Spelunker: "
+          + error.getClass().getSimpleName()
+          + (error.getMessage() == null ? "" : " - " + error.getMessage()));
+      showFallbackMarker(p, center);
+      return;
+    }
+
+    scheduleGlow(p, slime, center, color, glowingEntities);
   }
 
-  private void scheduleGlow(Player p, Slime slime, ChatColor color, GlowingEntities glowingEntities) {
-    if (!J.runEntity(p, () -> setGlowing(glowingEntities, slime, p, color))) {
+  private void scheduleGlow(Player p, Slime slime, Location center, ChatColor color, GlowingEntities glowingEntities) {
+    if (!J.runEntity(p, () -> setGlowing(glowingEntities, slime, p, center, color))) {
       J.runEntity(slime, slime::remove);
       return;
     }
@@ -262,15 +275,16 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
     }, 5 * 20);
   }
 
-  private void setGlowing(GlowingEntities glowingEntities, Slime slime, Player p, ChatColor color) {
+  private void setGlowing(GlowingEntities glowingEntities, Slime slime, Player p, Location center, ChatColor color) {
     try {
       synchronized (Adapt.glowingEntitiesLock()) {
         glowingEntities.setGlowing(slime, p, color);
       }
-    } catch (ReflectiveOperationException error) {
+    } catch (Throwable error) {
       Adapt.verbose("Failed to enable glowing marker for Spelunker: " + error.getClass().getSimpleName()
           + (error.getMessage() == null ? "" : " - " + error.getMessage()));
       J.runEntity(slime, slime::remove);
+      showFallbackMarker(p, center);
     }
   }
 
@@ -279,9 +293,23 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
       synchronized (Adapt.glowingEntitiesLock()) {
         glowingEntities.unsetGlowing(slime, p);
       }
-    } catch (ReflectiveOperationException error) {
+    } catch (Throwable error) {
       Adapt.verbose("Failed to clear glowing marker for Spelunker: " + error.getClass().getSimpleName()
           + (error.getMessage() == null ? "" : " - " + error.getMessage()));
+    }
+  }
+
+  private void showFallbackMarker(Player p, Location loc) {
+    for (int t = 0; t <= (5 * 20); t += 8) {
+      J.runEntity(p, () -> {
+        if (!p.isOnline()) {
+          return;
+        }
+
+        fx(loc, FxPriority.AMBIENT)
+            .particle(Particle.GLOW, 14, 0, 0, 0, 0.22, 0.001)
+            .particle(Particle.END_ROD, 4, 0, 0, 0, 0.12, 0.001);
+      }, t);
     }
   }
 

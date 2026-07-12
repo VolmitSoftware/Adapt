@@ -19,6 +19,7 @@
 package art.arcane.adapt.util.common.io;
 
 import art.arcane.volmlib.util.format.Form;
+import art.arcane.volmlib.util.bukkit.WorldIdentity;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -35,13 +36,13 @@ import org.bukkit.util.Vector;
 
 public class BukkitGson {
   public static final Gson gson = new GsonBuilder()
-      .registerTypeAdapter(World.class, (JsonSerializer<World>) (world, type, s) -> s.serialize(world.getName()))
-      .registerTypeAdapter(World.class, (JsonDeserializer<World>) (j, type, d) -> Bukkit.getWorld(j.getAsString()))
+      .registerTypeAdapter(World.class, (JsonSerializer<World>) (world, type, s) -> s.serialize(WorldIdentity.serialize(world)))
+      .registerTypeAdapter(World.class, (JsonDeserializer<World>) (j, type, d) -> WorldIdentity.resolve(j.getAsString()).orElse(null))
       .registerTypeAdapter(BlockData.class, (JsonSerializer<BlockData>) (data, type, s) -> new JsonPrimitive(data.getAsString(true)))
       .registerTypeAdapter(BlockData.class, (JsonDeserializer<BlockData>) (j, type, d) -> Bukkit.createBlockData(j.getAsString()))
       .registerTypeAdapter(Location.class, (JsonSerializer<Location>) (data, type, s) -> {
         JsonArray a = new JsonArray();
-        a.add(data.getWorld().getName());
+        a.add(WorldIdentity.serialize(data.getWorld()));
         a.add(truncate(data.getX(), 1));
         a.add(truncate(data.getY(), 1));
         a.add(truncate(data.getZ(), 1));
@@ -51,11 +52,11 @@ public class BukkitGson {
       })
       .registerTypeAdapter(Location.class, (JsonDeserializer<Location>) (j, type, d) -> {
         JsonArray a = j.getAsJsonArray();
-        return new Location(Bukkit.getWorld(a.get(0).getAsString()), a.get(1).getAsDouble(), a.get(2).getAsDouble(), a.get(3).getAsDouble(), a.get(4).getAsFloat(), a.get(5).getAsFloat());
+        return new Location(WorldIdentity.resolve(a.get(0).getAsString()).orElse(null), a.get(1).getAsDouble(), a.get(2).getAsDouble(), a.get(3).getAsDouble(), a.get(4).getAsFloat(), a.get(5).getAsFloat());
       })
       .registerTypeAdapter(Block.class, (JsonSerializer<Block>) (data, type, s) -> {
         JsonArray a = new JsonArray();
-        a.add(data.getWorld().getName());
+        a.add(WorldIdentity.serialize(data.getWorld()));
         a.add(data.getX());
         a.add(data.getY());
         a.add(data.getZ());
@@ -63,7 +64,7 @@ public class BukkitGson {
       })
       .registerTypeAdapter(Block.class, (JsonDeserializer<Block>) (j, type, d) -> {
         JsonArray a = j.getAsJsonArray();
-        return new Location(Bukkit.getWorld(a.get(0).getAsString()), a.get(1).getAsInt(), a.get(2).getAsInt(), a.get(3).getAsInt()).getBlock();
+        return new Location(WorldIdentity.resolve(a.get(0).getAsString()).orElse(null), a.get(1).getAsInt(), a.get(2).getAsInt(), a.get(3).getAsInt()).getBlock();
       })
       .registerTypeAdapter(BlockVector.class, (JsonSerializer<BlockVector>) (data, type, s) -> {
         JsonArray a = new JsonArray();

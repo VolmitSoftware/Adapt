@@ -118,7 +118,7 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
     }
 
     Player player = event.getPlayer();
-    withPlayerThread(player, event, () -> {
+    withPlayerThread(player, () -> {
       if (resolveInteractContext(player, player.getLocation()) == null) {
         return;
       }

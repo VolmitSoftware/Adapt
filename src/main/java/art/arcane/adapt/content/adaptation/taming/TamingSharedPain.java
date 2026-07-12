@@ -77,7 +77,7 @@ public class TamingSharedPain extends SimpleAdaptation<TamingSharedPain.Config> 
       return;
     }
 
-    int level = getActiveDamageLevel(owner, tameable);
+    int level = getActiveLevel(owner);
     if (level <= 0) {
       return;
     }

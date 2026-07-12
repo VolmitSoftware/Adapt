@@ -12,6 +12,7 @@ import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.util.common.io.Json;
 import art.arcane.volmlib.util.collection.KList;
 import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.junit.jupiter.api.BeforeEach;
@@ -56,6 +57,7 @@ class MutationManagerSelectionTest extends AdaptTestBase {
     when(player.getLocation()).thenReturn(new Location(world, 0.5D, 64D, 0.5D));
     when(player.hasPermission(anyString())).thenReturn(true);
     when(world.getUID()).thenReturn(worldId);
+    when(world.getKey()).thenReturn(NamespacedKey.minecraft("overworld"));
     when(world.getName()).thenReturn("world");
   }
 
@@ -154,7 +156,7 @@ class MutationManagerSelectionTest extends AdaptTestBase {
 
     when(player.hasPermission("adapt.mutations")).thenReturn(true);
     MutationConfig restrictedConfig = Json.fromJson(
-        "{\"enabled\":true,\"worldBlacklist\":[\"world\"]}",
+        "{\"enabled\":true,\"worldBlacklist\":[\"minecraft:overworld\"]}",
         MutationConfig.class
     );
     restrictedConfig.normalize();

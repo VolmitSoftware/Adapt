@@ -50,7 +50,7 @@ public class BrewingHealthBoost extends SimpleAdaptation<BrewingHealthBoost.Conf
     setIcon(Material.ENCHANTED_GOLDEN_APPLE);
     setInterval(1330);
     registerBrewingRecipe(BrewingRecipe.builder()
-        .id("brewing-healthboost")
+        .id("brewing-healthboost-1")
         .brewingTime(320)
         .fuelCost(16)
         .ingredient(Material.GOLDEN_APPLE)
@@ -62,7 +62,7 @@ public class BrewingHealthBoost extends SimpleAdaptation<BrewingHealthBoost.Conf
             .build())
         .build());
     registerBrewingRecipe(BrewingRecipe.builder()
-        .id("brewing-healthboost")
+        .id("brewing-healthboost-2")
         .brewingTime(320)
         .fuelCost(16)
         .ingredient(Material.ENCHANTED_GOLDEN_APPLE)

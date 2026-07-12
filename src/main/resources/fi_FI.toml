@@ -1251,23 +1251,23 @@ lore = ["Pikaparannus + kvartsi = Imeytymisen taikajuoma (60 sekuntia)", "Pikapa
 [brewing.fatigue]
 name = "Pullotettu väsymys"
 description = "Heikennä kehoa!"
-lore1 = "Heikkoustaikajuoma + limapallo = Väsymyksen taikajuoma (30 sekuntia)"
-lore2 = "Heikkoustaikajuoma + limalohko = Väsymyksen taikajuoma-2 (15 sekuntia)"
-lore = ["Heikkoustaikajuoma + limapallo = Väsymyksen taikajuoma (30 sekuntia)", "Heikkoustaikajuoma + limalohko = Väsymyksen taikajuoma-2 (15 sekuntia)"]
+lore1 = "Heikkoustaikajuoma + limapallo = Väsymyksen taikajuoma (60 sekuntia)"
+lore2 = "Heikkoustaikajuoma + limalohko = Väsymyksen taikajuoma-2 (30 sekuntia)"
+lore = ["Heikkoustaikajuoma + limapallo = Väsymyksen taikajuoma (60 sekuntia)", "Heikkoustaikajuoma + limalohko = Väsymyksen taikajuoma-2 (30 sekuntia)"]
 
 [brewing.hunger]
 name = "Pullotettu nälkä"
 description = "Ruoki kyltymätöntä!"
-lore1 = "Hankala taikajuoma + mätäliha = Nälän taikajuoma (30 sekuntia)"
-lore2 = "Heikkoustaikajuoma + mätäliha = Nälän taikajuoma-3 (15 sekuntia)"
-lore = ["Hankala taikajuoma + mätäliha = Nälän taikajuoma (30 sekuntia)", "Heikkoustaikajuoma + mätäliha = Nälän taikajuoma-3 (15 sekuntia)"]
+lore1 = "Hankala taikajuoma + mätäliha = Nälän taikajuoma (60 sekuntia)"
+lore2 = "Heikkoustaikajuoma + mätäliha = Nälän taikajuoma-3 (30 sekuntia)"
+lore = ["Hankala taikajuoma + mätäliha = Nälän taikajuoma (60 sekuntia)", "Heikkoustaikajuoma + mätäliha = Nälän taikajuoma-3 (30 sekuntia)"]
 
 [brewing.nausea]
 name = "Pullotettu pahoinvointi"
 description = "Teet minut kipeäksi!"
-lore1 = "Hankala taikajuoma + ruskea sieni = Pahoinvoinnin taikajuoma (16 sekuntia)"
-lore2 = "Hankala taikajuoma + karmiinisieni = Pahoinvoinnin taikajuoma-2 (8 sekuntia)"
-lore = ["Hankala taikajuoma + ruskea sieni = Pahoinvoinnin taikajuoma (16 sekuntia)", "Hankala taikajuoma + karmiinisieni = Pahoinvoinnin taikajuoma-2 (8 sekuntia)"]
+lore1 = "Hankala taikajuoma + ruskea sieni = Pahoinvoinnin taikajuoma (30 sekuntia)"
+lore2 = "Hankala taikajuoma + karmiinisieni = Pahoinvoinnin taikajuoma-2 (15 sekuntia)"
+lore = ["Hankala taikajuoma + ruskea sieni = Pahoinvoinnin taikajuoma (30 sekuntia)", "Hankala taikajuoma + karmiinisieni = Pahoinvoinnin taikajuoma-2 (15 sekuntia)"]
 
 [brewing.blindness]
 name = "Pullotettu sokeus"
@@ -1286,9 +1286,9 @@ lore = ["Hankala taikajuoma + rautaharkko = Vastustuksen taikajuoma (60 sekuntia
 [brewing.health_boost]
 name = "Pullotettu elämä"
 description = "Kun maksimiterveys ei riitä..."
-lore1 = "Pikaparannus-taikajuoma + kultaomena = Terveyslisän taikajuoma (120 sekuntia)"
-lore2 = "Pikaparannus-taikajuoma + lumottu kultaomena = Terveyslisän taikajuoma-2 (120 sekuntia)"
-lore = ["Pikaparannus-taikajuoma + kultaomena = Terveyslisän taikajuoma (120 sekuntia)", "Pikaparannus-taikajuoma + lumottu kultaomena = Terveyslisän taikajuoma-2 (120 sekuntia)"]
+lore1 = "Pikaparannus-taikajuoma + kultaomena = Terveyslisän taikajuoma (60 sekuntia)"
+lore2 = "Pikaparannus-taikajuoma + lumottu kultaomena = Terveyslisän taikajuoma-2 (60 sekuntia)"
+lore = ["Pikaparannus-taikajuoma + kultaomena = Terveyslisän taikajuoma (60 sekuntia)", "Pikaparannus-taikajuoma + lumottu kultaomena = Terveyslisän taikajuoma-2 (60 sekuntia)"]
 
 [brewing.decay]
 name = "Pullotettu rappeutuminen"

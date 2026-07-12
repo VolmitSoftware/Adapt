@@ -694,7 +694,7 @@ final class AdaptationRuntimeGuards {
     }
 
     boolean verbose = AdaptConfig.get().isVerbose();
-    if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+    if (AdaptConfig.get().isWorldBlacklisted(p.getWorld())) {
       if (verbose) {
         Adapt.verbose("Player " + p.getName() + " is in a blacklisted world. Skipping adaptation " + adaptation.getName());
       }

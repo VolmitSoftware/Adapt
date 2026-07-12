@@ -174,7 +174,7 @@ public final class MutationManager {
       } else if (!player.hasPermission(type.permission())) {
         state = selected ? MutationState.DORMANT : MutationState.RESTRICTED;
         reason = "Missing permission " + type.permission();
-      } else if (!config.isWorldAllowed(player.getWorld().getName(), type)) {
+      } else if (!config.isWorldAllowed(player.getWorld(), type)) {
         state = selected ? MutationState.DORMANT : MutationState.RESTRICTED;
         reason = "This Mutation does not work in " + player.getWorld().getName();
       } else {
@@ -545,7 +545,7 @@ public final class MutationManager {
     if (!player.hasPermission(candidate.permission())) {
       return MutationSelectionResult.rejected("Missing permission " + candidate.permission());
     }
-    if (!config.isWorldAllowed(player.getWorld().getName(), candidate)) {
+    if (!config.isWorldAllowed(player.getWorld(), candidate)) {
       return MutationSelectionResult.rejected("That Mutation does not work in this world");
     }
     MutationQualification qualification = qualification(player, candidate);

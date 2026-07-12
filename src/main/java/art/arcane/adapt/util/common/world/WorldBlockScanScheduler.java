@@ -268,6 +268,7 @@ public final class WorldBlockScanScheduler {
     private final int seed;
     private final List<AdditionalMatch> additionalMatches;
     private final Predicate<Material> matcher;
+    private final Predicate<Block> blockMatcher;
     private final Consumer<ScanResult> completion;
 
     private ScanRequest(Builder builder) {
@@ -281,8 +282,12 @@ public final class WorldBlockScanScheduler {
       maxResults = builder.maxResults;
       seed = builder.seed;
       additionalMatches = List.copyOf(builder.additionalMatches);
-      matcher = Objects.requireNonNull(builder.matcher, "matcher");
+      matcher = builder.matcher;
+      blockMatcher = builder.blockMatcher;
       completion = Objects.requireNonNull(builder.completion, "completion");
+      if (matcher == null && blockMatcher == null) {
+        throw new IllegalArgumentException("matcher or blockMatcher must be provided");
+      }
       if (radius < 0) {
         throw new IllegalArgumentException("radius must be non-negative");
       }
@@ -310,6 +315,7 @@ public final class WorldBlockScanScheduler {
       private int seed;
       private List<AdditionalMatch> additionalMatches = List.of();
       private Predicate<Material> matcher;
+      private Predicate<Block> blockMatcher;
       private Consumer<ScanResult> completion;
 
       private Builder(Location origin) {
@@ -352,6 +358,11 @@ public final class WorldBlockScanScheduler {
 
       public Builder matcher(Predicate<Material> value) {
         matcher = value;
+        return this;
+      }
+
+      public Builder blockMatcher(Predicate<Block> value) {
+        blockMatcher = value;
         return this;
       }
 
@@ -492,7 +503,11 @@ public final class WorldBlockScanScheduler {
           if (material == null) {
             Block block = request.world.getBlockAt(batch.x[i], batch.y[i], batch.z[i]);
             material = block.getType();
-            if (!request.matcher.test(material)) {
+            if (request.blockMatcher != null) {
+              if (!request.blockMatcher.test(block)) {
+                continue;
+              }
+            } else if (!request.matcher.test(material)) {
               continue;
             }
           }

@@ -77,7 +77,7 @@ public class RiftDescent extends SimpleAdaptation<RiftDescent.Config> {
   @EventHandler(priority = EventPriority.HIGHEST)
   public void on(PlayerToggleSneakEvent e) {
     Player p = e.getPlayer();
-    if (e.isSneaking() || p.getPotionEffect(PotionEffectType.LEVITATION) == null) {
+    if (!e.isSneaking() || p.getPotionEffect(PotionEffectType.LEVITATION) == null) {
       return;
     }
     if (!hasActiveAdaptation(p)) {

@@ -1251,23 +1251,23 @@ lore = ["Aninda Iyilesme + Kuvars = Emilim Iksiri (60 saniye)", "Aninda Iyilesme
 [brewing.fatigue]
 name = "Siselenmiş Yorgunluk"
 description = "Vuçudu zayiflatin!"
-lore1 = "Zayiflik Iksiri + Balcik Topu = Yorgunluk Iksiri (30 saniye)"
-lore2 = "Zayiflik Iksiri + Balcik Bloku = Yorgunluk Iksiri-2 (15 saniye)"
-lore = ["Zayiflik Iksiri + Balcik Topu = Yorgunluk Iksiri (30 saniye)", "Zayiflik Iksiri + Balcik Bloku = Yorgunluk Iksiri-2 (15 saniye)"]
+lore1 = "Zayiflik Iksiri + Balcik Topu = Yorgunluk Iksiri (60 saniye)"
+lore2 = "Zayiflik Iksiri + Balcik Bloku = Yorgunluk Iksiri-2 (30 saniye)"
+lore = ["Zayiflik Iksiri + Balcik Topu = Yorgunluk Iksiri (60 saniye)", "Zayiflik Iksiri + Balcik Bloku = Yorgunluk Iksiri-2 (30 saniye)"]
 
 [brewing.hunger]
 name = "Siselenmiş Aclik"
 description = "Doyumsuzlari besleyin!"
-lore1 = "Garip Iksir + Curuk Et = Aclik Iksiri (30 saniye)"
-lore2 = "Zayiflik Iksiri + Curuk Et = Aclik Iksiri-3 (15 saniye)"
-lore = ["Garip Iksir + Curuk Et = Aclik Iksiri (30 saniye)", "Zayiflik Iksiri + Curuk Et = Aclik Iksiri-3 (15 saniye)"]
+lore1 = "Garip Iksir + Curuk Et = Aclik Iksiri (60 saniye)"
+lore2 = "Zayiflik Iksiri + Curuk Et = Aclik Iksiri-3 (30 saniye)"
+lore = ["Garip Iksir + Curuk Et = Aclik Iksiri (60 saniye)", "Zayiflik Iksiri + Curuk Et = Aclik Iksiri-3 (30 saniye)"]
 
 [brewing.nausea]
 name = "Siselenmiş Bulanti"
 description = "Midem bulaniyor senden!"
-lore1 = "Garip Iksir + Kahverengi Mantar = Bulanti Iksiri (16 saniye)"
-lore2 = "Garip Iksir + Kizil Mantar = Bulanti Iksiri-2 (8 saniye)"
-lore = ["Garip Iksir + Kahverengi Mantar = Bulanti Iksiri (16 saniye)", "Garip Iksir + Kizil Mantar = Bulanti Iksiri-2 (8 saniye)"]
+lore1 = "Garip Iksir + Kahverengi Mantar = Bulanti Iksiri (30 saniye)"
+lore2 = "Garip Iksir + Kizil Mantar = Bulanti Iksiri-2 (15 saniye)"
+lore = ["Garip Iksir + Kahverengi Mantar = Bulanti Iksiri (30 saniye)", "Garip Iksir + Kizil Mantar = Bulanti Iksiri-2 (15 saniye)"]
 
 [brewing.blindness]
 name = "Siselenmiş Korluk"
@@ -1286,9 +1286,9 @@ lore = ["Garip Iksir + Demir Kulce = Direnc Iksiri (60 saniye)", "Garip Iksir + 
 [brewing.health_boost]
 name = "Siselenmiş Yasam"
 description = "Maksimum saglik yeterli olmadiginda..."
-lore1 = "Aninda-Iyilestirme Iksiri + Altin Elma = Saglik Artisi Iksiri (120 saniye)"
-lore2 = "Aninda-Iyilestirme Iksiri + Buyulu Altin Elma = Saglik Artisi Iksiri-2 (120 saniye)"
-lore = ["Aninda-Iyilestirme Iksiri + Altin Elma = Saglik Artisi Iksiri (120 saniye)", "Aninda-Iyilestirme Iksiri + Buyulu Altin Elma = Saglik Artisi Iksiri-2 (120 saniye)"]
+lore1 = "Aninda-Iyilestirme Iksiri + Altin Elma = Saglik Artisi Iksiri (60 saniye)"
+lore2 = "Aninda-Iyilestirme Iksiri + Buyulu Altin Elma = Saglik Artisi Iksiri-2 (60 saniye)"
+lore = ["Aninda-Iyilestirme Iksiri + Altin Elma = Saglik Artisi Iksiri (60 saniye)", "Aninda-Iyilestirme Iksiri + Buyulu Altin Elma = Saglik Artisi Iksiri-2 (60 saniye)"]
 
 [brewing.decay]
 name = "Siselenmiş Curume"

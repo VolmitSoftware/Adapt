@@ -26,11 +26,18 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.adaptation.enchanting.EnchantingAnvilSavant;
+import art.arcane.adapt.content.adaptation.enchanting.EnchantingArcaneSiphon;
 import art.arcane.adapt.content.adaptation.enchanting.EnchantingBookshelfAttunement;
+import art.arcane.adapt.content.adaptation.enchanting.EnchantingCurseCleansing;
+import art.arcane.adapt.content.adaptation.enchanting.EnchantingEchoOfKnowledge;
 import art.arcane.adapt.content.adaptation.enchanting.EnchantingGrindstoneRecovery;
+import art.arcane.adapt.content.adaptation.enchanting.EnchantingInfusionTransfer;
 import art.arcane.adapt.content.adaptation.enchanting.EnchantingLapisReturn;
 import art.arcane.adapt.content.adaptation.enchanting.EnchantingOfferReroll;
 import art.arcane.adapt.content.adaptation.enchanting.EnchantingQuickEnchant;
+import art.arcane.adapt.content.adaptation.enchanting.EnchantingRuneSight;
+import art.arcane.adapt.content.adaptation.enchanting.EnchantingSoulLink;
+import art.arcane.adapt.content.adaptation.enchanting.EnchantingTomeRebinding;
 import art.arcane.adapt.content.adaptation.enchanting.EnchantingXPReturn;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
@@ -64,6 +71,13 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
     registerAdaptation(new EnchantingOfferReroll());
     registerAdaptation(new EnchantingBookshelfAttunement());
     registerAdaptation(new EnchantingGrindstoneRecovery());
+    registerAdaptation(new EnchantingCurseCleansing());
+    registerAdaptation(new EnchantingTomeRebinding());
+    registerAdaptation(new EnchantingSoulLink());
+    registerAdaptation(new EnchantingArcaneSiphon());
+    registerAdaptation(new EnchantingRuneSight());
+    registerAdaptation(new EnchantingInfusionTransfer());
+    registerAdaptation(new EnchantingEchoOfKnowledge());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.CRAFTING_TABLE).key("challenge_enchant_1k")
         .model(CustomModel.get(Material.CRAFTING_TABLE, "advancement", "enchanting", "challenge_enchant_1k"))

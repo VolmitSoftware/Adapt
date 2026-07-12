@@ -111,7 +111,7 @@ public class ArchitectSmartShape extends SimpleAdaptation<ArchitectSmartShape.Co
     }
 
     Player p = e.getPlayer();
-    withAdaptedPlayer(p, e, () -> {
+    withAdaptedPlayer(p, () -> {
       if (!p.isSneaking()) {
         return;
       }

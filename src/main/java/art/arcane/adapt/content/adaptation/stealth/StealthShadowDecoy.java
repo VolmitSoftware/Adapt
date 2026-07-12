@@ -61,6 +61,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Config> {
   private static final PacketDecoyBridge PACKET_DECOY = PacketDecoyBridge.create();
+  private static volatile StealthShadowDecoy instance;
 
   private final Cooldowns decoyCooldowns = cooldowns();
   private final Map<UUID, DecoySession> activeDecoys = new ConcurrentHashMap<>();
@@ -85,6 +86,21 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
         .build());
     registerMilestone("challenge_stealth_decoy_100", "stealth.shadow-decoy.decoys-spawned", 100, 300);
     registerMilestone("challenge_stealth_decoy_distract_500", "stealth.shadow-decoy.mobs-distracted", 500, 1000);
+    instance = this;
+  }
+
+  public static Entity activeDecoyAnchor(UUID ownerId) {
+    StealthShadowDecoy self = instance;
+    if (self == null || ownerId == null) {
+      return null;
+    }
+
+    DecoySession state = self.activeDecoys.get(ownerId);
+    if (state == null || !state.active.get() || state.anchor == null) {
+      return null;
+    }
+
+    return state.anchor;
   }
 
   @Override
@@ -172,11 +188,12 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
     }
 
     Vector push = stand.getLocation().toVector().subtract(source.toVector());
-    if (push.lengthSquared() < 0.0001) {
-      push = source.getDirection().multiply(-1);
+    push.setY(0);
+    if (push.lengthSquared() < 1.0E-6) {
+      Vector sourceHorizontal = source.getDirection().setY(0);
+      push = sourceHorizontal.lengthSquared() < 1.0E-6 ? new Vector(0, 0, 1) : sourceHorizontal.multiply(-1);
     }
 
-    push.setY(0);
     push.normalize().multiply(Math.max(0, getConfig().decoyHitKnockback));
     push.setY(Math.max(0, getConfig().decoyHitLift));
     stand.setVelocity(push);
@@ -460,6 +477,9 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
     }
     activeDecoys.clear();
     anchorOwners.clear();
+    if (instance == this) {
+      instance = null;
+    }
   }
 
   private long getCooldownMillis(int level) {

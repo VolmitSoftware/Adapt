@@ -89,7 +89,8 @@ public class HerbalismLuck extends SimpleAdaptation<HerbalismLuck.Config> {
     }
 
     Block broken = e.getBlock();
-    if (broken.getType() == Materials.GRASS || broken.getType() == Material.TALL_GRASS) {
+    Material brokenType = e.getBlockState().getType();
+    if (brokenType == Materials.GRASS || brokenType == Material.TALL_GRASS) {
       double d = ThreadLocalRandom.current().nextDouble(100D);
       Material m = ItemListings.getHerbalLuckSeeds().getRandom();
       if (d < getEffectiveness(getLevel(p))) {
@@ -101,7 +102,7 @@ public class HerbalismLuck extends SimpleAdaptation<HerbalismLuck.Config> {
       }
     }
 
-    if (ItemListings.getFlowers().contains(broken.getType())) {
+    if (ItemListings.getFlowers().contains(brokenType)) {
       double d = ThreadLocalRandom.current().nextDouble(100D);
       Material m = ItemListings.getHerbalLuckFood().getRandom();
       if (d < getEffectiveness(getLevel(p))) {

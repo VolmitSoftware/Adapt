@@ -1251,23 +1251,23 @@ lore = ["Momentinis gydymas + kvarcas = absorbcijos eliksyras (60 sekundziu)", "
 [brewing.fatigue]
 name = "Nuovargis"
 description = "Susilpninkite kuna!"
-lore1 = "Silpnumo Eliksyras + Gleiviu Kamuolys = Nuovargio Eliksyras (30 sekundziu)"
-lore2 = "Silpnumo Eliksyras + Gleiviu Blokas = Nuovargio Eliksyras-2 (15 sekundziu)"
-lore = ["Silpnumo Eliksyras + Gleiviu Kamuolys = Nuovargio Eliksyras (30 sekundziu)", "Silpnumo Eliksyras + Gleiviu Blokas = Nuovargio Eliksyras-2 (15 sekundziu)"]
+lore1 = "Silpnumo Eliksyras + Gleiviu Kamuolys = Nuovargio Eliksyras (60 sekundziu)"
+lore2 = "Silpnumo Eliksyras + Gleiviu Blokas = Nuovargio Eliksyras-2 (30 sekundziu)"
+lore = ["Silpnumo Eliksyras + Gleiviu Kamuolys = Nuovargio Eliksyras (60 sekundziu)", "Silpnumo Eliksyras + Gleiviu Blokas = Nuovargio Eliksyras-2 (30 sekundziu)"]
 
 [brewing.hunger]
 name = "Badas"
 description = "Maitinkite nepasotinamaji!"
-lore1 = "Keistas Eliksyras + Supuvusi Mesa = Bado Eliksyras (30 sekundziu)"
-lore2 = "Silpnumo Eliksyras + Supuvusi Mesa = Bado Eliksyras-3 (15 sekundziu)"
-lore = ["Keistas Eliksyras + Supuvusi Mesa = Bado Eliksyras (30 sekundziu)", "Silpnumo Eliksyras + Supuvusi Mesa = Bado Eliksyras-3 (15 sekundziu)"]
+lore1 = "Keistas Eliksyras + Supuvusi Mesa = Bado Eliksyras (60 sekundziu)"
+lore2 = "Silpnumo Eliksyras + Supuvusi Mesa = Bado Eliksyras-3 (30 sekundziu)"
+lore = ["Keistas Eliksyras + Supuvusi Mesa = Bado Eliksyras (60 sekundziu)", "Silpnumo Eliksyras + Supuvusi Mesa = Bado Eliksyras-3 (30 sekundziu)"]
 
 [brewing.nausea]
 name = "Pykinimas"
 description = "Man nuo taves bloga!"
-lore1 = "Keistas Eliksyras + Rudas Grybas = Pykinimo Eliksyras (16 sekundziu)"
-lore2 = "Keistas Eliksyras + Raudonasis Grybas (Pragaro) = Pykinimo Eliksyras-2 (8 sekundziu)"
-lore = ["Keistas Eliksyras + Rudas Grybas = Pykinimo Eliksyras (16 sekundziu)", "Keistas Eliksyras + Raudonasis Grybas (Pragaro) = Pykinimo Eliksyras-2 (8 sekundziu)"]
+lore1 = "Keistas Eliksyras + Rudas Grybas = Pykinimo Eliksyras (30 sekundziu)"
+lore2 = "Keistas Eliksyras + Raudonasis Grybas (Pragaro) = Pykinimo Eliksyras-2 (15 sekundziu)"
+lore = ["Keistas Eliksyras + Rudas Grybas = Pykinimo Eliksyras (30 sekundziu)", "Keistas Eliksyras + Raudonasis Grybas (Pragaro) = Pykinimo Eliksyras-2 (15 sekundziu)"]
 
 [brewing.blindness]
 name = "Aklumas"
@@ -1286,9 +1286,9 @@ lore = ["Keistas Eliksyras + Gelezies Liejinys = Atsparumo Eliksyras (60 sekundz
 [brewing.health_boost]
 name = "Gyvybe"
 description = "Kai maksimaliu gyvybiu nepakanka..."
-lore1 = "Momentinis Gydymas Eliksyras + Auksinis Obuolys = Sveikatos Stiprinimo Eliksyras (120 sekundziu)"
-lore2 = "Momentinis Gydymas Eliksyras + Uzburtas Auksinis Obuolys = Sveikatos Stiprinimo Eliksyras-2 (120 sekundziu)"
-lore = ["Momentinis Gydymas Eliksyras + Auksinis Obuolys = Sveikatos Stiprinimo Eliksyras (120 sekundziu)", "Momentinis Gydymas Eliksyras + Uzburtas Auksinis Obuolys = Sveikatos Stiprinimo Eliksyras-2 (120 sekundziu)"]
+lore1 = "Momentinis Gydymas Eliksyras + Auksinis Obuolys = Sveikatos Stiprinimo Eliksyras (60 sekundziu)"
+lore2 = "Momentinis Gydymas Eliksyras + Uzburtas Auksinis Obuolys = Sveikatos Stiprinimo Eliksyras-2 (60 sekundziu)"
+lore = ["Momentinis Gydymas Eliksyras + Auksinis Obuolys = Sveikatos Stiprinimo Eliksyras (60 sekundziu)", "Momentinis Gydymas Eliksyras + Uzburtas Auksinis Obuolys = Sveikatos Stiprinimo Eliksyras-2 (60 sekundziu)"]
 
 [brewing.decay]
 name = "Nykimas"

@@ -4,7 +4,9 @@ import art.arcane.adapt.Adapt;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.adapt.util.config.ConfigFileSupport;
+import art.arcane.volmlib.util.bukkit.WorldIdentity;
 import lombok.Getter;
+import org.bukkit.generator.WorldInfo;
 
 import java.io.File;
 import java.io.IOException;
@@ -142,14 +144,15 @@ public class MutationConfig {
     return configured == null ? List.of() : List.copyOf(configured);
   }
 
-  public boolean isWorldAllowed(String worldName, MutationType type) {
-    if (worldName == null) {
+  public boolean isWorldAllowed(WorldInfo world, MutationType type) {
+    if (world == null) {
       return false;
     }
-    if (containsIgnoreCase(worldBlacklist, worldName)) {
+    String worldKey = WorldIdentity.serialize(world);
+    if (worldBlacklist.contains(worldKey)) {
       return false;
     }
-    return type == null || !containsIgnoreCase(profile(type).worldBlacklist, worldName);
+    return type == null || !profile(type).worldBlacklist.contains(worldKey);
   }
 
   private static MutationConfig load(MutationConfig fallback, boolean overwriteOnFailure) {
@@ -185,7 +188,7 @@ public class MutationConfig {
     combatLockMillis = clampDuration(combatLockMillis, 0L);
     bookshelfTokenMillis = Math.max(1_000L, Math.min(300_000L, bookshelfTokenMillis));
     bookshelfMaximumDistance = clamp(bookshelfMaximumDistance, 2D, 32D);
-    worldBlacklist = normalizeStrings(worldBlacklist, 256);
+    worldBlacklist = normalizeWorldKeys(worldBlacklist, 256);
     domainMembership = normalizeDomains(domainMembership);
     cooperativeConsentMode = cooperativeConsentMode == null ? ConsentMode.EXPLICIT : cooperativeConsentMode;
     galeLung = galeLung == null ? new GaleLung() : galeLung;
@@ -249,16 +252,24 @@ public class MutationConfig {
     return normalized;
   }
 
-  private static boolean containsIgnoreCase(List<String> values, String expected) {
-    if (values == null || expected == null) {
-      return false;
+  private static List<String> normalizeWorldKeys(List<String> values, int cap) {
+    ArrayList<String> normalized = new ArrayList<>();
+    if (values == null) {
+      return normalized;
     }
     for (String value : values) {
-      if (value != null && value.equalsIgnoreCase(expected)) {
-        return true;
+      if (value == null || value.isBlank()) {
+        continue;
+      }
+      String worldKey = WorldIdentity.parse(value).toString();
+      if (!normalized.contains(worldKey)) {
+        normalized.add(worldKey);
+        if (normalized.size() >= cap) {
+          break;
+        }
       }
     }
-    return false;
+    return normalized;
   }
 
   private static double clamp(double value, double minimum, double maximum) {
@@ -299,7 +310,7 @@ public class MutationConfig {
     private List<String> conflicts = new ArrayList<>();
 
     private void normalize() {
-      worldBlacklist = normalizeStrings(worldBlacklist, 256);
+      worldBlacklist = normalizeWorldKeys(worldBlacklist, 256);
       conflicts = normalizeStrings(conflicts, MutationType.values().length);
       normalizeValues();
     }

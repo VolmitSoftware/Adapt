@@ -81,7 +81,7 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
 
   @Override
   public void addStats(int level, Element v) {
-    statLore(v, Form.pc(getWindupArmor(getLevelPercent(level)), 0), 1);
+    statLore(v, Form.f(getWindupArmor(getLevelPercent(level)) * 10, 1), 1);
     v.addLore(C.YELLOW + "* " + Form.duration(getWindupTicks(getLevelPercent(level)) * 50D, 1) + " " + C.GRAY + Localizer.dLocalize("agility.armor_up.lore2"));
     v.addLore(C.YELLOW + "* " + Form.duration(getDecaySeconds(getLevelPercent(level)) * 1000D, 1) + " " + C.GRAY + Localizer.dLocalize("agility.armor_up.lore3"));
   }
@@ -226,7 +226,7 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
     state.plating = Math.min(1.0D, state.plating + (elapsedTicks / ticksToMax));
     emitPlatingFeedback(p, state, state.plating);
     double armorInc = getWindupArmor(factor) * state.plating;
-    attribute.setModifier(MODIFIER, MODIFIER_KEY, armorInc * 10, AttributeModifier.Operation.MULTIPLY_SCALAR_1);
+    attribute.setModifier(MODIFIER, MODIFIER_KEY, armorInc * 10, AttributeModifier.Operation.ADD_NUMBER);
     if (elapsedTicks > 0D) {
       addStat(p, "agility.armor-up.ticks-armored", elapsedTicks);
     }
@@ -251,7 +251,7 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
     }
 
     double armorInc = getWindupArmor(factor) * state.plating;
-    attribute.setModifier(MODIFIER, MODIFIER_KEY, armorInc * 10, AttributeModifier.Operation.MULTIPLY_SCALAR_1);
+    attribute.setModifier(MODIFIER, MODIFIER_KEY, armorInc * 10, AttributeModifier.Operation.ADD_NUMBER);
     emitDecayShimmer(p);
   }
 

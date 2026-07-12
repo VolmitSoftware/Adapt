@@ -119,10 +119,6 @@ public class DiscoveryUnity extends SimpleAdaptation<DiscoveryUnity.Config> {
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Gained Multiplier for the Discovery Unity adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpGainedMultiplier = 8;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Boost Multiplier for the Discovery Unity adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double xpBoostMultiplier = 0.01;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Boost Duration for the Discovery Unity adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    int xpBoostDuration = 15000;
 
     public Config() {
       baseCost = 2;

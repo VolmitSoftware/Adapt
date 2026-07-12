@@ -102,7 +102,7 @@ public class UnarmedSuckerPunch extends SimpleAdaptation<UnarmedSuckerPunch.Conf
       return;
     }
 
-    e.setDamage(e.getDamage() * getDamage(factor));
+    e.setDamage(e.getDamage() * (1 + getDamage(factor)));
     Location impact = e.getEntity().getLocation().add(0, 1.0D, 0);
     Vector look = p.getLocation().getDirection();
     fx(impact, FxPriority.COMBAT)

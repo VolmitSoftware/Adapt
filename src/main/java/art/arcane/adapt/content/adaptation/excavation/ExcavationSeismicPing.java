@@ -99,7 +99,6 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
       return;
     }
 
-    cooldowns.mark(p.getUniqueId());
     if (ThreadLocalRandom.current().nextDouble() > getPingChance(level)) {
       return;
     }
@@ -108,6 +107,7 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
       return;
     }
 
+    cooldowns.mark(p.getUniqueId());
     Location blockLocation = e.getBlock().getLocation();
     int scanRange = getScanRange(level);
     startScan(p, blockLocation, scanRange, level);

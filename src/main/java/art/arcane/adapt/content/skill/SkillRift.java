@@ -29,14 +29,18 @@ import art.arcane.adapt.api.version.Version;
 import art.arcane.adapt.content.adaptation.chronos.ChronosInstantRecall;
 import art.arcane.adapt.content.adaptation.rift.RiftAccess;
 import art.arcane.adapt.content.adaptation.rift.RiftBlink;
+import art.arcane.adapt.content.adaptation.rift.RiftConduit;
 import art.arcane.adapt.content.adaptation.rift.RiftDescent;
 import art.arcane.adapt.content.adaptation.rift.RiftEnderTaglock;
 import art.arcane.adapt.content.adaptation.rift.RiftEnderchest;
 import art.arcane.adapt.content.adaptation.rift.RiftGate;
 import art.arcane.adapt.content.adaptation.rift.RiftInflatedPocketDimension;
+import art.arcane.adapt.content.adaptation.rift.RiftPearlRebound;
 import art.arcane.adapt.content.adaptation.rift.RiftResist;
+import art.arcane.adapt.content.adaptation.rift.RiftStep;
 import art.arcane.adapt.content.adaptation.rift.RiftVisage;
 import art.arcane.adapt.content.adaptation.rift.RiftVoidMagnet;
+import art.arcane.adapt.content.adaptation.rift.RiftVoidSkin;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
@@ -82,6 +86,10 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
     registerAdaptation(new RiftEnderTaglock());
     registerAdaptation(new RiftInflatedPocketDimension());
     registerAdaptation(new RiftVoidMagnet());
+    registerAdaptation(new RiftVoidSkin());
+    registerAdaptation(new RiftPearlRebound());
+    registerAdaptation(new RiftConduit());
+    registerAdaptation(new RiftStep());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.ENDER_PEARL)
         .key("challenge_rift_50")

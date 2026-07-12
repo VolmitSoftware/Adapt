@@ -1251,23 +1251,23 @@ lore = ["Natychmiastowe Leczenie + Kwarc = Mikstura Absorpcji (60 sekund)", "Nat
 [brewing.fatigue]
 name = "Zmeczenie w Butelce"
 description = "Oslab cialo!"
-lore1 = "Mikstura Slabosci + Kula Sluzu = Mikstura Zmeczenia (30 sekund)"
-lore2 = "Mikstura Slabosci + Blok Sluzu = Mikstura Zmeczenia-2 (15 sekund)"
-lore = ["Mikstura Slabosci + Kula Sluzu = Mikstura Zmeczenia (30 sekund)", "Mikstura Slabosci + Blok Sluzu = Mikstura Zmeczenia-2 (15 sekund)"]
+lore1 = "Mikstura Slabosci + Kula Sluzu = Mikstura Zmeczenia (60 sekund)"
+lore2 = "Mikstura Slabosci + Blok Sluzu = Mikstura Zmeczenia-2 (30 sekund)"
+lore = ["Mikstura Slabosci + Kula Sluzu = Mikstura Zmeczenia (60 sekund)", "Mikstura Slabosci + Blok Sluzu = Mikstura Zmeczenia-2 (30 sekund)"]
 
 [brewing.hunger]
 name = "Glod w Butelce"
 description = "Nakarm Nienasyconego!"
-lore1 = "Niezreczna Mikstura + Zgnile Mieso = Mikstura Glodu (30 sekund)"
-lore2 = "Mikstura Slabosci + Zgnile Mieso = Mikstura Glodu-3 (15 sekund)"
-lore = ["Niezreczna Mikstura + Zgnile Mieso = Mikstura Glodu (30 sekund)", "Mikstura Slabosci + Zgnile Mieso = Mikstura Glodu-3 (15 sekund)"]
+lore1 = "Niezreczna Mikstura + Zgnile Mieso = Mikstura Glodu (60 sekund)"
+lore2 = "Mikstura Slabosci + Zgnile Mieso = Mikstura Glodu-3 (30 sekund)"
+lore = ["Niezreczna Mikstura + Zgnile Mieso = Mikstura Glodu (60 sekund)", "Mikstura Slabosci + Zgnile Mieso = Mikstura Glodu-3 (30 sekund)"]
 
 [brewing.nausea]
 name = "Mdlosci w Butelce"
 description = "Robi mi sie od ciebie niedobrze!"
-lore1 = "Niezreczna Mikstura + Brazowy Grzyb = Mikstura Mdlosci (16 sekund)"
-lore2 = "Niezreczna Mikstura + Szkarlatny Grzyb = Mikstura Mdlosci-2 (8 sekund)"
-lore = ["Niezreczna Mikstura + Brazowy Grzyb = Mikstura Mdlosci (16 sekund)", "Niezreczna Mikstura + Szkarlatny Grzyb = Mikstura Mdlosci-2 (8 sekund)"]
+lore1 = "Niezreczna Mikstura + Brazowy Grzyb = Mikstura Mdlosci (30 sekund)"
+lore2 = "Niezreczna Mikstura + Szkarlatny Grzyb = Mikstura Mdlosci-2 (15 sekund)"
+lore = ["Niezreczna Mikstura + Brazowy Grzyb = Mikstura Mdlosci (30 sekund)", "Niezreczna Mikstura + Szkarlatny Grzyb = Mikstura Mdlosci-2 (15 sekund)"]
 
 [brewing.blindness]
 name = "Slepota w Butelce"
@@ -1286,9 +1286,9 @@ lore = ["Niezreczna Mikstura + Sztabka Zelaza = Mikstura Odpornosci (60 sekund)"
 [brewing.health_boost]
 name = "Zycie w Butelce"
 description = "Kiedy maksymalne zdrowie to za malo..."
-lore1 = "Mikstura Natychmiastowego Leczenia + Zlote Jablko = Mikstura Wzmocnienia Zdrowia (120 sekund)"
-lore2 = "Mikstura Natychmiastowego Leczenia + Zaczarowane Zlote Jablko = Mikstura Wzmocnienia Zdrowia-2 (120 sekund)"
-lore = ["Mikstura Natychmiastowego Leczenia + Zlote Jablko = Mikstura Wzmocnienia Zdrowia (120 sekund)", "Mikstura Natychmiastowego Leczenia + Zaczarowane Zlote Jablko = Mikstura Wzmocnienia Zdrowia-2 (120 sekund)"]
+lore1 = "Mikstura Natychmiastowego Leczenia + Zlote Jablko = Mikstura Wzmocnienia Zdrowia (60 sekund)"
+lore2 = "Mikstura Natychmiastowego Leczenia + Zaczarowane Zlote Jablko = Mikstura Wzmocnienia Zdrowia-2 (60 sekund)"
+lore = ["Mikstura Natychmiastowego Leczenia + Zlote Jablko = Mikstura Wzmocnienia Zdrowia (60 sekund)", "Mikstura Natychmiastowego Leczenia + Zaczarowane Zlote Jablko = Mikstura Wzmocnienia Zdrowia-2 (60 sekund)"]
 
 [brewing.decay]
 name = "Rozklad w Butelce"

@@ -84,10 +84,9 @@ public class HerbalismHungryShield extends SimpleAdaptation<HerbalismHungryShiel
       double d = e.getDamage() - h;
 
       if (getPlayer(p).consumeFood(h, 6)) {
-        d += h;
         e.setDamage(d);
         addStat(p, "herbalism.hungry-shield.damage-absorbed", (int) Math.ceil(h));
-        xp(p, d);
+        xp(p, h);
 
         if (absorbFxCooldown.isReady(p.getUniqueId(), 500L)) {
           absorbFxCooldown.mark(p.getUniqueId());

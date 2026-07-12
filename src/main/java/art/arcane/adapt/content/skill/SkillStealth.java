@@ -26,13 +26,20 @@ import art.arcane.adapt.api.skill.SkillOwnerPulse;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.adaptation.excavation.ExcavationGraveDigger;
+import art.arcane.adapt.content.adaptation.stealth.StealthAssassinate;
+import art.arcane.adapt.content.adaptation.stealth.StealthCutpurse;
+import art.arcane.adapt.content.adaptation.stealth.StealthDecoySwap;
 import art.arcane.adapt.content.adaptation.stealth.StealthEnderVeil;
 import art.arcane.adapt.content.adaptation.stealth.StealthGhostArmor;
 import art.arcane.adapt.content.adaptation.stealth.StealthShadowDecoy;
+import art.arcane.adapt.content.adaptation.stealth.StealthShadowmeld;
 import art.arcane.adapt.content.adaptation.stealth.StealthSight;
 import art.arcane.adapt.content.adaptation.stealth.StealthSilentStep;
+import art.arcane.adapt.content.adaptation.stealth.StealthSmokePellet;
 import art.arcane.adapt.content.adaptation.stealth.StealthSnatch;
 import art.arcane.adapt.content.adaptation.stealth.StealthSpeed;
+import art.arcane.adapt.content.adaptation.stealth.StealthTrapSense;
+import art.arcane.adapt.content.adaptation.stealth.StealthUmbralRecovery;
 import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
@@ -68,6 +75,13 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
     registerAdaptation(new StealthEnderVeil());
     registerAdaptation(new StealthSilentStep());
     registerAdaptation(new StealthShadowDecoy());
+    registerAdaptation(new StealthShadowmeld());
+    registerAdaptation(new StealthSmokePellet());
+    registerAdaptation(new StealthCutpurse());
+    registerAdaptation(new StealthTrapSense());
+    registerAdaptation(new StealthAssassinate());
+    registerAdaptation(new StealthDecoySwap());
+    registerAdaptation(new StealthUmbralRecovery());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.LEATHER_LEGGINGS)
         .key("challenge_sneak_1k")

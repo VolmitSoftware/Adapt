@@ -21,9 +21,11 @@ package art.arcane.adapt;
 import art.arcane.adapt.api.xp.Curves;
 import art.arcane.adapt.util.config.ConfigFileSupport;
 import art.arcane.adapt.util.project.redis.RedisConfig;
+import art.arcane.volmlib.util.bukkit.WorldIdentity;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Material;
+import org.bukkit.generator.WorldInfo;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,7 +47,7 @@ public class AdaptConfig {
   public String adaptActivatorBlock = "BOOKSHELF";
   public String adaptActivatorBlockName = "a Bookshelf";
   public boolean adaptActivatorAllowVerticalFaces = false;
-  public List<String> blacklistedWorlds = List.of("some_world_adapt_should_not_run_in", "anotherWorldFolderName");
+  public List<String> blacklistedWorlds = List.of("minecraft:some_world_adapt_should_not_run_in", "example:another_world");
   public int experienceMaxLevel = 1000;
   boolean preventHunterSkillsWhenHungerApplied = true;
   private ValueConfig value = new ValueConfig();
@@ -58,6 +60,7 @@ public class AdaptConfig {
   private double powerPerLevel = 0.65;
   private boolean hardcoreResetOnPlayerDeath = false;
   private boolean hardcoreNoRefunds = false;
+
   private boolean loginBonus = true;
   private boolean welcomeMessage = true;
   private boolean advancements = true;
@@ -115,6 +118,10 @@ public class AdaptConfig {
         return false;
       }
     }
+  }
+
+  public boolean isWorldBlacklisted(WorldInfo world) {
+    return world != null && blacklistedWorlds.contains(WorldIdentity.serialize(world));
   }
 
   private static AdaptConfig loadConfig(AdaptConfig fallback, boolean overwriteOnFailure) throws IOException {

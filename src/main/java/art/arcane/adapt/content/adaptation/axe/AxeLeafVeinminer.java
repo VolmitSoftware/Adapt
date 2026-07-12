@@ -114,7 +114,8 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
     queued.add(block);
     int radius = getRadius(getLevel(p));
     int radiusSquared = radius * radius;
-    while (!stack.isEmpty() && blockMap.size() < radius) {
+    int maxBlocks = Math.max(1, getConfig().maxBlocks);
+    while (!stack.isEmpty() && blockMap.size() < maxBlocks) {
       Block currentBlock = stack.pop();
       if (blockMap.contains(currentBlock)) {
         continue;
@@ -218,6 +219,8 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Base Range for the Axe Leaf Veinminer adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     int baseRange = 5;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Blocks for the Axe Leaf Veinminer adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    int maxBlocks = 128;
 
     public Config() {
       baseCost = 6;

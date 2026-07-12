@@ -132,7 +132,7 @@ public class TragoulThorns extends SimpleAdaptation<TragoulThorns.Config> {
   @ConfigDescription("Reflect damage back to your attacker.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Damage Multiplier Per Level for the Tragoul Thorns adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double damageMultiplierPerLevel = 1.0;
+    double damageMultiplierPerLevel = 1.75;
 
     public Config() {
       costFactor = 0.72;

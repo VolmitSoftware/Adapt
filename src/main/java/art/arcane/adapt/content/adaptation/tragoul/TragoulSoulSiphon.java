@@ -161,11 +161,11 @@ public class TragoulSoulSiphon extends SimpleAdaptation<TragoulSoulSiphon.Config
     @art.arcane.adapt.util.config.ConfigDoc(value = "Fraction of melee damage returned as healing before level scaling.", impact = "Higher values increase baseline lifesteal.")
     double healPercentBase = 0.05;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Additional lifesteal fraction granted at max level.", impact = "Higher values increase level-scaled lifesteal growth.")
-    double healPercentFactor = 0.20;
+    double healPercentFactor = 0.32;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum health restored per second before level scaling.", impact = "Lower values harden the anti-abuse healing cap.")
     double healCapPerSecondBase = 2.0;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Additional per-second healing cap granted at max level.", impact = "Higher values let high levels sustain more healing per second.")
-    double healCapPerSecondFactor = 4.0;
+    double healCapPerSecondFactor = 6.5;
     @art.arcane.adapt.util.config.ConfigDoc(value = "XP granted per successful siphon heal.", impact = "Higher values accelerate skill progression from this adaptation.")
     double xpPerHeal = 3;
 

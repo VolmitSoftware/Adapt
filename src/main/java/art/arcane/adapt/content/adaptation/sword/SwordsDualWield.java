@@ -71,7 +71,7 @@ public class SwordsDualWield extends SimpleAdaptation<SwordsDualWield.Config> {
     statLore(v, Form.pc(getMixedMultiplier(level), 0), 2);
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST)
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(EntityDamageByEntityEvent e) {
     art.arcane.adapt.api.adaptation.Adaptation.MeleeContext combat = resolveMeleeContext(e);
     if (combat == null) {
@@ -81,7 +81,7 @@ public class SwordsDualWield extends SimpleAdaptation<SwordsDualWield.Config> {
     Player p = combat.attacker();
     ItemStack main = p.getInventory().getItemInMainHand();
     ItemStack off = p.getInventory().getItemInOffHand();
-    if (!isItem(main) || !isItem(off) || main.getType() == Material.AIR || off.getType() == Material.AIR) {
+    if (!isSword(main) || !isSword(off)) {
       return;
     }
 

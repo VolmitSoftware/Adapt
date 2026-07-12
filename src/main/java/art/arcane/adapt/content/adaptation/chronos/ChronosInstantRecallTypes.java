@@ -1,7 +1,7 @@
 package art.arcane.adapt.content.adaptation.chronos;
 
 record Snapshot(long timestamp,
-                String worldName,
+                String worldKey,
                 double x,
                 double y,
                 double z,
@@ -14,11 +14,11 @@ record Snapshot(long timestamp,
                 int fireTicks) {
 }
 
-record RecallXPContext(String fromWorld,
+record RecallXPContext(String fromWorldKey,
                        double fromX,
                        double fromY,
                        double fromZ,
-                       String toWorld,
+                       String toWorldKey,
                        double toX,
                        double toY,
                        double toZ,
@@ -29,11 +29,11 @@ record RecallXPContext(String fromWorld,
 }
 
 record RecallXPFarmStamp(long awardedAt,
-                         String fromWorld,
+                         String fromWorldKey,
                          double fromX,
                          double fromY,
                          double fromZ,
-                         String toWorld,
+                         String toWorldKey,
                          double toX,
                          double toY,
                          double toZ) {

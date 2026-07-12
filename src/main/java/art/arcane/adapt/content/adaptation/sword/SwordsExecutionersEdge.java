@@ -77,7 +77,7 @@ public class SwordsExecutionersEdge extends SimpleAdaptation<SwordsExecutionersE
     statLore(v, Form.pc(getThreshold(level), 0), 2);
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST)
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(EntityDamageByEntityEvent e) {
     art.arcane.adapt.api.adaptation.Adaptation.MeleeContext combat = resolveMeleeContext(e, this::isSword);
     if (combat == null) {

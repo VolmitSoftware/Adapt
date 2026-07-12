@@ -23,8 +23,8 @@ class SeabornePassiveRuntimeTest {
 
   @Test
   void turtleEffectsRetainAFullHundredTickRefreshBuffer() {
-    assertThat(SeaborneTurtlesVision.shouldRefreshEffect(101, 0, 0)).isFalse();
-    assertThat(SeaborneTurtlesVision.shouldRefreshEffect(100, 0, 0)).isTrue();
+    assertThat(SeaborneTurtlesVision.shouldRefreshEffect(501, 0, 0)).isFalse();
+    assertThat(SeaborneTurtlesVision.shouldRefreshEffect(500, 0, 0)).isTrue();
     assertThat(SeaborneTurtlesMiningSpeed.shouldRefreshEffect(101, 1, 1)).isFalse();
     assertThat(SeaborneTurtlesMiningSpeed.shouldRefreshEffect(100, 1, 1)).isTrue();
   }
