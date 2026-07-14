@@ -20,6 +20,7 @@ package art.arcane.adapt.content.adaptation.rift;
 
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -27,6 +28,8 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.world.PlayerAdaptation;
+import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -47,6 +50,8 @@ import org.bukkit.potion.PotionEffect;
 
 
 public class RiftResist extends SimpleAdaptation<RiftResist.Config> {
+  private final Cooldowns activationThrottle = cooldowns();
+
   public RiftResist() {
     super("rift-resist");
     registerConfiguration(Config.class);
@@ -84,7 +89,9 @@ public class RiftResist extends SimpleAdaptation<RiftResist.Config> {
   }
 
   public static boolean hasRiftResistPerk(AdaptPlayer p) {
-    return p.getData().getLevel() > 0;
+    PlayerSkillLine line = p.getData().getSkillLineNullable("rift");
+    PlayerAdaptation adaptation = line == null ? null : line.getAdaptation("rift-resist");
+    return adaptation != null && adaptation.getLevel() > 0;
   }
 
   @Override
@@ -104,6 +111,10 @@ public class RiftResist extends SimpleAdaptation<RiftResist.Config> {
     if (e.getAction() == Action.RIGHT_CLICK_AIR) {
       switch (hand.getType()) {
         case ENDER_EYE, ENDER_PEARL -> {
+          if (!activationThrottle.isReady(p.getUniqueId(), Math.max(0L, getConfig().activationCooldownMillis))) {
+            return;
+          }
+          activationThrottle.mark(p.getUniqueId());
           xp(p, 3);
           riftResistStackAdd(this, p, getConfig().duration, getConfig().amplitude);
           addStat(p, "rift.resist.activations", 1);
@@ -120,6 +131,8 @@ public class RiftResist extends SimpleAdaptation<RiftResist.Config> {
     int amplitude = 1;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Duration for the Rift Resist adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     int duration = 80;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Cooldown between manual right-click-air activations in milliseconds.", impact = "Higher values slow repeated activations and the XP they grant; lower values allow faster reuse.")
+    long activationCooldownMillis = 4000;
 
     public Config() {
       baseCost = 3;

@@ -195,7 +195,7 @@ public interface AdaptComponent {
   default boolean isTrident(ItemStack it) {
     if (isItem(it)) {
       return switch (it.getType()) {
-        case TRIDENT, SEA_PICKLE -> true;
+        case TRIDENT -> true;
         default -> false;
       };
     }

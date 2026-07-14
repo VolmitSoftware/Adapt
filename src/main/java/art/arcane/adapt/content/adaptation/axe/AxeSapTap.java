@@ -96,6 +96,10 @@ public class AxeSapTap extends SimpleAdaptation<AxeSapTap.Config> {
       return;
     }
 
+    if (!canBlockBreak(p, clicked.getLocation())) {
+      return;
+    }
+
     UUID id = p.getUniqueId();
     if (!cooldowns.isReady(id, getConfig().cooldownMs)) {
       return;

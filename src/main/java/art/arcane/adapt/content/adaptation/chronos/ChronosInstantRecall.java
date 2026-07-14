@@ -90,6 +90,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
   private final Map<UUID, Long> rewindProtection = playerState();
   private final Map<UUID, Boolean> rewinding = playerState();
   private final Map<UUID, RecallXPFarmStamp> recallXpStamps = playerState();
+  private final Map<UUID, Runnable> rewindCleanups = new ConcurrentHashMap<>();
   private final DoubleJumpGesture doubleJump = new DoubleJumpGesture();
 
   public ChronosInstantRecall() {
@@ -161,28 +162,6 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
     for (String combo : combos) {
       v.addLore(C.AQUA + "* " + C.GRAY + "Trigger: " + C.WHITE + combo);
     }
-  }
-
-  @Override
-  public String getDescription() {
-    return "Rewind to a recent snapshot with health and hunger restored. " + summarizeTriggerDescription();
-  }
-
-  private String summarizeTriggerDescription() {
-    List<String> combos = getTriggerCombos();
-    if (combos.isEmpty()) {
-      return "No active triggers are currently enabled.";
-    }
-
-    if (combos.size() == 1) {
-      return "Trigger: " + combos.get(0) + ".";
-    }
-
-    if (combos.size() == 2) {
-      return "Triggers: " + combos.get(0) + " or " + combos.get(1) + ".";
-    }
-
-    return "Triggers: " + combos.get(0) + ", " + combos.get(1) + ", +" + (combos.size() - 2) + " more.";
   }
 
   private long getRewindDurationMillis(int level) {
@@ -600,7 +579,16 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
 
   @EventHandler
   public void on(PlayerQuitEvent e) {
-    clearPlayerState(e.getPlayer().getUniqueId());
+    UUID id = e.getPlayer().getUniqueId();
+    finishRewindVisualState(id);
+    clearPlayerState(id);
+  }
+
+  private void finishRewindVisualState(UUID id) {
+    Runnable cleanup = rewindCleanups.remove(id);
+    if (cleanup != null) {
+      cleanup.run();
+    }
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -797,6 +785,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
     rewindProtection.remove(id);
     rewinding.remove(id);
     recallXpStamps.remove(id);
+    rewindCleanups.remove(id);
     doubleJump.reset(id);
     TELEPORT_XP_SUPPRESS_UNTIL.remove(id);
   }
@@ -935,12 +924,13 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
         }
       }
     };
+    rewindCleanups.put(id, () -> cleanupVisualState.accept(true));
 
     Runnable[] rewindTask = new Runnable[1];
     rewindTask[0] = () -> {
       if (!p.isOnline() || p.isDead()) {
         rewinding.remove(id);
-        cleanupVisualState.accept(true);
+        finishRewindVisualState(id);
         return;
       }
 
@@ -992,7 +982,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
       step[0]++;
 
       if (step[0] >= animationTicks) {
-        cleanupVisualState.accept(true);
+        finishRewindVisualState(id);
         Location finalDestination = toLocation(finalSnapshot, p.getWorld());
         if (finalDestination.getWorld() != null) {
           J.teleport(p, finalDestination, PlayerTeleportEvent.TeleportCause.PLUGIN);

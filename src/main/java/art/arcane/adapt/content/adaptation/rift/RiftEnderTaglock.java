@@ -55,6 +55,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityRemoveEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -84,6 +85,7 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
   private static final long TELEPORT_COMPLETION_TIMEOUT_MILLIS = 300_000L;
   private final NamespacedKey targetKey;
   private final Map<UUID, Long> suppressPearlTeleportUntil = playerState();
+  private final Map<UUID, Integer> taglockPearlsInFlight = playerState();
   private final TeleportAdmission pendingTeleports = new TeleportAdmission(MAX_PENDING_TELEPORTS);
   private volatile boolean acceptingTeleports = true;
 
@@ -114,6 +116,7 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
     acceptingTeleports = false;
     pendingTeleports.clear();
     suppressPearlTeleportUntil.clear();
+    taglockPearlsInFlight.clear();
     super.unregister();
   }
 
@@ -216,6 +219,7 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
 
     EnderPearl pearl = p.launchProjectile(EnderPearl.class);
     pearl.getPersistentDataContainer().set(targetKey, PersistentDataType.STRING, target.toString());
+    taglockPearlsInFlight.merge(p.getUniqueId(), 1, Integer::sum);
     suppressPearlTeleportUntil.put(p.getUniqueId(), System.currentTimeMillis() + getSuppressPearlTeleportWindowMillis());
     p.setCooldown(Material.ENDER_PEARL, getThrowCooldownTicks(level));
     Vector dir = p.getLocation().getDirection();
@@ -266,7 +270,34 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
   public void on(PlayerQuitEvent e) {
     UUID playerId = e.getPlayer().getUniqueId();
     suppressPearlTeleportUntil.remove(playerId);
+    taglockPearlsInFlight.remove(playerId);
     pendingTeleports.cancel(playerId);
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(EntityRemoveEvent e) {
+    if (!(e.getEntity() instanceof EnderPearl pearl) || !(pearl.getShooter() instanceof Player thrower)) {
+      return;
+    }
+
+    if (parseTargetId(pearl.getPersistentDataContainer().get(targetKey, PersistentDataType.STRING)) == null) {
+      return;
+    }
+
+    UUID throwerId = thrower.getUniqueId();
+    Integer remaining = taglockPearlsInFlight.computeIfPresent(throwerId, (id, count) -> count > 1 ? count - 1 : null);
+    if (remaining != null) {
+      return;
+    }
+
+    Runnable clearSuppression = () -> {
+      if (!taglockPearlsInFlight.containsKey(throwerId)) {
+        suppressPearlTeleportUntil.remove(throwerId);
+      }
+    };
+    if (!J.runEntity(thrower, clearSuppression, 2)) {
+      clearSuppression.run();
+    }
   }
 
   private void prepareThrowerOwned(Player thrower, UUID targetId, Location destination) {
@@ -641,8 +672,8 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
     double throwCooldownTicksBase = 30;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Throw Cooldown Ticks Factor for the Rift Ender Taglock adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double throwCooldownTicksFactor = 14;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Suppress Pearl Teleport Window Millis for the Rift Ender Taglock adaptation.", impact = "This should be long enough to catch the teleport event from a taglocked throw.")
-    long suppressPearlTeleportWindowMillis = 180000L;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Suppress Pearl Teleport Window Millis for the Rift Ender Taglock adaptation.", impact = "Backstop only; suppression clears as soon as the taglocked pearl resolves, so this just needs to cover the pearl's flight time.")
+    long suppressPearlTeleportWindowMillis = 10000L;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Large Width Threshold for the Rift Ender Taglock adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double largeWidthThreshold = 1.3;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Large Height Threshold for the Rift Ender Taglock adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

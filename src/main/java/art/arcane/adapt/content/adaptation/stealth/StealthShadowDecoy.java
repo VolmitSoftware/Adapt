@@ -122,25 +122,20 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
 
   @EventHandler(priority = EventPriority.HIGHEST)
   public void on(EntityDamageEvent e) {
-    if (anchorOwners.containsKey(e.getEntity().getUniqueId())) {
-      e.setCancelled(true);
-    }
-  }
-
-  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-  public void on(EntityDamageByEntityEvent e) {
     UUID ownerId = anchorOwners.get(e.getEntity().getUniqueId());
     if (ownerId == null) {
       return;
     }
 
     e.setCancelled(true);
-    DecoySession state = activeDecoys.get(ownerId);
-    if (state == null) {
+    if (!(e instanceof EntityDamageByEntityEvent hit)
+        || !(e.getEntity() instanceof ArmorStand stand)
+        || !(hit.getDamager() instanceof LivingEntity attacker)) {
       return;
     }
 
-    if (!(e.getEntity() instanceof ArmorStand stand) || !(e.getDamager() instanceof LivingEntity attacker)) {
+    DecoySession state = activeDecoys.get(ownerId);
+    if (state == null) {
       return;
     }
 
@@ -512,8 +507,8 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
     double decoyEyeHeight = 1.62;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Delay before removing the fake player from tab list, in ticks.", impact = "Small values hide tab entries faster; larger values help skins load.")
     int tabListRemoveDelayTicks = -1;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Allows armor stand visual fallback if packet NPC creation fails.", impact = "Turn off to disable fallback visuals on incompatible server builds.")
-    boolean legacyFallbackEnabled = false;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Allows armor stand visual fallback if packet NPC creation fails.", impact = "Turn off to disable fallback visuals on incompatible server builds; disabling leaves an invisible decoy when the packet bridge fails.")
+    boolean legacyFallbackEnabled = true;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Refresh duration for owner invisibility while a decoy is active.", impact = "Higher values keep invisibility active longer between refreshes.")
     int ownerInvisibilityRefreshTicks = 30;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Amplifier for the temporary invisibility effect.", impact = "Most servers should leave this at 0.")

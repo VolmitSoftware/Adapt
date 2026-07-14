@@ -178,10 +178,9 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
         PlayerSkillLine tragoul = a.getData().getSkillLineNullable("tragoul");
         if (tragoul != null) {
           double xp = tragoul.getXp();
-          if (xp > getConfig().deathXpLoss) {
-            xp(p, getConfig().deathXpLoss);
-          } else {
-            tragoul.setXp(0);
+          double loss = deathXpLossFor(xp, getConfig().deathXpLoss);
+          if (loss > 0) {
+            tragoul.setXp(xp - loss);
           }
           tragoul.setLastXP(xp);
 
@@ -194,6 +193,10 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
         }
       }
     });
+  }
+
+  static double deathXpLossFor(double currentXp, double configuredLoss) {
+    return Math.min(Math.max(currentXp, 0D), Math.abs(configuredLoss));
   }
 
   private void playSecondWind(Player p) {
@@ -243,8 +246,8 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
 
   @NoArgsConstructor
   protected static class Config {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Death Xp Loss for the Trag Oul skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    public double deathXpLoss = -250;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Amount of tragoul XP removed on death, clamped so XP never drops below zero.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    public double deathXpLoss = 250;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Take Away Skills On Death for the Trag Oul skill.", impact = "True enables this behavior and false disables it.")
     boolean takeAwaySkillsOnDeath = false;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")

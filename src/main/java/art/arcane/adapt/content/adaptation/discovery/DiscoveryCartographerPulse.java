@@ -41,17 +41,13 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.generator.structure.StructureType;
 import org.bukkit.inventory.EquipmentSlot;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.Arrays;
+import org.bukkit.util.StructureSearchResult;
 
 public class DiscoveryCartographerPulse extends SimpleAdaptation<DiscoveryCartographerPulse.Config> {
+  private static final int MAX_SEARCH_RADIUS_CHUNKS = 96;
   private final Cooldowns cooldowns = cooldowns();
-  private volatile Method cachedLocateMethod;
-  private volatile Object cachedStructure;
-  private volatile boolean locateResolved;
 
   public DiscoveryCartographerPulse() {
     super("discovery-cartographer-pulse");
@@ -115,15 +111,18 @@ public class DiscoveryCartographerPulse extends SimpleAdaptation<DiscoveryCartog
       return;
     }
 
-    Location target = locateNearestStructureFallback(p.getWorld(), p.getLocation(), getSearchRange(level));
-    boolean found = target != null;
+    Location target = locateNearestStructure(p.getWorld(), p.getLocation(), getSearchRange(level));
+    cooldowns.mark(p.getUniqueId());
     if (target == null) {
-      target = p.getWorld().getSpawnLocation();
+      fx(p.getLocation(), FxPriority.TRANSITION)
+          .particle(Particles.SMOKE, 2, 0, 0, 0, 0.05, 0.01)
+          .sound(Sound.BLOCK_NOTE_BLOCK_BASS, 0.5F, 0.5F);
+      p.sendMessage(C.GRAY + "Compass pulse: no structure found within " + Form.f(getSearchRange(level)) + " blocks.");
+      return;
     }
 
     p.setCompassTarget(target);
     p.sendMessage(C.AQUA + "Compass pulse: " + C.WHITE + Form.f(target.getBlockX()) + ", " + Form.f(target.getBlockZ()));
-    cooldowns.mark(p.getUniqueId());
     if (hungerCost > 0) {
       p.setFoodLevel(Math.max(0, p.getFoodLevel() - hungerCost));
     }
@@ -140,136 +139,28 @@ public class DiscoveryCartographerPulse extends SimpleAdaptation<DiscoveryCartog
         })
         .start();
 
-    if (found) {
-      Location eye = p.getEyeLocation();
-      fx(eye, FxPriority.GAMEPLAY)
-          .trail(Particles.END_ROD, target.getX() - eye.getX(), target.getY() - eye.getY(), target.getZ() - eye.getZ(), 8.0D, 10);
-    }
+    Location eye = p.getEyeLocation();
+    fx(eye, FxPriority.GAMEPLAY)
+        .trail(Particles.END_ROD, target.getX() - eye.getX(), target.getY() - eye.getY(), target.getZ() - eye.getZ(), 8.0D, 10);
 
     xp(p, getConfig().xpPerPulse);
     addStat(p, "discovery.cartographer-pulse.pulses", 1);
   }
 
-  private Location locateNearestStructureFallback(World world, Location from, int range) {
-    if (!locateResolved) {
-      synchronized (this) {
-        if (!locateResolved) {
-          resolveLocateMethod(world);
-          locateResolved = true;
-        }
-      }
-    }
-
-    Method method = cachedLocateMethod;
-    Object structure = cachedStructure;
-    if (method == null || structure == null) {
+  private Location locateNearestStructure(World world, Location from, int rangeBlocks) {
+    int radiusChunks = Math.max(1, Math.min(MAX_SEARCH_RADIUS_CHUNKS, (int) Math.ceil(rangeBlocks / 16D)));
+    StructureSearchResult result;
+    try {
+      result = world.locateNearestStructure(from, StructureType.JIGSAW, radiusChunks, false);
+    } catch (Throwable t) {
       return null;
     }
 
-    try {
-      Class<?>[] p = method.getParameterTypes();
-      Object out;
-      if (p.length == 4) {
-        out = method.invoke(world, from, structure, range, false);
-      } else if (p.length == 5 && p[4] == boolean.class) {
-        out = method.invoke(world, from, structure, range, false, false);
-      } else {
-        return null;
-      }
-
-      return extractLocation(out);
-    } catch (Throwable ignored) {
-      return null;
-    }
-  }
-
-  private void resolveLocateMethod(World world) {
-    for (Method m : world.getClass().getMethods()) {
-      if (!m.getName().equals("locateNearestStructure")) {
-        continue;
-      }
-
-      Class<?>[] p = m.getParameterTypes();
-      if (p.length < 4 || p[0] != Location.class || p[2] != int.class || p[3] != boolean.class) {
-        continue;
-      }
-
-      if (p.length != 4 && !(p.length == 5 && p[4] == boolean.class)) {
-        continue;
-      }
-
-      Object structure = resolvePreferredStructureType(p[1]);
-      if (structure == null) {
-        continue;
-      }
-
-      cachedLocateMethod = m;
-      cachedStructure = structure;
-      return;
-    }
-  }
-
-  private Object resolvePreferredStructureType(Class<?> structureTypeClass) {
-    String[] preferred = {"VILLAGE", "STRONGHOLD", "RUINED_PORTAL", "MINESHAFT", "SHIPWRECK", "TRAIL_RUINS"};
-
-    if (structureTypeClass.isEnum()) {
-      Object[] constants = structureTypeClass.getEnumConstants();
-      if (constants == null || constants.length == 0) {
-        return null;
-      }
-
-      for (String name : preferred) {
-        Object c = Arrays.stream(constants).filter(i -> ((Enum<?>) i).name().equals(name)).findFirst().orElse(null);
-        if (c != null) {
-          return c;
-        }
-      }
-
-      return constants[0];
-    }
-
-    for (String name : preferred) {
-      try {
-        Field f = structureTypeClass.getField(name);
-        Object value = f.get(null);
-        if (value != null) {
-          return value;
-        }
-      } catch (Throwable ignored) {
-      }
-    }
-
-    try {
-      Method values = structureTypeClass.getMethod("values");
-      Object out = values.invoke(null);
-      if (out instanceof Object[] a && a.length > 0) {
-        return a[0];
-      }
-    } catch (Throwable ignored) {
-    }
-
-    return null;
-  }
-
-  private Location extractLocation(Object out) {
-    if (out instanceof Location location) {
-      return location;
-    }
-
-    if (out == null) {
+    if (result == null || result.getLocation() == null || result.getLocation().getWorld() != world) {
       return null;
     }
 
-    try {
-      Method getter = out.getClass().getMethod("getLocation");
-      Object loc = getter.invoke(out);
-      if (loc instanceof Location location) {
-        return location;
-      }
-    } catch (Throwable ignored) {
-    }
-
-    return null;
+    return result.getLocation();
   }
 
   private int getSearchRange(int level) {

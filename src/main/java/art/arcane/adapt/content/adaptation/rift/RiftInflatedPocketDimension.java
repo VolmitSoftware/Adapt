@@ -120,7 +120,6 @@ public class RiftInflatedPocketDimension extends SimpleAdaptation<RiftInflatedPo
         .trail(Particle.PORTAL, toHand.getX(), toHand.getY(), toHand.getZ(), Math.max(0.5, toHand.length()), 6)
         .chord(Sound.BLOCK_ENDER_CHEST_OPEN, 0.4f, 1.7f, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.3f, 1.6f);
     addStat(p, "rift.inflated-pocket.items-pulled", moved);
-    xp(p, moved * getConfig().xpPerTransferredItem, "rift:inflated-pocket:pull");
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -162,7 +161,6 @@ public class RiftInflatedPocketDimension extends SimpleAdaptation<RiftInflatedPo
         fx(p, FxPriority.TRAIL).sound(Sound.BLOCK_ENDER_CHEST_OPEN, 0.3f, 1.9f);
       }
       addStat(p, "rift.inflated-pocket.items-pulled", moved);
-      xp(p, moved * getConfig().xpPerTransferredItem, "rift:inflated-pocket:build-refill");
     }, 1);
   }
 
@@ -176,7 +174,6 @@ public class RiftInflatedPocketDimension extends SimpleAdaptation<RiftInflatedPo
     ItemStack dropped = e.getItemDrop().getItemStack().clone();
     if (!canFullyFitInInventory(p.getEnderChest().getContents(), dropped, p.getEnderChest().getMaxStackSize())) {
       e.setCancelled(true);
-      e.getItemDrop().remove();
       fx(p, FxPriority.TRANSITION)
           .burst(Particles.SMOKE, 3, 0.2)
           .sound(Sound.BLOCK_NOTE_BLOCK_BASS, 0.8f, 0.8f);

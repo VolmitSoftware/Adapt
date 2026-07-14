@@ -18,12 +18,14 @@
 
 package art.arcane.adapt.content.adaptation.blocking;
 
+import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
@@ -40,8 +42,11 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.metadata.FixedMetadataValue;
 
 public class BlockingCounterGuard extends SimpleAdaptation<BlockingCounterGuard.Config> {
+  private static final String REFLECTED_META = "adapt-counter-reflected";
+
   public BlockingCounterGuard() {
     super("blocking-counter-guard");
     registerConfiguration(Config.class);
@@ -72,6 +77,10 @@ public class BlockingCounterGuard extends SimpleAdaptation<BlockingCounterGuard.
   @EventHandler(priority = EventPriority.HIGHEST)
   public void on(EntityDamageByEntityEvent e) {
     if (!(e.getEntity() instanceof Player defender)) {
+      return;
+    }
+
+    if (e.getDamager().hasMetadata(REFLECTED_META)) {
       return;
     }
 
@@ -121,7 +130,17 @@ public class BlockingCounterGuard extends SimpleAdaptation<BlockingCounterGuard.
     }
 
     double reflected = getReflectDamage(level) + (stacks * getConfig().damagePerStack);
-    attacker.damage(reflected, defender);
+    J.runEntity(attacker, () -> {
+      if (!attacker.isValid() || attacker.isDead()) {
+        return;
+      }
+      defender.setMetadata(REFLECTED_META, new FixedMetadataValue(Adapt.instance, true));
+      try {
+        attacker.damage(reflected, defender);
+      } finally {
+        defender.removeMetadata(REFLECTED_META, Adapt.instance);
+      }
+    });
     int newStacks = Math.max(0, stacks - getConfig().stackCostOnReflect);
     setStorage(defender, "counterStacks", newStacks);
     setStorage(defender, "counterMaxed", newStacks >= maxStacks ? 1 : 0);

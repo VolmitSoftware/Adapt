@@ -57,6 +57,7 @@ import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -64,6 +65,8 @@ import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.metadata.MetadataValue;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
@@ -73,6 +76,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySight.Config> {
+  private static final String AIMED_SHOT_META = "adapt-trajectory-aimed";
   private static final double EPSILON = 0.0000001D;
   private static final int MAX_RENDER_PASSES_PER_WINDOW = 12;
   private static final int MAX_RAY_TRACES_PER_WINDOW = 512;
@@ -202,10 +206,22 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(EntityShootBowEvent e) {
     if (e.getEntity() instanceof Player p && hasActiveAdaptation(p)) {
+      if (activeSessions.containsKey(p.getUniqueId()) && e.getProjectile() != null) {
+        e.getProjectile().setMetadata(AIMED_SHOT_META, new FixedMetadataValue(Adapt.instance, true));
+      }
       stopAimingSession(p);
       fx(p.getEyeLocation().add(p.getEyeLocation().getDirection().multiply(0.6)), FxPriority.TRANSITION)
           .dustBurst(Color.fromRGB(120, 225, 255), 3, 0.1D, 0.6F)
           .sound(Sound.BLOCK_NOTE_BLOCK_HAT, 0.3F, 0.8F);
+    }
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(ProjectileLaunchEvent e) {
+    if (e.getEntity().getShooter() instanceof Player p
+        && activeSessions.containsKey(p.getUniqueId())
+        && hasActiveAdaptation(p)) {
+      e.getEntity().setMetadata(AIMED_SHOT_META, new FixedMetadataValue(Adapt.instance, true));
     }
   }
 
@@ -214,13 +230,23 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
     if (e.getEntity().getKiller() instanceof Player p && hasActiveAdaptation(p)) {
       if (e.getEntity().getLastDamageCause() instanceof EntityDamageByEntityEvent dmg
           && dmg.getDamager() instanceof Projectile projectile
-          && projectile.getShooter() instanceof Player) {
+          && projectile.getShooter() == p
+          && isAimedShot(projectile)) {
         addStat(p, "ranged.trajectory-sight.kills-while-aiming", 1);
         fx(e.getEntity().getLocation(), FxPriority.COMBAT)
             .burst(Particles.CRIT_MAGIC, 6, 0.3D)
             .chord(Sound.ENTITY_ARROW_HIT, 0.7F, 1.6F, Sound.BLOCK_NOTE_BLOCK_BELL, 0.5F, 2.0F);
       }
     }
+  }
+
+  private boolean isAimedShot(Projectile projectile) {
+    for (MetadataValue value : projectile.getMetadata(AIMED_SHOT_META)) {
+      if (value.getOwningPlugin() == Adapt.instance) {
+        return value.asBoolean();
+      }
+    }
+    return false;
   }
 
   @Override
@@ -310,7 +336,7 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
       drawStartedMillis.remove(p.getUniqueId());
     }
 
-    ShotPreview shot = getShotPreview(p, context);
+    ShotPreview shot = getShotPreview(p, context, level);
     if (shot == null) {
       clearPreviewGlow(p);
       return true;
@@ -484,7 +510,7 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
     return null;
   }
 
-  private ShotPreview getShotPreview(Player p, PreviewContext context) {
+  private ShotPreview getShotPreview(Player p, PreviewContext context, int level) {
     Material launchType = context.item().getType();
     double launchVelocity = getLaunchVelocity(p, launchType);
     if (launchVelocity <= 0.01) {
@@ -497,7 +523,7 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
       return null;
     }
 
-    Vector velocity = direction.normalize().multiply(launchVelocity);
+    Vector velocity = direction.normalize().multiply(launchVelocity * getVelocityMultiplier(level));
     RicochetPreview ricochet = RicochetPreview.disabled();
     if (!isHeartseekerPreview(p, context)) {
       velocity.multiply(getRangedForceLaunchMultiplier(p));
@@ -1081,11 +1107,7 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
 
     return ricochet.applyToAllProjectiles()
         && (launchType == Material.SNOWBALL
-        || launchType == Material.EGG
-        || launchType == Material.ENDER_PEARL
-        || launchType == Material.SPLASH_POTION
-        || launchType == Material.LINGERING_POTION
-        || launchType == Material.EXPERIENCE_BOTTLE);
+        || launchType == Material.EGG);
   }
 
   private boolean isDrawingBow(Player p, ItemStack main) {
@@ -1235,8 +1257,6 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
     double velocityFactor = 0.18;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Gravity Step for the Ranged Trajectory Sight adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double gravityStep = 0.05;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Step Scale for the Ranged Trajectory Sight adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double stepScale = 0.45;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Drag Factor for the Ranged Trajectory Sight adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double dragFactor = 0.99;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Drag factor used for lighter thrown projectiles (snowballs, eggs, pearls).", impact = "Higher values keep thrown arcs flatter and longer; lower values make them lose speed faster.")

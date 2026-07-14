@@ -43,6 +43,7 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -91,7 +92,22 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
     return lvl + getConfig().baseRange;
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+  static Material veinFamily(Material material) {
+    String name = material.name();
+    if (name.startsWith("DEEPSLATE_") && name.endsWith("_ORE")) {
+      Material base = Material.matchMaterial(name.substring("DEEPSLATE_".length()));
+      return base != null ? base : material;
+    }
+    return material;
+  }
+
+  static boolean isVeinminable(Material material) {
+    return material.name().endsWith("_ORE")
+        || material == Material.OBSIDIAN
+        || material == Material.ANCIENT_DEBRIS;
+  }
+
+  @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
   public void on(BlockBreakEvent e) {
     if (VEIN_MINED.get(e.getBlock())) {
       return;
@@ -108,16 +124,15 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
       return;
     }
 
-    if (!e.getBlock().getType().name().endsWith("_ORE")) {
-      if (!e.getBlock().getType().equals(Material.OBSIDIAN)) {
-        chainHiddenVein(e.getBlock(), p, level);
-        return;
-      }
+    if (!isVeinminable(e.getBlock().getType())) {
+      chainHiddenVein(e.getBlock(), p, level);
+      return;
     }
     VEIN_MINED.add(e.getBlock());
 
     Block block = e.getBlock();
     Material targetType = block.getType();
+    Material targetFamily = veinFamily(targetType);
     Set<Block> blockMap = new HashSet<>();
     Set<Block> queued = new HashSet<>();
     Deque<Block> queue = new ArrayDeque<>();
@@ -132,7 +147,7 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
         continue;
       }
 
-      if (current.getType() != targetType || blockMap.contains(current)) {
+      if (veinFamily(current.getType()) != targetFamily || blockMap.contains(current)) {
         continue;
       }
 
@@ -149,7 +164,7 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
             }
 
             Block next = current.getRelative(x, y, z);
-            if (next.getType() != targetType) {
+            if (veinFamily(next.getType()) != targetFamily) {
               continue;
             }
 
@@ -186,7 +201,9 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
     PlayerSkillLine line = getPlayer(p).getData().getSkillLineNullable("pickaxe");
     PlayerAdaptation autoSmelt = line != null ? line.getAdaptation("pickaxe-autosmelt") : null;
     PlayerAdaptation drop2Inv = line != null ? line.getAdaptation("pickaxe-drop-to-inventory") : null;
-    boolean autoSmeltEnabled = autoSmelt != null && autoSmelt.getLevel() > 0;
+    boolean autoSmeltEnabled = autoSmelt != null && autoSmelt.getLevel() > 0
+        && !tool.getEnchantments().containsKey(Enchantment.SILK_TOUCH);
+    int autoSmeltLevel = autoSmelt != null ? autoSmelt.getLevel() : 0;
     boolean dropToInventory = drop2Inv != null && drop2Inv.getLevel() > 0;
     J.runEntity(p, () -> {
       int index = 0;
@@ -196,11 +213,11 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
           continue;
         }
         VEIN_MINED.add(b);
-        if (autoSmeltEnabled && ItemListings.getSmeltOre().contains(b.getType())) {
+        if (autoSmeltEnabled && ItemListings.getSmeltOre().contains(b.getType()) && b.isPreferredTool(tool)) {
           if (dropToInventory) {
-            PickaxeAutosmelt.autosmeltBlockDTI(b, p, this);
+            PickaxeAutosmelt.autosmeltBlockDTI(b, p, this, autoSmeltLevel);
           } else {
-            PickaxeAutosmelt.autosmeltBlock(b, p, this);
+            PickaxeAutosmelt.autosmeltBlock(b, p, this, autoSmeltLevel);
           }
         } else {
           if (dropToInventory) {

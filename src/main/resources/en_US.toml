@@ -1372,11 +1372,11 @@ name = "Multi-Armor"
 description = "Bind an elytra to your chestplate and swap between them on the fly."
 lore1 = "This Is an amazing skill for traveling."
 lore2 = "Dynamically merge and change Armor/Elytra on the Fly!"
-lore3 = "To merge, shift click an item over another in your inventory."
+lore3 = "To merge, pick up one piece and left-click it onto the other in your inventory."
 lore4 = "To unbind Armor, Sneak-Drop the item, and it will disassemble."
 lore5 = "If your MultiArmor is destroyed, you will lose all items in it."
 lore6 = "I Don't need armor, It disappoints me..."
-lore = ["This Is an amazing skill for traveling.", "Dynamically merge and change Armor/Elytra on the Fly!", "To merge, shift click an item over another in your inventory.", "To unbind Armor, Sneak-Drop the item, and it will disassemble.", "If your MultiArmor is destroyed, you will lose all items in it.", "I Don't need armor, It disappoints me..."]
+lore = ["This Is an amazing skill for traveling.", "Dynamically merge and change Armor/Elytra on the Fly!", "To merge, pick up one piece and left-click it onto the other in your inventory.", "To unbind Armor, Sneak-Drop the item, and it will disassemble.", "If your MultiArmor is destroyed, you will lose all items in it.", "I Don't need armor, It disappoints me..."]
 
 [blocking.counter_guard]
 name = "Counter Guard"
@@ -1490,7 +1490,7 @@ lore = ["Melee attacks apply stacking slowness", "PvE slowness duration cap", "P
 
 [chronos.instant_recall]
 name = "Instant Recall"
-description = "Left or right click with a clock in hand to rewind to a recent snapshot with health and hunger restored. Costs the clock and half your remaining health, but never kills you."
+description = "Rewind to a recent snapshot with health and hunger restored. Costs the clock and part of your remaining health, but never kills you."
 lore1 = "Rewind duration"
 lore2 = "Cooldown"
 lore3 = "No inventory rollback"
@@ -2016,9 +2016,9 @@ lore = ["Prediction Range", "Prediction Detail"]
 
 [ranged.lunge_shot]
 name = "Lunge Shot"
-description = "While falling your arrows toss you in a random direction"
-lore1 = "Random Burst Speed"
-lore = ["Random Burst Speed"]
+description = "While airborne, firing arrows kicks you backward, away from your aim"
+lore1 = "Recoil Burst Speed"
+lore = ["Recoil Burst Speed"]
 
 [ranged.arrow_piercing]
 name = "Arrow Piercing"
@@ -2105,8 +2105,8 @@ lore = ["Just Sneak to descend, and you will fall at a less than normal rate!", 
 
 [rift.gate]
 name = "Rift Gate"
-description = "Craft a recall gate (Emerald + Amethyst Shard + Ender Pearl), then sneak-left-click it to bind your location and right-click to teleport back after a 5 second channel."
-description_freehand = "Sneak-left-click with an Eye of Ender to bind it to your location, then right-click to teleport back after a 5 second channel."
+description = "Craft a recall gate (Emerald + Amethyst Shard + Ender Pearl), then sneak-left-click it to bind your location and right-click to teleport back after a 5 second channel. Sneak-left-click into the air to unbind."
+description_freehand = "Sneak-left-click with an Eye of Ender to bind it to your location, then right-click to teleport back after a 5 second channel. Sneak-left-click into the air to unbind."
 lore1 = "CRAFTING: Emerald + Amethyst shard + Ender Pearl"
 lore2 = "Read before using!"
 lore3 = "5s delay, "
@@ -2188,10 +2188,20 @@ lore = ["+ Passive: gain ", "x speed (dolphins grace)", "precision german engine
 
 [seaborn.tidecaller]
 name = "Tidecaller"
-description = "Sneak while it is raining on you to surge forward in a water-themed blink."
-lore1 = "Rain Blink Distance"
-lore2 = "Rain Blink Cooldown"
-lore = ["Rain Blink Distance", "Rain Blink Cooldown"]
+description = "Surge forward with a water burst while in water or rain, triggered by sneaking or an attack swing depending on server settings."
+lore1 = "Surge Distance"
+lore2 = "Surge Cooldown"
+lore = ["Surge Distance", "Surge Cooldown"]
+lore_trigger_label = "Trigger"
+lore_environment_label = "Environment"
+trigger_none = "none"
+trigger_sneak = "Sneak"
+trigger_attack = "Attack"
+trigger_sneak_attack = "Sneak + Attack"
+trigger_water_only = "water only"
+env_water = "water"
+env_rain = "rain"
+env_none = "none"
 
 [seaborn.pressure_diver]
 name = "Pressure Diver"
@@ -2428,8 +2438,8 @@ lore = ["Damage"]
 name = "Sucker Punch"
 description = "Sprint punches, but more deadly."
 lore1 = "Damage"
-lore2 = "Damage increases by with your speed while punching"
-lore = ["Damage", "Damage increases by with your speed while punching"]
+lore2 = "Requires an empty main hand while sprinting"
+lore = ["Damage", "Requires an empty main hand while sprinting"]
 
 [unarmed.battering_charge]
 name = "Battering Charge"
@@ -2563,7 +2573,7 @@ description = "Fell 2,500 trees"
 
 [advancement.challenge_axe_chop_one_swing]
 title = "One Swing Wonder"
-description = "Fell a tree yielding 30+ logs in one chop"
+description = "Fell a full chop of logs in one swing at max level"
 
 [advancement.challenge_axe_log_swap_500]
 title = "Log Alchemist"
@@ -4599,7 +4609,7 @@ description = "Complete 1,000 villager trades carrying signed goods"
 # enchanting
 [enchanting.curse_cleansing]
 name = "Curse Cleansing"
-description = "The grindstone can strip Curse of Binding and Curse of Vanishing for a steep XP level cost."
+description = "Sneak while taking a grindstone result to strip Curse of Binding and Curse of Vanishing for a steep XP level cost."
 lore1 = "XP Level Cost"
 cleansed = "Curses Cleansed"
 lore = ["XP Level Cost"]
@@ -5053,7 +5063,7 @@ lore = ["Bonus Damage", "Damage Reduction"]
 
 [sword.whetstone_ritual]
 name = "Whetstone Ritual"
-description = "Sneak right-click a grindstone with a sword to grind a temporary sharpness buff for durability and XP."
+description = "Sneak right-click a grindstone with a sword to grind a temporary sharpness buff for durability and XP levels."
 lore1 = "Sharpness Level"
 lore2 = "Buff Duration"
 lore = ["Sharpness Level", "Buff Duration"]

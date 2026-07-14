@@ -48,6 +48,7 @@ public class SwordsBladeFlow extends SimpleAdaptation<SwordsBladeFlow.Config> {
   private static final double ATTACK_SPEED_PER_STACK = 0.10;
   private final Map<UUID, Integer> flowStacks = playerState();
   private final Map<UUID, Long> flowExpireAt = playerState();
+  private final Map<UUID, Integer> appliedHaste = playerState();
 
   public SwordsBladeFlow() {
     super("sword-blade-flow");
@@ -105,9 +106,16 @@ public class SwordsBladeFlow extends SimpleAdaptation<SwordsBladeFlow.Config> {
     int amplifier = next - 1;
     int windowTicks = Math.max(20, (int) (windowMillis / 50L));
     J.runEntity(p, () -> {
-      if (p.isOnline()) {
-        p.addPotionEffect(new PotionEffect(PotionEffectType.HASTE, windowTicks, amplifier, true, false, true), true);
+      if (!p.isOnline()) {
+        return;
       }
+      PotionEffect existing = p.getPotionEffect(PotionEffectType.HASTE);
+      if (existing != null && (existing.getAmplifier() > amplifier
+          || (existing.getAmplifier() == amplifier && existing.getDuration() > windowTicks))) {
+        return;
+      }
+      p.addPotionEffect(new PotionEffect(PotionEffectType.HASTE, windowTicks, amplifier, true, false, true), true);
+      appliedHaste.put(id, amplifier);
     });
 
     addStat(p, "swords.blade-flow.stacks-built", 1);
@@ -140,11 +148,18 @@ public class SwordsBladeFlow extends SimpleAdaptation<SwordsBladeFlow.Config> {
 
     flowStacks.put(id, 0);
     flowExpireAt.remove(id);
-    J.runEntity(p, () -> {
-      if (p.isOnline()) {
-        p.removePotionEffect(PotionEffectType.HASTE);
-      }
-    });
+    Integer applied = appliedHaste.remove(id);
+    if (applied != null) {
+      J.runEntity(p, () -> {
+        if (!p.isOnline()) {
+          return;
+        }
+        PotionEffect existing = p.getPotionEffect(PotionEffectType.HASTE);
+        if (existing != null && existing.getAmplifier() == applied && !existing.hasParticles()) {
+          p.removePotionEffect(PotionEffectType.HASTE);
+        }
+      });
+    }
     fx(p.getLocation().add(0, 1, 0), FxPriority.TRANSITION)
         .particle(Particles.SMOKE, 4, 0, 0, 0, 0.05D, 0.01D)
         .sound(Sound.BLOCK_AMETHYST_BLOCK_BREAK, 0.4F, 0.7F);

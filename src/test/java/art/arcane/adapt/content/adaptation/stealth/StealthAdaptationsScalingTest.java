@@ -68,6 +68,17 @@ class StealthAdaptationsScalingTest {
   }
 
   @Test
+  void trapSenseBlockKeyIsDistinctPerPosition() {
+    assertThat(StealthTrapSense.blockKey(0, 0, 0)).isNotEqualTo(StealthTrapSense.blockKey(1, 0, 0));
+    assertThat(StealthTrapSense.blockKey(0, 0, 0)).isNotEqualTo(StealthTrapSense.blockKey(0, 1, 0));
+    assertThat(StealthTrapSense.blockKey(0, 0, 0)).isNotEqualTo(StealthTrapSense.blockKey(0, 0, 1));
+    assertThat(StealthTrapSense.blockKey(-5, 64, -5)).isNotEqualTo(StealthTrapSense.blockKey(5, 64, 5));
+    assertThat(StealthTrapSense.blockKey(-5, -64, 12)).isEqualTo(StealthTrapSense.blockKey(-5, -64, 12));
+    assertThat(StealthTrapSense.blockKey(30000000, 320, 30000000))
+        .isNotEqualTo(StealthTrapSense.blockKey(30000000, -64, 30000000));
+  }
+
+  @Test
   void decoySwapRangeScalesAndCooldownClamps() {
     assertThat(StealthDecoySwap.computeSwapRange(10.0, 20.0, 0.0)).isEqualTo(10.0);
     assertThat(StealthDecoySwap.computeSwapRange(10.0, 20.0, 1.0)).isEqualTo(30.0);

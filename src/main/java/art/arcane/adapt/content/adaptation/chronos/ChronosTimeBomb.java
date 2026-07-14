@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.chronos;
 
+import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -41,6 +42,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.World;
@@ -56,8 +58,11 @@ import org.bukkit.event.entity.LingeringPotionSplashEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.world.EntitiesLoadEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
@@ -106,6 +111,8 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
   private final Map<UUID, FrozenEntityState> frozenEntities;
   private final Map<UUID, FrozenPlayerState> frozenPlayers;
   private final AtomicInteger immediateFieldFxBudget;
+  private final NamespacedKey frozenStampKey;
+  private final AtomicBoolean startupSweepDone;
   private Iterator<Map.Entry<UUID, FrozenEntityState>> frozenEntityCursor = Collections.emptyIterator();
   private Iterator<Map.Entry<UUID, FrozenPlayerState>> frozenPlayerCursor = Collections.emptyIterator();
   private int fieldScanRotation;
@@ -133,6 +140,8 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
     frozenEntities = new ConcurrentHashMap<>();
     frozenPlayers = new ConcurrentHashMap<>();
     immediateFieldFxBudget = new AtomicInteger(HARD_MAX_IMMEDIATE_FIELD_FX_PARTICLES);
+    frozenStampKey = new NamespacedKey(Adapt.instance, "chronos_time_bomb_frozen");
+    startupSweepDone = new AtomicBoolean(false);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.ICE)
         .key("challenge_chronos_bomb_freeze_50")
@@ -363,11 +372,68 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
     }
 
     state.addField(fieldId);
-    if (!created && getConfig().accumulateFrozenImpulse) {
+    if (created) {
+      stampFrozenEntity(entity, state);
+    } else if (getConfig().accumulateFrozenImpulse) {
       state.captureImpulse(entity.getVelocity(), getConfig().frozenImpulseMinMagnitude, getConfig().frozenImpulseSampleCap);
     }
     maintainFrozenEntity(entity);
     return created;
+  }
+
+  private void stampFrozenEntity(Entity entity, FrozenEntityState state) {
+    byte flags = 0;
+    if (state.gravity()) {
+      flags |= 1;
+    }
+    Boolean hadAi = state.hadAi();
+    if (hadAi != null) {
+      flags |= 2;
+      if (hadAi) {
+        flags |= 4;
+      }
+    }
+    entity.getPersistentDataContainer().set(frozenStampKey, PersistentDataType.BYTE, flags);
+  }
+
+  private void restoreStrandedFrozenEntity(Entity entity) {
+    if (entity instanceof Player || frozenEntities.containsKey(entity.getUniqueId())) {
+      return;
+    }
+
+    PersistentDataContainer container = entity.getPersistentDataContainer();
+    Byte flags = container.get(frozenStampKey, PersistentDataType.BYTE);
+    if (flags == null) {
+      return;
+    }
+
+    container.remove(frozenStampKey);
+    entity.setGravity((flags & 1) != 0);
+    if (entity instanceof LivingEntity living && (flags & 2) != 0) {
+      living.setAI((flags & 4) != 0);
+    }
+    entity.setFallDistance(0);
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(EntitiesLoadEvent e) {
+    for (Entity entity : e.getEntities()) {
+      restoreStrandedFrozenEntity(entity);
+    }
+  }
+
+  private void sweepStrandedFrozenEntities() {
+    if (J.isFoliaThreading()) {
+      return;
+    }
+
+    J.s(() -> {
+      for (World world : Bukkit.getWorlds()) {
+        for (Entity entity : world.getEntities()) {
+          restoreStrandedFrozenEntity(entity);
+        }
+      }
+    });
   }
 
   private void maintainFrozenEntity(Entity entity) {
@@ -419,6 +485,7 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
     if (entity instanceof LivingEntity living && state.hadAi() != null) {
       living.setAI(state.hadAi());
     }
+    entity.getPersistentDataContainer().remove(frozenStampKey);
   }
 
   private void evaluateFieldEntity(TemporalField field, Entity entity, FieldPulseState pulse, long now) {
@@ -440,11 +507,7 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
     }
 
     Player owner = Bukkit.getPlayer(field.owner());
-    if (isProtectedFriendly(owner, entity)) {
-      return;
-    }
-    if (owner == null) {
-      applyFieldEntity(field, entity, null, pulse, now);
+    if (owner == null || isProtectedFriendly(owner, entity)) {
       return;
     }
 
@@ -565,6 +628,10 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
 
   @Override
   public void onTick() {
+    if (startupSweepDone.compareAndSet(false, true)) {
+      sweepStrandedFrozenEntities();
+    }
+
     long now = M.ms();
     immediateFieldFxBudget.set(Math.min(HARD_MAX_IMMEDIATE_FIELD_FX_PARTICLES,
         ChronosWorkBudget.bounded(getConfig().maxFieldFxParticlesPerTick,

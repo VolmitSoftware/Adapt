@@ -192,12 +192,14 @@ public class SeaborneCoralGardener extends SimpleAdaptation<SeaborneCoralGardene
         return;
       }
 
+      if (!canBlockPlace(p, target.getLocation())) {
+        return;
+      }
+
       consumeBoneMeal(p);
       Material coral = CORAL_BLOCKS[ThreadLocalRandom.current().nextInt(CORAL_BLOCKS.length)];
       Block growTarget = target;
-      J.runAt(growTarget.getLocation(), () -> growCoral(growTarget, coral, level));
-      xp(p, getConfig().growthXp);
-      addStat(p, "seaborne.coral-gardener.coral-placed", 1);
+      J.runAt(growTarget.getLocation(), () -> growCoral(p, growTarget, coral, level));
       fx(clicked.getLocation().clone().add(0.5D, 1.0D, 0.5D), FxPriority.GAMEPLAY)
           .particle(Particle.HAPPY_VILLAGER, 8, 0D, 0.4D, 0D, 0.5D, 0D)
           .particle(Particle.BUBBLE, 6, 0D, 0.3D, 0D, 0.4D, 0.02D)
@@ -205,8 +207,8 @@ public class SeaborneCoralGardener extends SimpleAdaptation<SeaborneCoralGardene
     });
   }
 
-  private void growCoral(Block target, Material coral, int level) {
-    if (target.getType() != Material.WATER) {
+  private void growCoral(Player p, Block target, Material coral, int level) {
+    if (target.getType() != Material.WATER || !canBlockPlace(p, target.getLocation())) {
       return;
     }
 
@@ -215,6 +217,13 @@ public class SeaborneCoralGardener extends SimpleAdaptation<SeaborneCoralGardene
     fx(target.getLocation().clone().add(0.5D, 0.5D, 0.5D), FxPriority.TRANSITION)
         .ring(Particle.HAPPY_VILLAGER, 0.5D, 8, 0.2D)
         .sound(Sound.BLOCK_CORAL_BLOCK_BREAK, 0.4F, 1.8F);
+    J.runEntity(p, () -> {
+      if (!p.isOnline()) {
+        return;
+      }
+      xp(p, getConfig().growthXp);
+      addStat(p, "seaborne.coral-gardener.coral-placed", 1);
+    });
   }
 
   private void consumeBoneMeal(Player p) {

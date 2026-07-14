@@ -123,7 +123,6 @@ public class HunterBloodTrail extends SimpleAdaptation<HunterBloodTrail.Config> 
       pruneOldest();
     }
     if (previous == null || !previous.hunterId.equals(p.getUniqueId())) {
-      addStat(p, "hunter.blood-trail.trails-followed", 1);
       xpSilent(p, getConfig().xpPerWound);
     }
   }
@@ -195,6 +194,11 @@ public class HunterBloodTrail extends SimpleAdaptation<HunterBloodTrail.Config> 
       return;
     }
 
+    if (!wound.followed) {
+      wound.followed = true;
+      addStat(hunter, "hunter.blood-trail.trails-followed", 1);
+    }
+
     Location previous = wound.lastRender;
     int points = Math.max(1, getConfig().trailPointsPerRender);
     if (previous != null && previous.getWorld() != null && previous.getWorld().equals(current.getWorld())) {
@@ -243,6 +247,7 @@ public class HunterBloodTrail extends SimpleAdaptation<HunterBloodTrail.Config> 
     private final double range;
     private final UUID worldId;
     private volatile Location lastRender;
+    private volatile boolean followed;
 
     private Wound(UUID hunterId, long expiresAt, double range, UUID worldId) {
       this.hunterId = hunterId;

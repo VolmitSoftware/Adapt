@@ -56,8 +56,12 @@ import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
   private final Cooldowns cooldowns = cooldowns();
+  private final Map<String, Long> furnaceXpMarks = new ConcurrentHashMap<>();
 
   public SkillCrafting() {
     super("crafting", Localizer.dLocalize("skill.crafting.icon"));
@@ -156,7 +160,9 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(CraftItemEvent e) {
-    Player p = (Player) e.getWhoClicked();
+    if (!(e.getWhoClicked() instanceof Player p)) {
+      return;
+    }
     shouldReturnForPlayer(p, e, () -> {
       if (!isValidCraftEvent(e)) {
         return;
@@ -188,12 +194,33 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
     if (shouldReturnForWorld(e.getBlock().getWorld(), this)) {
       return;
     }
+    String furnaceKey = e.getBlock().getWorld().getUID() + ":" + e.getBlock().getX() + ":" + e.getBlock().getY() + ":" + e.getBlock().getZ();
+    if (!markFurnaceXp(furnaceXpMarks, furnaceKey, System.currentTimeMillis(), getConfig().furnaceXpCooldown)) {
+      return;
+    }
     xp(e.getBlock().getLocation(), getConfig().furnaceBaseXP + (getValue(e.getResult()) * getConfig().furnaceValueXPMultiplier), getConfig().furnaceXPRadius, getConfig().furnaceXPDuration);
     Location furnace = e.getBlock().getLocation().add(0.5D, 0.9D, 0.5D);
     fx(furnace, FxPriority.AMBIENT)
         .particle(Particles.SMOKE, 1, 0, 0, 0, 0.04D, 0.02D)
         .particle(Particle.FLAME, 1, 0, 0, 0, 0.03D, 0.01D)
         .sound(Sound.BLOCK_FURNACE_FIRE_CRACKLE, 0.3F, 1.0F);
+  }
+
+  static boolean markFurnaceXp(Map<String, Long> marks, String key, long now, long cooldownMs) {
+    if (cooldownMs <= 0) {
+      return true;
+    }
+    if (marks.size() > 2048) {
+      marks.values().removeIf((Long last) -> now - last >= cooldownMs);
+    }
+    Long previous = marks.putIfAbsent(key, now);
+    if (previous == null) {
+      return true;
+    }
+    if (now - previous < cooldownMs) {
+      return false;
+    }
+    return marks.replace(key, previous, now);
   }
 
   private boolean isValidCraftEvent(CraftItemEvent e) {
@@ -277,6 +304,12 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
 
 
   @Override
+  public void unregister() {
+    furnaceXpMarks.clear();
+    super.unregister();
+  }
+
+  @Override
   public boolean isEnabled() {
     return getConfig().enabled;
   }
@@ -296,6 +329,8 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
     long cooldownDelay = 3000;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Furnace XPDuration for the Crafting skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     long furnaceXPDuration = 10000;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Cooldown in milliseconds between spatial XP pulses per furnace.", impact = "Higher values reduce AFK furnace XP farming; lower values reward smelting more often.")
+    long furnaceXpCooldown = 10000;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Crafting Value XPMultiplier for the Crafting skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double craftingValueXPMultiplier = 2.0;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Base Crafting XP for the Crafting skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

@@ -67,6 +67,8 @@ import java.util.UUID;
 public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
   private final Cooldowns underwaterBlockCooldowns = cooldowns();
   private final Cooldowns drownedDamageCooldowns = cooldowns();
+  private final Cooldowns tridentDamageCooldowns = cooldowns();
+  private final Cooldowns fishCooldowns = cooldowns();
   private final Map<UUID, Boolean> swimming = playerState();
   private final SkillOwnerPulse.Registration ownerPulse;
 
@@ -219,12 +221,20 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
   public void on(PlayerFishEvent e) {
     Player p = e.getPlayer();
     shouldReturnForPlayer(e.getPlayer(), e, () -> {
-      if (e.getState().equals(PlayerFishEvent.State.CAUGHT_FISH)) {
+      double amount;
+      if (e.getState() == PlayerFishEvent.State.CAUGHT_FISH) {
         addStat(p, "seaborne.fish.caught", 1);
-        xp(p, 250);
-      } else if (e.getState().equals(PlayerFishEvent.State.CAUGHT_ENTITY)) {
-        xp(p, 10);
+        amount = getConfig().fishCaughtXp;
+      } else if (e.getState() == PlayerFishEvent.State.CAUGHT_ENTITY) {
+        amount = getConfig().entityCaughtXp;
+      } else {
+        return;
       }
+      if (!fishCooldowns.isReady(p.getUniqueId(), getConfig().fishXpCooldown)) {
+        return;
+      }
+      fishCooldowns.mark(p.getUniqueId());
+      xp(p, amount);
     });
   }
 
@@ -292,13 +302,21 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
     } else if (e.getDamager().getType() == EntityType.TRIDENT) {
       org.bukkit.projectiles.ProjectileSource shooter = ((Trident) e.getDamager()).getShooter();
       if (shooter instanceof Player p) {
-        shouldReturnForPlayer(p, e, () -> xp(p, getConfig().tridentxpmultiplier * Math.min(e.getDamage(), getBaseHealth(entity))));
+        shouldReturnForPlayer(p, e, () -> grantTridentDamageXp(p, e.getDamage(), entity));
       }
     } else if (e.getDamager() instanceof Player p) {
       if (p.getInventory().getItemInMainHand().getType().equals(Material.TRIDENT)) {
-        shouldReturnForPlayer(p, e, () -> xp(p, getConfig().tridentxpmultiplier * Math.min(e.getDamage(), getBaseHealth(entity))));
+        shouldReturnForPlayer(p, e, () -> grantTridentDamageXp(p, e.getDamage(), entity));
       }
     }
+  }
+
+  private void grantTridentDamageXp(Player p, double damage, LivingEntity entity) {
+    if (!tridentDamageCooldowns.isReady(p.getUniqueId(), getConfig().tridentDamageXpCooldown)) {
+      return;
+    }
+    tridentDamageCooldowns.mark(p.getUniqueId());
+    xp(p, getConfig().tridentxpmultiplier * Math.min(damage, getBaseHealth(entity)));
   }
 
   private double getBaseHealth(LivingEntity entity) {
@@ -317,6 +335,14 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
     public long seaPickleCooldown = 60000;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Cooldown between XP awards for damaging drowned.", impact = "Higher values reduce repeated combat XP frequency; lower values reward hits more often.")
     public long drownedDamageXpCooldown = 1500;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Cooldown between XP awards for trident damage.", impact = "Higher values reduce repeated combat XP frequency; lower values reward hits more often.")
+    public long tridentDamageXpCooldown = 1500;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "XP awarded for catching a fish.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    public double fishCaughtXp = 250;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "XP awarded for reeling in an entity.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    public double entityCaughtXp = 10;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Cooldown between fishing XP awards.", impact = "Higher values reduce AFK fishing XP frequency; lower values reward catches more often.")
+    public long fishXpCooldown = 5000;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Tridentxpmultiplier for the Seaborne skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     public double tridentxpmultiplier = 4.0;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Damagedrownxpmultiplier for the Seaborne skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

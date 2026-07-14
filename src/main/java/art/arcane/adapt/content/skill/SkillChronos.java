@@ -319,7 +319,7 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(PlayerBedEnterEvent e) {
     Player p = e.getPlayer();
-    shouldReturnForPlayer(p, () -> {
+    shouldReturnForPlayer(p, e, () -> {
       UUID uuid = p.getUniqueId();
       long now = System.currentTimeMillis();
 
@@ -356,7 +356,7 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(PlayerItemConsumeEvent e) {
     Player p = e.getPlayer();
-    shouldReturnForPlayer(p, () -> {
+    shouldReturnForPlayer(p, e, () -> {
       ItemStack item = e.getItem();
       if (item.getType() != Material.POTION) {
         return;
@@ -430,7 +430,7 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
     if (!(pearl.getShooter() instanceof Player p)) {
       return;
     }
-    shouldReturnForPlayer(p, () -> {
+    shouldReturnForPlayer(p, e, () -> {
       UUID uuid = p.getUniqueId();
       long now = System.currentTimeMillis();
 
@@ -454,7 +454,7 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
     if (ChronosInstantRecall.isRecallTeleportSuppressed(p)) {
       return;
     }
-    shouldReturnForPlayer(p, () -> {
+    shouldReturnForPlayer(p, e, () -> {
       trackAction(p.getUniqueId(), "teleport");
       addStat(p, "chronos.teleports", 1);
       xp(p, e.getTo(), getConfig().enderPearlTeleportXP);

@@ -143,7 +143,7 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
             J.runAt(i.getLocation(), () -> {
               i.breakNaturally();
               sfx(i.getLocation(), Sound.BLOCK_GRASS_BREAK, 0.4F, (float) (ThreadLocalRandom.current().nextDouble() * 1.85D));
-            }, RNG.r.i(0, (getMaxLevel() - lvl * 2) + 1));
+            }, RNG.r.i(0, Math.max(1, (getMaxLevel() - lvl * 2) + 1)));
           }
         }
       }

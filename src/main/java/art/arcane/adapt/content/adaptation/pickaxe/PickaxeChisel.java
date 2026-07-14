@@ -116,6 +116,11 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
     }
     BlockData b = target.getBlockData();
     if (isOre(b)) {
+      ItemStack is = getDropFor(b);
+      if (is.getType().isAir()) {
+        return;
+      }
+
       RayTraceResult ray = p.rayTraceBlocks(8);
       Location c = ray != null ? ray.getHitPosition().toLocation(p.getWorld()) : target.getLocation().add(0.5, 0.5, 0.5);
 
@@ -127,7 +132,6 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
       p.setCooldown(p.getInventory().getItemInMainHand().getType(), getCooldownTime(getLevelPercent(p)));
       damageHand(p, getDamagePerBlock(getLevelPercent(p)));
 
-      ItemStack is = getDropFor(b);
       if (M.r(getDropChance(getLevelPercent(p)))) {
         fx(c, FxPriority.GAMEPLAY)
             .particle(Particles.ITEM_CRACK, 14, 0, 0, 0, 0.08, 0.1, is)
@@ -176,7 +180,7 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
       case EMERALD_ORE, DEEPSLATE_EMERALD_ORE ->
           new ItemStack(Material.EMERALD);
       case NETHER_QUARTZ_ORE -> new ItemStack(Material.QUARTZ);
-      case REDSTONE_ORE -> new ItemStack(Material.REDSTONE);
+      case REDSTONE_ORE, DEEPSLATE_REDSTONE_ORE -> new ItemStack(Material.REDSTONE);
 
       default -> new ItemStack(Material.AIR);
     };

@@ -127,17 +127,24 @@ public class StealthShadowmeld extends SimpleAdaptation<StealthShadowmeld.Config
     sessions.put(id, session);
   }
 
-  @EventHandler(priority = EventPriority.MONITOR)
+  @EventHandler(priority = EventPriority.LOWEST)
   public void on(PlayerQuitEvent e) {
-    MeldSession session = sessions.get(e.getPlayer().getUniqueId());
+    UUID id = e.getPlayer().getUniqueId();
+    MeldSession session = sessions.get(id);
     if (session != null) {
       endSession(session, false);
     }
+    MELDED.remove(id);
   }
 
   @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
   public void on(EntityTargetLivingEntityEvent e) {
-    if (e.getTarget() instanceof Player player && MELDED.contains(player.getUniqueId())) {
+    if (!(e.getTarget() instanceof Player player) || !MELDED.contains(player.getUniqueId())) {
+      return;
+    }
+
+    MeldSession session = sessions.get(player.getUniqueId());
+    if (session != null && session.melded) {
       e.setCancelled(true);
     }
   }

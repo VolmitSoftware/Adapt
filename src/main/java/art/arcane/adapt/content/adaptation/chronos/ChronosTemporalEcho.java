@@ -119,6 +119,10 @@ public class ChronosTemporalEcho extends SimpleAdaptation<ChronosTemporalEcho.Co
       return;
     }
 
+    if (shooter != null && shooter.isOnline()) {
+      addStat(shooter, "chronos.temporal-echo.echo-hits", 1);
+    }
+
     target.setNoDamageTicks(0);
     target.setLastDamage(0.0D);
   }
@@ -154,7 +158,6 @@ public class ChronosTemporalEcho extends SimpleAdaptation<ChronosTemporalEcho.Co
         .frame((f, tick, progress) -> f.particle(Particle.REVERSE_PORTAL, 2, 0, 0, 0, 0.05D, 0.01D))
         .start();
 
-    addStat(p, "chronos.temporal-echo.echo-hits", 1);
     xp(p, getConfig().xpPerEcho);
   }
 

@@ -114,8 +114,10 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
       if (!validateTool(hand)) {
         return;
       }
-      J.runEntity(p, () -> p.getInventory().setItemInMainHand(omniTool.nextSword(hand)));
-      swapFx(p);
+      if (!isSword(hand)) {
+        J.runEntity(p, () -> p.getInventory().setItemInMainHand(omniTool.nextSword(hand)));
+        swapFx(p);
+      }
       if (inHand != null && inHand.hasDamage()) {
         if ((hand.getType().getMaxDurability() - inHand.getDamage() - 2) <= 2) {
           e.setCancelled(true);
@@ -168,16 +170,14 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
         Block block = action == Action.RIGHT_CLICK_BLOCK ? e.getClickedBlock() : p.getTargetBlockExact(5);
         if (block != null) {
           if (ItemListings.farmable.contains(block.getType())) {
-            if (isShovel(hand)) {
+            if (!isHoe(hand)) {
+              e.setCancelled(true);
               J.runEntity(p, () -> p.getInventory().setItemInMainHand(omniTool.nextHoe(hand)));
-            } else {
-              J.runEntity(p, () -> p.getInventory().setItemInMainHand(omniTool.nextShovel(hand)));
-            }
-            swapFx(p);
-            if (imHand != null && imHand.hasDamage()) {
-              if ((hand.getType().getMaxDurability() - imHand.getDamage() - 2) <= 2) {
-                e.setCancelled(true);
-                nearBreakFx(p);
+              swapFx(p);
+              if (imHand != null && imHand.hasDamage()) {
+                if ((hand.getType().getMaxDurability() - imHand.getDamage() - 2) <= 2) {
+                  nearBreakFx(p);
+                }
               }
             }
           } else if (ItemListings.burnable.contains(block.getType())) {
@@ -228,18 +228,16 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
           drops.set(drops.indexOf(i), i);
         }
 
-        J.runEntity(p, () -> {
-          splitFx(p);
-          for (ItemStack i : drops) {
-            p.getWorld().dropItem(p.getLocation(), i);
-          }
-        });
-        e.getItemDrop().setItemStack(new ItemStack(Material.AIR));
+        e.getItemDrop().remove();
+        splitFx(p);
+        for (ItemStack i : drops) {
+          p.getWorld().dropItem(p.getLocation(), i);
+        }
       }
     }
   }
 
-  @EventHandler(priority = EventPriority.MONITOR)
+  @EventHandler(priority = EventPriority.HIGH)
   public void on(BlockDamageEvent e) {
     Player p = e.getPlayer();
     Block b = e.getBlock();
@@ -278,7 +276,9 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
 
   @EventHandler(priority = EventPriority.HIGHEST)
   public void on(InventoryClickEvent e) {
-    Player player = (Player) e.getWhoClicked();
+    if (!(e.getWhoClicked() instanceof Player player)) {
+      return;
+    }
     int level = getActiveLevel(player);
     if (level <= 0) {
       return;

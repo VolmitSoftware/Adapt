@@ -40,6 +40,7 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -72,76 +73,54 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
     registerMilestone("challenge_pickaxe_autosmelt_25k", "pickaxe.autosmelt.ores-smelted", 25000, 1500);
   }
 
-  static void autosmeltBlockDTI(Block b, Player p, Adaptation<?> source) {
+  static void autosmeltBlockDTI(Block b, Player p, Adaptation<?> source, int level) {
+    Material ingot = getIngotFor(b.getType());
+    if (ingot == null || b.getLocation().getWorld() == null) {
+      return;
+    }
+
     int fortune = getFortuneOreMultiplier(p.getInventory().getItemInMainHand()
         .getEnchantments().get(Enchantments.LOOT_BONUS_BLOCKS));
-    switch (b.getType()) {
-      case IRON_ORE, DEEPSLATE_IRON_ORE -> {
-        if (b.getLocation().getWorld() == null) {
-          return;
-        }
-
-        b.setType(Material.AIR);
-        HashMap<Integer, ItemStack> excessItems = p.getInventory().addItem(new ItemStack(Material.IRON_INGOT, fortune));
-        excessItems.values().forEach(itemStack -> b.getLocation().getWorld().dropItemNaturally(b.getLocation(), itemStack));
-        smeltFx(b, source, fortune);
-      }
-      case GOLD_ORE, DEEPSLATE_GOLD_ORE -> {
-        if (b.getLocation().getWorld() == null) {
-          return;
-        }
-
-        b.setType(Material.AIR);
-        HashMap<Integer, ItemStack> excessItems = p.getInventory().addItem(new ItemStack(Material.GOLD_INGOT, fortune));
-        excessItems.values().forEach(itemStack -> b.getLocation().getWorld().dropItemNaturally(b.getLocation(), itemStack));
-        smeltFx(b, source, fortune);
-      }
-      case COPPER_ORE, DEEPSLATE_COPPER_ORE -> {
-        if (b.getLocation().getWorld() == null) {
-          return;
-        }
-        b.setType(Material.AIR);
-        HashMap<Integer, ItemStack> excessItems = p.getInventory().addItem(new ItemStack(Material.COPPER_INGOT, fortune));
-        excessItems.values().forEach(itemStack -> b.getLocation().getWorld().dropItemNaturally(b.getLocation(), itemStack));
-        smeltFx(b, source, fortune);
-      }
-
-    }
+    int amount = getSmeltAmount(fortune, level);
+    b.setType(Material.AIR);
+    HashMap<Integer, ItemStack> excessItems = p.getInventory().addItem(new ItemStack(ingot, amount));
+    excessItems.values().forEach(itemStack -> b.getLocation().getWorld().dropItemNaturally(b.getLocation(), itemStack));
+    smeltFx(b, source, fortune);
   }
 
-  static void autosmeltBlock(Block b, Player p, Adaptation<?> source) {
+  static void autosmeltBlock(Block b, Player p, Adaptation<?> source, int level) {
+    Material ingot = getIngotFor(b.getType());
+    if (ingot == null || b.getLocation().getWorld() == null) {
+      return;
+    }
+
     int fortune = getFortuneOreMultiplier(p.getInventory().getItemInMainHand()
         .getEnchantments().get(Enchantments.LOOT_BONUS_BLOCKS));
-    switch (b.getType()) {
-      case IRON_ORE, DEEPSLATE_IRON_ORE -> {
+    int amount = getSmeltAmount(fortune, level);
+    b.setType(Material.AIR);
+    b.getLocation().getWorld().dropItemNaturally(b.getLocation(), new ItemStack(ingot, amount));
+    smeltFx(b, source, fortune);
+  }
 
-        if (b.getLocation().getWorld() == null) {
-          return;
-        }
+  private static Material getIngotFor(Material ore) {
+    return switch (ore) {
+      case IRON_ORE, DEEPSLATE_IRON_ORE -> Material.IRON_INGOT;
+      case GOLD_ORE, DEEPSLATE_GOLD_ORE -> Material.GOLD_INGOT;
+      case COPPER_ORE, DEEPSLATE_COPPER_ORE -> Material.COPPER_INGOT;
+      default -> null;
+    };
+  }
 
-        b.setType(Material.AIR);
-        b.getLocation().getWorld().dropItemNaturally(b.getLocation(), new ItemStack(Material.IRON_INGOT, fortune));
-        smeltFx(b, source, fortune);
-      }
-      case GOLD_ORE, DEEPSLATE_GOLD_ORE -> {
-        if (b.getLocation().getWorld() == null) {
-          return;
-        }
+  static double getExtraDropChance(int level) {
+    return (level * 1.25D) / 100.0D;
+  }
 
-        b.setType(Material.AIR);
-        b.getLocation().getWorld().dropItemNaturally(b.getLocation(), new ItemStack(Material.GOLD_INGOT, fortune));
-        smeltFx(b, source, fortune);
-      }
-      case COPPER_ORE, DEEPSLATE_COPPER_ORE -> {
-        if (b.getLocation().getWorld() == null) {
-          return;
-        }
-        b.setType(Material.AIR);
-        b.getLocation().getWorld().dropItemNaturally(b.getLocation(), new ItemStack(Material.COPPER_INGOT, fortune));
-        smeltFx(b, source, fortune);
-      }
-
+  private static int getSmeltAmount(int fortuneMultiplier, int level) {
+    int amount = Math.max(1, fortuneMultiplier);
+    if (ThreadLocalRandom.current().nextDouble() < getExtraDropChance(level)) {
+      amount++;
     }
+    return amount;
   }
 
   private static void smeltFx(Block b, Adaptation<?> source, int fortune) {
@@ -176,22 +155,32 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
     v.addLore(C.GREEN + "" + (level * 1.25) + C.GRAY + Localizer.dLocalize("pickaxe.auto_smelt.lore2"));
   }
 
-  @EventHandler(priority = EventPriority.HIGH)
+  @EventHandler(priority = EventPriority.HIGHEST)
   public void on(BlockBreakEvent e) {
     Player p = e.getPlayer();
     if (!e.getBlock().getBlockData().getMaterial().name().endsWith("_ORE") && !ItemListings.getSmeltOre().contains(e.getBlock().getType())) {
       return;
     }
-    if (resolveBlockBreakContext(p, e.getBlock().getLocation()) == null) {
+
+    ItemStack tool = p.getInventory().getItemInMainHand();
+    if (!isPickaxe(tool) || !e.getBlock().isPreferredTool(tool)) {
+      return;
+    }
+    if (tool.getEnchantments().containsKey(Enchantment.SILK_TOUCH)) {
+      return;
+    }
+
+    Adaptation.BlockActionContext context = resolveBlockBreakContext(p, e.getBlock().getLocation());
+    if (context == null) {
       return;
     }
 
     PlayerSkillLine line = getPlayer(p).getData().getSkillLineNullable("pickaxe");
     PlayerAdaptation adaptation = line != null ? line.getAdaptation("pickaxe-drop-to-inventory") : null;
     if (adaptation != null && adaptation.getLevel() > 0) {
-      PickaxeAutosmelt.autosmeltBlockDTI(e.getBlock(), p, this);
+      PickaxeAutosmelt.autosmeltBlockDTI(e.getBlock(), p, this, context.level());
     } else {
-      PickaxeAutosmelt.autosmeltBlock(e.getBlock(), p, this);
+      PickaxeAutosmelt.autosmeltBlock(e.getBlock(), p, this, context.level());
     }
     addStat(p, "pickaxe.autosmelt.ores-smelted", 1);
   }

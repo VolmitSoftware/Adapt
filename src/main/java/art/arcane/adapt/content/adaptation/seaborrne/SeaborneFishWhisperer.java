@@ -46,11 +46,18 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
 public class SeaborneFishWhisperer extends SimpleAdaptation<SeaborneFishWhisperer.Config> {
   private static final int LUCK_DURATION_TICKS = 400;
   private static final int LUCK_REFRESH_THRESHOLD_TICKS = 120;
   private static final int MAX_FISH = 12;
   private static final int MAX_ASSIST = 8;
+  private static final long CHARM_SESSION_GAP_MILLIS = 12_000L;
+
+  private final Map<UUID, Long> charmedRecently = new ConcurrentHashMap<>();
 
   public SeaborneFishWhisperer() {
     super("seaborne-fish-whisperer");
@@ -83,6 +90,7 @@ public class SeaborneFishWhisperer extends SimpleAdaptation<SeaborneFishWhispere
   @Override
   public void onTick() {
     long now = System.currentTimeMillis();
+    charmedRecently.values().removeIf(at -> now - at >= CHARM_SESSION_GAP_MILLIS);
     for (AdaptPlayer adaptPlayer : learnedCandidates(now)) {
       Player player = adaptPlayer.getPlayer();
       withPlayerThread(player, () -> {
@@ -114,7 +122,9 @@ public class SeaborneFishWhisperer extends SimpleAdaptation<SeaborneFishWhispere
   private void schoolFish(Player player, int level) {
     double range = getSchoolRange(level);
     Location center = player.getLocation();
+    long now = System.currentTimeMillis();
     int schooled = 0;
+    int newlyCharmed = 0;
     for (Entity entity : player.getWorld().getNearbyEntities(center, range, range, range)) {
       if (!(entity instanceof Fish fish)) {
         continue;
@@ -123,6 +133,10 @@ public class SeaborneFishWhisperer extends SimpleAdaptation<SeaborneFishWhispere
       Location target = player.getLocation().clone().add(0D, 0.4D, 0D);
       if (J.runEntity(fish, () -> nudgeFish(fish, target, level))) {
         schooled++;
+        Long lastCharm = charmedRecently.put(fish.getUniqueId(), now);
+        if (lastCharm == null || now - lastCharm >= CHARM_SESSION_GAP_MILLIS) {
+          newlyCharmed++;
+        }
       }
 
       if (schooled >= MAX_FISH) {
@@ -130,8 +144,8 @@ public class SeaborneFishWhisperer extends SimpleAdaptation<SeaborneFishWhispere
       }
     }
 
-    if (schooled > 0) {
-      addStat(player, "seaborne.fish-whisperer.charmed", schooled);
+    if (newlyCharmed > 0) {
+      addStat(player, "seaborne.fish-whisperer.charmed", newlyCharmed);
     }
   }
 
@@ -166,25 +180,42 @@ public class SeaborneFishWhisperer extends SimpleAdaptation<SeaborneFishWhispere
     double range = getAssistRange(level);
     int assisted = 0;
     for (Entity entity : p.getWorld().getNearbyEntities(victim.getLocation(), range, range, range)) {
-      if (!(entity instanceof Axolotl) && !(entity instanceof Dolphin)) {
-        continue;
-      }
-
       if (entity == victim) {
         continue;
       }
 
-      Mob helper = (Mob) entity;
-      J.runEntity(helper, () -> {
-        if (helper.getTarget() != victim) {
-          helper.setTarget(victim);
-        }
-      });
+      if (entity instanceof Dolphin dolphin) {
+        J.runEntity(dolphin, () -> chargeDolphin(dolphin, victim));
+      } else if (entity instanceof Axolotl axolotl) {
+        J.runEntity(axolotl, () -> {
+          if (axolotl.getTarget() != victim) {
+            axolotl.setTarget(victim);
+          }
+        });
+      } else {
+        continue;
+      }
 
       if (++assisted >= MAX_ASSIST) {
         break;
       }
     }
+  }
+
+  private void chargeDolphin(Dolphin dolphin, LivingEntity victim) {
+    if (!dolphin.isValid() || !victim.isValid() || victim.isDead() || dolphin.getWorld() != victim.getWorld()) {
+      return;
+    }
+
+    Vector toVictim = victim.getLocation().toVector().subtract(dolphin.getLocation().toVector());
+    if (toVictim.lengthSquared() <= 0.01D) {
+      return;
+    }
+
+    double strength = Math.max(0D, getConfig().dolphinChargeStrength);
+    dolphin.setVelocity(dolphin.getVelocity().clone().multiply(0.4D).add(toVictim.normalize().multiply(strength)));
+    fx(dolphin.getLocation(), FxPriority.AMBIENT)
+        .particle(Particle.BUBBLE, 4, 0D, 0.1D, 0D, 0.2D, 0.03D);
   }
 
   private int getLuckAmplifier(int level) {
@@ -225,6 +256,8 @@ public class SeaborneFishWhisperer extends SimpleAdaptation<SeaborneFishWhispere
     double assistRangeBase = 8;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Additional assist recruitment range gained across levels.", impact = "Higher values recruit sea creatures from much farther at higher levels.")
     double assistRangeFactor = 8;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Velocity strength dolphins use to charge your combat target.", impact = "Higher values ram dolphins into your target harder; 0 disables the charge motion.")
+    double dolphinChargeStrength = 0.9;
 
     public Config() {
       baseCost = 4;

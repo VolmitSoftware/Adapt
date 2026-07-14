@@ -46,7 +46,9 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> {
 
@@ -97,7 +99,7 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
     }
 
     Player p = e.getPlayer();
-    int lvl = getLevel(p);
+    int lvl = getActiveLevel(p);
     if (lvl <= 0) {
       return;
     }
@@ -107,7 +109,15 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
       target = p.getTargetBlockExact(5);
     }
 
-    if (target == null || !(target.getBlockData() instanceof Ageable)) {
+    if (target == null || !(target.getBlockData() instanceof Ageable targetAge)) {
+      return;
+    }
+
+    if (targetAge.getAge() != targetAge.getMaximumAge()) {
+      return;
+    }
+
+    if (!canBlockBreak(p, target.getLocation()) || !canBlockPlace(p, target.getLocation())) {
       return;
     }
 
@@ -116,10 +126,10 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
 
     if (isTool(left) && isHoe(left) && !p.hasCooldown(left.getType())) {
       damageOffHand(p, 1 + ((lvl - 1) * 7));
-      p.setCooldown(left.getType(), getCooldown(getLevelPercent(p), getLevel(p)));
+      p.setCooldown(left.getType(), getCooldown(getLevelPercent(p), lvl));
     } else if (isTool(right) && isHoe(right) && !p.hasCooldown(right.getType())) {
       damageHand(p, 1 + ((lvl - 1) * 7));
-      p.setCooldown(right.getType(), getCooldown(getLevelPercent(p), getLevel(p)));
+      p.setCooldown(right.getType(), getCooldown(getLevelPercent(p), lvl));
     } else {
       return;
     }
@@ -160,15 +170,19 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
       xp(p, b.getLocation().clone().add(0.5, 0.5, 0.5), ((SkillHerbalism.Config) getSkill().getConfig()).plantCropSeedsXP);
       PlayerSkillLine line = getPlayer(p).getData().getSkillLineNullable("herbalism");
       PlayerAdaptation adaptation = line != null ? line.getAdaptation("herbalism-drop-to-inventory") : null;
+      List<ItemStack> items = new ArrayList<>(b.getDrops());
+      boolean seedConsumed = consumeSeed(items, b.getBlockData().getPlacementMaterial());
       if (adaptation != null && adaptation.getLevel() > 0) {
-        Collection<ItemStack> items = b.getDrops();
         boolean caught = false;
         for (ItemStack i : items) {
-          i.setAmount(1);
-          if (p.getInventory().addItem(i).isEmpty()) {
+          if (!isItem(i) || i.getAmount() <= 0) {
+            continue;
+          }
+          Map<Integer, ItemStack> overflow = p.getInventory().addItem(i);
+          if (overflow.isEmpty()) {
             caught = true;
           } else {
-            p.getWorld().dropItem(p.getLocation(), i);
+            overflow.values().forEach(rest -> p.getWorld().dropItem(p.getLocation(), rest));
           }
         }
         if (caught) {
@@ -176,15 +190,24 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
               .chord(Sound.BLOCK_NOTE_BLOCK_CHIME, 0.5F, 1.6F, Sound.BLOCK_CALCITE_HIT, 0.3F, 1.2F);
         }
       } else {
-        p.breakBlock(b);
+        for (ItemStack i : items) {
+          if (!isItem(i) || i.getAmount() <= 0) {
+            continue;
+          }
+          p.getWorld().dropItemNaturally(b.getLocation().add(0.5, 0.5, 0.5), i);
+        }
       }
 
-      aa.setAge(0);
-      J.runAt(b.getLocation(), () -> b.setBlockData(aa, true));
+      if (seedConsumed) {
+        aa.setAge(0);
+        J.runAt(b.getLocation(), () -> b.setBlockData(aa, true));
+        addStat(p, "harvest.planted", 1);
+        addStat(p, "herbalism.replant.crops-replanted", 1);
+      } else {
+        J.runAt(b.getLocation(), () -> b.setType(Material.AIR, true));
+      }
 
       addStat(p, "harvest.blocks", 1);
-      addStat(p, "harvest.planted", 1);
-      addStat(p, "herbalism.replant.crops-replanted", 1);
 
       fx(b.getLocation().add(0.5, 0.6, 0.5), FxPriority.TRANSITION)
           .dustRing(Color.LIME, 0.4D, 8, 0.8F)
@@ -196,6 +219,21 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
             .sound(Sound.ITEM_CROP_PLANT, 1F, 0.7F);
       }
     }
+  }
+
+  private boolean consumeSeed(List<ItemStack> drops, Material seedType) {
+    if (seedType == null || seedType.isAir()) {
+      return false;
+    }
+
+    for (ItemStack drop : drops) {
+      if (isItem(drop) && drop.getType() == seedType && drop.getAmount() > 0) {
+        drop.setAmount(drop.getAmount() - 1);
+        return true;
+      }
+    }
+
+    return false;
   }
 
 

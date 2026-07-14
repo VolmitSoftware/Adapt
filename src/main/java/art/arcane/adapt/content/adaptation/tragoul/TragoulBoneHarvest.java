@@ -34,6 +34,7 @@ import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Color;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Item;
@@ -42,14 +43,17 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -68,8 +72,11 @@ public class TragoulBoneHarvest extends SimpleAdaptation<TragoulBoneHarvest.Conf
 
   private static final Color GLOBE_BLOOD = Color.fromRGB(170, 0, 0);
   private static final Color GLOBE_BONE = Color.fromRGB(230, 225, 205);
+  private static final NamespacedKey GLOBE_KEY = NamespacedKey.fromString("adapt:tragoul-globe");
+  private static final long GLOBE_TRACK_GRACE_MILLIS = 5000L;
   private final Set<UUID> bloodGlobes = ConcurrentHashMap.newKeySet();
   private final Set<UUID> boneGlobes = ConcurrentHashMap.newKeySet();
+  private final Map<UUID, Long> globeTrackExpiry = new ConcurrentHashMap<>();
   private final VelocityBurstRuntime.Client speedBursts;
 
   public TragoulBoneHarvest() {
@@ -77,6 +84,7 @@ public class TragoulBoneHarvest extends SimpleAdaptation<TragoulBoneHarvest.Conf
     speedBursts = VelocityBurstRuntime.register(getName(), new BurstFeedback());
     registerConfiguration(Config.class);
     setIcon(Material.BONE_BLOCK);
+    setInterval(10000);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.BONE)
         .key("challenge_tragoul_bone_500")
@@ -97,6 +105,19 @@ public class TragoulBoneHarvest extends SimpleAdaptation<TragoulBoneHarvest.Conf
   public void unregister() {
     speedBursts.unregister();
     super.unregister();
+  }
+
+  @Override
+  public void onTick() {
+    long now = System.currentTimeMillis();
+    globeTrackExpiry.entrySet().removeIf(entry -> {
+      if (entry.getValue() >= now) {
+        return false;
+      }
+      bloodGlobes.remove(entry.getKey());
+      boneGlobes.remove(entry.getKey());
+      return true;
+    });
   }
 
   @Override
@@ -145,9 +166,17 @@ public class TragoulBoneHarvest extends SimpleAdaptation<TragoulBoneHarvest.Conf
       e.getItem().remove();
       bloodGlobes.remove(id);
       boneGlobes.remove(id);
+      globeTrackExpiry.remove(id);
       applyBuff(p, blood, getLevel(p));
       addStat(p, "tragoul.bone-harvest.orbs-collected", 1);
     });
+  }
+
+  @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+  public void on(InventoryPickupItemEvent e) {
+    if (e.getItem().getPersistentDataContainer().has(GLOBE_KEY, PersistentDataType.BYTE)) {
+      e.setCancelled(true);
+    }
   }
 
   private void spawnGlobe(Player owner, EntityDeathEvent e, boolean blood, int level) {
@@ -160,6 +189,9 @@ public class TragoulBoneHarvest extends SimpleAdaptation<TragoulBoneHarvest.Conf
 
     Item dropped = e.getEntity().getWorld().dropItemNaturally(e.getEntity().getLocation().add(0, 0.35, 0), item);
     dropped.setPickupDelay(10);
+    dropped.setOwner(owner.getUniqueId());
+    dropped.setCanMobPickup(false);
+    dropped.getPersistentDataContainer().set(GLOBE_KEY, PersistentDataType.BYTE, (byte) 1);
     if (blood) {
       bloodGlobes.add(dropped.getUniqueId());
     } else {
@@ -171,9 +203,11 @@ public class TragoulBoneHarvest extends SimpleAdaptation<TragoulBoneHarvest.Conf
         .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.4F, blood ? 0.9F : 1.4F);
 
     int life = getGlobeLifetimeTicks(level);
+    globeTrackExpiry.put(dropped.getUniqueId(), System.currentTimeMillis() + (life * 50L) + GLOBE_TRACK_GRACE_MILLIS);
     J.runEntity(dropped, () -> {
       bloodGlobes.remove(dropped.getUniqueId());
       boneGlobes.remove(dropped.getUniqueId());
+      globeTrackExpiry.remove(dropped.getUniqueId());
       if (dropped.isValid()) {
         fx(dropped.getLocation().add(0, 0.2, 0), FxPriority.AMBIENT)
             .burst(Particles.SMOKE, 4, 0.2)

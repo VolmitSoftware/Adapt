@@ -146,7 +146,7 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
               }
             })
             .start();
-        if (logsChopped >= 30 && grantOnce(p, "challenge_axe_chop_one_swing")) {
+        if (logsChopped >= getConfig().maxLevel && grantOnce(p, "challenge_axe_chop_one_swing")) {
           fx(p.getLocation().add(0.0D, 1.0D, 0.0D), FxPriority.TRANSITION)
               .column(Particles.TOTEM, 20, 2.0D)
               .chord(Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.7F, 1.0F, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.5F, 1.6F);

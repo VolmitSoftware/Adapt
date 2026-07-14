@@ -51,6 +51,7 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Wither;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -61,6 +62,8 @@ import org.bukkit.event.entity.EntityDeathEvent;
 
 public class SkillNether extends SimpleSkill<SkillNether.Config> {
   private final Cooldowns witherRoseCooldowns = cooldowns();
+  private final Cooldowns witherDamageCooldowns = cooldowns();
+  private final Cooldowns witherAttackCooldowns = cooldowns();
 
   public SkillNether() {
     super("nether", Localizer.dLocalize("skill.nether.icon"));
@@ -184,6 +187,10 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
       return;
     }
     shouldReturnForPlayer(p, e, () -> {
+      if (!witherDamageCooldowns.isReady(p.getUniqueId(), getConfig().getWitherDamageXpCooldown())) {
+        return;
+      }
+      witherDamageCooldowns.mark(p.getUniqueId());
       addStat(p, "nether.wither.damage", e.getDamage());
       xp(p, getConfig().getWitherDamageXp());
     });
@@ -238,10 +245,18 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
 
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(EntityDamageByEntityEvent e) {
-    if (!(e.getDamager() instanceof Player p) || !isWitherDamageCause(e.getCause())) {
+    if (!(e.getDamager() instanceof Player p)
+        || !(e.getEntity() instanceof Wither)
+        || e.getCause() != EntityDamageEvent.DamageCause.ENTITY_ATTACK) {
       return;
     }
-    shouldReturnForPlayer(p, e, () -> xp(p, getConfig().getWitherAttackXp()));
+    shouldReturnForPlayer(p, e, () -> {
+      if (!witherAttackCooldowns.isReady(p.getUniqueId(), getConfig().getWitherAttackXpCooldown())) {
+        return;
+      }
+      witherAttackCooldowns.mark(p.getUniqueId());
+      xp(p, getConfig().getWitherAttackXp());
+    });
   }
 
   @Override
@@ -258,8 +273,12 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
     private boolean enabled = true;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Wither Damage Xp for the Nether skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     private double witherDamageXp = 26.0;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Cooldown in milliseconds between XP awards for taking wither effect damage.", impact = "Higher values reduce repeated wither damage XP frequency; lower values reward ticks more often.")
+    private long witherDamageXpCooldown = 1500;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Wither Attack Xp for the Nether skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     private double witherAttackXp = 15;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Cooldown in milliseconds between XP awards for melee-attacking a wither boss.", impact = "Higher values reduce repeated wither attack XP frequency; lower values reward hits more often.")
+    private long witherAttackXpCooldown = 1500;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Wither Skeleton Kill Xp for the Nether skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     private double witherSkeletonKillXp = 225;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Wither Kill Xp for the Nether skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

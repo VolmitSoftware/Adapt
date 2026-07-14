@@ -59,12 +59,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static art.arcane.adapt.api.adaptation.chunk.ChunkLoading.loadChunkAsync;
 
 public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
   static final int HARD_MAX_FLOW_ITEMS = 1152;
   static final double HARD_MAX_RANGE = 512D;
+  static final int FLOW_DELIVERY_TIMEOUT_TICKS = 100;
 
   private final NamespacedKey partnerKey;
   private final NamespacedKey linkKey;
@@ -301,8 +303,22 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
 
     Location partnerLoc = link.location();
     String linkId = link.linkId();
-    loadChunkAsync(partnerLoc, chunk -> J.runAt(partnerLoc,
-        () -> depositToPartner(p, sourceLoc, partnerLoc, linkId, moving, xpPerFlow)));
+    AtomicBoolean settled = new AtomicBoolean(false);
+    loadChunkAsync(partnerLoc, chunk -> {
+      boolean scheduled = J.runAt(partnerLoc, () -> {
+        if (settled.compareAndSet(false, true)) {
+          depositToPartner(p, sourceLoc, partnerLoc, linkId, moving, xpPerFlow);
+        }
+      });
+      if (!scheduled && settled.compareAndSet(false, true)) {
+        restoreToSource(sourceLoc, moving);
+      }
+    });
+    J.runAt(sourceLoc, () -> {
+      if (settled.compareAndSet(false, true)) {
+        restoreToSource(sourceLoc, moving);
+      }
+    }, FLOW_DELIVERY_TIMEOUT_TICKS);
   }
 
   private void depositToPartner(Player p, Location sourceLoc, Location partnerLoc, String linkId,

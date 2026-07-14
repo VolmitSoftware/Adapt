@@ -85,7 +85,7 @@ public class UnarmedSuckerPunch extends SimpleAdaptation<UnarmedSuckerPunch.Conf
     }
 
     Player p = attack.attacker();
-    if (p.getInventory().getItemInMainHand().getType() != Material.AIR && p.getInventory().getItemInOffHand().getType() != Material.AIR) {
+    if (p.getInventory().getItemInMainHand().getType() != Material.AIR) {
       return;
     }
     double factor = getLevelPercent(attack.level());
@@ -95,10 +95,6 @@ public class UnarmedSuckerPunch extends SimpleAdaptation<UnarmedSuckerPunch.Conf
     }
 
     if (factor <= 0) {
-      return;
-    }
-
-    if (isTool(p.getInventory().getItemInMainHand()) || isTool(p.getInventory().getItemInOffHand())) {
       return;
     }
 
@@ -131,8 +127,7 @@ public class UnarmedSuckerPunch extends SimpleAdaptation<UnarmedSuckerPunch.Conf
         && dmg.getDamager() instanceof Player p
         && hasActiveAdaptation(p)
         && p.isSprinting()
-        && !isTool(p.getInventory().getItemInMainHand())
-        && !isTool(p.getInventory().getItemInOffHand())) {
+        && p.getInventory().getItemInMainHand().getType() == Material.AIR) {
       if (victim.getMaxHealth() <= dmg.getFinalDamage()) {
         addStat(p, "unarmed.sucker-punch.one-punch-kills", 1);
         Location ko = victim.getLocation().add(0, 1.0D, 0);
@@ -150,7 +145,7 @@ public class UnarmedSuckerPunch extends SimpleAdaptation<UnarmedSuckerPunch.Conf
   }
 
 
-  @ConfigDescription("Sprint punches deal extra damage based on your speed.")
+  @ConfigDescription("Sprint punches with an empty main hand deal extra damage.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Base Damage for the Unarmed Sucker Punch adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double baseDamage = 0.2;

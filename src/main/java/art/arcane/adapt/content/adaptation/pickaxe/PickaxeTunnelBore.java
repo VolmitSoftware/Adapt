@@ -112,8 +112,6 @@ public class PickaxeTunnelBore extends SimpleAdaptation<PickaxeTunnelBore.Config
     }
 
     ItemStack tool = p.getInventory().getItemInMainHand().clone();
-    damageHand(p, targets.size() * getConfig().durabilityPerBonusBlock);
-    addStat(p, "pickaxe.tunnel-bore.blocks-bored", targets.size());
 
     Location center = block.getLocation().add(0.5, 0.5, 0.5);
     fx(center, FxPriority.GAMEPLAY)
@@ -127,6 +125,7 @@ public class PickaxeTunnelBore extends SimpleAdaptation<PickaxeTunnelBore.Config
 
     J.runEntity(p, () -> {
       int index = 0;
+      int broken = 0;
       for (Block b : targets) {
         if (!BORE_BLOCKS.contains(b.getType())) {
           continue;
@@ -137,8 +136,15 @@ public class PickaxeTunnelBore extends SimpleAdaptation<PickaxeTunnelBore.Config
           fx(b.getLocation().add(0.5, 0.5, 0.5), FxPriority.TRAIL)
               .particle(Particles.BLOCK_CRACK, 3, 0, 0, 0, 0.2, 0.0, bd);
         }
-        b.breakNaturally(tool);
+        if (b.breakNaturally(tool)) {
+          broken++;
+        }
         index++;
+      }
+
+      if (broken > 0) {
+        damageHand(p, broken * getConfig().durabilityPerBonusBlock);
+        addStat(p, "pickaxe.tunnel-bore.blocks-bored", broken);
       }
     });
   }

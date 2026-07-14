@@ -34,15 +34,18 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.inventory.InventoryAction;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
-import org.bukkit.inventory.AnvilInventory;
+import org.bukkit.inventory.view.AnvilView;
 
-import java.lang.reflect.Method;
+import java.util.Map;
+import java.util.UUID;
 
 public class EnchantingAnvilSavant extends SimpleAdaptation<EnchantingAnvilSavant.Config> {
-  private static volatile Method getRepairCostMethod;
-  private static volatile Method setRepairCostMethod;
   private final Cooldowns actionbarCooldown = cooldowns();
+  private final Map<UUID, Integer> pendingSaved = playerState();
 
   public EnchantingAnvilSavant() {
     super("enchanting-anvil-savant");
@@ -72,7 +75,8 @@ public class EnchantingAnvilSavant extends SimpleAdaptation<EnchantingAnvilSavan
 
   @EventHandler(priority = EventPriority.HIGHEST)
   public void on(PrepareAnvilEvent e) {
-    if (!(e.getView().getPlayer() instanceof Player p)) {
+    AnvilView view = e.getView();
+    if (!(view.getPlayer() instanceof Player p)) {
       return;
     }
 
@@ -81,57 +85,43 @@ public class EnchantingAnvilSavant extends SimpleAdaptation<EnchantingAnvilSavan
       return;
     }
 
-    if (!(e.getInventory() instanceof AnvilInventory inventory)) {
-      return;
-    }
-
-    Integer current = readRepairCost(inventory);
-    if (current == null || current <= 0) {
+    int current = view.getRepairCost();
+    if (current <= 0) {
+      pendingSaved.remove(p.getUniqueId());
       return;
     }
 
     int reduced = Math.max(getConfig().minimumCost, (int) Math.ceil(current * (1D - getCostReduction(level))));
-    writeRepairCost(inventory, reduced);
+    view.setRepairCost(reduced);
     int saved = current - reduced;
     if (saved > 0) {
-      addStat(p, "enchanting.anvil-savant.levels-saved", saved);
+      pendingSaved.put(p.getUniqueId(), saved);
       if (actionbarCooldown.isReady(p.getUniqueId(), 350L)) {
         actionbarCooldown.mark(p.getUniqueId());
         Adapt.actionbar(p, C.GREEN + "- " + saved + " " + Localizer.dLocalize("enchanting.anvil_savant.saved"));
       }
+    } else {
+      pendingSaved.remove(p.getUniqueId());
     }
   }
 
-  private Integer readRepairCost(AnvilInventory inventory) {
-    try {
-      Method method = getRepairCostMethod;
-      if (method == null) {
-        method = inventory.getClass().getMethod("getRepairCost");
-        getRepairCostMethod = method;
-      }
-
-      Object value = method.invoke(inventory);
-      if (value instanceof Number number) {
-        return number.intValue();
-      }
-    } catch (Throwable ignored) {
-
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(InventoryClickEvent e) {
+    if (!(e.getWhoClicked() instanceof Player p)) {
+      return;
     }
 
-    return null;
-  }
+    if (e.getRawSlot() != 2 || e.getView().getTopInventory().getType() != InventoryType.ANVIL) {
+      return;
+    }
 
-  private void writeRepairCost(AnvilInventory inventory, int cost) {
-    try {
-      Method method = setRepairCostMethod;
-      if (method == null) {
-        method = inventory.getClass().getMethod("setRepairCost", int.class);
-        setRepairCostMethod = method;
-      }
+    if (!isItem(e.getCurrentItem()) || e.getAction() == InventoryAction.NOTHING) {
+      return;
+    }
 
-      method.invoke(inventory, cost);
-    } catch (Throwable ignored) {
-
+    Integer saved = pendingSaved.remove(p.getUniqueId());
+    if (saved != null && saved > 0) {
+      addStat(p, "enchanting.anvil-savant.levels-saved", saved);
     }
   }
 

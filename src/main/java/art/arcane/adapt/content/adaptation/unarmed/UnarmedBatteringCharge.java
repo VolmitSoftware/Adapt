@@ -36,7 +36,6 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -45,15 +44,20 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerToggleSprintEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.Vector;
 
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class UnarmedBatteringCharge extends SimpleAdaptation<UnarmedBatteringCharge.Config> {
   private static final Color TRAIL_COLOR = Color.fromRGB(0xCFCFCF);
+  private static final long MOVEMENT_FRESH_MILLIS = 750L;
+  private static final long CHARGE_KILL_WINDOW_MILLIS = 2000L;
   private final Map<UUID, Boolean> primedState = playerState();
+  private final Map<UUID, MovementSample> recentMovement = playerState();
+  private final Map<UUID, ChargeMark> chargeHitMarks = new ConcurrentHashMap<>();
   private final Cooldowns trailCooldown = cooldowns();
+  private final Cooldowns fistsCooldown = cooldowns();
 
   public UnarmedBatteringCharge() {
     super("unarmed-battering-charge");
@@ -98,24 +102,33 @@ public class UnarmedBatteringCharge extends SimpleAdaptation<UnarmedBatteringCha
       return;
     }
 
-    ItemStack cooldownItem = getCooldownItem(p);
-    if (cooldownItem != null && p.hasCooldown(cooldownItem.getType())) {
-      return;
-    }
-
-    Vector v = p.getVelocity();
-    if (v.lengthSquared() < getConfig().minimumVelocitySquared) {
-      return;
-    }
-
     int level = attack.level();
+    ItemStack cooldownItem = getCooldownItem(p);
+    if (cooldownItem != null) {
+      if (p.hasCooldown(cooldownItem.getType())) {
+        return;
+      }
+    } else if (!fistsCooldown.isReady(p.getUniqueId(), getCooldownTicks(level) * 50L)) {
+      return;
+    }
+
+    if (!hasChargeMomentum(p)) {
+      return;
+    }
+
     e.setDamage(e.getDamage() + getDamageBonus(level));
     Entity target = e.getEntity();
     target.setVelocity(target.getVelocity().add(p.getLocation().getDirection().normalize().multiply(getKnockback(level))));
 
     if (cooldownItem != null) {
       p.setCooldown(cooldownItem.getType(), getCooldownTicks(level));
+    } else {
+      fistsCooldown.mark(p.getUniqueId());
     }
+
+    long now = System.currentTimeMillis();
+    chargeHitMarks.values().removeIf(mark -> mark.expiresAt() < now);
+    chargeHitMarks.put(target.getUniqueId(), new ChargeMark(p.getUniqueId(), now + CHARGE_KILL_WINDOW_MILLIS));
 
     playImpact(p, target, level);
     primedState.put(p.getUniqueId(), false);
@@ -125,19 +138,27 @@ public class UnarmedBatteringCharge extends SimpleAdaptation<UnarmedBatteringCha
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(EntityDeathEvent e) {
-    if (!(e.getEntity() instanceof LivingEntity victim)) {
+    ChargeMark mark = chargeHitMarks.remove(e.getEntity().getUniqueId());
+    if (mark == null || mark.expiresAt() < System.currentTimeMillis()) {
       return;
     }
-    if (victim.getLastDamageCause() instanceof EntityDamageByEntityEvent dmg
+    if (e.getEntity().getLastDamageCause() instanceof EntityDamageByEntityEvent dmg
         && dmg.getDamager() instanceof Player p
-        && hasActiveAdaptation(p)
-        && isChargeLoadout(p)) {
+        && p.getUniqueId().equals(mark.attacker())
+        && hasActiveAdaptation(p)) {
       addStat(p, "unarmed.battering-charge.charge-kills", 1);
     }
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(PlayerMoveEvent e) {
+    Location from = e.getFrom();
+    Location to = e.getTo();
+    if (to != null && from.getWorld() == to.getWorld()) {
+      double dx = to.getX() - from.getX();
+      double dz = to.getZ() - from.getZ();
+      recentMovement.put(e.getPlayer().getUniqueId(), new MovementSample((dx * dx) + (dz * dz), System.currentTimeMillis()));
+    }
     updatePrimedState(e.getPlayer());
   }
 
@@ -176,18 +197,28 @@ public class UnarmedBatteringCharge extends SimpleAdaptation<UnarmedBatteringCha
     return null;
   }
 
-  private boolean isChargeReady(Player p) {
+  private boolean isChargeReady(Player p, int level) {
     if (p.isInsideVehicle() || !isChargeLoadout(p) || !p.isSprinting()) {
       return false;
     }
 
     ItemStack cooldownItem = getCooldownItem(p);
-    if (cooldownItem != null && p.hasCooldown(cooldownItem.getType())) {
+    if (cooldownItem != null) {
+      if (p.hasCooldown(cooldownItem.getType())) {
+        return false;
+      }
+    } else if (!fistsCooldown.isReady(p.getUniqueId(), getCooldownTicks(level) * 50L)) {
       return false;
     }
 
-    Vector v = p.getVelocity();
-    return v.lengthSquared() >= getConfig().minimumVelocitySquared;
+    return hasChargeMomentum(p);
+  }
+
+  private boolean hasChargeMomentum(Player p) {
+    MovementSample sample = recentMovement.get(p.getUniqueId());
+    return sample != null
+        && System.currentTimeMillis() - sample.atMillis() <= MOVEMENT_FRESH_MILLIS
+        && sample.horizontalDeltaSquared() >= getConfig().minimumVelocitySquared;
   }
 
   private void playImpact(Player p, Entity target, int level) {
@@ -246,7 +277,7 @@ public class UnarmedBatteringCharge extends SimpleAdaptation<UnarmedBatteringCha
     }
 
     int level = getActiveLevel(player);
-    boolean primed = level > 0 && isChargeReady(player);
+    boolean primed = level > 0 && isChargeReady(player, level);
     boolean wasPrimed = primedState.getOrDefault(id, false);
     if (primed) {
       long interval = Math.max(50L, getConfig().primedTrailIntervalMillis);
@@ -266,6 +297,12 @@ public class UnarmedBatteringCharge extends SimpleAdaptation<UnarmedBatteringCha
     primedState.put(id, primed);
   }
 
+  private record MovementSample(double horizontalDeltaSquared, long atMillis) {
+  }
+
+  private record ChargeMark(UUID attacker, long expiresAt) {
+  }
+
   @ConfigDescription("Sprint into enemies with fists or a shield to deal impact damage.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Damage Base for the Unarmed Battering Charge adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -280,8 +317,8 @@ public class UnarmedBatteringCharge extends SimpleAdaptation<UnarmedBatteringCha
     double cooldownTicksBase = 80;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown Ticks Factor for the Unarmed Battering Charge adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double cooldownTicksFactor = 50;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Minimum Velocity Squared for the Unarmed Battering Charge adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double minimumVelocitySquared = 0.18;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Minimum squared horizontal movement per tick required for a charge to connect.", impact = "Higher values require faster movement before a charge triggers; sprint movement is roughly 0.08 per tick squared.")
+    double minimumVelocitySquared = 0.05;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Damage for the Unarmed Battering Charge adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpPerDamage = 3.3;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Milliseconds between primed trail particle pulses while charge is ready.", impact = "Lower values increase visual frequency and particle cost; higher values reduce trail spam.")

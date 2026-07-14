@@ -44,7 +44,9 @@ import java.util.UUID;
 
 public class DiscoveryXpResist extends SimpleAdaptation<DiscoveryXpResist.Config> {
   private static final long COOLDOWN_MILLIS = 15000L;
+  private static final long FAIL_FX_THROTTLE_MILLIS = 3000L;
   private final Cooldowns cooldowns = cooldowns();
+  private final Cooldowns failFxThrottle = cooldowns();
 
   public DiscoveryXpResist() {
     super("discovery-xp-resist");
@@ -108,9 +110,12 @@ public class DiscoveryXpResist extends SimpleAdaptation<DiscoveryXpResist.Config
 
     int xpCost = getXpTaken(level);
     if (p.getLevel() < xpCost) {
-      fx(p.getLocation(), FxPriority.COMBAT)
-          .dustBurst(Color.RED, 10, 0.8D, 1.0F)
-          .chord(Sound.BLOCK_FUNGUS_BREAK, 0.6F, 0.6F, Sound.BLOCK_GLASS_BREAK, 0.5F, 0.8F);
+      if (failFxThrottle.isReady(p.getUniqueId(), FAIL_FX_THROTTLE_MILLIS)) {
+        failFxThrottle.mark(p.getUniqueId());
+        fx(p.getLocation(), FxPriority.COMBAT)
+            .dustBurst(Color.RED, 10, 0.8D, 1.0F)
+            .chord(Sound.BLOCK_FUNGUS_BREAK, 0.6F, 0.6F, Sound.BLOCK_GLASS_BREAK, 0.5F, 0.8F);
+      }
       return;
     }
 
@@ -151,7 +156,8 @@ public class DiscoveryXpResist extends SimpleAdaptation<DiscoveryXpResist.Config
             .dustBurst(Color.fromRGB(255, 215, 0), 20, 1.2D, 1.4F)
             .sound(Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.5F, 1.0F);
       }
-    } else {
+    } else if (failFxThrottle.isReady(id, FAIL_FX_THROTTLE_MILLIS)) {
+      failFxThrottle.mark(id);
       fx(p.getLocation(), FxPriority.TRANSITION)
           .particle(Particles.SMOKE, 2, 0, 0, 0, 0.05, 0.01)
           .sound(Sound.BLOCK_NOTE_BLOCK_BASS, 0.5F, 0.5F);

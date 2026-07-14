@@ -138,13 +138,6 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
     }
 
     lastBlink.mark(id);
-    consumeBlinkPearl(p);
-    PlayerSkillLine line = getPlayer(p).getData().getSkillLineNullable("rift");
-    PlayerAdaptation adaptation = line != null ? line.getAdaptation("rift-resist") : null;
-    if (adaptation != null && adaptation.getLevel() > 0) {
-      RiftResist.riftResistStackAdd(this, p, 10, 5);
-    }
-
     destination.setYaw(origin.getYaw());
     destination.setPitch(origin.getPitch());
     Vector carry = origin.getDirection().clone().multiply(getConfig().momentumCarry);
@@ -157,7 +150,15 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
       AdaptAdaptationTeleportEvent event = new AdaptAdaptationTeleportEvent(!Bukkit.isPrimaryThread(), getPlayer(p), this, origin, destination.clone());
       Bukkit.getPluginManager().callEvent(event);
       if (event.isCancelled()) {
+        lastBlink.clear(id);
         return;
+      }
+
+      consumeBlinkPearl(p);
+      PlayerSkillLine line = getPlayer(p).getData().getSkillLineNullable("rift");
+      PlayerAdaptation adaptation = line != null ? line.getAdaptation("rift-resist") : null;
+      if (adaptation != null && adaptation.getLevel() > 0) {
+        RiftResist.riftResistStackAdd(this, p, 10, 5);
       }
 
       J.teleport(p, destination, PlayerTeleportEvent.TeleportCause.PLUGIN);
@@ -166,11 +167,10 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
       fx(destination, FxPriority.TRANSITION)
           .ring(Particles.END_ROD, 0.8, 10, 0.1)
           .sound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.5f, 1.3f);
+      addStat(p, "rift.teleports", 1);
+      addStat(p, "rift.blink.blinks", 1);
+      addStat(p, "rift.blink.distance-blinked", (int) origin.distance(destination));
     }));
-
-    addStat(p, "rift.teleports", 1);
-    addStat(p, "rift.blink.blinks", 1);
-    addStat(p, "rift.blink.distance-blinked", (int) origin.distance(destination));
   }
 
   private Location findBlinkDestination(Player p) {

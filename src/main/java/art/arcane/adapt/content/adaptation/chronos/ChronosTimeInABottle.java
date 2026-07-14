@@ -684,7 +684,7 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
       }
 
       if (ThreadLocalRandom.current().nextDouble() > getSaplingGrowChance(level)) {
-        return true;
+        return false;
       }
 
       TreeType treeType = getTreeType(block.getType());

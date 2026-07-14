@@ -41,6 +41,7 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 import java.util.Map;
@@ -80,7 +81,7 @@ public class TragoulHealing extends SimpleAdaptation<TragoulHealing.Config> {
     v.addLore(C.YELLOW + Localizer.dLocalize("tragoul.healing.lore3") + Form.pc(getHealPercent(level), 0));
   }
 
-  @EventHandler
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(EntityDamageByEntityEvent e) {
     if (e.getDamager() instanceof Player p) {
       withAdaptedPlayer(p, e, () -> {
@@ -101,7 +102,7 @@ public class TragoulHealing extends SimpleAdaptation<TragoulHealing.Config> {
               .sound(Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 0.4F, 1.3F);
         }
 
-        double healAmount = e.getDamage() * getHealPercent(level);
+        double healAmount = e.getFinalDamage() * getHealPercent(level);
         IAttribute attribute = Version.get().getAttribute(p, Attributes.GENERIC_MAX_HEALTH);
         p.setHealth(Math.min(attribute == null ? p.getHealth() : attribute.getValue(), p.getHealth() + healAmount));
         addStat(p, "tragoul.healing.health-stolen", (int) healAmount);
@@ -110,8 +111,16 @@ public class TragoulHealing extends SimpleAdaptation<TragoulHealing.Config> {
     }
   }
 
+  static double healPercent(double minHealPercent, double maxHealPercent, int level, int maxLevel) {
+    int span = maxLevel - 1;
+    if (span <= 0) {
+      return maxHealPercent;
+    }
+    return minHealPercent + (maxHealPercent - minHealPercent) * (level - 1) / span;
+  }
+
   private double getHealPercent(int level) {
-    return getConfig().minHealPercent + (getConfig().maxHealPercent - getConfig().minHealPercent) * (level - 1) / (getConfig().maxLevel - 1);
+    return healPercent(getConfig().minHealPercent, getConfig().maxHealPercent, level, getConfig().maxLevel);
   }
 
   private void startHealingWindow(Player p) {

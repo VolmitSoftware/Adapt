@@ -88,7 +88,6 @@ public class HunterAdrenaline extends SimpleAdaptation<HunterAdrenaline.Config> 
 
     damageMax *= (1D - hpp);
     e.setDamage(e.getDamage() * (damageMax + 1D));
-    addStat(p, "hunter.adrenaline.low-health-kills", 1);
 
     if (hpp >= 0.35D) {
       return;
@@ -112,6 +111,7 @@ public class HunterAdrenaline extends SimpleAdaptation<HunterAdrenaline.Config> 
       return;
     }
 
+    addStat(p, "hunter.adrenaline.low-health-kills", 1);
     timeline(victimCenter)
         .duration(4)
         .priority(FxPriority.COMBAT)

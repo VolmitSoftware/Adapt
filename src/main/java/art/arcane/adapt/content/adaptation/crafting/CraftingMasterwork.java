@@ -32,6 +32,7 @@ import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
+import com.google.common.collect.Multimap;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
@@ -50,6 +51,7 @@ import org.bukkit.inventory.meta.Damageable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class CraftingMasterwork extends SimpleAdaptation<CraftingMasterwork.Config> {
@@ -137,7 +139,7 @@ public class CraftingMasterwork extends SimpleAdaptation<CraftingMasterwork.Conf
 
     boolean gotAttribute = level >= getMaxLevel()
         && ThreadLocalRandom.current().nextDouble() <= getConfig().attributeChance
-        && applyAttribute(meta, tool);
+        && applyAttribute(forged.getType(), meta, tool);
 
     List<String> lore = meta.hasLore() ? new ArrayList<>(meta.getLore()) : new ArrayList<>();
     lore.add(C.AQUA + Localizer.dLocalize("crafting.masterwork.tag") + C.GRAY + " +" + bonus);
@@ -155,10 +157,17 @@ public class CraftingMasterwork extends SimpleAdaptation<CraftingMasterwork.Conf
         .chord(Sound.BLOCK_ANVIL_USE, 0.5F, 1.3F, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.5F, gotAttribute ? 1.9F : 1.4F);
   }
 
-  private boolean applyAttribute(Damageable meta, boolean tool) {
+  private boolean applyAttribute(Material material, Damageable meta, boolean tool) {
     Attribute attribute = tool ? Attributes.GENERIC_ATTACK_DAMAGE : Attributes.GENERIC_ARMOR;
     if (attribute == null) {
       return false;
+    }
+
+    if (!meta.hasAttributeModifiers()) {
+      Multimap<Attribute, AttributeModifier> defaults = material.getDefaultAttributeModifiers();
+      for (Map.Entry<Attribute, AttributeModifier> entry : defaults.entries()) {
+        meta.addAttributeModifier(entry.getKey(), entry.getValue());
+      }
     }
 
     double amount = tool ? getConfig().attackDamageBonus : getConfig().armorBonus;

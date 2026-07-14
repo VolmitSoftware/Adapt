@@ -78,7 +78,7 @@ public class TragoulThorns extends SimpleAdaptation<TragoulThorns.Config> {
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + Form.f(getConfig().damageMultiplierPerLevel * level, 2) + "x " + Localizer.dLocalize("tragoul.thorns.lore1"));
+    v.addLore(C.GREEN + "+ " + Form.f(getConfig().damageMultiplierPerLevel * level, 2) + " " + Localizer.dLocalize("tragoul.thorns.lore1"));
   }
 
 
@@ -96,8 +96,6 @@ public class TragoulThorns extends SimpleAdaptation<TragoulThorns.Config> {
           return;
         }
 
-        cooldowns.mark(id);
-
         LivingEntity le = null;
         if (e.getDamager() instanceof LivingEntity living) {
           le = living;
@@ -106,6 +104,7 @@ public class TragoulThorns extends SimpleAdaptation<TragoulThorns.Config> {
         }
 
         if (le != null && canDamageTarget(p, le)) {
+          cooldowns.mark(id);
           LivingEntity attacker = le;
           double reflectedDamage = getConfig().damageMultiplierPerLevel * level;
           double healthBefore = attacker.getHealth();

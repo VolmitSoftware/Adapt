@@ -43,10 +43,13 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageEvent;
 
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class TamingLastBreath extends SimpleAdaptation<TamingLastBreath.Config> {
   private final Cooldowns saveCd = cooldowns();
+  private final Map<UUID, Long> protectedPets = new ConcurrentHashMap<>();
 
   static long cooldownMillis(double levelPercent, double base, double factor, double min) {
     return (long) Math.max(min, base - (levelPercent * factor));
@@ -79,6 +82,22 @@ public class TamingLastBreath extends SimpleAdaptation<TamingLastBreath.Config> 
     statLore(v, C.AQUA, "* ", Form.duration(getInvulnTicks() * 50D, 1), 2);
   }
 
+  @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+  public void onProtectedWindow(EntityDamageEvent e) {
+    UUID entityId = e.getEntity().getUniqueId();
+    Long until = protectedPets.get(entityId);
+    if (until == null) {
+      return;
+    }
+
+    if (until < System.currentTimeMillis()) {
+      protectedPets.remove(entityId);
+      return;
+    }
+
+    e.setCancelled(true);
+  }
+
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(EntityDamageEvent e) {
     if (!(e.getEntity() instanceof Tameable pet) || !pet.isTamed()
@@ -107,10 +126,10 @@ public class TamingLastBreath extends SimpleAdaptation<TamingLastBreath.Config> 
     e.setCancelled(true);
     living.setHealth(1.0);
     living.setFireTicks(0);
-    living.setInvulnerable(true);
 
-    int invulnTicks = getInvulnTicks();
-    J.runEntity(living, () -> clearInvulnerable(living), invulnTicks);
+    long now = System.currentTimeMillis();
+    protectedPets.values().removeIf(until -> until < now);
+    protectedPets.put(petId, now + (getInvulnTicks() * 50L));
 
     fx(living.getLocation().add(0, 1, 0), FxPriority.COMBAT)
         .burst(Particles.TOTEM, 24, 0.4D)
@@ -119,12 +138,6 @@ public class TamingLastBreath extends SimpleAdaptation<TamingLastBreath.Config> 
 
     UUID ownerId = owner.getUniqueId();
     J.runEntity(owner, () -> recallPet(owner, ownerId, living));
-  }
-
-  private void clearInvulnerable(LivingEntity pet) {
-    if (pet.isValid() && !pet.isDead()) {
-      pet.setInvulnerable(false);
-    }
   }
 
   private void recallPet(Player owner, UUID ownerId, LivingEntity pet) {

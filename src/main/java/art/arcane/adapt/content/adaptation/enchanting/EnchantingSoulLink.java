@@ -43,6 +43,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -51,14 +52,15 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.util.Base64;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class EnchantingSoulLink extends SimpleAdaptation<EnchantingSoulLink.Config> {
   private static final NamespacedKey TOKEN_KEY = new NamespacedKey("adapt", "soul-link-token");
-  private final Map<UUID, ItemStack> pendingSaves = new ConcurrentHashMap<>();
+  private static final String PENDING_STORAGE_KEY = "soul-link-pending";
+  private static final int DROPPED_XP_PER_LEVEL = 7;
 
   public EnchantingSoulLink() {
     super("enchanting-soul-link");
@@ -191,25 +193,58 @@ public class EnchantingSoulLink extends SimpleAdaptation<EnchantingSoulLink.Conf
       return;
     }
 
-    pendingSaves.put(p.getUniqueId(), found);
+    String encoded;
+    try {
+      encoded = Base64.getEncoder().encodeToString(found.serializeAsBytes());
+    } catch (Throwable t) {
+      e.getDrops().add(found);
+      return;
+    }
+
+    if (!setStorage(p, PENDING_STORAGE_KEY, encoded)) {
+      e.getDrops().add(found);
+      return;
+    }
+
+    if (e.getKeepLevel()) {
+      e.setNewLevel(Math.max(0, e.getNewLevel() - cost));
+    } else {
+      e.setDroppedExp(Math.max(0, e.getDroppedExp() - (cost * DROPPED_XP_PER_LEVEL)));
+    }
+
     addStat(p, "enchanting.soul-link.items-saved", 1);
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(PlayerRespawnEvent e) {
+    restorePending(e.getPlayer());
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(PlayerJoinEvent e) {
     Player p = e.getPlayer();
-    ItemStack saved = pendingSaves.remove(p.getUniqueId());
-    if (saved == null) {
+    J.runEntity(p, () -> restorePending(p), 20);
+  }
+
+  private void restorePending(Player p) {
+    if (!p.isOnline()) {
+      return;
+    }
+
+    String encoded = getStorageString(p, PENDING_STORAGE_KEY, null);
+    if (encoded == null) {
+      return;
+    }
+
+    setStorage(p, PENDING_STORAGE_KEY, null);
+    ItemStack saved;
+    try {
+      saved = ItemStack.deserializeBytes(Base64.getDecoder().decode(encoded));
+    } catch (Throwable t) {
       return;
     }
 
     J.runEntity(p, () -> returnSaved(p, saved), 2);
-  }
-
-  @Override
-  public void unregister() {
-    super.unregister();
-    pendingSaves.clear();
   }
 
   private void returnSaved(Player p, ItemStack saved) {

@@ -215,7 +215,12 @@ public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> 
   }
 
   private boolean enhance(double factor, ItemStack is, PotionMeta p) {
-    java.util.List<org.bukkit.potion.PotionEffect> effects = p.getBasePotionType().getPotionEffects();
+    org.bukkit.potion.PotionType baseType = p.getBasePotionType();
+    if (baseType == null) {
+      return false;
+    }
+
+    java.util.List<org.bukkit.potion.PotionEffect> effects = baseType.getPotionEffects();
     if (effects.stream()
         .map(PotionEffect::getType)
         .allMatch(PotionEffectType::isInstant))

@@ -37,6 +37,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.inventory.CraftItemEvent;
+import org.bukkit.inventory.ItemStack;
 
 
 public class CraftingXP extends SimpleAdaptation<CraftingXP.Config> {
@@ -73,21 +74,56 @@ public class CraftingXP extends SimpleAdaptation<CraftingXP.Config> {
   @EventHandler(priority = EventPriority.LOW)
   public void on(CraftItemEvent e) {
     Player p = (Player) e.getWhoClicked();
-    if (e.getInventory().getResult() != null && hasActiveAdaptation(p) && e.getInventory().getResult().getAmount() > 0) {
-      if (e.getInventory().getResult() != null && e.getCursor() != null && e.getCursor().getAmount() < 64) {
-        if (p.getInventory().addItem(e.getCurrentItem()).isEmpty()) {
-          p.getInventory().removeItem(e.getCurrentItem());
-          if (!xpCooldown.isReady(p.getUniqueId(), 20000)) {
-            return;
-          }
-          xpCooldown.mark(p.getUniqueId());
-          int level = getLevel(p);
-          p.getWorld().spawn(p.getLocation(), org.bukkit.entity.ExperienceOrb.class).setExperience(level * 2);
-          addStat(p, "crafting.xp.items-crafted", 1);
-          xpShimmer(p.getLocation().add(0, 1, 0), level);
-        }
+    ItemStack result = e.getInventory().getResult();
+    if (result == null || result.getAmount() <= 0 || !hasActiveAdaptation(p)) {
+      return;
+    }
+
+    ItemStack cursor = e.getCursor();
+    if (cursor == null || cursor.getAmount() >= 64) {
+      return;
+    }
+
+    if (!resultFitsInventory(p.getInventory().getStorageContents(), result)) {
+      return;
+    }
+
+    if (!xpCooldown.isReady(p.getUniqueId(), 20000)) {
+      return;
+    }
+
+    xpCooldown.mark(p.getUniqueId());
+    int level = getLevel(p);
+    p.getWorld().spawn(p.getLocation(), org.bukkit.entity.ExperienceOrb.class).setExperience(level * 2);
+    addStat(p, "crafting.xp.items-crafted", 1);
+    xpShimmer(p.getLocation().add(0, 1, 0), level);
+  }
+
+  private boolean resultFitsInventory(ItemStack[] storage, ItemStack result) {
+    ItemStack probe = result.clone();
+    int emptySlots = 0;
+    int partialRoom = 0;
+    for (ItemStack slot : storage) {
+      if (slot == null || slot.getType().isAir()) {
+        emptySlots++;
+        continue;
+      }
+
+      if (slot.isSimilar(probe)) {
+        partialRoom += Math.max(0, slot.getMaxStackSize() - slot.getAmount());
       }
     }
+
+    return canFit(probe.getAmount(), probe.getMaxStackSize(), emptySlots, partialRoom);
+  }
+
+  static boolean canFit(int amount, int maxStackSize, int emptySlots, int partialRoom) {
+    if (amount <= 0) {
+      return true;
+    }
+
+    long capacity = ((long) Math.max(0, emptySlots) * Math.max(1, maxStackSize)) + Math.max(0, partialRoom);
+    return capacity >= amount;
   }
 
   private void xpShimmer(Location center, int level) {

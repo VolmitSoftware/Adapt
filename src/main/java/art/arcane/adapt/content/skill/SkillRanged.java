@@ -45,6 +45,7 @@ import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.FishHook;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -182,9 +183,8 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(ProjectileLaunchEvent e) {
     Projectile projectile = e.getEntity();
-    if (!(projectile.getShooter() instanceof Player p)
-        || projectile instanceof Snowball
-        || projectile instanceof FishHook) {
+    if (!(projectile instanceof AbstractArrow)
+        || !(projectile.getShooter() instanceof Player p)) {
       return;
     }
     shouldReturnForPlayer(p, e, () -> {

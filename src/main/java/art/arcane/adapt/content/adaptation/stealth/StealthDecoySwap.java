@@ -147,22 +147,22 @@ public class StealthDecoySwap extends SimpleAdaptation<StealthDecoySwap.Config> 
       Location playerDest = anchorLoc.clone();
       playerDest.setYaw(playerLoc.getYaw());
       playerDest.setPitch(playerLoc.getPitch());
-      anchor.teleport(playerLoc.clone());
+      cooldowns.mark(id);
+      J.teleport(anchor, playerLoc.clone());
       swapFx(anchorLoc);
-      J.runEntity(p, () -> commitSwap(p, id, playerDest));
+      J.runEntity(p, () -> commitSwap(p, playerDest));
     });
   }
 
-  private void commitSwap(Player p, UUID id, Location playerDest) {
+  private void commitSwap(Player p, Location playerDest) {
     if (!p.isOnline()) {
       return;
     }
 
-    p.teleport(playerDest);
-    cooldowns.mark(id);
+    J.teleport(p, playerDest);
     xp(p, getConfig().xpOnSwap);
     addStat(p, "stealth.decoy-swap.swaps", 1);
-    swapFx(p.getLocation().add(0, 1.0D, 0));
+    swapFx(playerDest.clone().add(0, 1.0D, 0));
     fx(p.getEyeLocation(), FxPriority.TRANSITION)
         .sound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.6F, 1.5F);
   }

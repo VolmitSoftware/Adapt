@@ -205,8 +205,6 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
         addStat(p, "architect.placement.blocks-placed", 1);
         xp(p, 2);
         placedCount++;
-
-        hand.setAmount(hand.getAmount() - 1);
       } else {
         e.setCancelled(true);
       }

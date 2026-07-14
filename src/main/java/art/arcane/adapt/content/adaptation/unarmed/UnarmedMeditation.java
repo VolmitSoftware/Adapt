@@ -31,6 +31,7 @@ import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -55,6 +56,7 @@ public class UnarmedMeditation extends SimpleAdaptation<UnarmedMeditation.Config
     super("unarmed-meditation");
     registerConfiguration(Config.class);
     setIcon(Material.AMETHYST_CLUSTER);
+    setInterval(1000);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.IRON_INGOT)
         .key("challenge_unarmed_meditate_500")
@@ -103,6 +105,26 @@ public class UnarmedMeditation extends SimpleAdaptation<UnarmedMeditation.Config
   public void unregister() {
     activeSessions.clear();
     super.unregister();
+  }
+
+  @Override
+  public void onTick() {
+    if (!isEnabled()) {
+      return;
+    }
+
+    for (Player player : Bukkit.getOnlinePlayers()) {
+      if (!player.isSneaking() || activeSessions.contains(player.getUniqueId())) {
+        continue;
+      }
+      J.runEntity(player, () -> {
+        if (player.isOnline() && player.isSneaking()
+            && !activeSessions.contains(player.getUniqueId())
+            && hasActiveAdaptation(player)) {
+          startMeditation(player);
+        }
+      });
+    }
   }
 
   private void startMeditation(Player player) {

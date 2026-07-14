@@ -87,7 +87,7 @@ public class BlockingSaddlecrafter extends SimpleAdaptation<BlockingSaddlecrafte
   @ConfigDescription("Craft a Saddle using leather.")
   protected static class Config extends AdaptationConfig {
     public Config() {
-      enabled = false;
+      enabled = true;
       permanent = true;
       baseCost = 5;
       costFactor = 0;

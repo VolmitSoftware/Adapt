@@ -103,7 +103,7 @@ public class SwordsWhetstoneRitual extends SimpleAdaptation<SwordsWhetstoneRitua
     }
 
     int xpCost = getConfig().xpCost;
-    if (p.getTotalExperience() < xpCost) {
+    if (p.getLevel() < xpCost) {
       e.setCancelled(true);
       fx(p.getLocation().add(0, 1, 0), FxPriority.GAMEPLAY)
           .sound(Sound.BLOCK_GRINDSTONE_USE, 0.4F, 0.6F);
@@ -116,7 +116,7 @@ public class SwordsWhetstoneRitual extends SimpleAdaptation<SwordsWhetstoneRitua
 
     e.setCancelled(true);
     p.getInventory().setItemInMainHand(hand);
-    p.giveExp(-xpCost);
+    p.giveExpLevels(-xpCost);
     ritualCooldown.mark(p.getUniqueId());
 
     int amplifier = getBuffStrength(level);
@@ -188,8 +188,8 @@ public class SwordsWhetstoneRitual extends SimpleAdaptation<SwordsWhetstoneRitua
     double durationTicksFactor = 400;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Durability consumed from the sword per ritual.", impact = "Higher values wear the blade faster for each sharpening.")
     int durabilityCost = 15;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Experience points consumed per ritual.", impact = "Higher values make each sharpening cost more XP.")
-    int xpCost = 8;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Experience levels consumed per ritual.", impact = "Higher values make each sharpening cost more experience levels.")
+    int xpCost = 2;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Minimum delay between rituals in milliseconds.", impact = "Higher values force more downtime between sharpenings.")
     double cooldownMillis = 60000;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Skill Xp On Ritual for the Swords Whetstone Ritual adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

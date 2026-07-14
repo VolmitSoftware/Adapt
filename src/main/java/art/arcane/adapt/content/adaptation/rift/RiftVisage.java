@@ -25,8 +25,14 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
 public class RiftVisage extends SimpleAdaptation<RiftVisage.Config> {
+  private static final long STARE_STAT_WINDOW_MILLIS = 10_000L;
   private final Cooldowns aversionThrottle = cooldowns();
+  private final Map<UUID, Long> stareCredits = new ConcurrentHashMap<>();
 
   public RiftVisage() {
     super("rift-visage");
@@ -69,7 +75,12 @@ public class RiftVisage extends SimpleAdaptation<RiftVisage.Config> {
 
     event.setCancelled(true);
     emitFormulaUtility(player, enderman);
-    addStat(player, "rift.visage.stares-survived", 1);
+    long now = System.currentTimeMillis();
+    Long lastCredit = stareCredits.get(enderman.getUniqueId());
+    if (lastCredit == null || now - lastCredit >= STARE_STAT_WINDOW_MILLIS) {
+      stareCredits.put(enderman.getUniqueId(), now);
+      addStat(player, "rift.visage.stares-survived", 1);
+    }
     if (aversionThrottle.isReady(player.getUniqueId(), 2000L)) {
       aversionThrottle.mark(player.getUniqueId());
       Location eye = entity.getLocation().add(0, 1.5, 0);
@@ -79,6 +90,12 @@ public class RiftVisage extends SimpleAdaptation<RiftVisage.Config> {
       fx(player, FxPriority.AMBIENT)
           .particle(Particle.REVERSE_PORTAL, 2, 0, 1.0, 0, 0.2, 0.02);
     }
+  }
+
+  @Override
+  public void onTick() {
+    long now = System.currentTimeMillis();
+    stareCredits.values().removeIf(at -> now - at >= STARE_STAT_WINDOW_MILLIS);
   }
 
   private void emitFormulaUtility(Player player, Enderman enderman) {

@@ -87,20 +87,24 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
 
   @Override
   public void addStats(int level, Element v) {
-    int chance = getConfig().getBaseCooldown() - getConfig().getLevelCooldown() * level;
-    v.addLore(C.GREEN + String.valueOf(chance) + C.GRAY + " " + Localizer.dLocalize("nether.skull_toss.lore1"));
+    int cooldown = cooldownSeconds(getConfig().getBaseCooldown(), getConfig().getLevelCooldown(), level);
+    v.addLore(C.GREEN + String.valueOf(cooldown) + C.GRAY + " " + Localizer.dLocalize("nether.skull_toss.lore1"));
     v.addLore(C.GRAY + Localizer.dLocalize("nether.skull_toss.lore2") + C.DARK_GRAY + Localizer.dLocalize("nether.skull_toss.lore3") + C.GRAY + ", " + Localizer.dLocalize("nether.skull_toss.lore4"));
   }
 
-  private int getCooldownDuration(Player p) {
-    return (getConfig().getBaseCooldown() - getConfig().getLevelCooldown() * getLevel(p)) * 20;
+  static int cooldownSeconds(int baseCooldown, int levelCooldown, int level) {
+    return Math.max(1, baseCooldown - (levelCooldown * level));
+  }
+
+  private int getCooldownSeconds(Player p) {
+    return cooldownSeconds(getConfig().getBaseCooldown(), getConfig().getLevelCooldown(), getLevel(p));
   }
 
   @EventHandler
   public void onRightClick(PlayerInteractEvent e) {
     Player p = e.getPlayer();
     withAdaptedPlayer(p, () -> {
-      if (e.getAction() != Action.LEFT_CLICK_AIR && e.getAction() != Action.LEFT_CLICK_BLOCK) {
+      if (e.getAction() != Action.RIGHT_CLICK_AIR && e.getAction() != Action.RIGHT_CLICK_BLOCK) {
         return;
       }
       if (e.getHand() != EquipmentSlot.HAND || e.getItem() == null || e.getMaterial() != Material.WITHER_SKELETON_SKULL) {
@@ -108,8 +112,9 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
       }
 
       UUID id = p.getUniqueId();
-      int cooldownDuration = getCooldownDuration(p);
-      if (!cooldowns.isReady(id, cooldownDuration)) {
+      int cooldownSeconds = getCooldownSeconds(p);
+      if (!cooldowns.isReady(id, cooldownSeconds * 1000L)) {
+        e.setCancelled(true);
         fx(p.getEyeLocation(), FxPriority.TRANSITION)
             .particle(Particles.SMOKE, 3, 0D, 0D, 0D, 0.1D, 0.0D)
             .sound(Sound.BLOCK_CONDUIT_DEACTIVATE, 0.6F, 0.8F);
@@ -124,7 +129,8 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
         return;
       }
 
-      p.setCooldown(Material.WITHER_SKELETON_SKULL, cooldownDuration);
+      e.setCancelled(true);
+      p.setCooldown(Material.WITHER_SKELETON_SKULL, cooldownSeconds * 20);
 
       if (p.getGameMode() != GameMode.CREATIVE) {
         e.getItem().setAmount(e.getItem().getAmount() - 1);

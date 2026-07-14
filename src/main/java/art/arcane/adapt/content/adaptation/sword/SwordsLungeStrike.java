@@ -25,25 +25,39 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.version.IAttribute;
+import art.arcane.adapt.api.version.Version;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.RegistryUtil;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.util.Vector;
+
+import java.util.Map;
+import java.util.UUID;
 
 public class SwordsLungeStrike extends SimpleAdaptation<SwordsLungeStrike.Config> {
   private static final Color LUNGE = Color.fromRGB(0xFFF2B0);
+  private static final UUID REACH_MODIFIER = UUID.nameUUIDFromBytes("adapt-sword-lunge-reach".getBytes());
+  private static final NamespacedKey REACH_MODIFIER_KEY = NamespacedKey.fromString("adapt:sword-lunge-reach");
+  private static final Attribute ENTITY_INTERACTION_RANGE = RegistryUtil.findNullable(Attribute.class, "entity_interaction_range", "player_entity_interaction_range");
   private final Cooldowns lungeCooldown = cooldowns();
+  private final Map<UUID, Long> reachExpireAt = playerState();
 
   public SwordsLungeStrike() {
     super("sword-lunge-strike");
@@ -104,6 +118,7 @@ public class SwordsLungeStrike extends SimpleAdaptation<SwordsLungeStrike.Config
         p.setVelocity(p.getVelocity().add(applied));
       }
     });
+    applyBonusReach(p, combat.level());
 
     Location tip = p.getEyeLocation().add(p.getLocation().getDirection().multiply(1.4D));
     fx(tip, FxPriority.COMBAT)
@@ -128,6 +143,53 @@ public class SwordsLungeStrike extends SimpleAdaptation<SwordsLungeStrike.Config
     return getConfig().reachBase + (getLevelPercent(level) * getConfig().reachFactor);
   }
 
+  private void applyBonusReach(Player p, int level) {
+    if (ENTITY_INTERACTION_RANGE == null) {
+      return;
+    }
+
+    IAttribute attribute = Version.get().getAttribute(p, ENTITY_INTERACTION_RANGE);
+    if (attribute == null) {
+      return;
+    }
+
+    UUID id = p.getUniqueId();
+    int windowTicks = getReachWindowTicks();
+    reachExpireAt.put(id, System.currentTimeMillis() + (windowTicks * 50L));
+    attribute.setTransientModifier(REACH_MODIFIER, REACH_MODIFIER_KEY, getBonusReach(level), AttributeModifier.Operation.ADD_NUMBER);
+    J.runEntity(p, () -> {
+      Long due = reachExpireAt.get(id);
+      if (due != null && due > System.currentTimeMillis()) {
+        return;
+      }
+      reachExpireAt.remove(id);
+      if (p.isOnline()) {
+        clearBonusReach(p);
+      }
+    }, windowTicks + 1);
+  }
+
+  private void clearBonusReach(Player p) {
+    if (ENTITY_INTERACTION_RANGE == null) {
+      return;
+    }
+
+    IAttribute attribute = Version.get().getAttribute(p, ENTITY_INTERACTION_RANGE);
+    if (attribute != null && attribute.hasModifier(REACH_MODIFIER, REACH_MODIFIER_KEY)) {
+      attribute.removeModifier(REACH_MODIFIER, REACH_MODIFIER_KEY);
+    }
+  }
+
+  private int getReachWindowTicks() {
+    return Math.max(5, (int) Math.round(getConfig().reachWindowTicks));
+  }
+
+  @EventHandler
+  public void on(PlayerQuitEvent e) {
+    reachExpireAt.remove(e.getPlayer().getUniqueId());
+    clearBonusReach(e.getPlayer());
+  }
+
 
   @ConfigDescription("Sprint-attacking with a sword lunges you into the strike with extra reach.")
   protected static class Config extends AdaptationConfig {
@@ -143,6 +205,8 @@ public class SwordsLungeStrike extends SimpleAdaptation<SwordsLungeStrike.Config
     double reachVelocityFactor = 0.12;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls the small upward hop applied to the lunge.", impact = "Higher values add more lift so the lunge clears ground friction.")
     double verticalBoost = 0.18;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "How long the bonus entity-reach window lasts after a lunge, in ticks.", impact = "Higher values keep the extended attack range active longer per lunge.")
+    double reachWindowTicks = 12;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Hard cap on total horizontal lunge velocity.", impact = "Lower values keep the lunge shorter and more controlled.")
     double maxSurge = 1.1;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Minimum delay between lunges in milliseconds.", impact = "Higher values space out lunges; lower values allow faster repeat lunges.")

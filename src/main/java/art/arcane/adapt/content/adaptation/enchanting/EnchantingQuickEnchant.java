@@ -113,9 +113,7 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
       e.setCancelled(true);
       ItemStack item = e.getCurrentItem();
       ItemStack book = e.getCursor();
-      KMap<Enchantment, Integer> itemEnchants = new KMap<>(item.getType().equals(Material.ENCHANTED_BOOK)
-          ? ((EnchantmentStorageMeta) item.getItemMeta()).getStoredEnchants()
-          : item.getEnchantments());
+      KMap<Enchantment, Integer> itemEnchants = new KMap<>(item.getEnchantments());
       KMap<Enchantment, Integer> bookEnchants = new KMap<>(eb.getStoredEnchants());
       KMap<Enchantment, Integer> newEnchants = itemEnchants.copy();
       KMap<Enchantment, Integer> addEnchants = new KMap<>();
@@ -127,6 +125,22 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
 
       for (Enchantment i : bookEnchants.k()) {
         if (itemEnchants.containsKey(i)) {
+          continue;
+        }
+
+        if (!i.canEnchantItem(item)) {
+          continue;
+        }
+
+        boolean conflicts = false;
+        for (Enchantment existing : newEnchants.k()) {
+          if (existing.conflictsWith(i) || i.conflictsWith(existing)) {
+            conflicts = true;
+            break;
+          }
+        }
+
+        if (conflicts) {
           continue;
         }
 

@@ -42,15 +42,12 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Egg;
-import org.bukkit.entity.EnderPearl;
 import org.bukkit.entity.LingeringPotion;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Snowball;
 import org.bukkit.entity.SpectralArrow;
 import org.bukkit.entity.SplashPotion;
-import org.bukkit.entity.ThrownExpBottle;
-import org.bukkit.entity.ThrownPotion;
 import org.bukkit.entity.ThrowableProjectile;
 import org.bukkit.entity.Trident;
 import org.bukkit.event.EventHandler;
@@ -423,15 +420,56 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
 
   private void completeTransferOwned(RicochetTransferRequest request) {
     if (!isRuntimeRegistered()) {
+      recoverLostProjectileItem(request.primary());
       return;
     }
     if (completeTransferOwned(request.primary())) {
       return;
     }
     RicochetProjectileTemplate fallback = request.fallback();
-    if (fallback != null) {
-      J.runAt(fallback.spawnLocation(), () -> completeTransferOwned(fallback));
+    if (fallback == null) {
+      recoverLostProjectileItem(request.primary());
+      return;
     }
+    boolean scheduled = J.runAt(fallback.spawnLocation(), () -> {
+      if (!completeTransferOwned(fallback)) {
+        recoverLostProjectileItem(fallback);
+      }
+    });
+    if (!scheduled) {
+      recoverLostProjectileItem(request.primary());
+    }
+  }
+
+  private void recoverLostProjectileItem(RicochetProjectileTemplate template) {
+    if (!(template.payload() instanceof RicochetTridentPayload tridentPayload)) {
+      return;
+    }
+    ItemStack item = tridentPayload.item();
+    if (item == null || item.getType().isAir()) {
+      return;
+    }
+
+    Player shooter = template.shooter();
+    Location dropLocation = template.hitCenter();
+    boolean handedToShooter = J.runEntity(shooter, () -> {
+      if (shooter.isOnline() && shooter.getInventory().addItem(item.clone()).isEmpty()) {
+        return;
+      }
+      dropRecoveredItem(dropLocation, item);
+    });
+    if (!handedToShooter) {
+      dropRecoveredItem(dropLocation, item);
+    }
+  }
+
+  private void dropRecoveredItem(Location location, ItemStack item) {
+    J.runAt(location, () -> {
+      World world = location.getWorld();
+      if (world != null) {
+        world.dropItemNaturally(location, item.clone());
+      }
+    });
   }
 
   private boolean completeTransferOwned(RicochetProjectileTemplate template) {
@@ -712,10 +750,7 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
 
     return getConfig().applyToAllProjectiles
         && (projectile instanceof Snowball
-        || projectile instanceof Egg
-        || projectile instanceof EnderPearl
-        || projectile instanceof ThrownPotion
-        || projectile instanceof ThrownExpBottle);
+        || projectile instanceof Egg);
   }
 
   private BlockFace resolveHitFace(ProjectileHitEvent e, Vector incoming) {

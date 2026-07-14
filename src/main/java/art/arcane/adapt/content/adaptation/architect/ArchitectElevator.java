@@ -161,10 +161,11 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
   public void on(PlayerMoveEvent e) {
     if (e.getTo() == null) return;
     Player player = e.getPlayer();
+    UUID id = player.getUniqueId();
 
-    if (players.putIfAbsent(player.getUniqueId(), Boolean.TRUE) != null) {
-      if (e.getFrom().getY() < e.getTo().getY() || player.isFlying())
-        players.remove(player.getUniqueId());
+    if (players.containsKey(id)) {
+      if (player.isOnGround() || player.isFlying() || findElevator(player) == null)
+        players.remove(id);
       return;
     }
 
@@ -173,6 +174,7 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
 
     Block block = findElevator(player);
     if (block == null) return;
+    players.put(id, Boolean.TRUE);
     handleElevatorMovement(block, player, false);
   }
 
@@ -215,6 +217,7 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
       org.bukkit.block.Block upper = block.getRelative(BlockFace.UP, d);
       if (checkElevator(upper, TARGET_DOWN, d)) {
         data.set(TARGET_UP, PersistentDataType.INTEGER, d);
+        break;
       }
     }
   }

@@ -42,6 +42,7 @@ import org.bukkit.inventory.ItemStack;
 import java.util.List;
 
 public class HerbalismCraftableCobweb extends SimpleAdaptation<HerbalismCraftableCobweb.Config> {
+  static final String RECIPE_KEY = "herbalism-cobwebblock";
 
   public HerbalismCraftableCobweb() {
     super("herbalism-cobweb");
@@ -49,7 +50,7 @@ public class HerbalismCraftableCobweb extends SimpleAdaptation<HerbalismCraftabl
     setIcon(Material.STRING);
     setInterval(17771);
     registerRecipe(AdaptRecipe.shaped()
-        .key("herbalism-cobwebBlock")
+        .key(RECIPE_KEY)
         .ingredient(new MaterialChar('I', Material.STRING))
         .shapes(List.of(
             "III",
@@ -77,7 +78,7 @@ public class HerbalismCraftableCobweb extends SimpleAdaptation<HerbalismCraftabl
     if (!(e.getWhoClicked() instanceof Player p) || !hasActiveAdaptation(p)) {
       return;
     }
-    if (e.getRecipe() instanceof org.bukkit.inventory.ShapedRecipe recipe && recipe.getKey().getNamespace().equals("adapt") && recipe.getKey().getKey().equals("herbalism-cobwebBlock")) {
+    if (e.getRecipe() instanceof org.bukkit.inventory.ShapedRecipe recipe && recipe.getKey().getNamespace().equals("adapt") && recipe.getKey().getKey().equals(RECIPE_KEY)) {
       addStat(p, "herbalism.cobweb.cobwebs-crafted", 1);
       if (getPlayer(p).getData().getStat("herbalism.cobweb.cobwebs-crafted") == 1) {
         fx(p.getLocation().add(0, 1, 0), FxPriority.TRANSITION)

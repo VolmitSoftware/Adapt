@@ -42,7 +42,9 @@ import org.bukkit.event.block.BlockReceiveGameEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -93,6 +95,10 @@ public class StealthTrapSense extends SimpleAdaptation<StealthTrapSense.Config> 
 
   static double computeMercy(double maxChance, double percent) {
     return Math.max(0D, Math.min(1D, maxChance * percent));
+  }
+
+  static long blockKey(int x, int y, int z) {
+    return (((long) x & 0x3FFFFFFL) << 38) | (((long) z & 0x3FFFFFFL) << 12) | ((long) y & 0xFFFL);
   }
 
   @Override
@@ -205,12 +211,13 @@ public class StealthTrapSense extends SimpleAdaptation<StealthTrapSense.Config> 
 
     int scanned = 0;
     int glimmers = 0;
-    int revealed = 0;
+    int newlyRevealed = 0;
+    Set<Long> inRange = new HashSet<>();
     for (int dx = -r; dx <= r; dx++) {
       for (int dz = -r; dz <= r; dz++) {
         for (int y = minY; y <= maxY; y++) {
           if (++scanned > MAX_BLOCKS_PER_SCAN) {
-            finishScan(p, revealed);
+            finishScan(p, newlyRevealed);
             return;
           }
           Block block = world.getBlockAt(bx + dx, y, bz + dz);
@@ -218,7 +225,11 @@ public class StealthTrapSense extends SimpleAdaptation<StealthTrapSense.Config> 
           if (!isTrapBlock(type)) {
             continue;
           }
-          revealed++;
+          long key = blockKey(bx + dx, y, bz + dz);
+          inRange.add(key);
+          if (session.countedTraps.add(key)) {
+            newlyRevealed++;
+          }
           if (glimmers < MAX_GLIMMERS_PER_SCAN) {
             glimmer(block.getLocation().add(0.5D, 0.25D, 0.5D), type);
             glimmers++;
@@ -227,12 +238,13 @@ public class StealthTrapSense extends SimpleAdaptation<StealthTrapSense.Config> 
       }
     }
 
-    finishScan(p, revealed);
+    session.countedTraps.retainAll(inRange);
+    finishScan(p, newlyRevealed);
   }
 
   private void finishScan(Player p, int revealed) {
     if (revealed > 0) {
-      addStat(p, "stealth.trap-sense.traps-revealed", Math.min(revealed, MAX_GLIMMERS_PER_SCAN));
+      addStat(p, "stealth.trap-sense.traps-revealed", revealed);
     }
   }
 
@@ -259,6 +271,7 @@ public class StealthTrapSense extends SimpleAdaptation<StealthTrapSense.Config> 
     private final Player player;
     private final UUID id;
     private final AtomicBoolean processing = new AtomicBoolean();
+    private final Set<Long> countedTraps = new HashSet<>();
     private volatile long nextScanAt;
 
     private TrapSession(Player player, UUID id) {

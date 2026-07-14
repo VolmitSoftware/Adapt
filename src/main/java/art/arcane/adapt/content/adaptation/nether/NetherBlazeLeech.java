@@ -79,7 +79,7 @@ public class NetherBlazeLeech extends SimpleAdaptation<NetherBlazeLeech.Config> 
 
     withAdaptedPlayer(p, e, () -> {
       int level = getActiveLevel(p);
-      if (!isFireCause(e.getCause()) || !isReady(p, level)) {
+      if (!isFireCause(e.getCause()) || !isReady(p)) {
         return;
       }
 
@@ -87,6 +87,7 @@ public class NetherBlazeLeech extends SimpleAdaptation<NetherBlazeLeech.Config> 
         return;
       }
 
+      markCooldown(p, level);
       applyLeech(p, level, true);
     });
   }
@@ -103,7 +104,7 @@ public class NetherBlazeLeech extends SimpleAdaptation<NetherBlazeLeech.Config> 
       }
 
       int level = getActiveLevel(p);
-      if (target.getFireTicks() <= 0 || !isReady(p, level)) {
+      if (target.getFireTicks() <= 0 || !isReady(p)) {
         return;
       }
 
@@ -111,6 +112,7 @@ public class NetherBlazeLeech extends SimpleAdaptation<NetherBlazeLeech.Config> 
         return;
       }
 
+      markCooldown(p, level);
       applyLeech(p, level, false);
     });
   }
@@ -122,15 +124,14 @@ public class NetherBlazeLeech extends SimpleAdaptation<NetherBlazeLeech.Config> 
         || cause == EntityDamageEvent.DamageCause.HOT_FLOOR;
   }
 
-  private boolean isReady(Player p, int level) {
+  private boolean isReady(Player p) {
     long now = System.currentTimeMillis();
     long next = getStorageLong(p, "blazeLeechNext", 0L);
-    if (next > now) {
-      return false;
-    }
+    return next <= now;
+  }
 
-    setStorage(p, "blazeLeechNext", now + getCooldownMillis(level));
-    return true;
+  private void markCooldown(Player p, int level) {
+    setStorage(p, "blazeLeechNext", System.currentTimeMillis() + getCooldownMillis(level));
   }
 
   private void applyLeech(Player p, int level, boolean defensive) {

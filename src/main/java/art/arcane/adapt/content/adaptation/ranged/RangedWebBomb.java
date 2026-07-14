@@ -145,6 +145,7 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
     }
     snowball.remove();
     Set<Block> locs = new HashSet<>();
+    locs.add(block);
     locs.add(block.getLocation().add(0, 1, 0).getBlock());
     locs.add(block.getLocation().add(0, -1, 0).getBlock());
     locs.add(block.getLocation().add(0, 0, 1).getBlock());
@@ -153,7 +154,7 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
     locs.add(block.getLocation().add(-1, 0, 0).getBlock());
 
     for (Block i : locs) {
-      addWebFoundation(i, level);
+      addWebFoundation(p, i, level);
     }
 
     J.runAt(block.getLocation(), () -> fx(center, FxPriority.TRANSITION)
@@ -171,25 +172,26 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
     }
   }
 
-  public void addWebFoundation(Block block, int seconds) {
+  public void addWebFoundation(Player p, Block block, int seconds) {
     if (!block.getType().isAir()) {
       return;
     }
 
     J.runAt(block.getLocation(), () -> {
+      if (!block.getType().isAir() || !canBlockPlace(p, block.getLocation())) {
+        return;
+      }
       block.setBlockData(BLOCK);
       activeBlocks.add(block);
+      J.runAt(block.getLocation(), () -> removeFoundation(block), seconds * 20);
     });
-    J.runAt(block.getLocation(), () -> removeFoundation(block), seconds * 20);
   }
 
   public void removeFoundation(Block block) {
-    if (!block.getBlockData().equals(BLOCK)) {
-      return;
-    }
-
     J.runAt(block.getLocation(), () -> {
-      block.setBlockData(AIR);
+      if (block.getBlockData().equals(BLOCK)) {
+        block.setBlockData(AIR);
+      }
       activeBlocks.remove(block);
     });
   }

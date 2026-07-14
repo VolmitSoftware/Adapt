@@ -19,11 +19,4 @@ class HerbalismWorldWorkBudgetTest {
     assertThat(HerbalismGrowthAura.workFor(1000, 16)).isEqualTo(16);
   }
 
-  @Test
-  void growthAuraPreservesTheThreeSampleCeiling() {
-    assertThat(HerbalismGrowthAura.sampleCountForRadius(0D)).isZero();
-    assertThat(HerbalismGrowthAura.sampleCountForRadius(0.5D)).isEqualTo(1);
-    assertThat(HerbalismGrowthAura.sampleCountForRadius(2D)).isEqualTo(3);
-    assertThat(HerbalismGrowthAura.sampleCountForRadius(100D)).isEqualTo(3);
-  }
 }

@@ -92,7 +92,7 @@ public class RangedLungeShot extends SimpleAdaptation<RangedLungeShot.Config> {
   }
 
 
-  @ConfigDescription("While falling, firing arrows launches you in a random direction.")
+  @ConfigDescription("While airborne, firing arrows kicks you backward away from your aim.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Factor for the Ranged Lunge Shot adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double factor = 0.935;

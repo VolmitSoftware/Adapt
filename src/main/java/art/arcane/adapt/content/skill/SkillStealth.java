@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.skill;
 
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
@@ -58,6 +59,7 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 
 public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
+  private final Cooldowns cooldowns = cooldowns();
   private final SkillOwnerPulse.Registration ownerPulse;
 
   public SkillStealth() {
@@ -164,12 +166,19 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
 
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(EntityDamageByEntityEvent e) {
-    if (e.getDamager() instanceof Player p && p.isSneaking()) {
-      shouldReturnForPlayer(p, e, () -> {
-        addStat(p, "stealth.damage.sneaking", e.getDamage());
-        xp(p, e.getEntity().getLocation(), e.getDamage() * getConfig().sneakCombatXPMultiplier);
-      });
+    if (!(e.getDamager() instanceof Player p)
+        || !p.isSneaking()
+        || !checkValidEntity(e.getEntity().getType())) {
+      return;
     }
+    shouldReturnForPlayer(p, e, () -> {
+      addStat(p, "stealth.damage.sneaking", e.getDamage());
+      if (!cooldowns.isReady(p.getUniqueId(), getConfig().sneakCombatXpCooldown)) {
+        return;
+      }
+      cooldowns.mark(p.getUniqueId());
+      xp(p, e.getEntity().getLocation(), e.getDamage() * getConfig().sneakCombatXPMultiplier);
+    });
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
@@ -248,6 +257,8 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
     double sneakXP = 0.4;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls XP multiplier for dealing damage while sneaking.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double sneakCombatXPMultiplier = 3.0;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Cooldown in milliseconds between XP awards for sneaking combat damage.", impact = "Higher values reduce repeated combat XP frequency; lower values reward hits more often.")
+    long sneakCombatXpCooldown = 1250;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls XP awarded for killing while sneaking.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double sneakKillXP = 15;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Challenge Stealth Dmg 500 Reward for the Stealth skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

@@ -116,19 +116,13 @@ public class AgilityRollLanding extends SimpleAdaptation<AgilityRollLanding.Conf
         return;
       }
 
-      double absorbCap = e.getDamage() * getFallReduction(level);
-      int hungerNeeded = (int) Math.ceil(absorbCap * getHungerPerDamage(level));
-      if (hungerNeeded <= 0 || p.getFoodLevel() <= 0) {
-        return;
-      }
-
-      int usableFood = Math.min(p.getFoodLevel(), hungerNeeded);
-      double absorbed = usableFood / getHungerPerDamage(level);
+      RollAbsorption absorption = computeRollAbsorption(e.getDamage(), getFallReduction(level), getHungerPerDamage(level), p.getFoodLevel());
+      double absorbed = absorption.absorbed();
       if (absorbed <= 0) {
         return;
       }
 
-      p.setFoodLevel(Math.max(0, p.getFoodLevel() - usableFood));
+      p.setFoodLevel(Math.max(0, p.getFoodLevel() - absorption.hungerCost()));
       e.setDamage(Math.max(0, e.getDamage() - absorbed));
       if (e.getDamage() <= 0.01) {
         e.setCancelled(true);
@@ -228,6 +222,21 @@ public class AgilityRollLanding extends SimpleAdaptation<AgilityRollLanding.Conf
 
   private int getProneTicks(int level) {
     return Math.max(2, (int) Math.round(getConfig().proneTicksBase + (getLevelPercent(level) * getConfig().proneTicksFactor)));
+  }
+
+  static RollAbsorption computeRollAbsorption(double damage, double reduction, double hungerPerDamage, int foodLevel) {
+    double absorbCap = damage * reduction;
+    int hungerNeeded = (int) Math.ceil(absorbCap * hungerPerDamage);
+    if (hungerNeeded <= 0 || foodLevel <= 0) {
+      return new RollAbsorption(0, 0D);
+    }
+
+    int usableFood = Math.min(foodLevel, hungerNeeded);
+    double absorbed = Math.min(absorbCap, usableFood / hungerPerDamage);
+    return new RollAbsorption(usableFood, absorbed);
+  }
+
+  record RollAbsorption(int hungerCost, double absorbed) {
   }
 
 

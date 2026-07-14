@@ -74,8 +74,11 @@ public class HerbalismHungryHippo extends SimpleAdaptation<HerbalismHungryHippo.
     }
 
     int level = getLevel(p);
-    p.setFoodLevel(p.getFoodLevel() + 2 + level);
-    addStat(p, "herbalism.hungry-hippo.bonus-saturation", 2 + level);
+    int bonus = 2 + level;
+    int newFood = Math.min(20, p.getFoodLevel() + bonus);
+    p.setFoodLevel(newFood);
+    p.setSaturation(Math.min((float) newFood, p.getSaturation() + bonus));
+    addStat(p, "herbalism.hungry-hippo.bonus-saturation", bonus);
     xp(p, 5);
 
     boolean bigMeal = food == Material.GOLDEN_APPLE || food == Material.ENCHANTED_GOLDEN_APPLE || food == Material.GOLDEN_CARROT;

@@ -82,7 +82,7 @@ public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisRetur
       return;
     }
 
-    if (ThreadLocalRandom.current().nextDouble(100D) > 80D) {
+    if (ThreadLocalRandom.current().nextDouble() < getRefundChance(level)) {
       UUID playerId = p.getUniqueId();
       if (!cooldown.isReady(playerId, 20000L)) {
         return;
@@ -94,6 +94,10 @@ public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisRetur
       addStat(p, "enchanting.lapis-return.lapis-saved", level);
       lapisRefundFx(e, drop);
     }
+  }
+
+  private double getRefundChance(int level) {
+    return Math.min(getConfig().maxRefundChance, getConfig().refundChanceBase + (getLevelPercent(level) * getConfig().refundChanceFactor));
   }
 
   private void lapisRefundFx(EnchantItemEvent e, Location drop) {
@@ -119,8 +123,15 @@ public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisRetur
   }
 
 
-  @ConfigDescription("Chance to return free lapis when enchanting at the cost of 1 extra level.")
+  @ConfigDescription("Chance to refund lapis when enchanting, scaling with level.")
   protected static class Config extends AdaptationConfig {
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Base chance to refund lapis on an enchant.", impact = "Higher values refund lapis more often at every level.")
+    double refundChanceBase = 0.1;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Additional refund chance granted as the adaptation levels up.", impact = "Higher values make high levels refund lapis more often.")
+    double refundChanceFactor = 0.2;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Upper bound on the lapis refund chance.", impact = "Higher values allow the scaled chance to climb further.")
+    double maxRefundChance = 0.4;
+
     public Config() {
       baseCost = 5;
       costFactor = 0.9;

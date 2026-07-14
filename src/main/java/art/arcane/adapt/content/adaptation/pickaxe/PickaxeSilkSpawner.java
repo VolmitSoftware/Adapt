@@ -58,10 +58,13 @@ public class PickaxeSilkSpawner extends SimpleAdaptation<PickaxeSilkSpawner.Conf
     art.arcane.adapt.api.adaptation.Adaptation.BlockActionContext context = resolveBlockBreakContext(player, block.getLocation());
     if (!event.isDropItems() || block.getType() != Material.SPAWNER || context == null)
       return;
-    int level = context.level();
-    if (level == 1 && !player.getInventory().getItemInMainHand().getEnchantments().containsKey(Enchantment.SILK_TOUCH)) {
+    ItemStack tool = player.getInventory().getItemInMainHand();
+    if (!isPickaxe(tool)) {
       return;
-    } else if (level > 1 && !player.isSneaking()) {
+    }
+    int level = context.level();
+    boolean silkTouch = tool.getEnchantments().containsKey(Enchantment.SILK_TOUCH);
+    if (!silkTouch && (level <= 1 || !player.isSneaking())) {
       return;
     }
 

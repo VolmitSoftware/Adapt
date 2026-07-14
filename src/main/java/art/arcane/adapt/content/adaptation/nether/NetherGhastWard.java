@@ -83,7 +83,7 @@ public class NetherGhastWard extends SimpleAdaptation<NetherGhastWard.Config> {
         e.setDamage(Math.max(0, e.getDamage() * (1D - getGhastProjectileReduction(level))));
         int fireBefore = p.getFireTicks();
         p.setFireTicks(Math.min(p.getFireTicks(), getMaxFireTicks(level)));
-        xp(p, e.getDamage() * getConfig().xpPerMitigatedDamage);
+        xp(p, (before - e.getDamage()) * getConfig().xpPerMitigatedDamage);
         int reduced = (int) Math.round(before - e.getDamage());
         if (reduced > 0) {
           addStat(p, "nether.ghast-ward.damage-reduced", reduced);
@@ -105,7 +105,7 @@ public class NetherGhastWard extends SimpleAdaptation<NetherGhastWard.Config> {
       if (e.getDamager() instanceof AbstractArrow arrow && arrow.getShooter() instanceof WitherSkeleton) {
         double before = e.getDamage();
         e.setDamage(Math.max(0, e.getDamage() * (1D - getWitherSkeletonReduction(level))));
-        xp(p, e.getDamage() * getConfig().xpPerMitigatedDamage);
+        xp(p, (before - e.getDamage()) * getConfig().xpPerMitigatedDamage);
         int reduced = (int) Math.round(before - e.getDamage());
         if (reduced > 0) {
           addStat(p, "nether.ghast-ward.damage-reduced", reduced);
@@ -120,7 +120,13 @@ public class NetherGhastWard extends SimpleAdaptation<NetherGhastWard.Config> {
 
   @EventHandler(priority = EventPriority.HIGH)
   public void on(EntityDamageEvent e) {
-    if (e instanceof EntityDamageByEntityEvent || !(e.getEntity() instanceof Player p)) {
+    if (!(e.getEntity() instanceof Player p)) {
+      return;
+    }
+
+    if (e instanceof EntityDamageByEntityEvent byEntity
+        && byEntity.getDamager() instanceof Fireball fireball
+        && fireball.getShooter() instanceof Ghast) {
       return;
     }
 
@@ -135,7 +141,7 @@ public class NetherGhastWard extends SimpleAdaptation<NetherGhastWard.Config> {
 
       double before = e.getDamage();
       e.setDamage(Math.max(0, e.getDamage() * (1D - getExplosionReduction(getLevel(p)))));
-      xp(p, e.getDamage() * getConfig().xpPerMitigatedDamage);
+      xp(p, (before - e.getDamage()) * getConfig().xpPerMitigatedDamage);
       int reduced = (int) Math.round(before - e.getDamage());
       if (reduced > 0) {
         addStat(p, "nether.ghast-ward.damage-reduced", reduced);

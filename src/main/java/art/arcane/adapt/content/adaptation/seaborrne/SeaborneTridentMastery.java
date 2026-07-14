@@ -145,6 +145,13 @@ public class SeaborneTridentMastery extends SimpleAdaptation<SeaborneTridentMast
       return;
     }
 
+    if (stuck) {
+      Location freed = tridentLocation.clone()
+          .add(toPlayer.clone().normalize().multiply(0.4D))
+          .add(0D, 0.2D, 0D);
+      trident.teleport(freed);
+    }
+
     trident.setVelocity(toPlayer.normalize().multiply(getRecallSpeed(level)));
     if ((ticksLived & 3) == 0) {
       fx(tridentLocation, FxPriority.TRAIL)

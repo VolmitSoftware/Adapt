@@ -46,6 +46,9 @@ import org.bukkit.event.player.PlayerAnimationType;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.util.Vector;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SeaborneTidecaller extends SimpleAdaptation<SeaborneTidecaller.Config> {
   private final Cooldowns fizzleThrottle = cooldowns();
 
@@ -75,51 +78,33 @@ public class SeaborneTidecaller extends SimpleAdaptation<SeaborneTidecaller.Conf
   public void addStats(int level, Element v) {
     statLore(v, Form.f(getDashDistance(level), 1), 1);
     v.addLore(C.YELLOW + "* " + Form.duration(getCooldownTicks(level) * 50D, 1) + C.GRAY + " " + Localizer.dLocalize("seaborn.tidecaller.lore2"));
-    java.util.List<String> combos = getTriggerCombos();
+    String triggerLabel = Localizer.dLocalize("seaborn.tidecaller.lore_trigger_label");
+    List<String> combos = getTriggerCombos();
     if (combos.isEmpty()) {
-      v.addLore(C.AQUA + "* " + C.GRAY + "Trigger: " + C.WHITE + "none");
+      v.addLore(C.AQUA + "* " + C.GRAY + triggerLabel + ": " + C.WHITE + Localizer.dLocalize("seaborn.tidecaller.trigger_none"));
     } else {
       for (String combo : combos) {
-        v.addLore(C.AQUA + "* " + C.GRAY + "Trigger: " + C.WHITE + combo);
+        v.addLore(C.AQUA + "* " + C.GRAY + triggerLabel + ": " + C.WHITE + combo);
       }
     }
-    v.addLore(C.AQUA + "* " + C.GRAY + "Environment: " + C.WHITE + getEnvironmentSummary());
+    v.addLore(C.AQUA + "* " + C.GRAY + Localizer.dLocalize("seaborn.tidecaller.lore_environment_label") + ": " + C.WHITE + getEnvironmentSummary());
   }
 
-  @Override
-  public String getDescription() {
-    return "Surge forward with a water burst in valid environments. " + summarizeTriggerDescription();
-  }
-
-  private String summarizeTriggerDescription() {
-    java.util.List<String> combos = getTriggerCombos();
-    if (combos.isEmpty()) {
-      return "No active triggers are currently enabled.";
-    }
-
-    if (combos.size() == 1) {
-      return "Trigger: " + combos.get(0) + ".";
-    }
-
-    if (combos.size() == 2) {
-      return "Triggers: " + combos.get(0) + " or " + combos.get(1) + ".";
-    }
-
-    return "Triggers: " + combos.get(0) + ", " + combos.get(1) + ", +" + (combos.size() - 2) + " more.";
-  }
-
-  private java.util.List<String> getTriggerCombos() {
-    java.util.List<String> triggers = new java.util.ArrayList<>();
+  private List<String> getTriggerCombos() {
+    List<String> triggers = new ArrayList<>();
     String env = getEnvironmentSummary();
+    String none = Localizer.dLocalize("seaborn.tidecaller.env_none");
     if (getConfig().enableSneakTrigger) {
-      triggers.add("Sneak" + (env.equals("none") ? "" : " (" + env + ")"));
+      triggers.add(Localizer.dLocalize("seaborn.tidecaller.trigger_sneak") + (env.equals(none) ? "" : " (" + env + ")"));
     }
 
     if (getConfig().enableAttackTrigger) {
-      String combo = getConfig().attackTriggerRequiresSneak ? "Sneak + Attack" : "Attack";
+      String combo = getConfig().attackTriggerRequiresSneak
+          ? Localizer.dLocalize("seaborn.tidecaller.trigger_sneak_attack")
+          : Localizer.dLocalize("seaborn.tidecaller.trigger_attack");
       if (getConfig().attackTriggerWaterOnly) {
-        combo += " (water only)";
-      } else if (!env.equals("none")) {
+        combo += " (" + Localizer.dLocalize("seaborn.tidecaller.trigger_water_only") + ")";
+      } else if (!env.equals(none)) {
         combo += " (" + env + ")";
       }
       triggers.add(combo);
@@ -129,17 +114,17 @@ public class SeaborneTidecaller extends SimpleAdaptation<SeaborneTidecaller.Conf
   }
 
   private String getEnvironmentSummary() {
-    java.util.List<String> modes = new java.util.ArrayList<>();
+    List<String> modes = new ArrayList<>();
     if (getConfig().allowWaterTrigger) {
-      modes.add("water");
+      modes.add(Localizer.dLocalize("seaborn.tidecaller.env_water"));
     }
 
     if (getConfig().allowRainTrigger) {
-      modes.add("rain");
+      modes.add(Localizer.dLocalize("seaborn.tidecaller.env_rain"));
     }
 
     if (modes.isEmpty()) {
-      return "none";
+      return Localizer.dLocalize("seaborn.tidecaller.env_none");
     }
 
     return String.join("/", modes);

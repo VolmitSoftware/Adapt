@@ -39,13 +39,23 @@ import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.entity.AbstractSkeleton;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Giant;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Phantom;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.SkeletonHorse;
+import org.bukkit.entity.Spider;
+import org.bukkit.entity.Wither;
+import org.bukkit.entity.Zoglin;
+import org.bukkit.entity.Zombie;
+import org.bukkit.entity.ZombieHorse;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.Map;
@@ -105,24 +115,17 @@ public class SwordsPoisonedBlade extends SimpleAdaptation<SwordsPoisonedBlade.Co
       if (!canDamageTarget(p, victim)) return;
       cooldowns.mark(id);
       if (victim instanceof Player pvic) {
-        BleedEffect blood = new BleedEffect(Adapt.instance.adaptEffectManager);
-        blood.setEntity(pvic);
-        blood.material = Material.LARGE_FERN;
-        blood.height = -1;
-        blood.iterations = Math.toIntExact(2 * (3 + (getDurationOfEffect(getLevel(p)) / 1000)));
-        blood.period = 5;
-        blood.hurt = false;
-        blood.start();
+        startBleedVisual(new BleedEffect(Adapt.instance.adaptEffectManager), pvic, p);
         addPotionStacks(pvic, PotionEffectType.POISON, 2, 50 * getLevel(p), true);
+      } else if (victim instanceof LivingEntity living) {
+        if (isPoisonImmune(living)) {
+          startBleedVisual(new DamagingBleedEffect(Adapt.instance.adaptEffectManager, 1, living), living, p);
+        } else {
+          startBleedVisual(new BleedEffect(Adapt.instance.adaptEffectManager), living, p);
+          living.addPotionEffect(new PotionEffect(PotionEffectType.POISON, Math.max(1, 50 * getLevel(p)), 2));
+        }
       } else {
-        BleedEffect blood = victim instanceof LivingEntity l ? new DamagingBleedEffect(Adapt.instance.adaptEffectManager, 1, l) : new BleedEffect(Adapt.instance.adaptEffectManager);
-        blood.setEntity(victim);
-        blood.material = Material.LARGE_FERN;
-        blood.height = -1;
-        blood.iterations = Math.toIntExact(2 * (3 + (getDurationOfEffect(getLevel(p)) / 1000)));
-        blood.period = 5;
-        blood.hurt = false;
-        blood.start();
+        startBleedVisual(new BleedEffect(Adapt.instance.adaptEffectManager), victim, p);
       }
       long now = System.currentTimeMillis();
       pruneExpired(now);
@@ -150,6 +153,28 @@ public class SwordsPoisonedBlade extends SimpleAdaptation<SwordsPoisonedBlade.Co
         .particle(Particles.SMOKE, 6, 0, 0, 0, 0.05D, 0.01D)
         .dustBurst(VENOM, 6, 0.35D, 1.0F)
         .sound(Sound.ENTITY_SPIDER_DEATH, 0.5F, 1.4F);
+  }
+
+  private void startBleedVisual(BleedEffect blood, Entity victim, Player source) {
+    blood.setEntity(victim);
+    blood.material = Material.LARGE_FERN;
+    blood.height = -1;
+    blood.iterations = Math.toIntExact(2 * (3 + (getDurationOfEffect(getLevel(source)) / 1000)));
+    blood.period = 5;
+    blood.hurt = false;
+    blood.start();
+  }
+
+  private boolean isPoisonImmune(LivingEntity living) {
+    return living instanceof Zombie
+        || living instanceof AbstractSkeleton
+        || living instanceof SkeletonHorse
+        || living instanceof ZombieHorse
+        || living instanceof Phantom
+        || living instanceof Wither
+        || living instanceof Zoglin
+        || living instanceof Giant
+        || living instanceof Spider;
   }
 
   private void pruneExpired(long now) {

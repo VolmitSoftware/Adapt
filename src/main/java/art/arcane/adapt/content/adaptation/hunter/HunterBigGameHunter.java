@@ -124,7 +124,7 @@ public class HunterBigGameHunter extends SimpleAdaptation<HunterBigGameHunter.Co
         .sound(Sound.ENTITY_PLAYER_ATTACK_STRONG, 0.5F, 0.7F);
   }
 
-  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
   public void on(EntityDeathEvent e) {
     Player killer = e.getEntity().getKiller();
     if (killer == null || !isBigGame(e.getEntity().getType()) || !hasActiveAdaptation(killer) || !canDamageTarget(killer, e.getEntity())) {

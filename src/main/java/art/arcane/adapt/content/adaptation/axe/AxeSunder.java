@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.axe;
 
+import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -34,6 +35,7 @@ import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
+import art.arcane.volmlib.util.scheduling.FoliaScheduler;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -132,7 +134,17 @@ public class AxeSunder extends SimpleAdaptation<AxeSunder.Config> {
 
     SunderState tracked = state;
     long capturedGeneration = generation;
-    J.runEntity(target, () -> expireOwned(target, targetId, tracked, capturedGeneration), getConfig().durationTicks);
+    boolean scheduled = FoliaScheduler.runEntity(
+        Adapt.instance,
+        target,
+        () -> expireOwned(target, targetId, tracked, capturedGeneration),
+        getConfig().durationTicks,
+        () -> targets.remove(targetId, tracked)
+    );
+    if (!scheduled) {
+      expireOwned(target, targetId, tracked, capturedGeneration);
+      return;
+    }
 
     fx(target.getLocation().add(0D, target.getHeight() * 0.6D, 0D), FxPriority.COMBAT)
         .dustRing(SUNDER_ORANGE, 0.7D, 10, 1.0F)

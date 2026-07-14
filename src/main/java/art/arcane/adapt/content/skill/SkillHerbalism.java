@@ -279,7 +279,7 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
         return;
       int nl = newData.getLevel();
       if (nl > ol || (ol > 0 && nl == 0)) {
-        xp(p, e.getClickedBlock().getLocation().clone().add(0.5, 0.5, 0.5), getConfig().composterBaseXP + (nl * getConfig().composterLevelXPMultiplier) + (nl == 0 ? getConfig().composterNonZeroLevelBonus : 5));
+        xp(p, e.getClickedBlock().getLocation().clone().add(0.5, 0.5, 0.5), getConfig().composterBaseXP + (nl * getConfig().composterLevelXPMultiplier) + (nl == 0 ? getConfig().composterEmptyBonus : getConfig().composterNonZeroLevelBonus));
         addStat(p, "harvest.composted", 1);
       }
     });
@@ -311,6 +311,8 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
     public double composterLevelXPMultiplier = 1.25;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Composter Non Zero Level Bonus for the Herbalism skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     public double composterNonZeroLevelBonus = 25;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Bonus XP when a composter empties after collection.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    public double composterEmptyBonus = 5;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Challenge Eat100Reward for the Herbalism skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     public double challengeEat100Reward = 1250;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Challenge Eat1k Reward for the Herbalism skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

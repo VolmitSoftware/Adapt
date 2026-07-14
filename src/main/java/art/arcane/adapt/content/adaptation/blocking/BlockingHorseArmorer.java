@@ -119,7 +119,7 @@ public class BlockingHorseArmorer extends SimpleAdaptation<BlockingHorseArmorer.
   @ConfigDescription("Craft Horse Armor by surrounding a saddle with material.")
   protected static class Config extends AdaptationConfig {
     public Config() {
-      enabled = false;
+      enabled = true;
       permanent = true;
       baseCost = 5;
       costFactor = 0;

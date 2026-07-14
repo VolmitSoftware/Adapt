@@ -100,6 +100,10 @@ public class EnchantingCurseCleansing extends SimpleAdaptation<EnchantingCurseCl
       return;
     }
 
+    if (!p.isSneaking()) {
+      return;
+    }
+
     Inventory top = e.getView().getTopInventory();
     ItemStack result = e.getCurrentItem();
     ItemStack slotA = top.getItem(0);
@@ -237,7 +241,7 @@ public class EnchantingCurseCleansing extends SimpleAdaptation<EnchantingCurseCl
   }
 
 
-  @ConfigDescription("Grindstone can strip Curse of Binding and Vanishing for a steep XP level cost.")
+  @ConfigDescription("While sneaking, clicking a grindstone result strips Curse of Binding and Vanishing for a steep XP level cost.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Cost Base for the Enchanting Curse Cleansing adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpCostBase = 10;

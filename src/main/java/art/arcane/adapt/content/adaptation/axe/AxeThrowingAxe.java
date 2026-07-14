@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.axe;
 
+import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -32,6 +33,7 @@ import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
+import art.arcane.volmlib.util.scheduling.FoliaScheduler;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -170,9 +172,38 @@ public class AxeThrowingAxe extends SimpleAdaptation<AxeThrowingAxe.Config> {
         })
         .start();
 
-    boolean scheduled = J.runEntity(ball, () -> resolveThrow(ballId, ball, null), getConfig().maxFlightTicks);
+    boolean scheduled = FoliaScheduler.runEntity(
+        Adapt.instance,
+        ball,
+        () -> resolveThrow(ballId, ball, null),
+        getConfig().maxFlightTicks,
+        () -> retireThrow(ballId, ball)
+    );
     if (!scheduled) {
       resolveThrow(ballId, ball, null);
+    }
+  }
+
+  private void retireThrow(UUID ballId, Snowball ball) {
+    ThrownAxe thrown = inFlight.remove(ballId);
+    if (thrown == null || thrown.broken()) {
+      return;
+    }
+
+    Player owner = Bukkit.getPlayer(thrown.ownerId());
+    if (owner != null && owner.isOnline()) {
+      J.runEntity(owner, () -> returnAxe(owner, thrown.axe()));
+      return;
+    }
+
+    dropAxe(lastKnownLocation(ball), thrown.axe());
+  }
+
+  private Location lastKnownLocation(Snowball ball) {
+    try {
+      return ball.getLocation();
+    } catch (Throwable ignored) {
+      return null;
     }
   }
 

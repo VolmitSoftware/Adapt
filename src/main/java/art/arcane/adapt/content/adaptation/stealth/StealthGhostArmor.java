@@ -162,13 +162,13 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
 
     ArmorSession session = sessions.computeIfAbsent(p.getUniqueId(), key -> new ArmorSession(p));
     startScheduledRefresh(session, 1);
-    int damageXP = (int) Math.min(10, 2.5 * e.getDamage());
-    xp(p, damageXP);
-    addStat(p, "stealth.ghost-armor.armor-consumed", 1);
     double stored = session.armorAmount;
     if (stored > 0.1D) {
       session.armorAmount = 0.0D;
       session.charged = false;
+      int damageXP = (int) Math.min(10, 2.5 * e.getDamage());
+      xp(p, damageXP);
+      addStat(p, "stealth.ghost-armor.armor-consumed", 1);
       double radius = Math.min(1.6D, 0.8D + (stored * 0.05D));
       fx(p.getLocation().add(0, 1.0D, 0), FxPriority.COMBAT)
           .ring(Particle.CRIT, radius, 12, 0)

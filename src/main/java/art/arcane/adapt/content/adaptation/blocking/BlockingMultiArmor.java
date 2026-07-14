@@ -191,16 +191,18 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
 
   @EventHandler(priority = EventPriority.HIGHEST)
   public void on(InventoryClickEvent e) {
-    Player player = (Player) e.getWhoClicked();
+    if (!(e.getWhoClicked() instanceof Player player)) {
+      return;
+    }
     int level = getActiveLevel(player);
     if (level <= 0) {
       return;
     }
     if (e.getClickedInventory() != null
-        && e.getClick().equals(ClickType.SHIFT_LEFT)
+        && e.getClick().equals(ClickType.LEFT)
         && e.getClickedInventory().getItem(e.getSlot()) != null
-        && e.getAction().equals(InventoryAction.MOVE_TO_OTHER_INVENTORY)) {
-      ItemStack cursor = e.getWhoClicked().getItemOnCursor().clone();
+        && e.getAction().equals(InventoryAction.SWAP_WITH_CURSOR)) {
+      ItemStack cursor = player.getItemOnCursor().clone();
       ItemStack clicked = e.getClickedInventory().getItem(e.getSlot()).clone();
 
       if (cursor.getType().equals(Material.ELYTRA) || clicked.getType().equals(Material.ELYTRA)) { // One must be an ELYTRA
@@ -219,7 +221,7 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
 
           if (!cursor.getType().isAir() && !clicked.getType().isAir() && multiarmor.supportsItem(cursor) && multiarmor.supportsItem(clicked)) {
             e.setCancelled(true);
-            e.getWhoClicked().setItemOnCursor(new ItemStack(Material.AIR));
+            player.setItemOnCursor(new ItemStack(Material.AIR));
             e.getClickedInventory().setItem(e.getSlot(), multiarmor.build(cursor, clicked));
             fx(player, FxPriority.TRANSITION)
                 .burst(Particles.END_ROD, 8, 0.4D)

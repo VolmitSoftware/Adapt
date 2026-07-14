@@ -214,14 +214,13 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
     }
 
     ThreadLocalRandom random = ThreadLocalRandom.current();
-    double angle = Math.toRadians(random.nextDouble(360D));
-    Vector direction = new Vector(Math.sin(angle), 0D, Math.cos(angle));
     Location center = p.getLocation();
     GrowthPulse pulse = new GrowthPulse(p, sampleCount);
     for (int i = 0; i < sampleCount; i++) {
-      Vector offset = direction.clone();
+      double angle = Math.toRadians(random.nextDouble(360D));
+      Vector offset = new Vector(Math.sin(angle), 0D, Math.cos(angle));
       offset.setY(random.nextInt(-1, 2));
-      offset.multiply(random.nextDouble(radius));
+      offset.multiply(radius <= 0D ? 0D : random.nextDouble(radius));
       Location target = center.clone().add(offset);
       GrowthSample sample = new GrowthSample(target, strength, foodCost, getConfig().surfaceOnly, pulse);
       if (!offerLocationSample(sample)) {
@@ -405,7 +404,7 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
   }
 
   static int sampleCountForRadius(double radius) {
-    double limit = Math.min(Math.min(Math.max(0D, radius * radius), 256D), 3D);
+    double limit = Math.max(3D, Math.min(Math.max(0D, radius * radius), 256D));
     return (int) Math.ceil(limit);
   }
 

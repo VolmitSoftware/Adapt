@@ -28,7 +28,6 @@ import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -39,7 +38,6 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 
@@ -89,6 +87,19 @@ public class CraftingStations extends SimpleAdaptation<CraftingStations.Config> 
     }
 
     ItemStack hand = p.getInventory().getItemInMainHand();
+    InventoryType station = switch (hand.getType()) {
+      case CRAFTING_TABLE -> InventoryType.WORKBENCH;
+      case GRINDSTONE -> InventoryType.GRINDSTONE;
+      case ANVIL -> InventoryType.ANVIL;
+      case STONECUTTER -> InventoryType.STONECUTTER;
+      case CARTOGRAPHY_TABLE -> InventoryType.CARTOGRAPHY;
+      case LOOM -> InventoryType.LOOM;
+      default -> null;
+    };
+
+    if (station == null) {
+      return;
+    }
 
     if (p.hasCooldown(hand.getType())) {
       e.setCancelled(true);
@@ -101,20 +112,6 @@ public class CraftingStations extends SimpleAdaptation<CraftingStations.Config> 
 
     Action action = e.getAction();
     if (action != Action.RIGHT_CLICK_AIR && action != Action.LEFT_CLICK_AIR && action != Action.LEFT_CLICK_BLOCK) {
-      return;
-    }
-
-    InventoryType station = switch (hand.getType()) {
-      case CRAFTING_TABLE -> InventoryType.WORKBENCH;
-      case GRINDSTONE -> InventoryType.GRINDSTONE;
-      case ANVIL -> InventoryType.ANVIL;
-      case STONECUTTER -> InventoryType.STONECUTTER;
-      case CARTOGRAPHY_TABLE -> InventoryType.CARTOGRAPHY;
-      case LOOM -> InventoryType.LOOM;
-      default -> null;
-    };
-
-    if (station == null) {
       return;
     }
 
@@ -133,11 +130,15 @@ public class CraftingStations extends SimpleAdaptation<CraftingStations.Config> 
 
     p.setCooldown(hand.getType(), getConfig().cooldown);
     materializeStation(handTip);
-    if (station == InventoryType.WORKBENCH) {
-      p.openWorkbench(null, true);
-    } else {
-      Inventory inv = Bukkit.createInventory(p, station);
-      p.openInventory(inv);
+    switch (station) {
+      case WORKBENCH -> p.openWorkbench(null, true);
+      case GRINDSTONE -> p.openGrindstone(null, true);
+      case ANVIL -> p.openAnvil(null, true);
+      case STONECUTTER -> p.openStonecutter(null, true);
+      case CARTOGRAPHY -> p.openCartographyTable(null, true);
+      case LOOM -> p.openLoom(null, true);
+      default -> {
+      }
     }
     addStat(p, "crafting.stations.portable-opens", 1);
   }

@@ -162,7 +162,7 @@ public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config
         continue;
       }
 
-      int level = getLevel(adaptPlayer);
+      int level = getActiveLevel(owner);
       if (level > 0) {
         refreshed.put(owner.getUniqueId(), new OwnerState(adaptPlayer, level));
       }
@@ -191,7 +191,7 @@ public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config
           return;
         }
 
-        int level = getLevel(adaptPlayer);
+        int level = getActiveLevel(owner);
         if (level > 0) {
           ownerStates.put(ownerId, new OwnerState(adaptPlayer, level));
         } else {

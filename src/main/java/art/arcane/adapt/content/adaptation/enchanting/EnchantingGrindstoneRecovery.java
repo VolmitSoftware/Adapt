@@ -36,6 +36,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
@@ -82,6 +83,10 @@ public class EnchantingGrindstoneRecovery extends SimpleAdaptation<EnchantingGri
     }
 
     if (e.getRawSlot() != 2 || e.getView().getTopInventory().getType() != InventoryType.GRINDSTONE) {
+      return;
+    }
+
+    if (!isItem(e.getCurrentItem()) || e.getAction() == InventoryAction.NOTHING) {
       return;
     }
 

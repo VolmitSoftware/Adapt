@@ -39,8 +39,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockDropItemEvent;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
+import java.util.Map;
 
 public class AxeDropToInventory extends SimpleAdaptation<AxeDropToInventory.Config> {
   public AxeDropToInventory() {
@@ -75,13 +77,21 @@ public class AxeDropToInventory extends SimpleAdaptation<AxeDropToInventory.Conf
       return;
     }
 
+    ItemStack broken = new ItemStack(e.getBlockState().getType());
+    if (!isLog(broken) && !isLeaves(broken)) {
+      return;
+    }
+
     List<Item> items = new KList<>(e.getItems());
     e.getItems().clear();
     int caught = 0;
     boolean overflow = false;
     for (Item i : items) {
-      if (!p.getInventory().addItem(i.getItemStack()).isEmpty()) {
-        p.getWorld().dropItem(p.getLocation(), i.getItemStack());
+      Map<Integer, ItemStack> leftover = p.getInventory().addItem(i.getItemStack());
+      if (!leftover.isEmpty()) {
+        for (ItemStack rest : leftover.values()) {
+          p.getWorld().dropItem(p.getLocation(), rest);
+        }
         overflow = true;
       }
       caught++;

@@ -354,6 +354,8 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
 
     if (chain.activated().compareAndSet(false, true)) {
       cooldowns.mark(chain.ownerId());
+    }
+    if (killed) {
       addStat(owner, "tragoul.lance.lance-kills", 1);
     }
     addStat(owner, "tragoul.lance.lances-spawned", 1);

@@ -100,12 +100,20 @@ public class RiftStep extends SimpleAdaptation<RiftStep.Config> {
       return;
     }
 
+    int xpCost = getXpCost(level);
+    if (p.getTotalExperience() < xpCost) {
+      fx(p.getEyeLocation(), FxPriority.TRANSITION)
+          .burst(Particles.SMOKE, 4, 0.2)
+          .sound(Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, 0.6f, 0.6f);
+      return;
+    }
+
     if (!consumePlainPearl(p)) {
       return;
     }
 
     e.setCancelled(true);
-    p.giveExp(-getXpCost(level));
+    p.giveExp(-xpCost);
     Location origin = p.getLocation().clone();
     destination.setYaw(origin.getYaw());
     destination.setPitch(origin.getPitch());

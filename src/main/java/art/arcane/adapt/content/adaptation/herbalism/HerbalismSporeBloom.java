@@ -277,10 +277,10 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
   private Block resolveTopSurfaceSoil(Block sample) {
     int x = sample.getX();
     int z = sample.getZ();
-    int highestY = sample.getWorld().getHighestBlockYAt(x, z);
-    int minY = sample.getWorld().getMinHeight();
+    int startY = Math.min(sample.getWorld().getMaxHeight() - 1, sample.getY() + 4);
+    int minY = Math.max(sample.getWorld().getMinHeight(), sample.getY() - 8);
 
-    for (int y = highestY; y >= minY; y--) {
+    for (int y = startY; y >= minY; y--) {
       Block block = sample.getWorld().getBlockAt(x, y, z);
       if (!isConvertibleSoil(block.getType())) {
         continue;
@@ -454,11 +454,6 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
         || flower == Material.SPORE_BLOSSOM;
   }
 
-  private boolean isWoodLike(Material type) {
-    String n = type.name();
-    return n.endsWith("_LOG") || n.endsWith("_WOOD") || n.endsWith("_STEM") || n.endsWith("_HYPHAE") || n.endsWith("_PLANKS");
-  }
-
   private boolean isReplaceablePlant(Material type) {
     if (type == Material.RED_MUSHROOM || type == Material.BROWN_MUSHROOM || type == Material.CRIMSON_FUNGUS || type == Material.WARPED_FUNGUS) {
       return true;
@@ -525,14 +520,8 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
 
   @ConfigDescription("Sneak-right-click mycelium with mushrooms to spread an outward spore-web that mutates nearby growth.")
   protected static class Config extends AdaptationConfig {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Convert Wood To Hyphae for the Herbalism Spore Bloom adaptation.", impact = "True enables this behavior and false disables it.")
-    boolean convertWoodToHyphae = true;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Allows flowers hit by the bloom to be replaced with mushrooms.", impact = "Disable this to keep flowers untouched while still converting soil into mushroom blocks.")
     boolean swapFlowersToMushrooms = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Branch Chance for the Herbalism Spore Bloom adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double branchChance = 0.22;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Mushroom Choices for the Herbalism Spore Bloom adaptation.", impact = "Changing this alters the identifier or text used by the feature.")
-    String[] mushroomChoices = {"RED_MUSHROOM", "BROWN_MUSHROOM", "CRIMSON_FUNGUS", "WARPED_FUNGUS"};
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Bloom Attempts Base for the Herbalism Spore Bloom adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double bloomAttemptsBase = 26;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Bloom Attempts Factor for the Herbalism Spore Bloom adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

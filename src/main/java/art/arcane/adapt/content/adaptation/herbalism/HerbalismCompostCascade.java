@@ -130,8 +130,7 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
     CompostState state = new CompostState(oldLevel);
 
     processDroppedItems(p, world, center, radius, state, maxItems, fillChance);
-    processMatureCrops(p, world, center, radius, state, maxItems, fillChance);
-    processLeafBlocks(p, world, center, radius, level, state, maxItems, fillChance);
+    processCropAndLeafBlocks(p, world, center, radius, level, state, maxItems, fillChance);
     processInventoryItems(p, state, maxItems, fillChance);
 
     if (state.consumed <= 0) {
@@ -206,57 +205,7 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
     }
   }
 
-  private void processMatureCrops(Player p, World world, Location center, double radius, CompostState state, int maxItems, double fillChance) {
-    if (isComposterDone(state, maxItems)) {
-      return;
-    }
-
-    int r = Math.max(1, (int) Math.ceil(radius));
-    double rs = radius * radius;
-    for (int x = -r; x <= r; x++) {
-      for (int y = -r; y <= r; y++) {
-        for (int z = -r; z <= r; z++) {
-          if (isComposterDone(state, maxItems)) {
-            return;
-          }
-
-          if ((x * x) + (y * y) + (z * z) > rs) {
-            continue;
-          }
-
-          Block b = world.getBlockAt(center.getBlockX() + x, center.getBlockY() + y, center.getBlockZ() + z);
-          if (!isMatureCrop(b)) {
-            continue;
-          }
-
-          if (!canBlockBreak(p, b.getLocation()) || !canBlockPlace(p, b.getLocation())) {
-            continue;
-          }
-
-          ItemStack[] drops = b.getDrops().toArray(ItemStack[]::new);
-          if (!replantCrop(b)) {
-            continue;
-          }
-
-          for (ItemStack drop : drops) {
-            if (!isItem(drop)) {
-              continue;
-            }
-
-            if (isCompostable(drop.getType()) && !isComposterDone(state, maxItems)) {
-              compostStack(drop, state, maxItems, fillChance);
-            }
-
-            if (drop.getAmount() > 0) {
-              world.dropItemNaturally(b.getLocation().add(0.5, 0.5, 0.5), drop);
-            }
-          }
-        }
-      }
-    }
-  }
-
-  private void processLeafBlocks(Player p, World world, Location center, double radius, int level, CompostState state, int maxItems, double fillChance) {
+  private void processCropAndLeafBlocks(Player p, World world, Location center, double radius, int level, CompostState state, int maxItems, double fillChance) {
     if (isComposterDone(state, maxItems)) {
       return;
     }
@@ -264,6 +213,7 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
     int r = Math.max(1, (int) Math.ceil(radius));
     double rs = radius * radius;
     int bursts = getLeafCompostBursts(level);
+    double leafFillChance = getLeafFillChance(level, fillChance);
     int puffs = 0;
     for (int x = -r; x <= r; x++) {
       for (int y = -r; y <= r; y++) {
@@ -277,19 +227,44 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
           }
 
           Block b = world.getBlockAt(center.getBlockX() + x, center.getBlockY() + y, center.getBlockZ() + z);
-          if (!isLeafBlock(b.getType()) || !canBlockBreak(p, b.getLocation())) {
-            continue;
-          }
+          if (isMatureCrop(b)) {
+            if (!canBlockBreak(p, b.getLocation()) || !canBlockPlace(p, b.getLocation())) {
+              continue;
+            }
 
-          b.setType(Material.AIR, false);
-          ItemStack leafMass = new ItemStack(Material.OAK_LEAVES, bursts);
-          compostStack(leafMass, state, maxItems, getLeafFillChance(level, fillChance));
+            ItemStack[] drops = b.getDrops().toArray(ItemStack[]::new);
+            if (!replantCrop(b)) {
+              continue;
+            }
 
-          if (puffs < 8) {
-            fx(b.getLocation().add(0.5, 0.5, 0.5), FxPriority.AMBIENT)
-                .particle(Particle.SPORE_BLOSSOM_AIR, 2, 0, 0.1D, 0, 0.15D, 0.01D)
-                .particle(Particle.COMPOSTER, 1, 0, 0.1D, 0, 0.1D, 0.01D);
-            puffs++;
+            for (ItemStack drop : drops) {
+              if (!isItem(drop)) {
+                continue;
+              }
+
+              if (isCompostable(drop.getType()) && !isComposterDone(state, maxItems)) {
+                compostStack(drop, state, maxItems, fillChance);
+              }
+
+              if (drop.getAmount() > 0) {
+                world.dropItemNaturally(b.getLocation().add(0.5, 0.5, 0.5), drop);
+              }
+            }
+          } else if (isLeafBlock(b.getType())) {
+            if (!canBlockBreak(p, b.getLocation())) {
+              continue;
+            }
+
+            b.setType(Material.AIR, false);
+            ItemStack leafMass = new ItemStack(Material.OAK_LEAVES, bursts);
+            compostStack(leafMass, state, maxItems, leafFillChance);
+
+            if (puffs < 8) {
+              fx(b.getLocation().add(0.5, 0.5, 0.5), FxPriority.AMBIENT)
+                  .particle(Particle.SPORE_BLOSSOM_AIR, 2, 0, 0.1D, 0, 0.15D, 0.01D)
+                  .particle(Particle.COMPOSTER, 1, 0, 0.1D, 0, 0.1D, 0.01D);
+              puffs++;
+            }
           }
         }
       }

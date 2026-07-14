@@ -214,24 +214,32 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
   public void on(PotionSplashEvent e) {
     if (e.getPotion().getShooter() instanceof Player p) {
       shouldReturnForPlayer(p, e, () -> {
+        if (!(e.getPotion().getItem().getItemMeta() instanceof PotionMeta potionMeta)) {
+          return;
+        }
+        if (isBasePotionExcluded(potionMeta.getBasePotionType()) && !potionMeta.hasCustomEffects()) {
+          return;
+        }
         AdaptPlayer a = getPlayer(p);
         addStat(p, "brewing.splashes", 1);
         addStat(p, "brewing.splash.hits", e.getAffectedEntities().size());
         double effectPower = sumPotionEffects(e.getPotion().getEffects());
-        xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().splashXP + (getConfig().splashMultiplier * effectPower));
-        Color tint = e.getPotion().getItem().getItemMeta() instanceof PotionMeta pm && pm.hasColor() ? pm.getColor() : null;
-        Location loc = e.getEntity().getLocation();
-        timeline(loc)
-            .duration(4)
-            .priority(FxPriority.TRANSITION)
-            .cullRadius(24.0D)
-            .frame((f, tick, progress) -> {
-              f.dustRing(tint, 0.2D + (2.0D * progress), 16, 1.1F);
-              if (tick == 0) {
-                f.sound(Sound.BLOCK_GLASS_BREAK, 0.4F, 1.5F);
-              }
-            })
-            .start();
+        handleCooldown(p, () -> {
+          xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().splashXP + (getConfig().splashMultiplier * effectPower));
+          Color tint = potionMeta.hasColor() ? potionMeta.getColor() : null;
+          Location loc = e.getEntity().getLocation();
+          timeline(loc)
+              .duration(4)
+              .priority(FxPriority.TRANSITION)
+              .cullRadius(24.0D)
+              .frame((f, tick, progress) -> {
+                f.dustRing(tint, 0.2D + (2.0D * progress), 16, 1.1F);
+                if (tick == 0) {
+                  f.sound(Sound.BLOCK_GLASS_BREAK, 0.4F, 1.5F);
+                }
+              })
+              .start();
+        });
       });
     }
   }

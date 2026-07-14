@@ -39,7 +39,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
@@ -121,8 +120,13 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
     if (action == Action.LEFT_CLICK_BLOCK || action == Action.LEFT_CLICK_AIR) {
       if (p.isSneaking()) {
         e.setCancelled(true);
-        Adapt.verbose("Linking eye");
-        linkEye(p, location);
+        if (action == Action.LEFT_CLICK_AIR && isBound(hand)) {
+          Adapt.verbose("Unlinking eye");
+          unlinkEye(p);
+        } else {
+          Adapt.verbose("Linking eye");
+          linkEye(p, location);
+        }
       } else if (getConfig().requireCraftedEye) {
         e.setCancelled(true);
       }
@@ -151,27 +155,6 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
   }
 
 
-  private void handleEyeOfEnderInteraction(PlayerInteractEvent event, Player player, Block block) {
-    boolean sneaking = player.isSneaking();
-    ItemStack mainHand = player.getInventory().getItemInMainHand();
-    Location location = block == null ? player.getLocation() : block.getLocation();
-
-    Action action = event.getAction();
-    if (action == Action.LEFT_CLICK_BLOCK || action == Action.LEFT_CLICK_AIR) {
-      if (sneaking) {
-        if (isBound(mainHand)) {
-          unlinkEye(player);
-        } else {
-          linkEye(player, location);
-        }
-      }
-    } else if (action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK) {
-      if (isBound(mainHand)) {
-        openEye(player);
-      }
-    }
-  }
-
   private boolean isBound(ItemStack stack) {
     return stack.getType().equals(Material.ENDER_EYE) && BoundEyeOfEnder.getLocation(stack) != null;
   }
@@ -179,8 +162,13 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
   private void unlinkEye(Player p) {
     ItemStack hand = p.getInventory().getItemInMainHand();
     decrementItemstack(hand, p);
-    ItemStack eye = new ItemStack(Material.ENDER_EYE);
+    ItemStack eye = getConfig().requireCraftedEye
+        ? BoundEyeOfEnder.io.withData(new BoundEyeOfEnder.Data(null))
+        : new ItemStack(Material.ENDER_EYE);
     p.getInventory().addItem(eye).values().forEach(i -> p.getWorld().dropItemNaturally(p.getLocation(), i));
+    fx(p.getEyeLocation(), FxPriority.TRANSITION)
+        .burst(Particles.SMOKE, 4, 0.2)
+        .chord(Sound.ENTITY_ENDER_EYE_DEATH, 0.5f, 1.4f, Sound.BLOCK_BEACON_DEACTIVATE, 0.4f, 1.2f);
   }
 
   private void linkEye(Player p, Location location) {
@@ -212,27 +200,21 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
   private void openEye(Player p) {
     Adapt.verbose("Using eye");
     Location l = BoundEyeOfEnder.getLocation(p.getInventory().getItemInMainHand());
-    ItemStack hand = p.getInventory().getItemInMainHand();
 
-    if (getConfig().consumeOnUse) {
-      xp(p, 75);
-      decrementItemstack(hand, p);
-    } else {
-      if (p.getCooldown(Material.ENDER_EYE) > 0) {
-        timeline(p)
-            .duration(3)
-            .priority(FxPriority.TRANSITION)
-            .frame((fx, tick, progress) -> {
-              if (tick == 0) {
-                fx.burst(Particles.SMOKE, 3, 0.2).sound(Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, 0.6f, 0.8f);
-              }
-              if (tick == 2) {
-                fx.sound(Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, 0.5f, 0.5f);
-              }
-            })
-            .start();
-        return;
-      }
+    if (!getConfig().consumeOnUse && p.getCooldown(Material.ENDER_EYE) > 0) {
+      timeline(p)
+          .duration(3)
+          .priority(FxPriority.TRANSITION)
+          .frame((fx, tick, progress) -> {
+            if (tick == 0) {
+              fx.burst(Particles.SMOKE, 3, 0.2).sound(Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, 0.6f, 0.8f);
+            }
+            if (tick == 2) {
+              fx.sound(Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, 0.5f, 0.5f);
+            }
+          })
+          .start();
+      return;
     }
     p.setCooldown(Material.ENDER_EYE, 150);
 
@@ -260,6 +242,10 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
         .start();
 
     J.runEntity(p, () -> {
+      if (!p.isOnline()) {
+        return;
+      }
+
       Location from = p.getLocation().clone();
       AdaptAdaptationTeleportEvent event = new AdaptAdaptationTeleportEvent(!Bukkit.isPrimaryThread(), getPlayer(p), this, from, l);
       Bukkit.getPluginManager().callEvent(event);
@@ -267,9 +253,23 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
         return;
       }
 
+      if (getConfig().consumeOnUse) {
+        ItemStack current = p.getInventory().getItemInMainHand();
+        if (!isBound(current) || !isSameBlock(BoundEyeOfEnder.getLocation(current), l)) {
+          fx(p.getEyeLocation(), FxPriority.TRANSITION)
+              .burst(Particles.SMOKE, 3, 0.2)
+              .sound(Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, 0.6f, 0.8f);
+          return;
+        }
+        xp(p, 75);
+        decrementItemstack(current, p);
+      }
+
       addStat(p, "rift.teleports", 1);
       addStat(p, "rift.gate.teleports", 1);
-      addStat(p, "rift.gate.total-distance", (int) from.distance(l));
+      if (from.getWorld() != null && from.getWorld().equals(l.getWorld())) {
+        addStat(p, "rift.gate.total-distance", (int) from.distance(l));
+      }
       fx(from, FxPriority.TRANSITION)
           .particle(Particle.REVERSE_PORTAL, 16, 0, 1.0, 0, 0.25, 0.05)
           .sound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.7f, 0.8f);
@@ -285,6 +285,16 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
           })
           .start();
     }, 85);
+  }
+
+  private boolean isSameBlock(Location a, Location b) {
+    return a != null
+        && b != null
+        && a.getWorld() != null
+        && a.getWorld().equals(b.getWorld())
+        && a.getBlockX() == b.getBlockX()
+        && a.getBlockY() == b.getBlockY()
+        && a.getBlockZ() == b.getBlockZ();
   }
 
 

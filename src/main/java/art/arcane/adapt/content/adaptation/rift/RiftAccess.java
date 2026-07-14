@@ -34,6 +34,7 @@ import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
+import art.arcane.volmlib.util.scheduling.FoliaScheduler;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -393,6 +394,12 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
       if (player.isOnline()) {
         showOpenFailure(player);
       }
+      return;
+    }
+
+    if (J.isFoliaThreading() && !FoliaScheduler.isOwnedByCurrentRegion(target)) {
+      cancelSession(session);
+      showOpenFailure(player);
       return;
     }
 

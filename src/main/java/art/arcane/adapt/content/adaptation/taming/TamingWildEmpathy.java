@@ -31,6 +31,7 @@ import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -46,6 +47,7 @@ import org.bukkit.entity.Tameable;
 import org.bukkit.entity.Wolf;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.entity.EntityTameEvent;
 import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.inventory.EquipmentSlot;
@@ -164,6 +166,12 @@ public class TamingWildEmpathy extends SimpleAdaptation<TamingWildEmpathy.Config
 
   private void forceTame(Player p, UUID ownerId, Tameable target, Material food) {
     if (!target.isValid() || target.isDead() || target.isTamed()) {
+      return;
+    }
+
+    EntityTameEvent tameEvent = new EntityTameEvent(target, p);
+    Bukkit.getPluginManager().callEvent(tameEvent);
+    if (tameEvent.isCancelled()) {
       return;
     }
 

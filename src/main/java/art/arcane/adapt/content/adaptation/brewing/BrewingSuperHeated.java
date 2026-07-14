@@ -105,7 +105,7 @@ public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Conf
   public void on(BrewEvent e) {
     if (activeStands.containsKey(e.getBlock())) {
       BrewingStandOwner owner = WorldData.of(e.getBlock().getWorld()).get(e.getBlock(), BrewingStandOwner.class);
-      if (owner != null) {
+      if (owner != null && getServer().getOnlineAdaptationLevel(owner.getOwner(), getSkill().getName(), getName()) > 0) {
         getServer().addStat(owner.getOwner(), "brewing.super-heated.brews-accelerated", 1);
         Location loc = e.getBlock().getLocation().add(0.5D, 0.6D, 0.5D);
         fx(loc, FxPriority.TRANSITION)
@@ -126,7 +126,11 @@ public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Conf
       return;
     }
     if (e.getView().getTopInventory().getType().equals(InventoryType.BREWING)) {
-      activeStands.put(e.getView().getTopInventory().getLocation().getBlock(), MAX_CHECKS_BEFORE_REMOVE);
+      Location standLocation = e.getView().getTopInventory().getLocation();
+      if (standLocation == null) {
+        return;
+      }
+      activeStands.put(standLocation.getBlock(), MAX_CHECKS_BEFORE_REMOVE);
     }
   }
 
@@ -185,6 +189,15 @@ public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Conf
     updateHeat(brewingStand, getLevelPercent(level));
   }
 
+  static int computeWarpTicks(long intervalMillis, double fireBoost, double lavaBoost, double fireSources, double lavaSources) {
+    double pct = (fireBoost * fireSources) + (lavaBoost * lavaSources);
+    if (pct <= 0D) {
+      return 0;
+    }
+
+    return (int) Math.ceil((intervalMillis / 50D) * pct);
+  }
+
   private void updateHeat(BrewingStand b, double factor) {
     double l = 0;
     double f = 0;
@@ -210,8 +223,11 @@ public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Conf
       case FIRE -> f = f + 1;
     }
 
-    double pct = (getFireBoost(factor) * f) + (getLavaBoost(factor) * l) + 1;
-    int warp = (int) ((getInterval() / 50D) * pct);
+    int warp = computeWarpTicks(getInterval(), getFireBoost(factor), getLavaBoost(factor), f, l);
+    if (warp <= 0) {
+      return;
+    }
+
     b.setBrewingTime(Math.max(1, b.getBrewingTime() - warp));
     b.update();
 

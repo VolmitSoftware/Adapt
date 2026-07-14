@@ -86,7 +86,6 @@ public class SeaborneFishersFantasy extends SimpleAdaptation<SeaborneFishersFant
           ItemStack item = new ItemStack(ItemListings.getFishingDrops().getRandom(), 1);
           p.getWorld().dropItemNaturally(p.getLocation(), item);
           p.getWorld().spawn(p.getLocation(), ExperienceOrb.class).setExperience(level * 2);
-          xp(p, 15 * level);
 
           float pitch = (float) Math.min(2.0D, 1.2D + (0.1D * successes));
           float chimePitch = (float) Math.min(2.0D, 1.5D + (0.08D * successes));
@@ -96,6 +95,10 @@ public class SeaborneFishersFantasy extends SimpleAdaptation<SeaborneFishersFant
               .dustBurst(3, 0.3D, 0.9F)
               .chord(Sound.BLOCK_CONDUIT_ACTIVATE, 0.4F, pitch, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.35F, chimePitch);
           successes++;
+        }
+
+        if (successes > 0) {
+          xp(p, 15 * successes);
         }
       }
     });

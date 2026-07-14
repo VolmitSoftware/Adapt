@@ -45,7 +45,6 @@ import org.bukkit.inventory.ItemStack;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -58,7 +57,8 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
   private static final int MAX_SESSION_VISITS_PER_TICK = 32;
   private static final long ACTIVE_TICK_MILLIS = 50L;
   private static final long IDLE_TICK_MILLIS = 1000L;
-  private final Set<Integer> holds;
+  private static final long HOLD_EXPIRY_MILLIS = 5000L;
+  private final Map<Integer, Long> holds;
   private final Map<UUID, SnatchSession> activeSessions;
   private final ConcurrentLinkedQueue<SnatchSession> sessionQueue;
 
@@ -66,7 +66,7 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
     super("stealth-snatch");
     registerConfiguration(Config.class);
     setIcon(Material.CHEST_MINECART);
-    holds = ConcurrentHashMap.newKeySet();
+    holds = new ConcurrentHashMap<>();
     activeSessions = playerState();
     sessionQueue = new ConcurrentLinkedQueue<>();
     registerAdvancement(AdaptAdvancement.builder()
@@ -148,7 +148,7 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
     int fxBudget = 3;
     int snatched = 0;
     for (Item droppedItemEntity : items) {
-      if (holds.contains(droppedItemEntity.getEntityId())) {
+      if (holds.containsKey(droppedItemEntity.getEntityId())) {
         continue;
       }
 
@@ -162,7 +162,7 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
         continue;
       }
 
-      holds.add(droppedItemEntity.getEntityId());
+      holds.put(droppedItemEntity.getEntityId(), System.currentTimeMillis());
       int id = droppedItemEntity.getEntityId();
       Location itemLoc = fxBudget > 0 ? droppedItemEntity.getLocation() : null;
       if (safeGiveItem(player, droppedItemEntity, is)) {
@@ -192,6 +192,11 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
 
   @Override
   public void onTick() {
+    if (!holds.isEmpty()) {
+      long cutoff = System.currentTimeMillis() - HOLD_EXPIRY_MILLIS;
+      holds.values().removeIf(at -> at <= cutoff);
+    }
+
     if (activeSessions.isEmpty()) {
       setInterval(IDLE_TICK_MILLIS);
       return;
@@ -262,6 +267,7 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
   public void unregister() {
     activeSessions.clear();
     sessionQueue.clear();
+    holds.clear();
     super.unregister();
   }
 

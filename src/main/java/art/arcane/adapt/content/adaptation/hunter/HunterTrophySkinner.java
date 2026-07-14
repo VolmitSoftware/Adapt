@@ -73,7 +73,7 @@ public class HunterTrophySkinner extends SimpleAdaptation<HunterTrophySkinner.Co
     statLore(v, C.YELLOW, "* ", Form.f(getMinimumRange(level), 1), 3);
   }
 
-  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
   public void on(EntityDeathEvent e) {
     Player killer = e.getEntity().getKiller();
     if (killer == null || !hasActiveAdaptation(killer) || e.getEntity() instanceof Player || !canDamageTarget(killer, e.getEntity())) {

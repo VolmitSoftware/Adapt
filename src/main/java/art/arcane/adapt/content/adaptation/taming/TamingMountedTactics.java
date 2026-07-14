@@ -302,8 +302,12 @@ public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.
     mount.setVelocity(mount.getVelocity().multiply(damping).add(push));
   }
 
-  private boolean requiresStationaryRefresh(Entity vehicle) {
+  private boolean isTacticalMount(Entity vehicle) {
     return vehicle instanceof AbstractHorse || vehicle instanceof Strider || vehicle instanceof Pig;
+  }
+
+  private boolean requiresStationaryRefresh(Entity vehicle) {
+    return isTacticalMount(vehicle);
   }
 
   private boolean hasForwardInput(Player p) {
@@ -322,7 +326,7 @@ public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(EntityDamageByEntityEvent e) {
-    if (e.getDamager() instanceof Player attacker && attacker.getVehicle() != null) {
+    if (e.getDamager() instanceof Player attacker && isTacticalMount(attacker.getVehicle())) {
       int level = getActiveLevel(attacker);
       if (level > 0) {
         if (!canDamageTarget(attacker, e.getEntity())) {
@@ -342,7 +346,7 @@ public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.
       }
     }
 
-    if (e.getEntity() instanceof Player defender && defender.getVehicle() != null) {
+    if (e.getEntity() instanceof Player defender && isTacticalMount(defender.getVehicle())) {
       int level = getActiveLevel(defender);
       if (level > 0) {
         e.setDamage(e.getDamage() * (1D - getMountedDamageReduction(level)));

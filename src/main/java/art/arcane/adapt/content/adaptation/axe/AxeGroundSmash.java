@@ -82,6 +82,10 @@ public class AxeGroundSmash extends SimpleAdaptation<AxeGroundSmash.Config> {
       return;
     }
 
+    if (p.isOnGround() && p.getFallDistance() <= 0F) {
+      return;
+    }
+
     if (p.getCooldown(combat.mainHand().getType()) > 0) {
       return;
     }

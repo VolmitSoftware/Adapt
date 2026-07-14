@@ -74,7 +74,7 @@ public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Co
       return;
     }
     arrow.removeMetadata(RECOVERY_META, Adapt.instance);
-    if (!(arrow.getShooter() instanceof Player shooter)) {
+    if (event.getHitEntity() == null || !(arrow.getShooter() instanceof Player shooter)) {
       return;
     }
 
@@ -101,8 +101,16 @@ public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Co
     return false;
   }
 
+  static double chanceFromTable(double[] chances, int level) {
+    if (chances == null || chances.length == 0) {
+      return 0;
+    }
+    int index = Math.max(0, Math.min(level, chances.length) - 1);
+    return chances[index] / 100.0;
+  }
+
   private double chancePerLevel(int level) {
-    return (getConfig().hitChance[level - 1] / 100.0);
+    return chanceFromTable(getConfig().hitChance, level);
   }
 
 

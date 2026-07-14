@@ -35,6 +35,7 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -135,6 +136,16 @@ public class SeabornePressureDiver extends SimpleAdaptation<SeabornePressureDive
     clearDepthState(e.getPlayer().getUniqueId(), true);
   }
 
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(BlockBreakEvent e) {
+    Player p = e.getPlayer();
+    if (!deep.getOrDefault(p.getUniqueId(), false) || getActiveLevel(p) <= 0) {
+      return;
+    }
+
+    addStat(p, "seaborne.pressure-diver.deep-blocks-mined", 1);
+  }
+
   @Override
   public void onTick() {
     long now = System.currentTimeMillis();
@@ -182,9 +193,6 @@ public class SeabornePressureDiver extends SimpleAdaptation<SeabornePressureDive
     boolean inDeepTier = depth >= getDeepThreshold(level);
     applyDepthBuffs(p, level, inDeepTier ? 1 : 0, elapsedTicks);
     awardDepthXp(p);
-    if (elapsedTicks > 0D) {
-      addStat(p, "seaborne.pressure-diver.deep-blocks-mined", elapsedTicks);
-    }
 
     if (!deep.getOrDefault(id, false)) {
       deep.put(id, true);

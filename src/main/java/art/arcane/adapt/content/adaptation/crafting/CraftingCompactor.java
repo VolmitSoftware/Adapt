@@ -129,10 +129,14 @@ public class CraftingCompactor extends SimpleAdaptation<CraftingCompactor.Config
     playerCursor = (start + limit) % size;
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+  @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
   public void on(PlayerSwapHandItemsEvent e) {
     Player p = e.getPlayer();
     if (!p.isSneaking() || getActiveLevel(p) <= 0) {
+      return;
+    }
+
+    if (!isCompactableUnit(e.getMainHandItem()) && !isCompactableUnit(e.getOffHandItem())) {
       return;
     }
 
@@ -185,6 +189,20 @@ public class CraftingCompactor extends SimpleAdaptation<CraftingCompactor.Config
           .particle(Particles.CRIT_MAGIC, Math.min(12, 3 + totalBlocks), 0, 0.2D, 0, 0.25D, 0.15D)
           .sound(Sound.BLOCK_STONE_PLACE, 0.4F, 1.2F);
     }
+  }
+
+  static boolean isCompactableUnit(ItemStack stack) {
+    if (stack == null || stack.getType().isAir()) {
+      return false;
+    }
+
+    for (CompactEntry entry : ENTRIES) {
+      if (entry.unit() == stack.getType()) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   private int availablePlain(Player p, Material material) {

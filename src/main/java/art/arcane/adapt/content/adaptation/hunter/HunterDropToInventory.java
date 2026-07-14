@@ -73,7 +73,7 @@ public class HunterDropToInventory extends SimpleAdaptation<HunterDropToInventor
 
     Player p = e.getPlayer();
     if (resolveInteractContext(p, e.getBlock().getLocation(), null, true) == null
-        || !canPVP(p, e.getBlock().getLocation())) {
+        || !canBlockBreak(p, e.getBlock().getLocation())) {
       return;
     }
 
