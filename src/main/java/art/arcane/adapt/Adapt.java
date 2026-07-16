@@ -74,6 +74,7 @@ import io.github.slimjar.app.builder.SpigotApplicationBuilder;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.PluginManager;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -460,8 +461,11 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     if (getServer().getPluginManager().getPlugin("LockettePro") != null) {
       protectorRegistry.registerProtector(new LocketteProProtector());
     }
-    if (getServer().getPluginManager().getPlugin("HiddenOre") != null) {
+    PluginManager pluginManager = getServer().getPluginManager();
+    if (isHiddenOreIntegrationAvailable(pluginManager)) {
       HiddenOreLink.activate(this);
+    } else if (pluginManager.getPlugin("HiddenOre") != null) {
+      warn("HiddenOre is installed but disabled. Adapt will continue without HiddenOre integration; review HiddenOre's startup error and configuration.");
     }
     initializeGlowingEntities();
     initializeAdaptationListings();
@@ -471,6 +475,10 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
   }
 
   private static final Logger GLOWING_ENTITIES_LOGGER = Logger.getLogger("GlowingEntities");
+
+  static boolean isHiddenOreIntegrationAvailable(PluginManager pluginManager) {
+    return pluginManager.isPluginEnabled("HiddenOre");
+  }
 
   private void initializeGlowingEntities() {
     GLOWING_ENTITIES_LOGGER.setFilter(record -> record.getLevel().intValue() >= Level.WARNING.intValue());
