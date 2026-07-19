@@ -15,6 +15,7 @@ import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.io.Json;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.plugin.AdaptService;
+import art.arcane.adapt.util.common.plugin.VolmitSender;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigFileSupport;
 import art.arcane.adapt.util.project.config.ConfigRewriteReporter;
@@ -169,6 +170,7 @@ public class HotloadSVC implements AdaptService {
     boolean ok = registry.hotReloadSkillConfig(skillName);
     if (ok) {
       initializeAdaptationListings();
+      VolmitSender.invalidateHelpCache();
       reconcileCurrentMutationQualification();
     } else {
       Adapt.warn("Skipped hotload for " + file.getPath() + " due to invalid skill config.");
@@ -192,6 +194,7 @@ public class HotloadSVC implements AdaptService {
         boolean ok = registry.hotReloadAdaptationConfig(adaptationName);
         if (ok) {
           initializeAdaptationListings();
+          VolmitSender.invalidateHelpCache();
           reconcileCurrentMutationQualification();
         } else {
           Adapt.warn("Skipped hotload for " + file.getPath() + " due to invalid adaptation config.");

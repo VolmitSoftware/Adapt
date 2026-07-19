@@ -29,21 +29,21 @@ public class AdaptationListingHandler {
   public static KList<AdaptationList> getAdaptionListings() {
     if (adaptationLists.isNotEmpty()) return adaptationLists;
 
-    AdaptationList main = new AdaptationList("[Main]");
+    AdaptationList main = new AdaptationList("main");
     adaptationLists.add(main);
 
     for (Skill<?> skill : SkillRegistry.skills.sortV()) {
       if (!skill.isEnabled()) {
         continue;
       }
-      AdaptationList skillList = new AdaptationList("[Skill]-" + skill.getName());
+      AdaptationList skillList = new AdaptationList("skill:" + skill.getName());
       adaptationLists.add(skillList);
 
       for (Adaptation<?> adaptation : skill.getAdaptations()) {
         if (!adaptation.isEnabled()) {
           continue;
         }
-        AdaptationList adaptationList = new AdaptationList("[Adaptation]-" + adaptation.getName());
+        AdaptationList adaptationList = new AdaptationList("adaptation:" + adaptation.getName());
         adaptationLists.add(adaptationList);
       }
     }
@@ -53,12 +53,15 @@ public class AdaptationListingHandler {
   public static KList<AdaptationSkillList> getAdaptionSkillListings() {
     if (adaptationSkillLists.isNotEmpty()) return adaptationSkillLists;
 
-    AdaptationSkillList t1 = new AdaptationSkillList("[all]");
+    AdaptationSkillList t1 = new AdaptationSkillList("all");
     adaptationSkillLists.add(t1);
-    AdaptationSkillList t2 = new AdaptationSkillList("[random]");
+    AdaptationSkillList t2 = new AdaptationSkillList("random");
     adaptationSkillLists.add(t2);
 
     for (Skill<?> skill : allSkills()) {
+      if (!skill.isEnabled()) {
+        continue;
+      }
       AdaptationSkillList t3 = new AdaptationSkillList(skill.getName());
       adaptationSkillLists.add(t3);
     }
@@ -110,7 +113,7 @@ public class AdaptationListingHandler {
 
   public record AdaptationList(String name) {
     public boolean startsWith(String prefix) {
-      return name.startsWith(prefix);
+      return name.regionMatches(true, 0, prefix, 0, prefix.length());
     }
 
     public boolean equals(String prefix) {
@@ -120,7 +123,7 @@ public class AdaptationListingHandler {
 
   public record AdaptationSkillList(String name) {
     public boolean startsWith(String prefix) {
-      return name.startsWith(prefix);
+      return name.regionMatches(true, 0, prefix, 0, prefix.length());
     }
 
     public boolean equals(String prefix) {
@@ -130,7 +133,7 @@ public class AdaptationListingHandler {
 
   public record AdaptationProvider(String name) {
     public boolean startsWith(String prefix) {
-      return name.startsWith(prefix);
+      return name.regionMatches(true, 0, prefix, 0, prefix.length());
     }
 
     public boolean equals(String prefix) {
@@ -140,7 +143,7 @@ public class AdaptationListingHandler {
 
   public record SkillProvider(String name) {
     public boolean startsWith(String prefix) {
-      return name.startsWith(prefix);
+      return name.regionMatches(true, 0, prefix, 0, prefix.length());
     }
 
     public boolean equals(String prefix) {

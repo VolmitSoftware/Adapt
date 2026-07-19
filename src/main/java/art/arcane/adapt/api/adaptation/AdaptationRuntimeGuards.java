@@ -22,6 +22,7 @@ import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.protection.Protector;
 import art.arcane.adapt.api.telemetry.AbilityCheckTelemetry;
+import art.arcane.adapt.api.world.AdaptDebugMode;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.PlayerAdaptation;
 import art.arcane.adapt.api.world.PlayerData;
@@ -211,6 +212,9 @@ final class AdaptationRuntimeGuards {
   static boolean hasUsePermission(Adaptation<?> adaptation, Player p, Adaptation<?> targetAdaptation) {
     if (p == null) {
       return false;
+    }
+    if (AdaptDebugMode.isActive(p)) {
+      return true;
     }
     if (p.isOp()) {
       return true;

@@ -60,16 +60,22 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerFishEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.potion.PotionEffectType;
 
 import java.util.Map;
 import java.util.UUID;
 
 public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
+  private static final long WATER_MOVEMENT_GRACE_MILLIS = 2500L;
+
   private final Cooldowns underwaterBlockCooldowns = cooldowns();
   private final Cooldowns drownedDamageCooldowns = cooldowns();
   private final Cooldowns tridentDamageCooldowns = cooldowns();
   private final Cooldowns fishCooldowns = cooldowns();
   private final Map<UUID, Boolean> swimming = playerState();
+  private final Map<UUID, Long> lastWaterMovementAt = playerState();
   private final SkillOwnerPulse.Registration ownerPulse;
 
   public SkillSeaborne() {
@@ -189,14 +195,25 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
   public void unregister() {
     ownerPulse.unregister();
     swimming.clear();
+    lastWaterMovementAt.clear();
     super.unregister();
   }
 
   private void pulseSwimmingXp(AdaptPlayer adaptPlayer, Player player, long elapsedMillis, long cadenceMillis) {
     shouldReturnForPlayer(player, () -> {
-      boolean qualifies = (player.isInWater() || player.isSwimming())
-          && player.getRemainingAir() < player.getMaximumAir();
       UUID playerId = player.getUniqueId();
+      boolean waterBreathing = hasWaterBreathingEffect(player);
+      boolean recentWaterMovement = waterBreathing && isRecentWaterMovement(
+          lastWaterMovementAt.get(playerId),
+          System.currentTimeMillis(),
+          WATER_MOVEMENT_GRACE_MILLIS);
+      boolean qualifies = qualifiesForPassiveSwimXp(
+          player.isInWater(),
+          player.isSwimming(),
+          player.getRemainingAir(),
+          player.getMaximumAir(),
+          waterBreathing,
+          recentWaterMovement);
       boolean wasSwimming = swimming.getOrDefault(playerId, false);
       if (!qualifies) {
         if (wasSwimming) {
@@ -206,7 +223,12 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
       }
 
       double cadenceScale = (double) elapsedMillis / cadenceMillis;
-      xpSilent(player, getConfig().swimXP * cadenceScale, "seaborne:swim");
+      double xpAmount = passiveSwimXp(
+          getConfig().swimXP,
+          cadenceScale,
+          waterBreathing,
+          getConfig().waterBreathingSwimXpBonusMultiplier);
+      xpSilent(player, xpAmount, "seaborne:swim");
       if (!wasSwimming) {
         swimming.put(playerId, true);
         fx(player.getLocation(), FxPriority.AMBIENT)
@@ -215,6 +237,18 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
             .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.25F, 1.8F);
       }
     });
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(PlayerMoveEvent e) {
+    if (e instanceof PlayerTeleportEvent || !hasPositionChanged(e)) {
+      return;
+    }
+
+    Player player = e.getPlayer();
+    if (player.isInWater() && hasWaterBreathingEffect(player)) {
+      lastWaterMovementAt.put(player.getUniqueId(), System.currentTimeMillis());
+    }
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
@@ -324,6 +358,50 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
     return attribute == null ? 0 : attribute.getBaseValue();
   }
 
+  static boolean qualifiesForPassiveSwimXp(
+      boolean inWater,
+      boolean swimming,
+      int remainingAir,
+      int maximumAir,
+      boolean waterBreathing,
+      boolean recentWaterMovement) {
+    if (waterBreathing) {
+      return inWater && recentWaterMovement;
+    }
+    return (inWater || swimming) && remainingAir < maximumAir;
+  }
+
+  static boolean isRecentWaterMovement(Long lastMovementAt, long now, long graceMillis) {
+    return lastMovementAt != null
+        && graceMillis >= 0L
+        && now >= lastMovementAt
+        && now - lastMovementAt <= graceMillis;
+  }
+
+  static double passiveSwimXp(double baseXp, double cadenceScale, boolean waterBreathing, double bonusMultiplier) {
+    double safeBonusMultiplier = Double.isFinite(bonusMultiplier) ? Math.max(0D, bonusMultiplier) : 0D;
+    double multiplier = waterBreathing ? 1D + safeBonusMultiplier : 1D;
+    return baseXp * cadenceScale * multiplier;
+  }
+
+  static boolean hasWaterBreathingEffect(boolean waterBreathing, boolean conduitPower) {
+    return waterBreathing || conduitPower;
+  }
+
+  private boolean hasWaterBreathingEffect(Player player) {
+    return hasWaterBreathingEffect(
+        player.hasPotionEffect(PotionEffectType.WATER_BREATHING),
+        player.hasPotionEffect(PotionEffectType.CONDUIT_POWER));
+  }
+
+  private boolean hasPositionChanged(PlayerMoveEvent event) {
+    return event.getTo() != null
+        && event.getFrom().getWorld() == event.getTo().getWorld()
+        && (event.getFrom().getX() != event.getTo().getX()
+        || event.getFrom().getY() != event.getTo().getY()
+        || event.getFrom().getZ() != event.getTo().getZ());
+  }
+
   @Override
   public boolean isEnabled() {
     return getConfig().enabled;
@@ -358,5 +436,7 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
     double challengeSwim20kReward = 3750;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Swim XP for the Seaborne skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double swimXP = 0.4;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Additional passive swimming XP multiplier for players actively moving in water with Water Breathing or Conduit Power.", impact = "1.0 adds one base swim XP award for 2x total; 0 disables the bonus while retaining the base moving-swimmer award.")
+    double waterBreathingSwimXpBonusMultiplier = 1.0;
   }
 }

@@ -15,7 +15,7 @@ public class CommandClear {
 
   @Director(description = "Clear all player data (XP, knowledge, adaptations, stats, discoveries, advancements, wisdom)")
   public void all(
-      @Param(description = "player", defaultValue = "---", customHandler = NullablePlayerHandler.class)
+      @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class)
       Player player
   ) {
     Player targetPlayer = resolveTarget(player);
@@ -28,7 +28,7 @@ public class CommandClear {
 
   @Director(description = "Clear XP across all skill lines")
   public void xp(
-      @Param(description = "player", defaultValue = "---", customHandler = NullablePlayerHandler.class)
+      @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class)
       Player player
   ) {
     Player targetPlayer = resolveTarget(player);
@@ -41,7 +41,7 @@ public class CommandClear {
 
   @Director(description = "Clear knowledge across all skill lines")
   public void knowledge(
-      @Param(description = "player", defaultValue = "---", customHandler = NullablePlayerHandler.class)
+      @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class)
       Player player
   ) {
     Player targetPlayer = resolveTarget(player);
@@ -54,7 +54,7 @@ public class CommandClear {
 
   @Director(description = "Unlearn all adaptations across all skill lines")
   public void adaptations(
-      @Param(description = "player", defaultValue = "---", customHandler = NullablePlayerHandler.class)
+      @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class)
       Player player
   ) {
     Player targetPlayer = resolveTarget(player);
@@ -67,7 +67,7 @@ public class CommandClear {
 
   @Director(description = "Clear the stats map")
   public void stats(
-      @Param(description = "player", defaultValue = "---", customHandler = NullablePlayerHandler.class)
+      @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class)
       Player player
   ) {
     Player targetPlayer = resolveTarget(player);
@@ -80,7 +80,7 @@ public class CommandClear {
 
   @Director(description = "Clear all discovery data (biomes, mobs, foods, items, recipes, etc.)")
   public void discoveries(
-      @Param(description = "player", defaultValue = "---", customHandler = NullablePlayerHandler.class)
+      @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class)
       Player player
   ) {
     Player targetPlayer = resolveTarget(player);

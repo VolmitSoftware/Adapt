@@ -32,7 +32,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
-@Director(name = "adapt", description = "Basic Command")
+@Director(name = "adapt", description = "Adapt skills, adaptations, and admin tools")
 public class CommandAdapt {
   private CommandDebug debug;
   private CommandClear clear;
@@ -44,9 +44,9 @@ public class CommandAdapt {
   public void boost(
       @Param(aliases = "seconds", description = "Amount of seconds", defaultValue = "10")
       int seconds,
-      @Param(aliases = "multiplier", description = "Strength of the boost ", defaultValue = "10")
+      @Param(aliases = "multiplier", description = "Strength of the boost", defaultValue = "10")
       double multiplier,
-      @Param(description = "player", defaultValue = "---", customHandler = NullablePlayerHandler.class)
+      @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class)
       Player player
   ) {
     if (!BukkitDirectorContext.hasPermission("adapt.boost")) {
@@ -73,7 +73,7 @@ public class CommandAdapt {
   public void globalBoost(
       @Param(aliases = "seconds", description = "Amount of seconds", defaultValue = "10")
       int seconds,
-      @Param(aliases = "multiplier", description = "Strength of the boost ", defaultValue = "10")
+      @Param(aliases = "multiplier", description = "Strength of the boost", defaultValue = "10")
       double multiplier
   ) {
     if (!BukkitDirectorContext.hasPermission("adapt.boost.global")) {
@@ -89,11 +89,11 @@ public class CommandAdapt {
 
   @Director(description = "Open the Adapt GUI")
   public void gui(
-      @Param(aliases = "target", defaultValue = "[Main]")
-      AdaptationListingHandler.AdaptationList guiTarget,
-      @Param(aliases = "player", defaultValue = "---", customHandler = NullablePlayerHandler.class)
+      @Param(description = "GUI to open: main, skill:<name>, or adaptation:<name>", defaultValue = "main")
+      AdaptationListingHandler.AdaptationList target,
+      @Param(aliases = "player", description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class)
       Player player,
-      @Param(aliases = "force", defaultValue = "false")
+      @Param(aliases = "force", description = "Bypass adapt.use permission checks when opening", defaultValue = "false")
       boolean force
   ) {
     if (!BukkitDirectorContext.hasPermission("adapt.gui")) {
@@ -109,14 +109,18 @@ public class CommandAdapt {
       targetPlayer = BukkitDirectorContext.player();
     }
 
-    if (guiTarget.equals("[Main]")) {
+    if (target.equals("main")) {
       SkillsGui.open(targetPlayer);
       return;
     }
 
-    if (guiTarget.startsWith("[Skill]-")) {
+    if (target.startsWith("skill:")) {
       for (Skill<?> skill : SkillRegistry.skills.sortV()) {
-        if (guiTarget.equals("[Skill]-" + skill.getName())) {
+        if (target.equals("skill:" + skill.getName())) {
+          if (!skill.isEnabled()) {
+            FConst.error("Skill " + skill.getName() + " is disabled on this server.").send(BukkitDirectorContext.sender());
+            return;
+          }
           if (force || skill.openGui(targetPlayer, true)) {
             FConst.success("Opened GUI for " + skill.getName() + " for " + targetPlayer.getName()).send(BukkitDirectorContext.sender());
           } else {
@@ -127,13 +131,14 @@ public class CommandAdapt {
       }
     }
 
-    if (guiTarget.startsWith("[Adaptation]-")) {
+    if (target.startsWith("adaptation:")) {
       for (Skill<?> skill : SkillRegistry.skills.sortV()) {
         for (Adaptation<?> adaptation : skill.getAdaptations()) {
-          if (!adaptation.isEnabled()) {
-            continue;
-          }
-          if (guiTarget.equals("[Adaptation]-" + adaptation.getName())) {
+          if (target.equals("adaptation:" + adaptation.getName())) {
+            if (!skill.isEnabled() || !adaptation.isEnabled()) {
+              FConst.error("Adaptation " + adaptation.getName() + " is disabled on this server.").send(BukkitDirectorContext.sender());
+              return;
+            }
             if (force || adaptation.openGui(targetPlayer, true)) {
               FConst.success("Opened GUI for " + adaptation.getName() + " for " + targetPlayer.getName()).send(BukkitDirectorContext.sender());
             } else {
@@ -144,6 +149,8 @@ public class CommandAdapt {
         }
       }
     }
+
+    FConst.error("Unknown GUI target '" + target.name() + "'. Use main, skill:<name>, or adaptation:<name>.").send(BukkitDirectorContext.sender());
   }
 
   @Director(name = "effects", origin = DirectorOrigin.PLAYER, description = "Toggle Adapt effect visibility for yourself")
@@ -189,13 +196,13 @@ public class CommandAdapt {
     ConfigGui.open(BukkitDirectorContext.player());
   }
 
-  @Director(description = "Give yourself an experience orb")
+  @Director(description = "Give an experience orb to yourself or a target player")
   public void experience(
-      @Param(aliases = "skill")
+      @Param(aliases = "skill", description = "Skill name, or all / random")
       AdaptationListingHandler.AdaptationSkillList skillName,
-      @Param(aliases = "amount", defaultValue = "10")
+      @Param(aliases = "amount", description = "Experience per orb", defaultValue = "10")
       int amount,
-      @Param(aliases = "player", defaultValue = "---", customHandler = NullablePlayerHandler.class)
+      @Param(aliases = "player", description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class)
       Player player
 
   ) {
@@ -215,7 +222,7 @@ public class CommandAdapt {
       }
     }
 
-    if (skillName.equals("[all]")) {
+    if (skillName.equals("all")) {
       Map<String, Double> experienceMap = new HashMap<>();
       for (Skill<?> skill : allSkillSnapshot()) {
         experienceMap.put(skill.getName(), (double) amount);
@@ -225,7 +232,7 @@ public class CommandAdapt {
       return;
     }
 
-    if (skillName.equals("[random]")) {
+    if (skillName.equals("random")) {
       List<Skill<?>> skills = allSkillSnapshot();
       if (skills.isEmpty()) {
         FConst.error("No skills are registered.").send(BukkitDirectorContext.sender());
@@ -241,16 +248,18 @@ public class CommandAdapt {
     if (skill != null) {
       targetPlayer.getInventory().addItem(ExperienceOrb.with(skill.getName(), amount));
       FConst.success("Giving " + skill.getName() + " orb").send(BukkitDirectorContext.sender());
+    } else {
+      FConst.error("Unknown skill '" + skillName.name() + "'. Use a skill name, all, or random.").send(BukkitDirectorContext.sender());
     }
   }
 
-  @Director(description = "Give yourself a knowledge orb")
+  @Director(description = "Give a knowledge orb to yourself or a target player")
   public void knowledge(
-      @Param(aliases = "skill")
+      @Param(aliases = "skill", description = "Skill name, or all / random")
       AdaptationListingHandler.AdaptationSkillList skillName,
-      @Param(aliases = "amount", defaultValue = "10")
+      @Param(aliases = "amount", description = "Knowledge per orb", defaultValue = "10")
       int amount,
-      @Param(aliases = "player", defaultValue = "---", customHandler = NullablePlayerHandler.class)
+      @Param(aliases = "player", description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class)
       Player player
   ) {
     if (!BukkitDirectorContext.hasPermission("adapt.cheatitem")) {
@@ -268,7 +277,7 @@ public class CommandAdapt {
       }
     }
 
-    if (skillName.equals("[all]")) {
+    if (skillName.equals("all")) {
       Map<String, Integer> knowledgeMap = new HashMap<>();
       for (Skill<?> skill : allSkillSnapshot()) {
         knowledgeMap.put(skill.getName(), amount);
@@ -278,7 +287,7 @@ public class CommandAdapt {
       return;
     }
 
-    if (skillName.equals("[random]")) {
+    if (skillName.equals("random")) {
       List<Skill<?>> skills = allSkillSnapshot();
       if (skills.isEmpty()) {
         FConst.error("No skills are registered.").send(BukkitDirectorContext.sender());
@@ -294,20 +303,22 @@ public class CommandAdapt {
     if (skill != null) {
       targetPlayer.getInventory().addItem(KnowledgeOrb.with(skill.getName(), amount));
       FConst.success("Giving " + skill.getName() + " orb").send(BukkitDirectorContext.sender());
+    } else {
+      FConst.error("Unknown skill '" + skillName.name() + "'. Use a skill name, all, or random.").send(BukkitDirectorContext.sender());
     }
   }
 
-  @Director(description = "Assign a skill, or UnAssign a skill as if you are learning / unlearning a skill.")
+  @Director(description = "Assign or unassign an adaptation for a player, as if learning / unlearning it.")
   public void determine(
-      @Param(aliases = "adaptationTarget")
+      @Param(aliases = "adaptationTarget", description = "Adaptation to modify, as skill:adaptation")
       AdaptationListingHandler.AdaptationProvider adaptationTarget,
-      @Param(aliases = "assign")
+      @Param(aliases = "assign", description = "true to learn, false to unlearn")
       boolean assign,
-      @Param(aliases = "force")
+      @Param(aliases = "force", description = "Bypass costs and restrictions")
       boolean force,
-      @Param(aliases = "level")
+      @Param(aliases = "level", description = "Adaptation level to apply")
       int level,
-      @Param(aliases = "player", defaultValue = "---", customHandler = NullablePlayerHandler.class)
+      @Param(aliases = "player", description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class)
       Player player
 
   ) {
@@ -337,30 +348,39 @@ public class CommandAdapt {
       if (skill.getName().equalsIgnoreCase(skillname)) {
         for (Adaptation<?> adaptation : skill.getAdaptations()) {
           if (adaptation.getName().equalsIgnoreCase(adaptationname)) {
-            if (targetPlayer != null) {
-              if (assign) {
-                adaptation.learn(targetPlayer, level, force);
-              } else {
-                adaptation.unlearn(targetPlayer, level, force);
-              }
+            PlayerSkillLine skillLine = Adapt.instance.getAdaptServer().getPlayer(targetPlayer).getData().getSkillLine(skill.getName());
+            int previousLevel = skillLine == null ? 0 : skillLine.getAdaptationLevel(adaptation.getName());
+
+            if (assign) {
+              adaptation.learn(targetPlayer, level, force);
             } else {
-              FConst.error("You must specify a player when using this command from console.").send(BukkitDirectorContext.sender());
+              adaptation.unlearn(targetPlayer, level, force);
+            }
+
+            int resultingLevel = skillLine == null ? 0 : skillLine.getAdaptationLevel(adaptation.getName());
+            if (resultingLevel == previousLevel) {
+              FConst.error("No change: " + adaptation.getName() + " for " + targetPlayer.getName() + " remains at level " + resultingLevel + ". The request was refused (power, knowledge, or permanence) or was already applied; use force=true to override.").send(BukkitDirectorContext.sender());
+            } else {
+              FConst.success((assign ? "Learned " : "Unlearned ") + adaptation.getName() + " for " + targetPlayer.getName() + ", now at level " + resultingLevel).send(BukkitDirectorContext.sender());
             }
             return;
           }
         }
+        FConst.error("Unknown adaptation '" + adaptationname + "' in skill " + skill.getName()).send(BukkitDirectorContext.sender());
         return;
       }
     }
+
+    FConst.error("Unknown skill '" + skillname + "'").send(BukkitDirectorContext.sender());
   }
 
   @Director(name = "claim-skill", description = "Set a player's skill line level between 0 and 100 for custom UI integration.")
   public void claimSkill(
-      @Param(aliases = "skill")
+      @Param(aliases = "skill", description = "Skill line to set")
       AdaptationListingHandler.SkillProvider skillTarget,
-      @Param(aliases = "level")
+      @Param(aliases = "level", description = "Level between 0 and 100")
       int level,
-      @Param(aliases = "player", defaultValue = "---", customHandler = NullablePlayerHandler.class)
+      @Param(aliases = "player", description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class)
       Player player
   ) {
     if (!BukkitDirectorContext.hasPermission("adapt.determine")) {
@@ -405,13 +425,13 @@ public class CommandAdapt {
 
   @Director(name = "claim-adaptation", description = "Set an adaptation level between 0 and 100 if the player can afford it.")
   public void claimAdaptation(
-      @Param(aliases = "adaptationTarget")
+      @Param(aliases = "adaptationTarget", description = "Adaptation to set, as skill:adaptation")
       AdaptationListingHandler.AdaptationProvider adaptationTarget,
-      @Param(aliases = "level")
+      @Param(aliases = "level", description = "Level between 0 and 100, clamped to the adaptation max")
       int level,
-      @Param(aliases = "force", defaultValue = "false")
+      @Param(aliases = "force", description = "Bypass power, knowledge, and permanence checks", defaultValue = "false")
       boolean force,
-      @Param(aliases = "player", defaultValue = "---", customHandler = NullablePlayerHandler.class)
+      @Param(aliases = "player", description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class)
       Player player
   ) {
     if (!BukkitDirectorContext.hasPermission("adapt.determine")) {

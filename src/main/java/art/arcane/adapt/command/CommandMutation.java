@@ -36,7 +36,7 @@ public class CommandMutation {
 
   @Director(name = "view", description = "View Mutation state for yourself or another player")
   public void view(
-      @Param(description = "player", defaultValue = "---", customHandler = NullablePlayerHandler.class)
+      @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class)
       Player player
   ) {
     CommandSender sender = BukkitDirectorContext.sender();
@@ -87,7 +87,7 @@ public class CommandMutation {
       String mutation,
       @Param(description = "slot 1 or 2")
       int slot,
-      @Param(description = "player", defaultValue = "---", customHandler = NullablePlayerHandler.class)
+      @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class)
       Player player
   ) {
     CommandSender sender = BukkitDirectorContext.sender();
@@ -120,7 +120,7 @@ public class CommandMutation {
   public void clear(
       @Param(description = "slot 1 or 2")
       int slot,
-      @Param(description = "player", defaultValue = "---", customHandler = NullablePlayerHandler.class)
+      @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class)
       Player player
   ) {
     CommandSender sender = BukkitDirectorContext.sender();
@@ -146,7 +146,7 @@ public class CommandMutation {
       String mutation,
       @Param(description = "true to discover, false to undiscover", defaultValue = "true")
       boolean discovered,
-      @Param(description = "player", defaultValue = "---", customHandler = NullablePlayerHandler.class)
+      @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class)
       Player player
   ) {
     CommandSender sender = BukkitDirectorContext.sender();
@@ -175,7 +175,7 @@ public class CommandMutation {
 
   @Director(name = "cooldown", description = "Clear both Mutation switching cooldowns")
   public void cooldown(
-      @Param(description = "player", defaultValue = "---", customHandler = NullablePlayerHandler.class)
+      @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class)
       Player player
   ) {
     CommandSender sender = BukkitDirectorContext.sender();
@@ -197,7 +197,7 @@ public class CommandMutation {
 
   @Director(name = "refresh", description = "Refresh a player's Mutation slots and requirements")
   public void refresh(
-      @Param(description = "player", defaultValue = "---", customHandler = NullablePlayerHandler.class)
+      @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class)
       Player player
   ) {
     CommandSender sender = BukkitDirectorContext.sender();
@@ -223,7 +223,7 @@ public class CommandMutation {
       int slot,
       @Param(description = "on, off, or clear")
       String enabled,
-      @Param(description = "player", defaultValue = "---", customHandler = NullablePlayerHandler.class)
+      @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class)
       Player player
   ) {
     CommandSender sender = BukkitDirectorContext.sender();
@@ -257,7 +257,7 @@ public class CommandMutation {
 
   @Director(name = "reset", description = "Clear only a player's Mutation data")
   public void reset(
-      @Param(description = "player", defaultValue = "---", customHandler = NullablePlayerHandler.class)
+      @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class)
       Player player
   ) {
     CommandSender sender = BukkitDirectorContext.sender();
@@ -287,7 +287,7 @@ public class CommandMutation {
   public void perfectTest(
       @Param(description = "on, off, or clear", defaultValue = "clear")
       String enabled,
-      @Param(description = "player", defaultValue = "---", customHandler = NullablePlayerHandler.class)
+      @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class)
       Player player
   ) {
     CommandSender sender = BukkitDirectorContext.sender();

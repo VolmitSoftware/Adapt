@@ -9,6 +9,7 @@ import art.arcane.adapt.api.mutation.MutationSnapshot;
 import art.arcane.adapt.api.mutation.MutationState;
 import art.arcane.adapt.api.mutation.MutationType;
 import art.arcane.adapt.api.mutation.PlayerMutationData;
+import art.arcane.adapt.api.world.AdaptDebugMode;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.service.MutationRuntimeSVC;
 import art.arcane.adapt.service.MutationSVC;
@@ -45,7 +46,7 @@ public final class MutationGui {
     if (!preparePlayerThread(player, () -> open(player, page))) {
       return;
     }
-    if (!player.hasPermission("adapt.mutations")) {
+    if (!player.hasPermission("adapt.mutations") && !AdaptDebugMode.isActive(player)) {
       player.sendMessage(C.RED + "You lack the permission 'adapt.mutations'.");
       return;
     }
@@ -445,7 +446,7 @@ public final class MutationGui {
         card.selectedSlot() > 0,
         card.expressed(),
         view.bookshelfAuthorized(),
-        player.hasPermission("adapt.mutations"),
+        player.hasPermission("adapt.mutations") || AdaptDebugMode.isActive(player),
         adaptPlayer.getData().getMutationData(),
         System.currentTimeMillis()
     );
@@ -661,7 +662,7 @@ public final class MutationGui {
         selected,
         snapshot.expressed().contains(type),
         manager.hasValidBookshelfAccess(player),
-        player.hasPermission("adapt.mutations"),
+        player.hasPermission("adapt.mutations") || AdaptDebugMode.isActive(player),
         adaptPlayer.getData().getMutationData(),
         System.currentTimeMillis()
     );

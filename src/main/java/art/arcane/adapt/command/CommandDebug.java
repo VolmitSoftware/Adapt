@@ -3,8 +3,10 @@ package art.arcane.adapt.command;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.telemetry.AbilityCheckTelemetry;
+import art.arcane.adapt.api.world.AdaptDebugMode;
 import art.arcane.adapt.util.command.FConst;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
+import art.arcane.adapt.util.director.specialhandlers.NullablePlayerHandler;
 import art.arcane.volmlib.util.director.DirectorOrigin;
 import art.arcane.volmlib.util.director.annotations.Director;
 import art.arcane.volmlib.util.director.annotations.Param;
@@ -15,9 +17,52 @@ import org.bukkit.entity.Player;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 @Director(name = "debug", origin = DirectorOrigin.BOTH, description = "Adapt Debug Command", aliases = {"dev"})
 public class CommandDebug {
+
+  @Director(name = "mode", description = "Toggle debug mode: reveals every skill and adaptation and makes learning free and uncapped")
+  public void mode(
+      @Param(aliases = "enabled", description = "Explicit on/off state, omit to toggle", defaultValue = "toggle")
+      String enabled,
+      @Param(aliases = "player", description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class)
+      Player player
+  ) {
+    if (!BukkitDirectorContext.hasPermission("adapt.debug")) {
+      FConst.error("You lack the Permission 'adapt.debug'").send(BukkitDirectorContext.sender());
+      return;
+    }
+
+    Player targetPlayer = player;
+    if (targetPlayer == null && BukkitDirectorContext.isConsole()) {
+      FConst.error("You must specify a player when using this command from console.").send(BukkitDirectorContext.sender());
+      return;
+    } else if (targetPlayer == null) {
+      targetPlayer = BukkitDirectorContext.player();
+    }
+
+    String normalized = enabled == null ? "toggle" : enabled.trim().toLowerCase(Locale.ROOT);
+    UUID targetId = targetPlayer.getUniqueId();
+    Boolean target = switch (normalized) {
+      case "toggle" -> !AdaptDebugMode.isActive(targetId);
+      case "true", "on", "yes", "enabled" -> Boolean.TRUE;
+      case "false", "off", "no", "disabled" -> Boolean.FALSE;
+      default -> null;
+    };
+
+    if (target == null) {
+      FConst.error("Unknown state '" + enabled + "'. Use on, off, or omit to toggle.").send(BukkitDirectorContext.sender());
+      return;
+    }
+
+    AdaptDebugMode.setActive(targetId, target);
+    if (target) {
+      FConst.success("Debug mode enabled for " + targetPlayer.getName() + ": all skills and adaptations are visible and learning is free and uncapped. The toggle resets on logout; adaptations learned while it is on persist.").send(BukkitDirectorContext.sender());
+    } else {
+      FConst.success("Debug mode disabled for " + targetPlayer.getName() + ". Adaptations learned in debug mode persist; use /adapt clear adaptations or /adapt determine to remove them.").send(BukkitDirectorContext.sender());
+    }
+  }
 
   @Director(description = "Toggle verbose mode")
   public void verbose() {
@@ -64,19 +109,23 @@ public class CommandDebug {
     FConst.success("Permissions have been printed to console.").send(BukkitDirectorContext.sender());
   }
 
-  @Director(name = "particle", origin = DirectorOrigin.PLAYER, description = "Summon a particle in front of you for testing!")
-  public void particle(@Param Particle particle) {
+  @Director(name = "particle", origin = DirectorOrigin.PLAYER, description = "Summon a particle at your location for testing!")
+  public void particle(@Param(description = "Particle type to spawn") Particle particle) {
     if (!BukkitDirectorContext.hasPermission("adapt.idontknowwhatimdoingiswear")) {
       FConst.error("You lack the Permission 'adapt.idontknowwhatimdoingiswear'").send(BukkitDirectorContext.sender());
       return;
     }
 
     Player player = BukkitDirectorContext.player();
-    player.spawnParticle(particle, player.getLocation(), 10, 10);
+    if (particle.getDataType() != Void.class) {
+      FConst.error("Particle " + particle.name() + " requires data of type " + particle.getDataType().getSimpleName() + " and cannot be spawned by this command.").send(BukkitDirectorContext.sender());
+      return;
+    }
+    player.spawnParticle(particle, player.getLocation(), 10, 0.5D, 0.5D, 0.5D);
   }
 
-  @Director(name = "particle", origin = DirectorOrigin.PLAYER, description = "Summon a particle in front of you for testing!")
-  public void particle(@Param Sound sound) {
+  @Director(name = "sound", origin = DirectorOrigin.PLAYER, description = "Play a sound at your location for testing!")
+  public void sound(@Param(description = "Sound to play") Sound sound) {
     if (!BukkitDirectorContext.hasPermission("adapt.idontknowwhatimdoingiswear")) {
       FConst.error("You lack the Permission 'adapt.idontknowwhatimdoingiswear'").send(BukkitDirectorContext.sender());
       return;

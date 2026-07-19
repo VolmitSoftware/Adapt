@@ -579,12 +579,21 @@ public class PlayerSkillLine {
   }
 
   public boolean spendKnowledge(int c) {
+    if (isDebugLearning()) {
+      return true;
+    }
+
     if (getKnowledge() >= c) {
       setKnowledge(getKnowledge() - c);
       return true;
     }
 
     return false;
+  }
+
+  private boolean isDebugLearning() {
+    AdaptPlayer owner = runtimeOwner;
+    return owner != null && owner.getPlayer() != null && AdaptDebugMode.isActive(owner.getPlayer().getUniqueId());
   }
 
   @Data

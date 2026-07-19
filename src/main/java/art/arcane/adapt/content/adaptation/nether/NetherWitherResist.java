@@ -79,7 +79,8 @@ public class NetherWitherResist extends SimpleAdaptation<NetherWitherResist.Conf
     if (e.getCause() == EntityDamageEvent.DamageCause.WITHER && e.getEntity() instanceof Player p) {
       withAdaptedPlayer(p, e, () -> {
         double chance = getTotalChange(p);
-        if (ThreadLocalRandom.current().nextInt(101) <= chance) {
+        double roll = ThreadLocalRandom.current().nextDouble(100D);
+        if (winsChanceRoll(chance, roll)) {
           e.setCancelled(true);
           addStat(p, "nether.wither-resist.negated", 1);
           boolean mastery = chance >= 100D;
@@ -97,6 +98,14 @@ public class NetherWitherResist extends SimpleAdaptation<NetherWitherResist.Conf
     }
   }
 
+  static boolean winsChanceRoll(double chance, double roll) {
+    if (!Double.isFinite(chance) || !Double.isFinite(roll) || roll < 0D || roll >= 100D) {
+      return false;
+    }
+
+    double boundedChance = Math.max(0D, Math.min(100D, chance));
+    return roll < boundedChance;
+  }
 
   private double getTotalChange(Player p) {
     return getChance(p, EquipmentSlot.HEAD) + getChance(p, EquipmentSlot.CHEST) + getChance(p, EquipmentSlot.LEGS) + getChance(p, EquipmentSlot.FEET);

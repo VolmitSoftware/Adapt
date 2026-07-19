@@ -23,6 +23,7 @@ import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.runtime.AdaptationGate;
+import art.arcane.adapt.api.world.AdaptDebugMode;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.api.world.PlayerData;
@@ -89,6 +90,9 @@ final class SkillRuntimeGuards {
   static boolean hasUsePermission(Player player, Skill<?> skill) {
     if (player == null || skill == null) {
       return false;
+    }
+    if (AdaptDebugMode.isActive(player)) {
+      return true;
     }
     if (player.isOp()) {
       return true;

@@ -174,7 +174,7 @@ public class PlayerData {
         continue;
       }
 
-      if (lineData.getXp() == 0 && lineData.getKnowledge() == 0 && lineData.getPooledXp() == 0) {
+      if (lineData.getXp() == 0 && lineData.getKnowledge() == 0 && lineData.getPooledXp() == 0 && lineData.getAdaptations().isEmpty()) {
         skillLines.remove(lineId, lineData);
         lineData.unbindRuntimeOwner(runtimeOwner);
         refreshLearnedIndex();
@@ -271,7 +271,16 @@ public class PlayerData {
   }
 
   public boolean hasPowerAvailable(int amount) {
+    if (isDebugLearning()) {
+      return true;
+    }
+
     return getAvailablePower() >= amount;
+  }
+
+  private boolean isDebugLearning() {
+    AdaptPlayer owner = runtimeOwner;
+    return owner != null && owner.getPlayer() != null && AdaptDebugMode.isActive(owner.getPlayer().getUniqueId());
   }
 
   public int getUsedPower() {
@@ -403,6 +412,10 @@ public class PlayerData {
   }
 
   public void pruneAdaptationsForPowerBudget() {
+    if (isDebugLearning()) {
+      return;
+    }
+
     int usedPower = getUsedPower();
     int maxPower = getMaxPower();
 

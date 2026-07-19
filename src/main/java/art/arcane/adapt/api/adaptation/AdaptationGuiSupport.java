@@ -22,6 +22,7 @@ import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.fx.FxPresets;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
+import art.arcane.adapt.api.world.AdaptDebugMode;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.util.common.format.C;
@@ -220,6 +221,8 @@ final class AdaptationGuiSupport {
 
     long k = adaptation.getPlayer(player).getData().getSkillLine(adaptation.getSkill().getName()).getKnowledge();
 
+    boolean debugLearning = AdaptDebugMode.isActive(player);
+
     UIWindow w = new UIWindow(Adapt.instance, player);
     GuiTheme.apply(w, "skill/" + adaptation.getSkill().getName() + "/" + adaptation.getName());
     w.setViewportHeight(plan.rows());
@@ -247,7 +250,7 @@ final class AdaptationGuiSupport {
             .setProgress(1D)
             .addLore(C.GRAY + adaptation.getDescription())
             .addLore(mylevel >= lvl ? ("") : ("" + C.WHITE + c + C.GRAY + " " + Localizer.dLocalize("snippets.adapt_menu.knowledge_cost") + " " + (AdaptConfig.get().isHardcoreNoRefunds() ? C.DARK_RED + "" + C.BOLD + Localizer.dLocalize("snippets.adapt_menu.no_refunds") : "")))
-            .addLore(mylevel >= lvl ? AdaptConfig.get().isHardcoreNoRefunds() ? (C.GREEN + Localizer.dLocalize("snippets.adapt_menu.already_learned") + " " + C.DARK_RED + "" + C.BOLD + Localizer.dLocalize("snippets.adapt_menu.no_refunds")) : (adaptation.isPermanent() ? "" : (C.GREEN + Localizer.dLocalize("snippets.adapt_menu.already_learned") + " " + C.GRAY + Localizer.dLocalize("snippets.adapt_menu.unlearn_refund") + " " + C.GREEN + rc + " " + Localizer.dLocalize("snippets.adapt_menu.knowledge_cost"))) : (k >= c ? (C.BLUE + Localizer.dLocalize("snippets.adapt_menu.click_learn") + " " + adaptation.getDisplayName(lvl)) : (k == 0 ? (C.RED + Localizer.dLocalize("snippets.adapt_menu.no_knowledge")) : (C.RED + "(" + Localizer.dLocalize("snippets.adapt_menu.you_only_have") + " " + C.WHITE + k + C.RED + " " + Localizer.dLocalize("snippets.adapt_menu.knowledge_available") + ")"))))
+            .addLore(mylevel >= lvl ? AdaptConfig.get().isHardcoreNoRefunds() ? (C.GREEN + Localizer.dLocalize("snippets.adapt_menu.already_learned") + " " + C.DARK_RED + "" + C.BOLD + Localizer.dLocalize("snippets.adapt_menu.no_refunds")) : (adaptation.isPermanent() ? "" : (C.GREEN + Localizer.dLocalize("snippets.adapt_menu.already_learned") + " " + C.GRAY + Localizer.dLocalize("snippets.adapt_menu.unlearn_refund") + " " + C.GREEN + rc + " " + Localizer.dLocalize("snippets.adapt_menu.knowledge_cost"))) : (debugLearning || k >= c ? (C.BLUE + Localizer.dLocalize("snippets.adapt_menu.click_learn") + " " + adaptation.getDisplayName(lvl)) : (k == 0 ? (C.RED + Localizer.dLocalize("snippets.adapt_menu.no_knowledge")) : (C.RED + "(" + Localizer.dLocalize("snippets.adapt_menu.you_only_have") + " " + C.WHITE + k + C.RED + " " + Localizer.dLocalize("snippets.adapt_menu.knowledge_available") + ")"))))
             .addLore(mylevel < lvl && adaptation.getPlayer(player).getData().hasPowerAvailable(pc) ? C.GREEN + "" + lvl + " " + Localizer.dLocalize("snippets.adapt_menu.power_drain") : mylevel >= lvl ? C.GREEN + "" + lvl + " " + Localizer.dLocalize("snippets.adapt_menu.power_drain") : C.RED + Localizer.dLocalize("snippets.adapt_menu.not_enough_power") + "\n" + C.RED + Localizer.dLocalize("snippets.adapt_menu.how_to_level_up"))
             .addLore((adaptation.isPermanent() ? C.RED + "" + C.BOLD + Localizer.dLocalize("snippets.adapt_menu.may_not_unlearn") : ""))
             .addLore(adaptation.isPermanent() && mylevel < lvl
@@ -287,9 +290,10 @@ final class AdaptationGuiSupport {
                 return;
               }
 
+              boolean debugLearningClick = AdaptDebugMode.isActive(player);
               long currentKnowledge = skillLine.getKnowledge();
-              if (currentKnowledge >= c && adaptPlayer.getData().hasPowerAvailable(pc)) {
-                if (adaptation.isPermanent() && !consumePermanentLearnConfirmation(player, adaptation, lvl)) {
+              if (debugLearningClick || (currentKnowledge >= c && adaptPlayer.getData().hasPowerAvailable(pc))) {
+                if (adaptation.isPermanent() && !debugLearningClick && !consumePermanentLearnConfirmation(player, adaptation, lvl)) {
                   spw.play(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 0.7f, 0.85f);
                   player.sendTitle(" ", C.GOLD + "" + C.BOLD + "Click again to confirm permanent learn", 1, 16, 8);
                   J.runEntity(player, () -> openAdaptationPage(adaptation, player, currentPage), 1);
@@ -416,12 +420,13 @@ final class AdaptationGuiSupport {
   }
 
   static void unlearn(Adaptation<?> adaptation, Player player, int lvl, boolean force) {
-    if (adaptation.isPermanent() && !force) {
+    boolean debugLearning = AdaptDebugMode.isActive(player);
+    if (adaptation.isPermanent() && !force && !debugLearning) {
       return;
     }
     int myLevel = adaptation.getPlayer(player).getSkillLine(adaptation.getSkill().getName()).getAdaptationLevel(adaptation.getName());
     int rc = adaptation.getRefundCostFor(lvl - 1, myLevel);
-    if (!AdaptConfig.get().isHardcoreNoRefunds()) {
+    if (!debugLearning && !AdaptConfig.get().isHardcoreNoRefunds()) {
       adaptation.getPlayer(player).getData().getSkillLine(adaptation.getSkill().getName()).giveKnowledge(rc);
     }
     adaptation.getPlayer(player).getData().getSkillLine(adaptation.getSkill().getName()).setAdaptation(adaptation, lvl - 1);
@@ -430,7 +435,8 @@ final class AdaptationGuiSupport {
   static void learn(Adaptation<?> adaptation, Player player, int lvl, boolean force) {
     int myLevel = adaptation.getPlayer(player).getSkillLine(adaptation.getSkill().getName()).getAdaptationLevel(adaptation.getName());
     int c = adaptation.getCostFor(lvl, myLevel);
-    if (adaptation.getPlayer(player).getData().hasPowerAvailable(c) || force) {
+    int pc = adaptation.getPowerCostFor(lvl, myLevel);
+    if (adaptation.getPlayer(player).getData().hasPowerAvailable(pc) || force) {
       if (adaptation.getPlayer(player).getData().getSkillLine(adaptation.getSkill().getName()).spendKnowledge(c) || force) {
         adaptation.getPlayer(player).getData().getSkillLine(adaptation.getSkill().getName()).setAdaptation(adaptation, lvl);
       }

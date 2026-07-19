@@ -21,7 +21,7 @@ public class CommandReset {
 
   @Director(description = "Permanently delete all Adapt data for a player. Requires op. Run twice to confirm.")
   public void confirm(
-      @Param(description = "player", defaultValue = "---", customHandler = NullablePlayerHandler.class)
+      @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class)
       Player player
   ) {
     if (!BukkitDirectorContext.sender().isOp()) {

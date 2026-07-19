@@ -147,7 +147,7 @@ public class CommandSVC implements AdaptService, CommandExecutor, TabCompleter, 
       return false;
     }
 
-    Adapt.verbose("Received Command from %s: /%s".formatted(sender.getName(), label + String.join(" ", args)));
+    Adapt.verbose("Received Command from %s: /%s %s".formatted(sender.getName(), label, String.join(" ", args)));
     if (!sender.hasPermission(ROOT_PERMISSION)) {
       sender.sendMessage("You lack the Permission '" + ROOT_PERMISSION + "'");
       return true;

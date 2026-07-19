@@ -22,20 +22,26 @@ permissions:
   adapt.idontknowwhatimdoingiswear:
     description: This is for the Adapt Testing command DEVELOPERS ONLY
     default: op
-  adapt.listboosts:
-    description: Allows for you to view the boosts on a player
-    default: op
-  adapt.opengui:
-    description: Open the GUI without needing a Bookshelf
-    default: op
   adapt.cheatitem:
     description: Allows for you to create a Cheat Item (one time use Xp Items)
     default: op
   adapt.boost:
     description: Allows for you to use the Boost command to boost XP gains
     default: op
+  adapt.boost.global:
+    description: Allows boosting XP gains for every player on the server
+    default: op
   adapt.main:
     description: Allows for you to use the main command
+    default: op
+  adapt.gui:
+    description: Allows opening the Adapt GUI via /adapt gui
+    default: op
+  adapt.determine:
+    description: Allows directly assigning skill lines and adaptations to players
+    default: op
+  adapt.debug:
+    description: Allows Adapt debug tools including debug mode and config migration
     default: op
   adapt.configurator:
     description: Allows opening and using the in-game Adapt config editor
@@ -94,11 +100,6 @@ permissions:
   adapt.use.mutation.resonant-formula:
     description: Allows using the Resonant Formula Mutation
     default: true
-  adapt.config:
-    description: Legacy alias for adapt.configurator
-    default: false
-    children:
-      adapt.configurator: true
   adapt.clear:
     description: Allows clearing player progression data
     default: op

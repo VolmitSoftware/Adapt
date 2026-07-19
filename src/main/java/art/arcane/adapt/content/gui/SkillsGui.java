@@ -20,6 +20,7 @@ package art.arcane.adapt.content.gui;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.skill.Skill;
+import art.arcane.adapt.api.world.AdaptDebugMode;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.PlayerAdaptation;
 import art.arcane.adapt.api.world.PlayerSkillLine;
@@ -73,6 +74,7 @@ public class SkillsGui {
       return;
     }
 
+    boolean debugMode = AdaptDebugMode.isActive(player);
     List<SkillPageEntry> entries = new ArrayList<>();
     for (Skill<?> skill : adaptPlayer.getServer().getSkillRegistry().getSkills()) {
       if (skill == null) {
@@ -81,16 +83,18 @@ public class SkillsGui {
       if (!skill.isEnabled()) {
         continue;
       }
-      PlayerSkillLine line = adaptPlayer.getData().getSkillLineNullable(skill.getName());
+      PlayerSkillLine line = debugMode
+          ? adaptPlayer.getData().getSkillLine(skill.getName())
+          : adaptPlayer.getData().getSkillLineNullable(skill.getName());
       if (line == null) {
         continue;
       }
-      if (!skill.hasUsePermission(adaptPlayer.getPlayer(), skill) || line.getLevel() < 0) {
+      if (!skill.hasUsePermission(adaptPlayer.getPlayer(), skill) || (!debugMode && line.getLevel() < 0)) {
         continue;
       }
 
       int adaptationLevel = sumAdaptationLevels(line);
-      if (!hasVisibleProgress(line, adaptationLevel)) {
+      if (!debugMode && !hasVisibleProgress(line, adaptationLevel)) {
         continue;
       }
 
@@ -103,7 +107,7 @@ public class SkillsGui {
     );
 
     MutationSVC mutationService = MutationSVC.get();
-    boolean showMutations = player.hasPermission("adapt.mutations")
+    boolean showMutations = (player.hasPermission("adapt.mutations") || debugMode)
         && mutationService != null
         && mutationService.getManager() != null
         && mutationService.getManager().getConfig().isEnabled();

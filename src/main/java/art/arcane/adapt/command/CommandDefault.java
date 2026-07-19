@@ -72,7 +72,7 @@ public class CommandDefault {
       return;
     }
 
-    String[] split = adaptationTarget.name().split(":");
+    String[] split = adaptationTarget.name().split(":", 2);
     if (split.length != 2) {
       FConst.error("Invalid format. Use skill:adaptation").send(BukkitDirectorContext.sender());
       return;
