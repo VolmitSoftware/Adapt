@@ -1973,11 +1973,10 @@ lore = ["Cevrenizdeki dusman sayisi arttikca her birine verdiginiz hasar azalir"
 
 [tragoul.healing]
 name = "Acinin Iradesi"
-description = "Verdiginiz hasara gore saglik geri kazanin!"
-lore1 = "Bir seylere zarar vermek hic bu kadar iyi hissettirmemisti! Verilen Hasardan Iyilesme"
-lore2 = "Iyilestirme icin 3 Saniyelik bir hasar penceresi ve 1 Saniyelik bekleme suresi vardir "
-lore3 = "Hasar Yuzdesine Gore Iyilestirme: "
-lore = ["Bir seylere zarar vermek hic bu kadar iyi hissettirmemisti! Verilen Hasardan Iyilesme", "Iyilestirme icin 3 Saniyelik bir hasar penceresi ve 1 Saniyelik bekleme suresi vardir ", "Hasar Yuzdesine Gore Iyilestirme: "]
+description = "Sana hasar veren her geçerli saldırgan az miktarda sabit can kaybeder ve bu can sana geri yüklenir."
+lore1 = "her saldırgandan emilen can"
+lore2 = "Gerçekte emilen can sana geri yüklenir"
+lore = ["her saldırgandan emilen can", "Gerçekte emilen can sana geri yüklenir"]
 
 [tragoul.lance]
 name = "Ceset Mizraklari"

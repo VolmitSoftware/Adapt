@@ -23,20 +23,28 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 
 import java.util.Map;
 import java.util.UUID;
 
 public class SeaborneOxygen extends SimpleAdaptation<SeaborneOxygen.Config> {
+  private static final String ATTRIBUTE_SLOT = "oxygen";
+  private static final long EFFECT_DURATION_TICKS = 160L;
+  private static final int TICKS_PER_PULSE = 75;
+  private static final double MAX_OXYGEN_BONUS = 1024D;
+
   private final Map<UUID, Boolean> submerged = playerState();
 
   public SeaborneOxygen() {
@@ -77,6 +85,12 @@ public class SeaborneOxygen extends SimpleAdaptation<SeaborneOxygen.Config> {
           return;
         }
 
+        double savedFraction = savedAirFraction(level, getConfig().airPerLevelTics, TICKS_PER_PULSE);
+        double bonus = oxygenBonus(savedFraction);
+        if (bonus > 0D) {
+          AdaptAttributeService.get().applyTimed(player, getName(), ATTRIBUTE_SLOT, Attributes.OXYGEN_BONUS, bonus, AttributeModifier.Operation.ADD_NUMBER, EFFECT_DURATION_TICKS);
+        }
+
         UUID id = player.getUniqueId();
         boolean inWater = player.isInWater() || player.isSwimming();
         boolean was = submerged.getOrDefault(id, false);
@@ -90,11 +104,9 @@ public class SeaborneOxygen extends SimpleAdaptation<SeaborneOxygen.Config> {
           return;
         }
 
-        int restoredAir = restoreAir(player.getRemainingAir(), player.getMaximumAir(),
-            level * Math.max(0, getConfig().airPerLevelTics));
-        if (restoredAir > 0) {
-          player.setRemainingAir(player.getRemainingAir() + restoredAir);
-          addStat(player, "seaborne.oxygen.bonus-air-ticks", restoredAir);
+        int savedAirTicks = expectedSavedAirTicks(savedFraction, TICKS_PER_PULSE);
+        if (savedAirTicks > 0) {
+          addStat(player, "seaborne.oxygen.bonus-air-ticks", savedAirTicks);
         }
 
         if (!was) {
@@ -112,11 +124,28 @@ public class SeaborneOxygen extends SimpleAdaptation<SeaborneOxygen.Config> {
     }
   }
 
-  static int restoreAir(int currentAir, int maximumAir, int requestedAir) {
-    if (maximumAir <= currentAir || requestedAir <= 0) {
+  static double savedAirFraction(int level, int airPerLevelTics, int ticksPerPulse) {
+    if (level <= 0 || airPerLevelTics <= 0 || ticksPerPulse <= 0) {
+      return 0D;
+    }
+    return Math.min(1D, ((double) level * (double) airPerLevelTics) / (double) ticksPerPulse);
+  }
+
+  static double oxygenBonus(double savedAirFraction) {
+    if (savedAirFraction <= 0D) {
+      return 0D;
+    }
+    if (savedAirFraction >= 1D) {
+      return MAX_OXYGEN_BONUS;
+    }
+    return Math.min(MAX_OXYGEN_BONUS, savedAirFraction / (1D - savedAirFraction));
+  }
+
+  static int expectedSavedAirTicks(double savedAirFraction, int ticksPerPulse) {
+    if (savedAirFraction <= 0D || ticksPerPulse <= 0) {
       return 0;
     }
-    return Math.min(requestedAir, maximumAir - currentAir);
+    return (int) Math.round(savedAirFraction * (double) ticksPerPulse);
   }
 
   @ConfigDescription("Hold more oxygen underwater.")

@@ -67,28 +67,28 @@ public class SwordsDualWield extends SimpleAdaptation<SwordsDualWield.Config> {
 
   @Override
   public void addStats(int level, Element v) {
-    statLore(v, Form.pc(getSameMultiplier(level), 0), 1);
-    statLore(v, Form.pc(getMixedMultiplier(level), 0), 2);
+    statLore(v, Form.pc(getSameMultiplier(level) - 1D, 0), 1);
+    statLore(v, Form.pc(getMixedMultiplier(level) - 1D, 0), 2);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(EntityDamageByEntityEvent e) {
-    art.arcane.adapt.api.adaptation.Adaptation.MeleeContext combat = resolveMeleeContext(e);
+    art.arcane.adapt.api.adaptation.Adaptation.MeleeContext combat = resolveMeleeContext(e, this::isSword);
     if (combat == null) {
       return;
     }
 
     Player p = combat.attacker();
-    ItemStack main = p.getInventory().getItemInMainHand();
+    ItemStack main = combat.mainHand();
     ItemStack off = p.getInventory().getItemInOffHand();
-    if (!isSword(main) || !isSword(off)) {
+    if (!isSword(off)) {
       return;
     }
 
     boolean sameWeapon = main.getType() == off.getType();
     double multiplier = sameWeapon ? getSameMultiplier(combat.level()) : getMixedMultiplier(combat.level());
     double originalDamage = e.getDamage();
-    e.setDamage(originalDamage * multiplier);
+    e.setDamage(scaledDamage(originalDamage, multiplier));
     double bonusDamage = e.getDamage() - originalDamage;
     xp(p, e.getDamage() * getConfig().xpPerDamage);
     addStat(p, "swords.dual-wield.bonus-damage", bonusDamage);
@@ -113,6 +113,13 @@ public class SwordsDualWield extends SimpleAdaptation<SwordsDualWield.Config> {
 
   private double getMixedMultiplier(int level) {
     return getConfig().mixedWeaponBase + (getLevelPercent(level) * getConfig().mixedWeaponFactor);
+  }
+
+  static double scaledDamage(double originalDamage, double multiplier) {
+    if (!Double.isFinite(originalDamage) || !Double.isFinite(multiplier)) {
+      return 0D;
+    }
+    return Math.max(0D, originalDamage) * Math.max(1D, multiplier);
   }
 
 

@@ -26,3 +26,7 @@ logs/
 .codegraph/
 
 TEST_SUITE_PLAN.md
+
+.qa/
+
+docs/

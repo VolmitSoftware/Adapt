@@ -25,32 +25,44 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.version.IAttribute;
+import art.arcane.adapt.api.version.Version;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.adapt.util.reflect.registries.Particles;
+import art.arcane.volmlib.util.collection.KList;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class UnarmedMeditation extends SimpleAdaptation<UnarmedMeditation.Config> {
+  private static final UUID ABSORPTION_MODIFIER = UUID.nameUUIDFromBytes("adapt-unarmed-meditation".getBytes(StandardCharsets.UTF_8));
+  private static final NamespacedKey ABSORPTION_MODIFIER_KEY = NamespacedKey.fromString("adapt:unarmed-meditation");
+
   private final Cooldowns combatCooldown = cooldowns();
   private final Map<UUID, Location> lastPositions = playerState();
   private final Map<UUID, Boolean> medState = playerState();
   private final Set<UUID> activeSessions = ConcurrentHashMap.newKeySet();
+  private final Set<UUID> capacityPlayers = ConcurrentHashMap.newKeySet();
 
   public UnarmedMeditation() {
     super("unarmed-meditation");
@@ -101,29 +113,65 @@ public class UnarmedMeditation extends SimpleAdaptation<UnarmedMeditation.Config
     startMeditation(e.getPlayer());
   }
 
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(PlayerQuitEvent e) {
+    UUID id = e.getPlayer().getUniqueId();
+    activeSessions.remove(id);
+    lastPositions.remove(id);
+    medState.remove(id);
+    removeAbsorptionCapacity(e.getPlayer());
+  }
+
   @Override
   public void unregister() {
     activeSessions.clear();
+    lastPositions.clear();
+    medState.clear();
+    for (Player player : Bukkit.getOnlinePlayers()) {
+      J.runEntity(player, () -> removeAbsorptionCapacity(player));
+    }
+    capacityPlayers.clear();
     super.unregister();
   }
 
   @Override
   public void onTick() {
-    if (!isEnabled()) {
+    for (Player player : Bukkit.getOnlinePlayers()) {
+      J.runEntity(player, () -> maintainPlayerOwned(player));
+    }
+  }
+
+  private void maintainPlayerOwned(Player player) {
+    if (!player.isOnline()) {
       return;
     }
 
-    for (Player player : Bukkit.getOnlinePlayers()) {
-      if (!player.isSneaking() || activeSessions.contains(player.getUniqueId())) {
-        continue;
+    UUID id = player.getUniqueId();
+    boolean hasCapacity = capacityPlayers.contains(id);
+    boolean hasSession = activeSessions.contains(id);
+    boolean sneaking = player.isSneaking();
+    if (!sneaking && !hasCapacity && !hasSession) {
+      return;
+    }
+
+    if (!isEnabled() || !hasActiveAdaptation(player)) {
+      stopMeditation(player);
+      if (hasCapacity) {
+        removeAbsorptionCapacity(player);
       }
-      J.runEntity(player, () -> {
-        if (player.isOnline() && player.isSneaking()
-            && !activeSessions.contains(player.getUniqueId())
-            && hasActiveAdaptation(player)) {
-          startMeditation(player);
-        }
-      });
+      return;
+    }
+
+    if (hasCapacity) {
+      cleanupDepletedCapacity(player);
+    }
+    if (!sneaking) {
+      stopMeditation(player);
+      return;
+    }
+
+    if (!hasSession) {
+      startMeditation(player);
     }
   }
 
@@ -132,8 +180,10 @@ public class UnarmedMeditation extends SimpleAdaptation<UnarmedMeditation.Config
     if (!activeSessions.add(id)) {
       return;
     }
+    lastPositions.put(id, player.getLocation());
     if (!J.runEntity(player, () -> pulseMeditation(player), 20)) {
       activeSessions.remove(id);
+      lastPositions.remove(id);
     }
   }
 
@@ -163,9 +213,19 @@ public class UnarmedMeditation extends SimpleAdaptation<UnarmedMeditation.Config
 
     enterMeditation(player, id);
     double cap = getAbsorptionCap(level);
+    if (!ensureAbsorptionCapacity(player, cap)) {
+      scheduleNextPulse(player);
+      return;
+    }
+
     double absorption = player.getAbsorptionAmount();
     if (absorption < cap) {
-      double gained = Math.min(cap - absorption, getConfig().gainPerPulse);
+      double gained = Math.min(cap - absorption, Math.max(0D, getConfig().gainPerPulse));
+      if (gained <= 0D) {
+        cleanupDepletedCapacity(player);
+        scheduleNextPulse(player);
+        return;
+      }
       player.setAbsorptionAmount(Math.min(cap, absorption + gained));
       double fill = cap <= 0 ? 1.0D : Math.min(1.0D, (absorption + gained) / cap);
       fx(current.clone().add(0, 1.1D, 0), FxPriority.AMBIENT)
@@ -189,6 +249,57 @@ public class UnarmedMeditation extends SimpleAdaptation<UnarmedMeditation.Config
     activeSessions.remove(id);
     lastPositions.remove(id);
     breakMeditation(player, id);
+  }
+
+  private boolean ensureAbsorptionCapacity(Player player, double cap) {
+    IAttribute attribute = Version.get().getAttribute(player, Attributes.MAX_ABSORPTION);
+    double absorption = player.getAbsorptionAmount();
+    if (!ensureAbsorptionCapacity(attribute, cap)) {
+      capacityPlayers.remove(player.getUniqueId());
+      return false;
+    }
+
+    if (player.getAbsorptionAmount() < absorption) {
+      player.setAbsorptionAmount(Math.min(absorption, attribute.getValue()));
+    }
+    capacityPlayers.add(player.getUniqueId());
+    return true;
+  }
+
+  static boolean ensureAbsorptionCapacity(IAttribute attribute, double cap) {
+    if (attribute == null || !Double.isFinite(cap) || cap <= 0D) {
+      return false;
+    }
+
+    KList<IAttribute.Modifier> modifiers = attribute.getModifier(ABSORPTION_MODIFIER, ABSORPTION_MODIFIER_KEY);
+    if (modifiers != null) {
+      for (IAttribute.Modifier modifier : modifiers) {
+        if (modifier.getOperation() == AttributeModifier.Operation.ADD_NUMBER
+            && Double.compare(modifier.getAmount(), cap) == 0) {
+          return true;
+        }
+      }
+    }
+
+    attribute.setTransientModifier(ABSORPTION_MODIFIER, ABSORPTION_MODIFIER_KEY, cap, AttributeModifier.Operation.ADD_NUMBER);
+    return true;
+  }
+
+  private void cleanupDepletedCapacity(Player player) {
+    if (capacityPlayers.contains(player.getUniqueId()) && player.getAbsorptionAmount() <= 0D) {
+      removeAbsorptionCapacity(player);
+    }
+  }
+
+  private void removeAbsorptionCapacity(Player player) {
+    removeAbsorptionCapacity(Version.get().getAttribute(player, Attributes.MAX_ABSORPTION));
+    capacityPlayers.remove(player.getUniqueId());
+  }
+
+  static void removeAbsorptionCapacity(IAttribute attribute) {
+    if (attribute != null) {
+      attribute.removeModifier(ABSORPTION_MODIFIER, ABSORPTION_MODIFIER_KEY);
+    }
   }
 
   private void enterMeditation(Player p, UUID id) {

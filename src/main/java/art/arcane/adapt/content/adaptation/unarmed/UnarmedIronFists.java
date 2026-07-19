@@ -23,22 +23,23 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.adapt.util.reflect.registries.Particles;
-import art.arcane.adapt.util.reflect.registries.PotionEffectTypes;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.potion.PotionEffect;
 
 import java.util.Map;
 import java.util.UUID;
@@ -115,7 +116,12 @@ public class UnarmedIronFists extends SimpleAdaptation<UnarmedIronFists.Config> 
       return;
     }
 
-    p.addPotionEffect(new PotionEffect(PotionEffectTypes.FAST_DIGGING, getConfig().hasteDurationTicks, getHasteAmplifier(context.level()), false, false, true));
+    int hasteDurationTicks = getConfig().hasteDurationTicks;
+    if (hasteDurationTicks <= 0) {
+      return;
+    }
+
+    AdaptAttributeService.get().applyTimed(p, getName(), "haste", Attributes.BLOCK_BREAK_SPEED, breakSpeedBonus(getHasteAmplifier(context.level())), AttributeModifier.Operation.MULTIPLY_SCALAR_1, hasteDurationTicks);
 
     long key = blockKey(block.getX(), block.getY(), block.getZ());
     Long last = lastPunchedBlock.get(p.getUniqueId());
@@ -137,9 +143,16 @@ public class UnarmedIronFists extends SimpleAdaptation<UnarmedIronFists.Config> 
   }
 
   private int getHasteAmplifier(int level) {
-    return Math.max(0, (int) Math.round(getLevelPercent(level) * getConfig().hasteAmplifierFactor));
+    return hasteAmplifier(getLevelPercent(level), getConfig().hasteAmplifierFactor);
   }
 
+  static int hasteAmplifier(double levelPercent, double amplifierFactor) {
+    return Math.max(0, (int) Math.round(levelPercent * amplifierFactor));
+  }
+
+  static double breakSpeedBonus(int amplifier) {
+    return 0.2D * (amplifier + 1);
+  }
 
   @ConfigDescription("Bare fists hit harder and punch through soft blocks faster.")
   protected static class Config extends AdaptationConfig {

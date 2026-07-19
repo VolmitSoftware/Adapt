@@ -24,8 +24,8 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.fx.ViewerDisplayDirector;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.common.world.WorldBlockScanScheduler;
@@ -36,7 +36,6 @@ import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -106,10 +105,10 @@ public class ExcavationDowsing extends SimpleAdaptation<ExcavationDowsing.Config
     }
 
     cooldowns.mark(p.getUniqueId());
-    startScan(p, p.getLocation(), getScanRange(level));
+    startScan(p, p.getLocation(), getScanRange(level), level);
   }
 
-  private void startScan(Player p, Location origin, int range) {
+  private void startScan(Player p, Location origin, int range, int level) {
     World world = origin.getWorld();
     if (world == null) {
       return;
@@ -123,7 +122,7 @@ public class ExcavationDowsing extends SimpleAdaptation<ExcavationDowsing.Config
         .radius(range)
         .denseRadius(getConfig().denseScanRadius)
         .maxSamples(checks)
-        .maxResults(1)
+        .maxResults(getRevealCount(level))
         .seed(ThreadLocalRandom.current().nextInt())
         .blockMatcher(block -> isPocket(block, originX, originY, originZ))
         .completion(result -> completeScan(p, range, result))
@@ -162,9 +161,12 @@ public class ExcavationDowsing extends SimpleAdaptation<ExcavationDowsing.Config
       Material type = pocket.material();
       Color color = pocketColor(type);
       ripplePulse(p.getLocation(), color);
-      renderTrail(origin, direction.normalize(), color, type);
+      renderTrail(p, origin, target, color, type);
+      for (WorldBlockScanScheduler.Match match : matches) {
+        showPocket(p, result.world(), match);
+      }
       playTone(p, type, origin.distance(target), range);
-      addStat(p, "excavation.dowsing.pockets-found", 1);
+      addStat(p, "excavation.dowsing.pockets-found", matches.size());
       xp(p, getConfig().xpPerPing);
     });
     if (!scheduled) {
@@ -176,12 +178,12 @@ public class ExcavationDowsing extends SimpleAdaptation<ExcavationDowsing.Config
     int dx = block.getX() - originX;
     int dy = block.getY() - originY;
     int dz = block.getZ() - originZ;
-    if (((dx * dx) + (dy * dy) + (dz * dz)) < MIN_POCKET_DISTANCE_SQUARED) {
-      return false;
-    }
+    return isDowsingTarget(block.getType(), (dx * dx) + (dy * dy) + (dz * dz));
+  }
 
-    Material type = block.getType();
-    return (type == Material.WATER || type == Material.LAVA || type.isAir()) && block.getLightFromSky() == 0;
+  static boolean isDowsingTarget(Material type, int distanceSquared) {
+    return distanceSquared >= MIN_POCKET_DISTANCE_SQUARED
+        && (type == Material.WATER || type == Material.LAVA);
   }
 
   @EventHandler
@@ -189,12 +191,14 @@ public class ExcavationDowsing extends SimpleAdaptation<ExcavationDowsing.Config
     UUID playerId = e.getPlayer().getUniqueId();
     activeScans.remove(playerId);
     WorldBlockScanScheduler.cancel(this, playerId);
+    ViewerDisplayDirector.clearViewer(getName(), playerId);
   }
 
   @Override
   public void unregister() {
     activeScans.clear();
     WorldBlockScanScheduler.cancelOwner(this);
+    ViewerDisplayDirector.clearChannel(getName());
     super.unregister();
   }
 
@@ -221,36 +225,50 @@ public class ExcavationDowsing extends SimpleAdaptation<ExcavationDowsing.Config
         .start();
   }
 
-  private void renderTrail(Location origin, Vector direction, Color color, Material type) {
-    int segments = Math.max(2, getConfig().trailSegments);
-    double spacing = getConfig().segmentSpacing;
-    double dx = direction.getX();
-    double dy = direction.getY();
-    double dz = direction.getZ();
-    Particle.DustOptions dust = new Particle.DustOptions(color, (float) getConfig().particleSize);
-    timeline(origin)
-        .duration(segments)
-        .priority(FxPriority.TRAIL)
-        .cullRadius(16)
-        .frame((fx, tick, progress) -> {
-          double head = (tick + 1) * spacing;
-          fx.particle(Particles.REDSTONE, 2, dx * head, dy * head, dz * head, 0.04D, 0, dust);
-          if (tick + 1 >= segments) {
-            double tip = segments * spacing;
-            arrivalBurst(fx, type, dx * tip, dy * tip, dz * tip);
-          }
-        })
-        .start();
+  private void renderTrail(Player player, Location origin, Location target, Color color, Material type) {
+    Vector direction = target.toVector().subtract(origin.toVector()).normalize();
+    Location start = origin.clone().add(direction.multiply(0.65D));
+    ViewerDisplayDirector.showLine(
+        getName(),
+        "fluid-trail",
+        player,
+        start,
+        target,
+        trailMaterial(type).createBlockData(),
+        color,
+        getConfig().trailThickness,
+        getRevealDurationTicks()
+    );
   }
 
-  private void arrivalBurst(FxEmitter fx, Material type, double ox, double oy, double oz) {
-    switch (type) {
-      case WATER -> fx.particle(Particle.SPLASH, 6, ox, oy, oz, 0.12D, 0.02D);
-      case LAVA -> fx.particle(Particle.LAVA, 6, ox, oy, oz, 0.12D, 0.02D)
-          .particle(Particle.FLAME, 3, ox, oy, oz, 0.1D, 0.02D);
-      default -> fx.particle(Particle.END_ROD, 6, ox, oy, oz, 0.1D, 0.02D);
-    }
-    fx.sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.5f, 1.4f);
+  private void showPocket(Player player, World world, WorldBlockScanScheduler.Match match) {
+    Location location = new Location(world, match.x(), match.y(), match.z());
+    ViewerDisplayDirector.showBlock(
+        getName(),
+        "fluid-" + match.x() + ":" + match.y() + ":" + match.z(),
+        player,
+        location,
+        match.material().createBlockData(),
+        pocketColor(match.material()),
+        getRevealDurationTicks()
+    );
+  }
+
+  private Material trailMaterial(Material type) {
+    return type == Material.LAVA ? Material.ORANGE_STAINED_GLASS : Material.LIGHT_BLUE_STAINED_GLASS;
+  }
+
+  private int getRevealCount(int level) {
+    return revealCount(getLevelPercent(level));
+  }
+
+  static int revealCount(double levelPercent) {
+    double percent = Double.isFinite(levelPercent) ? Math.max(0D, Math.min(1D, levelPercent)) : 0D;
+    return Math.max(1, Math.min(3, 1 + (int) Math.round(percent * 2D)));
+  }
+
+  private int getRevealDurationTicks() {
+    return Math.max(20, Math.min(20 * 30, getConfig().revealDurationTicks));
   }
 
   private void playTone(Player p, Material type, double distance, int range) {
@@ -274,7 +292,7 @@ public class ExcavationDowsing extends SimpleAdaptation<ExcavationDowsing.Config
   }
 
 
-  @ConfigDescription("Sneaking with a shovel pings the nearest hidden cave, water, or lava pocket with a directional trail.")
+  @ConfigDescription("Sneaking with a shovel privately glows the nearest one to three fluid blocks and points to the closest one.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Scan Range Base for the Excavation Dowsing adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double scanRangeBase = 8;
@@ -288,10 +306,10 @@ public class ExcavationDowsing extends SimpleAdaptation<ExcavationDowsing.Config
     double cooldownMillisBase = 9000;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown Millis Factor for the Excavation Dowsing adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double cooldownMillisFactor = 4500;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Trail Segments for the Excavation Dowsing adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    int trailSegments = 10;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Segment Spacing for the Excavation Dowsing adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double segmentSpacing = 0.55;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Thickness of the private glowing line pointing toward the nearest fluid pocket.", impact = "Higher values make the directional line wider.")
+    double trailThickness = 0.08;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Duration of private glowing fluid markers and the directional line, in ticks.", impact = "Higher values keep revealed pockets visible longer.")
+    int revealDurationTicks = 100;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Particle Size for the Excavation Dowsing adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double particleSize = 0.7;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Ping for the Excavation Dowsing adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

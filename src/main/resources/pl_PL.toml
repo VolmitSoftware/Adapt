@@ -1973,11 +1973,10 @@ lore = ["Im wiecej wrogow wokol ciebie, tym mniej obrazen zadasz kazdemu", "Zasi
 
 [tragoul.healing]
 name = "Wola Bolu"
-description = "Odzyskaj zdrowie na podstawie zadawanych obrazen!"
-lore1 = "Krzywdzenie jeszcze nigdy nie bylo tak przyjemne! Lecz sie z Zadanych Obrazen"
-lore2 = "Jest 3-sekundowe okno obrazen na leczenie i 1-sekundowy czas odnowienia "
-lore3 = "Procent Leczenia za Obrazenia: "
-lore = ["Krzywdzenie jeszcze nigdy nie bylo tak przyjemne! Lecz sie z Zadanych Obrazen", "Jest 3-sekundowe okno obrazen na leczenie i 1-sekundowy czas odnowienia ", "Procent Leczenia za Obrazenia: "]
+description = "Każdy prawidłowy napastnik, który cię zrani, traci małą stałą ilość życia, która zostaje ci przywrócona."
+lore1 = "zdrowia wyssanego z każdego napastnika"
+lore2 = "Rzeczywiście wyssane życie zostaje ci przywrócone"
+lore = ["zdrowia wyssanego z każdego napastnika", "Rzeczywiście wyssane życie zostaje ci przywrócone"]
 
 [tragoul.lance]
 name = "Lance Trupow"

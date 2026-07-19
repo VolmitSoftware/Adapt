@@ -217,7 +217,7 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
       recordKillStats(p, e.getEntity());
       if (e.getEntity().getType().equals(EntityType.CREEPER)) {
         double cmult = getConfig().creeperKillMultiplier;
-        IAttribute attribute = Version.get().getAttribute(e.getEntity(), Attributes.GENERIC_MAX_HEALTH);
+        IAttribute attribute = Version.get().getAttribute(e.getEntity(), Attributes.MAX_HEALTH);
         double xpAmount = (attribute == null ? 1 : attribute.getValue()) * getConfig().killMaxHealthXPMultiplier * cmult;
         if (isSpawnerMob(e.getEntity())) {
           xpAmount *= getConfig().spawnerMobReductionXpMultiplier;
@@ -261,7 +261,7 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
 
   private void handleEntityKill(Player p, Entity entity) {
     if (entity instanceof LivingEntity livingEntity) {
-      IAttribute attribute = Version.get().getAttribute(livingEntity, Attributes.GENERIC_MAX_HEALTH);
+      IAttribute attribute = Version.get().getAttribute(livingEntity, Attributes.MAX_HEALTH);
       double xpAmount = (attribute == null ? 1 : attribute.getValue()) * getConfig().killMaxHealthXPMultiplier;
       if (isSpawnerMob(entity)) {
         xpAmount *= getConfig().spawnerMobReductionXpMultiplier;

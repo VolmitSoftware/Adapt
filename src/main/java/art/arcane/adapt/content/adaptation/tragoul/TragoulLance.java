@@ -38,12 +38,14 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Tameable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -59,6 +61,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
   private static final Color LANCE_MAROON = Color.fromRGB(128, 0, 0);
+  private static final Particle.DustOptions LANCE_TIP = new Particle.DustOptions(Color.fromRGB(235, 20, 35), 1.35F);
   private static final double HARD_MAX_RANGE = 32D;
   private static final int HARD_MAX_CHAIN_HITS = 6;
   private static final int MAX_CANDIDATES_PER_SEARCH = 24;
@@ -105,8 +108,11 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
   @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
   public void onEntityDeath(EntityDeathEvent event) {
     LivingEntity victim = event.getEntity();
-    if (!(victim.getLastDamageCause() instanceof EntityDamageByEntityEvent damage)
-        || !(damage.getDamager() instanceof Player owner)) {
+    if (!(victim.getLastDamageCause() instanceof EntityDamageByEntityEvent damage)) {
+      return;
+    }
+    Player owner = resolvePlayerDamager(damage.getDamager());
+    if (owner == null) {
       return;
     }
 
@@ -120,7 +126,7 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
         victim instanceof Player,
         isProtectedFriendly(null, victim),
         tameOwnerId,
-        Math.max(0D, damage.getDamage())
+        Math.max(0D, damage.getFinalDamage())
     );
     J.runEntity(owner, () -> prepareChainOwnerOwned(owner, snapshot));
   }
@@ -149,7 +155,9 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
 
     int remainingHits = Math.max(1, Math.min(HARD_MAX_CHAIN_HITS, level));
     double range = Math.max(1D, Math.min(HARD_MAX_RANGE, 5D + (4D * level)));
-    double damage = source.damage() * getSeekerDamageMultiplier();
+    boolean unarmored = isUnarmored(owner.getInventory().getArmorContents());
+    double damage = lanceDamage(source.damage(), getSeekerDamageMultiplier(),
+        getUnarmoredDamageMultiplier(), unarmored);
     if (damage <= 0D) {
       admission.complete(ownerId, token);
       return;
@@ -362,10 +370,7 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
 
     double selfDamage = pass.damage() * chain.selfDamageMultiplier();
     if (selfDamage > 0D && owner.isValid() && !owner.isDead()) {
-      owner.damage(selfDamage, owner);
-      fx(owner, FxPriority.TRAIL)
-          .particle(Particle.DAMAGE_INDICATOR, 2, 0, 1.0, 0, 0.1, 0.01)
-          .sound(Sound.ENTITY_PLAYER_HURT, 0.2F, 1.0F);
+      applyPlayerHealthLoss(owner, selfDamage);
     }
 
     if (killed && pass.remainingHits() > 1) {
@@ -373,6 +378,16 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
     } else {
       finishChain(chain);
     }
+  }
+
+  static Player resolvePlayerDamager(Entity damager) {
+    if (damager instanceof Player player) {
+      return player;
+    }
+    if (damager instanceof Projectile projectile && projectile.getShooter() instanceof Player player) {
+      return player;
+    }
+    return null;
   }
 
   private boolean canDamageSnapshotOwned(Player owner, boolean player, boolean protectedFriendly,
@@ -405,6 +420,33 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
     return Double.isFinite(configured) ? Math.max(0D, Math.min(1D, configured)) : 0D;
   }
 
+  private double getUnarmoredDamageMultiplier() {
+    double configured = getConfig().unarmoredDamageMultiplier;
+    return Double.isFinite(configured) ? Math.max(1D, Math.min(10D, configured)) : 1D;
+  }
+
+  static boolean isUnarmored(ItemStack[] armorContents) {
+    if (armorContents == null) {
+      return true;
+    }
+    for (ItemStack armor : armorContents) {
+      if (armor != null && armor.getType() != Material.AIR) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  static double lanceDamage(double killingDamage, double baseMultiplier,
+                            double unarmoredMultiplier, boolean unarmored) {
+    if (!Double.isFinite(killingDamage) || !Double.isFinite(baseMultiplier)
+        || !Double.isFinite(unarmoredMultiplier)) {
+      return 0D;
+    }
+    double armorMultiplier = unarmored ? Math.max(1D, unarmoredMultiplier) : 1D;
+    return Math.max(0D, killingDamage) * Math.max(0D, baseMultiplier) * armorMultiplier;
+  }
+
   private void playLanceLaunch(Location origin) {
     fx(origin.clone().add(0, 1.0, 0), FxPriority.COMBAT)
         .burst(Particle.SCULK_SOUL, 6, 0.3)
@@ -421,9 +463,9 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
         .priority(FxPriority.TRAIL)
         .cullRadius(32)
         .frame((fx, tick, progress) -> {
-          fx.particle(Particle.SOUL_FIRE_FLAME, 2, dx * progress, dy * progress, dz * progress, 0.03, 0);
-          double tail = Math.max(0.0, progress - 0.06);
-          fx.particle(Particle.SOUL, 1, dx * tail, dy * tail, dz * tail, 0.02, 0);
+          fx.particle(Particle.DUST, 2, dx * progress, dy * progress, dz * progress, 0.025D, 0D, LANCE_TIP);
+          double tail = Math.max(0D, progress - 0.08D);
+          fx.particle(Particle.END_ROD, 2, dx * tail, dy * tail, dz * tail, 0.02D, 0D);
         })
         .start();
   }
@@ -445,6 +487,8 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
     double seekerDamageMultiplier = 1.0;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Self Damage Multiplier for the Tragoul Lance adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double selfDamageMultiplier = 0.25;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Damage multiplier applied when the owner has no armor equipped.", impact = "Higher values reward fighting without any equipped armor.")
+    double unarmoredDamageMultiplier = 3.0;
 
     public Config() {
       costFactor = 0.72;

@@ -25,25 +25,32 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPresets;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.adapt.util.reflect.registries.PotionEffectTypes;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 
+import java.util.Map;
+import java.util.UUID;
+
 public class HunterJumpBoost extends SimpleAdaptation<HunterJumpBoost.Config> {
   private final Cooldowns fxCooldown = cooldowns();
+  private final Map<UUID, Long> jumpUntil = playerState();
 
   public HunterJumpBoost() {
     super("hunter-jumpboost");
@@ -74,21 +81,17 @@ public class HunterJumpBoost extends SimpleAdaptation<HunterJumpBoost.Config> {
 
   @EventHandler
   public void on(EntityDamageEvent e) {
-    if (e.getEntity() instanceof org.bukkit.entity.Player p && isAdaptableDamageCause(e) && hasActiveAdaptation(p)) {
+    if (e.getEntity() instanceof Player p && isAdaptableDamageCause(e) && hasActiveAdaptation(p)) {
       if (AdaptConfig.get().isPreventHunterSkillsWhenHungerApplied() && p.hasPotionEffect(PotionEffectType.HUNGER)) {
         return;
       }
 
       if (!getConfig().useConsumable) {
         if (p.getFoodLevel() == 0) {
-          if (getConfig().poisonPenalty) {
-            addPotionStacks(p, PotionEffectType.POISON, getConfig().basePoisonFromLevel - getLevel(p), getConfig().baseHungerDuration, getConfig().stackPoisonPenalty);
-          }
-          starveFx(p);
-
+          starvePenalty(p);
         } else {
           addPotionStacks(p, PotionEffectType.HUNGER, getConfig().baseHungerFromLevel - getLevel(p), getConfig().baseHungerDuration * getLevel(p), getConfig().stackHungerPenalty);
-          addPotionStacks(p, PotionEffectTypes.JUMP, getLevel(p), getConfig().baseEffectbyLevel * getLevel(p), getConfig().stackBuff);
+          applyJumpBuff(p);
           addStat(p, "hunter.jump-boost.activations", 1);
           activateFx(p);
         }
@@ -97,18 +100,64 @@ public class HunterJumpBoost extends SimpleAdaptation<HunterJumpBoost.Config> {
           Material mat = Material.getMaterial(getConfig().consumable);
           if (mat != null && p.getInventory().contains(mat)) {
             p.getInventory().removeItem(new ItemStack(mat, 1));
-            addPotionStacks(p, PotionEffectTypes.JUMP, getLevel(p), getConfig().baseEffectbyLevel * getLevel(p), getConfig().stackBuff);
+            applyJumpBuff(p);
             addStat(p, "hunter.jump-boost.activations", 1);
             activateFx(p);
           } else {
-            if (getConfig().poisonPenalty) {
-              addPotionStacks(p, PotionEffectType.POISON, getConfig().basePoisonFromLevel - getLevel(p), getConfig().baseHungerDuration, getConfig().stackPoisonPenalty);
-            }
-            starveFx(p);
+            starvePenalty(p);
           }
         }
       }
     }
+  }
+
+  private void applyJumpBuff(Player p) {
+    PotionEffectType jumpBoost = PotionEffectTypes.JUMP;
+    if (jumpBoost != null && p.hasPotionEffect(jumpBoost)) {
+      return;
+    }
+
+    boolean stackBuff = getConfig().stackBuff;
+    long now = System.currentTimeMillis();
+    Long until = jumpUntil.get(p.getUniqueId());
+    long remainingTicks = until == null ? 0L : Math.max(0L, (until - now) / 50L);
+    if (remainingTicks > 0L && !stackBuff) {
+      return;
+    }
+
+    int level = getLevel(p);
+    long durationTicks = buffDurationTicks(getConfig().baseEffectbyLevel, level, remainingTicks, stackBuff);
+    if (durationTicks <= 0L) {
+      return;
+    }
+
+    AdaptAttributeService attributes = AdaptAttributeService.get();
+    attributes.applyTimed(p, getName(), "jump", Attributes.JUMP_STRENGTH, jumpStrengthBonus(level), AttributeModifier.Operation.ADD_NUMBER, durationTicks);
+    attributes.applyTimed(p, getName(), "fall", Attributes.SAFE_FALL_DISTANCE, safeFallBonus(level), AttributeModifier.Operation.ADD_NUMBER, durationTicks);
+    jumpUntil.put(p.getUniqueId(), now + (durationTicks * 50L));
+  }
+
+  private void starvePenalty(Player p) {
+    if (getConfig().poisonPenalty) {
+      addPotionStacks(p, PotionEffectType.POISON, getConfig().basePoisonFromLevel - getLevel(p), getConfig().baseHungerDuration, getConfig().stackPoisonPenalty);
+    }
+    starveFx(p);
+  }
+
+  static double jumpStrengthBonus(int level) {
+    return 0.1D * (level + 1);
+  }
+
+  static double safeFallBonus(int level) {
+    return level + 1.0D;
+  }
+
+  static long buffDurationTicks(int baseTicksPerLevel, int level, long remainingTicks, boolean stackBuff) {
+    long base = (long) baseTicksPerLevel * level;
+    if (base <= 0L) {
+      return 0L;
+    }
+    return base + (stackBuff ? Math.max(0L, remainingTicks) : 0L);
   }
 
   private void activateFx(Player p) {

@@ -3,6 +3,8 @@ package art.arcane.adapt.content.adaptation.discovery;
 import org.bukkit.Material;
 import org.junit.jupiter.api.Test;
 
+import java.util.UUID;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -57,5 +59,25 @@ class DiscoveryArmorTest {
   @Test
   void laterActiveSamplesUseActualElapsedTime() {
     assertThat(DiscoveryArmor.elapsedActiveTicks(1000L, 4000L)).isEqualTo(60D);
+  }
+
+  @Test
+  void lerpSeedFallsBackToZeroForMissingOrInvalidHistory() {
+    assertThat(DiscoveryArmor.lerpSeed(null)).isZero();
+    assertThat(DiscoveryArmor.lerpSeed(Double.NaN)).isZero();
+    assertThat(DiscoveryArmor.lerpSeed(Double.POSITIVE_INFINITY)).isZero();
+  }
+
+  @Test
+  void lerpSeedPreservesFiniteHistory() {
+    assertThat(DiscoveryArmor.lerpSeed(4.5D)).isEqualTo(4.5D);
+    assertThat(DiscoveryArmor.lerpSeed(0D)).isZero();
+  }
+
+  @Test
+  void legacyModifierIdentityStaysPinnedToHistoricalPersistentKey() {
+    assertThat(DiscoveryArmor.LEGACY_MODIFIER).isEqualTo(UUID.fromString("5da9acee-ca11-3388-a98e-cb41016f9253"));
+    assertThat(DiscoveryArmor.LEGACY_MODIFIER_KEY.getNamespace()).isEqualTo("adapt");
+    assertThat(DiscoveryArmor.LEGACY_MODIFIER_KEY.getKey()).isEqualTo("discovery-armor");
   }
 }

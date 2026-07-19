@@ -24,26 +24,29 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 
 import java.util.Map;
 import java.util.UUID;
 
 public class AxeBarkHide extends SimpleAdaptation<AxeBarkHide.Config> {
+  private static final String SLOT_BARK = "bark";
   private final Map<UUID, BarkState> states = playerState();
 
   public AxeBarkHide() {
@@ -80,13 +83,15 @@ public class AxeBarkHide extends SimpleAdaptation<AxeBarkHide.Config> {
 
     int level = context.level();
     long now = System.currentTimeMillis();
-    long graceMs = getGracePeriodTicks(level) * 50L;
+    int graceTicks = getGracePeriodTicks(level);
+    long graceMs = graceTicks * 50L;
     UUID id = p.getUniqueId();
     BarkState state = states.get(id);
-    int current = (state == null || now - state.lastWorkAt() > graceMs) ? 0 : state.stacks();
+    int current = currentStacks(state, now, graceMs);
     int cap = getAbsorptionCap(level);
-    int next = Math.min(current + 1, cap);
-    states.put(id, new BarkState(next, now));
+    int next = nextStacks(current, cap);
+    boolean refill = shouldRefill(current, next, state != null && state.ceilingLost());
+    states.put(id, new BarkState(next, now, false));
 
     if (next > current) {
       addStat(p, "axe.bark-hide.stacks-gained", 1);
@@ -96,7 +101,36 @@ public class AxeBarkHide extends SimpleAdaptation<AxeBarkHide.Config> {
           .sound(Sound.BLOCK_WOOD_PLACE, 0.4F, 0.7F + (next * 0.12F));
     }
 
-    p.addPotionEffect(new PotionEffect(PotionEffectType.ABSORPTION, getGracePeriodTicks(level), next - 1, false, false, true));
+    double points = absorptionPoints(next);
+    AdaptAttributeService.get().applyTimed(p, getName(), SLOT_BARK, Attributes.MAX_ABSORPTION, points, AttributeModifier.Operation.ADD_NUMBER, graceTicks);
+    if (refill) {
+      p.setAbsorptionAmount(Math.max(p.getAbsorptionAmount(), points));
+    }
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(PlayerDeathEvent e) {
+    UUID id = e.getEntity().getUniqueId();
+    BarkState state = states.get(id);
+    if (state != null) {
+      states.put(id, new BarkState(state.stacks(), state.lastWorkAt(), true));
+    }
+  }
+
+  static int currentStacks(BarkState state, long now, long graceMs) {
+    return (state == null || now - state.lastWorkAt() > graceMs) ? 0 : state.stacks();
+  }
+
+  static int nextStacks(int current, int cap) {
+    return Math.min(current + 1, cap);
+  }
+
+  static double absorptionPoints(int stacks) {
+    return stacks * 4.0D;
+  }
+
+  static boolean shouldRefill(int current, int next, boolean ceilingLost) {
+    return next > current || ceilingLost;
   }
 
   private int getAbsorptionCap(int level) {
@@ -107,7 +141,7 @@ public class AxeBarkHide extends SimpleAdaptation<AxeBarkHide.Config> {
     return Math.max(20, (int) Math.round(getConfig().gracePeriodTicksBase + (getLevelPercent(level) * getConfig().gracePeriodTicksFactor)));
   }
 
-  private record BarkState(int stacks, long lastWorkAt) {
+  record BarkState(int stacks, long lastWorkAt, boolean ceilingLost) {
   }
 
   @ConfigDescription("Chopping logs layers on short-lived absorption that fades once you stop working.")

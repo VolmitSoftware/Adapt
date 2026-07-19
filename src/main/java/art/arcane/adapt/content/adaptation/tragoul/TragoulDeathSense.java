@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.tragoul;
 
+import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -34,13 +35,17 @@ import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
+import fr.skytasul.glowingentities.GlowingEntities;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Monster;
+import org.bukkit.entity.AnimalTamer;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Tameable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -48,10 +53,10 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.world.EntitiesLoadEvent;
 import org.bukkit.event.world.EntitiesUnloadEvent;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -65,20 +70,25 @@ public class TragoulDeathSense extends SimpleAdaptation<TragoulDeathSense.Config
   private static final double HARD_MAX_RADIUS = 32D;
   private static final long OWNER_REFRESH_MILLIS = 500L;
   private static final long OWNER_SNAPSHOT_MAX_AGE_MILLIS = 5000L;
-  private static final long MONSTER_INSPECTION_MILLIS = 250L;
+  private static final long TARGET_INSPECTION_MILLIS = 250L;
+  private static final long GLOW_LEASE_MILLIS = 1000L;
 
   private final DeathSenseSpatialIndex spatialIndex = new DeathSenseSpatialIndex();
   private final DeathSenseWorkBudget markBudget = new DeathSenseWorkBudget(50L, System::currentTimeMillis);
   private final Map<UUID, OwnerRuntime> ownerRuntimes = new ConcurrentHashMap<>();
-  private final Map<UUID, Monster> trackedMonsters = new ConcurrentHashMap<>();
+  private final Map<UUID, LivingEntity> trackedTargets = new ConcurrentHashMap<>();
+  private final Map<UUID, Map<UUID, SensedGlow>> ownerGlows = new ConcurrentHashMap<>();
   private final Map<UUID, Long> nextOwnerRefreshAt = new ConcurrentHashMap<>();
-  private final Map<UUID, Long> nextMonsterInspectionAt = new ConcurrentHashMap<>();
+  private final Map<UUID, Long> nextTargetInspectionAt = new ConcurrentHashMap<>();
   private final Map<UUID, Integer> pendingSensed = new ConcurrentHashMap<>();
   private final Set<UUID> pendingOwnerRefreshes = ConcurrentHashMap.newKeySet();
-  private final Set<UUID> pendingMonsterInspections = ConcurrentHashMap.newKeySet();
+  private final Set<UUID> pendingTargetInspections = ConcurrentHashMap.newKeySet();
   private final Set<UUID> pendingFeedback = ConcurrentHashMap.newKeySet();
+  private final Set<UUID> glowExpiryScheduled = ConcurrentHashMap.newKeySet();
   private final AtomicBoolean lifecycleCleanupStarted = new AtomicBoolean();
-  private Iterator<Map.Entry<UUID, Monster>> monsterCursor = Collections.emptyIterator();
+  private final AtomicBoolean glowApplyFailureLogged = new AtomicBoolean();
+  private final AtomicBoolean glowClearFailureLogged = new AtomicBoolean();
+  private Iterator<Map.Entry<UUID, LivingEntity>> targetCursor = Collections.emptyIterator();
   private int ownerCursor;
 
   public TragoulDeathSense() {
@@ -104,21 +114,21 @@ public class TragoulDeathSense extends SimpleAdaptation<TragoulDeathSense.Config
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(EntityDamageEvent event) {
-    if (event.getEntity() instanceof Monster monster) {
-      track(monster);
+    if (event.getEntity() instanceof LivingEntity target) {
+      track(target);
     }
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(EntityDeathEvent event) {
-    removeMonster(event.getEntity().getUniqueId());
+    removeTarget(event.getEntity().getUniqueId());
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(EntitiesLoadEvent event) {
     for (Entity entity : event.getEntities()) {
-      if (entity instanceof Monster monster) {
-        trackIfWeakened(monster);
+      if (entity instanceof LivingEntity target) {
+        trackIfWeakened(target);
       }
     }
   }
@@ -126,29 +136,34 @@ public class TragoulDeathSense extends SimpleAdaptation<TragoulDeathSense.Config
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(EntitiesUnloadEvent event) {
     for (Entity entity : event.getEntities()) {
-      if (entity instanceof Monster) {
-        removeMonster(entity.getUniqueId());
+      if (entity instanceof LivingEntity) {
+        removeTarget(entity.getUniqueId());
       }
     }
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(PlayerQuitEvent event) {
-    removeOwner(event.getPlayer().getUniqueId());
+    UUID playerId = event.getPlayer().getUniqueId();
+    removeOwner(playerId);
+    removeTarget(playerId);
   }
 
   @Override
   public void unregister() {
     if (lifecycleCleanupStarted.compareAndSet(false, true)) {
       spatialIndex.clear();
+      clearAllGlows();
       ownerRuntimes.clear();
-      trackedMonsters.clear();
+      trackedTargets.clear();
+      ownerGlows.clear();
       nextOwnerRefreshAt.clear();
-      nextMonsterInspectionAt.clear();
+      nextTargetInspectionAt.clear();
       pendingSensed.clear();
       pendingOwnerRefreshes.clear();
-      pendingMonsterInspections.clear();
+      pendingTargetInspections.clear();
       pendingFeedback.clear();
+      glowExpiryScheduled.clear();
     }
     super.unregister();
   }
@@ -161,7 +176,7 @@ public class TragoulDeathSense extends SimpleAdaptation<TragoulDeathSense.Config
 
     long now = System.currentTimeMillis();
     refreshOwnerBatch(learnedCandidates(now), now);
-    refreshMonsterBatch(now);
+    refreshTargetBatch(now);
   }
 
   private void refreshOwnerBatch(List<AdaptPlayer> candidates, long now) {
@@ -212,6 +227,7 @@ public class TragoulDeathSense extends SimpleAdaptation<TragoulDeathSense.Config
         return;
       }
 
+      expireOwnerGlowsOwned(player, System.currentTimeMillis());
       Location location = player.getLocation();
       double radius = getRadius(level);
       DeathSenseSpatialIndex.OwnerPoint point = new DeathSenseSpatialIndex.OwnerPoint(
@@ -230,60 +246,56 @@ public class TragoulDeathSense extends SimpleAdaptation<TragoulDeathSense.Config
     }
   }
 
-  private void refreshMonsterBatch(long now) {
-    if (spatialIndex.isEmpty() || trackedMonsters.isEmpty()) {
+  private void refreshTargetBatch(long now) {
+    if (spatialIndex.isEmpty() || trackedTargets.isEmpty()) {
       return;
     }
 
-    if (!monsterCursor.hasNext()) {
-      monsterCursor = trackedMonsters.entrySet().iterator();
+    if (!targetCursor.hasNext()) {
+      targetCursor = trackedTargets.entrySet().iterator();
     }
 
-    int limit = DeathSenseWorkLimits.monsterInspections(getConfig().maxMonsterInspectionsPerTick);
+    int limit = DeathSenseWorkLimits.targetInspections(getConfig().maxTargetInspectionsPerTick);
     int examined = 0;
-    while (examined < limit && monsterCursor.hasNext()) {
-      Map.Entry<UUID, Monster> entry = monsterCursor.next();
+    while (examined < limit && targetCursor.hasNext()) {
+      Map.Entry<UUID, LivingEntity> entry = targetCursor.next();
       examined++;
-      UUID monsterId = entry.getKey();
-      Long nextInspection = nextMonsterInspectionAt.get(monsterId);
-      if ((nextInspection != null && now < nextInspection) || !pendingMonsterInspections.add(monsterId)) {
+      UUID targetId = entry.getKey();
+      Long nextInspection = nextTargetInspectionAt.get(targetId);
+      if ((nextInspection != null && now < nextInspection) || !pendingTargetInspections.add(targetId)) {
         continue;
       }
 
-      Monster monster = entry.getValue();
-      nextMonsterInspectionAt.put(monsterId, now + MONSTER_INSPECTION_MILLIS);
-      if (!J.runEntity(monster, () -> inspectMonsterOwned(monster, now))) {
-        pendingMonsterInspections.remove(monsterId);
-        nextMonsterInspectionAt.remove(monsterId);
+      LivingEntity target = entry.getValue();
+      nextTargetInspectionAt.put(targetId, now + TARGET_INSPECTION_MILLIS);
+      if (!J.runEntity(target, () -> inspectTargetOwned(target, now))) {
+        pendingTargetInspections.remove(targetId);
+        nextTargetInspectionAt.remove(targetId);
       }
     }
   }
 
-  private void inspectMonsterOwned(Monster monster, long scheduledAt) {
-    UUID monsterId = monster.getUniqueId();
+  private void inspectTargetOwned(LivingEntity target, long scheduledAt) {
+    UUID targetId = target.getUniqueId();
     try {
-      if (lifecycleCleanupStarted.get() || !monster.isValid() || monster.isDead()) {
-        removeMonster(monsterId);
-        return;
-      }
-      if (monster.hasPotionEffect(PotionEffectType.GLOWING)) {
-        nextMonsterInspectionAt.put(monsterId, System.currentTimeMillis() + 1000L);
+      if (lifecycleCleanupStarted.get() || !target.isValid() || target.isDead()) {
+        removeTarget(targetId);
         return;
       }
 
-      IAttribute attribute = Version.get().getAttribute(monster, Attributes.GENERIC_MAX_HEALTH);
+      IAttribute attribute = Version.get().getAttribute(target, Attributes.MAX_HEALTH);
       double maxHealth = attribute == null ? 20D : attribute.getValue();
       if (maxHealth <= 0D) {
         return;
       }
 
-      Location location = monster.getLocation();
-      double healthFraction = monster.getHealth() / maxHealth;
+      Location location = target.getLocation();
+      double healthFraction = target.getHealth() / maxHealth;
       if (healthFraction > maximumHealthThreshold()) {
-        removeMonster(monsterId);
+        removeTarget(targetId);
         return;
       }
-      DeathSenseSpatialIndex.OwnerPoint point = spatialIndex.findNearest(
+      List<DeathSenseSpatialIndex.OwnerPoint> points = spatialIndex.findEligible(
           location.getWorld().getUID(),
           location.getX(),
           location.getY(),
@@ -291,28 +303,193 @@ public class TragoulDeathSense extends SimpleAdaptation<TragoulDeathSense.Config
           healthFraction,
           HARD_MAX_RADIUS,
           Math.max(scheduledAt, System.currentTimeMillis()),
-          OWNER_SNAPSHOT_MAX_AGE_MILLIS);
-      if (point == null) {
+          OWNER_SNAPSHOT_MAX_AGE_MILLIS,
+          DeathSenseWorkLimits.marks(getConfig().maxMarksPerTick));
+      if (points.isEmpty()) {
         return;
       }
 
-      OwnerRuntime runtime = ownerRuntimes.get(point.ownerId());
-      if (runtime == null || isProtectedFriendly(null, monster)) {
-        return;
+      UUID tameOwnerId = null;
+      if (target instanceof Tameable tameable && tameable.isTamed()) {
+        AnimalTamer tamer = tameable.getOwner();
+        tameOwnerId = tamer == null ? null : tamer.getUniqueId();
       }
-
-      int markLimit = DeathSenseWorkLimits.marks(getConfig().maxMarksPerTick);
-      if (!markBudget.tryAcquire(markLimit)) {
-        return;
+      TargetSnapshot snapshot = new TargetSnapshot(target, targetId, location.clone(),
+          target instanceof Player, target.isInvisible(), isProtectedFriendly(null, target),
+          tameOwnerId, healthColor(healthFraction));
+      for (DeathSenseSpatialIndex.OwnerPoint point : points) {
+        OwnerRuntime runtime = ownerRuntimes.get(point.ownerId());
+        if (runtime == null) {
+          continue;
+        }
+        int markLimit = DeathSenseWorkLimits.marks(getConfig().maxMarksPerTick);
+        if (!markBudget.tryAcquire(markLimit)) {
+          break;
+        }
+        J.runEntity(runtime.player(), () -> completeSenseOwnerOwned(runtime, snapshot));
       }
-
-      int glowTicks = Math.max(1, getConfig().glowTicks);
-      monster.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, glowTicks, 0, true, false, false), true);
-      fx(location.clone().add(0, 0.8, 0), FxPriority.AMBIENT)
-          .particle(Particle.SCULK_SOUL, 2, 0, 0.3, 0, 0.15, 0.01);
-      queueOwnerFeedback(runtime, 1);
     } finally {
-      pendingMonsterInspections.remove(monsterId);
+      pendingTargetInspections.remove(targetId);
+    }
+  }
+
+  private void completeSenseOwnerOwned(OwnerRuntime runtime, TargetSnapshot target) {
+    Player owner = runtime.player();
+    if (!ownerRuntimes.containsKey(runtime.ownerId()) || !owner.isOnline()
+        || getActiveLevel(owner) <= 0 || !canSenseTargetOwned(owner, target)) {
+      clearGlowOwned(owner, target.entityId());
+      return;
+    }
+    boolean firstSense = applyGlowOwned(owner, target, System.currentTimeMillis() + GLOW_LEASE_MILLIS);
+    if (firstSense) {
+      queueOwnerFeedback(runtime, 1);
+    }
+  }
+
+  private boolean canSenseTargetOwned(Player owner, TargetSnapshot target) {
+    if (target.protectedFriendly() || owner.getUniqueId().equals(target.entityId())
+        || owner.getUniqueId().equals(target.tameOwnerId())
+        || owner.getWorld() != target.location().getWorld()) {
+      return false;
+    }
+    if (target.invisible() || (target.player() && !owner.canSee(target.entity()))) {
+      return false;
+    }
+    return target.player() ? canPVP(owner, target.location()) : canPVE(owner, target.location());
+  }
+
+  private boolean applyGlowOwned(Player owner, TargetSnapshot target, long expiresAt) {
+    Map<UUID, SensedGlow> glows = ownerGlows.computeIfAbsent(owner.getUniqueId(), ignored -> new ConcurrentHashMap<>());
+    SensedGlow current = glows.get(target.entityId());
+    if (current != null && current.color() == target.color()) {
+      glows.put(target.entityId(), new SensedGlow(target.entity(), target.entityId(), target.color(), expiresAt));
+      ensureGlowExpiryOwned(owner);
+      return false;
+    }
+    if (current != null) {
+      unsetGlowOwned(owner, current);
+    }
+
+    GlowingEntities glowingEntities = Adapt.instance.getGlowingEntities();
+    if (glowingEntities == null) {
+      glows.remove(target.entityId());
+      return false;
+    }
+    try {
+      synchronized (Adapt.glowingEntitiesLock()) {
+        glowingEntities.setGlowing(target.entity(), owner, target.color());
+      }
+      glows.put(target.entityId(), new SensedGlow(target.entity(), target.entityId(), target.color(), expiresAt));
+      ensureGlowExpiryOwned(owner);
+      return current == null;
+    } catch (ReflectiveOperationException error) {
+      glows.remove(target.entityId());
+      reportGlowFailure("show", error, glowApplyFailureLogged);
+      return false;
+    }
+  }
+
+  private void expireOwnerGlowsOwned(Player owner, long now) {
+    Map<UUID, SensedGlow> glows = ownerGlows.get(owner.getUniqueId());
+    if (glows == null) {
+      return;
+    }
+    for (SensedGlow glow : new ArrayList<>(glows.values())) {
+      if (glow.expiresAt() <= now && glows.remove(glow.entityId(), glow)) {
+        unsetGlowOwned(owner, glow);
+      }
+    }
+    if (glows.isEmpty()) {
+      ownerGlows.remove(owner.getUniqueId(), glows);
+    }
+  }
+
+  private void ensureGlowExpiryOwned(Player owner) {
+    UUID ownerId = owner.getUniqueId();
+    if (!glowExpiryScheduled.add(ownerId)) {
+      return;
+    }
+    if (!J.runEntity(owner, () -> runGlowExpiryOwned(owner), 10)) {
+      glowExpiryScheduled.remove(ownerId);
+    }
+  }
+
+  private void runGlowExpiryOwned(Player owner) {
+    UUID ownerId = owner.getUniqueId();
+    if (!glowExpiryScheduled.remove(ownerId)) {
+      return;
+    }
+    expireOwnerGlowsOwned(owner, System.currentTimeMillis());
+    Map<UUID, SensedGlow> glows = ownerGlows.get(ownerId);
+    if (glows == null || glows.isEmpty() || !owner.isOnline()) {
+      return;
+    }
+    ensureGlowExpiryOwned(owner);
+  }
+
+  private void clearGlowOwned(Player owner, UUID targetId) {
+    Map<UUID, SensedGlow> glows = ownerGlows.get(owner.getUniqueId());
+    if (glows == null) {
+      return;
+    }
+    SensedGlow removed = glows.remove(targetId);
+    if (removed != null) {
+      unsetGlowOwned(owner, removed);
+    }
+  }
+
+  private void unsetGlowOwned(Player owner, SensedGlow glow) {
+    GlowingEntities glowingEntities = Adapt.instance.getGlowingEntities();
+    if (glowingEntities == null) {
+      return;
+    }
+    try {
+      synchronized (Adapt.glowingEntitiesLock()) {
+        glowingEntities.unsetGlowing(glow.entity(), owner);
+      }
+    } catch (ReflectiveOperationException error) {
+      reportGlowFailure("clear", error, glowClearFailureLogged);
+    }
+  }
+
+  private void reportGlowFailure(String action, ReflectiveOperationException error, AtomicBoolean logged) {
+    if (!logged.compareAndSet(false, true)) {
+      return;
+    }
+    Adapt.error("Failed to " + action + " a Death Sense target glow.");
+    error.printStackTrace();
+  }
+
+  private void clearTargetGlows(UUID targetId) {
+    for (OwnerRuntime runtime : ownerRuntimes.values()) {
+      Map<UUID, SensedGlow> glows = ownerGlows.get(runtime.ownerId());
+      if (glows != null && glows.containsKey(targetId)) {
+        J.runEntity(runtime.player(), () -> clearGlowOwned(runtime.player(), targetId));
+      }
+    }
+  }
+
+  private void clearAllGlows() {
+    for (OwnerRuntime runtime : ownerRuntimes.values()) {
+      Map<UUID, SensedGlow> glows = ownerGlows.remove(runtime.ownerId());
+      if (glows != null) {
+        J.runEntity(runtime.player(), () -> clearDetachedGlowsOwned(runtime.player(), glows));
+      }
+    }
+  }
+
+  private void clearOwnerGlowsOwned(Player owner) {
+    glowExpiryScheduled.remove(owner.getUniqueId());
+    Map<UUID, SensedGlow> glows = ownerGlows.remove(owner.getUniqueId());
+    if (glows == null) {
+      return;
+    }
+    clearDetachedGlowsOwned(owner, glows);
+  }
+
+  private void clearDetachedGlowsOwned(Player owner, Map<UUID, SensedGlow> glows) {
+    for (SensedGlow glow : glows.values()) {
+      unsetGlowOwned(owner, glow);
     }
   }
 
@@ -352,32 +529,43 @@ public class TragoulDeathSense extends SimpleAdaptation<TragoulDeathSense.Config
     }
   }
 
-  private void track(Monster monster) {
+  private void track(LivingEntity target) {
     if (!lifecycleCleanupStarted.get()) {
-      trackedMonsters.put(monster.getUniqueId(), monster);
+      trackedTargets.put(target.getUniqueId(), target);
     }
   }
 
-  private void trackIfWeakened(Monster monster) {
-    IAttribute attribute = Version.get().getAttribute(monster, Attributes.GENERIC_MAX_HEALTH);
+  private void trackIfWeakened(LivingEntity target) {
+    IAttribute attribute = Version.get().getAttribute(target, Attributes.MAX_HEALTH);
     double maxHealth = attribute == null ? 20D : attribute.getValue();
-    if (maxHealth > 0D && monster.getHealth() / maxHealth <= maximumHealthThreshold()) {
-      track(monster);
+    if (maxHealth > 0D && target.getHealth() / maxHealth <= maximumHealthThreshold()) {
+      track(target);
     }
   }
 
-  private void removeMonster(UUID monsterId) {
-    trackedMonsters.remove(monsterId);
-    nextMonsterInspectionAt.remove(monsterId);
-    pendingMonsterInspections.remove(monsterId);
+  private void removeTarget(UUID targetId) {
+    trackedTargets.remove(targetId);
+    nextTargetInspectionAt.remove(targetId);
+    pendingTargetInspections.remove(targetId);
+    clearTargetGlows(targetId);
   }
 
   private void removeOwner(UUID ownerId) {
     spatialIndex.remove(ownerId);
-    ownerRuntimes.remove(ownerId);
+    OwnerRuntime runtime = ownerRuntimes.remove(ownerId);
     nextOwnerRefreshAt.remove(ownerId);
     pendingSensed.remove(ownerId);
     pendingFeedback.remove(ownerId);
+    glowExpiryScheduled.remove(ownerId);
+    if (runtime == null) {
+      ownerGlows.remove(ownerId);
+      return;
+    }
+    if (J.isOwnedByCurrentRegion(runtime.player())) {
+      clearOwnerGlowsOwned(runtime.player());
+    } else {
+      J.runEntity(runtime.player(), () -> clearOwnerGlowsOwned(runtime.player()));
+    }
   }
 
   private double getRadius(int level) {
@@ -387,15 +575,40 @@ public class TragoulDeathSense extends SimpleAdaptation<TragoulDeathSense.Config
   }
 
   private double getHealthThreshold(int level) {
-    return Math.min(maximumHealthThreshold(),
-        Math.max(0, getConfig().healthThresholdBase + (getLevelPercent(level) * getConfig().healthThresholdFactor)));
+    return healthThreshold(getConfig().healthThresholdStart, getConfig().healthThresholdEnd,
+        level, getMaxLevel());
   }
 
   private double maximumHealthThreshold() {
-    return Math.max(0D, Math.min(1D, getConfig().maxHealthThreshold));
+    return Math.max(0D, Math.min(1D, Math.max(getConfig().healthThresholdStart,
+        getConfig().healthThresholdEnd)));
   }
 
-  @ConfigDescription("Weakened hostile mobs near you briefly glow so you can sense dying prey through walls.")
+  static double healthThreshold(double start, double end, int level, int maxLevel) {
+    double clampedStart = Math.max(0D, Math.min(1D, start));
+    double clampedEnd = Math.max(0D, Math.min(1D, end));
+    if (maxLevel <= 1) {
+      return clampedEnd;
+    }
+    double progress = Math.max(0D, Math.min(1D, (level - 1D) / (maxLevel - 1D)));
+    return clampedStart + ((clampedEnd - clampedStart) * progress);
+  }
+
+  static ChatColor healthColor(double healthFraction) {
+    double clamped = Math.max(0D, Math.min(1D, healthFraction));
+    if (clamped <= 0.25D) {
+      return ChatColor.DARK_RED;
+    }
+    if (clamped <= 0.5D) {
+      return ChatColor.RED;
+    }
+    if (clamped <= 0.75D) {
+      return ChatColor.GOLD;
+    }
+    return ChatColor.YELLOW;
+  }
+
+  @ConfigDescription("Weakened living targets near you glow through walls with a color based on their remaining health.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Scan radius before level scaling.", impact = "Higher values sense prey further away but cost more scan work.")
     double radiusBase = 8;
@@ -403,19 +616,15 @@ public class TragoulDeathSense extends SimpleAdaptation<TragoulDeathSense.Config
     double radiusFactor = 8;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum effective sensing radius, capped internally at 32 blocks.", impact = "Lower values reduce spatial lookup work and keep the effect more local.")
     double maxRadius = 32;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Health fraction below which hostile mobs are sensed, before level scaling.", impact = "Higher values mark healthier mobs as weakened prey.")
-    double healthThresholdBase = 0.2;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Additional health fraction granted at max level.", impact = "Higher values increase level-scaled threshold growth.")
-    double healthThresholdFactor = 0.25;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Hard cap on the sensed health fraction.", impact = "Prevents marking near-full-health mobs at high levels.")
-    double maxHealthThreshold = 0.5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Duration in ticks of the glow applied to sensed mobs.", impact = "Higher values keep prey highlighted longer between pulses.")
-    int glowTicks = 35;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Health fraction at or below which targets are sensed at adaptation level one.", impact = "Higher values reveal healthier targets at the first level.")
+    double healthThresholdStart = 0.5;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Health fraction at or below which targets are sensed at maximum adaptation level.", impact = "Higher values reveal healthier targets at maximum level.")
+    double healthThresholdEnd = 0.9;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum learned owners refreshed per scheduler tick, capped internally at 24.", impact = "Higher values refresh player positions faster at the cost of more player-owned tasks.")
     int maxOwnersPerTick = 24;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum indexed monsters inspected per scheduler tick, capped internally at 48.", impact = "Higher values refresh more loaded monsters at the cost of more entity-owned tasks.")
-    int maxMonsterInspectionsPerTick = 48;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum mobs marked per scheduler tick, capped internally at 12.", impact = "Caps effect, feedback, and stat fanout under dense combat loads.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum indexed living targets inspected per scheduler tick, capped internally at 48.", impact = "Higher values refresh more loaded targets at the cost of more entity-owned tasks.")
+    int maxTargetInspectionsPerTick = 48;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum owner-specific target glows refreshed per scheduler tick, capped internally at 12.", impact = "Caps effect, feedback, and stat fanout under dense combat loads.")
     int maxMarksPerTick = 12;
 
     public Config() {
@@ -426,6 +635,14 @@ public class TragoulDeathSense extends SimpleAdaptation<TragoulDeathSense.Config
   }
 
   private record OwnerRuntime(UUID ownerId, AdaptPlayer adaptPlayer, Player player) {
+  }
+
+  private record TargetSnapshot(LivingEntity entity, UUID entityId, Location location, boolean player,
+                                boolean invisible, boolean protectedFriendly, UUID tameOwnerId,
+                                ChatColor color) {
+  }
+
+  private record SensedGlow(LivingEntity entity, UUID entityId, ChatColor color, long expiresAt) {
   }
 }
 
@@ -460,7 +677,7 @@ final class DeathSenseWorkBudget {
 
 final class DeathSenseWorkLimits {
   private static final int MAX_OWNER_REFRESHES_PER_TICK = 24;
-  private static final int MAX_MONSTER_INSPECTIONS_PER_TICK = 48;
+  private static final int MAX_TARGET_INSPECTIONS_PER_TICK = 48;
   private static final int MAX_MARKS_PER_TICK = 12;
 
   private DeathSenseWorkLimits() {
@@ -470,8 +687,8 @@ final class DeathSenseWorkLimits {
     return Math.min(MAX_OWNER_REFRESHES_PER_TICK, Math.max(1, configured));
   }
 
-  static int monsterInspections(int configured) {
-    return Math.min(MAX_MONSTER_INSPECTIONS_PER_TICK, Math.max(1, configured));
+  static int targetInspections(int configured) {
+    return Math.min(MAX_TARGET_INSPECTIONS_PER_TICK, Math.max(1, configured));
   }
 
   static int marks(int configured) {
@@ -504,16 +721,22 @@ final class DeathSenseSpatialIndex {
 
   OwnerPoint findNearest(UUID worldId, double x, double y, double z, double healthFraction,
                          double maximumRadius, long now, long maximumAgeMillis) {
+    List<OwnerPoint> eligible = findEligible(worldId, x, y, z, healthFraction, maximumRadius,
+        now, maximumAgeMillis, 1);
+    return eligible.isEmpty() ? null : eligible.getFirst();
+  }
+
+  List<OwnerPoint> findEligible(UUID worldId, double x, double y, double z, double healthFraction,
+                                double maximumRadius, long now, long maximumAgeMillis, int limit) {
     Map<Long, Map<UUID, OwnerPoint>> cells = worlds.get(worldId);
-    if (cells == null) {
-      return null;
+    if (cells == null || limit <= 0) {
+      return List.of();
     }
 
     int centerX = cell(x);
     int centerZ = cell(z);
     int radius = Math.max(0, (int) Math.ceil(Math.max(0D, maximumRadius) / CELL_SIZE));
-    OwnerPoint nearest = null;
-    double nearestDistance = Double.MAX_VALUE;
+    List<OwnerPoint> eligible = new ArrayList<>();
     for (int offsetX = -radius; offsetX <= radius; offsetX++) {
       for (int offsetZ = -radius; offsetZ <= radius; offsetZ++) {
         Map<UUID, OwnerPoint> bucket = cells.get(cellKey(centerX + offsetX, centerZ + offsetZ));
@@ -525,14 +748,14 @@ final class DeathSenseSpatialIndex {
             continue;
           }
           double distanceSquared = point.distanceSquared(x, y, z);
-          if (distanceSquared <= point.radiusSquared() && distanceSquared < nearestDistance) {
-            nearest = point;
-            nearestDistance = distanceSquared;
+          if (distanceSquared <= point.radiusSquared()) {
+            admitNearest(eligible, point, distanceSquared, x, y, z, limit);
           }
         }
       }
     }
-    return nearest;
+    eligible.sort(Comparator.comparingDouble(point -> point.distanceSquared(x, y, z)));
+    return eligible;
   }
 
   boolean isEmpty() {
@@ -542,6 +765,26 @@ final class DeathSenseSpatialIndex {
   void clear() {
     points.clear();
     worlds.clear();
+  }
+
+  private void admitNearest(List<OwnerPoint> eligible, OwnerPoint point, double distanceSquared,
+                            double x, double y, double z, int limit) {
+    if (eligible.size() < limit) {
+      eligible.add(point);
+      return;
+    }
+    int farthestIndex = 0;
+    double farthestDistanceSquared = eligible.getFirst().distanceSquared(x, y, z);
+    for (int index = 1; index < eligible.size(); index++) {
+      double candidateDistanceSquared = eligible.get(index).distanceSquared(x, y, z);
+      if (candidateDistanceSquared > farthestDistanceSquared) {
+        farthestIndex = index;
+        farthestDistanceSquared = candidateDistanceSquared;
+      }
+    }
+    if (distanceSquared < farthestDistanceSquared) {
+      eligible.set(farthestIndex, point);
+    }
   }
 
   private void removeFromCell(OwnerPoint point) {

@@ -25,6 +25,7 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
@@ -33,8 +34,8 @@ import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
+import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.adapt.util.reflect.registries.Particles;
-import art.arcane.adapt.util.reflect.registries.PotionEffectTypes;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
@@ -44,6 +45,7 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.World;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
@@ -59,8 +61,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayDeque;
@@ -410,23 +410,30 @@ public class ChronosStasisField extends SimpleAdaptation<ChronosStasisField.Conf
     }
 
     int refreshTicks = getEffectRefreshTicks();
-    living.addPotionEffect(new PotionEffect(
-        PotionEffectType.SLOWNESS,
-        refreshTicks,
-        getSlownessAmplifier(),
-        true,
-        false,
-        false
-    ));
-    if (PotionEffectTypes.JUMP != null) {
-      living.addPotionEffect(new PotionEffect(
-          PotionEffectTypes.JUMP,
-          refreshTicks,
-          getJumpLockAmplifier(),
-          true,
-          false,
-          false
-      ));
+    if (refreshTicks <= 0) {
+      return;
+    }
+    AdaptAttributeService attributes = AdaptAttributeService.get();
+    attributes.applyTimed(
+        living,
+        getName(),
+        "slow",
+        Attributes.MOVEMENT_SPEED,
+        stasisSlowScalar(getSlownessAmplifier()),
+        AttributeModifier.Operation.MULTIPLY_SCALAR_1,
+        refreshTicks
+    );
+    double jumpScalar = jumpLockScalar(getJumpLockAmplifier());
+    if (jumpScalar < 0D) {
+      attributes.applyTimed(
+          living,
+          getName(),
+          "jump",
+          Attributes.JUMP_STRENGTH,
+          jumpScalar,
+          AttributeModifier.Operation.MULTIPLY_SCALAR_1,
+          refreshTicks
+      );
     }
   }
 
@@ -746,6 +753,14 @@ public class ChronosStasisField extends SimpleAdaptation<ChronosStasisField.Conf
     return clamp(getConfig().jumpLockAmplifier, -10, 10);
   }
 
+  static double stasisSlowScalar(int amplifier) {
+    return -Math.min(1.0D, 0.15D * (Math.max(0, amplifier) + 1.0D));
+  }
+
+  static double jumpLockScalar(int amplifier) {
+    return Math.max(-1.0D, Math.min(0.0D, amplifier / 6.0D));
+  }
+
   private int getEffectRefreshTicks() {
     long maximumGap = getPulseIntervalMillis() + MAX_BUBBLE_SCHEDULING_DELAY_MILLIS;
     int bufferedMinimum = (int) Math.ceil(maximumGap / 50D) + 4;
@@ -858,9 +873,9 @@ public class ChronosStasisField extends SimpleAdaptation<ChronosStasisField.Conf
     double centerYOffset = 1D;
     @ConfigDoc(value = "Slowness amplifier applied to mobs inside the bubble.", impact = "Higher values slow trapped mobs more severely within the supported effect range.")
     int slownessAmplifier = 5;
-    @ConfigDoc(value = "Jump amplifier applied to mobs inside the bubble.", impact = "Negative values suppress jumping within the supported effect range.")
+    @ConfigDoc(value = "Jump suppression amplifier applied to mobs inside the bubble as a jump_strength reduction scaling linearly from 0 (none) to -6 (full lock); positive values apply no modifier.", impact = "More negative values suppress jumping more strongly; -6 or below locks jumping entirely.")
     int jumpLockAmplifier = -6;
-    @ConfigDoc(value = "Duration in ticks of each refreshed potion pulse.", impact = "The runtime preserves enough buffering to cover the bounded pulse scheduler delay.")
+    @ConfigDoc(value = "Duration in ticks of each refreshed stasis pulse.", impact = "The runtime preserves enough buffering to cover the bounded pulse scheduler delay.")
     int effectRefreshTicks = 20;
     @ConfigDoc(value = "Milliseconds between bubble scans.", impact = "Lower values refresh effects sooner within the supported pulse range.")
     long pulseIntervalMillis = 250L;

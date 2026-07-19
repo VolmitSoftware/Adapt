@@ -43,14 +43,17 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 public class StealthDecoySwap extends SimpleAdaptation<StealthDecoySwap.Config> {
+  private final StealthShadowDecoy shadowDecoy;
   private final Cooldowns cooldowns = cooldowns();
   private final Map<UUID, Long> lastSneakPress;
 
-  public StealthDecoySwap() {
+  public StealthDecoySwap(StealthShadowDecoy shadowDecoy) {
     super("stealth-decoy-swap");
+    this.shadowDecoy = Objects.requireNonNull(shadowDecoy);
     registerConfiguration(Config.class);
     setIcon(Material.ENDER_PEARL);
     lastSneakPress = playerState();
@@ -92,7 +95,7 @@ public class StealthDecoySwap extends SimpleAdaptation<StealthDecoySwap.Config> 
 
     Player p = e.getPlayer();
     int level = getActiveLevel(p);
-    if (level <= 0) {
+    if (level <= 0 || shadowDecoy.getActiveLevel(p) <= 0) {
       return;
     }
 
@@ -116,7 +119,7 @@ public class StealthDecoySwap extends SimpleAdaptation<StealthDecoySwap.Config> 
   }
 
   private void attemptSwap(Player p, UUID id, int level) {
-    Entity anchor = StealthShadowDecoy.activeDecoyAnchor(id);
+    Entity anchor = shadowDecoy.activeDecoyAnchor(id);
     if (anchor == null) {
       return;
     }
@@ -182,7 +185,7 @@ public class StealthDecoySwap extends SimpleAdaptation<StealthDecoySwap.Config> 
     return computeCooldown(getConfig().cooldownBase, getConfig().cooldownFactor, getLevelPercent(level));
   }
 
-  @ConfigDescription("While your Shadow Decoy is alive, double-tap sneak to swap places with it.")
+  @ConfigDescription("Requires Shadow Decoy. While your decoy is alive, double-tap sneak to swap places with it.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Base range within which you can swap with your decoy.", impact = "Higher values let you swap with decoys that are farther away.")
     double swapRangeBase = 10.0;

@@ -27,10 +27,12 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -40,6 +42,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -65,6 +68,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -73,7 +77,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.LongSupplier;
 
-public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config> {
+public class StealthCore extends SimpleAdaptation<StealthCore.Config> {
   static final int HARD_MAX_ACTIVE_SESSIONS = 2_048;
   static final int HARD_MAX_OWNER_REFRESH_DISPATCHES_PER_TICK = 128;
   static final int HARD_MAX_SCAN_DISPATCHES_PER_TICK = 16;
@@ -92,13 +96,15 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
   private static final long MIN_THREAT_SCAN_INTERVAL_MILLIS = 200L;
   private static final long MAX_THREAT_SCAN_INTERVAL_MILLIS = 5_000L;
   private static final int HARD_MAX_SCAN_COMPLETION_DELAY_TICKS = 4;
+  private static final String SLOT_FALL = "fall";
+  private static final double SILENT_FALL_SAFE_DISTANCE = 1_024D;
   private final Map<UUID, DimState> dimmed = new ConcurrentHashMap<>();
   private final Map<UUID, List<Long>> recentBackstabs = new ConcurrentHashMap<>();
   private final Map<UUID, Map<UUID, ThreatGlow>> threatGlows = new ConcurrentHashMap<>();
-  private final SilentStepSessionCoordinator<SneakSession> coordinator =
-      new SilentStepSessionCoordinator<>(HARD_MAX_ACTIVE_SESSIONS);
-  private final SilentStepCapacityGate scanCapacity = new SilentStepCapacityGate(HARD_MAX_ACTIVE_SCANS);
-  private final SilentStepWindowBudget workBudget = new SilentStepWindowBudget(
+  private final StealthSessionCoordinator<SneakSession> coordinator =
+      new StealthSessionCoordinator<>(HARD_MAX_ACTIVE_SESSIONS);
+  private final StealthCapacityGate scanCapacity = new StealthCapacityGate(HARD_MAX_ACTIVE_SCANS);
+  private final StealthWindowBudget workBudget = new StealthWindowBudget(
       HARD_MAX_SCAN_DISPATCHES_PER_TICK,
       HARD_MAX_CANDIDATE_HANDOFFS_PER_WINDOW,
       HARD_MAX_GLOW_OPERATIONS_PER_WINDOW,
@@ -106,14 +112,16 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
   );
   private final ConcurrentLinkedQueue<ThreatScan> scanAuditQueue = new ConcurrentLinkedQueue<>();
   private final ConcurrentLinkedQueue<ThreatScan> completedScans = new ConcurrentLinkedQueue<>();
-  private final SilentStepCoalescingQueue<GlowOperation> glowQueue =
-      new SilentStepCoalescingQueue<>(HARD_MAX_PENDING_GLOW_OPERATIONS);
+  private final StealthCoalescingQueue<GlowOperation> glowQueue =
+      new StealthCoalescingQueue<>(HARD_MAX_PENDING_GLOW_OPERATIONS);
   private final Cooldowns redThreatCooldown = cooldowns();
+  private final StealthShadowDecoy shadowDecoy;
   private volatile EnumSet<EntityType> blacklistCache;
   private volatile List<String> blacklistSource;
 
-  public StealthSilentStep() {
+  public StealthCore(StealthShadowDecoy shadowDecoy) {
     super("stealth-silent-step");
+    this.shadowDecoy = Objects.requireNonNull(shadowDecoy);
     registerConfiguration(Config.class);
     setIcon(Material.WHITE_WOOL);
     setInterval(50);
@@ -139,6 +147,47 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
     statLore(v, Form.pc(getPlayerBackstabMultiplier(level) - 1D, 0), 3);
   }
 
+  public boolean isUndetected(Player player, LivingEntity observer) {
+    if (player == null || observer == null || player == observer
+        || getActiveLevel(player) <= 0) {
+      return false;
+    }
+    if (isForcedConcealed(player)) {
+      return true;
+    }
+    if (!player.isSneaking()) {
+      return false;
+    }
+    if (observer instanceof Mob
+        && !getConfig().allMobsAffectStealthVisibility
+        && !isTargetBlacklistType(observer.getType())) {
+      return true;
+    }
+    return getThreatLevel(
+        observer,
+        player.getEyeLocation(),
+        getDetectionLookDotThreshold(),
+        getAlmostLookDotMargin()
+    ) != ThreatLevel.CAN_DETECT;
+  }
+
+  public boolean isCurrentlyUndetected(Player player) {
+    if (player == null || !player.isSneaking()) {
+      return false;
+    }
+    SneakSession session = coordinator.get(player.getUniqueId());
+    return session != null && cachedUndetected(
+        session.active.get(),
+        coordinator.isCurrent(session.playerId, session),
+        session.threatStateKnown,
+        session.detected
+    );
+  }
+
+  static boolean cachedUndetected(boolean active, boolean current, boolean known, boolean detected) {
+    return active && current && known && !detected;
+  }
+
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(PlayerQuitEvent e) {
     Player player = e.getPlayer();
@@ -151,7 +200,7 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(PlayerToggleSneakEvent e) {
     Player p = e.getPlayer();
-    if (e.isSneaking() && getActiveLevel(p) > 0) {
+    if ((e.isSneaking() || isForcedConcealed(p)) && getActiveLevel(p) > 0) {
       startSession(p);
       return;
     }
@@ -165,11 +214,13 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
       return;
     }
 
-    if (!coordinator.contains(p.getUniqueId())) {
+    boolean forcedConcealment = isForcedConcealed(p);
+    if (!coordinator.contains(p.getUniqueId())
+        && (!forcedConcealment || getActiveLevel(p) <= 0)) {
       return;
     }
 
-    if (isTargetBlacklistType(e.getEntity().getType())) {
+    if (!forcedConcealment && isTargetBlacklistType(e.getEntity().getType())) {
       return;
     }
 
@@ -186,15 +237,11 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
     }
 
     Player p = e.getPlayer();
-    SneakSession currentSession = coordinator.get(p.getUniqueId());
-    if (currentSession != null) {
-      p.setFallDistance(Math.min(p.getFallDistance(), getMaxSilentFallDistance()));
-    }
-    if (currentSession != null) {
+    if (coordinator.contains(p.getUniqueId())) {
       return;
     }
-    int level = getActiveLevel(p, Player::isSneaking);
-    if (level <= 0) {
+    int level = getActiveLevel(p);
+    if (level <= 0 || (!p.isSneaking() && !isForcedConcealed(p))) {
       stopSession(p);
       return;
     }
@@ -211,8 +258,7 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
 
     Player attacker = combat.attacker();
     LivingEntity target = combat.target();
-    boolean unseen = attacker.hasPotionEffect(PotionEffectType.INVISIBILITY) || !isLookingAt(target, attacker);
-    if (target == attacker || !unseen) {
+    if (target == attacker || !isUndetected(attacker, target)) {
       return;
     }
 
@@ -298,6 +344,7 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
     }
     SneakSession session = new SneakSession(player, playerId);
     if (coordinator.admit(playerId, session)) {
+      applySilentFall(player);
       coordinator.enqueueScan(playerId, session);
     }
   }
@@ -321,10 +368,7 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
     try {
       if (!isSessionValidOwned(session)) {
         stopSession(session, false);
-        return;
       }
-      Player player = session.owner;
-      player.setFallDistance(Math.min(player.getFallDistance(), getMaxSilentFallDistance()));
     } finally {
       session.refreshPending.set(false);
     }
@@ -372,7 +416,7 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
         return;
       }
       Player player = session.owner;
-      int level = getActiveLevel(player, Player::isSneaking);
+      int level = getActiveLevel(player);
       double mobRadius = getStealthRadius(level);
       double playerRadius = getPlayerDetectionRadius(level);
       double scanRadius = threatScan ? Math.max(mobRadius, playerRadius) : mobRadius;
@@ -433,13 +477,19 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
       if (entity == player || !isCandidateReference(entity, scan)) {
         continue;
       }
-      if (++inspected > candidateLimit || !workBudget.tryCandidateHandoff(System.nanoTime())) {
+      if (++inspected > candidateLimit) {
+        scan.markIncomplete();
+        break;
+      }
+      if (!workBudget.tryCandidateHandoff(System.nanoTime())) {
+        scan.markIncomplete();
         break;
       }
 
       scan.reserveCandidate();
       boolean scheduled = J.runEntity(entity, () -> inspectCandidateOwned(entity, scan));
       if (!scheduled) {
+        scan.markIncomplete();
         scan.completeCandidate(null, ThreatLevel.NONE, false);
       }
     }
@@ -539,17 +589,27 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
     }
 
     Player player = session.owner;
+    applySilentFall(player);
     int targetDrops = scan.targetDrops();
     if (targetDrops > 0) {
       xp(player, getConfig().xpPerTargetDrop * targetDrops);
     }
     if (scan.threatScan) {
-      if (scan.snapshot.canDetect()) {
-        clearDimming(player);
-      } else {
+      boolean completeSnapshot = scan.hasCompleteSnapshot();
+      session.threatStateKnown = completeSnapshot;
+      session.detected = !completeSnapshot || scan.snapshot.canDetect();
+      boolean forcedConcealment = isForcedConcealed(player);
+      if (forcedConcealment) {
         applyDimming(player, getActiveLevel(player));
+        clearThreatGlows(player, session, false);
+      } else {
+        if (scan.snapshot.canDetect()) {
+          clearDimming(player);
+        } else {
+          applyDimming(player, getActiveLevel(player));
+        }
+        updateThreatGlows(session, scan.snapshot);
       }
-      updateThreatGlows(session, scan.snapshot);
     }
     if (session.activationCleanupPending.get() || System.currentTimeMillis() >= session.nextThreatScanAt) {
       coordinator.enqueueScan(session.playerId, session);
@@ -575,6 +635,7 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
     session.active.set(false);
     session.discardGlowOperations.set(true);
     retireScan(session.pendingScan);
+    removeSilentFall(session.owner);
     dimmed.remove(session.playerId);
     threatGlows.remove(session.playerId);
     redThreatCooldown.clear(session.playerId);
@@ -586,8 +647,20 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
         && coordinator.isCurrent(session.playerId, session)
         && player.isOnline()
         && !player.isDead()
-        && player.isSneaking()
-        && getActiveLevel(player, Player::isSneaking) > 0;
+        && (player.isSneaking() || isForcedConcealed(player))
+        && getActiveLevel(player) > 0;
+  }
+
+  private boolean isForcedConcealed(Player player) {
+    return forcedConcealment(
+        player.isInvisible(),
+        player.hasPotionEffect(PotionEffectType.INVISIBILITY),
+        shadowDecoy.hasActiveDecoy(player.getUniqueId())
+    );
+  }
+
+  static boolean forcedConcealment(boolean invisible, boolean invisibilityEffect, boolean activeDecoy) {
+    return invisible || invisibilityEffect || activeDecoy;
   }
 
   private void stopSession(Player player) {
@@ -617,6 +690,7 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
     session.discardGlowOperations.set(discardGlows);
     retireScan(session.pendingScan);
     redThreatCooldown.clear(session.playerId);
+    removeSilentFall(session.owner);
     clearDimming(session.owner);
     clearThreatGlows(session.owner, session, discardGlows);
   }
@@ -626,6 +700,14 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
         && Math.abs(center.getX() - other.getX()) <= radius
         && Math.abs(center.getY() - other.getY()) <= radius
         && Math.abs(center.getZ() - other.getZ()) <= radius;
+  }
+
+  private void applySilentFall(Player player) {
+    AdaptAttributeService.get().apply(player, getName(), SLOT_FALL, Attributes.SAFE_FALL_DISTANCE, SILENT_FALL_SAFE_DISTANCE, AttributeModifier.Operation.ADD_NUMBER);
+  }
+
+  private void removeSilentFall(Player player) {
+    AdaptAttributeService.get().remove(player, getName(), SLOT_FALL, Attributes.SAFE_FALL_DISTANCE);
   }
 
   private void applyDimming(Player player, int level) {
@@ -778,7 +860,7 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
     if (budgeted && !workBudget.tryGlowOperation(System.nanoTime())) {
       return false;
     }
-    SilentStepGlowKey key = new SilentStepGlowKey(operation.session.playerId, operation.runtimeEntityId);
+    StealthGlowKey key = new StealthGlowKey(operation.session.playerId, operation.runtimeEntityId);
     return glowQueue.offer(key, operation);
   }
 
@@ -859,11 +941,18 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
       return ThreatLevel.NONE;
     }
 
-    if (!observer.hasLineOfSight(targetEye)) {
+    boolean hasLineOfSight = observer.hasLineOfSight(targetEye);
+    if (!hasLineOfSight) {
       return ThreatLevel.NONE;
     }
 
-    return lookDot >= detectThreshold ? ThreatLevel.CAN_DETECT : ThreatLevel.ALMOST_DETECT;
+    return canObserverDetect(lookDot, hasLineOfSight, detectThreshold)
+        ? ThreatLevel.CAN_DETECT
+        : ThreatLevel.ALMOST_DETECT;
+  }
+
+  static boolean canObserverDetect(double lookDot, boolean hasLineOfSight, double detectThreshold) {
+    return hasLineOfSight && lookDot >= detectThreshold;
   }
 
   private double getDetectionLookDotThreshold() {
@@ -884,10 +973,6 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
 
   private int getThreatScanCompletionDelayTicks() {
     return Math.max(1, Math.min(HARD_MAX_SCAN_COMPLETION_DELAY_TICKS, getConfig().threatScanCompletionDelayTicks));
-  }
-
-  private float getMaxSilentFallDistance() {
-    return (float) clampFinite(getConfig().maxSilentFallDistance, 0D, 64D, 1.6D);
   }
 
   static int clampCandidateLimit(int configured) {
@@ -911,14 +996,6 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
       case ALMOST_DETECT -> ChatColor.GRAY;
       default -> ChatColor.WHITE;
     };
-  }
-
-  private boolean isLookingAt(LivingEntity observer, LivingEntity target) {
-    return getLookDot(observer, target) >= getConfig().lookDotThreshold;
-  }
-
-  private double getLookDot(LivingEntity observer, LivingEntity target) {
-    return getLookDot(observer, target.getEyeLocation());
   }
 
   private double getLookDot(LivingEntity observer, Location targetEye) {
@@ -998,38 +1075,34 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
     CAN_DETECT
   }
 
-  @ConfigDescription("Sneaking prevents hostile mob detection, and unseen hits deal backstab damage.")
+  @ConfigDescription("Core stealth detection. Sneaking uses observer awareness, while invisibility or an active Shadow Decoy always counts as undetected.")
   protected static class Config extends AdaptationConfig {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Radius Base for the Stealth Silent Step adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Radius Base for the Stealth adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double radiusBase = 6;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Radius Factor for the Stealth Silent Step adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Radius Factor for the Stealth adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double radiusFactor = 8;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Player Detection Radius Base for the Stealth Silent Step adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Player Detection Radius Base for the Stealth adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double playerDetectionRadiusBase = 10;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Player Detection Radius Factor for the Stealth Silent Step adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Player Detection Radius Factor for the Stealth adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double playerDetectionRadiusFactor = 14;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Dim Duration Ticks Base for the Stealth Silent Step adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Dim Duration Ticks Base for the Stealth adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double dimDurationTicksBase = 20;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Dim Duration Ticks Factor for the Stealth Silent Step adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Dim Duration Ticks Factor for the Stealth adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double dimDurationTicksFactor = 20;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Dim Amplifier for the Stealth Silent Step adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Dim Amplifier for the Stealth adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     int dimAmplifier = 0;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Mob Backstab Base for the Stealth Silent Step adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Mob Backstab Base for the Stealth adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double mobBackstabBase = 1.5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Mob Backstab Factor for the Stealth Silent Step adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Mob Backstab Factor for the Stealth adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double mobBackstabFactor = 0.5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Player Backstab Base for the Stealth Silent Step adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Player Backstab Base for the Stealth adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double playerBackstabBase = 1.25;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Player Backstab Factor for the Stealth Silent Step adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Player Backstab Factor for the Stealth adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double playerBackstabFactor = 0.35;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Look Dot Threshold for the Stealth Silent Step adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double lookDotThreshold = 0.45;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Target Drop for the Stealth Silent Step adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Target Drop for the Stealth adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpPerTargetDrop = 2;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Bonus Damage for the Stealth Silent Step adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Bonus Damage for the Stealth adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpPerBonusDamage = 3.0;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Silent Fall Distance for the Stealth Silent Step adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    float maxSilentFallDistance = 1.6f;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Shows nearby threats with per-player glowing while sneaking (red = can detect, gray = almost).", impact = "Enable to get visual awareness of entities that can or almost can spot you.")
     boolean showThreatGlows = true;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Look-dot margin below the full detection threshold used for gray 'almost detect' glow.", impact = "Higher values make gray warnings appear earlier; lower values make warnings stricter.")
@@ -1038,7 +1111,7 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
     double detectionLookDotThreshold = 0.2;
     @art.arcane.adapt.util.config.ConfigDoc(value = "If true, all nearby mobs (including passive) can break hidden state when they have line-of-sight.", impact = "Enable to prevent stealth from feeling hidden in front of passive mobs like pigs.")
     boolean allMobsAffectStealthVisibility = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Entity types that are NOT ignored by stealth targeting suppression.", impact = "Mobs listed here can still detect/target sneaking players with Silent Step.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Entity types that are NOT ignored by stealth targeting suppression.", impact = "Mobs listed here can still detect or target sneaking players using Stealth.")
     List<String> targetingBlacklistTypes = new ArrayList<>(List.of("WARDEN", "WITHER", "PHANTOM", "ENDER_DRAGON"));
     @art.arcane.adapt.util.config.ConfigDoc(value = "Milliseconds between nearby threat-awareness scans while sneaking.", impact = "Lower values update threat glows faster but increase nearby-entity scan frequency.")
     long threatScanIntervalMillis = 250;
@@ -1050,10 +1123,10 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
     int threatScanCompletionDelayTicks = 2;
 
     public Config() {
-      baseCost = 3;
-      costFactor = 0.65;
+      baseCost = 2;
+      costFactor = 0.325;
       maxLevel = 2;
-      initialCost = 3;
+      initialCost = 1;
     }
   }
 
@@ -1110,6 +1183,8 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
     private final AtomicBoolean discardGlowOperations = new AtomicBoolean();
     private volatile long nextThreatScanAt;
     private volatile ThreatScan pendingScan;
+    private volatile boolean threatStateKnown;
+    private volatile boolean detected = true;
 
     private SneakSession(Player owner, UUID playerId) {
       this.owner = owner;
@@ -1134,6 +1209,7 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
     private boolean collecting = true;
     private boolean completionQueued;
     private boolean finished;
+    private boolean incomplete;
     private int remaining;
     private int targetDrops;
 
@@ -1159,6 +1235,10 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
       if (!finished) {
         remaining++;
       }
+    }
+
+    private synchronized void markIncomplete() {
+      incomplete = true;
     }
 
     private synchronized void completeCandidate(Entity entity, ThreatLevel threat, boolean droppedTarget) {
@@ -1208,6 +1288,10 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
     private synchronized int targetDrops() {
       return targetDrops;
     }
+
+    private synchronized boolean hasCompleteSnapshot() {
+      return !incomplete && !collecting && remaining == 0;
+    }
   }
 
   private static class ThreatSnapshot {
@@ -1240,11 +1324,11 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
   }
 }
 
-final class SilentStepGlowKey {
+final class StealthGlowKey {
   private final UUID viewerId;
   private final int runtimeEntityId;
 
-  SilentStepGlowKey(UUID viewerId, int runtimeEntityId) {
+  StealthGlowKey(UUID viewerId, int runtimeEntityId) {
     this.viewerId = viewerId;
     this.runtimeEntityId = runtimeEntityId;
   }
@@ -1254,7 +1338,7 @@ final class SilentStepGlowKey {
     if (this == other) {
       return true;
     }
-    if (!(other instanceof SilentStepGlowKey key)) {
+    if (!(other instanceof StealthGlowKey key)) {
       return false;
     }
     return viewerId.equals(key.viewerId) && runtimeEntityId == key.runtimeEntityId;
@@ -1266,16 +1350,16 @@ final class SilentStepGlowKey {
   }
 }
 
-final class SilentStepCoalescingQueue<T> {
+final class StealthCoalescingQueue<T> {
   private final int capacity;
-  private final Map<SilentStepGlowKey, T> pending = new HashMap<>();
-  private final ArrayDeque<SilentStepGlowKey> order = new ArrayDeque<>();
+  private final Map<StealthGlowKey, T> pending = new HashMap<>();
+  private final ArrayDeque<StealthGlowKey> order = new ArrayDeque<>();
 
-  SilentStepCoalescingQueue(int capacity) {
+  StealthCoalescingQueue(int capacity) {
     this.capacity = Math.max(1, capacity);
   }
 
-  synchronized boolean offer(SilentStepGlowKey key, T operation) {
+  synchronized boolean offer(StealthGlowKey key, T operation) {
     if (pending.containsKey(key)) {
       pending.put(key, operation);
       return true;
@@ -1292,7 +1376,7 @@ final class SilentStepCoalescingQueue<T> {
     int safeLimit = Math.max(0, limit);
     List<T> operations = new ArrayList<>(Math.min(safeLimit, order.size()));
     while (operations.size() < safeLimit) {
-      SilentStepGlowKey key = order.pollFirst();
+      StealthGlowKey key = order.pollFirst();
       if (key == null) {
         break;
       }
@@ -1314,13 +1398,13 @@ final class SilentStepCoalescingQueue<T> {
   }
 }
 
-final class SilentStepSessionCoordinator<T> {
+final class StealthSessionCoordinator<T> {
   private final int capacity;
   private final Map<UUID, SessionSlot<T>> sessions = new ConcurrentHashMap<>();
   private final Map<UUID, SessionSlot<T>> refreshOrder = new LinkedHashMap<>();
   private final Map<UUID, SessionSlot<T>> scanOrder = new LinkedHashMap<>();
 
-  SilentStepSessionCoordinator(int capacity) {
+  StealthSessionCoordinator(int capacity) {
     this.capacity = Math.max(1, capacity);
   }
 
@@ -1431,11 +1515,11 @@ final class SilentStepSessionCoordinator<T> {
   }
 }
 
-final class SilentStepCapacityGate {
+final class StealthCapacityGate {
   private final int capacity;
   private final AtomicInteger active = new AtomicInteger();
 
-  SilentStepCapacityGate(int capacity) {
+  StealthCapacityGate(int capacity) {
     this.capacity = Math.max(1, capacity);
   }
 
@@ -1464,7 +1548,7 @@ final class SilentStepCapacityGate {
   }
 }
 
-final class SilentStepWindowBudget {
+final class StealthWindowBudget {
   private final int maxScans;
   private final int maxCandidateHandoffs;
   private final int maxGlowOperations;
@@ -1475,11 +1559,11 @@ final class SilentStepWindowBudget {
   private int candidateHandoffs;
   private int glowOperations;
 
-  SilentStepWindowBudget(int maxScans, int maxCandidateHandoffs, int maxGlowOperations, long windowNanos) {
+  StealthWindowBudget(int maxScans, int maxCandidateHandoffs, int maxGlowOperations, long windowNanos) {
     this(maxScans, maxCandidateHandoffs, maxGlowOperations, windowNanos, System::nanoTime);
   }
 
-  SilentStepWindowBudget(int maxScans, int maxCandidateHandoffs, int maxGlowOperations, long windowNanos,
+  StealthWindowBudget(int maxScans, int maxCandidateHandoffs, int maxGlowOperations, long windowNanos,
                          LongSupplier clock) {
     this.maxScans = Math.max(1, maxScans);
     this.maxCandidateHandoffs = Math.max(1, maxCandidateHandoffs);

@@ -24,22 +24,24 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPresets;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
-import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.UUID;
@@ -96,18 +98,23 @@ public class RiftDescent extends SimpleAdaptation<RiftDescent.Config> {
         .particle(Particle.REVERSE_PORTAL, 8, 0, 1.2, 0, 0.12, 0.02)
         .sound(Sound.BLOCK_AMETHYST_BLOCK_BREAK, 0.5f, 1.7f);
 
+    int protectionTicks = fallProtectionTicks(getConfig().cooldown);
+    if (protectionTicks > 0) {
+      AdaptAttributeService.get().applyTimed(p, getName(), "fall", Attributes.FALL_DAMAGE_MULTIPLIER,
+          -1.0D, AttributeModifier.Operation.ADD_NUMBER, protectionTicks);
+    }
+
     J.runEntity(p, () -> FxPresets.readyPing(this, p), Math.max(1, (int) Math.round(getConfig().cooldown * 20D)));
 
-    J.runEntity(p, () -> {
-      p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, (int) (20 * getConfig().cooldown), 0));
-      fx(p, FxPriority.TRANSITION)
-          .particle(Particle.DRAGON_BREATH, 14, 0, -0.2, 0, 0.2, 0.04)
-          .particle(Particle.CLOUD, 6, 0, -0.1, 0, 0.25, 0.02)
-          .chord(Sound.ENTITY_ENDER_DRAGON_FLAP, 1f, 1f, Sound.BLOCK_CONDUIT_DEACTIVATE, 0.5f, 1.2f);
-    });
+    J.runEntity(p, () -> fx(p, FxPriority.TRANSITION)
+        .particle(Particle.DRAGON_BREATH, 14, 0, -0.2, 0, 0.2, 0.04)
+        .particle(Particle.CLOUD, 6, 0, -0.1, 0, 0.25, 0.02)
+        .chord(Sound.ENTITY_ENDER_DRAGON_FLAP, 1f, 1f, Sound.BLOCK_CONDUIT_DEACTIVATE, 0.5f, 1.2f));
   }
 
-
+  static int fallProtectionTicks(double cooldownSeconds) {
+    return (int) (20D * cooldownSeconds);
+  }
 
   @ConfigDescription("Sneak to descend and negate levitation effects.")
   protected static class Config extends AdaptationConfig {

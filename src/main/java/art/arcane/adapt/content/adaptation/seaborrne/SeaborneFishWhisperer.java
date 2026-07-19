@@ -23,15 +23,18 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Axolotl;
 import org.bukkit.entity.Dolphin;
 import org.bukkit.entity.Entity;
@@ -42,8 +45,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import java.util.Map;
@@ -51,8 +52,8 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class SeaborneFishWhisperer extends SimpleAdaptation<SeaborneFishWhisperer.Config> {
-  private static final int LUCK_DURATION_TICKS = 400;
-  private static final int LUCK_REFRESH_THRESHOLD_TICKS = 120;
+  private static final String LUCK_SLOT = "luck";
+  private static final long LUCK_DURATION_TICKS = 400L;
   private static final int MAX_FISH = 12;
   private static final int MAX_ASSIST = 8;
   private static final long CHARM_SESSION_GAP_MILLIS = 12_000L;
@@ -83,7 +84,7 @@ public class SeaborneFishWhisperer extends SimpleAdaptation<SeaborneFishWhispere
 
   @Override
   public void addStats(int level, Element v) {
-    statLore(v, getLuckAmplifier(level) + 1, 1);
+    statLore(v, luckAmount(level, getMaxLevel()), 1);
     statLore(v, Form.f(getSchoolRange(level), 1), 2);
   }
 
@@ -103,7 +104,7 @@ public class SeaborneFishWhisperer extends SimpleAdaptation<SeaborneFishWhispere
           return;
         }
 
-        refreshLuck(player, level);
+        applyLuck(player, level);
         if (player.isInWater() || player.isSwimming()) {
           schoolFish(player, level);
         }
@@ -111,12 +112,8 @@ public class SeaborneFishWhisperer extends SimpleAdaptation<SeaborneFishWhispere
     }
   }
 
-  private void refreshLuck(Player player, int level) {
-    int amplifier = getLuckAmplifier(level);
-    PotionEffect current = player.getPotionEffect(PotionEffectType.LUCK);
-    if (current == null || current.getAmplifier() < amplifier || current.getDuration() <= LUCK_REFRESH_THRESHOLD_TICKS) {
-      player.addPotionEffect(new PotionEffect(PotionEffectType.LUCK, LUCK_DURATION_TICKS, amplifier, true, false, false));
-    }
+  private void applyLuck(Player player, int level) {
+    AdaptAttributeService.get().applyTimed(player, getName(), LUCK_SLOT, Attributes.LUCK, luckAmount(level, getMaxLevel()), AttributeModifier.Operation.ADD_NUMBER, LUCK_DURATION_TICKS);
   }
 
   private void schoolFish(Player player, int level) {
@@ -218,10 +215,6 @@ public class SeaborneFishWhisperer extends SimpleAdaptation<SeaborneFishWhispere
         .particle(Particle.BUBBLE, 4, 0D, 0.1D, 0D, 0.2D, 0.03D);
   }
 
-  private int getLuckAmplifier(int level) {
-    return luckAmplifier(level, getMaxLevel());
-  }
-
   private double getSchoolRange(int level) {
     return schoolRange(getConfig().schoolRangeBase, getConfig().schoolRangeFactor, getLevelPercent(level));
   }
@@ -236,6 +229,10 @@ public class SeaborneFishWhisperer extends SimpleAdaptation<SeaborneFishWhispere
 
   static int luckAmplifier(int level, int maxLevel) {
     return Math.max(0, Math.min(maxLevel - 1, level - 1));
+  }
+
+  static int luckAmount(int level, int maxLevel) {
+    return luckAmplifier(level, maxLevel) + 1;
   }
 
   static double schoolRange(double base, double factor, double levelPercent) {

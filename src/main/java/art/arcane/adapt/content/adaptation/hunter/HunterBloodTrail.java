@@ -24,6 +24,7 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.ViewerDisplayDirector;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -34,7 +35,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -42,6 +42,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -49,7 +50,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class HunterBloodTrail extends SimpleAdaptation<HunterBloodTrail.Config> {
-  private static final Particle.DustOptions BLOOD_DUST = new Particle.DustOptions(Color.fromRGB(150, 10, 10), 1.1F);
+  private static final Color BLOOD_COLOR = Color.fromRGB(150, 10, 10);
   private final Map<UUID, Wound> wounds = new ConcurrentHashMap<>();
 
   public HunterBloodTrail() {
@@ -173,11 +174,11 @@ public class HunterBloodTrail extends SimpleAdaptation<HunterBloodTrail.Config> 
         return;
       }
       Location current = mob.getLocation().add(0, mob.getHeight() * 0.35D, 0);
-      J.runEntity(hunter, () -> emitTrail(hunter, wound, current));
+      J.runEntity(hunter, () -> emitTrail(hunter, entityId, wound, current));
     });
   }
 
-  private void emitTrail(Player hunter, Wound wound, Location current) {
+  private void emitTrail(Player hunter, UUID entityId, Wound wound, Location current) {
     if (!hunter.isOnline()) {
       return;
     }
@@ -200,22 +201,39 @@ public class HunterBloodTrail extends SimpleAdaptation<HunterBloodTrail.Config> 
     }
 
     Location previous = wound.lastRender;
-    int points = Math.max(1, getConfig().trailPointsPerRender);
     if (previous != null && previous.getWorld() != null && previous.getWorld().equals(current.getWorld())) {
-      for (int i = 1; i <= points; i++) {
-        double t = i / (double) points;
-        double x = previous.getX() + ((current.getX() - previous.getX()) * t);
-        double y = previous.getY() + ((current.getY() - previous.getY()) * t);
-        double z = previous.getZ() + ((current.getZ() - previous.getZ()) * t);
-        hunter.spawnParticle(Particle.DUST, x, y, z, 1, 0.0D, 0.0D, 0.0D, 0.0D, BLOOD_DUST);
+      if (previous.distanceSquared(current) > 1.0E-5D) {
+        ViewerDisplayDirector.showLine(
+            getName(),
+            "wound-" + entityId,
+            hunter,
+            previous,
+            current,
+            Material.RED_STAINED_GLASS.createBlockData(),
+            BLOOD_COLOR,
+            getConfig().trailThickness,
+            getConfig().displayDurationTicks
+        );
       }
-    } else {
-      hunter.spawnParticle(Particle.DUST, current, 1, 0.05D, 0.05D, 0.05D, 0.0D, BLOOD_DUST);
     }
     wound.lastRender = current.clone();
   }
 
-  @ConfigDescription("Mobs you wound below half health leave a blood scent trail only you can see.")
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(PlayerQuitEvent event) {
+    UUID playerId = event.getPlayer().getUniqueId();
+    wounds.entrySet().removeIf(entry -> entry.getValue().hunterId.equals(playerId));
+    ViewerDisplayDirector.clearViewer(getName(), playerId);
+  }
+
+  @Override
+  public void unregister() {
+    wounds.clear();
+    ViewerDisplayDirector.clearChannel(getName());
+    super.unregister();
+  }
+
+  @ConfigDescription("Mobs you wound below half health leave a private glowing blood trail only you can see.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Base blood-trail duration in ticks for the Hunter Blood Trail adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     long trailDurationTicksBase = 100;
@@ -229,8 +247,10 @@ public class HunterBloodTrail extends SimpleAdaptation<HunterBloodTrail.Config> 
     double woundHealthFraction = 0.5;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum simultaneously tracked blood trails for the Hunter Blood Trail adaptation.", impact = "Lower values reduce scheduling and particle work.")
     int maxTrackedWounds = 64;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Interpolated blood-scent points drawn per render for the Hunter Blood Trail adaptation.", impact = "Lower values reduce particle dispatch.")
-    int trailPointsPerRender = 6;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Thickness of each private glowing blood trail segment.", impact = "Higher values make the trail wider and easier to follow.")
+    double trailThickness = 0.06;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Duration of each private glowing blood trail segment, in ticks.", impact = "Higher values leave a longer-lived trail behind wounded targets.")
+    int displayDurationTicks = 30;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Silent xp granted when a fresh target starts bleeding for the Hunter Blood Trail adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpPerWound = 3;
 

@@ -17,6 +17,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.ServicePriority;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -30,7 +31,8 @@ public class AdaptIntegrationService implements AdaptService, IntegrationService
       "handshake",
       "heartbeat",
       "metrics",
-      "adapt-runtime-metrics"
+      "adapt-runtime-metrics",
+      "adapt-ability-execution-metrics"
   );
 
   private volatile IntegrationProtocolVersion negotiatedProtocol = new IntegrationProtocolVersion(1, 1);
@@ -70,9 +72,19 @@ public class AdaptIntegrationService implements AdaptService, IntegrationService
 
   @Override
   public Set<IntegrationMetricDescriptor> metricDescriptors() {
-    return IntegrationMetricSchema.descriptors().stream()
-        .filter(descriptor -> descriptor.key().startsWith("adapt."))
-        .collect(java.util.stream.Collectors.toSet());
+    Set<IntegrationMetricDescriptor> descriptors = new HashSet<>();
+    for (IntegrationMetricDescriptor descriptor : IntegrationMetricSchema.descriptors()) {
+      if (descriptor.key().startsWith("adapt.")) {
+        descriptors.add(descriptor);
+      }
+    }
+    long now = System.currentTimeMillis();
+    for (String abilityId : AbilityCheckTelemetry.abilityIds(now)) {
+      for (String key : IntegrationMetricSchema.adaptAbilityDetailKeys(abilityId)) {
+        descriptors.add(IntegrationMetricSchema.descriptor(key));
+      }
+    }
+    return Set.copyOf(descriptors);
   }
 
   @Override
@@ -129,10 +141,18 @@ public class AdaptIntegrationService implements AdaptService, IntegrationService
 
   @Override
   public Map<String, IntegrationMetricSample> sampleMetrics(Set<String> metricKeys) {
-    Set<String> requested = metricKeys == null || metricKeys.isEmpty()
-        ? IntegrationMetricSchema.adaptKeys()
-        : metricKeys;
     long now = System.currentTimeMillis();
+    Map<String, AbilityCheckTelemetry.AbilitySnapshot> abilitySnapshots = AbilityCheckTelemetry.abilitySnapshots(now);
+    Set<String> requested;
+    if (metricKeys == null || metricKeys.isEmpty()) {
+      Set<String> allKeys = new HashSet<>(IntegrationMetricSchema.adaptKeys());
+      for (String abilityId : abilitySnapshots.keySet()) {
+        allKeys.addAll(IntegrationMetricSchema.adaptAbilityDetailKeys(abilityId));
+      }
+      requested = Set.copyOf(allKeys);
+    } else {
+      requested = metricKeys;
+    }
     Map<String, IntegrationMetricSample> out = new HashMap<>();
 
     for (String key : requested) {
@@ -147,11 +167,17 @@ public class AdaptIntegrationService implements AdaptService, IntegrationService
             out.put(key, sampleAbilityCheckOpsTick(now));
         case IntegrationMetricSchema.ADAPT_WORLD_POLICY_LATENCY ->
             out.put(key, sampleWorldPolicyLatency(now));
-        default -> out.put(key, IntegrationMetricSample.unavailable(
-            IntegrationMetricSchema.descriptor(key),
-            "unsupported-key",
-            now
-        ));
+        default -> {
+          if (IntegrationMetricSchema.isAdaptAbilityDetailKey(key)) {
+            out.put(key, sampleAbilityDetail(key, now, abilitySnapshots));
+          } else {
+            out.put(key, IntegrationMetricSample.unavailable(
+                IntegrationMetricSchema.descriptor(key),
+                "unsupported-key",
+                now
+            ));
+          }
+        }
       }
     }
 
@@ -190,5 +216,27 @@ public class AdaptIntegrationService implements AdaptService, IntegrationService
     IntegrationMetricDescriptor descriptor = IntegrationMetricSchema.descriptor(IntegrationMetricSchema.ADAPT_WORLD_POLICY_LATENCY);
     double averageMs = WorldPolicyLatencyTelemetry.averageMillis(now);
     return IntegrationMetricSample.available(descriptor, averageMs, now);
+  }
+
+  private IntegrationMetricSample sampleAbilityDetail(
+      String key,
+      long now,
+      Map<String, AbilityCheckTelemetry.AbilitySnapshot> abilitySnapshots
+  ) {
+    IntegrationMetricDescriptor descriptor = IntegrationMetricSchema.descriptor(key);
+    String abilityId = IntegrationMetricSchema.adaptAbilityId(key);
+    String signal = IntegrationMetricSchema.adaptAbilitySignal(key);
+    AbilityCheckTelemetry.AbilitySnapshot snapshot = abilitySnapshots.get(abilityId);
+    if (snapshot == null) {
+      return IntegrationMetricSample.unavailable(descriptor, "ability-window-expired", now);
+    }
+    double value = switch (signal) {
+      case IntegrationMetricSchema.ADAPT_ABILITY_DETAIL_EXECUTION_OPS -> snapshot.executionOps();
+      case IntegrationMetricSchema.ADAPT_ABILITY_DETAIL_EXECUTION_TIMING_MS -> snapshot.executionTimingMillis();
+      case IntegrationMetricSchema.ADAPT_ABILITY_DETAIL_GUARD_CHECKS -> snapshot.guardChecks();
+      case IntegrationMetricSchema.ADAPT_ABILITY_DETAIL_GUARD_TIMING_MS -> snapshot.guardTimingMillis();
+      default -> 0D;
+    };
+    return IntegrationMetricSample.available(descriptor, value, now);
   }
 }

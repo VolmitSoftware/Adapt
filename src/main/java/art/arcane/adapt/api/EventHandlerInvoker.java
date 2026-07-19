@@ -18,7 +18,9 @@
 
 package art.arcane.adapt.api;
 
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.ReceiveCancelledEvents;
+import art.arcane.adapt.api.telemetry.AbilityCheckTelemetry;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventException;
@@ -69,7 +71,7 @@ public final class EventHandlerInvoker {
           }
 
           try {
-            direct.accept(target, event);
+            invokeMeasured(target, () -> direct.accept(target, event));
           } catch (Throwable ex) {
             throw new EventException(ex);
           }
@@ -82,7 +84,7 @@ public final class EventHandlerInvoker {
         }
 
         try {
-          direct.accept(target, event);
+          invokeMeasured(target, () -> direct.accept(target, event));
         } catch (Throwable ex) {
           throw new EventException(ex);
         }
@@ -96,7 +98,7 @@ public final class EventHandlerInvoker {
         }
 
         try {
-          method.invoke(target, event);
+          invokeMeasured(target, () -> method.invoke(target, event));
         } catch (InvocationTargetException ex) {
           throw new EventException(ex.getCause());
         } catch (Throwable ex) {
@@ -111,7 +113,7 @@ public final class EventHandlerInvoker {
       }
 
       try {
-        method.invoke(target, event);
+        invokeMeasured(target, () -> method.invoke(target, event));
       } catch (InvocationTargetException ex) {
         throw new EventException(ex.getCause());
       } catch (Throwable ex) {
@@ -130,6 +132,20 @@ public final class EventHandlerInvoker {
     }
 
     return interaction.useItemInHand() == Event.Result.DENY;
+  }
+
+  private static void invokeMeasured(Object target, Invocation invocation) throws Throwable {
+    if (!(target instanceof Adaptation<?> adaptation)) {
+      invocation.invoke();
+      return;
+    }
+
+    long startedNanos = AbilityCheckTelemetry.beginExecution(adaptation.getName());
+    try {
+      invocation.invoke();
+    } finally {
+      AbilityCheckTelemetry.endExecution(adaptation.getName(), startedNanos);
+    }
   }
 
   @SuppressWarnings("unchecked")
@@ -153,5 +169,10 @@ public final class EventHandlerInvoker {
     } catch (Throwable ignored) {
       return null;
     }
+  }
+
+  @FunctionalInterface
+  private interface Invocation {
+    void invoke() throws Throwable;
   }
 }

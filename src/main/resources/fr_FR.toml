@@ -1841,11 +1841,10 @@ lore = ["Plus il y a d'ennemis autour de vous, moins vous infligez de degats a c
 
 [tragoul.healing]
 name = "Volonte de souffrance"
-description = "Regagnez de la sante en fonction des degats que vous infligez !"
-lore1 = "Faire du mal n'a jamais fait autant de bien ! Soignez-vous grace aux degats infliges"
-lore2 = "Il y a une fenetre de degats de 3 secondes, pour le soin et 1 seconde de temps de recharge "
-lore3 = "Soin par pourcentage de degats : "
-lore = ["Faire du mal n'a jamais fait autant de bien ! Soignez-vous grace aux degats infliges", "Il y a une fenetre de degats de 3 secondes, pour le soin et 1 seconde de temps de recharge ", "Soin par pourcentage de degats : "]
+description = "Chaque attaquant valide qui vous blesse perd une petite quantité fixe de vie, qui vous est rendue."
+lore1 = "de vie drainée à chaque attaquant"
+lore2 = "La vie réellement drainée vous est rendue"
+lore = ["de vie drainée à chaque attaquant", "La vie réellement drainée vous est rendue"]
 
 [tragoul.lance]
 name = "Lances de cadavre"

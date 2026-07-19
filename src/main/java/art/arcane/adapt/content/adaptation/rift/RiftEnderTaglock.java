@@ -454,7 +454,11 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
   private void finishTargetOwned(TaglockOperation operation, Location origin) {
     LivingEntity target = operation.target();
     if (!operation.damageSender() && target.isValid() && !target.isDead()) {
-      target.damage(PEARL_TELEPORT_DAMAGE);
+      if (target instanceof Player player) {
+        applyPlayerHealthLoss(player, PEARL_TELEPORT_DAMAGE);
+      } else {
+        target.damage(PEARL_TELEPORT_DAMAGE);
+      }
     }
 
     double shockRadius = getShockRadius(operation.level());
@@ -483,7 +487,7 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
     }
 
     if (operation.damageSender() && thrower.isValid() && !thrower.isDead()) {
-      thrower.damage(PEARL_TELEPORT_DAMAGE);
+      applyPlayerHealthLoss(thrower, PEARL_TELEPORT_DAMAGE);
     }
     addStat(thrower, "rift.ender-taglock.taglocked-teleports", 1);
     xp(thrower, getConfig().xpOnTeleport);

@@ -23,29 +23,33 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.adapt.util.reflect.registries.Particles;
-import art.arcane.adapt.util.reflect.registries.PotionEffectTypes;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
+import art.arcane.volmlib.util.math.M;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffect;
 
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class ExcavationMudlark extends SimpleAdaptation<ExcavationMudlark.Config> {
+  private static final long MILLIS_PER_TICK = 50L;
+
   private final Map<UUID, Long> wetHasteUntil = playerState();
 
   public ExcavationMudlark() {
@@ -84,13 +88,18 @@ public class ExcavationMudlark extends SimpleAdaptation<ExcavationMudlark.Config
       return;
     }
 
-    p.addPotionEffect(new PotionEffect(PotionEffectTypes.FAST_DIGGING, getConfig().hasteDurationTicks, getHasteAmplifier(context.level()), false, false, true));
+    int hasteDurationTicks = getConfig().hasteDurationTicks;
+    if (hasteDurationTicks <= 0) {
+      return;
+    }
+
+    AdaptAttributeService.get().applyTimed(p, getName(), "haste", Attributes.BLOCK_BREAK_SPEED, hasteScalar(getHasteAmplifier(context.level())), AttributeModifier.Operation.ADD_SCALAR, hasteDurationTicks);
 
     UUID id = p.getUniqueId();
-    long now = System.currentTimeMillis();
+    long now = M.ms();
     Long until = wetHasteUntil.get(id);
     boolean onset = until == null || now >= until;
-    wetHasteUntil.put(id, now + (getConfig().hasteDurationTicks * 50L));
+    wetHasteUntil.put(id, now + (hasteDurationTicks * MILLIS_PER_TICK));
     if (onset) {
       fx(p.getEyeLocation(), FxPriority.AMBIENT)
           .particle(Particle.SPLASH, 5, 0, 0.2D, 0, 0.3D, 0.02D)
@@ -164,9 +173,16 @@ public class ExcavationMudlark extends SimpleAdaptation<ExcavationMudlark.Config
   }
 
   private int getHasteAmplifier(int level) {
-    return Math.max(0, (int) Math.round(getLevelPercent(level) * (getConfig().maxHasteLevel - 1)));
+    return hasteAmplifier(getLevelPercent(level), getConfig().maxHasteLevel);
   }
 
+  static int hasteAmplifier(double levelPercent, double maxHasteLevel) {
+    return Math.max(0, (int) Math.round(levelPercent * (maxHasteLevel - 1)));
+  }
+
+  static double hasteScalar(int amplifier) {
+    return 0.20D * (amplifier + 1);
+  }
 
   @ConfigDescription("Bonus drops from muddy blocks, plus haste while digging in water or rain.")
   protected static class Config extends AdaptationConfig {

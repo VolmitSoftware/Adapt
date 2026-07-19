@@ -28,7 +28,6 @@ import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.adaptation.unarmed.UnarmedBatteringCharge;
 import art.arcane.adapt.content.adaptation.unarmed.UnarmedComboChain;
 import art.arcane.adapt.content.adaptation.unarmed.UnarmedDisarm;
-import art.arcane.adapt.content.adaptation.unarmed.UnarmedFlurry;
 import art.arcane.adapt.content.adaptation.unarmed.UnarmedGlassCannon;
 import art.arcane.adapt.content.adaptation.unarmed.UnarmedGrapple;
 import art.arcane.adapt.content.adaptation.unarmed.UnarmedIronFists;
@@ -69,7 +68,6 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
     registerAdaptation(new UnarmedBatteringCharge());
     registerAdaptation(new UnarmedComboChain());
     registerAdaptation(new UnarmedDisarm());
-    registerAdaptation(new UnarmedFlurry());
     registerAdaptation(new UnarmedPressurePoint());
     registerAdaptation(new UnarmedShockwaveClap());
     registerAdaptation(new UnarmedIronFists());

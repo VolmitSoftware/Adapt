@@ -26,9 +26,11 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.content.adaptation.taming.TamingStableHand;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Color;
@@ -44,6 +46,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
+import org.bukkit.entity.Tameable;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -52,6 +55,7 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Transformation;
+import org.bukkit.util.Vector;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -74,7 +78,6 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
   private static final int HARD_MAX_HUD_CLEANUPS_PER_TICK = 4;
   private static final long HUD_UPDATE_INTERVAL_MILLIS = 250L;
   private static final long HUD_CLEANUP_INTERVAL_MILLIS = 1000L;
-
   private final Map<UUID, InsightHud> huds = new ConcurrentHashMap<>();
   private final Cooldowns xpCooldowns = cooldowns();
   private final Cooldowns hudUpdateThrottle = cooldowns();
@@ -160,7 +163,7 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
 
     Player player = e.getPlayer();
     UUID playerId = player.getUniqueId();
-    if (huds.containsKey(playerId) && queuedMovedViewers.add(playerId)) {
+    if (queuedMovedViewers.add(playerId)) {
       movedViewers.offer(new MovedViewer(playerId, player));
     }
   }
@@ -211,7 +214,7 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
     for (int i = 0; i < regularLimit; i++) {
       AdaptPlayer adaptPlayer = candidates.get((start + i) % size);
       Player player = adaptPlayer.getPlayer();
-      if (player != null) {
+      if (player != null && huds.containsKey(player.getUniqueId())) {
         queueHudUpdate(player);
       }
     }
@@ -328,13 +331,36 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
   }
 
   private LivingEntity findLookTargetCandidate(Player p, Location eye, double range) {
-    RayTraceResult hit = p.getWorld().rayTrace(eye, eye.getDirection(), range, FluidCollisionMode.NEVER, true, 0.3,
-        entity -> entity instanceof LivingEntity && entity != p && !(entity instanceof ArmorStand));
-    if (hit == null || !(hit.getHitEntity() instanceof LivingEntity target)) {
+    if (!Double.isFinite(range) || range <= 0D) {
       return null;
     }
 
+    Vector direction = eye.getDirection();
+    RayTraceResult entityHit = p.getWorld().rayTraceEntities(eye, direction, range, 0.3D,
+        entity -> entity instanceof LivingEntity && entity != p && !(entity instanceof ArmorStand));
+    if (entityHit == null || !(entityHit.getHitEntity() instanceof LivingEntity target)) {
+      return null;
+    }
+
+    double entityDistance = eye.toVector().distance(entityHit.getHitPosition());
+    RayTraceResult blockHit = p.getWorld().rayTraceBlocks(
+        eye,
+        direction,
+        entityDistance,
+        FluidCollisionMode.NEVER,
+        true
+    );
+    if (blockHit != null && isOccluded(eye.toVector(), entityHit.getHitPosition(), blockHit.getHitPosition())) {
+      return null;
+    }
     return target;
+  }
+
+  static boolean isOccluded(Vector origin, Vector entityHit, Vector blockHit) {
+    if (origin == null || entityHit == null || blockHit == null) {
+      return false;
+    }
+    return origin.distanceSquared(blockHit) + 1.0E-8D < origin.distanceSquared(entityHit);
   }
 
   private void inspectTargetOwned(UUID ownerId, Player owner, LivingEntity target, ViewerPoint viewer, long token) {
@@ -510,14 +536,19 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
     double max = maxHealth(target);
     double health = Math.max(0D, Math.min(target.getHealth(), max));
     String name = target.getCustomName() == null ? target.getName() : target.getCustomName();
-    return new HudVitals(name, health, max);
+    AnimalStats animalStats = target instanceof Tameable ? readAnimalStats(target) : null;
+    return new HudVitals(name, health, max, animalStats);
   }
 
   private String buildHudText(HudVitals vitals) {
+    return buildHudText(vitals, Math.max(4, getConfig().healthBarSegments));
+  }
+
+  static String buildHudText(HudVitals vitals, int healthBarSegments) {
     double max = vitals.maxHealth();
     double hp = vitals.health();
     double fraction = max <= 0 ? 0 : hp / max;
-    int segments = Math.max(4, getConfig().healthBarSegments);
+    int segments = Math.max(4, healthBarSegments);
     int filled = (int) Math.ceil(fraction * segments);
     if (hp > 0) {
       filled = Math.max(1, filled);
@@ -525,10 +556,58 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
     filled = Math.min(segments, filled);
 
     C barColor = fraction > 0.5 ? C.GREEN : (fraction > 0.25 ? C.YELLOW : C.RED);
-    return C.WHITE + vitals.name() + "\n"
+    String text = C.WHITE + vitals.name() + "\n"
         + barColor + BAR_SEGMENT.repeat(filled)
         + C.DARK_GRAY + BAR_SEGMENT.repeat(segments - filled)
         + C.GRAY + " " + Form.f(hp, 1) + C.DARK_GRAY + "/" + C.GRAY + Form.f(max, 0);
+    return text + buildAnimalStatsText(vitals.animalStats());
+  }
+
+  private AnimalStats readAnimalStats(LivingEntity target) {
+    return new AnimalStats(
+        attributeValue(target, Attributes.MOVEMENT_SPEED),
+        attributeValue(target, Attributes.JUMP_STRENGTH),
+        attributeValue(target, Attributes.ATTACK_DAMAGE),
+        TamingStableHand.hasAppliedBias(target));
+  }
+
+  private double attributeValue(LivingEntity target, Attribute attribute) {
+    if (attribute == null) {
+      return Double.NaN;
+    }
+
+    AttributeInstance instance = target.getAttribute(attribute);
+    if (instance == null || !Double.isFinite(instance.getValue())) {
+      return Double.NaN;
+    }
+    return instance.getValue();
+  }
+
+  private static String buildAnimalStatsText(AnimalStats stats) {
+    if (stats == null) {
+      return "";
+    }
+
+    StringBuilder text = new StringBuilder();
+    appendAnimalStat(text, "Speed", stats.movementSpeed(), 2);
+    appendAnimalStat(text, "Jump", stats.jumpStrength(), 2);
+    appendAnimalStat(text, "Attack", stats.attackDamage(), 1);
+    if (stats.stableHandEnhanced()) {
+      text.append('\n').append(C.AQUA).append("Stable Hand enhanced");
+    }
+    return text.toString();
+  }
+
+  private static void appendAnimalStat(StringBuilder text, String label, double value, int decimals) {
+    if (!Double.isFinite(value)) {
+      return;
+    }
+    if (text.isEmpty()) {
+      text.append('\n');
+    } else {
+      text.append(C.DARK_GRAY).append(" • ");
+    }
+    text.append(C.GRAY).append(label).append(' ').append(C.WHITE).append(Form.f(value, decimals));
   }
 
   private double maxHealth(LivingEntity target) {
@@ -613,6 +692,7 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
     private volatile String name;
     private volatile double health = Double.NaN;
     private volatile double maxHealth = Double.NaN;
+    private volatile AnimalStats animalStats;
 
     private InsightHud(UUID ownerId, Player owner, UUID targetId) {
       this.ownerId = ownerId;
@@ -630,7 +710,8 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
     private boolean hasVitals(HudVitals vitals) {
       return Objects.equals(name, vitals.name())
           && Double.compare(health, vitals.health()) == 0
-          && Double.compare(maxHealth, vitals.maxHealth()) == 0;
+          && Double.compare(maxHealth, vitals.maxHealth()) == 0
+          && Objects.equals(animalStats, vitals.animalStats());
     }
 
     private boolean matches(HudRenderState state) {
@@ -650,10 +731,15 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
       name = vitals.name();
       health = vitals.health();
       maxHealth = vitals.maxHealth();
+      animalStats = vitals.animalStats();
     }
   }
 
-  private record HudVitals(String name, double health, double maxHealth) {
+  record HudVitals(String name, double health, double maxHealth, AnimalStats animalStats) {
+  }
+
+  record AnimalStats(double movementSpeed, double jumpStrength, double attackDamage,
+                     boolean stableHandEnhanced) {
   }
 
   private record HudRenderState(Location location, float scale, HudVitals vitals) {

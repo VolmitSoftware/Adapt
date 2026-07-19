@@ -24,6 +24,7 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.version.IAttribute;
 import art.arcane.adapt.api.version.Version;
@@ -31,7 +32,6 @@ import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.math.Sphere;
-import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.common.world.LoadedChunkAccess;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Attributes;
@@ -51,30 +51,28 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
-  private static final UUID MODIFIER = UUID.nameUUIDFromBytes("adapt-discovery-armor".getBytes());
-  private static final NamespacedKey MODIFIER_KEY = NamespacedKey.fromString("adapt:discovery-armor");
+  static final UUID LEGACY_MODIFIER = UUID.nameUUIDFromBytes("adapt-discovery-armor".getBytes());
+  static final NamespacedKey LEGACY_MODIFIER_KEY = NamespacedKey.fromString("adapt:discovery-armor");
+  private static final String SLOT_ARMOR = "armor";
   private static final long UPDATE_COOLDOWN = TimeUnit.SECONDS.toMillis(3);
   private static final List<BlockPosition> ARMOR_OFFSETS = createArmorOffsets();
 
   private final double[] materialArmorPoints = createMaterialArmorPoints();
   private final Cooldowns updateThrottle = cooldowns();
-  private final Map<UUID, Boolean> appliedPlayers = new ConcurrentHashMap<>();
+  private final Map<UUID, Double> appliedArmor = playerState();
   private final Map<UUID, Long> bonusStatAt = playerState();
-  private final AtomicBoolean lifecycleCleanupStarted = new AtomicBoolean();
-  private Iterator<UUID> cleanupCursor = Map.<UUID, Boolean>of().keySet().iterator();
+  private final Map<UUID, Boolean> legacyPurged = playerState();
+  private Iterator<UUID> cleanupCursor = Map.<UUID, Double>of().keySet().iterator();
   private int playerCursor;
 
   public DiscoveryArmor() {
@@ -104,10 +102,9 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
 
   @Override
   public void unregister() {
-    if (lifecycleCleanupStarted.compareAndSet(false, true)) {
-      bonusStatAt.clear();
-      cleanupArmorBatch(appliedPlayers.keySet().iterator());
-    }
+    bonusStatAt.clear();
+    appliedArmor.clear();
+    legacyPurged.clear();
     super.unregister();
   }
 
@@ -179,6 +176,10 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
     return (now - previous) / 50D;
   }
 
+  static double lerpSeed(Double previous) {
+    return previous == null || !Double.isFinite(previous) ? 0D : previous;
+  }
+
   @Override
   public void onTick() {
     long now = System.currentTimeMillis();
@@ -201,13 +202,7 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
   @EventHandler
   public void on(PlayerJoinEvent event) {
     Player player = event.getPlayer();
-    withPlayerThread(player, () -> removeInactiveModifier(player));
-  }
-
-  @EventHandler
-  public void on(PlayerQuitEvent event) {
-    removeArmorModifier(event.getPlayer());
-    updateThrottle.clear(event.getPlayer().getUniqueId());
+    withPlayerThread(player, () -> purgeLegacyModifier(player));
   }
 
   private void queueArmorUpdate(AdaptPlayer adaptPlayer) {
@@ -225,38 +220,26 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
   }
 
   private void updateArmor(AdaptPlayer adaptPlayer, Player player) {
-    IAttribute attribute = Version.get().getAttribute(player, Attributes.GENERIC_ARMOR);
-    if (attribute == null) {
-      return;
-    }
-
+    purgeLegacyModifier(player);
     if (!hasActiveAdaptation(player)) {
-      attribute.removeModifier(MODIFIER, MODIFIER_KEY);
-      appliedPlayers.remove(player.getUniqueId());
-      bonusStatAt.remove(player.getUniqueId());
+      removeArmorModifier(player);
       return;
     }
 
-    double oldArmor = 0D;
-    for (IAttribute.Modifier modifier : attribute.getModifier(MODIFIER, MODIFIER_KEY)) {
-      double amount = modifier.getAmount();
-      if (Double.isFinite(amount) && amount > oldArmor) {
-        oldArmor = amount;
-      }
-    }
-
+    UUID playerId = player.getUniqueId();
+    double oldArmor = lerpSeed(appliedArmor.get(playerId));
     double armor = getArmor(player.getLocation(), getLevel(player));
     double lerpedArmor = M.lerp(oldArmor, armor, 0.3D);
     lerpedArmor = Double.isFinite(lerpedArmor) ? lerpedArmor : 0D;
-    attribute.setModifier(MODIFIER, MODIFIER_KEY, lerpedArmor, AttributeModifier.Operation.ADD_NUMBER);
-    appliedPlayers.put(player.getUniqueId(), true);
+    AdaptAttributeService.get().apply(player, getName(), SLOT_ARMOR, Attributes.ARMOR, lerpedArmor, AttributeModifier.Operation.ADD_NUMBER);
+    appliedArmor.put(playerId, lerpedArmor);
     if (lerpedArmor > 0D) {
-      double activeTicks = activeTicksSinceLastUpdate(player.getUniqueId());
+      double activeTicks = activeTicksSinceLastUpdate(playerId);
       if (activeTicks > 0D) {
         adaptPlayer.getData().addStat("discovery.armor.ticks-with-bonus", activeTicks);
       }
     } else {
-      bonusStatAt.remove(player.getUniqueId());
+      bonusStatAt.remove(playerId);
     }
 
     if (Math.round(lerpedArmor) != Math.round(oldArmor) && Math.round(lerpedArmor) > 0) {
@@ -271,7 +254,7 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
 
   private void cleanupInactivePlayers() {
     if (!cleanupCursor.hasNext()) {
-      cleanupCursor = appliedPlayers.keySet().iterator();
+      cleanupCursor = appliedArmor.keySet().iterator();
     }
 
     int limit = Math.max(1, getConfig().maxPlayersPerPass);
@@ -281,7 +264,7 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
       examined++;
       Player player = Bukkit.getPlayer(playerId);
       if (player == null || !player.isOnline()) {
-        appliedPlayers.remove(playerId);
+        appliedArmor.remove(playerId);
         continue;
       }
 
@@ -302,30 +285,19 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
   }
 
   private void removeArmorModifier(Player player) {
-    IAttribute attribute = Version.get().getAttribute(player, Attributes.GENERIC_ARMOR);
-    if (attribute != null) {
-      attribute.removeModifier(MODIFIER, MODIFIER_KEY);
-    }
-    appliedPlayers.remove(player.getUniqueId());
+    AdaptAttributeService.get().remove(player, getName(), SLOT_ARMOR, Attributes.ARMOR);
+    appliedArmor.remove(player.getUniqueId());
     bonusStatAt.remove(player.getUniqueId());
   }
 
-  private void cleanupArmorBatch(Iterator<UUID> cursor) {
-    int limit = Math.max(1, getConfig().maxPlayersPerPass);
-    int processed = 0;
-    while (processed < limit && cursor.hasNext()) {
-      UUID playerId = cursor.next();
-      processed++;
-      Player player = Bukkit.getPlayer(playerId);
-      if (player == null || !player.isOnline()) {
-        appliedPlayers.remove(playerId);
-        continue;
-      }
-      J.runEntity(player, () -> removeArmorModifier(player));
+  private void purgeLegacyModifier(Player player) {
+    if (legacyPurged.putIfAbsent(player.getUniqueId(), Boolean.TRUE) != null) {
+      return;
     }
 
-    if (cursor.hasNext()) {
-      J.s(() -> cleanupArmorBatch(cursor), 1);
+    IAttribute attribute = Version.get().getAttribute(player, Attributes.ARMOR);
+    if (attribute != null) {
+      attribute.removeModifier(LEGACY_MODIFIER, LEGACY_MODIFIER_KEY);
     }
   }
 

@@ -1,6 +1,8 @@
 package art.arcane.adapt.api;
 
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.ReceiveCancelledEvents;
+import art.arcane.adapt.api.telemetry.AbilityCheckTelemetry;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
@@ -14,6 +16,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.plugin.EventExecutor;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -22,6 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.mock;
 
 class EventHandlerInvokerTest {
@@ -130,6 +134,21 @@ class EventHandlerInvokerTest {
         }
     }
 
+    public abstract static class MeasuredAdaptationListener implements Listener, Adaptation<Object> {
+        public void onTest(TestEvent event) {
+        }
+
+        @Override
+        public String getName() {
+            return "measured-listener";
+        }
+    }
+
+    @AfterEach
+    void clearTelemetry() {
+        AbilityCheckTelemetry.clear();
+    }
+
     private Method handler(Class<?> type) throws NoSuchMethodException {
         Method m = type.getDeclaredMethod("onTest", TestEvent.class);
         m.setAccessible(true);
@@ -172,6 +191,21 @@ class EventHandlerInvokerTest {
         EventExecutor ex = EventHandlerInvoker.createExecutor(handler(PrivateListener.class), TestEvent.class, false);
         ex.execute(l, new TestEvent());
         assertThat(l.hits.get()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("createExecutor records complete adaptation handler execution")
+    void adaptationExecutionMeasured() throws Exception {
+        MeasuredAdaptationListener listener = mock(MeasuredAdaptationListener.class, CALLS_REAL_METHODS);
+        EventExecutor executor = EventHandlerInvoker.createExecutor(handler(MeasuredAdaptationListener.class), TestEvent.class, false);
+
+        executor.execute(listener, new TestEvent());
+
+        AbilityCheckTelemetry.AbilitySnapshot snapshot = AbilityCheckTelemetry
+            .abilitySnapshots(System.currentTimeMillis())
+            .get("measured-listener");
+        assertThat(snapshot.executionOps()).isEqualTo(1L);
+        assertThat(snapshot.executionTimingMillis()).isGreaterThan(0D);
     }
 
     @Test

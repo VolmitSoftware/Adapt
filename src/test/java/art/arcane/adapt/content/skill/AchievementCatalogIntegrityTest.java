@@ -85,7 +85,9 @@ class AchievementCatalogIntegrityTest {
       "challenge_sprint_50k",
       "challenge_sprint_500k",
       "challenge_agility_wind_up_2hr",
-      "challenge_agility_armor_up_5hr"
+      "challenge_agility_armor_up_5hr",
+      "challenge_unarmed_flurry_1k",
+      "challenge_unarmed_flurry_10k"
   );
   private static final Set<String> RETIRED_STATS = Set.of(
       "killed.turtleeggs",
@@ -97,7 +99,8 @@ class AchievementCatalogIntegrityTest {
       "axes.swings",
       "excavation.swings",
       "pickaxe.swings",
-      "enchanted.levels.spent"
+      "enchanted.levels.spent",
+      "unarmed.flurry.flurry-hits"
   );
   private static final Map<String, Integer> HUNTER_GOALS = Map.of(
       "challenge_novice_hunter", 100,

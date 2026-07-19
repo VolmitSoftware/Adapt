@@ -51,7 +51,6 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 
 public class ChronosBorrowedTime extends SimpleAdaptation<ChronosBorrowedTime.Config> {
   private final Map<UUID, Deque<DeferredDamage>> deferred = playerState();
-  private final Map<UUID, Boolean> applyingDeferred = playerState();
 
   public ChronosBorrowedTime() {
     super("chronos-borrowed-time");
@@ -83,14 +82,12 @@ public class ChronosBorrowedTime extends SimpleAdaptation<ChronosBorrowedTime.Co
   public void on(PlayerQuitEvent e) {
     UUID id = e.getPlayer().getUniqueId();
     deferred.remove(id);
-    applyingDeferred.remove(id);
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(PlayerDeathEvent e) {
     UUID id = e.getEntity().getUniqueId();
     deferred.remove(id);
-    applyingDeferred.remove(id);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -100,9 +97,6 @@ public class ChronosBorrowedTime extends SimpleAdaptation<ChronosBorrowedTime.Co
     }
 
     UUID id = p.getUniqueId();
-    if (applyingDeferred.containsKey(id)) {
-      return;
-    }
 
     double finalDamage = e.getFinalDamage();
     if (finalDamage < getConfig().minimumDeferDamage) {
@@ -180,17 +174,7 @@ public class ChronosBorrowedTime extends SimpleAdaptation<ChronosBorrowedTime.Co
           return;
         }
 
-        double remaining = health - damage;
-        if (remaining <= 0D) {
-          applyingDeferred.put(id, true);
-          try {
-            p.damage(damage);
-          } finally {
-            applyingDeferred.remove(id);
-          }
-        } else {
-          p.setHealth(remaining);
-        }
+        applyPlayerHealthLoss(p, damage);
 
         int motes = (int) Math.max(2, Math.min(5, Math.round(damage)));
         float pitch = 0.5F + Math.min(0.9F, (float) (damage * 0.12D));

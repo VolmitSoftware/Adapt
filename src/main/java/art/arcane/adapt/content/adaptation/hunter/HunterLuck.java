@@ -25,26 +25,36 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPresets;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
+
+import java.util.Map;
+import java.util.UUID;
 
 public class HunterLuck extends SimpleAdaptation<HunterLuck.Config> {
   private static final Color LUCK_GOLD = Color.fromRGB(255, 215, 0);
   private final Cooldowns fxCooldown = cooldowns();
+  private final Map<UUID, Long> luckUntil = playerState();
+  private final Map<UUID, Long> unluckUntil = playerState();
 
   public HunterLuck() {
     super("hunter-luck");
@@ -74,22 +84,17 @@ public class HunterLuck extends SimpleAdaptation<HunterLuck.Config> {
 
   @EventHandler
   public void on(EntityDamageEvent e) {
-    if (e.getEntity() instanceof org.bukkit.entity.Player p && isAdaptableDamageCause(e) && hasActiveAdaptation(p)) {
+    if (e.getEntity() instanceof Player p && isAdaptableDamageCause(e) && hasActiveAdaptation(p)) {
       if (AdaptConfig.get().isPreventHunterSkillsWhenHungerApplied() && p.hasPotionEffect(PotionEffectType.HUNGER)) {
         return;
       }
 
       if (!getConfig().useConsumable) {
         if (p.getFoodLevel() == 0) {
-          if (getConfig().poisonPenalty) {
-            addPotionStacks(p, PotionEffectType.POISON, getConfig().basePoisonFromLevel - getLevel(p), getConfig().baseHungerDuration, getConfig().stackPoisonPenalty);
-            addPotionStacks(p, PotionEffectType.UNLUCK, getConfig().basePoisonFromLevel - getLevel(p), getConfig().baseHungerDuration, getConfig().stackPoisonPenalty);
-          }
-          starveFx(p);
-
+          starvePenalty(p);
         } else {
           addPotionStacks(p, PotionEffectType.HUNGER, getConfig().baseHungerFromLevel - getLevel(p), getConfig().baseHungerDuration * getLevel(p), getConfig().stackHungerPenalty);
-          addPotionStacks(p, PotionEffectType.LUCK, getLevel(p), getConfig().baseEffectbyLevel * getLevel(p), getConfig().stackBuff);
+          applyLuckBuff(p);
           addStat(p, "hunter.luck.activations", 1);
           activateFx(p);
         }
@@ -98,19 +103,97 @@ public class HunterLuck extends SimpleAdaptation<HunterLuck.Config> {
           Material mat = Material.getMaterial(getConfig().consumable);
           if (mat != null && p.getInventory().contains(mat)) {
             p.getInventory().removeItem(new ItemStack(mat, 1));
-            addPotionStacks(p, PotionEffectType.LUCK, getLevel(p), getConfig().baseEffectbyLevel * getLevel(p), getConfig().stackBuff);
+            applyLuckBuff(p);
             addStat(p, "hunter.luck.activations", 1);
             activateFx(p);
           } else {
-            if (getConfig().poisonPenalty) {
-              addPotionStacks(p, PotionEffectType.POISON, getConfig().basePoisonFromLevel - getLevel(p), getConfig().baseHungerDuration, getConfig().stackPoisonPenalty);
-              addPotionStacks(p, PotionEffectType.UNLUCK, getConfig().basePoisonFromLevel - getLevel(p), getConfig().baseHungerDuration, getConfig().stackPoisonPenalty);
-            }
-            starveFx(p);
+            starvePenalty(p);
           }
         }
       }
     }
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(PlayerDeathEvent e) {
+    luckUntil.remove(e.getEntity().getUniqueId());
+    unluckUntil.remove(e.getEntity().getUniqueId());
+  }
+
+  private void applyLuckBuff(Player p) {
+    if (p.hasPotionEffect(PotionEffectType.LUCK)) {
+      return;
+    }
+
+    boolean stackBuff = getConfig().stackBuff;
+    long now = System.currentTimeMillis();
+    Long until = luckUntil.get(p.getUniqueId());
+    long remainingTicks = until == null ? 0L : Math.max(0L, (until - now) / 50L);
+    if (remainingTicks > 0L && !stackBuff) {
+      return;
+    }
+
+    int level = getLevel(p);
+    long durationTicks = buffDurationTicks(getConfig().baseEffectbyLevel, level, remainingTicks, stackBuff);
+    if (durationTicks <= 0L) {
+      return;
+    }
+
+    AdaptAttributeService.get().applyTimed(p, getName(), "luck", Attributes.LUCK, luckBonus(level), AttributeModifier.Operation.ADD_NUMBER, durationTicks);
+    luckUntil.put(p.getUniqueId(), now + (durationTicks * 50L));
+  }
+
+  private void starvePenalty(Player p) {
+    if (getConfig().poisonPenalty) {
+      addPotionStacks(p, PotionEffectType.POISON, getConfig().basePoisonFromLevel - getLevel(p), getConfig().baseHungerDuration, getConfig().stackPoisonPenalty);
+      applyUnluckPenalty(p);
+    }
+    starveFx(p);
+  }
+
+  private void applyUnluckPenalty(Player p) {
+    if (p.hasPotionEffect(PotionEffectType.UNLUCK)) {
+      return;
+    }
+
+    boolean stackPenalty = getConfig().stackPoisonPenalty;
+    long now = System.currentTimeMillis();
+    Long until = unluckUntil.get(p.getUniqueId());
+    long remainingTicks = until == null ? 0L : Math.max(0L, (until - now) / 50L);
+    if (remainingTicks > 0L && !stackPenalty) {
+      return;
+    }
+
+    long durationTicks = penaltyDurationTicks(getConfig().baseHungerDuration, remainingTicks, stackPenalty);
+    if (durationTicks <= 0L) {
+      return;
+    }
+
+    AdaptAttributeService.get().applyTimed(p, getName(), "unluck", Attributes.LUCK, unluckAmount(getConfig().basePoisonFromLevel, getLevel(p)), AttributeModifier.Operation.ADD_NUMBER, durationTicks);
+    unluckUntil.put(p.getUniqueId(), now + (durationTicks * 50L));
+  }
+
+  static double luckBonus(int level) {
+    return level + 1.0D;
+  }
+
+  static double unluckAmount(int basePoisonFromLevel, int level) {
+    return -(basePoisonFromLevel - level + 1.0D);
+  }
+
+  static long buffDurationTicks(int baseTicksPerLevel, int level, long remainingTicks, boolean stackBuff) {
+    long base = (long) baseTicksPerLevel * level;
+    if (base <= 0L) {
+      return 0L;
+    }
+    return base + (stackBuff ? Math.max(0L, remainingTicks) : 0L);
+  }
+
+  static long penaltyDurationTicks(int baseTicks, long remainingTicks, boolean stackPenalty) {
+    if (baseTicks <= 0) {
+      return 0L;
+    }
+    return baseTicks + (stackPenalty ? Math.max(0L, remainingTicks) : 0L);
   }
 
   private void activateFx(Player p) {

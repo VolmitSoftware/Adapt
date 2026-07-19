@@ -23,8 +23,10 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -33,15 +35,19 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
-import org.bukkit.util.Vector;
 
 public class NetherSoulStrider extends SimpleAdaptation<NetherSoulStrider.Config> {
+  private static final String SLOT_SOUL = "soul";
+  private static final String SLOT_STRIDE = "stride";
+  private static final String SLOT_BURST = "burst";
+  private static final long HOLD_TICKS = 40L;
+  private static final long HOLD_REFRESH_MILLIS = 1000L;
+
   public NetherSoulStrider() {
     super("nether-soul-strider");
     registerConfiguration(Config.class);
@@ -86,6 +92,7 @@ public class NetherSoulStrider extends SimpleAdaptation<NetherSoulStrider.Config
       Material feet = to.getBlock().getType();
       Material below = to.clone().add(0D, -1D, 0D).getBlock().getType();
       if (!isSoul(feet) && !isSoul(below)) {
+        releaseStride(p);
         return;
       }
 
@@ -97,15 +104,9 @@ public class NetherSoulStrider extends SimpleAdaptation<NetherSoulStrider.Config
       }
 
       int level = getActiveLevel(p);
-      double target = getStrideSpeed(level);
-      Vector velocity = p.getVelocity();
-      double horizontal = Math.sqrt((velocity.getX() * velocity.getX()) + (velocity.getZ() * velocity.getZ()));
-      if (horizontal < target * 0.98D) {
-        double invLen = 1D / moveLen;
-        p.setVelocity(new Vector(dx * invLen * target, velocity.getY(), dz * invLen * target));
-      }
-
       long now = System.currentTimeMillis();
+      refreshStride(p, level, now);
+
       long lastOn = getStorageLong(p, "soulStriderLastOn", 0L);
       setStorage(p, "soulStriderLastOn", now);
       if (level >= getMaxLevel() && now - lastOn > getConfig().burstGapMillis
@@ -125,12 +126,43 @@ public class NetherSoulStrider extends SimpleAdaptation<NetherSoulStrider.Config
     });
   }
 
+  private void refreshStride(Player p, int level, long now) {
+    long holdUntil = getStorageLong(p, "soulStriderHoldUntil", 0L);
+    if (holdUntil - now > HOLD_REFRESH_MILLIS) {
+      return;
+    }
+
+    setStorage(p, "soulStriderHoldUntil", now + (HOLD_TICKS * 50L));
+    AdaptAttributeService attributes = AdaptAttributeService.get();
+    attributes.applyTimed(p, getName(), SLOT_SOUL, Attributes.MOVEMENT_EFFICIENCY, 1.0D, AttributeModifier.Operation.ADD_NUMBER, HOLD_TICKS);
+    double bonus = getStrideBonus(level);
+    if (bonus > 0D) {
+      attributes.applyTimed(p, getName(), SLOT_STRIDE, Attributes.MOVEMENT_SPEED, bonus, AttributeModifier.Operation.MULTIPLY_SCALAR_1, HOLD_TICKS);
+    }
+  }
+
+  private void releaseStride(Player p) {
+    if (getStorageLong(p, "soulStriderHoldUntil", 0L) == 0L) {
+      return;
+    }
+
+    setStorage(p, "soulStriderHoldUntil", 0L);
+    AdaptAttributeService attributes = AdaptAttributeService.get();
+    attributes.remove(p, getName(), SLOT_SOUL, Attributes.MOVEMENT_EFFICIENCY);
+    attributes.remove(p, getName(), SLOT_STRIDE, Attributes.MOVEMENT_SPEED);
+  }
+
   private void applyBurst(Player p) {
-    p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, getConfig().burstTicks, getConfig().burstAmplifier, false, false, true), true);
     fx(p.getLocation(), FxPriority.TRANSITION)
         .dustRing(Color.fromRGB(0x5C4A6B), 0.7D, 10, 1.0F)
         .helix(Particle.SOUL_FIRE_FLAME, 0.45D, 1.6D, 8, 0D)
         .chord(Sound.PARTICLE_SOUL_ESCAPE, 0.35F, 1.3F, Sound.BLOCK_SOUL_SAND_STEP, 0.5F, 0.8F);
+    int durationTicks = getConfig().burstTicks;
+    if (durationTicks <= 0) {
+      return;
+    }
+
+    AdaptAttributeService.get().applyTimed(p, getName(), SLOT_BURST, Attributes.MOVEMENT_SPEED, burstSpeedBonus(getConfig().burstAmplifier), AttributeModifier.Operation.MULTIPLY_SCALAR_1, durationTicks);
   }
 
   private boolean isSoul(Material m) {
@@ -141,8 +173,24 @@ public class NetherSoulStrider extends SimpleAdaptation<NetherSoulStrider.Config
     return strideSpeed(getLevelPercent(level), getConfig().strideSpeedBase, getConfig().strideSpeedFactor);
   }
 
+  private double getStrideBonus(int level) {
+    return strideBonus(getLevelPercent(level), getConfig().strideSpeedBase, getConfig().strideSpeedFactor);
+  }
+
   static double strideSpeed(double levelPercent, double base, double factor) {
     return base + (levelPercent * factor);
+  }
+
+  static double strideBonus(double levelPercent, double base, double factor) {
+    if (base <= 0D) {
+      return 0D;
+    }
+
+    return (levelPercent * factor) / base;
+  }
+
+  static double burstSpeedBonus(int amplifier) {
+    return 0.2D * (amplifier + 1);
   }
 
 

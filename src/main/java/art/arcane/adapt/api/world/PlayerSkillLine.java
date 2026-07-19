@@ -71,8 +71,6 @@ public class PlayerSkillLine {
   private transient double pooledNotifyXp = 0;
   private transient long poolStartedAt = 0;
   private transient long poolLastEarnAt = 0;
-  private transient long inspiredPendingAt = 0;
-  private transient long inspiredLastNotifyAt = 0;
   @Getter(AccessLevel.NONE)
   @Setter(AccessLevel.NONE)
   @EqualsAndHashCode.Exclude
@@ -85,7 +83,6 @@ public class PlayerSkillLine {
 
   public void update(AdaptPlayer p, String line, PlayerData data) {
     flushPoolIfReady(p);
-    pulseInspired(p);
     grantSkillsAndAdaptations(p, line);
     checkMaxLevel(p, line);
     updateFreshness();
@@ -246,49 +243,26 @@ public class PlayerSkillLine {
     }
   }
 
-  private void pulseInspired(AdaptPlayer p) {
-    if (inspiredPendingAt == 0) {
-      return;
-    }
-
-    inspiredPendingAt = 0;
-    long now = System.currentTimeMillis();
-    if (now - inspiredLastNotifyAt < 30000) {
-      return;
-    }
-
-    Skill<?> skill = p.getServer().getSkillRegistry().getSkill(line);
-    if (skill == null) {
-      return;
-    }
-
-    inspiredLastNotifyAt = now;
-    p.getActionBarNotifier().queue(ActionBarNotification.builder()
-        .duration(1250)
-        .group("inspired" + line)
-        .title(skill.getDisplayName() + C.RESET + " " + C.GREEN + Localizer.dLocalize("snippets.xp.inspired"))
-        .build());
-  }
-
-  public void relaxStalenessForActivitySwitch() {
+  public double relaxStalenessForActivitySwitch() {
     AdaptConfig.FarmPrevention prevention = AdaptConfig.get().getFarmPrevention();
     if (prevention == null || !prevention.isEnabled()) {
       monotonyCounter = 0;
       monotonyMultiplier = 1.0;
-      return;
+      return 0.0D;
     }
 
     double factor = clamp(prevention.getCrossSkillRecoveryFactor(), 0.0, 1.0);
     double curve = prevention.getSkillDecayCurve();
     RewardStalenessState state = ensureSkillStaleness();
-    if (factor < 1.0 && curve > 0 && state.getPressure() > curve * 0.25 && AdaptConfig.get().getXpIntegrity().isInspiredNotifyEnabled()) {
-      inspiredPendingAt = System.currentTimeMillis();
-    }
+    double inspiredPressure = factor < 1.0 && curve > 0 && state.getPressure() > curve * 0.25
+        ? state.getPressure()
+        : 0.0D;
     applyRecoveryFactor(state, factor);
     for (RewardStalenessState activityState : activityStaleness.values()) {
       applyRecoveryFactor(activityState, factor);
     }
     monotonyCounter = 0;
+    return inspiredPressure;
   }
 
   private double computeStalenessMultiplier(double awardXp, String rewardKey, long now) {

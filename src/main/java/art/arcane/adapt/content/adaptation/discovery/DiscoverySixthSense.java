@@ -25,6 +25,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.fx.ViewerDisplayDirector;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -32,12 +33,17 @@ import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Location;
+import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.generator.structure.StructureType;
 import org.bukkit.util.StructureSearchResult;
+import org.bukkit.util.Vector;
 
 import java.util.List;
 import java.util.UUID;
@@ -160,11 +166,36 @@ public class DiscoverySixthSense extends SimpleAdaptation<DiscoverySixthSense.Co
     }
 
     double length = Math.min(6D, horizontal);
-    fx(player.getEyeLocation(), FxPriority.AMBIENT)
-        .trail(Particles.END_ROD, ux, 0.0D, uz, length, 8)
-        .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.22F, 1.9F);
+    Vector direction = new Vector(ux, 0D, uz);
+    Location start = player.getEyeLocation().add(direction.clone().multiply(0.65D));
+    Location end = start.clone().add(direction.multiply(length));
+    ViewerDisplayDirector.showLine(
+        getName(),
+        "structure-direction",
+        player,
+        start,
+        end,
+        Material.LIGHT_BLUE_STAINED_GLASS.createBlockData(),
+        Color.fromRGB(100, 225, 255),
+        0.07D,
+        50
+    );
+    fx(player, FxPriority.AMBIENT).sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.22F, 1.9F);
     fx(player.getLocation(), FxPriority.AMBIENT)
         .ring(Particles.END_ROD, 1.1D, 8, 0.1D);
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(PlayerQuitEvent event) {
+    UUID playerId = event.getPlayer().getUniqueId();
+    pulseThrottle.clear(playerId);
+    ViewerDisplayDirector.clearViewer(getName(), playerId);
+  }
+
+  @Override
+  public void unregister() {
+    ViewerDisplayDirector.clearChannel(getName());
+    super.unregister();
   }
 
   static double detectionRange(double levelPercent, double base, double factor) {
@@ -172,7 +203,7 @@ public class DiscoverySixthSense extends SimpleAdaptation<DiscoverySixthSense.Co
   }
 
 
-  @ConfigDescription("A soft particle pulse hints when an unexplored structure is within range.")
+  @ConfigDescription("A private glowing direction line hints when an unexplored structure is within range.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Detection Range Base for the Discovery Sixth Sense adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double detectionRangeBase = 48;

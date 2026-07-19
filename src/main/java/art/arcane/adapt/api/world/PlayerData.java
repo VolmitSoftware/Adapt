@@ -47,6 +47,8 @@ import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.entity.EntityType;
 
+import java.util.Map;
+
 @Data
 @NoArgsConstructor
 public class PlayerData {
@@ -72,7 +74,12 @@ public class PlayerData {
   private double masterXp = 1;
   private double lastMasterXp = 0;
   private volatile boolean effectsEnabled = true;
+  private String inspiredSkill = "";
+  private long inspiredAssignedAt = 0;
   private PlayerMutationData mutationData = new PlayerMutationData();
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
+  private transient boolean inspiredPopupPending;
   @Getter(AccessLevel.NONE)
   @Setter(AccessLevel.NONE)
   @EqualsAndHashCode.Exclude
@@ -85,6 +92,7 @@ public class PlayerData {
       return null;
     }
     data.getMutationData().normalize();
+    data.normalizeInspiredAssignment();
     return data;
   }
 
@@ -158,6 +166,7 @@ public class PlayerData {
     }
 
     multiplier = m;
+    pulseInspired(p);
 
     for (java.util.Map.Entry<java.lang.String, art.arcane.adapt.api.world.PlayerSkillLine> entry : skillLines.entrySet()) {
       String lineId = entry.getKey();
@@ -343,10 +352,95 @@ public class PlayerData {
     }
 
     last = currentSkill;
-    for (PlayerSkillLine line : skillLines.values()) {
-      if (line != null && !currentSkill.equals(line.getLine())) {
-        line.relaxStalenessForActivitySwitch();
+    String inspiredCandidate = null;
+    double inspiredPressure = 0.0D;
+    for (Map.Entry<String, PlayerSkillLine> entry : skillLines.entrySet()) {
+      String lineId = entry.getKey();
+      PlayerSkillLine line = entry.getValue();
+      if (line == null || lineId == null || lineId.isBlank() || currentSkill.equals(lineId)) {
+        continue;
       }
+
+      double recoveredPressure = line.relaxStalenessForActivitySwitch();
+      if (isBetterInspiredCandidate(lineId, recoveredPressure, inspiredCandidate, inspiredPressure)) {
+        inspiredCandidate = lineId;
+        inspiredPressure = recoveredPressure;
+      }
+    }
+
+    assignInspiredCandidate(inspiredCandidate);
+  }
+
+  private void assignInspiredCandidate(String candidate) {
+    if (candidate == null || candidate.isBlank()) {
+      return;
+    }
+
+    AdaptConfig.XpIntegrity integrity = AdaptConfig.get().getXpIntegrity();
+    if (integrity == null) {
+      return;
+    }
+
+    long now = System.currentTimeMillis();
+    long cooldownMillis = Math.max(0L, integrity.getInspiredCooldownMillis());
+    if (!isInspiredCooldownComplete(now, cooldownMillis)) {
+      return;
+    }
+
+    inspiredSkill = candidate;
+    inspiredAssignedAt = now;
+    inspiredPopupPending = integrity.isInspiredPopupEnabled();
+  }
+
+  private boolean isInspiredCooldownComplete(long now, long cooldownMillis) {
+    if (inspiredAssignedAt <= 0) {
+      return true;
+    }
+
+    long elapsed = now - inspiredAssignedAt;
+    return elapsed >= 0 && elapsed >= cooldownMillis;
+  }
+
+  private boolean isBetterInspiredCandidate(String lineId, double pressure, String currentCandidate, double currentPressure) {
+    if (pressure <= 0.0D) {
+      return false;
+    }
+    if (currentCandidate == null) {
+      return true;
+    }
+
+    int pressureComparison = Double.compare(pressure, currentPressure);
+    return pressureComparison > 0 || (pressureComparison == 0 && lineId.compareTo(currentCandidate) < 0);
+  }
+
+  private void pulseInspired(AdaptPlayer p) {
+    if (!inspiredPopupPending) {
+      return;
+    }
+
+    inspiredPopupPending = false;
+    AdaptConfig.XpIntegrity integrity = AdaptConfig.get().getXpIntegrity();
+    if (integrity == null || !integrity.isInspiredPopupEnabled() || inspiredSkill == null || inspiredSkill.isBlank()) {
+      return;
+    }
+
+    Skill<?> skill = p.getServer().getSkillRegistry().getSkill(inspiredSkill);
+    if (skill == null) {
+      return;
+    }
+
+    p.getActionBarNotifier().queue(ActionBarNotification.builder()
+        .duration(1250)
+        .group("inspired")
+        .title(skill.getDisplayName() + C.RESET + " " + C.GREEN + Localizer.dLocalize("snippets.xp.inspired"))
+        .build());
+  }
+
+  private void normalizeInspiredAssignment() {
+    inspiredSkill = inspiredSkill == null ? "" : inspiredSkill.trim();
+    inspiredAssignedAt = Math.max(0L, inspiredAssignedAt);
+    if (inspiredSkill.isEmpty()) {
+      inspiredAssignedAt = 0;
     }
   }
 
@@ -372,6 +466,9 @@ public class PlayerData {
     }
     masterXp = 1;
     lastMasterXp = 0;
+    inspiredSkill = "";
+    inspiredAssignedAt = 0;
+    inspiredPopupPending = false;
     refreshLearnedIndex();
   }
 

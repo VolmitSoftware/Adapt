@@ -84,6 +84,9 @@ public class TragoulThorns extends SimpleAdaptation<TragoulThorns.Config> {
 
   @EventHandler
   public void on(EntityDamageByEntityEvent e) {
+    if (TragoulReactiveDamage.isActive()) {
+      return;
+    }
     if (e.getEntity() instanceof Player p) {
       withAdaptedPlayer(p, e, () -> {
         int level = getActiveLevel(p);
@@ -112,7 +115,7 @@ public class TragoulThorns extends SimpleAdaptation<TragoulThorns.Config> {
               .ring(Particles.CRIT_MAGIC, 0.6D, 10, 1.0D)
               .dustBurst(THORN_CRIMSON, 4, 0.4D, 1.0F)
               .chord(Sound.ENTITY_PLAYER_ATTACK_CRIT, 0.5F, 1.4F, Sound.ENTITY_ARROW_HIT, 0.4F, 0.8F);
-          attacker.damage(reflectedDamage, p);
+          TragoulReactiveDamage.apply(() -> attacker.damage(reflectedDamage, p));
           addStat(p, "tragoul.thorns.damage-reflected", (int) reflectedDamage);
           if (healthBefore <= reflectedDamage) {
             fx(attacker, FxPriority.COMBAT)

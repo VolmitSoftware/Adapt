@@ -45,17 +45,19 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.potion.PotionEffectType;
 
+import java.util.Objects;
 import java.util.UUID;
 
 public class StealthAssassinate extends SimpleAdaptation<StealthAssassinate.Config> {
   private static final Color ASSASSINATE_PURPLE = Color.fromRGB(0x2A0A3A);
 
+  private final StealthCore stealth;
   private final Cooldowns cooldowns = cooldowns();
 
-  public StealthAssassinate() {
+  public StealthAssassinate(StealthCore stealth) {
     super("stealth-assassinate");
+    this.stealth = Objects.requireNonNull(stealth);
     registerConfiguration(Config.class);
     setIcon(Material.NETHERITE_SWORD);
     registerAdvancement(AdaptAdvancement.builder()
@@ -102,7 +104,7 @@ public class StealthAssassinate extends SimpleAdaptation<StealthAssassinate.Conf
       return;
     }
 
-    if (!isFullyUnseen(attacker)) {
+    if (!stealth.isUndetected(attacker, target)) {
       return;
     }
 
@@ -139,11 +141,6 @@ public class StealthAssassinate extends SimpleAdaptation<StealthAssassinate.Conf
         }).start();
   }
 
-  private boolean isFullyUnseen(Player attacker) {
-    return StealthShadowmeld.isMelded(attacker.getUniqueId())
-        || attacker.hasPotionEffect(PotionEffectType.INVISIBILITY);
-  }
-
   private double getMaxHealth(LivingEntity entity) {
     AttributeInstance attr = entity.getAttribute(Attribute.MAX_HEALTH);
     return attr == null ? entity.getHealth() : attr.getValue();
@@ -157,7 +154,7 @@ public class StealthAssassinate extends SimpleAdaptation<StealthAssassinate.Conf
     return computeCooldown(getConfig().cooldownBase, getConfig().cooldownFactor, getLevelPercent(level));
   }
 
-  @ConfigDescription("A strike from the shadows or while fully unseen instantly executes non-boss mobs below a max-health cap.")
+  @ConfigDescription("While Stealth reports you undetected, a strike instantly executes non-boss mobs below a max-health cap.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Base maximum health a mob can have to be executable.", impact = "Higher values let you execute tougher mobs.")
     double healthCapBase = 22.0;

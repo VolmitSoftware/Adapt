@@ -24,16 +24,19 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.adapt.util.reflect.registries.Particles;
-import art.arcane.adapt.util.reflect.registries.PotionEffectTypes;
 import art.arcane.volmlib.util.inventorygui.Element;
+import art.arcane.volmlib.util.math.M;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -41,9 +44,16 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffect;
+
+import java.util.Map;
+import java.util.UUID;
 
 public class PickaxeObsidianRush extends SimpleAdaptation<PickaxeObsidianRush.Config> {
+  private static final String RUSH_SLOT = "rush";
+  private static final long MILLIS_PER_TICK = 50L;
+
+  private final Map<UUID, Long> rushActiveUntil = playerState();
+
   public PickaxeObsidianRush() {
     super("pickaxe-obsidian-rush");
     registerConfiguration(PickaxeObsidianRush.Config.class);
@@ -65,8 +75,16 @@ public class PickaxeObsidianRush extends SimpleAdaptation<PickaxeObsidianRush.Co
     v.addLore(C.ITALIC + Localizer.dLocalize("pickaxe.obsidian_rush.lore3"));
   }
 
+  static int rushAmplifier(int amplifierBase, int maxAmplifier, int level) {
+    return Math.min(maxAmplifier, amplifierBase + level);
+  }
+
+  static double rushSpeedBonus(int amplifier) {
+    return 0.2D * (amplifier + 1);
+  }
+
   private int getAmplifier(int level) {
-    return Math.min(getConfig().maxAmplifier, getConfig().amplifierBase + level);
+    return rushAmplifier(getConfig().amplifierBase, getConfig().maxAmplifier, level);
   }
 
   private boolean isRushTarget(Material type) {
@@ -100,8 +118,15 @@ public class PickaxeObsidianRush extends SimpleAdaptation<PickaxeObsidianRush.Co
       return;
     }
 
-    boolean onset = !p.hasPotionEffect(PotionEffectTypes.FAST_DIGGING);
-    p.addPotionEffect(new PotionEffect(PotionEffectTypes.FAST_DIGGING, getConfig().durationTicks, getAmplifier(context.level()), false, false, true));
+    int durationTicks = getConfig().durationTicks;
+    if (durationTicks <= 0) {
+      return;
+    }
+
+    long now = M.ms();
+    Long previousExpiry = rushActiveUntil.put(p.getUniqueId(), now + (durationTicks * MILLIS_PER_TICK));
+    boolean onset = previousExpiry == null || previousExpiry <= now;
+    AdaptAttributeService.get().applyTimed(p, getName(), RUSH_SLOT, Attributes.BLOCK_BREAK_SPEED, rushSpeedBonus(getAmplifier(context.level())), AttributeModifier.Operation.MULTIPLY_SCALAR_1, durationTicks);
     if (onset) {
       Color surge = e.getBlock().getType() == Material.CRYING_OBSIDIAN ? Color.fromRGB(0x8A2BE2) : Color.fromRGB(0x3B2E5A);
       timeline(p)
@@ -138,13 +163,13 @@ public class PickaxeObsidianRush extends SimpleAdaptation<PickaxeObsidianRush.Co
   }
 
 
-  @ConfigDescription("Gain a strong Haste burst while mining obsidian with a diamond or netherite pickaxe.")
+  @ConfigDescription("Gain a strong mining speed burst while mining obsidian with a diamond or netherite pickaxe.")
   protected static class Config extends AdaptationConfig {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Haste amplifier added on top of the adaptation level while mining obsidian.", impact = "Higher values make obsidian mine faster at every level.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Haste-equivalent amplifier added on top of the adaptation level while mining obsidian; each amplifier step adds 20% block break speed.", impact = "Higher values make obsidian mine faster at every level.")
     int amplifierBase = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum Haste amplifier this adaptation can grant.", impact = "Higher values allow stronger Haste at high levels.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum haste-equivalent amplifier this adaptation can grant.", impact = "Higher values allow stronger mining speed at high levels.")
     int maxAmplifier = 7;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Duration in ticks of the Haste burst applied when damaging obsidian.", impact = "Higher values keep the burst active longer between swings.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Duration in ticks of the mining speed burst applied when damaging obsidian.", impact = "Higher values keep the burst active longer between swings.")
     int durationTicks = 120;
 
     public Config() {

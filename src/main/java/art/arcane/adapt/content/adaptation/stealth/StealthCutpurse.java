@@ -52,6 +52,7 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class StealthCutpurse extends SimpleAdaptation<StealthCutpurse.Config> {
@@ -61,10 +62,12 @@ public class StealthCutpurse extends SimpleAdaptation<StealthCutpurse.Config> {
       EntityType.PIGLIN,
       EntityType.PIGLIN_BRUTE);
 
+  private final StealthCore stealth;
   private final NamespacedKey pickedKey;
 
-  public StealthCutpurse() {
+  public StealthCutpurse(StealthCore stealth) {
     super("stealth-cutpurse");
+    this.stealth = Objects.requireNonNull(stealth);
     registerConfiguration(Config.class);
     setIcon(Material.SHEARS);
     pickedKey = new NamespacedKey(Adapt.instance, "cutpurse_picked");
@@ -107,7 +110,8 @@ public class StealthCutpurse extends SimpleAdaptation<StealthCutpurse.Config> {
 
     Player attacker = combat.attacker();
     LivingEntity target = combat.target();
-    if (!attacker.isSneaking() || !TARGETS.contains(target.getType()) || !(target instanceof Mob mob)) {
+    if (!TARGETS.contains(target.getType()) || !(target instanceof Mob mob)
+        || !stealth.isUndetected(attacker, target)) {
       return;
     }
 
@@ -202,7 +206,7 @@ public class StealthCutpurse extends SimpleAdaptation<StealthCutpurse.Config> {
     return computeLootStacks(getConfig().lootStacksBase, getConfig().lootStacksFactor, getLevelPercent(level));
   }
 
-  @ConfigDescription("Sneak-hits on pillagers, vindicators, and piglins can pick their pockets, stealing loot without a kill.")
+  @ConfigDescription("While Stealth reports you undetected, hits on pillagers, vindicators, and piglins can steal loot without a kill.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Base chance to pick a pocket on a qualifying sneak-hit.", impact = "Higher values steal more often.")
     double stealChanceBase = 0.25;

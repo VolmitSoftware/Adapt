@@ -18,7 +18,6 @@
 
 package art.arcane.adapt.content.adaptation.sword;
 
-import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -26,23 +25,22 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
-import art.arcane.adapt.content.adaptation.sword.effects.DamagingBleedEffect;
-import art.arcane.adapt.content.item.ItemListings;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import de.slikey.effectlib.effect.BleedEffect;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.entity.Entity;
+import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Tameable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -54,6 +52,7 @@ import java.util.UUID;
 public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config> {
   private static final Color BLOOD = Color.fromRGB(0x9E1414);
   private static final long KILL_CREDIT_GRACE_MS = 4000L;
+  private static final int BLEED_PERIOD_TICKS = 5;
   private final Cooldowns cooldowns = cooldowns();
   private final Map<UUID, BleedMark> bleedSource = playerState();
 
@@ -96,31 +95,33 @@ public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(EntityDamageByEntityEvent e) {
-    if (e.getDamager() instanceof Player p && hasActiveAdaptation(p) && ItemListings.getToolSwords().contains(p.getInventory().getItemInMainHand().getType())) {
-      UUID id = p.getUniqueId();
-      if (!cooldowns.isReady(id, getCooldown(getLevel(p)))) {
-        return;
-      }
-      Entity victim = e.getEntity();
-      if (!canDamageTarget(p, victim)) return;
-      cooldowns.mark(id);
-      BleedEffect blood = victim instanceof LivingEntity l ? new DamagingBleedEffect(Adapt.instance.adaptEffectManager, getConfig().damagePerBleedProc, l) : new BleedEffect(Adapt.instance.adaptEffectManager);
-      blood.setEntity(victim);
-      blood.material = areParticlesEnabled() ? Material.CRIMSON_ROOTS : Material.VOID_AIR;
-      blood.height = -1;
-      blood.iterations = Math.toIntExact(2 * (3 + (getDurationOfEffect(getLevel(p)) / 1000)));
-      blood.period = 5;
-      blood.hurt = false;
-      blood.start();
-      long now = System.currentTimeMillis();
-      pruneExpired(now);
-      bleedSource.put(victim.getUniqueId(), new BleedMark(id, now + getDurationOfEffect(getLevel(p)) + KILL_CREDIT_GRACE_MS));
-      addStat(p, "swords.bloody-blade.bleed-damage", 1);
-      fx(victim.getLocation().add(0, 1, 0), FxPriority.COMBAT)
-          .dustBurst(BLOOD, 8, 0.3D, 1.1F)
-          .particle(Particle.DAMAGE_INDICATOR, 3, 0, 0, 0, 0.1D, 0.05D)
-          .chord(Sound.ENTITY_PLAYER_ATTACK_STRONG, 0.6F, 0.8F, Sound.BLOCK_HONEY_BLOCK_SLIDE, 0.3F, 0.6F);
+    art.arcane.adapt.api.adaptation.Adaptation.MeleeContext combat = resolveMeleeContext(e, this::isSword);
+    if (combat == null) {
+      return;
     }
+
+    Player player = combat.attacker();
+    UUID playerId = player.getUniqueId();
+    long durationMillis = getDurationOfEffect(combat.level());
+    if (!cooldowns.isReady(playerId, getCooldown(combat.level()))) {
+      return;
+    }
+
+    LivingEntity target = combat.target();
+    BleedPulse pulse = new BleedPulse(target, player, Math.max(0.01D, getConfig().damagePerBleedProc),
+        bleedProcCount(durationMillis));
+    if (!scheduleBleed(pulse)) {
+      return;
+    }
+
+    cooldowns.mark(playerId);
+    long now = System.currentTimeMillis();
+    pruneExpired(now);
+    bleedSource.put(target.getUniqueId(), new BleedMark(playerId, now + durationMillis + KILL_CREDIT_GRACE_MS));
+    fx(target.getLocation().add(0, 1, 0), FxPriority.COMBAT)
+        .dustBurst(BLOOD, 8, 0.3D, 1.1F)
+        .particle(Particle.DAMAGE_INDICATOR, 3, 0, 0, 0, 0.1D, 0.05D)
+        .chord(Sound.ENTITY_PLAYER_ATTACK_STRONG, 0.6F, 0.8F, Sound.BLOCK_HONEY_BLOCK_SLIDE, 0.3F, 0.6F);
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -131,8 +132,12 @@ public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config
       return;
     }
     Player source = Bukkit.getPlayer(mark.source());
-    if (source != null && source.isOnline()) {
-      addStat(source, "swords.bloody-blade.bleed-kills", 1);
+    if (source != null) {
+      J.runEntity(source, () -> {
+        if (source.isOnline()) {
+          addStat(source, "swords.bloody-blade.bleed-kills", 1);
+        }
+      });
     }
     fx(e.getEntity().getLocation().add(0, 0.8D, 0), FxPriority.TRANSITION)
         .dustBurst(BLOOD, 10, 0.4D, 1.1F)
@@ -144,7 +149,80 @@ public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config
     bleedSource.values().removeIf(mark -> mark.expiresAt() < now);
   }
 
+  static int bleedProcCount(long durationMillis) {
+    long durationTicks = Math.max(1L, (Math.max(0L, durationMillis) + 49L) / 50L);
+    return (int) Math.min(Integer.MAX_VALUE, Math.max(1L, (durationTicks + BLEED_PERIOD_TICKS - 1L) / BLEED_PERIOD_TICKS));
+  }
+
+  private boolean scheduleBleed(BleedPulse pulse) {
+    return J.runEntity(pulse.target(), () -> runBleedPulse(pulse), BLEED_PERIOD_TICKS);
+  }
+
+  private void runBleedPulse(BleedPulse pulse) {
+    LivingEntity target = pulse.target();
+    if (pulse.remaining() <= 0 || !target.isValid() || target.isDead()) {
+      return;
+    }
+
+    UUID tameOwnerId = null;
+    if (target instanceof Tameable tameable && tameable.isTamed()) {
+      AnimalTamer owner = tameable.getOwner();
+      tameOwnerId = owner == null ? null : owner.getUniqueId();
+    }
+    BleedAuthorization authorization = new BleedAuthorization(target.getLocation().clone(), target instanceof Player,
+        isProtectedFriendly(null, target), tameOwnerId);
+    if (!J.runEntity(pulse.source(), () -> authorizeBleedPulse(pulse, authorization))) {
+      return;
+    }
+  }
+
+  private void authorizeBleedPulse(BleedPulse pulse, BleedAuthorization authorization) {
+    Player source = pulse.source();
+    if (!source.isOnline() || getActiveLevel(source) <= 0 || authorization.protectedFriendly()
+        || source.getUniqueId().equals(authorization.tameOwnerId())) {
+      return;
+    }
+
+    boolean allowed = authorization.playerTarget()
+        ? canPVP(source, authorization.location())
+        : canPVE(source, authorization.location());
+    if (!allowed) {
+      return;
+    }
+
+    J.runEntity(pulse.target(), () -> applyBleedPulse(pulse));
+  }
+
+  private void applyBleedPulse(BleedPulse pulse) {
+    LivingEntity target = pulse.target();
+    if (!target.isValid() || target.isDead()) {
+      return;
+    }
+
+    double before = target.getHealth() + target.getAbsorptionAmount();
+    target.damage(pulse.damage());
+    double dealt = Math.max(0D, before - target.getHealth() - target.getAbsorptionAmount());
+    if (dealt > 0D) {
+      J.runEntity(pulse.source(), () -> addStat(pulse.source(), "swords.bloody-blade.bleed-damage", dealt));
+      fx(target.getLocation().add(0, 0.8D, 0), FxPriority.COMBAT)
+          .dustBurst(BLOOD, 4, 0.25D, 0.9F)
+          .particle(Particle.DAMAGE_INDICATOR, 2, 0, 0, 0, 0.08D, 0.03D)
+          .sound(Sound.BLOCK_HONEY_BLOCK_SLIDE, 0.2F, 0.7F);
+    }
+
+    if (pulse.remaining() > 1 && target.isValid() && !target.isDead()) {
+      scheduleBleed(new BleedPulse(target, pulse.source(), pulse.damage(), pulse.remaining() - 1));
+    }
+  }
+
   private record BleedMark(UUID source, long expiresAt) {
+  }
+
+  private record BleedPulse(LivingEntity target, Player source, double damage, int remaining) {
+  }
+
+  private record BleedAuthorization(Location location, boolean playerTarget, boolean protectedFriendly,
+                                    UUID tameOwnerId) {
   }
 
 

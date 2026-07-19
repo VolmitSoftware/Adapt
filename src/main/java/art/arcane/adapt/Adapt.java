@@ -23,8 +23,10 @@ import art.arcane.adapt.api.adaptation.PlayerStateRegistry;
 import art.arcane.adapt.api.minion.MinionBurden;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdvancementManager;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.data.WorldData;
 import art.arcane.adapt.api.fx.FxDirector;
+import art.arcane.adapt.api.fx.ViewerDisplayDirector;
 import art.arcane.adapt.api.potion.BrewingManager;
 import art.arcane.adapt.api.protection.ProtectorRegistry;
 import art.arcane.adapt.api.skill.SimpleSkill;
@@ -568,6 +570,10 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     MinionBurden.startRuntime();
     burden.reconcileOnline();
 
+    AdaptAttributeService attributeService = AdaptAttributeService.get();
+    AdaptAttributeService.startRuntime();
+    attributeService.reconcileOnline();
+
     long startAdv = System.currentTimeMillis();
     manager.enable();
     verbose("start-sim detail: advancement manager enable in " + (System.currentTimeMillis() - startAdv) + "ms");
@@ -579,6 +585,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
 
   public void stopSim() {
     WorldBlockScanScheduler.reset();
+    ViewerDisplayDirector.clearAll();
     if (ticker != null) {
       ticker.shutdown();
     }
@@ -588,6 +595,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     if (adaptServer != null) {
       adaptServer.unregister();
     }
+    AdaptAttributeService.shutdown();
     if (manager != null) {
       manager.disable();
     }

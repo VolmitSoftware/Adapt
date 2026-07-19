@@ -1973,11 +1973,10 @@ lore = ["Mitä enemmän vihollisia ympärilläsi, sitä vähemmän vahinkoa kuki
 
 [tragoul.healing]
 name = "Tuskan tahto"
-description = "Saat terveyttä takaisin aiheuttamasi vahingon perusteella!"
-lore1 = "Vahingoittaminen ei ole koskaan tuntunut näin hyvältä! Parannu aiheuttamastasi vahingosta"
-lore2 = "3 sekunnin vahinkoikkuna parantumiselle ja 1 sekunnin jäähtymisaika "
-lore3 = "Parantuminen per vahinkoprosentti: "
-lore = ["Vahingoittaminen ei ole koskaan tuntunut näin hyvältä! Parannu aiheuttamastasi vahingosta", "3 sekunnin vahinkoikkuna parantumiselle ja 1 sekunnin jäähtymisaika ", "Parantuminen per vahinkoprosentti: "]
+description = "Jokainen kelvollinen hyökkääjä, joka vahingoittaa sinua, menettää pienen kiinteän määrän elämää, joka palautuu sinulle."
+lore1 = "jokaiselta hyökkääjältä imettyä terveyttä"
+lore2 = "Todella imetty elämä palautuu sinulle"
+lore = ["jokaiselta hyökkääjältä imettyä terveyttä", "Todella imetty elämä palautuu sinulle"]
 
 [tragoul.lance]
 name = "Ruumiskeihäät"

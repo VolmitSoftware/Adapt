@@ -1841,11 +1841,10 @@ lore = ["Je mehr Feinde um dich herum, desto weniger Schaden fügst du jedem ein
 
 [tragoul.healing]
 name = "Wille des Schmerzes"
-description = "Gewinne Gesundheit basierend auf dem verursachten Schaden!"
-lore1 = "Dinge zu verletzen hat sich noch nie so gut angefühlt! Heile durch verursachten Schaden"
-lore2 = "Es gibt ein 3-Sekunden-Schadensfenster für Heilung und 1 Sekunde Abklingzeit "
-lore3 = "Heilung pro Schadensprozentsatz: "
-lore = ["Dinge zu verletzen hat sich noch nie so gut angefühlt! Heile durch verursachten Schaden", "Es gibt ein 3-Sekunden-Schadensfenster für Heilung und 1 Sekunde Abklingzeit ", "Heilung pro Schadensprozentsatz: "]
+description = "Jeder zulässige Angreifer, der dir Schaden zufügt, verliert eine kleine feste Menge Leben, die du erhältst."
+lore1 = "jedem Angreifer entzogene Gesundheit"
+lore2 = "Tatsächlich entzogenes Leben wird dir gutgeschrieben"
+lore = ["jedem Angreifer entzogene Gesundheit", "Tatsächlich entzogenes Leben wird dir gutgeschrieben"]
 
 [tragoul.lance]
 name = "Leichenlanzen"

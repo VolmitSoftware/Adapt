@@ -1,5 +1,6 @@
 package art.arcane.adapt.api.world;
 
+import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.api.mutation.PlayerMutationData;
 import org.junit.jupiter.api.DisplayName;
@@ -119,6 +120,73 @@ class PlayerDataTest extends AdaptTestBase {
     }
 
     @Test
+    @DisplayName("inspired popup defaults are disabled with a five-minute cooldown")
+    void inspiredPopupDefaultsAreQuiet() {
+        AdaptConfig.XpIntegrity integrity = new AdaptConfig().getXpIntegrity();
+
+        assertThat(integrity.isInspiredPopupEnabled()).isFalse();
+        assertThat(integrity.getInspiredCooldownMillis()).isEqualTo(300000L);
+    }
+
+    @Test
+    @DisplayName("inspired activity stays assigned for the player-wide cooldown")
+    void inspiredActivityStaysAssignedForCooldown() {
+        PlayerData data = new PlayerData();
+        CountingSkillLine axes = new CountingSkillLine("axes");
+        CountingSkillLine swords = new CountingSkillLine("swords");
+        CountingSkillLine crafting = new CountingSkillLine("crafting");
+        axes.inspiredPressure = 40.0D;
+        swords.inspiredPressure = 20.0D;
+        crafting.inspiredPressure = 30.0D;
+        data.getSkillLines().put("axes", axes);
+        data.getSkillLines().put("swords", swords);
+        data.getSkillLines().put("crafting", crafting);
+
+        data.resetMonotonyForOtherSkills("axes");
+
+        assertThat(data.getInspiredSkill()).isEqualTo("crafting");
+        long firstAssignment = data.getInspiredAssignedAt();
+        assertThat(firstAssignment).isPositive();
+
+        crafting.inspiredPressure = 100.0D;
+        data.resetMonotonyForOtherSkills("swords");
+
+        assertThat(data.getInspiredSkill()).isEqualTo("crafting");
+        assertThat(data.getInspiredAssignedAt()).isEqualTo(firstAssignment);
+
+        axes.inspiredPressure = 40.0D;
+        swords.inspiredPressure = 40.0D;
+        long expiredAssignment = firstAssignment - 300000L;
+        data.setInspiredAssignedAt(expiredAssignment);
+        data.resetMonotonyForOtherSkills("crafting");
+
+        assertThat(data.getInspiredSkill()).isEqualTo("axes");
+        assertThat(data.getInspiredAssignedAt()).isGreaterThan(expiredAssignment);
+        assertThat(axes.recoveryCalls).isEqualTo(2);
+        assertThat(swords.recoveryCalls).isEqualTo(2);
+        assertThat(crafting.recoveryCalls).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("inspired assignment persists and is cleared with xp progression")
+    void inspiredAssignmentPersistsAndClears() {
+        PlayerData data = new PlayerData();
+        data.setInspiredSkill("crafting");
+        data.setInspiredAssignedAt(1234L);
+
+        PlayerData restored = PlayerData.fromJson(data.toJson(false));
+
+        assertThat(restored).isNotNull();
+        assertThat(restored.getInspiredSkill()).isEqualTo("crafting");
+        assertThat(restored.getInspiredAssignedAt()).isEqualTo(1234L);
+
+        restored.clearXp();
+
+        assertThat(restored.getInspiredSkill()).isEmpty();
+        assertThat(restored.getInspiredAssignedAt()).isZero();
+    }
+
+    @Test
     @DisplayName("mutation state preserves discovery order and unknown ids through json")
     void mutationStateRoundTripsWithoutPruning() {
         PlayerData data = new PlayerData();
@@ -156,6 +224,8 @@ class PlayerDataTest extends AdaptTestBase {
         assertThat(restored).isNotNull();
         assertThat(restored.getMutationData()).isNotNull();
         assertThat(restored.getMutationData().getDiscovered()).isEmpty();
+        assertThat(restored.getInspiredSkill()).isEmpty();
+        assertThat(restored.getInspiredAssignedAt()).isZero();
         assertThat(legacyMutation).isNotNull();
         assertThat(legacyMutation.getMutationData().getDiscovered()).isEmpty();
         assertThat(legacyMutation.getMutationData().getSlotOneId()).isEqualTo("gale-lung");
@@ -181,14 +251,16 @@ class PlayerDataTest extends AdaptTestBase {
 
     private static final class CountingSkillLine extends PlayerSkillLine {
         private int recoveryCalls;
+        private double inspiredPressure;
 
         private CountingSkillLine(String name) {
             setLine(name);
         }
 
         @Override
-        public void relaxStalenessForActivitySwitch() {
+        public double relaxStalenessForActivitySwitch() {
             recoveryCalls++;
+            return inspiredPressure;
         }
     }
 }

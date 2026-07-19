@@ -23,21 +23,38 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerItemBreakEvent;
+import org.bukkit.event.player.PlayerItemHeldEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.event.player.PlayerSwapHandItemsEvent;
+import org.bukkit.inventory.ItemStack;
 
 public class UnarmedPower extends SimpleAdaptation<UnarmedPower.Config> {
+  private static final String SLOT_POWER = "power";
+  private static final long REFRESH_DURATION_TICKS = 180L;
+
   public UnarmedPower() {
     super("unarmed-power");
     registerConfiguration(Config.class);
@@ -64,6 +81,59 @@ public class UnarmedPower extends SimpleAdaptation<UnarmedPower.Config> {
     statLore(v, Form.pc(getUnarmedDamage(level), 0), 1);
   }
 
+  @Override
+  public void onTick() {
+    for (AdaptPlayer adaptPlayer : learnedCandidates(System.currentTimeMillis())) {
+      Player player = adaptPlayer.getPlayer();
+      withPlayerThread(player, () -> reconcile(player));
+    }
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(PlayerItemHeldEvent e) {
+    Player p = e.getPlayer();
+    reconcileWith(p, p.getInventory().getItem(e.getNewSlot()), p.getInventory().getItemInOffHand());
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(PlayerSwapHandItemsEvent e) {
+    reconcileWith(e.getPlayer(), e.getMainHandItem(), e.getOffHandItem());
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(InventoryCloseEvent e) {
+    if (e.getPlayer() instanceof Player p) {
+      reconcile(p);
+    }
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(PlayerDropItemEvent e) {
+    reconcileNextTick(e.getPlayer());
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(EntityPickupItemEvent e) {
+    if (e.getEntity() instanceof Player p) {
+      reconcileNextTick(p);
+    }
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(PlayerItemBreakEvent e) {
+    reconcileNextTick(e.getPlayer());
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(PlayerRespawnEvent e) {
+    reconcileNextTick(e.getPlayer());
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(PlayerChangedWorldEvent e) {
+    reconcile(e.getPlayer());
+  }
+
   @EventHandler
   public void on(EntityDamageByEntityEvent e) {
     art.arcane.adapt.api.adaptation.Adaptation.AttackContext attack = resolveAttackContext(e);
@@ -72,7 +142,9 @@ public class UnarmedPower extends SimpleAdaptation<UnarmedPower.Config> {
     }
 
     Player p = attack.attacker();
-    if (isTool(p.getInventory().getItemInMainHand()) || isTool(p.getInventory().getItemInOffHand())) {
+    ItemStack mainHand = p.getInventory().getItemInMainHand();
+    ItemStack offHand = p.getInventory().getItemInOffHand();
+    if (isTool(mainHand) || isTool(offHand)) {
       return;
     }
     double factor = getLevelPercent(attack.level());
@@ -80,7 +152,7 @@ public class UnarmedPower extends SimpleAdaptation<UnarmedPower.Config> {
     if (factor <= 0) {
       return;
     }
-    e.setDamage(e.getDamage() * (1 + getUnarmedDamage(attack.level())));
+    reconcileWith(p, mainHand, offHand);
     xp(p, 0.321 * factor * e.getDamage(), "unarmed-hit");
     if (factor >= 0.5) {
       fx(e.getEntity(), FxPriority.COMBAT)
@@ -106,8 +178,42 @@ public class UnarmedPower extends SimpleAdaptation<UnarmedPower.Config> {
     }
   }
 
+  private void reconcile(Player p) {
+    if (p == null || !p.isOnline()) {
+      return;
+    }
+    reconcileWith(p, p.getInventory().getItemInMainHand(), p.getInventory().getItemInOffHand());
+  }
+
+  private void reconcileWith(Player p, ItemStack mainHand, ItemStack offHand) {
+    if (p == null || !p.isOnline() || getLevel(p) <= 0) {
+      return;
+    }
+
+    int level = getActiveLevel(p);
+    double scalar = powerScalar(getLevelPercent(level), getConfig().damageFactor);
+    boolean bareHanded = !isTool(mainHand) && !isTool(offHand);
+    if (shouldApplyPower(level, bareHanded, scalar)) {
+      AdaptAttributeService.get().applyTimed(p, getName(), SLOT_POWER, Attributes.ATTACK_DAMAGE, scalar, AttributeModifier.Operation.MULTIPLY_SCALAR_1, REFRESH_DURATION_TICKS);
+    } else {
+      AdaptAttributeService.get().remove(p, getName(), SLOT_POWER, Attributes.ATTACK_DAMAGE);
+    }
+  }
+
+  private void reconcileNextTick(Player p) {
+    J.runEntity(p, () -> reconcile(p), 1);
+  }
+
   private double getUnarmedDamage(int level) {
-    return getLevelPercent(level) * getConfig().damageFactor;
+    return powerScalar(getLevelPercent(level), getConfig().damageFactor);
+  }
+
+  static double powerScalar(double levelPercent, double damageFactor) {
+    return levelPercent * damageFactor;
+  }
+
+  static boolean shouldApplyPower(int activeLevel, boolean bareHanded, double scalar) {
+    return activeLevel > 0 && bareHanded && scalar != 0D;
   }
 
 

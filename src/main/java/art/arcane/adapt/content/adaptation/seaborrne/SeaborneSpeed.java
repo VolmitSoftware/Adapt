@@ -24,16 +24,19 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -49,18 +52,18 @@ import java.util.Map;
 import java.util.UUID;
 
 public class SeaborneSpeed extends SimpleAdaptation<SeaborneSpeed.Config> {
+  private static final String ATTRIBUTE_SLOT = "swim";
   private static final double MAX_TRACKED_DISTANCE_PER_MOVE = 4D;
   private static final double STAT_FLUSH_DISTANCE = 4D;
-  private static final int EFFECT_DURATION_TICKS = 80;
-  private static final int EFFECT_REFRESH_THRESHOLD_TICKS = 40;
   private static final long ELIGIBILITY_CHECK_INTERVAL_MILLIS = 500L;
-  private static final long EFFECT_CHECK_INTERVAL_MILLIS = 1000L;
   private static final long TRAIL_INTERVAL_MILLIS = 500L;
+  private static final int GRACE_AMPLIFIER = 0;
+  private static final int GRACE_BASE_DURATION_TICKS = 20;
+  private static final int GRACE_MAX_LINGER_TICKS = 60;
 
   private final Map<UUID, SwimSession> swimSessions = playerState();
   private final Cooldowns swimSound = cooldowns();
   private final Cooldowns eligibilityCheck = cooldowns();
-  private final Cooldowns effectCheck = cooldowns();
   private final Cooldowns swimTrail = cooldowns();
 
   public SeaborneSpeed() {
@@ -146,6 +149,8 @@ public class SeaborneSpeed extends SimpleAdaptation<SeaborneSpeed.Config> {
       }
       session = new SwimSession(level, System.currentTimeMillis() + ELIGIBILITY_CHECK_INTERVAL_MILLIS);
       swimSessions.put(playerId, session);
+      applySwimBoost(player, level);
+      applySwimGrace(player, level);
     } else if (System.currentTimeMillis() >= session.nextEligibilityCheckAt) {
       int level = resolveEligibleLevel(player);
       if (level <= 0) {
@@ -153,13 +158,11 @@ public class SeaborneSpeed extends SimpleAdaptation<SeaborneSpeed.Config> {
         return;
       }
       session.level = level;
+      applySwimBoost(player, level);
+      applySwimGrace(player, level);
       session.nextEligibilityCheckAt = System.currentTimeMillis() + ELIGIBILITY_CHECK_INTERVAL_MILLIS;
     }
 
-    if (started || effectCheck.isReady(playerId, EFFECT_CHECK_INTERVAL_MILLIS)) {
-      effectCheck.mark(playerId);
-      refreshDolphinsGrace(player, session.level);
-    }
     if (horizontalDistance > 0D) {
       session.pendingDistance += horizontalDistance;
       if (session.pendingDistance >= STAT_FLUSH_DISTANCE) {
@@ -184,10 +187,25 @@ public class SeaborneSpeed extends SimpleAdaptation<SeaborneSpeed.Config> {
         : level;
   }
 
-  private void refreshDolphinsGrace(Player player, int level) {
+  private void applySwimBoost(Player player, int level) {
+    AdaptAttributeService.get().apply(player, getName(), ATTRIBUTE_SLOT, Attributes.WATER_MOVEMENT_EFFICIENCY,
+        waterEfficiencyAmount(level, getMaxLevel()), AttributeModifier.Operation.ADD_NUMBER);
+  }
+
+  private void applySwimGrace(Player player, int level) {
+    if (!player.isSwimming()) {
+      return;
+    }
+    int durationTicks = graceDurationTicks(level, getMaxLevel());
+    if (durationTicks <= 0) {
+      return;
+    }
     PotionEffect current = player.getPotionEffect(PotionEffectType.DOLPHINS_GRACE);
-    if (current == null || shouldRefreshEffect(current.getDuration(), current.getAmplifier(), level)) {
-      player.addPotionEffect(new PotionEffect(PotionEffectType.DOLPHINS_GRACE, EFFECT_DURATION_TICKS, level));
+    boolean hasCurrent = current != null;
+    int currentAmplifier = hasCurrent ? current.getAmplifier() : 0;
+    int currentDurationTicks = hasCurrent ? current.getDuration() : 0;
+    if (shouldApplyGrace(hasCurrent, currentAmplifier, currentDurationTicks, durationTicks)) {
+      player.addPotionEffect(new PotionEffect(PotionEffectType.DOLPHINS_GRACE, durationTicks, GRACE_AMPLIFIER, true, false, true));
     }
   }
 
@@ -230,9 +248,11 @@ public class SeaborneSpeed extends SimpleAdaptation<SeaborneSpeed.Config> {
 
   private void endSession(Player player) {
     SwimSession session = swimSessions.remove(player.getUniqueId());
-    if (session != null) {
-      flushDistance(player, session);
+    if (session == null) {
+      return;
     }
+    AdaptAttributeService.get().remove(player, getName(), ATTRIBUTE_SLOT, Attributes.WATER_MOVEMENT_EFFICIENCY);
+    flushDistance(player, session);
   }
 
   private void flushDistance(Player player, SwimSession session) {
@@ -256,9 +276,29 @@ public class SeaborneSpeed extends SimpleAdaptation<SeaborneSpeed.Config> {
     return Math.min(MAX_TRACKED_DISTANCE_PER_MOVE, Math.sqrt((deltaX * deltaX) + (deltaZ * deltaZ)));
   }
 
-  static boolean shouldRefreshEffect(int currentDuration, int currentAmplifier, int targetAmplifier) {
-    return currentAmplifier < targetAmplifier
-        || (currentAmplifier == targetAmplifier && currentDuration <= EFFECT_REFRESH_THRESHOLD_TICKS);
+  static double waterEfficiencyAmount(int level, int maxLevel) {
+    if (level <= 0) {
+      return 0D;
+    }
+    return Math.min(1D, (double) level / Math.max(1, maxLevel));
+  }
+
+  static int graceDurationTicks(int level, int maxLevel) {
+    if (level <= 0) {
+      return 0;
+    }
+    double levelPercent = Math.min(1D, (double) level / Math.max(1, maxLevel));
+    return GRACE_BASE_DURATION_TICKS + (int) Math.round(levelPercent * GRACE_MAX_LINGER_TICKS);
+  }
+
+  static boolean shouldApplyGrace(boolean hasCurrent, int currentAmplifier, int currentDurationTicks, int durationTicks) {
+    if (!hasCurrent) {
+      return true;
+    }
+    if (currentDurationTicks < 0) {
+      return false;
+    }
+    return currentAmplifier < GRACE_AMPLIFIER || currentDurationTicks <= durationTicks;
   }
 
   @ConfigDescription("Swim faster with dolphin-like grace.")

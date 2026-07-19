@@ -24,15 +24,17 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
-import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -41,11 +43,11 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 
 public class SwordsWhetstoneRitual extends SimpleAdaptation<SwordsWhetstoneRitual.Config> {
   private static final Color SPARK = Color.fromRGB(0xFFE08A);
+  private static final String SHARP_SLOT = "sharp";
+  private static final double STRENGTH_DAMAGE_PER_TIER = 3.0D;
   private final Cooldowns ritualCooldown = cooldowns();
 
   public SwordsWhetstoneRitual() {
@@ -98,6 +100,11 @@ public class SwordsWhetstoneRitual extends SimpleAdaptation<SwordsWhetstoneRitua
       return;
     }
 
+    int duration = getBuffDurationTicks(level);
+    if (duration <= 0) {
+      return;
+    }
+
     if (!ritualCooldown.isReady(p.getUniqueId(), (long) getConfig().cooldownMillis)) {
       return;
     }
@@ -119,13 +126,7 @@ public class SwordsWhetstoneRitual extends SimpleAdaptation<SwordsWhetstoneRitua
     p.giveExpLevels(-xpCost);
     ritualCooldown.mark(p.getUniqueId());
 
-    int amplifier = getBuffStrength(level);
-    int duration = getBuffDurationTicks(level);
-    J.runEntity(p, () -> {
-      if (p.isOnline()) {
-        p.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, duration, amplifier, true, true, true), true);
-      }
-    });
+    AdaptAttributeService.get().applyTimed(p, getName(), SHARP_SLOT, Attributes.ATTACK_DAMAGE, sharpnessDamage(getBuffStrength(level)), AttributeModifier.Operation.ADD_NUMBER, duration);
 
     ritualFx(p, level);
     xp(p, getConfig().skillXpOnRitual);
@@ -167,14 +168,25 @@ public class SwordsWhetstoneRitual extends SimpleAdaptation<SwordsWhetstoneRitua
     return true;
   }
 
+  static int buffAmplifier(double strengthBase, double strengthFactor, double levelPercent) {
+    return Math.max(0, (int) Math.round(strengthBase + (levelPercent * strengthFactor)));
+  }
+
+  static int buffDurationTicks(double durationTicksBase, double durationTicksFactor, double levelPercent) {
+    return Math.max(40, (int) Math.round(durationTicksBase + (levelPercent * durationTicksFactor)));
+  }
+
+  static double sharpnessDamage(int amplifier) {
+    return STRENGTH_DAMAGE_PER_TIER * (amplifier + 1);
+  }
+
   private int getBuffStrength(int level) {
-    return Math.max(0, (int) Math.round(getConfig().strengthBase + (getLevelPercent(level) * getConfig().strengthFactor)));
+    return buffAmplifier(getConfig().strengthBase, getConfig().strengthFactor, getLevelPercent(level));
   }
 
   private int getBuffDurationTicks(int level) {
-    return Math.max(40, (int) Math.round(getConfig().durationTicksBase + (getLevelPercent(level) * getConfig().durationTicksFactor)));
+    return buffDurationTicks(getConfig().durationTicksBase, getConfig().durationTicksFactor, getLevelPercent(level));
   }
-
 
   @ConfigDescription("Sneak-right-click a grindstone with a sword to grind a temporary sharpness buff for durability and XP.")
   protected static class Config extends AdaptationConfig {

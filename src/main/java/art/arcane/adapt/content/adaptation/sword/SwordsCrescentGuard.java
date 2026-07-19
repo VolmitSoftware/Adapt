@@ -24,8 +24,11 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.version.IAttribute;
+import art.arcane.adapt.api.version.Version;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Color;
@@ -74,7 +77,13 @@ public class SwordsCrescentGuard extends SimpleAdaptation<SwordsCrescentGuard.Co
     if (p == null) {
       return;
     }
+    J.runEntity(p, () -> applyGuardForKill(p));
+  }
 
+  private void applyGuardForKill(Player p) {
+    if (!p.isOnline()) {
+      return;
+    }
     if (!isSword(p.getInventory().getItemInMainHand())) {
       return;
     }
@@ -86,7 +95,7 @@ public class SwordsCrescentGuard extends SimpleAdaptation<SwordsCrescentGuard.Co
 
     int amplifier = getAbsorptionAmplifier(level);
     int duration = getDurationTicks(level);
-    J.runEntity(p, () -> applyGuard(p, amplifier, duration));
+    applyGuard(p, amplifier, duration);
     addStat(p, "swords.crescent-guard.guarded-kills", 1);
     xp(p, getConfig().xpPerGuard);
     fx(p.getLocation().add(0, 1, 0), FxPriority.COMBAT)
@@ -102,12 +111,24 @@ public class SwordsCrescentGuard extends SimpleAdaptation<SwordsCrescentGuard.Co
 
     PotionEffect current = p.getPotionEffect(PotionEffectType.ABSORPTION);
     int useAmplifier = current == null ? amplifier : Math.max(current.getAmplifier(), amplifier);
-    int useDuration = current == null ? duration : Math.max(current.getDuration(), duration);
+    int useDuration = current == null || !current.isInfinite()
+        ? Math.max(current == null ? 0 : current.getDuration(), duration)
+        : PotionEffect.INFINITE_DURATION;
     p.addPotionEffect(new PotionEffect(PotionEffectType.ABSORPTION, useDuration, useAmplifier, true, true, true), true);
+    double grantedAbsorption = absorptionPoints(useAmplifier);
+    IAttribute capacity = Version.get().getAttribute(p, Attributes.MAX_ABSORPTION);
+    if (capacity != null) {
+      grantedAbsorption = Math.min(grantedAbsorption, capacity.getValue());
+    }
+    p.setAbsorptionAmount(Math.max(p.getAbsorptionAmount(), grantedAbsorption));
   }
 
   private double getAbsorptionHearts(int level) {
-    return 2D * (getAbsorptionAmplifier(level) + 1);
+    return absorptionPoints(getAbsorptionAmplifier(level)) / 2D;
+  }
+
+  static double absorptionPoints(int amplifier) {
+    return 4D * (Math.max(0, amplifier) + 1);
   }
 
   private int getAbsorptionAmplifier(int level) {

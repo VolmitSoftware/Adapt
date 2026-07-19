@@ -158,7 +158,7 @@ public class CraftingMasterwork extends SimpleAdaptation<CraftingMasterwork.Conf
   }
 
   private boolean applyAttribute(Material material, Damageable meta, boolean tool) {
-    Attribute attribute = tool ? Attributes.GENERIC_ATTACK_DAMAGE : Attributes.GENERIC_ARMOR;
+    Attribute attribute = tool ? Attributes.ATTACK_DAMAGE : Attributes.ARMOR;
     if (attribute == null) {
       return false;
     }

@@ -28,20 +28,23 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
+import com.google.common.collect.Multimap;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
-import org.bukkit.entity.LivingEntity;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
+import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.view.AnvilView;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -49,7 +52,9 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 public class SwordsHeirloomEdge extends SimpleAdaptation<SwordsHeirloomEdge.Config> {
   private static final Color HEIRLOOM = Color.fromRGB(0xE8C46A);
@@ -57,6 +62,7 @@ public class SwordsHeirloomEdge extends SimpleAdaptation<SwordsHeirloomEdge.Conf
   private final NamespacedKey flagKey;
   private final NamespacedKey killsKey;
   private final NamespacedKey bonusKey;
+  private final NamespacedKey modifierKey;
 
   public SwordsHeirloomEdge() {
     super("sword-heirloom-edge");
@@ -65,6 +71,7 @@ public class SwordsHeirloomEdge extends SimpleAdaptation<SwordsHeirloomEdge.Conf
     flagKey = new NamespacedKey(Adapt.instance, "heirloom_edge");
     killsKey = new NamespacedKey(Adapt.instance, "heirloom_edge_kills");
     bonusKey = new NamespacedKey(Adapt.instance, "heirloom_edge_bonus");
+    modifierKey = new NamespacedKey(Adapt.instance, "heirloom_edge_damage");
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.IRON_SWORD)
         .key("challenge_swords_heirloom_10")
@@ -120,7 +127,8 @@ public class SwordsHeirloomEdge extends SimpleAdaptation<SwordsHeirloomEdge.Conf
       pdc.set(bonusKey, PersistentDataType.DOUBLE, 0D);
     }
 
-    applyHeirloomLore(meta, pdc.getOrDefault(bonusKey, PersistentDataType.DOUBLE, 0D));
+    applyHeirloomModifier(result.getType(), meta, pdc.getOrDefault(bonusKey, PersistentDataType.DOUBLE, 0D));
+    applyHeirloomLore(meta);
     result.setItemMeta(meta);
     e.setResult(result);
   }
@@ -128,44 +136,11 @@ public class SwordsHeirloomEdge extends SimpleAdaptation<SwordsHeirloomEdge.Conf
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(EntityDeathEvent e) {
     Player p = e.getEntity().getKiller();
-    if (p == null || getActiveLevel(p) <= 0) {
+    if (p == null) {
       return;
     }
 
     J.runEntity(p, () -> bankKill(p));
-  }
-
-  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-  public void on(EntityDamageByEntityEvent e) {
-    if (!(e.getDamager() instanceof Player p) || !(e.getEntity() instanceof LivingEntity)) {
-      return;
-    }
-
-    if (getActiveLevel(p) <= 0) {
-      return;
-    }
-
-    ItemStack hand = p.getInventory().getItemInMainHand();
-    if (!isSword(hand)) {
-      return;
-    }
-
-    ItemMeta meta = hand.getItemMeta();
-    if (meta == null) {
-      return;
-    }
-
-    PersistentDataContainer pdc = meta.getPersistentDataContainer();
-    if (!pdc.has(flagKey, PersistentDataType.BYTE)) {
-      return;
-    }
-
-    double bonus = pdc.getOrDefault(bonusKey, PersistentDataType.DOUBLE, 0D);
-    if (bonus <= 0) {
-      return;
-    }
-
-    e.setDamage(e.getDamage() + bonus);
   }
 
   private void bankKill(Player p) {
@@ -173,6 +148,11 @@ public class SwordsHeirloomEdge extends SimpleAdaptation<SwordsHeirloomEdge.Conf
       return;
     }
 
+    int level = getActiveLevel(p);
+    if (level <= 0) {
+      return;
+    }
+
     ItemStack hand = p.getInventory().getItemInMainHand();
     if (!isSword(hand)) {
       return;
@@ -188,7 +168,6 @@ public class SwordsHeirloomEdge extends SimpleAdaptation<SwordsHeirloomEdge.Conf
       return;
     }
 
-    int level = getLevel(p);
     int perBank = Math.max(1, getConfig().killsPerBank);
     double cap = getBonusCap(level);
     int kills = pdc.getOrDefault(killsKey, PersistentDataType.INTEGER, 0) + 1;
@@ -207,7 +186,8 @@ public class SwordsHeirloomEdge extends SimpleAdaptation<SwordsHeirloomEdge.Conf
 
     pdc.set(killsKey, PersistentDataType.INTEGER, kills);
     pdc.set(bonusKey, PersistentDataType.DOUBLE, bonus);
-    applyHeirloomLore(meta, bonus);
+    applyHeirloomModifier(hand.getType(), meta, bonus);
+    applyHeirloomLore(meta);
     hand.setItemMeta(meta);
     p.getInventory().setItemInMainHand(hand);
 
@@ -221,10 +201,39 @@ public class SwordsHeirloomEdge extends SimpleAdaptation<SwordsHeirloomEdge.Conf
     }
   }
 
-  private void applyHeirloomLore(ItemMeta meta, double bonus) {
+  private void applyHeirloomModifier(Material material, ItemMeta meta, double bonus) {
+    Attribute attribute = Attributes.ATTACK_DAMAGE;
+    if (attribute == null) {
+      return;
+    }
+
+    Collection<AttributeModifier> existing = meta.getAttributeModifiers(attribute);
+    if (existing != null) {
+      for (AttributeModifier modifier : new ArrayList<>(existing)) {
+        if (modifierKey.equals(modifier.getKey())) {
+          meta.removeAttributeModifier(attribute, modifier);
+        }
+      }
+    }
+
+    if (bonus <= 0) {
+      return;
+    }
+
+    if (!meta.hasAttributeModifiers()) {
+      Multimap<Attribute, AttributeModifier> defaults = material.getDefaultAttributeModifiers();
+      for (Map.Entry<Attribute, AttributeModifier> entry : defaults.entries()) {
+        meta.addAttributeModifier(entry.getKey(), entry.getValue());
+      }
+    }
+
+    meta.addAttributeModifier(attribute, new AttributeModifier(modifierKey, bonus, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.MAINHAND));
+  }
+
+  private void applyHeirloomLore(ItemMeta meta) {
     List<String> lore = meta.hasLore() ? new ArrayList<>(meta.getLore()) : new ArrayList<>();
     lore.removeIf(line -> line != null && line.contains(LORE_SENTINEL));
-    lore.add(C.GOLD + LORE_SENTINEL + C.GRAY + " +" + Form.f(bonus, 1) + " damage");
+    lore.add(C.GOLD + LORE_SENTINEL);
     meta.setLore(lore);
   }
 

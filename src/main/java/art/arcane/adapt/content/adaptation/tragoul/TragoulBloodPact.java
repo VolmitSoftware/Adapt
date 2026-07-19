@@ -21,20 +21,22 @@ package art.arcane.adapt.content.adaptation.tragoul;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
-import art.arcane.adapt.api.adaptation.VelocityBurstRuntime;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -52,24 +54,23 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> {
-  private static final PotionEffectType[] EFFECT_POOL = {
-      PotionEffectType.SPEED,
-      PotionEffectType.REGENERATION,
-      PotionEffectType.RESISTANCE,
-      PotionEffectType.FIRE_RESISTANCE,
-      PotionEffectType.ABSORPTION,
-      PotionEffectType.JUMP_BOOST,
-      PotionEffectType.NIGHT_VISION
-  };
+  private static List<PotionEffectType> effectPool() {
+    return List.of(
+        PotionEffectType.SPEED,
+        PotionEffectType.REGENERATION,
+        PotionEffectType.RESISTANCE,
+        PotionEffectType.FIRE_RESISTANCE,
+        PotionEffectType.ABSORPTION,
+        PotionEffectType.JUMP_BOOST,
+        PotionEffectType.NIGHT_VISION);
+  }
 
   private static final Color PACT_CRIMSON = Color.fromRGB(150, 0, 10);
   private final Cooldowns procCooldowns = cooldowns();
   private final Map<UUID, Boolean> lowHealthProcs = playerState();
-  private final VelocityBurstRuntime.Client speedBursts;
 
   public TragoulBloodPact() {
     super("tragoul-blood-pact");
-    speedBursts = VelocityBurstRuntime.register(getName(), new BurstFeedback());
     registerConfiguration(Config.class);
     setIcon(Material.NETHER_WART);
     registerAdvancement(AdaptAdvancement.builder()
@@ -92,12 +93,6 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
-  }
-
-  @Override
-  public void unregister() {
-    speedBursts.unregister();
-    super.unregister();
   }
 
   @Override
@@ -165,7 +160,7 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
       count++;
     }
 
-    List<PotionEffectType> pool = new ArrayList<>(List.of(EFFECT_POOL));
+    List<PotionEffectType> pool = new ArrayList<>(effectPool());
     Collections.shuffle(pool);
     count = Math.min(count, pool.size());
 
@@ -175,21 +170,46 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
       int amplifier = getEffectAmplifier(type, level);
       int d = type == PotionEffectType.ABSORPTION ? Math.max(40, duration - 20) : duration;
       if (type == PotionEffectType.SPEED) {
-        grantSpeedBurst(p, amplifier, d);
+        grantSpeedBoost(p, amplifier, d);
+        continue;
+      }
+      if (type == PotionEffectType.JUMP_BOOST) {
+        grantJumpBoost(p, amplifier, d);
         continue;
       }
       p.addPotionEffect(new PotionEffect(type, d, amplifier, false, true, true), true);
     }
   }
 
-  private void grantSpeedBurst(Player p, int amplifier, int durationTicks) {
-    VelocityBurstRuntime.BurstRequest request = new VelocityBurstRuntime.BurstRequest(
-        amplifier,
-        durationTicks,
-        true,
-        burstProfile()
-    );
-    speedBursts.start(p, request);
+  private void grantSpeedBoost(Player p, int amplifier, int durationTicks) {
+    if (durationTicks <= 0) {
+      return;
+    }
+    AdaptAttributeService.get().applyTimed(p, getName(), "speed", Attributes.MOVEMENT_SPEED, speedBonus(amplifier), AttributeModifier.Operation.MULTIPLY_SCALAR_1, durationTicks);
+    fx(p, FxPriority.TRAIL)
+        .dustBurst(PACT_CRIMSON, 4, 0.3, 1.0F)
+        .sound(Sound.PARTICLE_SOUL_ESCAPE, 0.3F, 1.5F);
+  }
+
+  private void grantJumpBoost(Player p, int amplifier, int durationTicks) {
+    if (durationTicks <= 0) {
+      return;
+    }
+    AdaptAttributeService attributes = AdaptAttributeService.get();
+    attributes.applyTimed(p, getName(), "jump", Attributes.JUMP_STRENGTH, jumpStrengthBonus(amplifier), AttributeModifier.Operation.ADD_NUMBER, durationTicks);
+    attributes.applyTimed(p, getName(), "fall", Attributes.SAFE_FALL_DISTANCE, safeFallBonus(amplifier), AttributeModifier.Operation.ADD_NUMBER, durationTicks);
+  }
+
+  static double speedBonus(int amplifier) {
+    return 0.2D * (amplifier + 1);
+  }
+
+  static double jumpStrengthBonus(int amplifier) {
+    return 0.1D * (amplifier + 1);
+  }
+
+  static double safeFallBonus(int amplifier) {
+    return amplifier + 1.0D;
   }
 
   private void playPactProc(Player p) {
@@ -244,33 +264,6 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
     return Math.max(1, getConfig().minDamageTriggerHearts * 2D);
   }
 
-  private VelocityBurstRuntime.Profile burstProfile() {
-    Config config = getConfig();
-    return new VelocityBurstRuntime.Profile(
-        config.baseHorizontalSpeed,
-        config.maxHorizontalSpeed,
-        config.accelPerTick,
-        config.brakePerTick,
-        config.stopThreshold,
-        config.hardStopOnInvalidState,
-        config.fallbackInputVelocityThreshold
-    );
-  }
-
-  private final class BurstFeedback implements VelocityBurstRuntime.Feedback {
-    @Override
-    public void onStarted(Player player) {
-      fx(player, FxPriority.TRAIL)
-          .dustBurst(PACT_CRIMSON, 4, 0.3, 1.0F)
-          .sound(Sound.PARTICLE_SOUL_ESCAPE, 0.3F, 1.5F);
-    }
-
-    @Override
-    public void onEnded(Player player) {
-      fx(player, FxPriority.TRAIL).dustBurst(PACT_CRIMSON, 3, 0.25, 0.8F);
-    }
-  }
-
   @ConfigDescription("Taking at least 2 hearts of damage can trigger temporary beneficial effects.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Min Damage Trigger Hearts for the Tragoul Blood Pact adaptation.", impact = "Minimum damage taken in hearts required before the proc roll happens.")
@@ -299,20 +292,6 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
     double bonusBuffChanceFactor = 0.34;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls XP Per Proc for the Tragoul Blood Pact adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpPerProc = 24;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base horizontal speed used for blood pact speed bursts.", impact = "Higher values increase movement speed when a speed burst is active.")
-    double baseHorizontalSpeed = 0.13;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum horizontal speed this adaptation can force.", impact = "Acts as a hard cap to prevent runaway momentum.")
-    double maxHorizontalSpeed = 0.33;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "How fast velocity accelerates toward the burst target per tick.", impact = "Higher values accelerate faster; lower values feel smoother.")
-    double accelPerTick = 0.045;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "How fast velocity decays when movement input is released.", impact = "Higher values reduce carry momentum more aggressively.")
-    double brakePerTick = 0.08;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Horizontal velocity threshold considered fully stopped.", impact = "Higher values stop sooner; lower values preserve tiny motion longer.")
-    double stopThreshold = 0.01;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "If true, burst velocity is force-cleared when entering invalid states.", impact = "Prevents retained speed from skipped state transitions.")
-    boolean hardStopOnInvalidState = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Fallback movement threshold used when direct input API is unavailable.", impact = "Only used on runtimes without Player input access.")
-    double fallbackInputVelocityThreshold = 0.0008;
 
     public Config() {
       costFactor = 0.62;

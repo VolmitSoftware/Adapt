@@ -1973,11 +1973,10 @@ lore = ["Hoe meer vijanden om je heen, hoe minder schade je aan elk van hen toeb
 
 [tragoul.healing]
 name = "Wil van Pijn"
-description = "Krijg gezondheid terug op basis van de schade die je toebrengt!"
-lore1 = "Dingen pijn doen heeft nog nooit zo goed gevoeld! Genees van toegebrachte schade"
-lore2 = "Er is een schadevenster van 3 seconden voor genezing en een cooldown van 1 seconde "
-lore3 = "Genezing Per Schadepercentage: "
-lore = ["Dingen pijn doen heeft nog nooit zo goed gevoeld! Genees van toegebrachte schade", "Er is een schadevenster van 3 seconden voor genezing en een cooldown van 1 seconde ", "Genezing Per Schadepercentage: "]
+description = "Elke geldige aanvaller die je beschadigt verliest een kleine vaste hoeveelheid leven, die jij terugkrijgt."
+lore1 = "gezondheid afgetapt van elke aanvaller"
+lore2 = "Het werkelijk afgetapte leven wordt aan jou hersteld"
+lore = ["gezondheid afgetapt van elke aanvaller", "Het werkelijk afgetapte leven wordt aan jou hersteld"]
 
 [tragoul.lance]
 name = "Lijklansen"

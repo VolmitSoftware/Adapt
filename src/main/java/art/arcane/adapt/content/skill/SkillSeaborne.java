@@ -354,7 +354,7 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
   }
 
   private double getBaseHealth(LivingEntity entity) {
-    IAttribute attribute = Version.get().getAttribute(entity, Attributes.GENERIC_MAX_HEALTH);
+    IAttribute attribute = Version.get().getAttribute(entity, Attributes.MAX_HEALTH);
     return attribute == null ? 0 : attribute.getBaseValue();
   }
 

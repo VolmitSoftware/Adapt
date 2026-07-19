@@ -284,7 +284,7 @@ public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
 
   private void update(Tameable j, int level) {
     UUID tameableId = j.getUniqueId();
-    IAttribute attribute = Version.get().getAttribute(j, Attributes.GENERIC_ATTACK_DAMAGE);
+    IAttribute attribute = Version.get().getAttribute(j, Attributes.ATTACK_DAMAGE);
     if (attribute == null) {
       appliedLevels.remove(tameableId);
       return;
@@ -326,7 +326,7 @@ public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
       return;
     }
 
-    IAttribute attribute = Version.get().getAttribute(tameable, Attributes.GENERIC_ATTACK_DAMAGE);
+    IAttribute attribute = Version.get().getAttribute(tameable, Attributes.ATTACK_DAMAGE);
     if (attribute != null && attribute.hasModifier(MODIFIER, MODIFIER_KEY)) {
       attribute.removeModifier(MODIFIER, MODIFIER_KEY);
     }

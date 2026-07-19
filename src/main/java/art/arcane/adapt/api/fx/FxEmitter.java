@@ -107,7 +107,8 @@ public final class FxEmitter {
     double px = x + ox;
     double py = y + oy;
     double pz = z + oz;
-    dispatch(emission(player -> player.spawnParticle(particle, px, py, pz, allowed, spread, spread, spread, speed, data)));
+    Object emissionData = particleData(particle, data, color);
+    dispatch(emission(player -> player.spawnParticle(particle, px, py, pz, allowed, spread, spread, spread, speed, emissionData)));
     return this;
   }
 
@@ -128,10 +129,11 @@ public final class FxEmitter {
     }
 
     double py = y + yOffset;
+    Object emissionData = particleData(particle, data, color);
     dispatch(emission(player -> {
       for (int k = 0; k < allowed; k++) {
         int i = (int) (((long) k * total) / allowed);
-        player.spawnParticle(particle, x + (lut[i << 1] * radius), py, z + (lut[(i << 1) + 1] * radius), 1, 0, 0, 0, 0, data);
+        player.spawnParticle(particle, x + (lut[i << 1] * radius), py, z + (lut[(i << 1) + 1] * radius), 1, 0, 0, 0, 0, emissionData);
       }
     }));
     return this;
@@ -151,6 +153,7 @@ public final class FxEmitter {
     double cosYaw = Math.cos(yawRadians);
     double sinYaw = Math.sin(yawRadians);
     double py = y + yOffset;
+    Object emissionData = particleData(particle, null, color);
     dispatch(emission(player -> {
       int last = -1;
       for (int k = 0; k < allowed; k++) {
@@ -162,7 +165,7 @@ public final class FxEmitter {
         last = i;
         double lx = CIRCLE_32[i << 1] * radius;
         double lz = CIRCLE_32[(i << 1) + 1] * radius;
-        player.spawnParticle(particle, x + ((cosYaw * lx) - (sinYaw * lz)), py, z + ((sinYaw * lx) + (cosYaw * lz)), 1, 0, 0, 0, 0, null);
+        player.spawnParticle(particle, x + ((cosYaw * lx) - (sinYaw * lz)), py, z + ((sinYaw * lx) + (cosYaw * lz)), 1, 0, 0, 0, 0, emissionData);
       }
     }));
     return this;
@@ -185,13 +188,14 @@ public final class FxEmitter {
     int total = CIRCLE_32.length >> 1;
     double cosPhase = Math.cos(phaseRadians);
     double sinPhase = Math.sin(phaseRadians);
+    Object emissionData = particleData(particle, data, color);
     dispatch(emission(player -> {
       for (int k = 0; k < allowed; k++) {
         double t = allowed == 1 ? 0.5D : (double) k / (allowed - 1);
         int i = (int) (((long) k * total * HELIX_REVOLUTIONS) / allowed) % total;
         double lx = CIRCLE_32[i << 1] * radius;
         double lz = CIRCLE_32[(i << 1) + 1] * radius;
-        player.spawnParticle(particle, x + ((cosPhase * lx) - (sinPhase * lz)), y + (t * height), z + ((sinPhase * lx) + (cosPhase * lz)), 1, 0, 0, 0, 0, data);
+        player.spawnParticle(particle, x + ((cosPhase * lx) - (sinPhase * lz)), y + (t * height), z + ((sinPhase * lx) + (cosPhase * lz)), 1, 0, 0, 0, 0, emissionData);
       }
     }));
     return this;
@@ -210,10 +214,11 @@ public final class FxEmitter {
     double dx = tx - x;
     double dy = ty - y;
     double dz = tz - z;
+    Object emissionData = particleData(particle, null, color);
     dispatch(emission(player -> {
       for (int k = 0; k < allowed; k++) {
         double t = allowed == 1 ? 0.5D : (double) k / (allowed - 1);
-        player.spawnParticle(particle, x + (dx * t), y + (dy * t), z + (dz * t), 1, 0, 0, 0, 0, null);
+        player.spawnParticle(particle, x + (dx * t), y + (dy * t), z + (dz * t), 1, 0, 0, 0, 0, emissionData);
       }
     }));
     return this;
@@ -229,7 +234,8 @@ public final class FxEmitter {
       return this;
     }
 
-    dispatch(emission(player -> player.spawnParticle(particle, x, y, z, allowed, spread, spread, spread, 0, null)));
+    Object emissionData = particleData(particle, null, color);
+    dispatch(emission(player -> player.spawnParticle(particle, x, y, z, allowed, spread, spread, spread, 0, emissionData)));
     return this;
   }
 
@@ -243,10 +249,11 @@ public final class FxEmitter {
       return this;
     }
 
+    Object emissionData = particleData(particle, null, color);
     dispatch(emission(player -> {
       for (int k = 0; k < allowed; k++) {
         double t = allowed == 1 ? 0.5D : (double) k / (allowed - 1);
-        player.spawnParticle(particle, x, y + (t * height), z, 1, 0, 0, 0, 0, null);
+        player.spawnParticle(particle, x, y + (t * height), z, 1, 0, 0, 0, 0, emissionData);
       }
     }));
     return this;
@@ -263,10 +270,11 @@ public final class FxEmitter {
       return this;
     }
 
+    Object emissionData = particleData(particle, null, color);
     dispatch(emission(player -> {
       for (int k = 0; k < allowed; k++) {
         int base = ((int) (((long) k * total) / allowed)) * 3;
-        player.spawnParticle(particle, x + (DOME_48[base] * radius), y + (DOME_48[base + 1] * radius), z + (DOME_48[base + 2] * radius), 1, 0, 0, 0, 0, null);
+        player.spawnParticle(particle, x + (DOME_48[base] * radius), y + (DOME_48[base + 1] * radius), z + (DOME_48[base + 2] * radius), 1, 0, 0, 0, 0, emissionData);
       }
     }));
     return this;
@@ -291,10 +299,11 @@ public final class FxEmitter {
     double sx = dirX * scale;
     double sy = dirY * scale;
     double sz = dirZ * scale;
+    Object emissionData = particleData(particle, null, color);
     dispatch(emission(player -> {
       for (int k = 0; k < allowed; k++) {
         double t = (double) (k + 1) / allowed;
-        player.spawnParticle(particle, x + (sx * t), y + (sy * t), z + (sz * t), 1, 0, 0, 0, 0, null);
+        player.spawnParticle(particle, x + (sx * t), y + (sy * t), z + (sz * t), 1, 0, 0, 0, 0, emissionData);
       }
     }));
     return this;
@@ -388,6 +397,13 @@ public final class FxEmitter {
 
   public int viewerCount() {
     return viewerCount;
+  }
+
+  private static Object particleData(Particle particle, Object data, Color fallbackColor) {
+    if (data != null || particle == null || !Color.class.equals(particle.getDataType())) {
+      return data;
+    }
+    return fallbackColor == null ? Color.WHITE : fallbackColor;
   }
 
   private FxDispatch.Emission emission(FxDispatch.Command command) {

@@ -80,7 +80,7 @@ public class UnarmedGrapple extends SimpleAdaptation<UnarmedGrapple.Config> {
     statLore(v, C.RED, "- ", Form.f(getConfig().exhaustionPerThrow, 1), 4);
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST)
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(EntityDamageByEntityEvent e) {
     art.arcane.adapt.api.adaptation.Adaptation.AttackContext attack = resolveAttackContext(e);
     if (attack == null) {
@@ -108,10 +108,6 @@ public class UnarmedGrapple extends SimpleAdaptation<UnarmedGrapple.Config> {
     }
 
     if (!(attack.target() instanceof LivingEntity victim)) {
-      return;
-    }
-
-    if (victim instanceof Player && !getConfig().allowGrapplePlayers) {
       return;
     }
 
@@ -161,22 +157,59 @@ public class UnarmedGrapple extends SimpleAdaptation<UnarmedGrapple.Config> {
     double maxRangeSquared = maxRange * maxRange;
     Vector velocity = playerLocation.getDirection().normalize().multiply(getForce(level))
         .setY(getConfig().upwardBoost + (getLevelPercent(level) * getConfig().upwardBoostFactor));
-    boolean scheduled = J.runEntity(target, () -> {
-      if (!target.isValid() || target.isDead() || target.getWorld() != playerLocation.getWorld()
-          || target.getLocation().distanceSquared(playerLocation) > maxRangeSquared) {
-        pendingHurls.remove(playerId);
-        return;
-      }
-
-      target.setVelocity(velocity);
-      playTargetHurlFx(target, velocity);
-      if (!J.runEntity(p, () -> completeHurl(p))) {
-        pendingHurls.remove(playerId);
-      }
-    });
+    HurlRequest request = new HurlRequest(p, target, playerLocation, velocity, maxRangeSquared, playerId);
+    boolean scheduled = J.runEntity(target, () -> prepareHurlTargetOwned(request));
     if (!scheduled) {
       pendingHurls.remove(playerId);
     }
+  }
+
+  private void prepareHurlTargetOwned(HurlRequest request) {
+    if (!isHurlTargetValid(request)) {
+      pendingHurls.remove(request.playerId());
+      return;
+    }
+
+    if (!(request.target() instanceof Player)) {
+      applyHurlTargetOwned(request);
+      return;
+    }
+
+    Location targetLocation = request.target().getLocation().clone();
+    if (!J.runEntity(request.player(), () -> authorizePlayerHurlOwnerOwned(request, targetLocation))) {
+      pendingHurls.remove(request.playerId());
+    }
+  }
+
+  private void authorizePlayerHurlOwnerOwned(HurlRequest request, Location targetLocation) {
+    if (!request.player().isOnline() || !canPVP(request.player(), targetLocation)) {
+      pendingHurls.remove(request.playerId());
+      return;
+    }
+
+    if (!J.runEntity(request.target(), () -> applyHurlTargetOwned(request))) {
+      pendingHurls.remove(request.playerId());
+    }
+  }
+
+  private void applyHurlTargetOwned(HurlRequest request) {
+    if (!isHurlTargetValid(request)) {
+      pendingHurls.remove(request.playerId());
+      return;
+    }
+
+    request.target().setVelocity(request.velocity());
+    playTargetHurlFx(request.target(), request.velocity());
+    if (!J.runEntity(request.player(), () -> completeHurl(request.player()))) {
+      pendingHurls.remove(request.playerId());
+    }
+  }
+
+  private boolean isHurlTargetValid(HurlRequest request) {
+    return request.target().isValid()
+        && !request.target().isDead()
+        && request.target().getWorld() == request.playerLocation().getWorld()
+        && request.target().getLocation().distanceSquared(request.playerLocation()) <= request.maxRangeSquared();
   }
 
   private void playGrab(Player p, LivingEntity victim) {
@@ -225,19 +258,17 @@ public class UnarmedGrapple extends SimpleAdaptation<UnarmedGrapple.Config> {
     return Math.max(1000L, (long) Math.round(getConfig().cooldownMillisBase - (getLevelPercent(level) * getConfig().cooldownMillisFactor)));
   }
 
-  @ConfigDescription("Sneak-punch a mob to grab it, then hurl it where you look.")
+  @ConfigDescription("Sneak-punch a target to grab it, then hurl it where you look.")
   protected static class Config extends AdaptationConfig {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Allows grappling other players, not just mobs.", impact = "True lets sneak-punches grab players in PVP.")
-    boolean allowGrapplePlayers = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base hurl force at level 1.", impact = "Higher values throw grabbed mobs further.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Base hurl force at level 1.", impact = "Higher values throw grabbed targets further.")
     double forceBase = 0.9;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Additional hurl force granted at max level.", impact = "Higher values throw grabbed mobs further as levels increase.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Additional hurl force granted at max level.", impact = "Higher values throw grabbed targets further as levels increase.")
     double forceFactor = 1.4;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Base upward component added to the hurl velocity.", impact = "Higher values arc thrown mobs higher.")
     double upwardBoost = 0.2;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Additional upward hurl component granted at max level.", impact = "Higher values arc thrown mobs higher as levels increase.")
     double upwardBoostFactor = 0.25;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum distance in blocks a grabbed mob can be hurled from.", impact = "Higher values let the grab persist over larger gaps.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum distance in blocks a grabbed target can be hurled from.", impact = "Higher values let the grab persist over larger gaps.")
     double maxHurlRange = 6;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Milliseconds before an unused grab expires.", impact = "Higher values keep the grab primed for longer.")
     long grabTimeoutMillis = 5000;
@@ -247,7 +278,7 @@ public class UnarmedGrapple extends SimpleAdaptation<UnarmedGrapple.Config> {
     double cooldownMillisFactor = 5000;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Exhaustion added to the player per hurled mob.", impact = "Higher values drain saturation and food faster with each throw. Set to 0 to disable the exhaustion cost.")
     double exhaustionPerThrow = 2.0;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "XP granted per hurled mob.", impact = "Higher values speed up unarmed skill progression from grapples.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "XP granted per hurled target.", impact = "Higher values speed up unarmed skill progression from grapples.")
     double xpPerHurl = 32;
 
     public Config() {
@@ -265,5 +296,9 @@ public class UnarmedGrapple extends SimpleAdaptation<UnarmedGrapple.Config> {
       this.target = target;
       this.grabbedAtMillis = grabbedAtMillis;
     }
+  }
+
+  private record HurlRequest(Player player, LivingEntity target, Location playerLocation, Vector velocity,
+                             double maxRangeSquared, UUID playerId) {
   }
 }

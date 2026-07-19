@@ -32,11 +32,6 @@ class SwordNewAdaptationsTest {
   }
 
   @Test
-  void heirloomEdgeIgnoresCancelledDamage() throws ReflectiveOperationException {
-    assertIgnoresCancelledDamage(SwordsHeirloomEdge.class);
-  }
-
-  @Test
   void configDefaultsAreSane() {
     List<AdaptationConfig> configs = List.of(
         new SwordsLungeStrike.Config(),

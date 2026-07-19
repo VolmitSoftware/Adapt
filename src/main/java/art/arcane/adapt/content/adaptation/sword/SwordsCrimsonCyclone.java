@@ -20,6 +20,7 @@ package art.arcane.adapt.content.adaptation.sword;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -59,6 +60,7 @@ public class SwordsCrimsonCyclone extends SimpleAdaptation<SwordsCrimsonCyclone.
   private static final int HARD_MAX_AFFECTED_PER_ACTIVATION = 16;
   private static final int HARD_MAX_TARGET_FX_PER_ACTIVATION = 12;
   private static final Color CRIMSON = Color.fromRGB(0x9E1414);
+  private final Cooldowns cooldowns = cooldowns();
 
   public SwordsCrimsonCyclone() {
     super("sword-crimson-cyclone");
@@ -104,11 +106,16 @@ public class SwordsCrimsonCyclone extends SimpleAdaptation<SwordsCrimsonCyclone.
     Player p = combat.attacker();
     LivingEntity primaryTarget = combat.target();
     ItemStack hand = combat.mainHand();
-    if (!isCritTrigger(p)) {
+    if (!isCritTrigger(e.isCritical())) {
       return;
     }
 
     int level = combat.level();
+    UUID playerId = p.getUniqueId();
+    int cooldownTicks = getCooldownTicks(level);
+    if (!cooldowns.isReady(playerId, cooldownTicks * 50L)) {
+      return;
+    }
     int hungerCost = getHungerCost(level);
     if (p.getFoodLevel() < hungerCost) {
       return;
@@ -123,7 +130,7 @@ public class SwordsCrimsonCyclone extends SimpleAdaptation<SwordsCrimsonCyclone.
     Location center = primaryTarget.getLocation().clone();
     int targetFxLimit = getTargetFxLimit();
     p.setFoodLevel(Math.max(0, p.getFoodLevel() - hungerCost));
-    p.setCooldown(hand.getType(), getCooldownTicks(level));
+    cooldowns.mark(playerId);
 
     e.setDamage(e.getDamage() + damage);
     applyBleed(primaryTarget, level, targetFxLimit > 0);
@@ -266,12 +273,8 @@ public class SwordsCrimsonCyclone extends SimpleAdaptation<SwordsCrimsonCyclone.
         .dustBurst(CRIMSON, 1, 0.2D, 1.0F);
   }
 
-  private boolean isCritTrigger(Player p) {
-    return p.getFallDistance() >= getConfig().minFallDistanceForCrit
-        && !p.isOnGround()
-        && !p.isInWater()
-        && !p.isInsideVehicle()
-        && !p.isClimbing();
+  static boolean isCritTrigger(boolean critical) {
+    return critical;
   }
 
   private boolean applyDurabilityCost(ItemStack hand, int durabilityCost) {
@@ -374,8 +377,6 @@ public class SwordsCrimsonCyclone extends SimpleAdaptation<SwordsCrimsonCyclone.
     double cooldownTicksBase = 320;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown Ticks Factor for the Swords Crimson Cyclone adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double cooldownTicksFactor = 160;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Min Fall Distance For Crit for the Swords Crimson Cyclone adaptation.", impact = "Minimum fall distance required to trigger the cyclone on hit.")
-    float minFallDistanceForCrit = 0.08f;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Target Hit for the Swords Crimson Cyclone adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpPerTargetHit = 10;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum secondary living targets inspected by one crimson cyclone.", impact = "Lower values reduce dense-entity scheduling; values are clamped to an absolute maximum of 32.")

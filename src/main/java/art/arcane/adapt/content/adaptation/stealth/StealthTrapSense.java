@@ -24,17 +24,19 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.fx.ViewerDisplayDirector;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
+import art.arcane.adapt.util.common.world.WorldBlockScanScheduler;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
+import org.bukkit.Color;
+import org.bukkit.GameEvent;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -43,18 +45,22 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class StealthTrapSense extends SimpleAdaptation<StealthTrapSense.Config> {
   private static final int MAX_SESSION_VISITS_PER_TICK = 32;
   private static final int MAX_BLOCKS_PER_SCAN = 4096;
-  private static final int MAX_GLIMMERS_PER_SCAN = 24;
+  private static final int MAX_MARKERS_PER_SCAN = 96;
+  private static final long SCULK_STATE_LIFETIME_MILLIS = 1_500L;
 
   private final Map<UUID, TrapSession> sessions;
+  private final Map<UUID, SculkState> sculkStates = new ConcurrentHashMap<>();
 
   public StealthTrapSense() {
     super("stealth-trap-sense");
@@ -80,7 +86,7 @@ public class StealthTrapSense extends SimpleAdaptation<StealthTrapSense.Config> 
 
   static boolean isTrapBlock(Material type) {
     return switch (type) {
-      case TRIPWIRE, TRIPWIRE_HOOK, SCULK_SENSOR, CALIBRATED_SCULK_SENSOR, SCULK_SHRIEKER -> true;
+      case TRAPPED_CHEST, TRIPWIRE, TRIPWIRE_HOOK, SCULK_SENSOR, CALIBRATED_SCULK_SENSOR, SCULK_SHRIEKER -> true;
       default -> type.name().endsWith("_PRESSURE_PLATE");
     };
   }
@@ -93,8 +99,35 @@ public class StealthTrapSense extends SimpleAdaptation<StealthTrapSense.Config> 
     return Math.max(3D, Math.min(8D, base + (percent * factor)));
   }
 
-  static double computeMercy(double maxChance, double percent) {
+  static double computeMercy(double maxChance, int level, int maxLevel) {
+    if (maxLevel > 0 && level >= maxLevel) {
+      return 1D;
+    }
+    double percent = maxLevel <= 0 ? 0D : Math.max(0D, Math.min(1D, level / (double) maxLevel));
     return Math.max(0D, Math.min(1D, maxChance * percent));
+  }
+
+  static boolean isMovementGameEvent(GameEvent event) {
+    return event == GameEvent.STEP
+        || event == GameEvent.SWIM
+        || event == GameEvent.FLAP
+        || event == GameEvent.HIT_GROUND
+        || event == GameEvent.ELYTRA_GLIDE
+        || event == GameEvent.SPLASH
+        || event == GameEvent.BOUNCE
+        || event == GameEvent.TELEPORT
+        || event == GameEvent.ENTITY_MOUNT
+        || event == GameEvent.ENTITY_DISMOUNT;
+  }
+
+  static boolean shouldSuppressMovement(int level, int maxLevel, boolean sneaking, double mercy, double roll) {
+    if (level <= 0 || maxLevel <= 0) {
+      return false;
+    }
+    if (level >= maxLevel) {
+      return true;
+    }
+    return sneaking && Double.isFinite(roll) && roll >= 0D && roll < mercy;
   }
 
   static long blockKey(int x, int y, int z) {
@@ -111,8 +144,11 @@ public class StealthTrapSense extends SimpleAdaptation<StealthTrapSense.Config> 
   public void on(PlayerToggleSneakEvent e) {
     Player p = e.getPlayer();
     UUID id = p.getUniqueId();
+    cacheSculkState(p, e.isSneaking());
     if (!e.isSneaking()) {
       sessions.remove(id);
+      WorldBlockScanScheduler.cancel(this, id);
+      ViewerDisplayDirector.clearViewer(getName(), id);
       return;
     }
 
@@ -126,6 +162,9 @@ public class StealthTrapSense extends SimpleAdaptation<StealthTrapSense.Config> 
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(PlayerQuitEvent e) {
     sessions.remove(e.getPlayer().getUniqueId());
+    sculkStates.remove(e.getPlayer().getUniqueId());
+    WorldBlockScanScheduler.cancel(this, e.getPlayer().getUniqueId());
+    ViewerDisplayDirector.clearViewer(getName(), e.getPlayer().getUniqueId());
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -135,31 +174,38 @@ public class StealthTrapSense extends SimpleAdaptation<StealthTrapSense.Config> 
       return;
     }
 
-    if (!(e.getEntity() instanceof Player p)) {
+    if (!(e.getEntity() instanceof Player p) || !isMovementGameEvent(e.getEvent())) {
       return;
     }
 
-    int level = getActiveLevel(p, Player::isSneaking);
-    if (level <= 0) {
+    UUID playerId = p.getUniqueId();
+    SculkState state = sculkStates.get(playerId);
+    long now = System.currentTimeMillis();
+    if (state == null) {
+      return;
+    }
+    if (now > state.expiresAt()) {
+      sculkStates.remove(playerId, state);
       return;
     }
 
-    double mercy = getMercy(level);
-    if (mercy <= 0) {
-      return;
-    }
-
-    if (ThreadLocalRandom.current().nextDouble() < mercy) {
+    if (shouldSuppressMovement(
+        state.level(),
+        state.maxLevel(),
+        state.sneaking(),
+        state.mercy(),
+        ThreadLocalRandom.current().nextDouble()
+    )) {
       e.setCancelled(true);
-      Location center = e.getBlock().getLocation().add(0.5D, 0.8D, 0.5D);
-      fx(center, FxPriority.AMBIENT)
-          .particle(Particle.SCULK_SOUL, 2, 0, 0, 0, 0.06D, 0.01D)
-          .sound(Sound.BLOCK_SCULK_SENSOR_CLICKING_STOP, 0.25F, 1.4F);
+      showTrap(p, e.getBlock().getLocation(), getMarkerDurationTicks());
+      J.runEntity(p, () -> fx(p, FxPriority.AMBIENT)
+          .sound(Sound.BLOCK_SCULK_SENSOR_CLICKING_STOP, 0.25F, 1.4F));
     }
   }
 
   @Override
   public void onTick() {
+    refreshSculkStates();
     if (sessions.isEmpty()) {
       return;
     }
@@ -173,13 +219,7 @@ public class StealthTrapSense extends SimpleAdaptation<StealthTrapSense.Config> 
       if (now < session.nextScanAt || !session.processing.compareAndSet(false, true)) {
         continue;
       }
-      if (!J.runEntity(session.player, () -> {
-        try {
-          scan(session);
-        } finally {
-          session.processing.set(false);
-        }
-      })) {
+      if (!J.runEntity(session.player, () -> scan(session))) {
         session.processing.set(false);
         sessions.remove(session.id, session);
       }
@@ -192,54 +232,64 @@ public class StealthTrapSense extends SimpleAdaptation<StealthTrapSense.Config> 
     session.nextScanAt = System.currentTimeMillis() + Math.max(200L, getConfig().scanIntervalMillis);
     if (sessions.get(id) != session || !p.isOnline() || !p.isSneaking() || getActiveLevel(p) <= 0) {
       sessions.remove(id, session);
+      session.processing.set(false);
       return;
     }
 
     int level = getActiveLevel(p);
     int r = (int) Math.ceil(getRange(level));
-    Location base = p.getLocation();
-    World world = base.getWorld();
-    if (world == null) {
+    Location base = p.getLocation().clone();
+    WorldBlockScanScheduler.ScanRequest request = WorldBlockScanScheduler.ScanRequest.builder(base)
+        .radius(r)
+        .denseRadius(r)
+        .maxSamples(MAX_BLOCKS_PER_SCAN)
+        .maxResults(MAX_MARKERS_PER_SCAN)
+        .blockMatcher(block -> isTrapBlock(block.getType()))
+        .completion(result -> completeScan(session, result))
+        .build();
+    session.scanId = WorldBlockScanScheduler.submit(this, id, request);
+  }
+
+  private void completeScan(TrapSession session, WorldBlockScanScheduler.ScanResult result) {
+    if (!result.scanId().equals(session.scanId)) {
+      session.processing.set(false);
       return;
     }
-
-    int bx = base.getBlockX();
-    int by = base.getBlockY();
-    int bz = base.getBlockZ();
-    int minY = Math.max(world.getMinHeight(), by - r);
-    int maxY = Math.min(world.getMaxHeight() - 1, by + r);
-
-    int scanned = 0;
-    int glimmers = 0;
-    int newlyRevealed = 0;
-    Set<Long> inRange = new HashSet<>();
-    for (int dx = -r; dx <= r; dx++) {
-      for (int dz = -r; dz <= r; dz++) {
-        for (int y = minY; y <= maxY; y++) {
-          if (++scanned > MAX_BLOCKS_PER_SCAN) {
-            finishScan(p, newlyRevealed);
-            return;
-          }
-          Block block = world.getBlockAt(bx + dx, y, bz + dz);
-          Material type = block.getType();
-          if (!isTrapBlock(type)) {
-            continue;
-          }
-          long key = blockKey(bx + dx, y, bz + dz);
-          inRange.add(key);
-          if (session.countedTraps.add(key)) {
-            newlyRevealed++;
-          }
-          if (glimmers < MAX_GLIMMERS_PER_SCAN) {
-            glimmer(block.getLocation().add(0.5D, 0.25D, 0.5D), type);
-            glimmers++;
-          }
-        }
-      }
+    if (!J.runEntity(session.player, () -> completeScanOwned(session, result))) {
+      session.processing.set(false);
+      sessions.remove(session.id, session);
     }
+  }
 
-    session.countedTraps.retainAll(inRange);
-    finishScan(p, newlyRevealed);
+  private void completeScanOwned(TrapSession session, WorldBlockScanScheduler.ScanResult result) {
+    try {
+      Player player = session.player;
+      if (sessions.get(session.id) != session || !player.isOnline() || !player.isSneaking()
+          || getActiveLevel(player) <= 0) {
+        sessions.remove(session.id, session);
+        return;
+      }
+
+      int newlyRevealed = 0;
+      Set<Long> inRange = new HashSet<>();
+      List<WorldBlockScanScheduler.Match> matches = result.matches();
+      for (WorldBlockScanScheduler.Match match : matches) {
+        long key = blockKey(match.x(), match.y(), match.z());
+        inRange.add(key);
+        if (session.countedTraps.add(key)) {
+          newlyRevealed++;
+        }
+        showTrap(
+            player,
+            new Location(result.world(), match.x(), match.y(), match.z()),
+            getMarkerDurationTicks()
+        );
+      }
+      session.countedTraps.retainAll(inRange);
+      finishScan(player, newlyRevealed);
+    } finally {
+      session.processing.set(false);
+    }
   }
 
   private void finishScan(Player p, int revealed) {
@@ -248,15 +298,47 @@ public class StealthTrapSense extends SimpleAdaptation<StealthTrapSense.Config> 
     }
   }
 
-  private void glimmer(Location center, Material type) {
-    Particle particle = isSculkTrap(type) ? Particle.SCULK_SOUL : Particle.ELECTRIC_SPARK;
-    fx(center, FxPriority.AMBIENT).particle(particle, 1, 0, 0, 0, 0.03D, 0.0D);
+  private void showTrap(Player player, Location location, int durationTicks) {
+    Location anchor = location.clone();
+    J.runAt(anchor, () -> {
+      Material currentType = anchor.getBlock().getType();
+      if (!isTrapBlock(currentType)) {
+        return;
+      }
+      ViewerDisplayDirector.showBlock(
+          getName(),
+          "trap-" + anchor.getBlockX() + ":" + anchor.getBlockY() + ":" + anchor.getBlockZ(),
+          player,
+          anchor,
+          anchor.getBlock().getBlockData(),
+          trapColor(currentType),
+          durationTicks
+      );
+    });
+  }
+
+  private Color trapColor(Material type) {
+    if (isSculkTrap(type)) {
+      return Color.fromRGB(40, 220, 210);
+    }
+    if (type == Material.TRIPWIRE || type == Material.TRIPWIRE_HOOK) {
+      return Color.fromRGB(255, 220, 45);
+    }
+    return Color.fromRGB(255, 70, 70);
   }
 
   @Override
   public void unregister() {
     sessions.clear();
+    sculkStates.clear();
+    WorldBlockScanScheduler.cancelOwner(this);
+    ViewerDisplayDirector.clearChannel(getName());
     super.unregister();
+  }
+
+  private int getMarkerDurationTicks() {
+    long scanMillis = Math.max(200L, getConfig().scanIntervalMillis);
+    return Math.max(20, (int) Math.min(200L, (scanMillis / 50L) + 10L));
   }
 
   private double getRange(int level) {
@@ -264,7 +346,38 @@ public class StealthTrapSense extends SimpleAdaptation<StealthTrapSense.Config> 
   }
 
   private double getMercy(int level) {
-    return computeMercy(getConfig().mercyMaxChance, getLevelPercent(level));
+    return computeMercy(getConfig().mercyMaxChance, level, getMaxLevel());
+  }
+
+  private void refreshSculkStates() {
+    long now = System.currentTimeMillis();
+    for (Map.Entry<UUID, SculkState> entry : sculkStates.entrySet()) {
+      if (now > entry.getValue().expiresAt()) {
+        sculkStates.remove(entry.getKey(), entry.getValue());
+      }
+    }
+    for (AdaptPlayer adaptPlayer : learnedCandidates(now)) {
+      Player player = adaptPlayer.getPlayer();
+      if (player != null && player.isOnline()) {
+        J.runEntity(player, () -> cacheSculkState(player, player.isSneaking()));
+      }
+    }
+  }
+
+  private void cacheSculkState(Player player, boolean sneaking) {
+    UUID playerId = player.getUniqueId();
+    int level = getActiveLevel(player);
+    if (level <= 0) {
+      sculkStates.remove(playerId);
+      return;
+    }
+    sculkStates.put(playerId, new SculkState(
+        level,
+        getMaxLevel(),
+        sneaking,
+        getMercy(level),
+        System.currentTimeMillis() + SCULK_STATE_LIFETIME_MILLIS
+    ));
   }
 
   private static final class TrapSession {
@@ -273,6 +386,7 @@ public class StealthTrapSense extends SimpleAdaptation<StealthTrapSense.Config> 
     private final AtomicBoolean processing = new AtomicBoolean();
     private final Set<Long> countedTraps = new HashSet<>();
     private volatile long nextScanAt;
+    private volatile UUID scanId;
 
     private TrapSession(Player player, UUID id) {
       this.player = player;
@@ -280,13 +394,16 @@ public class StealthTrapSense extends SimpleAdaptation<StealthTrapSense.Config> 
     }
   }
 
-  @ConfigDescription("While sneaking, nearby tripwires, pressure plates, and sculk sensors glimmer; at higher levels your triggers raise shrieker warning levels more slowly.")
+  private record SculkState(int level, int maxLevel, boolean sneaking, double mercy, long expiresAt) {
+  }
+
+  @ConfigDescription("While sneaking, nearby trapped chests, tripwires, hooks, pressure plates, and sculk blocks glow; maximum level suppresses all movement vibrations.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Base detection range for revealing traps, in blocks.", impact = "Higher values reveal traps from farther away.")
     double rangeBase = 4.0;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Extra detection range gained across levels, in blocks.", impact = "Higher values extend detection range more per level; capped at 8 blocks.")
     double rangeFactor = 4.0;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum chance to suppress a sculk warning trigger at full level.", impact = "Higher values let higher levels avoid raising shrieker warning levels more often.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Suppression chance used below maximum level.", impact = "Higher values let lower levels avoid movement vibrations more often; maximum level is always fully suppressed.")
     double mercyMaxChance = 0.7;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Milliseconds between trap scans while sneaking.", impact = "Lower values refresh glimmers faster; higher values reduce block scan cost.")
     long scanIntervalMillis = 500;

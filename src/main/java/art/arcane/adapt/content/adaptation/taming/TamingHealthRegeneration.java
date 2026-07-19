@@ -148,7 +148,7 @@ public class TamingHealthRegeneration extends SimpleAdaptation<TamingHealthRegen
       return;
     }
 
-    IAttribute attribute = Version.get().getAttribute(tameable, Attributes.GENERIC_MAX_HEALTH);
+    IAttribute attribute = Version.get().getAttribute(tameable, Attributes.MAX_HEALTH);
     double currentHealth = tameable.getHealth();
     double maxHealth = attribute == null ? currentHealth : attribute.getValue();
     double actualHealing = actualHealing(currentHealth, maxHealth, requestedHealing);

@@ -23,9 +23,11 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -33,13 +35,12 @@ import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import java.util.Map;
@@ -97,7 +98,10 @@ public class RangedPinningShot extends SimpleAdaptation<RangedPinningShot.Config
     }
 
     targetProcTimes.put(target.getUniqueId(), now);
-    target.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, getDurationTicks(level), getAmplifier(level), true, true, true), true);
+    int durationTicks = getDurationTicks(level);
+    if (durationTicks > 0) {
+      AdaptAttributeService.get().applyTimed(target, getName(), "pin", Attributes.MOVEMENT_SPEED, pinSpeedScalar(getAmplifier(level)), AttributeModifier.Operation.MULTIPLY_SCALAR_1, durationTicks);
+    }
     addStat(p, "ranged.pinning-shot.targets-pinned", 1);
 
     if (getConfig().dampenVelocityOnProc) {
@@ -107,7 +111,7 @@ public class RangedPinningShot extends SimpleAdaptation<RangedPinningShot.Config
     }
 
     Location center = target.getLocation();
-    double ringRadius = 0.6D + Math.min(0.4D, getDurationTicks(level) / 300.0D);
+    double ringRadius = 0.6D + Math.min(0.4D, durationTicks / 300.0D);
     fx(center, FxPriority.COMBAT)
         .column(Particles.CRIT_MAGIC, 6, 1.6D)
         .dustRing(Color.fromRGB(120, 120, 140), ringRadius, 12, 1.0F)
@@ -135,6 +139,10 @@ public class RangedPinningShot extends SimpleAdaptation<RangedPinningShot.Config
 
   private int getAmplifier(int level) {
     return Math.max(0, (int) Math.floor(getConfig().amplifierBase + (getLevelPercent(level) * getConfig().amplifierFactor)));
+  }
+
+  static double pinSpeedScalar(int amplifier) {
+    return -Math.min(1.0D, 0.15D * (Math.max(0, amplifier) + 1.0D));
   }
 
   private long getReapplyCooldownMillis(int level) {

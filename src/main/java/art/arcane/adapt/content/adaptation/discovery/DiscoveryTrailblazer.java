@@ -24,12 +24,14 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.PlayerData;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Color;
@@ -37,11 +39,10 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.World;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.Biome;
 import org.bukkit.entity.Player;
 import org.bukkit.generator.structure.GeneratedStructure;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 
 import java.util.UUID;
 
@@ -141,7 +142,9 @@ public class DiscoveryTrailblazer extends SimpleAdaptation<DiscoveryTrailblazer.
 
     xp(player, xpAmount);
     int speedTicks = speedDurationTicks(getLevelPercent(level), getConfig().speedDurationTicksBase, getConfig().speedDurationTicksFactor);
-    player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, speedTicks, Math.max(0, getConfig().speedAmplifier), true, true, true));
+    if (speedTicks > 0) {
+      AdaptAttributeService.get().applyTimed(player, getName(), "speed", Attributes.MOVEMENT_SPEED, speedBonus(getConfig().speedAmplifier), AttributeModifier.Operation.MULTIPLY_SCALAR_1, speedTicks);
+    }
     getPlayer(player).getData().addStat("discovery.trailblazer.discoveries", 1);
 
     Color color = structure ? Color.fromRGB(255, 200, 60) : Color.AQUA;
@@ -166,6 +169,9 @@ public class DiscoveryTrailblazer extends SimpleAdaptation<DiscoveryTrailblazer.
     return Math.max(20, (int) Math.round(base + (levelPercent * factor)));
   }
 
+  static double speedBonus(int amplifier) {
+    return 0.20D * (Math.max(0, amplifier) + 1);
+  }
 
   @ConfigDescription("Your first visit to each biome or structure type grants a skill-XP burst and brief speed.")
   protected static class Config extends AdaptationConfig {
@@ -179,7 +185,7 @@ public class DiscoveryTrailblazer extends SimpleAdaptation<DiscoveryTrailblazer.
     double speedDurationTicksBase = 80;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Speed Duration Ticks Factor for the Discovery Trailblazer adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double speedDurationTicksFactor = 120;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Speed potion amplifier granted on a fresh discovery (0 is Speed I).", impact = "Higher values grant a stronger speed burst.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Speed tier granted on a fresh discovery (0 grants +20% movement speed, each tier adds another +20%).", impact = "Higher values grant a stronger speed burst.")
     int speedAmplifier = 1;
 
     public Config() {

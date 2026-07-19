@@ -24,17 +24,20 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Tameable;
 import org.bukkit.event.EventHandler;
@@ -254,8 +257,18 @@ public class TamingPackLeaderAura extends SimpleAdaptation<TamingPackLeaderAura.
         return;
       }
 
-      tameable.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, snapshot.effectTicks(), snapshot.amplifier(), false, false));
-      tameable.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, snapshot.effectTicks(), snapshot.amplifier(), false, false));
+      int durationTicks = snapshot.effectTicks();
+      if (durationTicks > 0) {
+        AdaptAttributeService.get().applyTimed(
+            tameable,
+            getName(),
+            "speed",
+            Attributes.MOVEMENT_SPEED,
+            speedScalar(snapshot.amplifier()),
+            AttributeModifier.Operation.MULTIPLY_SCALAR_1,
+            durationTicks);
+      }
+      tameable.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, durationTicks, snapshot.amplifier(), false, false));
       Long previous = lastPetBuffAt.put(entityId, now);
       double elapsedTicks = PackLeaderCadence.elapsedTicks(previous, now, 250L, snapshot.effectTicks() * 50L);
       pendingBuffedTicks.merge(ownerId, elapsedTicks, Double::sum);
@@ -278,6 +291,10 @@ public class TamingPackLeaderAura extends SimpleAdaptation<TamingPackLeaderAura.
     nextPetRefreshAt.keySet().removeIf(entityId -> !ownershipIndex.contains(entityId));
     lastPetBuffAt.keySet().removeIf(entityId -> !ownershipIndex.contains(entityId));
     nextStatePruneAt = now + STATE_PRUNE_MILLIS;
+  }
+
+  static double speedScalar(int amplifier) {
+    return 0.2D * (Math.max(0, amplifier) + 1);
   }
 
   private double getRadius(int level) {

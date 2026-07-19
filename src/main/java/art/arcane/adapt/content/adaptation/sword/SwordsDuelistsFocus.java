@@ -25,6 +25,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -33,11 +34,16 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.projectiles.ProjectileSource;
 
 public class SwordsDuelistsFocus extends SimpleAdaptation<SwordsDuelistsFocus.Config> {
   private static final Color FOCUS = Color.fromRGB(0x59C0FF);
@@ -85,6 +91,7 @@ public class SwordsDuelistsFocus extends SimpleAdaptation<SwordsDuelistsFocus.Co
       if (level > 0 && isSword(victim.getInventory().getItemInMainHand()) && countEngaged(victim) == 1) {
         e.setDamage(Math.max(0D, e.getDamage() * (1D - getDamageReduction(level))));
         focusFx(victim, false);
+        showThreatGlow(resolveThreat(e.getDamager()));
       }
     }
   }
@@ -125,6 +132,32 @@ public class SwordsDuelistsFocus extends SimpleAdaptation<SwordsDuelistsFocus.Co
     }
   }
 
+  static LivingEntity resolveThreat(Entity damager) {
+    if (damager instanceof Projectile projectile) {
+      ProjectileSource shooter = projectile.getShooter();
+      if (shooter instanceof LivingEntity living) {
+        return living;
+      }
+    }
+    return damager instanceof LivingEntity living ? living : null;
+  }
+
+  private void showThreatGlow(LivingEntity threat) {
+    if (threat == null) {
+      return;
+    }
+    J.runEntity(threat, () -> {
+      if (!threat.isValid() || threat.isDead()) {
+        return;
+      }
+      int glowTicks = Math.max(1, Math.min(getConfig().threatGlowTicks, 100));
+      PotionEffect current = threat.getPotionEffect(PotionEffectType.GLOWING);
+      if (current == null || current.getDuration() < glowTicks) {
+        threat.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, glowTicks, 0, false, false, false));
+      }
+    });
+  }
+
   private double getBonusDamage(int level) {
     return getConfig().bonusDamageBase + (getLevelPercent(level) * getConfig().bonusDamageFactor);
   }
@@ -148,6 +181,8 @@ public class SwordsDuelistsFocus extends SimpleAdaptation<SwordsDuelistsFocus.Co
     double maxReduction = 0.40;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Radius in blocks used to detect engaged hostiles.", impact = "Higher values count hostiles from farther away when deciding if you are in a duel.")
     double engageRadius = 7;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Ticks the current dueling threat glows after it attacks you.", impact = "Higher values keep the defensive focus notification visible longer.")
+    int threatGlowTicks = 30;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Focused Hit for the Swords Duelists Focus adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpPerFocusedHit = 4;
 

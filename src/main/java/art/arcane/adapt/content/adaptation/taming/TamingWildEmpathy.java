@@ -134,7 +134,7 @@ public class TamingWildEmpathy extends SimpleAdaptation<TamingWildEmpathy.Config
 
   @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
   public void on(EntityTargetLivingEntityEvent e) {
-    if (!(e.getTarget() instanceof Player p) || !isNeutral(e.getEntity())) {
+    if (!(e.getTarget() instanceof Player p) || !isPacifiableNeutral(e.getEntity())) {
       return;
     }
 
@@ -214,7 +214,10 @@ public class TamingWildEmpathy extends SimpleAdaptation<TamingWildEmpathy.Config
     }
   }
 
-  private boolean isNeutral(Entity entity) {
+  static boolean isPacifiableNeutral(Entity entity) {
+    if (entity instanceof Tameable tameable && tameable.isTamed()) {
+      return false;
+    }
     return entity instanceof Wolf
         || entity instanceof Bee
         || entity instanceof PolarBear

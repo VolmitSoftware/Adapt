@@ -24,14 +24,17 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -48,17 +51,20 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class SeabornePressureDiver extends SimpleAdaptation<SeabornePressureDiver.Config> {
   private static final long ENTRY_CHECK_INTERVAL_MS = 250L;
   private static final int REFRESH_BATCH_SIZE = 128;
+  private static final String FATIGUE_SLOT = "fatigue";
+  private static final double SUBMERGED_MINING_BASE = 0.2D;
+  private static final double[] FATIGUE_LEVEL_FACTORS = {0.3D, 0.09D, 0.0027D, 8.1E-4D};
+  private static final double FATIGUE_TRIM_HORIZON_TICKS = 20D;
   private final Cooldowns xpCooldowns = cooldowns();
   private final Cooldowns absorbFx = cooldowns();
   private final Map<UUID, Boolean> deep = playerState();
   private final Map<UUID, Boolean> deepTier = playerState();
+  private final Map<UUID, Boolean> fatigueCountered = playerState();
   private final Map<UUID, Long> nextRefreshAt = playerState();
-  private final Map<UUID, Long> lastDeepUpdateAt = playerState();
   private final Queue<UUID> activeQueue = new ConcurrentLinkedQueue<>();
   private final Set<UUID> queuedPlayers = ConcurrentHashMap.newKeySet();
 
@@ -188,10 +194,8 @@ public class SeabornePressureDiver extends SimpleAdaptation<SeabornePressureDive
       return;
     }
 
-    Long previous = lastDeepUpdateAt.put(id, now);
-    double elapsedTicks = elapsedActiveTicks(previous, now);
     boolean inDeepTier = depth >= getDeepThreshold(level);
-    applyDepthBuffs(p, level, inDeepTier ? 1 : 0, elapsedTicks);
+    applyDepthBuffs(p, level, inDeepTier ? 1 : 0);
     awardDepthXp(p);
 
     if (!deep.getOrDefault(id, false)) {
@@ -212,7 +216,12 @@ public class SeabornePressureDiver extends SimpleAdaptation<SeabornePressureDive
   private void clearDepthState(UUID id, boolean removeSchedule) {
     deep.remove(id);
     deepTier.remove(id);
-    lastDeepUpdateAt.remove(id);
+    if (fatigueCountered.remove(id) != null) {
+      Player p = Bukkit.getPlayer(id);
+      if (p != null) {
+        AdaptAttributeService.get().remove(p, getName(), FATIGUE_SLOT, Attributes.SUBMERGED_MINING_SPEED);
+      }
+    }
     if (queuedPlayers.remove(id)) {
       activeQueue.remove(id);
     }
@@ -227,31 +236,40 @@ public class SeabornePressureDiver extends SimpleAdaptation<SeabornePressureDive
     }
   }
 
-  private void applyDepthBuffs(Player p, int level, int resistanceAmp, double elapsedTicks) {
+  private void applyDepthBuffs(Player p, int level, int resistanceAmp) {
     p.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, getConfig().effectTicks, resistanceAmp, false, false, true), true);
     p.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, getConfig().effectTicks, 0, false, false, true), true);
+    updateFatigueCounter(p, level);
+  }
 
+  private void updateFatigueCounter(Player p, int level) {
+    UUID id = p.getUniqueId();
     PotionEffect fatigue = p.getPotionEffect(PotionEffectType.MINING_FATIGUE);
     if (fatigue == null) {
+      if (fatigueCountered.remove(id) != null) {
+        AdaptAttributeService.get().remove(p, getName(), FATIGUE_SLOT, Attributes.SUBMERGED_MINING_SPEED);
+      }
       return;
     }
 
-    int trimCount = sampleProcCount(getFatigueTrimChance(level), elapsedTicks, ThreadLocalRandom.current());
-    if (trimCount <= 0) {
+    long durationTicks = counterDurationTicks(fatigue.getDuration(), getConfig().fatigueReplaceTicks);
+    if (durationTicks <= 0) {
       return;
     }
 
-    int reducedAmp = Math.max(0, fatigue.getAmplifier() - (getFatigueTrimAmount(level) * trimCount));
-    p.addPotionEffect(new PotionEffect(PotionEffectType.MINING_FATIGUE,
-        Math.max(20, Math.min(fatigue.getDuration(), getConfig().fatigueReplaceTicks)),
-        reducedAmp,
-        false,
-        true,
-        true), true);
-    fx(p.getLocation().add(0D, 1.0D, 0D), FxPriority.AMBIENT)
-        .particle(Particle.CRIT, 4, 0D, 0.3D, 0D, 0.3D, 0.05D)
-        .dustBurst(3, 0.25D, 0.8F)
-        .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.35F, 1.6F);
+    double bonus = fatigueCounterBonus(getFatigueTrimChance(level), getFatigueTrimAmount(level), fatigue.getAmplifier());
+    if (bonus <= 0D) {
+      return;
+    }
+
+    AdaptAttributeService.get().applyTimed(p, getName(), FATIGUE_SLOT, Attributes.SUBMERGED_MINING_SPEED,
+        bonus, AttributeModifier.Operation.ADD_NUMBER, durationTicks);
+    if (fatigueCountered.put(id, true) == null) {
+      fx(p.getLocation().add(0D, 1.0D, 0D), FxPriority.AMBIENT)
+          .particle(Particle.CRIT, 4, 0D, 0.3D, 0D, 0.3D, 0.05D)
+          .dustBurst(3, 0.25D, 0.8F)
+          .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.35F, 1.6F);
+    }
   }
 
   private void awardDepthXp(Player p) {
@@ -320,40 +338,36 @@ public class SeabornePressureDiver extends SimpleAdaptation<SeabornePressureDive
     return Math.max(250L, Math.min(750L, Math.max(1, effectTicks) * 25L));
   }
 
-  static double elapsedActiveTicks(Long previousUpdateAt, long now) {
-    if (previousUpdateAt == null) {
-      return 1D;
+  static long counterDurationTicks(int fatigueDurationTicks, int fatigueReplaceTicks) {
+    if (fatigueReplaceTicks <= 0) {
+      return 0L;
     }
-    if (now <= previousUpdateAt) {
-      return 0D;
+    if (fatigueDurationTicks < 0) {
+      return Math.max(20L, fatigueReplaceTicks);
     }
-    return Math.min(40D, (now - previousUpdateAt) / 50D);
+    return Math.max(20L, Math.min(fatigueDurationTicks, fatigueReplaceTicks));
   }
 
-  static double accumulatedChance(double perTickChance, double elapsedTicks) {
-    double chance = Math.max(0D, Math.min(1D, perTickChance));
-    if (chance <= 0D || elapsedTicks <= 0D) {
+  static double fatigueCounterBonus(double trimChance, int trimAmount, int fatigueAmplifier) {
+    double chance = Math.max(0D, Math.min(1D, trimChance));
+    double trimPerSecond = chance * FATIGUE_TRIM_HORIZON_TICKS * Math.max(0, trimAmount);
+    int amplifier = Math.max(0, fatigueAmplifier);
+    double reducedAmplifier = Math.max(0D, amplifier - trimPerSecond);
+    double current = fatigueFactor(amplifier);
+    double target = fatigueFactor(reducedAmplifier);
+    if (target <= current) {
       return 0D;
     }
-    return 1D - Math.pow(1D - chance, elapsedTicks);
+    return SUBMERGED_MINING_BASE * (target / current - 1D);
   }
 
-  private static int sampleProcCount(double perTickChance, double elapsedTicks, ThreadLocalRandom random) {
-    double chance = Math.max(0D, Math.min(1D, perTickChance));
-    double ticks = Math.max(0D, Math.min(40D, elapsedTicks));
-    int wholeTicks = (int) Math.floor(ticks);
-    int procs = 0;
-    for (int i = 0; i < wholeTicks; i++) {
-      if (random.nextDouble() < chance) {
-        procs++;
-      }
-    }
-
-    double partialTick = ticks - wholeTicks;
-    if (partialTick > 0D && random.nextDouble() < accumulatedChance(chance, partialTick)) {
-      procs++;
-    }
-    return procs;
+  static double fatigueFactor(double amplifier) {
+    double clamped = Math.max(0D, Math.min(3D, amplifier));
+    int lower = (int) Math.floor(clamped);
+    int upper = (int) Math.ceil(clamped);
+    double lowerLog = Math.log(FATIGUE_LEVEL_FACTORS[lower]);
+    double upperLog = Math.log(FATIGUE_LEVEL_FACTORS[upper]);
+    return Math.exp(lowerLog + (upperLog - lowerLog) * (clamped - lower));
   }
 
   @ConfigDescription("Gain depth scaling protection underwater and partially counter mining fatigue in deep ocean play.")

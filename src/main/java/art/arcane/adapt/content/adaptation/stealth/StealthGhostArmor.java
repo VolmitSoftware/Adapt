@@ -23,9 +23,9 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
-import art.arcane.adapt.api.version.IAttribute;
-import art.arcane.adapt.api.version.Version;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Attributes;
@@ -34,7 +34,6 @@ import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.attribute.AttributeModifier;
@@ -47,15 +46,16 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.tag.DamageTypeTags;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config> {
-  private static final UUID MODIFIER = UUID.nameUUIDFromBytes("adapt-ghost-armor".getBytes());
-  private static final NamespacedKey MODIFIER_KEY = NamespacedKey.fromString("adapt:ghost-armor");
+  private static final String SLOT_ARMOR = "armor";
   private static final long ELIGIBILITY_RECHECK_MILLIS = 5_000L;
 
   private final Map<UUID, ArmorSession> sessions = new ConcurrentHashMap<>();
@@ -89,11 +89,35 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
   }
 
   public double getMaxArmorPoints(double factor) {
-    return M.lerp(getConfig().minArmor, getConfig().maxArmor, factor);
+    return scaledArmorValue(getConfig().minArmor, getConfig().maxArmor, factor);
   }
 
   public double getMaxArmorPerTick(double factor) {
-    return M.lerp(getConfig().minArmorPerTick, getConfig().maxArmorPerTick, factor);
+    return scaledArmorValue(getConfig().minArmorPerTick, getConfig().maxArmorPerTick, factor);
+  }
+
+  static double nextArmorAmount(double current, double maximum, double increment) {
+    double safeMaximum = clampArmor(maximum);
+    double safeCurrent = Math.min(clampArmor(current), safeMaximum);
+    double safeIncrement = Double.isFinite(increment) ? Math.max(0D, increment) : 0D;
+    return Math.min(safeMaximum, safeCurrent + safeIncrement);
+  }
+
+  static boolean isConsumableCharge(double storedArmor) {
+    return storedArmor > 0.1D;
+  }
+
+  private static double scaledArmorValue(double first, double second, double factor) {
+    double safeFirst = clampArmor(first);
+    double safeSecond = clampArmor(second);
+    double minimum = Math.min(safeFirst, safeSecond);
+    double maximum = Math.max(safeFirst, safeSecond);
+    double progress = Double.isFinite(factor) ? Math.max(0D, Math.min(1D, factor)) : 0D;
+    return M.lerp(minimum, maximum, progress);
+  }
+
+  private static double clampArmor(double value) {
+    return Double.isFinite(value) ? Math.max(0D, Math.min(20D, value)) : 0D;
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
@@ -143,40 +167,71 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
   }
 
   @Override
+  public void onTick() {
+    List<AdaptPlayer> candidates = learnedCandidates(System.currentTimeMillis());
+    for (AdaptPlayer adaptPlayer : candidates) {
+      Player player = adaptPlayer.getPlayer();
+      if (player == null || !player.isOnline() || sessions.containsKey(player.getUniqueId())) {
+        continue;
+      }
+      J.runEntity(player, () -> startSessionIfEligible(player));
+    }
+  }
+
+  @Override
   public void unregister() {
-    super.unregister();
     for (ArmorSession session : sessions.values()) {
       session.refreshScheduled.set(false);
-      Player owner = session.owner;
-      J.runEntity(owner, () -> removeModifier(owner));
     }
     sessions.clear();
     eligibilityChecks.clear();
+    super.unregister();
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST)
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(EntityDamageEvent e) {
-    if (!(e.getEntity() instanceof Player p) || e.getDamage() <= 0 || !hasActiveAdaptation(p)) {
+    if (!(e.getEntity() instanceof Player p)
+        || e.getDamage() <= 0D
+        || e.getFinalDamage() <= 0D) {
+      return;
+    }
+
+    if (!hasActiveAdaptation(p)) {
+      if (sessions.containsKey(p.getUniqueId())) {
+        stopSession(p);
+      }
+      return;
+    }
+
+    if (bypassesArmor(e)) {
       return;
     }
 
     ArmorSession session = sessions.computeIfAbsent(p.getUniqueId(), key -> new ArmorSession(p));
     startScheduledRefresh(session, 1);
-    double stored = session.armorAmount;
-    if (stored > 0.1D) {
-      session.armorAmount = 0.0D;
-      session.charged = false;
-      int damageXP = (int) Math.min(10, 2.5 * e.getDamage());
-      xp(p, damageXP);
-      addStat(p, "stealth.ghost-armor.armor-consumed", 1);
-      double radius = Math.min(1.6D, 0.8D + (stored * 0.05D));
-      fx(p.getLocation().add(0, 1.0D, 0), FxPriority.COMBAT)
-          .ring(Particle.CRIT, radius, 12, 0)
-          .burst(Particle.CRIT, 4, 0.25D)
-          .dustBurst(4, 0.4D, 1.0F)
-          .chord(Sound.ITEM_SHIELD_BREAK, 0.7F, 1.2F, Sound.BLOCK_GLASS_BREAK, 0.5F, 0.8F, Sound.BLOCK_ANVIL_LAND, 0.2F, 1.8F);
+    double stored = clampArmor(session.armorAmount);
+    if (!isConsumableCharge(stored)) {
+      return;
     }
-    J.runEntity(p, () -> removeModifier(p), 1);
+
+    AdaptAttributeService.get().removeAll(p, getName());
+    session.armorAmount = 0.0D;
+    session.charged = false;
+    double incomingDamage = e.getDamage();
+    int damageXP = (int) Math.min(10, 2.5D * incomingDamage);
+    xp(p, damageXP);
+    addStat(p, "stealth.ghost-armor.armor-consumed", 1);
+    double radius = Math.min(1.6D, 0.8D + (stored * 0.05D));
+    fx(p.getLocation().add(0, 1.0D, 0), FxPriority.COMBAT)
+        .ring(Particle.CRIT, radius, 12, 0)
+        .burst(Particle.CRIT, 4, 0.25D)
+        .dustBurst(4, 0.4D, 1.0F)
+        .chord(Sound.ITEM_SHIELD_BREAK, 0.7F, 1.2F, Sound.BLOCK_GLASS_BREAK, 0.5F, 0.8F, Sound.BLOCK_ANVIL_LAND, 0.2F, 1.8F);
+  }
+
+  private boolean bypassesArmor(EntityDamageEvent event) {
+    return DamageTypeTags.BYPASSES_ARMOR != null
+        && DamageTypeTags.BYPASSES_ARMOR.isTagged(event.getDamageSource().getDamageType());
   }
 
   private void startSessionIfEligible(Player player) {
@@ -198,37 +253,16 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
       return;
     }
 
-    IAttribute attribute = Version.get().getAttribute(player, Attributes.GENERIC_ARMOR);
-    if (attribute != null) {
-      double oldArmor = readArmor(attribute);
-      double levelPercent = getLevelPercent(player);
-      double armor = getMaxArmorPoints(levelPercent);
-      armor = Double.isNaN(armor) ? 0 : armor;
-
-      double newAmount = oldArmor;
-      if (oldArmor < armor) {
-        newAmount = Math.min(armor, oldArmor + getMaxArmorPerTick(levelPercent));
-        attribute.setModifier(MODIFIER, MODIFIER_KEY, newAmount, AttributeModifier.Operation.ADD_NUMBER);
-      } else if (oldArmor > armor) {
-        newAmount = armor;
-        attribute.setModifier(MODIFIER, MODIFIER_KEY, armor, AttributeModifier.Operation.ADD_NUMBER);
-      }
-      session.armorAmount = newAmount;
-      updateChargeFeedback(player, session, armor, newAmount);
+    double levelPercent = getLevelPercent(player);
+    double maximum = getMaxArmorPoints(levelPercent);
+    double newAmount = nextArmorAmount(session.armorAmount, maximum, getMaxArmorPerTick(levelPercent));
+    session.armorAmount = newAmount;
+    if (newAmount > 0D) {
+      AdaptAttributeService.get().apply(player, getName(), SLOT_ARMOR, Attributes.ARMOR, newAmount, AttributeModifier.Operation.ADD_NUMBER);
     }
+    updateChargeFeedback(player, session, maximum, newAmount);
 
     scheduleNextRefresh(session, refreshDelayTicks());
-  }
-
-  private double readArmor(IAttribute attribute) {
-    double armor = 0;
-    for (IAttribute.Modifier modifier : attribute.getModifier(MODIFIER, MODIFIER_KEY)) {
-      double amount = modifier.getAmount();
-      if (!Double.isNaN(amount) && amount > armor) {
-        armor = amount;
-      }
-    }
-    return armor;
   }
 
   private void updateChargeFeedback(Player player, ArmorSession session, double armor, double newAmount) {
@@ -283,14 +317,7 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
       session.armorAmount = 0.0D;
       session.charged = false;
     }
-    removeModifier(player);
-  }
-
-  private void removeModifier(Player player) {
-    IAttribute attribute = Version.get().getAttribute(player, Attributes.GENERIC_ARMOR);
-    if (attribute != null) {
-      attribute.removeModifier(MODIFIER, MODIFIER_KEY);
-    }
+    AdaptAttributeService.get().removeAll(player, getName());
   }
 
   private static class ArmorSession {

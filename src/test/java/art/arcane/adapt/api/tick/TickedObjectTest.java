@@ -1,13 +1,18 @@
 package art.arcane.adapt.api.tick;
 
 import art.arcane.adapt.AdaptTestBase;
+import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.telemetry.AbilityCheckTelemetry;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.withSettings;
 
 class TickedObjectTest extends AdaptTestBase {
   @Test
@@ -55,6 +60,22 @@ class TickedObjectTest extends AdaptTestBase {
     verify(ticker, never()).register(active);
   }
 
+  @Test
+  void adaptationTicksRecordCompleteExecution() {
+    MeasuredAdaptationTicked active = mock(
+        MeasuredAdaptationTicked.class,
+        withSettings().useConstructor().defaultAnswer(CALLS_REAL_METHODS)
+    );
+    TickedObject.runMeasuredOnTick(active);
+
+    AbilityCheckTelemetry.AbilitySnapshot snapshot = AbilityCheckTelemetry
+        .abilitySnapshots(System.currentTimeMillis())
+        .get("measured-tick");
+    assertThat(snapshot.executionOps()).isEqualTo(1L);
+    assertThat(snapshot.executionTimingMillis()).isGreaterThan(0D);
+    AbilityCheckTelemetry.clear();
+  }
+
   private static final class NoOpTicked extends TickedObject {
   }
 
@@ -64,6 +85,21 @@ class TickedObjectTest extends AdaptTestBase {
     @Override
     public void onTick() {
       ticks.incrementAndGet();
+    }
+  }
+
+  public abstract static class MeasuredAdaptationTicked extends TickedObject implements Adaptation<Object> {
+    public MeasuredAdaptationTicked() {
+      super();
+    }
+
+    @Override
+    public String getName() {
+      return "measured-tick";
+    }
+
+    @Override
+    public void onTick() {
     }
   }
 }

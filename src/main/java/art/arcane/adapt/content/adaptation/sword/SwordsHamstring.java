@@ -23,22 +23,22 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
-import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 public class SwordsHamstring extends SimpleAdaptation<SwordsHamstring.Config> {
@@ -82,18 +82,22 @@ public class SwordsHamstring extends SimpleAdaptation<SwordsHamstring.Config> {
       return;
     }
 
-    int amplifier = getSlowTier(combat.level());
     int duration = getDurationTicks(combat.level());
-    J.runEntity(target, () -> {
-      if (!target.isValid()) {
-        return;
-      }
+    if (duration <= 0) {
+      return;
+    }
 
-      target.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, duration, amplifier, true, true, true), true);
-      if (target instanceof Player playerTarget) {
-        playerTarget.setSprinting(false);
-      }
-    });
+    AdaptAttributeService.get().applyTimed(
+        target,
+        getName(),
+        "slow",
+        Attributes.MOVEMENT_SPEED,
+        slowSpeedScalar(getSlowTier(combat.level())),
+        AttributeModifier.Operation.MULTIPLY_SCALAR_1,
+        duration);
+    if (target instanceof Player playerTarget) {
+      playerTarget.setSprinting(false);
+    }
 
     addStat(combat.attacker(), "swords.hamstring.hamstrings", 1);
     xp(combat.attacker(), getConfig().xpPerHamstring);
@@ -111,6 +115,10 @@ public class SwordsHamstring extends SimpleAdaptation<SwordsHamstring.Config> {
     Vector velocity = target.getVelocity();
     double horizontal = Math.sqrt((velocity.getX() * velocity.getX()) + (velocity.getZ() * velocity.getZ()));
     return horizontal >= getConfig().fleeSpeedThreshold;
+  }
+
+  static double slowSpeedScalar(int amplifier) {
+    return -Math.min(1.0D, 0.15D * (Math.max(0, amplifier) + 1.0D));
   }
 
   private int getSlowTier(int level) {

@@ -25,6 +25,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.fx.ViewerDisplayDirector;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -32,6 +33,7 @@ import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Location;
+import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -41,9 +43,13 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.generator.structure.StructureType;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.util.StructureSearchResult;
+import org.bukkit.util.Vector;
+
+import java.util.UUID;
 
 public class DiscoveryCartographerPulse extends SimpleAdaptation<DiscoveryCartographerPulse.Config> {
   private static final int MAX_SEARCH_RADIUS_CHUNKS = 96;
@@ -140,11 +146,36 @@ public class DiscoveryCartographerPulse extends SimpleAdaptation<DiscoveryCartog
         .start();
 
     Location eye = p.getEyeLocation();
-    fx(eye, FxPriority.GAMEPLAY)
-        .trail(Particles.END_ROD, target.getX() - eye.getX(), target.getY() - eye.getY(), target.getZ() - eye.getZ(), 8.0D, 10);
+    Vector direction = target.toVector().subtract(eye.toVector()).normalize();
+    Location lineStart = eye.clone().add(direction.clone().multiply(0.65D));
+    Location lineEnd = lineStart.clone().add(direction.multiply(8D));
+    ViewerDisplayDirector.showLine(
+        getName(),
+        "compass-direction",
+        p,
+        lineStart,
+        lineEnd,
+        Material.CYAN_STAINED_GLASS.createBlockData(),
+        Color.fromRGB(45, 220, 235),
+        0.09D,
+        80
+    );
 
     xp(p, getConfig().xpPerPulse);
     addStat(p, "discovery.cartographer-pulse.pulses", 1);
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(PlayerQuitEvent event) {
+    UUID playerId = event.getPlayer().getUniqueId();
+    cooldowns.clear(playerId);
+    ViewerDisplayDirector.clearViewer(getName(), playerId);
+  }
+
+  @Override
+  public void unregister() {
+    ViewerDisplayDirector.clearChannel(getName());
+    super.unregister();
   }
 
   private Location locateNearestStructure(World world, Location from, int rangeBlocks) {
@@ -172,7 +203,7 @@ public class DiscoveryCartographerPulse extends SimpleAdaptation<DiscoveryCartog
   }
 
 
-  @ConfigDescription("Sneak-right-click with a compass to pulse toward a nearby structure target.")
+  @ConfigDescription("Sneak-right-click with a compass to lock onto a nearby structure and show a private glowing direction line.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Search Range Base for the Discovery Cartographer Pulse adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double searchRangeBase = 640;

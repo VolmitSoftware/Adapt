@@ -2,6 +2,7 @@ package art.arcane.adapt.content.adaptation;
 
 import art.arcane.adapt.content.adaptation.blocking.BlockingBastionStance;
 import art.arcane.adapt.content.adaptation.unarmed.UnarmedDisarm;
+import art.arcane.adapt.content.adaptation.unarmed.UnarmedGrapple;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,11 @@ class DamageHandlerCancellationPolicyTest {
   @Test
   void disarmNeverReceivesAlreadyCancelledDamage() throws ReflectiveOperationException {
     assertIgnoresCancelledDamage(UnarmedDisarm.class);
+  }
+
+  @Test
+  void grappleNeverReceivesAlreadyCancelledDamage() throws ReflectiveOperationException {
+    assertIgnoresCancelledDamage(UnarmedGrapple.class);
   }
 
   @Test

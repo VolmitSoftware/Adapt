@@ -25,6 +25,7 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
@@ -34,6 +35,7 @@ import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.common.world.LoadedChunkAccess;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -46,6 +48,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.World;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -63,8 +66,6 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
@@ -93,6 +94,7 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
   private static final int HARD_MAX_ACTIVE_FIELDS = 64;
   private static final int HARD_MAX_REGION_SCANS_PER_CYCLE = 128;
   private static final int HARD_MAX_REGION_SCANS_PER_FIELD = 16;
+  private static final double[] FATIGUE_DIG_FACTORS = {0.3D, 0.09D, 0.0027D, 8.1E-4D};
   private static final int HARD_MAX_ENTITIES_PER_SCAN_CYCLE = 2048;
   private static final int HARD_MAX_ENTITIES_PER_FIELD = 256;
   private static final int HARD_MAX_ENTITIES_PER_REGION = 128;
@@ -499,10 +501,7 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
     }
 
     if (entity instanceof Player player && player.getUniqueId().equals(field.owner())) {
-      player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS,
-          getConfig().effectRefreshTicks, getConfig().casterSlownessAmplifier, true, false, false), true);
-      player.addPotionEffect(new PotionEffect(PotionEffectType.MINING_FATIGUE,
-          getConfig().effectRefreshTicks, getConfig().fatigueAmplifier, true, false, false), true);
+      applyFieldDebuffs(player, getConfig().casterSlownessAmplifier);
       return;
     }
 
@@ -530,10 +529,7 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
     }
 
     if (entity instanceof Player player) {
-      player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS,
-          getConfig().effectRefreshTicks, getConfig().slownessAmplifier, true, false, false), true);
-      player.addPotionEffect(new PotionEffect(PotionEffectType.MINING_FATIGUE,
-          getConfig().effectRefreshTicks, getConfig().fatigueAmplifier, true, false, false), true);
+      applyFieldDebuffs(player, getConfig().slownessAmplifier);
       freezePlayer(player, field.id());
       player.setVelocity(new Vector());
       recordFieldImpact(owner, false, false, pulse.recordSlowed());
@@ -549,6 +545,48 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
       fx(entity.getLocation(), FxPriority.COMBAT).ring(Particles.END_ROD, 0.8D, 3, 0.15D);
     }
     recordFieldImpact(owner, true, entity instanceof Projectile, pulse.recordSlowed());
+  }
+
+  private void applyFieldDebuffs(Player player, int slownessAmplifier) {
+    int durationTicks = getConfig().effectRefreshTicks;
+    if (durationTicks <= 0) {
+      return;
+    }
+
+    AdaptAttributeService service = AdaptAttributeService.get();
+    double slow = slowSpeedScalar(slownessAmplifier);
+    if (slow < 0D) {
+      service.applyTimed(player, getName(), "slow", Attributes.MOVEMENT_SPEED,
+          slow, AttributeModifier.Operation.MULTIPLY_SCALAR_1, durationTicks);
+    }
+
+    int fatigueAmplifier = getConfig().fatigueAmplifier;
+    double breakSlow = fatigueBreakScalar(fatigueAmplifier);
+    if (breakSlow < 0D) {
+      service.applyTimed(player, getName(), "fatigue", Attributes.BLOCK_BREAK_SPEED,
+          breakSlow, AttributeModifier.Operation.MULTIPLY_SCALAR_1, durationTicks);
+    }
+
+    double recoverySlow = fatigueAttackScalar(fatigueAmplifier);
+    if (recoverySlow < 0D) {
+      service.applyTimed(player, getName(), "recovery", Attributes.ATTACK_SPEED,
+          recoverySlow, AttributeModifier.Operation.MULTIPLY_SCALAR_1, durationTicks);
+    }
+  }
+
+  static double slowSpeedScalar(int amplifier) {
+    return -Math.min(1.0D, 0.15D * Math.max(0L, amplifier + 1L));
+  }
+
+  static double fatigueBreakScalar(int amplifier) {
+    if (amplifier < 0) {
+      return 0.0D;
+    }
+    return FATIGUE_DIG_FACTORS[Math.min(amplifier, 3)] - 1.0D;
+  }
+
+  static double fatigueAttackScalar(int amplifier) {
+    return -Math.min(1.0D, 0.10D * Math.max(0L, amplifier + 1L));
   }
 
   private void recordFieldImpact(Player owner, boolean newlyFrozen, boolean projectile, boolean crowdThreshold) {
@@ -963,8 +1001,6 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
     int durationPerLevelTicks = 25;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown Millis for the Chronos Time Bomb adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     long cooldownMillis = 15000;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Target Deploy Range for the Chronos Time Bomb adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double targetDeployRange = 64;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Field Center YOffset for the Chronos Time Bomb adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double fieldCenterYOffset = 1.25;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Slowness Amplifier for the Chronos Time Bomb adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

@@ -23,12 +23,14 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.events.api.ReflectiveHandler;
 import art.arcane.adapt.util.reflect.events.api.entity.EntityDismountEvent;
 import art.arcane.adapt.util.reflect.events.api.entity.EntityMountEvent;
+import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -37,6 +39,7 @@ import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -54,6 +57,8 @@ import java.util.Map;
 import java.util.UUID;
 
 public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
+  private static final String SLOT_WINDUP = "windup";
+  private static final double DEFAULT_WALK_SPEED = 0.2D;
   private final Map<UUID, RuntimeState> states = playerState();
 
   public AgilityWindUp() {
@@ -243,27 +248,15 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
   private void applyBoost(Player p, RuntimeState state, double speedIncrease, double elapsedTicks) {
     if (!state.boosting) {
       state.boosting = true;
-      state.originalWalkSpeed = p.getWalkSpeed();
+      state.currentBonus = 0D;
     }
 
-    float baseWalkSpeed = clampWalkSpeed(state.originalWalkSpeed);
-    double bonus = Math.max(0D, speedIncrease) * Math.max(0D, getConfig().walkSpeedBonusScalar);
-    float target = clampWalkSpeed((float) (baseWalkSpeed * (1D + bonus)));
-    float configuredMaxWalkSpeed = clampWalkSpeed((float) Math.max(0D, getConfig().maxWalkSpeed));
-    float maxWalkSpeed = Math.max(baseWalkSpeed, configuredMaxWalkSpeed);
-    if (target > maxWalkSpeed) {
-      target = maxWalkSpeed;
-    }
-
+    double target = targetBonus(speedIncrease, getConfig().walkSpeedBonusScalar, getConfig().maxWalkSpeed);
     float smoothing = elapsedSmoothing(getConfig().walkSpeedLerpPerTick, elapsedTicks);
-    float current = p.getWalkSpeed();
-    float next = current + ((target - current) * smoothing);
-    if (Math.abs(target - next) < 0.0005f) {
-      next = target;
-    }
-
-    if (Math.abs(current - next) > 0.0001f) {
-      p.setWalkSpeed(next);
+    double next = smoothedBonus(state.currentBonus, target, smoothing);
+    if (Math.abs(state.currentBonus - next) > 0.0005D) {
+      state.currentBonus = next;
+      AdaptAttributeService.get().apply(p, getName(), SLOT_WINDUP, Attributes.MOVEMENT_SPEED, next, AttributeModifier.Operation.MULTIPLY_SCALAR_1);
     }
   }
 
@@ -276,11 +269,8 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
     state.boosting = false;
     state.lastBracket = 0;
     state.ignited = false;
-    float restore = clampWalkSpeed(state.originalWalkSpeed);
-    float current = p.getWalkSpeed();
-    if (Math.abs(current - restore) > 0.0001f) {
-      p.setWalkSpeed(restore);
-    }
+    state.currentBonus = 0D;
+    AdaptAttributeService.get().remove(p, getName(), SLOT_WINDUP, Attributes.MOVEMENT_SPEED);
 
     if (wasCharged) {
       fx(p.getLocation(), FxPriority.TRANSITION)
@@ -321,14 +311,18 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
         && p.getVehicle() == null;
   }
 
-  private float clampWalkSpeed(float speed) {
-    if (speed < 0f) {
-      return 0f;
+  static double targetBonus(double speedIncrease, double bonusScalar, double maxWalkSpeed) {
+    double target = Math.max(0D, speedIncrease) * Math.max(0D, bonusScalar);
+    double cap = Math.max(0D, (Math.max(0D, maxWalkSpeed) / DEFAULT_WALK_SPEED) - 1D);
+    return Math.min(target, cap);
+  }
+
+  static double smoothedBonus(double currentBonus, double target, float smoothing) {
+    double next = currentBonus + ((target - currentBonus) * smoothing);
+    if (Math.abs(target - next) < 0.0025D) {
+      return target;
     }
-    if (speed > 1f) {
-      return 1f;
-    }
-    return speed;
+    return next;
   }
 
   static double elapsedTicks(long previousUpdateAt, long now) {
@@ -360,11 +354,11 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
     double windupSpeedBase = 0.22;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Windup Speed Level Multiplier for the Agility Wind Up adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double windupSpeedLevelMultiplier = 0.225;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Scales walk-speed gain from windup speed increase while sprinting.", impact = "Higher values produce stronger land-speed acceleration.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Scales the relative movement-speed modifier gained from windup speed increase while sprinting.", impact = "Higher values produce a stronger relative speed bonus.")
     double walkSpeedBonusScalar = 0.75;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Smooths walk-speed changes toward windup target each tick.", impact = "Higher values ramp faster; lower values feel softer.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Smooths the relative movement-speed modifier toward the windup target bonus each tick.", impact = "Higher values ramp faster; lower values feel softer.")
     double walkSpeedLerpPerTick = 0.45;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum walk speed this adaptation can set while windup is active.", impact = "Higher values allow faster grounded sprinting before clamping.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Effective walk-speed ceiling expressed against the 0.2 vanilla base; the relative movement-speed bonus is capped at maxWalkSpeed / 0.2 - 1.", impact = "Higher values raise the relative bonus cap for faster grounded sprinting.")
     double maxWalkSpeed = 0.35;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Minimum horizontal movement speed required for max-speed stat credit.", impact = "Higher values require clearer movement before counting max-speed ticks.")
     double movementVelocityThreshold = 0.015;
@@ -380,7 +374,7 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
     private long lastUpdateAt;
     private double runningTicks;
     private boolean boosting;
-    private float originalWalkSpeed;
+    private double currentBonus;
     private int lastBracket;
     private boolean ignited;
   }

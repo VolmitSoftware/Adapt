@@ -23,21 +23,29 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.player.PlayerGameModeChangeEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.event.player.PlayerVelocityEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
@@ -45,9 +53,15 @@ import org.bukkit.util.Vector;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class BlockingBastionStance extends SimpleAdaptation<BlockingBastionStance.Config> {
+  private static final String SLOT_KNOCKBACK = "knockback";
+  private static final String SLOT_EXPLOSION = "explosion";
+  private static final int STANCE_REFRESH_TICKS = 2;
+  private static final double IMPACT_FX_THRESHOLD = 0.4D;
   private final Map<UUID, Boolean> activeSessions = playerState();
+  private final Map<UUID, StanceState> stanceStates = playerState();
 
   public BlockingBastionStance() {
     super("blocking-bastion-stance");
@@ -137,7 +151,7 @@ public class BlockingBastionStance extends SimpleAdaptation<BlockingBastionStanc
         .sound(Sound.ITEM_SHIELD_BLOCK, 0.75F, 0.75F);
   }
 
-  @EventHandler(priority = EventPriority.HIGH)
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(PlayerVelocityEvent e) {
     Player p = e.getPlayer();
     int level = getActiveLevel(p);
@@ -145,16 +159,143 @@ public class BlockingBastionStance extends SimpleAdaptation<BlockingBastionStanc
       return;
     }
 
-    double reduction = getKnockbackReduction(level);
     Vector v = e.getVelocity();
     double horizontal = Math.sqrt((v.getX() * v.getX()) + (v.getZ() * v.getZ()));
-    e.setVelocity(new Vector(v.getX() * (1D - reduction), v.getY(), v.getZ() * (1D - reduction)));
-
-    if (reduction > 0 && horizontal > 0.4D) {
+    if (braceImpactFx(horizontal, getKnockbackReduction(level))) {
       fx(p.getLocation(), FxPriority.COMBAT)
           .ring(Particles.BLOCK_CRACK, 0.6D, 4, 0.1D, Material.IRON_BLOCK.createBlockData())
           .sound(Sound.ENTITY_IRON_GOLEM_STEP, 0.4F, 0.9F);
     }
+  }
+
+  @EventHandler
+  public void on(PlayerToggleSneakEvent e) {
+    Player p = e.getPlayer();
+    if (e.isSneaking()) {
+      if (hasActiveAdaptation(p)) {
+        startStance(p);
+      }
+      return;
+    }
+
+    endStance(p);
+  }
+
+  @EventHandler
+  public void on(PlayerMoveEvent e) {
+    Player p = e.getPlayer();
+    if (stanceStates.containsKey(p.getUniqueId()) || !p.isSneaking()) {
+      return;
+    }
+
+    if (hasActiveAdaptation(p)) {
+      startStance(p);
+    }
+  }
+
+  @EventHandler
+  public void on(PlayerGameModeChangeEvent e) {
+    GameMode mode = e.getNewGameMode();
+    if (mode != GameMode.SURVIVAL && mode != GameMode.ADVENTURE) {
+      endStance(e.getPlayer());
+    }
+  }
+
+  @Override
+  public void unregister() {
+    super.unregister();
+    for (UUID playerId : stanceStates.keySet()) {
+      Player p = Bukkit.getPlayer(playerId);
+      if (p != null) {
+        AdaptAttributeService.get().removeAll(p, getName());
+      }
+    }
+    stanceStates.clear();
+  }
+
+  private void startStance(Player p) {
+    StanceState state = stanceStates.computeIfAbsent(p.getUniqueId(), key -> new StanceState());
+    if (state.refreshScheduled.compareAndSet(false, true)) {
+      refreshStance(p, state);
+    }
+  }
+
+  private void refreshStance(Player p, StanceState state) {
+    if (stanceStates.get(p.getUniqueId()) != state || !p.isOnline()) {
+      state.refreshScheduled.set(false);
+      return;
+    }
+
+    int level = getActiveLevel(p);
+    if (!p.isSneaking() || level <= 0) {
+      endStance(p);
+      return;
+    }
+
+    if (isBastionStance(p, level)) {
+      applyBrace(p, state, level);
+    } else {
+      clearBrace(p, state);
+    }
+
+    if (!J.runEntity(p, () -> refreshStance(p, state), STANCE_REFRESH_TICKS)) {
+      endStance(p);
+    }
+  }
+
+  private void applyBrace(Player p, StanceState state, int level) {
+    double amount = braceAmount(getKnockbackReduction(level));
+    if (amount <= 0) {
+      clearBrace(p, state);
+      return;
+    }
+
+    AdaptAttributeService attributes = AdaptAttributeService.get();
+    attributes.apply(p, getName(), SLOT_KNOCKBACK, Attributes.KNOCKBACK_RESISTANCE, amount, AttributeModifier.Operation.ADD_NUMBER);
+    attributes.apply(p, getName(), SLOT_EXPLOSION, Attributes.EXPLOSION_KNOCKBACK_RESISTANCE, amount, AttributeModifier.Operation.ADD_NUMBER);
+    state.braced = true;
+  }
+
+  private void clearBrace(Player p, StanceState state) {
+    if (!state.braced) {
+      return;
+    }
+
+    state.braced = false;
+    AdaptAttributeService attributes = AdaptAttributeService.get();
+    attributes.remove(p, getName(), SLOT_KNOCKBACK, Attributes.KNOCKBACK_RESISTANCE);
+    attributes.remove(p, getName(), SLOT_EXPLOSION, Attributes.EXPLOSION_KNOCKBACK_RESISTANCE);
+  }
+
+  private void endStance(Player p) {
+    if (p == null) {
+      return;
+    }
+
+    StanceState state = stanceStates.remove(p.getUniqueId());
+    if (state == null) {
+      return;
+    }
+
+    state.refreshScheduled.set(false);
+    clearBrace(p, state);
+  }
+
+  static double braceAmount(double reduction) {
+    return Math.min(1.0D, Math.max(0.0D, reduction));
+  }
+
+  static boolean braceImpactFx(double dampedHorizontal, double reduction) {
+    if (reduction <= 0) {
+      return false;
+    }
+
+    double damping = 1.0D - braceAmount(reduction);
+    if (damping <= 0) {
+      return false;
+    }
+
+    return dampedHorizontal / damping > IMPACT_FX_THRESHOLD;
   }
 
   private boolean isBastionStance(Player p) {
@@ -199,6 +340,11 @@ public class BlockingBastionStance extends SimpleAdaptation<BlockingBastionStanc
         }
       });
     }
+  }
+
+  private static class StanceState {
+    private final AtomicBoolean refreshScheduled = new AtomicBoolean();
+    private boolean braced;
   }
 
   @ConfigDescription("Sneak-block with a shield to brace against knockback and soften projectiles.")

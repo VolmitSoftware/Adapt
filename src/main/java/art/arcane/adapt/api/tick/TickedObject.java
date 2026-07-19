@@ -19,6 +19,9 @@
 package art.arcane.adapt.api.tick;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
+import art.arcane.adapt.api.telemetry.AbilityCheckTelemetry;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.volmlib.util.math.M;
 import org.bukkit.entity.Entity;
@@ -173,6 +176,9 @@ public abstract class TickedObject implements Ticked, Listener {
     if (listenerRegistered) {
       Adapt.instance.unregisterListener(this);
     }
+    if (this instanceof Adaptation<?> adaptation) {
+      AdaptAttributeService.onAdaptationUnregistered(adaptation.getName());
+    }
   }
 
   @Override
@@ -247,7 +253,7 @@ public abstract class TickedObject implements Ticked, Listener {
     consumeOne(burst);
     long executionStarted = System.nanoTime();
     try {
-      onTick();
+      runMeasuredOnTick(this);
     } catch (IllegalStateException ex) {
       if (J.isFoliaThreading() && isFoliaThreadOwnershipViolation(ex)) {
         warnFoliaTickViolation(ex);
@@ -261,14 +267,29 @@ public abstract class TickedObject implements Ticked, Listener {
       }
       throw ex;
     } finally {
+      long executionNanos = System.nanoTime() - executionStarted;
       Ticker ticker = Adapt.instance == null ? null : Adapt.instance.getTicker();
       if (ticker != null && active.get()) {
-        ticker.recordMetric(this, System.nanoTime() - executionStarted);
+        ticker.recordMetric(this, executionNanos);
       }
     }
   }
 
   public void onTick() {
+  }
+
+  static void runMeasuredOnTick(TickedObject tickedObject) {
+    if (!(tickedObject instanceof Adaptation<?> adaptation)) {
+      tickedObject.onTick();
+      return;
+    }
+
+    long startedNanos = AbilityCheckTelemetry.beginExecution(adaptation.getName());
+    try {
+      tickedObject.onTick();
+    } finally {
+      AbilityCheckTelemetry.endExecution(adaptation.getName(), startedNanos);
+    }
   }
 
   protected void onRuntimeActivated() {

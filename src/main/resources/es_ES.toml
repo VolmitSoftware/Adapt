@@ -1841,11 +1841,10 @@ lore = ["Cuantos mas enemigos te rodean, menos dano infliges a cada uno", "Rango
 
 [tragoul.healing]
 name = "Voluntad del Dolor"
-description = "¡Recupera salud basandote en el dano que infliges!"
-lore1 = "¡Hacer dano nunca se habia sentido tan bien! Curate con el dano infligido"
-lore2 = "Hay una ventana de dano de 3 segundos para curacion y 1 segundo de recarga "
-lore3 = "Curacion por porcentaje de dano: "
-lore = ["¡Hacer dano nunca se habia sentido tan bien! Curate con el dano infligido", "Hay una ventana de dano de 3 segundos para curacion y 1 segundo de recarga ", "Curacion por porcentaje de dano: "]
+description = "Cada atacante válido que te daña pierde una pequeña cantidad fija de vida, que se te restaura."
+lore1 = "de salud drenada de cada atacante"
+lore2 = "La vida realmente drenada se te restaura"
+lore = ["de salud drenada de cada atacante", "La vida realmente drenada se te restaura"]
 
 [tragoul.lance]
 name = "Lanzas de Cadaver"

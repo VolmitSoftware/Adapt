@@ -116,22 +116,28 @@ public class TragoulCorpseExplosion extends SimpleAdaptation<TragoulCorpseExplos
     if (owner == null || victim == null) {
       return;
     }
-    J.runEntity(victim, () -> prepareSourceOwned(owner, victim, servant));
+    NovaSourceSnapshot source = captureSourceOwned(victim);
+    if (source != null) {
+      J.runEntity(owner, () -> prepareNovaOwnerOwned(owner, source, servant));
+    }
   }
 
-  private void prepareSourceOwned(Player owner, LivingEntity victim, boolean servant) {
+  private NovaSourceSnapshot captureSourceOwned(LivingEntity victim) {
     long now = System.currentTimeMillis();
     Long novaStamp = victim.getPersistentDataContainer().get(NOVA_KEY, PersistentDataType.LONG);
-    if (novaStamp != null && now - novaStamp < getConfig().chainSuppressionMillis) {
-      return;
+    if (isSuppressed(novaStamp, now, getConfig().chainSuppressionMillis)) {
+      return null;
     }
 
-    IAttribute attribute = Version.get().getAttribute(victim, Attributes.GENERIC_MAX_HEALTH);
+    IAttribute attribute = Version.get().getAttribute(victim, Attributes.MAX_HEALTH);
     double maxHealth = attribute == null ? 20D : attribute.getValue();
     ProtectionSnapshot protection = captureProtectionOwned(victim);
-    NovaSourceSnapshot source = new NovaSourceSnapshot(victim.getLocation(), maxHealth,
+    return new NovaSourceSnapshot(victim.getLocation().clone(), maxHealth,
         victim instanceof Player, protection.protectedFriendly(), protection.tameOwnerId());
-    J.runEntity(owner, () -> prepareNovaOwnerOwned(owner, source, servant));
+  }
+
+  static boolean isSuppressed(Long novaStamp, long now, long suppressionMillis) {
+    return novaStamp != null && now - novaStamp < Math.max(0L, suppressionMillis);
   }
 
   private void prepareNovaOwnerOwned(Player owner, NovaSourceSnapshot source, boolean servant) {
@@ -186,6 +192,7 @@ public class TragoulCorpseExplosion extends SimpleAdaptation<TragoulCorpseExplos
   }
 
   private void collectCandidatesOwned(NovaPlan plan) {
+    playNova(plan.source(), plan.radius(), plan.servant() ? NOVA_BONE : NOVA_CRIMSON);
     List<Monster> candidates = new ArrayList<>(plan.candidateLimit());
     Location source = plan.source();
     double radius = plan.radius();
@@ -255,23 +262,55 @@ public class TragoulCorpseExplosion extends SimpleAdaptation<TragoulCorpseExplos
     }
 
     long now = System.currentTimeMillis();
+    NovaApplicationBatch application = new NovaApplicationBatch(plan, selected.size());
     for (NovaTargetSnapshot target : selected) {
-      J.runEntity(target.entity(), () -> applyNovaTargetOwned(owner, target, plan.damage(), now));
+      if (!J.runEntity(target.entity(), () -> applyNovaTargetOwned(application, target, now))) {
+        application.complete(false);
+      }
     }
-    playNova(plan.source(), plan.radius(), plan.servant() ? NOVA_BONE : NOVA_CRIMSON);
-    addStat(owner, "tragoul.corpse-explosion.mobs-detonated", selected.size());
-    xp(owner, selected.size() * plan.xpPerMobHit());
+    application.armTimeout();
   }
 
-  private void applyNovaTargetOwned(Player owner, NovaTargetSnapshot target, double damage, long now) {
+  private void applyNovaTargetOwned(NovaApplicationBatch application, NovaTargetSnapshot target, long now) {
     Monster monster = target.entity();
     if (!monster.isValid() || monster.isDead()) {
+      application.complete(false);
       return;
     }
+
+    Long previousStamp = monster.getPersistentDataContainer().get(NOVA_KEY, PersistentDataType.LONG);
+    int previousNoDamageTicks = monster.getNoDamageTicks();
+    double healthBefore = monster.getHealth() + monster.getAbsorptionAmount();
     monster.getPersistentDataContainer().set(NOVA_KEY, PersistentDataType.LONG, now);
-    monster.damage(damage, owner);
+    monster.setNoDamageTicks(0);
+    monster.damage(application.plan().damage(), application.plan().owner());
+    double healthAfter = monster.isDead() ? 0D : monster.getHealth() + monster.getAbsorptionAmount();
+    boolean successful = healthAfter < healthBefore;
+    if (!successful) {
+      monster.setNoDamageTicks(previousNoDamageTicks);
+      if (previousStamp == null) {
+        monster.getPersistentDataContainer().remove(NOVA_KEY);
+      } else {
+        monster.getPersistentDataContainer().set(NOVA_KEY, PersistentDataType.LONG, previousStamp);
+      }
+      application.complete(false);
+      return;
+    }
+
     fx(monster.getLocation().add(0, 1.0D, 0), FxPriority.COMBAT)
         .particle(Particle.DAMAGE_INDICATOR, 2, 0, 0, 0, 0.2D, 0.02D);
+    application.complete(true);
+  }
+
+  private void finishNovaApplicationOwnerOwned(NovaApplicationBatch application) {
+    NovaPlan plan = application.plan();
+    Player owner = plan.owner();
+    int hits = application.successes();
+    if (!owner.isOnline() || getActiveLevel(owner) <= 0 || hits <= 0) {
+      return;
+    }
+    addStat(owner, "tragoul.corpse-explosion.mobs-detonated", hits);
+    xp(owner, hits * plan.xpPerMobHit());
   }
 
   private boolean canDamageSnapshotOwned(Player owner, boolean player, boolean protectedFriendly,
@@ -365,6 +404,45 @@ public class TragoulCorpseExplosion extends SimpleAdaptation<TragoulCorpseExplos
     private void dispatch() {
       if (dispatched.compareAndSet(false, true)) {
         J.runEntity(plan.owner(), () -> completeBatchOwnerOwned(this));
+      }
+    }
+  }
+
+  private final class NovaApplicationBatch {
+    private final NovaPlan plan;
+    private final AtomicInteger remaining;
+    private final AtomicInteger successes = new AtomicInteger();
+    private final AtomicBoolean dispatched = new AtomicBoolean();
+
+    private NovaApplicationBatch(NovaPlan plan, int remaining) {
+      this.plan = plan;
+      this.remaining = new AtomicInteger(remaining);
+    }
+
+    private NovaPlan plan() {
+      return plan;
+    }
+
+    private int successes() {
+      return successes.get();
+    }
+
+    private void complete(boolean successful) {
+      if (successful) {
+        successes.incrementAndGet();
+      }
+      if (remaining.decrementAndGet() == 0) {
+        dispatch();
+      }
+    }
+
+    private void armTimeout() {
+      J.runEntity(plan.owner(), this::dispatch, 10);
+    }
+
+    private void dispatch() {
+      if (dispatched.compareAndSet(false, true)) {
+        J.runEntity(plan.owner(), () -> finishNovaApplicationOwnerOwned(this));
       }
     }
   }

@@ -309,7 +309,7 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
     if (state == null) {
       return;
     }
-    if (isProtectedFriendly(state.owner, victim)) {
+    if (isProtectedHeartseekerTarget(state.owner, victim)) {
       coordinator.remove(arrow.getUniqueId(), state.generation);
       retireHitArrow(arrow);
       applyGlow(state.owner, null);
@@ -1563,11 +1563,13 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
       return null;
     }
     UUID targetId = target.getUniqueId();
+    boolean servant = TragoulSkeletalServant.isServant(target);
+    UUID servantOwnerId = TragoulSkeletalServant.getServantOwnerId(target);
     boolean protectedFriendly = ownerId.equals(targetId)
         || (target instanceof ArmorStand stand && stand.isMarker())
         || target.isInvulnerable()
         || target.hasMetadata("NPC")
-        || TragoulSkeletalServant.isServant(target);
+        || isProtectedServant(ownerId, servant, servantOwnerId);
     if (!protectedFriendly && target instanceof Tameable tameable && tameable.isTamed()) {
       AnimalTamer tamer = tameable.getOwner();
       protectedFriendly = tamer != null && ownerId.equals(tamer.getUniqueId());
@@ -1597,6 +1599,19 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
       return false;
     }
     return target.player() ? canPVP(owner, target.location()) : canPVE(owner, target.location());
+  }
+
+  private boolean isProtectedHeartseekerTarget(Player owner, LivingEntity target) {
+    boolean servant = TragoulSkeletalServant.isServant(target);
+    UUID servantOwnerId = TragoulSkeletalServant.getServantOwnerId(target);
+    if (servant) {
+      return isProtectedServant(owner.getUniqueId(), true, servantOwnerId);
+    }
+    return isProtectedFriendly(owner, target);
+  }
+
+  static boolean isProtectedServant(UUID ownerId, boolean servant, UUID servantOwnerId) {
+    return servant && (servantOwnerId == null || ownerId == null || ownerId.equals(servantOwnerId));
   }
 
   private void recordClearPath(HomingState state) {

@@ -24,12 +24,11 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.fx.ViewerDisplayDirector;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
-import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Color;
@@ -39,6 +38,9 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
@@ -155,7 +157,7 @@ public class DiscoveryKeenEye extends SimpleAdaptation<DiscoveryKeenEye.Config> 
             continue;
           }
 
-          glimmer(state, glimmerTicks);
+          glimmer(player, state, glimmerTicks);
           found++;
         }
       }
@@ -178,20 +180,31 @@ public class DiscoveryKeenEye extends SimpleAdaptation<DiscoveryKeenEye.Config> 
         && result.getHitBlock().getZ() == state.getZ();
   }
 
-  private void glimmer(BlockState state, int ticks) {
-    Location at = new Location(state.getWorld(), state.getX() + 0.5D, state.getY() + 0.5D, state.getZ() + 0.5D);
+  private void glimmer(Player player, BlockState state, int ticks) {
+    Location at = new Location(state.getWorld(), state.getX(), state.getY(), state.getZ());
     Color color = isSpawner(state.getType()) ? SPAWNER_COLOR : CHEST_COLOR;
-    timeline(at)
-        .duration(Math.max(6, ticks))
-        .priority(FxPriority.AMBIENT)
-        .cullRadius(24)
-        .frame((f, tick, progress) -> {
-          if ((tick & 1) == 0) {
-            f.dustRing(color, 0.65D, 6, 0.9F);
-            f.particle(Particles.END_ROD, 1, 0, 0, 0, 0.14, 0.0);
-          }
-        })
-        .start();
+    ViewerDisplayDirector.showBlock(
+        getName(),
+        "target-" + state.getX() + ":" + state.getY() + ":" + state.getZ(),
+        player,
+        at,
+        state.getBlockData(),
+        color,
+        Math.max(6, ticks)
+    );
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(PlayerQuitEvent event) {
+    UUID playerId = event.getPlayer().getUniqueId();
+    scanThrottle.clear(playerId);
+    ViewerDisplayDirector.clearViewer(getName(), playerId);
+  }
+
+  @Override
+  public void unregister() {
+    ViewerDisplayDirector.clearChannel(getName());
+    super.unregister();
   }
 
   private boolean isKeenTarget(Material type) {
@@ -214,7 +227,7 @@ public class DiscoveryKeenEye extends SimpleAdaptation<DiscoveryKeenEye.Config> 
   }
 
 
-  @ConfigDescription("Chests and spawners in your line of sight briefly glimmer.")
+  @ConfigDescription("Chests and spawners in your line of sight briefly appear as private glowing block displays.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Range Base for the Discovery Keen Eye adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double rangeBase = 10;

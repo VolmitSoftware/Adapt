@@ -1111,7 +1111,7 @@ lore = ["Max Armor", "Armor-Up Time", "Armor Decay Time"]
 
 [agility.ladder_slide]
 name = "Ladder Slide"
-description = "Slide down ladders and vines fast, climb them faster, sneak to brake, and land safely at the bottom."
+description = "Hold forward or jump to climb faster, hold backward to slide fast, and sneak to brake."
 lore1 = "Ladder slide speed (blocks/sec)"
 lore2 = "Ladder climb speed (blocks/sec)"
 lore3 = "Sneak brake power"
@@ -1126,7 +1126,7 @@ lore = ["Max Jump Height", "Sneak + Jump to Super Jump!"]
 
 [agility.wall_jump]
 name = "Wall Jump"
-description = "Hold shift while mid-air against a wall to wall latch & jump!"
+description = "Hold shift while mid-air against a wall to latch, then release shift to jump."
 lore1 = "Max Jumps"
 lore2 = "Jump Height"
 lore = ["Max Jumps", "Jump Height"]
@@ -1140,11 +1140,11 @@ lore = ["Max Speed", "Windup Time"]
 
 [agility.parkour_momentum]
 name = "Parkour Momentum"
-description = "Chain sprint-jumps and land on ledges to build momentum for mobility boosts."
+description = "Chain consecutive sprint-jumps. Each clean landing builds momentum that boosts the next jump."
 lore1 = "Max Momentum Stacks"
-lore2 = "Max Speed Amplifier"
-lore3 = "Max Jump Amplifier"
-lore = ["Max Momentum Stacks", "Max Speed Amplifier", "Max Jump Amplifier"]
+lore2 = "Max Boosted Speed (blocks/sec)"
+lore3 = "Max Jump Velocity Bonus"
+lore = ["Max Momentum Stacks", "Max Boosted Speed (blocks/sec)", "Max Jump Velocity Bonus"]
 
 [agility.roll_landing]
 name = "Roll Landing"
@@ -1567,7 +1567,7 @@ lore = ["Bonus Reward Chance", "Rare Reward Chance", "Reward Cooldown"]
 
 [discovery.cartographer_pulse]
 name = "Cartographer Pulse"
-description = "Sneak-right-click with a compass to lock it toward a nearby structure. Each pulse costs hunger."
+description = "Sneak-right-click with a compass to lock it toward a nearby structure and see a private glowing direction line. Each pulse costs hunger."
 lore1 = "Structure Search Range"
 lore2 = "Pulse Cooldown"
 lore = ["Structure Search Range", "Pulse Cooldown"]
@@ -1577,7 +1577,7 @@ lore_cost_hunger = "Hunger cost per pulse"
 
 [discovery.insight]
 name = "Insight"
-description = "Study creatures at a glance: the entity you look at shows its name and health bar above its head, and your hits show floating damage numbers with crits in orange."
+description = "Study creatures at a glance: the entity you look at shows its name and health bar above its head, tameable creatures show their live speed, jump, and attack stats, and your hits show floating damage numbers with crits in orange."
 lore1 = "Detection Range"
 lore = ["Detection Range"]
 
@@ -1638,14 +1638,14 @@ lore = ["Recovery Chance", "Bonus XP", "Recovery Cooldown"]
 
 [excavation.haste]
 name = "Hasty Excavator"
-description = "This will speed up the excavation process, with HASTE!"
+description = "Starting a block break grants stable Haste long enough to finish slower excavation blocks."
 lore1 = "Gain Haste while excavating"
-lore2 = "x Levels of haste when you start mining ANY block."
-lore = ["Gain Haste while excavating", "x Levels of haste when you start mining ANY block."]
+lore2 = "x Levels of Haste while actively excavating."
+lore = ["Gain Haste while excavating", "x Levels of Haste while actively excavating."]
 
 [excavation.spelunker]
 name = "Super-Seeing Spelunker!"
-description = "Hold glow berries in your main hand to see ores through the ground."
+description = "Hold glow berries in your main hand to reveal glowing ore displays through the ground."
 lore1 = "Ore in your offhand, Glowberries in your main hand, and Sneak!"
 lore2 = "Block Range: "
 lore3 = "Consumes Glowberry on use"
@@ -1653,7 +1653,7 @@ lore = ["Ore in your offhand, Glowberries in your main hand, and Sneak!", "Block
 
 [excavation.seismic_ping]
 name = "Seismic Ping"
-description = "Mining can emit directional pings that point toward nearby ore."
+description = "Mining can emit colored glowing direction lines that point toward nearby ore."
 lore1 = "Scan Range"
 lore2 = "Ping Chance"
 lore3 = "Ping Cooldown"
@@ -1976,7 +1976,7 @@ lore = ["Sneak, and mine ORES", "range of vein-mining", "This skill does NOT gro
 
 [pickaxe.quarry_sense]
 name = "Quarry Sense"
-description = "Sneak-right-click a block with an iron+ pickaxe to reveal nearby ores using temporary glowing markers."
+description = "Sneak-right-click a block with an iron+ pickaxe to reveal nearby ores as private glowing block displays."
 lore1 = "Ore Scan Radius"
 lore2 = "Durability Cost (% of Max Durability)"
 lore3 = "Sense Cooldown"
@@ -2180,11 +2180,11 @@ lore = ["Simply gain Night Vision while underwater after your water breathing ef
 
 [seaborn.dolphin_grace]
 name = "Dolphin's Grace"
-description = "Swim like a dolphin, without the dolphins"
+description = "Swim like a dolphin, without the dolphins - sprint-swimming channels real Dolphin's Grace"
 lore1 = "+ Passive: gain "
-lore2 = "x speed (dolphins grace)"
+lore2 = "x water speed, plus true Dolphin's Grace while sprint-swimming that lingers longer each level"
 lore3 = "precision german engineeeri- wait that's not right... Not Compatible with Depth Strider"
-lore = ["+ Passive: gain ", "x speed (dolphins grace)", "precision german engineeeri- wait that's not right... Not Compatible with Depth Strider"]
+lore = ["+ Passive: gain ", "x water speed, plus true Dolphin's Grace while sprint-swimming that lingers longer each level", "precision german engineeeri- wait that's not right... Not Compatible with Depth Strider"]
 
 [seaborn.tidecaller]
 name = "Tidecaller"
@@ -2216,10 +2216,10 @@ lore = ["Minimum Depth Requirement", "Depth Damage Reduction", "Mining Fatigue R
 
 [stealth.ghost_armor]
 name = "Ghost's Armor"
-description = "Slowly builds bonus armor while you avoid damage; it is consumed by the next hit."
-lore1 = "Max Armor"
+description = "Slowly builds a separate armor layer while you avoid damage. It stacks beyond worn armor and is consumed by the next armor-respecting hit."
+lore1 = "Max Ghost Armor"
 lore2 = "Speed"
-lore = ["Max Armor", "Speed"]
+lore = ["Max Ghost Armor", "Speed"]
 
 [stealth.night_vision]
 name = "Stealth Vision"
@@ -2237,7 +2237,7 @@ lore = ["Snatch Radius"]
 
 [stealth.speed]
 name = "Sneak Speed"
-description = "Gain speed while sneaking"
+description = "Sneak faster with each level - max level sneaks at full walk speed, the vanilla sneak-speed cap"
 lore1 = "Sneaking Speed"
 lore = ["Sneaking Speed"]
 
@@ -2249,8 +2249,8 @@ lore2 = "Prevent all enderman attacks"
 lore = ["Prevent enderman attacks while sneaking", "Prevent all enderman attacks"]
 
 [stealth.silent_step]
-name = "Silent Step"
-description = "Sneaking suppresses detection, dims your vision while hidden, and grants backstab damage on unseen hits."
+name = "Stealth"
+description = "Core concealment for backstabs, Cutpurse, and Assassinate. Sneaking uses observer awareness; invisibility or an active Shadow Decoy always counts as undetected."
 lore1 = "Mob Detection Suppression Radius"
 lore2 = "Mob Backstab Damage Bonus"
 lore3 = "Player Backstab Damage Bonus"
@@ -2258,7 +2258,7 @@ lore = ["Mob Detection Suppression Radius", "Mob Backstab Damage Bonus", "Player
 
 [stealth.shadow_decoy]
 name = "Shadow Decoy"
-description = "Stop sneaking to spawn a decoy that pulls nearby mob aggression."
+description = "Stop sneaking to spawn a decoy wearing your skin and equipment that pulls nearby mob aggression."
 lore1 = "Decoy Duration"
 lore2 = "Decoy Attraction Radius"
 lore3 = "Decoy Cooldown"
@@ -2293,10 +2293,10 @@ lore = ["Striking a Living entity with your Sword causes Poison", "Poison Durati
 
 [sword.dual_wield]
 name = "Dual Wield Stance"
-description = "Holding items in both hands grants bonus melee damage. Matching items grant the higher bonus."
-lore1 = "Matching Item Bonus"
-lore2 = "Mixed Item Bonus"
-lore = ["Matching Item Bonus", "Mixed Item Bonus"]
+description = "Holding a sword in each hand grants bonus melee damage. Matching swords grant the higher bonus."
+lore1 = "Matching Sword Bonus"
+lore2 = "Mixed Sword Bonus"
+lore = ["Matching Sword Bonus", "Mixed Sword Bonus"]
 
 [sword.executioners_edge]
 name = "Executioner's Edge"
@@ -2358,10 +2358,10 @@ lore_cost_hunger = "Hunger cost per recall"
 
 [taming.shared_pain]
 name = "Shared Pain"
-description = "Redirect a portion of your tamed companion's damage to yourself."
-lore1 = "Redirected Damage"
-lore2 = "Owner Health Floor"
-lore = ["Redirected Damage", "Owner Health Floor"]
+description = "Spread a portion of your incoming damage across nearby owned companions without reducing them below their health floor."
+lore1 = "Shared Damage"
+lore2 = "Companion Health Floor"
+lore = ["Shared Damage", "Companion Health Floor"]
 
 [taming.mounted_tactics]
 name = "Mounted Tactics"
@@ -2389,19 +2389,18 @@ lore = ["The more enemies around you, the less damage you deal to each of them",
 
 [tragoul.healing]
 name = "Will of Pain"
-description = "Regain health based on the damage you deal!"
-lore1 = "Harming things has never felt so good! Heal from Damage Dealt"
-lore2 = "There is a 3 Second damage window, for healing and a 1 Second cooldown "
-lore3 = "Healing Per Damage Percent: "
-lore = ["Harming things has never felt so good! Heal from Damage Dealt", "There is a 3 Second damage window, for healing and a 1 Second cooldown ", "Healing Per Damage Percent: "]
+description = "Every eligible attacker who damages you loses a small fixed amount of life, which is restored to you."
+lore1 = "health drained from each attacker"
+lore2 = "Actual life drained is restored to you"
+lore = ["health drained from each attacker", "Actual life drained is restored to you"]
 
 [tragoul.lance]
 name = "Corpse Lances"
-description = "Killing an enemy or having an ability kill an enemy, spawns a lance that deals damage to a nearby enemy!"
-lore1 = "Lances will Seek out from anything you kill, AND if This ability kills an enemy."
-lore2 = "Sacrifice a portion of your life in order to create the lances (this can kill you)"
+description = "Killing an enemy launches a red-tipped corpse lance with a white trail. Its damage is tripled while you wear no armor."
+lore1 = "Killing blows launch seeking corpse lances, including lance chain kills"
+lore2 = "Lances cost life to create and deal triple damage while you are unarmored"
 lore3 = "Max Lances: 1 + "
-lore = ["Lances will Seek out from anything you kill, AND if This ability kills an enemy.", "Sacrifice a portion of your life in order to create the lances (this can kill you)", "Max Lances: 1 + "]
+lore = ["Killing blows launch seeking corpse lances, including lance chain kills", "Lances cost life to create and deal triple damage while you are unarmored", "Max Lances: 1 + "]
 
 [tragoul.blood_pact]
 name = "Blood Pact"
@@ -2497,7 +2496,7 @@ description = "Spend 10 cumulative minutes at max sprint speed"
 
 [advancement.challenge_agility_parkour_500]
 title = "Freerunner"
-description = "Land 500 ledge jumps"
+description = "Complete 500 chained sprint-jump landings"
 
 [advancement.challenge_agility_roll_100]
 title = "Tuck and Roll"
@@ -3684,17 +3683,18 @@ lore = ["Fall Damage Reduction", "Applies when landing on dirt, sand, gravel, cl
 
 [excavation.earth_mover]
 name = "Earth Mover"
-description = "Sneak-right-click the air with a shovel to fling a wave of earth that knocks back and slows hostile mobs. Each wave costs hunger."
+description = "Sneak-right-click the air with a shovel to damage, knock back, and slow hostile mobs with a wave of earth. Damage scales from the held shovel. Each wave costs hunger."
 lore1 = "Wave Radius"
-lore2 = "Knockback Force"
-lore3 = "Slow Duration"
-lore4 = "Wave Cooldown"
-lore = ["Wave Radius", "Knockback Force", "Slow Duration", "Wave Cooldown", "Hunger Cost"]
-lore5 = "Hunger Cost"
+lore2 = "Shovel Damage Multiplier"
+lore3 = "Knockback Force"
+lore4 = "Slow Duration"
+lore5 = "Wave Cooldown"
+lore6 = "Hunger Cost"
+lore = ["Wave Radius", "Shovel Damage Multiplier", "Knockback Force", "Slow Duration", "Wave Cooldown", "Hunger Cost"]
 
 [excavation.dowsing]
 name = "Dowsing"
-description = "Sneaking with a shovel pings the nearest hidden cave, water, or lava pocket with a directional trail."
+description = "Sneaking with a shovel reveals the nearest 1-3 water or lava blocks and draws a private glowing fluid-colored line to the closest one."
 lore1 = "Dowsing Range"
 lore2 = "Dowsing Cooldown"
 lore = ["Dowsing Range", "Dowsing Cooldown"]
@@ -3871,14 +3871,6 @@ lore2 = "Per-Target Cooldown"
 lore3 = "chance a disarmed mob also drops a worn armor piece"
 lore = ["Disarm Chance", "Per-Target Cooldown", "chance a disarmed mob also drops a worn armor piece"]
 
-[unarmed.flurry]
-name = "Flurry"
-description = "Rapid consecutive bare-hand hits build flurry stacks that add bonus damage."
-lore1 = "Max Flurry Stacks"
-lore2 = "Damage Per Stack"
-lore3 = "Flurry Window"
-lore = ["Max Flurry Stacks", "Damage Per Stack", "Flurry Window"]
-
 [unarmed.pressure_point]
 name = "Pressure Point"
 description = "Bare-hand hits apply stacking slowness, with weakness at higher levels."
@@ -3905,7 +3897,7 @@ lore = ["Flat Punch Damage", "Soft Block Punch Haste"]
 
 [unarmed.grapple]
 name = "Grapple"
-description = "Sneak-punch a mob to grab it, then hurl it where you look. Each throw adds exhaustion."
+description = "Sneak-punch a mob or player to grab it, then hurl it where you look. Player grapples respect PvP protection. Each throw adds exhaustion."
 lore1 = "Hurl Force"
 lore2 = "Grapple Cooldown"
 lore3 = "Hit again or release sneak to hurl"
@@ -3934,14 +3926,6 @@ description = "Disarm 100 enemies with your bare hands"
 [advancement.challenge_unarmed_disarm_1k]
 title = "Weapon Repossessor"
 description = "Disarm 1,000 enemies with your bare hands"
-
-[advancement.challenge_unarmed_flurry_1k]
-title = "Hands of Fury"
-description = "Land 1,000 flurry hits"
-
-[advancement.challenge_unarmed_flurry_10k]
-title = "Hurricane Hands"
-description = "Land 10,000 flurry hits"
 
 [advancement.challenge_unarmed_pressure_500]
 title = "Nerve Striker"
@@ -4165,18 +4149,18 @@ description = "Build 10,000 Stone Skin stacks"
 
 [tragoul.corpse_explosion]
 name = "Corpse Explosion"
-description = "Mobs you kill detonate in a blood nova that damages nearby hostile mobs!"
-lore1 = "Kills detonate the corpse, damaging nearby hostile mobs"
+description = "Mobs you kill immediately display a blood nova and damage nearby hostile mobs."
+lore1 = "Kills always display a corpse nova and damage nearby hostile mobs"
 lore2 = "Nova Radius"
 lore3 = "of the victim's max health added as nova damage"
-lore = ["Kills detonate the corpse, damaging nearby hostile mobs", "Nova Radius", "of the victim's max health added as nova damage"]
+lore = ["Kills always display a corpse nova and damage nearby hostile mobs", "Nova Radius", "of the victim's max health added as nova damage"]
 
 [tragoul.soul_siphon]
 name = "Soul Siphon"
-description = "Your melee hits drain life from your victims, healing you for part of the damage dealt!"
-lore1 = "of melee damage dealt returned as health"
+description = "Every player-attributed damage source siphons part of its final damage as health."
+lore1 = "of all attributed damage returned as health"
 lore2 = "max health restored per second"
-lore = ["of melee damage dealt returned as health", "max health restored per second"]
+lore = ["of all attributed damage returned as health", "max health restored per second"]
 
 [tragoul.skeletal_servant]
 name = "Skeletal Servant"
@@ -4208,19 +4192,19 @@ lore = ["Attackers are cursed with Weakness", "Curse Duration", "Attackers are a
 
 [tragoul.death_sense]
 name = "Death Sense"
-description = "Sense weakened hostile mobs near you - dying prey briefly glows through walls!"
-lore1 = "Weakened hostile mobs near you briefly glow"
-lore2 = "health or lower marks a mob as dying prey"
+description = "Sense wounded creatures and players near you through walls with a private outline that intensifies in color as their health falls."
+lore1 = "Wounded damageable entities near you glow only for you"
+lore2 = "health or lower marks an entity as dying prey"
 lore3 = "Sense Radius"
-lore = ["Weakened hostile mobs near you briefly glow", "health or lower marks a mob as dying prey", "Sense Radius"]
+lore = ["Wounded damageable entities near you glow only for you", "health or lower marks an entity as dying prey", "Sense Radius"]
 
 [tragoul.plague_bearer]
 name = "Plague Bearer"
-description = "Mobs that die poisoned or withered by you spread the affliction to nearby hostile mobs!"
-lore1 = "Your poison and wither spread on death"
+description = "Mobs that die poisoned or withered by you spread an amplified affliction across a large radius to any nearby mob you can damage."
+lore1 = "Your poison and wither spread with increased potency on death"
 lore2 = "Spread Radius"
 lore3 = "Spread Effect Duration"
-lore = ["Your poison and wither spread on death", "Spread Radius", "Spread Effect Duration"]
+lore = ["Your poison and wither spread with increased potency on death", "Spread Radius", "Spread Effect Duration"]
 
 [tragoul.last_rites]
 name = "Last Rites"
@@ -4276,11 +4260,11 @@ description = "Sense 1,000 dying prey through walls"
 
 [advancement.challenge_tragoul_plague_100]
 title = "Patient Zero"
-description = "Spread your plague to 100 hostile mobs"
+description = "Spread your plague to 100 mobs"
 
 [advancement.challenge_tragoul_plague_1k]
 title = "Pandemic"
-description = "Spread your plague to 1,000 hostile mobs"
+description = "Spread your plague to 1,000 mobs"
 
 [advancement.challenge_tragoul_last_rites_5]
 title = "Not Today"
@@ -4410,11 +4394,12 @@ lore = ["Melee Damage Multiplier", "Throw Speed", "Throw Cooldown", "Returns to 
 
 [axe.sunder]
 name = "Sunder"
-description = "Axe hits shred a target's armor in stacking layers that fade over time."
+description = "Axe hits shred a target's armor and armor toughness in stacking layers that fade over time."
 lore1 = "Armor Shred Per Stack"
 lore2 = "Max Stacks"
 lore3 = "Shred Duration"
-lore = ["Armor Shred Per Stack", "Max Stacks", "Shred Duration"]
+lore4 = "Toughness Shred Per Stack"
+lore = ["Armor Shred Per Stack", "Max Stacks", "Shred Duration", "Toughness Shred Per Stack"]
 
 [axe.cleave]
 name = "Cleave"
@@ -4839,7 +4824,7 @@ lore = ["Coral Survival Time", "Bonemeal Growth Chance"]
 
 [seaborn.deep_salvager]
 name = "Deep Salvager"
-description = "Underwater containers shimmer within range and reward bonus treasure the first time you open them submerged."
+description = "Underwater containers appear as private aqua glowing block displays and reward bonus treasure the first time you open them submerged."
 lore1 = "Detection Range (blocks)"
 lore2 = "Bonus Treasure Rolls"
 lore = ["Detection Range (blocks)", "Bonus Treasure Rolls"]
@@ -4935,42 +4920,41 @@ description = "Spend 1 cumulative hour wet"
 # ---- Stealth: new adaptations ----
 [stealth.shadowmeld]
 name = "Shadowmeld"
-description = "Stand still while sneaking in low light to meld into the shadows, becoming invisible to mobs until you move or act."
-lore1 = "Light Threshold"
-lore2 = "Meld Delay"
-lore = ["Light Threshold", "Meld Delay"]
+description = "Remain sneaking while Stealth reports you undetected to become invisible. Detection, acting, taking damage, or standing ends the meld."
+lore1 = "Undetected Sneak Delay"
+lore = ["Undetected Sneak Delay"]
 
 [stealth.smoke_pellet]
 name = "Smoke Pellet"
-description = "Sneak and flick an empty hand to throw a smoke pellet that blinds nearby hostiles. Costs one gunpowder."
+description = "Sneak-cast an aimed smoke ray with an empty hand or held gunpowder. Every living entity in the cloud is blinded, including you. Costs one gunpowder."
 lore1 = "Cloud Radius"
 lore2 = "Cloud Duration"
 lore = ["Cloud Radius", "Cloud Duration"]
 
 [stealth.cutpurse]
 name = "Cutpurse"
-description = "Sneak-hits on pillagers, vindicators, and piglins can pick their pockets, stealing loot without a kill."
+description = "While Stealth reports you undetected, hits on pillagers, vindicators, and piglins can steal loot without a kill."
 lore1 = "Steal Chance"
 lore2 = "Loot Stacks"
 lore = ["Steal Chance", "Loot Stacks"]
 
 [stealth.trap_sense]
 name = "Trap Sense"
-description = "While sneaking, nearby tripwires, pressure plates, and sculk sensors glimmer; higher levels raise shrieker warning levels more slowly."
+description = "While sneaking, nearby trapped chests, tripwire string, hooks, pressure plates, and sculk blocks privately glow. Maximum level prevents all of your movement vibrations from triggering sculk."
 lore1 = "Detection Range"
-lore2 = "Sculk Mercy"
-lore = ["Detection Range", "Sculk Mercy"]
+lore2 = "Sculk Movement Suppression"
+lore = ["Detection Range", "Sculk Movement Suppression"]
 
 [stealth.assassinate]
 name = "Assassinate"
-description = "A strike from the shadows or while fully unseen instantly executes non-boss mobs below a max-health cap."
+description = "While Stealth reports you undetected, a strike instantly executes non-boss mobs below a max-health cap."
 lore1 = "Executable Health Cap"
 lore2 = "Cooldown"
 lore = ["Executable Health Cap", "Cooldown"]
 
 [stealth.decoy_swap]
 name = "Decoy Swap"
-description = "While your Shadow Decoy is alive, double-tap sneak to swap places with it."
+description = "Requires Shadow Decoy. While your decoy is alive, double-tap sneak to swap places with it."
 lore1 = "Swap Range"
 lore2 = "Cooldown"
 lore = ["Swap Range", "Cooldown"]
@@ -5056,7 +5040,7 @@ lore = ["Max Flow Stacks", "Attack Speed / Stack"]
 
 [sword.duelists_focus]
 name = "Duelist's Focus"
-description = "Deal more damage and take less while exactly one hostile is engaged with you."
+description = "Deal more damage and take less while exactly one hostile is engaged with you; the focused attacker briefly glows when the defense activates."
 lore1 = "Bonus Damage"
 lore2 = "Damage Reduction"
 lore = ["Bonus Damage", "Damage Reduction"]
@@ -5160,7 +5144,7 @@ lore = ["Fetch Range", "Carry Chance"]
 
 [taming.alphas_command]
 name = "Alpha's Command"
-description = "Sneak-left-click a target while holding a bone to make your nearby pets focus it."
+description = "Sneak-left-click while holding a bone to raycast a target, mark it with a private red glow, and command nearby combat pets to focus it. Successful commands consume one bone."
 lore1 = "Command Range"
 lore2 = "Focus Duration"
 lore = ["Command Range", "Focus Duration"]
@@ -5174,9 +5158,10 @@ lore = ["Intercept Chance", "Pet Damage Reduction"]
 
 [taming.stable_hand]
 name = "Stable Hand"
-description = "Animals you tame or breed keep a permanent bias toward better speed, jump, and health."
+description = "Animals you tame or breed keep a permanent bias toward better speed, jump, health, and safe fall distance."
 lore1 = "Attribute Bias"
-lore = ["Attribute Bias"]
+lore2 = "Safe Fall Blocks"
+lore = ["Attribute Bias", "Safe Fall Blocks"]
 
 [taming.wild_empathy]
 name = "Wild Empathy"
@@ -5187,7 +5172,7 @@ lore = ["Extra Taming Odds", "Anger Resistance"]
 
 [taming.battle_bond]
 name = "Battle Bond"
-description = "When one of your pets lands a kill, you and the nearby pack gain brief strength and speed."
+description = "When one of your pets lands a kill, you and the nearby pack gain brief strength, speed, and regeneration with a visible bond."
 lore1 = "Buff Tier"
 lore2 = "Buff Duration"
 lore = ["Buff Tier", "Buff Duration"]
@@ -5380,13 +5365,13 @@ lore_tag = "Appraised"
 
 [discovery.sixth_sense]
 name = "Sixth Sense"
-description = "A soft particle pulse hints when an unexplored structure is within range."
+description = "A private glowing direction line hints when an unexplored structure is within range."
 lore1 = "Structure Detection Range"
 lore = ["Structure Detection Range"]
 
 [discovery.keen_eye]
 name = "Keen Eye"
-description = "Chests and spawners in your line of sight briefly glimmer."
+description = "Chests and spawners in your line of sight briefly appear as private glowing block displays."
 lore1 = "Line-of-Sight Range"
 lore2 = "Glimmer Duration"
 lore = ["Line-of-Sight Range", "Glimmer Duration"]
@@ -5457,7 +5442,7 @@ lore = ["Bonus damage versus big game", "Extra drop chance versus big game"]
 
 [hunter.blood_trail]
 name = "Blood Trail"
-description = "Mobs you wound below half health leave a blood scent trail only you can see."
+description = "Mobs you wound below half health leave a private glowing blood trail only you can see."
 lore1 = "Seconds the scent trail lingers"
 lore2 = "Blocks you can track the scent from"
 lore = ["Seconds the scent trail lingers", "Blocks you can track the scent from"]

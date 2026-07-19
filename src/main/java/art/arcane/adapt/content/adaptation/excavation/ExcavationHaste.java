@@ -23,21 +23,22 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.adapt.util.reflect.registries.Particles;
-import art.arcane.adapt.util.reflect.registries.PotionEffectTypes;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockDamageEvent;
-import org.bukkit.potion.PotionEffect;
 
 import java.util.Map;
 import java.util.UUID;
@@ -73,7 +74,7 @@ public class ExcavationHaste extends SimpleAdaptation<ExcavationHaste.Config> {
     v.addLore(C.GREEN + "" + (level) + C.GRAY + Localizer.dLocalize("excavation.haste.lore2"));
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST)
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(BlockDamageEvent e) {
     Player p = e.getPlayer();
     art.arcane.adapt.api.adaptation.Adaptation.BlockActionContext context = resolveInteractContext(p, e.getBlock().getLocation());
@@ -82,14 +83,16 @@ public class ExcavationHaste extends SimpleAdaptation<ExcavationHaste.Config> {
     }
 
     int level = context.level();
-    p.addPotionEffect(new PotionEffect(PotionEffectTypes.FAST_DIGGING, 15, level, false, false, true));
+    int durationTicks = getHasteDurationTicks();
+    AdaptAttributeService.get().applyTimed(p, getName(), "haste", Attributes.BLOCK_BREAK_SPEED,
+        hasteAmount(level), AttributeModifier.Operation.ADD_SCALAR, durationTicks);
     addStat(p, "excavation.haste.blocks-while-hasted", 1);
 
     UUID id = p.getUniqueId();
     long now = System.currentTimeMillis();
     Long until = hasteUntil.get(id);
     boolean onset = until == null || now >= until;
-    hasteUntil.put(id, now + 750L);
+    hasteUntil.put(id, now + (durationTicks * 50L));
     if (onset) {
       hasteLevel.put(id, level);
       fx(p.getEyeLocation(), FxPriority.AMBIENT)
@@ -107,9 +110,19 @@ public class ExcavationHaste extends SimpleAdaptation<ExcavationHaste.Config> {
     }
   }
 
+  private int getHasteDurationTicks() {
+    return Math.max(40, Math.min(20 * 30, getConfig().hasteDurationTicks));
+  }
+
+  static double hasteAmount(int level) {
+    return 0.20D * Math.max(1, level);
+  }
 
   @ConfigDescription("Gain Haste while excavating blocks.")
   protected static class Config extends AdaptationConfig {
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Duration in ticks that Hasty Excavator remains active after mining begins.", impact = "Longer durations prevent mining progress from repeatedly changing speed during slow block breaks and are clamped between 40 and 600 ticks.")
+    int hasteDurationTicks = 100;
+
     public Config() {
       baseCost = 2;
       costFactor = 0.3;

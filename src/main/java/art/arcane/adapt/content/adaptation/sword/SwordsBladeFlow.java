@@ -23,22 +23,22 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
-import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 
 import java.util.Map;
 import java.util.UUID;
@@ -46,9 +46,9 @@ import java.util.UUID;
 public class SwordsBladeFlow extends SimpleAdaptation<SwordsBladeFlow.Config> {
   private static final Color FLOW = Color.fromRGB(0xF4E27A);
   private static final double ATTACK_SPEED_PER_STACK = 0.10;
+  private static final String FLOW_SLOT = "flow";
   private final Map<UUID, Integer> flowStacks = playerState();
   private final Map<UUID, Long> flowExpireAt = playerState();
-  private final Map<UUID, Integer> appliedHaste = playerState();
 
   public SwordsBladeFlow() {
     super("sword-blade-flow");
@@ -102,21 +102,8 @@ public class SwordsBladeFlow extends SimpleAdaptation<SwordsBladeFlow.Config> {
     long windowMillis = (long) getConfig().windowMillis;
     flowStacks.put(id, next);
     flowExpireAt.put(id, now + windowMillis);
-
-    int amplifier = next - 1;
-    int windowTicks = Math.max(20, (int) (windowMillis / 50L));
-    J.runEntity(p, () -> {
-      if (!p.isOnline()) {
-        return;
-      }
-      PotionEffect existing = p.getPotionEffect(PotionEffectType.HASTE);
-      if (existing != null && (existing.getAmplifier() > amplifier
-          || (existing.getAmplifier() == amplifier && existing.getDuration() > windowTicks))) {
-        return;
-      }
-      p.addPotionEffect(new PotionEffect(PotionEffectType.HASTE, windowTicks, amplifier, true, false, true), true);
-      appliedHaste.put(id, amplifier);
-    });
+    AdaptAttributeService.get().applyTimed(p, getName(), FLOW_SLOT, Attributes.ATTACK_SPEED,
+        attackSpeedBonus(next), AttributeModifier.Operation.ADD_SCALAR, effectDurationTicks(windowMillis));
 
     addStat(p, "swords.blade-flow.stacks-built", 1);
     xp(p, getConfig().xpPerStack);
@@ -146,20 +133,12 @@ public class SwordsBladeFlow extends SimpleAdaptation<SwordsBladeFlow.Config> {
       return;
     }
 
-    flowStacks.put(id, 0);
-    flowExpireAt.remove(id);
-    Integer applied = appliedHaste.remove(id);
-    if (applied != null) {
-      J.runEntity(p, () -> {
-        if (!p.isOnline()) {
-          return;
-        }
-        PotionEffect existing = p.getPotionEffect(PotionEffectType.HASTE);
-        if (existing != null && existing.getAmplifier() == applied && !existing.hasParticles()) {
-          p.removePotionEffect(PotionEffectType.HASTE);
-        }
-      });
+    boolean expired = System.currentTimeMillis() > flowExpireAt.getOrDefault(id, 0L);
+    clearFlow(p);
+    if (expired) {
+      return;
     }
+
     fx(p.getLocation().add(0, 1, 0), FxPriority.TRANSITION)
         .particle(Particles.SMOKE, 4, 0, 0, 0, 0.05D, 0.01D)
         .sound(Sound.BLOCK_AMETHYST_BLOCK_BREAK, 0.4F, 0.7F);
@@ -169,6 +148,21 @@ public class SwordsBladeFlow extends SimpleAdaptation<SwordsBladeFlow.Config> {
     return Math.max(1, (int) Math.round(getConfig().stackCapBase + (getLevelPercent(level) * getConfig().stackCapFactor)));
   }
 
+  static int effectDurationTicks(long windowMillis) {
+    long durationTicks = Math.max(20L, (Math.max(0L, windowMillis) + 49L) / 50L);
+    return (int) Math.min(Integer.MAX_VALUE, durationTicks);
+  }
+
+  static double attackSpeedBonus(int stacks) {
+    return Math.max(0, stacks) * ATTACK_SPEED_PER_STACK;
+  }
+
+  private void clearFlow(Player player) {
+    UUID id = player.getUniqueId();
+    flowStacks.remove(id);
+    flowExpireAt.remove(id);
+    AdaptAttributeService.get().remove(player, getName(), FLOW_SLOT, Attributes.ATTACK_SPEED);
+  }
 
   @ConfigDescription("Consecutive sword hits build attack-speed stacks; taking damage breaks the flow.")
   protected static class Config extends AdaptationConfig {

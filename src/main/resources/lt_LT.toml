@@ -1973,11 +1973,10 @@ lore = ["Kuo daugiau priesu aplink jus, tuo maziau zalos darote kiekvienam is ju
 
 [tragoul.healing]
 name = "Skausmo Valia"
-description = "Atkurkite sveikata pagal padaryta zala!"
-lore1 = "Zaloti dalykus dar niekada nebuvo taip gerai! Gydymas nuo padarytos zalos"
-lore2 = "Yra 3 sekundziu zalos langas, gydymo ir 1 sekundes atvesimas. "
-lore3 = "Gydymas pagal zalos procenta: "
-lore = ["Zaloti dalykus dar niekada nebuvo taip gerai! Gydymas nuo padarytos zalos", "Yra 3 sekundziu zalos langas, gydymo ir 1 sekundes atvesimas. ", "Gydymas pagal zalos procenta: "]
+description = "Kiekvienas tinkamas užpuolikas, kuris jus sužeidžia, praranda nedidelį pastovų gyvybės kiekį, kuris atkuriamas jums."
+lore1 = "iš kiekvieno užpuoliko išsiurbtos sveikatos"
+lore2 = "Faktiškai išsiurbta gyvybė atkuriama jums"
+lore = ["iš kiekvieno užpuoliko išsiurbtos sveikatos", "Faktiškai išsiurbta gyvybė atkuriama jums"]
 
 [tragoul.lance]
 name = "Lavonu Ietys"

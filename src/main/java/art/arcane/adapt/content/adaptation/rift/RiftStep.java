@@ -23,17 +23,20 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
@@ -42,12 +45,12 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 
 public class RiftStep extends SimpleAdaptation<RiftStep.Config> {
   private static final double HARD_MAX_SEARCH_RADIUS = 6D;
   private static final int HARD_MAX_SEARCH_DEPTH = 96;
+  private static final String SLOT_FALL = "fall";
+  private static final double FALL_DAMAGE_NEGATION = -1.0D;
 
   public RiftStep() {
     super("rift-step");
@@ -127,7 +130,10 @@ public class RiftStep extends SimpleAdaptation<RiftStep.Config> {
       }
       J.teleport(p, destination, PlayerTeleportEvent.TeleportCause.PLUGIN);
       p.setFallDistance(0f);
-      p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, getConfig().slowFallTicks, 0, true, false, false));
+      int protectionTicks = getConfig().slowFallTicks;
+      if (shouldApplyFallProtection(protectionTicks)) {
+        AdaptAttributeService.get().applyTimed(p, getName(), SLOT_FALL, Attributes.FALL_DAMAGE_MULTIPLIER, FALL_DAMAGE_NEGATION, AttributeModifier.Operation.ADD_NUMBER, protectionTicks);
+      }
       fx(destination, FxPriority.TRANSITION)
           .ring(Particles.END_ROD, 0.8, 12, 0.1)
           .particle(Particle.CLOUD, 8, 0, -0.1, 0, 0.25, 0.02)
@@ -196,6 +202,10 @@ public class RiftStep extends SimpleAdaptation<RiftStep.Config> {
     };
   }
 
+  static boolean shouldApplyFallProtection(int protectionTicks) {
+    return protectionTicks > 0;
+  }
+
   private int getXpCost(int level) {
     int value = getConfig().xpCostBase - (Math.max(0, level - 1) * getConfig().xpCostReductionPerLevel);
     return Math.max(getConfig().minimumXpCost, value);
@@ -236,7 +246,7 @@ public class RiftStep extends SimpleAdaptation<RiftStep.Config> {
     int searchDepth = 48;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Horizontal search radius in blocks for a safe landing surface.", impact = "Higher values widen the search when the spot directly below is unsafe, up to a hard 6-block limit.")
     double searchRadius = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Slow falling duration in ticks applied after a phase.", impact = "Higher values keep you drifting safely longer after landing.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Fall damage negation duration in ticks applied after a phase.", impact = "Higher values keep you protected from fall damage longer after landing.")
     int slowFallTicks = 60;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Skill XP granted when a phase triggers.", impact = "Higher values grant more skill XP per save.")
     double xpOnSave = 20;

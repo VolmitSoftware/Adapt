@@ -23,6 +23,7 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.recipe.MaterialChar;
@@ -30,6 +31,7 @@ import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -41,6 +43,7 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
 import org.bukkit.World;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
@@ -53,8 +56,6 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import java.util.List;
@@ -109,6 +110,10 @@ public class HunterSnareLine extends SimpleAdaptation<HunterSnareLine.Config> {
 
   static int scaleInt(double levelPercent, int base, double factor) {
     return Math.max(1, base + (int) Math.round(levelPercent * factor));
+  }
+
+  static double rootSpeedScalar(int amplifier) {
+    return -Math.min(1.0D, 0.15D * (Math.max(0, amplifier) + 1.0D));
   }
 
   int getRootDurationTicks(int level) {
@@ -280,13 +285,16 @@ public class HunterSnareLine extends SimpleAdaptation<HunterSnareLine.Config> {
 
     long now = M.ms();
     snare.rearmUntil.put(monster.getUniqueId(), now + (snare.rootDurationTicks * 50L) + getConfig().rearmBufferMillis);
-    monster.addPotionEffect(new PotionEffect(
-        PotionEffectType.SLOWNESS,
-        snare.rootDurationTicks,
-        Math.max(0, getConfig().rootAmplifier),
-        true,
-        true,
-        true), true);
+    if (snare.rootDurationTicks > 0) {
+      AdaptAttributeService.get().applyTimed(
+          monster,
+          getName(),
+          "root",
+          Attributes.MOVEMENT_SPEED,
+          rootSpeedScalar(getConfig().rootAmplifier),
+          AttributeModifier.Operation.MULTIPLY_SCALAR_1,
+          snare.rootDurationTicks);
+    }
     monster.setVelocity(new Vector());
 
     fx(monster.getLocation().add(0, monster.getHeight() * 0.4D, 0), FxPriority.COMBAT)
@@ -322,7 +330,7 @@ public class HunterSnareLine extends SimpleAdaptation<HunterSnareLine.Config> {
     double chargesFactor = 5;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Snare trigger radius in blocks for the Hunter Snare Line adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double triggerRadius = 1.6;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Slowness amplifier applied while a mob is rooted for the Hunter Snare Line adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Slowness-equivalent amplifier mapped to a movement speed reduction of 15 percent per level, capped at a full stop, while a mob is rooted for the Hunter Snare Line adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     int rootAmplifier = 6;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Milliseconds a snared mob is immune to re-triggering the same snare for the Hunter Snare Line adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     long rearmBufferMillis = 500;

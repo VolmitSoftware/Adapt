@@ -83,6 +83,10 @@ public class AxeSunder extends SimpleAdaptation<AxeSunder.Config> {
     statLore(v, C.RED, "- ", Form.f(getShredPerStack(level), 1), 1);
     statLore(v, C.RED, "x ", getMaxStacks(level), 2);
     statLore(v, C.YELLOW, "* ", Form.duration(getConfig().durationTicks * 50D, 1), 3);
+    double toughnessShred = getShredPerStack(level) * getConfig().toughnessShredPerStackRatio;
+    if (toughnessShred > 0D) {
+      statLore(v, C.RED, "- ", Form.f(toughnessShred, 1), 4);
+    }
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -124,7 +128,7 @@ public class AxeSunder extends SimpleAdaptation<AxeSunder.Config> {
       generation = state.generation;
     }
 
-    IAttribute attribute = Version.get().getAttribute(target, Attributes.GENERIC_ARMOR);
+    IAttribute attribute = Version.get().getAttribute(target, Attributes.ARMOR);
     if (attribute == null) {
       targets.remove(targetId, state);
       return;
@@ -132,17 +136,29 @@ public class AxeSunder extends SimpleAdaptation<AxeSunder.Config> {
 
     attribute.setTransientModifier(MODIFIER, MODIFIER_KEY, -(stacks * shred), AttributeModifier.Operation.ADD_NUMBER);
 
+    IAttribute toughness = Version.get().getAttribute(target, Attributes.ARMOR_TOUGHNESS);
+    double toughnessShred = shred * getConfig().toughnessShredPerStackRatio;
+    if (toughnessShred > 0D && toughness != null) {
+      toughness.setTransientModifier(MODIFIER, MODIFIER_KEY, -(stacks * toughnessShred), AttributeModifier.Operation.ADD_NUMBER);
+    }
+
+    synchronized (state) {
+      state.target = target;
+      state.armor = attribute;
+      state.toughness = toughness;
+    }
+
     SunderState tracked = state;
     long capturedGeneration = generation;
     boolean scheduled = FoliaScheduler.runEntity(
         Adapt.instance,
         target,
-        () -> expireOwned(target, targetId, tracked, capturedGeneration),
+        () -> expireOwned(targetId, tracked, capturedGeneration),
         getConfig().durationTicks,
         () -> targets.remove(targetId, tracked)
     );
     if (!scheduled) {
-      expireOwned(target, targetId, tracked, capturedGeneration);
+      expireOwned(targetId, tracked, capturedGeneration);
       return;
     }
 
@@ -154,18 +170,28 @@ public class AxeSunder extends SimpleAdaptation<AxeSunder.Config> {
     J.runEntity(attacker, () -> rewardApplication(attacker));
   }
 
-  private void expireOwned(LivingEntity target, UUID targetId, SunderState state, long capturedGeneration) {
+  private void expireOwned(UUID targetId, SunderState state, long capturedGeneration) {
+    IAttribute armor;
+    IAttribute toughness;
     synchronized (state) {
       if (state.generation != capturedGeneration) {
         return;
       }
+      armor = state.armor;
+      toughness = state.toughness;
     }
 
-    IAttribute attribute = Version.get().getAttribute(target, Attributes.GENERIC_ARMOR);
-    if (attribute != null) {
-      attribute.removeModifier(MODIFIER, MODIFIER_KEY);
-    }
+    removeModifiers(armor, toughness);
     targets.remove(targetId, state);
+  }
+
+  private static void removeModifiers(IAttribute armor, IAttribute toughness) {
+    if (armor != null) {
+      armor.removeModifier(MODIFIER, MODIFIER_KEY);
+    }
+    if (toughness != null) {
+      toughness.removeModifier(MODIFIER, MODIFIER_KEY);
+    }
   }
 
   private void rewardApplication(Player attacker) {
@@ -186,6 +212,20 @@ public class AxeSunder extends SimpleAdaptation<AxeSunder.Config> {
 
   @Override
   public void unregister() {
+    for (SunderState state : targets.values()) {
+      LivingEntity target;
+      IAttribute armor;
+      IAttribute toughness;
+      synchronized (state) {
+        target = state.target;
+        armor = state.armor;
+        toughness = state.toughness;
+      }
+      if (target == null || !target.isValid()) {
+        continue;
+      }
+      removeModifiers(armor, toughness);
+    }
     targets.clear();
     super.unregister();
   }
@@ -193,6 +233,9 @@ public class AxeSunder extends SimpleAdaptation<AxeSunder.Config> {
   private static final class SunderState {
     private int stacks;
     private long generation;
+    private LivingEntity target;
+    private IAttribute armor;
+    private IAttribute toughness;
   }
 
   @ConfigDescription("Axe hits shred a target's armor in stacking layers that fade over time.")
@@ -201,6 +244,8 @@ public class AxeSunder extends SimpleAdaptation<AxeSunder.Config> {
     double shredPerStackBase = 1.5;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Extra armor points per stack granted by leveling.", impact = "Higher values reward leveling with deeper armor shred.")
     double shredPerStackFactor = 1.5;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Fraction of each stack's armor shred also removed from armor toughness.", impact = "Higher values make Sunder bite harder against heavily armored targets; 0 disables toughness shredding.")
+    double toughnessShredPerStackRatio = 0.5;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Base maximum Sunder stacks before level scaling.", impact = "Higher values allow more stacks at low levels.")
     int maxStacksBase = 2;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Additional maximum stacks granted at maximum level.", impact = "Higher values let higher levels reach more stacks.")

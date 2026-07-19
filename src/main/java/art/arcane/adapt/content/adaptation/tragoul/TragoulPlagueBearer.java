@@ -41,7 +41,7 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Monster;
+import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Tameable;
@@ -70,7 +70,7 @@ public class TragoulPlagueBearer extends SimpleAdaptation<TragoulPlagueBearer.Co
   private static final NamespacedKey PLAGUE_STAMP_KEY = NamespacedKey.fromString("adapt:tragoul_plague_stamp");
   private static final Color PLAGUE_POISON = Color.fromRGB(90, 130, 30);
   private static final Color PLAGUE_WITHER = Color.fromRGB(30, 30, 30);
-  private static final double HARD_MAX_SPREAD_RADIUS = 12D;
+  private static final double HARD_MAX_SPREAD_RADIUS = 24D;
   private static final int HARD_MAX_GENERATIONS = 4;
   private static final int HARD_MAX_SPREAD_TARGETS = 8;
   private static final int MAX_CANDIDATES_PER_SPREAD = 24;
@@ -128,7 +128,7 @@ public class TragoulPlagueBearer extends SimpleAdaptation<TragoulPlagueBearer.Co
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(EntityDamageByEntityEvent e) {
-    if (!(e.getEntity() instanceof Monster monster)) {
+    if (!(e.getEntity() instanceof Mob mob)) {
       return;
     }
 
@@ -143,18 +143,18 @@ public class TragoulPlagueBearer extends SimpleAdaptation<TragoulPlagueBearer.Co
       return;
     }
 
-    UUID monsterId = monster.getUniqueId();
-    if (!acceptingWork || !pendingMarks.admit(monsterId)) {
+    UUID mobId = mob.getUniqueId();
+    if (!acceptingWork || !pendingMarks.admit(mobId)) {
       return;
     }
     if (!workBudget.tryMark(System.currentTimeMillis())) {
-      pendingMarks.complete(monsterId);
+      pendingMarks.complete(mobId);
       return;
     }
 
     Player owner = p;
-    if (!J.runEntity(monster, () -> prepareMarkTargetOwned(owner, monster, monsterId), 2)) {
-      pendingMarks.complete(monsterId);
+    if (!J.runEntity(mob, () -> prepareMarkTargetOwned(owner, mob, mobId), 2)) {
+      pendingMarks.complete(mobId);
     }
   }
 
@@ -173,8 +173,11 @@ public class TragoulPlagueBearer extends SimpleAdaptation<TragoulPlagueBearer.Co
       return;
     }
 
-    boolean withered = victim.hasPotionEffect(PotionEffectType.WITHER);
-    if (!withered && !victim.hasPotionEffect(PotionEffectType.POISON)) {
+    PotionEffect affliction = victim.getPotionEffect(PotionEffectType.WITHER);
+    if (affliction == null) {
+      affliction = victim.getPotionEffect(PotionEffectType.POISON);
+    }
+    if (affliction == null) {
       return;
     }
 
@@ -199,47 +202,48 @@ public class TragoulPlagueBearer extends SimpleAdaptation<TragoulPlagueBearer.Co
         ownerRaw,
         ownerId,
         generation + 1,
-        withered,
+        affliction.getType(),
+        affliction.getAmplifier(),
         now
     );
     J.runEntity(owner, () -> prepareSpreadOwnerOwned(owner, seed));
   }
 
-  private void prepareMarkTargetOwned(Player owner, Monster monster, UUID monsterId) {
-    if (!acceptingWork || !monster.isValid() || monster.isDead()
-        || isProtectedFriendly(null, monster)
-        || (!monster.hasPotionEffect(PotionEffectType.POISON)
-        && !monster.hasPotionEffect(PotionEffectType.WITHER))) {
-      pendingMarks.complete(monsterId);
+  private void prepareMarkTargetOwned(Player owner, Mob mob, UUID mobId) {
+    if (!acceptingWork || !mob.isValid() || mob.isDead()
+        || isProtectedFriendly(owner, mob)
+        || (!mob.hasPotionEffect(PotionEffectType.POISON)
+        && !mob.hasPotionEffect(PotionEffectType.WITHER))) {
+      pendingMarks.complete(mobId);
       return;
     }
 
-    Location location = monster.getLocation().clone();
-    if (!J.runEntity(owner, () -> validateMarkOwnerOwned(owner, monster, monsterId, location))) {
-      pendingMarks.complete(monsterId);
+    Location location = mob.getLocation().clone();
+    if (!J.runEntity(owner, () -> validateMarkOwnerOwned(owner, mob, mobId, location))) {
+      pendingMarks.complete(mobId);
     }
   }
 
-  private void validateMarkOwnerOwned(Player owner, Monster monster, UUID monsterId, Location location) {
+  private void validateMarkOwnerOwned(Player owner, Mob mob, UUID mobId, Location location) {
     if (!acceptingWork || !owner.isOnline() || getActiveLevel(owner) <= 0 || !canPVE(owner, location.clone())) {
-      pendingMarks.complete(monsterId);
+      pendingMarks.complete(mobId);
       return;
     }
 
     UUID ownerId = owner.getUniqueId();
-    if (!J.runEntity(monster, () -> applyMarkTargetOwned(monster, monsterId, ownerId, location))) {
-      pendingMarks.complete(monsterId);
+    if (!J.runEntity(mob, () -> applyMarkTargetOwned(mob, mobId, ownerId, location))) {
+      pendingMarks.complete(mobId);
     }
   }
 
-  private void applyMarkTargetOwned(Monster monster, UUID monsterId, UUID ownerId, Location approvedLocation) {
+  private void applyMarkTargetOwned(Mob mob, UUID mobId, UUID ownerId, Location approvedLocation) {
     try {
-      if (!monster.isValid() || monster.isDead() || !sameBlock(monster.getLocation(), approvedLocation)) {
+      if (!mob.isValid() || mob.isDead() || !sameBlock(mob.getLocation(), approvedLocation)) {
         return;
       }
-      markIfAfflicted(monster, ownerId);
+      markIfAfflicted(mob, ownerId);
     } finally {
-      pendingMarks.complete(monsterId);
+      pendingMarks.complete(mobId);
     }
   }
 
@@ -261,13 +265,14 @@ public class TragoulPlagueBearer extends SimpleAdaptation<TragoulPlagueBearer.Co
         seed.corpse(),
         getSpreadRadius(level),
         getSpreadDurationTicks(level),
-        seed.withered() ? PotionEffectType.WITHER : PotionEffectType.POISON,
+        seed.effect(),
+        amplifiedEffect(seed.amplifier(), getConfig().amplifierBonus),
         seed.ownerRaw(),
         seed.generation(),
         seed.stamp(),
         maxTargets,
         Math.max(0D, getConfig().xpPerInfection),
-        seed.withered(),
+        seed.effect().equals(PotionEffectType.WITHER),
         lease
     );
     if (!J.runAt(plan.corpse(), () -> collectSpreadCandidatesRegionOwned(plan))) {
@@ -278,14 +283,14 @@ public class TragoulPlagueBearer extends SimpleAdaptation<TragoulPlagueBearer.Co
   private void collectSpreadCandidatesRegionOwned(SpreadPlan plan) {
     Collection<Entity> nearby = plan.corpse().getWorld().getNearbyEntities(
         plan.corpse(), plan.radius(), plan.radius(), plan.radius());
-    List<Monster> candidates = new ArrayList<>(MAX_CANDIDATE_HANDOFFS);
+    List<Mob> candidates = new ArrayList<>(MAX_CANDIDATE_HANDOFFS);
     int examined = 0;
     for (Entity entity : nearby) {
       if (examined++ >= MAX_CANDIDATES_PER_SPREAD) {
         break;
       }
-      if (entity instanceof Monster monster) {
-        candidates.add(monster);
+      if (entity instanceof Mob mob) {
+        candidates.add(mob);
         if (candidates.size() >= MAX_CANDIDATE_HANDOFFS) {
           break;
         }
@@ -297,7 +302,7 @@ public class TragoulPlagueBearer extends SimpleAdaptation<TragoulPlagueBearer.Co
     }
 
     SpreadCandidateBatch batch = new SpreadCandidateBatch(plan, candidates.size());
-    for (Monster candidate : candidates) {
+    for (Mob candidate : candidates) {
       if (!J.runEntity(candidate, () -> batch.complete(captureSpreadTargetOwned(plan, candidate)))) {
         batch.complete(null);
       }
@@ -305,8 +310,8 @@ public class TragoulPlagueBearer extends SimpleAdaptation<TragoulPlagueBearer.Co
     batch.armTimeout();
   }
 
-  private SpreadTarget captureSpreadTargetOwned(SpreadPlan plan, Monster target) {
-    if (!target.isValid() || target.isDead() || isProtectedFriendly(null, target)) {
+  private SpreadTarget captureSpreadTargetOwned(SpreadPlan plan, Mob target) {
+    if (!target.isValid() || target.isDead() || isProtectedFriendly(plan.owner(), target)) {
       return null;
     }
     Location location = target.getLocation().clone();
@@ -351,8 +356,8 @@ public class TragoulPlagueBearer extends SimpleAdaptation<TragoulPlagueBearer.Co
     if (batch.isDispatched()) {
       return;
     }
-    Monster target = snapshot.entity();
-    if (!target.isValid() || target.isDead() || isProtectedFriendly(null, target)) {
+    Mob target = snapshot.entity();
+    if (!target.isValid() || target.isDead() || isProtectedFriendly(plan.owner(), target)) {
       batch.complete(null);
       return;
     }
@@ -374,7 +379,7 @@ public class TragoulPlagueBearer extends SimpleAdaptation<TragoulPlagueBearer.Co
     pdc.set(PLAGUE_OWNER_KEY, PersistentDataType.STRING, plan.ownerRaw());
     pdc.set(PLAGUE_GENERATION_KEY, PersistentDataType.INTEGER, plan.generation());
     pdc.set(PLAGUE_STAMP_KEY, PersistentDataType.LONG, plan.stamp());
-    target.addPotionEffect(new PotionEffect(plan.effect(), plan.durationTicks(), 0, true, true, true), true);
+    target.addPotionEffect(new PotionEffect(plan.effect(), plan.durationTicks(), plan.amplifier(), true, true, true), true);
     batch.complete(current);
   }
 
@@ -403,12 +408,12 @@ public class TragoulPlagueBearer extends SimpleAdaptation<TragoulPlagueBearer.Co
     emitter.chord(Sound.ENTITY_ZOMBIE_INFECT, 0.6F, 1.4F, Sound.BLOCK_SCULK_CATALYST_BLOOM, 0.4F, 1.0F);
   }
 
-  private boolean markIfAfflicted(Monster monster, UUID ownerId) {
-    if (!monster.hasPotionEffect(PotionEffectType.POISON) && !monster.hasPotionEffect(PotionEffectType.WITHER)) {
+  private boolean markIfAfflicted(Mob mob, UUID ownerId) {
+    if (!mob.hasPotionEffect(PotionEffectType.POISON) && !mob.hasPotionEffect(PotionEffectType.WITHER)) {
       return false;
     }
 
-    PersistentDataContainer pdc = monster.getPersistentDataContainer();
+    PersistentDataContainer pdc = mob.getPersistentDataContainer();
     boolean firstMark = !pdc.has(PLAGUE_OWNER_KEY, PersistentDataType.STRING);
     pdc.set(PLAGUE_OWNER_KEY, PersistentDataType.STRING, ownerId.toString());
     pdc.set(PLAGUE_STAMP_KEY, PersistentDataType.LONG, System.currentTimeMillis());
@@ -416,18 +421,34 @@ public class TragoulPlagueBearer extends SimpleAdaptation<TragoulPlagueBearer.Co
       pdc.set(PLAGUE_GENERATION_KEY, PersistentDataType.INTEGER, 0);
     }
     if (firstMark) {
-      fx(monster.getLocation().add(0, 1.0, 0), FxPriority.AMBIENT)
+      fx(mob.getLocation().add(0, 1.0, 0), FxPriority.AMBIENT)
           .particle(Particle.SPORE_BLOSSOM_AIR, 2, 0, 0, 0, 0.2, 0.01);
     }
     return true;
   }
 
   private double getSpreadRadius(int level) {
-    double configured = getConfig().spreadRadiusBase + (getLevelPercent(level) * getConfig().spreadRadiusFactor);
+    double configured = scaledRadius(getConfig().spreadRadiusStart, getConfig().spreadRadiusEnd,
+        level, getMaxLevel());
     if (!Double.isFinite(configured)) {
       return 1D;
     }
     return Math.max(1D, Math.min(HARD_MAX_SPREAD_RADIUS, configured));
+  }
+
+  static double scaledRadius(double start, double end, int level, int maxLevel) {
+    if (!Double.isFinite(start) || !Double.isFinite(end)) {
+      return 1D;
+    }
+    if (maxLevel <= 1) {
+      return end;
+    }
+    double progress = Math.max(0D, Math.min(1D, (level - 1D) / (maxLevel - 1D)));
+    return start + ((end - start) * progress);
+  }
+
+  static int amplifiedEffect(int sourceAmplifier, int configuredBonus) {
+    return Math.min(255, Math.max(0, sourceAmplifier) + Math.max(0, configuredBonus));
   }
 
   private int getSpreadDurationTicks(int level) {
@@ -478,20 +499,22 @@ public class TragoulPlagueBearer extends SimpleAdaptation<TragoulPlagueBearer.Co
   }
 
 
-  @ConfigDescription("Mobs that die poisoned or withered by you spread the affliction to nearby hostile mobs.")
+  @ConfigDescription("Mobs that die poisoned or withered by you spread an amplified affliction to nearby damageable mobs.")
   protected static class Config extends AdaptationConfig {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Spread radius before level scaling.", impact = "Higher values infect hostile mobs further from the corpse.")
-    double spreadRadiusBase = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Additional spread radius granted at max level.", impact = "Higher values increase level-scaled radius growth.")
-    double spreadRadiusFactor = 3;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Spread radius at adaptation level one.", impact = "Higher values infect eligible mobs further from the corpse at low levels.")
+    double spreadRadiusStart = 8;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Spread radius at maximum adaptation level.", impact = "Higher values increase the maximum plague reach up to the runtime ceiling.")
+    double spreadRadiusEnd = 20;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Spread effect duration in ticks before level scaling.", impact = "Higher values keep infected mobs afflicted longer.")
     double spreadDurationTicksBase = 80;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Additional spread effect duration ticks granted at max level.", impact = "Higher values increase level-scaled duration growth.")
     double spreadDurationTicksFactor = 120;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum plague generations a single affliction can chain through.", impact = "Caps chain length to prevent infinite plague cascades.")
     int maxGenerations = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum hostile mobs infected per death.", impact = "Caps per-death work to protect server performance.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum eligible mobs infected per death.", impact = "Caps per-death work to protect server performance.")
     int maxSpreadTargets = 6;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Potion amplifier levels added when the affliction spreads.", impact = "Higher values make propagated poison and wither effects stronger.")
+    int amplifierBonus = 1;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Window in milliseconds during which an affliction mark is considered fresh at death.", impact = "Higher values let older poisons still spread on death.")
     long afflictionFreshnessMillis = 15000;
     @art.arcane.adapt.util.config.ConfigDoc(value = "XP granted per mob infected by the spread.", impact = "Higher values accelerate skill progression from this adaptation.")
@@ -504,16 +527,16 @@ public class TragoulPlagueBearer extends SimpleAdaptation<TragoulPlagueBearer.Co
   }
 
   private record SpreadSeed(Location corpse, String ownerRaw, UUID ownerId,
-                            int generation, boolean withered, long stamp) {
+                            int generation, PotionEffectType effect, int amplifier, long stamp) {
   }
 
   private record SpreadPlan(Player owner, UUID ownerId, Location corpse, double radius,
-                            int durationTicks, PotionEffectType effect, String ownerRaw,
+                            int durationTicks, PotionEffectType effect, int amplifier, String ownerRaw,
                             int generation, long stamp, int maxTargets, double xpPerInfection,
                             boolean withered, SpreadLease lease) {
   }
 
-  private record SpreadTarget(Monster entity, UUID entityId, Location location) {
+  private record SpreadTarget(Mob entity, UUID entityId, Location location) {
   }
 
   private final class SpreadLease {

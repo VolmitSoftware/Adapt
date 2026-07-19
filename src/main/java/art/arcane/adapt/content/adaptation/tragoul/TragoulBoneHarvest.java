@@ -20,15 +20,16 @@ package art.arcane.adapt.content.adaptation.tragoul;
 
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
-import art.arcane.adapt.api.adaptation.VelocityBurstRuntime;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -37,6 +38,7 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -60,15 +62,16 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class TragoulBoneHarvest extends SimpleAdaptation<TragoulBoneHarvest.Config> {
-  private static final PotionEffectType[] BONE_EFFECT_POOL = {
-      PotionEffectType.SPEED,
-      PotionEffectType.REGENERATION,
-      PotionEffectType.RESISTANCE,
-      PotionEffectType.FIRE_RESISTANCE,
-      PotionEffectType.ABSORPTION,
-      PotionEffectType.JUMP_BOOST,
-      PotionEffectType.NIGHT_VISION
-  };
+  private static List<PotionEffectType> effectPool() {
+    return List.of(
+        PotionEffectType.SPEED,
+        PotionEffectType.REGENERATION,
+        PotionEffectType.RESISTANCE,
+        PotionEffectType.FIRE_RESISTANCE,
+        PotionEffectType.ABSORPTION,
+        PotionEffectType.JUMP_BOOST,
+        PotionEffectType.NIGHT_VISION);
+  }
 
   private static final Color GLOBE_BLOOD = Color.fromRGB(170, 0, 0);
   private static final Color GLOBE_BONE = Color.fromRGB(230, 225, 205);
@@ -77,11 +80,9 @@ public class TragoulBoneHarvest extends SimpleAdaptation<TragoulBoneHarvest.Conf
   private final Set<UUID> bloodGlobes = ConcurrentHashMap.newKeySet();
   private final Set<UUID> boneGlobes = ConcurrentHashMap.newKeySet();
   private final Map<UUID, Long> globeTrackExpiry = new ConcurrentHashMap<>();
-  private final VelocityBurstRuntime.Client speedBursts;
 
   public TragoulBoneHarvest() {
     super("tragoul-bone-harvest");
-    speedBursts = VelocityBurstRuntime.register(getName(), new BurstFeedback());
     registerConfiguration(Config.class);
     setIcon(Material.BONE_BLOCK);
     setInterval(10000);
@@ -99,12 +100,6 @@ public class TragoulBoneHarvest extends SimpleAdaptation<TragoulBoneHarvest.Conf
         .build());
     registerMilestone("challenge_tragoul_bone_500", "tragoul.bone-harvest.orbs-collected", 500, 300);
     registerMilestone("challenge_tragoul_bone_5k", "tragoul.bone-harvest.orbs-collected", 5000, 1000);
-  }
-
-  @Override
-  public void unregister() {
-    speedBursts.unregister();
-    super.unregister();
   }
 
   @Override
@@ -248,7 +243,7 @@ public class TragoulBoneHarvest extends SimpleAdaptation<TragoulBoneHarvest.Conf
 
   private void applyRandomBoneBuffs(Player p, int level) {
     int buffs = Math.max(1, (int) Math.round(getConfig().boneBuffCountBase + (getLevelPercent(level) * getConfig().boneBuffCountFactor)));
-    List<PotionEffectType> pool = new ArrayList<>(List.of(BONE_EFFECT_POOL));
+    List<PotionEffectType> pool = new ArrayList<>(effectPool());
     Collections.shuffle(pool);
     buffs = Math.min(pool.size(), buffs);
 
@@ -258,21 +253,43 @@ public class TragoulBoneHarvest extends SimpleAdaptation<TragoulBoneHarvest.Conf
       PotionEffectType type = pool.get(i);
       int a = type == PotionEffectType.ABSORPTION && getLevelPercent(level) >= 0.75 ? amp + 1 : amp;
       if (type == PotionEffectType.SPEED) {
-        grantSpeedBurst(p, a, duration);
+        grantSpeedBoost(p, a, duration);
+        continue;
+      }
+      if (type == PotionEffectType.JUMP_BOOST) {
+        grantJumpBoost(p, a, duration);
         continue;
       }
       p.addPotionEffect(new PotionEffect(type, duration, a, false, true, true), true);
     }
   }
 
-  private void grantSpeedBurst(Player p, int amplifier, int durationTicks) {
-    VelocityBurstRuntime.BurstRequest request = new VelocityBurstRuntime.BurstRequest(
-        amplifier,
-        durationTicks,
-        true,
-        burstProfile()
-    );
-    speedBursts.start(p, request);
+  private void grantSpeedBoost(Player p, int amplifier, int durationTicks) {
+    if (durationTicks <= 0) {
+      return;
+    }
+    AdaptAttributeService.get().applyTimed(p, getName(), "speed", Attributes.MOVEMENT_SPEED, speedBonus(amplifier), AttributeModifier.Operation.MULTIPLY_SCALAR_1, durationTicks);
+  }
+
+  private void grantJumpBoost(Player p, int amplifier, int durationTicks) {
+    if (durationTicks <= 0) {
+      return;
+    }
+    AdaptAttributeService attributes = AdaptAttributeService.get();
+    attributes.applyTimed(p, getName(), "jump", Attributes.JUMP_STRENGTH, jumpStrengthBonus(amplifier), AttributeModifier.Operation.ADD_NUMBER, durationTicks);
+    attributes.applyTimed(p, getName(), "fall", Attributes.SAFE_FALL_DISTANCE, safeFallBonus(amplifier), AttributeModifier.Operation.ADD_NUMBER, durationTicks);
+  }
+
+  static double speedBonus(int amplifier) {
+    return 0.2D * (amplifier + 1);
+  }
+
+  static double jumpStrengthBonus(int amplifier) {
+    return 0.1D * (amplifier + 1);
+  }
+
+  static double safeFallBonus(int amplifier) {
+    return amplifier + 1.0D;
   }
 
   private double getGlobeChance(int level) {
@@ -281,22 +298,6 @@ public class TragoulBoneHarvest extends SimpleAdaptation<TragoulBoneHarvest.Conf
 
   private int getGlobeLifetimeTicks(int level) {
     return Math.max(20, (int) Math.round(getConfig().globeLifetimeTicksBase + (getLevelPercent(level) * getConfig().globeLifetimeTicksFactor)));
-  }
-
-  private VelocityBurstRuntime.Profile burstProfile() {
-    Config config = getConfig();
-    return new VelocityBurstRuntime.Profile(
-        config.baseHorizontalSpeed,
-        config.maxHorizontalSpeed,
-        config.accelPerTick,
-        config.brakePerTick,
-        config.stopThreshold,
-        config.hardStopOnInvalidState,
-        config.fallbackInputVelocityThreshold
-    );
-  }
-
-  private static final class BurstFeedback implements VelocityBurstRuntime.Feedback {
   }
 
   @ConfigDescription("Kills can spawn temporary blood and bone globes that grant short buffs when picked up.")
@@ -325,20 +326,6 @@ public class TragoulBoneHarvest extends SimpleAdaptation<TragoulBoneHarvest.Conf
     double boneBuffCountFactor = 2;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Globe Spawned for the Tragoul Bone Harvest adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpPerGlobeSpawned = 8;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base horizontal speed used for bone-harvest speed bursts.", impact = "Higher values increase movement speed when a speed burst is active.")
-    double baseHorizontalSpeed = 0.13;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum horizontal speed this adaptation can force.", impact = "Acts as a hard cap to prevent runaway momentum.")
-    double maxHorizontalSpeed = 0.33;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "How fast velocity accelerates toward the burst target per tick.", impact = "Higher values accelerate faster; lower values feel smoother.")
-    double accelPerTick = 0.045;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "How fast velocity decays when movement input is released.", impact = "Higher values reduce carry momentum more aggressively.")
-    double brakePerTick = 0.08;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Horizontal velocity threshold considered fully stopped.", impact = "Higher values stop sooner; lower values preserve tiny motion longer.")
-    double stopThreshold = 0.01;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "If true, burst velocity is force-cleared when entering invalid states.", impact = "Prevents retained speed from skipped state transitions.")
-    boolean hardStopOnInvalidState = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Fallback movement threshold used when direct input API is unavailable.", impact = "Only used on runtimes without Player input access.")
-    double fallbackInputVelocityThreshold = 0.0008;
 
     public Config() {
       costFactor = 0.72;

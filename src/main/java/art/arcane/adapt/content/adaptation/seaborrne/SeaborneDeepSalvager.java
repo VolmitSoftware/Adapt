@@ -26,10 +26,14 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.fx.ViewerDisplayDirector;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.util.common.scheduling.J;
+import art.arcane.adapt.util.common.world.WorldBlockScanScheduler;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -46,6 +50,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
@@ -53,7 +58,11 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class SeaborneDeepSalvager extends SimpleAdaptation<SeaborneDeepSalvager.Config> {
@@ -76,6 +85,7 @@ public class SeaborneDeepSalvager extends SimpleAdaptation<SeaborneDeepSalvager.
   };
 
   private final Cooldowns shimmerCooldowns = cooldowns();
+  private final Map<UUID, UUID> activeScans = new ConcurrentHashMap<>();
   private volatile NamespacedKey salvagedKey;
 
   public SeaborneDeepSalvager() {
@@ -128,6 +138,9 @@ public class SeaborneDeepSalvager extends SimpleAdaptation<SeaborneDeepSalvager.
         if (!shimmerCooldowns.isReady(player.getUniqueId(), getConfig().shimmerScanCooldownMillis)) {
           return;
         }
+        if (activeScans.containsKey(player.getUniqueId())) {
+          return;
+        }
 
         shimmerCooldowns.mark(player.getUniqueId());
         scanShimmer(player, level);
@@ -137,39 +150,72 @@ public class SeaborneDeepSalvager extends SimpleAdaptation<SeaborneDeepSalvager.
 
   private void scanShimmer(Player player, int level) {
     int range = Math.min(HARD_MAX_RANGE, (int) Math.round(getDetectionRange(level)));
-    Location base = player.getLocation();
-    World world = base.getWorld();
-    if (world == null) {
+    Location base = player.getLocation().clone();
+    if (base.getWorld() == null) {
       return;
     }
+    int baseY = base.getBlockY();
+    WorldBlockScanScheduler.ScanRequest request = WorldBlockScanScheduler.ScanRequest.builder(base)
+        .radius(range)
+        .denseRadius(range)
+        .maxSamples(HARD_MAX_BLOCKS)
+        .maxResults(MAX_SHIMMER)
+        .blockMatcher(block -> Math.abs(block.getY() - baseY) <= VERTICAL_RANGE
+            && CONTAINERS.contains(block.getType()))
+        .completion(result -> completeShimmerScan(player, result))
+        .build();
+    UUID scanId = WorldBlockScanScheduler.submit(this, player.getUniqueId(), request);
+    activeScans.put(player.getUniqueId(), scanId);
+  }
 
-    int bx = base.getBlockX();
-    int by = base.getBlockY();
-    int bz = base.getBlockZ();
-    int budget = HARD_MAX_BLOCKS;
-    int found = 0;
-    for (int dy = -VERTICAL_RANGE; dy <= VERTICAL_RANGE; dy++) {
-      for (int dx = -range; dx <= range; dx++) {
-        for (int dz = -range; dz <= range; dz++) {
-          if (--budget < 0) {
-            return;
-          }
-
-          Block block = world.getBlockAt(bx + dx, by + dy, bz + dz);
-          if (!CONTAINERS.contains(block.getType())) {
-            continue;
-          }
-
-          fx(block.getLocation().add(0.5D, 0.6D, 0.5D), FxPriority.AMBIENT)
-              .particle(Particle.GLOW, 4, 0D, 0.2D, 0D, 0.28D, 0.01D)
-              .particle(Particle.END_ROD, 2, 0D, 0.2D, 0D, 0.2D, 0.01D)
-              .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.25F, 1.8F);
-          if (++found >= MAX_SHIMMER) {
-            return;
-          }
-        }
-      }
+  private void completeShimmerScan(Player player, WorldBlockScanScheduler.ScanResult result) {
+    UUID playerId = player.getUniqueId();
+    if (!result.scanId().equals(activeScans.get(playerId))) {
+      return;
     }
+    if (!J.runEntity(player, () -> showShimmersOwned(player, playerId, result))) {
+      activeScans.remove(playerId, result.scanId());
+    }
+  }
+
+  private void showShimmersOwned(Player player, UUID playerId, WorldBlockScanScheduler.ScanResult result) {
+    if (!activeScans.remove(playerId, result.scanId()) || !player.isOnline() || !player.isInWater()) {
+      return;
+    }
+    List<WorldBlockScanScheduler.Match> matches = result.matches();
+    int durationTicks = Math.max(20, (int) Math.min(200L, (getConfig().shimmerScanCooldownMillis / 50L) + 20L));
+    for (WorldBlockScanScheduler.Match match : matches) {
+      Location location = new Location(result.world(), match.x(), match.y(), match.z());
+      ViewerDisplayDirector.showBlock(
+          getName(),
+          "container-" + match.x() + ":" + match.y() + ":" + match.z(),
+          player,
+          location,
+          match.material().createBlockData(),
+          Color.fromRGB(70, 230, 235),
+          durationTicks
+      );
+    }
+    if (!matches.isEmpty()) {
+      fx(player, FxPriority.AMBIENT).sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.25F, 1.8F);
+    }
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(PlayerQuitEvent event) {
+    UUID playerId = event.getPlayer().getUniqueId();
+    shimmerCooldowns.clear(playerId);
+    activeScans.remove(playerId);
+    WorldBlockScanScheduler.cancel(this, playerId);
+    ViewerDisplayDirector.clearViewer(getName(), playerId);
+  }
+
+  @Override
+  public void unregister() {
+    activeScans.clear();
+    WorldBlockScanScheduler.cancelOwner(this);
+    ViewerDisplayDirector.clearChannel(getName());
+    super.unregister();
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
@@ -283,7 +329,7 @@ public class SeaborneDeepSalvager extends SimpleAdaptation<SeaborneDeepSalvager.
     return Math.max(1, base + (int) Math.round(levelPercent * factor));
   }
 
-  @ConfigDescription("Underwater containers shimmer within range and reward bonus treasure the first time you open them submerged.")
+  @ConfigDescription("Underwater containers privately glow within range and reward bonus treasure the first time you open them submerged.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Base block range that underwater containers shimmer within.", impact = "Higher values reveal containers from farther away at low levels.")
     double detectionRangeBase = 4;

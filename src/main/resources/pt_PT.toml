@@ -1973,11 +1973,10 @@ lore = ["Quanto mais inimigos a tua volta, menos dano causas a cada um", "Alcanc
 
 [tragoul.healing]
 name = "Vontade da Dor"
-description = "Recupera saude baseado no dano que causas!"
-lore1 = "Magoar coisas nunca soube tao bem! Cura com o Dano Causado"
-lore2 = "Ha uma janela de dano de 3 Segundos, para cura e um Tempo de Espera de 1 Segundo "
-lore3 = "Cura Por Percentagem de Dano: "
-lore = ["Magoar coisas nunca soube tao bem! Cura com o Dano Causado", "Ha uma janela de dano de 3 Segundos, para cura e um Tempo de Espera de 1 Segundo ", "Cura Por Percentagem de Dano: "]
+description = "Cada atacante válido que te causa dano perde uma pequena quantidade fixa de vida, que é restaurada a ti."
+lore1 = "de vida drenada de cada atacante"
+lore2 = "A vida realmente drenada é restaurada a ti"
+lore = ["de vida drenada de cada atacante", "A vida realmente drenada é restaurada a ti"]
 
 [tragoul.lance]
 name = "Lancas Cadavericas"

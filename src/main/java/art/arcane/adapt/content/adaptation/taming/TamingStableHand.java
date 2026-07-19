@@ -32,7 +32,6 @@ import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.adapt.util.reflect.registries.Particles;
-import art.arcane.adapt.util.reflect.registries.RegistryUtil;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Bukkit;
@@ -49,6 +48,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityBreedEvent;
 import org.bukkit.event.entity.EntityTameEvent;
 
+import java.util.List;
 import java.util.UUID;
 
 public class TamingStableHand extends SimpleAdaptation<TamingStableHand.Config> {
@@ -58,19 +58,41 @@ public class TamingStableHand extends SimpleAdaptation<TamingStableHand.Config> 
   private static final NamespacedKey HEALTH_KEY = NamespacedKey.fromString("adapt:tame-stable-health");
   private static final UUID JUMP_MODIFIER = UUID.nameUUIDFromBytes("adapt-tame-stable-jump".getBytes());
   private static final NamespacedKey JUMP_KEY = NamespacedKey.fromString("adapt:tame-stable-jump");
-  private static volatile Attribute jumpAttribute;
-  private static volatile boolean jumpAttributeResolved;
-
-  private static Attribute jumpAttribute() {
-    if (!jumpAttributeResolved) {
-      jumpAttribute = RegistryUtil.findOptional(Attribute.class, "generic_jump_strength", "jump_strength").orElse(null);
-      jumpAttributeResolved = true;
-    }
-    return jumpAttribute;
-  }
-
+  private static final UUID FALL_MODIFIER = UUID.nameUUIDFromBytes("adapt-tame-stable-fall".getBytes());
+  private static final NamespacedKey FALL_KEY = NamespacedKey.fromString("adapt:tame-stable-fall");
+  private static final double FALL_BLOCKS_PER_BIAS = 10.0;
+  private static final List<ConfirmationDing> CONFIRMATION_DINGS = List.of(
+      new ConfirmationDing(0, 1.2F),
+      new ConfirmationDing(3, 1.5F),
+      new ConfirmationDing(6, 1.8F));
   static double bias(double levelPercent, double base, double factor, double max) {
     return Math.min(max, base + (levelPercent * factor));
+  }
+
+  static double fallBonusBlocks(double bias) {
+    return bias * FALL_BLOCKS_PER_BIAS;
+  }
+
+  public static boolean hasAppliedBias(LivingEntity animal) {
+    if (animal == null) {
+      return false;
+    }
+
+    IAttribute speed = Version.get().getAttribute(animal, Attributes.MOVEMENT_SPEED);
+    IAttribute health = Version.get().getAttribute(animal, Attributes.MAX_HEALTH);
+    Attribute jumpAttribute = Attributes.JUMP_STRENGTH;
+    IAttribute jump = jumpAttribute == null ? null : Version.get().getAttribute(animal, jumpAttribute);
+    return hasAppliedBias(speed, health, jump);
+  }
+
+  static boolean hasAppliedBias(IAttribute speed, IAttribute health, IAttribute jump) {
+    return speed != null && speed.hasModifier(SPEED_MODIFIER, SPEED_KEY)
+        || health != null && health.hasModifier(HEALTH_MODIFIER, HEALTH_KEY)
+        || jump != null && jump.hasModifier(JUMP_MODIFIER, JUMP_KEY);
+  }
+
+  static List<ConfirmationDing> confirmationDings() {
+    return CONFIRMATION_DINGS;
   }
 
   public TamingStableHand() {
@@ -97,6 +119,7 @@ public class TamingStableHand extends SimpleAdaptation<TamingStableHand.Config> 
   @Override
   public void addStats(int level, Element v) {
     v.addLore(C.GREEN + "+ " + Form.pc(getBias(level), 0) + C.GRAY + " " + Localizer.dLocalize("taming.stable_hand.lore1"));
+    v.addLore(C.GREEN + "+ " + Form.f(fallBonusBlocks(getBias(level)), 1) + C.GRAY + " " + Localizer.dLocalize("taming.stable_hand.lore2"));
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -137,13 +160,18 @@ public class TamingStableHand extends SimpleAdaptation<TamingStableHand.Config> 
     }
 
     boolean applied = false;
-    applied |= applyModifier(animal, Attributes.GENERIC_MOVEMENT_SPEED, SPEED_MODIFIER, SPEED_KEY, bias);
-    Attribute jump = jumpAttribute();
+    applied |= applyModifier(animal, Attributes.MOVEMENT_SPEED, SPEED_MODIFIER, SPEED_KEY, bias, AttributeModifier.Operation.ADD_SCALAR);
+    Attribute jump = Attributes.JUMP_STRENGTH;
     if (jump != null) {
-      applied |= applyModifier(animal, jump, JUMP_MODIFIER, JUMP_KEY, bias);
+      applied |= applyModifier(animal, jump, JUMP_MODIFIER, JUMP_KEY, bias, AttributeModifier.Operation.ADD_SCALAR);
     }
 
-    IAttribute health = Version.get().getAttribute(animal, Attributes.GENERIC_MAX_HEALTH);
+    Attribute fall = Attributes.SAFE_FALL_DISTANCE;
+    if (fall != null) {
+      applied |= applyModifier(animal, fall, FALL_MODIFIER, FALL_KEY, fallBonusBlocks(bias), AttributeModifier.Operation.ADD_NUMBER);
+    }
+
+    IAttribute health = Version.get().getAttribute(animal, Attributes.MAX_HEALTH);
     if (health != null && !health.hasModifier(HEALTH_MODIFIER, HEALTH_KEY)) {
       health.setModifier(HEALTH_MODIFIER, HEALTH_KEY, bias, AttributeModifier.Operation.ADD_SCALAR);
       double newMax = health.getValue();
@@ -160,7 +188,7 @@ public class TamingStableHand extends SimpleAdaptation<TamingStableHand.Config> 
     fx(animal, FxPriority.TRANSITION)
         .ring(Particles.VILLAGER_HAPPY, 0.6D, 8, 0.3D)
         .column(Particle.HEART, 3, 1.0D)
-        .chord(Sound.BLOCK_NOTE_BLOCK_CHIME, 0.5F, 1.6F, Sound.ENTITY_HORSE_BREATHE, 0.4F, 1.2F);
+        .sound(Sound.ENTITY_HORSE_BREATHE, 0.4F, 1.2F);
 
     Player owner = Bukkit.getPlayer(ownerId);
     if (owner != null) {
@@ -168,13 +196,13 @@ public class TamingStableHand extends SimpleAdaptation<TamingStableHand.Config> 
     }
   }
 
-  private boolean applyModifier(LivingEntity animal, Attribute attribute, UUID modifier, NamespacedKey key, double bias) {
+  private boolean applyModifier(LivingEntity animal, Attribute attribute, UUID modifier, NamespacedKey key, double amount, AttributeModifier.Operation operation) {
     IAttribute handle = Version.get().getAttribute(animal, attribute);
     if (handle == null || handle.hasModifier(modifier, key)) {
       return false;
     }
 
-    handle.setModifier(modifier, key, bias, AttributeModifier.Operation.ADD_SCALAR);
+    handle.setModifier(modifier, key, amount, operation);
     return true;
   }
 
@@ -184,6 +212,26 @@ public class TamingStableHand extends SimpleAdaptation<TamingStableHand.Config> 
     }
     addStat(owner, "taming.stable-hand.animals-shaped", 1);
     xp(owner, getConfig().xpPerAnimal);
+    playConfirmation(owner);
+  }
+
+  private void playConfirmation(Player owner) {
+    if (!areSoundsEnabled()) {
+      return;
+    }
+
+    for (ConfirmationDing ding : CONFIRMATION_DINGS) {
+      Runnable playback = () -> {
+        if (owner.isOnline()) {
+          owner.playSound(owner.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 0.65F, ding.pitch());
+        }
+      };
+      if (ding.delayTicks() == 0) {
+        playback.run();
+      } else {
+        J.runEntity(owner, playback, ding.delayTicks());
+      }
+    }
   }
 
   private double getBias(int level) {
@@ -191,7 +239,7 @@ public class TamingStableHand extends SimpleAdaptation<TamingStableHand.Config> 
   }
 
 
-  @ConfigDescription("Animals you tame or breed keep a permanent bias toward better speed, jump, and health.")
+  @ConfigDescription("Animals you tame or breed keep a permanent bias toward better speed, jump, health, and safe fall distance.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Bias Base for the Taming Stable Hand adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double biasBase = 0.1;
@@ -207,5 +255,8 @@ public class TamingStableHand extends SimpleAdaptation<TamingStableHand.Config> 
       costFactor = 0.5;
       initialCost = 3;
     }
+  }
+
+  record ConfirmationDing(int delayTicks, float pitch) {
   }
 }

@@ -229,7 +229,7 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
       return;
     }
 
-    IAttribute attribute = Version.get().getAttribute(living, Attributes.GENERIC_MAX_HEALTH);
+    IAttribute attribute = Version.get().getAttribute(living, Attributes.MAX_HEALTH);
     double baseHealth = attribute == null ? 1 : attribute.getBaseValue();
     double multiplier = switch (entity.getType()) {
       case ENDERMAN -> getConfig().damageEndermanXPMultiplier;

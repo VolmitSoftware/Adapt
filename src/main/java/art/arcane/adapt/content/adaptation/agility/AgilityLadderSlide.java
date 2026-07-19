@@ -31,6 +31,7 @@ import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
+import org.bukkit.Input;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -50,7 +51,6 @@ import java.util.UUID;
 import java.util.function.Predicate;
 
 public class AgilityLadderSlide extends SimpleAdaptation<AgilityLadderSlide.Config> {
-  private static final double MOVE_EPSILON = 1.0E-4D;
   private static final double VANILLA_CLIMB_SPEED = 0.15D;
   private static final double TICKS_PER_SECOND = 20.0D;
   private static final int CLIMB_TOP_LOOKAHEAD = 2;
@@ -86,7 +86,7 @@ public class AgilityLadderSlide extends SimpleAdaptation<AgilityLadderSlide.Conf
   public void addStats(int level, Element v) {
     statLore(v, Form.f(getDescentSpeed(level) * TICKS_PER_SECOND, 1), 1);
     statLore(v, Form.f(getClimbAssist(level) * TICKS_PER_SECOND, 1), 2);
-    statLore(v, Form.pc(1.0D - clampBrakeFactor(), 0), 3);
+    statLore(v, Form.pc(1.0D, 0), 3);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -101,7 +101,7 @@ public class AgilityLadderSlide extends SimpleAdaptation<AgilityLadderSlide.Conf
       return;
     }
 
-    withPlayerThread(p, e, () -> handleClimb(p, e));
+    withPlayerThread(p, e, () -> handleClimb(p));
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -124,7 +124,7 @@ public class AgilityLadderSlide extends SimpleAdaptation<AgilityLadderSlide.Conf
     });
   }
 
-  private void handleClimb(Player p, PlayerMoveEvent e) {
+  private void handleClimb(Player p) {
     BlockActionContext context = resolveInteractContext(p, p.getLocation(), GROUNDED_ACTIONS);
     if (context == null) {
       resetState(p);
@@ -138,27 +138,20 @@ public class AgilityLadderSlide extends SimpleAdaptation<AgilityLadderSlide.Conf
     }
 
     int level = context.level();
-    double dy = e.getTo().getY() - e.getFrom().getY();
     Vector velocity = p.getVelocity();
     boolean sneaking = p.isSneaking();
     LadderState state = states.computeIfAbsent(p.getUniqueId(), id -> new LadderState(velocity.getY()));
-
-    if (!sneaking && dy > MOVE_EPSILON) {
-      engageClimb(p, state, velocity, level, climbable);
-      return;
-    }
-
-    if (dy < -MOVE_EPSILON) {
-      if (sneaking) {
-        engageBrake(p, state, velocity, level);
-      } else {
-        engageSlide(p, state, velocity, level);
+    LadderInput input = readLadderInput(p);
+    Mode mode = resolveMode(sneaking, input.climb(), input.descend());
+    switch (mode) {
+      case CLIMB -> engageClimb(p, state, velocity, level, climbable);
+      case SLIDE -> engageSlide(p, state, velocity, level);
+      case BRAKE -> engageBrake(p, state, velocity);
+      case NONE -> {
+        transition(p, state, Mode.NONE);
+        state.velocity = velocity.getY();
       }
-      return;
     }
-
-    transition(p, state, Mode.NONE);
-    state.velocity = velocity.getY();
   }
 
   private void engageClimb(Player p, LadderState state, Vector velocity, int level, Block climbable) {
@@ -187,10 +180,9 @@ public class AgilityLadderSlide extends SimpleAdaptation<AgilityLadderSlide.Conf
     maybeTrail(p, true);
   }
 
-  private void engageBrake(Player p, LadderState state, Vector velocity, int level) {
-    double target = -getDescentSpeed(level) * clampBrakeFactor();
+  private void engageBrake(Player p, LadderState state, Vector velocity) {
     transition(p, state, Mode.BRAKE);
-    state.velocity = ramp(state.velocity, target);
+    state.velocity = Math.min(0D, ramp(state.velocity, 0D));
     applyVerticalVelocity(p, velocity, state.velocity);
     p.setFallDistance(0);
     if (getConfig().safeLanding) {
@@ -274,12 +266,33 @@ public class AgilityLadderSlide extends SimpleAdaptation<AgilityLadderSlide.Conf
     return type != Material.SCAFFOLDING && Tag.CLIMBABLE.isTagged(type);
   }
 
-  private double clampBrakeFactor() {
-    return clamp(getConfig().sneakBrakeFactor, 0.0D, 1.0D);
-  }
-
   private double clamp(double value, double min, double max) {
     return Math.max(min, Math.min(max, value));
+  }
+
+  private LadderInput readLadderInput(Player p) {
+    try {
+      Input input = p.getCurrentInput();
+      if (input == null) {
+        return LadderInput.NONE;
+      }
+      return new LadderInput(input.isForward() || input.isJump(), input.isBackward());
+    } catch (NoSuchMethodError ignored) {
+      return LadderInput.NONE;
+    }
+  }
+
+  static Mode resolveMode(boolean sneaking, boolean climbInput, boolean descentInput) {
+    if (sneaking) {
+      return Mode.BRAKE;
+    }
+    if (climbInput) {
+      return Mode.CLIMB;
+    }
+    if (descentInput) {
+      return Mode.SLIDE;
+    }
+    return Mode.NONE;
   }
 
   private double getDescentSpeed(int level) {
@@ -290,7 +303,7 @@ public class AgilityLadderSlide extends SimpleAdaptation<AgilityLadderSlide.Conf
     return getConfig().climbAssistBase + (getLevelPercent(level) * getConfig().climbAssistPerLevel);
   }
 
-  @ConfigDescription("Slide down ladders and vines quickly, climb them faster, brake by sneaking, and land safely.")
+  @ConfigDescription("Hold forward or jump to climb faster, hold backward to slide quickly, and sneak to brake.")
   protected static class Config extends AdaptationConfig {
     @ConfigDoc(value = "Base downward slide speed in blocks per tick before per-level scaling.", impact = "Higher values make ladder descents faster; lower values keep them gentle.")
     double descentSpeedBase = 0.30;
@@ -300,8 +313,6 @@ public class AgilityLadderSlide extends SimpleAdaptation<AgilityLadderSlide.Conf
     double climbAssistBase = 0.28;
     @ConfigDoc(value = "Additional upward climb-assist speed granted at the maximum level.", impact = "Higher values widen the climb-speed gain earned from leveling this adaptation.")
     double climbAssistPerLevel = 0.22;
-    @ConfigDoc(value = "Fraction of slide speed retained while sneaking to brake a descent.", impact = "Lower values brake harder toward a full stop; higher values allow a faster controlled slide.")
-    double sneakBrakeFactor = 0.1;
     @ConfigDoc(value = "Smoothing factor blending current vertical speed toward the target each move.", impact = "Values near 1.0 snap to the target quickly; lower values ease in more gradually.")
     double assistSmoothing = 0.35;
     @ConfigDoc(value = "Vertical velocity difference below which tiny corrective writes are skipped.", impact = "Lower values apply more frequent micro-updates; higher values reduce minor velocity writes.")
@@ -317,11 +328,15 @@ public class AgilityLadderSlide extends SimpleAdaptation<AgilityLadderSlide.Conf
     }
   }
 
-  private enum Mode {
+  enum Mode {
     NONE,
     CLIMB,
     SLIDE,
     BRAKE
+  }
+
+  private record LadderInput(boolean climb, boolean descend) {
+    private static final LadderInput NONE = new LadderInput(false, false);
   }
 
   private static final class LadderState {

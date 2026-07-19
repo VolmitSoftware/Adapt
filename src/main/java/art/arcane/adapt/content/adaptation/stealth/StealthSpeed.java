@@ -21,15 +21,17 @@ package art.arcane.adapt.content.adaptation.stealth;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
-import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.math.VelocitySpeed;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
@@ -39,6 +41,8 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.PlayerDeathEvent;
@@ -53,7 +57,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
-  private static final Sound DEFAULT_ACTIVATION_SOUND = Sound.PARTICLE_SOUL_ESCAPE;
+  private static final String SLOT_SNEAK = "sneak";
+  private static final String SLOT_STEP = "step";
+  private static final double VANILLA_SNEAK_FRACTION = 0.3D;
+  private static final double VANILLA_SNEAK_ATTRIBUTE_MAX = 1.0D;
+  static final double MAX_SNEAK_SCALAR = (VANILLA_SNEAK_ATTRIBUTE_MAX / VANILLA_SNEAK_FRACTION) - 1.0D;
   private final Map<UUID, RuntimeState> states;
 
   public StealthSpeed() {
@@ -117,15 +125,13 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
     super.unregister();
     for (RuntimeState state : states.values()) {
       state.refreshScheduled.set(false);
-      Player owner = state.owner;
-      J.runEntity(owner, () -> clearBoost(owner, state));
     }
     states.clear();
   }
 
   private void startSession(Player player) {
     UUID playerId = player.getUniqueId();
-    RuntimeState state = states.computeIfAbsent(playerId, key -> new RuntimeState(player));
+    RuntimeState state = states.computeIfAbsent(playerId, key -> new RuntimeState());
     if (state.refreshScheduled.compareAndSet(false, true)) {
       refreshSession(player, state);
     }
@@ -151,9 +157,8 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
       clearBoost(p, state);
     } else {
       double levelFactor = getLevelPercent(p);
-      float targetWalkSpeed = computeTargetWalkSpeed(state, p, levelFactor, crawling);
-      applyBoost(p, state, targetWalkSpeed, now);
-      applyAutoStep(p, state, now);
+      applyBoost(p, state, computeSneakScalar(p, levelFactor, crawling), now);
+      applyAutoStepDown(p, state, now);
 
       if (isMovingHorizontally(p, getConfig().movementVelocityThreshold)) {
         if (getConfig().showSoulParticles && M.r(getConfig().soulParticleChance)) {
@@ -174,10 +179,11 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
     }
   }
 
-  private void applyBoost(Player p, RuntimeState state, float targetWalkSpeed, long now) {
-    if (!state.boosting) {
+  private void applyBoost(Player p, RuntimeState state, double sneakScalar, long now) {
+    AdaptAttributeService attributes = AdaptAttributeService.get();
+    boolean starting = !state.boosting;
+    if (starting) {
       state.boosting = true;
-      state.originalWalkSpeed = p.getWalkSpeed();
 
       long cooldown = Math.max(0, getConfig().activationSoundCooldownMs);
       if (cooldown <= 0 || now - state.lastSoundMillis >= cooldown) {
@@ -185,14 +191,23 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
         fx(p.getLocation().add(0, 0.15D, 0), FxPriority.TRANSITION)
             .particle(Particle.SOUL, 6, back.getX() * 0.3D, 0.1D, back.getZ() * 0.3D, 0.15D, 0.02D)
             .particle(Particle.CLOUD, 4, 0, 0.1D, 0, 0.2D, 0.01D)
-            .chord(DEFAULT_ACTIVATION_SOUND, getConfig().activationSoundVolume, getConfig().activationSoundPitch, Sound.ITEM_TRIDENT_RIPTIDE_1, 0.3F, 1.4F);
+            .chord(Sound.PARTICLE_SOUL_ESCAPE, getConfig().activationSoundVolume, getConfig().activationSoundPitch, Sound.ITEM_TRIDENT_RIPTIDE_1, 0.3F, 1.4F);
         state.lastSoundMillis = now;
       }
     }
 
-    float current = p.getWalkSpeed();
-    if (Math.abs(current - targetWalkSpeed) > 0.0001f) {
-      p.setWalkSpeed(targetWalkSpeed);
+    if (starting || Math.abs(sneakScalar - state.appliedSneakScalar) > 0.0001D) {
+      attributes.apply(p, getName(), SLOT_SNEAK, Attributes.SNEAKING_SPEED, sneakScalar, AttributeModifier.Operation.MULTIPLY_SCALAR_1);
+      state.appliedSneakScalar = sneakScalar;
+    }
+
+    boolean wantStepHeight = getConfig().enableAutoStep && getConfig().enableAutoStepUp;
+    if (wantStepHeight && !state.stepHeightApplied) {
+      attributes.apply(p, getName(), SLOT_STEP, Attributes.STEP_HEIGHT, Math.max(0, getConfig().stepHeightBonus), AttributeModifier.Operation.ADD_NUMBER);
+      state.stepHeightApplied = true;
+    } else if (!wantStepHeight && state.stepHeightApplied) {
+      attributes.remove(p, getName(), SLOT_STEP, Attributes.STEP_HEIGHT);
+      state.stepHeightApplied = false;
     }
   }
 
@@ -202,11 +217,9 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
     }
 
     state.boosting = false;
-    float restore = clampWalkSpeed(state.originalWalkSpeed);
-    float current = p.getWalkSpeed();
-    if (Math.abs(current - restore) > 0.0001f) {
-      p.setWalkSpeed(restore);
-    }
+    state.appliedSneakScalar = 0.0D;
+    state.stepHeightApplied = false;
+    AdaptAttributeService.get().removeAll(p, getName());
   }
 
   private void clearAndRemoveState(Player p) {
@@ -252,22 +265,34 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
     return !p.getEyeLocation().getBlock().isLiquid() && !p.getLocation().getBlock().isLiquid();
   }
 
-  private float computeTargetWalkSpeed(RuntimeState state, Player p, double levelFactor, boolean crawling) {
-    float base = state.boosting ? state.originalWalkSpeed : clampWalkSpeed(p.getWalkSpeed());
-    if (!state.boosting && Math.abs(base) < 0.0001f) {
-      base = clampWalkSpeed(getConfig().baselineWalkSpeed);
-    }
-
-    double bonus = getSpeed(levelFactor);
-    if (crawling) {
-      bonus *= Math.max(0, getConfig().crawlBonusMultiplier);
-    }
-
-    return clampWalkSpeed(base + (float) bonus);
+  private double computeSneakScalar(Player p, double levelFactor, boolean crawling) {
+    double bonus = sneakSpeedBonus(levelFactor, getConfig().maxSpeedBonus, crawling, getConfig().crawlBonusMultiplier);
+    return sneakSpeedScalar(p.getWalkSpeed(), getConfig().baselineWalkSpeed, getConfig().minWalkSpeed, getConfig().maxWalkSpeed, bonus);
   }
 
-  private void applyAutoStep(Player p, RuntimeState state, long now) {
-    if (!getConfig().enableAutoStep || !p.isOnGround()) {
+  static double sneakSpeedBonus(double levelFactor, double maxSpeedBonus, boolean crawling, double crawlBonusMultiplier) {
+    double bonus = Math.max(0, levelFactor * maxSpeedBonus);
+    return crawling ? bonus * Math.max(0, crawlBonusMultiplier) : bonus;
+  }
+
+  static double sneakSpeedScalar(float currentWalkSpeed, float fallbackWalkSpeed, float minWalkSpeed, float maxWalkSpeed, double bonus) {
+    float min = Math.max(-1f, minWalkSpeed);
+    float max = Math.min(1f, Math.max(min, maxWalkSpeed));
+    float base = Math.max(min, Math.min(max, currentWalkSpeed));
+    if (Math.abs(base) < 0.0001f) {
+      base = Math.max(min, Math.min(max, fallbackWalkSpeed));
+    }
+
+    if (base <= 0f) {
+      return 0.0D;
+    }
+
+    double target = Math.max(min, Math.min(max, base + Math.max(0, bonus)));
+    return Math.min(MAX_SNEAK_SCALAR, Math.max(0, (target - base) / base));
+  }
+
+  private void applyAutoStepDown(Player p, RuntimeState state, long now) {
+    if (!getConfig().enableAutoStep || !getConfig().enableAutoStepDown || !p.isOnGround()) {
       return;
     }
 
@@ -282,15 +307,9 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
     }
 
     double probe = Math.max(0.1, getConfig().autoStepProbeDistance);
-    org.bukkit.Location feet = p.getLocation();
-    org.bukkit.Location front = feet.clone().add(direction.multiply(probe));
+    Location front = p.getLocation().clone().add(direction.multiply(probe));
 
-    if (getConfig().enableAutoStepUp && tryStepUp(p, front, direction)) {
-      state.lastStepMillis = now;
-      return;
-    }
-
-    if (getConfig().enableAutoStepDown && tryStepDown(p, front, direction)) {
+    if (tryStepDown(p, front, direction)) {
       state.lastStepMillis = now;
     }
   }
@@ -309,7 +328,6 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
           }
         }
       } catch (NoSuchMethodError ex) {
-        // Runtime does not expose input API. Use velocity-based fallback.
         Adapt.verbose("Player input API is unavailable on this runtime; using velocity fallback for stealth auto-step.");
       }
     }
@@ -323,28 +341,7 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
     return movement.normalize();
   }
 
-  private boolean tryStepUp(Player p, org.bukkit.Location front, Vector direction) {
-    if (!isStepObstacle(front, 0)) {
-      return false;
-    }
-
-    if (!hasStepHeadroom(p, front)) {
-      return false;
-    }
-
-    org.bukkit.Location destination = p.getLocation().clone()
-        .add(direction.clone().multiply(Math.max(0.05, getConfig().autoStepForwardPush)))
-        .add(0, 1, 0);
-    if (!isDestinationSafe(p, destination, true)) {
-      return false;
-    }
-
-    J.teleport(p, destination);
-    stepFx(destination);
-    return true;
-  }
-
-  private boolean tryStepDown(Player p, org.bukkit.Location front, Vector direction) {
+  private boolean tryStepDown(Player p, Location front, Vector direction) {
     if (!isPassable(front, 0)) {
       return false;
     }
@@ -357,7 +354,7 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
       return false;
     }
 
-    org.bukkit.Location destination = p.getLocation().clone()
+    Location destination = p.getLocation().clone()
         .add(direction.clone().multiply(Math.max(0.05, getConfig().autoStepForwardPush)))
         .add(0, -1, 0);
     if (!isDestinationSafe(p, destination, true)) {
@@ -376,39 +373,17 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
         .sound(Sound.BLOCK_WOOL_STEP, 0.2F, 1.2F);
   }
 
-  private boolean isStepObstacle(org.bukkit.Location base, int yOffset) {
-    org.bukkit.block.Block block = base.clone().add(0, yOffset, 0).getBlock();
-    if (block.isLiquid() || block.isPassable() || !block.getType().isSolid()) {
-      return false;
-    }
-
-    double obstacleHeight = block.getBoundingBox().getHeight();
-    return obstacleHeight >= Math.max(0.05, getConfig().stepObstacleMinHeight);
-  }
-
-  private boolean isSolid(org.bukkit.Location base, int yOffset) {
-    org.bukkit.block.Block block = base.clone().add(0, yOffset, 0).getBlock();
+  private boolean isSolid(Location base, int yOffset) {
+    Block block = base.clone().add(0, yOffset, 0).getBlock();
     return block.getType().isSolid() && !block.isLiquid() && !block.isPassable();
   }
 
-  private boolean isPassable(org.bukkit.Location base, int yOffset) {
-    org.bukkit.block.Block block = base.clone().add(0, yOffset, 0).getBlock();
+  private boolean isPassable(Location base, int yOffset) {
+    Block block = base.clone().add(0, yOffset, 0).getBlock();
     return block.isPassable() && !block.isLiquid();
   }
 
-  private boolean hasStepHeadroom(Player p, org.bukkit.Location front) {
-    if (!isPassable(front, 1)) {
-      return false;
-    }
-
-    if (requiresDoubleHeadroom(p) && !isPassable(front, 2)) {
-      return false;
-    }
-
-    return true;
-  }
-
-  private boolean isDestinationSafe(Player p, org.bukkit.Location destination, boolean requireFloor) {
+  private boolean isDestinationSafe(Player p, Location destination, boolean requireFloor) {
     if (!isPassable(destination, 0)) {
       return false;
     }
@@ -434,63 +409,54 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
     return horizontal.lengthSquared() > t * t;
   }
 
-  private float clampWalkSpeed(float value) {
-    float min = Math.max(-1f, getConfig().minWalkSpeed);
-    float max = Math.min(1f, Math.max(min, getConfig().maxWalkSpeed));
-    return Math.max(min, Math.min(max, value));
-  }
-
   private double getSpeed(double factor) {
-    return Math.max(0, factor * getConfig().maxSpeedBonus);
+    double bonus = sneakSpeedBonus(factor, getConfig().maxSpeedBonus, false, 0.0D);
+    return sneakSpeedScalar(getConfig().baselineWalkSpeed, getConfig().baselineWalkSpeed, getConfig().minWalkSpeed, getConfig().maxWalkSpeed, bonus);
   }
 
   private static class RuntimeState {
-    private final Player owner;
     private final AtomicBoolean refreshScheduled = new AtomicBoolean();
     private boolean boosting;
-    private float originalWalkSpeed = 0.2f;
+    private double appliedSneakScalar;
+    private boolean stepHeightApplied;
     private long lastSoundMillis;
     private long lastStatMillis;
     private long lastStepMillis;
-
-    private RuntimeState(Player owner) {
-      this.owner = owner;
-    }
   }
 
-  @ConfigDescription("Gain speed while sneaking.")
+  @ConfigDescription("Gain speed while sneaking, up to the vanilla sneak-speed cap of full walk speed.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Tick interval (ms) used to update stealth speed.", impact = "Lower values feel more responsive but run updates more frequently.")
     long setInterval = 50;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Fallback baseline walk speed if no original speed has been captured yet.", impact = "Usually keep this at vanilla default unless another plugin changes baseline speeds globally.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Reference walk speed used to convert the speed bonus into a sneak-speed multiplier when the player's live walk speed is zero.", impact = "Usually keep this at vanilla default unless another plugin changes baseline speeds globally.")
     float baselineWalkSpeed = 0.2f;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum additional walk speed granted at max level.", impact = "Higher values make stealth speed more noticeable.")
-    double maxSpeedBonus = 0.8;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum additional walk-speed-equivalent bonus granted at max level. The default lands max level exactly on the vanilla sneak-speed cap (sneaking at full walk speed).", impact = "Higher values make stealth speed more noticeable, but the vanilla sneaking-speed clamp caps the effective boost at full walk speed.")
+    double maxSpeedBonus = 0.4666666666666667;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Multiplier applied to bonus speed while crawling on land.", impact = "Higher values make crawling keep pace with sneaking.")
     double crawlBonusMultiplier = 1.15;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Minimum walk speed clamp used when applying the boost.", impact = "Keep near default to avoid unexpected slowdowns from conflicting systems.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Minimum walk-speed-equivalent clamp used when computing the sneak-speed multiplier.", impact = "Keep near default to avoid unexpected slowdowns from conflicting systems.")
     float minWalkSpeed = -1f;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum walk speed clamp used when applying the boost.", impact = "Lower values are safer for anticheat; higher values feel faster.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum walk-speed-equivalent clamp used when computing the sneak-speed multiplier.", impact = "Lower values cap how strong the sneak-speed boost can get.")
     float maxWalkSpeed = 1f;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Enables automatic vertical stepping while stealth speed is active.", impact = "Helps smooth sneaking over one-block terrain changes.")
     boolean enableAutoStep = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Allows stepping up one block while moving.", impact = "Reduces sneak interruption when encountering small ledges.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Grants extra step height for one-block ledges while stealth speed is active.", impact = "Reduces sneak interruption when encountering small ledges.")
     boolean enableAutoStepUp = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Extra step height granted while stealth speed is active and step-up is enabled.", impact = "0.4 raises the vanilla 0.6 step height to a full block.")
+    double stepHeightBonus = 0.4;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Allows stepping down one block while moving.", impact = "Only steps down when the drop is exactly one block.")
     boolean enableAutoStepDown = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Forward probe distance for auto-step checks.", impact = "Higher values detect ledges earlier but can feel more aggressive.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Forward probe distance for auto-step-down checks.", impact = "Higher values detect ledges earlier but can feel more aggressive.")
     double autoStepProbeDistance = 0.45;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Horizontal push applied during each auto-step teleport.", impact = "Higher values move farther onto/off the next block and reduce repeat stepping in place.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Horizontal push applied during each auto-step-down teleport.", impact = "Higher values move farther off the next block and reduce repeat stepping in place.")
     double autoStepForwardPush = 0.36;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Uses direct movement input for auto-step direction when available.", impact = "Helps auto-step trigger while pressing into obstacles, even when velocity is near zero.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Uses direct movement input for auto-step-down direction when available.", impact = "Helps auto-step trigger while pressing toward ledges, even when velocity is near zero.")
     boolean autoStepUseInput = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Minimum horizontal velocity required before auto-step runs.", impact = "Higher values avoid accidental stepping while nearly idle.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Minimum horizontal velocity required before auto-step-down runs.", impact = "Higher values avoid accidental stepping while nearly idle.")
     double autoStepVelocityThreshold = 0.01;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Minimum delay between auto-step teleports.", impact = "Higher values reduce repeated stepping in tight terrain.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Minimum delay between auto-step-down teleports.", impact = "Higher values reduce repeated stepping in tight terrain.")
     long autoStepCooldownMs = 90;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Minimum obstacle collision height that counts as a step-up blocker.", impact = "Higher values ignore small lips/slabs; lower values step up more aggressively.")
-    double stepObstacleMinHeight = 0.75;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Bounding-box height above which two-block headroom is required for step-up.", impact = "Lower values are stricter; higher values allow sneaking/crawling to step in tighter spaces.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Bounding-box height above which two-block headroom is required for step-down destinations.", impact = "Lower values are stricter; higher values allow sneaking/crawling to step in tighter spaces.")
     double doubleHeadroomHeightThreshold = 1.7;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum bounding-box height counted as crawling on land.", impact = "Higher values make crawl detection more permissive.")
     double crawlHeightMax = 0.61;
@@ -516,9 +482,10 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
     long statIntervalMs = 200;
 
     public Config() {
-      baseCost = 2;
+      baseCost = 4;
       costFactor = 0.6;
       initialCost = 5;
+      maxLevel = 3;
     }
   }
 }

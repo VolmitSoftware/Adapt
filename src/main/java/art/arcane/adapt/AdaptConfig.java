@@ -243,7 +243,8 @@ public class AdaptConfig {
     private boolean pooledPayoutEnabled = true;
     private long pooledWindowMillis = 30000;
     private long pooledIdleFlushMillis = 8000;
-    private boolean inspiredNotifyEnabled = true;
+    private boolean inspiredPopupEnabled = false;
+    private long inspiredCooldownMillis = 300000;
   }
 
   @Getter

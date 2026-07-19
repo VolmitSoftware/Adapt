@@ -28,6 +28,7 @@ final class PacketPlayerDecoy {
   final Object nmsEntity;
   private final UUID profileId;
   private final long removeTabAt;
+  private final int tabListRemoveDelayTicks;
   private final Map<UUID, Player> knownViewers;
   private boolean removedFromTab;
   private Object spawnPlayerInfoPacket;
@@ -47,7 +48,8 @@ final class PacketPlayerDecoy {
     this.profileId = profileId;
     this.entityId = entityId;
     this.nmsEntity = nmsEntity;
-    this.removeTabAt = System.currentTimeMillis() + Math.max(0, tabListRemoveDelayTicks) * 50L;
+    this.removeTabAt = tabRemovalDeadline(System.currentTimeMillis(), tabListRemoveDelayTicks);
+    this.tabListRemoveDelayTicks = tabListRemoveDelayTicks;
     this.knownViewers = new ConcurrentHashMap<>();
     this.removedFromTab = false;
     this.spawnPlayerInfoPacket = null;
@@ -61,6 +63,10 @@ final class PacketPlayerDecoy {
     this.lastYaw = Float.NaN;
     this.lastPitch = Float.NaN;
     this.lookCursor = 0;
+  }
+
+  static long tabRemovalDeadline(long now, int delayTicks) {
+    return delayTicks < 0 ? -1L : now + (delayTicks * 50L);
   }
 
   public void spawn(Object playerInfoPacket, Object addEntityPacket, Object metadataPacket, Object equipmentPacket) {
@@ -229,10 +235,17 @@ final class PacketPlayerDecoy {
     }
 
     if (removedFromTab) {
-      Object removePacket = bridge.createPlayerInfoRemovePacket(profileId);
-      if (removePacket != null) {
-        bridge.sendPacket(viewer, removePacket);
-      }
+      J.runEntity(viewer, () -> removeLateViewerFromTab(viewer), Math.max(1, tabListRemoveDelayTicks));
+    }
+  }
+
+  private void removeLateViewerFromTab(Player viewer) {
+    if (!viewer.isOnline() || knownViewers.get(viewer.getUniqueId()) != viewer) {
+      return;
+    }
+    Object removePacket = bridge.createPlayerInfoRemovePacket(profileId);
+    if (removePacket != null) {
+      bridge.sendPacket(viewer, removePacket);
     }
   }
 

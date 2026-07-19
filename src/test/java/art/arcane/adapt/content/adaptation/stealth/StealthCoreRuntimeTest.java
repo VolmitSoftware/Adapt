@@ -10,10 +10,46 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class StealthSilentStepRuntimeTest {
+class StealthCoreRuntimeTest {
+  @Test
+  void coreCostIsApproximatelyHalfThePreviousDefault() {
+    StealthCore.Config config = new StealthCore.Config();
+
+    assertThat(config.baseCost).isEqualTo(2);
+    assertThat(config.costFactor).isEqualTo(0.325);
+    assertThat(config.initialCost).isEqualTo(1);
+    assertThat(config.maxLevel).isEqualTo(2);
+    assertThat(cost(config, 1)).isEqualTo(3);
+    assertThat(cost(config, 2)).isEqualTo(3);
+  }
+
+  @Test
+  void detectionRequiresLineOfSightAndFacingAtTheConfiguredThreshold() {
+    assertThat(StealthCore.canObserverDetect(0.2D, true, 0.2D)).isTrue();
+    assertThat(StealthCore.canObserverDetect(0.19D, true, 0.2D)).isFalse();
+    assertThat(StealthCore.canObserverDetect(1D, false, 0.2D)).isFalse();
+  }
+
+  @Test
+  void aggregateDetectionFailsClosedUntilACompleteClearSampleExists() {
+    assertThat(StealthCore.cachedUndetected(true, true, true, false)).isTrue();
+    assertThat(StealthCore.cachedUndetected(true, true, false, false)).isFalse();
+    assertThat(StealthCore.cachedUndetected(true, true, true, true)).isFalse();
+    assertThat(StealthCore.cachedUndetected(false, true, true, false)).isFalse();
+    assertThat(StealthCore.cachedUndetected(true, false, true, false)).isFalse();
+  }
+
+  @Test
+  void invisibilityOrAnActiveDecoyForcesConcealment() {
+    assertThat(StealthCore.forcedConcealment(true, false, false)).isTrue();
+    assertThat(StealthCore.forcedConcealment(false, true, false)).isTrue();
+    assertThat(StealthCore.forcedConcealment(false, false, true)).isTrue();
+    assertThat(StealthCore.forcedConcealment(false, false, false)).isFalse();
+  }
+
   @Test
   void sessionCapacityStopsExactlyAtProductionLimit() {
-    SilentStepSessionCoordinator<String> coordinator = new SilentStepSessionCoordinator<>(2_048);
+    StealthSessionCoordinator<String> coordinator = new StealthSessionCoordinator<>(2_048);
 
     for (int index = 0; index < 2_048; index++) {
       UUID playerId = new UUID(1L, index + 1L);
@@ -32,7 +68,7 @@ class StealthSilentStepRuntimeTest {
 
   @Test
   void ownerRefreshQueueVisitsEverySessionFairly() {
-    SilentStepSessionCoordinator<String> coordinator = new SilentStepSessionCoordinator<>(8);
+    StealthSessionCoordinator<String> coordinator = new StealthSessionCoordinator<>(8);
     for (int index = 0; index < 8; index++) {
       coordinator.admit(new UUID(1L, index + 1L), "session-" + index);
     }
@@ -50,7 +86,7 @@ class StealthSilentStepRuntimeTest {
 
   @Test
   void scanQueueCoalescesRequestsAndPreservesOrder() {
-    SilentStepSessionCoordinator<String> coordinator = new SilentStepSessionCoordinator<>(4);
+    StealthSessionCoordinator<String> coordinator = new StealthSessionCoordinator<>(4);
     UUID firstId = new UUID(1L, 1L);
     UUID secondId = new UUID(1L, 2L);
     coordinator.admit(firstId, "first");
@@ -66,7 +102,7 @@ class StealthSilentStepRuntimeTest {
 
   @Test
   void removalPurgesRefreshAndScanWork() {
-    SilentStepSessionCoordinator<String> coordinator = new SilentStepSessionCoordinator<>(2);
+    StealthSessionCoordinator<String> coordinator = new StealthSessionCoordinator<>(2);
     UUID playerId = new UUID(1L, 1L);
     coordinator.admit(playerId, "session");
     coordinator.enqueueScan(playerId, "session");
@@ -79,7 +115,7 @@ class StealthSilentStepRuntimeTest {
 
   @Test
   void activeScanCapacityCannotBeOversubscribed() {
-    SilentStepCapacityGate capacity = new SilentStepCapacityGate(2);
+    StealthCapacityGate capacity = new StealthCapacityGate(2);
 
     assertThat(capacity.tryAcquire()).isTrue();
     assertThat(capacity.tryAcquire()).isTrue();
@@ -91,12 +127,12 @@ class StealthSilentStepRuntimeTest {
 
   @Test
   void glowQueuePreservesReplacementCleanupByRuntimeEntityId() {
-    SilentStepCoalescingQueue<String> queue = new SilentStepCoalescingQueue<>(2);
+    StealthCoalescingQueue<String> queue = new StealthCoalescingQueue<>(2);
     UUID viewerId = new UUID(1L, 1L);
 
-    assertThat(queue.offer(new SilentStepGlowKey(viewerId, 10), "unset-old")).isTrue();
-    assertThat(queue.offer(new SilentStepGlowKey(viewerId, 11), "set-new")).isTrue();
-    assertThat(queue.offer(new SilentStepGlowKey(viewerId, 11), "set-newest")).isTrue();
+    assertThat(queue.offer(new StealthGlowKey(viewerId, 10), "unset-old")).isTrue();
+    assertThat(queue.offer(new StealthGlowKey(viewerId, 11), "set-new")).isTrue();
+    assertThat(queue.offer(new StealthGlowKey(viewerId, 11), "set-newest")).isTrue();
     assertThat(queue.size()).isEqualTo(2);
     assertThat(queue.take(2)).containsExactly("unset-old", "set-newest");
   }
@@ -104,7 +140,7 @@ class StealthSilentStepRuntimeTest {
   @Test
   void aggregateWindowCapsScansAndCandidateHandoffs() {
     AtomicLong clock = new AtomicLong();
-    SilentStepWindowBudget budget = new SilentStepWindowBudget(2, 3, 2, 50L, clock::get);
+    StealthWindowBudget budget = new StealthWindowBudget(2, 3, 2, 50L, clock::get);
 
     assertThat(budget.tryScanStart(clock.get())).isTrue();
     assertThat(budget.tryScanStart(clock.get())).isTrue();
@@ -126,11 +162,16 @@ class StealthSilentStepRuntimeTest {
 
   @Test
   void configurationCannotEscapeHardRuntimeClamps() {
-    assertThat(StealthSilentStep.clampCandidateLimit(Integer.MAX_VALUE)).isEqualTo(32);
-    assertThat(StealthSilentStep.clampCandidateLimit(Integer.MIN_VALUE)).isEqualTo(1);
-    assertThat(StealthSilentStep.clampInterval(0L, 100L, 5_000L)).isEqualTo(100L);
-    assertThat(StealthSilentStep.clampInterval(Long.MAX_VALUE, 100L, 5_000L)).isEqualTo(5_000L);
-    assertThat(StealthSilentStep.clampFinite(Double.NaN, 1D, 24D, 1D)).isEqualTo(1D);
-    assertThat(StealthSilentStep.clampFinite(1_000D, 1D, 24D, 1D)).isEqualTo(24D);
+    assertThat(StealthCore.clampCandidateLimit(Integer.MAX_VALUE)).isEqualTo(32);
+    assertThat(StealthCore.clampCandidateLimit(Integer.MIN_VALUE)).isEqualTo(1);
+    assertThat(StealthCore.clampInterval(0L, 100L, 5_000L)).isEqualTo(100L);
+    assertThat(StealthCore.clampInterval(Long.MAX_VALUE, 100L, 5_000L)).isEqualTo(5_000L);
+    assertThat(StealthCore.clampFinite(Double.NaN, 1D, 24D, 1D)).isEqualTo(1D);
+    assertThat(StealthCore.clampFinite(1_000D, 1D, 24D, 1D)).isEqualTo(24D);
+  }
+
+  private int cost(StealthCore.Config config, int level) {
+    return (int) Math.max(1, config.baseCost + (config.baseCost * level * config.costFactor))
+        + (level == 1 ? config.initialCost : 0);
   }
 }

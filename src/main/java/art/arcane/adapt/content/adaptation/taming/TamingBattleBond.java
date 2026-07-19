@@ -29,12 +29,13 @@ import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
-import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.adapt.util.reflect.registries.PotionEffectTypes;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Color;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.Entity;
@@ -44,15 +45,21 @@ import org.bukkit.entity.Tameable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class TamingBattleBond extends SimpleAdaptation<TamingBattleBond.Config> {
   private static final int HARD_MAX_PACK = 24;
+  private static final int HARD_MAX_CANDIDATES = 96;
   private final Cooldowns fxCd = cooldowns();
+  private final AtomicBoolean lifecycleCleanupStarted = new AtomicBoolean();
 
   static int buffTicks(double levelPercent, double base, double factor) {
     return Math.max(20, (int) Math.round(base + (levelPercent * factor)));
@@ -85,22 +92,33 @@ public class TamingBattleBond extends SimpleAdaptation<TamingBattleBond.Config> 
     statLore(v, C.YELLOW, "* ", Form.duration(getBuffTicks(level) * 50D, 1), 2);
   }
 
+  @Override
+  public void unregister() {
+    lifecycleCleanupStarted.set(true);
+    super.unregister();
+  }
+
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(EntityDeathEvent e) {
     LivingEntity dead = e.getEntity();
-    if (dead.getKiller() != null) {
+    Tameable pet = resolveKillingPet(dead.getLastDamageCause());
+    if (pet == null) {
       return;
     }
+    J.runEntity(pet, () -> beginBondFromPet(pet));
+  }
 
-    if (!(dead.getLastDamageCause() instanceof EntityDamageByEntityEvent cause)) {
+  private void beginBondFromPet(Tameable pet) {
+    if (lifecycleCleanupStarted.get() || !pet.isTamed() || !(pet.getOwner() instanceof Player owner)) {
       return;
     }
+    J.runEntity(owner, () -> beginBondFromOwner(owner));
+  }
 
-    if (!(cause.getDamager() instanceof Tameable pet) || !pet.isTamed()
-        || !(pet.getOwner() instanceof Player owner)) {
+  private void beginBondFromOwner(Player owner) {
+    if (lifecycleCleanupStarted.get() || !owner.isOnline()) {
       return;
     }
-
     int level = getActiveLevel(owner);
     if (level <= 0) {
       return;
@@ -109,11 +127,11 @@ public class TamingBattleBond extends SimpleAdaptation<TamingBattleBond.Config> 
     int amplifier = getBuffTier(level);
     int duration = getBuffTicks(level);
     double radius = Math.max(1.0, getConfig().packRadius);
-    J.runEntity(owner, () -> bondPack(owner, amplifier, duration, radius));
+    bondPack(owner, amplifier, duration, radius);
   }
 
   private void bondPack(Player owner, int amplifier, int duration, double radius) {
-    if (!owner.isOnline()) {
+    if (lifecycleCleanupStarted.get() || !owner.isOnline()) {
       return;
     }
 
@@ -121,15 +139,16 @@ public class TamingBattleBond extends SimpleAdaptation<TamingBattleBond.Config> 
 
     UUID ownerId = owner.getUniqueId();
     int limit = getPackLimit();
-    int buffed = 0;
+    Location ownerChest = owner.getLocation().add(0, 1, 0);
+    BondBatch batch = new BondBatch(ownerId, ownerChest, amplifier, duration, getGlowTicks(), limit);
+    int candidates = 0;
     for (Entity entity : owner.getNearbyEntities(radius, radius, radius)) {
-      if (buffed >= limit) {
+      if (candidates >= HARD_MAX_CANDIDATES) {
         break;
       }
-      if (entity instanceof LivingEntity living && entity instanceof Tameable tameable
-          && tameable.isTamed() && living.isValid() && !living.isDead() && isOwnedBy(tameable, ownerId)) {
-        buffed++;
-        J.runEntity(living, () -> applyBuffs(living, amplifier, duration));
+      if (entity instanceof LivingEntity living && entity instanceof Tameable tameable) {
+        candidates++;
+        J.runEntity(living, () -> applyPetBond(living, tameable, batch));
       }
     }
 
@@ -137,22 +156,63 @@ public class TamingBattleBond extends SimpleAdaptation<TamingBattleBond.Config> 
       fxCd.mark(ownerId);
       fx(owner.getLocation().add(0, 1, 0), FxPriority.COMBAT)
           .dustRing(Color.fromRGB(0xFF5B4A), 1.6D, 10, 1.0F)
-          .chord(Sound.ENTITY_WOLF_GROWL, 0.7F, 1.0F, Sound.ITEM_TRIDENT_RIPTIDE_1, 0.4F, 1.3F);
+          .chord(Sound.BLOCK_BEACON_POWER_SELECT, 0.8F, 1.25F, Sound.ITEM_TRIDENT_RIPTIDE_1, 0.5F, 1.5F);
     }
 
     addStat(owner, "taming.battle-bond.kills", 1);
     xp(owner, getConfig().xpPerKill);
   }
 
-  private void applyBuffs(LivingEntity entity, int amplifier, int duration) {
+  static Tameable resolveKillingPet(EntityDamageEvent damageCause) {
+    if (!(damageCause instanceof EntityDamageByEntityEvent cause)
+        || !(cause.getDamager() instanceof Tameable pet)) {
+      return null;
+    }
+    return pet;
+  }
+
+  static void applyBuffs(LivingEntity entity, int amplifier, int duration) {
     if (!entity.isValid() || entity.isDead()) {
       return;
     }
 
-    entity.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, duration, amplifier, false, false));
-    if (PotionEffectTypes.INCREASE_DAMAGE != null) {
-      entity.addPotionEffect(new PotionEffect(PotionEffectTypes.INCREASE_DAMAGE, duration, amplifier, false, false));
+    for (BondBuff buff : buffTypes(PotionEffectTypes.INCREASE_DAMAGE != null)) {
+      PotionEffectType effectType = switch (buff) {
+        case SPEED -> PotionEffectType.SPEED;
+        case REGENERATION -> PotionEffectType.REGENERATION;
+        case ATTACK_STRENGTH -> PotionEffectTypes.INCREASE_DAMAGE;
+      };
+      entity.addPotionEffect(new PotionEffect(effectType, duration, amplifier, false, true, true));
     }
+  }
+
+  static List<BondBuff> buffTypes(boolean attackStrengthAvailable) {
+    if (!attackStrengthAvailable) {
+      return List.of(BondBuff.SPEED, BondBuff.REGENERATION);
+    }
+    return List.of(BondBuff.SPEED, BondBuff.REGENERATION, BondBuff.ATTACK_STRENGTH);
+  }
+
+  private void applyPetBond(LivingEntity pet, Tameable tameable, BondBatch batch) {
+    if (lifecycleCleanupStarted.get() || !tameable.isTamed() || !pet.isValid() || pet.isDead()
+        || !isOwnedBy(tameable, batch.ownerId())
+        || !batch.claim()) {
+      return;
+    }
+    applyBuffs(pet, batch.amplifier(), batch.duration());
+    applyGlow(pet, batch.glowTicks());
+    fx(pet, FxPriority.COMBAT)
+        .burst(Particle.ELECTRIC_SPARK, 5, 0.25D)
+        .line(Particle.END_ROD, batch.ownerChest().getX(), batch.ownerChest().getY(), batch.ownerChest().getZ(), 10)
+        .sound(Sound.BLOCK_BEACON_ACTIVATE, 0.45F, 1.6F);
+  }
+
+  private void applyGlow(LivingEntity pet, int glowTicks) {
+    PotionEffect current = pet.getPotionEffect(PotionEffectType.GLOWING);
+    if (current != null && current.getDuration() >= glowTicks) {
+      return;
+    }
+    pet.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, glowTicks, 0, false, false, false));
   }
 
   private boolean isOwnedBy(Tameable tameable, UUID ownerId) {
@@ -173,10 +233,38 @@ public class TamingBattleBond extends SimpleAdaptation<TamingBattleBond.Config> 
     return Math.max(1, Math.min(getConfig().maxPack, HARD_MAX_PACK));
   }
 
+  private int getGlowTicks() {
+    return Math.max(10, Math.min(getConfig().glowTicks, 60));
+  }
 
-  @ConfigDescription("When one of your pets lands a kill, you and the nearby pack gain brief strength and speed.")
+  private record BondBatch(UUID ownerId, Location ownerChest, int amplifier, int duration, int glowTicks,
+                           int limit, AtomicInteger claimed) {
+    private BondBatch(UUID ownerId, Location ownerChest, int amplifier, int duration, int glowTicks, int limit) {
+      this(ownerId, ownerChest, amplifier, duration, glowTicks, limit, new AtomicInteger());
+    }
+
+    private boolean claim() {
+      while (true) {
+        int current = claimed.get();
+        if (current >= limit) {
+          return false;
+        }
+        if (claimed.compareAndSet(current, current + 1)) {
+          return true;
+        }
+      }
+    }
+  }
+
+  enum BondBuff {
+    SPEED,
+    REGENERATION,
+    ATTACK_STRENGTH
+  }
+
+  @ConfigDescription("When one of your pets lands a kill, you and the nearby pack gain brief strength, speed, and regeneration.")
   protected static class Config extends AdaptationConfig {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Highest buff amplifier (tier) reachable at max level; level 1 grants tier 1.", impact = "Higher values grant a stronger strength and speed tier at high levels.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Highest buff amplifier (tier) reachable at max level; level 1 grants tier 1.", impact = "Higher values grant stronger strength, speed, and regeneration at high levels.")
     int maxBuffTier = 1;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Buff Ticks Base for the Taming Battle Bond adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double buffTicksBase = 80;
@@ -188,6 +276,8 @@ public class TamingBattleBond extends SimpleAdaptation<TamingBattleBond.Config> 
     double xpPerKill = 10;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum pack members buffed per kill, capped internally at 24.", impact = "Lower values reduce entity scheduling in very large packs.")
     int maxPack = 12;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Number of ticks bonded pets glow, capped internally at 60.", impact = "Higher values keep the Battle Bond activation marker visible longer.")
+    int glowTicks = 30;
 
     public Config() {
       baseCost = 3;

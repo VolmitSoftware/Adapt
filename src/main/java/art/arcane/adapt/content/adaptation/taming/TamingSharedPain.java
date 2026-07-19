@@ -26,6 +26,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -34,13 +35,22 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.entity.AnimalTamer;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Tameable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageEvent;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 public class TamingSharedPain extends SimpleAdaptation<TamingSharedPain.Config> {
+  private static final int HARD_MAX_PETS = 16;
+  private static final double MINIMUM_TRANSFER = 0.01D;
   private final Cooldowns redirectFx = cooldowns();
 
   public TamingSharedPain() {
@@ -68,12 +78,12 @@ public class TamingSharedPain extends SimpleAdaptation<TamingSharedPain.Config> 
   @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.pc(getRedirectPercent(level), 0), 1);
-    statLore(v, C.YELLOW, "* ", Form.f(getOwnerHealthFloor(level), 1), 2);
+    statLore(v, C.YELLOW, "* ", Form.f(getPetHealthFloor(level), 1), 2);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(EntityDamageEvent e) {
-    if (!(e.getEntity() instanceof Tameable tameable) || !tameable.isTamed() || !(tameable.getOwner() instanceof Player owner)) {
+    if (!(e.getEntity() instanceof Player owner)) {
       return;
     }
 
@@ -82,56 +92,168 @@ public class TamingSharedPain extends SimpleAdaptation<TamingSharedPain.Config> 
       return;
     }
 
-    double raw = e.getDamage() * getRedirectPercent(level);
-    if (raw <= 0) {
+    double incomingDamage = e.getDamage();
+    double requestedTransfer = incomingDamage * getRedirectPercent(level);
+    if (requestedTransfer <= MINIMUM_TRANSFER) {
       return;
     }
 
-    double floor = getOwnerHealthFloor(level);
-    double allowed = Math.max(0, owner.getHealth() - floor);
-    double redirect = Math.min(raw, allowed);
-    if (redirect <= 0.01) {
+    UUID ownerId = owner.getUniqueId();
+    List<PetTarget> pets = findEligiblePets(owner, ownerId, getRadius(level), getPetHealthFloor(level), getPetLimit());
+    if (pets.isEmpty()) {
       return;
     }
 
-    boolean clamped = allowed < raw;
-    e.setDamage(Math.max(0, e.getDamage() - redirect));
-    if (e.getDamage() <= 0.01) {
-      e.setCancelled(true);
+    double[] capacities = new double[pets.size()];
+    for (int i = 0; i < pets.size(); i++) {
+      capacities[i] = pets.get(i).capacity();
+    }
+    double[] shares = damageShares(requestedTransfer, capacities);
+    Location ownerChest = owner.getLocation().add(0, 1, 0);
+    double transferred = applyShares(pets, shares, ownerChest);
+    if (transferred <= MINIMUM_TRANSFER) {
+      return;
     }
 
-    owner.damage(redirect);
-    addStat(owner, "taming.shared-pain.damage-taken", redirect);
-    xp(owner, redirect * getConfig().xpPerRedirectedDamage);
+    e.setDamage(Math.max(0, incomingDamage - transferred));
 
-    if (redirectFx.isReady(tameable.getUniqueId(), 500L)) {
-      redirectFx.mark(tameable.getUniqueId());
-      Location ownerChest = owner.getLocation().add(0, 1, 0);
-      Location petChest = tameable.getLocation().add(0, 1, 0);
-      fx(petChest, FxPriority.COMBAT)
-          .line(Particle.CRIT, ownerChest.getX(), ownerChest.getY(), ownerChest.getZ(), 6)
-          .sound(Sound.ENTITY_WOLF_WHINE, 0.55F, 1.2F);
+    addStat(owner, "taming.shared-pain.damage-taken", transferred);
+    xp(owner, transferred * getConfig().xpPerRedirectedDamage);
+
+    if (redirectFx.isReady(ownerId, 500L)) {
+      redirectFx.mark(ownerId);
       fx(ownerChest, FxPriority.COMBAT)
           .particle(Particle.DAMAGE_INDICATOR, 3, 0, 0, 0, 0.15D, 0)
-          .chord(Sound.BLOCK_AMETHYST_CLUSTER_HIT, 0.5F, 0.6F, Sound.ENTITY_PLAYER_HURT, 0.25F, 1.0F);
-      if (clamped) {
-        fx(ownerChest, FxPriority.TRANSITION)
-            .dustBurst(Color.fromRGB(0xF2C14E), 2, 0.3D, 1.0F)
-            .sound(Sound.BLOCK_CONDUIT_ACTIVATE, 0.25F, 1.5F);
+          .dustBurst(Color.fromRGB(0xF2C14E), 2, 0.3D, 1.0F)
+          .chord(Sound.BLOCK_AMETHYST_CLUSTER_HIT, 0.55F, 0.8F, Sound.BLOCK_CONDUIT_ACTIVATE, 0.3F, 1.5F);
+    }
+  }
+
+  static double[] damageShares(double requestedDamage, double[] capacities) {
+    double[] shares = new double[capacities.length];
+    double remaining = Math.max(0, requestedDamage);
+    boolean[] available = new boolean[capacities.length];
+    int availableCount = 0;
+    for (int i = 0; i < capacities.length; i++) {
+      if (Double.isFinite(capacities[i]) && capacities[i] > MINIMUM_TRANSFER) {
+        available[i] = true;
+        availableCount++;
       }
     }
+
+    while (remaining > MINIMUM_TRANSFER && availableCount > 0) {
+      double equalShare = remaining / availableCount;
+      double allocated = 0;
+      for (int i = 0; i < capacities.length; i++) {
+        if (!available[i]) {
+          continue;
+        }
+        double capacity = Math.max(0, capacities[i] - shares[i]);
+        double amount = Math.min(equalShare, capacity);
+        shares[i] += amount;
+        allocated += amount;
+        if (capacity - amount <= MINIMUM_TRANSFER) {
+          available[i] = false;
+          availableCount--;
+        }
+      }
+      if (allocated <= MINIMUM_TRANSFER) {
+        break;
+      }
+      remaining -= allocated;
+    }
+    return shares;
+  }
+
+  static double transferredDamage(double beforeHealth, double beforeAbsorption, double afterHealth,
+                                  double afterAbsorption, double requestedDamage) {
+    double before = Math.max(0, beforeHealth) + Math.max(0, beforeAbsorption);
+    double after = Math.max(0, afterHealth) + Math.max(0, afterAbsorption);
+    return Math.min(Math.max(0, requestedDamage), Math.max(0, before - after));
+  }
+
+  private List<PetTarget> findEligiblePets(Player owner, UUID ownerId, double radius, double healthFloor, int limit) {
+    List<PetTarget> pets = new ArrayList<>(limit);
+    for (Entity entity : owner.getNearbyEntities(radius, radius, radius)) {
+      if (pets.size() >= limit) {
+        break;
+      }
+      if (!(entity instanceof LivingEntity living) || !(entity instanceof Tameable tameable)
+          || !J.isOwnedByCurrentRegion(living)) {
+        continue;
+      }
+      if (!tameable.isTamed() || !living.isValid() || living.isDead() || !isOwnedBy(tameable, ownerId)) {
+        continue;
+      }
+      double capacity = living.getHealth() + living.getAbsorptionAmount() - healthFloor;
+      if (capacity > MINIMUM_TRANSFER) {
+        pets.add(new PetTarget(living, capacity));
+      }
+    }
+    return pets;
+  }
+
+  private double applyShares(List<PetTarget> pets, double[] shares, Location ownerChest) {
+    double transferred = 0;
+    for (int i = 0; i < pets.size(); i++) {
+      double share = shares[i];
+      if (share <= MINIMUM_TRANSFER) {
+        continue;
+      }
+
+      LivingEntity pet = pets.get(i).pet();
+      double beforeHealth = pet.getHealth();
+      double beforeAbsorption = pet.getAbsorptionAmount();
+      pet.damage(share);
+      double actual = transferredDamage(beforeHealth, beforeAbsorption, pet.getHealth(), pet.getAbsorptionAmount(), share);
+      if (actual <= MINIMUM_TRANSFER) {
+        continue;
+      }
+
+      transferred += actual;
+      UUID petId = pet.getUniqueId();
+      if (redirectFx.isReady(petId, 500L)) {
+        redirectFx.mark(petId);
+        Location petChest = pet.getLocation().add(0, 1, 0);
+        fx(petChest, FxPriority.COMBAT)
+            .line(Particle.CRIT, ownerChest.getX(), ownerChest.getY(), ownerChest.getZ(), 6)
+            .sound(Sound.ENTITY_WOLF_WHINE, 0.4F, 1.35F);
+      }
+    }
+    return transferred;
+  }
+
+  private boolean isOwnedBy(Tameable tameable, UUID ownerId) {
+    AnimalTamer petOwner = tameable.getOwner();
+    return petOwner != null && ownerId.equals(petOwner.getUniqueId());
   }
 
   private double getRedirectPercent(int level) {
-    return Math.min(getConfig().maxRedirectPercent, getConfig().redirectPercentBase + (getLevelPercent(level) * getConfig().redirectPercentFactor));
+    return clampRedirectPercent(
+        getConfig().redirectPercentBase + (getLevelPercent(level) * getConfig().redirectPercentFactor),
+        getConfig().maxRedirectPercent);
   }
 
-  private double getOwnerHealthFloor(int level) {
-    return Math.max(1.0, getConfig().ownerHealthFloorBase + (getLevelPercent(level) * getConfig().ownerHealthFloorFactor));
+  static double clampRedirectPercent(double calculated, double configuredMaximum) {
+    return Math.max(0D, Math.min(1D, Math.min(calculated, configuredMaximum)));
   }
 
+  private double getPetHealthFloor(int level) {
+    return Math.max(1.0, getConfig().petHealthFloorBase + (getLevelPercent(level) * getConfig().petHealthFloorFactor));
+  }
 
-  @ConfigDescription("Redirect part of your pet's incoming damage to you, preserving companion survivability.")
+  private double getRadius(int level) {
+    return Math.max(1.0, getConfig().radiusBase + (getLevelPercent(level) * getConfig().radiusFactor));
+  }
+
+  private int getPetLimit() {
+    return Math.max(1, Math.min(getConfig().maxPets, HARD_MAX_PETS));
+  }
+
+  private record PetTarget(LivingEntity pet, double capacity) {
+  }
+
+  @ConfigDescription("Spread part of your incoming damage across nearby owned companions without reducing them below their health floor.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Redirect Percent Base for the Taming Shared Pain adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double redirectPercentBase = 0.2;
@@ -139,10 +261,16 @@ public class TamingSharedPain extends SimpleAdaptation<TamingSharedPain.Config> 
     double redirectPercentFactor = 0.35;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Redirect Percent for the Taming Shared Pain adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double maxRedirectPercent = 0.7;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Owner Health Floor Base for the Taming Shared Pain adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double ownerHealthFloorBase = 2.0;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Owner Health Floor Factor for the Taming Shared Pain adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double ownerHealthFloorFactor = 4.0;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Minimum health preserved on each companion before it stops receiving Shared Pain damage.", impact = "Higher values protect companions more aggressively but redirect less owner damage.")
+    double petHealthFloorBase = 1.0;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Additional companion health floor reached at maximum adaptation level.", impact = "Higher values preserve more companion health as Shared Pain levels up.")
+    double petHealthFloorFactor = 1.0;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Base radius searched for owned companions that can share incoming damage.", impact = "Higher values allow more distant companions to participate.")
+    double radiusBase = 8.0;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Additional companion search radius reached at maximum adaptation level.", impact = "Higher values expand Shared Pain's range as it levels up.")
+    double radiusFactor = 8.0;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum companions included in one damage split, capped internally at 16.", impact = "Higher values spread damage more thinly but perform more nested damage events.")
+    int maxPets = 8;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Redirected Damage for the Taming Shared Pain adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpPerRedirectedDamage = 2.0;
 

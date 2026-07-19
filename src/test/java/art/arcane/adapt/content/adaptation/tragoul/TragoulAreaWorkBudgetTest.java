@@ -1,10 +1,17 @@
 package art.arcane.adapt.content.adaptation.tragoul;
 
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
 import org.junit.jupiter.api.Test;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class TragoulAreaWorkBudgetTest {
   @Test
@@ -68,5 +75,54 @@ class TragoulAreaWorkBudgetTest {
     gate.complete(firstMonster);
     assertThat(gate.admit(thirdMonster)).isTrue();
     assertThat(gate.size()).isEqualTo(2);
+  }
+
+  @Test
+  void plagueUsesExactLargeRadiusEndpointsAndAmplifiesTheSourceEffect() {
+    TragoulPlagueBearer.Config config = new TragoulPlagueBearer.Config();
+
+    assertThat(config.spreadRadiusStart).isEqualTo(8D);
+    assertThat(config.spreadRadiusEnd).isEqualTo(20D);
+    assertThat(config.amplifierBonus).isEqualTo(1);
+    assertThat(TragoulPlagueBearer.scaledRadius(8D, 20D, 1, 5)).isEqualTo(8D);
+    assertThat(TragoulPlagueBearer.scaledRadius(8D, 20D, 5, 5)).isEqualTo(20D);
+    assertThat(TragoulPlagueBearer.scaledRadius(8D, 20D, 3, 5)).isEqualTo(14D);
+    assertThat(TragoulPlagueBearer.amplifiedEffect(2, 1)).isEqualTo(3);
+    assertThat(TragoulPlagueBearer.amplifiedEffect(255, 10)).isEqualTo(255);
+  }
+
+  @Test
+  void corpseLanceTriplesDamageOnlyWhenEveryArmorSlotIsEmpty() {
+    ItemStack armor = mock(ItemStack.class);
+    when(armor.getType()).thenReturn(Material.LEATHER_BOOTS);
+    ItemStack[] emptyArmor = new ItemStack[]{null, null, null, null};
+    ItemStack[] equippedArmor = new ItemStack[]{null, armor, null, null};
+
+    assertThat(TragoulLance.isUnarmored(null)).isTrue();
+    assertThat(TragoulLance.isUnarmored(emptyArmor)).isTrue();
+    assertThat(TragoulLance.isUnarmored(equippedArmor)).isFalse();
+    assertThat(new TragoulLance.Config().unarmoredDamageMultiplier).isEqualTo(3D);
+    assertThat(TragoulLance.lanceDamage(10D, 1D, 3D, true)).isEqualTo(30D);
+    assertThat(TragoulLance.lanceDamage(10D, 1D, 3D, false)).isEqualTo(10D);
+    assertThat(TragoulLance.lanceDamage(-10D, 1D, 3D, true)).isZero();
+  }
+
+  @Test
+  void corpseLanceResolvesDirectAndProjectilePlayers() {
+    Player player = mock(Player.class);
+    Projectile projectile = mock(Projectile.class);
+    Entity other = mock(Entity.class);
+    when(projectile.getShooter()).thenReturn(player);
+
+    assertThat(TragoulLance.resolvePlayerDamager(player)).isSameAs(player);
+    assertThat(TragoulLance.resolvePlayerDamager(projectile)).isSameAs(player);
+    assertThat(TragoulLance.resolvePlayerDamager(other)).isNull();
+  }
+
+  @Test
+  void corpseExplosionSuppressionOnlyBlocksFreshNovaVictims() {
+    assertThat(TragoulCorpseExplosion.isSuppressed(null, 1000L, 500L)).isFalse();
+    assertThat(TragoulCorpseExplosion.isSuppressed(900L, 1000L, 500L)).isTrue();
+    assertThat(TragoulCorpseExplosion.isSuppressed(400L, 1000L, 500L)).isFalse();
   }
 }

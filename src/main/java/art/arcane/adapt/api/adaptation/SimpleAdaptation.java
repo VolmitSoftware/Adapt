@@ -44,6 +44,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -399,6 +400,31 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
 
   protected FxEmitter fx(Entity entity, FxPriority priority) {
     return Fx.now(this, entity, priority);
+  }
+
+  protected double applyPlayerHealthLoss(Player player, double amount) {
+    if (player == null || !Double.isFinite(amount) || amount <= 0D || player.isDead()) {
+      return 0D;
+    }
+
+    double healthBefore = Math.max(0D, player.getHealth());
+    double healthAfter = healthAfterLoss(healthBefore, amount);
+    if (healthAfter >= healthBefore) {
+      return 0D;
+    }
+
+    player.setHealth(healthAfter);
+    fx(player, FxPriority.TRAIL)
+        .particle(Particle.DAMAGE_INDICATOR, 3, 0, 1.0D, 0, 0.18D, 0.01D)
+        .sound(Sound.ENTITY_PLAYER_HURT, 0.35F, 1.0F);
+    return healthBefore - healthAfter;
+  }
+
+  static double healthAfterLoss(double health, double amount) {
+    if (!Double.isFinite(health) || !Double.isFinite(amount) || health <= 0D || amount <= 0D) {
+      return Math.max(0D, Double.isFinite(health) ? health : 0D);
+    }
+    return Math.max(0D, health - amount);
   }
 
   protected FxTimeline timeline(Location location) {

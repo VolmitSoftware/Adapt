@@ -58,11 +58,13 @@ public class ExcavationEarthMover extends SimpleAdaptation<ExcavationEarthMover.
   private static final int HARD_MAX_CANDIDATES_PER_ACTIVATION = 32;
   private static final int HARD_MAX_AFFECTED_PER_ACTIVATION = 16;
   private static final int HARD_MAX_TARGET_FX_PER_ACTIVATION = 12;
-  private static final PotionEffectType SLOWNESS = RegistryUtil.find(PotionEffectType.class, "slowness", "slow");
+  private static final int BATCH_TIMEOUT_TICKS = 20;
   private final Cooldowns cooldowns = cooldowns();
+  private final PotionEffectType slowness;
 
   public ExcavationEarthMover() {
     super("excavation-earth-mover");
+    slowness = RegistryUtil.find(PotionEffectType.class, "slowness", "slow");
     registerConfiguration(Config.class);
     setIcon(Material.DIRT);
     setInterval(3730);
@@ -78,10 +80,11 @@ public class ExcavationEarthMover extends SimpleAdaptation<ExcavationEarthMover.
   @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.f(getRadius(level), 1), 1);
-    statLore(v, Form.pc(getForce(level), 0), 2);
-    statLore(v, Form.duration(getSlowTicks(level) * 50D, 1), 3);
-    statLore(v, C.YELLOW, "* ", Form.duration(getCooldownMillis(level), 1), 4);
-    statLore(v, C.RED, "- ", getConfig().hungerCost, 5);
+    statLore(v, Form.pc(getDamageMultiplier(level), 0), 2);
+    statLore(v, Form.pc(getForce(level), 0), 3);
+    statLore(v, Form.duration(getSlowTicks(level) * 50D, 1), 4);
+    statLore(v, C.YELLOW, "* ", Form.duration(getCooldownMillis(level), 1), 5);
+    statLore(v, C.RED, "- ", getConfig().hungerCost, 6);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
@@ -124,6 +127,10 @@ public class ExcavationEarthMover extends SimpleAdaptation<ExcavationEarthMover.
 
     double radius = getRadius(level);
     double force = getForce(level);
+    double damage = DamageScaling.scaledDamage(
+        shovelDamage(p.getInventory().getItemInMainHand().getType()),
+        getDamageMultiplier(level)
+    );
     int slowTicks = getSlowTicks(level);
     int slowAmplifier = getSlowAmplifier(level);
     Location origin = p.getLocation().clone();
@@ -138,14 +145,14 @@ public class ExcavationEarthMover extends SimpleAdaptation<ExcavationEarthMover.
     }
 
     EarthMoverBatch batch = new EarthMoverBatch(p, origin, radius, getConfig().verticalRange, force,
-        getConfig().liftVelocity, slowTicks, slowAmplifier, getAffectedLimit(), getTargetFxLimit(),
+        damage, getConfig().liftVelocity, slowTicks, slowAmplifier, getAffectedLimit(), getTargetFxLimit(),
         getConfig().xpPerMobHit, dirtData, candidates.size());
     for (Monster monster : candidates) {
       if (!J.runEntity(monster, () -> inspectCandidateOwned(batch, monster))) {
         batch.complete();
       }
     }
-    J.runEntity(p, batch::finishTimedOut, 3);
+    J.runEntity(p, batch::finishTimedOut, BATCH_TIMEOUT_TICKS);
   }
 
   private List<Monster> collectCandidates(Location origin, double radius) {
@@ -204,8 +211,20 @@ public class ExcavationEarthMover extends SimpleAdaptation<ExcavationEarthMover.
     }
 
     direction.normalize().multiply(batch.force).setY(batch.liftVelocity);
+    int previousNoDamageTicks = monster.getNoDamageTicks();
+    double healthBefore = monster.getHealth() + monster.getAbsorptionAmount();
+    monster.setNoDamageTicks(0);
+    monster.damage(batch.damage, batch.player);
+    double healthAfter = monster.isDead() ? 0D : monster.getHealth() + monster.getAbsorptionAmount();
+    if (healthAfter >= healthBefore) {
+      monster.setNoDamageTicks(previousNoDamageTicks);
+      batch.complete();
+      return;
+    }
+
+    batch.markAffected();
     monster.setVelocity(direction);
-    monster.addPotionEffect(new PotionEffect(SLOWNESS, batch.slowTicks, batch.slowAmplifier, false, true, true));
+    monster.addPotionEffect(new PotionEffect(slowness, batch.slowTicks, batch.slowAmplifier, false, true, true));
     if (batch.claimTargetFx()) {
       fx(monster, FxPriority.COMBAT)
           .particle(Particles.BLOCK_CRACK, 4, 0, 0.1D, 0, 0.2D, 0.05D, batch.dirtData);
@@ -257,6 +276,22 @@ public class ExcavationEarthMover extends SimpleAdaptation<ExcavationEarthMover.
     return getConfig().forceBase + (getLevelPercent(level) * getConfig().forceFactor);
   }
 
+  private double getDamageMultiplier(int level) {
+    return Math.max(0D, getConfig().damageMultiplierBase
+        + (getLevelPercent(level) * getConfig().damageMultiplierFactor));
+  }
+
+  static double shovelDamage(Material material) {
+    return switch (material) {
+      case WOODEN_SHOVEL, GOLDEN_SHOVEL -> 2.5D;
+      case STONE_SHOVEL -> 3.5D;
+      case IRON_SHOVEL -> 4.5D;
+      case DIAMOND_SHOVEL -> 5.5D;
+      case NETHERITE_SHOVEL -> 6.5D;
+      default -> 0D;
+    };
+  }
+
   private int getSlowTicks(int level) {
     return Math.max(20, (int) Math.round(getConfig().slowTicksBase + (getLevelPercent(level) * getConfig().slowTicksFactor)));
   }
@@ -266,7 +301,18 @@ public class ExcavationEarthMover extends SimpleAdaptation<ExcavationEarthMover.
   }
 
   private long getCooldownMillis(int level) {
-    return Math.max(1000L, (long) Math.round(getConfig().cooldownMillisBase - (getLevelPercent(level) * getConfig().cooldownMillisFactor)));
+    return scaledCooldown(
+        getConfig().cooldownMillisBase,
+        getConfig().cooldownMillisFactor,
+        getLevelPercent(level),
+        getConfig().cooldownScale
+    );
+  }
+
+  static long scaledCooldown(double base, double factor, double levelPercent, double scale) {
+    double safeScale = Double.isFinite(scale) ? Math.max(0D, Math.min(1D, scale)) : 0.5D;
+    double configured = base - (Math.max(0D, Math.min(1D, levelPercent)) * factor);
+    return Math.max(500L, Math.round(configured * safeScale));
   }
 
   private int getCandidateLimit() {
@@ -282,7 +328,7 @@ public class ExcavationEarthMover extends SimpleAdaptation<ExcavationEarthMover.
   }
 
 
-  @ConfigDescription("Sneak-right-click the air with a shovel to fling a wave of earth that knocks back and slows hostile mobs.")
+  @ConfigDescription("Sneak-right-click the air with a shovel to damage, knock back, and slow hostile mobs with damage based on shovel tier.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Radius Base for the Excavation Earth Mover adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double radiusBase = 3;
@@ -294,6 +340,10 @@ public class ExcavationEarthMover extends SimpleAdaptation<ExcavationEarthMover.
     double forceBase = 0.6;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Force Factor for the Excavation Earth Mover adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double forceFactor = 1.0;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Base multiplier applied to the held shovel's attack damage for Earth Mover.", impact = "Higher values increase wave damage at every adaptation level.")
+    double damageMultiplierBase = 0.75;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Additional held-shovel damage multiplier gained across Earth Mover levels.", impact = "Higher values make wave damage scale more strongly with adaptation level.")
+    double damageMultiplierFactor = 0.75;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Lift Velocity for the Excavation Earth Mover adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double liftVelocity = 0.35;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Slow Ticks Base for the Excavation Earth Mover adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -306,6 +356,8 @@ public class ExcavationEarthMover extends SimpleAdaptation<ExcavationEarthMover.
     double cooldownMillisBase = 16000;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown Millis Factor for the Excavation Earth Mover adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double cooldownMillisFactor = 8000;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Multiplier applied to Earth Mover cooldowns after level scaling.", impact = "The default 0.5 halves the cooldown at every adaptation level.")
+    double cooldownScale = 0.5;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Hunger points consumed per earth wave.", impact = "Higher values drain more food per wave; activation fails when food is below the cost. Set to 0 to disable the hunger cost.")
     int hungerCost = 2;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Mob Hit for the Excavation Earth Mover adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -324,12 +376,25 @@ public class ExcavationEarthMover extends SimpleAdaptation<ExcavationEarthMover.
     }
   }
 
+  static final class DamageScaling {
+    private DamageScaling() {
+    }
+
+    static double scaledDamage(double shovelDamage, double multiplier) {
+      if (!Double.isFinite(shovelDamage) || !Double.isFinite(multiplier)) {
+        return 0D;
+      }
+      return Math.max(0D, shovelDamage) * Math.max(0D, multiplier);
+    }
+  }
+
   private final class EarthMoverBatch {
     private final Player player;
     private final Location origin;
     private final double radius;
     private final double verticalRange;
     private final double force;
+    private final double damage;
     private final double liftVelocity;
     private final int slowTicks;
     private final int slowAmplifier;
@@ -338,18 +403,20 @@ public class ExcavationEarthMover extends SimpleAdaptation<ExcavationEarthMover.
     private final double xpPerMobHit;
     private final BlockData dirtData;
     private final AtomicInteger remaining;
+    private final AtomicInteger admitted = new AtomicInteger();
     private final AtomicInteger affected = new AtomicInteger();
     private final AtomicInteger targetFx = new AtomicInteger();
     private final AtomicBoolean finalized = new AtomicBoolean();
 
     private EarthMoverBatch(Player player, Location origin, double radius, double verticalRange, double force,
-                            double liftVelocity, int slowTicks, int slowAmplifier, int affectedLimit,
+                            double damage, double liftVelocity, int slowTicks, int slowAmplifier, int affectedLimit,
                             int targetFxLimit, double xpPerMobHit, BlockData dirtData, int candidates) {
       this.player = player;
       this.origin = origin;
       this.radius = radius;
       this.verticalRange = verticalRange;
       this.force = force;
+      this.damage = damage;
       this.liftVelocity = liftVelocity;
       this.slowTicks = slowTicks;
       this.slowAmplifier = slowAmplifier;
@@ -361,15 +428,19 @@ public class ExcavationEarthMover extends SimpleAdaptation<ExcavationEarthMover.
     }
 
     private synchronized boolean claimAffected() {
-      if (finalized.get() || affected.get() >= affectedLimit) {
+      if (finalized.get() || admitted.get() >= affectedLimit) {
         return false;
       }
-      affected.incrementAndGet();
+      admitted.incrementAndGet();
       return true;
     }
 
     private boolean hasAffectedCapacity() {
-      return affected.get() < affectedLimit;
+      return admitted.get() < affectedLimit;
+    }
+
+    private void markAffected() {
+      affected.incrementAndGet();
     }
 
     private boolean claimTargetFx() {

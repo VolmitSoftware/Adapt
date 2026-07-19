@@ -340,6 +340,7 @@ public class ItemListings {
   public static List<Material> toolPickaxes = List.of(
       Material.WOODEN_PICKAXE,
       Material.STONE_PICKAXE,
+      Material.COPPER_PICKAXE,
       Material.IRON_PICKAXE,
       Material.GOLDEN_PICKAXE,
       Material.DIAMOND_PICKAXE,
@@ -350,6 +351,7 @@ public class ItemListings {
   public static List<Material> toolAxes = List.of(
       Material.WOODEN_AXE,
       Material.STONE_AXE,
+      Material.COPPER_AXE,
       Material.IRON_AXE,
       Material.GOLDEN_AXE,
       Material.DIAMOND_AXE,
@@ -360,6 +362,7 @@ public class ItemListings {
   public static List<Material> toolSwords = List.of(
       Material.WOODEN_SWORD,
       Material.STONE_SWORD,
+      Material.COPPER_SWORD,
       Material.IRON_SWORD,
       Material.GOLDEN_SWORD,
       Material.DIAMOND_SWORD,
@@ -370,6 +373,7 @@ public class ItemListings {
   public static List<Material> toolShovels = List.of(
       Material.WOODEN_SHOVEL,
       Material.STONE_SHOVEL,
+      Material.COPPER_SHOVEL,
       Material.IRON_SHOVEL,
       Material.GOLDEN_SHOVEL,
       Material.DIAMOND_SHOVEL,
@@ -380,6 +384,7 @@ public class ItemListings {
   public static List<Material> toolHoes = List.of(
       Material.WOODEN_HOE,
       Material.STONE_HOE,
+      Material.COPPER_HOE,
       Material.IRON_HOE,
       Material.GOLDEN_HOE,
       Material.DIAMOND_HOE,
@@ -390,6 +395,7 @@ public class ItemListings {
   public static List<Material> tool = List.of(
       Material.WOODEN_PICKAXE,
       Material.STONE_PICKAXE,
+      Material.COPPER_PICKAXE,
       Material.IRON_PICKAXE,
       Material.GOLDEN_PICKAXE,
       Material.DIAMOND_PICKAXE,
@@ -397,6 +403,7 @@ public class ItemListings {
       //AXE
       Material.WOODEN_AXE,
       Material.STONE_AXE,
+      Material.COPPER_AXE,
       Material.IRON_AXE,
       Material.GOLDEN_AXE,
       Material.DIAMOND_AXE,
@@ -404,6 +411,7 @@ public class ItemListings {
       //SWORD
       Material.WOODEN_SWORD,
       Material.STONE_SWORD,
+      Material.COPPER_SWORD,
       Material.IRON_SWORD,
       Material.GOLDEN_SWORD,
       Material.DIAMOND_SWORD,
@@ -411,6 +419,7 @@ public class ItemListings {
       //SHOVEL
       Material.WOODEN_SHOVEL,
       Material.STONE_SHOVEL,
+      Material.COPPER_SHOVEL,
       Material.IRON_SHOVEL,
       Material.GOLDEN_SHOVEL,
       Material.DIAMOND_SHOVEL,
@@ -418,6 +427,7 @@ public class ItemListings {
       //HOE
       Material.WOODEN_HOE,
       Material.STONE_HOE,
+      Material.COPPER_HOE,
       Material.IRON_HOE,
       Material.GOLDEN_HOE,
       Material.DIAMOND_HOE,

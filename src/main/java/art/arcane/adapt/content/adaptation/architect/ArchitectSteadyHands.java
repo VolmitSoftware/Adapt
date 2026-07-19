@@ -25,29 +25,37 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
-import art.arcane.adapt.util.reflect.registries.PotionEffectTypes;
+import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
 import lombok.NoArgsConstructor;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.player.PlayerVelocityEvent;
-import org.bukkit.potion.PotionEffect;
+import org.bukkit.event.player.PlayerToggleSneakEvent;
+
+import java.util.Map;
+import java.util.UUID;
 
 public class ArchitectSteadyHands extends SimpleAdaptation<ArchitectSteadyHands.Config> {
-  private final Cooldowns bridgeGrace = cooldowns();
+  private static final String SLOT_HASTE = "haste";
+  private static final String SLOT_BRACE = "brace";
+  private static final String SLOT_BLAST = "blast";
+  private static final String SLOT_FALL = "fall";
+
   private final Cooldowns auraCd = cooldowns();
+  private final Map<UUID, Long> bridgeGraceUntil = playerState();
 
   public ArchitectSteadyHands() {
     super("architect-steady-hands");
@@ -92,8 +100,15 @@ public class ArchitectSteadyHands extends SimpleAdaptation<ArchitectSteadyHands.
       return;
     }
 
-    bridgeGrace.mark(p.getUniqueId());
-    p.addPotionEffect(new PotionEffect(PotionEffectTypes.FAST_DIGGING, getConfig().hasteDurationTicks, getConfig().hasteAmplifier, false, false, true));
+    AdaptAttributeService attributes = AdaptAttributeService.get();
+    long graceTicks = graceDurationTicks(getConfig().bridgeGraceMillis);
+    if (getConfig().hasteDurationTicks > 0) {
+      attributes.applyTimed(p, getName(), SLOT_HASTE, Attributes.BLOCK_BREAK_SPEED, hasteBreakSpeedBonus(getConfig().hasteAmplifier), AttributeModifier.Operation.MULTIPLY_SCALAR_1, getConfig().hasteDurationTicks);
+    }
+    attributes.applyTimed(p, getName(), SLOT_BRACE, Attributes.KNOCKBACK_RESISTANCE, 1.0D, AttributeModifier.Operation.ADD_NUMBER, graceTicks);
+    attributes.applyTimed(p, getName(), SLOT_BLAST, Attributes.EXPLOSION_KNOCKBACK_RESISTANCE, 1.0D, AttributeModifier.Operation.ADD_NUMBER, graceTicks);
+    attributes.applyTimed(p, getName(), SLOT_FALL, Attributes.SAFE_FALL_DISTANCE, getShieldedHeight(getLevelPercent(context.level())), AttributeModifier.Operation.ADD_NUMBER, graceTicks);
+    bridgeGraceUntil.put(p.getUniqueId(), M.ms() + (graceTicks * 50L));
     addStat(p, "architect.steady-hands.bridge-blocks", 1);
     if (auraCd.isReady(p.getUniqueId(), 250)) {
       auraCd.mark(p.getUniqueId());
@@ -103,54 +118,49 @@ public class ArchitectSteadyHands extends SimpleAdaptation<ArchitectSteadyHands.
     }
   }
 
-  @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-  public void on(PlayerVelocityEvent e) {
+  @EventHandler
+  public void on(PlayerToggleSneakEvent e) {
     Player p = e.getPlayer();
-    if (bridgeGrace.isReady(p.getUniqueId(), getConfig().bridgeGraceMillis)) {
-      return;
-    }
-
-    if (!p.isSneaking()) {
-      return;
-    }
-
     if (getActiveLevel(p) <= 0) {
       return;
     }
 
-    e.setCancelled(true);
+    AdaptAttributeService attributes = AdaptAttributeService.get();
+    if (!e.isSneaking()) {
+      attributes.remove(p, getName(), SLOT_BRACE, Attributes.KNOCKBACK_RESISTANCE);
+      attributes.remove(p, getName(), SLOT_BLAST, Attributes.EXPLOSION_KNOCKBACK_RESISTANCE);
+      return;
+    }
+
+    Long until = bridgeGraceUntil.get(p.getUniqueId());
+    if (until == null) {
+      return;
+    }
+
+    long remainingMillis = until - M.ms();
+    if (remainingMillis <= 0L) {
+      return;
+    }
+
+    long remainingTicks = graceDurationTicks(remainingMillis);
+    attributes.applyTimed(p, getName(), SLOT_BRACE, Attributes.KNOCKBACK_RESISTANCE, 1.0D, AttributeModifier.Operation.ADD_NUMBER, remainingTicks);
+    attributes.applyTimed(p, getName(), SLOT_BLAST, Attributes.EXPLOSION_KNOCKBACK_RESISTANCE, 1.0D, AttributeModifier.Operation.ADD_NUMBER, remainingTicks);
   }
 
-  @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-  public void on(EntityDamageEvent e) {
-    if (e.getCause() != EntityDamageEvent.DamageCause.FALL || !(e.getEntity() instanceof Player p)) {
-      return;
-    }
+  static double hasteBreakSpeedBonus(int amplifier) {
+    return 0.2D * (amplifier + 1);
+  }
 
-    if (bridgeGrace.isReady(p.getUniqueId(), getConfig().bridgeGraceMillis)) {
-      return;
-    }
+  static long graceDurationTicks(long graceMillis) {
+    return Math.max(1L, graceMillis / 50L);
+  }
 
-    int level = getActiveLevel(p);
-    if (level <= 0) {
-      return;
-    }
-
-    double shielded = getShieldedHeight(getLevelPercent(level));
-    if (e.getDamage() <= shielded) {
-      e.setCancelled(true);
-      p.setFallDistance(0);
-      fx(p.getLocation(), FxPriority.COMBAT)
-          .dustRing(Color.fromRGB(255, 240, 180), 0.6D, 16, 1.0F)
-          .sound(Sound.BLOCK_WOOL_BREAK, 0.5f, 0.8f);
-      return;
-    }
-
-    e.setDamage(Math.max(0, e.getDamage() - shielded));
+  static double shieldedHeight(double minBlocks, double maxBlocks, double factor) {
+    return M.lerp(minBlocks, maxBlocks, factor);
   }
 
   private double getShieldedHeight(double factor) {
-    return M.lerp(getConfig().minShieldedBlocks, getConfig().maxShieldedBlocks, factor);
+    return shieldedHeight(getConfig().minShieldedBlocks, getConfig().maxShieldedBlocks, factor);
   }
 
 

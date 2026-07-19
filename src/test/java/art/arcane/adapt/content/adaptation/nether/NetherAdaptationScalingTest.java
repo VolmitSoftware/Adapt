@@ -42,6 +42,14 @@ class NetherAdaptationScalingTest {
   }
 
   @Test
+  void netherrackMasonBreakSpeedBonusMatchesHasteTierParity() {
+    assertThat(NetherNetherrackMason.breakSpeedBonus(1)).isCloseTo(0.2D, within(1.0E-9D));
+    assertThat(NetherNetherrackMason.breakSpeedBonus(2)).isCloseTo(0.4D, within(1.0E-9D));
+    assertThat(NetherNetherrackMason.breakSpeedBonus(3)).isCloseTo(0.6D, within(1.0E-9D));
+    assertThat(NetherNetherrackMason.breakSpeedBonus(0)).isCloseTo(0.2D, within(1.0E-9D));
+  }
+
+  @Test
   void striderBondSpeedAmplifierAndSearchRadiusStayWithinBounds() {
     assertThat(NetherStriderBond.striderSpeedAmplifier(0.25D, 0D, 1.5D)).isGreaterThanOrEqualTo(0);
     assertThat(NetherStriderBond.striderSpeedAmplifier(1.0D, 0D, 1.5D))

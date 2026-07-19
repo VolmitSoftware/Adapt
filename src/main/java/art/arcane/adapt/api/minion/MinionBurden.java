@@ -254,7 +254,7 @@ public final class MinionBurden extends TickedObject {
   }
 
   private void applyBurden(UUID ownerId, Player player) {
-    AttributeInstance attribute = player.getAttribute(Attributes.GENERIC_MAX_HEALTH);
+    AttributeInstance attribute = player.getAttribute(Attributes.MAX_HEALTH);
     if (attribute == null) {
       return;
     }
@@ -349,7 +349,7 @@ public final class MinionBurden extends TickedObject {
   }
 
   private void scrub(Player player) {
-    AttributeInstance attribute = player.getAttribute(Attributes.GENERIC_MAX_HEALTH);
+    AttributeInstance attribute = player.getAttribute(Attributes.MAX_HEALTH);
     if (attribute != null) {
       removeOurModifiers(attribute);
     }

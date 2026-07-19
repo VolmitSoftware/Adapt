@@ -49,6 +49,8 @@ import org.bukkit.event.player.PlayerAnimationEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.RayTraceResult;
@@ -61,7 +63,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Config> {
   private static final PacketDecoyBridge PACKET_DECOY = PacketDecoyBridge.create();
-  private static volatile StealthShadowDecoy instance;
 
   private final Cooldowns decoyCooldowns = cooldowns();
   private final Map<UUID, DecoySession> activeDecoys = new ConcurrentHashMap<>();
@@ -86,21 +87,30 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
         .build());
     registerMilestone("challenge_stealth_decoy_100", "stealth.shadow-decoy.decoys-spawned", 100, 300);
     registerMilestone("challenge_stealth_decoy_distract_500", "stealth.shadow-decoy.mobs-distracted", 500, 1000);
-    instance = this;
   }
 
-  public static Entity activeDecoyAnchor(UUID ownerId) {
-    StealthShadowDecoy self = instance;
-    if (self == null || ownerId == null) {
+  public Entity activeDecoyAnchor(UUID ownerId) {
+    if (ownerId == null) {
       return null;
     }
 
-    DecoySession state = self.activeDecoys.get(ownerId);
-    if (state == null || !state.active.get() || state.anchor == null) {
+    DecoySession state = activeDecoys.get(ownerId);
+    if (!isActive(state, System.currentTimeMillis())) {
       return null;
     }
 
     return state.anchor;
+  }
+
+  public boolean hasActiveDecoy(UUID ownerId) {
+    return ownerId != null && isActive(activeDecoys.get(ownerId), System.currentTimeMillis());
+  }
+
+  static boolean isActive(DecoySession state, long now) {
+    return state != null
+        && state.active.get()
+        && state.anchor != null
+        && state.expiresAt > now;
   }
 
   @Override
@@ -283,7 +293,12 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
       return;
     }
 
-    equipment.setHelmet(owner.getInventory().getHelmet());
+    ItemStack head = new ItemStack(Material.PLAYER_HEAD);
+    if (head.getItemMeta() instanceof SkullMeta skullMeta) {
+      skullMeta.setPlayerProfile(owner.getPlayerProfile());
+      head.setItemMeta(skullMeta);
+    }
+    equipment.setHelmet(head);
     equipment.setChestplate(owner.getInventory().getChestplate());
     equipment.setLeggings(owner.getInventory().getLeggings());
     equipment.setBoots(owner.getInventory().getBoots());
@@ -472,9 +487,6 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
     }
     activeDecoys.clear();
     anchorOwners.clear();
-    if (instance == this) {
-      instance = null;
-    }
   }
 
   private long getCooldownMillis(int level) {
@@ -505,8 +517,8 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
     double decoyRadiusFactor = 10;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Visual eye height used for fake player facing.", impact = "Adjust if head rotation appears too high or too low.")
     double decoyEyeHeight = 1.62;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Delay before removing the fake player from tab list, in ticks.", impact = "Small values hide tab entries faster; larger values help skins load.")
-    int tabListRemoveDelayTicks = -1;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Delay before removing the skinned fake player from tab list, in ticks.", impact = "The default two seconds lets clients resolve the owner's skin before the entry is hidden; negative values keep it listed.")
+    int tabListRemoveDelayTicks = 40;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Allows armor stand visual fallback if packet NPC creation fails.", impact = "Turn off to disable fallback visuals on incompatible server builds; disabling leaves an invisible decoy when the packet bridge fails.")
     boolean legacyFallbackEnabled = true;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Refresh duration for owner invisibility while a decoy is active.", impact = "Higher values keep invisibility active longer between refreshes.")

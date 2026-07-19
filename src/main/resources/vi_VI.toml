@@ -1973,11 +1973,10 @@ lore = ["Càng nhiều kẻ thù xung quanh, sát thương cho mỗi kẻ càng 
 
 [tragoul.healing]
 name = "Ý Chí Đau Đớn"
-description = "Hồi máu dựa trên sát thương bạn gây ra!"
-lore1 = "Gây đau cho kẻ khác chưa bao giờ dễ chịu đến thế! Hồi máu từ Sát Thương Gây Ra"
-lore2 = "Có khoảng thời gian sát thương 3 Giây để hồi máu và 1 Giây thời gian hồi "
-lore3 = "Phần Trăm Hồi Máu Mỗi Sát Thương: "
-lore = ["Gây đau cho kẻ khác chưa bao giờ dễ chịu đến thế! Hồi máu từ Sát Thương Gây Ra", "Có khoảng thời gian sát thương 3 Giây để hồi máu và 1 Giây thời gian hồi ", "Phần Trăm Hồi Máu Mỗi Sát Thương: "]
+description = "Mỗi kẻ tấn công hợp lệ gây sát thương cho bạn sẽ mất một lượng sinh lực cố định nhỏ, lượng đó được hồi cho bạn."
+lore1 = "sinh lực hút từ mỗi kẻ tấn công"
+lore2 = "Sinh lực thực sự hút được sẽ hồi cho bạn"
+lore = ["sinh lực hút từ mỗi kẻ tấn công", "Sinh lực thực sự hút được sẽ hồi cho bạn"]
 
 [tragoul.lance]
 name = "Thương Xác Chết"

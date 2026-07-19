@@ -84,7 +84,7 @@ final class AdaptationRuntimeGuards {
         return;
       }
 
-      runnable.run();
+      runMeasured(adaptation, runnable);
     } catch (Exception ex) {
       Adapt.verbose("Failed guarded player runnable for adaptation " + adaptation.getName() + ": "
           + ex.getClass().getSimpleName()
@@ -111,7 +111,7 @@ final class AdaptationRuntimeGuards {
         return;
       }
 
-      runnable.run();
+      runMeasured(adaptation, runnable);
     } catch (Exception ex) {
       Adapt.verbose("Failed guarded cancellable player runnable for adaptation " + adaptation.getName() + ": "
           + ex.getClass().getSimpleName()
@@ -432,7 +432,7 @@ final class AdaptationRuntimeGuards {
       return null;
     }
 
-    if (requirement != null && (!requirement.test(hand) || player.hasCooldown(hand.getType()))) {
+    if (requirement != null && !requirement.test(hand)) {
       return null;
     }
 
@@ -587,6 +587,7 @@ final class AdaptationRuntimeGuards {
         level = resolveActiveLevelUncached(adaptation, p, learnedLevel);
       } finally {
         AbilityCheckTelemetry.recordUncachedCheck(
+            adaptation.getName(),
             System.currentTimeMillis(),
             System.nanoTime() - startNs,
             level > 0
@@ -691,6 +692,15 @@ final class AdaptationRuntimeGuards {
     return getActiveLevel(adaptation, player, requirement);
   }
 
+  private static void runMeasured(Adaptation<?> adaptation, Runnable runnable) {
+    long startedNanos = AbilityCheckTelemetry.beginExecution(adaptation.getName());
+    try {
+      runnable.run();
+    } finally {
+      AbilityCheckTelemetry.endExecution(adaptation.getName(), startedNanos);
+    }
+  }
+
   private static int resolveActiveLevelUncached(Adaptation<?> adaptation, Player p, int learnedLevel) {
     int level = learnedLevel;
     if (level <= 0) {
@@ -704,9 +714,9 @@ final class AdaptationRuntimeGuards {
       }
       return 0;
     }
-    if (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR)) {
+    if (!isGameModeAllowed(p.getGameMode(), AdaptConfig.get().allowAdaptationsInCreative)) {
       if (verbose) {
-        Adapt.verbose("Player " + p.getName() + " is in creative or spectator mode. Skipping adaptation " + adaptation.getName());
+        Adapt.verbose("Player " + p.getName() + " is in a disabled game mode. Skipping adaptation " + adaptation.getName());
       }
       return 0;
     }
@@ -738,6 +748,10 @@ final class AdaptationRuntimeGuards {
       Adapt.verbose("Player " + p.getName() + " used adaptation " + adaptation.getName());
     }
     return level;
+  }
+
+  static boolean isGameModeAllowed(GameMode gameMode, boolean allowCreative) {
+    return gameMode != GameMode.SPECTATOR && (gameMode != GameMode.CREATIVE || allowCreative);
   }
 
   private static long runtimeCacheTick() {

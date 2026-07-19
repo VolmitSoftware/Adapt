@@ -1,5 +1,6 @@
 package art.arcane.adapt.content.adaptation.discovery;
 
+import org.bukkit.util.Vector;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
@@ -47,5 +48,37 @@ class DiscoveryInsightRuntimeTest {
 
     gate.clear();
     assertThat(gate.isCurrent(playerId, second)).isFalse();
+  }
+
+  @Test
+  void tameableHudShowsLiveAttributesAndStableHandState() {
+    DiscoveryInsight.AnimalStats stats = new DiscoveryInsight.AnimalStats(0.32D, 0.71D, 5.5D, true);
+    DiscoveryInsight.HudVitals vitals = new DiscoveryInsight.HudVitals("Swift", 24D, 30D, stats);
+
+    String text = DiscoveryInsight.buildHudText(vitals, 12);
+
+    assertThat(text).contains("Swift", "24", "30", "Speed", "0.32", "Jump", "0.71", "Attack", "5.5",
+        "Stable Hand enhanced");
+  }
+
+  @Test
+  void ordinaryCreatureHudDoesNotInventAnimalAttributes() {
+    DiscoveryInsight.HudVitals vitals = new DiscoveryInsight.HudVitals("Zombie", 12D, 20D, null);
+
+    String text = DiscoveryInsight.buildHudText(vitals, 12);
+
+    assertThat(text).contains("Zombie", "12", "20");
+    assertThat(text).doesNotContain("Speed", "Jump", "Attack", "Stable Hand");
+  }
+
+  @Test
+  void onlyBlocksStrictlyCloserThanTheEntityOccludeInsight() {
+    Vector origin = new Vector(0D, 0D, 0D);
+    Vector entityHit = new Vector(0D, 0D, 10D);
+
+    assertThat(DiscoveryInsight.isOccluded(origin, entityHit, new Vector(0D, 0D, 5D))).isTrue();
+    assertThat(DiscoveryInsight.isOccluded(origin, entityHit, new Vector(0D, 0D, 10D))).isFalse();
+    assertThat(DiscoveryInsight.isOccluded(origin, entityHit, new Vector(0D, 0D, 12D))).isFalse();
+    assertThat(DiscoveryInsight.isOccluded(origin, entityHit, null)).isFalse();
   }
 }

@@ -24,28 +24,31 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.events.api.ReflectiveHandler;
 import art.arcane.adapt.util.reflect.events.api.entity.EntityDismountEvent;
-import art.arcane.volmlib.util.format.Form;
+import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.World;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Strider;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 
 public class NetherStriderBond extends SimpleAdaptation<NetherStriderBond.Config> {
+  private static final String SLOT_RIDE = "ride";
+  private static final long SPEED_REFRESH_MILLIS = 500L;
+
   public NetherStriderBond() {
     super("nether-strider-bond");
     registerConfiguration(Config.class);
@@ -89,11 +92,7 @@ public class NetherStriderBond extends SimpleAdaptation<NetherStriderBond.Config
     withAdaptedPlayer(p, e, () -> {
       int level = getActiveLevel(p);
       strider.setShivering(false);
-      int amplifier = getStriderSpeedAmplifier(level);
-      PotionEffect current = strider.getPotionEffect(PotionEffectType.SPEED);
-      if (current == null || current.getAmplifier() < amplifier || current.getDuration() < 10) {
-        strider.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, getConfig().speedTicks, amplifier, false, false, true), true);
-      }
+      refreshStriderSpeed(p, strider, level);
 
       Location from = e.getFrom();
       Location to = e.getTo();
@@ -221,6 +220,28 @@ public class NetherStriderBond extends SimpleAdaptation<NetherStriderBond.Config
     return t == Material.FIRE || t == Material.SOUL_FIRE;
   }
 
+  private void refreshStriderSpeed(Player p, Strider strider, int level) {
+    int durationTicks = getConfig().speedTicks;
+    if (durationTicks <= 0) {
+      return;
+    }
+
+    int amplifier = getStriderSpeedAmplifier(level);
+    long now = System.currentTimeMillis();
+    String mountId = strider.getUniqueId().toString();
+    boolean sameMount = mountId.equals(getStorageString(p, "striderBondMountId", ""));
+    long until = getStorageLong(p, "striderBondSpeedUntil", 0L);
+    int applied = getStorageInt(p, "striderBondSpeedAmp", -1);
+    if (sameMount && applied >= amplifier && until - now >= SPEED_REFRESH_MILLIS) {
+      return;
+    }
+
+    setStorage(p, "striderBondMountId", mountId);
+    setStorage(p, "striderBondSpeedUntil", now + (durationTicks * 50L));
+    setStorage(p, "striderBondSpeedAmp", amplifier);
+    AdaptAttributeService.get().applyTimed(strider, getName(), SLOT_RIDE, Attributes.MOVEMENT_SPEED, striderSpeedBonus(amplifier), AttributeModifier.Operation.MULTIPLY_SCALAR_1, durationTicks);
+  }
+
   private int getStriderSpeedAmplifier(int level) {
     return striderSpeedAmplifier(getLevelPercent(level), getConfig().striderSpeedAmplifierBase, getConfig().striderSpeedAmplifierFactor);
   }
@@ -231,6 +252,10 @@ public class NetherStriderBond extends SimpleAdaptation<NetherStriderBond.Config
 
   static int striderSpeedAmplifier(double levelPercent, double base, double factor) {
     return Math.max(0, (int) Math.round(base + (levelPercent * factor)));
+  }
+
+  static double striderSpeedBonus(int amplifier) {
+    return 0.2D * (amplifier + 1);
   }
 
   static int searchRadius(double levelPercent, double base, double factor, int cap) {

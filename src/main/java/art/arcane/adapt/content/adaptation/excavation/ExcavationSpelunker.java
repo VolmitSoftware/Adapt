@@ -32,40 +32,39 @@ import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.common.world.WorldBlockScanScheduler;
 import art.arcane.adapt.util.config.ConfigDescription;
-import art.arcane.volmlib.util.entity.StackExclusion;
 import art.arcane.volmlib.util.inventorygui.Element;
-import fr.skytasul.glowingentities.GlowingEntities;
-import org.bukkit.ChatColor;
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.World;
+import org.bukkit.entity.BlockDisplay;
+import org.bukkit.entity.Display;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Slime;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityRemoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Config> {
-  private static final String MARKER_META = "adapt-spelunker-marker";
   private static final int MAX_SCAN_RADIUS = 32;
   private static final int MAX_BLOCK_CHECKS_PER_ACTIVATION = 8192;
   private static final int MAX_HIGHLIGHTS_PER_ACTIVATION = 16;
   private final Cooldowns cooldowns = cooldowns();
   private final Map<UUID, UUID> activeScans = new ConcurrentHashMap<>();
+  private final Map<UUID, DisplayHandle> activeMarkers = new ConcurrentHashMap<>();
+  private final AtomicBoolean acceptingMarkers = new AtomicBoolean(true);
+  private final Object markerLifecycleLock = new Object();
 
   public ExcavationSpelunker() {
     super("excavation-spelunker");
@@ -194,11 +193,10 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
       }
 
       consumeGlowberry(p);
-      ChatColor color = ItemListings.oreColorsChatColor.getOrDefault(targetOre, ChatColor.WHITE);
-      GlowingEntities glowingEntities = Adapt.instance.getGlowingEntities();
+      Color color = markerColor(targetOre);
       for (WorldBlockScanScheduler.Match match : matches) {
         addStat(p, "excavation.spelunker.ores-revealed", 1);
-        showOreMarker(p, result.world(), match, targetOre, color, glowingEntities);
+        showOreMarker(p, result.world(), match, targetOre, color);
       }
     });
     if (!scheduled) {
@@ -213,13 +211,16 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
   }
 
   private void showOreMarker(Player p, World world, WorldBlockScanScheduler.Match match, Material targetOre,
-                             ChatColor color, GlowingEntities glowingEntities) {
-    Location center = new Location(world, match.x() + 0.5D, match.y(), match.z() + 0.5D);
-    J.runAt(center, () -> showOreMarkerAtRegion(p, world, match, center, targetOre, color, glowingEntities));
+                             Color color) {
+    Location markerLocation = new Location(world, match.x(), match.y(), match.z());
+    J.runAt(markerLocation, () -> showOreMarkerAtRegion(p, world, match, markerLocation, targetOre, color));
   }
 
-  private void showOreMarkerAtRegion(Player p, World world, WorldBlockScanScheduler.Match match, Location center,
-                                     Material targetOre, ChatColor color, GlowingEntities glowingEntities) {
+  private void showOreMarkerAtRegion(Player p, World world, WorldBlockScanScheduler.Match match,
+                                     Location markerLocation, Material targetOre, Color color) {
+    if (!acceptingMarkers.get()) {
+      return;
+    }
     if (!world.isChunkLoaded(match.x() >> 4, match.z() >> 4)) {
       return;
     }
@@ -227,90 +228,122 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
       return;
     }
 
-    fx(center, FxPriority.AMBIENT)
-        .particle(Particle.WAX_ON, 3, 0, 0, 0, 0.2D, 0.02D);
-
-    if (glowingEntities == null) {
-      showFallbackMarker(p, center);
-      return;
-    }
-
-    Slime slime;
+    BlockDisplay marker;
     try {
-      slime = world.spawn(center, Slime.class, s -> {
-        StackExclusion.exclude(s);
-        s.setPersistent(false);
-        s.setRotation(0, 0);
-        s.setInvulnerable(true);
-        s.setCollidable(false);
-        s.setGravity(false);
-        s.setSilent(true);
-        s.setAI(false);
-        s.setSize(2);
-        s.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 0, false, false));
-        s.setMetadata(MARKER_META, new FixedMetadataValue(Adapt.instance, true));
+      marker = world.spawn(markerLocation, BlockDisplay.class, display -> {
+        display.setPersistent(false);
+        display.setInvulnerable(true);
+        display.setGravity(false);
+        display.setSilent(true);
+        display.setVisibleByDefault(false);
+        display.setViewRange((float) Math.max(0.5D, Math.min(2D, getConfig().displayViewRange)));
+        display.setShadowRadius(0f);
+        display.setShadowStrength(0f);
+        display.setBrightness(new Display.Brightness(15, 15));
+        display.setBlock(targetOre.createBlockData());
+        display.setGlowColorOverride(color);
+        display.setGlowing(true);
       });
     } catch (Throwable error) {
       Adapt.verbose("Failed to spawn glowing marker for Spelunker: "
           + error.getClass().getSimpleName()
           + (error.getMessage() == null ? "" : " - " + error.getMessage()));
-      showFallbackMarker(p, center);
+      error.printStackTrace();
       return;
     }
 
-    scheduleGlow(p, slime, center, color, glowingEntities);
-  }
-
-  private void scheduleGlow(Player p, Slime slime, Location center, ChatColor color, GlowingEntities glowingEntities) {
-    if (!J.runEntity(p, () -> setGlowing(glowingEntities, slime, p, center, color))) {
-      J.runEntity(slime, slime::remove);
+    UUID markerId = marker.getUniqueId();
+    DisplayHandle handle = new DisplayHandle(marker, markerLocation.clone());
+    synchronized (markerLifecycleLock) {
+      if (!acceptingMarkers.get()) {
+        removeDisplayOwned(marker);
+        return;
+      }
+      activeMarkers.put(markerId, handle);
+    }
+    if (!J.runEntity(p, () -> showMarkerToPlayer(p, markerId, marker))) {
+      removeMarker(markerId);
       return;
     }
-    J.runEntity(p, () -> unsetGlowing(glowingEntities, slime, p), (5 * 20) - 1);
-    J.runEntity(slime, () -> {
-      fx(slime.getLocation().add(0, 0.5, 0), FxPriority.AMBIENT)
-          .particle(Particle.SMOKE, 3, 0, 0, 0, 0.15D, 0.01D)
-          .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.3f, 1.6f);
-      slime.remove();
-    }, 5 * 20);
+    if (!J.runEntity(marker, () -> removeMarkerOwned(markerId, marker), getMarkerDurationTicks())) {
+      removeMarker(markerId);
+    }
   }
 
-  private void setGlowing(GlowingEntities glowingEntities, Slime slime, Player p, Location center, ChatColor color) {
-    try {
-      synchronized (Adapt.glowingEntitiesLock()) {
-        glowingEntities.setGlowing(slime, p, color);
+  private void showMarkerToPlayer(Player player, UUID markerId, BlockDisplay marker) {
+    if (!player.isOnline() || !activeMarkers.containsKey(markerId)) {
+      removeMarker(markerId);
+      return;
+    }
+    player.showEntity(Adapt.instance, marker);
+  }
+
+  private void removeMarker(UUID markerId) {
+    DisplayHandle handle = activeMarkers.remove(markerId);
+    if (handle == null) {
+      return;
+    }
+    if (!J.runEntity(handle.display(), () -> removeDisplayOwned(handle.display()))) {
+      J.runAt(handle.anchor(), () -> removeDisplayOwned(handle.display()));
+    }
+  }
+
+  private void removeMarkerOwned(UUID markerId, BlockDisplay marker) {
+    activeMarkers.remove(markerId);
+    removeDisplayOwned(marker);
+  }
+
+  private void removeDisplayOwned(BlockDisplay marker) {
+    if (marker.isValid()) {
+      marker.remove();
+    }
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(EntityRemoveEvent e) {
+    if (e.getEntity() instanceof BlockDisplay) {
+      activeMarkers.remove(e.getEntity().getUniqueId());
+    }
+  }
+
+  private void clearMarkers() {
+    List<DisplayHandle> handles;
+    synchronized (markerLifecycleLock) {
+      handles = List.copyOf(activeMarkers.values());
+      activeMarkers.clear();
+    }
+    for (DisplayHandle handle : handles) {
+      if (!J.runEntity(handle.display(), () -> removeDisplayOwned(handle.display()))) {
+        J.runAt(handle.anchor(), () -> removeDisplayOwned(handle.display()));
       }
-    } catch (Throwable error) {
-      Adapt.verbose("Failed to enable glowing marker for Spelunker: " + error.getClass().getSimpleName()
-          + (error.getMessage() == null ? "" : " - " + error.getMessage()));
-      J.runEntity(slime, slime::remove);
-      showFallbackMarker(p, center);
     }
   }
 
-  private void unsetGlowing(GlowingEntities glowingEntities, Slime slime, Player p) {
-    try {
-      synchronized (Adapt.glowingEntitiesLock()) {
-        glowingEntities.unsetGlowing(slime, p);
-      }
-    } catch (Throwable error) {
-      Adapt.verbose("Failed to clear glowing marker for Spelunker: " + error.getClass().getSimpleName()
-          + (error.getMessage() == null ? "" : " - " + error.getMessage()));
-    }
+  private int getMarkerDurationTicks() {
+    return Math.max(20, Math.min(20 * 30, getConfig().highlightDurationTicks));
   }
 
-  private void showFallbackMarker(Player p, Location loc) {
-    for (int t = 0; t <= (5 * 20); t += 8) {
-      J.runEntity(p, () -> {
-        if (!p.isOnline()) {
-          return;
-        }
-
-        fx(loc, FxPriority.AMBIENT)
-            .particle(Particle.GLOW, 14, 0, 0, 0, 0.22, 0.001)
-            .particle(Particle.END_ROD, 4, 0, 0, 0, 0.12, 0.001);
-      }, t);
+  static Color markerColor(Material type) {
+    String name = type.name();
+    if (name.contains("REDSTONE")) {
+      return Color.fromRGB(255, 60, 60);
     }
+    if (name.contains("DIAMOND")) {
+      return Color.fromRGB(90, 230, 235);
+    }
+    if (name.contains("GOLD")) {
+      return Color.fromRGB(255, 215, 70);
+    }
+    if (name.contains("IRON") || name.contains("COPPER")) {
+      return Color.fromRGB(210, 180, 150);
+    }
+    if (name.contains("EMERALD")) {
+      return Color.fromRGB(70, 230, 130);
+    }
+    if (name.contains("LAPIS")) {
+      return Color.fromRGB(60, 110, 240);
+    }
+    return Color.WHITE;
   }
 
   @EventHandler
@@ -322,18 +355,11 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
 
   @Override
   public void unregister() {
+    acceptingMarkers.set(false);
+    super.unregister();
     activeScans.clear();
     WorldBlockScanScheduler.cancelOwner(this);
-    super.unregister();
-  }
-
-  @EventHandler
-  public void onEntityDamage(EntityDamageEvent e) {
-    if (e.getEntity() instanceof Slime slime
-        && e.getCause() == EntityDamageEvent.DamageCause.SUFFOCATION
-        && slime.hasMetadata(MARKER_META)) {
-      e.setCancelled(true);
-    }
+    clearMarkers();
   }
 
 
@@ -354,11 +380,18 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
     int denseScanRadius = 8;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum ore markers created by one Spelunker scan.", impact = "Higher values reveal more ore at once but create more temporary entities and effects.")
     int maxHighlights = 16;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Duration in ticks that glowing ore displays remain visible.", impact = "Higher values keep ore outlines visible longer and retain temporary display entities longer.")
+    int highlightDurationTicks = 100;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Client view-range multiplier for glowing ore displays.", impact = "Higher values allow markers to render farther away and values are clamped between 0.5 and 2.0.")
+    double displayViewRange = 1.0;
 
     public Config() {
       baseCost = 5;
       costFactor = 1;
       initialCost = 10;
     }
+  }
+
+  private record DisplayHandle(BlockDisplay display, Location anchor) {
   }
 }

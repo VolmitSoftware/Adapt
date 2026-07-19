@@ -24,6 +24,7 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
@@ -32,18 +33,23 @@ import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.events.api.ReflectiveHandler;
 import art.arcane.adapt.util.reflect.events.api.entity.EntityDismountEvent;
 import art.arcane.adapt.util.reflect.events.api.entity.EntityMountEvent;
+import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Strider;
@@ -52,6 +58,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleSprintEvent;
@@ -69,9 +76,13 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.Config> {
   private static final int REFRESH_BATCH_SIZE = 64;
   private static final long REFRESH_INTERVAL_MS = 500L;
+  private static final long MOUNT_BUFF_DURATION_TICKS = 60L;
+  private static final String SLOT_SPEED = "speed";
+  private static final String SLOT_JUMP = "jump";
   private final Map<UUID, Location> lastMountedLocation = playerState();
   private final Map<UUID, Boolean> wasSprinting = playerState();
   private final Map<UUID, Long> nextRefreshAt = playerState();
+  private final Map<UUID, Long> nextBuffAssertAt = playerState();
   private final Cooldowns emberCd = cooldowns();
   private final Cooldowns hitCd = cooldowns();
   private final Queue<UUID> activeQueue = new ConcurrentLinkedQueue<>();
@@ -150,12 +161,22 @@ public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.
 
   @EventHandler
   public void on(PlayerQuitEvent e) {
+    removeMountBuffs(e.getPlayer().getVehicle());
     clearPlayerState(e.getPlayer().getUniqueId());
   }
 
   @EventHandler
   public void on(PlayerDeathEvent e) {
+    removeMountBuffs(e.getEntity().getVehicle());
     clearPlayerState(e.getEntity().getUniqueId());
+  }
+
+  @EventHandler
+  public void on(PlayerGameModeChangeEvent e) {
+    GameMode mode = e.getNewGameMode();
+    if (mode != GameMode.SURVIVAL && mode != GameMode.ADVENTURE) {
+      removeMountBuffs(e.getPlayer().getVehicle());
+    }
   }
 
   @ReflectiveHandler
@@ -168,6 +189,7 @@ public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.
   @ReflectiveHandler
   public void on(EntityDismountEvent e) {
     if (e.getEntity() instanceof Player p) {
+      removeMountBuffs(e.getDismounted());
       clearPlayerState(p.getUniqueId());
     }
   }
@@ -194,6 +216,7 @@ public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.
     UUID id = p.getUniqueId();
     int level = getActiveLevel(p);
     if (level <= 0) {
+      removeMountBuffs(vehicle);
       return false;
     }
 
@@ -220,8 +243,9 @@ public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.
     }
 
     if (vehicle instanceof AbstractHorse horse) {
-      if (hasForwardInput(p)) {
-        applyMountForwardSpeed(horse, current.getDirection(), getHorseTargetSpeed(level));
+      if (shouldAssertBuffs(id)) {
+        applyMountBuff(horse, SLOT_SPEED, Attributes.MOVEMENT_SPEED, getHorseSpeedBonus(level), AttributeModifier.Operation.MULTIPLY_SCALAR_1);
+        applyMountBuff(horse, SLOT_JUMP, Attributes.JUMP_STRENGTH, getHorseJumpBonus(level), AttributeModifier.Operation.ADD_SCALAR);
       }
       if (sprinting) {
         applyHorizontalPush(horse, current.getDirection(), 0.8D, getHorsePush(level));
@@ -231,8 +255,8 @@ public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.
 
     if (vehicle instanceof Strider strider) {
       p.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 40, 0, false, false, true), true);
-      if (hasForwardInput(p)) {
-        applyMountForwardSpeed(strider, current.getDirection(), getStriderTargetSpeed(level));
+      if (shouldAssertBuffs(id)) {
+        applyMountBuff(strider, SLOT_SPEED, Attributes.MOVEMENT_SPEED, getStriderSpeedBonus(level), AttributeModifier.Operation.MULTIPLY_SCALAR_1);
       }
       Location striderLocation = strider.getLocation();
       if (striderLocation.getBlock().getType() == Material.LAVA
@@ -273,24 +297,36 @@ public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.
   private void clearPlayerState(UUID id) {
     lastMountedLocation.remove(id);
     wasSprinting.remove(id);
+    nextBuffAssertAt.remove(id);
     clearRefreshSchedule(id);
     emberCd.clear(id);
     hitCd.clear(id);
   }
 
-  private void applyMountForwardSpeed(Entity mount, Vector direction, double targetSpeed) {
-    direction.setY(0);
-    if (direction.lengthSquared() <= VelocitySpeed.EPSILON) {
+  private boolean shouldAssertBuffs(UUID id) {
+    long now = System.currentTimeMillis();
+    Long due = nextBuffAssertAt.get(id);
+    if (due != null && now < due) {
+      return false;
+    }
+
+    nextBuffAssertAt.put(id, now + REFRESH_INTERVAL_MS);
+    return true;
+  }
+
+  private void applyMountBuff(LivingEntity mount, String slot, Attribute attribute, double amount, AttributeModifier.Operation operation) {
+    if (amount <= 0) {
+      AdaptAttributeService.get().remove(mount, getName(), slot, attribute);
       return;
     }
 
-    direction.normalize();
-    Vector velocity = mount.getVelocity();
-    Vector horizontal = VelocitySpeed.horizontalOnly(velocity);
-    Vector targetHorizontal = direction.multiply(Math.max(0, targetSpeed));
-    Vector nextHorizontal = VelocitySpeed.moveTowards(horizontal, targetHorizontal, Math.max(0, getConfig().mountAccelPerTick));
-    nextHorizontal = VelocitySpeed.clampHorizontal(nextHorizontal, getConfig().mountMaxHorizontalSpeed);
-    mount.setVelocity(new Vector(nextHorizontal.getX(), velocity.getY(), nextHorizontal.getZ()));
+    AdaptAttributeService.get().applyTimed(mount, getName(), slot, attribute, amount, operation, MOUNT_BUFF_DURATION_TICKS);
+  }
+
+  private void removeMountBuffs(Entity mount) {
+    if (mount instanceof LivingEntity living) {
+      AdaptAttributeService.get().removeAll(living, getName());
+    }
   }
 
   private void applyHorizontalPush(Entity mount, Vector direction, double damping, double amount) {
@@ -308,11 +344,6 @@ public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.
 
   private boolean requiresStationaryRefresh(Entity vehicle) {
     return isTacticalMount(vehicle);
-  }
-
-  private boolean hasForwardInput(Player p) {
-    VelocitySpeed.InputSnapshot input = VelocitySpeed.readInput(p, getConfig().fallbackInputVelocityThresholdSquared());
-    return input.forward() && !input.backward();
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -382,16 +413,24 @@ public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.
     return Math.max(0, (int) Math.round(getConfig().pigResistanceAmplifierBase + (getLevelPercent(level) * getConfig().pigResistanceAmplifierFactor)));
   }
 
-  private double getHorseTargetSpeed(int level) {
-    int amplifier = getHorseSpeedAmplifier(level);
-    double base = Math.max(0, getConfig().horseBaseHorizontalSpeed);
-    return Math.min(getConfig().mountMaxHorizontalSpeed, base * VelocitySpeed.speedAmplifierScalar(amplifier));
+  private double getHorseSpeedBonus(int level) {
+    return mountSpeedBonus(getHorseSpeedAmplifier(level), getConfig().horseBaseHorizontalSpeed, getConfig().mountMaxHorizontalSpeed);
   }
 
-  private double getStriderTargetSpeed(int level) {
-    int amplifier = getStriderSpeedAmplifier(level);
-    double base = Math.max(0, getConfig().striderBaseHorizontalSpeed);
-    return Math.min(getConfig().mountMaxHorizontalSpeed, base * VelocitySpeed.speedAmplifierScalar(amplifier));
+  private double getStriderSpeedBonus(int level) {
+    return mountSpeedBonus(getStriderSpeedAmplifier(level), getConfig().striderBaseHorizontalSpeed, getConfig().mountMaxHorizontalSpeed);
+  }
+
+  private double getHorseJumpBonus(int level) {
+    return Math.max(0D, getConfig().horseJumpStrengthBonusBase + (getLevelPercent(level) * getConfig().horseJumpStrengthBonusFactor));
+  }
+
+  static double mountSpeedBonus(int amplifier, double baseSpeed, double maxSpeed) {
+    double scalar = VelocitySpeed.speedAmplifierScalar(amplifier);
+    if (baseSpeed > 0 && maxSpeed > 0) {
+      scalar = Math.min(scalar, maxSpeed / baseSpeed);
+    }
+    return Math.max(0D, scalar - 1.0D);
   }
 
   private double getHorsePush(int level) {
@@ -424,6 +463,10 @@ public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.
     double striderSpeedAmplifierBase = 0;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Strider Speed Amplifier Factor for the Taming Mounted Tactics adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double striderSpeedAmplifierFactor = 2;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Base horse jump strength bonus as a percent of the mount's own jump strength.", impact = "Higher values increase mounted horse jump height at minimum level.")
+    double horseJumpStrengthBonusBase = 0.1;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Additional horse jump strength bonus scaling with level percent.", impact = "Higher values increase mounted horse jump height at higher levels.")
+    double horseJumpStrengthBonusFactor = 0.15;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Pig Resistance Amplifier Base for the Taming Mounted Tactics adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double pigResistanceAmplifierBase = 0;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Pig Resistance Amplifier Factor for the Taming Mounted Tactics adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -434,10 +477,6 @@ public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.
     double striderBaseHorizontalSpeed = 0.24;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum horizontal speed this adaptation can force on mounts.", impact = "Acts as a hard cap to prevent runaway mounted momentum.")
     double mountMaxHorizontalSpeed = 0.78;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "How fast mounts accelerate toward the target speed per tick.", impact = "Higher values accelerate faster; lower values feel smoother.")
-    double mountAccelPerTick = 0.065;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Fallback movement threshold used when direct input API is unavailable.", impact = "Only used on runtimes without Player input access.")
-    double fallbackInputVelocityThreshold = 0.0008;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Horse Push Base for the Taming Mounted Tactics adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double horsePushBase = 0.08;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Horse Push Factor for the Taming Mounted Tactics adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -452,11 +491,6 @@ public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.
     public Config() {
       costFactor = 0.72;
       initialCost = 4;
-    }
-
-    double fallbackInputVelocityThresholdSquared() {
-      double threshold = Math.max(0, fallbackInputVelocityThreshold);
-      return threshold * threshold;
     }
   }
 }

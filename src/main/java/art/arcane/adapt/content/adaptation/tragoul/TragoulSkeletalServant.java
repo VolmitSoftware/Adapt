@@ -22,6 +22,7 @@ import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.minion.MinionBurden;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -45,11 +46,13 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Mob;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -59,7 +62,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
@@ -168,6 +170,18 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
     return entity.getPersistentDataContainer().has(SERVANT_KEY, PersistentDataType.STRING);
   }
 
+  public static UUID getServantOwnerId(Entity entity) {
+    String raw = entity.getPersistentDataContainer().get(SERVANT_KEY, PersistentDataType.STRING);
+    if (raw == null) {
+      return null;
+    }
+    try {
+      return UUID.fromString(raw);
+    } catch (IllegalArgumentException ignored) {
+      return null;
+    }
+  }
+
   @Override
   public void addStats(int level, Element v) {
     v.addLore(C.GREEN + Localizer.dLocalize("tragoul.skeletal_servant.lore1"));
@@ -252,9 +266,9 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
         s.setPersistent(false);
         s.setRemoveWhenFarAway(false);
         s.setShouldBurnInDay(false);
-        applyServantAttributes(s, level);
         equipServant(s, level, random);
       });
+      applyServantAttributes(servant, level);
       list.add(servant);
       UUID servantId = servant.getUniqueId();
       servantOwners.put(servantId, id);
@@ -682,7 +696,7 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
     }
 
     if (effect.thornsApplied()) {
-      target.damage(effect.reflectedDamage(), effect.owner());
+      TragoulReactiveDamage.apply(() -> target.damage(effect.reflectedDamage(), effect.owner()));
     }
     if (effect.frailtyApplied()) {
       target.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, effect.frailtyDuration(), effect.weaknessAmplifier(), true, true, true));
@@ -711,18 +725,17 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
       return;
     }
 
-    EntityDamageEvent.DamageCause cause = event.getCause();
     double finalDamage = event.getFinalDamage();
     J.runEntity(victim, () -> {
       TargetSnapshot snapshot = captureTargetOwned(servant.ownerId(), victim);
       if (snapshot != null) {
-        J.runEntity(owner, () -> prepareOffensePerksOwned(owner, servant.servant(), snapshot, cause, finalDamage));
+        J.runEntity(owner, () -> prepareOffensePerksOwned(owner, servant.servant(), snapshot, finalDamage));
       }
     });
   }
 
   private void prepareOffensePerksOwned(Player owner, Skeleton servant, TargetSnapshot victim,
-                                        EntityDamageEvent.DamageCause cause, double finalDamage) {
+                                        double finalDamage) {
     if (!owner.isOnline() || !canDamageSnapshotOwned(owner, victim)) {
       return;
     }
@@ -730,8 +743,7 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
     PerkRefs refs = perks();
     double heal = 0D;
     TragoulSoulSiphon siphon = refs.siphon();
-    if (siphon != null && (cause == EntityDamageEvent.DamageCause.ENTITY_ATTACK
-        || cause == EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK)) {
+    if (siphon != null) {
       int level = siphon.getActiveLevel(owner);
       if (level > 0) {
         TragoulSoulSiphon.Config config = siphon.getConfig();
@@ -744,7 +756,7 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
 
     boolean plague = false;
     TragoulPlagueBearer plagueBearer = refs.plague();
-    if (plagueBearer != null && victim.monster() && victim.afflicted()) {
+    if (plagueBearer != null && victim.mob() && victim.afflicted()) {
       plague = plagueBearer.getActiveLevel(owner) > 0;
     }
 
@@ -765,7 +777,7 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
     }
 
     if (effect.heal() > 0D) {
-      IAttribute attribute = Version.get().getAttribute(servant, Attributes.GENERIC_MAX_HEALTH);
+      IAttribute attribute = Version.get().getAttribute(servant, Attributes.MAX_HEALTH);
       double maxHealth = attribute == null ? 20D : attribute.getValue();
       double currentHealth = servant.getHealth();
       double newHealth = Math.min(maxHealth, currentHealth + effect.heal());
@@ -781,11 +793,11 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
 
   private void applyPlagueOwned(TargetSnapshot victim, UUID ownerId) {
     LivingEntity target = victim.entity();
-    if (!(target instanceof Monster monster) || !monster.isValid() || monster.isDead()) {
+    if (!(target instanceof Mob mob) || !mob.isValid() || mob.isDead()) {
       return;
     }
 
-    PersistentDataContainer pdc = monster.getPersistentDataContainer();
+    PersistentDataContainer pdc = mob.getPersistentDataContainer();
     pdc.set(PLAGUE_OWNER_KEY, PersistentDataType.STRING, ownerId.toString());
     pdc.set(PLAGUE_STAMP_KEY, PersistentDataType.LONG, System.currentTimeMillis());
     if (!pdc.has(PLAGUE_GENERATION_KEY, PersistentDataType.INTEGER)) {
@@ -1001,7 +1013,7 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
         || target.hasPotionEffect(PotionEffectType.WITHER);
     Location location = target.getLocation();
     return new TargetSnapshot(target, targetId, location.getWorld().getUID(), location,
-        target instanceof Player, target instanceof Monster, protectedFriendly, afflicted);
+        target instanceof Player, target instanceof Mob, protectedFriendly, afflicted);
   }
 
   private boolean canDamageSnapshotOwned(Player owner, TargetSnapshot target) {
@@ -1015,6 +1027,7 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
     UUID servantId = servant.getUniqueId();
     forgetServant(ownerId, servant, servantId);
     if (servant.isValid() && !servant.isDead()) {
+      AdaptAttributeService.get().removeAll(servant, getName());
       if (showFx) {
         fx(servant.getLocation().add(0, 1.0D, 0), FxPriority.TRANSITION)
             .particle(Particle.SOUL, 4, 0, 0.4D, 0, 0.3D, 0.03D)
@@ -1089,16 +1102,19 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
   }
 
   private void applyServantAttributes(Skeleton servant, int level) {
-    IAttribute maxHealth = Version.get().getAttribute(servant, Attributes.GENERIC_MAX_HEALTH);
+    AdaptAttributeService attributes = AdaptAttributeService.get();
+    attributes.apply(servant, getName(), "health", Attributes.MAX_HEALTH,
+        servantAttributeBonus(level, getConfig().healthBonusPerLevel), AttributeModifier.Operation.ADD_NUMBER);
+    attributes.apply(servant, getName(), "attack", Attributes.ATTACK_DAMAGE,
+        servantAttributeBonus(level, getConfig().attackBonusPerLevel), AttributeModifier.Operation.ADD_NUMBER);
+    IAttribute maxHealth = Version.get().getAttribute(servant, Attributes.MAX_HEALTH);
     if (maxHealth != null) {
-      maxHealth.setBaseValue(maxHealth.getBaseValue() + (level * getConfig().healthBonusPerLevel));
       servant.setHealth(maxHealth.getValue());
     }
+  }
 
-    IAttribute attack = Version.get().getAttribute(servant, Attributes.GENERIC_ATTACK_DAMAGE);
-    if (attack != null) {
-      attack.setBaseValue(attack.getBaseValue() + (level * getConfig().attackBonusPerLevel));
-    }
+  static double servantAttributeBonus(int level, double bonusPerLevel) {
+    return level * bonusPerLevel;
   }
 
   private void equipServant(Skeleton servant, int level, ThreadLocalRandom random) {
@@ -1221,11 +1237,10 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
       return ownerId;
     }
 
-    String raw = servant.getPersistentDataContainer().get(SERVANT_KEY, PersistentDataType.STRING);
-    if (raw == null) {
+    ownerId = getServantOwnerId(servant);
+    if (ownerId == null) {
       return null;
     }
-    ownerId = UUID.fromString(raw);
     UUID servantId = servant.getUniqueId();
     servantOwners.put(servantId, ownerId);
     servantOwnersByEntity.put(servant, ownerId);
@@ -1359,7 +1374,7 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
   }
 
   private record TargetSnapshot(LivingEntity entity, UUID entityId, UUID worldId, Location location,
-                                boolean player, boolean monster, boolean protectedFriendly, boolean afflicted) {
+                                boolean player, boolean mob, boolean protectedFriendly, boolean afflicted) {
   }
 
   private record ServantDamager(Skeleton servant, UUID ownerId) {

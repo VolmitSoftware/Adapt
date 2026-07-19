@@ -41,6 +41,10 @@ public interface IAttribute {
 
   KList<Modifier> getModifier(UUID uuid, NamespacedKey key);
 
+  KList<Modifier> getAllModifiers();
+
+  int removeAllInNamespace(String namespace);
+
   @ToString
   @EqualsAndHashCode
   @AllArgsConstructor

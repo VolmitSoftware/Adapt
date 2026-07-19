@@ -24,12 +24,14 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
+import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -37,6 +39,7 @@ import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -47,17 +50,18 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class AgilitySlipstreamSlide extends SimpleAdaptation<AgilitySlipstreamSlide.Config> {
   private final Cooldowns slideCooldown = cooldowns();
   private final Cooldowns lastSprint = cooldowns();
-  private final Map<UUID, Long> proneUntilMillis = playerState();
+  private final Map<UUID, ForcedPoseState> forcedPoses = new ConcurrentHashMap<>();
+  private final AtomicBoolean lifecycleCleanupStarted = new AtomicBoolean(false);
 
   public AgilitySlipstreamSlide() {
     super("agility-slipstream-slide");
@@ -77,6 +81,22 @@ public class AgilitySlipstreamSlide extends SimpleAdaptation<AgilitySlipstreamSl
         .build());
     registerMilestone("challenge_agility_slipstream_500", "agility.slipstream-slide.slides", 500, 400);
     registerMilestone("challenge_agility_slipstream_5k", "agility.slipstream-slide.slides", 5000, 1500);
+  }
+
+  @Override
+  public void unregister() {
+    if (!lifecycleCleanupStarted.compareAndSet(false, true)) {
+      super.unregister();
+      return;
+    }
+    super.unregister();
+    ForcedPoseState[] states = forcedPoses.values().toArray(new ForcedPoseState[0]);
+    for (ForcedPoseState state : states) {
+      if (forcedPoses.remove(state.owner.getUniqueId(), state)) {
+        dispatchPoseRestore(state.owner);
+      }
+    }
+    forcedPoses.clear();
   }
 
   @Override
@@ -106,19 +126,20 @@ public class AgilitySlipstreamSlide extends SimpleAdaptation<AgilitySlipstreamSl
 
   @EventHandler
   public void on(PlayerQuitEvent e) {
-    UUID id = e.getPlayer().getUniqueId();
-    proneUntilMillis.remove(id);
+    Player p = e.getPlayer();
+    UUID id = p.getUniqueId();
+    stopForcedPose(p);
     lastSprint.clear(id);
     slideCooldown.clear(id);
   }
 
   @EventHandler
   public void on(PlayerDeathEvent e) {
-    proneUntilMillis.remove(e.getEntity().getUniqueId());
+    stopForcedPose(e.getEntity());
   }
 
   private void attemptSlide(Player p) {
-    if (!isSlideEligible(p)) {
+    if (lifecycleCleanupStarted.get() || !isSlideEligible(p)) {
       return;
     }
 
@@ -160,47 +181,110 @@ public class AgilitySlipstreamSlide extends SimpleAdaptation<AgilitySlipstreamSl
     xp(p, getConfig().xpPerSlide);
 
     if (level >= getMaxLevel()) {
-      runSlideSlow(p, getSlideTicks(level), getSlowDurationTicks(), Math.max(0, getConfig().slowAmplifier));
+      runSlideSlow(p, getSlideTicks(level), getSlowDurationTicks(), slowAmount(getConfig().slowAmplifier));
     }
   }
 
   private void startProne(Player p, int proneTicks) {
-    UUID id = p.getUniqueId();
+    if (lifecycleCleanupStarted.get()) {
+      return;
+    }
+
     long until = System.currentTimeMillis() + (proneTicks * 50L);
-    proneUntilMillis.put(id, until);
+    ForcedPoseState state = new ForcedPoseState(p, until);
+    forcedPoses.put(p.getUniqueId(), state);
+    if (lifecycleCleanupStarted.get()) {
+      forcedPoses.remove(p.getUniqueId(), state);
+      return;
+    }
     p.setSwimming(true);
-
-    J.runEntity(p, () -> {
-      if (!p.isOnline() || p.isDead()) {
-        proneUntilMillis.remove(id);
-        return;
-      }
-
-      long expected = proneUntilMillis.getOrDefault(id, 0L);
-      if (expected > System.currentTimeMillis()) {
-        return;
-      }
-
-      proneUntilMillis.remove(id);
-      if (!p.isInWater()) {
-        p.setSwimming(false);
-      }
-    }, proneTicks);
+    if (lifecycleCleanupStarted.get() || forcedPoses.get(p.getUniqueId()) != state) {
+      forcedPoses.remove(p.getUniqueId(), state);
+      restorePose(p);
+      return;
+    }
+    scheduleProneMaintenance(state);
   }
 
-  private void runSlideSlow(Player p, int ticksLeft, int slowDurationTicks, int slowAmplifier) {
-    if (ticksLeft <= 0 || !p.isOnline() || p.isDead()) {
+  private void maintainProne(ForcedPoseState state) {
+    Player p = state.owner;
+    UUID id = p.getUniqueId();
+    if (forcedPoses.get(id) != state) {
+      return;
+    }
+
+    if (!p.isOnline() || p.isDead()) {
+      finishForcedPose(state);
+      return;
+    }
+
+    if (isProneActive(state.untilMillis, System.currentTimeMillis())) {
+      p.setSwimming(true);
+      scheduleProneMaintenance(state);
+      return;
+    }
+
+    finishForcedPose(state);
+  }
+
+  private void scheduleProneMaintenance(ForcedPoseState state) {
+    if (lifecycleCleanupStarted.get() || !J.runEntity(state.owner, () -> runProneMaintenance(state), 1)) {
+      finishForcedPose(state);
+    }
+  }
+
+  private void runProneMaintenance(ForcedPoseState state) {
+    try {
+      maintainProne(state);
+    } catch (RuntimeException | Error error) {
+      finishForcedPose(state);
+      throw error;
+    }
+  }
+
+  private void finishForcedPose(ForcedPoseState state) {
+    if (forcedPoses.remove(state.owner.getUniqueId(), state)) {
+      restorePose(state.owner);
+    }
+  }
+
+  private void stopForcedPose(Player p) {
+    ForcedPoseState state = forcedPoses.remove(p.getUniqueId());
+    if (state != null) {
+      restorePose(p);
+    }
+  }
+
+  private void dispatchPoseRestore(Player p) {
+    Runnable restore = () -> restorePose(p);
+    if (!J.runEntity(p, restore) && canRestoreDirectly(p)) {
+      restore.run();
+    }
+  }
+
+  private void restorePose(Player p) {
+    if (!p.isInWater()) {
+      p.setSwimming(false);
+    }
+  }
+
+  private boolean canRestoreDirectly(Player p) {
+    return J.isFoliaThreading() ? J.isOwnedByCurrentRegion(p) : J.isPrimaryThread();
+  }
+
+  private void runSlideSlow(Player p, int ticksLeft, int slowDurationTicks, double slowAmount) {
+    if (ticksLeft <= 0 || slowDurationTicks <= 0 || !p.isOnline() || p.isDead()) {
       return;
     }
 
     for (Entity nearby : p.getNearbyEntities(1.3D, 1.0D, 1.3D)) {
       if (nearby instanceof LivingEntity target && !(nearby instanceof Player) && canDamageTarget(p, nearby)) {
-        J.runEntity(target, () -> target.addPotionEffect(
-            new PotionEffect(PotionEffectType.SLOWNESS, slowDurationTicks, slowAmplifier, false, true)));
+        AdaptAttributeService.get().applyTimed(target, getName(), "slow", Attributes.MOVEMENT_SPEED,
+            slowAmount, AttributeModifier.Operation.MULTIPLY_SCALAR_1, slowDurationTicks);
       }
     }
 
-    J.runEntity(p, () -> runSlideSlow(p, ticksLeft - 1, slowDurationTicks, slowAmplifier), 1);
+    J.runEntity(p, () -> runSlideSlow(p, ticksLeft - 1, slowDurationTicks, slowAmount), 1);
   }
 
   private void applyHungerCost(Player p, double cost) {
@@ -244,7 +328,19 @@ public class AgilitySlipstreamSlide extends SimpleAdaptation<AgilitySlipstreamSl
   }
 
   private int getSlowDurationTicks() {
-    return Math.max(5, getConfig().slowDurationTicks);
+    return slowDurationTicks(getConfig().slowDurationTicks);
+  }
+
+  static int slowDurationTicks(int configuredTicks) {
+    return Math.max(5, configuredTicks);
+  }
+
+  static double slowAmount(int amplifier) {
+    return Math.max(-1.0D, -0.15D * (Math.max(0, amplifier) + 1));
+  }
+
+  static boolean isProneActive(long untilMillis, long nowMillis) {
+    return untilMillis > nowMillis;
   }
 
   @ConfigDescription("Tap sneak while sprinting to slide in a low pose, keeping momentum and fitting under 1-block gaps.")
@@ -277,6 +373,16 @@ public class AgilitySlipstreamSlide extends SimpleAdaptation<AgilitySlipstreamSl
       costFactor = 0.55;
       maxLevel = 4;
       initialCost = 4;
+    }
+  }
+
+  private static final class ForcedPoseState {
+    private final Player owner;
+    private final long untilMillis;
+
+    private ForcedPoseState(Player owner, long untilMillis) {
+      this.owner = owner;
+      this.untilMillis = untilMillis;
     }
   }
 }

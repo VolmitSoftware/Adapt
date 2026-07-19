@@ -1,23 +1,38 @@
 package art.arcane.adapt.content.adaptation.stealth;
 
 import org.bukkit.Material;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.junit.jupiter.api.Test;
+
+import java.lang.reflect.Method;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
+import static org.mockito.Mockito.mock;
 
 class StealthAdaptationsScalingTest {
   @Test
-  void shadowmeldLightThresholdRisesWithLevel() {
-    assertThat(StealthShadowmeld.computeLightThreshold(7.0, 5.0, 0.25)).isEqualTo(8.25);
-    assertThat(StealthShadowmeld.computeLightThreshold(7.0, 5.0, 1.0)).isEqualTo(12.0);
+  void shadowmeldMeldDelayUsesExactLevelEndpoints() {
+    assertThat(StealthShadowmeld.computeMeldDelay(3000L, 250L, 1, 4)).isEqualTo(3000L);
+    assertThat(StealthShadowmeld.computeMeldDelay(3000L, 250L, 2, 4)).isEqualTo(2083L);
+    assertThat(StealthShadowmeld.computeMeldDelay(3000L, 250L, 3, 4)).isEqualTo(1167L);
+    assertThat(StealthShadowmeld.computeMeldDelay(3000L, 250L, 4, 4)).isEqualTo(250L);
+    assertThat(StealthShadowmeld.computeMeldDelay(3000L, 250L, 0, 4)).isEqualTo(3000L);
+    assertThat(StealthShadowmeld.computeMeldDelay(3000L, 250L, 5, 4)).isEqualTo(250L);
   }
 
   @Test
-  void shadowmeldMeldDelayShrinksWithLevelAndClampsToFloor() {
-    assertThat(StealthShadowmeld.computeMeldDelay(2200, 1400, 0.25)).isEqualTo(1850L);
-    assertThat(StealthShadowmeld.computeMeldDelay(2200, 1400, 1.0)).isEqualTo(800L);
-    assertThat(StealthShadowmeld.computeMeldDelay(2200, 1400, 2.0)).isEqualTo(400L);
+  void shadowmeldRequiresSneakingAndAnUndetectedCoreSample() {
+    assertThat(StealthShadowmeld.canRemainEligible(true, true)).isTrue();
+    assertThat(StealthShadowmeld.canRemainEligible(true, false)).isFalse();
+    assertThat(StealthShadowmeld.canRemainEligible(false, true)).isFalse();
   }
 
   @Test
@@ -43,11 +58,38 @@ class StealthAdaptationsScalingTest {
     assertThat(StealthSmokePellet.computeRadius(2.5, 10.0, 6.0, 1.0)).isEqualTo(6.0);
     assertThat(StealthSmokePellet.computePulses(8, 12, 0.0)).isEqualTo(8);
     assertThat(StealthSmokePellet.computePulses(8, 10, 1.0)).isEqualTo(18);
+    assertThat(StealthSmokePellet.computeRaycastRange(0D)).isEqualTo(2D);
+    assertThat(StealthSmokePellet.computeRaycastRange(100D)).isEqualTo(64D);
+  }
+
+  @Test
+  void smokePelletSupportsAirRayAndHeldGunpowder() {
+    assertThat(StealthSmokePellet.isActivation(
+        Action.LEFT_CLICK_AIR, EquipmentSlot.HAND, true, Material.AIR)).isTrue();
+    assertThat(StealthSmokePellet.isActivation(
+        Action.RIGHT_CLICK_AIR, EquipmentSlot.HAND, true, Material.GUNPOWDER)).isTrue();
+    assertThat(StealthSmokePellet.isActivation(
+        Action.RIGHT_CLICK_BLOCK, EquipmentSlot.HAND, true, Material.GUNPOWDER)).isTrue();
+    assertThat(StealthSmokePellet.isActivation(
+        Action.RIGHT_CLICK_AIR, EquipmentSlot.OFF_HAND, true, Material.GUNPOWDER)).isFalse();
+    assertThat(StealthSmokePellet.isActivation(
+        Action.RIGHT_CLICK_AIR, EquipmentSlot.HAND, false, Material.GUNPOWDER)).isFalse();
+    assertThat(StealthSmokePellet.isBlindable(mock(LivingEntity.class))).isTrue();
+    assertThat(StealthSmokePellet.isBlindable(mock(Entity.class))).isFalse();
+  }
+
+  @Test
+  void smokePelletRetainsTheCentralInteractionValidityGate() throws ReflectiveOperationException {
+    Method handler = StealthSmokePellet.class.getDeclaredMethod("on", PlayerInteractEvent.class);
+
+    assertThat(handler.getAnnotation(EventHandler.class)).isNotNull();
   }
 
   @Test
   void trapSenseBlockClassificationIsCorrect() {
     assertThat(StealthTrapSense.isTrapBlock(Material.TRIPWIRE)).isTrue();
+    assertThat(StealthTrapSense.isTrapBlock(Material.TRIPWIRE_HOOK)).isTrue();
+    assertThat(StealthTrapSense.isTrapBlock(Material.TRAPPED_CHEST)).isTrue();
     assertThat(StealthTrapSense.isTrapBlock(Material.STONE_PRESSURE_PLATE)).isTrue();
     assertThat(StealthTrapSense.isTrapBlock(Material.OAK_PRESSURE_PLATE)).isTrue();
     assertThat(StealthTrapSense.isTrapBlock(Material.SCULK_SHRIEKER)).isTrue();
@@ -62,9 +104,27 @@ class StealthAdaptationsScalingTest {
     assertThat(StealthTrapSense.computeRange(4.0, 4.0, 1.0)).isEqualTo(8.0);
     assertThat(StealthTrapSense.computeRange(1.0, 0.0, 0.0)).isEqualTo(3.0);
     assertThat(StealthTrapSense.computeRange(4.0, 10.0, 1.0)).isEqualTo(8.0);
-    assertThat(StealthTrapSense.computeMercy(0.7, 1.0)).isCloseTo(0.7, within(1e-9));
-    assertThat(StealthTrapSense.computeMercy(0.7, 0.25)).isCloseTo(0.175, within(1e-9));
-    assertThat(StealthTrapSense.computeMercy(2.0, 1.0)).isEqualTo(1.0);
+    assertThat(StealthTrapSense.computeMercy(0.7, 4, 4)).isEqualTo(1.0);
+    assertThat(StealthTrapSense.computeMercy(0.7, 1, 4)).isCloseTo(0.175, within(1e-9));
+    assertThat(StealthTrapSense.computeMercy(2.0, 3, 4)).isEqualTo(1.0);
+  }
+
+  @Test
+  void trapSenseMaximumLevelAlwaysSuppressesMovement() {
+    assertThat(StealthTrapSense.shouldSuppressMovement(4, 4, false, 0D, 0.99D)).isTrue();
+    assertThat(StealthTrapSense.shouldSuppressMovement(3, 4, false, 1D, 0D)).isFalse();
+    assertThat(StealthTrapSense.shouldSuppressMovement(3, 4, true, 0.5D, 0.49D)).isTrue();
+    assertThat(StealthTrapSense.shouldSuppressMovement(3, 4, true, 0.5D, 0.5D)).isFalse();
+  }
+
+  @Test
+  void ghostArmorConsumesOnlyUncancelledResolvedDamage() throws ReflectiveOperationException {
+    Method handler = StealthGhostArmor.class.getDeclaredMethod("on", EntityDamageEvent.class);
+    EventHandler policy = handler.getAnnotation(EventHandler.class);
+
+    assertThat(policy).isNotNull();
+    assertThat(policy.priority()).isEqualTo(EventPriority.HIGHEST);
+    assertThat(policy.ignoreCancelled()).isTrue();
   }
 
   @Test

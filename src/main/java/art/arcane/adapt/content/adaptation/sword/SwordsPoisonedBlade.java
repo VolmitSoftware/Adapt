@@ -29,6 +29,7 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.content.adaptation.sword.effects.DamagingBleedEffect;
 import art.arcane.adapt.content.item.ItemListings;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
@@ -146,8 +147,12 @@ public class SwordsPoisonedBlade extends SimpleAdaptation<SwordsPoisonedBlade.Co
       return;
     }
     Player source = Bukkit.getPlayer(mark.source());
-    if (source != null && source.isOnline()) {
-      addStat(source, "swords.poisoned-blade.poison-kills", 1);
+    if (source != null) {
+      J.runEntity(source, () -> {
+        if (source.isOnline()) {
+          addStat(source, "swords.poisoned-blade.poison-kills", 1);
+        }
+      });
     }
     fx(e.getEntity().getLocation().add(0, 0.8D, 0), FxPriority.TRANSITION)
         .particle(Particles.SMOKE, 6, 0, 0, 0, 0.05D, 0.01D)

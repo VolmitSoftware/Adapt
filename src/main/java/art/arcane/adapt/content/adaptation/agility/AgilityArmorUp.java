@@ -23,6 +23,7 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.version.IAttribute;
 import art.arcane.adapt.api.version.Version;
@@ -59,8 +60,9 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
   private static final int DECAY_BATCH_SIZE = 128;
-  private static final UUID MODIFIER = UUID.nameUUIDFromBytes("adapt-armor-up".getBytes());
-  private static final NamespacedKey MODIFIER_KEY = NamespacedKey.fromString("adapt:armor-up");
+  private static final String SLOT_PLATING = "plating";
+  static final UUID LEGACY_MODIFIER = UUID.nameUUIDFromBytes("adapt-armor-up".getBytes());
+  static final NamespacedKey LEGACY_MODIFIER_KEY = NamespacedKey.fromString("adapt:armor-up");
   private final Map<UUID, RuntimeState> states = playerState();
   private final Queue<UUID> decayQueue = new ConcurrentLinkedQueue<>();
   private final Set<UUID> queuedDecay = ConcurrentHashMap.newKeySet();
@@ -88,7 +90,7 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
 
   @EventHandler
   public void on(PlayerJoinEvent e) {
-    scrubModifier(e.getPlayer());
+    purgeLegacyModifier(e.getPlayer());
   }
 
   @EventHandler
@@ -179,19 +181,15 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
       return;
     }
 
-    IAttribute attribute = Version.get().getAttribute(p, Attributes.GENERIC_ARMOR);
-    if (attribute == null) {
-      return;
-    }
-
     double factor = getLevelPercent(p);
     if (platingActive) {
       if (state == null) {
         state = new RuntimeState();
         states.put(id, state);
+        purgeLegacyModifier(p);
       }
       double elapsedTicks = updateElapsedTicks(state);
-      buildPlating(p, state, attribute, factor, elapsedTicks);
+      buildPlating(p, state, factor, elapsedTicks);
       if (queuedDecay.remove(id)) {
         decayQueue.remove(id);
       }
@@ -199,7 +197,7 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
     }
 
     double elapsedTicks = updateElapsedTicks(state);
-    decayPlating(p, state, attribute, factor, elapsedTicks);
+    decayPlating(p, state, factor, elapsedTicks);
     if (state.plating <= 0D) {
       states.remove(id, state);
       if (queuedDecay.remove(id)) {
@@ -220,21 +218,21 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
     return sprinting;
   }
 
-  private void buildPlating(Player p, RuntimeState state, IAttribute attribute, double factor, double elapsedTicks) {
+  private void buildPlating(Player p, RuntimeState state, double factor, double elapsedTicks) {
     state.decaying = false;
     double ticksToMax = Math.max(1D, getWindupTicks(factor));
     state.plating = Math.min(1.0D, state.plating + (elapsedTicks / ticksToMax));
     emitPlatingFeedback(p, state, state.plating);
     double armorInc = getWindupArmor(factor) * state.plating;
-    attribute.setModifier(MODIFIER, MODIFIER_KEY, armorInc * 10, AttributeModifier.Operation.ADD_NUMBER);
+    AdaptAttributeService.get().apply(p, getName(), SLOT_PLATING, Attributes.ARMOR, armorInc * 10, AttributeModifier.Operation.ADD_NUMBER);
     if (elapsedTicks > 0D) {
       addStat(p, "agility.armor-up.ticks-armored", elapsedTicks);
     }
   }
 
-  private void decayPlating(Player p, RuntimeState state, IAttribute attribute, double factor, double elapsedTicks) {
+  private void decayPlating(Player p, RuntimeState state, double factor, double elapsedTicks) {
     if (state.plating <= 0D) {
-      attribute.removeModifier(MODIFIER, MODIFIER_KEY);
+      AdaptAttributeService.get().remove(p, getName(), SLOT_PLATING, Attributes.ARMOR);
       return;
     }
 
@@ -246,21 +244,21 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
 
     state.plating = Math.max(0D, state.plating - (state.decayPerTick * elapsedTicks));
     if (state.plating <= 0D) {
-      completeDecay(p, state, attribute);
+      completeDecay(p, state);
       return;
     }
 
     double armorInc = getWindupArmor(factor) * state.plating;
-    attribute.setModifier(MODIFIER, MODIFIER_KEY, armorInc * 10, AttributeModifier.Operation.ADD_NUMBER);
+    AdaptAttributeService.get().apply(p, getName(), SLOT_PLATING, Attributes.ARMOR, armorInc * 10, AttributeModifier.Operation.ADD_NUMBER);
     emitDecayShimmer(p);
   }
 
-  private void completeDecay(Player p, RuntimeState state, IAttribute attribute) {
+  private void completeDecay(Player p, RuntimeState state) {
     state.plating = 0D;
     state.decaying = false;
     state.lastBracket = 0;
     state.fullyArmored = false;
-    attribute.removeModifier(MODIFIER, MODIFIER_KEY);
+    AdaptAttributeService.get().remove(p, getName(), SLOT_PLATING, Attributes.ARMOR);
     fx(p.getLocation(), FxPriority.TRANSITION)
         .burst(Particles.SMOKE, 3, 0.1D)
         .sound(Sound.ITEM_ARMOR_EQUIP_LEATHER, 0.3F, 0.5F);
@@ -320,7 +318,6 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
     if (queuedDecay.remove(p.getUniqueId())) {
       decayQueue.remove(p.getUniqueId());
     }
-    scrubModifier(p);
   }
 
   private void queueDecay(UUID id, RuntimeState state) {
@@ -346,18 +343,18 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
     return Math.min(20D, (now - previousUpdateAt) / 50D);
   }
 
-  private void scrubModifier(Player p) {
+  private void purgeLegacyModifier(Player p) {
     if (p == null) {
       return;
     }
 
     withPlayerThread(p, () -> {
-      IAttribute attribute = Version.get().getAttribute(p, Attributes.GENERIC_ARMOR);
+      IAttribute attribute = Version.get().getAttribute(p, Attributes.ARMOR);
       if (attribute == null) {
         return;
       }
 
-      attribute.removeModifier(MODIFIER, MODIFIER_KEY);
+      attribute.removeModifier(LEGACY_MODIFIER, LEGACY_MODIFIER_KEY);
     });
   }
 

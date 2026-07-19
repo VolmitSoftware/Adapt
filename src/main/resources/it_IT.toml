@@ -1841,11 +1841,10 @@ lore = ["Piu' nemici ti circondano, meno danni infliggi a ciascuno di loro", "Ra
 
 [tragoul.healing]
 name = "Volonta' del Dolore"
-description = "Recupera salute in base al danno che infliggi!"
-lore1 = "Fare del male non e' mai stato cosi' piacevole! Guarisci dal danno inflitto"
-lore2 = "C'e' una finestra di danno di 3 secondi per la guarigione e un tempo di recupero di 1 secondo "
-lore3 = "Guarigione per percentuale di danno: "
-lore = ["Fare del male non e' mai stato cosi' piacevole! Guarisci dal danno inflitto", "C'e' una finestra di danno di 3 secondi per la guarigione e un tempo di recupero di 1 secondo ", "Guarigione per percentuale di danno: "]
+description = "Ogni attaccante valido che ti danneggia perde una piccola quantità fissa di vita, che viene ripristinata a te."
+lore1 = "di salute sottratta a ogni attaccante"
+lore2 = "La vita realmente sottratta viene ripristinata a te"
+lore = ["di salute sottratta a ogni attaccante", "La vita realmente sottratta viene ripristinata a te"]
 
 [tragoul.lance]
 name = "Lance di Cadavere"

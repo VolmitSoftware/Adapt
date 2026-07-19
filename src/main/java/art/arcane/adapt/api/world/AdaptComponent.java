@@ -184,7 +184,7 @@ public interface AdaptComponent {
     if (isItem(it)) {
       return switch (it.getType()) {
         case DIAMOND_SWORD, GOLDEN_SWORD, IRON_SWORD, NETHERITE_SWORD,
-             STONE_SWORD, WOODEN_SWORD -> true;
+             STONE_SWORD, WOODEN_SWORD, COPPER_SWORD -> true;
         default -> false;
       };
     }
@@ -207,7 +207,7 @@ public interface AdaptComponent {
     if (isItem(it)) {
       return switch (it.getType()) {
         case DIAMOND_AXE, GOLDEN_AXE, IRON_AXE, NETHERITE_AXE, STONE_AXE,
-             WOODEN_AXE -> true;
+             WOODEN_AXE, COPPER_AXE -> true;
         default -> false;
       };
     }
@@ -219,7 +219,7 @@ public interface AdaptComponent {
     if (isItem(it)) {
       return switch (it.getType()) {
         case DIAMOND_PICKAXE, GOLDEN_PICKAXE, IRON_PICKAXE, NETHERITE_PICKAXE,
-             STONE_PICKAXE, WOODEN_PICKAXE -> true;
+             STONE_PICKAXE, WOODEN_PICKAXE, COPPER_PICKAXE -> true;
         default -> false;
       };
     }
@@ -231,7 +231,7 @@ public interface AdaptComponent {
     if (isItem(it)) {
       return switch (it.getType()) {
         case DIAMOND_SHOVEL, GOLDEN_SHOVEL, IRON_SHOVEL, NETHERITE_SHOVEL,
-             STONE_SHOVEL, WOODEN_SHOVEL -> true;
+             STONE_SHOVEL, WOODEN_SHOVEL, COPPER_SHOVEL -> true;
         default -> false;
       };
     }
@@ -264,7 +264,7 @@ public interface AdaptComponent {
     if (isItem(it)) {
       return switch (it.getType()) {
         case DIAMOND_BOOTS, GOLDEN_BOOTS, IRON_BOOTS, NETHERITE_BOOTS,
-             CHAINMAIL_BOOTS, LEATHER_BOOTS -> true;
+             CHAINMAIL_BOOTS, LEATHER_BOOTS, COPPER_BOOTS -> true;
         default -> false;
       };
     }
@@ -276,7 +276,7 @@ public interface AdaptComponent {
     if (isItem(it)) {
       return switch (it.getType()) {
         case CHAINMAIL_HELMET, DIAMOND_HELMET, GOLDEN_HELMET, IRON_HELMET,
-             LEATHER_HELMET, NETHERITE_HELMET, TURTLE_HELMET -> true;
+             LEATHER_HELMET, NETHERITE_HELMET, TURTLE_HELMET, COPPER_HELMET -> true;
         default -> false;
       };
     }
@@ -288,7 +288,8 @@ public interface AdaptComponent {
     if (isItem(it)) {
       return switch (it.getType()) {
         case DIAMOND_LEGGINGS, GOLDEN_LEGGINGS, IRON_LEGGINGS,
-             NETHERITE_LEGGINGS, CHAINMAIL_LEGGINGS, LEATHER_LEGGINGS -> true;
+             NETHERITE_LEGGINGS, CHAINMAIL_LEGGINGS, LEATHER_LEGGINGS,
+             COPPER_LEGGINGS -> true;
         default -> false;
       };
     }
@@ -300,8 +301,8 @@ public interface AdaptComponent {
     if (isItem(it)) {
       return switch (it.getType()) {
         case DIAMOND_CHESTPLATE, GOLDEN_CHESTPLATE, IRON_CHESTPLATE,
-             NETHERITE_CHESTPLATE, CHAINMAIL_CHESTPLATE, LEATHER_CHESTPLATE ->
-            true;
+             NETHERITE_CHESTPLATE, CHAINMAIL_CHESTPLATE, LEATHER_CHESTPLATE,
+             COPPER_CHESTPLATE -> true;
         default -> false;
       };
     }
@@ -324,7 +325,7 @@ public interface AdaptComponent {
     if (isItem(it)) {
       return switch (it.getType()) {
         case DIAMOND_HOE, GOLDEN_HOE, IRON_HOE, NETHERITE_HOE, STONE_HOE,
-             WOODEN_HOE -> true;
+             WOODEN_HOE, COPPER_HOE -> true;
         default -> false;
       };
     }

@@ -102,6 +102,16 @@ public record RuntimeAttribute(
     return modifierName != null && modifierName.equals(key.getNamespace() + "-" + key.getKey());
   }
 
+  private static boolean inNamespace(AttributeModifier modifier, String namespace) {
+    NamespacedKey modifierKey = readKey(modifier);
+    if (modifierKey != null && modifierKey.getNamespace().equals(namespace)) {
+      return true;
+    }
+
+    String modifierName = readName(modifier);
+    return modifierName != null && modifierName.startsWith(namespace + "-");
+  }
+
   private static Modifier wrap(AttributeModifier modifier) {
     return new Modifier(readUuid(modifier), readKey(modifier), modifier.getAmount(), modifier.getOperation());
   }
@@ -251,5 +261,38 @@ public record RuntimeAttribute(
       }
     }
     return modifiers;
+  }
+
+  @Override
+  public KList<Modifier> getAllModifiers() {
+    KList<Modifier> modifiers = new KList<>();
+    for (AttributeModifier modifier : instance.getModifiers()) {
+      modifiers.add(wrap(modifier));
+    }
+    return modifiers;
+  }
+
+  @Override
+  public int removeAllInNamespace(String namespace) {
+    List<AttributeModifier> toRemove = null;
+    for (AttributeModifier modifier : instance.getModifiers()) {
+      if (!inNamespace(modifier, namespace)) {
+        continue;
+      }
+
+      if (toRemove == null) {
+        toRemove = new ArrayList<>();
+      }
+      toRemove.add(modifier);
+    }
+
+    if (toRemove == null) {
+      return 0;
+    }
+
+    for (AttributeModifier modifier : toRemove) {
+      instance.removeModifier(modifier);
+    }
+    return toRemove.size();
   }
 }

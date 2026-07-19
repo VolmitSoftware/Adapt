@@ -23,23 +23,24 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
-import art.arcane.adapt.util.reflect.registries.PotionEffectTypes;
+import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffect;
 
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -80,14 +81,19 @@ public class NetherNetherrackMason extends SimpleAdaptation<NetherNetherrackMaso
       }
 
       long now = System.currentTimeMillis();
-      if (getStorageLong(p, "masonHasteNext", 0L) > now && p.hasPotionEffect(PotionEffectTypes.FAST_DIGGING)) {
+      if (getStorageLong(p, "masonHasteNext", 0L) > now && getStorageLong(p, "masonHasteUntil", 0L) > now) {
+        return;
+      }
+
+      int hasteDurationTicks = getConfig().hasteDurationTicks;
+      if (hasteDurationTicks <= 0) {
         return;
       }
 
       int level = getActiveLevel(p);
-      int amplifier = Math.max(0, getHasteTier(level) - 1);
-      p.addPotionEffect(new PotionEffect(PotionEffectTypes.FAST_DIGGING, getConfig().hasteDurationTicks, amplifier, false, false, true), true);
+      AdaptAttributeService.get().applyTimed(p, getName(), "haste", Attributes.BLOCK_BREAK_SPEED, breakSpeedBonus(getHasteTier(level)), AttributeModifier.Operation.MULTIPLY_SCALAR_1, hasteDurationTicks);
       setStorage(p, "masonHasteNext", now + getConfig().hasteRefreshMillis);
+      setStorage(p, "masonHasteUntil", now + (hasteDurationTicks * 50L));
     });
   }
 
@@ -163,6 +169,10 @@ public class NetherNetherrackMason extends SimpleAdaptation<NetherNetherrackMaso
 
   static int hasteTier(double levelPercent, double base, double factor) {
     return Math.max(1, (int) Math.round(base + (levelPercent * factor)));
+  }
+
+  static double breakSpeedBonus(int tier) {
+    return 0.20D * Math.max(1, tier);
   }
 
   static double bonusDropChance(double levelPercent, double base, double factor, double cap) {

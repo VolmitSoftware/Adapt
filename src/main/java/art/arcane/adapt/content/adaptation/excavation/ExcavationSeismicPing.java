@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.excavation;
 
+import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.Cooldowns;
@@ -31,22 +32,26 @@ import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.common.world.WorldBlockScanScheduler;
 import art.arcane.adapt.util.config.ConfigDescription;
-import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.World;
+import org.bukkit.entity.BlockDisplay;
+import org.bukkit.entity.Display;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.EntityRemoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Transformation;
 import org.bukkit.util.Vector;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,12 +59,16 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPing.Config> {
   private static final int MAX_SCAN_RANGE = 32;
   private static final int MAX_BLOCK_CHECKS_PER_ACTIVATION = 2048;
   private final Cooldowns cooldowns = cooldowns();
   private final Map<UUID, UUID> activeScans = new ConcurrentHashMap<>();
+  private final Map<UUID, DisplayHandle> activeLines = new ConcurrentHashMap<>();
+  private final AtomicBoolean acceptingLines = new AtomicBoolean(true);
+  private final Object lineLifecycleLock = new Object();
 
   public ExcavationSeismicPing() {
     super("excavation-seismic-ping");
@@ -179,8 +188,7 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
       }
 
       Color tint = oreTint(target.material());
-      groundPulse(blockLocation.clone().add(0.5, 0.5, 0.5), tint);
-      renderDirectionHint(playerOrigin, direction.normalize(), getHintSegments(level), tint);
+      renderDirectionHint(p, playerOrigin, direction.normalize(), getHintSegments(level), tint);
       playPingSound(p, playerOrigin.distance(targetCenter), scanRange);
       addStat(p, "excavation.seismic-ping.pings-triggered", 1);
       xp(p, getConfig().xpPerPing + (getValue(target.material()) * getConfig().targetValueXpMultiplier));
@@ -217,43 +225,113 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
     return Color.fromRGB(110, 230, 255);
   }
 
-  private void groundPulse(Location center, Color tint) {
-    float size = (float) getConfig().particleSize;
-    timeline(center)
-        .duration(4)
-        .priority(FxPriority.GAMEPLAY)
-        .cullRadius(20)
-        .frame((fx, tick, progress) -> {
-          fx.dustRing(tint, 0.4D + (1.4D * progress), 10, size);
-          if (tick == 0) {
-            fx.sound(Sound.BLOCK_SCULK_SENSOR_CLICKING, 0.4f, 0.8f);
-          }
-        })
-        .start();
+  private void renderDirectionHint(Player player, Location origin, Vector direction, int segments, Color tint) {
+    if (!acceptingLines.get()) {
+      return;
+    }
+    int total = Math.max(2, segments);
+    float length = lineLength(total, getConfig().segmentSpacing);
+    float thickness = (float) Math.max(0.04D, Math.min(0.5D, getConfig().lineThickness));
+    Quaternionf rotation = new Quaternionf().rotationTo(
+        0f, 0f, 1f,
+        (float) direction.getX(), (float) direction.getY(), (float) direction.getZ()
+    );
+    Vector3f centeredOffset = new Vector3f(-thickness * 0.5F, -thickness * 0.5F, 0F);
+    rotation.transform(centeredOffset);
+    Transformation transformation = new Transformation(
+        centeredOffset, rotation, new Vector3f(thickness, thickness, length), new Quaternionf()
+    );
+    Location lineOrigin = origin.clone().add(direction.clone().multiply(0.65D));
+
+    BlockDisplay line;
+    try {
+      line = lineOrigin.getWorld().spawn(lineOrigin, BlockDisplay.class, display -> {
+        display.setPersistent(false);
+        display.setInvulnerable(true);
+        display.setGravity(false);
+        display.setSilent(true);
+        display.setVisibleByDefault(false);
+        display.setViewRange((float) Math.max(0.5D, Math.min(2D, getConfig().lineViewRange)));
+        display.setShadowRadius(0f);
+        display.setShadowStrength(0f);
+        display.setBrightness(new Display.Brightness(15, 15));
+        display.setDisplayWidth(length);
+        display.setDisplayHeight(Math.max(1f, length));
+        display.setBlock(Material.WHITE_STAINED_GLASS.createBlockData());
+        display.setTransformation(transformation);
+        display.setGlowColorOverride(tint);
+        display.setGlowing(true);
+      });
+    } catch (Throwable error) {
+      Adapt.verbose("Failed to spawn glowing direction line for Seismic Ping: "
+          + error.getClass().getSimpleName()
+          + (error.getMessage() == null ? "" : " - " + error.getMessage()));
+      error.printStackTrace();
+      return;
+    }
+
+    UUID lineId = line.getUniqueId();
+    DisplayHandle handle = new DisplayHandle(line, lineOrigin.clone());
+    synchronized (lineLifecycleLock) {
+      if (!acceptingLines.get()) {
+        removeDisplayOwned(line);
+        return;
+      }
+      activeLines.put(lineId, handle);
+    }
+    player.showEntity(Adapt.instance, line);
+    if (!J.runEntity(line, () -> removeLineOwned(lineId, line), getLineDurationTicks())) {
+      removeLine(lineId);
+    }
   }
 
-  private void renderDirectionHint(Location origin, Vector direction, int segments, Color tint) {
-    int total = Math.max(2, segments);
-    double spacing = getConfig().segmentSpacing;
-    double dx = direction.getX();
-    double dy = direction.getY();
-    double dz = direction.getZ();
-    int perSegment = Math.max(1, getConfig().segmentParticleCount);
-    int tipCount = Math.max(1, getConfig().tipParticleCount);
-    Particle.DustOptions dust = new Particle.DustOptions(tint, (float) getConfig().particleSize);
-    timeline(origin)
-        .duration(total)
-        .priority(FxPriority.TRAIL)
-        .cullRadius(20)
-        .frame((fx, tick, progress) -> {
-          double head = (tick + 1) * spacing;
-          fx.particle(Particles.REDSTONE, perSegment, dx * head, dy * head, dz * head, 0.05D, 0, dust);
-          if (tick + 1 >= total) {
-            double tip = total * spacing;
-            fx.particle(Particle.ELECTRIC_SPARK, tipCount, dx * tip, dy * tip, dz * tip, 0.1D, 0.04D);
-          }
-        })
-        .start();
+  private void removeLine(UUID lineId) {
+    DisplayHandle handle = activeLines.remove(lineId);
+    if (handle == null) {
+      return;
+    }
+    if (!J.runEntity(handle.display(), () -> removeDisplayOwned(handle.display()))) {
+      J.runAt(handle.anchor(), () -> removeDisplayOwned(handle.display()));
+    }
+  }
+
+  private void removeLineOwned(UUID lineId, BlockDisplay line) {
+    activeLines.remove(lineId);
+    removeDisplayOwned(line);
+  }
+
+  private void removeDisplayOwned(BlockDisplay line) {
+    if (line.isValid()) {
+      line.remove();
+    }
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(EntityRemoveEvent e) {
+    if (e.getEntity() instanceof BlockDisplay) {
+      activeLines.remove(e.getEntity().getUniqueId());
+    }
+  }
+
+  private void clearLines() {
+    List<DisplayHandle> handles;
+    synchronized (lineLifecycleLock) {
+      handles = List.copyOf(activeLines.values());
+      activeLines.clear();
+    }
+    for (DisplayHandle handle : handles) {
+      if (!J.runEntity(handle.display(), () -> removeDisplayOwned(handle.display()))) {
+        J.runAt(handle.anchor(), () -> removeDisplayOwned(handle.display()));
+      }
+    }
+  }
+
+  private int getLineDurationTicks() {
+    return Math.max(10, Math.min(20 * 10, getConfig().lineDurationTicks));
+  }
+
+  static float lineLength(int segments, double spacing) {
+    return (float) (Math.max(2, segments) * Math.max(0.1D, spacing));
   }
 
   private void playPingSound(Player p, double distance, int range) {
@@ -285,9 +363,11 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
 
   @Override
   public void unregister() {
+    acceptingLines.set(false);
+    super.unregister();
     activeScans.clear();
     WorldBlockScanScheduler.cancelOwner(this);
-    super.unregister();
+    clearLines();
   }
 
   private int getScanRange(int level) {
@@ -333,12 +413,12 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
     double hintSegmentsFactor = 9;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Segment Spacing for the Excavation Seismic Ping adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double segmentSpacing = 0.55;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Particle Size for the Excavation Seismic Ping adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double particleSize = 0.65;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Segment Particle Count for the Excavation Seismic Ping adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    int segmentParticleCount = 2;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Tip Particle Count for the Excavation Seismic Ping adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    int tipParticleCount = 12;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Thickness of the glowing Seismic Ping direction line.", impact = "Higher values make the line easier to see and values are clamped between 0.04 and 0.5 blocks.")
+    double lineThickness = 0.12;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Duration in ticks that the glowing Seismic Ping direction line remains visible.", impact = "Higher values keep the direction visible longer and retain the temporary display entity longer.")
+    int lineDurationTicks = 40;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Client view-range multiplier for the glowing Seismic Ping direction line.", impact = "Higher values allow the line to render farther away and values are clamped between 0.5 and 2.0.")
+    double lineViewRange = 1.0;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Ping for the Excavation Seismic Ping adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpPerPing = 8;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Target Value Xp Multiplier for the Excavation Seismic Ping adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -348,5 +428,8 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
       costFactor = 0.78;
       initialCost = 4;
     }
+  }
+
+  private record DisplayHandle(BlockDisplay display, Location anchor) {
   }
 }

@@ -54,6 +54,17 @@ class HeartseekerRuntimeTest {
   }
 
   @Test
+  void servantProtectionKeepsOwnAndUnknownServantsSafeButAllowsEnemyServants() {
+    UUID shooter = new UUID(1L, 1L);
+    UUID enemy = new UUID(1L, 2L);
+
+    assertThat(RangedHeartseeker.isProtectedServant(shooter, true, shooter)).isTrue();
+    assertThat(RangedHeartseeker.isProtectedServant(shooter, true, enemy)).isFalse();
+    assertThat(RangedHeartseeker.isProtectedServant(shooter, true, null)).isTrue();
+    assertThat(RangedHeartseeker.isProtectedServant(shooter, false, enemy)).isFalse();
+  }
+
+  @Test
   void steeringCurvesTowardTargetWithoutAddingLateralOrbit() {
     Vector current = new Vector(1D, 0D, 0D);
     Vector desired = new Vector(0D, 0D, 1D);

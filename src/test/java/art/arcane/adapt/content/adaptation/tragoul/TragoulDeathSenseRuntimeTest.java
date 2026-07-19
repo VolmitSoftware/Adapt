@@ -1,5 +1,6 @@
 package art.arcane.adapt.content.adaptation.tragoul;
 
+import org.bukkit.ChatColor;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
@@ -11,7 +12,7 @@ class TragoulDeathSenseRuntimeTest {
   @Test
   void productionWorkLimitsRemainHardAtOneThousandContenders() {
     assertThat(DeathSenseWorkLimits.ownerRefreshes(1_000)).isEqualTo(24);
-    assertThat(DeathSenseWorkLimits.monsterInspections(1_000)).isEqualTo(48);
+    assertThat(DeathSenseWorkLimits.targetInspections(1_000)).isEqualTo(48);
     assertThat(DeathSenseWorkLimits.marks(1_000)).isEqualTo(12);
   }
 
@@ -60,5 +61,38 @@ class TragoulDeathSenseRuntimeTest {
 
     assertThat(index.findNearest(world, 1D, 64D, 1D, 0.4D, 32D, 200L, 5000L)).isNull();
     assertThat(index.findNearest(world, 1D, 64D, 1D, 0.1D, 32D, 6000L, 5000L)).isNull();
+  }
+
+  @Test
+  void thresholdsRunExactlyFromHalfHealthToNinetyPercent() {
+    TragoulDeathSense.Config config = new TragoulDeathSense.Config();
+
+    assertThat(config.healthThresholdStart).isEqualTo(0.5D);
+    assertThat(config.healthThresholdEnd).isEqualTo(0.9D);
+    assertThat(TragoulDeathSense.healthThreshold(0.5D, 0.9D, 1, 5)).isEqualTo(0.5D);
+    assertThat(TragoulDeathSense.healthThreshold(0.5D, 0.9D, 3, 5)).isEqualTo(0.7D);
+    assertThat(TragoulDeathSense.healthThreshold(0.5D, 0.9D, 5, 5)).isEqualTo(0.9D);
+  }
+
+  @Test
+  void glowColorDarkensAsHealthIsLost() {
+    assertThat(TragoulDeathSense.healthColor(0.9D)).isEqualTo(ChatColor.YELLOW);
+    assertThat(TragoulDeathSense.healthColor(0.7D)).isEqualTo(ChatColor.GOLD);
+    assertThat(TragoulDeathSense.healthColor(0.4D)).isEqualTo(ChatColor.RED);
+    assertThat(TragoulDeathSense.healthColor(0.2D)).isEqualTo(ChatColor.DARK_RED);
+  }
+
+  @Test
+  void spatialIndexReturnsEveryEligibleOwnerInDistanceOrderWithinTheLimit() {
+    DeathSenseSpatialIndex index = new DeathSenseSpatialIndex();
+    UUID world = new UUID(0L, 1L);
+    UUID far = new UUID(0L, 2L);
+    UUID near = new UUID(0L, 3L);
+    index.put(new DeathSenseSpatialIndex.OwnerPoint(far, world, 10D, 64D, 0D, 24D, 0.9D, 100L));
+    index.put(new DeathSenseSpatialIndex.OwnerPoint(near, world, 2D, 64D, 0D, 24D, 0.9D, 100L));
+
+    assertThat(index.findEligible(world, 0D, 64D, 0D, 0.5D, 32D, 200L, 5000L, 12))
+        .extracting(DeathSenseSpatialIndex.OwnerPoint::ownerId)
+        .containsExactly(near, far);
   }
 }

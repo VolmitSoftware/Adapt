@@ -272,7 +272,7 @@ public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config
 
   private void update(Tameable j, int level) {
     UUID tameableId = j.getUniqueId();
-    IAttribute attribute = Version.get().getAttribute(j, Attributes.GENERIC_MAX_HEALTH);
+    IAttribute attribute = Version.get().getAttribute(j, Attributes.MAX_HEALTH);
     if (attribute == null) {
       appliedLevels.remove(tameableId);
       return;
@@ -340,7 +340,7 @@ public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config
       return;
     }
 
-    IAttribute attribute = Version.get().getAttribute(tameable, Attributes.GENERIC_MAX_HEALTH);
+    IAttribute attribute = Version.get().getAttribute(tameable, Attributes.MAX_HEALTH);
     if (attribute != null && attribute.hasModifier(MODIFIER, MODIFIER_KEY)) {
       attribute.removeModifier(MODIFIER, MODIFIER_KEY);
     }

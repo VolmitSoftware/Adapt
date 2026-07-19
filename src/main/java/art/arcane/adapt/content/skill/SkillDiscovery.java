@@ -285,8 +285,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
           .start();
     } else {
       fx(loc, FxPriority.AMBIENT)
-          .particle(Particles.END_ROD, 3, 0, 0, 0, 0.1, 0.02)
-          .sound(Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.4F, 1.6F);
+          .particle(Particles.END_ROD, 3, 0, 0, 0, 0.1, 0.02);
     }
   }
 

@@ -24,30 +24,31 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
-import art.arcane.adapt.util.reflect.registries.PotionEffectTypes;
+import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.potion.PotionEffect;
 
 import java.util.Map;
 import java.util.UUID;
 
 public class SeaborneTurtlesMiningSpeed extends SimpleAdaptation<SeaborneTurtlesMiningSpeed.Config> {
-  private static final int EFFECT_DURATION_TICKS = 160;
-  private static final int EFFECT_REFRESH_THRESHOLD_TICKS = 100;
-  private static final int EFFECT_AMPLIFIER = 1;
+  private static final String ATTRIBUTE_SLOT = "mining";
+  private static final long EFFECT_DURATION_TICKS = 160L;
+  private static final double SUBMERGED_MINING_SPEED_BONUS = 0.4D;
 
   private final Map<UUID, Boolean> submerged = playerState();
   private final Cooldowns breakPulse = cooldowns();
@@ -109,13 +110,15 @@ public class SeaborneTurtlesMiningSpeed extends SimpleAdaptation<SeaborneTurtles
           return;
         }
 
+        UUID id = player.getUniqueId();
         int level = getActiveLevel(player);
         if (level <= 0) {
-          submerged.remove(player.getUniqueId());
+          submerged.remove(id);
           return;
         }
 
-        UUID id = player.getUniqueId();
+        AdaptAttributeService.get().applyTimed(player, getName(), ATTRIBUTE_SLOT, Attributes.SUBMERGED_MINING_SPEED, SUBMERGED_MINING_SPEED_BONUS, AttributeModifier.Operation.MULTIPLY_SCALAR_1, EFFECT_DURATION_TICKS);
+
         boolean was = submerged.getOrDefault(id, false);
         if (!player.isInWater()) {
           if (was) {
@@ -123,8 +126,6 @@ public class SeaborneTurtlesMiningSpeed extends SimpleAdaptation<SeaborneTurtles
           }
           return;
         }
-
-        refreshMiningSpeed(player);
 
         if (!was) {
           submerged.put(id, true);
@@ -138,19 +139,7 @@ public class SeaborneTurtlesMiningSpeed extends SimpleAdaptation<SeaborneTurtles
     }
   }
 
-  private void refreshMiningSpeed(Player player) {
-    PotionEffect current = player.getPotionEffect(PotionEffectTypes.FAST_DIGGING);
-    if (current == null || shouldRefreshEffect(current.getDuration(), current.getAmplifier(), EFFECT_AMPLIFIER)) {
-      player.addPotionEffect(new PotionEffect(PotionEffectTypes.FAST_DIGGING, EFFECT_DURATION_TICKS, EFFECT_AMPLIFIER, false, false));
-    }
-  }
-
-  static boolean shouldRefreshEffect(int currentDuration, int currentAmplifier, int targetAmplifier) {
-    return currentAmplifier < targetAmplifier
-        || (currentAmplifier == targetAmplifier && currentDuration <= EFFECT_REFRESH_THRESHOLD_TICKS);
-  }
-
-  @ConfigDescription("Gain haste while mining underwater.")
+  @ConfigDescription("Mine faster while underwater.")
   protected static class Config extends AdaptationConfig {
     public Config() {
       baseCost = 15;

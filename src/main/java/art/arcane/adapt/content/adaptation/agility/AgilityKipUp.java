@@ -24,24 +24,25 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
+import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import java.util.Map;
@@ -146,8 +147,11 @@ public class AgilityKipUp extends SimpleAdaptation<AgilityKipUp.Config> {
     double magnitude = getConfig().recoverySpeed;
     p.setVelocity(new Vector(direction.getX() * magnitude, current.getY(), direction.getZ() * magnitude));
 
-    int amplifier = getSpeedAmplifier(level);
-    p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, getSpeedDurationTicks(), amplifier, false, false));
+    int speedDurationTicks = getSpeedDurationTicks();
+    if (speedDurationTicks > 0) {
+      AdaptAttributeService.get().applyTimed(p, getName(), "speed", Attributes.MOVEMENT_SPEED,
+          speedBonus(getSpeedAmplifier(level)), AttributeModifier.Operation.MULTIPLY_SCALAR_1, speedDurationTicks);
+    }
 
     fx(p.getLocation(), FxPriority.GAMEPLAY)
         .trail(Particle.CLOUD, direction.getX(), 0.1D, direction.getZ(), 0.8D, 5)
@@ -190,12 +194,23 @@ public class AgilityKipUp extends SimpleAdaptation<AgilityKipUp.Config> {
   }
 
   private int getSpeedAmplifier(int level) {
-    return Math.max(0, (int) Math.round(getConfig().speedAmplifierBase
-        + (getLevelPercent(level) * getConfig().speedAmplifierFactor)));
+    return speedAmplifier(getLevelPercent(level), getConfig().speedAmplifierBase, getConfig().speedAmplifierFactor);
   }
 
   private int getSpeedDurationTicks() {
-    return Math.max(10, getConfig().speedDurationTicks);
+    return speedDurationTicks(getConfig().speedDurationTicks);
+  }
+
+  static int speedAmplifier(double levelPercent, double amplifierBase, double amplifierFactor) {
+    return Math.max(0, (int) Math.round(amplifierBase + (levelPercent * amplifierFactor)));
+  }
+
+  static int speedDurationTicks(int configuredTicks) {
+    return Math.max(10, configuredTicks);
+  }
+
+  static double speedBonus(int amplifier) {
+    return 0.2D * (amplifier + 1);
   }
 
   @ConfigDescription("Jump right after taking a hit to convert knockback into recovered momentum and a speed burst.")
