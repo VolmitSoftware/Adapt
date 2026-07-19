@@ -46,7 +46,7 @@ class MutationCatalogTest {
   }
 
   @Test
-  void sixDomainsCoverTheTwentyTwoCanonicalSkillsExactlyOnce() {
+  void sixDomainsCoverTheTwentyThreeCanonicalSkillsExactlyOnce() {
     MutationCatalog catalog = MutationCatalog.defaults();
     ArrayList<String> skills = new ArrayList<>();
     for (MutationDomain domain : MutationDomain.values()) {
@@ -54,8 +54,8 @@ class MutationCatalogTest {
     }
 
     assertThat(MutationDomain.values()).hasSize(6);
-    assertThat(skills).hasSize(22).doesNotHaveDuplicates();
-    assertThat(skills).contains("pickaxe", "tragoul", "seaborne");
+    assertThat(skills).hasSize(23).doesNotHaveDuplicates();
+    assertThat(skills).contains("pickaxe", "tragoul", "seaborne", "kinetics");
   }
 
   @Test

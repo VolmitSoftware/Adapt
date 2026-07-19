@@ -23,7 +23,7 @@ public final class MutationCatalog {
     byId = Collections.unmodifiableMap(index);
 
     EnumMap<MutationDomain, List<String>> domains = new EnumMap<>(MutationDomain.class);
-    domains.put(MutationDomain.BODY, List.of("agility", "blocking", "unarmed"));
+    domains.put(MutationDomain.BODY, List.of("agility", "blocking", "unarmed", "kinetics"));
     domains.put(MutationDomain.HUNT, List.of("swords", "ranged", "hunter", "stealth"));
     domains.put(MutationDomain.INDUSTRY, List.of("architect", "axes", "excavation", "pickaxe"));
     domains.put(MutationDomain.WILD, List.of("herbalism", "taming", "seaborne"));

@@ -150,7 +150,7 @@ public interface AdaptComponent {
   }
 
   default boolean isTool(ItemStack is) {
-    return isAxe(is) || isPickaxe(is) || isHoe(is) || isShovel(is) || isSword(is) || isTrident(is) || isMace(is);
+    return isAxe(is) || isPickaxe(is) || isHoe(is) || isShovel(is) || isSword(is) || isTrident(is) || isSpear(is) || isMace(is);
   }
 
   default boolean isMelee(ItemStack is) {
@@ -159,6 +159,18 @@ public interface AdaptComponent {
 
   default boolean isMace(ItemStack is) {
     return isItem(is) && is.getType() == Materials.MACE;
+  }
+
+  default boolean isSpear(ItemStack is) {
+    if (isItem(is)) {
+      return switch (is.getType()) {
+        case WOODEN_SPEAR, STONE_SPEAR, COPPER_SPEAR, IRON_SPEAR,
+             GOLDEN_SPEAR, DIAMOND_SPEAR, NETHERITE_SPEAR -> true;
+        default -> false;
+      };
+    }
+
+    return false;
   }
 
   default boolean isShield(ItemStack is) {

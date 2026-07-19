@@ -7,6 +7,13 @@ public class Materials {
 
   /* Added Materials */
   public static final Material MACE = RegistryUtil.findNullable(Material.class, "mace");
+  public static final Material WOODEN_SPEAR = RegistryUtil.findNullable(Material.class, "wooden_spear");
+  public static final Material STONE_SPEAR = RegistryUtil.findNullable(Material.class, "stone_spear");
+  public static final Material COPPER_SPEAR = RegistryUtil.findNullable(Material.class, "copper_spear");
+  public static final Material IRON_SPEAR = RegistryUtil.findNullable(Material.class, "iron_spear");
+  public static final Material GOLDEN_SPEAR = RegistryUtil.findNullable(Material.class, "golden_spear");
+  public static final Material DIAMOND_SPEAR = RegistryUtil.findNullable(Material.class, "diamond_spear");
+  public static final Material NETHERITE_SPEAR = RegistryUtil.findNullable(Material.class, "netherite_spear");
   //1.20+
   public static final Material OAK_HANGING_SIGN = RegistryUtil.findNullable(Material.class, "oak_hanging_sign");
   public static final Material OAK_WALL_HANGING_SIGN = RegistryUtil.findNullable(Material.class, "oak_wall_hanging_sign");

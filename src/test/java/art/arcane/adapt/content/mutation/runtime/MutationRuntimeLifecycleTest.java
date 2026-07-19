@@ -5,6 +5,7 @@ import org.bukkit.GameMode;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.junit.jupiter.api.Test;
 
@@ -164,6 +165,20 @@ class MutationRuntimeLifecycleTest {
 
     assertThat(handler).isNotNull();
     assertThat(handler.priority()).isEqualTo(EventPriority.HIGHEST);
+    assertThat(handler.ignoreCancelled()).isTrue();
+  }
+
+  @Test
+  void blockedHeldItemsCancelDamageBeforeAdaptationHandlers() {
+    Method preflight = Arrays.stream(MutationRuntimeRouter.class.getDeclaredMethods())
+        .filter(method -> method.getName().equals("onHeldItemDamagePreflight"))
+        .filter(method -> Arrays.equals(method.getParameterTypes(), new Class<?>[]{EntityDamageByEntityEvent.class}))
+        .findFirst()
+        .orElseThrow();
+    EventHandler handler = preflight.getAnnotation(EventHandler.class);
+
+    assertThat(handler).isNotNull();
+    assertThat(handler.priority()).isEqualTo(EventPriority.LOWEST);
     assertThat(handler.ignoreCancelled()).isTrue();
   }
 }

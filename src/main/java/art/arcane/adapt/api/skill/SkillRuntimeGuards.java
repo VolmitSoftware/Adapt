@@ -23,6 +23,7 @@ import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.runtime.AdaptationGate;
+import art.arcane.adapt.api.tick.TickedObject;
 import art.arcane.adapt.api.world.AdaptDebugMode;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.AdaptStatTracker;
@@ -82,7 +83,7 @@ final class SkillRuntimeGuards {
       }
 
       if (player.getAdvancementHandler().grant(tracker.getAdvancement())) {
-        skill.xp(runtimePlayer, tracker.getReward());
+        skill.xp(runtimePlayer, tracker.getReward(), "milestone:" + tracker.getAdvancement());
       }
     }
   }
@@ -131,16 +132,20 @@ final class SkillRuntimeGuards {
 
   static void withPlayer(Skill<?> skill, Player player, Runnable runnable) {
     try {
-      if (skill == null || player == null || runnable == null) {
+      if (skill == null || player == null || runnable == null || !isRuntimeActive(skill)) {
         return;
       }
 
       if (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(player)) {
-        J.runEntity(player, () -> withPlayer(skill, player, runnable));
+        J.runEntity(player, () -> {
+          if (isRuntimeActive(skill)) {
+            withPlayer(skill, player, runnable);
+          }
+        });
         return;
       }
 
-      if (shouldSkipPlayer(skill, player)) {
+      if (!isRuntimeActive(skill) || shouldSkipPlayer(skill, player)) {
         return;
       }
 
@@ -154,7 +159,7 @@ final class SkillRuntimeGuards {
 
   static void withPlayer(Skill<?> skill, Player player, Cancellable cancellable, Runnable runnable) {
     try {
-      if (skill == null || player == null || cancellable == null || runnable == null) {
+      if (skill == null || player == null || cancellable == null || runnable == null || !isRuntimeActive(skill)) {
         return;
       }
 
@@ -163,11 +168,15 @@ final class SkillRuntimeGuards {
       }
 
       if (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(player)) {
-        J.runEntity(player, () -> withPlayer(skill, player, cancellable, runnable));
+        J.runEntity(player, () -> {
+          if (isRuntimeActive(skill)) {
+            withPlayer(skill, player, cancellable, runnable);
+          }
+        });
         return;
       }
 
-      if (cancellable.isCancelled() || shouldSkipPlayer(skill, player)) {
+      if (cancellable.isCancelled() || !isRuntimeActive(skill) || shouldSkipPlayer(skill, player)) {
         return;
       }
 
@@ -203,11 +212,14 @@ final class SkillRuntimeGuards {
   }
 
   static void grantXp(Skill<?> skill, Player player, Location location, double xp, String rewardKey, boolean silent, boolean visualBurst) {
-    if (!canGrantXp(skill, player)) {
+    if (!canGrantXp(skill, player) || !isValidXp(xp)) {
       return;
     }
     try {
       xp *= XpNovelty.noveltyMultiplier(player, location, rewardKey);
+      if (!isValidXp(xp)) {
+        return;
+      }
       if (silent) {
         XP.xpSilent(player, skill, xp, rewardKey);
       } else {
@@ -226,7 +238,7 @@ final class SkillRuntimeGuards {
   }
 
   static void grantXpSilent(Skill<?> skill, Player player, double xp, String rewardKey) {
-    if (!canGrantXp(skill, player)) {
+    if (!canGrantXp(skill, player) || !isValidXp(xp)) {
       return;
     }
     try {
@@ -245,5 +257,13 @@ final class SkillRuntimeGuards {
 
   static boolean isRuntimePlayer(Player player) {
     return player != null && player.getClass().getSimpleName().equals("CraftPlayer");
+  }
+
+  static boolean isValidXp(double xp) {
+    return Double.isFinite(xp) && xp > 0;
+  }
+
+  private static boolean isRuntimeActive(Skill<?> skill) {
+    return !(skill instanceof TickedObject tickedObject) || tickedObject.isRuntimeRegistered();
   }
 }

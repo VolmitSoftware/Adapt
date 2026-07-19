@@ -22,6 +22,7 @@ import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.protection.Protector;
 import art.arcane.adapt.api.telemetry.AbilityCheckTelemetry;
+import art.arcane.adapt.api.tick.TickedObject;
 import art.arcane.adapt.api.world.AdaptDebugMode;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.PlayerAdaptation;
@@ -75,16 +76,22 @@ final class AdaptationRuntimeGuards {
 
   static void withPlayerThread(Adaptation<?> adaptation, Player p, Runnable runnable) {
     try {
-      if (p == null || runnable == null) {
+      if (adaptation == null || p == null || runnable == null || !isRuntimeActive(adaptation)) {
         return;
       }
 
       if (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(p)) {
-        J.runEntity(p, () -> withPlayerThread(adaptation, p, runnable));
+        J.runEntity(p, () -> {
+          if (isRuntimeActive(adaptation)) {
+            withPlayerThread(adaptation, p, runnable);
+          }
+        });
         return;
       }
 
-      runMeasured(adaptation, runnable);
+      if (isRuntimeActive(adaptation)) {
+        runMeasured(adaptation, runnable);
+      }
     } catch (Exception ex) {
       Adapt.verbose("Failed guarded player runnable for adaptation " + adaptation.getName() + ": "
           + ex.getClass().getSimpleName()
@@ -94,7 +101,7 @@ final class AdaptationRuntimeGuards {
 
   static void withPlayerThread(Adaptation<?> adaptation, Player p, Cancellable cancellable, Runnable runnable) {
     try {
-      if (p == null || cancellable == null || runnable == null) {
+      if (adaptation == null || p == null || cancellable == null || runnable == null || !isRuntimeActive(adaptation)) {
         return;
       }
 
@@ -103,11 +110,15 @@ final class AdaptationRuntimeGuards {
       }
 
       if (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(p)) {
-        J.runEntity(p, () -> withPlayerThread(adaptation, p, cancellable, runnable));
+        J.runEntity(p, () -> {
+          if (isRuntimeActive(adaptation)) {
+            withPlayerThread(adaptation, p, cancellable, runnable);
+          }
+        });
         return;
       }
 
-      if (cancellable.isCancelled()) {
+      if (cancellable.isCancelled() || !isRuntimeActive(adaptation)) {
         return;
       }
 
@@ -865,6 +876,10 @@ final class AdaptationRuntimeGuards {
       }
     }
     return hash;
+  }
+
+  private static boolean isRuntimeActive(Adaptation<?> adaptation) {
+    return !(adaptation instanceof TickedObject tickedObject) || tickedObject.isRuntimeRegistered();
   }
 
   private record PlayerAdaptationKey(UUID uuid, String adaptation) {

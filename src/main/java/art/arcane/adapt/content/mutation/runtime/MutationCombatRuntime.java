@@ -1869,7 +1869,7 @@ final class MutationCombatRuntime {
     if (name.endsWith("PICKAXE")) {
       return MutationWeaponFamily.TOOL;
     }
-    if (name.endsWith("AXE") || name.equals("MACE")) {
+    if (name.endsWith("AXE") || name.endsWith("_SPEAR") || name.equals("MACE")) {
       return MutationWeaponFamily.HEAVY;
     }
     if (name.endsWith("SWORD")) {

@@ -163,6 +163,21 @@ public final class MutationRuntimeRouter implements Listener {
     }
   }
 
+  @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+  public void onHeldItemDamagePreflight(EntityDamageByEntityEvent event) {
+    if (!access.enabled()) {
+      return;
+    }
+    Player dealer = resolver.playerSource(event.getDamager());
+    Player receiver = event.getEntity() instanceof Player player ? player : null;
+    if (dealer == null || !eligible(dealer) || (receiver != null && !eligible(receiver))) {
+      return;
+    }
+    if (equipment.blocksHeldItem(dealer)) {
+      event.setCancelled(true);
+    }
+  }
+
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(EntityDamageByEntityEvent event) {
     if (!access.enabled()) {
@@ -171,10 +186,6 @@ public final class MutationRuntimeRouter implements Listener {
     Player dealer = resolver.playerSource(event.getDamager());
     Player receiver = event.getEntity() instanceof Player player ? player : null;
     if ((dealer != null && !eligible(dealer)) || (receiver != null && !eligible(receiver))) {
-      return;
-    }
-    if (dealer != null && equipment.blocksHeldItem(dealer)) {
-      event.setCancelled(true);
       return;
     }
     MutationEventClaims claims = new MutationEventClaims();

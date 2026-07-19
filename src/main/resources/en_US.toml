@@ -5560,3 +5560,144 @@ description = "Phase away from 50 lethal falls with Rift Step"
 [advancement.challenge_rift_step_500]
 title = "Gravity Optional"
 description = "Phase away from 500 lethal falls with Rift Step"
+
+[skill.kinetics]
+name = "Kinetics"
+icon = "⚒"
+description = "Motion is power. Smash with maces, charge with spears, and bend momentum itself: bounces, launches, levitation, and well-aimed falling anvils all feed your mastery."
+
+[advancement.skill_kinetics]
+title = "Kinetics"
+description = "Turn motion into power."
+
+[advancement.challenge_kinetics_anvil_drop]
+title = "Newton's Receipt"
+description = "Kill a mob with your own falling anvil dropped from 8 or more blocks."
+
+[kinetics.moon_jump]
+name = "Moon Jump"
+description = "Sneak-jump to hop higher with a floaty, low-gravity peak."
+lore1 = "Jump Boost"
+lore2 = "Gravity Reduction"
+lore3 = "Float Window"
+lore = ["Jump Boost", "Gravity Reduction", "Float Window"]
+
+[kinetics.rubber_soul]
+name = "Rubber Soul"
+description = "Your landings carry spring. Bouncy blocks send you higher, and every landing keeps more momentum."
+lore1 = "Bounciness"
+lore2 = "Bouncy Block Bonus"
+lore = ["Bounciness", "Bouncy Block Bonus"]
+
+[kinetics.soft_catch]
+name = "Soft Catch"
+description = "Soft and springy blocks break your fall, and a fresh bounce grants a grace window."
+lore1 = "Damage Reduction"
+lore = ["Damage Reduction"]
+
+[kinetics.surface_skate]
+name = "Surface Skate"
+description = "Sprint to slide across the ground with lowered friction; sneak to grip hard."
+lore1 = "Slide"
+lore2 = "Grip"
+lore = ["Slide", "Grip"]
+
+[kinetics.terminal_toggle]
+name = "Terminal Toggle"
+description = "Sneak in midair to switch between a hard dive and a drifting hang."
+lore1 = "Drag Shift"
+lore2 = "Gravity Shift"
+lore = ["Drag Shift", "Gravity Shift"]
+
+[kinetics.heavy_frame]
+name = "Heavy Frame"
+description = "Plant your feet while sneaking with a mace or spear: heavy knockback resistance at the cost of speed."
+lore1 = "Knockback Resistance"
+lore2 = "Blast Resistance"
+lore3 = "Speed Penalty"
+lore = ["Knockback Resistance", "Blast Resistance", "Speed Penalty"]
+
+[kinetics.mass_shift]
+name = "Mass Shift"
+description = "Sneak and swap hands to cycle between titan and pocket forms for a short window."
+lore1 = "Titan Scale"
+lore2 = "Pocket Scale"
+lore3 = "Form Duration"
+lore = ["Titan Scale", "Pocket Scale", "Form Duration"]
+
+[kinetics.meteor_cadence]
+name = "Meteor Cadence"
+description = "Sneak while falling with a mace to dive into your smash faster."
+lore1 = "Gravity Boost"
+lore2 = "Drag Cut"
+lore = ["Gravity Boost", "Drag Cut"]
+
+[kinetics.breachwright]
+name = "Breachwright"
+description = "Your mace smashes shred the target's armor for a short time."
+lore1 = "Armor Shred"
+lore2 = "Toughness Shred"
+lore3 = "Shred Duration"
+lore = ["Armor Shred", "Toughness Shred", "Shred Duration"]
+
+[kinetics.windburst]
+name = "Windburst"
+description = "Heavy smashes erupt in a radial shockwave that hurls nearby enemies away."
+lore1 = "Radius"
+lore2 = "Force"
+lore = ["Radius", "Force"]
+
+[kinetics.quake_guard]
+name = "Quake Guard"
+description = "Landing a smash braces you: knockback resistance, toughness, and safe footing for a moment."
+lore1 = "Knockback Resistance"
+lore2 = "Toughness"
+lore3 = "Safe Fall"
+lore = ["Knockback Resistance", "Toughness", "Safe Fall"]
+
+[kinetics.rebound_anvil]
+name = "Rebound Anvil"
+description = "Each smash coils your legs: land springy and cushioned, ready for a second meteor."
+lore1 = "Bounce Window"
+lore2 = "Fall Relief"
+lore = ["Bounce Window", "Fall Relief"]
+
+[kinetics.phalanx_reach]
+name = "Phalanx Reach"
+description = "Spears strike farther in your hands."
+lore1 = "Bonus Reach"
+lore = ["Bonus Reach"]
+
+[kinetics.charge_lance]
+name = "Charge Lance"
+description = "Spear hits scale with your speed. Hit them at a run."
+lore1 = "Speed Scaling"
+lore2 = "Bonus Cap"
+lore = ["Speed Scaling", "Bonus Cap"]
+
+[kinetics.impale_pin]
+name = "Impale Pin"
+description = "Spear hits at sweet range pin the target with heavy slowness."
+lore1 = "Sweet Range"
+lore2 = "Slow Duration"
+lore = ["Sweet Range", "Slow Duration"]
+
+[kinetics.lunge_conductor]
+name = "Lunge Conductor"
+description = "Your spear lunges strike harder and carry you farther."
+lore1 = "Lunge Power"
+lore2 = "Dash Boost"
+lore = ["Lunge Power", "Dash Boost"]
+
+[kinetics.mounted_shock]
+name = "Mounted Shock"
+description = "Spear charges from the saddle hit harder the faster your mount moves."
+lore1 = "Mount Speed Scaling"
+lore = ["Mount Speed Scaling"]
+
+[kinetics.dead_zone]
+name = "Dead Zone"
+description = "Enemies that crowd inside your spear's dead zone get shoved out, arming a riposte."
+lore1 = "Dead Zone Range"
+lore2 = "Riposte Bonus"
+lore = ["Dead Zone Range", "Riposte Bonus"]

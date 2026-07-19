@@ -14,7 +14,14 @@ public final class Cooldowns {
 
   public boolean isReady(UUID id, long cooldownMs) {
     Long last = lastUse.get(id);
-    return last == null || M.ms() - last >= cooldownMs;
+    if (last == null) {
+      return true;
+    }
+    if (M.ms() - last < cooldownMs) {
+      return false;
+    }
+    lastUse.remove(id, last);
+    return true;
   }
 
   public void mark(UUID id) {
@@ -31,5 +38,10 @@ public final class Cooldowns {
 
   public void clear(UUID id) {
     lastUse.remove(id);
+  }
+
+  public void clearExpired(long cooldownMs) {
+    long now = M.ms();
+    lastUse.values().removeIf(last -> now - last >= cooldownMs);
   }
 }

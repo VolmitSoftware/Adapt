@@ -21,6 +21,7 @@ package art.arcane.adapt.api.world;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPresets;
 import art.arcane.adapt.api.notification.ActionBarNotification;
 import art.arcane.adapt.api.notification.Notifier;
@@ -424,18 +425,24 @@ public class PlayerSkillLine {
       return;
     }
 
+    String adaptationName = a.getName();
+    int previous = getAdaptationLevel(adaptationName);
     int clamped = Math.max(0, Math.min(level, a.getMaxLevel()));
     if (clamped <= 0) {
-      adaptations.remove(a.getName());
-      updateLearnedIndex(a.getName(), 0);
+      adaptations.remove(adaptationName);
+      updateLearnedIndex(adaptationName, 0);
+      removeAdaptationModifiers(adaptationName);
       return;
     }
 
     PlayerAdaptation v = new PlayerAdaptation();
-    v.setId(a.getName());
+    v.setId(adaptationName);
     v.setLevel(clamped);
-    adaptations.put(a.getName(), v);
-    updateLearnedIndex(a.getName(), clamped);
+    adaptations.put(adaptationName, v);
+    updateLearnedIndex(adaptationName, clamped);
+    if (clamped < previous) {
+      removeAdaptationModifiers(adaptationName);
+    }
   }
 
   void bindRuntimeOwner(AdaptPlayer owner) {
@@ -454,6 +461,14 @@ public class PlayerSkillLine {
       return;
     }
     owner.getServer().updateLearnedAdaptation(owner, adaptationName, level);
+  }
+
+  private void removeAdaptationModifiers(String adaptationName) {
+    AdaptPlayer owner = runtimeOwner;
+    if (owner == null || owner.getPlayer() == null) {
+      return;
+    }
+    AdaptAttributeService.get().removeAll(owner.getPlayer(), adaptationName);
   }
 
   public Skill<?> getRawSkill(AdaptPlayer p) {

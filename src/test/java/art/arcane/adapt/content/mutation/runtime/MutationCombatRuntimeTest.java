@@ -30,6 +30,26 @@ class MutationCombatRuntimeTest {
   }
 
   @Test
+  void meleeSpearsAreHeavyAndProjectileSpearsAreRanged() {
+    Material[] spears = {
+        Material.WOODEN_SPEAR,
+        Material.STONE_SPEAR,
+        Material.COPPER_SPEAR,
+        Material.IRON_SPEAR,
+        Material.GOLDEN_SPEAR,
+        Material.DIAMOND_SPEAR,
+        Material.NETHERITE_SPEAR
+    };
+
+    for (Material spear : spears) {
+      assertThat(MutationCombatRuntime.weaponFamilyFor(spear, false))
+          .isEqualTo(MutationWeaponFamily.HEAVY);
+      assertThat(MutationCombatRuntime.weaponFamilyFor(spear, true))
+          .isEqualTo(MutationWeaponFamily.RANGED);
+    }
+  }
+
+  @Test
   void authorizationCapabilitiesRequireTheSameTargetBlock() {
     World world = mock(World.class);
     Location authorized = new Location(world, 10.2D, 64D, -4.8D);
