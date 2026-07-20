@@ -41,10 +41,11 @@ class StealthCoreRuntimeTest {
 
   @Test
   void invisibilityOrAnActiveDecoyForcesConcealment() {
-    assertThat(StealthCore.forcedConcealment(true, false, false)).isTrue();
-    assertThat(StealthCore.forcedConcealment(false, true, false)).isTrue();
-    assertThat(StealthCore.forcedConcealment(false, false, true)).isTrue();
-    assertThat(StealthCore.forcedConcealment(false, false, false)).isFalse();
+    assertThat(StealthCore.forcedConcealment(true, false, false, false)).isTrue();
+    assertThat(StealthCore.forcedConcealment(false, true, false, false)).isTrue();
+    assertThat(StealthCore.forcedConcealment(false, false, true, false)).isTrue();
+    assertThat(StealthCore.forcedConcealment(false, false, false, true)).isTrue();
+    assertThat(StealthCore.forcedConcealment(false, false, false, false)).isFalse();
   }
 
   @Test

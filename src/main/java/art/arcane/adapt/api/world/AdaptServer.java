@@ -21,6 +21,7 @@ package art.arcane.adapt.api.world;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.fx.ViewerDisplayDirector;
 import art.arcane.adapt.api.notification.AdvancementNotification;
 import art.arcane.adapt.api.notification.SoundNotification;
 import art.arcane.adapt.api.skill.Skill;
@@ -327,7 +328,9 @@ public class AdaptServer extends TickedObject {
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(PlayerQuitEvent e) {
     Player p = e.getPlayer();
-    quit(p.getUniqueId());
+    UUID playerId = p.getUniqueId();
+    quit(playerId);
+    ViewerDisplayDirector.retireViewer(playerId);
   }
 
   @EventHandler

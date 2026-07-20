@@ -133,7 +133,7 @@ public class SwordsCrimsonCyclone extends SimpleAdaptation<SwordsCrimsonCyclone.
     cooldowns.mark(playerId);
 
     e.setDamage(e.getDamage() + damage);
-    applyBleed(primaryTarget, level, targetFxLimit > 0);
+    applyBleed(primaryTarget, p, level, targetFxLimit > 0);
     if (targetFxLimit > 0) {
       crimsonSpark(primaryTarget);
     }
@@ -209,7 +209,7 @@ public class SwordsCrimsonCyclone extends SimpleAdaptation<SwordsCrimsonCyclone.
 
     target.damage(batch.damage, batch.player);
     boolean visual = batch.claimTargetFx();
-    applyBleed(target, batch.level, visual);
+    applyBleed(target, batch.player, batch.level, visual);
     if (visual) {
       crimsonSpark(target);
     }
@@ -301,8 +301,10 @@ public class SwordsCrimsonCyclone extends SimpleAdaptation<SwordsCrimsonCyclone.
     return getConfig().baseDamage + (getLevelPercent(level) * getConfig().damageFactor);
   }
 
-  private void applyBleed(LivingEntity target, int level, boolean visual) {
-    BleedEffect bleed = new DamagingBleedEffect(Adapt.instance.adaptEffectManager, getBleedDamagePerProc(level), target);
+  private void applyBleed(LivingEntity target, Player source, int level, boolean visual) {
+    DamagingBleedEffect.DamageContext context = new DamagingBleedEffect.DamageContext(
+        getBleedDamagePerProc(level), target, source);
+    BleedEffect bleed = new DamagingBleedEffect(Adapt.instance.adaptEffectManager, context);
     bleed.setEntity(target);
     bleed.material = visual && getConfig().showBleedParticles ? Material.CRIMSON_ROOTS : Material.VOID_AIR;
     bleed.height = -1;

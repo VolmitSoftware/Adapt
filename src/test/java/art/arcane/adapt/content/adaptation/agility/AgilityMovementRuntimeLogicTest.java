@@ -7,11 +7,13 @@ import static org.assertj.core.data.Offset.offset;
 
 class AgilityMovementRuntimeLogicTest {
   @Test
-  void ladderControlsMapDirectlyToMovementModes() {
-    assertThat(AgilityLadderSlide.resolveMode(false, true, false)).isEqualTo(AgilityLadderSlide.Mode.CLIMB);
-    assertThat(AgilityLadderSlide.resolveMode(false, false, true)).isEqualTo(AgilityLadderSlide.Mode.SLIDE);
-    assertThat(AgilityLadderSlide.resolveMode(false, false, false)).isEqualTo(AgilityLadderSlide.Mode.NONE);
-    assertThat(AgilityLadderSlide.resolveMode(true, true, true)).isEqualTo(AgilityLadderSlide.Mode.BRAKE);
+  void ladderCameraPitchMapsDirectlyToMovementModes() {
+    assertThat(AgilityLadderSlide.resolveMode(AgilityLadderSlide.Mode.NONE, -45F, 20D, 10D))
+        .isEqualTo(AgilityLadderSlide.Mode.CLIMB);
+    assertThat(AgilityLadderSlide.resolveMode(AgilityLadderSlide.Mode.NONE, 45F, 20D, 10D))
+        .isEqualTo(AgilityLadderSlide.Mode.SLIDE);
+    assertThat(AgilityLadderSlide.resolveMode(AgilityLadderSlide.Mode.NONE, 0F, 20D, 10D))
+        .isEqualTo(AgilityLadderSlide.Mode.NONE);
   }
 
   @Test

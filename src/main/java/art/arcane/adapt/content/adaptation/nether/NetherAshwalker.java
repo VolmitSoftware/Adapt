@@ -84,6 +84,13 @@ public class NetherAshwalker extends SimpleAdaptation<NetherAshwalker.Config> {
         return;
       }
 
+      if (isCampfireDamage(cause)) {
+        if (coversCampfire(level, getConfig().campfireUnlockLevel)) {
+          negate(p, e, "campfire");
+        }
+        return;
+      }
+
       if (cause != EntityDamageEvent.DamageCause.FIRE && cause != EntityDamageEvent.DamageCause.FIRE_TICK) {
         return;
       }
@@ -155,6 +162,10 @@ public class NetherAshwalker extends SimpleAdaptation<NetherAshwalker.Config> {
 
   static boolean coversCampfire(int level, int unlockLevel) {
     return level >= unlockLevel;
+  }
+
+  static boolean isCampfireDamage(EntityDamageEvent.DamageCause cause) {
+    return cause == EntityDamageEvent.DamageCause.CAMPFIRE;
   }
 
   static boolean coversSoulFire(int level, int maxLevel) {

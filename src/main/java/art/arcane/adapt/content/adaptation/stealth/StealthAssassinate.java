@@ -84,6 +84,10 @@ public class StealthAssassinate extends SimpleAdaptation<StealthAssassinate.Conf
     return Math.max(8000L, Math.round(base - (percent * factor)));
   }
 
+  static double executionDamage(double currentHealth) {
+    return Math.max(0D, currentHealth);
+  }
+
   @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.f(getHealthCap(level), 0), 1);
@@ -120,8 +124,7 @@ public class StealthAssassinate extends SimpleAdaptation<StealthAssassinate.Conf
     }
 
     cooldowns.mark(id);
-    double lethal = Math.max(e.getDamage(), (target.getHealth() * 100D) + 1000D);
-    e.setDamage(lethal);
+    e.setDamage(executionDamage(target.getHealth()));
     xp(attacker, getConfig().xpOnExecution);
     addStat(attacker, "stealth.assassinate.executions", 1);
 

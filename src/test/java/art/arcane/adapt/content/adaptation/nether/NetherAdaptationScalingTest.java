@@ -1,5 +1,6 @@
 package art.arcane.adapt.content.adaptation.nether;
 
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -75,6 +76,13 @@ class NetherAdaptationScalingTest {
     assertThat(NetherAshwalker.coversCampfire(2, 2)).isTrue();
     assertThat(NetherAshwalker.coversSoulFire(2, 3)).isFalse();
     assertThat(NetherAshwalker.coversSoulFire(3, 3)).isTrue();
+  }
+
+  @Test
+  void ashwalkerRecognizesDedicatedCampfireDamage() {
+    assertThat(NetherAshwalker.isCampfireDamage(EntityDamageEvent.DamageCause.CAMPFIRE)).isTrue();
+    assertThat(NetherAshwalker.isCampfireDamage(EntityDamageEvent.DamageCause.FIRE)).isFalse();
+    assertThat(NetherAshwalker.isCampfireDamage(EntityDamageEvent.DamageCause.FIRE_TICK)).isFalse();
   }
 
   @Test

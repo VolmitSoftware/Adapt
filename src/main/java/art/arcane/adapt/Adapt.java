@@ -76,6 +76,9 @@ import io.github.slimjar.app.builder.SpigotApplicationBuilder;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.plugin.PluginManager;
 
 import java.io.BufferedReader;
@@ -397,6 +400,12 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
   @Override
   public void start() {
     runStartupPhaseVoid("backup-legacy-configs", ConfigMigrationManager::backupLegacyJsonConfigsOnce);
+    runStartupPhaseVoid("remove-retired-adaptation-configs", () -> {
+      int deletedConfigs = ConfigMigrationManager.deleteRetiredAdaptationConfigs();
+      if (deletedConfigs > 0) {
+        Adapt.info("Deleted " + deletedConfigs + " retired adaptation config files.");
+      }
+    });
     platform = PlatformUtils.createPlatform(this);
     audiences = platform.getAudienceProvider();
     services = new KMap<>();
@@ -554,6 +563,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     ticker = new Ticker();
     fxDirector = new FxDirector();
     fxDirector.activateRuntime();
+    ViewerDisplayDirector.purgeOrphans();
     verbose("start-sim detail: ticker init in " + (System.currentTimeMillis() - startTicker) + "ms");
 
     long startServer = System.currentTimeMillis();
@@ -638,6 +648,14 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     if (services != null) {
       services.clear();
     }
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void onPluginDisable(PluginDisableEvent event) {
+    if (event.getPlugin() != this) {
+      return;
+    }
+    stop();
   }
 
   @Override

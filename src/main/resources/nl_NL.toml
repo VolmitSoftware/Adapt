@@ -898,8 +898,8 @@ usage2 = "Shift + Linkerklik om aan een blok te binden"
 
 [items.bound_redstone_torch]
 name = "Redstone-Afstandsbediening"
-usage1 = "Rechtsklik om een 1-Tick Redstone-puls te maken"
-usage2 = "Shift + Linkerklik op een 'Doel'-blok om te binden"
+usage1 = "Rechtsklik om een 4-Tick Redstone-puls te maken"
+usage2 = "Shift + Linkerklik op een vrije zijde van een willekeurig blok om te binden"
 
 [items.bound_snowball]
 name = "Webstrik!"
@@ -1131,7 +1131,7 @@ lore = ["Max Snelheid", "Opwindtijd"]
 
 [architect.elevator]
 name = "Lift"
-description = "Hiermee kun je een lift bouwen om snel verticaal te teleporteren!"
+description = "Bouw liften om snel verticaal te teleporteren. Maak elk Liftblok met een Enderparel in het midden, omringd door 8 blokken Wol."
 lore1 = "Ontgrendelt liftrecept: X=WOL, Y=ENDERPAREL"
 lore2 = "XXX"
 lore3 = "XYX"
@@ -1371,10 +1371,10 @@ lore = ["Gooi het (rottend vlees) gewoon op het kampvuur!"]
 name = "De Rugzakken van een Boutilier!"
 description = "Dit brengt gewoon de Mojang Bundel in het spel!"
 lore1 = "Je moet in Survival zijn om dit te gebruiken"
-lore2 = "XLX : Leer, Leidtouw, Leer"
-lore3 = "XSX : Leer, Vat, Leer"
-lore4 = "XCX : Leer, Kist, Leer"
-lore = ["Je moet in Survival zijn om dit te gebruiken", "XLX : Leer, Leidtouw, Leer", "XSX : Leer, Vat, Leer", "XCX : Leer, Kist, Leer"]
+lore2 = "LLL : Leer, Leer, Leer"
+lore3 = "LCL : Leer, Kist, Leer"
+lore4 = "LLL : Leer, Leer, Leer"
+lore = ["Je moet in Survival zijn om dit te gebruiken", "LLL : Leer, Leer, Leer", "LCL : Leer, Kist, Leer", "LLL : Leer, Leer, Leer"]
 
 [crafting.stations]
 name = "Draagbare Tafels!"
@@ -1793,11 +1793,10 @@ lore = ["Enderparel + Kompas = Reliekschrijn Portkey", "Met dit item kun je cont
 
 [rift.blink]
 name = "Rift Flits"
-description = "Korte afstand directe teleportatie, slechts een oogwenk verwijderd!"
-lore1 = "Blokken per flits (2x verticaal)"
-lore2 = "Tijdens het sprinten: Dubbeltik op Springen om te "
-lore3 = "Flitsen"
-lore = ["Blokken per flits (2x verticaal)", "Tijdens het sprinten: Dubbeltik op Springen om te ", "Flitsen"]
+description = "Spring tweemaal om te flitsen in de richting waarin je kijkt. Een geslaagde flits verbruikt geen enderparel, maar doet normale enderparelschade die per niveau afneemt."
+lore1 = "Flitsbereik"
+lore2 = "Zelfschade (harten)"
+lore = ["Flitsbereik", "Zelfschade (harten)"]
 
 [rift.chest]
 name = "Gemakkelijke Enderkist"

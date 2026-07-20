@@ -5,6 +5,7 @@ import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.adapt.util.reflect.registries.Attributes;
@@ -20,8 +21,11 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 
 public class KineticsMoonJump extends SimpleAdaptation<KineticsMoonJump.Config> {
+  private static final String SLOT_BASE_JUMP = "base-jump";
   private static final String SLOT_HOP = "hop";
   private static final String SLOT_FLOAT = "float";
+  private static final double BASE_JUMP_HEIGHT_PER_LEVEL = 0.5D;
+  private static final long RECONCILE_INTERVAL_MS = 1000L;
   private static final long HOP_DURATION_TICKS = 10L;
 
   private final Cooldowns fxCooldown = cooldowns();
@@ -30,29 +34,40 @@ public class KineticsMoonJump extends SimpleAdaptation<KineticsMoonJump.Config> 
     super("kinetics-moon-jump");
     registerConfiguration(Config.class);
     setIcon(Material.RABBIT_FOOT);
-    setInterval(9999);
+    setInterval(RECONCILE_INTERVAL_MS);
   }
 
   @Override
   public void addStats(int level, Element v) {
-    statLore(v, Form.f(getJumpBonus(level), 2), 1);
-    statLore(v, Form.pc(getGravityReduction(level), 0), 2);
-    statLore(v, Form.duration(getFloatWindowTicks(level) * 50D, 1), 3);
+    statLore(v, Form.f(baseJumpHeight(level), 2), 1);
+    statLore(v, Form.f(getJumpBonus(level), 2), 2);
+    statLore(v, Form.pc(getGravityReduction(level), 0), 3);
+    statLore(v, Form.duration(getFloatWindowTicks(level) * 50D, 1), 4);
+  }
+
+  @Override
+  public void onTick() {
+    for (AdaptPlayer adaptPlayer : learnedCandidates(System.currentTimeMillis())) {
+      Player player = adaptPlayer.getPlayer();
+      withPlayerThread(player, () -> reconcileBaseJump(player));
+    }
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(PlayerJumpEvent e) {
     Player p = e.getPlayer();
-    if (!p.isSneaking()) {
-      return;
-    }
-
     withPlayerThread(p, e, () -> {
-      if (!hasActiveAdaptation(p) || !canUse(getPlayer(p))) {
+      int level = getActiveLevel(p);
+      if (level <= 0) {
+        removeBaseJump(p);
         return;
       }
 
-      int level = getLevel(p);
+      applyBaseJump(p, level);
+      if (!p.isSneaking() || !canUse(getPlayer(p))) {
+        return;
+      }
+
       AdaptAttributeService attributes = AdaptAttributeService.get();
       if (Attributes.JUMP_STRENGTH != null) {
         attributes.applyTimed(p, getName(), SLOT_HOP, Attributes.JUMP_STRENGTH, getJumpBonus(level), AttributeModifier.Operation.ADD_NUMBER, HOP_DURATION_TICKS);
@@ -94,6 +109,37 @@ public class KineticsMoonJump extends SimpleAdaptation<KineticsMoonJump.Config> 
     return Math.max(1L, Math.round(value));
   }
 
+  static double baseJumpHeight(int level) {
+    return KineticsJumpPhysics.VANILLA_JUMP_HEIGHT + (Math.max(0, level) * BASE_JUMP_HEIGHT_PER_LEVEL);
+  }
+
+  static double baseJumpStrengthBonus(int level) {
+    return KineticsJumpPhysics.bonusForHeight(baseJumpHeight(level));
+  }
+
+  private void reconcileBaseJump(Player p) {
+    int level = getActiveLevel(p);
+    if (level <= 0) {
+      removeBaseJump(p);
+      return;
+    }
+
+    applyBaseJump(p, level);
+  }
+
+  private void applyBaseJump(Player p, int level) {
+    if (Attributes.JUMP_STRENGTH != null) {
+      AdaptAttributeService.get().apply(p, getName(), SLOT_BASE_JUMP, Attributes.JUMP_STRENGTH,
+          baseJumpStrengthBonus(level), AttributeModifier.Operation.ADD_NUMBER);
+    }
+  }
+
+  private void removeBaseJump(Player p) {
+    if (Attributes.JUMP_STRENGTH != null) {
+      AdaptAttributeService.get().remove(p, getName(), SLOT_BASE_JUMP, Attributes.JUMP_STRENGTH);
+    }
+  }
+
   private double getJumpBonus(int level) {
     return jumpBonus(getConfig().jumpBonusBase, getConfig().jumpBonusFactor, getLevelPercent(level));
   }
@@ -106,7 +152,7 @@ public class KineticsMoonJump extends SimpleAdaptation<KineticsMoonJump.Config> 
     return floatWindowTicks(getConfig().floatWindowTicksBase, getConfig().floatWindowTicksFactor, getLevelPercent(level));
   }
 
-  @ConfigDescription("Sneak-jump to hop higher with a floaty, low-gravity peak.")
+  @ConfigDescription("Each level raises every jump by 0.5 blocks; sneak-jump for an additional floaty, low-gravity hop.")
   protected static class Config extends AdaptationConfig {
     @ConfigDoc(value = "Base jump strength bonus applied on a sneak-jump before level scaling.", impact = "Higher values raise the hop height at every level.")
     double jumpBonusBase = 0.06;

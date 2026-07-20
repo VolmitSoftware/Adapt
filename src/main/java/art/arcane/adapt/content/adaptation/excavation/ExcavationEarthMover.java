@@ -37,7 +37,8 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.entity.Monster;
+import org.bukkit.entity.Enemy;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -135,7 +136,7 @@ public class ExcavationEarthMover extends SimpleAdaptation<ExcavationEarthMover.
     int slowAmplifier = getSlowAmplifier(level);
     Location origin = p.getLocation().clone();
     BlockData dirtData = Material.DIRT.createBlockData();
-    List<Monster> candidates = collectCandidates(origin, radius);
+    List<Enemy> candidates = collectCandidates(origin, radius);
     renderWave(origin, radius);
     addStat(p, "excavation.earth-mover.waves-unleashed", 1);
 
@@ -147,20 +148,23 @@ public class ExcavationEarthMover extends SimpleAdaptation<ExcavationEarthMover.
     EarthMoverBatch batch = new EarthMoverBatch(p, origin, radius, getConfig().verticalRange, force,
         damage, getConfig().liftVelocity, slowTicks, slowAmplifier, getAffectedLimit(), getTargetFxLimit(),
         getConfig().xpPerMobHit, dirtData, candidates.size());
-    for (Monster monster : candidates) {
-      if (!J.runEntity(monster, () -> inspectCandidateOwned(batch, monster))) {
+    for (Enemy enemy : candidates) {
+      if (!J.runEntity(enemy, () -> inspectCandidateOwned(batch, enemy))) {
         batch.complete();
       }
     }
     J.runEntity(p, batch::finishTimedOut, BATCH_TIMEOUT_TICKS);
   }
 
-  private List<Monster> collectCandidates(Location origin, double radius) {
+  private List<Enemy> collectCandidates(Location origin, double radius) {
     int limit = getCandidateLimit();
-    List<Monster> candidates = new ArrayList<>(limit);
-    for (Monster monster : origin.getWorld().getNearbyEntitiesByType(
-        Monster.class, origin, radius, getConfig().verticalRange, radius)) {
-      candidates.add(monster);
+    List<Enemy> candidates = new ArrayList<>(limit);
+    for (Entity entity : origin.getWorld().getNearbyEntities(
+        origin, radius, getConfig().verticalRange, radius)) {
+      if (!isEarthMoverTarget(entity)) {
+        continue;
+      }
+      candidates.add((Enemy) entity);
       if (candidates.size() >= limit) {
         break;
       }
@@ -168,38 +172,38 @@ public class ExcavationEarthMover extends SimpleAdaptation<ExcavationEarthMover.
     return candidates;
   }
 
-  private void inspectCandidateOwned(EarthMoverBatch batch, Monster monster) {
+  private void inspectCandidateOwned(EarthMoverBatch batch, Enemy enemy) {
     if (batch.isFinalized() || !batch.hasAffectedCapacity()) {
       batch.complete();
       return;
     }
-    Location targetLocation = validTargetLocation(batch, monster);
+    Location targetLocation = validTargetLocation(batch, enemy);
     if (targetLocation == null) {
       batch.complete();
       return;
     }
 
-    if (!J.runEntity(batch.player, () -> authorizeCandidate(batch, monster, targetLocation))) {
+    if (!J.runEntity(batch.player, () -> authorizeCandidate(batch, enemy, targetLocation))) {
       batch.complete();
     }
   }
 
-  private void authorizeCandidate(EarthMoverBatch batch, Monster monster, Location targetLocation) {
+  private void authorizeCandidate(EarthMoverBatch batch, Enemy enemy, Location targetLocation) {
     if (batch.isFinalized() || !batch.player.isOnline() || !canPVE(batch.player, targetLocation)) {
       batch.complete();
       return;
     }
 
-    if (!J.runEntity(monster, () -> applyImpactOwned(batch, monster))) {
+    if (!J.runEntity(enemy, () -> applyImpactOwned(batch, enemy))) {
       batch.complete();
     }
   }
 
-  private void applyImpactOwned(EarthMoverBatch batch, Monster monster) {
+  private void applyImpactOwned(EarthMoverBatch batch, Enemy enemy) {
     if (batch.isFinalized()) {
       return;
     }
-    Location targetLocation = validTargetLocation(batch, monster);
+    Location targetLocation = validTargetLocation(batch, enemy);
     if (targetLocation == null || !batch.claimAffected()) {
       batch.complete();
       return;
@@ -211,33 +215,33 @@ public class ExcavationEarthMover extends SimpleAdaptation<ExcavationEarthMover.
     }
 
     direction.normalize().multiply(batch.force).setY(batch.liftVelocity);
-    int previousNoDamageTicks = monster.getNoDamageTicks();
-    double healthBefore = monster.getHealth() + monster.getAbsorptionAmount();
-    monster.setNoDamageTicks(0);
-    monster.damage(batch.damage, batch.player);
-    double healthAfter = monster.isDead() ? 0D : monster.getHealth() + monster.getAbsorptionAmount();
+    int previousNoDamageTicks = enemy.getNoDamageTicks();
+    double healthBefore = enemy.getHealth() + enemy.getAbsorptionAmount();
+    enemy.setNoDamageTicks(0);
+    enemy.damage(batch.damage, batch.player);
+    double healthAfter = enemy.isDead() ? 0D : enemy.getHealth() + enemy.getAbsorptionAmount();
     if (healthAfter >= healthBefore) {
-      monster.setNoDamageTicks(previousNoDamageTicks);
+      enemy.setNoDamageTicks(previousNoDamageTicks);
       batch.complete();
       return;
     }
 
     batch.markAffected();
-    monster.setVelocity(direction);
-    monster.addPotionEffect(new PotionEffect(slowness, batch.slowTicks, batch.slowAmplifier, false, true, true));
+    enemy.setVelocity(direction);
+    enemy.addPotionEffect(new PotionEffect(slowness, batch.slowTicks, batch.slowAmplifier, false, true, true));
     if (batch.claimTargetFx()) {
-      fx(monster, FxPriority.COMBAT)
+      fx(enemy, FxPriority.COMBAT)
           .particle(Particles.BLOCK_CRACK, 4, 0, 0.1D, 0, 0.2D, 0.05D, batch.dirtData);
     }
     batch.complete();
   }
 
-  private Location validTargetLocation(EarthMoverBatch batch, Monster monster) {
-    if (!monster.isValid() || monster.isDead() || isProtectedFriendly(null, monster)) {
+  private Location validTargetLocation(EarthMoverBatch batch, Enemy enemy) {
+    if (!enemy.isValid() || enemy.isDead() || isProtectedFriendly(null, enemy)) {
       return null;
     }
 
-    Location location = monster.getLocation();
+    Location location = enemy.getLocation();
     if (location.getWorld() != batch.origin.getWorld()
         || Math.abs(location.getX() - batch.origin.getX()) > batch.radius
         || Math.abs(location.getY() - batch.origin.getY()) > batch.verticalRange
@@ -284,12 +288,16 @@ public class ExcavationEarthMover extends SimpleAdaptation<ExcavationEarthMover.
   static double shovelDamage(Material material) {
     return switch (material) {
       case WOODEN_SHOVEL, GOLDEN_SHOVEL -> 2.5D;
-      case STONE_SHOVEL -> 3.5D;
+      case STONE_SHOVEL, COPPER_SHOVEL -> 3.5D;
       case IRON_SHOVEL -> 4.5D;
       case DIAMOND_SHOVEL -> 5.5D;
       case NETHERITE_SHOVEL -> 6.5D;
       default -> 0D;
     };
+  }
+
+  static boolean isEarthMoverTarget(Entity entity) {
+    return entity instanceof Enemy;
   }
 
   private int getSlowTicks(int level) {

@@ -2,34 +2,29 @@ package art.arcane.adapt.content.adaptation.excavation;
 
 import org.bukkit.Color;
 import org.bukkit.Material;
+import org.bukkit.entity.Ghast;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Monster;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityRemoveEvent;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Method;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
+import static org.mockito.Mockito.mock;
 
 class ExcavationAdaptationLogicTest {
-  @Test
-  void dowsingAcceptsOnlyWaterAndLavaOutsideMinimumDistance() {
-    assertThat(ExcavationDowsing.isDowsingTarget(Material.WATER, 25)).isTrue();
-    assertThat(ExcavationDowsing.isDowsingTarget(Material.LAVA, 100)).isTrue();
-    assertThat(ExcavationDowsing.isDowsingTarget(Material.WATER, 24)).isFalse();
-    assertThat(ExcavationDowsing.isDowsingTarget(Material.CAVE_AIR, 100)).isFalse();
-    assertThat(ExcavationDowsing.isDowsingTarget(Material.STONE, 100)).isFalse();
-  }
-
-  @Test
-  void dowsingRevealCountIsAlwaysOneThroughThree() {
-    assertThat(ExcavationDowsing.revealCount(0D)).isEqualTo(1);
-    assertThat(ExcavationDowsing.revealCount(0.4D)).isEqualTo(2);
-    assertThat(ExcavationDowsing.revealCount(1D)).isEqualTo(3);
-    assertThat(ExcavationDowsing.revealCount(Double.NaN)).isEqualTo(1);
-  }
-
   @Test
   void hasteLevelsMapToTwentyPercentBreakSpeedPerLevel() {
     assertThat(ExcavationHaste.hasteAmount(1)).isCloseTo(0.20D, within(1e-9D));
@@ -61,6 +56,7 @@ class ExcavationAdaptationLogicTest {
   @Test
   void earthMoverUsesShovelTierDamageAndHalvesEveryCooldownLevel() {
     assertThat(ExcavationEarthMover.shovelDamage(Material.WOODEN_SHOVEL)).isEqualTo(2.5D);
+    assertThat(ExcavationEarthMover.shovelDamage(Material.COPPER_SHOVEL)).isEqualTo(3.5D);
     assertThat(ExcavationEarthMover.shovelDamage(Material.IRON_SHOVEL)).isEqualTo(4.5D);
     assertThat(ExcavationEarthMover.shovelDamage(Material.NETHERITE_SHOVEL)).isEqualTo(6.5D);
     assertThat(ExcavationEarthMover.shovelDamage(Material.DIAMOND_PICKAXE)).isZero();
@@ -69,9 +65,76 @@ class ExcavationAdaptationLogicTest {
   }
 
   @Test
-  void seismicLineLengthUsesSegmentCountAndSafeSpacing() {
-    assertThat(ExcavationSeismicPing.lineLength(10, 0.55D)).isEqualTo(5.5F);
-    assertThat(ExcavationSeismicPing.lineLength(1, 0D)).isEqualTo(0.2F);
+  void earthMoverTargetsEveryHostileEnemyFamily() {
+    Monster groundedEnemy = mock(Monster.class);
+    Ghast flyingEnemy = mock(Ghast.class);
+    LivingEntity neutralMob = mock(LivingEntity.class);
+
+    assertThat(ExcavationEarthMover.isEarthMoverTarget(groundedEnemy)).isTrue();
+    assertThat(ExcavationEarthMover.isEarthMoverTarget(flyingEnemy)).isTrue();
+    assertThat(ExcavationEarthMover.isEarthMoverTarget(neutralMob)).isFalse();
+  }
+
+  @Test
+  void seismicMarkersUseOreSpecificGlowColorsAndTwoSecondDuration() {
+    assertThat(ExcavationSeismicPing.oreTint(Material.DIAMOND_ORE))
+        .isEqualTo(Color.fromRGB(90, 230, 235));
+    assertThat(ExcavationSeismicPing.oreTint(Material.REDSTONE_ORE))
+        .isEqualTo(Color.fromRGB(255, 60, 60));
+    assertThat(ExcavationSeismicPing.GLOW_DURATION_TICKS).isEqualTo(40);
+    assertThat(new ExcavationSeismicPing().shouldCanonicalizeConfigOnLoad()).isTrue();
+  }
+
+  @Test
+  void seismicRevealWindowRejectsStaleAndUnregisteredExpiryCallbacks() {
+    UUID playerId = UUID.randomUUID();
+    UUID staleRevealId = UUID.randomUUID();
+    UUID currentRevealId = UUID.randomUUID();
+    Map<UUID, UUID> activeWindows = new HashMap<>();
+    activeWindows.put(playerId, currentRevealId);
+
+    assertThat(ExcavationSeismicPing.pingInProgress(null, currentRevealId)).isTrue();
+    assertThat(ExcavationSeismicPing.pingInProgress(null, null)).isFalse();
+    assertThat(ExcavationSeismicPing.retireRevealWindow(
+        activeWindows, playerId, staleRevealId, true)).isFalse();
+    assertThat(activeWindows).containsEntry(playerId, currentRevealId);
+    assertThat(ExcavationSeismicPing.retireRevealWindow(
+        activeWindows, playerId, currentRevealId, false)).isFalse();
+    assertThat(activeWindows).containsEntry(playerId, currentRevealId);
+    assertThat(ExcavationSeismicPing.retireRevealWindow(
+        activeWindows, playerId, currentRevealId, true)).isTrue();
+    assertThat(activeWindows).doesNotContainKey(playerId);
+  }
+
+  @Test
+  void seismicConfigCanonicalizationRemovesRetiredDisplayFields(@TempDir Path temporaryDirectory)
+      throws IOException {
+    Path configPath = temporaryDirectory.resolve("excavation-seismic-ping.toml");
+    Files.writeString(configPath, """
+        scanRangeBase = 17
+        glowDurationTicks = 200
+        hintSegmentsBase = 7
+        hintSegmentsFactor = 9
+        segmentSpacing = 0.55
+        lineThickness = 0.12
+        lineDurationTicks = 400
+        lineViewRange = 2.0
+        """);
+    TestSeismicPing adaptation = new TestSeismicPing(configPath);
+
+    assertThat(adaptation.reloadConfigFromDisk(false)).isTrue();
+
+    String canonical = Files.readString(configPath);
+    assertThat(canonical).contains("scanRangeBase = 17");
+    assertThat(canonical).doesNotContain(
+        "glowDurationTicks",
+        "hintSegmentsBase",
+        "hintSegmentsFactor",
+        "segmentSpacing",
+        "lineThickness",
+        "lineDurationTicks",
+        "lineViewRange"
+    );
   }
 
   @Test
@@ -84,9 +147,8 @@ class ExcavationAdaptationLogicTest {
   }
 
   @Test
-  void temporaryDisplaysRetireThroughEntityLifecycleEvents() throws ReflectiveOperationException {
+  void spelunkerTemporaryDisplaysRetireThroughEntityLifecycleEvents() throws ReflectiveOperationException {
     assertRetirementHandler(ExcavationSpelunker.class);
-    assertRetirementHandler(ExcavationSeismicPing.class);
   }
 
   private static void assertRetirementHandler(Class<?> adaptationType) throws ReflectiveOperationException {
@@ -94,5 +156,25 @@ class ExcavationAdaptationLogicTest {
     EventHandler policy = handler.getAnnotation(EventHandler.class);
     assertThat(policy).isNotNull();
     assertThat(policy.priority()).isEqualTo(EventPriority.MONITOR);
+  }
+
+  private static final class TestSeismicPing extends ExcavationSeismicPing {
+    private final File configFile;
+    private final File legacyConfigFile;
+
+    private TestSeismicPing(Path configPath) {
+      configFile = configPath.toFile();
+      legacyConfigFile = configPath.resolveSibling("excavation-seismic-ping.json").toFile();
+    }
+
+    @Override
+    protected File getConfigFile() {
+      return configFile;
+    }
+
+    @Override
+    protected File getLegacyConfigFile() {
+      return legacyConfigFile;
+    }
   }
 }

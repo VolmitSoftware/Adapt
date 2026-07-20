@@ -102,7 +102,7 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
     v.addLore(C.YELLOW + "* " + Form.duration(getProcCooldownMillis(level), 1) + C.GRAY + " " + Localizer.dLocalize("tragoul.blood_pact.lore3"));
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(EntityDamageEvent e) {
     if (!(e.getEntity() instanceof Player p)) {
       return;
@@ -110,7 +110,8 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
 
     withAdaptedPlayer(p, e, () -> {
       int level = getActiveLevel(p);
-      if (level <= 0 || e.getFinalDamage() < getMinTriggerDamage()) {
+      double settledDamage = e.getFinalDamage();
+      if (level <= 0 || !isTriggeringDamage(settledDamage, getMinTriggerDamage())) {
         return;
       }
 
@@ -123,11 +124,11 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
       }
 
       procCooldowns.mark(p.getUniqueId());
-      addStat(p, "tragoul.blood-pact.health-sacrificed", (int) e.getFinalDamage());
-      if (p.getHealth() - e.getFinalDamage() <= 6.0) {
+      addStat(p, "tragoul.blood-pact.health-sacrificed", (int) settledDamage);
+      if (p.getHealth() - settledDamage <= 6.0) {
         lowHealthProcs.put(p.getUniqueId(), true);
       }
-      applyRandomBuffs(p, level, e.getFinalDamage());
+      applyRandomBuffs(p, level, settledDamage);
       playPactProc(p);
       xp(p, getConfig().xpPerProc);
     });
@@ -212,6 +213,11 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
     return amplifier + 1.0D;
   }
 
+  static boolean isTriggeringDamage(double settledDamage, double minimumDamage) {
+    return Double.isFinite(settledDamage) && Double.isFinite(minimumDamage)
+        && settledDamage >= Math.max(0D, minimumDamage);
+  }
+
   private void playPactProc(Player p) {
     timeline(p)
         .duration(10)
@@ -264,9 +270,9 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
     return Math.max(1, getConfig().minDamageTriggerHearts * 2D);
   }
 
-  @ConfigDescription("Taking at least 2 hearts of damage can trigger temporary beneficial effects.")
+  @ConfigDescription("Losing at least 2 hearts after damage mitigation can trigger temporary beneficial effects.")
   protected static class Config extends AdaptationConfig {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Min Damage Trigger Hearts for the Tragoul Blood Pact adaptation.", impact = "Minimum damage taken in hearts required before the proc roll happens.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Min Damage Trigger Hearts for the Tragoul Blood Pact adaptation.", impact = "Minimum final health loss in hearts required before the proc roll happens.")
     double minDamageTriggerHearts = 2.0;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Proc Chance Base for the Tragoul Blood Pact adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double procChanceBase = 0.12;

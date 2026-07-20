@@ -41,9 +41,9 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Enemy;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Tameable;
 import org.bukkit.event.EventHandler;
@@ -140,6 +140,10 @@ public class TragoulCorpseExplosion extends SimpleAdaptation<TragoulCorpseExplos
     return novaStamp != null && now - novaStamp < Math.max(0L, suppressionMillis);
   }
 
+  static boolean isNovaTarget(Entity entity) {
+    return entity instanceof Enemy;
+  }
+
   private void prepareNovaOwnerOwned(Player owner, NovaSourceSnapshot source, boolean servant) {
     if (!owner.isOnline()) {
       return;
@@ -193,15 +197,16 @@ public class TragoulCorpseExplosion extends SimpleAdaptation<TragoulCorpseExplos
 
   private void collectCandidatesOwned(NovaPlan plan) {
     playNova(plan.source(), plan.radius(), plan.servant() ? NOVA_BONE : NOVA_CRIMSON);
-    List<Monster> candidates = new ArrayList<>(plan.candidateLimit());
+    List<Enemy> candidates = new ArrayList<>(plan.candidateLimit());
     Location source = plan.source();
     double radius = plan.radius();
     for (Entity entity : source.getWorld().getNearbyEntities(source, radius, radius, radius)) {
-      if (entity instanceof Monster monster) {
-        candidates.add(monster);
-        if (candidates.size() >= plan.candidateLimit()) {
-          break;
-        }
+      if (!isNovaTarget(entity)) {
+        continue;
+      }
+      candidates.add((Enemy) entity);
+      if (candidates.size() >= plan.candidateLimit()) {
+        break;
       }
     }
 
@@ -210,7 +215,7 @@ public class TragoulCorpseExplosion extends SimpleAdaptation<TragoulCorpseExplos
     }
 
     NovaBatch batch = new NovaBatch(plan, candidates.size());
-    for (Monster candidate : candidates) {
+    for (Enemy candidate : candidates) {
       if (!J.runEntity(candidate, () -> batch.complete(captureTargetOwned(candidate)))) {
         batch.complete(null);
       }
@@ -218,7 +223,7 @@ public class TragoulCorpseExplosion extends SimpleAdaptation<TragoulCorpseExplos
     batch.armTimeout();
   }
 
-  private NovaTargetSnapshot captureTargetOwned(Monster target) {
+  private NovaTargetSnapshot captureTargetOwned(Enemy target) {
     if (!target.isValid() || target.isDead()) {
       return null;
     }
@@ -272,32 +277,32 @@ public class TragoulCorpseExplosion extends SimpleAdaptation<TragoulCorpseExplos
   }
 
   private void applyNovaTargetOwned(NovaApplicationBatch application, NovaTargetSnapshot target, long now) {
-    Monster monster = target.entity();
-    if (!monster.isValid() || monster.isDead()) {
+    Enemy enemy = target.entity();
+    if (!enemy.isValid() || enemy.isDead()) {
       application.complete(false);
       return;
     }
 
-    Long previousStamp = monster.getPersistentDataContainer().get(NOVA_KEY, PersistentDataType.LONG);
-    int previousNoDamageTicks = monster.getNoDamageTicks();
-    double healthBefore = monster.getHealth() + monster.getAbsorptionAmount();
-    monster.getPersistentDataContainer().set(NOVA_KEY, PersistentDataType.LONG, now);
-    monster.setNoDamageTicks(0);
-    monster.damage(application.plan().damage(), application.plan().owner());
-    double healthAfter = monster.isDead() ? 0D : monster.getHealth() + monster.getAbsorptionAmount();
+    Long previousStamp = enemy.getPersistentDataContainer().get(NOVA_KEY, PersistentDataType.LONG);
+    int previousNoDamageTicks = enemy.getNoDamageTicks();
+    double healthBefore = enemy.getHealth() + enemy.getAbsorptionAmount();
+    enemy.getPersistentDataContainer().set(NOVA_KEY, PersistentDataType.LONG, now);
+    enemy.setNoDamageTicks(0);
+    enemy.damage(application.plan().damage(), application.plan().owner());
+    double healthAfter = enemy.isDead() ? 0D : enemy.getHealth() + enemy.getAbsorptionAmount();
     boolean successful = healthAfter < healthBefore;
     if (!successful) {
-      monster.setNoDamageTicks(previousNoDamageTicks);
+      enemy.setNoDamageTicks(previousNoDamageTicks);
       if (previousStamp == null) {
-        monster.getPersistentDataContainer().remove(NOVA_KEY);
+        enemy.getPersistentDataContainer().remove(NOVA_KEY);
       } else {
-        monster.getPersistentDataContainer().set(NOVA_KEY, PersistentDataType.LONG, previousStamp);
+        enemy.getPersistentDataContainer().set(NOVA_KEY, PersistentDataType.LONG, previousStamp);
       }
       application.complete(false);
       return;
     }
 
-    fx(monster.getLocation().add(0, 1.0D, 0), FxPriority.COMBAT)
+    fx(enemy.getLocation().add(0, 1.0D, 0), FxPriority.COMBAT)
         .particle(Particle.DAMAGE_INDICATOR, 2, 0, 0, 0, 0.2D, 0.02D);
     application.complete(true);
   }
@@ -361,7 +366,7 @@ public class TragoulCorpseExplosion extends SimpleAdaptation<TragoulCorpseExplos
                                     boolean protectedFriendly, UUID tameOwnerId) {
   }
 
-  private record NovaTargetSnapshot(Monster entity, Location location, boolean protectedFriendly,
+  private record NovaTargetSnapshot(Enemy entity, Location location, boolean protectedFriendly,
                                     UUID tameOwnerId) {
   }
 

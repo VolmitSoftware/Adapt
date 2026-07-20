@@ -37,33 +37,30 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.World;
+import org.bukkit.damage.DamageType;
 import org.bukkit.entity.EnderPearl;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Vector;
-
-import java.util.Map;
-import java.util.UUID;
 
 public class RiftPearlRebound extends SimpleAdaptation<RiftPearlRebound.Config> {
   private static final double HARD_MAX_DAMAGE_REDUCTION = 0.9D;
   private static final double HARD_MAX_AIM_BIAS = 0.9D;
 
   private final NamespacedKey reboundedKey;
-  private final Map<UUID, Long> pearlLandedAt = playerState();
+  private final NamespacedKey reboundLevelKey;
 
   public RiftPearlRebound() {
     super("rift-pearl-rebound");
     registerConfiguration(Config.class);
     setIcon(Material.SLIME_BALL);
-    setInterval(4000);
     reboundedKey = new NamespacedKey(Adapt.instance, "rift_pearl_rebounded");
+    reboundLevelKey = new NamespacedKey(Adapt.instance, "rift_pearl_rebound_level");
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.ENDER_PEARL)
         .key("challenge_rift_rebound_100")
@@ -87,9 +84,23 @@ public class RiftPearlRebound extends SimpleAdaptation<RiftPearlRebound.Config> 
   }
 
   @Override
-  public void onTick() {
-    long cutoff = System.currentTimeMillis() - getWindowMillis();
-    pearlLandedAt.entrySet().removeIf(entry -> entry.getValue() <= cutoff);
+  protected boolean shouldCanonicalizeConfigOnLoad() {
+    return true;
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(ProjectileLaunchEvent e) {
+    if (!(e.getEntity() instanceof EnderPearl pearl) || !(pearl.getShooter() instanceof Player p)) {
+      return;
+    }
+    if (!pearl.getPersistentDataContainer().getKeys().isEmpty()) {
+      return;
+    }
+
+    int level = getActiveLevel(p);
+    if (level > 0) {
+      pearl.getPersistentDataContainer().set(reboundLevelKey, PersistentDataType.INTEGER, level);
+    }
   }
 
   @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -102,7 +113,35 @@ public class RiftPearlRebound extends SimpleAdaptation<RiftPearlRebound.Config> 
       return;
     }
 
-    if (!pearl.getPersistentDataContainer().getKeys().isEmpty()) {
+    Integer level = pearl.getPersistentDataContainer().get(reboundLevelKey, PersistentDataType.INTEGER);
+    if (level == null || level <= 0 || pearl.getPersistentDataContainer().has(reboundedKey)) {
+      return;
+    }
+
+    Vector normal = e.getHitBlockFace().getDirection().clone().normalize();
+    Vector incoming = pearl.getVelocity().clone();
+    if (incoming.lengthSquared() <= 1.0E-6D) {
+      incoming = normal.clone().multiply(-1D);
+    }
+
+    Vector reflected = reflect(incoming, normal);
+    if (reflected.lengthSquared() <= 1.0E-6D) {
+      reflected = normal.clone();
+    }
+    reflected.normalize();
+
+    Location spawnAt = pearl.getLocation().clone().add(normal.clone().multiply(0.35));
+    e.setCancelled(true);
+    pearl.remove();
+
+    Vector finalReflected = reflected;
+    J.runEntity(p, () -> finishRebound(p, spawnAt, normal, finalReflected, level));
+  }
+
+  @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+  public void on(EntityDamageEvent e) {
+    if (!(e.getEntity() instanceof Player p)
+        || !DamageType.ENDER_PEARL.equals(e.getDamageSource().getDamageType())) {
       return;
     }
 
@@ -111,17 +150,28 @@ public class RiftPearlRebound extends SimpleAdaptation<RiftPearlRebound.Config> 
       return;
     }
 
-    Vector normal = e.getHitBlockFace().getDirection().clone().normalize();
-    Vector incoming = pearl.getVelocity().clone();
-    if (incoming.lengthSquared() <= 1.0E-6D) {
-      incoming = p.getEyeLocation().getDirection().clone();
-    }
+    e.setDamage(calculateReducedDamage(e.getDamage(), getDamageReduction(level)));
+  }
 
-    Vector reflected = reflect(incoming, normal);
-    if (reflected.lengthSquared() <= 1.0E-6D) {
-      reflected = normal.clone();
+  private void launchReboundPearl(Player p, Location spawnAt, Vector velocity) {
+    World world = spawnAt.getWorld();
+    if (world == null) {
+      return;
     }
-    reflected.normalize();
+    EnderPearl pearl = world.spawn(spawnAt, EnderPearl.class);
+    pearl.setShooter(p);
+    pearl.getPersistentDataContainer().set(reboundedKey, PersistentDataType.BYTE, (byte) 1);
+    pearl.setVelocity(velocity);
+    fx(spawnAt, FxPriority.TRAIL)
+        .burst(Particles.SMOKE, 4, 0.15)
+        .particle(Particle.REVERSE_PORTAL, 6, 0, 0.2, 0, 0.25, 0.03)
+        .chord(Sound.BLOCK_SLIME_BLOCK_HIT, 0.7f, 1.4f, Sound.ENTITY_ENDER_EYE_LAUNCH, 0.4f, 1.6f);
+  }
+
+  private void finishRebound(Player p, Location spawnAt, Vector normal, Vector reflected, int level) {
+    if (!p.isOnline()) {
+      return;
+    }
 
     double bias = getAimBias(level);
     Vector aim = p.getEyeLocation().getDirection().clone();
@@ -135,69 +185,12 @@ public class RiftPearlRebound extends SimpleAdaptation<RiftPearlRebound.Config> 
       direction = normal.clone();
     }
     Vector velocity = direction.normalize().multiply(getReboundSpeed());
+    if (!J.runAt(spawnAt, () -> launchReboundPearl(p, spawnAt, velocity))) {
+      return;
+    }
 
-    Location spawnAt = pearl.getLocation().clone().add(normal.clone().multiply(0.35));
-    e.setCancelled(true);
-    pearl.remove();
-
-    J.runAt(spawnAt, () -> launchReboundPearl(p, spawnAt, velocity));
-
-    fx(spawnAt, FxPriority.TRAIL)
-        .burst(Particles.SMOKE, 4, 0.15)
-        .particle(Particle.REVERSE_PORTAL, 6, 0, 0.2, 0, 0.25, 0.03)
-        .chord(Sound.BLOCK_SLIME_BLOCK_HIT, 0.7f, 1.4f, Sound.ENTITY_ENDER_EYE_LAUNCH, 0.4f, 1.6f);
     addStat(p, "rift.pearl-rebound.rebounds", 1);
     xp(p, getConfig().xpOnRebound, "rift:pearl-rebound:rebound");
-  }
-
-  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-  public void on(PlayerTeleportEvent e) {
-    if (e.getCause() != PlayerTeleportEvent.TeleportCause.ENDER_PEARL) {
-      return;
-    }
-
-    Player p = e.getPlayer();
-    if (getActiveLevel(p) <= 0) {
-      return;
-    }
-    pearlLandedAt.put(p.getUniqueId(), System.currentTimeMillis());
-  }
-
-  @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-  public void on(EntityDamageEvent e) {
-    if (e.getCause() != EntityDamageEvent.DamageCause.FALL || !(e.getEntity() instanceof Player p)) {
-      return;
-    }
-
-    UUID id = p.getUniqueId();
-    Long landed = pearlLandedAt.remove(id);
-    if (landed == null || System.currentTimeMillis() - landed > getWindowMillis()) {
-      return;
-    }
-
-    int level = getActiveLevel(p);
-    if (level <= 0) {
-      return;
-    }
-
-    double reduction = getDamageReduction(level);
-    e.setDamage(Math.max(0D, e.getDamage() * (1D - reduction)));
-  }
-
-  @EventHandler
-  public void on(PlayerQuitEvent e) {
-    pearlLandedAt.remove(e.getPlayer().getUniqueId());
-  }
-
-  private void launchReboundPearl(Player p, Location spawnAt, Vector velocity) {
-    World world = spawnAt.getWorld();
-    if (world == null) {
-      return;
-    }
-    EnderPearl pearl = world.spawn(spawnAt, EnderPearl.class);
-    pearl.setShooter(p);
-    pearl.getPersistentDataContainer().set(reboundedKey, PersistentDataType.BYTE, (byte) 1);
-    pearl.setVelocity(velocity);
   }
 
   private Vector reflect(Vector velocity, Vector normal) {
@@ -219,11 +212,15 @@ public class RiftPearlRebound extends SimpleAdaptation<RiftPearlRebound.Config> 
     return Math.max(0.4D, getConfig().reboundSpeed);
   }
 
-  private long getWindowMillis() {
-    return Math.max(50L, getConfig().damageWindowMillis);
+  static double calculateReducedDamage(double damage, double reduction) {
+    if (!Double.isFinite(damage) || damage <= 0D) {
+      return 0D;
+    }
+    double safeReduction = Double.isFinite(reduction) ? Math.max(0D, Math.min(HARD_MAX_DAMAGE_REDUCTION, reduction)) : 0D;
+    return damage * (1D - safeReduction);
   }
 
-  @ConfigDescription("Thrown pearls bounce once off surfaces toward where you aim, and pearl teleport damage is reduced.")
+  @ConfigDescription("Plain thrown pearls bounce once off the first surface toward your crosshair, and their ender pearl landing damage is reduced.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Fraction of ender pearl teleport damage removed at level 1.", impact = "Higher values soften pearl landings more; capped at 90 percent.")
     double damageReductionBase = 0.3;
@@ -235,8 +232,6 @@ public class RiftPearlRebound extends SimpleAdaptation<RiftPearlRebound.Config> 
     double aimBiasPerLevel = 0.15;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Launch speed of the rebounded pearl.", impact = "Higher values throw the bounced pearl further and faster.")
     double reboundSpeed = 1.5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Milliseconds after a pearl teleport during which fall damage is treated as pearl damage.", impact = "Higher values widen the window that reduces pearl landing damage.")
-    long damageWindowMillis = 400;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Skill XP granted each time a pearl rebounds.", impact = "Higher values grant more skill XP per rebound.")
     double xpOnRebound = 6;
 

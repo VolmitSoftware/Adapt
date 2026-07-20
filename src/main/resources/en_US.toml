@@ -903,8 +903,8 @@ usage2 = "Shift + Left Click to bind to a block"
 
 [items.bound_redstone_torch]
 name = "Redstone Remote"
-usage1 = "Right Click to create a 1-Tick Redstone pulse"
-usage2 = "Shift + Left Click on a 'Target' Block to bind"
+usage1 = "Right Click to power the bound face for 4 ticks"
+usage2 = "Shift + Left Click a free face on any block to bind"
 
 [items.bound_snowball]
 name = "Web Snare!"
@@ -1111,18 +1111,18 @@ lore = ["Max Armor", "Armor-Up Time", "Armor Decay Time"]
 
 [agility.ladder_slide]
 name = "Ladder Slide"
-description = "Hold forward or jump to climb faster, hold backward to slide fast, and sneak to brake."
-lore1 = "Ladder slide speed (blocks/sec)"
+description = "Look up to climb quickly and look down to descend quickly. Looking near the horizon returns to normal ladder control."
+lore1 = "Ladder descent speed (blocks/sec)"
 lore2 = "Ladder climb speed (blocks/sec)"
-lore3 = "Sneak brake power"
-lore = ["Ladder slide speed (blocks/sec)", "Ladder climb speed (blocks/sec)", "Sneak brake power"]
+lore3 = "Look activation / release angles"
+lore = ["Ladder descent speed (blocks/sec)", "Ladder climb speed (blocks/sec)", "Look activation / release angles"]
 
 [agility.super_jump]
 name = "Super Jump"
-description = "Sneak and jump to launch a super jump. Jump height scales with level."
-lore1 = "Max Jump Height"
+description = "Sneak and jump to launch a super jump. Four levels scale the apex from 1.5 to 2.5 blocks."
+lore1 = "Jump apex (blocks)"
 lore2 = "Sneak + Jump to Super Jump!"
-lore = ["Max Jump Height", "Sneak + Jump to Super Jump!"]
+lore = ["Jump apex (blocks)", "Sneak + Jump to Super Jump!"]
 
 [agility.wall_jump]
 name = "Wall Jump"
@@ -1159,7 +1159,7 @@ lore = ["Fall Damage Conversion", "Input Timing Window", "Roll Cooldown"]
 
 [architect.elevator]
 name = "Elevator"
-description = "This allows for you to build an elevator to teleport vertically fast!"
+description = "Build fast vertical elevators. Craft each Elevator Block with an Ender Pearl in the center, surrounded by 8 Wool."
 lore1 = "Unlocks elevator recipe: X=WOOL, Y=ENDER PEARL"
 lore2 = "XXX"
 lore3 = "XYX"
@@ -1244,13 +1244,6 @@ lore1 = "Sneak, and mine WOOD/LOGS ( Not Planks )"
 lore2 = "range of Wood-mining"
 lore3 = "Works with Drop to inventory"
 lore = ["Sneak, and mine WOOD/LOGS ( Not Planks )", "range of Wood-mining", "Works with Drop to inventory"]
-
-[axe.timber_mark]
-name = "Timber Mark"
-description = "Sneak-right-click a log with an axe to mark it, then break that log to fell connected wood."
-lore1 = "Max Logs Broken"
-lore2 = "Mark Duration"
-lore = ["Max Logs Broken", "Mark Duration"]
 
 # brewing
 [brewing]
@@ -1445,10 +1438,10 @@ lore = ["Just toss it(rotten flesh) on the campfire!"]
 name = "A Boutilier's Backpacks!"
 description = "Unlocks crafting bundles to carry mixed item stacks in a single slot."
 lore1 = "You need to be in Survival to use this"
-lore2 = "XLX : Leather, Lead, Leather"
-lore3 = "XSX : Leather, Barrel Box, Leather"
-lore4 = "XCX : Leather, Chest, Leather"
-lore = ["You need to be in Survival to use this", "XLX : Leather, Lead, Leather", "XSX : Leather, Barrel Box, Leather", "XCX : Leather, Chest, Leather"]
+lore2 = "LLL : Leather, Leather, Leather"
+lore3 = "LCL : Leather, Chest, Leather"
+lore4 = "LLL : Leather, Leather, Leather"
+lore = ["You need to be in Survival to use this", "LLL : Leather, Leather, Leather", "LCL : Leather, Chest, Leather", "LLL : Leather, Leather, Leather"]
 
 [crafting.stations]
 name = "Portable Tables!"
@@ -1653,7 +1646,7 @@ lore = ["Ore in your offhand, Glowberries in your main hand, and Sneak!", "Block
 
 [excavation.seismic_ping]
 name = "Seismic Ping"
-description = "Mining can emit colored glowing direction lines that point toward nearby ore."
+description = "Mining can temporarily reveal a nearby ore block with a private colored glow."
 lore1 = "Scan Range"
 lore2 = "Ping Chance"
 lore3 = "Ping Cooldown"
@@ -2085,10 +2078,10 @@ lore = ["Ender Pearl + Compass = Reliquary Portkey", "This item allows you to ac
 
 [rift.blink]
 name = "Rift Blink"
-description = "Double-jump to blink toward where you are looking. Aim at ground to land there, at a ledge to mantle onto it, or into open air to dash. Each blink has a chance to consume an ender pearl."
+description = "Double-jump to blink toward where you are looking. Aim at ground to land there, at a ledge to mantle onto it, or into open air to dash. Successful blinks consume no pearl, but deal normal ender pearl damage that decreases by level."
 lore1 = "Blink Range"
-lore = ["Blink Range"]
-lore_cost_pearl = "chance to consume an ender pearl on blink"
+lore2 = "Self-Damage (hearts)"
+lore = ["Blink Range", "Self-Damage (hearts)"]
 
 [rift.chest]
 name = "Easy Enderchest"
@@ -2223,11 +2216,13 @@ lore = ["Max Ghost Armor", "Speed"]
 
 [stealth.night_vision]
 name = "Stealth Vision"
-description = "Gain night vision while sneaking"
+description = "While sneaking, gain night vision, ignore Blindness, and see invisible players outlined."
 lore1 = "Gain a burst of "
 lore2 = "night vision"
-lore3 = "while sneaking"
-lore = ["Gain a burst of ", "night vision", "while sneaking"]
+lore3 = " while sneaking"
+lore4 = "Blindness immunity while sneaking"
+lore5 = "Invisible players glow while sneaking"
+lore = ["Gain a burst of night vision while sneaking", "Blindness immunity while sneaking", "Invisible players glow while sneaking"]
 
 [stealth.snatch]
 name = "Item Snatch"
@@ -2396,15 +2391,15 @@ lore = ["health drained from each attacker", "Actual life drained is restored to
 
 [tragoul.lance]
 name = "Corpse Lances"
-description = "Killing an enemy launches a red-tipped corpse lance with a white trail. Its damage is tripled while you wear no armor."
+description = "Killing an enemy launches a red-tipped corpse lance that never targets you. Its damage is tripled while you wear no armor."
 lore1 = "Killing blows launch seeking corpse lances, including lance chain kills"
-lore2 = "Lances cost life to create and deal triple damage while you are unarmored"
+lore2 = "Flat life cost falls from 3 hearts to 1 heart and uses normal damage mitigation"
 lore3 = "Max Lances: 1 + "
-lore = ["Killing blows launch seeking corpse lances, including lance chain kills", "Lances cost life to create and deal triple damage while you are unarmored", "Max Lances: 1 + "]
+lore = ["Killing blows launch seeking corpse lances, including lance chain kills", "Flat life cost falls from 3 hearts to 1 heart and uses normal damage mitigation", "Max Lances: 1 + "]
 
 [tragoul.blood_pact]
 name = "Blood Pact"
-description = "Taking at least 2 hearts of damage can trigger random beneficial effects."
+description = "Losing at least 2 hearts after armor, Resistance, and absorption can trigger random beneficial effects."
 lore1 = "Proc Chance"
 lore2 = "Buff Duration"
 lore3 = "Proc Cooldown"
@@ -2601,14 +2596,6 @@ description = "Veinmine 2,500 logs"
 [advancement.challenge_axe_wood_vein_cascade]
 title = "Cascade Logger"
 description = "Veinmine 15+ logs in a single activation"
-
-[advancement.challenge_axe_timber_200]
-title = "Mark of the Woodsman"
-description = "Fell 200 marked trees"
-
-[advancement.challenge_axe_timber_40]
-title = "Marked for Removal"
-description = "Fell a marked tree yielding 40+ logs"
 
 # --- BLOCKING ---
 
@@ -3692,13 +3679,6 @@ lore5 = "Wave Cooldown"
 lore6 = "Hunger Cost"
 lore = ["Wave Radius", "Shovel Damage Multiplier", "Knockback Force", "Slow Duration", "Wave Cooldown", "Hunger Cost"]
 
-[excavation.dowsing]
-name = "Dowsing"
-description = "Sneaking with a shovel reveals the nearest 1-3 water or lava blocks and draws a private glowing fluid-colored line to the closest one."
-lore1 = "Dowsing Range"
-lore2 = "Dowsing Cooldown"
-lore = ["Dowsing Range", "Dowsing Cooldown"]
-
 [excavation.burrow]
 name = "Burrow"
 description = "Sneak-right-click soft ground with a shovel to rapidly dig straight down, stopping before hazards. Each burrow costs hunger and tool durability."
@@ -3737,10 +3717,6 @@ description = "Soak 1,000 fall damage on soft ground"
 [advancement.challenge_excavation_earthmover_250]
 title = "Landslide"
 description = "Unleash 250 earth waves"
-
-[advancement.challenge_excavation_dowsing_200]
-title = "Water Witcher"
-description = "Dowse 200 hidden pockets"
 
 [advancement.challenge_excavation_burrow_100]
 title = "Going Down"
@@ -3998,10 +3974,44 @@ lore = ["No knockback while bridging", "Blocks of fall damage shielded"]
 
 [architect.chalk_line]
 name = "Chalk Line"
-description = "Sneak-right-click a block while holding any block to snap a straight particle guide line along the axis you face. Do it again to clear it!"
-lore1 = "Particle guide line for aligning builds"
-lore2 = "Seconds the guide line stays visible"
-lore = ["Particle guide line for aligning builds", "Seconds the guide line stays visible"]
+description = "Craft persistent Chalk Wands from one Stick and one String in different orientations. Level 1 unlocks straight lines, level 2 polylines, level 3 circles, and level 4 arcs. Their private block guides appear only while that wand is held; sneak-click the air to clear its saved plan."
+lore1 = "Craftable persistent guide wands unlocked"
+lore = ["Craftable persistent guide wands unlocked"]
+requires_level = "Requires Chalk Line level"
+start_set = "Chalk start point set"
+start_required = "Left-click a block face to set the start point first"
+through_point_set = "Arc through-point set; right-click an endpoint"
+vertex_added = "Polyline vertex added"
+guide_ready = "Chalk guide ready"
+cleared = "This wand's chalk guide was cleared"
+too_far = "That point is beyond this wand's selection range"
+duplicate_point = "Choose a different guide point"
+too_many_vertices = "This polyline has reached its vertex limit"
+invalid_radius = "Choose a radius within this compass's allowed range"
+invalid_shape = "Those points cannot form this guide"
+guide_too_large = "That guide would create too many markers"
+guide_out_of_bounds = "That guide would extend beyond this world's build height"
+invalid_plan = "This wand could not save the selected guide"
+
+[architect.chalk_line.tool]
+clear = "Sneak-click the air to clear this wand"
+persistent = "The saved guide has no timer"
+
+[architect.chalk_line.tool.straightedge]
+name = "Chalk Straightedge"
+usage = "Left-click a start; right-click an end"
+
+[architect.chalk_line.tool.polyline]
+name = "Chalk Polyline Wand"
+usage = "Left-click to start; right-click to add vertices"
+
+[architect.chalk_line.tool.compass]
+name = "Chalk Circle Compass"
+usage = "Left-click a center face; right-click its radius"
+
+[architect.chalk_line.tool.arc_bow]
+name = "Chalk Arc Bow"
+usage = "Left-click a start; right-click through and end points"
 
 [architect.demolition]
 name = "Mason's Eraser"
@@ -4014,10 +4024,9 @@ lore = ["Your fresh placements break near-instantly", "Seconds a placement count
 name = "Stonecutter Savant"
 description = "Sneak-punch the air with an empty hand to open a stonecutter wherever you are, as long as you carry a stonecutter!"
 lore1 = "Portable stonecutter on demand"
-lore2 = "Seconds of cooldown between uses"
-lore3 = "Requires a stonecutter item in your inventory"
-lore4 = "Requires a stonecutter in your offhand"
-lore = ["Portable stonecutter on demand", "Seconds of cooldown between uses", "Requires a stonecutter item in your inventory", "Requires a stonecutter in your offhand"]
+lore2 = "Requires a stonecutter item in your inventory"
+lore3 = "Requires a stonecutter in your offhand"
+lore = ["Portable stonecutter on demand", "Requires a stonecutter item in your inventory", "Requires a stonecutter in your offhand"]
 
 [advancement.challenge_architect_scaffolder_500]
 title = "Temporary Measures"
@@ -4045,11 +4054,11 @@ description = "Place 5,000 blocks while bridging"
 
 [advancement.challenge_architect_chalk_line_50]
 title = "Straight and True"
-description = "Snap 50 chalk lines"
+description = "Draft 50 chalk guides"
 
 [advancement.challenge_architect_chalk_line_500]
 title = "Surveyor"
-description = "Snap 500 chalk lines"
+description = "Draft 500 chalk guides"
 
 [advancement.challenge_architect_demolition_500]
 title = "Controlled Demolition"
@@ -4280,7 +4289,7 @@ inspired = "Inspired! Fresh activity bonus"
 # agility
 [agility.slipstream_slide]
 name = "Slipstream Slide"
-description = "Tap sneak while sprinting to slide in a low pose, keeping momentum and fitting under 1-block gaps."
+description = "Tap sneak while sprinting to lock into a prone pose and shed ground friction, keeping momentum through 1-block gaps."
 lore1 = "Slide speed (blocks/sec)"
 lore2 = "Slide cooldown"
 lore3 = "Max level: mobs you slide through are slowed"
@@ -4308,10 +4317,9 @@ lore = ["Surfaces ignored while sprinting", "Farmland > pressure plates > sweet 
 
 [agility.vault]
 name = "Vault"
-description = "Sprint straight over fences, walls, and low ledges instead of stalling against them."
-lore1 = "Max vault height (blocks)"
-lore2 = "Hunger cost per vault"
-lore = ["Max vault height (blocks)", "Hunger cost per vault"]
+description = "Jump toward a fence to clear it."
+lore1 = "Fence jump apex (blocks)"
+lore = ["Fence jump apex (blocks)"]
 
 [agility.marathoner]
 name = "Marathoner"
@@ -4416,21 +4424,6 @@ lore1 = "Absorption Cap"
 lore2 = "Decay Grace"
 lore = ["Absorption Cap", "Decay Grace"]
 
-[axe.sap_tap]
-name = "Sap Tap"
-description = "Sneak-right-click a natural log with a glass bottle in your off hand to draw tree sap."
-lore1 = "Sap Per Tap"
-lore2 = "Bonus Drop Chance"
-item = "Tree Sap"
-lore = ["Sap Per Tap", "Bonus Drop Chance"]
-
-[axe.orchardist]
-name = "Orchardist"
-description = "Felling a tree with an axe automatically replants a matching sapling."
-lore1 = "Replant Chance"
-lore2 = "Drops a bonus sapling at max level"
-lore = ["Replant Chance", "Drops a bonus sapling at max level"]
-
 [axe.shield_splitter]
 name = "Shield Splitter"
 description = "Axe hits on blocking foes disable their shield longer and deal bonus damage."
@@ -4466,14 +4459,6 @@ description = "Cleave 10,000 secondary targets"
 title = "Second Skin"
 description = "Build 2,500 bark absorption stacks"
 
-[advancement.challenge_axe_sap_tap_500]
-title = "Sugar Season"
-description = "Draw 500 sap"
-
-[advancement.challenge_axe_orchardist_500]
-title = "Steward of the Grove"
-description = "Replant 500 trees"
-
 [advancement.challenge_axe_shield_splitter_250]
 title = "Guard Breaker"
 description = "Split 250 shields"
@@ -4504,13 +4489,11 @@ lore = ["chance to forge a masterwork piece", "bonus max durability", "At full l
 
 [crafting.compactor]
 name = "Compactor"
-description = "Toggle to auto-craft full stacks of ingots, gems, and raw ores into blocks in your inventory."
-lore1 = "Sneak + swap hands to toggle auto-compacting"
+description = "Sneak and swap hands while aiming at a Crafting Table to compact full stacks into blocks immediately."
+lore1 = "Sneak + swap hands while aiming at a Crafting Table"
 lore2 = "materials compacted into block form"
 lore3 = "Only acts on full stacks, leaving loose remainders"
-toggle_on = "Compactor enabled"
-toggle_off = "Compactor disabled"
-lore = ["Sneak + swap hands to toggle auto-compacting", "materials compacted into block form", "Only acts on full stacks, leaving loose remainders"]
+lore = ["Sneak + swap hands while aiming at a Crafting Table", "materials compacted into block form", "Only acts on full stacks, leaving loose remainders"]
 
 [crafting.tinkerer]
 name = "Tinkerer"
@@ -4926,7 +4909,7 @@ lore = ["Undetected Sneak Delay"]
 
 [stealth.smoke_pellet]
 name = "Smoke Pellet"
-description = "Sneak-cast an aimed smoke ray with an empty hand or held gunpowder. Every living entity in the cloud is blinded, including you. Costs one gunpowder."
+description = "Sneak while holding gunpowder in either hand to cast an aimed smoke cloud. Players inside turn invisible, mobs drop aggro and cannot retarget them, and living entities are blinded."
 lore1 = "Cloud Radius"
 lore2 = "Cloud Duration"
 lore = ["Cloud Radius", "Cloud Duration"]
@@ -4947,7 +4930,7 @@ lore = ["Detection Range", "Sculk Movement Suppression"]
 
 [stealth.assassinate]
 name = "Assassinate"
-description = "While Stealth reports you undetected, a strike instantly executes non-boss mobs below a max-health cap."
+description = "While Stealth reports you undetected, strike eligible non-boss mobs for exactly their current health instead of synthetic overkill damage."
 lore1 = "Executable Health Cap"
 lore2 = "Cooldown"
 lore = ["Executable Health Cap", "Cooldown"]
@@ -5491,15 +5474,15 @@ description = "Snare 2,000 hostile mobs"
 # rift
 [rift.void_skin]
 name = "Void Skin"
-description = "Dropping below a few hearts blinks you to a nearby safe spot and grants brief resistance. Costs an ender pearl and has a long cooldown. Leveling raises the trigger health and shortens the cooldown."
-lore1 = "Trigger Health (hearts)"
+description = "Any lethal damage blinks you to a nearby safe spot instead of killing you, using the current world's spawn when no nearby spot exists, and grants brief resistance. Costs an ender pearl and has a long cooldown. Leveling shortens the cooldown and extends the protection."
+lore1 = "Any lethal damage triggers the escape"
 lore2 = "Escape Cooldown"
 lore3 = "Costs an Ender Pearl"
-lore = ["Trigger Health (hearts)", "Escape Cooldown", "Costs an Ender Pearl"]
+lore = ["Any lethal damage triggers the escape", "Escape Cooldown", "Costs an Ender Pearl"]
 
 [rift.pearl_rebound]
 name = "Pearl Rebound"
-description = "Thrown ender pearls bounce once off the first surface they hit and steer toward where you are aiming, and ender pearl teleport damage is reduced. Leveling increases both the damage reduction and the aim control."
+description = "A plain thrown ender pearl bounces once instead of teleporting at the first surface it hits. The rebound steers toward your crosshair, then teleports normally at its next impact. Pearl landing damage is also reduced; leveling improves both reduction and steering."
 lore1 = "Pearl Damage Reduction"
 lore2 = "Aim Control"
 lore = ["Pearl Damage Reduction", "Aim Control"]
@@ -5520,14 +5503,6 @@ msg_need_container = "Aim at a container to use the conduit taglock."
 msg_range = "That container is too far away to link."
 msg_same = "You cannot link a container to itself."
 msg_stale = "The captured container is no longer available."
-
-[rift.step]
-name = "Rift Step"
-description = "Hold sneak during a lethal fall to phase to the nearest safe surface instead of hitting the ground. Costs an ender pearl and some experience. Leveling reduces the experience cost."
-lore1 = "Hold sneak during a lethal fall to phase to safety"
-lore2 = "Experience Cost"
-lore3 = "Costs an Ender Pearl"
-lore = ["Hold sneak during a lethal fall to phase to safety", "Experience Cost", "Costs an Ender Pearl"]
 
 [advancement.challenge_rift_void_skin_50]
 title = "Second Skin"
@@ -5553,14 +5528,6 @@ description = "Form 10 rift conduit links"
 title = "Freight Network"
 description = "Flow 10,000 items through rift conduits"
 
-[advancement.challenge_rift_step_50]
-title = "Soft Landing"
-description = "Phase away from 50 lethal falls with Rift Step"
-
-[advancement.challenge_rift_step_500]
-title = "Gravity Optional"
-description = "Phase away from 500 lethal falls with Rift Step"
-
 [skill.kinetics]
 name = "Kinetics"
 icon = "⚒"
@@ -5576,11 +5543,12 @@ description = "Kill a mob with your own falling anvil dropped from 8 or more blo
 
 [kinetics.moon_jump]
 name = "Moon Jump"
-description = "Sneak-jump to hop higher with a floaty, low-gravity peak."
-lore1 = "Jump Boost"
-lore2 = "Gravity Reduction"
-lore3 = "Float Window"
-lore = ["Jump Boost", "Gravity Reduction", "Float Window"]
+description = "Each level raises every jump by 0.5 blocks. Sneak-jump for an additional floaty, low-gravity hop."
+lore1 = "Base Jump Height"
+lore2 = "Sneak-Jump Boost"
+lore3 = "Gravity Reduction"
+lore4 = "Float Window"
+lore = ["Base Jump Height", "Sneak-Jump Boost", "Gravity Reduction", "Float Window"]
 
 [kinetics.rubber_soul]
 name = "Rubber Soul"
@@ -5619,18 +5587,22 @@ lore = ["Knockback Resistance", "Blast Resistance", "Speed Penalty"]
 
 [kinetics.mass_shift]
 name = "Mass Shift"
-description = "Sneak and swap hands to cycle between titan and pocket forms for a short window."
+description = "Sneak and swap hands: look up for persistent Titan form, down for persistent Pocket form, or level to return to normal. Titan grants 20% damage and health with Slowness I; Pocket trades 20% damage and health for Speed I."
 lore1 = "Titan Scale"
 lore2 = "Pocket Scale"
-lore3 = "Form Duration"
-lore = ["Titan Scale", "Pocket Scale", "Form Duration"]
+lore3 = "Titan Damage and Max Health"
+lore4 = "Pocket Damage and Max Health"
+lore5 = "Look up: Titan | Look down: Pocket | Look level: Normal"
+lore = ["Titan Scale", "Pocket Scale", "Titan Damage and Max Health", "Pocket Damage and Max Health", "Look up: Titan | Look down: Pocket | Look level: Normal"]
 
 [kinetics.meteor_cadence]
 name = "Meteor Cadence"
-description = "Sneak while falling with a mace to dive into your smash faster."
+description = "Sneak while falling with a mace to accelerate sharply downward into your smash."
 lore1 = "Gravity Boost"
 lore2 = "Drag Cut"
-lore = ["Gravity Boost", "Drag Cut"]
+lore3 = "Downward Acceleration per Tick"
+lore4 = "Terminal Fall Speed"
+lore = ["Gravity Boost", "Drag Cut", "Downward Acceleration per Tick", "Terminal Fall Speed"]
 
 [kinetics.breachwright]
 name = "Breachwright"

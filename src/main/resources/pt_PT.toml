@@ -898,8 +898,8 @@ usage2 = "Shift + Clique Esquerdo para vincular a um bloco"
 
 [items.bound_redstone_torch]
 name = "Controlo Remoto de Redstone"
-usage1 = "Clique Direito para criar um pulso Redstone de 1 Tick"
-usage2 = "Shift + Clique Esquerdo num bloco 'Alvo' para vincular"
+usage1 = "Clique Direito para criar um pulso Redstone de 4 Ticks"
+usage2 = "Shift + Clique Esquerdo numa face livre de qualquer bloco para vincular"
 
 [items.bound_snowball]
 name = "Armadilha de Teia!"
@@ -1131,7 +1131,7 @@ lore = ["Velocidade Maxima", "Tempo de Aceleracao"]
 
 [architect.elevator]
 name = "Elevador"
-description = "Permite-te construir um elevador para teletransportar verticalmente com rapidez!"
+description = "Constrói elevadores para teletransporte vertical rápido. Cria cada Bloco de Elevador com uma Pérola do End no centro, rodeada por 8 blocos de Lã."
 lore1 = "Desbloqueia receita do elevador: X=LA, Y=PEROLA DO ENDER"
 lore2 = "XXX"
 lore3 = "XYX"
@@ -1371,10 +1371,10 @@ lore = ["Basta atirar (carne podre) para a fogueira!"]
 name = "Mochilas de Boutilier!"
 description = "Isto simplesmente traz o Pacote do Mojang para o jogo!"
 lore1 = "Precisas de estar em Sobrevivencia para usar isto"
-lore2 = "XLX : Couro, Trela, Couro"
-lore3 = "XSX : Couro, Caixa de Barril, Couro"
-lore4 = "XCX : Couro, Bau, Couro"
-lore = ["Precisas de estar em Sobrevivencia para usar isto", "XLX : Couro, Trela, Couro", "XSX : Couro, Caixa de Barril, Couro", "XCX : Couro, Bau, Couro"]
+lore2 = "LLL : Couro, Couro, Couro"
+lore3 = "LCL : Couro, Bau, Couro"
+lore4 = "LLL : Couro, Couro, Couro"
+lore = ["Precisas de estar em Sobrevivencia para usar isto", "LLL : Couro, Couro, Couro", "LCL : Couro, Bau, Couro", "LLL : Couro, Couro, Couro"]
 
 [crafting.stations]
 name = "Bancadas Portateis!"
@@ -1793,11 +1793,10 @@ lore = ["Perola do Ender + Bussola = Chave Portal do Relicario", "Este item perm
 
 [rift.blink]
 name = "Piscar da Fenda"
-description = "Teletransporte instantaneo de curto alcance, apenas um piscar de olhos!"
-lore1 = "Blocos no piscar (2x Vertical)"
-lore2 = "Enquanto a Correr: Toca duas vezes em Saltar para "
-lore3 = "Piscar"
-lore = ["Blocos no piscar (2x Vertical)", "Enquanto a Correr: Toca duas vezes em Saltar para ", "Piscar"]
+description = "Salta duas vezes para piscar na direção para onde olhas. Um piscar bem-sucedido não consome pérolas, mas causa o dano normal de uma pérola do End, reduzido a cada nível."
+lore1 = "Alcance do piscar"
+lore2 = "Dano próprio (corações)"
+lore = ["Alcance do piscar", "Dano próprio (corações)"]
 
 [rift.chest]
 name = "Bau do Ender Facil"

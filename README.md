@@ -123,7 +123,7 @@ Helping out in any way you can is appreciated, and you will be listed here for y
 | ArchitectFoundation | Creates temporary tinted glass blocks beneath sneaking players | Working |
 | ArchitectGlass | Silk-touch glass when breaking bare-handed | Working |
 | ArchitectPlacement | 3x3 block placement preview and batch place while sneaking | Working |
-| ArchitectWirelessRedstone | Bind redstone torches to target blocks for remote pulses | Working |
+| ArchitectWirelessRedstone | Bind redstone torches to any block for remote pulses | Working |
 
 ### Axes (6 adaptations)
 
@@ -165,7 +165,7 @@ Helping out in any way you can is appreciated, and you will be listed here for y
 
 | Adaptation | Description | Status |
 |---|---|---|
-| CraftingBackpacks | Crafting recipe for bundles from leather, lead, chest, and barrel | Working |
+| CraftingBackpacks | Crafting recipe for bundles from a chest wrapped in eight leather | Working |
 | CraftingDeconstruction | Right-click floating items with shears while sneaking to deconstruct | Working |
 | CraftingLeather | Campfire recipe to cook rotten flesh into leather | Working |
 | CraftingReconstruction | 16 recipes to reconstruct ore blocks from stone and ingots | Working |
@@ -284,7 +284,7 @@ Helping out in any way you can is appreciated, and you will be listed here for y
 |---|---|---|
 | StealthEnderVeil | Prevents Endermen from targeting or attacking the player | Working |
 | StealthGhostArmor | Regenerating armor points that reset on damage | Working |
-| StealthSight | Grants night vision while sneaking | Working |
+| StealthSight | Grants night vision, Blindness immunity, and private outlines on invisible players while sneaking | Working |
 | StealthSnatch | Auto-collects nearby dropped items while sneaking | Working |
 | StealthSpeed | Grants speed while sneaking | Working |
 

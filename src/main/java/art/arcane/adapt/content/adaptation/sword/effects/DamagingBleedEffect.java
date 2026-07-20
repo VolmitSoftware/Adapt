@@ -22,20 +22,30 @@ import art.arcane.adapt.util.common.scheduling.J;
 import de.slikey.effectlib.EffectManager;
 import de.slikey.effectlib.effect.BleedEffect;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 
 public class DamagingBleedEffect extends BleedEffect {
   private final double damage;
   private final LivingEntity target;
+  private final Player source;
 
-  public DamagingBleedEffect(EffectManager effectManager, double damage, LivingEntity target) {
+  public DamagingBleedEffect(EffectManager effectManager, DamageContext context) {
     super(effectManager);
-    this.damage = damage;
-    this.target = target;
+    this.damage = context.damage();
+    this.target = context.target();
+    this.source = context.source();
   }
 
   @Override
   public void onRun() {
     super.onRun();
-    J.runEntity(target, () -> target.damage(damage));
+    J.runEntity(target, this::applyDamage);
+  }
+
+  void applyDamage() {
+    target.damage(damage, source);
+  }
+
+  public record DamageContext(double damage, LivingEntity target, Player source) {
   }
 }

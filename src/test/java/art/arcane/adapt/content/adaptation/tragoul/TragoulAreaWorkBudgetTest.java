@@ -1,11 +1,14 @@
 package art.arcane.adapt.content.adaptation.tragoul;
 
 import org.bukkit.Material;
-import org.bukkit.inventory.ItemStack;
-import org.junit.jupiter.api.Test;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Ghast;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
+import org.bukkit.inventory.ItemStack;
+import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
 
@@ -108,6 +111,54 @@ class TragoulAreaWorkBudgetTest {
   }
 
   @Test
+  void corpseLancePaysFlatSelfDamageThatFallsWithLevels() {
+    TragoulLance.Config config = new TragoulLance.Config();
+
+    assertThat(config.selfDamageAtFirstLevel).isEqualTo(6D);
+    assertThat(config.selfDamageAtMaxLevel).isEqualTo(2D);
+    assertThat(TragoulLance.selfDamageForLevel(1, 5, 6D, 2D)).isEqualTo(6D);
+    assertThat(TragoulLance.selfDamageForLevel(3, 5, 6D, 2D)).isEqualTo(4D);
+    assertThat(TragoulLance.selfDamageForLevel(5, 5, 6D, 2D)).isEqualTo(2D);
+    assertThat(TragoulLance.selfDamageForLevel(8, 5, 6D, 2D)).isEqualTo(2D);
+    assertThat(TragoulLance.selfDamageForLevel(0, 5, 6D, 2D)).isZero();
+    assertThat(TragoulLance.selfDamageForLevel(3, 5, Double.NaN, 2D)).isZero();
+  }
+
+  @Test
+  void corpseLanceNeverTreatsItsCasterAsATarget() {
+    UUID ownerId = new UUID(3L, 1L);
+
+    assertThat(TragoulLance.isCaster(ownerId, ownerId)).isTrue();
+    assertThat(TragoulLance.isCaster(ownerId, new UUID(3L, 2L))).isFalse();
+  }
+
+  @Test
+  void corpseLanceOnlyContinuesForALivingValidOnlineCaster() {
+    Player owner = mock(Player.class);
+    when(owner.isOnline()).thenReturn(true);
+    when(owner.isValid()).thenReturn(true);
+    when(owner.isDead()).thenReturn(false);
+
+    assertThat(TragoulLance.isOwnerEligible(owner)).isTrue();
+    assertThat(TragoulLance.canContinueChain(owner, true, 2)).isTrue();
+    assertThat(TragoulLance.canContinueChain(owner, false, 2)).isFalse();
+    assertThat(TragoulLance.canContinueChain(owner, true, 1)).isFalse();
+
+    when(owner.isDead()).thenReturn(true);
+    assertThat(TragoulLance.isOwnerEligible(owner)).isFalse();
+    assertThat(TragoulLance.canContinueChain(owner, true, 2)).isFalse();
+
+    when(owner.isDead()).thenReturn(false);
+    when(owner.isValid()).thenReturn(false);
+    assertThat(TragoulLance.isOwnerEligible(owner)).isFalse();
+
+    when(owner.isValid()).thenReturn(true);
+    when(owner.isOnline()).thenReturn(false);
+    assertThat(TragoulLance.isOwnerEligible(owner)).isFalse();
+    assertThat(TragoulLance.isOwnerEligible(null)).isFalse();
+  }
+
+  @Test
   void corpseLanceResolvesDirectAndProjectilePlayers() {
     Player player = mock(Player.class);
     Projectile projectile = mock(Projectile.class);
@@ -124,5 +175,16 @@ class TragoulAreaWorkBudgetTest {
     assertThat(TragoulCorpseExplosion.isSuppressed(null, 1000L, 500L)).isFalse();
     assertThat(TragoulCorpseExplosion.isSuppressed(900L, 1000L, 500L)).isTrue();
     assertThat(TragoulCorpseExplosion.isSuppressed(400L, 1000L, 500L)).isFalse();
+  }
+
+  @Test
+  void corpseExplosionTargetsEveryHostileEnemyFamily() {
+    Monster groundedEnemy = mock(Monster.class);
+    Ghast flyingEnemy = mock(Ghast.class);
+    LivingEntity neutralMob = mock(LivingEntity.class);
+
+    assertThat(TragoulCorpseExplosion.isNovaTarget(groundedEnemy)).isTrue();
+    assertThat(TragoulCorpseExplosion.isNovaTarget(flyingEnemy)).isTrue();
+    assertThat(TragoulCorpseExplosion.isNovaTarget(neutralMob)).isFalse();
   }
 }

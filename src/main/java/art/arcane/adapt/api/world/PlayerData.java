@@ -48,10 +48,44 @@ import org.bukkit.World;
 import org.bukkit.entity.EntityType;
 
 import java.util.Map;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
 public class PlayerData {
+  private static final Set<String> REMOVED_AXES_ADAPTATIONS = Set.of(
+      "axe-orchardist",
+      "axe-sap-tap",
+      "axe-timber-mark"
+  );
+  private static final Set<String> REMOVED_AXES_STATS = Set.of(
+      "axe.orchardist.trees-replanted",
+      "axe.sap-tap.sap-drawn",
+      "axe.timber-mark.marks-felled"
+  );
+  private static final Set<String> REMOVED_AXES_ADVANCEMENTS = Set.of(
+      "adaptation_axe-orchardist",
+      "adaptation_axe-sap-tap",
+      "adaptation_axe-timber-mark",
+      "challenge_axe_orchardist_500",
+      "challenge_axe_sap_tap_500",
+      "challenge_axe_timber_200",
+      "challenge_axe_timber_40"
+  );
+  private static final String REMOVED_DOWSING_ADAPTATION = "excavation-dowsing";
+  private static final String REMOVED_DOWSING_STAT = "excavation.dowsing.pockets-found";
+  private static final Set<String> REMOVED_DOWSING_ADVANCEMENTS = Set.of(
+      "adaptation_excavation-dowsing",
+      "challenge_excavation_dowsing_200"
+  );
+  private static final String REMOVED_RIFT_STEP_ADAPTATION = "rift-step";
+  private static final String REMOVED_RIFT_STEP_STAT = "rift.step.saves";
+  private static final Set<String> REMOVED_RIFT_STEP_ADVANCEMENTS = Set.of(
+      "adaptation_rift-step",
+      "challenge_rift_step_50",
+      "challenge_rift_step_500"
+  );
+
   private final KMap<String, PlayerSkillLine> skillLines = new KMap<>();
   private KMap<String, Double> stats = new KMap<>();
   private String last = "none";
@@ -93,6 +127,9 @@ public class PlayerData {
     }
     data.getMutationData().normalize();
     data.normalizeInspiredAssignment();
+    data.removeRetiredAxesContent();
+    data.removeRetiredDowsingContent();
+    data.removeRetiredRiftStepContent();
     return data;
   }
 
@@ -441,6 +478,67 @@ public class PlayerData {
     inspiredAssignedAt = Math.max(0L, inspiredAssignedAt);
     if (inspiredSkill.isEmpty()) {
       inspiredAssignedAt = 0;
+    }
+  }
+
+  private void removeRetiredAxesContent() {
+    PlayerSkillLine axes = skillLines.get("axes");
+    if (axes != null) {
+      for (String adaptationId : REMOVED_AXES_ADAPTATIONS) {
+        axes.getAdaptations().remove(adaptationId);
+      }
+    }
+
+    if (stats == null) {
+      stats = new KMap<>();
+    }
+    for (String statKey : REMOVED_AXES_STATS) {
+      stats.remove(statKey);
+    }
+
+    if (advancements == null) {
+      advancements = new KSet<>();
+    }
+    for (String advancementKey : REMOVED_AXES_ADVANCEMENTS) {
+      advancements.remove(advancementKey);
+    }
+  }
+
+  private void removeRetiredDowsingContent() {
+    PlayerSkillLine excavation = skillLines.get("excavation");
+    if (excavation != null) {
+      excavation.getAdaptations().remove(REMOVED_DOWSING_ADAPTATION);
+    }
+
+    if (stats == null) {
+      stats = new KMap<>();
+    }
+    stats.remove(REMOVED_DOWSING_STAT);
+
+    if (advancements == null) {
+      advancements = new KSet<>();
+    }
+    for (String advancementKey : REMOVED_DOWSING_ADVANCEMENTS) {
+      advancements.remove(advancementKey);
+    }
+  }
+
+  private void removeRetiredRiftStepContent() {
+    PlayerSkillLine rift = skillLines.get("rift");
+    if (rift != null) {
+      rift.getAdaptations().remove(REMOVED_RIFT_STEP_ADAPTATION);
+    }
+
+    if (stats == null) {
+      stats = new KMap<>();
+    }
+    stats.remove(REMOVED_RIFT_STEP_STAT);
+
+    if (advancements == null) {
+      advancements = new KSet<>();
+    }
+    for (String advancementKey : REMOVED_RIFT_STEP_ADVANCEMENTS) {
+      advancements.remove(advancementKey);
     }
   }
 

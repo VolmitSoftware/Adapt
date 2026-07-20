@@ -898,8 +898,8 @@ usage2 = "Bir bloga baglamak icin Shift + Sol Tiklama"
 
 [items.bound_redstone_torch]
 name = "Redstone Kumandasi"
-usage1 = "1-Tick Redstone darbesi olusturmak icin Sag Tiklayin"
-usage2 = "Baglamak icin bir 'Hedef' Blok uzerinde Shift + Sol Tiklama"
+usage1 = "4-Tick Redstone darbesi olusturmak icin Sag Tiklayin"
+usage2 = "Baglamak icin herhangi bir blogun bos yuzunde Shift + Sol Tiklama"
 
 [items.bound_snowball]
 name = "Ag Tuzagi!"
@@ -1131,7 +1131,7 @@ lore = ["Maksimum Hiz", "Hizlanma Suresi"]
 
 [architect.elevator]
 name = "Asansor"
-description = "Dikey olarak hizla isinlanmak icin bir asansor insa etmenizi saglar!"
+description = "Hizli dikey isinlanma icin asansorler insa edin. Her Asansor Blogunu ortada bir Ender Incisi ve etrafinda 8 Yun ile uretin."
 lore1 = "Asansor tarifi: X=YUN, Y=ENDER INCISI"
 lore2 = "XXX"
 lore3 = "XYX"
@@ -1371,10 +1371,10 @@ lore = ["Sadece onu (curuk eti) kamp atesine atin!"]
 name = "Boutilier'in Sirt Cantalari!"
 description = "Bu sadece Mojang Paketini oyuna getiriyor!"
 lore1 = "Bunu kullanmak icin Hayatta Kalma modunda olmalisiniz"
-lore2 = "XLX : Deri, Tasma, Deri"
-lore3 = "XSX : Deri, Fici, Deri"
-lore4 = "XCX : Deri, Sandik, Deri"
-lore = ["Bunu kullanmak icin Hayatta Kalma modunda olmalisiniz", "XLX : Deri, Tasma, Deri", "XSX : Deri, Fici, Deri", "XCX : Deri, Sandik, Deri"]
+lore2 = "LLL : Deri, Deri, Deri"
+lore3 = "LCL : Deri, Sandik, Deri"
+lore4 = "LLL : Deri, Deri, Deri"
+lore = ["Bunu kullanmak icin Hayatta Kalma modunda olmalisiniz", "LLL : Deri, Deri, Deri", "LCL : Deri, Sandik, Deri", "LLL : Deri, Deri, Deri"]
 
 [crafting.stations]
 name = "Portatif Masalar!"
@@ -1793,11 +1793,10 @@ lore = ["Ender Incisi + Pusula = Emanet Anahtari", "Bu esya konteynerlere uzakta
 
 [rift.blink]
 name = "Yarik Gozu Kirpma"
-description = "Kisa menzilli aninda isinlanma, Sadece bir goz kirpimi uzaklikta!"
-lore1 = "Goz kirpmada blok (2x Dikey)"
-lore2 = "Kosarken: Ziplama'ya cift basin "
-lore3 = "Goz Kirp"
-lore = ["Goz kirpmada blok (2x Dikey)", "Kosarken: Ziplama'ya cift basin ", "Goz Kirp"]
+description = "Baktığın yöne ışınlanmak için iki kez zıpla. Başarılı ışınlanma Ender İncisi tüketmez, ancak normal inci hasarı verir ve bu hasar her seviyede azalır."
+lore1 = "Işınlanma menzili"
+lore2 = "Kendine hasar (kalp)"
+lore = ["Işınlanma menzili", "Kendine hasar (kalp)"]
 
 [rift.chest]
 name = "Kolay Ender Sandigi"

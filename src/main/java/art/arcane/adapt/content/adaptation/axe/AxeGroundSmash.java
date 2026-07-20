@@ -95,7 +95,7 @@ public class AxeGroundSmash extends SimpleAdaptation<AxeGroundSmash.Config> {
     p.setCooldown(combat.mainHand().getType(), getCooldownTime(f));
     double radius = getRadius(f);
     int[] mobsHit = {0};
-    new Impulse(radius)
+    new Impulse(radius, p)
         .damage(getDamage(f), getFalloffDamage(f))
         .force(getForce(f))
         .filter((Entity nearby) -> {

@@ -1,9 +1,20 @@
 package art.arcane.adapt.content.adaptation.crafting;
 
+import art.arcane.adapt.api.world.PlayerSkillLine;
+import art.arcane.adapt.util.config.TomlCodec;
+import org.bukkit.Material;
 import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Offset.offset;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class CraftingScalingTest {
   @Test
@@ -70,11 +81,52 @@ class CraftingScalingTest {
   }
 
   @Test
-  void compactorCoversMoreMaterialsAsLevelIncreases() {
-    assertThat(CraftingCompactor.materialsCovered(1)).isEqualTo(4);
-    assertThat(CraftingCompactor.materialsCovered(2)).isEqualTo(7);
-    assertThat(CraftingCompactor.materialsCovered(3)).isEqualTo(11);
-    assertThat(CraftingCompactor.materialsCovered(4)).isEqualTo(12);
-    assertThat(CraftingCompactor.materialsCovered(1)).isLessThan(CraftingCompactor.materialsCovered(4));
+  void bundleRecipeWrapsAChestInLeather() {
+    assertThat(CraftingBackpacks.recipeShape()).isEqualTo(List.of("LLL", "LCL", "LLL"));
+  }
+
+  @Test
+  void compactorIsOneLevelAndCoversEveryMaterial() {
+    assertThat(new CraftingCompactor.Config().maxLevel).isEqualTo(1);
+    assertThat(CraftingCompactor.materialsCovered()).isEqualTo(12);
+  }
+
+  @Test
+  void compactorCanonicalizesLegacyConfig() throws IOException {
+    CraftingCompactor.Config config = TomlCodec.fromToml("""
+        maxLevel = 4
+        maxPlayersPerPass = 64
+        baseCost = 3
+        """, CraftingCompactor.Config.class);
+    config.normalizeForPersistence();
+    String persisted = TomlCodec.toToml(config, "adaptation:crafting-compactor");
+
+    assertThat(config.maxLevel).isEqualTo(1);
+    assertThat(persisted).contains("maxLevel = 1");
+    assertThat(persisted).doesNotContain("maxPlayersPerPass");
+  }
+
+  @Test
+  void compactorRequiresItsExactWorldGesture() {
+    assertThat(CraftingCompactor.isActivation(true, 1, true, Material.CRAFTING_TABLE)).isTrue();
+    assertThat(CraftingCompactor.isActivation(false, 1, true, Material.CRAFTING_TABLE)).isFalse();
+    assertThat(CraftingCompactor.isActivation(true, 0, true, Material.CRAFTING_TABLE)).isFalse();
+    assertThat(CraftingCompactor.isActivation(true, 1, false, Material.CRAFTING_TABLE)).isFalse();
+    assertThat(CraftingCompactor.isActivation(true, 1, true, Material.STONE)).isFalse();
+  }
+
+  @Test
+  void compactorClampsLegacyStoredLevels() {
+    CraftingCompactor compactor = mock(CraftingCompactor.class, CALLS_REAL_METHODS);
+    when(compactor.getName()).thenReturn("crafting-compactor");
+    PlayerSkillLine legacy = mock(PlayerSkillLine.class);
+    PlayerSkillLine current = mock(PlayerSkillLine.class);
+    when(legacy.getAdaptationLevel("crafting-compactor")).thenReturn(4);
+    when(current.getAdaptationLevel("crafting-compactor")).thenReturn(1);
+
+    assertThat(compactor.normalizeStoredLevel(legacy)).isTrue();
+    assertThat(compactor.normalizeStoredLevel(current)).isFalse();
+    verify(legacy).setAdaptation(compactor, 1);
+    verify(current, never()).setAdaptation(compactor, 1);
   }
 }

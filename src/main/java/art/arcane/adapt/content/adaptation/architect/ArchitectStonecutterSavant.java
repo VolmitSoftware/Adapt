@@ -18,20 +18,20 @@
 
 package art.arcane.adapt.content.adaptation.architect;
 
-import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
-import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
-import art.arcane.volmlib.util.math.M;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -39,18 +39,18 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
-import java.util.UUID;
-
 public class ArchitectStonecutterSavant extends SimpleAdaptation<ArchitectStonecutterSavant.Config> {
-  private final Cooldowns stoneCd = cooldowns();
+  private static final int STONECUTTER_LEVELS = 1;
 
   public ArchitectStonecutterSavant() {
     super("architect-stonecutter-savant");
     registerConfiguration(ArchitectStonecutterSavant.Config.class);
+    setMaxLevel(STONECUTTER_LEVELS);
     setIcon(Material.STONECUTTER);
     setInterval(24420);
     registerAdvancement(AdaptAdvancement.builder()
@@ -70,10 +70,26 @@ public class ArchitectStonecutterSavant extends SimpleAdaptation<ArchitectStonec
   }
 
   @Override
+  protected void normalizeLoadedConfig(Config loadedConfig) {
+    loadedConfig.normalizeForPersistence();
+  }
+
+  @Override
+  protected boolean shouldCanonicalizeConfigOnLoad() {
+    return true;
+  }
+
+  @Override
+  protected void onRuntimeActivated() {
+    for (Player player : Bukkit.getOnlinePlayers()) {
+      withPlayerThread(player, () -> normalizeStoredLevel(player));
+    }
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     v.addLore(C.GREEN + Localizer.dLocalize("architect.stonecutter_savant.lore1"));
-    v.addLore(C.GREEN + "" + (getCooldownMillis(getLevelPercent(level)) / 1000) + C.GRAY + " " + Localizer.dLocalize("architect.stonecutter_savant.lore2"));
-    v.addLore(C.YELLOW + Localizer.dLocalize(getConfig().requireOffhand ? "architect.stonecutter_savant.lore4" : "architect.stonecutter_savant.lore3"));
+    v.addLore(C.YELLOW + Localizer.dLocalize(getConfig().requireOffhand ? "architect.stonecutter_savant.lore3" : "architect.stonecutter_savant.lore2"));
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -101,22 +117,12 @@ public class ArchitectStonecutterSavant extends SimpleAdaptation<ArchitectStonec
     if (!hasStonecutter(inventory)) {
       return;
     }
+    normalizeStoredLevel(p);
 
-    Adaptation.BlockActionContext context = resolveInteractContext(p, p.getLocation(), Player::isSneaking);
-    if (context == null) {
+    if (resolveInteractContext(p, p.getLocation(), Player::isSneaking) == null) {
       return;
     }
 
-    UUID id = p.getUniqueId();
-    long cooldownMillis = getCooldownMillis(getLevelPercent(context.level()));
-    if (!stoneCd.isReady(id, cooldownMillis)) {
-      fx(p.getLocation(), FxPriority.TRANSITION)
-          .burst(Particles.SMOKE, 2, 0.1D)
-          .sound(Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 0.3f, 0.7f);
-      return;
-    }
-
-    stoneCd.mark(id);
     withPlayerThread(p, () -> {
       p.openStonecutter(null, true);
       fx(p.getLocation(), FxPriority.GAMEPLAY)
@@ -127,6 +133,20 @@ public class ArchitectStonecutterSavant extends SimpleAdaptation<ArchitectStonec
     });
   }
 
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(PlayerJoinEvent event) {
+    Player player = event.getPlayer();
+    withPlayerThread(player, () -> normalizeStoredLevel(player));
+  }
+
+  boolean normalizeStoredLevel(PlayerSkillLine line) {
+    if (line == null || line.getAdaptationLevel(getName()) <= STONECUTTER_LEVELS) {
+      return false;
+    }
+    line.setAdaptation(this, STONECUTTER_LEVELS);
+    return true;
+  }
+
   private boolean hasStonecutter(PlayerInventory inventory) {
     if (getConfig().requireOffhand) {
       return inventory.getItemInOffHand().getType() == Material.STONECUTTER;
@@ -135,24 +155,26 @@ public class ArchitectStonecutterSavant extends SimpleAdaptation<ArchitectStonec
     return inventory.contains(Material.STONECUTTER);
   }
 
-  private long getCooldownMillis(double factor) {
-    return (long) Math.max(1000, M.lerp(getConfig().maxCooldownSeconds, getConfig().minCooldownSeconds, factor) * 1000D);
+  private void normalizeStoredLevel(Player player) {
+    AdaptPlayer adaptPlayer = getPlayer(player);
+    PlayerSkillLine line = adaptPlayer.getData().getSkillLineNullable(getSkill().getName());
+    normalizeStoredLevel(line);
   }
-
 
   @ConfigDescription("Sneak-punch the air with an empty hand while carrying a stonecutter to open it anywhere.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Requires the stonecutter item to be in the offhand specifically.", impact = "True only accepts a stonecutter held in the offhand; false accepts a stonecutter anywhere in the inventory.")
     boolean requireOffhand = false;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Cooldown in seconds at level 0 progression.", impact = "Higher values make low-level players wait longer between uses.")
-    double maxCooldownSeconds = 60;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Cooldown in seconds at maximum level progression.", impact = "Lower values let max-level players open the stonecutter more often.")
-    double minCooldownSeconds = 10;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Adaptation xp granted per stonecutter opened.", impact = "Higher values speed up adaptation progression from uses.")
     double xpPerUse = 2;
 
     public Config() {
       costFactor = 0.5;
+      normalizeForPersistence();
+    }
+
+    void normalizeForPersistence() {
+      maxLevel = STONECUTTER_LEVELS;
     }
   }
 }

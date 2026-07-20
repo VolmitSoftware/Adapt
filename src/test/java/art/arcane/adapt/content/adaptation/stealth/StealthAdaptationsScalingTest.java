@@ -5,9 +5,9 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.entity.EntityPotionEffectEvent;
+import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.junit.jupiter.api.Test;
 
@@ -41,6 +41,8 @@ class StealthAdaptationsScalingTest {
     assertThat(StealthAssassinate.computeHealthCap(22.0, 38.0, 1.0)).isEqualTo(60.0);
     assertThat(StealthAssassinate.computeCooldown(40000, 20000, 0.5)).isEqualTo(30000L);
     assertThat(StealthAssassinate.computeCooldown(1000, 20000, 1.0)).isEqualTo(8000L);
+    assertThat(StealthAssassinate.executionDamage(18.5D)).isEqualTo(18.5D);
+    assertThat(StealthAssassinate.executionDamage(-1D)).isZero();
   }
 
   @Test
@@ -63,26 +65,41 @@ class StealthAdaptationsScalingTest {
   }
 
   @Test
-  void smokePelletSupportsAirRayAndHeldGunpowder() {
-    assertThat(StealthSmokePellet.isActivation(
-        Action.LEFT_CLICK_AIR, EquipmentSlot.HAND, true, Material.AIR)).isTrue();
-    assertThat(StealthSmokePellet.isActivation(
-        Action.RIGHT_CLICK_AIR, EquipmentSlot.HAND, true, Material.GUNPOWDER)).isTrue();
-    assertThat(StealthSmokePellet.isActivation(
-        Action.RIGHT_CLICK_BLOCK, EquipmentSlot.HAND, true, Material.GUNPOWDER)).isTrue();
-    assertThat(StealthSmokePellet.isActivation(
-        Action.RIGHT_CLICK_AIR, EquipmentSlot.OFF_HAND, true, Material.GUNPOWDER)).isFalse();
-    assertThat(StealthSmokePellet.isActivation(
-        Action.RIGHT_CLICK_AIR, EquipmentSlot.HAND, false, Material.GUNPOWDER)).isFalse();
+  void smokePelletRequiresSneakingWithGunpowderInEitherHand() {
+    assertThat(StealthSmokePellet.gunpowderHand(true, Material.GUNPOWDER, Material.AIR))
+        .isEqualTo(EquipmentSlot.HAND);
+    assertThat(StealthSmokePellet.gunpowderHand(true, Material.AIR, Material.GUNPOWDER))
+        .isEqualTo(EquipmentSlot.OFF_HAND);
+    assertThat(StealthSmokePellet.gunpowderHand(true, Material.GUNPOWDER, Material.GUNPOWDER))
+        .isEqualTo(EquipmentSlot.HAND);
+    assertThat(StealthSmokePellet.gunpowderHand(true, Material.AIR, Material.AIR)).isNull();
+    assertThat(StealthSmokePellet.gunpowderHand(false, Material.GUNPOWDER, Material.AIR)).isNull();
     assertThat(StealthSmokePellet.isBlindable(mock(LivingEntity.class))).isTrue();
     assertThat(StealthSmokePellet.isBlindable(mock(Entity.class))).isFalse();
+    assertThat(StealthSmokePellet.currentConcealmentLease(7L, 7L)).isTrue();
+    assertThat(StealthSmokePellet.currentConcealmentLease(8L, 7L)).isFalse();
+    assertThat(StealthSmokePellet.currentConcealmentLease(null, 7L)).isFalse();
   }
 
   @Test
   void smokePelletRetainsTheCentralInteractionValidityGate() throws ReflectiveOperationException {
-    Method handler = StealthSmokePellet.class.getDeclaredMethod("on", PlayerInteractEvent.class);
+    Method handler = StealthSmokePellet.class.getDeclaredMethod("on", PlayerToggleSneakEvent.class);
 
     assertThat(handler.getAnnotation(EventHandler.class)).isNotNull();
+  }
+
+  @Test
+  void stealthVisionBlocksOnlyNewBlindnessWhileActive() {
+    assertThat(StealthSight.blocksBlindness(
+        true, true, EntityPotionEffectEvent.Action.ADDED)).isTrue();
+    assertThat(StealthSight.blocksBlindness(
+        true, true, EntityPotionEffectEvent.Action.CHANGED)).isTrue();
+    assertThat(StealthSight.blocksBlindness(
+        true, true, EntityPotionEffectEvent.Action.REMOVED)).isFalse();
+    assertThat(StealthSight.blocksBlindness(
+        false, true, EntityPotionEffectEvent.Action.ADDED)).isFalse();
+    assertThat(StealthSight.blocksBlindness(
+        true, false, EntityPotionEffectEvent.Action.ADDED)).isFalse();
   }
 
   @Test

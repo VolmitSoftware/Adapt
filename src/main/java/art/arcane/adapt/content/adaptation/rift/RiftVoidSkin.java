@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.rift;
 
+import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -37,6 +38,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
@@ -48,15 +50,17 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
-  private static final double HARD_MAX_TRIGGER_HEALTH = 12D;
   private static final double HARD_MAX_SEARCH_RADIUS = 16D;
   private static final int SAFE_SAMPLES = 32;
 
   private final Cooldowns cooldown = cooldowns();
+  private final Map<UUID, Boolean> pendingEscapes = playerState();
 
   public RiftVoidSkin() {
     super("rift-void-skin");
@@ -80,9 +84,14 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
 
   @Override
   public void addStats(int level, Element v) {
-    statLore(v, Form.f(getTriggerHealth(level) / 2D, 1), 1);
+    v.addLore(C.GREEN + "+ " + Localizer.dLocalize("rift.void_skin.lore1"));
     statLore(v, C.YELLOW, "* ", Form.duration(getCooldownMillis(level), 1), 2);
     v.addLore(C.RED + "* " + Localizer.dLocalize("rift.void_skin.lore3"));
+  }
+
+  @Override
+  protected boolean shouldCanonicalizeConfigOnLoad() {
+    return true;
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -91,17 +100,20 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
       return;
     }
 
+    if (!isLethalDamage(p.getHealth(), e.getFinalDamage())) {
+      return;
+    }
+
     int level = getActiveLevel(p);
     if (level <= 0) {
       return;
     }
 
-    double resulting = p.getHealth() - e.getFinalDamage();
-    if (resulting <= 0D || resulting >= getTriggerHealth(level)) {
+    UUID id = p.getUniqueId();
+    if (pendingEscapes.containsKey(id)) {
+      e.setCancelled(true);
       return;
     }
-
-    UUID id = p.getUniqueId();
     if (!cooldown.isReady(id, getCooldownMillis(level))) {
       return;
     }
@@ -115,46 +127,32 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
       return;
     }
 
-    if (!consumePlainPearl(p)) {
+    Location origin = p.getLocation().clone();
+    destination.setYaw(origin.getYaw());
+    destination.setPitch(origin.getPitch());
+    CompletableFuture<Boolean> teleport;
+    try {
+      teleport = p.teleportAsync(destination, PlayerTeleportEvent.TeleportCause.PLUGIN);
+    } catch (RuntimeException exception) {
+      exception.printStackTrace();
+      Adapt.error("Void Skin could not start an escape teleport for " + id + ".");
       return;
     }
 
-    cooldown.mark(id);
-    Location origin = p.getLocation().clone();
-    fx(origin, FxPriority.TRANSITION)
-        .dome(Particles.ENCHANTMENT_TABLE, 1.1, 16)
-        .particle(Particle.WITCH, 10, 0, 1.0, 0, 0.4, 0.02)
-        .chord(Sound.ENTITY_ENDERMAN_TELEPORT, 0.6f, 0.8f, Sound.BLOCK_AMETHYST_BLOCK_RESONATE, 0.5f, 1.2f);
+    if (!cancelLethalDamage(e, teleport != null)) {
+      return;
+    }
 
-    destination.setYaw(origin.getYaw());
-    destination.setPitch(origin.getPitch());
-    J.runEntity(p, () -> {
-      if (!p.isOnline()) {
-        return;
-      }
-      J.teleport(p, destination, PlayerTeleportEvent.TeleportCause.PLUGIN);
-      p.setFallDistance(0f);
-      p.addPotionEffect(new PotionEffect(PotionEffectTypes.DAMAGE_RESISTANCE,
-          getResistanceTicks(level), getResistanceAmplifier(), true, false, false));
-      fx(destination, FxPriority.TRANSITION)
-          .ring(Particles.END_ROD, 0.8, 12, 0.1)
-          .particle(Particle.REVERSE_PORTAL, 8, 0, 1.0, 0, 0.3, 0.04)
-          .chord(Sound.ENTITY_ENDERMAN_TELEPORT, 0.6f, 1.3f, Sound.ITEM_ARMOR_EQUIP_NETHERITE, 0.5f, 1.1f);
-    });
-
-    addStat(p, "rift.void-skin.escapes", 1);
-    addStat(p, "rift.teleports", 1);
-    xp(p, getConfig().xpOnEscape, "rift:void-skin:escape");
+    pendingEscapes.put(id, Boolean.TRUE);
+    VoidEscape operation = new VoidEscape(id, origin, level);
+    teleport.whenComplete((success, failure) -> finishEscape(p, operation, success, failure));
   }
 
   @EventHandler
   public void on(PlayerQuitEvent e) {
-    cooldown.clear(e.getPlayer().getUniqueId());
-  }
-
-  private double getTriggerHealth(int level) {
-    double value = getConfig().triggerHealthBase + (Math.max(0, level - 1) * getConfig().triggerHealthPerLevel);
-    return Math.max(1D, Math.min(HARD_MAX_TRIGGER_HEALTH, value));
+    UUID id = e.getPlayer().getUniqueId();
+    cooldown.clear(id);
+    pendingEscapes.remove(id);
   }
 
   private long getCooldownMillis(int level) {
@@ -170,6 +168,40 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
     return Math.max(0, Math.min(4, getConfig().resistanceAmplifier));
   }
 
+  private void finishEscape(Player p, VoidEscape operation, Boolean success, Throwable failure) {
+    if (failure != null) {
+      failure.printStackTrace();
+      Adapt.error("Void Skin escape teleport failed for " + operation.playerId() + ".");
+    }
+
+    if (!J.runEntity(p, () -> {
+      pendingEscapes.remove(operation.playerId());
+      if (failure != null || !Boolean.TRUE.equals(success) || !p.isOnline()) {
+        return;
+      }
+
+      consumePlainPearl(p);
+      cooldown.mark(operation.playerId());
+      p.setFallDistance(0f);
+      p.addPotionEffect(new PotionEffect(PotionEffectTypes.DAMAGE_RESISTANCE,
+          getResistanceTicks(operation.level()), getResistanceAmplifier(), true, false, false));
+      Location actualDestination = p.getLocation().clone();
+      fx(operation.origin(), FxPriority.TRANSITION)
+          .dome(Particles.ENCHANTMENT_TABLE, 1.1, 16)
+          .particle(Particle.WITCH, 10, 0, 1.0, 0, 0.4, 0.02)
+          .chord(Sound.ENTITY_ENDERMAN_TELEPORT, 0.6f, 0.8f, Sound.BLOCK_AMETHYST_BLOCK_RESONATE, 0.5f, 1.2f);
+      fx(actualDestination, FxPriority.TRANSITION)
+          .ring(Particles.END_ROD, 0.8, 12, 0.1)
+          .particle(Particle.REVERSE_PORTAL, 8, 0, 1.0, 0, 0.3, 0.04)
+          .chord(Sound.ENTITY_ENDERMAN_TELEPORT, 0.6f, 1.3f, Sound.ITEM_ARMOR_EQUIP_NETHERITE, 0.5f, 1.1f);
+      addStat(p, "rift.void-skin.escapes", 1);
+      addStat(p, "rift.teleports", 1);
+      xp(p, getConfig().xpOnEscape, "rift:void-skin:escape");
+    })) {
+      pendingEscapes.remove(operation.playerId());
+    }
+  }
+
   private Location findSafeSpot(Player p) {
     Location origin = p.getLocation();
     double maxRadius = Math.max(3D, Math.min(HARD_MAX_SEARCH_RADIUS, getConfig().searchRadius));
@@ -182,6 +214,9 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
       double dx = Math.cos(angle) * distance;
       double dz = Math.sin(angle) * distance;
       Location feet = origin.clone().add(dx, 0, dz);
+      if (!J.isOwnedByCurrentRegion(feet)) {
+        continue;
+      }
       Location resolved = resolveStandable(feet.getBlock(), 4);
       if (resolved == null) {
         continue;
@@ -192,7 +227,7 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
         best = resolved;
       }
     }
-    return best;
+    return best != null ? best : worldSpawnFallback(p.getWorld());
   }
 
   private Location resolveStandable(Block base, int vertical) {
@@ -250,12 +285,34 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
     return stack != null && stack.getType() == Material.ENDER_PEARL && !stack.hasItemMeta() && stack.getAmount() > 0;
   }
 
-  @ConfigDescription("Dropping below a few hearts blinks you to a nearby safe spot with brief resistance, spending an ender pearl.")
+  static boolean isLethalDamage(double health, double finalDamage) {
+    return Double.isFinite(health)
+        && Double.isFinite(finalDamage)
+        && health > 0D
+        && finalDamage >= health;
+  }
+
+  static boolean cancelLethalDamage(EntityDamageEvent event, boolean teleportScheduled) {
+    if (!teleportScheduled) {
+      return false;
+    }
+    event.setCancelled(true);
+    return true;
+  }
+
+  static Location worldSpawnFallback(World currentWorld) {
+    if (currentWorld == null) {
+      return null;
+    }
+    Location spawn = currentWorld.getSpawnLocation();
+    if (spawn == null || spawn.getWorld() != currentWorld) {
+      return null;
+    }
+    return spawn.clone();
+  }
+
+  @ConfigDescription("Any lethal damage blinks you to a nearby safe spot, or the current world's spawn when none exists, with brief resistance for one ender pearl.")
   protected static class Config extends AdaptationConfig {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Health in half-hearts of raw HP at level 1 below which the escape triggers.", impact = "Higher values trigger the escape while you still have more health.")
-    double triggerHealthBase = 6.0;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Extra trigger HP granted per adaptation level beyond the first.", impact = "Higher values make leveling trigger the escape at a safer health level.")
-    double triggerHealthPerLevel = 0.7;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Base cooldown in milliseconds between escapes.", impact = "Higher values force longer waits between escapes.")
     long cooldownBaseMillis = 120000;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Cooldown reduction in milliseconds per adaptation level beyond the first.", impact = "Higher values make leveling shorten the cooldown faster.")
@@ -281,5 +338,8 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
       maxLevel = 4;
       initialCost = 6;
     }
+  }
+
+  private record VoidEscape(UUID playerId, Location origin, int level) {
   }
 }

@@ -898,8 +898,8 @@ usage2 = "Shift + Lewy Przycisk Myszy aby przywiazac do bloku"
 
 [items.bound_redstone_torch]
 name = "Pilot Redstone"
-usage1 = "Prawy Przycisk Myszy aby wytworzyc impuls Redstone 1-Tick"
-usage2 = "Shift + Lewy Przycisk Myszy na bloku 'Cel' aby przywiazac"
+usage1 = "Prawy Przycisk Myszy aby wytworzyc impuls Redstone 4-Tick"
+usage2 = "Shift + Lewy Przycisk Myszy na wolnej stronie dowolnego bloku aby przywiazac"
 
 [items.bound_snowball]
 name = "Pajeczyna Pulapka!"
@@ -1131,7 +1131,7 @@ lore = ["Maksymalna Predkosc", "Czas Rozkrecania"]
 
 [architect.elevator]
 name = "Winda"
-description = "Pozwala zbudowac winde do szybkiego teleportowania sie w pionie!"
+description = "Buduj windy do szybkiej teleportacji w pionie. Kazdy Blok Windy wytworz z Perla Kresu na srodku, otoczona 8 blokami Welny."
 lore1 = "Odblokowuje przepis na winde: X=WELNA, Y=PERLA ENDERA"
 lore2 = "XXX"
 lore3 = "XYX"
@@ -1371,10 +1371,10 @@ lore = ["Po prostu wrzuc to (zgnile mieso) na ognisko!"]
 name = "Plecaki Boutiliera!"
 description = "Wprowadza do gry pakiet Mojang!"
 lore1 = "Musisz byc w trybie Przetrwania aby tego uzywac"
-lore2 = "XLX : Skora, Smycz, Skora"
-lore3 = "XSX : Skora, Skrzynka Barrelowa, Skora"
-lore4 = "XCX : Skora, Skrzynia, Skora"
-lore = ["Musisz byc w trybie Przetrwania aby tego uzywac", "XLX : Skora, Smycz, Skora", "XSX : Skora, Skrzynka Barrelowa, Skora", "XCX : Skora, Skrzynia, Skora"]
+lore2 = "LLL : Skora, Skora, Skora"
+lore3 = "LCL : Skora, Skrzynia, Skora"
+lore4 = "LLL : Skora, Skora, Skora"
+lore = ["Musisz byc w trybie Przetrwania aby tego uzywac", "LLL : Skora, Skora, Skora", "LCL : Skora, Skrzynia, Skora", "LLL : Skora, Skora, Skora"]
 
 [crafting.stations]
 name = "Przenosne Stoly!"
@@ -1793,11 +1793,10 @@ lore = ["Perla Endera + Kompas = Relikwiarzowy Switoklin", "Ten przedmiot pozwal
 
 [rift.blink]
 name = "Mrgniecie Szczeliny"
-description = "Natychmiastowa teleportacja krotkiego zasiegu, jedno mrgniecie!"
-lore1 = "Blokow na mrgniecie (2x w pionie)"
-lore2 = "Podczas Sprintowania: Podwojnie wcisnij Skok aby "
-lore3 = "Mrgnac"
-lore = ["Blokow na mrgniecie (2x w pionie)", "Podczas Sprintowania: Podwojnie wcisnij Skok aby ", "Mrgnac"]
+description = "Skocz dwukrotnie, aby mignąć w kierunku patrzenia. Udane mignięcie nie zużywa perły Endu, ale zadaje zwykłe obrażenia od perły, malejące z każdym poziomem."
+lore1 = "Zasięg mignięcia"
+lore2 = "Własne obrażenia (serca)"
+lore = ["Zasięg mignięcia", "Własne obrażenia (serca)"]
 
 [rift.chest]
 name = "Latwa Enderchest"

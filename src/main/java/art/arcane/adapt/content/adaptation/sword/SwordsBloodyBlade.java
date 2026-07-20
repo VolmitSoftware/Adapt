@@ -200,7 +200,7 @@ public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config
     }
 
     double before = target.getHealth() + target.getAbsorptionAmount();
-    target.damage(pulse.damage());
+    applyBleedDamage(pulse);
     double dealt = Math.max(0D, before - target.getHealth() - target.getAbsorptionAmount());
     if (dealt > 0D) {
       J.runEntity(pulse.source(), () -> addStat(pulse.source(), "swords.bloody-blade.bleed-damage", dealt));
@@ -215,10 +215,14 @@ public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config
     }
   }
 
+  static void applyBleedDamage(BleedPulse pulse) {
+    pulse.target().damage(pulse.damage(), pulse.source());
+  }
+
   private record BleedMark(UUID source, long expiresAt) {
   }
 
-  private record BleedPulse(LivingEntity target, Player source, double damage, int remaining) {
+  record BleedPulse(LivingEntity target, Player source, double damage, int remaining) {
   }
 
   private record BleedAuthorization(Location location, boolean playerTarget, boolean protectedFriendly,

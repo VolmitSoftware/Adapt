@@ -766,8 +766,8 @@ usage2 = "Shift + Clic izquierdo para vincular a un bloque"
 
 [items.bound_redstone_torch]
 name = "Control Remoto de Redstone"
-usage1 = "Clic derecho para crear un pulso de Redstone de 1 tick"
-usage2 = "Shift + Clic izquierdo en un bloque 'Objetivo' para vincular"
+usage1 = "Clic derecho para crear un pulso de Redstone de 4 ticks"
+usage2 = "Shift + Clic izquierdo en una cara libre de cualquier bloque para vincular"
 
 [items.bound_snowball]
 name = "¡Trampa de Telarana!"
@@ -999,7 +999,7 @@ lore = ["Velocidad maxima", "Tiempo de aceleracion"]
 
 [architect.elevator]
 name = "Ascensor"
-description = "¡Esto te permite construir un ascensor para teletransportarte verticalmente rapido!"
+description = "Construye ascensores para un teletransporte vertical rápido. Fabrica cada Bloque de Ascensor con una Perla de Ender en el centro, rodeada por 8 bloques de Lana."
 lore1 = "Desbloquea la receta del ascensor: X=LANA, Y=PERLA DE ENDER"
 lore2 = "XXX"
 lore3 = "XYX"
@@ -1239,10 +1239,10 @@ lore = ["¡Solo tirala (carne podrida) en la fogata!"]
 name = "¡Mochilas de Boutilier!"
 description = "¡Esto simplemente trae el Bundle de Mojang al juego!"
 lore1 = "Necesitas estar en Supervivencia para usar esto"
-lore2 = "XLX : Cuero, Rienda, Cuero"
-lore3 = "XSX : Cuero, Barril, Cuero"
-lore4 = "XCX : Cuero, Cofre, Cuero"
-lore = ["Necesitas estar en Supervivencia para usar esto", "XLX : Cuero, Rienda, Cuero", "XSX : Cuero, Barril, Cuero", "XCX : Cuero, Cofre, Cuero"]
+lore2 = "LLL : Cuero, Cuero, Cuero"
+lore3 = "LCL : Cuero, Cofre, Cuero"
+lore4 = "LLL : Cuero, Cuero, Cuero"
+lore = ["Necesitas estar en Supervivencia para usar esto", "LLL : Cuero, Cuero, Cuero", "LCL : Cuero, Cofre, Cuero", "LLL : Cuero, Cuero, Cuero"]
 
 [crafting.stations]
 name = "¡Mesas Portatiles!"
@@ -1661,11 +1661,10 @@ lore = ["Perla de Ender + Brujula = Traslador Relicario", "Este objeto te permit
 
 [rift.blink]
 name = "Parpadeo de Grieta"
-description = "¡Teletransportacion instantanea de corto alcance, a solo un parpadeo!"
-lore1 = "Bloques al parpadear (2x vertical)"
-lore2 = "Mientras esprinteas: Doble toque en saltar para "
-lore3 = "Parpadear"
-lore = ["Bloques al parpadear (2x vertical)", "Mientras esprinteas: Doble toque en saltar para ", "Parpadear"]
+description = "Haz un doble salto para parpadear hacia donde miras. Los parpadeos exitosos no consumen perlas, pero infligen el daño normal de una perla de ender, que disminuye con cada nivel."
+lore1 = "Alcance del parpadeo"
+lore2 = "Daño propio (corazones)"
+lore = ["Alcance del parpadeo", "Daño propio (corazones)"]
 
 [rift.chest]
 name = "Cofre de Ender Facil"

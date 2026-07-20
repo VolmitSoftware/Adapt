@@ -31,6 +31,8 @@ import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -42,7 +44,10 @@ import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -51,9 +56,13 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
   private static final long TICK_INTERVAL_MILLIS = 50L;
-  private static final long TRACKING_INTERVAL_NANOS = 5_000_000_000L;
+  private static final long TRACKING_INTERVAL_NANOS = 500_000_000L;
+  private static final long GLOW_LEASE_MILLIS = 1_500L;
   private static final int MAX_TRACKING_PLAYERS_PER_TICK = 16;
+  private static final int MAX_INVISIBLE_PLAYER_INSPECTIONS = 128;
+  private static final double MAX_SIGHT_RANGE = 160D;
 
+  private final Map<UUID, Map<UUID, SightGlow>> sightGlows = new ConcurrentHashMap<>();
   private final Map<UUID, Long> sneaking = playerState();
   private final Map<UUID, Boolean> appliedNightVision = playerState();
   private final Map<UUID, Boolean> nightVisionMutation = playerState();
@@ -62,9 +71,11 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
   private final ConcurrentLinkedQueue<UUID> trackingQueue = new ConcurrentLinkedQueue<>();
   private final Set<UUID> enqueuedTracking = ConcurrentHashMap.newKeySet();
   private final AtomicLong trackingSequence = new AtomicLong();
+  private final StealthGlowCoordinator glowCoordinator;
 
-  public StealthSight() {
+  public StealthSight(StealthGlowCoordinator glowCoordinator) {
     super("stealth-vision");
+    this.glowCoordinator = Objects.requireNonNull(glowCoordinator);
     registerConfiguration(Config.class);
     setLocalizationKey("stealth.night_vision");
     setIcon(Material.POTION);
@@ -85,7 +96,11 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GRAY + Localizer.dLocalize("stealth.night_vision.lore1") + C.GREEN + Localizer.dLocalize("stealth.night_vision.lore2") + C.GRAY + Localizer.dLocalize("stealth.night_vision.lore3"));
+    v.addLore(C.GRAY + Localizer.dLocalize("stealth.night_vision.lore1")
+        + C.GREEN + Localizer.dLocalize("stealth.night_vision.lore2")
+        + C.GRAY + Localizer.dLocalize("stealth.night_vision.lore3"));
+    v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("stealth.night_vision.lore4"));
+    v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("stealth.night_vision.lore5"));
   }
 
   @EventHandler
@@ -95,6 +110,7 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
       UUID id = p.getUniqueId();
       if (!hasActiveAdaptation(p)) {
         clearTrackingState(id);
+        clearSightGlowsOwned(p);
         if (clearNightVisionIfApplied(p, id)) {
           closeSightFx(p);
         }
@@ -106,6 +122,7 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
         sneaking.put(id, generation);
         lastTrackedAt.put(id, System.nanoTime());
         enqueueTracking(id, generation);
+        removeBlindnessOwned(p);
         applyNightVisionIfNeeded(p, id);
         openSightFx(p);
         return;
@@ -113,10 +130,24 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
 
       accrueSneakingTicks(p, id, System.nanoTime());
       clearTrackingState(id);
+      clearSightGlowsOwned(p);
       if (clearNightVisionIfApplied(p, id)) {
         closeSightFx(p);
       }
     });
+  }
+
+  @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+  public void onBlindness(EntityPotionEffectEvent e) {
+    if (!(e.getEntity() instanceof Player player)
+        || !blocksBlindness(
+        getActiveLevel(player) > 0 && player.isSneaking(),
+        e.getModifiedType() == PotionEffectType.BLINDNESS,
+        e.getAction()
+    )) {
+      return;
+    }
+    e.setCancelled(true);
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -136,12 +167,14 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
     Player player = e.getPlayer();
     UUID playerId = player.getUniqueId();
     Long generation = sneaking.get(playerId);
-    if (generation == null) {
-      return;
+    if (generation != null) {
+      accrueSneakingTicks(player, playerId, System.nanoTime());
+      clearTrackingState(playerId, generation);
     }
-    accrueSneakingTicks(player, playerId, System.nanoTime());
-    clearTrackingState(playerId, generation);
+    clearSightGlowsOwned(player);
+    clearTargetGlows(playerId);
     clearNightVisionIfApplied(player, playerId);
+    glowCoordinator.discardViewer(playerId);
   }
 
   private void openSightFx(Player p) {
@@ -187,6 +220,7 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
       if (player == null) {
         clearTrackingState(id, generation);
         appliedNightVision.remove(id);
+        sightGlows.remove(id);
         continue;
       }
       if (pendingTracking.putIfAbsent(id, generation) != null) {
@@ -212,12 +246,15 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
       }
       if (!player.isOnline() || getActiveLevel(player, Player::isSneaking) <= 0) {
         clearTrackingState(playerId, generation);
+        clearSightGlowsOwned(player);
         clearNightVisionIfApplied(player, playerId);
         return;
       }
 
       accrueSneakingTicks(player, playerId, System.nanoTime());
+      removeBlindnessOwned(player);
       refreshNightVisionIfApplied(player, playerId);
+      refreshInvisiblePlayerGlowsOwned(player, generation);
     } finally {
       pendingTracking.remove(playerId, generation);
       enqueueTracking(playerId, generation);
@@ -230,6 +267,12 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
     }
 
     return (now - previous) / 50_000_000D;
+  }
+
+  static boolean blocksBlindness(boolean active, boolean blindness, EntityPotionEffectEvent.Action action) {
+    return active
+        && blindness
+        && (action == EntityPotionEffectEvent.Action.ADDED || action == EntityPotionEffectEvent.Action.CHANGED);
   }
 
   private void accrueSneakingTicks(Player player, UUID playerId, long now) {
@@ -303,7 +346,12 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
   }
 
   private boolean clearNightVisionIfApplied(Player player, UUID id) {
-    if (appliedNightVision.remove(id) == null) {
+    boolean applied = appliedNightVision.remove(id) != null;
+    return clearManagedNightVisionOwned(player, id, applied);
+  }
+
+  private boolean clearManagedNightVisionOwned(Player player, UUID id, boolean applied) {
+    if (!applied) {
       return false;
     }
 
@@ -337,7 +385,203 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
     return effect.getAmplifier() == 0 && !effect.isAmbient() && !effect.hasParticles();
   }
 
-  @ConfigDescription("Gain night vision while sneaking.")
+  private void removeBlindnessOwned(Player player) {
+    if (player.hasPotionEffect(PotionEffectType.BLINDNESS)) {
+      player.removePotionEffect(PotionEffectType.BLINDNESS);
+    }
+  }
+
+  private void refreshInvisiblePlayerGlowsOwned(Player viewer, long generation) {
+    expireSightGlowsOwned(viewer, System.currentTimeMillis());
+    double range = Math.min(MAX_SIGHT_RANGE, Math.max(16D, viewer.getServer().getViewDistance() * 16D));
+    int inspections = 0;
+    for (Player target : viewer.getWorld().getNearbyPlayers(viewer.getLocation(), range)) {
+      if (inspections >= MAX_INVISIBLE_PLAYER_INSPECTIONS) {
+        break;
+      }
+      if (target == viewer) {
+        continue;
+      }
+      inspections++;
+      J.runEntity(target, () -> inspectInvisibleTargetOwned(viewer, target, generation, range));
+    }
+  }
+
+  private void inspectInvisibleTargetOwned(Player viewer, Player target, long generation, double range) {
+    boolean invisible = target.isOnline()
+        && target.isValid()
+        && (target.isInvisible() || target.hasPotionEffect(PotionEffectType.INVISIBILITY));
+    Location location = target.getLocation().clone();
+    int runtimeEntityId = target.getEntityId();
+    J.runEntity(viewer, () -> completeInvisibleTargetViewerOwned(
+        viewer,
+        target,
+        location,
+        runtimeEntityId,
+        invisible,
+        generation,
+        range
+    ));
+  }
+
+  private void completeInvisibleTargetViewerOwned(Player viewer, Player target, Location targetLocation,
+                                                  int runtimeEntityId, boolean invisible, long generation,
+                                                  double range) {
+    UUID targetId = target.getUniqueId();
+    if (!isCurrentSession(viewer.getUniqueId(), generation)
+        || !viewer.isOnline()
+        || getActiveLevel(viewer, Player::isSneaking) <= 0
+        || !invisible
+        || viewer.getWorld() != targetLocation.getWorld()
+        || viewer.getLocation().distanceSquared(targetLocation) > range * range
+        || !viewer.canSee(target)) {
+      clearSightGlowOwned(viewer, targetId);
+      return;
+    }
+    applySightGlowOwned(viewer, target, targetId, runtimeEntityId);
+  }
+
+  private void applySightGlowOwned(Player viewer, Player target, UUID targetId, int runtimeEntityId) {
+    Map<UUID, SightGlow> glows = sightGlows.computeIfAbsent(
+        viewer.getUniqueId(),
+        ignored -> new ConcurrentHashMap<>()
+    );
+    SightGlow current = glows.get(targetId);
+    long expiresAt = System.currentTimeMillis() + GLOW_LEASE_MILLIS;
+    if (current != null && current.entity() == target && current.runtimeEntityId() == runtimeEntityId) {
+      glows.put(targetId, new SightGlow(target, runtimeEntityId, expiresAt));
+      return;
+    }
+    if (current != null) {
+      glowCoordinator.unset(
+          StealthGlowCoordinator.Layer.SIGHT,
+          targetId,
+          current.runtimeEntityId(),
+          viewer
+      );
+    }
+    if (glowCoordinator.set(StealthGlowCoordinator.Layer.SIGHT, target, viewer, ChatColor.AQUA)) {
+      glows.put(targetId, new SightGlow(target, runtimeEntityId, expiresAt));
+    } else {
+      glows.remove(targetId);
+    }
+  }
+
+  private void expireSightGlowsOwned(Player viewer, long now) {
+    Map<UUID, SightGlow> glows = sightGlows.get(viewer.getUniqueId());
+    if (glows == null) {
+      return;
+    }
+    for (Map.Entry<UUID, SightGlow> entry : new ArrayList<>(glows.entrySet())) {
+      SightGlow glow = entry.getValue();
+      if (glow.expiresAt() <= now && glows.remove(entry.getKey(), glow)) {
+        glowCoordinator.unset(
+            StealthGlowCoordinator.Layer.SIGHT,
+            entry.getKey(),
+            glow.runtimeEntityId(),
+            viewer
+        );
+      }
+    }
+    if (glows.isEmpty()) {
+      sightGlows.remove(viewer.getUniqueId(), glows);
+    }
+  }
+
+  private void clearSightGlowOwned(Player viewer, UUID targetId) {
+    Map<UUID, SightGlow> glows = sightGlows.get(viewer.getUniqueId());
+    if (glows == null) {
+      return;
+    }
+    SightGlow removed = glows.remove(targetId);
+    if (removed != null) {
+      glowCoordinator.unset(
+          StealthGlowCoordinator.Layer.SIGHT,
+          targetId,
+          removed.runtimeEntityId(),
+          viewer
+      );
+    }
+    if (glows.isEmpty()) {
+      sightGlows.remove(viewer.getUniqueId(), glows);
+    }
+  }
+
+  private void clearSightGlowsOwned(Player viewer) {
+    Map<UUID, SightGlow> glows = sightGlows.remove(viewer.getUniqueId());
+    if (glows == null) {
+      return;
+    }
+    for (Map.Entry<UUID, SightGlow> entry : glows.entrySet()) {
+      glowCoordinator.unset(
+          StealthGlowCoordinator.Layer.SIGHT,
+          entry.getKey(),
+          entry.getValue().runtimeEntityId(),
+          viewer
+      );
+    }
+  }
+
+  private void clearTargetGlows(UUID targetId) {
+    for (Map.Entry<UUID, Map<UUID, SightGlow>> entry : sightGlows.entrySet()) {
+      SightGlow glow = entry.getValue().get(targetId);
+      if (glow == null) {
+        continue;
+      }
+      Player viewer = Bukkit.getPlayer(entry.getKey());
+      if (viewer == null) {
+        entry.getValue().remove(targetId, glow);
+        continue;
+      }
+      J.runEntity(viewer, () -> clearSightGlowOwned(viewer, targetId));
+    }
+  }
+
+  @Override
+  public void unregister() {
+    Set<UUID> viewerIds = new HashSet<>(sneaking.keySet());
+    viewerIds.addAll(sightGlows.keySet());
+    viewerIds.addAll(appliedNightVision.keySet());
+    for (UUID viewerId : viewerIds) {
+      Map<UUID, SightGlow> glows = sightGlows.remove(viewerId);
+      boolean applied = appliedNightVision.remove(viewerId) != null;
+      Player viewer = Bukkit.getPlayer(viewerId);
+      if (viewer != null) {
+        boolean scheduled = J.runEntity(viewer, () -> {
+          if (glows != null) {
+            for (Map.Entry<UUID, SightGlow> glowEntry : glows.entrySet()) {
+              glowCoordinator.unset(
+                  StealthGlowCoordinator.Layer.SIGHT,
+                  glowEntry.getKey(),
+                  glowEntry.getValue().runtimeEntityId(),
+                  viewer
+              );
+            }
+          }
+          clearManagedNightVisionOwned(viewer, viewerId, applied);
+          glowCoordinator.discardViewer(viewerId);
+        });
+        if (!scheduled) {
+          glowCoordinator.discardViewer(viewerId);
+        }
+      } else {
+        glowCoordinator.discardViewer(viewerId);
+      }
+    }
+    sneaking.clear();
+    appliedNightVision.clear();
+    nightVisionMutation.clear();
+    lastTrackedAt.clear();
+    pendingTracking.clear();
+    trackingQueue.clear();
+    enqueuedTracking.clear();
+    super.unregister();
+  }
+
+  private record SightGlow(Player entity, int runtimeEntityId, long expiresAt) {
+  }
+
+  @ConfigDescription("While sneaking, gain night vision, ignore blindness, and see invisible players outlined through Stealth Vision.")
   protected static class Config extends AdaptationConfig {
     public Config() {
       baseCost = 2;

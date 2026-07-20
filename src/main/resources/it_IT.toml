@@ -766,8 +766,8 @@ usage2 = "Shift + Clic sinistro per legare a un blocco"
 
 [items.bound_redstone_torch]
 name = "Telecomando di Redstone"
-usage1 = "Clic destro per creare un impulso di Redstone da 1 tick"
-usage2 = "Shift + Clic sinistro su un blocco 'Bersaglio' per legare"
+usage1 = "Clic destro per creare un impulso di Redstone da 4 tick"
+usage2 = "Shift + Clic sinistro su una faccia libera di qualsiasi blocco per legare"
 
 [items.bound_snowball]
 name = "Trappola di Ragnatele!"
@@ -999,7 +999,7 @@ lore = ["Velocita' massima", "Tempo di accelerazione"]
 
 [architect.elevator]
 name = "Ascensore"
-description = "Ti permette di costruire un ascensore per teletrasportarti verticalmente in fretta!"
+description = "Costruisci ascensori per teletrasportarti rapidamente in verticale. Crea ogni Blocco Ascensore con una Perla dell'End al centro, circondata da 8 blocchi di Lana."
 lore1 = "Sblocca la ricetta dell'ascensore: X=LANA, Y=PERLA DI ENDER"
 lore2 = "XXX"
 lore3 = "XYX"
@@ -1239,10 +1239,10 @@ lore = ["Basta gettarla (carne marcia) sul fuoco da campo!"]
 name = "Gli Zaini di un Boutilier!"
 description = "Questo porta il Fagotto di Mojang nel gioco!"
 lore1 = "Devi essere in Sopravvivenza per usarlo"
-lore2 = "XLX : Pelle, Guinzaglio, Pelle"
-lore3 = "XSX : Pelle, Barile, Pelle"
-lore4 = "XCX : Pelle, Baule, Pelle"
-lore = ["Devi essere in Sopravvivenza per usarlo", "XLX : Pelle, Guinzaglio, Pelle", "XSX : Pelle, Barile, Pelle", "XCX : Pelle, Baule, Pelle"]
+lore2 = "LLL : Pelle, Pelle, Pelle"
+lore3 = "LCL : Pelle, Baule, Pelle"
+lore4 = "LLL : Pelle, Pelle, Pelle"
+lore = ["Devi essere in Sopravvivenza per usarlo", "LLL : Pelle, Pelle, Pelle", "LCL : Pelle, Baule, Pelle", "LLL : Pelle, Pelle, Pelle"]
 
 [crafting.stations]
 name = "Tavoli Portatili!"
@@ -1661,11 +1661,10 @@ lore = ["Perla di Ender + Bussola = Portachiave del Reliquiario", "Questo oggett
 
 [rift.blink]
 name = "Lampo del Varco"
-description = "Teletrasporto istantaneo a corto raggio, a solo un battito di ciglia!"
-lore1 = "Blocchi per lampo (2x verticale)"
-lore2 = "Mentre scatti: Premi Salto due volte per "
-lore3 = "Lampeggiare"
-lore = ["Blocchi per lampo (2x verticale)", "Mentre scatti: Premi Salto due volte per ", "Lampeggiare"]
+description = "Salta due volte per lampeggiare nella direzione in cui guardi. I lampi riusciti non consumano perle, ma infliggono il normale danno da perla dell'End, ridotto a ogni livello."
+lore1 = "Portata del lampo"
+lore2 = "Danno personale (cuori)"
+lore = ["Portata del lampo", "Danno personale (cuori)"]
 
 [rift.chest]
 name = "Baule dell'End Facile"

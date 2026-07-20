@@ -30,6 +30,7 @@ import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.volmlib.util.inventorygui.Element;
+import io.papermc.paper.event.entity.EntityInsideBlockEvent;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -43,8 +44,11 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 
+import java.util.UUID;
+
 public class AgilityFeatherfoot extends SimpleAdaptation<AgilityFeatherfoot.Config> {
   private final Cooldowns fxThrottle = cooldowns();
+  private final Cooldowns berryContactThrottle = cooldowns();
 
   public AgilityFeatherfoot() {
     super("agility-featherfoot");
@@ -117,7 +121,7 @@ public class AgilityFeatherfoot extends SimpleAdaptation<AgilityFeatherfoot.Conf
         && level >= getConfig().berryBushMinLevel
         && touchingBerryBush(p)) {
       e.setCancelled(true);
-      recordProtection(p, p.getLocation().getBlock());
+      recordBerryProtection(p, p.getLocation().getBlock());
       return;
     }
 
@@ -126,6 +130,23 @@ public class AgilityFeatherfoot extends SimpleAdaptation<AgilityFeatherfoot.Conf
       p.setFreezeTicks(0);
       recordProtection(p, p.getLocation().getBlock());
     }
+  }
+
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+  public void on(EntityInsideBlockEvent e) {
+    if (!(e.getEntity() instanceof Player p)
+        || e.getBlock().getType() != Material.SWEET_BERRY_BUSH
+        || !p.isSprinting()) {
+      return;
+    }
+
+    int level = getActiveLevel(p);
+    if (!ignoresBerryBush(e.getBlock().getType(), p.isSprinting(), level, getConfig().berryBushMinLevel)) {
+      return;
+    }
+
+    e.setCancelled(true);
+    recordBerryProtection(p, e.getBlock());
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -149,6 +170,19 @@ public class AgilityFeatherfoot extends SimpleAdaptation<AgilityFeatherfoot.Conf
     Block feet = p.getLocation().getBlock();
     return feet.getType() == Material.SWEET_BERRY_BUSH
         || feet.getRelative(0, 1, 0).getType() == Material.SWEET_BERRY_BUSH;
+  }
+
+  static boolean ignoresBerryBush(Material type, boolean sprinting, int level, int minimumLevel) {
+    return type == Material.SWEET_BERRY_BUSH && sprinting && level >= minimumLevel;
+  }
+
+  private void recordBerryProtection(Player p, Block block) {
+    UUID playerId = p.getUniqueId();
+    if (!berryContactThrottle.isReady(playerId, 600L)) {
+      return;
+    }
+    berryContactThrottle.mark(playerId);
+    recordProtection(p, block);
   }
 
   private void recordProtection(Player p, Block block) {
@@ -186,7 +220,7 @@ public class AgilityFeatherfoot extends SimpleAdaptation<AgilityFeatherfoot.Conf
     int farmlandMinLevel = 1;
     @ConfigDoc(value = "Minimum level at which sprinting stops triggering pressure plates.", impact = "Lower values unlock plate immunity sooner.")
     int pressurePlateMinLevel = 2;
-    @ConfigDoc(value = "Minimum level at which sprinting ignores sweet-berry-bush damage.", impact = "Lower values unlock berry-bush immunity sooner.")
+    @ConfigDoc(value = "Minimum level at which sprinting ignores sweet-berry-bush slowdown and damage.", impact = "Lower values unlock berry-bush immunity sooner.")
     int berryBushMinLevel = 3;
     @ConfigDoc(value = "Minimum level at which sprinting shrugs off powder-snow freezing.", impact = "Lower values unlock powder-snow crossing sooner.")
     int powderSnowMinLevel = 4;

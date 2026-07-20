@@ -766,8 +766,8 @@ usage2 = "Shift + Linksklick, um an einen Block zu binden"
 
 [items.bound_redstone_torch]
 name = "Redstone-Fernsteuerung"
-usage1 = "Rechtsklick, um einen 1-Tick-Redstone-Impuls zu erzeugen"
-usage2 = "Shift + Linksklick auf einen 'Ziel'-Block zum Binden"
+usage1 = "Rechtsklick, um einen 4-Tick-Redstone-Impuls zu erzeugen"
+usage2 = "Shift + Linksklick auf eine freie Seite eines beliebigen Blocks zum Binden"
 
 [items.bound_snowball]
 name = "Netzfalle!"
@@ -999,7 +999,7 @@ lore = ["Maximale Geschwindigkeit", "Anlaufzeit"]
 
 [architect.elevator]
 name = "Aufzug"
-description = "Ermöglicht dir den Bau eines Aufzugs für schnelle vertikale Teleportation!"
+description = "Baue Aufzüge für schnelle vertikale Teleportation. Stelle jeden Aufzugblock mit einer Enderperle in der Mitte her, umgeben von 8 Blöcken Wolle."
 lore1 = "Schaltet Aufzugrezept frei: X=WOLLE, Y=ENDERPERLE"
 lore2 = "XXX"
 lore3 = "XYX"
@@ -1239,10 +1239,10 @@ lore = ["Wirf es (verrottetes Fleisch) einfach aufs Lagerfeuer!"]
 name = "Boutiliers Rucksäcke!"
 description = "Das bringt das Mojang-Bündel ins Spiel!"
 lore1 = "Du musst im Überlebensmodus sein, um dies zu nutzen"
-lore2 = "XLX : Leder, Leine, Leder"
-lore3 = "XSX : Leder, Fass, Leder"
-lore4 = "XCX : Leder, Truhe, Leder"
-lore = ["Du musst im Überlebensmodus sein, um dies zu nutzen", "XLX : Leder, Leine, Leder", "XSX : Leder, Fass, Leder", "XCX : Leder, Truhe, Leder"]
+lore2 = "LLL : Leder, Leder, Leder"
+lore3 = "LCL : Leder, Truhe, Leder"
+lore4 = "LLL : Leder, Leder, Leder"
+lore = ["Du musst im Überlebensmodus sein, um dies zu nutzen", "LLL : Leder, Leder, Leder", "LCL : Leder, Truhe, Leder", "LLL : Leder, Leder, Leder"]
 
 [crafting.stations]
 name = "Tragbare Tische!"
@@ -1661,11 +1661,10 @@ lore = ["Enderperle + Kompass = Reliquien-Portschlüssel", "Dieser Gegenstand er
 
 [rift.blink]
 name = "Riss-Blinzeln"
-description = "Kurze sofortige Teleportation, nur ein Wimpernschlag entfernt!"
-lore1 = "Blöcke beim Blinzeln (2x vertikal)"
-lore2 = "Beim Sprinten: Doppeltippe Springen, um zu "
-lore3 = "Blinzeln"
-lore = ["Blöcke beim Blinzeln (2x vertikal)", "Beim Sprinten: Doppeltippe Springen, um zu ", "Blinzeln"]
+description = "Springe doppelt, um in Blickrichtung zu blinzeln. Erfolgreiche Blinzler verbrauchen keine Enderperle, verursachen aber normalen Enderperlenschaden, der mit jeder Stufe sinkt."
+lore1 = "Blinzelreichweite"
+lore2 = "Selbstschaden (Herzen)"
+lore = ["Blinzelreichweite", "Selbstschaden (Herzen)"]
 
 [rift.chest]
 name = "Einfache Endertruhe"

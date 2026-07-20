@@ -19,47 +19,70 @@
 package art.arcane.adapt.content.adaptation.agility;
 
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
-import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
-import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.world.PlayerSkillLine;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
+import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
+import com.destroystokyo.paper.event.player.PlayerJumpEvent;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.Tag;
+import org.bukkit.World;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.util.Vector;
 
+import java.util.Map;
 import java.util.UUID;
+import java.util.function.Predicate;
 
 public class AgilityVault extends SimpleAdaptation<AgilityVault.Config> {
-  private final Cooldowns vaultCooldown = cooldowns();
+  private static final String SLOT_VAULT = "vault";
+  private static final int VAULT_LEVELS = 1;
+  private static final long RECONCILE_INTERVAL_MILLIS = 1000L;
+  private static final double MINIMUM_VAULT_HEIGHT = 1.65D;
+  private static final double MINIMUM_DIRECTION_SQUARED = 1.0E-6D;
+  private static final double FENCE_PROBE_START = 0.35D;
+  private static final double FENCE_PROBE_STEP = 0.20D;
+  private static final double FENCE_PROBE_LIMIT = 1.60D;
+
+  private final Map<UUID, Double> armedBonuses = playerState();
 
   public AgilityVault() {
     super("agility-vault");
     registerConfiguration(Config.class);
     setIcon(Material.OAK_FENCE);
+    setCostFactor(0D);
+    setMaxLevel(VAULT_LEVELS);
+    setInterval(RECONCILE_INTERVAL_MILLIS);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.OAK_FENCE)
         .key("challenge_agility_vault_250")
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .child(AdaptAdvancement.builder()
-            .icon(Material.MOSSY_COBBLESTONE_WALL)
+            .icon(Material.NETHER_BRICK_FENCE)
             .key("challenge_agility_vault_2500")
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -70,148 +93,262 @@ public class AgilityVault extends SimpleAdaptation<AgilityVault.Config> {
   }
 
   @Override
-  public void addStats(int level, Element v) {
-    statLore(v, Form.f(getMaxVaultHeight(level), 1), 1);
-    statLore(v, C.YELLOW, "* ", Form.f(getHungerCost(level), 1), 2);
+  protected void onConfigReload(Config previousConfig, Config newConfig) {
+    super.onConfigReload(previousConfig, newConfig);
+    newConfig.costFactor = 0D;
+    newConfig.maxLevel = VAULT_LEVELS;
+    setCostFactor(0D);
+    setMaxLevel(VAULT_LEVELS);
   }
 
-  @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+  @Override
+  public void addStats(int level, Element v) {
+    statLore(v, Form.f(vaultHeight(getConfig().jumpHeight), 2), 1);
+  }
+
+  @Override
+  public void onTick() {
+    for (AdaptPlayer adaptPlayer : learnedCandidates(System.currentTimeMillis())) {
+      Player player = adaptPlayer.getPlayer();
+      if (player == null) {
+        continue;
+      }
+      withPlayerThread(player, () -> reconcilePlayer(player, adaptPlayer));
+    }
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(PlayerMoveEvent e) {
-    if (e.getTo() == null || !e.getPlayer().isSprinting()) {
+    if (e.getTo() == null || e instanceof PlayerTeleportEvent) {
       return;
     }
 
     Player p = e.getPlayer();
-    if (!isVaultEligible(p)) {
-      return;
-    }
-
-    Vector move = e.getTo().toVector().subtract(e.getFrom().toVector());
-    move.setY(0);
-    if (move.lengthSquared() < getConfig().minMoveSquared) {
-      return;
-    }
-
-    withPlayerThread(p, e, () -> attemptVault(p, move));
+    Location target = e.getTo().clone();
+    Vector movement = target.toVector().subtract(e.getFrom().toVector());
+    Vector direction = horizontalDirection(movement, target.getDirection());
+    withPlayerThread(p, e, () -> refreshPreArm(p, target, direction));
   }
 
-  private void attemptVault(Player p, Vector move) {
-    if (!p.isOnGround()) {
-      return;
-    }
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(PlayerJumpEvent e) {
+    Player p = e.getPlayer();
+    Location origin = e.getFrom();
+    Vector movement = e.getTo().toVector().subtract(origin.toVector());
+    Vector direction = horizontalDirection(movement, origin.getDirection());
+    withPlayerThread(p, e, () -> attemptVault(p, origin, direction));
+  }
 
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(PlayerTeleportEvent e) {
+    withPlayerThread(e.getPlayer(), e, () -> clearArmedState(e.getPlayer()));
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(PlayerGameModeChangeEvent e) {
+    clearArmedState(e.getPlayer());
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(PlayerDeathEvent e) {
+    clearArmedState(e.getEntity());
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(PlayerQuitEvent e) {
+    clearArmedState(e.getPlayer());
+  }
+
+  static Vector horizontalDirection(Vector movement, Vector facing) {
+    Vector direction = movement == null ? new Vector() : movement.clone().setY(0D);
+    if (!isFinite(direction) || direction.lengthSquared() < MINIMUM_DIRECTION_SQUARED) {
+      direction = facing == null ? new Vector() : facing.clone().setY(0D);
+    }
+    if (!isFinite(direction) || direction.lengthSquared() < MINIMUM_DIRECTION_SQUARED) {
+      return new Vector();
+    }
+    return direction.normalize();
+  }
+
+  static double vaultHeight(double configuredHeight) {
+    if (!Double.isFinite(configuredHeight)) {
+      return MINIMUM_VAULT_HEIGHT;
+    }
+    return Math.max(MINIMUM_VAULT_HEIGHT, configuredHeight);
+  }
+
+  static boolean shouldPreArm(int level, boolean eligible, boolean grounded, boolean fenceAhead) {
+    return level > 0 && eligible && grounded && fenceAhead;
+  }
+
+  static double correctedVerticalVelocity(double existingVelocity, double risenHeight, double targetHeight) {
+    double safeExisting = Double.isFinite(existingVelocity) ? existingVelocity : 0D;
+    double safeRise = Double.isFinite(risenHeight) ? Math.max(0D, risenHeight) : 0D;
+    double remainingHeight = Math.max(0D, vaultHeight(targetHeight) - safeRise);
+    return Math.max(safeExisting, AgilityJumpPhysics.strengthForHeight(remainingHeight));
+  }
+
+  static Vector correctedVelocity(Vector existingVelocity, double risenHeight, double targetHeight) {
+    Vector corrected = existingVelocity == null ? new Vector() : existingVelocity.clone();
+    corrected.setY(correctedVerticalVelocity(corrected.getY(), risenHeight, targetHeight));
+    return corrected;
+  }
+
+  static void synchronizeCorrectedVelocity(Player player, Vector existingVelocity, double risenHeight, double targetHeight) {
+    player.setVelocity(correctedVelocity(existingVelocity, risenHeight, targetHeight));
+  }
+
+  boolean normalizeStoredLevel(PlayerSkillLine line) {
+    if (line == null || line.getAdaptationLevel(getName()) <= VAULT_LEVELS) {
+      return false;
+    }
+    line.setAdaptation(this, VAULT_LEVELS);
+    return true;
+  }
+
+  private void refreshPreArm(Player p, Location origin, Vector direction) {
+    normalizeStoredLevel(p);
     int level = getActiveLevel(p);
-    if (level <= 0) {
+    boolean eligible = isVaultEligible(p);
+    Block fence = direction.lengthSquared() < MINIMUM_DIRECTION_SQUARED ? null : findFence(origin, direction);
+    if (Attributes.JUMP_STRENGTH == null || !shouldPreArm(level, eligible, p.isOnGround(), fence != null)) {
+      disarm(p);
+      return;
+    }
+    arm(p);
+  }
+
+  private void attemptVault(Player p, Location origin, Vector direction) {
+    normalizeStoredLevel(p);
+    if (getActiveLevel(p) <= 0 || !isVaultEligible(p) || Attributes.JUMP_STRENGTH == null) {
+      disarm(p);
       return;
     }
 
-    UUID id = p.getUniqueId();
-    if (!vaultCooldown.isReady(id, Math.max(0L, getConfig().cooldownMillis))) {
+    Block fence = findFence(origin, direction);
+    if (fence == null) {
+      disarm(p);
       return;
     }
 
-    Vector direction = move.clone().normalize();
-    Location feet = p.getLocation();
-    Block frontLower = feet.clone().add(direction).getBlock();
-    Block frontUpper = frontLower.getRelative(BlockFace.UP);
-    Block frontHead = frontUpper.getRelative(BlockFace.UP);
-
-    if (!frontLower.getType().isSolid() || frontUpper.getType().isSolid() || frontHead.getType().isSolid()) {
-      return;
+    arm(p);
+    double originY = origin.getY();
+    if (!J.runEntity(p, () -> finishVaultJump(p, origin.getWorld(), originY), 1)) {
+      disarm(p);
     }
 
-    double effectiveHeight = isTallObstacle(frontLower) ? 1.5D : 1.0D;
-    if (effectiveHeight > getMaxVaultHeight(level)) {
-      return;
-    }
-
-    if (p.getFoodLevel() <= 0) {
-      return;
-    }
-
-    vaultCooldown.mark(id);
-    applyHungerCost(p, getHungerCost(level));
-
-    double up = effectiveHeight >= 1.5D ? getConfig().vaultUpTall : getConfig().vaultUpShort;
-    double carry = getConfig().vaultForwardCarry;
-    p.setVelocity(new Vector(direction.getX() * carry, up, direction.getZ() * carry));
-
-    fx(feet.clone().add(0, 0.2D, 0), FxPriority.GAMEPLAY)
-        .particle(Particles.BLOCK_CRACK, 5, 0, 0.1D, 0, 0.25D, 0.05D, frontLower.getBlockData())
+    fx(origin.clone().add(0D, 0.2D, 0D), FxPriority.GAMEPLAY)
+        .particle(Particles.BLOCK_CRACK, 5, 0D, 0.1D, 0D, 0.25D, 0.05D, fence.getBlockData())
         .chord(Sound.ITEM_ARMOR_EQUIP_LEATHER, 0.7F, 1.2F, Sound.ENTITY_PHANTOM_FLAP, 0.4F, 1.5F);
 
     addStat(p, "agility.vault.vaults", 1);
     xp(p, getConfig().xpPerVault);
   }
 
-  private boolean isTallObstacle(Block block) {
-    Material type = block.getType();
-    return Tag.FENCES.isTagged(type) || Tag.FENCE_GATES.isTagged(type) || Tag.WALLS.isTagged(type);
-  }
-
-  private void applyHungerCost(Player p, double cost) {
-    double saturation = p.getSaturation();
-    if (saturation >= cost) {
-      p.setSaturation((float) (saturation - cost));
+  private void arm(Player p) {
+    double bonus = AgilityJumpPhysics.bonusForHeight(vaultHeight(getConfig().jumpHeight));
+    Double armedBonus = armedBonuses.get(p.getUniqueId());
+    if (armedBonus != null && Double.compare(armedBonus, bonus) == 0) {
       return;
     }
 
-    p.setSaturation(0F);
-    int foodCost = (int) Math.ceil(cost - saturation);
-    p.setFoodLevel(Math.max(0, p.getFoodLevel() - foodCost));
+    AdaptAttributeService.get().apply(p, getName(), SLOT_VAULT, Attributes.JUMP_STRENGTH,
+        bonus, AttributeModifier.Operation.ADD_NUMBER);
+    armedBonuses.put(p.getUniqueId(), bonus);
   }
 
-  private boolean isVaultEligible(Player p) {
+  private void disarm(Player p) {
+    if (armedBonuses.remove(p.getUniqueId()) == null) {
+      return;
+    }
+    AdaptAttributeService.get().remove(p, getName(), SLOT_VAULT, Attributes.JUMP_STRENGTH);
+  }
+
+  private void clearArmedState(Player p) {
+    armedBonuses.remove(p.getUniqueId());
+    AdaptAttributeService.get().remove(p, getName(), SLOT_VAULT, Attributes.JUMP_STRENGTH);
+  }
+
+  private void finishVaultJump(Player p, World originWorld, double originY) {
+    disarm(p);
+    if (!isRuntimeRegistered() || !p.isOnline() || !p.isValid() || p.isDead() || p.isOnGround()
+        || p.getWorld() != originWorld || getActiveLevel(p) <= 0 || !isVaultEligible(p)) {
+      return;
+    }
+
+    synchronizeCorrectedVelocity(p, p.getVelocity(), p.getLocation().getY() - originY, getConfig().jumpHeight);
+  }
+
+  private void reconcilePlayer(Player p, AdaptPlayer adaptPlayer) {
+    PlayerSkillLine line = adaptPlayer.getData().getSkillLineNullable(getSkill().getName());
+    if (normalizeStoredLevel(line)) {
+      clearArmedState(p);
+    }
+    Location origin = p.getLocation();
+    refreshPreArm(p, origin, horizontalDirection(null, origin.getDirection()));
+  }
+
+  private void normalizeStoredLevel(Player p) {
+    AdaptPlayer adaptPlayer = getPlayer(p);
+    PlayerSkillLine line = adaptPlayer.getData().getSkillLineNullable(getSkill().getName());
+    if (normalizeStoredLevel(line)) {
+      clearArmedState(p);
+    }
+  }
+
+  static Block findFence(Location origin, Vector direction) {
+    return findFence(origin, direction, Tag.FENCES::isTagged);
+  }
+
+  static Block findFence(Location origin, Vector direction, Predicate<Material> fencePredicate) {
+    Location probe = origin.clone();
+    for (double distance = FENCE_PROBE_START; distance <= FENCE_PROBE_LIMIT; distance += FENCE_PROBE_STEP) {
+      probe.setX(origin.getX() + (direction.getX() * distance));
+      probe.setY(origin.getY());
+      probe.setZ(origin.getZ() + (direction.getZ() * distance));
+      Block block = probe.getBlock();
+      if (fencePredicate.test(block.getType())) {
+        return block;
+      }
+      if (!block.isPassable()) {
+        return null;
+      }
+    }
+    return null;
+  }
+
+  private static boolean isVaultEligible(Player p) {
     GameMode mode = p.getGameMode();
     if (mode != GameMode.SURVIVAL && mode != GameMode.ADVENTURE) {
       return false;
     }
 
-    return !p.isSwimming()
+    return p.isOnline()
+        && !p.isDead()
+        && !p.isSwimming()
         && !p.isFlying()
         && !p.isGliding()
         && !p.isClimbing()
         && p.getVehicle() == null;
   }
 
-  private double getMaxVaultHeight(int level) {
-    return getConfig().maxVaultHeightBase + (getLevelPercent(level) * getConfig().maxVaultHeightFactor);
+  private static boolean isFinite(Vector vector) {
+    return Double.isFinite(vector.getX())
+        && Double.isFinite(vector.getY())
+        && Double.isFinite(vector.getZ());
   }
 
-  private double getHungerCost(int level) {
-    return Math.max(getConfig().hungerCostFloor,
-        getConfig().hungerCostBase - (getLevelPercent(level) * getConfig().hungerCostReduction));
-  }
-
-  @ConfigDescription("Sprint straight over fences, walls, and low ledges instead of stalling against them.")
+  @ConfigDescription("Jump toward a fence to clear it.")
   protected static class Config extends AdaptationConfig {
-    @ConfigDoc(value = "Base maximum obstacle height in blocks that can be vaulted before level scaling.", impact = "Higher values vault taller obstacles even at low level.")
-    double maxVaultHeightBase = 1.0;
-    @ConfigDoc(value = "Additional vaultable obstacle height in blocks granted at max level.", impact = "Higher values let leveling clear fences and walls.")
-    double maxVaultHeightFactor = 0.7;
-    @ConfigDoc(value = "Upward velocity used when vaulting a short 1-block obstacle.", impact = "Higher values hop higher over low ledges.")
-    double vaultUpShort = 0.42;
-    @ConfigDoc(value = "Upward velocity used when vaulting a tall fence or wall.", impact = "Higher values clear taller collision boxes reliably.")
-    double vaultUpTall = 0.56;
-    @ConfigDoc(value = "Forward velocity carried through a vault.", impact = "Higher values keep more momentum over the obstacle.")
-    double vaultForwardCarry = 0.32;
-    @ConfigDoc(value = "Base saturation/hunger cost per vault before level scaling.", impact = "Higher values make vaulting drain stamina faster.")
-    double hungerCostBase = 1.6;
-    @ConfigDoc(value = "Saturation/hunger cost reduction applied at max level.", impact = "Higher values make leveling cheapen vaulting more.")
-    double hungerCostReduction = 1.2;
-    @ConfigDoc(value = "Minimum saturation/hunger cost per vault after reductions.", impact = "Higher values keep a hard floor under vault cost.")
-    double hungerCostFloor = 0.3;
-    @ConfigDoc(value = "Cooldown between vaults in milliseconds.", impact = "Higher values prevent rapid repeated vaulting against a wall.")
-    long cooldownMillis = 550;
-    @ConfigDoc(value = "Minimum squared horizontal move per tick required to trigger a vault.", impact = "Higher values require clearer forward motion before vaulting.")
-    double minMoveSquared = 0.0025;
+    @ConfigDoc(value = "Jump apex in blocks when clearing a fence.", impact = "Higher values clear fences with more vertical margin.")
+    double jumpHeight = 1.75D;
     @ConfigDoc(value = "Experience granted per successful vault.", impact = "Higher values reward vaulting with more skill xp.")
-    double xpPerVault = 3;
+    double xpPerVault = 3D;
 
     public Config() {
       baseCost = 3;
-      costFactor = 0.5;
-      maxLevel = 4;
+      costFactor = 0D;
+      maxLevel = VAULT_LEVELS;
       initialCost = 4;
     }
   }

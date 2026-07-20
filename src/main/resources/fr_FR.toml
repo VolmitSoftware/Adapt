@@ -766,8 +766,8 @@ usage2 = "Maj + Clic gauche pour lier a un bloc"
 
 [items.bound_redstone_torch]
 name = "Telecommande Redstone"
-usage1 = "Clic droit pour creer une impulsion Redstone d'1 tick"
-usage2 = "Maj + Clic gauche sur un bloc 'Cible' pour lier"
+usage1 = "Clic droit pour creer une impulsion Redstone de 4 ticks"
+usage2 = "Maj + Clic gauche sur une face libre de n'importe quel bloc pour lier"
 
 [items.bound_snowball]
 name = "Piege de toile !"
@@ -999,7 +999,7 @@ lore = ["Vitesse maximale", "Temps de montee en puissance"]
 
 [architect.elevator]
 name = "Ascenseur"
-description = "Cela vous permet de construire un ascenseur pour vous teleporter verticalement rapidement !"
+description = "Construisez des ascenseurs pour vous téléporter rapidement à la verticale. Fabriquez chaque Bloc Ascenseur avec une perle de l'End au centre, entourée de 8 blocs de laine."
 lore1 = "Debloque la recette d'ascenseur : X=LAINE, Y=PERLE DE L'ENDER"
 lore2 = "XXX"
 lore3 = "XYX"
@@ -1239,10 +1239,10 @@ lore = ["Jetez-la (la chair putrefiee) sur le feu de camp !"]
 name = "Sacs a dos du Boutilier !"
 description = "Cela ajoute simplement le Baluchon de Mojang au jeu !"
 lore1 = "Vous devez etre en mode Survie pour l'utiliser"
-lore2 = "XLX : Cuir, Laisse, Cuir"
-lore3 = "XSX : Cuir, Tonneau, Cuir"
-lore4 = "XCX : Cuir, Coffre, Cuir"
-lore = ["Vous devez etre en mode Survie pour l'utiliser", "XLX : Cuir, Laisse, Cuir", "XSX : Cuir, Tonneau, Cuir", "XCX : Cuir, Coffre, Cuir"]
+lore2 = "LLL : Cuir, Cuir, Cuir"
+lore3 = "LCL : Cuir, Coffre, Cuir"
+lore4 = "LLL : Cuir, Cuir, Cuir"
+lore = ["Vous devez etre en mode Survie pour l'utiliser", "LLL : Cuir, Cuir, Cuir", "LCL : Cuir, Coffre, Cuir", "LLL : Cuir, Cuir, Cuir"]
 
 [crafting.stations]
 name = "Tables portables !"
@@ -1661,11 +1661,10 @@ lore = ["Perle de l'Ender + Boussole = Portoloin reliquaire", "Cet objet vous pe
 
 [rift.blink]
 name = "Eclair de Faille"
-description = "Teleportation instantanee a courte portee, en un clin d'oeil !"
-lore1 = "Blocs par eclair (2x vertical)"
-lore2 = "En sprintant : Appuyez deux fois sur Saut pour "
-lore3 = "Eclairs"
-lore = ["Blocs par eclair (2x vertical)", "En sprintant : Appuyez deux fois sur Saut pour ", "Eclairs"]
+description = "Faites un double saut pour vous téléporter dans la direction regardée. Un saut réussi ne consomme aucune perle, mais inflige les dégâts normaux d'une perle de l'End, réduits à chaque niveau."
+lore1 = "Portée du saut"
+lore2 = "Dégâts personnels (cœurs)"
+lore = ["Portée du saut", "Dégâts personnels (cœurs)"]
 
 [rift.chest]
 name = "Coffre de l'Ender facile"

@@ -39,12 +39,15 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
+import org.bukkit.entity.Warden;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.RayTraceResult;
@@ -55,14 +58,19 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class StealthSmokePellet extends SimpleAdaptation<StealthSmokePellet.Config> {
   private static final int PULSE_INTERVAL_TICKS = 10;
   private static final int BLIND_TICKS = PULSE_INTERVAL_TICKS + 30;
+  private static final int INVISIBILITY_TICKS = PULSE_INTERVAL_TICKS + 30;
   private static final int MAX_TARGET_HANDOFFS_PER_TICK = 24;
+  private static final double AGGRO_CLEAR_RADIUS = 64D;
 
   private final Cooldowns cooldowns = cooldowns();
+  private final ConcurrentHashMap<UUID, Long> concealmentLeases = new ConcurrentHashMap<>();
   private final AtomicBoolean closed = new AtomicBoolean();
+  private final AtomicLong concealmentSequence = new AtomicLong();
 
   public StealthSmokePellet() {
     super("stealth-smoke-pellet");
@@ -96,19 +104,18 @@ public class StealthSmokePellet extends SimpleAdaptation<StealthSmokePellet.Conf
     return Double.isFinite(configured) ? Math.max(2D, Math.min(64D, configured)) : 24D;
   }
 
-  static boolean isActivation(Action action, EquipmentSlot hand, boolean sneaking, Material held) {
-    if (hand != EquipmentSlot.HAND || !sneaking || held == null) {
-      return false;
+  static EquipmentSlot gunpowderHand(boolean enteringSneak, Material mainHand, Material offHand) {
+    if (!enteringSneak) {
+      return null;
     }
-    if ((action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK)
-        && (isAir(held) || held == Material.GUNPOWDER)) {
-      return true;
+    if (mainHand == Material.GUNPOWDER) {
+      return EquipmentSlot.HAND;
     }
-    return action == Action.LEFT_CLICK_AIR && isAir(held);
+    return offHand == Material.GUNPOWDER ? EquipmentSlot.OFF_HAND : null;
   }
 
-  private static boolean isAir(Material material) {
-    return material == Material.AIR || material == Material.CAVE_AIR || material == Material.VOID_AIR;
+  static boolean currentConcealmentLease(Long currentLease, long expectedLease) {
+    return currentLease != null && currentLease == expectedLease;
   }
 
   static boolean isBlindable(Entity entity) {
@@ -121,11 +128,16 @@ public class StealthSmokePellet extends SimpleAdaptation<StealthSmokePellet.Conf
     statLore(v, Form.duration(getPulses(level) * PULSE_INTERVAL_TICKS * 50D, 1), 2);
   }
 
-  @EventHandler
-  public void on(PlayerInteractEvent e) {
+  @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+  public void on(PlayerToggleSneakEvent e) {
     Player p = e.getPlayer();
-    Material held = p.getInventory().getItemInMainHand().getType();
-    if (!isActivation(e.getAction(), e.getHand(), p.isSneaking(), held)) {
+    PlayerInventory inventory = p.getInventory();
+    EquipmentSlot hand = gunpowderHand(
+        e.isSneaking(),
+        inventory.getItemInMainHand().getType(),
+        inventory.getItemInOffHand().getType()
+    );
+    if (hand == null) {
       return;
     }
 
@@ -138,28 +150,36 @@ public class StealthSmokePellet extends SimpleAdaptation<StealthSmokePellet.Conf
       return;
     }
 
-    if (!p.getInventory().containsAtLeast(new ItemStack(Material.GUNPOWDER), 1)) {
-      fx(p.getEyeLocation(), FxPriority.TRANSITION)
-          .burst(Particles.SMOKE, 2, 0.12D)
-          .sound(Sound.BLOCK_NOTE_BLOCK_HAT, 0.4F, 0.6F);
-      return;
-    }
-
-    consumeGunpowder(p);
+    consumeGunpowder(inventory, hand);
     cooldowns.mark(p.getUniqueId());
-    e.setCancelled(true);
-    e.setUseInteractedBlock(Event.Result.DENY);
-    e.setUseItemInHand(Event.Result.DENY);
     throwRay(p, level);
   }
 
-  private void consumeGunpowder(Player player) {
-    ItemStack held = player.getInventory().getItemInMainHand();
-    if (held.getType() == Material.GUNPOWDER) {
-      held.setAmount(held.getAmount() - 1);
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+  public void on(EntityTargetLivingEntityEvent e) {
+    if (!(e.getTarget() instanceof Player player) || !isConcealed(player)) {
       return;
     }
-    player.getInventory().removeItem(new ItemStack(Material.GUNPOWDER, 1));
+    e.setCancelled(true);
+    if (e.getEntity() instanceof Mob mob) {
+      clearAggroOwned(mob, player);
+    }
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(PlayerQuitEvent e) {
+    concealmentLeases.remove(e.getPlayer().getUniqueId());
+  }
+
+  boolean isConcealed(Player player) {
+    return concealmentLeases.containsKey(player.getUniqueId());
+  }
+
+  private void consumeGunpowder(PlayerInventory inventory, EquipmentSlot hand) {
+    ItemStack held = hand == EquipmentSlot.OFF_HAND
+        ? inventory.getItemInOffHand()
+        : inventory.getItemInMainHand();
+    held.setAmount(held.getAmount() - 1);
   }
 
   private void throwRay(Player p, int level) {
@@ -210,11 +230,16 @@ public class StealthSmokePellet extends SimpleAdaptation<StealthSmokePellet.Conf
     }
 
     for (LivingEntity target : center.getWorld().getNearbyLivingEntities(center, cloud.radius, cloud.radius, cloud.radius)) {
-      UUID targetId = target.getUniqueId();
-      if (!cloud.pendingIds.add(targetId)) {
-        continue;
+      if (target instanceof Player player) {
+        renewConcealment(player);
       }
-      cloud.pending.add(target);
+      enqueueTarget(cloud, target, true);
+    }
+    double aggroRadius = Math.max(cloud.radius, AGGRO_CLEAR_RADIUS);
+    for (LivingEntity target : center.getWorld().getNearbyLivingEntities(center, aggroRadius, aggroRadius, aggroRadius)) {
+      if (target instanceof Mob) {
+        enqueueTarget(cloud, target, false);
+      }
     }
     startTargetDispatch(cloud);
 
@@ -222,6 +247,14 @@ public class StealthSmokePellet extends SimpleAdaptation<StealthSmokePellet.Conf
     if (cloud.pulsesLeft > 0) {
       J.runAt(center, () -> cloudPulse(cloud), PULSE_INTERVAL_TICKS);
     }
+  }
+
+  private void enqueueTarget(CloudState cloud, LivingEntity target, boolean cloudOccupant) {
+    UUID targetId = target.getUniqueId();
+    if (!cloud.pendingIds.add(targetId)) {
+      return;
+    }
+    cloud.pending.add(new TargetWork(target, cloudOccupant));
   }
 
   private void startTargetDispatch(CloudState cloud) {
@@ -239,13 +272,14 @@ public class StealthSmokePellet extends SimpleAdaptation<StealthSmokePellet.Conf
     }
 
     for (int index = 0; index < MAX_TARGET_HANDOFFS_PER_TICK; index++) {
-      LivingEntity target = cloud.pending.poll();
-      if (target == null) {
+      TargetWork work = cloud.pending.poll();
+      if (work == null) {
         finishTargetDispatch(cloud);
         return;
       }
+      LivingEntity target = work.target();
       cloud.pendingIds.remove(target.getUniqueId());
-      J.runEntity(target, () -> blindTargetOwned(cloud, target));
+      J.runEntity(target, () -> processTargetOwned(cloud, work));
     }
     if (!cloud.pending.isEmpty()) {
       J.runAt(cloud.center, () -> dispatchTargets(cloud), 1);
@@ -261,23 +295,78 @@ public class StealthSmokePellet extends SimpleAdaptation<StealthSmokePellet.Conf
     }
   }
 
-  private void blindTargetOwned(CloudState cloud, LivingEntity target) {
+  private void processTargetOwned(CloudState cloud, TargetWork work) {
+    LivingEntity target = work.target();
     if (closed.get() || !target.isValid() || target.isDead() || target.getWorld() != cloud.center.getWorld()) {
       return;
     }
-    Location targetLocation = target.getLocation();
-    if (targetLocation.distanceSquared(cloud.center) > cloud.radius * cloud.radius) {
+    if (work.cloudOccupant()) {
+      Location targetLocation = target.getLocation();
+      if (targetLocation.distanceSquared(cloud.center) > cloud.radius * cloud.radius) {
+        return;
+      }
+      target.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, BLIND_TICKS, 0, false, false, false), true);
+      if (target instanceof Player player) {
+        renewConcealment(player);
+        applyInvisibilityOwned(player);
+      }
+    }
+    if (target instanceof Mob mob) {
+      LivingEntity currentTarget = mob.getTarget();
+      if (work.cloudOccupant()) {
+        clearAggroOwned(mob, currentTarget);
+      } else if (currentTarget instanceof Player player && isConcealed(player)) {
+        clearAggroOwned(mob, player);
+      } else if (mob instanceof Warden warden
+          && warden.getEntityAngryAt() instanceof Player player
+          && isConcealed(player)) {
+        clearAggroOwned(mob, player);
+      }
+    }
+  }
+
+  private void renewConcealment(Player player) {
+    UUID playerId = player.getUniqueId();
+    long lease = concealmentSequence.incrementAndGet();
+    concealmentLeases.put(playerId, lease);
+    boolean scheduled = J.runEntity(player, () -> {
+      Long currentLease = concealmentLeases.get(playerId);
+      if (currentConcealmentLease(currentLease, lease)) {
+        concealmentLeases.remove(playerId, currentLease);
+      }
+    }, INVISIBILITY_TICKS);
+    if (!scheduled) {
+      concealmentLeases.remove(playerId, lease);
+    }
+  }
+
+  private void applyInvisibilityOwned(Player player) {
+    PotionEffect current = player.getPotionEffect(PotionEffectType.INVISIBILITY);
+    if (current != null && current.getDuration() > INVISIBILITY_TICKS + 5) {
       return;
     }
-    target.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, BLIND_TICKS, 0, false, false, false), true);
-    if (target instanceof Mob mob) {
-      mob.setTarget(null);
+    player.addPotionEffect(new PotionEffect(
+        PotionEffectType.INVISIBILITY,
+        INVISIBILITY_TICKS,
+        0,
+        false,
+        false,
+        false
+    ), true);
+  }
+
+  private void clearAggroOwned(Mob mob, LivingEntity currentTarget) {
+    mob.setTarget(null);
+    mob.setAggressive(false);
+    if (mob instanceof Warden warden && currentTarget != null) {
+      warden.clearAnger(currentTarget);
     }
   }
 
   @Override
   public void unregister() {
     closed.set(true);
+    concealmentLeases.clear();
     super.unregister();
   }
 
@@ -292,7 +381,7 @@ public class StealthSmokePellet extends SimpleAdaptation<StealthSmokePellet.Conf
   private static final class CloudState {
     private final Location center;
     private final double radius;
-    private final ConcurrentLinkedQueue<LivingEntity> pending = new ConcurrentLinkedQueue<>();
+    private final ConcurrentLinkedQueue<TargetWork> pending = new ConcurrentLinkedQueue<>();
     private final Set<UUID> pendingIds = ConcurrentHashMap.newKeySet();
     private final AtomicBoolean dispatching = new AtomicBoolean();
     private int pulsesLeft;
@@ -304,7 +393,10 @@ public class StealthSmokePellet extends SimpleAdaptation<StealthSmokePellet.Conf
     }
   }
 
-  @ConfigDescription("Sneak and cast a smoke ray with an empty hand or gunpowder to blind every living entity in its cloud; costs one gunpowder.")
+  private record TargetWork(LivingEntity target, boolean cloudOccupant) {
+  }
+
+  @ConfigDescription("Sneak while holding gunpowder in either hand to cast a smoke cloud that conceals players, blinds living entities, and clears mob aggression.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Base cloud radius of the smoke pellet.", impact = "Higher values blind living entities across a wider area.")
     double radiusBase = 2.5;

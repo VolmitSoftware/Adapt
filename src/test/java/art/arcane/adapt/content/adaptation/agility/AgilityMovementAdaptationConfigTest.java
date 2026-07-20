@@ -66,21 +66,12 @@ class AgilityMovementAdaptationConfigTest {
   }
 
   @Test
-  void vaultDefaultsRaiseHeightAndCheapenCostWithLevels() {
+  void vaultIsASingleLevelFenceJumpWithoutScalingOrHungerConfiguration() {
     AgilityVault.Config c = new AgilityVault.Config();
-    assertThat(c.maxVaultHeightBase).isGreaterThanOrEqualTo(1D);
-    assertThat(c.maxVaultHeightFactor).isGreaterThan(0D);
-    assertThat(c.vaultUpTall).isGreaterThan(c.vaultUpShort);
-    assertThat(c.hungerCostFloor).isLessThan(c.hungerCostBase);
-    assertThat(c.hungerCostReduction).isGreaterThan(0D);
-
-    double heightL1 = scaled(c.maxVaultHeightBase, c.maxVaultHeightFactor, 1, c.maxLevel);
-    double heightMax = scaled(c.maxVaultHeightBase, c.maxVaultHeightFactor, c.maxLevel, c.maxLevel);
-    assertThat(heightMax).isGreaterThan(heightL1);
-
-    double costL1 = Math.max(c.hungerCostFloor, c.hungerCostBase - scaled(0, c.hungerCostReduction, 1, c.maxLevel));
-    double costMax = Math.max(c.hungerCostFloor, c.hungerCostBase - scaled(0, c.hungerCostReduction, c.maxLevel, c.maxLevel));
-    assertThat(costMax).isLessThanOrEqualTo(costL1);
+    assertThat(c.maxLevel).isEqualTo(1);
+    assertThat(c.costFactor).isZero();
+    assertThat(c.jumpHeight).isGreaterThan(1.5D);
+    assertThat(c.xpPerVault).isGreaterThanOrEqualTo(0D);
   }
 
   @Test

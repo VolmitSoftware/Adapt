@@ -20,11 +20,15 @@ package art.arcane.adapt.api.fx;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.util.common.scheduling.J;
+import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.Color;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.Display;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Transformation;
 import org.bukkit.util.Vector;
@@ -33,18 +37,38 @@ import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Queue;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Predicate;
 
 public final class ViewerDisplayDirector {
   private static final int MAX_ACTIVE_DISPLAYS = 4_096;
   private static final int MAX_DISPLAYS_PER_VIEWER = 128;
+  private static final int MAX_ORPHAN_CHUNKS_PER_TICK = 32;
+  private static final int MAX_ORPHAN_PURGE_ATTEMPTS = 3;
+  private static final String DISPLAY_TAG = "adapt_viewer_display";
   private static final Object LOCK = new Object();
   private static final Map<DisplayKey, DisplayLease> LEASES = new HashMap<>();
   private static final Map<UUID, Integer> VIEWER_COUNTS = new HashMap<>();
   private static final Map<String, Long> CHANNEL_GENERATIONS = new HashMap<>();
+  private static final Map<UUID, Long> VIEWER_GENERATIONS = new HashMap<>();
+  private static final Map<ViewerChannelKey, Long> VIEWER_CHANNEL_GENERATIONS = new HashMap<>();
+  private static final Map<ViewerKey, Long> VIEWER_KEY_GENERATIONS = new HashMap<>();
+  private static final Map<UUID, Integer> PENDING_REQUESTS = new HashMap<>();
+  private static final Set<UUID> RETIRING_VIEWERS = new HashSet<>();
+  private static final Queue<ChunkAddress> ORPHAN_PURGE_QUEUE = new ConcurrentLinkedQueue<>();
+  private static final AtomicBoolean ORPHAN_PURGE_SCHEDULED = new AtomicBoolean();
+  private static final AtomicInteger ORPHAN_PURGE_FAILURES = new AtomicInteger();
   private static int pendingReservations;
   private static long globalGeneration;
 
@@ -53,18 +77,33 @@ public final class ViewerDisplayDirector {
 
   public static boolean showBlock(String channel, String key, Player viewer, Location location,
                                   BlockData blockData, Color glowColor, int durationTicks) {
-    GenerationStamp generation = currentGeneration(channel);
+    return showBlockRequest(channel, key, viewer, location, blockData, glowColor, clampDuration(durationTicks));
+  }
+
+  public static boolean showPersistentBlock(String channel, String key, Player viewer, Location location,
+                                            BlockData blockData, Color glowColor) {
+    return showBlockRequest(channel, key, viewer, location, blockData, glowColor, 0);
+  }
+
+  private static boolean showBlockRequest(String channel, String key, Player viewer, Location location,
+                                          BlockData blockData, Color glowColor, int durationTicks) {
+    DisplayKey displayKey = displayKey(channel, key, viewer, location);
+    Location ownedLocation = location.clone();
+    BlockData ownedBlockData = blockData.clone();
+    Transformation transformation = blockTransformation();
+    ReservedGeneration reserved = reserveGeneration(channel, key, viewer.getUniqueId());
     DisplayRequest request = new DisplayRequest(
-        displayKey(channel, key, viewer, location),
+        displayKey,
         viewer,
-        location.clone(),
-        blockData.clone(),
+        ownedLocation,
+        ownedBlockData,
         glowColor,
-        blockTransformation(),
-        clampDuration(durationTicks),
-        generation
+        transformation,
+        durationTicks,
+        reserved.generation(),
+        reserved.ticket()
     );
-    return J.runAt(request.location(), () -> spawnOrRenewOwned(request));
+    return scheduleRequest(request);
   }
 
   public static boolean showLine(String channel, String key, Player viewer, Location start, Location end,
@@ -78,50 +117,131 @@ public final class ViewerDisplayDirector {
       return false;
     }
 
-    double safeThickness = Math.max(0.015D, Math.min(0.5D, thickness));
-    GenerationStamp generation = currentGeneration(channel);
+    double safeThickness = sanitizeLineThickness(thickness);
+    DisplayKey displayKey = displayKey(channel, key, viewer, start);
+    Location ownedLocation = start.clone();
+    BlockData ownedBlockData = blockData.clone();
+    Transformation transformation = lineTransformation(delta, safeThickness);
+    ReservedGeneration reserved = reserveGeneration(channel, key, viewer.getUniqueId());
     DisplayRequest request = new DisplayRequest(
-        displayKey(channel, key, viewer, start),
+        displayKey,
         viewer,
-        start.clone(),
-        blockData.clone(),
+        ownedLocation,
+        ownedBlockData,
         glowColor,
-        lineTransformation(delta, safeThickness),
+        transformation,
         clampDuration(durationTicks),
-        generation
+        reserved.generation(),
+        reserved.ticket()
     );
-    return J.runAt(request.location(), () -> spawnOrRenewOwned(request));
+    return scheduleRequest(request);
   }
 
   public static void clearChannel(String channel) {
     if (channel == null) {
       return;
     }
-    synchronized (LOCK) {
+    clearMatching(key -> channel.equals(key.channel()), () -> {
       CHANNEL_GENERATIONS.merge(channel, 1L, Long::sum);
-    }
-    clearMatching(key -> channel.equals(key.channel()));
+      VIEWER_CHANNEL_GENERATIONS.keySet().removeIf(key -> channel.equals(key.channel()));
+      VIEWER_KEY_GENERATIONS.keySet().removeIf(key -> channel.equals(key.channel()));
+    });
   }
 
   public static void clearViewer(String channel, UUID viewerId) {
     if (channel == null || viewerId == null) {
       return;
     }
-    clearMatching(key -> channel.equals(key.channel()) && viewerId.equals(key.viewerId()));
+    clearMatching(key -> channel.equals(key.channel()) && viewerId.equals(key.viewerId()), () -> {
+      VIEWER_CHANNEL_GENERATIONS.merge(new ViewerChannelKey(channel, viewerId), 1L, Long::sum);
+      VIEWER_KEY_GENERATIONS.keySet().removeIf(
+          key -> channel.equals(key.channel()) && viewerId.equals(key.viewerId()));
+    });
+  }
+
+  public static void clearViewerKey(String channel, String key, UUID viewerId) {
+    if (channel == null || key == null || viewerId == null) {
+      return;
+    }
+    clearMatching(displayKey -> channel.equals(displayKey.channel())
+        && key.equals(displayKey.key())
+        && viewerId.equals(displayKey.viewerId()),
+        () -> VIEWER_KEY_GENERATIONS.merge(new ViewerKey(channel, key, viewerId), 1L, Long::sum));
+  }
+
+  public static boolean isShowing(String channel, String key, UUID viewerId, Location location) {
+    if (channel == null || key == null || viewerId == null || location == null || location.getWorld() == null) {
+      return false;
+    }
+    DisplayKey displayKey = new DisplayKey(
+        channel,
+        key,
+        viewerId,
+        location.getWorld().getUID(),
+        location.getBlockX(),
+        location.getBlockY(),
+        location.getBlockZ()
+    );
+    synchronized (LOCK) {
+      DisplayLease lease = LEASES.get(displayKey);
+      if (lease == null) {
+        return false;
+      }
+      if (lease.display().isValid()) {
+        return true;
+      }
+      removeLeaseLocked(displayKey, lease);
+      return false;
+    }
   }
 
   public static void clearViewer(UUID viewerId) {
     if (viewerId == null) {
       return;
     }
-    clearMatching(key -> viewerId.equals(key.viewerId()));
+    clearMatching(key -> viewerId.equals(key.viewerId()), () -> {
+      VIEWER_GENERATIONS.merge(viewerId, 1L, Long::sum);
+      VIEWER_CHANNEL_GENERATIONS.keySet().removeIf(key -> viewerId.equals(key.viewerId()));
+      VIEWER_KEY_GENERATIONS.keySet().removeIf(key -> viewerId.equals(key.viewerId()));
+    });
+  }
+
+  public static void retireViewer(UUID viewerId) {
+    if (viewerId == null) {
+      return;
+    }
+    clearMatching(key -> viewerId.equals(key.viewerId()), () -> {
+      RETIRING_VIEWERS.add(viewerId);
+      VIEWER_GENERATIONS.merge(viewerId, 1L, Long::sum);
+      VIEWER_CHANNEL_GENERATIONS.keySet().removeIf(key -> viewerId.equals(key.viewerId()));
+      VIEWER_KEY_GENERATIONS.keySet().removeIf(key -> viewerId.equals(key.viewerId()));
+      if (!PENDING_REQUESTS.containsKey(viewerId)) {
+        clearViewerGenerationsLocked(viewerId);
+      }
+    });
   }
 
   public static void clearAll() {
-    synchronized (LOCK) {
+    clearMatching(key -> true, () -> {
       globalGeneration++;
+      CHANNEL_GENERATIONS.clear();
+      VIEWER_GENERATIONS.clear();
+      VIEWER_CHANNEL_GENERATIONS.clear();
+      VIEWER_KEY_GENERATIONS.clear();
+      PENDING_REQUESTS.clear();
+      RETIRING_VIEWERS.clear();
+    });
+  }
+
+  public static void purgeOrphans() {
+    ORPHAN_PURGE_QUEUE.clear();
+    ORPHAN_PURGE_FAILURES.set(0);
+    for (World world : Bukkit.getWorlds()) {
+      for (Chunk chunk : world.getLoadedChunks()) {
+        ORPHAN_PURGE_QUEUE.add(new ChunkAddress(world, chunk.getX(), chunk.getZ(), 0));
+      }
     }
-    clearMatching(key -> true);
+    scheduleOrphanPurge();
   }
 
   static boolean isRenderableLine(Vector delta) {
@@ -130,6 +250,12 @@ public final class ViewerDisplayDirector {
         && Double.isFinite(delta.getY())
         && Double.isFinite(delta.getZ())
         && delta.lengthSquared() > 1.0E-8D;
+  }
+
+  static double sanitizeLineThickness(double thickness) {
+    return Double.isFinite(thickness)
+        ? Math.max(0.015D, Math.min(0.5D, thickness))
+        : 0.05D;
   }
 
   static Transformation lineTransformation(Vector delta, double thickness) {
@@ -230,6 +356,26 @@ public final class ViewerDisplayDirector {
     scheduleExpiry(request.key(), lease);
   }
 
+  private static boolean scheduleRequest(DisplayRequest request) {
+    boolean scheduled;
+    try {
+      scheduled = J.runAt(request.location(), () -> {
+        try {
+          spawnOrRenewOwned(request);
+        } finally {
+          finishRequest(request.ticket());
+        }
+      });
+    } catch (RuntimeException | Error error) {
+      finishRequest(request.ticket());
+      throw error;
+    }
+    if (!scheduled) {
+      finishRequest(request.ticket());
+    }
+    return scheduled;
+  }
+
   private static void configure(BlockDisplay display, DisplayRequest request) {
     display.setPersistent(false);
     display.setInvulnerable(true);
@@ -244,6 +390,7 @@ public final class ViewerDisplayDirector {
     display.setGlowColorOverride(request.glowColor());
     display.setGlowing(true);
     display.setTransformation(request.transformation());
+    display.addScoreboardTag(DISPLAY_TAG);
   }
 
   private static void updateOwned(BlockDisplay display, DisplayRequest request) {
@@ -266,9 +413,15 @@ public final class ViewerDisplayDirector {
   }
 
   private static void scheduleExpiry(DisplayKey key, DisplayLease lease) {
-    long generation = lease.generation();
     int delayTicks = lease.durationTicks();
-    if (!J.runEntity(lease.display(), () -> expireOwned(key, lease, generation), delayTicks)) {
+    if (delayTicks <= 0) {
+      return;
+    }
+    scheduleExpiry(key, lease, lease.generation(), delayTicks);
+  }
+
+  private static void scheduleExpiry(DisplayKey key, DisplayLease lease, long generation, int delayTicks) {
+    if (!J.runAt(lease.anchor(), () -> expireOwned(key, lease, generation), delayTicks)) {
       remove(key, lease);
     }
   }
@@ -278,15 +431,21 @@ public final class ViewerDisplayDirector {
       removeDisplayOwned(lease.display());
       return;
     }
-    if (lease.generation() != generation || System.currentTimeMillis() < lease.expiresAt()) {
+    if (lease.generation() != generation) {
+      return;
+    }
+    int remainingTicks = remainingExpiryTicks(lease.expiresAt(), System.currentTimeMillis());
+    if (remainingTicks > 0) {
+      scheduleExpiry(key, lease, generation, remainingTicks);
       return;
     }
     remove(key, lease);
   }
 
-  private static void clearMatching(java.util.function.Predicate<DisplayKey> predicate) {
+  private static void clearMatching(Predicate<DisplayKey> predicate, Runnable invalidation) {
     List<Map.Entry<DisplayKey, DisplayLease>> removed = new ArrayList<>();
     synchronized (LOCK) {
+      invalidation.run();
       for (Map.Entry<DisplayKey, DisplayLease> entry : LEASES.entrySet()) {
         if (predicate.test(entry.getKey())) {
           removed.add(Map.entry(entry.getKey(), entry.getValue()));
@@ -315,6 +474,12 @@ public final class ViewerDisplayDirector {
   }
 
   private static void removeDisplay(DisplayLease lease) {
+    if (!Adapt.instance.isEnabled()) {
+      if (!J.isFoliaThreading() || J.isOwnedByCurrentRegion(lease.display())) {
+        removeDisplayOwned(lease.display());
+      }
+      return;
+    }
     if (!J.runEntity(lease.display(), () -> removeDisplayOwned(lease.display()))) {
       J.runAt(lease.anchor(), () -> removeDisplayOwned(lease.display()));
     }
@@ -394,16 +559,138 @@ public final class ViewerDisplayDirector {
     return Math.max(1, Math.min(20 * 60, durationTicks));
   }
 
-  private static GenerationStamp currentGeneration(String channel) {
-    synchronized (LOCK) {
-      return new GenerationStamp(globalGeneration, CHANNEL_GENERATIONS.getOrDefault(channel, 0L));
+  static int remainingExpiryTicks(long expiresAtMillis, long nowMillis) {
+    long remainingMillis = expiresAtMillis - nowMillis;
+    if (remainingMillis <= 0L) {
+      return 0;
     }
+    return (int) Math.min(Integer.MAX_VALUE, (long) Math.ceil(remainingMillis / 50D));
+  }
+
+  private static ReservedGeneration reserveGeneration(String channel, String key, UUID viewerId) {
+    synchronized (LOCK) {
+      PENDING_REQUESTS.merge(viewerId, 1, Integer::sum);
+      GenerationStamp generation = new GenerationStamp(
+          globalGeneration,
+          CHANNEL_GENERATIONS.getOrDefault(channel, 0L),
+          VIEWER_GENERATIONS.getOrDefault(viewerId, 0L),
+          VIEWER_CHANNEL_GENERATIONS.getOrDefault(new ViewerChannelKey(channel, viewerId), 0L),
+          VIEWER_KEY_GENERATIONS.getOrDefault(new ViewerKey(channel, key, viewerId), 0L)
+      );
+      return new ReservedGeneration(generation, new RequestTicket(viewerId));
+    }
+  }
+
+  private static void finishRequest(RequestTicket ticket) {
+    if (!ticket.finished().compareAndSet(false, true)) {
+      return;
+    }
+    synchronized (LOCK) {
+      UUID viewerId = ticket.viewerId();
+      int remaining = PENDING_REQUESTS.getOrDefault(viewerId, 0) - 1;
+      if (remaining > 0) {
+        PENDING_REQUESTS.put(viewerId, remaining);
+        return;
+      }
+      PENDING_REQUESTS.remove(viewerId);
+      if (RETIRING_VIEWERS.contains(viewerId)) {
+        clearViewerGenerationsLocked(viewerId);
+      }
+    }
+  }
+
+  private static void clearViewerGenerationsLocked(UUID viewerId) {
+    VIEWER_GENERATIONS.remove(viewerId);
+    VIEWER_CHANNEL_GENERATIONS.keySet().removeIf(key -> viewerId.equals(key.viewerId()));
+    VIEWER_KEY_GENERATIONS.keySet().removeIf(key -> viewerId.equals(key.viewerId()));
+    RETIRING_VIEWERS.remove(viewerId);
   }
 
   private static boolean isGenerationCurrentLocked(DisplayRequest request) {
     GenerationStamp generation = request.generation();
     return generation.global() == globalGeneration
-        && generation.channel() == CHANNEL_GENERATIONS.getOrDefault(request.key().channel(), 0L);
+        && generation.channel() == CHANNEL_GENERATIONS.getOrDefault(request.key().channel(), 0L)
+        && generation.viewer() == VIEWER_GENERATIONS.getOrDefault(request.key().viewerId(), 0L)
+        && generation.viewerChannel() == VIEWER_CHANNEL_GENERATIONS.getOrDefault(
+            new ViewerChannelKey(request.key().channel(), request.key().viewerId()), 0L)
+        && generation.viewerKey() == VIEWER_KEY_GENERATIONS.getOrDefault(
+            new ViewerKey(request.key().channel(), request.key().key(), request.key().viewerId()), 0L);
+  }
+
+  private static void scheduleOrphanPurge() {
+    ChunkAddress address = ORPHAN_PURGE_QUEUE.peek();
+    if (address == null || !ORPHAN_PURGE_SCHEDULED.compareAndSet(false, true)) {
+      return;
+    }
+
+    Location anchor = new Location(address.world(), (address.chunkX() << 4) + 8,
+        address.world().getMinHeight(), (address.chunkZ() << 4) + 8);
+    if (J.runAt(anchor, ViewerDisplayDirector::drainOrphanPurge, 1)) {
+      ORPHAN_PURGE_FAILURES.set(0);
+      return;
+    }
+
+    ORPHAN_PURGE_SCHEDULED.set(false);
+    if (ORPHAN_PURGE_FAILURES.incrementAndGet() >= MAX_ORPHAN_PURGE_ATTEMPTS) {
+      ORPHAN_PURGE_QUEUE.clear();
+      new IllegalStateException("Failed to schedule cleanup of stale Adapt private displays.").printStackTrace();
+      return;
+    }
+    CompletableFuture.delayedExecutor(50L, TimeUnit.MILLISECONDS).execute(() -> {
+      if (Adapt.instance.isEnabled()) {
+        scheduleOrphanPurge();
+      }
+    });
+  }
+
+  private static void drainOrphanPurge() {
+    int dispatched = 0;
+    ChunkAddress address;
+    while (dispatched < MAX_ORPHAN_CHUNKS_PER_TICK && (address = ORPHAN_PURGE_QUEUE.poll()) != null) {
+      ChunkAddress current = address;
+      Location anchor = new Location(current.world(), (current.chunkX() << 4) + 8,
+          current.world().getMinHeight(), (current.chunkZ() << 4) + 8);
+      if (!J.runAt(anchor, () -> purgeOrphansOwned(current))) {
+        if (current.attempts() + 1 < MAX_ORPHAN_PURGE_ATTEMPTS) {
+          ORPHAN_PURGE_QUEUE.add(current.retry());
+        } else {
+          IllegalStateException failure = new IllegalStateException(
+              "Failed to clean stale Adapt private displays in chunk "
+                  + current.world().getName() + "[" + current.chunkX() + "," + current.chunkZ() + "]");
+          failure.printStackTrace();
+        }
+      }
+      dispatched++;
+    }
+
+    ORPHAN_PURGE_SCHEDULED.set(false);
+    scheduleOrphanPurge();
+  }
+
+  private static void purgeOrphansOwned(ChunkAddress address) {
+    World world = address.world();
+    if (!world.isChunkLoaded(address.chunkX(), address.chunkZ())) {
+      return;
+    }
+    Chunk chunk = world.getChunkAt(address.chunkX(), address.chunkZ());
+    for (Entity entity : chunk.getEntities()) {
+      if (entity instanceof BlockDisplay display
+          && display.getScoreboardTags().contains(DISPLAY_TAG)
+          && !isLeased(display)) {
+        removeDisplayOwned(display);
+      }
+    }
+  }
+
+  private static boolean isLeased(BlockDisplay display) {
+    synchronized (LOCK) {
+      for (DisplayLease lease : LEASES.values()) {
+        if (lease.display().getUniqueId().equals(display.getUniqueId())) {
+          return true;
+        }
+      }
+      return false;
+    }
   }
 
   private record DisplayKey(String channel, String key, UUID viewerId, UUID worldId,
@@ -412,10 +699,31 @@ public final class ViewerDisplayDirector {
 
   private record DisplayRequest(DisplayKey key, Player viewer, Location location, BlockData blockData,
                                 Color glowColor, Transformation transformation, int durationTicks,
-                                GenerationStamp generation) {
+                                GenerationStamp generation, RequestTicket ticket) {
   }
 
-  private record GenerationStamp(long global, long channel) {
+  private record ReservedGeneration(GenerationStamp generation, RequestTicket ticket) {
+  }
+
+  private record GenerationStamp(long global, long channel, long viewer, long viewerChannel, long viewerKey) {
+  }
+
+  private record ViewerChannelKey(String channel, UUID viewerId) {
+  }
+
+  private record ViewerKey(String channel, String key, UUID viewerId) {
+  }
+
+  private record RequestTicket(UUID viewerId, AtomicBoolean finished) {
+    private RequestTicket(UUID viewerId) {
+      this(viewerId, new AtomicBoolean());
+    }
+  }
+
+  private record ChunkAddress(World world, int chunkX, int chunkZ, int attempts) {
+    private ChunkAddress retry() {
+      return new ChunkAddress(world, chunkX, chunkZ, attempts + 1);
+    }
   }
 
   private static final class DisplayLease {
@@ -453,7 +761,9 @@ public final class ViewerDisplayDirector {
 
     private void renew(int durationTicks) {
       this.durationTicks = durationTicks;
-      this.expiresAt = System.currentTimeMillis() + (durationTicks * 50L);
+      this.expiresAt = durationTicks <= 0
+          ? Long.MAX_VALUE
+          : System.currentTimeMillis() + (durationTicks * 50L);
       generation++;
     }
   }

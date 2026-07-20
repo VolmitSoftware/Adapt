@@ -6,6 +6,7 @@ import art.arcane.volmlib.util.io.IO;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
@@ -20,6 +21,14 @@ import java.util.zip.ZipOutputStream;
 public final class ConfigMigrationManager {
   private static final Object LOCK = new Object();
   private static final DateTimeFormatter TS = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
+  private static final List<String> RETIRED_ADAPTATION_CONFIGS = List.of(
+      "axe-orchardist",
+      "axe-sap-tap",
+      "axe-timber-mark",
+      "excavation-dowsing",
+      "rift-step"
+  );
+  private static final List<String> CONFIG_EXTENSIONS = List.of(".toml", ".json");
   private static volatile boolean backupAttempted = false;
 
   private ConfigMigrationManager() {
@@ -97,6 +106,36 @@ public final class ConfigMigrationManager {
 
       return deleted;
     }
+  }
+
+  public static int deleteRetiredAdaptationConfigs() {
+    synchronized (LOCK) {
+      File dataFolder = Adapt.instance == null ? null : Adapt.instance.getDataFolder();
+      return deleteRetiredAdaptationConfigs(dataFolder);
+    }
+  }
+
+  static int deleteRetiredAdaptationConfigs(File dataFolder) {
+    if (dataFolder == null || !dataFolder.exists()) {
+      return 0;
+    }
+
+    File adaptationsDirectory = new File(new File(dataFolder, "adapt"), "adaptations");
+    int deleted = 0;
+    for (String configName : RETIRED_ADAPTATION_CONFIGS) {
+      for (String extension : CONFIG_EXTENSIONS) {
+        File configFile = new File(adaptationsDirectory, configName + extension);
+        try {
+          if (Files.deleteIfExists(configFile.toPath())) {
+            deleted++;
+          }
+        } catch (IOException | SecurityException e) {
+          e.printStackTrace();
+          Adapt.warn("Failed to delete retired adaptation config [" + legacyPath(dataFolder, configFile) + "]: " + e.getMessage());
+        }
+      }
+    }
+    return deleted;
   }
 
   public static boolean hasLegacySkillOrAdaptationJsonFiles() {

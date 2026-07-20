@@ -26,10 +26,12 @@ import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 public class Impulse {
   private final List<Entity> ignore;
+  private final LivingEntity damageSource;
   private double radius;
   private double forceMax;
   private double forceMin;
@@ -37,8 +39,9 @@ public class Impulse {
   private double damageMax;
   private Predicate<Entity> filter;
 
-  public Impulse(double radius) {
+  public Impulse(double radius, LivingEntity damageSource) {
     ignore = new ArrayList<>();
+    this.damageSource = Objects.requireNonNull(damageSource);
     this.radius = radius;
     this.forceMax = 1;
     this.forceMin = 0;
@@ -104,7 +107,7 @@ public class Impulse {
 
       try {
         if (i instanceof LivingEntity && damage > 0) {
-          ((LivingEntity) i).damage(damage);
+          applyDamage((LivingEntity) i, damage);
         }
 
         i.setVelocity(i.getVelocity().add(force));
@@ -117,5 +120,9 @@ public class Impulse {
   public Impulse ignore(Entity player) {
     ignore.add(player);
     return this;
+  }
+
+  void applyDamage(LivingEntity target, double damage) {
+    target.damage(damage, damageSource);
   }
 }

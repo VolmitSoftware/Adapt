@@ -26,7 +26,6 @@ import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.xp.XpProvenance;
 import art.arcane.adapt.content.adaptation.excavation.ExcavationBurrow;
-import art.arcane.adapt.content.adaptation.excavation.ExcavationDowsing;
 import art.arcane.adapt.content.adaptation.excavation.ExcavationDropToInventory;
 import art.arcane.adapt.content.adaptation.excavation.ExcavationEarthMover;
 import art.arcane.adapt.content.adaptation.excavation.ExcavationGraveDigger;
@@ -70,7 +69,6 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
     registerAdaptation(new ExcavationTreasureHunter());
     registerAdaptation(new ExcavationSoftFall());
     registerAdaptation(new ExcavationEarthMover());
-    registerAdaptation(new ExcavationDowsing());
     registerAdaptation(new ExcavationBurrow());
     registerAdaptation(new ExcavationGraveDigger());
     registerAdaptation(new ExcavationMudlark());

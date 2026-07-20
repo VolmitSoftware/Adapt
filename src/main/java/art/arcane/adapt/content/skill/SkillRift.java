@@ -37,7 +37,6 @@ import art.arcane.adapt.content.adaptation.rift.RiftGate;
 import art.arcane.adapt.content.adaptation.rift.RiftInflatedPocketDimension;
 import art.arcane.adapt.content.adaptation.rift.RiftPearlRebound;
 import art.arcane.adapt.content.adaptation.rift.RiftResist;
-import art.arcane.adapt.content.adaptation.rift.RiftStep;
 import art.arcane.adapt.content.adaptation.rift.RiftVisage;
 import art.arcane.adapt.content.adaptation.rift.RiftVoidMagnet;
 import art.arcane.adapt.content.adaptation.rift.RiftVoidSkin;
@@ -89,7 +88,6 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
     registerAdaptation(new RiftVoidSkin());
     registerAdaptation(new RiftPearlRebound());
     registerAdaptation(new RiftConduit());
-    registerAdaptation(new RiftStep());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.ENDER_PEARL)
         .key("challenge_rift_50")

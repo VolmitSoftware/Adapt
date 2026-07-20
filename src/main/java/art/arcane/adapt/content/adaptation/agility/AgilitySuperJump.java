@@ -42,6 +42,7 @@ import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
@@ -50,7 +51,7 @@ import java.util.UUID;
 
 public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> {
   private static final String SLOT_JUMP = "jump";
-  private static final double VANILLA_JUMP_STRENGTH = 0.42D;
+  private static final int SUPER_JUMP_LEVELS = 4;
 
   private final Cooldowns cooldowns = cooldowns();
 
@@ -59,6 +60,7 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
     registerConfiguration(Config.class);
     setIcon(Material.LEATHER_BOOTS);
     setInterval(9999);
+    setMaxLevel(SUPER_JUMP_LEVELS);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.LEATHER_BOOTS)
         .key("challenge_agility_super_jump_100")
@@ -75,21 +77,43 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
     registerMilestone("challenge_agility_super_jump_5k", "agility.super-jump.jumps", 5000, 1500);
   }
 
-  private double getJumpHeight(int level) {
-    return jumpHeight(getConfig().baseJumpMultiplier, getConfig().jumpLevelMultiplier, level);
+  @Override
+  protected void onConfigReload(Config previousConfig, Config newConfig) {
+    super.onConfigReload(previousConfig, newConfig);
+    newConfig.maxLevel = SUPER_JUMP_LEVELS;
+    setMaxLevel(SUPER_JUMP_LEVELS);
   }
 
-  static double jumpHeight(double base, double perLevel, int level) {
-    return base + (perLevel * level);
+  static double jumpHeight(double minimumHeight, double maximumHeight, int level) {
+    return jumpHeight(minimumHeight, maximumHeight, level, SUPER_JUMP_LEVELS);
+  }
+
+  static double jumpHeight(double minimumHeight, double maximumHeight, int level, int maxLevel) {
+    double vanillaHeight = AgilityJumpPhysics.heightForStrength(AgilityJumpPhysics.VANILLA_JUMP_STRENGTH);
+    double safeMinimum = Double.isFinite(minimumHeight) ? minimumHeight : vanillaHeight;
+    double safeMaximum = Double.isFinite(maximumHeight) ? maximumHeight : safeMinimum;
+    double lower = Math.max(vanillaHeight, Math.min(safeMinimum, safeMaximum));
+    double upper = Math.max(lower, Math.max(safeMinimum, safeMaximum));
+    if (maxLevel <= 1) {
+      return upper;
+    }
+
+    int clampedLevel = Math.max(1, Math.min(level, maxLevel));
+    double progress = (double) (clampedLevel - 1) / (maxLevel - 1);
+    return lower + ((upper - lower) * progress);
   }
 
   static double jumpStrengthBonus(double jumpHeight) {
-    return jumpHeight - VANILLA_JUMP_STRENGTH;
+    return AgilityJumpPhysics.bonusForHeight(jumpHeight);
+  }
+
+  private double getJumpHeight(int level) {
+    return jumpHeight(getConfig().minimumJumpHeight, getConfig().maximumJumpHeight, level);
   }
 
   @Override
   public void addStats(int level, Element v) {
-    statLore(v, Form.pc(getJumpHeight(level), 0), 1);
+    statLore(v, Form.f(getJumpHeight(level), 2), 1);
     v.addLore(C.LIGHT_PURPLE + " " + Localizer.dLocalize("agility.super_jump.lore2"));
   }
 
@@ -97,7 +121,7 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
     AdaptAttributeService.get().apply(p, getName(), SLOT_JUMP, Attributes.JUMP_STRENGTH, jumpStrengthBonus(getJumpHeight(getLevel(p))), AttributeModifier.Operation.ADD_NUMBER);
   }
 
-  @EventHandler
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(PlayerToggleSneakEvent e) {
     Player p = e.getPlayer();
     if (!e.isSneaking()) {
@@ -134,7 +158,7 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
     }
   }
 
-  @EventHandler
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(PlayerJumpEvent e) {
     Player p = e.getPlayer();
     if (!p.isSneaking()) {
@@ -170,15 +194,15 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
 
   @ConfigDescription("Sneak and jump for exceptional height advantage.")
   protected static class Config extends AdaptationConfig {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Base Jump Multiplier for the Agility Super Jump adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double baseJumpMultiplier = 0.23;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Jump Level Multiplier for the Agility Super Jump adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double jumpLevelMultiplier = 0.23;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Jump apex in blocks at level 1.", impact = "Higher values make the first super-jump level rise further.")
+    double minimumJumpHeight = 1.5D;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Jump apex in blocks at level 4.", impact = "Higher values make the final super-jump level rise further.")
+    double maximumJumpHeight = 2.5D;
 
     public Config() {
       baseCost = 2;
       costFactor = 0.55;
-      maxLevel = 3;
+      maxLevel = SUPER_JUMP_LEVELS;
       initialCost = 5;
     }
   }

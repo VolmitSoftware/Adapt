@@ -18,7 +18,6 @@
 
 package art.arcane.adapt.content.adaptation.crafting;
 
-import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -26,44 +25,44 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
+import org.bukkit.FluidCollisionMode;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 public class CraftingCompactor extends SimpleAdaptation<CraftingCompactor.Config> {
+  private static final int COMPACTOR_LEVELS = 1;
   private static final int UNITS_PER_BLOCK = 9;
   private static final int FULL_STACK = 64;
   private static final CompactEntry[] ENTRIES = {
-      new CompactEntry(Material.IRON_INGOT, Material.IRON_BLOCK, 1),
-      new CompactEntry(Material.GOLD_INGOT, Material.GOLD_BLOCK, 1),
-      new CompactEntry(Material.COAL, Material.COAL_BLOCK, 1),
-      new CompactEntry(Material.REDSTONE, Material.REDSTONE_BLOCK, 1),
-      new CompactEntry(Material.COPPER_INGOT, Material.COPPER_BLOCK, 2),
-      new CompactEntry(Material.LAPIS_LAZULI, Material.LAPIS_BLOCK, 2),
-      new CompactEntry(Material.RAW_IRON, Material.RAW_IRON_BLOCK, 2),
-      new CompactEntry(Material.RAW_GOLD, Material.RAW_GOLD_BLOCK, 3),
-      new CompactEntry(Material.RAW_COPPER, Material.RAW_COPPER_BLOCK, 3),
-      new CompactEntry(Material.DIAMOND, Material.DIAMOND_BLOCK, 3),
-      new CompactEntry(Material.EMERALD, Material.EMERALD_BLOCK, 3),
-      new CompactEntry(Material.NETHERITE_INGOT, Material.NETHERITE_BLOCK, 4)
+      new CompactEntry(Material.IRON_INGOT, Material.IRON_BLOCK),
+      new CompactEntry(Material.GOLD_INGOT, Material.GOLD_BLOCK),
+      new CompactEntry(Material.COAL, Material.COAL_BLOCK),
+      new CompactEntry(Material.REDSTONE, Material.REDSTONE_BLOCK),
+      new CompactEntry(Material.COPPER_INGOT, Material.COPPER_BLOCK),
+      new CompactEntry(Material.LAPIS_LAZULI, Material.LAPIS_BLOCK),
+      new CompactEntry(Material.RAW_IRON, Material.RAW_IRON_BLOCK),
+      new CompactEntry(Material.RAW_GOLD, Material.RAW_GOLD_BLOCK),
+      new CompactEntry(Material.RAW_COPPER, Material.RAW_COPPER_BLOCK),
+      new CompactEntry(Material.DIAMOND, Material.DIAMOND_BLOCK),
+      new CompactEntry(Material.EMERALD, Material.EMERALD_BLOCK),
+      new CompactEntry(Material.NETHERITE_INGOT, Material.NETHERITE_BLOCK)
   };
-
-  private final Map<UUID, Boolean> toggled = playerState();
-  private int playerCursor;
 
   public CraftingCompactor() {
     super("crafting-compactor");
@@ -89,82 +88,49 @@ public class CraftingCompactor extends SimpleAdaptation<CraftingCompactor.Config
   @Override
   public void addStats(int level, Element v) {
     v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("crafting.compactor.lore1"));
-    statLore(v, materialsCovered(level), 2);
+    statLore(v, materialsCovered(), 2);
     v.addLore(C.YELLOW + "* " + C.GRAY + Localizer.dLocalize("crafting.compactor.lore3"));
   }
 
-  static int materialsCovered(int level) {
-    int count = 0;
-    for (CompactEntry entry : ENTRIES) {
-      if (entry.minLevel() <= level) {
-        count++;
-      }
-    }
-    return count;
+  static int materialsCovered() {
+    return ENTRIES.length;
   }
 
   @Override
-  public void onTick() {
-    List<AdaptPlayer> candidates = learnedCandidates(System.currentTimeMillis());
-    int size = candidates.size();
-    if (size == 0) {
-      playerCursor = 0;
-      return;
-    }
+  protected void normalizeLoadedConfig(Config loadedConfig) {
+    loadedConfig.normalizeForPersistence();
+  }
 
-    int limit = Math.max(1, Math.min(size, getConfig().maxPlayersPerPass));
-    int start = Math.floorMod(playerCursor, size);
-    for (int i = 0; i < limit; i++) {
-      AdaptPlayer adaptPlayer = candidates.get((start + i) % size);
-      Player player = adaptPlayer.getPlayer();
-      if (player == null || !player.isOnline() || !Boolean.TRUE.equals(toggled.get(player.getUniqueId()))) {
-        continue;
-      }
-      int level = getActiveLevel(player);
-      if (level <= 0) {
-        continue;
-      }
-      withPlayerThread(player, () -> compact(player, level));
-    }
-    playerCursor = (start + limit) % size;
+  @Override
+  protected boolean shouldCanonicalizeConfigOnLoad() {
+    return true;
   }
 
   @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
   public void on(PlayerSwapHandItemsEvent e) {
     Player p = e.getPlayer();
-    if (!p.isSneaking() || getActiveLevel(p) <= 0) {
-      return;
-    }
-
-    if (!isCompactableUnit(e.getMainHandItem()) && !isCompactableUnit(e.getOffHandItem())) {
+    normalizeStoredLevel(p);
+    int level = getActiveLevel(p);
+    Block targetBlock = p.getTargetBlockExact(5, FluidCollisionMode.NEVER);
+    Material targetType = targetBlock == null ? Material.AIR : targetBlock.getType();
+    boolean defaultInventoryView = p.getOpenInventory().getTopInventory().getType() == InventoryType.CRAFTING;
+    if (!isActivation(p.isSneaking(), level, defaultInventoryView, targetType)) {
       return;
     }
 
     e.setCancelled(true);
-    UUID id = p.getUniqueId();
-    boolean now = !Boolean.TRUE.equals(toggled.get(id));
-    toggled.put(id, now);
-    fx(p.getLocation().add(0, 1, 0), FxPriority.TRANSITION)
-        .particle(now ? Particles.CRIT_MAGIC : Particles.SMOKE, 6, 0, 0.2D, 0, 0.25D, 0.1D)
-        .sound(Sound.BLOCK_STONE_BUTTON_CLICK_ON, 0.6F, now ? 1.6F : 0.8F);
-    Adapt.actionbar(p, (now ? C.GREEN : C.RED) + Localizer.dLocalize(now ? "crafting.compactor.toggle_on" : "crafting.compactor.toggle_off"));
+    compact(p);
   }
 
-  @EventHandler
-  public void on(PlayerQuitEvent e) {
-    toggled.remove(e.getPlayer().getUniqueId());
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(PlayerJoinEvent e) {
+    Player player = e.getPlayer();
+    withPlayerThread(player, () -> normalizeStoredLevel(player));
   }
 
-  private void compact(Player p, int level) {
-    if (!p.isOnline() || getActiveLevel(p) <= 0 || !Boolean.TRUE.equals(toggled.get(p.getUniqueId()))) {
-      return;
-    }
-
+  private void compact(Player p) {
     int totalBlocks = 0;
     for (CompactEntry entry : ENTRIES) {
-      if (entry.minLevel() > level) {
-        continue;
-      }
       int available = availablePlain(p, entry.unit());
       if (available < FULL_STACK) {
         continue;
@@ -191,18 +157,19 @@ public class CraftingCompactor extends SimpleAdaptation<CraftingCompactor.Config
     }
   }
 
-  static boolean isCompactableUnit(ItemStack stack) {
-    if (stack == null || stack.getType().isAir()) {
+  static boolean isActivation(boolean sneaking, int activeLevel, boolean defaultInventoryView, Material targetType) {
+    return sneaking
+        && activeLevel > 0
+        && defaultInventoryView
+        && targetType == Material.CRAFTING_TABLE;
+  }
+
+  boolean normalizeStoredLevel(PlayerSkillLine line) {
+    if (line == null || line.getAdaptationLevel(getName()) <= COMPACTOR_LEVELS) {
       return false;
     }
-
-    for (CompactEntry entry : ENTRIES) {
-      if (entry.unit() == stack.getType()) {
-        return true;
-      }
-    }
-
-    return false;
+    line.setAdaptation(this, COMPACTOR_LEVELS);
+    return true;
   }
 
   private int availablePlain(Player p, Material material) {
@@ -216,19 +183,26 @@ public class CraftingCompactor extends SimpleAdaptation<CraftingCompactor.Config
     return total;
   }
 
-  private record CompactEntry(Material unit, Material block, int minLevel) {
+  private void normalizeStoredLevel(Player player) {
+    AdaptPlayer adaptPlayer = getPlayer(player);
+    PlayerSkillLine line = adaptPlayer.getData().getSkillLineNullable(getSkill().getName());
+    normalizeStoredLevel(line);
   }
 
-  @ConfigDescription("Toggle with sneak + swap-hands to auto-craft full stacks of ingots, gems, and raw ores into blocks in your inventory.")
-  protected static class Config extends AdaptationConfig {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum players processed per compaction pass.", impact = "Higher values compact large servers faster but do more work per tick.")
-    int maxPlayersPerPass = 16;
+  private record CompactEntry(Material unit, Material block) {
+  }
 
+  @ConfigDescription("Sneak and swap hands while aiming at a Crafting Table to compact full stacks of ingots, gems, and raw ores into blocks.")
+  protected static class Config extends AdaptationConfig {
     public Config() {
       baseCost = 3;
       costFactor = 0.3;
-      maxLevel = 4;
       initialCost = 4;
+      normalizeForPersistence();
+    }
+
+    void normalizeForPersistence() {
+      maxLevel = COMPACTOR_LEVELS;
     }
   }
 }

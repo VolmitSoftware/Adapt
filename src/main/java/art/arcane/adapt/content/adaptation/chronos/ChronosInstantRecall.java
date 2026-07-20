@@ -820,7 +820,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
     }
 
     double healthAfter = Math.max(1.0D, p.getHealth() * (1D - fraction));
-    applyPlayerHealthLoss(p, p.getHealth() - healthAfter);
+    applyPlayerDamage(p, p.getHealth() - healthAfter);
   }
 
   private void attemptRecall(Player p) {

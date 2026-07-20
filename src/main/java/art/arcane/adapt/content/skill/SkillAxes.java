@@ -32,12 +32,9 @@ import art.arcane.adapt.content.adaptation.axe.AxeCraftLogSwap;
 import art.arcane.adapt.content.adaptation.axe.AxeDropToInventory;
 import art.arcane.adapt.content.adaptation.axe.AxeGroundSmash;
 import art.arcane.adapt.content.adaptation.axe.AxeLeafVeinminer;
-import art.arcane.adapt.content.adaptation.axe.AxeOrchardist;
-import art.arcane.adapt.content.adaptation.axe.AxeSapTap;
 import art.arcane.adapt.content.adaptation.axe.AxeShieldSplitter;
 import art.arcane.adapt.content.adaptation.axe.AxeSunder;
 import art.arcane.adapt.content.adaptation.axe.AxeThrowingAxe;
-import art.arcane.adapt.content.adaptation.axe.AxeTimberMark;
 import art.arcane.adapt.content.adaptation.axe.AxeWoodVeinminer;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
@@ -70,13 +67,10 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
     registerAdaptation(new AxeLeafVeinminer());
     registerAdaptation(new AxeWoodVeinminer());
     registerAdaptation(new AxeCraftLogSwap());
-    registerAdaptation(new AxeTimberMark());
     registerAdaptation(new AxeThrowingAxe());
     registerAdaptation(new AxeSunder());
     registerAdaptation(new AxeCleave());
     registerAdaptation(new AxeBarkHide());
-    registerAdaptation(new AxeSapTap());
-    registerAdaptation(new AxeOrchardist());
     registerAdaptation(new AxeShieldSplitter());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.WOODEN_AXE).key("challenge_chop_1k")

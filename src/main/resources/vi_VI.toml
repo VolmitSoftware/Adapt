@@ -898,8 +898,8 @@ usage2 = "Shift + Chuột Trái để liên kết với một khối"
 
 [items.bound_redstone_torch]
 name = "Điều Khiển Redstone Từ Xa"
-usage1 = "Chuột Phải để tạo xung Redstone 1-Tick"
-usage2 = "Shift + Chuột Trái vào Khối 'Mục Tiêu' để liên kết"
+usage1 = "Chuột Phải để tạo xung Redstone 4-Tick"
+usage2 = "Shift + Chuột Trái vào một mặt trống của bất kỳ khối nào để liên kết"
 
 [items.bound_snowball]
 name = "Bẫy Mạng Nhện!"
@@ -1131,7 +1131,7 @@ lore = ["Tốc Độ Tối Đa", "Thời Gian Tăng Tốc"]
 
 [architect.elevator]
 name = "Thang Máy"
-description = "Cho phép bạn xây thang máy để dịch chuyển theo chiều dọc nhanh chóng!"
+description = "Xây thang máy để dịch chuyển nhanh theo chiều dọc. Chế tạo mỗi Khối Thang Máy với một Ngọc Ender ở giữa, bao quanh bởi 8 khối Len."
 lore1 = "Mở khóa công thức thang máy: X=LEN, Y=NGỌC TRAI ENDER"
 lore2 = "XXX"
 lore3 = "XYX"
@@ -1371,10 +1371,10 @@ lore = ["Chỉ cần ném (thịt thối) lên lửa trại!"]
 name = "Ba Lô Của Boutilier!"
 description = "Mang tính năng Bó Đồ của Mojang vào trò chơi!"
 lore1 = "Bạn cần ở chế độ Sinh Tồn để sử dụng"
-lore2 = "XLX : Da, Dây Dắt, Da"
-lore3 = "XSX : Da, Thùng, Da"
-lore4 = "XCX : Da, Rương, Da"
-lore = ["Bạn cần ở chế độ Sinh Tồn để sử dụng", "XLX : Da, Dây Dắt, Da", "XSX : Da, Thùng, Da", "XCX : Da, Rương, Da"]
+lore2 = "LLL : Da, Da, Da"
+lore3 = "LCL : Da, Rương, Da"
+lore4 = "LLL : Da, Da, Da"
+lore = ["Bạn cần ở chế độ Sinh Tồn để sử dụng", "LLL : Da, Da, Da", "LCL : Da, Rương, Da", "LLL : Da, Da, Da"]
 
 [crafting.stations]
 name = "Bàn Di Động!"
@@ -1793,11 +1793,10 @@ lore = ["Ngọc Trai Ender + La Bàn = Chìa Khóa Thánh Tích", "Vật phẩm 
 
 [rift.blink]
 name = "Chớp Nhoáng"
-description = "Dịch chuyển tức thì tầm ngắn, Chỉ trong chớp mắt!"
-lore1 = "Khối khi chớp (2x theo chiều dọc)"
-lore2 = "Khi đang chạy nước rút: Nhấn đúp Nhảy để "
-lore3 = "Chớp Nhoáng"
-lore = ["Khối khi chớp (2x theo chiều dọc)", "Khi đang chạy nước rút: Nhấn đúp Nhảy để ", "Chớp Nhoáng"]
+description = "Nhảy hai lần để chớp theo hướng đang nhìn. Chớp thành công không tiêu hao ngọc Ender, nhưng gây sát thương ngọc thông thường và giảm dần theo mỗi cấp."
+lore1 = "Tầm chớp"
+lore2 = "Tự gây sát thương (tim)"
+lore = ["Tầm chớp", "Tự gây sát thương (tim)"]
 
 [rift.chest]
 name = "Rương Ender Dễ Dàng"

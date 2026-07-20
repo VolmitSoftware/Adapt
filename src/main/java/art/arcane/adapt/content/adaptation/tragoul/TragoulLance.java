@@ -44,6 +44,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -97,6 +98,10 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
     registerMilestone("challenge_tragoul_lance_kills_100", "tragoul.lance.lance-kills", 100, 1000);
   }
 
+  @Override
+  protected boolean shouldCanonicalizeConfigOnLoad() {
+    return true;
+  }
 
   @Override
   public void unregister() {
@@ -136,8 +141,13 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
     admission.cancel(event.getPlayer().getUniqueId());
   }
 
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(PlayerDeathEvent event) {
+    admission.cancel(event.getEntity().getUniqueId());
+  }
+
   private void prepareChainOwnerOwned(Player owner, SourceSnapshot source) {
-    if (!acceptingChains || !owner.isOnline()) {
+    if (!acceptingChains || !isOwnerEligible(owner)) {
       return;
     }
 
@@ -168,14 +178,14 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
         ownerId,
         token,
         range,
-        getSelfDamageMultiplier(),
+        getSelfDamage(level),
         getSeekerDelay()
     );
     requestSearchOwnerOwned(chain, source.location(), damage, remainingHits);
   }
 
   private void requestSearchOwnerOwned(LanceChain chain, Location source, double damage, int remainingHits) {
-    if (!isCurrent(chain) || !chain.owner().isOnline() || remainingHits <= 0
+    if (!isCurrent(chain) || !isOwnerEligible(chain.owner()) || remainingHits <= 0
         || !workBudget.trySearch(System.currentTimeMillis())) {
       admission.complete(chain.ownerId(), chain.token());
       return;
@@ -205,7 +215,8 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
       if (examined++ >= MAX_CANDIDATES_PER_SEARCH) {
         break;
       }
-      if (entity instanceof LivingEntity candidate && candidate != pass.chain().owner()) {
+      if (entity instanceof LivingEntity candidate
+          && !isCaster(pass.chain().ownerId(), candidate.getUniqueId())) {
         candidates.add(candidate);
         if (candidates.size() >= MAX_CANDIDATE_HANDOFFS) {
           break;
@@ -233,7 +244,10 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
     }
 
     UUID targetId = target.getUniqueId();
-    boolean protectedFriendly = ownerId.equals(targetId) || isProtectedFriendly(null, target);
+    if (isCaster(ownerId, targetId)) {
+      return null;
+    }
+    boolean protectedFriendly = isProtectedFriendly(null, target);
     if (!protectedFriendly && target instanceof Tameable tameable && tameable.isTamed()) {
       protectedFriendly = ownerId.equals(tameable.getOwnerUniqueId());
     }
@@ -249,7 +263,7 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
   private void selectTargetOwnerOwned(CandidateBatch batch) {
     SearchPass pass = batch.pass();
     LanceChain chain = pass.chain();
-    if (!isCurrent(chain) || !chain.owner().isOnline() || getActiveLevel(chain.owner()) <= 0) {
+    if (!isCurrent(chain) || !isOwnerEligible(chain.owner()) || getActiveLevel(chain.owner()) <= 0) {
       finishChain(chain);
       return;
     }
@@ -258,6 +272,7 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
     double bestDistanceSquared = chain.range() * chain.range();
     for (TargetSnapshot candidate : batch.targets()) {
       if (candidate.location().getWorld() != pass.source().getWorld()
+          || isCaster(chain.ownerId(), candidate.entityId())
           || chain.hitIds().contains(candidate.entityId()) || !canDamageSnapshotOwned(
           chain.owner(), candidate.player(), candidate.protectedFriendly(), null, candidate.location())) {
         continue;
@@ -290,7 +305,7 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
     }
 
     TargetSnapshot current = captureTargetOwned(chain.ownerId(), snapshot.entity());
-    if (current == null || current.protectedFriendly()
+    if (current == null || isCaster(chain.ownerId(), current.entityId()) || current.protectedFriendly()
         || !current.entityId().equals(snapshot.entityId())
         || current.location().getWorld() != pass.source().getWorld()
         || current.location().distanceSquared(pass.source()) > chain.range() * chain.range()) {
@@ -305,7 +320,8 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
 
   private void validateImpactPolicyOwnerOwned(SearchPass pass, TargetSnapshot approved) {
     LanceChain chain = pass.chain();
-    if (!isCurrent(chain) || !chain.owner().isOnline() || !canDamageSnapshotOwned(
+    if (!isCurrent(chain) || !isOwnerEligible(chain.owner())
+        || isCaster(chain.ownerId(), approved.entityId()) || !canDamageSnapshotOwned(
         chain.owner(), approved.player(), approved.protectedFriendly(), null, approved.location().clone())) {
       finishChain(chain);
       return;
@@ -323,7 +339,7 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
     }
 
     TargetSnapshot current = captureTargetOwned(chain.ownerId(), approved.entity());
-    if (current == null || current.protectedFriendly()
+    if (current == null || isCaster(chain.ownerId(), current.entityId()) || current.protectedFriendly()
         || !current.entityId().equals(approved.entityId())
         || current.location().getWorld() != approved.location().getWorld()
         || current.location().distanceSquared(approved.location()) > IMPACT_MOVE_TOLERANCE_SQUARED) {
@@ -355,7 +371,7 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
   private void completeHitOwnerOwned(SearchPass pass, Location impact, boolean successful, boolean killed) {
     LanceChain chain = pass.chain();
     Player owner = chain.owner();
-    if (!isCurrent(chain) || !owner.isOnline() || !successful) {
+    if (!isCurrent(chain) || !isOwnerEligible(owner) || !successful) {
       finishChain(chain);
       return;
     }
@@ -368,12 +384,12 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
     }
     addStat(owner, "tragoul.lance.lances-spawned", 1);
 
-    double selfDamage = pass.damage() * chain.selfDamageMultiplier();
+    double selfDamage = chain.selfDamage();
     if (selfDamage > 0D && owner.isValid() && !owner.isDead()) {
-      applyPlayerHealthLoss(owner, selfDamage);
+      applyPlayerDamage(owner, selfDamage);
     }
 
-    if (killed && pass.remainingHits() > 1) {
+    if (canContinueChain(owner, killed, pass.remainingHits())) {
       requestSearchOwnerOwned(chain, impact, pass.damage() * 0.5D, pass.remainingHits() - 1);
     } else {
       finishChain(chain);
@@ -388,6 +404,18 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
       return player;
     }
     return null;
+  }
+
+  static boolean isCaster(UUID ownerId, UUID targetId) {
+    return ownerId.equals(targetId);
+  }
+
+  static boolean isOwnerEligible(Player owner) {
+    return owner != null && owner.isOnline() && owner.isValid() && !owner.isDead();
+  }
+
+  static boolean canContinueChain(Player owner, boolean killed, int remainingHits) {
+    return killed && remainingHits > 1 && isOwnerEligible(owner);
   }
 
   private boolean canDamageSnapshotOwned(Player owner, boolean player, boolean protectedFriendly,
@@ -415,9 +443,13 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
     return Double.isFinite(configured) ? Math.max(0D, Math.min(4D, configured)) : 0D;
   }
 
-  private double getSelfDamageMultiplier() {
-    double configured = getConfig().selfDamageMultiplier;
-    return Double.isFinite(configured) ? Math.max(0D, Math.min(1D, configured)) : 0D;
+  private double getSelfDamage(int level) {
+    return selfDamageForLevel(
+        level,
+        getMaxLevel(),
+        getConfig().selfDamageAtFirstLevel,
+        getConfig().selfDamageAtMaxLevel
+    );
   }
 
   private double getUnarmoredDamageMultiplier() {
@@ -447,6 +479,24 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
     return Math.max(0D, killingDamage) * Math.max(0D, baseMultiplier) * armorMultiplier;
   }
 
+  static double selfDamageForLevel(int level, int maxLevel, double firstLevelDamage,
+                                   double maxLevelDamage) {
+    if (level <= 0 || maxLevel <= 0 || !Double.isFinite(firstLevelDamage)
+        || !Double.isFinite(maxLevelDamage)) {
+      return 0D;
+    }
+
+    double first = Math.max(0D, firstLevelDamage);
+    double last = Math.max(0D, Math.min(first, maxLevelDamage));
+    if (maxLevel == 1) {
+      return first;
+    }
+
+    int clampedLevel = Math.max(1, Math.min(maxLevel, level));
+    double progress = (clampedLevel - 1D) / (maxLevel - 1D);
+    return first + ((last - first) * progress);
+  }
+
   private void playLanceLaunch(Location origin) {
     fx(origin.clone().add(0, 1.0, 0), FxPriority.COMBAT)
         .burst(Particle.SCULK_SOUL, 6, 0.3)
@@ -470,8 +520,6 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
         .start();
   }
 
-
-
   @Override
   public void addStats(int level, Element v) {
     v.addLore(C.GREEN + Localizer.dLocalize("tragoul.lance.lore1"));
@@ -485,8 +533,10 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
     int seekerDelay = 12;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Seeker Damage Multiplier for the Tragoul Lance adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double seekerDamageMultiplier = 1.0;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Self Damage Multiplier for the Tragoul Lance adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double selfDamageMultiplier = 0.25;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Flat damage dealt to the caster when a level-one lance hits.", impact = "Higher values make early corpse lances cost more after absorption, armor, and effects.")
+    double selfDamageAtFirstLevel = 6.0;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Flat damage dealt to the caster when a max-level lance hits.", impact = "Lower values make leveling reduce the mitigated corpse lance cost further.")
+    double selfDamageAtMaxLevel = 2.0;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Damage multiplier applied when the owner has no armor equipped.", impact = "Higher values reward fighting without any equipped armor.")
     double unarmoredDamageMultiplier = 3.0;
 
@@ -508,11 +558,11 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
   }
 
   private record LanceChain(Player owner, UUID ownerId, long token, double range,
-                            double selfDamageMultiplier, int delayTicks,
+                            double selfDamage, int delayTicks,
                             Set<UUID> hitIds, AtomicBoolean activated) {
     private LanceChain(Player owner, UUID ownerId, long token, double range,
-                       double selfDamageMultiplier, int delayTicks) {
-      this(owner, ownerId, token, range, selfDamageMultiplier, delayTicks,
+                       double selfDamage, int delayTicks) {
+      this(owner, ownerId, token, range, selfDamage, delayTicks,
           ConcurrentHashMap.newKeySet(), new AtomicBoolean());
     }
   }

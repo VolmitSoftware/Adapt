@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 public final class ConfigFileSupport {
   private static final long MAX_CONFIG_BYTES_DEFAULT = 2L * 1024L * 1024L;
@@ -29,15 +30,40 @@ public final class ConfigFileSupport {
       String sourceTag,
       String createdMessage
   ) throws IOException {
+    return load(
+        canonicalFile,
+        legacyFile,
+        type,
+        fallback,
+        overwriteOnReadFailure,
+        sourceTag,
+        createdMessage,
+        null,
+        false
+    );
+  }
+
+  public static <T> T load(
+      File canonicalFile,
+      File legacyFile,
+      Class<T> type,
+      T fallback,
+      boolean overwriteOnReadFailure,
+      String sourceTag,
+      String createdMessage,
+      Consumer<T> normalizeBeforeWrite,
+      boolean forceCanonicalizeExisting
+  ) throws IOException {
     long maxConfigBytes = maxConfigBytesForSourceTag(sourceTag);
-    boolean canonicalizeExisting = shouldCanonicalizeExisting(sourceTag, overwriteOnReadFailure);
+    boolean canonicalizeExisting = forceCanonicalizeExisting
+        || shouldCanonicalizeExisting(sourceTag, overwriteOnReadFailure);
     if (canonicalFile != null && canonicalFile.exists()) {
       try {
         if (canonicalFile.length() > maxConfigBytes) {
           throw new IOException("Config file is too large (" + canonicalFile.length() + " bytes)");
         }
         String raw = IO.readAll(canonicalFile);
-        T loaded = deserialize(raw, canonicalFile, type);
+        T loaded = normalizeConfig(deserialize(raw, canonicalFile, type), normalizeBeforeWrite);
         if (loaded == null) {
           throw new IOException("Config parser returned null.");
         }
@@ -53,9 +79,10 @@ public final class ConfigFileSupport {
         return loaded;
       } catch (Throwable e) {
         if (overwriteOnReadFailure) {
+          T normalizedFallback = normalizeConfig(fallback, normalizeBeforeWrite);
           ConfigRewriteReporter.reportFallbackRewrite(canonicalFile, sourceTag, reason("invalid config", e));
-          IO.writeAll(canonicalFile, serialize(fallback, canonicalFile, sourceTag));
-          return fallback;
+          IO.writeAll(canonicalFile, serialize(normalizedFallback, canonicalFile, sourceTag));
+          return normalizedFallback;
         }
 
         throw new IOException("Invalid config", e);
@@ -68,7 +95,7 @@ public final class ConfigFileSupport {
           throw new IOException("Legacy config file is too large (" + legacyFile.length() + " bytes)");
         }
         String raw = IO.readAll(legacyFile);
-        T loaded = deserialize(raw, legacyFile, type);
+        T loaded = normalizeConfig(deserialize(raw, legacyFile, type), normalizeBeforeWrite);
         if (loaded == null) {
           throw new IOException("Config parser returned null.");
         }
@@ -79,18 +106,20 @@ public final class ConfigFileSupport {
         return loaded;
       } catch (Throwable e) {
         if (overwriteOnReadFailure) {
+          T normalizedFallback = normalizeConfig(fallback, normalizeBeforeWrite);
           ConfigRewriteReporter.reportFallbackRewrite(canonicalFile, sourceTag, reason("invalid legacy config", e));
-          IO.writeAll(canonicalFile, serialize(fallback, canonicalFile, sourceTag));
-          return fallback;
+          IO.writeAll(canonicalFile, serialize(normalizedFallback, canonicalFile, sourceTag));
+          return normalizedFallback;
         }
 
         throw new IOException("Invalid legacy config", e);
       }
     }
 
-    IO.writeAll(canonicalFile, serialize(fallback, canonicalFile, sourceTag));
+    T normalizedFallback = normalizeConfig(fallback, normalizeBeforeWrite);
+    IO.writeAll(canonicalFile, serialize(normalizedFallback, canonicalFile, sourceTag));
     recordMissingConfigCreated();
-    return fallback;
+    return normalizedFallback;
   }
 
   public static void recordMissingConfigCreated() {
@@ -227,6 +256,13 @@ public final class ConfigFileSupport {
     } catch (Throwable e) {
       throw new IOException("Failed to parse " + sourceFile.getName(), e);
     }
+  }
+
+  private static <T> T normalizeConfig(T config, Consumer<T> normalizer) {
+    if (config != null && normalizer != null) {
+      normalizer.accept(config);
+    }
+    return config;
   }
 
   private static String serialize(Object loaded, File targetFile, String sourceTag) {

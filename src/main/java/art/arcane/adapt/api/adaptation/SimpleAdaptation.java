@@ -44,8 +44,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.damage.DamageSource;
+import org.bukkit.damage.DamageType;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
@@ -169,7 +170,9 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
         fallback,
         overwriteOnReadFailure,
         "adaptation:" + getName(),
-        "Created missing adaptation config [adapt/adaptations/" + getName() + ".toml] from defaults."
+        "Created missing adaptation config [adapt/adaptations/" + getName() + ".toml] from defaults.",
+        this::normalizeLoadedConfig,
+        shouldCanonicalizeConfigOnLoad()
     );
   }
 
@@ -182,6 +185,13 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
 
   protected void onConfigReload(T previousConfig, T newConfig) {
     applyDoubleField(newConfig, "costFactor", this::setCostFactor);
+  }
+
+  protected void normalizeLoadedConfig(T loadedConfig) {
+  }
+
+  protected boolean shouldCanonicalizeConfigOnLoad() {
+    return false;
   }
 
   private void applyIntField(T source, String fieldName, java.util.function.IntConsumer consumer) {
@@ -254,6 +264,7 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
       local = config;
       if (!loaded || local == null) {
         local = createDefaultConfig();
+        normalizeLoadedConfig(local);
         applySharedConfigValues(local);
         onConfigReload(null, local);
         config = local;
@@ -402,29 +413,17 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
     return Fx.now(this, entity, priority);
   }
 
-  protected double applyPlayerHealthLoss(Player player, double amount) {
+  protected void applyPlayerDamage(Player player, double amount) {
     if (player == null || !Double.isFinite(amount) || amount <= 0D || player.isDead()) {
-      return 0D;
+      return;
     }
 
-    double healthBefore = Math.max(0D, player.getHealth());
-    double healthAfter = healthAfterLoss(healthBefore, amount);
-    if (healthAfter >= healthBefore) {
-      return 0D;
-    }
-
-    player.setHealth(healthAfter);
-    fx(player, FxPriority.TRAIL)
-        .particle(Particle.DAMAGE_INDICATOR, 3, 0, 1.0D, 0, 0.18D, 0.01D)
-        .sound(Sound.ENTITY_PLAYER_HURT, 0.35F, 1.0F);
-    return healthBefore - healthAfter;
+    DamageSource source = DamageSource.builder(DamageType.PLAYER_ATTACK).build();
+    dispatchPlayerDamage(player, amount, source);
   }
 
-  static double healthAfterLoss(double health, double amount) {
-    if (!Double.isFinite(health) || !Double.isFinite(amount) || health <= 0D || amount <= 0D) {
-      return Math.max(0D, Double.isFinite(health) ? health : 0D);
-    }
-    return Math.max(0D, health - amount);
+  static void dispatchPlayerDamage(Player player, double amount, DamageSource source) {
+    player.damage(amount, source);
   }
 
   protected FxTimeline timeline(Location location) {

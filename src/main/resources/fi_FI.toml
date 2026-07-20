@@ -898,8 +898,8 @@ usage2 = "Shift + Vasen klikkaus sitoaksesi lohkoon"
 
 [items.bound_redstone_torch]
 name = "Redstonekaukosäädin"
-usage1 = "Oikea klikkaus lähettääksesi 1 tikin redstone-pulssin"
-usage2 = "Shift + Vasen klikkaus 'Kohde'-lohkoon sitoaksesi"
+usage1 = "Oikea klikkaus lähettääksesi 4 tikin redstone-pulssin"
+usage2 = "Shift + Vasen klikkaus minkä tahansa lohkon vapaalle sivulle sitoaksesi"
 
 [items.bound_snowball]
 name = "Seittiansa!"
@@ -1131,7 +1131,7 @@ lore = ["Maksiminopeus", "Kiihdytysaika"]
 
 [architect.elevator]
 name = "Hissi"
-description = "Tämä mahdollistaa hissin rakentamisen pystysuuntaiseen nopeaan teleporttaukseen!"
+description = "Rakenna nopeita pystysuuntaisia hissejä. Valmista jokainen hissilohko asettamalla Ender-helmi keskelle ja 8 villaa sen ympärille."
 lore1 = "Avaa hissiresepti: X=VILLA, Y=ENDERHELMI"
 lore2 = "XXX"
 lore3 = "XYX"
@@ -1371,10 +1371,10 @@ lore = ["Heitä se (mätäliha) nuotiolle!"]
 name = "Boutilierin reput!"
 description = "Tämä tuo Mojangin nipun peliin!"
 lore1 = "Sinun on oltava selviytymistilassa käyttääksesi tätä"
-lore2 = "XLX : Nahka, talutushihna, nahka"
-lore3 = "XSX : Nahka, tynnyri, nahka"
-lore4 = "XCX : Nahka, arkku, nahka"
-lore = ["Sinun on oltava selviytymistilassa käyttääksesi tätä", "XLX : Nahka, talutushihna, nahka", "XSX : Nahka, tynnyri, nahka", "XCX : Nahka, arkku, nahka"]
+lore2 = "LLL : Nahka, nahka, nahka"
+lore3 = "LCL : Nahka, arkku, nahka"
+lore4 = "LLL : Nahka, nahka, nahka"
+lore = ["Sinun on oltava selviytymistilassa käyttääksesi tätä", "LLL : Nahka, nahka, nahka", "LCL : Nahka, arkku, nahka", "LLL : Nahka, nahka, nahka"]
 
 [crafting.stations]
 name = "Kannettavat pöydät!"
@@ -1793,11 +1793,10 @@ lore = ["Enderhelmi + kompassi = Reliikkiavainportti", "Tämä esine mahdollista
 
 [rift.blink]
 name = "Repeämävälähdys"
-description = "Lyhyen kantaman välitön teleporttaus, vain silmänräpäys!"
-lore1 = "Lohkoja per välähdys (2x pystysuunnassa)"
-lore2 = "Juostessa: Kaksoisnapauta hyppyä "
-lore3 = "välähtääksesi"
-lore = ["Lohkoja per välähdys (2x pystysuunnassa)", "Juostessa: Kaksoisnapauta hyppyä ", "välähtääksesi"]
+description = "Kaksoishyppää välähtääksesi katsomaasi suuntaan. Onnistunut välähdys ei kuluta enderhelmeä, mutta aiheuttaa tavallisen enderhelmen vahingon, joka pienenee jokaisella tasolla."
+lore1 = "Välähdyksen kantama"
+lore2 = "Itsevahinko (sydäntä)"
+lore = ["Välähdyksen kantama", "Itsevahinko (sydäntä)"]
 
 [rift.chest]
 name = "Helppo enderarkku"

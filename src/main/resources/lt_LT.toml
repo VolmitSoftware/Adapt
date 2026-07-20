@@ -898,8 +898,8 @@ usage2 = "Shift + Kairys paspaudimas, kad susieti prie bloko"
 
 [items.bound_redstone_torch]
 name = "Raudonakmenio Valdymo Pultas"
-usage1 = "Desinys Paspaudimas, kad sukurti 1-tick raudonakmenio impulsa"
-usage2 = "Shift + Kairys paspaudimas ant tikslaus bloko, kad butu galima susieti"
+usage1 = "Desinys Paspaudimas, kad sukurti 4-tick raudonakmenio impulsa"
+usage2 = "Shift + Kairys paspaudimas ant laisvos bet kurio bloko puses, kad susieti"
 
 [items.bound_snowball]
 name = "Voratinkliu Spastai!"
@@ -1131,7 +1131,7 @@ lore = ["Max Greitis", "Uzbaigimo laikas"]
 
 [architect.elevator]
 name = "Liftas"
-description = "Tai leidzia jums pastatyti lifta, kuris greitai leis teleportuotis vertikaliai!"
+description = "Statykite liftus greitam vertikaliam teleportavimui. Kiekvienas Lifto Blokas gaminamas su Enderio Perlu centre, apsuptu 8 Vilnos blokais."
 lore1 = "Atrakina lifto recepta: X=VILNA, Y=ENDERIO PERLAS"
 lore2 = "XXX"
 lore3 = "XYX"
@@ -1371,10 +1371,10 @@ lore = ["Tiesiog ismeskite supuvusia mesa ant lauzo!"]
 name = "Butiljerio Kuprinės!"
 description = "Tai tiesiog inesa i zaidima Mojang rysuli!"
 lore1 = "Noredami tai naudoti, turite buti islikimo rezime."
-lore2 = "XLX : Oda, Pavadelis, Oda"
-lore3 = "XSX : Oda, Statines Deze, Oda"
-lore4 = "XCX : Oda, Skrynia, Oda"
-lore = ["Noredami tai naudoti, turite buti islikimo rezime.", "XLX : Oda, Pavadelis, Oda", "XSX : Oda, Statines Deze, Oda", "XCX : Oda, Skrynia, Oda"]
+lore2 = "LLL : Oda, Oda, Oda"
+lore3 = "LCL : Oda, Skrynia, Oda"
+lore4 = "LLL : Oda, Oda, Oda"
+lore = ["Noredami tai naudoti, turite buti islikimo rezime.", "LLL : Oda, Oda, Oda", "LCL : Oda, Skrynia, Oda", "LLL : Oda, Oda, Oda"]
 
 [crafting.stations]
 name = "Nesiojami Stalai!"
@@ -1793,11 +1793,10 @@ lore = ["Enderio Perlas + Kompasas = Relikvijoriaus Prievado Raktas", "Sis daikt
 
 [rift.blink]
 name = "Plysio Teleportacija"
-description = "Momentine teleportacija trumpu nuotoliu, vos akimirksniu!"
-lore1 = "Blokai teleportacijai (2x Vertikaliai)"
-lore2 = "Sprinto metu: Dukart pasokite, kad "
-lore3 = "Teleportuotumetės"
-lore = ["Blokai teleportacijai (2x Vertikaliai)", "Sprinto metu: Dukart pasokite, kad ", "Teleportuotumetės"]
+description = "Šokite du kartus, kad persikeltumėte žvilgsnio kryptimi. Sėkmingas šuolis nesunaudoja Enderio perlo, bet padaro įprastą perlo žalą, kuri mažėja su kiekvienu lygiu."
+lore1 = "Teleportacijos nuotolis"
+lore2 = "Žala sau (širdys)"
+lore = ["Teleportacijos nuotolis", "Žala sau (širdys)"]
 
 [rift.chest]
 name = "Lengva Enderio Skrynia"

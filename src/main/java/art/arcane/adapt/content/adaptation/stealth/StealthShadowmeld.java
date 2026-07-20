@@ -61,11 +61,13 @@ public class StealthShadowmeld extends SimpleAdaptation<StealthShadowmeld.Config
 
   private final StealthSessionCoordinator<MeldSession> coordinator =
       new StealthSessionCoordinator<>(HARD_MAX_ACTIVE_SESSIONS);
+  private final StealthSmokePellet smokePellet;
   private final StealthCore stealth;
 
-  public StealthShadowmeld(StealthCore stealth) {
+  public StealthShadowmeld(StealthCore stealth, StealthSmokePellet smokePellet) {
     super("stealth-shadowmeld");
     this.stealth = Objects.requireNonNull(stealth);
+    this.smokePellet = Objects.requireNonNull(smokePellet);
     registerConfiguration(Config.class);
     setIcon(Material.SCULK);
     setInterval(250);
@@ -198,7 +200,10 @@ public class StealthShadowmeld extends SimpleAdaptation<StealthShadowmeld.Config
       return;
     }
 
-    boolean eligible = canRemainEligible(player.isSneaking(), stealth.isCurrentlyUndetected(player));
+    boolean eligible = canRemainEligible(
+        player.isSneaking(),
+        smokePellet.isConcealed(player) || stealth.isCurrentlyUndetected(player)
+    );
     if (!eligible) {
       resetMeld(session, session.melded);
       return;
@@ -285,7 +290,7 @@ public class StealthShadowmeld extends SimpleAdaptation<StealthShadowmeld.Config
     }
     session.appliedInvisibility = false;
     Player player = session.player;
-    if (!player.isOnline()) {
+    if (!player.isOnline() || smokePellet.isConcealed(player)) {
       return;
     }
     PotionEffect current = player.getPotionEffect(PotionEffectType.INVISIBILITY);

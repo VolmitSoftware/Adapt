@@ -18,7 +18,6 @@
 
 package art.arcane.adapt.content.adaptation.excavation;
 
-import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.Cooldowns;
@@ -27,6 +26,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.fx.ViewerDisplayDirector;
 import art.arcane.adapt.content.integration.hiddenore.HiddenOreLink;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
@@ -39,19 +39,12 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.World;
-import org.bukkit.entity.BlockDisplay;
-import org.bukkit.entity.Display;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.entity.EntityRemoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.Transformation;
-import org.bukkit.util.Vector;
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,13 +55,14 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPing.Config> {
+  static final int GLOW_DURATION_TICKS = 40;
   private static final int MAX_SCAN_RANGE = 32;
   private static final int MAX_BLOCK_CHECKS_PER_ACTIVATION = 2048;
   private final Cooldowns cooldowns = cooldowns();
   private final Map<UUID, UUID> activeScans = new ConcurrentHashMap<>();
-  private final Map<UUID, DisplayHandle> activeLines = new ConcurrentHashMap<>();
-  private final AtomicBoolean acceptingLines = new AtomicBoolean(true);
-  private final Object lineLifecycleLock = new Object();
+  private final Map<UUID, UUID> activeRevealWindows = new ConcurrentHashMap<>();
+  private final AtomicBoolean acceptingReveals = new AtomicBoolean(true);
+  private final Object revealLifecycleLock = new Object();
 
   public ExcavationSeismicPing() {
     super("excavation-seismic-ping");
@@ -93,6 +87,9 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(BlockBreakEvent e) {
+    if (!acceptingReveals.get()) {
+      return;
+    }
     Player p = e.getPlayer();
     if (!isExcavationTool(p.getInventory().getItemInMainHand())) {
       return;
@@ -103,8 +100,13 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
       return;
     }
 
+    UUID playerId = p.getUniqueId();
+    if (pingInProgress(activeScans.get(playerId), activeRevealWindows.get(playerId))) {
+      return;
+    }
+
     int level = context.level();
-    if (!cooldowns.isReady(p.getUniqueId(), getCooldownMillis(level))) {
+    if (!cooldowns.isReady(playerId, getCooldownMillis(level))) {
       return;
     }
 
@@ -112,17 +114,12 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
       return;
     }
 
-    if (activeScans.containsKey(p.getUniqueId())) {
-      return;
-    }
-
-    cooldowns.mark(p.getUniqueId());
     Location blockLocation = e.getBlock().getLocation();
     int scanRange = getScanRange(level);
-    startScan(p, blockLocation, scanRange, level);
+    startScan(p, blockLocation, scanRange);
   }
 
-  private void startScan(Player p, Location origin, int scanRange, int level) {
+  private void startScan(Player p, Location origin, int scanRange) {
     World world = origin.getWorld();
     if (world == null) {
       return;
@@ -154,21 +151,41 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
         .seed(ThreadLocalRandom.current().nextInt())
         .additionalMatches(hiddenMatches)
         .matcher(this::isOre)
-        .completion(result -> completeScan(p, origin, scanRange, level, result))
+        .completion(result -> completeScan(p, origin, scanRange, result))
         .build();
-    UUID scanId = WorldBlockScanScheduler.submit(this, p.getUniqueId(), request);
-    activeScans.put(p.getUniqueId(), scanId);
+    synchronized (revealLifecycleLock) {
+      UUID playerId = p.getUniqueId();
+      if (!acceptingReveals.get()
+          || pingInProgress(activeScans.get(playerId), activeRevealWindows.get(playerId))) {
+        return;
+      }
+      UUID scanId = WorldBlockScanScheduler.submit(this, playerId, request);
+      activeScans.put(playerId, scanId);
+    }
   }
 
-  private void completeScan(Player p, Location blockLocation, int scanRange, int level,
+  private void completeScan(Player p, Location blockLocation, int scanRange,
                             WorldBlockScanScheduler.ScanResult result) {
     UUID playerId = p.getUniqueId();
     if (!result.scanId().equals(activeScans.get(playerId))) {
       return;
     }
 
-    boolean scheduled = J.runEntity(p, () -> {
-      if (!activeScans.remove(playerId, result.scanId()) || !p.isOnline()) {
+    boolean scheduled = J.runEntity(p, () -> completeScanOnPlayerThread(p, blockLocation, scanRange, result));
+    if (!scheduled) {
+      synchronized (revealLifecycleLock) {
+        if (acceptingReveals.get() && activeScans.remove(playerId, result.scanId())) {
+          cooldowns.mark(playerId);
+        }
+      }
+    }
+  }
+
+  private void completeScanOnPlayerThread(Player p, Location blockLocation, int scanRange,
+                                          WorldBlockScanScheduler.ScanResult result) {
+    synchronized (revealLifecycleLock) {
+      UUID playerId = p.getUniqueId();
+      if (!acceptingReveals.get() || !activeScans.remove(playerId, result.scanId()) || !p.isOnline()) {
         return;
       }
 
@@ -176,29 +193,23 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
       if (matches.isEmpty()) {
         fx(blockLocation.clone().add(0.5, 0.5, 0.5), FxPriority.TRANSITION)
             .sound(Sound.BLOCK_NOTE_BLOCK_HAT, 0.3f, 0.5f);
+        cooldowns.mark(playerId);
         return;
       }
 
       WorldBlockScanScheduler.Match target = matches.get(0);
       Location targetCenter = target.center(result.world());
       Location playerOrigin = p.getEyeLocation();
-      Vector direction = targetCenter.toVector().subtract(playerOrigin.toVector());
-      if (direction.lengthSquared() <= 0.0000001) {
-        return;
-      }
-
-      Color tint = oreTint(target.material());
-      renderDirectionHint(p, playerOrigin, direction.normalize(), getHintSegments(level), tint);
+      UUID revealId = UUID.randomUUID();
+      activeRevealWindows.put(playerId, revealId);
+      showOreMarker(p, result.world(), target, revealId);
       playPingSound(p, playerOrigin.distance(targetCenter), scanRange);
       addStat(p, "excavation.seismic-ping.pings-triggered", 1);
       xp(p, getConfig().xpPerPing + (getValue(target.material()) * getConfig().targetValueXpMultiplier));
-    });
-    if (!scheduled) {
-      activeScans.remove(playerId, result.scanId());
     }
   }
 
-  private Color oreTint(Material type) {
+  static Color oreTint(Material type) {
     if (type == null) {
       return Color.fromRGB(110, 230, 255);
     }
@@ -225,113 +236,74 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
     return Color.fromRGB(110, 230, 255);
   }
 
-  private void renderDirectionHint(Player player, Location origin, Vector direction, int segments, Color tint) {
-    if (!acceptingLines.get()) {
+  private void showOreMarker(Player player, World world, WorldBlockScanScheduler.Match target, UUID revealId) {
+    Location location = new Location(world, target.x(), target.y(), target.z());
+    String markerKey = markerKey(target);
+    if (!J.runAt(location, () -> showOreMarkerAtRegion(player, world, target, location, revealId, markerKey))) {
+      completeRevealWindow(player.getUniqueId(), revealId, markerKey);
+    }
+  }
+
+  private void showOreMarkerAtRegion(Player player, World world, WorldBlockScanScheduler.Match target,
+                                     Location location, UUID revealId, String markerKey) {
+    if (!world.isChunkLoaded(target.x() >> 4, target.z() >> 4)) {
+      completeRevealWindow(player.getUniqueId(), revealId, markerKey);
       return;
     }
-    int total = Math.max(2, segments);
-    float length = lineLength(total, getConfig().segmentSpacing);
-    float thickness = (float) Math.max(0.04D, Math.min(0.5D, getConfig().lineThickness));
-    Quaternionf rotation = new Quaternionf().rotationTo(
-        0f, 0f, 1f,
-        (float) direction.getX(), (float) direction.getY(), (float) direction.getZ()
-    );
-    Vector3f centeredOffset = new Vector3f(-thickness * 0.5F, -thickness * 0.5F, 0F);
-    rotation.transform(centeredOffset);
-    Transformation transformation = new Transformation(
-        centeredOffset, rotation, new Vector3f(thickness, thickness, length), new Quaternionf()
-    );
-    Location lineOrigin = origin.clone().add(direction.clone().multiply(0.65D));
-
-    BlockDisplay line;
-    try {
-      line = lineOrigin.getWorld().spawn(lineOrigin, BlockDisplay.class, display -> {
-        display.setPersistent(false);
-        display.setInvulnerable(true);
-        display.setGravity(false);
-        display.setSilent(true);
-        display.setVisibleByDefault(false);
-        display.setViewRange((float) Math.max(0.5D, Math.min(2D, getConfig().lineViewRange)));
-        display.setShadowRadius(0f);
-        display.setShadowStrength(0f);
-        display.setBrightness(new Display.Brightness(15, 15));
-        display.setDisplayWidth(length);
-        display.setDisplayHeight(Math.max(1f, length));
-        display.setBlock(Material.WHITE_STAINED_GLASS.createBlockData());
-        display.setTransformation(transformation);
-        display.setGlowColorOverride(tint);
-        display.setGlowing(true);
-      });
-    } catch (Throwable error) {
-      Adapt.verbose("Failed to spawn glowing direction line for Seismic Ping: "
-          + error.getClass().getSimpleName()
-          + (error.getMessage() == null ? "" : " - " + error.getMessage()));
-      error.printStackTrace();
+    if (!target.supplied() && world.getBlockAt(target.x(), target.y(), target.z()).getType() != target.material()) {
+      completeRevealWindow(player.getUniqueId(), revealId, markerKey);
       return;
     }
 
-    UUID lineId = line.getUniqueId();
-    DisplayHandle handle = new DisplayHandle(line, lineOrigin.clone());
-    synchronized (lineLifecycleLock) {
-      if (!acceptingLines.get()) {
-        removeDisplayOwned(line);
+    synchronized (revealLifecycleLock) {
+      UUID playerId = player.getUniqueId();
+      if (!acceptingReveals.get() || !player.isOnline()
+          || !revealId.equals(activeRevealWindows.get(playerId))) {
+        activeRevealWindows.remove(playerId, revealId);
         return;
       }
-      activeLines.put(lineId, handle);
-    }
-    player.showEntity(Adapt.instance, line);
-    if (!J.runEntity(line, () -> removeLineOwned(lineId, line), getLineDurationTicks())) {
-      removeLine(lineId);
-    }
-  }
-
-  private void removeLine(UUID lineId) {
-    DisplayHandle handle = activeLines.remove(lineId);
-    if (handle == null) {
-      return;
-    }
-    if (!J.runEntity(handle.display(), () -> removeDisplayOwned(handle.display()))) {
-      J.runAt(handle.anchor(), () -> removeDisplayOwned(handle.display()));
-    }
-  }
-
-  private void removeLineOwned(UUID lineId, BlockDisplay line) {
-    activeLines.remove(lineId);
-    removeDisplayOwned(line);
-  }
-
-  private void removeDisplayOwned(BlockDisplay line) {
-    if (line.isValid()) {
-      line.remove();
-    }
-  }
-
-  @EventHandler(priority = EventPriority.MONITOR)
-  public void on(EntityRemoveEvent e) {
-    if (e.getEntity() instanceof BlockDisplay) {
-      activeLines.remove(e.getEntity().getUniqueId());
-    }
-  }
-
-  private void clearLines() {
-    List<DisplayHandle> handles;
-    synchronized (lineLifecycleLock) {
-      handles = List.copyOf(activeLines.values());
-      activeLines.clear();
-    }
-    for (DisplayHandle handle : handles) {
-      if (!J.runEntity(handle.display(), () -> removeDisplayOwned(handle.display()))) {
-        J.runAt(handle.anchor(), () -> removeDisplayOwned(handle.display()));
+      boolean shown = ViewerDisplayDirector.showBlock(
+          getName(),
+          markerKey,
+          player,
+          location,
+          target.material().createBlockData(),
+          oreTint(target.material()),
+          GLOW_DURATION_TICKS
+      );
+      if (!shown) {
+        completeRevealWindow(playerId, revealId, markerKey);
+        return;
+      }
+      if (!J.runEntity(player,
+          () -> completeRevealWindow(playerId, revealId, markerKey), GLOW_DURATION_TICKS)) {
+        ViewerDisplayDirector.clearViewerKey(getName(), markerKey, playerId);
+        completeRevealWindow(playerId, revealId, markerKey);
       }
     }
   }
 
-  private int getLineDurationTicks() {
-    return Math.max(10, Math.min(20 * 10, getConfig().lineDurationTicks));
+  private static String markerKey(WorldBlockScanScheduler.Match target) {
+    return "ore-" + target.x() + ":" + target.y() + ":" + target.z();
   }
 
-  static float lineLength(int segments, double spacing) {
-    return (float) (Math.max(2, segments) * Math.max(0.1D, spacing));
+  private void completeRevealWindow(UUID playerId, UUID revealId, String markerKey) {
+    synchronized (revealLifecycleLock) {
+      if (!retireRevealWindow(activeRevealWindows, playerId, revealId, acceptingReveals.get())) {
+        return;
+      }
+      ViewerDisplayDirector.clearViewerKey(getName(), markerKey, playerId);
+      cooldowns.mark(playerId);
+    }
+  }
+
+  static boolean pingInProgress(UUID scanId, UUID revealId) {
+    return scanId != null || revealId != null;
+  }
+
+  static boolean retireRevealWindow(Map<UUID, UUID> activeWindows, UUID playerId, UUID revealId,
+                                    boolean acceptingReveals) {
+    return acceptingReveals && activeWindows.remove(playerId, revealId);
   }
 
   private void playPingSound(Player p, double distance, int range) {
@@ -357,17 +329,30 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
   @EventHandler
   public void on(PlayerQuitEvent e) {
     UUID playerId = e.getPlayer().getUniqueId();
-    activeScans.remove(playerId);
-    WorldBlockScanScheduler.cancel(this, playerId);
+    synchronized (revealLifecycleLock) {
+      activeScans.remove(playerId);
+      activeRevealWindows.remove(playerId);
+      cooldowns.clear(playerId);
+      WorldBlockScanScheduler.cancel(this, playerId);
+      ViewerDisplayDirector.clearViewer(getName(), playerId);
+    }
   }
 
   @Override
   public void unregister() {
-    acceptingLines.set(false);
+    synchronized (revealLifecycleLock) {
+      acceptingReveals.set(false);
+      activeScans.clear();
+      activeRevealWindows.clear();
+      WorldBlockScanScheduler.cancelOwner(this);
+      ViewerDisplayDirector.clearChannel(getName());
+    }
     super.unregister();
-    activeScans.clear();
-    WorldBlockScanScheduler.cancelOwner(this);
-    clearLines();
+  }
+
+  @Override
+  protected boolean shouldCanonicalizeConfigOnLoad() {
+    return true;
   }
 
   private int getScanRange(int level) {
@@ -382,12 +367,7 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
     return Math.max(350L, (long) Math.round(getConfig().cooldownMillisBase - (getLevelPercent(level) * getConfig().cooldownMillisFactor)));
   }
 
-  private int getHintSegments(int level) {
-    return Math.max(4, (int) Math.round(getConfig().hintSegmentsBase + (getLevelPercent(level) * getConfig().hintSegmentsFactor)));
-  }
-
-
-  @ConfigDescription("Mining can emit seismic pings that hint toward nearby ore direction.")
+  @ConfigDescription("Mining can emit seismic pings that temporarily reveal a nearby ore block.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Scan Range Base for the Excavation Seismic Ping adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double scanRangeBase = 11;
@@ -407,18 +387,6 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
     double cooldownMillisBase = 2600;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown Millis Factor for the Excavation Seismic Ping adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double cooldownMillisFactor = 1850;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Hint Segments Base for the Excavation Seismic Ping adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double hintSegmentsBase = 7;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Hint Segments Factor for the Excavation Seismic Ping adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double hintSegmentsFactor = 9;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Segment Spacing for the Excavation Seismic Ping adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double segmentSpacing = 0.55;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Thickness of the glowing Seismic Ping direction line.", impact = "Higher values make the line easier to see and values are clamped between 0.04 and 0.5 blocks.")
-    double lineThickness = 0.12;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Duration in ticks that the glowing Seismic Ping direction line remains visible.", impact = "Higher values keep the direction visible longer and retain the temporary display entity longer.")
-    int lineDurationTicks = 40;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Client view-range multiplier for the glowing Seismic Ping direction line.", impact = "Higher values allow the line to render farther away and values are clamped between 0.5 and 2.0.")
-    double lineViewRange = 1.0;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Ping for the Excavation Seismic Ping adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpPerPing = 8;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Target Value Xp Multiplier for the Excavation Seismic Ping adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -430,6 +398,4 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
     }
   }
 
-  private record DisplayHandle(BlockDisplay display, Location anchor) {
-  }
 }

@@ -26,6 +26,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.BlockFace;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -36,14 +37,10 @@ import java.util.List;
 @AllArgsConstructor
 @Data
 public class BoundRedstoneTorch implements DataItem<BoundRedstoneTorch.Data> {
-  public static BoundRedstoneTorch io = new BoundRedstoneTorch();
+  public static final BoundRedstoneTorch io = new BoundRedstoneTorch();
 
-  public static Location getLocation(ItemStack stack) {
-    if (io.getData(stack) != null) {
-      return io.getData(stack).getLocation();
-    }
-
-    return null;
+  public static Data getBinding(ItemStack stack) {
+    return io.getData(stack);
   }
 
   /*
@@ -53,12 +50,12 @@ public class BoundRedstoneTorch implements DataItem<BoundRedstoneTorch.Data> {
     return io.hasData(stack);
   }
 
-  public static void setData(ItemStack item, Location t) {
-    io.setData(item, new Data(t));
+  public static void setData(ItemStack item, Location target, BlockFace face) {
+    io.setData(item, new Data(target, face));
   }
 
-  public static ItemStack withData(Location t) {
-    return io.withData(new Data(t));
+  public static ItemStack withData(Location target, BlockFace face) {
+    return io.withData(new Data(target, face));
   }
 
   public static boolean isBindableItem(ItemStack t) {
@@ -101,9 +98,6 @@ public class BoundRedstoneTorch implements DataItem<BoundRedstoneTorch.Data> {
   @lombok.Data
   public static class Data {
     private Location location;
-
-    public static BoundRedstoneTorch.Data at(Location l) {
-      return new BoundRedstoneTorch.Data(l);
-    }
+    private BlockFace face;
   }
 }

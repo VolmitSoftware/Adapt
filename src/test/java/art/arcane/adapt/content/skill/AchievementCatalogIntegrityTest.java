@@ -87,7 +87,14 @@ class AchievementCatalogIntegrityTest {
       "challenge_agility_wind_up_2hr",
       "challenge_agility_armor_up_5hr",
       "challenge_unarmed_flurry_1k",
-      "challenge_unarmed_flurry_10k"
+      "challenge_unarmed_flurry_10k",
+      "challenge_axe_orchardist_500",
+      "challenge_axe_sap_tap_500",
+      "challenge_axe_timber_200",
+      "challenge_axe_timber_40",
+      "challenge_excavation_dowsing_200",
+      "challenge_rift_step_50",
+      "challenge_rift_step_500"
   );
   private static final Set<String> RETIRED_STATS = Set.of(
       "killed.turtleeggs",
@@ -100,7 +107,12 @@ class AchievementCatalogIntegrityTest {
       "excavation.swings",
       "pickaxe.swings",
       "enchanted.levels.spent",
-      "unarmed.flurry.flurry-hits"
+      "unarmed.flurry.flurry-hits",
+      "axe.orchardist.trees-replanted",
+      "axe.sap-tap.sap-drawn",
+      "axe.timber-mark.marks-felled",
+      "excavation.dowsing.pockets-found",
+      "rift.step.saves"
   );
   private static final Map<String, Integer> HUNTER_GOALS = Map.of(
       "challenge_novice_hunter", 100,
@@ -122,6 +134,8 @@ class AchievementCatalogIntegrityTest {
     for (String stat : RETIRED_STATS) {
       assertThat(source).as("retired stat %s", stat).doesNotContain(stat);
     }
+    assertThat(source).doesNotContain("RiftStep", "\"rift-step\"", "\"rift.step.", "challenge_rift_step");
+    assertThat(resources).doesNotContain("[rift.step]", "[advancement.challenge_rift_step");
   }
 
   @Test

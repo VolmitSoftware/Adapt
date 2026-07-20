@@ -455,7 +455,7 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
     LivingEntity target = operation.target();
     if (!operation.damageSender() && target.isValid() && !target.isDead()) {
       if (target instanceof Player player) {
-        applyPlayerHealthLoss(player, PEARL_TELEPORT_DAMAGE);
+        applyPlayerDamage(player, PEARL_TELEPORT_DAMAGE);
       } else {
         target.damage(PEARL_TELEPORT_DAMAGE);
       }
@@ -487,7 +487,7 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
     }
 
     if (operation.damageSender() && thrower.isValid() && !thrower.isDead()) {
-      applyPlayerHealthLoss(thrower, PEARL_TELEPORT_DAMAGE);
+      applyPlayerDamage(thrower, PEARL_TELEPORT_DAMAGE);
     }
     addStat(thrower, "rift.ender-taglock.taglocked-teleports", 1);
     xp(thrower, getConfig().xpOnTeleport);

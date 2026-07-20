@@ -50,14 +50,9 @@ public class CraftingBackpacks extends SimpleAdaptation<CraftingBackpacks.Config
     setInterval(17779);
     registerRecipe(AdaptRecipe.shaped()
         .key("crafting-backpacks")
-        .ingredient(new MaterialChar('I', Material.LEATHER))
-        .ingredient(new MaterialChar('L', Material.LEAD))
+        .ingredient(new MaterialChar('L', Material.LEATHER))
         .ingredient(new MaterialChar('C', Material.CHEST))
-        .ingredient(new MaterialChar('X', Material.BARREL))
-        .shapes(List.of(
-            "ILI",
-            "IXI",
-            "ICI"))
+        .shapes(recipeShape())
         .result(new ItemStack(Material.BUNDLE, 1))
         .build());
     AdvancementSpec backpacksCrafted = AdvancementSpec.challenge(
@@ -67,6 +62,14 @@ public class CraftingBackpacks extends SimpleAdaptation<CraftingBackpacks.Config
         Localizer.dLocalize("advancement.challenge_crafting_backpack_25.description")
     );
     registerMilestone(backpacksCrafted, "crafting.backpacks.bundles-crafted", 25, 300);
+  }
+
+  static List<String> recipeShape() {
+    return List.of(
+        "LLL",
+        "LCL",
+        "LLL"
+    );
   }
 
   @Override

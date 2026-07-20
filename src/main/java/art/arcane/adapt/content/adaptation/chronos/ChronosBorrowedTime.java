@@ -51,6 +51,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 
 public class ChronosBorrowedTime extends SimpleAdaptation<ChronosBorrowedTime.Config> {
   private final Map<UUID, Deque<DeferredDamage>> deferred = playerState();
+  private final ThreadLocal<Boolean> applyingPaybackDamage = new ThreadLocal<>();
 
   public ChronosBorrowedTime() {
     super("chronos-borrowed-time");
@@ -93,6 +94,9 @@ public class ChronosBorrowedTime extends SimpleAdaptation<ChronosBorrowedTime.Co
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(EntityDamageEvent e) {
     if (!(e.getEntity() instanceof Player p)) {
+      return;
+    }
+    if (isApplyingPaybackDamage()) {
       return;
     }
 
@@ -174,7 +178,7 @@ public class ChronosBorrowedTime extends SimpleAdaptation<ChronosBorrowedTime.Co
           return;
         }
 
-        applyPlayerHealthLoss(p, damage);
+        applyDeferredDamage(p, damage);
 
         int motes = (int) Math.max(2, Math.min(5, Math.round(damage)));
         float pitch = 0.5F + Math.min(0.9F, (float) (damage * 0.12D));
@@ -193,6 +197,28 @@ public class ChronosBorrowedTime extends SimpleAdaptation<ChronosBorrowedTime.Co
         J.runEntity(p, apply);
       } else {
         apply.run();
+      }
+    }
+  }
+
+  private void applyDeferredDamage(Player player, double damage) {
+    withPaybackDamage(() -> applyPlayerDamage(player, damage));
+  }
+
+  boolean isApplyingPaybackDamage() {
+    return Boolean.TRUE.equals(applyingPaybackDamage.get());
+  }
+
+  void withPaybackDamage(Runnable damage) {
+    Boolean previous = applyingPaybackDamage.get();
+    applyingPaybackDamage.set(true);
+    try {
+      damage.run();
+    } finally {
+      if (previous == null) {
+        applyingPaybackDamage.remove();
+      } else {
+        applyingPaybackDamage.set(previous);
       }
     }
   }

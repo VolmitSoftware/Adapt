@@ -50,6 +50,100 @@ class PlayerDataTest extends AdaptTestBase {
     }
 
     @Test
+    @DisplayName("removed Axes content is pruned from persisted player data")
+    void removedAxesContentIsPrunedFromJson() {
+        PlayerData data = new PlayerData();
+        PlayerSkillLine axes = new PlayerSkillLine();
+        axes.setLine("axes");
+        axes.getAdaptations().put("axe-orchardist", adaptation("axe-orchardist", 2));
+        axes.getAdaptations().put("axe-sap-tap", adaptation("axe-sap-tap", 3));
+        axes.getAdaptations().put("axe-timber-mark", adaptation("axe-timber-mark", 4));
+        axes.getAdaptations().put("axe-shield-splitter", adaptation("axe-shield-splitter", 1));
+        data.getSkillLines().put("axes", axes);
+        data.addStat("axe.orchardist.trees-replanted", 11D);
+        data.addStat("axe.sap-tap.sap-drawn", 12D);
+        data.addStat("axe.timber-mark.marks-felled", 13D);
+        data.addStat("axes.blocks.broken", 14D);
+        data.ensureGranted("adaptation_axe-orchardist");
+        data.ensureGranted("adaptation_axe-sap-tap");
+        data.ensureGranted("adaptation_axe-timber-mark");
+        data.ensureGranted("challenge_axe_orchardist_500");
+        data.ensureGranted("challenge_axe_sap_tap_500");
+        data.ensureGranted("challenge_axe_timber_200");
+        data.ensureGranted("challenge_axe_timber_40");
+        data.ensureGranted("challenge_axe_damage_1k");
+
+        PlayerData restored = PlayerData.fromJson(data.toJson(false));
+
+        assertThat(restored).isNotNull();
+        assertThat(restored.getSkillLines().get("axes").getAdaptations())
+            .containsOnlyKeys("axe-shield-splitter");
+        assertThat(restored.getUsedPower()).isEqualTo(1);
+        assertThat(restored.getStats())
+            .hasSize(1)
+            .containsEntry("axes.blocks.broken", 14D);
+        assertThat(restored.getAdvancements())
+            .containsOnly("challenge_axe_damage_1k");
+    }
+
+    @Test
+    @DisplayName("removed Dowsing content is pruned from persisted player data")
+    void removedDowsingContentIsPrunedFromJson() {
+        PlayerData data = new PlayerData();
+        PlayerSkillLine excavation = new PlayerSkillLine();
+        excavation.setLine("excavation");
+        excavation.getAdaptations().put("excavation-dowsing", adaptation("excavation-dowsing", 3));
+        excavation.getAdaptations().put("excavation-burrow", adaptation("excavation-burrow", 1));
+        data.getSkillLines().put("excavation", excavation);
+        data.addStat("excavation.dowsing.pockets-found", 12D);
+        data.addStat("excavation.blocks.broken", 14D);
+        data.ensureGranted("adaptation_excavation-dowsing");
+        data.ensureGranted("challenge_excavation_dowsing_200");
+        data.ensureGranted("challenge_excavation_burrow_100");
+
+        PlayerData restored = PlayerData.fromJson(data.toJson(false));
+
+        assertThat(restored).isNotNull();
+        assertThat(restored.getSkillLines().get("excavation").getAdaptations())
+            .containsOnlyKeys("excavation-burrow");
+        assertThat(restored.getUsedPower()).isEqualTo(1);
+        assertThat(restored.getStats())
+            .hasSize(1)
+            .containsEntry("excavation.blocks.broken", 14D);
+        assertThat(restored.getAdvancements())
+            .containsOnly("challenge_excavation_burrow_100");
+    }
+
+    @Test
+    @DisplayName("removed Rift Step content is pruned from persisted player data")
+    void removedRiftStepContentIsPrunedFromJson() {
+        PlayerData data = new PlayerData();
+        PlayerSkillLine rift = new PlayerSkillLine();
+        rift.setLine("rift");
+        rift.getAdaptations().put("rift-step", adaptation("rift-step", 4));
+        rift.getAdaptations().put("rift-blink", adaptation("rift-blink", 2));
+        data.getSkillLines().put("rift", rift);
+        data.addStat("rift.step.saves", 12D);
+        data.addStat("rift.blink.blinks", 14D);
+        data.ensureGranted("adaptation_rift-step");
+        data.ensureGranted("challenge_rift_step_50");
+        data.ensureGranted("challenge_rift_step_500");
+        data.ensureGranted("challenge_rift_blink_500");
+
+        PlayerData restored = PlayerData.fromJson(data.toJson(false));
+
+        assertThat(restored).isNotNull();
+        assertThat(restored.getSkillLines().get("rift").getAdaptations())
+            .containsOnlyKeys("rift-blink");
+        assertThat(restored.getUsedPower()).isEqualTo(2);
+        assertThat(restored.getStats())
+            .hasSize(1)
+            .containsEntry("rift.blink.blinks", 14D);
+        assertThat(restored.getAdvancements())
+            .containsOnly("challenge_rift_blink_500");
+    }
+
+    @Test
     @DisplayName("globalXPMultiplier registers a multiplier")
     void globalMultiplierIsRegistered() {
         PlayerData d = new PlayerData();
@@ -247,6 +341,13 @@ class PlayerDataTest extends AdaptTestBase {
         data.clearAll();
         assertThat(data.getMutationData().getSlotOneId()).isEmpty();
         assertThat(data.getMutationData().getDiscovered()).isEmpty();
+    }
+
+    private static PlayerAdaptation adaptation(String id, int level) {
+        PlayerAdaptation adaptation = new PlayerAdaptation();
+        adaptation.setId(id);
+        adaptation.setLevel(level);
+        return adaptation;
     }
 
     private static final class CountingSkillLine extends PlayerSkillLine {

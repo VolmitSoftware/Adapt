@@ -18,7 +18,6 @@
 
 package art.arcane.adapt.content.adaptation.stealth;
 
-import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
@@ -36,7 +35,6 @@ import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import fr.skytasul.glowingentities.GlowingEntities;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -115,13 +113,18 @@ public class StealthCore extends SimpleAdaptation<StealthCore.Config> {
   private final StealthCoalescingQueue<GlowOperation> glowQueue =
       new StealthCoalescingQueue<>(HARD_MAX_PENDING_GLOW_OPERATIONS);
   private final Cooldowns redThreatCooldown = cooldowns();
+  private final StealthGlowCoordinator glowCoordinator;
   private final StealthShadowDecoy shadowDecoy;
+  private final StealthSmokePellet smokePellet;
   private volatile EnumSet<EntityType> blacklistCache;
   private volatile List<String> blacklistSource;
 
-  public StealthCore(StealthShadowDecoy shadowDecoy) {
+  public StealthCore(StealthShadowDecoy shadowDecoy, StealthSmokePellet smokePellet,
+                     StealthGlowCoordinator glowCoordinator) {
     super("stealth-silent-step");
     this.shadowDecoy = Objects.requireNonNull(shadowDecoy);
+    this.smokePellet = Objects.requireNonNull(smokePellet);
+    this.glowCoordinator = Objects.requireNonNull(glowCoordinator);
     registerConfiguration(Config.class);
     setIcon(Material.WHITE_WOOL);
     setInterval(50);
@@ -655,12 +658,14 @@ public class StealthCore extends SimpleAdaptation<StealthCore.Config> {
     return forcedConcealment(
         player.isInvisible(),
         player.hasPotionEffect(PotionEffectType.INVISIBILITY),
-        shadowDecoy.hasActiveDecoy(player.getUniqueId())
+        shadowDecoy.hasActiveDecoy(player.getUniqueId()),
+        smokePellet.isConcealed(player)
     );
   }
 
-  static boolean forcedConcealment(boolean invisible, boolean invisibilityEffect, boolean activeDecoy) {
-    return invisible || invisibilityEffect || activeDecoy;
+  static boolean forcedConcealment(boolean invisible, boolean invisibilityEffect, boolean activeDecoy,
+                                   boolean smokeConcealed) {
+    return invisible || invisibilityEffect || activeDecoy || smokeConcealed;
   }
 
   private void stopSession(Player player) {
@@ -747,8 +752,7 @@ public class StealthCore extends SimpleAdaptation<StealthCore.Config> {
       return;
     }
 
-    GlowingEntities glowingEntities = Adapt.instance.getGlowingEntities();
-    if (glowingEntities == null) {
+    if (!glowCoordinator.isAvailable()) {
       threatGlows.remove(session.playerId);
       return;
     }
@@ -837,7 +841,7 @@ public class StealthCore extends SimpleAdaptation<StealthCore.Config> {
     if (active == null || active.isEmpty()) {
       return;
     }
-    if (discard || session == null || Adapt.instance.getGlowingEntities() == null) {
+    if (discard || session == null || !glowCoordinator.isAvailable()) {
       return;
     }
 
@@ -865,17 +869,17 @@ public class StealthCore extends SimpleAdaptation<StealthCore.Config> {
   }
 
   private void clearThreatGlowsImmediate(Player player, Map<UUID, ThreatGlow> active) {
-    GlowingEntities glowingEntities = Adapt.instance.getGlowingEntities();
-    if (active == null || active.isEmpty() || glowingEntities == null) {
+    if (active == null || active.isEmpty()) {
       return;
     }
-    synchronized (Adapt.glowingEntitiesLock()) {
-      for (ThreatGlow glow : active.values()) {
-        try {
-          glowingEntities.unsetGlowing(glow.runtimeEntityId, player);
-        } catch (ReflectiveOperationException | IllegalStateException ignored) {
-        }
-      }
+    for (Map.Entry<UUID, ThreatGlow> entry : active.entrySet()) {
+      ThreatGlow glow = entry.getValue();
+      glowCoordinator.unset(
+          StealthGlowCoordinator.Layer.THREAT,
+          entry.getKey(),
+          glow.runtimeEntityId,
+          player
+      );
     }
   }
 
@@ -911,25 +915,30 @@ public class StealthCore extends SimpleAdaptation<StealthCore.Config> {
   }
 
   private void applyGlowOwned(GlowOperation operation) {
-    GlowingEntities glowingEntities = Adapt.instance.getGlowingEntities();
-    if (glowingEntities == null) {
+    if (!glowCoordinator.isAvailable()) {
       if (operation.level != null) {
         rollbackGlowSet(operation);
       }
       return;
     }
-    synchronized (Adapt.glowingEntitiesLock()) {
-      try {
-        if (operation.level == null) {
-          glowingEntities.unsetGlowing(operation.runtimeEntityId, operation.viewer);
-        } else {
-          glowingEntities.setGlowing(operation.entity, operation.viewer, getThreatColor(operation.level));
-        }
-      } catch (ReflectiveOperationException | IllegalStateException ignored) {
-        if (operation.level != null) {
-          rollbackGlowSet(operation);
-        }
-      }
+    boolean applied;
+    if (operation.level == null) {
+      applied = glowCoordinator.unset(
+          StealthGlowCoordinator.Layer.THREAT,
+          operation.entityUuid,
+          operation.runtimeEntityId,
+          operation.viewer
+      );
+    } else {
+      applied = glowCoordinator.set(
+          StealthGlowCoordinator.Layer.THREAT,
+          operation.entity,
+          operation.viewer,
+          getThreatColor(operation.level)
+      );
+    }
+    if (!applied && operation.level != null) {
+      rollbackGlowSet(operation);
     }
   }
 

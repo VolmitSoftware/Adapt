@@ -38,6 +38,31 @@ class KineticsMoonJumpTest {
   }
 
   @Test
+  void everyLevelAddsHalfABlockToBaseJumpHeight() {
+    for (int level = 1; level <= 5; level++) {
+      assertThat(KineticsMoonJump.baseJumpHeight(level))
+          .isCloseTo(KineticsJumpPhysics.VANILLA_JUMP_HEIGHT + (level * 0.5D), offset(1.0E-12D));
+    }
+  }
+
+  @Test
+  void baseJumpBonusConvertsTargetBlockHeightToJumpStrength() {
+    for (int level = 1; level <= 5; level++) {
+      double effectiveStrength = KineticsJumpPhysics.VANILLA_JUMP_STRENGTH
+          + KineticsMoonJump.baseJumpStrengthBonus(level);
+      assertThat(KineticsJumpPhysics.heightForStrength(effectiveStrength))
+          .isCloseTo(KineticsMoonJump.baseJumpHeight(level), offset(1.0E-9D));
+    }
+  }
+
+  @Test
+  void jumpPhysicsRejectsInvalidInputs() {
+    assertThat(KineticsJumpPhysics.heightForStrength(Double.NaN)).isZero();
+    assertThat(KineticsJumpPhysics.strengthForHeight(Double.POSITIVE_INFINITY)).isZero();
+    assertThat(KineticsJumpPhysics.bonusForHeight(-1D)).isZero();
+  }
+
+  @Test
   void gravityReductionGrowsWithLevel() {
     KineticsMoonJump.Config config = new KineticsMoonJump.Config();
     double atLevelOne = KineticsMoonJump.gravityReduction(config.gravityReductionBase, config.gravityReductionFactor, levelPercent(1, config.maxLevel));

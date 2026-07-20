@@ -120,7 +120,8 @@ public class SwordsPoisonedBlade extends SimpleAdaptation<SwordsPoisonedBlade.Co
         addPotionStacks(pvic, PotionEffectType.POISON, 2, 50 * getLevel(p), true);
       } else if (victim instanceof LivingEntity living) {
         if (isPoisonImmune(living)) {
-          startBleedVisual(new DamagingBleedEffect(Adapt.instance.adaptEffectManager, 1, living), living, p);
+          DamagingBleedEffect.DamageContext context = new DamagingBleedEffect.DamageContext(1D, living, p);
+          startBleedVisual(new DamagingBleedEffect(Adapt.instance.adaptEffectManager, context), living, p);
         } else {
           startBleedVisual(new BleedEffect(Adapt.instance.adaptEffectManager), living, p);
           living.addPotionEffect(new PotionEffect(PotionEffectType.POISON, Math.max(1, 50 * getLevel(p)), 2));

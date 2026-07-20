@@ -132,6 +132,10 @@ public class J {
     return RUNTIME.isOwnedByCurrentRegion(entity);
   }
 
+  public static boolean isOwnedByCurrentRegion(Location location) {
+    return FoliaScheduler.isOwnedByCurrentRegion(location);
+  }
+
   public static boolean runEntity(Entity entity, Runnable runnable) {
     return RUNTIME.runEntity(entity, runnable);
   }

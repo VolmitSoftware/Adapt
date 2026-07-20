@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.rift;
 
+import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -28,8 +29,6 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.world.PlayerAdaptation;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.content.event.AdaptAdaptationTeleportEvent;
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.input.DoubleJumpGesture;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -45,24 +44,25 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.damage.DamageSource;
+import org.bukkit.damage.DamageType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
+import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ThreadLocalRandom;
-
-import static art.arcane.adapt.api.adaptation.chunk.ChunkLoading.loadChunkAsync;
+import java.util.concurrent.CompletableFuture;
 
 
 public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
   private final Cooldowns lastBlink = cooldowns();
   private final DoubleJumpGesture doubleJump = new DoubleJumpGesture();
+  private final Map<UUID, Boolean> pendingBlinks = playerState();
 
   public RiftBlink() {
     super("rift-blink");
@@ -88,9 +88,12 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
   @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.f(getBlinkDistance(level), 1), 1);
-    if (getConfig().pearlConsumeChance > 0) {
-      v.addLore(C.RED + "* " + Form.pc(getConfig().pearlConsumeChance, 0) + C.GRAY + " " + Localizer.dLocalize("rift.blink.lore_cost_pearl"));
-    }
+    statLore(v, Form.f(getPearlDamage(level) / 2D, 1), 2);
+  }
+
+  @Override
+  protected boolean shouldCanonicalizeConfigOnLoad() {
+    return true;
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -114,11 +117,20 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
   }
 
   private boolean isOnCooldown(UUID id) {
-    return !lastBlink.isReady(id, Math.max(0L, getConfig().cooldownMillis));
+    return pendingBlinks.containsKey(id) || !lastBlink.isReady(id, Math.max(0L, getConfig().cooldownMillis));
   }
 
   private double getBlinkDistance(int level) {
     return getConfig().baseDistance + (getLevelPercent(level) * getConfig().distanceFactor);
+  }
+
+  private double getPearlDamage(int level) {
+    return calculatePearlDamage(
+        level,
+        getConfig().pearlDamageBase,
+        getConfig().pearlDamageReductionPerLevel,
+        getConfig().minimumPearlDamage
+    );
   }
 
   private void attemptBlink(Player p) {
@@ -127,50 +139,91 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
       return;
     }
 
+    pendingBlinks.put(id, Boolean.TRUE);
+
     Location origin = p.getLocation().clone();
     Location destination = findBlinkDestination(p);
     double minDistance = Math.max(0.5, getConfig().minBlinkDistance);
     if (destination == null || origin.distanceSquared(destination) < minDistance * minDistance) {
+      pendingBlinks.remove(id);
       fx(p, FxPriority.TRANSITION)
           .burst(Particles.SMOKE, 4, 0.2)
           .sound(Sound.BLOCK_CONDUIT_DEACTIVATE, 0.5f, 1.4f);
       return;
     }
 
-    lastBlink.mark(id);
     destination.setYaw(origin.getYaw());
     destination.setPitch(origin.getPitch());
     Vector carry = origin.getDirection().clone().multiply(getConfig().momentumCarry);
-    fx(origin, FxPriority.TRANSITION)
-        .line(Particle.REVERSE_PORTAL, destination.getX(), destination.getY() + 1, destination.getZ(), 24)
+    BlinkOperation operation = new BlinkOperation(id, origin, destination, carry, getLevel(p));
+    AdaptAdaptationTeleportEvent event = new AdaptAdaptationTeleportEvent(!Bukkit.isPrimaryThread(), getPlayer(p), this,
+        operation.origin(), operation.requestedDestination().clone());
+    Bukkit.getPluginManager().callEvent(event);
+    if (event.isCancelled()) {
+      pendingBlinks.remove(id);
+      return;
+    }
+
+    fx(operation.origin(), FxPriority.TRANSITION)
+        .line(Particle.REVERSE_PORTAL, operation.requestedDestination().getX(),
+            operation.requestedDestination().getY() + 1, operation.requestedDestination().getZ(), 24)
         .particle(Particle.REVERSE_PORTAL, 6, 0, 1.0, 0, 0.25, 0.03)
         .chord(Sound.ENTITY_ENDERMAN_TELEPORT, 0.5f, 1.0f, Sound.BLOCK_AMETHYST_BLOCK_HIT, 0.4f, 1.7f);
 
-    loadChunkAsync(destination, chunk -> J.runEntity(p, () -> {
-      AdaptAdaptationTeleportEvent event = new AdaptAdaptationTeleportEvent(!Bukkit.isPrimaryThread(), getPlayer(p), this, origin, destination.clone());
-      Bukkit.getPluginManager().callEvent(event);
-      if (event.isCancelled()) {
-        lastBlink.clear(id);
+    CompletableFuture<Boolean> teleport;
+    try {
+      teleport = p.teleportAsync(operation.requestedDestination(), PlayerTeleportEvent.TeleportCause.PLUGIN);
+    } catch (RuntimeException exception) {
+      pendingBlinks.remove(id);
+      exception.printStackTrace();
+      Adapt.error("Rift Blink could not start a teleport for " + p.getUniqueId() + ".");
+      return;
+    }
+
+    teleport.whenComplete((success, failure) -> finishBlink(p, operation, success, failure));
+  }
+
+  private void finishBlink(Player p, BlinkOperation operation, Boolean success, Throwable failure) {
+    if (failure != null) {
+      failure.printStackTrace();
+      Adapt.error("Rift Blink teleport failed for " + operation.playerId() + ".");
+    }
+
+    if (!J.runEntity(p, () -> {
+      pendingBlinks.remove(operation.playerId());
+      if (failure != null || !Boolean.TRUE.equals(success) || !p.isOnline()) {
         return;
       }
 
-      consumeBlinkPearl(p);
+      lastBlink.mark(operation.playerId());
       PlayerSkillLine line = getPlayer(p).getData().getSkillLineNullable("rift");
       PlayerAdaptation adaptation = line != null ? line.getAdaptation("rift-resist") : null;
       if (adaptation != null && adaptation.getLevel() > 0) {
         RiftResist.riftResistStackAdd(this, p, 10, 5);
       }
 
-      J.teleport(p, destination, PlayerTeleportEvent.TeleportCause.PLUGIN);
       p.setFallDistance(0);
-      p.setVelocity(carry);
-      fx(destination, FxPriority.TRANSITION)
+      p.setVelocity(operation.carry());
+      applyPearlDamage(p, getPearlDamage(operation.level()));
+      Location actualDestination = p.getLocation().clone();
+      fx(actualDestination, FxPriority.TRANSITION)
           .ring(Particles.END_ROD, 0.8, 10, 0.1)
           .sound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.5f, 1.3f);
       addStat(p, "rift.teleports", 1);
       addStat(p, "rift.blink.blinks", 1);
-      addStat(p, "rift.blink.distance-blinked", (int) origin.distance(destination));
-    }));
+      addStat(p, "rift.blink.distance-blinked", (int) operation.origin().distance(actualDestination));
+    })) {
+      pendingBlinks.remove(operation.playerId());
+    }
+  }
+
+  private void applyPearlDamage(Player p, double damage) {
+    if (!Double.isFinite(damage) || damage <= 0D || p.isDead()) {
+      return;
+    }
+
+    DamageSource source = DamageSource.builder(DamageType.ENDER_PEARL).build();
+    p.damage(damage, source);
   }
 
   private Location findBlinkDestination(Player p) {
@@ -230,28 +283,24 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
         && feet.getRelative(BlockFace.DOWN).getType().isSolid();
   }
 
-  private void consumeBlinkPearl(Player p) {
-    double chance = Math.max(0D, Math.min(1D, getConfig().pearlConsumeChance));
-    if (chance <= 0D || ThreadLocalRandom.current().nextDouble() >= chance) {
-      return;
-    }
-
-    for (ItemStack stack : p.getInventory().getContents()) {
-      if (stack == null || stack.getType() != Material.ENDER_PEARL || stack.hasItemMeta()) {
-        continue;
-      }
-
-      stack.setAmount(stack.getAmount() - 1);
-      return;
-    }
+  static double calculatePearlDamage(int level, double baseDamage, double reductionPerLevel, double minimumDamage) {
+    double safeBase = Double.isFinite(baseDamage) ? Math.max(0D, baseDamage) : 5D;
+    double safeReduction = Double.isFinite(reductionPerLevel) ? Math.max(0D, reductionPerLevel) : 0D;
+    double safeMinimum = Double.isFinite(minimumDamage) ? Math.max(0D, Math.min(safeBase, minimumDamage)) : 0D;
+    double scaled = safeBase - (Math.max(0, level - 1) * safeReduction);
+    return Math.max(safeMinimum, scaled);
   }
 
-  @ConfigDescription("Double-jump to blink toward where you are looking.")
+  @ConfigDescription("Double-jump to blink toward where you are looking without consuming a pearl, taking ender pearl damage that decreases by level.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Cooldown between successful Rift Blink triggers in milliseconds.", impact = "Higher values reduce blink frequency; lower values allow faster reuse.")
     int cooldownMillis = 2000;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Chance per successful blink to consume one plain ender pearl from the inventory.", impact = "Higher values make blinking drain pearls faster; 0 disables the pearl cost.")
-    double pearlConsumeChance = 0.2;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Vanilla ender pearl damage applied after a successful level-1 blink.", impact = "Higher values make low-level blinks more dangerous.")
+    double pearlDamageBase = 5.0;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Blink self-damage removed for each level beyond the first.", impact = "Higher values make leveling reduce the health cost faster.")
+    double pearlDamageReductionPerLevel = 1.0;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Minimum ender pearl damage a successful blink can inflict.", impact = "Higher values retain more self-damage at high levels.")
+    double minimumPearlDamage = 1.0;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Blink distance in blocks at level 0 before level scaling.", impact = "Higher values make every blink reach further regardless of level.")
     double baseDistance = 12;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Additional blink distance in blocks granted at max level, scaling linearly with level.", impact = "Higher values widen the gap between low-level and max-level blink reach.")
@@ -268,5 +317,8 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
       costFactor = 0.12;
       initialCost = 1;
     }
+  }
+
+  private record BlinkOperation(UUID playerId, Location origin, Location requestedDestination, Vector carry, int level) {
   }
 }
