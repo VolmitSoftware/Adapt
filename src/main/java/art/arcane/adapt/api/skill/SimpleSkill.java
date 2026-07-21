@@ -175,8 +175,17 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
         fallback,
         overwriteOnReadFailure,
         "skill:" + getName(),
-        "Created missing skill config [adapt/skills/" + getName() + ".toml] from defaults."
+        "Created missing skill config [adapt/skills/" + getName() + ".toml] from defaults.",
+        this::normalizeLoadedConfig,
+        shouldCanonicalizeConfigOnLoad()
     );
+  }
+
+  protected void normalizeLoadedConfig(T loadedConfig) {
+  }
+
+  protected boolean shouldCanonicalizeConfigOnLoad() {
+    return false;
   }
 
   protected void onConfigReload(T previousConfig, T newConfig) {

@@ -40,6 +40,11 @@ public class KineticsHeavyFrame extends SimpleAdaptation<KineticsHeavyFrame.Conf
   }
 
   @Override
+  protected boolean usesLearnerBoundTicking() {
+    return true;
+  }
+
+  @Override
   public void onTick() {
     for (AdaptPlayer adaptPlayer : learnedCandidates(System.currentTimeMillis())) {
       Player player = adaptPlayer.getPlayer();

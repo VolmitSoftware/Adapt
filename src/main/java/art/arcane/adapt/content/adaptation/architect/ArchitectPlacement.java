@@ -360,6 +360,14 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
 
 
   @Override
+  public boolean hasTickDemand() {
+    return !totalMap.isEmpty()
+        || !previewDisplays.isEmpty()
+        || !pendingPreviewSpawns.isEmpty()
+        || !displayRemovalQueue.isEmpty();
+  }
+
+  @Override
   public void onTick() {
     drainDisplayRemovals();
     if (previewDisplays.isEmpty() && totalMap.isEmpty() && displayRemovalQueue.isEmpty()) {

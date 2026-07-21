@@ -283,6 +283,11 @@ public class DiscoveryArchaeologist extends SimpleAdaptation<DiscoveryArchaeolog
   }
 
   @Override
+  public boolean hasTickDemand() {
+    return !pendingBrushes.isEmpty();
+  }
+
+  @Override
   public void onTick() {
     long now = System.currentTimeMillis();
     int attempts = workFor(queuedPending.size(), PENDING_CHECKS_PER_TICK);

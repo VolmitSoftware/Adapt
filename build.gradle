@@ -52,6 +52,9 @@ String volmLibCoordinate = providers.gradleProperty('volmLibCoordinate')
 String hiddenOreCoordinate = providers.gradleProperty('hiddenOreCoordinate')
     .orElse('com.github.VolmitSoftware:HiddenOre:master-SNAPSHOT')
     .get()
+String irisCoordinate = providers.gradleProperty('irisCoordinate')
+    .orElse('com.github.VolmitSoftware:Iris:unification-SNAPSHOT')
+    .get()
 
 def shadowJarTask = tasks.named('shadowJar', com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar)
 tasks.named('slimJar').get()
@@ -107,7 +110,7 @@ allprojects {
             content { includeGroup 'me.clip' }
         }
         maven {
-            url = uri('https://repo.glaremasters.me/repository/bloodshot/')
+            url = uri('https://central.sonatype.com/repository/maven-snapshots/')
             content { includeGroup 'com.griefdefender' }
         }
         maven { url = uri('https://maven.enginehub.org/repo/') }
@@ -136,6 +139,10 @@ dependencies {
         transitive = false
     }
     compileOnly(hiddenOreCoordinate) {
+        changing = true
+        transitive = false
+    }
+    compileOnly(irisCoordinate) {
         changing = true
         transitive = false
     }
@@ -182,7 +189,7 @@ dependencies {
     compileOnlyApi('com.massivecraft:Factions:1.6.9.5-U0.6.21')
     compileOnlyApi('com.github.angeschossen:ChestProtectAPI:3.9.1')
     compileOnlyApi('com.github.TechFortress:GriefPrevention:16.18.1')
-    compileOnlyApi('com.griefdefender:api:2.1.0-SNAPSHOT')
+    compileOnlyApi('com.griefdefender:api:2.1.1-SNAPSHOT')
     compileOnlyApi(fileTree('libs') { include('*.jar') })
 
     testImplementation('io.papermc.paper:paper-api:26.2.build.60-beta')
@@ -190,6 +197,10 @@ dependencies {
     testImplementation('org.mockito:mockito-core:5.14.2')
     testImplementation('org.mockito:mockito-junit-jupiter:5.14.2')
     testImplementation('org.assertj:assertj-core:3.26.3')
+    testImplementation(irisCoordinate) {
+        changing = true
+        transitive = false
+    }
     testRuntimeOnly('org.junit.platform:junit-platform-launcher')
 }
 

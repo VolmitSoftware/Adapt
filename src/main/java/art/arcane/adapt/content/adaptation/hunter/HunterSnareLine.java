@@ -233,6 +233,11 @@ public class HunterSnareLine extends SimpleAdaptation<HunterSnareLine.Config> {
   }
 
   @Override
+  public boolean hasTickDemand() {
+    return !snares.isEmpty();
+  }
+
+  @Override
   public void onTick() {
     long now = M.ms();
     for (Snare snare : snares) {

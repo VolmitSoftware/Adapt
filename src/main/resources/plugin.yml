@@ -14,6 +14,7 @@ softdepend:
   - ChestProtect
   - Residence
   - HiddenOre
+  - Iris
 
 commands:
   adapt: { }
@@ -150,6 +151,9 @@ permissions:
         default: true
       adapt.use.axeleafveinminer:
         description: Allow use of the adaptation AxesLeafVeinMiner
+        default: true
+      adapt.use.axeirisfeller:
+        description: Allow use of the adaptation AxeIrisFeller
         default: true
       adapt.use.axelogswap:
         description: Allow use of the adaptation AxesLogSwap

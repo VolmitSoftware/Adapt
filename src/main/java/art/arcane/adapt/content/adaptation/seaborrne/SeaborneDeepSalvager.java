@@ -117,6 +117,11 @@ public class SeaborneDeepSalvager extends SimpleAdaptation<SeaborneDeepSalvager.
   }
 
   @Override
+  protected boolean usesLearnerBoundTicking() {
+    return true;
+  }
+
+  @Override
   public void onTick() {
     if (!getConfig().enableShimmer) {
       return;

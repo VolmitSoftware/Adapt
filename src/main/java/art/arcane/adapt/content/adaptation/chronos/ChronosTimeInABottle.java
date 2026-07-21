@@ -69,7 +69,6 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.Config> {
   private static final String RECIPE_KEY = "chronos-time-in-a-bottle";
-  private static final long TICK_INTERVAL_MILLIS = 50L;
   private static final long CHARGE_INTERVAL_MILLIS = 1000L;
   private static final int HARD_MAX_PLAYERS_PER_PASS = 32;
   private static final int MAX_CATCH_UP_PULSES = 4;
@@ -83,7 +82,7 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
     registerConfiguration(Config.class);
     setLocalizationKey("chronos.time_in_a_bottle");
     setIcon(Material.CLOCK);
-    setInterval(TICK_INTERVAL_MILLIS);
+    setInterval(CHARGE_INTERVAL_MILLIS);
 
     registerRecipe(AdaptRecipe.shapeless()
         .key(RECIPE_KEY)
@@ -706,6 +705,11 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
     }
 
     return false;
+  }
+
+  @Override
+  protected boolean usesLearnerBoundTicking() {
+    return true;
   }
 
   @Override

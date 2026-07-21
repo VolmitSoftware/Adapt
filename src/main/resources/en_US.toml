@@ -1091,7 +1091,7 @@ description = "Blood flows through the veins of the universe, constricted by you
 [skill.chronos]
 name = "Chronos"
 icon = "🕒"
-description = "Wind the clock of the universe, experience the flow. Break the clock, become it. Level up by moving, sleeping, and surviving the passage of time."
+description = "Wind the clock of the universe, experience the flow. Level up by moving, sleeping, surviving the passage of time, and sharing Speed. Carry a clock for more Chronos experience, with the strongest bonus in your offhand."
 
 [skill.unarmed]
 name = "Unarmed"
@@ -1111,7 +1111,7 @@ lore = ["Max Armor", "Armor-Up Time", "Armor Decay Time"]
 
 [agility.ladder_slide]
 name = "Ladder Slide"
-description = "Look up to climb quickly and look down to descend quickly. Looking near the horizon returns to normal ladder control."
+description = "Look up to climb quickly and look down to descend quickly. Looking near the horizon returns to normal ladder control, sneaking halts directional movement, and the first and last two climbable blocks always use normal control."
 lore1 = "Ladder descent speed (blocks/sec)"
 lore2 = "Ladder climb speed (blocks/sec)"
 lore3 = "Look activation / release angles"
@@ -1244,6 +1244,18 @@ lore1 = "Sneak, and mine WOOD/LOGS ( Not Planks )"
 lore2 = "range of Wood-mining"
 lore3 = "Works with Drop to inventory"
 lore = ["Sneak, and mine WOOD/LOGS ( Not Planks )", "range of Wood-mining", "Works with Drop to inventory"]
+
+[axe.iris_feller]
+name = "Iris Feller"
+description = "Sneak-break an Iris tree with an axe, then keep sneaking and keep that original axe held while the tree erodes outward. Each successfully eroded log costs hunger; the run halts when sneaking stops, the original axe is no longer held, or hunger cannot fund the next log. Accepted runs start an activation cooldown."
+lore1 = "chance to preserve axe durability per felled log"
+lore2 = "Remaining axe durability and hunger cap how many logs can fall"
+lore3 = "The tree keeps eroding only while both runtime controls remain active"
+lore4 = "hunger points per successfully eroded log"
+lore5 = "cooldown after Iris accepts the run"
+lore6 = "Sneak continuously; releasing sneak halts the run"
+lore7 = "Keep the original axe held; switching or losing it halts the run"
+lore = ["Axe Durability Preservation Per Log", "Remaining axe durability and hunger cap how many logs can fall", "The tree keeps eroding only while both runtime controls remain active", "Hunger Cost Per Eroded Log", "Activation Cooldown", "Continuous Sneaking Required", "Original Axe Must Stay Held"]
 
 # brewing
 [brewing]
@@ -3974,9 +3986,9 @@ lore = ["No knockback while bridging", "Blocks of fall damage shielded"]
 
 [architect.chalk_line]
 name = "Chalk Line"
-description = "Craft persistent Chalk Wands from one Stick and one String in different orientations. Level 1 unlocks straight lines, level 2 polylines, level 3 circles, and level 4 arcs. Their private block guides appear only while that wand is held; sneak-click the air to clear its saved plan."
-lore1 = "Craftable persistent guide wands unlocked"
-lore = ["Craftable persistent guide wands unlocked"]
+description = "Craft persistent Chalk Wands from one Stick and one String in different orientations. Level 1 unlocks straight lines, level 2 polylines, level 3 circles, and level 4 arcs. Each level immediately reveals its new crafting recipe in the vanilla recipe book. Their private block guides appear only while that wand is held; sneak-click the air to clear its saved plan."
+lore1 = "New wand recipes appear in your vanilla recipe book"
+lore = ["New wand recipes appear in your vanilla recipe book"]
 requires_level = "Requires Chalk Line level"
 start_set = "Chalk start point set"
 start_required = "Left-click a block face to set the start point first"
@@ -4289,7 +4301,7 @@ inspired = "Inspired! Fresh activity bonus"
 # agility
 [agility.slipstream_slide]
 name = "Slipstream Slide"
-description = "Tap sneak while sprinting to lock into a prone pose and shed ground friction, keeping momentum through 1-block gaps."
+description = "Tap sneak while sprinting to enter a sustained prone slide and shed ground friction, keeping momentum through 1-block gaps."
 lore1 = "Slide speed (blocks/sec)"
 lore2 = "Slide cooldown"
 lore3 = "Max level: mobs you slide through are slowed"
@@ -4577,10 +4589,10 @@ description = "Complete 1,000 villager trades carrying signed goods"
 # enchanting
 [enchanting.curse_cleansing]
 name = "Curse Cleansing"
-description = "Sneak while taking a grindstone result to strip Curse of Binding and Curse of Vanishing for a steep XP level cost."
-lore1 = "XP Level Cost"
+description = "Sneak while taking a grindstone result to remove curses from the original item first, preserve every other property, and gain Enchanting XP."
+lore1 = "Enchanting XP per Curse"
 cleansed = "Curses Cleansed"
-lore = ["XP Level Cost"]
+lore = ["Enchanting XP per Curse"]
 
 [enchanting.tome_rebinding]
 name = "Tome Rebinding"

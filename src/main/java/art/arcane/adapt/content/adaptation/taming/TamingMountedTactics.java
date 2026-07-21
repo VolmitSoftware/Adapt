@@ -117,6 +117,11 @@ public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.
   }
 
   @Override
+  public boolean hasTickDemand() {
+    return !queuedPlayers.isEmpty() || !activeQueue.isEmpty();
+  }
+
+  @Override
   public void onTick() {
     long now = System.currentTimeMillis();
     int attempts = Math.min(REFRESH_BATCH_SIZE, queuedPlayers.size());

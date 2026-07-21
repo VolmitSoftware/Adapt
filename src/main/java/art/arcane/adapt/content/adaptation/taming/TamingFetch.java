@@ -76,6 +76,11 @@ public class TamingFetch extends SimpleAdaptation<TamingFetch.Config> {
   }
 
   @Override
+  protected boolean usesLearnerBoundTicking() {
+    return true;
+  }
+
+  @Override
   public void onTick() {
     if (!isEnabled()) {
       return;

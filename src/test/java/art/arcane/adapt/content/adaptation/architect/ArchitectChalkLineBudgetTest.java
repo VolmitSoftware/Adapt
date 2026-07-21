@@ -17,6 +17,13 @@ class ArchitectChalkLineBudgetTest {
   }
 
   @Test
+  void previewTickerParksWithoutVisibleGuides() {
+    assertThat(ArchitectChalkLine.previewRuntimeInterval(false, 250L)).isEqualTo(Long.MAX_VALUE);
+    assertThat(ArchitectChalkLine.previewRuntimeInterval(true, 250L)).isEqualTo(250L);
+    assertThat(ArchitectChalkLine.previewRuntimeInterval(true, 1L)).isEqualTo(50L);
+  }
+
+  @Test
   void guideConfigurationIsClampedToSafeBounds() {
     assertThat(ArchitectChalkLine.clampGuideBlocks(1_000)).isEqualTo(128);
     assertThat(ArchitectChalkLine.clampGuideBlocks(-1)).isEqualTo(16);

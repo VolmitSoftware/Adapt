@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.skill;
 
+import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
@@ -46,19 +47,26 @@ import art.arcane.adapt.util.reflect.registries.Particles;
 import lombok.NoArgsConstructor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.entity.AreaEffectCloud;
 import org.bukkit.entity.EnderPearl;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.entity.PotionSplashEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
@@ -71,6 +79,9 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
+  private static final double LEGACY_SPEED_POTION_BASE_XP = 45D;
+  private static final double DEFAULT_SPEED_POTION_BASE_XP = 120D;
+
   private final Map<UUID, Location> lastPositions = playerState();
   private final Map<UUID, Deque<Location>> positionHistory = playerState();
   private final Map<UUID, Set<String>> recentActionTypes = playerState();
@@ -82,6 +93,7 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
   private final Map<UUID, Long> survivalStreakStart = playerState();
   private final Map<UUID, Long> lastSurvivalCheck = playerState();
   private final Map<UUID, Integer> survivalStreakHour = playerState();
+  private final NamespacedKey rewardedSpeedCloudKey;
   private final SkillOwnerPulse.Registration ownerPulse;
 
   public SkillChronos() {
@@ -92,6 +104,7 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
     setDisplayName(Localizer.dLocalize("skill.chronos.name"));
     setInterval(getConfig().setInterval);
     setIcon(Material.CLOCK);
+    rewardedSpeedCloudKey = new NamespacedKey(Adapt.instance, "chronos_speed_cloud_rewarded");
     registerAdaptation(new ChronosTimeInABottle());
     registerAdaptation(new ChronosAberrantTouch());
     registerAdaptation(new ChronosInstantRecall());
@@ -230,6 +243,30 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
     return isAfk(uuid) ? getConfig().afkPenaltyMultiplier : 1.0;
   }
 
+  private double getClockXpMultiplier(Player player) {
+    PlayerInventory inventory = player.getInventory();
+    return resolveClockXpMultiplier(
+        isClock(inventory.getItemInOffHand()),
+        inventory.contains(Material.CLOCK),
+        getConfig().clockOffhandXpMultiplier,
+        getConfig().clockInventoryXpMultiplier);
+  }
+
+  static double resolveClockXpMultiplier(boolean clockInOffhand, boolean clockInInventory,
+      double offhandMultiplier, double inventoryMultiplier) {
+    if (clockInOffhand) {
+      return finiteNonNegative(offhandMultiplier, 1D);
+    }
+    if (clockInInventory) {
+      return finiteNonNegative(inventoryMultiplier, 1D);
+    }
+    return 1D;
+  }
+
+  private static boolean isClock(ItemStack stack) {
+    return stack != null && stack.getType() == Material.CLOCK;
+  }
+
   private boolean isNight(Player p) {
     long time = p.getWorld().getTime();
     return time >= 12542 && time <= 23460;
@@ -259,21 +296,23 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
     }
 
     double afkMultiplier = getAfkMultiplier(playerId);
+    double clockMultiplier = getClockXpMultiplier(player);
     double cadenceScale = (double) elapsedMillis / cadenceMillis;
     if (moved >= getConfig().minimumMovementForActiveCheck) {
       adaptPlayer.getData().addStat("minutes.online", elapsedMillis / 60000D);
       adaptPlayer.getData().addStat("chronos.active.distance", moved);
       double movementXp = (moved / getConfig().distancePerBonusXP) * getConfig().activeMovementXP;
       double movementCap = getConfig().activeMovementXPCapPerTick * cadenceScale;
-      xpSilent(player, Math.min(movementCap, movementXp) * afkMultiplier, "chronos:movement");
+      xpSilent(player, Math.min(movementCap, movementXp) * afkMultiplier * clockMultiplier, "chronos:movement");
     }
 
-    awardPassiveXp(player, playerId, now, cadenceScale, afkMultiplier);
-    awardSurvivalXp(player, playerId, now, afkMultiplier);
+    awardPassiveXp(player, playerId, now, cadenceScale, afkMultiplier, clockMultiplier);
+    awardSurvivalXp(player, playerId, now, afkMultiplier, clockMultiplier);
     lastPositions.put(playerId, current);
   }
 
-  private void awardPassiveXp(Player player, UUID playerId, long now, double cadenceScale, double afkMultiplier) {
+  private void awardPassiveXp(Player player, UUID playerId, long now, double cadenceScale, double afkMultiplier,
+      double clockMultiplier) {
     Long lastActivity = lastActivityTimestamps.get(playerId);
     if (lastActivity == null || now - lastActivity >= getConfig().activityWindow) {
       return;
@@ -287,10 +326,10 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
     if (actions.size() >= getConfig().activityTypesForBonus) {
       passiveXp *= getConfig().activityBonusMultiplier;
     }
-    xpSilent(player, passiveXp * cadenceScale * afkMultiplier, "chronos:passive");
+    xpSilent(player, passiveXp * cadenceScale * afkMultiplier * clockMultiplier, "chronos:passive");
   }
 
-  private void awardSurvivalXp(Player player, UUID playerId, long now, double afkMultiplier) {
+  private void awardSurvivalXp(Player player, UUID playerId, long now, double afkMultiplier, double clockMultiplier) {
     survivalStreakStart.putIfAbsent(playerId, now);
     Long lastCheck = lastSurvivalCheck.get(playerId);
     if (lastCheck != null && now - lastCheck < 60000L) {
@@ -305,7 +344,8 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
         getConfig().survivalStreakHourCap * getConfig().survivalStreakBonusPerHour
     );
     double elapsedMinutes = lastCheck == null ? 1D : (now - lastCheck) / 60000D;
-    xpSilent(player, getConfig().survivalXPPerMinute * elapsedMinutes * streakBonus * afkMultiplier, "chronos:survival");
+    xpSilent(player, getConfig().survivalXPPerMinute * elapsedMinutes * streakBonus * afkMultiplier * clockMultiplier,
+        "chronos:survival");
 
     int wholeHours = (int) aliveHours;
     if (wholeHours >= 1 && wholeHours > survivalStreakHour.getOrDefault(playerId, 0)) {
@@ -316,8 +356,11 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
 
   // --- Sleep XP ---
 
-  @EventHandler(priority = EventPriority.MONITOR)
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(PlayerBedEnterEvent e) {
+    if (!isSuccessfulBedEntry(e.getBedEnterResult())) {
+      return;
+    }
     Player p = e.getPlayer();
     shouldReturnForPlayer(p, e, () -> {
       UUID uuid = p.getUniqueId();
@@ -329,31 +372,24 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
       }
 
       trackAction(uuid, "sleep");
-      long worldTime = p.getWorld().getTime();
       sleepCooldowns.put(uuid, now);
       addStat(p, "chronos.beds.used", 1);
-
-      J.runEntity(p, () -> {
-        if (!p.isOnline()) {
-          return;
-        }
-        long currentWorldTime = p.getWorld().getTime();
-        boolean nightSkipped = currentWorldTime < 1000 || currentWorldTime < worldTime - 100;
-        if (nightSkipped) {
-          xp(p, p.getLocation(), getConfig().sleepSkipXP);
-          fx(p.getLocation().add(0, 1, 0), FxPriority.TRANSITION)
-              .arc(Particles.END_ROD, 1.4D, 10, 0, Math.PI, 0.4D)
-              .chord(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.5F, 1.1F, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.4F, 1.6F);
-        } else {
-          xp(p, p.getLocation(), getConfig().sleepAttemptXP);
-        }
-      }, 40);
+      Location location = p.getLocation();
+      xp(p, location, getConfig().sleepXP * getClockXpMultiplier(p), "chronos:sleep");
+      fx(location.clone().add(0, 1, 0), FxPriority.TRANSITION)
+          .arc(Particles.END_ROD, 1.4D, 10, 0, Math.PI, 0.4D)
+          .chord(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.5F, 1.1F,
+              Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.4F, 1.6F);
     });
+  }
+
+  static boolean isSuccessfulBedEntry(PlayerBedEnterEvent.BedEnterResult result) {
+    return result == PlayerBedEnterEvent.BedEnterResult.OK;
   }
 
   // --- Speed Potion XP ---
 
-  @EventHandler(priority = EventPriority.MONITOR)
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(PlayerItemConsumeEvent e) {
     Player p = e.getPlayer();
     shouldReturnForPlayer(p, e, () -> {
@@ -365,59 +401,143 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
         return;
       }
 
-      boolean isSpeedPotion = false;
-      boolean isSpeedII = false;
-
-      PotionType baseType = meta.getBasePotionType();
-      if (baseType == PotionType.SWIFTNESS) {
-        isSpeedPotion = true;
-      }
-      if (baseType == PotionType.STRONG_SWIFTNESS) {
-        isSpeedPotion = true;
-        isSpeedII = true;
-      }
-
-      if (!isSpeedPotion && meta.hasCustomEffects()) {
-        for (PotionEffect customEffect : meta.getCustomEffects()) {
-          if (!customEffect.getType().equals(PotionEffectType.SPEED)) {
-            continue;
-          }
-          isSpeedPotion = true;
-          if (customEffect.getAmplifier() >= 1) {
-            isSpeedII = true;
-            break;
-          }
-        }
-      }
-
-      if (!isSpeedPotion) {
+      int amplifier = speedPotionAmplifier(meta.getBasePotionType(), meta.getCustomEffects());
+      if (amplifier < 0) {
         return;
       }
 
-      UUID uuid = p.getUniqueId();
-      trackAction(uuid, "potion");
-      long now = System.currentTimeMillis();
-
-      SpeedPotionTracker tracker = speedPotionTrackers.computeIfAbsent(uuid, k -> new SpeedPotionTracker());
-
-      if (now - tracker.lastUseTime > getConfig().speedPotionResetWindow) {
-        tracker.consecutiveUses = 0;
-      }
-
-      double decay = getConfig().speedPotionDiminishingDecay;
-      double floor = getConfig().speedPotionDiminishingFloor;
-      double multiplier = Math.max(floor, Math.pow(1.0 - decay, tracker.consecutiveUses));
-
-      double xpAmount = getConfig().speedPotionBaseXP * multiplier;
-      if (isSpeedII) {
-        xpAmount *= getConfig().speedPotionLevelMultiplier;
-      }
-
-      tracker.consecutiveUses++;
-      tracker.lastUseTime = now;
-
-      xp(p, p.getLocation(), xpAmount);
+      awardSpeedPotionXp(p, p.getLocation(), amplifier);
     });
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(PotionSplashEvent e) {
+    if (!(e.getPotion().getShooter() instanceof Player p)) {
+      return;
+    }
+    int amplifier = speedPotionAmplifier(null, e.getPotion().getEffects());
+    if (amplifier < 0 || !affectsPlayer(e)) {
+      return;
+    }
+    Location location = e.getPotion().getLocation().clone();
+    shouldReturnForPlayer(p, () -> awardSpeedPotionXp(p, location, amplifier));
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(AreaEffectCloudApplyEvent e) {
+    AreaEffectCloud cloud = e.getEntity();
+    if (!(cloud.getSource() instanceof Player p)) {
+      return;
+    }
+    int amplifier = speedPotionAmplifier(cloud.getBasePotionType(), cloud.getCustomEffects());
+    if (amplifier < 0 || !affectsPlayer(e.getAffectedEntities())) {
+      return;
+    }
+    Location location = cloud.getLocation().clone();
+    shouldReturnForPlayer(p, () -> {
+      if (cloud.getPersistentDataContainer().has(rewardedSpeedCloudKey, PersistentDataType.BYTE)) {
+        return;
+      }
+      if (awardSpeedPotionXp(p, location, amplifier)) {
+        cloud.getPersistentDataContainer().set(rewardedSpeedCloudKey, PersistentDataType.BYTE, (byte) 1);
+      }
+    });
+  }
+
+  private boolean awardSpeedPotionXp(Player player, Location location, int amplifier) {
+    UUID playerId = player.getUniqueId();
+    long now = System.currentTimeMillis();
+    SpeedPotionTracker tracker = speedPotionTrackers.computeIfAbsent(playerId, ignored -> new SpeedPotionTracker());
+    if (!speedPotionRewardReady(now, tracker.lastUseTime, getConfig().speedPotionRewardCooldown)) {
+      return false;
+    }
+
+    long resetWindow = Math.max(0L, getConfig().speedPotionResetWindow);
+    if (tracker.lastUseTime <= 0L || now < tracker.lastUseTime || now - tracker.lastUseTime > resetWindow) {
+      tracker.consecutiveUses = 0;
+    }
+
+    double xpAmount = speedPotionXp(
+        getConfig().speedPotionBaseXP,
+        getConfig().speedPotionLevelMultiplier,
+        getConfig().speedPotionDiminishingDecay,
+        getConfig().speedPotionDiminishingFloor,
+        amplifier,
+        tracker.consecutiveUses,
+        getClockXpMultiplier(player));
+    if (xpAmount <= 0D) {
+      return false;
+    }
+
+    tracker.consecutiveUses++;
+    tracker.lastUseTime = now;
+    trackAction(playerId, "potion");
+    xp(player, location, xpAmount, "chronos:speed-potion");
+    return true;
+  }
+
+  static int speedPotionAmplifier(PotionType baseType, Iterable<PotionEffect> customEffects) {
+    int amplifier = -1;
+    if (baseType == PotionType.SWIFTNESS || baseType == PotionType.LONG_SWIFTNESS) {
+      amplifier = 0;
+    } else if (baseType == PotionType.STRONG_SWIFTNESS) {
+      amplifier = 1;
+    }
+
+    if (customEffects == null) {
+      return amplifier;
+    }
+    for (PotionEffect effect : customEffects) {
+      if (effect != null && PotionEffectType.SPEED.equals(effect.getType())) {
+        amplifier = Math.max(amplifier, Math.max(0, effect.getAmplifier()));
+      }
+    }
+    return amplifier;
+  }
+
+  static double speedPotionXp(double baseXp, double levelMultiplier, double decay, double floor,
+      int amplifier, int consecutiveUses, double clockMultiplier) {
+    double safeBaseXp = finiteNonNegative(baseXp, 0D);
+    double safeLevelMultiplier = finiteNonNegative(levelMultiplier, 1D);
+    double safeDecay = Math.min(1D, finiteNonNegative(decay, 0D));
+    double safeFloor = Math.min(1D, finiteNonNegative(floor, 0D));
+    double diminishingMultiplier = Math.max(
+        safeFloor,
+        Math.pow(1D - safeDecay, Math.max(0, consecutiveUses)));
+    double strengthMultiplier = amplifier >= 1 ? safeLevelMultiplier : 1D;
+    double result = safeBaseXp
+        * strengthMultiplier
+        * diminishingMultiplier
+        * finiteNonNegative(clockMultiplier, 1D);
+    return Double.isFinite(result) ? result : 0D;
+  }
+
+  static boolean speedPotionRewardReady(long now, long lastRewardAt, long cooldownMillis) {
+    return lastRewardAt <= 0L
+        || now < lastRewardAt
+        || now - lastRewardAt >= Math.max(0L, cooldownMillis);
+  }
+
+  private static boolean affectsPlayer(PotionSplashEvent event) {
+    for (LivingEntity affected : event.getAffectedEntities()) {
+      if (affected instanceof Player && event.getIntensity(affected) > 0D) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private static boolean affectsPlayer(Iterable<? extends LivingEntity> affectedEntities) {
+    for (LivingEntity affected : affectedEntities) {
+      if (affected instanceof Player) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private static double finiteNonNegative(double value, double fallback) {
+    return Double.isFinite(value) && value >= 0D ? value : fallback;
   }
 
   // --- Ender Pearl XP ---
@@ -517,6 +637,22 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
     setInterval(newConfig.setInterval);
   }
 
+  @Override
+  protected void normalizeLoadedConfig(Config loadedConfig) {
+    normalizeLoadedConfigValues(loadedConfig);
+  }
+
+  @Override
+  protected boolean shouldCanonicalizeConfigOnLoad() {
+    return true;
+  }
+
+  static void normalizeLoadedConfigValues(Config loadedConfig) {
+    if (Double.compare(loadedConfig.speedPotionBaseXP, LEGACY_SPEED_POTION_BASE_XP) == 0) {
+      loadedConfig.speedPotionBaseXP = DEFAULT_SPEED_POTION_BASE_XP;
+    }
+  }
+
   private static class SpeedPotionTracker {
     int consecutiveUses;
     long lastUseTime;
@@ -538,6 +674,10 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
     double activeMovementXP = 3.5;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Active Movement XPCap Per Tick for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double activeMovementXPCapPerTick = 6;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Chronos XP multiplier while a clock is held in the offhand.", impact = "Takes precedence over the inventory multiplier; 1.0 disables the offhand bonus.")
+    double clockOffhandXpMultiplier = 3D;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Chronos XP multiplier while a clock is stored in the player's inventory.", impact = "Applies when no clock is in the offhand; 1.0 disables the inventory bonus.")
+    double clockInventoryXpMultiplier = 2D;
 
     // Anti-AFK
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Position History Size for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -564,18 +704,18 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
     double nightActivityMultiplier = 1.3;
 
     // Sleep
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Sleep Skip XP for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double sleepSkipXP = 150;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Sleep Attempt XP for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double sleepAttemptXP = 25;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Chronos XP granted when the player successfully enters a bed.", impact = "The clock multiplier is applied to this burst; failed bed entries never grant XP.")
+    double sleepXP = 150D;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Sleep Cooldown for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     long sleepCooldown = 30000;
 
     // Speed potion
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Speed Potion Base XP for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double speedPotionBaseXP = 45;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Base Chronos XP granted for applying a Speed potion to the user or another player.", impact = "The potion-strength, repetition, and clock multipliers are applied to this amount.")
+    double speedPotionBaseXP = DEFAULT_SPEED_POTION_BASE_XP;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Speed Potion Level Multiplier for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double speedPotionLevelMultiplier = 1.5;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Minimum milliseconds between Speed potion rewards from the same player.", impact = "Prevents duplicate or rapid-fire potion events from granting repeated XP.")
+    long speedPotionRewardCooldown = 1000L;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Speed Potion Diminishing Decay for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double speedPotionDiminishingDecay = 0.15;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Speed Potion Diminishing Floor for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

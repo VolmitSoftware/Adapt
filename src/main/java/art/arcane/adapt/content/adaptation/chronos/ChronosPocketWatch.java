@@ -88,6 +88,11 @@ public class ChronosPocketWatch extends SimpleAdaptation<ChronosPocketWatch.Conf
   }
 
   @Override
+  protected boolean usesLearnerBoundTicking() {
+    return true;
+  }
+
+  @Override
   public void onTick() {
     long now = System.currentTimeMillis();
     List<AdaptPlayer> candidates = learnedCandidates(now);

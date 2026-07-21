@@ -103,6 +103,25 @@ public class HerbalismBeeShepherd extends SimpleAdaptation<HerbalismBeeShepherd.
   }
 
   @Override
+  public boolean hasTickDemand() {
+    return super.hasTickDemand()
+        || !playerQueue.isEmpty()
+        || !queuedPlayers.isEmpty()
+        || !pendingPulses.isEmpty()
+        || queuedGrowthPulses.get() > 0
+        || !growthPulses.isEmpty()
+        || queuedBeePulls.get() > 0
+        || !beePulls.isEmpty()
+        || queuedCompletions.get() > 0
+        || !completedPulses.isEmpty();
+  }
+
+  @Override
+  protected boolean usesLearnerBoundTicking() {
+    return true;
+  }
+
+  @Override
   public void onTick() {
     long now = System.currentTimeMillis();
     refreshRoster(now);

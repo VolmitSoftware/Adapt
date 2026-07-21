@@ -75,6 +75,11 @@ public class DiscoveryPolymath extends SimpleAdaptation<DiscoveryPolymath.Config
   }
 
   @Override
+  protected boolean usesLearnerBoundTicking() {
+    return true;
+  }
+
+  @Override
   public void onTick() {
     long now = System.currentTimeMillis();
     for (AdaptPlayer adaptPlayer : learnedCandidates(now)) {

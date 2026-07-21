@@ -152,7 +152,7 @@ public class Ticker {
   private void tickRegistered(long now) {
     for (int i = 0; i < ticklist.size(); i++) {
       Ticked t = ticklist.get(i);
-      if (t == null || !isDue(now, t.getLastTick(), t.getInterval())) {
+      if (t == null || !hasTickDemand(t) || !isDue(now, t.getLastTick(), t.getInterval())) {
         continue;
       }
 
@@ -167,6 +167,16 @@ public class Ticker {
           recordMetric(t, System.nanoTime() - start);
         }
       }
+    }
+  }
+
+  private boolean hasTickDemand(Ticked ticked) {
+    try {
+      return ticked.hasTickDemand();
+    } catch (Throwable error) {
+      Adapt.error("Exception checking tick demand " + ticked.getGroup() + ":" + ticked.getId());
+      error.printStackTrace();
+      return false;
     }
   }
 

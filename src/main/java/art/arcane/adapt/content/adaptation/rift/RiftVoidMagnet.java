@@ -149,6 +149,11 @@ public class RiftVoidMagnet extends SimpleAdaptation<RiftVoidMagnet.Config> {
   }
 
   @Override
+  public boolean hasTickDemand() {
+    return coordinator.size() > 0;
+  }
+
+  @Override
   public void onTick() {
     if (coordinator.size() == 0) {
       return;

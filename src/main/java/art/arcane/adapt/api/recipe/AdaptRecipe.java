@@ -76,6 +76,8 @@ public interface AdaptRecipe {
 
   String getKey();
 
+  int getRequiredLevel();
+
   default NamespacedKey getNSKey() {
     return new NamespacedKey(Adapt.instance, getKey());
   }
@@ -91,13 +93,15 @@ public interface AdaptRecipe {
   class Smoker implements AdaptRecipe {
     private String key;
     private ItemStack result;
+    @Builder.Default
+    private int requiredLevel = 1;
     private Material ingredient;
     private float experience;
     private int cookTime;
 
     @Override
     public ItemStack getResult() {
-      return null;
+      return result;
     }
 
     public void register() {
@@ -124,6 +128,8 @@ public interface AdaptRecipe {
   class Furnace implements AdaptRecipe {
     private String key;
     private ItemStack result;
+    @Builder.Default
+    private int requiredLevel = 1;
     private Material ingredient;
     //        private float experience = 1;
 //        private int cookTime = 20;
@@ -132,7 +138,7 @@ public interface AdaptRecipe {
 
     @Override
     public ItemStack getResult() {
-      return null;
+      return result;
     }
 
     public void register() {
@@ -159,13 +165,15 @@ public interface AdaptRecipe {
   class Campfire implements AdaptRecipe {
     private String key;
     private ItemStack result;
+    @Builder.Default
+    private int requiredLevel = 1;
     private Material ingredient;
     private float experience;
     private int cookTime;
 
     @Override
     public ItemStack getResult() {
-      return null;
+      return result;
     }
 
     public void register() {
@@ -191,13 +199,15 @@ public interface AdaptRecipe {
   class Blast implements AdaptRecipe {
     private String key;
     private ItemStack result;
+    @Builder.Default
+    private int requiredLevel = 1;
     private Material ingredient;
     private float experience;
     private int cookTime;
 
     @Override
     public ItemStack getResult() {
-      return null;
+      return result;
     }
 
     public void register() {
@@ -224,12 +234,14 @@ public interface AdaptRecipe {
   class Shapeless implements AdaptRecipe {
     private String key;
     private ItemStack result;
+    @Builder.Default
+    private int requiredLevel = 1;
     @Singular
     private List<Material> ingredients;
 
     @Override
     public ItemStack getResult() {
-      return null;
+      return result;
     }
 
     public void register() {
@@ -257,11 +269,13 @@ public interface AdaptRecipe {
   class Stonecutter implements AdaptRecipe {
     private String key;
     private ItemStack result;
+    @Builder.Default
+    private int requiredLevel = 1;
     private Material ingredient;
 
     @Override
     public ItemStack getResult() {
-      return null;
+      return result;
     }
 
     public void register() {
@@ -288,6 +302,8 @@ public interface AdaptRecipe {
   class Shaped implements AdaptRecipe {
     private String key;
     private ItemStack result;
+    @Builder.Default
+    private int requiredLevel = 1;
     @Singular
     private List<MaterialChar> ingredients;
     @Singular
@@ -295,7 +311,7 @@ public interface AdaptRecipe {
 
     @Override
     public ItemStack getResult() {
-      return null;
+      return result;
     }
 
     public void register() {
@@ -323,12 +339,14 @@ public interface AdaptRecipe {
   class Smithing implements AdaptRecipe {
     private String key;
     private ItemStack result;
+    @Builder.Default
+    private int requiredLevel = 1;
     private Material base;
     private Material addition;
 
     @Override
     public ItemStack getResult() {
-      return null;
+      return result;
     }
 
     public void register() {

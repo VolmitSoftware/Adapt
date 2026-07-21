@@ -106,6 +106,11 @@ public class DiscoverySixthSense extends SimpleAdaptation<DiscoverySixthSense.Co
   }
 
   @Override
+  protected boolean usesLearnerBoundTicking() {
+    return true;
+  }
+
+  @Override
   public void onTick() {
     long now = System.currentTimeMillis();
     for (AdaptPlayer adaptPlayer : learnedCandidates(now)) {

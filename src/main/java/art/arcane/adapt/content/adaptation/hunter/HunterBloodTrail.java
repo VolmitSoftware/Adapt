@@ -143,6 +143,11 @@ public class HunterBloodTrail extends SimpleAdaptation<HunterBloodTrail.Config> 
   }
 
   @Override
+  public boolean hasTickDemand() {
+    return !wounds.isEmpty();
+  }
+
+  @Override
   public void onTick() {
     long now = M.ms();
     int processed = 0;

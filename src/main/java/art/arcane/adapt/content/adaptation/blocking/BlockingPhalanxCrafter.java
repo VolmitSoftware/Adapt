@@ -65,6 +65,7 @@ public class BlockingPhalanxCrafter extends SimpleAdaptation<BlockingPhalanxCraf
         .build());
     netheriteRecipe = AdaptRecipe.shaped()
         .key("blocking-phalanx-netherite-shield")
+        .requiredLevel(2)
         .ingredient(new MaterialChar('N', Material.NETHERITE_INGOT))
         .ingredient(new MaterialChar('S', Material.SHIELD))
         .shapes(List.of(

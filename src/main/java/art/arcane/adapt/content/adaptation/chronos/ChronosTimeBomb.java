@@ -88,6 +88,8 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
       Action.RIGHT_CLICK_BLOCK
   );
   private static final long PROJECTILE_TRACK_TTL_MS = 15000L;
+  private static final long ACTIVE_TICK_INTERVAL_MILLIS = 50L;
+  private static final long IDLE_TICK_INTERVAL_MILLIS = Long.MAX_VALUE;
   private static final long MIN_FIELD_SCAN_INTERVAL_MILLIS = 200L;
   private static final long MAX_FIELD_SCAN_INTERVAL_MILLIS = 250L;
   private static final double HARD_MAX_FIELD_RADIUS = 16D;
@@ -124,7 +126,7 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
     super("chronos-time-bomb");
     registerConfiguration(Config.class);
     setIcon(Material.TNT);
-    setInterval(50);
+    setInterval(IDLE_TICK_INTERVAL_MILLIS);
 
     registerRecipe(AdaptRecipe.shapeless()
         .key("chronos-time-bomb")
@@ -157,6 +159,11 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
     registerMilestone("challenge_chronos_bomb_freeze_50", "chronos.time-bomb.projectiles-frozen", 50, 500);
+  }
+
+  @Override
+  protected void onRuntimeActivated() {
+    wakeRuntime();
   }
 
   @Override
@@ -266,6 +273,7 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
     cooldowns.put(p.getUniqueId(), now + getCooldownMillis());
     cooldownReadyNotify.put(p.getUniqueId(), true);
     activeBombProjectiles.put(potion.getUniqueId(), new ArmedBombProjectile(p.getUniqueId(), level, now));
+    wakeRuntime();
 
     if (getConfig().playClockSounds) {
       ChronosSoundFX.playTimeBombArm(p);
@@ -312,6 +320,7 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
         now,
         now);
     TemporalField replaced = addFieldBounded(field);
+    wakeRuntime();
     if (replaced != null && claimBudget(immediateFieldFxBudget, 25) == 25) {
       emitFieldThaw(replaced);
     }
@@ -670,6 +679,11 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
       sweepStrandedFrozenEntities();
     }
 
+    if (!hasRuntimeWork()) {
+      setInterval(IDLE_TICK_INTERVAL_MILLIS);
+      return;
+    }
+
     long now = M.ms();
     immediateFieldFxBudget.set(Math.min(HARD_MAX_IMMEDIATE_FIELD_FX_PARTICLES,
         ChronosWorkBudget.bounded(getConfig().maxFieldFxParticlesPerTick,
@@ -685,6 +699,52 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
     reconcileFrozenPlayers(now);
     reconcileFrozenEntities(now);
     cooldowns.entrySet().removeIf(entry -> entry.getValue() <= now);
+    scheduleNextTick(now);
+  }
+
+  private void wakeRuntime() {
+    setInterval(ACTIVE_TICK_INTERVAL_MILLIS);
+    if (!isBursting()) {
+      retick();
+    }
+  }
+
+  private boolean hasRuntimeWork() {
+    return !cooldowns.isEmpty()
+        || !cooldownReadyNotify.isEmpty()
+        || !fields.isEmpty()
+        || !activeBombProjectiles.isEmpty()
+        || !frozenEntities.isEmpty()
+        || !frozenPlayers.isEmpty();
+  }
+
+  private void scheduleNextTick(long now) {
+    boolean continuousWork = !fields.isEmpty() || !frozenEntities.isEmpty() || !frozenPlayers.isEmpty();
+    long nextDeadline = Long.MAX_VALUE;
+    for (long deadline : cooldowns.values()) {
+      nextDeadline = Math.min(nextDeadline, deadline);
+    }
+    for (ArmedBombProjectile projectile : activeBombProjectiles.values()) {
+      nextDeadline = Math.min(nextDeadline, projectile.launchedAt() + PROJECTILE_TRACK_TTL_MS + 1L);
+    }
+
+    boolean unresolvedNotification = !cooldownReadyNotify.isEmpty() && cooldowns.isEmpty();
+    setInterval(selectRuntimeInterval(now, continuousWork, nextDeadline, unresolvedNotification));
+  }
+
+  static long selectRuntimeInterval(
+      long now,
+      boolean continuousWork,
+      long nextDeadline,
+      boolean unresolvedNotification
+  ) {
+    if (continuousWork || unresolvedNotification || nextDeadline <= now) {
+      return ACTIVE_TICK_INTERVAL_MILLIS;
+    }
+    if (nextDeadline == Long.MAX_VALUE) {
+      return IDLE_TICK_INTERVAL_MILLIS;
+    }
+    return Math.max(ACTIVE_TICK_INTERVAL_MILLIS, nextDeadline - now);
   }
 
   private void notifyReadyCooldowns(long now) {
@@ -719,6 +779,10 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
   }
 
   private void presentFields(long now, int particleBudget) {
+    if (fields.isEmpty()) {
+      return;
+    }
+
     ArrayList<TemporalField> activeFields = new ArrayList<>(fields);
     int fieldCount = activeFields.size();
     if (fieldCount == 0) {
@@ -779,6 +843,10 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
   }
 
   private void scheduleDueFieldScans(long now) {
+    if (fields.isEmpty()) {
+      return;
+    }
+
     ArrayList<TemporalField> dueFields = new ArrayList<>();
     long interval = ChronosWorkBudget.bounded(getConfig().fieldScanIntervalMillis,
         MIN_FIELD_SCAN_INTERVAL_MILLIS, MAX_FIELD_SCAN_INTERVAL_MILLIS);

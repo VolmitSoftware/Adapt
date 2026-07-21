@@ -13,6 +13,9 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class TickerTest extends AdaptTestBase {
 
@@ -28,6 +31,7 @@ class TickerTest extends AdaptTestBase {
         lenient().when(t.getGroup()).thenReturn("test");
         lenient().when(t.getInterval()).thenReturn(0L);
         lenient().when(t.getLastTick()).thenReturn(0L);
+        lenient().when(t.hasTickDemand()).thenReturn(true);
         return t;
     }
 
@@ -59,6 +63,46 @@ class TickerTest extends AdaptTestBase {
         assertThat(Ticker.isDue(1_050L, 1_000L, 50L)).isTrue();
         assertThat(Ticker.isDue(1_049L, 1_000L, 50L)).isFalse();
         assertThat(Ticker.isDue(999L, 1_000L, 50L)).isFalse();
+    }
+
+    @Test
+    @DisplayName("objects without tick demand stay out of the execution path")
+    void noDemandSkipsTickExecution() throws Exception {
+        Ticker ticker = new Ticker();
+        Ticked idle = baseMock("idle");
+        when(idle.hasTickDemand()).thenReturn(false);
+        ticker.register(idle);
+
+        Method tick = tickMethod();
+        tick.invoke(ticker);
+        tick.invoke(ticker);
+
+        verify(idle, never()).tick();
+        ticker.clear();
+    }
+
+    @Test
+    @DisplayName("an exception from tick demand does not stop other objects")
+    void demandExceptionIsolation() throws Exception {
+        Ticker ticker = new Ticker();
+        AtomicInteger goodTicks = new AtomicInteger();
+        Ticked bad = baseMock("bad-demand");
+        when(bad.hasTickDemand()).thenThrow(new RuntimeException("demand boom"));
+        Ticked good = baseMock("good-demand");
+        doAnswer(invocation -> {
+            goodTicks.incrementAndGet();
+            return null;
+        }).when(good).tick();
+        ticker.register(bad);
+        ticker.register(good);
+
+        Method tick = tickMethod();
+        tick.invoke(ticker);
+        tick.invoke(ticker);
+
+        verify(bad, never()).tick();
+        assertThat(goodTicks.get()).isEqualTo(1);
+        ticker.clear();
     }
 
     @Test

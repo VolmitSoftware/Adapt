@@ -67,6 +67,7 @@ import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.player.PlayerToggleSneakEvent;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -78,16 +79,17 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Predicate;
 
 public class AgilityLadderSlide extends SimpleAdaptation<AgilityLadderSlide.Config> {
-  private static final double VANILLA_CLIMB_SPEED = 0.15D;
   private static final double TICKS_PER_SECOND = 20.0D;
-  private static final int CLIMB_TOP_LOOKAHEAD = 2;
+  private static final int COLUMN_END_BUFFER_BLOCKS = 2;
   private static final long SLIDE_GRACE_MS = 700L;
   private static final double MOVEMENT_EPSILON = 1.0E-4D;
   private static final double MAX_VERTICAL_SPEED = 1.0D;
   private static final double MIN_LOOK_ACTIVATION = 1.0D;
   private static final double MAX_LOOK_ANGLE = 89.0D;
-  private static final double DEFAULT_LOOK_ACTIVATION = 20.0D;
-  private static final double DEFAULT_LOOK_RELEASE = 10.0D;
+  private static final double LEGACY_LOOK_ACTIVATION = 20.0D;
+  private static final double LEGACY_LOOK_RELEASE = 10.0D;
+  private static final double DEFAULT_LOOK_ACTIVATION = 30.0D;
+  private static final double DEFAULT_LOOK_RELEASE = 15.0D;
   private static final Predicate<Player> GROUNDED_ACTIONS = player -> !player.isFlying() && !player.isGliding() && !player.isSwimming();
 
   private final Map<UUID, ControlSession> controlSessions = playerState();
@@ -143,11 +145,17 @@ public class AgilityLadderSlide extends SimpleAdaptation<AgilityLadderSlide.Conf
     loadedConfig.descentSpeedPerLevel = normalizeSpeed(loadedConfig.descentSpeedPerLevel);
     loadedConfig.climbAssistBase = normalizeSpeed(loadedConfig.climbAssistBase);
     loadedConfig.climbAssistPerLevel = normalizeSpeed(loadedConfig.climbAssistPerLevel);
-    loadedConfig.lookActivationDegrees = normalizeActivation(loadedConfig.lookActivationDegrees);
-    loadedConfig.lookReleaseDegrees = normalizeRelease(
-        loadedConfig.lookReleaseDegrees,
-        loadedConfig.lookActivationDegrees
-    );
+    if (Double.compare(loadedConfig.lookActivationDegrees, LEGACY_LOOK_ACTIVATION) == 0
+        && Double.compare(loadedConfig.lookReleaseDegrees, LEGACY_LOOK_RELEASE) == 0) {
+      loadedConfig.lookActivationDegrees = DEFAULT_LOOK_ACTIVATION;
+      loadedConfig.lookReleaseDegrees = DEFAULT_LOOK_RELEASE;
+    } else {
+      loadedConfig.lookActivationDegrees = normalizeActivation(loadedConfig.lookActivationDegrees);
+      loadedConfig.lookReleaseDegrees = normalizeRelease(
+          loadedConfig.lookReleaseDegrees,
+          loadedConfig.lookActivationDegrees
+      );
+    }
     loadedConfig.maxLevel = 1;
   }
 
@@ -169,6 +177,21 @@ public class AgilityLadderSlide extends SimpleAdaptation<AgilityLadderSlide.Conf
     }
 
     withPlayerThread(p, e, () -> startControl(p));
+  }
+
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+  public void on(PlayerToggleSneakEvent e) {
+    if (!e.isSneaking()) {
+      return;
+    }
+
+    Player p = e.getPlayer();
+    ControlSession session = controlSessions.get(p.getUniqueId());
+    if (session == null) {
+      return;
+    }
+
+    withPlayerThread(p, e, () -> haltControl(session));
   }
 
   @EventHandler
@@ -230,13 +253,20 @@ public class AgilityLadderSlide extends SimpleAdaptation<AgilityLadderSlide.Conf
     }
 
     BlockActionContext context = resolveInteractContext(p, p.getLocation(), GROUNDED_ACTIONS);
-    if (context == null || activeClimbable(context.location()) == null) {
+    Block climbable = context == null ? null : activeClimbable(context.location());
+    if (context == null || climbable == null) {
       clearPlayerState(p, false);
       return;
     }
 
     UUID playerId = p.getUniqueId();
     ControlSession session = controlSessions.get(playerId);
+    if (isInColumnEndBuffer(climbable)) {
+      if (session != null) {
+        finishControlInEndBuffer(session, context, climbable, p.getLocation());
+      }
+      return;
+    }
     if (session != null && session.worldId.equals(p.getWorld().getUID())) {
       scheduleControlTick(session);
       return;
@@ -296,9 +326,54 @@ public class AgilityLadderSlide extends SimpleAdaptation<AgilityLadderSlide.Conf
       return;
     }
 
+    if (isInColumnEndBuffer(climbable)) {
+      finishControlInEndBuffer(session, context, climbable, current);
+      return;
+    }
     recordMovement(session, current);
-    Mode mode = resolveMode(session.mode, current.getPitch(), getLookActivation(), getLookRelease());
+    Mode mode = resolveMode(
+        session.mode,
+        current.getPitch(),
+        getLookActivation(),
+        getLookRelease(),
+        p.isSneaking()
+    );
     if (!applyMode(session, context.level(), climbable, mode)) {
+      finishControlSession(session);
+      return;
+    }
+    session.lastY = current.getY();
+    scheduleControlTick(session);
+  }
+
+  private void finishControlInEndBuffer(
+      ControlSession session,
+      BlockActionContext context,
+      Block climbable,
+      Location current
+  ) {
+    recordMovement(session, current);
+    applyMode(session, context.level(), climbable, Mode.NONE);
+    session.lastY = current.getY();
+    finishControlSession(session);
+  }
+
+  private void haltControl(ControlSession session) {
+    Player p = session.owner;
+    if (controlSessions.get(p.getUniqueId()) != session || !p.isClimbing()) {
+      return;
+    }
+
+    Location current = p.getLocation();
+    BlockActionContext context = resolveInteractContext(p, current, GROUNDED_ACTIONS);
+    Block climbable = context == null ? null : activeClimbable(context.location());
+    if (context == null || climbable == null) {
+      finishControlSession(session);
+      return;
+    }
+
+    recordMovement(session, current);
+    if (!applyMode(session, context.level(), climbable, Mode.NONE)) {
       finishControlSession(session);
       return;
     }
@@ -321,8 +396,7 @@ public class AgilityLadderSlide extends SimpleAdaptation<AgilityLadderSlide.Conf
     double targetY = targetVerticalVelocity(
         mode,
         getClimbAssist(level),
-        getDescentSpeed(level),
-        isNearTop(climbable)
+        getDescentSpeed(level)
     );
     if (!sendVerticalMotion(p, targetY)) {
       return false;
@@ -480,15 +554,29 @@ public class AgilityLadderSlide extends SimpleAdaptation<AgilityLadderSlide.Conf
     return null;
   }
 
-  private boolean isNearTop(Block climbable) {
+  boolean isInColumnEndBuffer(Block climbable) {
+    return isInColumnEndBuffer(climbable, this::isControlledClimbable);
+  }
+
+  static boolean isInColumnEndBuffer(Block climbable, Predicate<Material> climbableType) {
+    return !hasClimbableRun(climbable, BlockFace.DOWN, COLUMN_END_BUFFER_BLOCKS, climbableType)
+        || !hasClimbableRun(climbable, BlockFace.UP, COLUMN_END_BUFFER_BLOCKS, climbableType);
+  }
+
+  private static boolean hasClimbableRun(
+      Block climbable,
+      BlockFace direction,
+      int length,
+      Predicate<Material> climbableType
+  ) {
     Block cursor = climbable;
-    for (int i = 0; i < CLIMB_TOP_LOOKAHEAD; i++) {
-      cursor = cursor.getRelative(BlockFace.UP);
-      if (!isControlledClimbable(cursor.getType())) {
-        return true;
+    for (int i = 0; i < length; i++) {
+      cursor = cursor.getRelative(direction);
+      if (!climbableType.test(cursor.getType())) {
+        return false;
       }
     }
-    return false;
+    return true;
   }
 
   private boolean isControlledClimbable(Material type) {
@@ -600,9 +688,21 @@ public class AgilityLadderSlide extends SimpleAdaptation<AgilityLadderSlide.Conf
     return Mode.NONE;
   }
 
-  static double targetVerticalVelocity(Mode mode, double climbSpeed, double descentSpeed, boolean nearTop) {
+  static Mode resolveMode(
+      Mode current,
+      float pitch,
+      double activationDegrees,
+      double releaseDegrees,
+      boolean sneaking
+  ) {
+    return sneaking
+        ? Mode.NONE
+        : resolveMode(current, pitch, activationDegrees, releaseDegrees);
+  }
+
+  static double targetVerticalVelocity(Mode mode, double climbSpeed, double descentSpeed) {
     return switch (mode) {
-      case CLIMB -> nearTop ? VANILLA_CLIMB_SPEED : normalizeSpeed(climbSpeed);
+      case CLIMB -> normalizeSpeed(climbSpeed);
       case SLIDE -> -normalizeSpeed(descentSpeed);
       case NONE -> 0D;
     };
@@ -646,7 +746,7 @@ public class AgilityLadderSlide extends SimpleAdaptation<AgilityLadderSlide.Conf
     return normalizeRelease(getConfig().lookReleaseDegrees, getLookActivation());
   }
 
-  @ConfigDescription("Look up to climb quickly, look down to descend quickly, and look near the horizon for normal ladder control.")
+  @ConfigDescription("Look up to climb quickly, look down to descend quickly, look near the horizon for normal ladder control, and sneak to halt. The first and last two blocks of each climbable column always use normal control.")
   protected static class Config extends AdaptationConfig {
     @ConfigDoc(value = "Base downward speed in blocks per tick before per-level scaling.", impact = "Higher values make downward gaze movement faster; runtime motion is capped at one block per tick.")
     double descentSpeedBase = 0.30D;

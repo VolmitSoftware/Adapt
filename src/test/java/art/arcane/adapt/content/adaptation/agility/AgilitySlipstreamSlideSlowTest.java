@@ -22,6 +22,34 @@ class AgilitySlipstreamSlideSlowTest {
   }
 
   @Test
+  void slideDefaultsKeepThePlayerProneForTwiceTheLegacyWindow() {
+    AgilitySlipstreamSlide.Config config = new AgilitySlipstreamSlide.Config();
+
+    assertThat(config.slideTicksBase).isEqualTo(14D);
+    assertThat(config.slideTicksFactor).isEqualTo(10D);
+  }
+
+  @Test
+  void exactLegacyDurationDefaultsMigrateWithoutOverwritingCustomValues() {
+    AgilitySlipstreamSlide adaptation = new AgilitySlipstreamSlide();
+    AgilitySlipstreamSlide.Config legacy = new AgilitySlipstreamSlide.Config();
+    legacy.slideTicksBase = 7D;
+    legacy.slideTicksFactor = 5D;
+    adaptation.normalizeLoadedConfig(legacy);
+
+    assertThat(legacy.slideTicksBase).isEqualTo(14D);
+    assertThat(legacy.slideTicksFactor).isEqualTo(10D);
+
+    AgilitySlipstreamSlide.Config custom = new AgilitySlipstreamSlide.Config();
+    custom.slideTicksBase = 11D;
+    custom.slideTicksFactor = 6D;
+    adaptation.normalizeLoadedConfig(custom);
+
+    assertThat(custom.slideTicksBase).isEqualTo(11D);
+    assertThat(custom.slideTicksFactor).isEqualTo(6D);
+  }
+
+  @Test
   void slowAmountMatchesVanillaSlownessPerAmplifierLevel() {
     assertThat(AgilitySlipstreamSlide.slowAmount(0)).isCloseTo(-0.15D, within(1.0e-9D));
     assertThat(AgilitySlipstreamSlide.slowAmount(1)).isCloseTo(-0.30D, within(1.0e-9D));

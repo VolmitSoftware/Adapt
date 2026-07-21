@@ -24,6 +24,7 @@ import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.fx.ViewerDisplayDirector;
 import art.arcane.adapt.api.notification.AdvancementNotification;
 import art.arcane.adapt.api.notification.SoundNotification;
+import art.arcane.adapt.api.recipe.AdaptRecipeBook;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.skill.SkillRegistry;
 import art.arcane.adapt.api.tick.TickedObject;
@@ -85,6 +86,7 @@ public class AdaptServer extends TickedObject {
   private final Map<UUID, Map<String, Integer>> learnedAdaptationLevelsByPlayer = new ConcurrentHashMap<>();
   private final Map<String, Set<UUID>> playersByLearnedAdaptation = new ConcurrentHashMap<>();
   private final Map<String, List<AdaptPlayer>> learnedAdaptPlayerSnapshots = new ConcurrentHashMap<>();
+  private final Set<UUID> recipeBookSyncScheduled = ConcurrentHashMap.newKeySet();
   private final AtomicBoolean spatialFailureReported = new AtomicBoolean(false);
   private final AtomicBoolean onlineSnapshotRefreshScheduled = new AtomicBoolean(false);
   private final AtomicLong onlineMembershipRevision = new AtomicLong();
@@ -240,6 +242,7 @@ public class AdaptServer extends TickedObject {
     // re-create a new AdaptPlayer for an offline player.
     prefetchedPlayerData.invalidate(p);
     onlineAdaptPlayers.remove(p, a);
+    recipeBookSyncScheduled.remove(p);
     removeLearnedPlayer(p);
     onlineMembershipRevision.incrementAndGet();
     scheduleOnlinePlayerSnapshotRefresh();
@@ -255,6 +258,7 @@ public class AdaptServer extends TickedObject {
     learnedAdaptationLevelsByPlayer.clear();
     playersByLearnedAdaptation.clear();
     learnedAdaptPlayerSnapshots.clear();
+    recipeBookSyncScheduled.clear();
     onlinePlayerSnapshot = List.of();
     onlineAdaptPlayerSnapshot = List.of();
     onlineSnapshotRefreshScheduled.set(false);
@@ -460,6 +464,22 @@ public class AdaptServer extends TickedObject {
     return levels == null ? 0 : levels.getOrDefault(adaptationName, 0);
   }
 
+  public boolean hasOnlineLearner(String adaptationName) {
+    if (adaptationName == null || adaptationName.isBlank()) {
+      return false;
+    }
+    Set<UUID> playerIds = playersByLearnedAdaptation.get(adaptationName);
+    return playerIds != null && !playerIds.isEmpty();
+  }
+
+  public boolean hasOnlineLearner(UUID playerId, String adaptationName) {
+    if (playerId == null || adaptationName == null || adaptationName.isBlank()) {
+      return false;
+    }
+    Set<UUID> playerIds = playersByLearnedAdaptation.get(adaptationName);
+    return playerIds != null && playerIds.contains(playerId);
+  }
+
   public List<AdaptPlayer> getLearnedAdaptPlayerSnapshot(String adaptationName) {
     if (adaptationName == null || adaptationName.isBlank()) {
       return List.of();
@@ -498,6 +518,7 @@ public class AdaptServer extends TickedObject {
       playersByLearnedAdaptation.computeIfAbsent(adaptationName, unused -> ConcurrentHashMap.newKeySet()).add(playerId);
       learnedAdaptPlayerSnapshots.remove(adaptationName);
       reconcileMutations(player);
+      synchronizeRecipeBook(playerId, player);
       return;
     }
 
@@ -511,6 +532,7 @@ public class AdaptServer extends TickedObject {
     }
     removeLearnedAdaptationPlayer(adaptationName, playerId);
     reconcileMutations(player);
+    synchronizeRecipeBook(playerId, player);
   }
 
   public void refreshLearnedAdaptations(AdaptPlayer player) {
@@ -559,6 +581,48 @@ public class AdaptServer extends TickedObject {
       learnedAdaptationsByPlayer.remove(playerId, indexed);
     }
     reconcileMutations(player);
+    synchronizeRecipeBook(playerId, player);
+  }
+
+  public void synchronizeRecipeBooksForOnlinePlayers() {
+    for (Map.Entry<UUID, AdaptPlayer> entry : onlineAdaptPlayers.entrySet()) {
+      synchronizeRecipeBook(entry.getKey(), entry.getValue());
+    }
+  }
+
+  private void synchronizeRecipeBook(UUID playerId, AdaptPlayer adaptPlayer) {
+    if (playerId == null || adaptPlayer == null) {
+      return;
+    }
+
+    Player player = adaptPlayer.getPlayer();
+    if (player == null) {
+      return;
+    }
+
+    if (!recipeBookSyncScheduled.add(playerId)) {
+      return;
+    }
+
+    boolean scheduled = J.runEntity(player, () -> {
+      recipeBookSyncScheduled.remove(playerId);
+      if (!player.isOnline() || !adaptPlayer.isRuntimeReady()
+          || onlineAdaptPlayers.get(playerId) != adaptPlayer) {
+        return;
+      }
+      if (!skillRegistry.isRecipeRegistrationReady()) {
+        return;
+      }
+
+      AdaptRecipeBook.Plan plan = AdaptRecipeBook.plan(
+          skillRegistry.getRegisteredRecipeUnlocks(),
+          adaptation -> adaptation.getLevel(adaptPlayer)
+      );
+      AdaptRecipeBook.synchronize(player, plan);
+    }, 1);
+    if (!scheduled) {
+      recipeBookSyncScheduled.remove(playerId);
+    }
   }
 
   private void reconcileMutations(AdaptPlayer player) {

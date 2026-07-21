@@ -56,6 +56,10 @@ public interface Ticked extends AdaptComponent {
 
   void tick();
 
+  default boolean hasTickDemand() {
+    return true;
+  }
+
   String getGroup();
 
   String getId();

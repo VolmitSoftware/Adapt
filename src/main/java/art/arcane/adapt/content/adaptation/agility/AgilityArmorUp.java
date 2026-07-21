@@ -121,6 +121,11 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
   }
 
   @Override
+  public boolean hasTickDemand() {
+    return !queuedDecay.isEmpty() || !decayQueue.isEmpty();
+  }
+
+  @Override
   public void onTick() {
     int attempts = Math.min(DECAY_BATCH_SIZE, queuedDecay.size());
     for (int i = 0; i < attempts; i++) {

@@ -62,6 +62,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class AgilitySlipstreamSlide extends SimpleAdaptation<AgilitySlipstreamSlide.Config> {
   private static final int FRICTION_CLEANUP_GRACE_TICKS = 2;
+  private static final double LEGACY_SLIDE_TICKS_BASE = 7D;
+  private static final double LEGACY_SLIDE_TICKS_FACTOR = 5D;
+  private static final double DEFAULT_SLIDE_TICKS_BASE = 14D;
+  private static final double DEFAULT_SLIDE_TICKS_FACTOR = 10D;
   private static final String FRICTION_SLOT = "slide-friction";
 
   private final Cooldowns slideCooldown = cooldowns();
@@ -110,6 +114,19 @@ public class AgilitySlipstreamSlide extends SimpleAdaptation<AgilitySlipstreamSl
     statLore(v, Form.f(getSlideForce(level) * 20D, 1), 1);
     statLore(v, C.YELLOW, "* ", Form.duration(getCooldownMillis(level), 1), 2);
     v.addLore(C.LIGHT_PURPLE + " " + Localizer.dLocalize("agility.slipstream_slide.lore3"));
+  }
+
+  @Override
+  protected void normalizeLoadedConfig(Config loadedConfig) {
+    if (usesLegacySlideDuration(loadedConfig.slideTicksBase, loadedConfig.slideTicksFactor)) {
+      loadedConfig.slideTicksBase = DEFAULT_SLIDE_TICKS_BASE;
+      loadedConfig.slideTicksFactor = DEFAULT_SLIDE_TICKS_FACTOR;
+    }
+  }
+
+  @Override
+  protected boolean shouldCanonicalizeConfigOnLoad() {
+    return true;
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -391,6 +408,11 @@ public class AgilitySlipstreamSlide extends SimpleAdaptation<AgilitySlipstreamSl
     return untilMillis > nowMillis;
   }
 
+  static boolean usesLegacySlideDuration(double baseTicks, double factorTicks) {
+    return Double.compare(baseTicks, LEGACY_SLIDE_TICKS_BASE) == 0
+        && Double.compare(factorTicks, LEGACY_SLIDE_TICKS_FACTOR) == 0;
+  }
+
   static double slideFrictionReduction(double configuredReduction) {
     if (!Double.isFinite(configuredReduction)) {
       return 0D;
@@ -411,9 +433,9 @@ public class AgilitySlipstreamSlide extends SimpleAdaptation<AgilitySlipstreamSl
     @ConfigDoc(value = "Minimum slide cooldown in milliseconds after all reductions.", impact = "Higher values keep a hard floor under slide spam.")
     long cooldownMillisFloor = 1300;
     @ConfigDoc(value = "Base slide prone-pose duration in ticks before level scaling.", impact = "Higher values keep the crawl pose longer per slide.")
-    double slideTicksBase = 7;
+    double slideTicksBase = DEFAULT_SLIDE_TICKS_BASE;
     @ConfigDoc(value = "Additional slide prone-pose duration in ticks granted at max level.", impact = "Higher values extend the low-pose window when leveled.")
-    double slideTicksFactor = 5;
+    double slideTicksFactor = DEFAULT_SLIDE_TICKS_FACTOR;
     @ConfigDoc(value = "Fraction of ground friction removed while the slide is active.", impact = "Higher values preserve more horizontal momentum during the prone slide.")
     double slideFrictionReduction = 0.9;
     @ConfigDoc(value = "Saturation/hunger cost paid per slide.", impact = "Higher values make sliding drain stamina faster.")

@@ -29,6 +29,7 @@ import art.arcane.adapt.api.mutation.MutationManager;
 import art.arcane.adapt.api.potion.BrewingManager;
 import art.arcane.adapt.api.protection.Protector;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
+import art.arcane.adapt.api.recipe.AdaptRecipeBook;
 import art.arcane.adapt.api.tick.TickedObject;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.PlayerSkillLine;
@@ -85,6 +86,7 @@ import org.bukkit.persistence.PersistentDataType;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -103,7 +105,7 @@ public class SkillRegistry extends TickedObject {
   private static final int STAT_RECONCILIATION_BATCH_SIZE = 32;
   private final KMap<String, Skill<?>> knownSkills = new KMap<>();
   private final KMap<String, Class<? extends Skill<?>>> skillTypes = new KMap<>();
-  private final Map<NamespacedKey, Adaptation<?>> adaptationRecipeIndex = new ConcurrentHashMap<>();
+  private final Map<NamespacedKey, AdaptRecipeBook.Unlock> adaptationRecipeIndex = new ConcurrentHashMap<>();
   private final Deque<Skill<?>> deferredBootstrapRecipeRegistration = new ArrayDeque<>();
   private final Map<String, DeferredRecipeTransition> deferredRecipeTransitions = new LinkedHashMap<>();
   private final AtomicLong catalogRevision = new AtomicLong();
@@ -594,7 +596,20 @@ public class SkillRegistry extends TickedObject {
       return null;
     }
 
-    return adaptationRecipeIndex.get(keyed.getKey());
+    AdaptRecipeBook.Unlock unlock = adaptationRecipeIndex.get(keyed.getKey());
+    return unlock == null ? null : unlock.adaptation();
+  }
+
+  public List<AdaptRecipeBook.Unlock> getRegisteredRecipeUnlocks() {
+    List<AdaptRecipeBook.Unlock> unlocks = new ArrayList<>(adaptationRecipeIndex.values());
+    unlocks.sort(Comparator.comparing(unlock -> unlock.key().toString()));
+    return List.copyOf(unlocks);
+  }
+
+  public synchronized boolean isRecipeRegistrationReady() {
+    return !deferredBootstrapRecipeTaskScheduled
+        && deferredBootstrapRecipeRegistration.isEmpty()
+        && deferredRecipeTransitions.isEmpty();
   }
 
   private Skill<?> instantiateSkill(Class<? extends Skill<?>> skillType) {
@@ -724,6 +739,7 @@ public class SkillRegistry extends TickedObject {
       rebuildStatTrackerIndex();
       if (reconcilePlayers) {
         synchronizeAdvancementRuntime(revision);
+        synchronizeRecipeBookRuntime();
       }
     }
   }
@@ -737,6 +753,13 @@ public class SkillRegistry extends TickedObject {
       return;
     }
     Adapt.instance.getManager().synchronizeCatalog(revision, this::reconcileStatTrackersForOnlinePlayers);
+  }
+
+  private void synchronizeRecipeBookRuntime() {
+    if (Adapt.instance == null || Adapt.instance.getAdaptServer() == null) {
+      return;
+    }
+    Adapt.instance.getAdaptServer().synchronizeRecipeBooksForOnlinePlayers();
   }
 
   private void startStatTrackerReconciliation() {
@@ -795,9 +818,10 @@ public class SkillRegistry extends TickedObject {
     }
 
     NamespacedKey key = recipe.getNSKey();
-    Adaptation<?> previous = adaptationRecipeIndex.put(key, adaptation);
-    if (previous != null && previous != adaptation) {
-      Adapt.warn("Recipe key conflict for " + key + ": " + previous.getName() + " replaced by " + adaptation.getName());
+    AdaptRecipeBook.Unlock unlock = new AdaptRecipeBook.Unlock(key, adaptation, recipe.getRequiredLevel());
+    AdaptRecipeBook.Unlock previous = adaptationRecipeIndex.put(key, unlock);
+    if (previous != null && previous.adaptation() != adaptation) {
+      Adapt.warn("Recipe key conflict for " + key + ": " + previous.adaptation().getName() + " replaced by " + adaptation.getName());
     }
   }
 
@@ -812,7 +836,7 @@ public class SkillRegistry extends TickedObject {
       return;
     }
 
-    adaptationRecipeIndex.computeIfPresent(key, (k, current) -> current == adaptation ? null : current);
+    adaptationRecipeIndex.computeIfPresent(key, (k, current) -> current.adaptation() == adaptation ? null : current);
   }
 
   private synchronized void scheduleDeferredBootstrapRecipeRegistration() {
@@ -889,6 +913,7 @@ public class SkillRegistry extends TickedObject {
 
     if (complete) {
       Adapt.info("Deferred recipe registration completed.");
+      synchronizeRecipeBookRuntime();
       return;
     }
 

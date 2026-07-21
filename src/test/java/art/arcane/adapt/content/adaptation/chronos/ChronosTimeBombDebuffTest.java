@@ -7,6 +7,22 @@ import static org.assertj.core.api.Assertions.within;
 
 class ChronosTimeBombDebuffTest {
   @Test
+  void runtimeCadenceParksWhenEmptyAndTracksOnlyRealDeadlines() {
+    long now = 10_000L;
+
+    assertThat(ChronosTimeBomb.selectRuntimeInterval(now, false, Long.MAX_VALUE, false))
+        .isEqualTo(Long.MAX_VALUE);
+    assertThat(ChronosTimeBomb.selectRuntimeInterval(now, true, Long.MAX_VALUE, false))
+        .isEqualTo(50L);
+    assertThat(ChronosTimeBomb.selectRuntimeInterval(now, false, now + 4_000L, false))
+        .isEqualTo(4_000L);
+    assertThat(ChronosTimeBomb.selectRuntimeInterval(now, false, now, false))
+        .isEqualTo(50L);
+    assertThat(ChronosTimeBomb.selectRuntimeInterval(now, false, Long.MAX_VALUE, true))
+        .isEqualTo(50L);
+  }
+
+  @Test
   void slowScalarMatchesSlownessParityPerAmplifier() {
     assertThat(ChronosTimeBomb.slowSpeedScalar(0)).isCloseTo(-0.15, within(1.0e-9));
     assertThat(ChronosTimeBomb.slowSpeedScalar(1)).isCloseTo(-0.3, within(1.0e-9));

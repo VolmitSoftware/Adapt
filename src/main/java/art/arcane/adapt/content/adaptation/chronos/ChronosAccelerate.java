@@ -109,6 +109,11 @@ public class ChronosAccelerate extends SimpleAdaptation<ChronosAccelerate.Config
   }
 
   @Override
+  protected boolean usesLearnerBoundTicking() {
+    return true;
+  }
+
+  @Override
   public void onTick() {
     long now = System.currentTimeMillis();
     List<AdaptPlayer> candidates = learnedCandidates(now);

@@ -32,6 +32,7 @@ import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.tick.TickedObject;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
@@ -97,6 +98,20 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
     setInitialCost(2);
     this.name = name;
     this.localizationKey = deriveLocalizationKey(name);
+  }
+
+  @Override
+  public boolean hasTickDemand() {
+    if (!usesLearnerBoundTicking() || isBursting()) {
+      return true;
+    }
+
+    AdaptServer server = Adapt.instance == null ? null : Adapt.instance.getAdaptServer();
+    return server == null || server.hasOnlineLearner(getName());
+  }
+
+  protected boolean usesLearnerBoundTicking() {
+    return false;
   }
 
   @Override

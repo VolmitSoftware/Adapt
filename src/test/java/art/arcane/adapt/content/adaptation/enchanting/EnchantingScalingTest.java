@@ -7,15 +7,6 @@ import static org.assertj.core.data.Offset.offset;
 
 class EnchantingScalingTest {
   @Test
-  void curseCleanseCostFloorsAtMinimumAndGetsCheaperWithLevels() {
-    assertThat(EnchantingCurseCleansing.cleanseCost(10, 6, 3, 0.0D)).isEqualTo(10);
-    assertThat(EnchantingCurseCleansing.cleanseCost(10, 6, 3, 1.0D)).isEqualTo(4);
-    assertThat(EnchantingCurseCleansing.cleanseCost(10, 6, 3, 2.0D)).isEqualTo(3);
-    assertThat(EnchantingCurseCleansing.cleanseCost(10, 6, 3, 0.5D))
-        .isGreaterThan(EnchantingCurseCleansing.cleanseCost(10, 6, 3, 1.0D));
-  }
-
-  @Test
   void tomeLossChanceReachesZeroAtMaxLevelAndImprovesWithLevels() {
     assertThat(EnchantingTomeRebinding.tomeLossChance(0.9D, 1.0D, 1.0D)).isEqualTo(0.0D);
     assertThat(EnchantingTomeRebinding.tomeLossChance(0.9D, 1.0D, 0.2D)).isCloseTo(0.7D, offset(1.0E-9D));
@@ -74,7 +65,7 @@ class EnchantingScalingTest {
   @Test
   void configDefaultsAreEnabledWithSaneNonZeroValues() {
     assertThat(new EnchantingCurseCleansing.Config().enabled).isTrue();
-    assertThat(new EnchantingCurseCleansing.Config().xpCostBase).isGreaterThan(0);
+    assertThat(new EnchantingCurseCleansing.Config().skillXpPerCurse).isGreaterThan(0);
     assertThat(new EnchantingCurseCleansing.Config().maxLevel).isGreaterThan(0);
 
     assertThat(new EnchantingTomeRebinding.Config().lossChanceBase).isGreaterThan(0);

@@ -117,6 +117,25 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
     return M.lerp(1D - factor, getConfig().maxFoodCost, getConfig().minFoodCost);
   }
 
+  @Override
+  public boolean hasTickDemand() {
+    return super.hasTickDemand()
+        || !playerQueue.isEmpty()
+        || !queuedPlayers.isEmpty()
+        || !pendingPulses.isEmpty()
+        || queuedSamples.get() > 0
+        || !locationSamples.isEmpty()
+        || queuedMutations.get() > 0
+        || !mutations.isEmpty()
+        || queuedCompletions.get() > 0
+        || !completedPulses.isEmpty();
+  }
+
+  @Override
+  protected boolean usesLearnerBoundTicking() {
+    return true;
+  }
+
 
   @Override
   public void onTick() {

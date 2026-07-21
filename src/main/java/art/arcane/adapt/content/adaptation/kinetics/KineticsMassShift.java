@@ -78,6 +78,11 @@ public class KineticsMassShift extends SimpleAdaptation<KineticsMassShift.Config
   }
 
   @Override
+  public boolean hasTickDemand() {
+    return !forms.isEmpty();
+  }
+
+  @Override
   public void onTick() {
     Set<UUID> activeForms = new HashSet<>(forms.keySet());
     for (UUID id : activeForms) {

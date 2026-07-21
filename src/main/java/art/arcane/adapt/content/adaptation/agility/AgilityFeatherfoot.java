@@ -37,18 +37,24 @@ import org.bukkit.Sound;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerInputEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerToggleSprintEvent;
 
 import java.util.UUID;
 
 public class AgilityFeatherfoot extends SimpleAdaptation<AgilityFeatherfoot.Config> {
+  private static final long SPRINT_INTENT_GRACE_MILLIS = 350L;
+
   private final Cooldowns fxThrottle = cooldowns();
-  private final Cooldowns berryContactThrottle = cooldowns();
+  private final Cooldowns surfaceContactThrottle = cooldowns();
+  private final Cooldowns sprintIntent = cooldowns();
 
   public AgilityFeatherfoot() {
     super("agility-featherfoot");
@@ -78,110 +84,144 @@ public class AgilityFeatherfoot extends SimpleAdaptation<AgilityFeatherfoot.Conf
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(PlayerInteractEvent e) {
-    if (e.getAction() != Action.PHYSICAL || e.getClickedBlock() == null || !(e.getPlayer() instanceof Player p)) {
+    if (e.getAction() != Action.PHYSICAL || e.getClickedBlock() == null) {
       return;
     }
 
-    if (!p.isSprinting()) {
-      return;
-    }
-
-    int level = getActiveLevel(p);
-    if (level <= 0) {
-      return;
-    }
-
+    Player p = e.getPlayer();
     Block block = e.getClickedBlock();
     Material type = block.getType();
-    if (type == Material.FARMLAND && level >= getConfig().farmlandMinLevel) {
-      e.setCancelled(true);
-      recordProtection(p, block);
-      return;
-    }
-
-    if (Tag.PRESSURE_PLATES.isTagged(type) && level >= getConfig().pressurePlateMinLevel) {
-      e.setCancelled(true);
-      recordProtection(p, block);
-    }
-  }
-
-  @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-  public void on(EntityDamageEvent e) {
-    if (!(e.getEntity() instanceof Player p) || !p.isSprinting()) {
+    boolean pressurePlate = Tag.PRESSURE_PLATES.isTagged(type);
+    if (type != Material.FARMLAND && !pressurePlate) {
       return;
     }
 
     int level = getActiveLevel(p);
-    if (level <= 0) {
+    if (!ignoresSurface(type, pressurePlate, hasSprintIntent(p), level, getConfig())) {
       return;
     }
 
-    EntityDamageEvent.DamageCause cause = e.getCause();
-    if (cause == EntityDamageEvent.DamageCause.CONTACT
-        && level >= getConfig().berryBushMinLevel
-        && touchingBerryBush(p)) {
-      e.setCancelled(true);
-      recordBerryProtection(p, p.getLocation().getBlock());
-      return;
-    }
-
-    if (cause == EntityDamageEvent.DamageCause.FREEZE && level >= getConfig().powderSnowMinLevel) {
-      e.setCancelled(true);
-      p.setFreezeTicks(0);
-      recordProtection(p, p.getLocation().getBlock());
-    }
+    e.setUseInteractedBlock(Event.Result.DENY);
+    recordSurfaceProtection(p, block);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(EntityInsideBlockEvent e) {
-    if (!(e.getEntity() instanceof Player p)
-        || e.getBlock().getType() != Material.SWEET_BERRY_BUSH
-        || !p.isSprinting()) {
+    if (!(e.getEntity() instanceof Player p)) {
+      return;
+    }
+
+    Block block = e.getBlock();
+    Material type = block.getType();
+    boolean pressurePlate = Tag.PRESSURE_PLATES.isTagged(type);
+    if (type != Material.SWEET_BERRY_BUSH && type != Material.POWDER_SNOW && !pressurePlate) {
       return;
     }
 
     int level = getActiveLevel(p);
-    if (!ignoresBerryBush(e.getBlock().getType(), p.isSprinting(), level, getConfig().berryBushMinLevel)) {
+    if (!ignoresSurface(type, pressurePlate, hasSprintIntent(p), level, getConfig())) {
       return;
     }
 
     e.setCancelled(true);
-    recordBerryProtection(p, e.getBlock());
+    if (type == Material.POWDER_SNOW) {
+      p.setFreezeTicks(0);
+    }
+    recordSurfaceProtection(p, block);
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(PlayerInputEvent e) {
+    Player p = e.getPlayer();
+    if (shouldTrackSprintIntent(e.getInput().isSprint(), getActiveLevel(p))) {
+      sprintIntent.mark(p.getUniqueId());
+    }
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(PlayerToggleSprintEvent e) {
+    Player p = e.getPlayer();
+    if (shouldTrackSprintIntent(e.isSprinting(), getActiveLevel(p))) {
+      sprintIntent.mark(p.getUniqueId());
+    }
+  }
+
+  @EventHandler
+  public void on(PlayerQuitEvent e) {
+    UUID playerId = e.getPlayer().getUniqueId();
+    sprintIntent.clear(playerId);
+    surfaceContactThrottle.clear(playerId);
+    fxThrottle.clear(playerId);
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(PlayerMoveEvent e) {
     Player p = e.getPlayer();
-    if (!p.isSprinting() || p.getFreezeTicks() <= 0) {
-      return;
-    }
-
     int level = getActiveLevel(p);
-    if (level < getConfig().powderSnowMinLevel) {
+    if (level <= 0) {
       return;
     }
 
-    if (p.getLocation().getBlock().getType() == Material.POWDER_SNOW) {
+    rememberSprintIntent(p);
+    if (p.getFreezeTicks() <= 0) {
+      return;
+    }
+
+    Material type = p.getLocation().getBlock().getType();
+    if (ignoresSurface(type, false, hasSprintIntent(p), level, getConfig())) {
       p.setFreezeTicks(0);
     }
   }
 
-  private boolean touchingBerryBush(Player p) {
-    Block feet = p.getLocation().getBlock();
-    return feet.getType() == Material.SWEET_BERRY_BUSH
-        || feet.getRelative(0, 1, 0).getType() == Material.SWEET_BERRY_BUSH;
+  private void rememberSprintIntent(Player p) {
+    if (p.isSprinting() || p.getCurrentInput().isSprint()) {
+      sprintIntent.mark(p.getUniqueId());
+    }
   }
 
-  static boolean ignoresBerryBush(Material type, boolean sprinting, int level, int minimumLevel) {
-    return type == Material.SWEET_BERRY_BUSH && sprinting && level >= minimumLevel;
+  private boolean hasSprintIntent(Player p) {
+    boolean currentSprint = p.isSprinting() || p.getCurrentInput().isSprint();
+    if (currentSprint) {
+      sprintIntent.mark(p.getUniqueId());
+    }
+    return sprintIntentActive(currentSprint, sprintIntent.remaining(p.getUniqueId(), SPRINT_INTENT_GRACE_MILLIS));
   }
 
-  private void recordBerryProtection(Player p, Block block) {
+  static boolean sprintIntentActive(boolean currentSprint, long graceRemainingMillis) {
+    return currentSprint || graceRemainingMillis > 0L;
+  }
+
+  static boolean shouldTrackSprintIntent(boolean sprinting, int level) {
+    return sprinting && level > 0;
+  }
+
+  static boolean ignoresSurface(Material type, boolean pressurePlate, boolean sprinting, int level, Config config) {
+    int minimumLevel = minimumLevelForSurface(type, pressurePlate, config);
+    return sprinting && level > 0 && minimumLevel >= 0 && level >= minimumLevel;
+  }
+
+  static int minimumLevelForSurface(Material type, boolean pressurePlate, Config config) {
+    if (type == Material.FARMLAND) {
+      return config.farmlandMinLevel;
+    }
+    if (pressurePlate) {
+      return config.pressurePlateMinLevel;
+    }
+    if (type == Material.SWEET_BERRY_BUSH) {
+      return config.berryBushMinLevel;
+    }
+    if (type == Material.POWDER_SNOW) {
+      return config.powderSnowMinLevel;
+    }
+    return -1;
+  }
+
+  private void recordSurfaceProtection(Player p, Block block) {
     UUID playerId = p.getUniqueId();
-    if (!berryContactThrottle.isReady(playerId, 600L)) {
+    if (!surfaceContactThrottle.isReady(playerId, 600L)) {
       return;
     }
-    berryContactThrottle.mark(playerId);
+    surfaceContactThrottle.mark(playerId);
     recordProtection(p, block);
   }
 

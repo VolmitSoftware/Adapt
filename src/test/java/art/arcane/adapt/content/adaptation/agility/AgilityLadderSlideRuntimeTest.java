@@ -11,11 +11,13 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 
@@ -77,14 +79,24 @@ class AgilityLadderSlideRuntimeTest {
   }
 
   @Test
+  void sneakingOverridesEveryGazeDirectionAndHeldMovementMode() {
+    assertThat(AgilityLadderSlide.resolveMode(AgilityLadderSlide.Mode.CLIMB, -70F, 20D, 10D, true))
+        .isEqualTo(AgilityLadderSlide.Mode.NONE);
+    assertThat(AgilityLadderSlide.resolveMode(AgilityLadderSlide.Mode.SLIDE, 70F, 20D, 10D, true))
+        .isEqualTo(AgilityLadderSlide.Mode.NONE);
+    assertThat(AgilityLadderSlide.resolveMode(AgilityLadderSlide.Mode.NONE, -70F, 20D, 10D, false))
+        .isEqualTo(AgilityLadderSlide.Mode.CLIMB);
+    assertThat(AgilityLadderSlide.resolveMode(AgilityLadderSlide.Mode.NONE, 70F, 20D, 10D, false))
+        .isEqualTo(AgilityLadderSlide.Mode.SLIDE);
+  }
+
+  @Test
   void gazeModesProduceFastSignedMotionWithoutUnsafeValues() {
-    assertThat(AgilityLadderSlide.targetVerticalVelocity(AgilityLadderSlide.Mode.CLIMB, 0.5D, 0.6D, false))
+    assertThat(AgilityLadderSlide.targetVerticalVelocity(AgilityLadderSlide.Mode.CLIMB, 0.5D, 0.6D))
         .isEqualTo(0.5D);
-    assertThat(AgilityLadderSlide.targetVerticalVelocity(AgilityLadderSlide.Mode.CLIMB, 0.5D, 0.6D, true))
-        .isEqualTo(0.15D);
-    assertThat(AgilityLadderSlide.targetVerticalVelocity(AgilityLadderSlide.Mode.SLIDE, 0.5D, 0.6D, false))
+    assertThat(AgilityLadderSlide.targetVerticalVelocity(AgilityLadderSlide.Mode.SLIDE, 0.5D, 0.6D))
         .isEqualTo(-0.6D);
-    assertThat(AgilityLadderSlide.targetVerticalVelocity(AgilityLadderSlide.Mode.NONE, 0.5D, 0.6D, false))
+    assertThat(AgilityLadderSlide.targetVerticalVelocity(AgilityLadderSlide.Mode.NONE, 0.5D, 0.6D))
         .isZero();
     assertThat(AgilityLadderSlide.normalizeSpeed(50D)).isEqualTo(1D);
     assertThat(AgilityLadderSlide.normalizeSpeed(Double.NaN)).isZero();
@@ -94,10 +106,10 @@ class AgilityLadderSlideRuntimeTest {
   void lookThresholdsNormalizeToAStableHysteresisWindow() {
     assertThat(AgilityLadderSlide.normalizeActivation(0D)).isEqualTo(1D);
     assertThat(AgilityLadderSlide.normalizeActivation(100D)).isEqualTo(89D);
-    assertThat(AgilityLadderSlide.normalizeActivation(Double.NaN)).isEqualTo(20D);
+    assertThat(AgilityLadderSlide.normalizeActivation(Double.NaN)).isEqualTo(30D);
     assertThat(AgilityLadderSlide.normalizeRelease(30D, 20D)).isEqualTo(19D);
     assertThat(AgilityLadderSlide.normalizeRelease(-1D, 20D)).isZero();
-    assertThat(AgilityLadderSlide.normalizeRelease(Double.NaN, 20D)).isEqualTo(10D);
+    assertThat(AgilityLadderSlide.normalizeRelease(Double.NaN, 20D)).isEqualTo(15D);
   }
 
   @Test
@@ -117,9 +129,22 @@ class AgilityLadderSlideRuntimeTest {
     assertThat(config.descentSpeedPerLevel).isZero();
     assertThat(config.climbAssistBase).isZero();
     assertThat(config.climbAssistPerLevel).isEqualTo(1D);
-    assertThat(config.lookActivationDegrees).isEqualTo(20D);
-    assertThat(config.lookReleaseDegrees).isEqualTo(19D);
+    assertThat(config.lookActivationDegrees).isEqualTo(30D);
+    assertThat(config.lookReleaseDegrees).isEqualTo(29D);
     assertThat(adaptation.shouldCanonicalizeConfigOnLoad()).isTrue();
+  }
+
+  @Test
+  void legacyDefaultLookWindowWidensByFiftyPercent() {
+    AgilityLadderSlide adaptation = new AgilityLadderSlide();
+    AgilityLadderSlide.Config config = new AgilityLadderSlide.Config();
+    config.lookActivationDegrees = 20D;
+    config.lookReleaseDegrees = 10D;
+
+    adaptation.normalizeLoadedConfig(config);
+
+    assertThat(config.lookActivationDegrees).isEqualTo(30D);
+    assertThat(config.lookReleaseDegrees).isEqualTo(15D);
   }
 
   @Test
@@ -127,15 +152,32 @@ class AgilityLadderSlideRuntimeTest {
     AgilityLadderSlide.Config config = new AgilityLadderSlide.Config();
     Method handler = AgilityLadderSlide.class.getDeclaredMethod("on", EntityDamageEvent.class);
     EventHandler eventHandler = handler.getAnnotation(EventHandler.class);
+    Method sneakHandler = AgilityLadderSlide.class.getDeclaredMethod("on", PlayerToggleSneakEvent.class);
+    EventHandler sneakEventHandler = sneakHandler.getAnnotation(EventHandler.class);
 
     assertThat(config.descentSpeedBase + config.descentSpeedPerLevel).isCloseTo(0.6D, offset(1.0E-9D));
     assertThat(config.climbAssistBase + config.climbAssistPerLevel).isCloseTo(0.5D, offset(1.0E-9D));
-    assertThat(config.lookActivationDegrees).isEqualTo(20D);
-    assertThat(config.lookReleaseDegrees).isEqualTo(10D);
+    assertThat(config.lookActivationDegrees).isEqualTo(30D);
+    assertThat(config.lookReleaseDegrees).isEqualTo(15D);
     assertThat(config.safeLanding).isTrue();
     assertThat(eventHandler).isNotNull();
     assertThat(eventHandler.priority()).isEqualTo(EventPriority.HIGHEST);
     assertThat(eventHandler.ignoreCancelled()).isTrue();
+    assertThat(sneakEventHandler).isNotNull();
+    assertThat(sneakEventHandler.priority()).isEqualTo(EventPriority.HIGHEST);
+    assertThat(sneakEventHandler.ignoreCancelled()).isTrue();
+  }
+
+  @Test
+  void firstAndLastTwoBlocksOfAColumnAreNormalControlBuffers() {
+    Map<Integer, Block> column = ladderColumn(6);
+
+    assertThat(isInEndBuffer(column.get(0))).isTrue();
+    assertThat(isInEndBuffer(column.get(1))).isTrue();
+    assertThat(isInEndBuffer(column.get(2))).isFalse();
+    assertThat(isInEndBuffer(column.get(3))).isFalse();
+    assertThat(isInEndBuffer(column.get(4))).isTrue();
+    assertThat(isInEndBuffer(column.get(5))).isTrue();
   }
 
   @Test
@@ -198,6 +240,22 @@ class AgilityLadderSlideRuntimeTest {
     assertThat(applyMode(adaptation, session, ladder, AgilityLadderSlide.Mode.NONE)).isTrue();
     assertThat(applyMode(adaptation, session, ladder, AgilityLadderSlide.Mode.NONE)).isTrue();
 
+    assertThat(adaptation.verticalMotions).containsExactly(0D);
+  }
+
+  @Test
+  void haltingASlideRestoresClientClimbingAndStopsCustomVerticalMotion() throws Exception {
+    RecordingLadderSlide adaptation = new RecordingLadderSlide();
+    Player player = playerAt(12D);
+    Object session = addControlSession(adaptation, player);
+    Block ladder = mock(Block.class);
+    when(ladder.getType()).thenReturn(Material.LADDER);
+    ensureClientState(adaptation, session, Material.LADDER, true);
+    setSessionMode(session, AgilityLadderSlide.Mode.SLIDE);
+
+    assertThat(applyMode(adaptation, session, ladder, AgilityLadderSlide.Mode.NONE)).isTrue();
+
+    assertThat(adaptation.clientStates).containsExactly(Material.LADDER, null);
     assertThat(adaptation.verticalMotions).containsExactly(0D);
   }
 
@@ -276,6 +334,24 @@ class AgilityLadderSlideRuntimeTest {
     when(world.getUID()).thenReturn(worldId);
     when(player.getLocation()).thenReturn(new Location(world, 0D, y, 0D));
     return player;
+  }
+
+  private static Map<Integer, Block> ladderColumn(int height) {
+    Map<Integer, Block> column = new HashMap<>();
+    for (int index = -1; index <= height; index++) {
+      Block block = mock(Block.class);
+      when(block.getType()).thenReturn(index >= 0 && index < height ? Material.LADDER : Material.AIR);
+      column.put(index, block);
+    }
+    for (int index = 0; index < height; index++) {
+      when(column.get(index).getRelative(BlockFace.DOWN)).thenReturn(column.get(index - 1));
+      when(column.get(index).getRelative(BlockFace.UP)).thenReturn(column.get(index + 1));
+    }
+    return column;
+  }
+
+  private static boolean isInEndBuffer(Block block) {
+    return AgilityLadderSlide.isInColumnEndBuffer(block, material -> material == Material.LADDER);
   }
 
   private static Object addControlSession(AgilityLadderSlide adaptation, Player player) throws Exception {

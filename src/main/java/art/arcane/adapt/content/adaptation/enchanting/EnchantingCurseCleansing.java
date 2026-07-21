@@ -24,13 +24,13 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.fx.FxPresets;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
+import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -45,10 +45,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 public class EnchantingCurseCleansing extends SimpleAdaptation<EnchantingCurseCleansing.Config> {
   public EnchantingCurseCleansing() {
@@ -74,18 +74,19 @@ public class EnchantingCurseCleansing extends SimpleAdaptation<EnchantingCurseCl
 
   @Override
   public void addStats(int level, Element v) {
-    statLore(v, C.YELLOW, "* ", getXpCost(level), 1);
+    statLore(v, C.GREEN, "+ ", Form.f(getConfig().skillXpPerCurse, 1), 1);
   }
 
-  static int cleanseCost(double base, double factor, int min, double levelPercent) {
-    return Math.max(min, (int) Math.round(base - (levelPercent * factor)));
+  static double cleanseReward(double xpPerCurse, int curseCount) {
+    return Math.max(0.0D, xpPerCurse) * Math.max(0, curseCount);
   }
 
-  private int getXpCost(int level) {
-    return cleanseCost(getConfig().xpCostBase, getConfig().xpCostFactor, getConfig().minXpCost, getLevelPercent(level));
+  @Override
+  protected boolean shouldCanonicalizeConfigOnLoad() {
+    return true;
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+  @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
   public void on(InventoryClickEvent e) {
     if (!(e.getWhoClicked() instanceof Player p)) {
       return;
@@ -95,8 +96,7 @@ public class EnchantingCurseCleansing extends SimpleAdaptation<EnchantingCurseCl
       return;
     }
 
-    int level = getActiveLevel(p);
-    if (level <= 0) {
+    if (getActiveLevel(p) <= 0) {
       return;
     }
 
@@ -105,54 +105,47 @@ public class EnchantingCurseCleansing extends SimpleAdaptation<EnchantingCurseCl
     }
 
     Inventory top = e.getView().getTopInventory();
-    ItemStack result = e.getCurrentItem();
-    ItemStack slotA = top.getItem(0);
-    ItemStack slotB = top.getItem(1);
-
-    if (hasStrippableCurse(result)) {
-      performCleanse(p, level, result, e, () -> {
-        top.setItem(0, null);
-        top.setItem(1, null);
-        e.setCurrentItem(null);
-      });
+    CleansePlan plan = planCleanse(top.getItem(0), top.getItem(1));
+    if (plan == null) {
       return;
     }
 
-    if (isItem(result)) {
-      return;
-    }
-
-    if (hasStrippableCurse(slotA) && !isItem(slotB)) {
-      performCleanse(p, level, slotA, e, () -> top.setItem(0, null));
-    } else if (hasStrippableCurse(slotB) && !isItem(slotA)) {
-      performCleanse(p, level, slotB, e, () -> top.setItem(1, null));
-    }
+    performCleanse(p, plan, e, top);
   }
 
-  private void performCleanse(Player p, int level, ItemStack target, InventoryClickEvent e, Runnable consumeInputs) {
-    int cost = getXpCost(level);
-    if (p.getLevel() < cost) {
-      FxPresets.failFizzle(this, p);
-      return;
-    }
-
+  private void performCleanse(Player p, CleansePlan plan, InventoryClickEvent e, Inventory top) {
     e.setCancelled(true);
-    int removed = countCurses(target);
-    ItemStack cleaned = stripCurses(target);
-    consumeInputs.run();
+    consumeOne(top, plan.sourceSlot());
+    e.setCurrentItem(null);
 
-    Map<Integer, ItemStack> overflow = p.getInventory().addItem(cleaned);
+    Map<Integer, ItemStack> overflow = p.getInventory().addItem(plan.cleanedItem());
     overflow.values().forEach(item -> p.getWorld().dropItemNaturally(p.getLocation(), item));
-    p.setLevel(Math.max(0, p.getLevel() - cost));
-    addStat(p, "enchanting.curse-cleansing.curses-removed", removed);
-    xp(p, getConfig().skillXpOnCleanse * removed);
-    Adapt.actionbar(p, C.GREEN + "- " + removed + " " + Localizer.dLocalize("enchanting.curse_cleansing.cleansed"));
+    addStat(p, "enchanting.curse-cleansing.curses-removed", plan.cursesRemoved());
+    xp(p, cleanseReward(getConfig().skillXpPerCurse, plan.cursesRemoved()));
+    Adapt.actionbar(p, C.GREEN + "✓ " + plan.cursesRemoved() + " " + Localizer.dLocalize("enchanting.curse_cleansing.cleansed"));
     cleanseFx(p);
     J.runEntity(p, p::updateInventory, 1);
   }
 
-  private boolean hasStrippableCurse(ItemStack item) {
-    if (!isItem(item)) {
+  static CleansePlan planCleanse(ItemStack slotA, ItemStack slotB) {
+    int sourceSlot = selectSourceSlot(hasStrippableCurse(slotA), hasStrippableCurse(slotB));
+    if (sourceSlot < 0) {
+      return null;
+    }
+
+    ItemStack source = sourceSlot == 0 ? slotA : slotB;
+    return new CleansePlan(sourceSlot, stripCurses(source), countCurses(source));
+  }
+
+  static int selectSourceSlot(boolean firstCursed, boolean secondCursed) {
+    if (firstCursed) {
+      return 0;
+    }
+    return secondCursed ? 1 : -1;
+  }
+
+  static boolean hasStrippableCurse(ItemStack item) {
+    if (item == null || item.getType() == Material.AIR) {
       return false;
     }
 
@@ -174,7 +167,7 @@ public class EnchantingCurseCleansing extends SimpleAdaptation<EnchantingCurseCl
     return false;
   }
 
-  private int countCurses(ItemStack item) {
+  static int countCurses(ItemStack item) {
     int count = 0;
     for (Enchantment curse : CurseSet.VALUES) {
       if (item.getEnchantments().containsKey(curse)) {
@@ -194,26 +187,39 @@ public class EnchantingCurseCleansing extends SimpleAdaptation<EnchantingCurseCl
     return count;
   }
 
-  private ItemStack stripCurses(ItemStack item) {
+  static ItemStack stripCurses(ItemStack item) {
     ItemStack cleaned = item.clone();
     cleaned.setAmount(1);
-    for (Enchantment curse : CurseSet.VALUES) {
-      cleaned.removeEnchantment(curse);
-    }
+    Map<Enchantment, Integer> directEnchantments = cleaned.getEnchantments();
+    removePresent(CurseSet.VALUES, directEnchantments::containsKey, cleaned::removeEnchantment);
 
     ItemMeta meta = cleaned.getItemMeta();
     if (meta instanceof EnchantmentStorageMeta stored) {
-      List<Enchantment> toRemove = new ArrayList<>(2);
-      for (Enchantment curse : CurseSet.VALUES) {
-        if (stored.hasStoredEnchant(curse)) {
-          toRemove.add(curse);
-        }
-      }
-      toRemove.forEach(stored::removeStoredEnchant);
+      removePresent(CurseSet.VALUES, stored::hasStoredEnchant, stored::removeStoredEnchant);
       cleaned.setItemMeta(stored);
     }
 
     return cleaned;
+  }
+
+  static <T> void removePresent(Iterable<T> candidates, Predicate<T> present, Consumer<T> remove) {
+    for (T candidate : candidates) {
+      if (present.test(candidate)) {
+        remove.accept(candidate);
+      }
+    }
+  }
+
+  private void consumeOne(Inventory inventory, int slot) {
+    ItemStack source = inventory.getItem(slot);
+    if (!isItem(source) || source.getAmount() <= 1) {
+      inventory.setItem(slot, null);
+      return;
+    }
+
+    ItemStack remainder = source.clone();
+    remainder.setAmount(source.getAmount() - 1);
+    inventory.setItem(slot, remainder);
   }
 
   private void cleanseFx(Player p) {
@@ -240,17 +246,13 @@ public class EnchantingCurseCleansing extends SimpleAdaptation<EnchantingCurseCl
     private static final Set<Enchantment> VALUES = Set.of(Enchantment.BINDING_CURSE, Enchantment.VANISHING_CURSE);
   }
 
+  record CleansePlan(int sourceSlot, ItemStack cleanedItem, int cursesRemoved) {
+  }
 
-  @ConfigDescription("While sneaking, clicking a grindstone result strips Curse of Binding and Vanishing for a steep XP level cost.")
+  @ConfigDescription("While sneaking, taking a grindstone result removes curses from the original item first, preserves its other properties, and grants Enchanting XP.")
   protected static class Config extends AdaptationConfig {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Cost Base for the Enchanting Curse Cleansing adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double xpCostBase = 10;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Cost Factor for the Enchanting Curse Cleansing adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double xpCostFactor = 6;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Min Xp Cost for the Enchanting Curse Cleansing adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    int minXpCost = 3;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Skill Xp On Cleanse for the Enchanting Curse Cleansing adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double skillXpOnCleanse = 30;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Enchanting skill XP granted for each curse removed.", impact = "Higher values reward curse cleansing with more Enchanting XP.")
+    double skillXpPerCurse = 30;
 
     public Config() {
       baseCost = 5;

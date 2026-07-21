@@ -41,6 +41,7 @@ import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.inventorygui.Element;
+import io.papermc.paper.event.player.PlayerInventorySlotChangeEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Keyed;
@@ -60,10 +61,12 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.CrafterCraftEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
+import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -82,8 +85,11 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
   private static final int MARKERS_PER_RECONCILIATION = 8;
   private static final int HARD_MAX_GUIDE_BLOCKS = 128;
   private static final long HELD_WAND_SCAN_MILLIS = 250L;
+  private static final long IDLE_SCAN_MILLIS = Long.MAX_VALUE;
   private final Map<UUID, VisiblePreview> visiblePreviews = new ConcurrentHashMap<>();
   private final Map<UUID, Integer> markerCursors = playerState();
+  private final Set<UUID> heldPlannedWands = ConcurrentHashMap.newKeySet();
+  private final Set<UUID> pendingRefreshes = ConcurrentHashMap.newKeySet();
   private List<UUID> scanPlayers = List.of();
   private int scanIndex;
   private long nextScanAt;
@@ -93,7 +99,7 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
     registerConfiguration(ArchitectChalkLine.Config.class);
     setMaxLevel(CHALK_LEVELS);
     setIcon(Material.STRING);
-    setInterval(HELD_WAND_SCAN_MILLIS);
+    setInterval(IDLE_SCAN_MILLIS);
     nextScanAt = System.currentTimeMillis() + HELD_WAND_SCAN_MILLIS;
     registerToolRecipe(Tool.STRAIGHTEDGE, List.of("S", "T"));
     registerToolRecipe(Tool.POLYLINE, List.of("S ", " T"));
@@ -128,7 +134,7 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
   @Override
   protected void onRuntimeActivated() {
     for (Player player : Bukkit.getOnlinePlayers()) {
-      withPlayerThread(player, () -> normalizeStoredLevel(player));
+      withPlayerThread(player, () -> refreshHeldState(player));
     }
   }
 
@@ -255,6 +261,9 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(BlockPlaceEvent event) {
+    if (visiblePreviews.isEmpty()) {
+      return;
+    }
     GuidePoint placed = GuidePoint.of(event.getBlock());
     for (Map.Entry<UUID, VisiblePreview> entry : visiblePreviews.entrySet()) {
       VisiblePreview preview = entry.getValue();
@@ -267,13 +276,32 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
 
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(PlayerQuitEvent event) {
-    hidePreview(event.getPlayer().getUniqueId());
+    clearPlayerState(event.getPlayer().getUniqueId());
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(PlayerJoinEvent event) {
     Player player = event.getPlayer();
-    withPlayerThread(player, () -> normalizeStoredLevel(player));
+    withPlayerThread(player, () -> refreshHeldState(player));
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(PlayerInventorySlotChangeEvent event) {
+    Player player = event.getPlayer();
+    if (event.getSlot() != player.getInventory().getHeldItemSlot()) {
+      return;
+    }
+    refreshSoon(player);
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(PlayerGameModeChangeEvent event) {
+    refreshSoon(event.getPlayer());
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(PlayerRespawnEvent event) {
+    refreshSoon(event.getPlayer());
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
@@ -294,17 +322,20 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
 
   @Override
   public void onTick() {
+    if (!hasPreviewRuntimeWork()) {
+      parkPreviewRuntime();
+      return;
+    }
+
     long now = System.currentTimeMillis();
     if (scanIndex >= scanPlayers.size()) {
       if (now < nextScanAt) {
-        setInterval(nextScanAt - now);
+        setInterval(previewRuntimeInterval(true, nextScanAt - now));
         return;
       }
-      List<UUID> onlinePlayerIds = new ArrayList<>(Bukkit.getOnlinePlayers().size());
-      for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-        onlinePlayerIds.add(onlinePlayer.getUniqueId());
-      }
-      scanPlayers = List.copyOf(onlinePlayerIds);
+      LinkedHashSet<UUID> trackedPlayers = new LinkedHashSet<>(heldPlannedWands);
+      trackedPlayers.addAll(visiblePreviews.keySet());
+      scanPlayers = List.copyOf(trackedPlayers);
       scanIndex = 0;
       nextScanAt = now + HELD_WAND_SCAN_MILLIS;
     }
@@ -314,18 +345,28 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
       UUID playerId = scanPlayers.get(scanIndex++);
       Player player = Bukkit.getPlayer(playerId);
       if (player == null) {
-        hidePreview(playerId);
+        clearPlayerState(playerId);
         continue;
       }
       withPlayerThread(player, () -> refreshHeldState(player));
     }
+    if (!hasPreviewRuntimeWork()) {
+      parkPreviewRuntime();
+      return;
+    }
     setInterval(scanIndex < scanPlayers.size()
         ? MIN_INTERVAL_MILLIS
-        : Math.max(MIN_INTERVAL_MILLIS, nextScanAt - now));
+        : previewRuntimeInterval(true, nextScanAt - now));
   }
 
   static int scanBatchEnd(int startIndex, int playerCount) {
     return Math.min(Math.max(0, playerCount), Math.max(0, startIndex) + MAX_PLAYERS_PER_TICK);
+  }
+
+  static long previewRuntimeInterval(boolean hasVisiblePreviews, long requestedDelay) {
+    return hasVisiblePreviews
+        ? Math.max(MIN_INTERVAL_MILLIS, requestedDelay)
+        : IDLE_SCAN_MILLIS;
   }
 
   boolean normalizeStoredLevel(PlayerSkillLine line) {
@@ -377,6 +418,7 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
   private void registerToolRecipe(Tool tool, List<String> shapes) {
     registerRecipe(AdaptRecipe.shaped()
         .key(tool.recipeKey())
+        .requiredLevel(tool.requiredLevel())
         .ingredient(new MaterialChar('S', Material.STRING))
         .ingredient(new MaterialChar('T', Material.STICK))
         .shapes(shapes)
@@ -461,13 +503,40 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
   }
 
   private void refreshSoon(Player player) {
-    J.runEntity(player, () -> refreshHeldState(player), 1);
+    UUID playerId = player.getUniqueId();
+    if (!pendingRefreshes.add(playerId)) {
+      return;
+    }
+
+    if (!J.runEntity(player, () -> {
+      pendingRefreshes.remove(playerId);
+      if (!isRuntimeRegistered()) {
+        return;
+      }
+      if (player.isOnline()) {
+        refreshHeldState(player);
+      } else {
+        clearPlayerState(playerId);
+      }
+    }, 1)) {
+      pendingRefreshes.remove(playerId);
+      clearPlayerState(playerId);
+    }
   }
 
   private void refreshHeldState(Player player) {
     normalizeStoredLevel(player);
     WandData wand = ChalkWandItem.read(player.getInventory().getItemInMainHand());
-    if (wand == null || getActiveLevel(player) < wand.tool().requiredLevel()) {
+    UUID playerId = player.getUniqueId();
+    if (wand == null || wand.plan() == null || wand.plan().isEmpty()) {
+      heldPlannedWands.remove(playerId);
+      hidePreview(playerId);
+      return;
+    }
+
+    heldPlannedWands.add(playerId);
+    wakePreviewRuntime();
+    if (getActiveLevel(player) < wand.tool().requiredLevel()) {
       hidePreview(player.getUniqueId());
       return;
     }
@@ -499,9 +568,14 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
       geometry = List.of();
     }
     List<GuidePoint> guidePoints = toGuidePoints(plan, geometry);
+    if (guidePoints.isEmpty()) {
+      hidePreview(playerId);
+      return;
+    }
     VisiblePreview preview = VisiblePreview.create(tool, plan, guidePoints, settings);
     visiblePreviews.put(playerId, preview);
     markerCursors.put(playerId, 0);
+    wakePreviewRuntime();
     ViewerDisplayDirector.clearViewer(getName(), playerId);
     Location viewerLocation = player.getLocation();
     for (GuidePoint point : guidePoints) {
@@ -587,9 +661,42 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
   }
 
   private void hidePreview(UUID playerId) {
+    VisiblePreview removed = visiblePreviews.remove(playerId);
+    markerCursors.remove(playerId);
+    if (removed != null) {
+      ViewerDisplayDirector.clearViewer(getName(), playerId);
+    }
+    parkPreviewRuntime();
+  }
+
+  private void clearPlayerState(UUID playerId) {
+    pendingRefreshes.remove(playerId);
+    heldPlannedWands.remove(playerId);
     visiblePreviews.remove(playerId);
     markerCursors.remove(playerId);
     ViewerDisplayDirector.clearViewer(getName(), playerId);
+    parkPreviewRuntime();
+  }
+
+  private void wakePreviewRuntime() {
+    setInterval(HELD_WAND_SCAN_MILLIS);
+    if (!isBursting()) {
+      retick();
+    }
+  }
+
+  private void parkPreviewRuntime() {
+    if (hasPreviewRuntimeWork()) {
+      return;
+    }
+    setInterval(IDLE_SCAN_MILLIS);
+    if (hasPreviewRuntimeWork()) {
+      wakePreviewRuntime();
+    }
+  }
+
+  private boolean hasPreviewRuntimeWork() {
+    return !heldPlannedWands.isEmpty() || !visiblePreviews.isEmpty();
   }
 
   private List<Point> buildGeometry(Tool tool, Plan plan, PreviewSettings settings) {
@@ -733,6 +840,8 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
     ViewerDisplayDirector.clearChannel(getName());
     visiblePreviews.clear();
     markerCursors.clear();
+    heldPlannedWands.clear();
+    pendingRefreshes.clear();
     scanPlayers = List.of();
     scanIndex = 0;
   }

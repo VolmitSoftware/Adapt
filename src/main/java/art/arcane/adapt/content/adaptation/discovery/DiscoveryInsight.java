@@ -163,6 +163,9 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
 
     Player player = e.getPlayer();
     UUID playerId = player.getUniqueId();
+    if (!huds.containsKey(playerId) && !getServer().hasOnlineLearner(playerId, getName())) {
+      return;
+    }
     if (queuedMovedViewers.add(playerId)) {
       movedViewers.offer(new MovedViewer(playerId, player));
     }
@@ -187,6 +190,12 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
       cleanupHudsOnUnregister(huds.keySet().iterator());
     }
     super.unregister();
+  }
+
+  @Override
+  public boolean hasTickDemand() {
+    return !lifecycleCleanupStarted.get()
+        && (!huds.isEmpty() || !movedViewers.isEmpty() || !pendingViewerUpdates.isEmpty());
   }
 
   @Override

@@ -82,6 +82,11 @@ public class DiscoveryKeenEye extends SimpleAdaptation<DiscoveryKeenEye.Config> 
   }
 
   @Override
+  protected boolean usesLearnerBoundTicking() {
+    return true;
+  }
+
+  @Override
   public void onTick() {
     long now = System.currentTimeMillis();
     for (AdaptPlayer adaptPlayer : learnedCandidates(now)) {

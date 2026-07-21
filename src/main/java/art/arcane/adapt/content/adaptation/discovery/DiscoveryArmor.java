@@ -181,6 +181,16 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
   }
 
   @Override
+  public boolean hasTickDemand() {
+    return super.hasTickDemand() || !appliedArmor.isEmpty();
+  }
+
+  @Override
+  protected boolean usesLearnerBoundTicking() {
+    return true;
+  }
+
+  @Override
   public void onTick() {
     long now = System.currentTimeMillis();
     List<AdaptPlayer> candidates = learnedCandidates(now);

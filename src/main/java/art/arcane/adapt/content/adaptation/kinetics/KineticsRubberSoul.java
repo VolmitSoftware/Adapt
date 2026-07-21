@@ -45,6 +45,11 @@ public class KineticsRubberSoul extends SimpleAdaptation<KineticsRubberSoul.Conf
   }
 
   @Override
+  protected boolean usesLearnerBoundTicking() {
+    return true;
+  }
+
+  @Override
   public void onTick() {
     if (Attributes.BOUNCINESS == null) {
       return;
