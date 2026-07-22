@@ -18,13 +18,16 @@
 
 package art.arcane.adapt.content.adaptation.crafting;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.AdvancementMessages;
+import art.arcane.adapt.localization.catalog.CraftingMessages;
+
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdvancementSpec;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -52,14 +55,14 @@ public class CraftingStations extends SimpleAdaptation<CraftingStations.Config> 
     AdvancementSpec stations5k = AdvancementSpec.challenge(
         "challenge_crafting_stations_5k",
         Material.SMITHING_TABLE,
-        Localizer.dLocalize("advancement.challenge_crafting_stations_5k.title"),
-        Localizer.dLocalize("advancement.challenge_crafting_stations_5k.description")
+        AdaptLanguage.text(AdvancementMessages.CHALLENGE_CRAFTING_STATIONS_5K_TITLE),
+        AdaptLanguage.text(AdvancementMessages.CHALLENGE_CRAFTING_STATIONS_5K_DESCRIPTION)
     );
     AdvancementSpec stations200 = AdvancementSpec.challenge(
         "challenge_crafting_stations_200",
         Material.CRAFTING_TABLE,
-        Localizer.dLocalize("advancement.challenge_crafting_stations_200.title"),
-        Localizer.dLocalize("advancement.challenge_crafting_stations_200.description")
+        AdaptLanguage.text(AdvancementMessages.CHALLENGE_CRAFTING_STATIONS_200_TITLE),
+        AdaptLanguage.text(AdvancementMessages.CHALLENGE_CRAFTING_STATIONS_200_DESCRIPTION)
     ).withChild(stations5k);
     registerAdvancementSpec(stations200);
     registerStatTracker(stations200.statTracker("crafting.stations.portable-opens", 200, 300));
@@ -68,10 +71,10 @@ public class CraftingStations extends SimpleAdaptation<CraftingStations.Config> 
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.RED + Localizer.dLocalize("crafting.stations.lore2"));
-    v.addLore(C.GRAY + Localizer.dLocalize("crafting.stations.lore3"));
+    v.addLore(C.RED + AdaptLanguage.text(CraftingMessages.STATIONS_LORE2));
+    v.addLore(C.GRAY + AdaptLanguage.text(CraftingMessages.STATIONS_LORE3));
     if (getConfig().hungerCost > 0) {
-      v.addLore(C.YELLOW + "* " + getConfig().hungerCost + C.GRAY + " " + Localizer.dLocalize("crafting.stations.lore4"));
+      statLore(v, C.YELLOW, "* ", getConfig().hungerCost, 4);
     }
   }
 

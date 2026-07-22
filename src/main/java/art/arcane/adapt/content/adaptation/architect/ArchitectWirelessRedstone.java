@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.architect;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.ArchitectMessages;
+
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
@@ -30,7 +33,6 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.content.item.BoundRedstoneTorch;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -136,7 +138,7 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
 
   @Override
   public void addStats(int level, Element element) {
-    element.addLore(C.GREEN + Localizer.dLocalize("architect.wireless_redstone.lore1"));
+    element.addLore(C.GREEN + AdaptLanguage.text(ArchitectMessages.WIRELESS_REDSTONE_LORE1));
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)

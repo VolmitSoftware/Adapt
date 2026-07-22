@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.skill;
 
+import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.localization.catalog.SkillMessages;
+
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -37,7 +40,6 @@ import art.arcane.adapt.content.adaptation.ranged.RangedRicochetBolt;
 import art.arcane.adapt.content.adaptation.ranged.RangedTrajectorySight;
 import art.arcane.adapt.content.adaptation.ranged.RangedWebBomb;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import lombok.NoArgsConstructor;
@@ -63,10 +65,8 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
   private final Cooldowns cooldowns = cooldowns();
 
   public SkillRanged() {
-    super("ranged", Localizer.dLocalize("skill.ranged.icon"));
+    super("ranged", SkillPresentation.of(SkillMessages.RANGED_NAME, SkillMessages.RANGED_ICON, SkillMessages.RANGED_DESCRIPTION));
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("skill.ranged.description"));
-    setDisplayName(Localizer.dLocalize("skill.ranged.name"));
     setColor(C.DARK_GREEN);
     setInterval(3044);
     registerAdaptation(new RangedForce());

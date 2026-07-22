@@ -11,7 +11,6 @@ import art.arcane.adapt.api.world.PlayerAdaptation;
 import art.arcane.adapt.api.world.PlayerData;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.api.xp.XP;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.service.MutationSVC;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
@@ -179,7 +178,7 @@ public class PapiExpansion extends PlaceholderExpansion {
     return switch (attr) {
       case "id" -> skill.getName();
       case "enabled" -> String.valueOf(skill.isEnabled());
-      case "name" -> Localizer.dLocalize("skill." + skill.getName() + ".name");
+      case "name" -> skill.getLocalizedName();
       case "display_name", "displayname" -> skill.getDisplayName();
       case "short_name", "shortname" -> skill.getShortName();
       case "level" -> String.valueOf(currentLevel);

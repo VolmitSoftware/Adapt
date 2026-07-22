@@ -1,5 +1,8 @@
 package art.arcane.adapt.content.skill;
 
+import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.localization.catalog.SkillMessages;
+
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.ReceiveCancelledEvents;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -33,7 +36,6 @@ import art.arcane.adapt.content.skill.kinetics.KineticsKnockback;
 import art.arcane.adapt.content.skill.kinetics.KineticsLevitation;
 import art.arcane.adapt.content.skill.kinetics.KineticsMotion;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.volmlib.util.math.M;
 import io.papermc.paper.event.entity.EntityAttemptSmashAttackEvent;
@@ -104,11 +106,9 @@ public class SkillKinetics extends SimpleSkill<SkillKinetics.Config> {
   private final AtomicLong lastSweepAtMs = new AtomicLong();
 
   public SkillKinetics() {
-    super("kinetics", Localizer.dLocalize("skill.kinetics.icon"));
+    super("kinetics", SkillPresentation.of(SkillMessages.KINETICS_NAME, SkillMessages.KINETICS_ICON, SkillMessages.KINETICS_DESCRIPTION));
     registerConfiguration(Config.class);
     setColor(C.GOLD);
-    setDescription(Localizer.dLocalize("skill.kinetics.description"));
-    setDisplayName(Localizer.dLocalize("skill.kinetics.name"));
     setInterval(1000);
     setIcon(Material.MACE);
     registerAdaptation(new KineticsMoonJump());

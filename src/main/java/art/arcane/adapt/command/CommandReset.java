@@ -2,6 +2,8 @@ package art.arcane.adapt.command;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.CommandRuntimeMessages;
 import art.arcane.adapt.util.command.FConst;
 import art.arcane.adapt.util.director.specialhandlers.NullablePlayerHandler;
 import art.arcane.volmlib.util.director.DirectorOrigin;
@@ -14,24 +16,27 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-@Director(name = "reset", origin = DirectorOrigin.BOTH, description = "Permanently delete all Adapt data for a player")
+import static art.arcane.volmlib.util.localization.MessageArgument.untrusted;
+
+@Director(name = "reset", origin = DirectorOrigin.BOTH, description = "Permanently delete all Adapt data for a player", descriptionKey = "command.help.permanently_delete_all_adapt_data_for_a_player")
 public class CommandReset {
   private static final Map<UUID, PendingReset> pendingConfirmations = new HashMap<>();
   private static final long CONFIRMATION_TIMEOUT_MS = 30_000;
 
-  @Director(description = "Permanently delete all Adapt data for a player. Requires op. Run twice to confirm.")
+  @Director(description = "Permanently delete all Adapt data for a player. Requires op. Run twice to confirm.", descriptionKey = "command.help.permanently_delete_all_adapt_data_for_a_player_requires_op_run_twice_to_confirm")
   public void confirm(
-      @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class)
+      @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class, descriptionKey = "command.help.target_player_defaults_to_you")
       Player player
   ) {
     if (!BukkitDirectorContext.sender().isOp()) {
-      FConst.error("This command can only be run by server operators.").send(BukkitDirectorContext.sender());
+      FConst.error(AdaptLanguage.text(CommandRuntimeMessages.OPERATOR_ONLY)).send(BukkitDirectorContext.sender());
       return;
     }
 
     Player targetPlayer = player;
     if (targetPlayer == null && BukkitDirectorContext.isConsole()) {
-      FConst.error("You must specify a player when using this command from console.").send(BukkitDirectorContext.sender());
+      FConst.error(AdaptLanguage.text(CommandRuntimeMessages.PLAYER_REQUIRED_FROM_CONSOLE))
+          .send(BukkitDirectorContext.sender());
       return;
     } else if (targetPlayer == null) {
       targetPlayer = BukkitDirectorContext.player();
@@ -48,14 +53,16 @@ public class CommandReset {
       AdaptPlayer adaptPlayer = Adapt.instance.getAdaptServer().getPlayer(targetPlayer);
       adaptPlayer.delete(targetUuid);
       Adapt.info("Operator " + BukkitDirectorContext.name() + " reset all Adapt data for " + targetPlayer.getName());
-      FConst.success("All Adapt data for " + targetPlayer.getName() + " has been permanently deleted.").send(BukkitDirectorContext.sender());
+      FConst.success(AdaptLanguage.text(CommandRuntimeMessages.RESET_DELETED, untrusted("player", targetPlayer.getName())))
+          .send(BukkitDirectorContext.sender());
       return;
     }
 
     pendingConfirmations.put(senderUuid, new PendingReset(targetUuid, now));
-    FConst.error("WARNING: This will permanently delete ALL Adapt data for " + targetPlayer.getName() + ".").send(BukkitDirectorContext.sender());
-    FConst.error("This includes XP, skills, adaptations, discoveries, stats, and advancements.").send(BukkitDirectorContext.sender());
-    FConst.error("Run this command again within 30 seconds to confirm.").send(BukkitDirectorContext.sender());
+    FConst.error(AdaptLanguage.text(CommandRuntimeMessages.RESET_WARNING, untrusted("player", targetPlayer.getName())))
+        .send(BukkitDirectorContext.sender());
+    FConst.error(AdaptLanguage.text(CommandRuntimeMessages.RESET_INCLUDES)).send(BukkitDirectorContext.sender());
+    FConst.error(AdaptLanguage.text(CommandRuntimeMessages.RESET_CONFIRM)).send(BukkitDirectorContext.sender());
   }
 
   private static class PendingReset {

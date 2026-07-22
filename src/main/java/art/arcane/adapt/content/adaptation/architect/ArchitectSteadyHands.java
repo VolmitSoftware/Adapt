@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.architect;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.ArchitectMessages;
+
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
@@ -28,7 +31,6 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -80,8 +82,8 @@ public class ArchitectSteadyHands extends SimpleAdaptation<ArchitectSteadyHands.
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + Localizer.dLocalize("architect.steady_hands.lore1"));
-    v.addLore(C.GREEN + "" + (int) getShieldedHeight(getLevelPercent(level)) + C.GRAY + " " + Localizer.dLocalize("architect.steady_hands.lore2"));
+    v.addLore(C.GREEN + AdaptLanguage.text(ArchitectMessages.STEADY_HANDS_LORE1));
+    statLore(v, C.GREEN, "", (int) getShieldedHeight(getLevelPercent(level)), 2);
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

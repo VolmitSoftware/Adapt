@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.enchanting;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.EnchantingMessages;
+
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -26,7 +29,6 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -47,6 +49,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Map;
 import java.util.Set;
+
+import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -122,7 +126,10 @@ public class EnchantingCurseCleansing extends SimpleAdaptation<EnchantingCurseCl
     overflow.values().forEach(item -> p.getWorld().dropItemNaturally(p.getLocation(), item));
     addStat(p, "enchanting.curse-cleansing.curses-removed", plan.cursesRemoved());
     xp(p, cleanseReward(getConfig().skillXpPerCurse, plan.cursesRemoved()));
-    Adapt.actionbar(p, C.GREEN + "✓ " + plan.cursesRemoved() + " " + Localizer.dLocalize("enchanting.curse_cleansing.cleansed"));
+    Adapt.actionbar(p, C.GREEN + AdaptLanguage.text(
+        EnchantingMessages.CURSE_CLEANSING_MESSAGE,
+        trusted("count", plan.cursesRemoved())
+    ));
     cleanseFx(p);
     J.runEntity(p, p::updateInventory, 1);
   }

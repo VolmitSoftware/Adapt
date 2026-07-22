@@ -1,5 +1,7 @@
 package art.arcane.adapt.content.skill;
 
+import art.arcane.adapt.localization.AdaptMessages;
+import art.arcane.volmlib.util.localization.TextValue;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -40,17 +42,24 @@ class SkillAxesIrisRegistrationTest {
   @Test
   void irisFellerResourcesExposeTheOptionalDependencyPermissionAndEnglishText() throws IOException {
     String pluginManifest = Files.readString(Path.of("src/main/resources/plugin.yml"));
-    String english = Files.readString(Path.of("src/main/resources/en_US.toml"));
+    TextValue name = (TextValue) AdaptMessages.require("axe.iris_feller.name").englishValue();
+    TextValue lore4 = (TextValue) AdaptMessages.require("axe.iris_feller.lore4").englishValue();
+    TextValue lore5 = (TextValue) AdaptMessages.require("axe.iris_feller.lore5").englishValue();
+    TextValue lore6 = (TextValue) AdaptMessages.require("axe.iris_feller.lore6").englishValue();
+    TextValue lore7 = (TextValue) AdaptMessages.require("axe.iris_feller.lore7").englishValue();
+    TextValue description = (TextValue) AdaptMessages.require("axe.iris_feller.description").englishValue();
 
     assertThat(pluginManifest).contains("  - Iris", "adapt.use.axeirisfeller:");
-    assertThat(english).contains(
-        "[axe.iris_feller]",
-        "name = \"Iris Feller\"",
-        "lore4 = \"hunger points per successfully eroded log\"",
-        "lore5 = \"cooldown after Iris accepts the run\"",
-        "lore6 = \"Sneak continuously; releasing sneak halts the run\"",
-        "lore7 = \"Keep the original axe held; switching or losing it halts the run\"",
-        "Each successfully eroded log costs hunger; the run halts when sneaking stops, the original axe is no longer held, or hunger cannot fund the next log."
+    assertThat(name.template()).isEqualTo("Iris Feller");
+    assertThat(lore4.template()).isEqualTo("hunger points per successfully eroded log");
+    assertThat(lore5.template()).isEqualTo("cooldown after Iris accepts the run");
+    assertThat(lore6.template()).isEqualTo("Sneak continuously; releasing sneak halts the run");
+    assertThat(lore7.template()).isEqualTo("Keep the original axe held; switching or losing it halts the run");
+    assertThat(description.template()).contains(
+        "Each successfully eroded log costs hunger",
+        "the run halts when sneaking stops",
+        "the original axe is no longer held",
+        "hunger cannot fund the next log"
     );
   }
 }

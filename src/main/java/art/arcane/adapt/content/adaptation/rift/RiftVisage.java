@@ -1,5 +1,8 @@
 package art.arcane.adapt.content.adaptation.rift;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.RiftMessages;
+
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -10,7 +13,6 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.content.mutation.runtime.MutationUtilityTag;
 import art.arcane.adapt.service.MutationRuntimeSVC;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -57,7 +59,7 @@ public class RiftVisage extends SimpleAdaptation<RiftVisage.Config> {
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.ITALIC + Localizer.dLocalize("rift.visage.lore1"));
+    v.addLore(C.ITALIC + AdaptLanguage.text(RiftMessages.VISAGE_LORE1));
   }
 
   @EventHandler

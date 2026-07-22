@@ -1,5 +1,7 @@
 package art.arcane.adapt.content.adaptation.architect;
 
+import art.arcane.adapt.localization.AdaptMessages;
+import art.arcane.volmlib.util.localization.TextValue;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -10,7 +12,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class ArchitectWirelessRedstoneTargetTest {
   private static final Path ADAPT_SOURCE = Path.of("src/main/java/art/arcane/adapt/Adapt.java");
-  private static final Path ENGLISH_LOCALE = Path.of("src/main/resources/en_US.toml");
   private static final Path REMOTE_SOURCE = Path.of(
       "src/main/java/art/arcane/adapt/content/adaptation/architect/ArchitectWirelessRedstone.java"
   );
@@ -53,8 +54,10 @@ class ArchitectWirelessRedstoneTargetTest {
   }
 
   @Test
-  void itemLoreExplainsThatAnyBlockCanBeBound() throws IOException {
-    String item = localeSection(Files.readString(ENGLISH_LOCALE), "items.bound_redstone_torch");
+  void itemLoreExplainsThatAnyBlockCanBeBound() {
+    TextValue usage1 = (TextValue) AdaptMessages.require("items.bound_redstone_torch.usage1").englishValue();
+    TextValue usage2 = (TextValue) AdaptMessages.require("items.bound_redstone_torch.usage2").englishValue();
+    String item = usage1.template() + " " + usage2.template();
 
     assertThat(item).contains("any block", "bound face", "4 ticks");
     assertThat(item).doesNotContain("'Target' Block", "1-Tick Redstone pulse", "2-Tick Redstone pulse");
@@ -174,16 +177,6 @@ class ArchitectWirelessRedstoneTargetTest {
         "if (event.getPlugin() != this)",
         "stop();"
     );
-  }
-
-  private static String localeSection(String locale, String key) {
-    String header = "[" + key + "]";
-    int start = locale.indexOf(header);
-    if (start < 0) {
-      throw new IllegalArgumentException("Missing locale section: " + key);
-    }
-    int end = locale.indexOf("\n[", start + header.length());
-    return end < 0 ? locale.substring(start) : locale.substring(start, end);
   }
 
   private static String method(String source, String startMarker, String endMarker) {

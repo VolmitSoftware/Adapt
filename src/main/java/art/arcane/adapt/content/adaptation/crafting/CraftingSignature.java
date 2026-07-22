@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.crafting;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.CraftingMessages;
+
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -26,7 +29,6 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -51,6 +53,8 @@ import org.bukkit.potion.PotionEffectType;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static art.arcane.volmlib.util.localization.MessageArgument.untrusted;
 
 public class CraftingSignature extends SimpleAdaptation<CraftingSignature.Config> {
   private final NamespacedKey signatureKey = new NamespacedKey(Adapt.instance, "crafting_signature_owner");
@@ -77,8 +81,8 @@ public class CraftingSignature extends SimpleAdaptation<CraftingSignature.Config
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("crafting.signature.lore1"));
-    v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("crafting.signature.lore2"));
+    v.addLore(C.GREEN + "+ " + C.GRAY + AdaptLanguage.text(CraftingMessages.SIGNATURE_LORE1));
+    v.addLore(C.GREEN + "+ " + C.GRAY + AdaptLanguage.text(CraftingMessages.SIGNATURE_LORE2));
   }
 
   static int tradeAmplifier(int base, double factor, int max, double levelPercent) {
@@ -118,7 +122,10 @@ public class CraftingSignature extends SimpleAdaptation<CraftingSignature.Config
     ItemMeta signedMeta = signed.getItemMeta();
     signedMeta.getPersistentDataContainer().set(signatureKey, PersistentDataType.STRING, p.getUniqueId().toString());
     List<String> lore = signedMeta.hasLore() ? new ArrayList<>(signedMeta.getLore()) : new ArrayList<>();
-    lore.add(C.DARK_PURPLE + "" + C.ITALIC + Localizer.dLocalize("crafting.signature.tag") + " " + p.getName());
+    lore.add(C.DARK_PURPLE + "" + C.ITALIC + AdaptLanguage.text(
+        CraftingMessages.SIGNATURE_ITEM_LORE,
+        untrusted("player", p.getName())
+    ));
     signedMeta.setLore(lore);
     signed.setItemMeta(signedMeta);
     e.setCurrentItem(signed);

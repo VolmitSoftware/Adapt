@@ -7,6 +7,8 @@ import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.PlayerAdaptation;
 import art.arcane.adapt.api.world.PlayerData;
 import art.arcane.adapt.api.world.PlayerSkillLine;
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.MutationMessages;
 import art.arcane.adapt.service.MutationRuntimeSVC;
 import art.arcane.adapt.util.common.scheduling.J;
 import org.bukkit.Location;
@@ -24,6 +26,9 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+
+import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
+import static art.arcane.volmlib.util.localization.MessageArgument.untrusted;
 
 public final class MutationManager {
   private static final long DORMANT_QUALIFICATION_RECHECK_MILLIS = 1_000L;
@@ -153,41 +158,47 @@ public final class MutationManager {
 
       if (!config.isEnabled()) {
         state = selected ? MutationState.DORMANT : MutationState.DISABLED;
-        reason = "Experimental Mutations are turned off on this server";
+        reason = AdaptLanguage.text(MutationMessages.FEATURE_OFF);
       } else if (!config.profile(type).isEnabled()) {
         state = selected ? MutationState.DORMANT : MutationState.DISABLED;
-        reason = type.displayName() + " is turned off in server settings";
+        reason = AdaptLanguage.text(MutationMessages.TYPE_OFF, trusted("mutation", type.displayName()));
       } else if (!basePermission) {
         state = selected ? MutationState.DORMANT : MutationState.RESTRICTED;
-        reason = "Missing permission adapt.mutations";
+        reason = AdaptLanguage.text(MutationMessages.MISSING_PERMISSION, trusted("permission", "adapt.mutations"));
       } else if (selectedConflict && selected) {
         state = MutationState.CONFLICT;
         reason = duplicateSelection
-            ? "The same Mutation cannot be used in both slots"
-            : "This choice conflicts with your other Mutation";
+            ? AdaptLanguage.text(MutationMessages.DUPLICATE_SLOTS)
+            : AdaptLanguage.text(MutationMessages.CONFLICT_OTHER);
       } else if (selected && !slotUnlocked) {
         state = MutationState.DORMANT;
-        reason = "This slot is locked at your current level";
+        reason = AdaptLanguage.text(MutationMessages.SLOT_LOCKED_CURRENT_LEVEL);
       } else if (!selected && !slotOneUnlocked) {
         state = MutationState.LOCKED;
-        reason = "The first Mutation slot unlocks at level " + config.getSlotOneUnlockLevel();
+        reason = AdaptLanguage.text(
+            MutationMessages.FIRST_SLOT_UNLOCKS,
+            trusted("level", config.getSlotOneUnlockLevel())
+        );
       } else if (!player.hasPermission(type.permission())) {
         state = selected ? MutationState.DORMANT : MutationState.RESTRICTED;
-        reason = "Missing permission " + type.permission();
+        reason = AdaptLanguage.text(MutationMessages.MISSING_PERMISSION, trusted("permission", type.permission()));
       } else if (!config.isWorldAllowed(player.getWorld(), type)) {
         state = selected ? MutationState.DORMANT : MutationState.RESTRICTED;
-        reason = "This Mutation does not work in " + player.getWorld().getName();
+        reason = AdaptLanguage.text(
+            MutationMessages.WORLD_UNAVAILABLE,
+            untrusted("world", player.getWorld().getName())
+        );
       } else {
         if (!qualification.qualified()) {
           state = selected ? MutationState.DORMANT : MutationState.RESTRICTED;
           reason = qualification.reason();
         } else if (selected) {
           state = MutationState.EXPRESSED;
-          reason = perfect ? "Active with no downside" : "Active; downside applies";
+          reason = AdaptLanguage.text(perfect ? MutationMessages.ACTIVE_PERFECT : MutationMessages.ACTIVE_BURDEN);
           expressed.add(type);
         } else {
           state = MutationState.AVAILABLE;
-          reason = "Ready to use";
+          reason = AdaptLanguage.text(MutationMessages.READY_TO_USE);
         }
       }
 
@@ -224,7 +235,7 @@ public final class MutationManager {
 
   public MutationQualification qualification(Player player, MutationType type) {
     if (player == null || type == null || Adapt.instance == null || Adapt.instance.getAdaptServer() == null) {
-      return MutationQualification.rejected("Mutation requirements are unavailable");
+      return MutationQualification.rejected(AdaptLanguage.text(MutationMessages.REQUIREMENTS_UNAVAILABLE));
     }
     EnumMap<MutationDomain, DomainMatch> matches = new EnumMap<>(MutationDomain.class);
     matches.put(type.firstDomain(), matchDomain(player, type.firstDomain()));
@@ -240,17 +251,29 @@ public final class MutationManager {
     qualifying.addAll(second.adaptations());
     if (!first.qualified() && !second.qualified()) {
       return new MutationQualification(false, false, false, qualifying,
-          "Learn an Adaptation from both the " + type.firstDomain().displayName() + " and " + type.secondDomain().displayName() + " skill groups");
+          AdaptLanguage.text(
+              MutationMessages.LEARN_BOTH_DOMAINS,
+              trusted("first", type.firstDomain().displayName()),
+              trusted("second", type.secondDomain().displayName())
+          ));
     }
     if (!first.qualified()) {
       return new MutationQualification(false, false, true, qualifying,
-          "Learn a " + type.firstDomain().displayName() + " Adaptation at level " + config.getMinimumAdaptationLevel() + " or higher");
+          AdaptLanguage.text(
+              MutationMessages.LEARN_DOMAIN_LEVEL,
+              trusted("domain", type.firstDomain().displayName()),
+              trusted("level", config.getMinimumAdaptationLevel())
+          ));
     }
     if (!second.qualified()) {
       return new MutationQualification(false, true, false, qualifying,
-          "Learn a " + type.secondDomain().displayName() + " Adaptation at level " + config.getMinimumAdaptationLevel() + " or higher");
+          AdaptLanguage.text(
+              MutationMessages.LEARN_DOMAIN_LEVEL,
+              trusted("domain", type.secondDomain().displayName()),
+              trusted("level", config.getMinimumAdaptationLevel())
+          ));
     }
-    return new MutationQualification(true, true, true, qualifying, "Ready");
+    return new MutationQualification(true, true, true, qualifying, AdaptLanguage.text(MutationMessages.READY));
   }
 
   public boolean isExpressed(Player player, MutationType type) {
@@ -320,27 +343,31 @@ public final class MutationManager {
       String expectedOtherId
   ) {
     if (player == null || type == null || (slot != 1 && slot != 2)) {
-      return MutationSelectionResult.rejected("Invalid Mutation selection");
+      return MutationSelectionResult.rejected(AdaptLanguage.text(MutationMessages.INVALID_SELECTION));
     }
     AdaptPlayer adaptPlayer = resolvePlayer(player);
     if (adaptPlayer == null) {
-      return MutationSelectionResult.rejected("Player Mutation data is unavailable");
+      return MutationSelectionResult.rejected(AdaptLanguage.text(MutationMessages.PLAYER_DATA_UNAVAILABLE));
     }
     PlayerMutationData data = adaptPlayer.getData().getMutationData();
     String currentId = data.slotId(slot);
     if (expectedCurrentId != null && !normalizeId(expectedCurrentId).equals(currentId)) {
-      return MutationSelectionResult.rejected("The Mutation slot changed while confirmation was open; review it again");
+      return MutationSelectionResult.rejected(AdaptLanguage.text(MutationMessages.SLOT_CHANGED_CONFIRM));
     }
     String otherId = data.slotId(slot == 1 ? 2 : 1);
     if (expectedOtherId != null && !normalizeId(expectedOtherId).equals(otherId)) {
-      return MutationSelectionResult.rejected("The Mutation loadout changed while confirmation was open; review it again");
+      return MutationSelectionResult.rejected(AdaptLanguage.text(MutationMessages.LOADOUT_CHANGED_CONFIRM));
     }
     if (type.id().equals(currentId)) {
       if (data.discover(type.id())) {
         adaptPlayer.saveNow();
         reconcile(adaptPlayer);
       }
-      return MutationSelectionResult.success(type.displayName() + " is already equipped in slot " + slot);
+      return MutationSelectionResult.success(AdaptLanguage.text(
+          MutationMessages.ALREADY_EQUIPPED,
+          trusted("mutation", type.displayName()),
+          trusted("slot", slot)
+      ));
     }
     MutationSelectionResult rejection = validateChange(player, data, slot, type, administrative, false);
     if (rejection != null) {
@@ -354,7 +381,11 @@ public final class MutationManager {
     }
     adaptPlayer.saveNow();
     reconcile(adaptPlayer);
-    return MutationSelectionResult.success("Equipped " + type.displayName() + " in slot " + slot);
+    return MutationSelectionResult.success(AdaptLanguage.text(
+        MutationMessages.EQUIPPED,
+        trusted("mutation", type.displayName()),
+        trusted("slot", slot)
+    ));
   }
 
   public MutationSelectionResult clear(Player player, int slot, boolean administrative) {
@@ -363,18 +394,21 @@ public final class MutationManager {
 
   public MutationSelectionResult clear(Player player, int slot, boolean administrative, String expectedCurrentId) {
     if (player == null || (slot != 1 && slot != 2)) {
-      return MutationSelectionResult.rejected("Invalid Mutation slot");
+      return MutationSelectionResult.rejected(AdaptLanguage.text(MutationMessages.INVALID_SLOT));
     }
     AdaptPlayer adaptPlayer = resolvePlayer(player);
     if (adaptPlayer == null) {
-      return MutationSelectionResult.rejected("Player Mutation data is unavailable");
+      return MutationSelectionResult.rejected(AdaptLanguage.text(MutationMessages.PLAYER_DATA_UNAVAILABLE));
     }
     PlayerMutationData data = adaptPlayer.getData().getMutationData();
     if (expectedCurrentId != null && !normalizeId(expectedCurrentId).equals(data.slotId(slot))) {
-      return MutationSelectionResult.rejected("The Mutation slot changed while confirmation was open; review it again");
+      return MutationSelectionResult.rejected(AdaptLanguage.text(MutationMessages.SLOT_CHANGED_CONFIRM));
     }
     if (data.slotId(slot).isBlank()) {
-      return MutationSelectionResult.success("Mutation slot " + slot + " is already empty");
+      return MutationSelectionResult.success(AdaptLanguage.text(
+          MutationMessages.SLOT_ALREADY_EMPTY,
+          trusted("slot", slot)
+      ));
     }
     MutationSelectionResult rejection = validateChange(player, data, slot, null, administrative, true);
     if (rejection != null) {
@@ -387,7 +421,7 @@ public final class MutationManager {
     }
     adaptPlayer.saveNow();
     reconcile(adaptPlayer);
-    return MutationSelectionResult.success("Cleared Mutation slot " + slot);
+    return MutationSelectionResult.success(AdaptLanguage.text(MutationMessages.CLEARED_SLOT, trusted("slot", slot)));
   }
 
   public void clearCooldowns(Player player) {
@@ -502,51 +536,68 @@ public final class MutationManager {
     if (administrative) {
       MutationType other = MutationType.find(data.slotId(slot == 1 ? 2 : 1));
       if (candidate != null && other == candidate) {
-        return MutationSelectionResult.rejected("The same Mutation cannot occupy both slots");
+        return MutationSelectionResult.rejected(AdaptLanguage.text(MutationMessages.DUPLICATE_OCCUPANCY));
       }
       if (candidate != null && other != null && conflicts(candidate, other)) {
-        return MutationSelectionResult.rejected(candidate.displayName() + " conflicts with " + other.displayName());
+        return MutationSelectionResult.rejected(AdaptLanguage.text(
+            MutationMessages.CONFLICTS_WITH,
+            trusted("mutation", candidate.displayName()),
+            trusted("other", other.displayName())
+        ));
       }
       return null;
     }
     if (!config.isEnabled()) {
-      return MutationSelectionResult.rejected("Experimental Mutations are turned off on this server");
+      return MutationSelectionResult.rejected(AdaptLanguage.text(MutationMessages.FEATURE_OFF));
     }
     if (!config.isSwitchingEnabled()) {
-      return MutationSelectionResult.rejected("Mutation changes are turned off on this server");
+      return MutationSelectionResult.rejected(AdaptLanguage.text(MutationMessages.CHANGES_OFF));
     }
     if (!player.hasPermission("adapt.mutations")) {
-      return MutationSelectionResult.rejected("Missing permission adapt.mutations");
+      return MutationSelectionResult.rejected(AdaptLanguage.text(
+          MutationMessages.MISSING_PERMISSION,
+          trusted("permission", "adapt.mutations")
+      ));
     }
     if (!hasValidBookshelfAccess(player)) {
-      return MutationSelectionResult.rejected("Return to the Adapt bookshelf before changing a Mutation slot");
+      return MutationSelectionResult.rejected(AdaptLanguage.text(MutationMessages.BOOKSHELF_REQUIRED));
     }
     if (!isSlotUnlocked(player, slot)) {
       int required = slot == 1 ? config.getSlotOneUnlockLevel() : config.getSlotTwoUnlockLevel();
-      return MutationSelectionResult.rejected("Mutation slot " + slot + " unlocks at level " + required);
+      return MutationSelectionResult.rejected(AdaptLanguage.text(
+          MutationMessages.SLOT_UNLOCKS,
+          trusted("slot", slot),
+          trusted("level", required)
+      ));
     }
     if (config.isPermanentSelection() && !data.slotId(slot).isBlank()) {
-      return MutationSelectionResult.rejected("This server makes Mutation choices permanent");
+      return MutationSelectionResult.rejected(AdaptLanguage.text(MutationMessages.PERMANENT_CHOICES));
     }
     long cooldownRemaining = data.slotReadyAt(slot) - System.currentTimeMillis();
     if (cooldownRemaining > 0L) {
-      return MutationSelectionResult.cooldown("Mutation slot " + slot + " cannot be changed yet", cooldownRemaining);
+      return MutationSelectionResult.cooldown(AdaptLanguage.text(
+          MutationMessages.SLOT_COOLDOWN,
+          trusted("slot", slot)
+      ), cooldownRemaining);
     }
     long combatRemaining = combatLock.remainingMillis(player.getUniqueId());
     if (combatRemaining > 0L) {
-      return MutationSelectionResult.cooldown("You cannot change Mutations during combat", combatRemaining);
+      return MutationSelectionResult.cooldown(AdaptLanguage.text(MutationMessages.COMBAT_COOLDOWN), combatRemaining);
     }
     if (clearing) {
       return null;
     }
     if (candidate == null || !config.profile(candidate).isEnabled()) {
-      return MutationSelectionResult.rejected("That Mutation is disabled");
+      return MutationSelectionResult.rejected(AdaptLanguage.text(MutationMessages.MUTATION_DISABLED));
     }
     if (!player.hasPermission(candidate.permission())) {
-      return MutationSelectionResult.rejected("Missing permission " + candidate.permission());
+      return MutationSelectionResult.rejected(AdaptLanguage.text(
+          MutationMessages.MISSING_PERMISSION,
+          trusted("permission", candidate.permission())
+      ));
     }
     if (!config.isWorldAllowed(player.getWorld(), candidate)) {
-      return MutationSelectionResult.rejected("That Mutation does not work in this world");
+      return MutationSelectionResult.rejected(AdaptLanguage.text(MutationMessages.WORLD_DISABLED));
     }
     MutationQualification qualification = qualification(player, candidate);
     if (!qualification.qualified()) {
@@ -554,10 +605,14 @@ public final class MutationManager {
     }
     MutationType other = MutationType.find(data.slotId(slot == 1 ? 2 : 1));
     if (other == candidate) {
-      return MutationSelectionResult.rejected("The same Mutation cannot occupy both slots");
+      return MutationSelectionResult.rejected(AdaptLanguage.text(MutationMessages.DUPLICATE_OCCUPANCY));
     }
     if (other != null && conflicts(candidate, other)) {
-      return MutationSelectionResult.rejected(candidate.displayName() + " conflicts with " + other.displayName());
+      return MutationSelectionResult.rejected(AdaptLanguage.text(
+          MutationMessages.CONFLICTS_WITH,
+          trusted("mutation", candidate.displayName()),
+          trusted("other", other.displayName())
+      ));
     }
     return null;
   }
@@ -601,21 +656,21 @@ public final class MutationManager {
     EnumMap<MutationType, String> qualificationReasons = new EnumMap<>(MutationType.class);
     for (MutationType type : MutationType.values()) {
       qualificationReasons.put(type, config.isEnabled()
-          ? "Log in to check requirements"
-          : "Experimental Mutations are turned off on this server");
+          ? AdaptLanguage.text(MutationMessages.LOGIN_REQUIREMENTS)
+          : AdaptLanguage.text(MutationMessages.FEATURE_OFF));
       boolean selected = type.id().equals(mutationData.getSlotOneId()) || type.id().equals(mutationData.getSlotTwoId());
       if (!config.isEnabled()) {
         states.put(type, selected ? MutationState.DORMANT : MutationState.DISABLED);
-        reasons.put(type, "Experimental Mutations are turned off on this server");
+        reasons.put(type, AdaptLanguage.text(MutationMessages.FEATURE_OFF));
       } else if (selected) {
         states.put(type, MutationState.DORMANT);
-        reasons.put(type, "Equipped but inactive while the player is offline");
+        reasons.put(type, AdaptLanguage.text(MutationMessages.EQUIPPED_OFFLINE));
       } else if (!slotOneUnlocked) {
         states.put(type, MutationState.LOCKED);
-        reasons.put(type, "The first Mutation slot is locked");
+        reasons.put(type, AdaptLanguage.text(MutationMessages.FIRST_SLOT_LOCKED));
       } else {
         states.put(type, MutationState.RESTRICTED);
-        reasons.put(type, "Log in to check requirements");
+        reasons.put(type, AdaptLanguage.text(MutationMessages.LOGIN_REQUIREMENTS));
       }
     }
     return new MutationSnapshot(

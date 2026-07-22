@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.pickaxe;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.PickaxeMessages;
+
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -27,7 +30,6 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -79,8 +81,8 @@ public class PickaxeDeepCore extends SimpleAdaptation<PickaxeDeepCore.Config> {
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + Localizer.dLocalize("pickaxe.deep_core.lore1"));
-    v.addLore(C.GREEN + "" + (getAmplifier(level) + 1) + C.GRAY + " " + Localizer.dLocalize("pickaxe.deep_core.lore2"));
+    v.addLore(C.GREEN + AdaptLanguage.text(PickaxeMessages.DEEP_CORE_LORE1));
+    statLore(v, C.GREEN, "", getAmplifier(level) + 1, 2);
   }
 
   private int getAmplifier(int level) {

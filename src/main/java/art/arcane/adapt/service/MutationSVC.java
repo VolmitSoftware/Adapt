@@ -7,6 +7,8 @@ import art.arcane.adapt.api.mutation.MutationType;
 import art.arcane.adapt.api.notification.SoundNotification;
 import art.arcane.adapt.api.notification.TitleNotification;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.MutationMessages;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.plugin.AdaptService;
 import art.arcane.adapt.util.common.scheduling.J;
@@ -97,19 +99,31 @@ public final class MutationSVC implements AdaptService {
     }
     active.reconcile(player);
     if (previousLevel < current.getSlotOneUnlockLevel() && currentLevel >= current.getSlotOneUnlockLevel()) {
-      announce(player, C.LIGHT_PURPLE + "Mutation Slot Unlocked", C.GRAY + "Your first Mutation slot is now unlocked. Visit an Adapt bookshelf.");
+      announce(
+          player,
+          C.LIGHT_PURPLE + AdaptLanguage.text(MutationMessages.SLOT_UNLOCKED_TITLE),
+          C.GRAY + AdaptLanguage.text(MutationMessages.SLOT_UNLOCKED_SUBTITLE)
+      );
     }
     if (previousLevel < current.getSlotTwoUnlockLevel() && currentLevel >= current.getSlotTwoUnlockLevel()) {
-      announce(player, C.LIGHT_PURPLE + "Second Mutation Slot", C.GRAY + "Your second Mutation slot is now unlocked.");
+      announce(
+          player,
+          C.LIGHT_PURPLE + AdaptLanguage.text(MutationMessages.SECOND_SLOT_TITLE),
+          C.GRAY + AdaptLanguage.text(MutationMessages.SECOND_SLOT_SUBTITLE)
+      );
     }
     if (current.isPerfectAdaptationEnabled()
         && previousLevel < current.getPerfectAdaptationLevel()
         && currentLevel >= current.getPerfectAdaptationLevel()) {
-      announce(player, C.GOLD + "Perfect Adaptation", C.GRAY + "Your equipped Mutations no longer have downsides.");
+      announce(
+          player,
+          C.GOLD + AdaptLanguage.text(MutationMessages.PERFECT_TITLE),
+          C.GRAY + AdaptLanguage.text(MutationMessages.PERFECT_SUBTITLE)
+      );
     } else if (current.isPerfectAdaptationEnabled()
         && previousLevel >= current.getPerfectAdaptationLevel()
         && currentLevel < current.getPerfectAdaptationLevel()) {
-      Adapt.messagePlayer(player.getPlayer(), C.YELLOW + "Perfect Adaptation is no longer active; Mutation downsides apply again.");
+      Adapt.messagePlayer(player.getPlayer(), C.YELLOW + AdaptLanguage.text(MutationMessages.PERFECT_LOST));
     }
   }
 

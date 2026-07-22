@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.excavation;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.ExcavationMessages;
+
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
@@ -28,7 +31,6 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.content.item.ItemListings;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.common.world.WorldBlockScanScheduler;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -55,6 +57,8 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Config> {
   private static final int MAX_SCAN_RADIUS = 32;
@@ -89,9 +93,12 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + Localizer.dLocalize("excavation.spelunker.lore1"));
-    v.addLore(C.YELLOW + Localizer.dLocalize("excavation.spelunker.lore2") + getScanRadius(level));
-    v.addLore(C.YELLOW + Localizer.dLocalize("excavation.spelunker.lore3"));
+    v.addLore(C.GREEN + AdaptLanguage.text(ExcavationMessages.SPELUNKER_LORE1));
+    v.addLore(C.YELLOW + AdaptLanguage.text(
+        ExcavationMessages.SPELUNKER_RANGE,
+        trusted("range", getScanRadius(level))
+    ));
+    v.addLore(C.YELLOW + AdaptLanguage.text(ExcavationMessages.SPELUNKER_LORE3));
   }
 
   @EventHandler(priority = EventPriority.HIGH)

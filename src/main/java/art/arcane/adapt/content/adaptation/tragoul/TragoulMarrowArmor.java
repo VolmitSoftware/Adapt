@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.tragoul;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.TragoulMessages;
+
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -26,7 +29,6 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
@@ -71,9 +73,9 @@ public class TragoulMarrowArmor extends SimpleAdaptation<TragoulMarrowArmor.Conf
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + Localizer.dLocalize("tragoul.marrow_armor.lore1"));
-    v.addLore(C.GREEN + "+ " + Form.pc(getAbsorbPercent(level), 0) + C.GRAY + " " + Localizer.dLocalize("tragoul.marrow_armor.lore2"));
-    v.addLore(C.YELLOW + "* " + Form.duration((double) getInternalCooldownMillis(level), 1) + C.GRAY + " " + Localizer.dLocalize("tragoul.marrow_armor.lore3"));
+    v.addLore(C.GREEN + AdaptLanguage.text(TragoulMessages.MARROW_ARMOR_LORE1));
+    statLore(v, Form.pc(getAbsorbPercent(level), 0), 2);
+    statLore(v, C.YELLOW, "* ", Form.duration((double) getInternalCooldownMillis(level), 1), 3);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)

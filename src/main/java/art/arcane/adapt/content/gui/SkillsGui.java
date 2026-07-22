@@ -25,9 +25,11 @@ import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.PlayerAdaptation;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.api.xp.XP;
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.GuiMessages;
+import art.arcane.adapt.localization.catalog.SnippetsMessages;
 import art.arcane.adapt.service.MutationSVC;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.inventorygui.GuiEffects;
 import art.arcane.adapt.util.common.inventorygui.GuiLayout;
 import art.arcane.adapt.util.common.inventorygui.GuiTheme;
@@ -38,6 +40,7 @@ import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.inventorygui.UIElement;
 import art.arcane.volmlib.util.inventorygui.UIWindow;
 import art.arcane.volmlib.util.inventorygui.Window;
+import art.arcane.volmlib.util.localization.TextKey;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
@@ -45,6 +48,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+
+import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 public class SkillsGui {
   private static final int PAGE_JUMP = 5;
@@ -123,8 +128,8 @@ public class SkillsGui {
     if (entries.isEmpty()) {
       w.setElement(0, 2, new UIElement("skills-empty")
           .setMaterial(new MaterialBlock(Material.PAPER))
-          .setName(C.GRAY + "No skills available")
-          .addLore(C.DARK_GRAY + "No eligible skills were found for this player."));
+          .setName(C.GRAY + AdaptLanguage.text(GuiMessages.NO_SKILLS_AVAILABLE))
+          .addLore(C.DARK_GRAY + AdaptLanguage.text(GuiMessages.NO_ELIGIBLE_SKILLS)));
     } else {
       List<GuiEffects.Placement> reveal = new ArrayList<>();
       int pageItems = end - start;
@@ -146,8 +151,14 @@ public class SkillsGui {
               .setName(entry.skill().getDisplayName(entry.line().getLevel()))
               .setProgress(1D)
               .addLore(C.ITALIC + "" + C.GRAY + entry.skill().getDescription())
-              .addLore(C.UNDERLINE + "" + C.WHITE + entry.line().getKnowledge() + C.RESET + " " + C.GRAY + Localizer.dLocalize("snippets.gui.knowledge"))
-              .addLore(C.ITALIC + "" + C.GRAY + Localizer.dLocalize("snippets.gui.power_used") + " " + C.DARK_GREEN + entry.adaptationLevel())
+              .addLore(C.GRAY + AdaptLanguage.text(
+                  SnippetsMessages.GUI_KNOWLEDGE_VALUE,
+                  trusted("knowledge", C.UNDERLINE + "" + C.WHITE + entry.line().getKnowledge() + C.RESET + " " + C.GRAY)
+              ))
+              .addLore(C.ITALIC + "" + C.GRAY + AdaptLanguage.text(
+                  SnippetsMessages.GUI_POWER_USED_VALUE,
+                  trusted("power", C.DARK_GREEN + String.valueOf(entry.adaptationLevel()))
+              ))
               .onLeftClick((e) -> entry.skill().openGui(player));
           reveal.add(new GuiEffects.Placement(pos, row, element));
         }
@@ -157,7 +168,12 @@ public class SkillsGui {
 
     applyPageControls(w, player, 5, currentPage, pageCount, entries.size(), start, end, showMutations);
 
-    w.setTitle(Localizer.dLocalize("snippets.gui.level") + " " + (int) XP.getLevelForXp(adaptPlayer.getData().getMasterXp()) + " (" + adaptPlayer.getData().getUsedPower() + "/" + adaptPlayer.getData().getMaxPower() + " " + Localizer.dLocalize("snippets.gui.power_used") + ")");
+    w.setTitle(AdaptLanguage.text(
+        GuiMessages.SKILLS_TITLE,
+        trusted("level", (int) XP.getLevelForXp(adaptPlayer.getData().getMasterXp())),
+        trusted("used", adaptPlayer.getData().getUsedPower()),
+        trusted("maximum", adaptPlayer.getData().getMaxPower())
+    ));
     w.open();
     w.onClosed((e) -> Adapt.instance.getGuiLeftovers().remove(player.getUniqueId().toString()));
     Adapt.instance.getGuiLeftovers().put(player.getUniqueId().toString(), w);
@@ -204,33 +220,33 @@ public class SkillsGui {
     if (pageCount > 1 && currentPage > 0) {
       window.setElement(-4, navRow, new UIElement("skills-first")
           .setMaterial(new MaterialBlock(Material.LECTERN))
-          .setName(C.GRAY + "First")
+          .setName(C.GRAY + AdaptLanguage.text(GuiMessages.FIRST))
           .onLeftClick((e) -> open(player, 0)));
       window.setElement(-3, navRow, new UIElement("skills-prev")
           .setMaterial(new MaterialBlock(Material.ARROW))
-          .setName(C.WHITE + "Previous")
-          .addLore(C.GRAY + "Right click: jump -" + PAGE_JUMP + " pages")
+          .setName(C.WHITE + AdaptLanguage.text(GuiMessages.PREVIOUS))
+          .addLore(C.GRAY + AdaptLanguage.text(GuiMessages.RIGHT_CLICK_JUMP_BACK, trusted("pages", PAGE_JUMP)))
           .onLeftClick((e) -> open(player, currentPage - 1))
           .onRightClick((e) -> open(player, jumpBack)));
     } else if (pageCount > 1) {
-      window.setElement(-4, navRow, boundaryElement("skills-first-disabled", "First page"));
-      window.setElement(-3, navRow, boundaryElement("skills-prev-disabled", "No previous page"));
+      window.setElement(-4, navRow, boundaryElement("skills-first-disabled", GuiMessages.FIRST_PAGE));
+      window.setElement(-3, navRow, boundaryElement("skills-prev-disabled", GuiMessages.NO_PREVIOUS_PAGE));
     }
 
     if (pageCount > 1 && currentPage < pageCount - 1) {
       window.setElement(3, navRow, new UIElement("skills-next")
           .setMaterial(new MaterialBlock(Material.ARROW))
-          .setName(C.WHITE + "Next")
-          .addLore(C.GRAY + "Right click: jump +" + PAGE_JUMP + " pages")
+          .setName(C.WHITE + AdaptLanguage.text(GuiMessages.NEXT))
+          .addLore(C.GRAY + AdaptLanguage.text(GuiMessages.RIGHT_CLICK_JUMP_FORWARD, trusted("pages", PAGE_JUMP)))
           .onLeftClick((e) -> open(player, currentPage + 1))
           .onRightClick((e) -> open(player, jumpForward)));
       window.setElement(4, navRow, new UIElement("skills-last")
           .setMaterial(new MaterialBlock(Material.LECTERN))
-          .setName(C.GRAY + "Last")
+          .setName(C.GRAY + AdaptLanguage.text(GuiMessages.LAST))
           .onLeftClick((e) -> open(player, pageCount - 1)));
     } else if (pageCount > 1) {
-      window.setElement(3, navRow, boundaryElement("skills-next-disabled", "No next page"));
-      window.setElement(4, navRow, boundaryElement("skills-last-disabled", "Last page"));
+      window.setElement(3, navRow, boundaryElement("skills-next-disabled", GuiMessages.NO_NEXT_PAGE));
+      window.setElement(4, navRow, boundaryElement("skills-last-disabled", GuiMessages.LAST_PAGE));
     }
 
     int from = totalEntries <= 0 ? 0 : (start + 1);
@@ -239,24 +255,30 @@ public class SkillsGui {
     if (showMutations) {
       center = new UIElement("mutations")
           .setMaterial(new MaterialBlock(Material.AMETHYST_CLUSTER))
-          .setName(C.LIGHT_PURPLE + "Experimental Mutations")
-          .addLore(C.GRAY + "Optional build choices unlocked by your Adapt level.")
-          .addLore(C.WHITE + "Click to view your slots and requirements.")
+          .setName(C.LIGHT_PURPLE + AdaptLanguage.text(GuiMessages.EXPERIMENTAL_MUTATIONS))
+          .addLore(C.GRAY + AdaptLanguage.text(GuiMessages.MUTATIONS_MENU_SUMMARY))
+          .addLore(C.WHITE + AdaptLanguage.text(GuiMessages.MUTATIONS_MENU_OPEN))
           .onLeftClick(event -> MutationGui.open(player));
     } else {
       center = new UIElement("skills-page-info")
           .setMaterial(new MaterialBlock(Material.PAPER))
-          .setName(C.AQUA + "Skills");
+          .setName(C.AQUA + AdaptLanguage.text(GuiMessages.SKILLS));
     }
-    center.addLore(C.DARK_GRAY + "Page " + (currentPage + 1) + "/" + pageCount
-        + " • Showing " + from + "-" + to + " of " + totalEntries);
+    center.addLore(C.DARK_GRAY + AdaptLanguage.text(
+        GuiMessages.PAGE_SHOWING_RANGE,
+        trusted("page", currentPage + 1),
+        trusted("pages", pageCount),
+        trusted("from", from),
+        trusted("to", to),
+        trusted("total", totalEntries)
+    ));
     window.setElement(0, navRow, center.setProgress(1D));
   }
 
-  private static Element boundaryElement(String id, String name) {
+  private static Element boundaryElement(String id, TextKey name) {
     return new UIElement(id)
         .setMaterial(new MaterialBlock(Material.GRAY_STAINED_GLASS_PANE))
-        .setName(C.DARK_GRAY + name);
+        .setName(C.DARK_GRAY + AdaptLanguage.text(name));
   }
 
   private record SkillPageEntry(Skill<?> skill, PlayerSkillLine line,

@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.rift;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.RiftMessages;
+
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
@@ -31,7 +34,6 @@ import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.PlayerAdaptation;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.adapt.util.reflect.registries.PotionEffectTypes;
@@ -96,8 +98,8 @@ public class RiftResist extends SimpleAdaptation<RiftResist.Config> {
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.ITALIC + Localizer.dLocalize("rift.resist.lore1"));
-    v.addLore(C.UNDERLINE + Localizer.dLocalize("rift.resist.lore2"));
+    v.addLore(C.ITALIC + AdaptLanguage.text(RiftMessages.RESIST_LORE1));
+    v.addLore(C.UNDERLINE + AdaptLanguage.text(RiftMessages.RESIST_LORE2));
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)

@@ -28,7 +28,6 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.content.adaptation.ranged.RangedHeartseeker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -72,9 +71,9 @@ public class ChronosTemporalEcho extends SimpleAdaptation<ChronosTemporalEcho.Co
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.duration(getEchoDelayTicks(level) * 50D, 1) + C.GRAY + " " + Localizer.dLocalize("chronos.temporal_echo.lore1"));
-    v.addLore(C.GREEN + "+ " + Form.pc(getEchoVelocityFactor(level), 0) + C.GRAY + " " + Localizer.dLocalize("chronos.temporal_echo.lore2"));
-    v.addLore(C.YELLOW + "* " + Form.duration(getCooldownMillis(level), 1) + C.GRAY + " " + Localizer.dLocalize("chronos.temporal_echo.lore3"));
+    statLore(v, Form.duration(getEchoDelayTicks(level) * 50D, 1), 1);
+    statLore(v, Form.pc(getEchoVelocityFactor(level), 0), 2);
+    statLore(v, C.YELLOW, "* ", Form.duration(getCooldownMillis(level), 1), 3);
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

@@ -27,7 +27,6 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.version.IAttribute;
 import art.arcane.adapt.api.version.Version;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Attributes;
@@ -118,8 +117,8 @@ public class TamingStableHand extends SimpleAdaptation<TamingStableHand.Config> 
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.pc(getBias(level), 0) + C.GRAY + " " + Localizer.dLocalize("taming.stable_hand.lore1"));
-    v.addLore(C.GREEN + "+ " + Form.f(fallBonusBlocks(getBias(level)), 1) + C.GRAY + " " + Localizer.dLocalize("taming.stable_hand.lore2"));
+    statLore(v, Form.pc(getBias(level), 0), 1);
+    statLore(v, Form.f(fallBonusBlocks(getBias(level)), 1), 2);
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

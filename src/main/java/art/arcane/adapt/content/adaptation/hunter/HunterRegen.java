@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.hunter;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.HunterMessages;
+
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
@@ -28,7 +31,6 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPresets;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Color;
@@ -62,12 +64,12 @@ public class HunterRegen extends SimpleAdaptation<HunterRegen.Config> {
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GRAY + Localizer.dLocalize("hunter.regen.lore1"));
+    v.addLore(C.GRAY + AdaptLanguage.text(HunterMessages.REGEN_LORE1));
     statLore(v, level, 2);
     statLore(v, C.RED, "- ", (getConfig().basePoisonFromLevel - level), 3);
     statLore(v, C.GRAY, "* ", level, 4);
     statLore(v, C.GRAY, "* ", level, 5);
-    v.addLore(C.GRAY + "- " + level + C.RED + " " + Localizer.dLocalize("hunter.penalty.lore1"));
+    statLore(v, C.GRAY, "- ", level, C.RED, HunterMessages.PENALTY_LORE1);
 
   }
 

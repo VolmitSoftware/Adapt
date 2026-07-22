@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.enchanting;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.EnchantingMessages;
+
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -27,7 +30,6 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPresets;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -56,6 +58,8 @@ import java.util.Base64;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
+
+import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 public class EnchantingSoulLink extends SimpleAdaptation<EnchantingSoulLink.Config> {
   private static final NamespacedKey TOKEN_KEY = new NamespacedKey("adapt", "soul-link-token");
@@ -136,8 +140,10 @@ public class EnchantingSoulLink extends SimpleAdaptation<EnchantingSoulLink.Conf
     long ready = getStorageLong(p, "soul-link-last-mark", 0L);
     if (now < ready) {
       FxPresets.failFizzle(this, block.getLocation().add(0.5D, 1.0D, 0.5D));
-      Adapt.actionbar(p, C.RED + Localizer.dLocalize("enchanting.soul_link.cooling") + " "
-          + Form.duration(ready - now, 1));
+      Adapt.actionbar(p, C.RED + AdaptLanguage.text(
+          EnchantingMessages.SOUL_LINK_COOLING_MESSAGE,
+          trusted("duration", Form.duration(ready - now, 1))
+      ));
       return;
     }
 
@@ -151,7 +157,7 @@ public class EnchantingSoulLink extends SimpleAdaptation<EnchantingSoulLink.Conf
     setStorage(p, "soul-link-token", token);
     setStorage(p, "soul-link-last-mark", now + getRemarkCooldownMs(level));
     markFx(p);
-    Adapt.actionbar(p, C.LIGHT_PURPLE + Localizer.dLocalize("enchanting.soul_link.linked"));
+    Adapt.actionbar(p, C.LIGHT_PURPLE + AdaptLanguage.text(EnchantingMessages.SOUL_LINK_LINKED));
   }
 
   @EventHandler(priority = EventPriority.HIGH)
@@ -255,7 +261,7 @@ public class EnchantingSoulLink extends SimpleAdaptation<EnchantingSoulLink.Conf
     Map<Integer, ItemStack> overflow = p.getInventory().addItem(saved);
     overflow.values().forEach(item -> p.getWorld().dropItemNaturally(p.getLocation(), item));
     xp(p, getConfig().skillXpOnSave);
-    Adapt.actionbar(p, C.LIGHT_PURPLE + Localizer.dLocalize("enchanting.soul_link.saved"));
+    Adapt.actionbar(p, C.LIGHT_PURPLE + AdaptLanguage.text(EnchantingMessages.SOUL_LINK_SAVED));
     timeline(p)
         .duration(10)
         .priority(FxPriority.TRANSITION)

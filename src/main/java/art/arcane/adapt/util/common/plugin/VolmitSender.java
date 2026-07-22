@@ -24,12 +24,7 @@ import art.arcane.adapt.util.common.format.AdventureCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.project.command.CommandDummy;
-import art.arcane.volmlib.util.collection.KList;
-import art.arcane.volmlib.util.collection.KMap;
-import art.arcane.volmlib.util.director.visual.DirectorVisualCommand;
-import art.arcane.volmlib.util.director.visual.DirectorVisualCommand.DirectorVisualParameter;
 import art.arcane.volmlib.util.format.Form;
-import art.arcane.volmlib.util.math.RNG;
 import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.text.Component;
@@ -45,13 +40,10 @@ import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.plugin.Plugin;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -60,8 +52,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author cyberpwn
  */
 public class VolmitSender implements CommandSender {
-  @Getter
-  private static final KMap<String, String> helpCache = new KMap<>();
   private final CommandSender s;
   public boolean useConsoleCustomColors = true;
   public boolean useCustomColorsIngame = true;
@@ -102,19 +92,6 @@ public class VolmitSender implements CommandSender {
 
   public static double invertSpread(double v) {
     return ((1D - v) * 2D) - 1D;
-  }
-
-  public static <T> List<T> paginate(List<T> all, int linesPerPage, int page, AtomicBoolean hasNext) {
-    int totalPages = (int) Math.ceil((double) all.size() / linesPerPage);
-    page = page < 0 ? 0 : page >= totalPages ? totalPages - 1 : page;
-    hasNext.set(page < totalPages - 1);
-    List<T> d = new ArrayList<>();
-
-    for (int i = linesPerPage * page; i < Math.min(all.size(), linesPerPage * (page + 1)); i++) {
-      d.add(all.get(i));
-    }
-
-    return d;
   }
 
   /**
@@ -442,194 +419,6 @@ public class VolmitSender implements CommandSender {
     return s.spigot();
   }
 
-  private String pickRandoms(int max, DirectorVisualCommand i) {
-    KList<String> m = new KList<>();
-    for (int ix = 0; ix < max; ix++) {
-      m.add((i.isNode()
-          ? (i.getNode().getParameters().isNotEmpty())
-          ? "<#ffd1d1>✦ <#ff6b6b>"
-          + escapeHelpText(i.getParentPath())
-          + " <#ff8a8a>"
-          + escapeHelpText(i.getName()) + " "
-          + i.getNode().getParameters().shuffleCopy(RNG.r).kConvert((f)
-              -> (f.isRequired() || RNG.r.b(0.5)
-              ? "<#f2e15e>" + escapeHelpText(f.getNames().getRandom()) + "="
-              + "<#ff9ea0>" + escapeHelpText(f.example())
-              : ""))
-          .toString(" ")
-          : ""
-          : ""));
-    }
-
-    return m.removeDuplicates().kConvert((iff) -> iff.replaceAll("\\Q  \\E", " ")).toString("\n");
-  }
-
-  private static String escapeHelpText(String value) {
-    if (value == null) {
-      return "";
-    }
-
-    return value.replace("\\", "\\\\").replace("<", "\\<");
-  }
-
-  private static String escapeHelpAttr(String value) {
-    if (value == null) {
-      return "";
-    }
-
-    return value.replace("\\", "\\\\").replace("'", "\\'");
-  }
-
-  public static void invalidateHelpCache() {
-    helpCache.clear();
-  }
-
-  public void sendHeader(String name, int overrideLength) {
-    int len = overrideLength;
-    int h = name.length() + 2;
-    String s = Form.repeat(" ", len - h - 4);
-    String si = Form.repeat("(", 3);
-    String so = Form.repeat(")", 3);
-    String sf = "[";
-    String se = "]";
-
-    if (name.trim().isEmpty()) {
-      sendMessageRaw("<font:minecraft:uniform><strikethrough><gradient:#ff5c5c:#4d0000>" + sf + s + "<reset><font:minecraft:uniform><strikethrough><gradient:#4d0000:#ff5c5c>" + s + se);
-    } else {
-      sendMessageRaw("<font:minecraft:uniform><strikethrough><gradient:#ff5c5c:#4d0000>" + sf + s + si + "<reset> <gradient:#c0392b:#ff6b6b>" + name + "<reset> <font:minecraft:uniform><strikethrough><gradient:#4d0000:#ff5c5c>" + so + s + se);
-    }
-  }
-
-  public void sendHeader(String name) {
-    sendHeader(name, 40);
-  }
-
-  public void sendDirectorHelp(DirectorVisualCommand v) {
-    sendDirectorHelp(v, 0);
-  }
-
-  public void sendDirectorHelp(DirectorVisualCommand v, int page) {
-    if (!isPlayer()) {
-      for (DirectorVisualCommand i : v.getNodes()) {
-        sendDirectorHelpNode(i);
-      }
-
-      return;
-    }
-
-    sendMessageRaw("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-
-    if (v.getNodes().isNotEmpty()) {
-      sendHeader(v.getPath() + (page > 0 ? (" {" + (page + 1) + "}") : ""));
-      if (isPlayer() && v.getParent() != null) {
-        sendMessageRaw("<hover:show_text:'" + escapeHelpAttr("<#c0392b>Click to go back to <#ff8a8a>" + escapeHelpText(Form.capitalize(v.getParent().getName())) + " Help") + "'><click:run_command:'" + escapeHelpAttr(v.getParent().getPath()) + "'><font:minecraft:uniform><#ff6b6b>〈 Back</click></hover>");
-      }
-
-      AtomicBoolean next = new AtomicBoolean(false);
-      for (DirectorVisualCommand i : paginate(v.getNodes(), 17, page, next)) {
-        sendDirectorHelpNode(i);
-      }
-
-      String s = "";
-      int l = 75 - (page > 0 ? 10 : 0) - (next.get() ? 10 : 0);
-
-      if (page > 0) {
-        s += "<hover:show_text:'<red>Click to go back to page " + page + "'><click:run_command:'" + escapeHelpAttr(v.getPath() + " help=" + page) + "'><gradient:#8b1a1a:#ff6b6b>〈 Page " + page + "</click></hover><reset> ";
-      }
-
-      s += "<reset><font:minecraft:uniform><strikethrough><gradient:#c0392b:#ff6b6b>" + Form.repeat(" ", l) + "<reset>";
-
-      if (next.get()) {
-        s += " <hover:show_text:'<red>Click to go to page " + (page + 2) + "'><click:run_command:'" + escapeHelpAttr(v.getPath() + " help=" + (page + 2)) + "'><gradient:#c0392b:#ff6b6b>Page " + (page + 2) + " ❭</click></hover>";
-      }
-
-      sendMessageRaw(s);
-    } else {
-      sendMessage(C.RED + "There are no subcommands in this group! Contact support, this is a command design issue!");
-    }
-  }
-
-  public void sendDirectorHelpNode(DirectorVisualCommand i) {
-    if (isPlayer() || s instanceof CommandDummy) {
-      sendMessageRaw(helpCache.computeIfAbsent(i.getPath(), (k) -> buildDirectorHelpNodeLine(i)));
-    } else {
-      sendMessage(i.getPath());
-    }
-  }
-
-  private String buildDirectorHelpNodeLine(DirectorVisualCommand i) {
-    String newline = "<reset>\n";
-
-    String hoverTitle = i.getNames().copy().reverse().kConvert((f) -> "<#ff5c5c>" + escapeHelpText(f)).toString(", ");
-    String description = "<#ff9ea0>✎ <#ffd1d1><font:minecraft:uniform>" + escapeHelpText(i.getDescription());
-    String usage = "<#FF0000>✒ <#8b1a1a><font:minecraft:uniform>";
-
-    String onClick;
-    String clickValue;
-    if (i.isNode()) {
-      if (i.getNode().getParameters().isEmpty()) {
-        usage += "There are no parameters. Click to type command.";
-      } else {
-        usage += "Hover over all of the parameters to learn more.";
-      }
-      onClick = "suggest_command";
-      clickValue = i.getPath() + " ";
-    } else {
-      usage += "This is a command category. Click to run.";
-      onClick = "run_command";
-      clickValue = i.getPath();
-    }
-
-    String suggestion = "";
-    String suggestions = "";
-    if (i.isNode() && i.getNode().getParameters().isNotEmpty()) {
-      suggestion += newline + "<#ffd1d1>✦ <#ff6b6b><font:minecraft:uniform>" + escapeHelpText(i.getParentPath()) + " <#ff8a8a>" + escapeHelpText(i.getName()) + " "
-          + i.getNode().getParameters().kConvert((f) -> "<#f2e15e>" + escapeHelpText(f.getNames().getRandom()) + "=<#ff9ea0>" + escapeHelpText(f.example())).toString(" ");
-      suggestions += newline + "<font:minecraft:uniform>" + pickRandoms(Math.min(i.getNode().getParameters().size() + 1, 5), i);
-    }
-
-    StringBuilder nodes = new StringBuilder();
-    if (i.isNode()) {
-      for (DirectorVisualParameter p : i.getNode().getParameters()) {
-        String nTitle = "<gradient:#ff9ea0:#ff9ea0>" + escapeHelpText(p.getName());
-        String nHoverTitle = p.getNames().kConvert((ff) -> "<#ff9900>" + escapeHelpText(ff)).toString(", ");
-        String nDescription = "<#ff9ea0>✎ <#ffd1d1><font:minecraft:uniform>" + escapeHelpText(p.getDescription());
-        String nUsage;
-        String fullTitle;
-        if (p.isContextual()) {
-          fullTitle = "<#ffcc66>[" + nTitle + "<#ffcc66>] ";
-          nUsage = "<#ff9900>➱ <#ffcc66><font:minecraft:uniform>The value may be derived from environment context.";
-        } else if (p.isRequired()) {
-          fullTitle = "<red>[" + nTitle + "<red>] ";
-          nUsage = "<#ff6b6b>⚠ <#ffd1d1><font:minecraft:uniform>This parameter is required.";
-        } else if (p.hasDefault()) {
-          fullTitle = "<#F7F7F7>⊰" + nTitle + "<#F7F7F7>⊱";
-          nUsage = "<#ff8a8a>✔ <#ffd1d1><font:minecraft:uniform>Defaults to \"" + escapeHelpText(p.getParam().defaultValue()) + "\" if undefined.";
-        } else {
-          fullTitle = "<#F7F7F7>⊰" + nTitle + "<#F7F7F7>⊱";
-          nUsage = "<#ff6b6b>✔ <#ffd1d1><font:minecraft:uniform>This parameter is optional.";
-        }
-        String type = "<#ff6b6b>✢ <#ff9ea0><font:minecraft:uniform>This parameter is of type " + escapeHelpText(p.getType().getSimpleName()) + ".";
-
-        nodes
-            .append("<hover:show_text:'")
-            .append(escapeHelpAttr(nHoverTitle + newline + nDescription + newline + nUsage + newline + type))
-            .append("'>")
-            .append(fullTitle)
-            .append("</hover>");
-      }
-    } else {
-      nodes = new StringBuilder("<gradient:#ffc1c1:#ffd1d1> - Category of Commands");
-    }
-
-    return "<hover:show_text:'" +
-        escapeHelpAttr(hoverTitle + newline + description + newline + usage + suggestion + suggestions) +
-        "'>" +
-        "<click:" + onClick + ":'" + escapeHelpAttr(clickValue) + "'>" +
-        "<#ffe6e6>⇀<gradient:#ff5c5c:#4d0000> " + escapeHelpText(i.getName()) +
-        "</click></hover> " +
-        nodes;
-  }
 
   public void playSound(Sound sound, float volume, float pitch) {
     if (isPlayer()) {

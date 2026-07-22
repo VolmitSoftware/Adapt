@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.chronos;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.ChronosMessages;
+
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -26,7 +29,6 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPresets;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -88,9 +90,9 @@ public class ChronosHourglassGuard extends SimpleAdaptation<ChronosHourglassGuar
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + (getConfig().invulnerabilityMillis / 1000D) + "s " + Localizer.dLocalize("chronos.hourglass_guard.lore1"));
-    v.addLore(C.RED + "* " + Form.duration(getCooldownMillis(level), 1) + " " + Localizer.dLocalize("chronos.hourglass_guard.lore2"));
-    v.addLore(C.GRAY + "* " + Localizer.dLocalize("chronos.hourglass_guard.lore3"));
+    statLore(v, (getConfig().invulnerabilityMillis / 1000D) + "s", 1);
+    statLore(v, C.RED, "* ", Form.duration(getCooldownMillis(level), 1), 2);
+    v.addLore(C.GRAY + "* " + AdaptLanguage.text(ChronosMessages.HOURGLASS_GUARD_LORE3));
   }
 
   private long getCooldownMillis(int level) {

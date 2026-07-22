@@ -11,6 +11,10 @@ import art.arcane.adapt.api.mutation.MutationType;
 import art.arcane.adapt.api.mutation.PlayerMutationData;
 import art.arcane.adapt.api.world.AdaptDebugMode;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.CommandRuntimeMessages;
+import art.arcane.adapt.localization.catalog.GuiMessages;
+import art.arcane.adapt.localization.catalog.MutationMessages;
 import art.arcane.adapt.service.MutationRuntimeSVC;
 import art.arcane.adapt.service.MutationSVC;
 import art.arcane.adapt.util.common.format.C;
@@ -23,12 +27,16 @@ import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.inventorygui.UIElement;
 import art.arcane.volmlib.util.inventorygui.UIWindow;
+import art.arcane.volmlib.util.localization.TextKey;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+
+import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
+import static art.arcane.volmlib.util.localization.MessageArgument.untrusted;
 
 public final class MutationGui {
   private static final int CARD_COLUMNS = 5;
@@ -47,18 +55,21 @@ public final class MutationGui {
       return;
     }
     if (!player.hasPermission("adapt.mutations") && !AdaptDebugMode.isActive(player)) {
-      player.sendMessage(C.RED + "You lack the permission 'adapt.mutations'.");
+      player.sendMessage(C.RED + AdaptLanguage.text(
+          CommandRuntimeMessages.MISSING_PERMISSION,
+          trusted("permission", "adapt.mutations")
+      ));
       return;
     }
 
     MutationManager manager = manager();
     AdaptPlayer adaptPlayer = adaptPlayer(player);
     if (manager == null || adaptPlayer == null) {
-      player.sendMessage(C.RED + "Mutations are not available right now.");
+      player.sendMessage(C.RED + AdaptLanguage.text(MutationMessages.MUTATIONS_UNAVAILABLE));
       return;
     }
     if (!manager.getConfig().isEnabled()) {
-      player.sendMessage(C.YELLOW + "Mutations are experimental and disabled on this server.");
+      player.sendMessage(C.YELLOW + AdaptLanguage.text(MutationMessages.GUI_DISABLED));
       return;
     }
 
@@ -91,7 +102,10 @@ public final class MutationGui {
     GuiEffects.applyReveal(window, reveal);
     applyNavigation(window, player, currentPage, pageCount);
 
-    window.setTitle(C.DARK_PURPLE + "Experimental Mutations" + C.GRAY + " • " + C.WHITE + "L" + view.playerLevel());
+    window.setTitle(C.DARK_PURPLE + AdaptLanguage.text(
+        MutationMessages.GUI_TITLE,
+        trusted("level", view.playerLevel())
+    ));
     openWindow(player, window);
   }
 
@@ -124,31 +138,37 @@ public final class MutationGui {
     window.setElement(3, 0, slotElement(player, view.slotTwo(), page));
     window.setElement(0, 0, new UIElement("mutation-perfect")
         .setMaterial(new MaterialBlock(view.perfect() ? Material.NETHER_STAR : Material.AMETHYST_SHARD))
-        .setName(view.perfect() ? C.GOLD + "Perfect Adaptation" : C.LIGHT_PURPLE + "Perfect Adaptation")
+        .setName((view.perfect() ? C.GOLD : C.LIGHT_PURPLE) + AdaptLanguage.text(MutationMessages.GUI_PERFECT))
         .addLore(view.perfect()
-            ? C.WHITE + "Both equipped Mutations lose their downsides."
-            : C.GRAY + "Unlocks at the configured Adapt level.")
+            ? C.WHITE + AdaptLanguage.text(MutationMessages.GUI_PERFECT_ACTIVE)
+            : C.GRAY + AdaptLanguage.text(MutationMessages.GUI_PERFECT_LOCKED))
         .setProgress(view.perfect() ? 1D : 0D));
 
     window.setElement(-2, 1, new UIElement("mutation-cooperative")
         .setMaterial(new MaterialBlock(view.cooperativeOptIn() ? Material.LIME_DYE : Material.GRAY_DYE))
-        .setName(view.cooperativeOptIn() ? C.GREEN + "Cooperative Effects: On" : C.GRAY + "Cooperative Effects: Off")
-        .addLore(C.GRAY + "Allow shared Mutation effects from nearby players.")
-        .addLore(C.WHITE + "Click to " + (view.cooperativeOptIn() ? "opt out" : "opt in") + ".")
+        .setName((view.cooperativeOptIn() ? C.GREEN : C.GRAY) + AdaptLanguage.text(
+            view.cooperativeOptIn() ? MutationMessages.GUI_COOPERATIVE_ON : MutationMessages.GUI_COOPERATIVE_OFF
+        ))
+        .addLore(C.GRAY + AdaptLanguage.text(MutationMessages.GUI_COOPERATIVE_ALLOW))
+        .addLore(C.WHITE + AdaptLanguage.text(
+            view.cooperativeOptIn() ? MutationMessages.GUI_COOPERATIVE_OPT_OUT : MutationMessages.GUI_COOPERATIVE_OPT_IN
+        ))
         .onLeftClick(event -> toggleCooperative(player, view.cooperativeOptIn(), page)));
 
     window.setElement(2, 1, new UIElement("mutation-access")
         .setMaterial(new MaterialBlock(view.bookshelfAuthorized() ? Material.BOOKSHELF : Material.LECTERN))
-        .setName(view.bookshelfAuthorized() ? C.GREEN + "Changes Available" : C.YELLOW + "View Only")
+        .setName((view.bookshelfAuthorized() ? C.GREEN : C.YELLOW) + AdaptLanguage.text(
+            view.bookshelfAuthorized() ? MutationMessages.GUI_CHANGES_AVAILABLE : MutationMessages.GUI_VIEW_ONLY
+        ))
         .addLore(view.bookshelfAuthorized()
-            ? C.GRAY + "You may change your Mutation slots here."
-            : C.GRAY + "Visit and interact with a valid Adapt bookshelf to change slots."));
+            ? C.GRAY + AdaptLanguage.text(MutationMessages.GUI_MAY_CHANGE)
+            : C.GRAY + AdaptLanguage.text(MutationMessages.GUI_VISIT_BOOKSHELF)));
 
     if (!view.unavailableDiscoveries().isEmpty()) {
       Element unavailable = new UIElement("mutation-unavailable-discoveries")
           .setMaterial(new MaterialBlock(Material.WRITABLE_BOOK))
-          .setName(C.YELLOW + "Unavailable Discoveries")
-          .addLore(C.GRAY + "Saved Mutations that are not currently installed:");
+          .setName(C.YELLOW + AdaptLanguage.text(MutationMessages.GUI_UNAVAILABLE_DISCOVERIES))
+          .addLore(C.GRAY + AdaptLanguage.text(MutationMessages.GUI_SAVED_NOT_INSTALLED));
       for (String mutationId : view.unavailableDiscoveries()) {
         unavailable.addLore(C.DARK_GRAY + "• " + mutationId);
       }
@@ -162,15 +182,19 @@ public final class MutationGui {
     Element element = new UIElement("mutation-slot-" + slot.index())
         .setMaterial(new MaterialBlock(material))
         .setName(slot.unlocked()
-            ? C.AQUA + "Slot " + slot.index() + C.GRAY + ": " + C.WHITE + slot.displayName()
-            : C.DARK_GRAY + "Slot " + slot.index() + ": Locked")
+            ? C.AQUA + AdaptLanguage.text(
+                MutationMessages.GUI_SLOT_VALUE,
+                trusted("slot", slot.index()),
+                trusted("mutation", slot.displayName())
+            )
+            : C.DARK_GRAY + AdaptLanguage.text(MutationMessages.GUI_SLOT_LOCKED, trusted("slot", slot.index())))
         .addLore(C.GRAY + slot.reason());
 
     if (selected != null) {
       element.onLeftClick(event -> openDetails(player, selected, page));
     }
     if (slot.canClear()) {
-      element.addLore(C.RED + "Right click to clear this slot.")
+      element.addLore(C.RED + AdaptLanguage.text(MutationMessages.GUI_RIGHT_CLICK_CLEAR))
           .onRightClick(event -> confirmClear(player, slot.index(), page));
     }
     return element;
@@ -181,13 +205,18 @@ public final class MutationGui {
     Element element = new UIElement("mutation-" + card.type().id())
         .setMaterial(new MaterialBlock(card.type().icon()))
         .setName(stateColor + card.type().displayName())
-        .addLore(C.DARK_GRAY + "Skill groups: " + formatDomain(card.type().firstDomain())
-            + " + " + formatDomain(card.type().secondDomain()))
+        .addLore(C.DARK_GRAY + AdaptLanguage.text(
+            MutationMessages.GUI_SKILL_GROUPS,
+            trusted("first", formatDomain(card.type().firstDomain())),
+            trusted("second", formatDomain(card.type().secondDomain()))
+        ))
         .addLore(C.GRAY + card.reason())
-        .addLore(card.discovered() ? C.GOLD + "Discovered" : C.DARK_GRAY + "Undiscovered")
+        .addLore((card.discovered() ? C.GOLD : C.DARK_GRAY) + AdaptLanguage.text(
+            card.discovered() ? MutationMessages.GUI_DISCOVERED : MutationMessages.GUI_UNDISCOVERED
+        ))
         .addLore(card.selectedSlot() > 0
-            ? C.AQUA + "Equipped in slot " + card.selectedSlot()
-            : C.WHITE + "Click to inspect")
+            ? C.AQUA + AdaptLanguage.text(MutationMessages.GUI_EQUIPPED_SLOT, trusted("slot", card.selectedSlot()))
+            : C.WHITE + AdaptLanguage.text(MutationMessages.GUI_CLICK_INSPECT))
         .setProgress(card.expressed() ? 1D : 0D)
         .onLeftClick(event -> openDetails(player, card.type(), page));
     return element;
@@ -205,7 +234,7 @@ public final class MutationGui {
       return;
     }
     if (!manager.getConfig().isEnabled()) {
-      player.sendMessage(C.YELLOW + "Mutations are experimental and disabled on this server.");
+      player.sendMessage(C.YELLOW + AdaptLanguage.text(MutationMessages.GUI_DISABLED));
       return;
     }
 
@@ -228,20 +257,35 @@ public final class MutationGui {
     Element detail = new UIElement("mutation-detail-" + type.id())
         .setMaterial(new MaterialBlock(type.icon()))
         .setName(stateColor(card.state()) + type.displayName())
-        .addLore(C.DARK_GRAY + "Skill groups: " + formatDomain(type.firstDomain()) + " + " + formatDomain(type.secondDomain()))
-        .addLore(C.WHITE + "Requires: " + C.GRAY + "one learned Adaptation from each skill group at level "
-            + manager.getConfig().getMinimumAdaptationLevel() + "+")
-        .addLore(C.GREEN + "What it does: " + C.GRAY + type.benefit())
-        .addLore(C.RED + "Downside: " + C.GRAY + type.burden())
-        .addLore(C.GOLD + "At level 200: " + C.GRAY + type.perfectResult())
-        .addLore(C.LIGHT_PURPLE + "What you see: " + C.GRAY + type.tell())
-        .addLore(C.AQUA + "How to use: " + C.GRAY + type.control())
-        .addLore(C.DARK_GRAY + (type.pvpRelevant() ? "Affects PvP" : "Does not directly affect PvP"))
-        .addLore(C.WHITE + "Status: " + stateColor(card.state()) + formatState(card.state()))
+        .addLore(C.DARK_GRAY + AdaptLanguage.text(
+            MutationMessages.GUI_SKILL_GROUPS,
+            trusted("first", formatDomain(type.firstDomain())),
+            trusted("second", formatDomain(type.secondDomain()))
+        ))
+        .addLore(C.WHITE + AdaptLanguage.text(
+            MutationMessages.GUI_REQUIRES,
+            trusted("level", manager.getConfig().getMinimumAdaptationLevel())
+        ))
+        .addLore(C.GREEN + AdaptLanguage.text(MutationMessages.GUI_BENEFIT, trusted("benefit", type.benefit())))
+        .addLore(C.RED + AdaptLanguage.text(MutationMessages.GUI_BURDEN, trusted("burden", type.burden())))
+        .addLore(C.GOLD + AdaptLanguage.text(
+            MutationMessages.GUI_PERFECT_RESULT,
+            trusted("result", type.perfectResult())
+        ))
+        .addLore(C.LIGHT_PURPLE + AdaptLanguage.text(MutationMessages.GUI_TELL, trusted("tell", type.tell())))
+        .addLore(C.AQUA + AdaptLanguage.text(MutationMessages.GUI_CONTROL, trusted("control", type.control())))
+        .addLore(C.DARK_GRAY + AdaptLanguage.text(type.pvpRelevant() ? MutationMessages.GUI_PVP : MutationMessages.GUI_NO_PVP))
+        .addLore(C.WHITE + AdaptLanguage.text(
+            MutationMessages.GUI_STATUS,
+            trusted("state", stateColor(card.state()) + formatState(card.state()))
+        ))
         .addLore(C.GRAY + card.reason());
     detail.addLore(qualification.qualifyingAdaptations().isEmpty()
-        ? C.DARK_GRAY + "Matching Adaptations: none currently learned"
-        : C.GRAY + "Matching Adaptations: " + C.WHITE + String.join(", ", qualification.qualifyingAdaptations()));
+        ? C.DARK_GRAY + AdaptLanguage.text(MutationMessages.GUI_MATCHING_NONE)
+        : C.GRAY + AdaptLanguage.text(
+            MutationMessages.GUI_MATCHING,
+            trusted("adaptations", String.join(", ", qualification.qualifyingAdaptations()))
+        ));
     window.setElement(0, 0, detail);
 
     window.setElement(-2, 2, selectSlotElement(player, type, card, view.slotOne(), view.slotTwo(), page));
@@ -263,21 +307,30 @@ public final class MutationGui {
     if (!slot.unlocked()) {
       return new UIElement("mutation-select-locked-" + slot.index())
           .setMaterial(new MaterialBlock(Material.BARRIER))
-          .setName(C.DARK_GRAY + "Slot " + slot.index() + " Locked")
+          .setName(C.DARK_GRAY + AdaptLanguage.text(
+              MutationMessages.GUI_SLOT_LOCKED_NAME,
+              trusted("slot", slot.index())
+          ))
           .addLore(C.GRAY + slot.reason());
     }
 
     if (!managerHasAccess(player)) {
       return new UIElement("mutation-select-view-only-" + slot.index())
           .setMaterial(new MaterialBlock(Material.LECTERN))
-          .setName(C.YELLOW + "Slot " + slot.index() + " • View Only")
-          .addLore(C.GRAY + "Use a valid Adapt bookshelf before changing this slot.");
+          .setName(C.YELLOW + AdaptLanguage.text(
+              MutationMessages.GUI_SLOT_VIEW_ONLY,
+              trusted("slot", slot.index())
+          ))
+          .addLore(C.GRAY + AdaptLanguage.text(MutationMessages.GUI_BOOKSHELF_BEFORE_CHANGE));
     }
 
     if (card.selectedSlot() == slot.index()) {
       return new UIElement("mutation-selected-" + slot.index())
           .setMaterial(new MaterialBlock(type.icon()))
-          .setName(C.AQUA + "Equipped in Slot " + slot.index())
+          .setName(C.AQUA + AdaptLanguage.text(
+              MutationMessages.GUI_EQUIPPED_IN_SLOT,
+              trusted("slot", slot.index())
+          ))
           .addLore(C.GRAY + card.reason());
     }
 
@@ -285,28 +338,43 @@ public final class MutationGui {
     if (other == type) {
       return new UIElement("mutation-duplicate-" + slot.index())
           .setMaterial(new MaterialBlock(Material.GRAY_DYE))
-          .setName(C.RED + "Already Equipped in Slot " + otherSlot.index())
-          .addLore(C.GRAY + "The same Mutation cannot occupy both slots.");
+          .setName(C.RED + AdaptLanguage.text(
+              MutationMessages.GUI_ALREADY_EQUIPPED_SLOT,
+              trusted("slot", otherSlot.index())
+          ))
+          .addLore(C.GRAY + AdaptLanguage.text(MutationMessages.DUPLICATE_OCCUPANCY));
     }
     if (other != null && mutationsConflict(type, other)) {
       return new UIElement("mutation-conflict-" + slot.index())
           .setMaterial(new MaterialBlock(Material.BARRIER))
-          .setName(C.RED + "Conflicts with " + other.displayName())
-          .addLore(C.GRAY + "Clear or replace slot " + otherSlot.index() + " before selecting this Mutation.");
+          .setName(C.RED + AdaptLanguage.text(
+              MutationMessages.GUI_CONFLICTS_WITH,
+              trusted("mutation", other.displayName())
+          ))
+          .addLore(C.GRAY + AdaptLanguage.text(
+              MutationMessages.GUI_CLEAR_OTHER_FIRST,
+              trusted("slot", otherSlot.index())
+          ));
     }
 
     if (card.state() != MutationState.AVAILABLE) {
       return new UIElement("mutation-unavailable-" + slot.index())
           .setMaterial(new MaterialBlock(Material.GRAY_DYE))
-          .setName(C.DARK_GRAY + "Unavailable for Slot " + slot.index())
+          .setName(C.DARK_GRAY + AdaptLanguage.text(
+              MutationMessages.GUI_UNAVAILABLE_SLOT,
+              trusted("slot", slot.index())
+          ))
           .addLore(C.GRAY + card.reason());
     }
 
     return new UIElement("mutation-select-" + slot.index())
         .setMaterial(new MaterialBlock(Material.ENCHANTED_BOOK))
-        .setName(C.GREEN + "Equip in Slot " + slot.index())
-        .addLore(C.GRAY + "Current: " + C.WHITE + slot.displayName())
-        .addLore(C.WHITE + "Click to preview and confirm this change.")
+        .setName(C.GREEN + AdaptLanguage.text(MutationMessages.GUI_EQUIP_SLOT, trusted("slot", slot.index())))
+        .addLore(C.GRAY + AdaptLanguage.text(
+            MutationMessages.GUI_CURRENT,
+            trusted("mutation", slot.displayName())
+        ))
+        .addLore(C.WHITE + AdaptLanguage.text(MutationMessages.GUI_CLICK_PREVIEW))
         .onLeftClick(event -> confirmSelect(player, slot.index(), type, page));
   }
 
@@ -336,24 +404,42 @@ public final class MutationGui {
     window.setViewportHeight(3);
     window.setElement(0, 0, new UIElement("mutation-confirm-preview")
         .setMaterial(new MaterialBlock(type.icon()))
-        .setName(C.LIGHT_PURPLE + type.displayName() + C.GRAY + " → Slot " + slot)
-        .addLore(C.GRAY + "Replacing: " + C.WHITE + target.displayName())
-        .addLore(C.GREEN + "What it does: " + C.GRAY + type.benefit())
-        .addLore(C.RED + "Downside: " + C.GRAY + type.burden())
-        .addLore(C.GOLD + "At level 200: " + C.GRAY + type.perfectResult())
-        .addLore(C.AQUA + "Other slot: " + C.GRAY + other.displayName())
-        .addLore(C.GREEN + "With other slot: " + C.GRAY + interactionPreview(type, other))
-        .addLore(C.YELLOW + "Slot cooldown: " + C.GRAY
-            + Form.duration(manager.getConfig().getSwitchCooldownMillis(), 1)));
+        .setName(C.LIGHT_PURPLE + AdaptLanguage.text(
+            MutationMessages.GUI_CONFIRM_SLOT,
+            trusted("mutation", type.displayName()),
+            trusted("slot", slot)
+        ))
+        .addLore(C.GRAY + AdaptLanguage.text(
+            MutationMessages.GUI_REPLACING,
+            trusted("mutation", target.displayName())
+        ))
+        .addLore(C.GREEN + AdaptLanguage.text(MutationMessages.GUI_BENEFIT, trusted("benefit", type.benefit())))
+        .addLore(C.RED + AdaptLanguage.text(MutationMessages.GUI_BURDEN, trusted("burden", type.burden())))
+        .addLore(C.GOLD + AdaptLanguage.text(
+            MutationMessages.GUI_PERFECT_RESULT,
+            trusted("result", type.perfectResult())
+        ))
+        .addLore(C.AQUA + AdaptLanguage.text(
+            MutationMessages.GUI_OTHER_SLOT,
+            trusted("mutation", other.displayName())
+        ))
+        .addLore(C.GREEN + AdaptLanguage.text(
+            MutationMessages.GUI_WITH_OTHER,
+            trusted("interaction", interactionPreview(type, other))
+        ))
+        .addLore(C.YELLOW + AdaptLanguage.text(
+            MutationMessages.GUI_SLOT_COOLDOWN,
+            trusted("duration", Form.duration(manager.getConfig().getSwitchCooldownMillis(), 1))
+        )));
     window.setElement(-2, 2, new UIElement("mutation-confirm-yes")
         .setMaterial(new MaterialBlock(Material.LIME_CONCRETE))
-        .setName(C.GREEN + "Confirm Change")
+        .setName(C.GREEN + AdaptLanguage.text(MutationMessages.GUI_CONFIRM_CHANGE))
         .onLeftClick(event -> select(player, slot, type, expectedCurrentId, expectedOtherId, page)));
     window.setElement(2, 2, new UIElement("mutation-confirm-no")
         .setMaterial(new MaterialBlock(Material.RED_CONCRETE))
-        .setName(C.RED + "Cancel")
+        .setName(C.RED + AdaptLanguage.text(GuiMessages.CANCEL))
         .onLeftClick(event -> openDetails(player, type, page)));
-    window.setTitle(C.DARK_PURPLE + "Confirm Mutation Change");
+    window.setTitle(C.DARK_PURPLE + AdaptLanguage.text(MutationMessages.GUI_CONFIRM_CHANGE_TITLE));
     openWindow(player, window);
   }
 
@@ -381,18 +467,21 @@ public final class MutationGui {
     window.setViewportHeight(3);
     window.setElement(0, 0, new UIElement("mutation-clear-preview")
         .setMaterial(new MaterialBlock(Material.GLASS_BOTTLE))
-        .setName(C.RED + "Clear Slot " + slot)
-        .addLore(C.GRAY + "Unequip " + C.WHITE + target.displayName() + C.GRAY + "?")
-        .addLore(C.YELLOW + "This starts the normal slot cooldown."));
+        .setName(C.RED + AdaptLanguage.text(MutationMessages.GUI_CLEAR_SLOT, trusted("slot", slot)))
+        .addLore(C.GRAY + AdaptLanguage.text(
+            MutationMessages.GUI_UNEQUIP,
+            trusted("mutation", target.displayName())
+        ))
+        .addLore(C.YELLOW + AdaptLanguage.text(MutationMessages.GUI_NORMAL_COOLDOWN)));
     window.setElement(-2, 2, new UIElement("mutation-clear-yes")
         .setMaterial(new MaterialBlock(Material.LIME_CONCRETE))
-        .setName(C.GREEN + "Confirm Clear")
+        .setName(C.GREEN + AdaptLanguage.text(MutationMessages.GUI_CONFIRM_CLEAR))
         .onLeftClick(event -> clear(player, slot, expectedCurrentId, page)));
     window.setElement(2, 2, new UIElement("mutation-clear-no")
         .setMaterial(new MaterialBlock(Material.RED_CONCRETE))
-        .setName(C.RED + "Cancel")
+        .setName(C.RED + AdaptLanguage.text(GuiMessages.CANCEL))
         .onLeftClick(event -> open(player, page)));
-    window.setTitle(C.DARK_PURPLE + "Confirm Mutation Change");
+    window.setTitle(C.DARK_PURPLE + AdaptLanguage.text(MutationMessages.GUI_CONFIRM_CHANGE_TITLE));
     openWindow(player, window);
   }
 
@@ -465,27 +554,27 @@ public final class MutationGui {
     return switch (control.action()) {
       case ATTUNE_TEMPERBOUND -> new UIElement("mutation-temperbound-attune")
           .setMaterial(new MaterialBlock(Material.ANVIL))
-          .setName(C.GREEN + "Link Current Armor")
-          .addLore(C.GRAY + "Wear four durable armor pieces, then click to link them.")
+          .setName(C.GREEN + AdaptLanguage.text(MutationMessages.GUI_LINK_ARMOR))
+          .addLore(C.GRAY + AdaptLanguage.text(MutationMessages.GUI_LINK_ARMOR_LORE))
           .onLeftClick(event -> runEquipmentAction(player, type, control.action(), page));
       case DISSOLVE_TEMPERBOUND -> new UIElement("mutation-temperbound-dissolve")
           .setMaterial(new MaterialBlock(Material.SHEARS))
-          .setName(C.RED + "Unlink Armor")
-          .addLore(C.GRAY + "Unlink the current four-piece armor set.")
-          .addLore(C.YELLOW + "Click to review and confirm.")
+          .setName(C.RED + AdaptLanguage.text(MutationMessages.GUI_UNLINK_ARMOR))
+          .addLore(C.GRAY + AdaptLanguage.text(MutationMessages.GUI_UNLINK_ARMOR_LORE))
+          .addLore(C.YELLOW + AdaptLanguage.text(MutationMessages.GUI_REVIEW_CONFIRM))
           .onLeftClick(event -> confirmEquipmentAction(player, type, control.action(), page));
       case BIND_MASTERWORK -> masterworkBindElement(player, type, control, page);
       case ABANDON_MASTERWORK -> new UIElement("mutation-masterwork-abandon")
           .setMaterial(new MaterialBlock(Material.FLINT_AND_STEEL))
-          .setName(C.RED + "Unlink Masterwork")
-          .addLore(C.GRAY + "Unlink the current Masterwork tool.")
-          .addLore(C.YELLOW + "A replacement cooldown begins after confirmation.")
+          .setName(C.RED + AdaptLanguage.text(MutationMessages.GUI_UNLINK_MASTERWORK))
+          .addLore(C.GRAY + AdaptLanguage.text(MutationMessages.GUI_UNLINK_MASTERWORK_LORE))
+          .addLore(C.YELLOW + AdaptLanguage.text(MutationMessages.GUI_REPLACEMENT_COOLDOWN_BEGINS))
           .onLeftClick(event -> confirmEquipmentAction(player, type, control.action(), page));
       case BIND_DEEPBLOOD -> new UIElement("mutation-deepblood-bind")
           .setMaterial(new MaterialBlock(Material.DEEPSLATE_DIAMOND_ORE))
-          .setName(C.GREEN + "Bind Held Tool")
-          .addLore(C.GRAY + "Link the durable tool in your main hand to Deepblood break protection.")
-          .addLore(C.YELLOW + "Linking another tool replaces your current Deepblood tool.")
+          .setName(C.GREEN + AdaptLanguage.text(MutationMessages.GUI_BIND_HELD_TOOL))
+          .addLore(C.GRAY + AdaptLanguage.text(MutationMessages.GUI_DEEPBLOOD_BIND_LORE))
+          .addLore(C.YELLOW + AdaptLanguage.text(MutationMessages.GUI_DEEPBLOOD_REPLACE_LORE))
           .onLeftClick(event -> runEquipmentAction(player, type, control.action(), page));
     };
   }
@@ -499,12 +588,14 @@ public final class MutationGui {
     Element element = new UIElement("mutation-masterwork-bind")
         .setMaterial(new MaterialBlock(control.cooldownRemainingMillis() > 0L ? Material.CLOCK : Material.SMITHING_TABLE))
         .setName(control.cooldownRemainingMillis() > 0L
-            ? C.YELLOW + "Bind Held Tool • Cooling Down"
-            : C.GREEN + "Bind Held Tool")
-        .addLore(C.GRAY + "Hold a durable tool you personally crafted.");
+            ? C.YELLOW + AdaptLanguage.text(MutationMessages.GUI_BIND_COOLING)
+            : C.GREEN + AdaptLanguage.text(MutationMessages.GUI_BIND_HELD_TOOL))
+        .addLore(C.GRAY + AdaptLanguage.text(MutationMessages.GUI_MASTERWORK_BIND_LORE));
     if (control.cooldownRemainingMillis() > 0L) {
-      return element.addLore(C.RED + "Replacement available in "
-          + Form.duration(control.cooldownRemainingMillis(), 1) + ".");
+      return element.addLore(C.RED + AdaptLanguage.text(
+          MutationMessages.GUI_REPLACEMENT_AVAILABLE,
+          trusted("duration", Form.duration(control.cooldownRemainingMillis(), 1))
+      ));
     }
     return element.onLeftClick(event -> runEquipmentAction(player, type, control.action(), page));
   }
@@ -520,7 +611,7 @@ public final class MutationGui {
     }
     EquipmentControl current = currentEquipmentControl(player, type);
     if (current == null || current.action() != action) {
-      player.sendMessage(C.RED + "That linked equipment changed before it could be confirmed.");
+      player.sendMessage(C.RED + AdaptLanguage.text(MutationMessages.GUI_EQUIPMENT_CHANGED));
       openDetails(player, type, page);
       return;
     }
@@ -537,26 +628,28 @@ public final class MutationGui {
     if (action == EquipmentAction.DISSOLVE_TEMPERBOUND) {
       window.setElement(0, 0, new UIElement("mutation-temperbound-dissolve-preview")
           .setMaterial(new MaterialBlock(Material.SHEARS))
-          .setName(C.RED + "Unlink Temperbound Armor?")
-          .addLore(C.GRAY + "The current four-piece armor set will be unlinked.")
-          .addLore(C.YELLOW + "This does not repair, protect, or return any armor."));
+          .setName(C.RED + AdaptLanguage.text(MutationMessages.GUI_UNLINK_TEMPERBOUND))
+          .addLore(C.GRAY + AdaptLanguage.text(MutationMessages.GUI_TEMPERBOUND_UNLINKED))
+          .addLore(C.YELLOW + AdaptLanguage.text(MutationMessages.GUI_NO_REPAIR_RETURN)));
     } else {
       window.setElement(0, 0, new UIElement("mutation-masterwork-abandon-preview")
           .setMaterial(new MaterialBlock(Material.FLINT_AND_STEEL))
-          .setName(C.RED + "Unlink Masterwork Tool?")
-          .addLore(C.GRAY + "The current Masterwork tool will be unlinked.")
-          .addLore(C.YELLOW + "Replacement cooldown: "
-              + Form.duration(manager.getConfig().getMasterworkBond().getAbandonCooldownMillis(), 1)));
+          .setName(C.RED + AdaptLanguage.text(MutationMessages.GUI_UNLINK_MASTERWORK_QUESTION))
+          .addLore(C.GRAY + AdaptLanguage.text(MutationMessages.GUI_MASTERWORK_UNLINKED))
+          .addLore(C.YELLOW + AdaptLanguage.text(
+              MutationMessages.GUI_REPLACEMENT_COOLDOWN,
+              trusted("duration", Form.duration(manager.getConfig().getMasterworkBond().getAbandonCooldownMillis(), 1))
+          )));
     }
     window.setElement(-2, 2, new UIElement("mutation-equipment-confirm-yes")
         .setMaterial(new MaterialBlock(Material.LIME_CONCRETE))
-        .setName(C.GREEN + "Confirm")
+        .setName(C.GREEN + AdaptLanguage.text(GuiMessages.CONFIRM))
         .onLeftClick(event -> runEquipmentAction(player, type, action, page, expectedBondId)));
     window.setElement(2, 2, new UIElement("mutation-equipment-confirm-no")
         .setMaterial(new MaterialBlock(Material.RED_CONCRETE))
-        .setName(C.RED + "Cancel")
+        .setName(C.RED + AdaptLanguage.text(GuiMessages.CANCEL))
         .onLeftClick(event -> openDetails(player, type, page)));
-    window.setTitle(C.DARK_PURPLE + "Confirm Equipment Change");
+    window.setTitle(C.DARK_PURPLE + AdaptLanguage.text(MutationMessages.GUI_CONFIRM_EQUIPMENT_TITLE));
     openWindow(player, window);
   }
 
@@ -581,19 +674,19 @@ public final class MutationGui {
     }
     EquipmentControl current = currentEquipmentControl(player, type);
     if (current == null || current.action() != action) {
-      player.sendMessage(C.RED + "This option is no longer available.");
+      player.sendMessage(C.RED + AdaptLanguage.text(MutationMessages.GUI_OPTION_UNAVAILABLE));
       openDetails(player, type, page);
       return;
     }
     if (expectedBondId != null && !expectedBondId.equals(equipmentBondId(player, type))) {
-      player.sendMessage(C.RED + "That linked equipment changed while confirmation was open; review it again.");
+      player.sendMessage(C.RED + AdaptLanguage.text(MutationMessages.GUI_EQUIPMENT_CHANGED_REVIEW));
       openDetails(player, type, page);
       return;
     }
 
     MutationRuntimeSVC service = MutationRuntimeSVC.get();
     if (service == null) {
-      player.sendMessage(C.RED + "Mutation equipment controls are not available right now.");
+      player.sendMessage(C.RED + AdaptLanguage.text(MutationMessages.GUI_CONTROLS_UNAVAILABLE));
       openDetails(player, type, page);
       return;
     }
@@ -619,32 +712,38 @@ public final class MutationGui {
   private static String equipmentSuccessMessage(Player player, EquipmentAction action) {
     if (action != EquipmentAction.ABANDON_MASTERWORK) {
       return switch (action) {
-        case ATTUNE_TEMPERBOUND -> "Your current armor set is now Temperbound.";
-        case DISSOLVE_TEMPERBOUND -> "Your Temperbound armor is now unlinked.";
-        case BIND_MASTERWORK -> "The held tool is now your Masterwork.";
-        case BIND_DEEPBLOOD -> "The held tool is now linked to your Deep Charge reserve.";
+        case ATTUNE_TEMPERBOUND -> AdaptLanguage.text(MutationMessages.EQUIPMENT_TEMPERBOUND_SUCCESS);
+        case DISSOLVE_TEMPERBOUND -> AdaptLanguage.text(MutationMessages.EQUIPMENT_TEMPERBOUND_UNLINKED);
+        case BIND_MASTERWORK -> AdaptLanguage.text(MutationMessages.EQUIPMENT_MASTERWORK_SUCCESS);
+        case BIND_DEEPBLOOD -> AdaptLanguage.text(MutationMessages.EQUIPMENT_DEEPBLOOD_SUCCESS);
         case ABANDON_MASTERWORK -> "";
       };
     }
     long remaining = masterworkCooldownRemaining(player, System.currentTimeMillis());
     return remaining > 0L
-        ? "Your Masterwork tool was unlinked. A replacement can be linked in " + Form.duration(remaining, 1) + "."
-        : "Your Masterwork tool was unlinked.";
+        ? AdaptLanguage.text(
+            MutationMessages.EQUIPMENT_MASTERWORK_UNLINKED_DELAY,
+            trusted("duration", Form.duration(remaining, 1))
+        )
+        : AdaptLanguage.text(MutationMessages.EQUIPMENT_MASTERWORK_UNLINKED);
   }
 
   private static String equipmentFailureMessage(Player player, EquipmentAction action) {
     if (action == EquipmentAction.BIND_MASTERWORK) {
       long remaining = masterworkCooldownRemaining(player, System.currentTimeMillis());
       if (remaining > 0L) {
-        return "A replacement Masterwork can be linked in " + Form.duration(remaining, 1) + ".";
+        return AdaptLanguage.text(
+            MutationMessages.EQUIPMENT_REPLACEMENT_DELAY,
+            trusted("duration", Form.duration(remaining, 1))
+        );
       }
     }
     return switch (action) {
-      case ATTUNE_TEMPERBOUND -> "Wear a complete four-piece durable armor set that is not already linked.";
-      case DISSOLVE_TEMPERBOUND -> "The Temperbound armor could not be unlinked.";
-      case BIND_MASTERWORK -> "Hold a durable tool you personally crafted with no linked Masterwork tool.";
-      case ABANDON_MASTERWORK -> "The Masterwork tool could not be unlinked yet.";
-      case BIND_DEEPBLOOD -> "Hold a durable tool in your main hand before linking it to Deepblood.";
+      case ATTUNE_TEMPERBOUND -> AdaptLanguage.text(MutationMessages.EQUIPMENT_TEMPERBOUND_REQUIREMENT);
+      case DISSOLVE_TEMPERBOUND -> AdaptLanguage.text(MutationMessages.EQUIPMENT_TEMPERBOUND_FAILURE);
+      case BIND_MASTERWORK -> AdaptLanguage.text(MutationMessages.EQUIPMENT_MASTERWORK_REQUIREMENT);
+      case ABANDON_MASTERWORK -> AdaptLanguage.text(MutationMessages.EQUIPMENT_MASTERWORK_FAILURE);
+      case BIND_DEEPBLOOD -> AdaptLanguage.text(MutationMessages.EQUIPMENT_DEEPBLOOD_REQUIREMENT);
     };
   }
 
@@ -733,10 +832,14 @@ public final class MutationGui {
 
   private static void sendResult(Player player, MutationSelectionResult result) {
     String message = result.message() == null || result.message().isBlank()
-        ? (result.success() ? "Mutation state updated." : "Mutation state was not changed.")
+        ? AdaptLanguage.text(result.success() ? MutationMessages.RESULT_UPDATED : MutationMessages.RESULT_NOT_CHANGED)
         : result.message();
     if (!result.success() && result.cooldownRemainingMillis() > 0L) {
-      message += " Remaining cooldown: " + Form.duration(result.cooldownRemainingMillis(), 1);
+      message = AdaptLanguage.text(
+          MutationMessages.REMAINING_COOLDOWN,
+          trusted("message", message),
+          trusted("duration", Form.duration(result.cooldownRemainingMillis(), 1))
+      );
     }
     player.sendMessage((result.success() ? C.GREEN : C.RED) + message);
   }
@@ -746,50 +849,54 @@ public final class MutationGui {
     if (pageCount > 1 && page > 0) {
       window.setElement(-4, 5, new UIElement("mutation-first")
           .setMaterial(new MaterialBlock(Material.LECTERN))
-          .setName(C.GRAY + "First")
+          .setName(C.GRAY + AdaptLanguage.text(GuiMessages.FIRST))
           .onLeftClick(event -> open(player, 0)));
       window.setElement(-3, 5, new UIElement("mutation-previous")
           .setMaterial(new MaterialBlock(Material.ARROW))
-          .setName(C.WHITE + "Previous")
+          .setName(C.WHITE + AdaptLanguage.text(GuiMessages.PREVIOUS))
           .onLeftClick(event -> open(player, page - 1)));
     } else if (pageCount > 1) {
-      window.setElement(-4, 5, boundaryElement("mutation-first-disabled", "First page"));
-      window.setElement(-3, 5, boundaryElement("mutation-previous-disabled", "No previous page"));
+      window.setElement(-4, 5, boundaryElement("mutation-first-disabled", GuiMessages.FIRST_PAGE));
+      window.setElement(-3, 5, boundaryElement("mutation-previous-disabled", GuiMessages.NO_PREVIOUS_PAGE));
     }
     if (pageCount > 1 && page < pageCount - 1) {
       window.setElement(3, 5, new UIElement("mutation-next")
           .setMaterial(new MaterialBlock(Material.ARROW))
-          .setName(C.WHITE + "Next")
+          .setName(C.WHITE + AdaptLanguage.text(GuiMessages.NEXT))
           .onLeftClick(event -> open(player, page + 1)));
       window.setElement(4, 5, new UIElement("mutation-last")
           .setMaterial(new MaterialBlock(Material.LECTERN))
-          .setName(C.GRAY + "Last")
+          .setName(C.GRAY + AdaptLanguage.text(GuiMessages.LAST))
           .onLeftClick(event -> open(player, pageCount - 1)));
     } else if (pageCount > 1) {
-      window.setElement(3, 5, boundaryElement("mutation-next-disabled", "No next page"));
-      window.setElement(4, 5, boundaryElement("mutation-last-disabled", "Last page"));
+      window.setElement(3, 5, boundaryElement("mutation-next-disabled", GuiMessages.NO_NEXT_PAGE));
+      window.setElement(4, 5, boundaryElement("mutation-last-disabled", GuiMessages.LAST_PAGE));
     }
   }
 
   private static Element backElement(Player player, int page, int pageCount) {
     return new UIElement("mutation-back")
         .setMaterial(new MaterialBlock(Material.ARROW))
-        .setName(C.GRAY + "Back to Skills")
-        .addLore(C.DARK_GRAY + "Page " + (page + 1) + "/" + pageCount
-            + " • " + MutationType.values().length + " Mutations")
+        .setName(C.GRAY + AdaptLanguage.text(GuiMessages.BACK_TO_SKILLS))
+        .addLore(C.DARK_GRAY + AdaptLanguage.text(
+            MutationMessages.GUI_PAGE_COUNT,
+            trusted("page", page + 1),
+            trusted("pages", pageCount),
+            trusted("count", MutationType.values().length)
+        ))
         .onLeftClick(event -> SkillsGui.open(player));
   }
 
-  private static Element boundaryElement(String id, String name) {
+  private static Element boundaryElement(String id, TextKey name) {
     return new UIElement(id)
         .setMaterial(new MaterialBlock(Material.GRAY_STAINED_GLASS_PANE))
-        .setName(C.DARK_GRAY + name);
+        .setName(C.DARK_GRAY + AdaptLanguage.text(name));
   }
 
   private static Element mutationBackElement(Player player, int page) {
     return new UIElement("mutation-back-to-overview")
         .setMaterial(new MaterialBlock(Material.ARROW))
-        .setName(C.GRAY + "Back to Mutations")
+        .setName(C.GRAY + AdaptLanguage.text(GuiMessages.BACK_TO_MUTATIONS))
         .onLeftClick(event -> open(player, page));
   }
 
@@ -851,15 +958,21 @@ public final class MutationGui {
   private static String interactionPreview(MutationType type, MutationGuiModel.Slot otherSlot) {
     MutationType other = findType(otherSlot.mutationId());
     if (other == null) {
-      return "No other Mutation selected";
+      return AdaptLanguage.text(MutationMessages.GUI_NO_OTHER_SELECTED);
     }
     if (other == type) {
-      return "The same Mutation cannot occupy both slots";
+      return AdaptLanguage.text(MutationMessages.GUI_SAME_NOT_ALLOWED);
     }
     if (mutationsConflict(type, other)) {
-      return "Conflicts with " + other.displayName();
+      return AdaptLanguage.text(
+          MutationMessages.GUI_CONFLICTS_WITH,
+          trusted("mutation", other.displayName())
+      );
     }
-    return "Compatible with " + other.displayName();
+    return AdaptLanguage.text(
+        MutationMessages.GUI_COMPATIBLE_WITH,
+        trusted("mutation", other.displayName())
+    );
   }
 
   private static String normalizeSlotId(String mutationId) {
@@ -898,23 +1011,23 @@ public final class MutationGui {
 
   private static String formatDomain(MutationDomain domain) {
     if (domain == null) {
-      return "Unknown";
+      return AdaptLanguage.text(MutationMessages.GUI_UNKNOWN);
     }
     return domain.displayName();
   }
 
   private static String formatState(MutationState state) {
     if (state == null) {
-      return "Unknown";
+      return AdaptLanguage.text(MutationMessages.GUI_UNKNOWN);
     }
     return switch (state) {
-      case AVAILABLE -> "Ready";
-      case EXPRESSED -> "Active";
-      case DORMANT -> "Inactive";
-      case LOCKED -> "Locked";
-      case DISABLED -> "Off";
-      case RESTRICTED -> "Unavailable";
-      case CONFLICT -> "Blocked";
+      case AVAILABLE -> AdaptLanguage.text(MutationMessages.GUI_STATE_READY);
+      case EXPRESSED -> AdaptLanguage.text(MutationMessages.GUI_STATE_ACTIVE);
+      case DORMANT -> AdaptLanguage.text(MutationMessages.GUI_STATE_INACTIVE);
+      case LOCKED -> AdaptLanguage.text(MutationMessages.GUI_STATE_LOCKED);
+      case DISABLED -> AdaptLanguage.text(MutationMessages.GUI_STATE_OFF);
+      case RESTRICTED -> AdaptLanguage.text(MutationMessages.GUI_STATE_UNAVAILABLE);
+      case CONFLICT -> AdaptLanguage.text(MutationMessages.GUI_STATE_BLOCKED);
     };
   }
 

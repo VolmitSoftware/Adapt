@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.nether;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.NetherMessages;
+
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -28,7 +31,6 @@ import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -59,8 +61,6 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
   public NetherSkullYeet() {
     super("nether-skull-toss");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("nether.skull_toss.description1") + C.ITALIC + " " + Localizer.dLocalize("nether.skull_toss.description2") + " " + C.GRAY + Localizer.dLocalize("nether.skull_toss.description3"));
-    setDisplayName(Localizer.dLocalize("nether.skull_toss.name"));
     setIcon(Material.WITHER_SKELETON_SKULL);
     setInterval(2314);
     registerAdvancement(AdaptAdvancement.builder()
@@ -88,8 +88,8 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
   @Override
   public void addStats(int level, Element v) {
     int cooldown = cooldownSeconds(getConfig().getBaseCooldown(), getConfig().getLevelCooldown(), level);
-    v.addLore(C.GREEN + String.valueOf(cooldown) + C.GRAY + " " + Localizer.dLocalize("nether.skull_toss.lore1"));
-    v.addLore(C.GRAY + Localizer.dLocalize("nether.skull_toss.lore2") + C.DARK_GRAY + Localizer.dLocalize("nether.skull_toss.lore3") + C.GRAY + ", " + Localizer.dLocalize("nether.skull_toss.lore4"));
+    v.addLore(C.GREEN + String.valueOf(cooldown) + C.GRAY + " " + AdaptLanguage.text(NetherMessages.SKULL_TOSS_LORE1));
+    v.addLore(C.GRAY + AdaptLanguage.text(NetherMessages.SKULL_TOSS_USAGE));
   }
 
   static int cooldownSeconds(int baseCooldown, int levelCooldown, int level) {

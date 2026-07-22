@@ -28,6 +28,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class AdventureCompat {
   private static final AtomicBoolean FALLBACK_NOTIFIED = new AtomicBoolean(false);
+  private static final AtomicBoolean PARSE_FALLBACK_NOTIFIED = new AtomicBoolean(false);
   private static volatile boolean miniMessageCompatible = true;
 
   private AdventureCompat() {
@@ -39,7 +40,7 @@ public final class AdventureCompat {
       try {
         return MiniMessage.miniMessage().deserialize(source);
       } catch (Throwable e) {
-        markIncompatible(e);
+        handleFailure(e);
       }
     }
 
@@ -52,7 +53,7 @@ public final class AdventureCompat {
       try {
         return MiniMessage.builder().postProcessor(c -> c).build().deserialize(source);
       } catch (Throwable e) {
-        markIncompatible(e);
+        handleFailure(e);
       }
     }
 
@@ -65,7 +66,7 @@ public final class AdventureCompat {
       try {
         return MiniMessage.miniMessage().stripTags(source);
       } catch (Throwable e) {
-        markIncompatible(e);
+        handleFailure(e);
       }
     }
 
@@ -78,7 +79,7 @@ public final class AdventureCompat {
       try {
         return LegacyComponentSerializer.legacySection().serialize(MiniMessage.miniMessage().deserialize(source));
       } catch (Throwable e) {
-        markIncompatible(e);
+        handleFailure(e);
       }
     }
 
@@ -91,6 +92,22 @@ public final class AdventureCompat {
 
   private static String stripTagsFallback(String message) {
     return message.replaceAll("<[^>]+>", "");
+  }
+
+  private static void handleFailure(Throwable failure) {
+    if (shouldDisableMiniMessage(failure)) {
+      markIncompatible(failure);
+      return;
+    }
+
+    if (PARSE_FALLBACK_NOTIFIED.compareAndSet(false, true)) {
+      String reason = failure == null ? "unknown" : failure.getClass().getSimpleName();
+      Adapt.verbose("MiniMessage parse fallback for a malformed message (" + reason + "); rendering continues normally.");
+    }
+  }
+
+  static boolean shouldDisableMiniMessage(Throwable failure) {
+    return failure instanceof LinkageError;
   }
 
   private static void markIncompatible(Throwable e) {

@@ -18,9 +18,11 @@
 
 package art.arcane.adapt.content.item;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.ItemsMessages;
+
 import art.arcane.adapt.api.item.DataItem;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.reflect.registries.ItemFlags;
 import art.arcane.volmlib.util.format.Form;
 import lombok.AllArgsConstructor;
@@ -35,6 +37,8 @@ import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionType;
 
 import java.util.List;
+
+import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 @AllArgsConstructor
 @Data
@@ -70,10 +74,13 @@ public class ChronoTimeBottle implements DataItem<ChronoTimeBottle.Data> {
 
   @Override
   public void applyLore(Data data, List<String> lore) {
-    lore.add(C.WHITE + Localizer.dLocalize("items.chrono_time_bottle.name"));
-    lore.add(C.GRAY + Localizer.dLocalize("items.chrono_time_bottle.usage1"));
-    lore.add(C.GRAY + Localizer.dLocalize("items.chrono_time_bottle.usage2"));
-    lore.add(C.AQUA + Localizer.dLocalize("items.chrono_time_bottle.stored") + ": " + C.WHITE + Form.duration((long) (Math.max(0, data.getStoredSeconds()) * 1000D), 1));
+    lore.add(C.WHITE + AdaptLanguage.text(ItemsMessages.CHRONO_TIME_BOTTLE_NAME));
+    lore.add(C.GRAY + AdaptLanguage.text(ItemsMessages.CHRONO_TIME_BOTTLE_USAGE1));
+    lore.add(C.GRAY + AdaptLanguage.text(ItemsMessages.CHRONO_TIME_BOTTLE_USAGE2));
+    lore.add(C.AQUA + AdaptLanguage.text(
+        ItemsMessages.CHRONO_TIME_BOTTLE_STORED_VALUE,
+        trusted("duration", C.WHITE + Form.duration((long) (Math.max(0, data.getStoredSeconds()) * 1000D), 1))
+    ));
   }
 
   @Override
@@ -86,7 +93,7 @@ public class ChronoTimeBottle implements DataItem<ChronoTimeBottle.Data> {
 
     meta.addEnchant(Enchantment.BINDING_CURSE, 1, true);
     meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS, ItemFlags.HIDE_POTION_EFFECTS);
-    meta.setDisplayName(Localizer.dLocalize("items.chrono_time_bottle.name"));
+    meta.setDisplayName(AdaptLanguage.text(ItemsMessages.CHRONO_TIME_BOTTLE_NAME));
   }
 
   @AllArgsConstructor

@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.tragoul;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.TragoulMessages;
+
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
@@ -31,7 +34,6 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.version.IAttribute;
 import art.arcane.adapt.api.version.Version;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Attributes;
@@ -184,12 +186,12 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + Localizer.dLocalize("tragoul.skeletal_servant.lore1"));
-    v.addLore(C.GREEN + "+ " + getServantCap(level) + C.GRAY + " " + Localizer.dLocalize("tragoul.skeletal_servant.lore5"));
-    v.addLore(C.GREEN + "+ " + Form.duration(getDurationTicks(level) * 50D, 1) + C.GRAY + " " + Localizer.dLocalize("tragoul.skeletal_servant.lore2"));
-    v.addLore(C.YELLOW + "* " + getBoneCost(level) + C.GRAY + " " + Localizer.dLocalize("tragoul.skeletal_servant.lore3"));
-    v.addLore(C.YELLOW + "* " + Form.duration((double) getCooldownMillis(level), 1) + C.GRAY + " " + Localizer.dLocalize("tragoul.skeletal_servant.lore4"));
-    v.addLore(C.GRAY + Localizer.dLocalize("tragoul.skeletal_servant.lore6"));
+    v.addLore(C.GREEN + AdaptLanguage.text(TragoulMessages.SKELETAL_SERVANT_LORE1));
+    statLore(v, getServantCap(level), 5);
+    statLore(v, Form.duration(getDurationTicks(level) * 50D, 1), 2);
+    statLore(v, C.YELLOW, "* ", getBoneCost(level), 3);
+    statLore(v, C.YELLOW, "* ", Form.duration((double) getCooldownMillis(level), 1), 4);
+    v.addLore(C.GRAY + AdaptLanguage.text(TragoulMessages.SKELETAL_SERVANT_LORE6));
     if (getConfig().healthCostEnabled && getConfig().healthCostPerMinion > 0) {
       statLore(v, C.RED, "* ", Form.f(getConfig().healthCostPerMinion, 1), 7);
     }

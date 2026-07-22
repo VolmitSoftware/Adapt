@@ -153,7 +153,6 @@ public final class ConfigMigrationManager {
   private static List<File> collectLegacyJsonFiles(File dataFolder) {
     List<File> files = new ArrayList<>();
     addScopedJsonFiles(new File(dataFolder, "adapt"), files);
-    addScopedJsonFiles(new File(dataFolder, "languages"), files);
     return files;
   }
 

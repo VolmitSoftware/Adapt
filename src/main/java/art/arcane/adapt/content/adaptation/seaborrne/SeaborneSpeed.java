@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.seaborrne;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.SeabornMessages;
+
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -28,7 +31,6 @@ import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -50,6 +52,8 @@ import org.bukkit.util.Vector;
 
 import java.util.Map;
 import java.util.UUID;
+
+import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 public class SeaborneSpeed extends SimpleAdaptation<SeaborneSpeed.Config> {
   private static final String ATTRIBUTE_SLOT = "swim";
@@ -89,8 +93,11 @@ public class SeaborneSpeed extends SimpleAdaptation<SeaborneSpeed.Config> {
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GRAY + Localizer.dLocalize("seaborn.dolphin_grace.lore1") + C.GREEN + (level) + C.GRAY + Localizer.dLocalize("seaborn.dolphin_grace.lore2"));
-    v.addLore(C.ITALIC + Localizer.dLocalize("seaborn.dolphin_grace.lore3"));
+    v.addLore(C.GRAY + AdaptLanguage.text(
+        SeabornMessages.DOLPHIN_GRACE_SPEED,
+        trusted("level", C.GREEN + String.valueOf(level) + C.GRAY)
+    ));
+    v.addLore(C.ITALIC + AdaptLanguage.text(SeabornMessages.DOLPHIN_GRACE_LORE3));
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

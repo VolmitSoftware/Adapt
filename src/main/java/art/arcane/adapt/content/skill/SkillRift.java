@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.skill;
 
+import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.localization.catalog.SkillMessages;
+
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
@@ -41,7 +44,6 @@ import art.arcane.adapt.content.adaptation.rift.RiftVisage;
 import art.arcane.adapt.content.adaptation.rift.RiftVoidMagnet;
 import art.arcane.adapt.content.adaptation.rift.RiftVoidSkin;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -68,10 +70,8 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
   private final Cooldowns teleportXpCooldown = cooldowns();
 
   public SkillRift() {
-    super("rift", Localizer.dLocalize("skill.rift.icon"));
+    super("rift", SkillPresentation.of(SkillMessages.RIFT_NAME, SkillMessages.RIFT_ICON, SkillMessages.RIFT_DESCRIPTION));
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("skill.rift.description"));
-    setDisplayName(Localizer.dLocalize("skill.rift.name"));
     setColor(C.DARK_PURPLE);
     setInterval(1154);
     setIcon(Material.ENDER_EYE);

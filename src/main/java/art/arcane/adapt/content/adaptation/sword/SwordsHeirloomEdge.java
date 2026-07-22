@@ -25,6 +25,8 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.SwordMessages;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -58,11 +60,11 @@ import java.util.Map;
 
 public class SwordsHeirloomEdge extends SimpleAdaptation<SwordsHeirloomEdge.Config> {
   private static final Color HEIRLOOM = Color.fromRGB(0xE8C46A);
-  private static final String LORE_SENTINEL = "Heirloom Edge";
   private final NamespacedKey flagKey;
   private final NamespacedKey killsKey;
   private final NamespacedKey bonusKey;
   private final NamespacedKey modifierKey;
+  private final NamespacedKey loreKey;
 
   public SwordsHeirloomEdge() {
     super("sword-heirloom-edge");
@@ -72,6 +74,7 @@ public class SwordsHeirloomEdge extends SimpleAdaptation<SwordsHeirloomEdge.Conf
     killsKey = new NamespacedKey(Adapt.instance, "heirloom_edge_kills");
     bonusKey = new NamespacedKey(Adapt.instance, "heirloom_edge_bonus");
     modifierKey = new NamespacedKey(Adapt.instance, "heirloom_edge_damage");
+    loreKey = new NamespacedKey(Adapt.instance, "heirloom_edge_lore");
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.IRON_SWORD)
         .key("challenge_swords_heirloom_10")
@@ -232,8 +235,13 @@ public class SwordsHeirloomEdge extends SimpleAdaptation<SwordsHeirloomEdge.Conf
 
   private void applyHeirloomLore(ItemMeta meta) {
     List<String> lore = meta.hasLore() ? new ArrayList<>(meta.getLore()) : new ArrayList<>();
-    lore.removeIf(line -> line != null && line.contains(LORE_SENTINEL));
-    lore.add(C.GOLD + LORE_SENTINEL);
+    PersistentDataContainer data = meta.getPersistentDataContainer();
+    String previous = data.get(loreKey, PersistentDataType.STRING);
+    String english = SwordMessages.HEIRLOOM_EDGE_NAME.english();
+    lore.removeIf(line -> line != null && (line.equals(previous) || line.contains(english)));
+    String rendered = C.GOLD + AdaptLanguage.text(SwordMessages.HEIRLOOM_EDGE_NAME);
+    lore.add(rendered);
+    data.set(loreKey, PersistentDataType.STRING, rendered);
     meta.setLore(lore);
   }
 

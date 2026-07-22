@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.rift;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.RiftMessages;
+
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -27,7 +30,6 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.content.item.BoundEnderPearl;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -76,6 +78,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import static art.arcane.adapt.api.adaptation.chunk.ChunkLoading.loadChunkAsync;
+import static art.arcane.volmlib.util.localization.MessageArgument.untrusted;
 
 public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> {
   private static final double PEARL_TELEPORT_DAMAGE = 5.0;
@@ -129,14 +132,14 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Localizer.dLocalize("rift.ender_taglock.lore1"));
+    v.addLore(C.GREEN + "+ " + AdaptLanguage.text(RiftMessages.ENDER_TAGLOCK_LORE1));
     if (level >= 2) {
-      v.addLore(C.GREEN + "+ " + Localizer.dLocalize("rift.ender_taglock.lore2"));
+      v.addLore(C.GREEN + "+ " + AdaptLanguage.text(RiftMessages.ENDER_TAGLOCK_LORE2));
     }
     if (level >= 3) {
-      v.addLore(C.GREEN + "+ " + Localizer.dLocalize("rift.ender_taglock.lore3"));
+      v.addLore(C.GREEN + "+ " + AdaptLanguage.text(RiftMessages.ENDER_TAGLOCK_LORE3));
     }
-    v.addLore(C.YELLOW + "* " + Form.duration(getThrowCooldownTicks(level) * 50D, 1) + C.GRAY + " " + Localizer.dLocalize("rift.ender_taglock.lore4"));
+    statLore(v, C.YELLOW, "* ", Form.duration(getThrowCooldownTicks(level) * 50D, 1), 4);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -577,10 +580,13 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
     PersistentDataContainer pdc = meta.getPersistentDataContainer();
     pdc.set(targetKey, PersistentDataType.STRING, target.getUniqueId().toString());
 
-    meta.setDisplayName(C.LIGHT_PURPLE + "Taglocked Ender Pearl");
+    meta.setDisplayName(C.LIGHT_PURPLE + AdaptLanguage.text(RiftMessages.ENDER_TAGLOCK_ITEM_NAME));
     List<String> lore = new ArrayList<>();
-    lore.add(C.GRAY + "Target: " + C.WHITE + getTargetName(target));
-    lore.add(C.DARK_GRAY + "Right click to throw");
+    lore.add(C.GRAY + AdaptLanguage.text(
+        RiftMessages.ENDER_TAGLOCK_TARGET,
+        untrusted("target", C.WHITE + getTargetName(target))
+    ));
+    lore.add(C.DARK_GRAY + AdaptLanguage.text(RiftMessages.ENDER_TAGLOCK_THROW));
     meta.setLore(lore);
     item.setItemMeta(meta);
     return item;

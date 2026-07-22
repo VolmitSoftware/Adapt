@@ -18,6 +18,8 @@
 
 package art.arcane.adapt.util.project.command;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.CommandRuntimeMessages;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.volmlib.util.collection.KList;
@@ -27,6 +29,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
+import static art.arcane.volmlib.util.localization.MessageArgument.untrusted;
 
 /**
  * Represents a pawn command
@@ -55,7 +60,7 @@ public abstract class MortarCommand implements ICommand {
     this.nodes.add(nodes);
     requiredPermissions = new KList<>();
     children = buildChildren();
-    description = "No Description";
+    description = null;
   }
 
   @Override
@@ -95,11 +100,16 @@ public abstract class MortarCommand implements ICommand {
 
       b = true;
 
-      sender.sendMessage(C.GREEN + i.getNode() + " " + C.WHITE + i.getArgsUsage() + C.GRAY + " - " + i.getDescription());
+      sender.sendMessage(AdaptLanguage.text(
+          CommandRuntimeMessages.SUBCOMMAND_HELP,
+          trusted("node", C.GREEN + i.getNode()),
+          trusted("usage", C.WHITE + i.getArgsUsage()),
+          untrusted("description", i.getDescription())
+      ));
     }
 
     if (!b) {
-      sender.sendMessage("There are either no sub-commands or you do not have permission to use them.");
+      sender.sendMessage(AdaptLanguage.text(CommandRuntimeMessages.NO_AVAILABLE_SUBCOMMANDS));
     }
 
     if (sender.isPlayer()) {
@@ -112,7 +122,7 @@ public abstract class MortarCommand implements ICommand {
   protected abstract String getArgsUsage();
 
   public String getDescription() {
-    return description;
+    return description == null ? AdaptLanguage.text(CommandRuntimeMessages.NO_DESCRIPTION) : description;
   }
 
   protected void setDescription(String description) {
@@ -149,7 +159,10 @@ public abstract class MortarCommand implements ICommand {
       }
 
       if (!m.trim().isEmpty()) {
-        sender.sendMessage("Parameters Ignored: " + m);
+        sender.sendMessage(AdaptLanguage.text(
+            CommandRuntimeMessages.PARAMETERS_IGNORED,
+            untrusted("parameters", m)
+        ));
       }
     }
   }

@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.api.world;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.SnippetsMessages;
+import art.arcane.adapt.localization.catalog.RuntimeMessages;
+
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.notification.ActionBarNotification;
@@ -28,7 +32,6 @@ import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.xp.XP;
 import art.arcane.adapt.api.xp.XPMultiplier;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.io.Json;
 import art.arcane.adapt.service.MutationSVC;
 import art.arcane.volmlib.util.collection.KList;
@@ -49,6 +52,8 @@ import org.bukkit.entity.EntityType;
 
 import java.util.Map;
 import java.util.Set;
+
+import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 @Data
 @NoArgsConstructor
@@ -265,13 +270,19 @@ public class PlayerData {
               .out(2250)
               .group("lvl")
               .title("")
-              .subtitle(C.GOLD + Localizer.dLocalize("snippets.gui.level") + " " + level)// I'm sorry I missed this!
+              .subtitle(C.GOLD + AdaptLanguage.text(
+                  SnippetsMessages.GUI_LEVEL_VALUE,
+                  trusted("level", level)
+              ))
               .build());
       p.getActionBarNotifier().queue(
           ActionBarNotification.builder()
               .duration(450)
               .group("power")
-              .title(C.GOLD + "" + Form.f(level * AdaptConfig.get().getPowerPerLevel(), 0) + C.GRAY + " " + Localizer.dLocalize("snippets.gui.max_ability_power")) // I'm sorry I missed this!
+              .title(C.GOLD + AdaptLanguage.text(
+                  RuntimeMessages.MAX_ABILITY_POWER,
+                  trusted("power", Form.f(level * AdaptConfig.get().getPowerPerLevel(), 0) + C.GRAY)
+              ))
               .build());
 
       MutationSVC mutationService = MutationSVC.get();
@@ -469,7 +480,7 @@ public class PlayerData {
     p.getActionBarNotifier().queue(ActionBarNotification.builder()
         .duration(1250)
         .group("inspired")
-        .title(skill.getDisplayName() + C.RESET + " " + C.GREEN + Localizer.dLocalize("snippets.xp.inspired"))
+        .title(skill.getDisplayName() + C.RESET + " " + C.GREEN + AdaptLanguage.text(SnippetsMessages.XP_INSPIRED))
         .build());
   }
 

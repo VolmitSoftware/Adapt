@@ -40,7 +40,6 @@ public class AdaptConfig {
   private static AdaptConfig config = null;
   public boolean debug = false;
   public boolean autoUpdateCheck = true;
-  public boolean autoUpdateLanguage = true;
   public boolean splashScreen = true;
   public boolean xpInCreative = false;
   public boolean allowAdaptationsInCreative = false;
@@ -53,7 +52,6 @@ public class AdaptConfig {
   private ValueConfig value = new ValueConfig();
   private boolean metrics = true;
   private String language = "en_US";
-  private String fallbackLanguageDontChangeUnlessYouKnowWhatYouAreDoing = "en_US";
   private Curves xpCurve = Curves.ADAPT_BALANCED;
   private double playerXpPerSkillLevelUpBase = 489;
   private double playerXpPerSkillLevelUpLevelMultiplier = 44;

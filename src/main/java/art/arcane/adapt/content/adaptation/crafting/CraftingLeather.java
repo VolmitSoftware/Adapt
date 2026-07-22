@@ -18,13 +18,16 @@
 
 package art.arcane.adapt.content.adaptation.crafting;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.AdvancementMessages;
+import art.arcane.adapt.localization.catalog.CraftingMessages;
+
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdvancementSpec;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -54,15 +57,15 @@ public class CraftingLeather extends SimpleAdaptation<CraftingLeather.Config> {
     AdvancementSpec leatherCrafted = AdvancementSpec.challenge(
         "challenge_crafting_leather_100",
         Material.LEATHER,
-        Localizer.dLocalize("advancement.challenge_crafting_leather_100.title"),
-        Localizer.dLocalize("advancement.challenge_crafting_leather_100.description")
+        AdaptLanguage.text(AdvancementMessages.CHALLENGE_CRAFTING_LEATHER_100_TITLE),
+        AdaptLanguage.text(AdvancementMessages.CHALLENGE_CRAFTING_LEATHER_100_DESCRIPTION)
     );
     registerMilestone(leatherCrafted, "crafting.leather.leather-crafted", 100, 300);
   }
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("crafting.leather.lore1"));
+    v.addLore(C.GREEN + "+ " + C.GRAY + AdaptLanguage.text(CraftingMessages.LEATHER_LORE1));
   }
 
   @EventHandler

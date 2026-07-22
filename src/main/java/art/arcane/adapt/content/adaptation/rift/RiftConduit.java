@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.rift;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.RiftMessages;
+
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -26,13 +29,13 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.bukkit.WorldIdentity;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
+import art.arcane.volmlib.util.localization.TextKey;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -103,7 +106,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
     statLore(v, getThroughput(level), 1);
     statLore(v, Form.f(getRange(level), 0), 2);
     if (isCrossDimension(level)) {
-      v.addLore(C.LIGHT_PURPLE + "+ " + Localizer.dLocalize("rift.conduit.lore3"));
+      v.addLore(C.LIGHT_PURPLE + "+ " + AdaptLanguage.text(RiftMessages.CONDUIT_LORE3));
     }
   }
 
@@ -137,7 +140,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
       if (container) {
         completeBind(p, level, hand, clicked.getLocation());
       } else {
-        p.sendMessage(C.GRAY + Localizer.dLocalize("rift.conduit.msg_need_container"));
+        p.sendMessage(C.GRAY + AdaptLanguage.text(RiftMessages.CONDUIT_MSG_NEED_CONTAINER));
         fx(p.getEyeLocation(), FxPriority.TRANSITION)
             .burst(Particles.SMOKE, 2, 0.15)
             .sound(Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, 0.5f, 0.7f);
@@ -189,38 +192,38 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
         .ring(Particle.REVERSE_PORTAL, 0.7, 10, 0.0)
         .particle(Particles.END_ROD, 6, 0, 0.6, 0, 0.05, 0.02)
         .chord(Sound.BLOCK_BEACON_POWER_SELECT, 0.5f, 1.2f, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.4f, 1.5f);
-    p.sendMessage(C.LIGHT_PURPLE + Localizer.dLocalize("rift.conduit.msg_captured"));
+    p.sendMessage(C.LIGHT_PURPLE + AdaptLanguage.text(RiftMessages.CONDUIT_MSG_CAPTURED));
   }
 
   private void completeBind(Player p, int level, ItemStack taglock, Location clicked) {
     ConduitLocation stored = decodeLocation(getTaglockLocation(taglock));
     String linkId = getTaglockLinkId(taglock);
     if (stored == null || linkId == null) {
-      failBind(p, "rift.conduit.msg_stale");
+      failBind(p, RiftMessages.CONDUIT_MSG_STALE);
       return;
     }
 
     World aWorld = WorldIdentity.resolve(stored.worldKey()).orElse(null);
     if (aWorld == null) {
-      failBind(p, "rift.conduit.msg_stale");
+      failBind(p, RiftMessages.CONDUIT_MSG_STALE);
       return;
     }
 
     Location aLoc = new Location(aWorld, stored.x(), stored.y(), stored.z());
     Location bLoc = clicked.getBlock().getLocation();
     if (sameBlock(aLoc, bLoc)) {
-      failBind(p, "rift.conduit.msg_same");
+      failBind(p, RiftMessages.CONDUIT_MSG_SAME);
       return;
     }
 
     if (!isCrossDimension(level)) {
       if (aWorld != bLoc.getWorld()) {
-        failBind(p, "rift.conduit.msg_range");
+        failBind(p, RiftMessages.CONDUIT_MSG_RANGE);
         return;
       }
       double range = getRange(level);
       if (aLoc.distanceSquared(bLoc) > range * range) {
-        failBind(p, "rift.conduit.msg_range");
+        failBind(p, RiftMessages.CONDUIT_MSG_RANGE);
         return;
       }
     }
@@ -231,7 +234,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
   private void writeSourceThenPartner(Player p, Location aLoc, Location bLoc, String linkId) {
     BlockState st = aLoc.getBlock().getState(false);
     if (!(st instanceof Container aContainer)) {
-      J.runEntity(p, () -> failBind(p, "rift.conduit.msg_stale"));
+      J.runEntity(p, () -> failBind(p, RiftMessages.CONDUIT_MSG_STALE));
       return;
     }
 
@@ -243,7 +246,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
     BlockState st = bLoc.getBlock().getState(false);
     if (!(st instanceof Container bContainer)) {
       loadChunkAsync(aLoc, chunk -> J.runAt(aLoc, () -> clearLinkAt(aLoc, linkId)));
-      J.runEntity(p, () -> failBind(p, "rift.conduit.msg_stale"));
+      J.runEntity(p, () -> failBind(p, RiftMessages.CONDUIT_MSG_STALE));
       return;
     }
 
@@ -272,14 +275,14 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
 
     addStat(p, "rift.conduit.links-formed", 1);
     xp(p, getConfig().xpOnLink, "rift:conduit:link");
-    p.sendMessage(C.LIGHT_PURPLE + Localizer.dLocalize("rift.conduit.msg_linked"));
+    p.sendMessage(C.LIGHT_PURPLE + AdaptLanguage.text(RiftMessages.CONDUIT_MSG_LINKED));
   }
 
-  private void failBind(Player p, String messageKey) {
+  private void failBind(Player p, TextKey messageKey) {
     if (!p.isOnline()) {
       return;
     }
-    p.sendMessage(C.RED + Localizer.dLocalize(messageKey));
+    p.sendMessage(C.RED + AdaptLanguage.text(messageKey));
     fx(p.getEyeLocation(), FxPriority.TRANSITION)
         .burst(Particles.SMOKE, 3, 0.2)
         .sound(Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, 0.6f, 0.6f);
@@ -501,11 +504,11 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
     if (meta == null) {
       return item;
     }
-    meta.setDisplayName(C.LIGHT_PURPLE + Localizer.dLocalize("rift.conduit.taglock_name"));
+    meta.setDisplayName(C.LIGHT_PURPLE + AdaptLanguage.text(RiftMessages.CONDUIT_TAGLOCK_NAME));
     List<String> lore = new ArrayList<>();
-    lore.add(C.GRAY + Localizer.dLocalize("rift.conduit.taglock_lore1"));
+    lore.add(C.GRAY + AdaptLanguage.text(RiftMessages.CONDUIT_TAGLOCK_LORE1));
     lore.add(C.DARK_GRAY.toString() + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ());
-    lore.add(C.DARK_GRAY + Localizer.dLocalize("rift.conduit.taglock_lore2"));
+    lore.add(C.DARK_GRAY + AdaptLanguage.text(RiftMessages.CONDUIT_TAGLOCK_LORE2));
     meta.setLore(lore);
     World world = loc.getWorld();
     if (world != null) {

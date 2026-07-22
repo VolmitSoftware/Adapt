@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.brewing;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.BrewingMessages;
+
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.potion.AdaptBrewCompleteEvent;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -27,7 +30,6 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.potion.BrewingRecipe;
 import art.arcane.adapt.api.potion.PotionBuilder;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -56,7 +58,7 @@ public class BrewingBlindness extends SimpleAdaptation<BrewingBlindness.Config> 
         .ingredient(Material.INK_SAC)
         .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionType.AWKWARD))
         .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
-            .setName("Bottled Blindness")
+            .setName(AdaptLanguage.text(BrewingMessages.BLINDNESS_NAME))
             .setColor(Color.OLIVE)
             .addEffect(PotionEffectType.BLINDNESS, 600, 1, true, true, true)
             .build())
@@ -68,7 +70,7 @@ public class BrewingBlindness extends SimpleAdaptation<BrewingBlindness.Config> 
         .ingredient(Material.GLOW_INK_SAC)
         .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionType.AWKWARD))
         .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
-            .setName("Bottled Blindness 2")
+            .setName(AdaptLanguage.text(BrewingMessages.BLINDNESS_STRONG_NAME))
             .setColor(Color.OLIVE)
             .addEffect(PotionEffectType.BLINDNESS, 300, 3, true, true, true)
             .build())
@@ -84,8 +86,8 @@ public class BrewingBlindness extends SimpleAdaptation<BrewingBlindness.Config> 
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing.blindness.lore1"));
-//        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing.blindness.lore2"));
+    v.addLore(C.GREEN + "+ " + AdaptLanguage.text(BrewingMessages.BLINDNESS_LORE1));
+//        v.addLore(C.GREEN + "+ " + AdaptLanguage.text(BrewingMessages.BLINDNESS_LORE2));
   }
 
   @EventHandler(priority = EventPriority.MONITOR)

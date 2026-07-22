@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.agility;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.AgilityMessages;
+
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -26,7 +29,6 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -79,7 +81,7 @@ public class AgilityFeatherfoot extends SimpleAdaptation<AgilityFeatherfoot.Conf
   @Override
   public void addStats(int level, Element v) {
     statLore(v, getSurfacesIgnored(level), 1);
-    v.addLore(C.GREEN + " " + Localizer.dLocalize("agility.featherfoot.lore2"));
+    v.addLore(C.GREEN + " " + AdaptLanguage.text(AgilityMessages.FEATHERFOOT_LORE2));
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)

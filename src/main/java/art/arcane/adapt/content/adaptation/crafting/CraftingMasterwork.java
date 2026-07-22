@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.crafting;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.CraftingMessages;
+
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -26,7 +29,6 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -53,6 +55,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
+
+import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 public class CraftingMasterwork extends SimpleAdaptation<CraftingMasterwork.Config> {
   private final NamespacedKey attributeKey = new NamespacedKey(Adapt.instance, "masterwork_bonus");
@@ -81,7 +85,7 @@ public class CraftingMasterwork extends SimpleAdaptation<CraftingMasterwork.Conf
   public void addStats(int level, Element v) {
     statLore(v, Form.pc(getRollChance(level), 0), 1);
     statLore(v, Form.pc(getBonusPercent(level), 0), 2);
-    v.addLore(C.LIGHT_PURPLE + "~ " + C.GRAY + Localizer.dLocalize("crafting.masterwork.lore3"));
+    v.addLore(C.LIGHT_PURPLE + "~ " + C.GRAY + AdaptLanguage.text(CraftingMessages.MASTERWORK_LORE3));
   }
 
   static double masterworkChance(double base, double factor, double max, double levelPercent) {
@@ -142,9 +146,12 @@ public class CraftingMasterwork extends SimpleAdaptation<CraftingMasterwork.Conf
         && applyAttribute(forged.getType(), meta, tool);
 
     List<String> lore = meta.hasLore() ? new ArrayList<>(meta.getLore()) : new ArrayList<>();
-    lore.add(C.AQUA + Localizer.dLocalize("crafting.masterwork.tag") + C.GRAY + " +" + bonus);
+    lore.add(C.AQUA + AdaptLanguage.text(
+        CraftingMessages.MASTERWORK_BONUS,
+        trusted("bonus", C.GRAY + String.valueOf(bonus))
+    ));
     if (gotAttribute) {
-      lore.add(C.LIGHT_PURPLE + Localizer.dLocalize("crafting.masterwork.attribute_tag"));
+      lore.add(C.LIGHT_PURPLE + AdaptLanguage.text(CraftingMessages.MASTERWORK_ATTRIBUTE_TAG));
     }
     meta.setLore(lore);
     forged.setItemMeta(meta);

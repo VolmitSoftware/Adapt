@@ -1,5 +1,400 @@
-# advancement
-[advancement]
+# Adapt language overlay: zh_TW
+
+[mutation.domain]
+body = "身體"
+hunt = "狩獵"
+industry = "工業"
+wild = "荒野"
+craft = "製作"
+anomaly = "異常"
+
+[mutation.type.gale_lung]
+name = "疾風之肺"
+benefit = "移動會累積動量。動量充滿時，你的下一次攻擊會推開目標或改變其位置。"
+burden = "動量充滿時，敵人對你的擊退更強。格擋會清空動量。"
+perfect = "敵人不再對你造成更強的擊退。格擋仍會清空動量。"
+tell = "藍綠色的風在你的腳邊和武器周圍聚集。"
+control = "持續移動以累積動量，然後命中一次攻擊。"
+
+[mutation.type.bastion_spine]
+name = "堡壘之脊"
+benefit = "原地站立會累積穩定度。接著用盾牌、斧頭或空手命中時，會產生一次短距離推擊。"
+burden = "蓄勢時無法衝刺或跳躍。從背後受到攻擊會打破架勢。"
+perfect = "蓄勢時也可以衝刺和跳躍。從背後受到攻擊仍可能打破架勢。"
+tell = "石質肋骨和明亮裂紋會顯示你儲存的力量。"
+control = "在地面上原地站立，然後用盾牌、斧頭或空手攻擊。"
+
+[mutation.type.verdant_molt]
+name = "翠綠蛻皮"
+benefit = "在自然地面上潛行並保持不動，可清除有害效果。"
+burden = "這也會清除增益效果、消耗飢餓值，並暫時阻止你獲得新效果。"
+perfect = "不再失去增益效果或飢餓值。短暫的效果阻斷仍然存在。"
+tell = "樹葉、鱗片或孢子會從你身上迸散。"
+control = "在自然地面上保持潛行並原地不動。"
+
+[mutation.type.temperbound]
+name = "淬鍊之契"
+benefit = "連結一套護甲，讓各部件共享耐久度。原本會損壞的部件會改為進入裂損狀態。"
+burden = "脫下或更換任一連結部件，會使整套護甲暫時失效。"
+perfect = "更換護甲不再使整套護甲失效。仍然只能維持一套護甲的連結。"
+tell = "發光的線條將已連結的護甲部件連在一起。"
+control = "在 Adapt 書架前穿上四件親手製作的護甲，然後選擇「連結目前護甲」。"
+
+[mutation.type.paradox_scar]
+name = "悖論傷痕"
+benefit = "進行長距離移動或傳送後會留下返回點。你可以返回那裡一次。"
+burden = "返回點清晰可見，會阻止新返回點形成，而且敵人可以將其破壞。"
+perfect = "它不再阻止其他變異的返回效果生效。敵人仍可以將其破壞。"
+tell = "明亮的殘影標示著返回點。"
+control = "長距離移動或傳送後，潛行並交換主副手即可返回。"
+
+[mutation.type.arsenal_cortex]
+name = "兵器皮層"
+benefit = "在兩次攻擊之間切換武器或工具類型，可將一個控制效果延續到下一次攻擊。"
+burden = "連續使用兩次同一類型，會使連擊暫時鎖定。"
+perfect = "重複使用同一類型不再鎖定連擊。要累積連擊仍需切換類型。"
+tell = "不斷變化的符號會繞著手持物品旋轉。"
+control = "使用不同類型的武器或工具命中目標。"
+
+[mutation.type.packmind]
+name = "群體心智"
+benefit = "你的第一次攻擊會標記目標。寵物和已選擇參與的盟友也攻擊該目標時，會累積節奏。"
+burden = "在其他人加入前，你造成的傷害較低。獨自累積的節奏會迅速消退。"
+perfect = "等待其他人加入時，你的傷害不再降低。累積節奏仍需要另一名參與者。"
+tell = "琥珀色線條將隊伍與被標記的目標相連。"
+control = "攻擊一個目標，然後讓寵物或已選擇參與的盟友也攻擊它。"
+
+[mutation.type.trophy_crucible]
+name = "戰利品熔爐"
+benefit = "自然生成的生物可能掉落戰利品。使用一件戰利品，可準備針對該類生物的控制效果。"
+burden = "該類生物會更容易發現你，並能看穿變異提供的潛行效果。"
+perfect = "額外的偵測效果會被移除。你仍然只能儲存一種戰利品效果。"
+tell = "代表已儲存生物類型的面具會出現在你身後。"
+control = "手持自然戰利品，在潛行時以右鍵點擊工作台。"
+
+[mutation.type.umbral_echo]
+name = "幽影迴響"
+benefit = "從新角度或用新武器類型攻擊，會在短暫延遲後再次觸發較弱的控制效果。"
+burden = "重複使用同一種攻擊方式會暴露你，並暫時停用潛行效果。"
+perfect = "重複攻擊方式不再暴露你。仍需使用新角度或新武器類型。"
+tell = "深紫色殘影會重複觸發控制效果。"
+control = "在兩次攻擊之間改變攻擊角度或武器類型。"
+
+[mutation.type.living_lattice]
+name = "生命網格"
+benefit = "收穫並補種會累積根系能量。消耗根系能量可長出一條短暫存在的路徑。"
+burden = "火焰和熔岩可能清空你的能量，路徑被迫崩塌時還會消耗飢餓值。"
+perfect = "火焰和熔岩不再清空能量。路徑仍會消失。"
+tell = "綠色根系會在路徑消失前變成棕色。"
+control = "收穫並補種後，手持樹苗潛行並按右鍵。"
+
+[mutation.type.masterwork_bond]
+name = "傑作之契"
+benefit = "綁定一件親手製作的工具。它不會損壞，而是停在 1 點耐久度，並且必須修復後才能繼續使用。"
+burden = "只有綁定的工具受到保護。如果工具遺失，必須等待一段時間才能綁定另一件。"
+perfect = "其他工具仍可正常觸發變異效果。只有傑作工具能免於損壞。"
+tell = "工具接近損壞時，上面的符文會逐漸裂開。"
+control = "在 Adapt 書架前手持親手製作的工具，然後選擇「綁定手持工具」。"
+
+[mutation.type.deepblood]
+name = "深血"
+benefit = "在地底深處開採自然方塊會累積深層能量。它可用於治療，並在一次本應損壞時保住綁定工具。"
+burden = "在地底治療會消耗深層能量，而能量在地面上會緩慢流失。"
+perfect = "深層能量為零時也能在地底獲得治療。保護綁定工具仍會消耗能量。"
+tell = "隨著能量累積，紅色裂紋會蔓延到你和綁定的工具上。"
+control = "開採地底深處的自然方塊，並在 Adapt 書架前綁定一件工具。"
+
+[mutation.type.mycelial_nerve]
+name = "菌絲神經"
+benefit = "你施加給自己的增益效果，會以較弱的形式擴散到附近已選擇參與的玩家和寵物。"
+burden = "你自己的效果持續時間會縮短，受到火焰傷害還會中斷連結。"
+perfect = "你自己的效果會保持完整持續時間，火焰也不再中斷連結。"
+tell = "孢子軌跡會將複製的效果傳遞給附近盟友。"
+control = "在已選擇參與的玩家或自己的寵物附近，給自己施加增益效果。"
+
+[mutation.type.gravebloom]
+name = "墓花"
+benefit = "擊殺自然生成的敵對生物時，可能產生短暫存在的花簇，用來催熟作物並治療你的寵物。"
+burden = "活躍的花簇會削弱你的自然治療，存在較久的花簇還會吸引敵對生物。"
+perfect = "花簇不再削弱你的治療。它們仍會在短時間後消失。"
+tell = "蒼白花朵和靈魂粒子會從死亡地點升起。"
+control = "在自然地面上擊殺一隻自然生成的敵對生物。"
+
+[mutation.type.resonant_formula]
+name = "共鳴公式"
+benefit = "製作、釀造和附魔各進行一次即可準備連擊。你下一個不造成傷害的異常效果會以一半強度再觸發一次。"
+burden = "重複同一個準備步驟會中斷連擊，並移除你持續時間最久的增益效果。"
+perfect = "重複步驟不再中斷連擊。仍需完成三個不同的步驟。"
+tell = "連擊準備完成時，三個符號會結合在一起。"
+control = "以任意順序各完成一次製作、釀造和附魔。"
+
+[mutation.runtime]
+unavailable = "變異系統目前無法使用。"
+feature_off = "此伺服器已關閉實驗性變異。"
+type_off = "伺服器設定已關閉 {mutation}。"
+missing_permission = "缺少權限 {permission}。"
+duplicate_slots = "不能在兩個欄位中使用同一個變異。"
+duplicate_occupancy = "相同的突變不能佔據兩個位置."
+conflict_other = "此選擇與你的另一個變異衝突。"
+conflicts_with = "{mutation} 與 {other}."
+slot_locked_current_level = "此槽鎖定在您的當前關卡."
+first_slot_unlocks = "第一個變異欄位在 {level} 級解鎖。"
+world_unavailable = "這種突變在 {world}."
+active_perfect = "無負面活動."
+active_burden = "活動; 下行應用."
+ready_to_use = "可以使用。"
+requirements_unavailable = "變異需求不詳."
+learn_both_domains = "分別從 {first} 和 {second} 技能組中學習一個適應。"
+learn_domain_level = "學一個 {domain} 層面的適應 {level} 或更高階."
+ready = "準備"
+login_requirements = "登入以檢查要求."
+equipped_offline = "玩家離線時已配置但未活動."
+first_slot_locked = "第一個突變槽已鎖定."
+trophy_clear_hint = "空手再次以右鍵點擊工作台，即可清除準備好的戰利品。"
+trophy_cleared = "已清除準備好的戰利品。"
+return_echo_name = "返回迴響"
+
+[mutation.selection]
+invalid = "無效的突變選擇."
+player_data_unavailable = "玩家突變資料無法獲取."
+slot_changed_confirm = "在確認開放時,變換檔位有所改變;再次審查."
+loadout_changed_confirm = "在確認開啟時, 突變載入已更改; 再次審查."
+already_equipped = "{mutation} 已裝入槽 {slot}."
+equipped = "裝置 {mutation} 插槽中 {slot}."
+invalid_slot = "無效的突變槽."
+slot_already_empty = "變位 {slot} 已經空."
+cleared_slot = "清除突變槽 {slot}."
+changes_off = "在此伺服器上關閉變異更改."
+bookshelf_required = "回到原點 Adapt 更改突變槽前的書架."
+slot_unlocks = "變位 {slot} 級別解鎖 {level}."
+permanent_choices = "這個伺服器讓突變選擇永久化."
+slot_cooldown = "變位 {slot} 尚未更改."
+combat_cooldown = "戰鬥中不能改變突變."
+mutation_disabled = "變異是禁用."
+world_disabled = "這種變異在這個世界行不通."
+
+[mutation.command]
+toggle_usage = "使用 enabled=on、enabled=off，或省略此參數以切換狀態。"
+cooperative_enabled = "合作變異效果已啟用。"
+cooperative_disabled = "合作變異效果已停用。"
+cooperative_enabled_off = "啟用了合作突變效應. 首選項已儲存; 實驗性突變目前已關閉."
+cooperative_disabled_off = "合作突變效應被禁用. 首選項已儲存; 實驗性突變目前已關閉."
+choice_saved_off = "選擇已儲存，但在實驗性變異關閉期間不會生效。"
+discovered = "已為 {player} 發現 {mutation}。"
+undiscovered = "已將 {player} 的 {mutation} 標記為未發現。"
+cooldowns_cleared = "已清除 {player} 的變異切換冷卻時間。"
+state_refreshed = "重新整理突變狀態 {player}."
+slot_range = "變位必須是 1 或 2."
+override_usage = "使用 enabled=on, enabled=off, 或 enabled=clear."
+slot_normal = "變位 {slot} 正在使用其正常水平需求 {player}."
+slot_forced_unlocked = "變位 {slot} 現已強制解鎖 {player}."
+slot_forced_locked = "變位 {slot} 現在被迫鎖定 {player}."
+data_cleared = "清除的突變資料 {player} 不更改 XP, 技能、知識、適應或進步."
+perfect_normal = "\"完美適應\"目前正在使用其正常水平要求 {player}."
+perfect_forced_on = "完美適應現在被迫 {player}."
+perfect_forced_off = "完美適應現在被迫離開 {player}."
+unavailable = "現在沒有變異."
+reload_failed = "變異設定重新載入失敗；先前的設定仍然有效。"
+reload_enabled = "變異設定已重新載入。實驗性變異已啟用，正在重新整理線上玩家的欄位。"
+reload_disabled = "變異設定已重新載入。實驗性變異已停用，儲存的選擇會繼續保留。"
+unknown_mutation = "未知變異：{mutation}"
+snapshot_title = "實驗突變 {player}"
+feature_enabled = "特性: 啟用"
+feature_disabled = "特性: 已禁用"
+perfect_active = "完美適應:活動"
+perfect_inactive = "完美適應:不活動"
+cooperative_status_enabled = "合作效果:啟用"
+cooperative_status_disabled = "合作效果:殘疾"
+stored_resources = "儲存資源:深充電 {deepCharge} • 根電荷 {rootCharge} • 工藝/機車/機械步驟 {steps}"
+linked_gear = "連線的齒輪: 淬鍊綁定 {temperbound} • 主作業 {masterwork} • 深血工具 {deepblood} • 綠色 {trophy}"
+yes = "對"
+no = "無"
+slot_locked = "槽 {slot}: 鎖定"
+slot_empty = "槽 {slot}: 空"
+slot_unavailable = "槽 {slot}: {mutation} (無)"
+slot_value = "槽 {slot}: {mutation} [{state}]"
+slot_value_reason = "槽 {slot}: {mutation} [{state}] - {reason}"
+result_updated = "更新突變狀態."
+result_not_changed = "未更改突變狀態."
+remaining_cooldown = "{message} 剩餘冷卻時間：{duration}"
+
+[mutation.state]
+ready = "準備"
+active = "活動"
+inactive = "不活動"
+locked = "鎖定"
+off = "關"
+unavailable = "無"
+blocked = "已封鎖"
+
+[mutation.progression]
+slot_unlocked_title = "突變槽解鎖"
+slot_unlocked_subtitle = "你的第一個突變槽已經解鎖. 訪問a Adapt 書架."
+second_slot_title = "第二次變位槽"
+second_slot_subtitle = "你的第二個突變槽現在解鎖了."
+perfect_title = "完美的適應"
+perfect_subtitle = "你裝備的變種不再有缺點."
+perfect_lost = "完美 重塑不再活動; 突變下行再次應用."
+
+[mutation.model]
+no_selection = "未選擇突變"
+saved_unavailable = "此儲存的突變不可用"
+slot_locked = "需要的插槽已鎖定"
+ready = "準備使用"
+active = "活動"
+inactive = "裝備但無活動"
+disabled = "由伺服器關閉"
+restricted = "此處不可用"
+conflict = "被另一個變異所阻擋"
+empty = "空"
+
+[mutation.gui]
+disabled = "變異仍屬實驗功能，且已在此伺服器上停用。"
+title = "實驗性變異 • 等級 {level}"
+perfect = "完美的適應"
+perfect_active = "已裝備的兩個變異都會失去負面效果。"
+perfect_locked = "達到設定的 Adapt 等級後解鎖。"
+cooperative_on = "合作效果:"
+cooperative_off = "合作效果: 關閉"
+cooperative_allow = "允許接收附近玩家分享的變異效果。"
+cooperative_opt_out = "點擊以退出參與。"
+cooperative_opt_in = "單擊以選擇加入."
+changes_available = "可以變更"
+view_only = "僅檢視"
+may_change = "這裡可以換個變形槽."
+visit_bookshelf = "前往有效的 Adapt 書架並與其互動，即可變更欄位。"
+unavailable_discoveries = "無法獲取的發現"
+saved_not_installed = "目前未安裝的已儲存的突變:"
+slot_value = "槽 {slot}: {mutation}"
+slot_locked = "槽 {slot}: 已鎖定"
+right_click_clear = "右鍵單擊以清除此槽."
+skill_groups = "技能團體: {first} + {second}"
+discovered = "發現"
+undiscovered = "未發現"
+equipped_slot = "插槽 {slot}"
+click_inspect = "單擊以檢查"
+requires = "要求:從各級每個技能組中學習到一個 {level}+"
+benefit = "效果：{benefit}"
+burden = "負面效果：{burden}"
+perfect_result = "達到 200 級時：{result}"
+tell = "外觀提示：{tell}"
+control = "使用方式：{control}"
+pvp = "感染 PvP"
+no_pvp = "不直接影響 PvP"
+status = "狀態: {state}"
+matching_none = "匹配適應:目前沒有學到任何"
+matching = "匹配適應: {adaptations}"
+slot_locked_name = "槽 {slot} 已鎖定"
+slot_view_only = "槽 {slot} • 只檢視"
+bookshelf_before_change = "使用一個有效的 Adapt 更改此位置前的書架."
+equipped_in_slot = "安裝在槽中 {slot}"
+already_equipped_slot = "已裝入槽中 {slot}"
+conflicts_with = "衝突 {mutation}"
+clear_other_first = "清除或替換槽 {slot} 在選擇此突變之前."
+unavailable_slot = "無法用於槽 {slot}"
+equip_slot = "在槽中安裝裝置 {slot}"
+current = "當前: {mutation}"
+click_preview = "單擊以預覽並確認此更改."
+confirm_slot = "{mutation} → 槽 {slot}"
+replacing = "替換: {mutation}"
+other_slot = "其他時間檔: {mutation}"
+with_other = "與其它空檔: {interaction}"
+slot_cooldown = "冷卻時間槽: {duration}"
+confirm_change = "確認更改"
+confirm_change_title = "確認突變變化"
+clear_slot = "清除槽 {slot}"
+unequip = "無裝置 {mutation}?"
+normal_cooldown = "開始正常的槽冷卻時間."
+confirm_clear = "確認清除"
+link_armor = "連結當前裝甲"
+link_armor_lore = "穿4件耐用裝甲,然後點選連線."
+unlink_armor = "解鎖裝甲"
+unlink_armor_lore = "解開當前四件裝甲."
+review_confirm = "單擊以審查和確認."
+unlink_masterwork = "解鎖主工作"
+unlink_masterwork_lore = "解鎖當前主工作工具."
+replacement_cooldown_begins = "在確認後開始更換冷卻時間."
+bind_held_tool = "捆綁工具"
+deepblood_bind_lore = "將主手的持久工具與 深血 斷裂保護連線."
+deepblood_replace_lore = "連結另一個工具替換您的當前 深血 工具."
+bind_cooling = "• 降溫"
+masterwork_bind_lore = "拿著你親自設計的耐用工具."
+replacement_available = "可用替換 {duration}."
+equipment_changed = "連線裝置在確認前就變了."
+unlink_temperbound = "解開淬鍊綁定裝甲?"
+temperbound_unlinked = "現在的四件盔甲將脫鉤."
+no_repair_return = "這不會修復、保護或歸還任何裝甲."
+unlink_masterwork_question = "解鎖主工作工具?"
+masterwork_unlinked = "當前主工作工具將取消連結."
+replacement_cooldown = "替換冷卻時間: {duration}"
+confirm_equipment_title = "確認裝置變更"
+option_unavailable = "此選項已無法使用."
+equipment_changed_review = "連線裝置在確認開放時更換;再次審查."
+controls_unavailable = "現在沒有變異裝置控制."
+page_count = "頁次 {page}/{pages} • {count} 變異"
+no_other_selected = "未選擇其他變異"
+same_not_allowed = "相同的突變不能佔據兩個位置"
+compatible_with = "與 {mutation}"
+unknown = "不詳"
+state_ready = "準備"
+state_active = "活動"
+state_inactive = "非活動"
+state_locked = "已鎖定"
+state_off = "關"
+state_unavailable = "無法獲取"
+state_blocked = "封鎖"
+
+[mutation.equipment]
+temperbound_success = "您現在的盔甲是淬鍊綁定."
+temperbound_unlinked = "你的盔甲已經脫鉤了."
+masterwork_success = "拿著的工具現在是你的主作."
+deepblood_success = "持有的工具現在連結到您的深充電儲備."
+masterwork_unlinked_delay = "您的主工作工具沒有連結. 替換可以連結到 {duration}."
+masterwork_unlinked = "您的主工作工具沒有連結."
+replacement_delay = "替換的主工作可連結到 {duration}."
+temperbound_requirement = "穿一套完整的四件耐用裝甲 尚未連線."
+temperbound_failure = "鐵甲無法脫鉤."
+masterwork_requirement = "持有您親自設計的沒有連結的主工作工具的持久工具."
+masterwork_failure = "大師之作 工具尚未解連結."
+deepblood_requirement = "主手拿著一個耐用工具,然後把它和深血聯絡起來."
+
+[director.help]
+no_subcommands = "此頁面沒有子命令。"
+no_description = "未提供說明"
+aliases = "別名"
+command_group = "命令群組。點擊以開啟。"
+no_parameters = "無參數。點擊以預先填入命令。"
+parameters = "參數"
+
+[director.help.navigation]
+back = "返回"
+page = "頁面"
+
+[director.help.navigation.parent]
+hover = "返回上層命令群組"
+
+[director.help.navigation.previous]
+hover = "上一頁"
+
+[director.help.navigation.next]
+hover = "下一頁"
+
+[director.help.parameter]
+required = "必填"
+optional = "選填"
+default = "預設"
+
+[director.runtime]
+usage = "用法: {usage}"
+
+[director.runtime.error]
+invalid_origin = "無法從此來源執行該指令。"
+unknown_parameter = "未知參數鍵: {key}"
+unexpected_argument = "意外參數 \"{argument}\"。選用參數必須使用鍵指定，例如 seed=123"
+conversion_failed = "無法將 \"{value}\" 轉換為 {parameter} 所需的 {type}"
+default_parse_failed = "無法解析參數 {parameter} 的預設值"
+missing_argument = "缺少參數 \"{parameter}\" ({type})"
+execution_failed = "執行指令 {command} 失敗: {reason}"
 
 [advancement.challenge_move_1k]
 title = "上路啦！"
@@ -149,6 +544,14 @@ description = "收割超過 1,000 株作物！"
 title = "人體潛水艇！"
 description = "游泳 1 海里（1,852 格方塊）"
 
+[advancement.challenge_swim_5k]
+title = "深海潛水員"
+description = "游泳超過 5,000 格方塊"
+
+[advancement.challenge_swim_20k]
+title = "海神之選"
+description = "游泳超過 20,000 格方塊"
+
 [advancement.challenge_sneak_1k]
 title = "膝蓋好痛"
 description = "潛行超過 1 公里（1,000 格方塊）"
@@ -160,14 +563,6 @@ description = "潛行超過 5,000 格方塊"
 [advancement.challenge_sneak_20k]
 title = "幽靈"
 description = "潛行超過 20,000 格方塊"
-
-[advancement.challenge_swim_5k]
-title = "深海潛水員"
-description = "游泳超過 5,000 格方塊"
-
-[advancement.challenge_swim_20k]
-title = "海神之選"
-description = "游泳超過 20,000 格方塊"
 
 [advancement.challenge_sword_100]
 title = "初見血光"
@@ -261,7 +656,6 @@ description = "繁殖 50 隻動物"
 title = "馴獸大師"
 description = "繁殖 500 隻動物"
 
-# Agility - New Achievement Chains
 [advancement.challenge_sprint_dist_5k]
 title = "速度惡魔"
 description = "疾跑超過 5 公里 (5,000 格)"
@@ -294,7 +688,6 @@ description = "潛行超過 500 格"
 title = "幽靈步伐"
 description = "潛行超過 5 公里 (5,000 格)"
 
-# Architect - New Achievement Chains
 [advancement.challenge_demolish_500]
 title = "拆除小隊"
 description = "破壞 500 個方塊"
@@ -327,7 +720,6 @@ description = "在 Y=128 以上放置 100 個方塊"
 title = "雲端建築師"
 description = "在 Y=128 以上放置 1,000 個方塊"
 
-# Axes - New Achievement Chains
 [advancement.challenge_axe_damage_1k]
 title = "劈裂者"
 description = "用斧頭造成 1,000 傷害"
@@ -352,7 +744,6 @@ description = "用斧頭清除 500 個樹葉方塊"
 title = "落葉清除者"
 description = "用斧頭清除 5,000 個樹葉方塊"
 
-# Blocking - New Achievement Chains
 [advancement.challenge_block_dmg_1k]
 title = "傷害吸收者"
 description = "用盾牌格擋 1,000 傷害"
@@ -385,7 +776,6 @@ description = "格擋 50 次重擊 (超過 5 傷害)"
 title = "不動如山"
 description = "格擋 500 次重擊 (超過 5 傷害)"
 
-# Brewing - New Achievement Chains
 [advancement.challenge_brew_stands_10]
 title = "釀造起步"
 description = "放置 10 個釀造台"
@@ -410,7 +800,6 @@ description = "用噴濺藥水命中 50 個實體"
 title = "瘟疫醫生"
 description = "用噴濺藥水命中 500 個實體"
 
-# Chronos - New Achievement Chains
 [advancement.challenge_active_dist_1k]
 title = "永不停歇"
 description = "活躍時行進 1 公里"
@@ -439,7 +828,6 @@ description = "傳送 50 次"
 title = "時間扭曲"
 description = "傳送 500 次"
 
-# Crafting - New Achievement Chains
 [advancement.challenge_craft_value_10k]
 title = "匠心獨運"
 description = "製作總價值 10,000 的物品"
@@ -464,7 +852,6 @@ description = "製作 25 件護甲"
 title = "護甲大師"
 description = "製作 250 件護甲"
 
-# Discovery - New Achievement Chains
 [advancement.challenge_discover_items_50]
 title = "收集者"
 description = "發現 50 種獨特物品"
@@ -505,7 +892,6 @@ description = "發現 10 種獨特食物"
 title = "烹飪大師"
 description = "發現 30 種獨特食物"
 
-# Enchanting - New Achievement Chains
 [advancement.challenge_enchant_power_100]
 title = "織力者"
 description = "累積 100 附魔之力"
@@ -530,7 +916,6 @@ description = "在所有附魔上累計花費 500 等級"
 title = "奧術投資"
 description = "在所有附魔上累計花費 5,000 等級"
 
-# Excavation - New Achievement Chains
 [advancement.challenge_dig_damage_1k]
 title = "鏟騎士"
 description = "用鏟子造成 1,000 傷害"
@@ -555,7 +940,6 @@ description = "挖掘 500 個礫石、沙子或黏土方塊"
 title = "砂礫篩選者"
 description = "挖掘 5,000 個礫石、沙子或黏土方塊"
 
-# Herbalism - New Achievement Chains
 [advancement.challenge_plant_100]
 title = "播種者"
 description = "種植 100 株作物"
@@ -584,7 +968,6 @@ description = "剪切 50 個實體"
 title = "牧群之主"
 description = "剪切 250 個實體"
 
-# Hunter - New Achievement Chains
 [advancement.challenge_kills_500]
 title = "屠戮者"
 description = "擊殺 500 個生物"
@@ -601,7 +984,6 @@ description = "擊殺一個首領怪物"
 title = "傳奇殺手"
 description = "擊殺 10 個首領怪物"
 
-# Nether - New Achievement Chains
 [advancement.challenge_wither_dmg_500]
 title = "凋零之痛"
 description = "承受 500 凋零傷害"
@@ -634,7 +1016,6 @@ description = "破壞 10 朵凋零玫瑰"
 title = "枯萎收集者"
 description = "破壞 100 朵凋零玫瑰"
 
-# Pickaxes - New Achievement Chains
 [advancement.challenge_pick_damage_1k]
 title = "鎬戰者"
 description = "用鎬子造成 1,000 傷害"
@@ -659,7 +1040,6 @@ description = "開採 500 個礦石方塊"
 title = "採礦大師"
 description = "開採 5,000 個礦石方塊"
 
-# Ranged - New Achievement Chains
 [advancement.challenge_ranged_dmg_1k]
 title = "神射手"
 description = "造成 1,000 遠程傷害"
@@ -692,7 +1072,6 @@ description = "命中 25 次遠距射擊 (超過 30 格)"
 title = "鷹眼"
 description = "命中 250 次遠距射擊 (超過 30 格)"
 
-# Rift - New Achievement Chains
 [advancement.challenge_rift_pearls_50]
 title = "珍珠投擲者"
 description = "投擲 50 顆乃影珍珠"
@@ -725,7 +1104,6 @@ description = "摧毀 10 個乃地水晶"
 title = "終界毀滅者"
 description = "摧毀 100 個乃地水晶"
 
-# Seaborne - New Achievement Chains
 [advancement.challenge_fish_25]
 title = "垂釣者"
 description = "捕獲 25 條魚"
@@ -758,7 +1136,6 @@ description = "在水下破壞 100 個方塊"
 title = "水下工程師"
 description = "在水下破壞 1,000 個方塊"
 
-# Stealth - New Achievement Chains
 [advancement.challenge_stealth_dmg_500]
 title = "背刺者"
 description = "潛行時造成 500 傷害"
@@ -783,7 +1160,6 @@ description = "潛行時射出 50 支箭"
 title = "幽靈弓手"
 description = "潛行時射出 500 支箭"
 
-# Swords - New Achievement Chains
 [advancement.challenge_sword_dmg_1k]
 title = "劍術學徒"
 description = "用劍造成 1,000 傷害"
@@ -816,7 +1192,6 @@ description = "用劍造成 25 次重擊 (超過 8 傷害)"
 title = "毀滅之擊"
 description = "用劍造成 250 次重擊 (超過 8 傷害)"
 
-# Taming - New Achievement Chains
 [advancement.challenge_pet_dmg_500]
 title = "馴獸師"
 description = "你的寵物共造成 500 傷害"
@@ -841,7 +1216,6 @@ description = "你的寵物擊殺 25 個生物"
 title = "首領指揮官"
 description = "你的寵物擊殺 250 個生物"
 
-# TragOul - New Achievement Chains
 [advancement.challenge_trag_hits_500]
 title = "沙包"
 description = "受到 500 次攻擊"
@@ -850,7 +1224,6 @@ description = "受到 500 次攻擊"
 title = "受虐狂"
 description = "受到 5,000 次攻擊"
 
-# Unarmed - New Achievement Chains
 [advancement.challenge_unarmed_dmg_1k]
 title = "拳擊手"
 description = "用空手造成 1,000 傷害"
@@ -883,8 +1256,3526 @@ description = "用空手造成 25 次重擊 (超過 6 傷害)"
 title = "拳王"
 description = "用空手造成 250 次重擊 (超過 6 傷害)"
 
-# items
-[items]
+[advancement.challenge_agility_armor_up_30min]
+title = "鐵騎"
+description = "帶裝甲獎金的衝刺 30 累計分鐘"
+
+[advancement.challenge_agility_ladder_500]
+title = "電梯操作員"
+description = "爬上來 500 梯形塊"
+
+[advancement.challenge_agility_ladder_10k]
+title = "垂直高速公路"
+description = "爬上來 10,000 梯形塊"
+
+[advancement.challenge_agility_super_jump_100]
+title = "信仰之葉"
+description = "執行 100 超級跳躍"
+
+[advancement.challenge_agility_super_jump_5k]
+title = "青蛙神靈"
+description = "執行 5,000 超級跳躍"
+
+[advancement.challenge_agility_wall_jump_500]
+title = "蜘蛛俠"
+description = "執行 500 牆跳"
+
+[advancement.challenge_agility_parkour_master]
+title = "樸馬大師"
+description = "鏈 5+ 牆跳不動地面"
+
+[advancement.challenge_agility_wind_up_10min]
+title = "第二風"
+description = "開支 10 以最大短跑速度累積分鐘"
+
+[advancement.challenge_agility_parkour_500]
+title = "自由跑車"
+description = "完成 500 次連續衝刺跳躍落地"
+
+[advancement.challenge_agility_roll_100]
+title = "塔克和滾"
+description = "預防 100 墜落的心"
+
+[advancement.challenge_agility_roll_1000]
+title = "斯圖曼"
+description = "預防 1,000 墜落的心"
+
+[advancement.challenge_agility_fearless]
+title = "無所畏懼"
+description = "滾地從a 30+ 塊掉落"
+
+[advancement.challenge_architect_elevator_100]
+title = "上樓"
+description = "使用電梯 100 次"
+
+[advancement.challenge_architect_elevator_penthouse]
+title = "頂樓快車"
+description = "搭乘一臺電梯 50+ 塊"
+
+[advancement.challenge_architect_foundation_1k]
+title = "腳手架大師"
+description = "地點 1,000 基礎塊"
+
+[advancement.challenge_architect_foundation_10k]
+title = "在空中走動"
+description = "地點 10,000 基礎塊"
+
+[advancement.challenge_architect_glass_200]
+title = "格拉齊爾"
+description = "恢復 200 玻璃塊"
+
+[advancement.challenge_architect_glass_5k]
+title = "晶體清除"
+description = "恢復 5,000 玻璃塊"
+
+[advancement.challenge_architect_wireless_100]
+title = "遠端控制"
+description = "傳送 100 無線紅石脈衝"
+
+[advancement.challenge_architect_wireless_5k]
+title = "尼古拉"
+description = "傳送 5,000 無線紅石脈衝"
+
+[advancement.challenge_architect_placement_1k]
+title = "速度構建器"
+description = "地點 1,000 透過多位置的塊"
+
+[advancement.challenge_architect_placement_25k]
+title = "建築師的觸控"
+description = "地點 25,000 透過多位置的塊"
+
+[advancement.challenge_architect_smart_shape_200]
+title = "精細除錯"
+description = "旋轉 200 塊"
+
+[advancement.challenge_architect_smart_shape_5k]
+title = "完美主義者"
+description = "旋轉 5,000 塊"
+
+[advancement.challenge_axe_chop_100]
+title = "伐木工"
+description = "費爾 100 樹"
+
+[advancement.challenge_axe_chop_2500]
+title = "砍伐森林"
+description = "費爾 2,500 樹"
+
+[advancement.challenge_axe_chop_one_swing]
+title = "一個搖擺奇蹟"
+description = "在最大水平一揮一揮就弄出一大堆木頭"
+
+[advancement.challenge_axe_log_swap_500]
+title = "邏輯化學家"
+description = "轉換 500 日誌"
+
+[advancement.challenge_axe_dti_5k]
+title = "清除 伐木工 清除"
+description = "接著 5,000 庫存物品"
+
+[advancement.challenge_axe_ground_smash_500]
+title = "彈出"
+description = "點選 500 與地面撞擊的敵人"
+
+[advancement.challenge_axe_ground_smash_5]
+title = "地震爆發"
+description = "點選 5+ 敵人在一塊地上擊碎"
+
+[advancement.challenge_axe_leaf_5k]
+title = "秋風"
+description = "維生素 5,000 葉"
+
+[advancement.challenge_axe_wood_vein_2500]
+title = "鏈式反應"
+description = "維生素 2,500 日誌"
+
+[advancement.challenge_axe_wood_vein_cascade]
+title = "連鎖"
+description = "維生素 15+ 單個啟用中的日誌"
+
+[advancement.challenge_blocking_chain_25]
+title = "中世紀的史密斯"
+description = "工藝 25 鏈條郵件塊"
+
+[advancement.challenge_blocking_horse_armor_10]
+title = "外傳"
+description = "工藝 10 馬甲"
+
+[advancement.challenge_blocking_saddle_25]
+title = "薩德勒"
+description = "工藝 25 鞍"
+
+[advancement.challenge_blocking_multi_200]
+title = "混合戰士"
+description = "執行 200 電解器自動掃描"
+
+[advancement.challenge_blocking_multi_5k]
+title = "鐵鳥"
+description = "執行 5,000 電解器自動掃描"
+
+[advancement.challenge_blocking_counter_500]
+title = "回報"
+description = "透過反擊防禦反射總計 500 點傷害"
+
+[advancement.challenge_blocking_counter_max]
+title = "完整計數器"
+description = "到達最大計數堆並釋放"
+
+[advancement.challenge_blocking_bastion_500]
+title = "防禦即人生！"
+description = "柔軟 500 剎車時的射彈"
+
+[advancement.challenge_blocking_bastion_10]
+title = "海綿箭"
+description = "柔軟 10 單曲段射彈"
+
+[advancement.challenge_blocking_mirror_100]
+title = "返回發件人"
+description = "反映 100 射彈"
+
+[advancement.challenge_blocking_mirror_3in5]
+title = "符號時間"
+description = "反映 3 內射彈 5 秒數"
+
+[advancement.challenge_blocking_bulwark_500]
+title = "盾牌充電"
+description = "巴許 500 敵人"
+
+[advancement.challenge_blocking_bulwark_4]
+title = "保齡球擊球"
+description = "點選 4+ 敵人在一擊中"
+
+[advancement.challenge_brewing_lingering_200]
+title = "慢點"
+description = "受益於 200 擴大藥劑"
+
+[advancement.challenge_brewing_lingering_5k]
+title = "永恆的愛麗絲"
+description = "受益於 5,000 擴大藥劑"
+
+[advancement.challenge_brewing_super_heated_100]
+title = "火山發燒"
+description = "完成 100 超熱釀酒"
+
+[advancement.challenge_brewing_super_heated_2500]
+title = "地獄廚房"
+description = "完成 2,500 超熱釀酒"
+
+[advancement.challenge_brewing_darkness_25]
+title = "熄燈"
+description = "布魯 25 暗藥"
+
+[advancement.challenge_brewing_haste_25]
+title = "超活動"
+description = "布魯 25 急速施藥"
+
+[advancement.challenge_brewing_absorption_25]
+title = "額外鋪設"
+description = "布魯 25 吸收藥"
+
+[advancement.challenge_brewing_fatigue_25]
+title = "耗盡專家"
+description = "布魯 25 疲勞藥"
+
+[advancement.challenge_brewing_hunger_25]
+title = "飢餓"
+description = "布魯 25 飢餓藥"
+
+[advancement.challenge_brewing_nausea_25]
+title = "眩暈凝結"
+description = "布魯 25 噁心藥"
+
+[advancement.challenge_brewing_blindness_25]
+title = "關燈"
+description = "布魯 25 失明藥"
+
+[advancement.challenge_brewing_resistance_25]
+title = "鐵頭"
+description = "布魯 25 抗藥劑"
+
+[advancement.challenge_brewing_health_boost_25]
+title = "維雅爾"
+description = "布魯 25 健康促進藥"
+
+[advancement.challenge_brewing_decay_25]
+title = "內毒素"
+description = "布魯 25 腐爛藥"
+
+[advancement.challenge_brewing_saturation_25]
+title = "在瓶子裡吃東西"
+description = "布魯 25 飽和藥"
+
+[advancement.challenge_chronos_bottle_seconds_1k]
+title = "車手"
+description = "開支 1,000 儲存時間秒"
+
+[advancement.challenge_chronos_bottle_seconds_25k]
+title = "時間主"
+description = "開支 25,000 儲存時間秒"
+
+[advancement.challenge_chronos_aberrant_500]
+title = "臨時排水"
+description = "應用 500 慢速堆疊"
+
+[advancement.challenge_chronos_aberrant_frozen]
+title = "及時凍結"
+description = "應用 5+ 慢速堆疊到單個目標"
+
+[advancement.challenge_chronos_recall_50]
+title = "第二次機會"
+description = "回溯 50 次"
+
+[advancement.challenge_chronos_recall_1k]
+title = "土撥鼠日"
+description = "回溯 1,000 次"
+
+[advancement.challenge_chronos_recall_cheat_death]
+title = "欺騙死亡"
+description = "以下時回顧 2 心臟, 恢復到上面 8"
+
+[advancement.challenge_chronos_bomb_freeze_50]
+title = "時間停止"
+description = "別動 50 射彈"
+
+[advancement.challenge_chronos_bomb_crowd_8]
+title = "人群控制"
+description = "慢點 8+ 有一枚定時炸彈的實體"
+
+[advancement.challenge_chronos_echo_200]
+title = "雙打"
+description = "土地 200 回聲點選"
+
+[advancement.challenge_crafting_decon_200]
+title = "薩爾瓦格"
+description = "斷層 200 專案"
+
+[advancement.challenge_crafting_decon_5k]
+title = "回收廠"
+description = "斷層 5,000 專案"
+
+[advancement.challenge_crafting_xp_1k]
+title = "工匠大師"
+description = "工藝 1,000 專案"
+
+[advancement.challenge_crafting_xp_25k]
+title = "克拉夫特大師"
+description = "工藝 25,000 專案"
+
+[advancement.challenge_crafting_recon_100]
+title = "反轉工程"
+description = "重建 100 礦石"
+
+[advancement.challenge_crafting_leather_100]
+title = "譚納"
+description = "工藝 100 皮革來自腐爛的肉"
+
+[advancement.challenge_crafting_backpack_25]
+title = "包鼠"
+description = "工藝 25 捆綁"
+
+[advancement.challenge_crafting_stations_200]
+title = "開始吧"
+description = "使用攜帶式工作站 200 次"
+
+[advancement.challenge_crafting_stations_5k]
+title = "移動車間"
+description = "使用攜帶式工作站 5,000 次"
+
+[advancement.challenge_crafting_skulls_10]
+title = "骷髏收集器"
+description = "工藝 10 暴民頭骨"
+
+[advancement.challenge_crafting_skulls_100]
+title = "獵頭"
+description = "工藝 100 暴民頭骨"
+
+[advancement.challenge_discovery_unity_5k]
+title = "文藝復興玩家"
+description = "分發 5,000 XP 組合到隨機技能"
+
+[advancement.challenge_discovery_unity_50k]
+title = "所有行業的傑克"
+description = "分發 50,000 XP 圓形"
+
+[advancement.challenge_discovery_xp_resist_25]
+title = "應急儲備金"
+description = "使用 XP 化解 25 次致命傷害"
+
+[advancement.challenge_discovery_xp_resist_250]
+title = "XP 盾牌"
+description = "化解 250 次致命傷害"
+
+[advancement.challenge_discovery_xp_resist_clutch]
+title = "拖動"
+description = "活下來的一擊 本來可以處理 15+ 紅桃"
+
+[advancement.challenge_discovery_villager_100]
+title = "銀舌"
+description = "完成 100 改善村民貿易"
+
+[advancement.challenge_discovery_villager_2500]
+title = "主談判人"
+description = "完成 2,500 改進貿易"
+
+[advancement.challenge_discovery_armor_1hr]
+title = "一個與地球"
+description = "擁有環境裝甲 1 累積小時"
+
+[advancement.challenge_discovery_insight_100]
+title = "欄位註釋"
+description = "檢查 100 動物"
+
+[advancement.challenge_discovery_insight_1000]
+title = "怪物手冊"
+description = "檢查 1,000 動物"
+
+[advancement.challenge_discovery_mending_10k]
+title = "門德大師"
+description = "恢復 10,000 透過直接修補的永續性"
+
+[advancement.challenge_discovery_mending_100k]
+title = "不錯如新"
+description = "恢復 100,000 永續性"
+
+[advancement.challenge_discovery_archaeologist_50]
+title = "遺蹟獵人"
+description = "查詢 50 獎金考古專案"
+
+[advancement.challenge_discovery_archaeologist_500]
+title = "印第安納·瓊斯"
+description = "查詢 500 獎金專案"
+
+[advancement.challenge_discovery_cartographer_100]
+title = "探險家"
+description = "脈衝 100 結構"
+
+[advancement.challenge_discovery_cartographer_1k]
+title = "探索器超規範"
+description = "脈衝 1,000 結構"
+
+[advancement.challenge_enchanting_lapis_100]
+title = "潘妮·平徹"
+description = "儲存 100 迷幻般的歡樂"
+
+[advancement.challenge_enchanting_lapis_2500]
+title = "藍霧"
+description = "儲存 2,500 葉片"
+
+[advancement.challenge_enchanting_quick_100]
+title = "書蟲"
+description = "應用 100 直接賬簿"
+
+[advancement.challenge_enchanting_quick_1k]
+title = "正在走動"
+description = "應用 1,000 直接賬簿"
+
+[advancement.challenge_enchanting_xp_100]
+title = "銳利的導師"
+description = "儲存 100 XP 從迷人的級別"
+
+[advancement.challenge_enchanting_anvil_200]
+title = "嘆息者"
+description = "儲存 200 水平"
+
+[advancement.challenge_enchanting_anvil_5k]
+title = "鐵匠天才"
+description = "儲存 5,000 水平"
+
+[advancement.challenge_enchanting_reroll_100]
+title = "挑剔的遊戲"
+description = "重選附魔選項 100 次"
+
+[advancement.challenge_enchanting_reroll_1k]
+title = "從來沒有滿足"
+description = "重選附魔選項 1,000 次"
+
+[advancement.challenge_enchanting_bookshelf_100]
+title = "圖書館卡"
+description = "快樂 100 帶有虛擬書架獎金的專案"
+
+[advancement.challenge_enchanting_grindstone_50]
+title = "救護專家"
+description = "恢復 50 磨石上的魔力"
+
+[advancement.challenge_enchanting_grindstone_500]
+title = "沒有浪費"
+description = "恢復 500 魔藥"
+
+[advancement.challenge_excavation_haste_5k]
+title = "快速挖掘"
+description = "中斷 5,000 快速塊時"
+
+[advancement.challenge_excavation_haste_50k]
+title = "隧道裝置"
+description = "中斷 50,000 快速塊時"
+
+[advancement.challenge_excavation_spelunker_1k]
+title = "X射線視野"
+description = "啟示 1,000 礦石"
+
+[advancement.challenge_excavation_spelunker_25k]
+title = "全視眼"
+description = "啟示 25,000 礦石"
+
+[advancement.challenge_excavation_dti_10k]
+title = "清除挖掘器"
+description = "接著 10,000 庫存物品"
+
+[advancement.challenge_excavation_omni_1k]
+title = "瑞士陸軍礦工"
+description = "執行 1,000 自動工具掃描"
+
+[advancement.challenge_excavation_omni_25k]
+title = "工具帶母版"
+description = "執行 25,000 自動工具掃描"
+
+[advancement.challenge_excavation_seismic_200]
+title = "回聲定位"
+description = "觸發 200 地震震動"
+
+[advancement.challenge_herbalism_growth_1k]
+title = "綠手指"
+description = "增長 1,000 透過生長氣的塊"
+
+[advancement.challenge_herbalism_growth_25k]
+title = "大自然的祝福"
+description = "增長 25,000 塊"
+
+[advancement.challenge_herbalism_hippo_500]
+title = "膠質"
+description = "增益 500 獎金飽和度"
+
+[advancement.challenge_herbalism_myconid_100]
+title = "我們中間的方古斯"
+description = "工藝 100 菌絲"
+
+[advancement.challenge_herbalism_terralid_200]
+title = "景觀"
+description = "工藝 200 草塊"
+
+[advancement.challenge_herbalism_cobweb_100]
+title = "絲織"
+description = "工藝 100 蜘蛛網"
+
+[advancement.challenge_herbalism_mushroom_100]
+title = "哞菇 構建器"
+description = "工藝 100 蘑菇塊"
+
+[advancement.challenge_herbalism_dti_10k]
+title = "清潔收穫"
+description = "接著 10,000 庫存物品"
+
+[advancement.challenge_herbalism_shield_500]
+title = "粗皮膚"
+description = "吸附劑 500 飢餓造成的傷害"
+
+[advancement.challenge_herbalism_shield_5k]
+title = "無厭坦克"
+description = "吸附劑 5,000 飢餓造成的傷害"
+
+[advancement.challenge_herbalism_luck_100]
+title = "幸運的尋找"
+description = "獲取 100 幸運滴水"
+
+[advancement.challenge_herbalism_luck_2500]
+title = "四葉克羅弗"
+description = "獲取 2,500 幸運滴水"
+
+[advancement.challenge_herbalism_replant_500]
+title = "可持續的農民"
+description = "補種 500 作物"
+
+[advancement.challenge_herbalism_replant_25k]
+title = "工業農業"
+description = "補種 25,000 作物"
+
+[advancement.challenge_herbalism_seed_1k]
+title = "約翰尼蘋果籽"
+description = "植物 1,000 種子透過 AOE"
+
+[advancement.challenge_herbalism_seed_25k]
+title = "夢想領域"
+description = "植物 25,000 種子透過 AOE"
+
+[advancement.challenge_herbalism_rooted_500]
+title = "輕步"
+description = "保護 500 農田塊"
+
+[advancement.challenge_herbalism_compost_1k]
+title = "計算冠軍"
+description = "計數器 1,000 專案"
+
+[advancement.challenge_herbalism_compost_25k]
+title = "零廢物"
+description = "計數器 25,000 專案"
+
+[advancement.challenge_herbalism_bee_100]
+title = "畢皇后"
+description = "吸引 100 蜜蜂們"
+
+[advancement.challenge_herbalism_spore_500]
+title = "斯孔爾載體"
+description = "展開 500 塊狀花序開花"
+
+[advancement.challenge_hunter_adrenaline_100]
+title = "角獸"
+description = "殺 100 下面的暴徒 30% 衛生"
+
+[advancement.challenge_hunter_adrenaline_2500]
+title = "狂戰士"
+description = "殺 2,500 腎上腺素的暴徒"
+
+[advancement.challenge_hunter_dti_10k]
+title = "清除"
+description = "接著 10,000 庫存物品"
+
+[advancement.challenge_hunter_invis_200]
+title = "幽靈協議"
+description = "透過擊殺觸發隱身 200 次"
+
+[advancement.challenge_hunter_jump_200]
+title = "彈簧已裝入"
+description = "透過擊殺觸發跳躍提升 200 次"
+
+[advancement.challenge_hunter_luck_200]
+title = "幸運射擊"
+description = "透過擊殺觸發幸運 200 次"
+
+[advancement.challenge_hunter_regen_500]
+title = "金剛狼"
+description = "受擊後觸發獵人生命恢復 500 次"
+
+[advancement.challenge_hunter_resistance_500]
+title = "厚度隱藏"
+description = "透過擊殺觸發抗性提升 500 次"
+
+[advancement.challenge_hunter_speed_200]
+title = "戰鬥或飛行"
+description = "透過擊殺觸發速度 200 次"
+
+[advancement.challenge_hunter_strength_200]
+title = "憤怒"
+description = "透過擊殺觸發力量 200 次"
+
+[advancement.challenge_hunter_trophy_50]
+title = "計程車司機"
+description = "收集 50 獎盃掉落"
+
+[advancement.challenge_hunter_trophy_heads_100]
+title = "會議室"
+description = "收集 100 黑幫頭目"
+
+[advancement.challenge_nether_wither_100]
+title = "廢品"
+description = "忽略 100 淡化效應"
+
+[advancement.challenge_nether_wither_1k]
+title = "死亡障礙"
+description = "忽略 1,000 淡化效應"
+
+[advancement.challenge_nether_fire_200]
+title = "消防員"
+description = "忽略 200 火災破壞事件"
+
+[advancement.challenge_nether_fire_5k]
+title = "薩拉曼德"
+description = "忽略 5,000 火災破壞事件"
+
+[advancement.challenge_nether_skull_100]
+title = "骷髏查克"
+description = "擲出 100 廢頭骨"
+
+[advancement.challenge_nether_skull_kills_50]
+title = "廢主"
+description = "殺 50 頭骨枯萎的暴徒"
+
+[advancement.challenge_nether_skull_long_bomb]
+title = "長炸彈"
+description = "擊中目標 40+ 用頭骨擋住"
+
+[advancement.challenge_nether_lava_1k]
+title = "絃樂"
+description = "走開 1,000 熔岩上的塊"
+
+[advancement.challenge_nether_lava_25k]
+title = "岩漿衝浪者"
+description = "走開 25,000 熔岩上的塊"
+
+[advancement.challenge_nether_ghast_500]
+title = "網民退伍軍人"
+description = "減輕損失 500 黑幫破壞"
+
+[advancement.challenge_nether_blaze_200]
+title = "煙火"
+description = "觸發烈焰吸取 200 次"
+
+[advancement.challenge_nether_blaze_2500]
+title = "食火者"
+description = "觸發烈焰吸取 2,500 次"
+
+[advancement.challenge_nether_piglin_100]
+title = "黃金經紀人"
+description = "完成 100 改良豬林易貨"
+
+[advancement.challenge_nether_piglin_2500]
+title = "豬林莫古爾"
+description = "完成 2,500 改進的易貨"
+
+[advancement.challenge_pickaxe_autosmelt_1k]
+title = "行走的憤怒"
+description = "自動熔鍊 1,000 礦石"
+
+[advancement.challenge_pickaxe_autosmelt_25k]
+title = "最高冶煉廠"
+description = "自動熔鍊 25,000 礦石"
+
+[advancement.challenge_pickaxe_chisel_500]
+title = "精密礦工"
+description = "齊爾 500 額外的礦石掉落"
+
+[advancement.challenge_pickaxe_dti_25k]
+title = "清潔礦工"
+description = "接著 25,000 庫存物品"
+
+[advancement.challenge_pickaxe_spawner_10]
+title = "偷子賊"
+description = "收集 10 有絲綢觸控的產卵人"
+
+[advancement.challenge_pickaxe_spawner_50]
+title = "動物園守護者"
+description = "收集 50 產卵人"
+
+[advancement.challenge_pickaxe_veinminer_2500]
+title = "風扇開膛手"
+description = "維生素 2,500 礦石"
+
+[advancement.challenge_pickaxe_veinminer_20]
+title = "洛德母親"
+description = "維生素 20+ 礦石單進"
+
+[advancement.challenge_pickaxe_quarry_200]
+title = "勘探者"
+description = "執行 200 礦石掃描"
+
+[advancement.challenge_ranged_arrow_500]
+title = "弗魯加爾·弗萊徹"
+description = "恢復 500 箭頭"
+
+[advancement.challenge_ranged_arrow_10k]
+title = "無限箭袋 無限的箭袋"
+description = "恢復 10,000 箭頭"
+
+[advancement.challenge_ranged_web_200]
+title = "網路閃爍器"
+description = "陷阱 200 有網路炸彈的暴徒"
+
+[advancement.challenge_ranged_force_500]
+title = "狙擊手"
+description = "土地 500 遠端打擊 (30+ 塊)"
+
+[advancement.challenge_ranged_lunge_200]
+title = "空運支助"
+description = "執行 200 空中肺臟"
+
+[advancement.challenge_ranged_lunge_2500]
+title = "火箭跳躍"
+description = "執行 2,500 空中肺臟"
+
+[advancement.challenge_ranged_piercing_500]
+title = "希什·凱巴布"
+description = "皮爾斯 500 其他目標"
+
+[advancement.challenge_ranged_piercing_4]
+title = "擔保"
+description = "點選 4+ 單箭頭的敵人"
+
+[advancement.challenge_ranged_floaters_200]
+title = "起來吧"
+description = "欺詐 200 目標"
+
+[advancement.challenge_ranged_pinning_300]
+title = "釘下"
+description = "鍵 300 目標"
+
+[advancement.challenge_ranged_trajectory_100]
+title = "計算"
+description = "殺 100 軌道預覽活動時的暴徒"
+
+[advancement.challenge_ranged_ricochet_kills_50]
+title = "詭計射擊"
+description = "殺 50 持火箭彈的暴徒"
+
+[advancement.challenge_ranged_ricochet_kills_500]
+title = "彈球嚮導"
+description = "殺 500 持火箭彈的暴徒"
+
+[advancement.challenge_ranged_fetch_500]
+title = "檢索器"
+description = "獲取 500 投放的炮彈"
+
+[advancement.challenge_ranged_fetch_5k]
+title = "金色檢索器"
+description = "獲取 5,000 投放的炮彈"
+
+[advancement.challenge_ranged_heavy_hits_250]
+title = "重擊者"
+description = "土地 250 重抽射彈擊中"
+
+[advancement.challenge_ranged_heavy_hits_2500]
+title = "包圍引擎"
+description = "土地 2,500 重抽射彈擊中"
+
+[advancement.challenge_ranged_heartseeker_100]
+title = "心臟震動器"
+description = "土地 100 尋求箭頭命中"
+
+[advancement.challenge_ranged_heartseeker_1k]
+title = "呼嘯死亡"
+description = "土地 1,000 尋求箭頭命中"
+
+[advancement.challenge_rift_blink_500]
+title = "階段移動"
+description = "閃現 500 次"
+
+[advancement.challenge_rift_blink_5k]
+title = "裂縫行者"
+description = "閃爍 5,000 距離總區塊"
+
+[advancement.challenge_rift_enderchest_200]
+title = "口袋尺寸"
+description = "遠程打開末影箱 200 次"
+
+[advancement.challenge_rift_descent_100]
+title = "有根據"
+description = "取消 100 懸浮效應"
+
+[advancement.challenge_rift_descent_1k]
+title = "反重力"
+description = "取消 1,000 懸浮效應"
+
+[advancement.challenge_rift_gate_100]
+title = "守門員"
+description = "透過裂隙門傳送 100 次"
+
+[advancement.challenge_rift_gate_50k_dist]
+title = "裂縫網路"
+description = "遠端傳送 50,000 透過裂縫門的累積塊"
+
+[advancement.challenge_rift_resist_200]
+title = "自動觸控"
+description = "觸發裂隙抗性 200 次"
+
+[advancement.challenge_rift_visage_100]
+title = "眼睛聯絡人"
+description = "活著 100 網友盯著"
+
+[advancement.challenge_rift_visage_1k]
+title = "終極耳語者"
+description = "活著 1,000 網友盯著"
+
+[advancement.challenge_rift_access_100]
+title = "尺寸包"
+description = "遠程打開容器 100 次"
+
+[advancement.challenge_rift_access_2500]
+title = "星界 伸縮"
+description = "遠程打開容器 2,500 次"
+
+[advancement.challenge_rift_void_magnet_5k]
+title = "真空清理器"
+description = "拉開 5,000 來自區域的專案"
+
+[advancement.challenge_rift_void_magnet_50k]
+title = "黑洞"
+description = "拉開 50,000 來自區域的專案"
+
+[advancement.challenge_rift_taglock_100]
+title = "巫術娃娃"
+description = "標記 100 實體變成末端珍珠"
+
+[advancement.challenge_rift_taglock_500]
+title = "木偶大師"
+description = "成功標記鎖定遠端 500 實體"
+
+[advancement.challenge_rift_pocket_5k]
+title = "無底袋"
+description = "拉開 5,000 建築物中從尾箱中取出的物項"
+
+[advancement.challenge_rift_pocket_store_10k]
+title = "安德·霍爾德"
+description = "儲存 10,000 透過潛降進入尾箱的物品"
+
+[advancement.challenge_seaborne_fish_500]
+title = "安格勒大師"
+description = "接著 500 獎金魚"
+
+[advancement.challenge_seaborne_fish_5k]
+title = "老人與海"
+description = "接著 5,000 獎金魚"
+
+[advancement.challenge_seaborne_speed_10k]
+title = "海豚魚"
+description = "遊動 10,000 塊"
+
+[advancement.challenge_seaborne_speed_100k]
+title = "水龍星"
+description = "遊動 100,000 塊"
+
+[advancement.challenge_seaborne_vision_72k]
+title = "深海探測器"
+description = "開支 1 在水下累積小時視線"
+
+[advancement.challenge_seaborne_mining_2500]
+title = "潛艇礦工"
+description = "礦山 2,500 水下塊"
+
+[advancement.challenge_seaborne_mining_25k]
+title = "亞特蘭大工程師"
+description = "礦山 25,000 水下塊"
+
+[advancement.challenge_seaborne_oxygen_12k]
+title = "鐵龍"
+description = "增益 10 累計獎金 空氣"
+
+[advancement.challenge_seaborne_tidecaller_200]
+title = "潮汐部隊"
+description = "執行 200 潮線"
+
+[advancement.challenge_seaborne_tidecaller_5k]
+title = "波塞冬的衝刺"
+description = "執行 5,000 潮線"
+
+[advancement.challenge_seaborne_pressure_1k]
+title = "深海潛水員"
+description = "礦山 1,000 低於海平面的區塊"
+
+[advancement.challenge_stealth_ghost_100]
+title = "幽靈盾牌"
+description = "將幽靈護甲疊滿 100 次"
+
+[advancement.challenge_stealth_ghost_500]
+title = "玻璃炮反轉"
+description = "吸附劑 500 用鬼盔甲擊打"
+
+[advancement.challenge_stealth_sight_sneak_1h]
+title = "夜之靈"
+description = "開支 1 一小時潛入夜視"
+
+[advancement.challenge_stealth_snatch_2500]
+title = "粘結的手指"
+description = "抓起來 2,500 來自暴徒的物品"
+
+[advancement.challenge_stealth_snatch_25k]
+title = "扒手"
+description = "抓起來 25,000 來自暴徒的物品"
+
+[advancement.challenge_stealth_speed_5k]
+title = "閃爍的陰影"
+description = "軌跡 5,000 速度滑動時的塊"
+
+[advancement.challenge_stealth_ender_veil_200]
+title = "隱形人"
+description = "避免 200 本地人仇恨觸發器"
+
+[advancement.challenge_stealth_silent_200]
+title = "刺客"
+description = "土地 200 後臺設定"
+
+[advancement.challenge_stealth_silent_5in10]
+title = "不明的刀鋒"
+description = "土地 5 內部後臺 10 秒數"
+
+[advancement.challenge_stealth_decoy_100]
+title = "雙體"
+description = "子孫 100 陰影誘餌"
+
+[advancement.challenge_stealth_decoy_distract_500]
+title = "誤導大師"
+description = "分散注意力 500 有誘餌的暴徒"
+
+[advancement.challenge_swords_machete_2500]
+title = "叢林探索器"
+description = "剪下 2,500 葉片塊"
+
+[advancement.challenge_swords_machete_25k]
+title = "拖車"
+description = "剪下 25,000 葉片塊"
+
+[advancement.challenge_swords_bloody_500]
+title = "血號"
+description = "造成流血 500 次"
+
+[advancement.challenge_swords_bloody_kills_100]
+title = "被千刀斬殺"
+description = "殺 100 一個人流血的暴徒"
+
+[advancement.challenge_swords_poison_500]
+title = "惡性"
+description = "施加中毒 500 次"
+
+[advancement.challenge_swords_poison_kills_50]
+title = "有毒刀鋒"
+description = "殺 50 有毒藥的暴徒"
+
+[advancement.challenge_swords_execute_200]
+title = "行刑者"
+description = "執行 200 低健康暴徒"
+
+[advancement.challenge_swords_execute_2500]
+title = "法官、陪審團、執行官"
+description = "執行 2,500 暴徒們"
+
+[advancement.challenge_swords_execute_5in10]
+title = "慈悲就是軟弱"
+description = "執行 5 黑幫進來了 10 秒數"
+
+[advancement.challenge_swords_dual_1k]
+title = "驚人"
+description = "發牌 1,000 雙線損壞"
+
+[advancement.challenge_swords_dual_25k]
+title = "雙方形"
+description = "發牌 25,000 雙線損壞"
+
+[advancement.challenge_swords_riposte_200]
+title = "恩·加德"
+description = "土地 200 連環畫"
+
+[advancement.challenge_swords_riposte_2500]
+title = "柵欄"
+description = "土地 2,500 連環畫"
+
+[advancement.challenge_swords_riposte_3in5]
+title = "帕裡·金簽名"
+description = "土地 3 內拉 5 秒數"
+
+[advancement.challenge_swords_cyclone_500]
+title = "旋風"
+description = "點選 500 旋風暴徒"
+
+[advancement.challenge_swords_cyclone_5k]
+title = "刀鋒風暴"
+description = "點選 5,000 旋風暴徒"
+
+[advancement.challenge_swords_cyclone_6]
+title = "閃光燈"
+description = "點選 6+ 單一旋風啟用的暴徒"
+
+[advancement.challenge_taming_damage_500]
+title = "阿爾法訓練員"
+description = "你的寵物會殺人的 500 暴徒們"
+
+[advancement.challenge_taming_damage_5k]
+title = "野獸師父"
+description = "你的寵物會殺人的 5,000 暴徒們"
+
+[advancement.challenge_taming_health_boost_72k]
+title = "野獸守護者"
+description = "讓寵物健康成長 1 累積小時"
+
+[advancement.challenge_taming_regen_1k]
+title = "治療觸控"
+description = "寵物再生 1,000 紅桃"
+
+[advancement.challenge_taming_recall_100]
+title = "過來,小子"
+description = "召回寵物 100 次"
+
+[advancement.challenge_taming_recall_1k]
+title = "電傳中"
+description = "召回寵物 1,000 次"
+
+[advancement.challenge_taming_pack_72k]
+title = "獸群首領"
+description = "保持包頭氣動 1 累積小時"
+
+[advancement.challenge_taming_shared_500]
+title = "忠誠盾牌"
+description = "拿著 500 對寵物的傷害"
+
+[advancement.challenge_taming_shared_5k]
+title = "犧牲"
+description = "拿著 5,000 對寵物的傷害"
+
+[advancement.challenge_taming_mounted_200]
+title = "騎兵"
+description = "殺 200 架設時的暴徒"
+
+[advancement.challenge_taming_mounted_50k]
+title = "騎士 偏離"
+description = "旅費 50,000 掛載時的塊"
+
+[advancement.challenge_tragoul_thorns_500]
+title = "活仙人掌"
+description = "反映 500 血刺造成的傷害"
+
+[advancement.challenge_tragoul_thorns_5k]
+title = "鐵女"
+description = "反映 5,000 損害"
+
+[advancement.challenge_tragoul_thorns_kill]
+title = "別碰我"
+description = "殺死一個純粹來自反射損傷的暴徒"
+
+[advancement.challenge_tragoul_globe_1k]
+title = "平等機會"
+description = "分散損害到 1,000 透過地球的暴徒"
+
+[advancement.challenge_tragoul_globe_5]
+title = "痛減"
+description = "分散損害到 5+ 一槍打死暴徒"
+
+[advancement.challenge_tragoul_healing_500]
+title = "吸血鬼們"
+description = "偷竊 500 心臟透過生命水滴"
+
+[advancement.challenge_tragoul_healing_10k]
+title = "飲血者"
+description = "偷竊 10,000 紅桃"
+
+[advancement.challenge_tragoul_lance_200]
+title = "圖示"
+description = "子孫 200 血漿"
+
+[advancement.challenge_tragoul_lance_kills_100]
+title = "鏈殺手"
+description = "殺 100 帶血栓的暴徒"
+
+[advancement.challenge_tragoul_pact_200]
+title = "血的代價"
+description = "犧牲 200 心為力量"
+
+[advancement.challenge_tragoul_pact_kills_500]
+title = "條約儲存者"
+description = "殺 500 暴徒,而血壓"
+
+[advancement.challenge_tragoul_pact_all_in]
+title = "全數"
+description = "啟用以下血液契約 3 心與殺"
+
+[advancement.challenge_tragoul_bone_500]
+title = "骸骨收集者"
+description = "收集 500 骨質"
+
+[advancement.challenge_tragoul_bone_5k]
+title = "收穫者"
+description = "收集 5,000 骨質"
+
+[advancement.challenge_unarmed_glass_100]
+title = "生日禮服"
+description = "殺 100 沒有盔甲的暴徒"
+
+[advancement.challenge_unarmed_glass_500]
+title = "真正的玻璃炮"
+description = "殺 500 沒有盔甲的暴徒"
+
+[advancement.challenge_unarmed_power_500]
+title = "赤手空拳"
+description = "殺 500 赤手空拳的暴徒們"
+
+[advancement.challenge_unarmed_power_5k]
+title = "一拳超人"
+description = "殺 5,000 赤手空拳的暴徒們"
+
+[advancement.challenge_unarmed_sucker_500]
+title = "偷襲拳"
+description = "土地 500 衝刺"
+
+[advancement.challenge_unarmed_knockout]
+title = "擊倒藝術家"
+description = "一槍斃命 50 生物的拳頭"
+
+[advancement.challenge_unarmed_combo_5k]
+title = "街頭戰士"
+description = "土地 5,000 總組合點選率"
+
+[advancement.challenge_unarmed_combo_10]
+title = "組合斷開器"
+description = "達到a 10-點選組合"
+
+[advancement.challenge_unarmed_combo_25]
+title = "無限的連擊"
+description = "達到a 25-點選組合"
+
+[advancement.challenge_unarmed_charge_300]
+title = "搖擺的拉姆"
+description = "指控 300 敵人"
+
+[advancement.challenge_unarmed_charge_kills_100]
+title = "無阻力"
+description = "殺 100 有毆打指控的暴徒"
+
+[advancement.challenge_excavation_tunneler_10k]
+title = "無聊的機器"
+description = "隧道 10,000 獎金塊"
+
+[advancement.challenge_excavation_treasure_500]
+title = "業餘考古學家"
+description = "未顯示 500 財寶"
+
+[advancement.challenge_excavation_softfall_1k]
+title = "枕頭地球"
+description = "蘇克 1,000 軟地墜毀"
+
+[advancement.challenge_excavation_earthmover_250]
+title = "塌方"
+description = "解開 250 地球波濤"
+
+[advancement.challenge_excavation_burrow_100]
+title = "向下移動"
+description = "挖掘 100 坑頭"
+
+[advancement.challenge_excavation_gravedigger_300]
+title = "在片段中休息"
+description = "未顯示 300 骨盤"
+
+[advancement.challenge_excavation_mudlark_1k]
+title = "河岸偽造器"
+description = "收集 1,000 獎金泥巴滴"
+
+[advancement.challenge_chronos_stasis_50]
+title = "懸浮動畫"
+description = "部署 50 靜態欄位"
+
+[advancement.challenge_chronos_stasis_500]
+title = "靜態大師"
+description = "部署 500 靜態欄位"
+
+[advancement.challenge_chronos_rewind_50]
+title = "結束"
+description = "完成 50 倒轉"
+
+[advancement.challenge_chronos_rewind_500]
+title = "及時解凍"
+description = "完成 500 倒轉"
+
+[advancement.challenge_chronos_borrowed_2500]
+title = "晚點還錢"
+description = "推遲 2,500 未來遭受的損害"
+
+[advancement.challenge_chronos_overtime_1k]
+title = "加班費"
+description = "增益 1,000 藥效時間"
+
+[advancement.challenge_chronos_accelerate_1k]
+title = "快速前進"
+description = "加速 1,000 塊"
+
+[advancement.challenge_chronos_hourglass_10]
+title = "時間已過"
+description = "用沙漏逃過死亡 10 次"
+
+[advancement.challenge_chronos_pocket_watch_500]
+title = "慢慢墜落"
+description = "飄過 500 減速秒"
+
+[advancement.challenge_chronos_deja_vu_500]
+title = "我們沒見過面?"
+description = "透過 似曾相識 Vu 吸收500點熟悉傷害"
+
+[advancement.challenge_unarmed_disarm_100]
+title = "黃油"
+description = "解除武裝 100 手無寸鐵的敵人"
+
+[advancement.challenge_unarmed_disarm_1k]
+title = "武器擁有者"
+description = "解除武裝 1,000 手無寸鐵的敵人"
+
+[advancement.challenge_unarmed_pressure_500]
+title = "神經打擊器"
+description = "土地 500 壓力點撞擊"
+
+[advancement.challenge_unarmed_pressure_5k]
+title = "解剖學學者"
+description = "土地 5,000 壓力點撞擊"
+
+[advancement.challenge_unarmed_clap_250]
+title = "雷擊"
+description = "回來 250 衝擊波拍擊的敵人"
+
+[advancement.challenge_unarmed_clap_2500]
+title = "聲波"
+description = "回來 2,500 衝擊波拍擊的敵人"
+
+[advancement.challenge_unarmed_iron_1k]
+title = "鋼鐵釘"
+description = "土地 1,000 鐵拳"
+
+[advancement.challenge_unarmed_iron_10k]
+title = "活安維爾"
+description = "土地 10,000 鐵拳"
+
+[advancement.challenge_unarmed_grapple_100]
+title = "複雜城市"
+description = "萬歲 100 抓起來的暴徒"
+
+[advancement.challenge_unarmed_grapple_1k]
+title = "移動啟動器"
+description = "萬歲 1,000 抓起來的暴徒"
+
+[advancement.challenge_unarmed_second_wind_100]
+title = "戰鬥小吃"
+description = "觸發第二風 100 次"
+
+[advancement.challenge_unarmed_second_wind_1k]
+title = "無盡的星座"
+description = "觸發第二風 1,000 次"
+
+[advancement.challenge_unarmed_meditate_500]
+title = "內部和平"
+description = "構建 500 透過冥想吸收健康"
+
+[advancement.challenge_unarmed_meditate_5k]
+title = "傳送"
+description = "構建 5,000 透過冥想吸收健康"
+
+[advancement.challenge_architect_scaffolder_500]
+title = "臨時措施"
+description = "地點 500 臨時腳手架"
+
+[advancement.challenge_architect_scaffolder_5k]
+title = "瑞格大師"
+description = "地點 5,000 臨時腳手架"
+
+[advancement.challenge_architect_supply_line_100]
+title = "繼續前進"
+description = "自動補充手中物品 100 次"
+
+[advancement.challenge_architect_supply_line_1k]
+title = "軍需長"
+description = "自動補充手中物品 1,000 次"
+
+[advancement.challenge_architect_steady_hands_500]
+title = "鋼鐵神經"
+description = "地點 500 橋接時的塊"
+
+[advancement.challenge_architect_steady_hands_5k]
+title = "天空行者"
+description = "地點 5,000 橋接時的塊"
+
+[advancement.challenge_architect_chalk_line_50]
+title = "直線真實"
+description = "草案 50 粉筆指南"
+
+[advancement.challenge_architect_chalk_line_500]
+title = "勘測員"
+description = "草案 500 粉筆指南"
+
+[advancement.challenge_architect_demolition_500]
+title = "受控拆除"
+description = "拆遷 500 個人職位"
+
+[advancement.challenge_architect_demolition_5k]
+title = "沉船船員"
+description = "拆遷 5,000 個人職位"
+
+[advancement.challenge_architect_stonecutter_savant_50]
+title = "切變角"
+description = "開啟 50 行動式剪石機"
+
+[advancement.challenge_architect_stonecutter_savant_500]
+title = "梅森大師"
+description = "開啟 500 行動式剪石機"
+
+[advancement.challenge_pickaxe_tunnelbore_10k]
+title = "無聊的機器"
+description = "純淨 10,000 隧道時的獎金塊"
+
+[advancement.challenge_pickaxe_deepcore_5k]
+title = "核心樣本"
+description = "礦山 5,000 深層塊與深核心"
+
+[advancement.challenge_pickaxe_obsidianrush_1k]
+title = "黑色黃金"
+description = "現在,我在做什麼? 1,000 氧化物塊與氧化 衝鋒"
+
+[advancement.challenge_pickaxe_pact_100]
+title = "條約儲存者"
+description = "防止鎬損壞 100 次"
+
+[advancement.challenge_pickaxe_rhythm_5k]
+title = "永久選擇"
+description = "恢復 5,000 透過修復韻律的耐久性"
+
+[advancement.challenge_pickaxe_gempolish_500]
+title = "燈塔"
+description = "波蘭出局了 500 額外寶石"
+
+[advancement.challenge_pickaxe_stoneskin_10k]
+title = "隱藏花崗岩"
+description = "構建 10,000 石頭皮堆疊"
+
+[advancement.challenge_tragoul_corpse_500]
+title = "走動引爆器"
+description = "引爆 500 帶著鮮血的敵對暴徒"
+
+[advancement.challenge_tragoul_corpse_5k]
+title = "戈爾地區"
+description = "引爆 5,000 帶著鮮血的敵對暴徒"
+
+[advancement.challenge_tragoul_siphon_500]
+title = "靈魂飲者"
+description = "西風 500 受害人的健康"
+
+[advancement.challenge_tragoul_siphon_10k]
+title = "飢餓"
+description = "西風 10,000 受害人的健康"
+
+[advancement.challenge_tragoul_servant_50]
+title = "計算機"
+description = "呼叫 50 骨僕"
+
+[advancement.challenge_tragoul_servant_500]
+title = "骨頭之主"
+description = "呼叫 500 骨僕"
+
+[advancement.challenge_tragoul_marrow_500]
+title = "骨頭盾牌"
+description = "吸附劑 500 髓甲損傷"
+
+[advancement.challenge_tragoul_marrow_5k]
+title = "已關閉"
+description = "吸附劑 5,000 髓甲損傷"
+
+[advancement.challenge_tragoul_frailty_100]
+title = "布麗特勒觸控"
+description = "詛咒 100 有弱點的攻擊者"
+
+[advancement.challenge_tragoul_frailty_1k]
+title = "浪費詞"
+description = "詛咒 1,000 有弱點的攻擊者"
+
+[advancement.challenge_tragoul_death_sense_1k]
+title = "死神之眼"
+description = "語氣 1,000 死亡的獵物穿過牆壁"
+
+[advancement.challenge_tragoul_plague_100]
+title = "零號病人"
+description = "把瘟疫傳播到 100 暴徒們"
+
+[advancement.challenge_tragoul_plague_1k]
+title = "流行現象"
+description = "把瘟疫傳播到 1,000 暴徒們"
+
+[advancement.challenge_tragoul_last_rites_5]
+title = "今天沒有"
+description = "逃過死亡 5 次"
+
+[advancement.challenge_tragoul_last_rites_50]
+title = "未完成的業務"
+description = "逃過死亡 50 次"
+
+[advancement.challenge_agility_slipstream_500]
+title = "火藥獵犬"
+description = "滑行 500 次"
+
+[advancement.challenge_agility_slipstream_5k]
+title = "下山賽車"
+description = "滑行 5,000 次"
+
+[advancement.challenge_agility_air_dash_500]
+title = "空中交通"
+description = "空中衝刺 500 次"
+
+[advancement.challenge_agility_air_dash_5k]
+title = "天空斷層"
+description = "空中衝刺 5,000 次"
+
+[advancement.challenge_agility_cat_reflexes_100]
+title = "口哨聲"
+description = "隱藏 100 衝刺時的射彈"
+
+[advancement.challenge_agility_cat_reflexes_1k]
+title = "九條命"
+description = "隱藏 1,000 衝刺時的射彈"
+
+[advancement.challenge_agility_featherfoot_500]
+title = "輕步"
+description = "忽略 500 衝刺時有危險表面"
+
+[advancement.challenge_agility_featherfoot_5k]
+title = "未嘗試"
+description = "忽略 5,000 衝刺時有危險表面"
+
+[advancement.challenge_agility_vault_250]
+title = "赫爾德勒"
+description = "預設 250 障礙"
+
+[advancement.challenge_agility_vault_2500]
+title = "閒置"
+description = "預設 2,500 障礙"
+
+[advancement.challenge_agility_marathoner_5k]
+title = "二龍"
+description = "儲存 5,000 短跑時飽和度"
+
+[advancement.challenge_agility_marathoner_50k]
+title = "超馬拉松"
+description = "儲存 50,000 短跑時飽和度"
+
+[advancement.challenge_agility_kip_up_100]
+title = "回到你的腳上"
+description = "從 100 點選一個基普 -up"
+
+[advancement.challenge_agility_kip_up_1k]
+title = "取消抖動"
+description = "從 1,000 點選一個基普 -up"
+
+[advancement.challenge_axe_throw_500]
+title = "哈齊特·胡勒"
+description = "土地 500 拋軸擊打"
+
+[advancement.challenge_axe_throw_5k]
+title = "顫抖死亡"
+description = "土地 5,000 拋軸擊打"
+
+[advancement.challenge_axe_sunder_500]
+title = "裝甲裂縫"
+description = "應用 500 沉積堆疊"
+
+[advancement.challenge_axe_sunder_5k]
+title = "盤點器"
+description = "應用 5,000 沉積堆疊"
+
+[advancement.challenge_axe_cleave_1k]
+title = "寬旋"
+description = "克萊夫 1,000 次級目標"
+
+[advancement.challenge_axe_cleave_10k]
+title = "線的累進者"
+description = "克萊夫 10,000 次級目標"
+
+[advancement.challenge_axe_bark_hide_2500]
+title = "第二層皮膚"
+description = "構建 2,500 樹皮吸收堆疊"
+
+[advancement.challenge_axe_shield_splitter_250]
+title = "防守斷路器"
+description = "分開 250 盾牌"
+
+[advancement.challenge_crafting_bulk_1k]
+title = "批次工作"
+description = "大宗工藝 1,000 專案"
+
+[advancement.challenge_crafting_bulk_10k]
+title = "組合線"
+description = "大宗工藝 10,000 專案"
+
+[advancement.challenge_crafting_thrifty_500]
+title = "潘妮·平徹"
+description = "退款 500 成分"
+
+[advancement.challenge_crafting_thrifty_5k]
+title = "廢物不"
+description = "退款 5,000 成分"
+
+[advancement.challenge_crafting_masterwork_50]
+title = "手工業者"
+description = "Forge 50 主工作部件"
+
+[advancement.challenge_crafting_masterwork_500]
+title = "史密斯爺爺"
+description = "Forge 500 主工作部件"
+
+[advancement.challenge_crafting_compactor_1k]
+title = "空間保護程式"
+description = "壓縮 1,000 塊"
+
+[advancement.challenge_crafting_compactor_10k]
+title = "儲存男爵"
+description = "壓縮 10,000 塊"
+
+[advancement.challenge_crafting_tinkerer_50]
+title = "小叮噹"
+description = "小叮噹 50 工具"
+
+[advancement.challenge_crafting_tinkerer_500]
+title = "叮噹大師"
+description = "小叮噹 500 工具"
+
+[advancement.challenge_crafting_provisioner_500]
+title = "卡特爾"
+description = "儀表 500 食品部分"
+
+[advancement.challenge_crafting_provisioner_5k]
+title = "軍需長"
+description = "儀表 5,000 食品部分"
+
+[advancement.challenge_crafting_signature_100]
+title = "已簽署"
+description = "完成 100 攜帶簽名貨物的村民交易"
+
+[advancement.challenge_crafting_signature_1k]
+title = "著名藝術家"
+description = "完成 1,000 攜帶簽名貨物的村民交易"
+
+[advancement.challenge_enchanting_cleanse_10]
+title = "詛咒斷開器"
+description = "清理 10 磨石上的詛咒"
+
+[advancement.challenge_enchanting_cleanse_100]
+title = "無約束"
+description = "清理 100 詛咒"
+
+[advancement.challenge_enchanting_rebind_50]
+title = "分頁"
+description = "分開 50 神奇的湯匙"
+
+[advancement.challenge_enchanting_rebind_500]
+title = "賓德大師"
+description = "分開 500 神奇的湯匙"
+
+[advancement.challenge_enchanting_soul_10]
+title = "靈魂繩"
+description = "恢復 10 與死亡相關的物品"
+
+[advancement.challenge_enchanting_soul_100]
+title = "不朽的債券"
+description = "恢復 100 與靈魂相關的專案"
+
+[advancement.challenge_enchanting_siphon_25]
+title = "阿爾卡內拾荒者"
+description = "西風 25 被屠殺的暴徒的魔法書"
+
+[advancement.challenge_enchanting_siphon_250]
+title = "靈魂收穫者"
+description = "西風 250 魔法書"
+
+[advancement.challenge_enchanting_rune_100]
+title = "符文 閱讀器"
+description = "啟示 100 迷人的報價"
+
+[advancement.challenge_enchanting_rune_1k]
+title = "全景學者"
+description = "啟示 1,000 迷人的報價"
+
+[advancement.challenge_enchanting_infusion_25]
+title = "史密斯小姐"
+description = "轉讓 25 物品之間的魔法"
+
+[advancement.challenge_enchanting_infusion_250]
+title = "輸液大師"
+description = "轉讓 250 魔藥"
+
+[advancement.challenge_enchanting_echo_25]
+title = "知識保持者"
+description = "充電 25 魔法升級"
+
+[advancement.challenge_enchanting_echo_250]
+title = "生活圖書館"
+description = "充電 250 魔法升級"
+
+[advancement.challenge_nether_soul_1k]
+title = "灰溝"
+description = "走開 1,000 在靈魂沙或靈魂土壤上"
+
+[advancement.challenge_nether_soul_25k]
+title = "靈魂衝刺者"
+description = "走開 25,000 在靈魂沙或靈魂土壤上"
+
+[advancement.challenge_nether_magma_100]
+title = "閃爍觸控"
+description = "點火 100 在燃燒時放縱攻擊者"
+
+[advancement.challenge_nether_magma_2500]
+title = "活地獄"
+description = "點火 2,500 在燃燒時放縱攻擊者"
+
+[advancement.challenge_nether_mason_1k]
+title = "內瑟·梅森"
+description = "礦山 1,000 內殼、玄武岩或黑石塊"
+
+[advancement.challenge_nether_mason_25k]
+title = "巴薩爾斷層器"
+description = "礦山 25,000 內殼、玄武岩或黑石塊"
+
+[advancement.challenge_nether_strider_500]
+title = "刺殺騎士"
+description = "騎腳踏車 500 塊"
+
+[advancement.challenge_nether_strider_5k]
+title = "岩漿蒸汽機"
+description = "騎腳踏車 5,000 塊"
+
+[advancement.challenge_nether_strider_rescue]
+title = "軟著陸"
+description = "被斯特里德·邦德在熔岩上沉沒時抓住"
+
+[advancement.challenge_nether_feast_100]
+title = "鮮肉飲食"
+description = "吃飯 100 淨真菌或變形植物"
+
+[advancement.challenge_nether_feast_2500]
+title = "紅寶石古曼德"
+description = "吃飯 2,500 淨真菌或變形植物"
+
+[advancement.challenge_nether_ash_200]
+title = "琥珀皮膚"
+description = "忽略 200 岩漿和火災破壞"
+
+[advancement.challenge_nether_ash_5k]
+title = "防腐劑"
+description = "忽略 5,000 岩漿和火災破壞"
+
+[advancement.challenge_nether_harvest_100]
+title = "骸骨收集者"
+description = "收穫 100 廢骨架"
+
+[advancement.challenge_nether_harvest_2500]
+title = "骷髏死神"
+description = "收穫 2,500 廢骨架"
+
+[advancement.challenge_seaborne_coral_500]
+title = "礁魚"
+description = "地點 500 珊瑚礁區塊"
+
+[advancement.challenge_seaborne_coral_5k]
+title = "珊瑚礁建築師"
+description = "地點 5,000 珊瑚礁區塊"
+
+[advancement.challenge_seaborne_salvage_100]
+title = "沉船駕駛員"
+description = "救護 100 水下容器"
+
+[advancement.challenge_seaborne_salvage_1k]
+title = "深藏獵人"
+description = "救護 1,000 水下容器"
+
+[advancement.challenge_seaborne_ink_100]
+title = "墨水螢幕"
+description = "發球 100 墨跡雲"
+
+[advancement.challenge_seaborne_ink_1k]
+title = "紅寶石"
+description = "發球 1,000 墨跡雲"
+
+[advancement.challenge_seaborne_trident_250]
+title = "獵槍"
+description = "土地 250 三叉戟命中"
+
+[advancement.challenge_seaborne_trident_2500]
+title = "風暴帶球手"
+description = "土地 2,500 三叉戟命中"
+
+[advancement.challenge_seaborne_charm_2k]
+title = "魚友"
+description = "魅力 2,000 海洋生物"
+
+[advancement.challenge_seaborne_charm_20k]
+title = "海邊的笛手"
+description = "魅力 20,000 海洋生物"
+
+[advancement.challenge_seaborne_hydro_200]
+title = "噴氣流"
+description = "執行 200 水力噴氣機"
+
+[advancement.challenge_seaborne_hydro_5k]
+title = "魚雷"
+description = "執行 5,000 水力噴氣機"
+
+[advancement.challenge_seaborne_brine_72k]
+title = "海鹽"
+description = "開支 1 累計溼時數"
+
+[advancement.challenge_stealth_shadowmeld_100]
+title = "一個帶著影子"
+description = "融入陰影 100 次"
+
+[advancement.challenge_stealth_shadowmeld_1k]
+title = "活著的黑暗"
+description = "融入陰影 1,000 次"
+
+[advancement.challenge_stealth_smoke_100]
+title = "煙幕"
+description = "擲出 100 煙丸"
+
+[advancement.challenge_stealth_smoke_1k]
+title = "《消失法》"
+description = "擲出 1,000 煙丸"
+
+[advancement.challenge_stealth_cutpurse_100]
+title = "輕指"
+description = "選擇 100 口號"
+
+[advancement.challenge_stealth_cutpurse_1k]
+title = "賊主"
+description = "選擇 1,000 口號"
+
+[advancement.challenge_stealth_trap_500]
+title = "陷阱探測器"
+description = "啟示 500 陷阱"
+
+[advancement.challenge_stealth_trap_5k]
+title = "第六感"
+description = "啟示 5,000 陷阱"
+
+[advancement.challenge_stealth_assassinate_50]
+title = "寂靜的死亡"
+description = "執行 50 黑幫從陰影中"
+
+[advancement.challenge_stealth_assassinate_500]
+title = "死神靈"
+description = "執行 500 黑幫從陰影中"
+
+[advancement.challenge_stealth_decoy_swap_100]
+title = "陰影的詭計"
+description = "與誘餌互換位置 100 次"
+
+[advancement.challenge_stealth_decoy_swap_1k]
+title = "現在你看見我了"
+description = "與誘餌互換位置 1,000 次"
+
+[advancement.challenge_stealth_umbral_200]
+title = "夜廚"
+description = "從 200 偷殺"
+
+[advancement.challenge_stealth_umbral_2k]
+title = "陰影東方"
+description = "從 2,000 偷殺"
+
+[advancement.challenge_swords_lunge_250]
+title = "第一步"
+description = "土地 250 擊球"
+
+[advancement.challenge_swords_lunge_2500]
+title = "閃爍步驟"
+description = "土地 2,500 擊球"
+
+[advancement.challenge_swords_flow_1k]
+title = "查詢流程"
+description = "構建 1,000 葉片流疊"
+
+[advancement.challenge_swords_flow_10k]
+title = "在片區"
+description = "構建 10,000 葉片流疊"
+
+[advancement.challenge_swords_flow_max]
+title = "完美流動"
+description = "到達最大葉片流堆"
+
+[advancement.challenge_swords_duelist_200]
+title = "一對一"
+description = "土地 200 重點決鬥名單點選數"
+
+[advancement.challenge_swords_duelist_2500]
+title = "主決戰"
+description = "土地 2,500 重點決鬥名單點選數"
+
+[advancement.challenge_swords_whetstone_100]
+title = "銳化"
+description = "執行 100 鯨石儀式"
+
+[advancement.challenge_swords_whetstone_1000]
+title = "基恩邊緣"
+description = "執行 1,000 鯨石儀式"
+
+[advancement.challenge_swords_crescent_200]
+title = "新月"
+description = "在守衛狀態下完成 200 次擊殺"
+
+[advancement.challenge_swords_crescent_2500]
+title = "漸盈守衛"
+description = "在守衛狀態下完成 2,500 次擊殺"
+
+[advancement.challenge_swords_hamstring_200]
+title = "切開"
+description = "捆綁 200 逃離目標"
+
+[advancement.challenge_swords_hamstring_2500]
+title = "無逃逸"
+description = "捆綁 2,500 逃離目標"
+
+[advancement.challenge_swords_heirloom_10]
+title = "家庭刀鋒"
+description = "銀行 10 傳承成長"
+
+[advancement.challenge_swords_heirloom_100]
+title = "生活遺產"
+description = "銀行 100 傳承成長"
+
+[advancement.challenge_taming_fetch_1k]
+title = "好樣的"
+description = "你的狼來取 1,000 丟棄的專案"
+
+[advancement.challenge_taming_fetch_10k]
+title = "檢索器"
+description = "你的狼來取 10,000 丟棄的專案"
+
+[advancement.challenge_taming_command_250]
+title = "攻擊 英語"
+description = "命令您的包進入 250 目標"
+
+[advancement.challenge_taming_command_2500]
+title = "野獸軍閥"
+description = "命令您的包進入 2,500 目標"
+
+[advancement.challenge_taming_guardian_250]
+title = "生命盾牌"
+description = "你的寵物攔截 250 給你的射彈"
+
+[advancement.challenge_taming_guardian_2500]
+title = "保鏢包"
+description = "你的寵物攔截 2,500 給你的射彈"
+
+[advancement.challenge_taming_stable_100]
+title = "穩定手"
+description = "形狀 100 具有持久偏見的動物"
+
+[advancement.challenge_taming_stable_1k]
+title = "布魯德大師"
+description = "形狀 1,000 具有持久偏見的動物"
+
+[advancement.challenge_taming_empathy_100]
+title = "低聲"
+description = "荒涼的冷漠 100 動物"
+
+[advancement.challenge_taming_empathy_1k]
+title = "善良的精神"
+description = "荒涼的冷漠 1,000 動物"
+
+[advancement.challenge_taming_bond_250]
+title = "戰鬥債券"
+description = "啟動戰鬥債券 250 寵物殺人"
+
+[advancement.challenge_taming_bond_2500]
+title = "戰爭帶"
+description = "啟動戰鬥債券 2,500 寵物殺人"
+
+[advancement.challenge_taming_lastbreath_50]
+title = "最後一息"
+description = "讓寵物免於死亡 50 次"
+
+[advancement.challenge_taming_lastbreath_500]
+title = "九條命"
+description = "讓寵物免於死亡 500 次"
+
+[advancement.challenge_blocking_shieldwall_500]
+title = "活著的拉姆巴"
+description = "盾牌 500 盟國的彈丸損壞總數"
+
+[advancement.challenge_blocking_shieldwall_5k]
+title = "線條的 神盾"
+description = "盾牌 5,000 盟國的彈丸損壞總數"
+
+[advancement.challenge_blocking_perfect_100]
+title = "拆分秒數"
+description = "完全守備 100 收到的點選數"
+
+[advancement.challenge_blocking_perfect_1k]
+title = "無法接近"
+description = "完全守備 1,000 收到的點選數"
+
+[advancement.challenge_blocking_tempered_500]
+title = "自我培訓"
+description = "恢復 500 透過遮蔽實現全部耐久性"
+
+[advancement.challenge_blocking_tempered_5k]
+title = "永遠忘卻"
+description = "恢復 5,000 透過遮蔽實現全部耐久性"
+
+[advancement.challenge_blocking_resolve_100]
+title = "未斷開"
+description = "從 100 防彈軸打擊"
+
+[advancement.challenge_blocking_resolve_1k]
+title = "不可移動先鋒"
+description = "從 1,000 防彈軸打擊"
+
+[advancement.challenge_blocking_phalanx_25]
+title = "盾牌"
+description = "工藝 25 帶有 方陣 工匠 的盾牌"
+
+[advancement.challenge_blocking_phalanx_netherite]
+title = "內文 壁壘"
+description = "Forge 網狀盾牌"
+
+[advancement.challenge_blocking_interpose_250]
+title = "保鏢"
+description = "重定向 250 完全遠離盟友"
+
+[advancement.challenge_blocking_interpose_2k]
+title = "守護天使"
+description = "重定向 2,000 完全遠離盟友"
+
+[advancement.challenge_discovery_trailblazer_25]
+title = "第一步"
+description = "製作 25 首次生物群落或結構發現"
+
+[advancement.challenge_discovery_trailblazer_100]
+title = "探路先鋒"
+description = "製作 100 第一次發現"
+
+[advancement.challenge_discovery_fieldnotes_25]
+title = "最佳戰士"
+description = "登入第一個殺 25 暴民物種"
+
+[advancement.challenge_discovery_fieldnotes_100]
+title = "獵怪人"
+description = "登入第一個殺 100 暴民物種"
+
+[advancement.challenge_discovery_polymath_500]
+title = "圓形"
+description = "獲得博學者加成 500 次"
+
+[advancement.challenge_discovery_polymath_5k]
+title = "復興意識"
+description = "獲得博學者加成 5,000 次"
+
+[advancement.challenge_discovery_appraiser_50]
+title = "評估員"
+description = "評估 50 稀有文物"
+
+[advancement.challenge_discovery_appraiser_500]
+title = "監視器"
+description = "評估 500 稀有文物"
+
+[advancement.challenge_discovery_sixthsense_100]
+title = "直覺"
+description = "語氣 100 附近的未勘探結構"
+
+[advancement.challenge_discovery_sixthsense_1k]
+title = "第六感"
+description = "語氣 1,000 附近的未勘探結構"
+
+[advancement.challenge_discovery_keeneye_250]
+title = "基恩眼"
+description = "啟示 250 胸部或產卵器"
+
+[advancement.challenge_discovery_keeneye_2500]
+title = "鷹眼"
+description = "啟示 2,500 胸部或產卵器"
+
+[advancement.challenge_hunter_predator_focus_500]
+title = "鎖定開啟"
+description = "土地 500 傾斜的捕食者焦點攻擊"
+
+[advancement.challenge_hunter_predator_focus_5k]
+title = "中級獵人！"
+description = "土地 5,000 傾斜的捕食者焦點攻擊"
+
+[advancement.challenge_hunter_big_game_100]
+title = "大遊戲獵人"
+description = "殺 100 大型或老大級暴徒"
+
+[advancement.challenge_hunter_big_game_1k]
+title = "長城"
+description = "殺 1,000 大型或老大級暴徒"
+
+[advancement.challenge_hunter_blood_trail_250]
+title = "初見血光"
+description = "開啟 250 血跡"
+
+[advancement.challenge_hunter_blood_trail_2500]
+title = "獵犬"
+description = "開啟 2,500 血跡"
+
+[advancement.challenge_hunter_snare_200]
+title = "捕捉者"
+description = "螺絲 200 敵對的暴民"
+
+[advancement.challenge_hunter_snare_2k]
+title = "捕捉者大師"
+description = "螺絲 2,000 敵對的暴民"
+
+[advancement.challenge_rift_void_skin_50]
+title = "第二層皮膚"
+description = "逃離 50 隨著空白皮的危險時刻"
+
+[advancement.challenge_rift_void_skin_500]
+title = "無法接近"
+description = "逃離 500 隨著空白皮的危險時刻"
+
+[advancement.challenge_rift_rebound_100]
+title = "銀行槍擊案"
+description = "重灌 100 表面的末端珍珠"
+
+[advancement.challenge_rift_rebound_1k]
+title = "詭計射擊"
+description = "重灌 1,000 表面的末端珍珠"
+
+[advancement.challenge_rift_conduit_10]
+title = "纏繞"
+description = "表單 10 斷開管道連結"
+
+[advancement.challenge_rift_conduit_10k]
+title = "貨運網路"
+description = "流動 10,000 透過斷裂管道的專案"
+
+[advancement.skill_kinetics]
+title = "動詞"
+description = "將運動變成動力."
+
+[advancement.challenge_kinetics_anvil_drop]
+title = "牛頓的收據"
+description = "殺死一個暴徒 用你自己掉下來的陰道掉下來 8 或更多塊."
+
+[agility.armor_up]
+name = "裝甲強化"
+description = "衝刺時間越長，獲得的護甲值越多！"
+lore1 = "最大護甲值"
+lore2 = "護甲強化所需時間"
+lore3 = "裝甲衰變時間"
+lore = ["最大護甲值", "護甲強化所需時間", "裝甲衰變時間"]
+
+[agility.ladder_slide]
+name = "梯子滑行"
+description = "大幅提升攀爬和滑下梯子的速度。"
+lore1 = "梯子速度倍率"
+lore2 = "快速下滑速度"
+lore3 = "檢視啟用/ 釋放角度"
+lore = ["梯子速度倍率", "快速下滑速度", "檢視啟用/ 釋放角度"]
+
+[agility.super_jump]
+name = "超級跳躍"
+description = "卓越的高度優勢。"
+lore1 = "最大跳躍高度"
+lore2 = "潛行 + 跳躍以超級跳躍！"
+lore = ["最大跳躍高度", "潛行 + 跳躍以超級跳躍！"]
+
+[agility.wall_jump]
+name = "蹬牆跳"
+description = "在半空中緊貼牆壁時按住潛行鍵以攀附並跳躍！"
+lore1 = "最大跳躍次數"
+lore2 = "跳躍高度"
+lore = ["最大跳躍次數", "跳躍高度"]
+
+[agility.wind_up]
+name = "蓄力加速"
+description = "衝刺時間越長，速度越快！"
+lore1 = "最大速度"
+lore2 = "蓄力時間"
+lore = ["最大速度", "蓄力時間"]
+
+[agility.parkour_momentum]
+name = "公園運動"
+description = "鏈式連續短跑跳躍. 每一次乾淨的著陸 都會產生推動下一次跳躍的勢頭."
+lore1 = "最大運動堆疊"
+lore2 = "最大助推速度( 塊/ 秒)"
+lore3 = "最大跳躍速度獎勵"
+lore = ["最大運動堆疊", "最大助推速度( 塊/ 秒)", "最大跳躍速度獎勵"]
+
+[agility.roll_landing]
+name = "滾落"
+description = "在著陸前按時蹲下,將部分墜落損害轉化為飢餓成本."
+lore1 = "倒塌損害"
+lore2 = "輸入時間視窗"
+lore3 = "冷卻時間"
+lore = ["倒塌損害", "輸入時間視窗", "冷卻時間"]
+
+[agility.slipstream_slide]
+name = "尾流滑行"
+description = "衝刺時輕按潛行鍵進入持續的俯臥滑行，降低地面摩擦，並在穿過 1 格高的空隙時保持動量。"
+lore1 = "滑行速度（格/秒）"
+lore2 = "滑行冷卻時間"
+lore3 = "最高等級：被你滑行穿過的生物會被減速"
+lore = ["滑行速度（格/秒）", "滑行冷卻時間", "最高等級：被你滑行穿過的生物會被減速"]
+
+[agility.air_dash]
+name = "空氣達希"
+description = "衝刺後左擊空氣,以純水平速度向前衝."
+lore1 = "衝刺 速度(塊/秒)"
+lore2 = "中空破損費"
+lore = ["衝刺 速度(塊/秒)", "中空破損費"]
+
+[agility.cat_reflexes]
+name = "貓反射"
+description = "趁著跑步時完全避開飛彈."
+lore1 = "彈射躲避機會"
+lore = ["彈射躲避機會"]
+
+[agility.featherfoot]
+name = "羽毛腳"
+description = "衝刺忽略了農田,壓力板,甜美的草莓 最終粉末雪."
+lore1 = "衝刺時忽略表面"
+lore2 = "農場 > 壓力板 > 甜莓 > 粉末雪"
+lore = ["衝刺時忽略表面", "農場 > 壓力板 > 甜莓 > 粉末雪"]
+
+[agility.vault]
+name = "預設"
+description = "跳到柵欄那裡去清理."
+lore1 = "柵欄跳躍頂點( 塊)"
+lore = ["柵欄跳躍頂點( 塊)"]
+
+[agility.marathoner]
+name = "馬拉松"
+description = "衝刺會減少飽和度 讓你在餓死前跑得更遠."
+lore1 = "衝刺飽和排水量減少"
+lore = ["衝刺飽和排水量減少"]
+
+[agility.kip_up]
+name = "子"
+description = "擊打後立即跳躍,將回擊轉換為恢復的動力和速度爆發."
+lore1 = "回收視窗"
+lore2 = "恢復速度提升級"
+lore = ["回收視窗", "恢復速度提升級"]
+
+[architect.elevator]
+name = "電梯"
+description = "建造可快速垂直傳送的電梯。每個電梯方塊的配方為中央放置終界珍珠，周圍放置8個羊毛。"
+lore1 = "解鎖電梯配方：X=羊毛，Y=乖珍珠"
+lore2 = "XXX"
+lore3 = "XYX"
+lore4 = "XXX"
+lore = ["解鎖電梯配方：X=羊毛，Y=乖珍珠", "XXX", "XYX", "XXX"]
+
+[architect.foundation]
+name = "魔法地基"
+description = "潛行時可以在腳下臨時放置方塊！"
+lore1 = "魔法生成："
+lore2 = "格方塊在你腳下！"
+lore = ["魔法生成：", "格方塊在你腳下！"]
+
+[architect.glass]
+name = "絲綢觸感玻璃"
+description = "空手打破玻璃方塊時不會損失玻璃！"
+lore1 = "你的雙手對玻璃擁有絲綢觸感"
+lore = ["你的雙手對玻璃擁有絲綢觸感"]
+
+[architect.wireless_redstone]
+name = "紅石遙控器"
+description = "使用紅石火把遠程遙控紅石！"
+lore1 = "標靶方塊 + 紅石火把 + 乖珍珠 = 1 個紅石遙控器"
+lore = ["標靶方塊 + 紅石火把 + 乖珍珠 = 1 個紅石遙控器"]
+
+[architect.placement]
+name = "建築師之杖"
+description = "允許你一次放置多格方塊！啟動方式為潛行，手持與你注視的方塊相同的方塊並放置！請注意，你可能需要稍微移動以觸發邊界框！"
+lore1 = "你需要"
+lore2 = "格手中方塊才能放置"
+lore3 = "材料建築師之杖"
+requirement = "惠璶 {count} 塊在你的手中放置."
+lore = ["你需要", "格手中方塊才能放置", "材料建築師之杖"]
+
+[architect.smart_shape]
+name = "智慧形狀"
+description = "用空手滑動的凹槽塊旋轉方向."
+lore1 = "旋轉方向和軸塊狀態"
+lore2 = "需要空主手勢"
+lore = ["旋轉方向和軸塊狀態", "需要空主手勢"]
+
+[architect.scaffolder]
+name = "腳手架"
+description = "作為臨時腳手架的偷溜區塊 自行溶解並退款給你!"
+lore1 = "滑動設定的塊自動溶解"
+lore2 = "在腳手架解散和退款前秒"
+lore = ["滑動設定的塊自動溶解", "在腳手架解散和退款前秒"]
+
+[architect.supply_line]
+name = "供應線"
+description = "當你的手的堆疊耗盡時,它會自動從你的庫存中沖洗箱或捆綁中填充!"
+lore1 = "手持自動補充從舒爾克和捆綁"
+lore2 = "每分鐘補註"
+lore = ["手持自動補充從舒爾克和捆綁", "每分鐘補註"]
+
+[architect.steady_hands]
+name = "穩手"
+description = "在開闊的空中搭橋時,你不會回擊, 縮下來,然後用更穩健的節奏佈置!"
+lore1 = "搭橋時不要回擊"
+lore2 = "被遮蔽的墜落損害"
+lore = ["搭橋時不要回擊", "被遮蔽的墜落損害"]
+
+[architect.chalk_line]
+name = "粉筆線"
+description = "從一根棍子和一根繩子中分出不同方向的手藝. 職等 1 解鎖直線, 級別 2 多線, 級別 3 圓和水平 4 弧線. 每一級都立即在香草食譜書中披露其新制作的食譜. 它們的私人區塊嚮導只在握著魔杖時出現; 偷偷點選空氣以清除其儲存的計劃."
+lore1 = "新的魔杖配方出現在你的香草配方書中"
+lore = ["新的魔杖配方出現在你的香草配方書中"]
+requires_level = "需要查克線級"
+start_set = "已設定粉筆線起點"
+start_required = "先左鍵點擊方塊表面以設定起點"
+through_point_set = "已設定圓弧途經點；右鍵點擊終點"
+vertex_added = "已向折線新增頂點"
+guide_ready = "粉筆指南準備好了"
+cleared = "這魔杖的粉筆指南被清除了"
+too_far = "這一點超出了魔杖的選擇範圍"
+duplicate_point = "選擇不同的導點"
+too_many_vertices = "此折線已達到頂點數量上限"
+invalid_radius = "在此指南針允許的範圍內選擇半徑"
+invalid_shape = "這些點無法形成此指南"
+guide_too_large = "這個指南會製造太多標記"
+guide_out_of_bounds = "這個指南會超越世界的高度"
+invalid_plan = "此魔杖無法儲存選中的嚮導"
+
+[architect.chalk_line.tool]
+clear = "潛行並點擊空中以清除此粉筆棒"
+persistent = "儲存的嚮導沒有定時器"
+
+[architect.chalk_line.tool.straightedge]
+name = "筆直"
+usage = "左鍵點擊起點，右鍵點擊終點"
+
+[architect.chalk_line.tool.polyline]
+name = "拼接多線棒"
+usage = "左鍵點擊開始，右鍵點擊新增頂點"
+
+[architect.chalk_line.tool.compass]
+name = "粉筆圓形指南"
+usage = "左鍵點擊中心方塊表面，右鍵點擊設定半徑"
+
+[architect.chalk_line.tool.arc_bow]
+name = "彩色弧弓"
+usage = "左鍵點擊起點，右鍵點擊途經點和終點"
+
+[architect.demolition]
+name = "梅森的剃刀槍"
+description = "立即取消你最近的位置 街區就成了一滴!"
+lore1 = "你的新工作幾乎馬上中斷"
+lore2 = "秒數 安置算作新鮮"
+lore = ["你的新工作幾乎馬上中斷", "秒數 安置算作新鮮"]
+
+[architect.stonecutter_savant]
+name = "石匠薩凡特"
+description = "偷偷摸摸地用空手把空氣 開啟一個石匠 無論你在哪裡,只要你攜帶一個石匠!"
+lore1 = "應要求攜帶石匠"
+lore2 = "在您的庫存中需要一個石刻專案"
+lore3 = "需要把石頭切開"
+lore = ["應要求攜帶石匠", "在您的庫存中需要一個石刻專案", "需要把石頭切開"]
+
+[axe.chop]
+name = "斧頭砍伐"
+description = "右鍵點擊原木底部以砍倒整棵樹！"
+lore1 = "每次砍伐數量"
+lore2 = "砍伐恢復時間"
+lore3 = "工具磨損"
+lore = ["每次砍伐數量", "砍伐恢復時間", "工具磨損"]
+
+[axe.log_swap]
+name = "露西的原木轉換器"
+description = "在工作台中更換原木種類！"
+lore1 = "8 根任意種類原木 + 1 株樹苗 = 8 根樹苗對應種類的原木"
+lore = ["8 根任意種類原木 + 1 株樹苗 = 8 根樹苗對應種類的原木"]
+
+[axe.drop_to_inventory]
+name = "斧頭掉落物自動入包"
+
+[axe.ground_smash]
+name = "山崩地裂"
+description = "跳起後蹲下以猛擊附近所有敵人。"
+lore1 = "傷害"
+lore2 = "方塊半徑"
+lore3 = "力量"
+lore4 = "猛擊恢復時間"
+lore = ["傷害", "方塊半徑", "力量", "猛擊恢復時間"]
+
+[axe.leaf_miner]
+name = "樹葉粉碎機"
+description = "允許你一次破壞大量樹葉！"
+lore1 = "潛行並挖掘樹葉"
+lore2 = "樹葉挖掘範圍"
+lore3 = "你不會獲得樹葉的掉落物（防止濫用）"
+lore = ["潛行並挖掘樹葉", "樹葉挖掘範圍", "你不會獲得樹葉的掉落物（防止濫用）"]
+
+[axe.wood_miner]
+name = "木材礦工"
+description = "允許你一次砍伐大量木材！"
+lore1 = "潛行並砍伐木頭/原木（木板無效）"
+lore2 = "木材挖掘範圍"
+lore3 = "與掉落物自動入包相容"
+lore = ["潛行並砍伐木頭/原木（木板無效）", "木材挖掘範圍", "與掉落物自動入包相容"]
+
+[axe.iris_feller]
+name = "Iris 費勒"
+description = "偷窺破解一個 Iris 樹用斧頭,然後繼續偷偷摸摸 並保持原有的斧頭 在樹向外侵蝕的時候. 每個成功侵蝕的原木都造成飢餓;在偷溜停止時,執行停止,原軸不再持有,或者飢餓無法為下一個原木提供資金. 接受執行啟動啟動冷卻時間."
+lore1 = "每個砍伐的原木保留軸耐久性的機會"
+lore2 = "餘軸耐久性和飢餓上限"
+lore3 = "樹只在兩個執行時控制元件仍然有效時才不斷侵蝕"
+lore4 = "成功侵蝕日誌的飢餓點數"
+lore5 = "冷卻時間後 Iris 接受執行"
+lore6 = "不斷溜走; 釋放會阻止執行"
+lore7 = "保持原軸; 切換或丟失會停止執行"
+lore = ["斧 每一日誌的可忽略性儲存", "餘軸耐久性和飢餓上限", "樹只在兩個執行時控制元件仍然有效時才不斷侵蝕", "飢餓的代價", "啟動冷卻時間", "需要不斷溜走", "原軸必須堅守"]
+
+[axe.throwing_axe]
+name = "扔斧頭"
+description = "用斧頭左擊空氣,把它扔到旋轉的彈丸上,處理其麻風損傷."
+lore1 = "倍數"
+lore2 = "擲出速度"
+lore3 = "丟擲冷卻時間"
+lore4 = "以最大水平返回你的手"
+lore = ["倍數", "擲出速度", "丟擲冷卻時間", "以最大水平返回你的手"]
+
+[axe.sunder]
+name = "下層"
+description = "斧頭打碎目標裝甲和裝甲 堆疊層的堅韌性 逐漸消失."
+lore1 = "每堆裝甲"
+lore2 = "最大堆疊"
+lore3 = "中斷時間"
+lore4 = "硬度切換堆疊"
+lore = ["每堆裝甲", "最大堆疊", "中斷時間", "硬度切換堆疊"]
+
+[axe.cleave]
+name = "克萊夫"
+description = "近戰 斧頭在短的正面弧中揮動額外的敵人."
+lore1 = "隱形弧"
+lore2 = "最大額外目標"
+lore3 = "損害份額"
+lore = ["隱形弧", "最大額外目標", "損害份額"]
+
+[axe.bark_hide]
+name = "條 隱藏"
+description = "在短暫的吸收上 購物日誌層 一旦停止工作就會消失."
+lore1 = "吸收蓋"
+lore2 = "腐爛的恩典"
+lore = ["吸收蓋", "腐爛的恩典"]
+
+[axe.shield_splitter]
+name = "盾牌分割器"
+description = "斧 擊打擋住敵人 使其盾牌失效 並處理獎金損壞."
+lore1 = "盾牌禁用持續時間"
+lore2 = "賠償金損害與封鎖"
+lore = ["盾牌禁用持續時間", "賠償金損害與封鎖"]
+
+[blocking.chain_armorer]
+name = "梅菲斯特的鎖鏈"
+description = "允許你合成鎖鏈甲"
+lore1 = "合成配方與其他盔甲相同，但使用鐵粒替代"
+lore = ["合成配方與其他盔甲相同，但使用鐵粒替代"]
+
+[blocking.horse_armorer]
+name = "可合成馬鎧"
+description = "允許你合成馬鎧"
+lore1 = "在工作台中用所需材料圍繞馬鞍以合成該材質的馬鎧"
+lore = ["在工作台中用所需材料圍繞馬鞍以合成該材質的馬鎧"]
+
+[blocking.saddle_crafter]
+name = "可合成馬鞍"
+description = "用皮革合成馬鞍"
+lore1 = "配方：5 塊皮革："
+lore = ["配方：5 塊皮革："]
+
+[blocking.multi_armor]
+name = "複合盔甲"
+description = "將鞘翅綁定到盔甲上"
+lore1 = "這是旅行的絕佳技能。"
+lore2 = "飛行中動態合併及切換盔甲/鞘翅！"
+lore3 = "要合併，在物品欄中按住 Shift 點擊一個物品到另一個物品上。"
+lore4 = "要拆解盔甲，潛行時丟棄物品即可拆解。"
+lore5 = "如果你的複合盔甲被摧毀，裡面所有物品都會丟失。"
+lore6 = "我不需要盔甲，它令我失望……"
+lore = ["這是旅行的絕佳技能。", "飛行中動態合併及切換盔甲/鞘翅！", "要合併，在物品欄中按住 Shift 點擊一個物品到另一個物品上。", "要拆解盔甲，潛行時丟棄物品即可拆解。", "如果你的複合盔甲被摧毀，裡面所有物品都會丟失。", "我不需要盔甲，它令我失望……"]
+
+[blocking.counter_guard]
+name = "防空部隊"
+description = "每個被阻斷的命中堆積屏障. 您的下一個 觸發 消耗堆疊來反映攻擊者的損傷."
+lore1 = "最大儲存的反堆疊"
+lore2 = "反映程式機會"
+lore3 = "基地反映損害"
+lore = ["最大儲存的反堆疊", "反映程式機會", "基地反映損害"]
+
+[blocking.bastion_stance]
+name = "節奏姿態"
+description = "在用盾牌偷偷和主動堵住的同時,減少回擊和彈射壓力."
+lore1 = "反擊抵抗"
+lore2 = "減少損壞"
+lore3 = "投射全鎖定機會"
+lore = ["反擊抵抗", "減少損壞", "投射全鎖定機會"]
+
+[blocking.mirror_block]
+name = "映象塊"
+description = "用盾牌擋住可以反映後續力量減少的射彈."
+lore1 = "投影機會"
+lore2 = "反映損害因素"
+lore3 = "反映冷卻時間"
+lore = ["投影機會", "反映損害因素", "反映冷卻時間"]
+
+[blocking.bulwark_bash]
+name = "壁壘猛擊"
+description = "衝刺跳躍後，以盾牌防護狀態落地暴擊，觸發猛擊衝擊波。"
+lore1 = "猛擊範圍"
+lore2 = "猛擊傷害"
+lore3 = "猛擊冷卻時間"
+lore = ["猛擊範圍", "猛擊傷害", "猛擊冷卻時間"]
+
+[blocking.shield_wall]
+name = "盾牆"
+description = "在遮蔽的同時,掩護在盾牌後面的盟國會減少彈丸損壞."
+lore1 = "保護弧( 底線)"
+lore2 = "減少損壞"
+lore3 = "保護範圍"
+lore = ["保護弧( 底線)", "減少損壞", "保護範圍"]
+
+[blocking.perfect_guard]
+name = "完美防禦"
+description = "在攻擊命中前一瞬間舉起盾牌，可完全抵銷攻擊並使攻擊者踉蹌。"
+lore1 = "完美防禦時機"
+lore2 = "踉蹌持續時間"
+lore3 = "踉蹌強度"
+lore = ["完美防禦時機", "踉蹌持續時間", "踉蹌強度"]
+
+[blocking.tempered_guard]
+name = "淬鍊防禦"
+description = "成功格擋攻擊時有機率淬鍊裝備，恢復少量盾牌和盔甲耐久度。"
+lore1 = "每次成功格擋的修復機率"
+lore2 = "每次觸發恢復的耐久度"
+lore = ["每次成功格擋的修復機率", "每次觸發恢復的耐久度"]
+
+[blocking.shieldbearers_resolve]
+name = "盾牌手的決心"
+description = "當斧頭毀你的盾牌時, 堅持抵抗力,"
+lore1 = "盾牌回收速度"
+lore2 = "抵抗級別"
+lore = ["盾牌回收速度", "抵抗級別"]
+
+[blocking.phalanx_crafter]
+name = "方陣工匠"
+item_name = "獄髓強化盾牌"
+description = "可直接製作帶旗幟圖案的盾牌，並用下界合金強化盾牌以增加耐久度。"
+lore1 = "等級 1：用羊毛、木板和鐵直接製作帶旗幟圖案的盾牌。"
+lore2 = "等級 2：鍛造下界合金強化盾牌，大幅提高耐久度。"
+lore = ["等級 1：用羊毛、木板和鐵直接製作帶旗幟圖案的盾牌。", "等級 2：鍛造下界合金強化盾牌，大幅提高耐久度。"]
+
+[blocking.interpose]
+name = "干擾"
+description = "在一個受傷的盟友附近偷襲 以改變他們的一部分破壞."
+lore1 = "損害重定向份額"
+lore2 = "干擾範圍"
+lore3 = "盟友 低健康閾值"
+lore = ["損害重定向份額", "干擾範圍", "盟友 低健康閾值"]
+
+[brewing.lingering]
+name = "持久藥效"
+description = "釀造的藥水效果持續更久！"
+lore1 = "持續時間"
+lore2 = "持續時間"
+lore = ["持續時間", "持續時間"]
+
+[brewing.super_heated]
+name = "超級加熱釀造"
+description = "釀造台越熱，工作速度越快。"
+lore1 = "每接觸火焰方塊"
+lore2 = "每接觸岩漿方塊"
+lore = ["每接觸火焰方塊", "每接觸岩漿方塊"]
+
+[brewing.darkness]
+name = "瓶裝黑暗"
+description = "不知道你為什麼需要這個，但給你吧！"
+lore1 = "夜視藥水 + 黑色混凝土 = 黑暗藥水（30 秒）"
+lore2 = "注意：效果期間無法疾跑！"
+lore = ["夜視藥水 + 黑色混凝土 = 黑暗藥水（30 秒）", "注意：效果期間無法疾跑！"]
+
+[brewing.haste]
+name = "瓶裝急迫"
+strong_name = "瓶裝挖掘加速 2"
+description = "當效率附魔不夠用的時候"
+lore1 = "速度藥水 + 紫水晶碎片 = 急迫藥水（60 秒）"
+lore2 = "速度藥水 + 紫水晶塊 = 急迫 II 藥水（30 秒）"
+lore = ["速度藥水 + 紫水晶碎片 = 急迫藥水（60 秒）", "速度藥水 + 紫水晶塊 = 急迫 II 藥水（30 秒）"]
+
+[brewing.absorption]
+name = "瓶裝吸收"
+strong_name = "瓶裝吸收 2"
+description = "強化身軀！"
+lore1 = "瞬間治療 + 石英 = 吸收藥水（60 秒）"
+lore2 = "瞬間治療 + 石英塊 = 吸收 II 藥水（30 秒）"
+lore = ["瞬間治療 + 石英 = 吸收藥水（60 秒）", "瞬間治療 + 石英塊 = 吸收 II 藥水（30 秒）"]
+
+[brewing.fatigue]
+name = "瓶裝疲勞"
+strong_name = "裝瓶法蒂格 2"
+description = "削弱身軀！"
+lore1 = "虛弱藥水 + 史萊姆球 = 挖掘疲勞藥水（60 秒）"
+lore2 = "虛弱藥水 + 史萊姆塊 = 挖掘疲勞 II 藥水（30 秒）"
+lore = ["虛弱藥水 + 史萊姆球 = 挖掘疲勞藥水（60 秒）", "虛弱藥水 + 史萊姆塊 = 挖掘疲勞 II 藥水（30 秒）"]
+
+[brewing.hunger]
+name = "瓶裝飢餓"
+strong_name = "瓶裝飢餓 2"
+description = "餵飽那些永不滿足的人！"
+lore1 = "粗製藥水 + 腐肉 = 飢餓藥水（60 秒）"
+lore2 = "虛弱藥水 + 腐肉 = 飢餓 III 藥水（30 秒）"
+lore = ["粗製藥水 + 腐肉 = 飢餓藥水（60 秒）", "虛弱藥水 + 腐肉 = 飢餓 III 藥水（30 秒）"]
+
+[brewing.nausea]
+name = "瓶裝噁心"
+strong_name = "瓶裝噁心 2"
+description = "你真令我作嘔！"
+lore1 = "粗製藥水 + 棕色蘑菇 = 噁心藥水（30 秒）"
+lore2 = "粗製藥水 + 緋紅蕈菇 = 噁心 II 藥水（15 秒）"
+lore = ["粗製藥水 + 棕色蘑菇 = 噁心藥水（30 秒）", "粗製藥水 + 緋紅蕈菇 = 噁心 II 藥水（15 秒）"]
+
+[brewing.blindness]
+name = "瓶裝失明"
+strong_name = "瓶裝失明 2"
+description = "你真是個可怕的人……"
+lore1 = "粗製藥水 + 墨囊 = 失明藥水（30 秒）"
+lore2 = "粗製藥水 + 螢光墨囊 = 失明 II 藥水（15 秒）"
+lore = ["粗製藥水 + 墨囊 = 失明藥水（30 秒）", "粗製藥水 + 螢光墨囊 = 失明 II 藥水（15 秒）"]
+
+[brewing.resistance]
+name = "瓶裝抗性"
+strong_name = "瓶裝抵抗 2"
+description = "最強防禦！"
+lore1 = "粗製藥水 + 鐵錠 = 抗性提升藥水（60 秒）"
+lore2 = "粗製藥水 + 鐵方塊 = 抗性提升 II 藥水（30 秒）"
+lore = ["粗製藥水 + 鐵錠 = 抗性提升藥水（60 秒）", "粗製藥水 + 鐵方塊 = 抗性提升 II 藥水（30 秒）"]
+
+[brewing.health_boost]
+name = "瓶裝生命"
+description = "當最大生命值不夠用的時候……"
+lore1 = "瞬間治療藥水 + 金蘋果 = 生命提升藥水（60 秒）"
+lore2 = "瞬間治療藥水 + 附魔金蘋果 = 生命提升 II 藥水（60 秒）"
+lore = ["瞬間治療藥水 + 金蘋果 = 生命提升藥水（60 秒）", "瞬間治療藥水 + 附魔金蘋果 = 生命提升 II 藥水（60 秒）"]
+
+[brewing.decay]
+name = "瓶裝衰敗"
+strong_name = "瓶狀衰變 2"
+description = "誰知道腐質竟然這麼有用？"
+lore1 = "虛弱藥水 + 毒馬鈴薯 = 凋零藥水（16 秒）"
+lore2 = "虛弱藥水 + 緋紅蕈根 = 凋零 II 藥水（8 秒）"
+lore = ["虛弱藥水 + 毒馬鈴薯 = 凋零藥水（16 秒）", "虛弱藥水 + 緋紅蕈根 = 凋零 II 藥水（8 秒）"]
+
+[brewing.saturation]
+name = "瓶裝飽和"
+strong_name = "瓶裝飽和度 2"
+description = "你知道嗎……其實我還不太餓……"
+lore1 = "再生藥水 + 烤馬鈴薯 = 飽和藥水"
+lore2 = "再生藥水 + 乾草塊 = 飽和 II 藥水"
+lore = ["再生藥水 + 烤馬鈴薯 = 飽和藥水", "再生藥水 + 乾草塊 = 飽和 II 藥水"]
+
+[chronos.time_in_a_bottle]
+name = "時光之瓶"
+description = "隨身攜帶的時間之瓶會儲存時間，消耗儲存的時間以加速計時方塊、可生長物和幼年動物等可成長實體。配方（無序）：迅捷藥水 + 時鐘 + 玻璃瓶。"
+lore1 = "每刻充能的儲存秒數"
+lore2 = "每儲存秒數的時間加速"
+lore3 = "配方（無序）：迅捷藥水 + 時鐘 + 玻璃瓶"
+lore = ["每刻充能的儲存秒數", "每儲存秒數的時間加速", "配方（無序）：迅捷藥水 + 時鐘 + 玻璃瓶"]
+
+[chronos.aberrant_touch]
+name = "異常觸碰"
+description = "近戰攻擊以飢餓為代價施加疊加緩速效果，PvP 有嚴格上限，5 層時定身目標。"
+lore1 = "近戰攻擊施加疊加緩速"
+lore2 = "PvE 緩速持續時間上限"
+lore3 = "PvP 緩速強度上限"
+root_lore = "{stacks} 層使目標定身 {seconds} 秒"
+lore = ["近戰攻擊施加疊加緩速", "PvE 緩速持續時間上限", "PvP 緩速強度上限"]
+
+[chronos.instant_recall]
+name = "瞬間回溯"
+description = "手持時鐘左鍵或右鍵點擊以回溯到最近的快照，恢復生命值和飢餓值。"
+lore1 = "回溯時長"
+lore2 = "冷卻時間"
+lore3 = "不回溯物品欄"
+lore = ["回溯時長", "冷卻時間", "不回溯物品欄"]
+lore_cost_clock = "召回時消耗時間."
+lore_cost_health = "在被召回後喪失健康"
+trigger_none = "觸發: 無"
+trigger = "觸發: {combo}"
+trigger_clock = "時鐘"
+trigger_sprint = "衝刺"
+trigger_sneak = "潛行"
+trigger_double_jump = "二段跳"
+trigger_left_click = "左鍵單擊"
+trigger_right_click = "右鍵"
+surface_air_block = "空中/街區"
+surface_air = "空氣"
+surface_block = "塊"
+trigger_join = "{first} + {second}"
+trigger_surface = "{trigger} ({surface})"
+
+[chronos.time_bomb]
+name = "時間炸彈"
+description = "投擲合成的時空炸彈，產生時間力場，減速實體並凍結投射物。"
+lore1 = "時間力場半徑"
+lore2 = "時間力場持續時間"
+lore3 = "炸彈冷卻時間"
+lore4 = "配方（無序）：時鐘 + 雪球 + 鑽石 + 沙子"
+lore = ["時間力場半徑", "時間力場持續時間", "炸彈冷卻時間", "配方（無序）：時鐘 + 雪球 + 鑽石 + 沙子"]
+
+[chronos.temporal_echo]
+name = "時間回聲"
+description = "彈射動作可以在短時間延遲後以減速強度重放一次."
+lore1 = "回聲延遲"
+lore2 = "回聲速度因子"
+lore3 = "回聲冷卻時間"
+lore = ["回聲延遲", "回聲速度因子", "回聲冷卻時間"]
+
+[chronos.stasis_field]
+name = "停滯領域"
+description = "潛行時手持紫水晶碎片右鍵，可部署停滯氣泡，使半空中的彈射物凍結並困住其中的生物。施放時會消耗碎片。"
+lore1 = "停滯氣泡半徑"
+lore2 = "停滯氣泡持續時間"
+lore3 = "冷卻時間"
+lore4 = "手持紫水晶碎片潛行 + 右鍵"
+lore = ["停滯氣泡半徑", "停滯氣泡持續時間", "冷卻時間", "手持紫水晶碎片潛行 + 右鍵"]
+lore_cost_shard = "施放時消耗紫水晶碎片"
+
+[chronos.rewind]
+name = "倒帶"
+description = "偷偷摸摸地換手 及時標記一下 然後在窗內再做一次. 每一次倒流都會導致飢餓."
+lore1 = "倒轉視窗"
+lore2 = "倒轉後冷卻時間"
+lore3 = "滑動 + 換手標記, 重複倒帶"
+lore = ["倒轉視窗", "倒轉後冷卻時間", "滑動 + 換手標記, 重複倒帶"]
+lore_cost_hunger = "飢餓成本每倒數"
+
+[chronos.borrowed_time]
+name = "借款時間"
+description = "在接下來的幾秒鐘裡,一部分受到的損害被推遲並悄悄地排水迴流一次."
+lore1 = "推遲的損失"
+lore2 = "回扣視窗"
+lore3 = "不能再推遲損害"
+lore = ["推遲的損失", "回扣視窗", "不能再推遲損害"]
+
+[chronos.overtime]
+name = "加班費"
+description = "施藥時間更長,適應水平相應."
+lore1 = "額外效果持續時間"
+lore2 = "每個效果的最高獎金"
+lore3 = "只會產生有益的效果"
+lore = ["額外效果持續時間", "每個效果的最高獎金", "只會產生有益的效果"]
+
+[chronos.accelerate]
+name = "加速"
+description = "隨時,你會在附近種植農作物和快速前進的爐子,吸菸者,高爐和酒臺."
+lore1 = "奧拉半徑"
+lore2 = "每脈搏作物生長機會"
+lore3 = "廚師或釀酒的快速前進 每一次脈衝撞擊"
+lore = ["奧拉半徑", "每脈搏作物生長機會", "廚師或釀酒的快速前進 每一次脈衝撞擊"]
+
+[chronos.hourglass_guard]
+name = "沙漏守護"
+description = "致命一擊會改為讓你保留半顆心，短暫無敵並使附近敵人減速，隨後進入較長的冷卻時間。"
+lore1 = "保命後的無敵時間"
+lore2 = "冷卻時間"
+lore3 = "附近敵人會短暫減速"
+lore = ["保命後的無敵時間", "冷卻時間", "附近敵人會短暫減速"]
+
+[chronos.pocket_watch]
+name = "懷錶"
+description = "墜落時，若物欄中有時鐘，按住潛行可在每次騰空期間進入慢動作飄落；持續時間有限並隨等級提高。"
+lore1 = "每次騰空的緩降時長"
+lore2 = "落地後重置時長"
+lore3 = "物欄中有時鐘時，在墜落期間按住潛行"
+lore = ["每次騰空的緩降時長", "落地後重置時長", "物欄中有時鐘時，在墜落期間按住潛行"]
+
+[chronos.deja_vu]
+name = "德亞武"
+description = "你的身體記得最近的痛苦; 在短窗內再次遭受同樣的傷害, 傷害明顯減少."
+lore1 = "已吸收的重複損害"
+lore2 = "損壞記憶體視窗"
+lore3 = "記憶在每一次同樣的打擊上都恢復"
+lore = ["已吸收的重複損害", "損壞記憶體視窗", "記憶在每一次同樣的打擊上都恢復"]
+
+[config.gui]
+no_permission = "您沒有許可權使用配置選單."
+unable_open_section = "無法開啟配置區域: &f{path}"
+failed_set_value = "設定配置值失敗 &f{path}"
+failed_persist_update = "堅持配置更新失敗: &f{error}"
+reload_reverted = "配置重灌失敗. 還原的檔案更改."
+updated_value = "更新 &f{path}&7 [{before}&7 -> {after}&7]"
+value = "數值: &b{value}"
+path = "路徑: {path}"
+category = "類別: {category}"
+state_enabled = "狀態: 已啟用"
+state_disabled = "狀態:殘疾"
+left_click_toggle = "左鍵點選:切換"
+left_click_next_value = "左鍵單擊:下一個值"
+right_click_previous_value = "右鍵單擊:上一個值"
+left_click_edit_chat = "左鍵點選:在聊天中編輯"
+input_unavailable = "沒有配置輸入服務."
+left_click_open_section = "左鍵點選: 開啟區域"
+read_only = "只讀"
+unsupported_type = "不支援的型別"
+no_settings = "本節中沒有設定"
+configure_path = "配置: &f{path}"
+general_settings = "常規設定"
+adaptations = "適應"
+core = "核心"
+skills = "技能"
+configure_adaptations = "配置適應設定"
+configure_core = "配置全域性 Adapt 設定"
+configure_skills = "配置技能設定"
+configure_adapt = "配置 Adapt"
+configure_target = "配置 {target}"
+all_adaptations = "所有適應項 (A-Z)"
+browse_all_adaptations = "按字母順序瀏覽"
+unknown_skill = "未知的適應配置技能: &f{skill}"
+open_target = "開啟 {target}"
+skill_target = "技能: {skill}"
+no_entries = "無條目"
+overview = "概覽"
+help = "幫助"
+directory = "目錄"
+navigation = "導航"
+root = "根數"
+sections_count = "節: {count}"
+editable_count = "可編輯: {count}"
+entries_count = "條目: {count}"
+page = "頁次: {page}/{pages}"
+help_left_click = "LMB: 開啟/編輯/切換"
+help_right_click = "右鍵：上一個值 / 切換頁面"
+help_escape = "ESC: 返回主頁"
+nav_open_section = "LMB: 開啟部分"
+nav_jump_pages = "RMB 箭頭: 跳轉頁"
+
+[config.gui.contains_settings]
+one = "包含 {count} 設定"
+other = "包含 {count} 設定"
+
+[config.gui.open_settings]
+one = "開啟 {count} 設定"
+other = "開啟 {count} 設定"
+
+[config.gui.open_global_options]
+one = "開啟 {count} 全球選項"
+other = "開啟 {count} 全球選項"
+
+[config.gui.browse_adaptations]
+one = "瀏覽 {count} 適應"
+other = "瀏覽 {count} 適應"
+
+[config.type]
+boolean = "布林"
+number = "數目"
+text = "文字"
+enum = "納姆"
+section = "節次"
+map = "地圖"
+list = "列表"
+unsupported = "不支援"
+unknown = "不詳"
+
+[config.category]
+ui = "UI"
+audio = "音訊"
+localization = "本地化"
+storage = "儲存"
+progression = "進展"
+world = "世界"
+performance = "業績"
+access = "訪問"
+debug = "除錯"
+general = "常規"
+
+[config.input]
+enter_value = "&b輸入值 &f{label}"
+path = "&b路徑: &f{path}"
+expected_type = "&b預期型別: &f{type}"
+type_cancel = "&7型別 &f取消 E &7終止."
+timed_out = "配置輸入超時."
+edit_cancelled = "配置編輯已取消."
+try_again_or_cancel = "&7重試或鍵入 &f取消 E&7."
+unknown_target_type = "未知的目標型別."
+expected_one_character = "完全期望一個字元."
+expected_boolean = "預期布林值:真/假."
+expected_one_of = "計劃: {values}"
+expected_finite_number = "預期數量."
+invalid_value_for_type = "型別無效值 {type}."
+unsupported_type = "不支援的型別: {type}."
+invalid_value = "無效的值."
+
+[config.summary]
+unnamed = "未命名"
+null = "無效"
+map = "地圖({count})"
+list = "列表({count})"
+array = "陣列"
+
+[crafting.deconstruction]
+name = "拆解"
+description = "將方塊和物品拆解為可回收的基礎材料！"
+lore1 = "將任何物品丟在地上。"
+lore2 = "然後，潛行並用剪刀右鍵點擊"
+lore = ["將任何物品丟在地上。", "然後，潛行並用剪刀右鍵點擊"]
+
+[crafting.xp]
+name = "合成經驗"
+description = "合成時獲得被動經驗"
+lore1 = "合成時獲得經驗"
+lore = ["合成時獲得經驗"]
+
+[crafting.reconstruction]
+name = "礦石重建"
+description = "用基礎材料重新合成礦石！"
+lore1 = "8 個掉落物 + 1 個載體 = 1 個礦石（無序合成）"
+lore2 = "掉落物必須先熔煉（如果適用）"
+lore3 = "不包括：殘骸、石英、綠寶石等……"
+lore4 = "載體 = 外殼方塊。例如：石頭、地獄石、深板岩"
+lore = ["8 個掉落物 + 1 個載體 = 1 個礦石（無序合成）", "掉落物必須先熔煉（如果適用）", "不包括：殘骸、石英、綠寶石等……", "載體 = 外殼方塊。例如：石頭、地獄石、深板岩"]
+
+[crafting.leather]
+name = "可合成皮革"
+description = "用腐肉製作皮革"
+lore1 = "只需要把腐肉丟到營火上！"
+lore = ["只需要把腐肉丟到營火上！"]
+
+[crafting.backpacks]
+name = "布蒂利埃的背包！"
+description = "將 Mojang 的收納袋功能加入遊戲！"
+lore1 = "你需要在生存模式下才能使用"
+lore2 = "LLL：皮革、皮革、皮革"
+lore3 = "LCL：皮革、箱子、皮革"
+lore4 = "LLL：皮革、皮革、皮革"
+lore = ["你需要在生存模式下才能使用", "LLL：皮革、皮革、皮革", "LCL：皮革、箱子、皮革", "LLL：皮革、皮革、皮革"]
+
+[crafting.stations]
+name = "便攜工作台！"
+description = "在手掌中使用工作台！"
+lore2 = "關閉時遺忘在工作台裡的任何物品都會永遠丟失！"
+lore3 = "有效工作台：鐵砧、工作台、砂輪、製圖台、切石機、織布機"
+lore = ["關閉時遺忘在工作台裡的任何物品都會永遠丟失！", "有效工作台：鐵砧、工作台、砂輪、製圖台、切石機、織布機"]
+lore4 = "每個開通的行動式站臺消耗的飢餓量"
+
+[crafting.skulls]
+name = "可合成頭顱！"
+description = "用材料可以合成生物頭顱！"
+lore1 = "用以下物品圍繞骨塊以獲得對應頭顱："
+lore2 = "殭屍：腐肉"
+lore3 = "骷髏：骨頭"
+lore4 = "苦力怕：火藥"
+lore5 = "凋零骷髏：地獄磚"
+lore6 = "龍首：龍息"
+lore = ["用以下物品圍繞骨塊以獲得對應頭顱：", "殭屍：腐肉", "骷髏：骨頭", "苦力怕：火藥", "凋零骷髏：地獄磚", "龍首：龍息"]
+
+[crafting.bulk_artisan]
+name = "散裝阿爾蒂桑"
+description = "移動單擊一個手藝結果從您的庫存中抽取額外的成分, 並立即製作一個更大的批次."
+lore1 = "單擊 Shift 也可以從您的目錄中提取匹配的成分"
+lore2 = "每一班車的獎金專案"
+lore = ["單擊 Shift 也可以從您的目錄中提取匹配的成分", "每一班車的獎金專案"]
+
+[crafting.thrifty_hands]
+name = "顫抖的手"
+description = "每艘船都有退貨的機會."
+lore1 = "退款加工成份的機會"
+lore = ["退款加工成份的機會"]
+
+[crafting.masterwork]
+name = "主作業"
+description = "工具與盔甲,你可以滾動 獎金耐久性,機會 微小屬性獎金 在全水平."
+lore1 = "有機會打造一部主工作品"
+lore2 = "最大永續性"
+lore3 = "在全方位,一個小屬性獎金的機會"
+tag = "主作業"
+bonus = "主作業 +{bonus}"
+attribute_tag = "主工邊"
+lore = ["有機會打造一部主工作品", "最大永續性", "在全方位,一個小屬性獎金的機會"]
+
+[crafting.compactor]
+name = "壓縮器"
+description = "偷偷摸摸地換手,同時瞄準一個工藝臺,立即將整堆壓縮成塊."
+lore1 = "偷窺+換手同時瞄準一個工藝表"
+lore2 = "壓縮成塊材料"
+lore3 = "只做滿堆,留下鬆散的剩餘部分"
+lore = ["偷窺+換手同時瞄準一個工藝表", "壓縮成塊材料", "只做滿堆,留下鬆散的剩餘部分"]
+
+[crafting.tinkerer]
+name = "小叮噹"
+description = "在工藝網格中將兩個同樣型別的受損工具組合起來,以保持其最好的魔法."
+lore1 = "網格修復兩個匹配的工具來保持更好的魔法"
+lore2 = "保護一切魔法的機會"
+lore3 = "否則會失去一個隨機的魔法"
+lore = ["網格修復兩個匹配的工具來保持更好的魔法", "保護一切魔法的機會", "否則會失去一個隨機的魔法"]
+
+[crafting.provisioner]
+name = "提供方"
+description = "製作或烹飪食品有機會產生獎金部分."
+lore1 = "獲得額外食物的機會"
+lore2 = "每個觸發的獎金部分"
+lore = ["獲得額外食物的機會", "每個觸發的獎金部分"]
+
+[crafting.signature]
+name = "阿爾蒂桑的簽名"
+description = "攜帶簽名的商品 村民在攜帶簽名商品時提供更好的交易."
+lore1 = "手工藝品由您簽名"
+lore2 = "村民在攜帶簽名貨物時提供更好的交易"
+tag = "簽名:"
+item_lore = "由 {player} 簽名"
+lore = ["手工藝品由您簽名", "村民在攜帶簽名貨物時提供更好的交易"]
+
+[discovery.armor]
+name = "世界之甲"
+description = "根據附近方塊硬度獲得被動護甲。"
+lore1 = "被動護甲"
+lore2 = "取決於附近方塊硬度"
+lore3 = "護甲強度："
+passive = "被動護甲，數值取決於附近方塊的硬度"
+strength = "裝甲強度: +{strength}"
+lore = ["被動護甲", "取決於附近方塊硬度", "護甲強度："]
+
+[discovery.unity]
+name = "實驗性統合"
+description = "拾取經驗球時為隨機技能增加經驗。"
+lore1 = "經驗 "
+lore2 = "每個經驗球"
+per_orb = "+ {xp} XP 每塊"
+lore = ["經驗 ", "每個經驗球"]
+
+[discovery.resist]
+name = "實驗性抗性"
+description = "消耗經驗來減免傷害，僅在攻擊會讓你降至 5 顆心以下或致死時觸發。"
+lore0 = "僅在危急生命值（<= 5 顆心）時觸發，每 15 秒一次"
+lore1 = " 減免傷害"
+lore2 = "經驗消耗"
+lore = ["僅在危急生命值（<= 5 顆心）時觸發，每 15 秒一次", " 減免傷害", "經驗消耗"]
+
+[discovery.villager]
+name = "村民吸引力"
+description = "與村民交易時獲得更好的交易！"
+lore1 = "每次與村民互動時消耗經驗"
+lore2 = "每次互動有機率消耗經驗以增強交易"
+lore3 = "每次互動所需經驗消耗"
+lore = ["每次與村民互動時消耗經驗", "每次互動有機率消耗經驗以增強交易", "每次互動所需經驗消耗"]
+
+[discovery.better_mending]
+name = "更好的定義"
+description = "滑動左鍵以花費您的儲存 XP 並直接修復你手中的墊子."
+lore1 = "維修 XP"
+lore2 = "馬克斯 XP 每點開支"
+lore3 = "冷卻時間"
+lore = ["維修 XP", "馬克斯 XP 每點開支", "冷卻時間"]
+
+[discovery.archaeologist]
+name = "考古學家"
+description = "砍斷可疑的石塊可以獎勵考古學."
+lore1 = "獎勵機會"
+lore2 = "少許獎勵機會"
+lore3 = "冷卻時間獎勵"
+lore = ["獎勵機會", "少許獎勵機會", "冷卻時間獎勵"]
+
+[discovery.cartographer_pulse]
+name = "製圖器脈衝"
+not_found = "折射脈衝: 在其中找不到結構 {range} 塊."
+target = "脈衝: {x}, {z}"
+description = "用指南針向右滑一擊 把它鎖在附近的結構上 看到一條私人發光的方向線. 每一次脈搏都會導致飢餓."
+lore1 = "結構搜尋範圍"
+lore2 = "脈衝冷卻時間"
+lore = ["結構搜尋範圍", "脈衝冷卻時間"]
+lore_cost_hunger = "每脈搏的飢餓成本"
+
+[discovery.insight]
+name = "透視"
+description = "研究生物的一眼:你所看到的實體顯示它的名字和健康棒在它的頭上,可馴服的生物顯示它們的生命速度,跳躍和攻擊統計資料,你的命中數顯示以橙色的幼崽為單位的浮動破壞數字."
+lore1 = "檢測範圍"
+speed = "速度"
+jump = "跳躍"
+attack = "攻擊"
+stat = "{label} {value}"
+stable_hand = "增強穩定手"
+lore = ["檢測範圍"]
+
+[discovery.trailblazer]
+name = "拖車"
+description = "你第一次訪問每個生物群落或結構型別 都提供了一種技能-XP 爆炸和短暫的速度."
+lore1 = "初訪 XP 發球"
+lore2 = "發現速度期限"
+lore = ["初訪 XP 發球", "發現速度期限"]
+
+[discovery.field_notes]
+name = "欄位註釋"
+description = "你第一次殺每個黑幫物種都要付出代價 XP 並存有對這個物種的微小永久性損害獎金."
+lore1 = "每個物種最大損害賠償金"
+lore2 = "第一槍 XP 寬宏大量"
+lore = ["每個物種最大損害賠償金", "第一槍 XP 寬宏大量"]
+
+[discovery.polymath]
+name = "聚合物"
+description = "你所修的每門技能都超過一個閾值 增加了一個小全球 XP-增加獎金."
+lore1 = "全球 XP 提高技能的獎金"
+lore2 = "合格技能水平"
+lore = ["全球 XP 提高技能的獎金", "合格技能水平"]
+
+[discovery.relic_appraiser]
+name = "遺蹟評估器"
+description = "滑動右鍵點選稀有滴滴(頭,盤,裝甲修飾,陶器套)以評價其發現 XP; 被評估的物品會得到說明標籤."
+lore1 = "評估 XP (按稀有專案縮放)"
+lore = ["評估 XP (按稀有專案縮放)"]
+lore_tag = "估計"
+
+[discovery.sixth_sense]
+name = "第六感"
+description = "當未探索的結構在範圍內時, 私人發光方向線提示."
+lore1 = "結構檢測範圍"
+lore = ["結構檢測範圍"]
+
+[discovery.keen_eye]
+name = "基恩眼"
+description = "胸和產卵器在你的視線 短暫出現作為私人發光塊顯示."
+lore1 = "視線範圍"
+lore2 = "閃光持續時間"
+lore = ["視線範圍", "閃光持續時間"]
+
+[enchanting.lapis_return]
+name = "青金石回饋"
+description = "多消耗 1 級經驗，但有機率免費返還青金石"
+lore1 = "每升一級，附魔花費增加 1 級，但最多可返還 3 個青金石"
+lore = ["每升一級，附魔花費增加 1 級，但最多可返還 3 個青金石"]
+
+[enchanting.quick_enchant]
+name = "快速附魔"
+description = "直接用附魔書點擊物品來附魔。"
+lore1 = "最大合併等級"
+lore2 = "無法對超過 "
+lore3 = "能力的物品附魔"
+limit = "無法對一個超過 {power} 電源."
+lore = ["最大合併等級", "無法對超過 ", "能力的物品附魔"]
+
+[enchanting.return]
+name = "經驗返還"
+description = "附魔物品時返還部分經驗。"
+lore1 = "附魔消耗的經驗有機率被退還"
+lore2 = "每次附魔返還經驗"
+lore = ["附魔消耗的經驗有機率被退還", "每次附魔返還經驗"]
+
+[enchanting.anvil_savant]
+name = "安維爾·薩凡特"
+description = "減少陰道 XP 合併、修理和重新命名時的成本."
+lore1 = "減少費用"
+saved = "級別已儲存"
+saved_message = "- {levels} 級別已儲存"
+lore = ["減少費用"]
+
+[enchanting.offer_reroll]
+name = "提供回滾"
+description = "右鍵滑動一個迷人的桌子 以重新滾動它的報價. 每次翻滾都要花大錢 XP 職等."
+lore1 = "倒轉冷卻時間"
+lore2 = "拉皮斯費用"
+lore = ["倒轉冷卻時間", "拉皮斯費用"]
+lore_cost_xp = "XP 費用"
+
+[enchanting.bookshelf_attunement]
+name = "書本協調"
+description = "獲得虛擬書架能力,以改善迷人的桌子提供質量."
+lore1 = "虛擬書架功率"
+lore = ["虛擬書架功率"]
+
+[enchanting.grindstone_recovery]
+name = "灰巖復原"
+description = "迷惑可以恢復一個 移除的魔法到一本有獎金的書 XP."
+lore1 = "回收機會"
+lore2 = "獎金 XP"
+lore3 = "恢復冷卻時間"
+lore = ["回收機會", "獎金 XP", "恢復冷卻時間"]
+
+[enchanting.curse_cleansing]
+name = "詛咒清洗"
+description = "偷偷摸摸地拿走一塊磨石 結果先從原物品中除去詛咒 儲存其他所有財產 獲得魅力 XP."
+lore1 = "快樂 XP 每個詛咒"
+cleansed = "已清理的詛咒"
+message = "✓ {count} 已清理的詛咒"
+lore = ["快樂 XP 每個詛咒"]
+
+[enchanting.tome_rebinding]
+name = "託梅重新約束"
+description = "偷偷摸摸地右鍵點選一本多魔力的書 在陰道上,把它分拆成一魔力的書籍. 低水平損失,最高水平無損失."
+lore1 = "意外損失機會"
+lore2 = "XP 費用"
+split = "書籍拆分"
+message = "{count} 書籍拆分"
+lore = ["意外損失機會", "XP 費用"]
+
+[enchanting.soul_link]
+name = "靈魂連結"
+description = "右側滑動一個陰道 連線靈魂 魔法物品 這樣它就活下來了 XP 級別緩衝."
+lore1 = "XP 節省費用"
+lore2 = "冷卻時間"
+linked = "專案靈魂連結"
+saved = "靈魂連結項回收"
+cooling = "靈魂連結充電"
+cooling_message = "靈魂連結充電: {duration}"
+lore = ["XP 節省費用", "冷卻時間"]
+
+[enchanting.arcane_siphon]
+name = "阿爾卡內西蓬"
+description = "用魔法的齒輪殺死暴徒 獎金 XP 並可以吞下一本書 他們的魔法."
+lore1 = "書籤機會"
+lore2 = "巧妙品質獎勵"
+lore = ["書籤機會", "巧妙品質獎勵"]
+
+[enchanting.rune_sight]
+name = "執行視線"
+description = "在你做出承諾之前 揭開魔幻般的誘惑. 一開始,最多是完整的名單."
+lore1 = "提供啟示"
+lore = ["提供啟示"]
+
+[enchanting.infusion_transfer]
+name = "輸液傳輸"
+description = "右鍵擊打底部專案,將一個魔法從犧牲專案上移到它上."
+lore1 = "源生存機會"
+lore2 = "XP 費用"
+moved = "動作快"
+message = "+ {enchantment} {level} 動作快"
+lore = ["源生存機會", "XP 費用"]
+
+[enchanting.echo_of_knowledge]
+name = "知識回聲"
+description = "收藏一本魔法書 XP 在香草帽內升級魔法."
+lore1 = "XP 費率"
+upgraded = "成功升級"
+lore = ["XP 費率"]
+
+[excavation.haste]
+name = "急迫挖掘者"
+description = "挖掘時獲得急迫效果，加速挖掘過程！"
+lore1 = "挖掘時獲得急迫效果"
+lore2 = "x 級急迫效果（開始挖掘任何方塊時觸發）"
+lore = ["挖掘時獲得急迫效果", "x 級急迫效果（開始挖掘任何方塊時觸發）"]
+
+[excavation.spelunker]
+name = "超級透視洞穴探險家！"
+description = "透過地面看見礦石！"
+lore1 = "副手持礦石，主手持螢光漿果，然後潛行！"
+lore2 = "方塊範圍："
+range = "塊範圍: {range}"
+lore3 = "使用時消耗螢光漿果"
+lore = ["副手持礦石，主手持螢光漿果，然後潛行！", "方塊範圍：", "使用時消耗螢光漿果"]
+
+[excavation.seismic_ping]
+name = "地震 P"
+description = "採礦業可以暫時發現附近的礦塊,並帶有私人的彩色光線."
+lore1 = "掃描範圍"
+lore2 = "平機會"
+lore3 = "冷卻時間"
+lore = ["掃描範圍", "平機會", "冷卻時間"]
+
+[excavation.drop_to_inventory]
+name = "鏟子掉落物自動入包"
+
+[excavation.omni_tool]
+name = "OMNI - T.O.O.L."
+description = "Tackle 精心設計的豪華萬能工具"
+lore1 = "可能是最強大的功能之一，允許你"
+lore2 = "根據需求動態合併及切換工具。"
+lore3 = "要合併，在物品欄中按住 Shift 點擊一個物品到另一個物品上。"
+lore4 = "要拆解工具，潛行時丟棄物品即可拆解。"
+lore5 = "萬能工具中的工具不會損壞，但壞掉的工具無法使用"
+lore6 = "個可合併物品。"
+lore7 = "你可以帶五六個工具，或者只帶這一個！"
+lore = ["可能是最強大的功能之一，允許你", "根據需求動態合併及切換工具。", "要合併，在物品欄中按住 Shift 點擊一個物品到另一個物品上。", "要拆解工具，潛行時丟棄物品即可拆解。", "萬能工具中的工具不會損壞，但壞掉的工具無法使用", "個可合併物品。", "你可以帶五六個工具，或者只帶這一個！"]
+
+[excavation.tunneler]
+name = "隧道管理員"
+description = "在挖軟塊時偷偷摸摸地刻出整架飛機."
+lore1 = "每個挖掘的獎金塊"
+lore2 = "額外可流性/ 獎金塊"
+lore = ["每個挖掘的獎金塊", "額外可流性/ 獎金塊"]
+
+[excavation.treasure_hunter]
+name = "財寶獵人"
+description = "挖沙、礫石、泥土或粘土可以挖掘出考古學的寶藏."
+lore1 = "寶藏機會"
+lore2 = "寶藏從一個加權考古表滾過來"
+lore = ["寶藏機會", "寶藏從一個加權考古表滾過來"]
+
+[excavation.soft_fall]
+name = "軟墜"
+description = "降落在軟可挖地上可減少墜落損害,直至完全否定."
+lore1 = "減少損失"
+lore2 = "適用於降落在泥土、沙子、礫石、粘土、泥土或靈魂沙上的情況"
+lore = ["減少損失", "適用於降落在泥土、沙子、礫石、粘土、泥土或靈魂沙上的情況"]
+
+[excavation.earth_mover]
+name = "地球移動器"
+description = "動右鍵,用子來破壞空氣,擊退,並透過地震浪潮減緩敵對群眾的速度."
+lore1 = "波半徑"
+lore2 = "輪廓損壞"
+lore3 = "反擊力"
+lore4 = "緩慢持續時間"
+lore5 = "揮舞冷卻時間"
+lore6 = "飢餓成本"
+lore = ["波半徑", "輪廓損壞", "反擊力", "緩慢持續時間", "揮舞冷卻時間", "飢餓成本"]
+
+[excavation.burrow]
+name = "布林"
+description = "用鏟子滑動右擊軟地,迅速挖下,避免危險. 每個洞穴都要消耗飢餓和工具耐久性."
+lore1 = "最大鑽地 深度"
+lore2 = "每個塊的可流性"
+lore3 = "鑽地 冷卻時間"
+lore = ["最大鑽地 深度", "每個塊的可流性", "鑽地 冷卻時間", "飢餓成本"]
+lore4 = "飢餓成本"
+
+[excavation.grave_digger]
+name = "掘墓者"
+description = "挖土可以挖出骨頭 很少擾動敵對的墳墓."
+lore1 = "斷層機會"
+lore2 = "混亂的墳墓機會"
+lore = ["斷層機會", "混亂的墳墓機會"]
+
+[excavation.mudlark]
+name = "泥漿"
+description = "從泥塊上滴出豐收,加在挖水或下雨時匆忙."
+lore1 = "折扣機會"
+lore2 = "x 挖掘溼潤時匆忙的級別"
+lore = ["折扣機會", "x 挖掘溼潤時匆忙的級別"]
+
+[herbalism.growth_aura]
+name = "生長光環"
+description = "在你周圍的光環中加速自然生長"
+lore1 = "方塊半徑"
+lore2 = "生長光環強度"
+lore3 = "食物消耗"
+lore = ["方塊半徑", "生長光環強度", "食物消耗"]
+
+[herbalism.hippo]
+name = "草藥師的河馬"
+description = "食用食物時獲得更多飽和度"
+lore1 = "食物）食用時額外飽和度"
+lore = ["食物）食用時額外飽和度"]
+
+[herbalism.myconid]
+name = "草藥師的菌絲體"
+description = "賦予你合成菌絲的能力"
+lore1 = "任意泥土 + 棕色蘑菇 + 紅色蘑菇即可合成菌絲。"
+lore = ["任意泥土 + 棕色蘑菇 + 紅色蘑菇即可合成菌絲。"]
+
+[herbalism.terralid]
+name = "草藥師的地衣"
+description = "賦予你合成草地方塊的能力"
+lore1 = "3 個種子放在 3 塊泥土上方，即可合成 3 塊草地方塊。"
+lore = ["3 個種子放在 3 塊泥土上方，即可合成 3 塊草地方塊。"]
+
+[herbalism.cobweb]
+name = "蛛網織者"
+description = "賦予你在工作台中合成蛛網的能力"
+lore1 = "9 根線即可合成一個蛛網。"
+lore = ["9 根線即可合成一個蛛網。"]
+
+[herbalism.mushroom_blocks]
+name = "蘑菇製造者"
+description = "賦予你在工作台中合成蘑菇方塊的能力"
+lore1 = "4 個蘑菇合成一個蘑菇塊，或一個蘑菇塊合成蘑菇柄。"
+lore = ["4 個蘑菇合成一個蘑菇塊，或一個蘑菇塊合成蘑菇柄。"]
+
+[herbalism.drop_to_inventory]
+name = "鋤頭掉落物自動入包"
+
+[herbalism.hungry_shield]
+name = "飢餓護盾"
+description = "受到傷害時先消耗飢餓值而非生命值。"
+lore1 = "飢餓抵抗傷害"
+lore = ["飢餓抵抗傷害"]
+
+[herbalism.luck]
+name = "草藥師的幸運"
+description = "破壞草/花時有機率獲得隨機物品"
+lore0 = "花 = 食物，草 = 種子"
+lore1 = "破壞花時獲得物品的機率"
+lore2 = "破壞草時獲得物品的機率"
+lore = ["花 = 食物，草 = 種子", "破壞花時獲得物品的機率", "破壞草時獲得物品的機率"]
+
+[herbalism.replant]
+name = "收割與重種"
+description = "手持鋤頭右鍵點擊作物以收割並重新種植。"
+lore1 = "重種範圍半徑"
+lore = ["重種範圍半徑"]
+
+[herbalism.seed_sower]
+name = "播種者"
+description = "潛行時手持種子右鍵點擊，可在附近的耕地和靈魂沙地塊上播種。"
+lore1 = "種植半徑"
+lore2 = "每次最多種植作物數"
+lore3 = "播種冷卻時間"
+lore = ["種植半徑", "每次最多種植作物數", "播種冷卻時間"]
+
+[herbalism.compost_cascade]
+name = "疊加"
+description = "滑動右鍵單擊一個堆肥桶來消耗附近的滴水量,成熟的作物收成,葉子,以及你的庫存堆積物."
+lore1 = "疊加半徑"
+lore2 = "已處理的最大專案"
+lore3 = "複合 填充機會"
+lore4 = "連鎖冷卻時間"
+lore = ["疊加半徑", "已處理的最大專案", "複合 填充機會", "連鎖冷卻時間"]
+
+[herbalism.rooted_footing]
+name = "根腳"
+description = "永久被動:保護農田,在自然地上將部分損失轉化為飢餓."
+lore1 = "倒塌損害"
+lore2 = "每個損害的糧食"
+lore3 = "防止農田 踐踏"
+lore = ["倒塌損害", "每個損害的糧食", "防止農田 踐踏"]
+
+[herbalism.bee_shepherd]
+name = "蜜蜂牧羊人"
+description = "將花放在莊稼附近,以示脈搏生長,並將附近的蜜蜂引向你們."
+lore1 = "脈衝半徑"
+lore2 = "增長嘗試"
+lore3 = "脈衝冷卻時間"
+lore = ["脈衝半徑", "增長嘗試", "脈衝冷卻時間"]
+
+[herbalism.spore_bloom]
+name = "斯波爾·布魯姆"
+description = "用蘑菇滑動右鍵點選菌絲以傳播受控的開花補丁."
+lore1 = "布魯姆嘗試"
+lore2 = "綻放 半徑"
+lore3 = "綻放 冷卻時間"
+lore = ["布魯姆嘗試", "綻放 半徑", "綻放 冷卻時間"]
+
+[hunter.adrenaline]
+name = "腎上腺素"
+description = "生命值越低，近戰傷害越高"
+lore1 = "最大傷害"
+lore = ["最大傷害"]
+
+[hunter.penalty]
+name = "獵人的懲罰"
+description = "獵人沼澤排洩飢餓;饑饉排洩產生有毒堆積物."
+lore1 = "飢餓值耗盡時會獲得中毒效果"
+lore = ["飢餓值耗盡時會獲得中毒效果"]
+
+[hunter.drop_to_inventory]
+name = "物品自動入包"
+description = "擊殺生物或用劍破壞方塊時，掉落物傳送到你的物品欄"
+lore1 = "生物/方塊掉落的物品會自動進入你的物品欄（如果有空間）。"
+lore = ["生物/方塊掉落的物品會自動進入你的物品欄（如果有空間）。"]
+
+[hunter.trophy_skinner]
+name = "特羅菲·斯金納"
+description = "精密的殺人可以產生獎金獎盃 和偶爾的暴徒頭."
+lore1 = "獎金"
+lore2 = "空投機會"
+lore3 = "最小距離精確度"
+lore = ["獎金", "空投機會", "最小距離精確度"]
+
+[hunter.invisibility]
+name = "隱形之步"
+description = "受到攻擊時獲得隱身效果，以飢餓為代價"
+lore1 = "受擊時獲得被動隱身效果"
+lore2 = "x 隱身效果疊加，受擊後持續 3 秒"
+lore3 = "x 疊加飢餓"
+lore4 = "飢餓疊加持續時間和倍率。"
+lore5 = "隱身持續時間"
+lore = ["受擊時獲得被動隱身效果", "x 隱身效果疊加，受擊後持續 3 秒", "x 疊加飢餓", "飢餓疊加持續時間和倍率。", "隱身持續時間"]
+
+[hunter.jump_boost]
+name = "獵人之巔"
+description = "受到攻擊時獲得跳躍提升效果，以飢餓為代價"
+lore1 = "受擊時獲得被動跳躍提升效果"
+lore2 = "x 跳躍提升效果疊加，受擊後持續 3 秒"
+lore3 = "x 疊加飢餓"
+lore4 = "飢餓疊加持續時間和倍率。"
+lore5 = "跳躍提升疊加倍率，非持續時間。"
+lore = ["受擊時獲得被動跳躍提升效果", "x 跳躍提升效果疊加，受擊後持續 3 秒", "x 疊加飢餓", "飢餓疊加持續時間和倍率。", "跳躍提升疊加倍率，非持續時間。"]
+
+[hunter.luck]
+name = "獵人的幸運"
+description = "受到攻擊時獲得幸運效果，以飢餓為代價"
+lore1 = "受擊時獲得被動幸運效果"
+lore2 = "x 幸運效果疊加，受擊後持續 3 秒"
+lore3 = "x 疊加飢餓"
+lore4 = "飢餓疊加持續時間和倍率。"
+lore5 = "幸運疊加倍率，非持續時間。"
+lore = ["受擊時獲得被動幸運效果", "x 幸運效果疊加，受擊後持續 3 秒", "x 疊加飢餓", "飢餓疊加持續時間和倍率。", "幸運疊加倍率，非持續時間。"]
+
+[hunter.regen]
+name = "獵人的再生"
+description = "受到攻擊時獲得再生效果，以飢餓為代價"
+lore1 = "受擊時獲得被動再生效果"
+lore2 = "x 再生效果疊加，受擊後持續 3 秒"
+lore3 = "x 疊加飢餓"
+lore4 = "飢餓疊加持續時間和倍率。"
+lore5 = "再生疊加倍率，非持續時間。"
+lore = ["受擊時獲得被動再生效果", "x 再生效果疊加，受擊後持續 3 秒", "x 疊加飢餓", "飢餓疊加持續時間和倍率。", "再生疊加倍率，非持續時間。"]
+
+[hunter.resistance]
+name = "獵人的抗性"
+description = "受到攻擊時獲得抗性提升效果，以飢餓為代價"
+lore1 = "受擊時獲得被動抗性提升效果"
+lore2 = "x 抗性提升效果疊加，受擊後持續 3 秒"
+lore3 = "x 疊加飢餓"
+lore4 = "飢餓疊加持續時間和倍率。"
+lore5 = "抗性提升疊加倍率，非持續時間。"
+lore = ["受擊時獲得被動抗性提升效果", "x 抗性提升效果疊加，受擊後持續 3 秒", "x 疊加飢餓", "飢餓疊加持續時間和倍率。", "抗性提升疊加倍率，非持續時間。"]
+
+[hunter.speed]
+name = "獵人的速度"
+description = "受到攻擊時獲得速度效果，以飢餓為代價"
+lore1 = "受擊時獲得被動速度效果"
+lore2 = "x 速度效果疊加，受擊後持續 3 秒"
+lore3 = "x 疊加飢餓"
+lore4 = "飢餓疊加持續時間和倍率。"
+lore5 = "速度疊加倍率，非持續時間。"
+lore = ["受擊時獲得被動速度效果", "x 速度效果疊加，受擊後持續 3 秒", "x 疊加飢餓", "飢餓疊加持續時間和倍率。", "速度疊加倍率，非持續時間。"]
+
+[hunter.strength]
+name = "獵人的力量"
+description = "受到攻擊時獲得力量效果，以飢餓為代價"
+lore1 = "受擊時獲得被動力量效果"
+lore2 = "x 力量效果疊加，受擊後持續 3 秒"
+lore3 = "x 疊加飢餓"
+lore4 = "飢餓疊加持續時間和倍率。"
+lore5 = "力量疊加倍率，非持續時間。"
+lore = ["受擊時獲得被動力量效果", "x 力量效果疊加，受擊後持續 3 秒", "x 疊加飢餓", "飢餓疊加持續時間和倍率。", "力量疊加倍率，非持續時間。"]
+
+[hunter.predator_focus]
+name = "捕食者焦點"
+description = "同一目標被多次擊中,導致損壞;切換目標重置坡道."
+lore1 = "最大斜坡堆疊"
+lore2 = "每個坡道堆積的利弊損害"
+lore3 = "整個坡道有損失"
+lore = ["最大斜坡堆疊", "每個坡道堆積的利弊損害", "整個坡道有損失"]
+
+[hunter.big_game]
+name = "大遊戲獵人"
+description = "給暴徒和老大階層的暴徒發獎金,多收點錢."
+lore1 = "獎金損失與大遊戲"
+lore2 = "額外下降機會對大遊戲"
+lore = ["獎金損失與大遊戲", "額外下降機會對大遊戲"]
+
+[hunter.blood_trail]
+name = "血跡"
+description = "移動你傷口低於一半的健康 留下一個私人發光的血跡 只有你能看到."
+lore1 = "秒數的氣味小徑停留"
+lore2 = "遮蔽可以追蹤到氣味"
+lore = ["秒數的氣味小徑停留", "遮蔽可以追蹤到氣味"]
+
+[hunter.snare_line]
+name = "螺紋線"
+description = "編織繩子和鐵網; 敵對的暴徒橫跨它 被短暫地紮根."
+item = "獵人釘"
+lore1 = "第二,黑幫是根基"
+lore2 = "每個螺旋的觸發費"
+lore3 = "用繩子和鐵做工,然後用右鍵點選地面設定"
+lore = ["第二,黑幫是根基", "每個螺旋的觸發費", "用繩子和鐵做工,然後用右鍵點選地面設定"]
+
+[gui.common]
+first = "第一屆"
+previous = "上一個"
+next = "下一頁"
+last = "最後一個"
+back = "返回"
+confirm = "確認"
+cancel = "取消"
+apply_change = "應用此更改?"
+left_click_previous = "左鍵單擊:上一頁"
+left_click_next = "左鍵單擊:下一頁"
+right_click_jump_back = "右鍵單擊:跳 -{pages} 頁次"
+right_click_jump_forward = "右鍵單擊:跳 +{pages} 頁次"
+page_of = "頁次 {page}/{pages}"
+showing_range = "顯示 {from}-{to} 頁:1 {total}"
+page_showing_range = "頁次 {page}/{pages} • 顯示 {from}-{to} 頁:1 {total}"
+first_page = "首頁"
+no_previous_page = "無上一頁"
+no_next_page = "無下一頁"
+last_page = "最後一頁"
+back_to_skills = "返回技能"
+back_to_mutations = "返回變異"
+skills = "技能"
+adaptations = "適應"
+levels = "職等"
+
+[gui.skills]
+none_available = "無技能"
+none_eligible = "找不到此玩家的合格技能."
+title = "職等 {level} ({used}/{maximum} 所用電源)"
+
+[gui.adaptations]
+none_available = "無可用的適應"
+permanent_learn_confirm = "再次點擊以確認永久學習"
+permanent_learn_confirm_now = "現在再次點擊以確認永久學習。"
+permanent_learn_double_click = "必須連按兩下才能確認永久學習。"
+knowledge_cost = "知識消耗：{cost}"
+knowledge_cost_no_refunds = "知識成本：{cost} — 極限模式，退款已停用"
+already_learned_no_refunds = "已學習 — 極限模式，退款已停用"
+already_learned_refund = "已學習 — 點擊以遺忘並返還 {refund} 點知識"
+click_to_learn = "點擊以學習 {adaptation}"
+knowledge_shortage = "(你只有 {knowledge} 點可用知識)"
+power_drain = "{power} 排水溝"
+
+[gui.mutations]
+experimental_mutations = "實驗性變異"
+menu_summary = "由 Adapt 等級解鎖的可選流派配置。"
+menu_open = "點擊以檢視你的欄位和需求。"
+
+[gui.skill]
+title = "{skill} {progress} ({xp}XP {nextLevel})"
 
 [items.bound_ender_peral]
 name = "亞空間之鑰"
@@ -910,6 +4801,7 @@ name = "時光之瓶"
 usage1 = "放在物品欄中時會被動儲存時間"
 usage2 = "右鍵點擊計時方塊或幼年動物以消耗儲存的時間"
 stored = "已儲存時間"
+stored_value = "儲存時間: {duration}"
 
 [items.chrono_time_bomb]
 name = "時間炸彈"
@@ -921,60 +4813,677 @@ usage1 = "跳躍以向上傳送"
 usage2 = "潛行以向下傳送"
 usage3 = "電梯之間至少需要 2 格空氣方塊"
 
-# snippets
-[snippets]
+[items.potion]
+grants = "贈款 {effect} {level}"
 
-[snippets.gui]
-level = "等級"
-knowledge = "知識"
-power_used = "已使用能力"
-not_learned = "尚未學習"
-xp = "經驗至"
-welcome = "歡迎！"
-welcome_back = "歡迎回來！"
-xp_bonus_for_time = "經驗增益，持續"
-max_ability_power = "最大技能能力"
-unlock_this_by_clicking = "右鍵點擊以解鎖："
-back = "返回"
-unlearn_all = "遺忘全部技能"
-unlearned_all = "已全部遺忘"
+[items.multi_armor.count]
+one = "MultiArmor ({count} 專案)"
+other = "MultiArmor ({count} 專案)"
 
-[snippets.adapt_menu]
-may_not_unlearn = "你無法遺忘此技能"
-may_unlearn = "可學習/遺忘"
-knowledge_cost = "知識花費"
-knowledge_available = "可用知識"
-already_learned = "已學習"
-unlearn_refund = "點擊以遺忘並退還"
-no_refunds = "極限模式，已禁用退還"
-knowledge = "知識"
-click_learn = "點擊以學習"
-no_knowledge = "（你沒有任何知識）"
-you_only_have = "你只有"
-how_to_level_up = "升級技能以提升你的最大能力。"
-not_enough_power = "能力不足！每級技能需要花費 1 點能力。"
-power = "能力"
-power_drain = "能力消耗"
-learned = "已學習 "
-unlearned = "已遺忘 "
-activator_block = "書架"
+[items.omni_tool.count]
+one = "萊瑟曼 ({count} 專案)"
+other = "萊瑟曼 ({count} 專案)"
 
-[snippets.knowledge_orb]
-contains = "包含"
-knowledge = "知識"
-rightclick = "右鍵點擊"
-togainknowledge = "以獲得此知識"
-knowledge_orb = "知識之珠"
+[kinetics.moon_jump]
+name = "月球跳躍"
+description = "每個關卡都會提高 0.5 塊. 跳躍換一個浮力低重力跳."
+lore1 = "底部跳躍高度"
+lore2 = "跳躍"
+lore3 = "減重力"
+lore4 = "浮動視窗"
+lore = ["底部跳躍高度", "跳躍", "減重力", "浮動視窗"]
 
-[snippets.experience_orb]
-contains = "包含"
-xp = "經驗"
-rightclick = "右鍵點擊"
-togainxp = "以獲得此經驗"
-xporb = "經驗球"
+[kinetics.rubber_soul]
+name = "橡膠靈魂"
+description = "你的著陸帶春天. 彈道阻隔使你更高,每一次著陸都保持更大的動力."
+lore1 = "豐滿"
+lore2 = "豐盛積蓄"
+lore = ["豐滿", "豐盛積蓄"]
 
-# skill
-[skill]
+[kinetics.soft_catch]
+name = "軟接"
+description = "柔軟的和春色的塊 打破你的倒塌, 和新鮮的彈跳給予一個優雅的視窗."
+lore1 = "減少損失"
+lore = ["減少損失"]
+
+[kinetics.surface_skate]
+name = "地面滑行"
+description = "衝刺時可降低地面摩擦並滑行；潛行可強力抓地。"
+lore1 = "滑行"
+lore2 = "抓地"
+lore = ["滑行", "抓地"]
+
+[kinetics.terminal_toggle]
+name = "終端切換"
+description = "潛入中空 在硬潛水和漂浮的懸吊之間切換."
+lore1 = "拖動移動"
+lore2 = "重力移動"
+lore = ["拖動移動", "重力移動"]
+
+[kinetics.heavy_frame]
+name = "重邊框"
+description = "腳在偷偷摸摸地用鐵釘或長矛插上:以速度為代價的重力反擊."
+lore1 = "反擊抵抗"
+lore2 = "防爆劑"
+lore3 = "速刑"
+lore = ["反擊抵抗", "防爆劑", "速刑"]
+
+[kinetics.mass_shift]
+name = "質量轉換"
+description = "潛行並切換主副手：向上看可持續保持泰坦形態，向下看可持續保持袖珍形態，平視則恢復正常。泰坦形態使傷害和生命值提高 20%，但獲得緩慢 I；袖珍形態以傷害和生命值降低 20% 為代價獲得速度 I。"
+lore1 = "泰坦尺寸"
+lore2 = "袖珍尺寸"
+lore3 = "泰坦形態的傷害與最大生命值"
+lore4 = "袖珍形態的傷害與最大生命值"
+lore5 = "向上看：泰坦 | 向下看：袖珍 | 平視：正常"
+lore = ["泰坦尺寸", "袖珍尺寸", "泰坦形態的傷害與最大生命值", "袖珍形態的傷害與最大生命值", "向上看：泰坦 | 向下看：袖珍 | 平視：正常"]
+
+[kinetics.meteor_cadence]
+name = "氣象科登斯"
+description = "偷偷摸摸地用磁帶滑倒 快速地向下衝進你的粉碎中."
+lore1 = "重力啟動"
+lore2 = "拖曳剪下"
+lore3 = "下行加速 E"
+lore4 = "終端墜落速度"
+lore = ["重力啟動", "拖曳剪下", "下行加速 E", "終端墜落速度"]
+
+[kinetics.breachwright]
+name = "違者"
+description = "你的磁帶粉碎了目標 短時間的裝甲."
+lore1 = "裝甲刮"
+lore2 = "難受的磨損"
+lore3 = "中斷時間"
+lore = ["裝甲刮", "難受的磨損", "中斷時間"]
+
+[kinetics.windburst]
+name = "風波"
+description = "猛烈的衝擊波將附近的敵人趕走."
+lore1 = "半徑"
+lore2 = "力量"
+lore = ["半徑", "力量"]
+
+[kinetics.quake_guard]
+name = "地震 衛隊"
+description = "撞倒一個粉碎的支撐你: 擊退抵抗,堅韌,安全地站立一會兒."
+lore1 = "反擊抵抗"
+lore2 = "堅韌"
+lore3 = "安全墜落"
+lore = ["反擊抵抗", "堅韌", "安全墜落"]
+
+[kinetics.rebound_anvil]
+name = "返回安維爾"
+description = "每塊碎碎的螺旋圈你的腿: 落地春潤而緩緩, 準備第二顆隕石."
+lore1 = "彈跳視窗"
+lore2 = "秋季救濟"
+lore = ["彈跳視窗", "秋季救濟"]
+
+[kinetics.phalanx_reach]
+name = "方陣 範圍"
+description = "衛矛在你的手更遠."
+lore1 = "獎金"
+lore = ["獎金"]
+
+[kinetics.charge_lance]
+name = "指控蘭斯"
+description = "長矛 以你的速度擊球. 打他們一跑."
+lore1 = "速度縮放"
+lore2 = "獎金"
+lore = ["速度縮放", "獎金"]
+
+[kinetics.impale_pin]
+name = "縮寫"
+description = "長矛在甜美的射程中 以沉重的速度把目標釘住."
+lore1 = "甜美範圍"
+lore2 = "緩慢持續時間"
+lore = ["甜美範圍", "緩慢持續時間"]
+
+[kinetics.lunge_conductor]
+name = "突進引導"
+description = "長矛突進造成更強的打擊，並將你帶得更遠。"
+lore1 = "突進威力"
+lore2 = "衝刺加成"
+lore = ["突進威力", "衝刺加成"]
+
+[kinetics.mounted_shock]
+name = "掛載的衝擊"
+description = "從馬鞍上發射的先鋒彈 撞得越快."
+lore1 = "掛載速度縮放"
+lore = ["掛載速度縮放"]
+
+[kinetics.dead_zone]
+name = "死區"
+description = "敵人在你的長矛的死區 被擠出,武裝一曲曲."
+lore1 = "死區範圍"
+lore2 = "獎金"
+lore = ["死區範圍", "獎金"]
+
+[nether.skull_toss]
+name = "凋零頭顱投擲"
+description = "使用&o他人的&7頭顱，釋放你內心的凋零。"
+lore1 = "兩次投擲頭顱之間的恢復時間（秒）。"
+lore2 = "使用凋零骷髏頭：投擲"
+lore3 = "凋零頭顱"
+lore4 = "撞擊時爆炸。"
+usage = "使用凋零頭顱：投擲一顆凋零頭顱，命中時爆炸。"
+lore = ["兩次投擲頭顱之間的恢復時間（秒）。", "使用凋零骷髏頭：投擲", "凋零頭顱", "撞擊時爆炸。"]
+
+[nether.wither_resist]
+name = "凋零抗性"
+description = "借助乖合金之力抵抗凋零效果。"
+lore1 = "機率抵消凋零效果（每件裝備）。"
+lore2 = "被動：穿著乖合金裝備有機率抵消"
+passive = "被動：每件穿戴的獄髓護甲都有機率抵消凋零效果。"
+lore3 = "凋零效果。"
+lore = ["機率抵消凋零效果（每件裝備）。", "被動：穿著乖合金裝備有機率抵消", "凋零效果。"]
+
+[nether.fire_resist]
+name = "火焰抗性"
+description = "通過硬化皮膚來抵禦火焰。"
+lore1 = "機率抵消燃燒效果！"
+lore = ["機率抵消燃燒效果！"]
+
+[nether.lava_walker]
+name = "岩漿行者"
+description = "以飢餓為代價在尼太的熔岩上掙扎."
+lore1 = "熔岩懸浮速度"
+lore2 = "飢餓成本"
+lore = ["熔岩懸浮速度", "飢餓成本"]
+
+[nether.ghast_ward]
+name = "蓋斯特病房"
+description = "硬化號在下界號上對猛烈的爆炸和疲軟的骷髏號施加了壓力."
+lore1 = "GHST 減少投影"
+lore2 = "減少爆炸"
+lore3 = "凋零 骷髏 減少投影"
+lore = ["GHST 減少投影", "減少爆炸", "凋零 骷髏 減少投影"]
+
+[nether.blaze_leech]
+name = "火焰彈夾"
+description = "火災相互作用可引發短暫的飢餓和再生收益."
+lore1 = "吸取 觸發機會"
+lore2 = "再生 布林斯特期限"
+lore3 = "每個觸發恢復的食品"
+lore = ["吸取 觸發機會", "再生 布林斯特期限", "每個觸發恢復的食品"]
+
+[nether.piglin_broker]
+name = "豬林經紀人"
+description = "附近的易貨商可以額外發放卷數和不定期的溢價獎金."
+lore1 = "額外滾動機會"
+lore2 = "微小的獎金機會"
+lore = ["額外滾動機會", "微小的獎金機會"]
+
+[nether.soul_strider]
+name = "靈魂絃樂"
+description = "全速穿越靈魂的沙子和靈魂的土壤, 獲得靈魂的快速暴動在掌握."
+lore1 = "靈魂弦速"
+lore2 = "大師靈魂傳佈"
+lore = ["靈魂弦速", "大師靈魂傳佈"]
+
+[nether.magma_skin]
+name = "馬格瑪皮膚"
+description = "在燃燒時, 近戰 攻擊者會著火, 你自己的打擊交易 獎金火災破壞."
+lore1 = "攻擊者 點燃 持續時間"
+lore2 = "燃燒時的火災損害賠償金"
+lore = ["攻擊者 點燃 持續時間", "燃燒時的火災損害賠償金"]
+
+[nether.netherrack_mason]
+name = "內瑟拉克·梅森"
+description = "礦網,玄武岩和黑石在尼特爾的速度更快,偶爾會有獎金下降."
+lore1 = "採礦業急於進行"
+lore2 = "折扣機會"
+lore = ["採礦業急於進行", "折扣機會"]
+
+[nether.strider_bond]
+name = "斯特里德債券"
+description = "滑行速度更快,遠離熔岩,在熔岩上沉沒時安全著陸."
+lore1 = "弦速等級"
+lore2 = "熔岩解除安裝救援半徑"
+lore = ["弦速等級", "熔岩解除安裝救援半徑"]
+
+[nether.crimson_feast]
+name = "烤肉團"
+description = "吃純真菌和扭曲的植物, 並獲得耐火 從任何食物在尼太."
+lore1 = "每弗洛拉恢復食品"
+lore2 = "豐收飽和度"
+lore3 = "耐網點火"
+lore = ["每弗洛拉恢復食品", "豐收飽和度", "耐網點火"]
+
+[nether.ashwalker]
+name = "灰行者"
+description = "忽略岩漿塊和營火燃燒, 並收縮大部分 靈魂-火損傷在掌握."
+lore1 = "馬格瑪街區豁免"
+lore2 = "營火豁免"
+lore3 = "減少靈魂火災損害"
+lore = ["馬格瑪街區豁免", "營火豁免", "減少靈魂火災損害"]
+
+[nether.wither_harvest]
+name = "收穫"
+description = "骨架變老後會增加骨頭和煤 頭骨機率稍有改善."
+lore1 = "獎金骨頭"
+lore2 = "獎金煤"
+lore3 = "改進的骷髏機會"
+lore = ["獎金骨頭", "獎金煤", "改進的骷髏機會"]
+
+[pickaxe.auto_smelt]
+name = "自動熔煉"
+description = "允許你自動熔煉開採的原版礦石"
+lore1 = "可熔煉的礦石會自動熔煉"
+lore2 = "% 機率獲得額外產物"
+lore = ["可熔煉的礦石會自動熔煉", "% 機率獲得額外產物"]
+
+[pickaxe.chisel]
+name = "礦石鑿子"
+description = "右鍵點擊礦石以鑿出更多產物，但會大量消耗耐久。"
+lore1 = "掉落機率"
+lore2 = "工具磨損"
+lore = ["掉落機率", "工具磨損"]
+
+[pickaxe.drop_to_inventory]
+name = "鎬子掉落物自動入包"
+description = "破壞方塊時掉落物自動傳送到你的物品欄"
+lore1 = "方塊掉落的物品會自動進入你的物品欄（如果有空間）。"
+lore = ["方塊掉落的物品會自動進入你的物品欄（如果有空間）。"]
+
+[pickaxe.silk_spawner]
+name = "鎬子絲綢刷怪籠"
+description = "使刷怪籠被破壞時掉落"
+lore1 = "使用絲綢觸感可以採集刷怪籠。"
+lore2 = "潛行時可以破壞刷怪籠。"
+lore = ["使用絲綢觸感可以採集刷怪籠。", "潛行時可以破壞刷怪籠。"]
+
+[pickaxe.vein_miner]
+name = "連鎖挖礦"
+description = "允許你連鎖挖掘原版礦石的礦脈/群"
+lore1 = "潛行並挖掘礦石"
+lore2 = "連鎖挖礦範圍"
+lore3 = "此技能不會合併所有掉落物！"
+lore = ["潛行並挖掘礦石", "連鎖挖礦範圍", "此技能不會合併所有掉落物！"]
+
+[pickaxe.quarry_sense]
+name = "採石場感"
+description = "右鍵滑鼠點選帶鐵+小斧的塊來顯示附近的礦石為私人發光塊顯示."
+lore1 = "礦石 掃描半徑"
+lore2 = "重複費用 (% 馬克斯杜易利)"
+lore3 = "感官冷卻時間"
+lore = ["礦石 掃描半徑", "重複費用 (% 馬克斯杜易利)", "感官冷卻時間"]
+
+[pickaxe.tunnel_bore]
+name = "隧道波爾"
+description = "偷偷摸摸的和我的石頭型的塊 使整個隧道的面孔一時消逝"
+lore1 = "偷偷摸摸,還有我的 石頭"
+lore2 = "每個街區的隧道面部悶悶"
+lore3 = "每個獎金區塊的額外耐久性"
+lore = ["偷偷摸摸,還有我的 石頭", "每個街區的隧道面部悶悶", "每個獎金區塊的額外耐久性"]
+
+[pickaxe.deep_core]
+name = "深層核心"
+description = "挖深層的礦井,所以它會像正常的石頭一樣挖"
+lore1 = "礦山 深板岩 獲取快速"
+lore2 = "開採深水時倉促開採"
+lore = ["礦山 深板岩 獲取快速", "開採深水時倉促開採"]
+
+[pickaxe.obsidian_rush]
+name = "歐比迪安拉什"
+description = "使用鑽石或淨土採摘的礦床使礦場出現強烈的倉促爆炸"
+lore1 = "礦山 黑曜石 帶有菱形+ 鎬"
+lore2 = "採礦時倉促水平"
+lore3 = "也適用於哭泣的黑曜石！"
+lore = ["礦山 黑曜石 帶有菱形+ 鎬", "採礦時倉促水平", "也適用於哭泣的黑曜石！"]
+
+[pickaxe.unbreakable_pact]
+name = "不可破壞條約"
+description = "你的皮克賽拒絕打破,生存在 1 耐久性改為耐久性"
+lore1 = "皮克斯不會斷的,停下來 1 永續性"
+lore2 = "完全忽略耐久性損失的機會"
+lore = ["皮克斯不會斷的,停下來 1 永續性", "完全忽略耐久性損失的機會"]
+
+[pickaxe.repair_rhythm]
+name = "修復韻律"
+description = "持續開採還有機會恢復你的皮革耐久性"
+lore1 = "每個斷塊都可以恢復 1-2 永續性"
+lore2 = "每個斷塊修復的機會"
+lore = ["每個斷塊都可以恢復 1-2 永續性", "每個斷塊修復的機會"]
+
+[pickaxe.gem_polish]
+name = "波蘭寶石"
+description = "礦石礦產補貼獎金 XP 球體和一個額外的寶石機會."
+lore1 = "鑽石、翡翠、薄餅或薄荷"
+lore2 = "額外匹配寶石的機會"
+lore3 = "獎金 XP 每開採的寶石礦"
+lore = ["鑽石、翡翠、薄餅或薄荷", "額外匹配寶石的機會", "獎金 XP 每開採的寶石礦"]
+
+[pickaxe.stone_skin]
+name = "石頭皮膚"
+description = "斷裂石型區塊建立短壽命堆積損傷阻力"
+lore1 = "建石皮堆的礦石"
+lore2 = "最高抗藥性水平"
+lore = ["建石皮堆的礦石", "最高抗藥性水平"]
+
+[ranged.arrow_recovery]
+name = "箭矢回收"
+description = "擊殺敵人後回收箭矢。"
+lore1 = "命中/擊殺時回收箭矢的機率"
+lore2 = "機率："
+chance = "機會: {chance}"
+lore = ["命中/擊殺時回收箭矢的機率", "機率："]
+
+[ranged.web_shot]
+name = "蛛網陷阱"
+description = "命中目標時在其周圍產生蛛網！"
+lore1 = "8 個蛛網圍繞 1 個雪球，然後投擲！"
+lore2 = "秒的籠子，大約。"
+lore = ["8 個蛛網圍繞 1 個雪球，然後投擲！", "秒的籠子，大約。"]
+
+[ranged.force_shot]
+name = "強力射擊"
+description = "投射物飛得更遠、更快！"
+advancementname = "遠距離射擊"
+advancementlore = "從超過 30 格方塊外命中目標！"
+lore1 = "投射物速度"
+lore = ["投射物速度"]
+
+[ranged.trajectory_sight]
+name = "軌跡視覺"
+description = "偷窺或繪製射程武器預覽彈射飛行,作為帶有環形撞擊標記的明細線. 正在使用 心 搜尋器鎖定, 預覽會顯示箭頭的曲線路徑 。."
+lore1 = "預測範圍"
+lore2 = "預測細節"
+lore = ["預測範圍", "預測細節"]
+
+[ranged.lunge_shot]
+name = "弓步射擊"
+description = "下落時射箭會將你拋向隨機方向"
+lore1 = "隨機爆發速度"
+lore = ["隨機爆發速度"]
+
+[ranged.arrow_piercing]
+name = "箭矢穿透"
+description = "為投射物添加穿透效果！穿越目標！"
+lore1 = "穿透目標數"
+lore = ["穿透目標數"]
+
+[ranged.floaters]
+name = "浮點數"
+description = "投彈機有機會在空中進行懸浮和鎖定目標."
+lore1 = "欺詐機會"
+lore2 = "折舊期"
+lore3 = "優勢"
+lore = ["欺詐機會", "折舊期", "優勢"]
+
+[ranged.pinning_shot]
+name = "固定鏡頭"
+description = "任何玩家發射的彈丸都能夠以沉重的慢速將目標釘住."
+lore1 = "平機會"
+lore2 = "長度"
+lore3 = "重新應用冷卻時間"
+lore = ["平機會", "長度", "重新應用冷卻時間"]
+
+[ranged.ricochet_bolt]
+name = "里科切特包爾"
+description = "連鎖彈彈彈 將固體塊切開."
+lore1 = "馬克斯·里科切斯"
+lore2 = "速度獎金"
+lore3 = "彈射的賠償金"
+lore = ["馬克斯·里科切斯", "速度獎金", "彈射的賠償金"]
+
+[ranged.fetch_shot]
+name = "獲取拍攝"
+description = "用射彈射擊投放的物品 把它們直接拉進你的庫存."
+lore1 = "獲取半徑"
+lore = ["獲取半徑"]
+
+[ranged.heavy_draw]
+name = "重畫"
+description = "較重的射彈飛行速度較慢但打擊更猛."
+lore1 = "賠償金損害"
+lore2 = "彈射物速度"
+lore = ["賠償金損害", "彈射物速度"]
+
+[ranged.heartseeker]
+name = "尋求心臟"
+description = "一邊畫個弓,一邊看著一個生物鎖住 它為你發亮的紅光 你的箭哨和曲線穿過空氣. 彈射 箭矢的彈跳能力 增加了求球能力:箭頭射穿目標,從最遠處離開,然後向附近的新目標彎曲;沒有新的目標,它繼續向前飛. 彈射傳球時保留了它們的反射、速度、損壞和獎勵,. 每一次尋找的鏡頭 都會把你的弓放在一個短暫的冷卻時間."
+lore1 = "一邊畫個弓,一邊看著一個生物鎖上"
+lore2 = "拍完鏡頭就冷靜下來"
+lore3 = "穿孔和杆彈力增加尋求通行"
+lore = ["一邊畫個弓,一邊看著一個生物鎖上", "拍完鏡頭就冷靜下來", "穿孔和杆彈力增加尋求通行"]
+
+[rift.remote_access]
+name = "遠程存取"
+description = "從虛空中取物，存取已標記的容器。"
+lore1 = "乖珍珠 + 指南針 = 亞空間之鑰"
+lore2 = "此物品允許你遠程存取容器"
+lore3 = "製作完成後查看物品以瞭解使用方法"
+notcontainer = "那不是容器"
+lore = ["乖珍珠 + 指南針 = 亞空間之鑰", "此物品允許你遠程存取容器", "製作完成後查看物品以瞭解使用方法"]
+
+[rift.blink]
+name = "裂痕閃現"
+description = "連續跳躍兩次即可朝視線方向閃現。成功閃現不會消耗終界珍珠，但會承受普通珍珠傷害，且傷害隨等級降低。"
+lore1 = "閃現距離"
+lore2 = "自身傷害（心）"
+lore = ["閃現距離", "自身傷害（心）"]
+
+[rift.chest]
+name = "便攜乖影箱"
+description = "手持乖影箱左鍵點擊即可打開。"
+lore1 = "手持乖影箱點擊即可打開（不用放置）"
+lore = ["手持乖影箱點擊即可打開（不用放置）"]
+
+[rift.descent]
+name = "反漂浮"
+description = "厭倦了被困在空中？這個技能就是為你準備的！"
+lore1 = "只需潛行即可下降，且下降速度低於正常！"
+lore2 = "恢復時間："
+cooldown = "冷卻時間：{duration}"
+lore = ["只需潛行即可下降，且下降速度低於正常！", "恢復時間："]
+
+[rift.gate]
+name = "裂痕之門"
+description = "傳送到標記的位置。"
+description_freehand = "動左鍵,將它繫結到你的位置. 然後右鍵,向 5 第二頻道後轉移."
+lore1 = "合成：綠寶石 + 紫水晶碎片 + 乖珍珠"
+lore2 = "使用前請仔細閱讀！"
+lore3 = "5 秒延遲，"
+lore4 = "在此動畫期間你可能會死亡"
+warning = "5s 延遲, {danger}"
+lore = ["合成：綠寶石 + 紫水晶碎片 + 乖珍珠", "使用前請仔細閱讀！", "5 秒延遲，", "在此動畫期間你可能會死亡"]
+
+[rift.resist]
+name = "裂痕抗性"
+description = "使用乖影物品或技能時獲得抗性提升"
+lore1 = "+ 被動：使用裂痕技能或乖影物品時獲得抗性提升"
+lore2 = "不包括便攜乖影箱，僅限可消耗的物品"
+lore = ["+ 被動：使用裂痕技能或乖影物品時獲得抗性提升", "不包括便攜乖影箱，僅限可消耗的物品"]
+
+[rift.visage]
+name = "裂痕面紗"
+description = "物品欄中有乖珍珠時，終界使者不會對你產生敵意。"
+lore1 = "物品欄中有乖珍珠時，終界使者不會對你產生敵意。"
+lore = ["物品欄中有乖珍珠時，終界使者不會對你產生敵意。"]
+
+[rift.void_magnet]
+name = "虛空 磁鐵"
+description = "偷偷摸摸地把附近的物品 扔進你的胸口,然後庫存溢位."
+lore1 = "磁鐵半徑"
+lore2 = "每個脈衝最大項"
+lore3 = "脈衝延遲"
+lore = ["磁鐵半徑", "每個脈衝最大項", "脈衝延遲"]
+
+[rift.inflated_pocket_dimension]
+name = "充氣袋尺寸"
+description = "右手空鍵單擊塊從尾端胸口拉出匹配的堆疊; 偷偷地將專案儲存其中."
+lore1 = "右鍵單擊塊以拉疊"
+lore2 = "從尾箱自動重新填充"
+lore3 = "在尾端胸口偷偷丟棄倉庫物品"
+lore = ["右鍵單擊塊以拉疊", "從尾箱自動重新填充", "在尾端胸口偷偷丟棄倉庫物品"]
+
+[rift.ender_taglock]
+name = "尾端標記"
+item_name = "目標鎖定終界珍珠"
+target = "目標: {target}"
+throw = "右鍵投擲"
+description = "用末端珍珠滑動左鍵單擊實體來綁住它們,然後扔下標記的珍珠只移動目標. 投球手從不電傳."
+lore1 = "職等 1: 被動和敵對的暴徒"
+lore2 = "職等 2: 村民和大目標"
+lore3 = "職等 3: 任何目標,包括玩家"
+lore4 = "標記珍珠扔冷卻時間"
+lore = ["職等 1: 被動和敵對的暴徒", "職等 2: 村民和大目標", "職等 3: 任何目標,包括玩家", "標記珍珠扔冷卻時間"]
+
+[rift.void_skin]
+name = "虛空 皮膚"
+description = "任何致命的損害會讓你到附近安全的地方,而不是殺死你.當沒有附近的地方時,使用當前世界的生殖器,並給予短暫的抵抗.花費一個珠子和長時間冷卻時間.平衡縮短了冷卻時間和擴大保護."
+lore1 = "任何致命的傷害都會引發逃跑"
+lore2 = "越獄"
+lore3 = "末端珍珠的成本"
+lore = ["任何致命的傷害都會引發逃跑", "越獄", "末端珍珠的成本"]
+
+[rift.pearl_rebound]
+name = "珍珠過載"
+description = "一顆普通的末端珍珠跳過一次 而不是在第一海面發出電傳訊號. 反彈會朝你的十字架轉動 然後在下次撞擊時正常傳送. 珍珠著陸損害也有所減少;平整既能減少又能改善航向."
+lore1 = "減少珍珠損害"
+lore2 = "目標控制"
+lore = ["減少珍珠損害", "目標控制"]
+
+[rift.conduit]
+name = "斷裂管道"
+description = "用末端珍珠滑動右鍵點選容器以捕捉管道標記鎖,然後右鍵點選第二個容器將其連結. 在一個連結的容器中留下的物品在關閉時流入另一個容器. 在最大一級,兩個容器甚至可以不同尺寸."
+lore1 = "按流量計的專案"
+lore2 = "約束範圍"
+lore3 = "跨層面的聯絡"
+lore = ["按流量計的專案", "約束範圍", "跨層面的聯絡"]
+taglock_name = "斷裂管道標籤"
+taglock_lore1 = "抓獲了一個集裝箱"
+taglock_lore2 = "右鍵單擊第二個容器將其連結"
+msg_captured = "捕獲到管道標記鎖. 右鍵單擊第二個容器將其連結."
+msg_linked = "連線集裝箱. 放在一個裡面的物品現在流向另一個."
+msg_need_container = "瞄準容器使用管道標記."
+msg_range = "那個集裝箱太遠了,連不上."
+msg_same = "您無法將容器連線到自己."
+msg_stale = "繳獲的容器已無法使用."
+
+# runtime
+[runtime]
+knowledge_gain = "+ {amount} 點 {skill} 知識"
+knowledge_status = "{amount} {skill} 知識"
+requires_adaptation = "需要 {skill} 的 {adaptation}"
+unknown_skill = "未知技能"
+advancement_unlock = "{description}. {instruction} {block}"
+max_ability_power = "最大技能強度：{power}"
+xp_bonus = "+{percent} XP，持續 {duration}"
+stat_lore = "{prefix}{value}{separator}{label}"
+data_deleted_kick = "你的資料已被刪除。"
+no_description_provided = "未提供說明"
+config_hotloaded = "&7[&4Adapt&7]: &aAdapt 已熱載入: &f[{file}] &b[{key}] &7[{oldValue} -> {newValue}]"
+config_hotload_truncated = "&7[&4適應&7]: &a適應熱載: &f[{file}] &7[{remaining} 額外更改省略]"
+
+[seaborn.oxygen]
+name = "有機氧氣罐"
+description = "小肺也能容納更多氧氣！"
+lore1 = "氧氣容量增加"
+lore = ["氧氣容量增加"]
+
+[seaborn.fishers_fantasy]
+name = "釣魚達人"
+description = "釣魚時獲得更多經驗和更多魚！"
+lore1 = "每升一級都有機率獲得更多經驗和魚！"
+lore = ["每升一級都有機率獲得更多經驗和魚！"]
+
+[seaborn.haste]
+name = "海龜礦工"
+description = "在水下挖掘時獲得急迫效果！"
+lore1 = "水下呼吸效果結束後，在水下挖掘時獲得急迫 3 效果（可與親水性疊加）！"
+lore = ["水下呼吸效果結束後，在水下挖掘時獲得急迫 3 效果（可與親水性疊加）！"]
+
+[seaborn.night_vision]
+name = "海龜視覺"
+description = "在水下時獲得夜視效果"
+lore1 = "水下呼吸效果結束後，在水下時直接獲得夜視效果！"
+lore = ["水下呼吸效果結束後，在水下時直接獲得夜視效果！"]
+
+[seaborn.dolphin_grace]
+name = "海豚恩惠"
+description = "不需要海豚也能像海豚一樣游泳"
+lore1 = "+ 被動：獲得"
+lore2 = "x 速度（海豚恩惠）"
+lore3 = "精密的德國工程——等等，好像不對……與深海漫步不相容"
+speed = "+ 被動：獲得 {level}x 水中速度，並在疾游時獲得真正的海豚悠游；每級都會延長持續時間"
+lore = ["+ 被動：獲得", "x 速度（海豚恩惠）", "精密的德國工程——等等，好像不對……與深海漫步不相容"]
+
+[seaborn.tidecaller]
+name = "調色器"
+description = "在水中或雨中衝出水面,根據伺服器的設定偷偷摸摸或攻擊搖擺而觸發."
+lore1 = "突襲距離"
+lore2 = "快速冷卻時間"
+lore = ["突襲距離", "快速冷卻時間"]
+lore_trigger_label = "觸發"
+lore_environment_label = "環境"
+trigger_none = "無"
+trigger_sneak = "偷窺"
+trigger_attack = "攻擊"
+trigger_sneak_attack = "偷襲+攻擊"
+trigger_water_only = "僅含水"
+env_water = "淨水"
+env_rain = "雨聲"
+env_none = "無"
+trigger_line = "觸發: {trigger}"
+environment_line = "環境: {environment}"
+trigger_context = "{trigger} ({environment})"
+
+[seaborn.pressure_diver]
+name = "壓力差異"
+description = "增加水下深度保護,部分抑制採礦疲勞壓力."
+lore1 = "最低深度要求"
+lore2 = "減少深度損害"
+lore3 = "減少採礦肥料的機會"
+lore = ["最低深度要求", "減少深度損害", "減少採礦肥料的機會"]
+
+[seaborn.coral_gardener]
+name = "珊瑚園丁"
+description = "你所放置的珊瑚在水中生存的時間更長,骨肉生長珊瑚,礁石塊給予獎金. XP."
+lore1 = "珊瑚生存時間"
+lore2 = "骨質增長機會"
+lore = ["珊瑚生存時間", "骨質增長機會"]
+
+[seaborn.deep_salvager]
+name = "深沙灣"
+description = "水下容器作為私人水晶發光塊展示 和獎勵珍寶首次開啟時被淹沒."
+lore1 = "檢測範圍(塊)"
+lore2 = "獎金寶盤"
+lore = ["檢測範圍(塊)", "獎金寶盤"]
+
+[seaborn.ink_veil]
+name = "墨水韋爾"
+description = "水下破壞會噴出墨水 遮蔽敵人 短暫地把你藏在水中."
+lore1 = "墨雲大小(塊)"
+lore2 = "墨水桶冷卻時間"
+lore = ["墨雲大小(塊)", "墨水桶冷卻時間"]
+
+[seaborn.trident_mastery]
+name = "三叉戟大師"
+description = "三叉戟會處理獎金損失 扔完後回家更快."
+lore1 = "三叉戟損害賠償金"
+lore2 = "回顧速度"
+lore = ["三叉戟損害賠償金", "回顧速度"]
+
+[seaborn.fish_whisperer]
+name = "魚耳"
+description = "魚學園面向你,海豚和斧頭 幫助你的狩獵, 你釣的永久幸運的海階."
+lore1 = "海上的運氣"
+lore2 = "創造性無限範圍(塊)"
+lore = ["海上的運氣", "創造性無限範圍(塊)"]
+
+[seaborn.hydro_jet]
+name = "噴氣機"
+description = "游泳時偷偷摸摸地往前衝. 飢餓和消費費用."
+lore1 = "布林斯特部隊"
+lore2 = "噴氣充電"
+lore = ["布林斯特部隊", "噴氣充電"]
+
+[seaborn.brine_skin]
+name = "皮膚"
+description = "慢慢地再生 減少損傷 水泡在乾涸後會短暫停留."
+lore1 = "鹽水再生層"
+lore2 = "溼潤時減少損害"
+lore = ["鹽水再生層", "溼潤時減少損害"]
 
 [skill.agility]
 name = "敏捷"
@@ -989,9 +5498,7 @@ description = "結構是世界的基石。現實掌握在你手中，由你掌�
 [skill.axes]
 name = "斧技"
 icon = "🪓"
-description1 = "與其砍樹，不如砍"
-description2 = "東西"
-description3 = "，結果都一樣嘛！"
+description = "砍伐木材並用斧頭戰鬥可提升等級。既然可以砍&o別的東西&7，為什麼還要砍樹？結果都一樣！"
 
 [skill.brewing]
 name = "釀造"
@@ -1074,802 +5581,91 @@ icon = "♥"
 description = "鸚鵡和蜜蜂……還有你？"
 
 [skill.tragoul]
-name = "血咒"
+name = "TragOul"
 icon = "🗡"
 description = "血液在宇宙的血管中流淌，受你雙手所束縛。"
 
 [skill.chronos]
-name = "時空"
+name = "Chronos"
 icon = "🕒"
-description = "為宇宙之鐘上發條，感受時間的流動。打破時鐘，化身其中。"
+description = "透過移動,睡眠,生存時間的流逝和分享速度.攜帶一個鐘來更多的東西. Chronos 經驗,最強大的獎勵在你的手中."
 
 [skill.unarmed]
 name = "搏擊"
 icon = "»"
 description = "沒有武器並不意味著沒有力量。"
 
-# agility
-[agility]
-
-[agility.armor_up]
-name = "裝甲強化"
-description = "衝刺時間越長，獲得的護甲值越多！"
-lore1 = "最大護甲值"
-lore2 = "護甲強化所需時間"
-lore = ["最大護甲值", "護甲強化所需時間"]
-
-[agility.ladder_slide]
-name = "梯子滑行"
-description = "大幅提升攀爬和滑下梯子的速度。"
-lore1 = "梯子速度倍率"
-lore2 = "快速下滑速度"
-lore = ["梯子速度倍率", "快速下滑速度"]
-
-[agility.super_jump]
-name = "超級跳躍"
-description = "卓越的高度優勢。"
-lore1 = "最大跳躍高度"
-lore2 = "潛行 + 跳躍以超級跳躍！"
-lore = ["最大跳躍高度", "潛行 + 跳躍以超級跳躍！"]
-
-[agility.wall_jump]
-name = "蹬牆跳"
-description = "在半空中緊貼牆壁時按住潛行鍵以攀附並跳躍！"
-lore1 = "最大跳躍次數"
-lore2 = "跳躍高度"
-lore = ["最大跳躍次數", "跳躍高度"]
-
-[agility.wind_up]
-name = "蓄力加速"
-description = "衝刺時間越長，速度越快！"
-lore1 = "最大速度"
-lore2 = "蓄力時間"
-lore = ["最大速度", "蓄力時間"]
-
-# architect
-[architect]
-
-[architect.elevator]
-name = "電梯"
-description = "建造可快速垂直傳送的電梯。每個電梯方塊的配方為中央放置終界珍珠，周圍放置8個羊毛。"
-lore1 = "解鎖電梯配方：X=羊毛，Y=乖珍珠"
-lore2 = "XXX"
-lore3 = "XYX"
-lore4 = "XXX"
-lore = ["解鎖電梯配方：X=羊毛，Y=乖珍珠", "XXX", "XYX", "XXX"]
-
-[architect.foundation]
-name = "魔法地基"
-description = "潛行時可以在腳下臨時放置方塊！"
-lore1 = "魔法生成："
-lore2 = "格方塊在你腳下！"
-lore = ["魔法生成：", "格方塊在你腳下！"]
-
-[architect.glass]
-name = "絲綢觸感玻璃"
-description = "空手打破玻璃方塊時不會損失玻璃！"
-lore1 = "你的雙手對玻璃擁有絲綢觸感"
-lore = ["你的雙手對玻璃擁有絲綢觸感"]
-
-[architect.wireless_redstone]
-name = "紅石遙控器"
-description = "使用紅石火把遠程遙控紅石！"
-lore1 = "標靶方塊 + 紅石火把 + 乖珍珠 = 1 個紅石遙控器"
-lore = ["標靶方塊 + 紅石火把 + 乖珍珠 = 1 個紅石遙控器"]
-
-[architect.placement]
-name = "建築師之杖"
-description = "允許你一次放置多格方塊！啟動方式為潛行，手持與你注視的方塊相同的方塊並放置！請注意，你可能需要稍微移動以觸發邊界框！"
-lore1 = "你需要"
-lore2 = "格手中方塊才能放置"
-lore3 = "材料建築師之杖"
-lore = ["你需要", "格手中方塊才能放置", "材料建築師之杖"]
-
-# axe
-[axe]
-
-[axe.chop]
-name = "斧頭砍伐"
-description = "右鍵點擊原木底部以砍倒整棵樹！"
-lore1 = "每次砍伐數量"
-lore2 = "砍伐冷卻"
-lore3 = "工具磨損"
-lore = ["每次砍伐數量", "砍伐冷卻", "工具磨損"]
-
-[axe.log_swap]
-name = "露西的原木轉換器"
-description = "在工作台中更換原木種類！"
-lore1 = "8 根任意種類原木 + 1 株樹苗 = 8 根樹苗對應種類的原木"
-lore = ["8 根任意種類原木 + 1 株樹苗 = 8 根樹苗對應種類的原木"]
-
-[axe.drop_to_inventory]
-name = "斧頭掉落物自動入包"
-
-[axe.ground_smash]
-name = "山崩地裂"
-description = "跳起後蹲下以猛擊附近所有敵人。"
-lore1 = "傷害"
-lore2 = "方塊半徑"
-lore3 = "力量"
-lore4 = "猛擊冷卻"
-lore = ["傷害", "方塊半徑", "力量", "猛擊冷卻"]
-
-[axe.leaf_miner]
-name = "樹葉粉碎機"
-description = "允許你一次破壞大量樹葉！"
-lore1 = "潛行並挖掘樹葉"
-lore2 = "樹葉挖掘範圍"
-lore3 = "你不會獲得樹葉的掉落物（防止濫用）"
-lore = ["潛行並挖掘樹葉", "樹葉挖掘範圍", "你不會獲得樹葉的掉落物（防止濫用）"]
-
-[axe.wood_miner]
-name = "木材礦工"
-description = "允許你一次砍伐大量木材！"
-lore1 = "潛行並砍伐木頭/原木（木板無效）"
-lore2 = "木材挖掘範圍"
-lore3 = "與掉落物自動入包相容"
-lore = ["潛行並砍伐木頭/原木（木板無效）", "木材挖掘範圍", "與掉落物自動入包相容"]
-
-# brewing
-[brewing]
-
-[brewing.lingering]
-name = "持久藥效"
-description = "釀造的藥水效果持續更久！"
-lore1 = "持續時間"
-lore2 = "持續時間"
-lore = ["持續時間", "持續時間"]
-
-[brewing.super_heated]
-name = "超級加熱釀造"
-description = "釀造台越熱，工作速度越快。"
-lore1 = "每接觸火焰方塊"
-lore2 = "每接觸岩漿方塊"
-lore = ["每接觸火焰方塊", "每接觸岩漿方塊"]
-
-[brewing.darkness]
-name = "瓶裝黑暗"
-description = "不知道你為什麼需要這個，但給你吧！"
-lore1 = "夜視藥水 + 黑色混凝土 = 黑暗藥水（30 秒）"
-lore2 = "注意：效果期間無法疾跑！"
-lore = ["夜視藥水 + 黑色混凝土 = 黑暗藥水（30 秒）", "注意：效果期間無法疾跑！"]
-
-[brewing.haste]
-name = "瓶裝急迫"
-description = "當效率附魔不夠用的時候"
-lore1 = "速度藥水 + 紫水晶碎片 = 急迫藥水（60 秒）"
-lore2 = "速度藥水 + 紫水晶塊 = 急迫 II 藥水（30 秒）"
-lore = ["速度藥水 + 紫水晶碎片 = 急迫藥水（60 秒）", "速度藥水 + 紫水晶塊 = 急迫 II 藥水（30 秒）"]
-
-[brewing.absorption]
-name = "瓶裝吸收"
-description = "強化身軀！"
-lore1 = "瞬間治療 + 石英 = 吸收藥水（60 秒）"
-lore2 = "瞬間治療 + 石英塊 = 吸收 II 藥水（30 秒）"
-lore = ["瞬間治療 + 石英 = 吸收藥水（60 秒）", "瞬間治療 + 石英塊 = 吸收 II 藥水（30 秒）"]
-
-[brewing.fatigue]
-name = "瓶裝疲勞"
-description = "削弱身軀！"
-lore1 = "虛弱藥水 + 史萊姆球 = 挖掘疲勞藥水（60 秒）"
-lore2 = "虛弱藥水 + 史萊姆塊 = 挖掘疲勞 II 藥水（30 秒）"
-lore = ["虛弱藥水 + 史萊姆球 = 挖掘疲勞藥水（60 秒）", "虛弱藥水 + 史萊姆塊 = 挖掘疲勞 II 藥水（30 秒）"]
-
-[brewing.hunger]
-name = "瓶裝飢餓"
-description = "餵飽那些永不滿足的人！"
-lore1 = "粗製藥水 + 腐肉 = 飢餓藥水（60 秒）"
-lore2 = "虛弱藥水 + 腐肉 = 飢餓 III 藥水（30 秒）"
-lore = ["粗製藥水 + 腐肉 = 飢餓藥水（60 秒）", "虛弱藥水 + 腐肉 = 飢餓 III 藥水（30 秒）"]
-
-[brewing.nausea]
-name = "瓶裝噁心"
-description = "你真令我作嘔！"
-lore1 = "粗製藥水 + 棕色蘑菇 = 噁心藥水（30 秒）"
-lore2 = "粗製藥水 + 緋紅蕈菇 = 噁心 II 藥水（15 秒）"
-lore = ["粗製藥水 + 棕色蘑菇 = 噁心藥水（30 秒）", "粗製藥水 + 緋紅蕈菇 = 噁心 II 藥水（15 秒）"]
-
-[brewing.blindness]
-name = "瓶裝失明"
-description = "你真是個可怕的人……"
-lore1 = "粗製藥水 + 墨囊 = 失明藥水（30 秒）"
-lore2 = "粗製藥水 + 螢光墨囊 = 失明 II 藥水（15 秒）"
-lore = ["粗製藥水 + 墨囊 = 失明藥水（30 秒）", "粗製藥水 + 螢光墨囊 = 失明 II 藥水（15 秒）"]
-
-[brewing.resistance]
-name = "瓶裝抗性"
-description = "最強防禦！"
-lore1 = "粗製藥水 + 鐵錠 = 抗性提升藥水（60 秒）"
-lore2 = "粗製藥水 + 鐵方塊 = 抗性提升 II 藥水（30 秒）"
-lore = ["粗製藥水 + 鐵錠 = 抗性提升藥水（60 秒）", "粗製藥水 + 鐵方塊 = 抗性提升 II 藥水（30 秒）"]
-
-[brewing.health_boost]
-name = "瓶裝生命"
-description = "當最大生命值不夠用的時候……"
-lore1 = "瞬間治療藥水 + 金蘋果 = 生命提升藥水（60 秒）"
-lore2 = "瞬間治療藥水 + 附魔金蘋果 = 生命提升 II 藥水（60 秒）"
-lore = ["瞬間治療藥水 + 金蘋果 = 生命提升藥水（60 秒）", "瞬間治療藥水 + 附魔金蘋果 = 生命提升 II 藥水（60 秒）"]
-
-[brewing.decay]
-name = "瓶裝衰敗"
-description = "誰知道腐質竟然這麼有用？"
-lore1 = "虛弱藥水 + 毒馬鈴薯 = 凋零藥水（16 秒）"
-lore2 = "虛弱藥水 + 緋紅蕈根 = 凋零 II 藥水（8 秒）"
-lore = ["虛弱藥水 + 毒馬鈴薯 = 凋零藥水（16 秒）", "虛弱藥水 + 緋紅蕈根 = 凋零 II 藥水（8 秒）"]
-
-[brewing.saturation]
-name = "瓶裝飽和"
-description = "你知道嗎……其實我還不太餓……"
-lore1 = "再生藥水 + 烤馬鈴薯 = 飽和藥水"
-lore2 = "再生藥水 + 乾草塊 = 飽和 II 藥水"
-lore = ["再生藥水 + 烤馬鈴薯 = 飽和藥水", "再生藥水 + 乾草塊 = 飽和 II 藥水"]
-
-# blocking
-[blocking]
-
-[blocking.chain_armorer]
-name = "梅菲斯特的鎖鏈"
-description = "允許你合成鎖鏈甲"
-lore1 = "合成配方與其他盔甲相同，但使用鐵粒替代"
-lore = ["合成配方與其他盔甲相同，但使用鐵粒替代"]
-
-[blocking.horse_armorer]
-name = "可合成馬鎧"
-description = "允許你合成馬鎧"
-lore1 = "在工作台中用所需材料圍繞馬鞍以合成該材質的馬鎧"
-lore = ["在工作台中用所需材料圍繞馬鞍以合成該材質的馬鎧"]
-
-[blocking.saddle_crafter]
-name = "可合成馬鞍"
-description = "用皮革合成馬鞍"
-lore1 = "配方：5 塊皮革："
-lore = ["配方：5 塊皮革："]
-
-[blocking.multi_armor]
-name = "複合盔甲"
-description = "將鞘翅綁定到盔甲上"
-lore1 = "這是旅行的絕佳技能。"
-lore2 = "飛行中動態合併及切換盔甲/鞘翅！"
-lore3 = "要合併，在物品欄中按住 Shift 點擊一個物品到另一個物品上。"
-lore4 = "要拆解盔甲，潛行時丟棄物品即可拆解。"
-lore5 = "如果你的複合盔甲被摧毀，裡面所有物品都會丟失。"
-lore6 = "我不需要盔甲，它令我失望……"
-lore = ["這是旅行的絕佳技能。", "飛行中動態合併及切換盔甲/鞘翅！", "要合併，在物品欄中按住 Shift 點擊一個物品到另一個物品上。", "要拆解盔甲，潛行時丟棄物品即可拆解。", "如果你的複合盔甲被摧毀，裡面所有物品都會丟失。", "我不需要盔甲，它令我失望……"]
-
-# crafting
-[crafting]
-
-[crafting.deconstruction]
-name = "拆解"
-description = "將方塊和物品拆解為可回收的基礎材料！"
-lore1 = "將任何物品丟在地上。"
-lore2 = "然後，潛行並用剪刀右鍵點擊"
-lore = ["將任何物品丟在地上。", "然後，潛行並用剪刀右鍵點擊"]
-
-[crafting.xp]
-name = "合成經驗"
-description = "合成時獲得被動經驗"
-lore1 = "合成時獲得經驗"
-lore = ["合成時獲得經驗"]
-
-[crafting.reconstruction]
-name = "礦石重建"
-description = "用基礎材料重新合成礦石！"
-lore1 = "8 個掉落物 + 1 個載體 = 1 個礦石（無序合成）"
-lore2 = "掉落物必須先熔煉（如果適用）"
-lore3 = "不包括：殘骸、石英、綠寶石等……"
-lore4 = "載體 = 外殼方塊。例如：石頭、地獄石、深板岩"
-lore = ["8 個掉落物 + 1 個載體 = 1 個礦石（無序合成）", "掉落物必須先熔煉（如果適用）", "不包括：殘骸、石英、綠寶石等……", "載體 = 外殼方塊。例如：石頭、地獄石、深板岩"]
-
-[crafting.leather]
-name = "可合成皮革"
-description = "用腐肉製作皮革"
-lore1 = "只需要把腐肉丟到營火上！"
-lore = ["只需要把腐肉丟到營火上！"]
-
-[crafting.backpacks]
-name = "布蒂利埃的背包！"
-description = "將 Mojang 的收納袋功能加入遊戲！"
-lore1 = "你需要在生存模式下才能使用"
-lore2 = "LLL：皮革、皮革、皮革"
-lore3 = "LCL：皮革、箱子、皮革"
-lore4 = "LLL：皮革、皮革、皮革"
-lore = ["你需要在生存模式下才能使用", "LLL：皮革、皮革、皮革", "LCL：皮革、箱子、皮革", "LLL：皮革、皮革、皮革"]
-
-[crafting.stations]
-name = "便攜工作台！"
-description = "在手掌中使用工作台！"
-lore2 = "關閉時遺忘在工作台裡的任何物品都會永遠丟失！"
-lore3 = "有效工作台：鐵砧、工作台、砂輪、製圖台、切石機、織布機"
-lore = ["關閉時遺忘在工作台裡的任何物品都會永遠丟失！", "有效工作台：鐵砧、工作台、砂輪、製圖台、切石機、織布機"]
-
-[crafting.skulls]
-name = "可合成頭顱！"
-description = "用材料可以合成生物頭顱！"
-lore1 = "用以下物品圍繞骨塊以獲得對應頭顱："
-lore2 = "殭屍：腐肉"
-lore3 = "骷髏：骨頭"
-lore4 = "苦力怕：火藥"
-lore5 = "凋零骷髏：地獄磚"
-lore6 = "龍首：龍息"
-lore = ["用以下物品圍繞骨塊以獲得對應頭顱：", "殭屍：腐肉", "骷髏：骨頭", "苦力怕：火藥", "凋零骷髏：地獄磚", "龍首：龍息"]
-
-# chronos
-[chronos]
-
-[chronos.time_in_a_bottle]
-name = "時光之瓶"
-description = "隨身攜帶的時間之瓶會儲存時間，消耗儲存的時間以加速計時方塊、可生長物和幼年動物等可成長實體。配方（無序）：迅捷藥水 + 時鐘 + 玻璃瓶。"
-lore1 = "每刻充能的儲存秒數"
-lore2 = "每儲存秒數的時間加速"
-lore3 = "配方（無序）：迅捷藥水 + 時鐘 + 玻璃瓶"
-lore = ["每刻充能的儲存秒數", "每儲存秒數的時間加速", "配方（無序）：迅捷藥水 + 時鐘 + 玻璃瓶"]
-
-[chronos.aberrant_touch]
-name = "異常觸碰"
-description = "近戰攻擊以飢餓為代價施加疊加緩速效果，PvP 有嚴格上限，5 層時定身目標。"
-lore1 = "近戰攻擊施加疊加緩速"
-lore2 = "PvE 緩速持續時間上限"
-lore3 = "PvP 緩速強度上限"
-lore = ["近戰攻擊施加疊加緩速", "PvE 緩速持續時間上限", "PvP 緩速強度上限"]
-
-[chronos.instant_recall]
-name = "瞬間回溯"
-description = "手持時鐘左鍵或右鍵點擊以回溯到最近的快照，恢復生命值和飢餓值。"
-lore1 = "回溯時長"
-lore2 = "冷卻時間"
-lore3 = "不回溯物品欄"
-lore = ["回溯時長", "冷卻時間", "不回溯物品欄"]
-
-[chronos.time_bomb]
-name = "時間炸彈"
-description = "投擲合成的時空炸彈，產生時間力場，減速實體並凍結投射物。"
-lore1 = "時間力場半徑"
-lore2 = "時間力場持續時間"
-lore3 = "炸彈冷卻時間"
-lore4 = "配方（無序）：時鐘 + 雪球 + 鑽石 + 沙子"
-lore = ["時間力場半徑", "時間力場持續時間", "炸彈冷卻時間", "配方（無序）：時鐘 + 雪球 + 鑽石 + 沙子"]
-
-# discovery
-[discovery]
-
-[discovery.armor]
-name = "世界之甲"
-description = "根據附近方塊硬度獲得被動護甲。"
-lore1 = "被動護甲"
-lore2 = "取決於附近方塊硬度"
-lore3 = "護甲強度："
-lore = ["被動護甲", "取決於附近方塊硬度", "護甲強度："]
-
-[discovery.unity]
-name = "實驗性統合"
-description = "拾取經驗球時為隨機技能增加經驗。"
-lore1 = "經驗 "
-lore2 = "每個經驗球"
-lore = ["經驗 ", "每個經驗球"]
-
-[discovery.resist]
-name = "實驗性抗性"
-description = "消耗經驗來減免傷害，僅在攻擊會讓你降至 5 顆心以下或致死時觸發。"
-lore0 = "僅在危急生命值（<= 5 顆心）時觸發，每 15 秒一次"
-lore1 = " 減免傷害"
-lore2 = "經驗消耗"
-lore = ["僅在危急生命值（<= 5 顆心）時觸發，每 15 秒一次", " 減免傷害", "經驗消耗"]
-
-[discovery.villager]
-name = "村民吸引力"
-description = "與村民交易時獲得更好的交易！"
-lore1 = "每次與村民互動時消耗經驗"
-lore2 = "每次互動有機率消耗經驗以增強交易"
-lore3 = "每次互動所需經驗消耗"
-lore = ["每次與村民互動時消耗經驗", "每次互動有機率消耗經驗以增強交易", "每次互動所需經驗消耗"]
-
-# enchanting
-[enchanting]
-
-[enchanting.lapis_return]
-name = "青金石回饋"
-description = "多消耗 1 級經驗，但有機率免費返還青金石"
-lore1 = "每升一級，附魔花費增加 1 級，但最多可返還 3 個青金石"
-lore = ["每升一級，附魔花費增加 1 級，但最多可返還 3 個青金石"]
-
-[enchanting.quick_enchant]
-name = "快速附魔"
-description = "直接用附魔書點擊物品來附魔。"
-lore1 = "最大合併等級"
-lore2 = "無法對超過 "
-lore3 = "能力的物品附魔"
-lore = ["最大合併等級", "無法對超過 ", "能力的物品附魔"]
-
-[enchanting.return]
-name = "經驗返還"
-description = "附魔物品時返還部分經驗。"
-lore1 = "附魔消耗的經驗有機率被退還"
-lore2 = "每次附魔返還經驗"
-lore = ["附魔消耗的經驗有機率被退還", "每次附魔返還經驗"]
-
-# excavation
-[excavation]
-
-[excavation.haste]
-name = "急迫挖掘者"
-description = "挖掘時獲得急迫效果，加速挖掘過程！"
-lore1 = "挖掘時獲得急迫效果"
-lore2 = "x 級急迫效果（開始挖掘任何方塊時觸發）"
-lore = ["挖掘時獲得急迫效果", "x 級急迫效果（開始挖掘任何方塊時觸發）"]
-
-[excavation.spelunker]
-name = "超級透視洞穴探險家！"
-description = "透過地面看見礦石！"
-lore1 = "副手持礦石，主手持螢光漿果，然後潛行！"
-lore2 = "方塊範圍："
-lore3 = "使用時消耗螢光漿果"
-lore = ["副手持礦石，主手持螢光漿果，然後潛行！", "方塊範圍：", "使用時消耗螢光漿果"]
-
-[excavation.drop_to_inventory]
-name = "鏟子掉落物自動入包"
-
-[excavation.omni_tool]
-name = "OMNI - T.O.O.L."
-description = "Tackle 精心設計的豪華萬能工具"
-lore1 = "可能是最強大的功能之一，允許你"
-lore2 = "根據需求動態合併及切換工具。"
-lore3 = "要合併，在物品欄中按住 Shift 點擊一個物品到另一個物品上。"
-lore4 = "要拆解工具，潛行時丟棄物品即可拆解。"
-lore5 = "萬能工具中的工具不會損壞，但壞掉的工具無法使用"
-lore6 = "個可合併物品。"
-lore7 = "你可以帶五六個工具，或者只帶這一個！"
-lore = ["可能是最強大的功能之一，允許你", "根據需求動態合併及切換工具。", "要合併，在物品欄中按住 Shift 點擊一個物品到另一個物品上。", "要拆解工具，潛行時丟棄物品即可拆解。", "萬能工具中的工具不會損壞，但壞掉的工具無法使用", "個可合併物品。", "你可以帶五六個工具，或者只帶這一個！"]
-
-# herbalism
-[herbalism]
-
-[herbalism.growth_aura]
-name = "生長光環"
-description = "在你周圍的光環中加速自然生長"
-lore1 = "方塊半徑"
-lore2 = "生長光環強度"
-lore3 = "食物消耗"
-lore = ["方塊半徑", "生長光環強度", "食物消耗"]
-
-[herbalism.hippo]
-name = "草藥師的河馬"
-description = "食用食物時獲得更多飽和度"
-lore1 = "食物）食用時額外飽和度"
-lore = ["食物）食用時額外飽和度"]
-
-[herbalism.myconid]
-name = "草藥師的菌絲體"
-description = "賦予你合成菌絲的能力"
-lore1 = "任意泥土 + 棕色蘑菇 + 紅色蘑菇即可合成菌絲。"
-lore = ["任意泥土 + 棕色蘑菇 + 紅色蘑菇即可合成菌絲。"]
-
-[herbalism.terralid]
-name = "草藥師的地衣"
-description = "賦予你合成草地方塊的能力"
-lore1 = "3 個種子放在 3 塊泥土上方，即可合成 3 塊草地方塊。"
-lore = ["3 個種子放在 3 塊泥土上方，即可合成 3 塊草地方塊。"]
-
-[herbalism.cobweb]
-name = "蛛網織者"
-description = "賦予你在工作台中合成蛛網的能力"
-lore1 = "9 根線即可合成一個蛛網。"
-lore = ["9 根線即可合成一個蛛網。"]
-
-[herbalism.mushroom_blocks]
-name = "蘑菇製造者"
-description = "賦予你在工作台中合成蘑菇方塊的能力"
-lore1 = "4 個蘑菇合成一個蘑菇塊，或一個蘑菇塊合成蘑菇柄。"
-lore = ["4 個蘑菇合成一個蘑菇塊，或一個蘑菇塊合成蘑菇柄。"]
-
-[herbalism.drop_to_inventory]
-name = "鋤頭掉落物自動入包"
-
-[herbalism.hungry_shield]
-name = "飢餓護盾"
-description = "受到傷害時先消耗飢餓值而非生命值。"
-lore1 = "飢餓抵抗傷害"
-lore = ["飢餓抵抗傷害"]
-
-[herbalism.luck]
-name = "草藥師的幸運"
-description = "破壞草/花時有機率獲得隨機物品"
-lore0 = "花 = 食物，草 = 種子"
-lore1 = "破壞花時獲得物品的機率"
-lore2 = "破壞草時獲得物品的機率"
-lore = ["花 = 食物，草 = 種子", "破壞花時獲得物品的機率", "破壞草時獲得物品的機率"]
-
-[herbalism.replant]
-name = "收割與重種"
-description = "手持鋤頭右鍵點擊作物以收割並重新種植。"
-lore1 = "重種範圍半徑"
-lore = ["重種範圍半徑"]
-
-# hunter
-[hunter]
-
-[hunter.adrenaline]
-name = "腎上腺素"
-description = "生命值越低，近戰傷害越高"
-lore1 = "最大傷害"
-lore = ["最大傷害"]
-
-[hunter.penalty]
-name = ""
-description = ""
-lore1 = "飢餓值耗盡時會獲得中毒效果"
-lore = ["飢餓值耗盡時會獲得中毒效果"]
-
-[hunter.drop_to_inventory]
-name = "物品自動入包"
-description = "擊殺生物或用劍破壞方塊時，掉落物傳送到你的物品欄"
-lore1 = "生物/方塊掉落的物品會自動進入你的物品欄（如果有空間）。"
-lore = ["生物/方塊掉落的物品會自動進入你的物品欄（如果有空間）。"]
-
-[hunter.invisibility]
-name = "隱形之步"
-description = "受到攻擊時獲得隱身效果，以飢餓為代價"
-lore1 = "受擊時獲得被動隱身效果"
-lore2 = "x 隱身效果疊加，受擊後持續 3 秒"
-lore3 = "x 疊加飢餓"
-lore4 = "飢餓疊加持續時間和倍率。"
-lore5 = "隱身持續時間"
-lore = ["受擊時獲得被動隱身效果", "x 隱身效果疊加，受擊後持續 3 秒", "x 疊加飢餓", "飢餓疊加持續時間和倍率。", "隱身持續時間"]
-
-[hunter.jump_boost]
-name = "獵人之巔"
-description = "受到攻擊時獲得跳躍提升效果，以飢餓為代價"
-lore1 = "受擊時獲得被動跳躍提升效果"
-lore2 = "x 跳躍提升效果疊加，受擊後持續 3 秒"
-lore3 = "x 疊加飢餓"
-lore4 = "飢餓疊加持續時間和倍率。"
-lore5 = "跳躍提升疊加倍率，非持續時間。"
-lore = ["受擊時獲得被動跳躍提升效果", "x 跳躍提升效果疊加，受擊後持續 3 秒", "x 疊加飢餓", "飢餓疊加持續時間和倍率。", "跳躍提升疊加倍率，非持續時間。"]
-
-[hunter.luck]
-name = "獵人的幸運"
-description = "受到攻擊時獲得幸運效果，以飢餓為代價"
-lore1 = "受擊時獲得被動幸運效果"
-lore2 = "x 幸運效果疊加，受擊後持續 3 秒"
-lore3 = "x 疊加飢餓"
-lore4 = "飢餓疊加持續時間和倍率。"
-lore5 = "幸運疊加倍率，非持續時間。"
-lore = ["受擊時獲得被動幸運效果", "x 幸運效果疊加，受擊後持續 3 秒", "x 疊加飢餓", "飢餓疊加持續時間和倍率。", "幸運疊加倍率，非持續時間。"]
-
-[hunter.regen]
-name = "獵人的再生"
-description = "受到攻擊時獲得再生效果，以飢餓為代價"
-lore1 = "受擊時獲得被動再生效果"
-lore2 = "x 再生效果疊加，受擊後持續 3 秒"
-lore3 = "x 疊加飢餓"
-lore4 = "飢餓疊加持續時間和倍率。"
-lore5 = "再生疊加倍率，非持續時間。"
-lore = ["受擊時獲得被動再生效果", "x 再生效果疊加，受擊後持續 3 秒", "x 疊加飢餓", "飢餓疊加持續時間和倍率。", "再生疊加倍率，非持續時間。"]
-
-[hunter.resistance]
-name = "獵人的抗性"
-description = "受到攻擊時獲得抗性提升效果，以飢餓為代價"
-lore1 = "受擊時獲得被動抗性提升效果"
-lore2 = "x 抗性提升效果疊加，受擊後持續 3 秒"
-lore3 = "x 疊加飢餓"
-lore4 = "飢餓疊加持續時間和倍率。"
-lore5 = "抗性提升疊加倍率，非持續時間。"
-lore = ["受擊時獲得被動抗性提升效果", "x 抗性提升效果疊加，受擊後持續 3 秒", "x 疊加飢餓", "飢餓疊加持續時間和倍率。", "抗性提升疊加倍率，非持續時間。"]
-
-[hunter.speed]
-name = "獵人的速度"
-description = "受到攻擊時獲得速度效果，以飢餓為代價"
-lore1 = "受擊時獲得被動速度效果"
-lore2 = "x 速度效果疊加，受擊後持續 3 秒"
-lore3 = "x 疊加飢餓"
-lore4 = "飢餓疊加持續時間和倍率。"
-lore5 = "速度疊加倍率，非持續時間。"
-lore = ["受擊時獲得被動速度效果", "x 速度效果疊加，受擊後持續 3 秒", "x 疊加飢餓", "飢餓疊加持續時間和倍率。", "速度疊加倍率，非持續時間。"]
-
-[hunter.strength]
-name = "獵人的力量"
-description = "受到攻擊時獲得力量效果，以飢餓為代價"
-lore1 = "受擊時獲得被動力量效果"
-lore2 = "x 力量效果疊加，受擊後持續 3 秒"
-lore3 = "x 疊加飢餓"
-lore4 = "飢餓疊加持續時間和倍率。"
-lore5 = "力量疊加倍率，非持續時間。"
-lore = ["受擊時獲得被動力量效果", "x 力量效果疊加，受擊後持續 3 秒", "x 疊加飢餓", "飢餓疊加持續時間和倍率。", "力量疊加倍率，非持續時間。"]
-
-# nether
-[nether]
-
-[nether.skull_toss]
-name = "凋零頭顱投擲"
-description1 = "釋放你內心的凋零，使用"
-description2 = "某人的"
-description3 = "頭顱。"
-lore1 = "頭顱投擲間的冷卻秒數。"
-lore2 = "使用凋零骷髏頭：投擲"
-lore3 = "凋零頭顱"
-lore4 = "撞擊時爆炸。"
-lore = ["頭顱投擲間的冷卻秒數。", "使用凋零骷髏頭：投擲", "凋零頭顱", "撞擊時爆炸。"]
-
-[nether.wither_resist]
-name = "凋零抗性"
-description = "借助乖合金之力抵抗凋零效果。"
-lore1 = "機率抵消凋零效果（每件裝備）。"
-lore2 = "被動：穿著乖合金裝備有機率抵消"
-lore3 = "凋零效果。"
-lore = ["機率抵消凋零效果（每件裝備）。", "被動：穿著乖合金裝備有機率抵消", "凋零效果。"]
-
-[nether.fire_resist]
-name = "火焰抗性"
-description = "通過硬化皮膚來抵禦火焰。"
-lore1 = "機率抵消燃燒效果！"
-lore = ["機率抵消燃燒效果！"]
-
-# pickaxe
-[pickaxe]
-
-[pickaxe.auto_smelt]
-name = "自動熔煉"
-description = "允許你自動熔煉開採的原版礦石"
-lore1 = "可熔煉的礦石會自動熔煉"
-lore2 = "% 機率獲得額外產物"
-lore = ["可熔煉的礦石會自動熔煉", "% 機率獲得額外產物"]
-
-[pickaxe.chisel]
-name = "礦石鑿子"
-description = "右鍵點擊礦石以鑿出更多產物，但會大量消耗耐久。"
-lore1 = "掉落機率"
-lore2 = "工具磨損"
-lore = ["掉落機率", "工具磨損"]
-
-[pickaxe.drop_to_inventory]
-name = "鎬子掉落物自動入包"
-description = "破壞方塊時掉落物自動傳送到你的物品欄"
-lore1 = "方塊掉落的物品會自動進入你的物品欄（如果有空間）。"
-lore = ["方塊掉落的物品會自動進入你的物品欄（如果有空間）。"]
-
-[pickaxe.silk_spawner]
-name = "鎬子絲綢刷怪籠"
-description = "使刷怪籠被破壞時掉落"
-lore1 = "使用絲綢觸感可以採集刷怪籠。"
-lore2 = "潛行時可以破壞刷怪籠。"
-lore = ["使用絲綢觸感可以採集刷怪籠。", "潛行時可以破壞刷怪籠。"]
-
-[pickaxe.vein_miner]
-name = "連鎖挖礦"
-description = "允許你連鎖挖掘原版礦石的礦脈/群"
-lore1 = "潛行並挖掘礦石"
-lore2 = "連鎖挖礦範圍"
-lore3 = "此技能不會合併所有掉落物！"
-lore = ["潛行並挖掘礦石", "連鎖挖礦範圍", "此技能不會合併所有掉落物！"]
-
-# ranged
-[ranged]
-
-[ranged.arrow_recovery]
-name = "箭矢回收"
-description = "擊殺敵人後回收箭矢。"
-lore1 = "命中/擊殺時回收箭矢的機率"
-lore2 = "機率："
-lore = ["命中/擊殺時回收箭矢的機率", "機率："]
-
-[ranged.web_shot]
-name = "蛛網陷阱"
-description = "命中目標時在其周圍產生蛛網！"
-lore1 = "8 個蛛網圍繞 1 個雪球，然後投擲！"
-lore2 = "秒的籠子，大約。"
-lore = ["8 個蛛網圍繞 1 個雪球，然後投擲！", "秒的籠子，大約。"]
-
-[ranged.force_shot]
-name = "強力射擊"
-description = "投射物飛得更遠、更快！"
-advancementname = "遠距離射擊"
-advancementlore = "從超過 30 格方塊外命中目標！"
-lore1 = "投射物速度"
-lore = ["投射物速度"]
-
-[ranged.lunge_shot]
-name = "弓步射擊"
-description = "下落時射箭會將你拋向隨機方向"
-lore1 = "隨機爆發速度"
-lore = ["隨機爆發速度"]
-
-[ranged.arrow_piercing]
-name = "箭矢穿透"
-description = "為投射物添加穿透效果！穿越目標！"
-lore1 = "穿透目標數"
-lore = ["穿透目標數"]
-
-# rift
-[rift]
-
-[rift.remote_access]
-name = "遠程存取"
-description = "從虛空中取物，存取已標記的容器。"
-lore1 = "乖珍珠 + 指南針 = 亞空間之鑰"
-lore2 = "此物品允許你遠程存取容器"
-lore3 = "製作完成後查看物品以瞭解使用方法"
-notcontainer = "那不是容器"
-lore = ["乖珍珠 + 指南針 = 亞空間之鑰", "此物品允許你遠程存取容器", "製作完成後查看物品以瞭解使用方法"]
-
-[rift.blink]
-name = "裂痕閃現"
-description = "連續跳躍兩次即可朝視線方向閃現。成功閃現不會消耗終界珍珠，但會承受普通珍珠傷害，且傷害隨等級降低。"
-lore1 = "閃現距離"
-lore2 = "自身傷害（心）"
-lore = ["閃現距離", "自身傷害（心）"]
-
-[rift.chest]
-name = "便攜乖影箱"
-description = "手持乖影箱左鍵點擊即可打開。"
-lore1 = "手持乖影箱點擊即可打開（不用放置）"
-lore = ["手持乖影箱點擊即可打開（不用放置）"]
-
-[rift.descent]
-name = "反漂浮"
-description = "厭倦了被困在空中？這個技能就是為你準備的！"
-lore1 = "只需潛行即可下降，且下降速度低於正常！"
-lore2 = "冷卻："
-lore = ["只需潛行即可下降，且下降速度低於正常！", "冷卻："]
-
-[rift.gate]
-name = "裂痕之門"
-description = "傳送到標記的位置。"
-lore1 = "合成：綠寶石 + 紫水晶碎片 + 乖珍珠"
-lore2 = "使用前請仔細閱讀！"
-lore3 = "5 秒延遲，"
-lore4 = "在此動畫期間你可能會死亡"
-lore = ["合成：綠寶石 + 紫水晶碎片 + 乖珍珠", "使用前請仔細閱讀！", "5 秒延遲，", "在此動畫期間你可能會死亡"]
-
-[rift.resist]
-name = "裂痕抗性"
-description = "使用乖影物品或技能時獲得抗性提升"
-lore1 = "+ 被動：使用裂痕技能或乖影物品時獲得抗性提升"
-lore2 = "不包括便攜乖影箱，僅限可消耗的物品"
-lore = ["+ 被動：使用裂痕技能或乖影物品時獲得抗性提升", "不包括便攜乖影箱，僅限可消耗的物品"]
-
-[rift.visage]
-name = "裂痕面紗"
-description = "物品欄中有乖珍珠時，終界使者不會對你產生敵意。"
-lore1 = "物品欄中有乖珍珠時，終界使者不會對你產生敵意。"
-lore = ["物品欄中有乖珍珠時，終界使者不會對你產生敵意。"]
-
-# seaborn
-[seaborn]
-
-[seaborn.oxygen]
-name = "有機氧氣罐"
-description = "小肺也能容納更多氧氣！"
-lore1 = "氧氣容量增加"
-lore = ["氧氣容量增加"]
-
-[seaborn.fishers_fantasy]
-name = "釣魚達人"
-description = "釣魚時獲得更多經驗和更多魚！"
-lore1 = "每升一級都有機率獲得更多經驗和魚！"
-lore = ["每升一級都有機率獲得更多經驗和魚！"]
-
-[seaborn.haste]
-name = "海龜礦工"
-description = "在水下挖掘時獲得急迫效果！"
-lore1 = "水下呼吸效果結束後，在水下挖掘時獲得急迫 3 效果（可與親水性疊加）！"
-lore = ["水下呼吸效果結束後，在水下挖掘時獲得急迫 3 效果（可與親水性疊加）！"]
-
-[seaborn.night_vision]
-name = "海龜視覺"
-description = "在水下時獲得夜視效果"
-lore1 = "水下呼吸效果結束後，在水下時直接獲得夜視效果！"
-lore = ["水下呼吸效果結束後，在水下時直接獲得夜視效果！"]
-
-[seaborn.dolphin_grace]
-name = "海豚恩惠"
-description = "不需要海豚也能像海豚一樣游泳"
-lore1 = "+ 被動：獲得"
-lore2 = "x 速度（海豚恩惠）"
-lore3 = "精密的德國工程——等等，好像不對……與深海漫步不相容"
-lore = ["+ 被動：獲得", "x 速度（海豚恩惠）", "精密的德國工程——等等，好像不對……與深海漫步不相容"]
-
-# stealth
-[stealth]
+[skill.kinetics]
+name = "動詞"
+icon = "⚒"
+description = "運動就是力量. 用梅子砸,用長矛充電, 彎曲動力本身: 彈跳、發射、懸浮和發音良好的墜落 都餵你掌握的."
+
+[snippets.gui]
+level = "等級"
+level_value = "職等 {level}"
+knowledge = "知識"
+knowledge_value = "{knowledge} 知識"
+power_used = "已使用能力"
+power_used_value = "所用電源 {power}"
+not_learned = "尚未學習"
+xp = "經驗至"
+welcome = "歡迎！"
+welcome_back = "歡迎回來！"
+xp_bonus_for_time = "經驗增益，持續"
+max_ability_power = "最大技能能力"
+unlock_this_by_clicking = "右鍵點擊以解鎖："
+back = "返回"
+unlearn_all = "遺忘全部技能"
+unlearned_all = "已全部遺忘"
+
+[snippets.adapt_menu]
+may_not_unlearn = "你無法遺忘此技能"
+may_unlearn = "可學習/遺忘"
+knowledge_cost = "知識花費"
+knowledge_available = "可用知識"
+already_learned = "已學習"
+unlearn_refund = "點擊以遺忘並退還"
+no_refunds = "極限模式，已禁用退還"
+knowledge = "知識"
+click_learn = "點擊以學習"
+no_knowledge = "（你沒有任何知識）"
+you_only_have = "你只有"
+how_to_level_up = "升級技能以提升你的最大能力。"
+not_enough_power = "能力不足！每級技能需要花費 1 點能力。"
+power = "能力"
+power_drain = "能力消耗"
+learned = "已學習 "
+unlearned = "已遺忘 "
+learned_title = "學習 {adaptation}"
+unlearned_title = "未學習 {adaptation}"
+may_not_unlearn_title = "無法取消學習 {adaptation}"
+activator_block = "書架"
+
+[snippets.knowledge_orb]
+contains = "包含"
+knowledge = "知識"
+rightclick = "右鍵點擊"
+togainknowledge = "以獲得此知識"
+knowledge_orb = "知識之珠"
+contents = "包含 {knowledge} {skill} 知識"
+use = "正確的點選來獲得這種知識"
+
+[snippets.experience_orb]
+contains = "包含"
+xp = "經驗"
+rightclick = "右鍵點擊"
+togainxp = "以獲得此經驗"
+xporb = "經驗球"
+contents = "包含 {experience} {skill} 經歷"
+use = "正確的點選來獲得這種經驗"
+
+[snippets.effects]
+enabled = "Adapt 能力效應現在可見."
+disabled = "Adapt 能力效應現在被隱藏在你身上."
+invalid_state = "無效狀態. 使用 enabled=true, enabled=false, 或省略切換."
+
+[snippets.xp]
+inspired = "靈感! 新鮮活動獎金"
 
 [stealth.ghost_armor]
 name = "幽靈戰甲"
@@ -1884,6 +5680,8 @@ description = "潛行時獲得夜視效果"
 lore1 = "獲得一段"
 lore2 = "夜視"
 lore3 = "效果（潛行時）"
+lore4 = "夜視效果"
+lore5 = "（潛行時）"
 lore = ["獲得一段", "夜視", "效果（潛行時）"]
 
 [stealth.snatch]
@@ -1905,35 +5703,172 @@ lore1 = "潛行時防止終界使者攻擊"
 lore2 = "防止所有終界使者攻擊"
 lore = ["潛行時防止終界使者攻擊", "防止所有終界使者攻擊"]
 
-# sword
-[sword]
+[stealth.silent_step]
+name = "潛行"
+description = "隱匿核心,用於後臺、剪刀和暗殺. 偷偷摸摸地利用觀察者的意識;隱形或活躍的影子暗鬼總是算作未被發現."
+lore1 = "移動檢測抑制半徑"
+lore2 = "黑道後塔損傷"
+lore3 = "玩家 背刺 損害獎金"
+lore = ["移動檢測抑制半徑", "黑道後塔損傷", "玩家 背刺 損害獎金"]
+
+[stealth.shadow_decoy]
+name = "陰影偽裝"
+description = "別偷偷摸摸的去產出一個 戴著你皮膚和裝備的誘餌 來拉近暴徒的攻擊."
+lore1 = "偽裝持續時間"
+lore2 = "欺騙吸引半徑"
+lore3 = "暗號冷卻時間"
+lore = ["偽裝持續時間", "欺騙吸引半徑", "暗號冷卻時間"]
+
+[stealth.shadowmeld]
+name = "陰影"
+description = "隱形人報告你時繼續偷偷摸摸的. 偵測、行動、損害或站立結束."
+lore1 = "未被發現的偷窺延遲"
+lore = ["未被發現的偷窺延遲"]
+
+[stealth.smoke_pellet]
+name = "菸葉"
+description = "偷偷摸摸地把火藥拿在手裡 扔一個目標煙雲. 裡面的玩家會隱形地轉身,暴徒會掉下阿格格羅,無法重新瞄準他們,活著的實體會被矇蔽."
+lore1 = "雲半徑"
+lore2 = "雲長"
+lore = ["雲半徑", "雲長"]
+
+[stealth.cutpurse]
+name = "扒手"
+description = "當潛行判定你未被發現時，攻擊掠奪者、衛道士和豬布林有機率在不擊殺它們的情況下偷取戰利品。"
+lore1 = "偷取機率"
+lore2 = "戰利品堆數"
+lore = ["偷取機率", "戰利品堆數"]
+
+[stealth.trap_sense]
+name = "陷阱感"
+description = "在偷偷摸摸的時候,附近被困的胸膛,絆線繩,鉤子,壓力板,以及cu塊私自發光. 最大關卡可以防止您所有移動振動觸發 伏聆."
+lore1 = "檢測範圍"
+lore2 = "禁止飛毛腿運動"
+lore = ["檢測範圍", "禁止飛毛腿運動"]
+
+[stealth.assassinate]
+name = "暗殺"
+description = "雖然隱形人報告你沒有被發現, 打擊符合資格的非老闆暴徒 他們的當前健康 而不是合成過度殺傷力損害."
+lore1 = "可執行的保健卡"
+lore2 = "冷卻時間"
+lore = ["可執行的保健卡", "冷卻時間"]
+
+[stealth.decoy_swap]
+name = "偽裝交換"
+description = "需要陰影偽裝. 趁你的誘餌還活著,雙塔偷來換地方."
+lore1 = "交換範圍"
+lore2 = "冷卻時間"
+lore = ["交換範圍", "冷卻時間"]
+
+[stealth.umbral_recovery]
+name = "暗影 恢復"
+description = "在偷偷退縮飢餓和擴充套件任何活動隱形視窗時殺死."
+lore1 = "飢餓退款"
+lore2 = "隱形擴充套件"
+lore = ["飢餓退款", "隱形擴充套件"]
 
 [sword.machete]
 name = "砍刀"
 description = "輕鬆砍穿叢林植物！"
 lore1 = "砍伐半徑"
-lore2 = "砍伐冷卻"
+lore2 = "砍伐恢復時間"
 lore3 = "工具磨損"
-lore = ["砍伐半徑", "砍伐冷卻", "工具磨損"]
+lore = ["砍伐半徑", "砍伐恢復時間", "工具磨損"]
 
 [sword.bloody_blade]
 name = "血刃"
 description = "用劍攻擊會造成流血效果！"
 lore1 = "用劍攻擊生物時造成流血"
 lore2 = "流血持續時間"
-lore3 = "流血冷卻"
-lore = ["用劍攻擊生物時造成流血", "流血持續時間", "流血冷卻"]
+lore3 = "流血恢復時間"
+lore = ["用劍攻擊生物時造成流血", "流血持續時間", "流血恢復時間"]
 
 [sword.poisoned_blade]
 name = "淬毒之刃"
 description = "用劍攻擊會造成中毒效果！"
 lore1 = "用劍攻擊生物時造成中毒"
 lore2 = "中毒持續時間"
-lore3 = "中毒冷卻"
-lore = ["用劍攻擊生物時造成中毒", "中毒持續時間", "中毒冷卻"]
+lore3 = "中毒恢復時間"
+lore = ["用劍攻擊生物時造成中毒", "中毒持續時間", "中毒恢復時間"]
 
-# taming
-[taming]
+[sword.dual_wield]
+name = "雙線懸索"
+description = "每隻手拿著一把劍 就會有傷痕. 相配的劍會給予更高的獎金."
+lore1 = "匹配劍獎"
+lore2 = "混合劍獎"
+lore = ["匹配劍獎", "混合劍獎"]
+
+[sword.executioners_edge]
+name = "劊子手邊緣"
+description = "擊劍對低健康目標造成額外傷害."
+lore1 = "賠償金損害"
+lore2 = "健康門檻"
+lore = ["賠償金損害", "健康門檻"]
+
+[sword.riposte_window]
+name = "斜坡視窗"
+description = "用盾牌手臂擋住一條短長的波紋 準備下一輪攻擊."
+lore1 = "斜坡視窗"
+lore2 = "獎金"
+lore = ["斜坡視窗", "獎金"]
+
+[sword.crimson_cyclone]
+name = "赤色旋風"
+description = "降落在劍穴上,在目標周圍放血."
+lore1 = "氣旋半徑"
+lore2 = "旋風損害"
+lore3 = "氣旋冷卻時間"
+lore = ["氣旋半徑", "旋風損害", "氣旋冷卻時間"]
+
+[sword.lunge_strike]
+name = "龍格罷工"
+description = "用劍衝刺 衝進擊球中."
+lore1 = "龍格部隊"
+lore2 = "獎金"
+lore = ["龍格部隊", "獎金"]
+
+[sword.blade_flow]
+name = "刀鋒流"
+description = "鏈劍擊打以構建攻擊速度堆疊. 破壞會破壞水流."
+lore1 = "最大流量堆疊"
+lore2 = "攻擊速度/ 堆疊"
+lore = ["最大流量堆疊", "攻擊速度/ 堆疊"]
+
+[sword.duelists_focus]
+name = "決戰焦點"
+description = "處理更多的破壞,減少消耗,而一個敵人正與你交戰;焦點攻擊者在防禦啟動時短暫發光."
+lore1 = "賠償金損害"
+lore2 = "減少損失"
+lore = ["賠償金損害", "減少損失"]
+
+[sword.whetstone_ritual]
+name = "花石禮"
+description = "右鍵擊打磨石 用劍來磨磨一個臨時的 耐久性 XP 職等."
+lore1 = "銳度水平"
+lore2 = "巴夫持續時間"
+lore = ["銳度水平", "巴夫持續時間"]
+
+[sword.crescent_guard]
+name = "新月守衛"
+description = "用劍完成擊殺時會短暫獲得一批傷害吸收生命值。"
+lore1 = "傷害吸收生命值"
+lore2 = "守衛持續時間"
+lore = ["傷害吸收生命值", "守衛持續時間"]
+
+[sword.hamstring]
+name = "捆綁"
+description = "對短跑或逃跑目標的打擊 減緩和阻止他們短跑."
+lore1 = "慢度級別"
+lore2 = "緩慢持續時間"
+lore = ["慢度級別", "緩慢持續時間"]
+
+[sword.heirloom_edge]
+name = "海爾盧姆邊緣"
+description = "將劍指向陰道 讓它成為傳承之寶 每殺幾個人 都會得到一筆微小的永久損失獎金."
+lore1 = "銀行損失"
+lore2 = "殺死銀行"
+lore3 = "銀行損失"
+lore = ["銀行損失", "殺死銀行", "銀行損失"]
 
 [taming.damage]
 name = "馴獸傷害"
@@ -1953,8 +5888,83 @@ description = "提高馴養動物的再生速度。"
 lore1 = "生命/秒"
 lore = ["生命/秒"]
 
-# tragoul
-[tragoul]
+[taming.pack_leader_aura]
+name = "光環 包頭"
+description = "被馴服的同伴在主人身邊獲得速度和再生."
+lore1 = "奧拉半徑"
+lore2 = "奧拉力量"
+lore = ["奧拉半徑", "奧拉力量"]
+
+[taming.beast_recall]
+name = "野獸回憶"
+description = "偷偷右鍵點選,並帶一條線索 提醒你最近的被馴化的同伴 到附近的安全地點. 每一次召回都會導致飢餓."
+lore1 = "回顧半徑"
+lore2 = "回顧冷卻時間"
+lore = ["回顧半徑", "回顧冷卻時間"]
+lore_cost_hunger = "每次召回的飢餓成本"
+
+[taming.shared_pain]
+name = "共同的痛苦"
+description = "將你即將遭受的傷害的一部分分散到附近的同伴身上,而不降低他們的健康水平."
+lore1 = "共有損害"
+lore2 = "同伴健康底線"
+lore = ["共有損害", "同伴健康底線"]
+
+[taming.mounted_tactics]
+name = "已掛載的戰術"
+description = "在騎馬時獲得特定戰鬥和操作獎金."
+lore1 = "掛載損害賠償金"
+lore2 = "減少損失"
+lore = ["掛載損害賠償金", "減少損失"]
+
+[taming.fetch]
+name = "獲取"
+description = "你馴服的狼群聚集在附近 扔下的物品,直接帶給你."
+lore1 = "獲取範圍"
+lore2 = "攜帶機會"
+lore = ["獲取範圍", "攜帶機會"]
+
+[taming.alphas_command]
+name = "阿爾法指揮部"
+description = "偷偷左擊,一邊握著骨頭射射一個目標,用私人的紅色光芒標記它,並指揮附近的戰鬥寵物集中它. 成功的命令消耗一個骨頭."
+lore1 = "命令範圍"
+lore2 = "焦點持續時間"
+lore = ["命令範圍", "焦點持續時間"]
+
+[taming.guardian_instinct]
+name = "守護者本能"
+description = "近親寵物跳躍攔截射向你們的彈丸,自己減輕損害."
+lore1 = "攔截機會"
+lore2 = "減少損失"
+lore = ["攔截機會", "減少損失"]
+
+[taming.stable_hand]
+name = "穩定手"
+description = "馴服或飼養的動物永遠偏向於更好的速度、跳躍、健康和安全的墜落距離."
+lore1 = "屬性比對"
+lore2 = "安全瀑布區"
+lore = ["屬性比對", "安全瀑布區"]
+
+[taming.wild_empathy]
+name = "瘋狂的冷漠"
+description = "欺負越多越成功 中立的暴徒對你的憤怒就越慢."
+lore1 = "額外的調製奇數"
+lore2 = "憤怒抵抗組織"
+lore = ["額外的調製奇數", "憤怒抵抗組織"]
+
+[taming.battle_bond]
+name = "戰鬥債券"
+description = "當你的寵物之一 降落一個殺手, 你和附近的包 獲得短暫的力量, 速度, 和再生."
+lore1 = "巴夫級"
+lore2 = "巴夫持續時間"
+lore = ["巴夫級", "巴夫持續時間"]
+
+[taming.last_breath]
+name = "最後一個呼吸"
+description = "致命一擊 寵物滴到 1 HP, 是短暫的無情的, 並提醒你一方."
+lore1 = "每盤冷卻時間"
+lore2 = "不可侵犯性"
+lore = ["每盤冷卻時間", "不可侵犯性"]
 
 [tragoul.thorns]
 name = "荊棘"
@@ -1968,6 +5978,8 @@ description = "根據你周圍敵人的數量分配你造成的傷害！"
 lore1 = "你周圍的敵人越多，對每個敵人造成的傷害越少"
 lore2 = "範圍："
 lore3 = "對所有實體的額外傷害："
+range = "範圍: {range}"
+damage = "對所有實體增加損害: {damage}"
 lore = ["你周圍的敵人越多，對每個敵人造成的傷害越少", "範圍：", "對所有實體的額外傷害："]
 
 [tragoul.healing]
@@ -1983,10 +5995,92 @@ description = "擊殺敵人或由技能擊殺敵人時，產生一把長矛對�
 lore1 = "長矛會從你擊殺的一切中射出，且如果此技能擊殺了敵人也會觸發。"
 lore2 = "犧牲一部分生命來製造長矛（這可能會殺死你）"
 lore3 = "最大長矛數：1 + "
+max = "馬克斯·蘭斯: 1 + {level}"
 lore = ["長矛會從你擊殺的一切中射出，且如果此技能擊殺了敵人也會觸發。", "犧牲一部分生命來製造長矛（這可能會殺死你）", "最大長矛數：1 + "]
 
-# unarmed
-[unarmed]
+[tragoul.blood_pact]
+name = "血緣契約"
+description = "至少輸了 2 裝甲、抵抗和吸收之後的心會引發隨機效應."
+lore1 = "機會"
+lore2 = "巴夫持續時間"
+lore3 = "程式冷卻時間"
+lore = ["機會", "巴夫持續時間", "程式冷卻時間"]
+
+[tragoul.bone_harvest]
+name = "骨頭收穫"
+blood_globe = "血環球"
+bone_globe = "骨環球"
+description = "殺人可以產生血球 或骨雪球球球 當撿起時,給予布夫."
+lore1 = "環球閃光機會"
+lore2 = "環球生活"
+lore = ["環球閃光機會", "環球生活"]
+
+[tragoul.corpse_explosion]
+name = "屍體爆炸"
+description = "你所殺的黑幫 立即展示出新血 破壞附近的敵對暴徒."
+lore1 = "殺戮總是顯示一個新屍 破壞附近的敵對暴徒"
+lore2 = "新半徑"
+lore3 = "作為新華社損害增加的受害人最大健康"
+lore = ["殺戮總是顯示一個新屍 破壞附近的敵對暴徒", "新半徑", "作為新華社損害增加的受害人最大健康"]
+
+[tragoul.soul_siphon]
+name = "靈魂西蓬"
+description = "每個由玩家造成的破壞源都會隨著健康而吞噬其最終損害的一部分."
+lore1 = "在所有可歸因於健康的損害中"
+lore2 = "每秒恢復最大健康"
+lore = ["在所有可歸因於健康的損害中", "每秒恢復最大健康"]
+
+[tragoul.skeletal_servant]
+name = "骨骼服務員"
+description = "隨著你的頭,你會發現一個人在你的手中被擊敗. 你的頭上召喚你的老僕人回收了你的骨頭. 在召喚時消耗骨頭,更高水平."
+lore1 = "偷偷摸摸的+右腳 手持骨頭召喚一個僕人"
+lore2 = "服務生"
+lore3 = "每架召喚消耗的骨頭"
+lore4 = "召集冷卻時間"
+lore5 = "馬克思活僕人"
+lore6 = "侍從們按你的等級行事,繼承你的特拉古爾的特權, 獵殺任何你打擊或打擊你的東西"
+lore7 = "每一名活僕喪失最大健康"
+lore = ["偷偷摸摸的+右腳 手持骨頭召喚一個僕人", "服務生", "每架召喚消耗的骨頭", "召集冷卻時間", "馬克思活僕人", "侍從們按你的等級行事,繼承你的特拉古爾的特權, 獵殺任何你打擊或打擊你的東西", "每一名活僕喪失最大健康"]
+
+[tragoul.marrow_armor]
+name = "馬羅裝甲"
+description = "你庫存中的骨頭碎裂 以吸收一部分來襲!"
+lore1 = "消費 1 骨頭可以吸收一部分命中"
+lore2 = "每根骨頭吸收的撞擊"
+lore3 = "內部冷卻時間"
+lore = ["消費 1 骨頭可以吸收一部分命中", "每根骨頭吸收的撞擊", "內部冷卻時間"]
+
+[tragoul.curse_of_frailty]
+name = "脆弱的詛咒"
+description = "膽敢打擊你的敵人 被軟弱和慢慢地詛咒!"
+lore1 = "攻擊者被弱點詛咒"
+lore2 = "詛咒期限"
+lore3 = "攻擊者也會受到慢的詛咒"
+lore = ["攻擊者被弱點詛咒", "詛咒期限", "攻擊者也會受到慢的詛咒"]
+
+[tragoul.death_sense]
+name = "死亡意識"
+description = "腦部受傷的生物和玩家 透過牆壁 帶有一個私人的輪廓."
+lore1 = "你身邊的受損實體只為你發光"
+lore2 = "健康或下層標記一個實體為瀕死獵物"
+lore3 = "深半徑"
+lore = ["你身邊的受損實體只為你發光", "健康或下層標記一個實體為瀕死獵物", "深半徑"]
+
+[tragoul.plague_bearer]
+name = "瘟疫攜帶者"
+description = "毒死或死亡的暴徒 將更大的痛苦蔓延到一個大半徑."
+lore1 = "你的毒藥和衰竭隨死亡而蔓延"
+lore2 = "散射半徑"
+lore3 = "散射效果持續時間"
+lore = ["你的毒藥和衰竭隨死亡而蔓延", "散射半徑", "散射效果持續時間"]
+
+[tragoul.last_rites]
+name = "最後一點"
+description = "一個致命的打擊,你離開了 1 HP 作為一瞬間的精神 而不是死亡!"
+lore1 = "死亡是否定的,你作為一個靈魂在 1 HP"
+lore2 = "精神持續時間"
+lore3 = "冷卻時間"
+lore = ["死亡是否定的,你作為一個靈魂在 1 HP", "精神持續時間", "冷卻時間"]
 
 [unarmed.glass_cannon]
 name = "玻璃大砲"
@@ -2007,3 +6101,231 @@ description = "疾跑時出拳，更加致命。"
 lore1 = "傷害"
 lore2 = "出拳時傷害隨移動速度增加"
 lore = ["傷害", "出拳時傷害隨移動速度增加"]
+
+[unarmed.battering_charge]
+name = "充電"
+description = "用拳頭或盾牌衝入敵人 處理撞擊損傷."
+lore1 = "影響損害"
+lore2 = "撞擊回擊"
+lore3 = "充電冷卻時間"
+lore = ["影響損害", "撞擊回擊", "充電冷卻時間"]
+
+[unarmed.combo_chain]
+name = "組合鏈"
+description = "連續無武器打擊 搭建組合堆,增加擊打損傷."
+lore1 = "最大堆疊"
+lore2 = "每堆損害"
+lore3 = "組合視窗"
+lore = ["最大堆疊", "每堆損害", "組合視窗"]
+
+[unarmed.disarm]
+name = "解除武裝"
+description = "赤手空拳能把球員和暴徒都打倒 暴徒可能還有件破舊的盔甲也鬆了."
+lore1 = "解除武裝的機會"
+lore2 = "每目標冷卻時間"
+lore3 = "可能一個被解除武裝的暴徒 也掉了一件破舊的盔甲"
+lore = ["解除武裝的機會", "每目標冷卻時間", "可能一個被解除武裝的暴徒 也掉了一件破舊的盔甲"]
+
+[unarmed.pressure_point]
+name = "壓力點"
+description = "淺手點選應用堆疊速度慢,在更高水平上弱."
+lore1 = "最大慢堆疊"
+lore2 = "最大弱點堆疊"
+lore3 = "較高階別的弱點解鎖"
+lore = ["最大慢堆疊", "最大弱點堆疊", "較高階別的弱點解鎖"]
+
+[unarmed.shockwave_clap]
+name = "衝擊波拍拍"
+description = "偷偷摸摸地拍打空氣 拍拍擊波擊倒敵人. 每拍一拍,就會餓死."
+lore1 = "衝擊波範圍"
+lore2 = "反擊力"
+lore3 = "掌聲冷卻時間"
+lore = ["衝擊波範圍", "反擊力", "掌聲冷卻時間", "飢餓成本"]
+lore4 = "飢餓成本"
+
+[unarmed.iron_fists]
+name = "鐵拳"
+description = "赤手空拳打得更猛,衝破軟塊打得更快."
+lore1 = "平衝力損傷"
+lore2 = "軟塊速戰速決"
+lore = ["平衝力損傷", "軟塊速戰速決"]
+
+[unarmed.grapple]
+name = "彈夾"
+description = "偷襲暴徒或玩家搶走,然後扔到你看的地方. 玩家爭相尊重 PvP 保護. 每一次投球都會累死."
+lore1 = "傷害部隊"
+lore2 = "快速冷卻時間"
+lore3 = "再來一擊或放出來"
+lore = ["傷害部隊", "快速冷卻時間", "再來一擊或放出來", "每拋一次耗盡"]
+lore4 = "每拋一次耗盡"
+
+[unarmed.second_wind]
+name = "第二風"
+description = "赤手空拳的殺人使飢餓恢復,使短暫的再生爆發."
+lore1 = "恢復飢餓"
+lore2 = "重生時間"
+lore = ["恢復飢餓", "重生時間"]
+
+[unarmed.meditation]
+name = "冥想"
+description = "暗中冥想,靜靜地,空手來慢慢建立吸收心."
+lore1 = "最大吸收量"
+lore2 = "每脈衝吸收"
+lore3 = "作戰封鎖"
+lore = ["最大吸收量", "每脈衝吸收", "作戰封鎖"]
+
+[command.help]
+adapt_debug_command = "Adapt 除錯命令"
+adapt_skills_adaptations_and_admin_tools = "Adapt 技能、適應和管理工具"
+adaptation_level_to_apply = "適用的適應水平"
+adaptation_to_modify_as_skill_adaptation = "修改後的適應,如: skill:adaptation"
+adaptation_to_reset_skill_adaptation = "適應重置 (skill:adaptation)"
+adaptation_to_set_as_skill_adaptation = "適應設定,如 skill:adaptation"
+amount_of_seconds = "秒數"
+assign_or_unassign_an_adaptation_for_a_player_as_if_learning_unlearning_it = "為玩家指定或不指定一個適應, 彷彿學習/ 不學習."
+boost_global_experience_gain = "全球經驗增長."
+boost_target_player_experience_gain = "增強目標玩家的經驗."
+bypass_adapt_use_permission_checks_when_opening = "繞行 adapt.use 開啟時許可權檢查"
+bypass_costs_and_restrictions = "副證費用和限制"
+bypass_power_knowledge_and_permanence_checks = "副動力、知識和永久性檢查"
+clear_a_player_s_mutation_slot = "清除玩家的突變槽"
+clear_all_discovery_data_biomes_mobs_foods_items_recipes_etc = "清除所有發現資料(生物、暴徒、食品、物品、食譜等.)"
+clear_all_player_data_xp_knowledge_adaptations_stats_discoveries_advancements_wisdom = "清除所有玩家資料 (XP, 知識、適應、統計、發現、進步、智慧)"
+clear_both_mutation_switching_cooldowns = "清除兩個突變切換冷卻時間器"
+clear_knowledge_across_all_skill_lines = "清除所有技能領域的知識"
+clear_only_a_player_s_mutation_data = "只清除玩家的突變資料"
+clear_player_progression_data = "清除玩家進度資料"
+clear_the_stats_map = "清除資料對映"
+clear_xp_across_all_skill_lines = "清除 XP 跨越所有技能線"
+discover_or_undiscover_a_mutation_for_a_player = "為玩家發現或未發現突變"
+equip_a_mutation_in_a_player_slot = "在玩家位置安裝突變"
+experience_per_orb = "每個礦井的經驗"
+explicit_on_off_state_omit_to_toggle = "開啟/關閉狀態, 省略切換"
+force_a_mutation_slot_unlocked_locked_or_back_to_its_normal_level_requirement = "強制解鎖、鎖定或恢復到正常水平要求的突變槽"
+force_migrate_and_rewrite_all_skill_adaptation_configs_to_canonical_toml_with_comments = "強制遷移和改寫所有技能/adapt犬科的配方配置 TOML 附有評論意見."
+force_perfect_adaptation_on_off_or_back_to_its_normal_level_requirement = "完成、關閉或恢復到正常水平要求"
+generate_perms_for_adaptations = "生成用於適應的周邊!"
+generate_perms_for_skills = "生成技能屬性!"
+give_a_knowledge_orb_to_yourself_or_a_target_player = "給自己或目標玩家一個知識球"
+give_an_experience_orb_to_yourself_or_a_target_player = "給自己或目標玩家一個體驗"
+gui_to_open_main_skill_name_or_adaptation_name = "GUI 開啟:主、技能:<name>, 或適應:<name>"
+knowledge_per_orb = "每個實體的知識"
+level_between_0_and_100 = "級別 0 和 100"
+level_between_0_and_100_clamped_to_the_adaptation_max = "級別 0 和 100, 夾在適應的最大值"
+mutation_id = "變異 ID"
+on_off_or_clear = "開啟、關閉或清除"
+on_off_or_toggle = "開啟、關閉或切換"
+open_the_adapt_gui = "開啟 Adapt GUI"
+open_the_experimental_mutation_menu = "開啟實驗突變選單"
+open_the_in_game_adapt_config_editor = "開啟遊戲 Adapt 配置編輯器"
+particle_type_to_spawn = "要產卵的粒子型別"
+permanently_delete_all_adapt_data_for_a_player = "永久刪除全部 Adapt 玩家的資料"
+permanently_delete_all_adapt_data_for_a_player_requires_op_run_twice_to_confirm = "永久刪除全部 Adapt 玩家的資料. 需要行動. 執行兩次確認."
+play_a_sound_at_your_location_for_testing = "在您的位置播放一個聲音進行測試!"
+refresh_a_player_s_mutation_slots_and_requirements = "重新整理玩家的突變位置和要求"
+reload_mutation_configuration = "重新裝入突變配置"
+reset_a_skill_config_to_defaults = "重設技能配置為預設值"
+reset_all_configs_to_defaults_and_archive_the_old_settings = "重設 ALL 配置預設並歸檔舊設定"
+reset_an_adaptation_config_to_defaults = "重設預設的適應配置"
+reset_configs_to_defaults = "將配置重置為預設值"
+reset_metrics_after_printing = "列印後重置引數"
+set_a_player_s_skill_line_level_between_0_and_100_for_custom_ui_integration = "設定玩家的技能行級別 0 和 100 自定義 UI 融合."
+set_an_adaptation_level_between_0_and_100_if_the_player_can_afford_it = "設定適應水平 0 和 100 如果玩家買得起的話."
+show_adapt_ticker_hotspots = "顯示 Adapt 滴答熱點"
+skill_line_to_set = "要設定的技能行"
+skill_name_or_all_random = "技能名稱, 或者全部/ 隨機"
+skill_to_reset = "重設技能"
+slot_1_or_2 = "插槽 1 或 2"
+sound_to_play = "要播放的聲音"
+strength_of_the_boost = "推動的力量"
+summon_a_particle_at_your_location_for_testing = "在您的位置召集一個粒子進行測試!"
+target_player_defaults_to_you = "目標玩家,預設為您"
+toggle_adapt_effect_visibility_for_yourself = "切換 Adapt 給自己效果可見度"
+toggle_cooperative_mutation_participation = "切換合作社的變異參與"
+toggle_debug_mode_reveals_every_skill_and_adaptation_and_makes_learning_free_and_uncapped = "切換除錯模式:揭示每一種技能和適應,使學習自由而無封頂"
+toggle_verbose_mode = "切換動詞模式"
+top_results_to_print = "要列印的頂級結果"
+true_to_discover_false_to_undiscover = "真實到發現 虛假到無法發現"
+true_to_learn_false_to_unlearn = "誠實的學習,虛假的學習"
+unlearn_all_adaptations_across_all_skill_lines = "解開所有技能線上的適應"
+view_and_manage_experimental_mutations = "檢視和管理實驗突變"
+view_mutation_state_for_yourself_or_another_player = "為你自己或另一個玩家檢視突變狀態"
+
+[command.runtime]
+missing_permission = "你沒有權限 '{permission}'。"
+player_required_from_console = "從主控台使用此指令時必須指定一名玩家。"
+player_required_from_console_short = "您必須指定控制檯的玩家."
+player_only_or_reference = "您必須是使用此命令的玩家, 或者引用一個玩家."
+player_only = "您必須是使用此命令的玩家."
+operator_only = "此命令只能由伺服器操作員執行."
+boosted_xp = "XP 已提升至 {multiplier} 倍，持續 {seconds} 秒。"
+skill_disabled = "技能 {skill} 在此伺服器上已禁用."
+adaptation_disabled = "適應 {adaptation} 在此伺服器上已禁用."
+gui_opened = "已為 {player} 開啟 {target} GUI。"
+gui_open_denied = "無法為 {player} 開啟 {target} GUI：adapt.use 權限遭拒。"
+unknown_gui_target = "不詳 GUI 目標 '{target}'. 使用主技能:<name>, 或適應:<name>."
+configurator_required = "您需要操作員身份或許可權 'adapt.configurator'."
+giving_all_orbs = "給所有礦石."
+giving_random_orb = "隨機提供 球."
+giving_skill_orb = "提供 {skill} 數值."
+no_skills_registered = "沒有註冊技能."
+unknown_skill_orb = "未知技能 '{skill}'. 使用全部或隨機的技巧名稱."
+invalid_adaptation_target = "無效的適應目標格式. 使用 skill:adaptation."
+invalid_adaptation_format = "無效的格式. 使用 skill:adaptation."
+no_adaptation_change = "無變更：{player} 的 {adaptation} 仍為 {level} 級。請求因力量、知識或永久性限制而遭拒，或該變更已經生效；使用 force=true 可強制覆寫。"
+learned_adaptation = "{player} 已學習 {adaptation}，目前為 {level} 級。"
+unlearned_adaptation = "{player} 已取消學習 {adaptation}，目前為 {level} 級。"
+unknown_adaptation_in_skill = "未知的適應 '{adaptation}' 技術 {skill}."
+unknown_adaptation_in_skill_plain = "未知的適應: {adaptation} 技術 {skill}."
+unknown_skill = "未知技能: {skill}."
+unknown_skill_quoted = "未知技能 '{skill}'."
+skill_level_range = "技能要求水平必須在 0 和 100."
+adaptation_level_range = "適應索賠水平必須在 0 和 100."
+skill_line_unavailable = "解析技能行失敗 {skill}."
+set_skill_level = "設定 {player} {skill} 級別至 {level}."
+adaptation_already_level = "無變動: {adaptation} 已經處於水平 {level}."
+power_insufficient = "沒有足夠的可用電源. 需求 {needed}, 已經 {available}."
+knowledge_insufficient = "{skill} 的知識不足。需要 {needed}，目前有 {available}。"
+knowledge_spend_failed = "花費所需知識失敗 ({knowledge})."
+set_adaptation_level = "設定 {player} {adaptation} 到級別 {level}."
+permanent_adaptation_lower = "{adaptation} 具有永久性質,如果沒有 force=true."
+adapt_server_not_ready = "Adapt 伺服器尚未準備好. 再試幾秒鐘."
+configs_canonicalized = "已正規化 TOML 設定。skills={skills}, adaptations={adaptations}, deletedLegacyJson={deleted}。"
+cleared_all = "清除所有資料 {player}."
+cleared_xp = "已清除 {player} 的 XP。"
+cleared_knowledge = "清除知識 {player}."
+cleared_adaptations = "清除適應 {player}."
+cleared_stats = "已清理資料 {player}."
+cleared_discoveries = "已查明的發現 {player}."
+reset_deleted = "全體 Adapt 資料 {player} 已被永久刪除."
+reset_warning = "警告：這將永久刪除 {player} 的所有 Adapt 資料。"
+reset_includes = "這包括: XP, 技能、適應、發現、統計和進步."
+reset_confirm = "在內部再次執行此命令 30 秒以確認."
+skill_reset_unsupported = "技能 {skill} 不支援配置重設."
+adaptation_reset_unsupported = "適應 {adaptation} 不支援配置重設."
+config_delete_failed = "刪除配置檔案失敗 {target}."
+default_config_reload_failed = "重新裝入預設配置失敗 {target}."
+skill_reset = "重新設定技能配置 {skill} 預設值."
+adaptation_reset = "重新設定適應配置 {adaptation} 預設值."
+configs_archived = "已將 {count} 個設定檔歸檔至 config-archive/{timestamp}/。"
+configs_reset = "重設 {count} 配置為預設值."
+unknown_toggle_state = "未知狀態 '{state}'. 使用、關閉或省略切換."
+debug_enabled = "啟用除錯模式 {player}: 所有技能和適應能力都是顯而易見的,學習是自由的,沒有限制的。. 在登入時切換重排;在登入時學到的適應性持續."
+debug_disabled = "已禁用除錯模式 {player}. 在除錯模式中學到的適應措施持續存在; 使用 /adapt clear adaptations 或 /adapt determine 以刪除它們."
+verbose_enabled = "動畫現已啟用."
+verbose_disabled = "動畫現已禁用."
+permissions_printed = "許可權已列印到控制檯."
+particle_data_required = "粒子 {particle} 需要型別資料 {type} 而不能由這個命令產生."
+unknown_adapt_command = "不詳 Adapt 命令."
+insufficient_permissions = "許可權不足."
+no_available_subcommands = "要麼沒有子命令,要麼你無權使用."
+parameters_ignored = "引數被忽略: {parameters}"
+subcommand_help = "{node} {usage} - {description}"
+no_description = "無說明"
+perf_ability_checks = "能力檢查: {perSecond}/s ({perMinute}/m)"
+perf_successful_checks = "成功的檢查: {perSecond}/s ({perMinute}/m)"
+perf_cache_hit_ratio = "活動級快取命中率: {ratio} ({hits} 擊中, {misses} 錯過)"
+perf_timing_budget = "能力檢查時間安排預算: {percent} ({millisPerSecond}, {microsPerCheck})"
+perf_ticker_window = "計票視窗: {window}分鐘"
+perf_no_metrics = "尚未收集到勾選指標."
+perf_reset = "計票器和能力遙測重置."

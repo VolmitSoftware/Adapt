@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.nether;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.NetherMessages;
+
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -26,7 +29,6 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -71,7 +73,7 @@ public class NetherWitherResist extends SimpleAdaptation<NetherWitherResist.Conf
   public void addStats(int level, Element v) {
     int chance = (int) (getConfig().basePieceChance + getConfig().getChanceAddition() * level);
     statLore(v, chance + "%", 1);
-    v.addLore(C.GRAY + " " + Localizer.dLocalize("nether.wither_resist.lore1") + C.DARK_GRAY + Localizer.dLocalize("nether.wither_resist.lore2"));
+    v.addLore(C.GRAY + AdaptLanguage.text(NetherMessages.WITHER_RESIST_PASSIVE));
   }
 
   @EventHandler

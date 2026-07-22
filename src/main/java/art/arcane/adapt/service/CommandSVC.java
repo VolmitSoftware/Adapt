@@ -20,16 +20,20 @@ package art.arcane.adapt.service;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.command.CommandAdapt;
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.CommandRuntimeMessages;
 import art.arcane.adapt.util.cache.AtomicCache;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.plugin.AdaptService;
-import art.arcane.adapt.util.common.plugin.VolmitSender;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.director.DirectorSystem;
+import art.arcane.volmlib.util.director.DirectorEngineOptions;
 import art.arcane.volmlib.util.director.compat.BukkitDirectorContext;
 import art.arcane.volmlib.util.director.compat.DirectorEngineFactory;
 import art.arcane.volmlib.util.director.context.DirectorContextRegistry;
+import art.arcane.volmlib.util.director.help.DirectorMiniMenu;
+import art.arcane.volmlib.util.director.help.DirectorMiniMenu.DirectorHelpPage;
 import art.arcane.volmlib.util.director.runtime.DirectorExecutionMode;
 import art.arcane.volmlib.util.director.runtime.DirectorExecutionResult;
 import art.arcane.volmlib.util.director.runtime.DirectorInvocation;
@@ -37,7 +41,6 @@ import art.arcane.volmlib.util.director.runtime.DirectorInvocationHook;
 import art.arcane.volmlib.util.director.runtime.DirectorRuntimeEngine;
 import art.arcane.volmlib.util.director.runtime.DirectorRuntimeNode;
 import art.arcane.volmlib.util.director.runtime.DirectorSender;
-import art.arcane.volmlib.util.director.visual.DirectorVisualCommand;
 import art.arcane.volmlib.util.math.RNG;
 import org.bukkit.Sound;
 import org.bukkit.World;
@@ -54,12 +57,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
+
 public class CommandSVC implements AdaptService, CommandExecutor, TabCompleter, DirectorInvocationHook {
   private static final String ROOT_COMMAND = "adapt";
   private static final String ROOT_PERMISSION = "adapt.main";
 
   private final transient AtomicCache<DirectorRuntimeEngine> directorCache = new AtomicCache<>();
-  private final transient AtomicCache<DirectorVisualCommand> helpCache = new AtomicCache<>();
 
   @Override
   public void onEnable() {
@@ -83,11 +87,13 @@ public class CommandSVC implements AdaptService, CommandExecutor, TabCompleter, 
   public DirectorRuntimeEngine getDirector() {
     return directorCache.aquireNastyPrint(() -> DirectorEngineFactory.create(
         new CommandAdapt(),
-        null,
-        buildDirectorContexts(),
-        this::dispatchDirector,
-        this,
-        DirectorSystem.handlers
+        DirectorEngineOptions.builder()
+            .contexts(buildDirectorContexts())
+            .dispatcher(this::dispatchDirector)
+            .invocationHook(this)
+            .legacyHandlers(DirectorSystem.handlers)
+            .textResolver(AdaptLanguage.directorResolver())
+            .build()
     ));
   }
 
@@ -149,7 +155,10 @@ public class CommandSVC implements AdaptService, CommandExecutor, TabCompleter, 
 
     Adapt.verbose("Received Command from %s: /%s %s".formatted(sender.getName(), label, String.join(" ", args)));
     if (!sender.hasPermission(ROOT_PERMISSION)) {
-      sender.sendMessage("You lack the Permission '" + ROOT_PERMISSION + "'");
+      sender.sendMessage(AdaptLanguage.text(
+          CommandRuntimeMessages.MISSING_PERMISSION,
+          trusted("permission", ROOT_PERMISSION)
+      ));
       return true;
     }
 
@@ -172,23 +181,22 @@ public class CommandSVC implements AdaptService, CommandExecutor, TabCompleter, 
 
     playFailureSound(sender);
     if (result.getMessage() == null || result.getMessage().trim().isEmpty()) {
-      sender.sendMessage(C.RED + "Unknown Adapt Command");
+      sender.sendMessage(C.RED + AdaptLanguage.text(CommandRuntimeMessages.UNKNOWN_ADAPT_COMMAND));
     }
   }
 
   private boolean sendHelpIfRequested(CommandSender sender, String[] args) {
-    Optional<DirectorVisualCommand.HelpRequest> request = DirectorVisualCommand.resolveHelp(getHelpRoot(), Arrays.asList(args));
+    Optional<DirectorHelpPage> request = DirectorMiniMenu.resolveHelp(getDirector(), Arrays.asList(args), 17);
     if (request.isEmpty()) {
       return false;
     }
 
-    VolmitSender volmitSender = new VolmitSender(sender);
-    volmitSender.sendDirectorHelp(request.get().command(), request.get().page());
+    DirectorMiniMenu.deliver(sender, DirectorMiniMenu.render(
+        request.get(),
+        DirectorMiniMenu.Theme.adaptRed(),
+        AdaptLanguage.directorResolver()
+    ));
     return true;
-  }
-
-  private DirectorVisualCommand getHelpRoot() {
-    return helpCache.aquireNastyPrint(() -> DirectorVisualCommand.createRoot(getDirector()));
   }
 
   private DirectorExecutionResult runDirector(CommandSender sender, String label, String[] args) {

@@ -1,11 +1,15 @@
 package art.arcane.adapt.content.gui;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.ConfigMessages;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+
+import static art.arcane.volmlib.util.localization.MessageArgument.untrusted;
 
 final class ConfigGuiValueCodec {
   private ConfigGuiValueCodec() {
@@ -13,7 +17,7 @@ final class ConfigGuiValueCodec {
 
   static ConfigGui.ParseResult parseInputValue(Class<?> type, String raw) {
     if (type == null) {
-      return ConfigGui.ParseResult.fail("Unknown target type.");
+      return ConfigGui.ParseResult.fail(AdaptLanguage.text(ConfigMessages.UNKNOWN_TARGET_TYPE));
     }
 
     Class<?> normalized = normalizeType(type);
@@ -26,7 +30,7 @@ final class ConfigGuiValueCodec {
 
       if (normalized == Character.class) {
         if (trimmed.length() != 1) {
-          return ConfigGui.ParseResult.fail("Expected exactly one character.");
+          return ConfigGui.ParseResult.fail(AdaptLanguage.text(ConfigMessages.EXPECTED_ONE_CHARACTER));
         }
         return ConfigGui.ParseResult.ok(trimmed.charAt(0));
       }
@@ -38,13 +42,16 @@ final class ConfigGuiValueCodec {
         if (trimmed.equalsIgnoreCase("false") || trimmed.equalsIgnoreCase("no") || trimmed.equalsIgnoreCase("off")) {
           return ConfigGui.ParseResult.ok(false);
         }
-        return ConfigGui.ParseResult.fail("Expected boolean value: true/false.");
+        return ConfigGui.ParseResult.fail(AdaptLanguage.text(ConfigMessages.EXPECTED_BOOLEAN));
       }
 
       if (normalized.isEnum()) {
         Object constant = parseEnumConstant(normalized, trimmed);
         if (constant == null) {
-          return ConfigGui.ParseResult.fail("Expected one of: " + enumConstants(normalized));
+          return ConfigGui.ParseResult.fail(AdaptLanguage.text(
+              ConfigMessages.EXPECTED_ONE_OF,
+              untrusted("values", enumConstants(normalized))
+          ));
         }
         return ConfigGui.ParseResult.ok(constant);
       }
@@ -58,14 +65,14 @@ final class ConfigGuiValueCodec {
       if (normalized == Double.class) {
         double v = Double.parseDouble(trimmed);
         if (!Double.isFinite(v)) {
-          return ConfigGui.ParseResult.fail("Expected a finite number.");
+          return ConfigGui.ParseResult.fail(AdaptLanguage.text(ConfigMessages.EXPECTED_FINITE_NUMBER));
         }
         return ConfigGui.ParseResult.ok(v);
       }
       if (normalized == Float.class) {
         float v = Float.parseFloat(trimmed);
         if (!Float.isFinite(v)) {
-          return ConfigGui.ParseResult.fail("Expected a finite number.");
+          return ConfigGui.ParseResult.fail(AdaptLanguage.text(ConfigMessages.EXPECTED_FINITE_NUMBER));
         }
         return ConfigGui.ParseResult.ok(v);
       }
@@ -76,22 +83,37 @@ final class ConfigGuiValueCodec {
         return ConfigGui.ParseResult.ok(Byte.parseByte(trimmed));
       }
     } catch (Throwable e) {
-      return ConfigGui.ParseResult.fail("Invalid value for type " + typeName(type) + ".");
+      return ConfigGui.ParseResult.fail(AdaptLanguage.text(
+          ConfigMessages.INVALID_VALUE_FOR_TYPE,
+          untrusted("type", typeName(type))
+      ));
     }
 
-    return ConfigGui.ParseResult.fail("Unsupported type: " + typeName(type) + ".");
+    return ConfigGui.ParseResult.fail(AdaptLanguage.text(
+        ConfigMessages.UNSUPPORTED_INPUT_TYPE,
+        untrusted("type", typeName(type))
+    ));
   }
 
   static String typeName(Class<?> type) {
     if (type == null) {
-      return "unknown";
+      return AdaptLanguage.text(ConfigMessages.TYPE_UNKNOWN);
     }
 
     Class<?> normalized = normalizeType(type);
     if (normalized.isEnum()) {
-      return "enum";
+      return AdaptLanguage.text(ConfigMessages.TYPE_ENUM);
     }
-    return normalized.getSimpleName().toLowerCase(Locale.ROOT);
+    if (normalized == Boolean.class) {
+      return AdaptLanguage.text(ConfigMessages.TYPE_BOOLEAN);
+    }
+    if (normalized == String.class || normalized == Character.class) {
+      return AdaptLanguage.text(ConfigMessages.TYPE_TEXT);
+    }
+    if (isNumericType(normalized)) {
+      return AdaptLanguage.text(ConfigMessages.TYPE_NUMBER);
+    }
+    return normalized.getSimpleName();
   }
 
   static Object coerceValue(Object value, Class<?> targetType) {

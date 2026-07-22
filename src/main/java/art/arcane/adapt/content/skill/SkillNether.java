@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.skill;
 
+import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.localization.catalog.SkillMessages;
+
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -39,7 +42,6 @@ import art.arcane.adapt.content.adaptation.nether.NetherStriderBond;
 import art.arcane.adapt.content.adaptation.nether.NetherWitherHarvest;
 import art.arcane.adapt.content.adaptation.nether.NetherWitherResist;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import lombok.Getter;
@@ -66,10 +68,8 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
   private final Cooldowns witherAttackCooldowns = cooldowns();
 
   public SkillNether() {
-    super("nether", Localizer.dLocalize("skill.nether.icon"));
+    super("nether", SkillPresentation.of(SkillMessages.NETHER_NAME, SkillMessages.NETHER_ICON, SkillMessages.NETHER_DESCRIPTION));
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("skill.nether.description"));
-    setDisplayName(Localizer.dLocalize("skill.nether.name"));
     setInterval(7425);
     setColor(C.DARK_GRAY);
     setIcon(Material.NETHER_STAR);

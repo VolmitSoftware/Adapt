@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.tragoul;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.TragoulMessages;
+
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -27,7 +30,6 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.content.mutation.runtime.MutationUtilityTag;
 import art.arcane.adapt.service.MutationRuntimeSVC;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -82,10 +84,10 @@ public class TragoulCurseOfFrailty extends SimpleAdaptation<TragoulCurseOfFrailt
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + Localizer.dLocalize("tragoul.curse_of_frailty.lore1"));
-    v.addLore(C.GREEN + "+ " + Form.duration(getCurseDurationTicks(level) * 50D, 1) + C.GRAY + " " + Localizer.dLocalize("tragoul.curse_of_frailty.lore2"));
+    v.addLore(C.GREEN + AdaptLanguage.text(TragoulMessages.CURSE_OF_FRAILTY_LORE1));
+    statLore(v, Form.duration(getCurseDurationTicks(level) * 50D, 1), 2);
     if (getLevelPercent(level) >= getConfig().slownessUnlockPercent) {
-      v.addLore(C.YELLOW + Localizer.dLocalize("tragoul.curse_of_frailty.lore3"));
+      v.addLore(C.YELLOW + AdaptLanguage.text(TragoulMessages.CURSE_OF_FRAILTY_LORE3));
     }
   }
 

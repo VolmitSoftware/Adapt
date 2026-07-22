@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.chronos;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.ChronosMessages;
+
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -27,7 +30,6 @@ import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -71,9 +73,9 @@ public class ChronosPocketWatch extends SimpleAdaptation<ChronosPocketWatch.Conf
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + (getBudgetMillis(level) / 1000D) + "s " + Localizer.dLocalize("chronos.pocket_watch.lore1"));
-    v.addLore(C.YELLOW + "* " + Localizer.dLocalize("chronos.pocket_watch.lore2"));
-    v.addLore(C.GRAY + "* " + Localizer.dLocalize("chronos.pocket_watch.lore3"));
+    statLore(v, (getBudgetMillis(level) / 1000D) + "s", 1);
+    v.addLore(C.YELLOW + "* " + AdaptLanguage.text(ChronosMessages.POCKET_WATCH_LORE2));
+    v.addLore(C.GRAY + "* " + AdaptLanguage.text(ChronosMessages.POCKET_WATCH_LORE3));
   }
 
   private long getBudgetMillis(int level) {

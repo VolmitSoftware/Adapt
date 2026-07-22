@@ -18,13 +18,15 @@
 
 package art.arcane.adapt.content.adaptation.axe;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.AxeMessages;
+
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.content.integration.iris.IrisTreeFellerLink;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.volmlib.util.format.Form;
@@ -62,16 +64,13 @@ public class AxeIrisFeller extends SimpleAdaptation<AxeIrisFeller.Config> {
   }
 
   public void addStats(int level, Element element) {
-    element.addLore(C.GREEN + "" + durabilityPreservationChance(level) + "%" + C.GRAY + " "
-        + Localizer.dLocalize("axe.iris_feller.lore1"));
-    element.addLore(C.ITALIC + Localizer.dLocalize("axe.iris_feller.lore2"));
-    element.addLore(C.ITALIC + Localizer.dLocalize("axe.iris_feller.lore3"));
-    element.addLore(C.YELLOW + "* " + getHungerCost() + C.GRAY + " "
-        + Localizer.dLocalize("axe.iris_feller.lore4"));
-    element.addLore(C.YELLOW + "* " + Form.duration(getCooldownMillis(), 1) + C.GRAY + " "
-        + Localizer.dLocalize("axe.iris_feller.lore5"));
-    element.addLore(C.ITALIC + Localizer.dLocalize("axe.iris_feller.lore6"));
-    element.addLore(C.ITALIC + Localizer.dLocalize("axe.iris_feller.lore7"));
+    statLore(element, C.GREEN, "", durabilityPreservationChance(level) + "%", 1);
+    element.addLore(C.ITALIC + AdaptLanguage.text(AxeMessages.IRIS_FELLER_LORE2));
+    element.addLore(C.ITALIC + AdaptLanguage.text(AxeMessages.IRIS_FELLER_LORE3));
+    statLore(element, C.YELLOW, "* ", getHungerCost(), 4);
+    statLore(element, C.YELLOW, "* ", Form.duration(getCooldownMillis(), 1), 5);
+    element.addLore(C.ITALIC + AdaptLanguage.text(AxeMessages.IRIS_FELLER_LORE6));
+    element.addLore(C.ITALIC + AdaptLanguage.text(AxeMessages.IRIS_FELLER_LORE7));
   }
 
   @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)

@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.skill;
 
+import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.localization.catalog.SkillMessages;
+
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -41,7 +44,6 @@ import art.arcane.adapt.content.adaptation.taming.TamingStableHand;
 import art.arcane.adapt.content.adaptation.taming.TamingWildEmpathy;
 import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import lombok.NoArgsConstructor;
@@ -61,10 +63,8 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
   private final Cooldowns xpCooldowns = cooldowns();
 
   public SkillTaming() {
-    super("taming", Localizer.dLocalize("skill.taming.icon"));
+    super("taming", SkillPresentation.of(SkillMessages.TAMING_NAME, SkillMessages.TAMING_ICON, SkillMessages.TAMING_DESCRIPTION));
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("skill.taming.description"));
-    setDisplayName(Localizer.dLocalize("skill.taming.name"));
     setColor(C.GOLD);
     setInterval(3480);
     setIcon(Material.LEAD);

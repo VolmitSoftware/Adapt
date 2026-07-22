@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.skill;
 
+import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.localization.catalog.SkillMessages;
+
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -41,7 +44,6 @@ import art.arcane.adapt.content.adaptation.sword.SwordsPoisonedBlade;
 import art.arcane.adapt.content.adaptation.sword.SwordsRiposteWindow;
 import art.arcane.adapt.content.adaptation.sword.SwordsWhetstoneRitual;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import lombok.NoArgsConstructor;
 import org.bukkit.Location;
@@ -59,11 +61,9 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
   private final Cooldowns cooldowns = cooldowns();
 
   public SkillSwords() {
-    super("swords", Localizer.dLocalize("skill.swords.icon"));
+    super("swords", SkillPresentation.of(SkillMessages.SWORDS_NAME, SkillMessages.SWORDS_ICON, SkillMessages.SWORDS_DESCRIPTION));
     registerConfiguration(Config.class);
     setColor(C.YELLOW);
-    setDescription(Localizer.dLocalize("skill.swords.description"));
-    setDisplayName(Localizer.dLocalize("skill.swords.name"));
     setInterval(2150);
     setIcon(Material.DIAMOND_SWORD);
     registerAdaptation(new SwordsMachete());

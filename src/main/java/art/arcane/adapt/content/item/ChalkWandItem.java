@@ -18,8 +18,10 @@
 
 package art.arcane.adapt.content.item;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.ArchitectMessages;
+
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.BlockFace;
@@ -32,6 +34,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
+
+import art.arcane.volmlib.util.localization.TextKey;
 
 public final class ChalkWandItem {
   private static final NamespacedKey TOOL_KEY = new NamespacedKey("adapt", "architect_chalk_tool");
@@ -52,11 +56,11 @@ public final class ChalkWandItem {
       return item;
     }
 
-    meta.setDisplayName(C.AQUA + Localizer.dLocalize(tool.localizationKey() + ".name"));
+    meta.setDisplayName(C.AQUA + AdaptLanguage.text(tool.nameKey()));
     meta.setLore(List.of(
-        C.GRAY + Localizer.dLocalize(tool.localizationKey() + ".usage"),
-        C.GRAY + Localizer.dLocalize("architect.chalk_line.tool.clear"),
-        C.DARK_GRAY + Localizer.dLocalize("architect.chalk_line.tool.persistent")
+        C.GRAY + AdaptLanguage.text(tool.usageKey()),
+        C.GRAY + AdaptLanguage.text(ArchitectMessages.CHALK_LINE_TOOL_CLEAR),
+        C.DARK_GRAY + AdaptLanguage.text(ArchitectMessages.CHALK_LINE_TOOL_PERSISTENT)
     ));
     meta.setMaxStackSize(1);
     meta.setEnchantmentGlintOverride(true);
@@ -200,8 +204,22 @@ public final class ChalkWandItem {
       return requiredLevel;
     }
 
-    public String localizationKey() {
-      return "architect.chalk_line.tool." + id;
+    public TextKey nameKey() {
+      return switch (this) {
+        case STRAIGHTEDGE -> ArchitectMessages.CHALK_LINE_TOOL_STRAIGHTEDGE_NAME;
+        case POLYLINE -> ArchitectMessages.CHALK_LINE_TOOL_POLYLINE_NAME;
+        case COMPASS -> ArchitectMessages.CHALK_LINE_TOOL_COMPASS_NAME;
+        case ARC_BOW -> ArchitectMessages.CHALK_LINE_TOOL_ARC_BOW_NAME;
+      };
+    }
+
+    public TextKey usageKey() {
+      return switch (this) {
+        case STRAIGHTEDGE -> ArchitectMessages.CHALK_LINE_TOOL_STRAIGHTEDGE_USAGE;
+        case POLYLINE -> ArchitectMessages.CHALK_LINE_TOOL_POLYLINE_USAGE;
+        case COMPASS -> ArchitectMessages.CHALK_LINE_TOOL_COMPASS_USAGE;
+        case ARC_BOW -> ArchitectMessages.CHALK_LINE_TOOL_ARC_BOW_USAGE;
+      };
     }
 
     public static Tool fromId(String id) {

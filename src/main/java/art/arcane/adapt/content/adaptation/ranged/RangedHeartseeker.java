@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.ranged;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.RangedMessages;
+
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
@@ -28,7 +31,6 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
@@ -159,9 +161,9 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + Localizer.dLocalize("ranged.heartseeker.lore1"));
+    v.addLore(C.GREEN + AdaptLanguage.text(RangedMessages.HEARTSEEKER_LORE1));
     statLore(v, C.YELLOW, "* ", Form.duration(getCooldownTicks(level) * 50D, 1), 2);
-    v.addLore(C.GRAY + Localizer.dLocalize("ranged.heartseeker.lore3"));
+    v.addLore(C.GRAY + AdaptLanguage.text(RangedMessages.HEARTSEEKER_LORE3));
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

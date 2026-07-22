@@ -27,7 +27,6 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.version.IAttribute;
 import art.arcane.adapt.api.version.Version;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Attributes;
@@ -83,8 +82,8 @@ public class TragoulSoulSiphon extends SimpleAdaptation<TragoulSoulSiphon.Config
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.pc(getHealPercent(level), 0) + C.GRAY + " " + Localizer.dLocalize("tragoul.soul_siphon.lore1"));
-    v.addLore(C.YELLOW + "* " + Form.f(getHealCapPerSecond(level), 1) + C.GRAY + " " + Localizer.dLocalize("tragoul.soul_siphon.lore2"));
+    statLore(v, Form.pc(getHealPercent(level), 0), 1);
+    statLore(v, C.YELLOW, "* ", Form.f(getHealCapPerSecond(level), 1), 2);
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

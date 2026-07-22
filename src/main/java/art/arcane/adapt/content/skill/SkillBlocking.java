@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.skill;
 
+import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.localization.catalog.SkillMessages;
+
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -42,7 +45,6 @@ import art.arcane.adapt.content.adaptation.blocking.BlockingShieldWall;
 import art.arcane.adapt.content.adaptation.blocking.BlockingShieldbearersResolve;
 import art.arcane.adapt.content.adaptation.blocking.BlockingTemperedGuard;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import lombok.NoArgsConstructor;
@@ -63,11 +65,9 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
   private final SkillOwnerPulse.Registration ownerPulse;
 
   public SkillBlocking() {
-    super("blocking", Localizer.dLocalize("skill.blocking.icon"));
+    super("blocking", SkillPresentation.of(SkillMessages.BLOCKING_NAME, SkillMessages.BLOCKING_ICON, SkillMessages.BLOCKING_DESCRIPTION));
     registerConfiguration(Config.class);
     setColor(C.DARK_GRAY);
-    setDescription(Localizer.dLocalize("skill.blocking.description"));
-    setDisplayName(Localizer.dLocalize("skill.blocking.name"));
     setInterval(5000);
     setIcon(Material.SHIELD);
     registerAdaptation(new BlockingMultiArmor());

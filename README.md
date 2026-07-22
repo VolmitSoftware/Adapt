@@ -4,8 +4,6 @@
 
 ## Overview
 
-[![gitlocalized ](https://gitlocalize.com/repo/8085/whole_project/badge.svg)](https://gitlocalize.com/repo/8085/whole_project?utm_source=badge)
-
 _Adapt is a drag and drop solution for balanced passive abilities and skills that players can enjoy on a server._
 
 ### Description
@@ -18,9 +16,11 @@ The master branch is for the latest version of Minecraft.
 
 ### Language and Localization
 
-Do you know a language other than English? Do you want to play a big part in Adapt's localization into different languages? Join the [Discord](https://discord.gg/volmit) and let us know or visit the [gitlocalize repository](https://gitlocalize.com/repo/8085) to help remotely with language localizations! 
+English is defined in typed Java message catalogs beside the code that uses it. When adding player-facing text, add its English key there first; the localization tests identify every non-English overlay that still needs the new key. Adapt does not ship a separate `en_US.toml` file.
 
-If you don't see a language you can easily add it, or let us know here in discussions! We take this on an honor system, so please submit a translation key only if you are confident in the language, and they will be verified.
+Adapt bundles complete overlays for German, Spanish, Finnish, French, Hebrew, Italian, Japanese, Korean, Lithuanian, Dutch, Polish, Portuguese, Russian, Turkish, Vietnamese, Simplified Chinese, and Traditional Chinese. A server's selected TOML can contain only the keys it wants to override; missing values resolve through the bundled language and finally the code-owned English catalog.
+
+Do you know one of these languages and want to improve its wording? Join the [Discord](https://discord.gg/volmit) or open a contribution. Please submit translations only when you are confident in the language so they can be reviewed accurately.
 
 # [Support](https://discord.gg/volmit) **|** [Documentation](https://docs.volmit.com/adapt/)
 

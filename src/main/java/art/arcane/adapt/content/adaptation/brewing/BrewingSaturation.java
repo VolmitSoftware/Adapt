@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.brewing;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.BrewingMessages;
+
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.potion.AdaptBrewCompleteEvent;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -27,7 +30,6 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.potion.BrewingRecipe;
 import art.arcane.adapt.api.potion.PotionBuilder;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.PotionTypes;
 import art.arcane.adapt.api.fx.FxPriority;
@@ -55,7 +57,7 @@ public class BrewingSaturation extends SimpleAdaptation<BrewingSaturation.Config
         .ingredient(Material.BAKED_POTATO)
         .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionTypes.REGEN))
         .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
-            .setName("Bottled Saturation")
+            .setName(AdaptLanguage.text(BrewingMessages.SATURATION_NAME))
             .setColor(Color.ORANGE)
             .addEffect(PotionEffectType.SATURATION, 1, 4, true, true, true)
             .build())
@@ -67,7 +69,7 @@ public class BrewingSaturation extends SimpleAdaptation<BrewingSaturation.Config
         .ingredient(Material.HAY_BLOCK)
         .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionTypes.REGEN))
         .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
-            .setName("Bottled Saturation 2")
+            .setName(AdaptLanguage.text(BrewingMessages.SATURATION_STRONG_NAME))
             .setColor(Color.ORANGE)
             .addEffect(PotionEffectType.SATURATION, 1, 8, true, true, true)
             .build())
@@ -83,8 +85,8 @@ public class BrewingSaturation extends SimpleAdaptation<BrewingSaturation.Config
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing.saturation.lore1"));
-    v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing.saturation.lore2"));
+    v.addLore(C.GREEN + "+ " + AdaptLanguage.text(BrewingMessages.SATURATION_LORE1));
+    v.addLore(C.GREEN + "+ " + AdaptLanguage.text(BrewingMessages.SATURATION_LORE2));
   }
 
   @EventHandler(priority = EventPriority.MONITOR)

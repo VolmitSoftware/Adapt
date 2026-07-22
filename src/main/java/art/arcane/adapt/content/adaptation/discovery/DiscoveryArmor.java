@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.discovery;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.DiscoveryMessages;
+
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -30,7 +33,6 @@ import art.arcane.adapt.api.version.IAttribute;
 import art.arcane.adapt.api.version.Version;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.math.Sphere;
 import art.arcane.adapt.util.common.world.LoadedChunkAccess;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -59,6 +61,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
+
+import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
   static final UUID LEGACY_MODIFIER = UUID.nameUUIDFromBytes("adapt-discovery-armor".getBytes());
@@ -92,8 +96,11 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Localizer.dLocalize("discovery.armor.lore1") + C.GRAY + ", " + Localizer.dLocalize("discovery.armor.lore2"));
-    v.addLore(C.YELLOW + "~ " + Localizer.dLocalize("discovery.armor.lore3") + C.BLUE + " +" + level * 0.25);
+    v.addLore(C.GREEN + "+ " + AdaptLanguage.text(DiscoveryMessages.ARMOR_PASSIVE));
+    v.addLore(C.YELLOW + "~ " + AdaptLanguage.text(
+        DiscoveryMessages.ARMOR_STRENGTH,
+        trusted("strength", C.BLUE + String.valueOf(level * 0.25))
+    ));
   }
 
   public double getArmorPoints(Material m) {

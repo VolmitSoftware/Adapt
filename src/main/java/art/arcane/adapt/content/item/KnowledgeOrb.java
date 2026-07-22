@@ -18,10 +18,12 @@
 
 package art.arcane.adapt.content.item;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.SnippetsMessages;
+
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.item.DataItem;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.bukkit.Material;
@@ -34,6 +36,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 @AllArgsConstructor
 @Data
@@ -87,16 +91,20 @@ public class KnowledgeOrb implements DataItem<KnowledgeOrb.Data> {
     for (Map.Entry<String, Integer> entry : data.getKnowledgeMap().entrySet()) {
       String skill = entry.getKey();
       int knowledge = entry.getValue();
-      lore.add(C.WHITE + Localizer.dLocalize("snippets.knowledge_orb.contains") + " " + C.UNDERLINE + C.WHITE + "" + knowledge + " " + Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(skill).getDisplayName() + " " + Localizer.dLocalize("snippets.knowledge_orb.knowledge"));
+      lore.add(C.WHITE + AdaptLanguage.text(
+          SnippetsMessages.KNOWLEDGE_ORB_CONTENTS,
+          trusted("knowledge", C.UNDERLINE + "" + C.WHITE + knowledge),
+          trusted("skill", Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(skill).getDisplayName())
+      ));
     }
-    lore.add(C.LIGHT_PURPLE + Localizer.dLocalize("snippets.knowledge_orb.rightclick") + " " + C.GRAY + Localizer.dLocalize("snippets.knowledge_orb.togainknowledge"));
+    lore.add(C.LIGHT_PURPLE + AdaptLanguage.text(SnippetsMessages.KNOWLEDGE_ORB_USE));
   }
 
   @Override
   public void applyMeta(Data data, ItemMeta meta) {
     meta.addEnchant(Enchantment.BINDING_CURSE, 10, true);
     meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
-    meta.setDisplayName(Localizer.dLocalize("snippets.knowledge_orb.knowledge_orb"));
+    meta.setDisplayName(AdaptLanguage.text(SnippetsMessages.KNOWLEDGE_ORB_KNOWLEDGE_ORB));
   }
 
   @AllArgsConstructor

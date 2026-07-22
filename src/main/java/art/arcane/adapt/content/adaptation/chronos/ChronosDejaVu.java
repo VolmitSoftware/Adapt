@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.chronos;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.ChronosMessages;
+
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -26,7 +29,6 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
@@ -63,9 +65,9 @@ public class ChronosDejaVu extends SimpleAdaptation<ChronosDejaVu.Config> {
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Math.round(getReductionFraction(level) * 100D) + "% " + Localizer.dLocalize("chronos.deja_vu.lore1"));
-    v.addLore(C.YELLOW + "+ " + Form.duration(getConfig().memoryWindowMillis, 1) + " " + Localizer.dLocalize("chronos.deja_vu.lore2"));
-    v.addLore(C.GRAY + "* " + Localizer.dLocalize("chronos.deja_vu.lore3"));
+    statLore(v, Math.round(getReductionFraction(level) * 100D) + "%", 1);
+    statLore(v, C.YELLOW, "+ ", Form.duration(getConfig().memoryWindowMillis, 1), 2);
+    v.addLore(C.GRAY + "* " + AdaptLanguage.text(ChronosMessages.DEJA_VU_LORE3));
   }
 
   private double getReductionFraction(int level) {

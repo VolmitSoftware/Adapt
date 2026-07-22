@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.skill;
 
+import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.localization.catalog.SkillMessages;
+
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -43,7 +46,6 @@ import art.arcane.adapt.content.adaptation.hunter.HunterStrength;
 import art.arcane.adapt.content.adaptation.hunter.HunterTrophySkinner;
 import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.reflect.registries.Attributes;
 import lombok.NoArgsConstructor;
@@ -71,11 +73,9 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
   private final Cooldowns cooldowns = cooldowns();
 
   public SkillHunter() {
-    super("hunter", Localizer.dLocalize("skill.hunter.icon"));
+    super("hunter", SkillPresentation.of(SkillMessages.HUNTER_NAME, SkillMessages.HUNTER_ICON, SkillMessages.HUNTER_DESCRIPTION));
     registerConfiguration(Config.class);
     setColor(C.RED);
-    setDescription(Localizer.dLocalize("skill.hunter.description"));
-    setDisplayName(Localizer.dLocalize("skill.hunter.name"));
     setInterval(4150);
     setIcon(Material.BONE);
     registerAdaptation(new HunterAdrenaline());

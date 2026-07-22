@@ -27,7 +27,6 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.math.VelocitySpeed;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.events.api.ReflectiveHandler;
@@ -112,8 +111,8 @@ public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.pc(getMountedDamageBonus(level), 0) + C.GRAY + " " + Localizer.dLocalize("taming.mounted_tactics.lore1"));
-    v.addLore(C.GREEN + "+ " + Form.pc(getMountedDamageReduction(level), 0) + C.GRAY + " " + Localizer.dLocalize("taming.mounted_tactics.lore2"));
+    statLore(v, Form.pc(getMountedDamageBonus(level), 0), 1);
+    statLore(v, Form.pc(getMountedDamageReduction(level), 0), 2);
   }
 
   @Override

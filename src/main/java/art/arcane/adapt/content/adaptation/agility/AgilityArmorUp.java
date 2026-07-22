@@ -28,7 +28,6 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.version.IAttribute;
 import art.arcane.adapt.api.version.Version;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -84,8 +83,8 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
   @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.f(getWindupArmor(getLevelPercent(level)) * 10, 1), 1);
-    v.addLore(C.YELLOW + "* " + Form.duration(getWindupTicks(getLevelPercent(level)) * 50D, 1) + " " + C.GRAY + Localizer.dLocalize("agility.armor_up.lore2"));
-    v.addLore(C.YELLOW + "* " + Form.duration(getDecaySeconds(getLevelPercent(level)) * 1000D, 1) + " " + C.GRAY + Localizer.dLocalize("agility.armor_up.lore3"));
+    statLore(v, C.YELLOW, "* ", Form.duration(getWindupTicks(getLevelPercent(level)) * 50D, 1), 2);
+    statLore(v, C.YELLOW, "* ", Form.duration(getDecaySeconds(getLevelPercent(level)) * 1000D, 1), 3);
   }
 
   @EventHandler

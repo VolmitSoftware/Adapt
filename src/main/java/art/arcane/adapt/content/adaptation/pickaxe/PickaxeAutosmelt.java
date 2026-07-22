@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.pickaxe;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.PickaxeMessages;
+
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -30,7 +33,6 @@ import art.arcane.adapt.api.world.PlayerAdaptation;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.content.item.ItemListings;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Enchantments;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -151,8 +153,8 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
   }
 
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + Localizer.dLocalize("pickaxe.auto_smelt.lore1"));
-    v.addLore(C.GREEN + "" + (level * 1.25) + C.GRAY + Localizer.dLocalize("pickaxe.auto_smelt.lore2"));
+    v.addLore(C.GREEN + AdaptLanguage.text(PickaxeMessages.AUTO_SMELT_LORE1));
+    statLore(v, C.GREEN, "", level * 1.25, 2);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)

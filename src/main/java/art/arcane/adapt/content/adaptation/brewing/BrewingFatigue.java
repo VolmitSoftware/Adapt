@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.brewing;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.BrewingMessages;
+
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.potion.AdaptBrewCompleteEvent;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -27,7 +30,6 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.potion.BrewingRecipe;
 import art.arcane.adapt.api.potion.PotionBuilder;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.PotionEffectTypes;
 import art.arcane.adapt.api.fx.FxPriority;
@@ -55,7 +57,7 @@ public class BrewingFatigue extends SimpleAdaptation<BrewingFatigue.Config> {
         .ingredient(Material.SLIME_BALL)
         .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionType.WEAKNESS))
         .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
-            .setName("Bottled Fatigue")
+            .setName(AdaptLanguage.text(BrewingMessages.FATIGUE_NAME))
             .setColor(Color.fromRGB(0, 66, 0))
             .addEffect(PotionEffectTypes.SLOW_DIGGING, 1200, 1, true, true, true)
             .build())
@@ -67,7 +69,7 @@ public class BrewingFatigue extends SimpleAdaptation<BrewingFatigue.Config> {
         .ingredient(Material.SLIME_BLOCK)
         .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionType.WEAKNESS))
         .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
-            .setName("Bottled Fatigue 2")
+            .setName(AdaptLanguage.text(BrewingMessages.FATIGUE_STRONG_NAME))
             .setColor(Color.fromRGB(0, 66, 0))
             .addEffect(PotionEffectTypes.SLOW_DIGGING, 600, 2, true, true, true)
             .build())
@@ -83,8 +85,8 @@ public class BrewingFatigue extends SimpleAdaptation<BrewingFatigue.Config> {
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing.fatigue.lore1"));
-    v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing.fatigue.lore2"));
+    v.addLore(C.GREEN + "+ " + AdaptLanguage.text(BrewingMessages.FATIGUE_LORE1));
+    v.addLore(C.GREEN + "+ " + AdaptLanguage.text(BrewingMessages.FATIGUE_LORE2));
   }
 
   @EventHandler(priority = EventPriority.MONITOR)

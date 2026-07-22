@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.agility;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.AgilityMessages;
+
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -27,7 +30,6 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -114,7 +116,7 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
   @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.f(getJumpHeight(level), 2), 1);
-    v.addLore(C.LIGHT_PURPLE + " " + Localizer.dLocalize("agility.super_jump.lore2"));
+    v.addLore(C.LIGHT_PURPLE + " " + AdaptLanguage.text(AgilityMessages.SUPER_JUMP_LORE2));
   }
 
   private void applyBoost(Player p) {

@@ -18,6 +18,8 @@
 
 package art.arcane.adapt.content.adaptation.enchanting;
 
+import art.arcane.adapt.localization.catalog.EnchantingMessages;
+
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -26,7 +28,6 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPresets;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
@@ -76,7 +77,7 @@ public class EnchantingOfferReroll extends SimpleAdaptation<EnchantingOfferRerol
     statLore(v, Form.duration(getCooldownTicks(level) * 50D, 1), 1);
     statLore(v, C.YELLOW, "* ", getLapisCost(level), 2);
     if (getConfig().xpLevelCost > 0) {
-      v.addLore(C.YELLOW + "* " + getConfig().xpLevelCost + C.GRAY + " " + Localizer.dLocalize("enchanting.offer_reroll.lore_cost_xp"));
+      statLore(v, C.YELLOW, "* ", getConfig().xpLevelCost, EnchantingMessages.OFFER_REROLL_LORE_COST_XP);
     }
   }
 

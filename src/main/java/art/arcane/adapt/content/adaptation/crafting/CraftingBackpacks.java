@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.crafting;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.AdvancementMessages;
+import art.arcane.adapt.localization.catalog.CraftingMessages;
+
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdvancementSpec;
@@ -25,7 +29,6 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.recipe.MaterialChar;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -58,8 +61,8 @@ public class CraftingBackpacks extends SimpleAdaptation<CraftingBackpacks.Config
     AdvancementSpec backpacksCrafted = AdvancementSpec.challenge(
         "challenge_crafting_backpack_25",
         Material.BUNDLE,
-        Localizer.dLocalize("advancement.challenge_crafting_backpack_25.title"),
-        Localizer.dLocalize("advancement.challenge_crafting_backpack_25.description")
+        AdaptLanguage.text(AdvancementMessages.CHALLENGE_CRAFTING_BACKPACK_25_TITLE),
+        AdaptLanguage.text(AdvancementMessages.CHALLENGE_CRAFTING_BACKPACK_25_DESCRIPTION)
     );
     registerMilestone(backpacksCrafted, "crafting.backpacks.bundles-crafted", 25, 300);
   }
@@ -74,10 +77,10 @@ public class CraftingBackpacks extends SimpleAdaptation<CraftingBackpacks.Config
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("crafting.backpacks.lore1"));
-    v.addLore(C.YELLOW + "- " + C.GRAY + Localizer.dLocalize("crafting.backpacks.lore2"));
-    v.addLore(C.YELLOW + "- " + C.GRAY + Localizer.dLocalize("crafting.backpacks.lore3"));
-    v.addLore(C.YELLOW + "- " + C.GRAY + Localizer.dLocalize("crafting.backpacks.lore4"));
+    v.addLore(C.GREEN + "+ " + C.GRAY + AdaptLanguage.text(CraftingMessages.BACKPACKS_LORE1));
+    v.addLore(C.YELLOW + "- " + C.GRAY + AdaptLanguage.text(CraftingMessages.BACKPACKS_LORE2));
+    v.addLore(C.YELLOW + "- " + C.GRAY + AdaptLanguage.text(CraftingMessages.BACKPACKS_LORE3));
+    v.addLore(C.YELLOW + "- " + C.GRAY + AdaptLanguage.text(CraftingMessages.BACKPACKS_LORE4));
 
   }
 

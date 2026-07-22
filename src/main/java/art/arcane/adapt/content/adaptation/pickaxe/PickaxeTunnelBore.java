@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.pickaxe;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.PickaxeMessages;
+
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -26,7 +29,6 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -74,8 +76,8 @@ public class PickaxeTunnelBore extends SimpleAdaptation<PickaxeTunnelBore.Config
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + Localizer.dLocalize("pickaxe.tunnel_bore.lore1"));
-    v.addLore(C.GREEN + "" + getBoreWidth(level) + "x" + getBoreHeight(level) + C.GRAY + " " + Localizer.dLocalize("pickaxe.tunnel_bore.lore2"));
+    v.addLore(C.GREEN + AdaptLanguage.text(PickaxeMessages.TUNNEL_BORE_LORE1));
+    statLore(v, C.GREEN, "", getBoreWidth(level) + "x" + getBoreHeight(level), 2);
     statLore(v, C.RED, "- ", getConfig().durabilityPerBonusBlock, 3);
   }
 

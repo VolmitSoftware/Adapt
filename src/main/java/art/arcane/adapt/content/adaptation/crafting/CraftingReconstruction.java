@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.crafting;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.CraftingMessages;
+
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -26,7 +29,6 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -309,10 +311,10 @@ public class CraftingReconstruction extends SimpleAdaptation<CraftingReconstruct
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + Localizer.dLocalize("crafting.reconstruction.lore1"));
-    v.addLore(C.UNDERLINE + Localizer.dLocalize("crafting.reconstruction.lore2"));
-    v.addLore(C.YELLOW + Localizer.dLocalize("crafting.reconstruction.lore3"));
-    v.addLore(C.YELLOW + Localizer.dLocalize("crafting.reconstruction.lore4"));
+    v.addLore(C.GREEN + AdaptLanguage.text(CraftingMessages.RECONSTRUCTION_LORE1));
+    v.addLore(C.UNDERLINE + AdaptLanguage.text(CraftingMessages.RECONSTRUCTION_LORE2));
+    v.addLore(C.YELLOW + AdaptLanguage.text(CraftingMessages.RECONSTRUCTION_LORE3));
+    v.addLore(C.YELLOW + AdaptLanguage.text(CraftingMessages.RECONSTRUCTION_LORE4));
   }
 
   @EventHandler

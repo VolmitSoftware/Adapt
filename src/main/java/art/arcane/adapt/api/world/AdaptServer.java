@@ -35,6 +35,8 @@ import art.arcane.adapt.content.gui.SkillsGui;
 import art.arcane.adapt.service.MutationSVC;
 import art.arcane.adapt.content.item.ExperienceOrb;
 import art.arcane.adapt.content.item.KnowledgeOrb;
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.RuntimeMessages;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.io.Json;
 import art.arcane.adapt.util.common.io.SQLManager;
@@ -73,6 +75,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
@@ -285,7 +289,11 @@ public class AdaptServer extends TickedObject {
         getPlayer(p).getNot().queue(AdvancementNotification.builder()
             .icon(Material.BOOK)
             .model(CustomModel.get(Material.BOOK, "snippets", "gui", "knowledge"))
-            .title(C.GRAY + "+ " + C.WHITE + data.getKnowledge() + " " + skill.getDisplayName() + " Knowledge")
+            .title(C.GRAY + AdaptLanguage.text(
+                RuntimeMessages.KNOWLEDGE_GAIN,
+                trusted("amount", C.WHITE + String.valueOf(data.getKnowledge())),
+                trusted("skill", skill.getDisplayName())
+            ))
             .build());
       } else {
         ExperienceOrb.Data datax = ExperienceOrb.get(s.getItem());
@@ -346,9 +354,15 @@ public class AdaptServer extends TickedObject {
       }
 
       Skill<?> requiredSkill = required.getSkill();
-      String skillName = requiredSkill == null ? "Unknown Skill" : requiredSkill.getDisplayName();
+      String skillName = requiredSkill == null
+          ? AdaptLanguage.text(RuntimeMessages.UNKNOWN_SKILL)
+          : requiredSkill.getDisplayName();
       SoundPlayer sp = SoundPlayer.of(p);
-      Adapt.actionbar(p, C.RED + "Requires " + required.getDisplayName() + C.RED + " from " + skillName);
+      Adapt.actionbar(p, C.RED + AdaptLanguage.text(
+          RuntimeMessages.REQUIRES_ADAPTATION,
+          trusted("adaptation", required.getDisplayName()),
+          trusted("skill", skillName)
+      ));
       sp.play(p.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 0.5f, 1.8f);
       e.setCancelled(true);
     }

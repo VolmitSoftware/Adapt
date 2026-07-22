@@ -1,5 +1,7 @@
 package art.arcane.adapt.api.skill;
 
+import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.volmlib.util.localization.TextKey;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -40,7 +42,11 @@ class SimpleSkillConfigPersistenceTest {
     private final File legacyConfigFile;
 
     private TestSkill(Path configPath) {
-      super("normalized-skill", "");
+      super("normalized-skill", SkillPresentation.of(
+          TextKey.of("test.skill.name", "Test Skill"),
+          TextKey.of("test.skill.icon", "Test"),
+          TextKey.of("test.skill.description", "Test skill description")
+      ));
       configFile = configPath.toFile();
       legacyConfigFile = configPath.resolveSibling("normalized-skill.json").toFile();
       registerConfiguration(TestConfig.class);

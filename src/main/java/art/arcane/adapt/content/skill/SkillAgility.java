@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.skill;
 
+import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.localization.catalog.SkillMessages;
+
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
@@ -39,7 +42,6 @@ import art.arcane.adapt.content.adaptation.agility.AgilityVault;
 import art.arcane.adapt.content.adaptation.agility.AgilityWallJump;
 import art.arcane.adapt.content.adaptation.agility.AgilityWindUp;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import lombok.NoArgsConstructor;
 import org.bukkit.Location;
@@ -53,10 +55,8 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
   private final SkillOwnerPulse.Registration ownerPulse;
 
   public SkillAgility() {
-    super("agility", Localizer.dLocalize("skill.agility.icon"));
+    super("agility", SkillPresentation.of(SkillMessages.AGILITY_NAME, SkillMessages.AGILITY_ICON, SkillMessages.AGILITY_DESCRIPTION));
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("skill.agility.description"));
-    setDisplayName(Localizer.dLocalize("skill.agility.name"));
     setColor(C.GREEN);
     setInterval(975);
     setIcon(Material.FEATHER);

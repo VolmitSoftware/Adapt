@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.skill;
 
+import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.localization.catalog.SkillMessages;
+
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -42,7 +45,6 @@ import art.arcane.adapt.content.adaptation.discovery.DiscoveryUnity;
 import art.arcane.adapt.content.adaptation.discovery.DiscoveryVillagerAtt;
 import art.arcane.adapt.content.adaptation.discovery.DiscoveryXpResist;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -89,11 +91,9 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
   private int targetCursor;
 
   public SkillDiscovery() {
-    super("discovery", Localizer.dLocalize("skill.discovery.icon"));
+    super("discovery", SkillPresentation.of(SkillMessages.DISCOVERY_NAME, SkillMessages.DISCOVERY_ICON, SkillMessages.DISCOVERY_DESCRIPTION));
     registerConfiguration(Config.class);
     setColor(C.AQUA);
-    setDescription(Localizer.dLocalize("skill.discovery.description"));
-    setDisplayName(Localizer.dLocalize("skill.discovery.name"));
     setInterval(50);
     setIcon(Material.FILLED_MAP);
     registerAdaptation(new DiscoveryUnity());

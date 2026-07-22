@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.architect;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.ArchitectMessages;
+
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -37,10 +40,10 @@ import art.arcane.adapt.content.item.ChalkWandItem.Point;
 import art.arcane.adapt.content.item.ChalkWandItem.Tool;
 import art.arcane.adapt.content.item.ChalkWandItem.WandData;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.inventorygui.Element;
+import art.arcane.volmlib.util.localization.TextKey;
 import io.papermc.paper.event.player.PlayerInventorySlotChangeEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
@@ -142,7 +145,7 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
   public void addStats(int level, Element v) {
     for (Tool tool : Tool.values()) {
       if (level >= tool.requiredLevel()) {
-        v.addLore(C.GREEN + "+ " + Localizer.dLocalize(tool.localizationKey() + ".name"));
+        v.addLore(C.GREEN + "+ " + AdaptLanguage.text(tool.nameKey()));
       }
     }
   }
@@ -163,7 +166,7 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
     }
 
     event.setCancelled(true);
-    Adapt.actionbar(player, C.RED + Localizer.dLocalize("architect.chalk_line.requires_level")
+    Adapt.actionbar(player, C.RED + AdaptLanguage.text(ArchitectMessages.CHALK_LINE_REQUIRES_LEVEL)
         + " " + tool.requiredLevel());
     fx(player.getLocation(), FxPriority.TRANSITION)
         .sound(Sound.BLOCK_NOTE_BLOCK_BASS, 0.45F, 0.7F);
@@ -197,7 +200,7 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
       event.setUseItemInHand(Event.Result.DENY);
       ChalkWandItem.writePlan(hand, Plan.empty());
       replacePreview(player, wand.tool(), Plan.empty(), settings());
-      Adapt.actionbar(player, C.GRAY + Localizer.dLocalize("architect.chalk_line.cleared"));
+      Adapt.actionbar(player, C.GRAY + AdaptLanguage.text(ArchitectMessages.CHALK_LINE_CLEARED));
       fx(player.getLocation(), FxPriority.TRANSITION)
           .sound(Sound.BLOCK_AMETHYST_BLOCK_BREAK, 0.4F, 0.9F);
       return;
@@ -220,7 +223,7 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
     Location targetLocation = target.getLocation();
     int activeLevel = getActiveInteractLevel(player, targetLocation);
     if (activeLevel < wand.tool().requiredLevel()) {
-      Adapt.actionbar(player, C.RED + Localizer.dLocalize("architect.chalk_line.requires_level")
+      Adapt.actionbar(player, C.RED + AdaptLanguage.text(ArchitectMessages.CHALK_LINE_REQUIRES_LEVEL)
           + " " + wand.tool().requiredLevel());
       fx(player.getLocation(), FxPriority.TRANSITION)
           .sound(Sound.BLOCK_NOTE_BLOCK_BASS, 0.45F, 0.7F);
@@ -238,19 +241,19 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
         ? selectStart(wand.tool(), world.getUID(), point, Plane.fromFace(face))
         : selectNext(wand.tool(), wand.plan(), world, point, previewSettings);
     if (!result.accepted()) {
-      Adapt.actionbar(player, C.RED + Localizer.dLocalize(result.messageKey()));
+      Adapt.actionbar(player, C.RED + AdaptLanguage.text(result.messageKey()));
       fx(targetLocation.add(0.5D, 0.5D, 0.5D), FxPriority.TRANSITION)
           .sound(Sound.BLOCK_NOTE_BLOCK_BASS, 0.4F, 0.8F);
       return;
     }
 
     if (!ChalkWandItem.writePlan(hand, result.plan())) {
-      Adapt.actionbar(player, C.RED + Localizer.dLocalize("architect.chalk_line.invalid_plan"));
+      Adapt.actionbar(player, C.RED + AdaptLanguage.text(ArchitectMessages.CHALK_LINE_INVALID_PLAN));
       return;
     }
 
     replacePreview(player, wand.tool(), result.plan(), previewSettings);
-    Adapt.actionbar(player, C.AQUA + Localizer.dLocalize(result.messageKey()));
+    Adapt.actionbar(player, C.AQUA + AdaptLanguage.text(result.messageKey()));
     fx(target.getLocation().add(0.5D, 0.5D, 0.5D), FxPriority.GAMEPLAY)
         .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.45F, result.completed() ? 1.7F : 1.2F);
     if (result.completed()) {
@@ -428,14 +431,14 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
 
   private SelectionResult selectStart(Tool tool, UUID worldId, Point point, Plane plane) {
     Plan plan = new Plan(worldId, List.of(point), tool == Tool.COMPASS ? plane : Plane.XZ);
-    return SelectionResult.accepted(plan, false, "architect.chalk_line.start_set");
+    return SelectionResult.accepted(plan, false, ArchitectMessages.CHALK_LINE_START_SET);
   }
 
   private SelectionResult selectNext(Tool tool, Plan current, World world, Point point,
                                      PreviewSettings settings) {
     UUID worldId = world.getUID();
     if (current == null || current.isEmpty() || !worldId.equals(current.worldId())) {
-      return SelectionResult.rejected("architect.chalk_line.start_required");
+      return SelectionResult.rejected(ArchitectMessages.CHALK_LINE_START_REQUIRED);
     }
 
     List<Point> controlPoints = current.points();
@@ -443,39 +446,39 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
         ? controlPoints.getLast()
         : controlPoints.getFirst();
     if (ArchitectChalkGeometry.squaredDistance(distanceOrigin, point) > settings.selectionDistanceSquared()) {
-      return SelectionResult.rejected("architect.chalk_line.too_far");
+      return SelectionResult.rejected(ArchitectMessages.CHALK_LINE_TOO_FAR);
     }
     if (point.equals(controlPoints.getLast())) {
-      return SelectionResult.rejected("architect.chalk_line.duplicate_point");
+      return SelectionResult.rejected(ArchitectMessages.CHALK_LINE_DUPLICATE_POINT);
     }
 
     Plan candidate;
     boolean completed;
-    String messageKey;
+    TextKey messageKey;
     switch (tool) {
       case STRAIGHTEDGE -> {
         candidate = new Plan(worldId, List.of(controlPoints.getFirst(), point), current.plane());
         completed = true;
-        messageKey = "architect.chalk_line.guide_ready";
+        messageKey = ArchitectMessages.CHALK_LINE_GUIDE_READY;
       }
       case POLYLINE -> {
         if (controlPoints.size() >= settings.maxPolylineVertices()) {
-          return SelectionResult.rejected("architect.chalk_line.too_many_vertices");
+          return SelectionResult.rejected(ArchitectMessages.CHALK_LINE_TOO_MANY_VERTICES);
         }
         List<Point> vertices = new ArrayList<>(controlPoints);
         vertices.add(point);
         candidate = new Plan(worldId, vertices, current.plane());
         completed = true;
-        messageKey = "architect.chalk_line.vertex_added";
+        messageKey = ArchitectMessages.CHALK_LINE_VERTEX_ADDED;
       }
       case COMPASS -> {
         double radiusSquared = circleRadiusSquared(controlPoints.getFirst(), point, current.plane());
         if (radiusSquared < 1D || radiusSquared > settings.circleRadiusSquared()) {
-          return SelectionResult.rejected("architect.chalk_line.invalid_radius");
+          return SelectionResult.rejected(ArchitectMessages.CHALK_LINE_INVALID_RADIUS);
         }
         candidate = new Plan(worldId, List.of(controlPoints.getFirst(), point), current.plane());
         completed = true;
-        messageKey = "architect.chalk_line.guide_ready";
+        messageKey = ArchitectMessages.CHALK_LINE_GUIDE_READY;
       }
       case ARC_BOW -> {
         List<Point> arcPoints = new ArrayList<>(controlPoints.subList(0, Math.min(2, controlPoints.size())));
@@ -483,21 +486,21 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
         candidate = new Plan(worldId, arcPoints, current.plane());
         completed = arcPoints.size() == 3;
         messageKey = completed
-            ? "architect.chalk_line.guide_ready"
-            : "architect.chalk_line.through_point_set";
+            ? ArchitectMessages.CHALK_LINE_GUIDE_READY
+            : ArchitectMessages.CHALK_LINE_THROUGH_POINT_SET;
       }
       default -> throw new IllegalStateException("Unsupported chalk tool " + tool);
     }
 
     List<Point> geometry = buildGeometry(tool, candidate, settings);
     if (geometry.isEmpty()) {
-      return SelectionResult.rejected("architect.chalk_line.invalid_shape");
+      return SelectionResult.rejected(ArchitectMessages.CHALK_LINE_INVALID_SHAPE);
     }
     if (geometry.size() > settings.maxGuideBlocks()) {
-      return SelectionResult.rejected("architect.chalk_line.guide_too_large");
+      return SelectionResult.rejected(ArchitectMessages.CHALK_LINE_GUIDE_TOO_LARGE);
     }
     if (!isWithinBuildHeight(geometry, world.getMinHeight(), world.getMaxHeight())) {
-      return SelectionResult.rejected("architect.chalk_line.guide_out_of_bounds");
+      return SelectionResult.rejected(ArchitectMessages.CHALK_LINE_GUIDE_OUT_OF_BOUNDS);
     }
     return SelectionResult.accepted(candidate, completed, messageKey);
   }
@@ -881,12 +884,12 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
     }
   }
 
-  private record SelectionResult(Plan plan, boolean accepted, boolean completed, String messageKey) {
-    private static SelectionResult accepted(Plan plan, boolean completed, String messageKey) {
+  private record SelectionResult(Plan plan, boolean accepted, boolean completed, TextKey messageKey) {
+    private static SelectionResult accepted(Plan plan, boolean completed, TextKey messageKey) {
       return new SelectionResult(plan, true, completed, messageKey);
     }
 
-    private static SelectionResult rejected(String messageKey) {
+    private static SelectionResult rejected(TextKey messageKey) {
       return new SelectionResult(Plan.empty(), false, false, messageKey);
     }
   }

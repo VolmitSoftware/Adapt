@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.architect;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.ArchitectMessages;
+
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -26,10 +29,11 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.inventorygui.Element;
+
+import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -107,7 +111,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + Localizer.dLocalize("architect.placement.lore3"));
+    v.addLore(C.GREEN + AdaptLanguage.text(ArchitectMessages.PLACEMENT_LORE3));
   }
 
   private BlockFace getBlockFace(Player player) {
@@ -163,7 +167,10 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
       }
 
       if (hand.getAmount() < blocks.size()) {
-        Adapt.messagePlayer(p, C.RED + Localizer.dLocalize("architect.placement.lore1") + " " + C.GREEN + blocks.size() + C.RED + " " + Localizer.dLocalize("architect.placement.lore2"));
+        Adapt.messagePlayer(p, C.RED + AdaptLanguage.text(
+            ArchitectMessages.PLACEMENT_REQUIREMENT,
+            trusted("count", C.GREEN + String.valueOf(blocks.size()) + C.RED)
+        ));
         fx(p.getLocation(), FxPriority.TRANSITION).sound(Sound.BLOCK_DISPENSER_FAIL, 0.4f, 1.0f);
         return;
       }

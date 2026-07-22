@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.axe;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.AxeMessages;
+
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -28,7 +31,6 @@ import art.arcane.adapt.api.world.PlayerAdaptation;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.content.integration.iris.IrisTreeFellerLink;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -70,9 +72,9 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
   }
 
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + Localizer.dLocalize("axe.leaf_miner.lore1"));
-    v.addLore(C.GREEN + "" + (level + getConfig().baseRange) + C.GRAY + " " + Localizer.dLocalize("axe.leaf_miner.lore2"));
-    v.addLore(C.ITALIC + Localizer.dLocalize("axe.leaf_miner.lore3"));
+    v.addLore(C.GREEN + AdaptLanguage.text(AxeMessages.LEAF_MINER_LORE1));
+    statLore(v, C.GREEN, "", level + getConfig().baseRange, 2);
+    v.addLore(C.ITALIC + AdaptLanguage.text(AxeMessages.LEAF_MINER_LORE3));
   }
 
   private int getRadius(int lvl) {

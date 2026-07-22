@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.excavation;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.ExcavationMessages;
+
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -25,7 +28,6 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
@@ -60,7 +62,7 @@ public class ExcavationSoftFall extends SimpleAdaptation<ExcavationSoftFall.Conf
   @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.pc(getReduction(level), 0), 1);
-    v.addLore(C.GRAY + Localizer.dLocalize("excavation.soft_fall.lore2"));
+    v.addLore(C.GRAY + AdaptLanguage.text(ExcavationMessages.SOFT_FALL_LORE2));
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)

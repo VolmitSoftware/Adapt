@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.axe;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.AxeMessages;
+
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -26,7 +29,6 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Materials;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -1022,7 +1024,7 @@ public class AxeCraftLogSwap extends SimpleAdaptation<AxeCraftLogSwap.Config> {
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("axe.log_swap.lore1"));
+    v.addLore(C.GREEN + "+ " + C.GRAY + AdaptLanguage.text(AxeMessages.LOG_SWAP_LORE1));
   }
 
   @EventHandler(priority = EventPriority.MONITOR)

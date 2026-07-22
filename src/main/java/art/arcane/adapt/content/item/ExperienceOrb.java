@@ -18,10 +18,12 @@
 
 package art.arcane.adapt.content.item;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.SnippetsMessages;
+
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.item.DataItem;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.volmlib.util.format.Form;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -35,6 +37,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 @AllArgsConstructor
 @Data
@@ -72,16 +76,20 @@ public class ExperienceOrb implements DataItem<ExperienceOrb.Data> {
     for (Map.Entry<String, Double> entry : data.getExperienceMap().entrySet()) {
       String skill = entry.getKey();
       double experience = entry.getValue();
-      lore.add(C.WHITE + Form.capitalize(Localizer.dLocalize("snippets.experience_orb.contains")) + " " + C.UNDERLINE + C.WHITE + Form.f(experience, 0) + " " + Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(skill).getDisplayName() + C.GRAY + " " + Localizer.dLocalize("snippets.experience_orb.xp"));
+      lore.add(C.WHITE + AdaptLanguage.text(
+          SnippetsMessages.EXPERIENCE_ORB_CONTENTS,
+          trusted("experience", C.UNDERLINE + "" + C.WHITE + Form.f(experience, 0)),
+          trusted("skill", Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(skill).getDisplayName() + C.GRAY)
+      ));
     }
-    lore.add(C.LIGHT_PURPLE + Localizer.dLocalize("snippets.experience_orb.rightclick") + " " + C.GRAY + Localizer.dLocalize("snippets.experience_orb.togainxp"));
+    lore.add(C.LIGHT_PURPLE + AdaptLanguage.text(SnippetsMessages.EXPERIENCE_ORB_USE));
   }
 
   @Override
   public void applyMeta(Data data, ItemMeta meta) {
     meta.addEnchant(Enchantment.BINDING_CURSE, 10, true);
     meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
-    meta.setDisplayName(Localizer.dLocalize("snippets.experience_orb.xporb"));
+    meta.setDisplayName(AdaptLanguage.text(SnippetsMessages.EXPERIENCE_ORB_XPORB));
   }
 
   @AllArgsConstructor

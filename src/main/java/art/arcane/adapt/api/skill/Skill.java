@@ -72,6 +72,10 @@ public interface Skill<T> extends Ticked, Component {
    */
   String getName();
 
+  default String getLocalizedName() {
+    return Form.capitalize(getName());
+  }
+
   /**
    * @return icon glyph/emoji prefix used in UI.
    */

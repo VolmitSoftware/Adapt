@@ -1,5 +1,400 @@
-# advancement
-[advancement]
+# Adapt language overlay: ko_KR
+
+[mutation.domain]
+body = "신체"
+hunt = "사냥"
+industry = "산업"
+wild = "야생"
+craft = "제작"
+anomaly = "변칙"
+
+[mutation.type.gale_lung]
+name = "질풍의 폐"
+benefit = "움직이면 추진력이 차오릅니다. 추진력이 가득 찬 상태에서 다음 공격은 대상을 밀어내거나 위치를 바꿉니다."
+burden = "추진력이 가득 차 있으면 적에게 더 강하게 밀려납니다. 방어하면 추진력이 사라집니다."
+perfect = "더 이상 적에게 강하게 밀려나지 않습니다. 방어하면 추진력이 사라지는 효과는 유지됩니다."
+tell = "청록색 바람이 발과 무기 주변에 모입니다."
+control = "계속 움직여 추진력을 채운 뒤 공격을 적중시키세요."
+
+[mutation.type.bastion_spine]
+name = "요새의 척추"
+benefit = "가만히 서 있으면 안정성이 쌓입니다. 다음 방패, 도끼 또는 맨손 공격이 짧은 밀치기 효과를 일으킵니다."
+burden = "자세를 굳힌 동안에는 질주하거나 점프할 수 없습니다. 뒤에서 공격받으면 자세가 무너집니다."
+perfect = "자세를 굳힌 동안에도 질주하고 점프할 수 있습니다. 뒤에서 공격받으면 여전히 자세가 무너질 수 있습니다."
+tell = "돌로 된 갈비뼈와 밝은 균열이 비축된 힘을 드러냅니다."
+control = "지상에서 가만히 선 뒤 방패, 도끼 또는 맨손으로 공격하세요."
+
+[mutation.type.verdant_molt]
+name = "녹음의 탈피"
+benefit = "자연 지형에서 움직이지 않은 채 웅크리면 해로운 효과가 제거됩니다."
+burden = "이때 이로운 효과도 제거되고 허기가 소모되며, 잠시 새 효과를 받을 수 없습니다."
+perfect = "이로운 효과와 허기가 더 이상 사라지지 않습니다. 짧은 효과 차단은 유지됩니다."
+tell = "나뭇잎, 비늘 또는 포자가 몸에서 터져 나옵니다."
+control = "자연 지형에서 웅크린 채 움직이지 마세요."
+
+[mutation.type.temperbound]
+name = "단련의 결속"
+benefit = "방어구 세트 하나를 연결해 모든 부위가 내구도를 공유하게 합니다. 파괴될 부위는 대신 금이 간 상태가 됩니다."
+burden = "연결된 부위를 벗거나 교체하면 잠시 세트가 비활성화됩니다."
+perfect = "방어구를 교체해도 더 이상 세트가 비활성화되지 않습니다. 한 세트만 연결된 상태로 유지할 수 있습니다."
+tell = "빛나는 선이 연결된 방어구 부위들을 잇습니다."
+control = "Adapt 책장에서 직접 제작한 방어구 네 부위를 착용하고 '현재 방어구 연결'을 선택하세요."
+
+[mutation.type.paradox_scar]
+name = "역설의 흉터"
+benefit = "긴 거리를 이동하거나 순간이동하면 귀환 지점이 남습니다. 그곳으로 한 번 되돌아갈 수 있습니다."
+burden = "귀환 지점이 눈에 보이고, 새 지점의 생성을 막으며, 적이 이를 파괴할 수 있습니다."
+perfect = "다른 변이의 귀환 효과를 더 이상 막지 않습니다. 적은 여전히 귀환 지점을 파괴할 수 있습니다."
+tell = "밝은 잔상이 귀환 지점을 표시합니다."
+control = "긴 거리를 이동하거나 순간이동한 뒤, 웅크린 채 손을 바꾸면 돌아갑니다."
+
+[mutation.type.arsenal_cortex]
+name = "무기고 피질"
+benefit = "공격 사이에 무기나 도구 종류를 바꾸면 하나의 제어 효과가 다음 공격으로 이어집니다."
+burden = "같은 종류를 두 번 연속 사용하면 잠시 연계가 잠깁니다."
+perfect = "같은 종류를 반복해도 더 이상 연계가 잠기지 않습니다. 연계를 쌓으려면 여전히 종류를 바꿔야 합니다."
+tell = "모양이 변하는 문양이 손에 든 아이템 주위를 회전합니다."
+control = "서로 다른 종류의 무기나 도구로 공격을 적중시키세요."
+
+[mutation.type.packmind]
+name = "무리의식"
+benefit = "첫 공격이 대상을 표식합니다. 펫과 참여를 허용한 아군도 그 대상을 공격하면 템포가 쌓입니다."
+burden = "다른 이가 합류하기 전까지 자신의 피해량이 감소합니다. 혼자 쌓은 템포는 빠르게 사라집니다."
+perfect = "기다리는 동안 자신의 피해량이 더 이상 감소하지 않습니다. 템포를 쌓으려면 여전히 다른 참여자가 필요합니다."
+tell = "호박색 선이 무리와 표식된 대상을 연결합니다."
+control = "대상을 공격한 뒤 펫이나 참여를 허용한 아군도 공격하게 하세요."
+
+[mutation.type.trophy_crucible]
+name = "전리품 도가니"
+benefit = "자연 생성 몹이 전리품을 떨어뜨릴 수 있습니다. 전리품 하나를 사용하면 해당 몹 종류를 상대할 제어 효과가 준비됩니다."
+burden = "해당 몹 종류가 자신을 더 쉽게 발견하고 변이의 은신도 꿰뚫어 봅니다."
+perfect = "추가 감지 효과가 사라집니다. 준비해 둘 수 있는 전리품 효과는 여전히 하나뿐입니다."
+tell = "저장된 몹 종류를 나타내는 가면이 등 뒤에 나타납니다."
+control = "자연 전리품을 든 채 웅크리고 제작대를 우클릭하세요."
+
+[mutation.type.umbral_echo]
+name = "그림자 메아리"
+benefit = "새로운 각도나 새로운 무기 종류로 공격하면 잠시 뒤 더 약한 제어 효과가 한 번 더 발생합니다."
+burden = "같은 방식으로 반복 공격하면 모습이 드러나고 잠시 은신할 수 없습니다."
+perfect = "같은 방식을 반복해도 더 이상 모습이 드러나지 않습니다. 새로운 각도나 무기 종류는 여전히 필요합니다."
+tell = "짙은 보라색 잔상이 제어 효과를 반복합니다."
+control = "공격 사이에 공격 각도나 무기 종류를 바꾸세요."
+
+[mutation.type.living_lattice]
+name = "생명의 격자"
+benefit = "작물을 수확하고 다시 심으면 뿌리 충전이 쌓입니다. 이를 소모해 짧은 임시 길을 자라게 할 수 있습니다."
+burden = "불과 용암이 충전을 모두 없앨 수 있으며, 길이 강제로 붕괴하면 허기가 소모됩니다."
+perfect = "불과 용암이 더 이상 충전을 없애지 않습니다. 길은 여전히 사라집니다."
+tell = "초록색 뿌리가 갈색으로 변한 뒤 길이 사라집니다."
+control = "작물을 수확하고 다시 심은 뒤, 묘목을 든 채 웅크리고 우클릭하세요."
+
+[mutation.type.masterwork_bond]
+name = "명작의 결속"
+benefit = "직접 제작한 도구 하나를 결속합니다. 도구가 파괴되는 대신 내구도 1에서 멈추며, 수리하기 전에는 사용할 수 없습니다."
+burden = "결속된 도구만 보호됩니다. 도구를 잃으면 다른 도구를 결속하기 전에 기다려야 합니다."
+perfect = "다른 도구에도 변이 효과가 정상적으로 작동합니다. 파괴를 피하는 것은 명작 도구뿐입니다."
+tell = "도구가 파괴될 때가 가까워지면 룬에 금이 갑니다."
+control = "Adapt 책장에서 직접 제작한 도구를 들고 '든 도구 결속'을 선택하세요."
+
+[mutation.type.deepblood]
+name = "심층혈"
+benefit = "깊은 지하에서 자연 블록을 채굴하면 심층 충전이 쌓입니다. 이 충전은 치유에 사용되며 결속된 도구 하나를 보호합니다."
+burden = "지하에서 치유하면 심층 충전이 소모되고, 지상에서는 충전이 서서히 줄어듭니다."
+perfect = "충전이 없어도 지하에서 치유됩니다. 결속된 도구를 보호할 때는 여전히 충전이 소모됩니다."
+tell = "충전이 쌓일수록 자신과 결속된 도구에 붉은 균열이 퍼집니다."
+control = "깊은 지하의 자연 블록을 채굴하고 Adapt 책장에서 도구 하나를 결속하세요."
+
+[mutation.type.mycelial_nerve]
+name = "균사 신경"
+benefit = "자신에게 부여한 이로운 효과가 약해진 형태로 주변의 참여 허용 플레이어와 펫에게 퍼집니다."
+burden = "자신이 받는 효과의 지속 시간이 짧아지고, 화염 피해를 받으면 연결이 끊어집니다."
+perfect = "자신의 효과가 원래 지속 시간을 유지하며, 화염 피해로도 연결이 끊어지지 않습니다."
+tell = "포자 흔적이 복제된 효과를 주변 아군에게 전달합니다."
+control = "참여를 허용한 플레이어나 소유한 펫 근처에서 자신에게 이로운 효과를 부여하세요."
+
+[mutation.type.gravebloom]
+name = "무덤꽃"
+benefit = "자연 생성 적대적 몹을 처치하면 잠시 피어나는 꽃이 생겨 작물을 성장시키고 펫을 치유할 수 있습니다."
+burden = "활성화된 꽃은 자신의 자연 치유를 약화하며, 오래된 꽃은 적대적 몹을 끌어들입니다."
+perfect = "꽃이 더 이상 자신의 치유를 약화하지 않습니다. 꽃은 여전히 잠시 뒤 사라집니다."
+tell = "죽은 자리에서 창백한 꽃과 영혼 입자가 솟아오릅니다."
+control = "자연 지형 위에서 자연 생성 적대적 몹을 처치하세요."
+
+[mutation.type.resonant_formula]
+name = "공명 공식"
+benefit = "제작, 양조, 마법 부여를 각각 한 번씩 하면 연계가 준비됩니다. 다음 비피해 변칙 효과가 절반의 위력으로 반복됩니다."
+burden = "같은 준비 단계를 반복하면 연계가 끊기고 가장 오래된 이로운 효과가 제거됩니다."
+perfect = "단계를 반복해도 더 이상 연계가 끊기지 않습니다. 서로 다른 세 단계는 여전히 모두 필요합니다."
+tell = "연계가 준비되면 세 문양이 하나로 합쳐집니다."
+control = "순서에 상관없이 제작, 양조, 마법 부여를 각각 한 번씩 하세요."
+
+[mutation.runtime]
+unavailable = "변이 시스템을 사용할 수 없습니다."
+feature_off = "이 서버에서는 실험적 변이가 꺼져 있습니다."
+type_off = "{mutation}은(는) 서버 설정에서 비활성화되어 있습니다."
+missing_permission = "{permission} 권한이 필요합니다."
+duplicate_slots = "같은 변이를 두 슬롯에 모두 사용할 수 없습니다."
+duplicate_occupancy = "동일한 돌연변이는 두 개의 슬롯을 점유 할 수 없습니다."
+conflict_other = "이 선택은 다른 변이와 충돌합니다."
+conflicts_with = "{mutation} 분쟁 해결 {other}."
+slot_locked_current_level = "이 구멍은 현재 수준에 잠깁니다."
+first_slot_unlocks = "첫 번째 변이 슬롯은 {level}레벨에 잠금 해제됩니다."
+world_unavailable = "이 명상은 작동하지 않습니다 {world}."
+active_perfect = "활동 없음 단점."
+active_burden = "활동; 단점 적용."
+ready_to_use = "사용할 준비가 되었습니다."
+requirements_unavailable = "돌연변이 요구 사항은 없습니다."
+learn_both_domains = "{first} 및 {second} 기술 그룹에서 적응을 하나씩 습득하세요."
+learn_domain_level = "더 알아보기 {domain} 수준에 적응 {level} 또는 더 높은."
+ready = "준비됨"
+login_requirements = "요구 조건을 확인하려면 로그인하세요."
+equipped_offline = "플레이어가 오프라인 동안 갖춰져 있지만 비활성화."
+first_slot_locked = "첫번째 돌연변이 구멍은 잠깁니다."
+trophy_clear_hint = "빈손으로 제작대를 다시 우클릭하면 준비된 전리품을 제거할 수 있습니다."
+trophy_cleared = "준비된 전리품을 제거했습니다."
+return_echo_name = "귀환의 메아리"
+
+[mutation.selection]
+invalid = "잘못된 돌연변이 선택."
+player_data_unavailable = "플레이어 돌연변이 데이터는 사용할 수 없습니다."
+slot_changed_confirm = "돌연변이 슬롯은 확인이 열렸다 동안 변경; 다시 검토."
+loadout_changed_confirm = "확인이 열려있던 동안 돌연변이가 변경되었습니다. 다시 검토하십시오."
+already_equipped = "{mutation} 슬롯에 이미 장착 {slot}."
+equipped = "{mutation}을(를) 슬롯 {slot}에 장착했습니다."
+invalid_slot = "잘못된 돌연변이 슬롯."
+slot_already_empty = "돌연변이 구멍 {slot} 이미 빈."
+cleared_slot = "명확한 돌연변이 구멍 {slot}."
+changes_off = "이 서버에서 돌연변이 변경은 꺼져 있습니다."
+bookshelf_required = "돌연변이 슬롯을 바꾸려면 Adapt 책장으로 돌아가세요."
+slot_unlocks = "돌연변이 구멍 {slot} 수준에서 잠금 해제 {level}."
+permanent_choices = "이 서버는 돌연변이 선택 영구적으로 만듭니다."
+slot_cooldown = "돌연변이 구멍 {slot} 변경할 수 없습니다."
+combat_cooldown = "전투 중에 돌연변이를 바꿀 수 없습니다."
+mutation_disabled = "즉 돌연변이은 비활성화."
+world_disabled = "이 세상엔 돌연변이가 작동하지 않습니다."
+
+[mutation.command]
+toggle_usage = "enabled=on, enabled=off 중 하나를 사용하거나 생략하여 전환하세요."
+cooperative_enabled = "협동 변이 효과가 활성화되었습니다."
+cooperative_disabled = "협동 변이 효과가 비활성화되었습니다."
+cooperative_enabled_off = "협력 돌연변이 효과 활성화. 선호 저장된; 실험적인 돌연변이는 현재 떨어져 있습니다."
+cooperative_disabled_off = "협력적인 돌연변이 효력은 비활성화됩니다. 선호 저장된; 실험적인 돌연변이는 현재 떨어져 있습니다."
+choice_saved_off = "선택은 저장되었지만 실험적 변이가 꺼져 있는 동안에는 비활성 상태로 유지됩니다."
+discovered = "{mutation}에 대한 {player}가 발견되었습니다."
+undiscovered = "{player}에 대한 발견되지 않은 {mutation}"
+cooldowns_cleared = "{player}의 변이 전환 재사용 대기시간을 초기화했습니다."
+state_refreshed = "새로 고침된 돌연변이 국가 {player}."
+slot_range = "진흙 구멍은 있어야 합니다 1 또는 2."
+override_usage = "enabled=on, enabled=off 또는 enabled=clear 를 사용하세요."
+slot_normal = "돌연변이 구멍 {slot} 지금 그것의 정상적인 수평 필요조건을 사용하여 {player}."
+slot_forced_unlocked = "돌연변이 구멍 {slot} 지금 강제로 잠금 해제 {player}."
+slot_forced_locked = "돌연변이 구멍 {slot} 지금 강제 잠겨 {player}."
+data_cleared = "명확한 돌연변이 자료 {player} 변화 없음 XP, 기술, 지식, 적응 또는 발전."
+perfect_normal = "완벽한 적응은 지금 그것의 정상적인 수평 필요조건을 사용하여 입니다 {player}."
+perfect_forced_on = "완벽한 적응은 이제에 강제됩니다 {player}."
+perfect_forced_off = "완벽한 적응은 이제 강제로 {player}."
+unavailable = "돌연변이가 아직 없습니다."
+reload_failed = "변이 설정을 다시 불러오지 못했습니다. 이전 설정은 계속 적용됩니다."
+reload_enabled = "변이 설정을 다시 불러왔습니다. 실험적 변이가 활성화되었으며 접속 중인 플레이어의 슬롯을 갱신하고 있습니다."
+reload_disabled = "변이 설정을 다시 불러왔습니다. 실험적 변이가 비활성화되었으며 저장된 선택은 유지됩니다."
+unknown_mutation = "알 수 없는 변이: {mutation}"
+snapshot_title = "실험적인 돌연변이 {player}"
+feature_enabled = "기능: 활성화"
+feature_disabled = "기능: 비활성화"
+perfect_active = "완벽한 적응: 활동"
+perfect_inactive = "완벽한 적응: 비활성"
+cooperative_status_enabled = "협력적인 효력: 활성화"
+cooperative_status_disabled = "협력적인 효력: 비활성화"
+stored_resources = "저장된 자원: 딥 충전 {deepCharge} • 루트 충전 {rootCharge} • 공예/조류/마녀 단계 {steps}"
+linked_gear = "연결된 장비: 온도형 {temperbound} • 마스터워크 {masterwork} • 딥블러드 도구 {deepblood} • 트로피 {trophy}"
+yes = "그래요"
+no = "없음"
+slot_locked = "슬롯 {slot}: 잠금"
+slot_empty = "슬롯 {slot}: 빈"
+slot_unavailable = "슬롯 {slot}: {mutation} (무ಲಭ್ಯ)"
+slot_value = "슬롯 {slot}: {mutation} [{state}]"
+slot_value_reason = "슬롯 {slot}: {mutation} [{state}] - {reason}"
+result_updated = "돌연변이 상태 업데이트."
+result_not_changed = "돌연변이 상태는 변경되지 않았습니다."
+remaining_cooldown = "{message} 남은 재사용 대기시간: {duration}"
+
+[mutation.state]
+ready = "준비됨"
+active = "활성"
+inactive = "비활성"
+locked = "잠금"
+off = "가동"
+unavailable = "사용 불가"
+blocked = "차단"
+
+[mutation.progression]
+slot_unlocked_title = "돌연변이 슬롯 잠금 해제"
+slot_unlocked_subtitle = "첫 번째 돌연변이 슬롯은 이제 열렸어요 Adapt 책상도 방문하세요."
+second_slot_title = "두 번째 돌연변이 슬롯"
+second_slot_subtitle = "두 번째 돌연변이 슬롯은 이제 잠금 해제되었습니다."
+perfect_title = "완벽한 적응"
+perfect_subtitle = "당신의 갖춰진 돌연변이에는 더 이상 있습니다."
+perfect_lost = "완벽한 적응은 더 이상 활성화되지 않습니다. 변동의 단점은 다시 적용됩니다."
+
+[mutation.model]
+no_selection = "선택 없음"
+saved_unavailable = "이 저장된 돌연변이는 사용할 수 없습니다"
+slot_locked = "필요한 슬롯이 잠겨 있습니다."
+ready = "사용 준비됨"
+active = "활성"
+inactive = "장비를 갖추고 있지만 활동하지 않습니다."
+disabled = "서버로 해제"
+restricted = "이용안내"
+conflict = "다른 돌연변이에 의해 차단"
+empty = "텅 비어"
+
+[mutation.gui]
+disabled = "이 서버에서는 실험적 변이가 비활성화되어 있습니다."
+title = "실험적 변이 • 레벨 {level}"
+perfect = "완벽한 적응"
+perfect_active = "장착한 두 변이의 단점이 모두 사라집니다."
+perfect_locked = "설정된 Adapt 레벨에 도달하면 잠금 해제됩니다."
+cooperative_on = "협력적인 효력: 에"
+cooperative_off = "협력적인 효력: 떨어져"
+cooperative_allow = "주변 플레이어가 공유하는 변이 효과를 허용합니다."
+cooperative_opt_out = "클릭하여 참여를 해제하세요."
+cooperative_opt_in = "클릭하여 참여합니다."
+changes_available = "변경 가능"
+view_only = "보기 전용"
+may_change = "당신은 여기 돌연변이 슬롯을 변경할 수 있습니다."
+visit_bookshelf = "유효한 Adapt 책장을 찾아 상호작용하면 슬롯을 변경할 수 있습니다."
+unavailable_discoveries = "이용 약관"
+saved_not_installed = "현재 설치되지 않은 저장 된 돌연변이:"
+slot_value = "슬롯 {slot}: {mutation}"
+slot_locked = "슬롯 {slot}: 잠금"
+right_click_clear = "이 슬롯을 취소하려면."
+skill_groups = "기술 그룹: {first} + {second}"
+discovered = "발견됨"
+undiscovered = "분류되지 않음"
+equipped_slot = "슬롯에 장착 {slot}"
+click_inspect = "클릭하여 확인"
+requires = "요구 사항 : 각 기술 그룹에서 한 번의 배운 적응 {level}+"
+benefit = "효과: {benefit}"
+burden = "단점: {burden}"
+perfect_result = "레벨 200 효과: {result}"
+tell = "시각적 표시: {tell}"
+control = "사용 방법: {control}"
+pvp = "PvP에 영향을 미친다"
+no_pvp = "직접 영향을 미치지 않습니다. PvP"
+status = "상태: {state}"
+matching_none = "일치 적응: 현재 배운 아무도"
+matching = "일치 적응: {adaptations}"
+slot_locked_name = "슬롯 {slot} 잠금"
+slot_view_only = "슬롯 {slot} • 보기만"
+bookshelf_before_change = "유효한 사용 Adapt 이 슬롯을 변경하기 전에 책장."
+equipped_in_slot = "슬롯에 장착 {slot}"
+already_equipped_slot = "Already 에 구멍 {slot}"
+conflicts_with = "Conflicts와 {mutation}"
+clear_other_first = "명확한 또는 교체 구멍 {slot} 이 명상을 선택하기 전에."
+unavailable_slot = "슬롯에 사용할 수 없음 {slot}"
+equip_slot = "슬롯의 장착 {slot}"
+current = "현재 위치: {mutation}"
+click_preview = "본문 바로가기."
+confirm_slot = "{mutation} → 슬롯 {slot}"
+replacing = "구독하기: {mutation}"
+other_slot = "다른 구멍: {mutation}"
+with_other = "다른 구멍으로: {interaction}"
+slot_cooldown = "슬롯 재사용 대기시간: {duration}"
+confirm_change = "변경 확인"
+confirm_change_title = "돌연변이 변경"
+clear_slot = "명확한 구멍 {slot}"
+unequip = "계정 정보 {mutation}?"
+normal_cooldown = "이게 정상적인 슬롯 재사용 대기시간 시작하죠."
+confirm_clear = "초기화 확인"
+link_armor = "연결 현재 기갑"
+link_armor_lore = "4개의 튼튼한 기갑 조각을 착용하고, 그것들을 연결하기 위하여 누르십시오."
+unlink_armor = "링크 장갑"
+unlink_armor_lore = "현재 4 조각 기갑 세트를 연결하십시오."
+review_confirm = "클릭하여 검토 후 확인합니다."
+unlink_masterwork = "링크 명품"
+unlink_masterwork_lore = "현재 명품 도구를 연결."
+replacement_cooldown_begins = "확인 후 대체 재사용 대기시간 시작됩니다."
+bind_held_tool = "묶어 잡힌 도구"
+deepblood_bind_lore = "딥블러드 파손 보호에 당신의 주요 손에 있는 튼튼한 공구를 연결하십시오."
+deepblood_replace_lore = "다른 도구를 연결하면 현재의 딥블러드 도구가 대체됩니다."
+bind_cooling = "기 를 잡으 • 냉각 시킬 수 있다"
+masterwork_bind_lore = "개인적으로 제작 된 튼튼한 도구를 잡아."
+replacement_available = "교체 가능 {duration}."
+equipment_changed = "그 연결 장비는 확인될 수 있었습니다 전에 변화했습니다."
+unlink_temperbound = "링크 템퍼바운드 기갑?"
+temperbound_unlinked = "현재 4 조각 기갑 세트는 연결될 것입니다."
+no_repair_return = "이것은 수리하지 않습니다, 보호하거나, 어떤 기갑을 반환."
+unlink_masterwork_question = "마스터워크 툴을 해제할 수 있습니까?"
+masterwork_unlinked = "현재 마스터워크 도구는 연결되지 않습니다."
+replacement_cooldown = "대체 재사용 대기시간: {duration}"
+confirm_equipment_title = "장비 변경"
+option_unavailable = "이 옵션은 더 이상 사용할 수 없습니다."
+equipment_changed_review = "그 연결 장비는 확인이 열었을 때 변경; 다시 검토."
+controls_unavailable = "돌연변이 장비 제어는 지금 사용할 수 없습니다."
+page_count = "페이지 {page}/{pages} • {count} 돌연변이"
+no_other_selected = "선택 없음 돌연변이"
+same_not_allowed = "동일한 돌연변이는 두 개의 슬롯을 점유 할 수 없습니다"
+compatible_with = "호환 가능 {mutation}"
+unknown = "알려지지 않은"
+state_ready = "준비됨"
+state_active = "활성"
+state_inactive = "비활성"
+state_locked = "잠김"
+state_off = "꺼져"
+state_unavailable = "이용안내"
+state_blocked = "차단됨"
+
+[mutation.equipment]
+temperbound_success = "현재 기갑 세트는 지금 템퍼바운드입니다."
+temperbound_unlinked = "당신의 템퍼바운드 기갑은 지금 unlinked입니다."
+masterwork_success = "지금 이 도구는 당신의 걸작입니다."
+deepblood_success = "열린 도구는 이제 딥 충전 예약에 연결됩니다."
+masterwork_unlinked_delay = "마스터워크 도구는 연결되지 않았어, 대신 {duration}에 연결할 수 있습니다."
+masterwork_unlinked = "네 마스터워크 도구는 연결되지 않았습니다."
+replacement_delay = "교체 명품는 연결될 수 있습니다 {duration}."
+temperbound_requirement = "이미 연결되지 않는 완전한 4 조각 튼튼한 기갑 세트를 착용하십시오."
+temperbound_failure = "템퍼바운드 기갑은 연결되지 않을 수 있었습니다."
+masterwork_requirement = "연결된 명품 도구 없이 개인적으로 제작된 튼튼한 도구를 보유."
+masterwork_failure = "명품 도구는 아직 연결할 수 없습니다."
+deepblood_requirement = "딥블러드에 연결하기 전에 당신의 주요 손에 있는 튼튼한 공구를 붙듭니다."
+
+[director.help]
+no_subcommands = "이 페이지에는 하위 명령어가 없습니다."
+no_description = "설명이 없습니다"
+aliases = "별칭"
+command_group = "명령어 그룹입니다. 클릭하여 엽니다."
+no_parameters = "매개변수가 없습니다. 클릭하여 명령어를 미리 입력합니다."
+parameters = "매개변수"
+
+[director.help.navigation]
+back = "뒤로"
+page = "페이지"
+
+[director.help.navigation.parent]
+hover = "상위 명령어 그룹으로 돌아가기"
+
+[director.help.navigation.previous]
+hover = "이전 페이지"
+
+[director.help.navigation.next]
+hover = "다음 페이지"
+
+[director.help.parameter]
+required = "필수"
+optional = "선택 사항"
+default = "기본값"
+
+[director.runtime]
+usage = "사용법: {usage}"
+
+[director.runtime.error]
+invalid_origin = "이 실행 위치에서는 이 명령어를 실행할 수 없습니다."
+unknown_parameter = "알 수 없는 매개변수 키: {key}"
+unexpected_argument = "예상하지 못한 인수 \"{argument}\". 선택적 매개변수는 키와 함께 지정해야 합니다. 예: seed=123"
+conversion_failed = "\"{value}\" 값을 {parameter}용 {type} 형식으로 변환할 수 없습니다"
+default_parse_failed = "매개변수 {parameter}의 기본값을 분석할 수 없습니다"
+missing_argument = "인수 \"{parameter}\" ({type})가 필요합니다"
+execution_failed = "명령어 {command} 실행에 실패했습니다: {reason}"
 
 [advancement.challenge_move_1k]
 title = "움직입시다!"
@@ -149,6 +544,14 @@ description = "작물 1,000개 이상 수확하기!"
 title = "인간 잠수함!"
 description = "1해리 수영하기 (1,852 블록)"
 
+[advancement.challenge_swim_5k]
+title = "심해 잠수부"
+description = "5,000블록 이상 수영하기"
+
+[advancement.challenge_swim_20k]
+title = "포세이돈의 선택"
+description = "20,000블록 이상 수영하기"
+
 [advancement.challenge_sneak_1k]
 title = "무릎 통증"
 description = "1킬로미터 이상 숨어 이동하기 (1,000 블록)"
@@ -160,14 +563,6 @@ description = "5,000블록 이상 웅크려 이동하기"
 [advancement.challenge_sneak_20k]
 title = "유령"
 description = "20,000블록 이상 웅크려 이동하기"
-
-[advancement.challenge_swim_5k]
-title = "심해 잠수부"
-description = "5,000블록 이상 수영하기"
-
-[advancement.challenge_swim_20k]
-title = "포세이돈의 선택"
-description = "20,000블록 이상 수영하기"
 
 [advancement.challenge_sword_100]
 title = "첫 번째 피"
@@ -261,7 +656,6 @@ description = "동물 50마리 번식시키기"
 title = "야수의 지배자"
 description = "동물 500마리 번식시키기"
 
-# Agility - New Achievement Chains
 [advancement.challenge_sprint_dist_5k]
 title = "질주의 악마"
 description = "5킬로미터(5,000블록) 이상 질주하기"
@@ -294,7 +688,6 @@ description = "500블록 이상 웅크리기"
 title = "유령 걸음"
 description = "5킬로미터(5,000블록) 이상 웅크리기"
 
-# Architect - New Achievement Chains
 [advancement.challenge_demolish_500]
 title = "철거 부대"
 description = "500블록 파괴하기"
@@ -327,7 +720,6 @@ description = "Y=128 위에 100블록 설치하기"
 title = "구름 위의 건축사"
 description = "Y=128 위에 1,000블록 설치하기"
 
-# Axes - New Achievement Chains
 [advancement.challenge_axe_damage_1k]
 title = "절단자"
 description = "도끼로 1,000 데미지 입히기"
@@ -352,7 +744,6 @@ description = "도끼로 잎 블록 500개 제거하기"
 title = "낙엽 분쇄기"
 description = "도끼로 잎 블록 5,000개 제거하기"
 
-# Blocking - New Achievement Chains
 [advancement.challenge_block_dmg_1k]
 title = "데미지 흡수"
 description = "방패로 1,000 데미지 막기"
@@ -385,7 +776,6 @@ description = "강력한 공격(5 데미지 초과) 50회 막기"
 title = "움직이지 않는 벽"
 description = "강력한 공격(5 데미지 초과) 500회 막기"
 
-# Brewing - New Achievement Chains
 [advancement.challenge_brew_stands_10]
 title = "양조 준비"
 description = "양조기 10개 설치하기"
@@ -410,7 +800,6 @@ description = "투척 포션으로 엔티티 50마리 맞추기"
 title = "역병 의사"
 description = "투척 포션으로 엔티티 500마리 맞추기"
 
-# Chronos - New Achievement Chains
 [advancement.challenge_active_dist_1k]
 title = "쉬지 않는 자"
 description = "활동 중 1킬로미터 이동하기"
@@ -439,7 +828,6 @@ description = "50번 텔레포트하기"
 title = "시간의 왜곡"
 description = "500번 텔레포트하기"
 
-# Crafting - New Achievement Chains
 [advancement.challenge_craft_value_10k]
 title = "제작의 가치"
 description = "총 10,000 가치의 아이템 제작하기"
@@ -464,7 +852,6 @@ description = "갑옷 25개 제작하기"
 title = "갑옷의 대가"
 description = "갑옷 250개 제작하기"
 
-# Discovery - New Achievement Chains
 [advancement.challenge_discover_items_50]
 title = "수집가"
 description = "고유 아이템 50종 발견하기"
@@ -505,7 +892,6 @@ description = "고유 음식 10종 발견하기"
 title = "요리의 달인"
 description = "고유 음식 30종 발견하기"
 
-# Enchanting - New Achievement Chains
 [advancement.challenge_enchant_power_100]
 title = "힘의 직공"
 description = "인챈트 파워 100 축적하기"
@@ -530,7 +916,6 @@ description = "모든 인챈트에 총 500레벨 사용하기"
 title = "비술의 투자"
 description = "모든 인챈트에 총 5,000레벨 사용하기"
 
-# Excavation - New Achievement Chains
 [advancement.challenge_dig_damage_1k]
 title = "삽의 기사"
 description = "삽으로 1,000 데미지 입히기"
@@ -555,7 +940,6 @@ description = "자갈, 모래, 점토 블록 500개 파기"
 title = "모래 체질"
 description = "자갈, 모래, 점토 블록 5,000개 파기"
 
-# Herbalism - New Achievement Chains
 [advancement.challenge_plant_100]
 title = "씨 뿌리는 자"
 description = "작물 100개 심기"
@@ -584,7 +968,6 @@ description = "엔티티 50마리 양털 깎기"
 title = "무리의 주인"
 description = "엔티티 250마리 양털 깎기"
 
-# Hunter - New Achievement Chains
 [advancement.challenge_kills_500]
 title = "사냥꾼"
 description = "생물 500마리 처치하기"
@@ -601,7 +984,6 @@ description = "보스 몹 1마리 처치하기"
 title = "전설 사냥꾼"
 description = "보스 몹 10마리 처치하기"
 
-# Nether - New Achievement Chains
 [advancement.challenge_wither_dmg_500]
 title = "시듦"
 description = "위더 데미지 500 견디기"
@@ -634,7 +1016,6 @@ description = "위더 장미 10송이 부수기"
 title = "역병 수집가"
 description = "위더 장미 100송이 부수기"
 
-# Pickaxes - New Achievement Chains
 [advancement.challenge_pick_damage_1k]
 title = "곡괭이 전사"
 description = "곡괭이로 1,000 데미지 입히기"
@@ -659,7 +1040,6 @@ description = "광석 블록 500개 채굴하기"
 title = "채굴의 대가"
 description = "광석 블록 5,000개 채굴하기"
 
-# Ranged - New Achievement Chains
 [advancement.challenge_ranged_dmg_1k]
 title = "명사수"
 description = "원거리 데미지 1,000 입히기"
@@ -692,7 +1072,6 @@ description = "장거리 사격(30블록 초과) 25회 명중하기"
 title = "매의 눈"
 description = "장거리 사격(30블록 초과) 250회 명중하기"
 
-# Rift - New Achievement Chains
 [advancement.challenge_rift_pearls_50]
 title = "진주 던지기"
 description = "엔더 진주 50개 던지기"
@@ -725,7 +1104,6 @@ description = "엔드 수정 10개 파괴하기"
 title = "엔드 파괴자"
 description = "엔드 수정 100개 파괴하기"
 
-# Seaborne - New Achievement Chains
 [advancement.challenge_fish_25]
 title = "낚시꾼"
 description = "물고기 25마리 잡기"
@@ -758,7 +1136,6 @@ description = "수중에서 블록 100개 파괴하기"
 title = "수중 기술자"
 description = "수중에서 블록 1,000개 파괴하기"
 
-# Stealth - New Achievement Chains
 [advancement.challenge_stealth_dmg_500]
 title = "등 뒤의 칼"
 description = "웅크리기 중 500 데미지 입히기"
@@ -783,7 +1160,6 @@ description = "웅크리기 중 화살 50발 발사하기"
 title = "유령 궁수"
 description = "웅크리기 중 화살 500발 발사하기"
 
-# Swords - New Achievement Chains
 [advancement.challenge_sword_dmg_1k]
 title = "검의 견습생"
 description = "검으로 1,000 데미지 입히기"
@@ -816,7 +1192,6 @@ description = "검으로 강력한 일격(8 데미지 초과) 25회 달성하기
 title = "파멸의 일격"
 description = "검으로 강력한 일격(8 데미지 초과) 250회 달성하기"
 
-# Taming - New Achievement Chains
 [advancement.challenge_pet_dmg_500]
 title = "야수 조련사"
 description = "펫이 총 500 데미지 입히기"
@@ -841,7 +1216,6 @@ description = "펫이 생물 25마리 처치하기"
 title = "우두머리 지휘관"
 description = "펫이 생물 250마리 처치하기"
 
-# TragOul - New Achievement Chains
 [advancement.challenge_trag_hits_500]
 title = "샌드백"
 description = "500번 맞기"
@@ -850,7 +1224,6 @@ description = "500번 맞기"
 title = "고통의 미식가"
 description = "5,000번 맞기"
 
-# Unarmed - New Achievement Chains
 [advancement.challenge_unarmed_dmg_1k]
 title = "싸움꾼"
 description = "맨주먹으로 1,000 데미지 입히기"
@@ -883,8 +1256,3526 @@ description = "맨주먹으로 강력한 일격(6 데미지 초과) 25회 달성
 title = "일격필살"
 description = "맨주먹으로 강력한 일격(6 데미지 초과) 250회 달성하기"
 
-# items
-[items]
+[advancement.challenge_agility_armor_up_30min]
+title = "철 조깅"
+description = "방어구 보너스로 스프린트 30 누적 분"
+
+[advancement.challenge_agility_ladder_500]
+title = "엘리베이터 운영자"
+description = "사다리를 500블록 오르세요"
+
+[advancement.challenge_agility_ladder_10k]
+title = "수직 고속도로"
+description = "사다리를 10,000블록 오르세요"
+
+[advancement.challenge_agility_super_jump_100]
+title = "믿음의 꿈"
+description = "100 슈퍼 점프를 수행"
+
+[advancement.challenge_agility_super_jump_5k]
+title = "성경 읽기"
+description = "5,000 슈퍼 점프를 수행"
+
+[advancement.challenge_agility_wall_jump_500]
+title = "스파이더 플레이어"
+description = "500 벽 점프를 수행"
+
+[advancement.challenge_agility_parkour_master]
+title = "파쿠르 마스터"
+description = "땅에 닿지 않고 벽 점프를 5회 이상 연속으로 성공하세요"
+
+[advancement.challenge_agility_wind_up_10min]
+title = "두 번째 바람"
+description = "최대 질주 속도로 누적 10분을 이동하세요"
+
+[advancement.challenge_agility_parkour_500]
+title = "무료런너"
+description = "500 체인 스프린트 점프 착륙"
+
+[advancement.challenge_agility_roll_100]
+title = "Tuck 및 롤"
+description = "100 하트의 추락 피해를 방지"
+
+[advancement.challenge_agility_roll_1000]
+title = "스턴트맨"
+description = "1,000 하트의 추락 피해를 방지"
+
+[advancement.challenge_agility_fearless]
+title = "두려움 없이"
+description = "롤랜드 30+ 블록 가을"
+
+[advancement.challenge_architect_elevator_100]
+title = "위로 이동"
+description = "엘리베이터 사용 100"
+
+[advancement.challenge_architect_elevator_penthouse]
+title = "펜트하우스 익스프레스"
+description = "엘리베이터 한 번으로 50블록 이상 이동하세요"
+
+[advancement.challenge_architect_foundation_1k]
+title = "비계 마스터"
+description = "장소 1,000 기초 블록"
+
+[advancement.challenge_architect_foundation_10k]
+title = "에어로워딩"
+description = "장소 10,000 기초 블록"
+
+[advancement.challenge_architect_glass_200]
+title = "글 탐색"
+description = "복구 200 유리 블록"
+
+[advancement.challenge_architect_glass_5k]
+title = "크리스탈 Clear"
+description = "복구 5,000 유리 블록"
+
+[advancement.challenge_architect_wireless_100]
+title = "원격 제어"
+description = "100 무선 레드스톤 인파를 보내십시오"
+
+[advancement.challenge_architect_wireless_5k]
+title = "니콜라"
+description = "5,000 무선 레드스톤 인파를 보내십시오"
+
+[advancement.challenge_architect_placement_1k]
+title = "속도 빌더"
+description = "여러 위치로 1,000 블록를 배치"
+
+[advancement.challenge_architect_placement_25k]
+title = "건축의 접촉"
+description = "여러 위치로 25,000 블록를 배치"
+
+[advancement.challenge_architect_smart_shape_200]
+title = "좋은 조율"
+description = "회전 200 블록"
+
+[advancement.challenge_architect_smart_shape_5k]
+title = "완벽주의자"
+description = "회전 5,000 블록"
+
+[advancement.challenge_axe_chop_100]
+title = "Lumberjack, 영국"
+description = "팟캐스트 100 나무 껍질"
+
+[advancement.challenge_axe_chop_2500]
+title = "산림 훼손"
+description = "팟캐스트 2,500 나무 껍질"
+
+[advancement.challenge_axe_chop_one_swing]
+title = "한 스윙 원더"
+description = "최대 수준에서 하나의 스윙에 로그의 전체 잘라"
+
+[advancement.challenge_axe_log_swap_500]
+title = "원목 연금술사"
+description = "원목 500개를 변환하세요"
+
+[advancement.challenge_axe_dti_5k]
+title = "깨끗한 Logger"
+description = "아이템 5,000개를 인벤토리로 받으세요"
+
+[advancement.challenge_axe_ground_smash_500]
+title = "지진"
+description = "500의 적을 지형으로 부딪히게"
+
+[advancement.challenge_axe_ground_smash_5]
+title = "지진 슬램"
+description = "5+ 적을 한 번 때려"
+
+[advancement.challenge_axe_leaf_5k]
+title = "가을 브리즈"
+description = "베인민 5,000 잎"
+
+[advancement.challenge_axe_wood_vein_2500]
+title = "체인 반응"
+description = "원목 2,500개를 광맥 채굴하세요"
+
+[advancement.challenge_axe_wood_vein_cascade]
+title = "연쇄 로거"
+description = "한 번의 발동으로 원목 15개 이상을 광맥 채굴하세요"
+
+[advancement.challenge_blocking_chain_25]
+title = "메디발 스미스"
+description = "체인메일 부품 25개를 제작하세요"
+
+[advancement.challenge_blocking_horse_armor_10]
+title = "말 장비 제작자"
+description = "말 갑옷 10개를 제작하세요"
+
+[advancement.challenge_blocking_saddle_25]
+title = "안장 제작자"
+description = "안장 25개를 제작하세요"
+
+[advancement.challenge_blocking_multi_200]
+title = "하이브리드 전사"
+description = "200 겉날개 방어 자동 교환을 수행합니다."
+
+[advancement.challenge_blocking_multi_5k]
+title = "철새"
+description = "5,000 겉날개 방어 자동 교환을 수행합니다."
+
+[advancement.challenge_blocking_counter_500]
+title = "결제하기"
+description = "반격 방어로 총 500의 피해를 반사하세요"
+
+[advancement.challenge_blocking_counter_max]
+title = "전체 카운터"
+description = "최대 카운터 스택 및 출시"
+
+[advancement.challenge_blocking_bastion_500]
+title = "막기가 내 인생이야!"
+description = "버티는 동안 투사체 500개의 위력을 약화하세요"
+
+[advancement.challenge_blocking_bastion_10]
+title = "화살 스폰지"
+description = "한 번의 버티기 상태에서 투사체 10개의 위력을 약화하세요"
+
+[advancement.challenge_blocking_mirror_100]
+title = "Sender로 돌아가기"
+description = "투사체 100개를 반사하세요"
+
+[advancement.challenge_blocking_mirror_3in5]
+title = "총 시간"
+description = "5초 안에 투사체 3개를 반사하세요"
+
+[advancement.challenge_blocking_bulwark_500]
+title = "방패 책임"
+description = "강타 500 적"
+
+[advancement.challenge_blocking_bulwark_4]
+title = "볼링 스트라"
+description = "4+ 적을 한 번 때려"
+
+[advancement.challenge_brewing_lingering_200]
+title = "느린 체리"
+description = "혜택 200 장시간 포션"
+
+[advancement.challenge_brewing_lingering_5k]
+title = "Everlasting 엘릭어"
+description = "혜택 5,000 장시간 포션"
+
+[advancement.challenge_brewing_super_heated_100]
+title = "Volcanic 맥주"
+description = "과열 양조 100회를 완료하세요"
+
+[advancement.challenge_brewing_super_heated_2500]
+title = "지옥의 부엌"
+description = "과열 양조 2,500회를 완료하세요"
+
+[advancement.challenge_brewing_darkness_25]
+title = "빛이 꺼져"
+description = "암흑의 물약 25개를 양조하세요"
+
+[advancement.challenge_brewing_haste_25]
+title = "빠른 연결"
+description = "성급함의 물약 25개를 양조하세요"
+
+[advancement.challenge_brewing_absorption_25]
+title = "추가 패딩"
+description = "흡수의 물약 25개를 양조하세요"
+
+[advancement.challenge_brewing_fatigue_25]
+title = "배출 전문가"
+description = "채굴 피로의 물약 25개를 양조하세요"
+
+[advancement.challenge_brewing_hunger_25]
+title = "인기있는"
+description = "허기의 물약 25개를 양조하세요"
+
+[advancement.challenge_brewing_nausea_25]
+title = "Dizzy 광고"
+description = "멀미의 물약 25개를 양조하세요"
+
+[advancement.challenge_brewing_blindness_25]
+title = "빛 떨어져"
+description = "실명의 물약 25개를 양조하세요"
+
+[advancement.challenge_brewing_resistance_25]
+title = "철 양조장"
+description = "저항의 물약 25개를 양조하세요"
+
+[advancement.challenge_brewing_health_boost_25]
+title = "활력 바이알"
+description = "생명력 강화의 물약 25개를 양조하세요"
+
+[advancement.challenge_brewing_decay_25]
+title = "니크로톡"
+description = "시들음의 물약 25개를 양조하세요"
+
+[advancement.challenge_brewing_saturation_25]
+title = "병에서 Feast"
+description = "포화의 물약 25개를 양조하세요"
+
+[advancement.challenge_chronos_bottle_seconds_1k]
+title = "콜롬비아"
+description = "저장된 시간 1,000초를 사용하세요"
+
+[advancement.challenge_chronos_bottle_seconds_25k]
+title = "시간 주님"
+description = "저장된 시간 25,000초를 사용하세요"
+
+[advancement.challenge_chronos_aberrant_500]
+title = "임시 하수구"
+description = "느려짐 중첩 500개를 부여하세요"
+
+[advancement.challenge_chronos_aberrant_frozen]
+title = "시간에 냉동"
+description = "단일 대상에게 느려짐을 5중첩 이상 부여하세요"
+
+[advancement.challenge_chronos_recall_50]
+title = "두 번째 기회"
+description = "50 시간을 회수"
+
+[advancement.challenge_chronos_recall_1k]
+title = "지상 호그의 날"
+description = "1,000 시간을 회수"
+
+[advancement.challenge_chronos_recall_cheat_death]
+title = "부정 행위"
+description = "아래에서 호출 2 가슴, 위쪽으로 휴식 8"
+
+[advancement.challenge_chronos_bomb_freeze_50]
+title = "시간 정지"
+description = "냉동 50 투사체"
+
+[advancement.challenge_chronos_bomb_crowd_8]
+title = "군중 제어"
+description = "느린 8+ 개체"
+
+[advancement.challenge_chronos_echo_200]
+title = "더블 탭"
+description = "메아리 타격 200회를 적중시키세요"
+
+[advancement.challenge_crafting_decon_200]
+title = "재활용 전문가"
+description = "200 아이템를 파괴"
+
+[advancement.challenge_crafting_decon_5k]
+title = "재활용 공장"
+description = "5,000 아이템를 파괴"
+
+[advancement.challenge_crafting_xp_1k]
+title = "장인"
+description = "조선 1,000 아이템"
+
+[advancement.challenge_crafting_xp_25k]
+title = "마스터 크래커"
+description = "조선 25,000 아이템"
+
+[advancement.challenge_crafting_recon_100]
+title = "역설계"
+description = "100 광물을 재구성"
+
+[advancement.challenge_crafting_leather_100]
+title = "테너"
+description = "썩은 살점으로 가죽 100개를 제작하세요"
+
+[advancement.challenge_crafting_backpack_25]
+title = "팩 쥐"
+description = "꾸러미 25개를 제작하세요"
+
+[advancement.challenge_crafting_stations_200]
+title = "이동 작업"
+description = "휴대용 역을 200 시간으로 사용"
+
+[advancement.challenge_crafting_stations_5k]
+title = "모바일 워크샵"
+description = "휴대용 역을 5,000 시간으로 사용"
+
+[advancement.challenge_crafting_skulls_10]
+title = "해골 수집"
+description = "못 머리 10개를 제작하세요"
+
+[advancement.challenge_crafting_skulls_100]
+title = "헤드헌터"
+description = "못 머리 100개를 제작하세요"
+
+[advancement.challenge_discovery_unity_5k]
+title = "르네상스 선수"
+description = "5,000 XP 궤도를 무작위 기술에 배포한다"
+
+[advancement.challenge_discovery_unity_50k]
+title = "모든 거래의 잭"
+description = "XP 구슬 50,000개를 분배하세요"
+
+[advancement.challenge_discovery_xp_resist_25]
+title = "긴급 예약"
+description = "Mitigate 수염 손상 25 시간 사용 XP"
+
+[advancement.challenge_discovery_xp_resist_250]
+title = "XP 팟캐스트"
+description = "치명적인 손상을 250로 완화"
+
+[advancement.challenge_discovery_xp_resist_clutch]
+title = "위기 모면"
+description = "15+ 하트를 처리할 수 있는 타격을 생존"
+
+[advancement.challenge_discovery_villager_100]
+title = "실버 통"
+description = "개선된 주민 거래 100회를 완료하세요"
+
+[advancement.challenge_discovery_villager_2500]
+title = "마스터 Negotiator"
+description = "개선된 거래 2,500회를 완료하세요"
+
+[advancement.challenge_discovery_armor_1hr]
+title = "지구와 하나"
+description = "환경 장갑 1 누적시간"
+
+[advancement.challenge_discovery_insight_100]
+title = "필드 노트"
+description = "검사 100 한국어"
+
+[advancement.challenge_discovery_insight_1000]
+title = "몬스터 매뉴얼"
+description = "검사 1,000 한국어"
+
+[advancement.challenge_discovery_mending_10k]
+title = "마스터 멘더"
+description = "직접 수선으로 내구도 10,000을 복구하세요"
+
+[advancement.challenge_discovery_mending_100k]
+title = "새로운 것"
+description = "100,000 내구도를 복원"
+
+[advancement.challenge_discovery_archaeologist_50]
+title = "Relic 헌터"
+description = "50 보너스 고고학 아이템"
+
+[advancement.challenge_discovery_archaeologist_500]
+title = "인도 존스"
+description = "500 보너스 아이템"
+
+[advancement.challenge_discovery_cartographer_100]
+title = "길잡이"
+description = "펄스로 100 구조상"
+
+[advancement.challenge_discovery_cartographer_1k]
+title = "탐색기"
+description = "펄스로 1,000 구조상"
+
+[advancement.challenge_enchanting_lapis_100]
+title = "페니 핀처"
+description = "100 청금석를 마법 부여에서 저장합니다"
+
+[advancement.challenge_enchanting_lapis_2500]
+title = "블루 미서"
+description = "2,500 청금석를 저장하세요"
+
+[advancement.challenge_enchanting_quick_100]
+title = "언어 선택"
+description = "책 100개를 직접 적용하세요"
+
+[advancement.challenge_enchanting_quick_1k]
+title = "걷고 있는 마법 테이블"
+description = "책 1,000개를 직접 적용하세요"
+
+[advancement.challenge_enchanting_xp_100]
+title = "스리프티 Enchanter"
+description = "100 XP 레벨을 마법 부여에서 저장합니다"
+
+[advancement.challenge_enchanting_anvil_200]
+title = "모루 위스키"
+description = "200 수준을 모루로 저장합니다"
+
+[advancement.challenge_enchanting_anvil_5k]
+title = "블랙 스미스 Prodigy"
+description = "5,000 수준을 모루로 저장합니다"
+
+[advancement.challenge_enchanting_reroll_100]
+title = "추천 코스"
+description = "롤 매력은 100 시간을 제공합니다."
+
+[advancement.challenge_enchanting_reroll_1k]
+title = "절대 만족"
+description = "롤 매력은 1,000 시간을 제공합니다."
+
+[advancement.challenge_enchanting_bookshelf_100]
+title = "도서관 카드"
+description = "가상 책장 보너스를 받으며 아이템 100개에 마법을 부여하세요"
+
+[advancement.challenge_enchanting_grindstone_50]
+title = "Salvage 전문가"
+description = "복구 50 grindstone에 마법 부여"
+
+[advancement.challenge_enchanting_grindstone_500]
+title = "아무것도 낭비"
+description = "500 마법 부여 복구"
+
+[advancement.challenge_excavation_haste_5k]
+title = "채굴 패스너"
+description = "서둘러 5,000 블록를 깨고"
+
+[advancement.challenge_excavation_haste_50k]
+title = "터널링 기계"
+description = "서둘러 50,000 블록를 깨고"
+
+[advancement.challenge_excavation_spelunker_1k]
+title = "엑스레이 비전"
+description = "1,000 광물을 밝히는 것"
+
+[advancement.challenge_excavation_spelunker_25k]
+title = "모든 눈"
+description = "25,000 광물을 밝히는 것"
+
+[advancement.challenge_excavation_dti_10k]
+title = "깨끗한 더 큰"
+description = "아이템 10,000개를 인벤토리로 받으세요"
+
+[advancement.challenge_excavation_omni_1k]
+title = "스위스 육군 광부"
+description = "1,000 자동 도구 교환을 수행"
+
+[advancement.challenge_excavation_omni_25k]
+title = "공구 벨트 주인"
+description = "25,000 자동 도구 교환을 수행"
+
+[advancement.challenge_excavation_seismic_200]
+title = "반향 위치 측정"
+description = "더 큰 200 지진 핑"
+
+[advancement.challenge_herbalism_growth_1k]
+title = "녹색 손가락"
+description = "성장 오라를 통해 1,000 블록"
+
+[advancement.challenge_herbalism_growth_25k]
+title = "자연의 축복"
+description = "성장 25,000 블록"
+
+[advancement.challenge_herbalism_hippo_500]
+title = "글루톤"
+description = "이득 500 보너스 포화"
+
+[advancement.challenge_herbalism_myconid_100]
+title = "우리 중 Fungus"
+description = "크래프트 100 미세륨"
+
+[advancement.challenge_herbalism_terralid_200]
+title = "조경사"
+description = "잔디 블록 200개를 제작하세요"
+
+[advancement.challenge_herbalism_cobweb_100]
+title = "실크 웨버"
+description = "거미줄 100개를 제작하세요"
+
+[advancement.challenge_herbalism_mushroom_100]
+title = "Mooshroom 빌더"
+description = "버섯 블록 100개를 제작하세요"
+
+[advancement.challenge_herbalism_dti_10k]
+title = "깨끗한 수확"
+description = "아이템 10,000개를 인벤토리로 받으세요"
+
+[advancement.challenge_herbalism_shield_500]
+title = "두꺼운 피부"
+description = "굶주림으로 인한 500 손상을 흡수한다."
+
+[advancement.challenge_herbalism_shield_5k]
+title = "Insatiable 탱크"
+description = "굶주림으로 인한 5,000 손상을 흡수한다."
+
+[advancement.challenge_herbalism_luck_100]
+title = "Lucky 찾기"
+description = "100 행운의 드롭을 받으세요"
+
+[advancement.challenge_herbalism_luck_2500]
+title = "4 잎 클로버"
+description = "2,500 행운의 드롭을 받으세요"
+
+[advancement.challenge_herbalism_replant_500]
+title = "지속 가능한 농부"
+description = "작물 500개를 다시 심으세요"
+
+[advancement.challenge_herbalism_replant_25k]
+title = "산업 농업"
+description = "작물 25,000개를 다시 심으세요"
+
+[advancement.challenge_herbalism_seed_1k]
+title = "Johnny 애플"
+description = "식물 1,000 씨앗을 통해 AOE"
+
+[advancement.challenge_herbalism_seed_25k]
+title = "꿈의 분야"
+description = "식물 25,000 씨앗을 통해 AOE"
+
+[advancement.challenge_herbalism_rooted_500]
+title = "Gentle 단계"
+description = "500 농지를 보호하라 블록"
+
+[advancement.challenge_herbalism_compost_1k]
+title = "퇴비 챔피언"
+description = "콤포스트 1,000 아이템"
+
+[advancement.challenge_herbalism_compost_25k]
+title = "제로 폐기물"
+description = "콤포스트 25,000 아이템"
+
+[advancement.challenge_herbalism_bee_100]
+title = "퀸 꿀벌"
+description = "100 꿀벌을 유치"
+
+[advancement.challenge_herbalism_spore_500]
+title = "Spore 캐리어"
+description = "스포어 꽃을 통해 500 블록를 퍼뜨립니다."
+
+[advancement.challenge_hunter_adrenaline_100]
+title = "뿔이 달린 짐승"
+description = "100 몹를 30% 건강 아래로 죽여라"
+
+[advancement.challenge_hunter_adrenaline_2500]
+title = "버서커"
+description = "아드레날린으로 2,500 몹를 죽여라"
+
+[advancement.challenge_hunter_dti_10k]
+title = "깨끗한 킬"
+description = "아이템 10,000개를 인벤토리로 받으세요"
+
+[advancement.challenge_hunter_invis_200]
+title = "Ghost 프로토콜"
+description = "발동 보이지 않는 200 살인에서 시간"
+
+[advancement.challenge_hunter_jump_200]
+title = "적재되는 봄"
+description = "발동 점프 부스트 200 살인에서 시간"
+
+[advancement.challenge_hunter_luck_200]
+title = "운이 좋은 샷"
+description = "발동 운 200 살인에서 시간"
+
+[advancement.challenge_hunter_regen_500]
+title = "울버린"
+description = "발동 사냥꾼 재생 500 struck 후에 시간"
+
+[advancement.challenge_hunter_resistance_500]
+title = "두꺼운 숨기기"
+description = "방아쇠 저항 500 살인에서 시간"
+
+[advancement.challenge_hunter_speed_200]
+title = "Fight 또는 비행"
+description = "발동 속도 200 살인에서 시간"
+
+[advancement.challenge_hunter_strength_200]
+title = "격노"
+description = "방아쇠 힘 200 살인에서 시간"
+
+[advancement.challenge_hunter_trophy_50]
+title = "택시진동"
+description = "전리품 50개를 수집하세요"
+
+[advancement.challenge_hunter_trophy_heads_100]
+title = "트로피 룸"
+description = "몹 머리 100개를 수집하세요"
+
+[advancement.challenge_nether_wither_100]
+title = "채용정보"
+description = "100 위더 효과를 부정합니다"
+
+[advancement.challenge_nether_wither_1k]
+title = "죽음 Defiant"
+description = "1,000 위더 효과를 부정합니다"
+
+[advancement.challenge_nether_fire_200]
+title = "불꽃놀이"
+description = "200 화재 피해 사례를 부정"
+
+[advancement.challenge_nether_fire_5k]
+title = "샐러맨더"
+description = "5,000 화재 피해 사례를 부정"
+
+[advancement.challenge_nether_skull_100]
+title = "해골 척"
+description = "한국어 100 와이어 skulls"
+
+[advancement.challenge_nether_skull_kills_50]
+title = "주님의 말씀"
+description = "50 몹를 위더 두개골로 죽여라"
+
+[advancement.challenge_nether_skull_long_bomb]
+title = "긴 폭탄"
+description = "40블록 이상 떨어진 대상을 해골로 맞히세요"
+
+[advancement.challenge_nether_lava_1k]
+title = "용암길잡이"
+description = "용암 위를 1,000블록 걸으세요"
+
+[advancement.challenge_nether_lava_25k]
+title = "라바 Surfer"
+description = "용암 위를 25,000블록 걸으세요"
+
+[advancement.challenge_nether_ghast_500]
+title = "네더 베테랑"
+description = "미티게이트 500 모비 손상"
+
+[advancement.challenge_nether_blaze_200]
+title = "불꽃 식물"
+description = "발동 블레이즈 흡수 200 곱하기"
+
+[advancement.challenge_nether_blaze_2500]
+title = "화염 Eater"
+description = "발동 블레이즈 흡수 2,500 곱하기"
+
+[advancement.challenge_nether_piglin_100]
+title = "골드 브로커"
+description = "100 개선된 돼지 바르터"
+
+[advancement.challenge_nether_piglin_2500]
+title = "돼지고기 Mogul"
+description = "개선된 물물교환 2,500회를 완료하세요"
+
+[advancement.challenge_pickaxe_autosmelt_1k]
+title = "채용공고"
+description = "자동 녹인 1,000 광물"
+
+[advancement.challenge_pickaxe_autosmelt_25k]
+title = "Smelter 대"
+description = "자동 녹인 25,000 광물"
+
+[advancement.challenge_pickaxe_chisel_500]
+title = "정밀도 광부"
+description = "광석 추가 드롭 500개를 정으로 캐세요"
+
+[advancement.challenge_pickaxe_dti_25k]
+title = "깨끗한 광부"
+description = "아이템 25,000개를 인벤토리로 받으세요"
+
+[advancement.challenge_pickaxe_spawner_10]
+title = "스파우너 티프"
+description = "섬세한 손길로 생성기 10개를 수집하세요"
+
+[advancement.challenge_pickaxe_spawner_50]
+title = "동물원 수호자"
+description = "50 생성기 수집"
+
+[advancement.challenge_pickaxe_veinminer_2500]
+title = "Vein 리퍼"
+description = "베인마인 2,500 광물"
+
+[advancement.challenge_pickaxe_veinminer_20]
+title = "엄마 Lode"
+description = "한 번에 광석 20개 이상을 광맥 채굴하세요"
+
+[advancement.challenge_pickaxe_quarry_200]
+title = "탐광자"
+description = "200 광석 스캔을 수행"
+
+[advancement.challenge_ranged_arrow_500]
+title = "Frugal 플렛처"
+description = "복구 500 넓이"
+
+[advancement.challenge_ranged_arrow_10k]
+title = "무한한 Quiver"
+description = "복구 10,000 넓이"
+
+[advancement.challenge_ranged_web_200]
+title = "웹 슬링거"
+description = "200 몹를 웹폭탄으로 함정하라"
+
+[advancement.challenge_ranged_force_500]
+title = "저격수"
+description = "30블록 이상 멀리서 공격을 500회 적중시키세요"
+
+[advancement.challenge_ranged_lunge_200]
+title = "항공 지원"
+description = "200 공기 덩어리를 수행"
+
+[advancement.challenge_ranged_lunge_2500]
+title = "Rocket 점프"
+description = "2,500 공기 덩어리를 수행"
+
+[advancement.challenge_ranged_piercing_500]
+title = "카테고리"
+description = "추가 대상 500명을 관통하세요"
+
+[advancement.challenge_ranged_piercing_4]
+title = "보증금"
+description = "하나의 화살로 4+ 적을 타격"
+
+[advancement.challenge_ranged_floaters_200]
+title = "당신이 간다"
+description = "레비타이트 200 목표"
+
+[advancement.challenge_ranged_pinning_300]
+title = "털이 많은"
+description = "핀 300 목표물"
+
+[advancement.challenge_ranged_trajectory_100]
+title = "계산 됨"
+description = "궤도 미리보기가 활성화되는 동안 100 몹를 죽여라"
+
+[advancement.challenge_ranged_ricochet_kills_50]
+title = "트릭 샷"
+description = "리코 ? 샷 발사기로 50 군대를 죽여라"
+
+[advancement.challenge_ranged_ricochet_kills_500]
+title = "Pinball 마법사"
+description = "리코 ? 샷 발사기로 500 군대를 죽여라"
+
+[advancement.challenge_ranged_fetch_500]
+title = "다운로드"
+description = "500를 가져와 아이템를 투사체로 떨어뜨립니다"
+
+[advancement.challenge_ranged_fetch_5k]
+title = "골든 검색"
+description = "5,000를 가져와 아이템를 투사체로 떨어뜨립니다"
+
+[advancement.challenge_ranged_heavy_hits_250]
+title = "강타"
+description = "강공 투사체를 250회 적중시키세요"
+
+[advancement.challenge_ranged_heavy_hits_2500]
+title = "Siege 엔진"
+description = "강공 투사체를 2,500회 적중시키세요"
+
+[advancement.challenge_ranged_heartseeker_100]
+title = "하트 트리커"
+description = "추적 화살을 100회 적중시키세요"
+
+[advancement.challenge_ranged_heartseeker_1k]
+title = "사망률"
+description = "추적 화살을 1,000회 적중시키세요"
+
+[advancement.challenge_rift_blink_500]
+title = "단계 교대"
+description = "순간이동 500 곱하기"
+
+[advancement.challenge_rift_blink_5k]
+title = "균열 워커"
+description = "브링크 5,000 거리의 총 블록"
+
+[advancement.challenge_rift_enderchest_200]
+title = "포켓 차원"
+description = "엔더 가슴을 원격으로 열어 200"
+
+[advancement.challenge_rift_descent_100]
+title = "근거가 있는 것"
+description = "100 공중 부양 효과를 취소"
+
+[advancement.challenge_rift_descent_1k]
+title = "반대로 중력"
+description = "1,000 공중 부양 효과를 취소"
+
+[advancement.challenge_rift_gate_100]
+title = "관련 링크"
+description = "리프트 게이트를 통한 텔레포트 100 시간"
+
+[advancement.challenge_rift_gate_50k_dist]
+title = "균열 네트워크"
+description = "텔레포트 50,000 균열 문을 통해 누적 블록"
+
+[advancement.challenge_rift_resist_200]
+title = "공허-터치"
+description = "트리거 균열 저항 200 곱하기"
+
+[advancement.challenge_rift_visage_100]
+title = "눈맞춤"
+description = "엔더맨의 응시를 100회 견디세요"
+
+[advancement.challenge_rift_visage_1k]
+title = "엔터만 조련사"
+description = "엔더맨의 응시를 1,000회 견디세요"
+
+[advancement.challenge_rift_access_100]
+title = "차원 포켓"
+description = "컨테이너를 원격으로 열기 100 시간"
+
+[advancement.challenge_rift_access_2500]
+title = "Astral 도달"
+description = "컨테이너를 원격으로 열기 2,500 시간"
+
+[advancement.challenge_rift_void_magnet_5k]
+title = "진공 청소기"
+description = "5,000 아이템를 범위에서 끌어내"
+
+[advancement.challenge_rift_void_magnet_50k]
+title = "블랙 홀"
+description = "50,000 아이템를 범위에서 끌어내"
+
+[advancement.challenge_rift_taglock_100]
+title = "Voodoo 인형"
+description = "100 개체를 엔더 진주로 태그"
+
+[advancement.challenge_rift_taglock_500]
+title = "인형 마스터"
+description = "500 단체가 성공적으로 태그-텔레포트"
+
+[advancement.challenge_rift_pocket_5k]
+title = "Bottomless 포켓"
+description = "건설 중 5,000 아이템를 엔더 가슴에서 끌어내십시오."
+
+[advancement.challenge_rift_pocket_store_10k]
+title = "엔더 호러"
+description = "10,000 아이템를 엔더 가슴에 웅크리기-drop를 통해 저장합니다."
+
+[advancement.challenge_seaborne_fish_500]
+title = "낚시의 달인"
+description = "보너스 물고기 500마리를 낚으세요"
+
+[advancement.challenge_seaborne_fish_5k]
+title = "노인과 바다"
+description = "보너스 물고기 5,000마리를 낚으세요"
+
+[advancement.challenge_seaborne_speed_10k]
+title = "카테고리"
+description = "수영 10,000 블록"
+
+[advancement.challenge_seaborne_speed_100k]
+title = "아쿠아맨"
+description = "수영 100,000 블록"
+
+[advancement.challenge_seaborne_vision_72k]
+title = "심해 탐사선"
+description = "시야를 유지한 채 물속에서 누적 1시간을 보내세요"
+
+[advancement.challenge_seaborne_mining_2500]
+title = "Submarine 광부"
+description = "광산 2,500 블록 수중"
+
+[advancement.challenge_seaborne_mining_25k]
+title = "Atlantean 엔지니어"
+description = "광산 25,000 블록 수중"
+
+[advancement.challenge_seaborne_oxygen_12k]
+title = "철 Lungs"
+description = "보너스 공기의 누적 분량의 10"
+
+[advancement.challenge_seaborne_tidecaller_200]
+title = "Tidal 힘"
+description = "200 바닷줄을 수행"
+
+[advancement.challenge_seaborne_tidecaller_5k]
+title = "Poseidon의 스프린트"
+description = "5,000 바닷줄을 수행"
+
+[advancement.challenge_seaborne_pressure_1k]
+title = "심해 잠수부"
+description = "해수면 아래 광산 1,000 블록"
+
+[advancement.challenge_stealth_ghost_100]
+title = "Phantom 방패"
+description = "최대 유령 방어구 100 곱하기"
+
+[advancement.challenge_stealth_ghost_500]
+title = "유리탄이 뒤집어졌어요"
+description = "귀신 방어구와 500 히트를 흡수합니다"
+
+[advancement.challenge_stealth_sight_sneak_1h]
+title = "밤의 생물"
+description = "야간 투시를 유지한 채 1시간 동안 웅크리세요"
+
+[advancement.challenge_stealth_snatch_2500]
+title = "끈끈한 손가락"
+description = "인기있는 2,500 몹의 항목"
+
+[advancement.challenge_stealth_snatch_25k]
+title = "추천 코스"
+description = "인기있는 25,000 몹의 항목"
+
+[advancement.challenge_stealth_speed_5k]
+title = "서비스 약관"
+description = "팟캐스트 5,000 속도 향상"
+
+[advancement.challenge_stealth_ender_veil_200]
+title = "공허에 보이지 않는"
+description = "엔더맨 적대화 발동을 200회 피하기"
+
+[advancement.challenge_stealth_silent_200]
+title = "암살자"
+description = "뒤치기를 200회 적중시키세요"
+
+[advancement.challenge_stealth_silent_5in10]
+title = "Unseen 잎"
+description = "10초 안에 뒤치기를 5회 적중시키세요"
+
+[advancement.challenge_stealth_decoy_100]
+title = "몸 두 배"
+description = "그림자 미끼 100개를 생성하세요"
+
+[advancement.challenge_stealth_decoy_distract_500]
+title = "Misdirection의 마스터"
+description = "연구분야 500 몹 와 미끼"
+
+[advancement.challenge_swords_machete_2500]
+title = "정글 탐색"
+description = "나뭇잎 블록 2,500개를 베세요"
+
+[advancement.challenge_swords_machete_25k]
+title = "개척자"
+description = "나뭇잎 블록 25,000개를 베세요"
+
+[advancement.challenge_swords_bloody_500]
+title = "피레터"
+description = "발병 출혈 500 시간"
+
+[advancement.challenge_swords_bloody_kills_100]
+title = "천 개의 절단 으로 사망"
+description = "혼자 출혈으로 100 몹를 죽여라"
+
+[advancement.challenge_swords_poison_500]
+title = "맹독성"
+description = "독을 500번 투여"
+
+[advancement.challenge_swords_poison_kills_50]
+title = "Toxic 잎"
+description = "독으로 50 몹를 죽여라"
+
+[advancement.challenge_swords_execute_200]
+title = "처형인"
+description = "체력이 낮은 몹 200마리를 처형하세요"
+
+[advancement.challenge_swords_execute_2500]
+title = "심사위원, 심사원"
+description = "몹 2,500마리를 처형하세요"
+
+[advancement.challenge_swords_execute_5in10]
+title = "자비는 나약함입니다"
+description = "10초 안에 몹 5마리를 처형하세요"
+
+[advancement.challenge_swords_dual_1k]
+title = "큰 가슴"
+description = "팟캐스트 1,000 보너스 듀얼-장착 손상"
+
+[advancement.challenge_swords_dual_25k]
+title = "트윈 Fangs"
+description = "팟캐스트 25,000 보너스 듀얼-장착 손상"
+
+[advancement.challenge_swords_riposte_200]
+title = "카테고리"
+description = "리포스트를 200회 적중시키세요"
+
+[advancement.challenge_swords_riposte_2500]
+title = "울타리"
+description = "리포스트를 2,500회 적중시키세요"
+
+[advancement.challenge_swords_riposte_3in5]
+title = "파리 왕"
+description = "5초 안에 리포스트를 3회 적중시키세요"
+
+[advancement.challenge_swords_cyclone_500]
+title = "프로모션"
+description = "500의 군중들을 적색 사이클론으로 타격합니다."
+
+[advancement.challenge_swords_cyclone_5k]
+title = "블레이드의 폭풍"
+description = "5,000의 군중들을 적색 사이클론으로 타격합니다."
+
+[advancement.challenge_swords_cyclone_6]
+title = "블렌더"
+description = "한 번의 사이클론 활성화로 6+ 몹를 타세요"
+
+[advancement.challenge_taming_damage_500]
+title = "Alpha 트레이너"
+description = "당신의 애완 동물 죽이기 500 엄마"
+
+[advancement.challenge_taming_damage_5k]
+title = "야수 마스터"
+description = "당신의 애완 동물 죽이기 5,000 엄마"
+
+[advancement.challenge_taming_health_boost_72k]
+title = "브로슈어"
+description = "애완 동물의 건강을 유지 1 누적시간"
+
+[advancement.challenge_taming_regen_1k]
+title = "치료 접촉"
+description = "반려동물은 1,000 하트를 재생한다"
+
+[advancement.challenge_taming_recall_100]
+title = "여기 소년"
+description = "반려동물을 100로 회수"
+
+[advancement.challenge_taming_recall_1k]
+title = "텔레포트 켄넬"
+description = "반려동물을 1,000로 회수"
+
+[advancement.challenge_taming_pack_72k]
+title = "무리의 리더"
+description = "팩 리더 오라 활성을 유지 1 누적시간"
+
+[advancement.challenge_taming_shared_500]
+title = "Loyal 방패"
+description = "반려동물을 위해 500 하트"
+
+[advancement.challenge_taming_shared_5k]
+title = "희생"
+description = "반려동물을 위해 5,000 하트"
+
+[advancement.challenge_taming_mounted_200]
+title = "기병대"
+description = "탑재 중 200 몹를 죽여라"
+
+[advancement.challenge_taming_mounted_50k]
+title = "기사 Errant"
+description = "탈것을 탄 채 50,000블록 이동하세요"
+
+[advancement.challenge_tragoul_thorns_500]
+title = "생활 Cactus"
+description = "혈체 가시로 피해 500을 반사하세요"
+
+[advancement.challenge_tragoul_thorns_5k]
+title = "철 메이드"
+description = "5,000의 손상을 반영"
+
+[advancement.challenge_tragoul_thorns_kill]
+title = "나를 터치하지 마십시오"
+description = "반사된 손상에서 순수한 몹를 죽이십시오"
+
+[advancement.challenge_tragoul_globe_1k]
+title = "윤리경영"
+description = "구체로 몹 1,000마리에게 피해를 퍼뜨리세요"
+
+[advancement.challenge_tragoul_globe_5]
+title = "고통 Dividend"
+description = "한 번의 공격으로 몹 5마리 이상에게 피해를 퍼뜨리세요"
+
+[advancement.challenge_tragoul_healing_500]
+title = "뱀파이어"
+description = "생명력 흡수로 하트 500개를 훔치세요"
+
+[advancement.challenge_tragoul_healing_10k]
+title = "혈액 음료"
+description = "훔치기 10,000 하트"
+
+[advancement.challenge_tragoul_lance_200]
+title = "임펠러"
+description = "혈창 200개를 생성하세요"
+
+[advancement.challenge_tragoul_lance_kills_100]
+title = "체인 킬러"
+description = "100 몹를 피의 창으로 죽여라"
+
+[advancement.challenge_tragoul_pact_200]
+title = "피의 대가"
+description = "힘을 얻기 위해 하트 200개를 희생하세요"
+
+[advancement.challenge_tragoul_pact_kills_500]
+title = "비밀번호"
+description = "500 몹를 죽이고"
+
+[advancement.challenge_tragoul_pact_all_in]
+title = "모두에서"
+description = "아래 혈액 정량 활성화 3 가슴과 살인"
+
+[advancement.challenge_tragoul_bone_500]
+title = "뼈 수집가"
+description = "뼈 구슬 500개를 수집하세요"
+
+[advancement.challenge_tragoul_bone_5k]
+title = "수확자"
+description = "뼈 구슬 5,000개를 수집하세요"
+
+[advancement.challenge_unarmed_glass_100]
+title = "생일 한 벌 Brawler"
+description = "100 몹를 방어구 없이 죽여라"
+
+[advancement.challenge_unarmed_glass_500]
+title = "진실한 유리 Cannon"
+description = "500 몹를 방어구 없이 죽여라"
+
+[advancement.challenge_unarmed_power_500]
+title = "맨주먹 싸움"
+description = "맨손으로 500 몹를 죽여라"
+
+[advancement.challenge_unarmed_power_5k]
+title = "원펀치"
+description = "맨손으로 5,000 몹를 죽여라"
+
+[advancement.challenge_unarmed_sucker_500]
+title = "기습 펀치"
+description = "질주 주먹질을 500회 적중시키세요"
+
+[advancement.challenge_unarmed_knockout]
+title = "Knockout 아티스트"
+description = "한 발로 50 갱단을 치고 죽여버리자"
+
+[advancement.challenge_unarmed_combo_5k]
+title = "스트리트 파이터"
+description = "콤보 공격을 총 5,000회 적중시키세요"
+
+[advancement.challenge_unarmed_combo_10]
+title = "결합 차단기"
+description = "10타 콤보에 도달하세요"
+
+[advancement.challenge_unarmed_combo_25]
+title = "무한 콤보"
+description = "25타 콤보에 도달하세요"
+
+[advancement.challenge_unarmed_charge_300]
+title = "배터링 램"
+description = "300 적에 충전"
+
+[advancement.challenge_unarmed_charge_kills_100]
+title = "공급 능력"
+description = "100 몹를 타격 충전으로 죽여라"
+
+[advancement.challenge_excavation_tunneler_10k]
+title = "굴착 기계"
+description = "보너스 블록 10,000개를 굴착하세요"
+
+[advancement.challenge_excavation_treasure_500]
+title = "아마추어 Archaeologist"
+description = "한국어 500 상품정보"
+
+[advancement.challenge_excavation_softfall_1k]
+title = "베개 지구"
+description = "젖은 1,000 부드러운 땅에 떨어지는 손상"
+
+[advancement.challenge_excavation_earthmover_250]
+title = "랜스리드"
+description = "한국어 250 지구 파도"
+
+[advancement.challenge_excavation_burrow_100]
+title = "맨 위로"
+description = "굴 100개를 파세요"
+
+[advancement.challenge_excavation_gravedigger_300]
+title = "조각에서 휴식"
+description = "한국어 300 뼈 troves"
+
+[advancement.challenge_excavation_mudlark_1k]
+title = "리버뱅크 포리지"
+description = "보너스 진흙 전리품 1,000개를 수집하세요"
+
+[advancement.challenge_chronos_stasis_50]
+title = "콘텐츠 삭제"
+description = "정지장 50개를 배치하세요"
+
+[advancement.challenge_chronos_stasis_500]
+title = "아직도의 주인"
+description = "정지장 500개를 배치하세요"
+
+[advancement.challenge_chronos_rewind_50]
+title = "계속하기"
+description = "완전한 50 회전"
+
+[advancement.challenge_chronos_rewind_500]
+title = "시간의 불안"
+description = "완전한 500 회전"
+
+[advancement.challenge_chronos_borrowed_2500]
+title = "결제하기"
+description = "팟캐스트 2,500 미래에 대한 피해"
+
+[advancement.challenge_chronos_overtime_1k]
+title = "Overtime 지불"
+description = "음주 기간의 1,000 보너스 초를 얻으십시오"
+
+[advancement.challenge_chronos_accelerate_1k]
+title = "빠른 앞으로"
+description = "블록 1,000개를 가속하세요"
+
+[advancement.challenge_chronos_hourglass_10]
+title = "현재 위치"
+description = "열 죽음 10 타임 글라스"
+
+[advancement.challenge_chronos_pocket_watch_500]
+title = "가을 슬로우"
+description = "500 초의 느린 폭락을 통해 이동"
+
+[advancement.challenge_chronos_deja_vu_500]
+title = "우리를 따르라?"
+description = "DJAVU로 500의 친숙한 손상을 흡수합니다."
+
+[advancement.challenge_unarmed_disarm_100]
+title = "버터핑거"
+description = "맨손으로 100 적들을 무력화하라"
+
+[advancement.challenge_unarmed_disarm_1k]
+title = "무기 저장소"
+description = "맨손으로 1,000 적들을 무력화하라"
+
+[advancement.challenge_unarmed_pressure_500]
+title = "스트라이크"
+description = "압력점 타격을 500회 적중시키세요"
+
+[advancement.challenge_unarmed_pressure_5k]
+title = "Anatomy 학자"
+description = "압력점 타격을 5,000회 적중시키세요"
+
+[advancement.challenge_unarmed_clap_250]
+title = "채용정보"
+description = "타격 뒤 250 충격파 박수로 적"
+
+[advancement.challenge_unarmed_clap_2500]
+title = "소닉 붐"
+description = "타격 뒤 2,500 충격파 박수로 적"
+
+[advancement.challenge_unarmed_iron_1k]
+title = "강철의 너클"
+description = "철권 주먹질을 1,000회 적중시키세요"
+
+[advancement.challenge_unarmed_iron_10k]
+title = "생활 모루"
+description = "철권 주먹질을 10,000회 적중시키세요"
+
+[advancement.challenge_unarmed_grapple_100]
+title = "Suplex 도시"
+description = "내던지기 100 잡은 몹"
+
+[advancement.challenge_unarmed_grapple_1k]
+title = "모브 런처"
+description = "내던지기 1,000 잡은 몹"
+
+[advancement.challenge_unarmed_second_wind_100]
+title = "배틀 스낵"
+description = "트리거 두 번째 바람 100"
+
+[advancement.challenge_unarmed_second_wind_1k]
+title = "끝없는 체력"
+description = "트리거 두 번째 바람 1,000"
+
+[advancement.challenge_unarmed_meditate_500]
+title = "내부 평화"
+description = "명상을 통해 500 흡수 건강을 키워라"
+
+[advancement.challenge_unarmed_meditate_5k]
+title = "초월"
+description = "명상을 통해 5,000 흡수 건강을 키워라"
+
+[advancement.challenge_architect_scaffolder_500]
+title = "임시 조치"
+description = "500 임시 발판을 배치"
+
+[advancement.challenge_architect_scaffolder_5k]
+title = "마스터 Rigger"
+description = "5,000 임시 발판을 배치"
+
+[advancement.challenge_architect_supply_line_100]
+title = "계속하기"
+description = "자동으로 당신의 손을 100 곱하기"
+
+[advancement.challenge_architect_supply_line_1k]
+title = "카테고리"
+description = "자동으로 당신의 손을 1,000 곱하기"
+
+[advancement.challenge_architect_steady_hands_500]
+title = "강철의 Nerves"
+description = "브리지 중 500 블록를 배치"
+
+[advancement.challenge_architect_steady_hands_5k]
+title = "스카이 워커"
+description = "브리지 중 5,000 블록를 배치"
+
+[advancement.challenge_architect_chalk_line_50]
+title = "똑바로와 진실"
+description = "분필 안내선 50개를 설계하세요"
+
+[advancement.challenge_architect_chalk_line_500]
+title = "측량사"
+description = "분필 안내선 500개를 설계하세요"
+
+[advancement.challenge_architect_demolition_500]
+title = "통제되는 파괴"
+description = "자신이 배치한 블록 500개를 철거하세요"
+
+[advancement.challenge_architect_demolition_5k]
+title = "Wrecking 승무원"
+description = "자신이 배치한 블록 5,000개를 철거하세요"
+
+[advancement.challenge_architect_stonecutter_savant_50]
+title = "절단 코너"
+description = "기타 50 휴대용 석재 절단기"
+
+[advancement.challenge_architect_stonecutter_savant_500]
+title = "마스터 메이슨"
+description = "기타 500 휴대용 석재 절단기"
+
+[advancement.challenge_pickaxe_tunnelbore_10k]
+title = "굴착 기계"
+description = "터널을 파는 동안 보너스 블록 10,000개를 천공하세요"
+
+[advancement.challenge_pickaxe_deepcore_5k]
+title = "핵심 샘플러"
+description = "광산 5,000 심층암 블록 딥 코어"
+
+[advancement.challenge_pickaxe_obsidianrush_1k]
+title = "블랙 골드"
+description = "광산 1,000 흑요석 블록 흑요석 Rush"
+
+[advancement.challenge_pickaxe_pact_100]
+title = "비밀번호"
+description = "당신의 곡괭이를 100를 깨지 않도록"
+
+[advancement.challenge_pickaxe_rhythm_5k]
+title = "Perpetual 선택"
+description = "수리 리듬으로 내구도 5,000을 복구하세요"
+
+[advancement.challenge_pickaxe_gempolish_500]
+title = "한국어"
+description = "인기있는 500 추가 보석"
+
+[advancement.challenge_pickaxe_stoneskin_10k]
+title = "화강암의 숨기기"
+description = "10,000 스톤 스킨 스택을 만들"
+
+[advancement.challenge_tragoul_corpse_500]
+title = "걷기 Detonator"
+description = "500 적대적인 군대를 피의 뉴스로 폭발시키세요"
+
+[advancement.challenge_tragoul_corpse_5k]
+title = "혈육의 들판"
+description = "5,000 적대적인 군대를 피의 뉴스로 폭발시키세요"
+
+[advancement.challenge_tragoul_siphon_500]
+title = "영혼 음료"
+description = "시폰 500 당신의 희생자로부터의 건강"
+
+[advancement.challenge_tragoul_siphon_10k]
+title = "빈닝 허먼"
+description = "시폰 10,000 당신의 희생자로부터의 건강"
+
+[advancement.challenge_tragoul_servant_50]
+title = "네크로만"
+description = "한국어 50 골격의 종"
+
+[advancement.challenge_tragoul_servant_500]
+title = "뼈의 군주"
+description = "한국어 500 골격의 종"
+
+[advancement.challenge_tragoul_marrow_500]
+title = "뼈 방패"
+description = "500 손상을 심두 방어구로 흡수한다"
+
+[advancement.challenge_tragoul_marrow_5k]
+title = "분류되지 않음"
+description = "5,000 손상을 심두 방어구로 흡수한다"
+
+[advancement.challenge_tragoul_frailty_100]
+title = "Brittle 터치"
+description = "언어 선택 100 쇠약를 가진 공격자"
+
+[advancement.challenge_tragoul_frailty_1k]
+title = "단어를 낭비"
+description = "언어 선택 1,000 쇠약를 가진 공격자"
+
+[advancement.challenge_tragoul_death_sense_1k]
+title = "아이의 눈"
+description = "1,000의 죽음이 벽을 통해 희생자를 감지합니다."
+
+[advancement.challenge_tragoul_plague_100]
+title = "환자 0"
+description = "역병를 100 엄마"
+
+[advancement.challenge_tragoul_plague_1k]
+title = "공장 투어"
+description = "역병를 1,000 엄마"
+
+[advancement.challenge_tragoul_last_rites_5]
+title = "오늘날 그렇지 않습니다"
+description = "죽음의 도전 5"
+
+[advancement.challenge_tragoul_last_rites_50]
+title = "Unfinished 사업"
+description = "죽음의 도전 50"
+
+[advancement.challenge_agility_slipstream_500]
+title = "분말 Hound"
+description = "슬라이드 500 시간"
+
+[advancement.challenge_agility_slipstream_5k]
+title = "다운힐 레이서"
+description = "슬라이드 5,000 시간"
+
+[advancement.challenge_agility_air_dash_500]
+title = "항공 교통"
+description = "공기 패시 500 시간"
+
+[advancement.challenge_agility_air_dash_5k]
+title = "하늘 Streak"
+description = "공기 패시 5,000 시간"
+
+[advancement.challenge_agility_cat_reflexes_100]
+title = "와이프"
+description = "닷지 100 전력 질주 동안 투사체"
+
+[advancement.challenge_agility_cat_reflexes_1k]
+title = "나인 라이브"
+description = "닷지 1,000 전력 질주 동안 투사체"
+
+[advancement.challenge_agility_featherfoot_500]
+title = "빛 단계"
+description = "500 위험 표면을 무시하는 동안 전력 질주"
+
+[advancement.challenge_agility_featherfoot_5k]
+title = "채용 정보"
+description = "5,000 위험 표면을 무시하는 동안 전력 질주"
+
+[advancement.challenge_agility_vault_250]
+title = "허들러"
+description = "밸브 250 장애물"
+
+[advancement.challenge_agility_vault_2500]
+title = "다운로드"
+description = "밸브 2,500 장애물"
+
+[advancement.challenge_agility_marathoner_5k]
+title = "두 번째 Lung"
+description = "5,000의 포화량을 전력 질주 동안 저장합니다"
+
+[advancement.challenge_agility_marathoner_50k]
+title = "채용정보"
+description = "50,000의 포화량을 전력 질주 동안 저장합니다"
+
+[advancement.challenge_agility_kip_up_100]
+title = "당신의 발에 뒤로"
+description = "-아프로 100 히트를 복구"
+
+[advancement.challenge_agility_kip_up_1k]
+title = "흔들리지 않고"
+description = "-아프로 1,000 히트를 복구"
+
+[advancement.challenge_axe_throw_500]
+title = "Hatchet 헬버"
+description = "지체 500 던진 축에 타격"
+
+[advancement.challenge_axe_throw_5k]
+title = "죽음의 죽음"
+description = "지체 5,000 던진 축에 타격"
+
+[advancement.challenge_axe_sunder_500]
+title = "장갑 Cracker"
+description = "분쇄 중첩 500개를 부여하세요"
+
+[advancement.challenge_axe_sunder_5k]
+title = "격판덮개 Render"
+description = "분쇄 중첩 5,000개를 부여하세요"
+
+[advancement.challenge_axe_cleave_1k]
+title = "넓은 스윙"
+description = "보조 대상 1,000명을 휩쓸어 공격하세요"
+
+[advancement.challenge_axe_cleave_10k]
+title = "전열의 사신"
+description = "보조 대상 10,000명을 휩쓸어 공격하세요"
+
+[advancement.challenge_axe_bark_hide_2500]
+title = "두 번째 피부"
+description = "2,500 껍질 흡수 스택을 만들"
+
+[advancement.challenge_axe_shield_splitter_250]
+title = "감시 차단기"
+description = "분산 250 방패"
+
+[advancement.challenge_crafting_bulk_1k]
+title = "일괄 작업"
+description = "대용품 1,000 아이템"
+
+[advancement.challenge_crafting_bulk_10k]
+title = "조립 라인"
+description = "대용품 10,000 아이템"
+
+[advancement.challenge_crafting_thrifty_500]
+title = "페니 핀처"
+description = "500 성분을 환불"
+
+[advancement.challenge_crafting_thrifty_5k]
+title = "폐기물 없음"
+description = "5,000 성분을 환불"
+
+[advancement.challenge_crafting_masterwork_50]
+title = "채용정보"
+description = "Forge 50 명품 조각"
+
+[advancement.challenge_crafting_masterwork_500]
+title = "그랜드 마스터 스미스"
+description = "Forge 500 명품 조각"
+
+[advancement.challenge_crafting_compactor_1k]
+title = "공간 절약"
+description = "블록 1,000개를 압축하세요"
+
+[advancement.challenge_crafting_compactor_10k]
+title = "저장 Baron"
+description = "블록 10,000개를 압축하세요"
+
+[advancement.challenge_crafting_tinkerer_50]
+title = "도구 수선공"
+description = "도구 50개를 손보세요"
+
+[advancement.challenge_crafting_tinkerer_500]
+title = "마스터 Tinkerer"
+description = "도구 500개를 손보세요"
+
+[advancement.challenge_crafting_provisioner_500]
+title = "카테고리"
+description = "생산 라인 500 보너스 음식 부분"
+
+[advancement.challenge_crafting_provisioner_5k]
+title = "카테고리"
+description = "생산 라인 5,000 보너스 음식 부분"
+
+[advancement.challenge_crafting_signature_100]
+title = "서명"
+description = "서명된 상품으로 주민 거래 100회를 완료하세요"
+
+[advancement.challenge_crafting_signature_1k]
+title = "모리셔스"
+description = "서명된 상품으로 주민 거래 1,000회를 완료하세요"
+
+[advancement.challenge_enchanting_cleanse_10]
+title = "Curse 차단기"
+description = "숫돌에서 저주 10개를 정화하세요"
+
+[advancement.challenge_enchanting_cleanse_100]
+title = "무제한"
+description = "100의 저주들을 깨끗하게 하라"
+
+[advancement.challenge_enchanting_rebind_50]
+title = "페이지 분리자"
+description = "분할된 50 매혹된 토마스"
+
+[advancement.challenge_enchanting_rebind_500]
+title = "마스터 바인더"
+description = "분할된 500 매혹된 토마스"
+
+[advancement.challenge_enchanting_soul_10]
+title = "영혼 테더"
+description = "복구 10 죽음의 영혼 연결 항목"
+
+[advancement.challenge_enchanting_soul_100]
+title = "공급 업체"
+description = "복구 100 관심상품"
+
+[advancement.challenge_enchanting_siphon_25]
+title = "Arcane 스코어"
+description = "시폰 25 마법을 쓴 책들"
+
+[advancement.challenge_enchanting_siphon_250]
+title = "영혼 수확"
+description = "시폰 250 관련 책"
+
+[advancement.challenge_enchanting_rune_100]
+title = "Rune 리더"
+description = "마법 부여 제안 100개를 밝혀내세요"
+
+[advancement.challenge_enchanting_rune_1k]
+title = "전체보기 Scholar"
+description = "마법 부여 제안 1,000개를 밝혀내세요"
+
+[advancement.challenge_enchanting_infusion_25]
+title = "마법 부여 스미스"
+description = "아이템 사이에서 마법 부여 25개를 옮기세요"
+
+[advancement.challenge_enchanting_infusion_250]
+title = "주입 마스터"
+description = "전송 250 마법 부여"
+
+[advancement.challenge_enchanting_echo_25]
+title = "지식 수호자"
+description = "요금 25 마법 부여 업그레이드"
+
+[advancement.challenge_enchanting_echo_250]
+title = "생활 도서관"
+description = "요금 250 마법 부여 업그레이드"
+
+[advancement.challenge_nether_soul_1k]
+title = "Ash 트레드"
+description = "영혼 모래 또는 영혼 흙 위를 1,000블록 걸으세요"
+
+[advancement.challenge_nether_soul_25k]
+title = "영혼 Sprinter"
+description = "영혼 모래 또는 영혼 흙 위를 25,000블록 걸으세요"
+
+[advancement.challenge_nether_magma_100]
+title = "Molten 접촉"
+description = "타오르는 동안 100의 공격자를 발사하십시오."
+
+[advancement.challenge_nether_magma_2500]
+title = "생활 Inferno"
+description = "타오르는 동안 2,500의 공격자를 발사하십시오."
+
+[advancement.challenge_nether_mason_1k]
+title = "네더 메이슨"
+description = "내타르크, 바사일트 또는 블랙스톤 블록의 1,000 광산"
+
+[advancement.challenge_nether_mason_25k]
+title = "Basalt 차단기"
+description = "내타르크, 바사일트 또는 블랙스톤 블록의 25,000 광산"
+
+[advancement.challenge_nether_strider_500]
+title = "스트라이더"
+description = "스트라이더를 타고 500블록 이동하세요"
+
+[advancement.challenge_nether_strider_5k]
+title = "라바 Voyager"
+description = "스트라이더를 타고 5,000블록 이동하세요"
+
+[advancement.challenge_nether_strider_rescue]
+title = "소프트 랜딩"
+description = "라바를 넘어 내려가면서 스트라이더 보드가 잡을 수 있게 되죠."
+
+[advancement.challenge_nether_feast_100]
+title = "Fungal 다이어트"
+description = "100 윗부분의 곰팡이나 변형된 식물을 먹는다."
+
+[advancement.challenge_nether_feast_2500]
+title = "클리슨 Gourmand"
+description = "2,500 윗부분의 곰팡이나 변형된 식물을 먹는다."
+
+[advancement.challenge_nether_ash_200]
+title = "Ember 피부"
+description = "200 마그마 및 화재 피해를 부정합니다"
+
+[advancement.challenge_nether_ash_5k]
+title = "불씨 방호"
+description = "5,000 마그마 및 화재 피해를 부정합니다"
+
+[advancement.challenge_nether_harvest_100]
+title = "뼈 수집가"
+description = "인기 있는 100 와이너 해골"
+
+[advancement.challenge_nether_harvest_2500]
+title = "해골 라이터"
+description = "인기 있는 2,500 와이너 해골"
+
+[advancement.challenge_seaborne_coral_500]
+title = "레프 루키"
+description = "장소 500 산호초 또는 암초 블록"
+
+[advancement.challenge_seaborne_coral_5k]
+title = "Reef 건축"
+description = "장소 5,000 산호초 또는 암초 블록"
+
+[advancement.challenge_seaborne_salvage_100]
+title = "Wreck 다이버"
+description = "수중 보관함 100개에서 아이템을 회수하세요"
+
+[advancement.challenge_seaborne_salvage_1k]
+title = "깊은 보물 사냥꾼"
+description = "수중 보관함 1,000개에서 아이템을 회수하세요"
+
+[advancement.challenge_seaborne_ink_100]
+title = "잉크 스크린"
+description = "먹물 구름 100개를 터뜨리세요"
+
+[advancement.challenge_seaborne_ink_1k]
+title = "두족류"
+description = "먹물 구름 1,000개를 터뜨리세요"
+
+[advancement.challenge_seaborne_trident_250]
+title = "채용 정보"
+description = "랜드 250 트라이던트 타격"
+
+[advancement.challenge_seaborne_trident_2500]
+title = "Storm 소개"
+description = "랜드 2,500 트라이던트 타격"
+
+[advancement.challenge_seaborne_charm_2k]
+title = "물고기 친구"
+description = "바다 생물 2,000마리를 매혹하세요"
+
+[advancement.challenge_seaborne_charm_20k]
+title = "바다의 피드 파이프"
+description = "바다 생물 20,000마리를 매혹하세요"
+
+[advancement.challenge_seaborne_hydro_200]
+title = "제트 스트림"
+description = "200 수력 제트를 수행"
+
+[advancement.challenge_seaborne_hydro_5k]
+title = "팟캐스트"
+description = "5,000 수력 제트를 수행"
+
+[advancement.challenge_seaborne_brine_72k]
+title = "바다의 소금"
+description = "누적 1시간 동안 물에 젖은 상태를 유지하세요"
+
+[advancement.challenge_stealth_shadowmeld_100]
+title = "어둠의 하나"
+description = "그림자에 꽂힌 시간 100"
+
+[advancement.challenge_stealth_shadowmeld_1k]
+title = "생활 어둠"
+description = "그림자에 꽂힌 시간 1,000"
+
+[advancement.challenge_stealth_smoke_100]
+title = "연막"
+description = "한국어 100 연기 펠릿"
+
+[advancement.challenge_stealth_smoke_1k]
+title = "파괴 행위"
+description = "한국어 1,000 연기 펠릿"
+
+[advancement.challenge_stealth_cutpurse_100]
+title = "빛 손가락"
+description = "기타 100 포켓 몬스터"
+
+[advancement.challenge_stealth_cutpurse_1k]
+title = "마스터 테프"
+description = "기타 1,000 포켓 몬스터"
+
+[advancement.challenge_stealth_trap_500]
+title = "Trapfinder 소개"
+description = "500 함정을 드러내기"
+
+[advancement.challenge_stealth_trap_5k]
+title = "여섯 번째 센스"
+description = "5,000 함정을 드러내기"
+
+[advancement.challenge_stealth_assassinate_50]
+title = "사악한 죽음"
+description = "그림자 속에서 몹 50마리를 처형하세요"
+
+[advancement.challenge_stealth_assassinate_500]
+title = "카테고리"
+description = "그림자 속에서 몹 500마리를 처형하세요"
+
+[advancement.challenge_stealth_decoy_swap_100]
+title = "그림의 섬"
+description = "당신의 속임수와 교환 100 시간"
+
+[advancement.challenge_stealth_decoy_swap_1k]
+title = "지금 당신은 나를 본다"
+description = "당신의 속임수와 교환 1,000 시간"
+
+[advancement.challenge_stealth_umbral_200]
+title = "숙박 약관"
+description = "에서 복구 200 스니커즈"
+
+[advancement.challenge_stealth_umbral_2k]
+title = "팟캐스트"
+description = "에서 복구 2,000 스니커즈"
+
+[advancement.challenge_swords_lunge_250]
+title = "첫 단계"
+description = "돌진 베기를 250회 적중시키세요"
+
+[advancement.challenge_swords_lunge_2500]
+title = "순간이동 단계"
+description = "돌진 베기를 2,500회 적중시키세요"
+
+[advancement.challenge_swords_flow_1k]
+title = "흐름 찾기"
+description = "1,000 블레이드 흐름 스택을 구축"
+
+[advancement.challenge_swords_flow_10k]
+title = "영역에서"
+description = "10,000 블레이드 흐름 스택을 구축"
+
+[advancement.challenge_swords_flow_max]
+title = "공급 업체"
+description = "최대 블레이드 흐름 스택에 도달"
+
+[advancement.challenge_swords_duelist_200]
+title = "하나에 1"
+description = "집중한 결투가의 공격을 200회 적중시키세요"
+
+[advancement.challenge_swords_duelist_2500]
+title = "마스터 결투가"
+description = "집중한 결투가의 공격을 2,500회 적중시키세요"
+
+[advancement.challenge_swords_whetstone_100]
+title = "날카로운"
+description = "100 화석 의식을 수행하십시오."
+
+[advancement.challenge_swords_whetstone_1000]
+title = "예리함 가장자리"
+description = "1,000 화석 의식을 수행하십시오."
+
+[advancement.challenge_swords_crescent_200]
+title = "초승달"
+description = "방어 상태로 적을 200회 처치하세요"
+
+[advancement.challenge_swords_crescent_2500]
+title = "차오르는 수호"
+description = "방어 상태로 적을 2,500회 처치하세요"
+
+[advancement.challenge_swords_hamstring_200]
+title = "단절"
+description = "햄스트링 200 탈출 대상"
+
+[advancement.challenge_swords_hamstring_2500]
+title = "아니 탈출"
+description = "햄스트링 2,500 탈출 대상"
+
+[advancement.challenge_swords_heirloom_10]
+title = "가족 잎"
+description = "은행 계좌 10 가보 성장"
+
+[advancement.challenge_swords_heirloom_100]
+title = "생활 유산"
+description = "은행 계좌 100 가보 성장"
+
+[advancement.challenge_taming_fetch_1k]
+title = "좋은 소년"
+description = "늑대는 1,000의 떨어진 물건을 가져옵니다."
+
+[advancement.challenge_taming_fetch_10k]
+title = "다운로드"
+description = "늑대는 10,000의 떨어진 물건을 가져옵니다."
+
+[advancement.challenge_taming_command_250]
+title = "카테고리"
+description = "팩을 250 목표물에 지휘하라"
+
+[advancement.challenge_taming_command_2500]
+title = "짐승의 전쟁"
+description = "팩을 2,500 목표물에 지휘하라"
+
+[advancement.challenge_taming_guardian_250]
+title = "생활 방패"
+description = "반려동물들은 당신을 위해 250 발사기를 차단합니다."
+
+[advancement.challenge_taming_guardian_2500]
+title = "Bodyguard 팩"
+description = "반려동물들은 당신을 위해 2,500 발사기를 차단합니다."
+
+[advancement.challenge_taming_stable_100]
+title = "안정되어 있는 손"
+description = "형태 100 영구적인 편향을 가진 동물"
+
+[advancement.challenge_taming_stable_1k]
+title = "마스터 브레더"
+description = "형태 1,000 영구적인 편향을 가진 동물"
+
+[advancement.challenge_taming_empathy_100]
+title = "교감자"
+description = "야생 공감은 100 동물을 길러줍니다."
+
+[advancement.challenge_taming_empathy_1k]
+title = "종류 정신"
+description = "야생 공감은 1,000 동물을 길러줍니다."
+
+[advancement.challenge_taming_bond_250]
+title = "배틀 채권"
+description = "발동 배틀 본드 250 애완 동물 처치"
+
+[advancement.challenge_taming_bond_2500]
+title = "전쟁"
+description = "발동 배틀 본드 2,500 애완 동물 처치"
+
+[advancement.challenge_taming_lastbreath_50]
+title = "마지막 숨결"
+description = "반려동물을 죽음에서 50회 구하세요"
+
+[advancement.challenge_taming_lastbreath_500]
+title = "아홉 개의 목숨"
+description = "반려동물을 죽음에서 500회 구하세요"
+
+[advancement.challenge_blocking_shieldwall_500]
+title = "생활 Rampart"
+description = "팟캐스트 500 아군를 위한 총 투사체 손상"
+
+[advancement.challenge_blocking_shieldwall_5k]
+title = "선의 Aegis"
+description = "팟캐스트 5,000 아군를 위한 총 투사체 손상"
+
+[advancement.challenge_blocking_perfect_100]
+title = "분할 세컨드"
+description = "들어오는 공격 100회를 완벽하게 방어하세요"
+
+[advancement.challenge_blocking_perfect_1k]
+title = "만지지 않는 것"
+description = "들어오는 공격 1,000회를 완벽하게 방어하세요"
+
+[advancement.challenge_blocking_tempered_500]
+title = "공급 업체"
+description = "방어로 총 내구도 500을 복구하세요"
+
+[advancement.challenge_blocking_tempered_5k]
+title = "항상 만들어졌어"
+description = "방어로 총 내구도 5,000을 복구하세요"
+
+[advancement.challenge_blocking_resolve_100]
+title = "끊이지 않는 것"
+description = "에서 복구 100 도끼 조회"
+
+[advancement.challenge_blocking_resolve_1k]
+title = "이동식 Vanguard"
+description = "에서 복구 1,000 도끼 조회"
+
+[advancement.challenge_blocking_phalanx_25]
+title = "카테고리"
+description = "락스 크래프트로 제작된 25 방패"
+
+[advancement.challenge_blocking_phalanx_netherite]
+title = "네더라이트 버크"
+description = "Forge 네테리트로 강화된 방패"
+
+[advancement.challenge_blocking_interpose_250]
+title = "바디 가드"
+description = "아군에게 가는 총 피해 250을 대신 받으세요"
+
+[advancement.challenge_blocking_interpose_2k]
+title = "Guardian 천사"
+description = "아군에게 가는 총 피해 2,000을 대신 받으세요"
+
+[advancement.challenge_discovery_trailblazer_25]
+title = "첫 번째 단계"
+description = "25의 생체나 구조를 처음 발견하는 방법"
+
+[advancement.challenge_discovery_trailblazer_100]
+title = "길 개척자"
+description = "100를 처음 발견하세요"
+
+[advancement.challenge_discovery_fieldnotes_25]
+title = "인기 있는"
+description = "첫 번째 죽이기 25 모비 종"
+
+[advancement.challenge_discovery_fieldnotes_100]
+title = "몬스터 사냥꾼"
+description = "첫 번째 죽이기 100 모비 종"
+
+[advancement.challenge_discovery_polymath_500]
+title = "잘 둥근"
+description = "폴리마스 보너스의 혜택을 500"
+
+[advancement.challenge_discovery_polymath_5k]
+title = "카테고리"
+description = "폴리마스 보너스의 혜택을 5,000"
+
+[advancement.challenge_discovery_appraiser_50]
+title = "앱라이즈어"
+description = "앱라이즈 50 희석류"
+
+[advancement.challenge_discovery_appraiser_500]
+title = "큐레이터"
+description = "앱라이즈 500 희석류"
+
+[advancement.challenge_discovery_sixthsense_100]
+title = "교육과정"
+description = "감각 100 근처에 있는 탐구되지 않은 구조물"
+
+[advancement.challenge_discovery_sixthsense_1k]
+title = "여섯 번째 센스"
+description = "감각 1,000 근처에 있는 탐구되지 않은 구조물"
+
+[advancement.challenge_discovery_keeneye_250]
+title = "예리함 눈"
+description = "상자 또는 생성기 250개를 밝혀내세요"
+
+[advancement.challenge_discovery_keeneye_2500]
+title = "매의 눈"
+description = "상자 또는 생성기 2,500개를 밝혀내세요"
+
+[advancement.challenge_hunter_predator_focus_500]
+title = "목표 고정"
+description = "최대로 상승한 포식자의 집중 공격을 500회 적중시키세요"
+
+[advancement.challenge_hunter_predator_focus_5k]
+title = "중급 사냥꾼!"
+description = "최대로 상승한 포식자의 집중 공격을 5,000회 적중시키세요"
+
+[advancement.challenge_hunter_big_game_100]
+title = "큰 게임 사냥꾼"
+description = "스레이 100 큰 또는 보스 종류 몹"
+
+[advancement.challenge_hunter_big_game_1k]
+title = "트로피 벽"
+description = "스레이 1,000 큰 또는 보스 종류 몹"
+
+[advancement.challenge_hunter_blood_trail_250]
+title = "첫 번째 피"
+description = "기타 250 혈액 길"
+
+[advancement.challenge_hunter_blood_trail_2500]
+title = "피하운드"
+description = "기타 2,500 혈액 길"
+
+[advancement.challenge_hunter_snare_200]
+title = "덫 사냥꾼"
+description = "함정이 200 적대적인 몹"
+
+[advancement.challenge_hunter_snare_2k]
+title = "마스터 래퍼"
+description = "함정이 2,000 적대적인 몹"
+
+[advancement.challenge_rift_void_skin_50]
+title = "두 번째 피부"
+description = "공허의 피부로 위험한 순간을 50번 피하세요"
+
+[advancement.challenge_rift_void_skin_500]
+title = "만지지 않는 것"
+description = "공허의 피부로 위험한 순간을 500번 피하세요"
+
+[advancement.challenge_rift_rebound_100]
+title = "은행 샷"
+description = "표면에 엔더 진주를 100번 튕기기"
+
+[advancement.challenge_rift_rebound_1k]
+title = "트릭 샷"
+description = "표면에 엔더 진주를 1,000번 튕기기"
+
+[advancement.challenge_rift_conduit_10]
+title = "얽힌"
+description = "양식 10 균열 유도 연결"
+
+[advancement.challenge_rift_conduit_10k]
+title = "화물 네트워크"
+description = "10,000 항목을 균열 유도로 흐르십시오."
+
+[advancement.skill_kinetics]
+title = "한국어"
+description = "힘으로 움직이기."
+
+[advancement.challenge_kinetics_anvil_drop]
+title = "뉴턴의 영수증"
+description = "당신의 자신의 떨어지는 모루에 몹를 죽이십시오 8 또는 더 많은 블록."
+
+[agility.armor_up]
+name = "방어구 강화"
+description = "오래 달릴수록 더 많은 방어력을 얻습니다!"
+lore1 = "최대 방어력"
+lore2 = "방어구 강화 시간"
+lore3 = "장갑 부패 시간"
+lore = ["최대 방어력", "방어구 강화 시간", "장갑 부패 시간"]
+
+[agility.ladder_slide]
+name = "사다리 미끄러짐"
+description = "사다리를 양 방향으로 훨씬 빠르게 오르내립니다."
+lore1 = "사다리 속도 배수"
+lore2 = "빠른 하강 속도"
+lore3 = "활성화/출발 각 보기"
+lore = ["사다리 속도 배수", "빠른 하강 속도", "활성화/출발 각 보기"]
+
+[agility.super_jump]
+name = "슈퍼 점프"
+description = "탁월한 높이의 이점."
+lore1 = "최대 점프 높이"
+lore2 = "웅크리기 + 점프로 슈퍼 점프!"
+lore = ["최대 점프 높이", "웅크리기 + 점프로 슈퍼 점프!"]
+
+[agility.wall_jump]
+name = "벽 점프"
+description = "공중에서 벽에 붙어 Shift를 눌러 벽에 매달리고 점프하세요!"
+lore1 = "최대 점프 횟수"
+lore2 = "점프 높이"
+lore = ["최대 점프 횟수", "점프 높이"]
+
+[agility.wind_up]
+name = "가속"
+description = "오래 달릴수록 더 빨라집니다!"
+lore1 = "최대 속도"
+lore2 = "가속 시간"
+lore = ["최대 속도", "가속 시간"]
+
+[agility.parkour_momentum]
+name = "파쿠르 모멘텀"
+description = "체인 연속 스프린트-jumps. 각각의 깨끗한 착륙은 다음 점프를 밀어 순간을 구축."
+lore1 = "최대 추진력 스택"
+lore2 = "최대 증가 속도 (블록/초)"
+lore3 = "최대 점프 속도 보너스"
+lore = ["최대 추진력 스택", "최대 증가 속도 (블록/초)", "최대 점프 속도 보너스"]
+
+[agility.roll_landing]
+name = "롤 랜딩"
+description = "착륙 전에 시간적 좌절은 추락 피해의 일부를 굶주림 비용으로 변환합니다."
+lore1 = "가을 손상 변환"
+lore2 = "입력 타이밍 창"
+lore3 = "재사용 대기시간 굴러오십시오"
+lore = ["가을 손상 변환", "입력 타이밍 창", "재사용 대기시간 굴러오십시오"]
+
+[agility.slipstream_slide]
+name = "슬립스트림 슬라이드"
+description = "달리는 동안 웅크리기 키를 짧게 눌러 엎드린 채 계속 미끄러집니다. 지면 마찰을 줄여 1블록 높이의 틈에서도 추진력을 유지합니다."
+lore1 = "슬라이드 속도(블록/초)"
+lore2 = "슬라이드 재사용 대기시간"
+lore3 = "최대 레벨: 미끄러져 통과한 몹이 느려집니다"
+lore = ["슬라이드 속도(블록/초)", "슬라이드 재사용 대기시간", "최대 레벨: 미끄러져 통과한 몹이 느려집니다"]
+
+[agility.air_dash]
+name = "에어 대시"
+description = "스프린트 점프를 한 후 왼쪽으로 공기를 클릭하면 순수 수평속으로 앞으로 달려갑니다."
+lore1 = "대시 속도 (블록/초)"
+lore2 = "중간 공기 돌진 요금"
+lore = ["대시 속도 (블록/초)", "중간 공기 돌진 요금"]
+
+[agility.cat_reflexes]
+name = "카테고리"
+description = "dodge 들어오는 투사체에게 전진하는 동안 기회."
+lore1 = "발사기 도피 가능성은"
+lore = ["발사기 도피 가능성은"]
+
+[agility.featherfoot]
+name = "깃발발"
+description = "전력 질주는 농장, 압력 판, 감미로운 베리 snags를 무시하고 결국 분말 눈."
+lore1 = "표면은 전력 질주 동안 무시"
+lore2 = "농장 > 압력판 > 달콤한 열매 > 분말 눈"
+lore = ["표면은 전력 질주 동안 무시", "농장 > 압력판 > 달콤한 열매 > 분말 눈"]
+
+[agility.vault]
+name = "볼트"
+description = "울타리로 점프하여 그것을 맑게."
+lore1 = "울타리 점프 정점 (블록스)"
+lore = ["울타리 점프 정점 (블록스)"]
+
+[agility.marathoner]
+name = "마라톤"
+description = "스프린팅은 포화량을 줄이고, 배고픔이 물려들기 전에 더 빨리 달릴 수 있습니다."
+lore1 = "전력 질주 포화 하수구 감소"
+lore = ["전력 질주 포화 하수구 감소"]
+
+[agility.kip_up]
+name = "재빨리 일어나기"
+description = "치크백을 복구 된 모멘텀과 속도 파열로 변환하기 위해 타격을 복용 한 후 오른쪽 점프."
+lore1 = "복구 창"
+lore2 = "복구 속도 향상 단계"
+lore = ["복구 창", "복구 속도 향상 단계"]
+
+[architect.elevator]
+name = "엘리베이터"
+description = "빠르게 수직 이동하는 엘리베이터를 건설합니다. 각 엘리베이터 블록은 중앙에 엔더 진주를 놓고 주위를 양털 8개로 둘러 제작합니다."
+lore1 = "엘리베이터 레시피 해금: X=양털, Y=엔더 진주"
+lore2 = "XXX"
+lore3 = "XYX"
+lore4 = "XXX"
+lore = ["엘리베이터 레시피 해금: X=양털, Y=엔더 진주", "XXX", "XYX", "XXX"]
+
+[architect.foundation]
+name = "마법 발판"
+description = "웅크려서 발 밑에 임시 발판을 생성합니다!"
+lore1 = "마법으로 생성: "
+lore2 = "발 밑의 블록!"
+lore = ["마법으로 생성: ", "발 밑의 블록!"]
+
+[architect.glass]
+name = "유리 섬세한 손길"
+description = "맨손으로 유리 블록을 깨도 잃지 않게 됩니다!"
+lore1 = "유리에 대해 섬세한 손길 효과를 얻습니다"
+lore = ["유리에 대해 섬세한 손길 효과를 얻습니다"]
+
+[architect.wireless_redstone]
+name = "레드스톤 리모컨"
+description = "레드스톤 횃불을 사용하여 원격으로 레드스톤을 전환할 수 있습니다!"
+lore1 = "대상 + 레드스톤 횃불 + 엔더 진주 = 레드스톤 리모컨 1개"
+lore = ["대상 + 레드스톤 횃불 + 엔더 진주 = 레드스톤 리모컨 1개"]
+
+[architect.placement]
+name = "건축가의 지팡이"
+description = "한 번에 여러 블록을 설치할 수 있습니다! 웅크리고, 바라보는 블록과 같은 블록을 들고 설치하세요! 범위 지정을 위해 약간 움직여야 할 수 있습니다!"
+lore1 = "이것을 설치하려면"
+lore2 = "블록이 손에 필요합니다"
+lore3 = "재료 건축가의 지팡이"
+requirement = "당신은 {count} 블록에서 손을 배치."
+lore = ["이것을 설치하려면", "블록이 손에 필요합니다", "재료 건축가의 지팡이"]
+
+[architect.smart_shape]
+name = "똑똑한 모양"
+description = "빈 손으로 방향을 돌리는 스니크-펀치 블록."
+lore1 = "방향 및 축 블록 상태를 회전"
+lore2 = "주 손이 비어 있어야 함"
+lore = ["방향 및 축 블록 상태를 회전", "주 손이 비어 있어야 함"]
+
+[architect.scaffolder]
+name = "채용정보"
+description = "잠복하게 블록을 일시적인 스카프로로 배치해 스스로 해체하고 블록을 돌려주면 됩니다!"
+lore1 = "잠복하게 배치된 블록은 자동으로 녹습니다."
+lore2 = "비계 용해 및 환불 전에 두 번째"
+lore = ["잠복하게 배치된 블록은 자동으로 녹습니다.", "비계 용해 및 환불 전에 두 번째"]
+
+[architect.supply_line]
+name = "공급 라인"
+description = "손에서 스택이 실행되면 shulker 상자 또는 재고의 번들을 자동으로 보충합니다.!"
+lore1 = "셜커 및 번들에서 손 자동 보충"
+lore2 = "분당 리필"
+lore = ["셜커 및 번들에서 손 자동 보충", "분당 리필"]
+
+[architect.steady_hands]
+name = "Steady 손"
+description = "열린 공기에 흠뻑 취하지 않는 동안, 가을을 날아, 그리고 세심한 리듬과 장소!"
+lore1 = "다리 놓기 동안 노크백 없음"
+lore2 = "보호되는 가을 손상의 구획"
+lore = ["다리 놓기 동안 노크백 없음", "보호되는 가을 손상의 구획"]
+
+[architect.chalk_line]
+name = "분필 선"
+description = "막대기 하나와 실 하나를 배치하는 방향을 달리해 영구적인 분필 지팡이를 제작하세요. 레벨 1에서 직선, 레벨 2에서 폴리라인, 레벨 3에서 원, 레벨 4에서 호를 해제합니다. 각 레벨의 새 제작법은 바닐라 제작법 책에 즉시 표시됩니다. 개인 블록 안내선은 해당 지팡이를 든 동안에만 보이며, 웅크린 채 공중을 클릭하면 저장된 계획이 지워집니다."
+lore1 = "새로운 지팡이 요리법은 당신의 기본 조리법 책에서 나타납니다"
+lore = ["새로운 지팡이 요리법은 당신의 기본 조리법 책에서 나타납니다"]
+requires_level = "요구 분필 선 수준"
+start_set = "분필 선의 시작점을 설정했습니다"
+start_required = "먼저 블록 면을 좌클릭하여 시작점을 설정하세요"
+through_point_set = "호의 경유점을 설정했습니다. 끝점을 우클릭하세요"
+vertex_added = "폴리라인에 꼭짓점을 추가했습니다"
+guide_ready = "분필 가이드 준비"
+cleared = "이 지팡이의 분필 가이드가 정리되었습니다"
+too_far = "이 지팡이의 선택 범위를 넘어"
+duplicate_point = "다른 가이드 포인트를 선택하십시오."
+too_many_vertices = "이 폴리라인은 꼭짓점 수 제한에 도달했습니다"
+invalid_radius = "이 나침반의 허용 범위 내에서 반경을 선택하십시오."
+invalid_shape = "이 가이드를 작성할 수 없습니다."
+guide_too_large = "이 가이드는 너무 많은 마커를 만들 것입니다"
+guide_out_of_bounds = "그 가이드는 이 세상의 높이를 늘릴 것입니다."
+invalid_plan = "이 지팡이는 선택된 가이드를 저장할 수 없습니다"
+
+[architect.chalk_line.tool]
+clear = "웅크린 채 공중을 클릭하여 이 분필 지팡이를 초기화하세요"
+persistent = "저장된 가이드에는 타이머가 없습니다"
+
+[architect.chalk_line.tool.straightedge]
+name = "카테고리"
+usage = "시작점을 좌클릭하고 끝점을 우클릭하세요"
+
+[architect.chalk_line.tool.polyline]
+name = "분필 폴리 라인 지팡이"
+usage = "좌클릭으로 시작하고 우클릭으로 꼭짓점을 추가하세요"
+
+[architect.chalk_line.tool.compass]
+name = "카테고리"
+usage = "중심 블록 면을 좌클릭하고 반지름을 우클릭하세요"
+
+[architect.chalk_line.tool.arc_bow]
+name = "카테고리"
+usage = "시작점을 좌클릭하고 경유점과 끝점을 우클릭하세요"
+
+[architect.demolition]
+name = "Mason의 에스러"
+description = "자신이 최근에 배치한 블록을 거의 즉시 제거하고 아이템으로 되돌려 받습니다!"
+lore1 = "당신의 신선한 배치는 가까이에서 틈"
+lore2 = "신선도 계산"
+lore = ["당신의 신선한 배치는 가까이에서 틈", "신선도 계산"]
+
+[architect.stonecutter_savant]
+name = "석재 절단기 달인"
+description = "어디든 돌을 깎는 사람을 열어놓고 공기를 누르세요. 그냥 돌을 닦는 사람이 있으면!"
+lore1 = "수요에 휴대용 석재 절단기"
+lore2 = "당신의 재고에 있는 석재 절단기 품목을 요구합니다"
+lore3 = "당신의 보조 손에 있는 석재 절단기를 요구합니다"
+lore = ["수요에 휴대용 석재 절단기", "당신의 재고에 있는 석재 절단기 품목을 요구합니다", "당신의 보조 손에 있는 석재 절단기를 요구합니다"]
+
+[axe.chop]
+name = "도끼 벌목"
+description = "나무 밑동을 우클릭하여 나무를 베세요!"
+lore1 = "벌목당 블록 수"
+lore2 = "벌목 재사용 대기시간"
+lore3 = "도구 마모"
+lore = ["벌목당 블록 수", "벌목 재사용 대기시간", "도구 마모"]
+
+[axe.log_swap]
+name = "루시의 원목 교환기"
+description = "제작대에서 원목의 종류를 변경하세요!"
+lore1 = "아무 종류의 원목 8개 + 묘목 1개 = 묘목 종류의 원목 8개"
+lore = ["아무 종류의 원목 8개 + 묘목 1개 = 묘목 종류의 원목 8개"]
+
+[axe.drop_to_inventory]
+name = "도끼 인벤토리 드롭"
+
+[axe.ground_smash]
+name = "도끼 지면 강타"
+description = "점프한 후, 웅크려서 주변의 모든 적을 강타합니다."
+lore1 = "피해량"
+lore2 = "블록 반경"
+lore3 = "힘"
+lore4 = "강타 재사용 대기시간"
+lore = ["피해량", "블록 반경", "힘", "강타 재사용 대기시간"]
+
+[axe.leaf_miner]
+name = "나뭇잎 채굴자"
+description = "나뭇잎을 한꺼번에 부술 수 있습니다!"
+lore1 = "웅크리고 나뭇잎을 캐세요"
+lore2 = "나뭇잎 채굴 범위"
+lore3 = "나뭇잎에서 아이템이 드롭되지 않습니다 (악용 방지)"
+lore = ["웅크리고 나뭇잎을 캐세요", "나뭇잎 채굴 범위", "나뭇잎에서 아이템이 드롭되지 않습니다 (악용 방지)"]
+
+[axe.wood_miner]
+name = "목재 채굴자"
+description = "원목을 한꺼번에 부술 수 있습니다!"
+lore1 = "웅크리고 원목/나무를 캐세요 (판자 제외)"
+lore2 = "목재 채굴 범위"
+lore3 = "인벤토리 드롭과 함께 작동"
+lore = ["웅크리고 원목/나무를 캐세요 (판자 제외)", "목재 채굴 범위", "인벤토리 드롭과 함께 작동"]
+
+[axe.iris_feller]
+name = "Iris 구매하기"
+description = "Iris 나무를 도끼로 다듬고, 계속 스키링하고 그 원래 도끼가 밖으로 침식되는 동안 유지하십시오. 성공적으로 침식 된 모든 나무는 굶주림으로 인해 발생합니다. 속삭임이 멈추면 실행은 멈춰집니다. 원본 도끼는 더 이상 붙잡히지 않습니다. 또는 배고픔은 다음 로그에 자금을 지원할 수 없습니다. 받아들여지는 행사는 활성화 재사용 대기시간 시작합니다."
+lore1 = "떨어졌다 로그 당 도끼 내구성을 보존하는 기회"
+lore2 = "남은 도끼 내구성 및 기아 뚜 얼마나 많은 나무가 떨어질 수 있는지"
+lore3 = "나무는 런타임 컨트롤이 활성화된 동안만 부식을 유지합니다."
+lore4 = "성공적으로 침식된 나무에 대한 기근점"
+lore5 = "재사용 대기시간 후 Iris 동의하다"
+lore6 = "웅크리기 지속적으로; 연습을 풀어 놓기"
+lore7 = "원래 도끼를 유지; 전환 또는 잃어버린 실행"
+lore = ["로그 당 도끼 내구성 보존", "남은 도끼 내구성 및 기아 뚜 얼마나 많은 나무가 떨어질 수 있는지", "나무는 런타임 컨트롤이 활성화된 동안만 부식을 유지합니다.", "고식 된 나무 에 대한 굶주림 비용", "활성화 재사용 대기시간", "지속적인 Sneaking 필수", "도끼 스테이 Held"]
+
+[axe.throwing_axe]
+name = "도끼 검색"
+description = "도끼와 왼쪽 클릭 공기 내던지기에 그것의 근접 손상을 거래하는 회전 투사로."
+lore1 = "근접 손상 승수"
+lore2 = "투척 속도"
+lore3 = "다운로드"
+lore4 = "최대 수준에서 손을 반환"
+lore = ["근접 손상 승수", "투척 속도", "다운로드", "최대 수준에서 손을 반환"]
+
+[axe.sunder]
+name = "분쇄"
+description = "도끼는 시간이 지남에 퇴색 층에서 표적의 장갑 및 기갑 강인성을 파열했습니다."
+lore1 = "갑상선 당 분쇄"
+lore2 = "최대 스택"
+lore3 = "분쇄 기간"
+lore4 = " 에 따라 단단 한 면 을 쪼개라"
+lore = ["갑상선 당 분쇄", "최대 스택", "분쇄 기간", " 에 따라 단단 한 면 을 쪼개라"]
+
+[axe.cleave]
+name = "휩쓸기"
+description = "메레에 있는 도끼의 흔들림은 짧은 전면 활으로 적들을 쪼개고 있습니다."
+lore1 = "클레이브 아크"
+lore2 = "최대 여분 표적"
+lore3 = "피해 분배"
+lore = ["클레이브 아크", "최대 여분 표적", "피해 분배"]
+
+[axe.bark_hide]
+name = "바크 Hide"
+description = "작업 중지 한 번 퇴색하는 간결 흡수 층."
+lore1 = "흡수 캡"
+lore2 = "콜롬비아"
+lore = ["흡수 캡", "콜롬비아"]
+
+[axe.shield_splitter]
+name = "방패 쪼개는 도구"
+description = "도끼는 더 이상 보호하고 보너스 손상을 처리하는 foes를 막기에 안타."
+lore1 = "방패 사용 기간"
+lore2 = "보너스 공격 대 차단"
+lore = ["방패 사용 기간", "보너스 공격 대 차단"]
+
+[blocking.chain_armorer]
+name = "메피스토펠레스의 사슬"
+description = "사슬 갑옷을 제작할 수 있습니다"
+lore1 = "제작법은 다른 갑옷과 동일하지만, 철 조각을 대신 사용합니다"
+lore = ["제작법은 다른 갑옷과 동일하지만, 철 조각을 대신 사용합니다"]
+
+[blocking.horse_armorer]
+name = "제작 가능한 말 갑옷"
+description = "말 갑옷을 제작할 수 있습니다"
+lore1 = "안장을 원하는 재료로 둘러싸서 갑옷을 제작하세요"
+lore = ["안장을 원하는 재료로 둘러싸서 갑옷을 제작하세요"]
+
+[blocking.saddle_crafter]
+name = "제작 가능한 안장"
+description = "가죽으로 안장을 제작합니다"
+lore1 = "레시피: 가죽 5개:"
+lore = ["레시피: 가죽 5개:"]
+
+[blocking.multi_armor]
+name = "다중 방어구"
+description = "겉날개를 갑옷에 결합합니다"
+lore1 = "이동에 매우 유용한 스킬입니다."
+lore2 = "갑옷/겉날개를 즉석에서 합치고 변경하세요!"
+lore3 = "합치려면 인벤토리에서 아이템을 다른 아이템 위에 Shift 클릭하세요."
+lore4 = "방어구를 분리하려면, 해당 아이템을 웅크린 채 버리면 분해됩니다."
+lore5 = "합친 방어구가 파괴되면, 그 안의 모든 아이템을 잃게 됩니다."
+lore6 = "갑옷은 필요 없어, 실망스럽네..."
+lore = ["이동에 매우 유용한 스킬입니다.", "갑옷/겉날개를 즉석에서 합치고 변경하세요!", "합치려면 인벤토리에서 아이템을 다른 아이템 위에 Shift 클릭하세요.", "방어구를 분리하려면, 해당 아이템을 웅크린 채 버리면 분해됩니다.", "합친 방어구가 파괴되면, 그 안의 모든 아이템을 잃게 됩니다.", "갑옷은 필요 없어, 실망스럽네..."]
+
+[blocking.counter_guard]
+name = "카운터 가드"
+description = "막힌 모든 공격은 방패 스택을 만들고 다음 검찰은 공격자에게 피해를 주기 위해 스택을 소비한다."
+lore1 = "최대 저장된 카운터 스택"
+lore2 = "반사 발동 기회"
+lore3 = "기본 반사 손상"
+lore = ["최대 저장된 카운터 스택", "반사 발동 기회", "기본 반사 손상"]
+
+[blocking.bastion_stance]
+name = "Bastion 안정성"
+description = "차폐와 함께 운동하고 적극적으로 차단하는 동안, 노크백과 들어오는 투사성 압력을 감소."
+lore1 = "밀쳐내기 저항"
+lore2 = "투사체 손상 감소"
+lore3 = "투사체 전체 블록 기회"
+lore = ["밀쳐내기 저항", "투사체 손상 감소", "투사체 전체 블록 기회"]
+
+[blocking.mirror_block]
+name = "미러 블록"
+description = "방패로 차단은 감소된 후속력을 가진 들어오는 투사체를 반영할 수 있습니다."
+lore1 = "투사체 반사 기회"
+lore2 = "반사된 손상 요인"
+lore3 = "재사용 대기시간 을 반영 해 주십시오"
+lore = ["투사체 반사 기회", "반사된 손상 요인", "재사용 대기시간 을 반영 해 주십시오"]
+
+[blocking.bulwark_bash]
+name = "Bulwark 배쉬"
+description = "스프린트-jump 및 착륙은 강타 충격파를 방아쇠로 고정."
+lore1 = "강타 범위"
+lore2 = "강타 손상"
+lore3 = "배쉬 재사용 대기시간"
+lore = ["강타 범위", "강타 손상", "배쉬 재사용 대기시간"]
+
+[blocking.shield_wall]
+name = "방패 벽"
+description = "차단을 해제하는 동안, 당신의 방패 뒤에 아군는 투사 손상을 감소시켰습니다."
+lore1 = "보호 아크 (도)"
+lore2 = "투사체 손상 감소"
+lore3 = "보호 범위"
+lore = ["보호 아크 (도)", "투사체 손상 감소", "보호 범위"]
+
+[blocking.perfect_guard]
+name = "완벽한 감시"
+description = "타격이 착륙하기 직전에 방패를 들어 올려서 공격자를 완전히 부정하고 흔들라."
+lore1 = "완벽한 감시 창"
+lore2 = "경직 기간"
+lore3 = "경직 힘"
+lore = ["완벽한 감시 창", "경직 기간", "경직 힘"]
+
+[blocking.tempered_guard]
+name = "온화 한 경호자"
+description = "차단된 파열은 당신의 장치를 부드럽게 하고, 방패와 기갑 내구성의 짜개진 조각을 휴식하."
+lore1 = "막힌 타격 에 따라 복구 가능성"
+lore2 = "발동 당 내구성 회복"
+lore = ["막힌 타격 에 따라 복구 가능성", "발동 당 내구성 회복"]
+
+[blocking.shieldbearers_resolve]
+name = "Shieldbearer의 해결"
+description = "도끼가 방패를 비활성화 할 때, 저항을 가진 버팀대와 방패를 빨리 회복하십시오."
+lore1 = "방패 회복 속도"
+lore2 = "저항 층"
+lore = ["방패 회복 속도", "저항 층"]
+
+[blocking.phalanx_crafter]
+name = "방진 크래커"
+item_name = "네더라이트 강화 방패"
+description = "직접 배너면 방패를 만들고 보너스 내구성을 위해 네테리이트로 방패를 강화한다."
+lore1 = "레벨 1: 양털, 판자, 철로 깃발 무늬 방패를 바로 제작합니다."
+lore2 = "레벨 2: 내테리트로 강화된 방패를 만들어서 내구성이 크게 증가한다."
+lore = ["레벨 1: 양털, 판자, 철로 깃발 무늬 방패를 바로 제작합니다.", "레벨 2: 내테리트로 강화된 방패를 만들어서 내구성이 크게 증가한다."]
+
+[blocking.interpose]
+name = "대신 막기"
+description = "부상자 동맹군 근처에 스닉블록을 통해 피해의 일부를 당신의 방패로 이동시켜주죠."
+lore1 = "손상 방향 전환 공유"
+lore2 = "가로막기 범위"
+lore3 = "아군 낮은 건강 위협"
+lore = ["손상 방향 전환 공유", "가로막기 범위", "아군 낮은 건강 위협"]
+
+[brewing.lingering]
+name = "잔류 양조"
+description = "양조한 물약의 효과가 더 오래 지속됩니다!"
+lore1 = "지속시간"
+lore2 = "지속시간"
+lore = ["지속시간", "지속시간"]
+
+[brewing.super_heated]
+name = "초고열 양조"
+description = "양조기가 뜨거울수록 더 빠르게 작동합니다."
+lore1 = "인접한 불 블록당"
+lore2 = "인접한 용암 블록당"
+lore = ["인접한 불 블록당", "인접한 용암 블록당"]
+
+[brewing.darkness]
+name = "병에 담긴 어둠"
+description = "왜 이게 필요한지는 모르겠지만, 여기 있습니다!"
+lore1 = "야간 투시 물약 + 검은색 콘크리트 = 어둠의 물약 (30초)"
+lore2 = "이 물약은 대상이 질주하는 것을 방지합니다!"
+lore = ["야간 투시 물약 + 검은색 콘크리트 = 어둠의 물약 (30초)", "이 물약은 대상이 질주하는 것을 방지합니다!"]
+
+[brewing.haste]
+name = "병에 담긴 성급함"
+strong_name = "병에 담긴 성급함 2"
+description = "효율 마법이 충분하지 않을 때"
+lore1 = "신속 물약 + 자수정 조각 = 성급함의 물약 (60초)"
+lore2 = "신속 물약 + 자수정 블록 = 성급함의 물약-2 (30초)"
+lore = ["신속 물약 + 자수정 조각 = 성급함의 물약 (60초)", "신속 물약 + 자수정 블록 = 성급함의 물약-2 (30초)"]
+
+[brewing.absorption]
+name = "병에 담긴 흡수"
+strong_name = "병 흡수 2"
+description = "몸을 강화하라!"
+lore1 = "즉시 치유 + 석영 = 흡수의 물약 (60초)"
+lore2 = "즉시 치유 + 석영 블록 = 흡수의 물약-2 (30초)"
+lore = ["즉시 치유 + 석영 = 흡수의 물약 (60초)", "즉시 치유 + 석영 블록 = 흡수의 물약-2 (30초)"]
+
+[brewing.fatigue]
+name = "병에 담긴 피로"
+strong_name = "병된 피로 2"
+description = "몸을 약화시켜라!"
+lore1 = "나약함 물약 + 슬라임볼 = 피로의 물약 (60초)"
+lore2 = "나약함 물약 + 슬라임 블록 = 피로의 물약-2 (30초)"
+lore = ["나약함 물약 + 슬라임볼 = 피로의 물약 (60초)", "나약함 물약 + 슬라임 블록 = 피로의 물약-2 (30초)"]
+
+[brewing.hunger]
+name = "병에 담긴 굶주림"
+strong_name = "병 거 2"
+description = "끝없는 식욕을 채워라!"
+lore1 = "어색한 물약 + 썩은 살점 = 굶주림의 물약 (60초)"
+lore2 = "나약함 물약 + 썩은 살점 = 굶주림의 물약-3 (30초)"
+lore = ["어색한 물약 + 썩은 살점 = 굶주림의 물약 (60초)", "나약함 물약 + 썩은 살점 = 굶주림의 물약-3 (30초)"]
+
+[brewing.nausea]
+name = "병에 담긴 메스꺼움"
+strong_name = "병된 Nausea 2"
+description = "당신 때문에 속이 메스껍군!"
+lore1 = "어색한 물약 + 갈색 버섯 = 메스꺼움의 물약 (30초)"
+lore2 = "어색한 물약 + 진홍빛 균 = 메스꺼움의 물약-2 (15초)"
+lore = ["어색한 물약 + 갈색 버섯 = 메스꺼움의 물약 (30초)", "어색한 물약 + 진홍빛 균 = 메스꺼움의 물약-2 (15초)"]
+
+[brewing.blindness]
+name = "병에 담긴 실명"
+strong_name = "병 장님 2"
+description = "당신은 정말 끔찍한 사람이군요..."
+lore1 = "어색한 물약 + 먹물 주머니 = 실명의 물약 (30초)"
+lore2 = "어색한 물약 + 발광 먹물 주머니 = 실명의 물약-2 (15초)"
+lore = ["어색한 물약 + 먹물 주머니 = 실명의 물약 (30초)", "어색한 물약 + 발광 먹물 주머니 = 실명의 물약-2 (15초)"]
+
+[brewing.resistance]
+name = "병에 담긴 저항"
+strong_name = "병에 넣어진 저항 2"
+description = "최상의 요새화!"
+lore1 = "어색한 물약 + 철 주괴 = 저항의 물약 (60초)"
+lore2 = "어색한 물약 + 철 블록 = 저항의 물약-2 (30초)"
+lore = ["어색한 물약 + 철 주괴 = 저항의 물약 (60초)", "어색한 물약 + 철 블록 = 저항의 물약-2 (30초)"]
+
+[brewing.health_boost]
+name = "병에 담긴 생명"
+description = "최대 체력이 부족할 때..."
+lore1 = "즉시 치유 물약 + 황금 사과 = 체력 증진 물약 (60초)"
+lore2 = "즉시 치유 물약 + 마법이 부여된 황금 사과 = 체력 증진 물약-2 (60초)"
+lore = ["즉시 치유 물약 + 황금 사과 = 체력 증진 물약 (60초)", "즉시 치유 물약 + 마법이 부여된 황금 사과 = 체력 증진 물약-2 (60초)"]
+
+[brewing.decay]
+name = "병에 담긴 부패"
+strong_name = "병된 부패 2"
+description = "찌꺼기가 이렇게 유용할 줄 누가 알았겠어?"
+lore1 = "나약함 물약 + 독이 든 감자 = 시듦의 물약 (16초)"
+lore2 = "나약함 물약 + 진홍빛 뿌리 = 시듦의 물약-2 (8초)"
+lore = ["나약함 물약 + 독이 든 감자 = 시듦의 물약 (16초)", "나약함 물약 + 진홍빛 뿌리 = 시듦의 물약-2 (8초)"]
+
+[brewing.saturation]
+name = "병에 담긴 포만감"
+strong_name = "병된 포화 2"
+description = "있잖아... 나 배도 안 고프네..."
+lore1 = "재생 물약 + 구운 감자 = 포만감의 물약"
+lore2 = "재생 물약 + 건초 더미 = 포만감의 물약-2"
+lore = ["재생 물약 + 구운 감자 = 포만감의 물약", "재생 물약 + 건초 더미 = 포만감의 물약-2"]
+
+[chronos.time_in_a_bottle]
+name = "시간을 담은 병"
+description = "시간을 저장하는 시간의 병을 들고 다니며, 저장된 시간을 사용하여 시간이 걸리는 블록, 작물, 새끼 동물과 같은 성장 가능한 엔티티를 가속시킵니다. 레시피 (비정형): 신속의 물약 + 시계 + 유리병."
+lore1 = "틱마다 충전되는 저장 초"
+lore2 = "저장된 초당 시간 가속"
+lore3 = "레시피 (비정형): 신속의 물약 + 시계 + 유리병"
+lore = ["틱마다 충전되는 저장 초", "저장된 초당 시간 가속", "레시피 (비정형): 신속의 물약 + 시계 + 유리병"]
+
+[chronos.aberrant_touch]
+name = "이질적 손길"
+description = "근접 공격이 배고픔을 대가로 중첩되는 구속을 적용하며, 엄격한 PvP 제한이 있고, 5스택 시 대상을 속박합니다."
+lore1 = "근접 공격이 중첩되는 구속을 적용"
+lore2 = "PvE 구속 지속시간 상한"
+lore3 = "PvP 구속 증폭 상한"
+root_lore = "{stacks}중첩 시 {seconds}초 동안 속박"
+lore = ["근접 공격이 중첩되는 구속을 적용", "PvE 구속 지속시간 상한", "PvP 구속 증폭 상한"]
+
+[chronos.instant_recall]
+name = "즉시 회귀"
+description = "시계를 손에 들고 좌클릭 또는 우클릭하여 최근 스냅샷으로 되돌아가며, 체력과 배고픔이 복구됩니다."
+lore1 = "되감기 시간"
+lore2 = "재사용 대기시간"
+lore3 = "인벤토리 롤백 없음"
+lore = ["되감기 시간", "재사용 대기시간", "인벤토리 롤백 없음"]
+lore_cost_clock = "회수에 시계를 소비하십시오"
+lore_cost_health = "회수에 손실된 나머지 건강"
+trigger_none = "방아쇠: 없음"
+trigger = "더 큰: {combo}"
+trigger_clock = "시계"
+trigger_sprint = "질주"
+trigger_sneak = "웅크리기"
+trigger_double_jump = "더블 점프"
+trigger_left_click = "왼쪽 클릭"
+trigger_right_click = "우클릭"
+surface_air_block = "공기/블록"
+surface_air = "에어백"
+surface_block = "블록"
+trigger_join = "{first} + {second}"
+trigger_surface = "{trigger} ({surface})"
+
+[chronos.time_bomb]
+name = "시간 폭탄"
+description = "제작된 시간 폭탄을 던져 시간의 장을 생성하고, 엔티티를 느리게 하며, 투사체를 정지시킵니다."
+lore1 = "시간 장의 반경"
+lore2 = "시간 장의 지속시간"
+lore3 = "폭탄 재사용 대기시간"
+lore4 = "레시피 (비정형): 시계 + 눈덩이 + 다이아몬드 + 모래"
+lore = ["시간 장의 반경", "시간 장의 지속시간", "폭탄 재사용 대기시간", "레시피 (비정형): 시계 + 눈덩이 + 다이아몬드 + 모래"]
+
+[chronos.temporal_echo]
+name = "임시 에코"
+description = "투사체 행동은 감소된 힘에 짧은 지연 후에 한 번 재생할 수 있습니다."
+lore1 = "메아리 지연"
+lore2 = "메아리 속도 인자"
+lore3 = "에코 재사용 대기시간"
+lore = ["메아리 지연", "메아리 속도 인자", "에코 재사용 대기시간"]
+
+[chronos.stasis_field]
+name = "정지장 필드"
+description = "미티스트 조각으로 우측 클릭을 해 숨은 거품을 얼어붙여 내부에 군중들을 잠금하게 하는 정지공개 버블을 배치합니다."
+lore1 = "정지장 거품 반경"
+lore2 = "정지장 거품 내구"
+lore3 = "재사용 대기시간"
+lore4 = "아메티스트 조각으로 스닉 + 오른쪽 클릭"
+lore = ["정지장 거품 반경", "정지장 거품 내구", "재사용 대기시간", "아메티스트 조각으로 스닉 + 오른쪽 클릭"]
+lore_cost_shard = "은 아메티스트 조각을 소비한다."
+
+[chronos.rewind]
+name = "되감기"
+description = "한 순간을 표시하기 위해 손을 속삭이고 교환하고, 그 다음 창 안에 다시 해보세요. 건강과 배고픔이 회복되면서 다시 돌아옵니다. 모든 회전에는 굶주림이 발생합니다."
+lore1 = "시간 되돌리기 창"
+lore2 = "반전 후 재사용 대기시간"
+lore3 = "웅크리기 + 스왑 손은 표시, 반복으로 다시 감기"
+lore = ["시간 되돌리기 창", "반전 후 재사용 대기시간", "웅크리기 + 스왑 손은 표시, 반복으로 다시 감기"]
+lore_cost_hunger = "재회전당 기근 비용"
+
+[chronos.borrowed_time]
+name = "비밀번호"
+description = "들어오는 손상의 부분은 deferred 그리고 조용히 뒤에 오는 초에 초당 후에 배수됩니다."
+lore1 = "손상 방어"
+lore2 = "결제 창"
+lore3 = "손상은 다시 방어 할 수 없습니다"
+lore = ["손상 방어", "결제 창", "손상은 다시 방어 할 수 없습니다"]
+
+[chronos.overtime]
+name = "현재 위치"
+description = "지속될 수 있는 항만 효력은 적응 수준에 의해, 늘였습니다."
+lore1 = "추가 효과 기간"
+lore2 = "효과 당 최대 보너스"
+lore3 = "유익한 효력은 늘입니다"
+lore = ["추가 효과 기간", "효과 당 최대 보너스", "유익한 효력은 늘입니다"]
+
+[chronos.accelerate]
+name = "가속"
+description = "주변의 시간을 수동으로 가속, 가끔은 인근 작물과 빠른 대외로, 흡연자, 폭발로 및 양조 스탠드."
+lore1 = "오라 반경"
+lore2 = "맥박 당 크롭 성장 기회"
+lore3 = "의 요리 또는 양조는 맥박 당 빠릅니다"
+lore = ["오라 반경", "맥박 당 크롭 성장 기회", "의 요리 또는 양조는 맥박 당 빠릅니다"]
+
+[chronos.hourglass_guard]
+name = "Hourglass 가드"
+description = "반쪽에 불을 죽이고, 짧은 취약점과 긴 재사용 대기 시간 동안 주변 적들을 느리고."
+lore1 = "저장 후에 무적"
+lore2 = "재사용 대기시간"
+lore3 = "적의 가까이는 짧게 느립니다."
+lore = ["저장 후에 무적", "재사용 대기시간", "적의 가까이는 짧게 느립니다."]
+
+[chronos.pocket_watch]
+name = "포켓 시계"
+description = "웅크리기은 재고가 부족한 기간을 제한하고, 수평으로 확장된 각 기류를 위해 느린 움직임에 드리기 위하여 시계로 떨어지는 동안."
+lore1 = "대기 시간 당 느린 가을 예산"
+lore2 = "착륙에 예산 보충"
+lore3 = "재고에서 시계로 떨어지는 동안 웅크리기을 잡아라."
+lore = ["대기 시간 당 느린 가을 예산", "착륙에 예산 보충", "재고에서 시계로 떨어지는 동안 웅크리기을 잡아라."]
+
+[chronos.deja_vu]
+name = "데자 Vu"
+description = "당신의 몸은 최근 고통을 기억합니다; 짧은 창 안에 손상의 동일한 종류가 눈에 띄게 아프다."
+lore1 = "흡수되는 반복 손상"
+lore2 = "손상 메모리 창"
+lore3 = "메모리는 같은 종류의 모든 히트에"
+lore = ["흡수되는 반복 손상", "손상 메모리 창", "메모리는 같은 종류의 모든 히트에"]
+
+[config.gui]
+no_permission = "설정 메뉴를 사용할 권한이 없습니다."
+unable_open_section = "설정 섹션을 열 수 없습니다: &f{path}"
+failed_set_value = "설정 설정 값에 실패 &f{path}"
+failed_persist_update = "구성 업데이트를 유지하지 못함: &f{error}"
+reload_reverted = "설정 다시로드 실패. 파일 변경."
+updated_value = "주 &f{path}&7 [{before}&7 -> {after}&7]"
+value = "값: &b{value}"
+path = "경로: {path}"
+category = "주: {category}"
+state_enabled = "국가: 사용"
+state_disabled = "국가: 장애인"
+left_click_toggle = "왼쪽 클릭: toggle"
+left_click_next_value = "왼쪽 클릭: 다음 값"
+right_click_previous_value = "오른쪽 클릭: 이전 값"
+left_click_edit_chat = "왼쪽 클릭: 채팅에서 편집"
+input_unavailable = "설정 입력 서비스는 사용할 수 없습니다."
+left_click_open_section = "왼쪽 클릭: 열린 섹션"
+read_only = "자세히보기"
+unsupported_type = "지원되는 유형"
+no_settings = "이 섹션에서 설정 없음"
+configure_path = "설정하기: &f{path}"
+general_settings = "일반 설정"
+adaptations = "적응"
+core = "핵심"
+skills = "한국어"
+configure_adaptations = "적응 설정 구성"
+configure_core = "글로벌 Adapt 설정를 구성"
+configure_skills = "기술 설정 구성"
+configure_adapt = "설정하기 Adapt"
+configure_target = "설정하기 {target}"
+all_adaptations = "모든 적응 (A-Z)"
+browse_all_adaptations = "알파벳으로 모든 적응 검색"
+unknown_skill = "적응 구성에 대한 알려진 기술: &f{skill}"
+open_target = "기타 {target}"
+skill_target = "한국어: {skill}"
+no_entries = "항목 없음"
+overview = "개요"
+help = "도움말"
+directory = "디렉터리"
+navigation = "탐색"
+root = "뿌리"
+sections_count = "부문: {count}"
+editable_count = "편집 가능: {count}"
+entries_count = "항목: {count}"
+page = "페이지: {page}/{pages}"
+help_left_click = "LMB: 열/편집/동기"
+help_right_click = "우클릭: 이전 값 / 페이지 이동"
+help_escape = "ESC: 본문 바로가기"
+nav_open_section = "LMB: 개방된 섹션"
+nav_jump_pages = "RMB 화살표에서: 페이지로 이동"
+
+[config.gui.contains_settings]
+one = "{count} 설정를 함유하고 있습니다"
+other = "{count} 설정를 함유하고 있습니다"
+
+[config.gui.open_settings]
+one = "기타 {count} 설치하기"
+other = "오픈 {count} 설정"
+
+[config.gui.open_global_options]
+one = "기타 {count} 글로벌 옵션"
+other = "기타 {count} 글로벌 옵션"
+
+[config.gui.browse_adaptations]
+one = "적응 {count}개 찾아보기"
+other = "적응 {count}개 찾아보기"
+
+[config.type]
+boolean = "불리언"
+number = "번호"
+text = "본문"
+enum = "열거형"
+section = "부문"
+map = "맵"
+list = "목록"
+unsupported = "지원되는"
+unknown = "알려지지 않은"
+
+[config.category]
+ui = "UI"
+audio = "오디오"
+localization = "지역화"
+storage = "저장장치"
+progression = "성장"
+world = "월드"
+performance = "성능"
+access = "접근"
+debug = "디버그"
+general = "일반"
+
+[config.input]
+enter_value = "&f{label}&b의 값을 입력하세요"
+path = "&b경로: &f{path}"
+expected_type = "&b예상된 유형: &f{type}"
+type_cancel = "&7Type &fCantel &7to abort."
+timed_out = "설정 입력 시간."
+edit_cancelled = "설정 편집 취소."
+try_again_or_cancel = "&7T를 다시 시도하거나 &fcancel&7를 입력합니다."
+unknown_target_type = "Unknown 대상 유형."
+expected_one_character = "정확히 한 문자."
+expected_boolean = "예상된 볼리 값: true/false."
+expected_one_of = "예상 중 하나: {values}"
+expected_finite_number = "예상된 숫자."
+invalid_value_for_type = "유형의 잘못된 값 {type}."
+unsupported_type = "지원되는 유형: {type}."
+invalid_value = "잘못된 값."
+
+[config.summary]
+unnamed = "이름이 알려지지 않은"
+null = "한국어"
+map = "지도 보기({count})"
+list = "목록({count})"
+array = "배열"
+
+[crafting.deconstruction]
+name = "해체"
+description = "블록과 아이템을 기본 재료로 분해하세요!"
+lore1 = "아이템을 땅에 떨어뜨리세요."
+lore2 = "그런 다음, 웅크리고 가위로 우클릭하세요"
+lore = ["아이템을 땅에 떨어뜨리세요.", "그런 다음, 웅크리고 가위로 우클릭하세요"]
+
+[crafting.xp]
+name = "제작 경험치"
+description = "제작 시 패시브 XP를 획득합니다"
+lore1 = "제작 시 XP 획득"
+lore = ["제작 시 XP 획득"]
+
+[crafting.reconstruction]
+name = "광석 복원"
+description = "기본 재료로 광석을 다시 만드세요!"
+lore1 = "드롭 아이템 8개 + 모체 1개 = 광석 1개 (비정형)"
+lore2 = "드롭 아이템은 제련되어야 합니다 (해당되는 경우)"
+lore3 = "제외: 파편, 석영, 에메랄드 등..."
+lore4 = "모체 = 감싸는 블록. 예: 돌, 네더랙, 심층암"
+lore = ["드롭 아이템 8개 + 모체 1개 = 광석 1개 (비정형)", "드롭 아이템은 제련되어야 합니다 (해당되는 경우)", "제외: 파편, 석영, 에메랄드 등...", "모체 = 감싸는 블록. 예: 돌, 네더랙, 심층암"]
+
+[crafting.leather]
+name = "제작 가능한 가죽"
+description = "썩은 살점으로 가죽을 만듭니다"
+lore1 = "모닥불 위에 (썩은 살점을) 올려놓기만 하면 됩니다!"
+lore = ["모닥불 위에 (썩은 살점을) 올려놓기만 하면 됩니다!"]
+
+[crafting.backpacks]
+name = "부틸리에의 배낭!"
+description = "모장의 묶음을 게임에 추가합니다!"
+lore1 = "사용하려면 서바이벌 모드여야 합니다"
+lore2 = "LLL : 가죽, 가죽, 가죽"
+lore3 = "LCL : 가죽, 상자, 가죽"
+lore4 = "LLL : 가죽, 가죽, 가죽"
+lore = ["사용하려면 서바이벌 모드여야 합니다", "LLL : 가죽, 가죽, 가죽", "LCL : 가죽, 상자, 가죽", "LLL : 가죽, 가죽, 가죽"]
+
+[crafting.stations]
+name = "휴대용 작업대!"
+description = "손바닥 위에서 작업대를 사용하세요!"
+lore2 = "작업대를 닫을 때 남겨둔 아이템은 영원히 사라집니다!"
+lore3 = "사용 가능한 작업대: 모루, 제작대, 숫돌, 지도 제작대, 석재 절단기, 베틀"
+lore = ["작업대를 닫을 때 남겨둔 아이템은 영원히 사라집니다!", "사용 가능한 작업대: 모루, 제작대, 숫돌, 지도 제작대, 석재 절단기, 베틀"]
+lore4 = "이동식 역 개통에 따라 굶주림이 소비됩니다."
+
+[crafting.skulls]
+name = "제작 가능한 머리!"
+description = "재료를 사용하여 몹 머리를 제작할 수 있습니다!"
+lore1 = "뼈 블록을 다음 재료로 둘러싸면 머리를 얻습니다:"
+lore2 = "좀비: 썩은 살점"
+lore3 = "스켈레톤: 뼈"
+lore4 = "크리퍼: 화약"
+lore5 = "위더: 네더 벽돌"
+lore6 = "드래곤: 드래곤의 숨결"
+lore = ["뼈 블록을 다음 재료로 둘러싸면 머리를 얻습니다:", "좀비: 썩은 살점", "스켈레톤: 뼈", "크리퍼: 화약", "위더: 네더 벽돌", "드래곤: 드래곤의 숨결"]
+
+[crafting.bulk_artisan]
+name = "대량 장인"
+description = "셔프트 클릭하면 재료를 추가로 가져와 더 큰 배치를 만들 수 있습니다."
+lore1 = "Shift 키를 누른 채 클릭하면 인벤토리에서 일치하는 재료도 가져옵니다"
+lore2 = "시위기 기하급수별 보너스 항목"
+lore = ["Shift 키를 누른 채 클릭하면 인벤토리에서 일치하는 재료도 가져옵니다", "시위기 기하급수별 보너스 항목"]
+
+[crafting.thrifty_hands]
+name = "거친 손"
+description = "각 공예는 재료 중 하나를 환불 할 수있는 기회를 가지고."
+lore1 = "기술 성분을 환불 할 수있는 기회"
+lore = ["기술 성분을 환불 할 수있는 기회"]
+
+[crafting.masterwork]
+name = "마스터 워크"
+description = "도구와 방어구 당신은 공예 보너스 내구성을 롤 할 수 있습니다, 전체 수준에서 작은 속성 보너스 기회."
+lore1 = "명품 조각을 forge 기회"
+lore2 = "보너스 최대 내구성"
+lore3 = "전체 수준에서 작은 속성 보너스의 기회"
+tag = "마스터 워크"
+bonus = "마스터 워크 +{bonus}"
+attribute_tag = "명품 가장자리"
+lore = ["명품 조각을 forge 기회", "보너스 최대 내구성", "전체 수준에서 작은 속성 보너스의 기회"]
+
+[crafting.compactor]
+name = "채용 정보"
+description = "웅크리기 및 스왑 손은 크래킹 테이블을 목표로 즉시 블록으로 컴팩트 한 전체 스택."
+lore1 = "웅크리기 + 스와핑 테이블을 목표로"
+lore2 = "블록 형태로 압축된 재료"
+lore3 = "풀 스택에서만 작동, 느슨한 나머지를 떠나"
+lore = ["웅크리기 + 스와핑 테이블을 목표로", "블록 형태로 압축된 재료", "풀 스택에서만 작동, 느슨한 나머지를 떠나"]
+
+[crafting.tinkerer]
+name = "도구 수선공"
+description = "같은 종류의 손상된 도구 두 개를 합쳐서 그릴에서 가장 좋은 매력을 유지하십시오."
+lore1 = "더 좋은 매력을 유지하기 위해 2 개의 일치하는 도구에 대해 그리드 수리"
+lore2 = "모든 마법 부여를 보존 할 수있는 기회"
+lore3 = "그렇지 않으면 하나의 임의 마법 부여가 손실됩니다."
+lore = ["더 좋은 매력을 유지하기 위해 2 개의 일치하는 도구에 대해 그리드 수리", "모든 마법 부여를 보존 할 수있는 기회", "그렇지 않으면 하나의 임의 마법 부여가 손실됩니다."]
+
+[crafting.provisioner]
+name = "보급 담당자"
+description = "음식물을 만드는 일이나 요리하는 일은 부너스 부분으로 얻을 수 있습니다."
+lore1 = "보너스 음식에 대한 기회"
+lore2 = "발동 당 보너스 부분"
+lore = ["보너스 음식에 대한 기회", "발동 당 보너스 부분"]
+
+[crafting.signature]
+name = "장인의 시그니처"
+description = "당신이 기술 당신의 서명을 나르는 품목, 및 주민 제안 더 나은 무역은 당신이 서명한 상품을 실행하는 동안."
+lore1 = "제작됨 항목은 이름과 서명됩니다."
+lore2 = "주민 제안 더 나은 거래 동안 당신은 서명 한 상품을 수행"
+tag = "서명:"
+item_lore = "{player}의 서명"
+lore = ["제작됨 항목은 이름과 서명됩니다.", "주민 제안 더 나은 거래 동안 당신은 서명 한 상품을 수행"]
+
+[discovery.armor]
+name = "세계의 갑옷"
+description = "주변 블록 경도에 따른 패시브 방어력."
+lore1 = "패시브 방어력"
+lore2 = "주변 블록 경도 기준"
+lore3 = "방어력 강도:"
+passive = "주변 블록의 경도에 따라 얻는 지속 방어력"
+strength = "기갑 힘: +{strength}"
+lore = ["패시브 방어력", "주변 블록 경도 기준", "방어력 강도:"]
+
+[discovery.unity]
+name = "실험적 통합"
+description = "경험치 구슬을 모으면 랜덤 스킬에 XP가 추가됩니다."
+lore1 = "XP "
+lore2 = "구슬당"
+per_orb = "+ {xp} XP 구슬 당"
+lore = ["XP ", "구슬당"]
+
+[discovery.resist]
+name = "실험적 저항"
+description = "피격 시 체력이 5칸 이하로 떨어지거나 죽을 위기일 때만 경험치를 소모하여 피해를 완화합니다."
+lore0 = "위험 체력(<= 5칸)에서만 15초마다 한 번 발동"
+lore1 = " 피해 감소"
+lore2 = "경험치 소모"
+lore = ["위험 체력(<= 5칸)에서만 15초마다 한 번 발동", " 피해 감소", "경험치 소모"]
+
+[discovery.villager]
+name = "주민 매력"
+description = "주민과 더 좋은 거래를 할 수 있습니다!"
+lore1 = "주민과 상호작용할 때마다 XP를 소모합니다"
+lore2 = "상호작용당 XP를 소비하고 거래를 강화할 확률"
+lore3 = "상호작용당 필요한 XP 소모량"
+lore = ["주민과 상호작용할 때마다 XP를 소모합니다", "상호작용당 XP를 소비하고 거래를 강화할 확률", "상호작용당 필요한 XP 소모량"]
+
+[discovery.better_mending]
+name = "더 나은 몰딩"
+description = "저장된 돈을 쓸 수 있는 왼쪽 클릭을 니다. XP 그리고 당신의 손에 있는 메인딩 아이템을 직접 고쳐라."
+lore1 = "내구성 수리 XP"
+lore2 = "최대. XP 구독하기"
+lore3 = "수선 재사용 대기시간"
+lore = ["내구성 수리 XP", "최대. XP 구독하기", "수선 재사용 대기시간"]
+
+[discovery.archaeologist]
+name = "고고학"
+description = "솔질하는 의심스러운 구획은 보너스 고고학 보상을 산출할 수 있습니다."
+lore1 = "보너스 보상 기회"
+lore2 = "희귀 보상 기회"
+lore3 = "보상 은 재사용 대기시간 이 된다"
+lore = ["보너스 보상 기회", "희귀 보상 기회", "보상 은 재사용 대기시간 이 된다"]
+
+[discovery.cartographer_pulse]
+name = "공급 업체"
+not_found = "나침반 파동: {range}블록 이내에서 구조물을 찾지 못했습니다."
+target = "나침반 맥박: {x}, {z}"
+description = "스 를 가까이 있는 구조물 으로 봉쇄 하기 위해 우측 클릭 을 해내면, 개인 빛나는 방향 라인을 볼 수 있습니다. 각 발자동 은 굶주림 을 초래 합니다."
+lore1 = "구조 검색 범위"
+lore2 = "맥박 재사용 대기시간"
+lore = ["구조 검색 범위", "맥박 재사용 대기시간"]
+lore_cost_hunger = "맥박 당 분비"
+
+[discovery.insight]
+name = "통찰"
+description = "한눈에 생물을 연구: 당신이 그 머리 위 그것의 이름과 건강 막대기를 보여주고, 타악한 생물은 그들의 살아있는 속도, 점프 및 공격 통계를 보여줍니다, 그리고 당신의 노후화는 오렌지색에 있는 주름을 잡는 손상 수를 보여줍니다."
+lore1 = "감지 범위"
+speed = "속도"
+jump = "점프"
+attack = "공격"
+stat = "{label} {value}"
+stable_hand = "안정된 손"
+lore = ["감지 범위"]
+
+[discovery.trailblazer]
+name = "개척자"
+description = "당신의 첫번째 방문 각 biome 또는 구조 유형은 기술을 교부합니다-XP 파열과 간단한 속도."
+lore1 = "첫 방문 XP 폭발"
+lore2 = "디스커버리 속도"
+lore = ["첫 방문 XP 폭발", "디스커버리 속도"]
+
+[discovery.field_notes]
+name = "필드 노트"
+description = "각 몹 종의 첫 번째 살인은 큰 지급 XP 그리고 그 종에 대한 작은 영구 손상 보너스를 은행."
+lore1 = "종 당 최대 손상 보너스"
+lore2 = "첫 살인자: XP 보너스"
+lore = ["종 당 최대 손상 보너스", "첫 살인자: XP 보너스"]
+
+[discovery.polymath]
+name = "폴리마스"
+description = "문턱을 지나는 각 기술들은 작은 세계를 추가합니다. XP-보너스."
+lore1 = "자격을 갖춘 기술당 전역 XP 보너스"
+lore2 = "기술 수준 자격에 필요"
+lore = ["자격을 갖춘 기술당 전역 XP 보너스", "기술 수준 자격에 필요"]
+
+[discovery.relic_appraiser]
+name = "유물 평가자"
+description = "드문 점프로 스닉 오른쪽 클릭 (머리와 디스크, 장갑조각, 도자기 조각) 발견에 대한 평가 XP; 평가된 항목은 유서리 표를 얻습니다."
+lore1 = "감정 XP(아이템 희귀도에 따라 조정)"
+lore = ["감정 XP(아이템 희귀도에 따라 조정)"]
+lore_tag = "회사 소개"
+
+[discovery.sixth_sense]
+name = "여섯 번째 센스"
+description = "unexplored 구조가 범위 안에 있을 때 개인적인 glowing 방향 선 hints."
+lore1 = "구조 탐지 범위"
+lore = ["구조 탐지 범위"]
+
+[discovery.keen_eye]
+name = "예리함 눈"
+description = "시력의 선에 있는 가슴과 물병은 간결하게 개인적인 빛나는 구획 전시로 나타납니다."
+lore1 = "시선 범위"
+lore2 = "희미한 빛 기간"
+lore = ["시선 범위", "희미한 빛 기간"]
+
+[enchanting.lapis_return]
+name = "청금석 반환"
+description = "XP 1레벨 추가 비용 대신, 무료 청금석을 돌려받을 확률이 있습니다"
+lore1 = "레벨당 마법부여 비용이 1 증가하지만, 최대 3개의 청금석을 돌려받을 수 있습니다"
+lore = ["레벨당 마법부여 비용이 1 증가하지만, 최대 3개의 청금석을 돌려받을 수 있습니다"]
+
+[enchanting.quick_enchant]
+name = "퀵클릭 마법부여"
+description = "마법부여 책을 아이템에 직접 클릭하여 마법을 부여합니다."
+lore1 = "최대 합산 레벨"
+lore2 = "아이템에 다음을 초과하여 마법부여할 수 없습니다 "
+lore3 = "파워"
+limit = "더 많은 것을 가진 품목을 마법 부여 할 수 없습니다 {power} 출력 전력."
+lore = ["최대 합산 레벨", "아이템에 다음을 초과하여 마법부여할 수 없습니다 ", "파워"]
+
+[enchanting.return]
+name = "XP 반환"
+description = "아이템에 마법부여 시 사용한 XP가 돌아옵니다."
+lore1 = "아이템을 마법부여할 때 소비한 경험치가 환불될 확률이 있습니다"
+lore2 = "마법부여당 경험치"
+lore = ["아이템을 마법부여할 때 소비한 경험치가 환불될 확률이 있습니다", "마법부여당 경험치"]
+
+[enchanting.anvil_savant]
+name = "모루 바지"
+description = "도움 받기 XP 결합, 수리 및 renaming 때 비용."
+lore1 = "모루 비용 절감"
+saved = "레벨 저장"
+saved_message = "- {levels} 레벨 저장"
+lore = ["모루 비용 절감"]
+
+[enchanting.offer_reroll]
+name = "제안 Reroll"
+description = "매혹적인 테이블을 클릭하여 그 제안을 다시 롤합니다. 각각의 리롤은 Lips와 XP 레벨에 걸립니다."
+lore1 = "로롤 재사용 대기시간"
+lore2 = "청금석 비용"
+lore = ["로롤 재사용 대기시간", "청금석 비용"]
+lore_cost_xp = "XP 레벨 비용"
+
+[enchanting.bookshelf_attunement]
+name = "책꽂이"
+description = "마법 부여 테이블 제안 질을 개량하는 가상 책장 힘을 얻으십시오."
+lore1 = "가상 책장 힘"
+lore = ["가상 책장 힘"]
+
+[enchanting.grindstone_recovery]
+name = "Grindstone 복구"
+description = "Disenchanting는 보너스와 책에 한 제거 마법 부여를 복구 할 수 있습니다 XP."
+lore1 = "복구 기회"
+lore2 = "보너스 XP"
+lore3 = "회복 재사용 대기시간"
+lore = ["복구 기회", "보너스 XP", "회복 재사용 대기시간"]
+
+[enchanting.curse_cleansing]
+name = "콜스 클렌징"
+description = "원본 항목에서 저주 제거하기 위해 돌고래 결과를 가져가는 동안 속삭이고 다른 모든 재산을 보존하고 매혹적인 것을 얻습니다. XP."
+lore1 = "저주 하나당 마법 부여 경험치"
+cleansed = "콜즈 클렌징"
+message = "✓ {count} 콜즈 클렌징"
+lore = ["저주 하나당 마법 부여 경험치"]
+
+[enchanting.tome_rebinding]
+name = "Tome 재봉"
+description = "한 장의 매혹적인 책으로 나눌 수 있는 다중 매혹적 책을 오른쪽으로 클릭하면, 저 수준에서 손실이 있고 최대에서는 손해가 없습니다."
+lore1 = "기관 손실 기회"
+lore2 = "XP 레벨 비용"
+split = "책 분할"
+message = "{count} 책 분할"
+lore = ["기관 손실 기회", "XP 레벨 비용"]
+
+[enchanting.soul_link]
+name = "영혼 링크"
+description = "을 오른쪽으로 클릭하면 마법 같은 물건이 죽어서 살아남는 것을 연결할 수 있습니다. XP 레벨 버퍼로 포착되어 있습니다."
+lore1 = "XP 보존 비용"
+lore2 = "다시 표시 재사용 대기시간"
+linked = "품목 영혼 연결"
+saved = "영혼 연결 항목 복구"
+cooling = "영혼 링크 재충전"
+cooling_message = "영혼 링크 재충전: {duration}"
+lore = ["XP 보존 비용", "다시 표시 재사용 대기시간"]
+
+[enchanting.arcane_siphon]
+name = "콜롬비아"
+description = "마법의 장비에 군중을 죽이는 상금 XP 그들의 마술에 관한 책을 소집할 수 있나니."
+lore1 = "책 드롭 기회"
+lore2 = "마법 부여 품질 보너스"
+lore = ["책 드롭 기회", "마법 부여 품질 보너스"]
+
+[enchanting.rune_sight]
+name = "룬 시야"
+description = "약속하기 전에 매혹적인 테이블 제안 뒤에 있는 마법들을 밝혀라. 첫 번째, 전체 목록은 최대입니다."
+lore1 = "공개된 마법 부여 제안"
+lore = ["공개된 마법 부여 제안"]
+
+[enchanting.infusion_transfer]
+name = "주입 전송"
+description = "에 있는 기본 아이템을 오른쪽 클릭하여 희생 아이템에서 한 마법을 이쪽으로 옮기십시오."
+lore1 = "소스 생존 기회"
+lore2 = "XP 레벨 비용"
+moved = "마법 부여 공격"
+message = "+ {enchantment} {level} 마법 부여 공격"
+lore = ["소스 생존 기회", "XP 레벨 비용"]
+
+[enchanting.echo_of_knowledge]
+name = "지식의 에코"
+description = "수집하는 동안 enchanted 책을 잡아 XP 기본 모자 내의 마법 부여를 충전."
+lore1 = "XP 책임 비율"
+upgraded = "마법 부여 업그레이드"
+lore = ["XP 책임 비율"]
+
+[excavation.haste]
+name = "성급한 발굴가"
+description = "성급함 효과로 발굴 속도가 빨라집니다!"
+lore1 = "발굴 중 성급함 획득"
+lore2 = "x 블록을 캐기 시작하면 성급함 레벨 획득."
+lore = ["발굴 중 성급함 획득", "x 블록을 캐기 시작하면 성급함 레벨 획득."]
+
+[excavation.spelunker]
+name = "초감각 탐험가!"
+description = "땅 너머로 광석을 볼 수 있습니다!"
+lore1 = "보조 손에 광석, 주 손에 발광 열매를 들고 웅크리세요!"
+lore2 = "블록 범위: "
+range = "구획 범위: {range}"
+lore3 = "사용 시 발광 열매 소모"
+lore = ["보조 손에 광석, 주 손에 발광 열매를 들고 웅크리세요!", "블록 범위: ", "사용 시 발광 열매 소모"]
+
+[excavation.seismic_ping]
+name = "지진 핑"
+description = "광업은 일시적으로 민간 색의 빛을 가진 가까운 광석 구획을 계시할 수 있습니다."
+lore1 = "검사 범위"
+lore2 = "탐지 기회"
+lore3 = "핑 재사용 대기시간"
+lore = ["검사 범위", "탐지 기회", "핑 재사용 대기시간"]
+
+[excavation.drop_to_inventory]
+name = "삽 인벤토리 드롭"
+
+[excavation.omni_tool]
+name = "OMNI - 도구"
+description = "태클의 과하게 설계된 화려한 멀티툴"
+lore1 = "가장 강력한 기능 중 하나로, 다음을 할 수 있습니다"
+lore2 = "필요에 따라 도구를 즉석에서 합치고 변경할 수 있습니다."
+lore3 = "합치려면 인벤토리에서 아이템을 다른 아이템 위에 Shift 클릭하세요."
+lore4 = "도구를 분리하려면, 해당 도구를 웅크린 채 버리면 분해됩니다."
+lore5 = "이 멀티툴에서 도구를 파괴할 수 없지만 부서진 도구는 사용할 수 없습니다"
+lore6 = "합칠 수 있는 총 아이템 수."
+lore7 = "도구를 5~6개 쓸 수도 있고, 하나만 쓸 수도 있습니다!"
+lore = ["가장 강력한 기능 중 하나로, 다음을 할 수 있습니다", "필요에 따라 도구를 즉석에서 합치고 변경할 수 있습니다.", "합치려면 인벤토리에서 아이템을 다른 아이템 위에 Shift 클릭하세요.", "도구를 분리하려면, 해당 도구를 웅크린 채 버리면 분해됩니다.", "이 멀티툴에서 도구를 파괴할 수 없지만 부서진 도구는 사용할 수 없습니다", "합칠 수 있는 총 아이템 수.", "도구를 5~6개 쓸 수도 있고, 하나만 쓸 수도 있습니다!"]
+
+[excavation.tunneler]
+name = "채용정보"
+description = "부드러운 블록을 파는 동안 웅크리기 한 번에 전체 비행기를 운전."
+lore1 = "채굴 당 보너스 블록"
+lore2 = "보너스 구획 당 여분 내구성"
+lore = ["채굴 당 보너스 블록", "보너스 구획 당 여분 내구성"]
+
+[excavation.treasure_hunter]
+name = "보물 사냥꾼"
+description = "모래, 자갈, 진흙 또는 찰흙을 파는 것은 고고학 보물을 두려워 할 수 있습니다."
+lore1 = "보물 기회"
+lore2 = "무게의 고고학 테이블에서 보물 롤"
+lore = ["보물 기회", "무게의 고고학 테이블에서 보물 롤"]
+
+[excavation.soft_fall]
+name = "소프트 폴"
+description = "연약한 파편 지상에 착륙은, 가득 차있는 negation까지 가을 손상을 감소시킵니다."
+lore1 = "가을 손상 감소"
+lore2 = "먼지, 모래, 자갈, 점토, 진흙 또는 영혼 모래에 착륙 할 때 적용됩니다"
+lore = ["가을 손상 감소", "먼지, 모래, 자갈, 점토, 진흙 또는 영혼 모래에 착륙 할 때 적용됩니다"]
+
+[excavation.earth_mover]
+name = "지구 Mover"
+description = "을 사용 하여 공기를 우측으로 클릭하여 피해를 입히고, 반격하고 적대적 인 군중들을 지파로 느리게 합니다."
+lore1 = "파 반경"
+lore2 = "삽 손상 배수"
+lore3 = "밀쳐내기 힘"
+lore4 = "낮은 시간"
+lore5 = "파 재사용 대기시간"
+lore6 = "굶주림 의 비용"
+lore = ["파 반경", "삽 손상 배수", "밀쳐내기 힘", "낮은 시간", "파 재사용 대기시간", "굶주림 의 비용"]
+
+[excavation.burrow]
+name = "비밀번호"
+description = "을 가지고 부드러운 땅으로 우측 클릭하여 빠르게 바로 아래로 파고, 위험 전에 멈추게 됩니다. 각 굴은 굶주림과 도구 내구성을 위해요."
+lore1 = "최대 굴착 깊이"
+lore2 = "블록 당 내구성"
+lore3 = "버로우 재사용 대기시간"
+lore = ["최대 굴착 깊이", "블록 당 내구성", "버로우 재사용 대기시간", "굶주림 의 비용"]
+lore4 = "굶주림 의 비용"
+
+[excavation.grave_digger]
+name = "무덤 발굴자"
+description = "흙으로 땅을 파는 것은 뼈의 약물을 발굴할 수 있으며 적대적 인 무덤을 방해하는 경우는 거의 없습니다."
+lore1 = "뼈 약탈 기회"
+lore2 = "위험한 기회"
+lore = ["뼈 약탈 기회", "위험한 기회"]
+
+[excavation.mudlark]
+name = "무딜락"
+description = "진흙 블록에서 보너스 방울, 물 또는 비로 파는 동안 성급함."
+lore1 = "보너스 드롭 기회"
+lore2 = "x 수염을 파는 동안 성급함의 수준"
+lore = ["보너스 드롭 기회", "x 수염을 파는 동안 성급함의 수준"]
+
+[herbalism.growth_aura]
+name = "성장의 오라"
+description = "주변의 자연을 오라로 성장시킵니다"
+lore1 = "블록 반경"
+lore2 = "성장 오라 강도"
+lore3 = "배고픔 비용"
+lore = ["블록 반경", "성장 오라 강도", "배고픔 비용"]
+
+[herbalism.hippo]
+name = "약초학자의 하마"
+description = "음식을 먹으면 더 많은 포만감을 얻습니다"
+lore1 = "음식) 섭취 시 추가 포만감 포인트"
+lore = ["음식) 섭취 시 추가 포만감 포인트"]
+
+[herbalism.myconid]
+name = "약초학자의 균류"
+description = "균사체를 제작할 수 있는 능력을 부여합니다"
+lore1 = "아무 흙 + 갈색 버섯 + 빨간 버섯으로 균사체를 제작합니다."
+lore = ["아무 흙 + 갈색 버섯 + 빨간 버섯으로 균사체를 제작합니다."]
+
+[herbalism.terralid]
+name = "약초학자의 대지"
+description = "잔디 블록을 제작할 수 있는 능력을 부여합니다"
+lore1 = "씨앗 3개를 흙 3개 위에 놓으면 잔디 블록 3개를 제작합니다."
+lore = ["씨앗 3개를 흙 3개 위에 놓으면 잔디 블록 3개를 제작합니다."]
+
+[herbalism.cobweb]
+name = "거미줄 제작자"
+description = "제작대에서 거미줄을 만들 수 있는 능력을 부여합니다"
+lore1 = "실 9개로 거미줄을 만듭니다."
+lore = ["실 9개로 거미줄을 만듭니다."]
+
+[herbalism.mushroom_blocks]
+name = "버섯 블록 제작자"
+description = "제작대에서 버섯 블록을 만들 수 있는 능력을 부여합니다"
+lore1 = "버섯 4개로 블록을, 블록으로 줄기를 만듭니다."
+lore = ["버섯 4개로 블록을, 블록으로 줄기를 만듭니다."]
+
+[herbalism.drop_to_inventory]
+name = "괭이 인벤토리 드롭"
+
+[herbalism.hungry_shield]
+name = "굶주린 방패"
+description = "체력 대신 배고픔으로 피해를 받습니다."
+lore1 = "배고픔으로 저항"
+lore = ["배고픔으로 저항"]
+
+[herbalism.luck]
+name = "약초학자의 행운"
+description = "풀/꽃을 부수면 일정 확률로 랜덤 아이템을 얻습니다"
+lore0 = "꽃 = 음식, 풀 = 씨앗"
+lore1 = "꽃을 부수면 아이템을 얻을 확률"
+lore2 = "풀을 부수면 아이템을 얻을 확률"
+lore = ["꽃 = 음식, 풀 = 씨앗", "꽃을 부수면 아이템을 얻을 확률", "풀을 부수면 아이템을 얻을 확률"]
+
+[herbalism.replant]
+name = "수확 및 재파종"
+description = "괭이로 작물을 우클릭하여 수확하고 다시 심습니다."
+lore1 = "블록 재파종 반경"
+lore = ["블록 재파종 반경"]
+
+[herbalism.seed_sower]
+name = "씨앗 파종자"
+description = "씨앗을 들고 웅크린 채 우클릭하면 근처의 경작지와 영혼 모래 밭에 씨앗을 심습니다."
+lore1 = "심기 반경"
+lore2 = "1회당 최대 작물 수"
+lore3 = "파종 재사용 대기시간"
+lore = ["심기 반경", "1회당 최대 작물 수", "파종 재사용 대기시간"]
+
+[herbalism.compost_cascade]
+name = "연쇄를 밀어"
+description = "을 클릭하여 근처의 점프, 성숙한 작물 수확, 잎 및 재고용 자료를 섭취합니다."
+lore1 = "연쇄 반경"
+lore2 = "가공되는 최대 품목"
+lore3 = "콤포스트 채우기 기회"
+lore4 = "물결 추운 상태"
+lore = ["연쇄 반경", "가공되는 최대 품목", "콤포스트 채우기 기회", "물결 추운 상태"]
+
+[herbalism.rooted_footing]
+name = "관련 링크"
+description = "영구적인 수동적인: 농장을 보호하고 자연적인 배경에 있는 동안 낙농장으로 가을 손상의 부분을 개조하십시오."
+lore1 = "가을 손상 변환"
+lore2 = "위험 당 음식"
+lore3 = "농장 짓밟기를 방지하십시오"
+lore = ["가을 손상 변환", "위험 당 음식", "농장 짓밟기를 방지하십시오"]
+
+[herbalism.bee_shepherd]
+name = "베 셰퍼드"
+description = "꽃을 작물 근처에 올려서 펄스 성장을 촉진하고, 가까운 벌들을 끌어들이는 것."
+lore1 = "맥박 반경"
+lore2 = "성장 시도"
+lore3 = "맥박 재사용 대기시간"
+lore = ["맥박 반경", "성장 시도", "맥박 재사용 대기시간"]
+
+[herbalism.spore_bloom]
+name = "스포어 블룸"
+description = "미세륨과 버섯을 눌러서 통제된 꽃 패치를 퍼뜨립니다."
+lore1 = "블루 앰프"
+lore2 = "블룸 반경"
+lore3 = "붐 재사용 대기시간"
+lore = ["블루 앰프", "블룸 반경", "붐 재사용 대기시간"]
+
+[hunter.adrenaline]
+name = "아드레날린"
+description = "체력이 낮을수록 더 많은 피해를 줍니다 (근접)"
+lore1 = "최대 피해량"
+lore = ["최대 피해량"]
+
+[hunter.penalty]
+name = "헌터의 불이익"
+description = "사냥꾼의 부는 굶주림을 배척하고, 배고픔을 줄이면 독이 쌓여집니다."
+lore1 = "배고픔이 바닥나면 독 스택을 얻습니다"
+lore = ["배고픔이 바닥나면 독 스택을 얻습니다"]
+
+[hunter.drop_to_inventory]
+name = "아이템 인벤토리 드롭"
+description = "무언가를 처치하거나 / 검으로 블록을 부수면 드롭 아이템이 인벤토리로 들어갑니다"
+lore1 = "몹/블록에서 아이템이 드롭될 때마다 가능하면 인벤토리로 직접 들어갑니다."
+lore = ["몹/블록에서 아이템이 드롭될 때마다 가능하면 인벤토리로 직접 들어갑니다."]
+
+[hunter.trophy_skinner]
+name = "트로피 스킨"
+description = "정확한 살인으로 보너스 트로피를 떨어뜨리고 가끔은  Mafios의 머리를 만들 수 있습니다."
+lore1 = "보너스 트로피 기회"
+lore2 = "헤드 드롭 기회"
+lore3 = "최소 범위 정밀도 거리"
+lore = ["보너스 트로피 기회", "헤드 드롭 기회", "최소 범위 정밀도 거리"]
+
+[hunter.invisibility]
+name = "소멸의 발걸음"
+description = "피격 시 배고픔을 대가로 투명화를 얻습니다"
+lore1 = "피격 시 패시브 투명화 획득"
+lore2 = "x 피격 시 3초간 투명화 중첩"
+lore3 = "x 중첩 배고픔"
+lore4 = "배고픔 중첩의 지속시간과 배수."
+lore5 = "투명화 지속시간"
+lore = ["피격 시 패시브 투명화 획득", "x 피격 시 3초간 투명화 중첩", "x 중첩 배고픔", "배고픔 중첩의 지속시간과 배수.", "투명화 지속시간"]
+
+[hunter.jump_boost]
+name = "사냥꾼의 높이"
+description = "피격 시 배고픔을 대가로 점프 강화를 얻습니다"
+lore1 = "피격 시 패시브 점프 강화 획득"
+lore2 = "x 피격 시 3초간 점프 강화 중첩"
+lore3 = "x 중첩 배고픔"
+lore4 = "배고픔 중첩의 지속시간과 배수."
+lore5 = "점프 강화 중첩 배수 (지속시간 아님)."
+lore = ["피격 시 패시브 점프 강화 획득", "x 피격 시 3초간 점프 강화 중첩", "x 중첩 배고픔", "배고픔 중첩의 지속시간과 배수.", "점프 강화 중첩 배수 (지속시간 아님)."]
+
+[hunter.luck]
+name = "사냥꾼의 행운"
+description = "피격 시 배고픔을 대가로 행운을 얻습니다"
+lore1 = "피격 시 패시브 행운 획득"
+lore2 = "x 피격 시 3초간 행운 중첩"
+lore3 = "x 중첩 배고픔"
+lore4 = "배고픔 중첩의 지속시간과 배수."
+lore5 = "행운 중첩 배수 (지속시간 아님)."
+lore = ["피격 시 패시브 행운 획득", "x 피격 시 3초간 행운 중첩", "x 중첩 배고픔", "배고픔 중첩의 지속시간과 배수.", "행운 중첩 배수 (지속시간 아님)."]
+
+[hunter.regen]
+name = "사냥꾼의 재생"
+description = "피격 시 배고픔을 대가로 재생력을 얻습니다"
+lore1 = "피격 시 패시브 재생력 획득"
+lore2 = "x 피격 시 3초간 재생력 중첩"
+lore3 = "x 중첩 배고픔"
+lore4 = "배고픔 중첩의 지속시간과 배수."
+lore5 = "재생력 중첩 배수 (지속시간 아님)."
+lore = ["피격 시 패시브 재생력 획득", "x 피격 시 3초간 재생력 중첩", "x 중첩 배고픔", "배고픔 중첩의 지속시간과 배수.", "재생력 중첩 배수 (지속시간 아님)."]
+
+[hunter.resistance]
+name = "사냥꾼의 저항"
+description = "피격 시 배고픔을 대가로 저항력을 얻습니다"
+lore1 = "피격 시 패시브 저항력 획득"
+lore2 = "x 피격 시 3초간 저항력 중첩"
+lore3 = "x 중첩 배고픔"
+lore4 = "배고픔 중첩의 지속시간과 배수."
+lore5 = "저항력 중첩 배수 (지속시간 아님)."
+lore = ["피격 시 패시브 저항력 획득", "x 피격 시 3초간 저항력 중첩", "x 중첩 배고픔", "배고픔 중첩의 지속시간과 배수.", "저항력 중첩 배수 (지속시간 아님)."]
+
+[hunter.speed]
+name = "사냥꾼의 속도"
+description = "피격 시 배고픔을 대가로 속도를 얻습니다"
+lore1 = "피격 시 패시브 속도 획득"
+lore2 = "x 피격 시 3초간 속도 중첩"
+lore3 = "x 중첩 배고픔"
+lore4 = "배고픔 중첩의 지속시간과 배수."
+lore5 = "속도 중첩 배수 (지속시간 아님)."
+lore = ["피격 시 패시브 속도 획득", "x 피격 시 3초간 속도 중첩", "x 중첩 배고픔", "배고픔 중첩의 지속시간과 배수.", "속도 중첩 배수 (지속시간 아님)."]
+
+[hunter.strength]
+name = "사냥꾼의 힘"
+description = "피격 시 배고픔을 대가로 힘을 얻습니다"
+lore1 = "피격 시 패시브 힘 획득"
+lore2 = "x 피격 시 3초간 힘 중첩"
+lore3 = "x 중첩 배고픔"
+lore4 = "배고픔 중첩의 지속시간과 배수."
+lore5 = "힘 중첩 배수 (지속시간 아님)."
+lore = ["피격 시 패시브 힘 획득", "x 피격 시 3초간 힘 중첩", "x 중첩 배고픔", "배고픔 중첩의 지속시간과 배수.", "힘 중첩 배수 (지속시간 아님)."]
+
+[hunter.predator_focus]
+name = "포식자 초점"
+description = "동일한 표적 경사로에 반복된 타격 당신의 손상; 전환 대상은 경사를 재시동합니다."
+lore1 = "최대 램프 스택"
+lore2 = "램프 스택 당 보너스 근접 손상"
+lore3 = "가득 차있는 경사로에 보너스 근접 손상"
+lore = ["최대 램프 스택", "램프 스택 당 보너스 근접 손상", "가득 차있는 경사로에 보너스 근접 손상"]
+
+[hunter.big_game]
+name = "큰 게임 사냥꾼"
+description = "부너스 피해를 주고 큰 집단에서 추가적인 손실을 얻으세요."
+lore1 = "보너스 손상 대비 큰 게임"
+lore2 = "추가 드롭 기회 대비 큰 게임"
+lore = ["보너스 손상 대비 큰 게임", "추가 드롭 기회 대비 큰 게임"]
+
+[hunter.blood_trail]
+name = "혈액 트레일"
+description = "반의 건강 아래에서 상처를 입은 모브는 당신이 볼 수있는 개인 놀기 혈액 흔적을 남겨."
+lore1 = "두 번째 향기 트레일 링더"
+lore2 = "블록에서 향기를 추적 할 수 있습니다."
+lore = ["두 번째 향기 트레일 링더", "블록에서 향기를 추적 할 수 있습니다."]
+
+[hunter.snare_line]
+name = "덫 라인"
+description = "밧줄과 철의 함정을 만들며 그 길을 건너가다 보면 적대적인 군중들이 잠시 뿌리를 내린다."
+item = "헌터의 덫"
+lore1 = "두 번째 몹는 뿌리"
+lore2 = "덫 당 더 큰 책임"
+lore3 = "문자열과 철을 가진 기술, 그 후에 그것을 놓기 위하여 배경을 마우스 오른쪽 단추로"
+lore = ["두 번째 몹는 뿌리", "덫 당 더 큰 책임", "문자열과 철을 가진 기술, 그 후에 그것을 놓기 위하여 배경을 마우스 오른쪽 단추로"]
+
+[gui.common]
+first = "한국어"
+previous = "이전"
+next = "다음으로"
+last = "마지막"
+back = "뒤로"
+confirm = "확인"
+cancel = "취소"
+apply_change = "이 변경 사항?"
+left_click_previous = "왼쪽 클릭: 이전 페이지"
+left_click_next = "왼쪽 클릭: 다음 페이지"
+right_click_jump_back = "우클릭: 점프 -{pages} 페이지"
+right_click_jump_forward = "우클릭: 점프 + {pages} 페이지"
+page_of = "페이지 {page}/{pages}"
+showing_range = "{from}-{to}의 {total}의 표시"
+page_showing_range = "페이지 {page}/{pages} • {from}-{to}의 {total} 표시"
+first_page = "첫 페이지"
+no_previous_page = "이전 페이지"
+no_next_page = "다음 페이지"
+last_page = "최근 페이지"
+back_to_skills = "기술로 돌아가기"
+back_to_mutations = "변이로 돌아가기"
+skills = "한국어"
+adaptations = "적응"
+levels = "한국어"
+
+[gui.skills]
+none_available = "사용 가능"
+none_eligible = "이 플레이어에 대한 자격이 없음."
+title = "레벨 {level} (사용한 힘 {used}/{maximum})"
+
+[gui.adaptations]
+none_available = "옵션 없음"
+permanent_learn_confirm = "다시 클릭하여 영구 습득을 확인하세요"
+permanent_learn_confirm_now = "지금 다시 클릭하여 영구 습득을 확인하세요."
+permanent_learn_double_click = "영구 습득을 확인하려면 두 번 클릭해야 합니다."
+knowledge_cost = "지식 소모: {cost}"
+knowledge_cost_no_refunds = "지식 비용: {cost} — 하드코어, 환불 비활성화"
+already_learned_no_refunds = "이미 습득함 — 하드코어, 환불 비활성화"
+already_learned_refund = "이미 습득함 — 클릭하여 잊고 지식 {refund} 환불"
+click_to_learn = "클릭하여 {adaptation} 습득"
+knowledge_shortage = "(사용 가능한 지식: {knowledge})"
+power_drain = "{power} 힘 하수구"
+
+[gui.mutations]
+experimental_mutations = "실험적 변이"
+menu_summary = "Adapt 레벨에 따라 잠금 해제되는 선택형 빌드 옵션입니다."
+menu_open = "클릭하여 슬롯과 요구 조건을 확인하세요."
+
+[gui.skill]
+title = "{skill} {progress} ({xp}XP {nextLevel})"
 
 [items.bound_ender_peral]
 name = "유물 포트키"
@@ -910,6 +4801,7 @@ name = "시간을 담은 병"
 usage1 = "인벤토리에 있는 동안 수동으로 시간을 저장합니다"
 usage2 = "우클릭으로 시간이 걸리는 블록이나 새끼 동물에게 저장된 시간을 사용합니다"
 stored = "저장된 시간"
+stored_value = "저장 시간: {duration}"
 
 [items.chrono_time_bomb]
 name = "시간 폭탄"
@@ -921,60 +4813,677 @@ usage1 = "점프하여 위로 순간이동"
 usage2 = "Shift로 아래로 순간이동"
 usage3 = "엘리베이터 사이에 최소 2칸의 공기 블록이 필요합니다"
 
-# snippets
-[snippets]
+[items.potion]
+grants = "{effect} {level} 부여"
 
-[snippets.gui]
-level = "레벨"
-knowledge = "지식"
-power_used = "사용 중인 능력치"
-not_learned = "미습득"
-xp = "XP까지"
-welcome = "환영합니다!"
-welcome_back = "다시 오신 것을 환영합니다!"
-xp_bonus_for_time = "XP 보너스"
-max_ability_power = "최대 능력 파워"
-unlock_this_by_clicking = "우클릭하여 잠금 해제: "
-back = "뒤로"
-unlearn_all = "모두 잊기"
-unlearned_all = "모두 잊었습니다"
+[items.multi_armor.count]
+one = "멀티아어머 ({count} 아이템)"
+other = "멀티아어머 ({count} 아이템 )"
 
-[snippets.adapt_menu]
-may_not_unlearn = "잊을 수 없습니다"
-may_unlearn = "배우기/잊기 가능"
-knowledge_cost = "지식 비용"
-knowledge_available = "사용 가능한 지식"
-already_learned = "이미 습득함"
-unlearn_refund = "클릭하여 잊기 및 환불"
-no_refunds = "하드코어, 환불 불가"
-knowledge = "지식"
-click_learn = "클릭하여 배우기"
-no_knowledge = "(지식이 없습니다)"
-you_only_have = "현재 보유량:"
-how_to_level_up = "스킬 레벨을 올려 최대 파워를 높이세요."
-not_enough_power = "파워가 부족합니다! 각 능력 레벨은 파워 1을 소모합니다."
-power = "파워"
-power_drain = "파워 소모"
-learned = "습득 완료 "
-unlearned = "잊음 "
-activator_block = "책장"
+[items.omni_tool.count]
+one = "레더맨 ({count} 아이템)"
+other = "레더맨 ({count} 아이템 )"
 
-[snippets.knowledge_orb]
-contains = "포함"
-knowledge = "지식"
-rightclick = "우클릭"
-togainknowledge = "하여 이 지식을 획득"
-knowledge_orb = "지식의 구슬"
+[kinetics.moon_jump]
+name = "달 점프"
+description = "각 레벨은 0.5 블록에 의해 모든 점프를 높이고, 추가적으로 떠있는 저 중력 홉을 위해 스닉- 점프."
+lore1 = "기본적인 점프 고도"
+lore2 = "스니크 점프 붐"
+lore3 = "중력 감소"
+lore4 = "Float 창"
+lore = ["기본적인 점프 고도", "스니크 점프 붐", "중력 감소", "Float 창"]
 
-[snippets.experience_orb]
-contains = "포함"
-xp = "경험치"
-rightclick = "우클릭"
-togainxp = "하여 이 경험치를 획득"
-xporb = "경험치 구슬"
+[kinetics.rubber_soul]
+name = "고무 영혼"
+description = "당신의 착륙은 봄을 나릅니다. 쾌활한 구획은 당신을 높이 보내고, 각 착륙은 더 많은 순간을 지킵니다."
+lore1 = "휴식 공간"
+lore2 = "쾌활한 블록 보너스"
+lore = ["휴식 공간", "쾌활한 블록 보너스"]
 
-# skill
-[skill]
+[kinetics.soft_catch]
+name = "소프트 캐치"
+description = "부드럽고 한 블록은 넘어지는 것을 깨뜨리고 신선한 반딧불이 우위를 점하게 됩니다."
+lore1 = "손상 감소"
+lore = ["손상 감소"]
+
+[kinetics.surface_skate]
+name = "지상 스케이트"
+description = "더 낮은 마찰을 가진 배경의 맞은편에 미끄러지기 위하여 스프린트; 단단한 그립에 운동."
+lore1 = "슬라이드"
+lore2 = "인플리프"
+lore = ["슬라이드", "인플리프"]
+
+[kinetics.terminal_toggle]
+name = "터미널 토글"
+description = "공중에서 잠입해서 단단한 다이빙과 떠다니는 을 사이에 두고 갈 수 있습니다."
+lore1 = "Drag 이동"
+lore2 = "중력 이동"
+lore = ["Drag 이동", "중력 이동"]
+
+[kinetics.heavy_frame]
+name = "무거운 구조"
+description = "mace 또는 창로 운동하는 동안 발을 식물: 속도의 비용에 무거운 녹슬지 않는 저항."
+lore1 = "밀쳐내기 저항"
+lore2 = "폭발 저항"
+lore3 = "속도 불이익"
+lore = ["밀쳐내기 저항", "폭발 저항", "속도 불이익"]
+
+[kinetics.mass_shift]
+name = "질량 전환"
+description = "웅크린 채 손을 바꾸세요. 위를 보면 지속되는 타이탄 형태, 아래를 보면 지속되는 포켓 형태로 변하며, 수평을 보면 정상으로 돌아옵니다. 타이탄은 피해량과 체력이 20% 증가하는 대신 느려짐 I을 받고, 포켓은 피해량과 체력이 20% 감소하는 대신 신속 I을 얻습니다."
+lore1 = "타이탄 크기"
+lore2 = "포켓 크기"
+lore3 = "타이탄 피해량 및 최대 체력"
+lore4 = "포켓 피해량 및 최대 체력"
+lore5 = "위: 타이탄 | 아래: 포켓 | 수평: 정상"
+lore = ["타이탄 크기", "포켓 크기", "타이탄 피해량 및 최대 체력", "포켓 피해량 및 최대 체력", "위: 타이탄 | 아래: 포켓 | 수평: 정상"]
+
+[kinetics.meteor_cadence]
+name = "Meteor 보조"
+description = "을 들고 떨어지는 동안 속삭여서 아래로 급격히 가속화해"
+lore1 = "중력 증진"
+lore2 = "드래그 컷"
+lore3 = "Tick 당 아래로 가속"
+lore4 = "끝 가을 속도"
+lore = ["중력 증진", "드래그 컷", "Tick 당 아래로 가속", "끝 가을 속도"]
+
+[kinetics.breachwright]
+name = "Breachwright의"
+description = "당신의 이 목표의 갑옷을 잠시 깨뜨렸다."
+lore1 = "장갑 분쇄"
+lore2 = "거친 분쇄"
+lore3 = "분쇄 기간"
+lore = ["장갑 분쇄", "거친 분쇄", "분쇄 기간"]
+
+[kinetics.windburst]
+name = "바람 폭발"
+description = "방사성 충격파로 폭발하는 강한 충돌은 가까운 적들을 쫓아냅니다."
+lore1 = "채용정보"
+lore2 = "힘"
+lore = ["채용정보", "힘"]
+
+[kinetics.quake_guard]
+name = "Quake 가드"
+description = "당신을 찰상 착륙: 순간을 위한 녹슬지 않는 저항, 단단함 및 안전한 발로."
+lore1 = "밀쳐내기 저항"
+lore2 = "딱딱함"
+lore3 = "안전 가을"
+lore = ["밀쳐내기 저항", "딱딱함", "안전 가을"]
+
+[kinetics.rebound_anvil]
+name = "Rebound 아빌"
+description = "각 스매쉬는 다리를 코일합니다: 땅 봄 및 방석은, 두번째 meteor를 위해 준비했습니다."
+lore1 = "도약 창"
+lore2 = "가을 구호"
+lore = ["도약 창", "가을 구호"]
+
+[kinetics.phalanx_reach]
+name = "방진 범위"
+description = "당신의 손에 뛰기."
+lore1 = "보너스 도달"
+lore = ["보너스 도달"]
+
+[kinetics.charge_lance]
+name = "책임 Lance"
+description = "창는 당신의 속도를 가진 가늠자를 보였습니다. 실행에서 그들을 기록."
+lore1 = "속도 확장"
+lore2 = "보너스 캡"
+lore = ["속도 확장", "보너스 캡"]
+
+[kinetics.impale_pin]
+name = "Impale 핀"
+description = "단거리 핀에 보이는 창는 무거운 slowness를 가진 표적을 핀으로 합니다."
+lore1 = "달콤한 범위"
+lore2 = "낮은 시간"
+lore = ["달콤한 범위", "낮은 시간"]
+
+[kinetics.lunge_conductor]
+name = "돌진 지휘자"
+description = "당신의 창 폐 파업 더 열심히하고 당신을 멀리 나르십시오."
+lore1 = "돌진 힘"
+lore2 = "Dash 부스트"
+lore = ["돌진 힘", "Dash 부스트"]
+
+[kinetics.mounted_shock]
+name = "거치된 충격"
+description = "안장에서 창 책임은 더 빠릅니다 당신의 산 움직임."
+lore1 = "산 속도 확장"
+lore = ["산 속도 확장"]
+
+[kinetics.dead_zone]
+name = "죽은 영역"
+description = "당신의 창의 죽은 영역 안쪽에 군중이 찢어지고, 반격."
+lore1 = "죽은 지역 범위"
+lore2 = "반격 보너스"
+lore = ["죽은 지역 범위", "반격 보너스"]
+
+[nether.skull_toss]
+name = "위더 해골 투척"
+description = "&o다른 사람의&7 머리를 사용해 내면의 위더를 해방하세요."
+lore1 = "해골 투척 사이의 재사용 대기시간(초)."
+lore2 = "위더 해골 사용: 던지기 "
+lore3 = "위더 해골"
+lore4 = "충돌 시 폭발."
+usage = "위더 해골 사용: 위더 해골을 던지면 충돌 시 폭발합니다."
+lore = ["해골 투척 사이의 재사용 대기시간(초).", "위더 해골 사용: 던지기 ", "위더 해골", "충돌 시 폭발."]
+
+[nether.wither_resist]
+name = "위더 저항"
+description = "네더라이트의 힘으로 시듦을 저항합니다."
+lore1 = "시듦을 무효화할 확률 (부위당)."
+lore2 = "패시브: 네더라이트 갑옷 착용 시 일정 확률로 무효화 "
+passive = "지속 효과: 네더라이트 방어구 각 부위를 착용하면 위더 효과를 무효화할 확률이 생깁니다."
+lore3 = "시듦 효과."
+lore = ["시듦을 무효화할 확률 (부위당).", "패시브: 네더라이트 갑옷 착용 시 일정 확률로 무효화 ", "시듦 효과."]
+
+[nether.fire_resist]
+name = "화염 저항"
+description = "피부를 단단하게 하여 불에 저항합니다."
+lore1 = "불타는 효과를 무효화할 확률!"
+lore = ["불타는 효과를 무효화할 확률!"]
+
+[nether.lava_walker]
+name = "라바 워커"
+description = "굶주림으로 하중의 래바를 넘어서라."
+lore1 = "라바 발걸음 속도"
+lore2 = "굶주림 의 비용"
+lore = ["라바 발걸음 속도", "굶주림 의 비용"]
+
+[nether.ghast_ward]
+name = "Ghast 구"
+description = "유령 폭발과 골격의 압력 범위가 아래층에서 단단합니다."
+lore1 = "급격한 발사량 감축"
+lore2 = "폭발 감소"
+lore3 = "와이어 Skeleton 영사기 감소"
+lore = ["급격한 발사량 감축", "폭발 감소", "와이어 Skeleton 영사기 감소"]
+
+[nether.blaze_leech]
+name = "카테고리"
+description = "화재 상호작용은 짧은 굶주림과 재생의 증가를 유발할 수 있습니다."
+lore1 = "흡수 방아쇠 기회"
+lore2 = "레겐 번스트 기간"
+lore3 = "발동 당 음식 복원"
+lore = ["흡수 방아쇠 기회", "레겐 번스트 기간", "발동 당 음식 복원"]
+
+[nether.piglin_broker]
+name = "Piglin 브로커"
+description = "근처의 대리점은 추가로 롤을 제공하고 가끔씩 프리미엄 보너스 아이템을 제공할 수 있습니다."
+lore1 = "추가 롤 기회"
+lore2 = "희귀 보너스 기회"
+lore = ["추가 롤 기회", "희귀 보너스 기회"]
+
+[nether.soul_strider]
+name = "영혼 스트라이더"
+description = "영혼 모래와 영혼 토양의 전체 속도로 이동, 마스터리에서 영혼 속도 파열을 얻는."
+lore1 = "영혼 Stride 속도"
+lore2 = "마스터리 영혼 속도 폭발"
+lore = ["영혼 Stride 속도", "마스터리 영혼 속도 폭발"]
+
+[nether.magma_skin]
+name = "마그마 스킨"
+description = "불타는 동안, 공격자들은 불을 붙이고 자신의 공격을 통해 화재 피해를 보너스합니다."
+lore1 = "공격자 Ignite 기간"
+lore2 = "불타는 동안 보너스 화재 손상"
+lore = ["공격자 Ignite 기간", "불타는 동안 보너스 화재 손상"]
+
+[nether.netherrack_mason]
+name = "Netherrack 메이슨"
+description = "내네더크, 바사틀, 블랙스톤은 네더에서 더 빨리 채굴합니다. 가끔씩 보너스 드롭도 받습니다."
+lore1 = "광업 성급함 층"
+lore2 = "보너스 드롭 기회"
+lore = ["광업 성급함 층", "보너스 드롭 기회"]
+
+[nether.strider_bond]
+name = "홍보센터"
+description = "더 빨리 타고, 용암에서 자신의 속도를 유지하고, 안전하게 착륙 할 때 용암."
+lore1 = "스트라이더 속도 층"
+lore2 = "라바 탈착 구조 반지"
+lore = ["스트라이더 속도 층", "라바 탈착 구조 반지"]
+
+[nether.crimson_feast]
+name = "Crimson 축제"
+description = "더 재미기와 전염병을 먹고, 네더에 어떤 식사에서 화재 저항."
+lore1 = "Flora 당 음식 복원"
+lore2 = "보너스 포화"
+lore3 = "네더 식사 내화성"
+lore = ["Flora 당 음식 복원", "보너스 포화", "네더 식사 내화성"]
+
+[nether.ashwalker]
+name = "재워커"
+description = "마그마 블록과 캠프불 불에 대해 무시하고, 마스터에서 대부분의 영혼의 화재 피해를 어깨로 습니다."
+lore1 = "마그마 블록 면역"
+lore2 = "Campfire 면역"
+lore3 = "영혼 불 손상 감소"
+lore = ["마그마 블록 면역", "Campfire 면역", "영혼 불 손상 감소"]
+
+[nether.wither_harvest]
+name = "채용 정보"
+description = "고장골은 뼈와 석탄을 추가로 생산하고, 두개골 확률이 약간 향상됩니다."
+lore1 = "보너스 Bones"
+lore2 = "보너스 석탄"
+lore3 = "향상된 해골 기회"
+lore = ["보너스 Bones", "보너스 석탄", "향상된 해골 기회"]
+
+[pickaxe.auto_smelt]
+name = "자동 제련"
+description = "채굴한 바닐라 광석을 자동으로 제련합니다"
+lore1 = "제련 가능한 광석이 자동으로 제련됩니다"
+lore2 = "% 확률로 추가 드롭"
+lore = ["제련 가능한 광석이 자동으로 제련됩니다", "% 확률로 추가 드롭"]
+
+[pickaxe.chisel]
+name = "광석 끌"
+description = "광석을 우클릭하여 더 많은 광석을 캐낼 수 있지만, 내구도 소모가 심합니다."
+lore1 = "드롭 확률"
+lore2 = "도구 마모"
+lore = ["드롭 확률", "도구 마모"]
+
+[pickaxe.drop_to_inventory]
+name = "곡괭이 인벤토리 드롭"
+description = "블록을 깨면 아이템이 인벤토리로 바로 들어갑니다"
+lore1 = "블록에서 아이템이 드롭될 때마다 가능하면 인벤토리로 직접 들어갑니다."
+lore = ["블록에서 아이템이 드롭될 때마다 가능하면 인벤토리로 직접 들어갑니다."]
+
+[pickaxe.silk_spawner]
+name = "곡괭이 섬세한 스포너"
+description = "스포너를 파괴할 때 드롭되게 합니다"
+lore1 = "섬세한 손길로 스포너를 부술 수 있게 합니다."
+lore2 = "웅크린 채로 스포너를 부술 수 있게 합니다."
+lore = ["섬세한 손길로 스포너를 부술 수 있게 합니다.", "웅크린 채로 스포너를 부술 수 있게 합니다."]
+
+[pickaxe.vein_miner]
+name = "광맥 채굴"
+description = "바닐라 광석의 맥/덩어리를 한꺼번에 캘 수 있습니다"
+lore1 = "웅크리고 광석을 캐세요"
+lore2 = "광맥 채굴 범위"
+lore3 = "이 스킬은 모든 드롭을 하나로 합치지 않습니다!"
+lore = ["웅크리고 광석을 캐세요", "광맥 채굴 범위", "이 스킬은 모든 드롭을 하나로 합치지 않습니다!"]
+
+[pickaxe.quarry_sense]
+name = "퀄리티"
+description = "철+ 픽사와 함께 블록을 우측으로 클릭하여 인근 광석들을 개인 빛나는 블록 디스플레이로 표시합니다."
+lore1 = "Ore 검사 반경"
+lore2 = "내구성 비용 (% 최대 내구성)"
+lore3 = "감각 감축"
+lore = ["Ore 검사 반경", "내구성 비용 (% 최대 내구성)", "감각 감축"]
+
+[pickaxe.tunnel_bore]
+name = "터널 보어"
+description = "웅크리기 및 광산 돌 형 블록은 한 번에 전체 터널 얼굴을 지루합니다."
+lore1 = "웅크리기 및 광산 STONE"
+lore2 = "구획 당 갱도 얼굴에 의하여 보였습니다"
+lore3 = "보너스 구획 당 여분 내구성"
+lore = ["웅크리기 및 광산 STONE", "구획 당 갱도 얼굴에 의하여 보였습니다", "보너스 구획 당 여분 내구성"]
+
+[pickaxe.deep_core]
+name = "딥 코어"
+description = "광업 심층암 보조금 성급함 그래서 정상적인 돌 처럼 digs"
+lore1 = "광산 심층암를 성급함를 얻기 위해"
+lore2 = "광업 심층암 동안 성급함 수준"
+lore = ["광산 심층암를 성급함를 얻기 위해", "광업 심층암 동안 성급함 수준"]
+
+[pickaxe.obsidian_rush]
+name = "흑요석 러쉬"
+description = "다이아몬드 또는 중미적인 곡괭이와 채광 흑요석는 강한 성급함 파열을 수여합니다"
+lore1 = "다이아몬드+ 픽사와 함께 흑요석 광산"
+lore2 = "광업 흑요석 동안 성급함 수준"
+lore3 = "또한 울고 흑요석에서 작동!"
+lore = ["다이아몬드+ 픽사와 함께 흑요석 광산", "광업 흑요석 동안 성급함 수준", "또한 울고 흑요석에서 작동!"]
+
+[pickaxe.unbreakable_pact]
+name = "깨지지 않는 Pact"
+description = "당신의 곡괭이는 휴식 거부, 생존 1 대신 내구성"
+lore1 = "곡괭이는 결코 깨지지 않으며, 1 내구도에서 멈춘다"
+lore2 = "내구성 손실을 완전히 무시하는 기회"
+lore = ["곡괭이는 결코 깨지지 않으며, 1 내구도에서 멈춘다", "내구성 손실을 완전히 무시하는 기회"]
+
+[pickaxe.repair_rhythm]
+name = "수리 리듬"
+description = "지속된 광산은 당신의 곡괭이에 내구성을 복원 할 수있는 기회를 가지고"
+lore1 = "모든 깨진 블록는 1-2 내구도를 복원 할 수 있습니다"
+lore2 = "깨진 블록 당 수리 할 수있는 기회"
+lore = ["모든 깨진 블록는 1-2 내구도를 복원 할 수 있습니다", "깨진 블록 당 수리 할 수있는 기회"]
+
+[pickaxe.gem_polish]
+name = "Gem 폴란드어"
+description = "광산 보석 무기 부너스 XP 구슬과 추가 보석의 기회를 부여합니다"
+lore1 = "다이아몬드, 에메랄드, 청금석 또는 amethyst"
+lore2 = "특별한 매칭 보석을 위한 기회"
+lore3 = "보너스: 광산된 유석광당 XP"
+lore = ["다이아몬드, 에메랄드, 청금석 또는 amethyst", "특별한 매칭 보석을 위한 기회", "보너스: 광산된 유석광당 XP"]
+
+[pickaxe.stone_skin]
+name = "돌 피부"
+description = "끊는 돌 유형 구획은 부족한 겹쳐 쌓이는 손상 저항을 건설합니다"
+lore1 = "스톤 스킨 스택을 구축하는 광산 돌"
+lore2 = "최대 저항 수준"
+lore = ["스톤 스킨 스택을 구축하는 광산 돌", "최대 저항 수준"]
+
+[ranged.arrow_recovery]
+name = "화살 회수"
+description = "적을 죽인 후 화살을 회수합니다."
+lore1 = "적중/처치 시 화살 회수 확률"
+lore2 = "확률: "
+chance = "확률: {chance}"
+lore = ["적중/처치 시 화살 회수 확률", "확률: "]
+
+[ranged.web_shot]
+name = "거미줄 올가미"
+description = "대상을 맞추면 주위에 거미줄이 생깁니다!"
+lore1 = "눈덩이 주변에 거미줄 8개, 그리고 던지세요!"
+lore2 = "대략적인 가두기 시간(초)."
+lore = ["눈덩이 주변에 거미줄 8개, 그리고 던지세요!", "대략적인 가두기 시간(초)."]
+
+[ranged.force_shot]
+name = "강력 사격"
+description = "더 멀리, 더 빠르게 투사체를 쏩니다!"
+advancementname = "장거리 사격"
+advancementlore = "30블록 이상 떨어진 곳에서 적중시키세요!"
+lore1 = "투사체 속도"
+lore = ["투사체 속도"]
+
+[ranged.trajectory_sight]
+name = "궤적 조준"
+description = "웅크리기 또는 회전 충격 감적이있는 명확한 도트 라인으로 예측하는 범위의 무기를 그리십시오. Heartseeker 잠금 활성으로, 미리보기는 대신 마크에 화살표의 곡선 찾고 경로를 보여줍니다."
+lore1 = "Prediction 범위"
+lore2 = "예측 세부 정보"
+lore = ["Prediction 범위", "예측 세부 정보"]
+
+[ranged.lunge_shot]
+name = "돌진 사격"
+description = "낙하 중 화살을 쏘면 랜덤 방향으로 튕겨납니다"
+lore1 = "랜덤 돌진 속도"
+lore = ["랜덤 돌진 속도"]
+
+[ranged.arrow_piercing]
+name = "화살 관통"
+description = "투사체에 관통을 추가합니다! 적을 꿰뚫으세요!"
+lore1 = "관통 대상 수"
+lore = ["관통 대상 수"]
+
+[ranged.floaters]
+name = "플로터"
+description = "미사일은 levitation를 적용하고 공중에서 목표를 유지 할 수 있습니다."
+lore1 = "법적 책임"
+lore2 = "책임감"
+lore3 = "공급 능력"
+lore = ["법적 책임", "책임감", "공급 능력"]
+
+[ranged.pinning_shot]
+name = "Pinning 샷"
+description = "어떤 선수 점화한 투사든지 무거운 slowness를 가진 표적을 핀으로 할 수 있습니다."
+lore1 = "핀 기회"
+lore2 = "Pin 기간"
+lore3 = "재사용 대기시간"
+lore = ["핀 기회", "Pin 기간", "재사용 대기시간"]
+
+[ranged.ricochet_bolt]
+name = "도탄 볼트"
+description = "탄도들은 연쇄된 반발으로 단단한 블록에서 도탄."
+lore1 = "최대 Ricochets"
+lore2 = "도탄 당 속도 보너스"
+lore3 = "도탄 당 보너스 손상"
+lore = ["최대 Ricochets", "도탄 당 속도 보너스", "도탄 당 보너스 손상"]
+
+[ranged.fetch_shot]
+name = "회수 샷"
+description = "촬영은 당신의 재고로 곧 잡아 당기기 위하여 투사체를 가진 품목을 떨어뜨렸습니다."
+lore1 = "회수 반경"
+lore = ["회수 반경"]
+
+[ranged.heavy_draw]
+name = "무거운 끌기"
+description = "더 무거운 공사기는 느리게 날아가고 훨씬 더 강하게 타격을 준다."
+lore1 = "보너스 손상"
+lore2 = "투사체 속도"
+lore = ["보너스 손상", "투사체 속도"]
+
+[ranged.heartseeker]
+name = "심장 추적자"
+description = "은 적색으로 빛나는 생물을 보고 활을 그리는 동안, 당신의 화살표가 어디를 겨냥하든 공중에서 휘파람하고 곡선을 기울여 그것을 찾습니다. 피어싱 레벨과 리코체 볼트의 사용할 수 있는 반격 능력은 탐구하는 패스를 추가합니다: 화살표는 목표물을 통해 타격을 주고 멀리서 빠져나가고, 다음 근처의 신선한 목표로 향하며 새로운 목표 없이 계속 날아갑니다. 리코체 발치는 화살표 블록을 찾는 데에 있어서 반영, 속도, 손해와 보상을 보존합니다. 모든 탐구하는 슈트는 당신의 활을 짧은 하락으로 떨어뜨립니다."
+lore1 = "위에 잠그는 생물을 찾는 동안 활을 그리십시오"
+lore2 = "포격 후 활이 재사용 대기시간."
+lore3 = "피어싱 및 도탄 볼트 반송 용량 추가 찾기 패스"
+lore = ["위에 잠그는 생물을 찾는 동안 활을 그리십시오", "포격 후 활이 재사용 대기시간.", "피어싱 및 도탄 볼트 반송 용량 추가 찾기 패스"]
+
+[rift.remote_access]
+name = "원격 접근"
+description = "공허에서 끌어와 표시된 보관함에 접근합니다."
+lore1 = "엔더 진주 + 나침반 = 유물 포트키"
+lore2 = "이 아이템으로 원격으로 보관함에 접근할 수 있습니다"
+lore3 = "제작 후 아이템을 보고 사용법을 확인하세요"
+notcontainer = "그것은 보관함이 아닙니다"
+lore = ["엔더 진주 + 나침반 = 유물 포트키", "이 아이템으로 원격으로 보관함에 접근할 수 있습니다", "제작 후 아이템을 보고 사용법을 확인하세요"]
+
+[rift.blink]
+name = "균열 점멸"
+description = "이단 점프로 바라보는 방향으로 점멸합니다. 성공한 점멸은 엔더 진주를 소모하지 않지만 일반 진주 피해를 입으며, 피해량은 레벨마다 감소합니다."
+lore1 = "점멸 범위"
+lore2 = "자기 피해 (하트)"
+lore = ["점멸 범위", "자기 피해 (하트)"]
+
+[rift.chest]
+name = "간편 엔더 상자"
+description = "손에 든 엔더 상자를 좌클릭하여 엽니다."
+lore1 = "손에 든 엔더 상자를 클릭하여 열기 (설치하지 마세요)"
+lore = ["손에 든 엔더 상자를 클릭하여 열기 (설치하지 마세요)"]
+
+[rift.descent]
+name = "공중부양 방지"
+description = "공중에 떠 있는 게 지겹나요? 이 스킬이 바로 당신을 위한 것입니다!"
+lore1 = "웅크리면 하강하며, 일반보다 느린 속도로 떨어집니다!"
+lore2 = "재사용 대기시간:"
+cooldown = "재사용 대기시간: {duration}"
+lore = ["웅크리면 하강하며, 일반보다 느린 속도로 떨어집니다!", "재사용 대기시간:"]
+
+[rift.gate]
+name = "균열 게이트"
+description = "표시된 위치로 순간이동합니다."
+description_freehand = "왼쪽을 클릭해서 위치로 연결하고 오른쪽을 클릭하면 5 2차 채널 후 다시 이동합니다."
+lore1 = "제작: 에메랄드 + 자수정 조각 + 엔더 진주"
+lore2 = "사용 전에 읽어보세요!"
+lore3 = "5초 지연, "
+lore4 = "이 애니메이션 중에 죽을 수 있습니다"
+warning = "5s 지연, {danger}"
+lore = ["제작: 에메랄드 + 자수정 조각 + 엔더 진주", "사용 전에 읽어보세요!", "5초 지연, ", "이 애니메이션 중에 죽을 수 있습니다"]
+
+[rift.resist]
+name = "균열 저항"
+description = "엔더 아이템 및 능력 사용 시 저항력을 얻습니다"
+lore1 = "+ 패시브: 균열 능력이나 엔더 아이템 사용 시 저항력 제공"
+lore2 = "휴대용 엔더 상자 제외, 소모 가능한 것만 해당"
+lore = ["+ 패시브: 균열 능력이나 엔더 아이템 사용 시 저항력 제공", "휴대용 엔더 상자 제외, 소모 가능한 것만 해당"]
+
+[rift.visage]
+name = "균열 형상"
+description = "인벤토리에 엔더 진주가 있으면 엔더맨이 적대적으로 변하지 않습니다."
+lore1 = "인벤토리에 엔더 진주가 있으면 엔더맨이 적대적으로 변하지 않습니다."
+lore = ["인벤토리에 엔더 진주가 있으면 엔더맨이 적대적으로 변하지 않습니다."]
+
+[rift.void_magnet]
+name = "공허 자석"
+description = "가까운 아이템을 떨어뜨릴 수 있는 웅크리기은 당신의 엔더 가슴으로 먼저 떨어지고, 그 후 재고 오버플로."
+lore1 = "자석 반경"
+lore2 = "맥박 당 최대 품목"
+lore3 = "맥박 지연"
+lore = ["자석 반경", "맥박 당 최대 품목", "맥박 지연"]
+
+[rift.inflated_pocket_dimension]
+name = "팽창된 포켓 차원"
+description = "빈손 마우스 오른쪽 단추로 블록을 눌러 최종 가슴에서 일치하는 스택을 끌어 넣으십시오. 아이템을 저장하는 운동화."
+lore1 = "오른쪽 클릭 블록 스택을 끌어다"
+lore2 = "엔더 가슴에서 자동 보충"
+lore3 = "스니크 드롭 매장품은 앙더브스트에 있습니다."
+lore = ["오른쪽 클릭 블록 스택을 끌어다", "엔더 가슴에서 자동 보충", "스니크 드롭 매장품은 앙더브스트에 있습니다."]
+
+[rift.ender_taglock]
+name = "내구경 Taglock"
+item_name = "표적 고정 엔더 진주"
+target = "목표: {target}"
+throw = "우클릭하여 던지기"
+description = "을 위해 에더 진주로 우뚝 서 왼쪽 클릭하고, 그 다음 표적을 이동하기 위해 태그된 진주를 던집니다. 투하자는 결코 텔레포트되지 않습니다."
+lore1 = "레벨 1: 비관적이고 적대적인 집단"
+lore2 = "레벨 2: 주민 및 대형 대상"
+lore3 = "레벨 3: 플레이어를 포함한 모든 대상"
+lore4 = "펄 투어 재사용 대기시간"
+lore = ["레벨 1: 비관적이고 적대적인 집단", "레벨 2: 주민 및 대형 대상", "레벨 3: 플레이어를 포함한 모든 대상", "펄 투어 재사용 대기시간"]
+
+[rift.void_skin]
+name = "공허 피부"
+description = "치명적인 손해가 있다면, 당신이 죽기 보다는 가까운 안전한 곳으로 을 수 있습니다. 현대의 자식을 사용하여 근처의 장소는 존재하지 않는 상태에서, 짧은 저항을 제공합니다. 에더 진주와 긴 재사용 대기시간 있습니다. 레벨링은 재사용 대기시간 단축하고 보호를 확장합니다."
+lore1 = "모든 치명적인 손상 방아쇠"
+lore2 = "탈출 추운"
+lore3 = "에인더 진주 의 비용"
+lore = ["모든 치명적인 손상 방아쇠", "탈출 추운", "에인더 진주 의 비용"]
+
+[rift.pearl_rebound]
+name = "진주 Rebound"
+description = "평탄 한 던진 에더 진주 는 처음 타는 표면 에서 텔레포트 하기 보다는 한번 튀어나간다. 리보드 스티어 는 목표 달성을 향해 움직이고 다음 충돌 시 정상적으로 텔레포트 한다. 진주 착륙 손상도 감소 합니다. 레벨링 은 줄여서 운전을 향상시킵니다."
+lore1 = "Pearl 손상 감소"
+lore2 = "Aim 통제"
+lore = ["Pearl 손상 감소", "Aim 통제"]
+
+[rift.conduit]
+name = "균열 도관"
+description = "은 타그록을 캡처하기 위해 에더 진주로 된 컨테이너를 우측 클릭하고, 두 번째 컨테이너에 오른쪽 클릭하여 연결합니다. 한 링크된 컨테이너에서 남겨진 항목이 다른 것으로 흘러들어갑니다. 최대 수준에서는 두 컨테이너가 서로 다른 차원으로있을 수 있습니다."
+lore1 = "유량 당 항목"
+lore2 = "Binding 범위"
+lore3 = "관련 링크"
+lore = ["유량 당 항목", "Binding 범위", "관련 링크"]
+taglock_name = "균열 도관 Taglock"
+taglock_lore1 = "컨테이너 캡처"
+taglock_lore2 = "두 번째 컨테이너를 마우스 오른쪽 버튼으로 클릭"
+msg_captured = "도관 taglock 붙잡음. 두 번째 컨테이너를 마우스 오른쪽 버튼으로 클릭."
+msg_linked = "컨테이너가 연결되어 있고, 한 안에 들어 있는 물건들이 다른 곳으로 흐른다."
+msg_need_container = "통로 잠금을 이용하기 위해 컨테이너를 겨냥해 보세요."
+msg_range = "그 컨테이너는 훨씬 멀리 연결."
+msg_same = "컨테이너를 연결할 수 없습니다."
+msg_stale = "캡처 된 컨테이너는 더 이상 사용할 수 없습니다."
+
+# runtime
+[runtime]
+knowledge_gain = "+ {amount} {skill} 지식"
+knowledge_status = "{amount} {skill} 지식"
+requires_adaptation = "{skill}의 {adaptation} 필요"
+unknown_skill = "잘 알려진 기술"
+advancement_unlock = "{description}. {instruction} {block}"
+max_ability_power = "최대 능력 힘: {power}"
+xp_bonus = "+{percent} XP에 대한 {duration}"
+stat_lore = "{prefix}{value}{separator}{label}"
+data_deleted_kick = "플레이어 데이터가 삭제되었습니다."
+no_description_provided = "설명 없음"
+config_hotloaded = "&7[&4Adapt&7]: &aAdapt 즉시 반영: &f[{file}] &b[{key}] &7[{oldValue} -> {newValue}]"
+config_hotload_truncated = "&7[&4Adapt&7]: &aAdapt 즉시 반영: &f[{file}] &7[추가 변경 사항 {remaining}개 생략]"
+
+[seaborn.oxygen]
+name = "유기 산소 탱크"
+description = "작은 폐에 더 많은 산소를 담으세요!"
+lore1 = "산소 용량 증가"
+lore = ["산소 용량 증가"]
+
+[seaborn.fishers_fantasy]
+name = "낚시꾼의 환상"
+description = "낚시에서 더 많은 XP와 물고기를 얻으세요!"
+lore1 = "레벨마다 더 많은 XP와 물고기를 얻을 확률이 있습니다!"
+lore = ["레벨마다 더 많은 XP와 물고기를 얻을 확률이 있습니다!"]
+
+[seaborn.haste]
+name = "거북이 광부"
+description = "수중에서 채굴 시 성급함을 얻습니다!"
+lore1 = "수중 호흡 효과가 사라진 후 수중에서 채굴 시 성급함 3이 적용됩니다 (친수성과 중첩)!"
+lore = ["수중 호흡 효과가 사라진 후 수중에서 채굴 시 성급함 3이 적용됩니다 (친수성과 중첩)!"]
+
+[seaborn.night_vision]
+name = "거북이의 시야"
+description = "수중에서 야간 투시를 얻습니다"
+lore1 = "수중 호흡 효과가 사라진 후 간단히 수중에서 야간 투시를 얻습니다!"
+lore = ["수중 호흡 효과가 사라진 후 간단히 수중에서 야간 투시를 얻습니다!"]
+
+[seaborn.dolphin_grace]
+name = "돌고래의 은총"
+description = "돌고래 없이 돌고래처럼 수영합니다"
+lore1 = "+ 패시브: 획득 "
+lore2 = "x 속도 (돌고래의 은총)"
+lore3 = "정밀한 독일 공학이- 잠깐 그건 아니고... 물갈퀴와 호환되지 않습니다"
+speed = "+ 지속 효과: 물속 속도가 {level}배 증가하고 전력 수영 중 실제 돌고래의 우아함을 얻습니다. 레벨마다 효과가 더 오래 지속됩니다"
+lore = ["+ 패시브: 획득 ", "x 속도 (돌고래의 은총)", "정밀한 독일 공학이- 잠깐 그건 아니고... 물갈퀴와 호환되지 않습니다"]
+
+[seaborn.tidecaller]
+name = "Tidecaller의 특징"
+description = "물이나 비가 내리는 동안 물 폭발로 앞으로 돌고, 서버 설정에 따라 스키링 또는 공격 윙으로 유발됩니다."
+lore1 = "Surge 거리"
+lore2 = "급격한 재사용 대기시간"
+lore = ["Surge 거리", "급격한 재사용 대기시간"]
+lore_trigger_label = "더 큰"
+lore_environment_label = "환경"
+trigger_none = "단 한 명도"
+trigger_sneak = "웅크리기"
+trigger_attack = "공격"
+trigger_sneak_attack = "웅크리기 + 공격"
+trigger_water_only = "물 만"
+env_water = "물의 물"
+env_rain = "비어 있는"
+env_none = "단 한 명도"
+trigger_line = "더 큰: {trigger}"
+environment_line = "환경: {environment}"
+trigger_context = "{trigger} ({environment})"
+
+[seaborn.pressure_diver]
+name = "압력 다이버"
+description = "이익 깊이 근거한 보호 수중과 부분적으로 채광 피로 압력을 억압하십시오."
+lore1 = "최소한도 깊이 Requirement"
+lore2 = "깊이 손상 감소"
+lore3 = "광업 피로 감소 기회"
+lore = ["최소한도 깊이 Requirement", "깊이 손상 감소", "광업 피로 감소 기회"]
+
+[seaborn.coral_gardener]
+name = "산호 정원사"
+description = "산호는 멀리 물에서 살아남을 수 있습니다. 뼈가 산호를 재배하고 암초 블록 보조 보너스 XP."
+lore1 = "산호 생존 시간"
+lore2 = "Bonemeal 성장 기회"
+lore = ["산호 생존 시간", "Bonemeal 성장 기회"]
+
+[seaborn.deep_salvager]
+name = "깊은 Salvager"
+description = "수중 컨테이너는 개인 아쿠아 글로빙 블록 디스플레이와 보상 보너스 보물으로 나타납니다 첫 번째 시간 당신이 그들을 잠수."
+lore1 = "탐지 범위 (블록)"
+lore2 = "보너스 보물 롤"
+lore = ["탐지 범위 (블록)", "보너스 보물 롤"]
+
+[seaborn.ink_veil]
+name = "잉크 Veil"
+description = "손상 수중는 장님의 hostiles와 간결하게 당신을 숨길 잉크 구름을 파열합니다."
+lore1 = "잉크 클라우드 크기 (블록)"
+lore2 = "잉크 터스트 재사용 대기시간"
+lore = ["잉크 클라우드 크기 (블록)", "잉크 터스트 재사용 대기시간"]
+
+[seaborn.trident_mastery]
+name = "트리던트 마스터리"
+description = "Tridents 거래 보너스 손상과 홈 다시 당신이 더 빨리 던져 후."
+lore1 = "보너스 부족"
+lore2 = "회수 속도"
+lore = ["보너스 부족", "회수 속도"]
+
+[seaborn.fish_whisperer]
+name = "물고기 조련사"
+description = "물고기 학교를 향해, 돌고래와 axolotls는 당신의 사냥을 원조하고, 당신은 바다 층의 영원한 운으로 물고기."
+lore1 = "바다 층의 운"
+lore2 = "생물 친화 범위 (블록)"
+lore = ["바다 층의 운", "생물 친화 범위 (블록)"]
+
+[seaborn.hydro_jet]
+name = "하이드로 제트"
+description = "물의 조류에 뛰어들어 헤엄치는 동안 스닉을 탭하고, 굶주림과 충전을 소비한다."
+lore1 = "폭발 힘"
+lore2 = "제트 요금"
+lore = ["폭발 힘", "제트 요금"]
+
+[seaborn.brine_skin]
+name = "염수 피부"
+description = "습식 동안 천천히 재생하고 손상을 감소시키고, 버프 라이저는 당신이 건조 한 후."
+lore1 = "염수 재생 층"
+lore2 = "손상 감소 동안 젖은"
+lore = ["염수 재생 층", "손상 감소 동안 젖은"]
 
 [skill.agility]
 name = "민첩"
@@ -989,9 +5498,7 @@ description = "구조물은 세계의 기초입니다. 현실은 당신의 손�
 [skill.axes]
 name = "도끼"
 icon = "🪓"
-description1 = "왜 나무를 베겠어, "
-description2 = "것들을"
-description3 = " 벨 수 있는데, 결과는 똑같잖아!"
+description = "나무를 베고 도끼로 싸워 레벨을 올리세요. 나무 대신 &o다른 것&7을 벨 수 있는데 왜 나무를 베나요? 결과는 똑같습니다!"
 
 [skill.brewing]
 name = "양조"
@@ -1074,802 +5581,91 @@ icon = "♥"
 description = "앵무새와 벌들... 그리고 당신은?"
 
 [skill.tragoul]
-name = "트라골"
+name = "TragOul"
 icon = "🗡"
 description = "피는 우주의 혈관을 타고 흐릅니다. 당신의 손에 의해 조여지며."
 
 [skill.chronos]
-name = "크로노스"
+name = "Chronos"
 icon = "🕒"
-description = "우주의 시계를 감고, 그 흐름을 경험하세요. 시계를 부수고, 그 흐름이 되어 보세요."
+description = "우주의 시계와 함께 움직이고, 잠을 자고, 시간의 흐름을 살아남으며 속도를 공유하며 레벨을 높여 보세요. Chronos 경험을 더 많이 할 수 있는 시계를 가지고 가세요."
 
 [skill.unarmed]
 name = "비무장"
 icon = "»"
 description = "무기가 없다고 힘이 없는 것은 아닙니다."
 
-# agility
-[agility]
-
-[agility.armor_up]
-name = "방어구 강화"
-description = "오래 달릴수록 더 많은 방어력을 얻습니다!"
-lore1 = "최대 방어력"
-lore2 = "방어구 강화 시간"
-lore = ["최대 방어력", "방어구 강화 시간"]
-
-[agility.ladder_slide]
-name = "사다리 미끄러짐"
-description = "사다리를 양 방향으로 훨씬 빠르게 오르내립니다."
-lore1 = "사다리 속도 배수"
-lore2 = "빠른 하강 속도"
-lore = ["사다리 속도 배수", "빠른 하강 속도"]
-
-[agility.super_jump]
-name = "슈퍼 점프"
-description = "탁월한 높이의 이점."
-lore1 = "최대 점프 높이"
-lore2 = "웅크리기 + 점프로 슈퍼 점프!"
-lore = ["최대 점프 높이", "웅크리기 + 점프로 슈퍼 점프!"]
-
-[agility.wall_jump]
-name = "벽 점프"
-description = "공중에서 벽에 붙어 Shift를 눌러 벽에 매달리고 점프하세요!"
-lore1 = "최대 점프 횟수"
-lore2 = "점프 높이"
-lore = ["최대 점프 횟수", "점프 높이"]
-
-[agility.wind_up]
-name = "가속"
-description = "오래 달릴수록 더 빨라집니다!"
-lore1 = "최대 속도"
-lore2 = "가속 시간"
-lore = ["최대 속도", "가속 시간"]
-
-# architect
-[architect]
-
-[architect.elevator]
-name = "엘리베이터"
-description = "빠르게 수직 이동하는 엘리베이터를 건설합니다. 각 엘리베이터 블록은 중앙에 엔더 진주를 놓고 주위를 양털 8개로 둘러 제작합니다."
-lore1 = "엘리베이터 레시피 해금: X=양털, Y=엔더 진주"
-lore2 = "XXX"
-lore3 = "XYX"
-lore4 = "XXX"
-lore = ["엘리베이터 레시피 해금: X=양털, Y=엔더 진주", "XXX", "XYX", "XXX"]
-
-[architect.foundation]
-name = "마법 발판"
-description = "웅크려서 발 밑에 임시 발판을 생성합니다!"
-lore1 = "마법으로 생성: "
-lore2 = "발 밑의 블록!"
-lore = ["마법으로 생성: ", "발 밑의 블록!"]
-
-[architect.glass]
-name = "유리 섬세한 손길"
-description = "맨손으로 유리 블록을 깨도 잃지 않게 됩니다!"
-lore1 = "유리에 대해 섬세한 손길 효과를 얻습니다"
-lore = ["유리에 대해 섬세한 손길 효과를 얻습니다"]
-
-[architect.wireless_redstone]
-name = "레드스톤 리모컨"
-description = "레드스톤 횃불을 사용하여 원격으로 레드스톤을 전환할 수 있습니다!"
-lore1 = "대상 + 레드스톤 횃불 + 엔더 진주 = 레드스톤 리모컨 1개"
-lore = ["대상 + 레드스톤 횃불 + 엔더 진주 = 레드스톤 리모컨 1개"]
-
-[architect.placement]
-name = "건축가의 지팡이"
-description = "한 번에 여러 블록을 설치할 수 있습니다! 웅크리고, 바라보는 블록과 같은 블록을 들고 설치하세요! 범위 지정을 위해 약간 움직여야 할 수 있습니다!"
-lore1 = "이것을 설치하려면"
-lore2 = "블록이 손에 필요합니다"
-lore3 = "재료 건축가의 지팡이"
-lore = ["이것을 설치하려면", "블록이 손에 필요합니다", "재료 건축가의 지팡이"]
-
-# axe
-[axe]
-
-[axe.chop]
-name = "도끼 벌목"
-description = "나무 밑동을 우클릭하여 나무를 베세요!"
-lore1 = "벌목당 블록 수"
-lore2 = "벌목 쿨타임"
-lore3 = "도구 마모"
-lore = ["벌목당 블록 수", "벌목 쿨타임", "도구 마모"]
-
-[axe.log_swap]
-name = "루시의 원목 교환기"
-description = "제작대에서 원목의 종류를 변경하세요!"
-lore1 = "아무 종류의 원목 8개 + 묘목 1개 = 묘목 종류의 원목 8개"
-lore = ["아무 종류의 원목 8개 + 묘목 1개 = 묘목 종류의 원목 8개"]
-
-[axe.drop_to_inventory]
-name = "도끼 인벤토리 드롭"
-
-[axe.ground_smash]
-name = "도끼 지면 강타"
-description = "점프한 후, 웅크려서 주변의 모든 적을 강타합니다."
-lore1 = "피해량"
-lore2 = "블록 반경"
-lore3 = "힘"
-lore4 = "강타 쿨타임"
-lore = ["피해량", "블록 반경", "힘", "강타 쿨타임"]
-
-[axe.leaf_miner]
-name = "나뭇잎 채굴자"
-description = "나뭇잎을 한꺼번에 부술 수 있습니다!"
-lore1 = "웅크리고 나뭇잎을 캐세요"
-lore2 = "나뭇잎 채굴 범위"
-lore3 = "나뭇잎에서 아이템이 드롭되지 않습니다 (악용 방지)"
-lore = ["웅크리고 나뭇잎을 캐세요", "나뭇잎 채굴 범위", "나뭇잎에서 아이템이 드롭되지 않습니다 (악용 방지)"]
-
-[axe.wood_miner]
-name = "목재 채굴자"
-description = "원목을 한꺼번에 부술 수 있습니다!"
-lore1 = "웅크리고 원목/나무를 캐세요 (판자 제외)"
-lore2 = "목재 채굴 범위"
-lore3 = "인벤토리 드롭과 함께 작동"
-lore = ["웅크리고 원목/나무를 캐세요 (판자 제외)", "목재 채굴 범위", "인벤토리 드롭과 함께 작동"]
-
-# brewing
-[brewing]
-
-[brewing.lingering]
-name = "잔류 양조"
-description = "양조한 물약의 효과가 더 오래 지속됩니다!"
-lore1 = "지속시간"
-lore2 = "지속시간"
-lore = ["지속시간", "지속시간"]
-
-[brewing.super_heated]
-name = "초고열 양조"
-description = "양조기가 뜨거울수록 더 빠르게 작동합니다."
-lore1 = "인접한 불 블록당"
-lore2 = "인접한 용암 블록당"
-lore = ["인접한 불 블록당", "인접한 용암 블록당"]
-
-[brewing.darkness]
-name = "병에 담긴 어둠"
-description = "왜 이게 필요한지는 모르겠지만, 여기 있습니다!"
-lore1 = "야간 투시 물약 + 검은색 콘크리트 = 어둠의 물약 (30초)"
-lore2 = "이 물약은 대상이 질주하는 것을 방지합니다!"
-lore = ["야간 투시 물약 + 검은색 콘크리트 = 어둠의 물약 (30초)", "이 물약은 대상이 질주하는 것을 방지합니다!"]
-
-[brewing.haste]
-name = "병에 담긴 성급함"
-description = "효율 마법이 충분하지 않을 때"
-lore1 = "신속 물약 + 자수정 조각 = 성급함의 물약 (60초)"
-lore2 = "신속 물약 + 자수정 블록 = 성급함의 물약-2 (30초)"
-lore = ["신속 물약 + 자수정 조각 = 성급함의 물약 (60초)", "신속 물약 + 자수정 블록 = 성급함의 물약-2 (30초)"]
-
-[brewing.absorption]
-name = "병에 담긴 흡수"
-description = "몸을 강화하라!"
-lore1 = "즉시 치유 + 석영 = 흡수의 물약 (60초)"
-lore2 = "즉시 치유 + 석영 블록 = 흡수의 물약-2 (30초)"
-lore = ["즉시 치유 + 석영 = 흡수의 물약 (60초)", "즉시 치유 + 석영 블록 = 흡수의 물약-2 (30초)"]
-
-[brewing.fatigue]
-name = "병에 담긴 피로"
-description = "몸을 약화시켜라!"
-lore1 = "나약함 물약 + 슬라임볼 = 피로의 물약 (60초)"
-lore2 = "나약함 물약 + 슬라임 블록 = 피로의 물약-2 (30초)"
-lore = ["나약함 물약 + 슬라임볼 = 피로의 물약 (60초)", "나약함 물약 + 슬라임 블록 = 피로의 물약-2 (30초)"]
-
-[brewing.hunger]
-name = "병에 담긴 굶주림"
-description = "끝없는 식욕을 채워라!"
-lore1 = "어색한 물약 + 썩은 살점 = 굶주림의 물약 (60초)"
-lore2 = "나약함 물약 + 썩은 살점 = 굶주림의 물약-3 (30초)"
-lore = ["어색한 물약 + 썩은 살점 = 굶주림의 물약 (60초)", "나약함 물약 + 썩은 살점 = 굶주림의 물약-3 (30초)"]
-
-[brewing.nausea]
-name = "병에 담긴 메스꺼움"
-description = "당신 때문에 속이 메스껍군!"
-lore1 = "어색한 물약 + 갈색 버섯 = 메스꺼움의 물약 (30초)"
-lore2 = "어색한 물약 + 진홍빛 균 = 메스꺼움의 물약-2 (15초)"
-lore = ["어색한 물약 + 갈색 버섯 = 메스꺼움의 물약 (30초)", "어색한 물약 + 진홍빛 균 = 메스꺼움의 물약-2 (15초)"]
-
-[brewing.blindness]
-name = "병에 담긴 실명"
-description = "당신은 정말 끔찍한 사람이군요..."
-lore1 = "어색한 물약 + 먹물 주머니 = 실명의 물약 (30초)"
-lore2 = "어색한 물약 + 발광 먹물 주머니 = 실명의 물약-2 (15초)"
-lore = ["어색한 물약 + 먹물 주머니 = 실명의 물약 (30초)", "어색한 물약 + 발광 먹물 주머니 = 실명의 물약-2 (15초)"]
-
-[brewing.resistance]
-name = "병에 담긴 저항"
-description = "최상의 요새화!"
-lore1 = "어색한 물약 + 철 주괴 = 저항의 물약 (60초)"
-lore2 = "어색한 물약 + 철 블록 = 저항의 물약-2 (30초)"
-lore = ["어색한 물약 + 철 주괴 = 저항의 물약 (60초)", "어색한 물약 + 철 블록 = 저항의 물약-2 (30초)"]
-
-[brewing.health_boost]
-name = "병에 담긴 생명"
-description = "최대 체력이 부족할 때..."
-lore1 = "즉시 치유 물약 + 황금 사과 = 체력 증진 물약 (60초)"
-lore2 = "즉시 치유 물약 + 마법이 부여된 황금 사과 = 체력 증진 물약-2 (60초)"
-lore = ["즉시 치유 물약 + 황금 사과 = 체력 증진 물약 (60초)", "즉시 치유 물약 + 마법이 부여된 황금 사과 = 체력 증진 물약-2 (60초)"]
-
-[brewing.decay]
-name = "병에 담긴 부패"
-description = "찌꺼기가 이렇게 유용할 줄 누가 알았겠어?"
-lore1 = "나약함 물약 + 독이 든 감자 = 시듦의 물약 (16초)"
-lore2 = "나약함 물약 + 진홍빛 뿌리 = 시듦의 물약-2 (8초)"
-lore = ["나약함 물약 + 독이 든 감자 = 시듦의 물약 (16초)", "나약함 물약 + 진홍빛 뿌리 = 시듦의 물약-2 (8초)"]
-
-[brewing.saturation]
-name = "병에 담긴 포만감"
-description = "있잖아... 나 배도 안 고프네..."
-lore1 = "재생 물약 + 구운 감자 = 포만감의 물약"
-lore2 = "재생 물약 + 건초 더미 = 포만감의 물약-2"
-lore = ["재생 물약 + 구운 감자 = 포만감의 물약", "재생 물약 + 건초 더미 = 포만감의 물약-2"]
-
-# blocking
-[blocking]
-
-[blocking.chain_armorer]
-name = "메피스토펠레스의 사슬"
-description = "사슬 갑옷을 제작할 수 있습니다"
-lore1 = "제작법은 다른 갑옷과 동일하지만, 철 조각을 대신 사용합니다"
-lore = ["제작법은 다른 갑옷과 동일하지만, 철 조각을 대신 사용합니다"]
-
-[blocking.horse_armorer]
-name = "제작 가능한 말 갑옷"
-description = "말 갑옷을 제작할 수 있습니다"
-lore1 = "안장을 원하는 재료로 둘러싸서 갑옷을 제작하세요"
-lore = ["안장을 원하는 재료로 둘러싸서 갑옷을 제작하세요"]
-
-[blocking.saddle_crafter]
-name = "제작 가능한 안장"
-description = "가죽으로 안장을 제작합니다"
-lore1 = "레시피: 가죽 5개:"
-lore = ["레시피: 가죽 5개:"]
-
-[blocking.multi_armor]
-name = "다중 방어구"
-description = "겉날개를 갑옷에 결합합니다"
-lore1 = "이동에 매우 유용한 스킬입니다."
-lore2 = "갑옷/겉날개를 즉석에서 합치고 변경하세요!"
-lore3 = "합치려면 인벤토리에서 아이템을 다른 아이템 위에 Shift 클릭하세요."
-lore4 = "방어구를 분리하려면, 해당 아이템을 웅크린 채 버리면 분해됩니다."
-lore5 = "합친 방어구가 파괴되면, 그 안의 모든 아이템을 잃게 됩니다."
-lore6 = "갑옷은 필요 없어, 실망스럽네..."
-lore = ["이동에 매우 유용한 스킬입니다.", "갑옷/겉날개를 즉석에서 합치고 변경하세요!", "합치려면 인벤토리에서 아이템을 다른 아이템 위에 Shift 클릭하세요.", "방어구를 분리하려면, 해당 아이템을 웅크린 채 버리면 분해됩니다.", "합친 방어구가 파괴되면, 그 안의 모든 아이템을 잃게 됩니다.", "갑옷은 필요 없어, 실망스럽네..."]
-
-# crafting
-[crafting]
-
-[crafting.deconstruction]
-name = "해체"
-description = "블록과 아이템을 기본 재료로 분해하세요!"
-lore1 = "아이템을 땅에 떨어뜨리세요."
-lore2 = "그런 다음, 웅크리고 가위로 우클릭하세요"
-lore = ["아이템을 땅에 떨어뜨리세요.", "그런 다음, 웅크리고 가위로 우클릭하세요"]
-
-[crafting.xp]
-name = "제작 경험치"
-description = "제작 시 패시브 XP를 획득합니다"
-lore1 = "제작 시 XP 획득"
-lore = ["제작 시 XP 획득"]
-
-[crafting.reconstruction]
-name = "광석 복원"
-description = "기본 재료로 광석을 다시 만드세요!"
-lore1 = "드롭 아이템 8개 + 모체 1개 = 광석 1개 (비정형)"
-lore2 = "드롭 아이템은 제련되어야 합니다 (해당되는 경우)"
-lore3 = "제외: 파편, 석영, 에메랄드 등..."
-lore4 = "모체 = 감싸는 블록. 예: 돌, 네더랙, 심층암"
-lore = ["드롭 아이템 8개 + 모체 1개 = 광석 1개 (비정형)", "드롭 아이템은 제련되어야 합니다 (해당되는 경우)", "제외: 파편, 석영, 에메랄드 등...", "모체 = 감싸는 블록. 예: 돌, 네더랙, 심층암"]
-
-[crafting.leather]
-name = "제작 가능한 가죽"
-description = "썩은 살점으로 가죽을 만듭니다"
-lore1 = "모닥불 위에 (썩은 살점을) 올려놓기만 하면 됩니다!"
-lore = ["모닥불 위에 (썩은 살점을) 올려놓기만 하면 됩니다!"]
-
-[crafting.backpacks]
-name = "부틸리에의 배낭!"
-description = "모장의 묶음을 게임에 추가합니다!"
-lore1 = "사용하려면 서바이벌 모드여야 합니다"
-lore2 = "LLL : 가죽, 가죽, 가죽"
-lore3 = "LCL : 가죽, 상자, 가죽"
-lore4 = "LLL : 가죽, 가죽, 가죽"
-lore = ["사용하려면 서바이벌 모드여야 합니다", "LLL : 가죽, 가죽, 가죽", "LCL : 가죽, 상자, 가죽", "LLL : 가죽, 가죽, 가죽"]
-
-[crafting.stations]
-name = "휴대용 작업대!"
-description = "손바닥 위에서 작업대를 사용하세요!"
-lore2 = "작업대를 닫을 때 남겨둔 아이템은 영원히 사라집니다!"
-lore3 = "사용 가능한 작업대: 모루, 제작대, 숫돌, 지도 제작대, 석재 절단기, 베틀"
-lore = ["작업대를 닫을 때 남겨둔 아이템은 영원히 사라집니다!", "사용 가능한 작업대: 모루, 제작대, 숫돌, 지도 제작대, 석재 절단기, 베틀"]
-
-[crafting.skulls]
-name = "제작 가능한 머리!"
-description = "재료를 사용하여 몹 머리를 제작할 수 있습니다!"
-lore1 = "뼈 블록을 다음 재료로 둘러싸면 머리를 얻습니다:"
-lore2 = "좀비: 썩은 살점"
-lore3 = "스켈레톤: 뼈"
-lore4 = "크리퍼: 화약"
-lore5 = "위더: 네더 벽돌"
-lore6 = "드래곤: 드래곤의 숨결"
-lore = ["뼈 블록을 다음 재료로 둘러싸면 머리를 얻습니다:", "좀비: 썩은 살점", "스켈레톤: 뼈", "크리퍼: 화약", "위더: 네더 벽돌", "드래곤: 드래곤의 숨결"]
-
-# chronos
-[chronos]
-
-[chronos.time_in_a_bottle]
-name = "시간을 담은 병"
-description = "시간을 저장하는 시간의 병을 들고 다니며, 저장된 시간을 사용하여 시간이 걸리는 블록, 작물, 새끼 동물과 같은 성장 가능한 엔티티를 가속시킵니다. 레시피 (비정형): 신속의 물약 + 시계 + 유리병."
-lore1 = "틱마다 충전되는 저장 초"
-lore2 = "저장된 초당 시간 가속"
-lore3 = "레시피 (비정형): 신속의 물약 + 시계 + 유리병"
-lore = ["틱마다 충전되는 저장 초", "저장된 초당 시간 가속", "레시피 (비정형): 신속의 물약 + 시계 + 유리병"]
-
-[chronos.aberrant_touch]
-name = "이질적 손길"
-description = "근접 공격이 배고픔을 대가로 중첩되는 구속을 적용하며, 엄격한 PvP 제한이 있고, 5스택 시 대상을 속박합니다."
-lore1 = "근접 공격이 중첩되는 구속을 적용"
-lore2 = "PvE 구속 지속시간 상한"
-lore3 = "PvP 구속 증폭 상한"
-lore = ["근접 공격이 중첩되는 구속을 적용", "PvE 구속 지속시간 상한", "PvP 구속 증폭 상한"]
-
-[chronos.instant_recall]
-name = "즉시 회귀"
-description = "시계를 손에 들고 좌클릭 또는 우클릭하여 최근 스냅샷으로 되돌아가며, 체력과 배고픔이 복구됩니다."
-lore1 = "되감기 시간"
-lore2 = "쿨타임"
-lore3 = "인벤토리 롤백 없음"
-lore = ["되감기 시간", "쿨타임", "인벤토리 롤백 없음"]
-
-[chronos.time_bomb]
-name = "시간 폭탄"
-description = "제작된 시간 폭탄을 던져 시간의 장을 생성하고, 엔티티를 느리게 하며, 투사체를 정지시킵니다."
-lore1 = "시간 장의 반경"
-lore2 = "시간 장의 지속시간"
-lore3 = "폭탄 쿨타임"
-lore4 = "레시피 (비정형): 시계 + 눈덩이 + 다이아몬드 + 모래"
-lore = ["시간 장의 반경", "시간 장의 지속시간", "폭탄 쿨타임", "레시피 (비정형): 시계 + 눈덩이 + 다이아몬드 + 모래"]
-
-# discovery
-[discovery]
-
-[discovery.armor]
-name = "세계의 갑옷"
-description = "주변 블록 경도에 따른 패시브 방어력."
-lore1 = "패시브 방어력"
-lore2 = "주변 블록 경도 기준"
-lore3 = "방어력 강도:"
-lore = ["패시브 방어력", "주변 블록 경도 기준", "방어력 강도:"]
-
-[discovery.unity]
-name = "실험적 통합"
-description = "경험치 구슬을 모으면 랜덤 스킬에 XP가 추가됩니다."
-lore1 = "XP "
-lore2 = "구슬당"
-lore = ["XP ", "구슬당"]
-
-[discovery.resist]
-name = "실험적 저항"
-description = "피격 시 체력이 5칸 이하로 떨어지거나 죽을 위기일 때만 경험치를 소모하여 피해를 완화합니다."
-lore0 = "위험 체력(<= 5칸)에서만 15초마다 한 번 발동"
-lore1 = " 피해 감소"
-lore2 = "경험치 소모"
-lore = ["위험 체력(<= 5칸)에서만 15초마다 한 번 발동", " 피해 감소", "경험치 소모"]
-
-[discovery.villager]
-name = "주민 매력"
-description = "주민과 더 좋은 거래를 할 수 있습니다!"
-lore1 = "주민과 상호작용할 때마다 XP를 소모합니다"
-lore2 = "상호작용당 XP를 소비하고 거래를 강화할 확률"
-lore3 = "상호작용당 필요한 XP 소모량"
-lore = ["주민과 상호작용할 때마다 XP를 소모합니다", "상호작용당 XP를 소비하고 거래를 강화할 확률", "상호작용당 필요한 XP 소모량"]
-
-# enchanting
-[enchanting]
-
-[enchanting.lapis_return]
-name = "청금석 반환"
-description = "XP 1레벨 추가 비용 대신, 무료 청금석을 돌려받을 확률이 있습니다"
-lore1 = "레벨당 마법부여 비용이 1 증가하지만, 최대 3개의 청금석을 돌려받을 수 있습니다"
-lore = ["레벨당 마법부여 비용이 1 증가하지만, 최대 3개의 청금석을 돌려받을 수 있습니다"]
-
-[enchanting.quick_enchant]
-name = "퀵클릭 마법부여"
-description = "마법부여 책을 아이템에 직접 클릭하여 마법을 부여합니다."
-lore1 = "최대 합산 레벨"
-lore2 = "아이템에 다음을 초과하여 마법부여할 수 없습니다 "
-lore3 = "파워"
-lore = ["최대 합산 레벨", "아이템에 다음을 초과하여 마법부여할 수 없습니다 ", "파워"]
-
-[enchanting.return]
-name = "XP 반환"
-description = "아이템에 마법부여 시 사용한 XP가 돌아옵니다."
-lore1 = "아이템을 마법부여할 때 소비한 경험치가 환불될 확률이 있습니다"
-lore2 = "마법부여당 경험치"
-lore = ["아이템을 마법부여할 때 소비한 경험치가 환불될 확률이 있습니다", "마법부여당 경험치"]
-
-# excavation
-[excavation]
-
-[excavation.haste]
-name = "성급한 발굴가"
-description = "성급함 효과로 발굴 속도가 빨라집니다!"
-lore1 = "발굴 중 성급함 획득"
-lore2 = "x 블록을 캐기 시작하면 성급함 레벨 획득."
-lore = ["발굴 중 성급함 획득", "x 블록을 캐기 시작하면 성급함 레벨 획득."]
-
-[excavation.spelunker]
-name = "초감각 탐험가!"
-description = "땅 너머로 광석을 볼 수 있습니다!"
-lore1 = "보조 손에 광석, 주 손에 발광 열매를 들고 웅크리세요!"
-lore2 = "블록 범위: "
-lore3 = "사용 시 발광 열매 소모"
-lore = ["보조 손에 광석, 주 손에 발광 열매를 들고 웅크리세요!", "블록 범위: ", "사용 시 발광 열매 소모"]
-
-[excavation.drop_to_inventory]
-name = "삽 인벤토리 드롭"
-
-[excavation.omni_tool]
-name = "OMNI - 도구"
-description = "태클의 과하게 설계된 화려한 멀티툴"
-lore1 = "가장 강력한 기능 중 하나로, 다음을 할 수 있습니다"
-lore2 = "필요에 따라 도구를 즉석에서 합치고 변경할 수 있습니다."
-lore3 = "합치려면 인벤토리에서 아이템을 다른 아이템 위에 Shift 클릭하세요."
-lore4 = "도구를 분리하려면, 해당 도구를 웅크린 채 버리면 분해됩니다."
-lore5 = "이 멀티툴에서 도구를 파괴할 수 없지만 부서진 도구는 사용할 수 없습니다"
-lore6 = "합칠 수 있는 총 아이템 수."
-lore7 = "도구를 5~6개 쓸 수도 있고, 하나만 쓸 수도 있습니다!"
-lore = ["가장 강력한 기능 중 하나로, 다음을 할 수 있습니다", "필요에 따라 도구를 즉석에서 합치고 변경할 수 있습니다.", "합치려면 인벤토리에서 아이템을 다른 아이템 위에 Shift 클릭하세요.", "도구를 분리하려면, 해당 도구를 웅크린 채 버리면 분해됩니다.", "이 멀티툴에서 도구를 파괴할 수 없지만 부서진 도구는 사용할 수 없습니다", "합칠 수 있는 총 아이템 수.", "도구를 5~6개 쓸 수도 있고, 하나만 쓸 수도 있습니다!"]
-
-# herbalism
-[herbalism]
-
-[herbalism.growth_aura]
-name = "성장의 오라"
-description = "주변의 자연을 오라로 성장시킵니다"
-lore1 = "블록 반경"
-lore2 = "성장 오라 강도"
-lore3 = "배고픔 비용"
-lore = ["블록 반경", "성장 오라 강도", "배고픔 비용"]
-
-[herbalism.hippo]
-name = "약초학자의 하마"
-description = "음식을 먹으면 더 많은 포만감을 얻습니다"
-lore1 = "음식) 섭취 시 추가 포만감 포인트"
-lore = ["음식) 섭취 시 추가 포만감 포인트"]
-
-[herbalism.myconid]
-name = "약초학자의 균류"
-description = "균사체를 제작할 수 있는 능력을 부여합니다"
-lore1 = "아무 흙 + 갈색 버섯 + 빨간 버섯으로 균사체를 제작합니다."
-lore = ["아무 흙 + 갈색 버섯 + 빨간 버섯으로 균사체를 제작합니다."]
-
-[herbalism.terralid]
-name = "약초학자의 대지"
-description = "잔디 블록을 제작할 수 있는 능력을 부여합니다"
-lore1 = "씨앗 3개를 흙 3개 위에 놓으면 잔디 블록 3개를 제작합니다."
-lore = ["씨앗 3개를 흙 3개 위에 놓으면 잔디 블록 3개를 제작합니다."]
-
-[herbalism.cobweb]
-name = "거미줄 제작자"
-description = "제작대에서 거미줄을 만들 수 있는 능력을 부여합니다"
-lore1 = "실 9개로 거미줄을 만듭니다."
-lore = ["실 9개로 거미줄을 만듭니다."]
-
-[herbalism.mushroom_blocks]
-name = "버섯 블록 제작자"
-description = "제작대에서 버섯 블록을 만들 수 있는 능력을 부여합니다"
-lore1 = "버섯 4개로 블록을, 블록으로 줄기를 만듭니다."
-lore = ["버섯 4개로 블록을, 블록으로 줄기를 만듭니다."]
-
-[herbalism.drop_to_inventory]
-name = "괭이 인벤토리 드롭"
-
-[herbalism.hungry_shield]
-name = "굶주린 방패"
-description = "체력 대신 배고픔으로 피해를 받습니다."
-lore1 = "배고픔으로 저항"
-lore = ["배고픔으로 저항"]
-
-[herbalism.luck]
-name = "약초학자의 행운"
-description = "풀/꽃을 부수면 일정 확률로 랜덤 아이템을 얻습니다"
-lore0 = "꽃 = 음식, 풀 = 씨앗"
-lore1 = "꽃을 부수면 아이템을 얻을 확률"
-lore2 = "풀을 부수면 아이템을 얻을 확률"
-lore = ["꽃 = 음식, 풀 = 씨앗", "꽃을 부수면 아이템을 얻을 확률", "풀을 부수면 아이템을 얻을 확률"]
-
-[herbalism.replant]
-name = "수확 및 재파종"
-description = "괭이로 작물을 우클릭하여 수확하고 다시 심습니다."
-lore1 = "블록 재파종 반경"
-lore = ["블록 재파종 반경"]
-
-# hunter
-[hunter]
-
-[hunter.adrenaline]
-name = "아드레날린"
-description = "체력이 낮을수록 더 많은 피해를 줍니다 (근접)"
-lore1 = "최대 피해량"
-lore = ["최대 피해량"]
-
-[hunter.penalty]
-name = ""
-description = ""
-lore1 = "배고픔이 바닥나면 독 스택을 얻습니다"
-lore = ["배고픔이 바닥나면 독 스택을 얻습니다"]
-
-[hunter.drop_to_inventory]
-name = "아이템 인벤토리 드롭"
-description = "무언가를 처치하거나 / 검으로 블록을 부수면 드롭 아이템이 인벤토리로 들어갑니다"
-lore1 = "몹/블록에서 아이템이 드롭될 때마다 가능하면 인벤토리로 직접 들어갑니다."
-lore = ["몹/블록에서 아이템이 드롭될 때마다 가능하면 인벤토리로 직접 들어갑니다."]
-
-[hunter.invisibility]
-name = "소멸의 발걸음"
-description = "피격 시 배고픔을 대가로 투명화를 얻습니다"
-lore1 = "피격 시 패시브 투명화 획득"
-lore2 = "x 피격 시 3초간 투명화 중첩"
-lore3 = "x 중첩 배고픔"
-lore4 = "배고픔 중첩의 지속시간과 배수."
-lore5 = "투명화 지속시간"
-lore = ["피격 시 패시브 투명화 획득", "x 피격 시 3초간 투명화 중첩", "x 중첩 배고픔", "배고픔 중첩의 지속시간과 배수.", "투명화 지속시간"]
-
-[hunter.jump_boost]
-name = "사냥꾼의 높이"
-description = "피격 시 배고픔을 대가로 점프 강화를 얻습니다"
-lore1 = "피격 시 패시브 점프 강화 획득"
-lore2 = "x 피격 시 3초간 점프 강화 중첩"
-lore3 = "x 중첩 배고픔"
-lore4 = "배고픔 중첩의 지속시간과 배수."
-lore5 = "점프 강화 중첩 배수 (지속시간 아님)."
-lore = ["피격 시 패시브 점프 강화 획득", "x 피격 시 3초간 점프 강화 중첩", "x 중첩 배고픔", "배고픔 중첩의 지속시간과 배수.", "점프 강화 중첩 배수 (지속시간 아님)."]
-
-[hunter.luck]
-name = "사냥꾼의 행운"
-description = "피격 시 배고픔을 대가로 행운을 얻습니다"
-lore1 = "피격 시 패시브 행운 획득"
-lore2 = "x 피격 시 3초간 행운 중첩"
-lore3 = "x 중첩 배고픔"
-lore4 = "배고픔 중첩의 지속시간과 배수."
-lore5 = "행운 중첩 배수 (지속시간 아님)."
-lore = ["피격 시 패시브 행운 획득", "x 피격 시 3초간 행운 중첩", "x 중첩 배고픔", "배고픔 중첩의 지속시간과 배수.", "행운 중첩 배수 (지속시간 아님)."]
-
-[hunter.regen]
-name = "사냥꾼의 재생"
-description = "피격 시 배고픔을 대가로 재생력을 얻습니다"
-lore1 = "피격 시 패시브 재생력 획득"
-lore2 = "x 피격 시 3초간 재생력 중첩"
-lore3 = "x 중첩 배고픔"
-lore4 = "배고픔 중첩의 지속시간과 배수."
-lore5 = "재생력 중첩 배수 (지속시간 아님)."
-lore = ["피격 시 패시브 재생력 획득", "x 피격 시 3초간 재생력 중첩", "x 중첩 배고픔", "배고픔 중첩의 지속시간과 배수.", "재생력 중첩 배수 (지속시간 아님)."]
-
-[hunter.resistance]
-name = "사냥꾼의 저항"
-description = "피격 시 배고픔을 대가로 저항력을 얻습니다"
-lore1 = "피격 시 패시브 저항력 획득"
-lore2 = "x 피격 시 3초간 저항력 중첩"
-lore3 = "x 중첩 배고픔"
-lore4 = "배고픔 중첩의 지속시간과 배수."
-lore5 = "저항력 중첩 배수 (지속시간 아님)."
-lore = ["피격 시 패시브 저항력 획득", "x 피격 시 3초간 저항력 중첩", "x 중첩 배고픔", "배고픔 중첩의 지속시간과 배수.", "저항력 중첩 배수 (지속시간 아님)."]
-
-[hunter.speed]
-name = "사냥꾼의 속도"
-description = "피격 시 배고픔을 대가로 속도를 얻습니다"
-lore1 = "피격 시 패시브 속도 획득"
-lore2 = "x 피격 시 3초간 속도 중첩"
-lore3 = "x 중첩 배고픔"
-lore4 = "배고픔 중첩의 지속시간과 배수."
-lore5 = "속도 중첩 배수 (지속시간 아님)."
-lore = ["피격 시 패시브 속도 획득", "x 피격 시 3초간 속도 중첩", "x 중첩 배고픔", "배고픔 중첩의 지속시간과 배수.", "속도 중첩 배수 (지속시간 아님)."]
-
-[hunter.strength]
-name = "사냥꾼의 힘"
-description = "피격 시 배고픔을 대가로 힘을 얻습니다"
-lore1 = "피격 시 패시브 힘 획득"
-lore2 = "x 피격 시 3초간 힘 중첩"
-lore3 = "x 중첩 배고픔"
-lore4 = "배고픔 중첩의 지속시간과 배수."
-lore5 = "힘 중첩 배수 (지속시간 아님)."
-lore = ["피격 시 패시브 힘 획득", "x 피격 시 3초간 힘 중첩", "x 중첩 배고픔", "배고픔 중첩의 지속시간과 배수.", "힘 중첩 배수 (지속시간 아님)."]
-
-# nether
-[nether]
-
-[nether.skull_toss]
-name = "위더 해골 투척"
-description1 = "내면의 위더를 해방하세요,"
-description2 = "누군가의"
-description3 = "머리를 사용하여."
-lore1 = "해골 투척 사이의 쿨타임 초."
-lore2 = "위더 해골 사용: 던지기 "
-lore3 = "위더 해골"
-lore4 = "충돌 시 폭발."
-lore = ["해골 투척 사이의 쿨타임 초.", "위더 해골 사용: 던지기 ", "위더 해골", "충돌 시 폭발."]
-
-[nether.wither_resist]
-name = "위더 저항"
-description = "네더라이트의 힘으로 시듦을 저항합니다."
-lore1 = "시듦을 무효화할 확률 (부위당)."
-lore2 = "패시브: 네더라이트 갑옷 착용 시 일정 확률로 무효화 "
-lore3 = "시듦 효과."
-lore = ["시듦을 무효화할 확률 (부위당).", "패시브: 네더라이트 갑옷 착용 시 일정 확률로 무효화 ", "시듦 효과."]
-
-[nether.fire_resist]
-name = "화염 저항"
-description = "피부를 단단하게 하여 불에 저항합니다."
-lore1 = "불타는 효과를 무효화할 확률!"
-lore = ["불타는 효과를 무효화할 확률!"]
-
-# pickaxe
-[pickaxe]
-
-[pickaxe.auto_smelt]
-name = "자동 제련"
-description = "채굴한 바닐라 광석을 자동으로 제련합니다"
-lore1 = "제련 가능한 광석이 자동으로 제련됩니다"
-lore2 = "% 확률로 추가 드롭"
-lore = ["제련 가능한 광석이 자동으로 제련됩니다", "% 확률로 추가 드롭"]
-
-[pickaxe.chisel]
-name = "광석 끌"
-description = "광석을 우클릭하여 더 많은 광석을 캐낼 수 있지만, 내구도 소모가 심합니다."
-lore1 = "드롭 확률"
-lore2 = "도구 마모"
-lore = ["드롭 확률", "도구 마모"]
-
-[pickaxe.drop_to_inventory]
-name = "곡괭이 인벤토리 드롭"
-description = "블록을 깨면 아이템이 인벤토리로 바로 들어갑니다"
-lore1 = "블록에서 아이템이 드롭될 때마다 가능하면 인벤토리로 직접 들어갑니다."
-lore = ["블록에서 아이템이 드롭될 때마다 가능하면 인벤토리로 직접 들어갑니다."]
-
-[pickaxe.silk_spawner]
-name = "곡괭이 섬세한 스포너"
-description = "스포너를 파괴할 때 드롭되게 합니다"
-lore1 = "섬세한 손길로 스포너를 부술 수 있게 합니다."
-lore2 = "웅크린 채로 스포너를 부술 수 있게 합니다."
-lore = ["섬세한 손길로 스포너를 부술 수 있게 합니다.", "웅크린 채로 스포너를 부술 수 있게 합니다."]
-
-[pickaxe.vein_miner]
-name = "광맥 채굴"
-description = "바닐라 광석의 맥/덩어리를 한꺼번에 캘 수 있습니다"
-lore1 = "웅크리고 광석을 캐세요"
-lore2 = "광맥 채굴 범위"
-lore3 = "이 스킬은 모든 드롭을 하나로 합치지 않습니다!"
-lore = ["웅크리고 광석을 캐세요", "광맥 채굴 범위", "이 스킬은 모든 드롭을 하나로 합치지 않습니다!"]
-
-# ranged
-[ranged]
-
-[ranged.arrow_recovery]
-name = "화살 회수"
-description = "적을 죽인 후 화살을 회수합니다."
-lore1 = "적중/처치 시 화살 회수 확률"
-lore2 = "확률: "
-lore = ["적중/처치 시 화살 회수 확률", "확률: "]
-
-[ranged.web_shot]
-name = "거미줄 올가미"
-description = "대상을 맞추면 주위에 거미줄이 생깁니다!"
-lore1 = "눈덩이 주변에 거미줄 8개, 그리고 던지세요!"
-lore2 = "대략적인 가두기 시간(초)."
-lore = ["눈덩이 주변에 거미줄 8개, 그리고 던지세요!", "대략적인 가두기 시간(초)."]
-
-[ranged.force_shot]
-name = "강력 사격"
-description = "더 멀리, 더 빠르게 투사체를 쏩니다!"
-advancementname = "장거리 사격"
-advancementlore = "30블록 이상 떨어진 곳에서 적중시키세요!"
-lore1 = "투사체 속도"
-lore = ["투사체 속도"]
-
-[ranged.lunge_shot]
-name = "돌진 사격"
-description = "낙하 중 화살을 쏘면 랜덤 방향으로 튕겨납니다"
-lore1 = "랜덤 돌진 속도"
-lore = ["랜덤 돌진 속도"]
-
-[ranged.arrow_piercing]
-name = "화살 관통"
-description = "투사체에 관통을 추가합니다! 적을 꿰뚫으세요!"
-lore1 = "관통 대상 수"
-lore = ["관통 대상 수"]
-
-# rift
-[rift]
-
-[rift.remote_access]
-name = "원격 접근"
-description = "공허에서 끌어와 표시된 보관함에 접근합니다."
-lore1 = "엔더 진주 + 나침반 = 유물 포트키"
-lore2 = "이 아이템으로 원격으로 보관함에 접근할 수 있습니다"
-lore3 = "제작 후 아이템을 보고 사용법을 확인하세요"
-notcontainer = "그것은 보관함이 아닙니다"
-lore = ["엔더 진주 + 나침반 = 유물 포트키", "이 아이템으로 원격으로 보관함에 접근할 수 있습니다", "제작 후 아이템을 보고 사용법을 확인하세요"]
-
-[rift.blink]
-name = "균열 점멸"
-description = "이단 점프로 바라보는 방향으로 점멸합니다. 성공한 점멸은 엔더 진주를 소모하지 않지만 일반 진주 피해를 입으며, 피해량은 레벨마다 감소합니다."
-lore1 = "점멸 범위"
-lore2 = "자기 피해 (하트)"
-lore = ["점멸 범위", "자기 피해 (하트)"]
-
-[rift.chest]
-name = "간편 엔더 상자"
-description = "손에 든 엔더 상자를 좌클릭하여 엽니다."
-lore1 = "손에 든 엔더 상자를 클릭하여 열기 (설치하지 마세요)"
-lore = ["손에 든 엔더 상자를 클릭하여 열기 (설치하지 마세요)"]
-
-[rift.descent]
-name = "공중부양 방지"
-description = "공중에 떠 있는 게 지겹나요? 이 스킬이 바로 당신을 위한 것입니다!"
-lore1 = "웅크리면 하강하며, 일반보다 느린 속도로 떨어집니다!"
-lore2 = "쿨타임:"
-lore = ["웅크리면 하강하며, 일반보다 느린 속도로 떨어집니다!", "쿨타임:"]
-
-[rift.gate]
-name = "균열 게이트"
-description = "표시된 위치로 순간이동합니다."
-lore1 = "제작: 에메랄드 + 자수정 조각 + 엔더 진주"
-lore2 = "사용 전에 읽어보세요!"
-lore3 = "5초 지연, "
-lore4 = "이 애니메이션 중에 죽을 수 있습니다"
-lore = ["제작: 에메랄드 + 자수정 조각 + 엔더 진주", "사용 전에 읽어보세요!", "5초 지연, ", "이 애니메이션 중에 죽을 수 있습니다"]
-
-[rift.resist]
-name = "균열 저항"
-description = "엔더 아이템 및 능력 사용 시 저항력을 얻습니다"
-lore1 = "+ 패시브: 균열 능력이나 엔더 아이템 사용 시 저항력 제공"
-lore2 = "휴대용 엔더 상자 제외, 소모 가능한 것만 해당"
-lore = ["+ 패시브: 균열 능력이나 엔더 아이템 사용 시 저항력 제공", "휴대용 엔더 상자 제외, 소모 가능한 것만 해당"]
-
-[rift.visage]
-name = "균열 형상"
-description = "인벤토리에 엔더 진주가 있으면 엔더맨이 적대적으로 변하지 않습니다."
-lore1 = "인벤토리에 엔더 진주가 있으면 엔더맨이 적대적으로 변하지 않습니다."
-lore = ["인벤토리에 엔더 진주가 있으면 엔더맨이 적대적으로 변하지 않습니다."]
-
-# seaborn
-[seaborn]
-
-[seaborn.oxygen]
-name = "유기 산소 탱크"
-description = "작은 폐에 더 많은 산소를 담으세요!"
-lore1 = "산소 용량 증가"
-lore = ["산소 용량 증가"]
-
-[seaborn.fishers_fantasy]
-name = "낚시꾼의 환상"
-description = "낚시에서 더 많은 XP와 물고기를 얻으세요!"
-lore1 = "레벨마다 더 많은 XP와 물고기를 얻을 확률이 있습니다!"
-lore = ["레벨마다 더 많은 XP와 물고기를 얻을 확률이 있습니다!"]
-
-[seaborn.haste]
-name = "거북이 광부"
-description = "수중에서 채굴 시 성급함을 얻습니다!"
-lore1 = "수중 호흡 효과가 사라진 후 수중에서 채굴 시 성급함 3이 적용됩니다 (친수성과 중첩)!"
-lore = ["수중 호흡 효과가 사라진 후 수중에서 채굴 시 성급함 3이 적용됩니다 (친수성과 중첩)!"]
-
-[seaborn.night_vision]
-name = "거북이의 시야"
-description = "수중에서 야간 투시를 얻습니다"
-lore1 = "수중 호흡 효과가 사라진 후 간단히 수중에서 야간 투시를 얻습니다!"
-lore = ["수중 호흡 효과가 사라진 후 간단히 수중에서 야간 투시를 얻습니다!"]
-
-[seaborn.dolphin_grace]
-name = "돌고래의 은총"
-description = "돌고래 없이 돌고래처럼 수영합니다"
-lore1 = "+ 패시브: 획득 "
-lore2 = "x 속도 (돌고래의 은총)"
-lore3 = "정밀한 독일 공학이- 잠깐 그건 아니고... 물갈퀴와 호환되지 않습니다"
-lore = ["+ 패시브: 획득 ", "x 속도 (돌고래의 은총)", "정밀한 독일 공학이- 잠깐 그건 아니고... 물갈퀴와 호환되지 않습니다"]
-
-# stealth
-[stealth]
+[skill.kinetics]
+name = "한국어"
+icon = "⚒"
+description = "운동은 힘입니다. Maces와 Smash, spears로 충전, 그리고 구부린 순간 자체 : 바운드, 발사, levitation 및 잘 겨냥 떨어지는 악마 모든 먹이 마스터리."
+
+[snippets.gui]
+level = "레벨"
+level_value = "레벨 {level}"
+knowledge = "지식"
+knowledge_value = "{knowledge} 지식"
+power_used = "사용 중인 능력치"
+power_used_value = "힘 사용 {power}"
+not_learned = "미습득"
+xp = "XP까지"
+welcome = "환영합니다!"
+welcome_back = "다시 오신 것을 환영합니다!"
+xp_bonus_for_time = "XP 보너스"
+max_ability_power = "최대 능력 파워"
+unlock_this_by_clicking = "우클릭하여 잠금 해제: "
+back = "뒤로"
+unlearn_all = "모두 잊기"
+unlearned_all = "모두 잊었습니다"
+
+[snippets.adapt_menu]
+may_not_unlearn = "잊을 수 없습니다"
+may_unlearn = "배우기/잊기 가능"
+knowledge_cost = "지식 비용"
+knowledge_available = "사용 가능한 지식"
+already_learned = "이미 습득함"
+unlearn_refund = "클릭하여 잊기 및 환불"
+no_refunds = "하드코어, 환불 불가"
+knowledge = "지식"
+click_learn = "클릭하여 배우기"
+no_knowledge = "(지식이 없습니다)"
+you_only_have = "현재 보유량:"
+how_to_level_up = "스킬 레벨을 올려 최대 파워를 높이세요."
+not_enough_power = "파워가 부족합니다! 각 능력 레벨은 파워 1을 소모합니다."
+power = "파워"
+power_drain = "파워 소모"
+learned = "습득 완료 "
+unlearned = "잊음 "
+learned_title = "{adaptation} 습득"
+unlearned_title = "배우지 못한 {adaptation}"
+may_not_unlearn_title = "{adaptation} 습득을 취소할 수 없습니다"
+activator_block = "책장"
+
+[snippets.knowledge_orb]
+contains = "포함"
+knowledge = "지식"
+rightclick = "우클릭"
+togainknowledge = "하여 이 지식을 획득"
+knowledge_orb = "지식의 구슬"
+contents = "{knowledge} {skill} 지식"
+use = "이 지식을 얻기 위해 오른쪽 클릭"
+
+[snippets.experience_orb]
+contains = "포함"
+xp = "경험치"
+rightclick = "우클릭"
+togainxp = "하여 이 경험치를 획득"
+xporb = "경험치 구슬"
+contents = "{experience} {skill} 경험치"
+use = "이 경험을 얻기 위해 오른쪽 클릭"
+
+[snippets.effects]
+enabled = "Adapt 능력 효과는 이제 당신을 위해 볼 수 있습니다."
+disabled = "Adapt 능력 효과는 이제 당신을 위해 숨겨."
+invalid_state = "유효하지 않은 상태입니다. enabled=true, enabled=false 중 하나를 사용하거나 생략하여 전환하세요."
+
+[snippets.xp]
+inspired = "관심상품! 신선한 활동 보너스"
 
 [stealth.ghost_armor]
 name = "유령의 갑옷"
@@ -1884,6 +5680,8 @@ description = "웅크리는 동안 야간 투시를 얻습니다"
 lore1 = "한 차례의 "
 lore2 = "야간 투시"
 lore3 = "를 웅크리는 동안 얻습니다"
+lore4 = "야간 투시"
+lore5 = "를 웅크리는 동안 얻습니다"
 lore = ["한 차례의 ", "야간 투시", "를 웅크리는 동안 얻습니다"]
 
 [stealth.snatch]
@@ -1905,35 +5703,172 @@ lore1 = "웅크리는 동안 엔더맨 공격을 방지"
 lore2 = "모든 엔더맨 공격을 방지"
 lore = ["웅크리는 동안 엔더맨 공격을 방지", "모든 엔더맨 공격을 방지"]
 
-# sword
-[sword]
+[stealth.silent_step]
+name = "은신"
+description = "허리 칼, 컷퍼스 및 암살자 Assassinate 의 핵심 은폐. 스닉은 관찰자의 의식을 이용한다; 보이지 않는 것 또는 활성 그림자 속임수 항상 감지되지 않은 것으로 간주됩니다."
+lore1 = "몹 탐지 억제 반경"
+lore2 = "폭동자 등단 피해 보너스"
+lore3 = "플레이어 백스타브 손해 보너스"
+lore = ["몹 탐지 억제 반경", "폭동자 등단 피해 보너스", "플레이어 백스타브 손해 보너스"]
+
+[stealth.shadow_decoy]
+name = "그림자 미끼"
+description = "네 피부와 장비를 입고 가까이에 있는 군중의 공격을 끌어내는 유혹을 낳기 위해 속삭이는 걸 그만둬라."
+lore1 = "미끼 기간"
+lore2 = "미끼 매력 반경"
+lore3 = "미끼 재사용 대기시간"
+lore = ["미끼 기간", "미끼 매력 반경", "미끼 재사용 대기시간"]
+
+[stealth.shadowmeld]
+name = "비밀번호"
+description = "스텔스 보고가 보이지 않는 동안 계속 속삭여서 움직이지 말고, 감지하거나 행동하거나 손상을 입거나 일어서는 것은 합병을 끝낸다."
+lore1 = "탐지 웅크리기 지연"
+lore = ["탐지 웅크리기 지연"]
+
+[stealth.smoke_pellet]
+name = "연기 펠릿"
+description = "웅크리기을 들고 겨냥한 연기 구름을 던지는 한손에 gunpowder. 내부 턴 보이지 않는 플레이어, 몹 드롭 aggro 및 그들을 재 타겟팅 할 수 없습니다, 그리고 생활 개체는 블라인드."
+lore1 = "클라우드 반경"
+lore2 = "클라우드 기간"
+lore = ["클라우드 반경", "클라우드 기간"]
+
+[stealth.cutpurse]
+name = "소매치기"
+description = "은신 상태에서 발각되지 않은 동안 약탈자, 변명자, 피글린을 공격하면 처치하지 않고도 전리품을 훔칠 수 있습니다."
+lore1 = "훔칠 확률"
+lore2 = "전리품 묶음 수"
+lore = ["훔칠 확률", "전리품 묶음 수"]
+
+[stealth.trap_sense]
+name = "트랩 센스"
+description = "운동하는 동안, 가까운 덫을 놓은 가슴, tripwire 끈, 걸이, 압력 판 및 sculk는 개인적으로 glow를 막습니다. 최대 수준은 sculk를 방아쇠에서 당신의 운동 진동 전부를 방지합니다."
+lore1 = "감지 범위"
+lore2 = "Sculk 운동 억제"
+lore = ["감지 범위", "Sculk 운동 억제"]
+
+[stealth.assassinate]
+name = "암살"
+description = "스텔스가 발견되지 않은 경우, 합성 오버킬 손상 대신 현재의 건강에 대한 공격적 비보 모bs."
+lore1 = "실행 가능한 건강 캡"
+lore2 = "재사용 대기시간"
+lore = ["실행 가능한 건강 캡", "재사용 대기시간"]
+
+[stealth.decoy_swap]
+name = "프로모션"
+description = "섀도우 미끼. 당신의 미끼가 살아있을 때, 두 배 비누는 그것을 가진 장소를 교환하기 위하여 운동합니다."
+lore1 = "Swap 범위"
+lore2 = "재사용 대기시간"
+lore = ["Swap 범위", "재사용 대기시간"]
+
+[stealth.umbral_recovery]
+name = "그림자 회복"
+description = "환불 굶주린 동안 생성 된 킬로 및 활성 보이지 않는 창을 확장."
+lore1 = "굶주림 환불"
+lore2 = "Invisibility 연장"
+lore = ["굶주림 환불", "Invisibility 연장"]
 
 [sword.machete]
 name = "마체테"
 description = "풀잎을 쉽게 베어냅니다!"
 lore1 = "베기 반경"
-lore2 = "베기 쿨타임"
+lore2 = "베기 재사용 대기시간"
 lore3 = "도구 마모"
-lore = ["베기 반경", "베기 쿨타임", "도구 마모"]
+lore = ["베기 반경", "베기 재사용 대기시간", "도구 마모"]
 
 [sword.bloody_blade]
 name = "피묻은 칼날"
 description = "검으로 공격하면 출혈을 일으킵니다!"
 lore1 = "검으로 생물을 공격하면 출혈이 발생합니다"
 lore2 = "출혈 지속시간"
-lore3 = "출혈 쿨타임"
-lore = ["검으로 생물을 공격하면 출혈이 발생합니다", "출혈 지속시간", "출혈 쿨타임"]
+lore3 = "출혈 재사용 대기시간"
+lore = ["검으로 생물을 공격하면 출혈이 발생합니다", "출혈 지속시간", "출혈 재사용 대기시간"]
 
 [sword.poisoned_blade]
 name = "독검"
 description = "검으로 공격하면 독을 일으킵니다!"
 lore1 = "검으로 생물을 공격하면 독이 발생합니다"
 lore2 = "독 지속시간"
-lore3 = "독 쿨타임"
-lore = ["검으로 생물을 공격하면 독이 발생합니다", "독 지속시간", "독 쿨타임"]
+lore3 = "독 재사용 대기시간"
+lore = ["검으로 생물을 공격하면 독이 발생합니다", "독 지속시간", "독 재사용 대기시간"]
 
-# taming
-[taming]
+[sword.dual_wield]
+name = "이중 장착 안정성"
+description = "각 손에 칼을 잡고 보너스 근접 손상. 일치 칼은 더 높은 보너스를 부여."
+lore1 = "일치 검 보너스"
+lore2 = "혼합 검 보너스"
+lore = ["일치 검 보너스", "혼합 검 보너스"]
+
+[sword.executioners_edge]
+name = "Executioner의 가장자리"
+description = "검 공격은 건강상태가 낮은 목표물에 추가적인 피해를 준다."
+lore1 = "보너스 손상"
+lore2 = "건강 위협"
+lore = ["보너스 손상", "건강 위협"]
+
+[sword.riposte_window]
+name = "반격 창"
+description = "방패 팔으로 막는 당신의 다음 파업을 위한 짧은 반격."
+lore1 = "반격 창"
+lore2 = "반격 손상 보너스"
+lore = ["반격 창", "반격 손상 보너스"]
+
+[sword.crimson_cyclone]
+name = "Crimson 사이클론"
+description = "당신의 표적의 주위에 출혈 지역 슬래시를 비난하는 칼 위기."
+lore1 = "사이클론 반경"
+lore2 = "사이클론 손상"
+lore3 = "사이클론 재사용 대기시간"
+lore = ["사이클론 반경", "사이클론 손상", "사이클론 재사용 대기시간"]
+
+[sword.lunge_strike]
+name = "카테고리"
+description = "칼을 가진 스프린트 attack는 여분의 도달으로 불어 넣습니다."
+lore1 = "돌진 힘"
+lore2 = "보너스 도달"
+lore = ["돌진 힘", "보너스 도달"]
+
+[sword.blade_flow]
+name = "잎 교류"
+description = "Chain 칼은 공격 속도 스택을 구축. 손상을 깰."
+lore1 = "최대 흐름 스택"
+lore2 = "공격 속도 / 스택"
+lore = ["최대 흐름 스택", "공격 속도 / 스택"]
+
+[sword.duelists_focus]
+name = "결투가의 초점"
+description = "더 많은 손상을 치료하고 정확히 하나의 hostile가 당신과 함께 참여하는 동안 덜 복용; 방어 활성화시 집중 공격자 간략한 glows."
+lore1 = "보너스 손상"
+lore2 = "손상 감소"
+lore = ["보너스 손상", "손상 감소"]
+
+[sword.whetstone_ritual]
+name = "Whetstone 바지"
+description = "웅크리기 오른쪽 클릭 그라인딩 스톤과 칼을 사용하여 내구성 및 XP 레벨."
+lore1 = "Sharpness 수준"
+lore2 = "강화 효과 기간"
+lore = ["Sharpness 수준", "강화 효과 기간"]
+
+[sword.crescent_guard]
+name = "초승달 수호"
+description = "검으로 적을 처치하면 잠시 흡수 체력을 얻습니다."
+lore1 = "흡수 체력"
+lore2 = "수호 지속시간"
+lore = ["흡수 체력", "수호 지속시간"]
+
+[sword.hamstring]
+name = "햄스트링"
+description = "스트라이크에서 스프팅 또는 플레잉 대상을 느리게하고 스프팅 중지."
+lore1 = "공급 업체"
+lore2 = "낮은 시간"
+lore = ["공급 업체", "낮은 시간"]
+
+[sword.heirloom_edge]
+name = "가보 가장자리"
+description = "칼을 어 붙여서 몇 살당한 후에도 작은 상속 부상을 주는 유산을 만들어라."
+lore1 = "은행 당 손상"
+lore2 = "은행 당 킬"
+lore3 = "은행 손상 모자"
+lore = ["은행 당 손상", "은행 당 킬", "은행 손상 모자"]
 
 [taming.damage]
 name = "길들인 동물 피해량"
@@ -1953,8 +5888,83 @@ description = "길들인 동물의 재생력을 증가시킵니다."
 lore1 = "HP/초"
 lore = ["HP/초"]
 
-# tragoul
-[tragoul]
+[taming.pack_leader_aura]
+name = "팩 리더 아우라"
+description = "가까운 곳에서 길들여진 동반자들은 주인 근처에서 속도를 높이고 재생됩니다."
+lore1 = "아우라 반경"
+lore2 = "오라 힘"
+lore = ["아우라 반경", "오라 힘"]
+
+[taming.beast_recall]
+name = "야수 리콜"
+description = "가장 가까운 길잡이 동반자를 안전한 근처 장소로 불러내기 위해 힌트를 붙여 우측 클릭을 해보세요. 모든 회수에는 굶주림과 함께 비용이 들죠."
+lore1 = "리콜 반경"
+lore2 = "재사용 대기시간 기억하라"
+lore = ["리콜 반경", "재사용 대기시간 기억하라"]
+lore_cost_hunger = "소아에 대한 회수 비용"
+
+[taming.shared_pain]
+name = "통증 완화"
+description = "주변 소유의 동반자에 대한 즉각적인 피해를 최소화하여 건강층 아래에서 감소."
+lore1 = "공유 피해"
+lore2 = "Companion 건강 층"
+lore = ["공유 피해", "Companion 건강 층"]
+
+[taming.mounted_tactics]
+name = "거치된 전술"
+description = "승마 동안 마운트 별 전투 및 핸들링."
+lore1 = "손상된 보너스"
+lore2 = "산 손상 감소"
+lore = ["손상된 보너스", "산 손상 감소"]
+
+[taming.fetch]
+name = "가져오세요"
+description = "당신의 타악한 울프는 가까운 물건을 모으고 곧 당신을 데려갑니다."
+lore1 = "회수 범위"
+lore2 = "운반 확률"
+lore = ["회수 범위", "운반 확률"]
+
+[taming.alphas_command]
+name = "알파의 명령"
+description = "골을 잡고 있는 동안 스닉-왼쪽 클릭하여 표적을 발광하고, 적색 광명으로 표시하고, 근처의 전투 애완 동물들에게 집중하도록 명령하십시오. 성공한 명령을 통해 한 뼈를 소비합니다."
+lore1 = "명령 범위"
+lore2 = "초점 내구"
+lore = ["명령 범위", "초점 내구"]
+
+[taming.guardian_instinct]
+name = "가디언 Instinct"
+description = "주변 애완 동물은 당신을 위해 목표 투사에 대한 도약."
+lore1 = "가로막기 확률"
+lore2 = "애완 동물 손상 감소"
+lore = ["가로막기 확률", "애완 동물 손상 감소"]
+
+[taming.stable_hand]
+name = "안정되어 있는 손"
+description = "탬e 또는 품종은 더 나은 속도, 점프, 건강 및 안전한 가을 거리를 향해 영구 바이스를 유지."
+lore1 = "리뷰 쓰기"
+lore2 = "안전한 가을 구획"
+lore = ["리뷰 쓰기", "안전한 가을 구획"]
+
+[taming.wild_empathy]
+name = "야생 Empathy"
+description = "타오르는 더 자주 성공, 그리고 중립 몹은 당신을 괴롭히게."
+lore1 = "추가 탬핑 Odds"
+lore2 = "Anger 저항"
+lore = ["추가 탬핑 Odds", "Anger 저항"]
+
+[taming.battle_bond]
+name = "배틀 채권"
+description = "애완 동물 중 하나가 죽을 때, 당신 및 가까운 팩 이익 간략한 힘, 속도, 그리고 눈에 보이는 노예로 재생."
+lore1 = "강화 효과 층"
+lore2 = "강화 효과 기간"
+lore = ["강화 효과 층", "강화 효과 기간"]
+
+[taming.last_breath]
+name = "마지막 호흡"
+description = "수염에 애완 동물 방울을 명중합니다 1 HP, 단순하고, 당신의 측에 recalls."
+lore1 = "퍼핏 재사용 대기시간"
+lore2 = "공급 능력"
+lore = ["퍼핏 재사용 대기시간", "공급 능력"]
 
 [tragoul.thorns]
 name = "가시"
@@ -1968,6 +5978,8 @@ description = "주변 적의 수에 따라 피해를 나눕니다!"
 lore1 = "주변에 적이 많을수록 각 적에게 주는 피해가 줄어듭니다"
 lore2 = "범위: "
 lore3 = "모든 엔티티에 추가 피해: "
+range = "범위: {range}"
+damage = "모든 항목에 손상을 추가: {damage}"
 lore = ["주변에 적이 많을수록 각 적에게 주는 피해가 줄어듭니다", "범위: ", "모든 엔티티에 추가 피해: "]
 
 [tragoul.healing]
@@ -1983,10 +5995,92 @@ description = "적을 죽이거나 능력으로 적을 처치하면, 근처 적�
 lore1 = "창은 당신이 처치한 모든 대상에서 발사되며, 이 능력이 적을 죽일 경우에도 발동합니다."
 lore2 = "창을 만들기 위해 생명력의 일부를 희생합니다 (이것이 당신을 죽일 수 있습니다)"
 lore3 = "최대 창: 1 + "
+max = "최대 배: 1 + {level}"
 lore = ["창은 당신이 처치한 모든 대상에서 발사되며, 이 능력이 적을 죽일 경우에도 발동합니다.", "창을 만들기 위해 생명력의 일부를 희생합니다 (이것이 당신을 죽일 수 있습니다)", "최대 창: 1 + "]
 
-# unarmed
-[unarmed]
+[tragoul.blood_pact]
+name = "혈액 Pact"
+description = "적어도 2 방어구, 저항 및 흡수 후에 심장은 무작위 유익한 효력을 방아쇠를 수 있습니다."
+lore1 = "발동 기회"
+lore2 = "강화 효과 기간"
+lore3 = "발동 재사용 대기시간"
+lore = ["발동 기회", "강화 효과 기간", "발동 재사용 대기시간"]
+
+[tragoul.bone_harvest]
+name = "뼈 수확"
+blood_globe = "혈액 지구"
+bone_globe = "뼈 지구"
+description = "킬 수 스파네 혈액 지구 또는 뼈 스노우볼 지구는 픽업 할 때 버프를 부여."
+lore1 = "글로브 스파드 기회"
+lore2 = "지구 일생"
+lore = ["글로브 스파드 기회", "지구 일생"]
+
+[tragoul.corpse_explosion]
+name = "Cose 폭발"
+description = "즉시 혈액 폭발를 표시하고 주위 마비 모기를 손상."
+lore1 = "살인자는 항상 사체 노바를 표시하고 인근의 적대적인 군중에게 피해를 입습니다."
+lore2 = "노바 반경"
+lore3 = "피해자의 최대 생명력이 폭발 손상으로 추가되었습니다."
+lore = ["살인자는 항상 사체 노바를 표시하고 인근의 적대적인 군중에게 피해를 입습니다.", "노바 반경", "피해자의 최대 생명력이 폭발 손상으로 추가되었습니다."]
+
+[tragoul.soul_siphon]
+name = "영혼 Siphon"
+description = "모든 플레이어에 대한 손해 소스 siphons의 일부 건강으로 최종 손상."
+lore1 = "모든 속성 손상은 건강으로 반환"
+lore2 = "초당 최대 건강 복원"
+lore = ["모든 속성 손상은 건강으로 반환", "초당 최대 건강 복원"]
+
+[tragoul.skeletal_servant]
+name = "서비스 약관"
+description = "스키를 클릭하고 뼈로 오른쪽을 클릭하여 일시적인 골격 종들을 키우십시오. 한 레벨에 살아있는 종! 은 수준 규모의 무작위로 자식을 낳고, 다른 트라구르 장점을 물려받으며 당신의 표적을 사냥합니다: 당신이 타는 것 이상 또는 마지막으로 때린 것 이상. 캡에서 호출하면 가장 오래된 종을 재활용합니다. 초청하면 뼈를 소비합니다. 더 높은 수준의 경우 적은 것입니다."
+lore1 = "웅크리기 + 오른쪽 클릭 한 뼈에서 손으로 종을 요약"
+lore2 = "공급 능력"
+lore3 = "소환 당 뼈"
+lore4 = "스모먼 재사용 대기시간"
+lore5 = "최대 생활의 종"
+lore6 = "장교들은 당신의 수준에 맞춰서 트라구르의 혜택을 물려받아, 당신이 공격하거나 당신을 공격하는 것을 사냥합니다."
+lore7 = "삶의 종당 최대 건강 손실"
+lore = ["웅크리기 + 오른쪽 클릭 한 뼈에서 손으로 종을 요약", "공급 능력", "소환 당 뼈", "스모먼 재사용 대기시간", "최대 생활의 종", "장교들은 당신의 수준에 맞춰서 트라구르의 혜택을 물려받아, 당신이 공격하거나 당신을 공격하는 것을 사냥합니다.", "삶의 종당 최대 건강 손실"]
+
+[tragoul.marrow_armor]
+name = "갑옷"
+description = "여러분의 재고 면도기에서 들어오는 결과를 흡수합니다.!"
+lore1 = "뼈 1개를 소모해 피격 피해의 일부를 흡수"
+lore2 = "뼈 당 흡수 된 히트"
+lore3 = "내부 재사용 대기시간"
+lore = ["뼈 1개를 소모해 피격 피해의 일부를 흡수", "뼈 당 흡수 된 히트", "내부 재사용 대기시간"]
+
+[tragoul.curse_of_frailty]
+name = "쇠약의 치료"
+description = "당신이 약점으로 커지고, 더 높은 수준에서 느리게!"
+lore1 = "공격자는 나약함로 치료됩니다."
+lore2 = "치료 기간"
+lore3 = "공격자는 또한 슬픔으로 치료됩니다."
+lore = ["공격자는 나약함로 치료됩니다.", "치료 기간", "공격자는 또한 슬픔으로 치료됩니다."]
+
+[tragoul.death_sense]
+name = "죽음 센스"
+description = "센스 상처를 입은 생물과 플레이어는 자신의 건강 가을으로 색상을 강화하는 개인 개요와 함께 벽을 통해."
+lore1 = "당신 가까이에 부상당한 개체는 당신을 위해 단지 놀"
+lore2 = "건강 또는 낮은 표기법으로 유행하는 먹이가 되는 것으로 표시됩니다."
+lore3 = "센스 반경"
+lore = ["당신 가까이에 부상당한 개체는 당신을 위해 단지 놀", "건강 또는 낮은 표기법으로 유행하는 먹이가 되는 것으로 표시됩니다.", "센스 반경"]
+
+[tragoul.plague_bearer]
+name = "플래그 곰"
+description = "당신이 손상할 수 있는 어떤 가까운 몹든지에 큰 반경의 맞은편에 증폭된 affliction를 퍼뜨려진 몹."
+lore1 = "당신의 독과 wither는 죽음에 증가한 힘으로 퍼집니다"
+lore2 = "스프레드 반경"
+lore3 = "스프레드 효과 기간"
+lore = ["당신의 독과 wither는 죽음에 증가한 힘으로 퍼집니다", "스프레드 반경", "스프레드 효과 기간"]
+
+[tragoul.last_rites]
+name = "최근 Rites"
+description = "죽이는 타격은 당신에게 떠나 1 HP dying 대신 함대 정신으로!"
+lore1 = "죽음은 denied - 당신은 당신의 영혼으로 1 HP"
+lore2 = "정신 시간"
+lore3 = "재사용 대기시간"
+lore = ["죽음은 denied - 당신은 당신의 영혼으로 1 HP", "정신 시간", "재사용 대기시간"]
 
 [unarmed.glass_cannon]
 name = "유리 대포"
@@ -2007,3 +6101,231 @@ description = "질주 펀치, 하지만 더 치명적으로."
 lore1 = "피해량"
 lore2 = "펀치를 날리며 달리는 속도에 따라 피해가 증가합니다"
 lore = ["피해량", "펀치를 날리며 달리는 속도에 따라 피해가 증가합니다"]
+
+[unarmed.battering_charge]
+name = "Battering 책임"
+description = "적에게 주먹이나 방패로 찍어 충격 손상."
+lore1 = "충격 손상 보너스"
+lore2 = "충격 밀쳐내기"
+lore3 = "충전 재사용 대기시간"
+lore = ["충격 손상 보너스", "충격 밀쳐내기", "충전 재사용 대기시간"]
+
+[unarmed.combo_chain]
+name = "콤보 체인"
+description = "단점 unarmed는 펀치 손상을 증가 콤보 스택 빌드."
+lore1 = "최대 콤보 스택"
+lore2 = "스택 당 손상"
+lore3 = "콤보 창"
+lore = ["최대 콤보 스택", "스택 당 손상", "콤보 창"]
+
+[unarmed.disarm]
+name = "무장 해제"
+description = "맨손으로 치면 플레이어와 군중들 모두에서 소지된 물건을 떨어뜨릴 수 있고, 군중들도 노화 된 갑옷을 놓아낼 수도 있습니다."
+lore1 = "분쟁 해결"
+lore2 = "목표별 재사용 대기시간"
+lore3 = "무해한 몹도 착용 한 장갑을 떨어뜨릴 수 있습니다"
+lore = ["분쟁 해결", "목표별 재사용 대기시간", "무해한 몹도 착용 한 장갑을 떨어뜨릴 수 있습니다"]
+
+[unarmed.pressure_point]
+name = "압력 점"
+description = "맨손으로 타는 것은 더 높은 수준에서 약점과 함께 겹치는 느리게 적용됩니다."
+lore1 = "맥스 슬로니스 스택"
+lore2 = "최대 나약함 스택"
+lore3 = "나약함는 더 높은 수준에서 자물쇠로 엽니다"
+lore = ["맥스 슬로니스 스택", "최대 나약함 스택", "나약함는 더 높은 수준에서 자물쇠로 엽니다"]
+
+[unarmed.shockwave_clap]
+name = "충격파 Clap"
+description = "숨을 뚫고 공기를 치면 충격파가 적들을 뒤집어버리는데, 모든 박사는 굶주림에 걸린다."
+lore1 = "충격파 범위"
+lore2 = "밀쳐내기 힘"
+lore3 = "클랩 재사용 대기시간"
+lore = ["충격파 범위", "밀쳐내기 힘", "클랩 재사용 대기시간", "굶주림 의 비용"]
+lore4 = "굶주림 의 비용"
+
+[unarmed.iron_fists]
+name = "강철 주먹"
+description = "Bare 주먹은 더 열심히 타격하고 부드러운 블록을 통해 펀치합니다."
+lore1 = "플랫 펀치 손상"
+lore2 = "소프트 블록 펀치 성급함"
+lore = ["플랫 펀치 손상", "소프트 블록 펀치 성급함"]
+
+[unarmed.grapple]
+name = "붙잡기"
+description = "을 잡기 위해 군중이나 플레이어를 스냅 박스하고, 보고 있는 곳에 던져버립니다. 플레이어들은 PvP 보호에 대해 싸우고 있습니다. 던지는 모든 것은 피로를 더합니다."
+lore1 = "내던지기 힘"
+lore2 = "그래플 재사용 대기시간"
+lore3 = "다시 입력하거나 내던지기에 운동을 해제"
+lore = ["내던지기 힘", "그래플 재사용 대기시간", "다시 입력하거나 내던지기에 운동을 해제", "투척 당 배출"]
+lore4 = "투척 당 배출"
+
+[unarmed.second_wind]
+name = "두 번째 바람"
+description = "맨손으로 죽이는 것은 배고픔을 회복시키고 짧은 재생 폭발을 제공합니다."
+lore1 = "굶주림 이 회복 된 것"
+lore2 = "재생 시간"
+lore = ["굶주림 이 회복 된 것", "재생 시간"]
+
+[unarmed.meditation]
+name = "명상"
+description = "운동하는 동안 Meditate, 아직도, 그리고 천천히 흡수 심장을 건설하기 위하여 빈 손으로."
+lore1 = "최대 흡수"
+lore2 = "맥박 당 흡수"
+lore3 = "Combat 차단"
+lore = ["최대 흡수", "맥박 당 흡수", "Combat 차단"]
+
+[command.help]
+adapt_debug_command = "Adapt Debug 명령"
+adapt_skills_adaptations_and_admin_tools = "Adapt 기술, 적응 및 관리자 도구"
+adaptation_level_to_apply = "적용 수준"
+adaptation_to_modify_as_skill_adaptation = "수정에 적응, as skill:adaptation"
+adaptation_to_reset_skill_adaptation = "재설정에 적응 (skill:adaptation)"
+adaptation_to_set_as_skill_adaptation = "설정에 적응, as skill:adaptation"
+amount_of_seconds = "몇 초"
+assign_or_unassign_an_adaptation_for_a_player_as_if_learning_unlearning_it = "플레이어에 대한 적응을 할당하거나, 학습 / 그것을 해제하면."
+boost_global_experience_gain = "Boost 글로벌 경험 이득."
+boost_target_player_experience_gain = "타겟 플레이어 경험의 증진을 위해."
+bypass_adapt_use_permission_checks_when_opening = "비밀번호 adapt.use 이용 약관"
+bypass_costs_and_restrictions = "Bypass 비용 및 제한"
+bypass_power_knowledge_and_permanence_checks = "우회 힘, 지식 및 permanence 체크"
+clear_a_player_s_mutation_slot = "플레이어의 돌연변이 슬롯"
+clear_all_discovery_data_biomes_mobs_foods_items_recipes_etc = "모든 발견 데이터를 삭제합니다. (바이오, 붐, 음식, 아이템, 레시피 등.)"
+clear_all_player_data_xp_knowledge_adaptations_stats_discoveries_advancements_wisdom = "모든 플레이어 데이터 삭제 (XP, 지식, 적응, 통계, 발견, 발전, 지혜)"
+clear_both_mutation_switching_cooldowns = "두 개의 돌진 전환 재사용 대기시간"
+clear_knowledge_across_all_skill_lines = "모든 기술 라인의 명확한 지식"
+clear_only_a_player_s_mutation_data = "플레이어의 실수 데이터 만 제거"
+clear_player_progression_data = "플레이어 진행 데이터를 명확하게 합니다."
+clear_the_stats_map = "stats 지도를 취소"
+clear_xp_across_all_skill_lines = "모든 스킬 라인을 통해 XP를 명확하게 합니다."
+discover_or_undiscover_a_mutation_for_a_player = "플레이어를 위한 돌연변이 발견 또는 undiscover"
+equip_a_mutation_in_a_player_slot = "플레이어 슬롯에서 돌연변이을 장착"
+experience_per_orb = "구슬 당 경험"
+explicit_on_off_state_omit_to_toggle = "Explicit 온/오프 국가, toggle에 omit"
+force_a_mutation_slot_unlocked_locked_or_back_to_its_normal_level_requirement = "힘 돌연변이 구멍은 그것의 정상적인 수준 필요조건에, 잠긴, 또는 뒤 자물쇠로 엽니다"
+force_migrate_and_rewrite_all_skill_adaptation_configs_to_canonical_toml_with_comments = "힘 migrate와 rewrite 모든 기술/adaptcanonical에 ation 구성 TOML 코멘트."
+force_perfect_adaptation_on_off_or_back_to_its_normal_level_requirement = "힘에 완벽한 적응, 떨어져, 또는 그것의 정상적인 수준 필요조건에 뒤"
+generate_perms_for_adaptations = "적응을 위한 Perms 생성!"
+generate_perms_for_skills = "기술에 대한 Perms 생성!"
+give_a_knowledge_orb_to_yourself_or_a_target_player = "지식 구슬를 자신 또는 대상 플레이어에게 제공"
+give_an_experience_orb_to_yourself_or_a_target_player = "경험 구슬를 자신 또는 대상 플레이어에게 제공"
+gui_to_open_main_skill_name_or_adaptation_name = "GUI 개방: 주요, 기술:<name>, 또는 적응:<name>"
+knowledge_per_orb = "구슬에 대한 지식"
+level_between_0_and_100 = "수평 사이 0 · 100"
+level_between_0_and_100_clamped_to_the_adaptation_max = "수평 사이 0 · 100, 최대 적응에 클램핑"
+mutation_id = "기타 ID"
+on_off_or_clear = "에, 떨어져, 또는 명확"
+on_off_or_toggle = "에, 륙, 또는 toggle"
+open_the_adapt_gui = "Adapt GUI 열기"
+open_the_experimental_mutation_menu = "실험적인 명상 메뉴 열기"
+open_the_in_game_adapt_config_editor = "게임 열기 Adapt 설정 편집기"
+particle_type_to_spawn = "spwn에 입자 유형"
+permanently_delete_all_adapt_data_for_a_player = "모두 삭제 Adapt 플레이어의 데이터"
+permanently_delete_all_adapt_data_for_a_player_requires_op_run_twice_to_confirm = "모두 삭제 Adapt 플레이어의 데이터. op를 요구합니다. 두 번 실행 확인."
+play_a_sound_at_your_location_for_testing = "테스트의 위치에 사운드를 재생!"
+refresh_a_player_s_mutation_slots_and_requirements = "플레이어의 돌연변이 슬롯 및 요구 사항을 새로 고침"
+reload_mutation_configuration = "로드 변경 설정"
+reset_a_skill_config_to_defaults = "기술 설정을 기본값으로 재설정"
+reset_all_configs_to_defaults_and_archive_the_old_settings = "모든 설정를 기본으로 설정하고 오래된 설정를 보관합니다"
+reset_an_adaptation_config_to_defaults = "설정를 기본값으로 재설정"
+reset_configs_to_defaults = "기본 설정 재설정"
+reset_metrics_after_printing = "인쇄 후에 재설정 미터"
+set_a_player_s_skill_line_level_between_0_and_100_for_custom_ui_integration = "사용자 정의 UI 연동을 위해 플레이어의 기술 계열 레벨을 0에서 100 사이로 설정합니다."
+set_an_adaptation_level_between_0_and_100_if_the_player_can_afford_it = "적응 수준 설정 0 · 100 플레이어가 그것을 감당할 수 있다면."
+show_adapt_ticker_hotspots = "Adapt 티커 핫스팟을 표시"
+skill_line_to_set = "기술 라인 설정"
+skill_name_or_all_random = "기술 이름, 또는 모든 / 무작위"
+skill_to_reset = "기술 재설정"
+slot_1_or_2 = "슬롯 1 또는 2"
+sound_to_play = "놀이 소리"
+strength_of_the_boost = "부스트의 힘"
+summon_a_particle_at_your_location_for_testing = "테스트에 대한 위치에 입자를 요약!"
+target_player_defaults_to_you = "대상 플레이어, 기본적으로"
+toggle_adapt_effect_visibility_for_yourself = "Adapt 효과 가시성을 직접 조정하십시오"
+toggle_cooperative_mutation_participation = "협력 돌연변이 참여"
+toggle_debug_mode_reveals_every_skill_and_adaptation_and_makes_learning_free_and_uncapped = "토글 디버그 모드 : 모든 기술 및 적응을 밝혀 무료 학습과 uncapped"
+toggle_verbose_mode = "토글 동사 모드"
+top_results_to_print = "인쇄하는 최고 결과"
+true_to_discover_false_to_undiscover = "사실 발견, undiscover에 거짓"
+true_to_learn_false_to_unlearn = "진정한 학습, unlearn에 거짓"
+unlearn_all_adaptations_across_all_skill_lines = "모든 기술 라인의 모든 적응"
+view_and_manage_experimental_mutations = "실험 돌연변이보기 및 관리"
+view_mutation_state_for_yourself_or_another_player = "자신 또는 다른 플레이어의 돌연변이 상태보기"
+
+[command.runtime]
+missing_permission = "'{permission}' 권한이 없습니다."
+player_required_from_console = "콘솔에서 이 명령어를 사용할 때는 플레이어를 지정해야 합니다."
+player_required_from_console_short = "콘솔에서 플레이어를 지정해야 합니다."
+player_only_or_reference = "이 명령을 사용하려면 플레이어여야 합니다. 또는 플레이어를 참조해야 합니다."
+player_only = "이 명령을 사용하기 위해서는 플레이어가 되어야 합니다."
+operator_only = "이 명령은 서버 운영자만이 실행할 수 있습니다."
+boosted_xp = "XP는 {multiplier}에 의해 {seconds} 초 동안 증가했습니다."
+skill_disabled = "한국어 {skill} 이 서버에 비활성화."
+adaptation_disabled = "적응 {adaptation}는 이 서버에서 비활성화되어 있습니다."
+gui_opened = "GUI에 대한 {target}에 대한 {player}를 열었습니다."
+gui_open_denied = "adapt.use 노드가 권한을 거부하여 {player}에 대해 {target} GUI를 열지 못했습니다."
+unknown_gui_target = "알려지지 않은 GUI 목표 \"{target}\". 메인, 스킬:<name>, 또는 적응:<name>를 사용하십시오."
+configurator_required = "운영자 상태 또는 권한이 필요합니다. 'adapt.configurator'."
+giving_all_orbs = "모든 구슬를 유혹."
+giving_random_orb = "무작위 구슬를 구하기."
+giving_skill_orb = "{skill} 공을 내다보고 있습니다."
+no_skills_registered = "기술이 등록되지 않음."
+unknown_skill_orb = "잘 알려진 기술 '{skill}'. 기술 이름, 모든 또는 무작위 사용."
+invalid_adaptation_target = "잘못된 적응 대상 형식입니다. skill:adaptation 형식을 사용하세요."
+invalid_adaptation_format = "잘못된 형식입니다. skill:adaptation 형식을 사용하세요."
+no_adaptation_change = "변경 없음: {player}의 {adaptation}은(는) {level}레벨로 유지됩니다. 힘, 지식 또는 영구성 조건으로 요청이 거부되었거나 이미 적용되었습니다. 강제로 적용하려면 force=true 를 사용하세요."
+learned_adaptation = "{player}이(가) {adaptation}을(를) 습득했으며 현재 {level}레벨입니다."
+unlearned_adaptation = "{player}에 대한 배우지 않은 {adaptation}, 이제 {level} 수준입니다."
+unknown_adaptation_in_skill = "알 수없는 적응 '{adaptation}' 기술 정보 {skill}."
+unknown_adaptation_in_skill_plain = "알 수없는 적응: {adaptation} 기술 정보 {skill}."
+unknown_skill = "잘 알려진 기술: {skill}."
+unknown_skill_quoted = "잘 알려진 기술 '{skill}'."
+skill_level_range = "기술 요구 수준은 사이에서 있어야 합니다 0 · 100."
+adaptation_level_range = "적응 요구 수준은 사이에서 있어야 합니다 0 · 100."
+skill_line_unavailable = "기술 라인을 해결하기 위해 실패 {skill}."
+set_skill_level = "설치하기 {player} {skill} 수준에 {level}."
+adaptation_already_level = "변경 없음: {adaptation} 수준에 이미 {level}."
+power_insufficient = "사용 가능한 전력이 충분하지 않습니다. {needed}, {available}가 필요합니다."
+knowledge_insufficient = "{skill} 지식이 부족합니다. {needed}이(가) 필요하며 {available}을(를) 보유하고 있습니다."
+knowledge_spend_failed = "필요한 지식({knowledge})을 소모하지 못했습니다."
+set_adaptation_level = "설치하기 {player} {adaptation} 수준에 {level}."
+permanent_adaptation_lower = "{adaptation} 영원하고 낮출 수 없습니다 force=true."
+adapt_server_not_ready = "Adapt 서버는 아직 준비되어 있지 않습니다. 몇 초에 다시 시도."
+configs_canonicalized = "TOML 설정을 표준화했습니다. skills={skills}, adaptations={adaptations}, deletedLegacyJson={deleted}."
+cleared_all = "모든 데이터 삭제 {player}."
+cleared_xp = "XP를 {player}로 정제합니다."
+cleared_knowledge = "{player}의 지식을 초기화했습니다."
+cleared_adaptations = "명확한 적응 {player}."
+cleared_stats = "명확한 통계 {player}."
+cleared_discoveries = "{player}의 발견 내역을 초기화했습니다."
+reset_deleted = "모든 것 Adapt 자료실 {player} 영구적으로 삭제 된."
+reset_warning = "경고: {player}의 모든 Adapt 데이터가 영구적으로 삭제됩니다."
+reset_includes = "이 포함 XP, 기술, 적응, 발견, 통계 및 발전."
+reset_confirm = "이 명령을 다시 실행 30 초 확인."
+skill_reset_unsupported = "한국어 {skill} 설정 재설정을 지원하지 않습니다."
+adaptation_reset_unsupported = "적응 {adaptation}는 설정 리셋을 지원하지 않습니다."
+config_delete_failed = "설정 파일 삭제 {target}."
+default_config_reload_failed = "기본값 설정를 다시로드하는 실패 {target}."
+skill_reset = "기술에 대한 재설정 설정 {skill} 기본 설정."
+adaptation_reset = "적응을위한 재설정 설정 {adaptation} 기본 설정."
+configs_archived = "설정 파일 {count}개를 config-archive/{timestamp}/에 보관했습니다."
+configs_reset = "{count} 설정를 기본으로 설정합니다."
+unknown_toggle_state = "알려진 상태 '{state}'. toggle에, 또는 omit에서 사용."
+debug_enabled = "{player}의 디버그 모드를 활성화했습니다. 모든 기술과 적응이 표시되고 비용과 제한 없이 배울 수 있습니다. 로그아웃하면 설정이 초기화되며, 활성화 중 배운 적응은 유지됩니다."
+debug_disabled = "Debug 모드 비활성화 {player}. 적응는 디버그 모드 persist에서 배운; 사용 /adapt clear adaptations 또는 /adapt determine 제거하기."
+verbose_enabled = "Verbose는 이제 활성화되어 있습니다."
+verbose_disabled = "베보스는 이제 장애를 가졌습니다."
+permissions_printed = "콘솔에 대한 허가증이 인쇄되었습니다."
+particle_data_required = "{particle} 입자는 {type} 타입의 데이터를 필요로 하며 이 명령으로 생성될 수 없습니다."
+unknown_adapt_command = "알려지지 않은 Adapt 명령"
+insufficient_permissions = "권한이 부족합니다."
+no_available_subcommands = "하위 명령이 없거나 사용 허가도 없습니다."
+parameters_ignored = "매개 변수 무시: {parameters}"
+subcommand_help = "{node} {usage} - {description}"
+no_description = "설명 없음"
+perf_ability_checks = "능력 검증: {perSecond}/s ({perMinute}/m)"
+perf_successful_checks = "성공한 검증: {perSecond}/s ({perMinute}/m)"
+perf_cache_hit_ratio = "액티브 레벨 캐시 히트 비율: {ratio} ({hits} 히트, {misses} 미스)"
+perf_timing_budget = "능력 검사 타이밍 예산: {percent} ({millisPerSecond}, {microsPerCheck})"
+perf_ticker_window = "티커 창: {window}ms"
+perf_no_metrics = "아직 수집되지 않음."
+perf_reset = "티커 및 능력 텔레메트리를 초기화했습니다."

@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.skill;
 
+import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.localization.catalog.SkillMessages;
+
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -40,7 +43,6 @@ import art.arcane.adapt.content.adaptation.chronos.ChronosTemporalEcho;
 import art.arcane.adapt.content.adaptation.chronos.ChronosTimeBomb;
 import art.arcane.adapt.content.adaptation.chronos.ChronosTimeInABottle;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -97,11 +99,9 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
   private final SkillOwnerPulse.Registration ownerPulse;
 
   public SkillChronos() {
-    super("chronos", Localizer.dLocalize("skill.chronos.icon"));
+    super("chronos", SkillPresentation.of(SkillMessages.CHRONOS_NAME, SkillMessages.CHRONOS_ICON, SkillMessages.CHRONOS_DESCRIPTION));
     registerConfiguration(Config.class);
     setColor(C.AQUA);
-    setDescription(Localizer.dLocalize("skill.chronos.description"));
-    setDisplayName(Localizer.dLocalize("skill.chronos.name"));
     setInterval(getConfig().setInterval);
     setIcon(Material.CLOCK);
     rewardedSpeedCloudKey = new NamespacedKey(Adapt.instance, "chronos_speed_cloud_rewarded");

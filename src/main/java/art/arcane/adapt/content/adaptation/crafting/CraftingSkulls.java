@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.crafting;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.AdvancementMessages;
+import art.arcane.adapt.localization.catalog.CraftingMessages;
+
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdvancementSpec;
@@ -25,7 +29,6 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.recipe.MaterialChar;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -101,14 +104,14 @@ public class CraftingSkulls extends SimpleAdaptation<CraftingSkulls.Config> {
     AdvancementSpec skulls100 = AdvancementSpec.challenge(
         "challenge_crafting_skulls_100",
         Material.WITHER_SKELETON_SKULL,
-        Localizer.dLocalize("advancement.challenge_crafting_skulls_100.title"),
-        Localizer.dLocalize("advancement.challenge_crafting_skulls_100.description")
+        AdaptLanguage.text(AdvancementMessages.CHALLENGE_CRAFTING_SKULLS_100_TITLE),
+        AdaptLanguage.text(AdvancementMessages.CHALLENGE_CRAFTING_SKULLS_100_DESCRIPTION)
     );
     AdvancementSpec skulls10 = AdvancementSpec.challenge(
         "challenge_crafting_skulls_10",
         Material.SKELETON_SKULL,
-        Localizer.dLocalize("advancement.challenge_crafting_skulls_10.title"),
-        Localizer.dLocalize("advancement.challenge_crafting_skulls_10.description")
+        AdaptLanguage.text(AdvancementMessages.CHALLENGE_CRAFTING_SKULLS_10_TITLE),
+        AdaptLanguage.text(AdvancementMessages.CHALLENGE_CRAFTING_SKULLS_10_DESCRIPTION)
     ).withChild(skulls100);
     registerAdvancementSpec(skulls10);
     registerStatTracker(skulls10.statTracker("crafting.skulls.skulls-crafted", 10, 300));
@@ -117,12 +120,12 @@ public class CraftingSkulls extends SimpleAdaptation<CraftingSkulls.Config> {
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("crafting.skulls.lore1"));
-    v.addLore(C.YELLOW + "- " + C.GRAY + Localizer.dLocalize("crafting.skulls.lore2"));
-    v.addLore(C.YELLOW + "- " + C.GRAY + Localizer.dLocalize("crafting.skulls.lore3"));
-    v.addLore(C.YELLOW + "- " + C.GRAY + Localizer.dLocalize("crafting.skulls.lore4"));
-    v.addLore(C.YELLOW + "- " + C.GRAY + Localizer.dLocalize("crafting.skulls.lore5"));
-    v.addLore(C.YELLOW + "- " + C.GRAY + Localizer.dLocalize("crafting.skulls.lore6"));
+    v.addLore(C.GREEN + "+ " + C.GRAY + AdaptLanguage.text(CraftingMessages.SKULLS_LORE1));
+    v.addLore(C.YELLOW + "- " + C.GRAY + AdaptLanguage.text(CraftingMessages.SKULLS_LORE2));
+    v.addLore(C.YELLOW + "- " + C.GRAY + AdaptLanguage.text(CraftingMessages.SKULLS_LORE3));
+    v.addLore(C.YELLOW + "- " + C.GRAY + AdaptLanguage.text(CraftingMessages.SKULLS_LORE4));
+    v.addLore(C.YELLOW + "- " + C.GRAY + AdaptLanguage.text(CraftingMessages.SKULLS_LORE5));
+    v.addLore(C.YELLOW + "- " + C.GRAY + AdaptLanguage.text(CraftingMessages.SKULLS_LORE6));
   }
 
 

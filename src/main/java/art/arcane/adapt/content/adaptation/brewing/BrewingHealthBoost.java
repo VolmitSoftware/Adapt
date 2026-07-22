@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.brewing;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.BrewingMessages;
+
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.potion.AdaptBrewCompleteEvent;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -27,7 +30,6 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.potion.BrewingRecipe;
 import art.arcane.adapt.api.potion.PotionBuilder;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.PotionTypes;
 import art.arcane.adapt.api.fx.FxPriority;
@@ -56,7 +58,7 @@ public class BrewingHealthBoost extends SimpleAdaptation<BrewingHealthBoost.Conf
         .ingredient(Material.GOLDEN_APPLE)
         .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionTypes.INSTANT_HEAL))
         .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
-            .setName("Bottled Life")
+            .setName(AdaptLanguage.text(BrewingMessages.HEALTH_BOOST_NAME))
             .setColor(Color.RED)
             .addEffect(PotionEffectType.HEALTH_BOOST, 1200, 1, true, true, true)
             .build())
@@ -68,7 +70,7 @@ public class BrewingHealthBoost extends SimpleAdaptation<BrewingHealthBoost.Conf
         .ingredient(Material.ENCHANTED_GOLDEN_APPLE)
         .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionTypes.INSTANT_HEAL))
         .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
-            .setName("Bottled Life")
+            .setName(AdaptLanguage.text(BrewingMessages.HEALTH_BOOST_NAME))
             .setColor(Color.RED)
             .addEffect(PotionEffectType.HEALTH_BOOST, 1200, 2, true, true, true)
             .build())
@@ -84,8 +86,8 @@ public class BrewingHealthBoost extends SimpleAdaptation<BrewingHealthBoost.Conf
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing.health_boost.lore1"));
-    v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing.health_boost.lore2"));
+    v.addLore(C.GREEN + "+ " + AdaptLanguage.text(BrewingMessages.HEALTH_BOOST_LORE1));
+    v.addLore(C.GREEN + "+ " + AdaptLanguage.text(BrewingMessages.HEALTH_BOOST_LORE2));
   }
 
   @EventHandler(priority = EventPriority.MONITOR)

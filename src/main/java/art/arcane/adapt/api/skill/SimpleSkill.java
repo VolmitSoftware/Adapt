@@ -33,6 +33,8 @@ import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.tick.TickedObject;
 import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.content.item.ItemListings;
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.SkillPresentation;
 import art.arcane.adapt.util.common.format.AdventureCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
@@ -55,6 +57,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.DoubleSupplier;
@@ -63,12 +66,10 @@ import java.util.function.DoubleSupplier;
 @Setter
 public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
   private final String name;
-  private final String emojiName;
+  private final SkillPresentation presentation;
   private C color;
   private String colorPrefix;
   private double minXp;
-  private String description;
-  private String displayName;
   private Material icon;
   private KList<Adaptation<?>> adaptations;
   private KList<AdaptStatTracker> statTrackers;
@@ -79,17 +80,16 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
   private volatile T config;
   private final AtomicBoolean unregistered = new AtomicBoolean();
 
-  public SimpleSkill(String name, String emojiName) {
+  public SimpleSkill(String name, SkillPresentation presentation) {
     super("skill", UUID.randomUUID() + "-skill-" + name, 50);
     statTrackers = new KList<>();
     recipes = new KList<>();
     cachedAdvancements = new KList<>();
-    this.emojiName = emojiName;
+    this.presentation = Objects.requireNonNull(presentation, "presentation");
     adaptations = new KList<>();
     setColor(C.WHITE);
     this.name = name;
     setIcon(Material.BOOK);
-    setDescription("No Description Provided");
     setMinXp(100);
     setAdvancementBackground("minecraft:textures/block/deepslate_tiles.png");
   }
@@ -396,19 +396,33 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
   }
 
   @Override
+  public String getEmojiName() {
+    return AdaptLanguage.text(presentation.icon());
+  }
+
+  @Override
+  public String getDescription() {
+    return AdaptLanguage.text(presentation.description());
+  }
+
+  @Override
+  public String getLocalizedName() {
+    return localizedName();
+  }
+
+  @Override
   public String getDisplayName() {
     if (!this.isEnabled()) {
-      return C.DARK_GRAY + Form.capitalize(getName());
+      return C.DARK_GRAY + localizedName();
     }
 
-    String shownName = displayName == null ? Form.capitalize(getName()) : displayName;
-    return C.RESET + "" + C.BOLD + colorPrefixValue() + getEmojiName() + " " + shownName;
+    return C.RESET + "" + C.BOLD + colorPrefixValue() + getEmojiName() + " " + localizedName();
   }
 
   @Override
   public String getShortName() {
     if (!this.isEnabled()) {
-      return C.DARK_GRAY + Form.capitalize(getName());
+      return C.DARK_GRAY + localizedName();
     }
 
     return C.RESET + "" + C.BOLD + colorPrefixValue() + getEmojiName();
@@ -417,7 +431,7 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
   @Override
   public String getDisplayName(int level) {
     if (!this.isEnabled()) {
-      return C.DARK_GRAY + Form.capitalize(getName());
+      return C.DARK_GRAY + localizedName();
     }
 
     if (level > 0) {
@@ -443,7 +457,7 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
     return AdaptAdvancement.builder()
         .background(getAdvancementBackground())
         .key("skill_" + getName())
-        .title(displayName)
+        .title(localizedName())
         .description(getDescription())
         .icon(getIcon())
         .model(getModel())
@@ -500,6 +514,11 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
       return color == null ? C.WHITE.toString() : color.toString();
     }
     return colorPrefix;
+  }
+
+  private String localizedName() {
+    String localized = AdaptLanguage.text(presentation.name());
+    return localized == null || localized.isBlank() ? Form.capitalize(getName()) : localized;
   }
 
   private String resolveColorPrefix(String rawInput) {

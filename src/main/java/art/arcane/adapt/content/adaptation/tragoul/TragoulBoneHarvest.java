@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.tragoul;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.TragoulMessages;
+
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -26,7 +29,6 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Attributes;
@@ -117,8 +119,8 @@ public class TragoulBoneHarvest extends SimpleAdaptation<TragoulBoneHarvest.Conf
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.pc(getGlobeChance(level), 0) + C.GRAY + " " + Localizer.dLocalize("tragoul.bone_harvest.lore1"));
-    v.addLore(C.GREEN + "+ " + Form.duration(getGlobeLifetimeTicks(level) * 50D, 1) + C.GRAY + " " + Localizer.dLocalize("tragoul.bone_harvest.lore2"));
+    statLore(v, Form.pc(getGlobeChance(level), 0), 1);
+    statLore(v, Form.duration(getGlobeLifetimeTicks(level) * 50D, 1), 2);
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -178,7 +180,9 @@ public class TragoulBoneHarvest extends SimpleAdaptation<TragoulBoneHarvest.Conf
     ItemStack item = new ItemStack(blood ? Material.MAGMA_CREAM : Material.SNOWBALL);
     ItemMeta meta = item.getItemMeta();
     if (meta != null) {
-      meta.setDisplayName((blood ? C.RED : C.WHITE) + (blood ? "Blood Globe" : "Bone Globe"));
+      meta.setDisplayName((blood ? C.RED : C.WHITE) + AdaptLanguage.text(
+          blood ? TragoulMessages.BONE_HARVEST_BLOOD_GLOBE : TragoulMessages.BONE_HARVEST_BONE_GLOBE
+      ));
       item.setItemMeta(meta);
     }
 

@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.rift;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.RiftMessages;
+
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
@@ -27,7 +30,6 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -84,9 +86,9 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Localizer.dLocalize("rift.void_skin.lore1"));
+    v.addLore(C.GREEN + "+ " + AdaptLanguage.text(RiftMessages.VOID_SKIN_LORE1));
     statLore(v, C.YELLOW, "* ", Form.duration(getCooldownMillis(level), 1), 2);
-    v.addLore(C.RED + "* " + Localizer.dLocalize("rift.void_skin.lore3"));
+    v.addLore(C.RED + "* " + AdaptLanguage.text(RiftMessages.VOID_SKIN_LORE3));
   }
 
   @Override

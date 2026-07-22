@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.skill;
 
+import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.localization.catalog.SkillMessages;
+
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
@@ -44,7 +47,6 @@ import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
 import art.arcane.adapt.content.adaptation.tragoul.TragoulSoulSiphon;
 import art.arcane.adapt.content.adaptation.tragoul.TragoulThorns;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import lombok.NoArgsConstructor;
 import org.bukkit.Color;
@@ -61,11 +63,9 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
   private final Cooldowns cooldowns = cooldowns();
 
   public SkillTragOul() {
-    super("tragoul", Localizer.dLocalize("skill.tragoul.icon"));
+    super("tragoul", SkillPresentation.of(SkillMessages.TRAGOUL_NAME, SkillMessages.TRAGOUL_ICON, SkillMessages.TRAGOUL_DESCRIPTION));
     registerConfiguration(Config.class);
     setColor(C.AQUA);
-    setDescription(Localizer.dLocalize("skill.tragoul.description"));
-    setDisplayName(Localizer.dLocalize("skill.tragoul.name"));
     setInterval(2755);
     setIcon(Material.CRIMSON_ROOTS);
     registerAdaptation(new TragoulThorns());

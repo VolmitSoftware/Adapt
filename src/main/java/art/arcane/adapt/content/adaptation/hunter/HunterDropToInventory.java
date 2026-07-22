@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.hunter;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.HunterMessages;
+
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -27,7 +30,6 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.content.item.ItemListings;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.collection.KList;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -65,7 +67,7 @@ public class HunterDropToInventory extends SimpleAdaptation<HunterDropToInventor
   }
 
   public void addStats(int level, Element v) {
-    v.addLore(C.GRAY + Localizer.dLocalize("hunter.drop_to_inventory.lore1"));
+    v.addLore(C.GRAY + AdaptLanguage.text(HunterMessages.DROP_TO_INVENTORY_LORE1));
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)

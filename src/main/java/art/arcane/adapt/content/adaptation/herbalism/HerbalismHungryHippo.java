@@ -27,7 +27,6 @@ import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.content.item.ItemListings;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -58,7 +57,7 @@ public class HerbalismHungryHippo extends SimpleAdaptation<HerbalismHungryHippo.
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ (" + (2 + level) + C.GRAY + " + " + Localizer.dLocalize("herbalism.hippo.lore1"));
+    statLore(v, C.GREEN, "+ ", "(" + (2 + level) + " +", 1);
   }
 
   @EventHandler(priority = EventPriority.NORMAL)

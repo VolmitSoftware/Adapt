@@ -1,5 +1,7 @@
 package art.arcane.adapt.content.adaptation.rift;
 
+import art.arcane.adapt.localization.AdaptMessages;
+import art.arcane.volmlib.util.localization.TextValue;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -21,7 +23,6 @@ import static org.mockito.Mockito.when;
 class RiftBlinkVoidSkinTest {
   private static final Path BLINK_SOURCE = Path.of("src/main/java/art/arcane/adapt/content/adaptation/rift/RiftBlink.java");
   private static final Path REBOUND_SOURCE = Path.of("src/main/java/art/arcane/adapt/content/adaptation/rift/RiftPearlRebound.java");
-  private static final Path ENGLISH_LOCALE = Path.of("src/main/resources/en_US.toml");
 
   @Test
   void blinkUsesVanillaPearlDamageThatFallsByLevel() {
@@ -62,10 +63,10 @@ class RiftBlinkVoidSkinTest {
   }
 
   @Test
-  void pearlReboundDescriptionExplainsItsCompleteBehavior() throws IOException {
-    String section = localeSection(Files.readString(ENGLISH_LOCALE), "rift.pearl_rebound");
+  void pearlReboundDescriptionExplainsItsCompleteBehavior() {
+    TextValue value = (TextValue) AdaptMessages.require("rift.pearl_rebound.description").englishValue();
 
-    assertThat(section)
+    assertThat(value.template())
         .containsIgnoringCase("plain")
         .containsIgnoringCase("bounces once")
         .containsIgnoringCase("crosshair")
@@ -108,16 +109,6 @@ class RiftBlinkVoidSkinTest {
     when(currentWorld.getSpawnLocation()).thenReturn(mismatched);
     assertThat(RiftVoidSkin.worldSpawnFallback(currentWorld)).isNull();
     assertThat(RiftVoidSkin.worldSpawnFallback(null)).isNull();
-  }
-
-  private static String localeSection(String locale, String key) {
-    String header = "[" + key + "]";
-    int start = locale.indexOf(header);
-    if (start < 0) {
-      throw new IllegalArgumentException("Missing locale section: " + key);
-    }
-    int end = locale.indexOf("\n[", start + header.length());
-    return end < 0 ? locale.substring(start) : locale.substring(start, end);
   }
 
   private static String fieldNames(Class<?> type) {

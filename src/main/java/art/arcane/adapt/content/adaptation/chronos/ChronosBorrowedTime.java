@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.chronos;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.ChronosMessages;
+
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -25,7 +28,6 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -69,9 +71,9 @@ public class ChronosBorrowedTime extends SimpleAdaptation<ChronosBorrowedTime.Co
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Math.round(getDeferFraction(level) * 100D) + "% " + Localizer.dLocalize("chronos.borrowed_time.lore1"));
-    v.addLore(C.YELLOW + "+ " + getConfig().paybackPulses + "s " + Localizer.dLocalize("chronos.borrowed_time.lore2"));
-    v.addLore(C.GRAY + "* " + Localizer.dLocalize("chronos.borrowed_time.lore3"));
+    statLore(v, Math.round(getDeferFraction(level) * 100D) + "%", 1);
+    statLore(v, C.YELLOW, "+ ", getConfig().paybackPulses + "s", 2);
+    v.addLore(C.GRAY + "* " + AdaptLanguage.text(ChronosMessages.BORROWED_TIME_LORE3));
   }
 
   private double getDeferFraction(int level) {

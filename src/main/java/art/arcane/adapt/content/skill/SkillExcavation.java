@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.skill;
 
+import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.localization.catalog.SkillMessages;
+
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -38,7 +41,6 @@ import art.arcane.adapt.content.adaptation.excavation.ExcavationSpelunker;
 import art.arcane.adapt.content.adaptation.excavation.ExcavationTreasureHunter;
 import art.arcane.adapt.content.adaptation.excavation.ExcavationTunneler;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -53,10 +55,8 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
   private final Cooldowns cooldowns = cooldowns();
 
   public SkillExcavation() {
-    super("excavation", Localizer.dLocalize("skill.excavation.icon"));
+    super("excavation", SkillPresentation.of(SkillMessages.EXCAVATION_NAME, SkillMessages.EXCAVATION_ICON, SkillMessages.EXCAVATION_DESCRIPTION));
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("skill.excavation.description"));
-    setDisplayName(Localizer.dLocalize("skill.excavation.name"));
     setColor(C.YELLOW);
     setInterval(5953);
     setIcon(Material.DIAMOND_SHOVEL);

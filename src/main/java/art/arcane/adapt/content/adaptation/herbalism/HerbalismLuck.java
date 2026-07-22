@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.herbalism;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.HerbalismMessages;
+
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -27,7 +30,6 @@ import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.content.item.ItemListings;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Materials;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -72,9 +74,9 @@ public class HerbalismLuck extends SimpleAdaptation<HerbalismLuck.Config> {
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("herbalism.luck.lore0"));
-    v.addLore(C.GREEN + "+ (" + Form.f(getEffectiveness(level), 1) + C.GRAY + "%) + " + Localizer.dLocalize("herbalism.luck.lore1"));
-    v.addLore(C.GREEN + "+ (" + Form.f(getEffectiveness(level), 1) + C.GRAY + "%) + " + Localizer.dLocalize("herbalism.luck.lore2"));
+    v.addLore(C.GREEN + "+ " + C.GRAY + AdaptLanguage.text(HerbalismMessages.LUCK_LORE0));
+    statLore(v, "(" + Form.f(getEffectiveness(level), 1) + "%) +", 1);
+    statLore(v, "(" + Form.f(getEffectiveness(level), 1) + "%) +", 2);
   }
 
   private double getEffectiveness(double factor) {

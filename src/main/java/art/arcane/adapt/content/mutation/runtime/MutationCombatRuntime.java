@@ -8,6 +8,8 @@ import art.arcane.adapt.api.mutation.MutationManager;
 import art.arcane.adapt.api.mutation.MutationSnapshot;
 import art.arcane.adapt.api.mutation.MutationType;
 import art.arcane.adapt.api.mutation.PlayerMutationData;
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.MutationMessages;
 import art.arcane.adapt.util.common.scheduling.J;
 import fr.skytasul.glowingentities.GlowingEntities;
 import org.bukkit.ChatColor;
@@ -1324,7 +1326,7 @@ final class MutationCombatRuntime {
     }
     event.setCancelled(true);
     if (!confirmed) {
-      player.sendMessage(ChatColor.YELLOW + "Right-click the crafting table again with an empty hand to clear your prepared trophy.");
+      player.sendMessage(ChatColor.YELLOW + AdaptLanguage.text(MutationMessages.TROPHY_CLEAR_HINT));
       return;
     }
     durable.setTrophyImprint("");
@@ -1334,7 +1336,7 @@ final class MutationCombatRuntime {
     }
     access.save(player);
     access.tell(player, MutationType.TROPHY_CRUCIBLE, Particle.SMOKE, 8);
-    player.sendMessage(ChatColor.GRAY + "Your prepared trophy has been cleared.");
+    player.sendMessage(ChatColor.GRAY + AdaptLanguage.text(MutationMessages.TROPHY_CLEARED));
   }
 
   private boolean clearExpiredTrophy(Player player, PlayerMutationData durable, long now) {

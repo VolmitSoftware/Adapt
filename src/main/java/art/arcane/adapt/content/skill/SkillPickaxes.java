@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.skill;
 
+import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.localization.catalog.SkillMessages;
+
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -39,7 +42,6 @@ import art.arcane.adapt.content.adaptation.pickaxe.PickaxeTunnelBore;
 import art.arcane.adapt.content.adaptation.pickaxe.PickaxeUnbreakablePact;
 import art.arcane.adapt.content.adaptation.pickaxe.PickaxeVeinminer;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import lombok.NoArgsConstructor;
 import org.bukkit.Location;
@@ -56,10 +58,8 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
   private final Cooldowns cooldowns = cooldowns();
 
   public SkillPickaxes() {
-    super("pickaxe", Localizer.dLocalize("skill.pickaxe.icon"));
+    super("pickaxe", SkillPresentation.of(SkillMessages.PICKAXE_NAME, SkillMessages.PICKAXE_ICON, SkillMessages.PICKAXE_DESCRIPTION));
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("skill.pickaxe.description"));
-    setDisplayName(Localizer.dLocalize("skill.pickaxe.name"));
     setColor(C.GOLD);
     setInterval(2750);
     setIcon(Material.NETHERITE_PICKAXE);

@@ -18,6 +18,8 @@
 
 package art.arcane.adapt.content.adaptation.taming;
 
+import art.arcane.adapt.localization.catalog.TamingMessages;
+
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -25,7 +27,6 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -85,7 +86,7 @@ public class TamingBeastRecall extends SimpleAdaptation<TamingBeastRecall.Config
     statLore(v, Form.f(getSearchRadius(level)), 1);
     statLore(v, C.YELLOW, "* ", Form.duration(getCooldownTicks(level) * 50D, 1), 2);
     if (getConfig().hungerCost > 0) {
-      v.addLore(C.RED + "* " + getConfig().hungerCost + C.GRAY + " " + Localizer.dLocalize("taming.beast_recall.lore_cost_hunger"));
+      statLore(v, C.RED, "* ", getConfig().hungerCost, TamingMessages.BEAST_RECALL_LORE_COST_HUNGER);
     }
   }
 

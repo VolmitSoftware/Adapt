@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.chronos;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.ChronosMessages;
+
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -27,7 +30,6 @@ import art.arcane.adapt.api.fx.FxPresets;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.content.item.ChronoTimeBombItem;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.input.DoubleJumpGesture;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -71,6 +73,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+
+import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
@@ -144,23 +148,26 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.duration(getRewindDurationMillis(level), 1) + " " + Localizer.dLocalize("chronos.instant_recall.lore1"));
-    v.addLore(C.RED + "* " + Form.duration(getCooldownMillis(level), 1) + " " + Localizer.dLocalize("chronos.instant_recall.lore2"));
-    v.addLore(C.GRAY + "* " + Localizer.dLocalize("chronos.instant_recall.lore3"));
+    statLore(v, Form.duration(getRewindDurationMillis(level), 1), 1);
+    statLore(v, C.RED, "* ", Form.duration(getCooldownMillis(level), 1), 2);
+    v.addLore(C.GRAY + "* " + AdaptLanguage.text(ChronosMessages.INSTANT_RECALL_LORE3));
     if (getConfig().consumeClock) {
-      v.addLore(C.RED + "* " + Localizer.dLocalize("chronos.instant_recall.lore_cost_clock"));
+      v.addLore(C.RED + "* " + AdaptLanguage.text(ChronosMessages.INSTANT_RECALL_LORE_COST_CLOCK));
     }
     if (getConfig().healthCostFraction > 0) {
-      v.addLore(C.RED + "* " + Form.pc(getConfig().healthCostFraction, 0) + " " + Localizer.dLocalize("chronos.instant_recall.lore_cost_health"));
+      statLore(v, C.RED, "* ", Form.pc(getConfig().healthCostFraction, 0), ChronosMessages.INSTANT_RECALL_LORE_COST_HEALTH);
     }
     List<String> combos = getTriggerCombos();
     if (combos.isEmpty()) {
-      v.addLore(C.AQUA + "* " + C.GRAY + "Trigger: " + C.WHITE + "none");
+      v.addLore(C.AQUA + "* " + C.GRAY + AdaptLanguage.text(ChronosMessages.INSTANT_RECALL_TRIGGER_NONE));
       return;
     }
 
     for (String combo : combos) {
-      v.addLore(C.AQUA + "* " + C.GRAY + "Trigger: " + C.WHITE + combo);
+      v.addLore(C.AQUA + "* " + C.GRAY + AdaptLanguage.text(
+          ChronosMessages.INSTANT_RECALL_TRIGGER,
+          trusted("combo", C.WHITE + combo)
+      ));
     }
   }
 
@@ -230,29 +237,38 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
   private List<String> getTriggerCombos() {
     List<String> triggers = new ArrayList<>();
     String clickSurface = getClickSurfaceLabel();
+    String clock = AdaptLanguage.text(ChronosMessages.INSTANT_RECALL_TRIGGER_CLOCK);
+    String sprint = AdaptLanguage.text(ChronosMessages.INSTANT_RECALL_TRIGGER_SPRINT);
+    String sneak = AdaptLanguage.text(ChronosMessages.INSTANT_RECALL_TRIGGER_SNEAK);
     if (getConfig().enableClockClickTrigger) {
-      appendClickCombos(triggers, "Clock", getConfig().clockClickLeftClick, getConfig().clockClickRightClick, clickSurface);
+      appendClickCombos(triggers, clock, getConfig().clockClickLeftClick, getConfig().clockClickRightClick, clickSurface);
     }
 
     if (getConfig().enableSprintClickTrigger) {
-      appendClickCombos(triggers, "Sprint + Clock", getConfig().sprintClickLeftClick, getConfig().sprintClickRightClick, clickSurface);
+      appendClickCombos(
+          triggers,
+          joinTrigger(sprint, clock),
+          getConfig().sprintClickLeftClick,
+          getConfig().sprintClickRightClick,
+          clickSurface
+      );
     }
 
     if (getConfig().enableSingleSneakTrigger) {
-      String combo = getConfig().singleSneakRequiresSprint ? "Sprint + Sneak" : "Sneak";
+      String combo = getConfig().singleSneakRequiresSprint ? joinTrigger(sprint, sneak) : sneak;
       if (getConfig().singleSneakRequiresClockInHand) {
-        combo += " + Clock";
+        combo = joinTrigger(combo, clock);
       }
       triggers.add(combo);
     }
 
     if (getConfig().enableDoubleJumpTrigger) {
-      String combo = "Double Jump";
+      String combo = AdaptLanguage.text(ChronosMessages.INSTANT_RECALL_TRIGGER_DOUBLE_JUMP);
       if (getConfig().doubleJumpRequiresSprint) {
-        combo += " + Sprint";
+        combo = joinTrigger(combo, sprint);
       }
       if (getConfig().doubleJumpRequiresClockInHand) {
-        combo += " + Clock";
+        combo = joinTrigger(combo, clock);
       }
       triggers.add(combo);
     }
@@ -266,28 +282,53 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
     }
 
     if (allowLeft) {
-      triggers.add(prefix + " + Left Click" + clickSurface);
+      triggers.add(withClickSurface(
+          joinTrigger(prefix, AdaptLanguage.text(ChronosMessages.INSTANT_RECALL_TRIGGER_LEFT_CLICK)),
+          clickSurface
+      ));
     }
 
     if (allowRight) {
-      triggers.add(prefix + " + Right Click" + clickSurface);
+      triggers.add(withClickSurface(
+          joinTrigger(prefix, AdaptLanguage.text(ChronosMessages.INSTANT_RECALL_TRIGGER_RIGHT_CLICK)),
+          clickSurface
+      ));
     }
   }
 
   private String getClickSurfaceLabel() {
     if (getConfig().allowAirClicks && getConfig().allowBlockClicks) {
-      return " (air/block)";
+      return AdaptLanguage.text(ChronosMessages.INSTANT_RECALL_SURFACE_AIR_BLOCK);
     }
 
     if (getConfig().allowAirClicks) {
-      return " (air)";
+      return AdaptLanguage.text(ChronosMessages.INSTANT_RECALL_SURFACE_AIR);
     }
 
     if (getConfig().allowBlockClicks) {
-      return " (block)";
+      return AdaptLanguage.text(ChronosMessages.INSTANT_RECALL_SURFACE_BLOCK);
     }
 
     return "";
+  }
+
+  private String joinTrigger(String first, String second) {
+    return AdaptLanguage.text(
+        ChronosMessages.INSTANT_RECALL_TRIGGER_JOIN,
+        trusted("first", first),
+        trusted("second", second)
+    );
+  }
+
+  private String withClickSurface(String trigger, String surface) {
+    if (surface.isBlank()) {
+      return trigger;
+    }
+    return AdaptLanguage.text(
+        ChronosMessages.INSTANT_RECALL_TRIGGER_SURFACE,
+        trusted("trigger", trigger),
+        trusted("surface", surface)
+    );
   }
 
   private RecallXPContext buildRecallXPContext(Snapshot from, Snapshot to) {

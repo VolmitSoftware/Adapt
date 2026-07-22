@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.skill;
 
+import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.localization.catalog.SkillMessages;
+
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -41,7 +44,6 @@ import art.arcane.adapt.content.adaptation.architect.ArchitectStonecutterSavant;
 import art.arcane.adapt.content.adaptation.architect.ArchitectSupplyLine;
 import art.arcane.adapt.content.adaptation.architect.ArchitectWirelessRedstone;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import lombok.NoArgsConstructor;
@@ -60,11 +62,9 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
   private final Cooldowns highBuildPing = cooldowns();
 
   public SkillArchitect() {
-    super("architect", Localizer.dLocalize("skill.architect.icon"));
+    super("architect", SkillPresentation.of(SkillMessages.ARCHITECT_NAME, SkillMessages.ARCHITECT_ICON, SkillMessages.ARCHITECT_DESCRIPTION));
     registerConfiguration(Config.class);
     setColor(C.AQUA);
-    setDescription(Localizer.dLocalize("skill.architect.description"));
-    setDisplayName(Localizer.dLocalize("skill.architect.name"));
     setInterval(3100);
     setIcon(Material.IRON_BARS);
     registerAdvancement(AdaptAdvancement.builder()

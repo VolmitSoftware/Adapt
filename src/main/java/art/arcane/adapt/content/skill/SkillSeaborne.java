@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.skill;
 
+import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.localization.catalog.SkillMessages;
+
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -43,7 +46,6 @@ import art.arcane.adapt.content.adaptation.seaborrne.SeaborneTridentMastery;
 import art.arcane.adapt.content.adaptation.seaborrne.SeaborneTurtlesMiningSpeed;
 import art.arcane.adapt.content.adaptation.seaborrne.SeaborneTurtlesVision;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.reflect.registries.Attributes;
 import lombok.NoArgsConstructor;
@@ -79,11 +81,9 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
   private final SkillOwnerPulse.Registration ownerPulse;
 
   public SkillSeaborne() {
-    super("seaborne", Localizer.dLocalize("skill.seaborne.icon"));
+    super("seaborne", SkillPresentation.of(SkillMessages.SEABORNE_NAME, SkillMessages.SEABORNE_ICON, SkillMessages.SEABORNE_DESCRIPTION));
     registerConfiguration(Config.class);
     setColor(C.BLUE);
-    setDescription(Localizer.dLocalize("skill.seaborne.description"));
-    setDisplayName(Localizer.dLocalize("skill.seaborne.name"));
     setInterval(2120);
     setIcon(Material.TRIDENT);
     registerAdaptation(new SeaborneOxygen());

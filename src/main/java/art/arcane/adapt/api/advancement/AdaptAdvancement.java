@@ -18,11 +18,14 @@
 
 package art.arcane.adapt.api.advancement;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.AdaptMessages;
 
 import art.arcane.adapt.Adapt;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.volmlib.util.collection.KList;
+import art.arcane.volmlib.util.localization.MessageKey;
+import art.arcane.volmlib.util.localization.TextKey;
 import com.fren_gor.ultimateAdvancementAPI.AdvancementTab;
 import com.fren_gor.ultimateAdvancementAPI.advancement.Advancement;
 import com.fren_gor.ultimateAdvancementAPI.advancement.BaseAdvancement;
@@ -105,7 +108,6 @@ public class AdaptAdvancement {
 
     String localized = localizedOrNull("advancement." + key + ".title");
     if (localized != null) {
-      title = localized;
       return localized;
     }
 
@@ -119,7 +121,6 @@ public class AdaptAdvancement {
 
     String localized = localizedOrNull("advancement." + key + ".description");
     if (localized != null) {
-      description = localized;
       return localized;
     }
 
@@ -127,12 +128,11 @@ public class AdaptAdvancement {
   }
 
   private static String localizedOrNull(String localizationKey) {
-    String resolved = Localizer.dLocalize(localizationKey);
-    if (resolved == null || resolved.equals(localizationKey)) {
+    MessageKey messageKey = AdaptMessages.catalog().key(localizationKey);
+    if (!(messageKey instanceof TextKey textKey)) {
       return null;
     }
-
-    return resolved;
+    return AdaptLanguage.text(textKey);
   }
 
   private void appendAdvancements(KList<Advancement> advancements, Advancement parent, int index, int depth) {

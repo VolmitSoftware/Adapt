@@ -30,8 +30,9 @@ import art.arcane.adapt.api.notification.TitleNotification;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.xp.XP;
 import art.arcane.adapt.api.xp.XPMultiplier;
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.RuntimeMessages;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.volmlib.util.collection.KList;
 import art.arcane.volmlib.util.collection.KMap;
 import art.arcane.volmlib.util.math.M;
@@ -44,6 +45,8 @@ import lombok.Setter;
 import lombok.ToString;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+
+import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 @Data
 @NoArgsConstructor
@@ -500,7 +503,11 @@ public class PlayerSkillLine {
           ActionBarNotification.builder()
               .duration(450)
               .group("know" + getLine())
-              .title(kn + " " + p.getServer().getSkillRegistry().getSkill(getLine()).getShortName() + " Knowledge")
+              .title(AdaptLanguage.text(
+                  RuntimeMessages.KNOWLEDGE_STATUS,
+                  trusted("amount", kn),
+                  trusted("skill", p.getServer().getSkillRegistry().getSkill(getLine()).getShortName())
+              ))
               .build());
 
     } else {

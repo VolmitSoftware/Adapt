@@ -18,6 +18,11 @@
 
 package art.arcane.adapt.api.adaptation;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.AdaptMessages;
+import art.arcane.adapt.localization.catalog.SnippetsMessages;
+import art.arcane.adapt.localization.catalog.RuntimeMessages;
+
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -35,12 +40,12 @@ import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigFileSupport;
 import art.arcane.volmlib.util.collection.KList;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import lombok.AccessLevel;
+import art.arcane.volmlib.util.localization.TextKey;
+import art.arcane.volmlib.util.localization.MessageKey;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Location;
@@ -59,6 +64,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
+import static art.arcane.volmlib.util.localization.MessageArgument.untrusted;
+
 @Getter
 @Setter
 public abstract class SimpleAdaptation<T> extends TickedObject implements Adaptation<T> {
@@ -66,9 +74,9 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
   private int initialCost;
   private int baseCost;
   private double costFactor;
-  private String displayName;
+  private TextKey displayNameKey;
   private Skill<?> skill;
-  private String description;
+  private TextKey descriptionKey;
   private Material icon;
   private String name;
   private List<AdaptAdvancement> cachedAdvancements;
@@ -78,12 +86,6 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
   private Class<T> configType;
   private volatile T config;
   private String localizationKey;
-  @Getter(AccessLevel.NONE)
-  @Setter(AccessLevel.NONE)
-  private volatile String localizedDescription;
-  @Getter(AccessLevel.NONE)
-  @Setter(AccessLevel.NONE)
-  private volatile String localizedDisplayName;
 
   public SimpleAdaptation(String name) {
     super("adaptations", UUID.randomUUID() + "-" + name, 1000);
@@ -301,14 +303,9 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
   @Override
   public String getDisplayName() {
     try {
-      String shownName = displayName;
-      if (shownName == null) {
-        shownName = localizedDisplayName;
-        if (shownName == null) {
-          shownName = resolveLocalized(localizationKey == null ? null : localizationKey + ".name", null);
-          localizedDisplayName = shownName;
-        }
-      }
+      String shownName = displayNameKey == null
+          ? resolveLocalized(localizationKey == null ? null : localizationKey + ".name", null)
+          : AdaptLanguage.text(displayNameKey);
       return shownName == null ? Adaptation.super.getDisplayName() : (C.RESET + "" + C.BOLD + getSkill().getColor().toString() + shownName);
     } catch (Exception ignored) {
       Adapt.verbose("Failed to get display name for " + getName());
@@ -318,23 +315,24 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
 
   @Override
   public String getDescription() {
-    String explicit = description;
-    if (explicit != null) {
-      return explicit;
-    }
-
-    String localized = localizedDescription;
-    if (localized == null) {
-      localized = resolveLocalized(localizationKey == null ? null : localizationKey + ".description", "No Description Provided");
-      localizedDescription = localized;
-    }
-    return localized;
+    return descriptionKey == null
+        ? resolveLocalized(
+            localizationKey == null ? null : localizationKey + ".description",
+            AdaptLanguage.text(RuntimeMessages.NO_DESCRIPTION_PROVIDED)
+        )
+        : AdaptLanguage.text(descriptionKey);
   }
 
   public void setLocalizationKey(String localizationKey) {
     this.localizationKey = localizationKey;
-    this.localizedDescription = null;
-    this.localizedDisplayName = null;
+  }
+
+  public void setDisplayNameKey(TextKey displayNameKey) {
+    this.displayNameKey = displayNameKey;
+  }
+
+  public void setDescriptionKey(TextKey descriptionKey) {
+    this.descriptionKey = descriptionKey;
   }
 
   @Override
@@ -413,7 +411,12 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
     return AdaptAdvancement.builder()
         .key("adaptation_" + getName())
         .title(C.WHITE + "[     " + getDisplayName() + C.WHITE + "     ]")
-        .description(getDescription() + ". " + Localizer.dLocalize("snippets.gui.unlock_this_by_clicking") + " " + AdaptConfig.get().adaptActivatorBlockName)
+        .description(AdaptLanguage.text(
+            RuntimeMessages.ADVANCEMENT_UNLOCK,
+            trusted("description", getDescription()),
+            trusted("instruction", AdaptLanguage.text(SnippetsMessages.GUI_UNLOCK_THIS_BY_CLICKING)),
+            untrusted("block", AdaptConfig.get().adaptActivatorBlockName)
+        ))
         .icon(getIcon())
         .children(a)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -475,7 +478,26 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
   }
 
   protected void statLore(Element v, C prefixColor, String prefix, Object value, int loreIndex) {
-    v.addLore(prefixColor + prefix + formatStatValue(value) + C.GRAY + " " + Localizer.dLocalize(localizationKey + ".lore" + loreIndex));
+    statLore(v, prefixColor, prefix, value, C.GRAY, loreIndex);
+  }
+
+  protected void statLore(Element v, C prefixColor, String prefix, Object value, C labelColor, int loreIndex) {
+    MessageKey loreKey = AdaptMessages.require(localizationKey + ".lore" + loreIndex);
+    statLore(v, prefixColor, prefix, value, labelColor, loreKey);
+  }
+
+  protected void statLore(Element v, C prefixColor, String prefix, Object value, MessageKey loreKey) {
+    statLore(v, prefixColor, prefix, value, C.GRAY, loreKey);
+  }
+
+  protected void statLore(Element v, C prefixColor, String prefix, Object value, C labelColor, MessageKey loreKey) {
+    v.addLore(AdaptLanguage.text(
+        RuntimeMessages.STAT_LORE,
+        trusted("prefix", prefixColor + prefix),
+        trusted("value", formatStatValue(value)),
+        trusted("separator", labelColor + " "),
+        trusted("label", AdaptLanguage.text(loreKey))
+    ));
   }
 
   private static String formatStatValue(Object value) {
@@ -526,8 +548,8 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
       return fallback;
     }
 
-    String resolved = Localizer.dLocalize(key);
-    if (resolved == null || resolved.equals(key)) {
+    String resolved = AdaptLanguage.text(AdaptMessages.require(key));
+    if (resolved == null || resolved.isBlank()) {
       return fallback;
     }
 

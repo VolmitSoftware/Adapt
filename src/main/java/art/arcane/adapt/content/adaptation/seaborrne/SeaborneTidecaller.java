@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.seaborrne;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.SeabornMessages;
+
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -27,7 +30,6 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPresets;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
@@ -48,6 +50,8 @@ import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 public class SeaborneTidecaller extends SimpleAdaptation<SeaborneTidecaller.Config> {
   private final Cooldowns fizzleThrottle = cooldowns();
@@ -77,35 +81,56 @@ public class SeaborneTidecaller extends SimpleAdaptation<SeaborneTidecaller.Conf
   @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.f(getDashDistance(level), 1), 1);
-    v.addLore(C.YELLOW + "* " + Form.duration(getCooldownTicks(level) * 50D, 1) + C.GRAY + " " + Localizer.dLocalize("seaborn.tidecaller.lore2"));
-    String triggerLabel = Localizer.dLocalize("seaborn.tidecaller.lore_trigger_label");
+    statLore(v, C.YELLOW, "* ", Form.duration(getCooldownTicks(level) * 50D, 1), 2);
     List<String> combos = getTriggerCombos();
     if (combos.isEmpty()) {
-      v.addLore(C.AQUA + "* " + C.GRAY + triggerLabel + ": " + C.WHITE + Localizer.dLocalize("seaborn.tidecaller.trigger_none"));
+      v.addLore(C.AQUA + "* " + C.GRAY + AdaptLanguage.text(
+          SeabornMessages.TIDECALLER_TRIGGER_LINE,
+          trusted("trigger", C.WHITE + AdaptLanguage.text(SeabornMessages.TIDECALLER_TRIGGER_NONE))
+      ));
     } else {
       for (String combo : combos) {
-        v.addLore(C.AQUA + "* " + C.GRAY + triggerLabel + ": " + C.WHITE + combo);
+        v.addLore(C.AQUA + "* " + C.GRAY + AdaptLanguage.text(
+            SeabornMessages.TIDECALLER_TRIGGER_LINE,
+            trusted("trigger", C.WHITE + combo)
+        ));
       }
     }
-    v.addLore(C.AQUA + "* " + C.GRAY + Localizer.dLocalize("seaborn.tidecaller.lore_environment_label") + ": " + C.WHITE + getEnvironmentSummary());
+    v.addLore(C.AQUA + "* " + C.GRAY + AdaptLanguage.text(
+        SeabornMessages.TIDECALLER_ENVIRONMENT_LINE,
+        trusted("environment", C.WHITE + getEnvironmentSummary())
+    ));
   }
 
   private List<String> getTriggerCombos() {
     List<String> triggers = new ArrayList<>();
     String env = getEnvironmentSummary();
-    String none = Localizer.dLocalize("seaborn.tidecaller.env_none");
+    String none = AdaptLanguage.text(SeabornMessages.TIDECALLER_ENV_NONE);
     if (getConfig().enableSneakTrigger) {
-      triggers.add(Localizer.dLocalize("seaborn.tidecaller.trigger_sneak") + (env.equals(none) ? "" : " (" + env + ")"));
+      String trigger = AdaptLanguage.text(SeabornMessages.TIDECALLER_TRIGGER_SNEAK);
+      triggers.add(env.equals(none) ? trigger : AdaptLanguage.text(
+          SeabornMessages.TIDECALLER_TRIGGER_CONTEXT,
+          trusted("trigger", trigger),
+          trusted("environment", env)
+      ));
     }
 
     if (getConfig().enableAttackTrigger) {
       String combo = getConfig().attackTriggerRequiresSneak
-          ? Localizer.dLocalize("seaborn.tidecaller.trigger_sneak_attack")
-          : Localizer.dLocalize("seaborn.tidecaller.trigger_attack");
+          ? AdaptLanguage.text(SeabornMessages.TIDECALLER_TRIGGER_SNEAK_ATTACK)
+          : AdaptLanguage.text(SeabornMessages.TIDECALLER_TRIGGER_ATTACK);
       if (getConfig().attackTriggerWaterOnly) {
-        combo += " (" + Localizer.dLocalize("seaborn.tidecaller.trigger_water_only") + ")";
+        combo = AdaptLanguage.text(
+            SeabornMessages.TIDECALLER_TRIGGER_CONTEXT,
+            trusted("trigger", combo),
+            trusted("environment", AdaptLanguage.text(SeabornMessages.TIDECALLER_TRIGGER_WATER_ONLY))
+        );
       } else if (!env.equals(none)) {
-        combo += " (" + env + ")";
+        combo = AdaptLanguage.text(
+            SeabornMessages.TIDECALLER_TRIGGER_CONTEXT,
+            trusted("trigger", combo),
+            trusted("environment", env)
+        );
       }
       triggers.add(combo);
     }
@@ -116,15 +141,15 @@ public class SeaborneTidecaller extends SimpleAdaptation<SeaborneTidecaller.Conf
   private String getEnvironmentSummary() {
     List<String> modes = new ArrayList<>();
     if (getConfig().allowWaterTrigger) {
-      modes.add(Localizer.dLocalize("seaborn.tidecaller.env_water"));
+      modes.add(AdaptLanguage.text(SeabornMessages.TIDECALLER_ENV_WATER));
     }
 
     if (getConfig().allowRainTrigger) {
-      modes.add(Localizer.dLocalize("seaborn.tidecaller.env_rain"));
+      modes.add(AdaptLanguage.text(SeabornMessages.TIDECALLER_ENV_RAIN));
     }
 
     if (modes.isEmpty()) {
-      return Localizer.dLocalize("seaborn.tidecaller.env_none");
+      return AdaptLanguage.text(SeabornMessages.TIDECALLER_ENV_NONE);
     }
 
     return String.join("/", modes);

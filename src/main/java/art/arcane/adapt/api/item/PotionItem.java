@@ -18,6 +18,8 @@
 
 package art.arcane.adapt.api.item;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.ItemsMessages;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.volmlib.util.format.Form;
 import lombok.NoArgsConstructor;
@@ -25,6 +27,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.List;
+
+import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 public abstract class PotionItem implements DataItem<PotionItem.Data> {
   @Override
@@ -34,7 +38,11 @@ public abstract class PotionItem implements DataItem<PotionItem.Data> {
 
   @Override
   public void applyLore(Data data, List<String> lore) {
-    lore.add(C.GREEN + "Grants " + data.getType().getName() + " " + Form.toRoman(data.getPower() + 1));
+    lore.add(C.GREEN + AdaptLanguage.text(
+        ItemsMessages.POTION_GRANTS,
+        trusted("effect", data.getType().getName()),
+        trusted("level", Form.toRoman(data.getPower() + 1))
+    ));
   }
 
   @Override

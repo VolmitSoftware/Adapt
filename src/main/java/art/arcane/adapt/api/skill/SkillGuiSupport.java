@@ -24,8 +24,10 @@ import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.xp.XP;
 import art.arcane.adapt.content.gui.SkillsGui;
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.GuiMessages;
+import art.arcane.adapt.localization.catalog.SnippetsMessages;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.inventorygui.GuiEffects;
 import art.arcane.adapt.util.common.inventorygui.GuiLayout;
 import art.arcane.adapt.util.common.inventorygui.GuiTheme;
@@ -37,6 +39,7 @@ import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.inventorygui.UIElement;
 import art.arcane.volmlib.util.inventorygui.UIWindow;
+import art.arcane.volmlib.util.localization.TextKey;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -50,6 +53,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 final class SkillGuiSupport {
   private static final long CLOSE_SUPPRESS_MS = 1200L;
@@ -160,7 +165,7 @@ final class SkillGuiSupport {
     if (visibleAdaptations.isEmpty()) {
       window.setElement(0, 0, new UIElement("ada-empty")
           .setMaterial(new MaterialBlock(Material.PAPER))
-          .setName(C.GRAY + "No adaptations available"));
+          .setName(C.GRAY + AdaptLanguage.text(GuiMessages.NO_ADAPTATIONS_AVAILABLE)));
     } else {
       List<GuiEffects.Placement> reveal = new ArrayList<>();
       for (int row = 0; row < plan.contentRows(); row++) {
@@ -179,7 +184,12 @@ final class SkillGuiSupport {
               .setBaseItemStack(adaptation.getModel().toItemStack())
               .setName(adaptation.getDisplayName(level))
               .addLore(C.GRAY + adaptation.getDescription())
-              .addLore(level == 0 ? (C.DARK_GRAY + Localizer.dLocalize("snippets.gui.not_learned")) : (C.GRAY + Localizer.dLocalize("snippets.gui.level") + " " + C.WHITE + Form.toRoman(level)))
+              .addLore(level == 0
+                  ? C.DARK_GRAY + AdaptLanguage.text(SnippetsMessages.GUI_NOT_LEARNED)
+                  : C.GRAY + AdaptLanguage.text(
+                      SnippetsMessages.GUI_LEVEL_VALUE,
+                      trusted("level", C.WHITE + Form.toRoman(level))
+                  ))
               .setProgress(1D)
               .onLeftClick((e) -> openAdaptation(adaptation, player));
           reveal.add(new GuiEffects.Placement(pos, row, element));
@@ -196,32 +206,32 @@ final class SkillGuiSupport {
       if (plan.pageCount() > 1 && currentPage > 0) {
         window.setElement(-4, navRow, new UIElement("skill-first")
             .setMaterial(new MaterialBlock(Material.LECTERN))
-            .setName(C.GRAY + "First")
+            .setName(C.GRAY + AdaptLanguage.text(GuiMessages.FIRST))
             .onLeftClick((e) -> openSkillPage(skill, player, 0)));
         window.setElement(-3, navRow, new UIElement("skill-prev")
             .setMaterial(new MaterialBlock(Material.ARROW))
-            .setName(C.WHITE + "Previous")
-            .addLore(C.GRAY + "Right click: jump -" + jumpPages + " pages")
+            .setName(C.WHITE + AdaptLanguage.text(GuiMessages.PREVIOUS))
+            .addLore(C.GRAY + AdaptLanguage.text(GuiMessages.RIGHT_CLICK_JUMP_BACK, trusted("pages", jumpPages)))
             .onLeftClick((e) -> openSkillPage(skill, player, currentPage - 1))
             .onRightClick((e) -> openSkillPage(skill, player, jumpBack)));
       } else if (plan.pageCount() > 1) {
-        window.setElement(-4, navRow, boundaryElement("skill-first-disabled", "First page"));
-        window.setElement(-3, navRow, boundaryElement("skill-prev-disabled", "No previous page"));
+        window.setElement(-4, navRow, boundaryElement("skill-first-disabled", GuiMessages.FIRST_PAGE));
+        window.setElement(-3, navRow, boundaryElement("skill-prev-disabled", GuiMessages.NO_PREVIOUS_PAGE));
       }
       if (plan.pageCount() > 1 && currentPage < plan.pageCount() - 1) {
         window.setElement(3, navRow, new UIElement("skill-next")
             .setMaterial(new MaterialBlock(Material.ARROW))
-            .setName(C.WHITE + "Next")
-            .addLore(C.GRAY + "Right click: jump +" + jumpPages + " pages")
+            .setName(C.WHITE + AdaptLanguage.text(GuiMessages.NEXT))
+            .addLore(C.GRAY + AdaptLanguage.text(GuiMessages.RIGHT_CLICK_JUMP_FORWARD, trusted("pages", jumpPages)))
             .onLeftClick((e) -> openSkillPage(skill, player, currentPage + 1))
             .onRightClick((e) -> openSkillPage(skill, player, jumpForward)));
         window.setElement(4, navRow, new UIElement("skill-last")
             .setMaterial(new MaterialBlock(Material.LECTERN))
-            .setName(C.GRAY + "Last")
+            .setName(C.GRAY + AdaptLanguage.text(GuiMessages.LAST))
             .onLeftClick((e) -> openSkillPage(skill, player, plan.pageCount() - 1)));
       } else if (plan.pageCount() > 1) {
-        window.setElement(3, navRow, boundaryElement("skill-next-disabled", "No next page"));
-        window.setElement(4, navRow, boundaryElement("skill-last-disabled", "Last page"));
+        window.setElement(3, navRow, boundaryElement("skill-next-disabled", GuiMessages.NO_NEXT_PAGE));
+        window.setElement(4, navRow, boundaryElement("skill-last-disabled", GuiMessages.LAST_PAGE));
       }
 
       int from = visibleAdaptations.isEmpty() ? 0 : (start + 1);
@@ -230,19 +240,31 @@ final class SkillGuiSupport {
       if (AdaptConfig.get().isGuiBackButton()) {
         center = new UIElement("back")
             .setMaterial(new MaterialBlock(Material.ARROW))
-            .setName("" + C.RESET + C.GRAY + Localizer.dLocalize("snippets.gui.back"))
+            .setName("" + C.RESET + C.GRAY + AdaptLanguage.text(SnippetsMessages.GUI_BACK))
             .onLeftClick((e) -> navigateBack(player));
       } else {
         center = new UIElement("skill-page-info")
             .setMaterial(new MaterialBlock(Material.PAPER))
-            .setName(C.AQUA + "Adaptations");
+            .setName(C.AQUA + AdaptLanguage.text(GuiMessages.ADAPTATIONS));
       }
-      center.addLore(C.DARK_GRAY + "Page " + (currentPage + 1) + "/" + plan.pageCount()
-          + " • Showing " + from + "-" + to + " of " + visibleAdaptations.size());
+      center.addLore(C.DARK_GRAY + AdaptLanguage.text(
+          GuiMessages.PAGE_SHOWING_RANGE,
+          trusted("page", currentPage + 1),
+          trusted("pages", plan.pageCount()),
+          trusted("from", from),
+          trusted("to", to),
+          trusted("total", visibleAdaptations.size())
+      ));
       window.setElement(0, navRow, center.setProgress(1D));
     }
 
-    window.setTitle(skill.getDisplayName(adaptPlayer.getSkillLine(skill.getName()).getLevel()) + " " + Form.pc(XP.getLevelProgress(adaptPlayer.getSkillLine(skill.getName()).getXp())) + " (" + Form.f((int) XP.getXpUntilLevelUp(adaptPlayer.getSkillLine(skill.getName()).getXp())) + Localizer.dLocalize("snippets.gui.xp") + " " + (adaptPlayer.getSkillLine(skill.getName()).getLevel() + 1) + ")");
+    window.setTitle(AdaptLanguage.text(
+        GuiMessages.SKILL_TITLE,
+        trusted("skill", skill.getDisplayName(adaptPlayer.getSkillLine(skill.getName()).getLevel())),
+        trusted("progress", Form.pc(XP.getLevelProgress(adaptPlayer.getSkillLine(skill.getName()).getXp()))),
+        trusted("xp", Form.f((int) XP.getXpUntilLevelUp(adaptPlayer.getSkillLine(skill.getName()).getXp()))),
+        trusted("nextLevel", adaptPlayer.getSkillLine(skill.getName()).getLevel() + 1)
+    ));
     window.onClosed((vv) -> J.runEntity(player, () -> onGuiClosed(player, !AdaptConfig.get().isEscClosesAllGuis())));
     window.open();
     Adapt.instance.getGuiLeftovers().put(player.getUniqueId().toString(), window);
@@ -336,10 +358,10 @@ final class SkillGuiSupport {
     return normalized.replaceFirst("^[^\\p{L}\\p{N}]+", "");
   }
 
-  private static Element boundaryElement(String id, String name) {
+  private static Element boundaryElement(String id, TextKey name) {
     return new UIElement(id)
         .setMaterial(new MaterialBlock(Material.GRAY_STAINED_GLASS_PANE))
-        .setName(C.DARK_GRAY + name);
+        .setName(C.DARK_GRAY + AdaptLanguage.text(name));
   }
 
   private static Boolean readBooleanField(Object source, String fieldName) {

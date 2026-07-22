@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.architect;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.ArchitectMessages;
+
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -27,7 +30,6 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPresets;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.scheduling.FoliaScheduler;
@@ -118,9 +120,9 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + Localizer.dLocalize("architect.foundation.lore1")
+    v.addLore(C.GREEN + AdaptLanguage.text(ArchitectMessages.FOUNDATION_LORE1)
         + (getBlockPower(getLevelPercent(level))) + C.GRAY + " "
-        + Localizer.dLocalize("architect.foundation.lore2"));
+        + AdaptLanguage.text(ArchitectMessages.FOUNDATION_LORE2));
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)

@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.discovery;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.DiscoveryMessages;
+
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
@@ -29,7 +32,6 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -45,6 +47,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static xyz.xenondevs.particle.utils.MathUtils.RANDOM;
+import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 public class DiscoveryUnity extends SimpleAdaptation<DiscoveryUnity.Config> {
   private final Cooldowns chimeThrottle = cooldowns();
@@ -72,7 +75,10 @@ public class DiscoveryUnity extends SimpleAdaptation<DiscoveryUnity.Config> {
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.f(getXPGained(getLevelPercent(level), 1), 0) + " " + Localizer.dLocalize("discovery.unity.lore1") + C.GRAY + " " + Localizer.dLocalize("discovery.unity.lore2"));
+    v.addLore(C.GREEN + AdaptLanguage.text(
+        DiscoveryMessages.UNITY_PER_ORB,
+        trusted("xp", Form.f(getXPGained(getLevelPercent(level), 1), 0))
+    ));
   }
 
   //Give random XP to the player when they gain XP!

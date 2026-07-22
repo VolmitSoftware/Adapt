@@ -3,6 +3,8 @@ package art.arcane.adapt.content.gui;
 import art.arcane.adapt.api.mutation.MutationSnapshot;
 import art.arcane.adapt.api.mutation.MutationState;
 import art.arcane.adapt.api.mutation.MutationType;
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.MutationMessages;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +59,9 @@ public final class MutationGuiModel {
     MutationState state = type == null ? MutationState.DORMANT : snapshot.state(type);
     String displayName = type == null ? normalizeUnknownId(mutationId) : type.displayName();
     String reason = type == null
-        ? (isBlank(mutationId) ? "No Mutation selected" : "This saved Mutation is not available")
+        ? AdaptLanguage.text(isBlank(mutationId)
+            ? MutationMessages.MODEL_NO_SELECTION
+            : MutationMessages.MODEL_SAVED_UNAVAILABLE)
         : normalizeReason(snapshot.reason(type), state);
     boolean canClear = bookshelfAuthorized && unlocked && !isBlank(mutationId);
     return new Slot(index, unlocked, mutationId, displayName, state, reason, canClear);
@@ -90,18 +94,18 @@ public final class MutationGuiModel {
       return reason;
     }
     return switch (state) {
-      case LOCKED -> "The needed slot is locked";
-      case AVAILABLE -> "Ready to use";
-      case EXPRESSED -> "Active";
-      case DORMANT -> "Equipped but inactive";
-      case DISABLED -> "Turned off by the server";
-      case RESTRICTED -> "Not available here";
-      case CONFLICT -> "Blocked by the other Mutation";
+      case LOCKED -> AdaptLanguage.text(MutationMessages.MODEL_SLOT_LOCKED);
+      case AVAILABLE -> AdaptLanguage.text(MutationMessages.MODEL_READY);
+      case EXPRESSED -> AdaptLanguage.text(MutationMessages.MODEL_ACTIVE);
+      case DORMANT -> AdaptLanguage.text(MutationMessages.MODEL_INACTIVE);
+      case DISABLED -> AdaptLanguage.text(MutationMessages.MODEL_DISABLED);
+      case RESTRICTED -> AdaptLanguage.text(MutationMessages.MODEL_RESTRICTED);
+      case CONFLICT -> AdaptLanguage.text(MutationMessages.MODEL_CONFLICT);
     };
   }
 
   private static String normalizeUnknownId(String mutationId) {
-    return isBlank(mutationId) ? "Empty" : mutationId;
+    return isBlank(mutationId) ? AdaptLanguage.text(MutationMessages.MODEL_EMPTY) : mutationId;
   }
 
   private static boolean isBlank(String value) {

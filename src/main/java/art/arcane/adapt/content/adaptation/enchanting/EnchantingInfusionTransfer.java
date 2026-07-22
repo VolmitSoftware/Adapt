@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.enchanting;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.EnchantingMessages;
+
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -27,7 +30,6 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPresets;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -49,6 +51,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
+
+import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 public class EnchantingInfusionTransfer extends SimpleAdaptation<EnchantingInfusionTransfer.Config> {
   public EnchantingInfusionTransfer() {
@@ -144,8 +148,11 @@ public class EnchantingInfusionTransfer extends SimpleAdaptation<EnchantingInfus
     p.setLevel(Math.max(0, p.getLevel() - cost));
     addStat(p, "enchanting.infusion-transfer.transfers", 1);
     xp(p, getConfig().skillXpOnTransfer);
-    Adapt.actionbar(p, C.LIGHT_PURPLE + "+ " + transfer.getKey().getKey().replace('_', ' ') + " "
-        + enchantLevel + C.GRAY + " " + Localizer.dLocalize("enchanting.infusion_transfer.moved"));
+    Adapt.actionbar(p, C.LIGHT_PURPLE + AdaptLanguage.text(
+        EnchantingMessages.INFUSION_TRANSFER_MESSAGE,
+        trusted("enchantment", transfer.getKey().getKey().replace('_', ' ')),
+        trusted("level", enchantLevel)
+    ));
     transferFx(p);
     J.runEntity(p, p::updateInventory, 1);
   }

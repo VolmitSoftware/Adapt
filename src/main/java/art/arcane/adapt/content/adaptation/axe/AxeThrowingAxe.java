@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.axe;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.AxeMessages;
+
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
@@ -27,7 +30,6 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -89,7 +91,7 @@ public class AxeThrowingAxe extends SimpleAdaptation<AxeThrowingAxe.Config> {
     statLore(v, C.GREEN, "+ ", Form.f(getThrowSpeed(f), 2), 2);
     statLore(v, C.YELLOW, "* ", Form.duration(getCooldownMs(f), 1), 3);
     if (returnsAtLevel(level)) {
-      v.addLore(C.AQUA + "" + Localizer.dLocalize("axe.throwing_axe.lore4"));
+      v.addLore(C.AQUA + "" + AdaptLanguage.text(AxeMessages.THROWING_AXE_LORE4));
     }
   }
 

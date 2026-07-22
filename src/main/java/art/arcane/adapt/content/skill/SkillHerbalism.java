@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.skill;
 
+import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.localization.catalog.SkillMessages;
+
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -41,7 +44,6 @@ import art.arcane.adapt.content.adaptation.herbalism.HerbalismSeedSower;
 import art.arcane.adapt.content.adaptation.herbalism.HerbalismSporeBloom;
 import art.arcane.adapt.content.adaptation.herbalism.HerbalismTerralid;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.scheduling.J;
 import lombok.NoArgsConstructor;
@@ -66,12 +68,10 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
   private final Cooldowns cooldown = cooldowns();
 
   public SkillHerbalism() {
-    super("herbalism", Localizer.dLocalize("skill.herbalism.icon"));
+    super("herbalism", SkillPresentation.of(SkillMessages.HERBALISM_NAME, SkillMessages.HERBALISM_ICON, SkillMessages.HERBALISM_DESCRIPTION));
     registerConfiguration(Config.class);
     setColor(C.GREEN);
     setInterval(3990);
-    setDescription(Localizer.dLocalize("skill.herbalism.description"));
-    setDisplayName(Localizer.dLocalize("skill.herbalism.name"));
     setIcon(Material.WHEAT);
     registerAdaptation(new HerbalismGrowthAura());
     registerAdaptation(new HerbalismReplant());

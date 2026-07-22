@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.excavation;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.ExcavationMessages;
+
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -27,7 +30,6 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.content.item.ItemListings;
 import art.arcane.adapt.content.item.multiItems.OmniTool;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -84,13 +86,13 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GRAY + Localizer.dLocalize("excavation.omni_tool.lore1"));
-    v.addLore(C.GRAY + Localizer.dLocalize("excavation.omni_tool.lore2"));
-    v.addLore(C.GREEN + Localizer.dLocalize("excavation.omni_tool.lore3"));
-    v.addLore(C.RED + Localizer.dLocalize("excavation.omni_tool.lore4"));
-    v.addLore(C.GRAY + Localizer.dLocalize("excavation.omni_tool.lore5"));
-    v.addLore(C.GREEN + "" + (level + getConfig().startingSlots) + C.GRAY + " " + Localizer.dLocalize("excavation.omni_tool.lore6"));
-    v.addLore(C.UNDERLINE + Localizer.dLocalize("excavation.omni_tool.lore7"));
+    v.addLore(C.GRAY + AdaptLanguage.text(ExcavationMessages.OMNI_TOOL_LORE1));
+    v.addLore(C.GRAY + AdaptLanguage.text(ExcavationMessages.OMNI_TOOL_LORE2));
+    v.addLore(C.GREEN + AdaptLanguage.text(ExcavationMessages.OMNI_TOOL_LORE3));
+    v.addLore(C.RED + AdaptLanguage.text(ExcavationMessages.OMNI_TOOL_LORE4));
+    v.addLore(C.GRAY + AdaptLanguage.text(ExcavationMessages.OMNI_TOOL_LORE5));
+    statLore(v, C.GREEN, "", level + getConfig().startingSlots, 6);
+    v.addLore(C.UNDERLINE + AdaptLanguage.text(ExcavationMessages.OMNI_TOOL_LORE7));
 
 
   }

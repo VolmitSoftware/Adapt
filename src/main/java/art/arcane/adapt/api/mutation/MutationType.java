@@ -1,7 +1,11 @@
 package art.arcane.adapt.api.mutation;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.volmlib.util.localization.TextKey;
 import org.bukkit.Material;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 public enum MutationType {
@@ -112,15 +116,15 @@ public enum MutationType {
       "Craft, brew, and enchant once each, in any order.", true);
 
   private final String id;
-  private final String displayName;
+  private final TextKey displayName;
   private final MutationDomain firstDomain;
   private final MutationDomain secondDomain;
   private final Material icon;
-  private final String benefit;
-  private final String burden;
-  private final String perfectResult;
-  private final String tell;
-  private final String control;
+  private final TextKey benefit;
+  private final TextKey burden;
+  private final TextKey perfectResult;
+  private final TextKey tell;
+  private final TextKey control;
   private final boolean pvpRelevant;
   private final String permission;
 
@@ -138,15 +142,16 @@ public enum MutationType {
       boolean pvpRelevant
   ) {
     this.id = id;
-    this.displayName = displayName;
+    String keyPrefix = "mutation.type." + id.replace('-', '_');
+    this.displayName = TextKey.of(keyPrefix + ".name", displayName);
     this.firstDomain = firstDomain;
     this.secondDomain = secondDomain;
     this.icon = icon;
-    this.benefit = benefit;
-    this.burden = burden;
-    this.perfectResult = perfectResult;
-    this.tell = tell;
-    this.control = control;
+    this.benefit = TextKey.of(keyPrefix + ".benefit", benefit);
+    this.burden = TextKey.of(keyPrefix + ".burden", burden);
+    this.perfectResult = TextKey.of(keyPrefix + ".perfect", perfectResult);
+    this.tell = TextKey.of(keyPrefix + ".tell", tell);
+    this.control = TextKey.of(keyPrefix + ".control", control);
     this.pvpRelevant = pvpRelevant;
     permission = "adapt.use.mutation." + id;
   }
@@ -156,7 +161,7 @@ public enum MutationType {
   }
 
   public String displayName() {
-    return displayName;
+    return AdaptLanguage.text(displayName);
   }
 
   public MutationDomain firstDomain() {
@@ -176,23 +181,23 @@ public enum MutationType {
   }
 
   public String benefit() {
-    return benefit;
+    return AdaptLanguage.text(benefit);
   }
 
   public String burden() {
-    return burden;
+    return AdaptLanguage.text(burden);
   }
 
   public String perfectResult() {
-    return perfectResult;
+    return AdaptLanguage.text(perfectResult);
   }
 
   public String tell() {
-    return tell;
+    return AdaptLanguage.text(tell);
   }
 
   public String control() {
-    return control;
+    return AdaptLanguage.text(control);
   }
 
   public boolean pvpRelevant() {
@@ -201,6 +206,19 @@ public enum MutationType {
 
   public String permission() {
     return permission;
+  }
+
+  public static List<TextKey> keys() {
+    List<TextKey> keys = new ArrayList<>(values().length * 6);
+    for (MutationType type : values()) {
+      keys.add(type.displayName);
+      keys.add(type.benefit);
+      keys.add(type.burden);
+      keys.add(type.perfectResult);
+      keys.add(type.tell);
+      keys.add(type.control);
+    }
+    return List.copyOf(keys);
   }
 
   public static MutationType find(String id) {

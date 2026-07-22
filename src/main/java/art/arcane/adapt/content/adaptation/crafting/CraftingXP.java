@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.crafting;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.AdvancementMessages;
+import art.arcane.adapt.localization.catalog.CraftingMessages;
+
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -25,7 +29,6 @@ import art.arcane.adapt.api.advancement.AdvancementSpec;
 import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -52,14 +55,14 @@ public class CraftingXP extends SimpleAdaptation<CraftingXP.Config> {
     AdvancementSpec xp25k = AdvancementSpec.challenge(
         "challenge_crafting_xp_25k",
         Material.EXPERIENCE_BOTTLE,
-        Localizer.dLocalize("advancement.challenge_crafting_xp_25k.title"),
-        Localizer.dLocalize("advancement.challenge_crafting_xp_25k.description")
+        AdaptLanguage.text(AdvancementMessages.CHALLENGE_CRAFTING_XP_25K_TITLE),
+        AdaptLanguage.text(AdvancementMessages.CHALLENGE_CRAFTING_XP_25K_DESCRIPTION)
     );
     AdvancementSpec xp1k = AdvancementSpec.challenge(
         "challenge_crafting_xp_1k",
         Material.CRAFTING_TABLE,
-        Localizer.dLocalize("advancement.challenge_crafting_xp_1k.title"),
-        Localizer.dLocalize("advancement.challenge_crafting_xp_1k.description")
+        AdaptLanguage.text(AdvancementMessages.CHALLENGE_CRAFTING_XP_1K_TITLE),
+        AdaptLanguage.text(AdvancementMessages.CHALLENGE_CRAFTING_XP_1K_DESCRIPTION)
     ).withChild(xp25k);
     registerAdvancementSpec(xp1k);
     registerStatTracker(xp1k.statTracker("crafting.xp.items-crafted", 1000, 300));
@@ -68,7 +71,7 @@ public class CraftingXP extends SimpleAdaptation<CraftingXP.Config> {
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + Localizer.dLocalize("crafting.xp.lore1"));
+    v.addLore(C.GREEN + AdaptLanguage.text(CraftingMessages.XP_LORE1));
   }
 
   @EventHandler(priority = EventPriority.LOW)

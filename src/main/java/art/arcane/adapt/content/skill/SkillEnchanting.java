@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.skill;
 
+import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.localization.catalog.SkillMessages;
+
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -40,7 +43,6 @@ import art.arcane.adapt.content.adaptation.enchanting.EnchantingSoulLink;
 import art.arcane.adapt.content.adaptation.enchanting.EnchantingTomeRebinding;
 import art.arcane.adapt.content.adaptation.enchanting.EnchantingXPReturn;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import lombok.NoArgsConstructor;
@@ -57,11 +59,9 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
   private final Cooldowns cooldowns = cooldowns();
 
   public SkillEnchanting() {
-    super("enchanting", Localizer.dLocalize("skill.enchanting.icon"));
+    super("enchanting", SkillPresentation.of(SkillMessages.ENCHANTING_NAME, SkillMessages.ENCHANTING_ICON, SkillMessages.ENCHANTING_DESCRIPTION));
     registerConfiguration(Config.class);
     setColor(C.LIGHT_PURPLE);
-    setDescription(Localizer.dLocalize("skill.enchanting.description"));
-    setDisplayName(Localizer.dLocalize("skill.enchanting.name"));
     setInterval(3909);
     setIcon(Material.KNOWLEDGE_BOOK);
     registerAdaptation(new EnchantingQuickEnchant());

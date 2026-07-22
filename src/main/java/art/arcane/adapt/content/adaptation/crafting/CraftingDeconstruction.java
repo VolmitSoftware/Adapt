@@ -18,12 +18,15 @@
 
 package art.arcane.adapt.content.adaptation.crafting;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.AdvancementMessages;
+import art.arcane.adapt.localization.catalog.CraftingMessages;
+
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdvancementSpec;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -56,14 +59,14 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
     AdvancementSpec deconstruction5k = AdvancementSpec.challenge(
         "challenge_crafting_decon_5k",
         Material.IRON_INGOT,
-        Localizer.dLocalize("advancement.challenge_crafting_decon_5k.title"),
-        Localizer.dLocalize("advancement.challenge_crafting_decon_5k.description")
+        AdaptLanguage.text(AdvancementMessages.CHALLENGE_CRAFTING_DECON_5K_TITLE),
+        AdaptLanguage.text(AdvancementMessages.CHALLENGE_CRAFTING_DECON_5K_DESCRIPTION)
     );
     AdvancementSpec deconstruction200 = AdvancementSpec.challenge(
         "challenge_crafting_decon_200",
         Material.SHEARS,
-        Localizer.dLocalize("advancement.challenge_crafting_decon_200.title"),
-        Localizer.dLocalize("advancement.challenge_crafting_decon_200.description")
+        AdaptLanguage.text(AdvancementMessages.CHALLENGE_CRAFTING_DECON_200_TITLE),
+        AdaptLanguage.text(AdvancementMessages.CHALLENGE_CRAFTING_DECON_200_DESCRIPTION)
     ).withChild(deconstruction5k);
     registerAdvancementSpec(deconstruction200);
     registerStatTracker(deconstruction200.statTracker("crafting.deconstruction.items-deconstructed", 200, 300));
@@ -72,8 +75,8 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + Localizer.dLocalize("crafting.deconstruction.lore1"));
-    v.addLore(C.GREEN + Localizer.dLocalize("crafting.deconstruction.lore2"));
+    v.addLore(C.GREEN + AdaptLanguage.text(CraftingMessages.DECONSTRUCTION_LORE1));
+    v.addLore(C.GREEN + AdaptLanguage.text(CraftingMessages.DECONSTRUCTION_LORE2));
   }
 
   public ItemStack getDeconstructionOffering(ItemStack forStuff) {

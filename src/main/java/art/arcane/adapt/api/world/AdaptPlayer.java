@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.api.world;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.SnippetsMessages;
+import art.arcane.adapt.localization.catalog.RuntimeMessages;
+
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.notification.AdvancementNotification;
@@ -26,7 +30,6 @@ import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.skill.SkillRegistry;
 import art.arcane.adapt.api.tick.TickedObject;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.volmlib.util.format.Form;
@@ -46,6 +49,8 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 @Getter
 public class AdaptPlayer extends TickedObject {
@@ -330,7 +335,7 @@ public class AdaptPlayer extends TickedObject {
       return;
     }
 
-    J.runEntity(p, () -> p.kickPlayer("Your data has been deleted."), 20);
+    J.runEntity(p, () -> p.kickPlayer(AdaptLanguage.text(RuntimeMessages.DATA_DELETED_KICK)), 20);
   }
 
   public boolean shouldUnload() {
@@ -458,8 +463,12 @@ public class AdaptPlayer extends TickedObject {
       if (!AdaptConfig.get().isWelcomeMessage())
         return;
       getNot().queue(AdvancementNotification.builder()
-          .title(first ? Localizer.dLocalize("snippets.gui.welcome") : Localizer.dLocalize("snippets.gui.welcome_back"))
-          .description("+" + C.GREEN + Form.pc(boostAmount, 0) + C.GRAY + " " + Localizer.dLocalize("snippets.gui.xp_bonus_for_time") + " " + C.AQUA + Form.duration(boostTime, 0))
+          .title(first ? AdaptLanguage.text(SnippetsMessages.GUI_WELCOME) : AdaptLanguage.text(SnippetsMessages.GUI_WELCOME_BACK))
+          .description(AdaptLanguage.text(
+              RuntimeMessages.XP_BONUS,
+              trusted("percent", C.GREEN + Form.pc(boostAmount, 0) + C.GRAY),
+              trusted("duration", C.AQUA + Form.duration(boostTime, 0))
+          ))
           .model(CustomModel.get(Material.DIAMOND, "snippets", "gui", first ? "welcome" : "welcomeback"))
           .build());
     }

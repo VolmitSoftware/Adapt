@@ -2,6 +2,8 @@ package art.arcane.adapt.service;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.content.gui.ConfigGui;
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.ConfigMessages;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.plugin.AdaptService;
 import art.arcane.adapt.util.common.scheduling.J;
@@ -14,6 +16,8 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static art.arcane.volmlib.util.localization.MessageArgument.untrusted;
 
 public class ConfigInputSVC implements AdaptService {
   private static final long SESSION_TIMEOUT_MS = 45_000L;
@@ -53,10 +57,13 @@ public class ConfigInputSVC implements AdaptService {
 
     ConfigGui.suppressClose(player);
     player.closeInventory();
-    Adapt.messagePlayer(player, C.AQUA + "Enter value for " + C.WHITE + pending.label());
-    Adapt.messagePlayer(player, C.AQUA + "Path: " + C.WHITE + pending.valuePath());
-    Adapt.messagePlayer(player, C.AQUA + "Expected type: " + C.WHITE + ConfigGui.typeName(targetType));
-    Adapt.messagePlayer(player, C.GRAY + "Type " + C.WHITE + "cancel" + C.GRAY + " to abort.");
+    Adapt.messagePlayer(player, AdaptLanguage.text(ConfigMessages.ENTER_VALUE, untrusted("label", pending.label())));
+    Adapt.messagePlayer(player, AdaptLanguage.text(ConfigMessages.INPUT_PATH, untrusted("path", pending.valuePath())));
+    Adapt.messagePlayer(player, AdaptLanguage.text(
+        ConfigMessages.EXPECTED_TYPE,
+        untrusted("type", ConfigGui.typeName(targetType))
+    ));
+    Adapt.messagePlayer(player, AdaptLanguage.text(ConfigMessages.TYPE_CANCEL));
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -72,7 +79,7 @@ public class ConfigInputSVC implements AdaptService {
     if (pending.isExpired()) {
       sessions.remove(player.getUniqueId());
       J.s(() -> {
-        Adapt.messagePlayer(player, C.RED + "Config input timed out.");
+        Adapt.messagePlayer(player, C.RED + AdaptLanguage.text(ConfigMessages.INPUT_TIMED_OUT));
         ConfigGui.open(player, pending.returnSectionPath(), pending.returnPage());
       });
       return;
@@ -82,7 +89,7 @@ public class ConfigInputSVC implements AdaptService {
     if (message.equalsIgnoreCase("cancel")) {
       sessions.remove(player.getUniqueId());
       J.s(() -> {
-        Adapt.messagePlayer(player, C.YELLOW + "Config edit cancelled.");
+        Adapt.messagePlayer(player, C.YELLOW + AdaptLanguage.text(ConfigMessages.EDIT_CANCELLED));
         ConfigGui.open(player, pending.returnSectionPath(), pending.returnPage());
       });
       return;
@@ -92,7 +99,7 @@ public class ConfigInputSVC implements AdaptService {
     if (!parsed.success()) {
       J.s(() -> {
         Adapt.messagePlayer(player, C.RED + parsed.error());
-        Adapt.messagePlayer(player, C.GRAY + "Try again or type " + C.WHITE + "cancel");
+        Adapt.messagePlayer(player, AdaptLanguage.text(ConfigMessages.TRY_AGAIN_OR_CANCEL));
       });
       return;
     }

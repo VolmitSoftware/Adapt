@@ -18,10 +18,12 @@
 
 package art.arcane.adapt.content.item;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.ItemsMessages;
+
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.item.DataItem;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.reflect.registries.ItemFlags;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -79,8 +81,8 @@ public class ChronoTimeBombItem implements DataItem<ChronoTimeBombItem.Data> {
 
   @Override
   public void applyLore(Data data, List<String> lore) {
-    lore.add(C.WHITE + Localizer.dLocalize("items.chrono_time_bomb.name"));
-    lore.add(C.GRAY + Localizer.dLocalize("items.chrono_time_bomb.usage1"));
+    lore.add(C.WHITE + AdaptLanguage.text(ItemsMessages.CHRONO_TIME_BOMB_NAME));
+    lore.add(C.GRAY + AdaptLanguage.text(ItemsMessages.CHRONO_TIME_BOMB_USAGE1));
   }
 
   @Override
@@ -92,7 +94,7 @@ public class ChronoTimeBombItem implements DataItem<ChronoTimeBombItem.Data> {
 
     meta.addEnchant(Enchantment.BINDING_CURSE, 1, true);
     meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS, ItemFlags.HIDE_POTION_EFFECTS);
-    meta.setDisplayName(Localizer.dLocalize("items.chrono_time_bomb.name"));
+    meta.setDisplayName(AdaptLanguage.text(ItemsMessages.CHRONO_TIME_BOMB_NAME));
   }
 
   @AllArgsConstructor

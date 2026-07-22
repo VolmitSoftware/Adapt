@@ -1,5 +1,8 @@
 package art.arcane.adapt.content.adaptation.ranged;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.RangedMessages;
+
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -8,7 +11,6 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Enchantments;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -28,6 +30,7 @@ import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
 
 import static xyz.xenondevs.particle.utils.MathUtils.RANDOM;
+import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Config> {
   private static final String RECOVERY_META = "adapt-recover-arrow";
@@ -116,8 +119,11 @@ public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Co
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + Localizer.dLocalize("ranged.arrow_recovery.lore1"));
-    v.addLore(C.GREEN + Localizer.dLocalize("ranged.arrow_recovery.lore2") + Form.pc(chancePerLevel(level), 0));
+    v.addLore(C.GREEN + AdaptLanguage.text(RangedMessages.ARROW_RECOVERY_LORE1));
+    v.addLore(C.GREEN + AdaptLanguage.text(
+        RangedMessages.ARROW_RECOVERY_CHANCE,
+        trusted("chance", Form.pc(chancePerLevel(level), 0))
+    ));
   }
 
   @ConfigDescription("Chance to recover arrows after hitting or killing an enemy.")

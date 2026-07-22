@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.enchanting;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.EnchantingMessages;
+
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -26,7 +29,6 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.collection.KMap;
@@ -44,6 +46,8 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
+
+import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnchant.Config> {
   public EnchantingQuickEnchant() {
@@ -151,7 +155,10 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
       }
 
       if (power > getTotalLevelCount(level)) {
-        Adapt.actionbar(p, C.RED + Localizer.dLocalize("enchanting.quick_enchant.lore2") + getTotalLevelCount(level) + " " + Localizer.dLocalize("enchanting.quick_enchant.lore3"));
+        Adapt.actionbar(p, C.RED + AdaptLanguage.text(
+            EnchantingMessages.QUICK_ENCHANT_LIMIT,
+            trusted("power", getTotalLevelCount(level))
+        ));
         fx(p.getEyeLocation(), FxPriority.TRANSITION)
             .burst(Particles.SMOKE, 6, 0.2D)
             .particle(Particles.CRIT_MAGIC, 2, 0, 0.2D, 0, 0.15D, 0.02D)

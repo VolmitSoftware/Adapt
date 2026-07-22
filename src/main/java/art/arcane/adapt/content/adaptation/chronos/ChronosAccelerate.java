@@ -26,7 +26,6 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.common.world.LoadedChunkAccess;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -81,9 +80,9 @@ public class ChronosAccelerate extends SimpleAdaptation<ChronosAccelerate.Config
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.f(getRadius(level)) + " " + Localizer.dLocalize("chronos.accelerate.lore1"));
-    v.addLore(C.YELLOW + "+ " + Math.round(getGrowChance(level) * 100D) + "% " + Localizer.dLocalize("chronos.accelerate.lore2"));
-    v.addLore(C.GRAY + "* " + Math.round(getCookBoostFraction(level) * 100D) + "% " + Localizer.dLocalize("chronos.accelerate.lore3"));
+    statLore(v, Form.f(getRadius(level)), 1);
+    statLore(v, C.YELLOW, "+ ", Math.round(getGrowChance(level) * 100D) + "%", 2);
+    statLore(v, C.GRAY, "* ", Math.round(getCookBoostFraction(level) * 100D) + "%", 3);
   }
 
   @EventHandler

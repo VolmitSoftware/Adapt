@@ -1,5 +1,7 @@
 package art.arcane.adapt.content.skill;
 
+import art.arcane.adapt.localization.AdaptMessages;
+import art.arcane.volmlib.util.localization.TextValue;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -29,7 +31,6 @@ class AchievementCatalogIntegrityTest {
   private static final Pattern STAT_TRACKER_PATTERN = Pattern.compile("\\.statTracker\\(\\s*\"([^\"]+)\"");
   private static final Pattern STAT_WRITE_PATTERN = Pattern.compile("addStat\\([^;]*?\"([^\"]+)\"", Pattern.DOTALL);
   private static final Pattern ADVANCEMENT_KEY_PATTERN = Pattern.compile("\\.key\\(\\s*\"([^\"]+)\"\\s*\\)");
-  private static final Pattern LOCALE_KEY_PATTERN = Pattern.compile("(?m)^\\[advancement\\.([^]]+)]$");
   private static final Pattern DESCRIPTION_PATTERN = Pattern.compile("(?m)^description\\s*=\\s*\"([^\"]*)\"\\s*$");
   private static final Set<String> RETIRED_ADVANCEMENTS = Set.of(
       "challenge_place_5m",
@@ -143,7 +144,12 @@ class AchievementCatalogIntegrityTest {
     String source = readJavaCatalog();
     Set<String> milestoneKeys = matches(DIRECT_MILESTONE_PATTERN, source, 1);
     Set<String> definitionKeys = matches(ADVANCEMENT_KEY_PATTERN, source, 1);
-    Set<String> localeKeys = matches(LOCALE_KEY_PATTERN, Files.readString(RESOURCE_ROOT.resolve("en_US.toml")), 1);
+    Set<String> localeKeys = new HashSet<>();
+    for (String id : AdaptMessages.catalog().ids()) {
+      if (id.startsWith("advancement.")) {
+        localeKeys.add(id.substring("advancement.".length()).split("\\.", 2)[0]);
+      }
+    }
 
     assertThat(definitionKeys).containsAll(milestoneKeys);
     assertThat(localeKeys).containsAll(milestoneKeys);
@@ -192,7 +198,6 @@ class AchievementCatalogIntegrityTest {
   @Test
   void progressionWritersAndCopyUseAdvertisedUnits() throws IOException {
     String source = readJavaCatalog();
-    String english = Files.readString(RESOURCE_ROOT.resolve("en_US.toml"));
     String resources = readResourceCatalog();
 
     assertThat(source).doesNotContain("stealth.sight.time-in-darkness");
@@ -204,13 +209,13 @@ class AchievementCatalogIntegrityTest {
     assertThat(resources).doesNotContain("challenge_chronos_bottle_1k");
     assertThat(resources).doesNotContain("challenge_chronos_bottle_25k");
     assertThat(source).contains("addStat(p, \"chronos.time-bottle.seconds-spent\", result.spentSeconds())");
-    assertThat(advancementDescription(english, "challenge_chronos_bottle_seconds_1k"))
+    assertThat(englishAdvancementDescription("challenge_chronos_bottle_seconds_1k"))
         .isEqualTo("Spend 1,000 seconds of stored time");
-    assertThat(advancementDescription(english, "challenge_hunter_regen_500"))
+    assertThat(englishAdvancementDescription("challenge_hunter_regen_500"))
         .isEqualTo("Trigger Hunter regeneration 500 times after being struck");
-    assertThat(advancementDescription(english, "challenge_nether_blaze_200"))
+    assertThat(englishAdvancementDescription("challenge_nether_blaze_200"))
         .isEqualTo("Trigger Blaze Leech 200 times");
-    assertThat(advancementDescription(english, "challenge_swords_bloody_500"))
+    assertThat(englishAdvancementDescription("challenge_swords_bloody_500"))
         .isEqualTo("Inflict bleeding 500 times");
   }
 
@@ -273,5 +278,10 @@ class AchievementCatalogIntegrityTest {
       throw new IllegalStateException("Missing advancement description for " + key);
     }
     return matcher.group(1);
+  }
+
+  private String englishAdvancementDescription(String key) {
+    TextValue value = (TextValue) AdaptMessages.require("advancement." + key + ".description").englishValue();
+    return value.template();
   }
 }

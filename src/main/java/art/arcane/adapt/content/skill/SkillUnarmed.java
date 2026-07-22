@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.skill;
 
+import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.localization.catalog.SkillMessages;
+
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -38,7 +41,6 @@ import art.arcane.adapt.content.adaptation.unarmed.UnarmedSecondWind;
 import art.arcane.adapt.content.adaptation.unarmed.UnarmedShockwaveClap;
 import art.arcane.adapt.content.adaptation.unarmed.UnarmedSuckerPunch;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import lombok.NoArgsConstructor;
@@ -56,11 +58,9 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
   private final Cooldowns cooldowns = cooldowns();
 
   public SkillUnarmed() {
-    super("unarmed", Localizer.dLocalize("skill.unarmed.icon"));
+    super("unarmed", SkillPresentation.of(SkillMessages.UNARMED_NAME, SkillMessages.UNARMED_ICON, SkillMessages.UNARMED_DESCRIPTION));
     registerConfiguration(Config.class);
     setColor(C.YELLOW);
-    setDescription(Localizer.dLocalize("skill.unarmed.description"));
-    setDisplayName(Localizer.dLocalize("skill.unarmed.name"));
     setInterval(2579);
     registerAdaptation(new UnarmedSuckerPunch());
     registerAdaptation(new UnarmedPower());

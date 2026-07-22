@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.chronos;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.ChronosMessages;
+
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
@@ -31,7 +34,6 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.content.item.ChronoTimeBombItem;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.common.world.LoadedChunkAccess;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -168,10 +170,10 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.f(getRadius(level), 1) + " " + Localizer.dLocalize("chronos.time_bomb.lore1"));
-    v.addLore(C.YELLOW + "+ " + (getDurationTicks(level) / 20D) + "s " + Localizer.dLocalize("chronos.time_bomb.lore2"));
-    v.addLore(C.RED + "* " + (getCooldownMillis() / 1000D) + "s " + Localizer.dLocalize("chronos.time_bomb.lore3"));
-    v.addLore(C.GRAY + "* " + Localizer.dLocalize("chronos.time_bomb.lore4"));
+    statLore(v, Form.f(getRadius(level), 1), 1);
+    statLore(v, C.YELLOW, "+ ", (getDurationTicks(level) / 20D) + "s", 2);
+    statLore(v, C.RED, "* ", (getCooldownMillis() / 1000D) + "s", 3);
+    v.addLore(C.GRAY + "* " + AdaptLanguage.text(ChronosMessages.TIME_BOMB_LORE4));
   }
 
   private double getRadius(int level) {

@@ -18,10 +18,11 @@
 
 package art.arcane.adapt.content.item;
 
-import art.arcane.adapt.Adapt;
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.ItemsMessages;
+
 import art.arcane.adapt.api.item.DataItem;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.bukkit.Material;
@@ -54,16 +55,8 @@ public class BoundSnowBall implements DataItem<BoundSnowBall.Data> {
     return io.withData(new Data(t));
   }
 
-  public static boolean isBindableItem(ItemStack t) {
-    if (t.getType().equals(Material.SNOWBALL)) {
-      if (t.getItemMeta() != null && t.getItemMeta().getLore() != null) {
-        if (t.getItemMeta().getLore().get(0).contains(Localizer.dLocalize("items.bound_snowball.name"))) {
-          Adapt.verbose("Snowball is bindable: " + t.getType().name());
-          return true;
-        }
-      }
-    }
-    return false;
+  public static boolean isBindableItem(ItemStack item) {
+    return io.hasData(item);
   }
 
 
@@ -79,15 +72,15 @@ public class BoundSnowBall implements DataItem<BoundSnowBall.Data> {
 
   @Override
   public void applyLore(Data data, List<String> lore) {
-    lore.add(C.WHITE + Localizer.dLocalize("items.bound_snowball.name"));
-    lore.add(C.GRAY + Localizer.dLocalize("items.bound_snowball.usage1"));
+    lore.add(C.WHITE + AdaptLanguage.text(ItemsMessages.BOUND_SNOWBALL_NAME));
+    lore.add(C.GRAY + AdaptLanguage.text(ItemsMessages.BOUND_SNOWBALL_USAGE1));
   }
 
   @Override
   public void applyMeta(Data data, ItemMeta meta) {
     meta.addEnchant(Enchantment.BINDING_CURSE, 10, true);
     meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_DYE);
-    meta.setDisplayName(Localizer.dLocalize("items.bound_snowball.name"));
+    meta.setDisplayName(AdaptLanguage.text(ItemsMessages.BOUND_SNOWBALL_NAME));
   }
 
   @AllArgsConstructor

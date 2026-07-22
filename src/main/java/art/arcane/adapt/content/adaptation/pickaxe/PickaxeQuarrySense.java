@@ -27,7 +27,6 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.ViewerDisplayDirector;
 import art.arcane.adapt.content.integration.hiddenore.HiddenOreLink;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.common.world.WorldBlockScanScheduler;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -81,7 +80,7 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
   public void addStats(int level, Element v) {
     statLore(v, Form.f(getScanRadius(level)), 1);
     statLore(v, Form.pc(getDurabilityCostPercent(level), 2), 2);
-    v.addLore(C.YELLOW + "* " + Form.duration(getCooldownTicks(level) * 50D, 1) + C.GRAY + " " + Localizer.dLocalize("pickaxe.quarry_sense.lore3"));
+    statLore(v, C.YELLOW, "* ", Form.duration(getCooldownTicks(level) * 50D, 1), 3);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)

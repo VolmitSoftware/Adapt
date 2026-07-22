@@ -1,11 +1,13 @@
 package art.arcane.adapt.content.adaptation.kinetics;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.KineticsMessages;
+
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.adapt.util.reflect.registries.Attributes;
@@ -63,7 +65,7 @@ public class KineticsMassShift extends SimpleAdaptation<KineticsMassShift.Config
     statLore(v, Form.f(getPocketScale(level), 2), 2);
     statLore(v, Form.pc(FORM_COMBAT_SCALAR, 0), 3);
     statLore(v, C.RED, "- ", Form.pc(FORM_COMBAT_SCALAR, 0), 4);
-    v.addLore(C.YELLOW + "* " + C.GRAY + Localizer.dLocalize("kinetics.mass_shift.lore5"));
+    v.addLore(C.YELLOW + "* " + C.GRAY + AdaptLanguage.text(KineticsMessages.MASS_SHIFT_LORE5));
   }
 
   @Override

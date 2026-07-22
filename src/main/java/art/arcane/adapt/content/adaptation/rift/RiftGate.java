@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.rift;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.RiftMessages;
+
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -29,7 +32,6 @@ import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.content.event.AdaptAdaptationTeleportEvent;
 import art.arcane.adapt.content.item.BoundEyeOfEnder;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -48,6 +50,8 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+
+import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
   public RiftGate() {
@@ -83,15 +87,20 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
   @Override
   public void addStats(int level, Element v) {
     if (getConfig().requireCraftedEye) {
-      v.addLore(C.YELLOW + Localizer.dLocalize("rift.gate.lore1"));
+      v.addLore(C.YELLOW + AdaptLanguage.text(RiftMessages.GATE_LORE1));
     }
-    v.addLore(C.RED + Localizer.dLocalize("rift.gate.lore2"));
-    v.addLore(C.ITALIC + Localizer.dLocalize("rift.gate.lore3") + C.UNDERLINE + C.RED + Localizer.dLocalize("rift.gate.lore4"));
+    v.addLore(C.RED + AdaptLanguage.text(RiftMessages.GATE_LORE2));
+    v.addLore(C.ITALIC + AdaptLanguage.text(
+        RiftMessages.GATE_WARNING,
+        trusted("danger", C.UNDERLINE + "" + C.RED + AdaptLanguage.text(RiftMessages.GATE_LORE4))
+    ));
   }
 
   @Override
   public String getDescription() {
-    return Localizer.dLocalize(getConfig().requireCraftedEye ? "rift.gate.description" : "rift.gate.description_freehand");
+    return AdaptLanguage.text(
+        getConfig().requireCraftedEye ? RiftMessages.GATE_DESCRIPTION : RiftMessages.GATE_DESCRIPTION_FREEHAND
+    );
   }
 
 

@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.skill;
 
+import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.localization.catalog.SkillMessages;
+
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -44,7 +47,6 @@ import art.arcane.adapt.content.adaptation.stealth.StealthTrapSense;
 import art.arcane.adapt.content.adaptation.stealth.StealthUmbralRecovery;
 import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import lombok.NoArgsConstructor;
@@ -64,13 +66,11 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
   private final SkillOwnerPulse.Registration ownerPulse;
 
   public SkillStealth() {
-    super("stealth", Localizer.dLocalize("skill.stealth.icon"));
+    super("stealth", SkillPresentation.of(SkillMessages.STEALTH_NAME, SkillMessages.STEALTH_ICON, SkillMessages.STEALTH_DESCRIPTION));
     registerConfiguration(Config.class);
     setColor(C.DARK_GRAY);
     setInterval(1412);
     setIcon(Material.WITHER_ROSE);
-    setDescription(Localizer.dLocalize("skill.stealth.description"));
-    setDisplayName(Localizer.dLocalize("skill.stealth.name"));
     StealthShadowDecoy shadowDecoy = new StealthShadowDecoy();
     StealthGlowCoordinator glowCoordinator = new StealthGlowCoordinator();
     StealthSmokePellet smokePellet = new StealthSmokePellet();

@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.chronos;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.ChronosMessages;
+
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
@@ -29,7 +32,6 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.content.mutation.runtime.MutationUtilityTag;
 import art.arcane.adapt.service.MutationRuntimeSVC;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -50,6 +52,8 @@ import org.bukkit.util.Vector;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 public class ChronosAberrantTouch extends SimpleAdaptation<ChronosAberrantTouch.Config> {
   private final Cooldowns cooldowns = cooldowns();
@@ -77,10 +81,14 @@ public class ChronosAberrantTouch extends SimpleAdaptation<ChronosAberrantTouch.
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Localizer.dLocalize("chronos.aberrant_touch.lore1"));
-    v.addLore(C.YELLOW + "+ " + getPvEDurationCapTicks(level) / 20D + "s " + Localizer.dLocalize("chronos.aberrant_touch.lore2"));
-    v.addLore(C.RED + "* " + getConfig().playerAmplifierCap + " " + Localizer.dLocalize("chronos.aberrant_touch.lore3"));
-    v.addLore(C.AQUA + "* " + getConfig().rootAtStacks + " stacks roots for " + (getConfig().rootDurationTicks / 20D) + "s");
+    v.addLore(C.GREEN + "+ " + AdaptLanguage.text(ChronosMessages.ABERRANT_TOUCH_LORE1));
+    statLore(v, C.YELLOW, "+ ", getPvEDurationCapTicks(level) / 20D + "s", 2);
+    statLore(v, C.RED, "* ", getConfig().playerAmplifierCap, 3);
+    v.addLore(C.AQUA + "* " + AdaptLanguage.text(
+        ChronosMessages.ABERRANT_TOUCH_ROOT_LORE,
+        trusted("stacks", getConfig().rootAtStacks),
+        trusted("seconds", getConfig().rootDurationTicks / 20D)
+    ));
   }
 
   private int getPvEAmplifierCap(int level) {

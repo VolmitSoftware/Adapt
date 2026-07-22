@@ -9,6 +9,9 @@ import art.arcane.adapt.api.mutation.MutationType;
 import art.arcane.adapt.api.mutation.PlayerMutationData;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.gui.MutationGui;
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.CommandRuntimeMessages;
+import art.arcane.adapt.localization.catalog.MutationMessages;
 import art.arcane.adapt.service.HotloadSVC;
 import art.arcane.adapt.service.MutationSVC;
 import art.arcane.adapt.util.common.format.C;
@@ -24,9 +27,12 @@ import org.bukkit.entity.Player;
 
 import java.util.Locale;
 
-@Director(name = "mutations", origin = DirectorOrigin.BOTH, description = "View and manage experimental Mutations")
+import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
+import static art.arcane.volmlib.util.localization.MessageArgument.untrusted;
+
+@Director(name = "mutations", origin = DirectorOrigin.BOTH, description = "View and manage experimental Mutations", descriptionKey = "command.help.view_and_manage_experimental_mutations")
 public class CommandMutation {
-  @Director(name = "menu", origin = DirectorOrigin.PLAYER, description = "Open the experimental Mutation menu")
+  @Director(name = "menu", origin = DirectorOrigin.PLAYER, description = "Open the experimental Mutation menu", descriptionKey = "command.help.open_the_experimental_mutation_menu")
   public void menu() {
     if (!hasPlayerPermission()) {
       return;
@@ -34,9 +40,9 @@ public class CommandMutation {
     MutationGui.open(BukkitDirectorContext.player());
   }
 
-  @Director(name = "view", description = "View Mutation state for yourself or another player")
+  @Director(name = "view", description = "View Mutation state for yourself or another player", descriptionKey = "command.help.view_mutation_state_for_yourself_or_another_player")
   public void view(
-      @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class)
+      @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class, descriptionKey = "command.help.target_player_defaults_to_you")
       Player player
   ) {
     CommandSender sender = BukkitDirectorContext.sender();
@@ -48,9 +54,9 @@ public class CommandMutation {
     runTarget(target, () -> sendSnapshot(sender, target));
   }
 
-  @Director(name = "cooperative", origin = DirectorOrigin.PLAYER, description = "Toggle cooperative Mutation participation")
+  @Director(name = "cooperative", origin = DirectorOrigin.PLAYER, description = "Toggle cooperative Mutation participation", descriptionKey = "command.help.toggle_cooperative_mutation_participation")
   public void cooperative(
-      @Param(description = "on, off, or toggle", defaultValue = "toggle")
+      @Param(description = "on, off, or toggle", defaultValue = "toggle", descriptionKey = "command.help.on_off_or_toggle")
       String enabled
   ) {
     if (!hasPlayerPermission()) {
@@ -67,27 +73,26 @@ public class CommandMutation {
       MutationSnapshot snapshot = manager.snapshot(player);
       Boolean requested = parseToggle(enabled, snapshot.cooperativeOptIn());
       if (requested == null) {
-        send(sender, C.RED + "Use enabled=on, enabled=off, or omit it to toggle.");
+        send(sender, C.RED + AdaptLanguage.text(MutationMessages.TOGGLE_USAGE));
         return;
       }
       manager.setCooperativeOptIn(player, requested);
-      String status = requested
-          ? C.GREEN + "Cooperative Mutation effects are enabled."
-          : C.YELLOW + "Cooperative Mutation effects are disabled.";
-      if (!manager.getConfig().isEnabled()) {
-        status += C.GRAY + " Preference saved; experimental Mutations are currently off.";
-      }
-      send(sender, status);
+      boolean featureEnabled = manager.getConfig().isEnabled();
+      send(sender, (requested ? C.GREEN : C.YELLOW) + AdaptLanguage.text(
+          requested
+              ? (featureEnabled ? MutationMessages.COOPERATIVE_ENABLED : MutationMessages.COOPERATIVE_ENABLED_OFF)
+              : (featureEnabled ? MutationMessages.COOPERATIVE_DISABLED : MutationMessages.COOPERATIVE_DISABLED_OFF)
+      ));
     });
   }
 
-  @Director(name = "equip", description = "Equip a Mutation in a player slot")
+  @Director(name = "equip", description = "Equip a Mutation in a player slot", descriptionKey = "command.help.equip_a_mutation_in_a_player_slot")
   public void equip(
-      @Param(description = "Mutation ID")
+      @Param(description = "Mutation ID", descriptionKey = "command.help.mutation_id")
       String mutation,
-      @Param(description = "slot 1 or 2")
+      @Param(description = "slot 1 or 2", descriptionKey = "command.help.slot_1_or_2")
       int slot,
-      @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class)
+      @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class, descriptionKey = "command.help.target_player_defaults_to_you")
       Player player
   ) {
     CommandSender sender = BukkitDirectorContext.sender();
@@ -111,16 +116,16 @@ public class CommandMutation {
       MutationSelectionResult result = manager.select(target, slot, type, true);
       sendSelectionResult(sender, result);
       if (result.success() && !manager.getConfig().isEnabled()) {
-        send(sender, C.GRAY + "The choice was saved but stays inactive while experimental Mutations are off.");
+        send(sender, C.GRAY + AdaptLanguage.text(MutationMessages.CHOICE_SAVED_OFF));
       }
     });
   }
 
-  @Director(name = "clear", description = "Clear a player's Mutation slot")
+  @Director(name = "clear", description = "Clear a player's Mutation slot", descriptionKey = "command.help.clear_a_player_s_mutation_slot")
   public void clear(
-      @Param(description = "slot 1 or 2")
+      @Param(description = "slot 1 or 2", descriptionKey = "command.help.slot_1_or_2")
       int slot,
-      @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class)
+      @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class, descriptionKey = "command.help.target_player_defaults_to_you")
       Player player
   ) {
     CommandSender sender = BukkitDirectorContext.sender();
@@ -140,13 +145,13 @@ public class CommandMutation {
     });
   }
 
-  @Director(name = "discover", description = "Discover or undiscover a Mutation for a player")
+  @Director(name = "discover", description = "Discover or undiscover a Mutation for a player", descriptionKey = "command.help.discover_or_undiscover_a_mutation_for_a_player")
   public void discover(
-      @Param(description = "Mutation ID")
+      @Param(description = "Mutation ID", descriptionKey = "command.help.mutation_id")
       String mutation,
-      @Param(description = "true to discover, false to undiscover", defaultValue = "true")
+      @Param(description = "true to discover, false to undiscover", defaultValue = "true", descriptionKey = "command.help.true_to_discover_false_to_undiscover")
       boolean discovered,
-      @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class)
+      @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class, descriptionKey = "command.help.target_player_defaults_to_you")
       Player player
   ) {
     CommandSender sender = BukkitDirectorContext.sender();
@@ -168,14 +173,17 @@ public class CommandMutation {
         return;
       }
       manager.setDiscovered(target, type, discovered);
-      send(sender, C.GREEN + (discovered ? "Discovered " : "Undiscovered ") + type.displayName()
-          + " for " + target.getName() + ".");
+      send(sender, C.GREEN + AdaptLanguage.text(
+          discovered ? MutationMessages.DISCOVERED : MutationMessages.UNDISCOVERED,
+          trusted("mutation", type.displayName()),
+          untrusted("player", target.getName())
+      ));
     });
   }
 
-  @Director(name = "cooldown", description = "Clear both Mutation switching cooldowns")
+  @Director(name = "cooldown", description = "Clear both Mutation switching cooldowns", descriptionKey = "command.help.clear_both_mutation_switching_cooldowns")
   public void cooldown(
-      @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class)
+      @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class, descriptionKey = "command.help.target_player_defaults_to_you")
       Player player
   ) {
     CommandSender sender = BukkitDirectorContext.sender();
@@ -190,14 +198,17 @@ public class CommandMutation {
       MutationManager manager = manager(sender);
       if (manager != null) {
         manager.clearCooldowns(target);
-        send(sender, C.GREEN + "Cleared Mutation switching cooldowns for " + target.getName() + ".");
+        send(sender, C.GREEN + AdaptLanguage.text(
+            MutationMessages.COOLDOWNS_CLEARED,
+            untrusted("player", target.getName())
+        ));
       }
     });
   }
 
-  @Director(name = "refresh", description = "Refresh a player's Mutation slots and requirements")
+  @Director(name = "refresh", description = "Refresh a player's Mutation slots and requirements", descriptionKey = "command.help.refresh_a_player_s_mutation_slots_and_requirements")
   public void refresh(
-      @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class)
+      @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class, descriptionKey = "command.help.target_player_defaults_to_you")
       Player player
   ) {
     CommandSender sender = BukkitDirectorContext.sender();
@@ -212,18 +223,21 @@ public class CommandMutation {
       MutationManager manager = manager(sender);
       if (manager != null) {
         manager.reconcile(target);
-        send(sender, C.GREEN + "Refreshed Mutation state for " + target.getName() + ".");
+        send(sender, C.GREEN + AdaptLanguage.text(
+            MutationMessages.STATE_REFRESHED,
+            untrusted("player", target.getName())
+        ));
       }
     });
   }
 
-  @Director(name = "slot-override", description = "Force a Mutation slot unlocked, locked, or back to its normal level requirement")
+  @Director(name = "slot-override", description = "Force a Mutation slot unlocked, locked, or back to its normal level requirement", descriptionKey = "command.help.force_a_mutation_slot_unlocked_locked_or_back_to_its_normal_level_requirement")
   public void slotOverride(
-      @Param(description = "slot 1 or 2")
+      @Param(description = "slot 1 or 2", descriptionKey = "command.help.slot_1_or_2")
       int slot,
-      @Param(description = "on, off, or clear")
+      @Param(description = "on, off, or clear", descriptionKey = "command.help.on_off_or_clear")
       String enabled,
-      @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class)
+      @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class, descriptionKey = "command.help.target_player_defaults_to_you")
       Player player
   ) {
     CommandSender sender = BukkitDirectorContext.sender();
@@ -231,12 +245,12 @@ public class CommandMutation {
       return;
     }
     if (slot != 1 && slot != 2) {
-      send(sender, C.RED + "Mutation slot must be 1 or 2.");
+      send(sender, C.RED + AdaptLanguage.text(MutationMessages.SLOT_RANGE));
       return;
     }
     OverrideValue overrideValue = parseOverride(enabled);
     if (overrideValue == OverrideValue.INVALID) {
-      send(sender, C.RED + "Use enabled=on, enabled=off, or enabled=clear.");
+      send(sender, C.RED + AdaptLanguage.text(MutationMessages.OVERRIDE_USAGE));
       return;
     }
     Player target = resolveTarget(player, sender);
@@ -250,14 +264,19 @@ public class CommandMutation {
         return;
       }
       manager.setSlotOverride(target, slot, override);
-      String state = override == null ? "using its normal level requirement" : (override ? "forced unlocked" : "forced locked");
-      send(sender, C.GREEN + "Mutation slot " + slot + " is now " + state + " for " + target.getName() + ".");
+      send(sender, C.GREEN + AdaptLanguage.text(
+          override == null
+              ? MutationMessages.SLOT_NORMAL
+              : (override ? MutationMessages.SLOT_FORCED_UNLOCKED : MutationMessages.SLOT_FORCED_LOCKED),
+          trusted("slot", slot),
+          untrusted("player", target.getName())
+      ));
     });
   }
 
-  @Director(name = "reset", description = "Clear only a player's Mutation data")
+  @Director(name = "reset", description = "Clear only a player's Mutation data", descriptionKey = "command.help.clear_only_a_player_s_mutation_data")
   public void reset(
-      @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class)
+      @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class, descriptionKey = "command.help.target_player_defaults_to_you")
       Player player
   ) {
     CommandSender sender = BukkitDirectorContext.sender();
@@ -278,16 +297,18 @@ public class CommandMutation {
       manager.setPerfectOverride(target, null);
       adaptPlayer.saveNow();
       manager.reconcile(adaptPlayer);
-      send(sender, C.GREEN + "Cleared Mutation data for " + target.getName()
-          + " without changing XP, skills, Knowledge, Adaptations, or advancements.");
+      send(sender, C.GREEN + AdaptLanguage.text(
+          MutationMessages.DATA_CLEARED,
+          untrusted("player", target.getName())
+      ));
     });
   }
 
-  @Director(name = "perfect-test", description = "Force Perfect Adaptation on, off, or back to its normal level requirement")
+  @Director(name = "perfect-test", description = "Force Perfect Adaptation on, off, or back to its normal level requirement", descriptionKey = "command.help.force_perfect_adaptation_on_off_or_back_to_its_normal_level_requirement")
   public void perfectTest(
-      @Param(description = "on, off, or clear", defaultValue = "clear")
+      @Param(description = "on, off, or clear", defaultValue = "clear", descriptionKey = "command.help.on_off_or_clear")
       String enabled,
-      @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class)
+      @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class, descriptionKey = "command.help.target_player_defaults_to_you")
       Player player
   ) {
     CommandSender sender = BukkitDirectorContext.sender();
@@ -301,7 +322,7 @@ public class CommandMutation {
 
     OverrideValue overrideValue = parseOverride(enabled);
     if (overrideValue == OverrideValue.INVALID) {
-      send(sender, C.RED + "Use enabled=on, enabled=off, or enabled=clear.");
+      send(sender, C.RED + AdaptLanguage.text(MutationMessages.OVERRIDE_USAGE));
       return;
     }
     Boolean override = toBooleanOverride(overrideValue);
@@ -310,13 +331,17 @@ public class CommandMutation {
       if (manager != null) {
         manager.setPerfectOverride(target, override);
         manager.reconcile(target);
-        String state = override == null ? "using its normal level requirement" : (override ? "forced on" : "forced off");
-        send(sender, C.GREEN + "Perfect Adaptation is now " + state + " for " + target.getName() + ".");
+        send(sender, C.GREEN + AdaptLanguage.text(
+            override == null
+                ? MutationMessages.PERFECT_NORMAL
+                : (override ? MutationMessages.PERFECT_FORCED_ON : MutationMessages.PERFECT_FORCED_OFF),
+            untrusted("player", target.getName())
+        ));
       }
     });
   }
 
-  @Director(name = "reload", description = "Reload Mutation configuration")
+  @Director(name = "reload", description = "Reload Mutation configuration", descriptionKey = "command.help.reload_mutation_configuration")
   public void reload() {
     CommandSender sender = BukkitDirectorContext.sender();
     if (!requireAdmin(sender)) {
@@ -324,7 +349,7 @@ public class CommandMutation {
     }
     MutationSVC service = MutationSVC.get();
     if (service == null) {
-      send(sender, C.RED + "Mutations are not available right now.");
+      send(sender, C.RED + AdaptLanguage.text(MutationMessages.MUTATIONS_UNAVAILABLE));
       return;
     }
     boolean reloaded = service.reload();
@@ -332,13 +357,13 @@ public class CommandMutation {
       HotloadSVC.reconcileOnlineMutations(service.getManager());
     }
     if (!reloaded) {
-      send(sender, C.RED + "Mutation configuration reload failed; previous settings remain active.");
+      send(sender, C.RED + AdaptLanguage.text(MutationMessages.RELOAD_FAILED));
       return;
     }
     if (service.getManager().getConfig().isEnabled()) {
-      send(sender, C.GREEN + "Mutation configuration reloaded. Experimental Mutations are enabled; online slots are being refreshed.");
+      send(sender, C.GREEN + AdaptLanguage.text(MutationMessages.RELOAD_ENABLED));
     } else {
-      send(sender, C.YELLOW + "Mutation configuration reloaded. Experimental Mutations are disabled; saved choices are retained.");
+      send(sender, C.YELLOW + AdaptLanguage.text(MutationMessages.RELOAD_DISABLED));
     }
   }
 
@@ -346,7 +371,10 @@ public class CommandMutation {
     if (BukkitDirectorContext.hasPermission("adapt.mutations")) {
       return true;
     }
-    BukkitDirectorContext.sender().sendMessage(C.RED + "You lack the permission 'adapt.mutations'.");
+    BukkitDirectorContext.sender().sendMessage(C.RED + AdaptLanguage.text(
+        CommandRuntimeMessages.MISSING_PERMISSION,
+        trusted("permission", "adapt.mutations")
+    ));
     return false;
   }
 
@@ -361,7 +389,10 @@ public class CommandMutation {
     if (sender.hasPermission("adapt.mutations.admin")) {
       return true;
     }
-    send(sender, C.RED + "You lack the permission 'adapt.mutations.admin'.");
+    send(sender, C.RED + AdaptLanguage.text(
+        CommandRuntimeMessages.MISSING_PERMISSION,
+        trusted("permission", "adapt.mutations.admin")
+    ));
     return false;
   }
 
@@ -372,14 +403,14 @@ public class CommandMutation {
     if (sender instanceof Player senderPlayer) {
       return senderPlayer;
     }
-    send(sender, C.RED + "You must specify a player from console.");
+    send(sender, C.RED + AdaptLanguage.text(CommandRuntimeMessages.PLAYER_REQUIRED_FROM_CONSOLE_SHORT));
     return null;
   }
 
   private MutationManager manager(CommandSender sender) {
     MutationSVC service = MutationSVC.get();
     if (service == null || service.getManager() == null) {
-      send(sender, C.RED + "Mutations are not available right now.");
+      send(sender, C.RED + AdaptLanguage.text(MutationMessages.MUTATIONS_UNAVAILABLE));
       return null;
     }
     return service.getManager();
@@ -387,12 +418,12 @@ public class CommandMutation {
 
   private AdaptPlayer adaptPlayer(Player player, CommandSender sender) {
     if (player == null || Adapt.instance == null || Adapt.instance.getAdaptServer() == null) {
-      send(sender, C.RED + "Player Mutation data is unavailable.");
+      send(sender, C.RED + AdaptLanguage.text(MutationMessages.PLAYER_DATA_UNAVAILABLE));
       return null;
     }
     AdaptPlayer adaptPlayer = Adapt.instance.getAdaptServer().getPlayer(player);
     if (adaptPlayer == null) {
-      send(sender, C.RED + "Player Mutation data is unavailable.");
+      send(sender, C.RED + AdaptLanguage.text(MutationMessages.PLAYER_DATA_UNAVAILABLE));
     }
     return adaptPlayer;
   }
@@ -400,7 +431,10 @@ public class CommandMutation {
   private MutationType resolveMutation(MutationManager manager, String mutation, CommandSender sender) {
     MutationType type = manager.find(mutation);
     if (type == null) {
-      send(sender, C.RED + "Unknown Mutation: " + mutation);
+      send(sender, C.RED + AdaptLanguage.text(
+          MutationMessages.UNKNOWN_MUTATION,
+          untrusted("mutation", mutation)
+      ));
     }
     return type;
   }
@@ -412,64 +446,101 @@ public class CommandMutation {
     }
 
     MutationSnapshot snapshot = manager.reconcile(target);
-    send(sender, C.DARK_PURPLE + "Experimental Mutations for " + C.WHITE + target.getName());
-    send(sender, C.GRAY + "Feature: " + (manager.getConfig().isEnabled() ? C.GREEN + "enabled" : C.YELLOW + "disabled"));
+    send(sender, C.DARK_PURPLE + AdaptLanguage.text(
+        MutationMessages.SNAPSHOT_TITLE,
+        untrusted("player", target.getName())
+    ));
+    send(sender, (manager.getConfig().isEnabled() ? C.GREEN : C.YELLOW) + AdaptLanguage.text(
+        manager.getConfig().isEnabled() ? MutationMessages.FEATURE_ENABLED : MutationMessages.FEATURE_DISABLED
+    ));
     send(sender, formatSlot(manager, snapshot, 1, snapshot.slotOneId(), snapshot.slotOneUnlocked()));
     send(sender, formatSlot(manager, snapshot, 2, snapshot.slotTwoId(), snapshot.slotTwoUnlocked()));
-    send(sender, C.GRAY + "Perfect Adaptation: " + (snapshot.perfect() ? C.GOLD + "active" : C.DARK_GRAY + "inactive"));
-    send(sender, C.GRAY + "Cooperative effects: " + (snapshot.cooperativeOptIn() ? C.GREEN + "enabled" : C.DARK_GRAY + "disabled"));
+    send(sender, (snapshot.perfect() ? C.GOLD : C.DARK_GRAY) + AdaptLanguage.text(
+        snapshot.perfect() ? MutationMessages.PERFECT_ACTIVE : MutationMessages.PERFECT_INACTIVE
+    ));
+    send(sender, (snapshot.cooperativeOptIn() ? C.GREEN : C.DARK_GRAY) + AdaptLanguage.text(
+        snapshot.cooperativeOptIn()
+            ? MutationMessages.COOPERATIVE_STATUS_ENABLED
+            : MutationMessages.COOPERATIVE_STATUS_DISABLED
+    ));
     AdaptPlayer adaptPlayer = adaptPlayer(target, sender);
     if (adaptPlayer != null) {
       PlayerMutationData data = adaptPlayer.getData().getMutationData();
-      send(sender, C.GRAY + "Stored resources: " + C.WHITE
-          + "Deep Charge " + Form.f(data.getDeepbloodIchor(), 1)
-          + C.DARK_GRAY + " • " + C.WHITE + "Root Charge " + Form.f(data.getLivingLatticeRootCharge(), 1)
-          + C.DARK_GRAY + " • " + C.WHITE + "Craft/Brew/Enchant steps " + data.getFormulaSigils().size());
-      send(sender, C.GRAY + "Linked gear: " + C.WHITE
-          + "Temperbound " + yesNo(!data.getTemperboundBondId().isBlank())
-          + C.DARK_GRAY + " • " + C.WHITE + "Masterwork " + yesNo(!data.getMasterworkItemId().isBlank())
-          + C.DARK_GRAY + " • " + C.WHITE + "Deepblood Tool " + yesNo(!data.getDeepbloodToolId().isBlank())
-          + C.DARK_GRAY + " • " + C.WHITE + "Trophy " + yesNo(!data.getTrophyImprint().isBlank()));
+      send(sender, C.GRAY + AdaptLanguage.text(
+          MutationMessages.STORED_RESOURCES,
+          trusted("deepCharge", Form.f(data.getDeepbloodIchor(), 1)),
+          trusted("rootCharge", Form.f(data.getLivingLatticeRootCharge(), 1)),
+          trusted("steps", data.getFormulaSigils().size())
+      ));
+      send(sender, C.GRAY + AdaptLanguage.text(
+          MutationMessages.LINKED_GEAR,
+          trusted("temperbound", yesNo(!data.getTemperboundBondId().isBlank())),
+          trusted("masterwork", yesNo(!data.getMasterworkItemId().isBlank())),
+          trusted("deepblood", yesNo(!data.getDeepbloodToolId().isBlank())),
+          trusted("trophy", yesNo(!data.getTrophyImprint().isBlank()))
+      ));
     }
   }
 
   private String yesNo(boolean value) {
-    return value ? "yes" : "no";
+    return AdaptLanguage.text(value ? MutationMessages.YES : MutationMessages.NO);
   }
 
   private String formatState(MutationState state) {
     return switch (state) {
-      case AVAILABLE -> "ready";
-      case EXPRESSED -> "active";
-      case DORMANT -> "inactive";
-      case LOCKED -> "locked";
-      case DISABLED -> "off";
-      case RESTRICTED -> "unavailable";
-      case CONFLICT -> "blocked";
+      case AVAILABLE -> AdaptLanguage.text(MutationMessages.STATE_READY);
+      case EXPRESSED -> AdaptLanguage.text(MutationMessages.STATE_ACTIVE);
+      case DORMANT -> AdaptLanguage.text(MutationMessages.STATE_INACTIVE);
+      case LOCKED -> AdaptLanguage.text(MutationMessages.STATE_LOCKED);
+      case DISABLED -> AdaptLanguage.text(MutationMessages.STATE_OFF);
+      case RESTRICTED -> AdaptLanguage.text(MutationMessages.STATE_UNAVAILABLE);
+      case CONFLICT -> AdaptLanguage.text(MutationMessages.STATE_BLOCKED);
     };
   }
 
   private String formatSlot(MutationManager manager, MutationSnapshot snapshot, int slot, String mutationId, boolean unlocked) {
     if (!unlocked) {
-      return C.GRAY + "Slot " + slot + ": " + C.DARK_GRAY + "locked";
+      return C.DARK_GRAY + AdaptLanguage.text(MutationMessages.SLOT_LOCKED, trusted("slot", slot));
     }
     MutationType type = manager.find(mutationId);
     if (type == null) {
-      String value = mutationId == null || mutationId.isBlank() ? "empty" : mutationId + " (unavailable)";
-      return C.GRAY + "Slot " + slot + ": " + C.WHITE + value;
+      if (mutationId == null || mutationId.isBlank()) {
+        return C.GRAY + AdaptLanguage.text(MutationMessages.SLOT_EMPTY, trusted("slot", slot));
+      }
+      return C.GRAY + AdaptLanguage.text(
+          MutationMessages.SLOT_UNAVAILABLE,
+          trusted("slot", slot),
+          untrusted("mutation", mutationId)
+      );
     }
-    String value = C.GRAY + "Slot " + slot + ": " + C.WHITE + type.displayName()
-        + C.DARK_GRAY + " [" + formatState(snapshot.state(type)) + "]";
     String reason = snapshot.reason(type);
-    return reason == null || reason.isBlank() ? value : value + C.GRAY + " - " + reason;
+    if (reason == null || reason.isBlank()) {
+      return C.GRAY + AdaptLanguage.text(
+          MutationMessages.SLOT_VALUE,
+          trusted("slot", slot),
+          trusted("mutation", type.displayName()),
+          trusted("state", formatState(snapshot.state(type)))
+      );
+    }
+    return C.GRAY + AdaptLanguage.text(
+        MutationMessages.SLOT_VALUE_REASON,
+        trusted("slot", slot),
+        trusted("mutation", type.displayName()),
+        trusted("state", formatState(snapshot.state(type))),
+        trusted("reason", reason)
+    );
   }
 
   private void sendSelectionResult(CommandSender sender, MutationSelectionResult result) {
     String message = result.message() == null || result.message().isBlank()
-        ? (result.success() ? "Mutation state updated." : "Mutation state was not changed.")
+        ? AdaptLanguage.text(result.success() ? MutationMessages.RESULT_UPDATED : MutationMessages.RESULT_NOT_CHANGED)
         : result.message();
     if (!result.success() && result.cooldownRemainingMillis() > 0L) {
-      message += " Remaining cooldown: " + Form.duration(result.cooldownRemainingMillis(), 1);
+      message = AdaptLanguage.text(
+          MutationMessages.REMAINING_COOLDOWN,
+          trusted("message", message),
+          trusted("duration", Form.duration(result.cooldownRemainingMillis(), 1))
+      );
     }
     send(sender, (result.success() ? C.GREEN : C.RED) + message);
   }

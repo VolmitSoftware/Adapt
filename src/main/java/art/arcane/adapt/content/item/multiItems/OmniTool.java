@@ -18,6 +18,8 @@
 
 package art.arcane.adapt.content.item.multiItems;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.ItemsMessages;
 import art.arcane.volmlib.util.format.Form;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -25,6 +27,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 public class OmniTool implements MultiItem {
   @Override
@@ -40,7 +44,10 @@ public class OmniTool implements MultiItem {
   @Override
   public void onApplyMeta(ItemStack item, ItemMeta meta, List<ItemStack> otherItems) {
     List<String> lore = new ArrayList<>();
-    lore.add("Leatherman (" + (otherItems.size() + 1) + " Items)");
+    lore.add(AdaptLanguage.text(
+        ItemsMessages.OMNI_TOOL_COUNT,
+        trusted("count", otherItems.size() + 1)
+    ));
     lore.add("-> " + Form.capitalizeWords(item.getType().name().toLowerCase().replaceAll("\\Q_\\E", " ")));
 
     for (ItemStack i : otherItems) {

@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.tragoul;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.TragoulMessages;
+
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -27,7 +30,6 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
@@ -48,6 +50,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 public class TragoulGlobe extends SimpleAdaptation<TragoulGlobe.Config> {
   private static final double HARD_MAX_RANGE = 24D;
@@ -87,9 +91,15 @@ public class TragoulGlobe extends SimpleAdaptation<TragoulGlobe.Config> {
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + Localizer.dLocalize("tragoul.globe.lore1"));
-    v.addLore(C.YELLOW + Localizer.dLocalize("tragoul.globe.lore2") + Form.f((getConfig().rangePerLevel * level) + getConfig().initalRange, 1));
-    v.addLore(C.YELLOW + Localizer.dLocalize("tragoul.globe.lore3") + Form.f(getConfig().bonusDamagePerLevel * level, 1));
+    v.addLore(C.GREEN + AdaptLanguage.text(TragoulMessages.GLOBE_LORE1));
+    v.addLore(C.YELLOW + AdaptLanguage.text(
+        TragoulMessages.GLOBE_RANGE,
+        trusted("range", Form.f((getConfig().rangePerLevel * level) + getConfig().initalRange, 1))
+    ));
+    v.addLore(C.YELLOW + AdaptLanguage.text(
+        TragoulMessages.GLOBE_DAMAGE,
+        trusted("damage", Form.f(getConfig().bonusDamagePerLevel * level, 1))
+    ));
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)

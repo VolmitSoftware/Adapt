@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.brewing;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.BrewingMessages;
+
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.potion.AdaptBrewCompleteEvent;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -27,7 +30,6 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.potion.BrewingRecipe;
 import art.arcane.adapt.api.potion.PotionBuilder;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.PotionEffectTypes;
 import art.arcane.adapt.util.reflect.registries.PotionTypes;
@@ -55,7 +57,7 @@ public class BrewingHaste extends SimpleAdaptation<BrewingHaste.Config> {
         .ingredient(Material.AMETHYST_SHARD)
         .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionTypes.SPEED))
         .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
-            .setName("Bottled Haste")
+            .setName(AdaptLanguage.text(BrewingMessages.HASTE_NAME))
             .setColor(Color.YELLOW)
             .addEffect(PotionEffectTypes.FAST_DIGGING, 1200, 1, true, true, true)
             .build())
@@ -67,7 +69,7 @@ public class BrewingHaste extends SimpleAdaptation<BrewingHaste.Config> {
         .ingredient(Material.AMETHYST_BLOCK)
         .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionTypes.SPEED))
         .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
-            .setName("Bottled Haste 2")
+            .setName(AdaptLanguage.text(BrewingMessages.HASTE_STRONG_NAME))
             .setColor(Color.YELLOW)
             .addEffect(PotionEffectTypes.FAST_DIGGING, 600, 2, true, true, true)
             .build())
@@ -83,8 +85,8 @@ public class BrewingHaste extends SimpleAdaptation<BrewingHaste.Config> {
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing.haste.lore1"));
-    v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing.haste.lore2"));
+    v.addLore(C.GREEN + "+ " + AdaptLanguage.text(BrewingMessages.HASTE_LORE1));
+    v.addLore(C.GREEN + "+ " + AdaptLanguage.text(BrewingMessages.HASTE_LORE2));
   }
 
   @EventHandler(priority = EventPriority.MONITOR)

@@ -18,7 +18,6 @@
 
 package art.arcane.adapt.util.common.math;
 
-
 import com.google.common.util.concurrent.AtomicDoubleArray;
 
 import java.util.Arrays;

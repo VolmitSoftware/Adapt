@@ -47,8 +47,8 @@ import art.arcane.adapt.content.protector.GriefPreventionProtector;
 import art.arcane.adapt.content.protector.LocketteProProtector;
 import art.arcane.adapt.content.protector.ResidenceProtector;
 import art.arcane.adapt.content.protector.WorldGuardProtector;
+import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.io.SQLManager;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.plugin.AdaptService;
@@ -110,7 +110,6 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
   private static final boolean SLIMJAR_DEBUG = Boolean.getBoolean("adapt.debug-slimjar");
   private static final Object GLOWING_ENTITIES_LOCK = new Object();
   public static Adapt instance;
-  public static HashMap<String, String> wordKey = new HashMap<>();
   public static Platform platform;
   public static AudienceProvider audiences;
   private static VolmitSender sender;
@@ -264,7 +263,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     debug("XP Curve: " + AdaptConfig.get().getXpCurve());
     debug("XP/Level base: " + AdaptConfig.get().getPlayerXpPerSkillLevelUpBase());
     debug("XP/Level multiplier: " + AdaptConfig.get().getPlayerXpPerSkillLevelUpLevelMultiplier());
-    info("Language: " + AdaptConfig.get().getLanguage() + " - Language Fallback: " + AdaptConfig.get().getFallbackLanguageDontChangeUnlessYouKnowWhatYouAreDoing());
+    info("Language: " + AdaptLanguage.activeLocale());
   }
 
   public static void autoUpdateCheck() {
@@ -412,7 +411,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     runStartupPhaseVoid("discover-services", () -> initialize("art.arcane.adapt.service")
         .forEach((i) -> services.put((Class<? extends AdaptService>) i.getClass(), (AdaptService) i)));
 
-    runStartupPhaseVoid("language-update", Localizer::updateLanguageFile);
+    runStartupPhaseVoid("language-load", AdaptLanguage::initialize);
     if (!runStartupPhase("models-load", CustomModel::reloadFromDisk)) {
       Adapt.warn("Failed to load models config during startup migration.");
     }

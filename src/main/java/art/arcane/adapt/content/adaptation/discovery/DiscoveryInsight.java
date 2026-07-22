@@ -27,12 +27,15 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.adaptation.taming.TamingStableHand;
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.DiscoveryMessages;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
+import art.arcane.volmlib.util.localization.TextKey;
 import org.bukkit.Color;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
@@ -72,6 +75,8 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.LongSupplier;
+
+import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> {
   private static final String BAR_SEGMENT = "❚";
@@ -598,16 +603,16 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
     }
 
     StringBuilder text = new StringBuilder();
-    appendAnimalStat(text, "Speed", stats.movementSpeed(), 2);
-    appendAnimalStat(text, "Jump", stats.jumpStrength(), 2);
-    appendAnimalStat(text, "Attack", stats.attackDamage(), 1);
+    appendAnimalStat(text, DiscoveryMessages.INSIGHT_SPEED, stats.movementSpeed(), 2);
+    appendAnimalStat(text, DiscoveryMessages.INSIGHT_JUMP, stats.jumpStrength(), 2);
+    appendAnimalStat(text, DiscoveryMessages.INSIGHT_ATTACK, stats.attackDamage(), 1);
     if (stats.stableHandEnhanced()) {
-      text.append('\n').append(C.AQUA).append("Stable Hand enhanced");
+      text.append('\n').append(C.AQUA).append(AdaptLanguage.text(DiscoveryMessages.INSIGHT_STABLE_HAND));
     }
     return text.toString();
   }
 
-  private static void appendAnimalStat(StringBuilder text, String label, double value, int decimals) {
+  private static void appendAnimalStat(StringBuilder text, TextKey label, double value, int decimals) {
     if (!Double.isFinite(value)) {
       return;
     }
@@ -616,7 +621,11 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
     } else {
       text.append(C.DARK_GRAY).append(" • ");
     }
-    text.append(C.GRAY).append(label).append(' ').append(C.WHITE).append(Form.f(value, decimals));
+    text.append(C.GRAY).append(AdaptLanguage.text(
+        DiscoveryMessages.INSIGHT_STAT,
+        trusted("label", AdaptLanguage.text(label)),
+        trusted("value", C.WHITE + Form.f(value, decimals))
+    ));
   }
 
   private double maxHealth(LivingEntity target) {

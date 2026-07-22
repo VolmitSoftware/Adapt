@@ -18,10 +18,11 @@
 
 package art.arcane.adapt.content.item;
 
-import art.arcane.adapt.Adapt;
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.ItemsMessages;
+
 import art.arcane.adapt.api.item.DataItem;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.bukkit.Material;
@@ -54,16 +55,8 @@ public class BoundEnderPearl implements DataItem<BoundEnderPearl.Data> {
     return io.withData(new Data(t));
   }
 
-  public static boolean isBindableItem(ItemStack t) {
-    if (t.getType().equals(Material.ENDER_PEARL)) {
-      if (t.getItemMeta() != null && t.getItemMeta().getLore() != null) {
-        if (t.getItemMeta().getLore().get(0).contains(Localizer.dLocalize("items.bound_ender_peral.name"))) {
-          Adapt.verbose("Enderpearl is bindable: " + t.getType().name());
-          return true;
-        }
-      }
-    }
-    return false;
+  public static boolean isBindableItem(ItemStack item) {
+    return io.hasData(item);
   }
 
   @Override
@@ -78,16 +71,16 @@ public class BoundEnderPearl implements DataItem<BoundEnderPearl.Data> {
 
   @Override
   public void applyLore(Data data, List<String> lore) {
-    lore.add(C.WHITE + Localizer.dLocalize("items.bound_ender_peral.name"));
-    lore.add(C.GRAY + Localizer.dLocalize("items.bound_ender_peral.usage1"));
-    lore.add(C.GRAY + Localizer.dLocalize("items.bound_ender_peral.usage2"));
+    lore.add(C.WHITE + AdaptLanguage.text(ItemsMessages.BOUND_ENDER_PERAL_NAME));
+    lore.add(C.GRAY + AdaptLanguage.text(ItemsMessages.BOUND_ENDER_PERAL_USAGE1));
+    lore.add(C.GRAY + AdaptLanguage.text(ItemsMessages.BOUND_ENDER_PERAL_USAGE2));
   }
 
   @Override
   public void applyMeta(Data data, ItemMeta meta) {
     meta.addEnchant(Enchantment.BINDING_CURSE, 10, true);
     meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
-    meta.setDisplayName(Localizer.dLocalize("items.bound_ender_peral.name"));
+    meta.setDisplayName(AdaptLanguage.text(ItemsMessages.BOUND_ENDER_PERAL_NAME));
 
   }
 

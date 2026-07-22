@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.brewing;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.BrewingMessages;
+
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.potion.AdaptBrewCompleteEvent;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -27,7 +30,6 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.potion.BrewingRecipe;
 import art.arcane.adapt.api.potion.PotionBuilder;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -55,7 +57,7 @@ public class BrewingResistance extends SimpleAdaptation<BrewingResistance.Config
         .ingredient(Material.IRON_INGOT)
         .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionType.AWKWARD))
         .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
-            .setName("Bottled Resistance")
+            .setName(AdaptLanguage.text(BrewingMessages.RESISTANCE_NAME))
             .setColor(Color.WHITE)
             .addEffect(PotionEffectType.RESISTANCE, 1200, 1, true, true, true)
             .build())
@@ -67,7 +69,7 @@ public class BrewingResistance extends SimpleAdaptation<BrewingResistance.Config
         .ingredient(Material.IRON_BLOCK)
         .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionType.AWKWARD))
         .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
-            .setName("Bottled Resistance 2")
+            .setName(AdaptLanguage.text(BrewingMessages.RESISTANCE_STRONG_NAME))
             .setColor(Color.WHITE)
             .addEffect(PotionEffectType.RESISTANCE, 600, 2, true, true, true)
             .build())
@@ -83,8 +85,8 @@ public class BrewingResistance extends SimpleAdaptation<BrewingResistance.Config
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing.resistance.lore1"));
-    v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing.resistance.lore2"));
+    v.addLore(C.GREEN + "+ " + AdaptLanguage.text(BrewingMessages.RESISTANCE_LORE1));
+    v.addLore(C.GREEN + "+ " + AdaptLanguage.text(BrewingMessages.RESISTANCE_LORE2));
   }
 
   @EventHandler(priority = EventPriority.MONITOR)

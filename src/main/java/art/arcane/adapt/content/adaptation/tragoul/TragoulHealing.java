@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.tragoul;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.TragoulMessages;
+
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -27,7 +30,6 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.version.IAttribute;
 import art.arcane.adapt.api.version.Version;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Attributes;
@@ -80,8 +82,8 @@ public class TragoulHealing extends SimpleAdaptation<TragoulHealing.Config> {
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.RED + "- " + Form.f(getDrainDamage(level), 1) + C.GRAY + " " + Localizer.dLocalize("tragoul.healing.lore1"));
-    v.addLore(C.GREEN + Localizer.dLocalize("tragoul.healing.lore2"));
+    statLore(v, C.RED, "- ", Form.f(getDrainDamage(level), 1), 1);
+    v.addLore(C.GREEN + AdaptLanguage.text(TragoulMessages.HEALING_LORE2));
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

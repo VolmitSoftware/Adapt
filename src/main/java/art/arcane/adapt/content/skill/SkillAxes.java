@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.skill;
 
+import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.localization.catalog.SkillMessages;
+
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
@@ -39,7 +42,6 @@ import art.arcane.adapt.content.adaptation.axe.AxeThrowingAxe;
 import art.arcane.adapt.content.adaptation.axe.AxeWoodVeinminer;
 import art.arcane.adapt.content.integration.iris.IrisTreeFellerLink;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -60,11 +62,9 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
   }
 
   SkillAxes(boolean irisTreeFellerAvailable) {
-    super("axes", Localizer.dLocalize("skill.axes.icon"));
+    super("axes", SkillPresentation.of(SkillMessages.AXES_NAME, SkillMessages.AXES_ICON, SkillMessages.AXES_DESCRIPTION));
     registerConfiguration(Config.class);
     setColor(C.YELLOW);
-    setDescription(Localizer.dLocalize("skill.axes.description1") + C.ITALIC + Localizer.dLocalize("skill.axes.description2") + C.GRAY + " " + Localizer.dLocalize("skill.axes.description3"));
-    setDisplayName(Localizer.dLocalize("skill.axes.name"));
     setInterval(5251);
     setIcon(Material.GOLDEN_AXE);
     registerAdaptation(new AxeGroundSmash());

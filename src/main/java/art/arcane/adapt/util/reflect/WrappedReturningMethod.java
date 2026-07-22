@@ -1,6 +1,5 @@
 package art.arcane.adapt.util.reflect;
 
-
 import art.arcane.adapt.Adapt;
 
 import java.lang.reflect.InvocationTargetException;

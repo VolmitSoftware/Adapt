@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.skill;
 
+import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.localization.catalog.SkillMessages;
+
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
@@ -39,7 +42,6 @@ import art.arcane.adapt.content.adaptation.crafting.CraftingThriftyHands;
 import art.arcane.adapt.content.adaptation.crafting.CraftingTinkerer;
 import art.arcane.adapt.content.adaptation.crafting.CraftingXP;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import lombok.NoArgsConstructor;
@@ -64,11 +66,9 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
   private final Map<String, Long> furnaceXpMarks = new ConcurrentHashMap<>();
 
   public SkillCrafting() {
-    super("crafting", Localizer.dLocalize("skill.crafting.icon"));
+    super("crafting", SkillPresentation.of(SkillMessages.CRAFTING_NAME, SkillMessages.CRAFTING_ICON, SkillMessages.CRAFTING_DESCRIPTION));
     registerConfiguration(Config.class);
     setColor(C.YELLOW);
-    setDescription(Localizer.dLocalize("skill.crafting.description"));
-    setDisplayName(Localizer.dLocalize("skill.crafting.name"));
     setInterval(3789);
     setIcon(Material.CRAFTING_TABLE);
     registerAdaptation(new CraftingDeconstruction());

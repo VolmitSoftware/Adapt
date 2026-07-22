@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.architect;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.ItemsMessages;
+
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -30,7 +33,6 @@ import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.recipe.MaterialChar;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.PlayerSkillLine;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -171,10 +173,10 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
     ItemMeta meta = elevatorItem.getItemMeta();
     if (meta != null) {
       meta.getPersistentDataContainer().set(ELEVATOR_KEY, PersistentDataType.BYTE, (byte) 0);
-      meta.setDisplayName(Localizer.dLocalize("items.elevator_block.name"));
-      meta.setLore(List.of(Localizer.dLocalize("items.elevator_block.usage1"),
-          Localizer.dLocalize("items.elevator_block.usage2"),
-          Localizer.dLocalize("items.elevator_block.usage3")));
+      meta.setDisplayName(AdaptLanguage.text(ItemsMessages.ELEVATOR_BLOCK_NAME));
+      meta.setLore(List.of(AdaptLanguage.text(ItemsMessages.ELEVATOR_BLOCK_USAGE1),
+          AdaptLanguage.text(ItemsMessages.ELEVATOR_BLOCK_USAGE2),
+          AdaptLanguage.text(ItemsMessages.ELEVATOR_BLOCK_USAGE3)));
       elevatorItem.setItemMeta(meta);
     }
     return elevatorItem;

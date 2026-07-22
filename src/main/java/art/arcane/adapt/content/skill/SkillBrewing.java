@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.skill;
 
+import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.localization.catalog.SkillMessages;
+
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -42,7 +45,6 @@ import art.arcane.adapt.content.adaptation.brewing.BrewingSuperHeated;
 import art.arcane.adapt.content.matter.BrewingStandOwner;
 import art.arcane.adapt.content.matter.BrewingStandOwnerMatter;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.spatial.matter.SpatialMatter;
 import lombok.NoArgsConstructor;
@@ -67,11 +69,9 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
   private final Cooldowns cooldowns = cooldowns();
 
   public SkillBrewing() {
-    super("brewing", Localizer.dLocalize("skill.brewing.icon"));
+    super("brewing", SkillPresentation.of(SkillMessages.BREWING_NAME, SkillMessages.BREWING_ICON, SkillMessages.BREWING_DESCRIPTION));
     registerConfiguration(Config.class);
     setColor(C.LIGHT_PURPLE);
-    setDescription(Localizer.dLocalize("skill.brewing.description"));
-    setDisplayName(Localizer.dLocalize("skill.brewing.name"));
     setInterval(5851);
     setIcon(Material.LINGERING_POTION);
     registerAdaptation(new BrewingLingering()); // Features

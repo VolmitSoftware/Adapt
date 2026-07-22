@@ -3,14 +3,15 @@ package art.arcane.adapt.content.adaptation.architect;
 import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.world.PlayerSkillLine;
+import art.arcane.adapt.localization.AdaptMessages;
 import art.arcane.adapt.util.config.TomlCodec;
+import art.arcane.volmlib.util.localization.LinesValue;
+import art.arcane.volmlib.util.localization.TextValue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -22,8 +23,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class ArchitectUnlockDefaultsTest extends AdaptTestBase {
-  private static final Path ENGLISH_LOCALE = Path.of("src/main/resources/en_US.toml");
-
   @BeforeEach
   void configurePluginName() {
     lenient().when(plugin.getName()).thenReturn("Adapt");
@@ -38,10 +37,10 @@ class ArchitectUnlockDefaultsTest extends AdaptTestBase {
   }
 
   @Test
-  void elevatorDescriptionExplainsItsRecipe() throws IOException {
-    String elevator = localeSection(Files.readString(ENGLISH_LOCALE), "architect.elevator");
+  void elevatorDescriptionExplainsItsRecipe() {
+    TextValue elevator = (TextValue) AdaptMessages.require("architect.elevator.description").englishValue();
 
-    assertThat(elevator).contains("description =", "Ender Pearl", "center", "8 Wool");
+    assertThat(elevator.template()).contains("Ender Pearl", "center", "8 Wool");
   }
 
   @Test
@@ -58,8 +57,12 @@ class ArchitectUnlockDefaultsTest extends AdaptTestBase {
   }
 
   @Test
-  void stonecutterSavantLoreDoesNotAdvertiseACooldown() throws IOException {
-    String stonecutterSavant = localeSection(Files.readString(ENGLISH_LOCALE), "architect.stonecutter_savant");
+  void stonecutterSavantLoreDoesNotAdvertiseACooldown() {
+    TextValue description = (TextValue) AdaptMessages.require(
+        "architect.stonecutter_savant.description"
+    ).englishValue();
+    LinesValue lore = (LinesValue) AdaptMessages.require("architect.stonecutter_savant.lore").englishValue();
+    String stonecutterSavant = description.template() + " " + String.join(" ", lore.lines());
 
     assertThat(stonecutterSavant.toLowerCase(Locale.ROOT)).doesNotContain("cooldown");
   }
@@ -121,13 +124,4 @@ class ArchitectUnlockDefaultsTest extends AdaptTestBase {
     return line;
   }
 
-  private static String localeSection(String locale, String key) {
-    String header = "[" + key + "]";
-    int start = locale.indexOf(header);
-    if (start < 0) {
-      throw new IllegalArgumentException("Missing locale section: " + key);
-    }
-    int end = locale.indexOf("\n[", start + header.length());
-    return end < 0 ? locale.substring(start) : locale.substring(start, end);
-  }
 }

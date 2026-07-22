@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.tragoul;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.TragoulMessages;
+
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -29,7 +32,6 @@ import art.arcane.adapt.api.version.IAttribute;
 import art.arcane.adapt.api.version.Version;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Attributes;
@@ -107,9 +109,9 @@ public class TragoulDeathSense extends SimpleAdaptation<TragoulDeathSense.Config
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + Localizer.dLocalize("tragoul.death_sense.lore1"));
-    v.addLore(C.GREEN + "+ " + Form.pc(getHealthThreshold(level), 0) + C.GRAY + " " + Localizer.dLocalize("tragoul.death_sense.lore2"));
-    v.addLore(C.YELLOW + "* " + Form.f(getRadius(level), 1) + C.GRAY + " " + Localizer.dLocalize("tragoul.death_sense.lore3"));
+    v.addLore(C.GREEN + AdaptLanguage.text(TragoulMessages.DEATH_SENSE_LORE1));
+    statLore(v, Form.pc(getHealthThreshold(level), 0), 2);
+    statLore(v, C.YELLOW, "* ", Form.f(getRadius(level), 1), 3);
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

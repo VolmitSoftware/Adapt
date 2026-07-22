@@ -10,12 +10,11 @@ import art.arcane.adapt.api.tick.TickedObject;
 import art.arcane.adapt.content.gui.ConfigGui;
 import art.arcane.adapt.content.gui.MutationGui;
 import art.arcane.adapt.content.gui.SkillsGui;
-import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.RuntimeMessages;
 import art.arcane.adapt.util.common.io.Json;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.plugin.AdaptService;
-import art.arcane.adapt.util.common.plugin.VolmitSender;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigFileSupport;
 import art.arcane.adapt.util.project.config.ConfigRewriteReporter;
@@ -37,6 +36,8 @@ import java.util.Map;
 import java.util.UUID;
 
 import static art.arcane.adapt.util.director.context.AdaptationListingHandler.initializeAdaptationListings;
+import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
+import static art.arcane.volmlib.util.localization.MessageArgument.untrusted;
 
 public class HotloadSVC implements AdaptService {
   private static final long WATCHER_POLL_MS = 500;
@@ -51,6 +52,7 @@ public class HotloadSVC implements AdaptService {
   private File mutationsConfigFile;
   private File skillsFolder;
   private File adaptationsFolder;
+  private File localeOverrideFolder;
   private final ConfigHotloadEngine hotloadEngine = new ConfigHotloadEngine(
       this::isManagedConfigFile,
       this::listKnownConfigFiles,
@@ -67,12 +69,13 @@ public class HotloadSVC implements AdaptService {
     mutationsConfigFile = Adapt.instance.getDataFile("adapt", "mutations.toml");
     skillsFolder = Adapt.instance.getDataFolder("adapt", "skills");
     adaptationsFolder = Adapt.instance.getDataFolder("adapt", "adaptations");
+    localeOverrideFolder = AdaptLanguage.overrideFolder();
     hotloadEngine.configure(
         WATCHER_POLL_MS,
         List.of(adaptConfigFile, adaptConfigLegacyFile, modelsFile, modelsLegacyFile, mutationsConfigFile),
-        List.of(skillsFolder, adaptationsFolder)
+        List.of(skillsFolder, adaptationsFolder, localeOverrideFolder)
     );
-    Adapt.info("Config hotload watcher enabled for all /adapt/*.json and /adapt/*.toml files.");
+    Adapt.info("Config hotload watcher enabled for Adapt configs and locale overrides.");
 
     configTicker = new TickedObject("config", "config-hotload-service", WATCHER_POLL_MS) {
       @Override
@@ -137,6 +140,14 @@ public class HotloadSVC implements AdaptService {
         return ok;
       }
 
+      if (isLocaleOverrideFile(file)) {
+        boolean ok = AdaptLanguage.reload();
+        if (ok) {
+          Adapt.instance.getAdaptServer().getSkillRegistry().synchronizeAdvancementRuntime();
+        }
+        return ok;
+      }
+
       if (isMutationsConfigFile(file)) {
         return reloadMutationsConfig(file);
       }
@@ -170,7 +181,6 @@ public class HotloadSVC implements AdaptService {
     boolean ok = registry.hotReloadSkillConfig(skillName);
     if (ok) {
       initializeAdaptationListings();
-      VolmitSender.invalidateHelpCache();
       reconcileCurrentMutationQualification();
     } else {
       Adapt.warn("Skipped hotload for " + file.getPath() + " due to invalid skill config.");
@@ -194,7 +204,6 @@ public class HotloadSVC implements AdaptService {
         boolean ok = registry.hotReloadAdaptationConfig(adaptationName);
         if (ok) {
           initializeAdaptationListings();
-          VolmitSender.invalidateHelpCache();
           reconcileCurrentMutationQualification();
         } else {
           Adapt.warn("Skipped hotload for " + file.getPath() + " due to invalid adaptation config.");
@@ -248,10 +257,7 @@ public class HotloadSVC implements AdaptService {
   }
 
   private void refreshGlobalRuntimeSettings() {
-    Adapt.wordKey.clear();
-    if (AdaptConfig.get().isAutoUpdateLanguage()) {
-      Localizer.updateLanguageFile();
-    }
+    AdaptLanguage.reload();
 
     if (AdaptConfig.get().isCustomModels()) {
       CustomModel.reloadFromDisk(true);
@@ -309,12 +315,18 @@ public class HotloadSVC implements AdaptService {
     return isDirectChild(adaptationsFolder, file) && ConfigFileSupport.isSupportedConfigFile(file);
   }
 
+  private boolean isLocaleOverrideFile(File file) {
+    return isDirectChild(localeOverrideFolder, file)
+        && file.getName().toLowerCase(Locale.ROOT).endsWith(".toml");
+  }
+
   private boolean isManagedConfigFile(File file) {
     return isAdaptConfigFile(file)
         || isModelsConfigFile(file)
         || isMutationsConfigFile(file)
         || isSkillConfigFile(file)
-        || isAdaptationConfigFile(file);
+        || isAdaptationConfigFile(file)
+        || isLocaleOverrideFile(file);
   }
 
   private boolean isDirectChild(File parent, File child) {
@@ -364,6 +376,7 @@ public class HotloadSVC implements AdaptService {
 
     addDirectChildren(skillsFolder, files, added);
     addDirectChildren(adaptationsFolder, files, added);
+    addDirectChildren(localeOverrideFolder, files, added);
 
     return files;
   }
@@ -446,7 +459,11 @@ public class HotloadSVC implements AdaptService {
 
     if (diffs.size() > shown) {
       int remaining = diffs.size() - shown;
-      messages.add(formatHotloadMessage(relative, "...", "+" + remaining + " more", "truncated"));
+      messages.add(AdaptLanguage.text(
+          RuntimeMessages.CONFIG_HOTLOAD_TRUNCATED,
+          untrusted("file", relative),
+          trusted("remaining", remaining)
+      ));
     }
 
     J.s(() -> {
@@ -462,11 +479,13 @@ public class HotloadSVC implements AdaptService {
   }
 
   private String formatHotloadMessage(String file, String key, String oldValue, String newValue) {
-    return C.GRAY + "[" + C.DARK_RED + "Adapt" + C.GRAY + "]: "
-        + C.GREEN + "Adapt Hotloaded: "
-        + C.WHITE + "[" + file + "] "
-        + C.AQUA + "[" + key + "] "
-        + C.GRAY + "[" + formatValue(oldValue) + " -> " + formatValue(newValue) + "]";
+    return AdaptLanguage.text(
+        RuntimeMessages.CONFIG_HOTLOADED,
+        untrusted("file", file),
+        untrusted("key", key),
+        untrusted("oldValue", formatValue(oldValue)),
+        untrusted("newValue", formatValue(newValue))
+    );
   }
 
   private String formatValue(String value) {

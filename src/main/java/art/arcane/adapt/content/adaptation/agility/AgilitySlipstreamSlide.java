@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.agility;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.AgilityMessages;
+
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -27,7 +30,6 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
@@ -113,7 +115,7 @@ public class AgilitySlipstreamSlide extends SimpleAdaptation<AgilitySlipstreamSl
   public void addStats(int level, Element v) {
     statLore(v, Form.f(getSlideForce(level) * 20D, 1), 1);
     statLore(v, C.YELLOW, "* ", Form.duration(getCooldownMillis(level), 1), 2);
-    v.addLore(C.LIGHT_PURPLE + " " + Localizer.dLocalize("agility.slipstream_slide.lore3"));
+    v.addLore(C.LIGHT_PURPLE + " " + AdaptLanguage.text(AgilityMessages.SLIPSTREAM_SLIDE_LORE3));
   }
 
   @Override

@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.hunter;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.HunterMessages;
+
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -28,7 +31,6 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.recipe.MaterialChar;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Attributes;
@@ -105,7 +107,7 @@ public class HunterSnareLine extends SimpleAdaptation<HunterSnareLine.Config> {
   public void addStats(int level, Element v) {
     statLore(v, Form.f(getRootDurationTicks(level) / 20.0D, 1), 1);
     statLore(v, C.YELLOW, "+ ", getCharges(level), 2);
-    v.addLore(C.GRAY + "- " + Localizer.dLocalize(getLocalizationKey() + ".lore3"));
+    v.addLore(C.GRAY + "- " + AdaptLanguage.text(HunterMessages.SNARE_LINE_LORE3));
   }
 
   static int scaleInt(double levelPercent, int base, double factor) {
@@ -128,7 +130,7 @@ public class HunterSnareLine extends SimpleAdaptation<HunterSnareLine.Config> {
     ItemStack item = new ItemStack(Material.TRIPWIRE_HOOK, amount);
     ItemMeta meta = item.getItemMeta();
     if (meta != null) {
-      meta.setDisplayName(C.GREEN + Localizer.dLocalize("hunter.snare_line.item"));
+      meta.setDisplayName(C.GREEN + AdaptLanguage.text(HunterMessages.SNARE_LINE_ITEM));
       if (SNARE_ITEM_KEY != null) {
         meta.getPersistentDataContainer().set(SNARE_ITEM_KEY, PersistentDataType.BYTE, (byte) 1);
       }

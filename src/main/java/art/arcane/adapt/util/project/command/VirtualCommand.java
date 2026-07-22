@@ -19,6 +19,8 @@
 package art.arcane.adapt.util.project.command;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.CommandRuntimeMessages;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
@@ -183,7 +185,7 @@ public class VirtualCommand {
     if (failed) {
       Player player = sender.getServer().getPlayer(sender.getName());
       if (player != null) {
-        Adapt.messagePlayer(player, "Insufficient Permissions");
+        Adapt.messagePlayer(player, AdaptLanguage.text(CommandRuntimeMessages.INSUFFICIENT_PERMISSIONS));
       }
       return false;
     }

@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.blocking;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.BlockingMessages;
+
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -28,7 +31,6 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.content.item.ItemListings;
 import art.arcane.adapt.content.item.multiItems.MultiArmor;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -82,12 +84,12 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GRAY + Localizer.dLocalize("blocking.multi_armor.lore1"));
-    v.addLore(C.GRAY + "" + C.GRAY + Localizer.dLocalize("blocking.multi_armor.lore2"));
-    v.addLore(C.GREEN + Localizer.dLocalize("blocking.multi_armor.lore3"));
-    v.addLore(C.RED + Localizer.dLocalize("blocking.multi_armor.lore4"));
-    v.addLore(C.GRAY + Localizer.dLocalize("blocking.multi_armor.lore5"));
-    v.addLore(C.UNDERLINE + Localizer.dLocalize("blocking.multi_armor.lore6"));
+    v.addLore(C.GRAY + AdaptLanguage.text(BlockingMessages.MULTI_ARMOR_LORE1));
+    v.addLore(C.GRAY + "" + C.GRAY + AdaptLanguage.text(BlockingMessages.MULTI_ARMOR_LORE2));
+    v.addLore(C.GREEN + AdaptLanguage.text(BlockingMessages.MULTI_ARMOR_LORE3));
+    v.addLore(C.RED + AdaptLanguage.text(BlockingMessages.MULTI_ARMOR_LORE4));
+    v.addLore(C.GRAY + AdaptLanguage.text(BlockingMessages.MULTI_ARMOR_LORE5));
+    v.addLore(C.UNDERLINE + AdaptLanguage.text(BlockingMessages.MULTI_ARMOR_LORE6));
   }
 
 

@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.enchanting;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.EnchantingMessages;
+
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
@@ -26,7 +29,6 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -41,6 +43,8 @@ import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.inventory.view.AnvilView;
 
 import java.util.Map;
+
+import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 import java.util.UUID;
 
 public class EnchantingAnvilSavant extends SimpleAdaptation<EnchantingAnvilSavant.Config> {
@@ -98,7 +102,10 @@ public class EnchantingAnvilSavant extends SimpleAdaptation<EnchantingAnvilSavan
       pendingSaved.put(p.getUniqueId(), saved);
       if (actionbarCooldown.isReady(p.getUniqueId(), 350L)) {
         actionbarCooldown.mark(p.getUniqueId());
-        Adapt.actionbar(p, C.GREEN + "- " + saved + " " + Localizer.dLocalize("enchanting.anvil_savant.saved"));
+        Adapt.actionbar(p, C.GREEN + AdaptLanguage.text(
+            EnchantingMessages.ANVIL_SAVANT_SAVED_MESSAGE,
+            trusted("levels", saved)
+        ));
       }
     } else {
       pendingSaved.remove(p.getUniqueId());

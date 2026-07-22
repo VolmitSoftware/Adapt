@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.blocking;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.BlockingMessages;
+
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -27,7 +30,6 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.recipe.MaterialChar;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -97,7 +99,7 @@ public class BlockingPhalanxCrafter extends SimpleAdaptation<BlockingPhalanxCraf
       damageable.setMaxDamage(NETHERITE_SHIELD_MAX_DURABILITY);
     }
     if (meta != null) {
-      meta.setDisplayName(C.GOLD + "Netherite-Reinforced Shield");
+      meta.setDisplayName(C.GOLD + AdaptLanguage.text(BlockingMessages.PHALANX_CRAFTER_ITEM_NAME));
       shield.setItemMeta(meta);
     }
     return shield;
@@ -105,11 +107,11 @@ public class BlockingPhalanxCrafter extends SimpleAdaptation<BlockingPhalanxCraf
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("blocking.phalanx_crafter.lore1"));
+    v.addLore(C.GREEN + "+ " + C.GRAY + AdaptLanguage.text(BlockingMessages.PHALANX_CRAFTER_LORE1));
     if (level >= 2) {
-      v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("blocking.phalanx_crafter.lore2"));
+      v.addLore(C.GREEN + "+ " + C.GRAY + AdaptLanguage.text(BlockingMessages.PHALANX_CRAFTER_LORE2));
     } else {
-      v.addLore(C.DARK_GRAY + "+ " + C.DARK_GRAY + Localizer.dLocalize("blocking.phalanx_crafter.lore2"));
+      v.addLore(C.DARK_GRAY + "+ " + C.DARK_GRAY + AdaptLanguage.text(BlockingMessages.PHALANX_CRAFTER_LORE2));
     }
   }
 

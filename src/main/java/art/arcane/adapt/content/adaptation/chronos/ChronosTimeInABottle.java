@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.chronos;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.ChronosMessages;
+
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -28,7 +31,6 @@ import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.item.ChronoTimeBottle;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -150,9 +152,9 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Form.f(getConfig().chargePerSecond + (level * getConfig().chargePerSecondPerLevel), 2) + " " + Localizer.dLocalize("chronos.time_in_a_bottle.lore1"));
-    v.addLore(C.YELLOW + "+ " + Math.round(getCookTicksPerStoredSecond(level)) + " " + Localizer.dLocalize("chronos.time_in_a_bottle.lore2"));
-    v.addLore(C.GRAY + "* " + Localizer.dLocalize("chronos.time_in_a_bottle.lore3"));
+    statLore(v, Form.f(getConfig().chargePerSecond + (level * getConfig().chargePerSecondPerLevel), 2), 1);
+    statLore(v, C.YELLOW, "+ ", Math.round(getCookTicksPerStoredSecond(level)), 2);
+    v.addLore(C.GRAY + "* " + AdaptLanguage.text(ChronosMessages.TIME_IN_A_BOTTLE_LORE3));
   }
 
   private double getCookTicksPerStoredSecond(int level) {

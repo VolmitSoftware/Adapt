@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.brewing;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.BrewingMessages;
+
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.potion.AdaptBrewCompleteEvent;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -27,7 +30,6 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.potion.BrewingRecipe;
 import art.arcane.adapt.api.potion.PotionBuilder;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -55,7 +57,7 @@ public class BrewingDarkness extends SimpleAdaptation<BrewingDarkness.Config> {
         .ingredient(Material.BLACK_CONCRETE)
         .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionType.NIGHT_VISION))
         .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
-            .setName("Bottled Darkness")
+            .setName(AdaptLanguage.text(BrewingMessages.DARKNESS_NAME))
             .setColor(Color.BLACK)
             .addEffect(PotionEffectType.DARKNESS, 600, 100, true, true, true)
             .build())
@@ -71,8 +73,8 @@ public class BrewingDarkness extends SimpleAdaptation<BrewingDarkness.Config> {
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing.darkness.lore1"));
-    v.addLore(C.GRAY + "- " + Localizer.dLocalize("brewing.darkness.lore2"));
+    v.addLore(C.GREEN + "+ " + AdaptLanguage.text(BrewingMessages.DARKNESS_LORE1));
+    v.addLore(C.GRAY + "- " + AdaptLanguage.text(BrewingMessages.DARKNESS_LORE2));
   }
 
   @EventHandler(priority = EventPriority.MONITOR)

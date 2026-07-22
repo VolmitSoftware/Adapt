@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.discovery;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.DiscoveryMessages;
+
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -27,7 +30,6 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.ViewerDisplayDirector;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
@@ -50,6 +52,8 @@ import org.bukkit.util.StructureSearchResult;
 import org.bukkit.util.Vector;
 
 import java.util.UUID;
+
+import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 public class DiscoveryCartographerPulse extends SimpleAdaptation<DiscoveryCartographerPulse.Config> {
   private static final int MAX_SEARCH_RADIUS_CHUNKS = 96;
@@ -81,7 +85,7 @@ public class DiscoveryCartographerPulse extends SimpleAdaptation<DiscoveryCartog
     statLore(v, Form.f(getSearchRange(level)), 1);
     statLore(v, C.YELLOW, "* ", Form.duration(getCooldownMillis(level), 1), 2);
     if (getConfig().hungerCost > 0) {
-      v.addLore(C.RED + "* " + getConfig().hungerCost + C.GRAY + " " + Localizer.dLocalize("discovery.cartographer_pulse.lore_cost_hunger"));
+      statLore(v, C.RED, "* ", getConfig().hungerCost, DiscoveryMessages.CARTOGRAPHER_PULSE_LORE_COST_HUNGER);
     }
   }
 
@@ -123,12 +127,19 @@ public class DiscoveryCartographerPulse extends SimpleAdaptation<DiscoveryCartog
       fx(p.getLocation(), FxPriority.TRANSITION)
           .particle(Particles.SMOKE, 2, 0, 0, 0, 0.05, 0.01)
           .sound(Sound.BLOCK_NOTE_BLOCK_BASS, 0.5F, 0.5F);
-      p.sendMessage(C.GRAY + "Compass pulse: no structure found within " + Form.f(getSearchRange(level)) + " blocks.");
+      p.sendMessage(C.GRAY + AdaptLanguage.text(
+          DiscoveryMessages.CARTOGRAPHER_PULSE_NOT_FOUND,
+          trusted("range", Form.f(getSearchRange(level)))
+      ));
       return;
     }
 
     p.setCompassTarget(target);
-    p.sendMessage(C.AQUA + "Compass pulse: " + C.WHITE + Form.f(target.getBlockX()) + ", " + Form.f(target.getBlockZ()));
+    p.sendMessage(C.AQUA + AdaptLanguage.text(
+        DiscoveryMessages.CARTOGRAPHER_PULSE_TARGET,
+        trusted("x", C.WHITE + Form.f(target.getBlockX())),
+        trusted("z", Form.f(target.getBlockZ()))
+    ));
     if (hungerCost > 0) {
       p.setFoodLevel(Math.max(0, p.getFoodLevel() - hungerCost));
     }

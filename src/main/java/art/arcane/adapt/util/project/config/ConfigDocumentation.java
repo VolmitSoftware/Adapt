@@ -18,8 +18,6 @@ public final class ConfigDocumentation {
       Map.entry("setInterval", "Tick interval used by this logic."),
       Map.entry("minXp", "Minimum xp threshold required for this skill logic."),
       Map.entry("language", "Primary language file used for localizations."),
-      Map.entry("fallbackLanguageDontChangeUnlessYouKnowWhatYouAreDoing", "Fallback language used when a localization key is missing."),
-      Map.entry("autoUpdateLanguage", "When enabled, language files are refreshed from plugin resources."),
       Map.entry("autoUpdateCheck", "Checks for plugin updates during startup."),
       Map.entry("metrics", "Sends anonymous bStats usage metrics."),
       Map.entry("xpInCreative", "Allows skill xp gain while players are in creative or spectator."),

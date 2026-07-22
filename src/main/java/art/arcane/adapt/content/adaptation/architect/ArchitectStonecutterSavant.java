@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.architect;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.ArchitectMessages;
+
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -27,7 +30,6 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -88,8 +90,12 @@ public class ArchitectStonecutterSavant extends SimpleAdaptation<ArchitectStonec
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.GREEN + Localizer.dLocalize("architect.stonecutter_savant.lore1"));
-    v.addLore(C.YELLOW + Localizer.dLocalize(getConfig().requireOffhand ? "architect.stonecutter_savant.lore3" : "architect.stonecutter_savant.lore2"));
+    v.addLore(C.GREEN + AdaptLanguage.text(ArchitectMessages.STONECUTTER_SAVANT_LORE1));
+    v.addLore(C.YELLOW + AdaptLanguage.text(
+        getConfig().requireOffhand
+            ? ArchitectMessages.STONECUTTER_SAVANT_LORE3
+            : ArchitectMessages.STONECUTTER_SAVANT_LORE2
+    ));
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)

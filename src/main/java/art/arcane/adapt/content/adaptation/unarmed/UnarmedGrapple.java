@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.unarmed;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.UnarmedMessages;
+
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -26,7 +29,6 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
@@ -76,7 +78,7 @@ public class UnarmedGrapple extends SimpleAdaptation<UnarmedGrapple.Config> {
   public void addStats(int level, Element v) {
     statLore(v, Form.f(getForce(level)), 1);
     statLore(v, C.YELLOW, "* ", Form.duration((double) getCooldownMillis(level), 1), 2);
-    v.addLore(C.GRAY + Localizer.dLocalize("unarmed.grapple.lore3"));
+    v.addLore(C.GRAY + AdaptLanguage.text(UnarmedMessages.GRAPPLE_LORE3));
     statLore(v, C.RED, "- ", Form.f(getConfig().exhaustionPerThrow, 1), 4);
   }
 

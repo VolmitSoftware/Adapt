@@ -1,5 +1,8 @@
 package art.arcane.adapt.api.mutation;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.MutationMessages;
+
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.EnumSet;
@@ -129,7 +132,7 @@ public final class MutationSnapshot {
     EnumMap<MutationType, String> reasons = new EnumMap<>(MutationType.class);
     for (MutationType type : MutationType.values()) {
       states.put(type, MutationState.LOCKED);
-      reasons.put(type, "Mutation runtime is not available");
+      reasons.put(type, AdaptLanguage.text(MutationMessages.RUNTIME_UNAVAILABLE));
     }
     return new MutationSnapshot("", "", Set.of(), false, false, false, false, states, reasons);
   }

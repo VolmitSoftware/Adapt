@@ -25,8 +25,10 @@ import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.world.AdaptDebugMode;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.PlayerSkillLine;
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.GuiMessages;
+import art.arcane.adapt.localization.catalog.SnippetsMessages;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.format.Localizer;
 import art.arcane.adapt.util.common.inventorygui.GuiEffects;
 import art.arcane.adapt.util.common.inventorygui.GuiLayout;
 import art.arcane.adapt.util.common.inventorygui.GuiTheme;
@@ -38,6 +40,7 @@ import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.inventorygui.UIElement;
 import art.arcane.volmlib.util.inventorygui.UIWindow;
+import art.arcane.volmlib.util.localization.TextKey;
 import art.arcane.volmlib.util.math.M;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -54,6 +57,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 final class AdaptationGuiSupport {
   private static final Map<String, Long> PERMANENT_LEARN_CONFIRMATIONS = new ConcurrentHashMap<>();
@@ -249,14 +254,14 @@ final class AdaptationGuiSupport {
             .setEnchanted(mylevel >= lvl)
             .setProgress(1D)
             .addLore(C.GRAY + adaptation.getDescription())
-            .addLore(mylevel >= lvl ? ("") : ("" + C.WHITE + c + C.GRAY + " " + Localizer.dLocalize("snippets.adapt_menu.knowledge_cost") + " " + (AdaptConfig.get().isHardcoreNoRefunds() ? C.DARK_RED + "" + C.BOLD + Localizer.dLocalize("snippets.adapt_menu.no_refunds") : "")))
-            .addLore(mylevel >= lvl ? AdaptConfig.get().isHardcoreNoRefunds() ? (C.GREEN + Localizer.dLocalize("snippets.adapt_menu.already_learned") + " " + C.DARK_RED + "" + C.BOLD + Localizer.dLocalize("snippets.adapt_menu.no_refunds")) : (adaptation.isPermanent() ? "" : (C.GREEN + Localizer.dLocalize("snippets.adapt_menu.already_learned") + " " + C.GRAY + Localizer.dLocalize("snippets.adapt_menu.unlearn_refund") + " " + C.GREEN + rc + " " + Localizer.dLocalize("snippets.adapt_menu.knowledge_cost"))) : (debugLearning || k >= c ? (C.BLUE + Localizer.dLocalize("snippets.adapt_menu.click_learn") + " " + adaptation.getDisplayName(lvl)) : (k == 0 ? (C.RED + Localizer.dLocalize("snippets.adapt_menu.no_knowledge")) : (C.RED + "(" + Localizer.dLocalize("snippets.adapt_menu.you_only_have") + " " + C.WHITE + k + C.RED + " " + Localizer.dLocalize("snippets.adapt_menu.knowledge_available") + ")"))))
-            .addLore(mylevel < lvl && adaptation.getPlayer(player).getData().hasPowerAvailable(pc) ? C.GREEN + "" + lvl + " " + Localizer.dLocalize("snippets.adapt_menu.power_drain") : mylevel >= lvl ? C.GREEN + "" + lvl + " " + Localizer.dLocalize("snippets.adapt_menu.power_drain") : C.RED + Localizer.dLocalize("snippets.adapt_menu.not_enough_power") + "\n" + C.RED + Localizer.dLocalize("snippets.adapt_menu.how_to_level_up"))
-            .addLore((adaptation.isPermanent() ? C.RED + "" + C.BOLD + Localizer.dLocalize("snippets.adapt_menu.may_not_unlearn") : ""))
+            .addLore(knowledgeCostLore(mylevel, lvl, c))
+            .addLore(learningActionLore(adaptation, mylevel, lvl, rc, k, c, debugLearning))
+            .addLore(powerLore(adaptation, player, mylevel, lvl, pc))
+            .addLore((adaptation.isPermanent() ? C.RED + "" + C.BOLD + AdaptLanguage.text(SnippetsMessages.ADAPT_MENU_MAY_NOT_UNLEARN) : ""))
             .addLore(adaptation.isPermanent() && mylevel < lvl
                 ? (pendingPermanentConfirm
-                ? C.GOLD + "" + C.BOLD + "Click again now to confirm permanent learn."
-                : C.YELLOW + "Double-click required to confirm permanent learn.")
+                ? C.GOLD + "" + C.BOLD + AdaptLanguage.text(GuiMessages.PERMANENT_LEARN_CONFIRM_NOW)
+                : C.YELLOW + AdaptLanguage.text(GuiMessages.PERMANENT_LEARN_DOUBLE_CLICK))
                 : "")
             .onLeftClick((e) -> {
               AdaptPlayer adaptPlayer = adaptation.getPlayer(player);
@@ -276,7 +281,10 @@ final class AdaptationGuiSupport {
                   spw.play(player.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 0.4f, 0.755f);
                   FxPresets.failFizzle(adaptation, player);
                   if (delayTicks != 0) {
-                    player.sendTitle(" ", C.GRAY + Localizer.dLocalize("snippets.adapt_menu.unlearned") + " " + adaptation.getDisplayName(currentLevel), 1, 10, 11);
+                    player.sendTitle(" ", C.GRAY + AdaptLanguage.text(
+                        SnippetsMessages.ADAPT_MENU_UNLEARNED_TITLE,
+                        trusted("adaptation", adaptation.getDisplayName(currentLevel))
+                    ), 1, 10, 11);
                   }
                   closeAndReopenAfterLevelChange(adaptation, player, currentPage, delayTicks);
                   return;
@@ -284,7 +292,10 @@ final class AdaptationGuiSupport {
 
                 spw.play(player.getLocation(), Sound.ENTITY_BLAZE_DEATH, 0.5f, 1.355f);
                 if (delayTicks != 0) {
-                  player.sendTitle(" ", C.RED + "" + C.BOLD + Localizer.dLocalize("snippets.adapt_menu.may_not_unlearn") + " " + adaptation.getDisplayName(currentLevel), 1, 10, 11);
+                  player.sendTitle(" ", C.RED + "" + C.BOLD + AdaptLanguage.text(
+                      SnippetsMessages.ADAPT_MENU_MAY_NOT_UNLEARN_TITLE,
+                      trusted("adaptation", adaptation.getDisplayName(currentLevel))
+                  ), 1, 10, 11);
                 }
                 J.runEntity(player, () -> openAdaptationPage(adaptation, player, currentPage), delayTicks);
                 return;
@@ -295,7 +306,7 @@ final class AdaptationGuiSupport {
               if (debugLearningClick || (currentKnowledge >= c && adaptPlayer.getData().hasPowerAvailable(pc))) {
                 if (adaptation.isPermanent() && !debugLearningClick && !consumePermanentLearnConfirmation(player, adaptation, lvl)) {
                   spw.play(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 0.7f, 0.85f);
-                  player.sendTitle(" ", C.GOLD + "" + C.BOLD + "Click again to confirm permanent learn", 1, 16, 8);
+                  player.sendTitle(" ", C.GOLD + "" + C.BOLD + AdaptLanguage.text(GuiMessages.PERMANENT_LEARN_CONFIRM), 1, 16, 8);
                   J.runEntity(player, () -> openAdaptationPage(adaptation, player, currentPage), 1);
                   return;
                 }
@@ -312,7 +323,10 @@ final class AdaptationGuiSupport {
                   }
                   FxPresets.learnCelebration(adaptation, player);
                   if (delayTicks != 0) {
-                    player.sendTitle(" ", C.GRAY + Localizer.dLocalize("snippets.adapt_menu.learned") + " " + adaptation.getDisplayName(lvl), 1, 5, 11);
+                    player.sendTitle(" ", C.GRAY + AdaptLanguage.text(
+                        SnippetsMessages.ADAPT_MENU_LEARNED_TITLE,
+                        trusted("adaptation", adaptation.getDisplayName(lvl))
+                    ), 1, 5, 11);
                   }
                   closeAndReopenAfterLevelChange(adaptation, player, currentPage, delayTicks);
                 } else {
@@ -337,32 +351,32 @@ final class AdaptationGuiSupport {
       if (plan.pageCount() > 1 && currentPage > 0) {
         w.setElement(-4, navRow, new UIElement("adapt-first")
             .setMaterial(new MaterialBlock(Material.LECTERN))
-            .setName(C.GRAY + "First")
+            .setName(C.GRAY + AdaptLanguage.text(GuiMessages.FIRST))
             .onLeftClick((e) -> openAdaptationPage(adaptation, player, 0)));
         w.setElement(-3, navRow, new UIElement("adapt-prev")
             .setMaterial(new MaterialBlock(Material.ARROW))
-            .setName(C.WHITE + "Previous")
-            .addLore(C.GRAY + "Right click: jump -" + jumpPages + " pages")
+            .setName(C.WHITE + AdaptLanguage.text(GuiMessages.PREVIOUS))
+            .addLore(C.GRAY + AdaptLanguage.text(GuiMessages.RIGHT_CLICK_JUMP_BACK, trusted("pages", jumpPages)))
             .onLeftClick((e) -> openAdaptationPage(adaptation, player, currentPage - 1))
             .onRightClick((e) -> openAdaptationPage(adaptation, player, jumpBack)));
       } else if (plan.pageCount() > 1) {
-        w.setElement(-4, navRow, boundaryElement("adapt-first-disabled", "First page"));
-        w.setElement(-3, navRow, boundaryElement("adapt-prev-disabled", "No previous page"));
+        w.setElement(-4, navRow, boundaryElement("adapt-first-disabled", GuiMessages.FIRST_PAGE));
+        w.setElement(-3, navRow, boundaryElement("adapt-prev-disabled", GuiMessages.NO_PREVIOUS_PAGE));
       }
       if (plan.pageCount() > 1 && currentPage < plan.pageCount() - 1) {
         w.setElement(3, navRow, new UIElement("adapt-next")
             .setMaterial(new MaterialBlock(Material.ARROW))
-            .setName(C.WHITE + "Next")
-            .addLore(C.GRAY + "Right click: jump +" + jumpPages + " pages")
+            .setName(C.WHITE + AdaptLanguage.text(GuiMessages.NEXT))
+            .addLore(C.GRAY + AdaptLanguage.text(GuiMessages.RIGHT_CLICK_JUMP_FORWARD, trusted("pages", jumpPages)))
             .onLeftClick((e) -> openAdaptationPage(adaptation, player, currentPage + 1))
             .onRightClick((e) -> openAdaptationPage(adaptation, player, jumpForward)));
         w.setElement(4, navRow, new UIElement("adapt-last")
             .setMaterial(new MaterialBlock(Material.LECTERN))
-            .setName(C.GRAY + "Last")
+            .setName(C.GRAY + AdaptLanguage.text(GuiMessages.LAST))
             .onLeftClick((e) -> openAdaptationPage(adaptation, player, plan.pageCount() - 1)));
       } else if (plan.pageCount() > 1) {
-        w.setElement(3, navRow, boundaryElement("adapt-next-disabled", "No next page"));
-        w.setElement(4, navRow, boundaryElement("adapt-last-disabled", "Last page"));
+        w.setElement(3, navRow, boundaryElement("adapt-next-disabled", GuiMessages.NO_NEXT_PAGE));
+        w.setElement(4, navRow, boundaryElement("adapt-last-disabled", GuiMessages.LAST_PAGE));
       }
 
       int from = adaptation.getMaxLevel() <= 0 ? 0 : (start + 1);
@@ -371,15 +385,21 @@ final class AdaptationGuiSupport {
       if (AdaptConfig.get().isGuiBackButton()) {
         center = new UIElement("back")
             .setMaterial(new MaterialBlock(Material.ARROW))
-            .setName("" + C.RESET + C.GRAY + Localizer.dLocalize("snippets.gui.back"))
+            .setName("" + C.RESET + C.GRAY + AdaptLanguage.text(SnippetsMessages.GUI_BACK))
             .onLeftClick((e) -> navigateBack(adaptation, player));
       } else {
         center = new UIElement("adapt-page-info")
             .setMaterial(new MaterialBlock(Material.PAPER))
-            .setName(C.AQUA + "Levels");
+            .setName(C.AQUA + AdaptLanguage.text(GuiMessages.LEVELS));
       }
-      center.addLore(C.DARK_GRAY + "Page " + (currentPage + 1) + "/" + plan.pageCount()
-          + " • Showing " + from + "-" + to + " of " + adaptation.getMaxLevel());
+      center.addLore(C.DARK_GRAY + AdaptLanguage.text(
+          GuiMessages.PAGE_SHOWING_RANGE,
+          trusted("page", currentPage + 1),
+          trusted("pages", plan.pageCount()),
+          trusted("from", from),
+          trusted("to", to),
+          trusted("total", adaptation.getMaxLevel())
+      ));
       w.setElement(0, navRow, center.setProgress(1D));
     }
 
@@ -486,10 +506,10 @@ final class AdaptationGuiSupport {
     return null;
   }
 
-  private static Element boundaryElement(String id, String name) {
+  private static Element boundaryElement(String id, TextKey name) {
     return new UIElement(id)
         .setMaterial(new MaterialBlock(Material.GRAY_STAINED_GLASS_PANE))
-        .setName(C.DARK_GRAY + name);
+        .setName(C.DARK_GRAY + AdaptLanguage.text(name));
   }
 
   private static void openAdaptationPage(Adaptation<?> adaptation, Player player, int page) {
@@ -559,6 +579,73 @@ final class AdaptationGuiSupport {
     spw.play(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 1.255f);
     spw.play(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.7f, 0.655f);
     spw.play(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.3f, 0.855f);
+  }
+
+  private static String knowledgeCostLore(int currentLevel, int targetLevel, int cost) {
+    if (currentLevel >= targetLevel) {
+      return "";
+    }
+
+    return C.GRAY + AdaptLanguage.text(
+        AdaptConfig.get().isHardcoreNoRefunds()
+            ? GuiMessages.KNOWLEDGE_COST_NO_REFUNDS
+            : GuiMessages.KNOWLEDGE_COST,
+        trusted("cost", C.WHITE + String.valueOf(cost) + C.GRAY)
+    );
+  }
+
+  private static String learningActionLore(
+      Adaptation<?> adaptation,
+      int currentLevel,
+      int targetLevel,
+      int refund,
+      long knowledge,
+      int cost,
+      boolean debugLearning
+  ) {
+    if (currentLevel >= targetLevel) {
+      if (AdaptConfig.get().isHardcoreNoRefunds()) {
+        return C.GREEN + AdaptLanguage.text(GuiMessages.ALREADY_LEARNED_NO_REFUNDS);
+      }
+      if (adaptation.isPermanent()) {
+        return "";
+      }
+      return C.GREEN + AdaptLanguage.text(
+          GuiMessages.ALREADY_LEARNED_REFUND,
+          trusted("refund", refund)
+      );
+    }
+
+    if (debugLearning || knowledge >= cost) {
+      return C.BLUE + AdaptLanguage.text(
+          GuiMessages.CLICK_TO_LEARN,
+          trusted("adaptation", adaptation.getDisplayName(targetLevel))
+      );
+    }
+    if (knowledge == 0) {
+      return C.RED + AdaptLanguage.text(SnippetsMessages.ADAPT_MENU_NO_KNOWLEDGE);
+    }
+    return C.RED + AdaptLanguage.text(
+        GuiMessages.KNOWLEDGE_SHORTAGE,
+        trusted("knowledge", C.WHITE + String.valueOf(knowledge) + C.RED)
+    );
+  }
+
+  private static String powerLore(
+      Adaptation<?> adaptation,
+      Player player,
+      int currentLevel,
+      int targetLevel,
+      int powerCost
+  ) {
+    if (currentLevel >= targetLevel || adaptation.getPlayer(player).getData().hasPowerAvailable(powerCost)) {
+      return C.GREEN + AdaptLanguage.text(
+          GuiMessages.POWER_DRAIN,
+          trusted("power", targetLevel)
+      );
+    }
+    return C.RED + AdaptLanguage.text(SnippetsMessages.ADAPT_MENU_NOT_ENOUGH_POWER) + "\n"
+        + C.RED + AdaptLanguage.text(SnippetsMessages.ADAPT_MENU_HOW_TO_LEVEL_UP);
   }
 
   private static void suppressClose(Player player) {

@@ -7,6 +7,8 @@ import art.arcane.adapt.api.mutation.MutationClaim;
 import art.arcane.adapt.api.mutation.MutationConfig;
 import art.arcane.adapt.api.mutation.MutationEventClaims;
 import art.arcane.adapt.api.mutation.MutationType;
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.MutationMessages;
 import art.arcane.adapt.util.common.scheduling.J;
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -852,7 +854,7 @@ final class MutationMovementRuntime {
       stand.setCollidable(false);
       stand.setPersistent(false);
       stand.setGlowing(true);
-      stand.setCustomName(ChatColor.LIGHT_PURPLE + "Return Echo");
+      stand.setCustomName(ChatColor.LIGHT_PURPLE + AdaptLanguage.text(MutationMessages.RETURN_ECHO_NAME));
       stand.setCustomNameVisible(true);
       stand.setMetadata("NPC", new FixedMetadataValue(Adapt.instance, true));
       stand.setMetadata("adapt-mutation-marker", new FixedMetadataValue(Adapt.instance, true));
