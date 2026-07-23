@@ -21,6 +21,7 @@ package art.arcane.adapt.content.adaptation.taming;
 import art.arcane.adapt.localization.catalog.TamingMessages;
 
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.ReceiveCancelledEvents;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -40,6 +41,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Tameable;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
@@ -90,6 +92,7 @@ public class TamingBeastRecall extends SimpleAdaptation<TamingBeastRecall.Config
     }
   }
 
+  @ReceiveCancelledEvents
   @EventHandler(priority = EventPriority.HIGHEST)
   public void on(PlayerInteractEvent e) {
     if (e.getHand() != EquipmentSlot.HAND) {
@@ -98,6 +101,12 @@ public class TamingBeastRecall extends SimpleAdaptation<TamingBeastRecall.Config
 
     Action action = e.getAction();
     if (action != Action.RIGHT_CLICK_AIR && action != Action.RIGHT_CLICK_BLOCK) {
+      return;
+    }
+
+    if (e.getClickedBlock() != null
+        ? e.useInteractedBlock() == Event.Result.DENY
+        : e.useItemInHand() == Event.Result.DENY) {
       return;
     }
 

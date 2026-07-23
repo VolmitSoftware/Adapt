@@ -20,6 +20,7 @@ package art.arcane.adapt.content.adaptation.excavation;
 
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
+import art.arcane.adapt.api.adaptation.ReceiveCancelledEvents;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -40,6 +41,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
@@ -76,6 +78,7 @@ public class ExcavationBurrow extends SimpleAdaptation<ExcavationBurrow.Config> 
     statLore(v, C.RED, "- ", getConfig().hungerCost, 4);
   }
 
+  @ReceiveCancelledEvents
   @EventHandler(priority = EventPriority.HIGHEST)
   public void on(PlayerInteractEvent e) {
     Action action = e.getAction();
@@ -97,6 +100,10 @@ public class ExcavationBurrow extends SimpleAdaptation<ExcavationBurrow.Config> 
       return;
     }
 
+    boolean vetoed = e.getClickedBlock() != null
+        ? e.useInteractedBlock() == Event.Result.DENY
+        : e.useItemInHand() == Event.Result.DENY;
+
     Block clicked = e.getClickedBlock();
     if (action == Action.RIGHT_CLICK_AIR) {
       clicked = p.getTargetBlockExact(5);
@@ -115,6 +122,13 @@ public class ExcavationBurrow extends SimpleAdaptation<ExcavationBurrow.Config> 
     }
 
     int level = context.level();
+    if (vetoed) {
+      if (!cooldowns.isReady(p.getUniqueId(), getCooldownMillis(level))) {
+        e.setCancelled(true);
+      }
+      return;
+    }
+
     if (!cooldowns.isReady(p.getUniqueId(), getCooldownMillis(level))) {
       return;
     }

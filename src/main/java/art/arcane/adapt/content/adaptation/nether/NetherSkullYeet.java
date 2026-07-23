@@ -23,6 +23,7 @@ import art.arcane.adapt.localization.catalog.NetherMessages;
 
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.ReceiveCancelledEvents;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -44,6 +45,7 @@ import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.WitherSkull;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -100,6 +102,7 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
     return cooldownSeconds(getConfig().getBaseCooldown(), getConfig().getLevelCooldown(), getLevel(p));
   }
 
+  @ReceiveCancelledEvents
   @EventHandler
   public void onRightClick(PlayerInteractEvent e) {
     Player p = e.getPlayer();
@@ -108,6 +111,14 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
         return;
       }
       if (e.getHand() != EquipmentSlot.HAND || e.getItem() == null || e.getMaterial() != Material.WITHER_SKELETON_SKULL) {
+        return;
+      }
+
+      boolean vetoed = e.getClickedBlock() != null
+          ? e.useInteractedBlock() == Event.Result.DENY
+          : e.useItemInHand() == Event.Result.DENY;
+      if (vetoed) {
+        e.setCancelled(true);
         return;
       }
 

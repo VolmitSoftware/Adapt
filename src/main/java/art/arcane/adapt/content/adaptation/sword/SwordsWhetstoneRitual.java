@@ -20,6 +20,7 @@ package art.arcane.adapt.content.adaptation.sword;
 
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
+import art.arcane.adapt.api.adaptation.ReceiveCancelledEvents;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -36,6 +37,7 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
@@ -76,6 +78,7 @@ public class SwordsWhetstoneRitual extends SimpleAdaptation<SwordsWhetstoneRitua
     statLore(v, Form.duration(getBuffDurationTicks(level) * 50D, 1), 2);
   }
 
+  @ReceiveCancelledEvents
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(PlayerInteractEvent e) {
     if (e.getHand() != EquipmentSlot.HAND
@@ -92,6 +95,13 @@ public class SwordsWhetstoneRitual extends SimpleAdaptation<SwordsWhetstoneRitua
 
     ItemStack hand = p.getInventory().getItemInMainHand();
     if (!isSword(hand)) {
+      return;
+    }
+
+    if (e.useInteractedBlock() == Event.Result.DENY) {
+      if (!ritualCooldown.isReady(p.getUniqueId(), (long) getConfig().cooldownMillis)) {
+        e.setCancelled(true);
+      }
       return;
     }
 

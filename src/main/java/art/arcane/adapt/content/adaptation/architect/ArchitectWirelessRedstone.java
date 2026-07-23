@@ -25,6 +25,7 @@ import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
+import art.arcane.adapt.api.adaptation.ReceiveCancelledEvents;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -201,6 +202,7 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
     }
   }
 
+  @ReceiveCancelledEvents
   @EventHandler(priority = EventPriority.HIGHEST)
   public void onPlayerInteract(PlayerInteractEvent event) {
     if (event.getHand() != EquipmentSlot.HAND && event.getHand() != EquipmentSlot.OFF_HAND) {
@@ -213,6 +215,10 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
       return;
     }
 
+    boolean vetoed = event.getClickedBlock() != null
+        ? event.useInteractedBlock() == Result.DENY
+        : event.useItemInHand() == Result.DENY;
+
     Player player = event.getPlayer();
     withPlayerThread(player, () -> {
       if (resolveInteractContext(player, player.getLocation()) == null) {
@@ -222,6 +228,10 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
       boolean canUseInCreative = AdaptConfig.get().allowAdaptationsInCreative;
       boolean inCreative = player.getGameMode() == GameMode.CREATIVE;
       if (inCreative && !canUseInCreative) {
+        return;
+      }
+
+      if (vetoed) {
         return;
       }
 

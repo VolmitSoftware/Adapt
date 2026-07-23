@@ -19,6 +19,7 @@
 package art.arcane.adapt.content.adaptation.herbalism;
 
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.ReceiveCancelledEvents;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -36,6 +37,7 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
@@ -73,6 +75,7 @@ public class HerbalismSeedSower extends SimpleAdaptation<HerbalismSeedSower.Conf
     statLore(v, C.YELLOW, "* ", Form.duration(getCooldownTicks(factor) * 50D, 1), 3);
   }
 
+  @ReceiveCancelledEvents
   @EventHandler(priority = EventPriority.HIGHEST)
   public void on(PlayerInteractEvent e) {
     Action action = e.getAction();
@@ -92,7 +95,21 @@ public class HerbalismSeedSower extends SimpleAdaptation<HerbalismSeedSower.Conf
 
     Material seedType = hand.getType();
     Material cropType = getCropType(seedType);
-    if (cropType == null || p.hasCooldown(seedType)) {
+    if (cropType == null) {
+      return;
+    }
+
+    boolean vetoed = e.getClickedBlock() != null
+        ? e.useInteractedBlock() == Event.Result.DENY
+        : e.useItemInHand() == Event.Result.DENY;
+    if (vetoed) {
+      if (p.hasCooldown(seedType)) {
+        e.setCancelled(true);
+      }
+      return;
+    }
+
+    if (p.hasCooldown(seedType)) {
       return;
     }
 

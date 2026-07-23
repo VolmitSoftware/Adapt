@@ -22,6 +22,7 @@ import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.HunterMessages;
 
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.ReceiveCancelledEvents;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -49,6 +50,7 @@ import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
@@ -152,6 +154,7 @@ public class HunterSnareLine extends SimpleAdaptation<HunterSnareLine.Config> {
     snares.removeIf(snare -> snare.owner.equals(e.getPlayer().getUniqueId()));
   }
 
+  @ReceiveCancelledEvents
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(PlayerInteractEvent e) {
     if (e.getAction() != Action.RIGHT_CLICK_BLOCK || e.getClickedBlock() == null) {
@@ -169,8 +172,13 @@ public class HunterSnareLine extends SimpleAdaptation<HunterSnareLine.Config> {
       return;
     }
 
+    boolean blockUseDenied = e.useInteractedBlock() == Event.Result.DENY;
     e.setCancelled(true);
     if (!hasActiveAdaptation(p)) {
+      return;
+    }
+
+    if (blockUseDenied) {
       return;
     }
 

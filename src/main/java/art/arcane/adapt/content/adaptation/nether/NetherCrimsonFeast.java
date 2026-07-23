@@ -20,6 +20,7 @@ package art.arcane.adapt.content.adaptation.nether;
 
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
+import art.arcane.adapt.api.adaptation.ReceiveCancelledEvents;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -34,6 +35,7 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
@@ -75,6 +77,7 @@ public class NetherCrimsonFeast extends SimpleAdaptation<NetherCrimsonFeast.Conf
     statLore(v, Form.duration(getResistTicks(level) * 50D, 1), 3);
   }
 
+  @ReceiveCancelledEvents
   @EventHandler
   public void on(PlayerInteractEvent e) {
     if (e.getHand() != EquipmentSlot.HAND) {
@@ -94,6 +97,17 @@ public class NetherCrimsonFeast extends SimpleAdaptation<NetherCrimsonFeast.Conf
       if (level <= 0) {
         return;
       }
+
+      boolean vetoed = e.getClickedBlock() != null
+          ? e.useInteractedBlock() == Event.Result.DENY
+          : e.useItemInHand() == Event.Result.DENY;
+      if (vetoed) {
+        if (!eatCooldowns.isReady(p.getUniqueId(), getConfig().eatCooldownMillis)) {
+          e.setCancelled(true);
+        }
+        return;
+      }
+
       if (p.getFoodLevel() >= 20 && !p.isSneaking()) {
         return;
       }

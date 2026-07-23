@@ -23,6 +23,7 @@ import art.arcane.adapt.localization.catalog.EnchantingMessages;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.ReceiveCancelledEvents;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -40,6 +41,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
@@ -109,6 +111,7 @@ public class EnchantingSoulLink extends SimpleAdaptation<EnchantingSoulLink.Conf
     return soulRemarkCooldownMs(getConfig().remarkCooldownBase, getConfig().remarkCooldownFactor, getConfig().minRemarkCooldown, getLevelPercent(level));
   }
 
+  @ReceiveCancelledEvents
   @EventHandler(priority = EventPriority.HIGHEST)
   public void on(PlayerInteractEvent e) {
     if (e.getAction() != Action.RIGHT_CLICK_BLOCK || e.getHand() != EquipmentSlot.HAND) {
@@ -122,6 +125,10 @@ public class EnchantingSoulLink extends SimpleAdaptation<EnchantingSoulLink.Conf
 
     Block block = e.getClickedBlock();
     if (block == null || block.getType() != Material.ANVIL) {
+      return;
+    }
+
+    if (e.useInteractedBlock() == Event.Result.DENY) {
       return;
     }
 
