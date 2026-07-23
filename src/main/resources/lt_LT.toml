@@ -361,10 +361,10 @@ deepblood_requirement = "Palaikykite ilgalaikį įrankį pagrindinėje rankoje p
 [director.help]
 no_subcommands = "Šiame puslapyje nėra antrinių komandų."
 no_description = "Aprašymas nepateiktas"
-aliases = "Slapyvardžiai"
 command_group = "Komandų grupė. Spustelėkite, kad atidarytumėte."
+category = "Komandų kategorija"
 no_parameters = "Parametrų nėra. Spustelėkite, kad iš anksto užpildytumėte komandą."
-parameters = "Parametrai"
+parameters_hover = "Užveskite pelės žymeklį ant parametrų, kad sužinotumėte daugiau."
 
 [director.help.navigation]
 back = "Atgal"
@@ -380,9 +380,10 @@ hover = "Ankstesnis puslapis"
 hover = "Kitas puslapis"
 
 [director.help.parameter]
-required = "privalomas"
-optional = "pasirenkamas"
-default = "numatytasis"
+required = "Šis parametras yra privalomas."
+optional = "Šis parametras yra neprivalomas."
+default = "Jei nenurodyta, numatytoji reikšmė yra \"{value}\"."
+type = "Šio parametro tipas yra {type}."
 
 [director.runtime]
 usage = "Naudojimas: {usage}"
@@ -5257,10 +5258,11 @@ lore = ["Enderio Perlas + Kompasas = Relikvijoriaus Prievado Raktas", "Sis daikt
 
 [rift.blink]
 name = "Plysio Teleportacija"
-description = "Šokite du kartus, kad persikeltumėte žvilgsnio kryptimi. Sėkmingas šuolis nesunaudoja Enderio perlo, bet padaro įprastą perlo žalą, kuri mažėja su kiekvienu lygiu."
+description = "Šokite du kartus, kad persikeltumėte žvilgsnio kryptimi. Sėkmingas šuolis nesunaudoja Enderio perlo, bet padaro įprastą perlo žalą, kuri mažėja su kiekvienu lygiu. Sėlinkite teleportuodamiesi, kad prasiskverbtumėte tiesiai pro sienas ir kliūtis."
 lore1 = "Teleportacijos nuotolis"
 lore2 = "Žala sau (širdys)"
-lore = ["Teleportacijos nuotolis", "Žala sau (širdys)"]
+lore3 = "Sėlinkite teleportuodamiesi, kad pereitumėte pro sienas"
+lore = ["Teleportacijos nuotolis", "Žala sau (širdys)", "Sėlinkite teleportuodamiesi, kad pereitumėte pro sienas"]
 
 [rift.chest]
 name = "Lengva Enderio Skrynia"
@@ -6318,9 +6320,7 @@ permissions_printed = "Leidimai buvo išspausdinti konsolei."
 particle_data_required = "Dalelės {particle} Reikalingi tipo duomenys {type} ir negali būti neramus šios komandos."
 unknown_adapt_command = "Nežinoma Adapt komanda."
 insufficient_permissions = "Nepakankami leidimai."
-no_available_subcommands = "Yra arba nėra jokių posistemių arba jūs neturite leidimo juos naudoti."
 parameters_ignored = "Nepaisyti parametrai: {parameters}"
-subcommand_help = "{node} {usage} - {description}"
 no_description = "Nėra aprašymo"
 perf_ability_checks = "gebėjimų patikrinimai: {perSecond}/s ({perMinute}/m)"
 perf_successful_checks = "sėkmingi patikrinimai: {perSecond}/s ({perMinute}/m)"

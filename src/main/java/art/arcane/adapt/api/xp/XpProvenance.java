@@ -20,6 +20,7 @@ package art.arcane.adapt.api.xp;
 
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.data.WorldData;
+import art.arcane.adapt.api.telemetry.AdaptRuntimeTelemetry;
 import art.arcane.adapt.api.data.unit.PlacementStamp;
 import art.arcane.volmlib.util.math.M;
 import org.bukkit.block.Block;
@@ -37,6 +38,7 @@ public final class XpProvenance {
       return;
     }
 
+    AdaptRuntimeTelemetry.recordProvenanceOp(System.currentTimeMillis());
     WorldData data = WorldData.of(block.getWorld());
     PlacementStamp stamp = data.get(block, PlacementStamp.class);
     int brokenAt = stamp == null ? 0 : stamp.getBrokenAt();
@@ -50,6 +52,7 @@ public final class XpProvenance {
       return false;
     }
 
+    AdaptRuntimeTelemetry.recordProvenanceOp(System.currentTimeMillis());
     PlacementStamp stamp = WorldData.of(block.getWorld()).get(block, PlacementStamp.class);
     return stamp != null && withinTtl(stamp.getPlacedAt(), config.getPlacedBlockTtlMillis());
   }
@@ -103,6 +106,7 @@ public final class XpProvenance {
       return;
     }
 
+    AdaptRuntimeTelemetry.recordProvenanceOp(System.currentTimeMillis());
     WorldData data = WorldData.of(block.getWorld());
     PlacementStamp stamp = data.get(block, PlacementStamp.class);
     int bonemealedAt = stamp == null ? 0 : stamp.getBonemealedAt();
@@ -115,6 +119,7 @@ public final class XpProvenance {
       return false;
     }
 
+    AdaptRuntimeTelemetry.recordProvenanceOp(System.currentTimeMillis());
     PlacementStamp stamp = WorldData.of(block.getWorld()).get(block, PlacementStamp.class);
     return stamp != null && withinTtl(stamp.getBrokenAt(), config.getReplaceDenyTtlMillis());
   }
@@ -125,6 +130,7 @@ public final class XpProvenance {
       return;
     }
 
+    AdaptRuntimeTelemetry.recordProvenanceOp(System.currentTimeMillis());
     WorldData data = WorldData.of(block.getWorld());
     PlacementStamp stamp = data.get(block, PlacementStamp.class);
     int placedAt = stamp == null ? 0 : stamp.getPlacedAt();
@@ -138,6 +144,7 @@ public final class XpProvenance {
       return false;
     }
 
+    AdaptRuntimeTelemetry.recordProvenanceOp(System.currentTimeMillis());
     PlacementStamp stamp = WorldData.of(block.getWorld()).get(block, PlacementStamp.class);
     return stamp != null && withinTtl(stamp.getBonemealedAt(), config.getBonemealTtlMillis());
   }

@@ -29,6 +29,9 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.world.PlayerAdaptation;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.content.event.AdaptAdaptationTeleportEvent;
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.RiftMessages;
+import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.input.DoubleJumpGesture;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -89,6 +92,9 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
   public void addStats(int level, Element v) {
     statLore(v, Form.f(getBlinkDistance(level), 1), 1);
     statLore(v, Form.f(getPearlDamage(level) / 2D, 1), 2);
+    if (getConfig().phaseWhileSneaking) {
+      v.addLore(C.LIGHT_PURPLE + "+ " + AdaptLanguage.text(RiftMessages.BLINK_LORE3));
+    }
   }
 
   @Override
@@ -235,7 +241,10 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
 
     direction.normalize();
     double maxDistance = getBlinkDistance(getLevel(p));
-    RayTraceResult hit = p.getWorld().rayTraceBlocks(eye, direction, maxDistance, FluidCollisionMode.NEVER, true);
+    boolean phase = getConfig().phaseWhileSneaking && p.isSneaking();
+    RayTraceResult hit = phase
+        ? null
+        : p.getWorld().rayTraceBlocks(eye, direction, maxDistance, FluidCollisionMode.NEVER, true);
 
     if (hit != null && hit.getHitBlock() != null) {
       Block mantleFeet = hit.getHitBlock().getRelative(BlockFace.UP);
@@ -244,7 +253,8 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
       }
     }
 
-    double reach = hit == null ? maxDistance : Math.max(0, hit.getHitPosition().distance(eye.toVector()) - 0.5);
+    Double hitDistance = hit == null ? null : hit.getHitPosition().distance(eye.toVector());
+    double reach = blinkReach(phase, maxDistance, hitDistance);
     for (double distance = reach; distance >= 1.0; distance -= 1.0) {
       Location feet = eye.clone().add(direction.clone().multiply(distance)).subtract(0, p.getEyeHeight(), 0);
       Location resolved = resolveStand(feet);
@@ -283,6 +293,13 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
         && feet.getRelative(BlockFace.DOWN).getType().isSolid();
   }
 
+  static double blinkReach(boolean phase, double maxDistance, Double hitDistance) {
+    if (phase || hitDistance == null) {
+      return maxDistance;
+    }
+    return Math.max(0, hitDistance - 0.5);
+  }
+
   static double calculatePearlDamage(int level, double baseDamage, double reductionPerLevel, double minimumDamage) {
     double safeBase = Double.isFinite(baseDamage) ? Math.max(0D, baseDamage) : 5D;
     double safeReduction = Double.isFinite(reductionPerLevel) ? Math.max(0D, reductionPerLevel) : 0D;
@@ -291,7 +308,7 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
     return Math.max(safeMinimum, scaled);
   }
 
-  @ConfigDescription("Double-jump to blink toward where you are looking without consuming a pearl, taking ender pearl damage that decreases by level.")
+  @ConfigDescription("Double-jump to blink toward where you are looking without consuming a pearl, taking ender pearl damage that decreases by level; sneaking while blinking phases through walls.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Cooldown between successful Rift Blink triggers in milliseconds.", impact = "Higher values reduce blink frequency; lower values allow faster reuse.")
     int cooldownMillis = 2000;
@@ -311,6 +328,8 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
     double momentumCarry = 0.35;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Minimum distance a blink must cover to trigger.", impact = "Higher values prevent short hops from consuming the blink.")
     double minBlinkDistance = 1.5;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Allows a blink triggered while sneaking to phase through walls and obstacles, landing at the farthest open space within range.", impact = "True lets sneaking blinks ignore obstructions along the look line; false makes every blink stop at the first obstacle.")
+    boolean phaseWhileSneaking = true;
 
     public Config() {
       baseCost = 7;

@@ -361,10 +361,10 @@ deepblood_requirement = "Tenere uno strumento durevole nella mano principale pri
 [director.help]
 no_subcommands = "Nessun sottocomando in questa pagina."
 no_description = "Nessuna descrizione fornita"
-aliases = "Alias"
 command_group = "Gruppo di comandi. Fai clic per aprire."
+category = "Categoria di comandi"
 no_parameters = "Nessun parametro. Fai clic per precompilare il comando."
-parameters = "Parametri"
+parameters_hover = "Passa il cursore sui parametri per saperne di più."
 
 [director.help.navigation]
 back = "Indietro"
@@ -380,9 +380,10 @@ hover = "Pagina precedente"
 hover = "Pagina successiva"
 
 [director.help.parameter]
-required = "obbligatorio"
-optional = "facoltativo"
-default = "predefinito"
+required = "Questo parametro è obbligatorio."
+optional = "Questo parametro è facoltativo."
+default = "Il valore predefinito è \"{value}\" se non definito."
+type = "Questo parametro è di tipo {type}."
 
 [director.runtime]
 usage = "Utilizzo: {usage}"
@@ -5257,10 +5258,11 @@ lore = ["Perla di Ender + Bussola = Portachiave del Reliquiario", "Questo oggett
 
 [rift.blink]
 name = "Lampo del Varco"
-description = "Salta due volte per lampeggiare nella direzione in cui guardi. I lampi riusciti non consumano perle, ma infliggono il normale danno da perla dell'End, ridotto a ogni livello."
+description = "Salta due volte per lampeggiare nella direzione in cui guardi. I lampi riusciti non consumano perle, ma infliggono il normale danno da perla dell'End, ridotto a ogni livello. Abbassati mentre lampeggi per attraversare direttamente muri e ostacoli."
 lore1 = "Portata del lampo"
 lore2 = "Danno personale (cuori)"
-lore = ["Portata del lampo", "Danno personale (cuori)"]
+lore3 = "Abbassati mentre lampeggi per attraversare i muri"
+lore = ["Portata del lampo", "Danno personale (cuori)", "Abbassati mentre lampeggi per attraversare i muri"]
 
 [rift.chest]
 name = "Baule dell'End Facile"
@@ -6318,9 +6320,7 @@ permissions_printed = "Le autorizzazioni sono state stampate per console."
 particle_data_required = "Particella {particle} richiede dati di tipo {type} e non può essere deposto da questo comando."
 unknown_adapt_command = "Sconosciuto Adapt comando."
 insufficient_permissions = "autorizzazioni insufficienti."
-no_available_subcommands = "Non ci sono sottocomandi o non hai il permesso di usarli."
 parameters_ignored = "I parametri ignorati: {parameters}"
-subcommand_help = "{node} {usage} - {description}"
 no_description = "Nessuna descrizione"
 perf_ability_checks = "controlli di capacità: {perSecond}/s ({perMinute}/m)"
 perf_successful_checks = "controlli riusciti: {perSecond}/s ({perMinute}/m)"

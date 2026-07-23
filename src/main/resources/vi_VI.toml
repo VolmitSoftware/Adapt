@@ -361,10 +361,10 @@ deepblood_requirement = "Giữ một công cụ bền bỉ trong tay chính củ
 [director.help]
 no_subcommands = "Không có lệnh con trên trang này."
 no_description = "Không có mô tả"
-aliases = "Bí danh"
 command_group = "Nhóm lệnh. Nhấp để mở."
+category = "Danh mục lệnh"
 no_parameters = "Không có tham số. Nhấp để điền sẵn lệnh."
-parameters = "Tham số"
+parameters_hover = "Di chuột qua các tham số để tìm hiểu thêm."
 
 [director.help.navigation]
 back = "Quay lại"
@@ -380,9 +380,10 @@ hover = "Trang trước"
 hover = "Trang sau"
 
 [director.help.parameter]
-required = "bắt buộc"
-optional = "tùy chọn"
-default = "mặc định"
+required = "Tham số này là bắt buộc."
+optional = "Tham số này là tùy chọn."
+default = "Mặc định là \"{value}\" nếu không được chỉ định."
+type = "Tham số này có kiểu {type}."
 
 [director.runtime]
 usage = "Cách dùng: {usage}"
@@ -5257,10 +5258,11 @@ lore = ["Ngọc Trai Ender + La Bàn = Chìa Khóa Thánh Tích", "Vật phẩm 
 
 [rift.blink]
 name = "Chớp Nhoáng"
-description = "Nhảy hai lần để chớp theo hướng đang nhìn. Chớp thành công không tiêu hao ngọc Ender, nhưng gây sát thương ngọc thông thường và giảm dần theo mỗi cấp."
+description = "Nhảy hai lần để chớp theo hướng đang nhìn. Chớp thành công không tiêu hao ngọc Ender, nhưng gây sát thương ngọc thông thường và giảm dần theo mỗi cấp. Lén di chuyển khi chớp để xuyên thẳng qua tường và chướng ngại vật."
 lore1 = "Tầm chớp"
 lore2 = "Tự gây sát thương (tim)"
-lore = ["Tầm chớp", "Tự gây sát thương (tim)"]
+lore3 = "Lén khi chớp để xuyên qua tường"
+lore = ["Tầm chớp", "Tự gây sát thương (tim)", "Lén khi chớp để xuyên qua tường"]
 
 [rift.chest]
 name = "Rương Ender Dễ Dàng"
@@ -6318,9 +6320,7 @@ permissions_printed = "Các giấy phép đã được in cho console."
 particle_data_required = "Các phân tử {particle} yêu cầu dữ liệu kiểu {type} và không thể được tạo ra bằng lệnh này."
 unknown_adapt_command = "Không rõ Adapt lệnh."
 insufficient_permissions = "Không đủ quyền."
-no_available_subcommands = "Có hoặc không có lệnh con hoặc bạn không có quyền sử dụng chúng."
 parameters_ignored = "Tham số bị bỏ qua: {parameters}"
-subcommand_help = "{node} {usage} - {description}"
 no_description = "Không mô tả"
 perf_ability_checks = "kiểm tra khả năng: {perSecond}/s ({perMinute}/m)"
 perf_successful_checks = "kiểm tra thành công: {perSecond}/s ({perMinute}/m)"

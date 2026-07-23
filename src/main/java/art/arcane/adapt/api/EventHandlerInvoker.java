@@ -21,6 +21,7 @@ package art.arcane.adapt.api;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.ReceiveCancelledEvents;
 import art.arcane.adapt.api.telemetry.AbilityCheckTelemetry;
+import art.arcane.adapt.api.telemetry.AdaptRuntimeTelemetry;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventException;
@@ -141,6 +142,7 @@ public final class EventHandlerInvoker {
     }
 
     long startedNanos = AbilityCheckTelemetry.beginExecution(adaptation.getName());
+    AdaptRuntimeTelemetry.recordEventHandlerOp(System.currentTimeMillis());
     try {
       invocation.invoke();
     } finally {

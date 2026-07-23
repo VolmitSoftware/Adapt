@@ -20,7 +20,6 @@ package art.arcane.adapt.util.project.command;
 
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.CommandRuntimeMessages;
-import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.volmlib.util.collection.KList;
 import org.bukkit.Sound;
@@ -30,7 +29,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 import static art.arcane.volmlib.util.localization.MessageArgument.untrusted;
 
 /**
@@ -87,37 +85,6 @@ public abstract class MortarCommand implements ICommand {
   }
 
   public abstract void addTabOptions(MortarSender sender, String[] args, List<String> list);
-
-  public void printHelp(MortarSender sender) {
-    boolean b = false;
-
-    for (MortarCommand i : getChildren()) {
-      for (String j : i.getRequiredPermissions()) {
-        if (!sender.hasPermission(j)) {
-          continue;
-        }
-      }
-
-      b = true;
-
-      sender.sendMessage(AdaptLanguage.text(
-          CommandRuntimeMessages.SUBCOMMAND_HELP,
-          trusted("node", C.GREEN + i.getNode()),
-          trusted("usage", C.WHITE + i.getArgsUsage()),
-          untrusted("description", i.getDescription())
-      ));
-    }
-
-    if (!b) {
-      sender.sendMessage(AdaptLanguage.text(CommandRuntimeMessages.NO_AVAILABLE_SUBCOMMANDS));
-    }
-
-    if (sender.isPlayer()) {
-      SoundPlayer spw = SoundPlayer.of(sender.player().getWorld());
-      spw.play(sender.player().getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.28f, 1.4f);
-      spw.play(sender.player().getLocation(), Sound.ITEM_AXE_STRIP, 0.35f, 1.7f);
-    }
-  }
 
   protected abstract String getArgsUsage();
 

@@ -361,10 +361,10 @@ deepblood_requirement = "Przed połączeniem z Deepblood należy przytrzymać tr
 [director.help]
 no_subcommands = "Na tej stronie nie ma podpoleceń."
 no_description = "Nie podano opisu"
-aliases = "Aliasy"
 command_group = "Grupa poleceń. Kliknij, aby otworzyć."
+category = "Kategoria poleceń"
 no_parameters = "Brak parametrów. Kliknij, aby wstępnie uzupełnić polecenie."
-parameters = "Parametry"
+parameters_hover = "Najedź kursorem na parametry, aby dowiedzieć się więcej."
 
 [director.help.navigation]
 back = "Wstecz"
@@ -380,9 +380,10 @@ hover = "Poprzednia strona"
 hover = "Następna strona"
 
 [director.help.parameter]
-required = "wymagany"
-optional = "opcjonalny"
-default = "domyślny"
+required = "Ten parametr jest wymagany."
+optional = "Ten parametr jest opcjonalny."
+default = "Domyślnie \"{value}\", jeśli nie określono."
+type = "Ten parametr jest typu {type}."
 
 [director.runtime]
 usage = "Użycie: {usage}"
@@ -5257,10 +5258,11 @@ lore = ["Perla Endera + Kompas = Relikwiarzowy Switoklin", "Ten przedmiot pozwal
 
 [rift.blink]
 name = "Mrgniecie Szczeliny"
-description = "Skocz dwukrotnie, aby mignąć w kierunku patrzenia. Udane mignięcie nie zużywa perły Endu, ale zadaje zwykłe obrażenia od perły, malejące z każdym poziomem."
+description = "Skocz dwukrotnie, aby mignąć w kierunku patrzenia. Udane mignięcie nie zużywa perły Endu, ale zadaje zwykłe obrażenia od perły, malejące z każdym poziomem. Skradaj się podczas mignięcia, aby przenikać prosto przez ściany i przeszkody."
 lore1 = "Zasięg mignięcia"
 lore2 = "Własne obrażenia (serca)"
-lore = ["Zasięg mignięcia", "Własne obrażenia (serca)"]
+lore3 = "Skradaj się podczas mignięcia, aby przenikać przez ściany"
+lore = ["Zasięg mignięcia", "Własne obrażenia (serca)", "Skradaj się podczas mignięcia, aby przenikać przez ściany"]
 
 [rift.chest]
 name = "Latwa Enderchest"
@@ -6318,9 +6320,7 @@ permissions_printed = "Uprawnienia zostały wydrukowane na konsoli."
 particle_data_required = "Cząsteczka {particle} wymaga danych typu {type} i nie może być spłodzony przez to polecenie."
 unknown_adapt_command = "Nieznany Adapt polecenie."
 insufficient_permissions = "Niewystarczające uprawnienia."
-no_available_subcommands = "Nie ma podpoleceń lub nie masz pozwolenia na ich użycie."
 parameters_ignored = "Parametry ignorowane: {parameters}"
-subcommand_help = "{node} {usage} - {description}"
 no_description = "Brak opisu"
 perf_ability_checks = "kontrole zdolności: {perSecond}/s ({perMinute}/m)"
 perf_successful_checks = "udane kontrole: {perSecond}/s ({perMinute}/m)"

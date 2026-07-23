@@ -361,10 +361,10 @@ deepblood_requirement = "Halten Sie ein langlebiges Werkzeug in der Haupthand, b
 [director.help]
 no_subcommands = "Auf dieser Seite gibt es keine Unterbefehle."
 no_description = "Keine Beschreibung vorhanden"
-aliases = "Aliase"
 command_group = "Befehlsgruppe. Zum Öffnen klicken."
+category = "Befehlskategorie"
 no_parameters = "Keine Parameter. Klicken, um den Befehl vorab auszufüllen."
-parameters = "Parameter"
+parameters_hover = "Bewege den Mauszeiger über die Parameter, um mehr zu erfahren."
 
 [director.help.navigation]
 back = "Zurück"
@@ -380,9 +380,10 @@ hover = "Vorherige Seite"
 hover = "Nächste Seite"
 
 [director.help.parameter]
-required = "erforderlich"
-optional = "optional"
-default = "Standard"
+required = "Dieser Parameter ist erforderlich."
+optional = "Dieser Parameter ist optional."
+default = "Standardmäßig \"{value}\", wenn nicht angegeben."
+type = "Dieser Parameter hat den Typ {type}."
 
 [director.runtime]
 usage = "Verwendung: {usage}"
@@ -5257,10 +5258,11 @@ lore = ["Enderperle + Kompass = Reliquien-Portschlüssel", "Dieser Gegenstand er
 
 [rift.blink]
 name = "Riss-Blinzeln"
-description = "Springe doppelt, um in Blickrichtung zu blinzeln. Erfolgreiche Blinzler verbrauchen keine Enderperle, verursachen aber normalen Enderperlenschaden, der mit jeder Stufe sinkt."
+description = "Springe doppelt, um in Blickrichtung zu blinzeln. Erfolgreiche Blinzler verbrauchen keine Enderperle, verursachen aber normalen Enderperlenschaden, der mit jeder Stufe sinkt. Schleiche beim Blinzeln, um direkt durch Wände und Hindernisse zu phasen."
 lore1 = "Blinzelreichweite"
 lore2 = "Selbstschaden (Herzen)"
-lore = ["Blinzelreichweite", "Selbstschaden (Herzen)"]
+lore3 = "Schleichend blinzeln, um durch Wände zu phasen"
+lore = ["Blinzelreichweite", "Selbstschaden (Herzen)", "Schleichend blinzeln, um durch Wände zu phasen"]
 
 [rift.chest]
 name = "Einfache Endertruhe"
@@ -6318,9 +6320,7 @@ permissions_printed = "Die Genehmigungen für die Konsole sind gedruckt."
 particle_data_required = "Teilchen {particle} benötigen Daten des Typs {type} und können durch diesen Befehl nicht erzeugt werden."
 unknown_adapt_command = "Unbekannter Kommando Adapt."
 insufficient_permissions = "Unzureichende Berechtigungen."
-no_available_subcommands = "Entweder gibt es keine Unterkommandos oder Sie haben keine Erlaubnis, sie zu benutzen."
 parameters_ignored = "Parameter ignoriert: {parameters}"
-subcommand_help = "{node} {usage} - {description}"
 no_description = "Keine Beschreibung"
 perf_ability_checks = "Fähigkeitsprüfungen: {perSecond}/s ({perMinute}/m)"
 perf_successful_checks = "erfolgreiche Kontrollen: {perSecond}/s ({perMinute}/m)"

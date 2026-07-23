@@ -23,6 +23,7 @@ import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.runtime.AdaptationGate;
+import art.arcane.adapt.api.telemetry.AdaptRuntimeTelemetry;
 import art.arcane.adapt.api.tick.TickedObject;
 import art.arcane.adapt.api.world.AdaptDebugMode;
 import art.arcane.adapt.api.world.AdaptPlayer;
@@ -225,6 +226,7 @@ final class SkillRuntimeGuards {
       } else {
         XP.xp(player, skill, xp, rewardKey);
       }
+      AdaptRuntimeTelemetry.recordXpPayout(System.currentTimeMillis(), xp);
 
       if (visualBurst && location != null && xp > 50 && skill.areParticlesEnabled() && AdaptConfig.get().isUseEnchantmentTableParticleForActiveEffects()) {
         Fx.targeted(player, Particles.ENCHANTMENT_TABLE, location, Math.min((int) xp / 10, 20), 0.5, 0.5, 0.5, 1);
@@ -243,6 +245,7 @@ final class SkillRuntimeGuards {
     }
     try {
       XP.xpSilent(player, skill, xp, rewardKey);
+      AdaptRuntimeTelemetry.recordXpPayout(System.currentTimeMillis(), xp);
     } catch (Exception ignored) {
       Adapt.verbose("Player was Given XP (Likely Teleportation) before i can see it because some plugin has higher priority than me and moves a player. so im not going to throw an error, as i know why it's happening.");
     }

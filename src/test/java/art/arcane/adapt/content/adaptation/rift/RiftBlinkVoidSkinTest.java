@@ -33,6 +33,23 @@ class RiftBlinkVoidSkinTest {
   }
 
   @Test
+  void blinkReachIgnoresObstaclesOnlyWhilePhasing() {
+    assertThat(RiftBlink.blinkReach(true, 20D, 6D)).isEqualTo(20D);
+    assertThat(RiftBlink.blinkReach(true, 20D, null)).isEqualTo(20D);
+    assertThat(RiftBlink.blinkReach(false, 20D, null)).isEqualTo(20D);
+    assertThat(RiftBlink.blinkReach(false, 20D, 6D)).isEqualTo(5.5D);
+    assertThat(RiftBlink.blinkReach(false, 20D, 0.2D)).isEqualTo(0D);
+  }
+
+  @Test
+  void blinkPhasesThroughWallsOnlyWhileSneakingWithTheToggleEnabled() throws IOException {
+    String source = Files.readString(BLINK_SOURCE);
+
+    assertThat(source).contains("getConfig().phaseWhileSneaking && p.isSneaking()");
+    assertThat(fieldNames(RiftBlink.Config.class)).contains("phaseWhileSneaking");
+  }
+
+  @Test
   void blinkHasNoPearlConsumptionAndCompletesOnlySuccessfulAsyncTeleports() throws IOException {
     String source = Files.readString(BLINK_SOURCE);
     String configFields = fieldNames(RiftBlink.Config.class);

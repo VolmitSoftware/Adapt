@@ -24,6 +24,7 @@ import art.arcane.adapt.localization.catalog.RiftMessages;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.ReceiveCancelledEvents;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -46,6 +47,7 @@ import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
@@ -142,6 +144,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
   }
 
 
+  @ReceiveCancelledEvents
   @EventHandler(priority = EventPriority.HIGHEST)
   public void on(PlayerInteractEvent event) {
     Player player = event.getPlayer();
@@ -160,10 +163,12 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
 
     // If the main hand is holding a bound enderpearl
     if (mainHandBound) {
+      boolean blockUseDenied = block != null && event.useInteractedBlock() == Event.Result.DENY;
+      boolean itemUseDenied = event.useItemInHand() == Event.Result.DENY;
       event.setCancelled(true);
-      if (event.getHand() == EquipmentSlot.HAND && hasActiveAdaptation(player)) {
+      if (event.getHand() == EquipmentSlot.HAND && hasActiveAdaptation(player) && !itemUseDenied) {
         Adapt.verbose("Player using bound enderpearl.");
-        handleEnderPearlInteraction(event, player, block);
+        handleEnderPearlInteraction(event, player, block, blockUseDenied);
       }
     }
   }
@@ -227,7 +232,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
     releaseTicketOwned(chunkKey, false);
   }
 
-  private void handleEnderPearlInteraction(PlayerInteractEvent event, Player player, Block block) {
+  private void handleEnderPearlInteraction(PlayerInteractEvent event, Player player, Block block, boolean blockUseDenied) {
     boolean canUseInCreative = AdaptConfig.get().allowAdaptationsInCreative;
     boolean isCreative = player.getGameMode() == GameMode.CREATIVE;
     boolean sneaking = player.isSneaking();
@@ -246,6 +251,10 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
         return;
       }
 
+      if (action == Action.LEFT_CLICK_BLOCK && blockUseDenied) {
+        return;
+      }
+
       Block target = action == Action.LEFT_CLICK_BLOCK ? block : player.getTargetBlockExact(5);
       if (target == null || !isStorage(target.getBlockData())) {
         return;
@@ -257,6 +266,9 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
         Adapt.verbose("Player " + player.getName() + " doesn't have permission.");
       }
     } else if (action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK) {
+      if (blockUseDenied) {
+        return;
+      }
       openPearl(player);
     }
   }

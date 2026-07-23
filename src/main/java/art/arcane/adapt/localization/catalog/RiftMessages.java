@@ -13,10 +13,11 @@ public final class RiftMessages {
   public static final TextKey REMOTE_ACCESS_NOTCONTAINER = TextKey.of("rift.remote_access.notcontainer", "That's not a container");
   public static final LinesKey REMOTE_ACCESS_LORE = LinesKey.of("rift.remote_access.lore", "Ender Pearl + Compass = Reliquary Portkey", "This item allows you to access containers remotely", "Once crafted look at item to see usage");
   public static final TextKey BLINK_NAME = TextKey.of("rift.blink.name", "Rift Blink");
-  public static final TextKey BLINK_DESCRIPTION = TextKey.of("rift.blink.description", "Double-jump to blink toward where you are looking. Aim at ground to land there, at a ledge to mantle onto it, or into open air to dash. Successful blinks consume no pearl, but deal normal ender pearl damage that decreases by level.");
+  public static final TextKey BLINK_DESCRIPTION = TextKey.of("rift.blink.description", "Double-jump to blink toward where you are looking. Aim at ground to land there, at a ledge to mantle onto it, or into open air to dash. Successful blinks consume no pearl, but deal normal ender pearl damage that decreases by level. Sneak while blinking to phase straight through walls and obstacles.");
   public static final TextKey BLINK_LORE1 = TextKey.of("rift.blink.lore1", "Blink Range");
   public static final TextKey BLINK_LORE2 = TextKey.of("rift.blink.lore2", "Self-Damage (hearts)");
-  public static final LinesKey BLINK_LORE = LinesKey.of("rift.blink.lore", "Blink Range", "Self-Damage (hearts)");
+  public static final TextKey BLINK_LORE3 = TextKey.of("rift.blink.lore3", "Sneak while blinking to phase through walls");
+  public static final LinesKey BLINK_LORE = LinesKey.of("rift.blink.lore", "Blink Range", "Self-Damage (hearts)", "Sneak while blinking to phase through walls");
   public static final TextKey CHEST_NAME = TextKey.of("rift.chest.name", "Easy Enderchest");
   public static final TextKey CHEST_DESCRIPTION = TextKey.of("rift.chest.description", "Click while holding an ender chest to open your ender chest without placing it.");
   public static final TextKey CHEST_LORE1 = TextKey.of("rift.chest.lore1", "Click an Ender Chest in your hand to open it (just don't place it)");
@@ -109,6 +110,7 @@ public final class RiftMessages {
     builder.add(BLINK_DESCRIPTION);
     builder.add(BLINK_LORE1);
     builder.add(BLINK_LORE2);
+    builder.add(BLINK_LORE3);
     builder.add(BLINK_LORE);
     builder.add(CHEST_NAME);
     builder.add(CHEST_DESCRIPTION);

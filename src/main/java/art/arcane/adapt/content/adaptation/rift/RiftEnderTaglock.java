@@ -23,6 +23,7 @@ import art.arcane.adapt.localization.catalog.RiftMessages;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.ReceiveCancelledEvents;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -53,6 +54,7 @@ import org.bukkit.entity.Slime;
 import org.bukkit.entity.Tameable;
 import org.bukkit.entity.Villager;
 import org.bukkit.entity.WaterMob;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
@@ -86,6 +88,7 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
   private static final int MAX_TARGET_SNAPSHOT_ATTEMPTS = 2;
   private static final long OPERATION_TIMEOUT_MILLIS = 60_000L;
   private static final long TELEPORT_COMPLETION_TIMEOUT_MILLIS = 300_000L;
+  static final String TARGET_KEY_NAME = "rift_taglock_target_uuid";
   private final NamespacedKey targetKey;
   private final Map<UUID, Long> suppressPearlTeleportUntil = playerState();
   private final Map<UUID, Integer> taglockPearlsInFlight = playerState();
@@ -97,7 +100,7 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
     registerConfiguration(Config.class);
     setIcon(Material.ENDER_PEARL);
     setInterval(1200);
-    targetKey = new NamespacedKey(Adapt.instance, "rift_taglock_target_uuid");
+    targetKey = new NamespacedKey(Adapt.instance, TARGET_KEY_NAME);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.ENDER_PEARL)
         .key("challenge_rift_taglock_100")
@@ -183,6 +186,7 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
     xp(p, getConfig().xpOnTag);
   }
 
+  @ReceiveCancelledEvents
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(PlayerInteractEvent e) {
     EquipmentSlot slot = e.getHand();
@@ -196,17 +200,27 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
     }
 
     Player p = e.getPlayer();
-    int level = getActiveLevel(p);
-    if (level <= 0) {
-      return;
-    }
-
     ItemStack hand = slot == EquipmentSlot.HAND
         ? p.getInventory().getItemInMainHand()
         : p.getInventory().getItemInOffHand();
 
     UUID target = getTaggedTarget(hand);
     if (target == null) {
+      return;
+    }
+
+    int level = getActiveLevel(p);
+    if (level <= 0) {
+      e.setCancelled(true);
+      return;
+    }
+
+    if (e.useItemInHand() == Event.Result.DENY) {
+      return;
+    }
+
+    if (e.getClickedBlock() != null && e.useInteractedBlock() == Event.Result.DENY) {
+      e.setCancelled(true);
       return;
     }
 

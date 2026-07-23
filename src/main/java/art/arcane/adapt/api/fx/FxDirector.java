@@ -30,6 +30,10 @@ public final class FxDirector extends TickedObject {
     return active;
   }
 
+  public int activeTimelineCount() {
+    return activeCount.get();
+  }
+
   @Override
   public void onTick() {
     FxBudget.resetTick();

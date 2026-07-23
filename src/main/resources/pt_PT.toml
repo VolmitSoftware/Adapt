@@ -361,10 +361,10 @@ deepblood_requirement = "Segure uma ferramenta durável em sua mão principal an
 [director.help]
 no_subcommands = "Não existem subcomandos nesta página."
 no_description = "Nenhuma descrição fornecida"
-aliases = "Aliases"
 command_group = "Grupo de comandos. Clique para abrir."
+category = "Categoria de comandos"
 no_parameters = "Sem parâmetros. Clique para preencher previamente o comando."
-parameters = "Parâmetros"
+parameters_hover = "Passe o cursor sobre os parâmetros para saber mais."
 
 [director.help.navigation]
 back = "Voltar"
@@ -380,9 +380,10 @@ hover = "Página anterior"
 hover = "Página seguinte"
 
 [director.help.parameter]
-required = "obrigatório"
-optional = "opcional"
-default = "predefinido"
+required = "Este parâmetro é obrigatório."
+optional = "Este parâmetro é opcional."
+default = "Predefinição \"{value}\" se não for definido."
+type = "Este parâmetro é do tipo {type}."
 
 [director.runtime]
 usage = "Utilização: {usage}"
@@ -5257,10 +5258,11 @@ lore = ["Perola do Ender + Bussola = Chave Portal do Relicario", "Este item perm
 
 [rift.blink]
 name = "Piscar da Fenda"
-description = "Salta duas vezes para piscar na direção para onde olhas. Um piscar bem-sucedido não consome pérolas, mas causa o dano normal de uma pérola do End, reduzido a cada nível."
+description = "Salta duas vezes para piscar na direção para onde olhas. Um piscar bem-sucedido não consome pérolas, mas causa o dano normal de uma pérola do End, reduzido a cada nível. Agacha-te ao piscar para atravessares diretamente paredes e obstáculos."
 lore1 = "Alcance do piscar"
 lore2 = "Dano próprio (corações)"
-lore = ["Alcance do piscar", "Dano próprio (corações)"]
+lore3 = "Agacha-te ao piscar para atravessares paredes"
+lore = ["Alcance do piscar", "Dano próprio (corações)", "Agacha-te ao piscar para atravessares paredes"]
 
 [rift.chest]
 name = "Bau do Ender Facil"
@@ -6318,9 +6320,7 @@ permissions_printed = "As permissões foram impressas no console."
 particle_data_required = "Partícula {particle} requer dados de tipo {type} e não pode ser gerado por esta ordem."
 unknown_adapt_command = "Desconhecido Adapt comando."
 insufficient_permissions = "Permissões insuficientes."
-no_available_subcommands = "Não existem subcomandos ou você não tem permissão para usá- los."
 parameters_ignored = "Parâmetros ignorados: {parameters}"
-subcommand_help = "{node} {usage} - {description}"
 no_description = "Sem descrição"
 perf_ability_checks = "Verificação de habilidade: {perSecond}/s ({perMinute}/m)"
 perf_successful_checks = "verificações bem sucedidas: {perSecond}/s ({perMinute}/m)"

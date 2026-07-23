@@ -361,10 +361,10 @@ deepblood_requirement = "Houd een duurzaam hulpmiddel in uw hoofdhand voordat u 
 [director.help]
 no_subcommands = "Geen subopdrachten op deze pagina."
 no_description = "Geen beschrijving opgegeven"
-aliases = "Aliassen"
 command_group = "Opdrachtgroep. Klik om te openen."
+category = "Commandocategorie"
 no_parameters = "Geen parameters. Klik om de opdracht vooraf in te vullen."
-parameters = "Parameters"
+parameters_hover = "Beweeg de muis over de parameters voor meer informatie."
 
 [director.help.navigation]
 back = "Terug"
@@ -380,9 +380,10 @@ hover = "Vorige pagina"
 hover = "Volgende pagina"
 
 [director.help.parameter]
-required = "verplicht"
-optional = "optioneel"
-default = "standaard"
+required = "Deze parameter is verplicht."
+optional = "Deze parameter is optioneel."
+default = "Standaard \"{value}\" indien niet opgegeven."
+type = "Deze parameter is van het type {type}."
 
 [director.runtime]
 usage = "Gebruik: {usage}"
@@ -5257,10 +5258,11 @@ lore = ["Enderparel + Kompas = Reliekschrijn Portkey", "Met dit item kun je cont
 
 [rift.blink]
 name = "Rift Flits"
-description = "Spring tweemaal om te flitsen in de richting waarin je kijkt. Een geslaagde flits verbruikt geen enderparel, maar doet normale enderparelschade die per niveau afneemt."
+description = "Spring tweemaal om te flitsen in de richting waarin je kijkt. Een geslaagde flits verbruikt geen enderparel, maar doet normale enderparelschade die per niveau afneemt. Sluip tijdens het flitsen om dwars door muren en obstakels te gaan."
 lore1 = "Flitsbereik"
 lore2 = "Zelfschade (harten)"
-lore = ["Flitsbereik", "Zelfschade (harten)"]
+lore3 = "Sluip tijdens het flitsen om door muren te gaan"
+lore = ["Flitsbereik", "Zelfschade (harten)", "Sluip tijdens het flitsen om door muren te gaan"]
 
 [rift.chest]
 name = "Gemakkelijke Enderkist"
@@ -6318,9 +6320,7 @@ permissions_printed = "Rechten zijn afgedrukt op console."
 particle_data_required = "Deeltje {particle} vereist gegevens van het type {type} en kan niet worden voortgebracht door dit commando."
 unknown_adapt_command = "Onbekend Adapt commando."
 insufficient_permissions = "Onvoldoende machtigingen."
-no_available_subcommands = "Er zijn geen subcommando's of je hebt geen toestemming om ze te gebruiken."
 parameters_ignored = "Parameters genegeerd: {parameters}"
-subcommand_help = "{node} {usage} - {description}"
 no_description = "Geen beschrijving"
 perf_ability_checks = "bekwaamheidscontroles: {perSecond}/s ({perMinute}/m)"
 perf_successful_checks = "succesvolle controles: {perSecond}/s ({perMinute}/m)"

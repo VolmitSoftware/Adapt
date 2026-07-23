@@ -115,6 +115,14 @@ public class AdaptServer extends TickedObject {
     load();
   }
 
+  public int getLearnedAdaptationCount() {
+    return playersByLearnedAdaptation.size();
+  }
+
+  public int getSpatialTicketCount() {
+    return spatialTicketCount;
+  }
+
   public synchronized void startRuntime() {
     if (isRuntimeRegistered()) {
       return;

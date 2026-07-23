@@ -266,7 +266,7 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
 
   private boolean hasPlainPearl(Player p) {
     for (ItemStack stack : p.getInventory().getContents()) {
-      if (isPlainPearl(stack)) {
+      if (RiftPearls.isPlainPearl(stack)) {
         return true;
       }
     }
@@ -275,16 +275,12 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
 
   private boolean consumePlainPearl(Player p) {
     for (ItemStack stack : p.getInventory().getContents()) {
-      if (isPlainPearl(stack)) {
+      if (RiftPearls.isPlainPearl(stack)) {
         stack.setAmount(stack.getAmount() - 1);
         return true;
       }
     }
     return false;
-  }
-
-  private boolean isPlainPearl(ItemStack stack) {
-    return stack != null && stack.getType() == Material.ENDER_PEARL && !stack.hasItemMeta() && stack.getAmount() > 0;
   }
 
   static boolean isLethalDamage(double health, double finalDamage) {

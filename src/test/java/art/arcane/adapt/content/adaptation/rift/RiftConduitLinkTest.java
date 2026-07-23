@@ -57,4 +57,30 @@ class RiftConduitLinkTest {
         .isEqualTo(RiftConduit.HARD_MAX_RANGE);
     assertThat(RiftConduit.boundedRange(Double.POSITIVE_INFINITY)).isEqualTo(1D);
   }
+
+  @Test
+  void followUpDeadlineOffsetsNowByTheWindow() {
+    assertThat(RiftConduit.followUpDeadline(1000L))
+        .isEqualTo(1000L + RiftConduit.CAPTURE_FOLLOWUP_WINDOW_MILLIS);
+  }
+
+  @Test
+  void followUpWindowRejectsMissingDeadline() {
+    assertThat(RiftConduit.isWithinFollowUpWindow(1000L, null)).isFalse();
+  }
+
+  @Test
+  void followUpWindowHoldsUntilTheInclusiveDeadline() {
+    long now = 5000L;
+    long deadline = RiftConduit.followUpDeadline(now);
+    assertThat(RiftConduit.isWithinFollowUpWindow(now, deadline)).isTrue();
+    assertThat(RiftConduit.isWithinFollowUpWindow(deadline, deadline)).isTrue();
+  }
+
+  @Test
+  void followUpWindowExpiresAfterTheDeadline() {
+    long now = 5000L;
+    long deadline = RiftConduit.followUpDeadline(now);
+    assertThat(RiftConduit.isWithinFollowUpWindow(deadline + 1L, deadline)).isFalse();
+  }
 }

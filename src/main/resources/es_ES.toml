@@ -361,10 +361,10 @@ deepblood_requirement = "Mantenga una herramienta duradera en su mano principal 
 [director.help]
 no_subcommands = "No hay subcomandos en esta página."
 no_description = "No se proporcionó ninguna descripción"
-aliases = "Alias"
 command_group = "Grupo de comandos. Haz clic para abrir."
+category = "Categoría de comandos"
 no_parameters = "No hay parámetros. Haz clic para completar el comando."
-parameters = "Parámetros"
+parameters_hover = "Pasa el cursor sobre los parámetros para saber más."
 
 [director.help.navigation]
 back = "Atrás"
@@ -380,9 +380,10 @@ hover = "Página anterior"
 hover = "Página siguiente"
 
 [director.help.parameter]
-required = "obligatorio"
-optional = "opcional"
-default = "predeterminado"
+required = "Este parámetro es obligatorio."
+optional = "Este parámetro es opcional."
+default = "Valor predeterminado \"{value}\" si no se define."
+type = "Este parámetro es de tipo {type}."
 
 [director.runtime]
 usage = "Uso: {usage}"
@@ -5257,10 +5258,11 @@ lore = ["Perla de Ender + Brujula = Traslador Relicario", "Este objeto te permit
 
 [rift.blink]
 name = "Parpadeo de Grieta"
-description = "Haz un doble salto para parpadear hacia donde miras. Los parpadeos exitosos no consumen perlas, pero infligen el daño normal de una perla de ender, que disminuye con cada nivel."
+description = "Haz un doble salto para parpadear hacia donde miras. Los parpadeos exitosos no consumen perlas, pero infligen el daño normal de una perla de ender, que disminuye con cada nivel. Agáchate al parpadear para atravesar directamente muros y obstáculos."
 lore1 = "Alcance del parpadeo"
 lore2 = "Daño propio (corazones)"
-lore = ["Alcance del parpadeo", "Daño propio (corazones)"]
+lore3 = "Agáchate al parpadear para atravesar muros"
+lore = ["Alcance del parpadeo", "Daño propio (corazones)", "Agáchate al parpadear para atravesar muros"]
 
 [rift.chest]
 name = "Cofre de Ender Facil"
@@ -6318,9 +6320,7 @@ permissions_printed = "Se han impreso permisos para consolar."
 particle_data_required = "Partícula {particle} requiere datos de tipo {type} y no puede ser despachado por este comando."
 unknown_adapt_command = "Desconocido Adapt comando."
 insufficient_permissions = "Autorizaciones insuficientes."
-no_available_subcommands = "No hay subcomandantes o no tienes permiso para usarlos."
 parameters_ignored = "Parámetros ignorados: {parameters}"
-subcommand_help = "{node} {usage} - {description}"
 no_description = "No hay descripción"
 perf_ability_checks = "controles de capacidad: {perSecond}/s ({perMinute}/m)"
 perf_successful_checks = "controles exitosos: {perSecond}/s ({perMinute}/m)"

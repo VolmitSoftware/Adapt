@@ -361,10 +361,10 @@ deepblood_requirement = "החזק כלי יציב ביד העיקרית שלך �
 [director.help]
 no_subcommands = "אין פקודות משנה בעמוד זה."
 no_description = "לא סופק תיאור"
-aliases = "כינויים"
 command_group = "קבוצת פקודות. לחצו כדי לפתוח."
+category = "קטגוריית פקודות"
 no_parameters = "אין פרמטרים. לחצו כדי למלא את הפקודה מראש."
-parameters = "פרמטרים"
+parameters_hover = "רחפו מעל הפרמטרים כדי ללמוד עוד."
 
 [director.help.navigation]
 back = "חזרה"
@@ -380,9 +380,10 @@ hover = "העמוד הקודם"
 hover = "העמוד הבא"
 
 [director.help.parameter]
-required = "נדרש"
-optional = "אופציונלי"
-default = "ברירת מחדל"
+required = "פרמטר זה הוא חובה."
+optional = "פרמטר זה הוא אופציונלי."
+default = "ברירת המחדל היא \"{value}\" אם לא הוגדר."
+type = "פרמטר זה הוא מסוג {type}."
 
 [director.runtime]
 usage = "שימוש: {usage}"
@@ -5257,10 +5258,11 @@ lore = ["פנינת אנדר + מצפן = מפתח שער רליקוויה", "פ
 
 [rift.blink]
 name = "הבזק קרע"
-description = "קפוץ פעמיים כדי להבזיק לכיוון שאליו אתה מביט. הבזק מוצלח אינו צורך פנינת אנדר, אך גורם לנזק הרגיל של פנינת אנדר, שפוחת בכל רמה."
+description = "קפוץ פעמיים כדי להבזיק לכיוון שאליו אתה מביט. הבזק מוצלח אינו צורך פנינת אנדר, אך גורם לנזק הרגיל של פנינת אנדר, שפוחת בכל רמה. התגנב בזמן ההבזק כדי לעבור הישר דרך קירות ומכשולים."
 lore1 = "טווח ההבזק"
 lore2 = "נזק עצמי (לבבות)"
-lore = ["טווח ההבזק", "נזק עצמי (לבבות)"]
+lore3 = "התגנב בזמן ההבזק כדי לעבור דרך קירות"
+lore = ["טווח ההבזק", "נזק עצמי (לבבות)", "התגנב בזמן ההבזק כדי לעבור דרך קירות"]
 
 [rift.chest]
 name = "ארגז אנדר קל"
@@ -6318,9 +6320,7 @@ permissions_printed = "הרשאות הודפסו לקונסולה."
 particle_data_required = "חלקיקים {particle} דורש נתונים מסוג {type} לא ניתן להוליד את הפקודה."
 unknown_adapt_command = "לא ידוע Adapt הפיקוד."
 insufficient_permissions = "הרשאות בלתי מוגבלות."
-no_available_subcommands = "אין צוללות או שאין לך רשות להשתמש בהן."
 parameters_ignored = "התעלמו: {parameters}"
-subcommand_help = "{node} {usage} - {description}"
 no_description = "אין תיאור"
 perf_ability_checks = "בדיקות יכולת: {perSecond}/s ({perMinute}/m)"
 perf_successful_checks = "בדיקות מוצלחות: {perSecond}/s ({perMinute}/m)"

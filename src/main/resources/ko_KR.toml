@@ -361,10 +361,10 @@ deepblood_requirement = "딥블러드에 연결하기 전에 당신의 주요 �
 [director.help]
 no_subcommands = "이 페이지에는 하위 명령어가 없습니다."
 no_description = "설명이 없습니다"
-aliases = "별칭"
 command_group = "명령어 그룹입니다. 클릭하여 엽니다."
+category = "명령어 카테고리"
 no_parameters = "매개변수가 없습니다. 클릭하여 명령어를 미리 입력합니다."
-parameters = "매개변수"
+parameters_hover = "매개변수 위에 마우스를 올리면 자세한 내용을 볼 수 있습니다."
 
 [director.help.navigation]
 back = "뒤로"
@@ -380,9 +380,10 @@ hover = "이전 페이지"
 hover = "다음 페이지"
 
 [director.help.parameter]
-required = "필수"
-optional = "선택 사항"
-default = "기본값"
+required = "이 매개변수는 필수입니다."
+optional = "이 매개변수는 선택 사항입니다."
+default = "지정하지 않으면 기본값은 \"{value}\"입니다."
+type = "이 매개변수의 유형은 {type}입니다."
 
 [director.runtime]
 usage = "사용법: {usage}"
@@ -5257,10 +5258,11 @@ lore = ["엔더 진주 + 나침반 = 유물 포트키", "이 아이템으로 원
 
 [rift.blink]
 name = "균열 점멸"
-description = "이단 점프로 바라보는 방향으로 점멸합니다. 성공한 점멸은 엔더 진주를 소모하지 않지만 일반 진주 피해를 입으며, 피해량은 레벨마다 감소합니다."
+description = "이단 점프로 바라보는 방향으로 점멸합니다. 성공한 점멸은 엔더 진주를 소모하지 않지만 일반 진주 피해를 입으며, 피해량은 레벨마다 감소합니다. 웅크린 채 점멸하면 벽과 장애물을 그대로 통과합니다."
 lore1 = "점멸 범위"
 lore2 = "자기 피해 (하트)"
-lore = ["점멸 범위", "자기 피해 (하트)"]
+lore3 = "웅크린 채 점멸하면 벽을 통과"
+lore = ["점멸 범위", "자기 피해 (하트)", "웅크린 채 점멸하면 벽을 통과"]
 
 [rift.chest]
 name = "간편 엔더 상자"
@@ -6318,9 +6320,7 @@ permissions_printed = "콘솔에 대한 허가증이 인쇄되었습니다."
 particle_data_required = "{particle} 입자는 {type} 타입의 데이터를 필요로 하며 이 명령으로 생성될 수 없습니다."
 unknown_adapt_command = "알려지지 않은 Adapt 명령"
 insufficient_permissions = "권한이 부족합니다."
-no_available_subcommands = "하위 명령이 없거나 사용 허가도 없습니다."
 parameters_ignored = "매개 변수 무시: {parameters}"
-subcommand_help = "{node} {usage} - {description}"
 no_description = "설명 없음"
 perf_ability_checks = "능력 검증: {perSecond}/s ({perMinute}/m)"
 perf_successful_checks = "성공한 검증: {perSecond}/s ({perMinute}/m)"

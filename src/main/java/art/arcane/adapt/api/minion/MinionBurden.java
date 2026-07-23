@@ -83,6 +83,11 @@ public final class MinionBurden extends TickedObject {
     }
   }
 
+  public static int activeTotal() {
+    MinionBurden local = instance;
+    return local == null ? -1 : local.minions.size();
+  }
+
   public static void startRuntime() {
     synchronized (MinionBurden.class) {
       if (instance != null) {

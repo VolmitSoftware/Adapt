@@ -23,6 +23,7 @@ import art.arcane.adapt.localization.catalog.RiftMessages;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.ReceiveCancelledEvents;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -46,6 +47,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Container;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
@@ -70,11 +72,15 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
   static final int HARD_MAX_FLOW_ITEMS = 1152;
   static final double HARD_MAX_RANGE = 512D;
   static final int FLOW_DELIVERY_TIMEOUT_TICKS = 100;
+  static final long CAPTURE_FOLLOWUP_WINDOW_MILLIS = 150L;
+  static final String TAGLOCK_LOC_KEY_NAME = "rift_conduit_taglock_loc";
+  static final String TAGLOCK_ID_KEY_NAME = "rift_conduit_taglock_id";
 
   private final NamespacedKey partnerKey;
   private final NamespacedKey linkKey;
   private final NamespacedKey taglockLocKey;
   private final NamespacedKey taglockIdKey;
+  private final Map<UUID, Long> captureFollowUpUntil = playerState();
 
   public RiftConduit() {
     super("rift-conduit");
@@ -83,8 +89,8 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
     setInterval(1000);
     partnerKey = new NamespacedKey(Adapt.instance, "rift_conduit_partner");
     linkKey = new NamespacedKey(Adapt.instance, "rift_conduit_link");
-    taglockLocKey = new NamespacedKey(Adapt.instance, "rift_conduit_taglock_loc");
-    taglockIdKey = new NamespacedKey(Adapt.instance, "rift_conduit_taglock_id");
+    taglockLocKey = new NamespacedKey(Adapt.instance, TAGLOCK_LOC_KEY_NAME);
+    taglockIdKey = new NamespacedKey(Adapt.instance, TAGLOCK_ID_KEY_NAME);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.ENDER_PEARL)
         .key("challenge_rift_conduit_10")
@@ -110,15 +116,19 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
     }
   }
 
+  @ReceiveCancelledEvents
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(PlayerInteractEvent e) {
-    if (e.getHand() != EquipmentSlot.HAND) {
+    Action action = e.getAction();
+    if (action != Action.RIGHT_CLICK_BLOCK && action != Action.RIGHT_CLICK_AIR) {
       return;
     }
 
     Player p = e.getPlayer();
-    int level = getActiveLevel(p);
-    if (level <= 0) {
+    if (e.getHand() != EquipmentSlot.HAND) {
+      if (e.getHand() == EquipmentSlot.OFF_HAND && isConduitTaglock(p.getInventory().getItemInOffHand())) {
+        e.setCancelled(true);
+      }
       return;
     }
 
@@ -127,19 +137,32 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
       return;
     }
 
-    Action action = e.getAction();
-    if (action != Action.RIGHT_CLICK_BLOCK && action != Action.RIGHT_CLICK_AIR) {
+    boolean taglock = isConduitTaglock(hand);
+    if (taglock && isWithinCaptureFollowUp(p)) {
+      e.setCancelled(true);
+      return;
+    }
+
+    int level = getActiveLevel(p);
+    if (level <= 0) {
+      if (taglock) {
+        e.setCancelled(true);
+      }
       return;
     }
 
     Block clicked = e.getClickedBlock();
     boolean container = clicked != null && isConduitContainer(clicked);
 
-    if (isConduitTaglock(hand)) {
-      e.setCancelled(true);
+    if (taglock) {
       if (container) {
+        if (e.useInteractedBlock() == Event.Result.DENY) {
+          return;
+        }
+        e.setCancelled(true);
         completeBind(p, level, hand, clicked.getLocation());
       } else {
+        e.setCancelled(true);
         p.sendMessage(C.GRAY + AdaptLanguage.text(RiftMessages.CONDUIT_MSG_NEED_CONTAINER));
         fx(p.getEyeLocation(), FxPriority.TRANSITION)
             .burst(Particles.SMOKE, 2, 0.15)
@@ -148,7 +171,10 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
       return;
     }
 
-    if (p.isSneaking() && container && !hand.hasItemMeta()) {
+    if (p.isSneaking() && container && RiftPearls.isPlainPearl(hand)) {
+      if (e.useInteractedBlock() == Event.Result.DENY) {
+        return;
+      }
       e.setCancelled(true);
       beginCapture(p, hand, clicked.getLocation());
     }
@@ -178,6 +204,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
   }
 
   private void beginCapture(Player p, ItemStack hand, Location clicked) {
+    markCaptureFollowUp(p);
     Location loc = clicked.getBlock().getLocation();
     String linkId = UUID.randomUUID().toString();
     ItemStack taglock = makeTaglock(loc, linkId);
@@ -193,6 +220,14 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
         .particle(Particles.END_ROD, 6, 0, 0.6, 0, 0.05, 0.02)
         .chord(Sound.BLOCK_BEACON_POWER_SELECT, 0.5f, 1.2f, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.4f, 1.5f);
     p.sendMessage(C.LIGHT_PURPLE + AdaptLanguage.text(RiftMessages.CONDUIT_MSG_CAPTURED));
+  }
+
+  private void markCaptureFollowUp(Player p) {
+    captureFollowUpUntil.put(p.getUniqueId(), followUpDeadline(System.currentTimeMillis()));
+  }
+
+  private boolean isWithinCaptureFollowUp(Player p) {
+    return isWithinFollowUpWindow(System.currentTimeMillis(), captureFollowUpUntil.get(p.getUniqueId()));
   }
 
   private void completeBind(Player p, int level, ItemStack taglock, Location clicked) {
@@ -573,6 +608,14 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
       return 1D;
     }
     return Math.max(1D, Math.min(HARD_MAX_RANGE, value));
+  }
+
+  static long followUpDeadline(long nowMillis) {
+    return nowMillis + CAPTURE_FOLLOWUP_WINDOW_MILLIS;
+  }
+
+  static boolean isWithinFollowUpWindow(long nowMillis, Long untilMillis) {
+    return untilMillis != null && nowMillis <= untilMillis;
   }
 
   static String encodeLocation(String worldKey, int x, int y, int z) {

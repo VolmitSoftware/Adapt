@@ -361,10 +361,10 @@ deepblood_requirement = "Tenez un outil durable dans votre main principale avant
 [director.help]
 no_subcommands = "Aucune sous-commande sur cette page."
 no_description = "Aucune description fournie"
-aliases = "Alias"
 command_group = "Groupe de commandes. Cliquez pour ouvrir."
+category = "Catégorie de commandes"
 no_parameters = "Aucun paramètre. Cliquez pour préremplir la commande."
-parameters = "Paramètres"
+parameters_hover = "Survolez les paramètres pour en savoir plus."
 
 [director.help.navigation]
 back = "Retour"
@@ -380,9 +380,10 @@ hover = "Page précédente"
 hover = "Page suivante"
 
 [director.help.parameter]
-required = "requis"
-optional = "facultatif"
-default = "par défaut"
+required = "Ce paramètre est obligatoire."
+optional = "Ce paramètre est facultatif."
+default = "Vaut \"{value}\" par défaut si non défini."
+type = "Ce paramètre est de type {type}."
 
 [director.runtime]
 usage = "Utilisation: {usage}"
@@ -5257,10 +5258,11 @@ lore = ["Perle de l'Ender + Boussole = Portoloin reliquaire", "Cet objet vous pe
 
 [rift.blink]
 name = "Eclair de Faille"
-description = "Faites un double saut pour vous téléporter dans la direction regardée. Un saut réussi ne consomme aucune perle, mais inflige les dégâts normaux d'une perle de l'End, réduits à chaque niveau."
+description = "Faites un double saut pour vous téléporter dans la direction regardée. Un saut réussi ne consomme aucune perle, mais inflige les dégâts normaux d'une perle de l'End, réduits à chaque niveau. Accroupissez-vous pendant le saut pour traverser directement murs et obstacles."
 lore1 = "Portée du saut"
 lore2 = "Dégâts personnels (cœurs)"
-lore = ["Portée du saut", "Dégâts personnels (cœurs)"]
+lore3 = "S'accroupir pendant le saut pour traverser les murs"
+lore = ["Portée du saut", "Dégâts personnels (cœurs)", "S'accroupir pendant le saut pour traverser les murs"]
 
 [rift.chest]
 name = "Coffre de l'Ender facile"
@@ -6318,9 +6320,7 @@ permissions_printed = "Les autorisations ont été imprimées sur console."
 particle_data_required = "Particules {particle} nécessite des données de type {type} et ne peut pas être engendré par cette commande."
 unknown_adapt_command = "Inconnu Adapt commande."
 insufficient_permissions = "Autorisations insuffisantes."
-no_available_subcommands = "Il n'y a pas de sous-commandes ou vous n'avez pas la permission de les utiliser."
 parameters_ignored = "Paramètres ignorés: {parameters}"
-subcommand_help = "{node} {usage} - {description}"
 no_description = "Aucune description"
 perf_ability_checks = "vérification des capacités: {perSecond}/s ({perMinute}/m)"
 perf_successful_checks = "des contrôles réussis: {perSecond}/s ({perMinute}/m)"

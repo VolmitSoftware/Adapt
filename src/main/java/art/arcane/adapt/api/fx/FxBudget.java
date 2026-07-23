@@ -59,6 +59,14 @@ public final class FxBudget {
     USED_PACKETS.set(0);
   }
 
+  public static int usedPackets() {
+    return USED_PACKETS.get();
+  }
+
+  public static int shedBand() {
+    return appliedBand;
+  }
+
   private static int shedCeiling(FxPriority priority) {
     return switch (priority) {
       case GAMEPLAY -> GLOBAL_PACKET_BUDGET;

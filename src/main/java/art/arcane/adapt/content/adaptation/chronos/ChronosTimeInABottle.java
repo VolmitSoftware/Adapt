@@ -22,6 +22,7 @@ import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ChronosMessages;
 
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.ReceiveCancelledEvents;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -347,6 +348,7 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
     }
   }
 
+  @ReceiveCancelledEvents
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(PlayerInteractEvent e) {
     Action action = e.getAction();
@@ -367,8 +369,16 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
       return;
     }
 
+    boolean vetoed = e.getClickedBlock() != null
+        ? e.useInteractedBlock() == Event.Result.DENY
+        : e.useItemInHand() == Event.Result.DENY;
+
     // Chrono bottles are never drinkable; always deny vanilla potion use.
     e.setUseItemInHand(Event.Result.DENY);
+
+    if (vetoed) {
+      return;
+    }
 
     Block clicked = action == Action.RIGHT_CLICK_BLOCK ? e.getClickedBlock() : p.getTargetBlockExact(5);
     if (clicked == null) {

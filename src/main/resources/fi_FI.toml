@@ -361,10 +361,10 @@ deepblood_requirement = "Pidä kädessäsi kestävää työkalua ennen kuin yhdi
 [director.help]
 no_subcommands = "Tällä sivulla ei ole alikomentoja."
 no_description = "Kuvausta ei ole annettu"
-aliases = "Aliakset"
 command_group = "Komentoryhmä. Avaa napsauttamalla."
+category = "Komentokategoria"
 no_parameters = "Ei parametreja. Esitäytä komento napsauttamalla."
-parameters = "Parametrit"
+parameters_hover = "Vie hiiri parametrien päälle saadaksesi lisätietoja."
 
 [director.help.navigation]
 back = "Takaisin"
@@ -380,9 +380,10 @@ hover = "Edellinen sivu"
 hover = "Seuraava sivu"
 
 [director.help.parameter]
-required = "pakollinen"
-optional = "valinnainen"
-default = "oletus"
+required = "Tämä parametri on pakollinen."
+optional = "Tämä parametri on valinnainen."
+default = "Oletusarvo on \"{value}\", jos sitä ei määritetä."
+type = "Tämän parametrin tyyppi on {type}."
 
 [director.runtime]
 usage = "Käyttö: {usage}"
@@ -5257,10 +5258,11 @@ lore = ["Enderhelmi + kompassi = Reliikkiavainportti", "Tämä esine mahdollista
 
 [rift.blink]
 name = "Repeämävälähdys"
-description = "Kaksoishyppää välähtääksesi katsomaasi suuntaan. Onnistunut välähdys ei kuluta enderhelmeä, mutta aiheuttaa tavallisen enderhelmen vahingon, joka pienenee jokaisella tasolla."
+description = "Kaksoishyppää välähtääksesi katsomaasi suuntaan. Onnistunut välähdys ei kuluta enderhelmeä, mutta aiheuttaa tavallisen enderhelmen vahingon, joka pienenee jokaisella tasolla. Hiivi välähtäessäsi läpäistäksesi seinät ja esteet."
 lore1 = "Välähdyksen kantama"
 lore2 = "Itsevahinko (sydäntä)"
-lore = ["Välähdyksen kantama", "Itsevahinko (sydäntä)"]
+lore3 = "Hiivi välähtäessäsi läpäistäksesi seinät"
+lore = ["Välähdyksen kantama", "Itsevahinko (sydäntä)", "Hiivi välähtäessäsi läpäistäksesi seinät"]
 
 [rift.chest]
 name = "Helppo enderarkku"
@@ -6318,9 +6320,7 @@ permissions_printed = "Lupakirjat on tulostettu konsoliin."
 particle_data_required = "Hiukkas {particle} edellyttää tyypin tietoja {type} ja ei voi lisääntyä tämän komennon."
 unknown_adapt_command = "Tuntematon Adapt komento."
 insufficient_permissions = "Riittämättömät luvat."
-no_available_subcommands = "Ei ole joko alikomentoja tai sinulla ei ole lupaa käyttää niitä."
 parameters_ignored = "Parametrit, joita ei oteta huomioon: {parameters}"
-subcommand_help = "{node} {usage} - {description}"
 no_description = "Ei kuvausta"
 perf_ability_checks = "kykyjä koskevat tarkastukset: {perSecond}/s ({perMinute}/m)"
 perf_successful_checks = "onnistuneet tarkastukset: {perSecond}/s ({perMinute}/m)"

@@ -1,8 +1,14 @@
 package art.arcane.adapt.service;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.fx.FxBudget;
+import art.arcane.adapt.api.fx.FxDirector;
+import art.arcane.adapt.api.minion.MinionBurden;
 import art.arcane.adapt.api.protection.WorldPolicyLatencyTelemetry;
 import art.arcane.adapt.api.telemetry.AbilityCheckTelemetry;
+import art.arcane.adapt.api.telemetry.AdaptRuntimeTelemetry;
+import art.arcane.adapt.api.world.AdaptServer;
+import art.arcane.adapt.api.world.PlayerDataPersistenceQueue;
 import art.arcane.adapt.util.common.plugin.AdaptService;
 import art.arcane.volmlib.integration.IntegrationHandshakeRequest;
 import art.arcane.volmlib.integration.IntegrationHandshakeResponse;
@@ -48,6 +54,7 @@ public class AdaptIntegrationService implements AdaptService, IntegrationService
     Bukkit.getServicesManager().unregister(IntegrationServiceContract.class, this);
     AbilityCheckTelemetry.clear();
     WorldPolicyLatencyTelemetry.clear();
+    AdaptRuntimeTelemetry.clear();
   }
 
   @Override
@@ -167,6 +174,36 @@ public class AdaptIntegrationService implements AdaptService, IntegrationService
             out.put(key, sampleAbilityCheckOpsTick(now));
         case IntegrationMetricSchema.ADAPT_WORLD_POLICY_LATENCY ->
             out.put(key, sampleWorldPolicyLatency(now));
+        case IntegrationMetricSchema.ADAPT_ABILITY_CACHE_HIT_RATIO ->
+            out.put(key, sampleAbilityCacheHitRatio(now));
+        case IntegrationMetricSchema.ADAPT_ABILITY_CHECK_LATENCY_US ->
+            out.put(key, sampleAbilityCheckLatencyUs(now));
+        case IntegrationMetricSchema.ADAPT_ABILITY_TIMING_BUDGET ->
+            out.put(key, sampleAbilityTimingBudget(now));
+        case IntegrationMetricSchema.ADAPT_PLAYER_SESSIONS ->
+            out.put(key, samplePlayerSessions(now));
+        case IntegrationMetricSchema.ADAPT_LEARNED_ADAPTATIONS_ONLINE ->
+            out.put(key, sampleLearnedAdaptationsOnline(now));
+        case IntegrationMetricSchema.ADAPT_SPATIAL_XP_TICKETS ->
+            out.put(key, sampleSpatialXpTickets(now));
+        case IntegrationMetricSchema.ADAPT_FX_TIMELINES_ACTIVE ->
+            out.put(key, sampleFxTimelinesActive(now));
+        case IntegrationMetricSchema.ADAPT_FX_PACKETS_USED ->
+            out.put(key, sampleFxPacketsUsed(now));
+        case IntegrationMetricSchema.ADAPT_FX_SHED_BAND ->
+            out.put(key, sampleFxShedBand(now));
+        case IntegrationMetricSchema.ADAPT_MINIONS_ACTIVE ->
+            out.put(key, sampleMinionsActive(now));
+        case IntegrationMetricSchema.ADAPT_PERSISTENCE_QUEUE_DEPTH ->
+            out.put(key, samplePersistenceQueueDepth(now));
+        case IntegrationMetricSchema.ADAPT_XP_PER_MINUTE ->
+            out.put(key, sampleXpPerMinute(now));
+        case IntegrationMetricSchema.ADAPT_XP_PAYOUT_OPS ->
+            out.put(key, sampleXpPayoutOps(now));
+        case IntegrationMetricSchema.ADAPT_PROVENANCE_OPS ->
+            out.put(key, sampleProvenanceOps(now));
+        case IntegrationMetricSchema.ADAPT_EVENT_HANDLER_OPS ->
+            out.put(key, sampleEventHandlerOps(now));
         default -> {
           if (IntegrationMetricSchema.isAdaptAbilityDetailKey(key)) {
             out.put(key, sampleAbilityDetail(key, now, abilitySnapshots));
@@ -216,6 +253,109 @@ public class AdaptIntegrationService implements AdaptService, IntegrationService
     IntegrationMetricDescriptor descriptor = IntegrationMetricSchema.descriptor(IntegrationMetricSchema.ADAPT_WORLD_POLICY_LATENCY);
     double averageMs = WorldPolicyLatencyTelemetry.averageMillis(now);
     return IntegrationMetricSample.available(descriptor, averageMs, now);
+  }
+
+  private IntegrationMetricSample sampleAbilityCacheHitRatio(long now) {
+    IntegrationMetricDescriptor descriptor = IntegrationMetricSchema.descriptor(IntegrationMetricSchema.ADAPT_ABILITY_CACHE_HIT_RATIO);
+    return IntegrationMetricSample.available(descriptor, AbilityCheckTelemetry.cacheHitRatio(now), now);
+  }
+
+  private IntegrationMetricSample sampleAbilityCheckLatencyUs(long now) {
+    IntegrationMetricDescriptor descriptor = IntegrationMetricSchema.descriptor(IntegrationMetricSchema.ADAPT_ABILITY_CHECK_LATENCY_US);
+    return IntegrationMetricSample.available(descriptor, AbilityCheckTelemetry.averageCheckMicros(now), now);
+  }
+
+  private IntegrationMetricSample sampleAbilityTimingBudget(long now) {
+    IntegrationMetricDescriptor descriptor = IntegrationMetricSchema.descriptor(IntegrationMetricSchema.ADAPT_ABILITY_TIMING_BUDGET);
+    return IntegrationMetricSample.available(descriptor, AbilityCheckTelemetry.timingBudgetPercent(now), now);
+  }
+
+  private IntegrationMetricSample samplePlayerSessions(long now) {
+    IntegrationMetricDescriptor descriptor = IntegrationMetricSchema.descriptor(IntegrationMetricSchema.ADAPT_PLAYER_SESSIONS);
+    AdaptServer server = adaptServer();
+    if (server == null) {
+      return IntegrationMetricSample.unavailable(descriptor, "adapt-server-not-ready", now);
+    }
+    return IntegrationMetricSample.available(descriptor, server.getOnlineAdaptPlayerSnapshot().size(), now);
+  }
+
+  private IntegrationMetricSample sampleLearnedAdaptationsOnline(long now) {
+    IntegrationMetricDescriptor descriptor = IntegrationMetricSchema.descriptor(IntegrationMetricSchema.ADAPT_LEARNED_ADAPTATIONS_ONLINE);
+    AdaptServer server = adaptServer();
+    if (server == null) {
+      return IntegrationMetricSample.unavailable(descriptor, "adapt-server-not-ready", now);
+    }
+    return IntegrationMetricSample.available(descriptor, server.getLearnedAdaptationCount(), now);
+  }
+
+  private IntegrationMetricSample sampleSpatialXpTickets(long now) {
+    IntegrationMetricDescriptor descriptor = IntegrationMetricSchema.descriptor(IntegrationMetricSchema.ADAPT_SPATIAL_XP_TICKETS);
+    AdaptServer server = adaptServer();
+    if (server == null) {
+      return IntegrationMetricSample.unavailable(descriptor, "adapt-server-not-ready", now);
+    }
+    return IntegrationMetricSample.available(descriptor, server.getSpatialTicketCount(), now);
+  }
+
+  private IntegrationMetricSample sampleFxTimelinesActive(long now) {
+    IntegrationMetricDescriptor descriptor = IntegrationMetricSchema.descriptor(IntegrationMetricSchema.ADAPT_FX_TIMELINES_ACTIVE);
+    FxDirector director = Adapt.instance == null ? null : Adapt.instance.getFxDirector();
+    if (director == null) {
+      return IntegrationMetricSample.unavailable(descriptor, "fx-director-not-ready", now);
+    }
+    return IntegrationMetricSample.available(descriptor, director.activeTimelineCount(), now);
+  }
+
+  private IntegrationMetricSample sampleFxPacketsUsed(long now) {
+    IntegrationMetricDescriptor descriptor = IntegrationMetricSchema.descriptor(IntegrationMetricSchema.ADAPT_FX_PACKETS_USED);
+    return IntegrationMetricSample.available(descriptor, FxBudget.usedPackets(), now);
+  }
+
+  private IntegrationMetricSample sampleFxShedBand(long now) {
+    IntegrationMetricDescriptor descriptor = IntegrationMetricSchema.descriptor(IntegrationMetricSchema.ADAPT_FX_SHED_BAND);
+    return IntegrationMetricSample.available(descriptor, FxBudget.shedBand(), now);
+  }
+
+  private IntegrationMetricSample sampleMinionsActive(long now) {
+    IntegrationMetricDescriptor descriptor = IntegrationMetricSchema.descriptor(IntegrationMetricSchema.ADAPT_MINIONS_ACTIVE);
+    int total = MinionBurden.activeTotal();
+    if (total < 0) {
+      return IntegrationMetricSample.unavailable(descriptor, "minion-burden-not-ready", now);
+    }
+    return IntegrationMetricSample.available(descriptor, total, now);
+  }
+
+  private IntegrationMetricSample samplePersistenceQueueDepth(long now) {
+    IntegrationMetricDescriptor descriptor = IntegrationMetricSchema.descriptor(IntegrationMetricSchema.ADAPT_PERSISTENCE_QUEUE_DEPTH);
+    PlayerDataPersistenceQueue queue = Adapt.instance == null ? null : Adapt.instance.getPlayerDataPersistenceQueue();
+    if (queue == null) {
+      return IntegrationMetricSample.unavailable(descriptor, "persistence-queue-not-ready", now);
+    }
+    return IntegrationMetricSample.available(descriptor, queue.pendingCount(), now);
+  }
+
+  private IntegrationMetricSample sampleXpPerMinute(long now) {
+    IntegrationMetricDescriptor descriptor = IntegrationMetricSchema.descriptor(IntegrationMetricSchema.ADAPT_XP_PER_MINUTE);
+    return IntegrationMetricSample.available(descriptor, AdaptRuntimeTelemetry.xpPerMinute(now), now);
+  }
+
+  private IntegrationMetricSample sampleXpPayoutOps(long now) {
+    IntegrationMetricDescriptor descriptor = IntegrationMetricSchema.descriptor(IntegrationMetricSchema.ADAPT_XP_PAYOUT_OPS);
+    return IntegrationMetricSample.available(descriptor, AdaptRuntimeTelemetry.xpPayoutOpsPerMinute(now), now);
+  }
+
+  private IntegrationMetricSample sampleProvenanceOps(long now) {
+    IntegrationMetricDescriptor descriptor = IntegrationMetricSchema.descriptor(IntegrationMetricSchema.ADAPT_PROVENANCE_OPS);
+    return IntegrationMetricSample.available(descriptor, AdaptRuntimeTelemetry.provenanceOpsPerMinute(now), now);
+  }
+
+  private IntegrationMetricSample sampleEventHandlerOps(long now) {
+    IntegrationMetricDescriptor descriptor = IntegrationMetricSchema.descriptor(IntegrationMetricSchema.ADAPT_EVENT_HANDLER_OPS);
+    return IntegrationMetricSample.available(descriptor, AdaptRuntimeTelemetry.eventHandlerOpsPerMinute(now), now);
+  }
+
+  private AdaptServer adaptServer() {
+    return Adapt.instance == null ? null : Adapt.instance.getAdaptServer();
   }
 
   private IntegrationMetricSample sampleAbilityDetail(

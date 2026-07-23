@@ -23,6 +23,7 @@ import art.arcane.adapt.localization.catalog.RiftMessages;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.ReceiveCancelledEvents;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -42,6 +43,7 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -104,6 +106,7 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
   }
 
 
+  @ReceiveCancelledEvents
   @EventHandler
   public void on(PlayerInteractEvent e) {
     Player p = e.getPlayer();
@@ -112,15 +115,30 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
     Location location = e.getClickedBlock() == null ? p.getLocation() : e.getClickedBlock().getLocation();
 
     // Deny usage if the offhand contains a bindable item
-    if (isProtectedOffhandEye(offHand) && e.getHand() != null && e.getHand().equals(EquipmentSlot.OFF_HAND)) {
+    if (isProtectedEye(offHand) && e.getHand() != null && e.getHand().equals(EquipmentSlot.OFF_HAND)) {
       e.setCancelled(true);
       return;
     }
 
-    if (!hand.getType().equals(Material.ENDER_EYE)
-        || p.hasCooldown(Material.ENDER_EYE)
-        || !hasActiveAdaptation(p)
-        || !isGateEye(hand)) {
+    if (!hand.getType().equals(Material.ENDER_EYE) || !isGateEye(hand)) {
+      return;
+    }
+
+    if (!hasActiveAdaptation(p) || p.hasCooldown(Material.ENDER_EYE)) {
+      if (isProtectedEye(hand)) {
+        e.setCancelled(true);
+      }
+      return;
+    }
+
+    if (e.getClickedBlock() != null && e.useInteractedBlock() == Event.Result.DENY) {
+      if (isProtectedEye(hand)) {
+        e.setCancelled(true);
+      }
+      return;
+    }
+
+    if (e.useItemInHand() == Event.Result.DENY) {
       return;
     }
 
@@ -156,7 +174,7 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
     return stack.getType().equals(Material.ENDER_EYE);
   }
 
-  private boolean isProtectedOffhandEye(ItemStack stack) {
+  private boolean isProtectedEye(ItemStack stack) {
     if (getConfig().requireCraftedEye) {
       return BoundEyeOfEnder.isBindableItem(stack);
     }

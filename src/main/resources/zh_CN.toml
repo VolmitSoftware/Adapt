@@ -361,10 +361,10 @@ deepblood_requirement = "主手拿着一个耐用工具,然后把它和深血联
 [director.help]
 no_subcommands = "此页面没有子命令。"
 no_description = "未提供说明"
-aliases = "别名"
 command_group = "命令组。点击打开。"
+category = "命令类别"
 no_parameters = "无参数。点击预填命令。"
-parameters = "参数"
+parameters_hover = "将鼠标悬停在参数上以了解更多。"
 
 [director.help.navigation]
 back = "返回"
@@ -380,9 +380,10 @@ hover = "上一页"
 hover = "下一页"
 
 [director.help.parameter]
-required = "必填"
-optional = "可选"
-default = "默认"
+required = "此参数为必填项。"
+optional = "此参数为可选项。"
+default = "未指定时默认为 \"{value}\"。"
+type = "此参数的类型为 {type}。"
 
 [director.runtime]
 usage = "用法: {usage}"
@@ -5257,10 +5258,11 @@ lore = ["末影珍珠 + 指南针 = 遗物传送钥", "此物品允许你远程�
 
 [rift.blink]
 name = "裂隙闪现"
-description = "连续跳跃两次即可向视线方向闪现。成功闪现不会消耗末影珍珠，但会承受普通珍珠伤害，且伤害随等级降低。"
+description = "连续跳跃两次即可向视线方向闪现。成功闪现不会消耗末影珍珠，但会承受普通珍珠伤害，且伤害随等级降低。潜行时闪现可直接穿过墙壁和障碍物。"
 lore1 = "闪现距离"
 lore2 = "自身伤害（心）"
-lore = ["闪现距离", "自身伤害（心）"]
+lore3 = "潜行闪现可穿墙"
+lore = ["闪现距离", "自身伤害（心）", "潜行闪现可穿墙"]
 
 [rift.chest]
 name = "便携末影箱"
@@ -6318,9 +6320,7 @@ permissions_printed = "权限已打印到控制台."
 particle_data_required = "粒子 {particle} 需要类型数据 {type} 而不能由这个命令产生."
 unknown_adapt_command = "不详 Adapt 命令."
 insufficient_permissions = "权限不足."
-no_available_subcommands = "要么没有子命令,要么你无权使用."
 parameters_ignored = "参数被忽略: {parameters}"
-subcommand_help = "{node} {usage} - {description}"
 no_description = "无说明"
 perf_ability_checks = "能力检查: {perSecond}/s ({perMinute}/m)"
 perf_successful_checks = "成功的检查: {perSecond}/s ({perMinute}/m)"

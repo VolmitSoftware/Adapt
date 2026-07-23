@@ -52,6 +52,10 @@ public class PlayerDataPersistenceQueue implements AutoCloseable {
     this.retryScheduler = Objects.requireNonNull(retryScheduler);
   }
 
+  public int pendingCount() {
+    return pendingSaves.size();
+  }
+
   public void queueSave(UUID uuid, String json, File localFile) {
     if (uuid == null || json == null || !acceptingTasks.get()) {
       return;

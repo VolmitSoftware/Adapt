@@ -361,10 +361,10 @@ deepblood_requirement = "ディープブラッドにリンクする前に、メ�
 [director.help]
 no_subcommands = "このページにサブコマンドはありません。"
 no_description = "説明はありません"
-aliases = "エイリアス"
 command_group = "コマンドグループ。クリックして開きます。"
+category = "コマンド分類"
 no_parameters = "パラメーターはありません。クリックしてコマンドを入力します。"
-parameters = "パラメーター"
+parameters_hover = "パラメータにカーソルを合わせると詳細が表示されます。"
 
 [director.help.navigation]
 back = "戻る"
@@ -380,9 +380,10 @@ hover = "前のページ"
 hover = "次のページ"
 
 [director.help.parameter]
-required = "必須"
-optional = "任意"
-default = "デフォルト"
+required = "このパラメータは必須です。"
+optional = "このパラメータは任意です。"
+default = "未指定の場合は \"{value}\" になります。"
+type = "このパラメータの型は {type} です。"
 
 [director.runtime]
 usage = "使用法: {usage}"
@@ -5257,10 +5258,11 @@ lore = ["エンダーパール + コンパス = 聖遺物ポートキー", "こ�
 
 [rift.blink]
 name = "リフトブリンク"
-description = "二段ジャンプで視線の方向へブリンクします。成功してもエンダーパールは消費しませんが、通常のパールダメージを受け、その量はレベルごとに減少します。"
+description = "二段ジャンプで視線の方向へブリンクします。成功してもエンダーパールは消費しませんが、通常のパールダメージを受け、その量はレベルごとに減少します。スニークしながらブリンクすると、壁や障害物をすり抜けられます。"
 lore1 = "ブリンク範囲"
 lore2 = "自傷ダメージ（ハート）"
-lore = ["ブリンク範囲", "自傷ダメージ（ハート）"]
+lore3 = "スニーク中のブリンクで壁をすり抜ける"
+lore = ["ブリンク範囲", "自傷ダメージ（ハート）", "スニーク中のブリンクで壁をすり抜ける"]
 
 [rift.chest]
 name = "簡易エンダーチェスト"
@@ -6318,9 +6320,7 @@ permissions_printed = "パーミッションをコンソールに印刷."
 particle_data_required = "パーティクル {particle} タイプのデータを必要とします {type} このコマンドでスポーンすることはできません."
 unknown_adapt_command = "未知の Adapt コマンド."
 insufficient_permissions = "十分な権限."
-no_available_subcommands = "サブコマンドがない場合、またはそれらを使用する権限がない."
 parameters_ignored = "無視される変数: {parameters}"
-subcommand_help = "{node} {usage} - {description}"
 no_description = "説明なし"
 perf_ability_checks = "能力チェック: {perSecond}/s ({perMinute}/m)"
 perf_successful_checks = "成功した検査: {perSecond}/s ({perMinute}/m)"

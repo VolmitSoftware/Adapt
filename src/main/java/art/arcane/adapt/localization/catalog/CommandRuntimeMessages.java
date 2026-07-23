@@ -70,9 +70,7 @@ public final class CommandRuntimeMessages {
   public static final TextKey PARTICLE_DATA_REQUIRED = TextKey.of("command.runtime.particle_data_required", "Particle {particle} requires data of type {type} and cannot be spawned by this command.");
   public static final TextKey UNKNOWN_ADAPT_COMMAND = TextKey.of("command.runtime.unknown_adapt_command", "Unknown Adapt command.");
   public static final TextKey INSUFFICIENT_PERMISSIONS = TextKey.of("command.runtime.insufficient_permissions", "Insufficient permissions.");
-  public static final TextKey NO_AVAILABLE_SUBCOMMANDS = TextKey.of("command.runtime.no_available_subcommands", "There are either no subcommands or you do not have permission to use them.");
   public static final TextKey PARAMETERS_IGNORED = TextKey.of("command.runtime.parameters_ignored", "Parameters ignored: {parameters}");
-  public static final TextKey SUBCOMMAND_HELP = TextKey.of("command.runtime.subcommand_help", "{node} {usage} - {description}");
   public static final TextKey NO_DESCRIPTION = TextKey.of("command.runtime.no_description", "No description");
   public static final TextKey PERF_ABILITY_CHECKS = TextKey.of("command.runtime.perf_ability_checks", "Ability checks: {perSecond}/s ({perMinute}/m)");
   public static final TextKey PERF_SUCCESSFUL_CHECKS = TextKey.of("command.runtime.perf_successful_checks", "Successful checks: {perSecond}/s ({perMinute}/m)");
@@ -152,9 +150,7 @@ public final class CommandRuntimeMessages {
     builder.add(PARTICLE_DATA_REQUIRED);
     builder.add(UNKNOWN_ADAPT_COMMAND);
     builder.add(INSUFFICIENT_PERMISSIONS);
-    builder.add(NO_AVAILABLE_SUBCOMMANDS);
     builder.add(PARAMETERS_IGNORED);
-    builder.add(SUBCOMMAND_HELP);
     builder.add(NO_DESCRIPTION);
     builder.add(PERF_ABILITY_CHECKS);
     builder.add(PERF_SUCCESSFUL_CHECKS);

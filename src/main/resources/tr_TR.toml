@@ -361,10 +361,10 @@ deepblood_requirement = "Derin kanlılara bağlantı kurmadan önce ana elinizde
 [director.help]
 no_subcommands = "Bu sayfada alt komut yok."
 no_description = "Açıklama sağlanmadı"
-aliases = "Takma adlar"
 command_group = "Komut grubu. Açmak için tıklayın."
+category = "Komut kategorisi"
 no_parameters = "Parametre yok. Komutu önceden doldurmak için tıklayın."
-parameters = "Parametreler"
+parameters_hover = "Daha fazla bilgi için imleci parametrelerin üzerine getirin."
 
 [director.help.navigation]
 back = "Geri"
@@ -380,9 +380,10 @@ hover = "Önceki sayfa"
 hover = "Sonraki sayfa"
 
 [director.help.parameter]
-required = "gerekli"
-optional = "isteğe bağlı"
-default = "varsayılan"
+required = "Bu parametre zorunludur."
+optional = "Bu parametre isteğe bağlıdır."
+default = "Belirtilmezse varsayılan değer \"{value}\" olur."
+type = "Bu parametrenin türü {type}."
 
 [director.runtime]
 usage = "Kullanım: {usage}"
@@ -5257,10 +5258,11 @@ lore = ["Ender Incisi + Pusula = Emanet Anahtari", "Bu esya konteynerlere uzakta
 
 [rift.blink]
 name = "Yarik Gozu Kirpma"
-description = "Baktığın yöne ışınlanmak için iki kez zıpla. Başarılı ışınlanma Ender İncisi tüketmez, ancak normal inci hasarı verir ve bu hasar her seviyede azalır."
+description = "Baktığın yöne ışınlanmak için iki kez zıpla. Başarılı ışınlanma Ender İncisi tüketmez, ancak normal inci hasarı verir ve bu hasar her seviyede azalır. Işınlanırken eğilirsen duvarların ve engellerin içinden doğrudan geçersin."
 lore1 = "Işınlanma menzili"
 lore2 = "Kendine hasar (kalp)"
-lore = ["Işınlanma menzili", "Kendine hasar (kalp)"]
+lore3 = "Işınlanırken eğilerek duvarlardan geç"
+lore = ["Işınlanma menzili", "Kendine hasar (kalp)", "Işınlanırken eğilerek duvarlardan geç"]
 
 [rift.chest]
 name = "Kolay Ender Sandigi"
@@ -6318,9 +6320,7 @@ permissions_printed = "İzinler konsolide edildi."
 particle_data_required = "Parçacık {particle} Tür tipi veri gerektirir {type} Ve bu komut tarafından rahatsız edilemez."
 unknown_adapt_command = "Bilinmeyen Adapt komut."
 insufficient_permissions = "Yeterli izinler."
-no_available_subcommands = "Ya subcommand yok ya da onları kullanmak için izniniz yok."
 parameters_ignored = "Parametreleri görmezden geldiler: {parameters}"
-subcommand_help = "{node} {usage} - {description}"
 no_description = "Hiçbir açıklama"
 perf_ability_checks = "yetenek kontrolleri: {perSecond}/s ({perMinute}/m)"
 perf_successful_checks = "Başarılı kontroller: {perSecond}/s ({perMinute}/m)"

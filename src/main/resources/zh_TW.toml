@@ -361,10 +361,10 @@ deepblood_requirement = "主手拿著一個耐用工具,然後把它和深血聯
 [director.help]
 no_subcommands = "此頁面沒有子命令。"
 no_description = "未提供說明"
-aliases = "別名"
 command_group = "命令群組。點擊以開啟。"
+category = "指令類別"
 no_parameters = "無參數。點擊以預先填入命令。"
-parameters = "參數"
+parameters_hover = "將滑鼠懸停在參數上以瞭解更多。"
 
 [director.help.navigation]
 back = "返回"
@@ -380,9 +380,10 @@ hover = "上一頁"
 hover = "下一頁"
 
 [director.help.parameter]
-required = "必填"
-optional = "選填"
-default = "預設"
+required = "此參數為必填項。"
+optional = "此參數為可選項。"
+default = "未指定時預設為 \"{value}\"。"
+type = "此參數的類型為 {type}。"
 
 [director.runtime]
 usage = "用法: {usage}"
@@ -5257,10 +5258,11 @@ lore = ["乖珍珠 + 指南針 = 亞空間之鑰", "此物品允許你遠程存�
 
 [rift.blink]
 name = "裂痕閃現"
-description = "連續跳躍兩次即可朝視線方向閃現。成功閃現不會消耗終界珍珠，但會承受普通珍珠傷害，且傷害隨等級降低。"
+description = "連續跳躍兩次即可朝視線方向閃現。成功閃現不會消耗終界珍珠，但會承受普通珍珠傷害，且傷害隨等級降低。潛行時閃現可直接穿過牆壁和障礙物。"
 lore1 = "閃現距離"
 lore2 = "自身傷害（心）"
-lore = ["閃現距離", "自身傷害（心）"]
+lore3 = "潛行閃現可穿牆"
+lore = ["閃現距離", "自身傷害（心）", "潛行閃現可穿牆"]
 
 [rift.chest]
 name = "便攜乖影箱"
@@ -6318,9 +6320,7 @@ permissions_printed = "許可權已列印到控制檯."
 particle_data_required = "粒子 {particle} 需要型別資料 {type} 而不能由這個命令產生."
 unknown_adapt_command = "不詳 Adapt 命令."
 insufficient_permissions = "許可權不足."
-no_available_subcommands = "要麼沒有子命令,要麼你無權使用."
 parameters_ignored = "引數被忽略: {parameters}"
-subcommand_help = "{node} {usage} - {description}"
 no_description = "無說明"
 perf_ability_checks = "能力檢查: {perSecond}/s ({perMinute}/m)"
 perf_successful_checks = "成功的檢查: {perSecond}/s ({perMinute}/m)"
