@@ -18,6 +18,7 @@
 
 package art.arcane.adapt;
 
+import art.arcane.adapt.api.AdaptPermissionRegistrar;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.PlayerStateRegistry;
 import art.arcane.adapt.api.minion.MinionBurden;
@@ -568,6 +569,8 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     long startServer = System.currentTimeMillis();
     adaptServer = new AdaptServer();
     adaptServer.startRuntime();
+    int registeredPermissions = AdaptPermissionRegistrar.registerAll(Bukkit.getPluginManager(), adaptServer.getSkillRegistry().getAllSkills());
+    verbose("start-sim detail: registered " + registeredPermissions + " use permission nodes");
     long serverMs = System.currentTimeMillis() - startServer;
     if (serverMs >= STARTUP_SLOW_PHASE_MS) {
       warn("start-sim detail: AdaptServer init took " + serverMs + "ms.");

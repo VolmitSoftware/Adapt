@@ -49,7 +49,9 @@ class SkillAxesIrisRegistrationTest {
     TextValue lore7 = (TextValue) AdaptMessages.require("axe.iris_feller.lore7").englishValue();
     TextValue description = (TextValue) AdaptMessages.require("axe.iris_feller.description").englishValue();
 
-    assertThat(pluginManifest).contains("  - Iris", "adapt.use.axeirisfeller:");
+    assertThat(pluginManifest).contains("  - Iris");
+    assertThat(art.arcane.adapt.api.AdaptPermissionRegistrar.useNode("axe-iris-feller"))
+        .isEqualTo("adapt.use.axeirisfeller");
     assertThat(name.template()).isEqualTo("Iris Feller");
     assertThat(lore4.template()).isEqualTo("hunger points per successfully eroded log");
     assertThat(lore5.template()).isEqualTo("cooldown after Iris accepts the run");

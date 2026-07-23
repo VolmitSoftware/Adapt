@@ -20,6 +20,7 @@ package art.arcane.adapt.api.adaptation;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.api.AdaptPermissionRegistrar;
 import art.arcane.adapt.api.protection.Protector;
 import art.arcane.adapt.api.telemetry.AbilityCheckTelemetry;
 import art.arcane.adapt.api.tick.TickedObject;
@@ -234,7 +235,7 @@ final class AdaptationRuntimeGuards {
     if (target == null) {
       return false;
     }
-    String usePermission = USE_PERMISSION_NODES.computeIfAbsent(target.getName(), n -> "adapt.use." + n.replace("-", ""));
+    String usePermission = USE_PERMISSION_NODES.computeIfAbsent(target.getName(), AdaptPermissionRegistrar::useNode);
     boolean permissionSet = p.isPermissionSet(usePermission);
     if (AdaptConfig.get().isVerbose()) {
       Adapt.verbose("Checking use permission " + usePermission + " for " + p.getName()

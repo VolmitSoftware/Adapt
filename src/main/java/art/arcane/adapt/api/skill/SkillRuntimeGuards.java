@@ -20,6 +20,7 @@ package art.arcane.adapt.api.skill;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.api.AdaptPermissionRegistrar;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.runtime.AdaptationGate;
@@ -99,7 +100,7 @@ final class SkillRuntimeGuards {
     if (player.isOp()) {
       return true;
     }
-    String usePermission = USE_PERMISSION_NODES.computeIfAbsent(skill.getName(), n -> "adapt.use." + n.replace("-", ""));
+    String usePermission = USE_PERMISSION_NODES.computeIfAbsent(skill.getName(), AdaptPermissionRegistrar::useNode);
     boolean permissionSet = player.isPermissionSet(usePermission);
     if (AdaptConfig.get().isVerbose()) {
       Adapt.verbose("Checking use permission " + usePermission + " for " + player.getName()
