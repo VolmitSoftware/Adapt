@@ -270,8 +270,13 @@ public class ChronosStasisField extends SimpleAdaptation<ChronosStasisField.Conf
       return;
     }
 
-    if (getConfig().consumeShard) {
-      held.setAmount(held.getAmount() - 1);
+    if (getConfig().consumeShard && !payItemCost(player, "shard",
+        new ItemStack(Material.AMETHYST_SHARD), 1, () -> {
+          held.setAmount(held.getAmount() - 1);
+          return true;
+        })) {
+      retireBubble(bubble, false);
+      return;
     }
     cooldowns.put(ownerId, now + getCooldownMillis());
     emitDeploy(player, bubble, context.level());

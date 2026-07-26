@@ -22,6 +22,7 @@ import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
+import art.arcane.adapt.api.adaptation.RunsWithoutLearnedAdaptation;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -234,18 +235,25 @@ public class StealthCore extends SimpleAdaptation<StealthCore.Config> {
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
+  @RunsWithoutLearnedAdaptation
   public void on(PlayerMoveEvent e) {
     if (e.getTo() == null) {
       return;
     }
 
     Player p = e.getPlayer();
-    if (coordinator.contains(p.getUniqueId())) {
+    UUID playerId = p.getUniqueId();
+    if (coordinator.contains(playerId)) {
       return;
     }
-    int level = getActiveLevel(p);
-    if (level <= 0 || (!p.isSneaking() && !isForcedConcealed(p))) {
-      stopSession(p);
+
+    if (!p.isSneaking() && !isForcedConcealed(p)) {
+      clearResidualConcealment(p, playerId);
+      return;
+    }
+
+    if (getActiveLevel(p) <= 0) {
+      clearResidualConcealment(p, playerId);
       return;
     }
 
@@ -669,6 +677,17 @@ public class StealthCore extends SimpleAdaptation<StealthCore.Config> {
   }
 
   private void stopSession(Player player) {
+    stopSession(player, false);
+  }
+
+  private void clearResidualConcealment(Player player, UUID playerId) {
+    if (dimmed.isEmpty() && threatGlows.isEmpty()) {
+      return;
+    }
+    if (!dimmed.containsKey(playerId) && !threatGlows.containsKey(playerId)) {
+      return;
+    }
+
     stopSession(player, false);
   }
 

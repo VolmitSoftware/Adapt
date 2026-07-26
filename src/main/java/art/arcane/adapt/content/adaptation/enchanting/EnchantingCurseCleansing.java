@@ -119,7 +119,10 @@ public class EnchantingCurseCleansing extends SimpleAdaptation<EnchantingCurseCl
 
   private void performCleanse(Player p, CleansePlan plan, InventoryClickEvent e, Inventory top) {
     e.setCancelled(true);
-    consumeOne(top, plan.sourceSlot());
+    if (!consumeOne(p, top, plan.sourceSlot())) {
+      return;
+    }
+
     e.setCurrentItem(null);
 
     Map<Integer, ItemStack> overflow = p.getInventory().addItem(plan.cleanedItem());
@@ -217,16 +220,20 @@ public class EnchantingCurseCleansing extends SimpleAdaptation<EnchantingCurseCl
     }
   }
 
-  private void consumeOne(Inventory inventory, int slot) {
+  private boolean consumeOne(Player p, Inventory inventory, int slot) {
     ItemStack source = inventory.getItem(slot);
-    if (!isItem(source) || source.getAmount() <= 1) {
-      inventory.setItem(slot, null);
-      return;
-    }
+    return payItemCost(p, "catalyst",
+        source == null ? null : new ItemStack(source.getType()), 1, () -> {
+          if (!isItem(source) || source.getAmount() <= 1) {
+            inventory.setItem(slot, null);
+            return true;
+          }
 
-    ItemStack remainder = source.clone();
-    remainder.setAmount(source.getAmount() - 1);
-    inventory.setItem(slot, remainder);
+          ItemStack remainder = source.clone();
+          remainder.setAmount(source.getAmount() - 1);
+          inventory.setItem(slot, remainder);
+          return true;
+        });
   }
 
   private void cleanseFx(Player p) {

@@ -119,10 +119,15 @@ public class NetherCrimsonFeast extends SimpleAdaptation<NetherCrimsonFeast.Conf
         e.setCancelled(true);
       }
 
-      eatCooldowns.mark(p.getUniqueId());
-      if (p.getGameMode() != GameMode.CREATIVE) {
-        item.setAmount(item.getAmount() - 1);
+      if (p.getGameMode() != GameMode.CREATIVE
+          && !payItemCost(p, "flora", new ItemStack(item.getType()), 1, () -> {
+            item.setAmount(item.getAmount() - 1);
+            return true;
+          })) {
+        return;
       }
+
+      eatCooldowns.mark(p.getUniqueId());
 
       int newFood = Math.min(20, p.getFoodLevel() + getFloraFood(level));
       p.setFoodLevel(newFood);

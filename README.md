@@ -22,6 +22,114 @@ Adapt bundles complete overlays for German, Spanish, Finnish, French, Hebrew, It
 
 Do you know one of these languages and want to improve its wording? Join the [Discord](https://discord.gg/volmit) or open a contribution. Please submit translations only when you are confident in the language so they can be reviewed accurately.
 
+### PlaceholderAPI
+
+Adapt registers the `adapt` expansion when PlaceholderAPI is installed. Every key is `%adapt_<path>%`, where `<path>` is one to four dot-separated segments of lowercase letters, digits and hyphens. There is no underscore anywhere in a path — PlaceholderAPI already uses `_` to terminate the expansion identifier.
+
+Three answers, three meanings:
+
+| Rendered | Meaning |
+|---|---|
+| `%adapt_skil.mining.level%` | the path is not a key — check the spelling |
+| `---` | the path is a key, but there is no value right now |
+| `0` | a genuine zero |
+
+Every value is plain text: no colour codes, no unit suffixes, no thousands separators, and never a `%` character. Counts are exact integers; fractions and rates carry exactly two decimals. Booleans are `true` or `false`.
+
+Per-player values come from an immutable snapshot published once per second by the player's own tick, on the thread that owns their data. Nothing is loaded for an offline player: their last snapshot is served for sixty seconds after they quit, and then every per-player key answers `---`. `%adapt_available%` answers whether a snapshot exists.
+
+#### Server
+
+| Key | Value |
+|---|---|
+| `%adapt_available%` | `true` while the reading player has a published snapshot |
+| `%adapt_catalog.available%` | `true` once the skill catalogue has been published |
+| `%adapt_catalog.skills%` | registered skills |
+| `%adapt_catalog.adaptations%` | registered adaptations |
+| `%adapt_catalog.mutations%` | mutation types |
+
+#### Player
+
+| Key | Value |
+|---|---|
+| `%adapt_player.level%` | master level |
+| `%adapt_player.max-level%` | configured maximum level |
+| `%adapt_player.master-xp%` | master experience |
+| `%adapt_player.multiplier%` | global experience multiplier |
+| `%adapt_player.wisdom%` | wisdom earned |
+| `%adapt_player.power%` | ability power still available |
+| `%adapt_player.power-max%` | ability power granted by level |
+| `%adapt_player.power-used%` | ability power spent on adaptations |
+| `%adapt_player.known-skills%` | skills at level 1 or higher |
+| `%adapt_player.learned-adaptations%` | adaptations at level 1 or higher |
+
+#### Skill — `%adapt_skill.<skill>.<metric>%`
+
+`<skill>` is a skill identifier such as `mining` or `hunter`. A skill the player has never trained answers with its level-zero values, not `---`.
+
+| Metric | Value |
+|---|---|
+| `level` | current level |
+| `xp` | experience in this skill |
+| `knowledge` | unspent knowledge in this skill |
+| `multiplier` | this skill's experience multiplier |
+| `progress` | progress through the current level, `0.00` to `1.00` |
+| `progress-percent` | the same progress as `0.00` to `100.00`, with no `%` character |
+| `xp-to-next` | experience still needed for the next level |
+| `current-level-xp` | experience threshold of the current level |
+| `next-level-xp` | experience threshold of the next level |
+| `learned-adaptations` | adaptations learned in this skill |
+| `known` | `true` when the level is 1 or higher |
+| `name` | the skill's localized name |
+| `enabled` | `true` when the skill is enabled |
+| `adaptations` | adaptations this skill offers |
+| `has-level.<n>` | `true` when the level is at least `<n>` |
+
+#### Adaptation — `%adapt_adaptation.<adaptation>.<metric>%`
+
+`<adaptation>` is an adaptation identifier such as `mining-vein`.
+
+| Metric | Value |
+|---|---|
+| `level` | the level the player has purchased |
+| `max-level` | the highest level this adaptation offers |
+| `name` | the adaptation's display name |
+| `skill` | the identifier of the owning skill |
+| `enabled` | `true` when the adaptation is enabled |
+| `learned` | `true` when the level is 1 or higher |
+| `can-use` | `true` when it is learned and both it and its skill are enabled |
+| `cost-next` | knowledge cost of the next level, `0` at maximum |
+| `power-next` | ability power cost of the next level, `0` at maximum |
+| `can-claim-next` | `true` when the player can afford the next level right now |
+| `can-claim.<n>` | `true` when the player can move to level `<n>` right now |
+| `cost-to.<n>` | knowledge cost to reach level `<n>` from the current level |
+| `power-to.<n>` | ability power cost to reach level `<n>` from the current level |
+
+#### Mutation
+
+| Key | Value |
+|---|---|
+| `%adapt_mutation.available%` | `true` once a mutation snapshot has been published for this player |
+| `%adapt_mutation.enabled%` | `true` when the mutation feature is enabled |
+| `%adapt_mutation.perfect%` | `true` when the player has perfect adaptation |
+| `%adapt_mutation.expressed%` | how many mutations are currently expressed |
+| `%adapt_mutation.slot-1%` / `slot-2%` | the display name in that slot, `---` when empty |
+| `%adapt_mutation.slot-1-id%` / `slot-2-id%` | the identifier in that slot, `---` when empty |
+| `%adapt_mutation.slot-1-unlocked%` / `slot-2-unlocked%` | `true` when that slot is unlocked |
+| `%adapt_mutation.combat-lock%` | seconds left on the combat lock before slots can change |
+| `%adapt_mutation.can-swap%` | `true` when the combat lock has expired |
+
+Per mutation, `%adapt_mutation.<mutation>.<metric>%`, where `<mutation>` is an identifier such as `bastion-spine`:
+
+| Metric | Value |
+|---|---|
+| `id` | the mutation identifier |
+| `name` | the mutation's display name |
+| `state` | `locked`, `available`, `expressed`, `dormant`, `disabled`, `restricted` or `conflict` |
+| `expressed` | `true` when this mutation is currently expressed |
+| `qualified` | `true` when the player qualifies for this mutation |
+| `slot` | `1`, `2`, or `0` when it is not selected |
+
 # [Support](https://discord.gg/volmit) **|** [Documentation](https://docs.volmit.com/adapt/)
 
 ## Building

@@ -103,8 +103,10 @@ public class HunterSpeed extends SimpleAdaptation<HunterSpeed.Config> {
         if (getConfig().consumable != null && Material.getMaterial(getConfig().consumable) != null) {
           Material mat = Material.getMaterial(getConfig().consumable);
           if (mat != null && p.getInventory().contains(mat)) {
-            if (grantSpeedBurst(p, level, getConfig().baseEffectbyLevel * level, getConfig().stackBuff)) {
+            if (payItemCost(p, "consumable", new ItemStack(mat), 1, () -> {
               p.getInventory().removeItem(new ItemStack(mat, 1));
+              return true;
+            }) && grantSpeedBurst(p, level, getConfig().baseEffectbyLevel * level, getConfig().stackBuff)) {
               addStat(p, "hunter.speed.activations", 1);
             }
           } else {

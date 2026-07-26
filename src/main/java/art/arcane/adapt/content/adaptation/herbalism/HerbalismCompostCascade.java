@@ -196,7 +196,7 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
         continue;
       }
 
-      compostStack(stack, state, maxItems, fillChance);
+      compostStack(p, stack, state, maxItems, fillChance);
       if (stack.getAmount() <= 0) {
         item.remove();
       } else {
@@ -243,7 +243,7 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
               }
 
               if (isCompostable(drop.getType()) && !isComposterDone(state, maxItems)) {
-                compostStack(drop, state, maxItems, fillChance);
+                compostStack(p, drop, state, maxItems, fillChance);
               }
 
               if (drop.getAmount() > 0) {
@@ -257,7 +257,7 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
 
             b.setType(Material.AIR, false);
             ItemStack leafMass = new ItemStack(Material.OAK_LEAVES, bursts);
-            compostStack(leafMass, state, maxItems, leafFillChance);
+            compostStack(p, leafMass, state, maxItems, leafFillChance);
 
             if (puffs < 8) {
               fx(b.getLocation().add(0.5, 0.5, 0.5), FxPriority.AMBIENT)
@@ -288,7 +288,7 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
         continue;
       }
 
-      compostStack(stack, state, maxItems, fillChance);
+      compostStack(p, stack, state, maxItems, fillChance);
       changed = true;
       if (stack.getAmount() <= 0) {
         storage[i] = null;
@@ -300,7 +300,11 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
     }
   }
 
-  private void compostStack(ItemStack stack, CompostState state, int maxItems, double fillChance) {
+  private void compostStack(Player p, ItemStack stack, CompostState state, int maxItems, double fillChance) {
+    if (!payItemCost(p, "compost", new ItemStack(stack.getType()), stack.getAmount(), () -> true)) {
+      return;
+    }
+
     while (stack.getAmount() > 0 && !isComposterDone(state, maxItems)) {
       stack.setAmount(stack.getAmount() - 1);
       state.processed++;

@@ -199,11 +199,15 @@ public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.
   }
 
   private void refreshFromEvent(Player p, Entity vehicleOverride, Boolean sprintingOverride) {
-    UUID id = p.getUniqueId();
-    if (vehicleOverride == null && p.getVehicle() == null && !nextRefreshAt.containsKey(id)) {
+    Entity vehicle = vehicleOverride == null ? p.getVehicle() : vehicleOverride;
+    if (vehicle == null && nextRefreshAt.isEmpty()) {
       return;
     }
-    Entity vehicle = vehicleOverride == null ? p.getVehicle() : vehicleOverride;
+
+    UUID id = p.getUniqueId();
+    if (vehicle == null && !nextRefreshAt.containsKey(id)) {
+      return;
+    }
     if (updateMountedPlayer(p, vehicle, sprintingOverride)) {
       if (!requiresStationaryRefresh(vehicle)) {
         clearRefreshSchedule(id);

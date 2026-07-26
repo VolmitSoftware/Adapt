@@ -188,7 +188,13 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
 
   private void unlinkEye(Player p) {
     ItemStack hand = p.getInventory().getItemInMainHand();
-    decrementItemstack(hand, p);
+    if (!payItemCost(p, "unlink", new ItemStack(hand.getType()), 1, () -> {
+      decrementItemstack(hand, p);
+      return true;
+    })) {
+      return;
+    }
+
     ItemStack eye = getConfig().requireCraftedEye
         ? BoundEyeOfEnder.io.withData(new BoundEyeOfEnder.Data(null))
         : new ItemStack(Material.ENDER_EYE);
@@ -214,13 +220,17 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
         .start();
     ItemStack hand = p.getInventory().getItemInMainHand();
 
-    if (hand.getAmount() == 1) {
-      BoundEyeOfEnder.setData(hand, location);
-    } else {
-      hand.setAmount(hand.getAmount() - 1);
-      ItemStack eye = BoundEyeOfEnder.withData(location);
-      p.getInventory().addItem(eye).values().forEach(i -> p.getWorld().dropItemNaturally(p.getLocation(), i));
-    }
+    payItemCost(p, "bind", new ItemStack(hand.getType()), 1, () -> {
+      if (hand.getAmount() == 1) {
+        BoundEyeOfEnder.setData(hand, location);
+      } else {
+        hand.setAmount(hand.getAmount() - 1);
+        ItemStack eye = BoundEyeOfEnder.withData(location);
+        p.getInventory().addItem(eye).values().forEach(i -> p.getWorld().dropItemNaturally(p.getLocation(), i));
+      }
+
+      return true;
+    });
   }
 
 
@@ -288,8 +298,14 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
               .sound(Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, 0.6f, 0.8f);
           return;
         }
+        if (!payItemCost(p, "teleport", new ItemStack(current.getType()), 1, () -> {
+          decrementItemstack(current, p);
+          return true;
+        })) {
+          return;
+        }
+
         xp(p, 75);
-        decrementItemstack(current, p);
       }
 
       addStat(p, "rift.teleports", 1);

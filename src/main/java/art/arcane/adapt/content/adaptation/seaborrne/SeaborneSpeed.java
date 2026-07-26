@@ -107,9 +107,14 @@ public class SeaborneSpeed extends SimpleAdaptation<SeaborneSpeed.Config> {
     }
 
     Player player = e.getPlayer();
+    boolean inWater = player.isInWater();
+    if (!inWater && swimSessions.isEmpty()) {
+      return;
+    }
+
     UUID playerId = player.getUniqueId();
     boolean activeSession = swimSessions.containsKey(playerId);
-    if (!player.isInWater() && !activeSession) {
+    if (!inWater && !activeSession) {
       return;
     }
     if (!activeSession) {

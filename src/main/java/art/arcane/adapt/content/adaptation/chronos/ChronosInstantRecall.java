@@ -728,7 +728,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
   }
 
   private boolean isRecallEligible(Player p) {
-    return hasActiveAdaptation(p) && p.getGameMode() == GameMode.SURVIVAL;
+    return p.getGameMode() == GameMode.SURVIVAL && hasActiveAdaptation(p);
   }
 
   private boolean isLeftClick(Action action) {
@@ -837,21 +837,28 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
         && !ChronoTimeBombItem.isBindableItem(stack);
   }
 
-  private void consumeRecallClock(Player p) {
+  private boolean consumeRecallClock(Player p) {
     if (!getConfig().consumeClock) {
-      return;
+      return true;
     }
 
     ItemStack main = p.getInventory().getItemInMainHand();
     if (isRecallClock(main)) {
-      main.setAmount(main.getAmount() - 1);
-      return;
+      return payItemCost(p, "clock", new ItemStack(Material.CLOCK), 1, () -> {
+        main.setAmount(main.getAmount() - 1);
+        return true;
+      });
     }
 
     ItemStack off = p.getInventory().getItemInOffHand();
     if (isRecallClock(off)) {
-      off.setAmount(off.getAmount() - 1);
+      return payItemCost(p, "clock", new ItemStack(Material.CLOCK), 1, () -> {
+        off.setAmount(off.getAmount() - 1);
+        return true;
+      });
     }
+
+    return true;
   }
 
   private void applyRecallHealthCost(Player p) {
@@ -903,7 +910,10 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
       return;
     }
 
-    consumeRecallClock(p);
+    if (!consumeRecallClock(p)) {
+      return;
+    }
+
     Snapshot finalSnapshot = animationPath.get(animationPath.size() - 1);
     RecallXPContext xpContext = buildRecallXPContext(animationPath.get(0), finalSnapshot);
     double healthBeforeRecall = p.getHealth();
@@ -1114,7 +1124,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
   @EventHandler(priority = EventPriority.HIGHEST)
   public void onDoubleJumpMove(PlayerMoveEvent e) {
     Player p = e.getPlayer();
-    if (!isRecallEligible(p) || !getConfig().enableDoubleJumpTrigger) {
+    if (!getConfig().enableDoubleJumpTrigger || !isRecallEligible(p)) {
       doubleJump.reset(p);
       return;
     }

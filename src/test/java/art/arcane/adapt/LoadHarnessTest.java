@@ -49,8 +49,8 @@ class LoadHarnessTest extends AdaptTestBase {
         }
         Method handler = NoopListener.class.getDeclaredMethod("onLoad", LoadEvent.class);
         handler.setAccessible(true);
-        EventExecutor executor = EventHandlerInvoker.createExecutor(handler, LoadEvent.class, false);
         NoopListener listener = new NoopListener();
+        EventExecutor executor = EventHandlerInvoker.createExecutor(listener, handler, LoadEvent.class, false);
         LoadEvent event = new LoadEvent();
 
         Runnable oneTick = () -> {

@@ -35,6 +35,7 @@ import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.api.xp.XPMultiplier;
 import art.arcane.adapt.content.gui.SkillsGui;
+import art.arcane.adapt.papi.AdaptPlaceholders;
 import art.arcane.adapt.content.skill.SkillAgility;
 import art.arcane.adapt.content.skill.SkillArchitect;
 import art.arcane.adapt.content.skill.SkillAxes;
@@ -145,6 +146,7 @@ public class SkillRegistry extends TickedObject {
     registerSkill(SkillKinetics.class);
     bootstrapLoading = false;
     rebuildStatTrackerIndex();
+    publishPlaceholderCatalog(catalogRevision.get());
   }
 
   public synchronized void startRuntime() {
@@ -737,11 +739,16 @@ public class SkillRegistry extends TickedObject {
     long revision = catalogRevision.incrementAndGet();
     if (!bootstrapLoading) {
       rebuildStatTrackerIndex();
+      publishPlaceholderCatalog(revision);
       if (reconcilePlayers) {
         synchronizeAdvancementRuntime(revision);
         synchronizeRecipeBookRuntime();
       }
     }
+  }
+
+  private void publishPlaceholderCatalog(long revision) {
+    AdaptPlaceholders.get().publishCatalog(revision, getAllSkills());
   }
 
   private void rebuildStatTrackerIndex() {

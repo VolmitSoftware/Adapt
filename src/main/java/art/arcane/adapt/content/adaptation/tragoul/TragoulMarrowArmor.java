@@ -109,8 +109,13 @@ public class TragoulMarrowArmor extends SimpleAdaptation<TragoulMarrowArmor.Conf
         return;
       }
 
+      if (!payItemCost(p, "absorb", new ItemStack(Material.BONE), 1, () -> {
+        p.getInventory().removeItem(new ItemStack(Material.BONE, 1));
+        return true;
+      })) {
+        return;
+      }
       cooldowns.mark(id);
-      p.getInventory().removeItem(new ItemStack(Material.BONE, 1));
       double absorbed = e.getDamage() * getAbsorbPercent(level);
       e.setDamage(Math.max(0, e.getDamage() - absorbed));
       playMarrowShield(p);

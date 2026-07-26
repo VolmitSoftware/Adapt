@@ -121,7 +121,9 @@ public class ChronosAberrantTouch extends SimpleAdaptation<ChronosAberrantTouch.
 
     attacker = combat.attacker();
     LivingEntity target = combat.target();
-    if (!getPlayer(attacker).consumeFood(getConfig().hungerCost, getConfig().minimumFoodLevel)) {
+    Player payer = attacker;
+    if (!payHungerCost(payer, "hunger", (int) Math.ceil(getConfig().hungerCost),
+        () -> getPlayer(payer).consumeFood(getConfig().hungerCost, getConfig().minimumFoodLevel))) {
       return;
     }
 

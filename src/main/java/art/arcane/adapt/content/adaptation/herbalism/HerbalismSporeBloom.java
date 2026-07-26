@@ -303,13 +303,15 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
     return isItem(hand) && (hand.getType() == Material.RED_MUSHROOM || hand.getType() == Material.BROWN_MUSHROOM);
   }
 
-  private boolean consumeOne(ItemStack hand) {
+  private boolean consumeOne(org.bukkit.entity.Player player, ItemStack hand) {
     if (hand.getAmount() <= 0) {
       return false;
     }
 
-    hand.setAmount(hand.getAmount() - 1);
-    return true;
+    return payItemCost(player, "spore", new ItemStack(hand.getType()), 1, () -> {
+      hand.setAmount(hand.getAmount() - 1);
+      return true;
+    });
   }
 
   private boolean attemptBloom(org.bukkit.entity.Player player, Block center, Material catalyst) {
@@ -362,7 +364,7 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
       return true;
     }
 
-    return consumeOne(held);
+    return consumeOne(player, held);
   }
 
   private Material resolveSpreadSurface(Material floorType) {

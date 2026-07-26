@@ -43,8 +43,8 @@ public final class AdaptRuntimeTelemetry {
     increment(provenanceOps, now, 1);
   }
 
-  public static void recordEventHandlerOp(long now) {
-    increment(eventHandlerOps, now, 1);
+  public static void recordEventHandlerOp() {
+    increment(eventHandlerOps, AdaptTelemetryClock.millis(), 1);
   }
 
   public static double xpPerMinute(long now) {

@@ -19,6 +19,7 @@
 package art.arcane.adapt.api.tick;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.telemetry.AdaptTelemetryClock;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.volmlib.util.collection.KList;
 
@@ -141,7 +142,8 @@ public class Ticker {
   private void tick() {
     ticking = true;
     try {
-      tickRegistered(System.currentTimeMillis());
+      AdaptTelemetryClock.refresh();
+      tickRegistered(AdaptTelemetryClock.millis());
       addPendingTicks();
       removePendingTicks();
     } finally {
@@ -152,7 +154,7 @@ public class Ticker {
   private void tickRegistered(long now) {
     for (int i = 0; i < ticklist.size(); i++) {
       Ticked t = ticklist.get(i);
-      if (t == null || !hasTickDemand(t) || !isDue(now, t.getLastTick(), t.getInterval())) {
+      if (t == null || !isDue(now, t.getLastTick(), t.getInterval()) || !hasTickDemand(t)) {
         continue;
       }
 

@@ -41,14 +41,15 @@ public class KineticsSoftCatch extends SimpleAdaptation<KineticsSoftCatch.Config
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(PlayerMoveEvent e) {
     Player p = e.getPlayer();
+    UUID id = p.getUniqueId();
     boolean onGround = p.isOnGround();
-    Boolean wasAirborne = airborne.put(p.getUniqueId(), !onGround);
+    Boolean wasAirborne = airborne.put(id, !onGround);
     if (!isLanding(onGround, wasAirborne != null && wasAirborne)) {
       return;
     }
 
     if (KineticsMotion.isBouncySurface(landingSurface(p))) {
-      lastBounceAtMs.put(p.getUniqueId(), M.ms());
+      lastBounceAtMs.put(id, M.ms());
     }
   }
 

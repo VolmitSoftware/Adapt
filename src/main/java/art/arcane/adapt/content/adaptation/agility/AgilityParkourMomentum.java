@@ -79,7 +79,7 @@ public class AgilityParkourMomentum extends SimpleAdaptation<AgilityParkourMomen
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(PlayerMoveEvent e) {
-    if (e.getTo() == null) {
+    if (e.getTo() == null || states.isEmpty()) {
       return;
     }
 

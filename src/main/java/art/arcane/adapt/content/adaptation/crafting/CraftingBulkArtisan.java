@@ -145,8 +145,15 @@ public class CraftingBulkArtisan extends SimpleAdaptation<CraftingBulkArtisan.Co
       return;
     }
 
-    for (Map.Entry<Material, Integer> entry : perCraft.entrySet()) {
-      p.getInventory().removeItem(new ItemStack(entry.getKey(), entry.getValue() * maxCrafts));
+    int crafts = maxCrafts;
+    if (!payItemCost(p, "materials", null, crafts, () -> {
+      for (Map.Entry<Material, Integer> entry : perCraft.entrySet()) {
+        p.getInventory().removeItem(new ItemStack(entry.getKey(), entry.getValue() * crafts));
+      }
+
+      return true;
+    })) {
+      return;
     }
 
     int produced = maxCrafts * resultAmount;

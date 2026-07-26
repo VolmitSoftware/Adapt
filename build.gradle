@@ -193,6 +193,9 @@ dependencies {
     compileOnlyApi(fileTree('libs') { include('*.jar') })
 
     testImplementation('io.papermc.paper:paper-api:26.2.build.60-beta')
+    testImplementation('me.clip:placeholderapi:2.11.6') {
+        transitive = false
+    }
     testImplementation('org.junit.jupiter:junit-jupiter:5.11.4')
     testImplementation('org.mockito:mockito-core:5.14.2')
     testImplementation('org.mockito:mockito-junit-jupiter:5.14.2')

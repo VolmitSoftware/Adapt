@@ -103,7 +103,12 @@ public class HunterStrength extends SimpleAdaptation<HunterStrength.Config> {
         if (getConfig().consumable != null && Material.getMaterial(getConfig().consumable) != null) {
           Material mat = Material.getMaterial(getConfig().consumable);
           if (mat != null && p.getInventory().contains(mat)) {
-            p.getInventory().removeItem(new ItemStack(mat, 1));
+            if (!payItemCost(p, "consumable", new ItemStack(mat), 1, () -> {
+              p.getInventory().removeItem(new ItemStack(mat, 1));
+              return true;
+            })) {
+              return;
+            }
             applyStrengthBuff(p);
             addStat(p, "hunter.strength.activations", 1);
             activateFx(p);

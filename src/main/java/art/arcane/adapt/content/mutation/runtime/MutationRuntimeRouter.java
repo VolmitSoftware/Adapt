@@ -82,24 +82,29 @@ public final class MutationRuntimeRouter implements Listener {
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void onMovementControl(PlayerMoveEvent event) {
-    if (eligible(event.getPlayer())) {
+    Player player = event.getPlayer();
+    if (eligible(player) && access.anyExpressed(player)) {
       movement.enforceBastionMovement(event);
     }
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(PlayerMoveEvent event) {
-    if (!eligible(event.getPlayer())) {
+    Player player = event.getPlayer();
+    if (!eligible(player)) {
       return;
     }
-    if (event.getTo() != null) {
-      equipment.onDepthTransition(event.getPlayer(), event.getFrom().getBlockY(), event.getTo().getBlockY());
+    boolean expressing = access.anyExpressed(player);
+    if (expressing && event.getTo() != null) {
+      equipment.onDepthTransition(player, event.getFrom().getBlockY(), event.getTo().getBlockY());
     }
     if (movedPosition(event)) {
-      effects.interruptMolt(event.getPlayer());
+      effects.interruptMolt(player);
     }
-    movement.onMove(event);
-    combat.onMove(event.getPlayer());
+    if (expressing) {
+      movement.onMove(event);
+      combat.onMove(player);
+    }
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

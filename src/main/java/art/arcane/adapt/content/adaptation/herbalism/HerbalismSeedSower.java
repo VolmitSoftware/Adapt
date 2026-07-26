@@ -177,9 +177,13 @@ public class HerbalismSeedSower extends SimpleAdaptation<HerbalismSeedSower.Conf
       }
     }
 
-    if (p.getGameMode() != GameMode.CREATIVE && planted > 0) {
-      seeds.setAmount(Math.max(0, seeds.getAmount() - planted));
-      p.getInventory().setItemInMainHand(seeds.getAmount() <= 0 ? new ItemStack(Material.AIR) : seeds);
+    int sown = planted;
+    if (p.getGameMode() != GameMode.CREATIVE && sown > 0) {
+      payItemCost(p, "seeds", new ItemStack(seeds.getType()), sown, () -> {
+        seeds.setAmount(Math.max(0, seeds.getAmount() - sown));
+        p.getInventory().setItemInMainHand(seeds.getAmount() <= 0 ? new ItemStack(Material.AIR) : seeds);
+        return true;
+      });
     }
 
     return planted;

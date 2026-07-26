@@ -371,15 +371,18 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
         .chord(Sound.ENTITY_ENDER_EYE_DEATH, 0.2F, 0.48F,
             Sound.BLOCK_BEACON_POWER_SELECT, 0.4F, 1.6F);
     ItemStack hand = player.getInventory().getItemInMainHand();
-    if (hand.getAmount() == 1) {
-      BoundRedstoneTorch.setData(hand, targetLocation, binding.face());
-      return;
-    }
+    payItemCost(player, "bind", new ItemStack(hand.getType()), 1, () -> {
+      if (hand.getAmount() == 1) {
+        BoundRedstoneTorch.setData(hand, targetLocation, binding.face());
+        return true;
+      }
 
-    hand.setAmount(hand.getAmount() - 1);
-    ItemStack torch = BoundRedstoneTorch.withData(targetLocation, binding.face());
-    player.getInventory().addItem(torch).values()
-        .forEach(item -> player.getWorld().dropItemNaturally(player.getLocation(), item));
+      hand.setAmount(hand.getAmount() - 1);
+      ItemStack torch = BoundRedstoneTorch.withData(targetLocation, binding.face());
+      player.getInventory().addItem(torch).values()
+          .forEach(item -> player.getWorld().dropItemNaturally(player.getLocation(), item));
+      return true;
+    });
   }
 
   private void handleRightClick(PlayerInteractEvent event, Player player) {

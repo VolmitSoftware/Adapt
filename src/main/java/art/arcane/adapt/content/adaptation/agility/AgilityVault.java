@@ -129,6 +129,13 @@ public class AgilityVault extends SimpleAdaptation<AgilityVault.Config> {
     }
 
     Player p = e.getPlayer();
+    if (Attributes.JUMP_STRENGTH == null || !p.isOnGround() || !isVaultEligible(p)) {
+      if (!armedBonuses.isEmpty()) {
+        withPlayerThread(p, e, () -> disarm(p));
+      }
+      return;
+    }
+
     Location target = e.getTo().clone();
     Vector movement = target.toVector().subtract(e.getFrom().toVector());
     Vector direction = horizontalDirection(movement, target.getDirection());
@@ -212,15 +219,22 @@ public class AgilityVault extends SimpleAdaptation<AgilityVault.Config> {
   }
 
   private void refreshPreArm(Player p, Location origin, Vector direction) {
-    normalizeStoredLevel(p);
-    int level = getActiveLevel(p);
-    boolean eligible = isVaultEligible(p);
-    Block fence = direction.lengthSquared() < MINIMUM_DIRECTION_SQUARED ? null : findFence(origin, direction);
-    if (Attributes.JUMP_STRENGTH == null || !shouldPreArm(level, eligible, p.isOnGround(), fence != null)) {
+    boolean grounded = p.isOnGround();
+    boolean eligible = Attributes.JUMP_STRENGTH != null && grounded && isVaultEligible(p);
+    int level = eligible ? resolvePreArmLevel(p) : 0;
+    Block fence = level > 0 && direction.lengthSquared() >= MINIMUM_DIRECTION_SQUARED
+        ? findFence(origin, direction)
+        : null;
+    if (!shouldPreArm(level, eligible, grounded, fence != null)) {
       disarm(p);
       return;
     }
     arm(p);
+  }
+
+  private int resolvePreArmLevel(Player p) {
+    normalizeStoredLevel(p);
+    return getActiveLevel(p);
   }
 
   private void attemptVault(Player p, Location origin, Vector direction) {

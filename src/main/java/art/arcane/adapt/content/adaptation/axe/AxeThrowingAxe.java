@@ -135,11 +135,17 @@ public class AxeThrowingAxe extends SimpleAdaptation<AxeThrowingAxe.Config> {
     double damage = getThrowDamage(hand.getType(), getLevelPercent(level));
     boolean returns = returnsAtLevel(level);
 
-    if (hand.getAmount() > 1) {
-      hand.setAmount(hand.getAmount() - 1);
-      p.getInventory().setItemInMainHand(hand);
-    } else {
-      p.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
+    if (!payItemCost(p, "throw", new ItemStack(hand.getType()), 1, () -> {
+      if (hand.getAmount() > 1) {
+        hand.setAmount(hand.getAmount() - 1);
+        p.getInventory().setItemInMainHand(hand);
+      } else {
+        p.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
+      }
+
+      return true;
+    })) {
+      return;
     }
 
     cooldowns.mark(id);

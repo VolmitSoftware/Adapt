@@ -119,7 +119,7 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
 
 
   private boolean isBlinkEligible(Player p) {
-    return hasActiveAdaptation(p) && p.getGameMode() == GameMode.SURVIVAL;
+    return p.getGameMode() == GameMode.SURVIVAL && hasActiveAdaptation(p);
   }
 
   private boolean isOnCooldown(UUID id) {

@@ -184,7 +184,7 @@ public class BlockingBastionStance extends SimpleAdaptation<BlockingBastionStanc
   @EventHandler
   public void on(PlayerMoveEvent e) {
     Player p = e.getPlayer();
-    if (stanceStates.containsKey(p.getUniqueId()) || !p.isSneaking()) {
+    if (!p.isSneaking() || stanceStates.containsKey(p.getUniqueId())) {
       return;
     }
 

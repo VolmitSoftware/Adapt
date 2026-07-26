@@ -77,6 +77,10 @@ public final class MutationManager {
     return reconcile(adaptPlayer);
   }
 
+  public MutationSnapshot publishedSnapshot(UUID playerId) {
+    return playerId == null ? null : snapshots.get(playerId);
+  }
+
   public MutationSnapshot snapshot(UUID playerId) {
     if (playerId == null) {
       return MutationSnapshot.empty();

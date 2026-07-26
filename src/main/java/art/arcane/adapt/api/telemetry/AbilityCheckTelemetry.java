@@ -18,18 +18,22 @@
 
 package art.arcane.adapt.api.telemetry;
 
-import java.util.ArrayDeque;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicLongArray;
 
 public final class AbilityCheckTelemetry {
   private static final int WINDOW_SECONDS = 60;
+  private static final int TIMING_SAMPLE_INTERVAL = 16;
+  private static final int EXECUTION_STACK_CAPACITY = 8;
+  private static final long NESTED_EXECUTION = Long.MIN_VALUE;
+  private static final long UNSAMPLED_EXECUTION = Long.MIN_VALUE + 1L;
   private static final AtomicLongArray checkOps = new AtomicLongArray(WINDOW_SECONDS);
   private static final AtomicLongArray successfulOps = new AtomicLongArray(WINDOW_SECONDS);
   private static final AtomicLongArray cacheHits = new AtomicLongArray(WINDOW_SECONDS);
@@ -85,20 +89,34 @@ public final class AbilityCheckTelemetry {
 
   public static long beginExecution(String abilityId) {
     ExecutionState state = executionState.get();
-    boolean sameAbility = abilityId != null && abilityId.equals(state.activeAbilities.peek());
-    state.activeAbilities.push(abilityId == null ? "" : abilityId);
-    return sameAbility ? -1L : System.nanoTime();
+    boolean nested = state.isTop(abilityId);
+    state.push(abilityId);
+    if (nested || abilityId == null) {
+      return nested ? NESTED_EXECUTION : UNSAMPLED_EXECUTION;
+    }
+
+    AbilityWindow window = abilityWindows.get(abilityId);
+    if (window != null && !window.markInvocation()) {
+      return UNSAMPLED_EXECUTION;
+    }
+
+    AdaptTelemetryClock.refresh();
+    return System.nanoTime();
   }
 
   public static void endExecution(String abilityId, long startedNanos) {
-    ExecutionState state = executionState.get();
-    if (!state.activeAbilities.isEmpty()) {
-      state.activeAbilities.pop();
-    }
-    if (startedNanos < 0L) {
+    executionState.get().pop();
+    if (startedNanos == NESTED_EXECUTION) {
       return;
     }
-    recordExecution(abilityId, System.currentTimeMillis(), System.nanoTime() - startedNanos);
+
+    long now = AdaptTelemetryClock.millis();
+    if (startedNanos == UNSAMPLED_EXECUTION) {
+      recordExecutionOp(abilityId, now);
+      return;
+    }
+
+    recordSampledExecution(abilityId, now, System.nanoTime() - startedNanos);
   }
 
   public static long checksPerMinute(long now) {
@@ -207,6 +225,35 @@ public final class AbilityCheckTelemetry {
     executionState.remove();
   }
 
+  private static void recordExecutionOp(String abilityId, long now) {
+    if (abilityId == null || abilityId.isBlank()) {
+      return;
+    }
+
+    while (true) {
+      AbilityWindow window = abilityWindows.computeIfAbsent(abilityId, ignored -> new AbilityWindow());
+      if (window.recordExecutionOp(now)) {
+        return;
+      }
+      abilityWindows.remove(abilityId, window);
+    }
+  }
+
+  private static void recordSampledExecution(String abilityId, long now, long nanos) {
+    if (abilityId == null || abilityId.isBlank()) {
+      return;
+    }
+
+    long microsLong = Math.max(1L, nanos / 1_000L);
+    while (true) {
+      AbilityWindow window = abilityWindows.computeIfAbsent(abilityId, ignored -> new AbilityWindow());
+      if (window.recordSampledExecution(now, microsLong)) {
+        return;
+      }
+      abilityWindows.remove(abilityId, window);
+    }
+  }
+
   private static void pruneInactiveWindows(long now) {
     long epochSecond = now / 1_000L;
     for (Map.Entry<String, AbilityWindow> entry : abilityWindows.entrySet()) {
@@ -304,6 +351,11 @@ public final class AbilityCheckTelemetry {
     private final AtomicLongArray buckets = new AtomicLongArray(WINDOW_SECONDS * SIGNAL_COUNT);
     private final AtomicLong lastRecordedSecond = new AtomicLong(Long.MIN_VALUE);
     private final AtomicBoolean retired = new AtomicBoolean(false);
+    private final AtomicInteger pendingTimingOps = new AtomicInteger();
+
+    private boolean markInvocation() {
+      return pendingTimingOps.incrementAndGet() >= TIMING_SAMPLE_INTERVAL;
+    }
 
     private boolean recordGuardCheck(long now, int micros) {
       if (!prepareRecord(now)) {
@@ -320,6 +372,24 @@ public final class AbilityCheckTelemetry {
       }
       incrementSignal(EXECUTION_OPS, now, 1);
       incrementSignal(EXECUTION_MICROS, now, micros);
+      return true;
+    }
+
+    private boolean recordSampledExecution(long now, long micros) {
+      if (!prepareRecord(now)) {
+        return false;
+      }
+      int weight = Math.max(1, pendingTimingOps.getAndSet(0));
+      incrementSignal(EXECUTION_OPS, now, 1);
+      incrementSignal(EXECUTION_MICROS, now, (int) Math.min(Integer.MAX_VALUE, micros * weight));
+      return true;
+    }
+
+    private boolean recordExecutionOp(long now) {
+      if (!prepareRecord(now)) {
+        return false;
+      }
+      incrementSignal(EXECUTION_OPS, now, 1);
       return true;
     }
 
@@ -380,6 +450,32 @@ public final class AbilityCheckTelemetry {
   }
 
   private static final class ExecutionState {
-    private final ArrayDeque<String> activeAbilities = new ArrayDeque<>();
+    private String[] activeAbilities = new String[EXECUTION_STACK_CAPACITY];
+    private int depth;
+
+    private boolean isTop(String abilityId) {
+      if (abilityId == null || depth == 0) {
+        return false;
+      }
+
+      String top = activeAbilities[depth - 1];
+      return top == abilityId || abilityId.equals(top);
+    }
+
+    private void push(String abilityId) {
+      if (depth == activeAbilities.length) {
+        String[] grown = new String[activeAbilities.length << 1];
+        System.arraycopy(activeAbilities, 0, grown, 0, activeAbilities.length);
+        activeAbilities = grown;
+      }
+      activeAbilities[depth++] = abilityId;
+    }
+
+    private void pop() {
+      if (depth == 0) {
+        return;
+      }
+      activeAbilities[--depth] = null;
+    }
   }
 }

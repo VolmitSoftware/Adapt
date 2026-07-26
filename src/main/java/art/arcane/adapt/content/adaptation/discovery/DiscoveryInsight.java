@@ -21,6 +21,7 @@ package art.arcane.adapt.content.adaptation.discovery;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
+import art.arcane.adapt.api.adaptation.RunsWithoutLearnedAdaptation;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -160,6 +161,7 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  @RunsWithoutLearnedAdaptation
   public void on(PlayerMoveEvent e) {
     Location to = e.getTo();
     if (to == null || !viewChanged(e.getFrom(), to)) {

@@ -65,7 +65,9 @@ public class KineticsRubberSoul extends SimpleAdaptation<KineticsRubberSoul.Conf
   public void on(PlayerMoveEvent e) {
     Player p = e.getPlayer();
     if (!hasActiveAdaptation(p)) {
-      airborne.remove(p.getUniqueId());
+      if (!airborne.isEmpty()) {
+        airborne.remove(p.getUniqueId());
+      }
       return;
     }
     boolean onGround = p.isOnGround();

@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class AdaptIntegrationService implements AdaptService, IntegrationServiceContract {
   private static final Set<IntegrationProtocolVersion> SUPPORTED_PROTOCOLS = Set.of(
@@ -40,8 +41,29 @@ public class AdaptIntegrationService implements AdaptService, IntegrationService
       "adapt-runtime-metrics",
       "adapt-ability-execution-metrics"
   );
+  private static final Set<String> STATIC_ADAPT_KEYS = IntegrationMetricSchema.adaptKeys();
+  private static final Set<IntegrationMetricDescriptor> STATIC_ADAPT_DESCRIPTORS = buildStaticAdaptDescriptors();
+  private static final AbilityDetailBinding NOT_ABILITY_DETAIL = new AbilityDetailBinding(null, null, null);
+  private static final int BINDING_CACHE_LIMIT = 8192;
 
+  private final Map<String, Set<String>> abilityKeyCache = new ConcurrentHashMap<>();
+  private final Map<String, Set<IntegrationMetricDescriptor>> abilityDescriptorCache = new ConcurrentHashMap<>();
+  private final Map<String, AbilityDetailBinding> abilityDetailBindings = new ConcurrentHashMap<>();
   private volatile IntegrationProtocolVersion negotiatedProtocol = new IntegrationProtocolVersion(1, 1);
+  private volatile Set<String> cachedDescriptorAbilityIds = Set.of();
+  private volatile Set<IntegrationMetricDescriptor> cachedDescriptors = STATIC_ADAPT_DESCRIPTORS;
+  private volatile Set<String> cachedSampleAbilityIds = Set.of();
+  private volatile Set<String> cachedSampleKeys = STATIC_ADAPT_KEYS;
+
+  private static Set<IntegrationMetricDescriptor> buildStaticAdaptDescriptors() {
+    Set<IntegrationMetricDescriptor> descriptors = new HashSet<>();
+    for (IntegrationMetricDescriptor descriptor : IntegrationMetricSchema.descriptors()) {
+      if (descriptor.key().startsWith("adapt.")) {
+        descriptors.add(descriptor);
+      }
+    }
+    return Set.copyOf(descriptors);
+  }
 
   @Override
   public void onEnable() {
@@ -79,19 +101,20 @@ public class AdaptIntegrationService implements AdaptService, IntegrationService
 
   @Override
   public Set<IntegrationMetricDescriptor> metricDescriptors() {
-    Set<IntegrationMetricDescriptor> descriptors = new HashSet<>();
-    for (IntegrationMetricDescriptor descriptor : IntegrationMetricSchema.descriptors()) {
-      if (descriptor.key().startsWith("adapt.")) {
-        descriptors.add(descriptor);
-      }
+    Set<String> abilityIds = AbilityCheckTelemetry.abilityIds(System.currentTimeMillis());
+    if (abilityIds.equals(cachedDescriptorAbilityIds)) {
+      return cachedDescriptors;
     }
-    long now = System.currentTimeMillis();
-    for (String abilityId : AbilityCheckTelemetry.abilityIds(now)) {
-      for (String key : IntegrationMetricSchema.adaptAbilityDetailKeys(abilityId)) {
-        descriptors.add(IntegrationMetricSchema.descriptor(key));
-      }
+
+    Set<IntegrationMetricDescriptor> descriptors = new HashSet<>(STATIC_ADAPT_DESCRIPTORS);
+    for (String abilityId : abilityIds) {
+      descriptors.addAll(abilityDescriptors(abilityId));
     }
-    return Set.copyOf(descriptors);
+
+    Set<IntegrationMetricDescriptor> resolved = Set.copyOf(descriptors);
+    cachedDescriptors = resolved;
+    cachedDescriptorAbilityIds = abilityIds;
+    return resolved;
   }
 
   @Override
@@ -150,16 +173,9 @@ public class AdaptIntegrationService implements AdaptService, IntegrationService
   public Map<String, IntegrationMetricSample> sampleMetrics(Set<String> metricKeys) {
     long now = System.currentTimeMillis();
     Map<String, AbilityCheckTelemetry.AbilitySnapshot> abilitySnapshots = AbilityCheckTelemetry.abilitySnapshots(now);
-    Set<String> requested;
-    if (metricKeys == null || metricKeys.isEmpty()) {
-      Set<String> allKeys = new HashSet<>(IntegrationMetricSchema.adaptKeys());
-      for (String abilityId : abilitySnapshots.keySet()) {
-        allKeys.addAll(IntegrationMetricSchema.adaptAbilityDetailKeys(abilityId));
-      }
-      requested = Set.copyOf(allKeys);
-    } else {
-      requested = metricKeys;
-    }
+    Set<String> requested = metricKeys == null || metricKeys.isEmpty()
+        ? allSampleKeys(abilitySnapshots.keySet())
+        : metricKeys;
     Map<String, IntegrationMetricSample> out = new HashMap<>();
 
     for (String key : requested) {
@@ -205,14 +221,15 @@ public class AdaptIntegrationService implements AdaptService, IntegrationService
         case IntegrationMetricSchema.ADAPT_EVENT_HANDLER_OPS ->
             out.put(key, sampleEventHandlerOps(now));
         default -> {
-          if (IntegrationMetricSchema.isAdaptAbilityDetailKey(key)) {
-            out.put(key, sampleAbilityDetail(key, now, abilitySnapshots));
-          } else {
+          AbilityDetailBinding binding = abilityDetailBinding(key);
+          if (binding == NOT_ABILITY_DETAIL) {
             out.put(key, IntegrationMetricSample.unavailable(
                 IntegrationMetricSchema.descriptor(key),
                 "unsupported-key",
                 now
             ));
+          } else {
+            out.put(key, sampleAbilityDetail(binding, now, abilitySnapshots));
           }
         }
       }
@@ -359,24 +376,76 @@ public class AdaptIntegrationService implements AdaptService, IntegrationService
   }
 
   private IntegrationMetricSample sampleAbilityDetail(
-      String key,
+      AbilityDetailBinding binding,
       long now,
       Map<String, AbilityCheckTelemetry.AbilitySnapshot> abilitySnapshots
   ) {
-    IntegrationMetricDescriptor descriptor = IntegrationMetricSchema.descriptor(key);
-    String abilityId = IntegrationMetricSchema.adaptAbilityId(key);
-    String signal = IntegrationMetricSchema.adaptAbilitySignal(key);
-    AbilityCheckTelemetry.AbilitySnapshot snapshot = abilitySnapshots.get(abilityId);
+    AbilityCheckTelemetry.AbilitySnapshot snapshot = abilitySnapshots.get(binding.abilityId());
     if (snapshot == null) {
-      return IntegrationMetricSample.unavailable(descriptor, "ability-window-expired", now);
+      return IntegrationMetricSample.unavailable(binding.descriptor(), "ability-window-expired", now);
     }
-    double value = switch (signal) {
+    double value = switch (binding.signal()) {
       case IntegrationMetricSchema.ADAPT_ABILITY_DETAIL_EXECUTION_OPS -> snapshot.executionOps();
       case IntegrationMetricSchema.ADAPT_ABILITY_DETAIL_EXECUTION_TIMING_MS -> snapshot.executionTimingMillis();
       case IntegrationMetricSchema.ADAPT_ABILITY_DETAIL_GUARD_CHECKS -> snapshot.guardChecks();
       case IntegrationMetricSchema.ADAPT_ABILITY_DETAIL_GUARD_TIMING_MS -> snapshot.guardTimingMillis();
       default -> 0D;
     };
-    return IntegrationMetricSample.available(descriptor, value, now);
+    return IntegrationMetricSample.available(binding.descriptor(), value, now);
+  }
+
+  private Set<String> allSampleKeys(Set<String> abilityIds) {
+    if (abilityIds.equals(cachedSampleAbilityIds)) {
+      return cachedSampleKeys;
+    }
+
+    Set<String> keys = new HashSet<>(STATIC_ADAPT_KEYS);
+    for (String abilityId : abilityIds) {
+      keys.addAll(abilityKeys(abilityId));
+    }
+
+    Set<String> resolved = Set.copyOf(keys);
+    cachedSampleKeys = resolved;
+    cachedSampleAbilityIds = Set.copyOf(abilityIds);
+    return resolved;
+  }
+
+  private Set<String> abilityKeys(String abilityId) {
+    return abilityKeyCache.computeIfAbsent(abilityId, IntegrationMetricSchema::adaptAbilityDetailKeys);
+  }
+
+  private Set<IntegrationMetricDescriptor> abilityDescriptors(String abilityId) {
+    return abilityDescriptorCache.computeIfAbsent(abilityId, this::buildAbilityDescriptors);
+  }
+
+  private Set<IntegrationMetricDescriptor> buildAbilityDescriptors(String abilityId) {
+    Set<String> keys = abilityKeys(abilityId);
+    Set<IntegrationMetricDescriptor> descriptors = new HashSet<>(keys.size());
+    for (String key : keys) {
+      descriptors.add(IntegrationMetricSchema.descriptor(key));
+    }
+    return Set.copyOf(descriptors);
+  }
+
+  private AbilityDetailBinding abilityDetailBinding(String key) {
+    if (abilityDetailBindings.size() > BINDING_CACHE_LIMIT) {
+      abilityDetailBindings.clear();
+    }
+
+    return abilityDetailBindings.computeIfAbsent(key, resolved -> {
+      String abilityId = IntegrationMetricSchema.adaptAbilityId(resolved);
+      if (abilityId.isEmpty()) {
+        return NOT_ABILITY_DETAIL;
+      }
+
+      return new AbilityDetailBinding(
+          IntegrationMetricSchema.descriptor(resolved),
+          abilityId,
+          IntegrationMetricSchema.adaptAbilitySignal(resolved)
+      );
+    });
+  }
+
+  private record AbilityDetailBinding(IntegrationMetricDescriptor descriptor, String abilityId, String signal) {
   }
 }

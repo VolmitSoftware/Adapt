@@ -65,6 +65,19 @@ class AbilityCheckTelemetryTest {
   }
 
   @Test
+  void sampledExecutionTimingKeepsOperationCountsExact() {
+    for (int i = 0; i < 32; i++) {
+      long started = AbilityCheckTelemetry.beginExecution("agility-wall-jump");
+      AbilityCheckTelemetry.endExecution("agility-wall-jump", started);
+    }
+
+    AbilityCheckTelemetry.AbilitySnapshot snapshot =
+        AbilityCheckTelemetry.abilitySnapshots(System.currentTimeMillis()).get("agility-wall-jump");
+    assertThat(snapshot.executionOps()).isEqualTo(32L);
+    assertThat(snapshot.executionTimingMillis()).isGreaterThan(0D);
+  }
+
+  @Test
   void nestedDifferentAbilitiesKeepTheirOwnMeasuredExecution() {
     long outer = AbilityCheckTelemetry.beginExecution("agility-wall-jump");
     long nested = AbilityCheckTelemetry.beginExecution("excavation-earth-mover");

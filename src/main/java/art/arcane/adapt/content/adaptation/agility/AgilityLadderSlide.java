@@ -21,6 +21,7 @@ package art.arcane.adapt.content.adaptation.agility;
 import art.arcane.adapt.api.adaptation.Adaptation.BlockActionContext;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
+import art.arcane.adapt.api.adaptation.RunsWithoutLearnedAdaptation;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -165,18 +166,21 @@ public class AgilityLadderSlide extends SimpleAdaptation<AgilityLadderSlide.Conf
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+  @RunsWithoutLearnedAdaptation
   public void on(PlayerMoveEvent e) {
     if (e.getTo() == null || e instanceof PlayerTeleportEvent) {
       return;
     }
 
     Player p = e.getPlayer();
-    if (!p.isClimbing()) {
-      clearPlayerState(p, false);
+    if (p.isClimbing()) {
+      withPlayerThread(p, e, () -> startControl(p));
       return;
     }
 
-    withPlayerThread(p, e, () -> startControl(p));
+    if (!controlSessions.isEmpty()) {
+      clearPlayerState(p, false);
+    }
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)

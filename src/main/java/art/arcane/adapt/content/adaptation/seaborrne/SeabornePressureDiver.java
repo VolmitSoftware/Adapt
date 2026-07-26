@@ -19,6 +19,7 @@
 package art.arcane.adapt.content.adaptation.seaborrne;
 
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.RunsWithoutLearnedAdaptation;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -116,15 +117,21 @@ public class SeabornePressureDiver extends SimpleAdaptation<SeabornePressureDive
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  @RunsWithoutLearnedAdaptation
   public void on(PlayerMoveEvent e) {
     Player p = e.getPlayer();
-    UUID id = p.getUniqueId();
     if (!p.isInWater()) {
-      if (deep.containsKey(id)) {
-        clearDepthState(id, true);
+      if (deep.isEmpty()) {
+        return;
+      }
+      UUID surfacedId = p.getUniqueId();
+      if (deep.containsKey(surfacedId)) {
+        clearDepthState(surfacedId, true);
       }
       return;
     }
+
+    UUID id = p.getUniqueId();
     long now = System.currentTimeMillis();
     Long due = nextRefreshAt.get(id);
     if (due != null && due > now) {

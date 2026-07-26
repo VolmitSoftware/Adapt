@@ -333,7 +333,8 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
       return;
     }
     int paidIncrements = 0;
-    while (paidIncrements < mutation.increments && adaptPlayer.consumeFood(mutation.foodCost, 10)) {
+    while (paidIncrements < mutation.increments && payHungerCost(adaptPlayer.getPlayer(), "hunger",
+        (int) Math.ceil(mutation.foodCost), () -> adaptPlayer.consumeFood(mutation.foodCost, 10))) {
       paidIncrements++;
     }
     if (paidIncrements <= 0) {

@@ -127,11 +127,18 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
 
   @EventHandler(priority = EventPriority.HIGHEST)
   public void on(PlayerMoveEvent e) {
-    Player p = e.getPlayer();
     Location to = e.getTo();
+    if (to == null || active.isEmpty()) {
+      return;
+    }
+
+    Player p = e.getPlayer();
+    if (!p.isSneaking()) {
+      return;
+    }
+
     UUID id = p.getUniqueId();
-    if (to == null || !p.isSneaking() || !active.containsKey(id)
-        || e.getFrom().getBlock().equals(to.getBlock())) {
+    if (!active.containsKey(id) || e.getFrom().getBlock().equals(to.getBlock())) {
       return;
     }
 

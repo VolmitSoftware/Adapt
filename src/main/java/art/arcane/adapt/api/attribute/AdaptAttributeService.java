@@ -90,6 +90,13 @@ public final class AdaptAttributeService extends TickedObject {
     }
   }
 
+  public static void onAdaptationUnlearned(LivingEntity target, String adaptationName) {
+    AdaptAttributeService local = instance;
+    if (local != null) {
+      local.removeAll(target, adaptationName);
+    }
+  }
+
   public void apply(LivingEntity target, String adaptationName, String slot, Attribute attribute, double amount, AttributeModifier.Operation operation) {
     if (isInvalid(target, adaptationName, attribute) || operation == null) {
       return;

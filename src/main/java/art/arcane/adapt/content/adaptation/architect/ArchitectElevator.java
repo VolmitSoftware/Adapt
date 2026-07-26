@@ -186,20 +186,22 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
   public void on(PlayerMoveEvent e) {
     if (e.getTo() == null) return;
     Player player = e.getPlayer();
-    UUID id = player.getUniqueId();
 
-    if (players.containsKey(id)) {
-      if (player.isOnGround() || player.isFlying() || findElevator(player) == null)
-        players.remove(id);
-      return;
+    if (!players.isEmpty()) {
+      UUID trackedId = player.getUniqueId();
+      if (players.containsKey(trackedId)) {
+        if (player.isOnGround() || player.isFlying() || findElevator(player) == null)
+          players.remove(trackedId);
+        return;
+      }
     }
 
-    if (player.isFlying() || player.getVelocity().getY() <= 0 || e.getFrom().getY() >= e.getTo().getY())
+    if (e.getFrom().getY() >= e.getTo().getY() || player.isFlying() || player.getVelocity().getY() <= 0)
       return;
 
     Block block = findElevator(player);
     if (block == null) return;
-    players.put(id, Boolean.TRUE);
+    players.put(player.getUniqueId(), Boolean.TRUE);
     handleElevatorMovement(block, player, false);
   }
 

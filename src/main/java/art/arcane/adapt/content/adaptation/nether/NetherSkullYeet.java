@@ -52,6 +52,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import java.util.UUID;
@@ -144,7 +145,13 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
       p.setCooldown(Material.WITHER_SKELETON_SKULL, cooldownSeconds * 20);
 
       if (p.getGameMode() != GameMode.CREATIVE) {
-        e.getItem().setAmount(e.getItem().getAmount() - 1);
+        if (!payItemCost(p, "skull", new ItemStack(Material.WITHER_SKELETON_SKULL), 1, () -> {
+          e.getItem().setAmount(e.getItem().getAmount() - 1);
+          return true;
+        })) {
+          return;
+        }
+
         cooldowns.mark(id);
       }
 

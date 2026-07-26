@@ -173,13 +173,17 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
       return;
     }
 
+    boolean sprinting = sprintingOverride == null ? p.isSprinting() : sprintingOverride;
+    if (!sprinting && states.isEmpty()) {
+      return;
+    }
+
     UUID id = p.getUniqueId();
     RuntimeState state = states.get(id);
-    boolean sprinting = sprintingOverride == null ? p.isSprinting() : sprintingOverride;
-    boolean sneaking = sneakingOverride == null ? p.isSneaking() : sneakingOverride;
     if (state == null && !sprinting) {
       return;
     }
+    boolean sneaking = sneakingOverride == null ? p.isSneaking() : sneakingOverride;
     boolean platingActive = isPlatingActive(p, sprinting, sneaking);
     if (!platingActive && state == null) {
       return;

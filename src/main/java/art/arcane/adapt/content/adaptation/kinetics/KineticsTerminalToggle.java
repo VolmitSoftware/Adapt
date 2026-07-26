@@ -71,15 +71,18 @@ public class KineticsTerminalToggle extends SimpleAdaptation<KineticsTerminalTog
     }
 
     Player p = e.getPlayer();
-    UUID id = p.getUniqueId();
     if (p.isOnGround()) {
-      AirState landed = states.remove(id);
+      if (states.isEmpty()) {
+        return;
+      }
+      AirState landed = states.remove(p.getUniqueId());
       if (landed != null && landed.mode != MODE_NONE) {
         AdaptAttributeService.get().removeAll(p, getName());
       }
       return;
     }
 
+    UUID id = p.getUniqueId();
     AirState state = states.computeIfAbsent(id, k -> new AirState());
     if (state.airborneSinceTick < 0) {
       state.airborneSinceTick = p.getTicksLived();

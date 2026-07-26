@@ -95,8 +95,8 @@ public class AgilityKipUp extends SimpleAdaptation<AgilityKipUp.Config> {
     Player p = e.getPlayer();
     UUID id = p.getUniqueId();
     boolean groundNow = p.isOnGround();
-    boolean groundBefore = wasOnGround.getOrDefault(id, groundNow);
-    wasOnGround.put(id, groundNow);
+    Boolean previousGround = wasOnGround.put(id, groundNow);
+    boolean groundBefore = previousGround == null ? groundNow : previousGround;
 
     if (!groundBefore || groundNow) {
       return;

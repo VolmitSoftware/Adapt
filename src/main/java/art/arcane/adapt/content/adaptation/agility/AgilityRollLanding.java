@@ -97,6 +97,10 @@ public class AgilityRollLanding extends SimpleAdaptation<AgilityRollLanding.Conf
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(PlayerMoveEvent e) {
     Player p = e.getPlayer();
+    if (!p.isSneaking() || p.isOnGround()) {
+      return;
+    }
+
     withAdaptedPlayer(p, e, () -> recordRollInput(p, e.getFrom().getY(), e.getTo() == null ? null : e.getTo().getY()));
   }
 

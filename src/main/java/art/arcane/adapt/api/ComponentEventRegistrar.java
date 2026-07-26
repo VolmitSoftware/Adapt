@@ -69,6 +69,7 @@ public final class ComponentEventRegistrar {
       }
 
       EventExecutor executor = EventHandlerInvoker.createExecutor(
+          listener,
           method,
           eventType,
           EventHandlerInvoker.enforcesInteractionValidity(method, eventType)

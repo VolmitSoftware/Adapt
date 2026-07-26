@@ -196,7 +196,10 @@ public class SeaborneCoralGardener extends SimpleAdaptation<SeaborneCoralGardene
         return;
       }
 
-      consumeBoneMeal(p);
+      if (!consumeBoneMeal(p)) {
+        return;
+      }
+
       Material coral = CORAL_BLOCKS[ThreadLocalRandom.current().nextInt(CORAL_BLOCKS.length)];
       Block growTarget = target;
       J.runAt(growTarget.getLocation(), () -> growCoral(p, growTarget, coral, level));
@@ -226,15 +229,20 @@ public class SeaborneCoralGardener extends SimpleAdaptation<SeaborneCoralGardene
     });
   }
 
-  private void consumeBoneMeal(Player p) {
+  private boolean consumeBoneMeal(Player p) {
     if (p.getGameMode() == GameMode.CREATIVE) {
-      return;
+      return true;
     }
 
     ItemStack inHand = p.getInventory().getItemInMainHand();
-    if (inHand.getType() == Material.BONE_MEAL) {
-      inHand.setAmount(inHand.getAmount() - 1);
+    if (inHand.getType() != Material.BONE_MEAL) {
+      return true;
     }
+
+    return payItemCost(p, "bonemeal", new ItemStack(Material.BONE_MEAL), 1, () -> {
+      inHand.setAmount(inHand.getAmount() - 1);
+      return true;
+    });
   }
 
   private void trackCoral(Location location, int level) {

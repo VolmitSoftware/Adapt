@@ -20,6 +20,7 @@ package art.arcane.adapt.content.adaptation.agility;
 
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.RunsWithoutLearnedAdaptation;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -130,13 +131,19 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
   }
 
   @EventHandler
+  @RunsWithoutLearnedAdaptation
   public void on(PlayerMoveEvent e) {
     Player p = e.getPlayer();
-    UUID id = p.getUniqueId();
-    if (!p.isSneaking() && !airjumps.containsKey(id) && !latchedWalls.containsKey(id)) {
+    boolean sneaking = p.isSneaking();
+    if (!sneaking && airjumps.isEmpty() && latchedWalls.isEmpty()) {
       return;
     }
-    sneakState.put(id, p.isSneaking());
+
+    UUID id = p.getUniqueId();
+    if (!sneaking && !airjumps.containsKey(id) && !latchedWalls.containsKey(id)) {
+      return;
+    }
+    sneakState.put(id, sneaking);
     if (airjumps.containsKey(id)) {
       if (p.isOnGround() && !p.getLocation().getBlock().getRelative(BlockFace.DOWN).getBlockData().getMaterial().isAir()) {
         airjumps.remove(id);

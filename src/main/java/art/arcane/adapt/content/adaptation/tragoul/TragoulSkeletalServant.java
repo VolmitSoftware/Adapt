@@ -239,7 +239,13 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
           sfx(p.getLocation(), Sound.BLOCK_CONDUIT_DEACTIVATE, 0.8F, 0.6F);
           return;
         }
-        p.getInventory().removeItem(new ItemStack(Material.BONE, boneCost));
+        if (!payItemCost(p, "summon", new ItemStack(Material.BONE), boneCost, () -> {
+          p.getInventory().removeItem(new ItemStack(Material.BONE, boneCost));
+          return true;
+        })) {
+          sfx(p.getLocation(), Sound.BLOCK_CONDUIT_DEACTIVATE, 0.8F, 0.6F);
+          return;
+        }
       }
 
       while (list.size() >= cap) {

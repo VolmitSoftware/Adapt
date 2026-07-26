@@ -29,6 +29,7 @@ import art.arcane.adapt.api.notification.Notifier;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.skill.SkillRegistry;
 import art.arcane.adapt.api.tick.TickedObject;
+import art.arcane.adapt.papi.AdaptPlaceholders;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.scheduling.J;
@@ -360,6 +361,7 @@ public class AdaptPlayer extends TickedObject {
         playerLocation = capturePosition();
       }
       getData().update(this);
+      AdaptPlaceholders.get().publishPlayer(this);
       nextUpdateAt = now + UPDATE_INTERVAL_MS;
     }
 

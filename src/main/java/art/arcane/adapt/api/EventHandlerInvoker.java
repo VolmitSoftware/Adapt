@@ -18,14 +18,19 @@
 
 package art.arcane.adapt.api;
 
+import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.ReceiveCancelledEvents;
+import art.arcane.adapt.api.adaptation.RunsWithoutLearnedAdaptation;
 import art.arcane.adapt.api.telemetry.AbilityCheckTelemetry;
 import art.arcane.adapt.api.telemetry.AdaptRuntimeTelemetry;
+import art.arcane.adapt.api.world.AdaptServer;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventException;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.plugin.EventExecutor;
 
@@ -35,9 +40,15 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Set;
 import java.util.function.BiConsumer;
 
 public final class EventHandlerInvoker {
+  private static final Set<String> LEARNER_GATED_EVENT_TYPES = Set.of(
+      "org.bukkit.event.player.PlayerMoveEvent",
+      "com.destroystokyo.paper.event.player.PlayerJumpEvent"
+  );
+
   private EventHandlerInvoker() {
   }
 
@@ -62,17 +73,33 @@ public final class EventHandlerInvoker {
         && !method.isAnnotationPresent(ReceiveCancelledEvents.class);
   }
 
-  public static EventExecutor createExecutor(Method method, Class<? extends Event> eventType, boolean enforceInteractionValidity) {
+  public static boolean gatesOnLearnedAdaptation(Listener listener, Method method, Class<? extends Event> eventType) {
+    if (!(listener instanceof Adaptation<?> adaptation)) {
+      return false;
+    }
+
+    String abilityName = adaptation.getName();
+    return abilityName != null
+        && !abilityName.isBlank()
+        && LEARNER_GATED_EVENT_TYPES.contains(eventType.getName())
+        && !method.isAnnotationPresent(RunsWithoutLearnedAdaptation.class);
+  }
+
+  public static EventExecutor createExecutor(Listener listener, Method method, Class<? extends Event> eventType, boolean enforceInteractionValidity) {
+    String abilityName = listener instanceof Adaptation<?> adaptation ? adaptation.getName() : null;
+    boolean gated = gatesOnLearnedAdaptation(listener, method, eventType);
     BiConsumer<Object, Object> direct = tryCreateDirectInvoker(method);
     if (direct != null) {
       if (enforceInteractionValidity) {
         return (target, event) -> {
-          if (!eventType.isAssignableFrom(event.getClass()) || isVetoedInteraction(event)) {
+          if (!eventType.isAssignableFrom(event.getClass())
+              || isVetoedInteraction(event)
+              || isSkippedForMissingLearner(gated, abilityName, event)) {
             return;
           }
 
           try {
-            invokeMeasured(target, () -> direct.accept(target, event));
+            invokeMeasured(abilityName, () -> direct.accept(target, event));
           } catch (Throwable ex) {
             throw new EventException(ex);
           }
@@ -80,12 +107,13 @@ public final class EventHandlerInvoker {
       }
 
       return (target, event) -> {
-        if (!eventType.isAssignableFrom(event.getClass())) {
+        if (!eventType.isAssignableFrom(event.getClass())
+            || isSkippedForMissingLearner(gated, abilityName, event)) {
           return;
         }
 
         try {
-          invokeMeasured(target, () -> direct.accept(target, event));
+          invokeMeasured(abilityName, () -> direct.accept(target, event));
         } catch (Throwable ex) {
           throw new EventException(ex);
         }
@@ -94,12 +122,14 @@ public final class EventHandlerInvoker {
 
     if (enforceInteractionValidity) {
       return (target, event) -> {
-        if (!eventType.isAssignableFrom(event.getClass()) || isVetoedInteraction(event)) {
+        if (!eventType.isAssignableFrom(event.getClass())
+            || isVetoedInteraction(event)
+            || isSkippedForMissingLearner(gated, abilityName, event)) {
           return;
         }
 
         try {
-          invokeMeasured(target, () -> method.invoke(target, event));
+          invokeMeasured(abilityName, () -> method.invoke(target, event));
         } catch (InvocationTargetException ex) {
           throw new EventException(ex.getCause());
         } catch (Throwable ex) {
@@ -109,18 +139,33 @@ public final class EventHandlerInvoker {
     }
 
     return (target, event) -> {
-      if (!eventType.isAssignableFrom(event.getClass())) {
+      if (!eventType.isAssignableFrom(event.getClass())
+          || isSkippedForMissingLearner(gated, abilityName, event)) {
         return;
       }
 
       try {
-        invokeMeasured(target, () -> method.invoke(target, event));
+        invokeMeasured(abilityName, () -> method.invoke(target, event));
       } catch (InvocationTargetException ex) {
         throw new EventException(ex.getCause());
       } catch (Throwable ex) {
         throw new EventException(ex);
       }
     };
+  }
+
+  private static boolean isSkippedForMissingLearner(boolean gated, String abilityName, Event event) {
+    if (!gated || !(event instanceof PlayerEvent playerEvent)) {
+      return false;
+    }
+
+    Adapt plugin = Adapt.instance;
+    AdaptServer server = plugin == null ? null : plugin.getAdaptServer();
+    if (server == null) {
+      return false;
+    }
+
+    return !server.hasOnlineLearner(playerEvent.getPlayer().getUniqueId(), abilityName);
   }
 
   private static boolean isVetoedInteraction(Event event) {
@@ -135,18 +180,18 @@ public final class EventHandlerInvoker {
     return interaction.useItemInHand() == Event.Result.DENY;
   }
 
-  private static void invokeMeasured(Object target, Invocation invocation) throws Throwable {
-    if (!(target instanceof Adaptation<?> adaptation)) {
+  private static void invokeMeasured(String abilityName, Invocation invocation) throws Throwable {
+    if (abilityName == null) {
       invocation.invoke();
       return;
     }
 
-    long startedNanos = AbilityCheckTelemetry.beginExecution(adaptation.getName());
-    AdaptRuntimeTelemetry.recordEventHandlerOp(System.currentTimeMillis());
+    AdaptRuntimeTelemetry.recordEventHandlerOp();
+    long startedNanos = AbilityCheckTelemetry.beginExecution(abilityName);
     try {
       invocation.invoke();
     } finally {
-      AbilityCheckTelemetry.endExecution(adaptation.getName(), startedNanos);
+      AbilityCheckTelemetry.endExecution(abilityName, startedNanos);
     }
   }
 

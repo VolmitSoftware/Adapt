@@ -82,7 +82,7 @@ public class HerbalismHungryShield extends SimpleAdaptation<HerbalismHungryShiel
       double h = e.getDamage() * f;
       double d = e.getDamage() - h;
 
-      if (getPlayer(p).consumeFood(h, 6)) {
+      if (payHungerCost(p, "hunger", (int) Math.ceil(h), () -> getPlayer(p).consumeFood(h, 6))) {
         e.setDamage(d);
         addStat(p, "herbalism.hungry-shield.damage-absorbed", (int) Math.ceil(h));
         xp(p, h);

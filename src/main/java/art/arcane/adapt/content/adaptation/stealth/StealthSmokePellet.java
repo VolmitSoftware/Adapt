@@ -150,7 +150,9 @@ public class StealthSmokePellet extends SimpleAdaptation<StealthSmokePellet.Conf
       return;
     }
 
-    consumeGunpowder(inventory, hand);
+    if (!consumeGunpowder(p, inventory, hand)) {
+      return;
+    }
     cooldowns.mark(p.getUniqueId());
     throwRay(p, level);
   }
@@ -175,11 +177,14 @@ public class StealthSmokePellet extends SimpleAdaptation<StealthSmokePellet.Conf
     return concealmentLeases.containsKey(player.getUniqueId());
   }
 
-  private void consumeGunpowder(PlayerInventory inventory, EquipmentSlot hand) {
+  private boolean consumeGunpowder(Player p, PlayerInventory inventory, EquipmentSlot hand) {
     ItemStack held = hand == EquipmentSlot.OFF_HAND
         ? inventory.getItemInOffHand()
         : inventory.getItemInMainHand();
-    held.setAmount(held.getAmount() - 1);
+    return payItemCost(p, "pellet", new ItemStack(Material.GUNPOWDER), 1, () -> {
+      held.setAmount(held.getAmount() - 1);
+      return true;
+    });
   }
 
   private void throwRay(Player p, int level) {

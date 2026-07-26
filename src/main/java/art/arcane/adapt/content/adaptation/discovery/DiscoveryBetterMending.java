@@ -119,7 +119,13 @@ public class DiscoveryBetterMending extends SimpleAdaptation<DiscoveryBetterMend
     int repaired = Math.max(1, (int) Math.round(xpSpent * repairPerXp));
     int newDamage = Math.max(0, currentDamage - repaired);
 
-    takeExp(p, xpSpent, true);
+    if (!payExperienceCost(p, "experience", xpSpent, () -> {
+      takeExp(p, xpSpent, true);
+      return true;
+    })) {
+      return;
+    }
+
     damageable.setDamage(newDamage);
     hand.setItemMeta(damageable);
     p.getInventory().setItemInMainHand(hand);

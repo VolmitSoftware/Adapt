@@ -82,6 +82,7 @@ public class AdaptConfig {
   private RedisConfig redis = new RedisConfig();
   private SqlSettings sql = new SqlSettings();
   private Protector protectorSupport = new Protector();
+  private AbilityApi abilityApi = new AbilityApi();
   private Map<String, List<String>> adaptationUsageConflicts = defaultAdaptationUsageConflicts();
   private Map<String, Map<String, Boolean>> protectionOverrides = Map.of(
       "adaptation-name", Map.of(
@@ -138,6 +139,16 @@ public class AdaptConfig {
 
   private static Map<String, List<String>> defaultAdaptationUsageConflicts() {
     return new HashMap<>();
+  }
+
+  @Getter
+  public static class AbilityApi {
+    private boolean enabled = true;
+    private String usePolicyFailureMode = "deny";
+    private String costProviderFailureMode = "allow";
+    private int providerFaultLimit = 5;
+    private int slowProviderMillis = 2;
+    private int denyMessageThrottleMillis = 2000;
   }
 
   @Getter

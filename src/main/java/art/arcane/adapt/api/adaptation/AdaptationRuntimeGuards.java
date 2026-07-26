@@ -67,6 +67,7 @@ final class AdaptationRuntimeGuards {
   private static final Map<String, String> USE_PERMISSION_NODES = new ConcurrentHashMap<>();
   private static final Map<String, ProtectorCacheEntry> PROTECTOR_CACHE = new ConcurrentHashMap<>();
   private static final Map<String, UsageConflictCacheEntry> USAGE_CONFLICT_CACHE = new ConcurrentHashMap<>();
+  private static final Map<Class<?>, Boolean> CRAFT_PLAYER_CLASSES = new ConcurrentHashMap<>();
   private static final int ACTIVE_LEVEL_CACHE_SOFT_LIMIT = 16_384;
   private static final int ACTIVE_LEVEL_CACHE_SWEEP_INTERVAL_TICKS = 64;
   private static final int ACTIVE_LEVEL_CACHE_RETENTION_TICKS = 2;
@@ -178,7 +179,7 @@ final class AdaptationRuntimeGuards {
   }
 
   static void awardUsageBaselineXp(Adaptation<?> adaptation, Player p, int level) {
-    if (p == null || level <= 0 || !p.getClass().getSimpleName().equals("CraftPlayer")) {
+    if (p == null || level <= 0 || !isCraftPlayer(p)) {
       return;
     }
 
@@ -214,7 +215,10 @@ final class AdaptationRuntimeGuards {
     }
     AdaptAdaptationUseEvent e = new AdaptAdaptationUseEvent(!Bukkit.isPrimaryThread(), player, adaptation);
     Bukkit.getServer().getPluginManager().callEvent(e);
-    return (!e.isCancelled());
+    if (e.isCancelled()) {
+      return false;
+    }
+    return AbilityApiBridge.allowedByUsePolicy(adaptation, player);
   }
 
   static boolean canUse(Adaptation<?> adaptation, Player player) {
@@ -584,12 +588,13 @@ final class AdaptationRuntimeGuards {
         return 0;
       }
 
-      long tick = runtimeCacheTick();
+      long nowMs = M.ms();
+      long tick = nowMs / 50L;
       int learnedLevel = getLevel(adaptation, p);
       PlayerAdaptationKey key = new PlayerAdaptationKey(p.getUniqueId(), adaptation.getName());
       ActiveLevelCacheEntry cached = ACTIVE_LEVEL_CACHE.get(key);
       if (cached != null && cached.tick() == tick && cached.learnedLevel() == learnedLevel) {
-        AbilityCheckTelemetry.recordCacheHit(System.currentTimeMillis());
+        AbilityCheckTelemetry.recordCacheHit(nowMs);
         return cached.level();
       }
 
@@ -600,7 +605,7 @@ final class AdaptationRuntimeGuards {
       } finally {
         AbilityCheckTelemetry.recordUncachedCheck(
             adaptation.getName(),
-            System.currentTimeMillis(),
+            nowMs,
             System.nanoTime() - startNs,
             level > 0
         );
@@ -627,7 +632,7 @@ final class AdaptationRuntimeGuards {
     if (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(p)) {
       return 0;
     }
-    if (!p.getClass().getSimpleName().equals("CraftPlayer")) {
+    if (!isCraftPlayer(p)) {
       Adapt.verbose("Simple name: " + p.getClass().getSimpleName());
       return 0;
     }
@@ -766,8 +771,8 @@ final class AdaptationRuntimeGuards {
     return gameMode != GameMode.SPECTATOR && (gameMode != GameMode.CREATIVE || allowCreative);
   }
 
-  private static long runtimeCacheTick() {
-    return M.ms() / 50L;
+  private static boolean isCraftPlayer(Player p) {
+    return CRAFT_PLAYER_CLASSES.computeIfAbsent(p.getClass(), type -> type.getSimpleName().equals("CraftPlayer"));
   }
 
   private static void sweepActiveLevelCache(long tick) {

@@ -154,12 +154,13 @@ public class UnarmedBatteringCharge extends SimpleAdaptation<UnarmedBatteringCha
   public void on(PlayerMoveEvent e) {
     Location from = e.getFrom();
     Location to = e.getTo();
+    Player p = e.getPlayer();
     if (to != null && from.getWorld() == to.getWorld()) {
       double dx = to.getX() - from.getX();
       double dz = to.getZ() - from.getZ();
-      recentMovement.put(e.getPlayer().getUniqueId(), new MovementSample((dx * dx) + (dz * dz), System.currentTimeMillis()));
+      recentMovement.put(p.getUniqueId(), new MovementSample((dx * dx) + (dz * dz), System.currentTimeMillis()));
     }
-    updatePrimedState(e.getPlayer());
+    updatePrimedState(p);
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -271,8 +272,13 @@ public class UnarmedBatteringCharge extends SimpleAdaptation<UnarmedBatteringCha
   }
 
   private void updatePrimedState(Player player) {
+    boolean sprinting = player.isSprinting();
+    if (!sprinting && primedState.isEmpty()) {
+      return;
+    }
+
     UUID id = player.getUniqueId();
-    if (!player.isSprinting() && !primedState.containsKey(id)) {
+    if (!sprinting && !primedState.containsKey(id)) {
       return;
     }
 

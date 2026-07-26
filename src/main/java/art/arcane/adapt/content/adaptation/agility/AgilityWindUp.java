@@ -19,6 +19,7 @@
 package art.arcane.adapt.content.adaptation.agility;
 
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.RunsWithoutLearnedAdaptation;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -120,8 +121,10 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
   }
 
   @EventHandler
+  @RunsWithoutLearnedAdaptation
   public void on(PlayerMoveEvent e) {
-    updatePlayer(e.getPlayer(), e.getPlayer().isSprinting());
+    Player p = e.getPlayer();
+    updatePlayer(p, p.isSprinting());
   }
 
   @EventHandler
@@ -167,12 +170,16 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
       return;
     }
 
+    if (!sprinting && states.isEmpty()) {
+      return;
+    }
+
     UUID id = p.getUniqueId();
     RuntimeState state = states.get(id);
     if (state == null && !sprinting) {
       return;
     }
-    if (!hasActiveAdaptation(p) || !isWindupEligible(p) || !sprinting) {
+    if (!sprinting || !isWindupEligible(p) || !hasActiveAdaptation(p)) {
       if (state != null) {
         clearBoost(p, state);
         states.remove(id, state);

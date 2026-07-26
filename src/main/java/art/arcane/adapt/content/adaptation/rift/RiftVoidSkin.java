@@ -182,7 +182,10 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
         return;
       }
 
-      consumePlainPearl(p);
+      if (!consumePlainPearl(p)) {
+        return;
+      }
+
       cooldown.mark(operation.playerId());
       p.setFallDistance(0f);
       p.addPotionEffect(new PotionEffect(PotionEffectTypes.DAMAGE_RESISTANCE,
@@ -274,13 +277,20 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
   }
 
   private boolean consumePlainPearl(Player p) {
-    for (ItemStack stack : p.getInventory().getContents()) {
-      if (RiftPearls.isPlainPearl(stack)) {
-        stack.setAmount(stack.getAmount() - 1);
-        return true;
-      }
+    if (!hasPlainPearl(p)) {
+      return false;
     }
-    return false;
+
+    return payItemCost(p, "pearl", new ItemStack(Material.ENDER_PEARL), 1, () -> {
+      for (ItemStack stack : p.getInventory().getContents()) {
+        if (RiftPearls.isPlainPearl(stack)) {
+          stack.setAmount(stack.getAmount() - 1);
+          return true;
+        }
+      }
+
+      return false;
+    });
   }
 
   static boolean isLethalDamage(double health, double finalDamage) {

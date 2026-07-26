@@ -141,7 +141,13 @@ public class CraftingCompactor extends SimpleAdaptation<CraftingCompactor.Config
       if (blocks <= 0) {
         continue;
       }
-      p.getInventory().removeItem(new ItemStack(entry.unit(), blocks * UNITS_PER_BLOCK));
+      if (!payItemCost(p, "materials", new ItemStack(entry.unit()), blocks * UNITS_PER_BLOCK, () -> {
+        p.getInventory().removeItem(new ItemStack(entry.unit(), blocks * UNITS_PER_BLOCK));
+        return true;
+      })) {
+        continue;
+      }
+
       Map<Integer, ItemStack> leftovers = p.getInventory().addItem(new ItemStack(entry.block(), blocks));
       for (ItemStack leftover : leftovers.values()) {
         if (leftover != null && !leftover.getType().isAir() && leftover.getAmount() > 0) {

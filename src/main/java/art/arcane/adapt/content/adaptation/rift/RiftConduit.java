@@ -208,12 +208,17 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
     Location loc = clicked.getBlock().getLocation();
     String linkId = UUID.randomUUID().toString();
     ItemStack taglock = makeTaglock(loc, linkId);
-    if (hand.getAmount() <= 1) {
-      p.getInventory().setItemInMainHand(taglock);
-    } else {
-      hand.setAmount(hand.getAmount() - 1);
-      p.getInventory().addItem(taglock).values().forEach(i -> p.getWorld().dropItemNaturally(p.getLocation(), i));
-    }
+    payItemCost(p, "capture", new ItemStack(hand.getType()), 1, () -> {
+      if (hand.getAmount() <= 1) {
+        p.getInventory().setItemInMainHand(taglock);
+      } else {
+        hand.setAmount(hand.getAmount() - 1);
+        p.getInventory().addItem(taglock).values()
+            .forEach(i -> p.getWorld().dropItemNaturally(p.getLocation(), i));
+      }
+
+      return true;
+    });
 
     fx(loc.clone().add(0.5, 0.5, 0.5), FxPriority.TRANSITION)
         .ring(Particle.REVERSE_PORTAL, 0.7, 10, 0.0)
@@ -300,12 +305,16 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
 
     ItemStack hand = p.getInventory().getItemInMainHand();
     if (isConduitTaglock(hand) && linkId.equals(getTaglockLinkId(hand))) {
-      if (hand.getAmount() <= 1) {
-        p.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
-      } else {
-        hand.setAmount(hand.getAmount() - 1);
-        p.getInventory().setItemInMainHand(hand);
-      }
+      payItemCost(p, "bind", new ItemStack(hand.getType()), 1, () -> {
+        if (hand.getAmount() <= 1) {
+          p.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
+        } else {
+          hand.setAmount(hand.getAmount() - 1);
+          p.getInventory().setItemInMainHand(hand);
+        }
+
+        return true;
+      });
     }
 
     addStat(p, "rift.conduit.links-formed", 1);

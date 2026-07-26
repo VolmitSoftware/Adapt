@@ -23,6 +23,7 @@ import art.arcane.adapt.localization.catalog.ArchitectMessages;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.RunsWithoutLearnedAdaptation;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -195,14 +196,19 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
           continue;
         }
 
+        if (!payItemCost(p, "block", new ItemStack(hand.getType()), 1, () -> {
+          hand.setAmount(hand.getAmount() - 1);
+          return true;
+        })) {
+          break;
+        }
+
         relative.setBlockData(b.getBlockData());
         addStat(p, "blocks.placed", 1);
         addStat(p, "blocks.placed.value", v);
         addStat(p, "architect.placement.blocks-placed", 1);
         xp(p, 2);
         placedCount++;
-
-        hand.setAmount(hand.getAmount() - 1);
       }
 
       if (ignored != null) {
@@ -267,17 +273,15 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
 
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  @RunsWithoutLearnedAdaptation
   public void on(PlayerMoveEvent e) {
     Player p = e.getPlayer();
-    UUID id = p.getUniqueId();
-    Material handMaterial = p.getInventory().getItemInMainHand().getType();
-    if (!p.isSneaking() || !handMaterial.isBlock()) {
-      if (totalMap.containsKey(id) || previewDisplays.containsKey(id)) {
-        clearPlayerPreview(id);
-      }
+    if (!p.isSneaking() || !p.getInventory().getItemInMainHand().getType().isBlock()) {
+      clearResidualPreview(p);
       return;
     }
 
+    UUID id = p.getUniqueId();
     long now = System.currentTimeMillis();
     Long previousCheck = lastViewportCheck.put(id, now);
     if (previousCheck != null && now - previousCheck < VIEWPORT_DEBOUNCE_MILLIS) {
@@ -606,6 +610,17 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
   private void clearPreviewDisplays(UUID playerId) {
     Map<PreviewKey, BlockDisplay> displays = previewDisplays.remove(playerId);
     clearPreviewDisplays(displays);
+  }
+
+  private void clearResidualPreview(Player p) {
+    if (totalMap.isEmpty() && previewDisplays.isEmpty()) {
+      return;
+    }
+
+    UUID playerId = p.getUniqueId();
+    if (totalMap.containsKey(playerId) || previewDisplays.containsKey(playerId)) {
+      clearPlayerPreview(playerId);
+    }
   }
 
   private void clearPlayerPreview(UUID playerId) {

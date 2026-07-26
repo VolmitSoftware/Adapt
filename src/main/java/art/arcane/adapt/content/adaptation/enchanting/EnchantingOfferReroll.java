@@ -123,7 +123,10 @@ public class EnchantingOfferReroll extends SimpleAdaptation<EnchantingOfferRerol
       return;
     }
 
-    consumeLapis(p, lapisCost);
+    if (!consumeLapis(p, lapisCost)) {
+      return;
+    }
+
     p.setLevel(Math.max(0, p.getLevel() - getConfig().xpLevelCost));
     p.setCooldown(Material.ENCHANTING_TABLE, getCooldownTicks(level));
     e.setCancelled(true);
@@ -176,17 +179,21 @@ public class EnchantingOfferReroll extends SimpleAdaptation<EnchantingOfferRerol
     return false;
   }
 
-  private void consumeLapis(Player p, int amount) {
-    int need = amount;
-    for (ItemStack stack : p.getInventory().getContents()) {
-      if (stack == null || stack.getType() != Material.LAPIS_LAZULI || need <= 0) {
-        continue;
+  private boolean consumeLapis(Player p, int amount) {
+    return payItemCost(p, "lapis", new ItemStack(Material.LAPIS_LAZULI), amount, () -> {
+      int need = amount;
+      for (ItemStack stack : p.getInventory().getContents()) {
+        if (stack == null || stack.getType() != Material.LAPIS_LAZULI || need <= 0) {
+          continue;
+        }
+
+        int used = Math.min(stack.getAmount(), need);
+        stack.setAmount(stack.getAmount() - used);
+        need -= used;
       }
 
-      int used = Math.min(stack.getAmount(), need);
-      stack.setAmount(stack.getAmount() - used);
-      need -= used;
-    }
+      return true;
+    });
   }
 
   private boolean setSeed(Player p, int seed) {

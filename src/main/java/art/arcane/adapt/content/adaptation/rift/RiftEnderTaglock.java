@@ -555,33 +555,42 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
       return;
     }
 
-    if (stack.getAmount() <= 1) {
-      if (slot == EquipmentSlot.HAND) {
-        p.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
-      } else {
-        p.getInventory().setItemInOffHand(new ItemStack(Material.AIR));
-      }
-      return;
-    }
+    payItemCost(p, "consume", new ItemStack(stack.getType()), 1, () -> {
+      if (stack.getAmount() <= 1) {
+        if (slot == EquipmentSlot.HAND) {
+          p.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
+        } else {
+          p.getInventory().setItemInOffHand(new ItemStack(Material.AIR));
+        }
 
-    stack.setAmount(stack.getAmount() - 1);
-    if (slot == EquipmentSlot.HAND) {
-      p.getInventory().setItemInMainHand(stack);
-    } else {
-      p.getInventory().setItemInOffHand(stack);
-    }
+        return true;
+      }
+
+      stack.setAmount(stack.getAmount() - 1);
+      if (slot == EquipmentSlot.HAND) {
+        p.getInventory().setItemInMainHand(stack);
+      } else {
+        p.getInventory().setItemInOffHand(stack);
+      }
+
+      return true;
+    });
   }
 
   private void tagIntoPearl(Player p, ItemStack hand, LivingEntity target) {
     ItemStack tagged = makeTaggedPearl(target);
 
-    if (hand.getAmount() <= 1) {
-      p.getInventory().setItemInMainHand(tagged);
-      return;
-    }
+    payItemCost(p, "bind", new ItemStack(hand.getType()), 1, () -> {
+      if (hand.getAmount() <= 1) {
+        p.getInventory().setItemInMainHand(tagged);
+        return true;
+      }
 
-    hand.setAmount(hand.getAmount() - 1);
-    p.getInventory().addItem(tagged).values().forEach(i -> p.getWorld().dropItemNaturally(p.getLocation(), i));
+      hand.setAmount(hand.getAmount() - 1);
+      p.getInventory().addItem(tagged).values()
+          .forEach(i -> p.getWorld().dropItemNaturally(p.getLocation(), i));
+      return true;
+    });
   }
 
   private ItemStack makeTaggedPearl(LivingEntity target) {

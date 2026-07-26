@@ -57,16 +57,14 @@ public class KineticsMeteorCadence extends SimpleAdaptation<KineticsMeteorCadenc
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(PlayerMoveEvent e) {
-    Player p = e.getPlayer();
     Location to = e.getTo();
     if (to == null) {
       return;
     }
 
+    Player p = e.getPlayer();
     if (p.isOnGround()) {
-      diveMarked.remove(p.getUniqueId());
-      acceleratedAtTick.remove(p.getUniqueId());
-      removeDiveModifiers(p);
+      endDive(p);
       return;
     }
 
@@ -123,6 +121,21 @@ public class KineticsMeteorCadence extends SimpleAdaptation<KineticsMeteorCadenc
 
     if (diveMarked.putIfAbsent(p.getUniqueId(), Boolean.TRUE) == null) {
       addStat(p, "kinetics.meteor.dives", 1);
+    }
+  }
+
+  private void endDive(Player p) {
+    if (diveMarked.isEmpty() && acceleratedAtTick.isEmpty()) {
+      return;
+    }
+
+    UUID id = p.getUniqueId();
+    boolean hadDiveState = diveMarked.remove(id) != null;
+    if (acceleratedAtTick.remove(id) != null) {
+      hadDiveState = true;
+    }
+    if (hadDiveState) {
+      removeDiveModifiers(p);
     }
   }
 

@@ -46,6 +46,7 @@ import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.localization.TextKey;
 import art.arcane.volmlib.util.localization.MessageKey;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Location;
@@ -86,6 +87,12 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
   private Class<T> configType;
   private volatile T config;
   private String localizationKey;
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
+  private long cachedDemandRevision = Long.MIN_VALUE;
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
+  private boolean cachedDemand;
 
   public SimpleAdaptation(String name) {
     super("adaptations", UUID.randomUUID() + "-" + name, 1000);
@@ -109,7 +116,17 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
     }
 
     AdaptServer server = Adapt.instance == null ? null : Adapt.instance.getAdaptServer();
-    return server == null || server.hasOnlineLearner(getName());
+    if (server == null) {
+      return true;
+    }
+
+    long revision = server.getLearnerIndexRevision();
+    if (revision != cachedDemandRevision) {
+      cachedDemand = server.hasOnlineLearner(getName());
+      cachedDemandRevision = revision;
+    }
+
+    return cachedDemand;
   }
 
   protected boolean usesLearnerBoundTicking() {
@@ -436,8 +453,11 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
       return;
     }
 
-    DamageSource source = DamageSource.builder(DamageType.PLAYER_ATTACK).build();
-    dispatchPlayerDamage(player, amount, source);
+    payHealthCost(player, "health", (int) Math.ceil(amount), () -> {
+      DamageSource source = DamageSource.builder(DamageType.PLAYER_ATTACK).build();
+      dispatchPlayerDamage(player, amount, source);
+      return true;
+    });
   }
 
   static void dispatchPlayerDamage(Player player, double amount, DamageSource source) {

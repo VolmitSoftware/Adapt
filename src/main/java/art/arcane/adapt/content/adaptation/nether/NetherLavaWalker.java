@@ -33,6 +33,7 @@ import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -73,11 +74,11 @@ public class NetherLavaWalker extends SimpleAdaptation<NetherLavaWalker.Config> 
   @EventHandler(priority = EventPriority.HIGH)
   public void on(PlayerMoveEvent e) {
     Player p = e.getPlayer();
-    withAdaptedPlayer(p, e, () -> {
-      if (!p.getWorld().getEnvironment().name().contains("NETHER")) {
-        return;
-      }
+    if (p.getWorld().getEnvironment() != World.Environment.NETHER) {
+      return;
+    }
 
+    withAdaptedPlayer(p, e, () -> {
       if (p.isFlying() || p.isGliding() || p.isInsideVehicle() || p.getFoodLevel() <= 0) {
         return;
       }

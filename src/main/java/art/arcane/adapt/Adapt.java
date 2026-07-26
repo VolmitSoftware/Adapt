@@ -18,6 +18,7 @@
 
 package art.arcane.adapt;
 
+import art.arcane.adapt.api.adaptation.AbilityApiBridge;
 import art.arcane.adapt.api.AdaptPermissionRegistrar;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.PlayerStateRegistry;
@@ -41,6 +42,8 @@ import art.arcane.adapt.api.world.PlayerDataPersistenceQueue;
 import art.arcane.adapt.api.xp.XpNoveltyListener;
 import art.arcane.adapt.api.xp.XpProvenanceListener;
 import art.arcane.adapt.content.integration.hiddenore.HiddenOreLink;
+import art.arcane.adapt.papi.AdaptPlaceholderInstaller;
+import art.arcane.adapt.papi.AdaptPlaceholders;
 import art.arcane.adapt.content.protector.ChestProtectProtector;
 import art.arcane.adapt.content.protector.FactionsClaimProtector;
 import art.arcane.adapt.content.protector.GriefDefenderProtector;
@@ -63,6 +66,7 @@ import art.arcane.adapt.util.config.ConfigMigrationManager;
 import art.arcane.adapt.util.project.redis.RedisSync;
 import art.arcane.adapt.util.secret.SecretSplash;
 import art.arcane.volmlib.integration.ReloadAware;
+import art.arcane.volmlib.util.bukkit.papi.PlaceholderRegistration;
 import art.arcane.volmlib.util.collection.KList;
 import art.arcane.volmlib.util.collection.KMap;
 import art.arcane.volmlib.util.inventorygui.UIWindow;
@@ -137,6 +141,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
   private RedisSync redisSync;
   @Getter
   private PlayerDataPersistenceQueue playerDataPersistenceQueue;
+  private volatile PlaceholderRegistration papiRegistration;
 
 
   public Adapt() {
@@ -419,9 +424,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     if (!AdaptConfig.get().isCustomModels()) {
       CustomModel.clear();
     }
-    if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-      new PapiExpansion().register();
-    }
+    registerPapiExpansion();
     printInformation();
     sqlManager = new SQLManager();
     if (AdaptConfig.get().isUseSql()) {
@@ -450,6 +453,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     if (AdaptConfig.get().isAutoUpdateCheck()) {
       autoUpdateCheck();
     }
+    AbilityApiBridge.install(this);
     protectorRegistry = new ProtectorRegistry();
     if (getServer().getPluginManager().getPlugin("WorldGuard") != null) {
       protectorRegistry.registerProtector(new WorldGuardProtector());
@@ -618,6 +622,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
 
   @Override
   public void stop() {
+    unregisterPapiExpansion();
     if (!alreadyDrained.compareAndSet(false, true)) {
       return;
     }
@@ -644,12 +649,34 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     if (glowingEntities != null) {
       glowingEntities.disable();
     }
+    AbilityApiBridge.uninstall();
     if (protectorRegistry != null) {
       protectorRegistry.unregisterAll();
     }
     if (services != null) {
       services.clear();
     }
+  }
+
+  private void registerPapiExpansion() {
+    PlaceholderRegistration registration = new PlaceholderRegistration(getLogger());
+    papiRegistration = registration;
+    if (!PlaceholderRegistration.isPlaceholderApiEnabled()) {
+      return;
+    }
+
+    AdaptPlaceholderInstaller.install(registration, AdaptPlaceholders.get(), getLogger());
+  }
+
+  private void unregisterPapiExpansion() {
+    PlaceholderRegistration registration = papiRegistration;
+    papiRegistration = null;
+
+    if (registration != null) {
+      registration.unregister();
+    }
+
+    AdaptPlaceholders.get().clear();
   }
 
   @EventHandler(priority = EventPriority.MONITOR)

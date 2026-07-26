@@ -139,10 +139,13 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
     return player.getInventory().getItemInMainHand().getType() == Material.GLOW_BERRIES;
   }
 
-  private void consumeGlowberry(Player player) {
+  private boolean consumeGlowberry(Player player) {
     ItemStack berries = player.getInventory().getItemInMainHand();
-    berries.setAmount(berries.getAmount() - 1);
-    player.getInventory().setItemInMainHand(berries);
+    return payItemCost(player, "glowberry", new ItemStack(Material.GLOW_BERRIES), 1, () -> {
+      berries.setAmount(berries.getAmount() - 1);
+      player.getInventory().setItemInMainHand(berries);
+      return true;
+    });
   }
 
   private boolean hasOreInOffhand(Player player) {
@@ -199,7 +202,10 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
         return;
       }
 
-      consumeGlowberry(p);
+      if (!consumeGlowberry(p)) {
+        return;
+      }
+
       Color color = markerColor(targetOre);
       for (WorldBlockScanScheduler.Match match : matches) {
         addStat(p, "excavation.spelunker.ores-revealed", 1);

@@ -19,6 +19,10 @@
 package art.arcane.adapt.api.adaptation;
 
 import art.arcane.adapt.api.Component;
+import art.arcane.adapt.api.ability.AbilityCharge;
+import art.arcane.adapt.api.ability.AbilityCostKind;
+import art.arcane.adapt.api.ability.AbilityDefaultCost;
+import art.arcane.adapt.api.ability.AbilityRefundReason;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.potion.BrewingRecipe;
 import art.arcane.adapt.api.protection.Protector;
@@ -44,6 +48,7 @@ import org.bukkit.inventory.Recipe;
 
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.IntConsumer;
 import java.util.function.Predicate;
 
@@ -933,6 +938,55 @@ public interface Adaptation<T> extends Ticked, Component {
    */
   default boolean isAdaptationRecipe(Recipe recipe) {
     return AdaptationGuiSupport.isAdaptationRecipe(this, recipe);
+  }
+
+  @Override
+  default void damageHand(Player p, int damage) {
+    payDurabilityCost(p, "durability", damage, () -> {
+      Component.super.damageHand(p, damage);
+      return true;
+    });
+  }
+
+  @Override
+  default void damageOffHand(Player p, int damage) {
+    payDurabilityCost(p, "durability", damage, () -> {
+      Component.super.damageOffHand(p, damage);
+      return true;
+    });
+  }
+
+  default boolean payItemCost(Player p, String costKey, ItemStack unit, int amount, AbilityDefaultCost defaultCost) {
+    return AbilityApiBridge.charge(this, p, costKey, AbilityCostKind.ITEM, unit, amount, defaultCost);
+  }
+
+  default boolean payHungerCost(Player p, String costKey, int amount, AbilityDefaultCost defaultCost) {
+    return AbilityApiBridge.charge(this, p, costKey, AbilityCostKind.HUNGER, null, amount, defaultCost);
+  }
+
+  default boolean payHealthCost(Player p, String costKey, int amount, AbilityDefaultCost defaultCost) {
+    return AbilityApiBridge.charge(this, p, costKey, AbilityCostKind.HEALTH, null, amount, defaultCost);
+  }
+
+  default boolean payDurabilityCost(Player p, String costKey, int amount, AbilityDefaultCost defaultCost) {
+    return AbilityApiBridge.charge(this, p, costKey, AbilityCostKind.DURABILITY, null, amount, defaultCost);
+  }
+
+  default boolean payExperienceCost(Player p, String costKey, int amount, AbilityDefaultCost defaultCost) {
+    return AbilityApiBridge.charge(this, p, costKey, AbilityCostKind.VANILLA_EXPERIENCE, null, amount, defaultCost);
+  }
+
+  default AbilityCharge payItemCostDeferred(Player p, String costKey, ItemStack unit, int amount,
+                                            AbilityDefaultCost defaultCost) {
+    return AbilityApiBridge.chargeDeferred(this, p, costKey, AbilityCostKind.ITEM, unit, amount, defaultCost);
+  }
+
+  default boolean settleCost(UUID activationId) {
+    return AbilityApiBridge.settle(activationId);
+  }
+
+  default boolean refundCost(UUID activationId, AbilityRefundReason reason) {
+    return AbilityApiBridge.refund(activationId, reason);
   }
 
   /**

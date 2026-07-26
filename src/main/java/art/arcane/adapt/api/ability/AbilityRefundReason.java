@@ -1,0 +1,13 @@
+package art.arcane.adapt.api.ability;
+
+public enum AbilityRefundReason {
+  ACTIVATION_ABORTED,
+  ACTIVATION_FAILED,
+  TARGET_LOST,
+  PLAYER_DIED,
+  PLAYER_LEFT,
+  CHARGE_ROLLBACK,
+  ADAPTATION_DISABLED,
+  EXPIRED,
+  SERVER_SHUTDOWN
+}

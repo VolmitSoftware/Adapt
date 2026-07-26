@@ -21,6 +21,7 @@ package art.arcane.adapt.api.world;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.ViewerDisplayDirector;
 import art.arcane.adapt.api.notification.AdvancementNotification;
 import art.arcane.adapt.api.notification.SoundNotification;
@@ -37,6 +38,7 @@ import art.arcane.adapt.content.item.ExperienceOrb;
 import art.arcane.adapt.content.item.KnowledgeOrb;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.RuntimeMessages;
+import art.arcane.adapt.papi.AdaptPlaceholders;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.io.Json;
 import art.arcane.adapt.util.common.io.SQLManager;
@@ -94,6 +96,7 @@ public class AdaptServer extends TickedObject {
   private final AtomicBoolean spatialFailureReported = new AtomicBoolean(false);
   private final AtomicBoolean onlineSnapshotRefreshScheduled = new AtomicBoolean(false);
   private final AtomicLong onlineMembershipRevision = new AtomicLong();
+  private final AtomicLong learnerIndexRevision = new AtomicLong();
   private final Cache<UUID, PlayerData> prefetchedPlayerData = Caffeine.newBuilder()
       .expireAfterWrite(2, TimeUnit.MINUTES)
       .maximumSize(2048)
@@ -117,6 +120,10 @@ public class AdaptServer extends TickedObject {
 
   public int getLearnedAdaptationCount() {
     return playersByLearnedAdaptation.size();
+  }
+
+  public long getLearnerIndexRevision() {
+    return learnerIndexRevision.get();
   }
 
   public int getSpatialTicketCount() {
@@ -253,6 +260,7 @@ public class AdaptServer extends TickedObject {
     // Keep the entry briefly after quit so late quit listeners/tasks do not
     // re-create a new AdaptPlayer for an offline player.
     prefetchedPlayerData.invalidate(p);
+    AdaptPlaceholders.get().evictAfterGrace(p);
     onlineAdaptPlayers.remove(p, a);
     recipeBookSyncScheduled.remove(p);
     removeLearnedPlayer(p);
@@ -270,6 +278,7 @@ public class AdaptServer extends TickedObject {
     learnedAdaptationLevelsByPlayer.clear();
     playersByLearnedAdaptation.clear();
     learnedAdaptPlayerSnapshots.clear();
+    learnerIndexRevision.incrementAndGet();
     recipeBookSyncScheduled.clear();
     onlinePlayerSnapshot = List.of();
     onlineAdaptPlayerSnapshot = List.of();
@@ -539,6 +548,7 @@ public class AdaptServer extends TickedObject {
       levels.put(adaptationName, level);
       playersByLearnedAdaptation.computeIfAbsent(adaptationName, unused -> ConcurrentHashMap.newKeySet()).add(playerId);
       learnedAdaptPlayerSnapshots.remove(adaptationName);
+      learnerIndexRevision.incrementAndGet();
       reconcileMutations(player);
       synchronizeRecipeBook(playerId, player);
       return;
@@ -592,6 +602,7 @@ public class AdaptServer extends TickedObject {
       for (String adaptationName : previous) {
         if (!refreshed.contains(adaptationName)) {
           removeLearnedAdaptationPlayer(adaptationName, playerId);
+          AdaptAttributeService.onAdaptationUnlearned(player.getPlayer(), adaptationName);
         }
       }
     }
@@ -602,6 +613,7 @@ public class AdaptServer extends TickedObject {
     if (indexed.isEmpty()) {
       learnedAdaptationsByPlayer.remove(playerId, indexed);
     }
+    learnerIndexRevision.incrementAndGet();
     reconcileMutations(player);
     synchronizeRecipeBook(playerId, player);
   }
@@ -701,6 +713,7 @@ public class AdaptServer extends TickedObject {
       return playerIds.isEmpty() ? null : playerIds;
     });
     learnedAdaptPlayerSnapshots.remove(adaptationName);
+    learnerIndexRevision.incrementAndGet();
   }
 
   private PlayerData takePrefetchedData(UUID uuid) {

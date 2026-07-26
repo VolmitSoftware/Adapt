@@ -50,6 +50,10 @@ final class MutationRuntimeAccess {
     return eligible(player) && type != null && snapshot(player).expressed().contains(type);
   }
 
+  boolean anyExpressed(Player player) {
+    return eligible(player) && !snapshot(player).expressed().isEmpty();
+  }
+
   boolean perfect(Player player) {
     return eligible(player) && snapshot(player).perfect();
   }

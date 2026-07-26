@@ -293,14 +293,18 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
         .start();
     ItemStack hand = player.getInventory().getItemInMainHand();
 
-    if (hand.getAmount() == 1) {
-      BoundEnderPearl.setData(hand, block);
-    } else {
-      hand.setAmount(hand.getAmount() - 1);
-      ItemStack pearl = BoundEnderPearl.withData(block);
-      player.getInventory().addItem(pearl).values()
-          .forEach(item -> player.getWorld().dropItemNaturally(player.getLocation(), item));
-    }
+    payItemCost(player, "bind", new ItemStack(hand.getType()), 1, () -> {
+      if (hand.getAmount() == 1) {
+        BoundEnderPearl.setData(hand, block);
+      } else {
+        hand.setAmount(hand.getAmount() - 1);
+        ItemStack pearl = BoundEnderPearl.withData(block);
+        player.getInventory().addItem(pearl).values()
+            .forEach(item -> player.getWorld().dropItemNaturally(player.getLocation(), item));
+      }
+
+      return true;
+    });
   }
 
   private void openPearl(Player player) {

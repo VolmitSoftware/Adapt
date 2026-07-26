@@ -110,11 +110,15 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
   @EventHandler
   public void on(PlayerMoveEvent e) {
     Player player = e.getPlayer();
+    if (!player.isSneaking() && !isCrawlingOnLand(player)) {
+      return;
+    }
+
     if (states.containsKey(player.getUniqueId())) {
       return;
     }
 
-    if ((player.isSneaking() || isCrawlingOnLand(player)) && hasActiveAdaptation(player)) {
+    if (hasActiveAdaptation(player)) {
       startSession(player);
     }
   }
@@ -257,7 +261,7 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
   }
 
   private boolean isCrawlingOnLand(Player p) {
-    if (p.getBoundingBox().getHeight() > getConfig().crawlHeightMax) {
+    if (p.getHeight() > getConfig().crawlHeightMax) {
       return false;
     }
 
