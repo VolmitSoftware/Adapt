@@ -66,6 +66,7 @@ import art.arcane.adapt.util.config.ConfigMigrationManager;
 import art.arcane.adapt.util.project.redis.RedisSync;
 import art.arcane.adapt.util.secret.SecretSplash;
 import art.arcane.volmlib.integration.ReloadAware;
+import art.arcane.volmlib.integration.VaultEconomy;
 import art.arcane.volmlib.util.bukkit.papi.PlaceholderRegistration;
 import art.arcane.volmlib.util.collection.KList;
 import art.arcane.volmlib.util.collection.KMap;
@@ -141,6 +142,8 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
   private RedisSync redisSync;
   @Getter
   private PlayerDataPersistenceQueue playerDataPersistenceQueue;
+  @Getter
+  private VaultEconomy vaultEconomy;
   private volatile PlaceholderRegistration papiRegistration;
 
 
@@ -418,6 +421,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
         .forEach((i) -> services.put((Class<? extends AdaptService>) i.getClass(), (AdaptService) i)));
 
     runStartupPhaseVoid("language-load", AdaptLanguage::initialize);
+    vaultEconomy = new VaultEconomy(this);
     if (!runStartupPhase("models-load", CustomModel::reloadFromDisk)) {
       Adapt.warn("Failed to load models config during startup migration.");
     }
@@ -650,6 +654,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
       glowingEntities.disable();
     }
     AbilityApiBridge.uninstall();
+    vaultEconomy = null;
     if (protectorRegistry != null) {
       protectorRegistry.unregisterAll();
     }

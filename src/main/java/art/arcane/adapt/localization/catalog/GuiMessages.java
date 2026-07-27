@@ -40,6 +40,11 @@ public final class GuiMessages {
   public static final TextKey ALREADY_LEARNED_REFUND = TextKey.of("gui.adaptations.already_learned_refund", "Already Learned — Click to Unlearn & Refund {refund} Knowledge Cost");
   public static final TextKey CLICK_TO_LEARN = TextKey.of("gui.adaptations.click_to_learn", "Click to Learn {adaptation}");
   public static final TextKey KNOWLEDGE_SHORTAGE = TextKey.of("gui.adaptations.knowledge_shortage", "(You only have {knowledge} Knowledge Available)");
+  public static final TextKey VAULT_LEARN_COST = TextKey.of("gui.adaptations.vault_learn_cost", "{amount} Vault Cost");
+  public static final TextKey VAULT_REFUND = TextKey.of("gui.adaptations.vault_refund", "Vault Refund: {amount}");
+  public static final TextKey VAULT_UNAVAILABLE_FALLBACK = TextKey.of("gui.adaptations.vault_unavailable_fallback", "Vault economy unavailable — Knowledge-only learning remains active.");
+  public static final TextKey VAULT_INSUFFICIENT_FUNDS = TextKey.of("gui.adaptations.vault_insufficient_funds", "You do not have enough Vault currency to learn this adaptation.");
+  public static final TextKey VAULT_TRANSACTION_FAILED = TextKey.of("gui.adaptations.vault_transaction_failed", "The Vault economy transaction failed; your progression was not changed.");
   public static final TextKey POWER_DRAIN = TextKey.of("gui.adaptations.power_drain", "{power} Power Drain");
   public static final TextKey EXPERIMENTAL_MUTATIONS = TextKey.of("gui.mutations.experimental_mutations", "Experimental Mutations");
   public static final TextKey MUTATIONS_MENU_SUMMARY = TextKey.of("gui.mutations.menu_summary", "Optional build choices unlocked by your Adapt level.");
@@ -87,6 +92,11 @@ public final class GuiMessages {
     builder.add(ALREADY_LEARNED_REFUND);
     builder.add(CLICK_TO_LEARN);
     builder.add(KNOWLEDGE_SHORTAGE);
+    builder.add(VAULT_LEARN_COST);
+    builder.add(VAULT_REFUND);
+    builder.add(VAULT_UNAVAILABLE_FALLBACK);
+    builder.add(VAULT_INSUFFICIENT_FUNDS);
+    builder.add(VAULT_TRANSACTION_FAILED);
     builder.add(POWER_DRAIN);
     builder.add(EXPERIMENTAL_MUTATIONS);
     builder.add(MUTATIONS_MENU_SUMMARY);

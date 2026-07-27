@@ -4768,6 +4768,11 @@ already_learned_no_refunds = "習得済み — ハードコア、払い戻し無
 already_learned_refund = "学習済み 学びを撤回し,{refund}知識費用を返済するにはクリックしてください"
 click_to_learn = "クリックして学ぶ {adaptation}"
 knowledge_shortage = "(あなただけの {knowledge} 利用できる知識)"
+vault_learn_cost = "{amount} Vault Cost"
+vault_refund = "Vault Refund: {amount}"
+vault_unavailable_fallback = "Vault economy unavailable — Knowledge-only learning remains active."
+vault_insufficient_funds = "You do not have enough Vault currency to learn this adaptation."
+vault_transaction_failed = "The Vault economy transaction failed; your progression was not changed."
 power_drain = "{power} パワードレイン"
 
 [gui.mutations]
@@ -6289,6 +6294,8 @@ adaptation_already_level = "変更なし: {adaptation} レベルが既にある 
 power_insufficient = "利用可能な力が足りません。必要: {needed}、利用可能: {available}。"
 knowledge_insufficient = "{skill} の知識が足りません。必要: {needed}、利用可能: {available}。"
 knowledge_spend_failed = "必要な知識を費やす失敗 ({knowledge})."
+vault_insufficient_funds = "The player does not have enough Vault currency."
+vault_transaction_failed = "The Vault economy transaction failed; no progression was changed."
 set_adaptation_level = "セット {player} {adaptation} レベルまで {level}."
 permanent_adaptation_lower = "{adaptation} 永続的であり、不要で下がることはできません。 force=true."
 adapt_server_not_ready = "Adapt サーバーはまだ準備が整っていない. 数秒でもう一度お試しください."

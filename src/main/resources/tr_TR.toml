@@ -4768,6 +4768,11 @@ already_learned_no_refunds = "Zaten öğrenildi — ZORLU MOD, İADELER DEVRE DI
 already_learned_refund = "Daha şimdiden öğrenildi - Unlearn & Refund'a tıklayın {refund} Bilgi Maliyeti"
 click_to_learn = "Öğrenmek için tıklayın {adaptation}"
 knowledge_shortage = "(Sadece sahipsin {knowledge} Bilgi kullanılabilir)"
+vault_learn_cost = "{amount} Vault Cost"
+vault_refund = "Vault Refund: {amount}"
+vault_unavailable_fallback = "Vault economy unavailable — Knowledge-only learning remains active."
+vault_insufficient_funds = "You do not have enough Vault currency to learn this adaptation."
+vault_transaction_failed = "The Vault economy transaction failed; your progression was not changed."
 power_drain = "{power} Güç"
 
 [gui.mutations]
@@ -6289,6 +6294,8 @@ adaptation_already_level = "Hiçbir değişiklik yok: {adaptation} Zaten seviyed
 power_insufficient = "Yeterli mevcut güç değil. İhtiyacınız var {needed}, Var {available}."
 knowledge_insufficient = "Yeterli bilgi yeterli değil {skill}. İhtiyacınız var {needed}, Var {available}."
 knowledge_spend_failed = "Gerekli bilgi harcamak için başarısız oldu ({knowledge})."
+vault_insufficient_funds = "The player does not have enough Vault currency."
+vault_transaction_failed = "The Vault economy transaction failed; no progression was changed."
 set_adaptation_level = "Set Set {player} {adaptation} Seviye seviyesine {level}."
 permanent_adaptation_lower = "{adaptation} Kalıcı ve daha düşük olamaz force=true."
 adapt_server_not_ready = "Adapt server henüz hazır değil. Birkaç saniye içinde tekrar deneyin."

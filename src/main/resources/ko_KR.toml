@@ -4768,6 +4768,11 @@ already_learned_no_refunds = "이미 습득함 — 하드코어, 환불 비활�
 already_learned_refund = "이미 습득함 — 클릭하여 잊고 지식 {refund} 환불"
 click_to_learn = "클릭하여 {adaptation} 습득"
 knowledge_shortage = "(사용 가능한 지식: {knowledge})"
+vault_learn_cost = "{amount} Vault Cost"
+vault_refund = "Vault Refund: {amount}"
+vault_unavailable_fallback = "Vault economy unavailable — Knowledge-only learning remains active."
+vault_insufficient_funds = "You do not have enough Vault currency to learn this adaptation."
+vault_transaction_failed = "The Vault economy transaction failed; your progression was not changed."
 power_drain = "{power} 힘 하수구"
 
 [gui.mutations]
@@ -6289,6 +6294,8 @@ adaptation_already_level = "변경 없음: {adaptation} 수준에 이미 {level}
 power_insufficient = "사용 가능한 전력이 충분하지 않습니다. {needed}, {available}가 필요합니다."
 knowledge_insufficient = "{skill} 지식이 부족합니다. {needed}이(가) 필요하며 {available}을(를) 보유하고 있습니다."
 knowledge_spend_failed = "필요한 지식({knowledge})을 소모하지 못했습니다."
+vault_insufficient_funds = "The player does not have enough Vault currency."
+vault_transaction_failed = "The Vault economy transaction failed; no progression was changed."
 set_adaptation_level = "설치하기 {player} {adaptation} 수준에 {level}."
 permanent_adaptation_lower = "{adaptation} 영원하고 낮출 수 없습니다 force=true."
 adapt_server_not_ready = "Adapt 서버는 아직 준비되어 있지 않습니다. 몇 초에 다시 시도."

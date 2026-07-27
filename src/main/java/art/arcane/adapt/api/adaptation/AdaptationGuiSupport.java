@@ -255,6 +255,7 @@ final class AdaptationGuiSupport {
             .setProgress(1D)
             .addLore(C.GRAY + adaptation.getDescription())
             .addLore(knowledgeCostLore(mylevel, lvl, c))
+            .addLore(vaultCostLore(adaptation, player, mylevel, lvl, c))
             .addLore(learningActionLore(adaptation, mylevel, lvl, rc, k, c, debugLearning))
             .addLore(powerLore(adaptation, player, mylevel, lvl, pc))
             .addLore((adaptation.isPermanent() ? C.RED + "" + C.BOLD + AdaptLanguage.text(SnippetsMessages.ADAPT_MENU_MAY_NOT_UNLEARN) : ""))
@@ -311,8 +312,9 @@ final class AdaptationGuiSupport {
                   return;
                 }
 
-                if (skillLine.spendKnowledge(c)) {
-                  skillLine.setAdaptation(adaptation, lvl);
+                AdaptationLearningTransaction.Result result =
+                    AdaptationLearningTransaction.learn(adaptation, player, lvl, debugLearningClick);
+                if (result == AdaptationLearningTransaction.Result.LEARNED) {
                   spw.play(player.getLocation(), Sound.BLOCK_NETHER_GOLD_ORE_PLACE, 0.9f, 1.355f);
                   spw.play(player.getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 1.7f, 0.355f);
                   spw.play(player.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, 0.4f, 0.155f);
@@ -331,6 +333,7 @@ final class AdaptationGuiSupport {
                   closeAndReopenAfterLevelChange(adaptation, player, currentPage, delayTicks);
                 } else {
                   spw.play(player.getLocation(), Sound.BLOCK_BAMBOO_HIT, 0.7f, 1.855f);
+                  notifyEconomyFailure(player, result);
                 }
               } else {
                 spw.play(player.getLocation(), Sound.BLOCK_BAMBOO_HIT, 0.7f, 1.855f);
@@ -441,26 +444,11 @@ final class AdaptationGuiSupport {
 
   static void unlearn(Adaptation<?> adaptation, Player player, int lvl, boolean force) {
     boolean debugLearning = AdaptDebugMode.isActive(player);
-    if (adaptation.isPermanent() && !force && !debugLearning) {
-      return;
-    }
-    int myLevel = adaptation.getPlayer(player).getSkillLine(adaptation.getSkill().getName()).getAdaptationLevel(adaptation.getName());
-    int rc = adaptation.getRefundCostFor(lvl - 1, myLevel);
-    if (!debugLearning && !AdaptConfig.get().isHardcoreNoRefunds()) {
-      adaptation.getPlayer(player).getData().getSkillLine(adaptation.getSkill().getName()).giveKnowledge(rc);
-    }
-    adaptation.getPlayer(player).getData().getSkillLine(adaptation.getSkill().getName()).setAdaptation(adaptation, lvl - 1);
+    AdaptationLearningTransaction.unlearn(adaptation, player, lvl - 1, force || debugLearning);
   }
 
   static void learn(Adaptation<?> adaptation, Player player, int lvl, boolean force) {
-    int myLevel = adaptation.getPlayer(player).getSkillLine(adaptation.getSkill().getName()).getAdaptationLevel(adaptation.getName());
-    int c = adaptation.getCostFor(lvl, myLevel);
-    int pc = adaptation.getPowerCostFor(lvl, myLevel);
-    if (adaptation.getPlayer(player).getData().hasPowerAvailable(pc) || force) {
-      if (adaptation.getPlayer(player).getData().getSkillLine(adaptation.getSkill().getName()).spendKnowledge(c) || force) {
-        adaptation.getPlayer(player).getData().getSkillLine(adaptation.getSkill().getName()).setAdaptation(adaptation, lvl);
-      }
-    }
+    AdaptationLearningTransaction.learn(adaptation, player, lvl, force);
   }
 
   static boolean isAdaptationRecipe(Adaptation<?> adaptation, Recipe recipe) {
@@ -592,6 +580,49 @@ final class AdaptationGuiSupport {
             : GuiMessages.KNOWLEDGE_COST,
         trusted("cost", C.WHITE + String.valueOf(cost) + C.GRAY)
     );
+  }
+
+  private static String vaultCostLore(
+      Adaptation<?> adaptation,
+      Player player,
+      int currentLevel,
+      int targetLevel,
+      int knowledgeCost
+  ) {
+    if (!AdaptationLearningTransaction.isConfigured()) {
+      return "";
+    }
+    if (currentLevel >= targetLevel) {
+      String refund = AdaptationLearningTransaction.formattedRefund(
+          adaptation,
+          player,
+          targetLevel - 1,
+          currentLevel
+      );
+      return refund.isBlank() ? "" : C.GREEN + AdaptLanguage.text(
+          GuiMessages.VAULT_REFUND,
+          trusted("amount", refund)
+      );
+    }
+    String cost = AdaptationLearningTransaction.formattedLearnCost(knowledgeCost);
+    if (cost.isBlank()) {
+      return C.YELLOW + AdaptLanguage.text(GuiMessages.VAULT_UNAVAILABLE_FALLBACK);
+    }
+    return C.GRAY + AdaptLanguage.text(
+        GuiMessages.VAULT_LEARN_COST,
+        trusted("amount", cost)
+    );
+  }
+
+  private static void notifyEconomyFailure(Player player, AdaptationLearningTransaction.Result result) {
+    if (result == AdaptationLearningTransaction.Result.INSUFFICIENT_FUNDS) {
+      Adapt.messagePlayer(player, AdaptLanguage.text(GuiMessages.VAULT_INSUFFICIENT_FUNDS));
+      return;
+    }
+    if (result == AdaptationLearningTransaction.Result.ECONOMY_UNAVAILABLE
+        || result == AdaptationLearningTransaction.Result.ECONOMY_FAILED) {
+      Adapt.messagePlayer(player, AdaptLanguage.text(GuiMessages.VAULT_TRANSACTION_FAILED));
+    }
   }
 
   private static String learningActionLore(

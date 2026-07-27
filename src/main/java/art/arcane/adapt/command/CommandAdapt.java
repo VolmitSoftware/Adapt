@@ -3,6 +3,7 @@ package art.arcane.adapt.command;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.adaptation.AdaptationLearningTransaction;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.Skill;
@@ -578,35 +579,12 @@ public class CommandAdapt {
     if (targetLevel > currentLevel) {
       int knowledgeCost = adaptation.getCostFor(targetLevel, currentLevel);
       int powerCost = adaptation.getPowerCostFor(targetLevel, currentLevel);
-
-      if (!force) {
-        if (!playerData.hasPowerAvailable(powerCost)) {
-          FConst.error(AdaptLanguage.text(
-              CommandRuntimeMessages.POWER_INSUFFICIENT,
-              trusted("needed", powerCost),
-              trusted("available", playerData.getAvailablePower())
-          )).send(BukkitDirectorContext.sender());
-          return;
-        }
-
-        if (skillLine.getKnowledge() < knowledgeCost) {
-          FConst.error(AdaptLanguage.text(
-              CommandRuntimeMessages.KNOWLEDGE_INSUFFICIENT,
-              untrusted("skill", skill.getName()),
-              trusted("needed", knowledgeCost),
-              trusted("available", skillLine.getKnowledge())
-          )).send(BukkitDirectorContext.sender());
-          return;
-        }
-
-        if (!skillLine.spendKnowledge(knowledgeCost)) {
-          FConst.error(AdaptLanguage.text(CommandRuntimeMessages.KNOWLEDGE_SPEND_FAILED, trusted("knowledge", knowledgeCost)))
-              .send(BukkitDirectorContext.sender());
-          return;
-        }
+      AdaptationLearningTransaction.Result result =
+          AdaptationLearningTransaction.learn(adaptation, targetPlayer, targetLevel, force);
+      if (result != AdaptationLearningTransaction.Result.LEARNED) {
+        sendLearningFailure(result, skill, adaptation, targetPlayer, playerData, skillLine, knowledgeCost, powerCost);
+        return;
       }
-
-      skillLine.setAdaptation(adaptation, targetLevel);
       FConst.success(AdaptLanguage.text(
           CommandRuntimeMessages.SET_ADAPTATION_LEVEL,
           untrusted("player", targetPlayer.getName()),
@@ -616,18 +594,11 @@ public class CommandAdapt {
       return;
     }
 
-    if (adaptation.isPermanent() && !force) {
-      FConst.error(AdaptLanguage.text(
-          CommandRuntimeMessages.PERMANENT_ADAPTATION_LOWER,
-          untrusted("adaptation", adaptation.getName())
-      )).send(BukkitDirectorContext.sender());
+    AdaptationLearningTransaction.Result result =
+        AdaptationLearningTransaction.unlearn(adaptation, targetPlayer, targetLevel, force);
+    if (result != AdaptationLearningTransaction.Result.UNLEARNED) {
+      sendLearningFailure(result, skill, adaptation, targetPlayer, playerData, skillLine, 0, 0);
       return;
-    }
-
-    int refund = AdaptConfig.get().isHardcoreNoRefunds() ? 0 : adaptation.getRefundCostFor(targetLevel, currentLevel);
-    skillLine.setAdaptation(adaptation, targetLevel);
-    if (refund > 0) {
-      skillLine.giveKnowledge(refund);
     }
 
     FConst.success(AdaptLanguage.text(
@@ -635,6 +606,59 @@ public class CommandAdapt {
         untrusted("player", targetPlayer.getName()),
         untrusted("adaptation", adaptation.getName()),
         trusted("level", targetLevel)
+    )).send(BukkitDirectorContext.sender());
+  }
+
+  private void sendLearningFailure(
+      AdaptationLearningTransaction.Result result,
+      Skill<?> skill,
+      Adaptation<?> adaptation,
+      Player targetPlayer,
+      PlayerData playerData,
+      PlayerSkillLine skillLine,
+      int knowledgeCost,
+      int powerCost
+  ) {
+    if (result == AdaptationLearningTransaction.Result.INSUFFICIENT_POWER) {
+      FConst.error(AdaptLanguage.text(
+          CommandRuntimeMessages.POWER_INSUFFICIENT,
+          trusted("needed", powerCost),
+          trusted("available", playerData.getAvailablePower())
+      )).send(BukkitDirectorContext.sender());
+      return;
+    }
+    if (result == AdaptationLearningTransaction.Result.INSUFFICIENT_KNOWLEDGE) {
+      FConst.error(AdaptLanguage.text(
+          CommandRuntimeMessages.KNOWLEDGE_INSUFFICIENT,
+          untrusted("skill", skill.getName()),
+          trusted("needed", knowledgeCost),
+          trusted("available", skillLine.getKnowledge())
+      )).send(BukkitDirectorContext.sender());
+      return;
+    }
+    if (result == AdaptationLearningTransaction.Result.INSUFFICIENT_FUNDS) {
+      FConst.error(AdaptLanguage.text(CommandRuntimeMessages.VAULT_INSUFFICIENT_FUNDS))
+          .send(BukkitDirectorContext.sender());
+      return;
+    }
+    if (result == AdaptationLearningTransaction.Result.ECONOMY_UNAVAILABLE
+        || result == AdaptationLearningTransaction.Result.ECONOMY_FAILED) {
+      FConst.error(AdaptLanguage.text(CommandRuntimeMessages.VAULT_TRANSACTION_FAILED))
+          .send(BukkitDirectorContext.sender());
+      return;
+    }
+    if (result == AdaptationLearningTransaction.Result.PERMANENT) {
+      FConst.error(AdaptLanguage.text(
+          CommandRuntimeMessages.PERMANENT_ADAPTATION_LOWER,
+          untrusted("adaptation", adaptation.getName())
+      )).send(BukkitDirectorContext.sender());
+      return;
+    }
+    FConst.error(AdaptLanguage.text(
+        CommandRuntimeMessages.NO_ADAPTATION_CHANGE,
+        untrusted("adaptation", adaptation.getName()),
+        untrusted("player", targetPlayer.getName()),
+        trusted("level", skillLine.getAdaptationLevel(adaptation.getName()))
     )).send(BukkitDirectorContext.sender());
   }
 

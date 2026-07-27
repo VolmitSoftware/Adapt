@@ -32,4 +32,19 @@ class AdaptConfigTest {
             .contains("inspiredPopupEnabled = false")
             .doesNotContain("inspiredNotifyEnabled");
     }
+
+    @Test
+    void vaultLearningEconomyIsOptionalByDefault() throws IOException {
+        AdaptConfig config = new AdaptConfig();
+        String canonical = TomlCodec.toToml(config, "core-config");
+
+        assertThat(config.getLearningEconomy().isEnabled()).isFalse();
+        assertThat(config.getLearningEconomy().getMoneyPerKnowledge()).isEqualTo(1D);
+        assertThat(config.getLearningEconomy().getRefundPercent()).isEqualTo(100D);
+        assertThat(canonical)
+            .contains("[learningEconomy]")
+            .contains("enabled = false")
+            .contains("moneyPerKnowledge = 1.0")
+            .contains("refundPercent = 100.0");
+    }
 }

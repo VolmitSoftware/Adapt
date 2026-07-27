@@ -4768,6 +4768,11 @@ already_learned_no_refunds = "Уже изучено — ХАРДКОР, ВОЗВ
 already_learned_refund = "Уже изучен  Нажмите , чтобы отменить обучение и возместить стоимость знаний {refund}"
 click_to_learn = "Нажмите, чтобы научиться {adaptation}"
 knowledge_shortage = "(У тебя есть только {knowledge} Знания доступны)"
+vault_learn_cost = "{amount} Vault Cost"
+vault_refund = "Vault Refund: {amount}"
+vault_unavailable_fallback = "Vault economy unavailable — Knowledge-only learning remains active."
+vault_insufficient_funds = "You do not have enough Vault currency to learn this adaptation."
+vault_transaction_failed = "The Vault economy transaction failed; your progression was not changed."
 power_drain = "{power} Утечка энергии"
 
 [gui.mutations]
@@ -6289,6 +6294,8 @@ adaptation_already_level = "Без изменений: {adaptation} Уже на 
 power_insufficient = "Недостаточно доступной мощности. нужда {needed}, иметь {available}."
 knowledge_insufficient = "Недостаточно знаний в {skill}. нужда {needed}, иметь {available}."
 knowledge_spend_failed = "Не удалось потратить необходимые знания ({knowledge})."
+vault_insufficient_funds = "The player does not have enough Vault currency."
+vault_transaction_failed = "The Vault economy transaction failed; no progression was changed."
 set_adaptation_level = "Настройка {player} {adaptation} на уровень {level}."
 permanent_adaptation_lower = "{adaptation} является постоянным и не может быть понижен без force=true."
 adapt_server_not_ready = "Adapt Сервер еще не готов. Попробуйте еще раз через несколько секунд."

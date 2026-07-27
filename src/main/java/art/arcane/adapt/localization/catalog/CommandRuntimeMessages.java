@@ -39,6 +39,8 @@ public final class CommandRuntimeMessages {
   public static final TextKey POWER_INSUFFICIENT = TextKey.of("command.runtime.power_insufficient", "Not enough available power. Need {needed}, have {available}.");
   public static final TextKey KNOWLEDGE_INSUFFICIENT = TextKey.of("command.runtime.knowledge_insufficient", "Not enough knowledge in {skill}. Need {needed}, have {available}.");
   public static final TextKey KNOWLEDGE_SPEND_FAILED = TextKey.of("command.runtime.knowledge_spend_failed", "Failed to spend required knowledge ({knowledge}).");
+  public static final TextKey VAULT_INSUFFICIENT_FUNDS = TextKey.of("command.runtime.vault_insufficient_funds", "The player does not have enough Vault currency.");
+  public static final TextKey VAULT_TRANSACTION_FAILED = TextKey.of("command.runtime.vault_transaction_failed", "The Vault economy transaction failed; no progression was changed.");
   public static final TextKey SET_ADAPTATION_LEVEL = TextKey.of("command.runtime.set_adaptation_level", "Set {player} {adaptation} to level {level}.");
   public static final TextKey PERMANENT_ADAPTATION_LOWER = TextKey.of("command.runtime.permanent_adaptation_lower", "{adaptation} is permanent and cannot be lowered without force=true.");
   public static final TextKey ADAPT_SERVER_NOT_READY = TextKey.of("command.runtime.adapt_server_not_ready", "Adapt server is not ready yet. Try again in a few seconds.");
@@ -119,6 +121,8 @@ public final class CommandRuntimeMessages {
     builder.add(POWER_INSUFFICIENT);
     builder.add(KNOWLEDGE_INSUFFICIENT);
     builder.add(KNOWLEDGE_SPEND_FAILED);
+    builder.add(VAULT_INSUFFICIENT_FUNDS);
+    builder.add(VAULT_TRANSACTION_FAILED);
     builder.add(SET_ADAPTATION_LEVEL);
     builder.add(PERMANENT_ADAPTATION_LOWER);
     builder.add(ADAPT_SERVER_NOT_READY);

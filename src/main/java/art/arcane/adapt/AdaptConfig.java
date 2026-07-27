@@ -19,6 +19,7 @@
 package art.arcane.adapt;
 
 import art.arcane.adapt.api.xp.Curves;
+import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.adapt.util.config.ConfigFileSupport;
 import art.arcane.adapt.util.project.redis.RedisConfig;
 import art.arcane.volmlib.util.bukkit.WorldIdentity;
@@ -83,6 +84,7 @@ public class AdaptConfig {
   private SqlSettings sql = new SqlSettings();
   private Protector protectorSupport = new Protector();
   private AbilityApi abilityApi = new AbilityApi();
+  private LearningEconomy learningEconomy = new LearningEconomy();
   private Map<String, List<String>> adaptationUsageConflicts = defaultAdaptationUsageConflicts();
   private Map<String, Map<String, Boolean>> protectionOverrides = Map.of(
       "adaptation-name", Map.of(
@@ -149,6 +151,16 @@ public class AdaptConfig {
     private int providerFaultLimit = 5;
     private int slowProviderMillis = 2;
     private int denyMessageThrottleMillis = 2000;
+  }
+
+  @Getter
+  public static class LearningEconomy {
+    @ConfigDoc(value = "Charges Vault currency when players learn Adaptations.", impact = "Vault and an economy provider are optional; without them, normal Knowledge-only learning remains active.")
+    private boolean enabled = false;
+    @ConfigDoc(value = "Vault currency charged for each point of Knowledge spent.", impact = "The final price is the Adaptation's Knowledge cost multiplied by this value.")
+    private double moneyPerKnowledge = 1D;
+    @ConfigDoc(value = "Percentage of the paid Vault cost returned when an Adaptation is unlearned.", impact = "Use 0 to disable money refunds or values up to 100 for partial or full refunds.")
+    private double refundPercent = 100D;
   }
 
   @Getter

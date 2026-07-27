@@ -4768,6 +4768,11 @@ already_learned_no_refunds = "כבר נלמד — מצב קשוח, החזרים 
 already_learned_refund = "עקבו אחרי Unlearn & back {refund} עלויות ידע"
 click_to_learn = "לחץ כדי ללמוד {adaptation}"
 knowledge_shortage = "(רק יש לך {knowledge} ידע זמין)"
+vault_learn_cost = "{amount} Vault Cost"
+vault_refund = "Vault Refund: {amount}"
+vault_unavailable_fallback = "Vault economy unavailable — Knowledge-only learning remains active."
+vault_insufficient_funds = "You do not have enough Vault currency to learn this adaptation."
+vault_transaction_failed = "The Vault economy transaction failed; your progression was not changed."
 power_drain = "{power} כוח Drain"
 
 [gui.mutations]
@@ -6289,6 +6294,8 @@ adaptation_already_level = "אין שינוי: {adaptation} כבר ברמה {lev
 power_insufficient = "לא מספיק חשמל זמין. צורך {needed}, יש {available}."
 knowledge_insufficient = "לא מספיק ידע {skill}. צורך {needed}, יש {available}."
 knowledge_spend_failed = "נכשל להוציא ידע נדרש ({knowledge})."
+vault_insufficient_funds = "The player does not have enough Vault currency."
+vault_transaction_failed = "The Vault economy transaction failed; no progression was changed."
 set_adaptation_level = "הגדר {player} {adaptation} לרמה {level}."
 permanent_adaptation_lower = "{adaptation} זה קבוע ולא ניתן להוריד ללא force=true."
 adapt_server_not_ready = "Adapt השרת עדיין לא מוכן. נסה שוב בתוך כמה שניות."

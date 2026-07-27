@@ -183,6 +183,9 @@ dependencies {
 
     //Random Api's
     compileOnlyApi('me.clip:placeholderapi:2.11.6')
+    compileOnly('com.github.MilkBowl:VaultAPI:1.7') {
+        transitive = false
+    }
     compileOnlyApi('com.github.DeadSilenceIV:AdvancedChestsAPI:2.9-BETA')
     compileOnlyApi('com.sk89q.worldguard:worldguard-bukkit:7.0.8')
     compileOnlyApi('com.github.FrancoBM12:API-MagicCosmetics:2.2.8')
@@ -194,6 +197,9 @@ dependencies {
 
     testImplementation('io.papermc.paper:paper-api:26.2.build.60-beta')
     testImplementation('me.clip:placeholderapi:2.11.6') {
+        transitive = false
+    }
+    testImplementation('com.github.MilkBowl:VaultAPI:1.7') {
         transitive = false
     }
     testImplementation('org.junit.jupiter:junit-jupiter:5.11.4')

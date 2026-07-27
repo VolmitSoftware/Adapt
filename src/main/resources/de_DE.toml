@@ -4768,6 +4768,11 @@ already_learned_no_refunds = "Bereits gelernt — HARDCORE, RÜCKERSTATTUNGEN DE
 already_learned_refund = "Bereits gelernt — Klicke, um es zu verlernen und {refund} Wissenskosten zurückzuerhalten"
 click_to_learn = "Klicken Sie auf {adaptation}"
 knowledge_shortage = "(Sie haben nur {knowledge}-Kenntnisse zur Verfügung)"
+vault_learn_cost = "{amount} Vault Cost"
+vault_refund = "Vault Refund: {amount}"
+vault_unavailable_fallback = "Vault economy unavailable — Knowledge-only learning remains active."
+vault_insufficient_funds = "You do not have enough Vault currency to learn this adaptation."
+vault_transaction_failed = "The Vault economy transaction failed; your progression was not changed."
 power_drain = "{power} Stromentnahme"
 
 [gui.mutations]
@@ -6289,6 +6294,8 @@ adaptation_already_level = "Keine Änderung: {adaptation} ist bereits auf der Eb
 power_insufficient = "Ich brauche {needed}, habe {available}."
 knowledge_insufficient = "Nicht genug Wissen in {skill}. Bedarf {needed}, haben {available}."
 knowledge_spend_failed = "Nicht ausgegeben, die erforderlichen Kenntnisse ({knowledge})."
+vault_insufficient_funds = "The player does not have enough Vault currency."
+vault_transaction_failed = "The Vault economy transaction failed; no progression was changed."
 set_adaptation_level = "{player} {adaptation} auf das Niveau {level} einstellen."
 permanent_adaptation_lower = "{adaptation} ist dauerhaft und kann ohne force=true nicht abgeschoben werden."
 adapt_server_not_ready = "Der Adapt-Server ist noch nicht fertig."
