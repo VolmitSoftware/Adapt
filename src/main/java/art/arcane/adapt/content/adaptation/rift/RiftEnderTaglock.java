@@ -78,6 +78,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static art.arcane.adapt.api.adaptation.chunk.ChunkLoading.loadChunkAsync;
 import static art.arcane.volmlib.util.localization.MessageArgument.untrusted;
@@ -165,8 +166,11 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
       return;
     }
 
+    if (!tagIntoPearl(p, hand, target)) {
+      return;
+    }
+
     e.setCancelled(true);
-    tagIntoPearl(p, hand, target);
     fx(p, FxPriority.COMBAT).sound(Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 0.55f, 1.4f);
     timeline(target)
         .duration(8)
@@ -232,7 +236,9 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
       return;
     }
 
-    decrementTaggedPearl(p, slot, hand);
+    if (!decrementTaggedPearl(p, slot, hand)) {
+      return;
+    }
 
     EnderPearl pearl = p.launchProjectile(EnderPearl.class);
     pearl.getPersistentDataContainer().set(targetKey, PersistentDataType.STRING, target.toString());
@@ -550,12 +556,12 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
     return base.add(0, 0.05, 0);
   }
 
-  private void decrementTaggedPearl(Player p, EquipmentSlot slot, ItemStack stack) {
+  private boolean decrementTaggedPearl(Player p, EquipmentSlot slot, ItemStack stack) {
     if (!isItem(stack)) {
-      return;
+      return false;
     }
 
-    payItemCost(p, "consume", new ItemStack(stack.getType()), 1, () -> {
+    return payItemCost(p, "consume", new ItemStack(stack.getType()), 1, () -> {
       if (stack.getAmount() <= 1) {
         if (slot == EquipmentSlot.HAND) {
           p.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
@@ -577,20 +583,31 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
     });
   }
 
-  private void tagIntoPearl(Player p, ItemStack hand, LivingEntity target) {
+  private boolean tagIntoPearl(Player p, ItemStack hand, LivingEntity target) {
     ItemStack tagged = makeTaggedPearl(target);
+    AtomicBoolean releasedMainHandSlot = new AtomicBoolean();
 
-    payItemCost(p, "bind", new ItemStack(hand.getType()), 1, () -> {
+    if (!payItemCost(p, "bind", new ItemStack(hand.getType()), 1, () -> {
       if (hand.getAmount() <= 1) {
-        p.getInventory().setItemInMainHand(tagged);
+        p.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
+        releasedMainHandSlot.set(true);
         return true;
       }
 
       hand.setAmount(hand.getAmount() - 1);
+      p.getInventory().setItemInMainHand(hand);
+      return true;
+    })) {
+      return false;
+    }
+
+    if (releasedMainHandSlot.get()) {
+      p.getInventory().setItemInMainHand(tagged);
+    } else {
       p.getInventory().addItem(tagged).values()
           .forEach(i -> p.getWorld().dropItemNaturally(p.getLocation(), i));
-      return true;
-    });
+    }
+    return true;
   }
 
   private ItemStack makeTaggedPearl(LivingEntity target) {

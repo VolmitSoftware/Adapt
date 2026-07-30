@@ -27,8 +27,6 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
-import art.arcane.adapt.api.world.PlayerAdaptation;
-import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.content.integration.iris.IrisTreeFellerLink;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
@@ -142,14 +140,16 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
     }
 
     int logsVeinmined = blockMap.size();
-    PlayerSkillLine line = getPlayer(p).getData().getSkillLineNullable("axes");
-    PlayerAdaptation adaptation = line != null ? line.getAdaptation("axe-drop-to-inventory") : null;
-    boolean toInventory = adaptation != null && adaptation.getLevel() > 0;
     J.runEntity(p, () -> {
+      boolean toInventory = getActiveSiblingBlockBreakLevel(
+          p,
+          "axe-drop-to-inventory",
+          block.getLocation()
+      ) > 0;
       for (Block blocks : blockMap) {
         VEIN_MINED.add(blocks);
         if (toInventory) {
-          Collection<ItemStack> items = blocks.getDrops();
+          Collection<ItemStack> items = blocks.getDrops(tool, p);
           for (ItemStack item : items) {
             safeGiveItem(p, item);
           }

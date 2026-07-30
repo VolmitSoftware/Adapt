@@ -24,8 +24,6 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
-import art.arcane.adapt.api.world.PlayerAdaptation;
-import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.content.skill.SkillHerbalism;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -123,11 +121,14 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
 
     ItemStack right = p.getInventory().getItemInMainHand();
     ItemStack left = p.getInventory().getItemInOffHand();
+    ItemStack harvestTool;
 
     if (isTool(left) && isHoe(left) && !p.hasCooldown(left.getType())) {
+      harvestTool = left.clone();
       damageOffHand(p, 1 + ((lvl - 1) * 7));
       p.setCooldown(left.getType(), getCooldown(getLevelPercent(p), lvl));
     } else if (isTool(right) && isHoe(right) && !p.hasCooldown(right.getType())) {
+      harvestTool = right.clone();
       damageHand(p, 1 + ((lvl - 1) * 7));
       p.setCooldown(right.getType(), getCooldown(getLevelPercent(p), lvl));
     } else {
@@ -144,7 +145,7 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
       c = c.expand(Cuboid.CuboidDirection.West, Math.round(getRadius(lvl)));
 
       for (Block i : c) {
-        J.runEntity(p, () -> hit(p, i), M.irand(1, 6));
+        J.runEntity(p, () -> hit(p, i, harvestTool), M.irand(1, 6));
       }
 
       double footprint = Math.max(1.0D, getRadius(lvl));
@@ -152,12 +153,14 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
           .dustRing(Color.LIME, footprint, Math.min(28, (int) Math.round(footprint * 8)), 1.0F)
           .chord(Sound.ITEM_SHOVEL_FLATTEN, 1F, 0.66F, Sound.BLOCK_BAMBOO_SAPLING_BREAK, 1F, 0.66F);
     } else {
-      hit(p, target);
+      hit(p, target, harvestTool);
     }
   }
 
-  private void hit(Player p, Block b) {
-    if (b != null && b.getBlockData() instanceof Ageable aa && hasActiveAdaptation(p)) {
+  private void hit(Player p, Block b, ItemStack harvestTool) {
+    if (b != null
+        && b.getBlockData() instanceof Ageable aa
+        && getActiveBlockBreakLevel(p, b.getLocation()) > 0) {
       if (aa.getAge() != aa.getMaximumAge()) {
         return;
       }
@@ -168,11 +171,14 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
 
       xp(p, b.getLocation().clone().add(0.5, 0.5, 0.5), ((SkillHerbalism.Config) getSkill().getConfig()).harvestPerAgeXP * aa.getAge());
       xp(p, b.getLocation().clone().add(0.5, 0.5, 0.5), ((SkillHerbalism.Config) getSkill().getConfig()).plantCropSeedsXP);
-      PlayerSkillLine line = getPlayer(p).getData().getSkillLineNullable("herbalism");
-      PlayerAdaptation adaptation = line != null ? line.getAdaptation("herbalism-drop-to-inventory") : null;
-      List<ItemStack> items = new ArrayList<>(b.getDrops());
+      boolean dropToInventory = getActiveSiblingBlockBreakLevel(
+          p,
+          "herbalism-drop-to-inventory",
+          b.getLocation()
+      ) > 0;
+      List<ItemStack> items = new ArrayList<>(b.getDrops(harvestTool, p));
       boolean seedConsumed = consumeSeed(items, b.getBlockData().getPlacementMaterial());
-      if (adaptation != null && adaptation.getLevel() > 0) {
+      if (dropToInventory) {
         boolean caught = false;
         for (ItemStack i : items) {
           if (!isItem(i) || i.getAmount() <= 0) {

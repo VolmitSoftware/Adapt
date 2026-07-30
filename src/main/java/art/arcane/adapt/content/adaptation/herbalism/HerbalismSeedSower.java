@@ -24,6 +24,8 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.ability.AbilityCharge;
+import art.arcane.adapt.api.ability.AbilityRefundReason;
 import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
@@ -44,6 +46,9 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class HerbalismSeedSower extends SimpleAdaptation<HerbalismSeedSower.Config> {
   public HerbalismSeedSower() {
@@ -122,18 +127,23 @@ public class HerbalismSeedSower extends SimpleAdaptation<HerbalismSeedSower.Conf
       return;
     }
 
-    int planted = plantNearby(p, origin, hand, seedType, cropType, getRadius(getLevel(p)), getMaxCrops(getLevel(p)));
+    int level = getActiveLevel(p);
+    if (level <= 0) {
+      return;
+    }
+
+    int planted = plantNearby(p, origin, seedType, cropType, getRadius(level), getMaxCrops(level));
     if (planted <= 0) {
       return;
     }
 
     e.setCancelled(true);
-    p.setCooldown(seedType, getCooldownTicks(getLevelPercent(p)));
+    p.setCooldown(seedType, getCooldownTicks(getLevelPercent(level)));
     addStat(p, "harvest.planted", planted);
     addStat(p, "herbalism.seed-sower.seeds-planted", planted);
     xp(p, planted * getConfig().xpPerCrop);
 
-    double footprint = Math.max(1.0D, getRadius(getLevel(p)));
+    double footprint = Math.max(1.0D, getRadius(level));
     FxEmitter emitter = fx(origin.getLocation().add(0.5, 0.5, 0.5), FxPriority.TRANSITION)
         .dustRing(Color.LIME, footprint, Math.min(28, (int) Math.round(footprint * 8)), 1.0F)
         .sound(Sound.ITEM_CROP_PLANT, 0.6F, 1.25F);
@@ -142,18 +152,65 @@ public class HerbalismSeedSower extends SimpleAdaptation<HerbalismSeedSower.Conf
     }
   }
 
-  private int plantNearby(Player p, Block origin, ItemStack seeds, Material seedType, Material cropType, int radius, int maxCrops) {
-    int planted = 0;
-    int emitted = 0;
-    int available = p.getGameMode() == GameMode.CREATIVE ? Integer.MAX_VALUE : seeds.getAmount();
+  private int plantNearby(Player p, Block origin, Material seedType, Material cropType, int radius, int maxCrops) {
+    int available = p.getGameMode() == GameMode.CREATIVE
+        ? maxCrops
+        : p.getInventory().getItemInMainHand().getAmount();
+    List<Block> targets = findPlantingTargets(p, origin, seedType, radius, Math.min(maxCrops, available));
+    if (targets.isEmpty()) {
+      return 0;
+    }
+
+    if (p.getGameMode() == GameMode.CREATIVE) {
+      int planted = plantTargets(targets, cropType);
+      emitPlantingFx(targets.subList(0, planted));
+      return planted;
+    }
+
+    int requested = targets.size();
+    AbilityCharge charge = payItemCostDeferred(
+        p,
+        "seeds",
+        new ItemStack(seedType),
+        requested,
+        () -> hasHeldSeeds(p, seedType, requested)
+    );
+    if (!charge.allowed()) {
+      return 0;
+    }
+
+    int planted = plantTargets(targets, cropType);
+    if (planted != requested) {
+      rollbackPlanting(targets, planted);
+      refundCost(charge.activationId(), AbilityRefundReason.ACTIVATION_FAILED);
+      return 0;
+    }
+
+    boolean defaultConsumed = !charge.defaultCostSuppressed()
+        && consumeHeldSeeds(p, seedType, planted);
+    if (!charge.defaultCostSuppressed() && !defaultConsumed) {
+      rollbackPlanting(targets, planted);
+      refundCost(charge.activationId(), AbilityRefundReason.ACTIVATION_FAILED);
+      return 0;
+    }
+
+    boolean settled = settleCost(charge.activationId());
+    if (!acceptsPlantingSettlement(defaultConsumed, charge.defaultCostSuppressed(), settled)) {
+      rollbackPlanting(targets, planted);
+      refundCost(charge.activationId(), AbilityRefundReason.ACTIVATION_FAILED);
+      return 0;
+    }
+
+    emitPlantingFx(targets);
+    return planted;
+  }
+
+  private List<Block> findPlantingTargets(Player p, Block origin, Material seedType, int radius, int limit) {
+    List<Block> targets = new ArrayList<>(Math.max(0, limit));
     int y = origin.getY();
 
-    for (int x = -radius; x <= radius && planted < maxCrops; x++) {
-      for (int z = -radius; z <= radius && planted < maxCrops; z++) {
-        if (available <= 0) {
-          break;
-        }
-
+    for (int x = -radius; x <= radius && targets.size() < limit; x++) {
+      for (int z = -radius; z <= radius && targets.size() < limit; z++) {
         Block base = origin.getWorld().getBlockAt(origin.getX() + x, y, origin.getZ() + z);
         if (!isValidBase(seedType, base.getType())) {
           continue;
@@ -164,29 +221,63 @@ public class HerbalismSeedSower extends SimpleAdaptation<HerbalismSeedSower.Conf
           continue;
         }
 
-        crop.setType(cropType);
-        planted++;
-        available--;
-
-        if (emitted < 12) {
-          fx(crop.getLocation().add(0.5, 0.2, 0.5), FxPriority.AMBIENT)
-              .particle(Particle.COMPOSTER, 1, 0, 0.05D, 0, 0.1D, 0.01D)
-              .particle(Particle.HAPPY_VILLAGER, 1, 0, 0.05D, 0, 0.1D, 0.01D);
-          emitted++;
-        }
+        targets.add(crop);
       }
     }
 
-    int sown = planted;
-    if (p.getGameMode() != GameMode.CREATIVE && sown > 0) {
-      payItemCost(p, "seeds", new ItemStack(seeds.getType()), sown, () -> {
-        seeds.setAmount(Math.max(0, seeds.getAmount() - sown));
-        p.getInventory().setItemInMainHand(seeds.getAmount() <= 0 ? new ItemStack(Material.AIR) : seeds);
-        return true;
-      });
+    return targets;
+  }
+
+  private int plantTargets(List<Block> targets, Material cropType) {
+    int planted = 0;
+    for (Block crop : targets) {
+      if (!crop.isEmpty()) {
+        break;
+      }
+      crop.setType(cropType);
+      planted++;
+    }
+    return planted;
+  }
+
+  private boolean hasHeldSeeds(Player p, Material seedType, int amount) {
+    ItemStack hand = p.getInventory().getItemInMainHand();
+    return hand.getType() == seedType && hand.getAmount() >= amount;
+  }
+
+  private boolean consumeHeldSeeds(Player p, Material seedType, int amount) {
+    if (!hasHeldSeeds(p, seedType, amount)) {
+      return false;
     }
 
-    return planted;
+    ItemStack hand = p.getInventory().getItemInMainHand();
+    int remaining = hand.getAmount() - amount;
+    if (remaining <= 0) {
+      p.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
+    } else {
+      hand.setAmount(remaining);
+      p.getInventory().setItemInMainHand(hand);
+    }
+    return true;
+  }
+
+  private void rollbackPlanting(List<Block> targets, int planted) {
+    for (int index = 0; index < planted; index++) {
+      targets.get(index).setType(Material.AIR);
+    }
+  }
+
+  private void emitPlantingFx(List<Block> targets) {
+    int count = Math.min(12, targets.size());
+    for (int index = 0; index < count; index++) {
+      fx(targets.get(index).getLocation().add(0.5, 0.2, 0.5), FxPriority.AMBIENT)
+          .particle(Particle.COMPOSTER, 1, 0, 0.05D, 0, 0.1D, 0.01D)
+          .particle(Particle.HAPPY_VILLAGER, 1, 0, 0.05D, 0, 0.1D, 0.01D);
+    }
+  }
+
+  static boolean acceptsPlantingSettlement(boolean defaultConsumed, boolean defaultCostSuppressed, boolean settled) {
+    return defaultConsumed || (defaultCostSuppressed && settled);
   }
 
   private boolean isValidBase(Material seedType, Material base) {

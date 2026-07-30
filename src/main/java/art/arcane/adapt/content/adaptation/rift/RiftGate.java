@@ -28,6 +28,8 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.ability.AbilityCharge;
+import art.arcane.adapt.api.ability.AbilityRefundReason;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.content.event.AdaptAdaptationTeleportEvent;
@@ -40,6 +42,7 @@ import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -47,18 +50,37 @@ import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
+  private static final int CHANNEL_TICKS = 85;
+  private static final int COOLDOWN_TICKS = 150;
+
+  private final NamespacedKey reservationKey;
+  private final Map<UUID, GateChannel> pendingChannels = new ConcurrentHashMap<>();
+
   public RiftGate() {
     super("rift-gate");
     registerConfiguration(Config.class);
+    reservationKey = new NamespacedKey(Adapt.instance, "rift_gate_eye_reservation");
     setIcon(Material.RESPAWN_ANCHOR);
     setInterval(1322);
     if (getConfig().requireCraftedEye) {
@@ -84,6 +106,13 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
         .build());
     registerMilestone("challenge_rift_gate_100", "rift.gate.teleports", 100, 400);
     registerMilestone("challenge_rift_gate_50k_dist", "rift.gate.total-distance", 50000, 1500);
+  }
+
+  @Override
+  protected void onRuntimeActivated() {
+    for (Player player : Bukkit.getOnlinePlayers()) {
+      J.runEntity(player, () -> restoreReservedEye(player));
+    }
   }
 
   @Override
@@ -188,8 +217,16 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
 
   private void unlinkEye(Player p) {
     ItemStack hand = p.getInventory().getItemInMainHand();
-    if (!payItemCost(p, "unlink", new ItemStack(hand.getType()), 1, () -> {
-      decrementItemstack(hand, p);
+    ItemStack costUnit = hand.clone();
+    costUnit.setAmount(1);
+    AtomicBoolean defaultConsumed = new AtomicBoolean();
+    if (!payItemCost(p, "unlink", costUnit, 1, () -> {
+      ItemStack current = p.getInventory().getItemInMainHand();
+      if (!isBound(current)) {
+        return false;
+      }
+      decrementItemstack(current, p);
+      defaultConsumed.set(true);
       return true;
     })) {
       return;
@@ -198,13 +235,33 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
     ItemStack eye = getConfig().requireCraftedEye
         ? BoundEyeOfEnder.io.withData(new BoundEyeOfEnder.Data(null))
         : new ItemStack(Material.ENDER_EYE);
-    p.getInventory().addItem(eye).values().forEach(i -> p.getWorld().dropItemNaturally(p.getLocation(), i));
+    deliverTransformedEye(p, eye, defaultConsumed.get());
     fx(p.getEyeLocation(), FxPriority.TRANSITION)
         .burst(Particles.SMOKE, 4, 0.2)
         .chord(Sound.ENTITY_ENDER_EYE_DEATH, 0.5f, 1.4f, Sound.BLOCK_BEACON_DEACTIVATE, 0.4f, 1.2f);
   }
 
   private void linkEye(Player p, Location location) {
+    ItemStack hand = p.getInventory().getItemInMainHand();
+    ItemStack costUnit = hand.clone();
+    costUnit.setAmount(1);
+    AtomicBoolean defaultConsumed = new AtomicBoolean();
+    if (!payItemCost(p, "bind", costUnit, 1, () -> {
+      ItemStack current = p.getInventory().getItemInMainHand();
+      if (!isGateEye(current)) {
+        return false;
+      }
+      decrementItemstack(current, p);
+      defaultConsumed.set(true);
+      return true;
+    })) {
+      return;
+    }
+
+    ItemStack eye = costUnit.clone();
+    BoundEyeOfEnder.setData(eye, location);
+    deliverTransformedEye(p, eye, defaultConsumed.get());
+
     Location center = location.getBlock().getLocation().add(0.5, 0.5, 0.5);
     timeline(center)
         .duration(8)
@@ -218,25 +275,15 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
           }
         })
         .start();
-    ItemStack hand = p.getInventory().getItemInMainHand();
-
-    payItemCost(p, "bind", new ItemStack(hand.getType()), 1, () -> {
-      if (hand.getAmount() == 1) {
-        BoundEyeOfEnder.setData(hand, location);
-      } else {
-        hand.setAmount(hand.getAmount() - 1);
-        ItemStack eye = BoundEyeOfEnder.withData(location);
-        p.getInventory().addItem(eye).values().forEach(i -> p.getWorld().dropItemNaturally(p.getLocation(), i));
-      }
-
-      return true;
-    });
   }
 
 
   private void openEye(Player p) {
     Adapt.verbose("Using eye");
-    Location l = BoundEyeOfEnder.getLocation(p.getInventory().getItemInMainHand());
+    Location destination = BoundEyeOfEnder.getLocation(p.getInventory().getItemInMainHand());
+    if (destination == null || destination.getWorld() == null) {
+      return;
+    }
 
     if (!getConfig().consumeOnUse && p.getCooldown(Material.ENDER_EYE) > 0) {
       timeline(p)
@@ -253,16 +300,18 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
           .start();
       return;
     }
-    p.setCooldown(Material.ENDER_EYE, 150);
-
-
-    if (RiftResist.hasRiftResistPerk(getPlayer(p))) {
-      RiftResist.riftResistStackAdd(this, p, 150, 3);
+    GateChannel channel = new GateChannel(
+        p.getUniqueId(),
+        destination.clone(),
+        new AtomicReference<>()
+    );
+    if (pendingChannels.putIfAbsent(p.getUniqueId(), channel) != null) {
+      return;
     }
 
     p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 100, 10, true, false, false));
     p.addPotionEffect(new PotionEffect(PotionEffectType.LEVITATION, 85, 0, true, false, false));
-    fx(l, FxPriority.TRANSITION)
+    fx(destination, FxPriority.TRANSITION)
         .chord(Sound.BLOCK_LODESTONE_PLACE, 1f, 0.8f, Sound.BLOCK_BELL_RESONATE, 0.7f, 0.9f);
 
     timeline(p)
@@ -278,56 +327,340 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
         })
         .start();
 
-    J.runEntity(p, () -> {
-      if (!p.isOnline()) {
+    if (!J.runEntity(p, () -> authorizeAndTeleport(p, channel), CHANNEL_TICKS)) {
+      pendingChannels.remove(channel.playerId(), channel);
+      clearChannelEffects(p);
+    }
+  }
+
+  private void authorizeAndTeleport(Player p, GateChannel channel) {
+    if (!isAuthorizedAfterChannel(p, channel)) {
+      abortGateChannel(p, channel, AbilityRefundReason.ACTIVATION_ABORTED, true);
+      return;
+    }
+
+    if (getConfig().consumeOnUse) {
+      GateReservation reservation = reserveGateEye(p, channel.destination());
+      if (reservation == null) {
+        abortGateChannel(p, channel, AbilityRefundReason.CHARGE_ROLLBACK, false);
         return;
       }
+      channel.reservation().set(reservation);
+    }
 
-      Location from = p.getLocation().clone();
-      AdaptAdaptationTeleportEvent event = new AdaptAdaptationTeleportEvent(!Bukkit.isPrimaryThread(), getPlayer(p), this, from, l);
-      Bukkit.getPluginManager().callEvent(event);
-      if (event.isCancelled()) {
-        return;
+    Location origin = p.getLocation().clone();
+    AdaptAdaptationTeleportEvent event = new AdaptAdaptationTeleportEvent(
+        !Bukkit.isPrimaryThread(),
+        getPlayer(p),
+        this,
+        origin,
+        channel.destination().clone()
+    );
+    Bukkit.getPluginManager().callEvent(event);
+    if (event.isCancelled()) {
+      abortGateChannel(p, channel, AbilityRefundReason.ACTIVATION_ABORTED, false);
+      return;
+    }
+
+    CompletableFuture<Boolean> teleport;
+    try {
+      teleport = p.teleportAsync(channel.destination().clone(), PlayerTeleportEvent.TeleportCause.PLUGIN);
+    } catch (RuntimeException error) {
+      error.printStackTrace();
+      Adapt.error("Rift Gate could not start a teleport for " + channel.playerId() + ".");
+      abortGateChannel(p, channel, AbilityRefundReason.ACTIVATION_FAILED, true);
+      return;
+    }
+    if (teleport == null) {
+      abortGateChannel(p, channel, AbilityRefundReason.ACTIVATION_FAILED, true);
+      return;
+    }
+    teleport.whenComplete((success, failure) -> completeGateTeleport(p, channel, origin, success, failure));
+  }
+
+  private boolean isAuthorizedAfterChannel(Player p, GateChannel channel) {
+    if (pendingChannels.get(channel.playerId()) != channel
+        || !p.isOnline()
+        || getActiveLevel(p) <= 0
+        || p.hasCooldown(Material.ENDER_EYE)) {
+      return false;
+    }
+    ItemStack current = p.getInventory().getItemInMainHand();
+    return isBound(current)
+        && isSameBlock(BoundEyeOfEnder.getLocation(current), channel.destination());
+  }
+
+  private GateReservation reserveGateEye(Player p, Location destination) {
+    ItemStack hand = p.getInventory().getItemInMainHand();
+    if (!isBound(hand) || !isSameBlock(BoundEyeOfEnder.getLocation(hand), destination)) {
+      return null;
+    }
+    ItemStack unit = hand.clone();
+    unit.setAmount(1);
+    AtomicReference<ItemStack> defaultItem = new AtomicReference<>();
+    AbilityCharge charge = payItemCostDeferred(p, "teleport", unit, 1, () -> {
+      ItemStack current = p.getInventory().getItemInMainHand();
+      if (!isBound(current) || !isSameBlock(BoundEyeOfEnder.getLocation(current), destination)) {
+        return false;
       }
+      ItemStack reserved = current.clone();
+      reserved.setAmount(1);
+      try {
+        decrementItemstack(current, p);
+        p.getPersistentDataContainer().set(
+            reservationKey,
+            PersistentDataType.BYTE_ARRAY,
+            reserved.serializeAsBytes()
+        );
+        defaultItem.set(reserved);
+        return true;
+      } catch (RuntimeException error) {
+        deliverExactItem(p, reserved);
+        p.getPersistentDataContainer().remove(reservationKey);
+        error.printStackTrace();
+        return false;
+      }
+    });
+    if (!charge.allowed()) {
+      ItemStack consumed = defaultItem.get();
+      if (consumed != null) {
+        deliverExactItem(p, consumed);
+        p.getPersistentDataContainer().remove(reservationKey);
+      }
+      return null;
+    }
+    return new GateReservation(charge, defaultItem.get(), new AtomicBoolean());
+  }
 
-      if (getConfig().consumeOnUse) {
-        ItemStack current = p.getInventory().getItemInMainHand();
-        if (!isBound(current) || !isSameBlock(BoundEyeOfEnder.getLocation(current), l)) {
-          fx(p.getEyeLocation(), FxPriority.TRANSITION)
-              .burst(Particles.SMOKE, 3, 0.2)
-              .sound(Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, 0.6f, 0.8f);
-          return;
-        }
-        if (!payItemCost(p, "teleport", new ItemStack(current.getType()), 1, () -> {
-          decrementItemstack(current, p);
-          return true;
+  private void completeGateTeleport(Player p, GateChannel channel, Location origin,
+                                    Boolean success, Throwable failure) {
+    if (failure != null) {
+      failure.printStackTrace();
+      Adapt.error("Rift Gate teleport failed for " + channel.playerId() + ".");
+    }
+    if (!J.runEntity(p, () -> finishGateTeleportOwned(p, channel, origin, success, failure))) {
+      if (pendingChannels.remove(channel.playerId(), channel)) {
+        releaseProviderReservation(channel.reservation().get(), AbilityRefundReason.ACTIVATION_FAILED);
+      }
+    }
+  }
+
+  private void finishGateTeleportOwned(Player p, GateChannel channel, Location origin,
+                                       Boolean success, Throwable failure) {
+    if (!pendingChannels.remove(channel.playerId(), channel)) {
+      return;
+    }
+    GateReservation reservation = channel.reservation().get();
+    if (!successfulTeleport(success, failure, p.isOnline())) {
+      refundGateReservation(p, reservation, AbilityRefundReason.ACTIVATION_FAILED);
+      clearChannelEffects(p);
+      showGateFailure(p);
+      return;
+    }
+    if (!settleGateReservation(p, reservation)) {
+      clearChannelEffects(p);
+      showGateFailure(p);
+      return;
+    }
+
+    p.setCooldown(Material.ENDER_EYE, COOLDOWN_TICKS);
+    if (getActiveSiblingLevel(p, "rift-resist") > 0) {
+      RiftResist.riftResistStackAdd(this, p, COOLDOWN_TICKS, 3);
+    }
+    if (getConfig().consumeOnUse) {
+      xp(p, 75);
+    }
+    Location actualDestination = p.getLocation().clone();
+    addStat(p, "rift.teleports", 1);
+    addStat(p, "rift.gate.teleports", 1);
+    if (origin.getWorld() != null && origin.getWorld().equals(actualDestination.getWorld())) {
+      addStat(p, "rift.gate.total-distance", (int) origin.distance(actualDestination));
+    }
+    fx(origin, FxPriority.TRANSITION)
+        .particle(Particle.REVERSE_PORTAL, 16, 0, 1.0, 0, 0.25, 0.05)
+        .sound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.7f, 0.8f);
+    timeline(actualDestination)
+        .duration(5)
+        .priority(FxPriority.TRANSITION)
+        .frame((fx, tick, progress) -> {
+          fx.ring(Particles.END_ROD, 0.3 + (1.3 * progress), 16, 0.1);
+          if (tick == 0) {
+            fx.sound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.7f, 1.3f);
+          }
+        })
+        .start();
+  }
+
+  private boolean settleGateReservation(Player p, GateReservation reservation) {
+    if (reservation == null) {
+      return true;
+    }
+    if (!reservation.resolved().compareAndSet(false, true)) {
+      return false;
+    }
+    boolean settled = settleCost(reservation.charge().activationId());
+    if (!acceptSettlement(
+        reservation.defaultItem() != null,
+        reservation.charge().defaultCostSuppressed(),
+        settled
+    )) {
+      Adapt.warn("Rift Gate could not settle the deferred provider cost for " + p.getUniqueId() + ".");
+      return false;
+    }
+    if (reservation.defaultItem() != null) {
+      p.getPersistentDataContainer().remove(reservationKey);
+    }
+    return true;
+  }
+
+  private void abortGateChannel(Player p, GateChannel channel, AbilityRefundReason reason, boolean feedback) {
+    if (!pendingChannels.remove(channel.playerId(), channel)) {
+      return;
+    }
+    refundGateReservation(p, channel.reservation().get(), reason);
+    clearChannelEffects(p);
+    if (feedback) {
+      showGateFailure(p);
+    }
+  }
+
+  private void refundGateReservation(Player p, GateReservation reservation, AbilityRefundReason reason) {
+    ItemStack item = releaseProviderReservation(reservation, reason);
+    if (item == null) {
+      return;
+    }
+    try {
+      deliverExactItem(p, item);
+      p.getPersistentDataContainer().remove(reservationKey);
+    } catch (RuntimeException error) {
+      Adapt.error("Rift Gate could not return a reserved gate eye to " + p.getUniqueId() + ".");
+      error.printStackTrace();
+    }
+  }
+
+  private ItemStack releaseProviderReservation(GateReservation reservation, AbilityRefundReason reason) {
+    if (reservation == null || !reservation.resolved().compareAndSet(false, true)) {
+      return null;
+    }
+    boolean refunded = refundCost(reservation.charge().activationId(), reason);
+    if (reservation.charge().defaultCostSuppressed() && !refunded) {
+      Adapt.warn("Rift Gate could not resolve the deferred provider cost for "
+          + reservation.charge().activationId() + ".");
+    }
+    return reservation.defaultItem();
+  }
+
+  private void clearChannelEffects(Player p) {
+    PotionEffect blindness = p.getPotionEffect(PotionEffectType.BLINDNESS);
+    if (isOwnedChannelEffect(blindness, 10, 100)) {
+      p.removePotionEffect(PotionEffectType.BLINDNESS);
+    }
+    PotionEffect levitation = p.getPotionEffect(PotionEffectType.LEVITATION);
+    if (isOwnedChannelEffect(levitation, 0, 85)) {
+      p.removePotionEffect(PotionEffectType.LEVITATION);
+    }
+  }
+
+  private void showGateFailure(Player p) {
+    if (!p.isOnline()) {
+      return;
+    }
+    fx(p.getEyeLocation(), FxPriority.TRANSITION)
+        .burst(Particles.SMOKE, 3, 0.2)
+        .sound(Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, 0.6f, 0.8f);
+  }
+
+  @EventHandler
+  public void on(PlayerQuitEvent event) {
+    GateChannel channel = pendingChannels.remove(event.getPlayer().getUniqueId());
+    if (channel != null) {
+      refundGateReservation(event.getPlayer(), channel.reservation().get(), AbilityRefundReason.PLAYER_LEFT);
+      clearChannelEffects(event.getPlayer());
+    }
+  }
+
+  @EventHandler
+  public void on(PlayerJoinEvent event) {
+    restoreReservedEye(event.getPlayer());
+  }
+
+  private void restoreReservedEye(Player p) {
+    byte[] serialized = p.getPersistentDataContainer().get(reservationKey, PersistentDataType.BYTE_ARRAY);
+    if (serialized == null || serialized.length == 0) {
+      return;
+    }
+    try {
+      deliverExactItem(p, ItemStack.deserializeBytes(serialized));
+      p.getPersistentDataContainer().remove(reservationKey);
+    } catch (RuntimeException error) {
+      Adapt.error("Rift Gate could not recover a reserved gate eye for " + p.getUniqueId() + ".");
+      error.printStackTrace();
+    }
+  }
+
+  @Override
+  public void unregister() {
+    List<GateChannel> channels = new ArrayList<>(pendingChannels.values());
+    pendingChannels.clear();
+    for (GateChannel channel : channels) {
+      Player player = Bukkit.getPlayer(channel.playerId());
+      if (player != null && player.isOnline()) {
+        if (!J.runEntity(player, () -> {
+          refundGateReservation(
+              player,
+              channel.reservation().get(),
+              AbilityRefundReason.ADAPTATION_DISABLED
+          );
+          clearChannelEffects(player);
         })) {
-          return;
+          releaseProviderReservation(
+              channel.reservation().get(),
+              AbilityRefundReason.ADAPTATION_DISABLED
+          );
         }
-
-        xp(p, 75);
+      } else {
+        releaseProviderReservation(
+            channel.reservation().get(),
+            AbilityRefundReason.ADAPTATION_DISABLED
+        );
       }
+    }
+    super.unregister();
+  }
 
-      addStat(p, "rift.teleports", 1);
-      addStat(p, "rift.gate.teleports", 1);
-      if (from.getWorld() != null && from.getWorld().equals(l.getWorld())) {
-        addStat(p, "rift.gate.total-distance", (int) from.distance(l));
-      }
-      fx(from, FxPriority.TRANSITION)
-          .particle(Particle.REVERSE_PORTAL, 16, 0, 1.0, 0, 0.25, 0.05)
-          .sound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.7f, 0.8f);
-      J.teleport(p, l, PlayerTeleportEvent.TeleportCause.PLUGIN);
-      timeline(l)
-          .duration(5)
-          .priority(FxPriority.TRANSITION)
-          .frame((fx, tick, progress) -> {
-            fx.ring(Particles.END_ROD, 0.3 + (1.3 * progress), 16, 0.1);
-            if (tick == 0) {
-              fx.sound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.7f, 1.3f);
-            }
-          })
-          .start();
-    }, 85);
+  static boolean successfulTeleport(Boolean success, Throwable failure, boolean online) {
+    return failure == null && Boolean.TRUE.equals(success) && online;
+  }
+
+  static boolean acceptSettlement(boolean defaultConsumed, boolean defaultCostSuppressed, boolean settled) {
+    return defaultConsumed || !defaultCostSuppressed || settled;
+  }
+
+  static boolean isOwnedChannelEffect(PotionEffect effect, int amplifier, int maximumDuration) {
+    return effect != null
+        && effect.getAmplifier() == amplifier
+        && effect.getDuration() <= maximumDuration
+        && effect.isAmbient()
+        && !effect.hasParticles()
+        && !effect.hasIcon();
+  }
+
+  private void deliverTransformedEye(Player p, ItemStack eye, boolean defaultConsumed) {
+    ItemStack hand = p.getInventory().getItemInMainHand();
+    if (shouldReplaceTransformedEye(defaultConsumed, hand == null || hand.getType().isAir())) {
+      p.getInventory().setItemInMainHand(eye);
+      return;
+    }
+    deliverExactItem(p, eye);
+  }
+
+  static boolean shouldReplaceTransformedEye(boolean defaultConsumed, boolean handEmpty) {
+    return defaultConsumed && handEmpty;
+  }
+
+  static void deliverExactItem(Player p, ItemStack item) {
+    p.getInventory().addItem(item).values()
+        .forEach(leftover -> p.getWorld().dropItemNaturally(p.getLocation(), leftover));
   }
 
   private boolean isSameBlock(Location a, Location b) {
@@ -338,6 +671,20 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
         && a.getBlockX() == b.getBlockX()
         && a.getBlockY() == b.getBlockY()
         && a.getBlockZ() == b.getBlockZ();
+  }
+
+  private record GateChannel(
+      UUID playerId,
+      Location destination,
+      AtomicReference<GateReservation> reservation
+  ) {
+  }
+
+  private record GateReservation(
+      AbilityCharge charge,
+      ItemStack defaultItem,
+      AtomicBoolean resolved
+  ) {
   }
 
 

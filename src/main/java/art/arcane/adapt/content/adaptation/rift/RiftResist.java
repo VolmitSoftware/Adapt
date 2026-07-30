@@ -30,9 +30,6 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxPriority;
-import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.api.world.PlayerAdaptation;
-import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -88,12 +85,6 @@ public class RiftResist extends SimpleAdaptation<RiftResist.Config> {
         .dome(Particles.ENCHANTMENT_TABLE, 0.9, 14)
         .particle(Particle.WITCH, 8, 0, 1.0, 0, 0.4, 0.01)
         .chord(Sound.ITEM_ARMOR_EQUIP_IRON, 1f, 1.24f, Sound.BLOCK_AMETHYST_BLOCK_RESONATE, 0.6f, 1.2f, Sound.BLOCK_CONDUIT_ACTIVATE, 0.5f, 0.8f);
-  }
-
-  public static boolean hasRiftResistPerk(AdaptPlayer p) {
-    PlayerSkillLine line = p.getData().getSkillLineNullable("rift");
-    PlayerAdaptation adaptation = line == null ? null : line.getAdaptation("rift-resist");
-    return adaptation != null && adaptation.getLevel() > 0;
   }
 
   @Override

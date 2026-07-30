@@ -110,6 +110,19 @@ class AdaptAttributeServiceTest {
   }
 
   @Test
+  void nonFiniteModifierAmountsAreIgnored() {
+    FakeAttribute fake = fake(player, attributeA);
+    AdaptAttributeService service = service(attributeA);
+
+    service.apply(player, "wind-up", "nan", attributeA, Double.NaN, AttributeModifier.Operation.ADD_NUMBER);
+    service.apply(player, "wind-up", "positive-infinity", attributeA, Double.POSITIVE_INFINITY, AttributeModifier.Operation.ADD_NUMBER);
+    service.applyTimed(player, "wind-up", "negative-infinity", attributeA, Double.NEGATIVE_INFINITY, AttributeModifier.Operation.ADD_NUMBER, 100);
+
+    assertThat(fake.modifiers).isEmpty();
+    assertThat(scheduler.delayedTasks).isEmpty();
+  }
+
+  @Test
   void removeStripsOnlyThatSlot() {
     FakeAttribute fake = fake(player, attributeA);
     AdaptAttributeService service = service(attributeA);

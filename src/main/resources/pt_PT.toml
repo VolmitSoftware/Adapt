@@ -3517,7 +3517,7 @@ usage = "Clica com o botão esquerdo no início e com o direito nos pontos de pa
 
 [architect.demolition]
 name = "Mason's Eraser"
-description = "Apague as suas próprias colocações recentes de forma quase instantânea e o bloco aparece como uma gota!"
+description = "Apaga quase instantaneamente os blocos que acabaste de colocar sem gerar itens."
 lore1 = "As suas novas posições quebram de forma quase instantânea"
 lore2 = "Segundos uma colocação conta como fresco"
 lore = ["As suas novas posições quebram de forma quase instantânea", "Segundos uma colocação conta como fresco"]

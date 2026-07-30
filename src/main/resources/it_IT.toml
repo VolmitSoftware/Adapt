@@ -3517,7 +3517,7 @@ usage = "Fai clic sinistro sull'inizio e clic destro sui punti di passaggio e fi
 
 [architect.demolition]
 name = "Eraser di Mason"
-description = "Cancellare i propri posizionamenti recenti quasi istantaneamente e il blocco pops destra indietro come una goccia!"
+description = "Rimuovi quasi istantaneamente i blocchi che hai appena posizionato senza generare oggetti."
 lore1 = "I tuoi posizionamenti freschi si rompono quasi istantaneamente"
 lore2 = "Secondo un posizionamento conta come fresco"
 lore = ["I tuoi posizionamenti freschi si rompono quasi istantaneamente", "Secondo un posizionamento conta come fresco"]

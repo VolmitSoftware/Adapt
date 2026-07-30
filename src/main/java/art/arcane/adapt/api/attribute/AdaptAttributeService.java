@@ -98,7 +98,7 @@ public final class AdaptAttributeService extends TickedObject {
   }
 
   public void apply(LivingEntity target, String adaptationName, String slot, Attribute attribute, double amount, AttributeModifier.Operation operation) {
-    if (isInvalid(target, adaptationName, attribute) || operation == null) {
+    if (isInvalid(target, adaptationName, attribute) || !Double.isFinite(amount) || operation == null) {
       return;
     }
 
@@ -107,7 +107,7 @@ public final class AdaptAttributeService extends TickedObject {
   }
 
   public void applyTimed(LivingEntity target, String adaptationName, String slot, Attribute attribute, double amount, AttributeModifier.Operation operation, long durationTicks) {
-    if (isInvalid(target, adaptationName, attribute) || operation == null) {
+    if (isInvalid(target, adaptationName, attribute) || !Double.isFinite(amount) || operation == null) {
       return;
     }
 

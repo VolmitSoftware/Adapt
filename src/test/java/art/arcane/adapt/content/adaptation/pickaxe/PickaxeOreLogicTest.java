@@ -46,4 +46,22 @@ class PickaxeOreLogicTest {
     assertThat(PickaxeAutosmelt.getExtraDropChance(1)).isEqualTo(0.0125D);
     assertThat(PickaxeAutosmelt.getExtraDropChance(4)).isEqualTo(0.05D);
   }
+
+  @Test
+  void autosmeltPreservesCommittedNativeDropsBeforeApplyingItsOwnBonus() {
+    assertThat(PickaxeAutosmelt.getCommittedSmeltAmount(4, 4, 0.99D)).isEqualTo(4);
+    assertThat(PickaxeAutosmelt.getCommittedSmeltAmount(4, 4, 0.049D)).isEqualTo(5);
+    assertThat(PickaxeAutosmelt.getCommittedSmeltAmount(4, 0, 0.0D)).isEqualTo(4);
+  }
+
+  @Test
+  void autosmeltMapsOnlyItsNativeRawOreDrop() {
+    assertThat(PickaxeAutosmelt.getRawDropFor(Material.IRON_ORE)).isEqualTo(Material.RAW_IRON);
+    assertThat(PickaxeAutosmelt.getRawDropFor(Material.DEEPSLATE_GOLD_ORE)).isEqualTo(Material.RAW_GOLD);
+    assertThat(PickaxeAutosmelt.getRawDropFor(Material.COPPER_ORE)).isEqualTo(Material.RAW_COPPER);
+    assertThat(PickaxeAutosmelt.getRawDropFor(Material.DIAMOND_ORE)).isNull();
+    assertThat(PickaxeAutosmelt.isNativeRawDrop(Material.IRON_ORE, Material.RAW_IRON)).isTrue();
+    assertThat(PickaxeAutosmelt.isNativeRawDrop(Material.IRON_ORE, Material.DIAMOND)).isFalse();
+    assertThat(PickaxeAutosmelt.isNativeRawDrop(Material.DIAMOND_ORE, Material.DIAMOND)).isFalse();
+  }
 }

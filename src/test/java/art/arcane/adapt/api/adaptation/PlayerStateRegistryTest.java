@@ -1,9 +1,15 @@
 package art.arcane.adapt.api.adaptation;
 
 import art.arcane.adapt.AdaptTestBase;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.UUID;
 
@@ -38,5 +44,25 @@ class PlayerStateRegistryTest extends AdaptTestBase {
     PlayerStateRegistry.reset();
 
     verify(plugin).unregisterListener(any(PlayerStateRegistry.QuitListener.class));
+  }
+
+  @Test
+  void sharedCleanupRunsAfterAdaptationQuitHandlers() throws NoSuchMethodException {
+    EventHandler handler = PlayerStateRegistry.QuitListener.class
+        .getMethod("on", PlayerQuitEvent.class)
+        .getAnnotation(EventHandler.class);
+
+    assertThat(handler.priority()).isEqualTo(EventPriority.MONITOR);
+  }
+
+  @Test
+  void shutdownClearsSharedStateAfterAdaptationsUnregister() throws IOException {
+    String source = Files.readString(Path.of("src/main/java/art/arcane/adapt/Adapt.java"));
+    int stopSim = source.indexOf("public void stopSim()");
+    int unregisterAdaptations = source.indexOf("adaptServer.unregister();", stopSim);
+    int clearSharedState = source.indexOf("PlayerStateRegistry.reset();", stopSim);
+
+    assertThat(unregisterAdaptations).isGreaterThan(stopSim);
+    assertThat(clearSharedState).isGreaterThan(unregisterAdaptations);
   }
 }

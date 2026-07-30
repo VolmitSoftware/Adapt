@@ -109,6 +109,22 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
     this.localizationKey = deriveLocalizationKey(name);
   }
 
+  public void setMaxLevel(int maxLevel) {
+    this.maxLevel = Math.max(1, maxLevel);
+  }
+
+  public void setInitialCost(int initialCost) {
+    this.initialCost = Math.max(0, initialCost);
+  }
+
+  public void setBaseCost(int baseCost) {
+    this.baseCost = Math.max(0, baseCost);
+  }
+
+  public void setCostFactor(double costFactor) {
+    this.costFactor = Double.isFinite(costFactor) ? Math.max(0D, costFactor) : 0D;
+  }
+
   @Override
   public boolean hasTickDemand() {
     if (!usesLearnerBoundTicking() || isBursting()) {

@@ -3517,7 +3517,7 @@ usage = "Napsauta alkua hiiren vasemmalla sekä väli- ja loppupisteitä oikeall
 
 [architect.demolition]
 name = "Mason's Eraser"
-description = "Tyhjennä omat viimeaikaiset sijoittelusi hetkessä ja kortteli pomppaa takaisin tippana!"
+description = "Poista itse äskettäin asettamasi palikat lähes välittömästi ilman pudotuksia."
 lore1 = "Uudet sijoittelusi katkeavat pian."
 lore2 = "Sekunteja paikka lasketaan tuoreena"
 lore = ["Uudet sijoittelusi katkeavat pian.", "Sekunteja paikka lasketaan tuoreena"]

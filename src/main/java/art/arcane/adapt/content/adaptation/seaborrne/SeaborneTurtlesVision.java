@@ -29,16 +29,24 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.inventorygui.Element;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.entity.EntityPotionEffectEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 public class SeaborneTurtlesVision extends SimpleAdaptation<SeaborneTurtlesVision.Config> {
@@ -47,6 +55,8 @@ public class SeaborneTurtlesVision extends SimpleAdaptation<SeaborneTurtlesVisio
   private static final double MAX_CREDIT_TICKS_PER_SAMPLE = 160D;
 
   private final Map<UUID, Boolean> submerged = playerState();
+  private final Map<UUID, Boolean> appliedNightVision = playerState();
+  private final Map<UUID, Boolean> nightVisionMutation = playerState();
   private final Map<UUID, Long> lastUnderwaterSample = playerState();
 
   public SeaborneTurtlesVision() {
@@ -75,6 +85,28 @@ public class SeaborneTurtlesVision extends SimpleAdaptation<SeaborneTurtlesVisio
     return true;
   }
 
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(EntityPotionEffectEvent event) {
+    if (!(event.getEntity() instanceof Player player)
+        || event.getModifiedType() != PotionEffectType.NIGHT_VISION) {
+      return;
+    }
+    UUID playerId = player.getUniqueId();
+    if (!nightVisionMutation.containsKey(playerId)) {
+      appliedNightVision.remove(playerId);
+    }
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(PlayerQuitEvent event) {
+    Player player = event.getPlayer();
+    UUID playerId = player.getUniqueId();
+    boolean applied = appliedNightVision.remove(playerId) != null;
+    clearManagedNightVisionOwned(player, playerId, applied);
+    submerged.remove(playerId);
+    lastUnderwaterSample.remove(playerId);
+  }
+
   @Override
   public void onTick() {
     for (AdaptPlayer adaptPlayer : learnedCandidates(System.currentTimeMillis())) {
@@ -87,18 +119,17 @@ public class SeaborneTurtlesVision extends SimpleAdaptation<SeaborneTurtlesVisio
         UUID id = player.getUniqueId();
         int level = getActiveLevel(player);
         if (level <= 0) {
-          if (submerged.remove(id) != null) {
-            player.removePotionEffect(PotionEffectType.NIGHT_VISION);
-          }
+          submerged.remove(id);
+          clearNightVisionIfApplied(player, id);
           lastUnderwaterSample.remove(id);
           return;
         }
 
         boolean was = submerged.getOrDefault(id, false);
         if (!player.isInWater()) {
+          clearNightVisionIfApplied(player, id);
           if (was) {
             submerged.remove(id);
-            player.removePotionEffect(PotionEffectType.NIGHT_VISION);
             fx(player.getEyeLocation(), FxPriority.AMBIENT)
                 .particle(Particle.GLOW, 3, 0D, 0D, 0D, 0.2D, 0.02D)
                 .sound(Sound.BLOCK_CONDUIT_DEACTIVATE, 0.25F, 1.0F);
@@ -107,7 +138,7 @@ public class SeaborneTurtlesVision extends SimpleAdaptation<SeaborneTurtlesVisio
           return;
         }
 
-        refreshNightVision(player);
+        refreshNightVision(player, id);
         long now = System.currentTimeMillis();
         double elapsedTicks = elapsedUnderwaterTicks(lastUnderwaterSample.put(id, now), now);
         if (elapsedTicks > 0D) {
@@ -134,11 +165,70 @@ public class SeaborneTurtlesVision extends SimpleAdaptation<SeaborneTurtlesVisio
     }
   }
 
-  private void refreshNightVision(Player player) {
+  private void refreshNightVision(Player player, UUID playerId) {
     PotionEffect current = player.getPotionEffect(PotionEffectType.NIGHT_VISION);
-    if (current == null || shouldRefreshEffect(current.getDuration(), current.getAmplifier(), 0)) {
-      player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, EFFECT_DURATION_TICKS, 0, false, false));
+    boolean owned = appliedNightVision.containsKey(playerId);
+    if (!owned) {
+      if (current == null && applyManagedNightVision(player, playerId, false)) {
+        appliedNightVision.put(playerId, true);
+      }
+      return;
     }
+    if (current == null) {
+      appliedNightVision.remove(playerId);
+      if (applyManagedNightVision(player, playerId, false)) {
+        appliedNightVision.put(playerId, true);
+      }
+      return;
+    }
+    if (!isManagedNightVision(current)) {
+      appliedNightVision.remove(playerId);
+      return;
+    }
+    if (shouldRefreshEffect(current.getDuration(), current.getAmplifier(), 0)
+        && !applyManagedNightVision(player, playerId, true)) {
+      appliedNightVision.remove(playerId);
+    }
+  }
+
+  private boolean clearNightVisionIfApplied(Player player, UUID playerId) {
+    boolean applied = appliedNightVision.remove(playerId) != null;
+    return clearManagedNightVisionOwned(player, playerId, applied);
+  }
+
+  private boolean clearManagedNightVisionOwned(Player player, UUID playerId, boolean applied) {
+    PotionEffect current = player.getPotionEffect(PotionEffectType.NIGHT_VISION);
+    if (!mayRemoveNightVision(applied, current)) {
+      return false;
+    }
+    nightVisionMutation.put(playerId, true);
+    try {
+      player.removePotionEffect(PotionEffectType.NIGHT_VISION);
+    } finally {
+      nightVisionMutation.remove(playerId);
+    }
+    return true;
+  }
+
+  private boolean applyManagedNightVision(Player player, UUID playerId, boolean force) {
+    nightVisionMutation.put(playerId, true);
+    try {
+      return player.addPotionEffect(managedNightVision(), force);
+    } finally {
+      nightVisionMutation.remove(playerId);
+    }
+  }
+
+  private PotionEffect managedNightVision() {
+    return new PotionEffect(PotionEffectType.NIGHT_VISION, EFFECT_DURATION_TICKS, 0, false, false);
+  }
+
+  static boolean mayRemoveNightVision(boolean owned, PotionEffect current) {
+    return owned && current != null && isManagedNightVision(current);
+  }
+
+  static boolean isManagedNightVision(PotionEffect effect) {
+    return effect.getAmplifier() == 0 && !effect.isAmbient() && !effect.hasParticles();
   }
 
   static boolean shouldRefreshEffect(int currentDuration, int currentAmplifier, int targetAmplifier) {
@@ -151,6 +241,24 @@ public class SeaborneTurtlesVision extends SimpleAdaptation<SeaborneTurtlesVisio
       return 0D;
     }
     return Math.min(MAX_CREDIT_TICKS_PER_SAMPLE, (now - previousSample) / 50D);
+  }
+
+  @Override
+  public void unregister() {
+    Set<UUID> playerIds = new HashSet<>(submerged.keySet());
+    playerIds.addAll(appliedNightVision.keySet());
+    for (UUID playerId : playerIds) {
+      boolean applied = appliedNightVision.remove(playerId) != null;
+      Player player = Bukkit.getPlayer(playerId);
+      if (player != null) {
+        J.runEntity(player, () -> clearManagedNightVisionOwned(player, playerId, applied));
+      }
+    }
+    submerged.clear();
+    appliedNightVision.clear();
+    nightVisionMutation.clear();
+    lastUnderwaterSample.clear();
+    super.unregister();
   }
 
   @ConfigDescription("Gain night vision while underwater.")

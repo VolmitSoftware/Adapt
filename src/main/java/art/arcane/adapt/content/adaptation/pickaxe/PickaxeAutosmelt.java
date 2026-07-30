@@ -29,9 +29,6 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxPriority;
-import art.arcane.adapt.api.world.PlayerAdaptation;
-import art.arcane.adapt.api.world.PlayerSkillLine;
-import art.arcane.adapt.content.item.ItemListings;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Enchantments;
@@ -43,13 +40,15 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> {
@@ -84,10 +83,11 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
     int fortune = getFortuneOreMultiplier(p.getInventory().getItemInMainHand()
         .getEnchantments().get(Enchantments.LOOT_BONUS_BLOCKS));
     int amount = getSmeltAmount(fortune, level);
+    Location location = b.getLocation();
     b.setType(Material.AIR);
     HashMap<Integer, ItemStack> excessItems = p.getInventory().addItem(new ItemStack(ingot, amount));
-    excessItems.values().forEach(itemStack -> b.getLocation().getWorld().dropItemNaturally(b.getLocation(), itemStack));
-    smeltFx(b, source, fortune);
+    excessItems.values().forEach(itemStack -> location.getWorld().dropItemNaturally(location, itemStack));
+    smeltFx(location, source, fortune);
   }
 
   static void autosmeltBlock(Block b, Player p, Adaptation<?> source, int level) {
@@ -99,12 +99,46 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
     int fortune = getFortuneOreMultiplier(p.getInventory().getItemInMainHand()
         .getEnchantments().get(Enchantments.LOOT_BONUS_BLOCKS));
     int amount = getSmeltAmount(fortune, level);
+    Location location = b.getLocation();
     b.setType(Material.AIR);
-    b.getLocation().getWorld().dropItemNaturally(b.getLocation(), new ItemStack(ingot, amount));
-    smeltFx(b, source, fortune);
+    location.getWorld().dropItemNaturally(location, new ItemStack(ingot, amount));
+    smeltFx(location, source, fortune);
   }
 
-  private static Material getIngotFor(Material ore) {
+  private static boolean replaceRawDrops(BlockDropItemEvent event, Material ore, Adaptation<?> source, int level) {
+    Material ingot = getIngotFor(ore);
+    Location location = event.getBlock().getLocation();
+    if (ingot == null || location.getWorld() == null) {
+      return false;
+    }
+
+    Item converted = null;
+    int nativeAmount = 0;
+    Iterator<Item> iterator = event.getItems().iterator();
+    while (iterator.hasNext()) {
+      Item item = iterator.next();
+      if (!isNativeRawDrop(ore, item.getItemStack().getType())) {
+        continue;
+      }
+      nativeAmount += item.getItemStack().getAmount();
+      if (converted == null) {
+        converted = item;
+      } else {
+        iterator.remove();
+        item.remove();
+      }
+    }
+    if (converted == null) {
+      return false;
+    }
+
+    int amount = getCommittedSmeltAmount(nativeAmount, level, ThreadLocalRandom.current().nextDouble());
+    converted.setItemStack(new ItemStack(ingot, amount));
+    smeltFx(location, source, nativeAmount);
+    return true;
+  }
+
+  static Material getIngotFor(Material ore) {
     return switch (ore) {
       case IRON_ORE, DEEPSLATE_IRON_ORE -> Material.IRON_INGOT;
       case GOLD_ORE, DEEPSLATE_GOLD_ORE -> Material.GOLD_INGOT;
@@ -113,20 +147,35 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
     };
   }
 
+  static Material getRawDropFor(Material ore) {
+    return switch (ore) {
+      case IRON_ORE, DEEPSLATE_IRON_ORE -> Material.RAW_IRON;
+      case GOLD_ORE, DEEPSLATE_GOLD_ORE -> Material.RAW_GOLD;
+      case COPPER_ORE, DEEPSLATE_COPPER_ORE -> Material.RAW_COPPER;
+      default -> null;
+    };
+  }
+
+  static boolean isNativeRawDrop(Material ore, Material drop) {
+    Material rawDrop = getRawDropFor(ore);
+    return rawDrop != null && rawDrop == drop;
+  }
+
   static double getExtraDropChance(int level) {
     return (level * 1.25D) / 100.0D;
   }
 
-  private static int getSmeltAmount(int fortuneMultiplier, int level) {
-    int amount = Math.max(1, fortuneMultiplier);
-    if (ThreadLocalRandom.current().nextDouble() < getExtraDropChance(level)) {
-      amount++;
-    }
-    return amount;
+  static int getCommittedSmeltAmount(int nativeAmount, int level, double roll) {
+    return nativeAmount + (roll < getExtraDropChance(level) ? 1 : 0);
   }
 
-  private static void smeltFx(Block b, Adaptation<?> source, int fortune) {
-    Location center = b.getLocation().add(0.5, 0.5, 0.5);
+  private static int getSmeltAmount(int fortuneMultiplier, int level) {
+    return getCommittedSmeltAmount(Math.max(1, fortuneMultiplier), level,
+        ThreadLocalRandom.current().nextDouble());
+  }
+
+  private static void smeltFx(Location location, Adaptation<?> source, int fortune) {
+    Location center = location.clone().add(0.5, 0.5, 0.5);
     Fx.now(source, center, FxPriority.TRANSITION)
         .particle(Particle.FLAME, 6, 0, 0.1, 0, 0.16, 0.02)
         .particle(Particle.LAVA, 3, 0, 0.1, 0, 0.2, 0.0)
@@ -157,15 +206,16 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
     statLore(v, C.GREEN, "", level * 1.25, 2);
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST)
-  public void on(BlockBreakEvent e) {
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(BlockDropItemEvent e) {
     Player p = e.getPlayer();
-    if (!e.getBlock().getBlockData().getMaterial().name().endsWith("_ORE") && !ItemListings.getSmeltOre().contains(e.getBlock().getType())) {
+    Material ore = e.getBlockState().getType();
+    if (getIngotFor(ore) == null || e.getItems().isEmpty()) {
       return;
     }
 
     ItemStack tool = p.getInventory().getItemInMainHand();
-    if (!isPickaxe(tool) || !e.getBlock().isPreferredTool(tool)) {
+    if (!isPickaxe(tool) || !e.getBlockState().getBlockData().isPreferredTool(tool)) {
       return;
     }
     if (tool.getEnchantments().containsKey(Enchantment.SILK_TOUCH)) {
@@ -177,12 +227,8 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
       return;
     }
 
-    PlayerSkillLine line = getPlayer(p).getData().getSkillLineNullable("pickaxe");
-    PlayerAdaptation adaptation = line != null ? line.getAdaptation("pickaxe-drop-to-inventory") : null;
-    if (adaptation != null && adaptation.getLevel() > 0) {
-      PickaxeAutosmelt.autosmeltBlockDTI(e.getBlock(), p, this, context.level());
-    } else {
-      PickaxeAutosmelt.autosmeltBlock(e.getBlock(), p, this, context.level());
+    if (!replaceRawDrops(e, ore, this, context.level())) {
+      return;
     }
     addStat(p, "pickaxe.autosmelt.ores-smelted", 1);
   }

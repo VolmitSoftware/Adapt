@@ -1,7 +1,11 @@
 package art.arcane.adapt.api.adaptation;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.util.common.scheduling.J;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 
@@ -86,9 +90,15 @@ public final class PlayerStateRegistry {
   }
 
   public static final class QuitListener implements Listener {
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerQuitEvent e) {
-      clearPlayer(e.getPlayer().getUniqueId());
+      UUID playerId = e.getPlayer().getUniqueId();
+      J.s(() -> {
+        Player current = Bukkit.getPlayer(playerId);
+        if (current == null || !current.isOnline()) {
+          clearPlayer(playerId);
+        }
+      }, 1);
     }
   }
 }

@@ -72,6 +72,13 @@ class KineticsQuakeGuardTest {
   }
 
   @Test
+  void braceTicksNeverCreatePermanentTimedAttributes() {
+    assertThat(KineticsQuakeGuard.braceTicks(0D, 0D, 0D)).isEqualTo(1L);
+    assertThat(KineticsQuakeGuard.braceTicks(-20D, 5D, 1D)).isEqualTo(1L);
+    assertThat(KineticsQuakeGuard.braceTicks(40D, 40D, 0.5D)).isEqualTo(60L);
+  }
+
+  @Test
   void smashHandlerObservesAtMonitor() throws ReflectiveOperationException {
     Method handler = KineticsQuakeGuard.class.getDeclaredMethod("on", EntityAttemptSmashAttackEvent.class);
     EventHandler policy = handler.getAnnotation(EventHandler.class);

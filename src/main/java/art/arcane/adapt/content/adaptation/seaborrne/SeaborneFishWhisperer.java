@@ -37,7 +37,6 @@ import org.bukkit.Particle;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Axolotl;
 import org.bukkit.entity.Dolphin;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Fish;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
@@ -119,48 +118,62 @@ public class SeaborneFishWhisperer extends SimpleAdaptation<SeaborneFishWhispere
   private void schoolFish(Player player, int level) {
     double range = getSchoolRange(level);
     Location center = player.getLocation();
-    long now = System.currentTimeMillis();
-    int schooled = 0;
-    int newlyCharmed = 0;
-    for (Entity entity : player.getWorld().getNearbyEntities(center, range, range, range)) {
-      if (!(entity instanceof Fish fish)) {
-        continue;
+    Location target = center.clone().add(0D, 0.4D, 0D);
+    int scheduled = 0;
+    for (Fish fish : player.getWorld().getNearbyEntitiesByType(Fish.class, center, range, range, range)) {
+      if (J.runEntity(fish, () -> nudgeAndCreditFish(player, fish, target, level))) {
+        scheduled++;
       }
 
-      Location target = player.getLocation().clone().add(0D, 0.4D, 0D);
-      if (J.runEntity(fish, () -> nudgeFish(fish, target, level))) {
-        schooled++;
-        Long lastCharm = charmedRecently.put(fish.getUniqueId(), now);
-        if (lastCharm == null || now - lastCharm >= CHARM_SESSION_GAP_MILLIS) {
-          newlyCharmed++;
-        }
-      }
-
-      if (schooled >= MAX_FISH) {
+      if (scheduled >= MAX_FISH) {
         break;
       }
     }
+  }
 
-    if (newlyCharmed > 0) {
-      addStat(player, "seaborne.fish-whisperer.charmed", newlyCharmed);
+  private void nudgeAndCreditFish(Player player, Fish fish, Location target, int level) {
+    if (!nudgeFish(fish, target, level)) {
+      return;
+    }
+    UUID fishId = fish.getUniqueId();
+    long now = System.currentTimeMillis();
+    Long lastCharm = charmedRecently.put(fishId, now);
+    if (!startsNewCharmSession(lastCharm, now)) {
+      return;
+    }
+    if (!J.runEntity(player, () -> creditCharmedFish(player))) {
+      charmedRecently.remove(fishId, now);
     }
   }
 
-  private void nudgeFish(Fish fish, Location target, int level) {
-    if (target.getWorld() != fish.getWorld()) {
+  private void creditCharmedFish(Player player) {
+    if (!player.isOnline() || !isRuntimeRegistered() || getActiveLevel(player) <= 0) {
       return;
+    }
+    addStat(player, "seaborne.fish-whisperer.charmed", 1);
+  }
+
+  private boolean nudgeFish(Fish fish, Location target, int level) {
+    if (!fish.isValid() || fish.isDead() || target.getWorld() != fish.getWorld()) {
+      return false;
     }
 
     Vector toTarget = target.toVector().subtract(fish.getLocation().toVector());
     double distance = toTarget.length();
     if (distance < 1.0D) {
-      return;
+      return false;
     }
 
     Vector pull = toTarget.normalize().multiply(getSchoolPull(level));
-    fish.setVelocity(fish.getVelocity().multiply(0.5D).add(pull));
+    Vector current = fish.getVelocity().clone();
+    Vector updated = current.clone().multiply(0.5D).add(pull);
+    if (!hasVelocityChange(current, updated)) {
+      return false;
+    }
+    fish.setVelocity(updated);
     fx(fish.getLocation(), FxPriority.AMBIENT)
         .particle(Particle.BUBBLE, 2, 0D, 0D, 0D, 0.1D, 0.02D);
+    return true;
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -175,14 +188,16 @@ public class SeaborneFishWhisperer extends SimpleAdaptation<SeaborneFishWhispere
     }
 
     double range = getAssistRange(level);
+    Location victimLocation = victim.getLocation().clone();
     int assisted = 0;
-    for (Entity entity : p.getWorld().getNearbyEntities(victim.getLocation(), range, range, range)) {
+    for (Mob entity : p.getWorld().getNearbyEntitiesByType(
+        Mob.class, victimLocation, range, range, range)) {
       if (entity == victim) {
         continue;
       }
 
       if (entity instanceof Dolphin dolphin) {
-        J.runEntity(dolphin, () -> chargeDolphin(dolphin, victim));
+        J.runEntity(dolphin, () -> chargeDolphin(dolphin, victimLocation));
       } else if (entity instanceof Axolotl axolotl) {
         J.runEntity(axolotl, () -> {
           if (axolotl.getTarget() != victim) {
@@ -199,12 +214,12 @@ public class SeaborneFishWhisperer extends SimpleAdaptation<SeaborneFishWhispere
     }
   }
 
-  private void chargeDolphin(Dolphin dolphin, LivingEntity victim) {
-    if (!dolphin.isValid() || !victim.isValid() || victim.isDead() || dolphin.getWorld() != victim.getWorld()) {
+  private void chargeDolphin(Dolphin dolphin, Location victimLocation) {
+    if (!dolphin.isValid() || dolphin.getWorld() != victimLocation.getWorld()) {
       return;
     }
 
-    Vector toVictim = victim.getLocation().toVector().subtract(dolphin.getLocation().toVector());
+    Vector toVictim = victimLocation.toVector().subtract(dolphin.getLocation().toVector());
     if (toVictim.lengthSquared() <= 0.01D) {
       return;
     }
@@ -237,6 +252,18 @@ public class SeaborneFishWhisperer extends SimpleAdaptation<SeaborneFishWhispere
 
   static double schoolRange(double base, double factor, double levelPercent) {
     return base + (levelPercent * factor);
+  }
+
+  static boolean startsNewCharmSession(Long lastCharm, long now) {
+    return lastCharm == null || now - lastCharm >= CHARM_SESSION_GAP_MILLIS;
+  }
+
+  static boolean hasVelocityChange(Vector current, Vector updated) {
+    if (current == null || updated == null) {
+      return false;
+    }
+    double differenceSquared = updated.clone().subtract(current).lengthSquared();
+    return Double.isFinite(differenceSquared) && differenceSquared > 1.0E-8D;
   }
 
   @ConfigDescription("Fish school toward you, dolphins and axolotls assist your hunts, and you fish with a permanent Luck of the Sea tier.")

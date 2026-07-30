@@ -48,6 +48,8 @@ import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Vector;
 
+import java.util.UUID;
+
 public class RiftPearlRebound extends SimpleAdaptation<RiftPearlRebound.Config> {
   private static final double HARD_MAX_DAMAGE_REDUCTION = 0.9D;
   private static final double HARD_MAX_AIM_BIAS = 0.9D;
@@ -153,19 +155,33 @@ public class RiftPearlRebound extends SimpleAdaptation<RiftPearlRebound.Config> 
     e.setDamage(calculateReducedDamage(e.getDamage(), getDamageReduction(level)));
   }
 
-  private void launchReboundPearl(Player p, Location spawnAt, Vector velocity) {
+  private boolean launchReboundPearl(Player p, UUID playerId, Location spawnAt, Vector velocity) {
     World world = spawnAt.getWorld();
     if (world == null) {
-      return;
+      Adapt.error("Rift Pearl Rebound could not spawn a pearl for " + playerId
+          + " because the destination world was unavailable.");
+      return false;
     }
-    EnderPearl pearl = world.spawn(spawnAt, EnderPearl.class);
-    pearl.setShooter(p);
-    pearl.getPersistentDataContainer().set(reboundedKey, PersistentDataType.BYTE, (byte) 1);
-    pearl.setVelocity(velocity);
-    fx(spawnAt, FxPriority.TRAIL)
-        .burst(Particles.SMOKE, 4, 0.15)
-        .particle(Particle.REVERSE_PORTAL, 6, 0, 0.2, 0, 0.25, 0.03)
-        .chord(Sound.BLOCK_SLIME_BLOCK_HIT, 0.7f, 1.4f, Sound.ENTITY_ENDER_EYE_LAUNCH, 0.4f, 1.6f);
+    EnderPearl pearl = null;
+    try {
+      pearl = world.spawn(spawnAt, EnderPearl.class);
+      pearl.setShooter(p);
+      pearl.getPersistentDataContainer().set(reboundedKey, PersistentDataType.BYTE, (byte) 1);
+      pearl.setVelocity(velocity);
+      fx(spawnAt, FxPriority.TRAIL)
+          .burst(Particles.SMOKE, 4, 0.15)
+          .particle(Particle.REVERSE_PORTAL, 6, 0, 0.2, 0, 0.25, 0.03)
+          .chord(Sound.BLOCK_SLIME_BLOCK_HIT, 0.7f, 1.4f, Sound.ENTITY_ENDER_EYE_LAUNCH, 0.4f, 1.6f);
+      return true;
+    } catch (RuntimeException error) {
+      if (pearl != null && pearl.isValid()) {
+        pearl.remove();
+      }
+      Adapt.error("Rift Pearl Rebound failed to create or configure a pearl for " + playerId
+          + " at " + spawnAt + ".");
+      error.printStackTrace();
+      return false;
+    }
   }
 
   private void finishRebound(Player p, Location spawnAt, Vector normal, Vector reflected, int level) {
@@ -185,10 +201,29 @@ public class RiftPearlRebound extends SimpleAdaptation<RiftPearlRebound.Config> 
       direction = normal.clone();
     }
     Vector velocity = direction.normalize().multiply(getReboundSpeed());
-    if (!J.runAt(spawnAt, () -> launchReboundPearl(p, spawnAt, velocity))) {
+    UUID playerId = p.getUniqueId();
+    if (!J.runAt(spawnAt, () -> completeReboundSpawn(p, playerId, spawnAt, velocity))) {
+      Adapt.error("Rift Pearl Rebound could not schedule pearl creation for " + playerId
+          + " at " + spawnAt + ".");
+    }
+  }
+
+  private void completeReboundSpawn(Player p, UUID playerId, Location spawnAt, Vector velocity) {
+    if (!isRuntimeRegistered()) {
       return;
     }
+    if (!launchReboundPearl(p, playerId, spawnAt, velocity)) {
+      return;
+    }
+    if (!J.runEntity(p, () -> rewardRebound(p))) {
+      Adapt.warn("Rift Pearl Rebound created a pearl but could not schedule rewards for " + playerId + ".");
+    }
+  }
 
+  private void rewardRebound(Player p) {
+    if (!p.isOnline() || !isRuntimeRegistered() || getActiveLevel(p) <= 0) {
+      return;
+    }
     addStat(p, "rift.pearl-rebound.rebounds", 1);
     xp(p, getConfig().xpOnRebound, "rift:pearl-rebound:rebound");
   }

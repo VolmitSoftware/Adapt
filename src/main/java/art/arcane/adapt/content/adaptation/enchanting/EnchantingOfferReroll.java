@@ -18,8 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.enchanting;
 
-import art.arcane.adapt.localization.catalog.EnchantingMessages;
-
+import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.ability.AbilityCharge;
+import art.arcane.adapt.api.ability.AbilityRefundReason;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -27,6 +28,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPresets;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.localization.catalog.EnchantingMessages;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -46,6 +48,8 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class EnchantingOfferReroll extends SimpleAdaptation<EnchantingOfferReroll.Config> {
@@ -114,20 +118,26 @@ public class EnchantingOfferReroll extends SimpleAdaptation<EnchantingOfferRerol
     }
 
     int lapisCost = getLapisCost(level);
-    if (!hasLapis(p, lapisCost)) {
+    RerollReservation reservation = reserveRerollCost(p, lapisCost);
+    if (reservation == null) {
       FxPresets.failFizzle(this, tableTop);
       return;
     }
 
-    if (!setSeed(p, ThreadLocalRandom.current().nextInt())) {
-      return;
-    }
-
-    if (!consumeLapis(p, lapisCost)) {
-      return;
-    }
-
     p.setLevel(Math.max(0, p.getLevel() - getConfig().xpLevelCost));
+    if (!setSeed(p, ThreadLocalRandom.current().nextInt())) {
+      refundFailedReroll(p, reservation, AbilityRefundReason.ACTIVATION_FAILED);
+      return;
+    }
+
+    if (!settleRerollCost(reservation)) {
+      if (!setSeed(p, reservation.previousSeed())) {
+        Adapt.warn("Offer Reroll could not restore the previous enchantment seed for " + p.getName() + ".");
+      }
+      refundFailedReroll(p, reservation, AbilityRefundReason.CHARGE_ROLLBACK);
+      return;
+    }
+
     p.setCooldown(Material.ENCHANTING_TABLE, getCooldownTicks(level));
     e.setCancelled(true);
 
@@ -179,21 +189,81 @@ public class EnchantingOfferReroll extends SimpleAdaptation<EnchantingOfferRerol
     return false;
   }
 
-  private boolean consumeLapis(Player p, int amount) {
-    return payItemCost(p, "lapis", new ItemStack(Material.LAPIS_LAZULI), amount, () -> {
-      int need = amount;
-      for (ItemStack stack : p.getInventory().getContents()) {
-        if (stack == null || stack.getType() != Material.LAPIS_LAZULI || need <= 0) {
-          continue;
+  private RerollReservation reserveRerollCost(Player p, int amount) {
+    int previousXpLevel = p.getLevel();
+    int previousSeed = p.getEnchantmentSeed();
+    AtomicBoolean defaultLapisConsumed = new AtomicBoolean();
+    AbilityCharge charge = payItemCostDeferred(
+        p,
+        "lapis",
+        new ItemStack(Material.LAPIS_LAZULI),
+        amount,
+        () -> {
+          boolean consumed = takeLapis(p, amount);
+          defaultLapisConsumed.set(consumed);
+          return consumed;
         }
+    );
+    if (!charge.allowed()) {
+      return null;
+    }
 
-        int used = Math.min(stack.getAmount(), need);
-        stack.setAmount(stack.getAmount() - used);
-        need -= used;
+    return new RerollReservation(
+        charge,
+        amount,
+        defaultLapisConsumed.get(),
+        previousXpLevel,
+        previousSeed
+    );
+  }
+
+  private boolean takeLapis(Player p, int amount) {
+    if (!hasLapis(p, amount)) {
+      return false;
+    }
+
+    int need = amount;
+    for (ItemStack stack : p.getInventory().getContents()) {
+      if (stack == null || stack.getType() != Material.LAPIS_LAZULI || need <= 0) {
+        continue;
       }
 
-      return true;
-    });
+      int used = Math.min(stack.getAmount(), need);
+      stack.setAmount(stack.getAmount() - used);
+      need -= used;
+    }
+    return need == 0;
+  }
+
+  private boolean settleRerollCost(RerollReservation reservation) {
+    boolean settled = settleCost(reservation.charge().activationId());
+    return acceptsDeferredSettlement(reservation.defaultLapisConsumed(), settled);
+  }
+
+  static boolean acceptsDeferredSettlement(boolean defaultLapisConsumed, boolean settled) {
+    return defaultLapisConsumed || settled;
+  }
+
+  private void refundFailedReroll(Player p, RerollReservation reservation, AbilityRefundReason reason) {
+    boolean refunded = refundCost(reservation.charge().activationId(), reason);
+    if (reservation.charge().defaultCostSuppressed() && !refunded) {
+      Adapt.warn("Offer Reroll could not resolve the deferred provider cost for " + p.getName() + ".");
+    }
+    if (reservation.defaultLapisConsumed()) {
+      refundDefaultLapis(p, reservation.lapisAmount());
+    }
+    p.setLevel(reservation.previousXpLevel());
+  }
+
+  private void refundDefaultLapis(Player p, int amount) {
+    try {
+      HashMap<Integer, ItemStack> leftovers =
+          p.getInventory().addItem(new ItemStack(Material.LAPIS_LAZULI, amount));
+      leftovers.values().forEach(item -> p.getWorld().dropItemNaturally(p.getLocation(), item));
+    } catch (Throwable t) {
+      Adapt.warn("Offer Reroll could not return reserved lapis to " + p.getName() + ".");
+      t.printStackTrace();
+    }
   }
 
   private boolean setSeed(Player p, int seed) {
@@ -206,7 +276,9 @@ public class EnchantingOfferReroll extends SimpleAdaptation<EnchantingOfferRerol
 
       method.invoke(p, seed);
       return true;
-    } catch (Throwable ignored) {
+    } catch (Throwable t) {
+      Adapt.warn("Offer Reroll could not update the enchantment seed for " + p.getName() + ".");
+      t.printStackTrace();
       return false;
     }
   }
@@ -219,6 +291,14 @@ public class EnchantingOfferReroll extends SimpleAdaptation<EnchantingOfferRerol
     return Math.max(20, (int) Math.round(getConfig().cooldownTicksBase - (getLevelPercent(level) * getConfig().cooldownTicksFactor)));
   }
 
+  private record RerollReservation(
+      AbilityCharge charge,
+      int lapisAmount,
+      boolean defaultLapisConsumed,
+      int previousXpLevel,
+      int previousSeed
+  ) {
+  }
 
   @ConfigDescription("Sneak-right-click an enchanting table to reroll offers for lapis and XP.")
   protected static class Config extends AdaptationConfig {

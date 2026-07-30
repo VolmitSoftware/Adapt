@@ -27,6 +27,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.fx.ViewerGlowCoordinator;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -73,9 +74,9 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
   private final ConcurrentLinkedQueue<UUID> trackingQueue = new ConcurrentLinkedQueue<>();
   private final Set<UUID> enqueuedTracking = ConcurrentHashMap.newKeySet();
   private final AtomicLong trackingSequence = new AtomicLong();
-  private final StealthGlowCoordinator glowCoordinator;
+  private final ViewerGlowCoordinator glowCoordinator;
 
-  public StealthSight(StealthGlowCoordinator glowCoordinator) {
+  public StealthSight(ViewerGlowCoordinator glowCoordinator) {
     super("stealth-vision");
     this.glowCoordinator = Objects.requireNonNull(glowCoordinator);
     registerConfiguration(Config.class);
@@ -456,13 +457,13 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
     }
     if (current != null) {
       glowCoordinator.unset(
-          StealthGlowCoordinator.Layer.SIGHT,
+          ViewerGlowCoordinator.Layer.STEALTH_SIGHT,
           targetId,
           current.runtimeEntityId(),
           viewer
       );
     }
-    if (glowCoordinator.set(StealthGlowCoordinator.Layer.SIGHT, target, viewer, ChatColor.AQUA)) {
+    if (glowCoordinator.set(ViewerGlowCoordinator.Layer.STEALTH_SIGHT, target, viewer, ChatColor.AQUA)) {
       glows.put(targetId, new SightGlow(target, runtimeEntityId, expiresAt));
     } else {
       glows.remove(targetId);
@@ -478,7 +479,7 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
       SightGlow glow = entry.getValue();
       if (glow.expiresAt() <= now && glows.remove(entry.getKey(), glow)) {
         glowCoordinator.unset(
-            StealthGlowCoordinator.Layer.SIGHT,
+            ViewerGlowCoordinator.Layer.STEALTH_SIGHT,
             entry.getKey(),
             glow.runtimeEntityId(),
             viewer
@@ -498,7 +499,7 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
     SightGlow removed = glows.remove(targetId);
     if (removed != null) {
       glowCoordinator.unset(
-          StealthGlowCoordinator.Layer.SIGHT,
+          ViewerGlowCoordinator.Layer.STEALTH_SIGHT,
           targetId,
           removed.runtimeEntityId(),
           viewer
@@ -516,7 +517,7 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
     }
     for (Map.Entry<UUID, SightGlow> entry : glows.entrySet()) {
       glowCoordinator.unset(
-          StealthGlowCoordinator.Layer.SIGHT,
+          ViewerGlowCoordinator.Layer.STEALTH_SIGHT,
           entry.getKey(),
           entry.getValue().runtimeEntityId(),
           viewer
@@ -549,11 +550,11 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
       boolean applied = appliedNightVision.remove(viewerId) != null;
       Player viewer = Bukkit.getPlayer(viewerId);
       if (viewer != null) {
-        boolean scheduled = J.runEntity(viewer, () -> {
+        J.runEntity(viewer, () -> {
           if (glows != null) {
             for (Map.Entry<UUID, SightGlow> glowEntry : glows.entrySet()) {
               glowCoordinator.unset(
-                  StealthGlowCoordinator.Layer.SIGHT,
+                  ViewerGlowCoordinator.Layer.STEALTH_SIGHT,
                   glowEntry.getKey(),
                   glowEntry.getValue().runtimeEntityId(),
                   viewer
@@ -561,13 +562,7 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
             }
           }
           clearManagedNightVisionOwned(viewer, viewerId, applied);
-          glowCoordinator.discardViewer(viewerId);
         });
-        if (!scheduled) {
-          glowCoordinator.discardViewer(viewerId);
-        }
-      } else {
-        glowCoordinator.discardViewer(viewerId);
       }
     }
     sneaking.clear();
@@ -577,6 +572,7 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
     pendingTracking.clear();
     trackingQueue.clear();
     enqueuedTracking.clear();
+    glowCoordinator.clearLayer(ViewerGlowCoordinator.Layer.STEALTH_SIGHT);
     super.unregister();
   }
 

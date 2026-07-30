@@ -18,32 +18,48 @@
 
 package art.arcane.adapt.content.adaptation.ranged;
 
+import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
+import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
+import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
+import org.bukkit.entity.Tameable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class RangedFloaters extends SimpleAdaptation<RangedFloaters.Config> {
+  private final NamespacedKey shotLevelKey;
+  private final NamespacedKey shotOwnerKey;
+
   public RangedFloaters() {
     super("ranged-floaters");
+    shotLevelKey = new NamespacedKey(Adapt.instance, "ranged_floaters_level");
+    shotOwnerKey = new NamespacedKey(Adapt.instance, "ranged_floaters_owner");
     registerConfiguration(Config.class);
     setIcon(Material.SHULKER_SHELL);
     setInterval(2400);
@@ -63,19 +79,38 @@ public class RangedFloaters extends SimpleAdaptation<RangedFloaters.Config> {
     statLore(v, (1 + getAmplifier(level)), 3);
   }
 
-  @EventHandler(priority = EventPriority.HIGH)
-  public void on(EntityDamageByEntityEvent e) {
-    if (RangedHeartseeker.isSeekingProjectile(e.getDamager())) {
-      return;
-    }
-    art.arcane.adapt.api.adaptation.Adaptation.ProjectileContext combat = resolveProjectileContext(e);
-    if (combat == null) {
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(ProjectileLaunchEvent e) {
+    Projectile projectile = e.getEntity();
+    if (RangedHeartseeker.isSeekingProjectile(projectile)
+        || !(projectile.getShooter() instanceof Player player)) {
       return;
     }
 
-    Player p = combat.attacker();
-    LivingEntity target = combat.target();
-    int level = combat.level();
+    int level = getActiveLevel(player);
+    if (level <= 0) {
+      return;
+    }
+
+    PersistentDataContainer data = projectile.getPersistentDataContainer();
+    data.set(shotLevelKey, PersistentDataType.INTEGER, level);
+    data.set(shotOwnerKey, PersistentDataType.STRING, player.getUniqueId().toString());
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(EntityDamageByEntityEvent e) {
+    if (RangedHeartseeker.isSeekingProjectile(e.getDamager())
+        || !(e.getDamager() instanceof Projectile projectile)
+        || !(e.getEntity() instanceof LivingEntity target)) {
+      return;
+    }
+
+    ShotAuthorization authorization = readShotAuthorization(projectile);
+    if (authorization == null || isProtectedTarget(authorization.ownerId(), target)) {
+      return;
+    }
+
+    int level = authorization.level();
     if (ThreadLocalRandom.current().nextDouble() > getProcChance(level)) {
       return;
     }
@@ -88,14 +123,53 @@ public class RangedFloaters extends SimpleAdaptation<RangedFloaters.Config> {
         true,
         true
     ), true);
-    addStat(p, "ranged.floaters.targets-levitated", 1);
 
     int amp = getAmplifier(level);
     fx(target, FxPriority.COMBAT)
         .dustRing(Color.fromRGB(230, 245, 255), 0.7D + (amp * 0.2D), 12, 1.0F)
         .column(Particles.END_ROD, Math.min(16, 10 + (amp * 3)), 2.2D)
         .chord(Sound.ENTITY_SHULKER_SHOOT, 0.6F, 1.45F, Sound.BLOCK_NOTE_BLOCK_CHIME, 0.4F, 1.2F);
-    xp(p, getConfig().skillXpOnProc);
+    rewardProc(authorization.ownerId());
+  }
+
+  private ShotAuthorization readShotAuthorization(Projectile projectile) {
+    PersistentDataContainer data = projectile.getPersistentDataContainer();
+    Integer level = data.get(shotLevelKey, PersistentDataType.INTEGER);
+    String owner = data.get(shotOwnerKey, PersistentDataType.STRING);
+    if (level == null || level <= 0 || owner == null) {
+      return null;
+    }
+    try {
+      return new ShotAuthorization(UUID.fromString(owner), level);
+    } catch (IllegalArgumentException ignored) {
+      return null;
+    }
+  }
+
+  private boolean isProtectedTarget(UUID ownerId, LivingEntity target) {
+    if (isProtectedFriendly(null, target)) {
+      return true;
+    }
+    if (!(target instanceof Tameable tameable) || !tameable.isTamed()) {
+      return false;
+    }
+    AnimalTamer tamer = tameable.getOwner();
+    return tamer != null && ownerId.equals(tamer.getUniqueId());
+  }
+
+  private void rewardProc(UUID ownerId) {
+    Player owner = Bukkit.getPlayer(ownerId);
+    if (owner != null) {
+      J.runEntity(owner, () -> rewardProcOwned(owner));
+    }
+  }
+
+  private void rewardProcOwned(Player owner) {
+    if (!owner.isOnline() || !isRuntimeRegistered() || getActiveLevel(owner) <= 0) {
+      return;
+    }
+    addStat(owner, "ranged.floaters.targets-levitated", 1);
+    xp(owner, getConfig().skillXpOnProc);
   }
 
   private double getProcChance(int level) {
@@ -110,6 +184,8 @@ public class RangedFloaters extends SimpleAdaptation<RangedFloaters.Config> {
     return Math.max(0, (int) Math.floor(getLevelPercent(level) * getConfig().maxAmplifier));
   }
 
+  private record ShotAuthorization(UUID ownerId, int level) {
+  }
 
   @ConfigDescription("Projectiles have a chance to apply levitation to targets.")
   protected static class Config extends AdaptationConfig {

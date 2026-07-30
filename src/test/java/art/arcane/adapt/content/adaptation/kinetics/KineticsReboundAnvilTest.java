@@ -61,6 +61,13 @@ class KineticsReboundAnvilTest {
   }
 
   @Test
+  void windowTicksNeverCreatePermanentTimedAttributes() {
+    assertThat(KineticsReboundAnvil.windowTicks(0D, 0D, 0D)).isEqualTo(1L);
+    assertThat(KineticsReboundAnvil.windowTicks(-20D, 5D, 1D)).isEqualTo(1L);
+    assertThat(KineticsReboundAnvil.windowTicks(40D, 30D, 0.5D)).isEqualTo(55L);
+  }
+
+  @Test
   void smashHandlerObservesAtMonitor() throws ReflectiveOperationException {
     Method handler = KineticsReboundAnvil.class.getDeclaredMethod("on", EntityAttemptSmashAttackEvent.class);
     EventHandler policy = handler.getAnnotation(EventHandler.class);

@@ -21,6 +21,14 @@ import static org.mockito.Mockito.when;
 
 class UnarmedMeditationTest {
   @Test
+  void tickDemandRetainsSessionAndCapacityCleanupWithoutLearners() {
+    assertThat(UnarmedMeditation.requiresMaintenance(false, false, false)).isFalse();
+    assertThat(UnarmedMeditation.requiresMaintenance(true, false, false)).isTrue();
+    assertThat(UnarmedMeditation.requiresMaintenance(false, true, false)).isTrue();
+    assertThat(UnarmedMeditation.requiresMaintenance(false, false, true)).isTrue();
+  }
+
+  @Test
   void installsOwnedTransientMaximumAbsorptionCapacity() {
     IAttribute attribute = mock(IAttribute.class);
     ArgumentCaptor<UUID> modifierId = ArgumentCaptor.forClass(UUID.class);

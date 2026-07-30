@@ -164,6 +164,23 @@ class StealthAdaptationsScalingTest {
   }
 
   @Test
+  void decoySwapAcceptsOnlyConfirmedTeleportCompletion() {
+    RuntimeException failure = new RuntimeException("failed");
+
+    assertThat(StealthDecoySwap.teleportCompleted(true, null)).isTrue();
+    assertThat(StealthDecoySwap.teleportCompleted(false, null)).isFalse();
+    assertThat(StealthDecoySwap.teleportCompleted(null, null)).isFalse();
+    assertThat(StealthDecoySwap.teleportCompleted(true, failure)).isFalse();
+  }
+
+  @Test
+  void decoySwapStartsPlayerLegOnlyForCurrentRegisteredOperations() {
+    assertThat(StealthDecoySwap.canStartPlayerLeg(true, true)).isTrue();
+    assertThat(StealthDecoySwap.canStartPlayerLeg(false, true)).isFalse();
+    assertThat(StealthDecoySwap.canStartPlayerLeg(true, false)).isFalse();
+  }
+
+  @Test
   void umbralRecoveryRefundAndExtensionScale() {
     assertThat(StealthUmbralRecovery.computeRefund(2, 4, 0.0)).isEqualTo(2);
     assertThat(StealthUmbralRecovery.computeRefund(2, 4, 1.0)).isEqualTo(6);

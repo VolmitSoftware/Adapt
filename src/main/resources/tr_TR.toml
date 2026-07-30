@@ -3517,7 +3517,7 @@ usage = "Başlangıca sol, ara ve bitiş noktalarına sağ tıklayın"
 
 [architect.demolition]
 name = "Mason'un Eraser"
-description = "Kendi son yerleştirmelerinizi hemen takip edin ve blok pops sağ geri bir damla olarak!"
+description = "Kısa süre önce yerleştirdiğin blokları eşya düşürmeden neredeyse anında sil."
 lore1 = "Taze yerleştirmeleriniz yakın bir şekilde kırılır"
 lore2 = "İkincisi, bir yerleştirme taze olarak sayılır"
 lore = ["Taze yerleştirmeleriniz yakın bir şekilde kırılır", "İkincisi, bir yerleştirme taze olarak sayılır"]

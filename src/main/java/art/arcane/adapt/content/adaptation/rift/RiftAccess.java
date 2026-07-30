@@ -275,6 +275,31 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
 
   private void linkPearl(Player player, Block block, PlayerInteractEvent event) {
     event.setCancelled(true);
+    ItemStack hand = player.getInventory().getItemInMainHand();
+    ItemStack costUnit = hand.clone();
+    costUnit.setAmount(1);
+    AtomicBoolean defaultConsumed = new AtomicBoolean();
+    if (!payItemCost(player, "bind", costUnit, 1, () -> {
+      ItemStack current = player.getInventory().getItemInMainHand();
+      if (!BoundEnderPearl.isBindableItem(current)) {
+        return false;
+      }
+      decrementItemstack(current, player);
+      defaultConsumed.set(true);
+      return true;
+    })) {
+      return;
+    }
+
+    ItemStack pearl = BoundEnderPearl.withData(block);
+    ItemStack current = player.getInventory().getItemInMainHand();
+    if (shouldReplaceBoundPearl(defaultConsumed.get(), current == null || current.getType().isAir())) {
+      player.getInventory().setItemInMainHand(pearl);
+    } else {
+      player.getInventory().addItem(pearl).values()
+          .forEach(item -> player.getWorld().dropItemNaturally(player.getLocation(), item));
+    }
+
     Location center = block.getLocation().add(0.5, 0.5, 0.5);
     timeline(center)
         .duration(10)
@@ -291,20 +316,10 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
           }
         })
         .start();
-    ItemStack hand = player.getInventory().getItemInMainHand();
+  }
 
-    payItemCost(player, "bind", new ItemStack(hand.getType()), 1, () -> {
-      if (hand.getAmount() == 1) {
-        BoundEnderPearl.setData(hand, block);
-      } else {
-        hand.setAmount(hand.getAmount() - 1);
-        ItemStack pearl = BoundEnderPearl.withData(block);
-        player.getInventory().addItem(pearl).values()
-            .forEach(item -> player.getWorld().dropItemNaturally(player.getLocation(), item));
-      }
-
-      return true;
-    });
+  static boolean shouldReplaceBoundPearl(boolean defaultConsumed, boolean handEmpty) {
+    return defaultConsumed && handEmpty;
   }
 
   private void openPearl(Player player) {

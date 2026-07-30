@@ -28,10 +28,32 @@ class ArchitectWirelessRedstoneTargetTest {
     String linkTorch = method(source, "private void linkTorch", "private void triggerPulse");
 
     assertThat(linkTorch).contains(
-        "BoundRedstoneTorch.setData(hand, targetLocation, binding.face())",
-        "BoundRedstoneTorch.withData(targetLocation, binding.face())"
+        "BoundRedstoneTorch.setData(hand, binding.target(), binding.face())",
+        "BoundRedstoneTorch.withData(binding.target(), binding.face())"
     );
     assertThat(linkTorch).doesNotContain("Material.TARGET");
+  }
+
+  @Test
+  void bindingOutputAndSuccessEffectsRequireAnAllowedPayment() throws IOException {
+    assertThat(ArchitectWirelessRedstone.shouldCreateProviderBoundOutput(true, false))
+        .isTrue();
+    assertThat(ArchitectWirelessRedstone.shouldCreateProviderBoundOutput(true, true))
+        .isFalse();
+    assertThat(ArchitectWirelessRedstone.shouldCreateProviderBoundOutput(false, false))
+        .isFalse();
+
+    String source = Files.readString(REMOTE_SOURCE);
+    String linkTorch = method(source, "private void linkTorch", "private void handleRightClick");
+    int payment = linkTorch.indexOf("boolean paymentAllowed = payItemCost");
+    int denied = linkTorch.indexOf("if (!paymentAllowed)");
+    int providerOutput = linkTorch.indexOf("shouldCreateProviderBoundOutput");
+    int successFx = linkTorch.indexOf("Location targetCenter");
+
+    assertThat(payment).isGreaterThanOrEqualTo(0);
+    assertThat(denied).isGreaterThan(payment);
+    assertThat(providerOutput).isGreaterThan(denied);
+    assertThat(successFx).isGreaterThan(providerOutput);
   }
 
   @Test

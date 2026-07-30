@@ -61,6 +61,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -72,6 +73,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config> {
   private static final int ELEVATOR_LEVELS = 1;
@@ -245,7 +247,7 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
       }
     }
 
-    int upperDist = Math.min(world.getMaxHeight() - block.getY(), maxDistance);
+    int upperDist = upwardScanDistance(block.getY(), world.getMaxHeight(), maxDistance);
     for (int d = 1; d <= upperDist; d++) {
       org.bukkit.block.Block upper = block.getRelative(BlockFace.UP, d);
       if (checkElevator(upper, TARGET_DOWN, d)) {
@@ -317,10 +319,10 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
     data.remove(TARGET_DOWN);
     data.remove(TARGET_UP);
 
-    if (y - lowerY < world.getMinHeight())
+    if (!isWithinBuildHeight(y - lowerY, world.getMinHeight(), world.getMaxHeight()))
       lowerY = 0;
 
-    if (y + upperY > world.getMaxHeight())
+    if (!isWithinBuildHeight(y + upperY, world.getMinHeight(), world.getMaxHeight()))
       upperY = 0;
 
     if (lowerY != 0 && upperY != 0) {
@@ -405,7 +407,7 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
     if (distance == 0)
       return;
     int targetY = block.getY() + (down ? -distance : distance);
-    if (targetY < block.getWorld().getMinHeight() || targetY > block.getWorld().getMaxHeight())
+    if (!isWithinBuildHeight(targetY, block.getWorld().getMinHeight(), block.getWorld().getMaxHeight()))
       return;
 
     Block target = block.getRelative(down ? BlockFace.DOWN : BlockFace.UP, distance);
@@ -415,25 +417,70 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
     org.bukkit.Location loc = player.getLocation();
     loc.setY(target.getY() + 1);
 
+    if (!isWithinBuildHeight(loc.getBlockY(), block.getWorld().getMinHeight(), block.getWorld().getMaxHeight()))
+      return;
+
     if (!hasEnoughSpace(player, loc.getBlockY()))
       return;
 
-    teleportPlayer(player, loc);
-    addStat(player, "architect.elevator.trips", 1);
-    if (distance >= 50 && grantOnce(player, "challenge_architect_elevator_penthouse")) {
-      FxPresets.learnCelebration(this, player);
-      fx(player.getLocation(), FxPriority.TRANSITION).sound(Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.5f, 1.0f);
-    }
+    teleportPlayer(player, loc, distance);
   }
 
-  private void teleportPlayer(Player p, Location l) {
+  private void teleportPlayer(Player p, Location l, int distance) {
     fx(p.getLocation(), FxPriority.TRANSITION)
         .column(Particle.PORTAL, 12, 2.0D)
         .sound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.6f, 1.0f);
-    J.teleport(p, l);
-    fx(l, FxPriority.TRANSITION)
-        .helix(Particle.PORTAL, 0.8D, 2.5D, 16, 0)
-        .chord(Sound.ENTITY_ENDERMAN_TELEPORT, 0.6f, 1.2f, Sound.BLOCK_BEACON_POWER_SELECT, 0.3f, 1.5f);
+
+    CompletableFuture<Boolean> teleport;
+    try {
+      teleport = p.teleportAsync(l, PlayerTeleportEvent.TeleportCause.PLUGIN);
+    } catch (RuntimeException error) {
+      Adapt.error("Architect Elevator could not start a teleport for " + p.getUniqueId() + ".");
+      error.printStackTrace();
+      return;
+    }
+
+    if (teleport == null) {
+      return;
+    }
+    teleport.whenComplete((success, failure) -> finishElevatorTeleport(p, distance, success, failure));
+  }
+
+  private void finishElevatorTeleport(Player p, int distance, Boolean success, Throwable failure) {
+    if (failure != null) {
+      Adapt.error("Architect Elevator teleport failed for " + p.getUniqueId() + ".");
+      failure.printStackTrace();
+    }
+
+    J.runEntity(p, () -> {
+      if (!shouldRewardTeleport(success, failure, p.isOnline())) {
+        return;
+      }
+
+      Location arrival = p.getLocation().clone();
+      fx(arrival, FxPriority.TRANSITION)
+          .helix(Particle.PORTAL, 0.8D, 2.5D, 16, 0)
+          .chord(Sound.ENTITY_ENDERMAN_TELEPORT, 0.6f, 1.2f,
+              Sound.BLOCK_BEACON_POWER_SELECT, 0.3f, 1.5f);
+      addStat(p, "architect.elevator.trips", 1);
+      if (distance >= 50 && grantOnce(p, "challenge_architect_elevator_penthouse")) {
+        FxPresets.learnCelebration(this, p);
+        fx(arrival, FxPriority.TRANSITION)
+            .sound(Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.5f, 1.0f);
+      }
+    });
+  }
+
+  static boolean shouldRewardTeleport(Boolean success, Throwable failure, boolean online) {
+    return online && failure == null && Boolean.TRUE.equals(success);
+  }
+
+  static int upwardScanDistance(int blockY, int maxHeight, int maxDistance) {
+    return Math.max(0, Math.min(maxHeight - 1 - blockY, Math.max(0, maxDistance)));
+  }
+
+  static boolean isWithinBuildHeight(int y, int minHeight, int maxHeight) {
+    return y >= minHeight && y < maxHeight;
   }
 
 

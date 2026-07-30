@@ -28,6 +28,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPresets;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
@@ -36,11 +37,17 @@ import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.entity.AnimalTamer;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
+import org.bukkit.entity.Tameable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.util.Vector;
+
+import java.util.UUID;
 
 public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
 
@@ -81,27 +88,63 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
     if (RangedHeartseeker.isSeekingProjectile(e.getDamager())) {
       return;
     }
-    art.arcane.adapt.api.adaptation.Adaptation.ProjectileContext combat = resolveProjectileContext(e);
-    if (combat == null) {
+    if (!(e.getDamager() instanceof Projectile projectile)
+        || !(projectile.getShooter() instanceof Player player)
+        || !(e.getEntity() instanceof LivingEntity target)) {
       return;
     }
 
-    Player p = combat.attacker();
-    Location a = e.getEntity().getLocation().clone();
-    Location b = p.getLocation().clone();
-    a.setY(0);
-    b.setY(0);
-    xp(p, 5);
-    double distSq = a.distanceSquared(b);
+    ForceHitTarget snapshot = captureForceHitTarget(target);
+    J.runEntity(player, () -> rewardForceHitOwned(player, snapshot));
+  }
 
-    if (distSq > 900 && grantOnce(p, "challenge_force_30")) {
-      xp(p, getConfig().challengeRewardLongShotReward, "challenge-long-shot");
-      FxPresets.learnCelebration(this, p);
+  private ForceHitTarget captureForceHitTarget(LivingEntity target) {
+    UUID tameOwnerId = null;
+    if (target instanceof Tameable tameable && tameable.isTamed()) {
+      AnimalTamer tamer = tameable.getOwner();
+      tameOwnerId = tamer == null ? null : tamer.getUniqueId();
+    }
+    return new ForceHitTarget(
+        target.getLocation().clone(),
+        target instanceof Player,
+        isProtectedFriendly(null, target),
+        tameOwnerId
+    );
+  }
+
+  private void rewardForceHitOwned(Player player, ForceHitTarget target) {
+    int level = getActiveLevel(player);
+    if (level <= 0 || target.protectedTarget()
+        || player.getUniqueId().equals(target.tameOwnerId())) {
+      return;
+    }
+    boolean allowed = target.playerTarget()
+        ? canPVP(player, target.location())
+        : canPVE(player, target.location());
+    if (!allowed) {
+      return;
     }
 
-    if (distSq > 900) {
-      addStat(p, "ranged.force.long-range-hits", 1);
+    Location targetLocation = target.location().clone();
+    Location playerLocation = player.getLocation().clone();
+    targetLocation.setY(0);
+    playerLocation.setY(0);
+    xp(player, 5);
+    double distanceSquared = targetLocation.distanceSquared(playerLocation);
+    boolean longRange = isLongRangeHit(distanceSquared);
+
+    if (longRange && grantOnce(player, "challenge_force_30")) {
+      xp(player, getConfig().challengeRewardLongShotReward, "challenge-long-shot");
+      FxPresets.learnCelebration(this, player);
     }
+
+    if (longRange) {
+      addStat(player, "ranged.force.long-range-hits", 1);
+    }
+  }
+
+  static boolean isLongRangeHit(double distanceSquared) {
+    return distanceSquared > 900D;
   }
 
   @EventHandler
@@ -139,5 +182,13 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
       maxLevel = 7;
       initialCost = 5;
     }
+  }
+
+  private record ForceHitTarget(
+      Location location,
+      boolean playerTarget,
+      boolean protectedTarget,
+      UUID tameOwnerId
+  ) {
   }
 }

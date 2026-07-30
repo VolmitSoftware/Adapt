@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.taming;
 
+import art.arcane.adapt.Adapt;
 import art.arcane.adapt.localization.catalog.TamingMessages;
 
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
@@ -52,6 +53,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -225,14 +227,58 @@ public class TamingBeastRecall extends SimpleAdaptation<TamingBeastRecall.Config
       return;
     }
 
-    if (!J.teleport(tameable, safe)) {
+    beginRecallTeleport(scan, tameable, from, safe);
+  }
+
+  private void beginRecallTeleport(RecallScan scan, Tameable tameable, Location from, Location safe) {
+    CompletableFuture<Boolean> teleport;
+    try {
+      teleport = tameable.teleportAsync(safe);
+    } catch (RuntimeException error) {
+      Adapt.error("Beast Recall could not start teleport for " + tameable.getUniqueId() + ".");
+      error.printStackTrace();
       clearPending(scan);
       return;
     }
+    if (teleport == null) {
+      clearPending(scan);
+      return;
+    }
+    teleport.whenComplete((success, failure) ->
+        completeRecallTeleport(scan, tameable, from, safe, success, failure));
+  }
+
+  private void completeRecallTeleport(RecallScan scan, Tameable tameable, Location from, Location safe,
+                                      Boolean success, Throwable failure) {
+    if (failure != null) {
+      Adapt.error("Beast Recall teleport failed for " + tameable.getUniqueId() + ".");
+      failure.printStackTrace();
+    }
+    if (!successfulRecallTeleport(success, failure)) {
+      clearPending(scan);
+      return;
+    }
+    if (!J.runEntity(tameable, () -> finishRecallTeleportOwned(scan, tameable, from, safe))) {
+      clearPending(scan);
+      Adapt.warn("Beast Recall completed teleport but could not schedule completion for "
+          + tameable.getUniqueId() + ".");
+    }
+  }
+
+  private void finishRecallTeleportOwned(RecallScan scan, Tameable tameable, Location from, Location safe) {
+    if (!isPending(scan) || !tameable.isValid() || tameable.isDead()) {
+      clearPending(scan);
+      return;
+    }
+
     tameable.setFallDistance(0);
     if (!J.runEntity(scan.player, () -> completeRecallOwned(scan, from, safe))) {
       clearPending(scan);
     }
+  }
+
+  static boolean successfulRecallTeleport(Boolean success, Throwable failure) {
+    return failure == null && Boolean.TRUE.equals(success);
   }
 
   private void completeRecallOwned(RecallScan scan, Location from, Location safe) {

@@ -3517,7 +3517,7 @@ usage = "Cliquez avec le bouton gauche sur le départ puis avec le bouton droit 
 
 [architect.demolition]
 name = "L'effacement de Mason"
-description = "Effacez vos placements récents presque immédiatement et le bloc apparaît juste en arrière comme une goutte!"
+description = "Effacez presque instantanément les blocs que vous venez de placer sans produire d'objets."
 lore1 = "Vos nouveaux placements s'interrompent presque immédiatement"
 lore2 = "Seconds un placement compte comme frais"
 lore = ["Vos nouveaux placements s'interrompent presque immédiatement", "Seconds un placement compte comme frais"]

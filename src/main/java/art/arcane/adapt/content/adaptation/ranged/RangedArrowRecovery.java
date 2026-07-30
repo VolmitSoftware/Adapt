@@ -29,6 +29,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
 
+import java.util.Map;
+
 import static xyz.xenondevs.particle.utils.MathUtils.RANDOM;
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
@@ -80,19 +82,30 @@ public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Co
     if (event.getHitEntity() == null || !(arrow.getShooter() instanceof Player shooter)) {
       return;
     }
+    Location impact = arrow.getLocation().clone();
+    withPlayerThread(shooter, event, () -> recoverArrow(shooter, impact));
+  }
 
+  private void recoverArrow(Player shooter, Location impact) {
     int level = getActiveLevel(shooter);
     if (level <= 0 || RANDOM.nextDouble() >= chancePerLevel(level)) {
       return;
     }
 
-    shooter.getInventory().addItem(new ItemStack(Material.ARROW, 1));
+    deliverRecoveredArrow(shooter, new ItemStack(Material.ARROW, 1));
     addStat(shooter, "ranged.arrow-recovery.arrows-recovered", 1);
     Location eye = shooter.getEyeLocation();
-    fx(arrow.getLocation(), FxPriority.AMBIENT)
+    fx(impact, FxPriority.AMBIENT)
         .dustBurst(Color.fromRGB(120, 220, 90), 5, 0.2D, 0.9F)
         .line(Particles.ENCHANTMENT_TABLE, eye.getX(), eye.getY(), eye.getZ(), 4)
         .chord(Sound.ENTITY_ITEM_PICKUP, 0.5F, 1.4F, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.3F, 1.8F);
+  }
+
+  static void deliverRecoveredArrow(Player shooter, ItemStack recoveredArrow) {
+    Map<Integer, ItemStack> leftovers = shooter.getInventory().addItem(recoveredArrow);
+    for (ItemStack leftover : leftovers.values()) {
+      shooter.getWorld().dropItemNaturally(shooter.getLocation(), leftover);
+    }
   }
 
   private boolean isRecoverable(Arrow arrow) {

@@ -111,7 +111,7 @@ public class HerbalismRootedFooting extends SimpleAdaptation<HerbalismRootedFoot
     }
 
     int usableFood = Math.min(p.getFoodLevel(), foodRequired);
-    double absorbed = usableFood / getConfig().foodPerDamage;
+    double absorbed = absorbedDamage(absorbCap, usableFood, getConfig().foodPerDamage);
     if (absorbed <= 0) {
       return;
     }
@@ -131,6 +131,18 @@ public class HerbalismRootedFooting extends SimpleAdaptation<HerbalismRootedFoot
       landing.particle(Particle.HAPPY_VILLAGER, 4, 0, 0.4D, 0, 0.4D, 0.02D)
           .sound(Sound.BLOCK_NOTE_BLOCK_CHIME, 0.4F, 1.4F);
     }
+  }
+
+  static double absorbedDamage(double absorbCap, int usableFood, double foodPerDamage) {
+    if (!Double.isFinite(absorbCap)
+        || !Double.isFinite(foodPerDamage)
+        || absorbCap <= 0D
+        || usableFood <= 0
+        || foodPerDamage <= 0D) {
+      return 0D;
+    }
+
+    return Math.min(absorbCap, usableFood / foodPerDamage);
   }
 
   private boolean isNatureGround(Player p) {

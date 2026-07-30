@@ -30,8 +30,6 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
-import art.arcane.adapt.api.world.PlayerAdaptation;
-import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.content.integration.hiddenore.HiddenOreLink;
 import art.arcane.adapt.content.item.ItemListings;
 import art.arcane.adapt.util.common.format.C;
@@ -200,13 +198,14 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
     }
 
     BlockData veinData = targetType.createBlockData();
-    PlayerSkillLine line = getPlayer(p).getData().getSkillLineNullable("pickaxe");
-    PlayerAdaptation autoSmelt = line != null ? line.getAdaptation("pickaxe-autosmelt") : null;
-    PlayerAdaptation drop2Inv = line != null ? line.getAdaptation("pickaxe-drop-to-inventory") : null;
-    boolean autoSmeltEnabled = autoSmelt != null && autoSmelt.getLevel() > 0
+    int autoSmeltLevel = getActiveSiblingBlockBreakLevel(p, "pickaxe-autosmelt", block.getLocation());
+    boolean autoSmeltEnabled = autoSmeltLevel > 0
         && !tool.getEnchantments().containsKey(Enchantment.SILK_TOUCH);
-    int autoSmeltLevel = autoSmelt != null ? autoSmelt.getLevel() : 0;
-    boolean dropToInventory = drop2Inv != null && drop2Inv.getLevel() > 0;
+    boolean dropToInventory = getActiveSiblingBlockBreakLevel(
+        p,
+        "pickaxe-drop-to-inventory",
+        block.getLocation()
+    ) > 0;
     J.runEntity(p, () -> {
       int index = 0;
       for (Block b : blockMap) {

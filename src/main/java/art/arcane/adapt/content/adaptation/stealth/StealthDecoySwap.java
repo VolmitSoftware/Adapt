@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.stealth;
 
+import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -44,12 +45,16 @@ import org.bukkit.event.player.PlayerToggleSneakEvent;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class StealthDecoySwap extends SimpleAdaptation<StealthDecoySwap.Config> {
   private final StealthShadowDecoy shadowDecoy;
   private final Cooldowns cooldowns = cooldowns();
   private final Map<UUID, Long> lastSneakPress;
+  private final Set<UUID> swapsInFlight = ConcurrentHashMap.newKeySet();
 
   public StealthDecoySwap(StealthShadowDecoy shadowDecoy) {
     super("stealth-decoy-swap");
@@ -127,16 +132,21 @@ public class StealthDecoySwap extends SimpleAdaptation<StealthDecoySwap.Config> 
     if (!cooldowns.isReady(id, getCooldown(level))) {
       return;
     }
+    if (!swapsInFlight.add(id)) {
+      return;
+    }
 
     Location playerLoc = p.getLocation().clone();
     double range = getSwapRange(level);
-    J.runEntity(anchor, () -> {
+    if (!J.runEntity(anchor, () -> {
       if (!anchor.isValid()) {
+        swapsInFlight.remove(id);
         return;
       }
 
       Location anchorLoc = anchor.getLocation().clone();
       if (anchorLoc.getWorld() == null || anchorLoc.getWorld() != playerLoc.getWorld()) {
+        swapsInFlight.remove(id);
         return;
       }
 
@@ -144,30 +154,145 @@ public class StealthDecoySwap extends SimpleAdaptation<StealthDecoySwap.Config> 
       double dy = anchorLoc.getY() - playerLoc.getY();
       double dz = anchorLoc.getZ() - playerLoc.getZ();
       if ((dx * dx) + (dy * dy) + (dz * dz) > range * range) {
+        swapsInFlight.remove(id);
         return;
       }
 
       Location playerDest = anchorLoc.clone();
       playerDest.setYaw(playerLoc.getYaw());
       playerDest.setPitch(playerLoc.getPitch());
-      cooldowns.mark(id);
-      J.teleport(anchor, playerLoc.clone());
-      swapFx(anchorLoc);
-      J.runEntity(p, () -> commitSwap(p, playerDest));
+      startAnchorTeleport(p, anchor, anchorLoc, playerLoc, playerDest, id);
+    })) {
+      swapsInFlight.remove(id);
+    }
+  }
+
+  private void startAnchorTeleport(Player p, Entity anchor, Location anchorOrigin, Location playerOrigin,
+                                   Location playerDestination, UUID playerId) {
+    CompletableFuture<Boolean> teleport = beginTeleport(anchor, playerOrigin, "decoy");
+    if (teleport == null) {
+      swapsInFlight.remove(playerId);
+      return;
+    }
+    teleport.whenComplete((success, failure) -> {
+      reportTeleportFailure(anchor, "decoy", failure);
+      if (!teleportCompleted(success, failure)) {
+        swapsInFlight.remove(playerId);
+        return;
+      }
+      if (!canStartPlayerLeg(swapsInFlight.contains(playerId), isRuntimeRegistered())) {
+        rollbackAnchor(anchor, anchorOrigin, playerId);
+        return;
+      }
+      if (!J.runEntity(p, () -> startPlayerTeleport(
+          p,
+          anchor,
+          anchorOrigin,
+          playerDestination,
+          playerId
+      ))) {
+        rollbackAnchor(anchor, anchorOrigin, playerId);
+      }
     });
   }
 
-  private void commitSwap(Player p, Location playerDest) {
-    if (!p.isOnline()) {
+  private void startPlayerTeleport(Player p, Entity anchor, Location anchorOrigin,
+                                   Location playerDestination, UUID playerId) {
+    if (!canStartPlayerLeg(swapsInFlight.contains(playerId), isRuntimeRegistered()) || !p.isOnline()) {
+      rollbackAnchor(anchor, anchorOrigin, playerId);
       return;
     }
+    CompletableFuture<Boolean> teleport = beginTeleport(p, playerDestination, "player");
+    if (teleport == null) {
+      rollbackAnchor(anchor, anchorOrigin, playerId);
+      return;
+    }
+    teleport.whenComplete((success, failure) -> {
+      reportTeleportFailure(p, "player", failure);
+      if (!teleportCompleted(success, failure)) {
+        rollbackAnchor(anchor, anchorOrigin, playerId);
+        return;
+      }
+      if (!J.runEntity(p, () -> commitSwap(p, anchorOrigin, playerDestination, playerId))) {
+        swapsInFlight.remove(playerId);
+        Adapt.warn("Stealth Decoy Swap completed both teleports but could not schedule rewards for "
+            + playerId + ".");
+      }
+    });
+  }
 
-    J.teleport(p, playerDest);
+  private void commitSwap(Player p, Location anchorOrigin, Location playerDestination, UUID playerId) {
+    if (!p.isOnline() || !isRuntimeRegistered()) {
+      swapsInFlight.remove(playerId);
+      return;
+    }
+    swapsInFlight.remove(playerId);
+    cooldowns.mark(playerId);
     xp(p, getConfig().xpOnSwap);
     addStat(p, "stealth.decoy-swap.swaps", 1);
-    swapFx(playerDest.clone().add(0, 1.0D, 0));
+    swapFx(anchorOrigin);
+    swapFx(playerDestination.clone().add(0, 1.0D, 0));
     fx(p.getEyeLocation(), FxPriority.TRANSITION)
         .sound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.6F, 1.5F);
+  }
+
+  private void rollbackAnchor(Entity anchor, Location anchorOrigin, UUID playerId) {
+    if (!J.runEntity(anchor, () -> {
+      if (!anchor.isValid()) {
+        swapsInFlight.remove(playerId);
+        Adapt.warn("Stealth Decoy Swap could not roll back invalid decoy "
+            + anchor.getUniqueId() + ".");
+        return;
+      }
+      CompletableFuture<Boolean> rollback = beginTeleport(anchor, anchorOrigin, "decoy rollback");
+      if (rollback == null) {
+        swapsInFlight.remove(playerId);
+        return;
+      }
+      rollback.whenComplete((success, failure) -> {
+        reportTeleportFailure(anchor, "decoy rollback", failure);
+        if (!teleportCompleted(success, failure)) {
+          Adapt.warn("Stealth Decoy Swap could not roll back decoy "
+              + anchor.getUniqueId() + " to " + anchorOrigin + ".");
+        }
+        swapsInFlight.remove(playerId);
+      });
+    })) {
+      swapsInFlight.remove(playerId);
+      Adapt.warn("Stealth Decoy Swap could not schedule rollback for decoy "
+          + anchor.getUniqueId() + " to " + anchorOrigin + ".");
+    }
+  }
+
+  private CompletableFuture<Boolean> beginTeleport(Entity entity, Location destination, String leg) {
+    try {
+      return entity.teleportAsync(destination);
+    } catch (RuntimeException error) {
+      reportTeleportFailure(entity, leg, error);
+      return null;
+    }
+  }
+
+  private void reportTeleportFailure(Entity entity, String leg, Throwable failure) {
+    if (failure == null) {
+      return;
+    }
+    Adapt.error("Stealth Decoy Swap " + leg + " teleport failed for " + entity.getUniqueId() + ".");
+    failure.printStackTrace();
+  }
+
+  static boolean teleportCompleted(Boolean success, Throwable failure) {
+    return failure == null && Boolean.TRUE.equals(success);
+  }
+
+  static boolean canStartPlayerLeg(boolean currentInFlight, boolean runtimeRegistered) {
+    return currentInFlight && runtimeRegistered;
+  }
+
+  @Override
+  public void unregister() {
+    swapsInFlight.clear();
+    super.unregister();
   }
 
   private void swapFx(Location location) {

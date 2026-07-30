@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.chronos;
 
+import art.arcane.adapt.Adapt;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ChronosMessages;
 
@@ -53,11 +54,13 @@ import org.bukkit.potion.PotionEffectType;
 
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class ChronosRewind extends SimpleAdaptation<ChronosRewind.Config> {
   private final Map<UUID, RewindSnapshot> snapshots = playerState();
   private final Map<UUID, Long> cooldowns = playerState();
   private final Map<UUID, Boolean> cooldownReadyNotify = playerState();
+  private final Map<UUID, RewindSnapshot> pendingRewinds = playerState();
 
   public ChronosRewind() {
     super("chronos-rewind");
@@ -101,6 +104,7 @@ public class ChronosRewind extends SimpleAdaptation<ChronosRewind.Config> {
     snapshots.remove(id);
     cooldowns.remove(id);
     cooldownReadyNotify.remove(id);
+    pendingRewinds.remove(id);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -121,7 +125,7 @@ public class ChronosRewind extends SimpleAdaptation<ChronosRewind.Config> {
 
     RewindSnapshot snapshot = snapshots.get(id);
     if (snapshot != null && snapshot.expiresAt() > now) {
-      performRewind(p, context.level(), snapshot, now);
+      performRewind(p, snapshot);
       return;
     }
 
@@ -151,7 +155,7 @@ public class ChronosRewind extends SimpleAdaptation<ChronosRewind.Config> {
     fx(p.getLocation().add(0, 1.2, 0), FxPriority.TRANSITION).burst(Particles.SMOKE, 3, 0.15D);
   }
 
-  private void performRewind(Player p, int level, RewindSnapshot snapshot, long now) {
+  private void performRewind(Player p, RewindSnapshot snapshot) {
     UUID id = p.getUniqueId();
     int hungerCost = Math.max(0, getConfig().hungerCost);
     if (hungerCost > 0 && p.getFoodLevel() < hungerCost) {
@@ -159,18 +163,110 @@ public class ChronosRewind extends SimpleAdaptation<ChronosRewind.Config> {
       return;
     }
 
-    snapshots.remove(id);
-
-    Location destination = snapshot.location();
+    Location destination = snapshot.location().clone();
     if (destination.getWorld() == null) {
       reject(p);
       return;
     }
 
-    cooldowns.put(id, now + getCooldownMillis(level));
-    cooldownReadyNotify.put(id, true);
+    if (pendingRewinds.putIfAbsent(id, snapshot) != null) {
+      return;
+    }
+
+    boolean scheduled = J.runEntity(p, () -> beginScheduledRewind(p, snapshot, destination, hungerCost));
+    if (!scheduled) {
+      pendingRewinds.remove(id, snapshot);
+      reject(p);
+    }
+  }
+
+  private void beginScheduledRewind(Player p, RewindSnapshot snapshot, Location destination, int hungerCost) {
+    UUID id = p.getUniqueId();
+    if (!p.isOnline() || p.isDead() || pendingRewinds.get(id) != snapshot
+        || snapshots.get(id) != snapshot || snapshot.expiresAt() <= M.ms()) {
+      pendingRewinds.remove(id, snapshot);
+      return;
+    }
+
+    Adaptation.BlockActionContext sourceContext = resolveInteractContext(p, p.getLocation());
+    Adaptation.BlockActionContext destinationContext = resolveInteractContext(p, destination);
+    int level = scheduledRewindLevel(sourceContext, destinationContext);
+    if (level <= 0 || (hungerCost > 0 && p.getFoodLevel() < hungerCost)) {
+      pendingRewinds.remove(id, snapshot);
+      reject(p);
+      return;
+    }
 
     Location departure = p.getLocation().clone();
+    CompletableFuture<Boolean> teleport;
+    try {
+      teleport = p.teleportAsync(destination, PlayerTeleportEvent.TeleportCause.PLUGIN);
+    } catch (RuntimeException error) {
+      pendingRewinds.remove(id, snapshot);
+      Adapt.error("Chronos Rewind could not start a teleport for " + id + ".");
+      error.printStackTrace();
+      reject(p);
+      return;
+    }
+
+    if (teleport == null) {
+      pendingRewinds.remove(id, snapshot);
+      reject(p);
+      return;
+    }
+    teleport.whenComplete((success, failure) ->
+        finishScheduledRewind(p, snapshot, departure, destination, hungerCost, level, success, failure));
+  }
+
+  private void finishScheduledRewind(
+      Player p,
+      RewindSnapshot snapshot,
+      Location departure,
+      Location destination,
+      int hungerCost,
+      int level,
+      Boolean success,
+      Throwable failure
+  ) {
+    UUID id = p.getUniqueId();
+    if (failure != null) {
+      Adapt.error("Chronos Rewind teleport failed for " + id + ".");
+      failure.printStackTrace();
+    }
+
+    Runnable completion = () -> {
+      boolean operationOwned = pendingRewinds.remove(id, snapshot);
+      if (!shouldCommitRewind(success, failure, operationOwned)
+          || !p.isOnline() || p.isDead()) {
+        return;
+      }
+
+      if (!snapshots.remove(id, snapshot)) {
+        return;
+      }
+
+      cooldowns.put(id, M.ms() + getCooldownMillis(level));
+      cooldownReadyNotify.put(id, true);
+      applySuccessfulRewind(p, snapshot, departure, destination, hungerCost, level);
+    };
+    boolean scheduled = J.runEntity(p, completion);
+    if (!scheduled) {
+      if (J.isOwnedByCurrentRegion(p)) {
+        completion.run();
+      } else if (failure != null || !Boolean.TRUE.equals(success)) {
+        pendingRewinds.remove(id, snapshot);
+      }
+    }
+  }
+
+  private void applySuccessfulRewind(
+      Player p,
+      RewindSnapshot snapshot,
+      Location departure,
+      Location destination,
+      int hungerCost,
+      int level
+  ) {
     Location departFx = departure.clone().add(0, 1, 0);
     fx(departFx, FxPriority.TRANSITION)
         .particle(Particle.REVERSE_PORTAL, 18, 0, 0, 0, 0.35D, 0.04D)
@@ -182,42 +278,27 @@ public class ChronosRewind extends SimpleAdaptation<ChronosRewind.Config> {
           .line(Particle.PORTAL, destination.getX(), destination.getY() + 1, destination.getZ(), 10);
     }
 
-    J.teleport(p, destination, PlayerTeleportEvent.TeleportCause.PLUGIN);
-
-    Runnable restore = () -> {
-      if (!p.isOnline() || p.isDead()) {
-        return;
-      }
-
-      if (p.getHealth() < snapshot.health()) {
-        AttributeInstance maxHealthAttribute = p.getAttribute(Attribute.MAX_HEALTH);
-        double maxHealth = maxHealthAttribute == null ? 20D : maxHealthAttribute.getValue();
-        p.setHealth(Math.min(maxHealth, snapshot.health()));
-      }
-
-      if (p.getFoodLevel() < snapshot.foodLevel()) {
-        p.setFoodLevel(Math.min(20, snapshot.foodLevel()));
-      }
-
-      if (hungerCost > 0) {
-        p.setFoodLevel(Math.max(0, p.getFoodLevel() - hungerCost));
-      }
-
-      p.setFallDistance(0);
-      p.addPotionEffect(new PotionEffect(PotionEffectType.DARKNESS, 35, 0, true, false, false));
-
-      fx(p.getLocation().add(0, 1, 0), FxPriority.TRANSITION)
-          .particle(Particle.END_ROD, 10, 0, 0, 0, 0.3D, 0.02D)
-          .particle(Particle.REVERSE_PORTAL, 22, 0, 0, 0, 0.4D, 0.05D)
-          .particle(Particle.PORTAL, 28, 0, 0, 0, 0.45D, 0.6D)
-          .sound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.7F, 0.85F);
-    };
-
-    if (J.isFoliaThreading()) {
-      J.runEntity(p, restore, 1);
-    } else {
-      J.s(restore, 1);
+    if (p.getHealth() < snapshot.health()) {
+      AttributeInstance maxHealthAttribute = p.getAttribute(Attribute.MAX_HEALTH);
+      double maxHealth = maxHealthAttribute == null ? 20D : maxHealthAttribute.getValue();
+      p.setHealth(Math.min(maxHealth, snapshot.health()));
     }
+
+    if (p.getFoodLevel() < snapshot.foodLevel()) {
+      p.setFoodLevel(Math.min(20, snapshot.foodLevel()));
+    }
+
+    if (hungerCost > 0) {
+      p.setFoodLevel(Math.max(0, p.getFoodLevel() - hungerCost));
+    }
+
+    p.setFallDistance(0);
+    p.addPotionEffect(new PotionEffect(PotionEffectType.DARKNESS, 35, 0, true, false, false));
+    fx(p.getLocation().add(0, 1, 0), FxPriority.TRANSITION)
+        .particle(Particle.END_ROD, 10, 0, 0, 0, 0.3D, 0.02D)
+        .particle(Particle.REVERSE_PORTAL, 22, 0, 0, 0, 0.4D, 0.05D)
+        .particle(Particle.PORTAL, 28, 0, 0, 0, 0.45D, 0.6D)
+        .sound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.7F, 0.85F);
 
     if (getConfig().playClockSounds) {
       ChronosSoundFX.playRewindFinish(p);
@@ -227,10 +308,26 @@ public class ChronosRewind extends SimpleAdaptation<ChronosRewind.Config> {
     xp(p, destination, getConfig().xpOnRewind + (level * getConfig().xpPerLevel));
   }
 
+  static int scheduledRewindLevel(
+      Adaptation.BlockActionContext sourceContext,
+      Adaptation.BlockActionContext destinationContext
+  ) {
+    if (sourceContext == null || destinationContext == null) {
+      return 0;
+    }
+    return Math.min(sourceContext.level(), destinationContext.level());
+  }
+
+  static boolean shouldCommitRewind(Boolean success, Throwable failure, boolean operationOwned) {
+    return operationOwned && failure == null && Boolean.TRUE.equals(success);
+  }
+
   @Override
   public void onTick() {
     long now = M.ms();
-    snapshots.entrySet().removeIf(entry -> entry.getValue().expiresAt() <= now);
+    snapshots.entrySet().removeIf(entry ->
+        entry.getValue().expiresAt() <= now
+            && pendingRewinds.get(entry.getKey()) != entry.getValue());
 
     for (UUID id : cooldownReadyNotify.keySet()) {
       Player p = Bukkit.getPlayer(id);

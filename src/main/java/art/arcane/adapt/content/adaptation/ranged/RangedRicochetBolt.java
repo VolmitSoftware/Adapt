@@ -25,6 +25,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.projectile.ProjectileReplacementRegistry;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -95,6 +96,16 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
         .build());
     registerMilestone("challenge_ranged_ricochet_kills_50", "ranged.ricochet-bolt.ricochet-kills", 50, 500);
     registerMilestone("challenge_ranged_ricochet_kills_500", "ranged.ricochet-bolt.ricochet-kills", 500, 2000);
+  }
+
+  public static RicochetImpact impactOf(Projectile projectile) {
+    if (projectile == null) {
+      return new RicochetImpact(0, 0D);
+    }
+    return new RicochetImpact(
+        getMetadataInt(projectile, RICOCHET_COUNT_META, 0),
+        getMetadataDouble(projectile, BONUS_DAMAGE_META, 0D)
+    );
   }
 
   @Override
@@ -183,6 +194,10 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
     boolean destinationOwned = !foliaThreading
         || FoliaScheduler.isOwnedByCurrentRegion(bounceLocation);
     if (!RicochetTransferRules.requiresRegionHandoff(foliaThreading, destinationOwned)) {
+      RicochetReplacementTicket replacement = beginReplacement(projectile);
+      if (replacement == null) {
+        return;
+      }
       Projectile ricochet = spawnLocalRicochetProjectile(
           projectile,
           bounceLocation,
@@ -194,6 +209,11 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
           transition.bonusDamage()
       );
       if (ricochet == null) {
+        cancelReplacement(replacement);
+        return;
+      }
+      if (!completeReplacement(replacement, ricochet)) {
+        ricochet.remove();
         return;
       }
 
@@ -237,8 +257,17 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
     RicochetProjectileTemplate fallback = fallbackLocation == null
         ? null
         : primary.withSpawnLocation(fallbackLocation);
-    RicochetTransferRequest request = new RicochetTransferRequest(primary, fallback);
+    RicochetReplacementTicket replacement = beginReplacement(projectile);
+    if (replacement == null) {
+      return;
+    }
+    RicochetTransferRequest request = new RicochetTransferRequest(
+        primary,
+        fallback,
+        replacement
+    );
     if (!J.runAt(bounceLocation, () -> completeTransferOwned(request))) {
+      cancelReplacement(replacement);
       return;
     }
 
@@ -281,7 +310,23 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
     }
 
     Location deathLocation = e.getEntity().getLocation();
-    J.runEntity(shooter, () -> rewardRicochetKillOwned(shooter, deathLocation));
+    rewardManualRicochetKill(
+        shooter,
+        deathLocation,
+        getMetadataInt(projectile, RICOCHET_COUNT_META, 0)
+    );
+  }
+
+  public void rewardManualRicochetKill(
+      Player player,
+      Location deathLocation,
+      int ricochetCount
+  ) {
+    if (player == null || deathLocation == null || ricochetCount <= 0) {
+      return;
+    }
+    Location capturedLocation = deathLocation.clone();
+    J.runEntity(player, () -> rewardRicochetKillOwned(player, capturedLocation));
   }
 
   private Projectile spawnLocalRicochetProjectile(
@@ -314,6 +359,49 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
     } catch (RuntimeException exception) {
       reportTransferFailure("spawn local projectile", source.getWorld(), spawnLocation, exception);
       return null;
+    }
+  }
+
+  private RicochetReplacementTicket beginReplacement(Projectile source) {
+    try {
+      return RicochetReplacementTicket.of(ProjectileReplacementRegistry.begin(source));
+    } catch (RuntimeException | Error error) {
+      reportTransferFailure(
+          "begin projectile ownership transfer",
+          source.getWorld(),
+          source.getLocation(),
+          error
+      );
+      return null;
+    }
+  }
+
+  private boolean completeReplacement(
+      RicochetReplacementTicket replacement,
+      Projectile target
+  ) {
+    try {
+      return replacement.complete(target);
+    } catch (RuntimeException | Error error) {
+      reportTransferFailure(
+          "complete projectile ownership transfer",
+          target.getWorld(),
+          target.getLocation(),
+          error
+      );
+      return false;
+    }
+  }
+
+  private void cancelReplacement(RicochetReplacementTicket replacement) {
+    if (replacement == null) {
+      return;
+    }
+    try {
+      replacement.cancel();
+    } catch (RuntimeException | Error error) {
+      Adapt.warn("Failed to cancel a Ricochet Bolt projectile ownership transfer.");
+      error.printStackTrace();
     }
   }
 
@@ -420,23 +508,38 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
 
   private void completeTransferOwned(RicochetTransferRequest request) {
     if (!isRuntimeRegistered()) {
+      cancelReplacement(request.replacement());
       recoverLostProjectileItem(request.primary());
       return;
     }
-    if (completeTransferOwned(request.primary())) {
+    RicochetTransferCompletion primary = completeTransferOwned(
+        request.primary(),
+        request.replacement()
+    );
+    if (primary == RicochetTransferCompletion.COMPLETED) {
+      return;
+    }
+    if (primary == RicochetTransferCompletion.REPLACEMENT_REJECTED) {
       return;
     }
     RicochetProjectileTemplate fallback = request.fallback();
     if (fallback == null) {
+      cancelReplacement(request.replacement());
       recoverLostProjectileItem(request.primary());
       return;
     }
     boolean scheduled = J.runAt(fallback.spawnLocation(), () -> {
-      if (!completeTransferOwned(fallback)) {
+      RicochetTransferCompletion completion = completeTransferOwned(
+          fallback,
+          request.replacement()
+      );
+      if (completion == RicochetTransferCompletion.SPAWN_FAILED) {
+        cancelReplacement(request.replacement());
         recoverLostProjectileItem(fallback);
       }
     });
     if (!scheduled) {
+      cancelReplacement(request.replacement());
       recoverLostProjectileItem(request.primary());
     }
   }
@@ -472,9 +575,12 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
     });
   }
 
-  private boolean completeTransferOwned(RicochetProjectileTemplate template) {
+  private RicochetTransferCompletion completeTransferOwned(
+      RicochetProjectileTemplate template,
+      RicochetReplacementTicket replacement
+  ) {
     if (!isRuntimeRegistered()) {
-      return false;
+      return RicochetTransferCompletion.SPAWN_FAILED;
     }
     Location spawnLocation = template.spawnLocation();
     World world = template.world();
@@ -483,7 +589,7 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
     if (!world.isChunkLoaded(chunkX, chunkZ)
         || (J.isFoliaThreading()
         && !FoliaScheduler.isOwnedByCurrentRegion(world, chunkX, chunkZ))) {
-      return false;
+      return RicochetTransferCompletion.SPAWN_FAILED;
     }
 
     Projectile target = null;
@@ -491,19 +597,26 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
       target = world.createEntity(spawnLocation, template.kind().projectileClass());
       hydrateTemplateOwned(target, template);
       world.addEntity(target);
+      if (!target.isInWorld()) {
+        return RicochetTransferCompletion.SPAWN_FAILED;
+      }
     } catch (IOException | RuntimeException exception) {
       if (target != null && target.isInWorld()) {
         target.remove();
       }
       reportTransferFailure("complete region projectile transfer", world, spawnLocation, exception);
-      return false;
+      return RicochetTransferCompletion.SPAWN_FAILED;
+    }
+    if (!completeReplacement(replacement, target)) {
+      target.remove();
+      return RicochetTransferCompletion.REPLACEMENT_REJECTED;
     }
 
     Location hitCenter = template.hitCenter();
     J.runAt(hitCenter, () -> emitRicochetFx(hitCenter, template.transition()));
     Player shooter = template.shooter();
     J.runEntity(shooter, () -> rewardRicochetOwned(shooter, template.transition()));
-    return true;
+    return RicochetTransferCompletion.COMPLETED;
   }
 
   private void hydrateTemplateOwned(Projectile target, RicochetProjectileTemplate template)
@@ -773,7 +886,7 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
     return incoming.getZ() > 0 ? BlockFace.NORTH : BlockFace.SOUTH;
   }
 
-  private int getMetadataInt(Projectile projectile, String key, int fallback) {
+  private static int getMetadataInt(Projectile projectile, String key, int fallback) {
     for (MetadataValue value : projectile.getMetadata(key)) {
       if (value.getOwningPlugin() == Adapt.instance) {
         return value.asInt();
@@ -792,7 +905,7 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
     return null;
   }
 
-  private double getMetadataDouble(Projectile projectile, String key, double fallback) {
+  private static double getMetadataDouble(Projectile projectile, String key, double fallback) {
     for (MetadataValue value : projectile.getMetadata(key)) {
       if (value.getOwningPlugin() == Adapt.instance) {
         return value.asDouble();
@@ -898,6 +1011,12 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
         getConfig().damageBonusPerRicochetBase + (getLevelPercent(level) * getConfig().damageBonusPerRicochetFactor));
   }
 
+  public record RicochetImpact(int count, double bonusDamage) {
+    public RicochetImpact {
+      count = Math.min(MAX_RICOCHETS, Math.max(0, count));
+      bonusDamage = Double.isFinite(bonusDamage) ? Math.max(0D, bonusDamage) : 0D;
+    }
+  }
 
   @ConfigDescription("Projectiles ricochet from block impacts with chained bounces, scaling speed, and bonus damage.")
   protected static class Config extends AdaptationConfig {

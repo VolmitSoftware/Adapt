@@ -22,6 +22,8 @@ import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.RiftMessages;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.ability.AbilityCharge;
+import art.arcane.adapt.api.ability.AbilityRefundReason;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -36,8 +38,10 @@ import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.adapt.util.reflect.registries.PotionEffectTypes;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.World;
@@ -47,22 +51,30 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
   private static final double HARD_MAX_SEARCH_RADIUS = 16D;
   private static final int SAFE_SAMPLES = 32;
 
   private final Cooldowns cooldown = cooldowns();
-  private final Map<UUID, Boolean> pendingEscapes = playerState();
+  private final Map<UUID, VoidEscape> pendingEscapes = new ConcurrentHashMap<>();
+  private final NamespacedKey pearlReservationKey;
+  private final AtomicBoolean acceptingEscapes = new AtomicBoolean(true);
 
   public RiftVoidSkin() {
     super("rift-void-skin");
@@ -82,6 +94,33 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
         .build());
     registerMilestone("challenge_rift_void_skin_50", "rift.void-skin.escapes", 50, 400);
     registerMilestone("challenge_rift_void_skin_500", "rift.void-skin.escapes", 500, 1500);
+    pearlReservationKey = new NamespacedKey(Adapt.instance, "rift_void_skin_pearl_reservation");
+  }
+
+  @Override
+  protected void onRuntimeActivated() {
+    acceptingEscapes.set(true);
+    for (Player player : Bukkit.getOnlinePlayers()) {
+      J.runEntity(player, () -> restoreStrandedReservation(player));
+    }
+  }
+
+  @Override
+  public void unregister() {
+    acceptingEscapes.set(false);
+    List<VoidEscape> operations = new ArrayList<>(pendingEscapes.values());
+    pendingEscapes.clear();
+    for (VoidEscape operation : operations) {
+      Player player = Bukkit.getPlayer(operation.playerId());
+      if (player != null) {
+        J.runEntity(player, () -> refundReservation(
+            player,
+            operation.reservation(),
+            AbilityRefundReason.ADAPTATION_DISABLED
+        ));
+      }
+    }
+    super.unregister();
   }
 
   @Override
@@ -107,7 +146,7 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
     }
 
     int level = getActiveLevel(p);
-    if (level <= 0) {
+    if (level <= 0 || !acceptingEscapes.get()) {
       return;
     }
 
@@ -132,21 +171,30 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
     Location origin = p.getLocation().clone();
     destination.setYaw(origin.getYaw());
     destination.setPitch(origin.getPitch());
+    PearlReservation reservation = reservePlainPearl(p);
+    if (reservation == null) {
+      return;
+    }
+
+    VoidEscape operation = new VoidEscape(id, origin, level, reservation);
+    pendingEscapes.put(id, operation);
     CompletableFuture<Boolean> teleport;
     try {
       teleport = p.teleportAsync(destination, PlayerTeleportEvent.TeleportCause.PLUGIN);
     } catch (RuntimeException exception) {
+      pendingEscapes.remove(id, operation);
+      refundReservation(p, reservation, AbilityRefundReason.ACTIVATION_FAILED);
       exception.printStackTrace();
       Adapt.error("Void Skin could not start an escape teleport for " + id + ".");
       return;
     }
 
     if (!cancelLethalDamage(e, teleport != null)) {
+      pendingEscapes.remove(id, operation);
+      refundReservation(p, reservation, AbilityRefundReason.ACTIVATION_FAILED);
       return;
     }
 
-    pendingEscapes.put(id, Boolean.TRUE);
-    VoidEscape operation = new VoidEscape(id, origin, level);
     teleport.whenComplete((success, failure) -> finishEscape(p, operation, success, failure));
   }
 
@@ -154,7 +202,15 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
   public void on(PlayerQuitEvent e) {
     UUID id = e.getPlayer().getUniqueId();
     cooldown.clear(id);
-    pendingEscapes.remove(id);
+    VoidEscape operation = pendingEscapes.remove(id);
+    if (operation != null) {
+      refundReservation(e.getPlayer(), operation.reservation(), AbilityRefundReason.PLAYER_LEFT);
+    }
+  }
+
+  @EventHandler
+  public void on(PlayerJoinEvent e) {
+    restoreStrandedReservation(e.getPlayer());
   }
 
   private long getCooldownMillis(int level) {
@@ -177,15 +233,17 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
     }
 
     if (!J.runEntity(p, () -> {
-      pendingEscapes.remove(operation.playerId());
+      if (!pendingEscapes.remove(operation.playerId(), operation)) {
+        return;
+      }
       if (failure != null || !Boolean.TRUE.equals(success) || !p.isOnline()) {
+        refundReservation(p, operation.reservation(), AbilityRefundReason.ACTIVATION_FAILED);
         return;
       }
 
-      if (!consumePlainPearl(p)) {
+      if (!settleReservation(p, operation.reservation())) {
         return;
       }
-
       cooldown.mark(operation.playerId());
       p.setFallDistance(0f);
       p.addPotionEffect(new PotionEffect(PotionEffectTypes.DAMAGE_RESISTANCE,
@@ -203,7 +261,7 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
       addStat(p, "rift.teleports", 1);
       xp(p, getConfig().xpOnEscape, "rift:void-skin:escape");
     })) {
-      pendingEscapes.remove(operation.playerId());
+      return;
     }
   }
 
@@ -276,21 +334,82 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
     return false;
   }
 
-  private boolean consumePlainPearl(Player p) {
+  private PearlReservation reservePlainPearl(Player p) {
     if (!hasPlainPearl(p)) {
-      return false;
+      return null;
     }
 
-    return payItemCost(p, "pearl", new ItemStack(Material.ENDER_PEARL), 1, () -> {
+    AtomicBoolean defaultConsumed = new AtomicBoolean();
+    AbilityCharge charge = payItemCostDeferred(p, "pearl", new ItemStack(Material.ENDER_PEARL), 1, () -> {
       for (ItemStack stack : p.getInventory().getContents()) {
         if (RiftPearls.isPlainPearl(stack)) {
           stack.setAmount(stack.getAmount() - 1);
+          defaultConsumed.set(true);
+          p.getPersistentDataContainer().set(pearlReservationKey, PersistentDataType.BYTE, (byte) 1);
           return true;
         }
       }
 
       return false;
     });
+    return charge.allowed()
+        ? new PearlReservation(charge, defaultConsumed.get(), new AtomicBoolean())
+        : null;
+  }
+
+  private void refundReservation(Player p, PearlReservation reservation, AbilityRefundReason reason) {
+    if (!reservation.resolved().compareAndSet(false, true)) {
+      return;
+    }
+    refundCost(reservation.charge().activationId(), reason);
+    if (!reservation.defaultConsumed()) {
+      return;
+    }
+
+    try {
+      p.getInventory().addItem(new ItemStack(Material.ENDER_PEARL)).values()
+          .forEach(item -> p.getWorld().dropItemNaturally(p.getLocation(), item));
+      p.getPersistentDataContainer().remove(pearlReservationKey);
+    } catch (Throwable error) {
+      Adapt.error("Void Skin could not return a reserved ender pearl to " + p.getUniqueId() + ".");
+      error.printStackTrace();
+    }
+  }
+
+  private boolean settleReservation(Player player, PearlReservation reservation) {
+    if (!reservation.resolved().compareAndSet(false, true)) {
+      return false;
+    }
+    boolean settled = settleCost(reservation.charge().activationId());
+    if (!acceptSettlement(
+        reservation.defaultConsumed(),
+        reservation.charge().defaultCostSuppressed(),
+        settled
+    )) {
+      return false;
+    }
+    if (reservation.defaultConsumed()) {
+      player.getPersistentDataContainer().remove(pearlReservationKey);
+    }
+    return true;
+  }
+
+  static boolean acceptSettlement(boolean defaultConsumed, boolean defaultCostSuppressed, boolean settled) {
+    return defaultConsumed || !defaultCostSuppressed || settled;
+  }
+
+  private void restoreStrandedReservation(Player player) {
+    if (!player.getPersistentDataContainer().has(pearlReservationKey, PersistentDataType.BYTE)) {
+      return;
+    }
+    try {
+      player.getInventory().addItem(new ItemStack(Material.ENDER_PEARL)).values()
+          .forEach(item -> player.getWorld().dropItemNaturally(player.getLocation(), item));
+      player.getPersistentDataContainer().remove(pearlReservationKey);
+    } catch (Throwable error) {
+      Adapt.error("Void Skin could not recover a reserved ender pearl for " + player.getUniqueId() + ".");
+      error.printStackTrace();
+    }
   }
 
   static boolean isLethalDamage(double health, double finalDamage) {
@@ -348,6 +467,9 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
     }
   }
 
-  private record VoidEscape(UUID playerId, Location origin, int level) {
+  private record PearlReservation(AbilityCharge charge, boolean defaultConsumed, AtomicBoolean resolved) {
+  }
+
+  private record VoidEscape(UUID playerId, Location origin, int level, PearlReservation reservation) {
   }
 }

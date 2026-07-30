@@ -22,6 +22,8 @@ import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.HunterMessages;
 
 import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.api.ability.AbilityCharge;
+import art.arcane.adapt.api.ability.AbilityRefundReason;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -51,6 +53,7 @@ import org.bukkit.potion.PotionEffectType;
 
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class HunterStrength extends SimpleAdaptation<HunterStrength.Config> {
   private static final Color RAGE_RED = Color.fromRGB(200, 30, 30);
@@ -83,41 +86,67 @@ public class HunterStrength extends SimpleAdaptation<HunterStrength.Config> {
   }
 
 
-  @EventHandler
+  @EventHandler(ignoreCancelled = true)
   public void on(EntityDamageEvent e) {
-    if (e.getEntity() instanceof Player p && isAdaptableDamageCause(e) && hasActiveAdaptation(p)) {
-      if (AdaptConfig.get().isPreventHunterSkillsWhenHungerApplied() && p.hasPotionEffect(PotionEffectType.HUNGER)) {
-        return;
-      }
-
-      if (!getConfig().useConsumable) {
-        if (p.getFoodLevel() == 0) {
-          starvePenalty(p);
-        } else {
-          addPotionStacks(p, PotionEffectType.HUNGER, getConfig().baseHungerFromLevel - getLevel(p), getConfig().baseHungerDuration * getLevel(p), getConfig().stackHungerPenalty);
-          applyStrengthBuff(p);
-          addStat(p, "hunter.strength.activations", 1);
-          activateFx(p);
-        }
-      } else {
-        if (getConfig().consumable != null && Material.getMaterial(getConfig().consumable) != null) {
-          Material mat = Material.getMaterial(getConfig().consumable);
-          if (mat != null && p.getInventory().contains(mat)) {
-            if (!payItemCost(p, "consumable", new ItemStack(mat), 1, () -> {
-              p.getInventory().removeItem(new ItemStack(mat, 1));
-              return true;
-            })) {
-              return;
-            }
-            applyStrengthBuff(p);
-            addStat(p, "hunter.strength.activations", 1);
-            activateFx(p);
-          } else {
-            starvePenalty(p);
-          }
-        }
-      }
+    if (!(e.getEntity() instanceof Player p) || !isAdaptableDamageCause(e)) {
+      return;
     }
+
+    int level = getActiveLevel(p);
+    if (level <= 0
+        || (AdaptConfig.get().isPreventHunterSkillsWhenHungerApplied()
+        && p.hasPotionEffect(PotionEffectType.HUNGER))) {
+      return;
+    }
+
+    if (!getConfig().useConsumable) {
+      if (p.getFoodLevel() == 0) {
+        starvePenalty(p, level);
+      } else if (applyStrengthBuff(p, level)) {
+        addPotionStacks(p, PotionEffectType.HUNGER, getConfig().baseHungerFromLevel - level,
+            getConfig().baseHungerDuration * level, getConfig().stackHungerPenalty);
+        recordActivation(p);
+      }
+      return;
+    }
+
+    Material material = getConfig().consumable == null ? null : Material.getMaterial(getConfig().consumable);
+    if (material == null) {
+      return;
+    }
+    if (!p.getInventory().contains(material)) {
+      starvePenalty(p, level);
+      return;
+    }
+    if (!canApplyStrengthBuff(p, level) || !activateWithConsumable(p, material, level)) {
+      return;
+    }
+    recordActivation(p);
+  }
+
+  private boolean activateWithConsumable(Player p, Material material, int level) {
+    AtomicBoolean defaultApplied = new AtomicBoolean();
+    AbilityCharge charge = payItemCostDeferred(p, "consumable", new ItemStack(material), 1, () -> {
+      if (!p.getInventory().contains(material) || !applyStrengthBuff(p, level)) {
+        return false;
+      }
+      p.getInventory().removeItem(new ItemStack(material, 1));
+      defaultApplied.set(true);
+      return true;
+    });
+    if (!charge.allowed()) {
+      return false;
+    }
+    if (defaultApplied.get()) {
+      settleCost(charge.activationId());
+      return true;
+    }
+    if (!applyStrengthBuff(p, level)) {
+      refundCost(charge.activationId(), AbilityRefundReason.ACTIVATION_FAILED);
+      return false;
+    }
+    settleCost(charge.activationId());
+    return true;
   }
 
   @EventHandler
@@ -125,10 +154,14 @@ public class HunterStrength extends SimpleAdaptation<HunterStrength.Config> {
     strengthUntil.remove(e.getEntity().getUniqueId());
   }
 
-  private void applyStrengthBuff(Player p) {
+  private boolean canApplyStrengthBuff(Player p, int level) {
+    if (Attributes.ATTACK_DAMAGE == null) {
+      return false;
+    }
+
     PotionEffectType strength = PotionEffectTypes.INCREASE_DAMAGE;
     if (strength != null && p.hasPotionEffect(strength)) {
-      return;
+      return false;
     }
 
     boolean stackBuff = getConfig().stackBuff;
@@ -136,22 +169,36 @@ public class HunterStrength extends SimpleAdaptation<HunterStrength.Config> {
     Long until = strengthUntil.get(p.getUniqueId());
     long remainingTicks = until == null ? 0L : Math.max(0L, (until - now) / 50L);
     if (remainingTicks > 0L && !stackBuff) {
-      return;
+      return false;
     }
 
-    int level = getLevel(p);
-    long durationTicks = buffDurationTicks(getConfig().baseEffectbyLevel, level, remainingTicks, stackBuff);
-    if (durationTicks <= 0L) {
-      return;
-    }
-
-    AdaptAttributeService.get().applyTimed(p, getName(), "strength", Attributes.ATTACK_DAMAGE, strengthDamageBonus(level), AttributeModifier.Operation.ADD_NUMBER, durationTicks);
-    strengthUntil.put(p.getUniqueId(), now + (durationTicks * 50L));
+    return buffDurationTicks(getConfig().baseEffectbyLevel, level, remainingTicks, stackBuff) > 0L;
   }
 
-  private void starvePenalty(Player p) {
+  private boolean applyStrengthBuff(Player p, int level) {
+    if (!canApplyStrengthBuff(p, level)) {
+      return false;
+    }
+
+    boolean stackBuff = getConfig().stackBuff;
+    long now = System.currentTimeMillis();
+    Long until = strengthUntil.get(p.getUniqueId());
+    long remainingTicks = until == null ? 0L : Math.max(0L, (until - now) / 50L);
+    long durationTicks = buffDurationTicks(getConfig().baseEffectbyLevel, level, remainingTicks, stackBuff);
+    AdaptAttributeService.get().applyTimed(p, getName(), "strength", Attributes.ATTACK_DAMAGE, strengthDamageBonus(level), AttributeModifier.Operation.ADD_NUMBER, durationTicks);
+    strengthUntil.put(p.getUniqueId(), now + (durationTicks * 50L));
+    return true;
+  }
+
+  private void recordActivation(Player p) {
+    addStat(p, "hunter.strength.activations", 1);
+    activateFx(p);
+  }
+
+  private void starvePenalty(Player p, int level) {
     if (getConfig().poisonPenalty) {
-      addPotionStacks(p, PotionEffectType.POISON, getConfig().basePoisonFromLevel - getLevel(p), getConfig().baseHungerDuration, getConfig().stackPoisonPenalty);
+      addPotionStacks(p, PotionEffectType.POISON, getConfig().basePoisonFromLevel - level,
+          getConfig().baseHungerDuration, getConfig().stackPoisonPenalty);
     }
     starveFx(p);
   }

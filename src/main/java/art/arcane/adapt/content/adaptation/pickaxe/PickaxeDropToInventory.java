@@ -42,7 +42,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockDropItemEvent;
+import org.bukkit.inventory.ItemStack;
 
+import java.util.HashMap;
 import java.util.List;
 
 public class PickaxeDropToInventory extends SimpleAdaptation<PickaxeDropToInventory.Config> {
@@ -64,7 +66,7 @@ public class PickaxeDropToInventory extends SimpleAdaptation<PickaxeDropToInvent
     v.addLore(C.GRAY + AdaptLanguage.text(PickaxeMessages.DROP_TO_INVENTORY_LORE1));
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST)
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(BlockDropItemEvent e) {
     Player p = e.getPlayer();
     if (resolveBlockBreakContext(p, e.getBlock().getLocation(), null, true) == null) {
@@ -76,8 +78,9 @@ public class PickaxeDropToInventory extends SimpleAdaptation<PickaxeDropToInvent
       int caught = 0;
       boolean overflow = false;
       for (Item i : items) {
-        if (!p.getInventory().addItem(i.getItemStack()).isEmpty()) {
-          p.getWorld().dropItem(p.getLocation(), i.getItemStack());
+        HashMap<Integer, ItemStack> leftovers = p.getInventory().addItem(i.getItemStack());
+        if (!leftovers.isEmpty()) {
+          leftovers.values().forEach(item -> p.getWorld().dropItem(p.getLocation(), item));
           overflow = true;
         }
         caught++;

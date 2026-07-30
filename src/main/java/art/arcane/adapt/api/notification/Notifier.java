@@ -237,6 +237,9 @@ public class Notifier extends TickedObject {
         lastSkillValues.remove(entry.getKey());
       }
     }
+    if (lastSkills.isEmpty()) {
+      AdaptHud.clearXp(target.getPlayer());
+    }
   }
 
   @Override

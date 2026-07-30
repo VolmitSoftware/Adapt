@@ -290,8 +290,7 @@ public class HunterSnareLine extends SimpleAdaptation<HunterSnareLine.Config> {
       return;
     }
 
-    Player owner = Bukkit.getPlayer(snare.owner);
-    if (isProtectedFriendly(owner, monster)) {
+    if (isProtectedFriendlyOwned(snare.owner, monster)) {
       return;
     }
     if (!snare.tryConsumeCharge()) {
@@ -317,6 +316,7 @@ public class HunterSnareLine extends SimpleAdaptation<HunterSnareLine.Config> {
         .dustBurst(SNARE_GREEN, 6, 0.3D, 1.0F)
         .chord(Sound.BLOCK_TRIPWIRE_CLICK_ON, 0.8F, 0.8F, Sound.ITEM_LEAD_TIED, 0.6F, 0.9F);
 
+    Player owner = Bukkit.getPlayer(snare.owner);
     if (owner != null) {
       J.runEntity(owner, () -> {
         if (owner.isOnline()) {

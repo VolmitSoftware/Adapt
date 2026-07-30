@@ -72,7 +72,11 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
   }
 
   private int getTotalLevelCount(int level) {
-    return level + (level > getConfig().maxPowerBonusLimit ? level / getConfig().maxPowerBonus1PerLevels : 0);
+    return totalLevelCount(level, getConfig().maxPowerBonusLimit, getConfig().maxPowerBonus1PerLevels);
+  }
+
+  static int totalLevelCount(int level, int bonusLimit, int levelsPerBonus) {
+    return level + (level > bonusLimit ? level / Math.max(1, levelsPerBonus) : 0);
   }
 
   @Override

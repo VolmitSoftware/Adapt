@@ -268,6 +268,10 @@ final class AdaptationRuntimeGuards {
   }
 
   static boolean isProtectedFriendly(Player actor, Entity target) {
+    return isProtectedFriendlyOwned(actor == null ? null : actor.getUniqueId(), target);
+  }
+
+  static boolean isProtectedFriendlyOwned(UUID actorId, Entity target) {
     if (target == null) {
       return false;
     }
@@ -292,9 +296,9 @@ final class AdaptationRuntimeGuards {
       return true;
     }
 
-    if (actor != null && target instanceof Tameable tameable && tameable.isTamed()) {
+    if (actorId != null && target instanceof Tameable tameable && tameable.isTamed()) {
       AnimalTamer tamer = tameable.getOwner();
-      return tamer != null && actor.getUniqueId().equals(tamer.getUniqueId());
+      return tamer != null && actorId.equals(tamer.getUniqueId());
     }
 
     return false;
@@ -579,8 +583,16 @@ final class AdaptationRuntimeGuards {
   }
 
   static int getActiveLevel(Adaptation<?> adaptation, Player p) {
+    return getActiveLevel(adaptation, p, false);
+  }
+
+  static int getActiveDeathLevel(Adaptation<?> adaptation, Player p) {
+    return getActiveLevel(adaptation, p, true);
+  }
+
+  private static int getActiveLevel(Adaptation<?> adaptation, Player p, boolean allowDead) {
     try {
-      if (p == null || p.isDead()) {
+      if (!canEvaluateActiveLevel(p, allowDead)) {
         return 0;
       }
 
@@ -623,6 +635,10 @@ final class AdaptationRuntimeGuards {
       }
       return 0;
     }
+  }
+
+  static boolean canEvaluateActiveLevel(Player p, boolean allowDead) {
+    return p != null && (allowDead || !p.isDead());
   }
 
   static int getLevel(Adaptation<?> adaptation, Player p) {

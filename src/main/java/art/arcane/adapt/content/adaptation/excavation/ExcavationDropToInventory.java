@@ -41,7 +41,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockDropItemEvent;
+import org.bukkit.inventory.ItemStack;
 
+import java.util.HashMap;
 import java.util.List;
 
 public class ExcavationDropToInventory extends SimpleAdaptation<ExcavationDropToInventory.Config> {
@@ -83,8 +85,9 @@ public class ExcavationDropToInventory extends SimpleAdaptation<ExcavationDropTo
     for (Item i : items) {
       xp(p, 2);
       addStat(p, "excavation.drop-to-inv.items-caught", 1);
-      if (!p.getInventory().addItem(i.getItemStack()).isEmpty()) {
-        p.getWorld().dropItem(p.getLocation(), i.getItemStack());
+      HashMap<Integer, ItemStack> leftovers = p.getInventory().addItem(i.getItemStack());
+      if (!leftovers.isEmpty()) {
+        leftovers.values().forEach(item -> p.getWorld().dropItem(p.getLocation(), item));
         overflow = true;
       } else {
         caught++;

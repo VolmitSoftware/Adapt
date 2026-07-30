@@ -37,6 +37,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Egg;
 import org.bukkit.entity.EnderPearl;
@@ -44,12 +45,16 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Snowball;
+import org.bukkit.entity.Tameable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.metadata.MetadataValue;
 import org.bukkit.util.Vector;
+
+import java.util.UUID;
 
 public class ChronosTemporalEcho extends SimpleAdaptation<ChronosTemporalEcho.Config> {
   private static final String ECHO_META = "adapt-chronos-temporal-echo";
@@ -99,7 +104,7 @@ public class ChronosTemporalEcho extends SimpleAdaptation<ChronosTemporalEcho.Co
     Projectile original = e.getEntity();
     Vector originalVelocity = original.getVelocity().clone();
     int delay = getEchoDelayTicks(level);
-    J.runEntity(p, () -> spawnEcho(p, echoType, originalVelocity, level), delay);
+    J.runEntity(p, () -> spawnEcho(p, echoType, originalVelocity), delay);
     fx(p.getEyeLocation(), FxPriority.TRAIL).particle(Particles.ENCHANTMENT_TABLE, 2, 0, 0, 0, 0.2D, 0.02D);
   }
 
@@ -113,21 +118,30 @@ public class ChronosTemporalEcho extends SimpleAdaptation<ChronosTemporalEcho.Co
       return;
     }
 
-    Player shooter = e.getEntity().getShooter() instanceof Player p ? p : null;
-    if (isProtectedFriendly(shooter, target)) {
+    Projectile projectile = e.getEntity();
+    UUID ownerId = getEchoOwnerId(projectile);
+    if (isProtectedEchoTarget(ownerId, target)) {
       return;
-    }
-
-    if (shooter != null && shooter.isOnline()) {
-      addStat(shooter, "chronos.temporal-echo.echo-hits", 1);
     }
 
     target.setNoDamageTicks(0);
     target.setLastDamage(0.0D);
+
+    if (projectile.getShooter() instanceof Player shooter) {
+      J.runEntity(shooter, () -> rewardEchoHit(shooter));
+    }
   }
 
-  private void spawnEcho(Player p, EchoType type, Vector velocity, int level) {
-    if (!p.isOnline() || p.isDead()) {
+  private void rewardEchoHit(Player shooter) {
+    if (resolveDelayedEchoLevel(shooter) <= 0) {
+      return;
+    }
+    addStat(shooter, "chronos.temporal-echo.echo-hits", 1);
+  }
+
+  private void spawnEcho(Player p, EchoType type, Vector velocity) {
+    int activeLevel = resolveDelayedEchoLevel(p);
+    if (activeLevel <= 0) {
       return;
     }
 
@@ -143,8 +157,8 @@ public class ChronosTemporalEcho extends SimpleAdaptation<ChronosTemporalEcho.Co
           p.getWorld().spawn(p.getEyeLocation().add(p.getLocation().getDirection().normalize().multiply(0.35)), EnderPearl.class);
     };
     echo.setShooter(p);
-    echo.setVelocity(velocity.multiply(getEchoVelocityFactor(level)));
-    echo.setMetadata(ECHO_META, new FixedMetadataValue(Adapt.instance, true));
+    echo.setVelocity(velocity.multiply(getEchoVelocityFactor(activeLevel)));
+    echo.setMetadata(ECHO_META, new FixedMetadataValue(Adapt.instance, p.getUniqueId()));
 
     Location spawnAt = echo.getLocation();
     fx(spawnAt, FxPriority.COMBAT)
@@ -158,6 +172,35 @@ public class ChronosTemporalEcho extends SimpleAdaptation<ChronosTemporalEcho.Co
         .start();
 
     xp(p, getConfig().xpPerEcho);
+  }
+
+  int resolveDelayedEchoLevel(Player player) {
+    if (!player.isOnline() || player.isDead()) {
+      return 0;
+    }
+    return Math.max(0, getActiveLevel(player));
+  }
+
+  private UUID getEchoOwnerId(Projectile projectile) {
+    for (MetadataValue metadata : projectile.getMetadata(ECHO_META)) {
+      if (metadata.getOwningPlugin() != Adapt.instance) {
+        continue;
+      }
+      Object value = metadata.value();
+      return value instanceof UUID ownerId ? ownerId : null;
+    }
+    return null;
+  }
+
+  private boolean isProtectedEchoTarget(UUID ownerId, LivingEntity target) {
+    if (isProtectedFriendly(null, target)) {
+      return true;
+    }
+    if (ownerId == null || !(target instanceof Tameable tameable) || !tameable.isTamed()) {
+      return false;
+    }
+    AnimalTamer tamer = tameable.getOwner();
+    return tamer != null && ownerId.equals(tamer.getUniqueId());
   }
 
   private EchoType getEchoType(Projectile projectile) {

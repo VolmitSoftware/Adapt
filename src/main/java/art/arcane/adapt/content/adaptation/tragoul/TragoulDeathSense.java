@@ -28,6 +28,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.fx.ViewerGlowCoordinator;
 import art.arcane.adapt.api.version.IAttribute;
 import art.arcane.adapt.api.version.Version;
 import art.arcane.adapt.api.world.AdaptPlayer;
@@ -37,7 +38,6 @@ import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import fr.skytasul.glowingentities.GlowingEntities;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -88,8 +88,6 @@ public class TragoulDeathSense extends SimpleAdaptation<TragoulDeathSense.Config
   private final Set<UUID> pendingFeedback = ConcurrentHashMap.newKeySet();
   private final Set<UUID> glowExpiryScheduled = ConcurrentHashMap.newKeySet();
   private final AtomicBoolean lifecycleCleanupStarted = new AtomicBoolean();
-  private final AtomicBoolean glowApplyFailureLogged = new AtomicBoolean();
-  private final AtomicBoolean glowClearFailureLogged = new AtomicBoolean();
   private Iterator<Map.Entry<UUID, LivingEntity>> targetCursor = Collections.emptyIterator();
   private int ownerCursor;
 
@@ -149,6 +147,7 @@ public class TragoulDeathSense extends SimpleAdaptation<TragoulDeathSense.Config
     UUID playerId = event.getPlayer().getUniqueId();
     removeOwner(playerId);
     removeTarget(playerId);
+    Adapt.instance.getViewerGlowCoordinator().discardViewer(playerId);
   }
 
   @Override
@@ -166,6 +165,7 @@ public class TragoulDeathSense extends SimpleAdaptation<TragoulDeathSense.Config
       pendingTargetInspections.clear();
       pendingFeedback.clear();
       glowExpiryScheduled.clear();
+      Adapt.instance.getViewerGlowCoordinator().clearLayer(ViewerGlowCoordinator.Layer.TRAGOUL_DEATH_SENSE);
     }
     super.unregister();
   }
@@ -363,8 +363,17 @@ public class TragoulDeathSense extends SimpleAdaptation<TragoulDeathSense.Config
   private boolean applyGlowOwned(Player owner, TargetSnapshot target, long expiresAt) {
     Map<UUID, SensedGlow> glows = ownerGlows.computeIfAbsent(owner.getUniqueId(), ignored -> new ConcurrentHashMap<>());
     SensedGlow current = glows.get(target.entityId());
-    if (current != null && current.color() == target.color()) {
-      glows.put(target.entityId(), new SensedGlow(target.entity(), target.entityId(), target.color(), expiresAt));
+    if (current != null
+        && current.color() == target.color()
+        && current.entity() == target.entity()
+        && current.runtimeEntityId() == target.entity().getEntityId()) {
+      glows.put(target.entityId(), new SensedGlow(
+          target.entity(),
+          target.entityId(),
+          target.entity().getEntityId(),
+          target.color(),
+          expiresAt
+      ));
       ensureGlowExpiryOwned(owner);
       return false;
     }
@@ -372,21 +381,28 @@ public class TragoulDeathSense extends SimpleAdaptation<TragoulDeathSense.Config
       unsetGlowOwned(owner, current);
     }
 
-    GlowingEntities glowingEntities = Adapt.instance.getGlowingEntities();
-    if (glowingEntities == null) {
+    ViewerGlowCoordinator glowCoordinator = Adapt.instance.getViewerGlowCoordinator();
+    if (glowCoordinator == null || !glowCoordinator.isAvailable()) {
       glows.remove(target.entityId());
       return false;
     }
-    try {
-      synchronized (Adapt.glowingEntitiesLock()) {
-        glowingEntities.setGlowing(target.entity(), owner, target.color());
-      }
-      glows.put(target.entityId(), new SensedGlow(target.entity(), target.entityId(), target.color(), expiresAt));
+    if (glowCoordinator.set(
+        ViewerGlowCoordinator.Layer.TRAGOUL_DEATH_SENSE,
+        target.entity(),
+        owner,
+        target.color()
+    )) {
+      glows.put(target.entityId(), new SensedGlow(
+          target.entity(),
+          target.entityId(),
+          target.entity().getEntityId(),
+          target.color(),
+          expiresAt
+      ));
       ensureGlowExpiryOwned(owner);
       return current == null;
-    } catch (ReflectiveOperationException error) {
+    } else {
       glows.remove(target.entityId());
-      reportGlowFailure("show", error, glowApplyFailureLogged);
       return false;
     }
   }
@@ -441,25 +457,16 @@ public class TragoulDeathSense extends SimpleAdaptation<TragoulDeathSense.Config
   }
 
   private void unsetGlowOwned(Player owner, SensedGlow glow) {
-    GlowingEntities glowingEntities = Adapt.instance.getGlowingEntities();
-    if (glowingEntities == null) {
+    ViewerGlowCoordinator glowCoordinator = Adapt.instance.getViewerGlowCoordinator();
+    if (glowCoordinator == null) {
       return;
     }
-    try {
-      synchronized (Adapt.glowingEntitiesLock()) {
-        glowingEntities.unsetGlowing(glow.entity(), owner);
-      }
-    } catch (ReflectiveOperationException error) {
-      reportGlowFailure("clear", error, glowClearFailureLogged);
-    }
-  }
-
-  private void reportGlowFailure(String action, ReflectiveOperationException error, AtomicBoolean logged) {
-    if (!logged.compareAndSet(false, true)) {
-      return;
-    }
-    Adapt.error("Failed to " + action + " a Death Sense target glow.");
-    error.printStackTrace();
+    glowCoordinator.unset(
+        ViewerGlowCoordinator.Layer.TRAGOUL_DEATH_SENSE,
+        glow.entityId(),
+        glow.runtimeEntityId(),
+        owner
+    );
   }
 
   private void clearTargetGlows(UUID targetId) {
@@ -644,7 +651,7 @@ public class TragoulDeathSense extends SimpleAdaptation<TragoulDeathSense.Config
                                 ChatColor color) {
   }
 
-  private record SensedGlow(LivingEntity entity, UUID entityId, ChatColor color, long expiresAt) {
+  private record SensedGlow(LivingEntity entity, UUID entityId, int runtimeEntityId, ChatColor color, long expiresAt) {
   }
 }
 

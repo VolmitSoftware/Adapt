@@ -65,4 +65,14 @@ class StealthSpeedScalingTest {
     assertThat(StealthSpeed.sneakSpeedScalar(0f, 0f, -1f, 1f, 0.8D)).isEqualTo(0.0D);
     assertThat(StealthSpeed.sneakSpeedScalar(0f, -0.2f, -1f, 1f, 0.8D)).isEqualTo(0.0D);
   }
+
+  @Test
+  void autoStepCommitsFallResetAndEffectsOnlyAfterConfirmedTeleportCompletion() {
+    RuntimeException failure = new RuntimeException("failed");
+
+    assertThat(StealthSpeed.successfulAutoStepTeleport(true, null)).isTrue();
+    assertThat(StealthSpeed.successfulAutoStepTeleport(false, null)).isFalse();
+    assertThat(StealthSpeed.successfulAutoStepTeleport(null, null)).isFalse();
+    assertThat(StealthSpeed.successfulAutoStepTeleport(true, failure)).isFalse();
+  }
 }

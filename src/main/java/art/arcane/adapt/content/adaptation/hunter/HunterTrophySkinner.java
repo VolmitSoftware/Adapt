@@ -100,20 +100,29 @@ public class HunterTrophySkinner extends SimpleAdaptation<HunterTrophySkinner.Co
         })
         .start();
 
-    if (ThreadLocalRandom.current().nextDouble() > getDropChance(level)) {
+    DropOutcome outcome = decideDrops(
+        ThreadLocalRandom.current().nextDouble(),
+        ThreadLocalRandom.current().nextDouble(),
+        getDropChance(level),
+        getHeadChance(level)
+    );
+    if (!outcome.trophy() && !outcome.head()) {
       return;
     }
 
-    ItemStack trophy = buildTrophyDrop(e.getEntityType(), level, precision.projectileKill());
-    if (trophy != null) {
-      e.getDrops().add(trophy);
-      addStat(killer, "hunter.trophy-skinner.trophies-collected", 1);
-      fx(corpse, FxPriority.COMBAT)
-          .particle(Particles.VILLAGER_HAPPY, 8, 0, 0.2D, 0, 0.3D, 0)
-          .chord(Sound.ENTITY_WOLF_SHAKE, 0.55F, 1.35F, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.4F, 1.8F);
+    if (outcome.trophy()) {
+      ItemStack trophy = buildTrophyDrop(e.getEntityType(), level, precision.projectileKill());
+      if (trophy != null) {
+        e.getDrops().add(trophy);
+        addStat(killer, "hunter.trophy-skinner.trophies-collected", 1);
+        xp(killer, getConfig().xpPerTrophy);
+        fx(corpse, FxPriority.COMBAT)
+            .particle(Particles.VILLAGER_HAPPY, 8, 0, 0.2D, 0, 0.3D, 0)
+            .chord(Sound.ENTITY_WOLF_SHAKE, 0.55F, 1.35F, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.4F, 1.8F);
+      }
     }
 
-    if (ThreadLocalRandom.current().nextDouble() <= getHeadChance(level)) {
+    if (outcome.head()) {
       ItemStack head = buildHeadDrop(e.getEntityType());
       if (head != null) {
         e.getDrops().add(head);
@@ -132,8 +141,10 @@ public class HunterTrophySkinner extends SimpleAdaptation<HunterTrophySkinner.Co
             .start();
       }
     }
+  }
 
-    xp(killer, getConfig().xpPerTrophy);
+  static DropOutcome decideDrops(double trophyRoll, double headRoll, double trophyChance, double headChance) {
+    return new DropOutcome(trophyRoll <= trophyChance, headRoll <= headChance);
   }
 
   private PrecisionContext readPrecisionContext(EntityDeathEvent e, Player killer, int level) {
@@ -234,5 +245,8 @@ public class HunterTrophySkinner extends SimpleAdaptation<HunterTrophySkinner.Co
   }
 
   private record PrecisionContext(boolean projectileKill, boolean precise) {
+  }
+
+  record DropOutcome(boolean trophy, boolean head) {
   }
 }

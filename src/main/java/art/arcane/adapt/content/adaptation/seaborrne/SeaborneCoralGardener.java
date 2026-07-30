@@ -211,7 +211,7 @@ public class SeaborneCoralGardener extends SimpleAdaptation<SeaborneCoralGardene
   }
 
   private void growCoral(Player p, Block target, Material coral, int level) {
-    if (target.getType() != Material.WATER || !canBlockPlace(p, target.getLocation())) {
+    if (target.getType() != Material.WATER) {
       return;
     }
 

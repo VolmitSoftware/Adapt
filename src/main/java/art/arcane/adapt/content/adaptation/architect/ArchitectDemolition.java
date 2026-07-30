@@ -46,7 +46,6 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.Map;
 import java.util.UUID;
@@ -100,7 +99,7 @@ public class ArchitectDemolition extends SimpleAdaptation<ArchitectDemolition.Co
     placed.put(block, new DemolitionMark(id, M.ms()));
     fx(block.getLocation().add(0.5, 0.5, 0.5), FxPriority.AMBIENT)
         .burst(Particles.CRIT_MAGIC, 2, 0.1D);
-    int cap = getConfig().maxTrackedPerPlayer;
+    int cap = trackingCap(getConfig().maxTrackedPerPlayer);
     while (deque.size() > cap) {
       Block oldest = deque.pollFirst();
       if (oldest != null) {
@@ -165,13 +164,9 @@ public class ArchitectDemolition extends SimpleAdaptation<ArchitectDemolition.Co
       return;
     }
 
-    Material type = e.getBlock().getType();
-    if (type.isAir() || !type.isItem()) {
-      return;
-    }
-
     e.setDropItems(false);
-    e.getBlock().getWorld().dropItemNaturally(e.getBlock().getLocation(), new ItemStack(type));
+    e.setExpToDrop(0);
+
     fx(e.getBlock().getLocation().add(0.5, 0.5, 0.5), FxPriority.COMBAT)
         .ring(Particle.SCRAPE, 0.8D, 16, 0.2D)
         .dustBurst(Color.fromRGB(255, 120, 40), 6, 0.4D, 1.0F)
@@ -197,12 +192,15 @@ public class ArchitectDemolition extends SimpleAdaptation<ArchitectDemolition.Co
     return (long) Math.max(1000, M.lerp(getConfig().minWindowSeconds, getConfig().maxWindowSeconds, factor) * 1000D);
   }
 
+  static int trackingCap(int configuredCap) {
+    return Math.max(0, configuredCap);
+  }
 
   private record DemolitionMark(UUID owner, long at) {
   }
 
   @NoArgsConstructor
-  @ConfigDescription("Blocks you recently placed break near-instantly and always drop their item.")
+  @ConfigDescription("Blocks you recently placed break near-instantly without producing block or experience drops.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "How many seconds a placement counts as recent at level 0 progression.", impact = "Higher values let low-level players instabreak older placements.")
     double minWindowSeconds = 10;

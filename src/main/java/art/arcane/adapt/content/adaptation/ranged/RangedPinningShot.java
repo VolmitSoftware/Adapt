@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.ranged;
 
+import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -26,21 +27,30 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
+import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
 import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
+import org.bukkit.entity.Tameable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Vector;
 
 import java.util.Map;
@@ -49,9 +59,13 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class RangedPinningShot extends SimpleAdaptation<RangedPinningShot.Config> {
   private final Map<UUID, Long> targetProcTimes = playerState();
+  private final NamespacedKey shotLevelKey;
+  private final NamespacedKey shotOwnerKey;
 
   public RangedPinningShot() {
     super("ranged-pinning-shot");
+    shotLevelKey = new NamespacedKey(Adapt.instance, "ranged_pinning_shot_level");
+    shotOwnerKey = new NamespacedKey(Adapt.instance, "ranged_pinning_shot_owner");
     registerConfiguration(Config.class);
     setIcon(Material.TRIPWIRE_HOOK);
     setInterval(2200);
@@ -71,19 +85,38 @@ public class RangedPinningShot extends SimpleAdaptation<RangedPinningShot.Config
     statLore(v, C.YELLOW, "* ", Form.duration(getReapplyCooldownMillis(level), 1), 3);
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST)
-  public void on(EntityDamageByEntityEvent e) {
-    if (RangedHeartseeker.isSeekingProjectile(e.getDamager())) {
-      return;
-    }
-    art.arcane.adapt.api.adaptation.Adaptation.ProjectileContext combat = resolveProjectileContext(e);
-    if (combat == null) {
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(ProjectileLaunchEvent e) {
+    Projectile projectile = e.getEntity();
+    if (RangedHeartseeker.isSeekingProjectile(projectile)
+        || !(projectile.getShooter() instanceof Player player)) {
       return;
     }
 
-    Player p = combat.attacker();
-    LivingEntity target = combat.target();
-    int level = combat.level();
+    int level = getActiveLevel(player);
+    if (level <= 0) {
+      return;
+    }
+
+    PersistentDataContainer data = projectile.getPersistentDataContainer();
+    data.set(shotLevelKey, PersistentDataType.INTEGER, level);
+    data.set(shotOwnerKey, PersistentDataType.STRING, player.getUniqueId().toString());
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(EntityDamageByEntityEvent e) {
+    if (RangedHeartseeker.isSeekingProjectile(e.getDamager())
+        || !(e.getDamager() instanceof Projectile projectile)
+        || !(e.getEntity() instanceof LivingEntity target)) {
+      return;
+    }
+
+    ShotAuthorization authorization = readShotAuthorization(projectile);
+    if (authorization == null || isProtectedTarget(authorization.ownerId(), target)) {
+      return;
+    }
+
+    int level = authorization.level();
 
     long now = System.currentTimeMillis();
     cleanupExpired(now);
@@ -102,7 +135,6 @@ public class RangedPinningShot extends SimpleAdaptation<RangedPinningShot.Config
     if (durationTicks > 0) {
       AdaptAttributeService.get().applyTimed(target, getName(), "pin", Attributes.MOVEMENT_SPEED, pinSpeedScalar(getAmplifier(level)), AttributeModifier.Operation.MULTIPLY_SCALAR_1, durationTicks);
     }
-    addStat(p, "ranged.pinning-shot.targets-pinned", 1);
 
     if (getConfig().dampenVelocityOnProc) {
       Vector velocity = target.getVelocity();
@@ -118,7 +150,47 @@ public class RangedPinningShot extends SimpleAdaptation<RangedPinningShot.Config
         .particle(Particles.ENCHANTMENT_TABLE, 8, 0, 1.0D, 0, 0.35D, 0.0D)
         .chord(Sound.BLOCK_BELL_USE, 1.1F, 0.48F, Sound.BLOCK_NOTE_BLOCK_BASS, 0.7F, 0.55F)
         .sound(Sound.BLOCK_ANVIL_LAND, 0.3F, 0.6F);
-    xp(p, getConfig().xpOnProc);
+    rewardProc(authorization.ownerId());
+  }
+
+  private ShotAuthorization readShotAuthorization(Projectile projectile) {
+    PersistentDataContainer data = projectile.getPersistentDataContainer();
+    Integer level = data.get(shotLevelKey, PersistentDataType.INTEGER);
+    String owner = data.get(shotOwnerKey, PersistentDataType.STRING);
+    if (level == null || level <= 0 || owner == null) {
+      return null;
+    }
+    try {
+      return new ShotAuthorization(UUID.fromString(owner), level);
+    } catch (IllegalArgumentException ignored) {
+      return null;
+    }
+  }
+
+  private boolean isProtectedTarget(UUID ownerId, LivingEntity target) {
+    if (isProtectedFriendly(null, target)) {
+      return true;
+    }
+    if (!(target instanceof Tameable tameable) || !tameable.isTamed()) {
+      return false;
+    }
+    AnimalTamer tamer = tameable.getOwner();
+    return tamer != null && ownerId.equals(tamer.getUniqueId());
+  }
+
+  private void rewardProc(UUID ownerId) {
+    Player owner = Bukkit.getPlayer(ownerId);
+    if (owner != null) {
+      J.runEntity(owner, () -> rewardProcOwned(owner));
+    }
+  }
+
+  private void rewardProcOwned(Player owner) {
+    if (!owner.isOnline() || !isRuntimeRegistered() || getActiveLevel(owner) <= 0) {
+      return;
+    }
+    addStat(owner, "ranged.pinning-shot.targets-pinned", 1);
+    xp(owner, getConfig().xpOnProc);
   }
 
   private void cleanupExpired(long now) {
@@ -149,6 +221,8 @@ public class RangedPinningShot extends SimpleAdaptation<RangedPinningShot.Config
     return Math.max(1000, (long) Math.round(getConfig().reapplyCooldownMillisBase - (getLevelPercent(level) * getConfig().reapplyCooldownMillisFactor)));
   }
 
+  private record ShotAuthorization(UUID ownerId, int level) {
+  }
 
   @ConfigDescription("Projectiles can pin targets with heavy slowness.")
   protected static class Config extends AdaptationConfig {

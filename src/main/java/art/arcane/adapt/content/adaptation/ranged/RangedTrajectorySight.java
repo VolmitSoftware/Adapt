@@ -26,6 +26,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.fx.ViewerGlowCoordinator;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.util.common.scheduling.J;
@@ -33,7 +34,6 @@ import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import fr.skytasul.glowingentities.GlowingEntities;
 import io.papermc.paper.event.player.PlayerStopUsingItemEvent;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
@@ -256,6 +256,7 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
       stopAimingSession(session.owner);
     }
     activeSessions.clear();
+    Adapt.instance.getViewerGlowCoordinator().clearLayer(ViewerGlowCoordinator.Layer.RANGED_TRAJECTORY_SIGHT);
   }
 
   private void restartAfterItemChange(Player player) {
@@ -1028,26 +1029,22 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
 
     UUID viewerId = p.getUniqueId();
     Entity current = previewGlowTargets.get(viewerId);
-    if (current != null && target != null && current.getUniqueId().equals(target.getUniqueId())) {
+    if (current != null && current == target && current.getEntityId() == target.getEntityId()) {
       return;
     }
 
-    GlowingEntities glowingEntities = Adapt.instance.getGlowingEntities();
-    if (glowingEntities == null) {
+    ViewerGlowCoordinator glowCoordinator = Adapt.instance.getViewerGlowCoordinator();
+    if (glowCoordinator == null || !glowCoordinator.isAvailable()) {
       return;
     }
 
     if (current != null) {
       previewGlowTargets.remove(viewerId, current);
-      J.runEntity(current, () -> {
-        try {
-          synchronized (Adapt.glowingEntitiesLock()) {
-            glowingEntities.unsetGlowing(current, p);
-          }
-        } catch (ReflectiveOperationException ignored) {
-          // Ignore and continue; preview should never hard-fail from packet glow.
-        }
-      });
+      J.runEntity(current, () -> glowCoordinator.unset(
+          ViewerGlowCoordinator.Layer.RANGED_TRAJECTORY_SIGHT,
+          current,
+          p
+      ));
     }
 
     if (target == null) {
@@ -1059,16 +1056,17 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
       if (!target.isValid() || previewGlowTargets.get(viewerId) != target) {
         return;
       }
-      try {
-        synchronized (Adapt.glowingEntitiesLock()) {
-          glowingEntities.setGlowing(target, p, ChatColor.GOLD);
-        }
+      if (glowCoordinator.set(
+          ViewerGlowCoordinator.Layer.RANGED_TRAJECTORY_SIGHT,
+          target,
+          p,
+          ChatColor.GOLD
+      )) {
         fx(target, FxPriority.TRANSITION)
             .burst(Particles.CRIT_MAGIC, 3, 0.15D)
             .sound(Sound.BLOCK_NOTE_BLOCK_PLING, 0.3F, 2.0F);
-      } catch (ReflectiveOperationException ignored) {
+      } else {
         previewGlowTargets.remove(viewerId, target);
-        // Ignore and continue; preview should never hard-fail from packet glow.
       }
     });
   }
@@ -1080,20 +1078,16 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
       return;
     }
 
-    GlowingEntities glowingEntities = Adapt.instance.getGlowingEntities();
-    if (glowingEntities == null) {
+    ViewerGlowCoordinator glowCoordinator = Adapt.instance.getViewerGlowCoordinator();
+    if (glowCoordinator == null) {
       return;
     }
 
-    J.runEntity(target, () -> {
-      try {
-        synchronized (Adapt.glowingEntitiesLock()) {
-          glowingEntities.unsetGlowing(target, p);
-        }
-      } catch (ReflectiveOperationException ignored) {
-        // Ignore and continue; preview should never hard-fail from packet glow.
-      }
-    });
+    J.runEntity(target, () -> glowCoordinator.unset(
+        ViewerGlowCoordinator.Layer.RANGED_TRAJECTORY_SIGHT,
+        target,
+        p
+    ));
   }
 
   private boolean supportsRicochet(Material launchType, RicochetPreview ricochet) {

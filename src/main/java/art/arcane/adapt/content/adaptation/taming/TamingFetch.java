@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.taming;
 
+import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -40,8 +41,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Tameable;
 import org.bukkit.entity.Wolf;
 
-import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class TamingFetch extends SimpleAdaptation<TamingFetch.Config> {
   private static final int HARD_MAX_WOLVES = 12;
@@ -121,9 +122,7 @@ public class TamingFetch extends SimpleAdaptation<TamingFetch.Config> {
     double carryRate = getCarryRate(level);
     int maxThisTick = Math.min(wolfCount, getCarryPerTickLimit());
     int fetched = 0;
-    List<Item> items = origin.getWorld().getNearbyEntitiesByType(Item.class, origin, range, range, range)
-        .stream().toList();
-    for (Item item : items) {
+    for (Item item : origin.getWorld().getNearbyEntitiesByType(Item.class, origin, range, range, range)) {
       if (fetched >= maxThisTick) {
         break;
       }
@@ -161,19 +160,62 @@ public class TamingFetch extends SimpleAdaptation<TamingFetch.Config> {
     }
 
     Location from = item.getLocation().clone();
+    Location to = ownerLocation.clone().add(0, 0.5, 0);
+    beginFetchTeleport(owner, ownerId, item, from, to);
+  }
+
+  private void beginFetchTeleport(Player owner, UUID ownerId, Item item, Location from, Location to) {
+    CompletableFuture<Boolean> teleport;
+    try {
+      teleport = item.teleportAsync(to);
+    } catch (RuntimeException error) {
+      Adapt.error("Taming Fetch could not start item teleport for " + item.getUniqueId() + ".");
+      error.printStackTrace();
+      return;
+    }
+    if (teleport == null) {
+      return;
+    }
+    teleport.whenComplete((success, failure) ->
+        completeFetchTeleport(owner, ownerId, item, from, to, success, failure));
+  }
+
+  private void completeFetchTeleport(Player owner, UUID ownerId, Item item, Location from, Location to,
+                                     Boolean success, Throwable failure) {
+    if (failure != null) {
+      Adapt.error("Taming Fetch item teleport failed for " + item.getUniqueId() + ".");
+      failure.printStackTrace();
+    }
+    if (!successfulFetchTeleport(success, failure)) {
+      return;
+    }
+    if (!J.runEntity(item, () -> finishFetchTeleportOwned(owner, ownerId, item, from, to))) {
+      Adapt.warn("Taming Fetch completed item teleport but could not schedule completion for "
+          + item.getUniqueId() + ".");
+    }
+  }
+
+  private void finishFetchTeleportOwned(Player owner, UUID ownerId, Item item, Location from, Location to) {
+    if (!item.isValid() || item.isDead()) {
+      return;
+    }
+
     item.setPickupDelay(0);
     item.setOwner(ownerId);
-    Location to = ownerLocation.clone().add(0, 0.5, 0);
     if (from.getWorld() != null && from.getWorld() == to.getWorld()) {
       fx(from, FxPriority.TRAIL)
           .line(Particles.ENCHANTMENT_TABLE, to.getX(), to.getY(), to.getZ(), 6)
           .sound(Sound.ENTITY_ITEM_PICKUP, 0.45F, 1.7F);
     }
 
-    if (!J.teleport(item, to)) {
-      return;
+    if (!J.runEntity(owner, () -> creditFetch(owner))) {
+      Adapt.warn("Taming Fetch delivered an item but could not schedule credit for "
+          + owner.getUniqueId() + ".");
     }
-    J.runEntity(owner, () -> creditFetch(owner));
+  }
+
+  static boolean successfulFetchTeleport(Boolean success, Throwable failure) {
+    return failure == null && Boolean.TRUE.equals(success);
   }
 
   private void creditFetch(Player owner) {

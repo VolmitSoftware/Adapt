@@ -3517,7 +3517,7 @@ usage = "Kairiuoju pelės mygtuku spustelėkite pradžią, dešiniuoju tarpinius
 
 [architect.demolition]
 name = "Meisono trintuvas"
-description = "Ištrinkite savo naujausias vietas akimirksniu ir blokas vėl kaip lašas!"
+description = "Beveik akimirksniu pašalinkite neseniai padėtus blokus nepalikdami iškritusių daiktų."
 lore1 = "Jūsų šviežia praktika pertraukė- akimirksniu"
 lore2 = "Sekundės vieta skaičiuojama kaip šviežia"
 lore = ["Jūsų šviežia praktika pertraukė- akimirksniu", "Sekundės vieta skaičiuojama kaip šviežia"]

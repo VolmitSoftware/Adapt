@@ -45,11 +45,18 @@ import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.util.Vector;
 
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class BlockingMirrorBlock extends SimpleAdaptation<BlockingMirrorBlock.Config> {
   private static final String REFLECTED_META = "adapt-mirror-reflected";
   private static final String DAMAGE_FACTOR_META = "adapt-mirror-damage-factor";
+  private final Set<UUID> pendingDefenders = ConcurrentHashMap.newKeySet();
+  private final AtomicBoolean acceptingReflections = new AtomicBoolean(true);
 
   public BlockingMirrorBlock() {
     super("blocking-mirror-block");
@@ -72,6 +79,18 @@ public class BlockingMirrorBlock extends SimpleAdaptation<BlockingMirrorBlock.Co
   }
 
   @Override
+  protected void onRuntimeActivated() {
+    acceptingReflections.set(true);
+  }
+
+  @Override
+  public void unregister() {
+    acceptingReflections.set(false);
+    pendingDefenders.clear();
+    super.unregister();
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.pc(getReflectChance(level), 0), 1);
     statLore(v, Form.pc(getReflectedDamageFactor(level), 0), 2);
@@ -86,7 +105,8 @@ public class BlockingMirrorBlock extends SimpleAdaptation<BlockingMirrorBlock.Co
 
     applyReflectedDamageModifier(e, projectile);
 
-    if (!(e.getEntity() instanceof Player defender) || !isMirrorReady(defender) || projectile.hasMetadata(REFLECTED_META)) {
+    if (!(e.getEntity() instanceof Player defender) || !acceptingReflections.get()
+        || !isMirrorReady(defender) || projectile.hasMetadata(REFLECTED_META)) {
       return;
     }
 
@@ -102,30 +122,16 @@ public class BlockingMirrorBlock extends SimpleAdaptation<BlockingMirrorBlock.Co
       return;
     }
 
+    UUID defenderId = defender.getUniqueId();
+    if (!pendingDefenders.add(defenderId)) {
+      return;
+    }
+
+    if (!reflectProjectile(defender, projectile, level)) {
+      pendingDefenders.remove(defenderId);
+      return;
+    }
     e.setCancelled(true);
-    reflectProjectile(defender, projectile, level);
-    setStorage(defender, "mirrorBlockNext", now + getReflectCooldownMillis(level));
-
-    mirrorFlash(defender);
-    reflectTrail(projectile);
-    xp(defender, getConfig().xpOnReflect);
-    addStat(defender, "blocking.mirror-block.projectiles-reflected", 1);
-
-    long windowStart = getStorageLong(defender, "mirrorWindowStart", 0L);
-    int windowCount = getStorageInt(defender, "mirrorWindowCount", 0);
-    if (now - windowStart > 5000L) {
-      windowStart = now;
-      windowCount = 1;
-    } else {
-      windowCount++;
-    }
-    setStorage(defender, "mirrorWindowStart", windowStart);
-    setStorage(defender, "mirrorWindowCount", windowCount);
-    if (windowCount >= 3 && grantOnce(defender, "challenge_blocking_mirror_3in5")) {
-      fx(defender.getLocation().add(0, 1.0D, 0), FxPriority.TRANSITION)
-          .particle(Particle.REVERSE_PORTAL, 12, 0, 0.3D, 0, 0.4D, 0.02D)
-          .sound(Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.7F, 1.0F);
-    }
   }
 
   private void mirrorFlash(Player defender) {
@@ -165,18 +171,118 @@ public class BlockingMirrorBlock extends SimpleAdaptation<BlockingMirrorBlock.Co
     e.setDamage(e.getDamage() * factor);
   }
 
-  private void reflectProjectile(Player defender, Projectile projectile, int level) {
+  private boolean reflectProjectile(Player defender, Projectile projectile, int level) {
     Vector incoming = projectile.getVelocity().clone();
     Vector reflected = incoming.multiply(-Math.max(0.01, getReflectVelocityFactor(level)));
     if (reflected.lengthSquared() < getConfig().minReflectedVelocitySquared) {
       reflected = defender.getEyeLocation().getDirection().normalize().multiply(getConfig().fallbackReflectedSpeed);
     }
 
-    J.teleport(projectile, defender.getEyeLocation().add(defender.getEyeLocation().getDirection().multiply(0.55)));
-    projectile.setShooter(defender);
-    projectile.setVelocity(reflected);
-    projectile.setMetadata(REFLECTED_META, new FixedMetadataValue(Adapt.instance, true));
-    projectile.setMetadata(DAMAGE_FACTOR_META, new FixedMetadataValue(Adapt.instance, getReflectedDamageFactor(level)));
+    Location destination = defender.getEyeLocation()
+        .add(defender.getEyeLocation().getDirection().multiply(0.55D));
+    MirrorReflection reflection = new MirrorReflection(
+        defender.getUniqueId(),
+        reflected,
+        getReflectedDamageFactor(level),
+        getReflectCooldownMillis(level)
+    );
+    CompletableFuture<Boolean> teleport;
+    try {
+      teleport = projectile.teleportAsync(destination);
+    } catch (RuntimeException error) {
+      Adapt.error("Mirror Block could not start a projectile teleport for "
+          + defender.getUniqueId() + ".");
+      error.printStackTrace();
+      return false;
+    }
+    if (teleport == null) {
+      return false;
+    }
+
+    teleport.whenComplete((success, failure) ->
+        finishProjectileTeleport(defender, projectile, reflection, success, failure));
+    return true;
+  }
+
+  private void finishProjectileTeleport(
+      Player defender,
+      Projectile projectile,
+      MirrorReflection reflection,
+      Boolean success,
+      Throwable failure
+  ) {
+    if (failure != null) {
+      Adapt.error("Mirror Block projectile teleport failed for "
+          + reflection.defenderId() + ".");
+      failure.printStackTrace();
+    }
+
+    if (!teleportCompleted(success, failure)) {
+      pendingDefenders.remove(reflection.defenderId());
+      return;
+    }
+
+    Runnable completion = () -> {
+      if (!acceptingReflections.get() || !projectile.isValid()) {
+        pendingDefenders.remove(reflection.defenderId());
+        return;
+      }
+
+      projectile.setShooter(defender);
+      projectile.setVelocity(reflection.velocity());
+      projectile.setMetadata(REFLECTED_META, new FixedMetadataValue(Adapt.instance, true));
+      projectile.setMetadata(
+          DAMAGE_FACTOR_META,
+          new FixedMetadataValue(Adapt.instance, reflection.damageFactor())
+      );
+      reflectTrail(projectile);
+      boolean scheduled = J.runEntity(defender, () ->
+          commitReflection(defender, reflection));
+      if (!scheduled) {
+        pendingDefenders.remove(reflection.defenderId());
+      }
+    };
+    boolean scheduled = J.runEntity(projectile, completion);
+    if (!scheduled) {
+      if (J.isOwnedByCurrentRegion(projectile)) {
+        completion.run();
+      } else {
+        pendingDefenders.remove(reflection.defenderId());
+      }
+    }
+  }
+
+  private void commitReflection(Player defender, MirrorReflection reflection) {
+    if (!pendingDefenders.remove(reflection.defenderId())
+        || !acceptingReflections.get() || !defender.isOnline()) {
+      return;
+    }
+
+    long now = System.currentTimeMillis();
+    setStorage(defender, "mirrorBlockNext", now + reflection.cooldownMillis());
+    mirrorFlash(defender);
+    xp(defender, getConfig().xpOnReflect);
+    addStat(defender, "blocking.mirror-block.projectiles-reflected", 1);
+
+    long windowStart = getStorageLong(defender, "mirrorWindowStart", 0L);
+    int windowCount = getStorageInt(defender, "mirrorWindowCount", 0);
+    if (now - windowStart > 5000L) {
+      windowStart = now;
+      windowCount = 1;
+    } else {
+      windowCount++;
+    }
+    setStorage(defender, "mirrorWindowStart", windowStart);
+    setStorage(defender, "mirrorWindowCount", windowCount);
+    if (windowCount >= 3 && grantOnce(defender, "challenge_blocking_mirror_3in5")) {
+      fx(defender.getLocation().add(0, 1.0D, 0), FxPriority.TRANSITION)
+          .particle(Particle.REVERSE_PORTAL, 12, 0, 0.3D, 0, 0.4D, 0.02D)
+          .sound(Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.7F, 1.0F);
+    }
+  }
+
+  static boolean teleportCompleted(Boolean success, Throwable failure) {
+    return failure == null && Boolean.TRUE.equals(success);
   }
 
   private boolean isMirrorReady(Player p) {
@@ -214,6 +320,17 @@ public class BlockingMirrorBlock extends SimpleAdaptation<BlockingMirrorBlock.Co
 
   private long getReflectCooldownMillis(int level) {
     return Math.max(100L, Math.round(getConfig().cooldownMillisBase - (getLevelPercent(level) * getConfig().cooldownMillisFactor)));
+  }
+
+  private record MirrorReflection(
+      UUID defenderId,
+      Vector velocity,
+      double damageFactor,
+      long cooldownMillis
+  ) {
+    MirrorReflection {
+      velocity = velocity.clone();
+    }
   }
 
 

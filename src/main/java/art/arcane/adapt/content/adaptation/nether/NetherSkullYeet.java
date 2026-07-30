@@ -142,8 +142,6 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
       }
 
       e.setCancelled(true);
-      p.setCooldown(Material.WITHER_SKELETON_SKULL, cooldownSeconds * 20);
-
       if (p.getGameMode() != GameMode.CREATIVE) {
         if (!payItemCost(p, "skull", new ItemStack(Material.WITHER_SKELETON_SKULL), 1, () -> {
           e.getItem().setAmount(e.getItem().getAmount() - 1);
@@ -154,6 +152,7 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
 
         cooldowns.mark(id);
       }
+      p.setCooldown(Material.WITHER_SKELETON_SKULL, cooldownSeconds * 20);
 
       Location eye = p.getEyeLocation();
       Vector dir = eye.getDirection();
@@ -191,8 +190,7 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
       withAdaptedPlayer(p, () -> {
         addStat(p, "nether.skull-yeet.skull-kills", 1);
 
-        double distance = p.getLocation().distance(dead.getLocation());
-        boolean longBomb = distance >= 40;
+        boolean longBomb = isLongBomb(p.getLocation(), dead.getLocation(), 40D);
         Location at = dead.getLocation().add(0D, 0.5D, 0D);
         FxEmitter emit = fx(at, FxPriority.COMBAT)
             .particle(Particles.SMOKE, 8, 0D, 0D, 0D, 0.4D, 0.02D)
@@ -208,6 +206,12 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
         }
       });
     }
+  }
+
+  static boolean isLongBomb(Location source, Location target, double minimumDistance) {
+    return source.getWorld() != null
+        && source.getWorld().equals(target.getWorld())
+        && source.distanceSquared(target) >= minimumDistance * minimumDistance;
   }
 
 

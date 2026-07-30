@@ -490,6 +490,10 @@ public interface Adaptation<T> extends Ticked, Component {
     return AdaptationRuntimeGuards.isProtectedFriendly(actor, target);
   }
 
+  default boolean isProtectedFriendlyOwned(UUID actorId, Entity target) {
+    return AdaptationRuntimeGuards.isProtectedFriendlyOwned(actorId, target);
+  }
+
   /**
    * Returns active level only when player is in survival.
    */
@@ -734,6 +738,36 @@ public interface Adaptation<T> extends Ticked, Component {
     return AdaptationRuntimeGuards.getActiveLevel(this, p);
   }
 
+  default int getActiveDeathLevel(Player p) {
+    return AdaptationRuntimeGuards.getActiveDeathLevel(this, p);
+  }
+
+  default int getActiveSiblingLevel(Player p, String adaptationName) {
+    Skill<?> skill = getSkill();
+    if (p == null || adaptationName == null || skill == null) {
+      return 0;
+    }
+    for (Adaptation<?> sibling : skill.getAdaptations()) {
+      if (adaptationName.equals(sibling.getName())) {
+        return sibling.getActiveLevel(p);
+      }
+    }
+    return 0;
+  }
+
+  default int getActiveSiblingBlockBreakLevel(Player p, String adaptationName, Location location) {
+    Skill<?> skill = getSkill();
+    if (p == null || adaptationName == null || location == null || skill == null) {
+      return 0;
+    }
+    for (Adaptation<?> sibling : skill.getAdaptations()) {
+      if (adaptationName.equals(sibling.getName())) {
+        return sibling.getActiveBlockBreakLevel(p, location);
+      }
+    }
+    return 0;
+  }
+
   /**
    * Ownership check only (learned level > 0), without runtime gating.
    */
@@ -782,21 +816,34 @@ public interface Adaptation<T> extends Ticked, Component {
     if (!p.getClass().getSimpleName().equals("CraftPlayer")) {
       return 0.0;
     }
-    return Math.min(Math.max(0, M.lerpInverse(0, getMaxLevel(), getLevel(p))), 1);
+    int maxLevel = getMaxLevel();
+    if (maxLevel <= 0) {
+      return 0D;
+    }
+    return Math.min(Math.max(0, M.lerpInverse(0, maxLevel, getLevel(p))), 1);
   }
 
   /**
    * Level normalized to 0..1 using an explicit level value.
    */
   default double getLevelPercent(int p) {
-    return Math.min(Math.max(0, M.lerpInverse(0, getMaxLevel(), p)), 1);
+    int maxLevel = getMaxLevel();
+    if (maxLevel <= 0) {
+      return 0D;
+    }
+    return Math.min(Math.max(0, M.lerpInverse(0, maxLevel, p)), 1);
   }
 
   /**
    * Cost for purchasing exactly this level step.
    */
   default int getCostFor(int level) {
-    return (int) (Math.max(1, getBaseCost() + (getBaseCost() * (level * getCostFactor())))) + (level == 1 ? getInitialCost() : 0);
+    double scaledCost = Math.max(1D, getBaseCost() + (getBaseCost() * (level * getCostFactor())));
+    double totalCost = scaledCost + (level == 1 ? getInitialCost() : 0);
+    if (!Double.isFinite(totalCost) || totalCost >= Integer.MAX_VALUE) {
+      return Integer.MAX_VALUE;
+    }
+    return Math.max(1, (int) totalCost);
   }
 
   /**
@@ -815,13 +862,16 @@ public interface Adaptation<T> extends Ticked, Component {
     }
 
 
-    int c = 0;
+    long c = 0L;
 
     for (int i = myLevel + 1; i <= level; i++) {
       c += getCostFor(i);
+      if (c >= Integer.MAX_VALUE) {
+        return Integer.MAX_VALUE;
+      }
     }
 
-    return c;
+    return (int) c;
   }
 
   /**
@@ -832,13 +882,16 @@ public interface Adaptation<T> extends Ticked, Component {
       return 0;
     }
 
-    int c = 0;
+    long c = 0L;
 
     for (int i = level + 1; i <= myLevel; i++) {
       c += getCostFor(i);
+      if (c >= Integer.MAX_VALUE) {
+        return Integer.MAX_VALUE;
+      }
     }
 
-    return c;
+    return (int) c;
   }
 
   /**

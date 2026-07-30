@@ -29,6 +29,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.fx.ViewerGlowCoordinator;
 import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
@@ -38,7 +39,6 @@ import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.scheduling.FoliaScheduler;
 import com.destroystokyo.paper.event.entity.EntityAddToWorldEvent;
-import fr.skytasul.glowingentities.GlowingEntities;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
@@ -380,6 +380,7 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
     locks.remove(playerId);
     lockRequests.remove(playerId);
     viewerGlow.remove(playerId);
+    Adapt.instance.getViewerGlowCoordinator().discardViewer(playerId);
     cancelPendingLaunches(playerId);
     cancelPendingContinuations(playerId);
     cancelCandidateBatches(playerId);
@@ -454,6 +455,7 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
         J.runEntity(viewer, () -> unsetGlowOwned(viewer, entry.getValue()));
       }
     }
+    Adapt.instance.getViewerGlowCoordinator().clearLayer(ViewerGlowCoordinator.Layer.RANGED_HEARTSEEKER);
     super.unregister();
   }
 
@@ -1823,12 +1825,15 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
   private void applyGlowOwned(Player viewer, TargetSnapshot target) {
     UUID viewerId = viewer.getUniqueId();
     GlowTarget current = viewerGlow.get(viewerId);
-    if (current != null && target != null && current.entityId().equals(target.entityId())) {
+    if (current != null
+        && target != null
+        && current.entityId().equals(target.entityId())
+        && current.runtimeEntityId() == target.entity().getEntityId()) {
       return;
     }
 
-    GlowingEntities glowingEntities = Adapt.instance.getGlowingEntities();
-    if (glowingEntities == null) {
+    ViewerGlowCoordinator glowCoordinator = Adapt.instance.getViewerGlowCoordinator();
+    if (glowCoordinator == null || !glowCoordinator.isAvailable()) {
       viewerGlow.remove(viewerId);
       return;
     }
@@ -1840,27 +1845,29 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
       return;
     }
 
-    try {
-      synchronized (Adapt.glowingEntitiesLock()) {
-        glowingEntities.setGlowing(target.entity(), viewer, ChatColor.RED);
-      }
-      viewerGlow.put(viewerId, new GlowTarget(target.entity(), target.entityId()));
-    } catch (ReflectiveOperationException ignored) {
+    if (glowCoordinator.set(
+        ViewerGlowCoordinator.Layer.RANGED_HEARTSEEKER,
+        target.entity(),
+        viewer,
+        ChatColor.RED
+    )) {
+      viewerGlow.put(viewerId, new GlowTarget(target.entityId(), target.entity().getEntityId()));
+    } else {
       viewerGlow.remove(viewerId);
     }
   }
 
   private void unsetGlowOwned(Player viewer, GlowTarget target) {
-    GlowingEntities glowingEntities = Adapt.instance.getGlowingEntities();
-    if (glowingEntities == null) {
+    ViewerGlowCoordinator glowCoordinator = Adapt.instance.getViewerGlowCoordinator();
+    if (glowCoordinator == null) {
       return;
     }
-    try {
-      synchronized (Adapt.glowingEntitiesLock()) {
-        glowingEntities.unsetGlowing(target.entity(), viewer);
-      }
-    } catch (ReflectiveOperationException ignored) {
-    }
+    glowCoordinator.unset(
+        ViewerGlowCoordinator.Layer.RANGED_HEARTSEEKER,
+        target.entityId(),
+        target.runtimeEntityId(),
+        viewer
+    );
   }
 
   private int getCooldownTicks(int level) {
@@ -2155,7 +2162,7 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
   private record Lock(TargetSnapshot target, long stamp) {
   }
 
-  private record GlowTarget(Entity entity, UUID entityId) {
+  private record GlowTarget(UUID entityId, int runtimeEntityId) {
   }
 
   private record PendingLaunch(AbstractArrow arrow, Player owner, UUID ownerId,

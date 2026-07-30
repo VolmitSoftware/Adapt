@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.seaborrne;
 
+import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -30,6 +31,7 @@ import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -38,14 +40,21 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Vector;
+
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class SeaborneTridentMastery extends SimpleAdaptation<SeaborneTridentMastery.Config> {
   private static final int MAX_RECALL_TICKS = 120;
   private static final double PICKUP_DISTANCE = 1.6;
 
+  private final NamespacedKey masteryLevelKey;
+
   public SeaborneTridentMastery() {
     super("seaborne-trident-mastery");
+    masteryLevelKey = new NamespacedKey(Adapt.instance, "seaborne_trident_mastery_level");
     registerConfiguration(Config.class);
     setLocalizationKey("seaborn.trident_mastery");
     setIcon(Material.TRIDENT);
@@ -73,34 +82,38 @@ public class SeaborneTridentMastery extends SimpleAdaptation<SeaborneTridentMast
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(EntityDamageByEntityEvent e) {
-    Player p = resolveTridentAttacker(e);
-    if (p == null) {
+    DamageContext context = resolveDamageContext(e);
+    if (context == null) {
       return;
     }
 
-    int level = getActiveLevel(p);
-    if (level <= 0) {
-      return;
-    }
-
-    e.setDamage(e.getDamage() * (1D + getDamageBonus(level)));
-    addStat(p, "seaborne.trident-mastery.trident-hits", 1);
+    e.setDamage(e.getDamage() * (1D + getDamageBonus(context.level())));
     fx(e.getEntity().getLocation().clone().add(0D, 1.0D, 0D), FxPriority.COMBAT)
         .particle(Particle.CRIT, 8, 0D, 0D, 0D, 0.35D, 0.1D)
         .particle(Particle.BUBBLE, 6, 0D, 0D, 0D, 0.3D, 0.05D)
         .sound(Sound.ITEM_TRIDENT_HIT, 0.6F, 1.1F);
+    J.runEntity(context.attacker(), () -> rewardHitOwned(context.attacker()));
   }
 
-  private Player resolveTridentAttacker(EntityDamageByEntityEvent e) {
+  private DamageContext resolveDamageContext(EntityDamageByEntityEvent e) {
     if (e.getDamager() instanceof Trident trident && trident.getShooter() instanceof Player shooter) {
-      return shooter;
+      Integer level = trident.getPersistentDataContainer().get(masteryLevelKey, PersistentDataType.INTEGER);
+      return level == null || level <= 0 ? null : new DamageContext(shooter, level);
     }
 
     if (e.getDamager() instanceof Player melee && melee.getInventory().getItemInMainHand().getType() == Material.TRIDENT) {
-      return melee;
+      int level = getActiveLevel(melee);
+      return level <= 0 ? null : new DamageContext(melee, level);
     }
 
     return null;
+  }
+
+  private void rewardHitOwned(Player attacker) {
+    if (!attacker.isOnline() || getActiveLevel(attacker) <= 0) {
+      return;
+    }
+    addStat(attacker, "seaborne.trident-mastery.trident-hits", 1);
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -109,12 +122,13 @@ public class SeaborneTridentMastery extends SimpleAdaptation<SeaborneTridentMast
       return;
     }
 
-    if (!getConfig().enableRecall) {
-      return;
-    }
-
     int level = getActiveLevel(p);
     if (level <= 0) {
+      return;
+    }
+    trident.getPersistentDataContainer().set(masteryLevelKey, PersistentDataType.INTEGER, level);
+
+    if (!getConfig().enableRecall) {
       return;
     }
 
@@ -123,19 +137,40 @@ public class SeaborneTridentMastery extends SimpleAdaptation<SeaborneTridentMast
   }
 
   private void recallTick(Trident trident, Player p, int level, int ticksLived) {
-    if (!trident.isValid() || trident.isDead() || !p.isOnline() || ticksLived > MAX_RECALL_TICKS) {
+    if (!trident.isValid() || trident.isDead() || ticksLived > MAX_RECALL_TICKS) {
+      return;
+    }
+    UUID tridentId = trident.getUniqueId();
+    if (!J.runEntity(p, () -> captureRecallTargetOwned(trident, tridentId, p, level, ticksLived))) {
+      Adapt.warn("Trident Mastery could not schedule recall owner snapshot for " + tridentId + ".");
+    }
+  }
+
+  private void captureRecallTargetOwned(Trident trident, UUID tridentId, Player p, int level, int ticksLived) {
+    if (!p.isOnline() || getActiveLevel(p) <= 0) {
+      return;
+    }
+    Location playerLocation = p.getLocation().clone().add(0D, 1.0D, 0D);
+    if (!J.runEntity(trident,
+        () -> applyRecallTargetOwned(trident, tridentId, p, level, ticksLived, playerLocation))) {
+      Adapt.warn("Trident Mastery could not schedule recall continuation for " + tridentId + ".");
+    }
+  }
+
+  private void applyRecallTargetOwned(Trident trident, UUID tridentId, Player p, int level, int ticksLived,
+                                      Location playerLocation) {
+    if (!trident.isValid() || trident.isDead() || ticksLived > MAX_RECALL_TICKS) {
       return;
     }
 
     Location tridentLocation = trident.getLocation();
-    Location playerLocation = p.getLocation().clone().add(0D, 1.0D, 0D);
     if (tridentLocation.getWorld() != playerLocation.getWorld()) {
       return;
     }
 
     boolean stuck = trident.isInBlock() || trident.isOnGround();
     if (!stuck && ticksLived < getFlightGraceTicks(level)) {
-      J.runEntity(trident, () -> recallTick(trident, p, level, ticksLived + 1), 1);
+      scheduleNextRecall(trident, p, level, ticksLived);
       return;
     }
 
@@ -149,9 +184,47 @@ public class SeaborneTridentMastery extends SimpleAdaptation<SeaborneTridentMast
       Location freed = tridentLocation.clone()
           .add(toPlayer.clone().normalize().multiply(0.4D))
           .add(0D, 0.2D, 0D);
-      trident.teleport(freed);
+      beginReleaseTeleport(trident, tridentId, p, level, ticksLived, freed);
+      return;
     }
 
+    continueRecallOwned(trident, p, level, ticksLived, tridentLocation, toPlayer);
+  }
+
+  private void beginReleaseTeleport(Trident trident, UUID tridentId, Player p, int level, int ticksLived,
+                                    Location freed) {
+    CompletableFuture<Boolean> teleport;
+    try {
+      teleport = trident.teleportAsync(freed);
+    } catch (RuntimeException error) {
+      Adapt.error("Trident Mastery could not start release teleport for " + tridentId + ".");
+      error.printStackTrace();
+      return;
+    }
+    if (teleport == null) {
+      return;
+    }
+    teleport.whenComplete((success, failure) ->
+        completeReleaseTeleport(trident, tridentId, p, level, ticksLived, success, failure));
+  }
+
+  private void completeReleaseTeleport(Trident trident, UUID tridentId, Player p, int level, int ticksLived,
+                                       Boolean success, Throwable failure) {
+    if (failure != null) {
+      Adapt.error("Trident Mastery release teleport failed for " + tridentId + ".");
+      failure.printStackTrace();
+    }
+    if (!successfulReleaseTeleport(success, failure)) {
+      return;
+    }
+    if (!J.runEntity(trident, () -> recallTick(trident, p, level, ticksLived))) {
+      Adapt.warn("Trident Mastery completed release teleport but could not schedule completion for "
+          + tridentId + ".");
+    }
+  }
+
+  private void continueRecallOwned(Trident trident, Player p, int level, int ticksLived,
+                                   Location tridentLocation, Vector toPlayer) {
     trident.setVelocity(toPlayer.normalize().multiply(getRecallSpeed(level)));
     if ((ticksLived & 3) == 0) {
       fx(tridentLocation, FxPriority.TRAIL)
@@ -159,7 +232,15 @@ public class SeaborneTridentMastery extends SimpleAdaptation<SeaborneTridentMast
           .sound(Sound.ITEM_TRIDENT_RETURN, 0.25F, 1.4F);
     }
 
+    scheduleNextRecall(trident, p, level, ticksLived);
+  }
+
+  private void scheduleNextRecall(Trident trident, Player p, int level, int ticksLived) {
     J.runEntity(trident, () -> recallTick(trident, p, level, ticksLived + 1), 1);
+  }
+
+  static boolean successfulReleaseTeleport(Boolean success, Throwable failure) {
+    return failure == null && Boolean.TRUE.equals(success);
   }
 
   private int getFlightGraceTicks(int level) {
@@ -180,6 +261,9 @@ public class SeaborneTridentMastery extends SimpleAdaptation<SeaborneTridentMast
 
   static double recallSpeed(double base, double factor, double levelPercent) {
     return base + (levelPercent * factor);
+  }
+
+  private record DamageContext(Player attacker, int level) {
   }
 
   @ConfigDescription("Tridents deal bonus damage and home back to you faster after a throw.")

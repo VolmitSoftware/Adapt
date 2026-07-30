@@ -37,10 +37,12 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Tameable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -306,12 +308,13 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
     equipment.setItemInOffHand(owner.getInventory().getItemInOffHand());
   }
 
-  private void redirectAggro(DecoySession state) {
+  private void redirectAggro(DecoySession state, Location ownerEyeLocation) {
     if (!state.active.get()) {
       return;
     }
 
     Player owner = state.owner;
+    UUID ownerId = state.ownerId;
     ArmorStand target = state.anchor;
     double radius = getDecoyRadius(state.level);
     Location decoyLocation = target.getLocation().clone();
@@ -322,11 +325,11 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
       }
 
       J.runEntity(mob, () -> {
-        if (!state.active.get() || isProtectedFriendly(owner, mob)) {
+        if (!state.active.get() || isProtectedFriendlyToOwner(ownerId, mob)) {
           return;
         }
 
-        if (mob.getTarget() == owner || mob.hasLineOfSight(owner)) {
+        if (mob.getTarget() == owner || mob.hasLineOfSight(ownerEyeLocation)) {
           boolean newlyDistracted = mob.getTarget() != target;
           mob.setTarget(target);
           if (newlyDistracted) {
@@ -362,7 +365,8 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
       state.ownerTrailNextAt = now + Math.max(25L, getConfig().ownerTrailIntervalMillis);
     }
 
-    if (!J.runEntity(state.anchor, () -> refreshAnchor(state, now))) {
+    Location ownerEyeLocation = owner.getEyeLocation().clone();
+    if (!J.runEntity(state.anchor, () -> refreshAnchor(state, now, ownerEyeLocation))) {
       terminateDecoy(state, true);
       return;
     }
@@ -371,7 +375,7 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
     }
   }
 
-  private void refreshAnchor(DecoySession state, long now) {
+  private void refreshAnchor(DecoySession state, long now, Location ownerEyeLocation) {
     ArmorStand anchor = state.anchor;
     if (!state.active.get() || !anchor.isValid()) {
       terminateDecoy(state, true);
@@ -392,9 +396,20 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
     }
 
     if (now >= state.ownerAggroNextAt) {
-      redirectAggro(state);
+      redirectAggro(state, ownerEyeLocation);
       state.ownerAggroNextAt = now + Math.max(25L, getConfig().aggroRedirectIntervalMillis);
     }
+  }
+
+  private boolean isProtectedFriendlyToOwner(UUID ownerId, Mob mob) {
+    if (isProtectedFriendly(null, mob)) {
+      return true;
+    }
+    if (!(mob instanceof Tameable tameable) || !tameable.isTamed()) {
+      return false;
+    }
+    AnimalTamer tamer = tameable.getOwner();
+    return tamer != null && ownerId.equals(tamer.getUniqueId());
   }
 
   private void applyOwnerInvisibility(DecoySession state) {
@@ -568,6 +583,7 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
 
   private static class DecoySession {
     private final Player owner;
+    private final UUID ownerId;
     private final ArmorStand anchor;
     private final PacketPlayerDecoy packetDecoy;
     private final long expiresAt;
@@ -580,6 +596,7 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
 
     private DecoySession(Player owner, ArmorStand anchor, PacketPlayerDecoy packetDecoy, long expiresAt, int level) {
       this.owner = owner;
+      ownerId = owner.getUniqueId();
       this.anchor = anchor;
       this.packetDecoy = packetDecoy;
       this.expiresAt = expiresAt;

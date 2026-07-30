@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.taming;
 
+import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -45,6 +46,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class TamingLastBreath extends SimpleAdaptation<TamingLastBreath.Config> {
@@ -150,16 +152,55 @@ public class TamingLastBreath extends SimpleAdaptation<TamingLastBreath.Config> 
       safe = owner.getLocation();
     }
 
-    if (J.teleport(pet, safe)) {
-      Location destination = safe.clone();
-      fx(destination, FxPriority.TRANSITION)
-          .dome(Particle.PORTAL, 0.6D, 8)
-          .particle(Particles.VILLAGER_HAPPY, 4, 0, 0.5D, 0, 0.4D, 0)
-          .chord(Sound.ENTITY_ENDERMAN_TELEPORT, 0.6F, 1.4F, Sound.ENTITY_WOLF_PANT, 0.6F, 1.3F);
-    }
-
     addStat(owner, "taming.last-breath.saves", 1);
     xp(owner, getConfig().xpPerSave);
+    beginRecallTeleport(ownerId, pet, safe.clone());
+  }
+
+  private void beginRecallTeleport(UUID ownerId, LivingEntity pet, Location destination) {
+    CompletableFuture<Boolean> teleport;
+    try {
+      teleport = pet.teleportAsync(destination);
+    } catch (RuntimeException error) {
+      Adapt.error("Last Breath could not start pet teleport for owner " + ownerId + ".");
+      error.printStackTrace();
+      return;
+    }
+    if (teleport == null) {
+      return;
+    }
+    teleport.whenComplete((success, failure) ->
+        completeRecallTeleport(ownerId, pet, destination, success, failure));
+  }
+
+  private void completeRecallTeleport(UUID ownerId, LivingEntity pet, Location destination,
+                                      Boolean success, Throwable failure) {
+    if (failure != null) {
+      Adapt.error("Last Breath pet teleport failed for owner " + ownerId + ".");
+      failure.printStackTrace();
+    }
+    if (!successfulRecallTeleport(success, failure)) {
+      return;
+    }
+    if (!J.runEntity(pet, () -> showRecallArrivalOwned(pet, destination))) {
+      Adapt.warn("Last Breath completed pet teleport but could not schedule arrival effects for owner "
+          + ownerId + ".");
+    }
+  }
+
+  private void showRecallArrivalOwned(LivingEntity pet, Location destination) {
+    if (!pet.isValid() || pet.isDead()) {
+      return;
+    }
+
+    fx(destination, FxPriority.TRANSITION)
+        .dome(Particle.PORTAL, 0.6D, 8)
+        .particle(Particles.VILLAGER_HAPPY, 4, 0, 0.5D, 0, 0.4D, 0)
+        .chord(Sound.ENTITY_ENDERMAN_TELEPORT, 0.6F, 1.4F, Sound.ENTITY_WOLF_PANT, 0.6F, 1.3F);
+  }
+
+  static boolean successfulRecallTeleport(Boolean success, Throwable failure) {
+    return failure == null && Boolean.TRUE.equals(success);
   }
 
   private Location findSafeLocation(Player p) {

@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.skill;
 
+import art.arcane.adapt.Adapt;
 import art.arcane.adapt.localization.SkillPresentation;
 import art.arcane.adapt.localization.catalog.SkillMessages;
 
@@ -26,6 +27,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.fx.ViewerGlowCoordinator;
 import art.arcane.adapt.api.skill.SkillOwnerPulse;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.world.AdaptPlayer;
@@ -36,7 +38,6 @@ import art.arcane.adapt.content.adaptation.stealth.StealthCutpurse;
 import art.arcane.adapt.content.adaptation.stealth.StealthDecoySwap;
 import art.arcane.adapt.content.adaptation.stealth.StealthEnderVeil;
 import art.arcane.adapt.content.adaptation.stealth.StealthGhostArmor;
-import art.arcane.adapt.content.adaptation.stealth.StealthGlowCoordinator;
 import art.arcane.adapt.content.adaptation.stealth.StealthShadowDecoy;
 import art.arcane.adapt.content.adaptation.stealth.StealthShadowmeld;
 import art.arcane.adapt.content.adaptation.stealth.StealthSight;
@@ -72,7 +73,7 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
     setInterval(1412);
     setIcon(Material.WITHER_ROSE);
     StealthShadowDecoy shadowDecoy = new StealthShadowDecoy();
-    StealthGlowCoordinator glowCoordinator = new StealthGlowCoordinator();
+    ViewerGlowCoordinator glowCoordinator = Adapt.instance.getViewerGlowCoordinator();
     StealthSmokePellet smokePellet = new StealthSmokePellet();
     StealthCore stealth = new StealthCore(shadowDecoy, smokePellet, glowCoordinator);
     registerAdaptation(stealth);

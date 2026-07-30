@@ -52,6 +52,7 @@ import org.bukkit.util.Vector;
 
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -312,9 +313,7 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
     double probe = Math.max(0.1, getConfig().autoStepProbeDistance);
     Location front = p.getLocation().clone().add(direction.multiply(probe));
 
-    if (tryStepDown(p, front, direction)) {
-      state.lastStepMillis = now;
-    }
+    tryStepDown(p, state, front, direction);
   }
 
   private Vector resolveAutoStepDirection(Player p) {
@@ -344,7 +343,7 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
     return movement.normalize();
   }
 
-  private boolean tryStepDown(Player p, Location front, Vector direction) {
+  private boolean tryStepDown(Player p, RuntimeState state, Location front, Vector direction) {
     if (!isPassable(front, 0)) {
       return false;
     }
@@ -364,10 +363,59 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
       return false;
     }
 
-    J.teleport(p, destination);
-    p.setFallDistance(0);
-    stepFx(destination);
+    if (!state.stepInFlight.compareAndSet(false, true)) {
+      return false;
+    }
+    CompletableFuture<Boolean> teleport;
+    try {
+      teleport = p.teleportAsync(destination);
+    } catch (RuntimeException error) {
+      state.stepInFlight.set(false);
+      Adapt.error("Stealth Speed could not start auto-step teleport for " + p.getUniqueId() + ".");
+      error.printStackTrace();
+      return false;
+    }
+    if (teleport == null) {
+      state.stepInFlight.set(false);
+      return false;
+    }
+    teleport.whenComplete((success, failure) ->
+        completeAutoStepTeleport(p, state, destination, success, failure));
     return true;
+  }
+
+  private void completeAutoStepTeleport(Player p, RuntimeState state, Location destination,
+                                        Boolean success, Throwable failure) {
+    if (failure != null) {
+      Adapt.error("Stealth Speed auto-step teleport failed for " + p.getUniqueId() + ".");
+      failure.printStackTrace();
+    }
+    if (!successfulAutoStepTeleport(success, failure)) {
+      state.stepInFlight.set(false);
+      return;
+    }
+    if (!J.runEntity(p, () -> finishAutoStepOwned(p, state, destination))) {
+      state.stepInFlight.set(false);
+      Adapt.warn("Stealth Speed completed auto-step teleport but could not schedule its completion for "
+          + p.getUniqueId() + ".");
+    }
+  }
+
+  private void finishAutoStepOwned(Player p, RuntimeState state, Location destination) {
+    try {
+      if (states.get(p.getUniqueId()) != state || !p.isOnline() || !isRuntimeRegistered()) {
+        return;
+      }
+      p.setFallDistance(0);
+      state.lastStepMillis = System.currentTimeMillis();
+      stepFx(destination);
+    } finally {
+      state.stepInFlight.set(false);
+    }
+  }
+
+  static boolean successfulAutoStepTeleport(Boolean success, Throwable failure) {
+    return failure == null && Boolean.TRUE.equals(success);
   }
 
   private void stepFx(Location destination) {
@@ -419,6 +467,7 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
 
   private static class RuntimeState {
     private final AtomicBoolean refreshScheduled = new AtomicBoolean();
+    private final AtomicBoolean stepInFlight = new AtomicBoolean();
     private boolean boosting;
     private double appliedSneakScalar;
     private boolean stepHeightApplied;

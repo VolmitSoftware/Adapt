@@ -3517,7 +3517,7 @@ usage = "Kliknij lewym przyciskiem początek, a prawym punkty pośredni i końco
 
 [architect.demolition]
 name = "Masoński wymazywacz"
-description = "Wymaż swoje ostatnie miejsca pracy natychmiast, a blok powróci jako kropla!"
+description = "Niemal natychmiast usuń niedawno postawione bloki bez generowania przedmiotów."
 lore1 = "Twoje świeże staże pękają zaraz"
 lore2 = "Sekunda miejsca liczy się jako świeże"
 lore = ["Twoje świeże staże pękają zaraz", "Sekunda miejsca liczy się jako świeże"]

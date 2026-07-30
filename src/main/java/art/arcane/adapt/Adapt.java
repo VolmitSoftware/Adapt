@@ -30,7 +30,9 @@ import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.data.WorldData;
 import art.arcane.adapt.api.fx.FxDirector;
 import art.arcane.adapt.api.fx.ViewerDisplayDirector;
+import art.arcane.adapt.api.fx.ViewerGlowCoordinator;
 import art.arcane.adapt.api.potion.BrewingManager;
+import art.arcane.adapt.api.projectile.ProjectileReplacementRegistry;
 import art.arcane.adapt.api.protection.ProtectorRegistry;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.Skill;
@@ -85,6 +87,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.plugin.PluginManager;
 
@@ -125,6 +128,8 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
   private KMap<Class<? extends AdaptService>, AdaptService> services;
   @Getter
   private GlowingEntities glowingEntities;
+  @Getter
+  private ViewerGlowCoordinator viewerGlowCoordinator;
   @Getter
   private Ticker ticker;
   @Getter
@@ -441,6 +446,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     }
     redisSync = new RedisSync();
     playerDataPersistenceQueue = new PlayerDataPersistenceQueue();
+    initializeGlowingEntities();
     runStartupPhase("start-sim", () -> {
       startSim();
       return null;
@@ -488,7 +494,6 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     } else if (pluginManager.getPlugin("HiddenOre") != null) {
       warn("HiddenOre is installed but disabled. Adapt will continue without HiddenOre integration; review HiddenOre's startup error and configuration.");
     }
-    initializeGlowingEntities();
     initializeAdaptationListings();
     services.values().forEach(AdaptService::onEnable);
     services.values().forEach(this::registerListener);
@@ -509,6 +514,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
       glowingEntities = null;
       warn("GlowingEntities is unavailable: " + summarizeThrowable(t) + ". Glow-based effects will be disabled.");
     }
+    viewerGlowCoordinator = new ViewerGlowCoordinator(glowingEntities);
   }
 
   private String summarizeThrowable(Throwable throwable) {
@@ -611,12 +617,13 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     if (ticker != null) {
       ticker.shutdown();
     }
-    PlayerStateRegistry.reset();
     MinionBurden.shutdown();
     postShutdown.forEach(Runnable::run);
     if (adaptServer != null) {
       adaptServer.unregister();
     }
+    ProjectileReplacementRegistry.clear();
+    PlayerStateRegistry.reset();
     AdaptAttributeService.shutdown();
     if (manager != null) {
       manager.disable();
@@ -653,6 +660,12 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     if (sqlManager != null) {
       sqlManager.closeConnection();
     }
+    if (viewerGlowCoordinator != null) {
+      if (!viewerGlowCoordinator.clearAndAwait(2_000L)) {
+        warn("Private viewer glow cleanup did not complete before shutdown.");
+      }
+      viewerGlowCoordinator = null;
+    }
     if (glowingEntities != null) {
       glowingEntities.disable();
     }
@@ -685,6 +698,13 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     }
 
     AdaptPlaceholders.get().clear();
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void onPlayerQuit(PlayerQuitEvent event) {
+    if (viewerGlowCoordinator != null) {
+      viewerGlowCoordinator.discardViewer(event.getPlayer().getUniqueId());
+    }
   }
 
   @EventHandler(priority = EventPriority.MONITOR)

@@ -1,6 +1,7 @@
 package art.arcane.adapt.content.mutation.runtime;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.fx.ViewerGlowCoordinator;
 import art.arcane.adapt.api.mutation.MutationClaim;
 import art.arcane.adapt.api.mutation.MutationConfig;
 import art.arcane.adapt.api.mutation.MutationEventClaims;
@@ -11,7 +12,6 @@ import art.arcane.adapt.api.mutation.PlayerMutationData;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.MutationMessages;
 import art.arcane.adapt.util.common.scheduling.J;
-import fr.skytasul.glowingentities.GlowingEntities;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -1481,9 +1481,11 @@ final class MutationCombatRuntime {
       access.tell(attacker, MutationType.UMBRAL_ECHO, Particle.SMOKE, 6);
     });
     if (target instanceof Player viewer) {
-      GlowingEntities glowing = Adapt.instance.getGlowingEntities();
-      if (glowing != null) {
+      ViewerGlowCoordinator glowCoordinator = Adapt.instance.getViewerGlowCoordinator();
+      if (glowCoordinator != null && glowCoordinator.isAvailable()) {
         UUID viewerId = targetId;
+        UUID attackerId = attacker.getUniqueId();
+        int attackerRuntimeEntityId = attacker.getEntityId();
         ArrayList<UUID> evictedViewerIds = new ArrayList<>();
         synchronized (runtime) {
           runtime.umbral.exposedViewers.put(viewerId, generation);
@@ -1506,11 +1508,12 @@ final class MutationCombatRuntime {
               return;
             }
           }
-          try {
-            glowing.setGlowing(attacker, viewer, ChatColor.LIGHT_PURPLE);
-          } catch (ReflectiveOperationException error) {
-            error.printStackTrace();
-          }
+          glowCoordinator.set(
+              ViewerGlowCoordinator.Layer.MUTATION_UMBRAL_ECHO,
+              attacker,
+              viewer,
+              ChatColor.LIGHT_PURPLE
+          );
         });
         J.runEntity(viewer, () -> {
           MutationRuntimeStore.PlayerRuntimeState current = store.existing(attacker.getUniqueId());
@@ -1523,11 +1526,12 @@ final class MutationCombatRuntime {
               current.umbral.exposedViewers.remove(viewerId);
             }
           }
-          try {
-            glowing.unsetGlowing(attacker, viewer);
-          } catch (ReflectiveOperationException error) {
-            error.printStackTrace();
-          }
+          glowCoordinator.unset(
+              ViewerGlowCoordinator.Layer.MUTATION_UMBRAL_ECHO,
+              attackerId,
+              attackerRuntimeEntityId,
+              viewer
+          );
         }, ticks);
       }
     }
@@ -1547,17 +1551,18 @@ final class MutationCombatRuntime {
 
   private void clearExposureGlow(Player attacker, UUID viewerId) {
     Player viewer = access.onlinePlayer(viewerId);
-    GlowingEntities glowing = Adapt.instance.getGlowingEntities();
-    if (viewer == null || glowing == null) {
+    ViewerGlowCoordinator glowCoordinator = Adapt.instance.getViewerGlowCoordinator();
+    if (viewer == null || glowCoordinator == null) {
       return;
     }
-    J.runEntity(viewer, () -> {
-      try {
-        glowing.unsetGlowing(attacker, viewer);
-      } catch (ReflectiveOperationException error) {
-        error.printStackTrace();
-      }
-    });
+    UUID attackerId = attacker.getUniqueId();
+    int attackerRuntimeEntityId = attacker.getEntityId();
+    J.runEntity(viewer, () -> glowCoordinator.unset(
+        ViewerGlowCoordinator.Layer.MUTATION_UMBRAL_ECHO,
+        attackerId,
+        attackerRuntimeEntityId,
+        viewer
+    ));
   }
 
   private void clearQuarry(UUID quarryId) {

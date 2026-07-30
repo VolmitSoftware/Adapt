@@ -289,12 +289,12 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
       ItemStack cursor = e.getWhoClicked().getItemOnCursor().clone();
       ItemStack clicked = e.getClickedInventory().getItem(e.getSlot()).clone();
 
-      if (omniTool.explode(cursor).size() > 1 || omniTool.explode(clicked).size() > 1) {
-        if (omniTool.explode(cursor).size() >= getSlots(level) || omniTool.explode(clicked).size() >= getSlots(level)) {
-          e.setCancelled(true);
-          fx(player, FxPriority.TRANSITION).sound(Sound.BLOCK_BEACON_DEACTIVATE, 1f, 0.77f);
-          return;
-        }
+      int cursorComponents = omniTool.explode(cursor).size();
+      int clickedComponents = omniTool.explode(clicked).size();
+      if (!fitsCapacity(cursorComponents, clickedComponents, getSlots(level))) {
+        e.setCancelled(true);
+        fx(player, FxPriority.TRANSITION).sound(Sound.BLOCK_BEACON_DEACTIVATE, 1f, 0.77f);
+        return;
       }
       if (ItemListings.tool.contains(cursor.getType()) && ItemListings.tool.contains(clicked.getType())) { // TOOLS ONLY
         if (!cursor.getType().isAir() && !clicked.getType().isAir() && omniTool.supportsItem(cursor) && omniTool.supportsItem(clicked)) {
@@ -353,7 +353,11 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
         && item.getItemMeta().getLore().toString().contains("Leatherman"));
   }
 
-  private double getSlots(double level) {
+  static boolean fitsCapacity(int firstComponents, int secondComponents, int capacity) {
+    return (long) firstComponents + secondComponents <= capacity;
+  }
+
+  private int getSlots(int level) {
     return getConfig().startingSlots + level;
   }
 

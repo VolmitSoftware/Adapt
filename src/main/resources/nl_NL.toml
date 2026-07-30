@@ -3517,7 +3517,7 @@ usage = "Klik met links op het begin en met rechts op het tussen- en eindpunt"
 
 [architect.demolition]
 name = "Mason's Eraser"
-description = "Wis je eigen recente plaatsingen direct en het blok komt terug als een druppel!"
+description = "Wis je eigen recent geplaatste blokken vrijwel direct zonder drops te produceren."
 lore1 = "Uw verse plaatsingen breken bijna direct"
 lore2 = "Seconden een plaatsing telt als vers"
 lore = ["Uw verse plaatsingen breken bijna direct", "Seconden een plaatsing telt als vers"]

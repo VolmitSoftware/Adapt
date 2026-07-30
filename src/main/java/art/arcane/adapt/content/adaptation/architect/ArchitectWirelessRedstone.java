@@ -363,6 +363,22 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
 
   private void linkTorch(Player player, BindingRequest binding) {
     Location targetLocation = binding.target();
+    ItemStack hand = player.getInventory().getItemInMainHand();
+    AtomicBoolean defaultConsumed = new AtomicBoolean();
+    boolean paymentAllowed = payItemCost(player, "bind", new ItemStack(hand.getType()), 1, () -> {
+      createBoundTorch(player, hand, binding, true);
+      defaultConsumed.set(true);
+      return true;
+    });
+    if (!paymentAllowed) {
+      showPulseFailure(player);
+      return;
+    }
+
+    if (shouldCreateProviderBoundOutput(paymentAllowed, defaultConsumed.get())) {
+      createBoundTorch(player, hand, binding, false);
+    }
+
     Location targetCenter = targetLocation.clone().add(0.5D, 0.5D, 0.5D);
     fx(player.getEyeLocation(), FxPriority.GAMEPLAY)
         .line(Particle.ELECTRIC_SPARK, targetCenter.getX(), targetCenter.getY(), targetCenter.getZ(), 16);
@@ -370,19 +386,29 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
         .dustRing(Color.fromRGB(255, 40, 40), 0.6D, 16, 1.0F)
         .chord(Sound.ENTITY_ENDER_EYE_DEATH, 0.2F, 0.48F,
             Sound.BLOCK_BEACON_POWER_SELECT, 0.4F, 1.6F);
-    ItemStack hand = player.getInventory().getItemInMainHand();
-    payItemCost(player, "bind", new ItemStack(hand.getType()), 1, () -> {
-      if (hand.getAmount() == 1) {
-        BoundRedstoneTorch.setData(hand, targetLocation, binding.face());
-        return true;
-      }
+  }
 
+  private void createBoundTorch(
+      Player player,
+      ItemStack hand,
+      BindingRequest binding,
+      boolean consumeDefault
+  ) {
+    if (consumeDefault && hand.getAmount() == 1) {
+      BoundRedstoneTorch.setData(hand, binding.target(), binding.face());
+      return;
+    }
+
+    if (consumeDefault) {
       hand.setAmount(hand.getAmount() - 1);
-      ItemStack torch = BoundRedstoneTorch.withData(targetLocation, binding.face());
-      player.getInventory().addItem(torch).values()
-          .forEach(item -> player.getWorld().dropItemNaturally(player.getLocation(), item));
-      return true;
-    });
+    }
+    ItemStack torch = BoundRedstoneTorch.withData(binding.target(), binding.face());
+    player.getInventory().addItem(torch).values()
+        .forEach(item -> player.getWorld().dropItemNaturally(player.getLocation(), item));
+  }
+
+  static boolean shouldCreateProviderBoundOutput(boolean paymentAllowed, boolean defaultConsumed) {
+    return paymentAllowed && !defaultConsumed;
   }
 
   private void handleRightClick(PlayerInteractEvent event, Player player) {

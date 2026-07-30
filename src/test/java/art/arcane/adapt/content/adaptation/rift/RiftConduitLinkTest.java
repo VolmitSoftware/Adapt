@@ -83,4 +83,28 @@ class RiftConduitLinkTest {
     long deadline = RiftConduit.followUpDeadline(now);
     assertThat(RiftConduit.isWithinFollowUpWindow(deadline + 1L, deadline)).isFalse();
   }
+
+  @Test
+  void deferredProviderCostMustSettleWhenItReplacesTheDefaultTaglock() {
+    assertThat(RiftConduit.acceptSettlement(true, false, false)).isTrue();
+    assertThat(RiftConduit.acceptSettlement(false, false, false)).isTrue();
+    assertThat(RiftConduit.acceptSettlement(false, true, true)).isTrue();
+    assertThat(RiftConduit.acceptSettlement(false, true, false)).isFalse();
+  }
+
+  @Test
+  void bindFinalizationRequiresCurrentOnlineLearnedState() {
+    assertThat(RiftConduit.canFinalizeBind(true, true, true)).isTrue();
+    assertThat(RiftConduit.canFinalizeBind(false, true, true)).isFalse();
+    assertThat(RiftConduit.canFinalizeBind(true, false, true)).isFalse();
+    assertThat(RiftConduit.canFinalizeBind(true, true, false)).isFalse();
+  }
+
+  @Test
+  void rollbackOnlyRestoresTheLinkWrittenByItsOperation() {
+    assertThat(RiftConduit.shouldRestoreEndpoint("operation", "operation")).isTrue();
+    assertThat(RiftConduit.shouldRestoreEndpoint("newer", "operation")).isFalse();
+    assertThat(RiftConduit.shouldRestoreEndpoint(null, "operation")).isFalse();
+    assertThat(RiftConduit.shouldRestoreEndpoint("operation", null)).isFalse();
+  }
 }

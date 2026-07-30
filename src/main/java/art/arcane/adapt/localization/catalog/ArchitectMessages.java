@@ -82,7 +82,7 @@ public final class ArchitectMessages {
   public static final TextKey CHALK_LINE_TOOL_ARC_BOW_NAME = TextKey.of("architect.chalk_line.tool.arc_bow.name", "Chalk Arc Bow");
   public static final TextKey CHALK_LINE_TOOL_ARC_BOW_USAGE = TextKey.of("architect.chalk_line.tool.arc_bow.usage", "Left-click a start; right-click through and end points");
   public static final TextKey DEMOLITION_NAME = TextKey.of("architect.demolition.name", "Mason's Eraser");
-  public static final TextKey DEMOLITION_DESCRIPTION = TextKey.of("architect.demolition.description", "Erase your own recent placements near-instantly and the block pops right back as a drop!");
+  public static final TextKey DEMOLITION_DESCRIPTION = TextKey.of("architect.demolition.description", "Erase your own recent placements near-instantly without producing drops.");
   public static final TextKey DEMOLITION_LORE1 = TextKey.of("architect.demolition.lore1", "Your fresh placements break near-instantly");
   public static final TextKey DEMOLITION_LORE2 = TextKey.of("architect.demolition.lore2", "Seconds a placement counts as fresh");
   public static final LinesKey DEMOLITION_LORE = LinesKey.of("architect.demolition.lore", "Your fresh placements break near-instantly", "Seconds a placement counts as fresh");

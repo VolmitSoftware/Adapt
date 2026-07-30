@@ -40,6 +40,7 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -48,6 +49,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -56,10 +58,14 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
@@ -67,6 +73,8 @@ public class EnchantingSoulLink extends SimpleAdaptation<EnchantingSoulLink.Conf
   private static final NamespacedKey TOKEN_KEY = new NamespacedKey("adapt", "soul-link-token");
   private static final String PENDING_STORAGE_KEY = "soul-link-pending";
   private static final int DROPPED_XP_PER_LEVEL = 7;
+
+  private final Set<UUID> pendingRestores = ConcurrentHashMap.newKeySet();
 
   public EnchantingSoulLink() {
     super("enchanting-soul-link");
@@ -174,8 +182,12 @@ public class EnchantingSoulLink extends SimpleAdaptation<EnchantingSoulLink.Conf
       return;
     }
 
-    int level = getActiveLevel(p);
+    int level = getActiveDeathLevel(p);
     if (level <= 0) {
+      return;
+    }
+
+    if (getStorageString(p, PENDING_STORAGE_KEY, null) != null) {
       return;
     }
 
@@ -211,6 +223,8 @@ public class EnchantingSoulLink extends SimpleAdaptation<EnchantingSoulLink.Conf
       encoded = Base64.getEncoder().encodeToString(found.serializeAsBytes());
     } catch (Throwable t) {
       e.getDrops().add(found);
+      Adapt.warn("Failed to encode a Soul Link item for " + p.getName() + "; item returned to death drops.");
+      t.printStackTrace();
       return;
     }
 
@@ -239,6 +253,17 @@ public class EnchantingSoulLink extends SimpleAdaptation<EnchantingSoulLink.Conf
     J.runEntity(p, () -> restorePending(p), 20);
   }
 
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(PlayerQuitEvent e) {
+    pendingRestores.remove(e.getPlayer().getUniqueId());
+  }
+
+  @Override
+  public void unregister() {
+    pendingRestores.clear();
+    super.unregister();
+  }
+
   private void restorePending(Player p) {
     if (!p.isOnline()) {
       return;
@@ -249,38 +274,105 @@ public class EnchantingSoulLink extends SimpleAdaptation<EnchantingSoulLink.Conf
       return;
     }
 
-    setStorage(p, PENDING_STORAGE_KEY, null);
+    UUID playerId = p.getUniqueId();
+    if (!pendingRestores.add(playerId)) {
+      return;
+    }
+
     ItemStack saved;
     try {
       saved = ItemStack.deserializeBytes(Base64.getDecoder().decode(encoded));
     } catch (Throwable t) {
+      pendingRestores.remove(playerId);
+      logPendingFailure(p, "decode", t);
       return;
     }
 
-    J.runEntity(p, () -> returnSaved(p, saved), 2);
+    if (!J.runEntity(p, () -> returnSaved(p, saved, encoded), 2)) {
+      pendingRestores.remove(playerId);
+    }
   }
 
-  private void returnSaved(Player p, ItemStack saved) {
-    if (!p.isOnline()) {
-      return;
+  private void returnSaved(Player p, ItemStack saved, String encoded) {
+    try {
+      if (!p.isOnline() || !encoded.equals(getStorageString(p, PENDING_STORAGE_KEY, null))) {
+        return;
+      }
+
+      ItemStack[] originalContents = cloneContents(p.getInventory().getContents());
+      List<Item> droppedItems = new ArrayList<>();
+      try {
+        Map<Integer, ItemStack> overflow = p.getInventory().addItem(saved);
+        for (ItemStack item : overflow.values()) {
+          droppedItems.add(p.getWorld().dropItemNaturally(p.getLocation(), item));
+        }
+        if (!setStorage(p, PENDING_STORAGE_KEY, null)) {
+          rollbackDelivery(p, originalContents, droppedItems);
+          Adapt.warn("Soul Link could not clear pending state for " + p.getName() + "; delivery was rolled back.");
+          return;
+        }
+      } catch (Throwable t) {
+        rollbackDelivery(p, originalContents, droppedItems);
+        logPendingFailure(p, "deliver", t);
+        return;
+      }
+
+      xp(p, getConfig().skillXpOnSave);
+      Adapt.actionbar(p, C.LIGHT_PURPLE + AdaptLanguage.text(EnchantingMessages.SOUL_LINK_SAVED));
+      timeline(p)
+          .duration(10)
+          .priority(FxPriority.TRANSITION)
+          .cullRadius(20.0D)
+          .frame((f, tick, progress) -> {
+            f.helix(Particles.TOTEM, (0.8D * (1.0D - progress)) + 0.2D, 1.7D, 4, progress * Math.PI * 3.0D);
+            if (tick == 0) {
+              f.dome(Particles.END_ROD, 1.4D, 12)
+                  .chord(Sound.ITEM_TOTEM_USE, 0.5F, 1.2F, Sound.BLOCK_BEACON_ACTIVATE, 0.4F, 1.4F);
+            }
+          })
+          .start();
+    } catch (Throwable t) {
+      Adapt.warn("Soul Link delivered an item for " + p.getName() + " but its completion effects failed.");
+      t.printStackTrace();
+    } finally {
+      pendingRestores.remove(p.getUniqueId());
+    }
+  }
+
+  private static ItemStack[] cloneContents(ItemStack[] contents) {
+    ItemStack[] snapshot = new ItemStack[contents.length];
+    for (int i = 0; i < contents.length; i++) {
+      snapshot[i] = contents[i] == null ? null : contents[i].clone();
+    }
+    return snapshot;
+  }
+
+  private void rollbackDelivery(Player p, ItemStack[] originalContents, List<Item> droppedItems) {
+    Throwable failure = null;
+    for (Item droppedItem : droppedItems) {
+      try {
+        if (droppedItem.isValid()) {
+          droppedItem.remove();
+        }
+      } catch (Throwable t) {
+        failure = t;
+      }
     }
 
-    Map<Integer, ItemStack> overflow = p.getInventory().addItem(saved);
-    overflow.values().forEach(item -> p.getWorld().dropItemNaturally(p.getLocation(), item));
-    xp(p, getConfig().skillXpOnSave);
-    Adapt.actionbar(p, C.LIGHT_PURPLE + AdaptLanguage.text(EnchantingMessages.SOUL_LINK_SAVED));
-    timeline(p)
-        .duration(10)
-        .priority(FxPriority.TRANSITION)
-        .cullRadius(20.0D)
-        .frame((f, tick, progress) -> {
-          f.helix(Particles.TOTEM, (0.8D * (1.0D - progress)) + 0.2D, 1.7D, 4, progress * Math.PI * 3.0D);
-          if (tick == 0) {
-            f.dome(Particles.END_ROD, 1.4D, 12)
-                .chord(Sound.ITEM_TOTEM_USE, 0.5F, 1.2F, Sound.BLOCK_BEACON_ACTIVATE, 0.4F, 1.4F);
-          }
-        })
-        .start();
+    try {
+      p.getInventory().setContents(originalContents);
+    } catch (Throwable t) {
+      failure = t;
+    }
+
+    if (failure != null) {
+      logPendingFailure(p, "roll back delivery for", failure);
+    }
+  }
+
+  private void logPendingFailure(Player p, String operation, Throwable t) {
+    Adapt.warn("Failed to " + operation + " a Soul Link item for " + p.getName() + "; pending state retained.");
+    t.printStackTrace();
   }
 
   private void markFx(Player p) {

@@ -21,6 +21,7 @@ package art.arcane.adapt.content.adaptation.chronos;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ChronosMessages;
 
+import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -42,6 +43,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
@@ -54,12 +56,15 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
@@ -73,10 +78,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
 
 public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallConfig> {
   private static final EnumSet<Action> RECALL_ACTIONS = EnumSet.of(
@@ -92,14 +98,17 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
   private final Map<UUID, Long> cooldowns = playerState();
   private final Map<UUID, Boolean> cooldownReadyNotify = playerState();
   private final Map<UUID, Long> rewindProtection = playerState();
-  private final Map<UUID, Boolean> rewinding = playerState();
+  private final Map<UUID, UUID> rewinding = playerState();
   private final Map<UUID, RecallXPFarmStamp> recallXpStamps = playerState();
-  private final Map<UUID, Runnable> rewindCleanups = new ConcurrentHashMap<>();
+  private final Map<UUID, RewindVisualState> rewindCleanups = new ConcurrentHashMap<>();
   private final DoubleJumpGesture doubleJump = new DoubleJumpGesture();
+  private final AtomicBoolean acceptingRewinds = new AtomicBoolean(true);
+  private final NamespacedKey rewindStampKey;
 
   public ChronosInstantRecall() {
     super("chronos-instant-recall");
     registerConfiguration(ChronosInstantRecallConfig.class);
+    rewindStampKey = new NamespacedKey(Adapt.instance, "chronos_instant_recall_state");
     setIcon(Material.RECOVERY_COMPASS);
     setInterval(50);
     registerAdvancement(AdaptAdvancement.builder()
@@ -122,6 +131,39 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
         .build());
     registerMilestone("challenge_chronos_recall_50", "chronos.instant-recall.recalls", 50, 300);
     registerMilestone("challenge_chronos_recall_1k", "chronos.instant-recall.recalls", 1000, 1500);
+  }
+
+  @Override
+  protected void onRuntimeActivated() {
+    acceptingRewinds.set(true);
+    for (Player player : Bukkit.getOnlinePlayers()) {
+      J.runEntity(player, () -> restoreStampedRewindState(player));
+    }
+  }
+
+  @Override
+  public void unregister() {
+    acceptingRewinds.set(false);
+    rewinding.clear();
+
+    List<RewindVisualState> visualStates = new ArrayList<>(rewindCleanups.values());
+    rewindCleanups.clear();
+    for (RewindVisualState visualState : visualStates) {
+      Player player = visualState.player();
+      boolean scheduled = J.runEntity(player, visualState.cleanup());
+      if (!scheduled && J.isOwnedByCurrentRegion(player)) {
+        visualState.cleanup().run();
+      }
+    }
+
+    snapshots.clear();
+    lastSnapshot.clear();
+    cooldowns.clear();
+    cooldownReadyNotify.clear();
+    rewindProtection.clear();
+    recallXpStamps.clear();
+    TELEPORT_XP_SUPPRESS_UNTIL.clear();
+    super.unregister();
   }
 
   private static void markRecallTeleportSuppressed(UUID id, long suppressUntilMillis) {
@@ -622,13 +664,19 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
   public void on(PlayerQuitEvent e) {
     UUID id = e.getPlayer().getUniqueId();
     finishRewindVisualState(id);
+    restoreStampedRewindState(e.getPlayer());
     clearPlayerState(id);
   }
 
+  @EventHandler
+  public void on(PlayerJoinEvent e) {
+    restoreStampedRewindState(e.getPlayer());
+  }
+
   private void finishRewindVisualState(UUID id) {
-    Runnable cleanup = rewindCleanups.remove(id);
-    if (cleanup != null) {
-      cleanup.run();
+    RewindVisualState visualState = rewindCleanups.remove(id);
+    if (visualState != null) {
+      visualState.cleanup().run();
     }
   }
 
@@ -837,7 +885,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
         && !ChronoTimeBombItem.isBindableItem(stack);
   }
 
-  private boolean consumeRecallClock(Player p) {
+  boolean consumeRecallClock(Player p) {
     if (!getConfig().consumeClock) {
       return true;
     }
@@ -858,7 +906,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
       });
     }
 
-    return true;
+    return false;
   }
 
   private void applyRecallHealthCost(Player p) {
@@ -873,7 +921,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
 
   private void attemptRecall(Player p) {
     UUID id = p.getUniqueId();
-    if (!isRecallEligible(p)) {
+    if (!acceptingRewinds.get() || !isRecallEligible(p)) {
       return;
     }
 
@@ -920,17 +968,28 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
     double healthAfterRecall = finalSnapshot.health();
     long castAt = M.ms();
     GameMode originalGameMode = p.getGameMode();
+    boolean originalAllowFlight = p.getAllowFlight();
+    boolean originalFlying = p.isFlying();
     boolean temporarySpectator = getConfig().rewindUseTemporarySpectator && originalGameMode == GameMode.SURVIVAL;
     boolean allowClientCamera = temporarySpectator
         && getConfig().rewindUseClientCamera
         && isSingleWorldPath(animationPath);
     ArmorStand cameraAnchor = null;
     if (temporarySpectator) {
+      stampRewindState(p, originalGameMode, originalAllowFlight, originalFlying, null);
       p.setGameMode(GameMode.SPECTATOR);
+      p.setAllowFlight(true);
       p.setFlying(true);
       if (allowClientCamera) {
         cameraAnchor = spawnRecallCameraAnchor(p);
         if (cameraAnchor != null && cameraAnchor.isValid()) {
+          stampRewindState(
+              p,
+              originalGameMode,
+              originalAllowFlight,
+              originalFlying,
+              cameraAnchor.getUniqueId()
+          );
           p.setSpectatorTarget(cameraAnchor);
         } else {
           allowClientCamera = false;
@@ -938,9 +997,10 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
       }
     }
 
+    UUID operationId = UUID.randomUUID();
     cooldowns.put(id, castAt + getCooldownMillis(level));
     cooldownReadyNotify.put(id, true);
-    rewinding.put(id, true);
+    rewinding.put(id, operationId);
     long protectionUntil = castAt + ((long) (animationTicks + getConfig().rewindProtectionTicks) * 50L);
     rewindProtection.put(id, protectionUntil);
     markRecallTeleportSuppressed(id, protectionUntil + ((long) Math.max(0, getConfig().rewindTeleportXpSuppressExtraTicks) * 50L));
@@ -949,7 +1009,6 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
     FxPresets.chargeRing(this, p.getLocation(), 3);
     if (getConfig().playClockSounds) {
       ChronosSoundFX.playRewindStart(p);
-      ChronosSoundFX.playRewindFinish(p);
     }
 
     final boolean initialClientCamera = allowClientCamera;
@@ -959,30 +1018,30 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
     boolean[] clientCameraActive = {initialClientCamera};
     ArmorStand[] cameraRef = {initialCameraAnchor};
 
-    Consumer<Boolean> cleanupVisualState = restoreGameMode -> {
+    Runnable cleanupVisualState = () -> {
+      Entity anchorEntity = null;
       if (cameraRef[0] != null) {
-        Entity anchorEntity = cameraRef[0];
+        anchorEntity = cameraRef[0];
         cameraRef[0] = null;
-        if (anchorEntity.isValid()) {
-          anchorEntity.remove();
-        }
       }
 
       if (temporarySpectator) {
-        p.setSpectatorTarget(null);
-        if (restoreGameMode && p.getGameMode() == GameMode.SPECTATOR) {
-          p.setGameMode(originalGameMode);
-          p.setFlying(false);
+        if (p.getGameMode() == GameMode.SPECTATOR) {
+          p.setSpectatorTarget(null);
         }
+        restoreOwnedPlayerState(p, originalGameMode, originalAllowFlight, originalFlying);
+        finishStampedRewindCleanup(p, anchorEntity);
       }
     };
-    rewindCleanups.put(id, () -> cleanupVisualState.accept(true));
+    rewindCleanups.put(id, new RewindVisualState(p, cleanupVisualState));
 
     Runnable[] rewindTask = new Runnable[1];
     rewindTask[0] = () -> {
-      if (!p.isOnline() || p.isDead()) {
-        rewinding.remove(id);
-        finishRewindVisualState(id);
+      if (!acceptingRewinds.get() || !operationId.equals(rewinding.get(id))
+          || !p.isOnline() || p.isDead()) {
+        if (rewinding.remove(id, operationId)) {
+          finishRewindVisualState(id);
+        }
         return;
       }
 
@@ -1034,53 +1093,15 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
       step[0]++;
 
       if (step[0] >= animationTicks) {
-        finishRewindVisualState(id);
-        Location finalDestination = toLocation(finalSnapshot, p.getWorld());
-        if (finalDestination.getWorld() != null) {
-          J.teleport(p, finalDestination, PlayerTeleportEvent.TeleportCause.PLUGIN);
-        }
-        applySnapshotState(p, finalSnapshot);
-        applyRecallHealthCost(p);
-
-        Location bloomAt = p.getLocation().add(0, 1, 0);
-        fx(bloomAt, FxPriority.TRANSITION)
-            .particle(Particle.FLASH, 1, 0, 0, 0, 0, 0)
-            .particle(Particles.TOTEM, 26, 0, 0, 0, 0.3D, 0.02D);
-        timeline(p)
-            .duration(3)
-            .priority(FxPriority.TRANSITION)
-            .cullRadius(32)
-            .frame((f, tick, prog) -> {
-              if (tick >= 1) {
-                f.particle(Particles.ITEM_CRACK, 9, 0, 1.0D, 0, 0.3D, 0.02D, new ItemStack(Material.CLOCK));
-              }
-            })
-            .start();
-        if (getConfig().playClockSounds) {
-          ChronosSoundFX.playRewindFinish(p);
-        }
-        rewinding.remove(id);
-        addStat(p, "chronos.instant-recall.recalls", 1);
-        if (healthBeforeRecall <= 4 && healthAfterRecall >= 16
-            && AdaptConfig.get().isAdvancements()
-            && !getPlayer(p).getData().isGranted("challenge_chronos_recall_cheat_death")) {
-          getPlayer(p).getAdvancementHandler().grant("challenge_chronos_recall_cheat_death");
-        }
-        long awardAt = M.ms();
-        double xpGain = computeRecallXPGain(id, level, xpContext, awardAt);
-        if (xpGain > 0D) {
-          xp(p, p.getLocation(), xpGain);
-          recallXpStamps.put(id, new RecallXPFarmStamp(
-              awardAt,
-              xpContext.fromWorldKey(),
-              xpContext.fromX(),
-              xpContext.fromY(),
-              xpContext.fromZ(),
-              xpContext.toWorldKey(),
-              xpContext.toX(),
-              xpContext.toY(),
-              xpContext.toZ()));
-        }
+        beginFinalRecallTeleport(p, new FinalRecall(
+            id,
+            operationId,
+            finalSnapshot,
+            healthBeforeRecall,
+            healthAfterRecall,
+            level,
+            xpContext
+        ));
         return;
       }
 
@@ -1095,6 +1116,221 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
     } else {
       J.s(rewindTask[0]);
     }
+  }
+
+  private void beginFinalRecallTeleport(Player p, FinalRecall recall) {
+    Location destination = toLocation(recall.snapshot(), p.getWorld());
+    if (destination.getWorld() == null) {
+      abortFinalRecall(recall);
+      return;
+    }
+
+    CompletableFuture<Boolean> teleport;
+    try {
+      teleport = p.teleportAsync(destination, PlayerTeleportEvent.TeleportCause.PLUGIN);
+    } catch (RuntimeException error) {
+      Adapt.error("Instant Recall could not start its final teleport for "
+          + recall.playerId() + ".");
+      error.printStackTrace();
+      abortFinalRecall(recall);
+      return;
+    }
+
+    if (teleport == null) {
+      abortFinalRecall(recall);
+      return;
+    }
+    teleport.whenComplete((success, failure) ->
+        finishFinalRecall(p, recall, success, failure));
+  }
+
+  private void finishFinalRecall(
+      Player p,
+      FinalRecall recall,
+      Boolean success,
+      Throwable failure
+  ) {
+    if (failure != null) {
+      Adapt.error("Instant Recall final teleport failed for " + recall.playerId() + ".");
+      failure.printStackTrace();
+    }
+
+    Runnable completion = () -> {
+      boolean operationOwned = rewinding.remove(recall.playerId(), recall.operationId());
+      if (operationOwned) {
+        finishRewindVisualState(recall.playerId());
+      }
+      if (!shouldCommitFinalRecall(
+          success,
+          failure,
+          operationOwned,
+          p.isOnline(),
+          p.isDead()
+      )) {
+        return;
+      }
+      completeSuccessfulRecall(p, recall);
+    };
+    boolean scheduled = J.runEntity(p, completion);
+    if (!scheduled && J.isOwnedByCurrentRegion(p)) {
+      completion.run();
+    }
+  }
+
+  private void abortFinalRecall(FinalRecall recall) {
+    if (rewinding.remove(recall.playerId(), recall.operationId())) {
+      finishRewindVisualState(recall.playerId());
+    }
+  }
+
+  private void completeSuccessfulRecall(Player p, FinalRecall recall) {
+    applySnapshotState(p, recall.snapshot());
+    applyRecallHealthCost(p);
+
+    Location bloomAt = p.getLocation().add(0, 1, 0);
+    fx(bloomAt, FxPriority.TRANSITION)
+        .particle(Particle.FLASH, 1, 0, 0, 0, 0, 0)
+        .particle(Particles.TOTEM, 26, 0, 0, 0, 0.3D, 0.02D);
+    timeline(p)
+        .duration(3)
+        .priority(FxPriority.TRANSITION)
+        .cullRadius(32)
+        .frame((f, tick, progress) -> {
+          if (tick >= 1) {
+            f.particle(
+                Particles.ITEM_CRACK,
+                9,
+                0,
+                1.0D,
+                0,
+                0.3D,
+                0.02D,
+                new ItemStack(Material.CLOCK)
+            );
+          }
+        })
+        .start();
+    if (getConfig().playClockSounds) {
+      ChronosSoundFX.playRewindFinish(p);
+    }
+
+    addStat(p, "chronos.instant-recall.recalls", 1);
+    if (recall.healthBefore() <= 4 && recall.healthAfter() >= 16
+        && AdaptConfig.get().isAdvancements()
+        && !getPlayer(p).getData().isGranted("challenge_chronos_recall_cheat_death")) {
+      getPlayer(p).getAdvancementHandler().grant("challenge_chronos_recall_cheat_death");
+    }
+
+    long awardAt = M.ms();
+    RecallXPContext xpContext = recall.xpContext();
+    double xpGain = computeRecallXPGain(
+        recall.playerId(),
+        recall.level(),
+        xpContext,
+        awardAt
+    );
+    if (xpGain <= 0D) {
+      return;
+    }
+
+    xp(p, p.getLocation(), xpGain);
+    recallXpStamps.put(recall.playerId(), new RecallXPFarmStamp(
+        awardAt,
+        xpContext.fromWorldKey(),
+        xpContext.fromX(),
+        xpContext.fromY(),
+        xpContext.fromZ(),
+        xpContext.toWorldKey(),
+        xpContext.toX(),
+        xpContext.toY(),
+        xpContext.toZ()));
+  }
+
+  static boolean shouldCommitFinalRecall(
+      Boolean success,
+      Throwable failure,
+      boolean operationOwned,
+      boolean online,
+      boolean dead
+  ) {
+    return operationOwned && online && !dead
+        && failure == null && Boolean.TRUE.equals(success);
+  }
+
+  private void stampRewindState(
+      Player player,
+      GameMode gameMode,
+      boolean allowFlight,
+      boolean flying,
+      UUID cameraAnchorId
+  ) {
+    String encoded = gameMode.name()
+        + ":" + (allowFlight ? "1" : "0")
+        + ":" + (flying ? "1" : "0")
+        + (cameraAnchorId == null ? "" : ":" + cameraAnchorId);
+    player.getPersistentDataContainer().set(rewindStampKey, PersistentDataType.STRING, encoded);
+  }
+
+  private void restoreStampedRewindState(Player player) {
+    PersistentDataContainer data = player.getPersistentDataContainer();
+    String encoded = data.get(rewindStampKey, PersistentDataType.STRING);
+    if (encoded == null) {
+      return;
+    }
+
+    try {
+      String[] parts = encoded.split(":", 4);
+      if (parts.length < 3) {
+        throw new IllegalArgumentException("Invalid rewind recovery state");
+      }
+      GameMode gameMode = GameMode.valueOf(parts[0]);
+      boolean allowFlight = "1".equals(parts[1]);
+      boolean flying = "1".equals(parts[2]);
+      UUID cameraAnchorId = parts.length == 4 ? UUID.fromString(parts[3]) : null;
+      if (player.getGameMode() == GameMode.SPECTATOR) {
+        player.setSpectatorTarget(null);
+      }
+      restoreOwnedPlayerState(player, gameMode, allowFlight, flying);
+      Entity cameraAnchor = cameraAnchorId == null ? null : Bukkit.getEntity(cameraAnchorId);
+      finishStampedRewindCleanup(player, cameraAnchor);
+    } catch (RuntimeException error) {
+      Adapt.warn("Failed to restore durable Instant Recall state for " + player.getName() + ".");
+      error.printStackTrace();
+    }
+  }
+
+  private void finishStampedRewindCleanup(Player player, Entity cameraAnchor) {
+    if (cameraAnchor == null) {
+      player.getPersistentDataContainer().remove(rewindStampKey);
+      return;
+    }
+
+    J.runEntity(cameraAnchor, () -> {
+      if (cameraAnchor.isValid()) {
+        cameraAnchor.remove();
+      }
+      Runnable clearStamp = () -> player.getPersistentDataContainer().remove(rewindStampKey);
+      if (J.isOwnedByCurrentRegion(player)) {
+        clearStamp.run();
+      } else {
+        J.runEntity(player, clearStamp);
+      }
+    });
+  }
+
+  static boolean restoreOwnedPlayerState(
+      Player player,
+      GameMode gameMode,
+      boolean allowFlight,
+      boolean flying
+  ) {
+    if (player.getGameMode() != GameMode.SPECTATOR) {
+      return false;
+    }
+    player.setGameMode(gameMode);
+    player.setAllowFlight(allowFlight);
+    player.setFlying(allowFlight && flying);
+    return true;
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -1164,6 +1400,20 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
     cooldowns.entrySet().removeIf(entry -> entry.getValue() <= now);
     rewindProtection.entrySet().removeIf(entry -> entry.getValue() <= now);
     TELEPORT_XP_SUPPRESS_UNTIL.entrySet().removeIf(entry -> entry.getValue() <= now);
+  }
+
+  record RewindVisualState(Player player, Runnable cleanup) {
+  }
+
+  private record FinalRecall(
+      UUID playerId,
+      UUID operationId,
+      Snapshot snapshot,
+      double healthBefore,
+      double healthAfter,
+      int level,
+      RecallXPContext xpContext
+  ) {
   }
 
 }

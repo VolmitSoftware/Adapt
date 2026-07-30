@@ -27,6 +27,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.fx.ViewerGlowCoordinator;
 import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
@@ -35,7 +36,6 @@ import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import fr.skytasul.glowingentities.GlowingEntities;
 import org.bukkit.ChatColor;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.GameMode;
@@ -80,8 +80,6 @@ public class TamingAlphasCommand extends SimpleAdaptation<TamingAlphasCommand.Co
   private final Map<UUID, GlowState> targetGlows = new ConcurrentHashMap<>();
   private final AtomicLong commandSequence = new AtomicLong();
   private final AtomicBoolean closed = new AtomicBoolean(false);
-  private final AtomicBoolean glowApplyFailureLogged = new AtomicBoolean();
-  private final AtomicBoolean glowClearFailureLogged = new AtomicBoolean();
 
   public TamingAlphasCommand() {
     super("tame-alphas-command");
@@ -172,6 +170,7 @@ public class TamingAlphasCommand extends SimpleAdaptation<TamingAlphasCommand.Co
         J.runEntity(viewer, () -> unsetGlowOwned(viewer, glow));
       }
     }
+    Adapt.instance.getViewerGlowCoordinator().clearLayer(ViewerGlowCoordinator.Layer.TAMING_ALPHAS_COMMAND);
 
     List<FocusState> focuses = new ArrayList<>(activeFocuses.values());
     activeFocuses.clear();
@@ -465,25 +464,27 @@ public class TamingAlphasCommand extends SimpleAdaptation<TamingAlphasCommand.Co
   }
 
   private void showTargetGlow(Player viewer, LivingEntity target, int focusTicks, long generation) {
-    GlowingEntities glowingEntities = Adapt.instance.getGlowingEntities();
-    if (glowingEntities == null) {
+    ViewerGlowCoordinator glowCoordinator = Adapt.instance.getViewerGlowCoordinator();
+    if (glowCoordinator == null || !glowCoordinator.isAvailable()) {
       return;
     }
 
     UUID viewerId = viewer.getUniqueId();
-    GlowState glow = new GlowState(viewer, target.getEntityId(), generation);
+    GlowState glow = new GlowState(viewer, target.getUniqueId(), target.getEntityId(), generation);
     GlowState previous = targetGlows.put(viewerId, glow);
-    if (previous != null && previous.entityId() != glow.entityId()) {
+    if (previous != null
+        && (!previous.targetId().equals(glow.targetId())
+        || previous.runtimeEntityId() != glow.runtimeEntityId())) {
       unsetGlowOwned(viewer, previous);
     }
 
-    try {
-      synchronized (Adapt.glowingEntitiesLock()) {
-        glowingEntities.setGlowing(target, viewer, ChatColor.RED);
-      }
-    } catch (ReflectiveOperationException error) {
+    if (!glowCoordinator.set(
+        ViewerGlowCoordinator.Layer.TAMING_ALPHAS_COMMAND,
+        target,
+        viewer,
+        ChatColor.RED
+    )) {
       targetGlows.remove(viewerId, glow);
-      reportGlowFailure("show", error, glowApplyFailureLogged);
       return;
     }
     if (!J.runEntity(viewer, () -> expireTargetGlowOwned(viewer, glow), focusTicks)) {
@@ -507,25 +508,16 @@ public class TamingAlphasCommand extends SimpleAdaptation<TamingAlphasCommand.Co
   }
 
   private void unsetGlowOwned(Player viewer, GlowState glow) {
-    GlowingEntities glowingEntities = Adapt.instance.getGlowingEntities();
-    if (glowingEntities == null) {
+    ViewerGlowCoordinator glowCoordinator = Adapt.instance.getViewerGlowCoordinator();
+    if (glowCoordinator == null) {
       return;
     }
-    try {
-      synchronized (Adapt.glowingEntitiesLock()) {
-        glowingEntities.unsetGlowing(glow.entityId(), viewer);
-      }
-    } catch (ReflectiveOperationException error) {
-      reportGlowFailure("clear", error, glowClearFailureLogged);
-    }
-  }
-
-  private void reportGlowFailure(String action, ReflectiveOperationException error, AtomicBoolean logged) {
-    if (!logged.compareAndSet(false, true)) {
-      return;
-    }
-    Adapt.error("Failed to " + action + " an Alpha's Command target glow.");
-    error.printStackTrace();
+    glowCoordinator.unset(
+        ViewerGlowCoordinator.Layer.TAMING_ALPHAS_COMMAND,
+        glow.targetId(),
+        glow.runtimeEntityId(),
+        viewer
+    );
   }
 
   private boolean isOwnPet(Player p, LivingEntity target) {
@@ -603,6 +595,6 @@ public class TamingAlphasCommand extends SimpleAdaptation<TamingAlphasCommand.Co
   private record TargetPolicySnapshot(Location location, boolean player, boolean protectedFriendly) {
   }
 
-  private record GlowState(Player viewer, int entityId, long generation) {
+  private record GlowState(Player viewer, UUID targetId, int runtimeEntityId, long generation) {
   }
 }

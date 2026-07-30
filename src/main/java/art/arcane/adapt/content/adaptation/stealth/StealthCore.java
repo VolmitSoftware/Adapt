@@ -30,6 +30,7 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.fx.ViewerGlowCoordinator;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Attributes;
@@ -114,14 +115,14 @@ public class StealthCore extends SimpleAdaptation<StealthCore.Config> {
   private final StealthCoalescingQueue<GlowOperation> glowQueue =
       new StealthCoalescingQueue<>(HARD_MAX_PENDING_GLOW_OPERATIONS);
   private final Cooldowns redThreatCooldown = cooldowns();
-  private final StealthGlowCoordinator glowCoordinator;
+  private final ViewerGlowCoordinator glowCoordinator;
   private final StealthShadowDecoy shadowDecoy;
   private final StealthSmokePellet smokePellet;
   private volatile EnumSet<EntityType> blacklistCache;
   private volatile List<String> blacklistSource;
 
   public StealthCore(StealthShadowDecoy shadowDecoy, StealthSmokePellet smokePellet,
-                     StealthGlowCoordinator glowCoordinator) {
+                     ViewerGlowCoordinator glowCoordinator) {
     super("stealth-silent-step");
     this.shadowDecoy = Objects.requireNonNull(shadowDecoy);
     this.smokePellet = Objects.requireNonNull(smokePellet);
@@ -345,6 +346,7 @@ public class StealthCore extends SimpleAdaptation<StealthCore.Config> {
     dimmed.clear();
     threatGlows.clear();
     recentBackstabs.clear();
+    glowCoordinator.clearLayer(ViewerGlowCoordinator.Layer.STEALTH_THREAT);
     super.unregister();
   }
 
@@ -894,7 +896,7 @@ public class StealthCore extends SimpleAdaptation<StealthCore.Config> {
     for (Map.Entry<UUID, ThreatGlow> entry : active.entrySet()) {
       ThreatGlow glow = entry.getValue();
       glowCoordinator.unset(
-          StealthGlowCoordinator.Layer.THREAT,
+          ViewerGlowCoordinator.Layer.STEALTH_THREAT,
           entry.getKey(),
           glow.runtimeEntityId,
           player
@@ -943,14 +945,14 @@ public class StealthCore extends SimpleAdaptation<StealthCore.Config> {
     boolean applied;
     if (operation.level == null) {
       applied = glowCoordinator.unset(
-          StealthGlowCoordinator.Layer.THREAT,
+          ViewerGlowCoordinator.Layer.STEALTH_THREAT,
           operation.entityUuid,
           operation.runtimeEntityId,
           operation.viewer
       );
     } else {
       applied = glowCoordinator.set(
-          StealthGlowCoordinator.Layer.THREAT,
+          ViewerGlowCoordinator.Layer.STEALTH_THREAT,
           operation.entity,
           operation.viewer,
           getThreatColor(operation.level)

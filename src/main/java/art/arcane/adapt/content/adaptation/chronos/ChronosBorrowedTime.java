@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.chronos;
 
+import art.arcane.adapt.Adapt;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ChronosMessages;
 
@@ -36,6 +37,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -43,21 +45,31 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ChronosBorrowedTime extends SimpleAdaptation<ChronosBorrowedTime.Config> {
   private final Map<UUID, Deque<DeferredDamage>> deferred = playerState();
+  private final Set<UUID> settling = ConcurrentHashMap.newKeySet();
   private final ThreadLocal<Boolean> applyingPaybackDamage = new ThreadLocal<>();
+  private final AtomicBoolean acceptingSettlements = new AtomicBoolean(true);
+  private final NamespacedKey debtStampKey;
 
   public ChronosBorrowedTime() {
     super("chronos-borrowed-time");
     registerConfiguration(Config.class);
+    debtStampKey = new NamespacedKey(Adapt.instance, "chronos_borrowed_time_debt");
     setIcon(Material.SOUL_SAND);
     setInterval(1000);
     registerAdvancement(AdaptAdvancement.builder()
@@ -67,6 +79,22 @@ public class ChronosBorrowedTime extends SimpleAdaptation<ChronosBorrowedTime.Co
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
     registerMilestone("challenge_chronos_borrowed_2500", "chronos.borrowed-time.damage-deferred", 2500, 900);
+  }
+
+  @Override
+  protected void onRuntimeActivated() {
+    acceptingSettlements.set(true);
+    for (Player player : Bukkit.getOnlinePlayers()) {
+      J.runEntity(player, () -> restoreDeferredDamage(player));
+    }
+  }
+
+  @Override
+  public void unregister() {
+    acceptingSettlements.set(false);
+    settling.clear();
+    deferred.clear();
+    super.unregister();
   }
 
   @Override
@@ -83,14 +111,27 @@ public class ChronosBorrowedTime extends SimpleAdaptation<ChronosBorrowedTime.Co
 
   @EventHandler
   public void on(PlayerQuitEvent e) {
-    UUID id = e.getPlayer().getUniqueId();
-    deferred.remove(id);
+    Player player = e.getPlayer();
+    UUID id = player.getUniqueId();
+    Deque<DeferredDamage> queue = deferred.remove(id);
+    if (queue != null && !queue.isEmpty()) {
+      persistDeferredDamage(player, queue);
+    }
+    settling.remove(id);
+  }
+
+  @EventHandler
+  public void on(PlayerJoinEvent e) {
+    restoreDeferredDamage(e.getPlayer());
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(PlayerDeathEvent e) {
-    UUID id = e.getEntity().getUniqueId();
+    Player player = e.getEntity();
+    UUID id = player.getUniqueId();
     deferred.remove(id);
+    settling.remove(id);
+    player.getPersistentDataContainer().remove(debtStampKey);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -120,12 +161,19 @@ public class ChronosBorrowedTime extends SimpleAdaptation<ChronosBorrowedTime.Co
     }
 
     double deferredAmount = finalDamage * fraction;
-    e.setDamage(Math.max(0D, e.getDamage() * (1D - fraction)));
-
     int pulses = Math.max(1, getConfig().paybackPulses);
-    deferred.computeIfAbsent(id, k -> new ConcurrentLinkedDeque<>())
-        .add(new DeferredDamage(deferredAmount / pulses, pulses));
+    Deque<DeferredDamage> queue = deferred.computeIfAbsent(id, unused -> new ConcurrentLinkedDeque<>());
+    DeferredDamage chunk = new DeferredDamage(deferredAmount / pulses, pulses);
+    queue.add(chunk);
+    if (!persistDeferredDamage(p, queue)) {
+      queue.remove(chunk);
+      if (queue.isEmpty()) {
+        deferred.remove(id, queue);
+      }
+      return;
+    }
 
+    e.setDamage(Math.max(0D, e.getDamage() * (1D - fraction)));
     addStat(p, "chronos.borrowed-time.damage-deferred", deferredAmount);
 
     Location chest = p.getLocation().add(0, 1.0, 0);
@@ -137,70 +185,178 @@ public class ChronosBorrowedTime extends SimpleAdaptation<ChronosBorrowedTime.Co
 
   @Override
   public void onTick() {
-    if (deferred.isEmpty()) {
+    if (!acceptingSettlements.get() || deferred.isEmpty()) {
       return;
     }
 
     for (Map.Entry<UUID, Deque<DeferredDamage>> entry : deferred.entrySet()) {
       UUID id = entry.getKey();
       Player p = Bukkit.getPlayer(id);
-      if (p == null || !p.isOnline() || p.isDead()) {
-        deferred.remove(id);
+      if (p == null) {
+        deferred.remove(id, entry.getValue());
+        settling.remove(id);
         continue;
       }
 
       Deque<DeferredDamage> queue = entry.getValue();
-      double amount = 0D;
-      Iterator<DeferredDamage> iterator = queue.iterator();
-      while (iterator.hasNext()) {
-        DeferredDamage chunk = iterator.next();
-        amount += chunk.perPulse();
-        if (chunk.consumePulse() <= 0) {
-          iterator.remove();
-        }
-      }
-
-      if (queue.isEmpty()) {
-        deferred.remove(id);
-      }
-      boolean cleared = queue.isEmpty();
-
-      if (amount <= 0D) {
+      if (!settling.add(id)) {
         continue;
       }
 
-      double damage = amount;
-      Runnable apply = () -> {
-        if (!p.isOnline() || p.isDead()) {
-          return;
-        }
-
-        double health = p.getHealth();
-        if (health <= 0D) {
-          return;
-        }
-
-        applyDeferredDamage(p, damage);
-
-        int motes = (int) Math.max(2, Math.min(5, Math.round(damage)));
-        float pitch = 0.5F + Math.min(0.9F, (float) (damage * 0.12D));
-        fx(p.getLocation().add(0, 1.0, 0), FxPriority.TRAIL)
-            .particle(Particle.SOUL, motes, 0, 0.1D, 0, 0.2D, 0.02D)
-            .sound(Sound.BLOCK_SAND_STEP, 0.2F, pitch);
-
-        if (cleared) {
-          fx(p.getLocation().add(0, 1.0, 0), FxPriority.TRANSITION)
-              .column(Particles.END_ROD, 6, 1.2D)
-              .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.5F, 1.5F);
-        }
-      };
-
-      if (J.isFoliaThreading()) {
-        J.runEntity(p, apply);
-      } else {
-        apply.run();
+      boolean scheduled = J.runEntity(p, () -> settleDeferredDamage(p, queue));
+      if (!scheduled) {
+        settling.remove(id);
       }
     }
+  }
+
+  private void settleDeferredDamage(Player player, Deque<DeferredDamage> queue) {
+    UUID id = player.getUniqueId();
+    try {
+      if (!acceptingSettlements.get() || deferred.get(id) != queue
+          || !player.isOnline()) {
+        return;
+      }
+
+      if (player.isDead() || player.getHealth() <= 0D) {
+        deferred.remove(id, queue);
+        player.getPersistentDataContainer().remove(debtStampKey);
+        return;
+      }
+
+      double damage = pendingPulseAmount(queue);
+      if (damage <= 0D) {
+        deferred.remove(id, queue);
+        player.getPersistentDataContainer().remove(debtStampKey);
+        return;
+      }
+
+      try {
+        applyDeferredDamage(player, damage);
+      } catch (Throwable error) {
+        Adapt.error("Borrowed Time could not settle deferred damage for " + id + ".");
+        error.printStackTrace();
+        return;
+      }
+
+      if (deferred.get(id) != queue) {
+        return;
+      }
+
+      commitDebtPulse(queue);
+      boolean cleared = queue.isEmpty();
+      if (cleared) {
+        deferred.remove(id, queue);
+      }
+      persistDeferredDamage(player, queue);
+
+      int motes = (int) Math.max(2, Math.min(5, Math.round(damage)));
+      float pitch = 0.5F + Math.min(0.9F, (float) (damage * 0.12D));
+      fx(player.getLocation().add(0, 1.0, 0), FxPriority.TRAIL)
+          .particle(Particle.SOUL, motes, 0, 0.1D, 0, 0.2D, 0.02D)
+          .sound(Sound.BLOCK_SAND_STEP, 0.2F, pitch);
+
+      if (cleared && !player.isDead()) {
+        fx(player.getLocation().add(0, 1.0, 0), FxPriority.TRANSITION)
+            .column(Particles.END_ROD, 6, 1.2D)
+            .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.5F, 1.5F);
+      }
+    } finally {
+      settling.remove(id);
+    }
+  }
+
+  private boolean persistDeferredDamage(Player player, Deque<DeferredDamage> queue) {
+    try {
+      PersistentDataContainer data = player.getPersistentDataContainer();
+      if (queue.isEmpty()) {
+        data.remove(debtStampKey);
+      } else {
+        data.set(debtStampKey, PersistentDataType.STRING, encodeDeferredDamage(queue));
+      }
+      return true;
+    } catch (Throwable error) {
+      Adapt.error("Borrowed Time could not persist deferred damage for "
+          + player.getUniqueId() + ".");
+      error.printStackTrace();
+      return false;
+    }
+  }
+
+  private void restoreDeferredDamage(Player player) {
+    UUID id = player.getUniqueId();
+    if (!player.isOnline() || deferred.containsKey(id)) {
+      return;
+    }
+
+    String encoded = player.getPersistentDataContainer().get(debtStampKey, PersistentDataType.STRING);
+    if (encoded == null) {
+      return;
+    }
+
+    try {
+      Deque<DeferredDamage> queue = decodeDeferredDamage(encoded);
+      if (queue.isEmpty()) {
+        player.getPersistentDataContainer().remove(debtStampKey);
+        return;
+      }
+      deferred.putIfAbsent(id, queue);
+    } catch (RuntimeException error) {
+      Adapt.error("Borrowed Time could not restore deferred damage for " + id + ".");
+      error.printStackTrace();
+      player.getPersistentDataContainer().remove(debtStampKey);
+    }
+  }
+
+  static double pendingPulseAmount(Deque<DeferredDamage> queue) {
+    double amount = 0D;
+    for (DeferredDamage chunk : queue) {
+      amount += chunk.perPulse();
+    }
+    return amount;
+  }
+
+  static void commitDebtPulse(Deque<DeferredDamage> queue) {
+    Iterator<DeferredDamage> iterator = queue.iterator();
+    while (iterator.hasNext()) {
+      DeferredDamage chunk = iterator.next();
+      if (chunk.consumePulse() <= 0) {
+        iterator.remove();
+      }
+    }
+  }
+
+  static String encodeDeferredDamage(Deque<DeferredDamage> queue) {
+    StringBuilder encoded = new StringBuilder();
+    for (DeferredDamage chunk : queue) {
+      if (encoded.length() > 0) {
+        encoded.append(';');
+      }
+      encoded.append(chunk.perPulse()).append(',').append(chunk.pulsesRemaining());
+    }
+    return encoded.toString();
+  }
+
+  static Deque<DeferredDamage> decodeDeferredDamage(String encoded) {
+    Deque<DeferredDamage> queue = new ConcurrentLinkedDeque<>();
+    if (encoded == null || encoded.isBlank()) {
+      return queue;
+    }
+
+    String[] chunks = encoded.split(";");
+    for (String value : chunks) {
+      String[] parts = value.split(",", 2);
+      if (parts.length != 2) {
+        throw new IllegalArgumentException("Invalid deferred damage chunk");
+      }
+      double perPulse = Double.parseDouble(parts[0]);
+      int pulsesRemaining = Integer.parseInt(parts[1]);
+      if (!Double.isFinite(perPulse) || perPulse <= 0D || pulsesRemaining <= 0) {
+        throw new IllegalArgumentException("Invalid deferred damage values");
+      }
+      queue.add(new DeferredDamage(perPulse, pulsesRemaining));
+    }
+    return queue;
   }
 
   private void applyDeferredDamage(Player player, double damage) {
@@ -245,20 +401,24 @@ public class ChronosBorrowedTime extends SimpleAdaptation<ChronosBorrowedTime.Co
     }
   }
 
-  private static final class DeferredDamage {
+  static final class DeferredDamage {
     private final double perPulse;
     private int pulsesRemaining;
 
-    private DeferredDamage(double perPulse, int pulsesRemaining) {
+    DeferredDamage(double perPulse, int pulsesRemaining) {
       this.perPulse = perPulse;
       this.pulsesRemaining = pulsesRemaining;
     }
 
-    private double perPulse() {
+    double perPulse() {
       return perPulse;
     }
 
-    private int consumePulse() {
+    int pulsesRemaining() {
+      return pulsesRemaining;
+    }
+
+    int consumePulse() {
       pulsesRemaining--;
       return pulsesRemaining;
     }

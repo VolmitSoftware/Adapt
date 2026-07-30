@@ -3517,7 +3517,7 @@ usage = "Nhấp chuột trái vào điểm bắt đầu và nhấp chuột phả
 
 [architect.demolition]
 name = "Tẩy Của Thợ Xây"
-description = "Xóa gần như tức thì những khối bạn vừa tự đặt và nhận lại khối dưới dạng vật phẩm rơi."
+description = "Xóa gần như tức thì những khối bạn vừa tự đặt mà không tạo vật phẩm rơi."
 lore1 = "Khối bạn vừa đặt bị phá gần như tức thì"
 lore2 = "Số giây một khối đặt được tính là mới"
 lore = ["Khối bạn vừa đặt bị phá gần như tức thì", "Số giây một khối đặt được tính là mới"]

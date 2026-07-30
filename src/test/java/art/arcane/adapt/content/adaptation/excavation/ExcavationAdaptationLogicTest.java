@@ -26,6 +26,14 @@ import static org.mockito.Mockito.mock;
 
 class ExcavationAdaptationLogicTest {
   @Test
+  void omniToolCapacityAppliesToTheCombinedComponents() {
+    assertThat(ExcavationOmniTool.fitsCapacity(1, 1, 2)).isTrue();
+    assertThat(ExcavationOmniTool.fitsCapacity(2, 2, 4)).isTrue();
+    assertThat(ExcavationOmniTool.fitsCapacity(2, 3, 4)).isFalse();
+    assertThat(ExcavationOmniTool.fitsCapacity(Integer.MAX_VALUE, 1, Integer.MAX_VALUE)).isFalse();
+  }
+
+  @Test
   void hasteLevelsMapToTwentyPercentBreakSpeedPerLevel() {
     assertThat(ExcavationHaste.hasteAmount(1)).isCloseTo(0.20D, within(1e-9D));
     assertThat(ExcavationHaste.hasteAmount(2)).isCloseTo(0.40D, within(1e-9D));

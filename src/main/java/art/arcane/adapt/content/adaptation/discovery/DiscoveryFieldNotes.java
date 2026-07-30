@@ -75,7 +75,7 @@ public class DiscoveryFieldNotes extends SimpleAdaptation<DiscoveryFieldNotes.Co
   public void on(EntityDeathEvent e) {
     LivingEntity victim = e.getEntity();
     Player killer = victim.getKiller();
-    if (killer == null || victim instanceof Player || !hasActiveAdaptation(killer)) {
+    if (killer == null || victim instanceof Player) {
       return;
     }
 

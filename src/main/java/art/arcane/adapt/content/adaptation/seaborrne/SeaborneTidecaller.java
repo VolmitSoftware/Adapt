@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.seaborrne;
 
+import art.arcane.adapt.Adapt;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.SeabornMessages;
 
@@ -45,16 +46,22 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerAnimationEvent;
 import org.bukkit.event.player.PlayerAnimationType;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 public class SeaborneTidecaller extends SimpleAdaptation<SeaborneTidecaller.Config> {
   private final Cooldowns fizzleThrottle = cooldowns();
+  private final Set<UUID> teleportDashes = ConcurrentHashMap.newKeySet();
 
   public SeaborneTidecaller() {
     super("seaborne-tidecaller");
@@ -100,6 +107,17 @@ public class SeaborneTidecaller extends SimpleAdaptation<SeaborneTidecaller.Conf
         SeabornMessages.TIDECALLER_ENVIRONMENT_LINE,
         trusted("environment", C.WHITE + getEnvironmentSummary())
     ));
+  }
+
+  @Override
+  public void unregister() {
+    teleportDashes.clear();
+    super.unregister();
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(PlayerQuitEvent e) {
+    teleportDashes.remove(e.getPlayer().getUniqueId());
   }
 
   private List<String> getTriggerCombos() {
@@ -188,6 +206,9 @@ public class SeaborneTidecaller extends SimpleAdaptation<SeaborneTidecaller.Conf
       if (p.hasCooldown(Material.HEART_OF_THE_SEA)) {
         return;
       }
+      if (teleportDashes.contains(p.getUniqueId())) {
+        return;
+      }
 
       if (triggerType == TriggerType.SNEAK && !getConfig().enableSneakTrigger) {
         return;
@@ -235,10 +256,10 @@ public class SeaborneTidecaller extends SimpleAdaptation<SeaborneTidecaller.Conf
           .dustBurst(6, 0.4D, 1.0F)
           .chord(Sound.ITEM_TRIDENT_RIPTIDE_2, 0.75F, 1.2F, Sound.ENTITY_DOLPHIN_SPLASH, 0.5F, 0.9F);
 
-      Location target;
       if (getConfig().useVelocityDash) {
         applyVelocityDash(p, direction, level);
-        target = p.getLocation().clone().add(direction.clone().multiply(Math.max(0.35D, dashDistance * 0.35D)));
+        Location target = p.getLocation().clone()
+            .add(direction.clone().multiply(Math.max(0.35D, dashDistance * 0.35D)));
         timeline(p)
             .duration(8)
             .priority(FxPriority.TRAIL)
@@ -250,44 +271,118 @@ public class SeaborneTidecaller extends SimpleAdaptation<SeaborneTidecaller.Conf
               }
             })
             .start();
-      } else {
-        Location origin = p.getLocation().clone();
-        target = findSafeDashTarget(p, dashDistance);
-        if (target == null) {
-          fizzle(p);
-          return;
-        }
-        J.teleport(p, target);
-        applyDashMomentum(p, origin, target);
-        fx(origin.clone().add(0D, 1.0D, 0D), FxPriority.TRAIL)
-            .line(Particle.BUBBLE, target.getX(), target.getY() + 1.0D, target.getZ(), 12)
-            .line(Particle.SPLASH, target.getX(), target.getY() + 1.0D, target.getZ(), 8);
+        finishSuccessfulDash(p, target, wasSwimming, dashDistance, level);
+        return;
       }
 
-      preserveSwimStateAfterDash(p, wasSwimming);
-
-      double arrivalRadius = Math.min(1.6D, 0.6D + (dashDistance * 0.08D));
-      fx(target.clone().add(0D, 1.0D, 0D), FxPriority.GAMEPLAY)
-          .particle(Particle.SPLASH, 24, 0D, 0D, 0D, 0.35D, 0.08D)
-          .particle(Particle.BUBBLE, 14, 0D, 0D, 0D, 0.4D, 0.05D)
-          .chord(Sound.ENTITY_DOLPHIN_SPLASH, 0.65F, 1.15F, Sound.ENTITY_PLAYER_SPLASH, 0.5F, 1.1F);
-      timeline(target.clone())
-          .duration(6)
-          .priority(FxPriority.TRANSITION)
-          .cullRadius(32)
-          .frame((f, tick, progress) -> f.ring(Particle.BUBBLE, 0.3D + (arrivalRadius * progress), 12, 0.2D))
-          .start();
-
-      int cooldownTicks = getCooldownTicks(level);
-      p.setCooldown(Material.HEART_OF_THE_SEA, cooldownTicks);
-      J.runEntity(p, () -> {
-        if (p.isOnline() && !p.hasCooldown(Material.HEART_OF_THE_SEA)) {
-          FxPresets.readyPing(this, p);
-        }
-      }, cooldownTicks);
-      xp(p, getConfig().xpPerBurst);
-      addStat(p, "seaborne.tidecaller.dashes", 1);
+      Location origin = p.getLocation().clone();
+      Location target = findSafeDashTarget(p, dashDistance);
+      if (target == null) {
+        fizzle(p);
+        return;
+      }
+      startTeleportDash(p, origin, target, wasSwimming, dashDistance, level);
     });
+  }
+
+  private void startTeleportDash(Player p, Location origin, Location target, boolean wasSwimming,
+                                 double dashDistance, int level) {
+    UUID playerId = p.getUniqueId();
+    if (!teleportDashes.add(playerId)) {
+      return;
+    }
+    CompletableFuture<Boolean> teleport;
+    try {
+      teleport = p.teleportAsync(target);
+    } catch (RuntimeException error) {
+      teleportDashes.remove(playerId);
+      Adapt.error("Seaborne Tidecaller could not start teleport dash for " + playerId + ".");
+      error.printStackTrace();
+      fizzle(p);
+      return;
+    }
+    if (teleport == null) {
+      teleportDashes.remove(playerId);
+      fizzle(p);
+      return;
+    }
+    teleport.whenComplete((success, failure) ->
+        completeTeleportDash(p, playerId, origin, wasSwimming, dashDistance, level, success, failure));
+  }
+
+  private void completeTeleportDash(Player p, UUID playerId, Location origin, boolean wasSwimming,
+                                    double dashDistance, int level,
+                                    Boolean success, Throwable failure) {
+    if (failure != null) {
+      Adapt.error("Seaborne Tidecaller teleport dash failed for " + playerId + ".");
+      failure.printStackTrace();
+    }
+    if (!successfulTeleportDash(success, failure)) {
+      teleportDashes.remove(playerId);
+      J.runEntity(p, () -> {
+        if (p.isOnline()) {
+          fizzle(p);
+        }
+      });
+      return;
+    }
+    if (!J.runEntity(p, () -> finishTeleportDashOwned(
+        p,
+        playerId,
+        origin,
+        wasSwimming,
+        dashDistance,
+        level
+    ))) {
+      teleportDashes.remove(playerId);
+      Adapt.warn("Seaborne Tidecaller completed teleport dash but could not schedule its effects for "
+          + playerId + ".");
+    }
+  }
+
+  private void finishTeleportDashOwned(Player p, UUID playerId, Location origin,
+                                       boolean wasSwimming, double dashDistance, int level) {
+    teleportDashes.remove(playerId);
+    if (!p.isOnline() || !isRuntimeRegistered() || getActiveLevel(p) <= 0) {
+      return;
+    }
+    Location actualTarget = p.getLocation().clone();
+    applyDashMomentum(p, origin, actualTarget);
+    fx(origin.clone().add(0D, 1.0D, 0D), FxPriority.TRAIL)
+        .line(Particle.BUBBLE, actualTarget.getX(), actualTarget.getY() + 1.0D, actualTarget.getZ(), 12)
+        .line(Particle.SPLASH, actualTarget.getX(), actualTarget.getY() + 1.0D, actualTarget.getZ(), 8);
+    finishSuccessfulDash(p, actualTarget, wasSwimming, dashDistance, level);
+  }
+
+  private void finishSuccessfulDash(Player p, Location target, boolean wasSwimming,
+                                    double dashDistance, int level) {
+    preserveSwimStateAfterDash(p, wasSwimming);
+
+    double arrivalRadius = Math.min(1.6D, 0.6D + (dashDistance * 0.08D));
+    fx(target.clone().add(0D, 1.0D, 0D), FxPriority.GAMEPLAY)
+        .particle(Particle.SPLASH, 24, 0D, 0D, 0D, 0.35D, 0.08D)
+        .particle(Particle.BUBBLE, 14, 0D, 0D, 0D, 0.4D, 0.05D)
+        .chord(Sound.ENTITY_DOLPHIN_SPLASH, 0.65F, 1.15F, Sound.ENTITY_PLAYER_SPLASH, 0.5F, 1.1F);
+    timeline(target.clone())
+        .duration(6)
+        .priority(FxPriority.TRANSITION)
+        .cullRadius(32)
+        .frame((f, tick, progress) -> f.ring(Particle.BUBBLE, 0.3D + (arrivalRadius * progress), 12, 0.2D))
+        .start();
+
+    int cooldownTicks = getCooldownTicks(level);
+    p.setCooldown(Material.HEART_OF_THE_SEA, cooldownTicks);
+    J.runEntity(p, () -> {
+      if (p.isOnline() && !p.hasCooldown(Material.HEART_OF_THE_SEA)) {
+        FxPresets.readyPing(this, p);
+      }
+    }, cooldownTicks);
+    xp(p, getConfig().xpPerBurst);
+    addStat(p, "seaborne.tidecaller.dashes", 1);
+  }
+
+  static boolean successfulTeleportDash(Boolean success, Throwable failure) {
+    return failure == null && Boolean.TRUE.equals(success);
   }
 
   private void fizzle(Player p) {

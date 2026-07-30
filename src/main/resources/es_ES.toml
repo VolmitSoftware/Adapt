@@ -3517,7 +3517,7 @@ usage = "Haz clic izquierdo en el inicio y clic derecho en los puntos intermedio
 
 [architect.demolition]
 name = "Eraser de Mason"
-description = "Borrar sus propias ubicaciones recientes casi instancialmente y el bloque aparece de vuelta como una gota!"
+description = "Borra casi al instante los bloques que acabas de colocar sin generar objetos."
 lore1 = "Sus ubicaciones frescas se rompen casi instantáneamente"
 lore2 = "Segundos una colocación cuenta como fresca"
 lore = ["Sus ubicaciones frescas se rompen casi instantáneamente", "Segundos una colocación cuenta como fresca"]

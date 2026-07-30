@@ -26,8 +26,6 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
-import art.arcane.adapt.api.world.PlayerAdaptation;
-import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.content.event.AdaptAdaptationTeleportEvent;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.RiftMessages;
@@ -202,9 +200,7 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
       }
 
       lastBlink.mark(operation.playerId());
-      PlayerSkillLine line = getPlayer(p).getData().getSkillLineNullable("rift");
-      PlayerAdaptation adaptation = line != null ? line.getAdaptation("rift-resist") : null;
-      if (adaptation != null && adaptation.getLevel() > 0) {
+      if (getActiveSiblingLevel(p, "rift-resist") > 0) {
         RiftResist.riftResistStackAdd(this, p, 10, 5);
       }
 

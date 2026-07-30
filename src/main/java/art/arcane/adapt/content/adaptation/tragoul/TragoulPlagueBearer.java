@@ -154,8 +154,8 @@ public class TragoulPlagueBearer extends SimpleAdaptation<TragoulPlagueBearer.Co
       return;
     }
 
-    Player owner = p;
-    if (!J.runEntity(mob, () -> prepareMarkTargetOwned(owner, mob, mobId), 2)) {
+    UUID ownerId = p.getUniqueId();
+    if (!J.runEntity(mob, () -> prepareMarkTargetOwned(ownerId, mob, mobId), 2)) {
       pendingMarks.complete(mobId);
     }
   }
@@ -211,9 +211,9 @@ public class TragoulPlagueBearer extends SimpleAdaptation<TragoulPlagueBearer.Co
     J.runEntity(owner, () -> prepareSpreadOwnerOwned(owner, seed));
   }
 
-  private void prepareMarkTargetOwned(Player owner, Mob mob, UUID mobId) {
+  private void prepareMarkTargetOwned(UUID ownerId, Mob mob, UUID mobId) {
     if (!acceptingWork || !mob.isValid() || mob.isDead()
-        || isProtectedFriendly(owner, mob)
+        || isProtectedFriendlyOwned(ownerId, mob)
         || (!mob.hasPotionEffect(PotionEffectType.POISON)
         && !mob.hasPotionEffect(PotionEffectType.WITHER))) {
       pendingMarks.complete(mobId);
@@ -221,6 +221,11 @@ public class TragoulPlagueBearer extends SimpleAdaptation<TragoulPlagueBearer.Co
     }
 
     Location location = mob.getLocation().clone();
+    Player owner = Bukkit.getPlayer(ownerId);
+    if (owner == null) {
+      pendingMarks.complete(mobId);
+      return;
+    }
     if (!J.runEntity(owner, () -> validateMarkOwnerOwned(owner, mob, mobId, location))) {
       pendingMarks.complete(mobId);
     }
@@ -313,7 +318,8 @@ public class TragoulPlagueBearer extends SimpleAdaptation<TragoulPlagueBearer.Co
   }
 
   private SpreadTarget captureSpreadTargetOwned(SpreadPlan plan, Mob target) {
-    if (!target.isValid() || target.isDead() || isProtectedFriendly(plan.owner(), target)) {
+    if (!target.isValid() || target.isDead()
+        || isProtectedFriendlyOwned(plan.ownerId(), target)) {
       return null;
     }
     Location location = target.getLocation().clone();
@@ -359,7 +365,8 @@ public class TragoulPlagueBearer extends SimpleAdaptation<TragoulPlagueBearer.Co
       return;
     }
     Mob target = snapshot.entity();
-    if (!target.isValid() || target.isDead() || isProtectedFriendly(plan.owner(), target)) {
+    if (!target.isValid() || target.isDead()
+        || isProtectedFriendlyOwned(plan.ownerId(), target)) {
       batch.complete(null);
       return;
     }

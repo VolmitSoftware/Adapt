@@ -1,5 +1,6 @@
 package art.arcane.adapt.content.adaptation.ranged;
 
+import art.arcane.adapt.api.projectile.ProjectileReplacementRegistry;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.util.TriState;
 import org.bukkit.Color;
@@ -28,6 +29,7 @@ import org.bukkit.util.Vector;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 record RicochetProfile(int maximumRicochets, double speedBonusPerRicochet,
                         double damageBonusPerRicochet, double minimumVelocitySquared,
@@ -145,6 +147,60 @@ final class RicochetTransferRules {
 
   static boolean requiresRegionHandoff(boolean foliaThreading, boolean destinationOwned) {
     return foliaThreading && !destinationOwned;
+  }
+}
+
+enum RicochetTransferCompletion {
+  COMPLETED,
+  SPAWN_FAILED,
+  REPLACEMENT_REJECTED
+}
+
+final class RicochetReplacementTicket {
+  private final ProjectileReplacementRegistry.Ticket delegate;
+  private final AtomicBoolean resolved = new AtomicBoolean();
+
+  private RicochetReplacementTicket(ProjectileReplacementRegistry.Ticket delegate) {
+    this.delegate = delegate;
+  }
+
+  static RicochetReplacementTicket of(ProjectileReplacementRegistry.Ticket delegate) {
+    return new RicochetReplacementTicket(delegate);
+  }
+
+  boolean complete(Projectile replacement) {
+    if (delegate == null) {
+      return resolved.compareAndSet(false, true);
+    }
+    if (!resolved.compareAndSet(false, true)) {
+      return false;
+    }
+
+    boolean accepted;
+    try {
+      accepted = delegate.complete(replacement);
+    } catch (RuntimeException | Error error) {
+      cancelAfterFailedCompletion(error);
+      throw error;
+    }
+    if (!accepted) {
+      delegate.cancel();
+    }
+    return accepted;
+  }
+
+  void cancel() {
+    if (resolved.compareAndSet(false, true) && delegate != null) {
+      delegate.cancel();
+    }
+  }
+
+  private void cancelAfterFailedCompletion(Throwable failure) {
+    try {
+      delegate.cancel();
+    } catch (RuntimeException | Error cancellationFailure) {
+      failure.addSuppressed(cancellationFailure);
+    }
   }
 }
 
@@ -347,6 +403,7 @@ record RicochetProjectileTemplate(
 
 record RicochetTransferRequest(
     RicochetProjectileTemplate primary,
-    RicochetProjectileTemplate fallback
+    RicochetProjectileTemplate fallback,
+    RicochetReplacementTicket replacement
 ) {
 }

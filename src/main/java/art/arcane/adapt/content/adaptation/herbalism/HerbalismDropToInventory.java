@@ -43,7 +43,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockDropItemEvent;
+import org.bukkit.inventory.ItemStack;
 
+import java.util.HashMap;
 import java.util.List;
 
 public class HerbalismDropToInventory extends SimpleAdaptation<HerbalismDropToInventory.Config> {
@@ -89,11 +91,12 @@ public class HerbalismDropToInventory extends SimpleAdaptation<HerbalismDropToIn
     for (Item i : items) {
       xp(p, 2);
       addStat(p, "herbalism.drop-to-inv.items-caught", 1);
-      if (p.getInventory().addItem(i.getItemStack()).isEmpty()) {
+      HashMap<Integer, ItemStack> leftovers = p.getInventory().addItem(i.getItemStack());
+      if (leftovers.isEmpty()) {
         stored++;
       } else {
         overflow = true;
-        p.getWorld().dropItem(p.getLocation(), i.getItemStack());
+        leftovers.values().forEach(item -> p.getWorld().dropItem(p.getLocation(), item));
       }
     }
 

@@ -146,7 +146,7 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
 
     double damage = e.getFinalDamage();
     int damageLimit = InsightWorkLimits.damageNumbers(getConfig().maxDamageNumbersPerTick);
-    if (attacker == victim || damage <= 0D || getLevel(attacker) <= 0
+    if (attacker == victim || damage <= 0D
         || !workBudget.tryAcquireDamageNumber(damageLimit)) {
       return;
     }

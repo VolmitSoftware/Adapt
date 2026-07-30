@@ -1,9 +1,12 @@
 package art.arcane.adapt.content.adaptation.seaborrne;
 
+import org.bukkit.potion.PotionEffect;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Offset.offset;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class SeabornePassiveRuntimeTest {
   @Test
@@ -24,6 +27,17 @@ class SeabornePassiveRuntimeTest {
     assertThat(SeaborneTurtlesVision.elapsedUnderwaterTicks(null, 4000L)).isZero();
     assertThat(SeaborneTurtlesVision.elapsedUnderwaterTicks(1000L, 4000L)).isEqualTo(60D);
     assertThat(SeaborneTurtlesVision.elapsedUnderwaterTicks(1000L, 20_000L)).isEqualTo(160D);
+  }
+
+  @Test
+  void turtleVisionRemovesOnlyItsOwnedManagedEffect() {
+    PotionEffect managed = mock(PotionEffect.class);
+    PotionEffect stronger = mock(PotionEffect.class);
+    when(stronger.getAmplifier()).thenReturn(1);
+
+    assertThat(SeaborneTurtlesVision.mayRemoveNightVision(false, managed)).isFalse();
+    assertThat(SeaborneTurtlesVision.mayRemoveNightVision(true, stronger)).isFalse();
+    assertThat(SeaborneTurtlesVision.mayRemoveNightVision(true, managed)).isTrue();
   }
 
 }

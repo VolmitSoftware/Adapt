@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.nether;
 
+import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -44,6 +45,9 @@ import org.bukkit.entity.Strider;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
+
+import java.util.concurrent.CompletableFuture;
 
 public class NetherStriderBond extends SimpleAdaptation<NetherStriderBond.Config> {
   private static final String SLOT_RIDE = "ride";
@@ -143,18 +147,51 @@ public class NetherStriderBond extends SimpleAdaptation<NetherStriderBond.Config
         return;
       }
 
-      p.teleport(safe);
+      beginRescueTeleport(p, safe);
+    }, 2);
+  }
+
+  private void beginRescueTeleport(Player p, Location safe) {
+    CompletableFuture<Boolean> teleport;
+    try {
+      teleport = p.teleportAsync(safe, PlayerTeleportEvent.TeleportCause.PLUGIN);
+    } catch (RuntimeException error) {
+      Adapt.error("Strider Bond could not start a lava rescue for " + p.getUniqueId() + ".");
+      error.printStackTrace();
+      return;
+    }
+    if (teleport == null) {
+      return;
+    }
+    teleport.whenComplete((success, failure) -> finishRescueTeleport(p, success, failure));
+  }
+
+  private void finishRescueTeleport(Player p, Boolean success, Throwable failure) {
+    if (failure != null) {
+      Adapt.error("Strider Bond lava rescue failed for " + p.getUniqueId() + ".");
+      failure.printStackTrace();
+    }
+
+    J.runEntity(p, () -> {
+      if (!shouldCommitRescue(success, failure, p.isOnline())) {
+        return;
+      }
+
       p.setFallDistance(0F);
       addStat(p, "nether.strider-bond.lava-rescues", 1);
       xp(p, getConfig().xpPerRescue);
-      fx(safe, FxPriority.TRANSITION)
+      fx(p.getLocation(), FxPriority.TRANSITION)
           .dustRing(0.8D, 12, 1.0F)
           .particle(Particle.CLOUD, 6, 0D, 0.2D, 0D, 0.3D, 0.02D)
           .chord(Sound.ENTITY_STRIDER_HAPPY, 0.6F, 1.2F, Sound.ENTITY_ENDERMAN_TELEPORT, 0.4F, 1.4F);
       if (AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_nether_strider_rescue")) {
         getPlayer(p).getAdvancementHandler().grant("challenge_nether_strider_rescue");
       }
-    }, 2);
+    });
+  }
+
+  static boolean shouldCommitRescue(Boolean success, Throwable failure, boolean online) {
+    return online && failure == null && Boolean.TRUE.equals(success);
   }
 
   private boolean isOverLava(Location loc) {

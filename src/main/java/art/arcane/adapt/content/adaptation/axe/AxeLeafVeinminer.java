@@ -27,8 +27,6 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
-import art.arcane.adapt.api.world.PlayerAdaptation;
-import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.content.integration.iris.IrisTreeFellerLink;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
@@ -147,19 +145,19 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
     }
 
     int leavesBroken = blockMap.size();
-    PlayerSkillLine line = getPlayer(p).getData().getSkillLineNullable("axes");
-    PlayerAdaptation adaptation = line != null ? line.getAdaptation("axe-drop-to-inventory") : null;
-    boolean toInventory = adaptation != null && adaptation.getLevel() > 0;
     J.runEntity(p, () -> {
+      boolean toInventory = getActiveSiblingBlockBreakLevel(
+          p,
+          "axe-drop-to-inventory",
+          block.getLocation()
+      ) > 0;
       for (Block b : blockMap) {
         VEIN_MINED.add(b);
         if (toInventory) {
-          Collection<ItemStack> items = b.getDrops(p.getInventory().getItemInMainHand(), p);
+          Collection<ItemStack> items = b.getDrops(tool, p);
           for (ItemStack i : items) {
             HashMap<Integer, ItemStack> extra = p.getInventory().addItem(i);
-            if (!extra.isEmpty()) {
-              p.getWorld().dropItem(p.getLocation(), extra.get(0));
-            }
+            extra.values().forEach(item -> p.getWorld().dropItem(p.getLocation(), item));
           }
           b.setType(Material.AIR);
         } else {

@@ -3517,7 +3517,7 @@ usage = "Linksklicke auf den Startpunkt; rechtsklicke auf den Zwischen- und Endp
 
 [architect.demolition]
 name = "Mason's Eraser"
-description = "Löschen Sie Ihre eigenen kürzlich stattgefundenen Aufenthalte fast sofort und der Block taucht gleich wieder auf als Tropfen!"
+description = "Entferne deine eigenen kürzlich platzierten Blöcke nahezu sofort, ohne Drops zu erzeugen."
 lore1 = "Ihre neuen Platzierungen brechen fast sofort ab."
 lore2 = "Sekunden zählt eine Platzierung als frisch"
 lore = ["Ihre neuen Platzierungen brechen fast sofort ab.", "Sekunden zählt eine Platzierung als frisch"]

@@ -159,17 +159,13 @@ public interface Component {
   }
 
   default void addPotionStacks(Player p, PotionEffectType potionEffect, int amplifier, int duration, boolean overlap) {
+    if (p == null || potionEffect == null) {
+      return;
+    }
+
     PotionEffect activeEffect = p.getPotionEffect(potionEffect);
     if (activeEffect != null) {
-      if (!overlap) {
-        return;
-      }
-      long combinedDuration = (long) activeEffect.getDuration() + Math.max(1, duration);
-      int newDuration = (int) Math.min(Integer.MAX_VALUE, combinedDuration);
-      int newAmplifier = Math.max(activeEffect.getAmplifier(), amplifier);
-      p.removePotionEffect(potionEffect);
-      p.addPotionEffect(new PotionEffect(potionEffect, newDuration, newAmplifier));
-      SoundPlayer.of(p).play(p.getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.25f, 0.25f);
+      addPotionStacksNow(p, potionEffect, amplifier, duration, overlap);
       return;
     }
 
@@ -177,9 +173,35 @@ public interface Component {
       if (!p.isOnline()) {
         return;
       }
-      p.addPotionEffect(new PotionEffect(potionEffect, Math.max(1, duration), amplifier));
-      SoundPlayer.of(p).play(p.getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.25f, 0.25f);
+      addPotionStacksNow(p, potionEffect, amplifier, duration, overlap);
     }, 1);
+  }
+
+  default boolean addPotionStacksNow(Player p, PotionEffectType potionEffect, int amplifier, int duration,
+                                     boolean overlap) {
+    if (p == null || potionEffect == null || !p.isOnline()) {
+      return false;
+    }
+
+    PotionEffect activeEffect = p.getPotionEffect(potionEffect);
+    if (activeEffect != null && !overlap) {
+      return false;
+    }
+
+    int newDuration = Math.max(1, duration);
+    int newAmplifier = amplifier;
+    if (activeEffect != null) {
+      long combinedDuration = (long) activeEffect.getDuration() + newDuration;
+      newDuration = (int) Math.min(Integer.MAX_VALUE, combinedDuration);
+      newAmplifier = Math.max(activeEffect.getAmplifier(), amplifier);
+      p.removePotionEffect(potionEffect);
+    }
+
+    boolean applied = p.addPotionEffect(new PotionEffect(potionEffect, newDuration, newAmplifier));
+    if (applied) {
+      SoundPlayer.of(p).play(p.getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.25f, 0.25f);
+    }
+    return applied;
   }
 
   default double blockXP(Block block, double xp) {

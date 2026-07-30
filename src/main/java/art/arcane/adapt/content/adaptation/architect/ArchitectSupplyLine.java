@@ -104,41 +104,34 @@ public class ArchitectSupplyLine extends SimpleAdaptation<ArchitectSupplyLine.Co
       return;
     }
 
-    if (!tryConsumeRefill(p.getUniqueId(), getRefillsPerMinute(getLevelPercent(context.level())))) {
-      if (failCd.isReady(p.getUniqueId(), 1500)) {
-        failCd.mark(p.getUniqueId());
-        fx(p.getLocation(), FxPriority.TRANSITION).sound(Sound.BLOCK_DISPENSER_FAIL, 0.3f, 0.9f);
-      }
+    UUID playerId = p.getUniqueId();
+    int allowed = getRefillsPerMinute(getLevelPercent(context.level()));
+    if (!hasRefillCapacity(playerId, allowed)) {
+      playRefillFailure(p);
       return;
     }
 
     EquipmentSlot slot = e.getHand();
-    J.runEntity(p, () -> refill(p, slot, material), 1);
+    J.runEntity(p, () -> refill(p, slot, material, allowed), 1);
   }
 
-  private boolean tryConsumeRefill(UUID id, int allowed) {
-    long now = M.ms();
-    RefillWindow current = windows.get(id);
-    if (current == null || now - current.start() >= 60000L) {
-      windows.put(id, new RefillWindow(now, 1));
-      return true;
-    }
-
-    if (current.used() >= allowed) {
-      return false;
-    }
-
-    windows.put(id, new RefillWindow(current.start(), current.used() + 1));
-    return true;
+  private boolean hasRefillCapacity(UUID id, int allowed) {
+    return hasRefillCapacity(windows.get(id), M.ms(), allowed);
   }
 
-  private void refill(Player p, EquipmentSlot slot, Material material) {
+  private void refill(Player p, EquipmentSlot slot, Material material, int allowed) {
     if (!p.isOnline()) {
       return;
     }
 
     ItemStack current = slot == EquipmentSlot.OFF_HAND ? p.getInventory().getItemInOffHand() : p.getInventory().getItemInMainHand();
-    if (current != null && !current.getType().isAir()) {
+    if (current != null && current.getType() != Material.AIR) {
+      return;
+    }
+
+    UUID playerId = p.getUniqueId();
+    if (!hasRefillCapacity(playerId, allowed)) {
+      playRefillFailure(p);
       return;
     }
 
@@ -152,6 +145,7 @@ public class ArchitectSupplyLine extends SimpleAdaptation<ArchitectSupplyLine.Co
     } else {
       p.getInventory().setItemInMainHand(pulled);
     }
+    windows.compute(playerId, (id, window) -> nextSuccessfulWindow(window, M.ms()));
 
     fx(p.getLocation().add(0, 1, 0), FxPriority.TRANSITION)
         .particle(Particle.WAX_ON, 6, 0, 0, 0, 0.3D, 0)
@@ -160,6 +154,14 @@ public class ArchitectSupplyLine extends SimpleAdaptation<ArchitectSupplyLine.Co
 
     addStat(p, "architect.supply-line.refills", 1);
     xp(p, getConfig().xpPerRefill);
+  }
+
+  private void playRefillFailure(Player player) {
+    UUID playerId = player.getUniqueId();
+    if (failCd.isReady(playerId, 1500)) {
+      failCd.mark(playerId);
+      fx(player.getLocation(), FxPriority.TRANSITION).sound(Sound.BLOCK_DISPENSER_FAIL, 0.3f, 0.9f);
+    }
   }
 
   private ItemStack pullMatching(Player p, Material material) {
@@ -243,8 +245,18 @@ public class ArchitectSupplyLine extends SimpleAdaptation<ArchitectSupplyLine.Co
     return (int) Math.max(1, M.lerp(getConfig().minRefillsPerMinute, getConfig().maxRefillsPerMinute, factor));
   }
 
+  static boolean hasRefillCapacity(RefillWindow window, long now, int allowed) {
+    return allowed > 0 && (window == null || now - window.start() >= 60000L || window.used() < allowed);
+  }
 
-  private record RefillWindow(long start, int used) {
+  static RefillWindow nextSuccessfulWindow(RefillWindow window, long now) {
+    if (window == null || now - window.start() >= 60000L) {
+      return new RefillWindow(now, 1);
+    }
+    return new RefillWindow(window.start(), window.used() + 1);
+  }
+
+  record RefillWindow(long start, int used) {
   }
 
   @ConfigDescription("Automatically refill your hand from shulker boxes or bundles when a placed stack runs out.")

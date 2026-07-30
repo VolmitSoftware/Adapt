@@ -84,7 +84,11 @@ public class KineticsQuakeGuard extends SimpleAdaptation<KineticsQuakeGuard.Conf
   }
 
   private long getBraceTicks(int level) {
-    return Math.round(getConfig().braceTicksBase + (getLevelPercent(level) * getConfig().braceTicksFactor));
+    return braceTicks(getConfig().braceTicksBase, getConfig().braceTicksFactor, getLevelPercent(level));
+  }
+
+  static long braceTicks(double base, double factor, double levelPercent) {
+    return Math.max(1L, Math.round(base + (levelPercent * factor)));
   }
 
   @ConfigDescription("Landing a smash braces you: knockback resistance, toughness, and safe footing for a moment.")

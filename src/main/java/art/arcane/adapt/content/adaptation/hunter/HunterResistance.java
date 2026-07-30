@@ -22,6 +22,8 @@ import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.HunterMessages;
 
 import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.api.ability.AbilityCharge;
+import art.arcane.adapt.api.ability.AbilityRefundReason;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -44,6 +46,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class HunterResistance extends SimpleAdaptation<HunterResistance.Config> {
   private static final Color STEEL = Color.fromRGB(180, 180, 200);
@@ -75,48 +79,94 @@ public class HunterResistance extends SimpleAdaptation<HunterResistance.Config> 
   }
 
 
-  @EventHandler
+  @EventHandler(ignoreCancelled = true)
   public void on(EntityDamageEvent e) {
-    if (e.getEntity() instanceof org.bukkit.entity.Player p && isAdaptableDamageCause(e) && hasActiveAdaptation(p)) {
-      if (AdaptConfig.get().isPreventHunterSkillsWhenHungerApplied() && p.hasPotionEffect(PotionEffectType.HUNGER)) {
-        return;
-      }
-
-      if (!getConfig().useConsumable) {
-        if (p.getFoodLevel() == 0) {
-          if (getConfig().poisonPenalty) {
-            addPotionStacks(p, PotionEffectType.POISON, getConfig().basePoisonFromLevel - getLevel(p), getConfig().baseHungerDuration, getConfig().stackPoisonPenalty);
-          }
-          starveFx(p);
-
-        } else {
-          addPotionStacks(p, PotionEffectType.HUNGER, getConfig().baseHungerFromLevel - getLevel(p), getConfig().baseHungerDuration * getLevel(p), getConfig().stackHungerPenalty);
-          addPotionStacks(p, PotionEffectTypes.DAMAGE_RESISTANCE, getLevel(p), getConfig().baseEffectbyLevel * getLevel(p), getConfig().stackBuff);
-          addStat(p, "hunter.resistance.activations", 1);
-          activateFx(p);
-        }
-      } else {
-        if (getConfig().consumable != null && Material.getMaterial(getConfig().consumable) != null) {
-          Material mat = Material.getMaterial(getConfig().consumable);
-          if (mat != null && p.getInventory().contains(mat)) {
-            if (!payItemCost(p, "consumable", new ItemStack(mat), 1, () -> {
-              p.getInventory().removeItem(new ItemStack(mat, 1));
-              return true;
-            })) {
-              return;
-            }
-            addPotionStacks(p, PotionEffectTypes.DAMAGE_RESISTANCE, getLevel(p), getConfig().baseEffectbyLevel * getLevel(p), getConfig().stackBuff);
-            addStat(p, "hunter.resistance.activations", 1);
-            activateFx(p);
-          } else {
-            if (getConfig().poisonPenalty) {
-              addPotionStacks(p, PotionEffectType.POISON, getConfig().basePoisonFromLevel - getLevel(p), getConfig().baseHungerDuration, getConfig().stackPoisonPenalty);
-            }
-            starveFx(p);
-          }
-        }
-      }
+    if (!(e.getEntity() instanceof Player p) || !isAdaptableDamageCause(e)) {
+      return;
     }
+
+    int level = getActiveLevel(p);
+    if (level <= 0
+        || (AdaptConfig.get().isPreventHunterSkillsWhenHungerApplied()
+        && p.hasPotionEffect(PotionEffectType.HUNGER))) {
+      return;
+    }
+
+    if (!getConfig().useConsumable) {
+      if (p.getFoodLevel() == 0) {
+        starvePenalty(p, level);
+      } else if (applyBuff(p, level)) {
+        addPotionStacks(p, PotionEffectType.HUNGER, getConfig().baseHungerFromLevel - level,
+            getConfig().baseHungerDuration * level, getConfig().stackHungerPenalty);
+        recordActivation(p);
+      }
+      return;
+    }
+
+    Material material = getConfig().consumable == null ? null : Material.getMaterial(getConfig().consumable);
+    if (material == null) {
+      return;
+    }
+    if (!p.getInventory().contains(material)) {
+      starvePenalty(p, level);
+      return;
+    }
+    if (!canApplyBuff(p) || !activateWithConsumable(p, material, level)) {
+      return;
+    }
+    recordActivation(p);
+  }
+
+  private boolean activateWithConsumable(Player p, Material material, int level) {
+    AtomicBoolean defaultApplied = new AtomicBoolean();
+    AbilityCharge charge = payItemCostDeferred(p, "consumable", new ItemStack(material), 1, () -> {
+      if (!p.getInventory().contains(material) || !applyBuff(p, level)) {
+        return false;
+      }
+      p.getInventory().removeItem(new ItemStack(material, 1));
+      defaultApplied.set(true);
+      return true;
+    });
+    if (!charge.allowed()) {
+      return false;
+    }
+    if (defaultApplied.get()) {
+      settleCost(charge.activationId());
+      return true;
+    }
+    if (!applyBuff(p, level)) {
+      refundCost(charge.activationId(), AbilityRefundReason.ACTIVATION_FAILED);
+      return false;
+    }
+    settleCost(charge.activationId());
+    return true;
+  }
+
+  private boolean canApplyBuff(Player p) {
+    PotionEffectType resistance = PotionEffectTypes.DAMAGE_RESISTANCE;
+    return resistance != null && (getConfig().stackBuff || !p.hasPotionEffect(resistance));
+  }
+
+  private boolean applyBuff(Player p, int level) {
+    PotionEffectType resistance = PotionEffectTypes.DAMAGE_RESISTANCE;
+    if (resistance == null || !canApplyBuff(p)) {
+      return false;
+    }
+    return addPotionStacksNow(p, resistance, level,
+        getConfig().baseEffectbyLevel * level, getConfig().stackBuff);
+  }
+
+  private void recordActivation(Player p) {
+    addStat(p, "hunter.resistance.activations", 1);
+    activateFx(p);
+  }
+
+  private void starvePenalty(Player p, int level) {
+    if (getConfig().poisonPenalty) {
+      addPotionStacks(p, PotionEffectType.POISON, getConfig().basePoisonFromLevel - level,
+          getConfig().baseHungerDuration, getConfig().stackPoisonPenalty);
+    }
+    starveFx(p);
   }
 
   private void activateFx(Player p) {

@@ -160,13 +160,13 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
         .seed(ThreadLocalRandom.current().nextInt())
         .additionalMatches(hiddenMatches)
         .matcher(this::isQuarryOre)
-        .completion(result -> completeScan(p, pickaxeType, level, radius, result))
+        .completion(result -> completeScan(p, pickaxeType, radius, result))
         .build();
     UUID scanId = WorldBlockScanScheduler.submit(this, p.getUniqueId(), request);
     activeScans.put(p.getUniqueId(), scanId);
   }
 
-  private void completeScan(Player p, Material pickaxeType, int level, int scanRadius,
+  private void completeScan(Player p, Material pickaxeType, int scanRadius,
                             WorldBlockScanScheduler.ScanResult result) {
     UUID playerId = p.getUniqueId();
     if (!result.scanId().equals(activeScans.get(playerId))) {
@@ -178,8 +178,13 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
         return;
       }
 
+      int activeLevel = getActiveLevel(p);
+      if (!canCompleteScan(activeLevel, result.world(), p.getWorld())) {
+        return;
+      }
+
       List<WorldBlockScanScheduler.Match> ores = result.matches();
-      int cooldownTicks = getCooldownTicks(level);
+      int cooldownTicks = getCooldownTicks(activeLevel);
       if (ores.isEmpty()) {
         showEmptyScan(p);
         p.setCooldown(pickaxeType, cooldownTicks);
@@ -187,7 +192,7 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
       }
 
       ItemStack currentHand = p.getInventory().getItemInMainHand();
-      int durabilityCost = getDurabilityCost(currentHand, level);
+      int durabilityCost = getDurabilityCost(currentHand, activeLevel);
       if (currentHand.getType() != pickaxeType
           || !isEligiblePickaxe(currentHand)
           || !canApplyPickaxeCost(currentHand, durabilityCost)
@@ -197,7 +202,7 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
         return;
       }
 
-      int highlightTicks = getHighlightTicks(level);
+      int highlightTicks = getHighlightTicks(activeLevel);
       for (WorldBlockScanScheduler.Match ore : ores) {
         showOreMarker(p, result.world(), ore, highlightTicks);
       }
@@ -207,6 +212,10 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
     if (!scheduled) {
       activeScans.remove(playerId, result.scanId());
     }
+  }
+
+  static boolean canCompleteScan(int activeLevel, World scannedWorld, World currentWorld) {
+    return activeLevel > 0 && scannedWorld != null && scannedWorld.equals(currentWorld);
   }
 
   private void showEmptyScan(Player p) {

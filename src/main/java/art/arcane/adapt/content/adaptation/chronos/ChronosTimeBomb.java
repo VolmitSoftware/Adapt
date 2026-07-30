@@ -62,6 +62,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.LingeringPotionSplashEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.world.EntitiesLoadEvent;
 import org.bukkit.inventory.EquipmentSlot;
@@ -118,6 +119,7 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
   private final Map<UUID, FrozenPlayerState> frozenPlayers;
   private final AtomicInteger immediateFieldFxBudget;
   private final NamespacedKey frozenStampKey;
+  private final NamespacedKey frozenPlayerStampKey;
   private final AtomicBoolean startupSweepDone;
   private Iterator<Map.Entry<UUID, FrozenEntityState>> frozenEntityCursor = Collections.emptyIterator();
   private Iterator<Map.Entry<UUID, FrozenPlayerState>> frozenPlayerCursor = Collections.emptyIterator();
@@ -147,6 +149,7 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
     frozenPlayers = new ConcurrentHashMap<>();
     immediateFieldFxBudget = new AtomicInteger(HARD_MAX_IMMEDIATE_FIELD_FX_PARTICLES);
     frozenStampKey = new NamespacedKey(Adapt.instance, "chronos_time_bomb_frozen");
+    frozenPlayerStampKey = new NamespacedKey(Adapt.instance, "chronos_time_bomb_player_frozen");
     startupSweepDone = new AtomicBoolean(false);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.ICE)
@@ -166,6 +169,44 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
   @Override
   protected void onRuntimeActivated() {
     wakeRuntime();
+    for (Player player : Bukkit.getOnlinePlayers()) {
+      J.runEntity(player, () -> restoreStrandedFrozenPlayer(player));
+    }
+  }
+
+  @Override
+  public void unregister() {
+    fields.clear();
+    activeBombProjectiles.clear();
+    cooldowns.clear();
+    cooldownReadyNotify.clear();
+
+    List<Map.Entry<UUID, FrozenPlayerState>> players = new ArrayList<>(frozenPlayers.entrySet());
+    List<Map.Entry<UUID, FrozenEntityState>> entities = new ArrayList<>(frozenEntities.entrySet());
+    frozenPlayers.clear();
+    frozenEntities.clear();
+    frozenPlayerCursor = Collections.emptyIterator();
+    frozenEntityCursor = Collections.emptyIterator();
+
+    for (Map.Entry<UUID, FrozenPlayerState> entry : players) {
+      Player player = Bukkit.getPlayer(entry.getKey());
+      if (player != null) {
+        boolean scheduled = J.runEntity(player, () -> unfreezePlayer(player, entry.getValue()));
+        if (!scheduled && J.isOwnedByCurrentRegion(player)) {
+          unfreezePlayer(player, entry.getValue());
+        }
+      }
+    }
+    for (Map.Entry<UUID, FrozenEntityState> entry : entities) {
+      Entity entity = Bukkit.getEntity(entry.getKey());
+      if (entity != null) {
+        boolean scheduled = J.runEntity(entity, () -> unfreezeEntity(entity, entry.getValue()));
+        if (!scheduled && J.isOwnedByCurrentRegion(entity)) {
+          unfreezeEntity(entity, entry.getValue());
+        }
+      }
+    }
+    super.unregister();
   }
 
   @Override
@@ -191,11 +232,20 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
 
   @EventHandler
   public void on(PlayerQuitEvent e) {
-    UUID id = e.getPlayer().getUniqueId();
+    Player player = e.getPlayer();
+    UUID id = player.getUniqueId();
     cooldowns.remove(id);
     cooldownReadyNotify.remove(id);
-    frozenPlayers.remove(id);
+    FrozenPlayerState state = frozenPlayers.remove(id);
+    if (state != null) {
+      unfreezePlayer(player, state);
+    }
     activeBombProjectiles.entrySet().removeIf(entry -> entry.getValue().owner().equals(id));
+  }
+
+  @EventHandler
+  public void on(PlayerJoinEvent e) {
+    restoreStrandedFrozenPlayer(e.getPlayer());
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -465,9 +515,48 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
       FrozenPlayerState candidate = new FrozenPlayerState(player.getAllowFlight(), player.isFlying(), player.hasGravity());
       FrozenPlayerState existing = frozenPlayers.putIfAbsent(playerId, candidate);
       state = existing == null ? candidate : existing;
+      if (existing == null) {
+        stampFrozenPlayer(player, candidate);
+      }
     }
     state.addField(fieldId);
     maintainFrozenPlayer(player);
+  }
+
+  private void stampFrozenPlayer(Player player, FrozenPlayerState state) {
+    byte flags = 0;
+    if (state.allowFlight()) {
+      flags |= 1;
+    }
+    if (state.flying()) {
+      flags |= 2;
+    }
+    if (state.gravity()) {
+      flags |= 4;
+    }
+    player.getPersistentDataContainer().set(frozenPlayerStampKey, PersistentDataType.BYTE, flags);
+  }
+
+  private void restoreStrandedFrozenPlayer(Player player) {
+    if (frozenPlayers.containsKey(player.getUniqueId())) {
+      return;
+    }
+
+    PersistentDataContainer container = player.getPersistentDataContainer();
+    Byte flags = container.get(frozenPlayerStampKey, PersistentDataType.BYTE);
+    if (flags == null) {
+      return;
+    }
+
+    container.remove(frozenPlayerStampKey);
+    player.setGravity((flags & 4) != 0);
+    if ((flags & 1) != 0) {
+      player.setAllowFlight(true);
+      player.setFlying((flags & 2) != 0);
+      return;
+    }
+    player.setFlying(false);
+    player.setAllowFlight(false);
   }
 
   private void maintainFrozenPlayer(Player player) {
@@ -482,6 +571,7 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
   }
 
   private void unfreezePlayer(Player player, FrozenPlayerState state) {
+    player.getPersistentDataContainer().remove(frozenPlayerStampKey);
     player.setGravity(state.gravity());
     if (state.allowFlight()) {
       player.setAllowFlight(true);
@@ -516,8 +606,12 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
       return;
     }
 
+    if (isProtectedFriendlyOwned(field.owner(), entity)) {
+      return;
+    }
+
     Player owner = Bukkit.getPlayer(field.owner());
-    if (owner == null || isProtectedFriendly(owner, entity)) {
+    if (owner == null) {
       return;
     }
 
@@ -529,12 +623,12 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
       }
       boolean allowed = playerTarget ? canPVP(owner, targetLocation) : canPVE(owner, targetLocation);
       if (allowed) {
-        J.runEntity(entity, () -> applyFieldEntity(field, entity, owner, pulse, M.ms()));
+        J.runEntity(entity, () -> applyFieldEntity(field, entity, field.owner(), pulse, M.ms()));
       }
     });
   }
 
-  private void applyFieldEntity(TemporalField field, Entity entity, Player owner, FieldPulseState pulse, long now) {
+  private void applyFieldEntity(TemporalField field, Entity entity, UUID ownerId, FieldPulseState pulse, long now) {
     if (!isFieldActive(field, now) || !entity.isValid() || entity.isDead() || !field.contains(entity.getLocation())) {
       return;
     }
@@ -543,7 +637,7 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
       applyFieldDebuffs(player, getConfig().slownessAmplifier);
       freezePlayer(player, field.id());
       player.setVelocity(new Vector());
-      recordFieldImpact(owner, false, false, pulse.recordSlowed());
+      recordFieldImpact(ownerId, false, false, pulse.recordSlowed());
       return;
     }
 
@@ -555,7 +649,7 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
     if (pulse.claimFxParticles(3) == 3) {
       fx(entity.getLocation(), FxPriority.COMBAT).ring(Particles.END_ROD, 0.8D, 3, 0.15D);
     }
-    recordFieldImpact(owner, true, entity instanceof Projectile, pulse.recordSlowed());
+    recordFieldImpact(ownerId, true, entity instanceof Projectile, pulse.recordSlowed());
   }
 
   private void applyFieldDebuffs(Player player, int slownessAmplifier) {
@@ -600,8 +694,12 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
     return -Math.min(1.0D, 0.10D * Math.max(0L, amplifier + 1L));
   }
 
-  private void recordFieldImpact(Player owner, boolean newlyFrozen, boolean projectile, boolean crowdThreshold) {
-    if (owner == null || (!newlyFrozen && !crowdThreshold)) {
+  private void recordFieldImpact(UUID ownerId, boolean newlyFrozen, boolean projectile, boolean crowdThreshold) {
+    if (!newlyFrozen && !crowdThreshold) {
+      return;
+    }
+    Player owner = Bukkit.getPlayer(ownerId);
+    if (owner == null) {
       return;
     }
 

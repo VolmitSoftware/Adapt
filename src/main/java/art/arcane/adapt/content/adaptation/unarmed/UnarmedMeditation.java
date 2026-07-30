@@ -27,6 +27,7 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.version.IAttribute;
 import art.arcane.adapt.api.version.Version;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -49,6 +50,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 
 import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -135,10 +137,42 @@ public class UnarmedMeditation extends SimpleAdaptation<UnarmedMeditation.Config
   }
 
   @Override
+  public boolean hasTickDemand() {
+    return requiresMaintenance(super.hasTickDemand(), !activeSessions.isEmpty(), !capacityPlayers.isEmpty());
+  }
+
+  @Override
+  protected boolean usesLearnerBoundTicking() {
+    return true;
+  }
+
+  @Override
   public void onTick() {
-    for (Player player : Bukkit.getOnlinePlayers()) {
+    Set<UUID> maintenance = new HashSet<>(activeSessions);
+    maintenance.addAll(capacityPlayers);
+    for (AdaptPlayer adaptPlayer : learnedCandidates(System.currentTimeMillis())) {
+      Player player = adaptPlayer.getPlayer();
+      if (player == null) {
+        continue;
+      }
+      maintenance.remove(player.getUniqueId());
       J.runEntity(player, () -> maintainPlayerOwned(player));
     }
+    for (UUID playerId : maintenance) {
+      Player player = Bukkit.getPlayer(playerId);
+      if (player == null || !player.isOnline()) {
+        activeSessions.remove(playerId);
+        lastPositions.remove(playerId);
+        medState.remove(playerId);
+        capacityPlayers.remove(playerId);
+        continue;
+      }
+      J.runEntity(player, () -> maintainPlayerOwned(player));
+    }
+  }
+
+  static boolean requiresMaintenance(boolean learnerDemand, boolean activeSession, boolean capacityApplied) {
+    return learnerDemand || activeSession || capacityApplied;
   }
 
   private void maintainPlayerOwned(Player player) {

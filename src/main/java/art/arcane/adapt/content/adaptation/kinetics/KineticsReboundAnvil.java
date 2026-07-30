@@ -76,7 +76,11 @@ public class KineticsReboundAnvil extends SimpleAdaptation<KineticsReboundAnvil.
   }
 
   private long getWindowTicks(int level) {
-    return Math.round(getConfig().windowTicksBase + (getLevelPercent(level) * getConfig().windowTicksFactor));
+    return windowTicks(getConfig().windowTicksBase, getConfig().windowTicksFactor, getLevelPercent(level));
+  }
+
+  static long windowTicks(double base, double factor, double levelPercent) {
+    return Math.max(1L, Math.round(base + (levelPercent * factor)));
   }
 
   @ConfigDescription("Each smash coils your legs: land springy and cushioned, ready for a second meteor.")

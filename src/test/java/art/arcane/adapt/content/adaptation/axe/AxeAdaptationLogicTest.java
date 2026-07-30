@@ -17,6 +17,39 @@ class AxeAdaptationLogicTest {
   }
 
   @Test
+  void shutdownRecoveryKeepsUnavailableOwnersPending() {
+    assertThat(AxeThrowingAxe.recoveryDisposition(true, true))
+        .isEqualTo(AxeThrowingAxe.RecoveryDisposition.OWNER);
+    assertThat(AxeThrowingAxe.recoveryDisposition(true, false))
+        .isEqualTo(AxeThrowingAxe.RecoveryDisposition.PENDING);
+    assertThat(AxeThrowingAxe.recoveryDisposition(false, true))
+        .isEqualTo(AxeThrowingAxe.RecoveryDisposition.DESTROYED);
+  }
+
+  @Test
+  void onlyAnActuallyConsumedUnbrokenAxeCanBeRecovered() {
+    assertThat(AxeThrowingAxe.isRecoverableThrow(true, false)).isTrue();
+    assertThat(AxeThrowingAxe.isRecoverableThrow(false, false)).isFalse();
+    assertThat(AxeThrowingAxe.isRecoverableThrow(true, true)).isFalse();
+    assertThat(AxeThrowingAxe.isRecoverableThrow(false, true)).isFalse();
+  }
+
+  @Test
+  void durabilityBreaksAtTheExactMaximumThreshold() {
+    assertThat(AxeThrowingAxe.reachesBreakThreshold(98, 1, 100)).isFalse();
+    assertThat(AxeThrowingAxe.reachesBreakThreshold(99, 1, 100)).isTrue();
+    assertThat(AxeThrowingAxe.reachesBreakThreshold(98, 2, 100)).isTrue();
+  }
+
+  @Test
+  void throwingAxeRewardsOnlyAnObservedUncancelledDamageEvent() {
+    assertThat(AxeThrowingAxe.isSuccessfulDamageEvent(true, false, 4D)).isTrue();
+    assertThat(AxeThrowingAxe.isSuccessfulDamageEvent(false, false, 4D)).isFalse();
+    assertThat(AxeThrowingAxe.isSuccessfulDamageEvent(true, true, 4D)).isFalse();
+    assertThat(AxeThrowingAxe.isSuccessfulDamageEvent(true, false, 0D)).isFalse();
+  }
+
+  @Test
   void configDefaultsAreSaneAndNonZero() {
     AxeThrowingAxe.Config throwing = new AxeThrowingAxe.Config();
     assertThat(throwing.damageMultiplierBase).isGreaterThan(0D);

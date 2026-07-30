@@ -21,6 +21,14 @@ class EnchantingScalingTest {
   }
 
   @Test
+  void quickEnchantNormalizesInvalidBonusDivisors() {
+    assertThat(EnchantingQuickEnchant.totalLevelCount(5, 5, 0)).isEqualTo(5);
+    assertThat(EnchantingQuickEnchant.totalLevelCount(10, 5, 0)).isEqualTo(20);
+    assertThat(EnchantingQuickEnchant.totalLevelCount(10, 5, -4)).isEqualTo(20);
+    assertThat(EnchantingQuickEnchant.totalLevelCount(10, 5, 5)).isEqualTo(12);
+  }
+
+  @Test
   void soulLinkSaveCostAndCooldownFloorAndDropWithLevels() {
     assertThat(EnchantingSoulLink.soulSaveCost(8, 5, 2, 0.0D)).isEqualTo(8);
     assertThat(EnchantingSoulLink.soulSaveCost(8, 5, 2, 1.0D)).isEqualTo(3);

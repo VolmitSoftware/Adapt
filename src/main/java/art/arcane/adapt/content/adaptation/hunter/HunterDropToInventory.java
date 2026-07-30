@@ -45,7 +45,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.inventory.ItemStack;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -83,9 +85,8 @@ public class HunterDropToInventory extends SimpleAdaptation<HunterDropToInventor
       List<Item> items = new KList<>(e.getItems());
       e.getItems().clear();
       for (Item i : items) {
-        if (!p.getInventory().addItem(i.getItemStack()).isEmpty()) {
-          p.getWorld().dropItem(p.getLocation(), i.getItemStack());
-        }
+        HashMap<Integer, ItemStack> leftovers = p.getInventory().addItem(i.getItemStack());
+        leftovers.values().forEach(item -> p.getWorld().dropItem(p.getLocation(), item));
       }
       addStat(p, "hunter.drop-to-inv.items-caught", items.size());
       emitCatch(p, e.getBlock().getLocation().add(0.5D, 0.5D, 0.5D), items.size());
@@ -105,9 +106,8 @@ public class HunterDropToInventory extends SimpleAdaptation<HunterDropToInventor
     if (e.getEntity().getKiller() != null && e.getEntity().getKiller().getClass().getSimpleName().equals("CraftPlayer")) {
       int itemCount = e.getDrops().size();
       e.getDrops().forEach(i -> {
-        if (!p.getInventory().addItem(i).isEmpty()) {
-          p.getWorld().dropItem(p.getLocation(), i);
-        }
+        HashMap<Integer, ItemStack> leftovers = p.getInventory().addItem(i);
+        leftovers.values().forEach(item -> p.getWorld().dropItem(p.getLocation(), item));
       });
       e.getDrops().clear();
       addStat(p, "hunter.drop-to-inv.items-caught", itemCount);

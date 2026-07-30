@@ -2,11 +2,13 @@ package art.arcane.adapt.content.adaptation.chronos;
 
 import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.content.item.ChronoTimeBombItem;
+import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 
 import java.lang.reflect.Field;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -19,8 +21,10 @@ class ChronosTimeBombIdleRuntimeTest extends AdaptTestBase {
   void emptyRuntimeParksAndActivationWakesItRaceSafely() throws Exception {
     when(plugin.getName()).thenReturn("Adapt");
     when(plugin.namespace()).thenReturn("adapt");
-    try (MockedStatic<ChronoTimeBombItem> itemFactory = mockStatic(ChronoTimeBombItem.class)) {
+    try (MockedStatic<ChronoTimeBombItem> itemFactory = mockStatic(ChronoTimeBombItem.class);
+         MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class)) {
       itemFactory.when(ChronoTimeBombItem::withData).thenReturn(mock(ItemStack.class));
+      bukkit.when(Bukkit::getOnlinePlayers).thenReturn(Set.of());
       ChronosTimeBomb adaptation = new ChronosTimeBomb();
 
       assertThat(adaptation.getInterval()).isEqualTo(Long.MAX_VALUE);
