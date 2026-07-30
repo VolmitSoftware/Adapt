@@ -55,6 +55,11 @@ public class ActionBarNotification implements Notification {
       return;
     }
 
+    if ("xp".equals(group)) {
+      AdaptHud.xpTicker(p.getPlayer(), title);
+      return;
+    }
+
     Adapt.actionbar(p.getPlayer(), title);
   }
 }

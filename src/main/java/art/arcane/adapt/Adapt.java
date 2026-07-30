@@ -23,6 +23,7 @@ import art.arcane.adapt.api.AdaptPermissionRegistrar;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.PlayerStateRegistry;
 import art.arcane.adapt.api.minion.MinionBurden;
+import art.arcane.adapt.api.notification.AdaptHud;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdvancementManager;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
@@ -347,7 +348,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
   }
 
   public static void actionbar(Player p, String msg) {
-    new VolmitSender(p).sendAction(msg);
+    AdaptHud.actionBar(p, msg);
   }
 
   public static void debug(String string) {
@@ -416,6 +417,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     });
     platform = PlatformUtils.createPlatform(this);
     audiences = platform.getAudienceProvider();
+    AdaptHud.start(this);
     services = new KMap<>();
     runStartupPhaseVoid("discover-services", () -> initialize("art.arcane.adapt.service")
         .forEach((i) -> services.put((Class<? extends AdaptService>) i.getClass(), (AdaptService) i)));
@@ -634,6 +636,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
       services.values().forEach(AdaptService::onDisable);
     }
     stopSim();
+    AdaptHud.stop();
     if (playerDataPersistenceQueue != null) {
       playerDataPersistenceQueue.flushAndShutdown(30_000L);
       playerDataPersistenceQueue = null;

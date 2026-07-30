@@ -23,6 +23,7 @@ import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.ViewerDisplayDirector;
+import art.arcane.adapt.api.notification.AdaptHud;
 import art.arcane.adapt.api.notification.AdvancementNotification;
 import art.arcane.adapt.api.notification.SoundNotification;
 import art.arcane.adapt.api.recipe.AdaptRecipeBook;
@@ -360,6 +361,7 @@ public class AdaptServer extends TickedObject {
     UUID playerId = p.getUniqueId();
     quit(playerId);
     ViewerDisplayDirector.retireViewer(playerId);
+    AdaptHud.clear(p);
   }
 
   @EventHandler

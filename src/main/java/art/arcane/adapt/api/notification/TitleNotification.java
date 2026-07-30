@@ -50,6 +50,6 @@ public class TitleNotification implements Notification {
 
   @Override
   public void play(AdaptPlayer p) {
-    p.getPlayer().sendTitle(title.isEmpty() ? " " : title, subtitle, (int) (in / 50D), (int) (stay / 50D), (int) (out / 50D));
+    AdaptHud.title(p.getPlayer(), title.isEmpty() ? " " : title, subtitle, (int) (in / 50D), (int) (stay / 50D), (int) (out / 50D));
   }
 }
