@@ -164,6 +164,7 @@ dependencies {
     slimApi(libs.kotlin.coroutines)
 
     // Dynamically Loaded
+    slim(libs.bstats)
     slimApi(libs.adventure.minimessage)
     slimApi(libs.adventure.platform)
     slimApi(libs.adventure.gson)
@@ -239,6 +240,7 @@ slimJar {
     relocate('com.fren_gor.ultimateAdvancementAPI', "${lib}.advancements")
     relocate('net.byteflux.libby', "${lib}.libby")
     relocate('com.jeff_media.customblockdata', "${lib}.customblocks")
+    relocate('org.bstats', "${lib}.bstats")
 }
 
 /**

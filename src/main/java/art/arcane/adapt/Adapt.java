@@ -59,7 +59,6 @@ import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.io.SQLManager;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.plugin.AdaptService;
-import art.arcane.adapt.util.common.plugin.Metrics;
 import art.arcane.adapt.util.common.plugin.VolmitPlugin;
 import art.arcane.adapt.util.common.plugin.VolmitSender;
 import art.arcane.adapt.util.common.scheduling.J;
@@ -83,6 +82,9 @@ import de.slikey.effectlib.EffectManager;
 import fr.skytasul.glowingentities.GlowingEntities;
 import io.github.slimjar.app.builder.SpigotApplicationBuilder;
 import lombok.Getter;
+import org.bstats.bukkit.Metrics;
+import org.bstats.charts.SimplePie;
+import org.bstats.charts.SingleLineChart;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -151,6 +153,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
   @Getter
   private VaultEconomy vaultEconomy;
   private volatile PlaceholderRegistration papiRegistration;
+  private Metrics metrics;
 
 
   public Adapt() {
@@ -642,6 +645,15 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     if (services != null) {
       services.values().forEach(AdaptService::onDisable);
     }
+    if (metrics != null) {
+      try {
+        metrics.shutdown();
+      } catch (Throwable e) {
+        Adapt.verbose("Failed to shut down metrics: " + e.getMessage());
+      } finally {
+        metrics = null;
+      }
+    }
     stopSim();
     AdaptHud.stop();
     if (playerDataPersistenceQueue != null) {
@@ -749,10 +761,41 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     return C.BOLD + "" + C.DARK_GRAY + "[" + C.BOLD + "" + C.DARK_RED + "Adapt" + C.BOLD + C.DARK_GRAY + "]" + C.RESET + "" + C.GRAY + ": ";
   }
 
+  // bstats.org plugin id; 0 disables submission until the id is assigned
+  private static final int BSTATS_PLUGIN_ID = 0;
+
   private void setupMetrics() {
-    if (AdaptConfig.get().isMetrics()) {
-      new Metrics(this, 24221);
+    if (BSTATS_PLUGIN_ID <= 0 || !AdaptConfig.get().isMetrics()) {
+      return;
     }
+
+    Metrics m = new Metrics(this, BSTATS_PLUGIN_ID);
+    metrics = m;
+    // Chart callables run on the bStats daemon thread; keep them off Bukkit world/entity state.
+    m.addCustomChart(new SingleLineChart("registered_skills", () -> SkillRegistry.skills.size()));
+    m.addCustomChart(new SingleLineChart("learned_adaptations", () -> {
+      Adapt adapt = Adapt.instance;
+      if (adapt == null) {
+        return null;
+      }
+
+      AdaptServer server = adapt.getAdaptServer();
+      if (server == null) {
+        return null;
+      }
+
+      return server.getLearnedAdaptationCount();
+    }));
+    m.addCustomChart(new SimplePie("storage_backend", () -> {
+      AdaptConfig config = AdaptConfig.get();
+      if (config.isUseRedis()) {
+        return "redis";
+      }
+
+      return config.isUseSql() ? "sql" : "json";
+    }));
+    m.addCustomChart(new SimplePie("custom_models", () -> String.valueOf(AdaptConfig.get().isCustomModels())));
+    m.addCustomChart(new SimplePie("advancements", () -> String.valueOf(AdaptConfig.get().isAdvancements())));
   }
 
 }
