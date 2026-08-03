@@ -25,6 +25,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -297,7 +298,7 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
 
     ItemStack head = new ItemStack(Material.PLAYER_HEAD);
     if (head.getItemMeta() instanceof SkullMeta skullMeta) {
-      skullMeta.setPlayerProfile(owner.getPlayerProfile());
+      skullMeta.setOwningPlayer(owner);
       head.setItemMeta(skullMeta);
     }
     equipment.setHelmet(head);
@@ -329,7 +330,7 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
           return;
         }
 
-        if (mob.getTarget() == owner || mob.hasLineOfSight(ownerEyeLocation)) {
+        if (mob.getTarget() == owner || PaperCompat.hasLineOfSight(mob, ownerEyeLocation)) {
           boolean newlyDistracted = mob.getTarget() != target;
           mob.setTarget(target);
           if (newlyDistracted) {
@@ -387,7 +388,7 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
       packetDecoy.refresh(
           anchor.getLocation(),
           anchor.isOnGround(),
-          anchor.getTrackedPlayers(),
+          PaperCompat.trackedPlayers(anchor),
           Math.max(1, getConfig().maxPacketViewers),
           Math.max(1, getConfig().maxViewerAddsPerRefresh),
           Math.max(1, getConfig().maxViewerLookUpdatesPerRefresh),

@@ -34,7 +34,7 @@ class TamingLastBreathTest {
   void saveRewardIsIndependentWhileArrivalEffectsWaitForCompletion() throws Exception {
     String source = Files.readString(SOURCE);
     int reward = source.indexOf("addStat(owner, \"taming.last-breath.saves\"");
-    int teleport = source.indexOf("pet.teleportAsync(destination)");
+    int teleport = source.indexOf("PaperCompat.teleportAsync(pet, destination)");
     int completion = source.indexOf("private void completeRecallTeleport");
     int outcome = source.indexOf("successfulRecallTeleport(success, failure)", completion);
     int arrival = source.indexOf("private void showRecallArrivalOwned", outcome);

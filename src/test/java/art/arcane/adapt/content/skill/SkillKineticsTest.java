@@ -215,7 +215,8 @@ class SkillKineticsTest {
 
   @Test
   void lungeMarkerObservesOnlySuccessfulLunges() throws ReflectiveOperationException {
-    Method handler = SkillKinetics.class.getDeclaredMethod("on", EntityLungeEvent.class);
+    Method handler = Class.forName("art.arcane.adapt.content.skill.SkillKinetics$PaperCombatListener")
+        .getDeclaredMethod("on", EntityLungeEvent.class);
     EventHandler policy = handler.getAnnotation(EventHandler.class);
     assertThat(policy).isNotNull();
     assertThat(policy.priority()).isEqualTo(EventPriority.MONITOR);

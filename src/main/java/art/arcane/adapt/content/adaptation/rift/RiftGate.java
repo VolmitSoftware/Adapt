@@ -34,6 +34,7 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.content.event.AdaptAdaptationTeleportEvent;
 import art.arcane.adapt.content.item.BoundEyeOfEnder;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -364,7 +365,7 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
 
     CompletableFuture<Boolean> teleport;
     try {
-      teleport = p.teleportAsync(channel.destination().clone(), PlayerTeleportEvent.TeleportCause.PLUGIN);
+      teleport = PaperCompat.teleportAsync(p, channel.destination().clone(), PlayerTeleportEvent.TeleportCause.PLUGIN);
     } catch (RuntimeException error) {
       error.printStackTrace();
       Adapt.error("Rift Gate could not start a teleport for " + channel.playerId() + ".");

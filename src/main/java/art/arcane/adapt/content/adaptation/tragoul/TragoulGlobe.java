@@ -29,6 +29,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -126,7 +127,7 @@ public class TragoulGlobe extends SimpleAdaptation<TragoulGlobe.Config> {
 
     double range = getRange(level);
     Location playerLocation = p.getLocation();
-    Collection<LivingEntity> nearby = p.getWorld().getNearbyLivingEntities(playerLocation, range, range, range);
+    Collection<LivingEntity> nearby = PaperCompat.nearbyLivingEntities(playerLocation, range, range, range);
     List<LivingEntity> targets = collectTargets(p, originalTarget, nearby);
     int targetLimit = workBudget.reserveTargets(targets.size(), now);
     if (targetLimit <= 0) {

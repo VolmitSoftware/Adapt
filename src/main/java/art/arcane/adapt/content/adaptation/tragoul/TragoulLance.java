@@ -28,6 +28,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -128,7 +129,7 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
     Location source = victim.getLocation().clone();
     UUID tameOwnerId = null;
     if (victim instanceof Tameable tameable && tameable.isTamed()) {
-      tameOwnerId = tameable.getOwnerUniqueId();
+      tameOwnerId = PaperCompat.tamedOwnerId(tameable);
     }
     SourceSnapshot snapshot = new SourceSnapshot(
         source,
@@ -253,7 +254,7 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
     }
     boolean protectedFriendly = isProtectedFriendly(null, target);
     if (!protectedFriendly && target instanceof Tameable tameable && tameable.isTamed()) {
-      protectedFriendly = ownerId.equals(tameable.getOwnerUniqueId());
+      protectedFriendly = ownerId.equals(PaperCompat.tamedOwnerId(tameable));
     }
     return new TargetSnapshot(
         target,

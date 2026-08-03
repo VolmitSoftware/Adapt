@@ -24,6 +24,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -117,7 +118,7 @@ public class RangedFetchShot extends SimpleAdaptation<RangedFetchShot.Config> {
   private void scanImpactOwned(FetchBatch batch) {
     int limit = getCandidateLimit();
     List<Item> candidates = new ArrayList<>(limit);
-    for (Item item : batch.impact.getWorld().getNearbyEntitiesByType(
+    for (Item item : PaperCompat.nearbyEntitiesByType(
         Item.class, batch.impact, batch.radius, batch.radius, batch.radius)) {
       candidates.add(item);
       if (candidates.size() >= limit) {
@@ -226,7 +227,7 @@ public class RangedFetchShot extends SimpleAdaptation<RangedFetchShot.Config> {
         || item.hasMetadata("hologram")) {
       return null;
     }
-    if (!item.canPlayerPickup()) {
+    if (!PaperCompat.canPlayerPickup(item)) {
       return null;
     }
 

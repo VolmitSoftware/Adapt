@@ -31,6 +31,7 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.ViewerGlowCoordinator;
 import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -60,6 +61,7 @@ import org.bukkit.entity.Tameable;
 import org.bukkit.entity.Trident;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityRemoveEvent;
@@ -260,27 +262,38 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
     arrow.setMetadata(SEEKING_ARROW_META, new FixedMetadataValue(Adapt.instance, true));
   }
 
-  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-  public void on(EntityAddToWorldEvent e) {
-    if (!(e.getEntity() instanceof AbstractArrow arrow)) {
-      return;
+  @Override
+  protected List<Listener> createCompanionListeners() {
+    if (!PaperCompat.hasClass("com.destroystokyo.paper.event.entity.EntityAddToWorldEvent")) {
+      return List.of();
     }
 
-    PendingLaunch launch = removePendingLaunch(arrow.getUniqueId());
-    if (launch == null) {
-      return;
+    return List.of(new AddToWorldListener());
+  }
+
+  private final class AddToWorldListener implements Listener {
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void on(EntityAddToWorldEvent e) {
+      if (!(e.getEntity() instanceof AbstractArrow arrow)) {
+        return;
+      }
+
+      PendingLaunch launch = removePendingLaunch(arrow.getUniqueId());
+      if (launch == null) {
+        return;
+      }
+      admitInitialArrowOwned(
+          launch.owner(),
+          launch.ownerId(),
+          arrow,
+          launch.target(),
+          launch.level(),
+          launch.piercingPasses(),
+          launch.ricochetPasses(),
+          launch.speed(),
+          launch.lifecycleToken()
+      );
     }
-    admitInitialArrowOwned(
-        launch.owner(),
-        launch.ownerId(),
-        arrow,
-        launch.target(),
-        launch.level(),
-        launch.piercingPasses(),
-        launch.ricochetPasses(),
-        launch.speed(),
-        launch.lifecycleToken()
-    );
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

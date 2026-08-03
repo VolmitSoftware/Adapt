@@ -20,6 +20,7 @@ import org.bukkit.entity.ThrownPotion;
 import org.bukkit.entity.Trident;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.MetadataValue;
+import org.bukkit.persistence.PersistentDataAdapterContext;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.Vector;
@@ -39,6 +40,7 @@ import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.same;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 class RicochetRuntimeTest extends AdaptTestBase {
@@ -64,32 +66,35 @@ class RicochetRuntimeTest extends AdaptTestBase {
   }
 
   @Test
-  void emptyPersistentDataAvoidsSerializationAndRestoreWork() throws Exception {
+  void emptyPersistentDataAvoidsSnapshotAndRestoreWork() {
     PersistentDataContainer source = mock(PersistentDataContainer.class);
     PersistentDataContainer target = mock(PersistentDataContainer.class);
     when(source.isEmpty()).thenReturn(true);
 
-    byte[] snapshot = RicochetPersistentData.snapshot(source);
+    PersistentDataContainer snapshot = RicochetPersistentData.snapshot(source);
     RicochetPersistentData.restore(target, snapshot);
 
     assertThat(snapshot).isNull();
-    verify(source, never()).serializeToBytes();
-    verify(target, never()).readFromBytes(any(), anyBoolean());
+    verify(source, never()).copyTo(any(), anyBoolean());
+    verifyNoInteractions(target);
   }
 
   @Test
-  void persistentDataUsesPaperByteSerializationAcrossTheHandoff() throws Exception {
+  void persistentDataCopiesThroughDetachedContainerAcrossTheHandoff() {
     PersistentDataContainer source = mock(PersistentDataContainer.class);
+    PersistentDataContainer detached = mock(PersistentDataContainer.class);
     PersistentDataContainer target = mock(PersistentDataContainer.class);
-    byte[] encoded = new byte[]{4, 8, 15, 16, 23, 42};
+    PersistentDataAdapterContext context = mock(PersistentDataAdapterContext.class);
     when(source.isEmpty()).thenReturn(false);
-    when(source.serializeToBytes()).thenReturn(encoded);
+    when(source.getAdapterContext()).thenReturn(context);
+    when(context.newPersistentDataContainer()).thenReturn(detached);
 
-    byte[] snapshot = RicochetPersistentData.snapshot(source);
+    PersistentDataContainer snapshot = RicochetPersistentData.snapshot(source);
     RicochetPersistentData.restore(target, snapshot);
 
-    assertThat(snapshot).containsExactly(encoded);
-    verify(target).readFromBytes(snapshot, true);
+    assertThat(snapshot).isSameAs(detached);
+    verify(source).copyTo(detached, true);
+    verify(detached).copyTo(target, true);
   }
 
   @Test
@@ -102,7 +107,7 @@ class RicochetRuntimeTest extends AdaptTestBase {
     Location hit = new Location(world, 7D, 72D, -4D);
     Vector velocity = new Vector(1.5D, 0.25D, -0.5D);
     Vector reflected = new Vector(-1D, 0D, 0D);
-    byte[] persistentData = new byte[]{1, 2, 3};
+    PersistentDataContainer persistentData = mock(PersistentDataContainer.class);
     RicochetCommonState common = new RicochetCommonState(
         true,
         10,
@@ -146,14 +151,11 @@ class RicochetRuntimeTest extends AdaptTestBase {
     spawn.add(100D, 0D, 0D);
     velocity.zero();
     reflected.setX(1D);
-    persistentData[0] = 99;
-    byte[] firstRead = common.persistentData();
-    firstRead[1] = 99;
 
     assertThat(template.spawnLocation().getX()).isEqualTo(8D);
     assertThat(template.velocity()).isEqualTo(new Vector(1.5D, 0.25D, -0.5D));
     assertThat(template.transition().direction()).isEqualTo(new Vector(-1D, 0D, 0D));
-    assertThat(common.persistentData()).containsExactly(1, 2, 3);
+    assertThat(common.persistentData()).isSameAs(persistentData);
   }
 
   @Test

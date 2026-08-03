@@ -40,7 +40,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.ItemStack;
 
 public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
 
@@ -108,7 +107,7 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
     }
 
     BlockData b = target.getBlockData();
-    if (isLog(new ItemStack(b.getMaterial()))) {
+    if (isLog(b.getMaterial())) {
       e.setCancelled(true);
       Location chopLoc = target.getLocation().add(0.5D, 1.0D, 0.5D);
       timeline(chopLoc)
@@ -171,7 +170,7 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
     Block last = b;
     for (int i = b.getY(); i < power + b.getY(); i++) {
       Block bb = b.getWorld().getBlockAt(b.getX(), i, b.getZ());
-      if (isLog(new ItemStack(bb.getType()))) {
+      if (isLog(bb.getType())) {
         last = bb;
       } else {
         break;
@@ -182,7 +181,7 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
       return false;
     }
 
-    if (!isLog(new ItemStack(last.getType()))) {
+    if (!isLog(last.getType())) {
       return false;
     }
 

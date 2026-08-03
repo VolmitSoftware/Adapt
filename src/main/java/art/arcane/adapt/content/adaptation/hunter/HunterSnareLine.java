@@ -31,6 +31,7 @@ import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.recipe.MaterialChar;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -272,7 +273,7 @@ public class HunterSnareLine extends SimpleAdaptation<HunterSnareLine.Config> {
 
     int budget = Math.max(1, getConfig().maxTargetsPerScan);
     int scheduled = 0;
-    for (Monster monster : world.getNearbyEntitiesByType(Monster.class, snare.location, radius, radius, radius)) {
+    for (Monster monster : PaperCompat.nearbyEntitiesByType(Monster.class, snare.location, radius, radius, radius)) {
       if (scheduled >= budget || snare.charges.get() <= 0) {
         break;
       }

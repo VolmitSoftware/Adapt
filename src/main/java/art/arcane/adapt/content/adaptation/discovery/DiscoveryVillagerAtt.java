@@ -28,6 +28,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -44,6 +45,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
@@ -51,6 +53,7 @@ import org.bukkit.inventory.MerchantInventory;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
@@ -170,12 +173,23 @@ public class DiscoveryVillagerAtt extends SimpleAdaptation<DiscoveryVillagerAtt.
     playActivationFx(p, villager);
   }
 
-  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-  public void on(PlayerTradeEvent event) {
-    Player player = event.getPlayer();
-    TradeSession session = active.get(player.getUniqueId());
-    if (session != null && session.villagerId().equals(event.getMerchant().getUniqueId())) {
-      addStat(player, "discovery.villager-att.improved-trades", 1);
+  @Override
+  protected List<Listener> createCompanionListeners() {
+    if (!PaperCompat.hasClass("io.papermc.paper.event.player.PlayerTradeEvent")) {
+      return List.of();
+    }
+
+    return List.of(new TradeListener());
+  }
+
+  private final class TradeListener implements Listener {
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void on(PlayerTradeEvent event) {
+      Player player = event.getPlayer();
+      TradeSession session = active.get(player.getUniqueId());
+      if (session != null && session.villagerId().equals(event.getMerchant().getUniqueId())) {
+        addStat(player, "discovery.villager-att.improved-trades", 1);
+      }
     }
   }
 

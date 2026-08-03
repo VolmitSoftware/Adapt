@@ -39,6 +39,7 @@ import art.arcane.adapt.content.item.ChalkWandItem.Plane;
 import art.arcane.adapt.content.item.ChalkWandItem.Point;
 import art.arcane.adapt.content.item.ChalkWandItem.Tool;
 import art.arcane.adapt.content.item.ChalkWandItem.WandData;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -59,6 +60,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.CrafterCraftEvent;
@@ -288,13 +290,24 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
     withPlayerThread(player, () -> refreshHeldState(player));
   }
 
-  @EventHandler(priority = EventPriority.MONITOR)
-  public void on(PlayerInventorySlotChangeEvent event) {
-    Player player = event.getPlayer();
-    if (event.getSlot() != player.getInventory().getHeldItemSlot()) {
-      return;
+  @Override
+  protected List<Listener> createCompanionListeners() {
+    if (!PaperCompat.hasClass("io.papermc.paper.event.player.PlayerInventorySlotChangeEvent")) {
+      return List.of();
     }
-    refreshSoon(player);
+
+    return List.of(new SlotChangeListener());
+  }
+
+  private final class SlotChangeListener implements Listener {
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void on(PlayerInventorySlotChangeEvent event) {
+      Player player = event.getPlayer();
+      if (event.getSlot() != player.getInventory().getHeldItemSlot()) {
+        return;
+      }
+      refreshSoon(player);
+    }
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

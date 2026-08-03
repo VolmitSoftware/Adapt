@@ -26,6 +26,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -122,7 +123,7 @@ public class TamingFetch extends SimpleAdaptation<TamingFetch.Config> {
     double carryRate = getCarryRate(level);
     int maxThisTick = Math.min(wolfCount, getCarryPerTickLimit());
     int fetched = 0;
-    for (Item item : origin.getWorld().getNearbyEntitiesByType(Item.class, origin, range, range, range)) {
+    for (Item item : PaperCompat.nearbyEntitiesByType(Item.class, origin, range, range, range)) {
       if (fetched >= maxThisTick) {
         break;
       }
@@ -167,7 +168,7 @@ public class TamingFetch extends SimpleAdaptation<TamingFetch.Config> {
   private void beginFetchTeleport(Player owner, UUID ownerId, Item item, Location from, Location to) {
     CompletableFuture<Boolean> teleport;
     try {
-      teleport = item.teleportAsync(to);
+      teleport = PaperCompat.teleportAsync(item, to);
     } catch (RuntimeException error) {
       Adapt.error("Taming Fetch could not start item teleport for " + item.getUniqueId() + ".");
       error.printStackTrace();
@@ -237,7 +238,7 @@ public class TamingFetch extends SimpleAdaptation<TamingFetch.Config> {
     if (item.hasMetadata("NPC") || item.hasMetadata("shopitem") || item.hasMetadata("hologram")) {
       return false;
     }
-    return item.canPlayerPickup();
+    return PaperCompat.canPlayerPickup(item);
   }
 
   private boolean isOwnedBy(Tameable tameable, UUID ownerId) {

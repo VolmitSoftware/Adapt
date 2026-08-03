@@ -22,7 +22,7 @@ class SeaborneTridentMasteryTeleportTest {
   @Test
   void stuckTridentDefersVelocityEffectsAndNextTickUntilTeleportCompletion() throws Exception {
     String source = Files.readString(SOURCE);
-    int teleport = source.indexOf("trident.teleportAsync(freed)");
+    int teleport = source.indexOf("PaperCompat.teleportAsync(trident, freed)");
     int completion = source.indexOf("private void completeReleaseTeleport");
     int outcome = source.indexOf("successfulReleaseTeleport(success, failure)", completion);
     int resumed = source.indexOf("J.runEntity(trident, () -> recallTick", outcome);

@@ -25,6 +25,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -188,7 +189,7 @@ public class BlockingMirrorBlock extends SimpleAdaptation<BlockingMirrorBlock.Co
     );
     CompletableFuture<Boolean> teleport;
     try {
-      teleport = projectile.teleportAsync(destination);
+      teleport = PaperCompat.teleportAsync(projectile, destination);
     } catch (RuntimeException error) {
       Adapt.error("Mirror Block could not start a projectile teleport for "
           + defender.getUniqueId() + ".");

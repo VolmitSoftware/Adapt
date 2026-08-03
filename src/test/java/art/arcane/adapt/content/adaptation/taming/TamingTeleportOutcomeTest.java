@@ -24,7 +24,7 @@ class TamingTeleportOutcomeTest {
   @Test
   void beastRecallDefersFallResetCostsCooldownAndRewardsUntilCompletion() throws Exception {
     String source = Files.readString(BEAST_RECALL_SOURCE);
-    int teleport = source.indexOf("tameable.teleportAsync(safe)");
+    int teleport = source.indexOf("PaperCompat.teleportAsync(tameable, safe)");
     int completion = source.indexOf("private void completeRecallTeleport");
     int outcome = source.indexOf("successfulRecallTeleport(success, failure)", completion);
     int fallReset = source.indexOf("tameable.setFallDistance(0)", outcome);
@@ -53,7 +53,7 @@ class TamingTeleportOutcomeTest {
   @Test
   void fetchDefersDeliveryEffectsAndRewardsUntilCompletion() throws Exception {
     String source = Files.readString(FETCH_SOURCE);
-    int teleport = source.indexOf("item.teleportAsync(to)");
+    int teleport = source.indexOf("PaperCompat.teleportAsync(item, to)");
     int completion = source.indexOf("private void completeFetchTeleport");
     int outcome = source.indexOf("successfulFetchTeleport(success, failure)", completion);
     int finish = source.indexOf("private void finishFetchTeleportOwned", outcome);

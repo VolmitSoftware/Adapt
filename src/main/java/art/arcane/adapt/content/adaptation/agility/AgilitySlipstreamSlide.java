@@ -29,6 +29,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -224,7 +225,7 @@ public class AgilitySlipstreamSlide extends SimpleAdaptation<AgilitySlipstreamSl
     long until = System.currentTimeMillis() + (proneTicks * 50L);
     double reduction = slideFrictionReduction(frictionReduction);
     boolean frictionApplied = frictionAttribute != null && reduction > 0D;
-    ForcedPoseState state = new ForcedPoseState(p, until, p.getPose(), p.hasFixedPose(), frictionAttribute, frictionApplied);
+    ForcedPoseState state = new ForcedPoseState(p, until, p.getPose(), PaperCompat.hasFixedPose(p), frictionAttribute, frictionApplied);
     forcedPoses.put(p.getUniqueId(), state);
     if (lifecycleCleanupStarted.get()) {
       forcedPoses.remove(p.getUniqueId(), state);
@@ -232,7 +233,7 @@ public class AgilitySlipstreamSlide extends SimpleAdaptation<AgilitySlipstreamSl
     }
 
     try {
-      p.setPose(Pose.SWIMMING, true);
+      PaperCompat.setPose(p, Pose.SWIMMING, true);
       if (frictionApplied) {
         AdaptAttributeService.get().applyTimed(p, getName(), FRICTION_SLOT, frictionAttribute,
             -reduction, AttributeModifier.Operation.MULTIPLY_SCALAR_1, proneTicks + FRICTION_CLEANUP_GRACE_TICKS);
@@ -263,7 +264,7 @@ public class AgilitySlipstreamSlide extends SimpleAdaptation<AgilitySlipstreamSl
     }
 
     if (isProneActive(state.untilMillis, System.currentTimeMillis())) {
-      p.setPose(Pose.SWIMMING, true);
+      PaperCompat.setPose(p, Pose.SWIMMING, true);
       scheduleProneMaintenance(state);
       return;
     }
@@ -312,14 +313,14 @@ public class AgilitySlipstreamSlide extends SimpleAdaptation<AgilitySlipstreamSl
     if (state.frictionApplied) {
       AdaptAttributeService.get().remove(p, getName(), FRICTION_SLOT, state.frictionAttribute);
     }
-    if (p.getPose() != Pose.SWIMMING || !p.hasFixedPose()) {
+    if (p.getPose() != Pose.SWIMMING || !PaperCompat.hasFixedPose(p)) {
       return;
     }
     if (p.isSwimming()) {
-      p.setPose(Pose.SWIMMING, false);
+      PaperCompat.setPose(p, Pose.SWIMMING, false);
       return;
     }
-    p.setPose(state.previousPose, state.previousPoseFixed);
+    PaperCompat.setPose(p, state.previousPose, state.previousPoseFixed);
   }
 
   private boolean canRestoreDirectly(Player p) {

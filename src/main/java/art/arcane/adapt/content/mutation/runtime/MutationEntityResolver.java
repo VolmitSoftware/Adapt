@@ -1,5 +1,6 @@
 package art.arcane.adapt.content.mutation.runtime;
 
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -33,11 +34,11 @@ final class MutationEntityResolver {
         return player.getUniqueId();
       }
       if (shooter instanceof Tameable tameable) {
-        return tameable.getOwnerUniqueId();
+        return PaperCompat.tamedOwnerId(tameable);
       }
     }
     if (entity instanceof Tameable tameable) {
-      return tameable.getOwnerUniqueId();
+      return PaperCompat.tamedOwnerId(tameable);
     }
     return null;
   }
@@ -58,10 +59,10 @@ final class MutationEntityResolver {
       return false;
     }
     if (entity instanceof Tameable tameable) {
-      return ownerId.equals(tameable.getOwnerUniqueId());
+      return ownerId.equals(PaperCompat.tamedOwnerId(tameable));
     }
     if (entity instanceof Projectile projectile && projectile.getShooter() instanceof Tameable tameable) {
-      return ownerId.equals(tameable.getOwnerUniqueId());
+      return ownerId.equals(PaperCompat.tamedOwnerId(tameable));
     }
     return false;
   }

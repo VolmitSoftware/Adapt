@@ -3,6 +3,7 @@ package art.arcane.adapt.content.mutation.runtime;
 import art.arcane.adapt.api.mutation.MutationConfig;
 import art.arcane.adapt.api.mutation.MutationLimits;
 import art.arcane.adapt.api.mutation.MutationType;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.scheduling.J;
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -79,9 +80,9 @@ final class MutationEffectRuntime {
     if (!shouldInspectPotionEvent(enabled, !internalApplications.isEmpty(), !copyOwners.isEmpty())) {
       return;
     }
-    LivingEntity entity = event.getEntity();
+    LivingEntity entity = PaperCompat.livingEntity(event);
     PotionEffectType type = event.getModifiedType();
-    if (type == null) {
+    if (entity == null || type == null) {
       return;
     }
     MutationRuntimeStore.EffectKey effectKey = new MutationRuntimeStore.EffectKey(entity.getUniqueId(), type);
@@ -438,7 +439,7 @@ final class MutationEffectRuntime {
     if (recipient instanceof Player player) {
       return access.consented(context.consent(), player);
     }
-    return recipient instanceof Tameable tameable && context.rootId().equals(tameable.getOwnerUniqueId());
+    return recipient instanceof Tameable tameable && context.rootId().equals(PaperCompat.tamedOwnerId(tameable));
   }
 
   private void ensureRootConsentCheck(Player root, long generation, NetworkContext context) {
@@ -688,7 +689,8 @@ final class MutationEffectRuntime {
   }
 
   private boolean isSelfApplied(Player player, EntityPotionEffectEvent event) {
-    if (event.getSource() != null && event.getSource().getUniqueId().equals(player.getUniqueId())) {
+    Entity source = PaperCompat.potionSource(event);
+    if (source != null && source.getUniqueId().equals(player.getUniqueId())) {
       return true;
     }
     return switch (event.getCause()) {

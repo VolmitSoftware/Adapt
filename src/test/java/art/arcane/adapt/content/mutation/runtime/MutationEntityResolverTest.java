@@ -1,5 +1,6 @@
 package art.arcane.adapt.content.mutation.runtime;
 
+import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Tameable;
@@ -17,7 +18,9 @@ class MutationEntityResolverTest {
     MutationEntityResolver resolver = new MutationEntityResolver();
     UUID ownerId = UUID.randomUUID();
     Tameable pet = mock(Tameable.class);
-    when(pet.getOwnerUniqueId()).thenReturn(ownerId);
+    AnimalTamer owner = mock(AnimalTamer.class);
+    when(owner.getUniqueId()).thenReturn(ownerId);
+    when(pet.getOwner()).thenReturn(owner);
     when(pet.getUniqueId()).thenReturn(UUID.randomUUID());
 
     assertThat(resolver.playerSource(pet)).isNull();
@@ -32,7 +35,9 @@ class MutationEntityResolverTest {
     UUID ownerId = UUID.randomUUID();
     Tameable pet = mock(Tameable.class);
     Projectile projectile = mock(Projectile.class);
-    when(pet.getOwnerUniqueId()).thenReturn(ownerId);
+    AnimalTamer owner = mock(AnimalTamer.class);
+    when(owner.getUniqueId()).thenReturn(ownerId);
+    when(pet.getOwner()).thenReturn(owner);
     when(pet.getUniqueId()).thenReturn(UUID.randomUUID());
     when(projectile.getShooter()).thenReturn(pet);
 

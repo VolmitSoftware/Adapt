@@ -27,6 +27,7 @@ import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdvancementSpec;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -135,11 +136,11 @@ public class CraftingStations extends SimpleAdaptation<CraftingStations.Config> 
     materializeStation(handTip);
     switch (station) {
       case WORKBENCH -> p.openWorkbench(null, true);
-      case GRINDSTONE -> p.openGrindstone(null, true);
-      case ANVIL -> p.openAnvil(null, true);
-      case STONECUTTER -> p.openStonecutter(null, true);
-      case CARTOGRAPHY -> p.openCartographyTable(null, true);
-      case LOOM -> p.openLoom(null, true);
+      case GRINDSTONE -> PaperCompat.openGrindstone(p);
+      case ANVIL -> PaperCompat.openAnvil(p);
+      case STONECUTTER -> PaperCompat.openStonecutter(p);
+      case CARTOGRAPHY -> PaperCompat.openCartographyTable(p);
+      case LOOM -> PaperCompat.openLoom(p);
       default -> {
       }
     }

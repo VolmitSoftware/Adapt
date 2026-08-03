@@ -26,7 +26,6 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionType;
 import org.bukkit.util.Vector;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -208,13 +207,20 @@ final class RicochetPersistentData {
   private RicochetPersistentData() {
   }
 
-  static byte[] snapshot(PersistentDataContainer container) throws IOException {
-    return container.isEmpty() ? null : container.serializeToBytes();
+  // Detached-container copy instead of Paper's serializeToBytes/readFromBytes.
+  static PersistentDataContainer snapshot(PersistentDataContainer container) {
+    if (container.isEmpty()) {
+      return null;
+    }
+
+    PersistentDataContainer copy = container.getAdapterContext().newPersistentDataContainer();
+    container.copyTo(copy, true);
+    return copy;
   }
 
-  static void restore(PersistentDataContainer container, byte[] data) throws IOException {
+  static void restore(PersistentDataContainer container, PersistentDataContainer data) {
     if (data != null) {
-      container.readFromBytes(data, true);
+      data.copyTo(container, true);
     }
   }
 }
@@ -240,16 +246,10 @@ record RicochetCommonState(
     boolean visibleByDefault,
     Set<String> scoreboardTags,
     int heavyDrawLevel,
-    byte[] persistentData
+    PersistentDataContainer persistentData
 ) {
   RicochetCommonState {
     scoreboardTags = Set.copyOf(scoreboardTags);
-    persistentData = persistentData == null ? null : persistentData.clone();
-  }
-
-  @Override
-  public byte[] persistentData() {
-    return persistentData == null ? null : persistentData.clone();
   }
 }
 
@@ -267,13 +267,14 @@ record RicochetArrowState(
     Sound hitSound
 ) {
   RicochetArrowState {
-    item = item.clone();
+    // item is null on runtimes without AbstractArrow#getItemStack.
+    item = item == null ? null : item.clone();
     weapon = weapon == null ? null : weapon.clone();
   }
 
   @Override
   public ItemStack item() {
-    return item.clone();
+    return item == null ? null : item.clone();
   }
 
   @Override

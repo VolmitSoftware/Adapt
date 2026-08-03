@@ -25,6 +25,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
@@ -195,7 +196,7 @@ public class SeaborneTridentMastery extends SimpleAdaptation<SeaborneTridentMast
                                     Location freed) {
     CompletableFuture<Boolean> teleport;
     try {
-      teleport = trident.teleportAsync(freed);
+      teleport = PaperCompat.teleportAsync(trident, freed);
     } catch (RuntimeException error) {
       Adapt.error("Trident Mastery could not start release teleport for " + tridentId + ".");
       error.printStackTrace();

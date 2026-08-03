@@ -50,8 +50,9 @@ class AgilityFeatherfootRuntimeTest {
   }
 
   @Test
-  void berryBushInteractionIsInterceptedBeforeVanillaAppliesItsEffects() throws NoSuchMethodException {
-    Method handler = AgilityFeatherfoot.class.getDeclaredMethod("on", EntityInsideBlockEvent.class);
+  void berryBushInteractionIsInterceptedBeforeVanillaAppliesItsEffects() throws ReflectiveOperationException {
+    Method handler = Class.forName("art.arcane.adapt.content.adaptation.agility.AgilityFeatherfoot$InsideBlockListener")
+        .getDeclaredMethod("on", EntityInsideBlockEvent.class);
     EventHandler eventHandler = handler.getAnnotation(EventHandler.class);
 
     assertThat(eventHandler).isNotNull();

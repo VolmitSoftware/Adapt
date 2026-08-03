@@ -28,6 +28,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
@@ -42,6 +43,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerInputEvent;
@@ -49,6 +51,7 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleSprintEvent;
 
+import java.util.List;
 import java.util.UUID;
 
 public class AgilityFeatherfoot extends SimpleAdaptation<AgilityFeatherfoot.Config> {
@@ -107,29 +110,40 @@ public class AgilityFeatherfoot extends SimpleAdaptation<AgilityFeatherfoot.Conf
     recordSurfaceProtection(p, block);
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-  public void on(EntityInsideBlockEvent e) {
-    if (!(e.getEntity() instanceof Player p)) {
-      return;
+  @Override
+  protected List<Listener> createCompanionListeners() {
+    if (!PaperCompat.hasClass("io.papermc.paper.event.entity.EntityInsideBlockEvent")) {
+      return List.of();
     }
 
-    Block block = e.getBlock();
-    Material type = block.getType();
-    boolean pressurePlate = Tag.PRESSURE_PLATES.isTagged(type);
-    if (type != Material.SWEET_BERRY_BUSH && type != Material.POWDER_SNOW && !pressurePlate) {
-      return;
-    }
+    return List.of(new InsideBlockListener());
+  }
 
-    int level = getActiveLevel(p);
-    if (!ignoresSurface(type, pressurePlate, hasSprintIntent(p), level, getConfig())) {
-      return;
-    }
+  private final class InsideBlockListener implements Listener {
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void on(EntityInsideBlockEvent e) {
+      if (!(e.getEntity() instanceof Player p)) {
+        return;
+      }
 
-    e.setCancelled(true);
-    if (type == Material.POWDER_SNOW) {
-      p.setFreezeTicks(0);
+      Block block = e.getBlock();
+      Material type = block.getType();
+      boolean pressurePlate = Tag.PRESSURE_PLATES.isTagged(type);
+      if (type != Material.SWEET_BERRY_BUSH && type != Material.POWDER_SNOW && !pressurePlate) {
+        return;
+      }
+
+      int level = getActiveLevel(p);
+      if (!ignoresSurface(type, pressurePlate, hasSprintIntent(p), level, getConfig())) {
+        return;
+      }
+
+      e.setCancelled(true);
+      if (type == Material.POWDER_SNOW) {
+        p.setFreezeTicks(0);
+      }
+      recordSurfaceProtection(p, block);
     }
-    recordSurfaceProtection(p, block);
   }
 
   @EventHandler(priority = EventPriority.MONITOR)

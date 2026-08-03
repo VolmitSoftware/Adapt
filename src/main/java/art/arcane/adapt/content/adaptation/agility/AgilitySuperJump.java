@@ -29,6 +29,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Attributes;
@@ -43,12 +44,15 @@ import org.bukkit.Sound;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 
+import java.util.List;
 import java.util.UUID;
 
 public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> {
@@ -160,13 +164,29 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
     }
   }
 
-  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-  public void on(PlayerJumpEvent e) {
-    Player p = e.getPlayer();
-    if (!p.isSneaking()) {
-      return;
+  @Override
+  protected List<Listener> createCompanionListeners() {
+    if (!PaperCompat.hasClass("com.destroystokyo.paper.event.player.PlayerJumpEvent")) {
+      return List.of();
     }
 
+    return List.of(new JumpListener());
+  }
+
+  private final class JumpListener implements Listener {
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void on(PlayerJumpEvent e) {
+      Player p = e.getPlayer();
+      if (!hasAdaptation(p) || !p.isSneaking()) {
+        return;
+      }
+
+      handleJump(p, e);
+    }
+  }
+
+  // Cancellable keeps the outer signature free of Paper event types.
+  private void handleJump(Player p, Cancellable e) {
     withPlayerThread(p, e, () -> {
       if (!hasActiveAdaptation(p) || !canUse(getPlayer(p))) {
         AdaptAttributeService.get().remove(p, getName(), SLOT_JUMP, Attributes.JUMP_STRENGTH);

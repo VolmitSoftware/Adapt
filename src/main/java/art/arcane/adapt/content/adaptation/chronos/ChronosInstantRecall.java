@@ -30,6 +30,7 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPresets;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.content.item.ChronoTimeBombItem;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.input.DoubleJumpGesture;
 import art.arcane.adapt.util.common.scheduling.J;
@@ -1127,7 +1128,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
 
     CompletableFuture<Boolean> teleport;
     try {
-      teleport = p.teleportAsync(destination, PlayerTeleportEvent.TeleportCause.PLUGIN);
+      teleport = PaperCompat.teleportAsync(p, destination, PlayerTeleportEvent.TeleportCause.PLUGIN);
     } catch (RuntimeException error) {
       Adapt.error("Instant Recall could not start its final teleport for "
           + recall.playerId() + ".");

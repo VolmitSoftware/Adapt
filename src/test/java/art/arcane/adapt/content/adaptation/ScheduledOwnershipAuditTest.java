@@ -56,7 +56,7 @@ class ScheduledOwnershipAuditTest {
     assertThat(anchorHop).isGreaterThan(snapshot);
     assertThat(redirect).isGreaterThanOrEqualTo(0);
     assertThat(redirectBody)
-        .contains("mob.hasLineOfSight(ownerEyeLocation)", "isProtectedFriendlyToOwner(ownerId, mob)")
+        .contains("PaperCompat.hasLineOfSight(mob, ownerEyeLocation)", "isProtectedFriendlyToOwner(ownerId, mob)")
         .doesNotContain("mob.hasLineOfSight(owner)", "isProtectedFriendly(owner, mob)");
   }
 }

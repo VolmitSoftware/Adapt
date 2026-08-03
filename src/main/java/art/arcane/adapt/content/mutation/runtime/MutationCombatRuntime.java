@@ -11,6 +11,7 @@ import art.arcane.adapt.api.mutation.MutationType;
 import art.arcane.adapt.api.mutation.PlayerMutationData;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.MutationMessages;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.scheduling.J;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -1710,7 +1711,7 @@ final class MutationCombatRuntime {
     if (!(entity instanceof Monster) && !(entity instanceof Slime)) {
       return false;
     }
-    if (entity instanceof Tameable tameable && tameable.getOwnerUniqueId() != null) {
+    if (entity instanceof Tameable tameable && PaperCompat.tamedOwnerId(tameable) != null) {
       return false;
     }
     return spawn != null && spawn.natural();
@@ -1799,7 +1800,7 @@ final class MutationCombatRuntime {
         || !family.equals(familyOf(mob))) {
       return;
     }
-    if (mob instanceof Tameable tameable && tameable.getOwnerUniqueId() != null) {
+    if (mob instanceof Tameable tameable && PaperCompat.tamedOwnerId(tameable) != null) {
       return;
     }
     LivingEntity currentTarget = mob.getTarget();

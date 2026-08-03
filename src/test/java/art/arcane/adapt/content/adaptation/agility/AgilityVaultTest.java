@@ -132,7 +132,8 @@ class AgilityVaultTest {
   @Test
   void movementPreArmAndJumpCorrectionObserveFinalCancellationState() throws ReflectiveOperationException {
     Method movementHandler = AgilityVault.class.getDeclaredMethod("on", PlayerMoveEvent.class);
-    Method jumpHandler = AgilityVault.class.getDeclaredMethod("on", PlayerJumpEvent.class);
+    Method jumpHandler = Class.forName("art.arcane.adapt.content.adaptation.agility.AgilityVault$JumpListener")
+        .getDeclaredMethod("on", PlayerJumpEvent.class);
     EventHandler movementPolicy = movementHandler.getAnnotation(EventHandler.class);
     EventHandler jumpPolicy = jumpHandler.getAnnotation(EventHandler.class);
 

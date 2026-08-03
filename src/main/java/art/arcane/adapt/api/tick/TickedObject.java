@@ -29,11 +29,13 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -54,6 +56,7 @@ public abstract class TickedObject implements Ticked, Listener {
   private final AtomicBoolean pendingSyncTick;
   private final AtomicBoolean active;
   private final AtomicBoolean retired;
+  private final List<Listener> companionListeners = new CopyOnWriteArrayList<>();
   private final long start;
   private final String group;
   private final String id;
@@ -152,8 +155,16 @@ public abstract class TickedObject implements Ticked, Listener {
         Adapt.instance.registerListener(this);
         listenerAdded = true;
       }
+      for (Listener companion : createCompanionListeners()) {
+        Adapt.instance.registerListener(companion);
+        companionListeners.add(companion);
+      }
     } catch (RuntimeException | Error error) {
       active.set(false);
+      for (Listener companion : companionListeners) {
+        Adapt.instance.unregisterListener(companion);
+      }
+      companionListeners.clear();
       if (listenerAdded) {
         Adapt.instance.unregisterListener(this);
       }
@@ -162,6 +173,15 @@ public abstract class TickedObject implements Ticked, Listener {
       }
       throw error;
     }
+  }
+
+  /**
+   * Probe-gated listeners for Paper-only event handlers. Keeping those handlers
+   * out of this class lets getDeclaredMethods() succeed on Spigot so vanilla
+   * handlers still register.
+   */
+  protected List<Listener> createCompanionListeners() {
+    return List.of();
   }
 
   @Override
@@ -176,6 +196,10 @@ public abstract class TickedObject implements Ticked, Listener {
     if (listenerRegistered) {
       Adapt.instance.unregisterListener(this);
     }
+    for (Listener companion : companionListeners) {
+      Adapt.instance.unregisterListener(companion);
+    }
+    companionListeners.clear();
     if (this instanceof Adaptation<?> adaptation) {
       AdaptAttributeService.onAdaptationUnregistered(adaptation.getName());
     }
@@ -309,7 +333,11 @@ public abstract class TickedObject implements Ticked, Listener {
   }
 
   protected boolean shouldRegisterForTicking() {
-    return TICK_REGISTRATION.computeIfAbsent(getClass(), TickedObject::hasCustomTick);
+    try {
+      return TICK_REGISTRATION.computeIfAbsent(getClass(), TickedObject::hasCustomTick);
+    } catch (Throwable e) {
+      return true;
+    }
   }
 
   public final boolean isRuntimeRegistered() {
@@ -319,7 +347,11 @@ public abstract class TickedObject implements Ticked, Listener {
   private static boolean hasCustomTick(Class<?> type) {
     try {
       return type.getMethod("onTick").getDeclaringClass() != TickedObject.class;
-    } catch (ReflectiveOperationException | SecurityException error) {
+    } catch (ReflectiveOperationException | SecurityException | LinkageError | TypeNotPresentException error) {
+      // getMethod resolves every public method signature; a platform-missing
+      // event class (Paper-only handler on Spigot) throws NoClassDefFoundError
+      // here. Assume a custom tick so instantiation survives and ticking still
+      // runs.
       return true;
     }
   }

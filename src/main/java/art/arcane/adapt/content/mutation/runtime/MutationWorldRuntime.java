@@ -9,6 +9,7 @@ import art.arcane.adapt.api.mutation.MutationEventClaims;
 import art.arcane.adapt.api.mutation.MutationLimits;
 import art.arcane.adapt.api.mutation.MutationType;
 import art.arcane.adapt.api.mutation.PlayerMutationData;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.volmlib.util.scheduling.FoliaScheduler;
 import com.jeff_media.customblockdata.CustomBlockData;
@@ -923,7 +924,7 @@ final class MutationWorldRuntime {
     }
     if (target instanceof Animals animal
         && animal instanceof Tameable tameable
-        && capability.ownerId().equals(tameable.getOwnerUniqueId())
+        && capability.ownerId().equals(PaperCompat.tamedOwnerId(tameable))
         && budget.reserveAnimal(access.config().getGravebloom().getMaximumAnimals())) {
       authorizeTargetSupport(animal, bloom, capability, GravebloomTargetKind.ANIMAL);
       return;
@@ -997,7 +998,7 @@ final class MutationWorldRuntime {
     if (request.kind() == GravebloomTargetKind.ANIMAL
         && target instanceof Animals animal
         && animal instanceof Tameable tameable
-        && request.ownerId().equals(tameable.getOwnerUniqueId())) {
+        && request.ownerId().equals(PaperCompat.tamedOwnerId(tameable))) {
       healAnimal(animal);
       return;
     }

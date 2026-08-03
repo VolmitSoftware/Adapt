@@ -29,6 +29,7 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.PlayerSkillLine;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -130,7 +131,7 @@ public class ArchitectStonecutterSavant extends SimpleAdaptation<ArchitectStonec
     }
 
     withPlayerThread(p, () -> {
-      p.openStonecutter(null, true);
+      PaperCompat.openStonecutter(p);
       fx(p.getLocation(), FxPriority.GAMEPLAY)
           .helix(Particles.ENCHANTMENT_TABLE, 0.5D, 1.6D, 12, 0)
           .chord(Sound.BLOCK_GRINDSTONE_USE, 0.8f, 1.4f, Sound.BLOCK_STONE_PLACE, 0.4f, 0.8f);

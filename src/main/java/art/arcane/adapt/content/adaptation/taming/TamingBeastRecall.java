@@ -28,6 +28,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -154,7 +155,7 @@ public class TamingBeastRecall extends SimpleAdaptation<TamingBeastRecall.Config
   private List<Tameable> collectCandidates(Location origin, double radius) {
     int limit = getCandidateLimit();
     List<Tameable> candidates = new ArrayList<>(limit);
-    for (Tameable tameable : origin.getWorld().getNearbyEntitiesByType(Tameable.class, origin, radius, radius, radius)) {
+    for (Tameable tameable : PaperCompat.nearbyEntitiesByType(Tameable.class, origin, radius, radius, radius)) {
       candidates.add(tameable);
       if (candidates.size() >= limit) {
         break;
@@ -233,7 +234,7 @@ public class TamingBeastRecall extends SimpleAdaptation<TamingBeastRecall.Config
   private void beginRecallTeleport(RecallScan scan, Tameable tameable, Location from, Location safe) {
     CompletableFuture<Boolean> teleport;
     try {
-      teleport = tameable.teleportAsync(safe);
+      teleport = PaperCompat.teleportAsync(tameable, safe);
     } catch (RuntimeException error) {
       Adapt.error("Beast Recall could not start teleport for " + tameable.getUniqueId() + ".");
       error.printStackTrace();

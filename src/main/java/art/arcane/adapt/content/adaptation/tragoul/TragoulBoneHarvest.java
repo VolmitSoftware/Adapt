@@ -28,6 +28,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -189,7 +190,7 @@ public class TragoulBoneHarvest extends SimpleAdaptation<TragoulBoneHarvest.Conf
     Item dropped = e.getEntity().getWorld().dropItemNaturally(e.getEntity().getLocation().add(0, 0.35, 0), item);
     dropped.setPickupDelay(10);
     dropped.setOwner(owner.getUniqueId());
-    dropped.setCanMobPickup(false);
+    PaperCompat.setCanMobPickup(dropped, false);
     dropped.getPersistentDataContainer().set(GLOBE_KEY, PersistentDataType.BYTE, (byte) 1);
     if (blood) {
       bloodGlobes.add(dropped.getUniqueId());

@@ -35,6 +35,7 @@ import art.arcane.adapt.content.skill.kinetics.KineticsAnvils;
 import art.arcane.adapt.content.skill.kinetics.KineticsKnockback;
 import art.arcane.adapt.content.skill.kinetics.KineticsLevitation;
 import art.arcane.adapt.content.skill.kinetics.KineticsMotion;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.volmlib.util.math.M;
@@ -55,6 +56,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
@@ -190,16 +192,79 @@ public class SkillKinetics extends SimpleSkill<SkillKinetics.Config> {
         && expectedFallingBlockId.equals(actualFallingBlockId);
   }
 
-  @EventHandler(priority = EventPriority.MONITOR)
-  public void on(EntityAttemptSmashAttackEvent e) {
-    if (!isSuccessfulSmash(e.getResult(), e.getOriginalResult()) || !(e.getEntity() instanceof Player p)) {
-      return;
+  @Override
+  protected List<Listener> createCompanionListeners() {
+    if (!PaperCompat.hasClass("io.papermc.paper.event.entity.EntityAttemptSmashAttackEvent")
+        || !PaperCompat.hasClass("io.papermc.paper.event.entity.EntityKnockbackEvent")
+        || !PaperCompat.hasClass("io.papermc.paper.event.entity.EntityLungeEvent")
+        || !PaperCompat.hasClass("io.papermc.paper.event.entity.EntityPushedByEntityAttackEvent")) {
+      return List.of();
     }
-    LivingEntity target = e.getTarget();
-    shouldReturnForPlayer(p, () -> {
-      addStat(p, "kinetics.smash.hits", 1);
-      payCombatXp(p, target.getLocation(), getConfig().smashHitXp, "kinetics:smash");
-    });
+
+    return List.of(new PaperCombatListener());
+  }
+
+  private final class PaperCombatListener implements Listener {
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void on(EntityAttemptSmashAttackEvent e) {
+      if (!isSuccessfulSmash(e.getResult(), e.getOriginalResult()) || !(e.getEntity() instanceof Player p)) {
+        return;
+      }
+      LivingEntity target = e.getTarget();
+      shouldReturnForPlayer(p, () -> {
+        addStat(p, "kinetics.smash.hits", 1);
+        payCombatXp(p, target.getLocation(), getConfig().smashHitXp, "kinetics:smash");
+      });
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void on(EntityLungeEvent e) {
+      if (e.getEntity() instanceof Player p) {
+        lungeStamps.put(p.getUniqueId(), M.ms());
+      }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void on(EntityPushedByEntityAttackEvent e) {
+      if (!(e.getPushedBy() instanceof Player p)) {
+        return;
+      }
+      shouldReturnForPlayer(p, e, () -> {
+        double magnitude = e.getKnockback().length();
+        if (!KineticsKnockback.qualifies(magnitude, getConfig().kbMinMagnitude)
+            || !kbCooldowns.isReady(p.getUniqueId(), getConfig().kbCooldownMs)) {
+          return;
+        }
+        kbCooldowns.mark(p.getUniqueId());
+        boolean selfCaused = e.getPushedBy() == e.getEntity();
+        double amount = KineticsKnockback.applySelfFactor(
+            KineticsKnockback.dealtXp(getConfig().kbDealtBaseXp, magnitude, getConfig().kbXpCap),
+            selfCaused,
+            getConfig().selfKnockbackFactor);
+        if (amount > 0) {
+          xp(p, e.getEntity().getLocation(), amount, "kinetics:knockback-dealt");
+        }
+      });
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void on(EntityKnockbackEvent e) {
+      if (!(e.getEntity() instanceof Player p)) {
+        return;
+      }
+      shouldReturnForPlayer(p, e, () -> {
+        double magnitude = e.getKnockback().length();
+        if (!KineticsKnockback.qualifies(magnitude, getConfig().kbMinMagnitude)
+            || !kbCooldowns.isReady(p.getUniqueId(), getConfig().kbCooldownMs)) {
+          return;
+        }
+        kbCooldowns.mark(p.getUniqueId());
+        double amount = KineticsKnockback.takenXp(getConfig().kbTakenBaseXp, magnitude, getConfig().kbXpCap);
+        if (amount > 0) {
+          xp(p, p.getLocation(), amount, "kinetics:knockback-taken");
+        }
+      });
+    }
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -212,55 +277,6 @@ public class SkillKinetics extends SimpleSkill<SkillKinetics.Config> {
       return;
     }
     shouldReturnForPlayer(p, e, () -> handleMeleeHit(p, e));
-  }
-
-  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-  public void on(EntityLungeEvent e) {
-    if (e.getEntity() instanceof Player p) {
-      lungeStamps.put(p.getUniqueId(), M.ms());
-    }
-  }
-
-  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-  public void on(EntityPushedByEntityAttackEvent e) {
-    if (!(e.getPushedBy() instanceof Player p)) {
-      return;
-    }
-    shouldReturnForPlayer(p, e, () -> {
-      double magnitude = e.getKnockback().length();
-      if (!KineticsKnockback.qualifies(magnitude, getConfig().kbMinMagnitude)
-          || !kbCooldowns.isReady(p.getUniqueId(), getConfig().kbCooldownMs)) {
-        return;
-      }
-      kbCooldowns.mark(p.getUniqueId());
-      boolean selfCaused = e.getPushedBy() == e.getEntity();
-      double amount = KineticsKnockback.applySelfFactor(
-          KineticsKnockback.dealtXp(getConfig().kbDealtBaseXp, magnitude, getConfig().kbXpCap),
-          selfCaused,
-          getConfig().selfKnockbackFactor);
-      if (amount > 0) {
-        xp(p, e.getEntity().getLocation(), amount, "kinetics:knockback-dealt");
-      }
-    });
-  }
-
-  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-  public void on(EntityKnockbackEvent e) {
-    if (!(e.getEntity() instanceof Player p)) {
-      return;
-    }
-    shouldReturnForPlayer(p, e, () -> {
-      double magnitude = e.getKnockback().length();
-      if (!KineticsKnockback.qualifies(magnitude, getConfig().kbMinMagnitude)
-          || !kbCooldowns.isReady(p.getUniqueId(), getConfig().kbCooldownMs)) {
-        return;
-      }
-      kbCooldowns.mark(p.getUniqueId());
-      double amount = KineticsKnockback.takenXp(getConfig().kbTakenBaseXp, magnitude, getConfig().kbXpCap);
-      if (amount > 0) {
-        xp(p, p.getLocation(), amount, "kinetics:knockback-taken");
-      }
-    });
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
@@ -299,7 +315,7 @@ public class SkillKinetics extends SimpleSkill<SkillKinetics.Config> {
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(EntityPotionEffectEvent e) {
-    if (!(e.getEntity() instanceof Player p)
+    if (!(PaperCompat.livingEntity(e) instanceof Player p)
         || !PotionEffectType.LEVITATION.equals(e.getModifiedType())
         || (e.getAction() != EntityPotionEffectEvent.Action.ADDED && e.getAction() != EntityPotionEffectEvent.Action.CHANGED)) {
       return;
@@ -588,7 +604,7 @@ public class SkillKinetics extends SimpleSkill<SkillKinetics.Config> {
 
   private List<UUID> captureShareRecipients(LivingEntity victim, UUID ownerId) {
     List<UUID> recipients = new ArrayList<>(ANVIL_SHARE_CAP);
-    for (Player nearby : victim.getLocation().getNearbyPlayers(getConfig().anvilShareRadius)) {
+    for (Player nearby : PaperCompat.nearbyPlayers(victim.getLocation(), getConfig().anvilShareRadius)) {
       UUID id = nearby.getUniqueId();
       if (id.equals(ownerId) || id.equals(victim.getUniqueId())) {
         continue;

@@ -251,25 +251,23 @@ public interface AdaptComponent {
   }
 
   default boolean isLog(ItemStack it) {
-    if (isItem(it)) {
-      Material type = it.getType();
-      return switch (type) {
-        case MUSHROOM_STEM, BROWN_MUSHROOM_BLOCK, RED_MUSHROOM_BLOCK,
-             MANGROVE_ROOTS, MUDDY_MANGROVE_ROOTS -> true;
-        default -> type.name().endsWith("_LOG") || type.name().endsWith("_WOOD");
-      };
-    }
+    return isItem(it) && isLog(it.getType());
+  }
 
-    return false;
+  default boolean isLog(Material type) {
+    return switch (type) {
+      case MUSHROOM_STEM, BROWN_MUSHROOM_BLOCK, RED_MUSHROOM_BLOCK,
+           MANGROVE_ROOTS, MUDDY_MANGROVE_ROOTS -> true;
+      default -> type.name().endsWith("_LOG") || type.name().endsWith("_WOOD");
+    };
   }
 
   default boolean isLeaves(ItemStack it) {
-    if (isItem(it)) {
-      Material type = it.getType();
-      return type == MANGROVE_ROOTS || type == MUDDY_MANGROVE_ROOTS || type.name().endsWith("_LEAVES");
-    }
+    return isItem(it) && isLeaves(it.getType());
+  }
 
-    return false;
+  default boolean isLeaves(Material type) {
+    return type == MANGROVE_ROOTS || type == MUDDY_MANGROVE_ROOTS || type.name().endsWith("_LEAVES");
   }
 
   default boolean isBoots(ItemStack it) {

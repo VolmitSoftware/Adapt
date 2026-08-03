@@ -1,5 +1,6 @@
 package art.arcane.adapt.api.version;
 
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.volmlib.util.collection.KList;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.AttributeInstance;
@@ -215,7 +216,7 @@ public record RuntimeAttribute(
 
   @Override
   public void addTransientModifier(UUID uuid, NamespacedKey key, double amount, AttributeModifier.Operation operation) {
-    instance.addTransientModifier(createModifier(uuid, key, amount, operation));
+    PaperCompat.addTransientModifier(instance, createModifier(uuid, key, amount, operation));
   }
 
   @Override

@@ -33,6 +33,7 @@ import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.recipe.MaterialChar;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.PlayerSkillLine;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -433,7 +434,7 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
 
     CompletableFuture<Boolean> teleport;
     try {
-      teleport = p.teleportAsync(l, PlayerTeleportEvent.TeleportCause.PLUGIN);
+      teleport = PaperCompat.teleportAsync(p, l, PlayerTeleportEvent.TeleportCause.PLUGIN);
     } catch (RuntimeException error) {
       Adapt.error("Architect Elevator could not start a teleport for " + p.getUniqueId() + ".");
       error.printStackTrace();

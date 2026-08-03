@@ -23,7 +23,7 @@ class NetherStriderBondTeleportTest {
   @Test
   void rescueUsesAsyncTeleportAndCommitsBackOnPlayerOwnership() throws Exception {
     String source = Files.readString(SOURCE);
-    int teleport = source.indexOf("p.teleportAsync(safe, PlayerTeleportEvent.TeleportCause.PLUGIN)");
+    int teleport = source.indexOf("PaperCompat.teleportAsync(p, safe, PlayerTeleportEvent.TeleportCause.PLUGIN)");
     int completion = source.indexOf("private void finishRescueTeleport");
     int ownership = source.indexOf("J.runEntity(p, () -> {", completion);
     int outcome = source.indexOf("shouldCommitRescue(success, failure, p.isOnline())", ownership);

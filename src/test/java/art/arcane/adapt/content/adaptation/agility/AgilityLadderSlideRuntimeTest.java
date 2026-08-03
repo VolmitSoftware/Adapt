@@ -219,7 +219,7 @@ class AgilityLadderSlideRuntimeTest {
     assertThat(ensureClientState(adaptation, session, Material.LADDER, true)).isTrue();
     assertThat(adaptation.clientStates).containsExactly(Material.LADDER);
 
-    adaptation.on(mock(ServerResourcesReloadedEvent.class));
+    adaptation.invalidateClientTagPackets();
     assertThat(ensureClientState(adaptation, session, Material.LADDER, true)).isTrue();
     assertThat(adaptation.clientStates).containsExactly(Material.LADDER, Material.LADDER);
 

@@ -26,6 +26,7 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Attributes;
@@ -120,7 +121,7 @@ public class SeaborneFishWhisperer extends SimpleAdaptation<SeaborneFishWhispere
     Location center = player.getLocation();
     Location target = center.clone().add(0D, 0.4D, 0D);
     int scheduled = 0;
-    for (Fish fish : player.getWorld().getNearbyEntitiesByType(Fish.class, center, range, range, range)) {
+    for (Fish fish : PaperCompat.nearbyEntitiesByType(Fish.class, center, range, range, range)) {
       if (J.runEntity(fish, () -> nudgeAndCreditFish(player, fish, target, level))) {
         scheduled++;
       }
@@ -190,7 +191,7 @@ public class SeaborneFishWhisperer extends SimpleAdaptation<SeaborneFishWhispere
     double range = getAssistRange(level);
     Location victimLocation = victim.getLocation().clone();
     int assisted = 0;
-    for (Mob entity : p.getWorld().getNearbyEntitiesByType(
+    for (Mob entity : PaperCompat.nearbyEntitiesByType(
         Mob.class, victimLocation, range, range, range)) {
       if (entity == victim) {
         continue;

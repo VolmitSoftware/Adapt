@@ -27,6 +27,7 @@ import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.PlayerSkillLine;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
@@ -46,6 +47,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -53,6 +55,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.util.Vector;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Predicate;
@@ -142,13 +145,28 @@ public class AgilityVault extends SimpleAdaptation<AgilityVault.Config> {
     withPlayerThread(p, e, () -> refreshPreArm(p, target, direction));
   }
 
-  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-  public void on(PlayerJumpEvent e) {
-    Player p = e.getPlayer();
-    Location origin = e.getFrom();
-    Vector movement = e.getTo().toVector().subtract(origin.toVector());
-    Vector direction = horizontalDirection(movement, origin.getDirection());
-    withPlayerThread(p, e, () -> attemptVault(p, origin, direction));
+  @Override
+  protected List<Listener> createCompanionListeners() {
+    if (!PaperCompat.hasClass("com.destroystokyo.paper.event.player.PlayerJumpEvent")) {
+      return List.of();
+    }
+
+    return List.of(new JumpListener());
+  }
+
+  private final class JumpListener implements Listener {
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void on(PlayerJumpEvent e) {
+      Player p = e.getPlayer();
+      if (!hasAdaptation(p)) {
+        return;
+      }
+
+      Location origin = e.getFrom();
+      Vector movement = e.getTo().toVector().subtract(origin.toVector());
+      Vector direction = horizontalDirection(movement, origin.getDirection());
+      withPlayerThread(p, e, () -> attemptVault(p, origin, direction));
+    }
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

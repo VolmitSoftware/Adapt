@@ -26,6 +26,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -266,7 +267,7 @@ public class StealthDecoySwap extends SimpleAdaptation<StealthDecoySwap.Config> 
 
   private CompletableFuture<Boolean> beginTeleport(Entity entity, Location destination, String leg) {
     try {
-      return entity.teleportAsync(destination);
+      return PaperCompat.teleportAsync(entity, destination);
     } catch (RuntimeException error) {
       reportTeleportFailure(entity, leg, error);
       return null;

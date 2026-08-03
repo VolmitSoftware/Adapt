@@ -25,6 +25,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -100,7 +101,7 @@ public class AxeShieldSplitter extends SimpleAdaptation<AxeShieldSplitter.Config
     if (target instanceof Player blocker) {
       return blocker.isBlocking();
     }
-    return target.isHandRaised() && hasShield(target);
+    return PaperCompat.isHandRaised(target) && hasShield(target);
   }
 
   private boolean hasShield(LivingEntity target) {

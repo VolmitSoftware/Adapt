@@ -29,6 +29,7 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.content.event.AdaptAdaptationTeleportEvent;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.RiftMessages;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.input.DoubleJumpGesture;
 import art.arcane.adapt.util.common.scheduling.J;
@@ -176,7 +177,7 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
 
     CompletableFuture<Boolean> teleport;
     try {
-      teleport = p.teleportAsync(operation.requestedDestination(), PlayerTeleportEvent.TeleportCause.PLUGIN);
+      teleport = PaperCompat.teleportAsync(p, operation.requestedDestination(), PlayerTeleportEvent.TeleportCause.PLUGIN);
     } catch (RuntimeException exception) {
       pendingBlinks.remove(id);
       exception.printStackTrace();

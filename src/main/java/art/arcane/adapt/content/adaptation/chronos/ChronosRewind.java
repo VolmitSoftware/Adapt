@@ -29,6 +29,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -200,7 +201,7 @@ public class ChronosRewind extends SimpleAdaptation<ChronosRewind.Config> {
     Location departure = p.getLocation().clone();
     CompletableFuture<Boolean> teleport;
     try {
-      teleport = p.teleportAsync(destination, PlayerTeleportEvent.TeleportCause.PLUGIN);
+      teleport = PaperCompat.teleportAsync(p, destination, PlayerTeleportEvent.TeleportCause.PLUGIN);
     } catch (RuntimeException error) {
       pendingRewinds.remove(id, snapshot);
       Adapt.error("Chronos Rewind could not start a teleport for " + id + ".");

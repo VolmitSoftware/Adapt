@@ -1,6 +1,7 @@
 package art.arcane.adapt.content.adaptation.stealth;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.scheduling.J;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -859,7 +860,7 @@ final class PacketDecoyBridge {
       }
 
       int remaining = Math.max(1, maxViewers);
-      for (Player viewer : owner.getTrackedPlayers()) {
+      for (Player viewer : PaperCompat.trackedPlayers(owner)) {
         if (viewer.getUniqueId().equals(owner.getUniqueId())) {
           continue;
         }

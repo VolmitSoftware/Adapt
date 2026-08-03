@@ -29,6 +29,7 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.ViewerGlowCoordinator;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.world.PlayerSkillLine;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -50,6 +51,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
@@ -70,6 +72,7 @@ import org.bukkit.metadata.MetadataValue;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -134,9 +137,20 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
     restartAfterItemChange(e.getPlayer());
   }
 
-  @EventHandler(priority = EventPriority.MONITOR)
-  public void on(PlayerStopUsingItemEvent e) {
-    stopAimingSession(e.getPlayer());
+  @Override
+  protected List<Listener> createCompanionListeners() {
+    if (!PaperCompat.hasClass("io.papermc.paper.event.player.PlayerStopUsingItemEvent")) {
+      return List.of();
+    }
+
+    return List.of(new StopUsingItemListener());
+  }
+
+  private final class StopUsingItemListener implements Listener {
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void on(PlayerStopUsingItemEvent e) {
+      stopAimingSession(e.getPlayer());
+    }
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -580,7 +594,7 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
     long start = drawStartedMillis.computeIfAbsent(id, k -> now);
     double chargeTicks = Math.max(0, (now - start) / 50.0);
 
-    if (!p.isHandRaised() && p.isSneaking()) {
+    if (!PaperCompat.isHandRaised(p) && p.isSneaking()) {
       chargeTicks = getConfig().sneakPreviewChargeTicks;
     }
 
@@ -1114,12 +1128,12 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
       return false;
     }
 
-    if (!p.isHandRaised()) {
+    if (!PaperCompat.isHandRaised(p)) {
       return false;
     }
 
-    ItemStack active = p.getActiveItem();
-    return isItem(active) && active.getType() == type;
+    ItemStack active = PaperCompat.activeItem(p);
+    return active != null && isItem(active) && active.getType() == type;
   }
 
   private boolean isSneakProjectile(ItemStack item) {

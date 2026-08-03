@@ -26,6 +26,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -160,7 +161,7 @@ public class TamingLastBreath extends SimpleAdaptation<TamingLastBreath.Config> 
   private void beginRecallTeleport(UUID ownerId, LivingEntity pet, Location destination) {
     CompletableFuture<Boolean> teleport;
     try {
-      teleport = pet.teleportAsync(destination);
+      teleport = PaperCompat.teleportAsync(pet, destination);
     } catch (RuntimeException error) {
       Adapt.error("Last Breath could not start pet teleport for owner " + ownerId + ".");
       error.printStackTrace();

@@ -20,6 +20,7 @@ package art.arcane.adapt.api.minion;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.tick.TickedObject;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.volmlib.util.entity.StackExclusion;
@@ -35,6 +36,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.EquipmentSlotGroup;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -280,7 +282,7 @@ public final class MinionBurden extends TickedObject {
 
     removeOurModifiers(attribute);
     if (reduction > 0) {
-      attribute.addTransientModifier(new AttributeModifier(BURDEN_KEY, -reduction, AttributeModifier.Operation.ADD_NUMBER));
+      PaperCompat.addTransientModifier(attribute, new AttributeModifier(BURDEN_KEY, -reduction, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.ANY));
     }
   }
 

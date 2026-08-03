@@ -24,6 +24,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -88,7 +89,7 @@ public class BlockingInterpose extends SimpleAdaptation<BlockingInterpose.Config
     int bestLevel = 0;
     double bestDistanceSquared = Double.MAX_VALUE;
 
-    for (Player blocker : allyLocation.getWorld().getNearbyEntitiesByType(Player.class, allyLocation, scanRadius, scanRadius, scanRadius)) {
+    for (Player blocker : PaperCompat.nearbyEntitiesByType(Player.class, allyLocation, scanRadius, scanRadius, scanRadius)) {
       if (blocker == ally || !blocker.isSneaking() || !blocker.isBlocking() || !hasShield(blocker)) {
         continue;
       }

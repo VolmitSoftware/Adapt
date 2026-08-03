@@ -80,7 +80,7 @@ public class AxeDropToInventory extends SimpleAdaptation<AxeDropToInventory.Conf
       return;
     }
 
-    ItemStack broken = new ItemStack(e.getBlockState().getType());
+    Material broken = e.getBlockState().getType();
     if (!isLog(broken) && !isLeaves(broken)) {
       return;
     }

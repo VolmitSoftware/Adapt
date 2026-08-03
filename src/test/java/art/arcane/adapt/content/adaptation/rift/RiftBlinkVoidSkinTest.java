@@ -55,7 +55,7 @@ class RiftBlinkVoidSkinTest {
     String configFields = fieldNames(RiftBlink.Config.class);
 
     assertThat(source)
-        .contains("p.teleportAsync", "Boolean.TRUE.equals(success)", "DamageType.ENDER_PEARL")
+        .contains("PaperCompat.teleportAsync(p, ", "Boolean.TRUE.equals(success)", "DamageType.ENDER_PEARL")
         .doesNotContain("consumeBlinkPearl", "pearlConsumeChance", "ItemStack");
     assertThat(source.split("Sound.ENTITY_ENDERMAN_TELEPORT", -1)).hasSizeGreaterThanOrEqualTo(3);
     assertThat(configFields).doesNotContain("pearlConsumeChance");

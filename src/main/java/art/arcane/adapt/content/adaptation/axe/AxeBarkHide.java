@@ -72,7 +72,7 @@ public class AxeBarkHide extends SimpleAdaptation<AxeBarkHide.Config> {
   public void on(BlockBreakEvent e) {
     Player p = e.getPlayer();
     ItemStack hand = p.getInventory().getItemInMainHand();
-    if (!isAxe(hand) || !isLog(new ItemStack(e.getBlock().getType()))) {
+    if (!isAxe(hand) || !isLog(e.getBlock().getType())) {
       return;
     }
 

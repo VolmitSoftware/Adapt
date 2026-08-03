@@ -27,6 +27,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.events.api.ReflectiveHandler;
@@ -154,7 +155,7 @@ public class NetherStriderBond extends SimpleAdaptation<NetherStriderBond.Config
   private void beginRescueTeleport(Player p, Location safe) {
     CompletableFuture<Boolean> teleport;
     try {
-      teleport = p.teleportAsync(safe, PlayerTeleportEvent.TeleportCause.PLUGIN);
+      teleport = PaperCompat.teleportAsync(p, safe, PlayerTeleportEvent.TeleportCause.PLUGIN);
     } catch (RuntimeException error) {
       Adapt.error("Strider Bond could not start a lava rescue for " + p.getUniqueId() + ".");
       error.printStackTrace();

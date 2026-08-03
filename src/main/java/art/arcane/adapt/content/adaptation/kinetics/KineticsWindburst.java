@@ -5,6 +5,7 @@ import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
@@ -118,7 +119,7 @@ public class KineticsWindburst extends SimpleAdaptation<KineticsWindburst.Config
 
   private List<LivingEntity> collectCandidates(Player player, Location origin, double radius) {
     List<LivingEntity> candidates = new ArrayList<>(HARD_MAX_CANDIDATES);
-    for (LivingEntity candidate : origin.getWorld().getNearbyLivingEntities(origin, radius, radius, radius)) {
+    for (LivingEntity candidate : PaperCompat.nearbyLivingEntities(origin, radius, radius, radius)) {
       if (candidate == player) {
         continue;
       }

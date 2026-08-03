@@ -32,15 +32,24 @@ class HeartseekerRuntimeTest {
   }
 
   @Test
-  void initialAdmissionWaitsUntilPaperMarksTheArrowValid() {
+  void initialAdmissionWaitsUntilPaperMarksTheArrowValid() throws ClassNotFoundException {
     List<Class<?>> handledEvents = Arrays.stream(RangedHeartseeker.class.getDeclaredMethods())
         .filter(method -> method.isAnnotationPresent(EventHandler.class))
         .filter(method -> method.getParameterCount() == 1)
         .map(Method::getParameterTypes)
         .map(parameters -> parameters[0])
         .toList();
+    List<Class<?>> companionEvents = Arrays.stream(
+            Class.forName("art.arcane.adapt.content.adaptation.ranged.RangedHeartseeker$AddToWorldListener").getDeclaredMethods())
+        .filter(method -> method.isAnnotationPresent(EventHandler.class))
+        .filter(method -> method.getParameterCount() == 1)
+        .map(Method::getParameterTypes)
+        .map(parameters -> parameters[0])
+        .toList();
 
-    assertThat(handledEvents).contains(EntityAddToWorldEvent.class);
+    // Paper-only admission event lives in the probe-gated companion listener.
+    assertThat(companionEvents).contains(EntityAddToWorldEvent.class);
+    assertThat(handledEvents).doesNotContain(EntityAddToWorldEvent.class);
     assertThat(handledEvents).doesNotContain(ProjectileLaunchEvent.class);
   }
 

@@ -28,6 +28,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.ViewerGlowCoordinator;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -142,7 +143,7 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
 
   @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
   public void onBlindness(EntityPotionEffectEvent e) {
-    if (!(e.getEntity() instanceof Player player)
+    if (!(PaperCompat.livingEntity(e) instanceof Player player)
         || !blocksBlindness(
         getActiveLevel(player) > 0 && player.isSneaking(),
         e.getModifiedType() == PotionEffectType.BLINDNESS,
@@ -155,7 +156,7 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(EntityPotionEffectEvent e) {
-    if (!(e.getEntity() instanceof Player player)
+    if (!(PaperCompat.livingEntity(e) instanceof Player player)
         || e.getModifiedType() != PotionEffectType.NIGHT_VISION) {
       return;
     }
@@ -398,7 +399,7 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
     expireSightGlowsOwned(viewer, System.currentTimeMillis());
     double range = Math.min(MAX_SIGHT_RANGE, Math.max(16D, viewer.getServer().getViewDistance() * 16D));
     int inspections = 0;
-    for (Player target : viewer.getWorld().getNearbyPlayers(viewer.getLocation(), range)) {
+    for (Player target : PaperCompat.nearbyPlayers(viewer.getLocation(), range)) {
       if (inspections >= MAX_INVISIBLE_PLAYER_INSPECTIONS) {
         break;
       }

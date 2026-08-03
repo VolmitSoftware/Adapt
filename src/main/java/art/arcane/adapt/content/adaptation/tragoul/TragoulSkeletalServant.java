@@ -33,6 +33,7 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.version.IAttribute;
 import art.arcane.adapt.api.version.Version;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -273,7 +274,7 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
         s.getPersistentDataContainer().set(SERVANT_KEY, PersistentDataType.STRING, id.toString());
         s.setPersistent(false);
         s.setRemoveWhenFarAway(false);
-        s.setShouldBurnInDay(false);
+        PaperCompat.setShouldBurnInDay(s, false);
         equipServant(s, level, random);
       });
       applyServantAttributes(servant, level);

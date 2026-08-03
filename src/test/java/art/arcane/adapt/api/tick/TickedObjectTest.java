@@ -3,8 +3,11 @@ package art.arcane.adapt.api.tick;
 import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.telemetry.AbilityCheckTelemetry;
+import org.bukkit.event.EventHandler;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -76,6 +79,17 @@ class TickedObjectTest extends AdaptTestBase {
     AbilityCheckTelemetry.clear();
   }
 
+  @Test
+  void constructionSurvivesUnresolvableEventSignatures() throws Exception {
+    Class<?> type = Class.forName(
+        MissingSignatureTicked.class.getName(), false, new MissingEventTypeHidingLoader());
+
+    TickedObject ticked = (TickedObject) type.getConstructor().newInstance();
+    ticked.activateRuntime();
+
+    verify(ticker).register(ticked);
+  }
+
   private static final class NoOpTicked extends TickedObject {
   }
 
@@ -85,6 +99,69 @@ class TickedObjectTest extends AdaptTestBase {
     @Override
     public void onTick() {
       ticks.incrementAndGet();
+    }
+  }
+
+  /**
+   * Stand-in for a platform-only event class (e.g. Paper's PlayerJumpEvent on
+   * Spigot). {@link MissingEventTypeHidingLoader} refuses to load it so method
+   * signature resolution fails with NoClassDefFoundError.
+   */
+  public static final class MissingEventType {
+  }
+
+  public static final class MissingSignatureTicked extends TickedObject {
+    public MissingSignatureTicked() {
+      super("missing-signature-test");
+    }
+
+    @EventHandler
+    public void on(MissingEventType event) {
+    }
+  }
+
+  /**
+   * Re-defines {@link MissingSignatureTicked} in an isolated loader that
+   * throws for {@link MissingEventType}, mimicking Spigot missing a Paper-only
+   * event class referenced by a handler signature.
+   */
+  private static final class MissingEventTypeHidingLoader extends ClassLoader {
+    private static final String HIDDEN = MissingEventType.class.getName();
+    private static final String RELOADED = MissingSignatureTicked.class.getName();
+
+    private MissingEventTypeHidingLoader() {
+      super(TickedObjectTest.class.getClassLoader());
+    }
+
+    @Override
+    protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+      if (HIDDEN.equals(name)) {
+        throw new ClassNotFoundException(name);
+      }
+      if (RELOADED.equals(name)) {
+        Class<?> loaded = findLoadedClass(name);
+        if (loaded == null) {
+          byte[] bytes = readClassBytes(name);
+          loaded = defineClass(name, bytes, 0, bytes.length);
+        }
+        if (resolve) {
+          resolveClass(loaded);
+        }
+        return loaded;
+      }
+      return super.loadClass(name, resolve);
+    }
+
+    private byte[] readClassBytes(String name) throws ClassNotFoundException {
+      String resource = name.replace('.', '/') + ".class";
+      try (InputStream in = getParent().getResourceAsStream(resource)) {
+        if (in == null) {
+          throw new ClassNotFoundException(name);
+        }
+        return in.readAllBytes();
+      } catch (IOException e) {
+        throw new ClassNotFoundException(name, e);
+      }
     }
   }
 

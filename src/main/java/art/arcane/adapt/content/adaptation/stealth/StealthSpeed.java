@@ -26,6 +26,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.math.VelocitySpeed;
 import art.arcane.adapt.util.common.scheduling.J;
@@ -368,7 +369,7 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
     }
     CompletableFuture<Boolean> teleport;
     try {
-      teleport = p.teleportAsync(destination);
+      teleport = PaperCompat.teleportAsync(p, destination);
     } catch (RuntimeException error) {
       state.stepInFlight.set(false);
       Adapt.error("Stealth Speed could not start auto-step teleport for " + p.getUniqueId() + ".");

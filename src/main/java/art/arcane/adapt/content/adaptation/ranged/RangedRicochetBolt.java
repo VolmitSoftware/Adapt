@@ -26,6 +26,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.projectile.ProjectileReplacementRegistry;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -58,13 +59,13 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 
-import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -223,29 +224,18 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
       return;
     }
 
-    RicochetProjectileTemplate primary;
-    try {
-      primary = captureTransferOwned(
-          projectile,
-          bounceLocation,
-          ricochetVelocity,
-          p,
-          profile,
-          transition.count(),
-          maxRicochets,
-          transition.bonusDamage(),
-          hitCenter,
-          transition
-      );
-    } catch (IOException exception) {
-      reportTransferFailure(
-          "serialize projectile data",
-          projectile.getWorld(),
-          projectile.getLocation(),
-          exception
-      );
-      return;
-    }
+    RicochetProjectileTemplate primary = captureTransferOwned(
+        projectile,
+        bounceLocation,
+        ricochetVelocity,
+        p,
+        profile,
+        transition.count(),
+        maxRicochets,
+        transition.bonusDamage(),
+        hitCenter,
+        transition
+    );
     if (primary == null) {
       return;
     }
@@ -416,36 +406,36 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
       double bonusDamage,
       Location hitCenter,
       RicochetTransition transition
-  ) throws IOException {
+  ) {
     RicochetProjectileKind kind = RicochetProjectileKind.resolve(source);
     RicochetProjectilePayload payload = capturePayloadOwned(source);
     if (kind == null || payload == null) {
       return null;
     }
 
-    byte[] persistentBytes = RicochetPersistentData.snapshot(source.getPersistentDataContainer());
+    PersistentDataContainer persistentSnapshot = RicochetPersistentData.snapshot(source.getPersistentDataContainer());
     RicochetCommonState common = new RicochetCommonState(
         source.hasGravity(),
         source.getFireTicks(),
-        source.hasLeftShooter(),
-        source.hasBeenShot(),
+        PaperCompat.hasLeftShooter(source),
+        PaperCompat.hasBeenShot(source),
         source.isPersistent(),
         source.getTicksLived(),
         source.getFallDistance(),
-        source.getVisualFire(),
+        PaperCompat.visualFire(source),
         source.getFreezeTicks(),
         source.isSilent(),
         source.isGlowing(),
         source.isInvulnerable(),
-        source.isInvisible(),
-        source.hasNoPhysics(),
+        PaperCompat.isInvisible(source),
+        PaperCompat.hasNoPhysics(source),
         source.getPortalCooldown(),
-        source.customName(),
+        PaperCompat.customName(source),
         source.isCustomNameVisible(),
         source.isVisibleByDefault(),
         source.getScoreboardTags(),
         RangedHeavyDraw.readHeavyLevel(source),
-        persistentBytes
+        persistentSnapshot
     );
     return new RicochetProjectileTemplate(
         kind,
@@ -472,8 +462,8 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
       return new RicochetTridentPayload(
           captureArrowStateOwned(trident),
           trident.getItem(),
-          trident.hasGlint(),
-          trident.getLoyaltyLevel()
+          PaperCompat.tridentGlint(trident),
+          PaperCompat.tridentLoyalty(trident)
       );
     }
     if (source instanceof Arrow arrow) {
@@ -499,10 +489,10 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
         arrow.getPickupStatus(),
         RangedPiercing.isPiercingInitialized(arrow),
         RangedPiercing.readHits(arrow),
-        arrow.getItemStack(),
+        PaperCompat.arrowItem(arrow),
         arrow.getWeapon(),
-        arrow.getLifetimeTicks(),
-        arrow.getHitSound()
+        PaperCompat.arrowLifetimeTicks(arrow),
+        PaperCompat.arrowHitSound(arrow)
     );
   }
 
@@ -594,13 +584,16 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
 
     Projectile target = null;
     try {
-      target = world.createEntity(spawnLocation, template.kind().projectileClass());
-      hydrateTemplateOwned(target, template);
-      world.addEntity(target);
+      target = PaperCompat.spawnHydrated(
+          world,
+          spawnLocation,
+          template.kind().projectileClass(),
+          created -> hydrateTemplateOwned(created, template)
+      );
       if (!target.isInWorld()) {
         return RicochetTransferCompletion.SPAWN_FAILED;
       }
-    } catch (IOException | RuntimeException exception) {
+    } catch (RuntimeException exception) {
       if (target != null && target.isInWorld()) {
         target.remove();
       }
@@ -619,8 +612,7 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
     return RicochetTransferCompletion.COMPLETED;
   }
 
-  private void hydrateTemplateOwned(Projectile target, RicochetProjectileTemplate template)
-      throws IOException {
+  private void hydrateTemplateOwned(Projectile target, RicochetProjectileTemplate template) {
     applyCommonStateOwned(target, template.shooter(), template.velocity(), template.common());
     applyPayloadOwned(target, template.payload());
     applyRicochetProfile(target, template.profile());
@@ -636,20 +628,20 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
     setShooterOwned(target, shooter);
     target.setGravity(source.hasGravity());
     target.setFireTicks(source.getFireTicks());
-    target.setHasLeftShooter(source.hasLeftShooter());
-    target.setHasBeenShot(source.hasBeenShot());
+    PaperCompat.setHasLeftShooter(target, PaperCompat.hasLeftShooter(source));
+    PaperCompat.setHasBeenShot(target, PaperCompat.hasBeenShot(source));
     target.setPersistent(source.isPersistent());
     target.setTicksLived(Math.max(1, source.getTicksLived()));
     target.setFallDistance(source.getFallDistance());
-    target.setVisualFire(source.getVisualFire());
+    PaperCompat.setVisualFire(target, PaperCompat.visualFire(source));
     target.setFreezeTicks(source.getFreezeTicks());
     target.setSilent(source.isSilent());
     target.setGlowing(source.isGlowing());
     target.setInvulnerable(source.isInvulnerable());
-    target.setInvisible(source.isInvisible());
-    target.setNoPhysics(source.hasNoPhysics());
+    PaperCompat.setInvisible(target, PaperCompat.isInvisible(source));
+    PaperCompat.setNoPhysics(target, PaperCompat.hasNoPhysics(source));
     target.setPortalCooldown(source.getPortalCooldown());
-    target.customName(source.customName());
+    PaperCompat.customName(target, PaperCompat.customName(source));
     target.setCustomNameVisible(source.isCustomNameVisible());
     target.setVisibleByDefault(source.isVisibleByDefault());
     for (String tag : source.getScoreboardTags()) {
@@ -665,38 +657,37 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
       Player shooter,
       Vector velocity,
       RicochetCommonState state
-  ) throws IOException {
+  ) {
     setShooterOwned(target, shooter);
     target.setGravity(state.gravity());
     target.setFireTicks(state.fireTicks());
-    target.setHasLeftShooter(state.leftShooter());
-    target.setHasBeenShot(state.beenShot());
+    PaperCompat.setHasLeftShooter(target, state.leftShooter());
+    PaperCompat.setHasBeenShot(target, state.beenShot());
     target.setPersistent(state.persistent());
     target.setTicksLived(Math.max(1, state.ticksLived()));
     target.setFallDistance(state.fallDistance());
-    target.setVisualFire(state.visualFire());
+    PaperCompat.setVisualFire(target, state.visualFire());
     target.setFreezeTicks(state.freezeTicks());
     target.setSilent(state.silent());
     target.setGlowing(state.glowing());
     target.setInvulnerable(state.invulnerable());
-    target.setInvisible(state.invisible());
-    target.setNoPhysics(state.noPhysics());
+    PaperCompat.setInvisible(target, state.invisible());
+    PaperCompat.setNoPhysics(target, state.noPhysics());
     target.setPortalCooldown(state.portalCooldown());
-    target.customName(state.customName());
+    PaperCompat.customName(target, state.customName());
     target.setCustomNameVisible(state.customNameVisible());
     target.setVisibleByDefault(state.visibleByDefault());
     for (String tag : state.scoreboardTags()) {
       target.addScoreboardTag(tag);
     }
-    byte[] persistentData = state.persistentData();
-    RicochetPersistentData.restore(target.getPersistentDataContainer(), persistentData);
+    RicochetPersistentData.restore(target.getPersistentDataContainer(), state.persistentData());
     RangedHeavyDraw.applyHeavyState(target, state.heavyDrawLevel());
     target.setVelocity(velocity);
   }
 
   private void setShooterOwned(Projectile target, Player shooter) {
     if (target instanceof AbstractArrow arrow) {
-      arrow.setShooter(shooter, false);
+      PaperCompat.setArrowShooter(arrow, shooter);
       return;
     }
     target.setShooter(shooter);
@@ -721,9 +712,9 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
     }
     if (source instanceof Trident sourceTrident && target instanceof Trident targetTrident) {
       targetTrident.setItem(sourceTrident.getItem().clone());
-      targetTrident.setGlint(sourceTrident.hasGlint());
-      targetTrident.setLoyaltyLevel(sourceTrident.getLoyaltyLevel());
-      targetTrident.setHasDealtDamage(false);
+      PaperCompat.setTridentGlint(targetTrident, PaperCompat.tridentGlint(sourceTrident));
+      PaperCompat.setTridentLoyalty(targetTrident, PaperCompat.tridentLoyalty(sourceTrident));
+      PaperCompat.clearTridentDealtDamage(targetTrident);
       return;
     }
     if (source instanceof ThrowableProjectile sourceThrowable
@@ -738,13 +729,14 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
     target.setPierceLevel(source.getPierceLevel());
     target.setKnockbackStrength(source.getKnockbackStrength());
     target.setPickupStatus(source.getPickupStatus());
-    target.setItemStack(source.getItemStack().clone());
+    ItemStack sourceItem = PaperCompat.arrowItem(source);
+    PaperCompat.setArrowItem(target, sourceItem == null ? null : sourceItem.clone());
     ItemStack weapon = source.getWeapon();
     if (weapon != null) {
       target.setWeapon(weapon.clone());
     }
-    target.setLifetimeTicks(source.getLifetimeTicks());
-    target.setHitSound(source.getHitSound());
+    PaperCompat.setArrowLifetimeTicks(target, PaperCompat.arrowLifetimeTicks(source));
+    PaperCompat.setArrowHitSound(target, PaperCompat.arrowHitSound(source));
     RangedPiercing.copyPiercingState(source, target);
   }
 
@@ -768,9 +760,9 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
         && target instanceof Trident trident) {
       applyArrowStateOwned(trident, tridentPayload.arrow());
       trident.setItem(tridentPayload.item());
-      trident.setGlint(tridentPayload.glint());
-      trident.setLoyaltyLevel(tridentPayload.loyaltyLevel());
-      trident.setHasDealtDamage(false);
+      PaperCompat.setTridentGlint(trident, tridentPayload.glint());
+      PaperCompat.setTridentLoyalty(trident, tridentPayload.loyaltyLevel());
+      PaperCompat.clearTridentDealtDamage(trident);
       return;
     }
     if (payload instanceof RicochetThrowablePayload throwablePayload
@@ -785,13 +777,13 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
     target.setPierceLevel(state.pierceLevel());
     target.setKnockbackStrength(state.knockbackStrength());
     target.setPickupStatus(state.pickupStatus());
-    target.setItemStack(state.item());
+    PaperCompat.setArrowItem(target, state.item());
     ItemStack weapon = state.weapon();
     if (weapon != null) {
       target.setWeapon(weapon);
     }
-    target.setLifetimeTicks(state.lifetimeTicks());
-    target.setHitSound(state.hitSound());
+    PaperCompat.setArrowLifetimeTicks(target, state.lifetimeTicks());
+    PaperCompat.setArrowHitSound(target, state.hitSound());
     RangedPiercing.applyPiercingState(
         target,
         state.piercingInitialized(),

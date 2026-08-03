@@ -30,6 +30,7 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.content.item.ItemListings;
 import art.arcane.adapt.content.item.multiItems.MultiArmor;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -95,7 +96,7 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
 
   @EventHandler(priority = EventPriority.HIGH)
   public void on(PlayerMoveEvent e) {
-    if (!e.hasChangedBlock()) {
+    if (!PaperCompat.hasChangedBlock(e.getFrom(), e.getTo())) {
       return;
     }
 

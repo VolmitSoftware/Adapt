@@ -26,6 +26,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -143,7 +144,7 @@ public class BlockingBulwarkBash extends SimpleAdaptation<BlockingBulwarkBash.Co
   private List<LivingEntity> collectCandidates(Player player, LivingEntity primaryTarget, Location center, double radius) {
     int limit = getCandidateLimit();
     List<LivingEntity> candidates = new ArrayList<>(limit);
-    for (LivingEntity candidate : center.getWorld().getNearbyLivingEntities(center, radius, radius, radius)) {
+    for (LivingEntity candidate : PaperCompat.nearbyLivingEntities(center, radius, radius, radius)) {
       if (candidate == player || candidate == primaryTarget) {
         continue;
       }

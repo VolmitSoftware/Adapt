@@ -30,6 +30,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.content.item.BoundEnderPearl;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -444,7 +445,7 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
 
     CompletableFuture<Boolean> completion;
     try {
-      completion = target.teleportAsync(operation.destination().clone());
+      completion = PaperCompat.teleportAsync(target, operation.destination().clone());
     } catch (RuntimeException error) {
       pendingTeleports.complete(operation.throwerId(), operation.token());
       reportTeleportFailure(operation.targetId(), error);
@@ -526,7 +527,7 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
     }
     return !(target instanceof Tameable tameable)
         || !tameable.isTamed()
-        || !operation.throwerId().equals(tameable.getOwnerUniqueId());
+        || !operation.throwerId().equals(PaperCompat.tamedOwnerId(tameable));
   }
 
   private boolean isCurrent(TaglockOperation operation) {

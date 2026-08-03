@@ -31,6 +31,7 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.ability.AbilityCharge;
 import art.arcane.adapt.api.ability.AbilityRefundReason;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -350,7 +351,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
       if (!isCurrentBind(operation)) {
         return;
       }
-      BlockState st = operation.source().getBlock().getState(false);
+      BlockState st = operation.source().getBlock().getState();
       if (!(st instanceof Container aContainer)) {
         failBindOperation(operation, RiftMessages.CONDUIT_MSG_STALE,
             AbilityRefundReason.TARGET_LOST, true);
@@ -377,7 +378,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
       if (!isCurrentBind(operation)) {
         return;
       }
-      BlockState st = operation.partner().getBlock().getState(false);
+      BlockState st = operation.partner().getBlock().getState();
       if (!(st instanceof Container bContainer)) {
         failBindOperation(operation, RiftMessages.CONDUIT_MSG_STALE,
             AbilityRefundReason.TARGET_LOST, true);
@@ -404,7 +405,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
       if (!isCurrentBind(operation)) {
         return;
       }
-      BlockState state = operation.source().getBlock().getState(false);
+      BlockState state = operation.source().getBlock().getState();
       if (!(state instanceof Container source)
           || !linkMatches(source, operation.linkId(), operation.partner())) {
         failBindOperation(operation, RiftMessages.CONDUIT_MSG_STALE,
@@ -664,7 +665,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
   }
 
   private void restoreEndpoint(Location location, String operationLinkId, EndpointSnapshot snapshot) {
-    BlockState state = location.getBlock().getState(false);
+    BlockState state = location.getBlock().getState();
     if (!(state instanceof Container container)) {
       return;
     }
@@ -803,7 +804,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
   }
 
   private void flowFromSource(Player p, Location sourceLoc, int throughput, double xpPerFlow) {
-    BlockState st = sourceLoc.getBlock().getState(false);
+    BlockState st = sourceLoc.getBlock().getState();
     if (!(st instanceof Container source)) {
       return;
     }
@@ -852,7 +853,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
 
   private void depositToPartner(Player p, Location sourceLoc, Location partnerLoc, String linkId,
                                 List<ItemStack> moving, double xpPerFlow) {
-    BlockState st = partnerLoc.getBlock().getState(false);
+    BlockState st = partnerLoc.getBlock().getState();
     if (!(st instanceof Container partner) || !linkMatches(partner, linkId, sourceLoc)) {
       restoreToSource(sourceLoc, moving);
       return;
@@ -888,7 +889,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
     loadBindRegion(
         sourceLoc,
         () -> {
-          BlockState st = sourceLoc.getBlock().getState(false);
+          BlockState st = sourceLoc.getBlock().getState();
           if (st instanceof Container container) {
             dropAt(sourceLoc, addItems(container.getInventory(), items));
           } else {
@@ -965,7 +966,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
   }
 
   private boolean isConduitContainer(Block block) {
-    return isStorage(block.getBlockData()) && block.getState(false) instanceof Container;
+    return isStorage(block.getBlockData()) && block.getState() instanceof Container;
   }
 
   private LinkRef readLink(Container container) {

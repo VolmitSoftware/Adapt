@@ -27,6 +27,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
@@ -61,6 +62,7 @@ import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
@@ -71,6 +73,7 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -223,8 +226,23 @@ public class AgilityLadderSlide extends SimpleAdaptation<AgilityLadderSlide.Conf
     clearPlayerState(e.getPlayer(), true);
   }
 
-  @EventHandler
-  public void on(ServerResourcesReloadedEvent e) {
+  @Override
+  protected List<Listener> createCompanionListeners() {
+    if (!PaperCompat.hasClass("io.papermc.paper.event.server.ServerResourcesReloadedEvent")) {
+      return List.of();
+    }
+
+    return List.of(new ResourceReloadListener());
+  }
+
+  private final class ResourceReloadListener implements Listener {
+    @EventHandler
+    public void on(ServerResourcesReloadedEvent e) {
+      invalidateClientTagPackets();
+    }
+  }
+
+  void invalidateClientTagPackets() {
     synchronized (clientTagPacketLock) {
       clientTagPackets = null;
       clientTagGeneration.incrementAndGet();

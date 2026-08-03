@@ -30,6 +30,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPresets;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -293,7 +294,7 @@ public class SeaborneTidecaller extends SimpleAdaptation<SeaborneTidecaller.Conf
     }
     CompletableFuture<Boolean> teleport;
     try {
-      teleport = p.teleportAsync(target);
+      teleport = PaperCompat.teleportAsync(p, target);
     } catch (RuntimeException error) {
       teleportDashes.remove(playerId);
       Adapt.error("Seaborne Tidecaller could not start teleport dash for " + playerId + ".");

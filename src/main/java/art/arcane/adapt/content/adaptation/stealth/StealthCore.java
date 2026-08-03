@@ -31,6 +31,7 @@ import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.ViewerGlowCoordinator;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Attributes;
@@ -478,14 +479,14 @@ public class StealthCore extends SimpleAdaptation<StealthCore.Config> {
   private void collectCandidatesOwned(Player player, ThreatScan scan, double radius, int candidateLimit) {
     int inspected = 0;
     Iterable<? extends Entity> candidates = scan.threatScan
-        ? player.getWorld().getNearbyLivingEntities(
+        ? PaperCompat.nearbyLivingEntities(
             scan.center,
             radius,
             radius,
             radius,
             entity -> entity instanceof Mob || entity instanceof Player
         )
-        : player.getWorld().getNearbyEntitiesByType(Mob.class, scan.center, radius, radius, radius);
+        : PaperCompat.nearbyEntitiesByType(Mob.class, scan.center, radius, radius, radius);
     for (Entity entity : candidates) {
       if (entity == player || !isCandidateReference(entity, scan)) {
         continue;

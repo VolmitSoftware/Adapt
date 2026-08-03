@@ -58,8 +58,8 @@ class SeaborneFishWhispererLuckAttributeTest {
         .contains("addStat(player, \"seaborne.fish-whisperer.charmed\", 1)")
         .contains("if (scheduled >= MAX_FISH)")
         .contains(
-            "getNearbyEntitiesByType(Fish.class, center, range, range, range)",
-            "getNearbyEntitiesByType(\n        Mob.class, victimLocation, range, range, range)"
+            "PaperCompat.nearbyEntitiesByType(Fish.class, center, range, range, range)",
+            "PaperCompat.nearbyEntitiesByType(\n        Mob.class, victimLocation, range, range, range)"
         );
   }
 }

@@ -61,8 +61,9 @@ class AgilitySuperJumpTest {
   }
 
   @Test
-  void jumpRewardsObserveTheFinalUncancelledJump() throws NoSuchMethodException {
-    Method handler = AgilitySuperJump.class.getDeclaredMethod("on", PlayerJumpEvent.class);
+  void jumpRewardsObserveTheFinalUncancelledJump() throws ReflectiveOperationException {
+    Method handler = Class.forName("art.arcane.adapt.content.adaptation.agility.AgilitySuperJump$JumpListener")
+        .getDeclaredMethod("on", PlayerJumpEvent.class);
     EventHandler eventHandler = handler.getAnnotation(EventHandler.class);
 
     assertThat(eventHandler).isNotNull();

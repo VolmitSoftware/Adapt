@@ -25,6 +25,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -234,14 +235,14 @@ public class StealthSmokePellet extends SimpleAdaptation<StealthSmokePellet.Conf
       fx(center, FxPriority.AMBIENT).sound(Sound.BLOCK_FIRE_EXTINGUISH, 0.3F, 0.7F);
     }
 
-    for (LivingEntity target : center.getWorld().getNearbyLivingEntities(center, cloud.radius, cloud.radius, cloud.radius)) {
+    for (LivingEntity target : PaperCompat.nearbyLivingEntities(center, cloud.radius, cloud.radius, cloud.radius)) {
       if (target instanceof Player player) {
         renewConcealment(player);
       }
       enqueueTarget(cloud, target, true);
     }
     double aggroRadius = Math.max(cloud.radius, AGGRO_CLEAR_RADIUS);
-    for (LivingEntity target : center.getWorld().getNearbyLivingEntities(center, aggroRadius, aggroRadius, aggroRadius)) {
+    for (LivingEntity target : PaperCompat.nearbyLivingEntities(center, aggroRadius, aggroRadius, aggroRadius)) {
       if (target instanceof Mob) {
         enqueueTarget(cloud, target, false);
       }
@@ -362,7 +363,7 @@ public class StealthSmokePellet extends SimpleAdaptation<StealthSmokePellet.Conf
 
   private void clearAggroOwned(Mob mob, LivingEntity currentTarget) {
     mob.setTarget(null);
-    mob.setAggressive(false);
+    PaperCompat.setAggressive(mob, false);
     if (mob instanceof Warden warden && currentTarget != null) {
       warden.clearAnger(currentTarget);
     }
