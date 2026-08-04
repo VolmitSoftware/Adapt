@@ -53,7 +53,67 @@ public final class TomlCodec {
     if (map == null) {
       return new LinkedHashMap<String, Object>();
     }
-    return map;
+    return normalizeKeys(map);
+  }
+
+  // The toml parser hands back quoted keys with their quotes still attached; strip them so map
+  // keys match what the author wrote and do not gain another quote layer on every rewrite.
+  private static Object normalizeKeys(Object value) {
+    if (value instanceof Map<?, ?> map) {
+      Map<String, Object> out = new LinkedHashMap<>();
+      for (Map.Entry<?, ?> entry : map.entrySet()) {
+        if (entry.getKey() == null) {
+          continue;
+        }
+        out.put(normalizeKey(String.valueOf(entry.getKey())), normalizeKeys(entry.getValue()));
+      }
+      return out;
+    }
+
+    if (value instanceof Collection<?> collection) {
+      List<Object> out = new ArrayList<>(collection.size());
+      for (Object item : collection) {
+        out.add(normalizeKeys(item));
+      }
+      return out;
+    }
+
+    return value;
+  }
+
+  private static String normalizeKey(String key) {
+    if (key.length() < 2) {
+      return key;
+    }
+
+    if (key.charAt(0) == '"' && key.charAt(key.length() - 1) == '"') {
+      return unescape(key.substring(1, key.length() - 1));
+    }
+    return key;
+  }
+
+  private static String unescape(String input) {
+    if (input.indexOf('\\') < 0) {
+      return input;
+    }
+
+    StringBuilder out = new StringBuilder(input.length());
+    for (int i = 0; i < input.length(); i++) {
+      char c = input.charAt(i);
+      if (c != '\\' || i + 1 >= input.length()) {
+        out.append(c);
+        continue;
+      }
+
+      char next = input.charAt(++i);
+      switch (next) {
+        case 'n' -> out.append('\n');
+        case 'r' -> out.append('\r');
+        case 't' -> out.append('\t');
+        default -> out.append(next);
+      }
+    }
+    return out.toString();
   }
 
   private static List<Field> getSerializableFields(Class<?> type) {

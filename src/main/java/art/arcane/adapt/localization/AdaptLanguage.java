@@ -55,6 +55,7 @@ public final class AdaptLanguage {
   }
 
   public static boolean reload() {
+    AdaptLanguageReference.write();
     String configuredLocale = AdaptConfig.get().getLanguage();
     String requestedLocale = configuredLocale == null || configuredLocale.isBlank()
         ? CATALOG.englishLocale()

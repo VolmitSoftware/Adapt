@@ -107,10 +107,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
@@ -143,7 +142,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
   @Getter
   private ProtectorRegistry protectorRegistry;
   @Getter
-  private Map<String, UIWindow> guiLeftovers = new HashMap<>();
+  private ConcurrentHashMap<String, UIWindow> guiLeftovers = new ConcurrentHashMap<>();
   @Getter
   private AdvancementManager manager;
   @Getter
@@ -589,6 +588,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     adaptServer = new AdaptServer();
     adaptServer.startRuntime();
     int registeredPermissions = AdaptPermissionRegistrar.registerAll(Bukkit.getPluginManager(), adaptServer.getSkillRegistry().getAllSkills());
+    registeredPermissions += AdaptPermissionRegistrar.registerXpMultiplierNodes(Bukkit.getPluginManager(), AdaptConfig.get().getPermissionXpMultipliers());
     verbose("start-sim detail: registered " + registeredPermissions + " use permission nodes");
     long serverMs = System.currentTimeMillis() - startServer;
     if (serverMs >= STARTUP_SLOW_PHASE_MS) {
@@ -744,7 +744,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
       Adapt.info("\n" + C.DARK_GRAY + " █████" + C.DARK_RED + "╗ " + C.DARK_GRAY + "██████" + C.DARK_RED + "╗  " + C.DARK_GRAY + "█████" + C.DARK_RED + "╗ " + C.DARK_GRAY + "██████" + C.DARK_RED + "╗ " + C.DARK_GRAY + "████████" + C.DARK_RED + "╗\n" +
           C.DARK_GRAY + "██" + C.DARK_RED + "╔══" + C.DARK_GRAY + "██" + C.DARK_RED + "╗" + C.DARK_GRAY + "██" + C.DARK_RED + "╔══" + C.DARK_GRAY + "██" + C.DARK_RED + "╗" + C.DARK_GRAY + "██" + C.DARK_RED + "╔══" + C.DARK_GRAY + "██" + C.DARK_RED + "╗" + C.DARK_GRAY + "██" + C.DARK_RED + "╔══" + C.DARK_GRAY + "██" + C.DARK_RED + "╗╚══" + C.DARK_GRAY + "██" + C.DARK_RED + "╔══╝" + C.DARK_RED + "         Adapt, " + C.RED + "Abilities Refined" + C.RED + "[" + getReleaseTrain(instance.getDescription().getVersion()) + " RELEASE]\n" +
           C.DARK_GRAY + "███████" + C.DARK_RED + "║" + C.DARK_GRAY + "██" + C.DARK_RED + "║  " + C.DARK_GRAY + "██" + C.DARK_RED + "║" + C.DARK_GRAY + "███████" + C.DARK_RED + "║" + C.DARK_GRAY + "██████" + C.DARK_RED + "╔╝   " + C.DARK_GRAY + "██" + C.DARK_RED + "║" + C.WHITE + "            Version: " + C.DARK_RED + instance.getDescription().getVersion() + "     \n" +
-          C.DARK_GRAY + "██" + C.DARK_RED + "╔══" + C.DARK_GRAY + "██" + C.DARK_RED + "║" + C.DARK_GRAY + "██" + C.DARK_RED + "║  " + C.DARK_GRAY + "██" + C.DARK_RED + "║" + C.DARK_GRAY + "██" + C.DARK_RED + "╔══" + C.DARK_GRAY + "██" + C.DARK_RED + "║" + C.DARK_GRAY + "██" + C.DARK_RED + "╔═══╝    " + C.DARK_GRAY + "██" + C.DARK_RED + "║" + C.WHITE + "            By: " + C.WHITE + "Volmit Software (Arcane Arts)\n" +
+          C.DARK_GRAY + "██" + C.DARK_RED + "╔══" + C.DARK_GRAY + "██" + C.DARK_RED + "║" + C.DARK_GRAY + "██" + C.DARK_RED + "║  " + C.DARK_GRAY + "██" + C.DARK_RED + "║" + C.DARK_GRAY + "██" + C.DARK_RED + "╔══" + C.DARK_GRAY + "██" + C.DARK_RED + "║" + C.DARK_GRAY + "██" + C.DARK_RED + "╔═══╝    " + C.DARK_GRAY + "██" + C.DARK_RED + "║" + C.WHITE + "            By: " + C.WHITE + "Volmit Software (Arcane Arts)" + C.WHITE + " | " + C.DARK_RED + "VolmitSoftware.com\n" +
           C.DARK_GRAY + "██" + C.DARK_RED + "║  " + C.DARK_GRAY + "██" + C.DARK_RED + "║" + C.DARK_GRAY + "██████" + C.DARK_RED + "╔╝" + C.DARK_GRAY + "██" + C.DARK_RED + "║  " + C.DARK_GRAY + "██" + C.DARK_RED + "║" + C.DARK_GRAY + "██" + C.DARK_RED + "║        " + C.DARK_GRAY + "██" + C.DARK_RED + "║" + C.WHITE + "            Server: " + C.DARK_RED + getServerVersion() + C.WHITE + " | MC Support: " + C.DARK_RED + supportedMcVersion + "\n" +
           C.DARK_RED + "╚═╝  ╚═╝╚═════╝ ╚═╝  ╚═╝╚═╝        ╚═╝   " + C.WHITE + "            Java: " + C.DARK_RED + getJavaVersion() + C.WHITE + " | Date: " + C.DARK_RED + getStartupDate() + "\n");
     } else {

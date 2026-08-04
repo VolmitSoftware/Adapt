@@ -507,25 +507,47 @@ public class HotloadSVC implements AdaptService {
         String playerKey = entry.getKey();
         UIWindow window = entry.getValue();
         if (window == null) {
+          Adapt.instance.getGuiLeftovers().remove(playerKey);
           continue;
         }
 
-        UUID uuid;
-        try {
-          uuid = UUID.fromString(playerKey);
-        } catch (Throwable ignored) {
+        UUID uuid = parsePlayerKey(playerKey);
+        if (uuid == null) {
+          Adapt.instance.getGuiLeftovers().remove(playerKey, window);
           continue;
         }
 
         Player player = Bukkit.getPlayer(uuid);
-        if (player == null || !player.isOnline()) {
-          Adapt.instance.getGuiLeftovers().remove(playerKey);
+        if (isStaleGuiEntry(player, window)) {
+          Adapt.instance.getGuiLeftovers().remove(playerKey, window);
           continue;
         }
 
         reopenFromTag(player, window.getTag());
       }
     });
+  }
+
+  private static UUID parsePlayerKey(String playerKey) {
+    try {
+      return UUID.fromString(playerKey);
+    } catch (Throwable ignored) {
+      return null;
+    }
+  }
+
+  /** UIWindow drops visibility synchronously inside the close event, a tick before its close callback runs. */
+  static boolean isStaleGuiEntry(Player player, UIWindow window) {
+    if (player == null || window == null || !player.isOnline()) {
+      return true;
+    }
+
+    if (!window.isVisible()) {
+      return true;
+    }
+
+    Player viewer = window.getViewer();
+    return viewer == null || !player.getUniqueId().equals(viewer.getUniqueId());
   }
 
   private void reopenFromTag(Player player, String tag) {

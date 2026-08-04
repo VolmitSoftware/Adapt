@@ -1,5 +1,6 @@
 package art.arcane.adapt.api;
 
+import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.mutation.MutationType;
 import art.arcane.adapt.api.skill.Skill;
@@ -66,6 +67,73 @@ class AdaptPermissionRegistrarTest {
     verify(pm, org.mockito.Mockito.times(registered)).addPermission(captor.capture());
     assertThat(captor.getAllValues()).noneMatch(p -> p.getName().equals("adapt.use.riftconduit"));
     assertThat(captor.getAllValues()).anyMatch(p -> p.getName().equals("adapt.use.rift"));
+  }
+
+  @Test
+  void xpMultiplierNodesRegisterAsDeniedByDefaultWhenEnabled() throws Exception {
+    PluginManager pm = mock(PluginManager.class);
+    when(pm.getPermission(anyString())).thenReturn(null);
+    AdaptConfig.PermissionXpMultipliers settings = settings(true, Map.of(
+        "adapt.xpmultiplier.vip", 1.5D,
+        "adapt.xpmultiplier.mvp", 2D
+    ));
+
+    int registered = AdaptPermissionRegistrar.registerXpMultiplierNodes(pm, settings);
+
+    assertThat(registered).isEqualTo(2);
+    ArgumentCaptor<Permission> captor = ArgumentCaptor.forClass(Permission.class);
+    verify(pm, org.mockito.Mockito.times(2)).addPermission(captor.capture());
+    Map<String, Permission> byName = captor.getAllValues().stream()
+        .collect(java.util.stream.Collectors.toMap(Permission::getName, p -> p));
+    assertThat(byName).containsOnlyKeys("adapt.xpmultiplier.vip", "adapt.xpmultiplier.mvp");
+    assertThat(byName.get("adapt.xpmultiplier.vip").getDefault()).isEqualTo(PermissionDefault.FALSE);
+  }
+
+  @Test
+  void xpMultiplierNodesAreNotRegisteredWhileDisabled() throws Exception {
+    PluginManager pm = mock(PluginManager.class);
+    when(pm.getPermission(anyString())).thenReturn(null);
+
+    int registered = AdaptPermissionRegistrar.registerXpMultiplierNodes(pm,
+        settings(false, Map.of("adapt.xpmultiplier.vip", 1.5D)));
+
+    assertThat(registered).isZero();
+    verify(pm, org.mockito.Mockito.never()).addPermission(org.mockito.ArgumentMatchers.any(Permission.class));
+  }
+
+  @Test
+  void xpMultiplierNodesSkipUnusableEntriesAndExistingNodes() throws Exception {
+    PluginManager pm = mock(PluginManager.class);
+    when(pm.getPermission(anyString())).thenReturn(null);
+    when(pm.getPermission("adapt.xpmultiplier.vip")).thenReturn(new Permission("adapt.xpmultiplier.vip"));
+    Map<String, Double> nodes = new java.util.LinkedHashMap<>();
+    nodes.put("adapt.xpmultiplier.vip", 1.5D);
+    nodes.put("adapt.xpmultiplier.broken", 0D);
+    nodes.put("  ", 3D);
+    nodes.put("adapt.xpmultiplier.mvp", 2D);
+
+    int registered = AdaptPermissionRegistrar.registerXpMultiplierNodes(pm, settings(true, nodes));
+
+    assertThat(registered).isEqualTo(1);
+    ArgumentCaptor<Permission> captor = ArgumentCaptor.forClass(Permission.class);
+    verify(pm).addPermission(captor.capture());
+    assertThat(captor.getValue().getName()).isEqualTo("adapt.xpmultiplier.mvp");
+  }
+
+  @Test
+  void xpMultiplierNodeRegistrationToleratesMissingSettings() {
+    PluginManager pm = mock(PluginManager.class);
+
+    assertThat(AdaptPermissionRegistrar.registerXpMultiplierNodes(pm, null)).isZero();
+  }
+
+  private static AdaptConfig.PermissionXpMultipliers settings(boolean enabled, Map<String, Double> nodes) throws Exception {
+    AdaptConfig.PermissionXpMultipliers settings = new AdaptConfig().getPermissionXpMultipliers();
+    java.lang.reflect.Field enabledField = AdaptConfig.PermissionXpMultipliers.class.getDeclaredField("enabled");
+    enabledField.setAccessible(true);
+    enabledField.set(settings, enabled);
+    settings.getMultipliers().putAll(nodes);
+    return settings;
   }
 
   private static Skill<?> mockSkill(String name, String... adaptationNames) {

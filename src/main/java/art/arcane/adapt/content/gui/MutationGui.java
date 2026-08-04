@@ -18,6 +18,7 @@ import art.arcane.adapt.localization.catalog.MutationMessages;
 import art.arcane.adapt.service.MutationRuntimeSVC;
 import art.arcane.adapt.service.MutationSVC;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.inventorygui.GuiCloseSuppression;
 import art.arcane.adapt.util.common.inventorygui.GuiEffects;
 import art.arcane.adapt.util.common.inventorygui.GuiLayout;
 import art.arcane.adapt.util.common.inventorygui.GuiTheme;
@@ -884,7 +885,12 @@ public final class MutationGui {
             trusted("pages", pageCount),
             trusted("count", MutationType.values().length)
         ))
-        .onLeftClick(event -> SkillsGui.open(player));
+        .onLeftClick(event -> navigateToSkills(player));
+  }
+
+  private static void navigateToSkills(Player player) {
+    GuiCloseSuppression.suppress(player);
+    SkillsGui.open(player);
   }
 
   private static Element boundaryElement(String id, TextKey name) {

@@ -28,6 +28,7 @@ import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GuiMessages;
 import art.arcane.adapt.localization.catalog.SnippetsMessages;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.inventorygui.GuiCloseSuppression;
 import art.arcane.adapt.util.common.inventorygui.GuiEffects;
 import art.arcane.adapt.util.common.inventorygui.GuiLayout;
 import art.arcane.adapt.util.common.inventorygui.GuiTheme;
@@ -50,17 +51,10 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 final class SkillGuiSupport {
-  private static final long CLOSE_SUPPRESS_MS = 1200L;
-  private static final int CLOSE_SUPPRESS_CLEAR_TICKS = 4;
-  private static final Map<UUID, Long> CLOSE_SUPPRESS_UNTIL = new ConcurrentHashMap<>();
-
   private SkillGuiSupport() {
   }
 
@@ -265,46 +259,47 @@ final class SkillGuiSupport {
         trusted("xp", Form.f((int) XP.getXpUntilLevelUp(adaptPlayer.getSkillLine(skill.getName()).getXp()))),
         trusted("nextLevel", adaptPlayer.getSkillLine(skill.getName()).getLevel() + 1)
     ));
-    window.onClosed((vv) -> J.runEntity(player, () -> onGuiClosed(player, !AdaptConfig.get().isEscClosesAllGuis())));
+    window.onClosed((vv) -> J.runEntity(player, () -> onGuiClosed(player, window, !AdaptConfig.get().isEscClosesAllGuis())));
     window.open();
     Adapt.instance.getGuiLeftovers().put(player.getUniqueId().toString(), window);
   }
 
   private static void openSkillPage(Skill<?> skill, Player player, int page) {
-    suppressClose(player);
+    GuiCloseSuppression.suppress(player);
     openGui(skill, player, page);
   }
 
   private static void openAdaptation(Adaptation<?> adaptation, Player player) {
-    suppressClose(player);
+    GuiCloseSuppression.suppress(player);
     adaptation.openGui(player);
   }
 
   private static void navigateBack(Player player) {
     playCloseSound(player);
-    suppressClose(player);
+    GuiCloseSuppression.suppress(player);
     SkillsGui.open(player);
   }
 
-  private static void onGuiClosed(Player player, boolean openPrevGui) {
+  private static void onGuiClosed(Player player, UIWindow window, boolean openPrevGui) {
     if (player == null) {
       return;
     }
 
-    if (consumeCloseSuppression(player)) {
+    Adapt.instance.getGuiLeftovers().remove(player.getUniqueId().toString(), window);
+    if (GuiCloseSuppression.consume(player)) {
       return;
     }
 
     playCloseSound(player);
-    if (openPrevGui) {
-      J.runEntity(player, () -> {
-        if (player.isOnline() && player.getOpenInventory().getTopInventory().getType() == InventoryType.CRAFTING) {
-          SkillsGui.open(player);
-        }
-      }, 1);
-    } else {
-      Adapt.instance.getGuiLeftovers().remove(player.getUniqueId().toString());
+    if (!openPrevGui) {
+      return;
     }
+
+    J.runEntity(player, () -> {
+      if (player.isOnline() && player.getOpenInventory().getTopInventory().getType() == InventoryType.CRAFTING) {
+        SkillsGui.open(player);
+      }
+    }, 1);
   }
 
   private static void playCloseSound(Player player) {
@@ -312,41 +307,6 @@ final class SkillGuiSupport {
     spw.play(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 1.255f);
     spw.play(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.7f, 1.455f);
     spw.play(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.3f, 1.855f);
-  }
-
-  private static void suppressClose(Player player) {
-    if (player == null) {
-      return;
-    }
-
-    UUID playerId = player.getUniqueId();
-    long suppressUntil = System.currentTimeMillis() + CLOSE_SUPPRESS_MS;
-    CLOSE_SUPPRESS_UNTIL.put(playerId, suppressUntil);
-    J.s(() -> {
-      Long current = CLOSE_SUPPRESS_UNTIL.get(playerId);
-      if (current != null && current.longValue() == suppressUntil) {
-        CLOSE_SUPPRESS_UNTIL.remove(playerId);
-      }
-    }, CLOSE_SUPPRESS_CLEAR_TICKS);
-  }
-
-  private static boolean consumeCloseSuppression(Player player) {
-    if (player == null) {
-      return false;
-    }
-
-    Long until = CLOSE_SUPPRESS_UNTIL.get(player.getUniqueId());
-    if (until == null) {
-      return false;
-    }
-
-    if (until >= System.currentTimeMillis()) {
-      CLOSE_SUPPRESS_UNTIL.remove(player.getUniqueId());
-      return true;
-    }
-
-    CLOSE_SUPPRESS_UNTIL.remove(player.getUniqueId());
-    return false;
   }
 
   private static String normalizeSortKey(String value) {

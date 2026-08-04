@@ -31,6 +31,7 @@ import org.bukkit.generator.WorldInfo;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -67,8 +68,8 @@ public class AdaptConfig {
   private boolean useRedis = false;
   private int sqlSecondsCheckverify = 30;
   private boolean useEnchantmentTableParticleForActiveEffects = true;
-  private boolean escClosesAllGuis = false;
-  private boolean guiBackButton = false;
+  private boolean escClosesAllGuis = true;
+  private boolean guiBackButton = true;
   private boolean customModels = true;
   private boolean automaticGradients = false;
   private int learnUnlearnButtonDelayTicks = 14;
@@ -76,6 +77,8 @@ public class AdaptConfig {
   private boolean actionbarNotifyXp = true;
   private boolean actionbarNotifyLevel = true;
   private boolean unlearnAllButton = false;
+  @ConfigDoc(value = "Lists every enabled skill in the skills GUI even when a player has no progress in it.", impact = "Display only; use permissions and progression requirements are still enforced.")
+  private boolean guiShowAllSkills = false;
   private Effects effects = new Effects();
   private FarmPrevention farmPrevention = new FarmPrevention();
   private AdaptationXp adaptationXp = new AdaptationXp();
@@ -85,6 +88,7 @@ public class AdaptConfig {
   private Protector protectorSupport = new Protector();
   private AbilityApi abilityApi = new AbilityApi();
   private LearningEconomy learningEconomy = new LearningEconomy();
+  private PermissionXpMultipliers permissionXpMultipliers = new PermissionXpMultipliers();
   private Map<String, List<String>> adaptationUsageConflicts = defaultAdaptationUsageConflicts();
   private Map<String, Map<String, Boolean>> protectionOverrides = Map.of(
       "adaptation-name", Map.of(
@@ -161,6 +165,14 @@ public class AdaptConfig {
     private double moneyPerKnowledge = 1D;
     @ConfigDoc(value = "Percentage of the paid Vault cost returned when an Adaptation is unlearned.", impact = "Use 0 to disable money refunds or values up to 100 for partial or full refunds.")
     private double refundPercent = 100D;
+  }
+
+  @Getter
+  public static class PermissionXpMultipliers {
+    @ConfigDoc(value = "Grants passive XP multipliers to players holding configured permission nodes.", impact = "While disabled the node table is ignored and no permissions are registered.")
+    private boolean enabled = false;
+    @ConfigDoc(value = "Permission node to XP multiplier, for example \"adapt.xpmultiplier.vip\" = 1.5.", impact = "The highest multiplier a player has permission for is multiplied into the boost total; values at or below zero are ignored.")
+    private Map<String, Double> multipliers = new LinkedHashMap<>();
   }
 
   @Getter

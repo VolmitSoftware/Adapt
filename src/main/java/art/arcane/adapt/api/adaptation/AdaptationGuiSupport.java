@@ -30,6 +30,7 @@ import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GuiMessages;
 import art.arcane.adapt.localization.catalog.SnippetsMessages;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.inventorygui.GuiCloseSuppression;
 import art.arcane.adapt.util.common.inventorygui.GuiEffects;
 import art.arcane.adapt.util.common.inventorygui.GuiLayout;
 import art.arcane.adapt.util.common.inventorygui.GuiTheme;
@@ -56,7 +57,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
@@ -64,9 +64,6 @@ import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 final class AdaptationGuiSupport {
   private static final Map<String, Long> PERMANENT_LEARN_CONFIRMATIONS = new ConcurrentHashMap<>();
   private static final long PERMANENT_LEARN_CONFIRM_WINDOW_MS = 6_000L;
-  private static final long CLOSE_SUPPRESS_MS = 1200L;
-  private static final int CLOSE_SUPPRESS_CLEAR_TICKS = 4;
-  private static final Map<UUID, Long> CLOSE_SUPPRESS_UNTIL = new ConcurrentHashMap<>();
 
   private AdaptationGuiSupport() {
   }
@@ -408,7 +405,7 @@ final class AdaptationGuiSupport {
     }
 
     w.setTitle(adaptation.getDisplayName());
-    w.onClosed((vv) -> J.runEntity(player, () -> onGuiClosed(adaptation, player, !AdaptConfig.get().isEscClosesAllGuis())));
+    w.onClosed((vv) -> J.runEntity(player, () -> onGuiClosed(adaptation, player, w, !AdaptConfig.get().isEscClosesAllGuis())));
     w.open();
     Adapt.instance.getGuiLeftovers().put(player.getUniqueId().toString(), w);
   }
@@ -502,7 +499,7 @@ final class AdaptationGuiSupport {
   }
 
   private static void openAdaptationPage(Adaptation<?> adaptation, Player player, int page) {
-    suppressClose(player);
+    GuiCloseSuppression.suppress(player);
     openGui(adaptation, player, page);
   }
 
@@ -517,7 +514,7 @@ final class AdaptationGuiSupport {
       return;
     }
 
-    suppressClose(player);
+    GuiCloseSuppression.suppress(player);
     Adapt.instance.getGuiLeftovers().remove(player.getUniqueId().toString());
     if (player.getOpenInventory() != null && player.getOpenInventory().getTopInventory().getType() != InventoryType.CRAFTING) {
       player.closeInventory();
@@ -538,29 +535,30 @@ final class AdaptationGuiSupport {
 
   private static void navigateBack(Adaptation<?> adaptation, Player player) {
     playCloseSound(player);
-    suppressClose(player);
+    GuiCloseSuppression.suppress(player);
     adaptation.getSkill().openGui(player);
   }
 
-  private static void onGuiClosed(Adaptation<?> adaptation, Player player, boolean openPrevGui) {
+  private static void onGuiClosed(Adaptation<?> adaptation, Player player, UIWindow window, boolean openPrevGui) {
     if (player == null) {
       return;
     }
 
-    if (consumeCloseSuppression(player)) {
+    Adapt.instance.getGuiLeftovers().remove(player.getUniqueId().toString(), window);
+    if (GuiCloseSuppression.consume(player)) {
       return;
     }
 
     playCloseSound(player);
-    if (openPrevGui) {
-      J.runEntity(player, () -> {
-        if (player.isOnline() && player.getOpenInventory().getTopInventory().getType() == InventoryType.CRAFTING) {
-          adaptation.getSkill().openGui(player);
-        }
-      }, 1);
-    } else {
-      Adapt.instance.getGuiLeftovers().remove(player.getUniqueId().toString());
+    if (!openPrevGui) {
+      return;
     }
+
+    J.runEntity(player, () -> {
+      if (player.isOnline() && player.getOpenInventory().getTopInventory().getType() == InventoryType.CRAFTING) {
+        adaptation.getSkill().openGui(player);
+      }
+    }, 1);
   }
 
   private static void playCloseSound(Player player) {
@@ -678,41 +676,6 @@ final class AdaptationGuiSupport {
     }
     return C.RED + AdaptLanguage.text(SnippetsMessages.ADAPT_MENU_NOT_ENOUGH_POWER) + "\n"
         + C.RED + AdaptLanguage.text(SnippetsMessages.ADAPT_MENU_HOW_TO_LEVEL_UP);
-  }
-
-  private static void suppressClose(Player player) {
-    if (player == null) {
-      return;
-    }
-
-    UUID playerId = player.getUniqueId();
-    long suppressUntil = System.currentTimeMillis() + CLOSE_SUPPRESS_MS;
-    CLOSE_SUPPRESS_UNTIL.put(playerId, suppressUntil);
-    J.s(() -> {
-      Long current = CLOSE_SUPPRESS_UNTIL.get(playerId);
-      if (current != null && current.longValue() == suppressUntil) {
-        CLOSE_SUPPRESS_UNTIL.remove(playerId);
-      }
-    }, CLOSE_SUPPRESS_CLEAR_TICKS);
-  }
-
-  private static boolean consumeCloseSuppression(Player player) {
-    if (player == null) {
-      return false;
-    }
-
-    Long until = CLOSE_SUPPRESS_UNTIL.get(player.getUniqueId());
-    if (until == null) {
-      return false;
-    }
-
-    if (until >= System.currentTimeMillis()) {
-      CLOSE_SUPPRESS_UNTIL.remove(player.getUniqueId());
-      return true;
-    }
-
-    CLOSE_SUPPRESS_UNTIL.remove(player.getUniqueId());
-    return false;
   }
 
   private static String permanentConfirmPrefix(Player player, Adaptation<?> adaptation) {

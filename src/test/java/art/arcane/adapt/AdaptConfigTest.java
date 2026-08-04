@@ -34,6 +34,23 @@ class AdaptConfigTest {
     }
 
     @Test
+    @DisplayName("skills gui only lists progressed skills until the show-all key is enabled")
+    void skillsGuiShowAllDefaultsToOff() throws IOException {
+        AdaptConfig config = new AdaptConfig();
+        String canonical = TomlCodec.toToml(config, "core-config");
+
+        assertThat(config.isGuiShowAllSkills()).isFalse();
+        assertThat(canonical).contains("guiShowAllSkills = false");
+
+        AdaptConfig enabled = TomlCodec.fromToml(
+            canonical.replace("guiShowAllSkills = false", "guiShowAllSkills = true"),
+            AdaptConfig.class
+        );
+
+        assertThat(enabled.isGuiShowAllSkills()).isTrue();
+    }
+
+    @Test
     void vaultLearningEconomyIsOptionalByDefault() throws IOException {
         AdaptConfig config = new AdaptConfig();
         String canonical = TomlCodec.toToml(config, "core-config");
@@ -46,5 +63,33 @@ class AdaptConfigTest {
             .contains("enabled = false")
             .contains("moneyPerKnowledge = 1.0")
             .contains("refundPercent = 100.0");
+    }
+
+    @Test
+    @DisplayName("permission xp multipliers ship disabled with an empty node table")
+    void permissionXpMultipliersShipDisabledAndEmpty() throws IOException {
+        AdaptConfig config = new AdaptConfig();
+        String canonical = TomlCodec.toToml(config, "core-config");
+
+        assertThat(config.getPermissionXpMultipliers().isEnabled()).isFalse();
+        assertThat(config.getPermissionXpMultipliers().getMultipliers()).isEmpty();
+        assertThat(canonical)
+            .contains("[permissionXpMultipliers]")
+            .contains("[permissionXpMultipliers.multipliers]");
+    }
+
+    @Test
+    @DisplayName("configured permission xp multiplier nodes survive a toml round trip")
+    void permissionXpMultiplierNodesSurviveTomlRoundTrip() throws IOException {
+        String raw = TomlCodec.toToml(new AdaptConfig(), "core-config")
+            .replace("[permissionXpMultipliers.multipliers]",
+                "[permissionXpMultipliers.multipliers]\n\"adapt.xpmultiplier.vip\" = 1.5\n\"adapt.xpmultiplier.mvp\" = 2.0");
+
+        AdaptConfig parsed = TomlCodec.fromToml(raw, AdaptConfig.class);
+        AdaptConfig restored = TomlCodec.fromToml(TomlCodec.toToml(parsed, "core-config"), AdaptConfig.class);
+
+        assertThat(restored.getPermissionXpMultipliers().getMultipliers())
+            .containsEntry("adapt.xpmultiplier.vip", 1.5D)
+            .containsEntry("adapt.xpmultiplier.mvp", 2.0D);
     }
 }

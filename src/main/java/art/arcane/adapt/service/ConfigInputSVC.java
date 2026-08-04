@@ -5,6 +5,7 @@ import art.arcane.adapt.content.gui.ConfigGui;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ConfigMessages;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.inventorygui.GuiCloseSuppression;
 import art.arcane.adapt.util.common.plugin.AdaptService;
 import art.arcane.adapt.util.common.scheduling.J;
 import org.bukkit.entity.Player;
@@ -55,7 +56,7 @@ public class ConfigInputSVC implements AdaptService {
     );
     sessions.put(player.getUniqueId(), pending);
 
-    ConfigGui.suppressClose(player);
+    GuiCloseSuppression.suppress(player);
     player.closeInventory();
     Adapt.messagePlayer(player, AdaptLanguage.text(ConfigMessages.ENTER_VALUE, untrusted("label", pending.label())));
     Adapt.messagePlayer(player, AdaptLanguage.text(ConfigMessages.INPUT_PATH, untrusted("path", pending.valuePath())));

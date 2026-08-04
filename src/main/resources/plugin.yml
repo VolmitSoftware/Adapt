@@ -5,6 +5,7 @@ authors:
   - NextdoorPsycho
   - Cyberpwn
   - Vatuu
+website: VolmitSoftware.com
 api-version: '${apiVersion}'
 folia-supported: true
 softdepend:

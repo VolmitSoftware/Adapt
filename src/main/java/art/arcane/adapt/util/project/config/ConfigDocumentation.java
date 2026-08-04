@@ -17,7 +17,12 @@ public final class ConfigDocumentation {
       Map.entry("maxLevel", "Maximum level a player can reach for this adaptation."),
       Map.entry("setInterval", "Tick interval used by this logic."),
       Map.entry("minXp", "Minimum xp threshold required for this skill logic."),
-      Map.entry("language", "Primary language file used for localizations."),
+      Map.entry(
+          "language",
+          "Locale used for in-game text; non-English locales ship bundled in the jar."
+              + " languages/en_US.toml is a regenerated reference only, so put edits in"
+              + " languages/overrides/<locale>.toml."
+      ),
       Map.entry("autoUpdateCheck", "Checks for plugin updates during startup."),
       Map.entry("metrics", "Sends anonymous bStats usage metrics."),
       Map.entry("xpInCreative", "Allows skill xp gain while players are in creative or spectator."),

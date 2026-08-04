@@ -49,6 +49,7 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 
 import java.util.Map;
 import java.util.Set;
@@ -195,19 +196,7 @@ public class PlayerData {
   }
 
   public void update(AdaptPlayer p) {
-    double m = 1D;
-    m += collectActivePlayerMultiplierBonus();
-    m += collectGlobalMultiplierBonus();
-
-    if (m <= 0) {
-      m = 0.01;
-    }
-
-    if (m > 1000) {
-      m = 1000;
-    }
-
-    multiplier = m;
+    multiplier = computeXpMultiplier(p == null ? null : p.getPlayer());
     pulseInspired(p);
 
     for (java.util.Map.Entry<java.lang.String, art.arcane.adapt.api.world.PlayerSkillLine> entry : skillLines.entrySet()) {
@@ -291,6 +280,60 @@ public class PlayerData {
       }
 
     }
+  }
+
+  public double computeXpMultiplier(Player player) {
+    double m = 1D;
+    m += collectActivePlayerMultiplierBonus();
+    m += collectGlobalMultiplierBonus();
+    m *= resolvePermissionMultiplier(player);
+
+    if (m <= 0) {
+      m = 0.01;
+    }
+
+    if (m > 1000) {
+      m = 1000;
+    }
+
+    return m;
+  }
+
+  private static double resolvePermissionMultiplier(Player player) {
+    if (player == null) {
+      return 1D;
+    }
+
+    AdaptConfig.PermissionXpMultipliers settings = AdaptConfig.get().getPermissionXpMultipliers();
+    if (settings == null || !settings.isEnabled()) {
+      return 1D;
+    }
+
+    Map<String, Double> nodes = settings.getMultipliers();
+    if (nodes == null || nodes.isEmpty()) {
+      return 1D;
+    }
+
+    double best = 1D;
+    boolean matched = false;
+    for (Map.Entry<String, Double> entry : nodes.entrySet()) {
+      String node = entry.getKey();
+      Double value = entry.getValue();
+      if (node == null || node.isBlank() || value == null || value <= 0D) {
+        continue;
+      }
+
+      if (!player.hasPermission(node)) {
+        continue;
+      }
+
+      if (!matched || value > best) {
+        best = value;
+        matched = true;
+      }
+    }
+
+    return best;
   }
 
   private double collectActivePlayerMultiplierBonus() {

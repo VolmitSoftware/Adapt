@@ -10,6 +10,7 @@ import art.arcane.adapt.localization.catalog.ConfigMessages;
 import art.arcane.adapt.localization.catalog.GuiMessages;
 import art.arcane.adapt.service.ConfigInputSVC;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.inventorygui.GuiCloseSuppression;
 import art.arcane.adapt.util.common.inventorygui.GuiEffects;
 import art.arcane.adapt.util.common.inventorygui.GuiLayout;
 import art.arcane.adapt.util.common.inventorygui.GuiTheme;
@@ -25,7 +26,6 @@ import art.arcane.volmlib.util.inventorygui.UIElement;
 import art.arcane.volmlib.util.inventorygui.UIWindow;
 import art.arcane.volmlib.util.inventorygui.Window;
 import art.arcane.volmlib.util.io.IO;
-import art.arcane.volmlib.util.math.M;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
@@ -38,8 +38,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 import static art.arcane.volmlib.util.localization.MessageArgument.untrusted;
@@ -57,9 +55,6 @@ public final class ConfigGui {
   private static final int MAX_VALUE_PREVIEW = 64;
   private static final int PAGE_JUMP = 5;
   private static final int CONFIG_CONTENT_ROWS = GuiLayout.MAX_ROWS - 1;
-  private static final long CLOSE_SUPPRESS_MS = 1200L;
-  private static final int CLOSE_SUPPRESS_CLEAR_TICKS = 4;
-  private static final Map<UUID, Long> CLOSE_SUPPRESS_UNTIL = new ConcurrentHashMap<>();
 
   private ConfigGui() {
   }
@@ -554,7 +549,7 @@ public final class ConfigGui {
       titlePath = "..." + titlePath.substring(titlePath.length() - 21);
     }
     w.setTitle(C.GRAY + AdaptLanguage.text(ConfigMessages.CONFIGURE_PATH, untrusted("path", titlePath)));
-    w.onClosed((window) -> onGuiClosed(player, safePath));
+    w.onClosed((closed) -> onGuiClosed(player, w, safePath));
     w.open();
     Adapt.instance.getGuiLeftovers().put(player.getUniqueId().toString(), w);
   }
@@ -791,7 +786,7 @@ public final class ConfigGui {
     addIndexOverview(w, navRow, safePath, entries.size(), currentPage, plan.pageCount(), title);
 
     w.setTitle(C.GRAY + title);
-    w.onClosed((window) -> onGuiClosed(player, safePath));
+    w.onClosed((closed) -> onGuiClosed(player, w, safePath));
     w.open();
     Adapt.instance.getGuiLeftovers().put(player.getUniqueId().toString(), w);
   }
@@ -1505,52 +1500,17 @@ public final class ConfigGui {
     if (player == null) {
       return;
     }
-    suppressClose(player);
+    GuiCloseSuppression.suppress(player);
     open(player, path, page);
   }
 
-  public static void suppressClose(Player player) {
+  private static void onGuiClosed(Player player, UIWindow window, String currentPath) {
     if (player == null) {
       return;
     }
 
-    UUID playerId = player.getUniqueId();
-    long suppressUntil = M.ms() + CLOSE_SUPPRESS_MS;
-    CLOSE_SUPPRESS_UNTIL.put(playerId, suppressUntil);
-    J.s(() -> {
-      Long current = CLOSE_SUPPRESS_UNTIL.get(playerId);
-      if (current != null && current == suppressUntil) {
-        CLOSE_SUPPRESS_UNTIL.remove(playerId);
-      }
-    }, CLOSE_SUPPRESS_CLEAR_TICKS);
-  }
-
-  private static boolean consumeCloseSuppression(Player player) {
-    if (player == null) {
-      return false;
-    }
-
-    Long until = CLOSE_SUPPRESS_UNTIL.get(player.getUniqueId());
-    if (until == null) {
-      return false;
-    }
-
-    if (until >= M.ms()) {
-      CLOSE_SUPPRESS_UNTIL.remove(player.getUniqueId());
-      return true;
-    }
-
-    CLOSE_SUPPRESS_UNTIL.remove(player.getUniqueId());
-    return false;
-  }
-
-  private static void onGuiClosed(Player player, String currentPath) {
-    if (player == null) {
-      return;
-    }
-
-    Adapt.instance.getGuiLeftovers().remove(player.getUniqueId().toString());
-    if (consumeCloseSuppression(player)) {
+    Adapt.instance.getGuiLeftovers().remove(player.getUniqueId().toString(), window);
+    if (GuiCloseSuppression.consume(player)) {
       return;
     }
 

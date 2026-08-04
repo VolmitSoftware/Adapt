@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.api;
 
+import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.mutation.MutationType;
 import art.arcane.adapt.api.skill.Skill;
@@ -64,6 +65,30 @@ public final class AdaptPermissionRegistrar {
       registered += addIfAbsent(pm, new Permission(USE_WILDCARD,
           "Grants or denies every Adapt skill, adaptation, and mutation use permission",
           PermissionDefault.TRUE, rootChildren));
+    }
+    return registered;
+  }
+
+  public static int registerXpMultiplierNodes(PluginManager pm, AdaptConfig.PermissionXpMultipliers settings) {
+    if (settings == null || !settings.isEnabled()) {
+      return 0;
+    }
+
+    Map<String, Double> nodes = settings.getMultipliers();
+    if (nodes == null || nodes.isEmpty()) {
+      return 0;
+    }
+
+    int registered = 0;
+    for (Map.Entry<String, Double> entry : nodes.entrySet()) {
+      String node = entry.getKey();
+      Double value = entry.getValue();
+      if (node == null || node.isBlank() || value == null || value <= 0D) {
+        continue;
+      }
+
+      registered += addIfAbsent(pm, new Permission(node,
+          "Grants the configured Adapt XP multiplier of " + value, PermissionDefault.FALSE));
     }
     return registered;
   }

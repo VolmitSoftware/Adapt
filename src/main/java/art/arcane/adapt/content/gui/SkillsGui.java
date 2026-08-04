@@ -19,10 +19,12 @@
 package art.arcane.adapt.content.gui;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.world.AdaptDebugMode;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.PlayerAdaptation;
+import art.arcane.adapt.api.world.PlayerData;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.api.xp.XP;
 import art.arcane.adapt.localization.AdaptLanguage;
@@ -80,6 +82,7 @@ public class SkillsGui {
     }
 
     boolean debugMode = AdaptDebugMode.isActive(player);
+    boolean showAll = debugMode || AdaptConfig.get().isGuiShowAllSkills();
     List<SkillPageEntry> entries = new ArrayList<>();
     for (Skill<?> skill : adaptPlayer.getServer().getSkillRegistry().getSkills()) {
       if (skill == null) {
@@ -88,18 +91,14 @@ public class SkillsGui {
       if (!skill.isEnabled()) {
         continue;
       }
-      PlayerSkillLine line = debugMode
-          ? adaptPlayer.getData().getSkillLine(skill.getName())
-          : adaptPlayer.getData().getSkillLineNullable(skill.getName());
+      PlayerSkillLine line = resolveSkillLine(adaptPlayer.getData(), skill.getName(), debugMode, showAll);
       if (line == null) {
-        continue;
-      }
-      if (!skill.hasUsePermission(adaptPlayer.getPlayer(), skill) || (!debugMode && line.getLevel() < 0)) {
         continue;
       }
 
       int adaptationLevel = sumAdaptationLevels(line);
-      if (!debugMode && !hasVisibleProgress(line, adaptationLevel)) {
+      boolean permitted = skill.hasUsePermission(adaptPlayer.getPlayer(), skill);
+      if (!isSkillEntryVisible(permitted, debugMode, showAll, line, adaptationLevel)) {
         continue;
       }
 
@@ -174,9 +173,40 @@ public class SkillsGui {
         trusted("used", adaptPlayer.getData().getUsedPower()),
         trusted("maximum", adaptPlayer.getData().getMaxPower())
     ));
+    w.onClosed((e) -> Adapt.instance.getGuiLeftovers().remove(player.getUniqueId().toString(), w));
     w.open();
-    w.onClosed((e) -> Adapt.instance.getGuiLeftovers().remove(player.getUniqueId().toString()));
     Adapt.instance.getGuiLeftovers().put(player.getUniqueId().toString(), w);
+  }
+
+  static PlayerSkillLine resolveSkillLine(PlayerData data, String skillName, boolean debugMode, boolean showAll) {
+    if (debugMode) {
+      return data.getSkillLine(skillName);
+    }
+
+    PlayerSkillLine stored = data.getSkillLineNullable(skillName);
+    if (stored != null || !showAll) {
+      return stored;
+    }
+
+    PlayerSkillLine preview = new PlayerSkillLine();
+    preview.setLine(skillName);
+    return preview;
+  }
+
+  static boolean isSkillEntryVisible(
+      boolean hasUsePermission,
+      boolean debugMode,
+      boolean showAll,
+      PlayerSkillLine line,
+      int adaptationLevel
+  ) {
+    if (line == null || !hasUsePermission) {
+      return false;
+    }
+    if (!debugMode && line.getLevel() < 0) {
+      return false;
+    }
+    return showAll || hasVisibleProgress(line, adaptationLevel);
   }
 
   private static int sumAdaptationLevels(PlayerSkillLine line) {

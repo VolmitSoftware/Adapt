@@ -61,7 +61,7 @@ public final class GuiConfirm {
         }));
 
     w.setTitle(C.GRAY + AdaptLanguage.text(GuiMessages.CONFIRM));
-    w.onClosed((window) -> Adapt.instance.getGuiLeftovers().remove(player.getUniqueId().toString()));
+    w.onClosed((window) -> Adapt.instance.getGuiLeftovers().remove(player.getUniqueId().toString(), w));
     w.open();
     Adapt.instance.getGuiLeftovers().put(player.getUniqueId().toString(), w);
   }
