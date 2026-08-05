@@ -68,7 +68,9 @@ public class AdaptConfig {
   private boolean useRedis = false;
   private int sqlSecondsCheckverify = 30;
   private boolean useEnchantmentTableParticleForActiveEffects = true;
-  private boolean escClosesAllGuis = true;
+  @ConfigDoc(value = "Controls whether pressing Escape closes the entire Adapt GUI stack.", impact = "When disabled, Escape returns to the parent Adapt menu until the player reaches the root Skills menu.")
+  private boolean escClosesAllGuis = false;
+  @ConfigDoc(value = "Shows Back buttons in Adapt menus that have a parent menu.", impact = "When disabled, the buttons are hidden; Escape navigation still follows escClosesAllGuis.")
   private boolean guiBackButton = true;
   private boolean customModels = true;
   private boolean automaticGradients = false;

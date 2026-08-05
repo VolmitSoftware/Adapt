@@ -240,7 +240,7 @@ Helping out in any way you can is appreciated, and you will be listed here for y
 | AxeChop | Right-click logs with an axe to mine vertical columns of connected wood | Working |
 | AxeCraftLogSwap | Crafting recipes to convert log types using saplings as catalysts | Working |
 | AxeDropToInventory | Redirects axe block drops into player inventory | Working |
-| AxeGroundSmash | AoE ground slam when sneaking and hitting mobs with an axe | Working |
+| AxeGroundSmash | Airborne crouch arms an AoE ground slam that fires on landing | Working |
 | AxeLeafVeinminer | Vein-mines connected leaves when sneaking with an axe | Working |
 | AxeWoodVeinminer | Vein-mines connected logs when sneaking with an axe | Working |
 

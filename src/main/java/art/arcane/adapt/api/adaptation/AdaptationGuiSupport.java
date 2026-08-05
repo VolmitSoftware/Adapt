@@ -499,7 +499,6 @@ final class AdaptationGuiSupport {
   }
 
   private static void openAdaptationPage(Adaptation<?> adaptation, Player player, int page) {
-    GuiCloseSuppression.suppress(player);
     openGui(adaptation, player, page);
   }
 
@@ -535,7 +534,6 @@ final class AdaptationGuiSupport {
 
   private static void navigateBack(Adaptation<?> adaptation, Player player) {
     playCloseSound(player);
-    GuiCloseSuppression.suppress(player);
     adaptation.getSkill().openGui(player);
   }
 

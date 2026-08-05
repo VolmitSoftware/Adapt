@@ -1,6 +1,7 @@
 package art.arcane.adapt.content.gui;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.mutation.MutationManager;
 import art.arcane.adapt.api.mutation.MutationDomain;
 import art.arcane.adapt.api.mutation.MutationQualification;
@@ -31,6 +32,7 @@ import art.arcane.volmlib.util.inventorygui.UIWindow;
 import art.arcane.volmlib.util.localization.TextKey;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -107,7 +109,7 @@ public final class MutationGui {
         MutationMessages.GUI_TITLE,
         trusted("level", view.playerLevel())
     ));
-    openWindow(player, window);
+    openWindow(player, window, () -> SkillsGui.open(player));
   }
 
   public static void reopenFromTag(Player player, String tag) {
@@ -292,9 +294,11 @@ public final class MutationGui {
     window.setElement(-2, 2, selectSlotElement(player, type, card, view.slotOne(), view.slotTwo(), page));
     window.setElement(2, 2, selectSlotElement(player, type, card, view.slotTwo(), view.slotOne(), page));
     applyEquipmentControl(window, player, type, card, view, adaptPlayer, page);
-    window.setElement(0, 4, mutationBackElement(player, page));
+    if (shouldShowBackButton(AdaptConfig.get().isGuiBackButton(), true)) {
+      window.setElement(0, 4, mutationBackElement(player, page));
+    }
     window.setTitle(C.DARK_PURPLE + type.displayName());
-    openWindow(player, window);
+    openWindow(player, window, () -> open(player, page));
   }
 
   private static Element selectSlotElement(
@@ -441,7 +445,7 @@ public final class MutationGui {
         .setName(C.RED + AdaptLanguage.text(GuiMessages.CANCEL))
         .onLeftClick(event -> openDetails(player, type, page)));
     window.setTitle(C.DARK_PURPLE + AdaptLanguage.text(MutationMessages.GUI_CONFIRM_CHANGE_TITLE));
-    openWindow(player, window);
+    openWindow(player, window, () -> openDetails(player, type, page));
   }
 
   private static void confirmClear(Player player, int slot, int page) {
@@ -483,7 +487,7 @@ public final class MutationGui {
         .setName(C.RED + AdaptLanguage.text(GuiMessages.CANCEL))
         .onLeftClick(event -> open(player, page)));
     window.setTitle(C.DARK_PURPLE + AdaptLanguage.text(MutationMessages.GUI_CONFIRM_CHANGE_TITLE));
-    openWindow(player, window);
+    openWindow(player, window, () -> open(player, page));
   }
 
   private static void select(
@@ -651,7 +655,7 @@ public final class MutationGui {
         .setName(C.RED + AdaptLanguage.text(GuiMessages.CANCEL))
         .onLeftClick(event -> openDetails(player, type, page)));
     window.setTitle(C.DARK_PURPLE + AdaptLanguage.text(MutationMessages.GUI_CONFIRM_EQUIPMENT_TITLE));
-    openWindow(player, window);
+    openWindow(player, window, () -> openDetails(player, type, page));
   }
 
   private static void runEquipmentAction(
@@ -846,7 +850,9 @@ public final class MutationGui {
   }
 
   private static void applyNavigation(UIWindow window, Player player, int page, int pageCount) {
-    window.setElement(0, 5, backElement(player, page, pageCount));
+    window.setElement(0, 5, shouldShowBackButton(AdaptConfig.get().isGuiBackButton(), true)
+        ? backElement(player, page, pageCount)
+        : pageInfoElement(page, pageCount));
     if (pageCount > 1 && page > 0) {
       window.setElement(-4, 5, new UIElement("mutation-first")
           .setMaterial(new MaterialBlock(Material.LECTERN))
@@ -888,8 +894,19 @@ public final class MutationGui {
         .onLeftClick(event -> navigateToSkills(player));
   }
 
+  private static Element pageInfoElement(int page, int pageCount) {
+    return new UIElement("mutation-page-info")
+        .setMaterial(new MaterialBlock(Material.PAPER))
+        .setName(C.AQUA + AdaptLanguage.text(GuiMessages.EXPERIMENTAL_MUTATIONS))
+        .addLore(C.DARK_GRAY + AdaptLanguage.text(
+            MutationMessages.GUI_PAGE_COUNT,
+            trusted("page", page + 1),
+            trusted("pages", pageCount),
+            trusted("count", MutationType.values().length)
+        ));
+  }
+
   private static void navigateToSkills(Player player) {
-    GuiCloseSuppression.suppress(player);
     SkillsGui.open(player);
   }
 
@@ -997,11 +1014,35 @@ public final class MutationGui {
     return false;
   }
 
-  private static void openWindow(Player player, UIWindow window) {
+  static boolean shouldReturnToParent(boolean escClosesAllGuis, boolean hasParent) {
+    return !escClosesAllGuis && hasParent;
+  }
+
+  static boolean shouldShowBackButton(boolean configured, boolean hasParent) {
+    return configured && hasParent;
+  }
+
+  private static void openWindow(Player player, UIWindow window, Runnable parent) {
     String key = player.getUniqueId().toString();
-    window.onClosed(event -> Adapt.instance.getGuiLeftovers().remove(key, window));
+    window.onClosed(event -> onWindowClosed(player, key, window, parent));
     window.open();
     Adapt.instance.getGuiLeftovers().put(key, window);
+  }
+
+  private static void onWindowClosed(Player player, String key, UIWindow window, Runnable parent) {
+    Adapt.instance.getGuiLeftovers().remove(key, window);
+    if (GuiCloseSuppression.consume(player)
+        || !shouldReturnToParent(AdaptConfig.get().isEscClosesAllGuis(), parent != null)) {
+      return;
+    }
+
+    J.runEntity(player, () -> {
+      if (player.isOnline()
+          && !player.isDead()
+          && player.getOpenInventory().getTopInventory().getType() == InventoryType.CRAFTING) {
+        parent.run();
+      }
+    }, 1);
   }
 
   private static int parsePage(String[] parts, int index) {

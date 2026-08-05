@@ -1,7 +1,14 @@
 package art.arcane.adapt.content.adaptation.axe;
 
 import org.bukkit.Material;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.junit.jupiter.api.Test;
+
+import java.lang.reflect.Method;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -47,6 +54,29 @@ class AxeAdaptationLogicTest {
     assertThat(AxeThrowingAxe.isSuccessfulDamageEvent(false, false, 4D)).isFalse();
     assertThat(AxeThrowingAxe.isSuccessfulDamageEvent(true, true, 4D)).isFalse();
     assertThat(AxeThrowingAxe.isSuccessfulDamageEvent(true, false, 0D)).isFalse();
+  }
+
+  @Test
+  void throwingAxeAcceptsOnlyMainHandAirClicks() {
+    assertThat(AxeThrowingAxe.isThrowInteraction(Action.LEFT_CLICK_AIR, EquipmentSlot.HAND))
+        .isTrue();
+    assertThat(AxeThrowingAxe.isThrowInteraction(Action.LEFT_CLICK_AIR, null)).isTrue();
+    assertThat(AxeThrowingAxe.isThrowInteraction(Action.LEFT_CLICK_AIR, EquipmentSlot.OFF_HAND))
+        .isFalse();
+    assertThat(AxeThrowingAxe.isThrowInteraction(Action.LEFT_CLICK_BLOCK, EquipmentSlot.HAND))
+        .isFalse();
+    assertThat(AxeThrowingAxe.isThrowInteraction(Action.RIGHT_CLICK_AIR, EquipmentSlot.HAND))
+        .isFalse();
+  }
+
+  @Test
+  void throwingAxeRecordsOnlyCompletedBlockBreaks() throws ReflectiveOperationException {
+    Method handler = AxeThrowingAxe.class.getDeclaredMethod("on", BlockBreakEvent.class);
+    EventHandler policy = handler.getAnnotation(EventHandler.class);
+
+    assertThat(policy).isNotNull();
+    assertThat(policy.priority()).isEqualTo(EventPriority.MONITOR);
+    assertThat(policy.ignoreCancelled()).isTrue();
   }
 
   @Test

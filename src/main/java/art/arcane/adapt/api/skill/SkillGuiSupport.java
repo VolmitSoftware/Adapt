@@ -265,18 +265,15 @@ final class SkillGuiSupport {
   }
 
   private static void openSkillPage(Skill<?> skill, Player player, int page) {
-    GuiCloseSuppression.suppress(player);
     openGui(skill, player, page);
   }
 
   private static void openAdaptation(Adaptation<?> adaptation, Player player) {
-    GuiCloseSuppression.suppress(player);
     adaptation.openGui(player);
   }
 
   private static void navigateBack(Player player) {
     playCloseSound(player);
-    GuiCloseSuppression.suppress(player);
     SkillsGui.open(player);
   }
 

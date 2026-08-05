@@ -532,7 +532,7 @@ public final class ConfigGui {
 
     int navRow = plan.rows() - 1;
     applyPageControls(w, player, safePath, navRow, currentPage, plan.pageCount(), entries.size(), start, end);
-    if (!safePath.isBlank()) {
+    if (AdaptConfig.get().isGuiBackButton() && !safePath.isBlank()) {
       String parent = parentPath(safePath);
       w.setElement(0, navRow, new UIElement("cfg-back")
           .setMaterial(new MaterialBlock(Material.ARROW))
@@ -777,7 +777,7 @@ public final class ConfigGui {
 
     int navRow = plan.rows() - 1;
     applyPageControls(w, player, safePath, navRow, currentPage, plan.pageCount(), entries.size(), start, end);
-    if (!safePath.isBlank()) {
+    if (AdaptConfig.get().isGuiBackButton() && !safePath.isBlank()) {
       w.setElement(0, navRow, new UIElement("cfg-back")
           .setMaterial(new MaterialBlock(Material.ARROW))
           .setName(C.GRAY + AdaptLanguage.text(GuiMessages.BACK))
@@ -1500,7 +1500,6 @@ public final class ConfigGui {
     if (player == null) {
       return;
     }
-    GuiCloseSuppression.suppress(player);
     open(player, path, page);
   }
 

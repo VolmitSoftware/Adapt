@@ -10,6 +10,29 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class AdaptConfigTest {
     @Test
+    @DisplayName("GUI navigation returns on Escape and shows Back buttons by default")
+    void guiNavigationDefaultsToEscapeBackWithVisibleButtons() throws IOException {
+        AdaptConfig config = new AdaptConfig();
+        String canonical = TomlCodec.toToml(config, "core-config");
+
+        assertThat(config.isEscClosesAllGuis()).isFalse();
+        assertThat(config.isGuiBackButton()).isTrue();
+        assertThat(canonical)
+            .contains("escClosesAllGuis = false")
+            .contains("guiBackButton = true");
+
+        AdaptConfig configured = TomlCodec.fromToml(
+            canonical
+                .replace("escClosesAllGuis = false", "escClosesAllGuis = true")
+                .replace("guiBackButton = true", "guiBackButton = false"),
+            AdaptConfig.class
+        );
+
+        assertThat(configured.isEscClosesAllGuis()).isTrue();
+        assertThat(configured.isGuiBackButton()).isFalse();
+    }
+
+    @Test
     @DisplayName("inspired popup config is disabled by default and replaces the old always-on key")
     void inspiredPopupConfigMigratesToQuietDefaults() throws IOException {
         String canonical = TomlCodec.toToml(new AdaptConfig(), "core-config");

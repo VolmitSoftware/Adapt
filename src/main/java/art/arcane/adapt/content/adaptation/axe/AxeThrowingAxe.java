@@ -55,6 +55,7 @@ import org.bukkit.entity.Tameable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityRemoveEvent;
@@ -88,6 +89,7 @@ public class AxeThrowingAxe extends SimpleAdaptation<AxeThrowingAxe.Config> {
   private static final int MAX_IN_FLIGHT = 512;
   private static final String RECOVERY_KEY_PREFIX = "throwing_axe_recovery_";
   private static final long TICK_NANOS = 50_000_000L;
+  private static final long BLOCK_BREAK_SWING_GUARD_TICKS = 1L;
   private static final long SHUTDOWN_RECOVERY_MILLIS = 2_000L;
   private final Cooldowns cooldowns = cooldowns();
   private final Map<UUID, ThrownAxe> inFlight = new ConcurrentHashMap<>();
@@ -97,6 +99,8 @@ public class AxeThrowingAxe extends SimpleAdaptation<AxeThrowingAxe.Config> {
   private final ThreadLocal<Deque<ThrowDamageAttempt>> damageAttempts = new ThreadLocal<>();
   private final AtomicBoolean closing = new AtomicBoolean();
   private final Object lifecycleLock = new Object();
+  private final AxeBlockBreakSwingGuard blockBreakSwingGuard =
+      new AxeBlockBreakSwingGuard(BLOCK_BREAK_SWING_GUARD_TICKS);
   private final String recoveryNamespace;
 
   public AxeThrowingAxe() {
@@ -135,6 +139,7 @@ public class AxeThrowingAxe extends SimpleAdaptation<AxeThrowingAxe.Config> {
     List<Map.Entry<UUID, ThrownAxe>> activeThrows;
     synchronized (lifecycleLock) {
       closing.set(true);
+      blockBreakSwingGuard.clear();
       replacements = new ArrayList<>(pendingReplacements);
       pendingReplacements.clear();
       drops = new ArrayList<>(pendingDrops.values());
@@ -180,15 +185,30 @@ public class AxeThrowingAxe extends SimpleAdaptation<AxeThrowingAxe.Config> {
 
   @EventHandler(priority = EventPriority.HIGHEST)
   public void on(PlayerInteractEvent e) {
-    if (e.getAction() != Action.LEFT_CLICK_AIR) {
-      return;
-    }
-    if (e.getHand() != null && e.getHand() != EquipmentSlot.HAND) {
+    if (!isThrowInteraction(e.getAction(), e.getHand())) {
+      if (e.getAction() == Action.LEFT_CLICK_BLOCK
+          && (e.getHand() == null || e.getHand() == EquipmentSlot.HAND)) {
+        blockBreakSwingGuard.clear(e.getPlayer().getUniqueId());
+      }
       return;
     }
 
     Player p = e.getPlayer();
+    if (blockBreakSwingGuard.consume(p.getUniqueId(), p.getTicksLived())) {
+      return;
+    }
+
     withAdaptedPlayer(p, () -> throwAxe(p));
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(BlockBreakEvent e) {
+    Player p = e.getPlayer();
+    if (!isAxe(p.getInventory().getItemInMainHand()) || getActiveLevel(p) <= 0) {
+      return;
+    }
+
+    blockBreakSwingGuard.mark(p.getUniqueId(), p.getTicksLived());
   }
 
   private void throwAxe(Player p) {
@@ -654,6 +674,7 @@ public class AxeThrowingAxe extends SimpleAdaptation<AxeThrowingAxe.Config> {
   public void on(PlayerQuitEvent event) {
     Player player = event.getPlayer();
     UUID playerId = player.getUniqueId();
+    blockBreakSwingGuard.clear(playerId);
     for (AxeReplacementTicket replacement : new ArrayList<>(pendingReplacements)) {
       if (replacement.ownerId().equals(playerId)) {
         replacement.cancel();
@@ -852,6 +873,11 @@ public class AxeThrowingAxe extends SimpleAdaptation<AxeThrowingAxe.Config> {
       case WOODEN_AXE, GOLDEN_AXE -> 7D;
       default -> 7D;
     };
+  }
+
+  static boolean isThrowInteraction(Action action, EquipmentSlot hand) {
+    return action == Action.LEFT_CLICK_AIR
+        && (hand == null || hand == EquipmentSlot.HAND);
   }
 
   static boolean reachesBreakThreshold(int currentDamage, int addedDamage, int maxDurability) {
